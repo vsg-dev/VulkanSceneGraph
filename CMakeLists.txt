@@ -21,7 +21,7 @@ find_package(osgGA)
 find_package(osgViewer)
 
 find_package(GLM)
-# find_package(FindGLWF.cmake)
+find_package(GLFW)
 find_package(Vulkan)
 
 # src directory contains all the example applications etc.

@@ -2,10 +2,8 @@
 #
 # This module is taken from CMake original find-modules and adapted for the
 # needs of this project:
-# * load Vulkan headers from third_party/vulkan
-# * load Vulkan-Hpp headers from third_party/vulkan-hpp
 # Below notice is from original file:
-
+#
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
@@ -86,7 +84,7 @@ find_package_handle_standard_args(Vulkan
   DEFAULT_MSG
   Vulkan_LIBRARY Vulkan_INCLUDE_DIR Vulkan_Hpp_INCLUDE_DIR)
 
-mark_as_advanced(Vulkan_INCLUDE_DIR Vulkan_Hpp_INCLUDE_DIR Vulkan_LIBRARY)
+# mark_as_advanced(Vulkan_INCLUDE_DIR Vulkan_Hpp_INCLUDE_DIR Vulkan_LIBRARY)
 
 if(Vulkan_FOUND AND NOT TARGET Vulkan::Vulkan)
   add_library(Vulkan::Vulkan UNKNOWN IMPORTED)

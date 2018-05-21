@@ -45,4 +45,4 @@ find_package_handle_standard_args(GLM DEFAULT_MSG
     GLM_INCLUDE_DIRS
 )
 
-mark_as_advanced( GLM_FOUND )
+# mark_as_advanced( GLM_FOUND )
