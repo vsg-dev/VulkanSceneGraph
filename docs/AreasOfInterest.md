@@ -8,8 +8,8 @@
 * Social media
 * Testing frameworks/approach/projects - SceneGraphPlayground
 * Build tools
-* > CMake
-* > xmake
+> * CMake
+> * xmake
 
 ## Vulkan
 
@@ -20,9 +20,9 @@
 > * Textures
 > * Arrays
 > * Primitives
-> Shaders
-* * tools for offline and runtime .glsl -> SPIR-V
-* * runtime shader compilation options
+* Shaders
+> * tools for offline and runtime .glsl -> SPIR-V
+> * runtime shader compilation options
 * Presentation of graphics
 * Threading
 * Syncronziation
@@ -39,41 +39,45 @@
 
 ## Core class
 * Memory
-* * ref_ptr
-* * Object
-* * Backbone data
-* * Extra/user data
+> * ref_ptr
+> * Object
+> * Backbone data - local data used during standard traversals/operations
+> * Extra - data used rarely : parents, observers, user data
 * Introspection
-* * Wrappers
-* * Serialization
-* * I/O
+> * Wrappers
+> * Serialization
+> * I/O
 * Threading
-* * C++ now has threading but no Affinity
+> * C++ now has threading but no Affinity
+> * Thread pools
 
 ## Scene Graph
 * Scope out the minimal set of Node classs required
-* * NullNode to avoiding the need for if (!node) doSomething
-* * Fixed size vs variable size Containers in Groups etc.
-* * Level of Detail
-* * CullNode (shift bounding volumes from all nodes to specialized node?)
-* * MaskNode (shift node mask checks from all nodes to specialized node?)
-* * Cameras
+> * NullNode to avoiding the need for if (!node) doSomething
+> * Fixed size vs variable size Containers in Groups etc.
+> * Level of Detail
+> * CullNode (shift bounding volumes from all nodes to specialized node?)
+> * MaskNode (shift node mask checks from all nodes to specialized node?)
+> *Cameras
 * Traversal
-* * Vistor Pattern
-* * Possibilities for inlining vs virtual functions
-* * RenderTraversal
-* * ComputeTraversal
-* * UpdateTraversal
-* * EvenTraversal
-* * Multi-pass and Multi-stage rendering control
+> * Vistor Pattern
+> * Possibilities for inlining vs virtual functions
+> * RenderTraversal
+> * ComputeTraversal
+> * UpdateTraversal
+> * EvenTraversal
+> * Multi-pass and Multi-stage rendering control
 * State
-* * Buffers
-* * Unforms
-* * Textures
-* * Arrays
-* * Primitives
-* * Shaders
-* * Shader composition
+> * Buffers
+> * Unforms
+> * Textures
+> * Arrays
+> * Primitives
+> * Shaders
+> * Shader composition
+* Threading
+> * Traversals
+> * Database paging
 
 ## Viewer
 * Window creation
