@@ -8,19 +8,19 @@
 * Social media
 * Testing frameworks/approach/projects - SceneGraphPlayground
 * Build tools
-* * CMake
-* * xmake
+* > CMake
+* > xmake
 
 ## Vulkan
 
 * Setup and Configuration
 * State and geometry data
-* * Creation of buffers
-* * Unfiorms
-* * Textures
-* * Arrays
-* * Primitives
-* Shaders
+> * Creation of buffers
+> * Unfiorms
+> * Textures
+> * Arrays
+> * Primitives
+> Shaders
 * * tools for offline and runtime .glsl -> SPIR-V
 * * runtime shader compilation options
 * Presentation of graphics
