@@ -7,9 +7,9 @@
 * Community mailing list/forum
 * Social media
 * Testing frameworks/approach/projects - [SceneGraphTestBed](https://github.com/openscenegraph/SceneGraphTestBed)
-- Build tools
-  - CMake
-  - xmake
+* Build tools
+  * [CMake](https://cmake.org/)
+  * [xmake](https://xmake.io/#/)
 
 ## Vulkan
 
@@ -39,14 +39,14 @@
 
 ## Core class
 * Memory
-> * ref_ptr
-> * Object
-> * Backbone data - local data used during standard traversals/operations
-> * Extra - data used rarely : parents, observers, user data
+  * ref_ptr
+  * Object
+  * Backbone data - local data used during standard traversals/operations
+  * Extra - data used rarely : parents, observers, user data
 * Introspection
-> * Wrappers
-> * Serialization
-> * I/O
+  * Wrappers
+  * Serialization
+  * I/O
 * Threading
   * C++ now has threading but no Affinity
   * Thread pools
@@ -55,29 +55,29 @@
 * Scope out the minimal set of Node classs required
   * NullNode to avoiding the need for if (!node) doSomething
   * Fixed size vs variable size Containers in Groups etc.
-> * Level of Detail
-> * CullNode (shift bounding volumes from all nodes to specialized node?)
-> * MaskNode (shift node mask checks from all nodes to specialized node?)
-> *Cameras
+  * Level of Detail
+  * CullNode (shift bounding volumes from all nodes to specialized node?)
+  * MaskNode (shift node mask checks from all nodes to specialized node?)
+  *Cameras
 * Traversal
-> * Vistor Pattern
-> * Possibilities for inlining vs virtual functions
-> * RenderTraversal
-> * ComputeTraversal
-> * UpdateTraversal
-> * EvenTraversal
-> * Multi-pass and Multi-stage rendering control
+  * Vistor Pattern
+  * Possibilities for inlining vs virtual functions
+  * RenderTraversal
+  * ComputeTraversal
+  * UpdateTraversal
+  * EvenTraversal
+  * Multi-pass and Multi-stage rendering control
 * State
-> * Buffers
-> * Unforms
-> * Textures
-> * Arrays
-> * Primitives
-> * Shaders
-> * Shader composition
+  * Buffers
+  * Unforms
+  * Textures
+  * Arrays
+  * Primitives
+  * Shaders
+  * Shader composition
 * Threading
-> * Traversals
-> * Database paging
+  * Traversals
+  * Database paging
 
 ## Viewer
 * Window creation
