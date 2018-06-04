@@ -6,23 +6,23 @@
 * Project websites
 * Community mailing list/forum
 * Social media
-* Testing frameworks/approach/projects - SceneGraphPlayground
-* Build tools
-> * CMake
-> * xmake
+* Testing frameworks/approach/projects - [SceneGraphTestBed](https://github.com/openscenegraph/SceneGraphTestBed)
+- Build tools
+  - CMake
+  - xmake
 
 ## Vulkan
 
 * Setup and Configuration
 * State and geometry data
-> * Creation of buffers
-> * Unfiorms
-> * Textures
-> * Arrays
-> * Primitives
+  * Creation of buffers
+  * Unfiorms
+  * Textures
+  * Arrays
+  * Primitives
 * Shaders
-> * tools for offline and runtime .glsl -> SPIR-V
-> * runtime shader compilation options
+  * tools for offline and runtime .glsl -> SPIR-V
+  * runtime shader compilation options
 * Presentation of graphics
 * Threading
 * Syncronziation
@@ -48,13 +48,13 @@
 > * Serialization
 > * I/O
 * Threading
-> * C++ now has threading but no Affinity
-> * Thread pools
+  * C++ now has threading but no Affinity
+  * Thread pools
 
 ## Scene Graph
 * Scope out the minimal set of Node classs required
-> * NullNode to avoiding the need for if (!node) doSomething
-> * Fixed size vs variable size Containers in Groups etc.
+  * NullNode to avoiding the need for if (!node) doSomething
+  * Fixed size vs variable size Containers in Groups etc.
 > * Level of Detail
 > * CullNode (shift bounding volumes from all nodes to specialized node?)
 > * MaskNode (shift node mask checks from all nodes to specialized node?)
