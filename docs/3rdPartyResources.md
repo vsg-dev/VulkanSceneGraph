@@ -17,6 +17,9 @@
 * [Assimp](https://github.com/assimp/assimp) 3D models loading
 * [GLI](http://gli.g-truc.net) Loading/manipulating images/textures
 
+## Video presentations
+
+* [GDC 2016: High-performance, Low-Overhead Rendering with OpenGL and Vulkan](https://www.youtube.com/watch?v=PPWysKFHq9c)
 
 ## Suggestions in osg-users ML/forum post from Paweł Księżopolski
 
