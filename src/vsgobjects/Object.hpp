@@ -19,7 +19,7 @@ namespace vsg
         void ref() const;
         void unref() const;
         void unref_nodelete() const;
-        inline int referenceCount() const { return _referenceCount.load(); }
+        inline unsigned int referenceCount() const { return _referenceCount.load(); }
 
         struct Key
         {
