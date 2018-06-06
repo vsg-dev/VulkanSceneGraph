@@ -1,6 +1,7 @@
 #include "ref_ptr.hpp"
 #include "Object.hpp"
 #include "Group.hpp"
+#include "ObjectConnections.hpp"
 
 #include <osg/ref_ptr>
 #include <osg/Referenced>
@@ -54,6 +55,10 @@ int main(int argc, char** argv)
         std::cout<<"++++ Removing child to group"<<std::endl;
         group->removeChild(pos);
 
+        group->setObject("userdata", new vsg::Object());
+        group->setObject(10, new vsg::Object());
+        group->setObject(vsg::Object::Key("list",5), new vsg::Object());
+
 
         vsg::ref_ptr<OsgClass> osg = new OsgClass;
 
@@ -62,10 +67,13 @@ int main(int argc, char** argv)
         std::cout<<"size_of<vsg::Node> "<<sizeof(vsg::Node)<<std::endl;
         std::cout<<"size_of<osg::Grouo> "<<sizeof(osg::Group)<<std::endl;
         std::cout<<"size_of<vsg::Grouo> "<<sizeof(vsg::Group)<<std::endl;
+        std::cout<<"size_of<vsg::ObjectConnections> "<<sizeof(vsg::ObjectConnections)<<std::endl;
 
         global = group;
         std::cout<<"---- End of block"<<std::endl<<std::endl;
     }
+
+    std::cout<<" global->getObject(\"userdata\") = "<<global->getObject("userdata")<<std::endl;
 
     global = nullptr;
 
