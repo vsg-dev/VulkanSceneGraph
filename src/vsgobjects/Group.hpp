@@ -26,7 +26,6 @@ namespace vsg
         const Children& getChildren() const { return _children; }
 
     protected:
-
         virtual ~Group();
 
         Children _children;

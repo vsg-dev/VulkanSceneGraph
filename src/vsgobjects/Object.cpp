@@ -4,7 +4,8 @@
 
 using namespace vsg;
 
-Object::Object()
+Object::Object() :
+    _referenceCount(0)
 {
     std::cout<<"Object::Object() "<<this<<std::endl;
 }

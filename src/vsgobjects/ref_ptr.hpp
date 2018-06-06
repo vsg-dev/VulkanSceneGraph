@@ -8,7 +8,7 @@ namespace vsg
     {
     public:
 
-        ref_ptr() : _ptr(0) {}
+        ref_ptr() : _ptr(nullptr) {}
 
         ref_ptr(const ref_ptr& rhs) :
             _ptr(rhs._ptr)
@@ -28,8 +28,7 @@ namespace vsg
             if (_ptr) _ptr->unref();
         }
 
-        template<class R>
-        ref_ptr& operator = (R* ptr)
+        ref_ptr& operator = (T* ptr)
         {
             if (ptr==_ptr) return *this;
 
@@ -97,7 +96,7 @@ namespace vsg
             T* temp_ptr = _ptr;
 
             if (_ptr) _ptr->unref_nodelete();
-            _ptr = 0;
+            _ptr = nullptr;
 
             return temp_ptr;
         }
