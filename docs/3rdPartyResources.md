@@ -1,5 +1,9 @@
 # 3rd Party Resources of interest
 
+## C++ Core Guidelines
+
+* [C++ Core Guidelines](https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md)
+
 ## Tutorials
 
 * [Vulkan Tutorial](https://vulkan-tutorial.com/)
