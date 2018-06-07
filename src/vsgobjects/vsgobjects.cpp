@@ -1,4 +1,5 @@
 #include "ref_ptr.hpp"
+#include "observer_ptr.hpp"
 #include "Object.hpp"
 #include "Group.hpp"
 #include "Auxiliary.hpp"
@@ -25,7 +26,7 @@ int main(int argc, char** argv)
 
     auto start = std::chrono::high_resolution_clock::now(); // will eventually need to use chrono::steady_clock for frame stats
     std::cout<<"-- Before"<<std::endl<<std::endl;
-    vsg::ref_ptr<vsg::Object> global;
+    vsg::ref_ptr<vsg::Group> global;
     {
         std::cout<<"---- Start of block"<<std::endl;
 
@@ -54,7 +55,20 @@ int main(int argc, char** argv)
 
     std::cout<<" global->getObject(\"userdata\") = "<<global->getObject("userdata")<<std::endl;
 
-    global = nullptr;
+    vsg::observer_ptr<vsg::Group> observer;
+
+    //observer = global.get();
+    observer = global;
+
+    std::cout<<"******"<<std::endl;
+    {
+        vsg::ref_ptr<vsg::Group> access = observer;
+        std::cout<<"++++ access.get() "<<access.get()<<" "<<access->referenceCount()<<std::endl;
+        global = nullptr;
+        std::cout<<"++++ after global reset access.get() "<<access.get()<<" "<<access->referenceCount()<<std::endl;
+    }
+    std::cout<<"******"<<std::endl;
+
     auto end = std::chrono::high_resolution_clock::now();
     double std_duration = std::chrono::duration<double>(end-start).count();
     std::cout<<"-- After, elapsed time "<<std_duration<<std::endl;

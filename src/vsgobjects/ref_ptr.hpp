@@ -23,6 +23,13 @@ namespace vsg
             if (_ptr) _ptr->ref();
         }
 
+        template<class R>
+        ref_ptr(const ref_ptr<R>& ptr):
+            _ptr(ptr._ptr)
+        {
+            if (_ptr) _ptr->ref();
+        }
+
         ~ref_ptr()
         {
             if (_ptr) _ptr->unref();
@@ -78,18 +85,16 @@ namespace vsg
             return *this;
         }
 
-        T& operator*() const
-        {
-            return *_ptr;
-        }
+        bool valid() const { return _ptr!=nullptr; }
 
-        T* operator->() const
-        {
-            return _ptr;
-        }
+        bool operator!() const { return _ptr==nullptr; }
 
+        T& operator*() const { return *_ptr; }
+
+        T* operator->() const { return _ptr;}
 
         T* get() const { return _ptr; }
+
 
         T* release()
         {
