@@ -59,6 +59,13 @@ namespace vsg
             return *this;
         }
 
+        template<class R>
+        observer_ptr& operator = (const ref_ptr<R>& rhs)
+        {
+            _auxiliary = rhs.valid() ? rhs->getOrCreateAuxiliary() : nullptr;
+            return *this;
+        }
+
         bool valid() const { return _auxiliary.valid() && _auxiliary->getConnectedObject()!=nullptr; }
 
         bool operator!() const { return !_auxiliary || _auxiliary->getConnectedObject()==nullptr; }
