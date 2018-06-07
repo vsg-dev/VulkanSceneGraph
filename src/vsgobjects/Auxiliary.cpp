@@ -1,4 +1,4 @@
-#include "Auxiliary.hpp"
+#include "Auxiliary.h"
 
 #include <iostream>
 

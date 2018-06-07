@@ -1,4 +1,4 @@
-#include "Group.hpp"
+#include "Group.h"
 
 #include <iostream>
 #include <vector>

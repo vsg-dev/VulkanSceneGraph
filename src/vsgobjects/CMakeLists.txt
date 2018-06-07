@@ -1,11 +1,11 @@
 SET(APPLICATION_NAME vsgobjects)
 
 SET(HEADERS
-    Object.hpp
-    Auxiliary.hpp
-    Node.hpp
-    Group.hpp
-    ref_ptr.hpp
+    Object.h
+    Auxiliary.h
+    Node.h
+    Group.h
+    ref_ptr.h
 )
 
 SET(SOURCES

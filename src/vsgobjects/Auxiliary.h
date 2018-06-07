@@ -1,8 +1,10 @@
 #pragma once
 
-#include "Object.hpp"
+#include "Object.h"
+#include "ref_ptr.h"
 
 #include <map>
+
 
 namespace vsg
 {

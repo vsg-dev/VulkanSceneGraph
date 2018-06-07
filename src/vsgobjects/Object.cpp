@@ -1,5 +1,5 @@
-#include "Object.hpp"
-#include "Auxiliary.hpp"
+#include "Object.h"
+#include "Auxiliary.h"
 
 #include <iostream>
 

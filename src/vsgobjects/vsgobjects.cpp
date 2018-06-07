@@ -1,8 +1,8 @@
-#include "ref_ptr.hpp"
-#include "observer_ptr.hpp"
-#include "Object.hpp"
-#include "Group.hpp"
-#include "Auxiliary.hpp"
+#include "ref_ptr.h"
+#include "observer_ptr.h"
+#include "Object.h"
+#include "Group.h"
+#include "Auxiliary.h"
 
 #include <osg/ref_ptr>
 #include <osg/Referenced>

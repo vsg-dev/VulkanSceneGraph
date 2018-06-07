@@ -3,8 +3,6 @@
 #include <atomic>
 #include <string>
 
-#include "ref_ptr.hpp"
-
 namespace vsg
 {
 

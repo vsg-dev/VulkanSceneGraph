@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ref_ptr.hpp"
-#include "Node.hpp"
+#include "ref_ptr.h"
+#include "Node.h"
 
 #include <vector>
 
