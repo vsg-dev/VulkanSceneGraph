@@ -4,6 +4,10 @@
 
 * [C++ Core Guidelines](https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md)
 
+## Best Practices
+
+* [Best Practices Criteria for Free/Libre and Open Source Software (FLOSS)](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md)
+
 ## Tutorials
 
 * [Vulkan Tutorial](https://vulkan-tutorial.com/)
