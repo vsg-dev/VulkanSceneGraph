@@ -19,6 +19,7 @@
 ## Maths
 
 * [GLM](http://glm.g-truc.net) - GLSL style maths classes/functions
+* [GMTL](http://ggt.sourceforge.net/html/main.html)
 
 ## Image and 3D model loaders
 
@@ -28,6 +29,15 @@
 ## Video presentations
 
 * [GDC 2016: High-performance, Low-Overhead Rendering with OpenGL and Vulkan](https://www.youtube.com/watch?v=PPWysKFHq9c)
+
+## Introspection
+
+* [Cereal](https://github.com/USCiLab/cereal)
+
+## 3rd party scene graphs
+
+* Paul Martz's [JAG](https://github.com/pmartz/jag-3d/)
+* Jeremy Moles' Heirograph scenegraph (need reference)
 
 ## Suggestions in osg-users ML/forum post from Paweł Księżopolski
 
