@@ -33,6 +33,7 @@ void Object::unref() const
     std::cout<<"Object::unref() "<<this<<" "<<_referenceCount.load()<<std::endl;
     if (_referenceCount.fetch_sub(1)<=1)
     {
+        // what should happen when unref() called on an Object with ref() of zero?  Need to decide whether this buggy application usage should be tested for.
         if (_auxiliary)
         {
             _auxiliary->setConnectedObject(0);
