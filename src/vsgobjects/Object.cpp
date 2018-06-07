@@ -33,6 +33,19 @@ void Object::unref() const
     std::cout<<"Object::unref() "<<this<<" "<<_referenceCount.load()<<std::endl;
     if (_referenceCount.fetch_sub(1)<=1)
     {
+        if (_auxiliary)
+        {
+            _auxiliary->setConnectedObject(0);
+
+            if (_referenceCount.load()>0)
+            {
+                // in between the fetch_sub and the completion of setConnectedObject(0) a references was taken by another thread,
+                // we restore the connection  and abort the attempt to delete as it's no longer required.
+                _auxiliary->setConnectedObject(const_cast<Object*>(this));
+                return;
+            }
+        }
+
         delete this;
     }
 }
