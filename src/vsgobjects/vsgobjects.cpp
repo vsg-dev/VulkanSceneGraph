@@ -45,6 +45,9 @@ int main(int argc, char** argv)
         group->setObject(10, new vsg::Object());
         group->setObject(vsg::Object::Key("list",5), new vsg::Object());
 
+        group->setValue("name", std::string("[first node]"));
+        group->setValue("height", 1.52f);
+
 
         //vsg::ref_ptr<OsgClass> osg = new OsgClass;
 
@@ -54,6 +57,14 @@ int main(int argc, char** argv)
     }
 
     std::cout<<" global->getObject(\"userdata\") = "<<global->getObject("userdata")<<std::endl;
+
+    std::string name;
+    if (global->getValue("name", name)) std::cout<<" global->getValue(\"name\") = "<<name<<std::endl;
+    else std::cout<<" Failed global->getValue(\"name\") = "<<std::endl;
+
+    float height;
+    if (global->getValue("height", height)) std::cout<<" global->getValue(\"height\") = "<<height<<std::endl;
+    else std::cout<<" Failed global->getValue(\"height\") = "<<std::endl;
 
     vsg::observer_ptr<vsg::Group> observer;
 
@@ -66,6 +77,9 @@ int main(int argc, char** argv)
         std::cout<<"++++ access.get() "<<access.get()<<" "<<access->referenceCount()<<std::endl;
         global = nullptr;
         std::cout<<"++++ after global reset access.get() "<<access.get()<<" "<<access->referenceCount()<<std::endl;
+        access = 0;
+        access = observer;
+        std::cout<<"++++ after observer reassigned to access.get() "<<access.get()<<std::endl;
     }
     std::cout<<"******"<<std::endl;
 

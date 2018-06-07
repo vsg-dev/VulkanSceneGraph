@@ -40,12 +40,15 @@ namespace vsg
             int         index;
         };
 
-#if 0
         template<typename T>
-        void setValue(const Key& key, const T& value) {}
-        bool getValue(const Key& key, T& value) { return false; }
-        bool getValue(const Key& key, const T& value) const { return false; }
-#endif
+        void setValue(const Key& key, const T& value);
+
+        template<typename T>
+        bool getValue(const Key& key, T& value);
+
+        template<typename T>
+        bool getValue(const Key& key, T& value) const;
+
         void setObject(const Key& key, Object* object);
         Object* getObject(const Key& key);
         const Object* getObject(const Key& key) const;
@@ -61,5 +64,58 @@ namespace vsg
 
         Auxiliary* _auxiliary;
     };
+
+    template<typename T>
+    class ValueObject : public Object
+    {
+    public:
+        ValueObject() {}
+        ValueObject(const T& in_value) : value(in_value) {}
+        ValueObject(const ValueObject& rhs) : value(rhs.value) {}
+
+        T value;
+
+    protected:
+        virtual ~ValueObject() {}
+    };
+
+    template<typename T>
+    void Object::setValue(const Key& key, const T& value)
+    {
+        using ValueObjectT = ValueObject<T>;
+        setObject(key, new ValueObjectT(value));
+    }
+
+    template<typename T>
+    bool Object::getValue(const Key& key, T& value)
+    {
+        using ValueObjectT = ValueObject<T>;
+        ValueObjectT* vo = dynamic_cast<ValueObjectT*>(getObject(key));
+        if (vo)
+        {
+            value = vo->value;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    template<typename T>
+    bool Object::getValue(const Key& key, T& value) const
+    {
+        using ValueObjectT = ValueObject<T>;
+        const ValueObjectT* vo = dynamic_cast<const ValueObjectT*>(getObject(key));
+        if (vo)
+        {
+            value = vo->value;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
 }
