@@ -23,11 +23,11 @@ namespace vsg
         {
             Key(const char* in_name) : name(in_name), index(0) {}
             Key(const std::string& in_name) : name(in_name), index(0) {}
+            Key(int in_index) : index(in_index) {}
 
             Key(const char* in_name, int in_index) : name(in_name), index(in_index) {}
             Key(const std::string& in_name, int in_index) : name(in_name), index(in_index) {}
 
-            Key(int in_index) : index(in_index) {}
 
             bool operator < (const Key& rhs) const
             {
