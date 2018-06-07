@@ -21,7 +21,9 @@ namespace vsg
 
         std::size_t getNumChildren() const { return _children.size(); }
 
-        typedef std::vector< vsg::ref_ptr< vsg::Node> > Children;
+        //typedef std::vector< vsg::ref_ptr< vsg::Node> > Children;
+        using Children = std::vector< vsg::ref_ptr< vsg::Node> >;
+
         Children& getChildren() { return _children; }
         const Children& getChildren() const { return _children; }
 
