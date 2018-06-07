@@ -44,9 +44,6 @@ namespace vsg
         void setValue(const Key& key, const T& value);
 
         template<typename T>
-        bool getValue(const Key& key, T& value);
-
-        template<typename T>
         bool getValue(const Key& key, T& value) const;
 
         void setObject(const Key& key, Object* object);
@@ -84,22 +81,6 @@ namespace vsg
     {
         using ValueObjectT = ValueObject<T>;
         setObject(key, new ValueObjectT(value));
-    }
-
-    template<typename T>
-    bool Object::getValue(const Key& key, T& value)
-    {
-        using ValueObjectT = ValueObject<T>;
-        ValueObjectT* vo = dynamic_cast<ValueObjectT*>(getObject(key));
-        if (vo)
-        {
-            value = vo->value;
-            return true;
-        }
-        else
-        {
-            return false;
-        }
     }
 
     template<typename T>
