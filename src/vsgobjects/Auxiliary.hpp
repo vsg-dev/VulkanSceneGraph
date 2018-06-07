@@ -7,10 +7,11 @@
 namespace vsg
 {
 
-    class ObjectConnections
+    /** Auxiliary provides extra Object data that is rarely used, and hooks for observers.*/
+    class Auxiliary
     {
     public:
-        ObjectConnections();
+        Auxiliary();
 
         Object* getConnectedObject() { return _connectedObject; }
 
@@ -29,7 +30,7 @@ namespace vsg
 
     protected:
 
-        virtual ~ObjectConnections();
+        virtual ~Auxiliary();
 
         void setConnectedObject(Object* object);
 

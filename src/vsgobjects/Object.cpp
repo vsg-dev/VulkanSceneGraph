@@ -1,5 +1,5 @@
 #include "Object.hpp"
-#include "ObjectConnections.hpp"
+#include "Auxiliary.hpp"
 
 #include <iostream>
 
@@ -7,7 +7,7 @@ using namespace vsg;
 
 Object::Object() :
     _referenceCount(0),
-    _objectConnections(nullptr)
+    _auxiliary(nullptr)
 {
     std::cout<<"Object::Object() "<<this<<std::endl;
 }
@@ -15,10 +15,10 @@ Object::Object() :
 Object::~Object()
 {
     std::cout<<"Object::~Object() "<<this<<" "<<_referenceCount.load()<<std::endl;
-    if (_objectConnections)
+    if (_auxiliary)
     {
-        _objectConnections->setConnectedObject(0);
-        _objectConnections->unref();
+        _auxiliary->setConnectedObject(0);
+        _auxiliary->unref();
     }
 }
 
@@ -45,31 +45,31 @@ void Object::unref_nodelete() const
 
 void Object::setObject(const Key& key, Object* object)
 {
-    getOrCreateObjectConnections()->setObject(key, object);
+    getOrCreateAuxiliary()->setObject(key, object);
 }
 
 Object* Object::getObject(const Key& key)
 {
-    if (!_objectConnections) return nullptr;
-    return _objectConnections->getObject(key);
+    if (!_auxiliary) return nullptr;
+    return _auxiliary->getObject(key);
 }
 
 const Object* Object::getObject(const Key& key) const
 {
-    if (!_objectConnections) return nullptr;
-    return _objectConnections->getObject(key);
+    if (!_auxiliary) return nullptr;
+    return _auxiliary->getObject(key);
 }
 
 
-ObjectConnections* Object::getOrCreateObjectConnections()
+Auxiliary* Object::getOrCreateAuxiliary()
 {
-    if (!_objectConnections)
+    if (!_auxiliary)
     {
-        _objectConnections = new ObjectConnections;
-        _objectConnections->ref();
-        _objectConnections->setConnectedObject(this);
+        _auxiliary = new Auxiliary;
+        _auxiliary->ref();
+        _auxiliary->setConnectedObject(this);
     }
-    return _objectConnections;
+    return _auxiliary;
 }
 
 

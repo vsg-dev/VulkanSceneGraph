@@ -9,7 +9,7 @@ namespace vsg
 {
 
     // forward declare
-    class ObjectConnections;
+    class Auxiliary;
 
     class Object
     {
@@ -52,16 +52,16 @@ namespace vsg
         Object* getObject(const Key& key);
         const Object* getObject(const Key& key) const;
 
-        ObjectConnections* getOrCreateObjectConnections();
-        ObjectConnections* getObjectConnections() { return _objectConnections; }
-        const ObjectConnections* getObjectConnections() const { return _objectConnections; }
+        Auxiliary* getOrCreateAuxiliary();
+        Auxiliary* getAuxiliary() { return _auxiliary; }
+        const Auxiliary* getAuxiliary() const { return _auxiliary; }
 
     protected:
         virtual ~Object();
 
         mutable std::atomic_uint _referenceCount;
 
-        ObjectConnections* _objectConnections;
+        Auxiliary* _auxiliary;
     };
 
 }

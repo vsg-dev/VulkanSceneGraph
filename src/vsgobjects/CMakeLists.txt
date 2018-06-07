@@ -2,7 +2,7 @@ SET(APPLICATION_NAME vsgobjects)
 
 SET(HEADERS
     Object.hpp
-    ObjectConnections.hpp
+    Auxiliary.hpp
     Node.hpp
     Group.hpp
     ref_ptr.hpp
@@ -10,7 +10,7 @@ SET(HEADERS
 
 SET(SOURCES
     Object.cpp
-    ObjectConnections.cpp
+    Auxiliary.cpp
     Node.cpp
     Group.cpp
     vsgobjects.cpp

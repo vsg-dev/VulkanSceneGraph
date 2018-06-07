@@ -1,7 +1,7 @@
 #include "ref_ptr.hpp"
 #include "Object.hpp"
 #include "Group.hpp"
-#include "ObjectConnections.hpp"
+#include "Auxiliary.hpp"
 
 #include <osg/ref_ptr>
 #include <osg/Referenced>
@@ -60,6 +60,7 @@ int main(int argc, char** argv)
     std::cout<<"-- After, elapsed time "<<std_duration<<std::endl;
 
     std::cout<<std::endl;
+    std::cout<<"size_of<osg::Referenced> "<<sizeof(osg::Referenced)<<std::endl;
     std::cout<<"size_of<osg::Object> "<<sizeof(osg::Object)<<std::endl;
     std::cout<<"size_of<osg::Node> "<<sizeof(osg::Node)<<std::endl;
     std::cout<<"size_of<osg::Grouo> "<<sizeof(osg::Group)<<std::endl;
@@ -69,7 +70,7 @@ int main(int argc, char** argv)
     std::cout<<"size_of<vsg::Object> "<<sizeof(vsg::Object)<<std::endl;
     std::cout<<"size_of<vsg::Node> "<<sizeof(vsg::Node)<<std::endl;
     std::cout<<"size_of<vsg::Grouo> "<<sizeof(vsg::Group)<<std::endl;
-    std::cout<<"size_of<vsg::ObjectConnections> "<<sizeof(vsg::ObjectConnections)<<std::endl;
+    std::cout<<"size_of<vsg::Auxiliary> "<<sizeof(vsg::Auxiliary)<<std::endl;
 
     return 0;
 }
