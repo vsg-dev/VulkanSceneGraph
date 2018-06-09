@@ -1,4 +1,4 @@
-#include "Auxiliary.h"
+#include <vsg/Auxiliary.h>
 
 #include <iostream>
 

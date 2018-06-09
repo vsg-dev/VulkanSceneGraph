@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Object.h"
+#include <vsg/Object.h>
 
 namespace vsg
 {

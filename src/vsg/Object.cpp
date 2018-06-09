@@ -1,5 +1,5 @@
-#include "Object.h"
-#include "Auxiliary.h"
+#include <vsg/Object.h>
+#include <vsg/Auxiliary.h>
 
 #include <iostream>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Auxiliary.h"
+#include <vsg/Auxiliary.h>
 
 namespace vsg
 {

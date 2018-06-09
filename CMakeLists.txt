@@ -2,9 +2,20 @@ cmake_minimum_required(VERSION 3.5)
 
 project(VulkanPlayground)
 
+SET(OUTPUT_BINDIR ${PROJECT_BINARY_DIR}/bin)
+SET(OUTPUT_LIBDIR ${PROJECT_BINARY_DIR}/lib)
+
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
+IF(WIN32)
+    SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
+ELSE(WIN32)
+    SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
+ENDIF(WIN32)
+
 # set up local bin directory to place all binaries
-set(OUTPUT_BINDIR ${PROJECT_BINARY_DIR}/bin)
 make_directory(${OUTPUT_BINDIR})
+make_directory(${OUTPUT_LIBDIR})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
 
@@ -37,3 +48,4 @@ ENDIF()
 
 # src directory contains all the example applications etc.
 add_subdirectory(src)
+add_subdirectory(applications)

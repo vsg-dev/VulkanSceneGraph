@@ -1,8 +1,8 @@
-#include "ref_ptr.h"
-#include "observer_ptr.h"
-#include "Object.h"
-#include "Group.h"
-#include "Auxiliary.h"
+#include <vsg/ref_ptr.h>
+#include <vsg/observer_ptr.h>
+#include <vsg/Object.h>
+#include <vsg/Group.h>
+#include <vsg/Auxiliary.h>
 
 #include <osg/ref_ptr>
 #include <osg/Referenced>

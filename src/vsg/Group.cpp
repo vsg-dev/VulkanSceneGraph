@@ -1,4 +1,4 @@
-#include "Group.h"
+#include <vsg/Group.h>
 
 #include <iostream>
 #include <vector>
