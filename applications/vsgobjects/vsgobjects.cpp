@@ -21,6 +21,31 @@ vsg::Group* createGroup()
     return group.release();
 }
 
+class MyVisitor : public vsg::Visitor
+{
+public:
+    MyVisitor() {}
+
+    void apply(vsg::Object& object)
+    {
+        std::cout<<"Myvisitor::apply(Object& "<<&object<<")"<<std::endl;
+    }
+
+    void apply(vsg::Node& node)
+    {
+        std::cout<<"Myvisitor::apply(Node& "<<&node<<")"<<std::endl;
+    }
+
+    void apply(vsg::Group& group)
+    {
+        std::cout<<"Myvisitor::apply(Group& "<<&group<<")"<<std::endl;
+        for(size_t i=0; i<group.getNumChildren(); ++i)
+        {
+            group.getChild(i)->accept(*this);
+        }
+    }
+};
+
 int main(int argc, char** argv)
 {
 
@@ -35,11 +60,12 @@ int main(int argc, char** argv)
 
         std::cout<<"Adding child to group"<<std::endl;
         size_t pos = group->addChild(new vsg::Node);
+        group->addChild(new vsg::Group);
 
         group->addChild(new vsg::Group);
 
-        std::cout<<"++++ Removing child to group"<<std::endl;
-        group->removeChild(pos);
+        //std::cout<<"++++ Removing child to group"<<std::endl;
+        //group->removeChild(pos);
 
         group->setObject("userdata", new vsg::Object());
         group->setObject(10, new vsg::Object());
@@ -55,6 +81,10 @@ int main(int argc, char** argv)
         global = group;
         std::cout<<"---- End of block"<<std::endl<<std::endl;
     }
+
+    MyVisitor visitor;
+    global->accept(visitor);
+
 
     std::cout<<" global->getObject(\"userdata\") = "<<global->getObject("userdata")<<std::endl;
 
