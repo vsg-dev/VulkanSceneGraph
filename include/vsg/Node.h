@@ -9,6 +9,8 @@ namespace vsg
     public:
         Node();
 
+        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
+
     protected:
         virtual ~Node();
     };

@@ -12,6 +12,8 @@ namespace vsg
     public:
         Group();
 
+        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
+
         std::size_t addChild(vsg::Node* child) { std::size_t pos = _children.size(); _children.push_back(child); return pos; }
 
         void removeChild(std::size_t pos) { _children.erase(_children.begin()+pos); }

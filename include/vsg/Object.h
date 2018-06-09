@@ -1,7 +1,10 @@
 #pragma once
 
+
 #include <atomic>
 #include <string>
+
+#include <vsg/Visitor.h>
 
 namespace vsg
 {
@@ -14,10 +17,13 @@ namespace vsg
     public:
         Object();
 
+        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
+
         void ref() const;
         void unref() const;
         void unref_nodelete() const;
         inline unsigned int referenceCount() const { return _referenceCount.load(); }
+
 
         struct Key
         {
@@ -27,7 +33,6 @@ namespace vsg
 
             Key(const char* in_name, int in_index) : name(in_name), index(in_index) {}
             Key(const std::string& in_name, int in_index) : name(in_name), index(in_index) {}
-
 
             bool operator < (const Key& rhs) const
             {
