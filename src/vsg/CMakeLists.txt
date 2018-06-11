@@ -3,22 +3,24 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(HEADERS
-    observer_ptr.h
-    ref_ptr.h
 
-    Auxiliary.h
-    Group.h
-    Node.h
-    Object.h
-    Visitor.h
+    core/observer_ptr.h
+    core/ref_ptr.h
+    core/Auxiliary.h
+    core/Object.h
+    core/Visitor.h
+
+    nodes/Group.h
+    nodes/Node.h
 )
 
 SET(SOURCES
-    Auxiliary.cpp
-    Group.cpp
-    Node.cpp
-    Object.cpp
-    Visitor.cpp
+    core/Auxiliary.cpp
+    core/Object.cpp
+    core/Visitor.cpp
+
+    nodes/Group.cpp
+    nodes/Node.cpp
 )
 
 ADD_LIBRARY(vsg SHARED ${HEADER_FILES} ${SOURCES})

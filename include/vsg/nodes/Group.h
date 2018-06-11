@@ -1,7 +1,8 @@
 #pragma once
 
-#include <vsg/ref_ptr.h>
-#include <vsg/Node.h>
+#include <vsg/core/ref_ptr.h>
+
+#include <vsg/nodes/Node.h>
 
 #include <vector>
 

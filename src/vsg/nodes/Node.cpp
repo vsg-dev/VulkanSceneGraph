@@ -1,4 +1,4 @@
-#include <vsg/Node.h>
+#include <vsg/nodes/Node.h>
 
 #include <iostream>
 #include <vector>

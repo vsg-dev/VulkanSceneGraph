@@ -1,5 +1,5 @@
-#include <vsg/Object.h>
-#include <vsg/ref_ptr.h>
+#include <vsg/core/Object.h>
+#include <vsg/core/ref_ptr.h>
 
 // preliminary list of compoents the the vsg libraries and the possible classes that they'll contain
 // listed here just to give an overall feel of what will be needed

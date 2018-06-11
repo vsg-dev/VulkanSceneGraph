@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vsg/Object.h>
-#include <vsg/ref_ptr.h>
+#include <vsg/core/Object.h>
+#include <vsg/core/ref_ptr.h>
 
 #include <map>
 

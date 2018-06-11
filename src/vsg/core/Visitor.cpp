@@ -1,5 +1,7 @@
-#include <vsg/Visitor.h>
-#include <vsg/Group.h>
+#include <vsg/core/Visitor.h>
+
+#include <vsg/nodes/Node.h>
+#include <vsg/nodes/Group.h>
 
 using namespace vsg;
 

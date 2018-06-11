@@ -1,10 +1,10 @@
 #pragma once
 
+#include <vsg/core/Visitor.h>
 
 #include <atomic>
 #include <string>
 
-#include <vsg/Visitor.h>
 
 namespace vsg
 {
