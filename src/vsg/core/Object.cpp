@@ -9,12 +9,11 @@ Object::Object() :
     _referenceCount(0),
     _auxiliary(nullptr)
 {
-    std::cout<<"Object::Object() "<<this<<std::endl;
+//    std::cout<<"Object::Object() "<<this<<std::endl;
 }
 
 Object::~Object()
 {
-    std::cout<<"Object::~Object() "<<this<<" "<<_referenceCount.load()<<std::endl;
     if (_auxiliary)
     {
         _auxiliary->setConnectedObject(0);

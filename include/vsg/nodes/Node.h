@@ -12,6 +12,7 @@ namespace vsg
         virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 
     protected:
+
         virtual ~Node();
     };
 }

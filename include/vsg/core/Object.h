@@ -18,6 +18,7 @@ namespace vsg
         Object();
 
         virtual void accept(Visitor& visitor) { visitor.apply(*this); }
+        virtual void traverse(Visitor& visitor) {}
 
         void ref() const;
         void unref() const;
