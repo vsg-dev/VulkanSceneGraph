@@ -27,9 +27,10 @@ namespace vsg
     {
         class Node;
         class Group;
-        class Cull;
-        class LOD;
-        class PagedLOD;
+        class GroupN; // fixed sized Groups
+        class Cull; // implement view frustum culling - i.e. compare bounding sphere to view frustum
+        class LOD; // fixed size of two LOD children, two distances
+        class PagedLOD; // fixed size of two LOD children, two distances
         class Transform;
         class Mask;
         class Switch;
@@ -56,8 +57,8 @@ namespace vsg
     namespace render
     {
         class RenderBin;  // has map<PipelineState*, std::vector<Draw/Compute> and std::vector<pair<PipelineState*, Draw/Compute> for ordered list.
-        class RenderStage;
-        class StateGraph;
+        class RenderStage; // RenderBin + pre and post preperation
+        class StateGraph; // cacche hierarchy of PipleinComponsts to PipelineState
         class CullTraversal; // traverse scene graph to generate rendering graphs
         class DrawTraversal; // traverse rendering graphs to dispatch to vulkan
     }
@@ -70,8 +71,8 @@ namespace vsg
     namespace viewer
     {
         class Camera; // also a Node, perhaps should be in nodes?
-        class View;
-        class Viewer; // "has a" list of View
+        class View; // master Camera + optional list of slave Camera
+        class Viewer; // "has a" list of View (equivilant to CompositeViewer)
         class RenderSurface; // context/buffer object?
         class Compositor; // presentor, take all the rendering output and present on screen
         // some basic event handling?
@@ -89,6 +90,8 @@ namespace vsg
         ref_ptr<Object> readFile(const std::string& filename);
         void writeFile(Object& object, std::ostream&);
         void writeFile(Object& object, const std::string& filename);
+
+        class DatabasePager;
     }
 
 };
