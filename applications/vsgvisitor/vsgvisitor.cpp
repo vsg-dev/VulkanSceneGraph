@@ -90,7 +90,32 @@ public:
     }
 };
 
+class FunctionVisitor : public vsg::Visitor
+{
+public:
 
+    std::function<void(vsg::Object&)>   objectFunction;
+    std::function<void(vsg::Node&)>     nodeFunction;
+    std::function<void(vsg::Group&)>    groupFunction;
+
+    void apply(vsg::Object& object)
+    {
+        if (objectFunction) objectFunction(object);
+        object.traverse(*this);
+    }
+
+    void apply(vsg::Node& node)
+    {
+        if (nodeFunction) { nodeFunction(node); node.traverse(*this); }
+        else apply(static_cast<vsg::Object&>(node));
+    }
+
+    void apply(vsg::Group& group)
+    {
+        if (groupFunction) { groupFunction(group); group.traverse(*this); }
+        else apply(static_cast<vsg::Node&>(group));
+    }
+};
 
 template<typename P, typename F1, typename C1, typename F2, typename C2>
 void visit(P& object, F1 function1, F2 function2)
@@ -177,6 +202,19 @@ int main(int argc, char** argv)
         [&](vsg::Group&) { ++groups; });
 
     std::cout<<"visit2 nodes="<<nodes<<", groups="<<groups<<std::endl;
+
+    int objects = 0;
+    nodes = 0;
+    groups = 0;
+
+    FunctionVisitor fv;
+    fv.objectFunction = [&](vsg::Object&) { ++objects; };
+    fv.nodeFunction = [&](vsg::Node&) { ++nodes; };
+    fv.groupFunction = [&](vsg::Group& group) { ++groups; };
+
+    scene->accept(fv);
+
+    std::cout<<"FunctionVisitor objects="<<objects<<", nodes="<<nodes<<", groups="<<groups<<std::endl;
 
     return 0;
 }
