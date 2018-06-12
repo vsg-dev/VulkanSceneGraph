@@ -163,11 +163,26 @@ public:
     }
 };
 
+template<typename F>
+double time(F function)
+{
+    using clock = std::chrono::high_resolution_clock;
+    clock::time_point start = clock::now();
+
+    // do test code
+    function();
+
+    return std::chrono::duration<double>(clock::now()-start).count();
+}
+
+
 int main(int argc, char** argv)
 {
     ElapsedTime timer;
 
-    unsigned int numLevels = 11;
+    unsigned int numLevels = 12;
+
+
 
     timer.start();
     vsg::ref_ptr<vsg::Node> fg = createFixedQuadTree(numLevels);
@@ -181,7 +196,7 @@ int main(int argc, char** argv)
     osg::ref_ptr<osg::Node> osg_group = createOsgQuadTree(numLevels);
     std::cout<<"OpenSceneGraph Quad Tree creation : "<<timer.duration()<<std::endl;
 
-#if 1
+#if 0
     std::cout<<std::endl;
 
 
@@ -221,7 +236,6 @@ int main(int argc, char** argv)
     fg->accept(fgVisitor);
     double fg_duration = timer.duration();
 
-
     timer.start();
     ExplicitVsgVisitor efgVisitor;
     fg->accept(efgVisitor);
@@ -248,6 +262,13 @@ int main(int argc, char** argv)
     std::cout<<"VulkanSceneGraph Quad Tree traverse, explicit : "<<explicit_duration<<" "<<evsgVisitor.numNodes<<std::endl;
     std::cout<<"VulkanSceneGraph Fixed Quad Tree traverse, : "<<fg_duration<<" "<<fgVisitor.numNodes<<std::endl;
     std::cout<<"VulkanSceneGraph Fixed Quad Tree traverse, explicit : "<<fg_explicit_duration<<" "<<efgVisitor.numNodes<<std::endl;
+
+
+    std::cout<<"vsg_group->accept(fgVisitor) : "<<time([vsg_group, fgVisitor]() mutable {vsg_group->accept(fgVisitor);})<<std::endl;
+    std::cout<<"vsg_group->accept(efgVisitor) : "<<time([vsg_group, efgVisitor]() mutable {vsg_group->accept(efgVisitor);})<<std::endl;
+    std::cout<<"fg->accept(fgVisitor) : "<<time([fg, fgVisitor]() mutable {fg->accept(fgVisitor);})<<std::endl;
+    std::cout<<"fg->accept(efgVisitor) : "<<time([fg, efgVisitor]() mutable {fg->accept(efgVisitor);})<<std::endl;
+
 
     std::cout<<std::endl;
     std::cout<<"normal/explicit_duration : "<<normal/explicit_duration<<" "<<std::endl;
