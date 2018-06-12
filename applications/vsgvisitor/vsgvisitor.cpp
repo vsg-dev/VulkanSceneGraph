@@ -9,6 +9,7 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <functional>
 
 
 vsg::Node* createQuadTree(unsigned int numLevels)
@@ -98,6 +99,20 @@ void visit(P& object, F1 function1, F2 function2)
     object->accept(lv);
 }
 
+template<typename P, typename C1>
+void visit2(P& object, std::function<void(C1&)> func1)
+{
+    LambdaVisitor<decltype(func1), C1> lv(func1);
+    object->accept(lv);
+}
+
+template<typename P, typename C1, typename C2>
+void visit2(P& object, std::function<void(C1&)> func1, std::function<void(C2&)> func2)
+{
+    Lambda2Visitor<decltype(func1), C1, decltype(func2), C2> lv(func1, func2);
+    object->accept(lv);
+}
+
 
 int main(int argc, char** argv)
 {
@@ -148,6 +163,20 @@ int main(int argc, char** argv)
     MyVisitor myVisitor;
     scene->accept(myVisitor);
     std::cout<<"MyVisitor() objects="<<myVisitor.objects<<", groups="<<myVisitor.groups<<std::endl;
+
+
+    count = 0;
+    visit2<vsg::ref_ptr<vsg::Node>, vsg::Object>(scene, [&](vsg::Object&) { ++count; } );
+
+    std::cout<<"visit2 count="<<count<<std::endl;
+
+    nodes = 0; groups = 0;
+    visit2<vsg::ref_ptr<vsg::Node>, vsg::Object, vsg::Group>(
+        scene,
+        [&](vsg::Object&) { ++nodes; },
+        [&](vsg::Group&) { ++groups; });
+
+    std::cout<<"visit2 nodes="<<nodes<<", groups="<<groups<<std::endl;
 
     return 0;
 }
