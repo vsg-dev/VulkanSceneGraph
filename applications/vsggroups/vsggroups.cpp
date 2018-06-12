@@ -4,6 +4,7 @@
 #include <vsg/core/Auxiliary.h>
 
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/FixedGroup.h>
 
 #include <osg/ref_ptr>
 #include <osg/Referenced>
@@ -15,107 +16,6 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
-
-
-namespace vsg
-{
-    template<int N>
-    class FixedGroup : public vsg::Node
-    {
-    public:
-        FixedGroup() {}
-
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
-
-        inline virtual void traverse(Visitor& visitor)
-        {
-            //std::cout<<"FixedGroup::traverse(visitor) "<<this<<" getNumChildren()="<<getNumChildren()<<std::endl;
-#if 0
-            std::for_each(_children.begin(), _children.end(), [&visitor](ref_ptr<Node>& child)
-            {
-                if (child.valid()) child->accept(visitor);
-            });
-#else
-            for(size_t i=0; i<N; ++i)
-            {
-                _children[i]->accept(visitor);
-            }
-#endif
-        }
-
-        void setChild(std::size_t pos, vsg::Node* node)
-        {
-            _children[pos] = node;
-            //std::cout<<"FixedGroup::setChild("<<pos<<", "<<node<<")"<<std::endl;
-        }
-
-        vsg::Node* getChild(std::size_t pos) { return _children[pos].get(); }
-        const vsg::Node* getChild(std::size_t pos) const { return _children[pos].get(); }
-
-        std::size_t getNumChildren() const { return N; }
-
-        using Children = std::array< ref_ptr< vsg::Node>, N >;
-
-        Children& getChildren() { return _children; }
-        const Children& getChildren() const { return _children; }
-
-    protected:
-
-        virtual ~FixedGroup() {}
-
-        Children _children;
-    };
-
-#if 0
-    class QuadGroup : public vsg::Node
-    {
-    public:
-        QuadGroup() {}
-
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
-
-        inline virtual void traverse(Visitor& visitor)
-        {
-            //std::cout<<"FixedGroup::traverse(visitor) "<<this<<" getNumChildren()="<<getNumChildren()<<std::endl;
-#if 1
-            std::for_each(_children.begin(), _children.end(), [&visitor](ref_ptr<Node>& child)
-            {
-                if (child.valid()) child->accept(visitor);
-            });
-#else
-            for(size_t i=0; i<N; ++i)
-            {
-                _children[i]->accept(visitor);
-            }
-#endif
-        }
-
-        void setChild(std::size_t pos, vsg::Node* node)
-        {
-            _children[pos] = node;
-            //std::cout<<"FixedGroup::setChild("<<pos<<", "<<node<<")"<<std::endl;
-        }
-
-        vsg::Node* getChild(std::size_t pos) { return _children[pos].get(); }
-        const vsg::Node* getChild(std::size_t pos) const { return _children[pos].get(); }
-
-        std::size_t getNumChildren() const { return 4; }
-
-        using Children = std::array< ref_ptr< vsg::Node>, 4 >;
-
-        Children& getChildren() { return _children; }
-        const Children& getChildren() const { return _children; }
-
-    protected:
-
-        inline virtual ~QuadGroup() {}
-
-        Children _children;
-    };
-#else
-    using QuadGroup = FixedGroup<4>;
-#endif
-}
 
 
 
@@ -270,49 +170,62 @@ int main(int argc, char** argv)
     unsigned int numLevels = 11;
 
     timer.start();
-    vsg::ref_ptr<vsg::Node> vsg_group = createVsgQuadTree(numLevels);
-    std::cout<<"VulkanSceneGraph Quad Tree creation : "<<timer.duration()<<std::endl;
-
-    timer.start();
     vsg::ref_ptr<vsg::Node> fg = createFixedQuadTree(numLevels);
     std::cout<<"VulkanSceneGraph Fixed Quad Tree creation : "<<timer.duration()<<std::endl;
+
+    timer.start();
+    vsg::ref_ptr<vsg::Node> vsg_group = createVsgQuadTree(numLevels);
+    std::cout<<"VulkanSceneGraph Quad Tree creation : "<<timer.duration()<<std::endl;
 
     timer.start();
     osg::ref_ptr<osg::Node> osg_group = createOsgQuadTree(numLevels);
     std::cout<<"OpenSceneGraph Quad Tree creation : "<<timer.duration()<<std::endl;
 
-#if 0
+#if 1
     std::cout<<std::endl;
 
+
     timer.start();
-    osg_group = nullptr;
-    std::cout<<"OpenSceneGraph deletion : "<<timer.duration()<<std::endl;
+    fg = nullptr;
+    std::cout<<"VulkanSceneGraph FixedGroup deletion : "<<timer.duration()<<std::endl;
 
     timer.start();
     vsg_group = nullptr;
     std::cout<<"VulkanSceneGraph deletion : "<<timer.duration()<<std::endl;
 
     timer.start();
-    fg = nullptr;
-    std::cout<<"VulkanSceneGraph FixedGroup deletion : "<<timer.duration()<<std::endl;
+    osg_group = nullptr;
+    std::cout<<"OpenSceneGraph deletion : "<<timer.duration()<<std::endl;
 
     std::cout<<std::endl;
 
     timer.start();
-    osg_group = createOsgQuadTree(numLevels);
-    std::cout<<"OpenSceneGraph Quad Tree creation : "<<timer.duration()<<std::endl;
+    fg = createFixedQuadTree(numLevels);
+    std::cout<<"VulkanSceneGraph Fixed Quad Tree creation : "<<timer.duration()<<std::endl;
 
     timer.start();
     vsg_group = createVsgQuadTree(numLevels);
     std::cout<<"VulkanSceneGraph Quad Tree creation : "<<timer.duration()<<std::endl;
 
     timer.start();
-    fg = createFixedQuadTree(numLevels);
-    std::cout<<"VulkanSceneGraph Fixed Quad Tree creation : "<<timer.duration()<<std::endl;
+    osg_group = createOsgQuadTree(numLevels);
+    std::cout<<"OpenSceneGraph Quad Tree creation : "<<timer.duration()<<std::endl;
 #endif
 
     std::cout<<std::endl;
 
+
+
+    timer.start();
+    VsgVisitor fgVisitor;
+    fg->accept(fgVisitor);
+    double fg_duration = timer.duration();
+
+
+    timer.start();
+    ExplicitVsgVisitor efgVisitor;
+    fg->accept(efgVisitor);
+    double fg_explicit_duration = timer.duration();
 
 
     timer.start();
@@ -330,21 +243,20 @@ int main(int argc, char** argv)
     osg_group->accept(osgVisitor);
     double osg_duration = timer.duration();
 
-    timer.start();
-    VsgVisitor fgVisitor;
-    fg->accept(fgVisitor);
-    double fg_duration = timer.duration();
-
     std::cout<<"OpenScenGraph Quad Tree traverse : "<<osg_duration<<" "<<osgVisitor.numNodes<<std::endl;
     std::cout<<"VulkanSceneGraph Quad Tree traverse normal    : "<<normal<<" "<<vsgVisitor.numNodes<<std::endl;
     std::cout<<"VulkanSceneGraph Quad Tree traverse, explicit : "<<explicit_duration<<" "<<evsgVisitor.numNodes<<std::endl;
     std::cout<<"VulkanSceneGraph Fixed Quad Tree traverse, : "<<fg_duration<<" "<<fgVisitor.numNodes<<std::endl;
+    std::cout<<"VulkanSceneGraph Fixed Quad Tree traverse, explicit : "<<fg_explicit_duration<<" "<<efgVisitor.numNodes<<std::endl;
 
     std::cout<<std::endl;
     std::cout<<"normal/explicit_duration : "<<normal/explicit_duration<<" "<<std::endl;
-    std::cout<<"osg/normal traversal duration : "<<osg_duration/normal<<" "<<std::endl;
-    std::cout<<"osg/fg traversal duration : "<<osg_duration/fg_duration<<" "<<std::endl;
     std::cout<<"normal/fg traversal duration : "<<normal/fg_duration<<" "<<std::endl;
+    std::cout<<"normal/efg traversal duration : "<<normal/fg_explicit_duration<<" "<<std::endl;
+    std::cout<<"osg/normal traversal duration : "<<osg_duration/normal<<" "<<std::endl;
+    std::cout<<"osg/explicit_duration : "<<osg_duration/explicit_duration<<" "<<std::endl;
+    std::cout<<"osg/fg traversal duration : "<<osg_duration/fg_duration<<" "<<std::endl;
+    std::cout<<"osg/fg _explicit_traversal duration : "<<osg_duration/fg_explicit_duration<<" "<<std::endl;
 
     std::cout<<std::endl;
     std::cout<<"size_of<osg::Group> "<<sizeof(osg::Group)<<" with data "<<(sizeof(osg::Group)+sizeof(vsg::ref_ptr<vsg::Node>)*4)<<std::endl;
