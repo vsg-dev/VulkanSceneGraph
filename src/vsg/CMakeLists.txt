@@ -8,6 +8,7 @@ SET(HEADERS
     core/ref_ptr.h
     core/Auxiliary.h
     core/Object.h
+    core/Value.h
     core/Visitor.h
 
     nodes/Group.h

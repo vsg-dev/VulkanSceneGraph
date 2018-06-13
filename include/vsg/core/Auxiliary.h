@@ -4,7 +4,7 @@
 #include <vsg/core/ref_ptr.h>
 
 #include <map>
-
+#include <algorithm>
 
 namespace vsg
 {
@@ -29,6 +29,14 @@ namespace vsg
         typedef std::map< Object::Key, vsg::ref_ptr<Object> > ObjectMap;
         ObjectMap& getObjectMap() { _objectMap; }
         const ObjectMap& getObjectMap() const { _objectMap; }
+
+        void traverse(Visitor& visitor)
+        {
+            std::for_each(_objectMap.begin(), _objectMap.end(), [&visitor](ObjectMap::value_type& value)
+            {
+                value.second->accept(visitor);
+            });
+        }
 
     protected:
 

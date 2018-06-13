@@ -24,6 +24,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}/CMakeModules/"
 
 # set compilation to use C++11
 set(CMAKE_CXX_STANDARD 11)
+#set(CMAKE_CXX_STANDARD 14)
 
 # Find OpenSceneGraph packages for reference
 find_package(OpenThreads)

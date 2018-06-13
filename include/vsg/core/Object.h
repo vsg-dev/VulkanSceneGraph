@@ -5,7 +5,6 @@
 #include <atomic>
 #include <string>
 
-
 namespace vsg
 {
 
@@ -67,42 +66,5 @@ namespace vsg
 
         Auxiliary* _auxiliary;
     };
-
-    template<typename T>
-    class ValueObject : public Object
-    {
-    public:
-        ValueObject() {}
-        ValueObject(const T& in_value) : value(in_value) {}
-        ValueObject(const ValueObject& rhs) : value(rhs.value) {}
-
-        T value;
-
-    protected:
-        virtual ~ValueObject() {}
-    };
-
-    template<typename T>
-    void Object::setValue(const Key& key, const T& value)
-    {
-        using ValueObjectT = ValueObject<T>;
-        setObject(key, new ValueObjectT(value));
-    }
-
-    template<typename T>
-    bool Object::getValue(const Key& key, T& value) const
-    {
-        using ValueObjectT = ValueObject<T>;
-        const ValueObjectT* vo = dynamic_cast<const ValueObjectT*>(getObject(key));
-        if (vo)
-        {
-            value = vo->value;
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
 
 }
