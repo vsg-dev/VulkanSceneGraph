@@ -24,6 +24,11 @@ void Visitor::apply(IntValue& value)
     apply(static_cast<Object&>(value));
 }
 
+void Visitor::apply(UIntValue& value)
+{
+    apply(static_cast<Object&>(value));
+}
+
 void Visitor::apply(FloatValue& value)
 {
     apply(static_cast<Object&>(value));

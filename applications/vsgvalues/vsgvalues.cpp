@@ -9,9 +9,11 @@
 int main(int argc, char** argv)
 {
     vsg::ref_ptr<vsg::Object> object = new vsg::Object;
-    object->setValue("name", std::string("Name field contents"));
+    object->setValue("name", "Name field contents");
     object->setValue("time", 10.0);
-    object->setValue("count", -5);
+    object->setValue("size", 3.1f);
+    object->setValue("count", 5);
+    object->setValue("pos", 4u);
 
     if (object->getAuxiliary())
     {
@@ -24,7 +26,12 @@ int main(int argc, char** argv)
 
             void apply(vsg::IntValue& value)
             {
-                std::cout<<"FloatValue,  value = "<<value.value<<std::endl;
+                std::cout<<"IntValue,  value = "<<value.value<<std::endl;
+            }
+
+            void apply(vsg::UIntValue& value)
+            {
+                std::cout<<"UIntValue,  value = "<<value.value<<std::endl;
             }
 
             void apply(vsg::FloatValue& value)

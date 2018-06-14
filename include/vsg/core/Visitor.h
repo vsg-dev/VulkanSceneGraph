@@ -20,6 +20,7 @@ namespace vsg
         // Values
         virtual void apply(StringValue&);
         virtual void apply(IntValue&);
+        virtual void apply(UIntValue&);
         virtual void apply(FloatValue&);
         virtual void apply(DoubleValue&);
 

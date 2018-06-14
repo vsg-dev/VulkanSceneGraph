@@ -46,6 +46,7 @@ namespace vsg
 
     using StringValue = Value<std::string>;
     using IntValue = Value<int>;
+    using UIntValue = Value<unsigned int>;
     using FloatValue = Value<float>;
     using DoubleValue = Value<double>;
 }
