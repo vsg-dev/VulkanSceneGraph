@@ -27,6 +27,8 @@ namespace vsg
         // Nodes
         virtual void apply(Node&);
         virtual void apply(Group&);
+
+        // need to decide how to handle QuadGroup as it is implemented with "using" like StringValue etc.
     };
 
 
