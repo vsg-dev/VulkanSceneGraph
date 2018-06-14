@@ -1,4 +1,5 @@
 #include <vsg/core/Object.h>
+#include <vsg/core/Visitor.h>
 #include <vsg/core/Auxiliary.h>
 
 #include <iostream>
@@ -54,6 +55,11 @@ void Object::unref_nodelete() const
 {
 //    std::cout<<"Object::unref_nodelete() "<<this<<" "<<_referenceCount.load()<<std::endl;
     --_referenceCount;
+}
+
+void Object::accept(Visitor& visitor)
+{
+    visitor.apply(*this);
 }
 
 void Object::setObject(const Key& key, Object* object)

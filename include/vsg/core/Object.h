@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vsg/core/Visitor.h>
-
 #include <atomic>
 #include <string>
 
@@ -10,14 +8,15 @@ namespace vsg
 
     // forward declare
     class Auxiliary;
+    class Visitor;
 
     class Object
     {
     public:
         Object();
 
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
-        virtual void traverse(Visitor& visitor) {}
+        virtual void accept(Visitor& visitor);
+        virtual void traverse(Visitor&) {}
 
         void ref() const;
         void unref() const;

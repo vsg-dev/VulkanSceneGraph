@@ -1,14 +1,11 @@
 #pragma once
 
+#include <vsg/core/Value.h>
+
 namespace vsg
 {
-    class Object;
 
-    class StringValue;
-    class IntValue;
-    class FloatValue;
-    class DoubleValue;
-
+    // forward declare nodes
     class Node;
     class Group;
 
@@ -20,7 +17,7 @@ namespace vsg
 
         virtual void apply(Object&);
 
-        // ValueObjects
+        // Values
         virtual void apply(StringValue&);
         virtual void apply(IntValue&);
         virtual void apply(FloatValue&);
@@ -31,5 +28,9 @@ namespace vsg
         virtual void apply(Group&);
     };
 
+
+    // provide Value<>::accept() implementation
+    template<typename T>
+    void Value<T>::accept(Visitor& visitor) { visitor.apply(*this); }
 
 }

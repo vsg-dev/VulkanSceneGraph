@@ -4,7 +4,6 @@
 
 namespace vsg
 {
-
     template<typename T>
     class Value : public Object
     {
@@ -13,7 +12,8 @@ namespace vsg
         Value(const T& in_value) : value(in_value) {}
         Value(const Value& rhs) : value(rhs.value) {}
 
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
+        // implementation provided by Visitor.h
+        virtual void accept(Visitor& visitor);
 
         T value;
 
@@ -44,19 +44,8 @@ namespace vsg
         }
     }
 
-#if 0
-    // would prefer to be able to just provide "using" declrartions, but for some reason this is incompatible with Visitor forward ceclaring as class.
     using StringValue = Value<std::string>;
     using IntValue = Value<int>;
     using FloatValue = Value<float>;
     using DoubleValue = Value<double>;
-#else
-
-    class StringValue : public Value<std::string> {};
-    class IntValue : public Value<int> {};
-    class FloatValue : public Value<float> {};
-    class DoubleValue : public Value<double> {};
-
-#endif
-
 }

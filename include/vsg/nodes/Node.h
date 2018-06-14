@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vsg/core/Object.h>
+#include <vsg/core/Visitor.h>
 
 namespace vsg
 {

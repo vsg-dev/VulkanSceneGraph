@@ -4,5 +4,6 @@ add_subdirectory(vsgobjects)
 add_subdirectory(vsgnamespaces)
 add_subdirectory(vsggroups)
 add_subdirectory(vsgvisitor)
+add_subdirectory(vsgvalues)
 
 add_subdirectory(VulkanTutorial)

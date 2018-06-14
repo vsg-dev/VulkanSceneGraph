@@ -27,16 +27,8 @@ namespace vsg
         const Object* getObject(const Object::Key& key) const;
 
         typedef std::map< Object::Key, vsg::ref_ptr<Object> > ObjectMap;
-        ObjectMap& getObjectMap() { _objectMap; }
-        const ObjectMap& getObjectMap() const { _objectMap; }
-
-        void traverse(Visitor& visitor)
-        {
-            std::for_each(_objectMap.begin(), _objectMap.end(), [&visitor](ObjectMap::value_type& value)
-            {
-                value.second->accept(visitor);
-            });
-        }
+        ObjectMap& getObjectMap() { return _objectMap; }
+        const ObjectMap& getObjectMap() const { return _objectMap; }
 
     protected:
 
@@ -46,9 +38,9 @@ namespace vsg
 
         friend class Object;
 
-        Object* _connectedObject;
-
         mutable std::atomic_uint _referenceCount;
+
+        Object* _connectedObject;
 
         ObjectMap _objectMap;
 

@@ -8,7 +8,7 @@ Auxiliary::Auxiliary() :
     _referenceCount(0),
     _connectedObject(0)
 {
-    std::cout<<"Auxiliary::Auxiliary() "<<this<<std::endl;
+    std::cout<<"Auxiliary::Auxiliary() "<<this<<" "<<_objectMap.size()<<std::endl;
 }
 
 Auxiliary::~Auxiliary()
@@ -19,12 +19,12 @@ Auxiliary::~Auxiliary()
 void Auxiliary::ref() const
 {
     ++_referenceCount;
-    std::cout<<"Object::ref() "<<this<<" "<<_referenceCount.load()<<std::endl;
+    std::cout<<"Auxiliary::ref() "<<this<<" "<<_referenceCount.load()<<std::endl;
 }
 
 void Auxiliary::unref() const
 {
-    std::cout<<"Object::unref() "<<this<<" "<<_referenceCount.load()<<std::endl;
+    std::cout<<"Auxiliary::unref() "<<this<<" "<<_referenceCount.load()<<std::endl;
     if (_referenceCount.fetch_sub(1)<=1)
     {
         delete this;
@@ -40,14 +40,14 @@ void Auxiliary::unref_nodelete() const
 
 void Auxiliary::setConnectedObject(Object* object)
 {
-    std::cout<<"Auxiliary::setConnectedObject("<<object<<") previous _connectedObject="<<_connectedObject<<std::endl;
     _connectedObject = object;
+    std::cout<<"Auxiliary::setConnectedObject("<<object<<") previous _connectedObject="<<_connectedObject<<std::endl;
 }
 
 void Auxiliary::setObject(const Object::Key& key, Object* object)
 {
-    std::cout<<"Auxiliary::setObject( ["<<key.name<<", "<<key.index<<"], "<<object<<")"<<std::endl;
     _objectMap[key] = object;
+    std::cout<<"Auxiliary::setObject( ["<<key.name<<", "<<key.index<<"], "<<object<<")"<<" "<<_objectMap.size()<<" "<<&_objectMap<<std::endl;
 }
 
 Object* Auxiliary::getObject(const Object::Key& key)
