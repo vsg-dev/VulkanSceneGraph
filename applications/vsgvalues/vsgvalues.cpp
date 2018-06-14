@@ -6,6 +6,23 @@
 #include <iostream>
 #include <typeinfo>
 
+// helper function to simplify iteration through any user objects/values assigned to an object.
+template<typename P, typename F>
+void for_each_user_object(P object, F functor)
+{
+    if (object->getAuxiliary())
+    {
+        using ObjectMap = vsg::Auxiliary::ObjectMap;
+        ObjectMap& objectMap = object->getAuxiliary()->getObjectMap();
+        for (ObjectMap::iterator itr = objectMap.begin();
+             itr != objectMap.end();
+             ++itr)
+        {
+            functor(*itr);
+        }
+    }
+}
+
 int main(int argc, char** argv)
 {
     vsg::ref_ptr<vsg::Object> object = new vsg::Object;
@@ -60,6 +77,22 @@ int main(int argc, char** argv)
             std::cout<<"   key["<<itr->first.name<<", "<<itr->first.index<<"] ";
             itr->second->accept(visitValues);
         }
+
+
+        std::cout<<"Use for_each "<<std::endl;
+        std::for_each(object->getAuxiliary()->getObjectMap().begin(), object->getAuxiliary()->getObjectMap().end(), [&visitValues](vsg::Auxiliary::ObjectMap::value_type& key_value)
+        {
+            std::cout<<"   key["<<key_value.first.name<<", "<<key_value.first.index<<"] ";
+            key_value.second->accept(visitValues);
+        });
+
+        std::cout<<"for_each_user_object "<<std::endl;
+        for_each_user_object(object, [&visitValues](vsg::Auxiliary::ObjectMap::value_type& key_value)
+        {
+            std::cout<<"   key["<<key_value.first.name<<", "<<key_value.first.index<<"] ";
+            key_value.second->accept(visitValues);
+        });
+
     }
 
 
