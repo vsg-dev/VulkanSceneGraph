@@ -1,8 +1,8 @@
 #include <vsg/core/Visitor.h>
-#include <vsg/core/Value.h>
 
 #include <vsg/nodes/Node.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/QuadGroup.h>
 
 using namespace vsg;
 
@@ -45,6 +45,11 @@ void Visitor::apply(Node& node)
 }
 
 void Visitor::apply(Group& group)
+{
+    apply(static_cast<Node&>(group));
+}
+
+void Visitor::apply(QuadGroup& group)
 {
     apply(static_cast<Node&>(group));
 }

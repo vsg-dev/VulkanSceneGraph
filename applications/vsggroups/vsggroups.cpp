@@ -4,7 +4,7 @@
 #include <vsg/core/Auxiliary.h>
 
 #include <vsg/nodes/Group.h>
-#include <vsg/nodes/FixedGroup.h>
+#include <vsg/nodes/QuadGroup.h>
 
 #include <osg/ref_ptr>
 #include <osg/Referenced>

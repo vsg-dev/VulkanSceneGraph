@@ -13,6 +13,7 @@ SET(HEADERS
 
     nodes/Group.h
     nodes/Node.h
+    nodes/QuadGroup.h
 )
 
 SET(SOURCES
