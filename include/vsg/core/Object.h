@@ -47,6 +47,8 @@ namespace vsg
         template<typename T>
         void setValue(const Key& key, const T& value);
 
+        void setValue(const Key& key, const char* value) { setValue(key, value ? std::string(value) : std::string()); }
+
         template<typename T>
         bool getValue(const Key& key, T& value) const;
 
