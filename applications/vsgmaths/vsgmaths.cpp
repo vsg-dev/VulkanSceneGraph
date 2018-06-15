@@ -11,31 +11,36 @@
 #include <vector>
 #include <chrono>
 
-
-struct vec2
+template<typename T>
+struct tvec2
 {
-    vec2() : data{0.0, 0.0} {}
-    vec2(float x, float y) : data{x, y} {}
+    tvec2() : data{T(), T()} {}
+    tvec2(T x, T y) : data{x, y} {}
 
     union
     {
-        float data[2];
-        struct { float x, y; };
-        struct { float r, g; };
-        struct { float s, t; };
+        T data[2];
+        struct { T x, y; };
+        struct { T r, g; };
+        struct { T s, t; };
     };
 
-    float& operator[] (std::size_t i) { return data[i]; }
-    float operator[] (std::size_t i) const { return data[i]; }
+    T& operator[] (std::size_t i) { return data[i]; }
+    T operator[] (std::size_t i) const { return data[i]; }
 
 
     // swizzle
-    vec2 yx() const { return vec2(y,x); }
-    vec2 ts() const { return vec2(t,s); }
-    vec2 gr() const { return vec2(g,r); }
+    tvec2 yx() const { return tvec2(y,x); }
+    tvec2 ts() const { return tvec2(t,s); }
+    tvec2 gr() const { return tvec2(g,r); }
 };
 
-inline std::ostream& operator << (std::ostream& output, const vec2& vec)
+using vec2f = tvec2<float>;
+using vec2d = tvec2<double>;
+using vec2 = vec2f;
+
+template<typename T>
+inline std::ostream& operator << (std::ostream& output, const tvec2<T>& vec)
 {
     output << vec.x << " " << vec.y;
     return output; // to enable cascading
@@ -56,11 +61,14 @@ int main(int argc, char** argv)
     std::cout<<"vec2.data="<<v.data<<" ("<<v.data[0]<<", "<<v.data[1]<<")"<<std::endl;
     std::cout<<"vec2[0]=("<<v[0]<<", "<<v[1]<<")"<<std::endl;
 
-    vec2 n(2.0f, 1.0f);
+    vec2d n(2.0, 1.0);
     std::cout<<"n(x="<<n.x<<", y="<<n.y<<")"<<std::endl;
 
     std::cout<<"n = "<<n<<std::endl;
     std::cout<<"n.yx() = "<<n.yx()<<std::endl;
+
+    tvec2<int> i(2, 1);
+    std::cout<<"i = "<<i<<std::endl;
 
     return 0;
 }
