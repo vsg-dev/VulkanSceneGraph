@@ -36,9 +36,9 @@ namespace vsg
         }
 
         /// set the BondingSphere to use in culling/computation of which child is active.
-        void setBoundingSohere(const Sphere& sphere) { _boundingSphere = sphere; }
-        Sphere& getBoundingSohere() { return _boundingSphere; }
-        const Sphere& getBoundingSohere() const { return _boundingSphere; }
+        void setBoundingSphere(const Sphere& sphere) { _boundingSphere = sphere; }
+        Sphere& getBoundingSphere() { return _boundingSphere; }
+        const Sphere& getBoundingSphere() const { return _boundingSphere; }
 
 
         /// set the minimum screen space area that a child is visible from
