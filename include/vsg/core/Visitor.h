@@ -9,6 +9,7 @@ namespace vsg
     class Node;
     class Group;
     class QuadGroup;
+    class LOD;
 
     class Visitor
     {
@@ -29,6 +30,7 @@ namespace vsg
         virtual void apply(Node&);
         virtual void apply(Group&);
         virtual void apply(QuadGroup&);
+        virtual void apply(LOD&);
     };
 
 
