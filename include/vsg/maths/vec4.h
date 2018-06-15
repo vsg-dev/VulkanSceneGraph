@@ -16,7 +16,7 @@ struct tvec4
         struct { value_type s, t, p, q; };
     };
 
-    tvec4() : data{value_type(), value_type(), value_type()} {}
+    tvec4() : data{} {}
     tvec4(value_type x, value_type y, value_type z, value_type w) : data{x, y, z, w} {}
 
     std::size_t size() const { return 4; }

@@ -16,7 +16,7 @@ struct tvec2
         struct { value_type s, t; };
     };
 
-    tvec2() : data{value_type(), value_type()} {}
+    tvec2() : data{} {}
     tvec2(value_type x, value_type y) : data{x, y} {}
 
     std::size_t size() const { return 2; }
