@@ -11,6 +11,11 @@ SET(HEADERS
     core/Value.h
     core/Visitor.h
 
+    maths/vec2.h
+    maths/vec3.h
+    maths/vec4.h
+    maths/mat4.h
+
     nodes/Group.h
     nodes/Node.h
     nodes/QuadGroup.h
