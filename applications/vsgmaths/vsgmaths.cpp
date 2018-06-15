@@ -14,25 +14,23 @@
 template<typename T>
 struct tvec2
 {
+    using value_type = T;
+
     tvec2() : data{T(), T()} {}
     tvec2(T x, T y) : data{x, y} {}
 
     union
     {
-        T data[2];
-        struct { T x, y; };
-        struct { T r, g; };
-        struct { T s, t; };
+        value_type  data[2];
+        struct { value_type x, y; };
+        struct { value_type r, g; };
+        struct { value_type s, t; };
     };
 
-    T& operator[] (std::size_t i) { return data[i]; }
-    T operator[] (std::size_t i) const { return data[i]; }
+    std::size_t size() const { return 2; }
 
-
-    // swizzle
-    tvec2 yx() const { return tvec2(y,x); }
-    tvec2 ts() const { return tvec2(t,s); }
-    tvec2 gr() const { return tvec2(g,r); }
+    value_type & operator[] (std::size_t i) { return data[i]; }
+    value_type operator[] (std::size_t i) const { return data[i]; }
 };
 
 using vec2f = tvec2<float>;
@@ -65,7 +63,6 @@ int main(int argc, char** argv)
     std::cout<<"n(x="<<n.x<<", y="<<n.y<<")"<<std::endl;
 
     std::cout<<"n = "<<n<<std::endl;
-    std::cout<<"n.yx() = "<<n.yx()<<std::endl;
 
     tvec2<int> i(2, 1);
     std::cout<<"i = "<<i<<std::endl;
