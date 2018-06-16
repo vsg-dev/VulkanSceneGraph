@@ -65,7 +65,7 @@ int main(int argc, char** argv)
     std::cout<<"vec2.data="<<v.data<<" ("<<v.data[0]<<", "<<v.data[1]<<")"<<std::endl;
     std::cout<<"vec2[0]=("<<v[0]<<", "<<v[1]<<")"<<std::endl;
 
-    vsg::vec3d n(2.0, 1.0, 0.5);
+    vsg::dvec3 n(2.0, 1.0, 0.5);
     std::cout<<"n(x="<<n.x<<", y="<<n.y<<", z="<<n.z<<")"<<std::endl;
 
     std::cout<<"n = "<<n<<std::endl;
@@ -74,10 +74,10 @@ int main(int argc, char** argv)
     std::cout<<"i = "<<i<<std::endl;
 
 
-    vsg::vec4d colour(1.0, 0.9, 1.0, 0.5);
+    vsg::dvec4 colour(1.0, 0.9, 1.0, 0.5);
     std::cout<<"colour = ("<<colour<<")"<<std::endl;
 
-    vsg::mat4 mat;
+    vsg::dmat4 mat;
     mat(3,0) = 102.3;
     std::cout<<"mat = "<<mat<<std::endl;
 

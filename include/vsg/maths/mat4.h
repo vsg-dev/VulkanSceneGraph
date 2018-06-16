@@ -24,8 +24,7 @@ struct tmat4
     value_type operator() (std::size_t i, std::size_t j) const { return data[i][j]; }
 };
 
-using mat4f = tmat4<float>;
-using mat4d = tmat4<double>;
-using mat4 = mat4f;
+using mat4 = tmat4<float>;
+using dmat4 = tmat4<double>;
 
 }

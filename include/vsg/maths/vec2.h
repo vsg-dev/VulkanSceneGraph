@@ -25,8 +25,7 @@ struct tvec2
     value_type operator[] (std::size_t i) const { return data[i]; }
 };
 
-using vec2f = tvec2<float>;
-using vec2d = tvec2<double>;
-using vec2 = vec2f;
+using vec2 = tvec2<float>;
+using dvec2 = tvec2<double>;
 
 }
