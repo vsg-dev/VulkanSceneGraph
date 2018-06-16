@@ -20,8 +20,8 @@ struct tmat4
     std::size_t columns() const { return 4; }
     std::size_t rows() const { return 4; }
 
-    value_type & operator() (std::size_t i, std::size_t j) { return data[i][j]; }
-    value_type operator() (std::size_t i, std::size_t j) const { return data[i][j]; }
+    value_type & operator() (std::size_t c, std::size_t r) { return data[c][r]; }
+    value_type operator() (std::size_t c, std::size_t r) const { return data[c][r]; }
 };
 
 using mat4 = tmat4<float>;
