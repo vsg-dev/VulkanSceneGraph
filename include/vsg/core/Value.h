@@ -8,14 +8,16 @@ namespace vsg
     class Value : public Object
     {
     public:
+        using value_type = T;
+
         Value() {}
-        Value(const T& in_value) : value(in_value) {}
+        Value(const value_type& in_value) : value(in_value) {}
         Value(const Value& rhs) : value(rhs.value) {}
 
         // implementation provided by Visitor.h
         virtual void accept(Visitor& visitor);
 
-        T value;
+        value_type value;
 
     protected:
         virtual ~Value() {}

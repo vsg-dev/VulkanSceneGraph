@@ -15,48 +15,38 @@ void Visitor::apply(Object&)
 {
 }
 
-void Visitor::apply(StringValue& value)
-{
-    apply(static_cast<Object&>(value));
-}
+////////////////////////////////////////////////////////////////////////////////
+//
+// Values
+//
+void Visitor::apply(StringValue& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(IntValue& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(UIntValue& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(FloatValue& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(DoubleValue& value) {apply(static_cast<Object&>(value)); }
 
-void Visitor::apply(IntValue& value)
-{
-    apply(static_cast<Object&>(value));
-}
+////////////////////////////////////////////////////////////////////////////////
+//
+// Arrays
+//
+void Visitor::apply(uintArray& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(floatArray& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(doubleArray& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(vec2Array& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(vec3Array& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(vec4Array& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(mat4Array& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(dvec2Array& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(dvec3Array& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(dvec4Array& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(dmat4Array& value) { apply(static_cast<Object&>(value)); }
 
-void Visitor::apply(UIntValue& value)
-{
-    apply(static_cast<Object&>(value));
-}
 
-void Visitor::apply(FloatValue& value)
-{
-    apply(static_cast<Object&>(value));
-}
-
-void Visitor::apply(DoubleValue& value)
-{
-    apply(static_cast<Object&>(value));
-}
-
-void Visitor::apply(Node& node)
-{
-    apply(static_cast<Object&>(node));
-}
-
-void Visitor::apply(Group& group)
-{
-    apply(static_cast<Node&>(group));
-}
-
-void Visitor::apply(QuadGroup& group)
-{
-    apply(static_cast<Node&>(group));
-}
-
-void Visitor::apply(LOD& group)
-{
-    apply(static_cast<Node&>(group));
-}
-
+////////////////////////////////////////////////////////////////////////////////
+//
+// Nodes
+//
+void Visitor::apply(Node& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(Group& value) { apply(static_cast<Node&>(value)); }
+void Visitor::apply(QuadGroup& value) { apply(static_cast<Node&>(value)); }
+void Visitor::apply(LOD& value) { apply(static_cast<Node&>(value)); }
