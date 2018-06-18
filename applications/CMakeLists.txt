@@ -8,5 +8,6 @@ add_subdirectory(vsgvalues)
 add_subdirectory(vsgnodes)
 add_subdirectory(vsgmaths)
 add_subdirectory(vsgarrays)
+add_subdirectory(vsgdraw)
 
 add_subdirectory(VulkanTutorial)
