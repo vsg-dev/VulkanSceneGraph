@@ -4,12 +4,12 @@
 #include <vsg/core/ref_ptr.h>
 
 #include "Draw.h"
+#include "CommandLine.h"
 
 #include <iostream>
 #include <algorithm>
 #include <mutex>
 #include <set>
-#include <sstream>
 
 using Names = std::vector<const char*>;
 
@@ -97,85 +97,32 @@ void print(std::ostream& out, const std::string& description, const T& names)
 }
 
 
-bool read(int& argc, char** argv, const std::string& match)
-{
-    for(int i=1; i<argc; ++i)
-    {
-        if (match==argv[i])
-        {
-            // remove argument from argv
-            for(; i<argc-1; ++i)
-            {
-                argv[i] = argv[i+1];
-            }
-            --argc;
-            return true;
-        }
-    }
-    return false;
-}
-
-
-template<typename T>
-bool read(int& argc, char** argv, const std::string& match, T& value)
-{
-    for(int i=1; i<argc; ++i)
-    {
-        if (match==argv[i])
-        {
-            if (i+1<argc)
-            {
-                T local;
-                std::istringstream str(argv[i+1]);
-                str >> local;
-                if (!str)
-                {
-                    std::cout<<"Warning : error reading command line parameter : "<<argv[i+1]<<std::endl;
-                    return false;
-                }
-
-                value = local;
-
-                // remove argument from argv
-                for(; i<argc-2; ++i)
-                {
-                    argv[i] = argv[i+2];
-                }
-                argc -= 2;
-
-                return true;
-            }
-            else
-            {
-                std::cout<<"Not enough parameters for match "<<match<<std::endl;
-            }
-        }
-    }
-    return false;
-}
-
-void print(int& argc, char** argv)
-{
-    std::cout<<"Arguments argc="<<argc<<std::endl;
-    for(int i=0; i<argc; ++i)
-    {
-        std::cout<<"  argc["<<i<<"] "<<argv[i]<<std::endl;
-    }
-}
-
 int main(int argc, char** argv)
 {
     bool debugLayer = false;
     int width = 800;
     int height = 600;
 
-    print(argc, argv);
+    vsg::CommandLine::print(argc, argv);
 
-    if (read(argc, argv, "--debug") || read(argc, argv, "-d")) debugLayer = true;
-    if (read(argc, argv, "--width", width)) {}
-    if (read(argc, argv, "--height", height)) {}
+    if (vsg::CommandLine::read(argc, argv, "--debug") || vsg::CommandLine::read(argc, argv, "-d")) debugLayer = true;
+    if (vsg::CommandLine::read(argc, argv, "--width", width)) {}
+    if (vsg::CommandLine::read(argc, argv, "--height", height)) {}
+    if (vsg::CommandLine::read(argc, argv, "--window", width, height)) {}
 
-    print(argc, argv);
+    vsg::dvec3 v;
+    if (vsg::CommandLine::read(argc, argv, "-v", v.x, v.y, v.z))
+    {
+        std::cout<<"v = "<<v.x<<", "<<v.y<<", "<<v.z<<std::endl;
+    }
+
+    vsg::vec4 c;
+    if (vsg::CommandLine::read(argc, argv, "-c", c.r, c.g, c.b, c.a))
+    {
+        std::cout<<"c = "<<c.r<<", "<<c.g<<", "<<c.b<<", "<<c.a<<std::endl;
+    }
+
+    vsg::CommandLine::print(argc, argv);
 
     // initialize window
     glfwInit();
