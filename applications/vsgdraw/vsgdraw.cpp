@@ -49,8 +49,10 @@ Names validateInstancelayerNames(const Names& names)
     return validatedNames;
 }
 
-bool createInstance(VkInstance& instance, Names& instanceExtensions, Names& layers)
+VkInstance createInstance(Names& instanceExtensions, Names& layers)
 {
+    VkInstance instance = nullptr;
+
     // applictin info
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -72,12 +74,43 @@ bool createInstance(VkInstance& instance, Names& instanceExtensions, Names& laye
     if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
     {
         std::cout<<"Failed to create VkInstance"<<std::endl;
-        return false;
+        return instance;
     }
 
     std::cout<<"Created VkInstance"<<std::endl;
-    return true;
+    return instance;
 }
+
+VkPhysicalDevice selectPhysicalDevice(VkInstance& instance, int queueRequirementsMask=VK_QUEUE_GRAPHICS_BIT)
+{
+    uint32_t deviceCount = 0;
+    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+
+    std::vector<VkPhysicalDevice> devices(deviceCount);
+    vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+
+    for(const auto& device : devices)
+    {
+        // Checked the DeviceQueueFamilyProperties for support for graphics
+        uint32_t queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+        std::vector<VkQueueFamilyProperties> queueFamiles(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamiles.data());
+
+        for(const auto& queueFamily : queueFamiles)
+        {
+            if ((queueFamily.queueFlags & queueRequirementsMask)!=0)
+            {
+                return device;
+            }
+        }
+
+    }
+
+    return VK_NULL_HANDLE;
+}
+
 
 Names getInstanceExtensions()
 {
@@ -117,6 +150,11 @@ int main(int argc, char** argv)
     // initialize window
     glfwInit();
 
+    /////////////////////////////////////////////////////////////////////
+    //
+    // start of initialize vulkan
+    //
+
     Names instanceExtensions = getInstanceExtensions();
 
     Names requestedLayers;
@@ -131,14 +169,28 @@ int main(int argc, char** argv)
     print(std::cout,"instanceExtensions",instanceExtensions);
     print(std::cout,"validatedNames",validatedNames);
 
-    // initialize vulkan
-    VkInstance instance;
-
-    if (!createInstance(instance, instanceExtensions, validatedNames))
+    VkInstance instance = createInstance(instanceExtensions, validatedNames);
+    if (!instance)
     {
-        std::cout<<"No VkInstance no play!"<<std::endl;
+        std::cout<<"No VkInstance available!"<<std::endl;
         return 1;
     }
+
+    // set up device
+    VkPhysicalDevice device = selectPhysicalDevice(instance, VK_QUEUE_GRAPHICS_BIT);
+    if (!device)
+    {
+        std::cout<<"No VkPhysicalDevice available!"<<std::endl;
+        return 1;
+    }
+
+    std::cout<<"Selected device "<<device<<std::endl;
+
+
+    //
+    // end of initialize vulkan
+    //
+    /////////////////////////////////////////////////////////////////////
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     //glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
