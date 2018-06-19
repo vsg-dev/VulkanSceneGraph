@@ -97,51 +97,22 @@ void print(std::ostream& out, const std::string& description, const T& names)
 }
 
 
-void print(int& argc, char** argv)
-{
-    std::cout<<"Arguments argc="<<argc<<std::endl;
-    for(int i=0; i<argc; ++i)
-    {
-        std::cout<<"  argc["<<i<<"] "<<argv[i]<<std::endl;
-    }
-}
-
 int main(int argc, char** argv)
 {
     bool debugLayer = false;
     int width = 800;
     int height = 600;
 
-    print(argc, argv);
-
     try
     {
         if (vsg::CommandLine::read(argc, argv, "--debug") || vsg::CommandLine::read(argc, argv, "-d")) debugLayer = true;
-        if (vsg::CommandLine::read(argc, argv, "--width", width)) {}
-        if (vsg::CommandLine::read(argc, argv, "--height", height)) {}
         if (vsg::CommandLine::read(argc, argv, "--window", width, height)) {}
-
-        vsg::dvec3 v;
-        if (vsg::CommandLine::read(argc, argv, "-v", v.x, v.y, v.z))
-        {
-            std::cout<<"v = "<<v.x<<", "<<v.y<<", "<<v.z<<std::endl;
-        }
-
-        vsg::vec4 c;
-        if (vsg::CommandLine::read(argc, argv, "-c", c.r, c.g, c.b, c.a))
-        {
-            std::cout<<"c = "<<c.r<<", "<<c.g<<", "<<c.b<<", "<<c.a<<std::endl;
-        }
-
     }
     catch (const std::runtime_error& error)
     {
         std::cerr << error.what() << std::endl;
         return 1;
     }
-
-
-    print(argc, argv);
 
     // initialize window
     glfwInit();
