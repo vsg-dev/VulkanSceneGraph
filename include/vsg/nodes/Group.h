@@ -5,9 +5,6 @@
 #include <vsg/nodes/Node.h>
 
 #include <vector>
-#include <algorithm>
-
-#define INLINE_TRAVERSE
 
 namespace vsg
 {
@@ -18,18 +15,13 @@ namespace vsg
 
         virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 
-#ifdef INLINE_TRAVERSE
-
         inline virtual void traverse(Visitor& visitor)
         {
-            std::for_each(_children.begin(), _children.end(), [&visitor](ref_ptr<Node>& child)
+            for(auto child : _children)
             {
-                child->accept(visitor);
-            });
+                if (child.valid()) child->accept(visitor);
+            }
         }
-#else
-        virtual void traverse(Visitor& visitor);
-#endif
 
         std::size_t addChild(vsg::Node* child) { std::size_t pos = _children.size(); _children.push_back(child); return pos; }
 

@@ -29,10 +29,10 @@ namespace vsg
         // traverse all chukdren
         inline virtual void traverse(Visitor& visitor)
         {
-            std::for_each(_children.begin(), _children.end(), [&visitor](ref_ptr<Node>& child)
+            for(auto child : _children)
             {
                 if (child.valid()) child->accept(visitor);
-            });
+            }
         }
 
         /// set the BondingSphere to use in culling/computation of which child is active.
