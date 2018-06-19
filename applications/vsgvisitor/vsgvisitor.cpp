@@ -146,8 +146,7 @@ int main(int argc, char** argv)
     unsigned int numLevels = 11;
     try
     {
-        vsg::CommandLine::read(argc, argv, "--levels", numLevels);
-        vsg::CommandLine::read(argc, argv, "-l", numLevels);
+        vsg::CommandLine::read(argc, argv, vsg::CommandLine::Match("--levels", "-l"), numLevels);
     }
     catch (const std::runtime_error& error)
     {

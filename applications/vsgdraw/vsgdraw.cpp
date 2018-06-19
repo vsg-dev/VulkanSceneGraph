@@ -105,8 +105,8 @@ int main(int argc, char** argv)
 
     try
     {
-        if (vsg::CommandLine::read(argc, argv, "--debug") || vsg::CommandLine::read(argc, argv, "-d")) debugLayer = true;
-        if (vsg::CommandLine::read(argc, argv, "--window", width, height)) {}
+        if (vsg::CommandLine::read(argc, argv, vsg::CommandLine::Match("--debug","-d"))) debugLayer = true;
+        if (vsg::CommandLine::read(argc, argv, vsg::CommandLine::Match("--window","-w"), width, height)) {}
     }
     catch (const std::runtime_error& error)
     {

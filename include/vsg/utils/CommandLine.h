@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sstream>
+#include <list>
 
 namespace vsg
 {
@@ -25,6 +26,29 @@ namespace CommandLine
         std::istringstream _str;
     };
 
+    class Match
+    {
+    public:
+        using Matches = std::list<std::string>;
+
+        Matches _matches;
+
+        Match(const char* match) { _matches.push_back(match); }
+        Match(const char* match1, const char* match2) { _matches.push_back(match1); _matches.push_back(match2); }
+
+        Match(const std::string& match) { _matches.push_back(match); }
+        Match(const std::string& match1, const std::string& match2) { _matches.push_back(match1); _matches.push_back(match2); }
+
+        bool operator() (const char* field) const
+        {
+            for(const std::string& match : _matches)
+            {
+                if (match==field) return true;
+            }
+            return false;
+        }
+    };
+
 
     void removeArguments(int& argc, char** argv, int pos, int num)
     {
@@ -36,11 +60,11 @@ namespace CommandLine
         argc -= num;
     }
 
-    bool read(int& argc, char** argv, const std::string& match)
+    bool read(int& argc, char** argv, const Match& match)
     {
         for(int i=1; i<argc; ++i)
         {
-            if (match==argv[i])
+            if (match(argv[i]))
             {
                 removeArguments(argc, argv, i, 1);
                 return true;
@@ -50,11 +74,11 @@ namespace CommandLine
     }
 
     template<typename T>
-    bool read(int& argc, char** argv, const std::string& match, T& value)
+    bool read(int& argc, char** argv, const Match& match, T& value)
     {
         for(int i=1; i<argc; ++i)
         {
-            if (match==argv[i])
+            if (match(argv[i]))
             {
                 if (i+1<argc)
                 {
@@ -74,7 +98,7 @@ namespace CommandLine
                 }
                 else
                 {
-                    throw std::runtime_error(std::string("Warning : Not enough parameters to match : ")+match+" <value>");
+                    throw std::runtime_error(std::string("Warning : Not enough parameters to match : ")+argv[i]+" <value>");
                 }
             }
         }
@@ -82,11 +106,11 @@ namespace CommandLine
     }
 
     template<typename T1, typename T2>
-    bool read(int& argc, char** argv, const std::string& match, T1& value1, T2& value2)
+    bool read(int& argc, char** argv, const Match& match, T1& value1, T2& value2)
     {
         for(int i=1; i<argc; ++i)
         {
-            if (match==argv[i])
+            if (match(argv[i]))
             {
                 if (i+2<argc)
                 {
@@ -113,7 +137,7 @@ namespace CommandLine
                 }
                 else
                 {
-                    throw std::runtime_error(std::string("Warning : Not enough parameters to match : ")+match+" <value>");
+                    throw std::runtime_error(std::string("Warning : Not enough parameters to match : ")+argv[i]+" <value>");
                 }
             }
         }
@@ -122,11 +146,11 @@ namespace CommandLine
 
 
     template<typename T1, typename T2, typename T3>
-    bool read(int& argc, char** argv, const std::string& match, T1& value1, T2& value2, T3& value3)
+    bool read(int& argc, char** argv, const Match& match, T1& value1, T2& value2, T3& value3)
     {
         for(int i=1; i<argc; ++i)
         {
-            if (match==argv[i])
+            if (match(argv[i]))
             {
                 if (i+3<argc)
                 {
@@ -160,7 +184,7 @@ namespace CommandLine
                 }
                 else
                 {
-                    throw std::runtime_error(std::string("Warning : Not enough parameters to match : ")+match+" <value>");
+                    throw std::runtime_error(std::string("Warning : Not enough parameters to match : ")+argv[i]+" <value>");
                 }
             }
         }
@@ -169,11 +193,11 @@ namespace CommandLine
 
 
     template<typename T1, typename T2, typename T3, typename T4>
-    bool read(int& argc, char** argv, const std::string& match, T1& value1, T2& value2, T3& value3, T4& value4)
+    bool read(int& argc, char** argv, const Match& match, T1& value1, T2& value2, T3& value3, T4& value4)
     {
         for(int i=1; i<argc; ++i)
         {
-            if (match==argv[i])
+            if (match(argv[i]))
             {
                 if (i+4<argc)
                 {
@@ -214,7 +238,7 @@ namespace CommandLine
                 }
                 else
                 {
-                    throw std::runtime_error(std::string("Warning : Not enough parameters to match : ")+match+" <value>");
+                    throw std::runtime_error(std::string("Warning : Not enough parameters to match : ")+argv[i]+" <value>");
                 }
             }
         }
