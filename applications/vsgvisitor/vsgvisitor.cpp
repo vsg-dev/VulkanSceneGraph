@@ -6,6 +6,8 @@
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/FixedGroup.h>
 
+#include <vsg/utils/CommandLine.h>
+
 #include <iostream>
 #include <vector>
 #include <chrono>
@@ -142,6 +144,17 @@ void visit2(P& object, std::function<void(C1&)> func1, std::function<void(C2&)> 
 int main(int argc, char** argv)
 {
     unsigned int numLevels = 11;
+    try
+    {
+        vsg::CommandLine::read(argc, argv, "--levels", numLevels);
+        vsg::CommandLine::read(argc, argv, "-l", numLevels);
+    }
+    catch (const std::runtime_error& error)
+    {
+        std::cerr << error.what() << std::endl;
+        return 1;
+    }
+
 
     vsg::ref_ptr<vsg::Node> scene;
     std::cout<<"VulkanSceneGraph Fixed Quad Tree creation : "<<time( [&]() { scene = createQuadTree(numLevels); } )<<std::endl;
