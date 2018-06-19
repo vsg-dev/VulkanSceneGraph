@@ -307,6 +307,8 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    std::cout<<"Created graphicsQueue="<<graphicsQueue<<", presentQueue="<<presentQueue<<std::endl;
+
     //
     // end of initialize vulkan
     //
