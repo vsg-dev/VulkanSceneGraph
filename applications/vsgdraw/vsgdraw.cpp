@@ -88,9 +88,19 @@ VkInstance createInstance(Names& instanceExtensions, Names& layers)
     return instance;
 }
 
-using PhysialDeviceQueueFamilyPair = std::pair<VkPhysicalDevice, int>;
+struct PhysicalDeviceSettings
+{
+    VkPhysicalDevice device = VK_NULL_HANDLE;
+    int graphicsFamily = -1;
+    int presentFamily = -1;
 
-PhysialDeviceQueueFamilyPair selectPhysicalDevice(VkInstance& instance, int queueRequirementsMask=VK_QUEUE_GRAPHICS_BIT)
+    bool complete() const
+    {
+        return device!=VK_NULL_HANDLE && graphicsFamily>=0 && presentFamily>=0;
+    }
+};
+
+PhysicalDeviceSettings selectPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
 {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
@@ -100,6 +110,9 @@ PhysialDeviceQueueFamilyPair selectPhysicalDevice(VkInstance& instance, int queu
 
     for(const auto& device : devices)
     {
+        PhysicalDeviceSettings deviceSettings;
+        deviceSettings.device = device;
+
         // Checked the DeviceQueueFamilyProperties for support for graphics
         uint32_t queueFamilyCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
@@ -110,43 +123,58 @@ PhysialDeviceQueueFamilyPair selectPhysicalDevice(VkInstance& instance, int queu
         for(int i=0; i<queueFamilyCount; ++i)
         {
             const auto& queueFamily = queueFamiles[i];
-            if ((queueFamily.queueFlags & queueRequirementsMask)!=0)
+            if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)!=0)
             {
-                return PhysialDeviceQueueFamilyPair(device, i);
+                deviceSettings.graphicsFamily = i;
             }
+
+            VkBool32 presentSupported = false;
+            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupported);
+            if (queueFamily.queueCount>0 && presentSupported)
+            {
+                deviceSettings.presentFamily = i;
+            }
+
+            if (deviceSettings.complete()) return deviceSettings;
         }
 
     }
 
-    return PhysialDeviceQueueFamilyPair(VK_NULL_HANDLE,0);
+    return PhysicalDeviceSettings();
 }
 
-VkDevice createLogicalDevice(const PhysialDeviceQueueFamilyPair& physicalDevicePair, Names& layers)
+VkDevice createLogicalDevice(const PhysicalDeviceSettings& deviceSettings, Names& layers)
 {
     VkDevice device = VK_NULL_HANDLE;
 
-    std::cout<<"createLogicalDevice("<<physicalDevicePair.first<<", "<<physicalDevicePair.second<<")"<<std::endl;
+    std::cout<<"createLogicalDevice("<<deviceSettings.device<<", "<<deviceSettings.graphicsFamily<<", "<<deviceSettings.presentFamily<<")"<<std::endl;
+
+    std::set<int> uniqueQueueFamiles = {deviceSettings.graphicsFamily, deviceSettings.presentFamily};
+    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
     float queuePriority = 1.0f;
-
-    VkDeviceQueueCreateInfo queueCreateInfo = {};
-    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo.queueFamilyIndex = physicalDevicePair.second;
-    queueCreateInfo.queueCount = 1;
-    queueCreateInfo.pQueuePriorities = &queuePriority;
+    for(int queueFamily : uniqueQueueFamiles)
+    {
+        VkDeviceQueueCreateInfo queueCreateInfo = {};
+        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo.queueFamilyIndex = queueFamily;
+        queueCreateInfo.queueCount = 1;
+        queueCreateInfo.pQueuePriorities = &queuePriority;
+        queueCreateInfos.push_back(queueCreateInfo);
+    }
 
     VkPhysicalDeviceFeatures deviceFeatures = {};
 
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    createInfo.queueCreateInfoCount = 1;
-    createInfo.pQueueCreateInfos = &queueCreateInfo;
+    createInfo.queueCreateInfoCount = queueCreateInfos.size();
+    createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.pEnabledFeatures = &deviceFeatures;
     createInfo.enabledExtensionCount = 0;
     createInfo.enabledLayerCount = layers.size();
     createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
 
-    if (vkCreateDevice(physicalDevicePair.first, &createInfo, nullptr, &device)!=VK_SUCCESS)
+    if (vkCreateDevice(deviceSettings.device, &createInfo, nullptr, &device)!=VK_SUCCESS)
     {
         std::cout<<"Failed to create logical device"<<std::endl;
     }
@@ -207,6 +235,12 @@ int main(int argc, char** argv)
     // initialize window
     glfwInit();
 
+
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    //glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+    GLFWwindow* window = glfwCreateWindow(width, height, "Vulkan", nullptr, nullptr);
+
     /////////////////////////////////////////////////////////////////////
     //
     // start of initialize vulkan
@@ -233,16 +267,24 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    // use GLFW to create surface
+    VkSurfaceKHR surface;
+    if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS)
+    {
+        std::cout<<"Failed to create window surface"<<std::endl;
+        return 1;
+    }
+
     // set up device
-    vsg::PhysialDeviceQueueFamilyPair physicalDevicePair = vsg::selectPhysicalDevice(instance, VK_QUEUE_GRAPHICS_BIT);
-    if (!physicalDevicePair.first)
+    vsg::PhysicalDeviceSettings physicalDeviceSettings = vsg::selectPhysicalDevice(instance, surface);
+    if (!physicalDeviceSettings.complete())
     {
         std::cout<<"No VkPhysicalDevice available!"<<std::endl;
         return 1;
     }
 
     // set up logical device
-    VkDevice device = vsg::createLogicalDevice(physicalDevicePair, validatedNames);
+    VkDevice device = vsg::createLogicalDevice(physicalDeviceSettings, validatedNames);
     if (!device)
     {
         std::cout<<"No VkDevice available!"<<std::endl;
@@ -251,10 +293,17 @@ int main(int argc, char** argv)
 
     std::cout<<"Created logical device "<<device<<std::endl;
 
-    VkQueue queue = vsg::createDeviceQueue(device, physicalDevicePair.second);
-    if (!queue)
+    VkQueue graphicsQueue = vsg::createDeviceQueue(device, physicalDeviceSettings.graphicsFamily);
+    if (!graphicsQueue)
     {
-        std::cout<<"No VkQeue available!"<<std::endl;
+        std::cout<<"No Graphics queue available!"<<std::endl;
+        return 1;
+    }
+
+    VkQueue presentQueue = vsg::createDeviceQueue(device, physicalDeviceSettings.presentFamily);
+    if (!presentQueue)
+    {
+        std::cout<<"No Present queue available!"<<std::endl;
         return 1;
     }
 
@@ -262,11 +311,6 @@ int main(int argc, char** argv)
     // end of initialize vulkan
     //
     /////////////////////////////////////////////////////////////////////
-
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    //glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-    GLFWwindow* window = glfwCreateWindow(width, height, "Vulkan", nullptr, nullptr);
 
 
     // main loop
@@ -278,6 +322,7 @@ int main(int argc, char** argv)
 
     // clean up vulkan
     vkDestroyDevice(device, nullptr);
+    vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
 
     // clean up GLFW
