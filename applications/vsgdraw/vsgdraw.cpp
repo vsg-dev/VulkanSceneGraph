@@ -114,22 +114,32 @@ int main(int argc, char** argv)
 
     print(argc, argv);
 
-    if (vsg::CommandLine::read(argc, argv, "--debug") || vsg::CommandLine::read(argc, argv, "-d")) debugLayer = true;
-    if (vsg::CommandLine::read(argc, argv, "--width", width)) {}
-    if (vsg::CommandLine::read(argc, argv, "--height", height)) {}
-    if (vsg::CommandLine::read(argc, argv, "--window", width, height)) {}
-
-    vsg::dvec3 v;
-    if (vsg::CommandLine::read(argc, argv, "-v", v.x, v.y, v.z))
+    try
     {
-        std::cout<<"v = "<<v.x<<", "<<v.y<<", "<<v.z<<std::endl;
+        if (vsg::CommandLine::read(argc, argv, "--debug") || vsg::CommandLine::read(argc, argv, "-d")) debugLayer = true;
+        if (vsg::CommandLine::read(argc, argv, "--width", width)) {}
+        if (vsg::CommandLine::read(argc, argv, "--height", height)) {}
+        if (vsg::CommandLine::read(argc, argv, "--window", width, height)) {}
+
+        vsg::dvec3 v;
+        if (vsg::CommandLine::read(argc, argv, "-v", v.x, v.y, v.z))
+        {
+            std::cout<<"v = "<<v.x<<", "<<v.y<<", "<<v.z<<std::endl;
+        }
+
+        vsg::vec4 c;
+        if (vsg::CommandLine::read(argc, argv, "-c", c.r, c.g, c.b, c.a))
+        {
+            std::cout<<"c = "<<c.r<<", "<<c.g<<", "<<c.b<<", "<<c.a<<std::endl;
+        }
+
+    }
+    catch (const std::runtime_error& error)
+    {
+        std::cerr << error.what() << std::endl;
+        return 1;
     }
 
-    vsg::vec4 c;
-    if (vsg::CommandLine::read(argc, argv, "-c", c.r, c.g, c.b, c.a))
-    {
-        std::cout<<"c = "<<c.r<<", "<<c.g<<", "<<c.b<<", "<<c.a<<std::endl;
-    }
 
     print(argc, argv);
 

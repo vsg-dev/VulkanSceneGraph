@@ -1,7 +1,6 @@
 #pragma once
 
 #include <sstream>
-#include <iostream>
 
 namespace vsg
 {
@@ -64,8 +63,7 @@ namespace CommandLine
                     T local;
                     if (!convert(argv[i+1],local))
                     {
-                        std::cout<<"Warning : error reading command line parameter : "<<argv[i+1]<<std::endl;
-                        return false;
+                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+1]);
                     }
 
                     value = local;
@@ -76,7 +74,7 @@ namespace CommandLine
                 }
                 else
                 {
-                    std::cout<<"Warning : Not enough parameters to match : "<<match<<" <value>"<<std::endl;
+                    throw std::runtime_error(std::string("Warning : Not enough parameters to match : ")+match+" <value>");
                 }
             }
         }
@@ -97,15 +95,13 @@ namespace CommandLine
                     T1 local1;
                     if (!convert(argv[i+1],local1))
                     {
-                        std::cout<<"Warning : error reading command line parameter : "<<argv[i+1]<<std::endl;
-                        return false;
+                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+1]);
                     }
 
                     T2 local2;
                     if (!convert(argv[i+2],local2))
                     {
-                        std::cout<<"Warning : error reading command line parameter : "<<argv[i+2]<<std::endl;
-                        return false;
+                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+2]);
                     }
 
                     value1 = local1;
@@ -117,7 +113,7 @@ namespace CommandLine
                 }
                 else
                 {
-                    std::cout<<"Warning : Not enough parameters to match : "<<match<<" <value>"<<std::endl;
+                    throw std::runtime_error(std::string("Warning : Not enough parameters to match : ")+match+" <value>");
                 }
             }
         }
@@ -139,22 +135,19 @@ namespace CommandLine
                     T1 local1;
                     if (!convert(argv[i+1],local1))
                     {
-                        std::cout<<"Warning : error reading command line parameter : "<<argv[i+1]<<std::endl;
-                        return false;
+                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+1]);
                     }
 
                     T2 local2;
                     if (!convert(argv[i+2],local2))
                     {
-                        std::cout<<"Warning : error reading command line parameter : "<<argv[i+2]<<std::endl;
-                        return false;
+                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+2]);
                     }
 
                     T3 local3;
                     if (!convert(argv[i+3],local3))
                     {
-                        std::cout<<"Warning : error reading command line parameter : "<<argv[i+3]<<std::endl;
-                        return false;
+                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+3]);
                     }
 
                     value1 = local1;
@@ -167,7 +160,7 @@ namespace CommandLine
                 }
                 else
                 {
-                    std::cout<<"Warning : Not enough parameters to match : "<<match<<" <value>"<<std::endl;
+                    throw std::runtime_error(std::string("Warning : Not enough parameters to match : ")+match+" <value>");
                 }
             }
         }
@@ -189,29 +182,25 @@ namespace CommandLine
                     T1 local1;
                     if (!convert(argv[i+1],local1))
                     {
-                        std::cout<<"Warning : error reading command line parameter : "<<argv[i+1]<<std::endl;
-                        return false;
+                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+1]);
                     }
 
                     T2 local2;
                     if (!convert(argv[i+2],local2))
                     {
-                        std::cout<<"Warning : error reading command line parameter : "<<argv[i+2]<<std::endl;
-                        return false;
+                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+2]);
                     }
 
                     T3 local3;
                     if (!convert(argv[i+3],local3))
                     {
-                        std::cout<<"Warning : error reading command line parameter : "<<argv[i+3]<<std::endl;
-                        return false;
+                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+3]);
                     }
 
                     T4 local4;
                     if (!convert(argv[i+4],local4))
                     {
-                        std::cout<<"Warning : error reading command line parameter : "<<argv[i+4]<<std::endl;
-                        return false;
+                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+4]);
                     }
 
                     value1 = local1;
@@ -225,7 +214,7 @@ namespace CommandLine
                 }
                 else
                 {
-                    std::cout<<"Warning : Not enough parameters to match : "<<match<<" <value>"<<std::endl;
+                    throw std::runtime_error(std::string("Warning : Not enough parameters to match : ")+match+" <value>");
                 }
             }
         }
