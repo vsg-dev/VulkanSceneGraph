@@ -9,24 +9,46 @@ namespace vsg
 namespace CommandLine
 {
 
+    class Convert
+    {
+    public:
+        Convert() {}
+
+        template<typename T>
+        bool operator() (const char* field, T& value)
+        {
+            _str.clear();
+            _str.str(field);
+            _str >> value;
+            return !_str.fail();
+        }
+
+        std::istringstream _str;
+    };
+
+
+    void removeArguments(int& argc, char** argv, int pos, int num)
+    {
+        // remove argument from argv
+        for(int i=pos; i<argc-num; ++i)
+        {
+            argv[i] = argv[i+num];
+        }
+        argc -= num;
+    }
+
     bool read(int& argc, char** argv, const std::string& match)
     {
         for(int i=1; i<argc; ++i)
         {
             if (match==argv[i])
             {
-                // remove argument from argv
-                for(; i<argc-1; ++i)
-                {
-                    argv[i] = argv[i+1];
-                }
-                --argc;
+                removeArguments(argc, argv, i, 1);
                 return true;
             }
         }
         return false;
     }
-
 
     template<typename T>
     bool read(int& argc, char** argv, const std::string& match, T& value)
@@ -37,10 +59,10 @@ namespace CommandLine
             {
                 if (i+1<argc)
                 {
+                    Convert convert;
+
                     T local;
-                    std::istringstream str(argv[i+1]);
-                    str >> local;
-                    if (!str)
+                    if (!convert(argv[i+1],local))
                     {
                         std::cout<<"Warning : error reading command line parameter : "<<argv[i+1]<<std::endl;
                         return false;
@@ -48,12 +70,7 @@ namespace CommandLine
 
                     value = local;
 
-                    // remove argument from argv
-                    for(; i<argc-2; ++i)
-                    {
-                        argv[i] = argv[i+2];
-                    }
-                    argc -= 2;
+                    removeArguments(argc, argv, i, 2);
 
                     return true;
                 }
@@ -75,22 +92,17 @@ namespace CommandLine
             {
                 if (i+2<argc)
                 {
-                    std::istringstream str(argv[i+1]);
+                    Convert convert;
 
                     T1 local1;
-                    str >> local1;
-                    if (!str)
+                    if (!convert(argv[i+1],local1))
                     {
                         std::cout<<"Warning : error reading command line parameter : "<<argv[i+1]<<std::endl;
                         return false;
                     }
 
-                    str.clear();
-                    str.str(argv[i+2]);
-
                     T2 local2;
-                    str >> local2;
-                    if (!str)
+                    if (!convert(argv[i+2],local2))
                     {
                         std::cout<<"Warning : error reading command line parameter : "<<argv[i+2]<<std::endl;
                         return false;
@@ -99,12 +111,7 @@ namespace CommandLine
                     value1 = local1;
                     value2 = local2;
 
-                    // remove argument from argv
-                    for(; i<argc-3; ++i)
-                    {
-                        argv[i] = argv[i+3];
-                    }
-                    argc -= 3;
+                    removeArguments(argc, argv, i, 3);
 
                     return true;
                 }
@@ -127,33 +134,24 @@ namespace CommandLine
             {
                 if (i+3<argc)
                 {
-                    std::istringstream str(argv[i+1]);
+                    Convert convert;
 
                     T1 local1;
-                    str >> local1;
-                    if (!str)
+                    if (!convert(argv[i+1],local1))
                     {
                         std::cout<<"Warning : error reading command line parameter : "<<argv[i+1]<<std::endl;
                         return false;
                     }
 
-                    str.clear();
-                    str.str(argv[i+2]);
-
                     T2 local2;
-                    str >> local2;
-                    if (!str)
+                    if (!convert(argv[i+2],local2))
                     {
                         std::cout<<"Warning : error reading command line parameter : "<<argv[i+2]<<std::endl;
                         return false;
                     }
 
-                    str.clear();
-                    str.str(argv[i+3]);
-
                     T3 local3;
-                    str >> local3;
-                    if (!str)
+                    if (!convert(argv[i+3],local3))
                     {
                         std::cout<<"Warning : error reading command line parameter : "<<argv[i+3]<<std::endl;
                         return false;
@@ -163,12 +161,7 @@ namespace CommandLine
                     value2 = local2;
                     value3 = local3;
 
-                    // remove argument from argv
-                    for(; i<argc-4; ++i)
-                    {
-                        argv[i] = argv[i+4];
-                    }
-                    argc -= 4;
+                    removeArguments(argc, argv, i, 4);
 
                     return true;
                 }
@@ -191,44 +184,31 @@ namespace CommandLine
             {
                 if (i+4<argc)
                 {
-                    std::istringstream str(argv[i+1]);
+                    Convert convert;
 
                     T1 local1;
-                    str >> local1;
-                    if (!str)
+                    if (!convert(argv[i+1],local1))
                     {
                         std::cout<<"Warning : error reading command line parameter : "<<argv[i+1]<<std::endl;
                         return false;
                     }
 
-                    str.clear();
-                    str.str(argv[i+2]);
-
                     T2 local2;
-                    str >> local2;
-                    if (!str)
+                    if (!convert(argv[i+2],local2))
                     {
                         std::cout<<"Warning : error reading command line parameter : "<<argv[i+2]<<std::endl;
                         return false;
                     }
 
-                    str.clear();
-                    str.str(argv[i+3]);
-
                     T3 local3;
-                    str >> local3;
-                    if (!str)
+                    if (!convert(argv[i+3],local3))
                     {
                         std::cout<<"Warning : error reading command line parameter : "<<argv[i+3]<<std::endl;
                         return false;
                     }
 
-                    str.clear();
-                    str.str(argv[i+4]);
-
                     T4 local4;
-                    str >> local4;
-                    if (!str)
+                    if (!convert(argv[i+4],local4))
                     {
                         std::cout<<"Warning : error reading command line parameter : "<<argv[i+4]<<std::endl;
                         return false;
@@ -239,12 +219,7 @@ namespace CommandLine
                     value3 = local3;
                     value4 = local4;
 
-                    // remove argument from argv
-                    for(; i<argc-5; ++i)
-                    {
-                        argv[i] = argv[i+5];
-                    }
-                    argc -= 5;
+                    removeArguments(argc, argv, i, 5);
 
                     return true;
                 }
@@ -255,15 +230,6 @@ namespace CommandLine
             }
         }
         return false;
-    }
-
-    void print(int& argc, char** argv)
-    {
-        std::cout<<"Arguments argc="<<argc<<std::endl;
-        for(int i=0; i<argc; ++i)
-        {
-            std::cout<<"  argc["<<i<<"] "<<argv[i]<<std::endl;
-        }
     }
 
 } // CommandLine

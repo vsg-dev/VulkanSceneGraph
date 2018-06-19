@@ -2,9 +2,9 @@
 #include <GLFW/glfw3.h>
 
 #include <vsg/core/ref_ptr.h>
+#include <vsg/utils/CommandLine.h>
 
 #include "Draw.h"
-#include "CommandLine.h"
 
 #include <iostream>
 #include <algorithm>
@@ -97,13 +97,22 @@ void print(std::ostream& out, const std::string& description, const T& names)
 }
 
 
+void print(int& argc, char** argv)
+{
+    std::cout<<"Arguments argc="<<argc<<std::endl;
+    for(int i=0; i<argc; ++i)
+    {
+        std::cout<<"  argc["<<i<<"] "<<argv[i]<<std::endl;
+    }
+}
+
 int main(int argc, char** argv)
 {
     bool debugLayer = false;
     int width = 800;
     int height = 600;
 
-    vsg::CommandLine::print(argc, argv);
+    print(argc, argv);
 
     if (vsg::CommandLine::read(argc, argv, "--debug") || vsg::CommandLine::read(argc, argv, "-d")) debugLayer = true;
     if (vsg::CommandLine::read(argc, argv, "--width", width)) {}
@@ -122,7 +131,7 @@ int main(int argc, char** argv)
         std::cout<<"c = "<<c.r<<", "<<c.g<<", "<<c.b<<", "<<c.a<<std::endl;
     }
 
-    vsg::CommandLine::print(argc, argv);
+    print(argc, argv);
 
     // initialize window
     glfwInit();

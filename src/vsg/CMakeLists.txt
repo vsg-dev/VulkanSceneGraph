@@ -20,9 +20,12 @@ SET(HEADERS
     nodes/Node.h
     nodes/QuadGroup.h
     nodes/LOD.h
+
+    utils/CommandLine.h
 )
 
 SET(SOURCES
+
     core/Auxiliary.cpp
     core/Object.cpp
     core/Visitor.cpp
