@@ -11,6 +11,13 @@
 #include <mutex>
 #include <set>
 
+/////////////////////////////////////////////////////////////////////
+//
+// start of vulkan code
+//
+namespace vsg
+{
+
 using Names = std::vector<const char*>;
 
 Names validateInstancelayerNames(const Names& names)
@@ -51,7 +58,7 @@ Names validateInstancelayerNames(const Names& names)
 
 VkInstance createInstance(Names& instanceExtensions, Names& layers)
 {
-    VkInstance instance = nullptr;
+    VkInstance instance = VK_NULL_HANDLE;
 
     // applictin info
     VkApplicationInfo appInfo = {};
@@ -81,7 +88,9 @@ VkInstance createInstance(Names& instanceExtensions, Names& layers)
     return instance;
 }
 
-VkPhysicalDevice selectPhysicalDevice(VkInstance& instance, int queueRequirementsMask=VK_QUEUE_GRAPHICS_BIT)
+using PhysialDeviceQueueFamilyPair = std::pair<VkPhysicalDevice, int>;
+
+PhysialDeviceQueueFamilyPair selectPhysicalDevice(VkInstance& instance, int queueRequirementsMask=VK_QUEUE_GRAPHICS_BIT)
 {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
@@ -98,25 +107,73 @@ VkPhysicalDevice selectPhysicalDevice(VkInstance& instance, int queueRequirement
         std::vector<VkQueueFamilyProperties> queueFamiles(queueFamilyCount);
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamiles.data());
 
-        for(const auto& queueFamily : queueFamiles)
+        for(int i=0; i<queueFamilyCount; ++i)
         {
+            const auto& queueFamily = queueFamiles[i];
             if ((queueFamily.queueFlags & queueRequirementsMask)!=0)
             {
-                return device;
+                return PhysialDeviceQueueFamilyPair(device, i);
             }
         }
 
     }
 
-    return VK_NULL_HANDLE;
+    return PhysialDeviceQueueFamilyPair(VK_NULL_HANDLE,0);
+}
+
+VkDevice createLogicalDevice(const PhysialDeviceQueueFamilyPair& physicalDevicePair, Names& layers)
+{
+    VkDevice device = VK_NULL_HANDLE;
+
+    std::cout<<"createLogicalDevice("<<physicalDevicePair.first<<", "<<physicalDevicePair.second<<")"<<std::endl;
+
+    float queuePriority = 1.0f;
+
+    VkDeviceQueueCreateInfo queueCreateInfo = {};
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo.queueFamilyIndex = physicalDevicePair.second;
+    queueCreateInfo.queueCount = 1;
+    queueCreateInfo.pQueuePriorities = &queuePriority;
+
+    VkPhysicalDeviceFeatures deviceFeatures = {};
+
+    VkDeviceCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.queueCreateInfoCount = 1;
+    createInfo.pQueueCreateInfos = &queueCreateInfo;
+    createInfo.pEnabledFeatures = &deviceFeatures;
+    createInfo.enabledExtensionCount = 0;
+    createInfo.enabledLayerCount = layers.size();
+    createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
+
+    if (vkCreateDevice(physicalDevicePair.first, &createInfo, nullptr, &device)!=VK_SUCCESS)
+    {
+        std::cout<<"Failed to create logical device"<<std::endl;
+    }
+
+    return device;
+}
+
+VkQueue createDeviceQueue(VkDevice device, int graphicsFamily)
+{
+    VkQueue queue;
+    vkGetDeviceQueue(device, graphicsFamily, 0, &queue);
+    return queue;
 }
 
 
-Names getInstanceExtensions()
+}
+
+//
+// end of vulkan code
+//
+/////////////////////////////////////////////////////////////////////
+
+vsg::Names getInstanceExtensions()
 {
     uint32_t glfw_count;
     const char** glfw_extensons = glfwGetRequiredInstanceExtensions(&glfw_count);
-    return Names(glfw_extensons, glfw_extensons+glfw_count);
+    return vsg::Names(glfw_extensons, glfw_extensons+glfw_count);
 }
 
 template<typename T>
@@ -155,21 +212,21 @@ int main(int argc, char** argv)
     // start of initialize vulkan
     //
 
-    Names instanceExtensions = getInstanceExtensions();
+    vsg::Names instanceExtensions = getInstanceExtensions();
 
-    Names requestedLayers;
+    vsg::Names requestedLayers;
     if (debugLayer)
     {
         instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
         requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
     }
 
-    Names validatedNames = validateInstancelayerNames(requestedLayers);
+    vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
 
     print(std::cout,"instanceExtensions",instanceExtensions);
     print(std::cout,"validatedNames",validatedNames);
 
-    VkInstance instance = createInstance(instanceExtensions, validatedNames);
+    VkInstance instance = vsg::createInstance(instanceExtensions, validatedNames);
     if (!instance)
     {
         std::cout<<"No VkInstance available!"<<std::endl;
@@ -177,15 +234,29 @@ int main(int argc, char** argv)
     }
 
     // set up device
-    VkPhysicalDevice device = selectPhysicalDevice(instance, VK_QUEUE_GRAPHICS_BIT);
-    if (!device)
+    vsg::PhysialDeviceQueueFamilyPair physicalDevicePair = vsg::selectPhysicalDevice(instance, VK_QUEUE_GRAPHICS_BIT);
+    if (!physicalDevicePair.first)
     {
         std::cout<<"No VkPhysicalDevice available!"<<std::endl;
         return 1;
     }
 
-    std::cout<<"Selected device "<<device<<std::endl;
+    // set up logical device
+    VkDevice device = vsg::createLogicalDevice(physicalDevicePair, validatedNames);
+    if (!device)
+    {
+        std::cout<<"No VkDevice available!"<<std::endl;
+        return 1;
+    }
 
+    std::cout<<"Created logical device "<<device<<std::endl;
+
+    VkQueue queue = vsg::createDeviceQueue(device, physicalDevicePair.second);
+    if (!queue)
+    {
+        std::cout<<"No VkQeue available!"<<std::endl;
+        return 1;
+    }
 
     //
     // end of initialize vulkan
@@ -205,9 +276,11 @@ int main(int argc, char** argv)
         glfwPollEvents();
     }
 
-    // clean up
+    // clean up vulkan
+    vkDestroyDevice(device, nullptr);
     vkDestroyInstance(instance, nullptr);
 
+    // clean up GLFW
     glfwDestroyWindow(window);
     glfwTerminate();
 
