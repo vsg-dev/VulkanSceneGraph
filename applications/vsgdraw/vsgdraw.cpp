@@ -282,10 +282,11 @@ VkPresentModeKHR selectSwapPresentMode(SwapChainSupportDetails& details)
 
 struct SwapChain
 {
-    VkSwapchainKHR          swapchain = VK_NULL_HANDLE;
-    VkFormat                format;
-    VkExtent2D              extent;
-    std::vector<VkImage>    images;
+    VkSwapchainKHR              swapchain = VK_NULL_HANDLE;
+    VkFormat                    format;
+    VkExtent2D                  extent;
+    std::vector<VkImage>        images;
+    std::vector<VkImageView>    views;
 
     bool complete() const { return swapchain!=VK_NULL_HANDLE; }
 
@@ -349,9 +350,32 @@ SwapChain createSwapChain(const PhysicalDeviceSettings& deviceSettings, VkDevice
     swapChain.format = surfaceFormat.format;
     swapChain.extent = extent;
 
+    swapChain.views.resize(swapChain.images.size());
+    for (std::size_t i=0; i<swapChain.images.size(); ++i)
+    {
+        VkImageViewCreateInfo createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        createInfo.image = swapChain.images[i];
+        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        createInfo.format = swapChain.format;
+        createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        createInfo.subresourceRange.baseMipLevel = 0;
+        createInfo.subresourceRange.levelCount = 1;
+        createInfo.subresourceRange.baseArrayLayer = 0;
+        createInfo.subresourceRange.layerCount = 1;
+
+        if (vkCreateImageView(logicalDevice, &createInfo, nullptr, &swapChain.views[i])!=VK_SUCCESS)
+        {
+            std::cout<<"Error : unable to create image view "<<i<<std::endl;
+        }
+    }
+
     return swapChain;
 }
-
 
 }
 
@@ -484,6 +508,8 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    std::cout<<"Created swapchain with "<<swapChain.images.size()<<", "<<swapChain.views.size()<<std::endl;
+
         //
     // end of initialize vulkan
     //
@@ -498,6 +524,10 @@ int main(int argc, char** argv)
     }
 
     // clean up vulkan
+    for(auto imageView : swapChain.views)
+    {
+        vkDestroyImageView(device, imageView, nullptr);
+    }
     vkDestroySwapchainKHR(device, swapChain.swapchain, nullptr);
     vkDestroyDevice(device, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
