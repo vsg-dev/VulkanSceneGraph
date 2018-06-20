@@ -15,6 +15,7 @@
 ## Vulkan based projects
 
 * [Pumex](https://github.com/pumexx/pumex)
+* [VkHLF NVidia's C++ layer ontop of Vulkan](https://github.com/nvpro-pipeline/VkHLF)
 
 ## Maths
 
