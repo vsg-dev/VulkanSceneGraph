@@ -41,7 +41,7 @@ namespace CommandLine
 
         bool operator() (const char* field) const
         {
-            for(const std::string& match : _matches)
+            for (const std::string& match : _matches)
             {
                 if (match==field) return true;
             }
@@ -53,7 +53,7 @@ namespace CommandLine
     void removeArguments(int& argc, char** argv, int pos, int num)
     {
         // remove argument from argv
-        for(int i=pos; i<argc-num; ++i)
+        for (int i=pos; i<argc-num; ++i)
         {
             argv[i] = argv[i+num];
         }
@@ -62,7 +62,7 @@ namespace CommandLine
 
     bool read(int& argc, char** argv, const Match& match)
     {
-        for(int i=1; i<argc; ++i)
+        for (int i=1; i<argc; ++i)
         {
             if (match(argv[i]))
             {
@@ -76,7 +76,7 @@ namespace CommandLine
     template<typename T>
     bool read(int& argc, char** argv, const Match& match, T& value)
     {
-        for(int i=1; i<argc; ++i)
+        for (int i=1; i<argc; ++i)
         {
             if (match(argv[i]))
             {
@@ -108,7 +108,7 @@ namespace CommandLine
     template<typename T1, typename T2>
     bool read(int& argc, char** argv, const Match& match, T1& value1, T2& value2)
     {
-        for(int i=1; i<argc; ++i)
+        for (int i=1; i<argc; ++i)
         {
             if (match(argv[i]))
             {
@@ -148,7 +148,7 @@ namespace CommandLine
     template<typename T1, typename T2, typename T3>
     bool read(int& argc, char** argv, const Match& match, T1& value1, T2& value2, T3& value3)
     {
-        for(int i=1; i<argc; ++i)
+        for (int i=1; i<argc; ++i)
         {
             if (match(argv[i]))
             {
@@ -195,7 +195,7 @@ namespace CommandLine
     template<typename T1, typename T2, typename T3, typename T4>
     bool read(int& argc, char** argv, const Match& match, T1& value1, T2& value2, T3& value3, T4& value4)
     {
-        for(int i=1; i<argc; ++i)
+        for (int i=1; i<argc; ++i)
         {
             if (match(argv[i]))
             {

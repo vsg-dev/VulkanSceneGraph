@@ -41,7 +41,7 @@ public:
     void apply(vsg::Group& group)
     {
         std::cout<<"Myvisitor::apply(Group& "<<&group<<")"<<std::endl;
-        for(size_t i=0; i<group.getNumChildren(); ++i)
+        for (size_t i=0; i<group.getNumChildren(); ++i)
         {
             group.getChild(i)->accept(*this);
         }

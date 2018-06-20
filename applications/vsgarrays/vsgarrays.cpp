@@ -134,7 +134,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::vec4Array> colours = new vsg::vec4Array();
     colours->resize(20);
     vsg::vec4 c(0.25, 0.5, 0.75, 1.0);
-    for(std::size_t i=0; i<colours->size(); ++i)
+    for (std::size_t i=0; i<colours->size(); ++i)
     {
         (*colours)[i] = c;
         c = vsg::vec4(c.g, c.b, c.a, c.r);

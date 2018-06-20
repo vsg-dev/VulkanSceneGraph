@@ -17,7 +17,7 @@ namespace vsg
 
         inline virtual void traverse(Visitor& visitor)
         {
-            for(auto child : _children)
+            for (auto child : _children)
             {
                 if (child.valid()) child->accept(visitor);
             }

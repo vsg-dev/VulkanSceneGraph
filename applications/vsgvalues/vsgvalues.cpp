@@ -70,7 +70,7 @@ int main(int argc, char** argv)
         VisitValues visitValues;
 
         std::cout<<"Object has Auxiliary so check it's ObjectMap for our values. "<<object->getAuxiliary()<<std::endl;
-        for(vsg::Auxiliary::ObjectMap::iterator itr = object->getAuxiliary()->getObjectMap().begin();
+        for (vsg::Auxiliary::ObjectMap::iterator itr = object->getAuxiliary()->getObjectMap().begin();
             itr != object->getAuxiliary()->getObjectMap().end();
             ++itr)
         {
