@@ -379,6 +379,119 @@ SwapChain createSwapChain(const PhysicalDeviceSettings& deviceSettings, VkDevice
 
 }
 
+/////////
+//
+//
+// Provide wrappers of Vulkan objects to enable automatic clean up
+namespace vsg
+{
+
+    struct Instance : public vsg::Object
+    {
+        VkInstance              _instance;
+        VkAllocationCallbacks*  _pAllocator;
+
+        Instance(VkInstance instance, VkAllocationCallbacks* pAllocator=nullptr) : _instance(instance), _pAllocator(pAllocator) {}
+
+        virtual ~Instance()
+        {
+            if (_instance)
+            {
+                std::cout<<"Calling vkDestroyInstance"<<std::endl;
+                vkDestroyInstance(_instance, _pAllocator);
+            }
+        }
+
+        operator VkInstance() const { return _instance; }
+    };
+
+    struct Surface : public vsg::Object
+    {
+        vsg::ref_ptr<Instance>  _instance;
+        VkSurfaceKHR            _surface;
+        VkAllocationCallbacks*  _pAllocator;
+
+        Surface(Instance* instance, VkSurfaceKHR surface, VkAllocationCallbacks* pAllocator=nullptr) : _instance(instance), _surface(surface), _pAllocator(pAllocator) {}
+
+        virtual ~Surface()
+        {
+            if (_surface)
+            {
+                std::cout<<"Calling vkDestroySurfaceKHR"<<std::endl;
+                vkDestroySurfaceKHR(*_instance, _surface, _pAllocator);
+            }
+        }
+
+        operator VkSurfaceKHR() const { return _surface; }
+    };
+
+
+
+    struct Device : public vsg::Object
+    {
+        vsg::ref_ptr<Instance>  _instance;
+        VkDevice                _device;
+        VkAllocationCallbacks* _pAllocator;
+
+        Device(Instance* instance, VkDevice device, VkAllocationCallbacks* pAllocator=nullptr): _instance(instance), _device(device), _pAllocator(pAllocator) {}
+
+        virtual ~Device()
+        {
+            if (_device)
+            {
+                std::cout<<"Calling vkDestroyDevice(..)"<<std::endl;
+                vkDestroyDevice(_device, _pAllocator);
+            }
+        }
+
+        operator VkDevice() const { return _device; }
+    };
+
+    struct ImageView : public vsg::Object
+    {
+        vsg::ref_ptr<Device>    _device;
+        VkImageView             _imageView;
+        VkAllocationCallbacks*  _pAllocator;
+
+        ImageView(Device* device, VkImageView imageView, VkAllocationCallbacks* pAllocator=nullptr):
+            _device(device), _imageView(imageView), _pAllocator(pAllocator) {}
+
+        virtual ~ImageView()
+        {
+            if (_imageView)
+            {
+                std::cout<<"Calling vkDestroyImageView(..)"<<std::endl;
+                //vkDestroyImageView(_device->_device, _imageView, _pAllocator);
+                vkDestroyImageView(*_device, _imageView, _pAllocator);
+            }
+        }
+
+        operator VkImageView() const { return _imageView; }
+    };
+
+    struct Swapchain : public vsg::Object
+    {
+        vsg::ref_ptr<Device>    _device;
+        vsg::ref_ptr<Surface>   _surface;
+        VkSwapchainKHR          _swapchain;
+        VkAllocationCallbacks*  _pAllocator;
+
+        Swapchain(Device* device, Surface* surface, VkSwapchainKHR swapchain, VkAllocationCallbacks*  pAllocator=nullptr):
+            _device(device), _surface(surface), _swapchain(swapchain), _pAllocator(pAllocator) {}
+
+        virtual ~Swapchain()
+        {
+            if (_swapchain)
+            {
+                std::cout<<"Calling vkDestroySwapchainKHR(..)"<<std::endl;
+                vkDestroySwapchainKHR(*_device, _swapchain, _pAllocator);
+            }
+        }
+
+        operator VkSwapchainKHR() const { return _swapchain; }
+    };
+}
+
 //
 // end of vulkan code
 //
@@ -517,12 +630,36 @@ int main(int argc, char** argv)
 
 
     // main loop
-    while(!glfwWindowShouldClose(window))
+    int numFrames=10;
+    while(!glfwWindowShouldClose(window) && (numFrames--)>0)
     {
-        //std::cout<<"In main loop"<<std::endl;
+        std::cout<<"In main loop"<<std::endl;
         glfwPollEvents();
     }
 
+#if 1
+
+
+
+    // experiment with using ref counting to manage life time of Vulcan objects.
+    {
+        vsg::ref_ptr<vsg::Instance> vsg_instance = new vsg::Instance(instance);
+
+        vsg::ref_ptr<vsg::Surface> vsg_surface = new vsg::Surface(vsg_instance.get(), surface);
+
+        vsg::ref_ptr<vsg::Device> vsg_device = new vsg::Device(vsg_instance.get(), device);
+
+        vsg::ref_ptr<vsg::Swapchain> swapcahin = new vsg::Swapchain(vsg_device.get(), vsg_surface.get(), swapChain.swapchain);
+
+        std::vector<vsg::ref_ptr<vsg::ImageView>> imageViews;
+        for(auto imageView : swapChain.views)
+        {
+            imageViews.push_back(new vsg::ImageView(vsg_device.get(), imageView));
+        }
+    }
+
+
+#else
     // clean up vulkan
     for(auto imageView : swapChain.views)
     {
@@ -532,6 +669,8 @@ int main(int argc, char** argv)
     vkDestroyDevice(device, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
+#endif
+
 
     // clean up GLFW
     glfwDestroyWindow(window);
