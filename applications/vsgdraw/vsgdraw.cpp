@@ -649,7 +649,7 @@ int main(int argc, char** argv)
 
         vsg::ref_ptr<vsg::Device> vsg_device = new vsg::Device(vsg_instance.get(), device);
 
-        vsg::ref_ptr<vsg::Swapchain> swapcahin = new vsg::Swapchain(vsg_device.get(), vsg_surface.get(), swapChain.swapchain);
+        vsg::ref_ptr<vsg::Swapchain> swapchain = new vsg::Swapchain(vsg_device.get(), vsg_surface.get(), swapChain.swapchain);
 
         std::vector<vsg::ref_ptr<vsg::ImageView>> imageViews;
         for(auto imageView : swapChain.views)
