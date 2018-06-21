@@ -408,14 +408,30 @@ namespace vsg
         VkAllocationCallbacks*  _pAllocator;
     };
 
-    struct Surface : public vsg::Object
+    class Surface : public vsg::Object
     {
-        vsg::ref_ptr<Instance>  _instance;
-        VkSurfaceKHR            _surface;
-        VkAllocationCallbacks*  _pAllocator;
-
+    public:
         Surface(Instance* instance, VkSurfaceKHR surface, VkAllocationCallbacks* pAllocator=nullptr) : _instance(instance), _surface(surface), _pAllocator(pAllocator) {}
 
+        Surface(Instance* instance, GLFWwindow* window, VkAllocationCallbacks* pAllocator=nullptr) :
+            _instance(instance),
+            _surface(VK_NULL_HANDLE),
+            _pAllocator(pAllocator)
+        {
+            if (glfwCreateWindowSurface(*instance, window, nullptr, &_surface) != VK_SUCCESS)
+            {
+                std::cout<<"Failed to create window surface"<<std::endl;
+            }
+            else
+            {
+                std::cout<<"Created window surface"<<std::endl;
+            }
+
+        }
+
+        operator VkSurfaceKHR() const { return _surface; }
+
+    protected:
         virtual ~Surface()
         {
             if (_surface)
@@ -425,7 +441,10 @@ namespace vsg
             }
         }
 
-        operator VkSurfaceKHR() const { return _surface; }
+        vsg::ref_ptr<Instance>  _instance;
+        VkSurfaceKHR            _surface;
+        VkAllocationCallbacks*  _pAllocator;
+
     };
 
 
@@ -628,16 +647,10 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Instance> instance = new vsg::Instance(instanceExtensions, validatedNames);
 
     // use GLFW to create surface
-    VkSurfaceKHR surface;
-    if (glfwCreateWindowSurface(*instance, *window, nullptr, &surface) != VK_SUCCESS)
-    {
-        std::cout<<"Failed to create window surface"<<std::endl;
-        return 1;
-    }
-    vsg::ref_ptr<vsg::Surface> vsg_surface = new vsg::Surface(instance.get(), surface);
+    vsg::ref_ptr<vsg::Surface> surface = new vsg::Surface(instance.get(), *window, nullptr);
 
     // set up device
-    vsg::PhysicalDeviceSettings physicalDeviceSettings = vsg::selectPhysicalDevice(*instance, surface);
+    vsg::PhysicalDeviceSettings physicalDeviceSettings = vsg::selectPhysicalDevice(*instance, *surface);
     if (!physicalDeviceSettings.complete())
     {
         std::cout<<"No VkPhysicalDevice available!"<<std::endl;
@@ -672,13 +685,13 @@ int main(int argc, char** argv)
     std::cout<<"Created graphicsQueue="<<graphicsQueue<<", presentQueue="<<presentQueue<<std::endl;
 
 
-    vsg::SwapChain swapChain = vsg::createSwapChain(physicalDeviceSettings, device, surface, width, height);
+    vsg::SwapChain swapChain = vsg::createSwapChain(physicalDeviceSettings, device, *surface, width, height);
     if (!swapChain.complete())
     {
         std::cout<<"Failed to create swap chain"<<std::endl;
         return 1;
     }
-    vsg::ref_ptr<vsg::Swapchain> swapchain = new vsg::Swapchain(vsg_device.get(), vsg_surface.get(), swapChain.swapchain);
+    vsg::ref_ptr<vsg::Swapchain> swapchain = new vsg::Swapchain(vsg_device.get(), surface.get(), swapChain.swapchain);
 
     std::vector<vsg::ref_ptr<vsg::ImageView>> imageViews;
     for(auto imageView : swapChain.views)
@@ -701,7 +714,6 @@ int main(int argc, char** argv)
         std::cout<<"In main loop"<<std::endl;
         glfwPollEvents();
     }
-
 
     // clean up done automatically thanks to ref_ptr<>
     return 0;
