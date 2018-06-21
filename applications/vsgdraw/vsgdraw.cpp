@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 
 #include <vsg/core/ref_ptr.h>
+#include <vsg/core/observer_ptr.h>
 #include <vsg/utils/CommandLine.h>
 
 #include "Draw.h"
@@ -497,11 +498,75 @@ namespace vsg
 //
 /////////////////////////////////////////////////////////////////////
 
+namespace glfw
+{
+
 vsg::Names getInstanceExtensions()
 {
     uint32_t glfw_count;
     const char** glfw_extensons = glfwGetRequiredInstanceExtensions(&glfw_count);
     return vsg::Names(glfw_extensons, glfw_extensons+glfw_count);
+}
+
+// forward declare
+class Instance;
+static vsg::ref_ptr<glfw::Instance> getInstance();
+
+class Instance : public vsg::Object
+{
+public:
+protected:
+    Instance()
+    {
+        std::cout<<"Calling glfwInit"<<std::endl;
+        glfwInit();
+    }
+
+    virtual ~Instance()
+    {
+        std::cout<<"Calling glfwTerminate()"<<std::endl;
+        glfwTerminate();
+    }
+
+    friend vsg::ref_ptr<glfw::Instance> getInstance();
+};
+
+static vsg::ref_ptr<glfw::Instance> getInstance()
+{
+    static vsg::observer_ptr<glfw::Instance> s_glfw_Instance = new glfw::Instance;
+    return s_glfw_Instance;
+}
+
+class Window : public vsg::Object
+{
+public:
+    Window(uint32_t width, uint32_t height) : _instance(glfw::getInstance())
+    {
+        std::cout<<"Calling glfwCreateWindow(..)"<<std::endl;
+
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        //glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        _window = glfwCreateWindow(width, height, "Vulkan", nullptr, nullptr);
+    }
+
+    operator GLFWwindow* () { return _window; }
+    operator const GLFWwindow* () const { return _window; }
+
+protected:
+    virtual ~Window()
+    {
+        if (_window)
+        {
+            std::cout<<"Calling glfwDestroyWindow(_window);"<<std::endl;
+            glfwDestroyWindow(_window);
+        }
+    }
+
+    vsg::ref_ptr<glfw::Instance>    _instance;
+    GLFWwindow*                     _window;
+};
+
+
 }
 
 template<typename T>
@@ -532,21 +597,26 @@ int main(int argc, char** argv)
         return 1;
     }
 
+#if 1
+    //vsg::ref_ptr<vsg::Object> glfw_instance = glfw::getInstance();
+    vsg::ref_ptr<glfw::Window> window = new glfw::Window(width, height);
+#else
     // initialize window
     glfwInit();
-
-
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     //glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     GLFWwindow* window = glfwCreateWindow(width, height, "Vulkan", nullptr, nullptr);
+#endif
+
+
 
     /////////////////////////////////////////////////////////////////////
     //
     // start of initialize vulkan
     //
 
-    vsg::Names instanceExtensions = getInstanceExtensions();
+    vsg::Names instanceExtensions = glfw::getInstanceExtensions();
 
     vsg::Names requestedLayers;
     if (debugLayer)
@@ -573,7 +643,7 @@ int main(int argc, char** argv)
 
     // use GLFW to create surface
     VkSurfaceKHR surface;
-    if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS)
+    if (glfwCreateWindowSurface(instance, *window, nullptr, &surface) != VK_SUCCESS)
     {
         std::cout<<"Failed to create window surface"<<std::endl;
         return 1;
@@ -631,7 +701,7 @@ int main(int argc, char** argv)
 
     // main loop
     int numFrames=10;
-    while(!glfwWindowShouldClose(window) && (numFrames--)>0)
+    while(!glfwWindowShouldClose(*window) && (numFrames--)>0)
     {
         std::cout<<"In main loop"<<std::endl;
         glfwPollEvents();
@@ -673,8 +743,11 @@ int main(int argc, char** argv)
 
 
     // clean up GLFW
+
+#if 0
     glfwDestroyWindow(window);
     glfwTerminate();
+#endif
 
     return 0;
 }
