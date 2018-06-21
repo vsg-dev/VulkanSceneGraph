@@ -597,18 +597,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-#if 1
-    //vsg::ref_ptr<vsg::Object> glfw_instance = glfw::getInstance();
     vsg::ref_ptr<glfw::Window> window = new glfw::Window(width, height);
-#else
-    // initialize window
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    //glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-    GLFWwindow* window = glfwCreateWindow(width, height, "Vulkan", nullptr, nullptr);
-#endif
-
 
 
     /////////////////////////////////////////////////////////////////////
@@ -640,6 +629,9 @@ int main(int argc, char** argv)
         std::cout<<"No VkInstance available!"<<std::endl;
         return 1;
     }
+    vsg::ref_ptr<vsg::Instance> vsg_instance = new vsg::Instance(instance);
+
+
 
     // use GLFW to create surface
     VkSurfaceKHR surface;
@@ -648,6 +640,7 @@ int main(int argc, char** argv)
         std::cout<<"Failed to create window surface"<<std::endl;
         return 1;
     }
+    vsg::ref_ptr<vsg::Surface> vsg_surface = new vsg::Surface(vsg_instance.get(), surface);
 
     // set up device
     vsg::PhysicalDeviceSettings physicalDeviceSettings = vsg::selectPhysicalDevice(instance, surface);
@@ -664,6 +657,7 @@ int main(int argc, char** argv)
         std::cout<<"No VkDevice available!"<<std::endl;
         return 1;
     }
+    vsg::ref_ptr<vsg::Device> vsg_device = new vsg::Device(vsg_instance.get(), device);
 
     std::cout<<"Created logical device "<<device<<std::endl;
 
@@ -690,10 +684,17 @@ int main(int argc, char** argv)
         std::cout<<"Failed to create swap chain"<<std::endl;
         return 1;
     }
+    vsg::ref_ptr<vsg::Swapchain> swapchain = new vsg::Swapchain(vsg_device.get(), vsg_surface.get(), swapChain.swapchain);
+
+    std::vector<vsg::ref_ptr<vsg::ImageView>> imageViews;
+    for(auto imageView : swapChain.views)
+    {
+        imageViews.push_back(new vsg::ImageView(vsg_device.get(), imageView));
+    }
 
     std::cout<<"Created swapchain with "<<swapChain.images.size()<<", "<<swapChain.views.size()<<std::endl;
 
-        //
+    //
     // end of initialize vulkan
     //
     /////////////////////////////////////////////////////////////////////
@@ -707,47 +708,7 @@ int main(int argc, char** argv)
         glfwPollEvents();
     }
 
-#if 1
 
-
-
-    // experiment with using ref counting to manage life time of Vulcan objects.
-    {
-        vsg::ref_ptr<vsg::Instance> vsg_instance = new vsg::Instance(instance);
-
-        vsg::ref_ptr<vsg::Surface> vsg_surface = new vsg::Surface(vsg_instance.get(), surface);
-
-        vsg::ref_ptr<vsg::Device> vsg_device = new vsg::Device(vsg_instance.get(), device);
-
-        vsg::ref_ptr<vsg::Swapchain> swapchain = new vsg::Swapchain(vsg_device.get(), vsg_surface.get(), swapChain.swapchain);
-
-        std::vector<vsg::ref_ptr<vsg::ImageView>> imageViews;
-        for(auto imageView : swapChain.views)
-        {
-            imageViews.push_back(new vsg::ImageView(vsg_device.get(), imageView));
-        }
-    }
-
-
-#else
-    // clean up vulkan
-    for(auto imageView : swapChain.views)
-    {
-        vkDestroyImageView(device, imageView, nullptr);
-    }
-    vkDestroySwapchainKHR(device, swapChain.swapchain, nullptr);
-    vkDestroyDevice(device, nullptr);
-    vkDestroySurfaceKHR(instance, surface, nullptr);
-    vkDestroyInstance(instance, nullptr);
-#endif
-
-
-    // clean up GLFW
-
-#if 0
-    glfwDestroyWindow(window);
-    glfwTerminate();
-#endif
-
+    // clean up done automatically thanks to ref_ptr<>
     return 0;
 }
