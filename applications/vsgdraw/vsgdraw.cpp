@@ -57,38 +57,6 @@ Names validateInstancelayerNames(const Names& names)
     return validatedNames;
 }
 
-VkInstance createInstance(Names& instanceExtensions, Names& layers)
-{
-    VkInstance instance = VK_NULL_HANDLE;
-
-    // applictin info
-    VkApplicationInfo appInfo = {};
-    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "Test";
-    appInfo.pEngineName = "VulkanSceneGraph";
-    appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_0;
-
-    VkInstanceCreateInfo createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    createInfo.pApplicationInfo = &appInfo;
-
-    createInfo.enabledExtensionCount = instanceExtensions.size();
-    createInfo.ppEnabledExtensionNames = instanceExtensions.empty() ? nullptr : instanceExtensions.data();
-
-    createInfo.enabledLayerCount = layers.size();
-    createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
-
-    if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
-    {
-        std::cout<<"Failed to create VkInstance"<<std::endl;
-        return instance;
-    }
-
-    std::cout<<"Created VkInstance"<<std::endl;
-    return instance;
-}
-
 struct PhysicalDeviceSettings
 {
     VkPhysicalDevice device = VK_NULL_HANDLE;
@@ -387,13 +355,46 @@ SwapChain createSwapChain(const PhysicalDeviceSettings& deviceSettings, VkDevice
 namespace vsg
 {
 
-    struct Instance : public vsg::Object
+    class Instance : public vsg::Object
     {
-        VkInstance              _instance;
-        VkAllocationCallbacks*  _pAllocator;
-
+    public:
         Instance(VkInstance instance, VkAllocationCallbacks* pAllocator=nullptr) : _instance(instance), _pAllocator(pAllocator) {}
 
+        Instance(Names& instanceExtensions, Names& layers, VkAllocationCallbacks* pAllocator=nullptr):
+            _instance(VK_NULL_HANDLE),
+            _pAllocator(pAllocator)
+        {
+            // applictin info
+            VkApplicationInfo appInfo = {};
+            appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+            appInfo.pApplicationName = "Test";
+            appInfo.pEngineName = "VulkanSceneGraph";
+            appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 0);
+            appInfo.apiVersion = VK_API_VERSION_1_0;
+
+            VkInstanceCreateInfo createInfo = {};
+            createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+            createInfo.pApplicationInfo = &appInfo;
+
+            createInfo.enabledExtensionCount = instanceExtensions.size();
+            createInfo.ppEnabledExtensionNames = instanceExtensions.empty() ? nullptr : instanceExtensions.data();
+
+            createInfo.enabledLayerCount = layers.size();
+            createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
+
+            if (vkCreateInstance(&createInfo, nullptr, &_instance) == VK_SUCCESS)
+            {
+            std::cout<<"Created VkInstance"<<std::endl;
+            }
+            else
+            {
+                std::cout<<"Failed to create VkInstance"<<std::endl;
+            }
+        }
+
+        operator VkInstance() const { return _instance; }
+
+    protected:
         virtual ~Instance()
         {
             if (_instance)
@@ -403,7 +404,8 @@ namespace vsg
             }
         }
 
-        operator VkInstance() const { return _instance; }
+        VkInstance              _instance;
+        VkAllocationCallbacks*  _pAllocator;
     };
 
     struct Surface : public vsg::Object
@@ -623,27 +625,19 @@ int main(int argc, char** argv)
     print(std::cout,"instanceExtensions",instanceExtensions);
     print(std::cout,"validatedNames",validatedNames);
 
-    VkInstance instance = vsg::createInstance(instanceExtensions, validatedNames);
-    if (!instance)
-    {
-        std::cout<<"No VkInstance available!"<<std::endl;
-        return 1;
-    }
-    vsg::ref_ptr<vsg::Instance> vsg_instance = new vsg::Instance(instance);
-
-
+    vsg::ref_ptr<vsg::Instance> instance = new vsg::Instance(instanceExtensions, validatedNames);
 
     // use GLFW to create surface
     VkSurfaceKHR surface;
-    if (glfwCreateWindowSurface(instance, *window, nullptr, &surface) != VK_SUCCESS)
+    if (glfwCreateWindowSurface(*instance, *window, nullptr, &surface) != VK_SUCCESS)
     {
         std::cout<<"Failed to create window surface"<<std::endl;
         return 1;
     }
-    vsg::ref_ptr<vsg::Surface> vsg_surface = new vsg::Surface(vsg_instance.get(), surface);
+    vsg::ref_ptr<vsg::Surface> vsg_surface = new vsg::Surface(instance.get(), surface);
 
     // set up device
-    vsg::PhysicalDeviceSettings physicalDeviceSettings = vsg::selectPhysicalDevice(instance, surface);
+    vsg::PhysicalDeviceSettings physicalDeviceSettings = vsg::selectPhysicalDevice(*instance, surface);
     if (!physicalDeviceSettings.complete())
     {
         std::cout<<"No VkPhysicalDevice available!"<<std::endl;
@@ -657,7 +651,7 @@ int main(int argc, char** argv)
         std::cout<<"No VkDevice available!"<<std::endl;
         return 1;
     }
-    vsg::ref_ptr<vsg::Device> vsg_device = new vsg::Device(vsg_instance.get(), device);
+    vsg::ref_ptr<vsg::Device> vsg_device = new vsg::Device(instance.get(), device);
 
     std::cout<<"Created logical device "<<device<<std::endl;
 
