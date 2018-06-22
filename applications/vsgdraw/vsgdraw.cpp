@@ -112,50 +112,6 @@ PhysicalDeviceSettings selectPhysicalDevice(VkInstance instance, VkSurfaceKHR su
     return PhysicalDeviceSettings();
 }
 
-VkDevice createLogicalDevice(const PhysicalDeviceSettings& deviceSettings, Names& layers, Names& deviceExtensions)
-{
-    VkDevice device = VK_NULL_HANDLE;
-
-    std::cout<<"createLogicalDevice("<<deviceSettings.device<<", "<<deviceSettings.graphicsFamily<<", "<<deviceSettings.presentFamily<<")"<<std::endl;
-
-    std::set<int> uniqueQueueFamiles = {deviceSettings.graphicsFamily, deviceSettings.presentFamily};
-    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-
-    float queuePriority = 1.0f;
-    for (int queueFamily : uniqueQueueFamiles)
-    {
-        VkDeviceQueueCreateInfo queueCreateInfo = {};
-        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        queueCreateInfo.queueFamilyIndex = queueFamily;
-        queueCreateInfo.queueCount = 1;
-        queueCreateInfo.pQueuePriorities = &queuePriority;
-        queueCreateInfos.push_back(queueCreateInfo);
-    }
-
-    VkPhysicalDeviceFeatures deviceFeatures = {};
-
-    VkDeviceCreateInfo createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-
-    createInfo.queueCreateInfoCount = queueCreateInfos.size();
-    createInfo.pQueueCreateInfos = queueCreateInfos.empty() ? nullptr : queueCreateInfos.data();
-
-    createInfo.pEnabledFeatures = &deviceFeatures;
-
-    createInfo.enabledExtensionCount = deviceExtensions.size();
-    createInfo.ppEnabledExtensionNames = deviceExtensions.empty() ? nullptr : deviceExtensions.data();
-
-    createInfo.enabledLayerCount = layers.size();
-    createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
-
-    if (vkCreateDevice(deviceSettings.device, &createInfo, nullptr, &device)!=VK_SUCCESS)
-    {
-        std::cout<<"Failed to create logical device"<<std::endl;
-    }
-
-    return device;
-}
-
 VkQueue createDeviceQueue(VkDevice device, int graphicsFamily)
 {
     VkQueue queue;
@@ -384,7 +340,7 @@ namespace vsg
 
             if (vkCreateInstance(&createInfo, nullptr, &_instance) == VK_SUCCESS)
             {
-            std::cout<<"Created VkInstance"<<std::endl;
+                std::cout<<"Created VkInstance"<<std::endl;
             }
             else
             {
@@ -449,14 +405,59 @@ namespace vsg
 
 
 
-    struct Device : public vsg::Object
+    class Device : public vsg::Object
     {
-        vsg::ref_ptr<Instance>  _instance;
-        VkDevice                _device;
-        VkAllocationCallbacks* _pAllocator;
+    public:
+        Device(Instance* instance, VkDevice device, VkAllocationCallbacks* pAllocator=nullptr) : _instance(instance), _device(device), _pAllocator(pAllocator) {}
 
-        Device(Instance* instance, VkDevice device, VkAllocationCallbacks* pAllocator=nullptr): _instance(instance), _device(device), _pAllocator(pAllocator) {}
+        Device(Instance* instance, const PhysicalDeviceSettings& physicalDeviceSettings, Names& layers, Names& deviceExtensions, VkAllocationCallbacks* pAllocator=nullptr) :
+            _instance(instance),
+            _device(VK_NULL_HANDLE),
+            _pAllocator(pAllocator)
+        {
+            std::set<int> uniqueQueueFamiles = {physicalDeviceSettings.graphicsFamily, physicalDeviceSettings.presentFamily};
+            std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
+            float queuePriority = 1.0f;
+            for (int queueFamily : uniqueQueueFamiles)
+            {
+                VkDeviceQueueCreateInfo queueCreateInfo = {};
+                queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+                queueCreateInfo.queueFamilyIndex = queueFamily;
+                queueCreateInfo.queueCount = 1;
+                queueCreateInfo.pQueuePriorities = &queuePriority;
+                queueCreateInfos.push_back(queueCreateInfo);
+            }
+
+            VkPhysicalDeviceFeatures deviceFeatures = {};
+
+            VkDeviceCreateInfo createInfo = {};
+            createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+
+            createInfo.queueCreateInfoCount = queueCreateInfos.size();
+            createInfo.pQueueCreateInfos = queueCreateInfos.empty() ? nullptr : queueCreateInfos.data();
+
+            createInfo.pEnabledFeatures = &deviceFeatures;
+
+            createInfo.enabledExtensionCount = deviceExtensions.size();
+            createInfo.ppEnabledExtensionNames = deviceExtensions.empty() ? nullptr : deviceExtensions.data();
+
+            createInfo.enabledLayerCount = layers.size();
+            createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
+
+            if (vkCreateDevice(physicalDeviceSettings.device, &createInfo, nullptr, &_device) == VK_SUCCESS)
+            {
+                std::cout<<"Created logical device"<<std::endl;
+            }
+            else
+            {
+                std::cout<<"Failed to create logical device"<<std::endl;
+            }
+        }
+
+        operator VkDevice() const { return _device; }
+
+    protected:
         virtual ~Device()
         {
             if (_device)
@@ -466,7 +467,9 @@ namespace vsg
             }
         }
 
-        operator VkDevice() const { return _device; }
+        vsg::ref_ptr<Instance>  _instance;
+        VkDevice                _device;
+        VkAllocationCallbacks* _pAllocator;
     };
 
     struct ImageView : public vsg::Object
@@ -657,25 +660,16 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    // set up logical device
-    VkDevice device = vsg::createLogicalDevice(physicalDeviceSettings, validatedNames, deviceExtensions);
-    if (!device)
-    {
-        std::cout<<"No VkDevice available!"<<std::endl;
-        return 1;
-    }
-    vsg::ref_ptr<vsg::Device> vsg_device = new vsg::Device(instance.get(), device);
+    vsg::ref_ptr<vsg::Device> device = new vsg::Device(instance.get(), physicalDeviceSettings, validatedNames, deviceExtensions);
 
-    std::cout<<"Created logical device "<<device<<std::endl;
-
-    VkQueue graphicsQueue = vsg::createDeviceQueue(device, physicalDeviceSettings.graphicsFamily);
+    VkQueue graphicsQueue = vsg::createDeviceQueue(*device, physicalDeviceSettings.graphicsFamily);
     if (!graphicsQueue)
     {
         std::cout<<"No Graphics queue available!"<<std::endl;
         return 1;
     }
 
-    VkQueue presentQueue = vsg::createDeviceQueue(device, physicalDeviceSettings.presentFamily);
+    VkQueue presentQueue = vsg::createDeviceQueue(*device, physicalDeviceSettings.presentFamily);
     if (!presentQueue)
     {
         std::cout<<"No Present queue available!"<<std::endl;
@@ -685,18 +679,18 @@ int main(int argc, char** argv)
     std::cout<<"Created graphicsQueue="<<graphicsQueue<<", presentQueue="<<presentQueue<<std::endl;
 
 
-    vsg::SwapChain swapChain = vsg::createSwapChain(physicalDeviceSettings, device, *surface, width, height);
+    vsg::SwapChain swapChain = vsg::createSwapChain(physicalDeviceSettings, *device, *surface, width, height);
     if (!swapChain.complete())
     {
         std::cout<<"Failed to create swap chain"<<std::endl;
         return 1;
     }
-    vsg::ref_ptr<vsg::Swapchain> swapchain = new vsg::Swapchain(vsg_device.get(), surface.get(), swapChain.swapchain);
+    vsg::ref_ptr<vsg::Swapchain> swapchain = new vsg::Swapchain(device.get(), surface.get(), swapChain.swapchain);
 
     std::vector<vsg::ref_ptr<vsg::ImageView>> imageViews;
     for(auto imageView : swapChain.views)
     {
-        imageViews.push_back(new vsg::ImageView(vsg_device.get(), imageView));
+        imageViews.push_back(new vsg::ImageView(device.get(), imageView));
     }
 
     std::cout<<"Created swapchain with "<<swapChain.images.size()<<", "<<swapChain.views.size()<<std::endl;
