@@ -5,8 +5,10 @@
 #include <vsg/core/observer_ptr.h>
 #include <vsg/utils/CommandLine.h>
 
-#include "vulcan/Instance.h"
-#include "vulcan/CmdDraw.h"
+#include "vulkan/Instance.h"
+#include "vulkan/Surface.h"
+#include "vulkan/Swapchain.h"
+#include "vulkan/CmdDraw.h"
 
 #include <iostream>
 #include <algorithm>
