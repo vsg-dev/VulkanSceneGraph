@@ -1,6 +1,3 @@
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
 #include <vsg/core/ref_ptr.h>
 #include <vsg/core/observer_ptr.h>
 #include <vsg/utils/CommandLine.h>
@@ -14,6 +11,10 @@
 #include <algorithm>
 #include <mutex>
 #include <set>
+
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
 
 //
 // end of vulkan code
@@ -89,6 +90,24 @@ protected:
 };
 
 
+class GLFWSurface : public vsg::Surface
+{
+public:
+
+    GLFWSurface(vsg::Instance* instance, GLFWwindow* window, VkAllocationCallbacks* pAllocator=nullptr) :
+        vsg::Surface(instance, VK_NULL_HANDLE, pAllocator)
+    {
+        if (glfwCreateWindowSurface(*instance, window, nullptr, &_surface) != VK_SUCCESS)
+        {
+            std::cout<<"Failed to create window surface"<<std::endl;
+        }
+        else
+        {
+            std::cout<<"Created window surface"<<std::endl;
+        }
+    }
+};
+
 }
 
 template<typename T>
@@ -100,7 +119,6 @@ void print(std::ostream& out, const std::string& description, const T& names)
         out<<"    "<<name<<std::endl;
     }
 }
-
 
 int main(int argc, char** argv)
 {
@@ -148,7 +166,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Instance> instance = new vsg::Instance(instanceExtensions, validatedNames);
 
     // use GLFW to create surface
-    vsg::ref_ptr<vsg::Surface> surface = new vsg::Surface(instance.get(), *window, nullptr);
+    vsg::ref_ptr<glfw::GLFWSurface> surface = new glfw::GLFWSurface(instance.get(), *window, nullptr);
 
     // set up device
     vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = new vsg::PhysicalDevice(instance.get(), surface.get());
