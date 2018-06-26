@@ -4,13 +4,8 @@
 
 #include <vsg/core/ref_ptr.h>
 
-#include <set>
 #include <iostream>
 
-/////////////////////////////////////////////////////////////////////
-//
-// start of vulkan code
-//
 namespace vsg
 {
     class Surface : public vsg::Object

@@ -6,10 +6,6 @@
 
 #include <vector>
 
-/////////////////////////////////////////////////////////////////////
-//
-// start of vulkan code
-//
 namespace vsg
 {
     using Names = std::vector<const char*>;

@@ -2,10 +2,6 @@
 
 #include "vk/Surface.h"
 
-/////////////////////////////////////////////////////////////////////
-//
-// start of vulkan code
-//
 namespace vsg
 {
     class PhysicalDevice : public vsg::Object

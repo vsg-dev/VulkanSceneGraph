@@ -8,12 +8,13 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(HEADERS
-    vulkan/Instance.h
-    vulkan/Surface.h
-    vulkan/PhysicalDevice.h
-    vulkan/Device.h
-    vulkan/Swapchain.h
-    vulkan/CmdDraw.h
+    vk/Instance.h
+    vk/Surface.h
+    vk/PhysicalDevice.h
+    vk/Device.h
+    vk/ImageView.h
+    vk/Swapchain.h
+    vk/CmdDraw.h
 )
 
 SET(SOURCES
