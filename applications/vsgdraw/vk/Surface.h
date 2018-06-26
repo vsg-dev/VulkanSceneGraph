@@ -1,7 +1,6 @@
 #pragma once
 
-#include "vulkan/Instance.h"
-
+#include "vk/Instance.h"
 
 #include <vsg/core/ref_ptr.h>
 

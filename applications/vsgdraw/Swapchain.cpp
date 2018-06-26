@@ -1,6 +1,6 @@
-#include "vulkan/Device.h"
-#include "vulkan/Surface.h"
-#include "vulkan/Swapchain.h"
+#include "vk/Device.h"
+#include "vk/Surface.h"
+#include "vk/Swapchain.h"
 
 #include <limits>
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "vulkan/Device.h"
-#include "vulkan/Surface.h"
+#include "vk/Device.h"
+#include "vk/Surface.h"
 
 /////////////////////////////////////////////////////////////////////
 //
