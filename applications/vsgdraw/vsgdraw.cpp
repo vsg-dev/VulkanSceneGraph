@@ -194,22 +194,9 @@ int main(int argc, char** argv)
 
     std::cout<<"Created graphicsQueue="<<graphicsQueue<<", presentQueue="<<presentQueue<<std::endl;
 
+    vsg::ref_ptr<vsg::Swapchain> swapchain = new vsg::Swapchain(physicalDevice.get(), device.get(), surface.get(), width, height);
+    std::cout<<"Created swapchain"<<std::endl;
 
-    vsg::SwapChain swapChain = vsg::createSwapChain(physicalDevice.get(), *device, *surface, width, height);
-    if (!swapChain.complete())
-    {
-        std::cout<<"Failed to create swap chain"<<std::endl;
-        return 1;
-    }
-    vsg::ref_ptr<vsg::Swapchain> swapchain = new vsg::Swapchain(device.get(), surface.get(), swapChain.swapchain);
-
-    std::vector<vsg::ref_ptr<vsg::ImageView>> imageViews;
-    for(auto imageView : swapChain.views)
-    {
-        imageViews.push_back(new vsg::ImageView(device.get(), imageView));
-    }
-
-    std::cout<<"Created swapchain with "<<swapChain.images.size()<<", "<<swapChain.views.size()<<std::endl;
 
     //
     // end of initialize vulkan

@@ -8,16 +8,19 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(HEADERS
-    vulcan/Instance.h
-    vulcan/Surface.h
-    vulcan/PhysicalDevice.h
-    vulcan/Device.h
-    vulcan/Swapchain.h
-    vulcan/CmdDraw.h
+    vulkan/Instance.h
+    vulkan/Surface.h
+    vulkan/PhysicalDevice.h
+    vulkan/Device.h
+    vulkan/Swapchain.h
+    vulkan/CmdDraw.h
 )
 
 SET(SOURCES
     vsgdraw.cpp
+
+    Instance.cpp
+    Swapchain.cpp
 )
 
 ADD_EXECUTABLE(${APPLICATION_NAME} ${HEADERS} ${SOURCES})
