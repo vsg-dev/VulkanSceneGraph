@@ -3,6 +3,7 @@
 #include <vsg/vk/Swapchain.h>
 
 #include <limits>
+#include <iostream>
 
 namespace vsg
 {

@@ -10,17 +10,9 @@ namespace vsg
         VkImageView             _imageView;
         VkAllocationCallbacks*  _pAllocator;
 
-        ImageView(Device* device, VkImageView imageView, VkAllocationCallbacks* pAllocator=nullptr):
-            _device(device), _imageView(imageView), _pAllocator(pAllocator) {}
+        ImageView(Device* device, VkImageView imageView, VkAllocationCallbacks* pAllocator=nullptr);
 
-        virtual ~ImageView()
-        {
-            if (_imageView)
-            {
-                std::cout<<"Calling vkDestroyImageView(..)"<<std::endl;
-                vkDestroyImageView(*_device, _imageView, _pAllocator);
-            }
-        }
+        virtual ~ImageView();
 
         operator VkImageView() const { return _imageView; }
     };

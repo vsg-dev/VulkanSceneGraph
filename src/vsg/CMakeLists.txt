@@ -28,6 +28,7 @@ SET(HEADERS
     vk/Surface.h
     vk/ImageView.h
     vk/Swapchain.h
+    vk/CmdDraw.h
 
     utils/CommandLine.h
 )
@@ -41,6 +42,10 @@ SET(SOURCES
     nodes/Group.cpp
     nodes/Node.cpp
 
+    vk/PhysicalDevice.cpp
+    vk/Device.cpp
+    vk/Surface.cpp
+    vk/ImageView.cpp
     vk/Instance.cpp
     vk/Swapchain.cpp
 )
