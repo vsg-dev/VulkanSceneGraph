@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vk/Device.h"
+#include <vsg/vk/Device.h>
 
 namespace vsg
 {

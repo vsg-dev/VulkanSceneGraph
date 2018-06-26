@@ -1,6 +1,6 @@
-#include "vk/Device.h"
-#include "vk/Surface.h"
-#include "vk/Swapchain.h"
+#include <vsg/vk/Device.h>
+#include <vsg/vk/Surface.h>
+#include <vsg/vk/Swapchain.h>
 
 #include <limits>
 

@@ -2,10 +2,10 @@
 #include <vsg/core/observer_ptr.h>
 #include <vsg/utils/CommandLine.h>
 
-#include "vk/Instance.h"
-#include "vk/Surface.h"
-#include "vk/Swapchain.h"
-#include "vk/CmdDraw.h"
+#include <vsg/vk/Instance.h>
+#include <vsg/vk/Surface.h>
+#include <vsg/vk/Swapchain.h>
+#include <vsg/vk/CmdDraw.h>
 
 #include <iostream>
 #include <algorithm>

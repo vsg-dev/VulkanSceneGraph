@@ -1,7 +1,7 @@
 #pragma once
 
-#include "vk/Surface.h"
-#include "vk/ImageView.h"
+#include <vsg/vk/Surface.h>
+#include <vsg/vk/ImageView.h>
 
 namespace vsg
 {

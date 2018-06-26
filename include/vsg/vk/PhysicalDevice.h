@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vk/Surface.h"
+#include <vsg/vk/Surface.h>
 
 namespace vsg
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vk/PhysicalDevice.h"
+#include <vsg/vk/PhysicalDevice.h>
 
 #include <set>
 #include <iostream>

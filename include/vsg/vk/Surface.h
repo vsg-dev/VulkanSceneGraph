@@ -1,8 +1,7 @@
 #pragma once
 
-#include "vk/Instance.h"
-
 #include <vsg/core/ref_ptr.h>
+#include <vsg/vk/Instance.h>
 
 #include <iostream>
 

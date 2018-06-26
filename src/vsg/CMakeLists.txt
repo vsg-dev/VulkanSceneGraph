@@ -1,5 +1,6 @@
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/include
+    ${Vulkan_INCLUDE_DIR}
 )
 
 SET(HEADERS
@@ -21,6 +22,13 @@ SET(HEADERS
     nodes/QuadGroup.h
     nodes/LOD.h
 
+    vk/Instance.h
+    vk/PhysicalDevice.h
+    vk/Device.h
+    vk/Surface.h
+    vk/ImageView.h
+    vk/Swapchain.h
+
     utils/CommandLine.h
 )
 
@@ -32,6 +40,11 @@ SET(SOURCES
 
     nodes/Group.cpp
     nodes/Node.cpp
+
+    vk/Instance.cpp
+    vk/Swapchain.cpp
 )
 
 ADD_LIBRARY(vsg SHARED ${HEADER_FILES} ${SOURCES})
+
+TARGET_LINK_LIBRARIES(vsg  ${Vulkan_LIBRARY})
