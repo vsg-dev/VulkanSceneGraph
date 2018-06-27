@@ -92,6 +92,12 @@ VkPresentModeKHR selectSwapPresentMode(SwapChainSupportDetails& details)
     return presentMode;
 }
 
+Swapchain::Swapchain(Device* device, Surface* surface, VkSwapchainKHR swapchain, VkAllocationCallbacks*  pAllocator):
+    _device(device), _surface(surface), _swapchain(swapchain), _pAllocator(pAllocator)
+{
+}
+
+
 Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, VkAllocationCallbacks*  pAllocator):
     _device(device), _surface(surface), _swapchain(VK_NULL_HANDLE), _pAllocator(pAllocator)
 {
