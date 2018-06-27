@@ -16,6 +16,13 @@ namespace vsg
             if (_ptr) _ptr->ref();
         }
 
+        ref_ptr(T* ptr):
+            _ptr(ptr)
+        {
+            if (_ptr) _ptr->ref();
+        }
+
+
         template<class R>
         ref_ptr(R* ptr):
             _ptr(ptr)

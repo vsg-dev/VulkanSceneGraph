@@ -5,7 +5,7 @@
 namespace vsg
 {
 
-    class Device : public vsg::Object
+    class Device : public Object
     {
     public:
         Device(Instance* instance, VkDevice device, VkAllocationCallbacks* pAllocator=nullptr);

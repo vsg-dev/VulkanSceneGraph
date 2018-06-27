@@ -8,6 +8,7 @@
 #include <vsg/vk/CmdDraw.h>
 
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 #include <mutex>
 #include <set>
@@ -15,6 +16,94 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+/////////////////////////////////////////////////////////////////////
+//
+// start of vulkan code
+//
+
+namespace vsg
+{
+
+    template<typename T>
+    bool readFile(T& buffer, const std::string& filename)
+    {
+        std::ifstream fin(filename, std::ios::ate | std::ios::binary);
+        if (!fin.is_open()) return false;
+
+        size_t fileSize = fin.tellg();
+
+        using value_type = typename T::value_type;
+        size_t valueSize = sizeof(value_type);
+        buffer.resize(fileSize/valueSize);
+
+        fin.seekg(0);
+        fin.read(buffer.data(), buffer.size()*valueSize);
+        fin.close();
+
+        return true;
+    }
+
+    class ShaderModule : public vsg::Object
+    {
+    public:
+        ShaderModule(Device* device, VkShaderModule shaderModule, VkAllocationCallbacks* pAllocator=nullptr):
+            _device(device),
+            _shaderModule(shaderModule),
+            _pAllocator(pAllocator)
+        {
+        }
+
+        template<typename T>
+        ShaderModule(Device* device, const T& shader, VkAllocationCallbacks* pAllocator=nullptr):
+            _device(device),
+            _shaderModule(VK_NULL_HANDLE),
+            _pAllocator(pAllocator)
+        {
+            VkShaderModuleCreateInfo createInfo = {};
+            createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+            createInfo.codeSize = shader.size();
+            createInfo.pCode = reinterpret_cast<const uint32_t*>(shader.data());
+
+            if (vkCreateShaderModule(*device, &createInfo, nullptr, &_shaderModule) != VK_SUCCESS)
+            {
+                std::cout<<"Failed to create shader module"<<std::endl;
+            }
+        }
+
+
+        operator VkShaderModule () const { return _shaderModule; }
+
+    protected:
+        virtual ~ShaderModule()
+        {
+            if (_shaderModule)
+            {
+                std::cout<<"Calling vkDestroyShaderModule()"<<std::endl;
+                vkDestroyShaderModule(*_device, _shaderModule, _pAllocator);
+            }
+        }
+
+        ref_ptr<Device>         _device;
+        VkShaderModule          _shaderModule;
+        VkAllocationCallbacks*  _pAllocator;
+    };
+
+
+    vsg::ref_ptr<ShaderModule> readShaderModule(Device* device, const std::string& filename)
+    {
+        std::vector<char> buffer;
+        if (readFile(buffer, filename))
+        {
+            return new ShaderModule(device, buffer);
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+
+
+}
 
 //
 // end of vulkan code
@@ -120,6 +209,7 @@ void print(std::ostream& out, const std::string& description, const T& names)
     }
 }
 
+
 int main(int argc, char** argv)
 {
     bool debugLayer = false;
@@ -197,6 +287,8 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Swapchain> swapchain = new vsg::Swapchain(physicalDevice.get(), device.get(), surface.get(), width, height);
     std::cout<<"Created swapchain"<<std::endl;
 
+    vsg::ref_ptr<vsg::ShaderModule> vert = vsg::readShaderModule(device.get(), "shaders/vert.spv");
+    vsg::ref_ptr<vsg::ShaderModule> frag = vsg::readShaderModule(device.get(), "shaders/frag.spv");
 
     //
     // end of initialize vulkan
