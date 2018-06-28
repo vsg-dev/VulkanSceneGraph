@@ -47,6 +47,9 @@ namespace vsg
             }
         }
 
+        // add Shader type ? VK_SHADER_STAGE_VERTEX_BIT vs VK_SHADER_STAGE_FRAGMENT_BIT etc.
+        // so that it can be used to set up VkPipelineShaderStageCreateInfo
+
         operator VkShaderModule () const { return _shaderModule; }
 
     protected:

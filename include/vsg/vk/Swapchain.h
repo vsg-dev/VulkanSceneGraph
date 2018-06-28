@@ -14,6 +14,10 @@ namespace vsg
 
         operator VkSwapchainKHR() const { return _swapchain; }
 
+        VkFormat getImageFormat() const { return _format; }
+
+        const VkExtent2D& getExtent() const { return _extent; }
+
         using ImageViews = std::vector<ref_ptr<ImageView>>;
         ImageViews& getImageViews() { return _imageViews; }
         const ImageViews& getImageViews() const { return _imageViews; }

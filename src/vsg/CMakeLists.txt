@@ -48,6 +48,7 @@ SET(SOURCES
     vk/ImageView.cpp
     vk/Instance.cpp
     vk/Swapchain.cpp
+    vk/ShaderModule.cpp
 )
 
 ADD_LIBRARY(vsg SHARED ${HEADER_FILES} ${SOURCES})

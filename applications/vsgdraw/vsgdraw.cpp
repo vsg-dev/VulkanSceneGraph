@@ -6,6 +6,7 @@
 #include <vsg/vk/Surface.h>
 #include <vsg/vk/Swapchain.h>
 #include <vsg/vk/CmdDraw.h>
+#include <vsg/vk/ShaderModule.h>
 
 #include <iostream>
 #include <fstream>
@@ -21,88 +22,128 @@
 // start of vulkan code
 //
 
+// interface
 namespace vsg
 {
 
-    template<typename T>
-    bool readFile(T& buffer, const std::string& filename)
-    {
-        std::ifstream fin(filename, std::ios::ate | std::ios::binary);
-        if (!fin.is_open()) return false;
-
-        size_t fileSize = fin.tellg();
-
-        using value_type = typename T::value_type;
-        size_t valueSize = sizeof(value_type);
-        buffer.resize(fileSize/valueSize);
-
-        fin.seekg(0);
-        fin.read(buffer.data(), buffer.size()*valueSize);
-        fin.close();
-
-        return true;
-    }
-
-    class ShaderModule : public vsg::Object
+    // is this even neccessary?
+    class Viewport : public vsg::Object, public VkViewport
     {
     public:
-        ShaderModule(Device* device, VkShaderModule shaderModule, VkAllocationCallbacks* pAllocator=nullptr):
-            _device(device),
-            _shaderModule(shaderModule),
-            _pAllocator(pAllocator)
-        {
-        }
-
-        template<typename T>
-        ShaderModule(Device* device, const T& shader, VkAllocationCallbacks* pAllocator=nullptr):
-            _device(device),
-            _shaderModule(VK_NULL_HANDLE),
-            _pAllocator(pAllocator)
-        {
-            VkShaderModuleCreateInfo createInfo = {};
-            createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-            createInfo.codeSize = shader.size();
-            createInfo.pCode = reinterpret_cast<const uint32_t*>(shader.data());
-
-            if (vkCreateShaderModule(*device, &createInfo, nullptr, &_shaderModule) != VK_SUCCESS)
-            {
-                std::cout<<"Failed to create shader module"<<std::endl;
-            }
-        }
-
-
-        operator VkShaderModule () const { return _shaderModule; }
+        Viewport() : VkViewport{} {}
 
     protected:
-        virtual ~ShaderModule()
-        {
-            if (_shaderModule)
-            {
-                std::cout<<"Calling vkDestroyShaderModule()"<<std::endl;
-                vkDestroyShaderModule(*_device, _shaderModule, _pAllocator);
-            }
-        }
+        virtual ~Viewport() {}
+    };
+
+    class PipelineLayout : public vsg::Object
+    {
+    public:
+        PipelineLayout(Device* device, VkPipelineLayout pipelineLayout, VkAllocationCallbacks* pAllocator=nullptr);
+
+        operator VkPipelineLayout () const { return _pipelineLayout; }
+
+    protected:
+        virtual ~PipelineLayout();
 
         ref_ptr<Device>         _device;
-        VkShaderModule          _shaderModule;
+        VkPipelineLayout        _pipelineLayout;
         VkAllocationCallbacks*  _pAllocator;
     };
 
-
-    vsg::ref_ptr<ShaderModule> readShaderModule(Device* device, const std::string& filename)
+    class RenderPass : public vsg::Object
     {
-        std::vector<char> buffer;
-        if (readFile(buffer, filename))
-        {
-            return new ShaderModule(device, buffer);
-        }
-        else
-        {
-            return nullptr;
-        }
+    public:
+        RenderPass(Device* device, VkRenderPass renderPass, VkAllocationCallbacks* pAllocator=nullptr);
+
+        RenderPass(Device* device, VkFormat imageFormat, VkAllocationCallbacks* pAllocator=nullptr);
+
+
+        operator VkRenderPass () const { return _renderPass; }
+
+    protected:
+        virtual ~RenderPass();
+
+        ref_ptr<Device>         _device;
+        VkRenderPass            _renderPass;
+        VkAllocationCallbacks*  _pAllocator;
+    };
+
+}
+
+// implementation
+namespace vsg
+{
+
+PipelineLayout::PipelineLayout(Device* device, VkPipelineLayout pipelineLayout, VkAllocationCallbacks* pAllocator) :
+    _device(device),
+    _pipelineLayout(pipelineLayout),
+    _pAllocator(pAllocator)
+{
+}
+
+PipelineLayout::~PipelineLayout()
+{
+    if (_pipelineLayout)
+    {
+        std::cout<<"Calling vkDestroyPipelineLayout"<<std::endl;
+        vkDestroyPipelineLayout(*_device, _pipelineLayout, _pAllocator);
     }
+}
 
 
+RenderPass::RenderPass(Device* device, VkRenderPass renderPass, VkAllocationCallbacks* pAllocator) :
+    _device(device),
+    _renderPass(renderPass),
+    _pAllocator(pAllocator)
+{
+}
+
+RenderPass::RenderPass(Device* device, VkFormat imageFormat, VkAllocationCallbacks* pAllocator) :
+    _device(device),
+    _renderPass(VK_NULL_HANDLE),
+    _pAllocator(pAllocator)
+{
+    VkAttachmentDescription colorAttachment = {};
+    colorAttachment.format = imageFormat;
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    VkAttachmentReference colorAttachmentRef = {};
+    colorAttachmentRef.attachment = 0;
+    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkSubpassDescription subpass = {};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentRef;
+
+    VkRenderPassCreateInfo renderPassInfo = {};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassInfo.attachmentCount = 1;
+    renderPassInfo.pAttachments = &colorAttachment;
+    renderPassInfo.subpassCount = 1;
+    renderPassInfo.pSubpasses = &subpass;
+
+    if (vkCreateRenderPass(*device, &renderPassInfo, pAllocator, &_renderPass) != VK_SUCCESS)
+    {
+        std::cout<<"Failed to create VkRenderPass."<<std::endl;
+    }
+}
+
+RenderPass::~RenderPass()
+{
+    if (_renderPass)
+    {
+        std::cout<<"Calling vkDestroyRenderPass"<<std::endl;
+        vkDestroyRenderPass(*_device, _renderPass, _pAllocator);
+    }
+}
 }
 
 //
@@ -289,6 +330,14 @@ int main(int argc, char** argv)
 
     vsg::ref_ptr<vsg::ShaderModule> vert = vsg::readShaderModule(device.get(), "shaders/vert.spv");
     vsg::ref_ptr<vsg::ShaderModule> frag = vsg::readShaderModule(device.get(), "shaders/frag.spv");
+
+
+    vsg::ref_ptr<vsg::Viewport> viewport = new vsg::Viewport;
+    (*viewport).width = 10.0f;
+
+    vsg::ref_ptr<vsg::RenderPass> renderPass = new vsg::RenderPass(device.get(), swapchain->getImageFormat());
+    std::cout<<"Created RenderPass"<<std::endl;
+
 
     //
     // end of initialize vulkan
