@@ -49,6 +49,7 @@ SET(SOURCES
     vk/Instance.cpp
     vk/Swapchain.cpp
     vk/ShaderModule.cpp
+    vk/RenderPass.cpp
 )
 
 ADD_LIBRARY(vsg SHARED ${HEADER_FILES} ${SOURCES})
