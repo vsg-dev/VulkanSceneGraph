@@ -38,13 +38,79 @@ namespace vsg
         virtual ~Viewport() {}
     };
 
+    class Framebuffer : public Object
+    {
+    public:
+        Framebuffer(Device* device, VkFramebuffer framebuffer, VkAllocationCallbacks* pAllocator=nullptr);
+
+        operator VkFramebuffer () const { return _framebuffer; }
+
+    protected:
+        virtual ~Framebuffer();
+
+        ref_ptr<Device>         _device;
+        VkFramebuffer           _framebuffer;
+        VkAllocationCallbacks*  _pAllocator;
+    };
+
 }
 
 // implementation
 namespace vsg
 {
 
+Framebuffer::Framebuffer(Device* device, VkFramebuffer framebuffer, VkAllocationCallbacks* pAllocator) :
+    _device(device),
+    _framebuffer(framebuffer),
+    _pAllocator(pAllocator)
+{
+}
 
+Framebuffer::~Framebuffer()
+{
+    if (_framebuffer)
+    {
+        std::cout<<"Calling vkDestroyFramebuffer"<<std::endl;
+        vkDestroyFramebuffer(*_device, _framebuffer, _pAllocator);
+    }
+}
+
+using Framebuffers = std::vector<ref_ptr<Framebuffer>>;
+
+Framebuffers createFrameBuffers(Device* device, Swapchain* swapchain, RenderPass* renderPass, VkAllocationCallbacks* pAllocator=nullptr)
+{
+    const Swapchain::ImageViews& imageViews = swapchain->getImageViews();
+    const VkExtent2D& extent = swapchain->getExtent();
+
+    Framebuffers framebuffers;
+    for(auto imageView : imageViews)
+    {
+        VkImageView attachments[] =
+        {
+            *imageView
+        };
+
+        VkFramebufferCreateInfo framebufferInfo = {};
+        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferInfo.renderPass = *renderPass;
+        framebufferInfo.attachmentCount = 1;
+        framebufferInfo.pAttachments = attachments;
+        framebufferInfo.width = extent.width;
+        framebufferInfo.height = extent.height;
+        framebufferInfo.layers = 1;
+
+        VkFramebuffer framebuffer;
+        if (vkCreateFramebuffer(*device,&framebufferInfo, pAllocator, &framebuffer) == VK_SUCCESS)
+        {
+            framebuffers.push_back(new Framebuffer(device, framebuffer, pAllocator));
+        }
+        else
+        {
+            std::cout<<"Failing to create framebuffer for "<<&imageView<<std::endl;
+        }
+    }
+    return framebuffers;
+}
 
 }
 
@@ -257,6 +323,10 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::createGraphicsPipeline(device.get(), swapchain.get(), renderPass.get(), pipelineLayout.get(), vert.get(), frag.get());
 
     std::cout<<"Created GraphicsPipline "<<pipeline.get()<<std::endl;
+
+    vsg::Framebuffers framebuffers = vsg::createFrameBuffers(device.get(), swapchain.get(), renderPass.get());
+    std::cout<<"Created Framebuffers "<<framebuffers.size()<<std::endl;
+
 
     //
     // end of initialize vulkan
