@@ -29,6 +29,8 @@ SET(HEADERS
     vk/ImageView.h
     vk/Swapchain.h
     vk/CmdDraw.h
+    vk/Pipeline.h
+    vk/PipelineLayouyt.h
 
     utils/CommandLine.h
 )
@@ -50,6 +52,8 @@ SET(SOURCES
     vk/Swapchain.cpp
     vk/ShaderModule.cpp
     vk/RenderPass.cpp
+    vk/Pipeline.cpp
+    vk/PipelineLayout.cpp
 )
 
 ADD_LIBRARY(vsg SHARED ${HEADER_FILES} ${SOURCES})
