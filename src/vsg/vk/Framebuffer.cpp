@@ -21,8 +21,6 @@ Framebuffer::~Framebuffer()
     }
 }
 
-using Framebuffers = std::vector<ref_ptr<Framebuffer>>;
-
 Framebuffers createFrameBuffers(Device* device, Swapchain* swapchain, RenderPass* renderPass, VkAllocationCallbacks* pAllocator)
 {
     const Swapchain::ImageViews& imageViews = swapchain->getImageViews();

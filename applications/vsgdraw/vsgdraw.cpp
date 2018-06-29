@@ -10,6 +10,7 @@
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/Pipeline.h>
 #include <vsg/vk/Framebuffer.h>
+#include <vsg/vk/CommandPool.h>
 
 #include <iostream>
 #include <fstream>
@@ -28,7 +29,6 @@
 // interface
 namespace vsg
 {
-
 
 }
 
@@ -248,6 +248,8 @@ int main(int argc, char** argv)
 
     vsg::Framebuffers framebuffers = vsg::createFrameBuffers(device.get(), swapchain.get(), renderPass.get());
     std::cout<<"Created Framebuffers "<<framebuffers.size()<<std::endl;
+
+    vsg::ref_ptr<vsg::CommandPool> commandPool = new vsg::CommandPool(device.get(), physicalDevice-> getGraphicsFamily());
 
 
     //

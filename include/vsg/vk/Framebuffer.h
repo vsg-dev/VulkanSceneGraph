@@ -23,7 +23,7 @@ namespace vsg
 
     using Framebuffers = std::vector<ref_ptr<Framebuffer>>;
 
-extern Framebuffers createFrameBuffers(Device* device, Swapchain* swapchain, RenderPass* renderPass, VkAllocationCallbacks* pAllocator=nullptr);
+    extern Framebuffers createFrameBuffers(Device* device, Swapchain* swapchain, RenderPass* renderPass, VkAllocationCallbacks* pAllocator=nullptr);
 
 
 }
