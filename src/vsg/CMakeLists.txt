@@ -31,6 +31,7 @@ SET(HEADERS
     vk/CmdDraw.h
     vk/Pipeline.h
     vk/PipelineLayouyt.h
+    vk/Framebuffer.h
 
     utils/CommandLine.h
 )
@@ -54,6 +55,7 @@ SET(SOURCES
     vk/RenderPass.cpp
     vk/Pipeline.cpp
     vk/PipelineLayout.cpp
+    vk/Framebuffer.cpp
 )
 
 ADD_LIBRARY(vsg SHARED ${HEADER_FILES} ${SOURCES})
