@@ -54,7 +54,8 @@ public:
 
 namespace vsg
 {
-    /** convinience template pointer class for adapting ref_ptr<> or C pointers into a pointer<> to simplify passing either type of pointer to a method/function.*/
+    /** convinience template pointer class for adapting ref_ptr<> or C pointers into a pointer<> to simplify passing either type of pointer to a method/function.
+        pointer<> does not incrment or decrement the reference count of the object, and behaves like a C pointer for all intents and purposes.*/
     template<class T>
     class pointer
     {
