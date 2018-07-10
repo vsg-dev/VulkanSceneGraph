@@ -12,11 +12,13 @@ RenderPass::RenderPass(Device* device, VkRenderPass renderPass, AllocationCallba
 {
 }
 
-RenderPass::RenderPass(Device* device, VkFormat imageFormat, AllocationCallbacks* allocator) :
-    _device(device),
-    _renderPass(VK_NULL_HANDLE),
-    _allocator(allocator)
+RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, AllocationCallbacks* allocator)
 {
+    if (!device)
+    {
+        return Result("Error: vsg::RenderPass::create(...) failed to create RenderPass, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    }
+
     VkAttachmentDescription colorAttachment = {};
     colorAttachment.format = imageFormat;
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -43,9 +45,16 @@ RenderPass::RenderPass(Device* device, VkFormat imageFormat, AllocationCallbacks
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
 
-    if (vkCreateRenderPass(*device, &renderPassInfo, *_allocator, &_renderPass) != VK_SUCCESS)
+    VkRenderPass renderPass;
+    VkResult result = vkCreateRenderPass(*device, &renderPassInfo, *allocator, &renderPass);
+
+    if (result == VK_SUCCESS)
     {
-        std::cout<<"Failed to create VkRenderPass."<<std::endl;
+        return new RenderPass(device, renderPass, allocator);
+    }
+    else
+    {
+        return Result("Error: vsg::RenderPass::create(...) Failed to create VkRenderPass.", result);
     }
 }
 

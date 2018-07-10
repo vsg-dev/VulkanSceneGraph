@@ -248,7 +248,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    vsg::ref_ptr<vsg::RenderPass> renderPass = new vsg::RenderPass(device.get(), swapchain->getImageFormat());
+    vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device.get(), swapchain->getImageFormat());
     std::cout<<"Created RenderPass"<<std::endl;
 
     vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = new vsg::PipelineLayout(device.get());

@@ -10,7 +10,8 @@ namespace vsg
     public:
         RenderPass(Device* device, VkRenderPass renderPass, AllocationCallbacks* allocator=nullptr);
 
-        RenderPass(Device* device, VkFormat imageFormat, AllocationCallbacks* allocator=nullptr);
+        using Result = vsg::Result<RenderPass, VkResult, VK_SUCCESS>;
+        static Result create(Device* device, VkFormat imageFormat, AllocationCallbacks* allocator=nullptr);
 
         operator VkRenderPass () const { return _renderPass; }
 
