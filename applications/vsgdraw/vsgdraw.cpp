@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <algorithm>
 #include <mutex>
 #include <set>
@@ -143,6 +144,84 @@ void print(std::ostream& out, const std::string& description, const T& names)
     }
 }
 
+namespace vsg
+{
+
+    template< typename ... Args >
+    std::string make_string(Args const& ... args )
+    {
+        std::ostringstream stream;
+        using List= int[];
+        (void) List {0, ( (void)(stream << args), 0 ) ... };
+
+        return stream.str();
+    }
+
+    template<class T, typename R, R validValue>
+    class Result
+    {
+    public:
+
+        Result(R result) : _printMessageOnError(true), _result(result) {}
+        Result(const std::string& message, R result) : _printMessageOnError(true), _result(result), _message(message) {}
+        Result(T* ptr) : _printMessageOnError(false), _result(validValue), _ptr(ptr) {}
+
+        Result(const Result& rhs) :
+            _printMessageOnError(rhs._printMessageOnError),
+            _result(rhs._result),
+            _message(rhs._message),
+            _ptr(rhs._ptr)
+        {
+            rhs._printMessageOnError = false;
+        }
+
+        Result& operator = (const Result& rhs)
+        {
+            _printMessageOnError = rhs._printMessageOnError;
+            _result = rhs._result;
+            _message = rhs._message;
+            _ptr = rhs._ptr;
+            rhs._printMessageOnError = false;
+            return *this;
+        }
+
+        ~Result()
+        {
+            if (_result!=validValue && _printMessageOnError)
+            {
+                if (_message.empty()) std::cerr<<"Warning: unhandled error value : "<<_result<<std::endl;
+                else std::cerr<<_message<<std::endl;
+            }
+        }
+
+        R result() { _printMessageOnError = false; return _result; }
+
+        const std::string& message() { _printMessageOnError = false; return _message; }
+
+        ref_ptr<T> object() { return _ptr; }
+
+        operator ref_ptr<T> () { return _ptr; }
+
+    protected:
+
+        mutable bool    _printMessageOnError;
+        R               _result;
+        std::string     _message;
+        ref_ptr<T>      _ptr;
+    };
+
+
+    using DeviceResult = Result<Device, VkResult, VK_SUCCESS>;
+
+    DeviceResult createDevice(Instance* instance, PhysicalDevice* physicalDevice, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator=nullptr)
+    {
+        if (instance) return new Device(instance, physicalDevice, layers, deviceExtensions, allocator);
+        else return DeviceResult(make_string("Error: createDevice failed, return VkResult : ", VK_ERROR_DEVICE_LOST),VK_ERROR_DEVICE_LOST);
+    }
+
+}
+
+
 
 int main(int argc, char** argv)
 {
@@ -187,6 +266,7 @@ int main(int argc, char** argv)
     print(std::cout,"instanceExtensions",instanceExtensions);
     print(std::cout,"validatedNames",validatedNames);
 
+
     vsg::ref_ptr<vsg::Instance> instance = new vsg::Instance(instanceExtensions, validatedNames);
 
     // use GLFW to create surface
@@ -201,6 +281,61 @@ int main(int argc, char** argv)
     }
 
     vsg::ref_ptr<vsg::Device> device = new vsg::Device(instance.get(), physicalDevice.get(), validatedNames, deviceExtensions);
+
+
+    std::cout<<std::endl;
+
+    vsg::DeviceResult device2 = vsg::createDevice(instance.get(), physicalDevice.get(), validatedNames, deviceExtensions);
+
+    std::cout<<"device2 result = "<<device2.result()<<std::endl;
+    std::cout<<"device2 object = "<<device2.object().get()<<std::endl;
+
+    {
+    vsg::DeviceResult device3 = vsg::createDevice(nullptr, physicalDevice.get(), validatedNames, deviceExtensions);
+    std::cout<<"device3 result = "<<device3.result()<<std::endl;
+    std::cout<<"device3 object = "<<device3.object().get()<<std::endl;
+    }
+
+    vsg::ref_ptr<vsg::Device> device4 = vsg::createDevice(instance, physicalDevice, validatedNames, deviceExtensions);
+
+    std::cout<<"device4 "<<device4.get()<<std::endl;
+
+    vsg::ref_ptr<vsg::Device> device5 = vsg::createDevice(nullptr, physicalDevice.get(), validatedNames, deviceExtensions);
+
+    std::cout<<"device5 "<<device5.get()<<std::endl;
+
+    auto device6 = vsg::createDevice(nullptr, physicalDevice.get(), validatedNames, deviceExtensions);
+    std::cout<<"device6 "<<device6.result()<<std::endl;
+
+    {
+    std::cout<<"device7 "<<std::endl;
+    vsg::createDevice(nullptr, physicalDevice.get(), validatedNames, deviceExtensions);
+
+    std::cout<<std::endl;
+    }
+
+    {
+    std::cout<<"device8 "<<std::endl;
+    vsg::createDevice(instance.get(), physicalDevice.get(), validatedNames, deviceExtensions);
+
+    }
+    std::cout<<std::endl;
+
+    {
+    std::cout<<"device9 "<<std::endl;
+    vsg::DeviceResult temp = vsg::createDevice(nullptr, physicalDevice.get(), validatedNames, deviceExtensions);
+
+    }
+    std::cout<<std::endl;
+
+    {
+    std::cout<<"device10"<<std::endl;
+    vsg::DeviceResult temp = vsg::createDevice(nullptr, physicalDevice.get(), validatedNames, deviceExtensions);
+    std::cout<<"temp.result()"<<temp.result()<<std::endl;
+
+    }
+    std::cout<<std::endl;
+
 
     VkQueue graphicsQueue = vsg::createDeviceQueue(*device, physicalDevice->getGraphicsFamily());
     if (!graphicsQueue)
@@ -250,7 +385,6 @@ int main(int argc, char** argv)
     std::cout<<"Created Framebuffers "<<framebuffers.size()<<std::endl;
 
     vsg::ref_ptr<vsg::CommandPool> commandPool = new vsg::CommandPool(device.get(), physicalDevice-> getGraphicsFamily());
-
 
     //
     // end of initialize vulkan
