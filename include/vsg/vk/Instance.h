@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vsg/core/ref_ptr.h>
+#include <vsg/core/Result.h>
+
 #include <vsg/vk/AllocationCallbacks.h>
 
 #include <vulkan/vulkan.h>
@@ -25,7 +27,8 @@ namespace vsg
     public:
         Instance(VkInstance instance, AllocationCallbacks* allocator=nullptr) : _instance(instance), _allocator(allocator) {}
 
-        Instance(Names& instanceExtensions, Names& layers, AllocationCallbacks* allocator=nullptr);
+        using Result = vsg::Result<Instance, VkResult, VK_SUCCESS>;
+        static Result create(Names& instanceExtensions, Names& layers, AllocationCallbacks* allocator=nullptr);
 
         operator VkInstance() const { return _instance; }
         VkInstance getInstance() const { return _instance; }

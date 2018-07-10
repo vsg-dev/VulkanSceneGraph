@@ -13,12 +13,22 @@ Device::Device(Instance* instance, VkDevice device, AllocationCallbacks* allocat
 {
 }
 
-Device::Device(Instance* instance, PhysicalDevice* physicalDevice, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator) :
-    _instance(instance),
-    _physicalDevice(physicalDevice),
-    _device(VK_NULL_HANDLE),
-    _allocator(allocator)
+Device::~Device()
 {
+    if (_device)
+    {
+        std::cout<<"Calling vkDestroyDevice(..)"<<std::endl;
+        vkDestroyDevice(_device, *_allocator);
+    }
+}
+
+Device::Result Device::create(Instance* instance, PhysicalDevice* physicalDevice, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator)
+{
+    if (!instance || !physicalDevice)
+    {
+        return Device::Result("Error: vsg::Device::create(...) failed to create logical device, undefined Instance and/or PhysicalDevice.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    }
+
     std::set<int> uniqueQueueFamiles = {physicalDevice->getGraphicsFamily(), physicalDevice->getPresentFamily()};
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
@@ -49,22 +59,16 @@ Device::Device(Instance* instance, PhysicalDevice* physicalDevice, Names& layers
     createInfo.enabledLayerCount = layers.size();
     createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
 
-    if (vkCreateDevice(*physicalDevice, &createInfo, *_allocator, &_device) == VK_SUCCESS)
+    VkDevice device;
+    VkResult result = vkCreateDevice(*physicalDevice, &createInfo, *allocator, &device);
+    if (result == VK_SUCCESS)
     {
         std::cout<<"Created logical device"<<std::endl;
+        return new Device(instance, device, allocator);
     }
     else
     {
-        std::cout<<"Failed to create logical device"<<std::endl;
-    }
-}
-
-Device::~Device()
-{
-    if (_device)
-    {
-        std::cout<<"Calling vkDestroyDevice(..)"<<std::endl;
-        vkDestroyDevice(_device, *_allocator);
+        return Device::Result("Error: vsg::Device::create(...) failed to create logical device.", result);
     }
 }
 

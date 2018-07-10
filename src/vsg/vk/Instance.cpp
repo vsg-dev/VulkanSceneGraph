@@ -42,9 +42,7 @@ Names validateInstancelayerNames(const Names& names)
     return validatedNames;
 }
 
-Instance::Instance(Names& instanceExtensions, Names& layers, AllocationCallbacks* allocator):
-    _instance(VK_NULL_HANDLE),
-    _allocator(allocator)
+Instance::Result Instance::create(Names& instanceExtensions, Names& layers, AllocationCallbacks* allocator)
 {
     // applictin info
     VkApplicationInfo appInfo = {};
@@ -64,9 +62,11 @@ Instance::Instance(Names& instanceExtensions, Names& layers, AllocationCallbacks
     createInfo.enabledLayerCount = layers.size();
     createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
 
-    if (vkCreateInstance(&createInfo, *_allocator, &_instance) == VK_SUCCESS)
+    VkInstance instance;
+    if (vkCreateInstance(&createInfo, *allocator, &instance) == VK_SUCCESS)
     {
         std::cout<<"Created VkInstance"<<std::endl;
+        return new Instance(instance, allocator);
     }
     else
     {

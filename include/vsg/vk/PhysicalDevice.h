@@ -9,7 +9,8 @@ namespace vsg
     public:
         PhysicalDevice(Instance* instance, Surface* surface, VkPhysicalDevice device, int gFamily, int pFamily);
 
-        PhysicalDevice(Instance* instance, Surface* surface);
+        using Result = vsg::Result<PhysicalDevice, VkResult, VK_SUCCESS>;
+        static Result create(Instance* instance, Surface* surface);
 
         bool complete() const { return _device!=VK_NULL_HANDLE && _graphicsFamily>=0 && _presentFamily>=0; }
 

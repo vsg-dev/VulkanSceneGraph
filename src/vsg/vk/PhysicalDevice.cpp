@@ -14,13 +14,13 @@ PhysicalDevice::PhysicalDevice(Instance* instance, Surface* surface, VkPhysicalD
 {
 }
 
-PhysicalDevice::PhysicalDevice(Instance* instance, Surface* surface) :
-    _instance(instance),
-    _surface(surface),
-    _device(VK_NULL_HANDLE),
-    _graphicsFamily(-1),
-    _presentFamily(-1)
+PhysicalDevice::Result PhysicalDevice::create(Instance* instance, Surface* surface)
 {
+    if (!instance || !surface)
+    {
+        return PhysicalDevice::Result("Error: vsg::PhysicalDevice::create(...) failed to create physical device, undefined Instance and/or Surface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    }
+
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(*instance, &deviceCount, nullptr);
 
@@ -29,8 +29,6 @@ PhysicalDevice::PhysicalDevice(Instance* instance, Surface* surface) :
 
     for (const auto& device : devices)
     {
-        _device = device;
-
         // Checked the DeviceQueueFamilyProperties for support for graphics
         uint32_t queueFamilyCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
@@ -38,36 +36,34 @@ PhysicalDevice::PhysicalDevice(Instance* instance, Surface* surface) :
         std::vector<VkQueueFamilyProperties> queueFamiles(queueFamilyCount);
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamiles.data());
 
+        int graphicsFamily = -1;
+        int presentFamily = -1;
+
         for (int i=0; i<queueFamilyCount; ++i)
         {
             const auto& queueFamily = queueFamiles[i];
             if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)!=0)
             {
-                _graphicsFamily = i;
+                graphicsFamily = i;
             }
 
             VkBool32 presentSupported = false;
             vkGetPhysicalDeviceSurfaceSupportKHR(device, i, *surface, &presentSupported);
             if (queueFamily.queueCount>0 && presentSupported)
             {
-                _presentFamily = i;
+                presentFamily = i;
             }
 
-            if (complete())
+            if (device!=VK_NULL_HANDLE && graphicsFamily>=0 && presentFamily>=0)
             {
                 std::cout<<"created PhysicalDevice"<<std::endl;
-                return;
+                return new PhysicalDevice(instance, surface, device, graphicsFamily, presentFamily);
             }
         }
 
     }
 
-    _device = VK_NULL_HANDLE;
-    _graphicsFamily = -1;
-    _presentFamily = -1;
-
-    std::cout<<"creation of PhysicalDevice failed"<<std::endl;
-
+    return PhysicalDevice::Result("Error: vsg::Device::create(...) failed to create physical device.", VK_INCOMPLETE);
 }
 
 PhysicalDevice::~PhysicalDevice()

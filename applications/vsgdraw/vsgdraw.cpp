@@ -158,17 +158,6 @@ namespace vsg
 
         return stream.str();
     }
-
-
-
-    using DeviceResult = Result<Device, VkResult, VK_SUCCESS>;
-
-    DeviceResult createDevice(Instance* instance, PhysicalDevice* physicalDevice, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator=nullptr)
-    {
-        if (instance) return new Device(instance, physicalDevice, layers, deviceExtensions, allocator);
-        else return DeviceResult(make_string("Error: createDevice failed, return VkResult : ", VK_ERROR_DEVICE_LOST),VK_ERROR_DEVICE_LOST);
-    }
-
 }
 
 
@@ -217,20 +206,14 @@ int main(int argc, char** argv)
     print(std::cout,"validatedNames",validatedNames);
 
 
-    vsg::ref_ptr<vsg::Instance> instance = new vsg::Instance(instanceExtensions, validatedNames);
+    vsg::ref_ptr<vsg::Instance> instance = vsg::Instance::create(instanceExtensions, validatedNames);
 
     // use GLFW to create surface
     vsg::ref_ptr<glfw::GLFWSurface> surface = new glfw::GLFWSurface(instance.get(), *window, nullptr);
 
     // set up device
-    vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = new vsg::PhysicalDevice(instance.get(), surface.get());
-    if (!physicalDevice->complete())
-    {
-        std::cout<<"No VkPhysicalDevice available!"<<std::endl;
-        return 1;
-    }
-
-    vsg::ref_ptr<vsg::Device> device = new vsg::Device(instance.get(), physicalDevice.get(), validatedNames, deviceExtensions);
+    vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(instance, surface);
+    vsg::ref_ptr<vsg::Device> device = vsg::Device::create(instance, physicalDevice, validatedNames, deviceExtensions);
 
     VkQueue graphicsQueue = vsg::createDeviceQueue(*device, physicalDevice->getGraphicsFamily());
     if (!graphicsQueue)
