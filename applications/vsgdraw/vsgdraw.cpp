@@ -13,6 +13,7 @@
 #include <vsg/vk/Pipeline.h>
 #include <vsg/vk/Framebuffer.h>
 #include <vsg/vk/CommandPool.h>
+#include <vsg/vk/Semaphore.h>
 
 #include <iostream>
 #include <fstream>
@@ -236,6 +237,10 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::Pipeline::createGraphics(device, swapchain, renderPass, pipelineLayout, vert, frag);
     vsg::Framebuffers framebuffers = vsg::createFrameBuffers(device, swapchain, renderPass);
     vsg::ref_ptr<vsg::CommandPool> commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
+
+    vsg::ref_ptr<vsg::Semaphore> imageAvailableSemaphore = vsg::Semaphore::create(device);
+    vsg::ref_ptr<vsg::Semaphore> renderFinishedSemaphore = vsg::Semaphore::create(device);
+
 
     //
     // end of initialize vulkan
