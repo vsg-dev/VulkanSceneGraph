@@ -52,59 +52,6 @@ public:
 
 };
 
-namespace vsg
-{
-    /** convinience template pointer class for adapting ref_ptr<> or C pointers into a pointer<> to simplify passing either type of pointer to a method/function.
-        pointer<> does not incrment or decrement the reference count of the object, and behaves like a C pointer for all intents and purposes.*/
-    template<class T>
-    class pointer
-    {
-    public:
-
-        pointer(T* ptr) : _ptr(ptr) {}
-
-        template<class R>
-        pointer(ref_ptr<R> ptr) : _ptr(ptr.get()) {}
-
-        pointer& operator = (T* ptr)
-        {
-            _ptr = ptr;
-            return *this;
-        }
-
-        template<class R>
-        pointer& operator = (const ref_ptr<R>& rhs)
-        {
-            _ptr = rhs.get();
-            return *this;
-        }
-
-        operator T* () const { return _ptr; }
-
-        operator ref_ptr<T> () const { return ref_ptr<T>(_ptr); }
-
-        bool valid() const { return _ptr!=nullptr; }
-
-        bool operator!() const { return _ptr==nullptr; }
-
-        T& operator*() const { return *_ptr; }
-
-        T* operator->() const { return _ptr;}
-
-        T* get() const { return _ptr; }
-
-    protected:
-        T* _ptr;
-    };
-}
-
-
-void addChild(vsg::pointer<vsg::Group> group, vsg::pointer<vsg::Node> child)
-{
-    std::cout<<"addChild( "<<group.get()<<", "<<child.get()<<")"<<std::endl;
-    group->addChild(child);
-}
-
 int main(int argc, char** argv)
 {
 
@@ -120,15 +67,6 @@ int main(int argc, char** argv)
 #endif
 
     std::cout<<"size_of(std::shared_ptr)="<<sizeof(shared_node)<<", sizeof(SharedPtrQuadGroup)="<<sizeof(SharedPtrQuadGroup)<<std::endl;
-
-
-    vsg::ref_ptr<vsg::Group> group = new vsg::Group;
-    vsg::Node* child = new vsg::Node;
-    addChild(group, child);
-
-    vsg::pointer<vsg::Group> ptr_group = group;
-    vsg::ref_ptr<vsg::Group> second_group_ptr = ptr_group;
-
 
     return 0;
 }
