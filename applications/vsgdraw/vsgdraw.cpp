@@ -209,7 +209,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Instance> instance = vsg::Instance::create(instanceExtensions, validatedNames);
 
     // use GLFW to create surface
-    vsg::ref_ptr<glfw::GLFWSurface> surface = new glfw::GLFWSurface(instance.get(), *window, nullptr);
+    vsg::ref_ptr<glfw::GLFWSurface> surface = new glfw::GLFWSurface(instance, *window, nullptr);
 
     // set up device
     vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(instance, surface);
@@ -231,17 +231,17 @@ int main(int argc, char** argv)
 
     std::cout<<"Created graphicsQueue="<<graphicsQueue<<", presentQueue="<<presentQueue<<std::endl;
 
-    vsg::ref_ptr<vsg::Swapchain> swapchain = new vsg::Swapchain(physicalDevice.get(), device.get(), surface.get(), width, height);
+    vsg::ref_ptr<vsg::Swapchain> swapchain = vsg::Swapchain::create(physicalDevice, device, surface, width, height);
     std::cout<<"Created swapchain"<<std::endl;
 
-    vsg::ref_ptr<vsg::ShaderModule> vert = vsg::ShaderModule::read(device.get(), "shaders/vert.spv");
+    vsg::ref_ptr<vsg::ShaderModule> vert = vsg::ShaderModule::read(device, "shaders/vert.spv");
     if (!vert)
     {
         std::cout<<"Could not find vertex shader"<<std::endl;
         return 1;
     }
 
-    vsg::ref_ptr<vsg::ShaderModule> frag = vsg::ShaderModule::read(device.get(), "shaders/frag.spv");
+    vsg::ref_ptr<vsg::ShaderModule> frag = vsg::ShaderModule::read(device, "shaders/frag.spv");
     if (!frag)
     {
         std::cout<<"Could not find fragment shader"<<std::endl;

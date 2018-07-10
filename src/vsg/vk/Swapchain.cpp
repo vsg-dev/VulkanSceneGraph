@@ -98,15 +98,13 @@ Swapchain::Swapchain(Device* device, Surface* surface, VkSwapchainKHR swapchain,
 }
 
 
-Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, AllocationCallbacks*  allocator):
-    _device(device), _surface(surface), _swapchain(VK_NULL_HANDLE), _allocator(allocator)
+Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, AllocationCallbacks*  allocator)
 {
     SwapChainSupportDetails details = querySwapChainSupport(*physicalDevice, *surface);
 
     VkSurfaceFormatKHR surfaceFormat = selectSwapSurfaceFormat(details);
     VkPresentModeKHR presentMode = selectSwapPresentMode(details);
     VkExtent2D extent = selectSwapExtent(details, width, height);
-
 
     uint32_t imageCount = details.capabilities.minImageCount+1;
     if (details.capabilities.maxImageCount>0 && imageCount>details.capabilities.maxImageCount)
@@ -144,22 +142,23 @@ Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* su
 
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-    _format = surfaceFormat.format;
-    _extent = extent;
-
-    if (vkCreateSwapchainKHR(*_device, &createInfo, *_allocator, &_swapchain)!=VK_SUCCESS)
+    VkSwapchainKHR swapchain;
+    VkResult result = vkCreateSwapchainKHR(*device, &createInfo, *allocator, &swapchain);
+    if (result != VK_SUCCESS)
     {
-        std::cout<<"Failed to create swap chain"<<std::endl;
-        return;
-
+        return Result("Error: Failed to create swap chain.", result);
     }
 
+    ref_ptr<Swapchain> sw = new Swapchain(device, surface, swapchain);
+
+    sw->_format = surfaceFormat.format;
+    sw->_extent = extent;
 
     // create the ImageViews
     std::vector<VkImage> images;
-    vkGetSwapchainImagesKHR(*_device, _swapchain, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(*device, swapchain, &imageCount, nullptr);
     images.resize(imageCount);
-    vkGetSwapchainImagesKHR(*_device, _swapchain, &imageCount, images.data());
+    vkGetSwapchainImagesKHR(*device, swapchain, &imageCount, images.data());
 
     for (std::size_t i=0; i<images.size(); ++i)
     {
@@ -167,7 +166,7 @@ Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* su
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         createInfo.image = images[i];
         createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        createInfo.format = _format;
+        createInfo.format = surfaceFormat.format;
         createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
         createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
         createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -179,15 +178,17 @@ Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* su
         createInfo.subresourceRange.layerCount = 1;
 
         VkImageView view;
-        if (vkCreateImageView(*_device, &createInfo, *_allocator, &view)==VK_SUCCESS)
+        if (vkCreateImageView(*device, &createInfo, *allocator, &view)==VK_SUCCESS)
         {
-            _imageViews.push_back(new ImageView(_device.get(), view, _allocator.get()));
+            sw->getImageViews().push_back(new ImageView(device, view, allocator));
         }
         else
         {
             std::cout<<"Error : unable to create image view "<<i<<std::endl;
         }
     }
+
+    return sw;
 }
 
 Swapchain::~Swapchain()
