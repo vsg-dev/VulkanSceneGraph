@@ -12,22 +12,27 @@ CommandPool::CommandPool(Device* device, VkCommandPool CommandPool, AllocationCa
 {
 }
 
-CommandPool::CommandPool(Device* device, uint32_t queueFamilyIndex, AllocationCallbacks* allocator) :
-    _device(device),
-    _commandPool(VK_NULL_HANDLE),
-    _allocator(allocator)
+CommandPool::Result CommandPool::create(Device* device, uint32_t queueFamilyIndex, AllocationCallbacks* allocator)
 {
+    if (!device)
+    {
+        return CommandPool::Result("Error: vsg::CommandPool::create(...) failed to create command pool, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    }
+
     VkCommandPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.queueFamilyIndex = queueFamilyIndex;
 
-    if (vkCreateCommandPool(*device, &poolInfo, *allocator, &_commandPool) == VK_SUCCESS)
+
+    VkCommandPool commandPool;
+    VkResult result = vkCreateCommandPool(*device, &poolInfo, *allocator, &commandPool);
+    if (result == VK_SUCCESS)
     {
-        std::cout<<"Created CommandPool"<<std::endl;
+        return new CommandPool(device, commandPool, allocator);
     }
     else
     {
-        std::cout<<"Warning: unable to create CommandPool"<<std::endl;
+        return Result("Error: Failed to create command pool.", result);
     }
 }
 

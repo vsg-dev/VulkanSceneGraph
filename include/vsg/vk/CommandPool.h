@@ -11,7 +11,8 @@ namespace vsg
     public:
         CommandPool(Device* device, VkCommandPool CommandPool, AllocationCallbacks* allocator=nullptr);
 
-        CommandPool(Device* device, uint32_t queueFamilyIndex, AllocationCallbacks* allocator=nullptr);
+        using Result = vsg::Result<CommandPool, VkResult, VK_SUCCESS>;
+        static Result create(Device* device, uint32_t queueFamilyIndex, AllocationCallbacks* allocator=nullptr);
 
         operator VkCommandPool () const { return _commandPool; }
 

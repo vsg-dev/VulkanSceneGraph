@@ -248,21 +248,21 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device.get(), swapchain->getImageFormat());
+    vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, swapchain->getImageFormat());
     std::cout<<"Created RenderPass"<<std::endl;
 
-    vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = new vsg::PipelineLayout(device.get());
+    vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = new vsg::PipelineLayout(device);
 
     std::cout<<"Created PipelineLayout "<<pipelineLayout.get()<<std::endl;
 
-    vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::createGraphicsPipeline(device.get(), swapchain.get(), renderPass.get(), pipelineLayout.get(), vert.get(), frag.get());
+    vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::Pipeline::createGraphics(device, swapchain, renderPass, pipelineLayout, vert, frag);
 
     std::cout<<"Created GraphicsPipline "<<pipeline.get()<<std::endl;
 
-    vsg::Framebuffers framebuffers = vsg::createFrameBuffers(device.get(), swapchain.get(), renderPass.get());
+    vsg::Framebuffers framebuffers = vsg::createFrameBuffers(device, swapchain, renderPass);
     std::cout<<"Created Framebuffers "<<framebuffers.size()<<std::endl;
 
-    vsg::ref_ptr<vsg::CommandPool> commandPool = new vsg::CommandPool(device.get(), physicalDevice-> getGraphicsFamily());
+    vsg::ref_ptr<vsg::CommandPool> commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
 
     //
     // end of initialize vulkan

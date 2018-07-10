@@ -21,8 +21,13 @@ Pipeline::~Pipeline()
     }
 }
 
-ref_ptr<Pipeline> createGraphicsPipeline(Device* device, Swapchain* swapchain, RenderPass* renderPass, PipelineLayout* pipelineLayout, ShaderModule* vert, ShaderModule* frag, AllocationCallbacks* allocator)
+Pipeline::Result Pipeline::createGraphics(Device* device, Swapchain* swapchain, RenderPass* renderPass, PipelineLayout* pipelineLayout, ShaderModule* vert, ShaderModule* frag, AllocationCallbacks* allocator)
 {
+    if (!device || !swapchain || !renderPass || !pipelineLayout)
+    {
+        return Pipeline::Result("Error: vsg::Pipeline::create(...) failed to create graphics pipeline, undefined inputs.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    }
+
     VkPipelineShaderStageCreateInfo vertexShaderStageInfo = {};
     vertexShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     vertexShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -120,12 +125,15 @@ ref_ptr<Pipeline> createGraphicsPipeline(Device* device, Swapchain* swapchain, R
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
     VkPipeline pipeline;
-    if (vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, *allocator, &pipeline ) == VK_SUCCESS)
+    VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, *allocator, &pipeline );
+    if (result == VK_SUCCESS)
     {
         return new Pipeline(device, pipeline, allocator);
     }
-
-    return nullptr;
+    else
+    {
+        return Result("Error: Pipeline::createGraphics(...) failed to create VkPipeline.", result);
+    }
 }
 
 }

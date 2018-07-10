@@ -13,6 +13,9 @@ namespace vsg
     public:
         Pipeline(Device* device, VkPipeline pipeline, AllocationCallbacks* allocator=nullptr);
 
+        using Result = vsg::Result<Pipeline, VkResult, VK_SUCCESS>;
+        static Result createGraphics(Device* device, Swapchain* swapchain, RenderPass* renderPass, PipelineLayout* pipelineLayout, ShaderModule* vert, ShaderModule* frag, AllocationCallbacks* allocator=nullptr);
+
         operator VkPipeline () const { return _pipeline; }
 
     protected:
@@ -23,6 +26,5 @@ namespace vsg
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 
-    extern ref_ptr<Pipeline> createGraphicsPipeline(Device* device, Swapchain* swapchain, RenderPass* renderPass, PipelineLayout* pipelineLayout, ShaderModule* vert, ShaderModule* frag, AllocationCallbacks* allocator=nullptr);
 
 }
