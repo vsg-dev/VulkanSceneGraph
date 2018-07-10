@@ -234,14 +234,14 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Swapchain> swapchain = new vsg::Swapchain(physicalDevice.get(), device.get(), surface.get(), width, height);
     std::cout<<"Created swapchain"<<std::endl;
 
-    vsg::ref_ptr<vsg::ShaderModule> vert = vsg::readShaderModule(device.get(), "shaders/vert.spv");
+    vsg::ref_ptr<vsg::ShaderModule> vert = vsg::ShaderModule::read(device.get(), "shaders/vert.spv");
     if (!vert)
     {
         std::cout<<"Could not find vertex shader"<<std::endl;
         return 1;
     }
 
-    vsg::ref_ptr<vsg::ShaderModule> frag = vsg::readShaderModule(device.get(), "shaders/frag.spv");
+    vsg::ref_ptr<vsg::ShaderModule> frag = vsg::ShaderModule::read(device.get(), "shaders/frag.spv");
     if (!frag)
     {
         std::cout<<"Could not find fragment shader"<<std::endl;

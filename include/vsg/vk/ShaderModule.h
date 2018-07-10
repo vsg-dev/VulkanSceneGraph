@@ -30,22 +30,34 @@ namespace vsg
     public:
         ShaderModule(Device* device, VkShaderModule shaderModule, AllocationCallbacks* allocator=nullptr);
 
+        using Result = vsg::Result<ShaderModule, VkResult, VK_SUCCESS>;
+
         template<typename T>
-        ShaderModule(Device* device, const T& shader, AllocationCallbacks* allocator=nullptr):
-            _device(device),
-            _shaderModule(VK_NULL_HANDLE),
-            _allocator(allocator)
+        static Result create(Device* device, const T& shader, AllocationCallbacks* allocator=nullptr)
         {
+            if (!device)
+            {
+                return Result("Error: vsg::ShaderModule::create(...) failed to create logical device, undefined Instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+            }
+
             VkShaderModuleCreateInfo createInfo = {};
             createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
             createInfo.codeSize = shader.size();
             createInfo.pCode = reinterpret_cast<const uint32_t*>(shader.data());
 
-            if (vkCreateShaderModule(*device, &createInfo, *_allocator, &_shaderModule) != VK_SUCCESS)
+            VkShaderModule shaderModule;
+            VkResult result = vkCreateShaderModule(*device, &createInfo, *allocator, &shaderModule);
+            if (result == VK_SUCCESS)
             {
-                std::cout<<"Failed to create shader module"<<std::endl;
+                return new ShaderModule(device, shaderModule, allocator);
+            }
+            else
+            {
+                return Result("Error: vsg::ShaderModule::create(...) failed to create shader module.", result);
             }
         }
+
+        static Result read(Device* device, const std::string& filename, AllocationCallbacks* allocator=nullptr);
 
         // add Shader type ? VK_SHADER_STAGE_VERTEX_BIT vs VK_SHADER_STAGE_FRAGMENT_BIT etc.
         // so that it can be used to set up VkPipelineShaderStageCreateInfo
@@ -61,5 +73,4 @@ namespace vsg
     };
 
 
-    extern vsg::ref_ptr<ShaderModule> readShaderModule(Device* device, const std::string& filename);
 }

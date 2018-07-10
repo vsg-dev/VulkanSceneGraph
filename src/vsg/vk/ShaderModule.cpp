@@ -19,16 +19,16 @@ ShaderModule::~ShaderModule()
     }
 }
 
-vsg::ref_ptr<ShaderModule> readShaderModule(Device* device, const std::string& filename)
+ShaderModule::Result ShaderModule::read(Device* device, const std::string& filename, AllocationCallbacks* allocator)
 {
     std::vector<char> buffer;
     if (readFile(buffer, filename))
     {
-        return new ShaderModule(device, buffer);
+        return ShaderModule::create(device, buffer, allocator);
     }
     else
     {
-        return nullptr;
+        return ShaderModule::Result("Error: vsg::ShaderModule::read(..) failed to read shader file.", VK_INCOMPLETE);
     }
 }
 

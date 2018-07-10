@@ -63,14 +63,15 @@ Instance::Result Instance::create(Names& instanceExtensions, Names& layers, Allo
     createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
 
     VkInstance instance;
-    if (vkCreateInstance(&createInfo, *allocator, &instance) == VK_SUCCESS)
+    VkResult result = vkCreateInstance(&createInfo, *allocator, &instance);
+    if (result == VK_SUCCESS)
     {
         std::cout<<"Created VkInstance"<<std::endl;
         return new Instance(instance, allocator);
     }
     else
     {
-        std::cout<<"Failed to create VkInstance"<<std::endl;
+        return Result("Error: vsg::Instance::create(...) failed to create VkInstance.", result);
     }
 }
 
