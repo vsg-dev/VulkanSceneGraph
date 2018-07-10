@@ -1,5 +1,7 @@
 #include <vsg/core/ref_ptr.h>
 #include <vsg/core/observer_ptr.h>
+#include <vsg/core/Result.h>
+
 #include <vsg/utils/CommandLine.h>
 
 #include <vsg/vk/Instance.h>
@@ -157,58 +159,6 @@ namespace vsg
         return stream.str();
     }
 
-    template<class T, typename R, R validValue>
-    class Result
-    {
-    public:
-
-        Result(R result) : _printMessageOnError(true), _result(result) {}
-        Result(const std::string& message, R result) : _printMessageOnError(true), _result(result), _message(message) {}
-        Result(T* ptr) : _printMessageOnError(false), _result(validValue), _ptr(ptr) {}
-
-        Result(const Result& rhs) :
-            _printMessageOnError(rhs._printMessageOnError),
-            _result(rhs._result),
-            _message(rhs._message),
-            _ptr(rhs._ptr)
-        {
-            rhs._printMessageOnError = false;
-        }
-
-        Result& operator = (const Result& rhs)
-        {
-            _printMessageOnError = rhs._printMessageOnError;
-            _result = rhs._result;
-            _message = rhs._message;
-            _ptr = rhs._ptr;
-            rhs._printMessageOnError = false;
-            return *this;
-        }
-
-        ~Result()
-        {
-            if (_result!=validValue && _printMessageOnError)
-            {
-                if (_message.empty()) std::cerr<<"Warning: unhandled error value : "<<_result<<std::endl;
-                else std::cerr<<_message<<std::endl;
-            }
-        }
-
-        R result() { _printMessageOnError = false; return _result; }
-
-        const std::string& message() { _printMessageOnError = false; return _message; }
-
-        ref_ptr<T> object() { return _ptr; }
-
-        operator ref_ptr<T> () { return _ptr; }
-
-    protected:
-
-        mutable bool    _printMessageOnError;
-        R               _result;
-        std::string     _message;
-        ref_ptr<T>      _ptr;
-    };
 
 
     using DeviceResult = Result<Device, VkResult, VK_SUCCESS>;
@@ -281,61 +231,6 @@ int main(int argc, char** argv)
     }
 
     vsg::ref_ptr<vsg::Device> device = new vsg::Device(instance.get(), physicalDevice.get(), validatedNames, deviceExtensions);
-
-
-    std::cout<<std::endl;
-
-    vsg::DeviceResult device2 = vsg::createDevice(instance.get(), physicalDevice.get(), validatedNames, deviceExtensions);
-
-    std::cout<<"device2 result = "<<device2.result()<<std::endl;
-    std::cout<<"device2 object = "<<device2.object().get()<<std::endl;
-
-    {
-    vsg::DeviceResult device3 = vsg::createDevice(nullptr, physicalDevice.get(), validatedNames, deviceExtensions);
-    std::cout<<"device3 result = "<<device3.result()<<std::endl;
-    std::cout<<"device3 object = "<<device3.object().get()<<std::endl;
-    }
-
-    vsg::ref_ptr<vsg::Device> device4 = vsg::createDevice(instance, physicalDevice, validatedNames, deviceExtensions);
-
-    std::cout<<"device4 "<<device4.get()<<std::endl;
-
-    vsg::ref_ptr<vsg::Device> device5 = vsg::createDevice(nullptr, physicalDevice.get(), validatedNames, deviceExtensions);
-
-    std::cout<<"device5 "<<device5.get()<<std::endl;
-
-    auto device6 = vsg::createDevice(nullptr, physicalDevice.get(), validatedNames, deviceExtensions);
-    std::cout<<"device6 "<<device6.result()<<std::endl;
-
-    {
-    std::cout<<"device7 "<<std::endl;
-    vsg::createDevice(nullptr, physicalDevice.get(), validatedNames, deviceExtensions);
-
-    std::cout<<std::endl;
-    }
-
-    {
-    std::cout<<"device8 "<<std::endl;
-    vsg::createDevice(instance.get(), physicalDevice.get(), validatedNames, deviceExtensions);
-
-    }
-    std::cout<<std::endl;
-
-    {
-    std::cout<<"device9 "<<std::endl;
-    vsg::DeviceResult temp = vsg::createDevice(nullptr, physicalDevice.get(), validatedNames, deviceExtensions);
-
-    }
-    std::cout<<std::endl;
-
-    {
-    std::cout<<"device10"<<std::endl;
-    vsg::DeviceResult temp = vsg::createDevice(nullptr, physicalDevice.get(), validatedNames, deviceExtensions);
-    std::cout<<"temp.result()"<<temp.result()<<std::endl;
-
-    }
-    std::cout<<std::endl;
-
 
     VkQueue graphicsQueue = vsg::createDeviceQueue(*device, physicalDevice->getGraphicsFamily());
     if (!graphicsQueue)

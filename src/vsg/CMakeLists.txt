@@ -11,6 +11,7 @@ SET(HEADERS
     core/Object.h
     core/Value.h
     core/Visitor.h
+    core/Result.h
 
     maths/vec2.h
     maths/vec3.h
@@ -42,6 +43,7 @@ SET(SOURCES
     core/Auxiliary.cpp
     core/Object.cpp
     core/Visitor.cpp
+    core/Result.cpp
 
     nodes/Group.cpp
     nodes/Node.cpp
