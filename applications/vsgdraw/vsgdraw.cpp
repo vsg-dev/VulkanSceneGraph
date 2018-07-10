@@ -201,10 +201,8 @@ int main(int argc, char** argv)
     vsg::Names deviceExtensions;
     deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
-
     print(std::cout,"instanceExtensions",instanceExtensions);
     print(std::cout,"validatedNames",validatedNames);
-
 
     vsg::ref_ptr<vsg::Instance> instance = vsg::Instance::create(instanceExtensions, validatedNames);
 
@@ -215,53 +213,28 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(instance, surface);
     vsg::ref_ptr<vsg::Device> device = vsg::Device::create(instance, physicalDevice, validatedNames, deviceExtensions);
 
+    vsg::ref_ptr<vsg::ShaderModule> vert = vsg::ShaderModule::read(device, "shaders/vert.spv");
+    vsg::ref_ptr<vsg::ShaderModule> frag = vsg::ShaderModule::read(device, "shaders/frag.spv");
+    if (!vert || !frag)
+    {
+        std::cout<<"Could not create shaders"<<std::endl;
+        return 1;
+    }
+
     VkQueue graphicsQueue = vsg::createDeviceQueue(*device, physicalDevice->getGraphicsFamily());
-    if (!graphicsQueue)
-    {
-        std::cout<<"No Graphics queue available!"<<std::endl;
-        return 1;
-    }
-
     VkQueue presentQueue = vsg::createDeviceQueue(*device, physicalDevice->getPresentFamily());
-    if (!presentQueue)
+    if (!graphicsQueue || !presentQueue)
     {
-        std::cout<<"No Present queue available!"<<std::endl;
+        std::cout<<"Required graphics/present queue not available!"<<std::endl;
         return 1;
     }
-
-    std::cout<<"Created graphicsQueue="<<graphicsQueue<<", presentQueue="<<presentQueue<<std::endl;
 
     vsg::ref_ptr<vsg::Swapchain> swapchain = vsg::Swapchain::create(physicalDevice, device, surface, width, height);
-    std::cout<<"Created swapchain"<<std::endl;
-
-    vsg::ref_ptr<vsg::ShaderModule> vert = vsg::ShaderModule::read(device, "shaders/vert.spv");
-    if (!vert)
-    {
-        std::cout<<"Could not find vertex shader"<<std::endl;
-        return 1;
-    }
-
-    vsg::ref_ptr<vsg::ShaderModule> frag = vsg::ShaderModule::read(device, "shaders/frag.spv");
-    if (!frag)
-    {
-        std::cout<<"Could not find fragment shader"<<std::endl;
-        return 1;
-    }
 
     vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, swapchain->getImageFormat());
-    std::cout<<"Created RenderPass"<<std::endl;
-
     vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = new vsg::PipelineLayout(device);
-
-    std::cout<<"Created PipelineLayout "<<pipelineLayout.get()<<std::endl;
-
     vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::Pipeline::createGraphics(device, swapchain, renderPass, pipelineLayout, vert, frag);
-
-    std::cout<<"Created GraphicsPipline "<<pipeline.get()<<std::endl;
-
     vsg::Framebuffers framebuffers = vsg::createFrameBuffers(device, swapchain, renderPass);
-    std::cout<<"Created Framebuffers "<<framebuffers.size()<<std::endl;
-
     vsg::ref_ptr<vsg::CommandPool> commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
 
     //
