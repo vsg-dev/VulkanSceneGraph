@@ -6,18 +6,18 @@
 namespace vsg
 {
 
-Device::Device(Instance* instance, VkDevice device, VkAllocationCallbacks* pAllocator) :
+Device::Device(Instance* instance, VkDevice device, AllocationCallbacks* allocator) :
     _instance(instance),
     _device(device),
-    _pAllocator(pAllocator)
+    _allocator(allocator)
 {
 }
 
-Device::Device(Instance* instance, PhysicalDevice* physicalDevice, Names& layers, Names& deviceExtensions, VkAllocationCallbacks* pAllocator) :
+Device::Device(Instance* instance, PhysicalDevice* physicalDevice, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator) :
     _instance(instance),
     _physicalDevice(physicalDevice),
     _device(VK_NULL_HANDLE),
-    _pAllocator(pAllocator)
+    _allocator(allocator)
 {
     std::set<int> uniqueQueueFamiles = {physicalDevice->getGraphicsFamily(), physicalDevice->getPresentFamily()};
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -49,7 +49,7 @@ Device::Device(Instance* instance, PhysicalDevice* physicalDevice, Names& layers
     createInfo.enabledLayerCount = layers.size();
     createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
 
-    if (vkCreateDevice(*physicalDevice, &createInfo, nullptr, &_device) == VK_SUCCESS)
+    if (vkCreateDevice(*physicalDevice, &createInfo, *_allocator, &_device) == VK_SUCCESS)
     {
         std::cout<<"Created logical device"<<std::endl;
     }
@@ -64,7 +64,7 @@ Device::~Device()
     if (_device)
     {
         std::cout<<"Calling vkDestroyDevice(..)"<<std::endl;
-        vkDestroyDevice(_device, _pAllocator);
+        vkDestroyDevice(_device, *_allocator);
     }
 }
 

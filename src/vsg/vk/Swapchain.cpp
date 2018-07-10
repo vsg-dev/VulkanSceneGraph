@@ -92,14 +92,14 @@ VkPresentModeKHR selectSwapPresentMode(SwapChainSupportDetails& details)
     return presentMode;
 }
 
-Swapchain::Swapchain(Device* device, Surface* surface, VkSwapchainKHR swapchain, VkAllocationCallbacks*  pAllocator):
-    _device(device), _surface(surface), _swapchain(swapchain), _pAllocator(pAllocator)
+Swapchain::Swapchain(Device* device, Surface* surface, VkSwapchainKHR swapchain, AllocationCallbacks*  allocator):
+    _device(device), _surface(surface), _swapchain(swapchain), _allocator(allocator)
 {
 }
 
 
-Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, VkAllocationCallbacks*  pAllocator):
-    _device(device), _surface(surface), _swapchain(VK_NULL_HANDLE), _pAllocator(pAllocator)
+Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, AllocationCallbacks*  allocator):
+    _device(device), _surface(surface), _swapchain(VK_NULL_HANDLE), _allocator(allocator)
 {
     SwapChainSupportDetails details = querySwapChainSupport(*physicalDevice, *surface);
 
@@ -147,7 +147,7 @@ Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* su
     _format = surfaceFormat.format;
     _extent = extent;
 
-    if (vkCreateSwapchainKHR(*_device, &createInfo, nullptr, &_swapchain)!=VK_SUCCESS)
+    if (vkCreateSwapchainKHR(*_device, &createInfo, *_allocator, &_swapchain)!=VK_SUCCESS)
     {
         std::cout<<"Failed to create swap chain"<<std::endl;
         return;
@@ -179,9 +179,9 @@ Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* su
         createInfo.subresourceRange.layerCount = 1;
 
         VkImageView view;
-        if (vkCreateImageView(*_device, &createInfo, nullptr, &view)==VK_SUCCESS)
+        if (vkCreateImageView(*_device, &createInfo, *_allocator, &view)==VK_SUCCESS)
         {
-            _imageViews.push_back(new ImageView(_device.get(), view, _pAllocator));
+            _imageViews.push_back(new ImageView(_device.get(), view, _allocator.get()));
         }
         else
         {
@@ -197,7 +197,7 @@ Swapchain::~Swapchain()
     if (_swapchain)
     {
         std::cout<<"Calling vkDestroySwapchainKHR(..)"<<std::endl;
-        vkDestroySwapchainKHR(*_device, _swapchain, _pAllocator);
+        vkDestroySwapchainKHR(*_device, _swapchain, *_allocator);
     }
 }
 

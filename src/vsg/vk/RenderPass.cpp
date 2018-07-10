@@ -5,17 +5,17 @@
 namespace vsg
 {
 
-RenderPass::RenderPass(Device* device, VkRenderPass renderPass, VkAllocationCallbacks* pAllocator) :
+RenderPass::RenderPass(Device* device, VkRenderPass renderPass, AllocationCallbacks* allocator) :
     _device(device),
     _renderPass(renderPass),
-    _pAllocator(pAllocator)
+    _allocator(allocator)
 {
 }
 
-RenderPass::RenderPass(Device* device, VkFormat imageFormat, VkAllocationCallbacks* pAllocator) :
+RenderPass::RenderPass(Device* device, VkFormat imageFormat, AllocationCallbacks* allocator) :
     _device(device),
     _renderPass(VK_NULL_HANDLE),
-    _pAllocator(pAllocator)
+    _allocator(allocator)
 {
     VkAttachmentDescription colorAttachment = {};
     colorAttachment.format = imageFormat;
@@ -43,7 +43,7 @@ RenderPass::RenderPass(Device* device, VkFormat imageFormat, VkAllocationCallbac
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
 
-    if (vkCreateRenderPass(*device, &renderPassInfo, pAllocator, &_renderPass) != VK_SUCCESS)
+    if (vkCreateRenderPass(*device, &renderPassInfo, *_allocator, &_renderPass) != VK_SUCCESS)
     {
         std::cout<<"Failed to create VkRenderPass."<<std::endl;
     }
@@ -54,7 +54,7 @@ RenderPass::~RenderPass()
     if (_renderPass)
     {
         std::cout<<"Calling vkDestroyRenderPass"<<std::endl;
-        vkDestroyRenderPass(*_device, _renderPass, _pAllocator);
+        vkDestroyRenderPass(*_device, _renderPass, *_allocator);
     }
 }
 

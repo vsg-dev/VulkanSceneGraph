@@ -13,8 +13,10 @@ namespace vsg
 
         bool complete() const { return _device!=VK_NULL_HANDLE && _graphicsFamily>=0 && _presentFamily>=0; }
 
-        operator VkPhysicalDevice() const { return _device; }
+        const Instance* getInstance() const { return _instance.get(); }
+        const Surface* getSurface() const { return _surface.get(); }
 
+        operator VkPhysicalDevice() const { return _device; }
         VkPhysicalDevice getPhysicalDevice() const { return _device; }
 
         int getGraphicsFamily() const { return _graphicsFamily; }

@@ -5,10 +5,10 @@
 namespace vsg
 {
 
-Pipeline::Pipeline(Device* device, VkPipeline pipeline, VkAllocationCallbacks* pAllocator) :
+Pipeline::Pipeline(Device* device, VkPipeline pipeline, AllocationCallbacks* allocator) :
     _device(device),
     _pipeline(pipeline),
-    _pAllocator(pAllocator)
+    _allocator(allocator)
 {
 }
 
@@ -17,11 +17,11 @@ Pipeline::~Pipeline()
     if (_pipeline)
     {
         std::cout<<"Calling vkDestroyPipeline"<<std::endl;
-        vkDestroyPipeline(*_device, _pipeline, _pAllocator);
+        vkDestroyPipeline(*_device, _pipeline, *_allocator);
     }
 }
 
-ref_ptr<Pipeline> createGraphicsPipeline(Device* device, Swapchain* swapchain, RenderPass* renderPass, PipelineLayout* pipelineLayout, ShaderModule* vert, ShaderModule* frag, VkAllocationCallbacks* pAllocator)
+ref_ptr<Pipeline> createGraphicsPipeline(Device* device, Swapchain* swapchain, RenderPass* renderPass, PipelineLayout* pipelineLayout, ShaderModule* vert, ShaderModule* frag, AllocationCallbacks* allocator)
 {
     VkPipelineShaderStageCreateInfo vertexShaderStageInfo = {};
     vertexShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -120,9 +120,9 @@ ref_ptr<Pipeline> createGraphicsPipeline(Device* device, Swapchain* swapchain, R
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
     VkPipeline pipeline;
-    if (vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, pAllocator, &pipeline ) == VK_SUCCESS)
+    if (vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, *allocator, &pipeline ) == VK_SUCCESS)
     {
-        return new Pipeline(device, pipeline, pAllocator);
+        return new Pipeline(device, pipeline, allocator);
     }
 
     return nullptr;

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <vsg/core/Object.h>
+#include <vsg/core/ref_ptr.h>
+#include <vsg/vk/AllocationCallbacks.h>
 
 #include <vulkan/vulkan.h>
 
@@ -22,17 +23,21 @@ namespace vsg
     class Instance : public vsg::Object
     {
     public:
-        Instance(VkInstance instance, VkAllocationCallbacks* pAllocator=nullptr) : _instance(instance), _pAllocator(pAllocator) {}
+        Instance(VkInstance instance, AllocationCallbacks* allocator=nullptr) : _instance(instance), _allocator(allocator) {}
 
-        Instance(Names& instanceExtensions, Names& layers, VkAllocationCallbacks* pAllocator=nullptr);
+        Instance(Names& instanceExtensions, Names& layers, AllocationCallbacks* allocator=nullptr);
 
         operator VkInstance() const { return _instance; }
+        VkInstance getInstance() const { return _instance; }
+
+        AllocationCallbacks* getAllocationCallbacks() { return _allocator.get(); }
+        const AllocationCallbacks* getAllocationCallbacks() const { return _allocator.get(); }
 
     protected:
 
         virtual ~Instance();
 
-        VkInstance              _instance;
-        VkAllocationCallbacks*  _pAllocator;
+        VkInstance                      _instance;
+        ref_ptr<AllocationCallbacks>    _allocator;
     };
 }

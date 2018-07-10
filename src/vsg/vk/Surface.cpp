@@ -5,10 +5,10 @@
 namespace vsg
 {
 
-Surface::Surface(Instance* instance, VkSurfaceKHR surface, VkAllocationCallbacks* pAllocator) :
+Surface::Surface(Instance* instance, VkSurfaceKHR surface, AllocationCallbacks* allocator) :
     _instance(instance),
     _surface(surface),
-    _pAllocator(pAllocator)
+    _allocator(allocator)
 {
 }
 
@@ -17,7 +17,7 @@ Surface::~Surface()
     if (_surface)
     {
         std::cout<<"Calling vkDestroySurfaceKHR"<<std::endl;
-        vkDestroySurfaceKHR(*_instance, _surface, _pAllocator);
+        vkDestroySurfaceKHR(*_instance, _surface, *_allocator);
     }
 }
 

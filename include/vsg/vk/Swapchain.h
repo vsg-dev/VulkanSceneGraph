@@ -8,9 +8,9 @@ namespace vsg
     class Swapchain : public vsg::Object
     {
     public:
-        Swapchain(Device* device, Surface* surface, VkSwapchainKHR swapchain, VkAllocationCallbacks*  pAllocator=nullptr);
+        Swapchain(Device* device, Surface* surface, VkSwapchainKHR swapchain, AllocationCallbacks*  allocator=nullptr);
 
-        Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, VkAllocationCallbacks*  pAllocator=nullptr);
+        Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, AllocationCallbacks*  allocator=nullptr);
 
         operator VkSwapchainKHR() const { return _swapchain; }
 
@@ -27,14 +27,14 @@ namespace vsg
         virtual ~Swapchain();
 
 
-        vsg::ref_ptr<Device>    _device;
-        vsg::ref_ptr<Surface>   _surface;
-        VkSwapchainKHR          _swapchain;
-        VkFormat                _format;
-        VkExtent2D              _extent;
-        ImageViews              _imageViews;
+        vsg::ref_ptr<Device>                _device;
+        vsg::ref_ptr<Surface>               _surface;
+        VkSwapchainKHR                      _swapchain;
+        VkFormat                            _format;
+        VkExtent2D                          _extent;
+        ImageViews                          _imageViews;
 
-        VkAllocationCallbacks*  _pAllocator;
+        vsg::ref_ptr<AllocationCallbacks>   _allocator;
 
     };
 }

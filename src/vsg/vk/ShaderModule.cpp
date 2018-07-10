@@ -3,10 +3,10 @@
 namespace vsg
 {
 
-ShaderModule::ShaderModule(Device* device, VkShaderModule shaderModule, VkAllocationCallbacks* pAllocator):
+ShaderModule::ShaderModule(Device* device, VkShaderModule shaderModule, AllocationCallbacks* allocator):
     _device(device),
     _shaderModule(shaderModule),
-    _pAllocator(pAllocator)
+    _allocator(allocator)
 {
 }
 
@@ -15,7 +15,7 @@ ShaderModule::~ShaderModule()
     if (_shaderModule)
     {
         std::cout<<"Calling vkDestroyShaderModule()"<<std::endl;
-        vkDestroyShaderModule(*_device, _shaderModule, _pAllocator);
+        vkDestroyShaderModule(*_device, _shaderModule, *_allocator);
     }
 }
 

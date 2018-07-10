@@ -117,8 +117,8 @@ class GLFWSurface : public vsg::Surface
 {
 public:
 
-    GLFWSurface(vsg::Instance* instance, GLFWwindow* window, VkAllocationCallbacks* pAllocator=nullptr) :
-        vsg::Surface(instance, VK_NULL_HANDLE, pAllocator)
+    GLFWSurface(vsg::Instance* instance, GLFWwindow* window, vsg::AllocationCallbacks* allocator=nullptr) :
+        vsg::Surface(instance, VK_NULL_HANDLE, allocator)
     {
         if (glfwCreateWindowSurface(*instance, window, nullptr, &_surface) != VK_SUCCESS)
         {

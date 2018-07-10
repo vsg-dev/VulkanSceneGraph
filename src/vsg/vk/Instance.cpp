@@ -42,9 +42,9 @@ Names validateInstancelayerNames(const Names& names)
     return validatedNames;
 }
 
-Instance::Instance(Names& instanceExtensions, Names& layers, VkAllocationCallbacks* pAllocator):
+Instance::Instance(Names& instanceExtensions, Names& layers, AllocationCallbacks* allocator):
     _instance(VK_NULL_HANDLE),
-    _pAllocator(pAllocator)
+    _allocator(allocator)
 {
     // applictin info
     VkApplicationInfo appInfo = {};
@@ -64,7 +64,7 @@ Instance::Instance(Names& instanceExtensions, Names& layers, VkAllocationCallbac
     createInfo.enabledLayerCount = layers.size();
     createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
 
-    if (vkCreateInstance(&createInfo, nullptr, &_instance) == VK_SUCCESS)
+    if (vkCreateInstance(&createInfo, *_allocator, &_instance) == VK_SUCCESS)
     {
         std::cout<<"Created VkInstance"<<std::endl;
     }
@@ -79,7 +79,7 @@ Instance::~Instance()
     if (_instance)
     {
         std::cout<<"Calling vkDestroyInstance"<<std::endl;
-        vkDestroyInstance(_instance, _pAllocator);
+        vkDestroyInstance(_instance, *_allocator);
     }
 }
 

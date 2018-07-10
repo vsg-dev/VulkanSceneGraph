@@ -5,10 +5,10 @@
 namespace vsg
 {
 
-Framebuffer::Framebuffer(Device* device, VkFramebuffer framebuffer, VkAllocationCallbacks* pAllocator) :
+Framebuffer::Framebuffer(Device* device, VkFramebuffer framebuffer, AllocationCallbacks* allocator) :
     _device(device),
     _framebuffer(framebuffer),
-    _pAllocator(pAllocator)
+    _allocator(allocator)
 {
 }
 
@@ -17,11 +17,11 @@ Framebuffer::~Framebuffer()
     if (_framebuffer)
     {
         std::cout<<"Calling vkDestroyFramebuffer"<<std::endl;
-        vkDestroyFramebuffer(*_device, _framebuffer, _pAllocator);
+        vkDestroyFramebuffer(*_device, _framebuffer, *_allocator);
     }
 }
 
-Framebuffers createFrameBuffers(Device* device, Swapchain* swapchain, RenderPass* renderPass, VkAllocationCallbacks* pAllocator)
+Framebuffers createFrameBuffers(Device* device, Swapchain* swapchain, RenderPass* renderPass, AllocationCallbacks* allocator)
 {
     const Swapchain::ImageViews& imageViews = swapchain->getImageViews();
     const VkExtent2D& extent = swapchain->getExtent();
@@ -44,9 +44,9 @@ Framebuffers createFrameBuffers(Device* device, Swapchain* swapchain, RenderPass
         framebufferInfo.layers = 1;
 
         VkFramebuffer framebuffer;
-        if (vkCreateFramebuffer(*device,&framebufferInfo, pAllocator, &framebuffer) == VK_SUCCESS)
+        if (vkCreateFramebuffer(*device,&framebufferInfo, *allocator, &framebuffer) == VK_SUCCESS)
         {
-            framebuffers.push_back(new Framebuffer(device, framebuffer, pAllocator));
+            framebuffers.push_back(new Framebuffer(device, framebuffer, allocator));
         }
         else
         {

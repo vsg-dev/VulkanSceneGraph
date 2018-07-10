@@ -28,20 +28,20 @@ namespace vsg
     class ShaderModule : public vsg::Object
     {
     public:
-        ShaderModule(Device* device, VkShaderModule shaderModule, VkAllocationCallbacks* pAllocator=nullptr);
+        ShaderModule(Device* device, VkShaderModule shaderModule, AllocationCallbacks* allocator=nullptr);
 
         template<typename T>
-        ShaderModule(Device* device, const T& shader, VkAllocationCallbacks* pAllocator=nullptr):
+        ShaderModule(Device* device, const T& shader, AllocationCallbacks* allocator=nullptr):
             _device(device),
             _shaderModule(VK_NULL_HANDLE),
-            _pAllocator(pAllocator)
+            _allocator(allocator)
         {
             VkShaderModuleCreateInfo createInfo = {};
             createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
             createInfo.codeSize = shader.size();
             createInfo.pCode = reinterpret_cast<const uint32_t*>(shader.data());
 
-            if (vkCreateShaderModule(*device, &createInfo, nullptr, &_shaderModule) != VK_SUCCESS)
+            if (vkCreateShaderModule(*device, &createInfo, *_allocator, &_shaderModule) != VK_SUCCESS)
             {
                 std::cout<<"Failed to create shader module"<<std::endl;
             }
@@ -55,9 +55,9 @@ namespace vsg
     protected:
         virtual ~ShaderModule();
 
-        ref_ptr<Device>         _device;
-        VkShaderModule          _shaderModule;
-        VkAllocationCallbacks*  _pAllocator;
+        ref_ptr<Device>                 _device;
+        VkShaderModule                  _shaderModule;
+        ref_ptr<AllocationCallbacks>    _allocator;
     };
 
 
