@@ -198,7 +198,7 @@ int main(int argc, char** argv)
     bool debugLayer = false;
     uint32_t width = 800;
     uint32_t height = 600;
-    int numFrames=1000;
+    int numFrames=-1;
 
     try
     {
@@ -262,16 +262,17 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    vsg::ref_ptr<vsg::Swapchain> swapchain = vsg::Swapchain::create(physicalDevice, device, surface, width, height);
+    vsg::ref_ptr<vsg::CommandPool> commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
+    vsg::ref_ptr<vsg::Semaphore> imageAvailableSemaphore = vsg::Semaphore::create(device);
+    vsg::ref_ptr<vsg::Semaphore> renderFinishedSemaphore = vsg::Semaphore::create(device);
 
+
+    // note, swapchain, renderPass, pipelineLayout, pipeline, framebuffers and commnad bufffers must all be cleaned up and recreated on a window resize
+    vsg::ref_ptr<vsg::Swapchain> swapchain = vsg::Swapchain::create(physicalDevice, device, surface, width, height);
     vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, swapchain->getImageFormat());
     vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = new vsg::PipelineLayout(device);
     vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::Pipeline::createGraphics(device, swapchain, renderPass, pipelineLayout, vert, frag);
     vsg::Framebuffers framebuffers = vsg::createFrameBuffers(device, swapchain, renderPass);
-    vsg::ref_ptr<vsg::CommandPool> commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
-
-    vsg::ref_ptr<vsg::Semaphore> imageAvailableSemaphore = vsg::Semaphore::create(device);
-    vsg::ref_ptr<vsg::Semaphore> renderFinishedSemaphore = vsg::Semaphore::create(device);
 
 
     // set up what we want to render
@@ -313,14 +314,31 @@ int main(int argc, char** argv)
 
 
     // main loop
-    while(!glfwWindowShouldClose(*window) && (numFrames--)>0)
+    while(!glfwWindowShouldClose(*window) && (numFrames<0 || (numFrames--)>0))
     {
-        std::cout<<"In main loop"<<std::endl;
+        //std::cout<<"In main loop"<<std::endl;
         glfwPollEvents();
+
+        int new_width, new_height;
+        glfwGetWindowSize(*window, &new_width, &new_height);
+        if (new_width!=int(width) || new_height!=int(height))
+        {
+            std::cout<<"Warning: window resized to "<<new_width<<", "<<new_height<<std::endl;
+        }
 
         // drawFrame
         uint32_t imageIndex;
-        vkAcquireNextImageKHR(*device, *swapchain, std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+        VkResult result = vkAcquireNextImageKHR(*device, *swapchain, std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+        if (result == VK_ERROR_OUT_OF_DATE_KHR)
+        {
+            std::cout<<"Warning: Image out of data, need to recreate swap chain and assoicated dependencies."<<std::endl;
+            return 0;
+        }
+        else if (result != VK_SUCCESS)
+        {
+            std::cout<<"Warning: failed to aquire swap chain image."<<std::endl;
+            return 0;
+        }
 
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -331,7 +349,6 @@ int main(int argc, char** argv)
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
 
-        // TODO CommandBuffers
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
 
