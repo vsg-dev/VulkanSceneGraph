@@ -168,11 +168,13 @@ int main(int argc, char** argv)
     bool debugLayer = false;
     uint32_t width = 800;
     uint32_t height = 600;
+    int numFrames=1000;
 
     try
     {
         if (vsg::CommandLine::read(argc, argv, vsg::CommandLine::Match("--debug","-d"))) debugLayer = true;
         if (vsg::CommandLine::read(argc, argv, vsg::CommandLine::Match("--window","-w"), width, height)) {}
+        if (vsg::CommandLine::read(argc, argv, "-f", numFrames)) {}
     }
     catch (const std::runtime_error& error)
     {
@@ -242,6 +244,66 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Semaphore> renderFinishedSemaphore = vsg::Semaphore::create(device);
 
 
+    using CommandBuffers = std::vector<VkCommandBuffer>;
+    CommandBuffers commandBuffers;
+    {
+        commandBuffers.resize(framebuffers.size());
+
+        VkCommandBufferAllocateInfo allocateInfo = {};
+        allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocateInfo.commandPool = *commandPool;
+        allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocateInfo.commandBufferCount = (uint32_t) commandBuffers.size();
+
+        if (vkAllocateCommandBuffers(*device, &allocateInfo, commandBuffers.data()) != VK_SUCCESS)
+        {
+            std::cout<<"Error: could not allocate command buffers."<<std::endl;
+            return 1;
+        }
+
+        for(size_t i=0; i<commandBuffers.size(); ++i)
+        {
+            VkCommandBufferBeginInfo beginInfo = {};
+            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+
+
+            if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
+            {
+                std::cout<<"Error: could not begin command buffer."<<std::endl;
+                return 1;
+            }
+
+            VkRenderPassBeginInfo renderPassInfo = {};
+            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderPassInfo.renderPass = *renderPass;
+            renderPassInfo.framebuffer = *(framebuffers[i]);
+            renderPassInfo.renderArea.offset = {0, 0};
+            renderPassInfo.renderArea.extent = swapchain->getExtent();
+
+            VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
+            renderPassInfo.clearValueCount = 1;
+            renderPassInfo.pClearValues = &clearColor;
+
+            vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+                vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, *pipeline);
+
+                vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+
+            vkCmdEndRenderPass(commandBuffers[i]);
+
+
+
+            if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
+            {
+                std::cout<<"Error: could not end command buffer."<<std::endl;
+                return 1;
+            }
+
+        }
+    }
+
     //
     // end of initialize vulkan
     //
@@ -249,7 +311,6 @@ int main(int argc, char** argv)
 
 
     // main loop
-    int numFrames=10;
     while(!glfwWindowShouldClose(*window) && (numFrames--)>0)
     {
         std::cout<<"In main loop"<<std::endl;
@@ -268,11 +329,9 @@ int main(int argc, char** argv)
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
 
-#if 0
         // TODO CommandBuffers
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
-#endif
 
         VkSemaphore signalSemaphores[] = {*renderFinishedSemaphore};
         submitInfo.signalSemaphoreCount = 1;
