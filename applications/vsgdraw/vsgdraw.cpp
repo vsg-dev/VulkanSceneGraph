@@ -25,29 +25,6 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-/////////////////////////////////////////////////////////////////////
-//
-// start of vulkan code
-//
-
-// interface
-namespace vsg
-{
-
-}
-
-// implementation
-namespace vsg
-{
-
-
-}
-
-//
-// end of vulkan code
-//
-/////////////////////////////////////////////////////////////////////
-
 namespace glfw
 {
 
@@ -159,6 +136,59 @@ namespace vsg
 
         return stream.str();
     }
+
+    using PipelineCmdDraw = std::pair< vsg::ref_ptr<vsg::Pipeline>, vsg::ref_ptr<vsg::CmdDraw> >;
+    using PipelineCmdDraws = std::vector<PipelineCmdDraw>;
+
+    VkResult populateCommandBuffer(VkCommandBuffer commandBuffer, RenderPass* renderPass, Framebuffer* framebuffer, Swapchain* swapchain, const PipelineCmdDraws& pipelineCmdDraws)
+    {
+        VkCommandBufferBeginInfo beginInfo = {};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+
+        VkResult result;;
+        if ((result = vkBeginCommandBuffer(commandBuffer, &beginInfo)) != VK_SUCCESS)
+        {
+            std::cout<<"Error: could not begin command buffer."<<std::endl;
+            return result;
+        }
+
+        VkRenderPassBeginInfo renderPassInfo = {};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = *renderPass;
+        renderPassInfo.framebuffer = *framebuffer;
+        renderPassInfo.renderArea.offset = {0, 0};
+        renderPassInfo.renderArea.extent = swapchain->getExtent();
+
+        VkClearValue clearColor = {0.2f, 0.2f, 0.4f, 1.0f};
+        renderPassInfo.clearValueCount = 1;
+        renderPassInfo.pClearValues = &clearColor;
+
+        vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+            vsg::Pipeline* previousPipeline = nullptr;
+            for(auto pipelineCmdDraw : pipelineCmdDraws)
+            {
+                vsg::Pipeline* newPipeline = pipelineCmdDraw.first;
+                if (newPipeline!=previousPipeline)
+                {
+                    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                        *newPipeline);
+                    previousPipeline = newPipeline;
+                }
+                pipelineCmdDraw.second->draw(commandBuffer);
+            }
+
+        vkCmdEndRenderPass(commandBuffer);
+
+        if ((result = vkEndCommandBuffer(commandBuffer)) != VK_SUCCESS)
+        {
+            std::cout<<"Error: could not end command buffer."<<std::endl;
+            return result;
+        }
+    }
+
+
 }
 
 
@@ -245,12 +275,10 @@ int main(int argc, char** argv)
 
 
     // set up what we want to render
-    using PipelineCmdDraw = std::pair< vsg::ref_ptr<vsg::Pipeline>, vsg::ref_ptr<vsg::CmdDraw> >;
-    using PipelineCmdDraws = std::vector<PipelineCmdDraw>;
-    PipelineCmdDraws pipelineCmdDraws;
+    vsg::PipelineCmdDraws pipelineCmdDraws;
 
     // we want to draw a triangle
-    pipelineCmdDraws.push_back(PipelineCmdDraw(pipeline, new vsg::CmdDraw(3, 1, 0, 0)));
+    pipelineCmdDraws.push_back(vsg::PipelineCmdDraw(pipeline, new vsg::CmdDraw(3, 1, 0, 0)));
 
 
     // setup command buffers
@@ -273,55 +301,9 @@ int main(int argc, char** argv)
 
         for(size_t i=0; i<commandBuffers.size(); ++i)
         {
-            VkCommandBuffer commandBuffer = commandBuffers[i];
-
-            VkCommandBufferBeginInfo beginInfo = {};
-            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-            beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-
-
-            if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
-            {
-                std::cout<<"Error: could not begin command buffer."<<std::endl;
-                return 1;
-            }
-
-            VkRenderPassBeginInfo renderPassInfo = {};
-            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            renderPassInfo.renderPass = *renderPass;
-            renderPassInfo.framebuffer = *(framebuffers[i]);
-            renderPassInfo.renderArea.offset = {0, 0};
-            renderPassInfo.renderArea.extent = swapchain->getExtent();
-
-            VkClearValue clearColor = {0.2f, 0.2f, 0.4f, 1.0f};
-            renderPassInfo.clearValueCount = 1;
-            renderPassInfo.pClearValues = &clearColor;
-
-            vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-                vsg::Pipeline* previousPipeline = nullptr;
-                for(auto pipelineCmdDraw : pipelineCmdDraws)
-                {
-                    vsg::Pipeline* newPipeline = pipelineCmdDraw.first;
-                    if (newPipeline!=previousPipeline)
-                    {
-                        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                          *newPipeline);
-                        previousPipeline = newPipeline;
-                    }
-                    pipelineCmdDraw.second->draw(commandBuffer);
-                }
-
-            vkCmdEndRenderPass(commandBuffer);
-
-
-            if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
-            {
-                std::cout<<"Error: could not end command buffer."<<std::endl;
-                return 1;
-            }
-
+            populateCommandBuffer(commandBuffers[i], renderPass, framebuffers[i], swapchain, pipelineCmdDraws);
         }
+
     }
 
     //
