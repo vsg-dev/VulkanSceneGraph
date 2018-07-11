@@ -244,6 +244,16 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Semaphore> renderFinishedSemaphore = vsg::Semaphore::create(device);
 
 
+    // set up what we want to render
+    using PipelineCmdDraw = std::pair< vsg::ref_ptr<vsg::Pipeline>, vsg::ref_ptr<vsg::CmdDraw> >;
+    using PipelineCmdDraws = std::vector<PipelineCmdDraw>;
+    PipelineCmdDraws pipelineCmdDraws;
+
+    // we want to draw a triangle
+    pipelineCmdDraws.push_back(PipelineCmdDraw(pipeline, new vsg::CmdDraw(3, 1, 0, 0)));
+
+
+    // setup command buffers
     using CommandBuffers = std::vector<VkCommandBuffer>;
     CommandBuffers commandBuffers;
     {
@@ -263,12 +273,14 @@ int main(int argc, char** argv)
 
         for(size_t i=0; i<commandBuffers.size(); ++i)
         {
+            VkCommandBuffer commandBuffer = commandBuffers[i];
+
             VkCommandBufferBeginInfo beginInfo = {};
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
             beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 
 
-            if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
+            if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
             {
                 std::cout<<"Error: could not begin command buffer."<<std::endl;
                 return 1;
@@ -281,21 +293,29 @@ int main(int argc, char** argv)
             renderPassInfo.renderArea.offset = {0, 0};
             renderPassInfo.renderArea.extent = swapchain->getExtent();
 
-            VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
+            VkClearValue clearColor = {0.2f, 0.2f, 0.4f, 1.0f};
             renderPassInfo.clearValueCount = 1;
             renderPassInfo.pClearValues = &clearColor;
 
-            vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+            vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-                vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, *pipeline);
+                vsg::Pipeline* previousPipeline = nullptr;
+                for(auto pipelineCmdDraw : pipelineCmdDraws)
+                {
+                    vsg::Pipeline* newPipeline = pipelineCmdDraw.first;
+                    if (newPipeline!=previousPipeline)
+                    {
+                        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                          *newPipeline);
+                        previousPipeline = newPipeline;
+                    }
+                    pipelineCmdDraw.second->draw(commandBuffer);
+                }
 
-                vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
-
-            vkCmdEndRenderPass(commandBuffers[i]);
+            vkCmdEndRenderPass(commandBuffer);
 
 
-
-            if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
+            if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
             {
                 std::cout<<"Error: could not end command buffer."<<std::endl;
                 return 1;
