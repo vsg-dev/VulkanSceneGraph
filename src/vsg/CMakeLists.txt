@@ -35,6 +35,8 @@ SET(HEADERS
     vk/Framebuffer.h
     vk/CommandPoolr.h
     vk/Semaphore.h
+    vk/DeviceMemory.h
+    vk/Buffer.h
 
     utils/CommandLine.h
 )
@@ -62,6 +64,8 @@ SET(SOURCES
     vk/Framebuffer.cpp
     vk/CommandPool.cpp
     vk/Semaphore.cpp
+    vk/DeviceMemory.cpp
+    vk/Buffer.cpp
 )
 
 ADD_LIBRARY(vsg SHARED ${HEADER_FILES} ${SOURCES})
