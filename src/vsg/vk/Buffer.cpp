@@ -12,6 +12,15 @@ Buffer::Buffer(Device* device, VkBuffer Buffer, AllocationCallbacks* allocator) 
 {
 }
 
+Buffer::~Buffer()
+{
+    if (_buffer)
+    {
+        std::cout<<"Calling vkDestroyBuffer"<<std::endl;
+        vkDestroyBuffer(*_device, _buffer, *_allocator);
+    }
+}
+
 Buffer::Result Buffer::create(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode, AllocationCallbacks* allocator)
 {
     if (!device)
@@ -34,15 +43,6 @@ Buffer::Result Buffer::create(Device* device, VkDeviceSize size, VkBufferUsageFl
     else
     {
         return Result("Error: Failed to create vkBuffer.", result);
-    }
-}
-
-Buffer::~Buffer()
-{
-    if (_buffer)
-    {
-        std::cout<<"Calling vkDestroyBuffer"<<std::endl;
-        vkDestroyBuffer(*_device, _buffer, *_allocator);
     }
 }
 

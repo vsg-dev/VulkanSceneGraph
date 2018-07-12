@@ -331,16 +331,12 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Semaphore> imageAvailableSemaphore = vsg::Semaphore::create(device);
     vsg::ref_ptr<vsg::Semaphore> renderFinishedSemaphore = vsg::Semaphore::create(device);
 
+    // set up vertex data
     vsg::ref_ptr<vsg::vec3Array> vertices = new vsg::vec3Array(1);
     vertices->set(0, {1.0, 2.0, 3.0});
 
-    vsg::ref_ptr<vsg::Buffer> vertexBuffer = vsg::Buffer::create(device, vertices->dataSize(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-
-
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(*device, *vertexBuffer, &memRequirements);
-
-    vsg::ref_ptr<vsg::DeviceMemory> vertexBufferMemory =  vsg::DeviceMemory::create(physicalDevice, device, memRequirements, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    vsg::ref_ptr<vsg::Buffer> vertexBuffer = vsg::Buffer::createVertexBuffer(device, vertices->dataSize());
+    vsg::ref_ptr<vsg::DeviceMemory> vertexBufferMemory =  vsg::DeviceMemory::create(physicalDevice, device, vertexBuffer);
 
     vertexBufferMemory->copy(0, vertices->dataSize(), vertices->data());
 
