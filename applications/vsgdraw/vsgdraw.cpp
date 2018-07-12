@@ -188,7 +188,57 @@ namespace vsg
         }
     }
 
+    using CommandBuffers = std::vector<VkCommandBuffer>;
 
+    class VulkanWindowObjects : public Object
+    {
+    public:
+
+        VulkanWindowObjects(PhysicalDevice* physicalDevice, Device* device, Surface* surface, CommandPool* commandPool, ShaderModule* vert, ShaderModule* frag, uint32_t width, uint32_t height)
+        {
+            swapchain = vsg::Swapchain::create(physicalDevice, device, surface, width, height);
+            renderPass = vsg::RenderPass::create(device, swapchain->getImageFormat());
+            pipelineLayout = new vsg::PipelineLayout(device);
+            pipeline = vsg::Pipeline::createGraphics(device, swapchain, renderPass, pipelineLayout, vert, frag);
+            framebuffers = vsg::createFrameBuffers(device, swapchain, renderPass);
+
+            // set up what we want to render
+            vsg::PipelineCmdDraws pipelineCmdDraws;
+
+            // we want to draw a triangle
+            pipelineCmdDraws.push_back(vsg::PipelineCmdDraw(pipeline, new vsg::CmdDraw(3, 1, 0, 0)));
+
+            // setup command buffers
+            {
+                commandBuffers.resize(framebuffers.size());
+
+                VkCommandBufferAllocateInfo allocateInfo = {};
+                allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+                allocateInfo.commandPool = *commandPool;
+                allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+                allocateInfo.commandBufferCount = (uint32_t) commandBuffers.size();
+
+                if (vkAllocateCommandBuffers(*device, &allocateInfo, commandBuffers.data()) == VK_SUCCESS)
+                {
+                    for(size_t i=0; i<commandBuffers.size(); ++i)
+                    {
+                        populateCommandBuffer(commandBuffers[i], renderPass, framebuffers[i], swapchain, pipelineCmdDraws);
+                    }
+                }
+                else
+                {
+                    std::cout<<"Error: could not allocate command buffers."<<std::endl;
+                }
+            }
+        }
+
+        vsg::ref_ptr<vsg::Swapchain>        swapchain;
+        vsg::ref_ptr<vsg::RenderPass>       renderPass;
+        vsg::ref_ptr<vsg::PipelineLayout>   pipelineLayout;
+        vsg::ref_ptr<vsg::Pipeline>         pipeline;
+        vsg::Framebuffers                   framebuffers;
+        CommandBuffers                      commandBuffers;
+    };
 }
 
 
@@ -267,45 +317,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Semaphore> renderFinishedSemaphore = vsg::Semaphore::create(device);
 
 
-    // note, swapchain, renderPass, pipelineLayout, pipeline, framebuffers and commnad bufffers must all be cleaned up and recreated on a window resize
-    vsg::ref_ptr<vsg::Swapchain> swapchain = vsg::Swapchain::create(physicalDevice, device, surface, width, height);
-    vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, swapchain->getImageFormat());
-    vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = new vsg::PipelineLayout(device);
-    vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::Pipeline::createGraphics(device, swapchain, renderPass, pipelineLayout, vert, frag);
-    vsg::Framebuffers framebuffers = vsg::createFrameBuffers(device, swapchain, renderPass);
-
-
-    // set up what we want to render
-    vsg::PipelineCmdDraws pipelineCmdDraws;
-
-    // we want to draw a triangle
-    pipelineCmdDraws.push_back(vsg::PipelineCmdDraw(pipeline, new vsg::CmdDraw(3, 1, 0, 0)));
-
-
-    // setup command buffers
-    using CommandBuffers = std::vector<VkCommandBuffer>;
-    CommandBuffers commandBuffers;
-    {
-        commandBuffers.resize(framebuffers.size());
-
-        VkCommandBufferAllocateInfo allocateInfo = {};
-        allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocateInfo.commandPool = *commandPool;
-        allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocateInfo.commandBufferCount = (uint32_t) commandBuffers.size();
-
-        if (vkAllocateCommandBuffers(*device, &allocateInfo, commandBuffers.data()) != VK_SUCCESS)
-        {
-            std::cout<<"Error: could not allocate command buffers."<<std::endl;
-            return 1;
-        }
-
-        for(size_t i=0; i<commandBuffers.size(); ++i)
-        {
-            populateCommandBuffer(commandBuffers[i], renderPass, framebuffers[i], swapchain, pipelineCmdDraws);
-        }
-
-    }
+    vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, vert, frag, width, height);
 
     //
     // end of initialize vulkan
@@ -319,25 +331,51 @@ int main(int argc, char** argv)
         //std::cout<<"In main loop"<<std::endl;
         glfwPollEvents();
 
+        bool needToRegerateVulkanWindowObjects = false;
+
         int new_width, new_height;
         glfwGetWindowSize(*window, &new_width, &new_height);
         if (new_width!=int(width) || new_height!=int(height))
         {
             std::cout<<"Warning: window resized to "<<new_width<<", "<<new_height<<std::endl;
+            needToRegerateVulkanWindowObjects = true;
         }
 
-        // drawFrame
         uint32_t imageIndex;
-        VkResult result = vkAcquireNextImageKHR(*device, *swapchain, std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
-        if (result == VK_ERROR_OUT_OF_DATE_KHR)
+        if (!needToRegerateVulkanWindowObjects)
         {
-            std::cout<<"Warning: Image out of data, need to recreate swap chain and assoicated dependencies."<<std::endl;
-            return 0;
+            // drawFrame
+            VkResult result = vkAcquireNextImageKHR(*device, *(vwo->swapchain), std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+            if (result == VK_ERROR_OUT_OF_DATE_KHR)
+            {
+                needToRegerateVulkanWindowObjects = true;
+                std::cout<<"Warning: Image out of data, need to recreate swap chain and assoicated dependencies."<<std::endl;
+            }
+            else if (result != VK_SUCCESS)
+            {
+                needToRegerateVulkanWindowObjects = true;
+                std::cout<<"Warning: failed to aquire swap chain image."<<std::endl;
+            }
         }
-        else if (result != VK_SUCCESS)
+
+        if (needToRegerateVulkanWindowObjects)
         {
-            std::cout<<"Warning: failed to aquire swap chain image."<<std::endl;
-            return 0;
+            vkDeviceWaitIdle(*device);
+
+            // clean up previous VulkanWindowObjects
+            vwo = nullptr;
+
+            // create new VulkanWindowObjects
+            width = new_width;
+            height = new_height;
+            vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, vert, frag, width, height);
+
+            VkResult result = vkAcquireNextImageKHR(*device, *(vwo->swapchain), std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+            if (result != VK_SUCCESS)
+            {
+                std::cout<<"Warning: could not recreate swap chain image."<<std::endl;
+                return 1;
+            }
         }
 
         VkSubmitInfo submitInfo = {};
@@ -350,7 +388,7 @@ int main(int argc, char** argv)
         submitInfo.pWaitDstStageMask = waitStages;
 
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+        submitInfo.pCommandBuffers = &(vwo->commandBuffers)[imageIndex];
 
         VkSemaphore signalSemaphores[] = {*renderFinishedSemaphore};
         submitInfo.signalSemaphoreCount = 1;
@@ -368,7 +406,7 @@ int main(int argc, char** argv)
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = signalSemaphores;
 
-        VkSwapchainKHR swapChains[] = {*swapchain};
+        VkSwapchainKHR swapChains[] = {*(vwo->swapchain)};
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapChains;
 
