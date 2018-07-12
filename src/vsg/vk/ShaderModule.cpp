@@ -3,9 +3,11 @@
 namespace vsg
 {
 
-ShaderModule::ShaderModule(Device* device, VkShaderModule shaderModule, AllocationCallbacks* allocator):
+ShaderModule::ShaderModule(Device* device, VkShaderStageFlagBits stage, const std::string& entryPointName, VkShaderModule shaderModule, AllocationCallbacks* allocator):
     _device(device),
     _shaderModule(shaderModule),
+    _stage(stage),
+    _name(entryPointName),
     _allocator(allocator)
 {
 }
@@ -19,12 +21,12 @@ ShaderModule::~ShaderModule()
     }
 }
 
-ShaderModule::Result ShaderModule::read(Device* device, const std::string& filename, AllocationCallbacks* allocator)
+ShaderModule::Result ShaderModule::read(Device* device, VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename, AllocationCallbacks* allocator)
 {
     std::vector<char> buffer;
     if (readFile(buffer, filename))
     {
-        return ShaderModule::create(device, buffer, allocator);
+        return ShaderModule::create(device, stage, entryPointName, buffer, allocator);
     }
     else
     {

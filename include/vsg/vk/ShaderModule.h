@@ -28,12 +28,12 @@ namespace vsg
     class ShaderModule : public vsg::Object
     {
     public:
-        ShaderModule(Device* device, VkShaderModule shaderModule, AllocationCallbacks* allocator=nullptr);
+        ShaderModule(Device* device, VkShaderStageFlagBits stage, const std::string& entryPointName, VkShaderModule shaderModule, AllocationCallbacks* allocator=nullptr);
 
         using Result = vsg::Result<ShaderModule, VkResult, VK_SUCCESS>;
 
         template<typename T>
-        static Result create(Device* device, const T& shader, AllocationCallbacks* allocator=nullptr)
+        static Result create(Device* device, VkShaderStageFlagBits stage, const std::string& entryPointName, const T& shader, AllocationCallbacks* allocator=nullptr)
         {
             if (!device)
             {
@@ -49,7 +49,7 @@ namespace vsg
             VkResult result = vkCreateShaderModule(*device, &createInfo, *allocator, &shaderModule);
             if (result == VK_SUCCESS)
             {
-                return new ShaderModule(device, shaderModule, allocator);
+                return new ShaderModule(device, stage, entryPointName, shaderModule, allocator);
             }
             else
             {
@@ -57,7 +57,13 @@ namespace vsg
             }
         }
 
-        static Result read(Device* device, const std::string& filename, AllocationCallbacks* allocator=nullptr);
+        static Result read(Device* device, VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename, AllocationCallbacks* allocator=nullptr);
+
+        void setStage(VkShaderStageFlagBits stage) { _stage = stage; }
+        VkShaderStageFlagBits getStage() const { return _stage; }
+
+        void setEntryPointName(const std::string& name) { _name = name; }
+        const std::string& getEntryPointName() const { return _name; }
 
         // add Shader type ? VK_SHADER_STAGE_VERTEX_BIT vs VK_SHADER_STAGE_FRAGMENT_BIT etc.
         // so that it can be used to set up VkPipelineShaderStageCreateInfo
@@ -68,9 +74,14 @@ namespace vsg
         virtual ~ShaderModule();
 
         ref_ptr<Device>                 _device;
+
         VkShaderModule                  _shaderModule;
+        VkShaderStageFlagBits           _stage;
+        std::string                     _name;
+
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 
+    using ShaderModules = std::vector<ref_ptr<ShaderModule>>;
 
 }

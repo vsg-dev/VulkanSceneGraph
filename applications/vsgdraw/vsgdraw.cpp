@@ -196,7 +196,7 @@ namespace vsg
     {
     public:
 
-        VulkanWindowObjects(PhysicalDevice* physicalDevice, Device* device, Surface* surface, CommandPool* commandPool, ShaderModule* vert, ShaderModule* frag, uint32_t width, uint32_t height)
+        VulkanWindowObjects(PhysicalDevice* physicalDevice, Device* device, Surface* surface, CommandPool* commandPool, const ShaderModules& shaderModules, uint32_t width, uint32_t height)
         {
             // keep device and commandPool around to enable vkFreeCommandBuffers call in destructor
             _device = device;
@@ -206,7 +206,7 @@ namespace vsg
             swapchain = Swapchain::create(physicalDevice, device, surface, width, height);
             renderPass = RenderPass::create(device, swapchain->getImageFormat());
             pipelineLayout = new PipelineLayout(device);
-            pipeline = Pipeline::createGraphics(device, swapchain, renderPass, pipelineLayout, vert, frag);
+            pipeline = Pipeline::createGraphics(device, swapchain, renderPass, pipelineLayout, shaderModules);
             framebuffers = createFrameBuffers(device, swapchain, renderPass);
 
             // set up what we want to render
@@ -311,13 +311,15 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(instance, surface);
     vsg::ref_ptr<vsg::Device> device = vsg::Device::create(instance, physicalDevice, validatedNames, deviceExtensions);
 
-    vsg::ref_ptr<vsg::ShaderModule> vert = vsg::ShaderModule::read(device, "shaders/vert.spv");
-    vsg::ref_ptr<vsg::ShaderModule> frag = vsg::ShaderModule::read(device, "shaders/frag.spv");
+
+    vsg::ref_ptr<vsg::ShaderModule> vert = vsg::ShaderModule::read(device, VK_SHADER_STAGE_VERTEX_BIT, "main", "shaders/vert.spv");
+    vsg::ref_ptr<vsg::ShaderModule> frag = vsg::ShaderModule::read(device, VK_SHADER_STAGE_FRAGMENT_BIT, "main", "shaders/frag.spv");
     if (!vert || !frag)
     {
         std::cout<<"Could not create shaders"<<std::endl;
         return 1;
     }
+    vsg::ShaderModules shaderModules{vert, frag};
 
     VkQueue graphicsQueue = vsg::createDeviceQueue(*device, physicalDevice->getGraphicsFamily());
     VkQueue presentQueue = vsg::createDeviceQueue(*device, physicalDevice->getPresentFamily());
@@ -332,8 +334,45 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Semaphore> renderFinishedSemaphore = vsg::Semaphore::create(device);
 
     // set up vertex data
-    vsg::ref_ptr<vsg::vec3Array> vertices = new vsg::vec3Array(1);
-    vertices->set(0, {1.0, 2.0, 3.0});
+    struct Vertex
+    {
+        vsg::vec2 pos;
+        vsg::vec3 color;
+
+        static VkVertexInputBindingDescription getBinindDesciption()
+        {
+            VkVertexInputBindingDescription bindingDescription = {};
+            bindingDescription.binding = 0;
+            bindingDescription.stride = sizeof(Vertex);
+            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+        }
+
+        using AttributeDescriptions = std::array<VkVertexInputAttributeDescription, 2>;
+        static AttributeDescriptions getAttributeDescriptions()
+        {
+            AttributeDescriptions attributeDescriptions = {};
+
+            attributeDescriptions[0].binding = 0;
+            attributeDescriptions[0].location = 0;
+            attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions[0].offset = offsetof(Vertex, pos);
+
+            attributeDescriptions[1].binding = 0;
+            attributeDescriptions[1].location = 1;
+            attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions[1].offset = offsetof(Vertex, color);
+
+            return attributeDescriptions;
+        }
+    };
+
+
+    using VertexArray = vsg::Array<Vertex>;
+
+    vsg::ref_ptr<VertexArray> vertices = new VertexArray(3);
+    vertices->set(0, {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}});
+    vertices->set(1, {{0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}});
+    vertices->set(2, {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}});
 
     vsg::ref_ptr<vsg::Buffer> vertexBuffer = vsg::Buffer::createVertexBuffer(device, vertices->dataSize());
     vsg::ref_ptr<vsg::DeviceMemory> vertexBufferMemory =  vsg::DeviceMemory::create(physicalDevice, device, vertexBuffer);
@@ -342,7 +381,7 @@ int main(int argc, char** argv)
 
 
 
-    vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, vert, frag, width, height);
+    vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, shaderModules, width, height);
 
     //
     // end of initialize vulkan
@@ -393,7 +432,7 @@ int main(int argc, char** argv)
             // create new VulkanWindowObjects
             width = new_width;
             height = new_height;
-            vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, vert, frag, width, height);
+            vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, shaderModules, width, height);
 
             VkResult result = vkAcquireNextImageKHR(*device, *(vwo->swapchain), std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
             if (result != VK_SUCCESS)

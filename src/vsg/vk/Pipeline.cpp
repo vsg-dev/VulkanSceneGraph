@@ -21,26 +21,23 @@ Pipeline::~Pipeline()
     }
 }
 
-Pipeline::Result Pipeline::createGraphics(Device* device, Swapchain* swapchain, RenderPass* renderPass, PipelineLayout* pipelineLayout, ShaderModule* vert, ShaderModule* frag, AllocationCallbacks* allocator)
+Pipeline::Result Pipeline::createGraphics(Device* device, Swapchain* swapchain, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderModules& shaderModules, AllocationCallbacks* allocator)
 {
     if (!device || !swapchain || !renderPass || !pipelineLayout)
     {
         return Pipeline::Result("Error: vsg::Pipeline::create(...) failed to create graphics pipeline, undefined inputs.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
-    VkPipelineShaderStageCreateInfo vertexShaderStageInfo = {};
-    vertexShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    vertexShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-    vertexShaderStageInfo.module = *vert;
-    vertexShaderStageInfo.pName = "main";
-
-    VkPipelineShaderStageCreateInfo fragmentShaderStageInfo = {};
-    fragmentShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    fragmentShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    fragmentShaderStageInfo.module = *frag;
-    fragmentShaderStageInfo.pName = "main";
-
-    VkPipelineShaderStageCreateInfo shaderStages[] = {vertexShaderStageInfo, fragmentShaderStageInfo};
+    std::vector<VkPipelineShaderStageCreateInfo> shaderStages(shaderModules.size());
+    for (size_t i=0; i<shaderModules.size(); ++i)
+    {
+        VkPipelineShaderStageCreateInfo& stageInfo = shaderStages[i];
+        ShaderModule* sm = shaderModules[i];
+        stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        stageInfo.stage = sm->getStage();
+        stageInfo.module = *sm;
+        stageInfo.pName = sm->getEntryPointName().c_str();
+    }
 
     // vertex attrobite input
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
@@ -111,8 +108,8 @@ Pipeline::Result Pipeline::createGraphics(Device* device, Swapchain* swapchain, 
 
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineInfo.stageCount = 2;
-    pipelineInfo.pStages = shaderStages;
+    pipelineInfo.stageCount = shaderStages.size();
+    pipelineInfo.pStages = shaderStages.data();
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &inputAssembly;
     pipelineInfo.pViewportState = &viewportState;
