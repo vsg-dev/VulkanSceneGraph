@@ -196,17 +196,22 @@ namespace vsg
 
         VulkanWindowObjects(PhysicalDevice* physicalDevice, Device* device, Surface* surface, CommandPool* commandPool, ShaderModule* vert, ShaderModule* frag, uint32_t width, uint32_t height)
         {
-            swapchain = vsg::Swapchain::create(physicalDevice, device, surface, width, height);
-            renderPass = vsg::RenderPass::create(device, swapchain->getImageFormat());
-            pipelineLayout = new vsg::PipelineLayout(device);
-            pipeline = vsg::Pipeline::createGraphics(device, swapchain, renderPass, pipelineLayout, vert, frag);
-            framebuffers = vsg::createFrameBuffers(device, swapchain, renderPass);
+            // keep device and commandPool around to enable vkFreeCommandBuffers call in destructor
+            _device = device;
+            _commandPool = commandPool;
+
+            // create all the window related Vulkan objects
+            swapchain = Swapchain::create(physicalDevice, device, surface, width, height);
+            renderPass = RenderPass::create(device, swapchain->getImageFormat());
+            pipelineLayout = new PipelineLayout(device);
+            pipeline = Pipeline::createGraphics(device, swapchain, renderPass, pipelineLayout, vert, frag);
+            framebuffers = createFrameBuffers(device, swapchain, renderPass);
 
             // set up what we want to render
-            vsg::PipelineCmdDraws pipelineCmdDraws;
+            PipelineCmdDraws pipelineCmdDraws;
 
             // we want to draw a triangle
-            pipelineCmdDraws.push_back(vsg::PipelineCmdDraw(pipeline, new vsg::CmdDraw(3, 1, 0, 0)));
+            pipelineCmdDraws.push_back(PipelineCmdDraw(pipeline, new CmdDraw(3, 1, 0, 0)));
 
             // setup command buffers
             {
@@ -232,12 +237,20 @@ namespace vsg
             }
         }
 
-        vsg::ref_ptr<vsg::Swapchain>        swapchain;
-        vsg::ref_ptr<vsg::RenderPass>       renderPass;
-        vsg::ref_ptr<vsg::PipelineLayout>   pipelineLayout;
-        vsg::ref_ptr<vsg::Pipeline>         pipeline;
-        vsg::Framebuffers                   framebuffers;
-        CommandBuffers                      commandBuffers;
+        ~VulkanWindowObjects()
+        {
+            vkFreeCommandBuffers(*_device, *_commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+        }
+
+        ref_ptr<Device>           _device;
+        ref_ptr<CommandPool>      _commandPool;
+
+        ref_ptr<Swapchain>        swapchain;
+        ref_ptr<RenderPass>       renderPass;
+        ref_ptr<PipelineLayout>   pipelineLayout;
+        ref_ptr<Pipeline>         pipeline;
+        Framebuffers              framebuffers;
+        CommandBuffers            commandBuffers;
     };
 }
 
