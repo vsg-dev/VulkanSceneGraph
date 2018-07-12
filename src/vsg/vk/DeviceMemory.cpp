@@ -72,6 +72,8 @@ void DeviceMemory::copy(VkDeviceSize offset, VkDeviceSize size, void* src_data)
         std::memcpy(buffer_data, src_data, (size_t)size);
 
     vkUnmapMemory(*_device, _deviceMemory);
+
+    std::cout<<"DeviceMemory::copy("<<offset<<", "<<size<<", "<<src_data<<")"<<std::endl;
 }
 
 

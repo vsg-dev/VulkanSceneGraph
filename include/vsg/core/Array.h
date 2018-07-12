@@ -31,6 +31,8 @@ namespace vsg
         void clear() { _size = 0; if (_data) { delete [] _data; } _data = nullptr; }
         void resize(std::size_t size) { _size = size; _data = size>0 ? new value_type[size] : nullptr; }
 
+        std::size_t dataSize() const { return _size * sizeof(value_type); }
+
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
@@ -39,6 +41,8 @@ namespace vsg
 
         value_type& at(std::size_t i) { return _data[i]; }
         const value_type& at(std::size_t i) const { return _data[i]; }
+
+        void set(std::size_t i, const value_type& v) { _data[i] = v; }
 
         iterator begin() { return _data; }
         const const_iterator begin() const { return _data; }
