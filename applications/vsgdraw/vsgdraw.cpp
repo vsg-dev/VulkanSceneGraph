@@ -139,6 +139,184 @@ namespace vsg
         return stream.str();
     }
 
+    class ShaderStages : public Object
+    {
+    public:
+        ShaderStages(const ShaderModules& shaderModules)
+        {
+            setShaderModules(shaderModules);
+        }
+
+        void setShaderModules(const ShaderModules& shaderModules) { _shaderModules = shaderModules; update(); }
+        const ShaderModules& getShaderModules() const { return _shaderModules; }
+
+        void update()
+        {
+            _stages.resize(_shaderModules.size());
+            for (size_t i=0; i<_shaderModules.size(); ++i)
+            {
+                VkPipelineShaderStageCreateInfo& stageInfo = (_stages)[i];
+                ShaderModule* sm = _shaderModules[i];
+                stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+                stageInfo.stage = sm->getStage();
+                stageInfo.module = *sm;
+                stageInfo.pName = sm->getEntryPointName().c_str();
+            }
+        }
+
+        std::size_t size() const { return _stages.size(); }
+
+        VkPipelineShaderStageCreateInfo* data() { return _stages.data(); }
+
+    protected:
+        virtual ~ShaderStages()
+        {
+            std::cout<<"Cleaning up ShaderStages"<<std::endl;
+        }
+
+        using Stages = std::vector<VkPipelineShaderStageCreateInfo>;
+        Stages          _stages;
+        ShaderModules   _shaderModules;
+    };
+
+
+#if 0
+    // TODO
+    VkPipelineVertexInputStateCreateInfo
+    VkPipelineInputAssemblyStateCreateInfo
+    VkPipelineViewportStateCreateInfo
+    VkPipelineRasterizationStateCreateInfo
+    VkPipelineMultisampleStateCreateInfo
+    VkPipelineColorBlendAttachmentState
+    VkPipelineColorBlendStateCreateInfo
+    VkGraphicsPipelineCreateInfo
+#endif
+
+    using PipelineResult = vsg::Result<Pipeline, VkResult, VK_SUCCESS>;
+
+    PipelineResult createGraphics(Device* device, Swapchain* swapchain, RenderPass* renderPass, PipelineLayout* pipelineLayout, ShaderStages* shaderStages, AllocationCallbacks* allocator=nullptr)
+    {
+        if (!device || !swapchain || !renderPass || !pipelineLayout)
+        {
+            return PipelineResult("Error: vsg::Pipeline::create(...) failed to create graphics pipeline, undefined inputs.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        }
+
+        // vertex attrobite input
+        VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
+#if 1
+        vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+        vertexInputInfo.vertexBindingDescriptionCount = 0;
+        vertexInputInfo.vertexAttributeDescriptionCount = 0;
+#else
+        auto bindingDescription = Vertex::getBindingDescription();
+        auto attributeDescriptions = Vertex::getAttributeDescriptions();
+
+        vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+        vertexInputInfo.vertexBindingDescriptionCount = 1;
+        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+#endif
+
+        // primitive input
+        VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
+        inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        inputAssembly.primitiveRestartEnable = VK_FALSE;
+
+        // set up viewport
+        const VkExtent2D& extent = swapchain->getExtent();
+
+        VkViewport viewport = {};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = static_cast<float>(extent.width);
+        viewport.height = static_cast<float>(extent.height);
+
+        VkRect2D scissor = {};
+        scissor.offset = {0, 0};
+        scissor.extent = extent;
+
+        VkPipelineViewportStateCreateInfo viewportState = {};
+        viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+        viewportState.viewportCount = 1;
+        viewportState.pViewports = &viewport;
+        viewportState.scissorCount = 1;
+        viewportState.pScissors = &scissor;
+
+        // set up rsterizer
+        VkPipelineRasterizationStateCreateInfo rasterizer = {};
+        rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+        rasterizer.depthClampEnable = VK_FALSE;
+        rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+        rasterizer.lineWidth = 1.0f;
+        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+        rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+        rasterizer.depthBiasEnable = VK_FALSE;
+
+        // set up multisampling (off)
+        VkPipelineMultisampleStateCreateInfo multisampling = {};
+        multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+        multisampling.sampleShadingEnable =VK_FALSE;
+        multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+        // color blending
+        VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
+        colorBlendAttachment.blendEnable = VK_FALSE;
+        colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
+                                            VK_COLOR_COMPONENT_G_BIT |
+                                            VK_COLOR_COMPONENT_B_BIT |
+                                            VK_COLOR_COMPONENT_A_BIT;
+
+        VkPipelineColorBlendStateCreateInfo colorBlending = {};
+        colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+        colorBlending.logicOpEnable = VK_FALSE;
+        colorBlending.logicOp = VK_LOGIC_OP_COPY;
+        colorBlending.attachmentCount = 1;
+        colorBlending.pAttachments = &colorBlendAttachment;
+        colorBlending.blendConstants[0] = 0.0f;
+        colorBlending.blendConstants[1] = 0.0f;
+        colorBlending.blendConstants[2] = 0.0f;
+        colorBlending.blendConstants[3] = 0.0f;
+
+        VkGraphicsPipelineCreateInfo pipelineInfo = {};
+        pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+        pipelineInfo.stageCount = shaderStages->size();
+        pipelineInfo.pStages = shaderStages->data();
+        pipelineInfo.pVertexInputState = &vertexInputInfo;
+        pipelineInfo.pInputAssemblyState = &inputAssembly;
+        pipelineInfo.pViewportState = &viewportState;
+        pipelineInfo.pRasterizationState = &rasterizer;
+        pipelineInfo.pMultisampleState = &multisampling;
+        pipelineInfo.pColorBlendState = &colorBlending;
+        pipelineInfo.layout = *pipelineLayout;
+        pipelineInfo.renderPass = *renderPass;
+        pipelineInfo.subpass = 0;
+        pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+
+        VkPipeline pipeline;
+        VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, *allocator, &pipeline );
+        if (result == VK_SUCCESS)
+        {
+            return new Pipeline(device, pipeline, allocator);
+        }
+        else
+        {
+            return PipelineResult("Error: Pipeline::createGraphics(...) failed to create VkPipeline.", result);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
     using PipelineCmdDraw = std::pair< vsg::ref_ptr<vsg::Pipeline>, vsg::ref_ptr<vsg::CmdDraw> >;
     using PipelineCmdDraws = std::vector<PipelineCmdDraw>;
 
@@ -196,17 +374,18 @@ namespace vsg
     {
     public:
 
-        VulkanWindowObjects(PhysicalDevice* physicalDevice, Device* device, Surface* surface, CommandPool* commandPool, const ShaderModules& shaderModules, uint32_t width, uint32_t height)
+        VulkanWindowObjects(PhysicalDevice* physicalDevice, Device* device, Surface* surface, CommandPool* commandPool, ShaderStages* shaderStages, uint32_t width, uint32_t height)
         {
             // keep device and commandPool around to enable vkFreeCommandBuffers call in destructor
             _device = device;
             _commandPool = commandPool;
+            _shaderStages = shaderStages;
 
             // create all the window related Vulkan objects
             swapchain = Swapchain::create(physicalDevice, device, surface, width, height);
             renderPass = RenderPass::create(device, swapchain->getImageFormat());
             pipelineLayout = new PipelineLayout(device);
-            pipeline = Pipeline::createGraphics(device, swapchain, renderPass, pipelineLayout, shaderModules);
+            pipeline = vsg::createGraphics(device, swapchain, renderPass, pipelineLayout, _shaderStages);
             framebuffers = createFrameBuffers(device, swapchain, renderPass);
 
             // set up what we want to render
@@ -244,15 +423,16 @@ namespace vsg
             vkFreeCommandBuffers(*_device, *_commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
         }
 
-        ref_ptr<Device>           _device;
-        ref_ptr<CommandPool>      _commandPool;
+        ref_ptr<Device>             _device;
+        ref_ptr<CommandPool>        _commandPool;
+        vsg::ref_ptr<ShaderStages>  _shaderStages;
 
-        ref_ptr<Swapchain>        swapchain;
-        ref_ptr<RenderPass>       renderPass;
-        ref_ptr<PipelineLayout>   pipelineLayout;
-        ref_ptr<Pipeline>         pipeline;
-        Framebuffers              framebuffers;
-        CommandBuffers            commandBuffers;
+        ref_ptr<Swapchain>          swapchain;
+        ref_ptr<RenderPass>         renderPass;
+        ref_ptr<PipelineLayout>     pipelineLayout;
+        ref_ptr<Pipeline>           pipeline;
+        Framebuffers                framebuffers;
+        CommandBuffers              commandBuffers;
     };
 }
 
@@ -320,6 +500,7 @@ int main(int argc, char** argv)
         return 1;
     }
     vsg::ShaderModules shaderModules{vert, frag};
+    vsg::ref_ptr<vsg::ShaderStages> shaderStages = new vsg::ShaderStages(shaderModules);
 
     VkQueue graphicsQueue = vsg::createDeviceQueue(*device, physicalDevice->getGraphicsFamily());
     VkQueue presentQueue = vsg::createDeviceQueue(*device, physicalDevice->getPresentFamily());
@@ -380,8 +561,7 @@ int main(int argc, char** argv)
     vertexBufferMemory->copy(0, vertices->dataSize(), vertices->data());
 
 
-
-    vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, shaderModules, width, height);
+    vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, shaderStages, width, height);
 
     //
     // end of initialize vulkan
@@ -432,7 +612,7 @@ int main(int argc, char** argv)
             // create new VulkanWindowObjects
             width = new_width;
             height = new_height;
-            vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, shaderModules, width, height);
+            vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, shaderStages, width, height);
 
             VkResult result = vkAcquireNextImageKHR(*device, *(vwo->swapchain), std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
             if (result != VK_SUCCESS)

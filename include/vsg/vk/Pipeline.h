@@ -13,9 +13,6 @@ namespace vsg
     public:
         Pipeline(Device* device, VkPipeline pipeline, AllocationCallbacks* allocator=nullptr);
 
-        using Result = vsg::Result<Pipeline, VkResult, VK_SUCCESS>;
-        static Result createGraphics(Device* device, Swapchain* swapchain, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderModules& shaderModules, AllocationCallbacks* allocator=nullptr);
-
         operator VkPipeline () const { return _pipeline; }
 
     protected:
