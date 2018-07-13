@@ -444,21 +444,12 @@ namespace vsg
     using PipelineStates = std::vector<ref_ptr<PipelineState>>;
     using PipelineResult = vsg::Result<Pipeline, VkResult, VK_SUCCESS>;
 
-    PipelineResult createGraphics(Device* device, Swapchain* swapchain, RenderPass* renderPass, PipelineLayout* pipelineLayout, ShaderStages* shaderStages, AllocationCallbacks* allocator=nullptr)
+    PipelineResult createGraphics(Device* device, Swapchain* swapchain, RenderPass* renderPass, PipelineLayout* pipelineLayout, const PipelineStates& pipelineStates, AllocationCallbacks* allocator=nullptr)
     {
         if (!device || !swapchain || !renderPass || !pipelineLayout)
         {
             return PipelineResult("Error: vsg::createGraphics(...) failed to create graphics pipeline, undefined inputs.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
         }
-
-        PipelineStates pipelineStates;
-        pipelineStates.push_back(shaderStages);
-        pipelineStates.push_back(new VertexInputState);
-        pipelineStates.push_back(new InputAssemblyState);
-        pipelineStates.push_back(new ViewportState(swapchain->getExtent()));
-        pipelineStates.push_back(new RasterizationState);
-        pipelineStates.push_back(new MultisampleState);
-        pipelineStates.push_back(new ColorBlendState);
 
         VkGraphicsPipelineCreateInfo pipelineInfo = {};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -552,7 +543,17 @@ namespace vsg
             swapchain = Swapchain::create(physicalDevice, device, surface, width, height);
             renderPass = RenderPass::create(device, swapchain->getImageFormat());
             pipelineLayout = new PipelineLayout(device);
-            pipeline = vsg::createGraphics(device, swapchain, renderPass, pipelineLayout, _shaderStages);
+
+            PipelineStates pipelineStates;
+            pipelineStates.push_back(_shaderStages);
+            pipelineStates.push_back(new VertexInputState);
+            pipelineStates.push_back(new InputAssemblyState);
+            pipelineStates.push_back(new ViewportState(swapchain->getExtent()));
+            pipelineStates.push_back(new RasterizationState);
+            pipelineStates.push_back(new MultisampleState);
+            pipelineStates.push_back(new ColorBlendState);
+
+            pipeline = vsg::createGraphics(device, swapchain, renderPass, pipelineLayout, pipelineStates);
             framebuffers = createFrameBuffers(device, swapchain, renderPass);
 
             // set up what we want to render
