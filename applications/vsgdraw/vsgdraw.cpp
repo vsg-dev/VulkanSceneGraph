@@ -532,27 +532,17 @@ namespace vsg
     {
     public:
 
-        VulkanWindowObjects(PhysicalDevice* physicalDevice, Device* device, Surface* surface, CommandPool* commandPool, ShaderStages* shaderStages, uint32_t width, uint32_t height)
+        VulkanWindowObjects(PhysicalDevice* physicalDevice, Device* device, Surface* surface, CommandPool* commandPool, const PipelineStates& pipelineStates, uint32_t width, uint32_t height)
         {
             // keep device and commandPool around to enable vkFreeCommandBuffers call in destructor
             _device = device;
             _commandPool = commandPool;
-            _shaderStages = shaderStages;
+            _pipelineStates = pipelineStates;
 
             // create all the window related Vulkan objects
             swapchain = Swapchain::create(physicalDevice, device, surface, width, height);
             renderPass = RenderPass::create(device, swapchain->getImageFormat());
             pipelineLayout = new PipelineLayout(device);
-
-            PipelineStates pipelineStates;
-            pipelineStates.push_back(_shaderStages);
-            pipelineStates.push_back(new VertexInputState);
-            pipelineStates.push_back(new InputAssemblyState);
-            pipelineStates.push_back(new ViewportState(swapchain->getExtent()));
-            pipelineStates.push_back(new RasterizationState);
-            pipelineStates.push_back(new MultisampleState);
-            pipelineStates.push_back(new ColorBlendState);
-
             pipeline = vsg::createGraphics(device, swapchain, renderPass, pipelineLayout, pipelineStates);
             framebuffers = createFrameBuffers(device, swapchain, renderPass);
 
@@ -593,7 +583,7 @@ namespace vsg
 
         ref_ptr<Device>             _device;
         ref_ptr<CommandPool>        _commandPool;
-        vsg::ref_ptr<ShaderStages>  _shaderStages;
+        PipelineStates              _pipelineStates;
 
         ref_ptr<Swapchain>          swapchain;
         ref_ptr<RenderPass>         renderPass;
@@ -728,8 +718,16 @@ int main(int argc, char** argv)
 
     vertexBufferMemory->copy(0, vertices->dataSize(), vertices->data());
 
+    vsg::PipelineStates pipelineStates;
+    pipelineStates.push_back(shaderStages);
+    pipelineStates.push_back(new vsg::VertexInputState);
+    pipelineStates.push_back(new vsg::InputAssemblyState);
+    pipelineStates.push_back(new vsg::ViewportState(VkExtent2D{width, height}));
+    pipelineStates.push_back(new vsg::RasterizationState);
+    pipelineStates.push_back(new vsg::MultisampleState);
+    pipelineStates.push_back(new vsg::ColorBlendState);
 
-    vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, shaderStages, width, height);
+    vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, pipelineStates, width, height);
 
     //
     // end of initialize vulkan
@@ -780,7 +778,7 @@ int main(int argc, char** argv)
             // create new VulkanWindowObjects
             width = new_width;
             height = new_height;
-            vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, shaderStages, width, height);
+            vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, pipelineStates, width, height);
 
             VkResult result = vkAcquireNextImageKHR(*device, *(vwo->swapchain), std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
             if (result != VK_SUCCESS)
