@@ -199,6 +199,7 @@ namespace vsg
 
         std::size_t size() const { return _stages.size(); }
 
+        VkPipelineShaderStageCreateInfo* data() { return _stages.data(); }
         const VkPipelineShaderStageCreateInfo* data() const { return _stages.data(); }
 
     protected:
@@ -241,6 +242,7 @@ namespace vsg
 
         virtual Type getType() const { return VERTEX_INPUT_STATE; }
 
+        VkPipelineVertexInputStateCreateInfo*  info() { return &_info; }
         const VkPipelineVertexInputStateCreateInfo*  info() const { return &_info; }
 
     protected:
@@ -316,6 +318,7 @@ namespace vsg
         VkViewport& getViewport() { return _viewport; }
         VkRect2D& getScissor() { return _scissor; }
 
+        VkPipelineViewportStateCreateInfo* info() { return &_info; }
         const VkPipelineViewportStateCreateInfo* info() const { return &_info; }
 
     protected:
@@ -351,6 +354,7 @@ namespace vsg
             pipelineInfo.pRasterizationState = info();
         }
 
+        VkPipelineRasterizationStateCreateInfo* info() { return &_info; }
         const VkPipelineRasterizationStateCreateInfo* info() const { return &_info; }
 
     protected:
@@ -380,6 +384,7 @@ namespace vsg
             pipelineInfo.pMultisampleState = info();
         }
 
+        VkPipelineMultisampleStateCreateInfo* info() { return &_info; }
         const VkPipelineMultisampleStateCreateInfo* info() const { return &_info; }
 
     protected:
@@ -429,6 +434,7 @@ namespace vsg
 
         const ColorBlendAttachments& getColorBlendAttachments() const { return _colorBlendAttachments; }
 
+        VkPipelineColorBlendStateCreateInfo* info() { return &_info; }
         const VkPipelineColorBlendStateCreateInfo* info() const { return &_info; }
 
     protected:
@@ -718,9 +724,12 @@ int main(int argc, char** argv)
 
     vertexBufferMemory->copy(0, vertices->dataSize(), vertices->data());
 
+    vsg::ref_ptr<vsg::VertexInputState> vertexInputState = new vsg::VertexInputState;
+
+
     vsg::PipelineStates pipelineStates;
     pipelineStates.push_back(shaderStages);
-    pipelineStates.push_back(new vsg::VertexInputState);
+    pipelineStates.push_back(vertexInputState);
     pipelineStates.push_back(new vsg::InputAssemblyState);
     pipelineStates.push_back(new vsg::ViewportState(VkExtent2D{width, height}));
     pipelineStates.push_back(new vsg::RasterizationState);
