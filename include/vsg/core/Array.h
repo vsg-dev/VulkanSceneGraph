@@ -29,7 +29,29 @@ namespace vsg
 
         // should Array be fixed size?
         void clear() { _size = 0; if (_data) { delete [] _data; } _data = nullptr; }
-        void resize(std::size_t size) { _size = size; _data = size>0 ? new value_type[size] : nullptr; }
+
+        void resize(std::size_t size)
+        {
+            if (_data)
+            {
+                value_type* original_data = _data;
+
+                std::size_t size_to_copy = std::min(_size, size);
+
+                _size = size;
+                _data = size>0 ? new value_type[size] : nullptr;
+
+                // copy data
+                for(std::size_t i=0; i<size_to_copy; ++i) _data[i] = original_data[i];
+
+                delete [] original_data;
+            }
+            else
+            {
+                _size = size;
+                _data = size>0 ? new value_type[size] : nullptr;
+            }
+        }
 
         std::size_t dataSize() const { return _size * sizeof(value_type); }
 
