@@ -216,31 +216,46 @@ namespace vsg
     class VertexInputState : public PipelineState
     {
     public:
+        using Bindings = std::vector<VkVertexInputBindingDescription>;
+        using Attributes = std::vector<VkVertexInputAttributeDescription>;
+
         VertexInputState() :
             _info {}
         {
-    #if 1
             _info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
             _info.vertexBindingDescriptionCount = 0;
             _info.vertexAttributeDescriptionCount = 0;
-    #else
-            auto bindingDescription = Vertex::getBindingDescription();
-            auto attributeDescriptions = Vertex::getAttributeDescriptions();
+        }
 
+        VertexInputState(const Bindings& bindings, const Attributes& attributes) :
+            _bindings(bindings),
+            _attributes(attributes),
+            _info {}
+        {
             _info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-            _info.vertexBindingDescriptionCount = 1;
-            _info.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-            _info.pVertexBindingDescriptions = &bindingDescription;
-            _info.pVertexAttributeDescriptions = attributeDescriptions.data();
-    #endif
+            _info.vertexBindingDescriptionCount = _bindings.size();
+            _info.pVertexBindingDescriptions = _bindings.data();
+            _info.vertexAttributeDescriptionCount = _attributes.size();
+            _info.pVertexAttributeDescriptions = _attributes.data();
         }
 
         virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
         {
+            std::cout<<"VertexInputState::apply()"<<std::endl;
+            std::cout<<"    vertexAttributeDescriptionCount="<<info()->vertexAttributeDescriptionCount<<std::endl;
+            std::cout<<"    pVertexAttributeDescriptions[0].binding="<<info()->pVertexAttributeDescriptions[0].binding<<std::endl;
+            std::cout<<"    pVertexAttributeDescriptions[0].location="<<info()->pVertexAttributeDescriptions[0].location<<std::endl;
+            std::cout<<"    pVertexAttributeDescriptions[1].binding="<<info()->pVertexAttributeDescriptions[1].binding<<std::endl;
+            std::cout<<"    pVertexAttributeDescriptions[1].location="<<info()->pVertexAttributeDescriptions[1].location<<std::endl;
+
             pipelineInfo.pVertexInputState = info();
         }
 
         virtual Type getType() const { return VERTEX_INPUT_STATE; }
+
+        const Bindings& geBindings() { return _bindings; }
+
+        const Attributes& getAttributes() const { return _attributes; }
 
         VkPipelineVertexInputStateCreateInfo*  info() { return &_info; }
         const VkPipelineVertexInputStateCreateInfo*  info() const { return &_info; }
@@ -251,7 +266,9 @@ namespace vsg
             std::cout<<"~VertexInputState()"<<std::endl;
         }
 
-        VkPipelineVertexInputStateCreateInfo _info;
+        Bindings                                _bindings;
+        Attributes                              _attributes;
+        VkPipelineVertexInputStateCreateInfo    _info;
     };
 
     class InputAssemblyState : public PipelineState
@@ -481,10 +498,9 @@ namespace vsg
         }
     }
 
-    using PipelineCmdDraw = std::pair< vsg::ref_ptr<vsg::Pipeline>, vsg::ref_ptr<vsg::CmdDraw> >;
-    using PipelineCmdDraws = std::vector<PipelineCmdDraw>;
+    using DispatchList = std::vector<ref_ptr<Dispatch>>;
 
-    VkResult populateCommandBuffer(VkCommandBuffer commandBuffer, RenderPass* renderPass, Framebuffer* framebuffer, Swapchain* swapchain, const PipelineCmdDraws& pipelineCmdDraws)
+    VkResult populateCommandBuffer(VkCommandBuffer commandBuffer, RenderPass* renderPass, Framebuffer* framebuffer, Swapchain* swapchain, const DispatchList& dispatchList)
     {
         VkCommandBufferBeginInfo beginInfo = {};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -510,18 +526,10 @@ namespace vsg
 
         vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-            vsg::Pipeline* previousPipeline = nullptr;
-            for(auto pipelineCmdDraw : pipelineCmdDraws)
-            {
-                vsg::Pipeline* newPipeline = pipelineCmdDraw.first;
-                if (newPipeline!=previousPipeline)
-                {
-                    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                        *newPipeline);
-                    previousPipeline = newPipeline;
-                }
-                pipelineCmdDraw.second->draw(commandBuffer);
-            }
+        for(auto dispatch : dispatchList)
+        {
+            dispatch->dispatch(commandBuffer);
+        }
 
         vkCmdEndRenderPass(commandBuffer);
 
@@ -538,12 +546,14 @@ namespace vsg
     {
     public:
 
-        VulkanWindowObjects(PhysicalDevice* physicalDevice, Device* device, Surface* surface, CommandPool* commandPool, const PipelineStates& pipelineStates, uint32_t width, uint32_t height)
+        VulkanWindowObjects(PhysicalDevice* physicalDevice, Device* device, Surface* surface, CommandPool* commandPool, const PipelineStates& pipelineStates, vsg::Buffer* buffer, vsg::CmdDraw* cmdDraw, uint32_t width, uint32_t height)
         {
             // keep device and commandPool around to enable vkFreeCommandBuffers call in destructor
             _device = device;
             _commandPool = commandPool;
             _pipelineStates = pipelineStates;
+            _buffer = buffer;
+            _cmdDraw = cmdDraw;
 
             // create all the window related Vulkan objects
             swapchain = Swapchain::create(physicalDevice, device, surface, width, height);
@@ -553,10 +563,12 @@ namespace vsg
             framebuffers = createFrameBuffers(device, swapchain, renderPass);
 
             // set up what we want to render
-            PipelineCmdDraws pipelineCmdDraws;
+            DispatchList dispatchList;
 
             // we want to draw a triangle
-            pipelineCmdDraws.push_back(PipelineCmdDraw(pipeline, new CmdDraw(3, 1, 0, 0)));
+            dispatchList.push_back(pipeline);
+            dispatchList.push_back(buffer);
+            dispatchList.push_back(cmdDraw);
 
             // setup command buffers
             {
@@ -572,7 +584,7 @@ namespace vsg
                 {
                     for(size_t i=0; i<commandBuffers.size(); ++i)
                     {
-                        populateCommandBuffer(commandBuffers[i], renderPass, framebuffers[i], swapchain, pipelineCmdDraws);
+                        populateCommandBuffer(commandBuffers[i], renderPass, framebuffers[i], swapchain, dispatchList);
                     }
                 }
                 else
@@ -590,6 +602,8 @@ namespace vsg
         ref_ptr<Device>             _device;
         ref_ptr<CommandPool>        _commandPool;
         PipelineStates              _pipelineStates;
+        ref_ptr<Buffer>             _buffer;
+        ref_ptr<CmdDraw>            _cmdDraw;
 
         ref_ptr<Swapchain>          swapchain;
         ref_ptr<RenderPass>         renderPass;
@@ -684,18 +698,21 @@ int main(int argc, char** argv)
         vsg::vec2 pos;
         vsg::vec3 color;
 
-        static VkVertexInputBindingDescription getBinindDesciption()
+        using BindingDescriptions = vsg::VertexInputState::Bindings;
+        static BindingDescriptions getBindingDescription()
         {
-            VkVertexInputBindingDescription bindingDescription = {};
-            bindingDescription.binding = 0;
-            bindingDescription.stride = sizeof(Vertex);
-            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+            BindingDescriptions bindingDescriptions(1);
+            bindingDescriptions[0].binding = 0;
+            bindingDescriptions[0].stride = sizeof(Vertex);
+            bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+            return bindingDescriptions;
         }
 
-        using AttributeDescriptions = std::array<VkVertexInputAttributeDescription, 2>;
+        using AttributeDescriptions = vsg::VertexInputState::Attributes;
         static AttributeDescriptions getAttributeDescriptions()
         {
-            AttributeDescriptions attributeDescriptions = {};
+            AttributeDescriptions attributeDescriptions(2);
 
             attributeDescriptions[0].binding = 0;
             attributeDescriptions[0].location = 0;
@@ -722,21 +739,21 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Buffer> vertexBuffer = vsg::Buffer::createVertexBuffer(device, vertices->dataSize());
     vsg::ref_ptr<vsg::DeviceMemory> vertexBufferMemory =  vsg::DeviceMemory::create(physicalDevice, device, vertexBuffer);
 
+    vkBindBufferMemory(*device, *vertexBuffer, *vertexBufferMemory, 0);
     vertexBufferMemory->copy(0, vertices->dataSize(), vertices->data());
 
-    vsg::ref_ptr<vsg::VertexInputState> vertexInputState = new vsg::VertexInputState;
-
+    vsg::ref_ptr<vsg::CmdDraw> cmdDraw = new vsg::CmdDraw(3, 1, 0, 0);
 
     vsg::PipelineStates pipelineStates;
     pipelineStates.push_back(shaderStages);
-    pipelineStates.push_back(vertexInputState);
+    pipelineStates.push_back(new vsg::VertexInputState(Vertex::getBindingDescription(), Vertex::getAttributeDescriptions()));
     pipelineStates.push_back(new vsg::InputAssemblyState);
     pipelineStates.push_back(new vsg::ViewportState(VkExtent2D{width, height}));
     pipelineStates.push_back(new vsg::RasterizationState);
     pipelineStates.push_back(new vsg::MultisampleState);
     pipelineStates.push_back(new vsg::ColorBlendState);
 
-    vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, pipelineStates, width, height);
+    vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, pipelineStates, vertexBuffer, cmdDraw, width, height);
 
     //
     // end of initialize vulkan
@@ -787,7 +804,7 @@ int main(int argc, char** argv)
             // create new VulkanWindowObjects
             width = new_width;
             height = new_height;
-            vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, pipelineStates, width, height);
+            vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, pipelineStates, vertexBuffer, cmdDraw, width, height);
 
             VkResult result = vkAcquireNextImageKHR(*device, *(vwo->swapchain), std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
             if (result != VK_SUCCESS)

@@ -7,21 +7,25 @@
 namespace vsg
 {
 
-    class CmdDraw : public vsg::Node
+    class Dispatch : public Node
     {
     public:
-        // primitive type?
+        Dispatch() {}
 
+        virtual void dispatch(VkCommandBuffer commandBuffer) const = 0;
+    };
+
+    class CmdDraw : public Dispatch
+    {
+    public:
         CmdDraw(uint32_t in_vertexCount, uint32_t in_instanceCount, uint32_t in_firstVertex, uint32_t in_firstInstance):
             vertexCount(in_vertexCount),
             instanceCount(in_instanceCount),
             firstVertex(in_firstVertex),
             firstInstance(in_firstVertex) {}
 
-        inline void draw(VkCommandBuffer commandBuffer) const
+        virtual void dispatch(VkCommandBuffer commandBuffer) const
         {
-            // enable draw's to be assigned to ckCommandBuffers decided by the draw traversal.
-
             vkCmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
         }
 
