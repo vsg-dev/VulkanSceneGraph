@@ -460,9 +460,9 @@ namespace vsg
     using PipelineStates = std::vector<ref_ptr<PipelineState>>;
     using PipelineResult = vsg::Result<Pipeline, VkResult, VK_SUCCESS>;
 
-    PipelineResult createGraphics(Device* device, Swapchain* swapchain, RenderPass* renderPass, PipelineLayout* pipelineLayout, const PipelineStates& pipelineStates, AllocationCallbacks* allocator=nullptr)
+    PipelineResult createGraphics(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const PipelineStates& pipelineStates, AllocationCallbacks* allocator=nullptr)
     {
-        if (!device || !swapchain || !renderPass || !pipelineLayout)
+        if (!device || !renderPass || !pipelineLayout)
         {
             return PipelineResult("Error: vsg::createGraphics(...) failed to create graphics pipeline, undefined inputs.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
         }
@@ -539,29 +539,18 @@ namespace vsg
     {
     public:
 
-        VulkanWindowObjects(PhysicalDevice* physicalDevice, Device* device, Surface* surface, CommandPool* commandPool, const PipelineStates& pipelineStates, vsg::VertexBuffers* vertexBuffers, vsg::CmdDraw* cmdDraw, uint32_t width, uint32_t height)
+        VulkanWindowObjects(PhysicalDevice* physicalDevice, Device* device, Surface* surface, CommandPool* commandPool, RenderPass* renderPass, const DispatchList& dispatchList, uint32_t width, uint32_t height)
         {
             // keep device and commandPool around to enable vkFreeCommandBuffers call in destructor
             _device = device;
             _commandPool = commandPool;
-            _pipelineStates = pipelineStates;
-            _vertexBuffers = vertexBuffers;
-            _cmdDraw = cmdDraw;
+            _renderPass = renderPass;
 
             // create all the window related Vulkan objects
             swapchain = Swapchain::create(physicalDevice, device, surface, width, height);
-            renderPass = RenderPass::create(device, swapchain->getImageFormat());
-            pipelineLayout = new PipelineLayout(device);
-            pipeline = vsg::createGraphics(device, swapchain, renderPass, pipelineLayout, pipelineStates);
             framebuffers = createFrameBuffers(device, swapchain, renderPass);
 
-            // set up what we want to render
-            DispatchList dispatchList;
-
-            // we want to draw a triangle
-            dispatchList.push_back(pipeline);
-            dispatchList.push_back(vertexBuffers);
-            dispatchList.push_back(cmdDraw);
+            std::cout<<"swapchain->getImageFormat()="<<swapchain->getImageFormat()<<std::endl;
 
             // setup command buffers
             {
@@ -594,14 +583,9 @@ namespace vsg
 
         ref_ptr<Device>             _device;
         ref_ptr<CommandPool>        _commandPool;
-        PipelineStates              _pipelineStates;
-        ref_ptr<VertexBuffers>      _vertexBuffers;
-        ref_ptr<CmdDraw>            _cmdDraw;
+        ref_ptr<RenderPass>         _renderPass;
 
         ref_ptr<Swapchain>          swapchain;
-        ref_ptr<RenderPass>         renderPass;
-        ref_ptr<PipelineLayout>     pipelineLayout;
-        ref_ptr<Pipeline>           pipeline;
         Framebuffers                framebuffers;
         CommandBuffers              commandBuffers;
     };
@@ -685,6 +669,8 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Semaphore> imageAvailableSemaphore = vsg::Semaphore::create(device);
     vsg::ref_ptr<vsg::Semaphore> renderFinishedSemaphore = vsg::Semaphore::create(device);
 
+
+    // set up vertex arrays
     vsg::ref_ptr<vsg::vec2Array> vertices = new vsg::vec2Array(3);
     vsg::ref_ptr<vsg::vec3Array> colors = new vsg::vec3Array(3);
 
@@ -712,6 +698,7 @@ int main(int argc, char** argv)
 
     vsg::ref_ptr<vsg::CmdDraw> cmdDraw = new vsg::CmdDraw(3, 1, 0, 0);
 
+    // setup pipeline
     vsg::PipelineStates pipelineStates;
     pipelineStates.push_back(shaderStages);
     pipelineStates.push_back(new vsg::VertexInputState(vertexBindingsDescriptions, vertexAttrobiteDescriptions));
@@ -721,7 +708,21 @@ int main(int argc, char** argv)
     pipelineStates.push_back(new vsg::MultisampleState);
     pipelineStates.push_back(new vsg::ColorBlendState);
 
-    vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, pipelineStates, vertexBuffers, cmdDraw, width, height);
+    vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*physicalDevice, *surface);
+    VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
+    vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, imageFormat.format);
+
+    vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = new vsg::PipelineLayout(device);
+    vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::createGraphics(device, renderPass, pipelineLayout, pipelineStates);
+
+
+    // set up what we want to render
+    vsg::DispatchList dispatchList;
+    dispatchList.push_back(pipeline);
+    dispatchList.push_back(vertexBuffers);
+    dispatchList.push_back(cmdDraw);
+
+    vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, renderPass, dispatchList, width, height);
 
     //
     // end of initialize vulkan
@@ -772,7 +773,7 @@ int main(int argc, char** argv)
             // create new VulkanWindowObjects
             width = new_width;
             height = new_height;
-            vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, pipelineStates, vertexBuffers, cmdDraw, width, height);
+            vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, renderPass, dispatchList, width, height);
 
             VkResult result = vkAcquireNextImageKHR(*device, *(vwo->swapchain), std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
             if (result != VK_SUCCESS)
