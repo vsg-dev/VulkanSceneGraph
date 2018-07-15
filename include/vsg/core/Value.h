@@ -17,6 +17,12 @@ namespace vsg
         // implementation provided by Visitor.h
         virtual void accept(Visitor& visitor);
 
+        Value& operator = (const Value& rhs) { value = rhs.value; return *this; }
+        Value& operator = (const value_type& rhs) { value = rhs; return *this; }
+
+        operator value_type& () { return value; }
+        operator const value_type& () const { return value; }
+
         value_type value;
 
     protected:

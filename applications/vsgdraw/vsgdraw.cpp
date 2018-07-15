@@ -128,7 +128,6 @@ void print(std::ostream& out, const std::string& description, const T& names)
 
 namespace vsg
 {
-
     template< typename ... Args >
     std::string make_string(Args const& ... args )
     {
@@ -213,35 +212,35 @@ namespace vsg
         ShaderModules   _shaderModules;
     };
 
-    class VertexInputState : public PipelineState
+    class VertexInputState : public PipelineState, public VkPipelineVertexInputStateCreateInfo
     {
     public:
         using Bindings = std::vector<VkVertexInputBindingDescription>;
         using Attributes = std::vector<VkVertexInputAttributeDescription>;
 
         VertexInputState() :
-            _info {}
+            VkPipelineVertexInputStateCreateInfo {}
         {
-            _info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-            _info.vertexBindingDescriptionCount = 0;
-            _info.vertexAttributeDescriptionCount = 0;
+            sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+            vertexBindingDescriptionCount = 0;
+            vertexAttributeDescriptionCount = 0;
         }
 
         VertexInputState(const Bindings& bindings, const Attributes& attributes) :
             _bindings(bindings),
             _attributes(attributes),
-            _info {}
+            VkPipelineVertexInputStateCreateInfo {}
         {
-            _info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-            _info.vertexBindingDescriptionCount = _bindings.size();
-            _info.pVertexBindingDescriptions = _bindings.data();
-            _info.vertexAttributeDescriptionCount = _attributes.size();
-            _info.pVertexAttributeDescriptions = _attributes.data();
+            sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+            vertexBindingDescriptionCount = _bindings.size();
+            pVertexBindingDescriptions = _bindings.data();
+            vertexAttributeDescriptionCount = _attributes.size();
+            pVertexAttributeDescriptions = _attributes.data();
         }
 
         virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
         {
-            pipelineInfo.pVertexInputState = info();
+            pipelineInfo.pVertexInputState = this;
         }
 
         virtual Type getType() const { return VERTEX_INPUT_STATE; }
@@ -249,9 +248,6 @@ namespace vsg
         const Bindings& geBindings() { return _bindings; }
 
         const Attributes& getAttributes() const { return _attributes; }
-
-        VkPipelineVertexInputStateCreateInfo*  info() { return &_info; }
-        const VkPipelineVertexInputStateCreateInfo*  info() const { return &_info; }
 
     protected:
         virtual ~VertexInputState()
@@ -261,7 +257,6 @@ namespace vsg
 
         Bindings                                _bindings;
         Attributes                              _attributes;
-        VkPipelineVertexInputStateCreateInfo    _info;
     };
 
     class InputAssemblyState : public PipelineState
@@ -493,6 +488,19 @@ namespace vsg
 
     using DispatchList = std::vector<ref_ptr<Dispatch>>;
 
+    template<typename T, VkStructureType type>
+    class Info : public Object, public T
+    {
+    public:
+        Info() : T{type} {}
+
+    protected:
+        virtual ~Info() {}
+
+    };
+
+    using RenderPassBeginInfo = Info<VkRenderPassBeginInfo, VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO>;
+
     VkResult populateCommandBuffer(VkCommandBuffer commandBuffer, RenderPass* renderPass, Framebuffer* framebuffer, Swapchain* swapchain, const DispatchList& dispatchList)
     {
         VkCommandBufferBeginInfo beginInfo = {};
@@ -505,7 +513,7 @@ namespace vsg
             std::cout<<"Error: could not begin command buffer."<<std::endl;
             return result;
         }
-
+#if 0
         VkRenderPassBeginInfo renderPassInfo = {};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = *renderPass;
@@ -516,8 +524,27 @@ namespace vsg
         VkClearValue clearColor = {0.2f, 0.2f, 0.4f, 1.0f};
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues = &clearColor;
-
         vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+#else
+        ref_ptr<RenderPassBeginInfo> renderPassInfo = new RenderPassBeginInfo;
+        renderPassInfo->renderPass = *renderPass;
+        renderPassInfo->framebuffer = *framebuffer;
+        renderPassInfo->renderArea.offset = {0, 0};
+        renderPassInfo->renderArea.extent = swapchain->getExtent();
+
+        VkClearValue clearColor = {0.2f, 0.2f, 0.4f, 1.0f};
+        renderPassInfo->clearValueCount = 1;
+        renderPassInfo->pClearValues = &clearColor;
+        vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+        RenderPassBeginInfo* ptr1 = renderPassInfo;
+        VkRenderPassBeginInfo* ptr2 = renderPassInfo;
+
+        std::cout<<"RenderPassBeginInfo* ptr1 = "<<ptr1<<std::endl;
+        std::cout<<"VkRenderPassBeginInfo* ptr2 = "<<ptr2<<std::endl;
+
+
+#endif
 
         for(auto dispatch : dispatchList)
         {
