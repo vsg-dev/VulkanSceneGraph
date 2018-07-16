@@ -358,7 +358,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::CmdDraw> cmdDraw = new vsg::CmdDraw(3, 1, 0, 0);
 
     // setup pipeline
-    vsg::PipelineStates pipelineStates;
+    vsg::GraphicsPipelineStates pipelineStates;
     pipelineStates.push_back(shaderStages);
     pipelineStates.push_back(new vsg::VertexInputState(vertexBindingsDescriptions, vertexAttrobiteDescriptions));
     pipelineStates.push_back(new vsg::InputAssemblyState);
@@ -372,7 +372,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, imageFormat.format);
 
     vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = new vsg::PipelineLayout(device);
-    vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::createGraphics(device, renderPass, pipelineLayout, pipelineStates);
+    vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::createGraphicsPipeline(device, renderPass, pipelineLayout, pipelineStates);
 
 
     // set up what we want to render

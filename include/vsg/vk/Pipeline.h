@@ -30,98 +30,57 @@ namespace vsg
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 
-    // should this be called GraphicsPipelineState?
-    class PipelineState : public Object
+
+    class GraphicsPipelineState : public Object
     {
     public:
-        PipelineState() {}
+        GraphicsPipelineState() {}
 
         virtual VkStructureType getType() const = 0;
 
         virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const = 0;
 
     protected:
-        virtual ~PipelineState() {}
+        virtual ~GraphicsPipelineState() {}
     };
 
-    class ShaderStages : public PipelineState
+
+    class ShaderStages : public GraphicsPipelineState
     {
     public:
-        ShaderStages(const ShaderModules& shaderModules)
-        {
-            setShaderModules(shaderModules);
-        }
+        ShaderStages(const ShaderModules& shaderModules);
 
         virtual VkStructureType getType() const { return VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO; }
-
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
-        {
-            pipelineInfo.stageCount = size();
-            pipelineInfo.pStages = data();
-        }
 
         void setShaderModules(const ShaderModules& shaderModules) { _shaderModules = shaderModules; update(); }
         const ShaderModules& getShaderModules() const { return _shaderModules; }
 
-        void update()
-        {
-            _stages.resize(_shaderModules.size());
-            for (size_t i=0; i<_shaderModules.size(); ++i)
-            {
-                VkPipelineShaderStageCreateInfo& stageInfo = (_stages)[i];
-                ShaderModule* sm = _shaderModules[i];
-                stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-                stageInfo.stage = sm->getStage();
-                stageInfo.module = *sm;
-                stageInfo.pName = sm->getEntryPointName().c_str();
-            }
-        }
+        void update();
 
         std::size_t size() const { return _stages.size(); }
 
         VkPipelineShaderStageCreateInfo* data() { return _stages.data(); }
         const VkPipelineShaderStageCreateInfo* data() const { return _stages.data(); }
 
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const;
+
     protected:
-        virtual ~ShaderStages()
-        {
-            std::cout<<"~ShaderStages()"<<std::endl;
-        }
+        virtual ~ShaderStages();
 
         using Stages = std::vector<VkPipelineShaderStageCreateInfo>;
         Stages          _stages;
         ShaderModules   _shaderModules;
     };
 
-    class VertexInputState : public PipelineState, public VkPipelineVertexInputStateCreateInfo
+
+    class VertexInputState : public GraphicsPipelineState, public VkPipelineVertexInputStateCreateInfo
     {
     public:
         using Bindings = std::vector<VkVertexInputBindingDescription>;
         using Attributes = std::vector<VkVertexInputAttributeDescription>;
 
-        VertexInputState() :
-            VkPipelineVertexInputStateCreateInfo{VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO}
-        {
-            vertexBindingDescriptionCount = 0;
-            vertexAttributeDescriptionCount = 0;
-        }
-
-        VertexInputState(const Bindings& bindings, const Attributes& attributes) :
-            _bindings(bindings),
-            _attributes(attributes),
-            VkPipelineVertexInputStateCreateInfo{}
-        {
-            sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-            vertexBindingDescriptionCount = _bindings.size();
-            pVertexBindingDescriptions = _bindings.data();
-            vertexAttributeDescriptionCount = _attributes.size();
-            pVertexAttributeDescriptions = _attributes.data();
-        }
-
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
-        {
-            pipelineInfo.pVertexInputState = this;
-        }
+        VertexInputState();
+        VertexInputState(const Bindings& bindings, const Attributes& attributes);
 
         virtual VkStructureType getType() const { return sType; }
 
@@ -129,221 +88,100 @@ namespace vsg
 
         const Attributes& getAttributes() const { return _attributes; }
 
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const;
+
     protected:
-        virtual ~VertexInputState()
-        {
-            std::cout<<"~VertexInputState()"<<std::endl;
-        }
+        virtual ~VertexInputState();
 
         Bindings                                _bindings;
         Attributes                              _attributes;
     };
 
-    class InputAssemblyState : public PipelineState, public VkPipelineInputAssemblyStateCreateInfo
+    class InputAssemblyState : public GraphicsPipelineState, public VkPipelineInputAssemblyStateCreateInfo
     {
     public:
-        InputAssemblyState() :
-            VkPipelineInputAssemblyStateCreateInfo{VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO}
-        {
-            // primitive input
-            topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-            primitiveRestartEnable = VK_FALSE;
-        }
+        InputAssemblyState();
 
         virtual VkStructureType getType() const { return sType; }
 
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
-        {
-            pipelineInfo.pInputAssemblyState = this;
-        }
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const;
 
     protected:
-        virtual ~InputAssemblyState()
-        {
-            std::cout<<"~InputAssemblyState()"<<std::endl;
-        }
+        virtual ~InputAssemblyState();
     };
 
 
-    class ViewportState : public PipelineState, public VkPipelineViewportStateCreateInfo
+    class ViewportState : public GraphicsPipelineState, public VkPipelineViewportStateCreateInfo
     {
     public:
-        ViewportState(const VkExtent2D& extent) :
-            VkPipelineViewportStateCreateInfo{VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO},
-            _viewport{},
-            _scissor{}
-        {
-            _viewport.x = 0.0f;
-            _viewport.y = 0.0f;
-            _viewport.width = static_cast<float>(extent.width);
-            _viewport.height = static_cast<float>(extent.height);
-
-            _scissor.offset = {0, 0};
-            _scissor.extent = extent;
-
-            viewportCount = 1;
-            pViewports = &_viewport;
-            scissorCount = 1;
-            pScissors = &_scissor;
-        }
+        ViewportState(const VkExtent2D& extent);
 
         virtual VkStructureType getType() const { return sType; }
-
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
-        {
-            pipelineInfo.pViewportState = this;
-        }
 
         VkViewport& getViewport() { return _viewport; }
         VkRect2D& getScissor() { return _scissor; }
 
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const;
+
     protected:
-        virtual ~ViewportState()
-        {
-            std::cout<<"~ViewportState()"<<std::endl;
-        }
+        virtual ~ViewportState();
 
         VkViewport                          _viewport;
         VkRect2D                            _scissor;
     };
 
-    class RasterizationState : public PipelineState, public VkPipelineRasterizationStateCreateInfo
+    class RasterizationState : public GraphicsPipelineState, public VkPipelineRasterizationStateCreateInfo
     {
     public:
-        RasterizationState() :
-            VkPipelineRasterizationStateCreateInfo {VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO}
-        {
-            depthClampEnable = VK_FALSE;
-            polygonMode = VK_POLYGON_MODE_FILL;
-            lineWidth = 1.0f;
-            cullMode = VK_CULL_MODE_BACK_BIT;
-            frontFace = VK_FRONT_FACE_CLOCKWISE;
-            depthBiasEnable = VK_FALSE;
-        }
+        RasterizationState();
 
         virtual VkStructureType getType() const { return sType; }
 
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
-        {
-            pipelineInfo.pRasterizationState = this;
-        }
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const;
 
     protected:
-        virtual ~RasterizationState()
-        {
-            std::cout<<"~RasterizationState()"<<std::endl;
-        }
+        virtual ~RasterizationState();
     };
 
-    class MultisampleState : public PipelineState, public VkPipelineMultisampleStateCreateInfo
+    class MultisampleState : public GraphicsPipelineState, public VkPipelineMultisampleStateCreateInfo
     {
     public:
-        MultisampleState() :
-            VkPipelineMultisampleStateCreateInfo{VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO}
-        {
-            sampleShadingEnable =VK_FALSE;
-            rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-        }
+        MultisampleState();
 
         virtual VkStructureType getType() const { return sType; }
 
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
-        {
-            pipelineInfo.pMultisampleState = this;
-        }
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const;
 
     protected:
-        virtual ~MultisampleState()
-        {
-            std::cout<<"~MultisampleState()"<<std::endl;
-        }
+        virtual ~MultisampleState();
 
         VkPipelineMultisampleStateCreateInfo _info;
     };
 
 
-    class ColorBlendState : public PipelineState, public VkPipelineColorBlendStateCreateInfo
+    class ColorBlendState : public GraphicsPipelineState, public VkPipelineColorBlendStateCreateInfo
     {
     public:
-        ColorBlendState() :
-            VkPipelineColorBlendStateCreateInfo{VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO}
-        {
-            VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-            colorBlendAttachment.blendEnable = VK_FALSE;
-            colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
-                                                VK_COLOR_COMPONENT_G_BIT |
-                                                VK_COLOR_COMPONENT_B_BIT |
-                                                VK_COLOR_COMPONENT_A_BIT;
-
-            _colorBlendAttachments.push_back(colorBlendAttachment);
-
-            logicOpEnable = VK_FALSE;
-            logicOp = VK_LOGIC_OP_COPY;
-            attachmentCount = _colorBlendAttachments.size();
-            pAttachments = _colorBlendAttachments.data();
-            blendConstants[0] = 0.0f;
-            blendConstants[1] = 0.0f;
-            blendConstants[2] = 0.0f;
-            blendConstants[3] = 0.0f;
-        }
+        ColorBlendState();
 
         virtual VkStructureType getType() const { return sType; }
 
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
-        {
-            pipelineInfo.pColorBlendState = this;
-        }
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const;
 
         using ColorBlendAttachments = std::vector<VkPipelineColorBlendAttachmentState>;
         const ColorBlendAttachments& getColorBlendAttachments() const { return _colorBlendAttachments; }
 
-        void update()
-        {
-            attachmentCount = _colorBlendAttachments.size();
-            pAttachments = _colorBlendAttachments.data();
-        }
+        void update();
 
     protected:
-        virtual ~ColorBlendState()
-        {
-            std::cout<<"~ColorBlendState()"<<std::endl;
-        }
+        virtual ~ColorBlendState();
 
         ColorBlendAttachments _colorBlendAttachments;
     };
 
-    using PipelineStates = std::vector<ref_ptr<PipelineState>>;
+    using GraphicsPipelineStates = std::vector<ref_ptr<GraphicsPipelineState>>;
     using PipelineResult = vsg::Result<Pipeline, VkResult, VK_SUCCESS>;
 
-    PipelineResult createGraphics(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const PipelineStates& pipelineStates, AllocationCallbacks* allocator=nullptr)
-    {
-        if (!device || !renderPass || !pipelineLayout)
-        {
-            return PipelineResult("Error: vsg::createGraphics(...) failed to create graphics pipeline, undefined inputs.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-        }
-
-        VkGraphicsPipelineCreateInfo pipelineInfo = {};
-        pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-        pipelineInfo.layout = *pipelineLayout;
-        pipelineInfo.renderPass = *renderPass;
-        pipelineInfo.subpass = 0;
-        pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-
-        for (auto pipelineState : pipelineStates)
-        {
-            pipelineState->apply(pipelineInfo);
-        }
-
-        VkPipeline pipeline;
-        VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, *allocator, &pipeline );
-        if (result == VK_SUCCESS)
-        {
-            return new Pipeline(device, pipeline, VK_PIPELINE_BIND_POINT_GRAPHICS, allocator);
-        }
-        else
-        {
-            return PipelineResult("Error: vsg::createGraphics(...) failed to create VkPipeline.", result);
-        }
-    }
+    extern PipelineResult createGraphicsPipeline(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator=nullptr);
 
 }
