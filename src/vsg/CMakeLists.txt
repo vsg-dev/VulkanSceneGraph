@@ -33,7 +33,8 @@ SET(HEADERS
     vk/Pipeline.h
     vk/PipelineLayouyt.h
     vk/Framebuffer.h
-    vk/CommandPoolr.h
+    vk/CommandBuffers.h
+    vk/CommandPool.h
     vk/Semaphore.h
     vk/DeviceMemory.h
     vk/Buffer.h
@@ -62,6 +63,7 @@ SET(SOURCES
     vk/Pipeline.cpp
     vk/PipelineLayout.cpp
     vk/Framebuffer.cpp
+    vk/CommandBuffers.cpp
     vk/CommandPool.cpp
     vk/Semaphore.cpp
     vk/DeviceMemory.cpp

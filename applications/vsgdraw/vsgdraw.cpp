@@ -16,6 +16,7 @@
 #include <vsg/vk/Semaphore.h>
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/DeviceMemory.h>
+#include <vsg/vk/CommandBuffers.h>
 
 #include <iostream>
 #include <fstream>
@@ -192,8 +193,6 @@ namespace vsg
         }
     }
 
-    using CommandBuffers = std::vector<VkCommandBuffer>;
-
     class VulkanWindowObjects : public Object
     {
     public:
@@ -211,33 +210,14 @@ namespace vsg
 
             std::cout<<"swapchain->getImageFormat()="<<swapchain->getImageFormat()<<std::endl;
 
-            // setup command buffers
+            commandBuffers = CommandBuffers::create(device, commandPool, framebuffers.size());
+            if (commandBuffers)
             {
-                commandBuffers.resize(framebuffers.size());
-
-                VkCommandBufferAllocateInfo allocateInfo = {};
-                allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-                allocateInfo.commandPool = *commandPool;
-                allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-                allocateInfo.commandBufferCount = (uint32_t) commandBuffers.size();
-
-                if (vkAllocateCommandBuffers(*device, &allocateInfo, commandBuffers.data()) == VK_SUCCESS)
+                for(size_t i=0; i<commandBuffers->size(); ++i)
                 {
-                    for(size_t i=0; i<commandBuffers.size(); ++i)
-                    {
-                        populateCommandBuffer(commandBuffers[i], renderPass, framebuffers[i], swapchain, dispatchList);
-                    }
-                }
-                else
-                {
-                    std::cout<<"Error: could not allocate command buffers."<<std::endl;
+                    populateCommandBuffer((*commandBuffers)[i], renderPass, framebuffers[i], swapchain, dispatchList);
                 }
             }
-        }
-
-        ~VulkanWindowObjects()
-        {
-            vkFreeCommandBuffers(*_device, *_commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
         }
 
         ref_ptr<Device>             _device;
@@ -246,7 +226,7 @@ namespace vsg
 
         ref_ptr<Swapchain>          swapchain;
         Framebuffers                framebuffers;
-        CommandBuffers              commandBuffers;
+        ref_ptr<CommandBuffers>     commandBuffers;
     };
 }
 
@@ -452,7 +432,7 @@ int main(int argc, char** argv)
         submitInfo.pWaitDstStageMask = waitStages;
 
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &(vwo->commandBuffers)[imageIndex];
+        submitInfo.pCommandBuffers = &(vwo->commandBuffers->at(imageIndex));
 
         VkSemaphore signalSemaphores[] = {*renderFinishedSemaphore};
         submitInfo.signalSemaphoreCount = 1;
