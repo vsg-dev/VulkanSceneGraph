@@ -12,13 +12,13 @@ namespace vsg
     class Pipeline : public Dispatch
     {
     public:
-        Pipeline(Device* device, VkPipeline pipeline, AllocationCallbacks* allocator=nullptr);
+        Pipeline(Device* device, VkPipeline pipeline, VkPipelineBindPoint bindPoint, AllocationCallbacks* allocator=nullptr);
 
         operator VkPipeline () const { return _pipeline; }
 
         virtual void dispatch(VkCommandBuffer commandBuffer) const
         {
-            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
+            vkCmdBindPipeline(commandBuffer, _bindPoint, _pipeline);
         }
 
     protected:
@@ -26,6 +26,7 @@ namespace vsg
 
         ref_ptr<Device>                 _device;
         VkPipeline                      _pipeline;
+        VkPipelineBindPoint             _bindPoint;
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 
@@ -337,7 +338,7 @@ namespace vsg
         VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, *allocator, &pipeline );
         if (result == VK_SUCCESS)
         {
-            return new Pipeline(device, pipeline, allocator);
+            return new Pipeline(device, pipeline, VK_PIPELINE_BIND_POINT_GRAPHICS, allocator);
         }
         else
         {

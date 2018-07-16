@@ -5,9 +5,10 @@
 namespace vsg
 {
 
-Pipeline::Pipeline(Device* device, VkPipeline pipeline, AllocationCallbacks* allocator) :
+Pipeline::Pipeline(Device* device, VkPipeline pipeline, VkPipelineBindPoint bindPoint, AllocationCallbacks* allocator) :
     _device(device),
     _pipeline(pipeline),
+    _bindPoint(bindPoint),
     _allocator(allocator)
 {
 }
