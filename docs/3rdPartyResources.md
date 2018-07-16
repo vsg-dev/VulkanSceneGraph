@@ -16,6 +16,7 @@
 
 * [Pumex](https://github.com/pumexx/pumex)
 * [VkHLF NVidia's C++ layer ontop of Vulkan](https://github.com/nvpro-pipeline/VkHLF)
+* [Vulkan Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator)
 
 ## Maths
 
