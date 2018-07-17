@@ -310,25 +310,41 @@ int main(int argc, char** argv)
 
 
     // set up vertex arrays
-    vsg::ref_ptr<vsg::vec2Array> vertices = new vsg::vec2Array(3);
-    vsg::ref_ptr<vsg::vec3Array> colors = new vsg::vec3Array(3);
+    vsg::ref_ptr<vsg::vec2Array> vertices = new vsg::vec2Array(4);
+    vsg::ref_ptr<vsg::vec3Array> colors = new vsg::vec3Array(4);
 
-    vertices->set(0, {0.0f, -0.5f});
-    vertices->set(1, {0.5f,  0.5f});
-    vertices->set(2, {-0.5f, 0.5f});
+    vertices->set(0, {-0.5f, -0.5f});
+    vertices->set(1, {0.5f,  -0.5f});
+    vertices->set(2, {0.5f , 0.5f});
+    vertices->set(3, {-0.5f, 0.5f});
 
     colors->set(0, {1.0f, 0.0f, 0.0f});
     colors->set(1, {0.0f, 1.0f, 0.0f});
     colors->set(2, {0.0f, 0.0f, 1.0f});
+    colors->set(3, {1.0f, 1.0f, 1.0f});
 
-#if 0
+    vsg::ref_ptr<vsg::ushortArray> indices = new vsg::ushortArray(6);
+    indices->set(0, 0);
+    indices->set(1, 1);
+    indices->set(2, 2);
+    indices->set(3, 2);
+    indices->set(4, 3);
+    indices->set(5, 0);
+
+#if 1
     // copy the vertex data to local vertex buffer
-    vsg::ref_ptr<vsg::Buffer> vertexBuffer = vsg::Buffer::createVertexBuffer(device, vertices->dataSize()+colors->dataSize());
+    vsg::ref_ptr<vsg::Buffer> vertexBuffer = vsg::Buffer::create(device, vertices->dataSize()+colors->dataSize(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     vsg::ref_ptr<vsg::DeviceMemory> vertexBufferMemory =  vsg::DeviceMemory::create(physicalDevice, device, vertexBuffer,  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     vkBindBufferMemory(*device, *vertexBuffer, *vertexBufferMemory, 0);
     vertexBufferMemory->copy(0, vertices->dataSize(), vertices->data());
     vertexBufferMemory->copy(vertices->dataSize(), colors->dataSize(), colors->data());
+
+    vsg::ref_ptr<vsg::Buffer> indexBuffer = vsg::Buffer::create(device, indices->dataSize(), VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    vsg::ref_ptr<vsg::DeviceMemory> indexBufferMemory =  vsg::DeviceMemory::create(physicalDevice, device, indexBuffer,  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    vkBindBufferMemory(*device, *indexBuffer, *indexBufferMemory, 0);
+    indexBufferMemory->copy(0, indices->dataSize(), indices->data());
 
 #else
     // copy the vertex data to a stageing buffer, then submit a command to copy it to the final vertex buffer hosted in GPU local memory.
@@ -373,14 +389,16 @@ int main(int argc, char** argv)
     vkQueueWaitIdle(graphicsQueue);
 #endif
 
-    vsg::ref_ptr<vsg::VertexBuffers> vertexBuffers = new vsg::VertexBuffers;
-    vertexBuffers->add(vertexBuffer, 0);
-    vertexBuffers->add(vertexBuffer, vertices->dataSize());
+    vsg::ref_ptr<vsg::CmdBindVertexBuffers> bindVertexBuffers = new vsg::CmdBindVertexBuffers;
+    bindVertexBuffers->add(vertexBuffer, 0);
+    bindVertexBuffers->add(vertexBuffer, vertices->dataSize());
+
+    vsg::ref_ptr<vsg::CmdBindIndexBuffer> bindIndexBuffer = new vsg::CmdBindIndexBuffer(indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
     vsg::VertexInputState::Bindings vertexBindingsDescriptions{VkVertexInputBindingDescription{0, sizeof(vsg::vec2), VK_VERTEX_INPUT_RATE_VERTEX}, VkVertexInputBindingDescription{1, sizeof(vsg::vec3), VK_VERTEX_INPUT_RATE_VERTEX}};
     vsg::VertexInputState::Attributes vertexAttrobiteDescriptions{VkVertexInputAttributeDescription{0, 0,VK_FORMAT_R32G32_SFLOAT, 0}, VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0}};
 
-    vsg::ref_ptr<vsg::CmdDraw> cmdDraw = new vsg::CmdDraw(3, 1, 0, 0);
+    vsg::ref_ptr<vsg::CmdDrawIndexed> drawIndexed = new vsg::CmdDrawIndexed(6, 1, 0, 0, 0);
 
     // setup pipeline
     vsg::GraphicsPipelineStates pipelineStates;
@@ -403,8 +421,9 @@ int main(int argc, char** argv)
     // set up what we want to render
     vsg::DispatchList dispatchList;
     dispatchList.push_back(pipeline);
-    dispatchList.push_back(vertexBuffers);
-    dispatchList.push_back(cmdDraw);
+    dispatchList.push_back(bindVertexBuffers);
+    dispatchList.push_back(bindIndexBuffer);
+    dispatchList.push_back(drawIndexed);
 
     vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, renderPass, dispatchList, width, height);
 

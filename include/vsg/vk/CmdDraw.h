@@ -22,7 +22,7 @@ namespace vsg
             vertexCount(in_vertexCount),
             instanceCount(in_instanceCount),
             firstVertex(in_firstVertex),
-            firstInstance(in_firstVertex) {}
+            firstInstance(in_firstInstance) {}
 
         virtual void dispatch(VkCommandBuffer commandBuffer) const
         {
@@ -35,4 +35,25 @@ namespace vsg
         uint32_t firstInstance;
     };
 
+    class CmdDrawIndexed : public Dispatch
+    {
+    public:
+        CmdDrawIndexed(uint32_t in_indexCount, uint32_t in_instanceCount, uint32_t in_firstIndex, int32_t in_vertexOffset, uint32_t in_firstInstance):
+            indexCount(in_indexCount),
+            instanceCount(in_instanceCount),
+            firstIndex(in_firstIndex),
+            vertexOffset(in_vertexOffset),
+            firstInstance(in_firstInstance) {}
+
+        virtual void dispatch(VkCommandBuffer commandBuffer) const
+        {
+            vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+        }
+
+        uint32_t indexCount;
+        uint32_t instanceCount;
+        uint32_t firstIndex;
+        uint32_t vertexOffset;
+        uint32_t firstInstance;
+    };
 }

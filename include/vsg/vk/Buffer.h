@@ -29,11 +29,11 @@ namespace vsg
     };
 
 
-    class VertexBuffers : public Dispatch
+    class CmdBindVertexBuffers : public Dispatch
     {
     public:
 
-        VertexBuffers() : _firstBinding(0) {}
+        CmdBindVertexBuffers() : _firstBinding(0) {}
 
         void setFirstBinding(uint32_t firstBinding) { _firstBinding = firstBinding; }
         uint32_t getFirstBinding() const { return _firstBinding; }
@@ -51,7 +51,7 @@ namespace vsg
         }
 
     protected:
-        virtual ~VertexBuffers() {}
+        virtual ~CmdBindVertexBuffers() {}
 
         using Buffers = std::vector<ref_ptr<Buffer>>;
         using VkBuffers = std::vector<VkBuffer>;
@@ -64,4 +64,24 @@ namespace vsg
 
     };
 
+
+    class CmdBindIndexBuffer : public Dispatch
+    {
+    public:
+
+        CmdBindIndexBuffer(Buffer* buffer, VkDeviceSize offset, VkIndexType indexType) : _buffer(buffer), _offset(offset), _indexType(indexType) {}
+
+        virtual void dispatch(VkCommandBuffer commandBuffer) const
+        {
+            vkCmdBindIndexBuffer(commandBuffer, *_buffer, _offset, _indexType);
+        }
+
+    protected:
+        virtual ~CmdBindIndexBuffer() {}
+
+        vsg::ref_ptr<Buffer> _buffer;
+        VkDeviceSize _offset;
+        VkIndexType _indexType;
+
+    };
 }
