@@ -29,6 +29,7 @@ void Visitor::apply(DoubleValue& value) {apply(static_cast<Object&>(value)); }
 //
 // Arrays
 //
+void Visitor::apply(ushortArray& value) { apply(static_cast<Object&>(value)); }
 void Visitor::apply(uintArray& value) { apply(static_cast<Object&>(value)); }
 void Visitor::apply(floatArray& value) { apply(static_cast<Object&>(value)); }
 void Visitor::apply(doubleArray& value) { apply(static_cast<Object&>(value)); }

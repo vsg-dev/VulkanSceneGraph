@@ -79,6 +79,7 @@ namespace vsg
         value_type* _data;
     };
 
+    using ushortArray = Array<std::uint16_t>;
     using uintArray = Array<std::uint32_t>;
     using floatArray = Array<float>;
     using doubleArray = Array<double>;
