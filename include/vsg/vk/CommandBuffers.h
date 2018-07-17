@@ -15,6 +15,8 @@ namespace vsg
         static Result create(Device* device,  CommandPool* commandPool, size_t size);
 
         std::size_t size() const { return _buffers.size(); }
+        const VkCommandBuffer* data() const { return _buffers.data(); }
+
         const VkCommandBuffer& operator [] (size_t i) const { return _buffers[i]; }
         const VkCommandBuffer& at(size_t i) const { return _buffers[i]; }
 

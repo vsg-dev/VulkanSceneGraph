@@ -13,12 +13,12 @@ namespace vsg
         using Result = vsg::Result<DeviceMemory, VkResult, VK_SUCCESS>;
         static Result create(PhysicalDevice* physicalDevice, Device* device, VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator=nullptr);
 
-        static Result create(PhysicalDevice* physicalDevice, Device* device, Buffer* buffer)
+        static Result create(PhysicalDevice* physicalDevice, Device* device, Buffer* buffer, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator=nullptr)
         {
             VkMemoryRequirements memRequirements;
             vkGetBufferMemoryRequirements(*device, *buffer, &memRequirements);
 
-            return vsg::DeviceMemory::create(physicalDevice, device, memRequirements, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+            return vsg::DeviceMemory::create(physicalDevice, device, memRequirements, properties, allocator);
         }
 
 

@@ -321,12 +321,57 @@ int main(int argc, char** argv)
     colors->set(1, {0.0f, 1.0f, 0.0f});
     colors->set(2, {0.0f, 0.0f, 1.0f});
 
+#if 0
+    // copy the vertex data to local vertex buffer
     vsg::ref_ptr<vsg::Buffer> vertexBuffer = vsg::Buffer::createVertexBuffer(device, vertices->dataSize()+colors->dataSize());
-    vsg::ref_ptr<vsg::DeviceMemory> vertexBufferMemory =  vsg::DeviceMemory::create(physicalDevice, device, vertexBuffer);
+    vsg::ref_ptr<vsg::DeviceMemory> vertexBufferMemory =  vsg::DeviceMemory::create(physicalDevice, device, vertexBuffer,  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     vkBindBufferMemory(*device, *vertexBuffer, *vertexBufferMemory, 0);
     vertexBufferMemory->copy(0, vertices->dataSize(), vertices->data());
     vertexBufferMemory->copy(vertices->dataSize(), colors->dataSize(), colors->data());
+
+#else
+    // copy the vertex data to a stageing buffer, then submit a command to copy it to the final vertex buffer hosted in GPU local memory.
+    VkDeviceSize vertices_offset = 0;
+    VkDeviceSize colors_offset = vertices->dataSize();
+    VkDeviceSize totalSize = colors_offset + colors->dataSize();
+
+    vsg::ref_ptr<vsg::Buffer> stagingBuffer = vsg::Buffer::create(device, totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE);
+
+    vsg::ref_ptr<vsg::DeviceMemory> stagingBufferMemory = vsg::DeviceMemory::create(physicalDevice, device, stagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    vkBindBufferMemory(*device, *stagingBuffer, *stagingBufferMemory, 0);
+    stagingBufferMemory->copy(0, vertices->dataSize(), vertices->data());
+    stagingBufferMemory->copy(vertices->dataSize(), colors->dataSize(), colors->data());
+
+    vsg::ref_ptr<vsg::Buffer> vertexBuffer = vsg::Buffer::create(device, totalSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    vsg::ref_ptr<vsg::DeviceMemory> vertexBufferMemory =  vsg::DeviceMemory::create(physicalDevice, device, vertexBuffer,  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    vsg::ref_ptr<vsg::CommandBuffers> transferCommand = vsg::CommandBuffers::create(device, commandPool, 1);
+
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer(transferCommand->at(0), &beginInfo);
+
+        VkBufferCopy copyRegion = {};
+        copyRegion.srcOffset = 0;
+        copyRegion.dstOffset = 0;
+        copyRegion.size = totalSize;
+        vkBindBufferMemory(*device, *vertexBuffer, *vertexBufferMemory, 0);
+        vkCmdCopyBuffer(transferCommand->at(0), *stagingBuffer, *vertexBuffer, 1, &copyRegion);
+
+    vkEndCommandBuffer(transferCommand->at(0));
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = transferCommand->size();
+    submitInfo.pCommandBuffers = transferCommand->data();
+
+    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(graphicsQueue);
+#endif
 
     vsg::ref_ptr<vsg::VertexBuffers> vertexBuffers = new vsg::VertexBuffers;
     vertexBuffers->add(vertexBuffer, 0);
