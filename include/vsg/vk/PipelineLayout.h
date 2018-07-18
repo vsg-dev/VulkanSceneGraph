@@ -10,7 +10,11 @@ namespace vsg
     public:
         PipelineLayout(Device* device, VkPipelineLayout pipelineLayout, AllocationCallbacks* allocator=nullptr);
 
-        PipelineLayout(Device* device, AllocationCallbacks* allocator=nullptr);
+        using Result = vsg::Result<PipelineLayout, VkResult, VK_SUCCESS>;
+
+        static Result create(Device* device, const VkPipelineLayoutCreateInfo& pipelineLayoutInfo, AllocationCallbacks* allocator=nullptr);
+
+        static Result create(Device* device, AllocationCallbacks* allocator=nullptr);
 
         operator VkPipelineLayout () const { return _pipelineLayout; }
 
