@@ -53,7 +53,9 @@ namespace vsg
             }
         }
 
-        std::size_t dataSize() const { return _size * sizeof(value_type); }
+        virtual std::size_t dataSize() const { return _size * sizeof(value_type); }
+        virtual void* dataPointer() { return _data; }
+        virtual const void* dataPointer() const { return _data; }
 
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
