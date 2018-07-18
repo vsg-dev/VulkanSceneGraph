@@ -50,6 +50,8 @@ DeviceMemory::Result DeviceMemory::create(PhysicalDevice* physicalDevice, Device
     allocateInfo.allocationSize = memRequirements.size;
     allocateInfo.memoryTypeIndex = memoryTypeIndex;
 
+    std::cout<<"vkAllocateMemory(...) allocateInfo.allocationSize="<<allocateInfo.allocationSize<<std::endl;
+
     VkDeviceMemory deviceMemory;
     VkResult result = vkAllocateMemory(*device, &allocateInfo, *allocator, &deviceMemory);
     if (result == VK_SUCCESS)
@@ -66,6 +68,8 @@ void DeviceMemory::copy(VkDeviceSize offset, VkDeviceSize size, void* src_data)
 {
     // should we have checks against buffer having enough memory for copied data?
 
+    std::cout<<"DeviceMemory::copy("<<offset<<", "<<size<<", "<<src_data<<")"<<std::endl;
+
     void* buffer_data;
     vkMapMemory(*_device, _deviceMemory, offset, size, 0, &buffer_data);
 
@@ -73,7 +77,11 @@ void DeviceMemory::copy(VkDeviceSize offset, VkDeviceSize size, void* src_data)
 
     vkUnmapMemory(*_device, _deviceMemory);
 
-    std::cout<<"DeviceMemory::copy("<<offset<<", "<<size<<", "<<src_data<<")"<<std::endl;
+}
+
+void DeviceMemory::copy(VkDeviceSize offset, Data* data)
+{
+    copy(offset, data->dataSize(), data->dataPointer());
 }
 
 

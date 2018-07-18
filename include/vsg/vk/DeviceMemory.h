@@ -23,6 +23,7 @@ namespace vsg
 
 
         void copy(VkDeviceSize offset, VkDeviceSize size, void* src_data);
+        void copy(VkDeviceSize offset, Data* data);
 
         operator VkDeviceMemory () const { return _deviceMemory; }
 
