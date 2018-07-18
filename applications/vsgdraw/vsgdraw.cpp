@@ -139,7 +139,6 @@ namespace vsg
         return stream.str();
     }
 
-
     using DispatchList = std::vector<ref_ptr<Dispatch>>;
 
     template<typename T, VkStructureType type>
@@ -337,16 +336,43 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::DeviceMemory> vertexBufferMemory =  vsg::DeviceMemory::create(physicalDevice, device, vertexBuffer,  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     vkBindBufferMemory(*device, *vertexBuffer, *vertexBufferMemory, 0);
-    vertexBufferMemory->copy(0, vertices->dataSize(), vertices->data());
-    vertexBufferMemory->copy(vertices->dataSize(), colors->dataSize(), colors->data());
+    vertexBufferMemory->copy(0, vertices->dataSize(), vertices->dataPointer());
+    vertexBufferMemory->copy(vertices->dataSize(), colors->dataSize(), colors->dataPointer());
 
     vsg::ref_ptr<vsg::Buffer> indexBuffer = vsg::Buffer::create(device, indices->dataSize(), VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     vsg::ref_ptr<vsg::DeviceMemory> indexBufferMemory =  vsg::DeviceMemory::create(physicalDevice, device, indexBuffer,  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     vkBindBufferMemory(*device, *indexBuffer, *indexBufferMemory, 0);
-    indexBufferMemory->copy(0, indices->dataSize(), indices->data());
+    indexBufferMemory->copy(0, indices->dataSize(), indices->dataPointer());
 
-#else
+    using DataList = std::vector<vsg::ref_ptr<vsg::Data>>;
+    DataList uniforms;
+
+    vsg::ref_ptr<vsg::mat4Value> modelMatrix = new vsg::mat4Value;
+    vsg::ref_ptr<vsg::mat4Value> viewMatrix = new vsg::mat4Value;
+    vsg::ref_ptr<vsg::mat4Value> projMatrix = new vsg::mat4Value;
+
+    uniforms.push_back(modelMatrix);
+    uniforms.push_back(viewMatrix);
+    uniforms.push_back(projMatrix);
+
+    std::size_t uniformTotalSize = std::accumulate(uniforms.begin(), uniforms.end(), 0, [](std::size_t lhs, vsg::Data* rhs) { return lhs+rhs->dataSize(); });
+    std::cout<<"uniformTotalSize = "<<uniformTotalSize<<std::endl;
+
+    vsg::ref_ptr<vsg::Buffer> uniformBuffer = vsg::Buffer::create(device, uniformTotalSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    vsg::ref_ptr<vsg::DeviceMemory> uniformBufferMemory =  vsg::DeviceMemory::create(physicalDevice, device, uniformBuffer,  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    vkBindBufferMemory(*device, *uniformBuffer, *indexBufferMemory, 0);
+
+    std::size_t offset = 0;
+    for(vsg::Data* data : uniforms)
+    {
+        std::size_t size = data->dataSize();
+        uniformBufferMemory->copy(offset, size, data->dataPointer());
+        offset += size;
+    }
+
+    #else
     // copy the vertex data to a stageing buffer, then submit a command to copy it to the final vertex buffer hosted in GPU local memory.
     VkDeviceSize vertices_offset = 0;
     VkDeviceSize colors_offset = vertices->dataSize();
