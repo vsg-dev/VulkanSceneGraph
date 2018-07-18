@@ -16,26 +16,31 @@ namespace vsg
         using value_type = T;
 
         Value() {}
-        Value(const value_type& in_value) : value(in_value) {}
-        Value(const Value& rhs) : value(rhs.value) {}
+        Value(const value_type& in_value) : _value(in_value) {}
+        Value(const Value& rhs) : _value(rhs._value) {}
 
         // implementation provided by Visitor.h
         virtual void accept(Visitor& visitor);
 
+        virtual std::size_t valueSize() const { return sizeof(value_type); }
+        virtual std::size_t valueCount() const { return 1; }
+
         virtual std::size_t dataSize() const { return sizeof(value_type); }
-        virtual void* dataPointer() { &value; }
-        virtual const void* dataPointer() const { return &value; }
+        virtual void* dataPointer() { return &_value; }
+        virtual const void* dataPointer() const { return &_value; }
 
-        Value& operator = (const Value& rhs) { value = rhs.value; return *this; }
-        Value& operator = (const value_type& rhs) { value = rhs; return *this; }
+        Value& operator = (const Value& rhs) { _value = rhs._value; return *this; }
+        Value& operator = (const value_type& rhs) { _value = rhs; return *this; }
 
-        operator value_type& () { return value; }
-        operator const value_type& () const { return value; }
+        operator value_type& () { return _value; }
+        operator const value_type& () const { return _value; }
 
-        value_type value;
+        value_type& value() { return _value; }
+        const value_type& value() const { return _value; }
 
     protected:
         virtual ~Value() {}
+        value_type _value;
     };
 
     template<typename T>
@@ -52,7 +57,7 @@ namespace vsg
         const ValueT* vo = dynamic_cast<const ValueT*>(getObject(key));
         if (vo)
         {
-            value = vo->value;
+            value = *vo;
             return true;
         }
         else

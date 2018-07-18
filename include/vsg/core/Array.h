@@ -10,7 +10,7 @@
 namespace vsg
 {
     template<typename T>
-    class Array : public Object
+    class Array : public Data
     {
     public:
         using value_type = T;
@@ -52,6 +52,9 @@ namespace vsg
                 _data = size>0 ? new value_type[size] : nullptr;
             }
         }
+
+        virtual std::size_t valueSize() const { return sizeof(value_type); }
+        virtual std::size_t valueCount() const { return _size; }
 
         virtual std::size_t dataSize() const { return _size * sizeof(value_type); }
         virtual void* dataPointer() { return _data; }
