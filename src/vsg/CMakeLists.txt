@@ -37,6 +37,7 @@ SET(HEADERS
     vk/CommandPool.h
     vk/Semaphore.h
     vk/DeviceMemory.h
+    vk/DescriptorSetLayout.h
     vk/Buffer.h
 
     utils/CommandLine.h
@@ -67,6 +68,7 @@ SET(SOURCES
     vk/CommandPool.cpp
     vk/Semaphore.cpp
     vk/DeviceMemory.cpp
+    vk/DescriptorSetLayout.cpp
     vk/Buffer.cpp
 )
 
