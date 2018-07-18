@@ -43,27 +43,27 @@ int main(int argc, char** argv)
 
             void apply(vsg::IntValue& value)
             {
-                std::cout<<"IntValue,  value = "<<value.value<<std::endl;
+                std::cout<<"IntValue,  value = "<<value<<std::endl;
             }
 
             void apply(vsg::UIntValue& value)
             {
-                std::cout<<"UIntValue,  value = "<<value.value<<std::endl;
+                std::cout<<"UIntValue,  value = "<<value<<std::endl;
             }
 
             void apply(vsg::FloatValue& value)
             {
-                std::cout<<"FloatValue, value  = "<<value.value<<std::endl;
+                std::cout<<"FloatValue, value  = "<<value<<std::endl;
             }
 
             void apply(vsg::DoubleValue& value)
             {
-                std::cout<<"DoubleValue, value  = "<<value.value<<std::endl;
+                std::cout<<"DoubleValue, value  = "<<value<<std::endl;
             }
 
             void apply(vsg::StringValue& value)
             {
-                std::cout<<"StringValue, value  = "<<value.value<<std::endl;
+                std::cout<<"StringValue, value  = "<<value.value()<<std::endl;
             }
         };
 
