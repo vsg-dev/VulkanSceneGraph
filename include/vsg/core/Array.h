@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vsg/core/Object.h>
+#include <vsg/core/Data.h>
 
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
