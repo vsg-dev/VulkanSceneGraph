@@ -57,6 +57,25 @@ inline std::ostream& operator << (std::ostream& output, const vsg::tmat4<T>& mat
 
 namespace vsg
 {
+    template<typename T>
+    T dot(const tmat4<T>& lhs, const tmat4<T>& rhs, int c, int r)
+    {
+        return lhs[0][r]*rhs[c][0] +
+               lhs[1][r]*rhs[c][1] +
+               lhs[2][r]*rhs[c][2] +
+               lhs[3][r]*rhs[c][3];
+    }
+
+    template<typename T>
+    tmat4<T> operator * (tmat4<T> const& lhs, tmat4<T> const& rhs)
+    {
+        return tmat4<T>(dot(lhs, rhs, 0, 0), dot(lhs, rhs, 1, 0), dot(lhs, rhs, 2, 0), dot(lhs, rhs, 3, 0),
+                        dot(lhs, rhs, 0, 1), dot(lhs, rhs, 1, 1), dot(lhs, rhs, 2, 1), dot(lhs, rhs, 3, 1),
+                        dot(lhs, rhs, 0, 2), dot(lhs, rhs, 1, 2), dot(lhs, rhs, 2, 2), dot(lhs, rhs, 3, 2),
+                        dot(lhs, rhs, 0, 3), dot(lhs, rhs, 1, 3), dot(lhs, rhs, 2, 3), dot(lhs, rhs, 3, 3));
+    }
+
+
     const float PIf   = 3.14159265358979323846f;
     const double PI   = 3.14159265358979323846;
 
@@ -186,6 +205,15 @@ int main(int argc, char** argv)
     std::cout<<"delta for scale "<<computeDelta(scale, osg_scale)<<std::endl;
     std::cout<<"scale = {"<<scale<<"}"<<std::endl;
     std::cout<<"osg_scale = {"<<osg_scale<<"}"<<std::endl;
+
+    // note VSG and OSG multiplication order reversed.
+    vsg::mat4 result = scale*trans*rot;
+    osg::Matrixf osg_result = osg_rot*osg_trans*osg_scale;
+
+    std::cout<<"delta for result "<<computeDelta(result, osg_result)<<std::endl;
+    std::cout<<"result = {"<<result<<"}"<<std::endl;
+    std::cout<<"osg_result = {"<<osg_result<<"}"<<std::endl;
+
 
     return 0;
 }
