@@ -46,10 +46,11 @@ inline std::ostream& operator << (std::ostream& output, const vsg::tvec4<T>& vec
 template<typename T>
 inline std::ostream& operator << (std::ostream& output, const vsg::tmat4<T>& mat)
 {
-    output << mat(0,0)<< " " << mat(1,0)<<" "<<mat(2,0)<<" "<<mat(3,0)<<std::endl;
-    output << mat(0,1)<< " " << mat(1,1)<<" "<<mat(2,1)<<" "<<mat(3,1)<<std::endl;
-    output << mat(0,2)<< " " << mat(1,2)<<" "<<mat(2,2)<<" "<<mat(3,2)<<std::endl;
-    output << mat(0,3)<< " " << mat(1,3)<<" "<<mat(2,3)<<" "<<mat(3,3)<<std::endl;
+    output << std::endl;
+    output << "    "<<mat(0,0)<< " " << mat(1,0)<<" "<<mat(2,0)<<" "<<mat(3,0)<<std::endl;
+    output << "    "<<mat(0,1)<< " " << mat(1,1)<<" "<<mat(2,1)<<" "<<mat(3,1)<<std::endl;
+    output << "    "<<mat(0,2)<< " " << mat(1,2)<<" "<<mat(2,2)<<" "<<mat(3,2)<<std::endl;
+    output << "    "<<mat(0,3)<< " " << mat(1,3)<<" "<<mat(2,3)<<" "<<mat(3,3)<<std::endl;
     return output; // to enable cascading
 }
 
@@ -98,8 +99,24 @@ namespace vsg
     template<typename T>
     tmat4<T> rotate(T angle_radians, const tvec3<T>& v)
     {
-        return rotat(angle_radians, v.x, v.y, v.z);
+        return (angle_radians, v.x, v.y, v.z);
     }
+
+    template<typename T>
+    tmat4<T> translate(T x, T y, T z)
+    {
+        return tmat4<T>(1, 0, 0, x,
+                        0, 1, 0, y,
+                        0, 0, 1, z,
+                        0, 0, 0, 1);
+    }
+
+    template<typename T>
+    tmat4<T> translate(const tvec3<T>& v)
+    {
+        return translate(v.x, v.y, v.z);
+    }
+
 
     const float PIf   = 3.14159265358979323846f;
     const double PI   = 3.14159265358979323846;
@@ -214,6 +231,14 @@ int main(int argc, char** argv)
     std::cout<<"delta for rot "<<computeDelta(rot, osg_rot)<<std::endl;
     std::cout<<"rot = {"<<rot<<"}"<<std::endl;
     std::cout<<"osg_rot = {"<<osg_rot<<"}"<<std::endl;
+
+
+    vsg::mat4 trans = vsg::translate(vsg::vec3(1.0f, 2.0f, 3.0f));
+    osg::Matrixf osg_trans = osg::Matrixf::translate(1.0f, 2.0f, 3.0f);
+
+    std::cout<<"delta for trans "<<computeDelta(trans, osg_trans)<<std::endl;
+    std::cout<<"trans = {"<<trans<<"}"<<std::endl;
+    std::cout<<"osg_trans = {"<<osg_trans<<"}"<<std::endl;
 
     return 0;
 }
