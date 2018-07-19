@@ -71,17 +71,34 @@ namespace vsg
     tmat4<T> lookAt(tvec3<T> const & eye, tvec3<T> const & center, tvec3<T> const & up )
     {
         using vec_type = tvec3<T>;
-        using mat_type = tmat4<T>;
 
         vec_type forward = normalize(center-eye);
         vec_type up_normal = normalize(up);
         vec_type side = normalize(cross(forward, up_normal));
         vec_type u = normalize(cross(side, forward));
 
-        return mat_type(side[0],     side[1],     side[2],      0,
+        return tmat4<T>(side[0],     side[1],     side[2],      0,
                         u[0],        u[1],        u[2],         0,
                         -forward[0], -forward[1], -forward[2],  0,
                         0,           0,           0,            1);
+    }
+
+    template<typename T>
+    tmat4<T> rotate(T angle_radians, T x, T y, T z)
+    {
+        const T c = cos(angle_radians);
+        const T s = sin(angle_radians);
+        const T one_minus_c = 1-c;
+        return tmat4<T>(x*x*one_minus_c+c,     x*y*one_minus_c-z*s, x*z*one_minus_c+y*z, 0,
+                        y*x*one_minus_c+z*s,   y*y*one_minus_c+c,   y*z*one_minus_c-x*s, 0,
+                        x*z*one_minus_c-y*s,   y*z*one_minus_c+x*s, z*z*one_minus_c+c,   0,
+                        0,                     0,                   0,                   1);
+    }
+
+    template<typename T>
+    tmat4<T> rotate(T angle_radians, const tvec3<T>& v)
+    {
+        return rotat(angle_radians, v.x, v.y, v.z);
     }
 
     const float PIf   = 3.14159265358979323846f;
@@ -102,7 +119,7 @@ float computeDelta(const vsg::mat4& v, const osg::Matrixf& o)
     const osg::Matrixf::value_type* osg_view_ptr = o.ptr();
     for(int i=0; i<16; ++i)
     {
-        delta += abs(view_ptr[i]-osg_view_ptr[i]);
+        delta += fabs(view_ptr[i]-osg_view_ptr[i]);
     }
     return delta;
 }
@@ -115,7 +132,7 @@ float computeDelta(const vsg::dmat4& v, const osg::Matrixd& o)
     const osg::Matrixd::value_type* osg_view_ptr = o.ptr();
     for(int i=0; i<16; ++i)
     {
-        delta += abs(view_ptr[i]-osg_view_ptr[i]);
+        delta += fabs(view_ptr[i]-osg_view_ptr[i]);
     }
     return delta;
 }
@@ -190,6 +207,13 @@ int main(int argc, char** argv)
 
     std::cout<<"delta for proj "<<computeDelta(proj, osg_proj)<<std::endl;
     std::cout<<"delta for view "<<computeDelta(view, osg_view)<<std::endl;
+
+    vsg::mat4 rot = vsg::rotate(vsg::radians(45.0f), 0.0f, 0.0f, 1.0f);
+    osg::Matrixf osg_rot = osg::Matrixf::rotate(vsg::radians(45.0f), 0.0f, 0.0f, 1.0f);
+
+    std::cout<<"delta for rot "<<computeDelta(rot, osg_rot)<<std::endl;
+    std::cout<<"rot = {"<<rot<<"}"<<std::endl;
+    std::cout<<"osg_rot = {"<<osg_rot<<"}"<<std::endl;
 
     return 0;
 }
