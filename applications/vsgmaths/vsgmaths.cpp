@@ -57,14 +57,6 @@ inline std::ostream& operator << (std::ostream& output, const vsg::tmat4<T>& mat
 
 namespace vsg
 {
-    const float PIf   = 3.14159265358979323846f;
-    const double PI   = 3.14159265358979323846;
-
-    float radians(float degrees) { return degrees * (PIf/180.0f); }
-    double radians(double degrees) { return degrees * (PI/180.0); }
-
-    float degrees(float radians) { return radians * (180.0f/PIf); }
-    double degrees(double radians) { return radians * (180.0/PI); }
 };
 
 float computeDelta(const vsg::mat4& v, const osg::Matrixf& o)

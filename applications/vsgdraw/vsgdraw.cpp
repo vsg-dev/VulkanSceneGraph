@@ -4,6 +4,8 @@
 
 #include <vsg/utils/CommandLine.h>
 
+#include <vsg/maths/transform.h>
+
 #include <vsg/vk/Instance.h>
 #include <vsg/vk/Surface.h>
 #include <vsg/vk/Swapchain.h>
@@ -599,10 +601,7 @@ int main(int argc, char** argv)
     /////////////////////////////////////////////////////////////////////
 
     auto startTime =std::chrono::steady_clock::now();
-    double time = 0.0;
-
-    uniformBufferChain->transfer(device, commandPool, graphicsQueue);
-
+    float time = 0.0f;
 
     // main loop
     while(!glfwWindowShouldClose(*window) && (numFrames<0 || (numFrames--)>0))
@@ -610,11 +609,9 @@ int main(int argc, char** argv)
         //std::cout<<"In main loop"<<std::endl;
         glfwPollEvents();
 
-        double previousTime = time;
-        time = std::chrono::duration<double, std::chrono::seconds::period>(std::chrono::steady_clock::now()-startTime).count();
+        float previousTime = time;
+        time = std::chrono::duration<float, std::chrono::seconds::period>(std::chrono::steady_clock::now()-startTime).count();
         //std::cout<<"time = "<<time<<" fps="<<1.0/(time-previousTime)<<std::endl;
-
-        uniformBufferChain->transfer(device, commandPool, graphicsQueue);
 
         bool needToRegerateVulkanWindowObjects = false;
 
@@ -662,6 +659,13 @@ int main(int argc, char** argv)
                 return 1;
             }
         }
+
+        // update
+        (*projMatrix) = vsg::perspective(vsg::radians(45.0f), float(width)/float(height), 0.1f, 10.f);
+        (*viewMatrix) = vsg::lookAt(vsg::vec3(2.0f, 2.0f, 2.0f), vsg::vec3(0.0f, 0.0f, 0.0f), vsg::vec3(0.0f, 0.0f, 1.0f));
+        (*modelMatrix) = vsg::rotate(time * vsg::radians(90.0f), vsg::vec3(0.0f, 0.0, 1.0f));
+        uniformBufferChain->transfer(device, commandPool, graphicsQueue);
+
 
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

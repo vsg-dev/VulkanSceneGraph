@@ -5,6 +5,15 @@
 
 namespace vsg
 {
+    const float PIf   = 3.14159265358979323846f;
+    const double PI   = 3.14159265358979323846;
+
+    float radians(float degrees) { return degrees * (PIf/180.0f); }
+    double radians(double degrees) { return degrees * (PI/180.0); }
+
+    float degrees(float radians) { return radians * (180.0f/PIf); }
+    double degrees(double radians) { return radians * (180.0/PI); }
+
     template<typename T>
     tmat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
     {
@@ -47,7 +56,7 @@ namespace vsg
     template<typename T>
     tmat4<T> rotate(T angle_radians, const tvec3<T>& v)
     {
-        return (angle_radians, v.x, v.y, v.z);
+        return rotate(angle_radians, v.x, v.y, v.z);
     }
 
     template<typename T>
