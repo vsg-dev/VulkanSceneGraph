@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <mutex>
 #include <set>
+#include <chrono>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -585,12 +586,18 @@ int main(int argc, char** argv)
     //
     /////////////////////////////////////////////////////////////////////
 
+    auto startTime =std::chrono::steady_clock::now();
+    double time = 0.0;
 
     // main loop
     while(!glfwWindowShouldClose(*window) && (numFrames<0 || (numFrames--)>0))
     {
         //std::cout<<"In main loop"<<std::endl;
         glfwPollEvents();
+
+        double previousTime = time;
+        time = std::chrono::duration<double, std::chrono::seconds::period>(std::chrono::steady_clock::now()-startTime).count();
+        std::cout<<"time = "<<time<<" fps="<<1.0/(time-previousTime)<<std::endl;
 
         bool needToRegerateVulkanWindowObjects = false;
 
