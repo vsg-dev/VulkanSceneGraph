@@ -26,6 +26,7 @@
 #include <mutex>
 #include <set>
 #include <chrono>
+#include <cstring>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -255,14 +256,18 @@ namespace vsg
             {
                 _stagingBuffer = vsg::Buffer::create(device, totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode);
                 _stagingMemory = vsg::DeviceMemory::create(physicalDevice, device, _stagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                vkBindBufferMemory(*device, *_stagingBuffer, *_stagingMemory, 0);
 
                 _deviceBuffer = vsg::Buffer::create(device, totalSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage, sharingMode);
                 _deviceMemory =  vsg::DeviceMemory::create(physicalDevice, device, _deviceBuffer,  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+                vkBindBufferMemory(*device, *_deviceBuffer, *_deviceMemory, 0);
+
             }
             else
             {
                 _deviceBuffer = vsg::Buffer::create(device, totalSize, usage, sharingMode);
                 _deviceMemory =  vsg::DeviceMemory::create(physicalDevice, device, _deviceBuffer,  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                vkBindBufferMemory(*device, *_deviceBuffer, *_deviceMemory, 0);
             }
         }
 
@@ -270,13 +275,10 @@ namespace vsg
         {
             if (_stagingMemory)
             {
-                std::cout<<"BufferChain::transfer() using staging buffer"<<std::endl;
+                std::cout<<"BufferChain::transfer() to device local memory using staging buffer"<<std::endl;
                 VkDeviceSize totalSize = dataSize();
-                vkBindBufferMemory(*device, *_stagingBuffer, *_stagingMemory, 0);
-                for(auto entry : _entries)
-                {
-                    _stagingMemory->copy(entry.offset, entry.data->dataSize(), entry.data->dataPointer());
-                }
+
+                copy(device, _stagingBuffer, _stagingMemory);
 
                 vsg::ref_ptr<vsg::CommandBuffers> transferCommand = vsg::CommandBuffers::create(device, commandPool, 1);
 
@@ -290,7 +292,6 @@ namespace vsg
                     copyRegion.srcOffset = 0;
                     copyRegion.dstOffset = 0;
                     copyRegion.size = totalSize;
-                    vkBindBufferMemory(*device, *_deviceBuffer, *_deviceMemory, 0);
                     vkCmdCopyBuffer(transferCommand->at(0), *_stagingBuffer, *_deviceBuffer, 1, &copyRegion);
 
                 vkEndCommandBuffer(transferCommand->at(0));
@@ -305,13 +306,24 @@ namespace vsg
             }
             else
             {
-                std::cout<<"BufferChain::transfer() copying to local memory"<<std::endl;
-                vkBindBufferMemory(*device, *_deviceBuffer, *_deviceMemory, 0);
-                for(auto entry : _entries)
-                {
-                    _deviceMemory->copy(entry.offset, entry.data->dataSize(), entry.data->dataPointer());
-                }
+                std::cout<<"BufferChain::transfer() copying to host visible memory"<<std::endl;
+                copy(device, _deviceBuffer, _deviceMemory);
             }
+        }
+
+        void copy(Device* device, Buffer* buffer, DeviceMemory* memory)
+        {
+            char* buffer_data;
+            vkMapMemory(*device, *memory, 0, dataSize(), 0, (void**)(&buffer_data));
+
+            char* ptr = (char*)(buffer_data);
+
+            for(auto entry : _entries)
+            {
+                std::memcpy(buffer_data+entry.offset, entry.data->dataPointer(), entry.data->dataSize());
+            }
+
+            vkUnmapMemory(*device, *memory);
         }
 
         void add(Data* data)
@@ -497,8 +509,8 @@ int main(int argc, char** argv)
     uniformBufferChain->add(modelMatrix);
     uniformBufferChain->add(viewMatrix);
     uniformBufferChain->add(projMatrix);
-    uniformBufferChain->allocate(physicalDevice, device, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE, useStagingBuffer);
-    uniformBufferChain->transfer(device, commandPool, graphicsQueue);
+    uniformBufferChain->allocate(physicalDevice, device, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE, false); // useStagingBuffer);
+    //uniformBufferChain->transfer(device, commandPool, graphicsQueue);
 
     vertexBufferChain->print(std::cout);
     indexBufferChain->print(std::cout);
@@ -589,6 +601,9 @@ int main(int argc, char** argv)
     auto startTime =std::chrono::steady_clock::now();
     double time = 0.0;
 
+    uniformBufferChain->transfer(device, commandPool, graphicsQueue);
+
+
     // main loop
     while(!glfwWindowShouldClose(*window) && (numFrames<0 || (numFrames--)>0))
     {
@@ -597,7 +612,9 @@ int main(int argc, char** argv)
 
         double previousTime = time;
         time = std::chrono::duration<double, std::chrono::seconds::period>(std::chrono::steady_clock::now()-startTime).count();
-        std::cout<<"time = "<<time<<" fps="<<1.0/(time-previousTime)<<std::endl;
+        //std::cout<<"time = "<<time<<" fps="<<1.0/(time-previousTime)<<std::endl;
+
+        uniformBufferChain->transfer(device, commandPool, graphicsQueue);
 
         bool needToRegerateVulkanWindowObjects = false;
 
