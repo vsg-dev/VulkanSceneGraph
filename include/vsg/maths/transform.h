@@ -14,32 +14,6 @@ namespace vsg
     float degrees(float radians) { return radians * (180.0f/PIf); }
     double degrees(double radians) { return radians * (180.0/PI); }
 
-    template<typename T>
-    tmat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
-    {
-        T f = 1.0/tan(fovy_radians*0.5);
-        T r = 1.0/(zNear-zFar);
-        return tmat4<T>(f/aspectRatio, 0,  0,              0,
-                        0,             -f, 0,              0,
-                        0,             0,  (zFar+zNear)*r, (2.0*zFar*zNear)*r,
-                        0,             0,  -1,             0);
-    }
-
-    template<typename T>
-    tmat4<T> lookAt(tvec3<T> const & eye, tvec3<T> const & center, tvec3<T> const & up )
-    {
-        using vec_type = tvec3<T>;
-
-        vec_type forward = normalize(center-eye);
-        vec_type up_normal = normalize(up);
-        vec_type side = normalize(cross(forward, up_normal));
-        vec_type u = normalize(cross(side, forward));
-
-        return tmat4<T>(side[0],     side[1],     side[2],      0,
-                        u[0],        u[1],        u[2],         0,
-                        -forward[0], -forward[1], -forward[2],  0,
-                        0,           0,           0,            1);
-    }
 
     template<typename T>
     tmat4<T> rotate(T angle_radians, T x, T y, T z)
@@ -89,4 +63,31 @@ namespace vsg
         return scale(v.x, v.y, v.z);
     }
 
+    template<typename T>
+    tmat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
+    {
+        T f = 1.0/tan(fovy_radians*0.5);
+        T r = 1.0/(zNear-zFar);
+        return tmat4<T>(f/aspectRatio, 0,  0,              0,
+                        0,             -f, 0,              0,
+                        0,             0,  (zFar+zNear)*r, (2.0*zFar*zNear)*r,
+                        0,             0,  -1,             0);
+    }
+
+    template<typename T>
+    tmat4<T> lookAt(tvec3<T> const & eye, tvec3<T> const & center, tvec3<T> const & up )
+    {
+        using vec_type = tvec3<T>;
+
+        vec_type forward = normalize(center-eye);
+        vec_type up_normal = normalize(up);
+        vec_type side = normalize(cross(forward, up_normal));
+        vec_type u = normalize(cross(side, forward));
+
+        return tmat4<T>(side[0],     side[1],     side[2],      0,
+                        u[0],        u[1],        u[2],         0,
+                        -forward[0], -forward[1], -forward[2],  0,
+                        0,           0,           0,            1) *
+                vsg::translate(-eye.y, -eye.y, -eye.z);
+    }
 }

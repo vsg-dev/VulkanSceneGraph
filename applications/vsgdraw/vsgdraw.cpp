@@ -445,6 +445,42 @@ namespace vsg
         out<<"}"<<std::endl;
     }
 
+    ////////////////////////////////////////////////////////////////////
+    //
+    //  ostream implementation
+    //
+    template<typename T>
+    inline std::ostream& operator << (std::ostream& output, const vsg::tvec2<T>& vec)
+    {
+        output << vec.x << " " << vec.y;
+        return output; // to enable cascading
+    }
+
+    template<typename T>
+    inline std::ostream& operator << (std::ostream& output, const vsg::tvec3<T>& vec)
+    {
+        output << vec.x << " " << vec.y<<" "<<vec.z;
+        return output; // to enable cascading
+    }
+
+    template<typename T>
+    inline std::ostream& operator << (std::ostream& output, const vsg::tvec4<T>& vec)
+    {
+        output << vec.x << " " << vec.y<<" "<<vec.z<<" "<<vec.w;
+        return output; // to enable cascading
+    }
+
+    template<typename T>
+    inline std::ostream& operator << (std::ostream& output, const vsg::tmat4<T>& mat)
+    {
+        output << std::endl;
+        output << "    "<<mat(0,0)<< " " << mat(1,0)<<" "<<mat(2,0)<<" "<<mat(3,0)<<std::endl;
+        output << "    "<<mat(0,1)<< " " << mat(1,1)<<" "<<mat(2,1)<<" "<<mat(3,1)<<std::endl;
+        output << "    "<<mat(0,2)<< " " << mat(1,2)<<" "<<mat(2,2)<<" "<<mat(3,2)<<std::endl;
+        output << "    "<<mat(0,3)<< " " << mat(1,3)<<" "<<mat(2,3)<<" "<<mat(3,3)<<std::endl;
+        return output; // to enable cascading
+    }
+
 }
 
 
@@ -771,7 +807,11 @@ int main(int argc, char** argv)
         (*projMatrix) = vsg::perspective(vsg::radians(45.0f), float(width)/float(height), 0.1f, 10.f);
         (*viewMatrix) = vsg::lookAt(vsg::vec3(2.0f, 2.0f, 2.0f), vsg::vec3(0.0f, 0.0f, 0.0f), vsg::vec3(0.0f, 0.0f, 1.0f));
         (*modelMatrix) = vsg::rotate(time * vsg::radians(90.0f), vsg::vec3(0.0f, 0.0, 1.0f));
+        std::cout<<"projMatrix = {"<<projMatrix->value()<<"}"<<std::endl;
+        std::cout<<"viewMatrix = {"<<viewMatrix->value()<<"}"<<std::endl;
+        std::cout<<"modelMatrix = {"<<modelMatrix->value()<<"}"<<std::endl;
         uniformBufferChain->transfer(commandPool, graphicsQueue);
+
 
 
         VkSubmitInfo submitInfo = {};

@@ -138,13 +138,21 @@ int main(int argc, char** argv)
 
     std::cout<<std::endl;
 
+#if 1
+    vsg::mat4 view = vsg::lookAt(vsg::vec3(2.0f, 2.0f, 2.0f), vsg::vec3(0.0f, 0.0f, 0.0f), vsg::vec3(0.0f, 0.0f, 1.0f));
+
+    std::cout<<"view = {"<<std::endl<<view<<"}"<<std::endl;
+
+    osg::Matrixf osg_view = osg::Matrixf::lookAt(osg::Vec3(2.0f,2.0f,2.0f), osg::Vec3(0.0f,0.0f, 0.0f), osg::Vec3(0.0f,0.0f,1.0f));
+    std::cout<<"osg_view = "<<osg_view<<std::endl;
+#else
     vsg::mat4 view = vsg::lookAt(vsg::vec3(0,0,0), vsg::vec3(0,10,0), vsg::vec3(0,0,1));
 
     std::cout<<"view = {"<<std::endl<<view<<"}"<<std::endl;
 
     osg::Matrixf osg_view = osg::Matrixf::lookAt(osg::Vec3(0,0,0), osg::Vec3(0,10, 0), osg::Vec3(0,0,1));
     std::cout<<"osg_view = "<<osg_view<<std::endl;
-
+#endif
 
     float* view_ptr = view.data();
     float* osg_view_ptr = osg_view.ptr();
