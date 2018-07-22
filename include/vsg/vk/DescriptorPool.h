@@ -6,6 +6,8 @@ namespace vsg
 {
 
     using DescriptorPoolSizes = std::vector<VkDescriptorPoolSize>;
+    using DescriptorBufferInfos = std::vector<VkDescriptorBufferInfo>;
+    using DescriptorSets = std::vector<VkDescriptorSet>;
 
     class DescriptorPool : public vsg::Object
     {

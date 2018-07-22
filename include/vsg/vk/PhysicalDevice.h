@@ -23,16 +23,19 @@ namespace vsg
         int getGraphicsFamily() const { return _graphicsFamily; }
         int getPresentFamily() const { return _presentFamily; }
 
+        const VkPhysicalDeviceProperties& getProperties() const { return _properties; }
+
     protected:
 
         virtual ~PhysicalDevice();
 
-        vsg::ref_ptr<Instance>  _instance;
-        vsg::ref_ptr<Surface>   _surface;
+        vsg::ref_ptr<Instance>      _instance;
+        vsg::ref_ptr<Surface>       _surface;
 
-        VkPhysicalDevice _device;
-        int _graphicsFamily;
-        int _presentFamily;
+        VkPhysicalDevice            _device;
+        int                         _graphicsFamily;
+        int                         _presentFamily;
+        VkPhysicalDeviceProperties  _properties;
     };
 
 

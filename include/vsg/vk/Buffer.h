@@ -8,15 +8,14 @@ namespace vsg
     class Buffer : public Object
     {
     public:
-        Buffer(Device* device, VkBuffer Buffer, AllocationCallbacks* allocator=nullptr);
+        Buffer(Device* device, VkBuffer Buffer, VkBufferUsageFlags usage, VkSharingMode sharingMode, AllocationCallbacks* allocator=nullptr);
 
         using Result = vsg::Result<Buffer, VkResult, VK_SUCCESS>;
         static Result create(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode, AllocationCallbacks* allocator=nullptr);
 
-        static Result createVertexBuffer(Device* device, VkDeviceSize size)
-        {
-            return Buffer::create(device, size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-        }
+        VkBufferUsageFlags usage() const { return _usage; }
+        VkSharingMode shaderMode() const { return _sharingMode; }
+        VkBuffer buffer() const { return _buffer; }
 
         operator VkBuffer () const { return _buffer; }
 
@@ -25,6 +24,8 @@ namespace vsg
 
         ref_ptr<Device>                 _device;
         VkBuffer                        _buffer;
+        VkBufferUsageFlags              _usage;
+        VkSharingMode                   _sharingMode;
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 

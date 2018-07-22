@@ -12,6 +12,7 @@ PhysicalDevice::PhysicalDevice(Instance* instance, Surface* surface, VkPhysicalD
     _graphicsFamily(gFamily),
     _presentFamily(pFamily)
 {
+    vkGetPhysicalDeviceProperties(_device, &_properties);
 }
 
 PhysicalDevice::Result PhysicalDevice::create(Instance* instance, Surface* surface)

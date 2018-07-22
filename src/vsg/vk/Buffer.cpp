@@ -5,9 +5,11 @@
 namespace vsg
 {
 
-Buffer::Buffer(Device* device, VkBuffer Buffer, AllocationCallbacks* allocator) :
+Buffer::Buffer(Device* device, VkBuffer Buffer, VkBufferUsageFlags usage, VkSharingMode sharingMode, AllocationCallbacks* allocator) :
     _device(device),
     _buffer(Buffer),
+    _usage(usage),
+    _sharingMode(sharingMode),
     _allocator(allocator)
 {
 }
@@ -38,7 +40,7 @@ Buffer::Result Buffer::create(Device* device, VkDeviceSize size, VkBufferUsageFl
     VkResult result = vkCreateBuffer(*device, &bufferInfo, *allocator, &buffer);
     if (result == VK_SUCCESS)
     {
-        return new Buffer(device, buffer, allocator);
+        return new Buffer(device, buffer, usage, sharingMode, allocator);
     }
     else
     {
