@@ -591,14 +591,13 @@ int main(int argc, char** argv)
     using DataList = std::vector<vsg::ref_ptr<vsg::Data>>;
     DataList uniforms;
 
-    vsg::ref_ptr<vsg::mat4Value> modelMatrix = new vsg::mat4Value;
-    vsg::ref_ptr<vsg::mat4Value> viewMatrix = new vsg::mat4Value;
     vsg::ref_ptr<vsg::mat4Value> projMatrix = new vsg::mat4Value;
+    vsg::ref_ptr<vsg::mat4Value> viewMatrix = new vsg::mat4Value;
+    vsg::ref_ptr<vsg::mat4Value> modelMatrix = new vsg::mat4Value;
 
-    uniforms.push_back(modelMatrix);
-    uniforms.push_back(viewMatrix);
     uniforms.push_back(projMatrix);
-
+    uniforms.push_back(viewMatrix);
+    uniforms.push_back(modelMatrix);
 
     vsg::ref_ptr<vsg::BufferChain> vertexBufferChain = new vsg::BufferChain(physicalDevice, device, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     vertexBufferChain->add(vertices);
@@ -612,9 +611,9 @@ int main(int argc, char** argv)
     indexBufferChain->transfer(commandPool, graphicsQueue);
 
     vsg::ref_ptr<vsg::BufferChain> uniformBufferChain = new vsg::BufferChain(physicalDevice, device, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    uniformBufferChain->add(modelMatrix);
-    uniformBufferChain->add(viewMatrix);
     uniformBufferChain->add(projMatrix);
+    uniformBufferChain->add(viewMatrix);
+    uniformBufferChain->add(modelMatrix);
     uniformBufferChain->allocate(false); // useStagingBuffer);
     //uniformBufferChain->transfer(device, commandPool, graphicsQueue);
 
@@ -627,7 +626,7 @@ int main(int argc, char** argv)
     VkDescriptorSetLayoutBinding uniformLayoutBinding[3];
     uniformLayoutBinding[0].binding = 0;
     uniformLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uniformLayoutBinding[0].descriptorCount = modelMatrix->valueCount();
+    uniformLayoutBinding[0].descriptorCount = projMatrix->valueCount();
     uniformLayoutBinding[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
     uniformLayoutBinding[0].pImmutableSamplers = nullptr;
 
@@ -639,7 +638,7 @@ int main(int argc, char** argv)
 
     uniformLayoutBinding[2].binding = 2;
     uniformLayoutBinding[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uniformLayoutBinding[2].descriptorCount = projMatrix->valueCount();
+    uniformLayoutBinding[2].descriptorCount = modelMatrix->valueCount();
     uniformLayoutBinding[2].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
     uniformLayoutBinding[2].pImmutableSamplers = nullptr;
 
@@ -807,6 +806,7 @@ int main(int argc, char** argv)
         (*projMatrix) = vsg::perspective(vsg::radians(45.0f), float(width)/float(height), 0.1f, 10.f);
         (*viewMatrix) = vsg::lookAt(vsg::vec3(2.0f, 2.0f, 2.0f), vsg::vec3(0.0f, 0.0f, 0.0f), vsg::vec3(0.0f, 0.0f, 1.0f));
         (*modelMatrix) = vsg::rotate(time * vsg::radians(90.0f), vsg::vec3(0.0f, 0.0, 1.0f));
+        std::cout<<std::endl<<"New frame "<<time<<std::endl;
         std::cout<<"projMatrix = {"<<projMatrix->value()<<"}"<<std::endl;
         std::cout<<"viewMatrix = {"<<viewMatrix->value()<<"}"<<std::endl;
         std::cout<<"modelMatrix = {"<<modelMatrix->value()<<"}"<<std::endl;
