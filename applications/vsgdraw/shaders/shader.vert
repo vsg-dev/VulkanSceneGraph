@@ -15,6 +15,11 @@ out gl_PerVertex {
 };
 
 void main() {
-    gl_Position = projection.matrix * view.matrix * model.matrix * vec4(inPosition, 0.0, 1.0);
+#if 1
+//    gl_Position = projection.matrix * view.matrix * model.matrix * vec4(inPosition, 0.0, 1.0);
+    gl_Position = model.matrix * vec4(inPosition, 0.0, 1.0);
+#else
+    gl_Position = vec4(inPosition, 0.0, 1.0);
+#endif
     fragColor = inColor;
 }
