@@ -28,6 +28,7 @@
 
 * [Assimp](https://github.com/assimp/assimp) 3D models loading
 * [GLI](http://gli.g-truc.net) Loading/manipulating images/textures
+* [STB](https://github.com/nothings/stb) stb_image.h etc.
 
 ## Video presentations
 
