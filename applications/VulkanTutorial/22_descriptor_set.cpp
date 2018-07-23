@@ -27,6 +27,16 @@ const std::vector<const char*> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
+inline std::ostream& operator << (std::ostream& output, const glm::mat4& mat)
+{
+    output << std::endl;
+    output << "    "<<mat[0][0]<< " " << mat[1][0]<<" "<<mat[2][0]<<" "<<mat[3][0]<<std::endl;
+    output << "    "<<mat[0][1]<< " " << mat[1][1]<<" "<<mat[2][1]<<" "<<mat[3][1]<<std::endl;
+    output << "    "<<mat[0][2]<< " " << mat[1][2]<<" "<<mat[2][2]<<" "<<mat[3][2]<<std::endl;
+    output << "    "<<mat[0][3]<< " " << mat[1][3]<<" "<<mat[2][3]<<" "<<mat[3][3]<<std::endl;
+    return output; // to enable cascading
+}
+
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
 #else
@@ -909,6 +919,8 @@ private:
         }
     }
 
+
+
     void updateUniformBuffer() {
         static auto startTime = std::chrono::high_resolution_clock::now();
 
@@ -920,6 +932,11 @@ private:
         ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 10.0f);
         ubo.proj[1][1] *= -1;
+
+        std::cout<<std::endl<<"New frame "<<time<<std::endl;
+        std::cout<<"projMatrx = {"<<ubo.proj<<")"<<std::endl;
+        std::cout<<"viewMatrx = {"<<ubo.view<<")"<<std::endl;
+        std::cout<<"modelMatrx = {"<<ubo.model<<")"<<std::endl;
 
         void* data;
         vkMapMemory(device, uniformBufferMemory, 0, sizeof(ubo), 0, &data);
