@@ -21,6 +21,7 @@
 #include <vsg/vk/CommandBuffers.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/DescriptorSetLayout.h>
+#include <vsg/vk/Image.h>
 
 #include <osgDB/ReadFile>
 
@@ -652,14 +653,14 @@ int main(int argc, char** argv)
 
 
     // set up images
-    osg::ref_ptr<osg::Image> image = osgDB::readImageFile("textures/lz.rgb");
-    if (!image)
+    osg::ref_ptr<osg::Image> osg_image = osgDB::readImageFile("textures/lz.rgb");
+    if (!osg_image)
     {
         std::cout<<"Could not laod image"<<std::endl;
         return 1;
     }
 
-    VkDeviceSize imageTotalSize = image->getTotalSizeInBytesIncludingMipmaps();
+    VkDeviceSize imageTotalSize = osg_image->getTotalSizeInBytesIncludingMipmaps();
 
     vsg::ref_ptr<vsg::Buffer> imageStagingBuffer = vsg::Buffer::create(device, imageTotalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE);
     vsg::ref_ptr<vsg::DeviceMemory> imageStagingMemory = vsg::DeviceMemory::create(physicalDevice, device, imageStagingBuffer,
@@ -667,25 +668,29 @@ int main(int argc, char** argv)
 
 
     // copy image data to staging memory
-    imageStagingMemory->copy(0, imageTotalSize, image->data());
+    imageStagingMemory->copy(0, imageTotalSize, osg_image->data());
 
     std::cout<<"Creating imageStagingBuffer and memorory size = "<<imageTotalSize<<std::endl;
 
     VkImageCreateInfo imageCreateInfo = {};
     imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    imageCreateInfo.imageType = image->r()>1 ? VK_IMAGE_TYPE_3D : (image->t()>1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
-    imageCreateInfo.extent.width = image->s();
-    imageCreateInfo.extent.height = image->t();
-    imageCreateInfo.extent.depth = image->r();
-    imageCreateInfo.mipLevels = image->getNumMipmapLevels();
+    imageCreateInfo.imageType = osg_image->r()>1 ? VK_IMAGE_TYPE_3D : (osg_image->t()>1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
+    imageCreateInfo.extent.width = osg_image->s();
+    imageCreateInfo.extent.height = osg_image->t();
+    imageCreateInfo.extent.depth = osg_image->r();
+    imageCreateInfo.mipLevels = osg_image->getNumMipmapLevels();
     imageCreateInfo.arrayLayers = 1;
-    imageCreateInfo.format = osg2vsg::convertGLImageFormatToVulkan(image->getDataType(), image->getPixelFormat());
+    imageCreateInfo.format = osg2vsg::convertGLImageFormatToVulkan(osg_image->getDataType(), osg_image->getPixelFormat());
     imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     imageCreateInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
     imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 
+    vsg::ref_ptr<vsg::Image> image = vsg::Image::create(device, imageCreateInfo);
 
+    if (image) std::cout<<"Created vkImage"<<image->image()<<std::endl;
+
+    osg_image = 0;
 
     // no longer need image
     image = 0;
