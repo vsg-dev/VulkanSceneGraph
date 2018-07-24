@@ -22,6 +22,8 @@
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/DescriptorSetLayout.h>
 
+#include <osgDB/ReadFile>
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -480,7 +482,34 @@ namespace vsg
         output << "    "<<mat(0,3)<< " " << mat(1,3)<<" "<<mat(2,3)<<" "<<mat(3,3)<<std::endl;
         return output; // to enable cascading
     }
+}
 
+namespace osg2vsg
+{
+    using GLtoVkFormatMap = std::map<std::pair<GLenum, GLenum>, VkFormat>;
+    static GLtoVkFormatMap s_GLtoVkFormatMap = {
+        {{GL_UNSIGNED_BYTE, GL_ALPHA}, VK_FORMAT_R8_UNORM},
+        {{GL_UNSIGNED_BYTE, GL_LUMINANCE}, VK_FORMAT_R8_UNORM},
+        {{GL_UNSIGNED_BYTE, GL_LUMINANCE_ALPHA}, VK_FORMAT_R8G8_UNORM},
+        {{GL_UNSIGNED_BYTE, GL_RGBA}, VK_FORMAT_R8G8B8A8_UNORM},
+        {{GL_UNSIGNED_BYTE, GL_RGB}, VK_FORMAT_R8G8B8_UNORM},
+        {{GL_UNSIGNED_BYTE, GL_RGB}, VK_FORMAT_R8G8B8_UNORM}
+    };
+
+    VkFormat convertGLImageFormatToVulkan(GLenum dataType, GLenum pixelFormat)
+    {
+        auto itr = s_GLtoVkFormatMap.find({dataType,pixelFormat});
+        if (itr!=s_GLtoVkFormatMap.end())
+        {
+            std::cout<<"convertGLImageFormatToVulkan("<<dataType<<", "<<pixelFormat<<") vkFormat="<<itr->second<<std::endl;
+            return itr->second;
+        }
+        else
+        {
+            std::cout<<"convertGLImageFormatToVulkan("<<dataType<<", "<<pixelFormat<<") no match found."<<std::endl;
+            return VK_FORMAT_UNDEFINED;
+        }
+    }
 }
 
 
@@ -621,6 +650,47 @@ int main(int argc, char** argv)
     indexBufferChain->print(std::cout);
     uniformBufferChain->print(std::cout);
 
+
+    // set up images
+    osg::ref_ptr<osg::Image> image = osgDB::readImageFile("textures/lz.rgb");
+    if (!image)
+    {
+        std::cout<<"Could not laod image"<<std::endl;
+        return 1;
+    }
+
+    VkDeviceSize imageTotalSize = image->getTotalSizeInBytesIncludingMipmaps();
+
+    vsg::ref_ptr<vsg::Buffer> imageStagingBuffer = vsg::Buffer::create(device, imageTotalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    vsg::ref_ptr<vsg::DeviceMemory> imageStagingMemory = vsg::DeviceMemory::create(physicalDevice, device, imageStagingBuffer,
+                                                                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+
+    // copy image data to staging memory
+    imageStagingMemory->copy(0, imageTotalSize, image->data());
+
+    std::cout<<"Creating imageStagingBuffer and memorory size = "<<imageTotalSize<<std::endl;
+
+    VkImageCreateInfo imageCreateInfo = {};
+    imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageCreateInfo.imageType = image->r()>1 ? VK_IMAGE_TYPE_3D : (image->t()>1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
+    imageCreateInfo.extent.width = image->s();
+    imageCreateInfo.extent.height = image->t();
+    imageCreateInfo.extent.depth = image->r();
+    imageCreateInfo.mipLevels = image->getNumMipmapLevels();
+    imageCreateInfo.arrayLayers = 1;
+    imageCreateInfo.format = osg2vsg::convertGLImageFormatToVulkan(image->getDataType(), image->getPixelFormat());
+    imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    imageCreateInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+    imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+
+
+
+    // no longer need image
+    image = 0;
+
+    return 1;
 
     // set up descriptor set for uniforms
     VkDescriptorSetLayoutBinding uniformLayoutBinding[3];
