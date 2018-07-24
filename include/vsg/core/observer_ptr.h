@@ -68,7 +68,7 @@ namespace vsg
 
         bool valid() const { return _auxiliary.valid() && _auxiliary->getConnectedObject()!=nullptr; }
 
-        bool operator!() const { return !_auxiliary || _auxiliary->getConnectedObject()==nullptr; }
+        explicit operator bool() const { return valid(); }
 
         /// convert observer_ptr into a ref_ptr so that Object that pointed to can be safely accessed.
         template<class R>
