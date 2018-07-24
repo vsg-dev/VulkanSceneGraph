@@ -94,10 +94,10 @@ namespace vsg
 
         bool valid() const { return _ptr!=nullptr; }
 
+        explicit operator bool() const { return valid(); }
+
         // potentially dangerous automatic type conversion, could cause dangling pointer if ref_ptr<> assigned to C pointer, if ref_ptr<> destruction cause an object delete.
         operator T* () const { return _ptr; }
-
-        bool operator!() const { return _ptr==nullptr; }
 
         T& operator*() const { return *_ptr; }
 
