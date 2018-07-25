@@ -23,7 +23,9 @@
 #include <vsg/vk/DescriptorSetLayout.h>
 #include <vsg/vk/Image.h>
 
+#include <osg/ImageUtils>
 #include <osgDB/ReadFile>
+#include <osgDB/WriteFile>
 
 #include <iostream>
 #include <fstream>
@@ -448,6 +450,7 @@ namespace vsg
         out<<"}"<<std::endl;
     }
 
+
     ////////////////////////////////////////////////////////////////////
     //
     //  ostream implementation
@@ -492,9 +495,8 @@ namespace osg2vsg
         {{GL_UNSIGNED_BYTE, GL_ALPHA}, VK_FORMAT_R8_UNORM},
         {{GL_UNSIGNED_BYTE, GL_LUMINANCE}, VK_FORMAT_R8_UNORM},
         {{GL_UNSIGNED_BYTE, GL_LUMINANCE_ALPHA}, VK_FORMAT_R8G8_UNORM},
-        {{GL_UNSIGNED_BYTE, GL_RGBA}, VK_FORMAT_R8G8B8A8_UNORM},
         {{GL_UNSIGNED_BYTE, GL_RGB}, VK_FORMAT_R8G8B8_UNORM},
-        {{GL_UNSIGNED_BYTE, GL_RGB}, VK_FORMAT_R8G8B8_UNORM}
+        {{GL_UNSIGNED_BYTE, GL_RGBA}, VK_FORMAT_R8G8B8A8_UNORM}
     };
 
     VkFormat convertGLImageFormatToVulkan(GLenum dataType, GLenum pixelFormat)
@@ -511,6 +513,43 @@ namespace osg2vsg
             return VK_FORMAT_UNDEFINED;
         }
     }
+
+    struct WriteRow : public osg::CastAndScaleToFloatOperation
+    {
+        WriteRow(unsigned char* ptr) : _ptr(ptr) {}
+        unsigned char* _ptr;
+
+        inline void luminance(float l) { rgba(l, l, l, 1.0f); }
+        inline void alpha(float a) { rgba(1.0f, 1.0f, 1.0f, a); }
+        inline void luminance_alpha(float l,float a) { rgba(l, l, l, a); }
+        inline void rgb(float r,float g,float b) { rgba(r, g, b, 1.0f); }
+        inline void rgba(float r,float g,float b,float a)
+        {
+            (*_ptr++) = static_cast<unsigned char>(r*255.0);
+            (*_ptr++) = static_cast<unsigned char>(g*255.0);
+            (*_ptr++) = static_cast<unsigned char>(b*255.0);
+            (*_ptr++) = static_cast<unsigned char>(a*255.0);
+        }
+    };
+
+    vsg::ref_ptr<osg::Image> formatImage(osg::Image* image, GLenum pixelFormat)
+    {
+        vsg::ref_ptr<osg::Image> new_image = new osg::Image;
+        new_image->allocateImage(image->s(), image->t(), image->r(), pixelFormat, GL_UNSIGNED_BYTE);
+
+        // need to copy pixels from image to new_image;
+        for(int r=0;r<image->r();++r)
+        {
+            for(int t=0;t<image->t();++t)
+            {
+                WriteRow operation(new_image->data(0, t, r));
+                osg::readRow(image->s(), image->getPixelFormat(), image->getDataType(), image->data(0,t,r), operation);
+            }
+        }
+
+        return new_image;
+    }
+
 }
 
 
@@ -660,6 +699,14 @@ int main(int argc, char** argv)
         return 1;
     }
 
+
+    if(osg_image->getPixelFormat()!=GL_RGBA || osg_image->getDataType()!=GL_UNSIGNED_BYTE)
+    {
+        std::cout<<"Reformating osg::Image to GL_RGBA, before = "<<osg_image->getPixelFormat()<<std::endl;
+        osg_image = osg2vsg::formatImage(osg_image, GL_RGBA);
+        std::cout<<"Reformating osg::Image to GL_RGBA, after = "<<osg_image->getPixelFormat()<<", RGBA="<<GL_RGBA<<std::endl;
+    }
+
     VkDeviceSize imageTotalSize = osg_image->getTotalSizeInBytesIncludingMipmaps();
 
     vsg::ref_ptr<vsg::Buffer> imageStagingBuffer = vsg::Buffer::create(device, imageTotalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE);
@@ -671,6 +718,13 @@ int main(int argc, char** argv)
     imageStagingMemory->copy(0, imageTotalSize, osg_image->data());
 
     std::cout<<"Creating imageStagingBuffer and memorory size = "<<imageTotalSize<<std::endl;
+
+
+    VkFormat format =  VK_FORMAT_R8G8B8A8_UNORM; //                 osg2vsg::convertGLImageFormatToVulkan(osg_image->getDataType(), osg_image->getPixelFormat());
+
+    std::cout<<"VK_FORMAT_R8G8B8A8_UNORM= "<<VK_FORMAT_R8G8B8A8_UNORM<<std::endl;
+    std::cout<<"  osg2vsg : "<<osg2vsg::convertGLImageFormatToVulkan(osg_image->getDataType(), osg_image->getPixelFormat())<<std::endl;
+
 
     VkImageCreateInfo imageCreateInfo = {};
     imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -685,17 +739,21 @@ int main(int argc, char** argv)
     imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     imageCreateInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
     imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     vsg::ref_ptr<vsg::Image> image = vsg::Image::create(device, imageCreateInfo);
 
+    std::cout<<"imageCreateInfo.imageType()="<<imageCreateInfo.imageType<<std::endl;
+    std::cout<<"imageCreateInfo.extent.width="<<imageCreateInfo.extent.width<<std::endl;
+    std::cout<<"imageCreateInfo.extent.height="<<imageCreateInfo.extent.height<<std::endl;
+    std::cout<<"imageCreateInfo.extent.depth="<<imageCreateInfo.extent.depth<<std::endl;
+    std::cout<<"imageCreateInfo.extent.mipLevels="<<imageCreateInfo.mipLevels<<std::endl;
+
     if (image) std::cout<<"Created vkImage"<<image->image()<<std::endl;
 
+    // delete osg_image as it's no longer required.
     osg_image = 0;
 
-    // no longer need image
-    image = 0;
-
-    return 1;
 
     // set up descriptor set for uniforms
     VkDescriptorSetLayoutBinding uniformLayoutBinding[3];
