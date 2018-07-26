@@ -30,6 +30,12 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, Surface* surfa
 
     for (const auto& device : devices)
     {
+        VkPhysicalDeviceFeatures supportedFeatures;
+        vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+
+        std::cout<<"supportedFeatures.samplerAnisotropy = "<<supportedFeatures.samplerAnisotropy<<std::endl;
+
+
         // Checked the DeviceQueueFamilyProperties for support for graphics
         uint32_t queueFamilyCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);

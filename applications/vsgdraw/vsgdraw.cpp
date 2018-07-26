@@ -22,6 +22,7 @@
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/DescriptorSetLayout.h>
 #include <vsg/vk/Image.h>
+#include <vsg/vk/Sampler.h>
 
 #include <osg/ImageUtils>
 #include <osgDB/ReadFile>
@@ -866,6 +867,14 @@ int main(int argc, char** argv)
 
     // delete osg_image as it's no longer required.
     osg_image = 0;
+
+    vsg::ref_ptr<vsg::ImageView> textureImageView = vsg::ImageView::create(device, *textureImage, VK_FORMAT_R8G8B8A8_UNORM);
+
+    // default texture sampler
+    vsg::ref_ptr<vsg::Sampler> textureSampler = vsg::Sampler::create(device);
+
+
+
 
     //
     // set up descriptor set for uniforms

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vsg/vk/Device.h>
-#include <vsg/vk/CmdDraw.h>
 
 namespace vsg
 {

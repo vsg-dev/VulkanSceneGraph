@@ -41,6 +41,7 @@ SET(HEADERS
     vk/DescriptorSetLayout.h
     vk/Buffer.h
     vk/Image.h
+    vk/Sampler.h
 
     utils/CommandLine.h
 )
@@ -74,6 +75,7 @@ SET(SOURCES
     vk/DescriptorSetLayout.cpp
     vk/Buffer.cpp
     vk/Image.cpp
+    vk/Sampler.cpp
 )
 
 ADD_LIBRARY(vsg SHARED ${HEADER_FILES} ${SOURCES})
