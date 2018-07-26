@@ -140,6 +140,60 @@ void print(std::ostream& out, const std::string& description, const T& names)
 
 namespace vsg
 {
+
+    ////////////////////////////////////////////////////////////////////
+    //
+    //  ostream implementation
+    //
+    void print(std::ostream& out, const VkPhysicalDeviceProperties& properties)
+    {
+        out<<"VkPhysicalDeviceProperties {"<<std::endl;
+        out<<"   apiVersion = "<<properties.apiVersion<<std::endl;
+        out<<"   driverVersion = "<<properties.driverVersion<<std::endl;
+        out<<"   vendorID = "<<properties.vendorID<<std::endl;
+        out<<"   deviceID = "<<properties.deviceID<<std::endl;
+        out<<"   deviceType = "<<properties.deviceType<<std::endl;
+        out<<"   deviceName = "<<properties.deviceName<<std::endl;
+        out<<"   limits.maxDescriptorSetSamplers = "<<properties.limits.maxDescriptorSetSamplers<<std::endl;
+        out<<"   limits.maxImageDimension1D = "<<properties.limits.maxImageDimension1D<<std::endl;
+        out<<"   limits.maxImageDimension2D = "<<properties.limits.maxImageDimension2D<<std::endl;
+        out<<"   limits.maxImageDimension3D = "<<properties.limits.maxImageDimension3D<<std::endl;
+        out<<"   minUniformBufferOffsetAlignment = "<<properties.limits.minUniformBufferOffsetAlignment<<std::endl;
+        out<<"}"<<std::endl;
+    }
+
+    template<typename T>
+    inline std::ostream& operator << (std::ostream& output, const vsg::tvec2<T>& vec)
+    {
+        output << vec.x << " " << vec.y;
+        return output; // to enable cascading
+    }
+
+    template<typename T>
+    inline std::ostream& operator << (std::ostream& output, const vsg::tvec3<T>& vec)
+    {
+        output << vec.x << " " << vec.y<<" "<<vec.z;
+        return output; // to enable cascading
+    }
+
+    template<typename T>
+    inline std::ostream& operator << (std::ostream& output, const vsg::tvec4<T>& vec)
+    {
+        output << vec.x << " " << vec.y<<" "<<vec.z<<" "<<vec.w;
+        return output; // to enable cascading
+    }
+
+    template<typename T>
+    inline std::ostream& operator << (std::ostream& output, const vsg::tmat4<T>& mat)
+    {
+        output << std::endl;
+        output << "    "<<mat(0,0)<< " " << mat(1,0)<<" "<<mat(2,0)<<" "<<mat(3,0)<<std::endl;
+        output << "    "<<mat(0,1)<< " " << mat(1,1)<<" "<<mat(2,1)<<" "<<mat(3,1)<<std::endl;
+        output << "    "<<mat(0,2)<< " " << mat(1,2)<<" "<<mat(2,2)<<" "<<mat(3,2)<<std::endl;
+        output << "    "<<mat(0,3)<< " " << mat(1,3)<<" "<<mat(2,3)<<" "<<mat(3,3)<<std::endl;
+        return output; // to enable cascading
+    }
+
     template< typename ... Args >
     std::string make_string(Args const& ... args )
     {
@@ -239,6 +293,30 @@ namespace vsg
         ref_ptr<CommandBuffers>     commandBuffers;
     };
 
+    template<typename F>
+    void dispatchCommandsToQueue(Device* device, CommandPool* commandPool, VkQueue queue, F function)
+    {
+        vsg::ref_ptr<vsg::CommandBuffers> transferCommand = vsg::CommandBuffers::create(device, commandPool, 1);
+
+        VkCommandBufferBeginInfo beginInfo = {};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+        vkBeginCommandBuffer(transferCommand->at(0), &beginInfo);
+
+            function(transferCommand->at(0));
+
+        vkEndCommandBuffer(transferCommand->at(0));
+
+        VkSubmitInfo submitInfo = {};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = transferCommand->size();
+        submitInfo.pCommandBuffers = transferCommand->data();
+
+        vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(queue);
+    }
+
 
     class BufferChain : public Object
     {
@@ -289,38 +367,24 @@ namespace vsg
         {
             if (_stagingMemory)
             {
-                std::cout<<"BufferChain::transfer() to device local memory using staging buffer"<<std::endl;
                 VkDeviceSize totalSize = dataSize();
+
+                std::cout<<"BufferChain::transfer() to device local memory using staging buffer, totalSize="<<totalSize<<std::endl;
 
                 copy(_stagingBuffer, _stagingMemory);
 
-                vsg::ref_ptr<vsg::CommandBuffers> transferCommand = vsg::CommandBuffers::create(_device, commandPool, 1);
-
-                VkCommandBufferBeginInfo beginInfo = {};
-                beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-                beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-                vkBeginCommandBuffer(transferCommand->at(0), &beginInfo);
-
+                dispatchCommandsToQueue(_device, commandPool, graphicsQueue, [&](VkCommandBuffer transferCommand)
+                {
                     VkBufferCopy copyRegion = {};
                     copyRegion.srcOffset = 0;
                     copyRegion.dstOffset = 0;
                     copyRegion.size = totalSize;
-                    vkCmdCopyBuffer(transferCommand->at(0), *_stagingBuffer, *_deviceBuffer, 1, &copyRegion);
-
-                vkEndCommandBuffer(transferCommand->at(0));
-
-                VkSubmitInfo submitInfo = {};
-                submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-                submitInfo.commandBufferCount = transferCommand->size();
-                submitInfo.pCommandBuffers = transferCommand->data();
-
-                vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-                vkQueueWaitIdle(graphicsQueue);
+                    vkCmdCopyBuffer(transferCommand, *_stagingBuffer, *_deviceBuffer, 1, &copyRegion);
+                });
             }
             else
             {
-                std::cout<<"BufferChain::transfer() copying to host visible memory"<<std::endl;
+                //std::cout<<"BufferChain::transfer() copying to host visible memory, totalSize="<<totalSize<<std::endl;
                 copy(_deviceBuffer, _deviceMemory);
             }
         }
@@ -433,59 +497,52 @@ namespace vsg
         DescriptorSets _descriptorSets;
     };
 
-    void print(std::ostream& out, const VkPhysicalDeviceProperties& properties)
+
+    class ImageMemoryBarrier : public Object, public VkImageMemoryBarrier
     {
-        out<<"VkPhysicalDeviceProperties {"<<std::endl;
-        out<<"   apiVersion = "<<properties.apiVersion<<std::endl;
-        out<<"   driverVersion = "<<properties.driverVersion<<std::endl;
-        out<<"   vendorID = "<<properties.vendorID<<std::endl;
-        out<<"   deviceID = "<<properties.deviceID<<std::endl;
-        out<<"   deviceType = "<<properties.deviceType<<std::endl;
-        out<<"   deviceName = "<<properties.deviceName<<std::endl;
-        out<<"   limits.maxDescriptorSetSamplers = "<<properties.limits.maxDescriptorSetSamplers<<std::endl;
-        out<<"   limits.maxImageDimension1D = "<<properties.limits.maxImageDimension1D<<std::endl;
-        out<<"   limits.maxImageDimension2D = "<<properties.limits.maxImageDimension2D<<std::endl;
-        out<<"   limits.maxImageDimension3D = "<<properties.limits.maxImageDimension3D<<std::endl;
-        out<<"   minUniformBufferOffsetAlignment = "<<properties.limits.minUniformBufferOffsetAlignment<<std::endl;
-        out<<"}"<<std::endl;
-    }
+    public:
+
+        ImageMemoryBarrier(VkAccessFlags in_srcAccessMask=0, VkAccessFlags in_destAccessMask=0,
+                            VkImageLayout in_oldLayout=VK_IMAGE_LAYOUT_UNDEFINED, VkImageLayout in_newLayout=VK_IMAGE_LAYOUT_UNDEFINED,
+                            Image* in_image=nullptr) :
+                            VkImageMemoryBarrier{}
+        {
+            sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            oldLayout = in_oldLayout;
+            newLayout = in_newLayout;
+            srcAccessMask = in_srcAccessMask;
+            dstAccessMask = in_destAccessMask;
+            srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            image = *in_image;
+            subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            subresourceRange.baseMipLevel = 0;
+            subresourceRange.levelCount = 1;
+            subresourceRange.baseArrayLayer = 0;
+            subresourceRange.layerCount = 1;
+        }
 
 
-    ////////////////////////////////////////////////////////////////////
-    //
-    //  ostream implementation
-    //
-    template<typename T>
-    inline std::ostream& operator << (std::ostream& output, const vsg::tvec2<T>& vec)
-    {
-        output << vec.x << " " << vec.y;
-        return output; // to enable cascading
-    }
+        void cmdPiplineBarrier(VkCommandBuffer commandBuffer, VkPipelineStageFlags sourceStage, VkPipelineStageFlags destinationStage)
+        {
+            std::cout<<"cmdPiplineBarrier("<<std::endl;
+            std::cout<<"    sourceStage = "<<sourceStage<<std::endl;
+            std::cout<<"    destinationStage="<<destinationStage<<std::endl;
+            std::cout<<"    srcAccessMask = 0x"<<std::hex<<srcAccessMask<<std::endl;
+            std::cout<<"    dstAccessMask = 0x"<<dstAccessMask<<std::endl;
+            std::cout<<"    oldLayout = "<<std::dec<<oldLayout<<std::endl;
+            std::cout<<"    newLayout = "<<newLayout<<std::endl;
 
-    template<typename T>
-    inline std::ostream& operator << (std::ostream& output, const vsg::tvec3<T>& vec)
-    {
-        output << vec.x << " " << vec.y<<" "<<vec.z;
-        return output; // to enable cascading
-    }
+            vkCmdPipelineBarrier(commandBuffer,
+                                 sourceStage, destinationStage,
+                                 0,
+                                 0, nullptr,
+                                 0, nullptr,
+                                 0, static_cast<VkImageMemoryBarrier*>(this));
+        }
 
-    template<typename T>
-    inline std::ostream& operator << (std::ostream& output, const vsg::tvec4<T>& vec)
-    {
-        output << vec.x << " " << vec.y<<" "<<vec.z<<" "<<vec.w;
-        return output; // to enable cascading
-    }
+    };
 
-    template<typename T>
-    inline std::ostream& operator << (std::ostream& output, const vsg::tmat4<T>& mat)
-    {
-        output << std::endl;
-        output << "    "<<mat(0,0)<< " " << mat(1,0)<<" "<<mat(2,0)<<" "<<mat(3,0)<<std::endl;
-        output << "    "<<mat(0,1)<< " " << mat(1,1)<<" "<<mat(2,1)<<" "<<mat(3,1)<<std::endl;
-        output << "    "<<mat(0,2)<< " " << mat(1,2)<<" "<<mat(2,2)<<" "<<mat(3,2)<<std::endl;
-        output << "    "<<mat(0,3)<< " " << mat(1,3)<<" "<<mat(2,3)<<" "<<mat(3,3)<<std::endl;
-        return output; // to enable cascading
-    }
 }
 
 namespace osg2vsg
@@ -691,7 +748,9 @@ int main(int argc, char** argv)
     uniformBufferChain->print(std::cout);
 
 
-    // set up images
+    //
+    // set up texture image
+    //
     osg::ref_ptr<osg::Image> osg_image = osgDB::readImageFile("textures/lz.rgb");
     if (!osg_image)
     {
@@ -713,6 +772,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::DeviceMemory> imageStagingMemory = vsg::DeviceMemory::create(physicalDevice, device, imageStagingBuffer,
                                                                                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
+    vkBindBufferMemory(*device, *imageStagingBuffer, *imageStagingMemory, 0);
 
     // copy image data to staging memory
     imageStagingMemory->copy(0, imageTotalSize, osg_image->data());
@@ -741,21 +801,82 @@ int main(int argc, char** argv)
     imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    vsg::ref_ptr<vsg::Image> image = vsg::Image::create(device, imageCreateInfo);
+    vsg::ref_ptr<vsg::Image> textureImage = vsg::Image::create(device, imageCreateInfo);
+    if (!textureImage)
+    {
+        return 1;
+    }
 
-    std::cout<<"imageCreateInfo.imageType()="<<imageCreateInfo.imageType<<std::endl;
-    std::cout<<"imageCreateInfo.extent.width="<<imageCreateInfo.extent.width<<std::endl;
-    std::cout<<"imageCreateInfo.extent.height="<<imageCreateInfo.extent.height<<std::endl;
-    std::cout<<"imageCreateInfo.extent.depth="<<imageCreateInfo.extent.depth<<std::endl;
-    std::cout<<"imageCreateInfo.extent.mipLevels="<<imageCreateInfo.mipLevels<<std::endl;
+    vsg::ref_ptr<vsg::DeviceMemory> textureImageDeviceMemory = vsg::DeviceMemory::create(physicalDevice, device, textureImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    if (!textureImageDeviceMemory)
+    {
+        return 1;
+    }
 
-    if (image) std::cout<<"Created vkImage"<<image->image()<<std::endl;
+    // should the textureImage take a reference to the textureImageDeviceMemory?  Possibly, will need to consider later.
+    vkBindImageMemory(*device, *textureImage, *textureImageDeviceMemory, 0);
+
+
+    vsg::dispatchCommandsToQueue(device, commandPool, graphicsQueue, [&](VkCommandBuffer commandBuffer)
+    {
+
+        std::cout<<"Need to dispatch VkCmd's to "<<commandBuffer<<std::endl;
+
+        vsg::ImageMemoryBarrier preCopyImageMemoryBarrier(
+                        0, VK_ACCESS_TRANSFER_WRITE_BIT,
+                        VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                        textureImage);
+
+        preCopyImageMemoryBarrier.cmdPiplineBarrier(commandBuffer,
+                        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+    });
+
+    vsg::dispatchCommandsToQueue(device, commandPool, graphicsQueue, [&](VkCommandBuffer commandBuffer)
+    {
+        std::cout<<"CopyBufferToImage()"<<std::endl;
+
+        VkBufferImageCopy region = {};
+        region.bufferOffset = 0;
+        region.bufferRowLength = 0;
+        region.bufferImageHeight = 0;
+        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.imageSubresource.mipLevel = 0;
+        region.imageSubresource.baseArrayLayer = 0;
+        region.imageSubresource.layerCount = 1;
+        region.imageOffset = {0, 0, 0};
+        region.imageExtent = {osg_image->s(), osg_image->t(), 1};
+
+        vkCmdCopyBufferToImage(commandBuffer, *imageStagingBuffer, *textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+
+    });
+
+    vsg::dispatchCommandsToQueue(device, commandPool, graphicsQueue, [&](VkCommandBuffer commandBuffer)
+    {
+        std::cout<<"Post CopyBufferToImage()"<<std::endl;
+
+        vsg::ImageMemoryBarrier postCopyImageMemoryBarrier(
+                        VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                        textureImage);
+
+        postCopyImageMemoryBarrier.cmdPiplineBarrier(commandBuffer,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+
+        std::cout<<"Post postCopyImageMemoryBarrier()"<<std::endl;
+    });
+
+    // clean up staging buffer
+    imageStagingBuffer = 0;
+    imageStagingMemory = 0;
 
     // delete osg_image as it's no longer required.
     osg_image = 0;
 
 
+    //
     // set up descriptor set for uniforms
+    //
     VkDescriptorSetLayoutBinding uniformLayoutBinding[3];
     uniformLayoutBinding[0].binding = 0;
     uniformLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -939,11 +1060,13 @@ int main(int argc, char** argv)
         (*projMatrix) = vsg::perspective(vsg::radians(45.0f), float(width)/float(height), 0.1f, 10.f);
         (*viewMatrix) = vsg::lookAt(vsg::vec3(2.0f, 2.0f, 2.0f), vsg::vec3(0.0f, 0.0f, 0.0f), vsg::vec3(0.0f, 0.0f, 1.0f));
         (*modelMatrix) = vsg::rotate(time * vsg::radians(90.0f), vsg::vec3(0.0f, 0.0, 1.0f));
+        uniformBufferChain->transfer(commandPool, graphicsQueue);
+#if 0
         std::cout<<std::endl<<"New frame "<<time<<std::endl;
         std::cout<<"projMatrix = {"<<projMatrix->value()<<"}"<<std::endl;
         std::cout<<"viewMatrix = {"<<viewMatrix->value()<<"}"<<std::endl;
         std::cout<<"modelMatrix = {"<<modelMatrix->value()<<"}"<<std::endl;
-        uniformBufferChain->transfer(commandPool, graphicsQueue);
+#endif
 
 
 
