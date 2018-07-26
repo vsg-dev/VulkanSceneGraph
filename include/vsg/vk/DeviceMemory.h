@@ -2,6 +2,7 @@
 
 #include <vsg/vk/Device.h>
 #include <vsg/vk/Buffer.h>
+#include <vsg/vk/Image.h>
 
 namespace vsg
 {
@@ -21,6 +22,13 @@ namespace vsg
             return vsg::DeviceMemory::create(physicalDevice, device, memRequirements, properties, allocator);
         }
 
+        static Result create(PhysicalDevice* physicalDevice, Device* device, Image* image, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator=nullptr)
+        {
+            VkMemoryRequirements memRequirements;
+            vkGetImageMemoryRequirements(*device, *image, &memRequirements);
+
+            return vsg::DeviceMemory::create(physicalDevice, device, memRequirements, properties, allocator);
+        }
 
         void copy(VkDeviceSize offset, VkDeviceSize size, void* src_data);
         void copy(VkDeviceSize offset, Data* data);
