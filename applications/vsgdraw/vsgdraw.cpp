@@ -538,10 +538,11 @@ namespace vsg
                                  0,
                                  0, nullptr,
                                  0, nullptr,
-                                 0, static_cast<VkImageMemoryBarrier*>(this));
+                                 1, static_cast<VkImageMemoryBarrier*>(this));
         }
 
     };
+
 
 }
 
@@ -609,10 +610,10 @@ namespace osg2vsg
 
 }
 
-
 int main(int argc, char** argv)
 {
     bool debugLayer = false;
+    bool apiDumpLayer = false;
     uint32_t width = 800;
     uint32_t height = 600;
     int numFrames=-1;
@@ -621,6 +622,7 @@ int main(int argc, char** argv)
     try
     {
         if (vsg::CommandLine::read(argc, argv, vsg::CommandLine::Match("--debug","-d"))) debugLayer = true;
+        if (vsg::CommandLine::read(argc, argv, vsg::CommandLine::Match("--api","-a"))) { apiDumpLayer = true; debugLayer = true; }
         if (vsg::CommandLine::read(argc, argv, vsg::CommandLine::Match("--window","-w"), width, height)) {}
         if (vsg::CommandLine::read(argc, argv, "-f", numFrames)) {}
         if (vsg::CommandLine::read(argc, argv, "-s")) { useStagingBuffer = true; }
@@ -646,6 +648,7 @@ int main(int argc, char** argv)
     {
         instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
         requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+        if (apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
     }
 
     vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
@@ -747,7 +750,6 @@ int main(int argc, char** argv)
     indexBufferChain->print(std::cout);
     uniformBufferChain->print(std::cout);
 
-
     //
     // set up texture image
     //
@@ -844,7 +846,7 @@ int main(int argc, char** argv)
         region.imageSubresource.baseArrayLayer = 0;
         region.imageSubresource.layerCount = 1;
         region.imageOffset = {0, 0, 0};
-        region.imageExtent = {osg_image->s(), osg_image->t(), 1};
+        region.imageExtent = {static_cast<uint32_t>(osg_image->s()), static_cast<uint32_t>(osg_image->t()), 1};
 
         vkCmdCopyBufferToImage(commandBuffer, *imageStagingBuffer, *textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
@@ -872,7 +874,6 @@ int main(int argc, char** argv)
 
     // delete osg_image as it's no longer required.
     osg_image = 0;
-
 
     //
     // set up descriptor set for uniforms
