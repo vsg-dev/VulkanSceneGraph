@@ -31,7 +31,7 @@ const std::vector<const char*> deviceExtensions = {
 };
 
 #ifdef NDEBUG
-const bool enableValidationLayers = false;
+const bool enableValidationLayers = true;
 #else
 const bool enableValidationLayers = true;
 #endif
@@ -735,7 +735,7 @@ private:
         imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         imageInfo.usage = usage;
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-            imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
         if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
             throw std::runtime_error("failed to create image!");
@@ -791,6 +791,14 @@ private:
             throw std::invalid_argument("unsupported layout transition!");
         }
 
+        std::cout<<"transitionImageLayout()"<<std::endl;
+        std::cout<<"    sourceStage = "<<sourceStage<<std::endl;
+        std::cout<<"    destinationStage = "<<destinationStage<<std::endl;
+        std::cout<<"    srcAccesMask = 0x"<<std::hex<<barrier.srcAccessMask<<std::endl;
+        std::cout<<"    dstAccesMask = 0x"<<std::hex<<barrier.dstAccessMask<<std::endl;
+        std::cout<<"    oldLayout = "<<std::dec<<oldLayout<<std::endl;
+        std::cout<<"    newLayout = "<<std::dec<<newLayout<<std::endl;
+
         vkCmdPipelineBarrier(
             commandBuffer,
             sourceStage, destinationStage,
@@ -805,6 +813,8 @@ private:
 
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
         VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+        std::cout<<"copyBufferToImage()"<<std::endl;
 
         VkBufferImageCopy region = {};
         region.bufferOffset = 0;

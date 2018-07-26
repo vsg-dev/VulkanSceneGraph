@@ -1,7 +1,7 @@
 SET(APPLICATION_NAME vulkantutorial)
 
 SET(SOURCES
-    22_descriptor_set.cpp
+    23_texture_image.cpp
 )
 
 INCLUDE_DIRECTORIES(${GLM_INCLUDE_DIRS} ${GLFW_INCLUDE_DIR} ${Vulkan_INCLUDE_DIR})
