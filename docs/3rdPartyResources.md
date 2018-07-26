@@ -69,7 +69,9 @@ Sascha Willems wrote a good set of Vulkan demos, that show how to
 implement certain features :
 
 * [Vulkan Demos](https://github.com/SaschaWillems/Vulkan)
-* [Sascha Willems website](ttps://www.saschawillems.de/)
+* [Sascha Willems website](https://www.saschawillems.de/)
+* [JHerico's Vukan examples](https://github.com/jherico/Vulkan)
+* [gliterop example](https://github.com/jherico/Vulkan/tree/cpp/examples/glinterop)
 
 There's also a curated list of useful links to everything
 associated with Vulkan :
