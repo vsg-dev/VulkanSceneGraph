@@ -75,12 +75,25 @@ VkExtent2D selectSwapExtent(SwapChainSupportDetails& details, uint32_t width, ui
 VkPresentModeKHR selectSwapPresentMode(SwapChainSupportDetails& details)
 {
     VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
-
+#if 0
     for (const auto& availablePresentMode : details.presentModes)
     {
         if (availablePresentMode==VK_PRESENT_MODE_MAILBOX_KHR) return availablePresentMode;
         else if (availablePresentMode==VK_PRESENT_MODE_IMMEDIATE_KHR) presentMode = availablePresentMode;
     }
+#endif
+
+ /**
+    From https://github.com/LunarG/VulkanSamples/issues/98 :
+
+    VK_PRESENT_MODE_IMMEDIATE_KHR. This is for applications that don't care about tearing, or have some way of synchronizing with the display (which Vulkan doesn't yet provide).
+
+    VK_PRESENT_MODE_FIFO_KHR. This is for applications that don't want tearing ever. It's difficult to say how fast they may be, whether they care about stuttering/latency.
+
+    VK_PRESENT_MODE_FIFO_RELAXED_KHR. This is for applications that generally render/present a new frame every refresh cycle, but are occasionally late. In this case (perhaps because of stuttering/latency concerns), they want the late image to be immediately displayed, even though that may mean some tearing.
+
+    VK_PRESENT_MODE_MAILBOX_KHR. I'm guessing that this is for applications that generally render/present a new frame every refresh cycle, but are occasionally early. In this case, they want the new image to be displayed instead of the previously-queued-for-presentation image that has not yet been displayed.
+**/
 
     return presentMode;
 }

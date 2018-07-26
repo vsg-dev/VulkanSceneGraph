@@ -831,10 +831,7 @@ int main(int argc, char** argv)
 
         preCopyImageMemoryBarrier.cmdPiplineBarrier(commandBuffer,
                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
-    });
 
-    vsg::dispatchCommandsToQueue(device, commandPool, graphicsQueue, [&](VkCommandBuffer commandBuffer)
-    {
         std::cout<<"CopyBufferToImage()"<<std::endl;
 
         VkBufferImageCopy region = {};
@@ -850,11 +847,6 @@ int main(int argc, char** argv)
 
         vkCmdCopyBufferToImage(commandBuffer, *imageStagingBuffer, *textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-
-    });
-
-    vsg::dispatchCommandsToQueue(device, commandPool, graphicsQueue, [&](VkCommandBuffer commandBuffer)
-    {
         std::cout<<"Post CopyBufferToImage()"<<std::endl;
 
         vsg::ImageMemoryBarrier postCopyImageMemoryBarrier(
@@ -1008,7 +1000,7 @@ int main(int argc, char** argv)
 
         float previousTime = time;
         time = std::chrono::duration<float, std::chrono::seconds::period>(std::chrono::steady_clock::now()-startTime).count();
-        //std::cout<<"time = "<<time<<" fps="<<1.0/(time-previousTime)<<std::endl;
+        std::cout<<"time = "<<time<<" fps="<<1.0/(time-previousTime)<<std::endl;
 
         bool needToRegerateVulkanWindowObjects = false;
 
