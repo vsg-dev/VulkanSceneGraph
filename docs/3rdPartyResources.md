@@ -11,6 +11,8 @@
 ## Tutorials
 
 * [Vulkan Tutorial](https://vulkan-tutorial.com/)
+* [2017 Khronos UK Vulkanised  presentations] https://www.khronos.org/developers/library/2017-khronos-uk-vulkanised
+
 
 ## Vulkan based projects
 
