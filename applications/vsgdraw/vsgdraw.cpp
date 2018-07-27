@@ -619,6 +619,7 @@ int main(int argc, char** argv)
     uint32_t height = 600;
     int numFrames=-1;
     bool useStagingBuffer = false;
+    bool printFrameRate = false;
 
     try
     {
@@ -627,6 +628,7 @@ int main(int argc, char** argv)
         if (vsg::CommandLine::read(argc, argv, vsg::CommandLine::Match("--window","-w"), width, height)) {}
         if (vsg::CommandLine::read(argc, argv, "-f", numFrames)) {}
         if (vsg::CommandLine::read(argc, argv, "-s")) { useStagingBuffer = true; }
+        if (vsg::CommandLine::read(argc, argv, "--fr")) { printFrameRate = true; }
     }
     catch (const std::runtime_error& error)
     {
@@ -698,6 +700,7 @@ int main(int argc, char** argv)
     // set up vertex arrays
     vsg::ref_ptr<vsg::vec2Array> vertices = new vsg::vec2Array(4);
     vsg::ref_ptr<vsg::vec3Array> colors = new vsg::vec3Array(4);
+    vsg::ref_ptr<vsg::vec2Array> texcoords = new vsg::vec2Array(4);
 
     vertices->set(0, {-0.5f, -0.5f});
     vertices->set(1, {0.5f,  -0.5f});
@@ -708,6 +711,11 @@ int main(int argc, char** argv)
     colors->set(1, {0.0f, 1.0f, 0.0f});
     colors->set(2, {0.0f, 0.0f, 1.0f});
     colors->set(3, {1.0f, 1.0f, 1.0f});
+
+    texcoords->set(0, {0.0f, 0.0f});
+    texcoords->set(1, {1.0f, 0.0f});
+    texcoords->set(2, {1.0f, 1.0f});
+    texcoords->set(3, {0.0f, 1.0f});
 
     vsg::ref_ptr<vsg::ushortArray> indices = new vsg::ushortArray(6);
     indices->set(0, 0);
@@ -732,6 +740,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::BufferChain> vertexBufferChain = new vsg::BufferChain(physicalDevice, device, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     vertexBufferChain->add(vertices);
     vertexBufferChain->add(colors);
+    vertexBufferChain->add(texcoords);
     vertexBufferChain->allocate(useStagingBuffer);
     vertexBufferChain->transfer(commandPool, graphicsQueue);
 
@@ -879,29 +888,36 @@ int main(int argc, char** argv)
     //
     // set up descriptor set for uniforms
     //
-    VkDescriptorSetLayoutBinding uniformLayoutBinding[3];
-    uniformLayoutBinding[0].binding = 0;
-    uniformLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uniformLayoutBinding[0].descriptorCount = projMatrix->valueCount();
-    uniformLayoutBinding[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    uniformLayoutBinding[0].pImmutableSamplers = nullptr;
+    std::vector<VkDescriptorSetLayoutBinding> descriptorLayoutBinding(4);
+    descriptorLayoutBinding[0].binding = 0;
+    descriptorLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorLayoutBinding[0].descriptorCount = projMatrix->valueCount();
+    descriptorLayoutBinding[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    descriptorLayoutBinding[0].pImmutableSamplers = nullptr;
 
-    uniformLayoutBinding[1].binding = 1;
-    uniformLayoutBinding[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uniformLayoutBinding[1].descriptorCount = viewMatrix->valueCount();
-    uniformLayoutBinding[1].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    uniformLayoutBinding[1].pImmutableSamplers = nullptr;
+    descriptorLayoutBinding[1].binding = 1;
+    descriptorLayoutBinding[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorLayoutBinding[1].descriptorCount = viewMatrix->valueCount();
+    descriptorLayoutBinding[1].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    descriptorLayoutBinding[1].pImmutableSamplers = nullptr;
 
-    uniformLayoutBinding[2].binding = 2;
-    uniformLayoutBinding[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uniformLayoutBinding[2].descriptorCount = modelMatrix->valueCount();
-    uniformLayoutBinding[2].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    uniformLayoutBinding[2].pImmutableSamplers = nullptr;
+    descriptorLayoutBinding[2].binding = 2;
+    descriptorLayoutBinding[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorLayoutBinding[2].descriptorCount = modelMatrix->valueCount();
+    descriptorLayoutBinding[2].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    descriptorLayoutBinding[2].pImmutableSamplers = nullptr;
+
+    descriptorLayoutBinding[3].binding = 3;
+    descriptorLayoutBinding[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    descriptorLayoutBinding[3].descriptorCount = 1;
+    descriptorLayoutBinding[3].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    descriptorLayoutBinding[3].pImmutableSamplers = nullptr;
+
 
     VkDescriptorSetLayoutCreateInfo layoutInfo = {};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = 3;
-    layoutInfo.pBindings = uniformLayoutBinding;
+    layoutInfo.bindingCount = descriptorLayoutBinding.size();
+    layoutInfo.pBindings = descriptorLayoutBinding.data();
 
     vsg::ref_ptr<vsg::DescriptorSetLayout> descriptorSetLayout = vsg::DescriptorSetLayout::create(device, layoutInfo);
 
@@ -911,8 +927,16 @@ int main(int argc, char** argv)
 
     vsg::ref_ptr<vsg::CmdBindIndexBuffer> bindIndexBuffer = new vsg::CmdBindIndexBuffer(indexBufferChain->_deviceBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-    vsg::VertexInputState::Bindings vertexBindingsDescriptions{VkVertexInputBindingDescription{0, sizeof(vsg::vec2), VK_VERTEX_INPUT_RATE_VERTEX}, VkVertexInputBindingDescription{1, sizeof(vsg::vec3), VK_VERTEX_INPUT_RATE_VERTEX}};
-    vsg::VertexInputState::Attributes vertexAttrobiteDescriptions{VkVertexInputAttributeDescription{0, 0,VK_FORMAT_R32G32_SFLOAT, 0}, VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0}};
+    vsg::VertexInputState::Bindings vertexBindingsDescriptions{
+        VkVertexInputBindingDescription{0, sizeof(vsg::vec2), VK_VERTEX_INPUT_RATE_VERTEX},
+        VkVertexInputBindingDescription{1, sizeof(vsg::vec3), VK_VERTEX_INPUT_RATE_VERTEX},
+        VkVertexInputBindingDescription{2, sizeof(vsg::vec2), VK_VERTEX_INPUT_RATE_VERTEX}
+    };
+    vsg::VertexInputState::Attributes vertexAttrobiteDescriptions{
+        VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32_SFLOAT, 0},
+        VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0},
+        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0},
+    };
 
     vsg::ref_ptr<vsg::CmdDrawIndexed> drawIndexed = new vsg::CmdDrawIndexed(6, 1, 0, 0, 0);
 
@@ -932,7 +956,10 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, imageFormat.format);
 
 
-    vsg::DescriptorPoolSizes poolSizes{{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,3}};
+    vsg::DescriptorPoolSizes poolSizes{
+        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3},
+        {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1}
+    };
     vsg::ref_ptr<vsg::DescriptorPool> descriptorPool = vsg::DescriptorPool::create(device, 1, poolSizes);
 
     VkDescriptorSetLayout descriptorSetLayouts[] = {*descriptorSetLayout};
@@ -957,16 +984,29 @@ int main(int argc, char** argv)
         std::cout<<"   VkDescriptorBufferInfo buffer="<<bufferInfo.buffer<<", offset="<<bufferInfo.offset<<", range="<<bufferInfo.range<<std::endl;
     }
 
-    VkWriteDescriptorSet descriptorWrite = {};
-    descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrite.dstSet = descriptorSets.front();
-    descriptorWrite.dstBinding = 0;
-    descriptorWrite.dstArrayElement = 0;
-    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    descriptorWrite.descriptorCount = descriptorBufferInfos.size();
-    descriptorWrite.pBufferInfo = descriptorBufferInfos.data();
+    std::vector<VkWriteDescriptorSet> descriptorWrites(2);
+    descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrites[0].dstSet = descriptorSets.front();
+    descriptorWrites[0].dstBinding = 0;
+    descriptorWrites[0].dstArrayElement = 0;
+    descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorWrites[0].descriptorCount = descriptorBufferInfos.size();
+    descriptorWrites[0].pBufferInfo = descriptorBufferInfos.data();
 
-    vkUpdateDescriptorSets(*device, 1, &descriptorWrite, 0, nullptr);
+    VkDescriptorImageInfo imageInfo = {};
+    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    imageInfo.imageView = *textureImageView;
+    imageInfo.sampler = *textureSampler;
+
+    descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrites[1].dstSet = descriptorSets.front();
+    descriptorWrites[1].dstBinding = 3;
+    descriptorWrites[1].dstArrayElement = 0;
+    descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    descriptorWrites[1].descriptorCount = 1;
+    descriptorWrites[1].pImageInfo = &imageInfo;
+
+    vkUpdateDescriptorSets(*device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 
 
     // set up pipeline layout
@@ -1009,7 +1049,7 @@ int main(int argc, char** argv)
 
         float previousTime = time;
         time = std::chrono::duration<float, std::chrono::seconds::period>(std::chrono::steady_clock::now()-startTime).count();
-        std::cout<<"time = "<<time<<" fps="<<1.0/(time-previousTime)<<std::endl;
+        if (printFrameRate) std::cout<<"time = "<<time<<" fps="<<1.0/(time-previousTime)<<std::endl;
 
         bool needToRegerateVulkanWindowObjects = false;
 

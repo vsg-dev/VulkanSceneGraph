@@ -7,18 +7,17 @@ layout(set = 0, binding = 2) uniform ModelMatrix { mat4 matrix; } model;
 
 layout(location = 0) in vec2 inPosition;
 layout(location = 1) in vec3 inColor;
+layout(location = 2) in vec2 inTexCoord;
 
 layout(location = 0) out vec3 fragColor;
+layout(location = 1) out vec2 fragTexCoord;
 
 out gl_PerVertex {
     vec4 gl_Position;
 };
 
 void main() {
-#if 1
     gl_Position = projection.matrix * view.matrix * model.matrix * vec4(inPosition, 0.0, 1.0);
-#else
-    gl_Position = model.matrix * vec4(inPosition, 0.0, 1.0);
-#endif
     fragColor = inColor;
+    fragTexCoord = inTexCoord;
 }
