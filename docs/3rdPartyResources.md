@@ -11,8 +11,8 @@
 ## Tutorials
 
 * [Vulkan Tutorial](https://vulkan-tutorial.com/)
-* [2017 Khronos UK Vulkanised  presentations] https://www.khronos.org/developers/library/2017-khronos-uk-vulkanised
-
+* [2017 Khronos UK Vulkanised  presentations] (https://www.khronos.org/developers/library/2017-khronos-uk-vulkanised)
+* Multi-threading in Vulcan)[https://community.arm.com/graphics/b/blog/posts/multi-threading-in-vulkan)
 
 ## Vulkan based projects
 
