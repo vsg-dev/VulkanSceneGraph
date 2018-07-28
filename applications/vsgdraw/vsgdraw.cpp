@@ -276,6 +276,7 @@ namespace vsg
             std::cout<<"swapchain->getImageFormat()="<<swapchain->getImageFormat()<<std::endl;
 
             commandBuffers = CommandBuffers::create(device, commandPool, framebuffers.size());
+#if 0
             if (commandBuffers)
             {
                 for(size_t i=0; i<commandBuffers->size(); ++i)
@@ -283,6 +284,7 @@ namespace vsg
                     populateCommandBuffer((*commandBuffers)[i], renderPass, framebuffers[i], swapchain, dispatchList);
                 }
             }
+#endif
         }
 
         ref_ptr<Device>             _device;
@@ -1026,13 +1028,48 @@ int main(int argc, char** argv)
     // set up what we want to render
     vsg::DispatchList dispatchList;
     dispatchList.push_back(pipeline);
+    dispatchList.push_back(bindDescriptorSets);
     dispatchList.push_back(bindVertexBuffers);
     dispatchList.push_back(bindIndexBuffer);
-    dispatchList.push_back(bindDescriptorSets);
     dispatchList.push_back(drawIndexed);
 
-    vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, renderPass, dispatchList, width, height);
 
+    //////////////////////////////////////////////////
+    //
+    //  Pipeline -> (device, renderPass, pipelineLayout, pipelineStates)
+    //
+    //          pipelioneStates ->  ShaderModules
+    //                              VertexInputState
+    //                              InputAssemblyState
+    //                              RasterizationState
+    //                              VertexInputState
+    //                              MultisampleState
+    //                              ColorBlendState
+    //                              TessellationState
+    //                              DepthStencilState
+    //                              DynamicState
+    //          RenderPass (dpenend upon imageFormat provided by Swapchain support))
+    //          uint subpass
+    //
+    //          PipelineLayout ->   DescriptorSetLayouts (uniform bindings/stages)
+    //
+    //  CmdBindDescriptorSets (pass uniforms data)
+    //
+    //  CmdBindVertexBuffers (vertex arrays)
+    //  CmdBindIndexBuffer (primitives indices)
+    //
+    //  CmdDrawInsdexed ispatch draw call
+    //
+    //////////////////////////////////////////////////
+
+
+    vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, renderPass, dispatchList, width, height);
+#if 1
+    for(size_t imageIndex=0; imageIndex<vwo->framebuffers.size(); ++imageIndex)
+    {
+        populateCommandBuffer(vwo->commandBuffers->at(imageIndex), renderPass, vwo->framebuffers[imageIndex], vwo->swapchain, dispatchList);
+    }
+#endif
     //
     // end of initialize vulkan
     //
@@ -1098,6 +1135,14 @@ int main(int argc, char** argv)
             }
         }
 
+        if (needToRegerateVulkanWindowObjects)
+        {
+            for(size_t imageIndex=0; imageIndex<vwo->framebuffers.size(); ++imageIndex)
+            {
+                populateCommandBuffer(vwo->commandBuffers->at(imageIndex), renderPass, vwo->framebuffers[imageIndex], vwo->swapchain, dispatchList);
+            }
+        }
+
         // update
         (*projMatrix) = vsg::perspective(vsg::radians(45.0f), float(width)/float(height), 0.1f, 10.f);
         (*viewMatrix) = vsg::lookAt(vsg::vec3(2.0f, 2.0f, 2.0f), vsg::vec3(0.0f, 0.0f, 0.0f), vsg::vec3(0.0f, 0.0f, 1.0f));
@@ -1109,8 +1154,6 @@ int main(int argc, char** argv)
         std::cout<<"viewMatrix = {"<<viewMatrix->value()<<"}"<<std::endl;
         std::cout<<"modelMatrix = {"<<modelMatrix->value()<<"}"<<std::endl;
 #endif
-
-
 
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
