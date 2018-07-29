@@ -225,9 +225,18 @@ namespace vsg
     {
     public:
 
-        VkCommandBuffer _commandBuffer;
+        ref_ptr<Framebuffer>    _framebuffer;
+        VkCommandBuffer         _commandBuffer;
+        VkExtent2D                _extent;
+        VkClearValue            _clearColor;
 
-        DispatchVisitor(VkCommandBuffer commandBuffer) : _commandBuffer(commandBuffer) {}
+        DispatchVisitor(Framebuffer* framebuffer, VkCommandBuffer commandBuffer, const VkExtent2D& extent, const VkClearValue& clearColor) :
+            _framebuffer(framebuffer),
+            _commandBuffer(commandBuffer),
+            _extent(extent),
+            _clearColor(clearColor)
+        {
+        }
 
         void apply(Object& object)
         {
@@ -246,6 +255,26 @@ namespace vsg
             std::cout<<"Visiting leaf node : "<<typeid(cmd).name()<<std::endl;
             cmd.dispatch(_commandBuffer);
         }
+
+        void apply(RenderPass& renderPass)
+        {
+            std::cout<<"Visiting RenderPass : "<<typeid(renderPass).name()<<std::endl;
+
+            VkRenderPassBeginInfo renderPassInfo = {};
+            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderPassInfo.renderPass = renderPass;
+            renderPassInfo.framebuffer = *_framebuffer;
+            renderPassInfo.renderArea.offset = {0, 0};
+            renderPassInfo.renderArea.extent = _extent;
+
+            renderPassInfo.clearValueCount = 1;
+            renderPassInfo.pClearValues = &_clearColor;
+            vkCmdBeginRenderPass(_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+                renderPass.traverse(*this);
+
+            vkCmdEndRenderPass(_commandBuffer);
+        }
     };
 
     VkResult populateCommandBuffer(VkCommandBuffer commandBuffer, RenderPass* renderPass, Framebuffer* framebuffer, Swapchain* swapchain, Node* dispatchGraph)
@@ -262,24 +291,8 @@ namespace vsg
             return result;
         }
 
-        ref_ptr<RenderPassBeginInfo> renderPassInfo = new RenderPassBeginInfo;
-        renderPassInfo->renderPass = *renderPass;
-        renderPassInfo->framebuffer = *framebuffer;
-        renderPassInfo->renderArea.offset = {0, 0};
-        renderPassInfo->renderArea.extent = swapchain->getExtent();
-
-        VkClearValue clearColor = {0.2f, 0.2f, 0.4f, 1.0f};
-        renderPassInfo->clearValueCount = 1;
-        renderPassInfo->pClearValues = &clearColor;
-        vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-        if (dispatchGraph)
-        {
-            DispatchVisitor dv(commandBuffer);
-            dispatchGraph->accept(dv);
-        }
-
-        vkCmdEndRenderPass(commandBuffer);
+        DispatchVisitor dv(framebuffer, commandBuffer, swapchain->getExtent(), VkClearValue{0.2f, 0.2f, 0.4f, 1.0f});
+        dispatchGraph->accept(dv);
 
         if ((result = vkEndCommandBuffer(commandBuffer)) != VK_SUCCESS)
         {
@@ -1077,12 +1090,18 @@ int main(int argc, char** argv)
     //
     //////////////////////////////////////////////////
 
+
+
+
     vsg::ref_ptr<vsg::Group> dispatchGraph = new vsg::Group;
-    dispatchGraph->addChild(pipeline);
-    dispatchGraph->addChild(bindDescriptorSets);
+
+    dispatchGraph->addChild(renderPass);
+
+    renderPass->addChild(pipeline);
+    renderPass->addChild(bindDescriptorSets);
 
     vsg::ref_ptr<vsg::Group> model = new vsg::Group;
-    dispatchGraph->addChild(model);
+    renderPass->addChild(model);
 
     model->addChild(bindVertexBuffers);
     model->addChild(bindIndexBuffer);
