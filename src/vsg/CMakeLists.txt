@@ -26,6 +26,7 @@ SET(HEADERS
     vk/Instance.h
     vk/PhysicalDevice.h
     vk/Device.h
+    vk/Dispatch.h
     vk/Surface.h
     vk/ImageView.h
     vk/Swapchain.h

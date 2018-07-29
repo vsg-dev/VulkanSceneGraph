@@ -4,16 +4,10 @@
 
 #include <vsg/nodes/Node.h>
 
+#include <vsg/vk/Dispatch.h>
+
 namespace vsg
 {
-
-    class Dispatch : public Node
-    {
-    public:
-        Dispatch() {}
-
-        virtual void dispatch(VkCommandBuffer commandBuffer) const = 0;
-    };
 
     class CmdDraw : public Dispatch
     {
@@ -23,6 +17,8 @@ namespace vsg
             instanceCount(in_instanceCount),
             firstVertex(in_firstVertex),
             firstInstance(in_firstInstance) {}
+
+        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 
         virtual void dispatch(VkCommandBuffer commandBuffer) const
         {
@@ -44,6 +40,8 @@ namespace vsg
             firstIndex(in_firstIndex),
             vertexOffset(in_vertexOffset),
             firstInstance(in_firstInstance) {}
+
+        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 
         virtual void dispatch(VkCommandBuffer commandBuffer) const
         {

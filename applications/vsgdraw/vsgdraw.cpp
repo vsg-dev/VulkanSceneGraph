@@ -4,6 +4,8 @@
 
 #include <vsg/utils/CommandLine.h>
 
+#include <vsg/nodes/Group.h>
+
 #include <vsg/maths/transform.h>
 
 #include <vsg/vk/Instance.h>
@@ -205,8 +207,6 @@ namespace vsg
         return stream.str();
     }
 
-    using DispatchList = std::vector<ref_ptr<Dispatch>>;
-
     template<typename T, VkStructureType type>
     class Info : public Object, public T
     {
@@ -220,8 +220,37 @@ namespace vsg
 
     using RenderPassBeginInfo = Info<VkRenderPassBeginInfo, VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO>;
 
-    VkResult populateCommandBuffer(VkCommandBuffer commandBuffer, RenderPass* renderPass, Framebuffer* framebuffer, Swapchain* swapchain, const DispatchList& dispatchList)
+
+    class DispatchVisitor : public Visitor
     {
+    public:
+
+        VkCommandBuffer _commandBuffer;
+
+        DispatchVisitor(VkCommandBuffer commandBuffer) : _commandBuffer(commandBuffer) {}
+
+        void apply(Object& object)
+        {
+            std::cout<<"Visiting internal object : "<<typeid(object).name()<<std::endl;
+            object.traverse(*this);
+        }
+
+        void apply(Node& object)
+        {
+            std::cout<<"Visiting internal node : "<<typeid(object).name()<<std::endl;
+            object.traverse(*this);
+        }
+
+        void apply(Dispatch& cmd)
+        {
+            std::cout<<"Visiting leaf node : "<<typeid(cmd).name()<<std::endl;
+            cmd.dispatch(_commandBuffer);
+        }
+    };
+
+    VkResult populateCommandBuffer(VkCommandBuffer commandBuffer, RenderPass* renderPass, Framebuffer* framebuffer, Swapchain* swapchain, Node* dispatchGraph)
+    {
+        std::cout<<std::endl<<"Start Populate command buffer : "<<commandBuffer<<std::endl;
         VkCommandBufferBeginInfo beginInfo = {};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
@@ -244,9 +273,10 @@ namespace vsg
         renderPassInfo->pClearValues = &clearColor;
         vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-        for(auto dispatch : dispatchList)
+        if (dispatchGraph)
         {
-            dispatch->dispatch(commandBuffer);
+            DispatchVisitor dv(commandBuffer);
+            dispatchGraph->accept(dv);
         }
 
         vkCmdEndRenderPass(commandBuffer);
@@ -256,13 +286,14 @@ namespace vsg
             std::cout<<"Error: could not end command buffer."<<std::endl;
             return result;
         }
+        std::cout<<"End Populate command buffer : "<<commandBuffer<<std::endl<<std::endl;
     }
 
     class VulkanWindowObjects : public Object
     {
     public:
 
-        VulkanWindowObjects(PhysicalDevice* physicalDevice, Device* device, Surface* surface, CommandPool* commandPool, RenderPass* renderPass, const DispatchList& dispatchList, uint32_t width, uint32_t height)
+        VulkanWindowObjects(PhysicalDevice* physicalDevice, Device* device, Surface* surface, CommandPool* commandPool, RenderPass* renderPass, uint32_t width, uint32_t height)
         {
             // keep device and commandPool around to enable vkFreeCommandBuffers call in destructor
             _device = device;
@@ -276,15 +307,6 @@ namespace vsg
             std::cout<<"swapchain->getImageFormat()="<<swapchain->getImageFormat()<<std::endl;
 
             commandBuffers = CommandBuffers::create(device, commandPool, framebuffers.size());
-#if 0
-            if (commandBuffers)
-            {
-                for(size_t i=0; i<commandBuffers->size(); ++i)
-                {
-                    populateCommandBuffer((*commandBuffers)[i], renderPass, framebuffers[i], swapchain, dispatchList);
-                }
-            }
-#endif
         }
 
         ref_ptr<Device>             _device;
@@ -1026,13 +1048,6 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(pipelineLayout, descriptorSets);
 
     // set up what we want to render
-    vsg::DispatchList dispatchList;
-    dispatchList.push_back(pipeline);
-    dispatchList.push_back(bindDescriptorSets);
-    dispatchList.push_back(bindVertexBuffers);
-    dispatchList.push_back(bindIndexBuffer);
-    dispatchList.push_back(drawIndexed);
-
 
     //////////////////////////////////////////////////
     //
@@ -1062,14 +1077,23 @@ int main(int argc, char** argv)
     //
     //////////////////////////////////////////////////
 
+    vsg::ref_ptr<vsg::Group> dispatchGraph = new vsg::Group;
+    dispatchGraph->addChild(pipeline);
+    dispatchGraph->addChild(bindDescriptorSets);
 
-    vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, renderPass, dispatchList, width, height);
-#if 1
+    vsg::ref_ptr<vsg::Group> model = new vsg::Group;
+    dispatchGraph->addChild(model);
+
+    model->addChild(bindVertexBuffers);
+    model->addChild(bindIndexBuffer);
+    model->addChild(drawIndexed);
+
+    vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, renderPass, width, height);
     for(size_t imageIndex=0; imageIndex<vwo->framebuffers.size(); ++imageIndex)
     {
-        populateCommandBuffer(vwo->commandBuffers->at(imageIndex), renderPass, vwo->framebuffers[imageIndex], vwo->swapchain, dispatchList);
+        populateCommandBuffer(vwo->commandBuffers->at(imageIndex), renderPass, vwo->framebuffers[imageIndex], vwo->swapchain, dispatchGraph);
     }
-#endif
+
     //
     // end of initialize vulkan
     //
@@ -1125,7 +1149,7 @@ int main(int argc, char** argv)
             // create new VulkanWindowObjects
             width = new_width;
             height = new_height;
-            vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, renderPass, dispatchList, width, height);
+            vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, renderPass, width, height);
 
             VkResult result = vkAcquireNextImageKHR(*device, *(vwo->swapchain), std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
             if (result != VK_SUCCESS)
@@ -1139,7 +1163,7 @@ int main(int argc, char** argv)
         {
             for(size_t imageIndex=0; imageIndex<vwo->framebuffers.size(); ++imageIndex)
             {
-                populateCommandBuffer(vwo->commandBuffers->at(imageIndex), renderPass, vwo->framebuffers[imageIndex], vwo->swapchain, dispatchList);
+                populateCommandBuffer(vwo->commandBuffers->at(imageIndex), renderPass, vwo->framebuffers[imageIndex], vwo->swapchain, dispatchGraph);
             }
         }
 

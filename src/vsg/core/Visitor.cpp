@@ -5,6 +5,8 @@
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/LOD.h>
 
+#include <vsg/vk/Dispatch.h>
+
 using namespace vsg;
 
 Visitor::Visitor()
@@ -51,3 +53,9 @@ void Visitor::apply(Node& value) { apply(static_cast<Object&>(value)); }
 void Visitor::apply(Group& value) { apply(static_cast<Node&>(value)); }
 void Visitor::apply(QuadGroup& value) { apply(static_cast<Node&>(value)); }
 void Visitor::apply(LOD& value) { apply(static_cast<Node&>(value)); }
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Vulkan Nodes
+//
+void Visitor::apply(Dispatch& value) { apply(static_cast<Node&>(value)); }

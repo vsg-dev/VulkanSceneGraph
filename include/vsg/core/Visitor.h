@@ -11,6 +11,7 @@ namespace vsg
     class Group;
     class QuadGroup;
     class LOD;
+    class Dispatch;
 
     class Visitor
     {
@@ -46,6 +47,9 @@ namespace vsg
         virtual void apply(Group&);
         virtual void apply(QuadGroup&);
         virtual void apply(LOD&);
+
+        // Vulkan nodes
+        virtual void apply(Dispatch&);
     };
 
 
