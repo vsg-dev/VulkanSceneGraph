@@ -20,7 +20,7 @@
 #include <vsg/vk/Semaphore.h>
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/DeviceMemory.h>
-#include <vsg/vk/CommandBuffers.h>
+#include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/DescriptorSetLayout.h>
 #include <vsg/vk/Image.h>
@@ -221,13 +221,25 @@ namespace vsg
     using RenderPassBeginInfo = Info<VkRenderPassBeginInfo, VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO>;
 
 
+    template<typename T>
+    struct StoreAndRestore
+    {
+        using P = T*;
+
+        T _value;
+        P _ptr;
+
+        StoreAndRestore(T& value) : _value(value), _ptr(&value) {}
+        ~StoreAndRestore() { *_ptr = _value; }
+    };
+
     class CommandVisitor : public Visitor
     {
     public:
 
         ref_ptr<Framebuffer>    _framebuffer;
         VkCommandBuffer         _commandBuffer;
-        VkExtent2D                _extent;
+        VkExtent2D              _extent;
         VkClearValue            _clearColor;
 
         CommandVisitor(Framebuffer* framebuffer, VkCommandBuffer commandBuffer, const VkExtent2D& extent, const VkClearValue& clearColor) :
@@ -275,23 +287,55 @@ namespace vsg
 
             vkCmdEndRenderPass(_commandBuffer);
         }
+
+        void apply(CommandBuffer& commandBuffer)
+        {
+            std::cout<<"Visiting CommandBuffer : "<<typeid(commandBuffer).name()<<std::endl;
+
+            StoreAndRestore<VkCommandBuffer> temp(_commandBuffer);
+
+            // make this CommandBuffer the current one to use for all operations
+            _commandBuffer = commandBuffer;
+
+            VkCommandBufferBeginInfo beginInfo = {};
+            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            beginInfo.flags = commandBuffer.flags();
+
+            // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
+
+            VkResult result;
+            if ((result = vkBeginCommandBuffer(commandBuffer, &beginInfo)) != VK_SUCCESS)
+            {
+                std::cout<<"Error: could not begin command buffer : "<<result<<std::endl;
+                return;
+            }
+
+                commandBuffer.traverse(*this);
+
+            if ((result = vkEndCommandBuffer(commandBuffer)) != VK_SUCCESS)
+            {
+                std::cout<<"Error: could not end command buffer."<<std::endl;
+            }
+            std::cout<<"End visit CommandBuffer"<<std::endl;
+        }
     };
 
     VkResult populateCommandBuffer(VkCommandBuffer commandBuffer, RenderPass* renderPass, Framebuffer* framebuffer, Swapchain* swapchain, Node* commandGraph)
     {
+        CommandVisitor dv(framebuffer, commandBuffer, swapchain->getExtent(), VkClearValue{0.2f, 0.2f, 0.4f, 1.0f});
+
         std::cout<<std::endl<<"Start Populate command buffer : "<<commandBuffer<<std::endl;
         VkCommandBufferBeginInfo beginInfo = {};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 
-        VkResult result;;
+        VkResult result;
         if ((result = vkBeginCommandBuffer(commandBuffer, &beginInfo)) != VK_SUCCESS)
         {
             std::cout<<"Error: could not begin command buffer."<<std::endl;
             return result;
         }
 
-        CommandVisitor dv(framebuffer, commandBuffer, swapchain->getExtent(), VkClearValue{0.2f, 0.2f, 0.4f, 1.0f});
         commandGraph->accept(dv);
 
         if ((result = vkEndCommandBuffer(commandBuffer)) != VK_SUCCESS)
@@ -334,24 +378,26 @@ namespace vsg
     template<typename F>
     void dispatchCommandsToQueue(Device* device, CommandPool* commandPool, VkQueue queue, F function)
     {
-        vsg::ref_ptr<vsg::CommandBuffers> transferCommand = vsg::CommandBuffers::create(device, commandPool, 1);
+        vsg::ref_ptr<vsg::CommandBuffer> transferCommand = vsg::CommandBuffer::create(device, commandPool, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
         VkCommandBufferBeginInfo beginInfo = {};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+        beginInfo.flags = transferCommand->flags();
 
-        vkBeginCommandBuffer(transferCommand->at(0), &beginInfo);
+        vkBeginCommandBuffer(*transferCommand, &beginInfo);
 
-            function(transferCommand->at(0));
+            function(*transferCommand);
 
-        vkEndCommandBuffer(transferCommand->at(0));
+        vkEndCommandBuffer(*transferCommand);
 
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.commandBufferCount = transferCommand->size();
+        submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = transferCommand->data();
 
         vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+
+        // we must wait for the queue to empty before we can safely clean up the transferCommand
         vkQueueWaitIdle(queue);
     }
 

@@ -11,10 +11,12 @@ namespace vsg
     class Group;
     class QuadGroup;
     class LOD;
+
     class Command;
+    class CommandBuffer;
     class RenderPass;
 
-    class Visitor
+    class Visitor : public Object
     {
     public:
 
@@ -51,6 +53,7 @@ namespace vsg
 
         // Vulkan nodes
         virtual void apply(Command&);
+        virtual void apply(CommandBuffer&);
         virtual void apply(RenderPass&);
     };
 

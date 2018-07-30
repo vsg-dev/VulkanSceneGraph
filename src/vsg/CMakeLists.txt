@@ -26,7 +26,7 @@ SET(HEADERS
     vk/Instance.h
     vk/PhysicalDevice.h
     vk/Device.h
-    vk/Dispatch.h
+    vk/Command.h
     vk/Surface.h
     vk/ImageView.h
     vk/Swapchain.h
@@ -34,7 +34,7 @@ SET(HEADERS
     vk/Pipeline.h
     vk/PipelineLayouyt.h
     vk/Framebuffer.h
-    vk/CommandBuffers.h
+    vk/CommandBuffer.h
     vk/CommandPool.h
     vk/Semaphore.h
     vk/DeviceMemory.h
@@ -68,7 +68,7 @@ SET(SOURCES
     vk/Pipeline.cpp
     vk/PipelineLayout.cpp
     vk/Framebuffer.cpp
-    vk/CommandBuffers.cpp
+    vk/CommandBuffer.cpp
     vk/CommandPool.cpp
     vk/Semaphore.cpp
     vk/DeviceMemory.cpp
