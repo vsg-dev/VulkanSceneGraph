@@ -4,12 +4,12 @@
 
 #include <vsg/nodes/Node.h>
 
-#include <vsg/vk/Dispatch.h>
+#include <vsg/vk/Command.h>
 
 namespace vsg
 {
 
-    class CmdDraw : public Dispatch
+    class CmdDraw : public Command
     {
     public:
         CmdDraw(uint32_t in_vertexCount, uint32_t in_instanceCount, uint32_t in_firstVertex, uint32_t in_firstInstance):
@@ -31,7 +31,7 @@ namespace vsg
         uint32_t firstInstance;
     };
 
-    class CmdDrawIndexed : public Dispatch
+    class CmdDrawIndexed : public Command
     {
     public:
         CmdDrawIndexed(uint32_t in_indexCount, uint32_t in_instanceCount, uint32_t in_firstIndex, int32_t in_vertexOffset, uint32_t in_firstInstance):

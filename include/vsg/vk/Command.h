@@ -6,10 +6,10 @@
 
 namespace vsg
 {
-    class Dispatch : public Node
+    class Command : public Node
     {
     public:
-        Dispatch() {}
+        Command() {}
 
         virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 

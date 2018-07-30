@@ -30,11 +30,13 @@ namespace vsg
     };
 
 
-    class CmdBindVertexBuffers : public Dispatch
+    class CmdBindVertexBuffers : public Command
     {
     public:
 
         CmdBindVertexBuffers() : _firstBinding(0) {}
+
+        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 
         void setFirstBinding(uint32_t firstBinding) { _firstBinding = firstBinding; }
         uint32_t getFirstBinding() const { return _firstBinding; }
@@ -66,11 +68,13 @@ namespace vsg
     };
 
 
-    class CmdBindIndexBuffer : public Dispatch
+    class CmdBindIndexBuffer : public Command
     {
     public:
 
         CmdBindIndexBuffer(Buffer* buffer, VkDeviceSize offset, VkIndexType indexType) : _buffer(buffer), _offset(offset), _indexType(indexType) {}
+
+        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 
         virtual void dispatch(VkCommandBuffer commandBuffer) const
         {

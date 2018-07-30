@@ -9,10 +9,12 @@
 namespace vsg
 {
 
-    class Pipeline : public Dispatch
+    class Pipeline : public Command
     {
     public:
         Pipeline(Device* device, VkPipeline pipeline, VkPipelineBindPoint bindPoint, AllocationCallbacks* allocator=nullptr);
+
+        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 
         operator VkPipeline () const { return _pipeline; }
 

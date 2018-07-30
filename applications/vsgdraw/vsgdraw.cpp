@@ -221,7 +221,7 @@ namespace vsg
     using RenderPassBeginInfo = Info<VkRenderPassBeginInfo, VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO>;
 
 
-    class DispatchVisitor : public Visitor
+    class CommandVisitor : public Visitor
     {
     public:
 
@@ -230,7 +230,7 @@ namespace vsg
         VkExtent2D                _extent;
         VkClearValue            _clearColor;
 
-        DispatchVisitor(Framebuffer* framebuffer, VkCommandBuffer commandBuffer, const VkExtent2D& extent, const VkClearValue& clearColor) :
+        CommandVisitor(Framebuffer* framebuffer, VkCommandBuffer commandBuffer, const VkExtent2D& extent, const VkClearValue& clearColor) :
             _framebuffer(framebuffer),
             _commandBuffer(commandBuffer),
             _extent(extent),
@@ -250,7 +250,7 @@ namespace vsg
             object.traverse(*this);
         }
 
-        void apply(Dispatch& cmd)
+        void apply(Command& cmd)
         {
             std::cout<<"Visiting leaf node : "<<typeid(cmd).name()<<std::endl;
             cmd.dispatch(_commandBuffer);
@@ -277,7 +277,7 @@ namespace vsg
         }
     };
 
-    VkResult populateCommandBuffer(VkCommandBuffer commandBuffer, RenderPass* renderPass, Framebuffer* framebuffer, Swapchain* swapchain, Node* dispatchGraph)
+    VkResult populateCommandBuffer(VkCommandBuffer commandBuffer, RenderPass* renderPass, Framebuffer* framebuffer, Swapchain* swapchain, Node* commandGraph)
     {
         std::cout<<std::endl<<"Start Populate command buffer : "<<commandBuffer<<std::endl;
         VkCommandBufferBeginInfo beginInfo = {};
@@ -291,8 +291,8 @@ namespace vsg
             return result;
         }
 
-        DispatchVisitor dv(framebuffer, commandBuffer, swapchain->getExtent(), VkClearValue{0.2f, 0.2f, 0.4f, 1.0f});
-        dispatchGraph->accept(dv);
+        CommandVisitor dv(framebuffer, commandBuffer, swapchain->getExtent(), VkClearValue{0.2f, 0.2f, 0.4f, 1.0f});
+        commandGraph->accept(dv);
 
         if ((result = vkEndCommandBuffer(commandBuffer)) != VK_SUCCESS)
         {
@@ -517,7 +517,7 @@ namespace vsg
     }
 
 
-    class CmdBindDescriptorSets : public Dispatch
+    class CmdBindDescriptorSets : public Command
     {
     public:
 
@@ -1093,9 +1093,9 @@ int main(int argc, char** argv)
 
 
 
-    vsg::ref_ptr<vsg::Group> dispatchGraph = new vsg::Group;
+    vsg::ref_ptr<vsg::Group> commandGraph = new vsg::Group;
 
-    dispatchGraph->addChild(renderPass);
+    commandGraph->addChild(renderPass);
 
     renderPass->addChild(pipeline);
     renderPass->addChild(bindDescriptorSets);
@@ -1110,7 +1110,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, renderPass, width, height);
     for(size_t imageIndex=0; imageIndex<vwo->framebuffers.size(); ++imageIndex)
     {
-        populateCommandBuffer(vwo->commandBuffers->at(imageIndex), renderPass, vwo->framebuffers[imageIndex], vwo->swapchain, dispatchGraph);
+        populateCommandBuffer(vwo->commandBuffers->at(imageIndex), renderPass, vwo->framebuffers[imageIndex], vwo->swapchain, commandGraph);
     }
 
     //
@@ -1182,7 +1182,7 @@ int main(int argc, char** argv)
         {
             for(size_t imageIndex=0; imageIndex<vwo->framebuffers.size(); ++imageIndex)
             {
-                populateCommandBuffer(vwo->commandBuffers->at(imageIndex), renderPass, vwo->framebuffers[imageIndex], vwo->swapchain, dispatchGraph);
+                populateCommandBuffer(vwo->commandBuffers->at(imageIndex), renderPass, vwo->framebuffers[imageIndex], vwo->swapchain, commandGraph);
             }
         }
 

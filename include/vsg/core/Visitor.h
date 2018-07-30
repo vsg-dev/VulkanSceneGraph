@@ -11,7 +11,7 @@ namespace vsg
     class Group;
     class QuadGroup;
     class LOD;
-    class Dispatch;
+    class Command;
     class RenderPass;
 
     class Visitor
@@ -50,7 +50,7 @@ namespace vsg
         virtual void apply(LOD&);
 
         // Vulkan nodes
-        virtual void apply(Dispatch&);
+        virtual void apply(Command&);
         virtual void apply(RenderPass&);
     };
 
