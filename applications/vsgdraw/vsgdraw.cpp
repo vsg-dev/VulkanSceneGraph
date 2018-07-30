@@ -1135,19 +1135,25 @@ int main(int argc, char** argv)
 
 
 
-
+    // create command graph to contain all the Vulkan calls for specifically rendering the model
     vsg::ref_ptr<vsg::Group> commandGraph = new vsg::Group;
 
+    // add renderPass to the command graph
     commandGraph->addChild(renderPass);
 
+    // set up the state configuration
     renderPass->addChild(pipeline);
     renderPass->addChild(bindDescriptorSets);
 
+    // add subgraph that represents the model to render
     vsg::ref_ptr<vsg::Group> model = new vsg::Group;
     renderPass->addChild(model);
 
+    // add the vertex and index buffer data
     model->addChild(bindVertexBuffers);
     model->addChild(bindIndexBuffer);
+
+    // add the draw primitive command
     model->addChild(drawIndexed);
 
     vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, renderPass, width, height);
