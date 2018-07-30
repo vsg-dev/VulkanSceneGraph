@@ -300,51 +300,31 @@ namespace vsg
             VkCommandBufferBeginInfo beginInfo = {};
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
             beginInfo.flags = commandBuffer.flags();
-
             // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
 
-            VkResult result;
-            if ((result = vkBeginCommandBuffer(commandBuffer, &beginInfo)) != VK_SUCCESS)
-            {
-                std::cout<<"Error: could not begin command buffer : "<<result<<std::endl;
-                return;
-            }
+            vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
                 commandBuffer.traverse(*this);
 
-            if ((result = vkEndCommandBuffer(commandBuffer)) != VK_SUCCESS)
-            {
-                std::cout<<"Error: could not end command buffer."<<std::endl;
-            }
+            vkEndCommandBuffer(commandBuffer);
+
             std::cout<<"End visit CommandBuffer"<<std::endl;
         }
+
+        void populateCommandBuffer(vsg::Node* subgraph)
+        {
+            VkCommandBufferBeginInfo beginInfo = {};
+            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+            // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
+
+            vkBeginCommandBuffer(_commandBuffer, &beginInfo);
+
+                subgraph->accept(*this);
+
+            vkEndCommandBuffer(_commandBuffer);
+        }
     };
-
-    VkResult populateCommandBuffer(VkCommandBuffer commandBuffer, RenderPass* renderPass, Framebuffer* framebuffer, Swapchain* swapchain, Node* commandGraph)
-    {
-        CommandVisitor dv(framebuffer, commandBuffer, swapchain->getExtent(), VkClearValue{0.2f, 0.2f, 0.4f, 1.0f});
-
-        std::cout<<std::endl<<"Start Populate command buffer : "<<commandBuffer<<std::endl;
-        VkCommandBufferBeginInfo beginInfo = {};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-
-        VkResult result;
-        if ((result = vkBeginCommandBuffer(commandBuffer, &beginInfo)) != VK_SUCCESS)
-        {
-            std::cout<<"Error: could not begin command buffer."<<std::endl;
-            return result;
-        }
-
-        commandGraph->accept(dv);
-
-        if ((result = vkEndCommandBuffer(commandBuffer)) != VK_SUCCESS)
-        {
-            std::cout<<"Error: could not end command buffer."<<std::endl;
-            return result;
-        }
-        std::cout<<"End Populate command buffer : "<<commandBuffer<<std::endl<<std::endl;
-    }
 
     class VulkanWindowObjects : public Object
     {
@@ -364,6 +344,19 @@ namespace vsg
             std::cout<<"swapchain->getImageFormat()="<<swapchain->getImageFormat()<<std::endl;
 
             commandBuffers = CommandBuffers::create(device, commandPool, framebuffers.size());
+
+            for(size_t i=0; i<framebuffers.size(); ++i)
+            {
+                commandVisitors.push_back(new CommandVisitor(framebuffers[i], commandBuffers->at(i), swapchain->getExtent(), VkClearValue{0.2f, 0.2f, 0.4f, 1.0f}));
+            }
+        }
+
+        void populateCommandBuffers(Node* commandGraph)
+        {
+            for(auto visitor : commandVisitors)
+            {
+                visitor->populateCommandBuffer(commandGraph);
+            }
         }
 
         ref_ptr<Device>             _device;
@@ -373,6 +366,10 @@ namespace vsg
         ref_ptr<Swapchain>          swapchain;
         Framebuffers                framebuffers;
         ref_ptr<CommandBuffers>     commandBuffers;
+
+        using CommandVisitors = std::vector<ref_ptr<CommandVisitor>>;
+        CommandVisitors             commandVisitors;
+
     };
 
     template<typename F>
@@ -1154,10 +1151,7 @@ int main(int argc, char** argv)
     model->addChild(drawIndexed);
 
     vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, renderPass, width, height);
-    for(size_t imageIndex=0; imageIndex<vwo->framebuffers.size(); ++imageIndex)
-    {
-        populateCommandBuffer(vwo->commandBuffers->at(imageIndex), renderPass, vwo->framebuffers[imageIndex], vwo->swapchain, commandGraph);
-    }
+    vwo->populateCommandBuffers(commandGraph);
 
     //
     // end of initialize vulkan
@@ -1222,14 +1216,8 @@ int main(int argc, char** argv)
                 std::cout<<"Warning: could not recreate swap chain image."<<std::endl;
                 return 1;
             }
-        }
 
-        if (needToRegerateVulkanWindowObjects)
-        {
-            for(size_t imageIndex=0; imageIndex<vwo->framebuffers.size(); ++imageIndex)
-            {
-                populateCommandBuffer(vwo->commandBuffers->at(imageIndex), renderPass, vwo->framebuffers[imageIndex], vwo->swapchain, commandGraph);
-            }
+            vwo->populateCommandBuffers(commandGraph);
         }
 
         // update
