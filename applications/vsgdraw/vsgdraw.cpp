@@ -84,6 +84,8 @@ namespace vsg
         Window(const Window&) = delete;
         Window& operator = (const Window&) = delete;
 
+        virtual bool valid() const { return false; }
+
         Instance* instance() { return _instance; }
         const Instance* instance() const { return _instance; }
 
@@ -273,6 +275,8 @@ public:
             _device = vsg::Device::create(_instance, _physicalDevice, validatedNames, deviceExtensions);
         }
     }
+
+    virtual bool valid() const { return _window && !glfwWindowShouldClose(_window); }
 
     operator GLFWwindow* () { return _window; }
     operator const GLFWwindow* () const { return _window; }
@@ -1271,7 +1275,7 @@ int main(int argc, char** argv)
     float time = 0.0f;
 
     // main loop
-    while(!glfwWindowShouldClose(*window) && (numFrames<0 || (numFrames--)>0))
+    while(window->valid() && (numFrames<0 || (numFrames--)>0))
     {
         //std::cout<<"In main loop"<<std::endl;
         glfwPollEvents();
