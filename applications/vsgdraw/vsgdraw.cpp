@@ -190,6 +190,11 @@ namespace vsg
 
         virtual bool valid() const { return false; }
 
+        virtual bool resized() const { return false; }
+        virtual void resize() {}
+
+        const VkExtent2D& extent2D() { return _extent2D; }
+
         Instance* instance() { return _instance; }
         const Instance* instance() const { return _instance; }
 
@@ -268,6 +273,9 @@ namespace vsg
     public:
         void buildSwapchain(uint32_t width, uint32_t height)
         {
+            _extent2D.width = width;
+            _extent2D.height = height;
+
             std::cout<<"buildSwapchain("<<width<<", "<<height<<")"<<std::endl;
 
             if (_swapchain)
@@ -305,6 +313,8 @@ namespace vsg
         };
 
         using Frames = std::vector<Frame>;
+
+        VkExtent2D              _extent2D;
 
         ref_ptr<Instance>       _instance;
         ref_ptr<PhysicalDevice> _physicalDevice;
@@ -442,6 +452,20 @@ public:
     }
 
     virtual bool valid() const { return _window && !glfwWindowShouldClose(_window); }
+
+    virtual bool resized() const
+    {
+        int new_width, new_height;
+        glfwGetWindowSize(_window, &new_width, &new_height);
+        return (new_width!=int(_extent2D.width) || new_height!=int(_extent2D.height));
+    }
+
+    virtual void resize()
+    {
+        int new_width, new_height;
+        glfwGetWindowSize(_window, &new_width, &new_height);
+        buildSwapchain(new_width, new_height);
+    }
 
     operator GLFWwindow* () { return _window; }
     operator const GLFWwindow* () const { return _window; }
@@ -1297,49 +1321,21 @@ int main(int argc, char** argv)
         time = std::chrono::duration<float, std::chrono::seconds::period>(std::chrono::steady_clock::now()-startTime).count();
         if (printFrameRate) std::cout<<"time = "<<time<<" fps="<<1.0/(time-previousTime)<<std::endl;
 
-        bool needToRegerateVulkanWindowObjects = false;
-        int new_width, new_height;
-        glfwGetWindowSize(*window, &new_width, &new_height);
-        if (new_width!=int(width) || new_height!=int(height))
-        {
-            std::cout<<"Warning: window resized to "<<new_width<<", "<<new_height<<std::endl;
-            needToRegerateVulkanWindowObjects = true;
-        }
-
         uint32_t imageIndex;
-        if (!needToRegerateVulkanWindowObjects)
-        {
-            VkResult result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
-            if (result == VK_ERROR_OUT_OF_DATE_KHR)
-            {
-                needToRegerateVulkanWindowObjects = true;
-                std::cout<<"Warning: Image out of data, need to recreate swap chain and assoicated dependencies."<<std::endl;
-            }
-            else if (result != VK_SUCCESS)
-            {
-                needToRegerateVulkanWindowObjects = true;
-                std::cout<<"Warning: failed to aquire swap chain image."<<std::endl;
-            }
-        }
-
-        if (needToRegerateVulkanWindowObjects)
+        VkResult result;
+        if (window->resized() || (result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex))!=VK_SUCCESS)
         {
             vkDeviceWaitIdle(*device);
 
-            window->buildSwapchain(new_width, new_height);
+            window->resize();
+            window->populateCommandBuffers(commandGraph);
 
-            // create new VulkanWindowObjects
-            width = new_width;
-            height = new_height;
-
-            VkResult result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
-            if (result != VK_SUCCESS)
+            result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+            if (result!=VK_SUCCESS)
             {
-                std::cout<<"Warning: could not recreate swap chain image."<<std::endl;
+                std::cout<<"Failed to aquire image VkResult="<<result<<std::endl;
                 return 1;
             }
-
-            window->populateCommandBuffers(commandGraph);
         }
 
         // update
