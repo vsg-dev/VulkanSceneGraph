@@ -42,6 +42,122 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+
+namespace vsg
+{
+    ////////////////////////////////////////////////////////////////////
+    //
+    //  ostream implementation
+    //
+    void print(std::ostream& out, const VkPhysicalDeviceProperties& properties)
+    {
+        out<<"VkPhysicalDeviceProperties {"<<std::endl;
+        out<<"   apiVersion = "<<properties.apiVersion<<std::endl;
+        out<<"   driverVersion = "<<properties.driverVersion<<std::endl;
+        out<<"   vendorID = "<<properties.vendorID<<std::endl;
+        out<<"   deviceID = "<<properties.deviceID<<std::endl;
+        out<<"   deviceType = "<<properties.deviceType<<std::endl;
+        out<<"   deviceName = "<<properties.deviceName<<std::endl;
+        out<<"   limits.maxDescriptorSetSamplers = "<<properties.limits.maxDescriptorSetSamplers<<std::endl;
+        out<<"   limits.maxImageDimension1D = "<<properties.limits.maxImageDimension1D<<std::endl;
+        out<<"   limits.maxImageDimension2D = "<<properties.limits.maxImageDimension2D<<std::endl;
+        out<<"   limits.maxImageDimension3D = "<<properties.limits.maxImageDimension3D<<std::endl;
+        out<<"   minUniformBufferOffsetAlignment = "<<properties.limits.minUniformBufferOffsetAlignment<<std::endl;
+        out<<"}"<<std::endl;
+    }
+
+    template<typename T>
+    void print(std::ostream& out, const std::string& description, const T& names)
+    {
+        out<<description<<".size()= "<<names.size()<<std::endl;
+        for (const auto& name : names)
+        {
+            out<<"    "<<name<<std::endl;
+        }
+    }
+
+
+    class Window : public Object
+    {
+    public:
+
+        Window(const Window&) = delete;
+        Window& operator = (const Window&) = delete;
+
+        Instance* instance() { return _instance; }
+        const Instance* instance() const { return _instance; }
+
+        PhysicalDevice* physicalDevice() { return _physicalDevice; }
+        const PhysicalDevice* physicalDevice() const { return _physicalDevice; }
+
+        Device* device() { return _device; }
+        const Device* device() const { return _device; }
+
+        Surface* surface() { return _surface; }
+        const Surface* surface() const { return _surface; }
+
+        Swapchain* swapchain() { return _swapchain; }
+        const Swapchain* swapchain() const { return _swapchain; }
+
+        size_t numFrames() const { return _frames.size(); }
+
+        Image* image(size_t i) { return _frames[i].image; }
+        const Image* image(size_t i) const { return _frames[i].image; }
+
+        ImageView* imageView(size_t i) { return _frames[i].imageView; }
+        const ImageView* imageView(size_t i) const { return _frames[i].imageView; }
+
+        Framebuffer* framebuffer(size_t i) { return _frames[i].framebuffer; }
+        const Framebuffer* framebuffer(size_t i) const { return _frames[i].framebuffer; }
+
+    protected:
+
+        Window() {}
+
+        virtual ~Window()
+        {
+            // do we need to call clear()?
+        }
+
+        virtual void clear()
+        {
+            std::cout<<"vsg::Window::clear() start"<<std::endl;
+
+            _frames.clear();
+            _swapchain = 0;
+            _surface = 0;
+            _device = 0;
+            _physicalDevice = 0;
+
+            std::cout<<"vsg::Window::clear() end"<<std::endl;
+        }
+
+        void share(const Window& window)
+        {
+            _instance = window._instance;
+            _physicalDevice = window._physicalDevice;
+            _device = window._device;
+        }
+
+        struct Frame
+        {
+            ref_ptr<Image>       image;
+            ref_ptr<ImageView>   imageView;
+            ref_ptr<Framebuffer> framebuffer;
+        };
+
+        using Frames = std::vector<Frame>;
+
+        ref_ptr<Instance>       _instance;
+        ref_ptr<PhysicalDevice> _physicalDevice;
+        ref_ptr<Device>         _device;
+        ref_ptr<Surface>        _surface;
+        ref_ptr<Swapchain>      _swapchain;
+        Frames                  _frames;
+    };
+};
+
+
 namespace glfw
 {
 
@@ -81,35 +197,6 @@ static vsg::ref_ptr<glfw::GLFW_Instance> getGLFW_Instance()
     return s_glfw_Instance;
 }
 
-class Window : public vsg::Object
-{
-public:
-    Window(uint32_t width, uint32_t height) : _instance(glfw::getGLFW_Instance())
-    {
-        std::cout<<"Calling glfwCreateWindow(..)"<<std::endl;
-
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        //glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-        _window = glfwCreateWindow(width, height, "Vulkan", nullptr, nullptr);
-    }
-
-    operator GLFWwindow* () { return _window; }
-    operator const GLFWwindow* () const { return _window; }
-
-protected:
-    virtual ~Window()
-    {
-        if (_window)
-        {
-            std::cout<<"Calling glfwDestroyWindow(_window);"<<std::endl;
-            glfwDestroyWindow(_window);
-        }
-    }
-
-    vsg::ref_ptr<glfw::GLFW_Instance>   _instance;
-    GLFWwindow*                         _window;
-};
-
 
 class GLFWSurface : public vsg::Surface
 {
@@ -129,41 +216,89 @@ public:
     }
 };
 
-}
-
-template<typename T>
-void print(std::ostream& out, const std::string& description, const T& names)
+class Window : public vsg::Window
 {
-    out<<description<<".size()= "<<names.size()<<std::endl;
-    for (const auto& name : names)
+public:
+
+    Window() = delete;
+    Window(const Window&) = delete;
+    Window& operator = (const Window&) = delete;
+
+    Window(uint32_t width, uint32_t height, bool debugLayer=false, bool apiDumpLayer=false, Window* shareWindow=nullptr) : _glwInstance(glfw::getGLFW_Instance())
     {
-        out<<"    "<<name<<std::endl;
+        std::cout<<"Calling glfwCreateWindow(..)"<<std::endl;
+
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
+        //glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        _window = glfwCreateWindow(width, height, "Vulkan", nullptr, nullptr);
+
+        if (shareWindow)
+        {
+            // share the _instance, _physicalDevice and _devoce;
+            share(*shareWindow);
+
+            // use GLFW to create surface
+            _surface = new glfw::GLFWSurface(_instance, _window, nullptr);
+        }
+        else
+        {
+            vsg::Names instanceExtensions = glfw::getInstanceExtensions();
+
+            vsg::Names requestedLayers;
+            if (debugLayer)
+            {
+                instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+                requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+                if (apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
+            }
+
+            vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
+
+
+            vsg::Names deviceExtensions;
+            deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
+            vsg::print(std::cout,"instanceExtensions",instanceExtensions);
+            vsg::print(std::cout,"validatedNames",validatedNames);
+
+            _instance = vsg::Instance::create(instanceExtensions, validatedNames);
+
+            // use GLFW to create surface
+            _surface = new glfw::GLFWSurface(_instance, _window, nullptr);
+
+
+            // set up device
+            _physicalDevice = vsg::PhysicalDevice::create(_instance, _surface);
+            _device = vsg::Device::create(_instance, _physicalDevice, validatedNames, deviceExtensions);
+        }
     }
+
+    operator GLFWwindow* () { return _window; }
+    operator const GLFWwindow* () const { return _window; }
+
+protected:
+    virtual ~Window()
+    {
+        clear();
+
+        if (_window)
+        {
+            std::cout<<"Calling glfwDestroyWindow(_window);"<<std::endl;
+            glfwDestroyWindow(_window);
+        }
+    }
+
+    vsg::ref_ptr<glfw::GLFW_Instance>   _glwInstance;
+    GLFWwindow*                         _window;
+};
+
+
 }
 
 namespace vsg
 {
 
-    ////////////////////////////////////////////////////////////////////
-    //
-    //  ostream implementation
-    //
-    void print(std::ostream& out, const VkPhysicalDeviceProperties& properties)
-    {
-        out<<"VkPhysicalDeviceProperties {"<<std::endl;
-        out<<"   apiVersion = "<<properties.apiVersion<<std::endl;
-        out<<"   driverVersion = "<<properties.driverVersion<<std::endl;
-        out<<"   vendorID = "<<properties.vendorID<<std::endl;
-        out<<"   deviceID = "<<properties.deviceID<<std::endl;
-        out<<"   deviceType = "<<properties.deviceType<<std::endl;
-        out<<"   deviceName = "<<properties.deviceName<<std::endl;
-        out<<"   limits.maxDescriptorSetSamplers = "<<properties.limits.maxDescriptorSetSamplers<<std::endl;
-        out<<"   limits.maxImageDimension1D = "<<properties.limits.maxImageDimension1D<<std::endl;
-        out<<"   limits.maxImageDimension2D = "<<properties.limits.maxImageDimension2D<<std::endl;
-        out<<"   limits.maxImageDimension3D = "<<properties.limits.maxImageDimension3D<<std::endl;
-        out<<"   minUniformBufferOffsetAlignment = "<<properties.limits.minUniformBufferOffsetAlignment<<std::endl;
-        out<<"}"<<std::endl;
-    }
 
     template<typename T>
     inline std::ostream& operator << (std::ostream& output, const vsg::tvec2<T>& vec)
@@ -716,43 +851,11 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    vsg::ref_ptr<glfw::Window> window = new glfw::Window(width, height);
+    vsg::ref_ptr<glfw::Window> window = new glfw::Window(width, height, debugLayer, apiDumpLayer);
 
-
-    /////////////////////////////////////////////////////////////////////
-    //
-    // start of initialize vulkan
-    //
-
-    vsg::Names instanceExtensions = glfw::getInstanceExtensions();
-
-    vsg::Names requestedLayers;
-    if (debugLayer)
-    {
-        instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-        requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
-        if (apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
-    }
-
-    vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
-
-    vsg::Names deviceExtensions;
-    deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-
-    print(std::cout,"instanceExtensions",instanceExtensions);
-    print(std::cout,"validatedNames",validatedNames);
-
-    vsg::ref_ptr<vsg::Instance> instance = vsg::Instance::create(instanceExtensions, validatedNames);
-
-    // use GLFW to create surface
-    vsg::ref_ptr<glfw::GLFWSurface> surface = new glfw::GLFWSurface(instance, *window, nullptr);
-
-    // set up device
-    vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(instance, surface);
-    vsg::ref_ptr<vsg::Device> device = vsg::Device::create(instance, physicalDevice, validatedNames, deviceExtensions);
-
-    vsg::print(std::cout, physicalDevice->getProperties());
-
+    vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = window->physicalDevice();
+    vsg::ref_ptr<vsg::Device> device = window->device();
+    vsg::ref_ptr<vsg::Surface> surface = window->surface();
 
     vsg::ref_ptr<vsg::ShaderModule> vert = vsg::ShaderModule::read(device, VK_SHADER_STAGE_VERTEX_BIT, "main", "shaders/vert.spv");
     vsg::ref_ptr<vsg::ShaderModule> frag = vsg::ShaderModule::read(device, VK_SHADER_STAGE_FRAGMENT_BIT, "main", "shaders/frag.spv");
