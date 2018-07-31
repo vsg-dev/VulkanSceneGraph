@@ -36,6 +36,7 @@ SET(HEADERS
     vk/Framebuffer.h
     vk/CommandBuffer.h
     vk/CommandPool.h
+    vk/CommandVisitor.h
     vk/Semaphore.h
     vk/DeviceMemory.h
     vk/DescriptorPool.h
@@ -43,6 +44,7 @@ SET(HEADERS
     vk/Buffer.h
     vk/Image.h
     vk/Sampler.h
+    vk/Wdinow.h
 
     utils/CommandLine.h
 )
@@ -70,6 +72,7 @@ SET(SOURCES
     vk/Framebuffer.cpp
     vk/CommandBuffer.cpp
     vk/CommandPool.cpp
+    vk/CommandVisitor.cpp
     vk/Semaphore.cpp
     vk/DeviceMemory.cpp
     vk/DescriptorPool.cpp
@@ -77,6 +80,7 @@ SET(SOURCES
     vk/Buffer.cpp
     vk/Image.cpp
     vk/Sampler.cpp
+    vk/Window.cpp
 )
 
 ADD_LIBRARY(vsg SHARED ${HEADER_FILES} ${SOURCES})
