@@ -123,6 +123,10 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
         imageCount = details.capabilities.maxImageCount;
     }
 
+    std::cout<<"Swapcain::create(..) "<<std::endl;
+    std::cout<<"     details.capabilities.minImageCount="<<details.capabilities.minImageCount<<std::endl;
+    std::cout<<"     details.capabilities.maxImageCount="<<details.capabilities.maxImageCount<<std::endl;
+
     VkSwapchainCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.surface = *surface;
@@ -166,9 +170,8 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
     sw->_extent = extent;
 
     // create the ImageViews
-    std::vector<VkImage> images;
     vkGetSwapchainImagesKHR(*device, swapchain, &imageCount, nullptr);
-    images.resize(imageCount);
+    std::vector<VkImage> images(imageCount);
     vkGetSwapchainImagesKHR(*device, swapchain, &imageCount, images.data());
 
     for (std::size_t i=0; i<images.size(); ++i)

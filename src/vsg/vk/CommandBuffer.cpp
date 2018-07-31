@@ -15,7 +15,11 @@ CommandBuffer::CommandBuffer(Device* device, CommandPool* commandPool, VkCommand
 
 CommandBuffer::~CommandBuffer()
 {
-    vkFreeCommandBuffers((*_device), (*_commandPool), 1, &_commandBuffer);
+    if (_commandBuffer)
+    {
+        std::cout<<"Calling vkFreeCommandBuffers(..., _commandBuffer="<<_commandBuffer<<")"<<std::endl;
+        vkFreeCommandBuffers((*_device), (*_commandPool), 1, &_commandBuffer);
+    }
 }
 
 CommandBuffer::Result CommandBuffer::create(Device* device,  CommandPool* commandPool, VkCommandBufferUsageFlags flags)

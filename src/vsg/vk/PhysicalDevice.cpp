@@ -28,6 +28,8 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, Surface* surfa
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(*instance, &deviceCount, devices.data());
 
+    std::cout<<"PhysicalDevice::create(...) deviceCount="<<deviceCount<<std::endl;
+
     for (const auto& device : devices)
     {
         VkPhysicalDeviceFeatures supportedFeatures;
