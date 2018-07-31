@@ -42,7 +42,6 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-
 namespace vsg
 {
     ////////////////////////////////////////////////////////////////////
@@ -76,6 +75,111 @@ namespace vsg
         }
     }
 
+    template<typename T>
+    struct StoreAndRestore
+    {
+        using P = T*;
+
+        T _value;
+        P _ptr;
+
+        StoreAndRestore(T& value) : _value(value), _ptr(&value) {}
+        ~StoreAndRestore() { *_ptr = _value; }
+    };
+
+    class CommandVisitor : public Visitor
+    {
+    public:
+
+        ref_ptr<Framebuffer>    _framebuffer;
+        VkCommandBuffer         _commandBuffer;
+        VkExtent2D              _extent;
+        VkClearValue            _clearColor;
+
+        CommandVisitor(Framebuffer* framebuffer, VkCommandBuffer commandBuffer, const VkExtent2D& extent, const VkClearValue& clearColor) :
+            _framebuffer(framebuffer),
+            _commandBuffer(commandBuffer),
+            _extent(extent),
+            _clearColor(clearColor)
+        {
+        }
+
+        void apply(Object& object)
+        {
+            std::cout<<"Visiting internal object : "<<typeid(object).name()<<std::endl;
+            object.traverse(*this);
+        }
+
+        void apply(Node& object)
+        {
+            std::cout<<"Visiting internal node : "<<typeid(object).name()<<std::endl;
+            object.traverse(*this);
+        }
+
+        void apply(Command& cmd)
+        {
+            std::cout<<"Visiting leaf node : "<<typeid(cmd).name()<<std::endl;
+            cmd.dispatch(_commandBuffer);
+        }
+
+        void apply(RenderPass& renderPass)
+        {
+            std::cout<<"Visiting RenderPass : "<<typeid(renderPass).name()<<std::endl;
+
+            VkRenderPassBeginInfo renderPassInfo = {};
+            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderPassInfo.renderPass = renderPass;
+            renderPassInfo.framebuffer = *_framebuffer;
+            renderPassInfo.renderArea.offset = {0, 0};
+            renderPassInfo.renderArea.extent = _extent;
+
+            renderPassInfo.clearValueCount = 1;
+            renderPassInfo.pClearValues = &_clearColor;
+            vkCmdBeginRenderPass(_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+                renderPass.traverse(*this);
+
+            vkCmdEndRenderPass(_commandBuffer);
+        }
+
+        void apply(CommandBuffer& commandBuffer)
+        {
+            std::cout<<"Visiting CommandBuffer : "<<typeid(commandBuffer).name()<<std::endl;
+
+            StoreAndRestore<VkCommandBuffer> temp(_commandBuffer);
+
+            // make this CommandBuffer the current one to use for all operations
+            _commandBuffer = commandBuffer;
+
+            VkCommandBufferBeginInfo beginInfo = {};
+            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            beginInfo.flags = commandBuffer.flags();
+            // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
+
+            vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+                commandBuffer.traverse(*this);
+
+            vkEndCommandBuffer(commandBuffer);
+
+            std::cout<<"End visit CommandBuffer"<<std::endl;
+        }
+
+        void populateCommandBuffer(vsg::Node* subgraph)
+        {
+            VkCommandBufferBeginInfo beginInfo = {};
+            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+            // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
+
+            vkBeginCommandBuffer(_commandBuffer, &beginInfo);
+
+                subgraph->accept(*this);
+
+            vkEndCommandBuffer(_commandBuffer);
+        }
+    };
+
 
     class Window : public Object
     {
@@ -103,14 +207,32 @@ namespace vsg
 
         size_t numFrames() const { return _frames.size(); }
 
-        Image* image(size_t i) { return _frames[i].image; }
-        const Image* image(size_t i) const { return _frames[i].image; }
-
         ImageView* imageView(size_t i) { return _frames[i].imageView; }
         const ImageView* imageView(size_t i) const { return _frames[i].imageView; }
 
         Framebuffer* framebuffer(size_t i) { return _frames[i].framebuffer; }
         const Framebuffer* framebuffer(size_t i) const { return _frames[i].framebuffer; }
+
+        CommandPool* commandPool(size_t i) { return _frames[i].commandPool; }
+        const CommandPool* commandPool(size_t i) const { return _frames[i].commandPool; }
+
+        CommandBuffer* commandBuffer(size_t i) { return _frames[i].commandBuffer; }
+        const CommandBuffer* commandBuffer(size_t i) const { return _frames[i].commandBuffer; }
+
+
+        VkResult acquireNextImage(uint64_t timeout, VkSemaphore samaphore, VkFence fence, uint32_t* imageIndex)
+        {
+            return vkAcquireNextImageKHR(*_device, *_swapchain, timeout, samaphore, fence, imageIndex);
+        }
+
+        void populateCommandBuffers(vsg::Node* commandGraph)
+        {
+            for(auto& frame : _frames)
+            {
+                CommandVisitor cv(frame.framebuffer, *frame.commandBuffer, _swapchain->getExtent(), VkClearValue{0.2f, 0.2f, 0.4f, 1.0f});
+                cv.populateCommandBuffer(commandGraph);
+            }
+        }
 
     protected:
 
@@ -126,6 +248,7 @@ namespace vsg
             std::cout<<"vsg::Window::clear() start"<<std::endl;
 
             _frames.clear();
+            _renderPass = 0;
             _swapchain = 0;
             _surface = 0;
             _device = 0;
@@ -139,13 +262,46 @@ namespace vsg
             _instance = window._instance;
             _physicalDevice = window._physicalDevice;
             _device = window._device;
+            _renderPass = window._renderPass;
+        }
+
+    public:
+        void buildSwapchain(uint32_t width, uint32_t height)
+        {
+            std::cout<<"buildSwapchain("<<width<<", "<<height<<")"<<std::endl;
+
+            if (_swapchain)
+            {
+                std::cout<<"cleaning up old swapchain objects"<<std::endl;
+                _frames.clear();
+                _swapchain = 0;
+                std::cout<<"creating new swapchain objects"<<std::endl;
+            }
+
+            _swapchain = Swapchain::create(_physicalDevice, _device, _surface, width, height);
+
+            Swapchain::ImageViews& imageViews = _swapchain->getImageViews();
+            Framebuffers frameBuffers = createFrameBuffers(_device, _swapchain, _renderPass);
+
+            std::size_t size = std::min(imageViews.size(), frameBuffers.size());
+            for (size_t i=0; i<size; ++i)
+            {
+                ref_ptr<CommandPool> cp = CommandPool::create(_device, _physicalDevice->getGraphicsFamily());
+                ref_ptr<CommandBuffer> cb =  CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+                _frames.push_back( {imageViews[i], frameBuffers[i], cp, cb} );
+            }
+
+            std::cout<<"finished buildSwapchain()"<<std::endl;
+
         }
 
         struct Frame
         {
-            ref_ptr<Image>       image;
-            ref_ptr<ImageView>   imageView;
-            ref_ptr<Framebuffer> framebuffer;
+            ref_ptr<ImageView>      imageView;
+            ref_ptr<Framebuffer>    framebuffer;
+            ref_ptr<CommandPool>    commandPool;
+            ref_ptr<CommandBuffer>  commandBuffer;
+
         };
 
         using Frames = std::vector<Frame>;
@@ -155,6 +311,8 @@ namespace vsg
         ref_ptr<Device>         _device;
         ref_ptr<Surface>        _surface;
         ref_ptr<Swapchain>      _swapchain;
+        ref_ptr<RenderPass>     _renderPass;
+
         Frames                  _frames;
     };
 };
@@ -273,7 +431,14 @@ public:
             // set up device
             _physicalDevice = vsg::PhysicalDevice::create(_instance, _surface);
             _device = vsg::Device::create(_instance, _physicalDevice, validatedNames, deviceExtensions);
+
+            // set up renderpass with the imageFormat that the swap chain will use
+            vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
+            VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
+            _renderPass = vsg::RenderPass::create(_device, imageFormat.format);
         }
+
+        buildSwapchain(width, height);
     }
 
     virtual bool valid() const { return _window && !glfwWindowShouldClose(_window); }
@@ -358,158 +523,6 @@ namespace vsg
     };
 
     using RenderPassBeginInfo = Info<VkRenderPassBeginInfo, VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO>;
-
-
-    template<typename T>
-    struct StoreAndRestore
-    {
-        using P = T*;
-
-        T _value;
-        P _ptr;
-
-        StoreAndRestore(T& value) : _value(value), _ptr(&value) {}
-        ~StoreAndRestore() { *_ptr = _value; }
-    };
-
-    class CommandVisitor : public Visitor
-    {
-    public:
-
-        ref_ptr<Framebuffer>    _framebuffer;
-        VkCommandBuffer         _commandBuffer;
-        VkExtent2D              _extent;
-        VkClearValue            _clearColor;
-
-        CommandVisitor(Framebuffer* framebuffer, VkCommandBuffer commandBuffer, const VkExtent2D& extent, const VkClearValue& clearColor) :
-            _framebuffer(framebuffer),
-            _commandBuffer(commandBuffer),
-            _extent(extent),
-            _clearColor(clearColor)
-        {
-        }
-
-        void apply(Object& object)
-        {
-            std::cout<<"Visiting internal object : "<<typeid(object).name()<<std::endl;
-            object.traverse(*this);
-        }
-
-        void apply(Node& object)
-        {
-            std::cout<<"Visiting internal node : "<<typeid(object).name()<<std::endl;
-            object.traverse(*this);
-        }
-
-        void apply(Command& cmd)
-        {
-            std::cout<<"Visiting leaf node : "<<typeid(cmd).name()<<std::endl;
-            cmd.dispatch(_commandBuffer);
-        }
-
-        void apply(RenderPass& renderPass)
-        {
-            std::cout<<"Visiting RenderPass : "<<typeid(renderPass).name()<<std::endl;
-
-            VkRenderPassBeginInfo renderPassInfo = {};
-            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            renderPassInfo.renderPass = renderPass;
-            renderPassInfo.framebuffer = *_framebuffer;
-            renderPassInfo.renderArea.offset = {0, 0};
-            renderPassInfo.renderArea.extent = _extent;
-
-            renderPassInfo.clearValueCount = 1;
-            renderPassInfo.pClearValues = &_clearColor;
-            vkCmdBeginRenderPass(_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-                renderPass.traverse(*this);
-
-            vkCmdEndRenderPass(_commandBuffer);
-        }
-
-        void apply(CommandBuffer& commandBuffer)
-        {
-            std::cout<<"Visiting CommandBuffer : "<<typeid(commandBuffer).name()<<std::endl;
-
-            StoreAndRestore<VkCommandBuffer> temp(_commandBuffer);
-
-            // make this CommandBuffer the current one to use for all operations
-            _commandBuffer = commandBuffer;
-
-            VkCommandBufferBeginInfo beginInfo = {};
-            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-            beginInfo.flags = commandBuffer.flags();
-            // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
-
-            vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-                commandBuffer.traverse(*this);
-
-            vkEndCommandBuffer(commandBuffer);
-
-            std::cout<<"End visit CommandBuffer"<<std::endl;
-        }
-
-        void populateCommandBuffer(vsg::Node* subgraph)
-        {
-            VkCommandBufferBeginInfo beginInfo = {};
-            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-            beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-            // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
-
-            vkBeginCommandBuffer(_commandBuffer, &beginInfo);
-
-                subgraph->accept(*this);
-
-            vkEndCommandBuffer(_commandBuffer);
-        }
-    };
-
-    class VulkanWindowObjects : public Object
-    {
-    public:
-
-        VulkanWindowObjects(PhysicalDevice* physicalDevice, Device* device, Surface* surface, CommandPool* commandPool, RenderPass* renderPass, uint32_t width, uint32_t height)
-        {
-            // keep device and commandPool around to enable vkFreeCommandBuffers call in destructor
-            _device = device;
-            _commandPool = commandPool;
-            _renderPass = renderPass;
-
-            // create all the window related Vulkan objects
-            swapchain = Swapchain::create(physicalDevice, device, surface, width, height);
-            framebuffers = createFrameBuffers(device, swapchain, renderPass);
-
-            std::cout<<"swapchain->getImageFormat()="<<swapchain->getImageFormat()<<std::endl;
-
-            commandBuffers = CommandBuffers::create(device, commandPool, framebuffers.size());
-
-            for(size_t i=0; i<framebuffers.size(); ++i)
-            {
-                commandVisitors.push_back(new CommandVisitor(framebuffers[i], commandBuffers->at(i), swapchain->getExtent(), VkClearValue{0.2f, 0.2f, 0.4f, 1.0f}));
-            }
-        }
-
-        void populateCommandBuffers(Node* commandGraph)
-        {
-            for(auto visitor : commandVisitors)
-            {
-                visitor->populateCommandBuffer(commandGraph);
-            }
-        }
-
-        ref_ptr<Device>             _device;
-        ref_ptr<CommandPool>        _commandPool;
-        ref_ptr<RenderPass>         _renderPass;
-
-        ref_ptr<Swapchain>          swapchain;
-        Framebuffers                framebuffers;
-        ref_ptr<CommandBuffers>     commandBuffers;
-
-        using CommandVisitors = std::vector<ref_ptr<CommandVisitor>>;
-        CommandVisitors             commandVisitors;
-
-    };
 
     template<typename F>
     void dispatchCommandsToQueue(Device* device, CommandPool* commandPool, VkQueue queue, F function)
@@ -1263,8 +1276,8 @@ int main(int argc, char** argv)
     // add the draw primitive command
     model->addChild(drawIndexed);
 
-    vsg::ref_ptr<vsg::VulkanWindowObjects> vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, renderPass, width, height);
-    vwo->populateCommandBuffers(commandGraph);
+
+    window->populateCommandBuffers(commandGraph);
 
     //
     // end of initialize vulkan
@@ -1285,7 +1298,6 @@ int main(int argc, char** argv)
         if (printFrameRate) std::cout<<"time = "<<time<<" fps="<<1.0/(time-previousTime)<<std::endl;
 
         bool needToRegerateVulkanWindowObjects = false;
-
         int new_width, new_height;
         glfwGetWindowSize(*window, &new_width, &new_height);
         if (new_width!=int(width) || new_height!=int(height))
@@ -1297,8 +1309,7 @@ int main(int argc, char** argv)
         uint32_t imageIndex;
         if (!needToRegerateVulkanWindowObjects)
         {
-            // drawFrame
-            VkResult result = vkAcquireNextImageKHR(*device, *(vwo->swapchain), std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+            VkResult result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
             if (result == VK_ERROR_OUT_OF_DATE_KHR)
             {
                 needToRegerateVulkanWindowObjects = true;
@@ -1315,22 +1326,20 @@ int main(int argc, char** argv)
         {
             vkDeviceWaitIdle(*device);
 
-            // clean up previous VulkanWindowObjects
-            vwo = nullptr;
+            window->buildSwapchain(new_width, new_height);
 
             // create new VulkanWindowObjects
             width = new_width;
             height = new_height;
-            vwo = new vsg::VulkanWindowObjects(physicalDevice, device, surface, commandPool, renderPass, width, height);
 
-            VkResult result = vkAcquireNextImageKHR(*device, *(vwo->swapchain), std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+            VkResult result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
             if (result != VK_SUCCESS)
             {
                 std::cout<<"Warning: could not recreate swap chain image."<<std::endl;
                 return 1;
             }
 
-            vwo->populateCommandBuffers(commandGraph);
+            window->populateCommandBuffers(commandGraph);
         }
 
         // update
@@ -1354,8 +1363,9 @@ int main(int argc, char** argv)
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
 
+        VkCommandBuffer commandBuffers[] = {*(window->commandBuffer(imageIndex))};
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &(vwo->commandBuffers->at(imageIndex));
+        submitInfo.pCommandBuffers = commandBuffers;
 
         VkSemaphore signalSemaphores[] = {*renderFinishedSemaphore};
         submitInfo.signalSemaphoreCount = 1;
@@ -1373,7 +1383,7 @@ int main(int argc, char** argv)
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = signalSemaphores;
 
-        VkSwapchainKHR swapChains[] = {*(vwo->swapchain)};
+        VkSwapchainKHR swapChains[] = {*(window->swapchain())};
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapChains;
 
@@ -1385,7 +1395,6 @@ int main(int argc, char** argv)
         {
             vkQueueWaitIdle(presentQueue);
         }
-
     }
 
     vkDeviceWaitIdle(*device);
