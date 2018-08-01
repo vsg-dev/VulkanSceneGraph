@@ -8,16 +8,11 @@
 
 #include <vsg/maths/transform.h>
 
-#include <vsg/vk/Instance.h>
-#include <vsg/vk/Surface.h>
-#include <vsg/vk/Swapchain.h>
 #include <vsg/vk/CmdDraw.h>
 #include <vsg/vk/ShaderModule.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/Pipeline.h>
-#include <vsg/vk/Framebuffer.h>
 #include <vsg/vk/CommandPool.h>
-#include <vsg/vk/Semaphore.h>
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/DeviceMemory.h>
 #include <vsg/vk/CommandBuffer.h>
@@ -164,6 +159,11 @@ public:
 
             // use GLFW to create surface
             _surface = new glfw::GLFWSurface(_instance, _window, nullptr);
+
+            // temporary hack to force vkGetPhysicalDeviceSurfaceSupportKHR to be called as the Vulkan
+            // debug layer is complaining about vkGetPhysicalDeviceSurfaceSupportKHR not being called
+            // for this _surface prior to swap chain creation
+            vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(_instance, _surface);
         }
         else
         {
@@ -630,6 +630,7 @@ int main(int argc, char** argv)
     int numFrames=-1;
     bool useStagingBuffer = false;
     bool printFrameRate = false;
+    int numWindows = 1;
 
     try
     {
@@ -639,6 +640,7 @@ int main(int argc, char** argv)
         if (vsg::CommandLine::read(argc, argv, "-f", numFrames)) {}
         if (vsg::CommandLine::read(argc, argv, "-s")) { useStagingBuffer = true; }
         if (vsg::CommandLine::read(argc, argv, "--fr")) { printFrameRate = true; }
+        if (vsg::CommandLine::read(argc, argv, "--num-windows", numWindows)) {}
     }
     catch (const std::runtime_error& error)
     {
@@ -646,7 +648,15 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    vsg::ref_ptr<vsg::Viewer> viewer = new vsg::Viewer;
+
     vsg::ref_ptr<glfw::Window> window = new glfw::Window(width, height, debugLayer, apiDumpLayer);
+    viewer->addWindow(window);
+
+    for(int i=1; i<numWindows; ++i)
+    {
+        viewer->addWindow(new glfw::Window(width, height, debugLayer, apiDumpLayer, window));
+    }
 
     vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = window->physicalDevice();
     vsg::ref_ptr<vsg::Device> device = window->device();
@@ -671,8 +681,6 @@ int main(int argc, char** argv)
     }
 
     vsg::ref_ptr<vsg::CommandPool> commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
-    vsg::ref_ptr<vsg::Semaphore> imageAvailableSemaphore = window->imageAvailableSemaphore();// vsg::Semaphore::create(device);
-    vsg::ref_ptr<vsg::Semaphore> renderFinishedSemaphore = vsg::Semaphore::create(device);
 
 
     // set up vertex arrays
@@ -1055,8 +1063,6 @@ int main(int argc, char** argv)
     model->addChild(drawIndexed);
 
 
-    window->populateCommandBuffers(commandGraph);
-
     //
     // end of initialize vulkan
     //
@@ -1065,8 +1071,10 @@ int main(int argc, char** argv)
     auto startTime =std::chrono::steady_clock::now();
     float time = 0.0f;
 
-    vsg::ref_ptr<vsg::Viewer> viewer = new vsg::Viewer;
-    viewer->addWindow(window);
+    for(auto& window : viewer->windows())
+    {
+        window->populateCommandBuffers(commandGraph);
+    }
 
     while (!viewer->done() && (numFrames<0 || (numFrames--)>0))
     {

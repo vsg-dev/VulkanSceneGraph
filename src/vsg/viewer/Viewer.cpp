@@ -24,7 +24,6 @@ void Viewer::addWindow(Window* window)
     {
         // set up per device settings
         PerDeviceObjects& new_pdo = _deviceMap[device];
-        new_pdo.windows.push_back(window);
         new_pdo.renderFinishedSemaphore = vsg::Semaphore::create(device);
         new_pdo.graphicsQueue = vsg::createDeviceQueue(*device, physicalDevice->getGraphicsFamily());
         new_pdo.presentQueue = vsg::createDeviceQueue(*device, physicalDevice->getPresentFamily());
@@ -33,6 +32,7 @@ void Viewer::addWindow(Window* window)
 
     // add per window details to pdo
     PerDeviceObjects& pdo = _deviceMap[device];
+    pdo.windows.push_back(window);
     pdo.imageIndices.push_back(0); // to be filled in by submitFrame()
     pdo.commandBuffers.push_back(0); // to be filled in by submitFrame()
     pdo.waitSemaphores.push_back(*(window->imageAvailableSemaphore()));
@@ -73,10 +73,8 @@ void Viewer::reassignFrameCache()
 
 void Viewer::submitFrame(vsg::Node* commandGraph)
 {
-    size_t numWindows = _windows.size();
-    for (size_t i=0; i<numWindows; ++i)
+    for (auto& window : _windows)
     {
-        vsg::Window* window = _windows[i];
         vsg::Semaphore* imageAvailableSemaphore = window->imageAvailableSemaphore();
         uint32_t imageIndex;
         VkResult result;

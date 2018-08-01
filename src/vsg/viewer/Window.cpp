@@ -50,8 +50,6 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     _extent2D.width = width;
     _extent2D.height = height;
 
-    std::cout<<"buildSwapchain("<<width<<", "<<height<<")"<<std::endl;
-
     if (!_imageAvailableSemaphore)
     {
         _imageAvailableSemaphore = vsg::Semaphore::create(_device);
@@ -59,10 +57,8 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
 
     if (_swapchain)
     {
-        std::cout<<"cleaning up old swapchain objects"<<std::endl;
         _frames.clear();
         _swapchain = 0;
-        std::cout<<"creating new swapchain objects"<<std::endl;
     }
 
     _swapchain = Swapchain::create(_physicalDevice, _device, _surface, width, height);
@@ -71,15 +67,14 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     Framebuffers frameBuffers = createFrameBuffers(_device, _swapchain, _renderPass);
 
     std::size_t size = std::min(imageViews.size(), frameBuffers.size());
+
     for (size_t i=0; i<size; ++i)
     {
         ref_ptr<CommandPool> cp = CommandPool::create(_device, _physicalDevice->getGraphicsFamily());
         ref_ptr<CommandBuffer> cb =  CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+
         _frames.push_back( {imageViews[i], frameBuffers[i], cp, cb} );
     }
-
-    std::cout<<"finished buildSwapchain()"<<std::endl;
-
 }
 
 }
