@@ -44,7 +44,9 @@ SET(HEADERS
     vk/Buffer.h
     vk/Image.h
     vk/Sampler.h
-    vk/Wdinow.h
+
+    viewer/Window.h
+    viewer/Viewer.h
 
     utils/CommandLine.h
 )
@@ -80,7 +82,9 @@ SET(SOURCES
     vk/Buffer.cpp
     vk/Image.cpp
     vk/Sampler.cpp
-    vk/Window.cpp
+
+    viewer/Window.cpp
+    viewer/Viewer.cpp
 )
 
 ADD_LIBRARY(vsg SHARED ${HEADER_FILES} ${SOURCES})

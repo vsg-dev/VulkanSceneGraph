@@ -1,5 +1,6 @@
+#include <vsg/viewer/Window.h>
+
 #include <vsg/vk/CommandVisitor.h>
-#include <vsg/vk/Window.h>
 
 #include <iostream>
 
@@ -50,6 +51,11 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     _extent2D.height = height;
 
     std::cout<<"buildSwapchain("<<width<<", "<<height<<")"<<std::endl;
+
+    if (!_imageAvailableSemaphore)
+    {
+        _imageAvailableSemaphore = vsg::Semaphore::create(_device);
+    }
 
     if (_swapchain)
     {

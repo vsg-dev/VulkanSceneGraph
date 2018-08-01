@@ -1,6 +1,9 @@
 #pragma once
 
 #include <vsg/vk/CommandPool.h>
+#include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/Framebuffer.h>
+#include <vsg/vk/Semaphore.h>
 
 namespace vsg
 {
@@ -49,11 +52,15 @@ namespace vsg
         CommandBuffer* commandBuffer(size_t i) { return _frames[i].commandBuffer; }
         const CommandBuffer* commandBuffer(size_t i) const { return _frames[i].commandBuffer; }
 
+        Semaphore* imageAvailableSemaphore() { return _imageAvailableSemaphore; }
+        const Semaphore* imageAvailableSemaphore() const { return _imageAvailableSemaphore; }
 
-        VkResult acquireNextImage(uint64_t timeout, VkSemaphore samaphore, VkFence fence, uint32_t* imageIndex)
+        VkResult acquireNextImage(uint64_t timeout, VkSemaphore samaphore, VkFence fence)
         {
-            return vkAcquireNextImageKHR(*_device, *_swapchain, timeout, samaphore, fence, imageIndex);
+            return vkAcquireNextImageKHR(*_device, *_swapchain, timeout, samaphore, fence, &_nextImageIndex);
         }
+
+        uint32_t nextImageIndex() const { return _nextImageIndex; }
 
         void populateCommandBuffers(vsg::Node* commandGraph);
 
@@ -87,7 +94,11 @@ namespace vsg
         ref_ptr<Swapchain>      _swapchain;
         ref_ptr<RenderPass>     _renderPass;
 
+        ref_ptr<Semaphore>      _imageAvailableSemaphore;
+
         Frames                  _frames;
+
+        uint32_t                _nextImageIndex;
     };
 
 

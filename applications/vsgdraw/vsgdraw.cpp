@@ -25,7 +25,9 @@
 #include <vsg/vk/DescriptorSetLayout.h>
 #include <vsg/vk/Image.h>
 #include <vsg/vk/Sampler.h>
-#include <vsg/vk/Window.h>
+
+#include <vsg/viewer/Window.h>
+#include <vsg/viewer/Viewer.h>
 
 #include <osg/ImageUtils>
 #include <osgDB/ReadFile>
@@ -75,6 +77,8 @@ namespace vsg
             out<<"    "<<name<<std::endl;
         }
     }
+
+
 };
 
 
@@ -667,7 +671,7 @@ int main(int argc, char** argv)
     }
 
     vsg::ref_ptr<vsg::CommandPool> commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
-    vsg::ref_ptr<vsg::Semaphore> imageAvailableSemaphore = vsg::Semaphore::create(device);
+    vsg::ref_ptr<vsg::Semaphore> imageAvailableSemaphore = window->imageAvailableSemaphore();// vsg::Semaphore::create(device);
     vsg::ref_ptr<vsg::Semaphore> renderFinishedSemaphore = vsg::Semaphore::create(device);
 
 
@@ -1061,8 +1065,10 @@ int main(int argc, char** argv)
     auto startTime =std::chrono::steady_clock::now();
     float time = 0.0f;
 
-    // main loop
-    while(window->valid() && (numFrames<0 || (numFrames--)>0))
+    vsg::ref_ptr<vsg::Viewer> viewer = new vsg::Viewer;
+    viewer->addWindow(window);
+
+    while (!viewer->done() && (numFrames<0 || (numFrames--)>0))
     {
         //std::cout<<"In main loop"<<std::endl;
         glfwPollEvents();
@@ -1071,28 +1077,12 @@ int main(int argc, char** argv)
         time = std::chrono::duration<float, std::chrono::seconds::period>(std::chrono::steady_clock::now()-startTime).count();
         if (printFrameRate) std::cout<<"time = "<<time<<" fps="<<1.0/(time-previousTime)<<std::endl;
 
-        uint32_t imageIndex;
-        VkResult result;
-        if (window->resized() || (result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex))!=VK_SUCCESS)
-        {
-            vkDeviceWaitIdle(*device);
-
-            window->resize();
-            window->populateCommandBuffers(commandGraph);
-
-            result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
-            if (result!=VK_SUCCESS)
-            {
-                std::cout<<"Failed to aquire image VkResult="<<result<<std::endl;
-                return 1;
-            }
-        }
-
         // update
         (*projMatrix) = vsg::perspective(vsg::radians(45.0f), float(width)/float(height), 0.1f, 10.f);
         (*viewMatrix) = vsg::lookAt(vsg::vec3(2.0f, 2.0f, 2.0f), vsg::vec3(0.0f, 0.0f, 0.0f), vsg::vec3(0.0f, 0.0f, 1.0f));
         (*modelMatrix) = vsg::rotate(time * vsg::radians(90.0f), vsg::vec3(0.0f, 0.0, 1.0f));
         uniformBufferChain->transfer(commandPool, graphicsQueue);
+
 #if 0
         std::cout<<std::endl<<"New frame "<<time<<std::endl;
         std::cout<<"projMatrix = {"<<projMatrix->value()<<"}"<<std::endl;
@@ -1100,50 +1090,9 @@ int main(int argc, char** argv)
         std::cout<<"modelMatrix = {"<<modelMatrix->value()<<"}"<<std::endl;
 #endif
 
-        VkSubmitInfo submitInfo = {};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        viewer->submitFrame(commandGraph);
 
-        VkSemaphore waitSemaphores[] = {*imageAvailableSemaphore};
-        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = waitSemaphores;
-        submitInfo.pWaitDstStageMask = waitStages;
-
-        VkCommandBuffer commandBuffers[] = {*(window->commandBuffer(imageIndex))};
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = commandBuffers;
-
-        VkSemaphore signalSemaphores[] = {*renderFinishedSemaphore};
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = signalSemaphores;
-
-        if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
-        {
-            std::cout<<"Error: failed to submit draw command buffer."<<std::endl;
-            return 1;
-        }
-
-        VkPresentInfoKHR presentInfo = {};
-        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-        presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = signalSemaphores;
-
-        VkSwapchainKHR swapChains[] = {*(window->swapchain())};
-        presentInfo.swapchainCount = 1;
-        presentInfo.pSwapchains = swapChains;
-
-        presentInfo.pImageIndices = &imageIndex;
-
-        vkQueuePresentKHR(presentQueue, &presentInfo);
-
-        if (debugLayer)
-        {
-            vkQueueWaitIdle(presentQueue);
-        }
     }
-
-    vkDeviceWaitIdle(*device);
 
     // clean up done automatically thanks to ref_ptr<>
     return 0;
