@@ -63,6 +63,8 @@ namespace vsg
         return scale(v.x, v.y, v.z);
     }
 
+#if 0
+    // OpenGL style -1 to 1 depth range
     template<typename T>
     tmat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
     {
@@ -73,6 +75,20 @@ namespace vsg
                         0,             0,  (zFar+zNear)*r, (2.0*zFar*zNear)*r,
                         0,             0,  -1,             0);
     }
+#else
+    // Vulkan style 0 to 1 depth range
+    template<typename T>
+    tmat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
+    {
+        T f = 1.0/tan(fovy_radians*0.5);
+        T r = 1.0/(zNear-zFar);
+        return tmat4<T>(f/aspectRatio, 0,  0,           0,
+                        0,             -f, 0,           0,
+                        0,             0,  (zFar)*r,    (zFar*zNear)*r,
+                        0,             0,  -1,          0);
+    }
+#endif
+
 
     template<typename T>
     tmat4<T> lookAt(tvec3<T> const & eye, tvec3<T> const & center, tvec3<T> const & up )
