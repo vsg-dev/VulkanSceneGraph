@@ -62,6 +62,8 @@ namespace vsg
 
         uint32_t nextImageIndex() const { return _nextImageIndex; }
 
+        bool debugLayersEnabled() const { return _debugLayersEnabled; }
+
         void populateCommandBuffers(vsg::Node* commandGraph);
 
     protected:
@@ -98,6 +100,7 @@ namespace vsg
 
         Frames                  _frames;
 
+        bool                    _debugLayersEnabled;
         uint32_t                _nextImageIndex;
     };
 

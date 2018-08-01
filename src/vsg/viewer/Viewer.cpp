@@ -86,8 +86,13 @@ void Viewer::reassignFrameCache()
 
 void Viewer::submitFrame(vsg::Node* commandGraph)
 {
+    bool debugLayersEnabled = false;
+
+    std::cout<<"Viewer::submitFrame()"<<std::endl;
     for (auto& window : _windows)
     {
+        if (window->debugLayersEnabled()) debugLayersEnabled=true;
+
         vsg::Semaphore* imageAvailableSemaphore = window->imageAvailableSemaphore();
         uint32_t imageIndex;
         VkResult result;
@@ -121,6 +126,8 @@ void Viewer::submitFrame(vsg::Node* commandGraph)
             uint32_t imageIndex = pdo.windows[i]->nextImageIndex();
             pdo.imageIndices[i] = imageIndex;
             pdo.commandBuffers[i] = *(pdo.windows[i]->commandBuffer(imageIndex));
+
+            std::cout<<"  submit "<<imageIndex<<std::endl;
         }
 
         VkSubmitInfo submitInfo = {};
@@ -159,8 +166,7 @@ void Viewer::submitFrame(vsg::Node* commandGraph)
 
     }
 
-    bool debugLayer = false;
-    if (debugLayer)
+    if (debugLayersEnabled)
     {
         for (auto& pair_pdo : _deviceMap)
         {

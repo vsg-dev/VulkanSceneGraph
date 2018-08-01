@@ -7,7 +7,9 @@
 namespace vsg
 {
 
-Window::Window() {}
+Window::Window() :
+    _debugLayersEnabled(false)
+{}
 
 Window::~Window()
 {

@@ -152,6 +152,8 @@ public:
         //glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
         _window = glfwCreateWindow(width, height, "Vulkan", nullptr, nullptr);
 
+        _debugLayersEnabled = debugLayer;
+
         if (shareWindow)
         {
             // share the _instance, _physicalDevice and _devoce;
