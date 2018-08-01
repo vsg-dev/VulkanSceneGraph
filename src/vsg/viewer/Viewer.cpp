@@ -12,6 +12,11 @@ Viewer::Viewer()
 
 Viewer::~Viewer()
 {
+    // don't kill window while devices are still active
+    for (auto& pair_pdo : _deviceMap)
+    {
+        vkDeviceWaitIdle(*pair_pdo.first);
+    }
 }
 
 void Viewer::addWindow(Window* window)
@@ -44,7 +49,15 @@ bool Viewer::done() const
 {
     for (auto window : _windows)
     {
-        if (!window->valid()) return true;
+        if (!window->valid())
+        {
+            // don't exit mainloop while the any devices are still active
+            for (auto& pair_pdo : _deviceMap)
+            {
+                vkDeviceWaitIdle(*pair_pdo.first);
+            }
+            return true;
+        }
     }
     return false;
 }
@@ -146,7 +159,7 @@ void Viewer::submitFrame(vsg::Node* commandGraph)
 
     }
 
-    bool debugLayer = true;
+    bool debugLayer = false;
     if (debugLayer)
     {
         for (auto& pair_pdo : _deviceMap)
