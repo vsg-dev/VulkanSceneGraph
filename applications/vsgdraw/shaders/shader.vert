@@ -5,7 +5,7 @@ layout(set = 0, binding = 0) uniform ProjectionMatrix { mat4 matrix; } projectio
 layout(set = 0, binding = 1) uniform ViewMatrix { mat4 matrix; } view;
 layout(set = 0, binding = 2) uniform ModelMatrix { mat4 matrix; } model;
 
-layout(location = 0) in vec2 inPosition;
+layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inColor;
 layout(location = 2) in vec2 inTexCoord;
 
@@ -17,7 +17,7 @@ out gl_PerVertex {
 };
 
 void main() {
-    gl_Position = projection.matrix * view.matrix * model.matrix * vec4(inPosition, 0.0, 1.0);
+    gl_Position = projection.matrix * view.matrix * model.matrix * vec4(inPosition, 1.0);
     fragColor = inColor;
     fragTexCoord = inTexCoord;
 }

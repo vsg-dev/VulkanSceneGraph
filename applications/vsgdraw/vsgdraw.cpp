@@ -686,14 +686,14 @@ int main(int argc, char** argv)
 
 
     // set up vertex arrays
-    vsg::ref_ptr<vsg::vec2Array> vertices = new vsg::vec2Array(4);
+    vsg::ref_ptr<vsg::vec3Array> vertices = new vsg::vec3Array(4);
     vsg::ref_ptr<vsg::vec3Array> colors = new vsg::vec3Array(4);
     vsg::ref_ptr<vsg::vec2Array> texcoords = new vsg::vec2Array(4);
 
-    vertices->set(0, {-0.5f, -0.5f});
-    vertices->set(1, {0.5f,  -0.5f});
-    vertices->set(2, {0.5f , 0.5f});
-    vertices->set(3, {-0.5f, 0.5f});
+    vertices->set(0, {-0.5f, -0.5f, 0.0f});
+    vertices->set(1, {0.5f,  -0.5f, 0.25f});
+    vertices->set(2, {0.5f , 0.5f, 0.0f});
+    vertices->set(3, {-0.5f, 0.5f, 0.0f});
 
     colors->set(0, {1.0f, 0.0f, 0.0f});
     colors->set(1, {0.0f, 1.0f, 0.0f});
@@ -916,12 +916,12 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::CmdBindIndexBuffer> bindIndexBuffer = new vsg::CmdBindIndexBuffer(indexBufferChain->_deviceBuffer, 0, VK_INDEX_TYPE_UINT16);
 
     vsg::VertexInputState::Bindings vertexBindingsDescriptions{
-        VkVertexInputBindingDescription{0, sizeof(vsg::vec2), VK_VERTEX_INPUT_RATE_VERTEX},
+        VkVertexInputBindingDescription{0, sizeof(vsg::vec3), VK_VERTEX_INPUT_RATE_VERTEX},
         VkVertexInputBindingDescription{1, sizeof(vsg::vec3), VK_VERTEX_INPUT_RATE_VERTEX},
         VkVertexInputBindingDescription{2, sizeof(vsg::vec2), VK_VERTEX_INPUT_RATE_VERTEX}
     };
     vsg::VertexInputState::Attributes vertexAttrobiteDescriptions{
-        VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32_SFLOAT, 0},
+        VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0},
         VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0},
         VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0},
     };
