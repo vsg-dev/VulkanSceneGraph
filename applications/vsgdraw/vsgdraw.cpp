@@ -686,32 +686,50 @@ int main(int argc, char** argv)
 
 
     // set up vertex arrays
-    vsg::ref_ptr<vsg::vec3Array> vertices = new vsg::vec3Array(4);
-    vsg::ref_ptr<vsg::vec3Array> colors = new vsg::vec3Array(4);
-    vsg::ref_ptr<vsg::vec2Array> texcoords = new vsg::vec2Array(4);
+    vsg::ref_ptr<vsg::vec3Array> vertices = new vsg::vec3Array(8);
+    vsg::ref_ptr<vsg::vec3Array> colors = new vsg::vec3Array(8);
+    vsg::ref_ptr<vsg::vec2Array> texcoords = new vsg::vec2Array(8);
 
     vertices->set(0, {-0.5f, -0.5f, 0.0f});
-    vertices->set(1, {0.5f,  -0.5f, 0.25f});
+    vertices->set(1, {0.5f,  -0.5f, 0.05f});
     vertices->set(2, {0.5f , 0.5f, 0.0f});
     vertices->set(3, {-0.5f, 0.5f, 0.0f});
+    vertices->set(4, {-0.5f, -0.5f, -0.5f});
+    vertices->set(5, {0.5f,  -0.5f, -0.5f});
+    vertices->set(6, {0.5f , 0.5f, -0.5});
+    vertices->set(7, {-0.5f, 0.5f, -0.5});
 
     colors->set(0, {1.0f, 0.0f, 0.0f});
     colors->set(1, {0.0f, 1.0f, 0.0f});
     colors->set(2, {0.0f, 0.0f, 1.0f});
     colors->set(3, {1.0f, 1.0f, 1.0f});
+    colors->set(4, {1.0f, 0.0f, 0.0f});
+    colors->set(5, {0.0f, 1.0f, 0.0f});
+    colors->set(6, {0.0f, 0.0f, 1.0f});
+    colors->set(7, {1.0f, 1.0f, 1.0f});
 
     texcoords->set(0, {0.0f, 0.0f});
     texcoords->set(1, {1.0f, 0.0f});
     texcoords->set(2, {1.0f, 1.0f});
     texcoords->set(3, {0.0f, 1.0f});
+    texcoords->set(4, {0.0f, 0.0f});
+    texcoords->set(5, {1.0f, 0.0f});
+    texcoords->set(6, {1.0f, 1.0f});
+    texcoords->set(7, {0.0f, 1.0f});
 
-    vsg::ref_ptr<vsg::ushortArray> indices = new vsg::ushortArray(6);
+    vsg::ref_ptr<vsg::ushortArray> indices = new vsg::ushortArray(12);
     indices->set(0, 0);
     indices->set(1, 1);
     indices->set(2, 2);
     indices->set(3, 2);
     indices->set(4, 3);
     indices->set(5, 0);
+    indices->set(6, 4);
+    indices->set(7, 5);
+    indices->set(8, 6);
+    indices->set(9, 6);
+    indices->set(10, 7);
+    indices->set(11, 4);
 
     // set up uniforms
     using DataList = std::vector<vsg::ref_ptr<vsg::Data>>;
@@ -926,7 +944,7 @@ int main(int argc, char** argv)
         VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0},
     };
 
-    vsg::ref_ptr<vsg::CmdDrawIndexed> drawIndexed = new vsg::CmdDrawIndexed(6, 1, 0, 0, 0);
+    vsg::ref_ptr<vsg::CmdDrawIndexed> drawIndexed = new vsg::CmdDrawIndexed(12, 1, 0, 0, 0);
 
     // setup pipeline
     vsg::GraphicsPipelineStates pipelineStates;
