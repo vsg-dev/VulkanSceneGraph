@@ -24,4 +24,18 @@ namespace vsg
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 
+    class ImageMemoryBarrier : public Object, public VkImageMemoryBarrier
+    {
+    public:
+
+        ImageMemoryBarrier(VkAccessFlags in_srcAccessMask=0, VkAccessFlags in_destAccessMask=0,
+                            VkImageLayout in_oldLayout=VK_IMAGE_LAYOUT_UNDEFINED, VkImageLayout in_newLayout=VK_IMAGE_LAYOUT_UNDEFINED,
+                            Image* in_image=nullptr);
+
+        void cmdPiplineBarrier(VkCommandBuffer commandBuffer, VkPipelineStageFlags sourceStage, VkPipelineStageFlags destinationStage);
+
+    //protected:
+        virtual ~ImageMemoryBarrier();
+    };
+
 }

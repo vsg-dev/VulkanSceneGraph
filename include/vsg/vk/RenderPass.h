@@ -14,7 +14,7 @@ namespace vsg
         virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 
         using Result = vsg::Result<RenderPass, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, VkFormat imageFormat, AllocationCallbacks* allocator=nullptr);
+        static Result create(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator=nullptr);
 
         operator VkRenderPass () const { return _renderPass; }
 

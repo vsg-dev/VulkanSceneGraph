@@ -4,6 +4,7 @@
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Framebuffer.h>
 #include <vsg/vk/Semaphore.h>
+#include <vsg/vk/DeviceMemory.h>
 
 namespace vsg
 {
@@ -34,6 +35,9 @@ namespace vsg
 
         Surface* surface() { return _surface; }
         const Surface* surface() const { return _surface; }
+
+        RenderPass* renderPass() { return _renderPass; }
+        const RenderPass* renderPass() const { return _renderPass; }
 
         Swapchain* swapchain() { return _swapchain; }
         const Swapchain* swapchain() const { return _swapchain; }
@@ -88,6 +92,7 @@ namespace vsg
         using Frames = std::vector<Frame>;
 
         VkExtent2D              _extent2D;
+        VkClearColorValue       _clearColor;
 
         ref_ptr<Instance>       _instance;
         ref_ptr<PhysicalDevice> _physicalDevice;
@@ -95,6 +100,9 @@ namespace vsg
         ref_ptr<Surface>        _surface;
         ref_ptr<Swapchain>      _swapchain;
         ref_ptr<RenderPass>     _renderPass;
+        ref_ptr<Image>          _depthImage;
+        ref_ptr<DeviceMemory>   _depthImageMemory;
+        ref_ptr<ImageView>      _depthImageView;
 
         ref_ptr<Semaphore>      _imageAvailableSemaphore;
 

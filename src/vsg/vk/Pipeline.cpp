@@ -205,6 +205,31 @@ void MultisampleState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
 
 ////////////////////////////////////////////////////////////////////////
 //
+// DepthStencilState
+//
+DepthStencilState::DepthStencilState() :
+    VkPipelineDepthStencilStateCreateInfo{VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO}
+{
+    depthTestEnable =VK_TRUE;
+    depthWriteEnable = VK_TRUE;
+    depthCompareOp = VK_COMPARE_OP_LESS;
+    depthBoundsTestEnable = VK_FALSE;
+    stencilTestEnable = VK_FALSE;
+}
+
+DepthStencilState::~DepthStencilState()
+{
+    std::cout<<"~DepthStencilState()"<<std::endl;
+}
+
+void DepthStencilState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
+{
+    pipelineInfo.pDepthStencilState = this;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
 // ColorBlendState
 //
 ColorBlendState::ColorBlendState() :

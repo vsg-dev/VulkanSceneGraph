@@ -11,6 +11,9 @@ namespace vsg
     public:
         Framebuffer(Device* device, VkFramebuffer framebuffer, AllocationCallbacks* allocator=nullptr);
 
+        using Result = vsg::Result<Framebuffer, VkResult, VK_SUCCESS>;
+        static Result create(Device* device, VkFramebufferCreateInfo& framebufferInfo, AllocationCallbacks*  allocator=nullptr);
+
         operator VkFramebuffer () const { return _framebuffer; }
 
     protected:
@@ -20,10 +23,4 @@ namespace vsg
         VkFramebuffer                   _framebuffer;
         ref_ptr<AllocationCallbacks>    _allocator;
     };
-
-    using Framebuffers = std::vector<ref_ptr<Framebuffer>>;
-
-    extern Framebuffers createFrameBuffers(Device* device, Swapchain* swapchain, RenderPass* renderPass, AllocationCallbacks* allocator=nullptr);
-
-
 }

@@ -111,6 +111,8 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
         return Swapchain::Result("Error: vsg::Swapchain::create(...) failed to create swapchain, undefined inputs.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
+    std::cout<<"Swapchain::create(...., width = "<<width<<", height = "<<height<<")"<<std::endl;
+
     SwapChainSupportDetails details = querySwapChainSupport(*physicalDevice, *surface);
 
     VkSurfaceFormatKHR surfaceFormat = selectSwapSurfaceFormat(details);
@@ -176,7 +178,7 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
 
     for (std::size_t i=0; i<images.size(); ++i)
     {
-        ref_ptr<ImageView> view = ImageView::create(device, images[i], surfaceFormat.format, allocator);
+        ref_ptr<ImageView> view = ImageView::create(device, images[i], surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT, allocator);
         if (view) sw->getImageViews().push_back(view);
     }
 

@@ -201,7 +201,8 @@ public:
             // set up renderpass with the imageFormat that the swap chain will use
             vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
             VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
-            _renderPass = vsg::RenderPass::create(_device, imageFormat.format);
+            VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT;//VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
+            _renderPass = vsg::RenderPass::create(_device, imageFormat.format, depthFormat);
         }
 
         buildSwapchain(width, height);
@@ -303,33 +304,6 @@ namespace vsg
     };
 
     using RenderPassBeginInfo = Info<VkRenderPassBeginInfo, VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO>;
-
-    template<typename F>
-    void dispatchCommandsToQueue(Device* device, CommandPool* commandPool, VkQueue queue, F function)
-    {
-        vsg::ref_ptr<vsg::CommandBuffer> transferCommand = vsg::CommandBuffer::create(device, commandPool, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-
-        VkCommandBufferBeginInfo beginInfo = {};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = transferCommand->flags();
-
-        vkBeginCommandBuffer(*transferCommand, &beginInfo);
-
-            function(*transferCommand);
-
-        vkEndCommandBuffer(*transferCommand);
-
-        VkSubmitInfo submitInfo = {};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = transferCommand->data();
-
-        vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
-
-        // we must wait for the queue to empty before we can safely clean up the transferCommand
-        vkQueueWaitIdle(queue);
-    }
-
 
     class BufferChain : public Object
     {
@@ -511,51 +485,6 @@ namespace vsg
     };
 
 
-    class ImageMemoryBarrier : public Object, public VkImageMemoryBarrier
-    {
-    public:
-
-        ImageMemoryBarrier(VkAccessFlags in_srcAccessMask=0, VkAccessFlags in_destAccessMask=0,
-                            VkImageLayout in_oldLayout=VK_IMAGE_LAYOUT_UNDEFINED, VkImageLayout in_newLayout=VK_IMAGE_LAYOUT_UNDEFINED,
-                            Image* in_image=nullptr) :
-                            VkImageMemoryBarrier{}
-        {
-            sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            oldLayout = in_oldLayout;
-            newLayout = in_newLayout;
-            srcAccessMask = in_srcAccessMask;
-            dstAccessMask = in_destAccessMask;
-            srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-            dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-            image = *in_image;
-            subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            subresourceRange.baseMipLevel = 0;
-            subresourceRange.levelCount = 1;
-            subresourceRange.baseArrayLayer = 0;
-            subresourceRange.layerCount = 1;
-        }
-
-
-        void cmdPiplineBarrier(VkCommandBuffer commandBuffer, VkPipelineStageFlags sourceStage, VkPipelineStageFlags destinationStage)
-        {
-            std::cout<<"cmdPiplineBarrier("<<std::endl;
-            std::cout<<"    sourceStage = "<<sourceStage<<std::endl;
-            std::cout<<"    destinationStage="<<destinationStage<<std::endl;
-            std::cout<<"    srcAccessMask = 0x"<<std::hex<<srcAccessMask<<std::endl;
-            std::cout<<"    dstAccessMask = 0x"<<dstAccessMask<<std::endl;
-            std::cout<<"    oldLayout = "<<std::dec<<oldLayout<<std::endl;
-            std::cout<<"    newLayout = "<<newLayout<<std::endl;
-
-            vkCmdPipelineBarrier(commandBuffer,
-                                 sourceStage, destinationStage,
-                                 0,
-                                 0, nullptr,
-                                 0, nullptr,
-                                 1, static_cast<VkImageMemoryBarrier*>(this));
-        }
-
-    };
-
 
 }
 
@@ -663,6 +592,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = window->physicalDevice();
     vsg::ref_ptr<vsg::Device> device = window->device();
     vsg::ref_ptr<vsg::Surface> surface = window->surface();
+    vsg::ref_ptr<vsg::RenderPass> renderPass = window->renderPass();
 
     vsg::ref_ptr<vsg::ShaderModule> vert = vsg::ShaderModule::read(device, VK_SHADER_STAGE_VERTEX_BIT, "main", "shaders/vert.spv");
     vsg::ref_ptr<vsg::ShaderModule> frag = vsg::ShaderModule::read(device, VK_SHADER_STAGE_FRAGMENT_BIT, "main", "shaders/frag.spv");
@@ -674,8 +604,8 @@ int main(int argc, char** argv)
     vsg::ShaderModules shaderModules{vert, frag};
     vsg::ref_ptr<vsg::ShaderStages> shaderStages = new vsg::ShaderStages(shaderModules);
 
-    VkQueue graphicsQueue = vsg::createDeviceQueue(*device, physicalDevice->getGraphicsFamily());
-    VkQueue presentQueue = vsg::createDeviceQueue(*device, physicalDevice->getPresentFamily());
+    VkQueue graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());
+    VkQueue presentQueue = device->getQueue(physicalDevice->getPresentFamily());
     if (!graphicsQueue || !presentQueue)
     {
         std::cout<<"Required graphics/present queue not available!"<<std::endl;
@@ -883,7 +813,7 @@ int main(int argc, char** argv)
     // delete osg_image as it's no longer required.
     osg_image = 0;
 
-    vsg::ref_ptr<vsg::ImageView> textureImageView = vsg::ImageView::create(device, *textureImage, VK_FORMAT_R8G8B8A8_UNORM);
+    vsg::ref_ptr<vsg::ImageView> textureImageView = vsg::ImageView::create(device, *textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT);
 
     // default texture sampler
     vsg::ref_ptr<vsg::Sampler> textureSampler = vsg::Sampler::create(device);
@@ -955,11 +885,8 @@ int main(int argc, char** argv)
     pipelineStates.push_back(new vsg::RasterizationState);
     pipelineStates.push_back(new vsg::MultisampleState);
     pipelineStates.push_back(new vsg::ColorBlendState);
+    pipelineStates.push_back(new vsg::DepthStencilState);
 
-    // set up renderpass with the imageFormat that the swap chain will use
-    vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*physicalDevice, *surface);
-    VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
-    vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, imageFormat.format);
 
 
     vsg::DescriptorPoolSizes poolSizes{
@@ -1081,7 +1008,6 @@ int main(int argc, char** argv)
 
     // add the draw primitive command
     model->addChild(drawIndexed);
-
 
     //
     // end of initialize vulkan

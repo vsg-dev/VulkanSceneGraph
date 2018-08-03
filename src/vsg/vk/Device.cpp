@@ -73,4 +73,14 @@ Device::Result Device::create(Instance* instance, PhysicalDevice* physicalDevice
     }
 }
 
+VkQueue Device::getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
+{
+    VkQueue queue;
+    vkGetDeviceQueue(_device, queueFamilyIndex, queueIndex, &queue);
+    return queue;
+}
+
+
+
+
 }

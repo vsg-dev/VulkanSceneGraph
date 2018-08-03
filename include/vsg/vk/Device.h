@@ -20,6 +20,8 @@ namespace vsg
         AllocationCallbacks* getAllocationCallbacks() { return _allocator.get(); }
         const AllocationCallbacks* getAllocationCallbacks() const { return _allocator.get(); }
 
+        VkQueue getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex=0);
+
     protected:
 
         virtual ~Device();

@@ -1,5 +1,7 @@
 #include <vsg/vk/CommandVisitor.h>
 
+#include <array>
+
 #include <iostream>
 #include <typeinfo>
 
@@ -21,7 +23,7 @@ struct StoreAndRestore
 
 
 
-CommandVisitor::CommandVisitor(Framebuffer* framebuffer, VkCommandBuffer commandBuffer, const VkExtent2D& extent, const VkClearValue& clearColor) :
+CommandVisitor::CommandVisitor(Framebuffer* framebuffer, VkCommandBuffer commandBuffer, const VkExtent2D& extent, const VkClearColorValue& clearColor) :
     _framebuffer(framebuffer),
     _commandBuffer(commandBuffer),
     _extent(extent),
@@ -58,8 +60,12 @@ void CommandVisitor::apply(RenderPass& renderPass)
     renderPassInfo.renderArea.offset = {0, 0};
     renderPassInfo.renderArea.extent = _extent;
 
-    renderPassInfo.clearValueCount = 1;
-    renderPassInfo.pClearValues = &_clearColor;
+    std::array<VkClearValue, 2> clearValues = {};
+    clearValues[0].color = _clearColor;
+    clearValues[1].depthStencil = {1.0f, 0};
+
+    renderPassInfo.clearValueCount = clearValues.size();
+    renderPassInfo.pClearValues = clearValues.data();
     vkCmdBeginRenderPass(_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
         renderPass.traverse(*this);

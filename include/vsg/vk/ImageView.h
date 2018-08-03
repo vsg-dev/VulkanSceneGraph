@@ -11,11 +11,11 @@ namespace vsg
 
         using Result = vsg::Result<ImageView, VkResult, VK_SUCCESS>;
 
-        static Result create(Device* device, VkImage image, VkFormat format, AllocationCallbacks* allocator=nullptr);
+        static Result create(Device* device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator=nullptr);
 
-        static Result create(Device* device, Image* image, VkFormat format, AllocationCallbacks* allocator=nullptr)
+        static Result create(Device* device, Image* image, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator=nullptr)
         {
-            return create(device, *image, format, allocator);
+            return create(device, *image, format, aspectFlags, allocator);
         }
 
         operator VkImageView() const { return _imageView; }

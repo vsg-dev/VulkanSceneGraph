@@ -31,6 +31,33 @@ namespace vsg
         VkCommandBufferUsageFlags   _flags;
     };
 
+    template<typename F>
+    void dispatchCommandsToQueue(Device* device, CommandPool* commandPool, VkQueue queue, F function)
+    {
+        vsg::ref_ptr<vsg::CommandBuffer> transferCommand = vsg::CommandBuffer::create(device, commandPool, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
+        VkCommandBufferBeginInfo beginInfo = {};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = transferCommand->flags();
+
+        vkBeginCommandBuffer(*transferCommand, &beginInfo);
+
+            function(*transferCommand);
+
+        vkEndCommandBuffer(*transferCommand);
+
+        VkSubmitInfo submitInfo = {};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = transferCommand->data();
+
+        vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+
+        // we must wait for the queue to empty before we can safely clean up the transferCommand
+        vkQueueWaitIdle(queue);
+    }
+
+
 
 
     class CommandBuffers : public Object

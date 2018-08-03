@@ -99,6 +99,7 @@ namespace vsg
         Attributes                              _attributes;
     };
 
+
     class InputAssemblyState : public GraphicsPipelineState, public VkPipelineInputAssemblyStateCreateInfo
     {
     public:
@@ -132,6 +133,7 @@ namespace vsg
         VkRect2D                            _scissor;
     };
 
+
     class RasterizationState : public GraphicsPipelineState, public VkPipelineRasterizationStateCreateInfo
     {
     public:
@@ -145,6 +147,7 @@ namespace vsg
         virtual ~RasterizationState();
     };
 
+
     class MultisampleState : public GraphicsPipelineState, public VkPipelineMultisampleStateCreateInfo
     {
     public:
@@ -156,8 +159,20 @@ namespace vsg
 
     protected:
         virtual ~MultisampleState();
+    };
 
-        VkPipelineMultisampleStateCreateInfo _info;
+
+    class DepthStencilState : public GraphicsPipelineState, public VkPipelineDepthStencilStateCreateInfo
+    {
+    public:
+        DepthStencilState();
+
+        virtual VkStructureType getType() const { return sType; }
+
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const;
+
+    protected:
+        virtual ~DepthStencilState();
     };
 
 

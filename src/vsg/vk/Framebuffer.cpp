@@ -21,39 +21,24 @@ Framebuffer::~Framebuffer()
     }
 }
 
-Framebuffers createFrameBuffers(Device* device, Swapchain* swapchain, RenderPass* renderPass, AllocationCallbacks* allocator)
+Framebuffer::Result Framebuffer::create(Device* device, VkFramebufferCreateInfo& framebufferInfo, AllocationCallbacks*  allocator)
 {
-    const Swapchain::ImageViews& imageViews = swapchain->getImageViews();
-    const VkExtent2D& extent = swapchain->getExtent();
-
-    Framebuffers framebuffers;
-    for(auto imageView : imageViews)
+    if (!device)
     {
-        VkImageView attachments[] =
-        {
-            *imageView
-        };
-
-        VkFramebufferCreateInfo framebufferInfo = {};
-        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = *renderPass;
-        framebufferInfo.attachmentCount = 1;
-        framebufferInfo.pAttachments = attachments;
-        framebufferInfo.width = extent.width;
-        framebufferInfo.height = extent.height;
-        framebufferInfo.layers = 1;
-
-        VkFramebuffer framebuffer;
-        if (vkCreateFramebuffer(*device,&framebufferInfo, *allocator, &framebuffer) == VK_SUCCESS)
-        {
-            framebuffers.push_back(new Framebuffer(device, framebuffer, allocator));
-        }
-        else
-        {
-            std::cout<<"Failing to create framebuffer for "<<&imageView<<std::endl;
-        }
+        return Result("Error: vsg::Framebuffer::create(...) failed to create Framebuffer, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
-    return framebuffers;
+
+    VkFramebuffer framebuffer;
+    VkResult result = vkCreateFramebuffer(*device,&framebufferInfo, *allocator, &framebuffer);
+    if (result == VK_SUCCESS)
+    {
+        return new Framebuffer(device, framebuffer, allocator);
+    }
+    else
+    {
+        return Result("Error: vsg::Framebuffer::create(...) Failed to create VkFramebuffer.", result);
+    }
+
 }
 
 }

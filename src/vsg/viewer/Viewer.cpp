@@ -30,8 +30,8 @@ void Viewer::addWindow(Window* window)
         // set up per device settings
         PerDeviceObjects& new_pdo = _deviceMap[device];
         new_pdo.renderFinishedSemaphore = vsg::Semaphore::create(device);
-        new_pdo.graphicsQueue = vsg::createDeviceQueue(*device, physicalDevice->getGraphicsFamily());
-        new_pdo.presentQueue = vsg::createDeviceQueue(*device, physicalDevice->getPresentFamily());
+        new_pdo.graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());
+        new_pdo.presentQueue = device->getQueue(physicalDevice->getPresentFamily());
         new_pdo.signalSemaphores.push_back(*new_pdo.renderFinishedSemaphore);
     }
 
@@ -88,7 +88,6 @@ void Viewer::submitFrame(vsg::Node* commandGraph)
 {
     bool debugLayersEnabled = false;
 
-    std::cout<<"Viewer::submitFrame()"<<std::endl;
     for (auto& window : _windows)
     {
         if (window->debugLayersEnabled()) debugLayersEnabled=true;
@@ -98,13 +97,11 @@ void Viewer::submitFrame(vsg::Node* commandGraph)
         VkResult result;
         if (window->resized() || (result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *(imageAvailableSemaphore), VK_NULL_HANDLE))!=VK_SUCCESS)
         {
-            vkDeviceWaitIdle(*(window->device()));
-
             window->resize();
 
-            window->populateCommandBuffers(commandGraph);
-
             reassignFrameCache();
+
+            window->populateCommandBuffers(commandGraph);
 
             result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE);
             if (result!=VK_SUCCESS)
@@ -112,7 +109,6 @@ void Viewer::submitFrame(vsg::Node* commandGraph)
                 std::cout<<"Failed to aquire image VkResult="<<result<<std::endl;
                 return;
             }
-
         }
     }
 
@@ -126,8 +122,6 @@ void Viewer::submitFrame(vsg::Node* commandGraph)
             uint32_t imageIndex = pdo.windows[i]->nextImageIndex();
             pdo.imageIndices[i] = imageIndex;
             pdo.commandBuffers[i] = *(pdo.windows[i]->commandBuffer(imageIndex));
-
-            std::cout<<"  submit "<<imageIndex<<std::endl;
         }
 
         VkSubmitInfo submitInfo = {};

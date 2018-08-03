@@ -15,13 +15,6 @@ namespace vsg
 
     extern Names validateInstancelayerNames(const Names& names);
 
-    inline VkQueue createDeviceQueue(VkDevice device, int graphicsFamily)
-    {
-        VkQueue queue;
-        vkGetDeviceQueue(device, graphicsFamily, 0, &queue);
-        return queue;
-    }
-
     class Instance : public vsg::Object
     {
     public:
