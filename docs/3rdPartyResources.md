@@ -80,3 +80,6 @@ associated with Vulkan :
 
 * [Awesome List of Vulkan resources](https://github.com/vinjn/awesome-vulkan)
 
+## Vulkan Prestations
+* [Keeping-your-GPU-fed](https://www.khronos.org/assets/uploads/developers/library/2016-vulkan-devday-uk/7-Keeping-your-GPU-fed.pdf)
+* [Samsung Vulkan Usage Recommendations](https://developer.samsung.com/game/usage)
