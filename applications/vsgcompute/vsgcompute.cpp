@@ -82,8 +82,7 @@ int main(int argc, char** argv)
     }
     std::cout<<"Created logical device="<<device.get()<<std::endl;
 
-#if 1
-    vsg::ref_ptr<vsg::ShaderModule> computeShader = vsg::ShaderModule::read(device, VK_SHADER_STAGE_VERTEX_BIT, "main", "shaders/comp.spv");
+    vsg::ref_ptr<vsg::ShaderModule> computeShader = vsg::ShaderModule::read(device, VK_SHADER_STAGE_COMPUTE_BIT, "main", "shaders/comp.spv");
     if (!computeShader)
     {
         std::cout<<"Could not create shaders"<<std::endl;
@@ -92,8 +91,6 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::ShaderStages> shaderStages = new vsg::ShaderStages({computeShader});
 
     std::cout<<"Created ShaderStages "<<shaderStages.get()<<std::endl;
-
-#endif
 
     // clean up done automatically thanks to ref_ptr<>
     return 0;
