@@ -58,6 +58,7 @@ int main(int argc, char** argv)
 
     vsg::Names instanceExtensions;
     vsg::Names requestedLayers;
+    vsg::Names deviceExtensions;
     if (debugLayer)
     {
         instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
@@ -68,11 +69,10 @@ int main(int argc, char** argv)
     vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
 
     vsg::ref_ptr<vsg::Instance> instance = vsg::Instance::create(instanceExtensions, validatedNames);
+    vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(instance, VK_QUEUE_COMPUTE_BIT);
+    vsg::ref_ptr<vsg::Device> device = vsg::Device::create(instance, physicalDevice, validatedNames, deviceExtensions);
 
     std::cout<<"Instance "<<instance.get()<<std::endl;
-
-    vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(instance, VK_QUEUE_COMPUTE_BIT);
-
     std::cout<<"Physical device "<<physicalDevice<<std::endl;
     if (physicalDevice)
     {
@@ -80,18 +80,19 @@ int main(int argc, char** argv)
         std::cout<<"    presentFamily "<<physicalDevice->getPresentFamily()<<std::endl;
         std::cout<<"    computeFamily "<<physicalDevice->getComputeFamily()<<std::endl;
     }
-#if 0
-    vsg::ref_ptr<vsg::Device> device = window->device();
+    std::cout<<"Created logical device="<<device.get()<<std::endl;
 
-
-    vsg::ref_ptr<vsg::ShaderModule> computeShader = vsg::ShaderModule::read(device, VK_SHADER_STAGE_VERTEX_BIT, "main", "shaders/compute.spv");
+#if 1
+    vsg::ref_ptr<vsg::ShaderModule> computeShader = vsg::ShaderModule::read(device, VK_SHADER_STAGE_VERTEX_BIT, "main", "shaders/comp.spv");
     if (!computeShader)
     {
         std::cout<<"Could not create shaders"<<std::endl;
         return 1;
     }
-    vsg::ShaderModules shaderModules{vert, frag};
     vsg::ref_ptr<vsg::ShaderStages> shaderStages = new vsg::ShaderStages({computeShader});
+
+    std::cout<<"Created ShaderStages "<<shaderStages.get()<<std::endl;
+
 #endif
 
     // clean up done automatically thanks to ref_ptr<>

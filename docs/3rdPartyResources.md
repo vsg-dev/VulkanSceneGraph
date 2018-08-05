@@ -75,6 +75,11 @@ implement certain features :
 * [JHerico's Vukan examples](https://github.com/jherico/Vulkan)
 * [gliterop example](https://github.com/jherico/Vulkan/tree/cpp/examples/glinterop)
 
+
+Vulkan Compute examples:
+
+* [vulkan_minimal_compute](https://github.com/Erkaman/vulkan_minimal_compute)
+
 There's also a curated list of useful links to everything
 associated with Vulkan :
 
