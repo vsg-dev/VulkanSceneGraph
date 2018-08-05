@@ -5,21 +5,22 @@
 namespace vsg
 {
 
-PhysicalDevice::PhysicalDevice(Instance* instance, Surface* surface, VkPhysicalDevice device, int gFamily, int pFamily) :
+PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int graphicsFamily, int presentFamily, int computeFamily, Surface* surface) :
     _instance(instance),
-    _surface(surface),
     _device(device),
-    _graphicsFamily(gFamily),
-    _presentFamily(pFamily)
+    _graphicsFamily(graphicsFamily),
+    _presentFamily(presentFamily),
+    _computeFamily(computeFamily),
+    _surface(surface)
 {
     vkGetPhysicalDeviceProperties(_device, &_properties);
 }
 
-PhysicalDevice::Result PhysicalDevice::create(Instance* instance, Surface* surface)
+PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags queueFlags, Surface* surface)
 {
-    if (!instance || !surface)
+    if (!instance)
     {
-        return PhysicalDevice::Result("Error: vsg::PhysicalDevice::create(...) failed to create physical device, undefined Instance and/or Surface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return PhysicalDevice::Result("Error: vsg::PhysicalDevice::create(...) failed to create physical device, undefined Instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     uint32_t deviceCount = 0;
@@ -47,6 +48,9 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, Surface* surfa
 
         int graphicsFamily = -1;
         int presentFamily = -1;
+        int computeFamily = -1;
+
+        VkQueueFlags matchedQueues = 0;
 
         for (int i=0; i<queueFamilyCount; ++i)
         {
@@ -54,22 +58,35 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, Surface* surfa
             if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)!=0)
             {
                 graphicsFamily = i;
+                matchedQueues |= VK_QUEUE_GRAPHICS_BIT;
             }
 
-            VkBool32 presentSupported = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, *surface, &presentSupported);
-            if (queueFamily.queueCount>0 && presentSupported)
+            if ((queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT)!=0)
             {
-                presentFamily = i;
+                computeFamily = i;
+                matchedQueues |= VK_QUEUE_COMPUTE_BIT;
             }
 
-            if (device!=VK_NULL_HANDLE && graphicsFamily>=0 && presentFamily>=0)
+            if (surface)
             {
-                std::cout<<"created PhysicalDevice"<<std::endl;
-                return new PhysicalDevice(instance, surface, device, graphicsFamily, presentFamily);
+                VkBool32 presentSupported = false;
+                vkGetPhysicalDeviceSurfaceSupportKHR(device, i, *surface, &presentSupported);
+                if (queueFamily.queueCount>0 && presentSupported)
+                {
+                    presentFamily = i;
+                }
             }
         }
 
+        if (((matchedQueues & queueFlags)==queueFlags) && (surface==nullptr || presentFamily>=0))
+        {
+            std::cout<<"   created PhysicalDevice, matchedQueues="<<matchedQueues<<std::endl;
+            return new PhysicalDevice(instance, device, graphicsFamily, presentFamily, computeFamily, surface);
+        }
+        else
+        {
+            std::cout<<"   PhysicalDevice doesn't have required queue supoort matchedQueues="<<matchedQueues<<std::endl;
+        }
     }
 
     return PhysicalDevice::Result("Error: vsg::Device::create(...) failed to create physical device.", VK_INCOMPLETE);

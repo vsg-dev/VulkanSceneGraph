@@ -165,7 +165,7 @@ public:
             // temporary hack to force vkGetPhysicalDeviceSurfaceSupportKHR to be called as the Vulkan
             // debug layer is complaining about vkGetPhysicalDeviceSurfaceSupportKHR not being called
             // for this _surface prior to swap chain creation
-            vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(_instance, _surface);
+            vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(_instance, VK_QUEUE_GRAPHICS_BIT, _surface);
         }
         else
         {
@@ -195,7 +195,7 @@ public:
 
 
             // set up device
-            _physicalDevice = vsg::PhysicalDevice::create(_instance, _surface);
+            _physicalDevice = vsg::PhysicalDevice::create(_instance, VK_QUEUE_GRAPHICS_BIT,  _surface);
             _device = vsg::Device::create(_instance, _physicalDevice, validatedNames, deviceExtensions);
 
             // set up renderpass with the imageFormat that the swap chain will use

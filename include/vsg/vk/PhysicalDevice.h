@@ -7,10 +7,10 @@ namespace vsg
     class PhysicalDevice : public vsg::Object
     {
     public:
-        PhysicalDevice(Instance* instance, Surface* surface, VkPhysicalDevice device, int gFamily, int pFamily);
+        PhysicalDevice(Instance* instance, VkPhysicalDevice device, int graphicsFamily, int presentFamily, int computeFamily, Surface* surface);
 
         using Result = vsg::Result<PhysicalDevice, VkResult, VK_SUCCESS>;
-        static Result create(Instance* instance, Surface* surface);
+        static Result create(Instance* instance, VkQueueFlags queueFlags, Surface* surface=nullptr);
 
         bool complete() const { return _device!=VK_NULL_HANDLE && _graphicsFamily>=0 && _presentFamily>=0; }
 
@@ -22,6 +22,7 @@ namespace vsg
 
         int getGraphicsFamily() const { return _graphicsFamily; }
         int getPresentFamily() const { return _presentFamily; }
+        int getComputeFamily() const { return _computeFamily; }
 
         const VkPhysicalDeviceProperties& getProperties() const { return _properties; }
 
@@ -35,6 +36,8 @@ namespace vsg
         VkPhysicalDevice            _device;
         int                         _graphicsFamily;
         int                         _presentFamily;
+        int                         _computeFamily;
+
         VkPhysicalDeviceProperties  _properties;
     };
 
