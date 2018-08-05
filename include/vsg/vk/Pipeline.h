@@ -9,12 +9,35 @@
 namespace vsg
 {
 
+    class GraphicsPipelineState : public Object
+    {
+    public:
+        GraphicsPipelineState() {}
+
+        virtual VkStructureType getType() const = 0;
+
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const = 0;
+
+    protected:
+        virtual ~GraphicsPipelineState() {}
+    };
+
+    using GraphicsPipelineStates = std::vector<ref_ptr<GraphicsPipelineState>>;
+
     class Pipeline : public Command
     {
     public:
         Pipeline(Device* device, VkPipeline pipeline, VkPipelineBindPoint bindPoint, AllocationCallbacks* allocator=nullptr);
 
         virtual void accept(Visitor& visitor) { visitor.apply(*this); }
+
+        using Result = vsg::Result<Pipeline, VkResult, VK_SUCCESS>;
+
+        /** Crreate a GraphicsPipeline.*/
+        static Result createGraphics(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator=nullptr);
+
+        /** Crreate a ComputePipeline.*/
+        static Result createCompute(Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator=nullptr);
 
         operator VkPipeline () const { return _pipeline; }
 
@@ -33,18 +56,6 @@ namespace vsg
     };
 
 
-    class GraphicsPipelineState : public Object
-    {
-    public:
-        GraphicsPipelineState() {}
-
-        virtual VkStructureType getType() const = 0;
-
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const = 0;
-
-    protected:
-        virtual ~GraphicsPipelineState() {}
-    };
 
 
     class ShaderStages : public GraphicsPipelineState
@@ -196,9 +207,7 @@ namespace vsg
         ColorBlendAttachments _colorBlendAttachments;
     };
 
-    using GraphicsPipelineStates = std::vector<ref_ptr<GraphicsPipelineState>>;
-    using PipelineResult = vsg::Result<Pipeline, VkResult, VK_SUCCESS>;
 
-    extern PipelineResult createGraphicsPipeline(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator=nullptr);
+
 
 }

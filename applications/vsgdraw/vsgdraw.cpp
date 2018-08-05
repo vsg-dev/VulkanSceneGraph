@@ -952,7 +952,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout =  vsg::PipelineLayout::create(device, pipelineLayoutInfo);
 
     // set up graphics pipeline
-    vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::createGraphicsPipeline(device, renderPass, pipelineLayout, pipelineStates);
+    vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::Pipeline::createGraphics(device, renderPass, pipelineLayout, pipelineStates);
 
     vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(pipelineLayout, descriptorSets);
 
