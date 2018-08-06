@@ -39,9 +39,11 @@ int main(int argc, char** argv)
 {
     bool debugLayer = false;
     bool apiDumpLayer = false;
-    uint32_t width = 800;
-    uint32_t height = 600;
+    uint32_t width = 3200;
+    uint32_t height = 2400;
+    uint32_t workgroupSize = 32;
     bool useStagingBuffer = false;
+    std::string outputFIlename("image.rgba");
 
     try
     {
@@ -49,6 +51,8 @@ int main(int argc, char** argv)
         if (vsg::CommandLine::read(argc, argv, vsg::CommandLine::Match("--api","-a"))) { apiDumpLayer = true; debugLayer = true; }
         if (vsg::CommandLine::read(argc, argv, "--size", width, height)) {}
         if (vsg::CommandLine::read(argc, argv, "-s")) { useStagingBuffer = true; }
+        if (vsg::CommandLine::read(argc, argv, "-o", outputFIlename)) {}
+        if (vsg::CommandLine::read(argc, argv, "-w", workgroupSize)) {}
     }
     catch (const std::runtime_error& error)
     {
@@ -72,15 +76,9 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(instance, VK_QUEUE_COMPUTE_BIT);
     vsg::ref_ptr<vsg::Device> device = vsg::Device::create(instance, physicalDevice, validatedNames, deviceExtensions);
 
-    std::cout<<"Instance "<<instance.get()<<std::endl;
-    std::cout<<"Physical device "<<physicalDevice<<std::endl;
-    if (physicalDevice)
-    {
-        std::cout<<"    graphicsFamily "<<physicalDevice->getGraphicsFamily()<<std::endl;
-        std::cout<<"    presentFamily "<<physicalDevice->getPresentFamily()<<std::endl;
-        std::cout<<"    computeFamily "<<physicalDevice->getComputeFamily()<<std::endl;
-    }
-    std::cout<<"Created logical device="<<device.get()<<std::endl;
+    // get the queue for the compute commands
+    VkQueue computeQueue = device->getQueue(physicalDevice->getComputeFamily());
+
 
     vsg::ref_ptr<vsg::ShaderModule> computeShader = vsg::ShaderModule::read(device, VK_SHADER_STAGE_COMPUTE_BIT, "main", "shaders/comp.spv");
     if (!computeShader)
@@ -88,9 +86,99 @@ int main(int argc, char** argv)
         std::cout<<"Could not create shaders"<<std::endl;
         return 1;
     }
-    vsg::ref_ptr<vsg::ShaderStages> shaderStages = new vsg::ShaderStages({computeShader});
 
-    std::cout<<"Created ShaderStages "<<shaderStages.get()<<std::endl;
+
+    // allocate output storage buffer
+    VkDeviceSize bufferSize = sizeof(vsg::vec4) * width * height;
+    vsg::ref_ptr<vsg::Buffer> buffer =  vsg::Buffer::create(device, bufferSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    vsg::ref_ptr<vsg::DeviceMemory>  bufferMemory = vsg::DeviceMemory::create(physicalDevice, device, buffer,  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    vkBindBufferMemory(*device, *buffer, *bufferMemory, 0);
+
+
+    // set up DescriptSetLayout
+    std::vector<VkDescriptorSetLayoutBinding> descriptorLayoutBinding(1);
+    descriptorLayoutBinding[0].binding = 0;
+    descriptorLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    descriptorLayoutBinding[0].descriptorCount = 1;
+    descriptorLayoutBinding[0].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+
+    VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = descriptorLayoutBinding.size();
+    layoutInfo.pBindings = descriptorLayoutBinding.data();
+
+    vsg::ref_ptr<vsg::DescriptorSetLayout> descriptorSetLayout = vsg::DescriptorSetLayout::create(device, layoutInfo);
+
+
+    // set up DescriptorPool and DecriptorSet
+    vsg::DescriptorPoolSizes poolSizes{
+        {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1}
+    };
+    vsg::ref_ptr<vsg::DescriptorPool> descriptorPool = vsg::DescriptorPool::create(device, 1, poolSizes);
+
+    VkDescriptorSetLayout descriptorSetLayouts[] = {*descriptorSetLayout};
+
+    VkDescriptorSetAllocateInfo descriptSetAllocateInfo = {};
+    descriptSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    descriptSetAllocateInfo.descriptorPool = *descriptorPool;
+    descriptSetAllocateInfo.descriptorSetCount = 1;
+    descriptSetAllocateInfo.pSetLayouts = descriptorSetLayouts;
+
+    vsg::DescriptorSets descriptorSets(1);
+    if (vkAllocateDescriptorSets(*device, &descriptSetAllocateInfo, descriptorSets.data())!=VK_SUCCESS)
+    {
+        std::cout<<"Error: failed to create VkDescriptorSet"<<std::endl;
+        return 1;
+    }
+
+
+    // set up pipeline layout
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
+    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.setLayoutCount = 0;
+    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts;
+    pipelineLayoutInfo.pushConstantRangeCount = 0;
+
+    vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = vsg::PipelineLayout::create(device, pipelineLayoutInfo);
+
+    // set up compute pipeline
+    vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::Pipeline::createCompute(device, pipelineLayout, computeShader);
+
+    // set up bind descriptors
+    vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(pipelineLayout, descriptorSets);
+
+    // setup command pool
+    vsg::ref_ptr<vsg::CommandPool> commandPool = vsg::CommandPool::create(device, physicalDevice->getComputeFamily());
+
+    // setup fence
+    vsg::ref_ptr<vsg::Fence> fence = vsg::Fence::create(device);
+
+    auto startTime =std::chrono::steady_clock::now();
+
+
+    // dispatch commands
+    vsg::dispatchCommandsToQueue(device, commandPool, fence, 100000000000, computeQueue, [&](VkCommandBuffer commandBuffer)
+    {
+        pipeline->dispatch(commandBuffer);
+        bindDescriptorSets->dispatch(commandBuffer);
+        vkCmdDispatch(commandBuffer, uint32_t(ceil(float(width)/float(workgroupSize))), uint32_t(ceil(float(height)/float(workgroupSize))), 1);
+    });
+
+    auto time = std::chrono::duration<float, std::chrono::milliseconds::period>(std::chrono::steady_clock::now()-startTime).count();
+    std::cout<<"Time to run commands "<<time<<"ms"<<std::endl;
+
+    if (!outputFIlename.empty())
+    {
+        void* mappedMemory = NULL;
+        vkMapMemory(*device, *bufferMemory, 0, bufferSize, 0, &mappedMemory);
+
+        osg::ref_ptr<osg::Image> image = new osg::Image;
+        image->setImage(width, height, 1, GL_RGBA32F_ARB, GL_RGBA, GL_FLOAT, static_cast<unsigned char*>(mappedMemory), osg::Image::NO_DELETE);
+
+        osgDB::writeImageFile(*image, outputFIlename);
+
+        vkUnmapMemory(*device, *bufferMemory);
+    }
 
     // clean up done automatically thanks to ref_ptr<>
     return 0;

@@ -248,8 +248,6 @@ protected:
 
 namespace vsg
 {
-
-
     template<typename T>
     inline std::ostream& operator << (std::ostream& output, const vsg::tvec2<T>& vec)
     {
@@ -464,27 +462,6 @@ namespace vsg
             binding->add(chain->_deviceBuffer, entry.offset);
         }
     }
-
-
-    class CmdBindDescriptorSets : public Command
-    {
-    public:
-
-        CmdBindDescriptorSets(PipelineLayout* pipelineLayout, const DescriptorSets& descriptorSets) : _pipelineLayout(pipelineLayout), _descriptorSets(descriptorSets) {}
-
-        virtual void dispatch(VkCommandBuffer commandBuffer) const
-        {
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, *_pipelineLayout, 0, _descriptorSets.size(), _descriptorSets.data(), 0, nullptr);
-        }
-
-    protected:
-        virtual ~CmdBindDescriptorSets() {}
-
-        ref_ptr<PipelineLayout> _pipelineLayout;
-        DescriptorSets _descriptorSets;
-    };
-
-
 
 }
 
@@ -949,7 +926,7 @@ int main(int argc, char** argv)
     pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
 
-    vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout =  vsg::PipelineLayout::create(device, pipelineLayoutInfo);
+    vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = vsg::PipelineLayout::create(device, pipelineLayoutInfo);
 
     // set up graphics pipeline
     vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::Pipeline::createGraphics(device, renderPass, pipelineLayout, pipelineStates);
