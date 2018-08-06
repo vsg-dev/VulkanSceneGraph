@@ -34,18 +34,22 @@ namespace vsg
     {
     public:
 
-        CmdBindDescriptorSets(PipelineLayout* pipelineLayout, const DescriptorSets& descriptorSets) : _pipelineLayout(pipelineLayout), _descriptorSets(descriptorSets) {}
+        CmdBindDescriptorSets(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, const DescriptorSets& descriptorSets) :
+            _bindPoint(bindPoint),
+            _pipelineLayout(pipelineLayout),
+            _descriptorSets(descriptorSets) {}
 
         virtual void dispatch(VkCommandBuffer commandBuffer) const
         {
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, *_pipelineLayout, 0, _descriptorSets.size(), _descriptorSets.data(), 0, nullptr);
+            vkCmdBindDescriptorSets(commandBuffer, _bindPoint, *_pipelineLayout, 0, _descriptorSets.size(), _descriptorSets.data(), 0, nullptr);
         }
 
     protected:
         virtual ~CmdBindDescriptorSets() {}
 
-        ref_ptr<PipelineLayout> _pipelineLayout;
-        DescriptorSets _descriptorSets;
+        VkPipelineBindPoint         _bindPoint;
+        ref_ptr<PipelineLayout>     _pipelineLayout;
+        DescriptorSets              _descriptorSets;
     };
 
 }

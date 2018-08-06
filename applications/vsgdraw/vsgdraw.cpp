@@ -931,7 +931,7 @@ int main(int argc, char** argv)
     // set up graphics pipeline
     vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::Pipeline::createGraphics(device, renderPass, pipelineLayout, pipelineStates);
 
-    vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(pipelineLayout, descriptorSets);
+    vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, descriptorSets);
 
     // set up what we want to render
 

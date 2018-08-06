@@ -135,7 +135,7 @@ int main(int argc, char** argv)
     // set up pipeline layout
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 0;
+    pipelineLayoutInfo.setLayoutCount = 1;
     pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
 
@@ -145,7 +145,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::Pipeline::createCompute(device, pipelineLayout, computeShader);
 
     // set up bind descriptors
-    vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(pipelineLayout, descriptorSets);
+    vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, descriptorSets);
 
     // setup command pool
     vsg::ref_ptr<vsg::CommandPool> commandPool = vsg::CommandPool::create(device, physicalDevice->getComputeFamily());
@@ -173,7 +173,22 @@ int main(int argc, char** argv)
         vkMapMemory(*device, *bufferMemory, 0, bufferSize, 0, &mappedMemory);
 
         osg::ref_ptr<osg::Image> image = new osg::Image;
+#if 0
         image->setImage(width, height, 1, GL_RGBA32F_ARB, GL_RGBA, GL_FLOAT, static_cast<unsigned char*>(mappedMemory), osg::Image::NO_DELETE);
+#else
+        image->allocateImage(width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE);
+        float* src_ptr = reinterpret_cast<float*>(mappedMemory);
+        unsigned char* dest_ptr = image->data();
+        for(int i=0; i<width*height; ++i)
+        {
+            if (*src_ptr!=0.0f) std::cout<<"value["<<i<<"] "<<*src_ptr<<std::endl;
+
+            (*dest_ptr++) = (unsigned char)((*src_ptr++)*255.0f);
+            (*dest_ptr++) = (unsigned char)((*src_ptr++)*255.0f);
+            (*dest_ptr++) = (unsigned char)((*src_ptr++)*255.0f);
+            (*dest_ptr++) = (unsigned char)((*src_ptr++)*255.0f);
+        }
+#endif
 
         osgDB::writeImageFile(*image, outputFIlename);
 
