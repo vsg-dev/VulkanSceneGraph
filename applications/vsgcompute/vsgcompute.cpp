@@ -43,7 +43,7 @@ int main(int argc, char** argv)
     uint32_t height = 2400;
     uint32_t workgroupSize = 32;
     bool useStagingBuffer = false;
-    std::string outputFIlename("image.rgba");
+    std::string outputFIlename;
 
     try
     {
@@ -78,14 +78,6 @@ int main(int argc, char** argv)
 
     // get the queue for the compute commands
     VkQueue computeQueue = device->getQueue(physicalDevice->getComputeFamily());
-
-
-    vsg::ref_ptr<vsg::ShaderModule> computeShader = vsg::ShaderModule::read(device, VK_SHADER_STAGE_COMPUTE_BIT, "main", "shaders/comp.spv");
-    if (!computeShader)
-    {
-        std::cout<<"Could not create shaders"<<std::endl;
-        return 1;
-    }
 
 
     // allocate output storage buffer
@@ -131,6 +123,28 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    VkDescriptorBufferInfo descriptorBufferInfo = {};
+    descriptorBufferInfo.buffer = *buffer;
+    descriptorBufferInfo.offset = 0;
+    descriptorBufferInfo.range = bufferSize;
+
+    std::vector<VkWriteDescriptorSet> descriptorWrites(1);
+
+    descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrites[0].dstSet = descriptorSets.front();
+    descriptorWrites[0].dstBinding = 0;
+    descriptorWrites[0].descriptorCount = 1;
+    descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    descriptorWrites[0].pBufferInfo = &descriptorBufferInfo;
+
+    vkUpdateDescriptorSets(*device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+
+    vsg::ref_ptr<vsg::ShaderModule> computeShader = vsg::ShaderModule::read(device, VK_SHADER_STAGE_COMPUTE_BIT, "main", "shaders/comp.spv");
+    if (!computeShader)
+    {
+        std::cout<<"Could not create shaders"<<std::endl;
+        return 1;
+    }
 
     // set up pipeline layout
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
@@ -140,6 +154,7 @@ int main(int argc, char** argv)
     pipelineLayoutInfo.pushConstantRangeCount = 0;
 
     vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = vsg::PipelineLayout::create(device, pipelineLayoutInfo);
+
 
     // set up compute pipeline
     vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::Pipeline::createCompute(device, pipelineLayout, computeShader);
@@ -154,7 +169,6 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Fence> fence = vsg::Fence::create(device);
 
     auto startTime =std::chrono::steady_clock::now();
-
 
     // dispatch commands
     vsg::dispatchCommandsToQueue(device, commandPool, fence, 100000000000, computeQueue, [&](VkCommandBuffer commandBuffer)
@@ -173,27 +187,22 @@ int main(int argc, char** argv)
         vkMapMemory(*device, *bufferMemory, 0, bufferSize, 0, &mappedMemory);
 
         osg::ref_ptr<osg::Image> image = new osg::Image;
-#if 0
-        image->setImage(width, height, 1, GL_RGBA32F_ARB, GL_RGBA, GL_FLOAT, static_cast<unsigned char*>(mappedMemory), osg::Image::NO_DELETE);
-#else
         image->allocateImage(width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE);
         float* src_ptr = reinterpret_cast<float*>(mappedMemory);
         unsigned char* dest_ptr = image->data();
         for(int i=0; i<width*height; ++i)
         {
-            if (*src_ptr!=0.0f) std::cout<<"value["<<i<<"] "<<*src_ptr<<std::endl;
-
             (*dest_ptr++) = (unsigned char)((*src_ptr++)*255.0f);
             (*dest_ptr++) = (unsigned char)((*src_ptr++)*255.0f);
             (*dest_ptr++) = (unsigned char)((*src_ptr++)*255.0f);
             (*dest_ptr++) = (unsigned char)((*src_ptr++)*255.0f);
         }
-#endif
 
         osgDB::writeImageFile(*image, outputFIlename);
 
         vkUnmapMemory(*device, *bufferMemory);
     }
+
 
     // clean up done automatically thanks to ref_ptr<>
     return 0;
