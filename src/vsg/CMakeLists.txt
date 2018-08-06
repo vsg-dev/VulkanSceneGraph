@@ -44,6 +44,7 @@ SET(HEADERS
     vk/Buffer.h
     vk/Image.h
     vk/Sampler.h
+    vk/Fence.h
 
     viewer/Window.h
     viewer/Viewer.h
@@ -82,6 +83,7 @@ SET(SOURCES
     vk/Buffer.cpp
     vk/Image.cpp
     vk/Sampler.cpp
+    vk/Fence.cpp
 
     viewer/Window.cpp
     viewer/Viewer.cpp
