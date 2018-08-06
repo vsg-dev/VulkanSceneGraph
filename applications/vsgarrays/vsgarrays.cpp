@@ -168,6 +168,13 @@ int main(int argc, char** argv)
         else std::cout<<"    nullptr"<<std::endl;
     });
 
+    vsg::ref_ptr<vsg::vec2Array> texCoords = new vsg::vec2Array{{1.0f, 2.0f}, {3.0f, 4.0f}};
+
+    for(auto p : *texCoords)
+    {
+        std::cout<<"p "<<p.x<<", "<<p.y<<std::endl;
+    }
+
 
     return 0;
 }
