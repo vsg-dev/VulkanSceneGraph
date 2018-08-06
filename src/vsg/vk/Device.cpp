@@ -29,7 +29,11 @@ Device::Result Device::create(Instance* instance, PhysicalDevice* physicalDevice
         return Device::Result("Error: vsg::Device::create(...) failed to create logical device, undefined Instance and/or PhysicalDevice.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
-    std::set<int> uniqueQueueFamiles = {physicalDevice->getGraphicsFamily(), physicalDevice->getPresentFamily()};
+    std::set<int> uniqueQueueFamiles;
+    if (physicalDevice->getGraphicsFamily()>=0) uniqueQueueFamiles.insert(physicalDevice->getGraphicsFamily());
+    if (physicalDevice->getComputeFamily()>=0) uniqueQueueFamiles.insert(physicalDevice->getComputeFamily());
+    if (physicalDevice->getPresentFamily()>=0) uniqueQueueFamiles.insert(physicalDevice->getPresentFamily());
+
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
     float queuePriority = 1.0f;
