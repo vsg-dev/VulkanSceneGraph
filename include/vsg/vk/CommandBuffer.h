@@ -1,6 +1,9 @@
 #pragma once
 
 #include <vsg/vk/CommandPool.h>
+#include <vsg/vk/Fence.h>
+
+#include <iostream>
 
 namespace vsg
 {
@@ -32,33 +35,41 @@ namespace vsg
     };
 
     template<typename F>
-    void dispatchCommandsToQueue(Device* device, CommandPool* commandPool, VkQueue queue, F function)
+    void dispatchCommandsToQueue(Device* device, CommandPool* commandPool, Fence* fence, uint64_t timeout, VkQueue queue, F function)
     {
-        vsg::ref_ptr<vsg::CommandBuffer> transferCommand = vsg::CommandBuffer::create(device, commandPool, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+        vsg::ref_ptr<vsg::CommandBuffer> commandBuffer = vsg::CommandBuffer::create(device, commandPool, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
         VkCommandBufferBeginInfo beginInfo = {};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = transferCommand->flags();
+        beginInfo.flags = commandBuffer->flags();
 
-        vkBeginCommandBuffer(*transferCommand, &beginInfo);
+        vkBeginCommandBuffer(*commandBuffer, &beginInfo);
 
-            function(*transferCommand);
+            function(*commandBuffer);
 
-        vkEndCommandBuffer(*transferCommand);
+        vkEndCommandBuffer(*commandBuffer);
 
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = transferCommand->data();
+        submitInfo.pCommandBuffers = commandBuffer->data();
 
-        vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueSubmit(queue, 1, &submitInfo, *fence);
 
-        // we must wait for the queue to empty before we can safely clean up the transferCommand
-        vkQueueWaitIdle(queue);
+        // we must wait for the queue to empty before we can safely clean up the commandBuffer
+        if (fence)
+        {
+            fence->wait(timeout);
+        }
+        else vkQueueWaitIdle(queue);
     }
 
 
-
+    template<typename F>
+    void dispatchCommandsToQueue(Device* device, CommandPool* commandPool, VkQueue queue, F function)
+    {
+        dispatchCommandsToQueue(device, commandPool, nullptr, 0, queue, function);
+    }
 
     class CommandBuffers : public Object
     {
