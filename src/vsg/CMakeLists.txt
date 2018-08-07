@@ -43,6 +43,7 @@ SET(HEADERS
     vk/Semaphore.h
     vk/DeviceMemory.h
     vk/DescriptorPool.h
+    vk/DescriptorSet.h
     vk/DescriptorSetLayout.h
     vk/Buffer.h
     vk/Image.h
@@ -85,6 +86,7 @@ SET(SOURCES
     vk/Semaphore.cpp
     vk/DeviceMemory.cpp
     vk/DescriptorPool.cpp
+    vk/DescriptorSet.cpp
     vk/DescriptorSetLayout.cpp
     vk/Buffer.cpp
     vk/Image.cpp

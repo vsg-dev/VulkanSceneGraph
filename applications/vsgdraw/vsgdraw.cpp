@@ -17,9 +17,11 @@
 #include <vsg/vk/DeviceMemory.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/DescriptorPool.h>
+#include <vsg/vk/DescriptorSet.h>
 #include <vsg/vk/DescriptorSetLayout.h>
 #include <vsg/vk/Image.h>
 #include <vsg/vk/Sampler.h>
+#include <vsg/vk/BufferView.h>
 
 #include <vsg/viewer/Window.h>
 #include <vsg/viewer/Viewer.h>
@@ -835,7 +837,6 @@ int main(int argc, char** argv)
 
     vsg::ref_ptr<vsg::DescriptorSetLayout> descriptorSetLayout = vsg::DescriptorSetLayout::create(device, layoutInfo);
 
-
     vsg::ref_ptr<vsg::CmdBindVertexBuffers> bindVertexBuffers = new vsg::CmdBindVertexBuffers;
     vsg::add(bindVertexBuffers, vertexBufferChain);
 
@@ -881,12 +882,7 @@ int main(int argc, char** argv)
     descriptSetAllocateInfo.descriptorSetCount = 1;
     descriptSetAllocateInfo.pSetLayouts = descriptorSetLayouts;
 
-    vsg::DescriptorSets descriptorSets(1);
-    if (vkAllocateDescriptorSets(*device, &descriptSetAllocateInfo, descriptorSets.data())!=VK_SUCCESS)
-    {
-        std::cout<<"Error: failed to create VkDescriptorSet"<<std::endl;
-        return 1;
-    }
+    vsg::ref_ptr<vsg::DescriptorSet> descriptorSet = vsg::DescriptorSet::create(device, descriptorPool, descriptorSetLayout);
 
     vsg::DescriptorBufferInfos descriptorBufferInfos = uniformBufferChain->getDescriptorBufferInfo();
     std::cout<<"uniformBufferChain->getDescriptorBufferInfo() "<<descriptorBufferInfos.size()<<std::endl;
@@ -895,9 +891,10 @@ int main(int argc, char** argv)
         std::cout<<"   VkDescriptorBufferInfo buffer="<<bufferInfo.buffer<<", offset="<<bufferInfo.offset<<", range="<<bufferInfo.range<<std::endl;
     }
 
+
     std::vector<VkWriteDescriptorSet> descriptorWrites(2);
     descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrites[0].dstSet = descriptorSets.front();
+    descriptorWrites[0].dstSet = *descriptorSet;
     descriptorWrites[0].dstBinding = 0;
     descriptorWrites[0].dstArrayElement = 0;
     descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -910,7 +907,7 @@ int main(int argc, char** argv)
     imageInfo.sampler = *textureSampler;
 
     descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrites[1].dstSet = descriptorSets.front();
+    descriptorWrites[1].dstSet = *descriptorSet;
     descriptorWrites[1].dstBinding = 3;
     descriptorWrites[1].dstArrayElement = 0;
     descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -932,7 +929,7 @@ int main(int argc, char** argv)
     // set up graphics pipeline
     vsg::ref_ptr<vsg::GraphicsPipeline> pipeline = vsg::GraphicsPipeline::create(device, renderPass, pipelineLayout, pipelineStates);
 
-    vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, descriptorSets);
+    vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, {descriptorSet});
 
     // set up what we want to render
 
@@ -978,16 +975,14 @@ int main(int argc, char** argv)
     // create command graph to contain all the Vulkan calls for specifically rendering the model
     vsg::ref_ptr<vsg::Group> commandGraph = new vsg::Group;
 
-    // add renderPass to the command graph
-    commandGraph->addChild(renderPass);
 
     // set up the state configuration
-    renderPass->addChild(pipeline);
-    renderPass->addChild(bindDescriptorSets);
+    commandGraph->addChild(pipeline);
+    commandGraph->addChild(bindDescriptorSets);
 
     // add subgraph that represents the model to render
     vsg::ref_ptr<vsg::Group> model = new vsg::Group;
-    renderPass->addChild(model);
+    commandGraph->addChild(model);
 
     // add the vertex and index buffer data
     model->addChild(bindVertexBuffers);
@@ -1034,6 +1029,7 @@ int main(int argc, char** argv)
         viewer->submitFrame(commandGraph);
 
     }
+
 
     // clean up done automatically thanks to ref_ptr<>
     return 0;

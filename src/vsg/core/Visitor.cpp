@@ -58,8 +58,8 @@ void Visitor::apply(LOD& value) { apply(static_cast<Node&>(value)); }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Vulkan Nodes
+// Vulkan Object
 //
 void Visitor::apply(Command& value) { apply(static_cast<Node&>(value)); }
-void Visitor::apply(CommandBuffer& value) { apply(static_cast<Node&>(value)); }
-void Visitor::apply(RenderPass& value) { apply(static_cast<Group&>(value)); }
+void Visitor::apply(CommandBuffer& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(RenderPass& value) { apply(static_cast<Object&>(value)); }

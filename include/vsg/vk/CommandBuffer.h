@@ -8,12 +8,10 @@
 namespace vsg
 {
 
-    class CommandBuffer : public Group
+    class CommandBuffer : public Object
     {
     public:
         CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags flags);
-
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 
         using Result = vsg::Result<CommandBuffer, VkResult, VK_SUCCESS>;
         static Result create(Device* device,  CommandPool* commandPool, VkCommandBufferUsageFlags flags);

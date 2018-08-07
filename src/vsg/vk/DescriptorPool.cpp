@@ -14,9 +14,9 @@ DescriptorPool::DescriptorPool(Device* device, VkDescriptorPool descriptorPool, 
 
 DescriptorPool::~DescriptorPool()
 {
+    std::cout<<"Calling vkDestroyDescriptorPool "<<_descriptorPool<<std::endl;
     if (_descriptorPool)
     {
-        std::cout<<"Calling vkDestroyDescriptorPool"<<std::endl;
         vkDestroyDescriptorPool(*_device, _descriptorPool, *_allocator);
     }
 }
@@ -28,7 +28,7 @@ DescriptorPool::Result DescriptorPool::create(Device* device, uint32_t maxSets, 
         return Result("Error: vsg::DescriptorPool::create(...) failed to create DescriptorPool, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
-    if (!device)
+    if (descriptorPoolSizes.empty())
     {
         return Result("Error: vsg::DescriptorPool::create(...) failed to create DescriptorPool, descriptorPoolSizes.empty().", VK_ERROR_INITIALIZATION_FAILED);
     }
@@ -38,6 +38,7 @@ DescriptorPool::Result DescriptorPool::create(Device* device, uint32_t maxSets, 
     poolInfo.poolSizeCount = descriptorPoolSizes.size();
     poolInfo.pPoolSizes = descriptorPoolSizes.data();
     poolInfo.maxSets = maxSets;
+    poolInfo.flags =VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT; // will we need VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT later?
 
     VkDescriptorPool descriptorPool;
     VkResult result = vkCreateDescriptorPool(*device, &poolInfo, *allocator, &descriptorPool);

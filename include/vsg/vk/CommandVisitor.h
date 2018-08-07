@@ -15,21 +15,18 @@ namespace vsg
     public:
 
         ref_ptr<Framebuffer>    _framebuffer;
+        ref_ptr<RenderPass>     _renderPass;
         VkCommandBuffer         _commandBuffer;
         VkExtent2D              _extent;
         VkClearColorValue       _clearColor;
 
-        CommandVisitor(Framebuffer* framebuffer, VkCommandBuffer commandBuffer, const VkExtent2D& extent, const VkClearColorValue& clearColor);
+        CommandVisitor(Framebuffer* framebuffer, RenderPass* renderPass, VkCommandBuffer commandBuffer, const VkExtent2D& extent, const VkClearColorValue& clearColor);
 
         void apply(Object& object);
 
         void apply(Node& object);
 
         void apply(Command& cmd);
-
-        void apply(RenderPass& renderPass);
-
-        void apply(CommandBuffer& commandBuffer);
 
         void populateCommandBuffer(vsg::Node* subgraph);
     };

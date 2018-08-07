@@ -14,9 +14,9 @@ DescriptorSetLayout::DescriptorSetLayout(Device* device, VkDescriptorSetLayout d
 
 DescriptorSetLayout::~DescriptorSetLayout()
 {
+    std::cout<<"Calling vkDestroyDescriptorSetLayout "<<_descriptorSetLayout<<std::endl;
     if (_descriptorSetLayout)
     {
-        std::cout<<"Calling vkDestroyDescriptorSetLayout"<<std::endl;
         vkDestroyDescriptorSetLayout(*_device, _descriptorSetLayout, *_allocator);
     }
 }
