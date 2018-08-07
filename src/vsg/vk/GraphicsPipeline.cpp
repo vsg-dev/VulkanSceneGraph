@@ -5,7 +5,7 @@
 namespace vsg
 {
 
-GraphicsPipeline::GraphicsPipeline(Device* device, VkPipeline pipeline, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator):
+GraphicsPipeline::GraphicsPipeline(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator):
     Pipeline(device, pipeline, VK_PIPELINE_BIND_POINT_GRAPHICS, allocator),
     _renderPass(renderPass),
     _pipelineLayout(pipelineLayout),
@@ -21,7 +21,7 @@ GraphicsPipeline::Result GraphicsPipeline::create(Device* device, RenderPass* re
 {
     if (!device || !renderPass || !pipelineLayout)
     {
-        return GraphicsPipeline::Result("Error: vsg::Pipeline::createGraphics(...) failed to create graphics pipeline, inputs.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return GraphicsPipeline::Result("Error: vsg::GraphicsPipeline::create(...) failed to create graphics pipeline, inputs not defined.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
@@ -40,7 +40,7 @@ GraphicsPipeline::Result GraphicsPipeline::create(Device* device, RenderPass* re
     VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, *allocator, &pipeline );
     if (result == VK_SUCCESS)
     {
-        return new GraphicsPipeline(device, pipeline, pipelineLayout, pipelineStates, allocator);
+        return new GraphicsPipeline(pipeline, device, renderPass, pipelineLayout, pipelineStates, allocator);
     }
     else
     {

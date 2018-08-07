@@ -18,7 +18,7 @@ namespace vsg
         static Result create(Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator=nullptr);
 
     protected:
-        ComputePipeline(Device* device, VkPipeline pipeline, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator);
+        ComputePipeline(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator);
 
         virtual ~ComputePipeline();
 

@@ -5,7 +5,7 @@
 namespace vsg
 {
 
-ComputePipeline::ComputePipeline(Device* device, VkPipeline pipeline, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator):
+ComputePipeline::ComputePipeline(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator):
     Pipeline(device, pipeline, VK_PIPELINE_BIND_POINT_COMPUTE, allocator),
     _pipelineLayout(pipelineLayout),
     _shaderModule(shaderModule)
@@ -20,7 +20,7 @@ ComputePipeline::Result ComputePipeline::create(Device* device, PipelineLayout* 
 {
     if (!device || !pipelineLayout || !shaderModule)
     {
-        return ComputePipeline::Result("Error: vsg::Pipeline::createCompute(...) failed to create compute pipeline, undefined device, pipelinLayout or shaderModule.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return ComputePipeline::Result("Error: vsg::ComputePipeline::create(...) failed to create compute pipeline, undefined device, pipelinLayout or shaderModule.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     VkPipelineShaderStageCreateInfo stageInfo = {};
@@ -39,7 +39,7 @@ ComputePipeline::Result ComputePipeline::create(Device* device, PipelineLayout* 
     VkResult result = vkCreateComputePipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, *allocator, &pipeline );
     if (result == VK_SUCCESS)
     {
-        return new ComputePipeline(device, pipeline, pipelineLayout, shaderModule, allocator);
+        return new ComputePipeline(pipeline, device, pipelineLayout, shaderModule, allocator);
     }
     else
     {
