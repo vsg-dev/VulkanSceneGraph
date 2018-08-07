@@ -32,6 +32,8 @@ SET(HEADERS
     vk/Swapchain.h
     vk/CmdDraw.h
     vk/Pipeline.h
+    vk/ComputePipeline.h
+    vk/GraphicsPipeline.h
     vk/PipelineLayouyt.h
     vk/Framebuffer.h
     vk/CommandBuffer.h
@@ -71,6 +73,8 @@ SET(SOURCES
     vk/ShaderModule.cpp
     vk/RenderPass.cpp
     vk/Pipeline.cpp
+    vk/ComputePipeline.cpp
+    vk/GraphicsPipeline.cpp
     vk/PipelineLayout.cpp
     vk/Framebuffer.cpp
     vk/CommandBuffer.cpp

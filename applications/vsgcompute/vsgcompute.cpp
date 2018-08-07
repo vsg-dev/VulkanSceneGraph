@@ -11,7 +11,7 @@
 #include <vsg/vk/CmdDraw.h>
 #include <vsg/vk/ShaderModule.h>
 #include <vsg/vk/RenderPass.h>
-#include <vsg/vk/Pipeline.h>
+#include <vsg/vk/ComputePipeline.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/DeviceMemory.h>
