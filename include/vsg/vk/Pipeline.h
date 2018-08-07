@@ -9,35 +9,12 @@
 namespace vsg
 {
 
-    class GraphicsPipelineState : public Object
-    {
-    public:
-        GraphicsPipelineState() {}
-
-        virtual VkStructureType getType() const = 0;
-
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const = 0;
-
-    protected:
-        virtual ~GraphicsPipelineState() {}
-    };
-
-    using GraphicsPipelineStates = std::vector<ref_ptr<GraphicsPipelineState>>;
-
     class Pipeline : public Command
     {
     public:
         Pipeline(Device* device, VkPipeline pipeline, VkPipelineBindPoint bindPoint, AllocationCallbacks* allocator=nullptr);
 
         virtual void accept(Visitor& visitor) { visitor.apply(*this); }
-
-        using Result = vsg::Result<Pipeline, VkResult, VK_SUCCESS>;
-
-        /** Crreate a GraphicsPipeline.*/
-        static Result createGraphics(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator=nullptr);
-
-        /** Crreate a ComputePipeline.*/
-        static Result createCompute(Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator=nullptr);
 
         operator VkPipeline () const { return _pipeline; }
 
@@ -53,10 +30,60 @@ namespace vsg
         VkPipeline                      _pipeline;
         VkPipelineBindPoint             _bindPoint;
         ref_ptr<AllocationCallbacks>    _allocator;
+    };
 
-        // "have a" list of GraphicsPipelineState? or just dependent Object?
-        // "have a" PipelineLayout
-        // "have a" RenderPass?
+    class ComputePipeline : public Pipeline
+    {
+    public:
+        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
+
+        using Result = vsg::Result<ComputePipeline, VkResult, VK_SUCCESS>;
+
+        /** Crreate a ComputePipeline.*/
+        static Result create(Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator=nullptr);
+
+    protected:
+        ComputePipeline(Device* device, VkPipeline pipeline, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator);
+
+        virtual ~ComputePipeline();
+
+        ref_ptr<PipelineLayout> _pipelineLayout;
+        ref_ptr<ShaderModule> _shaderModule;
+    };
+
+
+    class GraphicsPipelineState : public Object
+    {
+    public:
+        GraphicsPipelineState() {}
+
+        virtual VkStructureType getType() const = 0;
+
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const = 0;
+
+    protected:
+        virtual ~GraphicsPipelineState() {}
+    };
+
+    using GraphicsPipelineStates = std::vector<ref_ptr<GraphicsPipelineState>>;
+
+    class GraphicsPipeline : public Pipeline
+    {
+    public:
+        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
+
+        using Result = vsg::Result<GraphicsPipeline, VkResult, VK_SUCCESS>;
+
+        /** Crreate a GraphicsPipeline.*/
+        static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator=nullptr);
+
+    protected:
+        GraphicsPipeline(Device* device, VkPipeline pipeline, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator);
+
+        virtual ~GraphicsPipeline();
+
+        ref_ptr<PipelineLayout> _pipelineLayout;
+        GraphicsPipelineStates _pipelineStates;
     };
 
 

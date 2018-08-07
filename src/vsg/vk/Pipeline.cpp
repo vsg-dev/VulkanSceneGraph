@@ -26,42 +26,27 @@ Pipeline::~Pipeline()
     }
 }
 
-Pipeline::Result Pipeline::createGraphics(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator)
+
+////////////////////////////////////////////////////////////////////////
+//
+// ComputePipeline
+//
+ComputePipeline::ComputePipeline(Device* device, VkPipeline pipeline, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator):
+    Pipeline(device, pipeline, VK_PIPELINE_BIND_POINT_COMPUTE, allocator),
+    _pipelineLayout(pipelineLayout),
+    _shaderModule(shaderModule)
 {
-    if (!device || !renderPass || !pipelineLayout)
-    {
-        return Pipeline::Result("Error: vsg::Pipeline::createGraphics(...) failed to create graphics pipeline, inputs.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
-    VkGraphicsPipelineCreateInfo pipelineInfo = {};
-    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineInfo.layout = *pipelineLayout;
-    pipelineInfo.renderPass = *renderPass;
-    pipelineInfo.subpass = 0;
-    pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-
-    for (auto pipelineState : pipelineStates)
-    {
-        pipelineState->apply(pipelineInfo);
-    }
-
-    VkPipeline pipeline;
-    VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, *allocator, &pipeline );
-    if (result == VK_SUCCESS)
-    {
-        return new Pipeline(device, pipeline, VK_PIPELINE_BIND_POINT_GRAPHICS, allocator);
-    }
-    else
-    {
-        return Pipeline::Result("Error: vsg::Pipeline::createGraphics(...) failed to create VkPipeline.", result);
-    }
 }
 
-Pipeline::Result Pipeline::createCompute(Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator)
+ComputePipeline::~ComputePipeline()
+{
+}
+
+ComputePipeline::Result ComputePipeline::create(Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator)
 {
     if (!device || !pipelineLayout || !shaderModule)
     {
-        return Pipeline::Result("Error: vsg::Pipeline::createCompute(...) failed to create compute pipeline, undefined device, pipelinLayout or shaderModule.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return ComputePipeline::Result("Error: vsg::Pipeline::createCompute(...) failed to create compute pipeline, undefined device, pipelinLayout or shaderModule.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     VkPipelineShaderStageCreateInfo stageInfo = {};
@@ -80,13 +65,61 @@ Pipeline::Result Pipeline::createCompute(Device* device, PipelineLayout* pipelin
     VkResult result = vkCreateComputePipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, *allocator, &pipeline );
     if (result == VK_SUCCESS)
     {
-        return new Pipeline(device, pipeline, VK_PIPELINE_BIND_POINT_COMPUTE, allocator);
+        return new ComputePipeline(device, pipeline, pipelineLayout, shaderModule, allocator);
     }
     else
     {
-        return Pipeline::Result("Error: vsg::Pipeline::createCompute(...) failed to create VkPipeline.", result);
+        return ComputePipeline::Result("Error: vsg::Pipeline::createCompute(...) failed to create VkPipeline.", result);
     }
 }
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// GraphicsPipeline
+//
+GraphicsPipeline::GraphicsPipeline(Device* device, VkPipeline pipeline, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator):
+    Pipeline(device, pipeline, VK_PIPELINE_BIND_POINT_GRAPHICS, allocator),
+    _pipelineLayout(pipelineLayout),
+    _pipelineStates(pipelineStates)
+{
+}
+
+GraphicsPipeline::~GraphicsPipeline()
+{
+}
+
+GraphicsPipeline::Result GraphicsPipeline::create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator)
+{
+    if (!device || !renderPass || !pipelineLayout)
+    {
+        return GraphicsPipeline::Result("Error: vsg::Pipeline::createGraphics(...) failed to create graphics pipeline, inputs.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    }
+
+    VkGraphicsPipelineCreateInfo pipelineInfo = {};
+    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineInfo.layout = *pipelineLayout;
+    pipelineInfo.renderPass = *renderPass;
+    pipelineInfo.subpass = 0;
+    pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+
+    for (auto pipelineState : pipelineStates)
+    {
+        pipelineState->apply(pipelineInfo);
+    }
+
+    VkPipeline pipeline;
+    VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, *allocator, &pipeline );
+    if (result == VK_SUCCESS)
+    {
+        return new GraphicsPipeline(device, pipeline, pipelineLayout, pipelineStates, allocator);
+    }
+    else
+    {
+        return GraphicsPipeline::Result("Error: vsg::Pipeline::createGraphics(...) failed to create VkPipeline.", result);
+    }
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////

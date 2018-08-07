@@ -157,7 +157,7 @@ int main(int argc, char** argv)
 
 
     // set up compute pipeline
-    vsg::ref_ptr<vsg::Pipeline> pipeline = vsg::Pipeline::createCompute(device, pipelineLayout, computeShader);
+    vsg::ref_ptr<vsg::ComputePipeline> pipeline = vsg::ComputePipeline::create(device, pipelineLayout, computeShader);
 
     // set up bind descriptors
     vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, descriptorSets);
