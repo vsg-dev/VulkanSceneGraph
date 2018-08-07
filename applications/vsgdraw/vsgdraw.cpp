@@ -874,13 +874,6 @@ int main(int argc, char** argv)
     };
     vsg::ref_ptr<vsg::DescriptorPool> descriptorPool = vsg::DescriptorPool::create(device, 1, poolSizes);
 
-    VkDescriptorSetLayout descriptorSetLayouts[] = {*descriptorSetLayout};
-
-    VkDescriptorSetAllocateInfo descriptSetAllocateInfo = {};
-    descriptSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    descriptSetAllocateInfo.descriptorPool = *descriptorPool;
-    descriptSetAllocateInfo.descriptorSetCount = 1;
-    descriptSetAllocateInfo.pSetLayouts = descriptorSetLayouts;
 
     vsg::ref_ptr<vsg::DescriptorSet> descriptorSet = vsg::DescriptorSet::create(device, descriptorPool, descriptorSetLayout);
 
@@ -916,6 +909,7 @@ int main(int argc, char** argv)
 
     vkUpdateDescriptorSets(*device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 
+    VkDescriptorSetLayout descriptorSetLayouts[] = {*descriptorSetLayout};
 
     // set up pipeline layout
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
