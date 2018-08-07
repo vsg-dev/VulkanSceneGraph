@@ -7,6 +7,7 @@ namespace vsg
 
 GraphicsPipeline::GraphicsPipeline(Device* device, VkPipeline pipeline, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator):
     Pipeline(device, pipeline, VK_PIPELINE_BIND_POINT_GRAPHICS, allocator),
+    _renderPass(renderPass),
     _pipelineLayout(pipelineLayout),
     _pipelineStates(pipelineStates)
 {
