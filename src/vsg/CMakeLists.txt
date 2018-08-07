@@ -29,6 +29,7 @@ SET(HEADERS
     vk/Command.h
     vk/Surface.h
     vk/ImageView.h
+    vk/BufferView.h
     vk/Swapchain.h
     vk/CmdDraw.h
     vk/Pipeline.h
@@ -68,6 +69,7 @@ SET(SOURCES
     vk/Device.cpp
     vk/Surface.cpp
     vk/ImageView.cpp
+    vk/BufferView.cpp
     vk/Instance.cpp
     vk/Swapchain.cpp
     vk/ShaderModule.cpp
