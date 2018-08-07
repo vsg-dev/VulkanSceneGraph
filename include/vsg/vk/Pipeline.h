@@ -53,6 +53,10 @@ namespace vsg
         VkPipeline                      _pipeline;
         VkPipelineBindPoint             _bindPoint;
         ref_ptr<AllocationCallbacks>    _allocator;
+
+        // "have a" list of GraphicsPipelineState? or just dependent Object?
+        // "have a" PipelineLayout
+        // "have a" RenderPass?
     };
 
 

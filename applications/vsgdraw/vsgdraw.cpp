@@ -672,6 +672,8 @@ int main(int argc, char** argv)
     indexBufferChain->print(std::cout);
     uniformBufferChain->print(std::cout);
 
+/////////// Texture ////////////////////////
+
     //
     // set up texture image
     //
@@ -794,7 +796,7 @@ int main(int argc, char** argv)
     // default texture sampler
     vsg::ref_ptr<vsg::Sampler> textureSampler = vsg::Sampler::create(device);
 
-
+/////////// Texture ////////////////////////
 
 
     //
@@ -948,15 +950,24 @@ int main(int argc, char** argv)
     //                              TessellationState
     //                              DepthStencilState
     //                              DynamicState
+    //
+    //          ShaderModule (ComputePipeline)
+    //
     //          RenderPass (dpenend upon imageFormat provided by Swapchain support))
     //          uint subpass
     //
-    //          PipelineLayout ->   DescriptorSetLayouts (uniform bindings/stages)
+    //          PipelineLayout ->   DescriptorSetLayouts (uniform bindings/stages)  (need to add)
     //
     //  CmdBindDescriptorSets (pass uniforms data)
     //
-    //  CmdBindVertexBuffers (vertex arrays)
-    //  CmdBindIndexBuffer (primitives indices)
+    //          PiplineLayout
+    //          DescriptorSets ->   DescriptorImageInfo -> textureImageView
+    //                                                   -> textureSampler
+    //                              DescriptorBufferInfo -> Unfiroms
+    //
+    //  CmdBindVertexBuffers (vertex arrays) -> vector<Buffer>. already has required Buffer
+    //
+    //  CmdBindIndexBuffer (primitives indices) -> Buffer, a;read has required Buffer
     //
     //  CmdDrawInsdexed ispatch draw call
     //
