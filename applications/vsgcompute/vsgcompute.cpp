@@ -17,6 +17,7 @@
 #include <vsg/vk/DeviceMemory.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/DescriptorPool.h>
+#include <vsg/vk/DescriptorSet.h>
 #include <vsg/vk/DescriptorSetLayout.h>
 #include <vsg/vk/Image.h>
 #include <vsg/vk/Sampler.h>
@@ -116,12 +117,7 @@ int main(int argc, char** argv)
     descriptSetAllocateInfo.descriptorSetCount = 1;
     descriptSetAllocateInfo.pSetLayouts = descriptorSetLayouts;
 
-    vsg::DescriptorSets descriptorSets(1);
-    if (vkAllocateDescriptorSets(*device, &descriptSetAllocateInfo, descriptorSets.data())!=VK_SUCCESS)
-    {
-        std::cout<<"Error: failed to create VkDescriptorSet"<<std::endl;
-        return 1;
-    }
+    vsg::ref_ptr<vsg::DescriptorSet> descriptorSet = vsg::DescriptorSet::create(device, descriptorPool, descriptorSetLayout);
 
     VkDescriptorBufferInfo descriptorBufferInfo = {};
     descriptorBufferInfo.buffer = *buffer;
@@ -131,7 +127,7 @@ int main(int argc, char** argv)
     std::vector<VkWriteDescriptorSet> descriptorWrites(1);
 
     descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrites[0].dstSet = descriptorSets.front();
+    descriptorWrites[0].dstSet = *descriptorSet;
     descriptorWrites[0].dstBinding = 0;
     descriptorWrites[0].descriptorCount = 1;
     descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -160,7 +156,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::ComputePipeline> pipeline = vsg::ComputePipeline::create(device, pipelineLayout, computeShader);
 
     // set up bind descriptors
-    vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, descriptorSets);
+    vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, {descriptorSet});
 
     // setup command pool
     vsg::ref_ptr<vsg::CommandPool> commandPool = vsg::CommandPool::create(device, physicalDevice->getComputeFamily());
