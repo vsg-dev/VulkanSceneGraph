@@ -855,18 +855,6 @@ int main(int argc, char** argv)
 
     vsg::ref_ptr<vsg::CmdDrawIndexed> drawIndexed = new vsg::CmdDrawIndexed(12, 1, 0, 0, 0);
 
-    // setup pipeline
-    vsg::GraphicsPipelineStates pipelineStates;
-    pipelineStates.push_back(shaderStages);
-    pipelineStates.push_back(new vsg::VertexInputState(vertexBindingsDescriptions, vertexAttrobiteDescriptions));
-    pipelineStates.push_back(new vsg::InputAssemblyState);
-    pipelineStates.push_back(new vsg::ViewportState(VkExtent2D{width, height}));
-    pipelineStates.push_back(new vsg::RasterizationState);
-    pipelineStates.push_back(new vsg::MultisampleState);
-    pipelineStates.push_back(new vsg::ColorBlendState);
-    pipelineStates.push_back(new vsg::DepthStencilState);
-
-
 
     vsg::DescriptorPoolSizes poolSizes{
         {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3},
@@ -921,8 +909,21 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = vsg::PipelineLayout::create(device, pipelineLayoutInfo);
 
     // set up graphics pipeline
+    vsg::GraphicsPipelineStates pipelineStates
+    {
+        shaderStages,
+        new vsg::VertexInputState(vertexBindingsDescriptions, vertexAttrobiteDescriptions),
+        new vsg::InputAssemblyState,
+        new vsg::ViewportState(VkExtent2D{width, height}),
+        new vsg::RasterizationState,
+        new vsg::MultisampleState,
+        new vsg::ColorBlendState,
+        new vsg::DepthStencilState
+    };
+
     vsg::ref_ptr<vsg::GraphicsPipeline> pipeline = vsg::GraphicsPipeline::create(device, renderPass, pipelineLayout, pipelineStates);
 
+    // setup binding of descriptors
     vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, {descriptorSet});
 
     // set up what we want to render
