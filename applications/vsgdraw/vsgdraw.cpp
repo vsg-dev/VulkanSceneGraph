@@ -804,7 +804,7 @@ int main(int argc, char** argv)
     //
     // set up descriptor set for uniforms
     //
-    std::vector<VkDescriptorSetLayoutBinding> descriptorLayoutBinding(4);
+    vsg::DescriptorSetLayoutBindings descriptorLayoutBinding(4);
     descriptorLayoutBinding[0].binding = 0;
     descriptorLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     descriptorLayoutBinding[0].descriptorCount = projMatrix->valueCount();
@@ -829,15 +829,7 @@ int main(int argc, char** argv)
     descriptorLayoutBinding[3].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
     descriptorLayoutBinding[3].pImmutableSamplers = nullptr;
 
-
-    VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = descriptorLayoutBinding.size();
-    layoutInfo.pBindings = descriptorLayoutBinding.data();
-
-    vsg::ref_ptr<vsg::DescriptorSetLayout> descriptorSetLayout = vsg::DescriptorSetLayout::create(device, layoutInfo);
-
-
+    vsg::ref_ptr<vsg::DescriptorSetLayout> descriptorSetLayout = vsg::DescriptorSetLayout::create(device, descriptorLayoutBinding);
 
 
     vsg::DescriptorPoolSizes poolSizes{

@@ -89,18 +89,13 @@ int main(int argc, char** argv)
 
 
     // set up DescriptSetLayout
-    std::vector<VkDescriptorSetLayoutBinding> descriptorLayoutBinding(1);
+    vsg::DescriptorSetLayoutBindings descriptorLayoutBinding(1);
     descriptorLayoutBinding[0].binding = 0;
     descriptorLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     descriptorLayoutBinding[0].descriptorCount = 1;
     descriptorLayoutBinding[0].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 
-    VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = descriptorLayoutBinding.size();
-    layoutInfo.pBindings = descriptorLayoutBinding.data();
-
-    vsg::ref_ptr<vsg::DescriptorSetLayout> descriptorSetLayout = vsg::DescriptorSetLayout::create(device, layoutInfo);
+    vsg::ref_ptr<vsg::DescriptorSetLayout> descriptorSetLayout = vsg::DescriptorSetLayout::create(device, descriptorLayoutBinding);
 
 
     // set up DescriptorPool and DecriptorSet

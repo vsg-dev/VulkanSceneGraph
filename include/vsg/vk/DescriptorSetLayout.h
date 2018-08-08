@@ -4,6 +4,7 @@
 
 namespace vsg
 {
+    using DescriptorSetLayoutBindings = std::vector<VkDescriptorSetLayoutBinding>;
 
     class DescriptorSetLayout : public vsg::Object
     {
@@ -12,7 +13,7 @@ namespace vsg
 
         using Result = vsg::Result<DescriptorSetLayout, VkResult, VK_SUCCESS>;
 
-        static Result create(Device* device, const VkDescriptorSetLayoutCreateInfo& descriptorSetLayoutInfo, AllocationCallbacks* allocator=nullptr);
+        static Result create(Device* device, const DescriptorSetLayoutBindings& descriptorSetLayoutBindings, AllocationCallbacks* allocator=nullptr);
 
         operator const VkDescriptorSetLayout& () const { return _descriptorSetLayout; }
 
