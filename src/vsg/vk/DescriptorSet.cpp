@@ -5,12 +5,13 @@
 namespace vsg
 {
 
-DescriptorSet::DescriptorSet(Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout, VkDescriptorSet descriptorSet) :
+DescriptorSet::DescriptorSet(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout, const Descriptors& descriptors) :
+    _descriptorSet(descriptorSet),
     _device(device),
     _descriptorPool(descriptorPool),
-    _descriptorSetLayout(descriptorSetLayout),
-    _descriptorSet(descriptorSet)
+    _descriptorSetLayout(descriptorSetLayout)
 {
+    assign(descriptors);
 }
 
 DescriptorSet::~DescriptorSet()
@@ -22,7 +23,7 @@ DescriptorSet::~DescriptorSet()
     }
 }
 
-DescriptorSet::Result DescriptorSet::create(Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout)
+DescriptorSet::Result DescriptorSet::create(Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout, const Descriptors& descriptors)
 {
     if (!device || !descriptorPool || !descriptorSetLayout)
     {
@@ -42,12 +43,26 @@ DescriptorSet::Result DescriptorSet::create(Device* device, DescriptorPool* desc
     if (result == VK_SUCCESS)
     {
         std::cout<<"Creating DescriptorSet "<<descriptorSet<<std::endl;
-        return new DescriptorSet(device, descriptorPool, descriptorSetLayout, descriptorSet);
+        return new DescriptorSet(descriptorSet, device, descriptorPool, descriptorSetLayout, descriptors);
     }
     else
     {
         return Result("Error: Failed to create DescriptorPool.", result);
     }
+}
+
+void DescriptorSet::assign(const Descriptors& descriptors)
+{
+    // should we doing anything about previous _descriptor that may have been assigned?
+    _descriptors = descriptors;
+
+    std::vector<VkWriteDescriptorSet> descriptorWrites(_descriptors.size());
+    for (size_t i=0; i<_descriptors.size(); ++i)
+    {
+        _descriptors[i]->assignTo(descriptorWrites[i], _descriptorSet);
+    }
+
+    vkUpdateDescriptorSets(*_device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
 }

@@ -838,40 +838,19 @@ int main(int argc, char** argv)
     };
     vsg::ref_ptr<vsg::DescriptorPool> descriptorPool = vsg::DescriptorPool::create(device, 1, poolSizes);
 
-
-    vsg::ref_ptr<vsg::DescriptorSet> descriptorSet = vsg::DescriptorSet::create(device, descriptorPool, descriptorSetLayout);
-
-    vsg::DescriptorBufferInfos descriptorBufferInfos = uniformBufferChain->getDescriptorBufferInfo();
-    std::cout<<"uniformBufferChain->getDescriptorBufferInfo() "<<descriptorBufferInfos.size()<<std::endl;
-    for (auto bufferInfo : descriptorBufferInfos)
-    {
-        std::cout<<"   VkDescriptorBufferInfo buffer="<<bufferInfo.buffer<<", offset="<<bufferInfo.offset<<", range="<<bufferInfo.range<<std::endl;
-    }
-
-
-    std::vector<VkWriteDescriptorSet> descriptorWrites(2);
-    descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrites[0].dstSet = *descriptorSet;
-    descriptorWrites[0].dstBinding = 0;
-    descriptorWrites[0].dstArrayElement = 0;
-    descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    descriptorWrites[0].descriptorCount = descriptorBufferInfos.size();
-    descriptorWrites[0].pBufferInfo = descriptorBufferInfos.data();
-
     VkDescriptorImageInfo imageInfo = {};
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     imageInfo.imageView = *textureImageView;
     imageInfo.sampler = *textureSampler;
 
-    descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrites[1].dstSet = *descriptorSet;
-    descriptorWrites[1].dstBinding = 3;
-    descriptorWrites[1].dstArrayElement = 0;
-    descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    descriptorWrites[1].descriptorCount = 1;
-    descriptorWrites[1].pImageInfo = &imageInfo;
+    vsg::Descriptors descriptors
+    {
+        new vsg::DescriptorBuffer(0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, uniformBufferChain->getDescriptorBufferInfo()),
+        new vsg::DescriptorImage(3, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, {imageInfo})
+    };
 
-    vkUpdateDescriptorSets(*device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    vsg::ref_ptr<vsg::DescriptorSet> descriptorSet = vsg::DescriptorSet::create(device, descriptorPool, descriptorSetLayout, descriptors);
+
 
     vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = vsg::PipelineLayout::create(device, {descriptorSetLayout}, {});
 

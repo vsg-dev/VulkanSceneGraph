@@ -103,23 +103,15 @@ int main(int argc, char** argv)
         {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1}
     };
     vsg::ref_ptr<vsg::DescriptorPool> descriptorPool = vsg::DescriptorPool::create(device, 1, poolSizes);
-    vsg::ref_ptr<vsg::DescriptorSet> descriptorSet = vsg::DescriptorSet::create(device, descriptorPool, descriptorSetLayout);
 
     VkDescriptorBufferInfo descriptorBufferInfo = {};
     descriptorBufferInfo.buffer = *buffer;
     descriptorBufferInfo.offset = 0;
     descriptorBufferInfo.range = bufferSize;
 
-    std::vector<VkWriteDescriptorSet> descriptorWrites(1);
+    vsg::Descriptors descriptors{new vsg::DescriptorBuffer(0, 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, {descriptorBufferInfo})};
 
-    descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrites[0].dstSet = *descriptorSet;
-    descriptorWrites[0].dstBinding = 0;
-    descriptorWrites[0].descriptorCount = 1;
-    descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    descriptorWrites[0].pBufferInfo = &descriptorBufferInfo;
-
-    vkUpdateDescriptorSets(*device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    vsg::ref_ptr<vsg::DescriptorSet> descriptorSet = vsg::DescriptorSet::create(device, descriptorPool, descriptorSetLayout, descriptors);
 
     vsg::ref_ptr<vsg::ShaderModule> computeShader = vsg::ShaderModule::read(device, VK_SHADER_STAGE_COMPUTE_BIT, "main", "shaders/comp.spv");
     if (!computeShader)
