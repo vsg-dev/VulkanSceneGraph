@@ -43,6 +43,7 @@ SET(HEADERS
     vk/Semaphore.h
     vk/DeviceMemory.h
     vk/DescriptorPool.h
+    vk/Descriptor.h
     vk/DescriptorSet.h
     vk/DescriptorSetLayout.h
     vk/Buffer.h
