@@ -837,23 +837,7 @@ int main(int argc, char** argv)
 
     vsg::ref_ptr<vsg::DescriptorSetLayout> descriptorSetLayout = vsg::DescriptorSetLayout::create(device, layoutInfo);
 
-    vsg::ref_ptr<vsg::CmdBindVertexBuffers> bindVertexBuffers = new vsg::CmdBindVertexBuffers;
-    vsg::add(bindVertexBuffers, vertexBufferChain);
 
-    vsg::ref_ptr<vsg::CmdBindIndexBuffer> bindIndexBuffer = new vsg::CmdBindIndexBuffer(indexBufferChain->_deviceBuffer, 0, VK_INDEX_TYPE_UINT16);
-
-    vsg::VertexInputState::Bindings vertexBindingsDescriptions{
-        VkVertexInputBindingDescription{0, sizeof(vsg::vec3), VK_VERTEX_INPUT_RATE_VERTEX},
-        VkVertexInputBindingDescription{1, sizeof(vsg::vec3), VK_VERTEX_INPUT_RATE_VERTEX},
-        VkVertexInputBindingDescription{2, sizeof(vsg::vec2), VK_VERTEX_INPUT_RATE_VERTEX}
-    };
-    vsg::VertexInputState::Attributes vertexAttrobiteDescriptions{
-        VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0},
-        VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0},
-        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0},
-    };
-
-    vsg::ref_ptr<vsg::CmdDrawIndexed> drawIndexed = new vsg::CmdDrawIndexed(12, 1, 0, 0, 0);
 
 
     vsg::DescriptorPoolSizes poolSizes{
@@ -899,11 +883,22 @@ int main(int argc, char** argv)
 
     vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = vsg::PipelineLayout::create(device, {descriptorSetLayout}, {});
 
+    vsg::VertexInputState::Bindings vertexBindingsDescriptions{
+        VkVertexInputBindingDescription{0, sizeof(vsg::vec3), VK_VERTEX_INPUT_RATE_VERTEX},
+        VkVertexInputBindingDescription{1, sizeof(vsg::vec3), VK_VERTEX_INPUT_RATE_VERTEX},
+        VkVertexInputBindingDescription{2, sizeof(vsg::vec2), VK_VERTEX_INPUT_RATE_VERTEX}
+    };
+    vsg::VertexInputState::Attributes vertexAttributeDescriptions{
+        VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0},
+        VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0},
+        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0},
+    };
+
     // set up graphics pipeline
     vsg::GraphicsPipelineStates pipelineStates
     {
         shaderStages,
-        new vsg::VertexInputState(vertexBindingsDescriptions, vertexAttrobiteDescriptions),
+        new vsg::VertexInputState(vertexBindingsDescriptions, vertexAttributeDescriptions),
         new vsg::InputAssemblyState,
         new vsg::ViewportState(VkExtent2D{width, height}),
         new vsg::RasterizationState,
@@ -916,6 +911,16 @@ int main(int argc, char** argv)
 
     // setup binding of descriptors
     vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, {descriptorSet});
+
+    // set up vertex buffer binding
+    vsg::ref_ptr<vsg::CmdBindVertexBuffers> bindVertexBuffers = new vsg::CmdBindVertexBuffers;
+    vsg::add(bindVertexBuffers, vertexBufferChain);
+
+    // set up index buffer binding
+    vsg::ref_ptr<vsg::CmdBindIndexBuffer> bindIndexBuffer = new vsg::CmdBindIndexBuffer(indexBufferChain->_deviceBuffer, 0, VK_INDEX_TYPE_UINT16);
+
+    // set up drawing of the triangles
+    vsg::ref_ptr<vsg::CmdDrawIndexed> drawIndexed = new vsg::CmdDrawIndexed(12, 1, 0, 0, 0);
 
     // set up what we want to render
 
