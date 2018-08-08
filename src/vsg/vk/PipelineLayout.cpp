@@ -5,10 +5,11 @@
 namespace vsg
 {
 
-PipelineLayout::PipelineLayout(Device* device, VkPipelineLayout pipelineLayout, AllocationCallbacks* allocator) :
-    _device(device),
+PipelineLayout::PipelineLayout(VkPipelineLayout pipelineLayout, Device* device, const DescriptorSetLayouts& descriptorSetLayouts, AllocationCallbacks* allocator) :
     _pipelineLayout(pipelineLayout),
-    _allocator(allocator)
+    _device(device),
+    _allocator(allocator),
+    _descriptorSetLayouts(descriptorSetLayouts)
 {
 }
 
@@ -21,33 +22,35 @@ PipelineLayout::~PipelineLayout()
     }
 }
 
-PipelineLayout::Result PipelineLayout::create(Device* device, const VkPipelineLayoutCreateInfo& pipelineLayoutInfo, AllocationCallbacks* allocator)
+PipelineLayout::Result PipelineLayout::create(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags, AllocationCallbacks* allocator)
 {
     if (!device)
     {
         return Result("Error: vsg::PipelineLayout::create(...) failed to create PipelineLayout, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
+    std::vector<VkDescriptorSetLayout> layouts;
+    for(auto dsl : descriptorSetLayouts) layouts.push_back(*dsl);
+
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo;
+    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.flags = flags;
+    pipelineLayoutInfo.setLayoutCount = layouts.size();
+    pipelineLayoutInfo.pSetLayouts = layouts.data();
+    pipelineLayoutInfo.pushConstantRangeCount = pushConstantRanges.size();
+    pipelineLayoutInfo.pPushConstantRanges = pushConstantRanges.data();
+
+
     VkPipelineLayout pipelineLayout;
     VkResult result = vkCreatePipelineLayout(*device, &pipelineLayoutInfo, *allocator, &pipelineLayout);
     if (result == VK_SUCCESS)
     {
-        return new PipelineLayout(device, pipelineLayout, allocator);
+        return new PipelineLayout(pipelineLayout, device, descriptorSetLayouts, allocator);
     }
     else
     {
         return Result("Error: Failed to create PipelineLayout.", result);
     }
-}
-
-PipelineLayout::Result PipelineLayout::create(Device* device, AllocationCallbacks* allocator)
-{
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
-    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 0;
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
-
-    return create(device, pipelineLayoutInfo, allocator);
 }
 
 }

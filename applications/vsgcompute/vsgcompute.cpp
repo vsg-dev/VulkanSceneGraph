@@ -133,17 +133,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    VkDescriptorSetLayout descriptorSetLayouts[] = {*descriptorSetLayout};
-
-    // set up pipeline layout
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
-    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts;
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
-
-    vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = vsg::PipelineLayout::create(device, pipelineLayoutInfo);
-
+    vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = vsg::PipelineLayout::create(device, {descriptorSetLayout}, {});
 
     // set up compute pipeline
     vsg::ref_ptr<vsg::ComputePipeline> pipeline = vsg::ComputePipeline::create(device, pipelineLayout, computeShader);
