@@ -415,19 +415,18 @@ namespace vsg
             }
         }
 
-        DescriptorBufferInfos getDescriptorBufferInfo()
+        BufferDataList getBufferDataList()
         {
-            if (!_deviceBuffer ||  _deviceBuffer->usage()!=VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) return DescriptorBufferInfos();
+            if (!_deviceBuffer ||  _deviceBuffer->usage()!=VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) return BufferDataList();
 
             VkBuffer buffer = *_deviceBuffer;
-            DescriptorBufferInfos infos;
+            BufferDataList bufferDataList;
             for(auto entry : _entries)
             {
-                infos.push_back(VkDescriptorBufferInfo{buffer, entry.offset, entry.data->dataSize()});
+                bufferDataList.push_back(BufferData(_deviceBuffer, entry.offset, entry.data->dataSize()));
             }
-            return infos;
+            return bufferDataList;
         }
-
 
         struct Entry
         {
@@ -838,17 +837,11 @@ int main(int argc, char** argv)
     };
     vsg::ref_ptr<vsg::DescriptorPool> descriptorPool = vsg::DescriptorPool::create(device, 1, poolSizes);
 
-    VkDescriptorImageInfo imageInfo = {};
-    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView = *textureImageView;
-    imageInfo.sampler = *textureSampler;
-
     vsg::Descriptors descriptors
     {
-        new vsg::DescriptorBuffer(0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, uniformBufferChain->getDescriptorBufferInfo()),
-        new vsg::DescriptorImage(3, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, {imageInfo})
+        new vsg::DescriptorBuffer(0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, uniformBufferChain->getBufferDataList()),
+        new vsg::DescriptorImage(3, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, {vsg::ImageData(textureSampler, textureImageView, VK_IMAGE_LAYOUT_UNDEFINED)})
     };
-
     vsg::ref_ptr<vsg::DescriptorSet> descriptorSet = vsg::DescriptorSet::create(device, descriptorPool, descriptorSetLayout, descriptors);
 
 
