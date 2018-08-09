@@ -88,7 +88,7 @@ int main(int argc, char** argv)
     buffer->bind(bufferMemory, 0);
 
 
-    // set up DescriptorPool, DescriptorSetLayout &DecriptorSet
+    // set up DescriptorPool, DescriptorSetLayout, DecriptorSet and BindDescriptorSets
     vsg::ref_ptr<vsg::DescriptorPool> descriptorPool = vsg::DescriptorPool::create(device, 1,
     {
         {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1}
@@ -104,6 +104,12 @@ int main(int argc, char** argv)
         new vsg::DescriptorBuffer(0, 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, {vsg::BufferData(buffer, 0, bufferSize)})
     });
 
+    vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = vsg::PipelineLayout::create(device, {descriptorSetLayout}, {});
+
+    vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, {descriptorSet});
+
+
+    // set up the compute pipeline
     vsg::ref_ptr<vsg::ShaderModule> computeShader = vsg::ShaderModule::read(device, VK_SHADER_STAGE_COMPUTE_BIT, "main", "shaders/comp.spv");
     if (!computeShader)
     {
@@ -111,13 +117,8 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = vsg::PipelineLayout::create(device, {descriptorSetLayout}, {});
-
-    // set up compute pipeline
     vsg::ref_ptr<vsg::ComputePipeline> pipeline = vsg::ComputePipeline::create(device, pipelineLayout, computeShader);
 
-    // set up bind descriptors
-    vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, {descriptorSet});
 
     // setup command pool
     vsg::ref_ptr<vsg::CommandPool> commandPool = vsg::CommandPool::create(device, physicalDevice->getComputeFamily());
