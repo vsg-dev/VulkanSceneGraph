@@ -1,4 +1,6 @@
 #include <vsg/vk/DeviceMemory.h>
+#include <vsg/vk/Buffer.h>
+#include <vsg/vk/Image.h>
 
 #include <iostream>
 #include <cstring>
@@ -62,6 +64,22 @@ DeviceMemory::Result DeviceMemory::create(PhysicalDevice* physicalDevice, Device
     {
         return Result("Error: Failed to create DeviceMemory.", result);
     }
+}
+
+DeviceMemory::Result DeviceMemory::create(PhysicalDevice* physicalDevice, Device* device, Buffer* buffer, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator)
+{
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(*device, *buffer, &memRequirements);
+
+    return vsg::DeviceMemory::create(physicalDevice, device, memRequirements, properties, allocator);
+}
+
+DeviceMemory::Result DeviceMemory::create(PhysicalDevice* physicalDevice, Device* device, Image* image, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator)
+{
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(*device, *image, &memRequirements);
+
+    return vsg::DeviceMemory::create(physicalDevice, device, memRequirements, properties, allocator);
 }
 
 void DeviceMemory::copy(VkDeviceSize offset, VkDeviceSize size, void* src_data)

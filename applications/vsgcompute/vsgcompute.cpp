@@ -85,7 +85,7 @@ int main(int argc, char** argv)
     VkDeviceSize bufferSize = sizeof(vsg::vec4) * width * height;
     vsg::ref_ptr<vsg::Buffer> buffer =  vsg::Buffer::create(device, bufferSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     vsg::ref_ptr<vsg::DeviceMemory>  bufferMemory = vsg::DeviceMemory::create(physicalDevice, device, buffer,  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    vkBindBufferMemory(*device, *buffer, *bufferMemory, 0);
+    buffer->bind(bufferMemory, 0);
 
 
     // set up DescriptorPool, DescriptorSetLayout &DecriptorSet

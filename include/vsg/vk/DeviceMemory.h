@@ -1,11 +1,13 @@
 #pragma once
 
+#include <vsg/core/Data.h>
 #include <vsg/vk/Device.h>
-#include <vsg/vk/Buffer.h>
-#include <vsg/vk/Image.h>
 
 namespace vsg
 {
+    class Buffer;
+    class Image;
+
     class DeviceMemory : public Object
     {
     public:
@@ -14,21 +16,8 @@ namespace vsg
         using Result = vsg::Result<DeviceMemory, VkResult, VK_SUCCESS>;
         static Result create(PhysicalDevice* physicalDevice, Device* device, VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator=nullptr);
 
-        static Result create(PhysicalDevice* physicalDevice, Device* device, Buffer* buffer, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator=nullptr)
-        {
-            VkMemoryRequirements memRequirements;
-            vkGetBufferMemoryRequirements(*device, *buffer, &memRequirements);
-
-            return vsg::DeviceMemory::create(physicalDevice, device, memRequirements, properties, allocator);
-        }
-
-        static Result create(PhysicalDevice* physicalDevice, Device* device, Image* image, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator=nullptr)
-        {
-            VkMemoryRequirements memRequirements;
-            vkGetImageMemoryRequirements(*device, *image, &memRequirements);
-
-            return vsg::DeviceMemory::create(physicalDevice, device, memRequirements, properties, allocator);
-        }
+        static Result create(PhysicalDevice* physicalDevice, Device* device, Buffer* buffer, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator=nullptr);
+        static Result create(PhysicalDevice* physicalDevice, Device* device, Image* image, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator=nullptr);
 
         void copy(VkDeviceSize offset, VkDeviceSize size, void* src_data);
         void copy(VkDeviceSize offset, Data* data);

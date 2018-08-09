@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vsg/vk/Device.h>
+#include <vsg/vk/DeviceMemory.h>
 #include <vsg/vk/CmdDraw.h>
 
 namespace vsg
@@ -17,6 +17,17 @@ namespace vsg
         VkSharingMode shaderMode() const { return _sharingMode; }
         VkBuffer buffer() const { return _buffer; }
 
+        VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
+        {
+            VkResult result = vkBindBufferMemory(*_device, _buffer, *deviceMemory, memoryOffset);
+            if (result == VK_SUCCESS)
+            {
+                _deviceMemory = deviceMemory;
+                _memoryOffset = memoryOffset;
+            }
+            return result;
+        }
+
         operator VkBuffer () const { return _buffer; }
 
     protected:
@@ -27,6 +38,9 @@ namespace vsg
         VkBufferUsageFlags              _usage;
         VkSharingMode                   _sharingMode;
         ref_ptr<AllocationCallbacks>    _allocator;
+
+        ref_ptr<DeviceMemory>           _deviceMemory;
+        VkDeviceSize                    _memoryOffset;
     };
 
 

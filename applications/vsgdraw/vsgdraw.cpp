@@ -335,18 +335,18 @@ namespace vsg
             {
                 _stagingBuffer = vsg::Buffer::create(_device, totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, _sharingMode);
                 _stagingMemory = vsg::DeviceMemory::create(_physicalDevice, _device, _stagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-                vkBindBufferMemory(*_device, *_stagingBuffer, *_stagingMemory, 0);
+                _stagingBuffer->bind(_stagingMemory, 0);
 
                 _deviceBuffer = vsg::Buffer::create(_device, totalSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | _usage, _sharingMode);
                 _deviceMemory =  vsg::DeviceMemory::create(_physicalDevice, _device, _deviceBuffer,  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-                vkBindBufferMemory(*_device, *_deviceBuffer, *_deviceMemory, 0);
+                _deviceBuffer->bind(_deviceMemory, 0);
 
             }
             else
             {
                 _deviceBuffer = vsg::Buffer::create(_device, totalSize, _usage, _sharingMode);
                 _deviceMemory =  vsg::DeviceMemory::create(_physicalDevice, _device, _deviceBuffer,  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-                vkBindBufferMemory(*_device, *_deviceBuffer, *_deviceMemory, 0);
+                _deviceBuffer->bind(_deviceMemory, 0);
             }
         }
 
@@ -696,10 +696,8 @@ int main(int argc, char** argv)
     VkDeviceSize imageTotalSize = osg_image->getTotalSizeInBytesIncludingMipmaps();
 
     vsg::ref_ptr<vsg::Buffer> imageStagingBuffer = vsg::Buffer::create(device, imageTotalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    vsg::ref_ptr<vsg::DeviceMemory> imageStagingMemory = vsg::DeviceMemory::create(physicalDevice, device, imageStagingBuffer,
-                                                                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-    vkBindBufferMemory(*device, *imageStagingBuffer, *imageStagingMemory, 0);
+    vsg::ref_ptr<vsg::DeviceMemory> imageStagingMemory = vsg::DeviceMemory::create(physicalDevice, device, imageStagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    imageStagingBuffer->bind(imageStagingMemory, 0);
 
     // copy image data to staging memory
     imageStagingMemory->copy(0, imageTotalSize, osg_image->data());
@@ -825,6 +823,9 @@ int main(int argc, char** argv)
 
     vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = vsg::PipelineLayout::create(device, {descriptorSetLayout}, {});
 
+    // setup binding of descriptors
+    vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, {descriptorSet});
+
 
     // set up graphics pipeline
     vsg::VertexInputState::Bindings vertexBindingsDescriptions
@@ -852,9 +853,6 @@ int main(int argc, char** argv)
         new vsg::ColorBlendState,
         new vsg::DepthStencilState
     });
-
-    // setup binding of descriptors
-    vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, {descriptorSet});
 
     // set up vertex buffer binding
     vsg::ref_ptr<vsg::CmdBindVertexBuffers> bindVertexBuffers = new vsg::CmdBindVertexBuffers;
