@@ -1,13 +1,13 @@
 #pragma once
 
-#include <vsg/vk/Device.h>
+#include <vsg/vk/DeviceMemory.h>
 
 namespace vsg
 {
     class Image : public Object
     {
     public:
-        Image(Device* device, VkImage Image, AllocationCallbacks* allocator=nullptr);
+        Image(VkImage Image, Device* device, AllocationCallbacks* allocator=nullptr);
 
         using Result = vsg::Result<Image, VkResult, VK_SUCCESS>;
         static Result create(Device* device, const VkImageCreateInfo& createImageInfo, AllocationCallbacks* allocator=nullptr);
@@ -16,12 +16,26 @@ namespace vsg
 
         operator VkImage () const { return _image; }
 
+        VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
+        {
+            VkResult result = vkBindImageMemory(*_device, _image, *deviceMemory, memoryOffset);
+            if (result == VK_SUCCESS)
+            {
+                _deviceMemory = deviceMemory;
+                _memoryOffset = memoryOffset;
+            }
+            return result;
+        }
+
     protected:
         virtual ~Image();
 
-        ref_ptr<Device>                 _device;
         VkImage                         _image;
+        ref_ptr<Device>                 _device;
         ref_ptr<AllocationCallbacks>    _allocator;
+
+        ref_ptr<DeviceMemory>           _deviceMemory;
+        VkDeviceSize                    _memoryOffset;
     };
 
     class ImageMemoryBarrier : public Object, public VkImageMemoryBarrier
@@ -36,6 +50,8 @@ namespace vsg
 
     //protected:
         virtual ~ImageMemoryBarrier();
+
+        ref_ptr<Image>  _image;
     };
 
 }

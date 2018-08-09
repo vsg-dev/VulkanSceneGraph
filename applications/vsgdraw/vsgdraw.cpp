@@ -738,8 +738,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    // should the textureImage take a reference to the textureImageDeviceMemory?  Possibly, will need to consider later.
-    vkBindImageMemory(*device, *textureImage, *textureImageDeviceMemory, 0);
+    textureImage->bind(textureImageDeviceMemory, 0);
 
 
     vsg::dispatchCommandsToQueue(device, commandPool, graphicsQueue, [&](VkCommandBuffer commandBuffer)

@@ -5,9 +5,9 @@
 namespace vsg
 {
 
-Image::Image(Device* device, VkImage Image, AllocationCallbacks* allocator) :
-    _device(device),
+Image::Image(VkImage Image, Device* device, AllocationCallbacks* allocator) :
     _image(Image),
+    _device(device),
     _allocator(allocator)
 {
 }
@@ -32,7 +32,7 @@ Image::Result Image::create(Device* device, const VkImageCreateInfo& createImage
     VkResult result = vkCreateImage(*device, &createImageInfo, *allocator, &image);
     if (result == VK_SUCCESS)
     {
-        return new Image(device, image, allocator);
+        return new Image(image, device, allocator);
     }
     else
     {
@@ -40,10 +40,12 @@ Image::Result Image::create(Device* device, const VkImageCreateInfo& createImage
     }
 }
 
+
 ImageMemoryBarrier::ImageMemoryBarrier(VkAccessFlags in_srcAccessMask, VkAccessFlags in_destAccessMask,
                     VkImageLayout in_oldLayout, VkImageLayout in_newLayout,
                     Image* in_image) :
-                    VkImageMemoryBarrier{}
+                    VkImageMemoryBarrier{},
+                    _image(in_image)
 {
     sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     oldLayout = in_oldLayout;
