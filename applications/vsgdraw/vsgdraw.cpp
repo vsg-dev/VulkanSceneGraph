@@ -801,65 +801,47 @@ int main(int argc, char** argv)
 
 
     //
-    // set up descriptor set for uniforms
+    // set up descriptor layout and descriptor set and pieline layout for uniforms
     //
-    vsg::DescriptorSetLayoutBindings descriptorLayoutBinding(4);
-    descriptorLayoutBinding[0].binding = 0;
-    descriptorLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    descriptorLayoutBinding[0].descriptorCount = projMatrix->valueCount();
-    descriptorLayoutBinding[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    descriptorLayoutBinding[0].pImmutableSamplers = nullptr;
-
-    descriptorLayoutBinding[1].binding = 1;
-    descriptorLayoutBinding[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    descriptorLayoutBinding[1].descriptorCount = viewMatrix->valueCount();
-    descriptorLayoutBinding[1].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    descriptorLayoutBinding[1].pImmutableSamplers = nullptr;
-
-    descriptorLayoutBinding[2].binding = 2;
-    descriptorLayoutBinding[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    descriptorLayoutBinding[2].descriptorCount = modelMatrix->valueCount();
-    descriptorLayoutBinding[2].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    descriptorLayoutBinding[2].pImmutableSamplers = nullptr;
-
-    descriptorLayoutBinding[3].binding = 3;
-    descriptorLayoutBinding[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    descriptorLayoutBinding[3].descriptorCount = 1;
-    descriptorLayoutBinding[3].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-    descriptorLayoutBinding[3].pImmutableSamplers = nullptr;
-
-    vsg::ref_ptr<vsg::DescriptorSetLayout> descriptorSetLayout = vsg::DescriptorSetLayout::create(device, descriptorLayoutBinding);
-
-
-    vsg::DescriptorPoolSizes poolSizes{
+    vsg::ref_ptr<vsg::DescriptorPool> descriptorPool = vsg::DescriptorPool::create(device, 1,
+    {
         {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3},
         {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1}
-    };
-    vsg::ref_ptr<vsg::DescriptorPool> descriptorPool = vsg::DescriptorPool::create(device, 1, poolSizes);
+    });
 
-    vsg::Descriptors descriptors
+    vsg::ref_ptr<vsg::DescriptorSetLayout> descriptorSetLayout = vsg::DescriptorSetLayout::create(device,
+    {
+        {0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT},
+        {1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT},
+        {2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT},
+        {3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT}
+    });
+
+    vsg::ref_ptr<vsg::DescriptorSet> descriptorSet = vsg::DescriptorSet::create(device, descriptorPool, descriptorSetLayout,
     {
         new vsg::DescriptorBuffer(0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, uniformBufferChain->getBufferDataList()),
         new vsg::DescriptorImage(3, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, {vsg::ImageData(textureSampler, textureImageView, VK_IMAGE_LAYOUT_UNDEFINED)})
-    };
-    vsg::ref_ptr<vsg::DescriptorSet> descriptorSet = vsg::DescriptorSet::create(device, descriptorPool, descriptorSetLayout, descriptors);
-
+    });
 
     vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = vsg::PipelineLayout::create(device, {descriptorSetLayout}, {});
 
-    vsg::VertexInputState::Bindings vertexBindingsDescriptions{
+
+    // set up graphics pipeline
+    vsg::VertexInputState::Bindings vertexBindingsDescriptions
+    {
         VkVertexInputBindingDescription{0, sizeof(vsg::vec3), VK_VERTEX_INPUT_RATE_VERTEX},
         VkVertexInputBindingDescription{1, sizeof(vsg::vec3), VK_VERTEX_INPUT_RATE_VERTEX},
         VkVertexInputBindingDescription{2, sizeof(vsg::vec2), VK_VERTEX_INPUT_RATE_VERTEX}
     };
-    vsg::VertexInputState::Attributes vertexAttributeDescriptions{
+
+    vsg::VertexInputState::Attributes vertexAttributeDescriptions
+    {
         VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0},
         VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0},
         VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0},
     };
 
-    // set up graphics pipeline
-    vsg::GraphicsPipelineStates pipelineStates
+    vsg::ref_ptr<vsg::GraphicsPipeline> pipeline = vsg::GraphicsPipeline::create(device, renderPass, pipelineLayout,
     {
         shaderStages,
         new vsg::VertexInputState(vertexBindingsDescriptions, vertexAttributeDescriptions),
@@ -869,9 +851,7 @@ int main(int argc, char** argv)
         new vsg::MultisampleState,
         new vsg::ColorBlendState,
         new vsg::DepthStencilState
-    };
-
-    vsg::ref_ptr<vsg::GraphicsPipeline> pipeline = vsg::GraphicsPipeline::create(device, renderPass, pipelineLayout, pipelineStates);
+    });
 
     // setup binding of descriptors
     vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, {descriptorSet});

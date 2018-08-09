@@ -88,17 +88,17 @@ int main(int argc, char** argv)
     vkBindBufferMemory(*device, *buffer, *bufferMemory, 0);
 
 
-    // set up DescriptSetLayout
-    vsg::DescriptorSetLayoutBindings descriptorLayoutBinding(1);
-    descriptorLayoutBinding[0].binding = 0;
-    descriptorLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    descriptorLayoutBinding[0].descriptorCount = 1;
-    descriptorLayoutBinding[0].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+    // set up DescriptorPool, DescriptorSetLayout &DecriptorSet
+    vsg::ref_ptr<vsg::DescriptorPool> descriptorPool = vsg::DescriptorPool::create(device, 1,
+    {
+        {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1}
+    });
 
-    vsg::ref_ptr<vsg::DescriptorSetLayout> descriptorSetLayout = vsg::DescriptorSetLayout::create(device, descriptorLayoutBinding);
+    vsg::ref_ptr<vsg::DescriptorSetLayout> descriptorSetLayout = vsg::DescriptorSetLayout::create(device,
+    {
+        {0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT}
+    });
 
-    // set up DescriptorPool and DecriptorSet
-    vsg::ref_ptr<vsg::DescriptorPool> descriptorPool = vsg::DescriptorPool::create(device, 1, {{VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1}});
     vsg::ref_ptr<vsg::DescriptorSet> descriptorSet = vsg::DescriptorSet::create(device, descriptorPool, descriptorSetLayout,
     {
         new vsg::DescriptorBuffer(0, 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, {vsg::BufferData(buffer, 0, bufferSize)})
