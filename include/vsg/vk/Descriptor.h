@@ -5,6 +5,8 @@
 #include <vsg/vk/ImageView.h>
 #include <vsg/vk/BufferView.h>
 
+#include <iostream>
+
 namespace vsg
 {
 
@@ -40,10 +42,29 @@ namespace vsg
     class ImageData
     {
     public:
+
+        ImageData() : _imageLayout(VK_IMAGE_LAYOUT_UNDEFINED) {}
+
+        ImageData(const ImageData& id) :
+            _sampler(id._sampler),
+            _imageView(id._imageView),
+            _imageLayout(id._imageLayout) {}
+
         ImageData(Sampler* sampler, ImageView* imageView, VkImageLayout imageLayout = VK_IMAGE_LAYOUT_UNDEFINED):
             _sampler(sampler),
             _imageView(imageView),
             _imageLayout(imageLayout) {}
+
+        ImageData& operator = (const ImageData& rhs)
+        {
+            _sampler = rhs._sampler;
+            _imageView = rhs._imageView;
+            _imageLayout = rhs._imageLayout;
+        }
+
+        explicit operator bool() const { return _sampler.valid() && _imageView.valid(); }
+
+        bool valid() const { return _sampler.valid() && _imageView.valid(); }
 
         ref_ptr<Sampler>    _sampler;
         ref_ptr<ImageView>  _imageView;
@@ -70,7 +91,6 @@ namespace vsg
                 info.imageView = *(data._imageView);
                 info.imageLayout = data._imageLayout;
             }
-
         }
 
         virtual void assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const

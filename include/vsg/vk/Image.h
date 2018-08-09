@@ -48,9 +48,9 @@ namespace vsg
 
         void cmdPiplineBarrier(VkCommandBuffer commandBuffer, VkPipelineStageFlags sourceStage, VkPipelineStageFlags destinationStage);
 
-    //protected:
         virtual ~ImageMemoryBarrier();
 
+    protected:
         ref_ptr<Image>  _image;
     };
 
