@@ -52,6 +52,8 @@ namespace vsg
 
         const std::string& message() { _printMessageOnError = false; return _message; }
 
+        bool valid() const { return _ptr.valid(); }
+
         ref_ptr<T> object() { return _ptr; }
 
         operator ref_ptr<T> () { return _ptr; }
