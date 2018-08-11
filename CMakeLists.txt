@@ -26,6 +26,11 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}/CMakeModules/"
 set(CMAKE_CXX_STANDARD 11)
 #set(CMAKE_CXX_STANDARD 14)
 
+# Change the default build type to Release
+IF(NOT CMAKE_BUILD_TYPE)
+    SET(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
+
 # Find OpenSceneGraph packages for reference
 find_package(OpenThreads)
 find_package(osg)
