@@ -28,6 +28,7 @@ namespace vsg
         virtual std::size_t dataSize() const { return sizeof(value_type); }
         virtual void* dataPointer() { return &_value; }
         virtual const void* dataPointer() const { return &_value; }
+        virtual void* dataRelease() {}
 
         Value& operator = (const Value& rhs) { _value = rhs._value; return *this; }
         Value& operator = (const value_type& rhs) { _value = rhs; return *this; }
@@ -66,11 +67,11 @@ namespace vsg
         }
     }
 
-    using StringValue = Value<std::string>;
-    using IntValue = Value<int>;
-    using UIntValue = Value<unsigned int>;
-    using FloatValue = Value<float>;
-    using DoubleValue = Value<double>;
+    using stringValue = Value<std::string>;
+    using intValue = Value<int>;
+    using uintValue = Value<unsigned int>;
+    using floatValue = Value<float>;
+    using doubleValue = Value<double>;
     using vec2Value = Value<vec2>;
     using vec3Value = Value<vec3>;
     using vec4Value = Value<vec4>;

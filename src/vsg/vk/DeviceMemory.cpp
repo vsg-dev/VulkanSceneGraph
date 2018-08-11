@@ -24,7 +24,7 @@ DeviceMemory::~DeviceMemory()
     }
 }
 
-DeviceMemory::Result DeviceMemory::create(PhysicalDevice* physicalDevice, Device* device, VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator)
+DeviceMemory::Result DeviceMemory::create(PhysicalDevice* physicalDevice, Device* device, const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator)
 {
     if (!device)
     {

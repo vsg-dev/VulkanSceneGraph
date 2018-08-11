@@ -14,7 +14,7 @@ namespace vsg
         DeviceMemory(Device* device, VkDeviceMemory DeviceMemory, AllocationCallbacks* allocator=nullptr);
 
         using Result = vsg::Result<DeviceMemory, VkResult, VK_SUCCESS>;
-        static Result create(PhysicalDevice* physicalDevice, Device* device, VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator=nullptr);
+        static Result create(PhysicalDevice* physicalDevice, Device* device, const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator=nullptr);
 
         static Result create(PhysicalDevice* physicalDevice, Device* device, Buffer* buffer, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator=nullptr);
         static Result create(PhysicalDevice* physicalDevice, Device* device, Image* image, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator=nullptr);

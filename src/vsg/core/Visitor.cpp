@@ -23,16 +23,17 @@ void Visitor::apply(Object&)
 //
 // Values
 //
-void Visitor::apply(StringValue& value) { apply(static_cast<Object&>(value)); }
-void Visitor::apply(IntValue& value) { apply(static_cast<Object&>(value)); }
-void Visitor::apply(UIntValue& value) { apply(static_cast<Object&>(value)); }
-void Visitor::apply(FloatValue& value) { apply(static_cast<Object&>(value)); }
-void Visitor::apply(DoubleValue& value) {apply(static_cast<Object&>(value)); }
+void Visitor::apply(stringValue& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(intValue& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(uintValue& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(floatValue& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(doubleValue& value) {apply(static_cast<Object&>(value)); }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Arrays
 //
+void Visitor::apply(ubyteArray& value) { apply(static_cast<Object&>(value)); }
 void Visitor::apply(ushortArray& value) { apply(static_cast<Object&>(value)); }
 void Visitor::apply(uintArray& value) { apply(static_cast<Object&>(value)); }
 void Visitor::apply(floatArray& value) { apply(static_cast<Object&>(value)); }

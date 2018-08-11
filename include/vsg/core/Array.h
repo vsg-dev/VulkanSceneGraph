@@ -19,6 +19,7 @@ namespace vsg
 
         Array() : _size(0), _data(nullptr) {}
         Array(std::size_t numElements) : _size(numElements), _data(new value_type[numElements]) {}
+        Array(std::size_t numElements, value_type* data) : _size(numElements), _data(data) {}
         Array(std::initializer_list<value_type> l) : _size(l.size()), _data(new value_type[l.size()]) { value_type* ptr = _data; for (value_type const & v : l) { (*ptr++) = v; } }
         Array(const Array& rhs) : _data(rhs.data) {}
 
@@ -54,6 +55,9 @@ namespace vsg
             }
         }
 
+        // release the data so that owneership can be passed on, the local data pointer and size is set to 0 and destruction of Array will no result in the data being deleted.
+        virtual void* dataRelease() { void* tmp = _data; _data = nullptr; _size=0; return tmp; }
+
         virtual std::size_t valueSize() const { return sizeof(value_type); }
         virtual std::size_t valueCount() const { return _size; }
 
@@ -85,6 +89,7 @@ namespace vsg
         value_type* _data;
     };
 
+    using ubyteArray = Array<std::uint8_t>;
     using ushortArray = Array<std::uint16_t>;
     using uintArray = Array<std::uint32_t>;
     using floatArray = Array<float>;

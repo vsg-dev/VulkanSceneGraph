@@ -41,29 +41,29 @@ int main(int argc, char** argv)
                 std::cout<<"Object, "<<typeid(object).name()<<std::endl;
             }
 
-            void apply(vsg::IntValue& value)
+            void apply(vsg::intValue& value)
             {
-                std::cout<<"IntValue,  value = "<<value<<std::endl;
+                std::cout<<"intValue,  value = "<<value<<std::endl;
             }
 
-            void apply(vsg::UIntValue& value)
+            void apply(vsg::uintValue& value)
             {
-                std::cout<<"UIntValue,  value = "<<value<<std::endl;
+                std::cout<<"uintValue,  value = "<<value<<std::endl;
             }
 
-            void apply(vsg::FloatValue& value)
+            void apply(vsg::floatValue& value)
             {
-                std::cout<<"FloatValue, value  = "<<value<<std::endl;
+                std::cout<<"floatValue, value  = "<<value<<std::endl;
             }
 
-            void apply(vsg::DoubleValue& value)
+            void apply(vsg::doubleValue& value)
             {
-                std::cout<<"DoubleValue, value  = "<<value<<std::endl;
+                std::cout<<"doubleValue, value  = "<<value<<std::endl;
             }
 
-            void apply(vsg::StringValue& value)
+            void apply(vsg::stringValue& value)
             {
-                std::cout<<"StringValue, value  = "<<value.value()<<std::endl;
+                std::cout<<"stringValue, value  = "<<value.value()<<std::endl;
             }
         };
 

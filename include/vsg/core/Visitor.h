@@ -25,13 +25,14 @@ namespace vsg
         virtual void apply(Object&);
 
         // Values
-        virtual void apply(StringValue&);
-        virtual void apply(IntValue&);
-        virtual void apply(UIntValue&);
-        virtual void apply(FloatValue&);
-        virtual void apply(DoubleValue&);
+        virtual void apply(stringValue&);
+        virtual void apply(intValue&);
+        virtual void apply(uintValue&);
+        virtual void apply(floatValue&);
+        virtual void apply(doubleValue&);
 
         // Arrays
+        virtual void apply(ubyteArray&);
         virtual void apply(ushortArray&);
         virtual void apply(uintArray&);
         virtual void apply(floatArray&);

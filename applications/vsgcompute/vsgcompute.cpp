@@ -144,19 +144,26 @@ int main(int argc, char** argv)
         void* mappedMemory = NULL;
         vkMapMemory(*device, *bufferMemory, 0, bufferSize, 0, &mappedMemory);
 
+        // pass the mappedMemory to an Array to provide convinient access
+        vsg::ref_ptr<vsg::vec4Array> array = new vsg::vec4Array(bufferSize/sizeof(vsg::vec4), static_cast<vsg::vec4*>(mappedMemory));
+
         osg::ref_ptr<osg::Image> image = new osg::Image;
         image->allocateImage(width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE);
         float* src_ptr = reinterpret_cast<float*>(mappedMemory);
         unsigned char* dest_ptr = image->data();
-        for(int i=0; i<width*height; ++i)
+
+        for(auto& c : *array)
         {
-            (*dest_ptr++) = (unsigned char)((*src_ptr++)*255.0f);
-            (*dest_ptr++) = (unsigned char)((*src_ptr++)*255.0f);
-            (*dest_ptr++) = (unsigned char)((*src_ptr++)*255.0f);
-            (*dest_ptr++) = (unsigned char)((*src_ptr++)*255.0f);
+            (*dest_ptr++) = (unsigned char)(c.r * 255.0f);
+            (*dest_ptr++) = (unsigned char)(c.g * 255.0f);
+            (*dest_ptr++) = (unsigned char)(c.b * 255.0f);
+            (*dest_ptr++) = (unsigned char)(c.a * 255.0f);
         }
 
         osgDB::writeImageFile(*image, outputFIlename);
+
+        // need to release the data from the Array to prevent it from deleting when the Array gets destructed
+        array->dataRelease();
 
         vkUnmapMemory(*device, *bufferMemory);
     }
