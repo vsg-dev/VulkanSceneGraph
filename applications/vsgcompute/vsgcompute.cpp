@@ -35,34 +35,6 @@
 #include <chrono>
 #include <cstring>
 
-namespace vsg
-{
-    template<class T>
-    class MappedArray : public T
-    {
-    public:
-
-        using value_type = typename T::value_type;
-
-        MappedArray(DeviceMemory* deviceMemory, VkDeviceSize offset, VkDeviceSize size, VkMemoryMapFlags flags=0) :
-            T(),
-            _deviceMemory(deviceMemory)
-        {
-            void* pData;
-            _deviceMemory->map(offset, size, flags, &pData);
-            T::assign(size/sizeof(value_type), static_cast<value_type*>(pData));
-        }
-
-        virtual ~MappedArray()
-        {
-            T::dataRelease(); // make sure that the Array doesn't delete this memory
-            _deviceMemory->unmap();
-        }
-    protected:
-        ref_ptr<DeviceMemory> _deviceMemory;
-    };
-}
-
 int main(int argc, char** argv)
 {
     bool debugLayer = false;
@@ -70,15 +42,12 @@ int main(int argc, char** argv)
     uint32_t width = 3200;
     uint32_t height = 2400;
     uint32_t workgroupSize = 32;
-    bool useStagingBuffer = false;
     std::string outputFIlename;
 
     try
     {
         if (vsg::CommandLine::read(argc, argv, vsg::CommandLine::Match("--debug","-d"))) debugLayer = true;
         if (vsg::CommandLine::read(argc, argv, vsg::CommandLine::Match("--api","-a"))) { apiDumpLayer = true; debugLayer = true; }
-        if (vsg::CommandLine::read(argc, argv, "--size", width, height)) {}
-        if (vsg::CommandLine::read(argc, argv, "-s")) { useStagingBuffer = true; }
         if (vsg::CommandLine::read(argc, argv, "-o", outputFIlename)) {}
         if (vsg::CommandLine::read(argc, argv, "-w", workgroupSize)) {}
     }
@@ -150,6 +119,7 @@ int main(int argc, char** argv)
     // setup command pool
     vsg::ref_ptr<vsg::CommandPool> commandPool = vsg::CommandPool::create(device, physicalDevice->getComputeFamily());
 
+
     // setup fence
     vsg::ref_ptr<vsg::Fence> fence = vsg::Fence::create(device);
 
@@ -168,7 +138,7 @@ int main(int argc, char** argv)
 
     if (!outputFIlename.empty())
     {
-        vsg::ref_ptr<vsg::vec4Array> array = new vsg::MappedArray<vsg::vec4Array>(bufferMemory, 0, bufferSize);
+        vsg::ref_ptr<vsg::vec4Array> array = new vsg::MappedArray<vsg::vec4Array>(bufferMemory, 0, width*height); // devicememorry, offset and numElements
 
         osg::ref_ptr<osg::Image> image = new osg::Image;
         image->allocateImage(width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE);
@@ -184,7 +154,6 @@ int main(int argc, char** argv)
 
         osgDB::writeImageFile(*image, outputFIlename);
     }
-
 
     // clean up done automatically thanks to ref_ptr<>
     return 0;

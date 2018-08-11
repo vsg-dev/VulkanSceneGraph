@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vsg/core/Data.h>
+#include <vsg/core/Array.h>
 #include <vsg/vk/Device.h>
 
 namespace vsg
@@ -35,5 +35,31 @@ namespace vsg
         VkDeviceMemory                  _deviceMemory;
         ref_ptr<AllocationCallbacks>    _allocator;
     };
+
+    template<class T>
+    class MappedArray : public T
+    {
+    public:
+
+        using value_type = typename T::value_type;
+
+        MappedArray(DeviceMemory* deviceMemory, VkDeviceSize offset, size_t numElements, VkMemoryMapFlags flags=0) :
+            T(),
+            _deviceMemory(deviceMemory)
+        {
+            void* pData;
+            _deviceMemory->map(offset, numElements*sizeof(value_type), flags, &pData);
+            T::assign(numElements, static_cast<value_type*>(pData));
+        }
+
+        virtual ~MappedArray()
+        {
+            T::dataRelease(); // make sure that the Array doesn't delete this memory
+            _deviceMemory->unmap();
+        }
+    protected:
+        ref_ptr<DeviceMemory> _deviceMemory;
+    };
+
 
 }
