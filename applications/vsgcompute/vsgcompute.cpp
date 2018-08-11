@@ -35,6 +35,33 @@
 #include <chrono>
 #include <cstring>
 
+namespace vsg
+{
+    template<class T>
+    class MappedArray : public T
+    {
+    public:
+
+        using value_type = typename T::value_type;
+
+        MappedArray(DeviceMemory* deviceMemory, VkDeviceSize offset, VkDeviceSize size, VkMemoryMapFlags flags=0) :
+            T(),
+            _deviceMemory(deviceMemory)
+        {
+            void* pData;
+            _deviceMemory->map(offset, size, flags, &pData);
+            T::assign(size/sizeof(value_type), static_cast<value_type*>(pData));
+        }
+
+        virtual ~MappedArray()
+        {
+            T::dataRelease(); // make sure that the Array doesn't delete this memory
+            _deviceMemory->unmap();
+        }
+    protected:
+        ref_ptr<DeviceMemory> _deviceMemory;
+    };
+}
 
 int main(int argc, char** argv)
 {
@@ -141,15 +168,10 @@ int main(int argc, char** argv)
 
     if (!outputFIlename.empty())
     {
-        void* mappedMemory = NULL;
-        vkMapMemory(*device, *bufferMemory, 0, bufferSize, 0, &mappedMemory);
-
-        // pass the mappedMemory to an Array to provide convinient access
-        vsg::ref_ptr<vsg::vec4Array> array = new vsg::vec4Array(bufferSize/sizeof(vsg::vec4), static_cast<vsg::vec4*>(mappedMemory));
+        vsg::ref_ptr<vsg::vec4Array> array = new vsg::MappedArray<vsg::vec4Array>(bufferMemory, 0, bufferSize);
 
         osg::ref_ptr<osg::Image> image = new osg::Image;
         image->allocateImage(width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE);
-        float* src_ptr = reinterpret_cast<float*>(mappedMemory);
         unsigned char* dest_ptr = image->data();
 
         for(auto& c : *array)
@@ -161,11 +183,6 @@ int main(int argc, char** argv)
         }
 
         osgDB::writeImageFile(*image, outputFIlename);
-
-        // need to release the data from the Array to prevent it from deleting when the Array gets destructed
-        array->dataRelease();
-
-        vkUnmapMemory(*device, *bufferMemory);
     }
 
 

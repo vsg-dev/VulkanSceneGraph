@@ -32,6 +32,14 @@ namespace vsg
         // should Array be fixed size?
         void clear() { _size = 0; if (_data) { delete [] _data; } _data = nullptr; }
 
+        void assign(std::size_t numElements, value_type* data)
+        {
+            if (_data!=nullptr) delete [] _data;
+
+            _size = numElements;
+            _data = data;
+        }
+
         void resize(std::size_t size)
         {
             if (_data)

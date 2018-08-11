@@ -22,6 +22,10 @@ namespace vsg
         void copy(VkDeviceSize offset, VkDeviceSize size, void* src_data);
         void copy(VkDeviceSize offset, Data* data);
 
+        /// wrapper of vkMapMemory
+        VkResult map(VkDeviceSize offset, VkDeviceSize size, VkMemoryMapFlags flags, void** ppData);
+        void unmap();
+
         operator VkDeviceMemory () const { return _deviceMemory; }
 
     protected:
