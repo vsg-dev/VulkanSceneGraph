@@ -42,6 +42,7 @@ SET(HEADERS
     vk/CommandVisitor.h
     vk/Semaphore.h
     vk/DeviceMemory.h
+    vk/MemoryManager.h
     vk/DescriptorPool.h
     vk/Descriptor.h
     vk/DescriptorSet.h
@@ -86,6 +87,7 @@ SET(SOURCES
     vk/CommandVisitor.cpp
     vk/Semaphore.cpp
     vk/DeviceMemory.cpp
+    vk/MemoryManager.cpp
     vk/DescriptorPool.cpp
     vk/DescriptorSet.cpp
     vk/DescriptorSetLayout.cpp
