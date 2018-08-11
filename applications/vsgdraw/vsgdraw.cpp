@@ -644,7 +644,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = vsg::PipelineLayout::create(device, {descriptorSetLayout}, {});
 
     // setup binding of descriptors
-    vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, {descriptorSet});
+    vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, {descriptorSet}); // device dependent
 
 
     // set up graphics pipeline
@@ -662,87 +662,46 @@ int main(int argc, char** argv)
         VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0},
     };
 
-    vsg::ref_ptr<vsg::GraphicsPipeline> pipeline = vsg::GraphicsPipeline::create(device, renderPass, pipelineLayout,
+    vsg::ref_ptr<vsg::GraphicsPipeline> pipeline = vsg::GraphicsPipeline::create(device, renderPass, pipelineLayout, // device dependent
     {
-        shaderStages,
-        new vsg::VertexInputState(vertexBindingsDescriptions, vertexAttributeDescriptions),
-        new vsg::InputAssemblyState,
-        new vsg::ViewportState(VkExtent2D{width, height}),
-        new vsg::RasterizationState,
-        new vsg::MultisampleState,
-        new vsg::ColorBlendState,
-        new vsg::DepthStencilState
+        shaderStages,  // device dependent
+        new vsg::VertexInputState(vertexBindingsDescriptions, vertexAttributeDescriptions),// device independent
+        new vsg::InputAssemblyState, // device independent
+        new vsg::ViewportState(VkExtent2D{width, height}), // device independent
+        new vsg::RasterizationState,// device independent
+        new vsg::MultisampleState,// device independent
+        new vsg::ColorBlendState,// device independent
+        new vsg::DepthStencilState// device independent
     });
 
     // set up vertex buffer binding
-    vsg::ref_ptr<vsg::CmdBindVertexBuffers> bindVertexBuffers = new vsg::CmdBindVertexBuffers;
+    vsg::ref_ptr<vsg::CmdBindVertexBuffers> bindVertexBuffers = new vsg::CmdBindVertexBuffers;  // device dependent
     vsg::add(bindVertexBuffers, vertexBufferChain);
 
     // set up index buffer binding
-    vsg::ref_ptr<vsg::CmdBindIndexBuffer> bindIndexBuffer = new vsg::CmdBindIndexBuffer(indexBufferChain->_deviceBuffer, 0, VK_INDEX_TYPE_UINT16);
+    vsg::ref_ptr<vsg::CmdBindIndexBuffer> bindIndexBuffer = new vsg::CmdBindIndexBuffer(indexBufferChain->_deviceBuffer, 0, VK_INDEX_TYPE_UINT16); // device dependent
 
     // set up drawing of the triangles
-    vsg::ref_ptr<vsg::CmdDrawIndexed> drawIndexed = new vsg::CmdDrawIndexed(12, 1, 0, 0, 0);
+    vsg::ref_ptr<vsg::CmdDrawIndexed> drawIndexed = new vsg::CmdDrawIndexed(12, 1, 0, 0, 0); // device agnostic
 
-    // set up what we want to render
-
-    //////////////////////////////////////////////////
-    //
-    //  Pipeline -> (device, renderPass, pipelineLayout, pipelineStates)
-    //
-    //          pipelioneStates ->  ShaderModules
-    //                              VertexInputState
-    //                              InputAssemblyState
-    //                              RasterizationState
-    //                              VertexInputState
-    //                              MultisampleState
-    //                              ColorBlendState
-    //                              TessellationState
-    //                              DepthStencilState
-    //                              DynamicState
-    //
-    //          ShaderModule (ComputePipeline)
-    //
-    //          RenderPass (dpenend upon imageFormat provided by Swapchain support))
-    //          uint subpass
-    //
-    //          PipelineLayout ->   DescriptorSetLayouts (uniform bindings/stages)  (need to add)
-    //
-    //  CmdBindDescriptorSets (pass uniforms data)
-    //
-    //          PiplineLayout
-    //          DescriptorSets ->   DescriptorImageInfo -> textureImageView
-    //                                                   -> textureSampler
-    //                              DescriptorBufferInfo -> Unfiroms
-    //
-    //  CmdBindVertexBuffers (vertex arrays) -> vector<Buffer>. already has required Buffer
-    //
-    //  CmdBindIndexBuffer (primitives indices) -> Buffer, a;read has required Buffer
-    //
-    //  CmdDrawInsdexed ispatch draw call
-    //
-    //////////////////////////////////////////////////
-
-
-
+    // set up what we want to render in a command graph
     // create command graph to contain all the Vulkan calls for specifically rendering the model
     vsg::ref_ptr<vsg::Group> commandGraph = new vsg::Group;
 
-
     // set up the state configuration
-    commandGraph->addChild(pipeline);
-    commandGraph->addChild(bindDescriptorSets);
+    commandGraph->addChild(pipeline);  // device dependent
+    commandGraph->addChild(bindDescriptorSets);  // device dependent
 
     // add subgraph that represents the model to render
     vsg::ref_ptr<vsg::Group> model = new vsg::Group;
     commandGraph->addChild(model);
 
     // add the vertex and index buffer data
-    model->addChild(bindVertexBuffers);
-    model->addChild(bindIndexBuffer);
+    model->addChild(bindVertexBuffers); // device dependent
+    model->addChild(bindIndexBuffer); // device dependent
 
     // add the draw primitive command
-    model->addChild(drawIndexed);
+    model->addChild(drawIndexed); // device independent
 
     //
     // end of initialize vulkan
