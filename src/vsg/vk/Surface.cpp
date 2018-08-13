@@ -5,9 +5,9 @@
 namespace vsg
 {
 
-Surface::Surface(Instance* instance, VkSurfaceKHR surface, AllocationCallbacks* allocator) :
-    _instance(instance),
+Surface::Surface(VkSurfaceKHR surface, Instance* instance, AllocationCallbacks* allocator) :
     _surface(surface),
+    _instance(instance),
     _allocator(allocator)
 {
 }

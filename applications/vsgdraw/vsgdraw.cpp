@@ -122,7 +122,7 @@ class GLFWSurface : public vsg::Surface
 public:
 
     GLFWSurface(vsg::Instance* instance, GLFWwindow* window, vsg::AllocationCallbacks* allocator=nullptr) :
-        vsg::Surface(instance, VK_NULL_HANDLE, allocator)
+        vsg::Surface(VK_NULL_HANDLE, instance, allocator)
     {
         if (glfwCreateWindowSurface(*instance, window, nullptr, &_surface) != VK_SUCCESS)
         {

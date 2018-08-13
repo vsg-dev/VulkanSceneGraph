@@ -8,7 +8,7 @@ namespace vsg
     class Surface : public vsg::Object
     {
     public:
-        Surface(Instance* instance, VkSurfaceKHR surface, AllocationCallbacks* allocator=nullptr);
+        Surface(VkSurfaceKHR surface, Instance* instance, AllocationCallbacks* allocator=nullptr);
 
         operator VkSurfaceKHR() const { return _surface; }
 
@@ -16,8 +16,8 @@ namespace vsg
 
         virtual ~Surface();
 
-        ref_ptr<Instance>               _instance;
         VkSurfaceKHR                    _surface;
+        ref_ptr<Instance>               _instance;
         ref_ptr<AllocationCallbacks>    _allocator;
 
     };
