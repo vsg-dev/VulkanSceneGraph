@@ -24,6 +24,6 @@ namespace osg2vsg
 
     vsg::ref_ptr<osg::Image> formatImage(osg::Image* image, GLenum pixelFormat);
 
-    vsg::ImageData readImageFile(vsg::PhysicalDevice* physicalDevice, vsg::Device* device, vsg::CommandPool* commandPool, VkQueue graphicsQueue, const std::string& filename);
+    vsg::ImageData readImageFile(vsg::Device* device, vsg::CommandPool* commandPool, VkQueue graphicsQueue, const std::string& filename);
 }
 

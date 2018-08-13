@@ -95,7 +95,7 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     depthImageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     _depthImage = Image::create(_device, depthImageCreateInfo);
-    _depthImageMemory = DeviceMemory::create(_physicalDevice, _device, _depthImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    _depthImageMemory = DeviceMemory::create(_device, _depthImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     vkBindImageMemory(*_device, *_depthImage, *_depthImageMemory, 0);
 

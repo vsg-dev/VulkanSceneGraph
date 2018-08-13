@@ -306,13 +306,12 @@ namespace vsg
     class BufferChain : public Object
     {
     public:
-        BufferChain(PhysicalDevice* physicalDevice, Device* device, VkBufferUsageFlags usage, VkSharingMode sharingMode):
-            _physicalDevice(physicalDevice),
+        BufferChain(Device* device, VkBufferUsageFlags usage, VkSharingMode sharingMode):
             _device(device),
             _usage(usage),
             _sharingMode(sharingMode)
         {
-            if (usage==VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) _alignment = physicalDevice->getProperties().limits.minUniformBufferOffsetAlignment;
+            if (usage==VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) _alignment = _device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
             else _alignment = 1;
 
             std::cout<<"BufferChain(... usage="<<usage<<"...) _alignment="<<_alignment<<std::endl;
@@ -332,18 +331,18 @@ namespace vsg
             if (useStagingBuffer)
             {
                 _stagingBuffer = vsg::Buffer::create(_device, totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, _sharingMode);
-                _stagingMemory = vsg::DeviceMemory::create(_physicalDevice, _device, _stagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                _stagingMemory = vsg::DeviceMemory::create(_device, _stagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
                 _stagingBuffer->bind(_stagingMemory, 0);
 
                 _deviceBuffer = vsg::Buffer::create(_device, totalSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | _usage, _sharingMode);
-                _deviceMemory =  vsg::DeviceMemory::create(_physicalDevice, _device, _deviceBuffer,  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+                _deviceMemory =  vsg::DeviceMemory::create(_device, _deviceBuffer,  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
                 _deviceBuffer->bind(_deviceMemory, 0);
 
             }
             else
             {
                 _deviceBuffer = vsg::Buffer::create(_device, totalSize, _usage, _sharingMode);
-                _deviceMemory =  vsg::DeviceMemory::create(_physicalDevice, _device, _deviceBuffer,  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                _deviceMemory =  vsg::DeviceMemory::create(_device, _deviceBuffer,  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
                 _deviceBuffer->bind(_deviceMemory, 0);
             }
         }
@@ -433,7 +432,6 @@ namespace vsg
             VkDeviceSize  offset;
         };
 
-        ref_ptr<PhysicalDevice> _physicalDevice;
         ref_ptr<Device>         _device;
         VkBufferUsageFlags      _usage;
         VkSharingMode           _sharingMode;
@@ -584,19 +582,19 @@ int main(int argc, char** argv)
     uniforms.push_back(viewMatrix);
     uniforms.push_back(modelMatrix);
 
-    vsg::ref_ptr<vsg::BufferChain> vertexBufferChain = new vsg::BufferChain(physicalDevice, device, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    vsg::ref_ptr<vsg::BufferChain> vertexBufferChain = new vsg::BufferChain(device, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     vertexBufferChain->add(vertices);
     vertexBufferChain->add(colors);
     vertexBufferChain->add(texcoords);
     vertexBufferChain->allocate(useStagingBuffer);
     vertexBufferChain->transfer(commandPool, graphicsQueue);
 
-    vsg::ref_ptr<vsg::BufferChain> indexBufferChain = new vsg::BufferChain(physicalDevice, device, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    vsg::ref_ptr<vsg::BufferChain> indexBufferChain = new vsg::BufferChain(device, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     indexBufferChain->add(indices);
     indexBufferChain->allocate(useStagingBuffer);
     indexBufferChain->transfer(commandPool, graphicsQueue);
 
-    vsg::ref_ptr<vsg::BufferChain> uniformBufferChain = new vsg::BufferChain(physicalDevice, device, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    vsg::ref_ptr<vsg::BufferChain> uniformBufferChain = new vsg::BufferChain(device, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     uniformBufferChain->add(projMatrix);
     uniformBufferChain->add(viewMatrix);
     uniformBufferChain->add(modelMatrix);
@@ -611,7 +609,7 @@ int main(int argc, char** argv)
     //
     // set up texture image
     //
-    vsg::ImageData imageData = osg2vsg::readImageFile(physicalDevice, device, commandPool, graphicsQueue, "textures/lz.rgb");
+    vsg::ImageData imageData = osg2vsg::readImageFile(device, commandPool, graphicsQueue, "textures/lz.rgb");
     if (!imageData.valid())
     {
         std::cout<<"Texture not created"<<std::endl;

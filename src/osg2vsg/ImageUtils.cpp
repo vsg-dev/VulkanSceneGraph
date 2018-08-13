@@ -55,7 +55,7 @@ vsg::ref_ptr<osg::Image> formatImage(osg::Image* image, GLenum pixelFormat)
     return new_image;
 }
 
-vsg::ImageData readImageFile(vsg::PhysicalDevice* physicalDevice, vsg::Device* device, vsg::CommandPool* commandPool, VkQueue graphicsQueue, const std::string& filename)
+vsg::ImageData readImageFile(vsg::Device* device, vsg::CommandPool* commandPool, VkQueue graphicsQueue, const std::string& filename)
 {
     osg::ref_ptr<osg::Image> osg_image = osgDB::readImageFile(filename);
     if (!osg_image)
@@ -73,7 +73,7 @@ vsg::ImageData readImageFile(vsg::PhysicalDevice* physicalDevice, vsg::Device* d
     VkDeviceSize imageTotalSize = osg_image->getTotalSizeInBytesIncludingMipmaps();
 
     vsg::ref_ptr<vsg::Buffer> imageStagingBuffer = vsg::Buffer::create(device, imageTotalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    vsg::ref_ptr<vsg::DeviceMemory> imageStagingMemory = vsg::DeviceMemory::create(physicalDevice, device, imageStagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    vsg::ref_ptr<vsg::DeviceMemory> imageStagingMemory = vsg::DeviceMemory::create(device, imageStagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     imageStagingBuffer->bind(imageStagingMemory, 0);
 
     // copy image data to staging memory
@@ -109,7 +109,7 @@ vsg::ImageData readImageFile(vsg::PhysicalDevice* physicalDevice, vsg::Device* d
         return vsg::ImageData();
     }
 
-    vsg::ref_ptr<vsg::DeviceMemory> textureImageDeviceMemory = vsg::DeviceMemory::create(physicalDevice, device, textureImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    vsg::ref_ptr<vsg::DeviceMemory> textureImageDeviceMemory = vsg::DeviceMemory::create(device, textureImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     if (!textureImageDeviceMemory)
     {
         return vsg::ImageData();

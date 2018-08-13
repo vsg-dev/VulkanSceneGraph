@@ -8,9 +8,9 @@
 namespace vsg
 {
 
-DeviceMemory::DeviceMemory(Device* device, VkDeviceMemory DeviceMemory, AllocationCallbacks* allocator) :
-    _device(device),
+DeviceMemory::DeviceMemory(VkDeviceMemory DeviceMemory, Device* device, AllocationCallbacks* allocator) :
     _deviceMemory(DeviceMemory),
+    _device(device),
     _allocator(allocator)
 {
 }
@@ -24,7 +24,7 @@ DeviceMemory::~DeviceMemory()
     }
 }
 
-DeviceMemory::Result DeviceMemory::create(PhysicalDevice* physicalDevice, Device* device, const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator)
+DeviceMemory::Result DeviceMemory::create(Device* device, const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator)
 {
     if (!device)
     {
@@ -35,7 +35,7 @@ DeviceMemory::Result DeviceMemory::create(PhysicalDevice* physicalDevice, Device
 
     // find the memory type to use
     VkPhysicalDeviceMemoryProperties memProperties;
-    vkGetPhysicalDeviceMemoryProperties(*physicalDevice, &memProperties);
+    vkGetPhysicalDeviceMemoryProperties(*(device->getPhysicalDevice()), &memProperties);
     uint32_t i;
     for (i=0; i< memProperties.memoryTypeCount; ++i)
     {
@@ -58,7 +58,7 @@ DeviceMemory::Result DeviceMemory::create(PhysicalDevice* physicalDevice, Device
     VkResult result = vkAllocateMemory(*device, &allocateInfo, *allocator, &deviceMemory);
     if (result == VK_SUCCESS)
     {
-        return new DeviceMemory(device, deviceMemory, allocator);
+        return new DeviceMemory(deviceMemory, device, allocator);
     }
     else
     {
@@ -66,20 +66,20 @@ DeviceMemory::Result DeviceMemory::create(PhysicalDevice* physicalDevice, Device
     }
 }
 
-DeviceMemory::Result DeviceMemory::create(PhysicalDevice* physicalDevice, Device* device, Buffer* buffer, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator)
+DeviceMemory::Result DeviceMemory::create(Device* device, Buffer* buffer, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator)
 {
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(*device, *buffer, &memRequirements);
 
-    return vsg::DeviceMemory::create(physicalDevice, device, memRequirements, properties, allocator);
+    return vsg::DeviceMemory::create(device, memRequirements, properties, allocator);
 }
 
-DeviceMemory::Result DeviceMemory::create(PhysicalDevice* physicalDevice, Device* device, Image* image, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator)
+DeviceMemory::Result DeviceMemory::create(Device* device, Image* image, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator)
 {
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(*device, *image, &memRequirements);
 
-    return vsg::DeviceMemory::create(physicalDevice, device, memRequirements, properties, allocator);
+    return vsg::DeviceMemory::create(device, memRequirements, properties, allocator);
 }
 
 VkResult DeviceMemory::map(VkDeviceSize offset, VkDeviceSize size, VkMemoryMapFlags flags, void** ppData)

@@ -9,7 +9,7 @@ namespace vsg
     class MemoryManager : public Object
     {
     public:
-        MemoryManager(PhysicalDevice* physicalDevice, Device* device, AllocationCallbacks* allocator=nullptr);
+        MemoryManager(Device* device, AllocationCallbacks* allocator=nullptr);
 
         Buffer* createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 
@@ -18,7 +18,6 @@ namespace vsg
     protected:
         virtual ~MemoryManager();
 
-        ref_ptr<PhysicalDevice>         _physcicalDevice;
         ref_ptr<Device>                 _device;
         ref_ptr<AllocationCallbacks>    _allocator;
     };

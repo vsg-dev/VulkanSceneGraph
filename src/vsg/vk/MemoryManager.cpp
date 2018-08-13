@@ -30,8 +30,7 @@
 namespace vsg
 {
 
-MemoryManager::MemoryManager(PhysicalDevice* physicalDevice, Device* device, AllocationCallbacks* allocator) :
-    _physcicalDevice(physicalDevice),
+MemoryManager::MemoryManager(Device* device, AllocationCallbacks* allocator) :
     _device(device),
     _allocator(allocator)
 {
@@ -49,7 +48,7 @@ Buffer* MemoryManager::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
 
 DeviceMemory* MemoryManager::createMemory(const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties)
 {
-    ref_ptr<DeviceMemory> memory = DeviceMemory::create(_physcicalDevice, _device, memRequirements, properties, _allocator);
+    ref_ptr<DeviceMemory> memory = DeviceMemory::create(_device, memRequirements, properties, _allocator);
     return memory.release();
 }
 
