@@ -7,12 +7,12 @@ namespace vsg
     class Device : public Object
     {
     public:
-        Device(Instance* instance, VkDevice device, AllocationCallbacks* allocator=nullptr);
+        Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallbacks* allocator=nullptr);
 
         using Result = vsg::Result<Device, VkResult, VK_SUCCESS>;
-        static Result create(Instance* instance, PhysicalDevice* physicalDevice, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator=nullptr);
+        static Result create(PhysicalDevice* physicalDevice, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator=nullptr);
 
-        const Instance* getInstance() const { return _instance.get(); }
+        const PhysicalDevice* getPhysicalDevice() const { return _physicalDevice.get(); }
 
         operator VkDevice() const { return _device; }
         VkDevice getDevice() const { return _device; }
@@ -26,8 +26,8 @@ namespace vsg
 
         virtual ~Device();
 
-        vsg::ref_ptr<Instance>              _instance;
         VkDevice                            _device;
+        vsg::ref_ptr<PhysicalDevice>        _physicalDevice;
         vsg::ref_ptr<AllocationCallbacks>   _allocator;
     };
 

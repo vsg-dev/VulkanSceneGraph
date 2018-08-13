@@ -6,9 +6,9 @@
 namespace vsg
 {
 
-Device::Device(Instance* instance, VkDevice device, AllocationCallbacks* allocator) :
-    _instance(instance),
+Device::Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallbacks* allocator) :
     _device(device),
+    _physicalDevice(physicalDevice),
     _allocator(allocator)
 {
 }
@@ -22,11 +22,11 @@ Device::~Device()
     }
 }
 
-Device::Result Device::create(Instance* instance, PhysicalDevice* physicalDevice, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator)
+Device::Result Device::create(PhysicalDevice* physicalDevice, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator)
 {
-    if (!instance || !physicalDevice)
+    if (!physicalDevice)
     {
-        return Device::Result("Error: vsg::Device::create(...) failed to create logical device, undefined Instance and/or PhysicalDevice.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return Device::Result("Error: vsg::Device::create(...) failed to create logical device, undefined PhysicalDevice.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     std::set<int> uniqueQueueFamiles;
@@ -69,7 +69,7 @@ Device::Result Device::create(Instance* instance, PhysicalDevice* physicalDevice
     if (result == VK_SUCCESS)
     {
         std::cout<<"Created logical device"<<std::endl;
-        return new Device(instance, device, allocator);
+        return new Device(device, physicalDevice, allocator);
     }
     else
     {

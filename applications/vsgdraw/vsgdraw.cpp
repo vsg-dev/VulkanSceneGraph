@@ -196,7 +196,7 @@ public:
 
             // set up device
             _physicalDevice = vsg::PhysicalDevice::create(_instance, VK_QUEUE_GRAPHICS_BIT,  _surface);
-            _device = vsg::Device::create(_instance, _physicalDevice, validatedNames, deviceExtensions);
+            _device = vsg::Device::create(_physicalDevice, validatedNames, deviceExtensions);
 
             // set up renderpass with the imageFormat that the swap chain will use
             vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
