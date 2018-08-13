@@ -16,6 +16,7 @@ namespace vsg
         Auxiliary();
 
         Object* getConnectedObject() { return _connectedObject; }
+        const Object* getConnectedObject() const { return _connectedObject; }
 
         void ref() const;
         void unref() const;
