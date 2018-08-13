@@ -5,11 +5,11 @@
 namespace vsg
 {
 
-BufferView::BufferView(Device* device, VkBufferView bufferView, Buffer* buffer, AllocationCallbacks* allocator) :
-    _device(device),
+BufferView::BufferView(VkBufferView bufferView, Device* device, Buffer* buffer, AllocationCallbacks* allocator) :
     _bufferView(bufferView),
-    _allocator(allocator),
-    _buffer(buffer)
+    _device(device),
+    _buffer(buffer),
+    _allocator(allocator)
 {
 }
 
@@ -22,11 +22,11 @@ BufferView::~BufferView()
     }
 }
 
-BufferView::Result BufferView::create(Device* device, Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range, AllocationCallbacks* allocator)
+BufferView::Result BufferView::create(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range, AllocationCallbacks* allocator)
 {
-    if (!device || !buffer)
+    if (!buffer)
     {
-        return BufferView::Result("Error: vsg::BufferView::create(...) failed to create BufferView, device and/or buffer not defiend.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return BufferView::Result("Error: vsg::BufferView::create(...) failed to create BufferView, buffer not defiend.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     VkBufferViewCreateInfo createInfo = {};
@@ -37,10 +37,10 @@ BufferView::Result BufferView::create(Device* device, Buffer* buffer, VkFormat f
     createInfo.range = range;
 
     VkBufferView bufferView;
-    VkResult result = vkCreateBufferView(*device, &createInfo, *allocator, &bufferView);
+    VkResult result = vkCreateBufferView(*(buffer->getDevice()), &createInfo, *allocator, &bufferView);
     if (result==VK_SUCCESS)
     {
-        return new BufferView(device, bufferView, buffer, allocator);
+        return new BufferView(bufferView, buffer->getDevice(), buffer, allocator);
     }
     else
     {

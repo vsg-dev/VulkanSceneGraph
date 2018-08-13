@@ -12,6 +12,10 @@ namespace vsg
 
         operator VkSurfaceKHR() const { return _surface; }
 
+        Instance* getInstance() { return _instance; }
+        const Instance* getInstance() const { return _instance; }
+
+
     protected:
 
         virtual ~Surface();

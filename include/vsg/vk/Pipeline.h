@@ -9,11 +9,14 @@ namespace vsg
     class Pipeline : public Command
     {
     public:
-        Pipeline(Device* device, VkPipeline pipeline, VkPipelineBindPoint bindPoint, AllocationCallbacks* allocator=nullptr);
+        Pipeline(VkPipeline pipeline, VkPipelineBindPoint bindPoint, Device* device, AllocationCallbacks* allocator=nullptr);
 
         virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 
         operator VkPipeline () const { return _pipeline; }
+
+        Device* getDevice() { return _device; }
+        const Device* getDevice() const { return _device; }
 
         virtual void dispatch(VkCommandBuffer commandBuffer) const
         {
@@ -23,9 +26,9 @@ namespace vsg
     protected:
         virtual ~Pipeline();
 
-        ref_ptr<Device>                 _device;
         VkPipeline                      _pipeline;
         VkPipelineBindPoint             _bindPoint;
+        ref_ptr<Device>                 _device;
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 

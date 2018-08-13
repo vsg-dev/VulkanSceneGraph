@@ -5,9 +5,9 @@
 namespace vsg
 {
 
-Semaphore::Semaphore(Device* device, VkSemaphore semaphore, AllocationCallbacks* allocator) :
-    _device(device),
+Semaphore::Semaphore(VkSemaphore semaphore, Device* device, AllocationCallbacks* allocator) :
     _semaphore(semaphore),
+    _device(device),
     _allocator(allocator)
 {
 }
@@ -35,7 +35,7 @@ Semaphore::Result Semaphore::create(Device* device, AllocationCallbacks* allocat
     VkResult result = vkCreateSemaphore(*device, &semaphoreInfo, *allocator, &semaphore);
     if (result == VK_SUCCESS)
     {
-        return new Semaphore(device, semaphore, allocator);
+        return new Semaphore(semaphore, device, allocator);
     }
     else
     {

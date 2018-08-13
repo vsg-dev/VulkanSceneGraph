@@ -5,9 +5,9 @@
 namespace vsg
 {
 
-Sampler::Sampler(Device* device, VkSampler Sampler, AllocationCallbacks* allocator) :
-    _device(device),
+Sampler::Sampler(VkSampler Sampler, Device* device, AllocationCallbacks* allocator) :
     _Sampler(Sampler),
+    _device(device),
     _allocator(allocator)
 {
 }
@@ -32,7 +32,7 @@ Sampler::Result Sampler::create(Device* device, const VkSamplerCreateInfo& creat
     VkResult result = vkCreateSampler(*device, &createSamplerInfo, *allocator, &sampler);
     if (result == VK_SUCCESS)
     {
-        return new Sampler(device, sampler, allocator);
+        return new Sampler(sampler, device, allocator);
     }
     else
     {

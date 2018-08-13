@@ -7,22 +7,27 @@ namespace vsg
     class BufferView : public Object
     {
     public:
-        BufferView(Device* device, VkBufferView bufferView, Buffer* buffer=nullptr, AllocationCallbacks* allocator=nullptr);
+        BufferView(VkBufferView bufferView, Device* device, Buffer* buffer=nullptr, AllocationCallbacks* allocator=nullptr);
 
         using Result = vsg::Result<BufferView, VkResult, VK_SUCCESS>;
 
-        static Result create(Device* device, Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range, AllocationCallbacks* allocator=nullptr);
+        static Result create(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range, AllocationCallbacks* allocator=nullptr);
 
         operator VkBufferView() const { return _bufferView; }
+
+        Device* getDevice() { return _device; }
+        const Device* getDevice() const { return _device; }
+
+        Buffer* getBuffer() { return _buffer; }
+        const Buffer* getBuffer() const { return _buffer; }
 
     protected:
 
         virtual ~BufferView();
 
-        ref_ptr<Device>                _device;
         VkBufferView                   _bufferView;
-        ref_ptr<AllocationCallbacks>   _allocator;
+        ref_ptr<Device>                _device;
         ref_ptr<Buffer>                _buffer;
-
+        ref_ptr<AllocationCallbacks>   _allocator;
     };
 }

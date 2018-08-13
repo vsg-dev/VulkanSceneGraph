@@ -6,9 +6,9 @@
 namespace vsg
 {
 
-RenderPass::RenderPass(Device* device, VkRenderPass renderPass, AllocationCallbacks* allocator) :
-    _device(device),
+RenderPass::RenderPass(VkRenderPass renderPass, Device* device, AllocationCallbacks* allocator) :
     _renderPass(renderPass),
+    _device(device),
     _allocator(allocator)
 {
 }
@@ -80,7 +80,7 @@ RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFo
 
     if (result == VK_SUCCESS)
     {
-        return new RenderPass(device, renderPass, allocator);
+        return new RenderPass(renderPass, device, allocator);
     }
     else
     {

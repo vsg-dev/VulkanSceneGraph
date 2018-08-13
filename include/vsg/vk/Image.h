@@ -16,6 +16,9 @@ namespace vsg
 
         operator VkImage () const { return _image; }
 
+        Device* getDevice() { return _device; }
+        const Device* getDevice() const { return _device; }
+
         VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
         {
             VkResult result = vkBindImageMemory(*_device, _image, *deviceMemory, memoryOffset);

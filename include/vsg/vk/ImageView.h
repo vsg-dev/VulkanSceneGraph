@@ -17,14 +17,20 @@ namespace vsg
 
         operator VkImageView() const { return _imageView; }
 
+        Device* getDevice() { return _device; }
+        const Device* getDevice() const { return _device; }
+
+        Image* getImage() { return _image; }
+        const Image* getImage() const { return _image; }
+
     protected:
 
         virtual ~ImageView();
 
         VkImageView                     _imageView;
         ref_ptr<Device>                 _device;
-        ref_ptr<AllocationCallbacks>    _allocator;
         ref_ptr<Image>                  _image;
+        ref_ptr<AllocationCallbacks>    _allocator;
 
     };
 }

@@ -15,6 +15,9 @@ namespace vsg
 
         DeviceMemory* createMemory(const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties);
 
+        Device* getDevice() { return _device; }
+        const Device* getDevice() const { return _device; }
+
     protected:
         virtual ~MemoryManager();
 

@@ -20,7 +20,7 @@ namespace vsg
     class Swapchain : public vsg::Object
     {
     public:
-        Swapchain(Device* device, Surface* surface, VkSwapchainKHR swapchain, AllocationCallbacks*  allocator=nullptr);
+        Swapchain(VkSwapchainKHR swapchain, Device* device, Surface* surface, AllocationCallbacks*  allocator=nullptr);
 
         using Result = vsg::Result<Swapchain, VkResult, VK_SUCCESS>;
         static Result create(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, AllocationCallbacks*  allocator=nullptr);

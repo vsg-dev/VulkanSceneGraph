@@ -5,11 +5,11 @@
 namespace vsg
 {
 
-PipelineLayout::PipelineLayout(VkPipelineLayout pipelineLayout, Device* device, const DescriptorSetLayouts& descriptorSetLayouts, AllocationCallbacks* allocator) :
+PipelineLayout::PipelineLayout(VkPipelineLayout pipelineLayout, const DescriptorSetLayouts& descriptorSetLayouts, Device* device, AllocationCallbacks* allocator) :
     _pipelineLayout(pipelineLayout),
+    _descriptorSetLayouts(descriptorSetLayouts),
     _device(device),
-    _allocator(allocator),
-    _descriptorSetLayouts(descriptorSetLayouts)
+    _allocator(allocator)
 {
 }
 
@@ -45,7 +45,7 @@ PipelineLayout::Result PipelineLayout::create(Device* device, const DescriptorSe
     VkResult result = vkCreatePipelineLayout(*device, &pipelineLayoutInfo, *allocator, &pipelineLayout);
     if (result == VK_SUCCESS)
     {
-        return new PipelineLayout(pipelineLayout, device, descriptorSetLayouts, allocator);
+        return new PipelineLayout(pipelineLayout, descriptorSetLayouts, device, allocator);
     }
     else
     {

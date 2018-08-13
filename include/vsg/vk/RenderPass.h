@@ -9,18 +9,21 @@ namespace vsg
     class RenderPass : public Object
     {
     public:
-        RenderPass(Device* device, VkRenderPass renderPass, AllocationCallbacks* allocator=nullptr);
+        RenderPass(VkRenderPass renderPass, Device* device, AllocationCallbacks* allocator=nullptr);
 
         using Result = vsg::Result<RenderPass, VkResult, VK_SUCCESS>;
         static Result create(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator=nullptr);
 
         operator VkRenderPass () const { return _renderPass; }
 
+        Device* getDevice() { return _device; }
+        const Device* getDevice() const { return _device; }
+
     protected:
         virtual ~RenderPass();
 
-        ref_ptr<Device>                 _device;
         VkRenderPass                    _renderPass;
+        ref_ptr<Device>                 _device;
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 

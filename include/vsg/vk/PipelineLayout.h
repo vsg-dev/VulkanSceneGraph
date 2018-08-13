@@ -11,7 +11,7 @@ namespace vsg
     class PipelineLayout : public vsg::Object
     {
     public:
-        PipelineLayout(VkPipelineLayout pipelineLayout, Device* device, const DescriptorSetLayouts& descrtorSetLayouts, AllocationCallbacks* allocator=nullptr);
+        PipelineLayout(VkPipelineLayout pipelineLayout, const DescriptorSetLayouts& descrtorSetLayouts, Device* device, AllocationCallbacks* allocator=nullptr);
 
         using Result = vsg::Result<PipelineLayout, VkResult, VK_SUCCESS>;
 
@@ -19,14 +19,17 @@ namespace vsg
 
         operator VkPipelineLayout () const { return _pipelineLayout; }
 
+        Device* getDevice() { return _device; }
+        const Device* getDevice() const { return _device; }
+
     protected:
         virtual ~PipelineLayout();
 
         VkPipelineLayout                _pipelineLayout;
+        DescriptorSetLayouts            _descriptorSetLayouts;
 
         ref_ptr<Device>                 _device;
         ref_ptr<AllocationCallbacks>    _allocator;
-        DescriptorSetLayouts            _descriptorSetLayouts;
     };
 
 }

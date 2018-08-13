@@ -98,7 +98,7 @@ VkPresentModeKHR selectSwapPresentMode(SwapChainSupportDetails& details)
     return presentMode;
 }
 
-Swapchain::Swapchain(Device* device, Surface* surface, VkSwapchainKHR swapchain, AllocationCallbacks*  allocator):
+Swapchain::Swapchain(VkSwapchainKHR swapchain, Device* device, Surface* surface,  AllocationCallbacks*  allocator):
     _device(device), _surface(surface), _swapchain(swapchain), _allocator(allocator)
 {
 }
@@ -166,7 +166,7 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
         return Result("Error: Failed to create swap chain.", result);
     }
 
-    ref_ptr<Swapchain> sw = new Swapchain(device, surface, swapchain);
+    ref_ptr<Swapchain> sw = new Swapchain(swapchain, device, surface);
 
     sw->_format = surfaceFormat.format;
     sw->_extent = extent;
