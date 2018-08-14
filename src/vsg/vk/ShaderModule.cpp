@@ -3,11 +3,11 @@
 namespace vsg
 {
 
-ShaderModule::ShaderModule(Device* device, VkShaderStageFlagBits stage, const std::string& entryPointName, VkShaderModule shaderModule, AllocationCallbacks* allocator):
-    _device(device),
+ShaderModule::ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, VkShaderModule shaderModule, Device* device, AllocationCallbacks* allocator):
     _shaderModule(shaderModule),
     _stage(stage),
     _name(entryPointName),
+    _device(device),
     _allocator(allocator)
 {
 }

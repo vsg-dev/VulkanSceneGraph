@@ -10,7 +10,7 @@ namespace vsg
     class DescriptorPool : public vsg::Object
     {
     public:
-        DescriptorPool(Device* device, VkDescriptorPool descriptorPool, AllocationCallbacks* allocator=nullptr);
+        DescriptorPool(VkDescriptorPool descriptorPool, Device* device, AllocationCallbacks* allocator=nullptr);
 
         using Result = vsg::Result<DescriptorPool, VkResult, VK_SUCCESS>;
 
@@ -18,11 +18,14 @@ namespace vsg
 
         operator const VkDescriptorPool& () const { return _descriptorPool; }
 
+        Device* getDevice() { return _device; }
+        const Device* getDevice() const { return _device; }
+
     protected:
         virtual ~DescriptorPool();
 
-        ref_ptr<Device>                 _device;
         VkDescriptorPool                _descriptorPool;
+        ref_ptr<Device>                 _device;
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 }

@@ -9,18 +9,21 @@ namespace vsg
     class Framebuffer : public Object
     {
     public:
-        Framebuffer(Device* device, VkFramebuffer framebuffer, AllocationCallbacks* allocator=nullptr);
+        Framebuffer(VkFramebuffer framebuffer, Device* device, AllocationCallbacks* allocator=nullptr);
 
         using Result = vsg::Result<Framebuffer, VkResult, VK_SUCCESS>;
         static Result create(Device* device, VkFramebufferCreateInfo& framebufferInfo, AllocationCallbacks*  allocator=nullptr);
 
         operator VkFramebuffer () const { return _framebuffer; }
 
+        Device* getDevice() { return _device; }
+        const Device* getDevice() const { return _device; }
+
     protected:
         virtual ~Framebuffer();
 
-        ref_ptr<Device>                 _device;
         VkFramebuffer                   _framebuffer;
+        ref_ptr<Device>                 _device;
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 }

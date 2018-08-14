@@ -5,9 +5,9 @@
 namespace vsg
 {
 
-DescriptorPool::DescriptorPool(Device* device, VkDescriptorPool descriptorPool, AllocationCallbacks* allocator) :
-    _device(device),
+DescriptorPool::DescriptorPool(VkDescriptorPool descriptorPool, Device* device, AllocationCallbacks* allocator) :
     _descriptorPool(descriptorPool),
+    _device(device),
     _allocator(allocator)
 {
 }
@@ -44,7 +44,7 @@ DescriptorPool::Result DescriptorPool::create(Device* device, uint32_t maxSets, 
     VkResult result = vkCreateDescriptorPool(*device, &poolInfo, *allocator, &descriptorPool);
     if (result == VK_SUCCESS)
     {
-        return new DescriptorPool(device, descriptorPool, allocator);
+        return new DescriptorPool(descriptorPool, device, allocator);
     }
     else
     {

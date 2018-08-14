@@ -5,9 +5,9 @@
 namespace vsg
 {
 
-CommandPool::CommandPool(Device* device, VkCommandPool CommandPool, AllocationCallbacks* allocator) :
-    _device(device),
+CommandPool::CommandPool(VkCommandPool CommandPool, Device* device, AllocationCallbacks* allocator) :
     _commandPool(CommandPool),
+    _device(device),
     _allocator(allocator)
 {
 }
@@ -31,7 +31,7 @@ CommandPool::Result CommandPool::create(Device* device, uint32_t queueFamilyInde
     VkResult result = vkCreateCommandPool(*device, &poolInfo, *allocator, &commandPool);
     if (result == VK_SUCCESS)
     {
-        return new CommandPool(device, commandPool, allocator);
+        return new CommandPool(commandPool, device, allocator);
     }
     else
     {

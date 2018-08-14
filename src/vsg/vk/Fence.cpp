@@ -5,9 +5,9 @@
 namespace vsg
 {
 
-Fence::Fence(Device* device, VkFence Fence, AllocationCallbacks* allocator) :
-    _device(device),
+Fence::Fence(VkFence Fence, Device* device, AllocationCallbacks* allocator) :
     _vkFence(Fence),
+    _device(device),
     _allocator(allocator)
 {
 }
@@ -36,7 +36,7 @@ Fence::Result Fence::create(Device* device, VkFenceCreateFlags flags, Allocation
     VkResult result = vkCreateFence(*device, &createFenceInfo, *allocator, &fence);
     if (result == VK_SUCCESS)
     {
-        return new Fence(device, fence, allocator);
+        return new Fence(fence, device, allocator);
     }
     else
     {

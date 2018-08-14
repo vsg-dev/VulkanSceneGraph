@@ -7,7 +7,7 @@ namespace vsg
     class Fence : public Object
     {
     public:
-        Fence(Device* device, VkFence Fence, AllocationCallbacks* allocator=nullptr);
+        Fence(VkFence Fence, Device* device, AllocationCallbacks* allocator=nullptr);
 
         using Result = vsg::Result<Fence, VkResult, VK_SUCCESS>;
         static Result create(Device* device, VkFenceCreateFlags flags=0, AllocationCallbacks* allocator=nullptr);
@@ -16,11 +16,14 @@ namespace vsg
 
         operator VkFence() const{ return (this!=nullptr) ? _vkFence : VK_NULL_HANDLE; }
 
+        Device* getDevice() { return _device; }
+        const Device* getDevice() const { return _device; }
+
     protected:
         virtual ~Fence();
 
-        ref_ptr<Device>                 _device;
         VkFence                         _vkFence;
+        ref_ptr<Device>                 _device;
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 

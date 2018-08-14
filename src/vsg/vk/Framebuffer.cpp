@@ -5,9 +5,9 @@
 namespace vsg
 {
 
-Framebuffer::Framebuffer(Device* device, VkFramebuffer framebuffer, AllocationCallbacks* allocator) :
-    _device(device),
+Framebuffer::Framebuffer(VkFramebuffer framebuffer, Device* device, AllocationCallbacks* allocator) :
     _framebuffer(framebuffer),
+    _device(device),
     _allocator(allocator)
 {
 }
@@ -32,7 +32,7 @@ Framebuffer::Result Framebuffer::create(Device* device, VkFramebufferCreateInfo&
     VkResult result = vkCreateFramebuffer(*device,&framebufferInfo, *allocator, &framebuffer);
     if (result == VK_SUCCESS)
     {
-        return new Framebuffer(device, framebuffer, allocator);
+        return new Framebuffer(framebuffer, device, allocator);
     }
     else
     {

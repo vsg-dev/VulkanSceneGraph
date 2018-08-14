@@ -28,7 +28,7 @@ namespace vsg
     class ShaderModule : public vsg::Object
     {
     public:
-        ShaderModule(Device* device, VkShaderStageFlagBits stage, const std::string& entryPointName, VkShaderModule shaderModule, AllocationCallbacks* allocator=nullptr);
+        ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, VkShaderModule shaderModule, Device* device, AllocationCallbacks* allocator=nullptr);
 
         using Result = vsg::Result<ShaderModule, VkResult, VK_SUCCESS>;
 
@@ -49,7 +49,7 @@ namespace vsg
             VkResult result = vkCreateShaderModule(*device, &createInfo, *allocator, &shaderModule);
             if (result == VK_SUCCESS)
             {
-                return new ShaderModule(device, stage, entryPointName, shaderModule, allocator);
+                return new ShaderModule(stage, entryPointName, shaderModule, device, allocator);
             }
             else
             {
@@ -70,15 +70,17 @@ namespace vsg
 
         operator VkShaderModule () const { return _shaderModule; }
 
+        Device* getDevice() { return _device; }
+        const Device* getDevice() const { return _device; }
+
     protected:
         virtual ~ShaderModule();
-
-        ref_ptr<Device>                 _device;
 
         VkShaderModule                  _shaderModule;
         VkShaderStageFlagBits           _stage;
         std::string                     _name;
 
+        ref_ptr<Device>                 _device;
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 
