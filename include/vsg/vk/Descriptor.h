@@ -110,14 +110,16 @@ namespace vsg
     class BufferData
     {
     public:
-        BufferData(Buffer* buffer, VkDeviceSize offset, VkDeviceSize range):
+        BufferData(Buffer* buffer, VkDeviceSize offset, VkDeviceSize range, Data* data=nullptr):
             _buffer(buffer),
             _offset(offset),
-            _range(range) {}
+            _range(range),
+            _data(data) {}
 
         ref_ptr<Buffer> _buffer;
         VkDeviceSize    _offset;
         VkDeviceSize    _range;
+        ref_ptr<Data>   _data;
     };
 
     using BufferDataList = std::vector<BufferData>;

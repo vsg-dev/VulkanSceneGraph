@@ -292,186 +292,13 @@ namespace vsg
         return stream.str();
     }
 
-    template<typename T, VkStructureType type>
-    class Info : public Object, public T
-    {
-    public:
-        Info() : T{type} {}
-
-    protected:
-        virtual ~Info() {}
-
-    };
-
-    using RenderPassBeginInfo = Info<VkRenderPassBeginInfo, VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO>;
-
-    class BufferChain : public Object
-    {
-    public:
-        BufferChain(Device* device, VkBufferUsageFlags usage, VkSharingMode sharingMode):
-            _device(device),
-            _usage(usage),
-            _sharingMode(sharingMode)
-        {
-            if (usage==VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) _alignment = _device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
-            else _alignment = 1;
-
-            std::cout<<"BufferChain(... usage="<<usage<<"...) _alignment="<<_alignment<<std::endl;
-        }
-
-        VkDeviceSize dataSize() const
-        {
-            if (_entries.empty()) return 0;
-            else return _entries.back().offset + _entries.back().data->dataSize();
-        }
-
-        void allocate(bool useStagingBuffer=true)
-        {
-            // copy the vertex data to a stageing buffer, then submit a command to copy it to the final vertex buffer hosted in GPU local memory.
-            VkDeviceSize totalSize = dataSize();
-
-            if (useStagingBuffer)
-            {
-                _stagingBuffer = vsg::Buffer::create(_device, totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, _sharingMode);
-                _stagingMemory = vsg::DeviceMemory::create(_device, _stagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-                _stagingBuffer->bind(_stagingMemory, 0);
-
-                _deviceBuffer = vsg::Buffer::create(_device, totalSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | _usage, _sharingMode);
-                _deviceMemory =  vsg::DeviceMemory::create(_device, _deviceBuffer,  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-                _deviceBuffer->bind(_deviceMemory, 0);
-
-            }
-            else
-            {
-                _deviceBuffer = vsg::Buffer::create(_device, totalSize, _usage, _sharingMode);
-                _deviceMemory =  vsg::DeviceMemory::create(_device, _deviceBuffer,  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-                _deviceBuffer->bind(_deviceMemory, 0);
-            }
-        }
-
-        void transfer(CommandPool* commandPool, VkQueue graphicsQueue)
-        {
-            if (_stagingMemory)
-            {
-                VkDeviceSize totalSize = dataSize();
-
-                std::cout<<"BufferChain::transfer() to device local memory using staging buffer, totalSize="<<totalSize<<std::endl;
-
-                copy(_stagingBuffer, _stagingMemory);
-
-                dispatchCommandsToQueue(_device, commandPool, graphicsQueue, [&](VkCommandBuffer transferCommand)
-                {
-                    VkBufferCopy copyRegion = {};
-                    copyRegion.srcOffset = 0;
-                    copyRegion.dstOffset = 0;
-                    copyRegion.size = totalSize;
-                    vkCmdCopyBuffer(transferCommand, *_stagingBuffer, *_deviceBuffer, 1, &copyRegion);
-                });
-            }
-            else
-            {
-                //std::cout<<"BufferChain::transfer() copying to host visible memory, totalSize="<<totalSize<<std::endl;
-                copy(_deviceBuffer, _deviceMemory);
-            }
-        }
-
-        void copy(Buffer* buffer, DeviceMemory* memory)
-        {
-            char* buffer_data;
-            vkMapMemory(*_device, *memory, 0, dataSize(), 0, (void**)(&buffer_data));
-
-            char* ptr = (char*)(buffer_data);
-
-            for(auto entry : _entries)
-            {
-                std::memcpy(buffer_data+entry.offset, entry.data->dataPointer(), entry.data->dataSize());
-            }
-
-            vkUnmapMemory(*_device, *memory);
-        }
-
-        void add(Data* data)
-        {
-            if (_entries.empty())
-            {
-                _entries.push_back(Entry{data, 0, 0});
-            }
-            else
-            {
-                Entry& previous_entry = _entries.back();
-                VkDeviceSize endOfPreviousEntry = previous_entry.offset+previous_entry.data->dataSize();
-                VkDeviceSize offset = (_alignment==1 || (endOfPreviousEntry%_alignment)==0) ? endOfPreviousEntry : ((endOfPreviousEntry/_alignment)+1)*_alignment;
-                _entries.push_back(Entry{data, 0, offset});
-            }
-        }
-
-        void print(std::ostream& out)
-        {
-            out<<"BufferChain "<<_entries.size()<<" "<<dataSize()<<std::endl;
-            for(auto entry : _entries)
-            {
-                out<<"    entry "<<entry.data.get()<<", modifiedCount="<<entry.modifiedCount<<", offset="<<entry.offset<<" size="<<entry.data->dataSize()<<std::endl;
-            }
-        }
-
-        BufferDataList getBufferDataList()
-        {
-            if (!_deviceBuffer ||  _deviceBuffer->usage()!=VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) return BufferDataList();
-
-            VkBuffer buffer = *_deviceBuffer;
-            BufferDataList bufferDataList;
-            for(auto entry : _entries)
-            {
-                bufferDataList.push_back(BufferData(_deviceBuffer, entry.offset, entry.data->dataSize()));
-            }
-            return bufferDataList;
-        }
-
-        struct Entry
-        {
-            ref_ptr<Data> data;
-            unsigned int  modifiedCount;
-            VkDeviceSize  offset;
-        };
-
-        ref_ptr<Device>         _device;
-        VkBufferUsageFlags      _usage;
-        VkSharingMode           _sharingMode;
-        VkDeviceSize            _alignment;
-
-        using Entries = std::vector<Entry>;
-        Entries _entries;
-
-        ref_ptr<Buffer>         _stagingBuffer;
-        ref_ptr<DeviceMemory>   _stagingMemory;
-
-        ref_ptr<Buffer>         _deviceBuffer;
-        ref_ptr<DeviceMemory>   _deviceMemory;
-
-    protected:
-        ~BufferChain() {}
-    };
-
-
-    template<class T>
-    void add(T binding, BufferChain* chain)
-    {
-        for (auto entry : chain->_entries)
-        {
-            binding->add(chain->_deviceBuffer, entry.offset);
-        }
-    }
-
-
 
     typedef std::vector<ref_ptr<Data>> DataList;
     BufferDataList createBufferAndTransferData(Device* device, CommandPool* commandPool, VkQueue graphicsQueue, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
     {
-        std::cout<<"start createBufferAndTransferData()"<<std::endl;
-        BufferDataList bufferDataList;
-        {
-
         if (dataList.empty()) return BufferDataList();
+
+        BufferDataList bufferDataList;
 
         VkDeviceSize alignment = 4;
         if (usage==VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
@@ -502,7 +329,7 @@ namespace vsg
 
         void* buffer_data;
         stagingMemory->map(0, totalSize, 0, &buffer_data);
-        char* ptr = (char*)(buffer_data);
+        char* ptr = reinterpret_cast<char*>(buffer_data);
 
         for (size_t i=0; i<dataList.size(); ++i)
         {
@@ -529,16 +356,67 @@ namespace vsg
         });
 
         // assign the buffer to the bufferData entries
-        for(auto& bufferData : bufferDataList)
+        for (auto& bufferData : bufferDataList)
         {
             bufferData._buffer = deviceBuffer;
         }
 
+        return bufferDataList;
+    }
 
+    BufferDataList createHostVisibleBuffer(Device* device, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
+    {
+        if (dataList.empty()) return BufferDataList();
+
+        BufferDataList bufferDataList;
+
+        VkDeviceSize alignment = 4;
+        if (usage==VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
+
+        VkDeviceSize totalSize = 0;
+        VkDeviceSize offset = 0;
+        bufferDataList.reserve(dataList.size());
+        for (auto& data : dataList)
+        {
+            bufferDataList.push_back(BufferData(0, offset, data->dataSize(), data));
+            VkDeviceSize endOfEntry = offset + data->dataSize();
+            offset = (alignment==1 || (endOfEntry%alignment)==0) ? endOfEntry: ((endOfEntry/alignment)+1)*alignment;
         }
-        std::cout<<"end createBufferAndTransferData()"<<std::endl<<std::endl;
+
+        totalSize = bufferDataList.back()._offset + bufferDataList.back()._range;
+
+        for(auto& bufferData : bufferDataList)
+        {
+            std::cout<<"    Buffer entry "<<bufferData._offset<<" "<<bufferData._range<<std::endl;
+        }
+        std::cout<<"    totalSize = "<<totalSize<<std::endl;
+
+        ref_ptr<Buffer> buffer = vsg::Buffer::create(device, totalSize, usage, sharingMode);
+        ref_ptr<DeviceMemory> memory = vsg::DeviceMemory::create(device, buffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        buffer->bind(memory, 0);
+
+        for (auto& bufferData : bufferDataList)
+        {
+            bufferData._buffer = buffer;
+        }
 
         return bufferDataList;
+    }
+
+    void copyDataListToBuffers(BufferDataList& bufferDataList)
+    {
+        for (auto& bufferData : bufferDataList)
+        {
+            DeviceMemory* dm = bufferData._buffer->getDeviceMemory();
+
+            void* buffer_data;
+            dm->map(bufferData._offset, bufferData._range, 0, &buffer_data);
+
+            char* ptr = reinterpret_cast<char*>(buffer_data);
+            std::memcpy(ptr, bufferData._data->dataPointer(), bufferData._data->dataSize());
+
+            dm->unmap();
+        }
     }
 
 }
@@ -651,24 +529,15 @@ int main(int argc, char** argv)
         6, 7, 4
     };
 
+    auto vertexBufferData = vsg::createBufferAndTransferData(device, commandPool, graphicsQueue, {vertices, colors, texcoords}, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    auto indexBufferData = vsg::createBufferAndTransferData(device, commandPool, graphicsQueue, {indices}, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+
     // set up uniforms
     vsg::ref_ptr<vsg::mat4Value> projMatrix = new vsg::mat4Value;
     vsg::ref_ptr<vsg::mat4Value> viewMatrix = new vsg::mat4Value;
     vsg::ref_ptr<vsg::mat4Value> modelMatrix = new vsg::mat4Value;
 
-    vsg::ref_ptr<vsg::BufferChain> uniformBufferChain = new vsg::BufferChain(device, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    uniformBufferChain->add(projMatrix);
-    uniformBufferChain->add(viewMatrix);
-    uniformBufferChain->add(modelMatrix);
-    uniformBufferChain->allocate(false); // useStagingBuffer);
-    //uniformBufferChain->transfer(device, commandPool, graphicsQueue);
-
-    uniformBufferChain->print(std::cout);
-
-    auto vertexBufferData = vsg::createBufferAndTransferData(device, commandPool, graphicsQueue, {vertices, colors, texcoords}, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    auto indexBufferData = vsg::createBufferAndTransferData(device, commandPool, graphicsQueue, {indices}, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    //auto uniformBufferData = vsg::createBufferAndTransferData(device, commandPool, graphicsQueue, {projMatrix, viewMatrix, modelMatrix}, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-
+    auto uniformBufferData = vsg::createHostVisibleBuffer(device, {projMatrix, viewMatrix, modelMatrix}, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
 
     //
     // set up texture image
@@ -697,19 +566,12 @@ int main(int argc, char** argv)
         {3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT}
     });
 
-#if 1
     vsg::ref_ptr<vsg::DescriptorSet> descriptorSet = vsg::DescriptorSet::create(device, descriptorPool, descriptorSetLayout,
     {
-        new vsg::DescriptorBuffer(0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, uniformBufferChain->getBufferDataList()),
+        new vsg::DescriptorBuffer(0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, uniformBufferData),
         new vsg::DescriptorImage(3, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, {imageData})
     });
-#else
-    vsg::ref_ptr<vsg::DescriptorSet> descriptorSet = vsg::DescriptorSet::create(device, descriptorPool, descriptorSetLayout,
-    {
-        new vsg::DescriptorBuffer(0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, uniformBufferChain->getBufferDataList()),
-        new vsg::DescriptorImage(3, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, {imageData})
-    });
-#endif
+
     vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = vsg::PipelineLayout::create(device, {descriptorSetLayout}, {});
 
     // setup binding of descriptors
@@ -797,7 +659,8 @@ int main(int argc, char** argv)
         (*projMatrix) = vsg::perspective(vsg::radians(45.0f), float(width)/float(height), 0.1f, 10.f);
         (*viewMatrix) = vsg::lookAt(vsg::vec3(2.0f, 2.0f, 2.0f), vsg::vec3(0.0f, 0.0f, 0.0f), vsg::vec3(0.0f, 0.0f, 1.0f));
         (*modelMatrix) = vsg::rotate(time * vsg::radians(90.0f), vsg::vec3(0.0f, 0.0, 1.0f));
-        uniformBufferChain->transfer(commandPool, graphicsQueue);
+
+        vsg::copyDataListToBuffers(uniformBufferData);
 
 #if 0
         std::cout<<std::endl<<"New frame "<<time<<std::endl;
