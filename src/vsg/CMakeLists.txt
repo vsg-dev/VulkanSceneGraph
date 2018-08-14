@@ -48,6 +48,8 @@ SET(HEADERS
     vk/DescriptorSet.h
     vk/DescriptorSetLayout.h
     vk/Buffer.h
+    vk/BindVertexBuffers.h
+    vk/BindindexBuffer.h
     vk/Image.h
     vk/Sampler.h
     vk/Fence.h

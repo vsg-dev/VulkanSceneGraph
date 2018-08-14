@@ -22,6 +22,8 @@
 #include <vsg/vk/Image.h>
 #include <vsg/vk/Sampler.h>
 #include <vsg/vk/BufferView.h>
+#include <vsg/vk/BindVertexBuffers.h>
+#include <vsg/vk/BindIndexBuffer.h>
 
 #include <vsg/viewer/Window.h>
 #include <vsg/viewer/Viewer.h>
@@ -460,6 +462,85 @@ namespace vsg
         }
     }
 
+
+
+    typedef std::vector<ref_ptr<Data>> DataList;
+    BufferDataList createBufferAndTransferData(Device* device, CommandPool* commandPool, VkQueue graphicsQueue, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
+    {
+        std::cout<<"start createBufferAndTransferData()"<<std::endl;
+        BufferDataList bufferDataList;
+        {
+
+        if (dataList.empty()) return BufferDataList();
+
+        VkDeviceSize alignment = 4;
+        if (usage==VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
+
+
+        VkDeviceSize totalSize = 0;
+        VkDeviceSize offset = 0;
+        bufferDataList.reserve(dataList.size());
+        for (auto& data : dataList)
+        {
+            bufferDataList.push_back(BufferData(0, offset, data->dataSize()));
+            VkDeviceSize endOfEntry = offset + data->dataSize();
+            offset = (alignment==1 || (endOfEntry%alignment)==0) ? endOfEntry: ((endOfEntry/alignment)+1)*alignment;
+        }
+
+        totalSize = bufferDataList.back()._offset + bufferDataList.back()._range;
+
+        for(auto& bufferData : bufferDataList)
+        {
+            std::cout<<"    Buffer entry "<<bufferData._offset<<" "<<bufferData._range<<std::endl;
+        }
+        std::cout<<"    totalSize = "<<totalSize<<std::endl;
+
+
+        ref_ptr<Buffer> stagingBuffer = vsg::Buffer::create(device, totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode);
+        ref_ptr<DeviceMemory> stagingMemory = vsg::DeviceMemory::create(device, stagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        stagingBuffer->bind(stagingMemory, 0);
+
+        void* buffer_data;
+        stagingMemory->map(0, totalSize, 0, &buffer_data);
+        char* ptr = (char*)(buffer_data);
+
+        for (size_t i=0; i<dataList.size(); ++i)
+        {
+            const Data* data = dataList[i];
+            std::cout<<"   copying "<<data->dataSize()<<std::endl;
+            std::memcpy(ptr + bufferDataList[i]._offset, data->dataPointer(), data->dataSize());
+        }
+
+        stagingMemory->unmap();
+
+        ref_ptr<Buffer> deviceBuffer = vsg::Buffer::create(device, totalSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage, sharingMode);
+        ref_ptr<DeviceMemory> deviceMemory =  vsg::DeviceMemory::create(device, deviceBuffer,  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        deviceBuffer->bind(deviceMemory, 0);
+
+        dispatchCommandsToQueue(device, commandPool, graphicsQueue, [&](VkCommandBuffer transferCommand)
+        {
+            std::cout<<"Doing copy"<<std::endl;
+
+            VkBufferCopy copyRegion = {};
+            copyRegion.srcOffset = 0;
+            copyRegion.dstOffset = 0;
+            copyRegion.size = totalSize;
+            vkCmdCopyBuffer(transferCommand, *stagingBuffer, *deviceBuffer, 1, &copyRegion);
+        });
+
+        // assign the buffer to the bufferData entries
+        for(auto& bufferData : bufferDataList)
+        {
+            bufferData._buffer = deviceBuffer;
+        }
+
+
+        }
+        std::cout<<"end createBufferAndTransferData()"<<std::endl<<std::endl;
+
+        return bufferDataList;
+    }
+
 }
 
 int main(int argc, char** argv)
@@ -571,28 +652,9 @@ int main(int argc, char** argv)
     };
 
     // set up uniforms
-    using DataList = std::vector<vsg::ref_ptr<vsg::Data>>;
-    DataList uniforms;
-
     vsg::ref_ptr<vsg::mat4Value> projMatrix = new vsg::mat4Value;
     vsg::ref_ptr<vsg::mat4Value> viewMatrix = new vsg::mat4Value;
     vsg::ref_ptr<vsg::mat4Value> modelMatrix = new vsg::mat4Value;
-
-    uniforms.push_back(projMatrix);
-    uniforms.push_back(viewMatrix);
-    uniforms.push_back(modelMatrix);
-
-    vsg::ref_ptr<vsg::BufferChain> vertexBufferChain = new vsg::BufferChain(device, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    vertexBufferChain->add(vertices);
-    vertexBufferChain->add(colors);
-    vertexBufferChain->add(texcoords);
-    vertexBufferChain->allocate(useStagingBuffer);
-    vertexBufferChain->transfer(commandPool, graphicsQueue);
-
-    vsg::ref_ptr<vsg::BufferChain> indexBufferChain = new vsg::BufferChain(device, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    indexBufferChain->add(indices);
-    indexBufferChain->allocate(useStagingBuffer);
-    indexBufferChain->transfer(commandPool, graphicsQueue);
 
     vsg::ref_ptr<vsg::BufferChain> uniformBufferChain = new vsg::BufferChain(device, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     uniformBufferChain->add(projMatrix);
@@ -601,9 +663,11 @@ int main(int argc, char** argv)
     uniformBufferChain->allocate(false); // useStagingBuffer);
     //uniformBufferChain->transfer(device, commandPool, graphicsQueue);
 
-    vertexBufferChain->print(std::cout);
-    indexBufferChain->print(std::cout);
     uniformBufferChain->print(std::cout);
+
+    auto vertexBufferData = vsg::createBufferAndTransferData(device, commandPool, graphicsQueue, {vertices, colors, texcoords}, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    auto indexBufferData = vsg::createBufferAndTransferData(device, commandPool, graphicsQueue, {indices}, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    //auto uniformBufferData = vsg::createBufferAndTransferData(device, commandPool, graphicsQueue, {projMatrix, viewMatrix, modelMatrix}, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
 
 
     //
@@ -633,12 +697,19 @@ int main(int argc, char** argv)
         {3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT}
     });
 
+#if 1
     vsg::ref_ptr<vsg::DescriptorSet> descriptorSet = vsg::DescriptorSet::create(device, descriptorPool, descriptorSetLayout,
     {
         new vsg::DescriptorBuffer(0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, uniformBufferChain->getBufferDataList()),
         new vsg::DescriptorImage(3, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, {imageData})
     });
-
+#else
+    vsg::ref_ptr<vsg::DescriptorSet> descriptorSet = vsg::DescriptorSet::create(device, descriptorPool, descriptorSetLayout,
+    {
+        new vsg::DescriptorBuffer(0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, uniformBufferChain->getBufferDataList()),
+        new vsg::DescriptorImage(3, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, {imageData})
+    });
+#endif
     vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = vsg::PipelineLayout::create(device, {descriptorSetLayout}, {});
 
     // setup binding of descriptors
@@ -673,11 +744,10 @@ int main(int argc, char** argv)
     });
 
     // set up vertex buffer binding
-    vsg::ref_ptr<vsg::CmdBindVertexBuffers> bindVertexBuffers = new vsg::CmdBindVertexBuffers;  // device dependent
-    vsg::add(bindVertexBuffers, vertexBufferChain);
+    vsg::ref_ptr<vsg::BindVertexBuffers> bindVertexBuffers = new vsg::BindVertexBuffers(0, vertexBufferData);  // device dependent
 
     // set up index buffer binding
-    vsg::ref_ptr<vsg::CmdBindIndexBuffer> bindIndexBuffer = new vsg::CmdBindIndexBuffer(indexBufferChain->_deviceBuffer, 0, VK_INDEX_TYPE_UINT16); // device dependent
+    vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = new vsg::BindIndexBuffer(indexBufferData.front(), VK_INDEX_TYPE_UINT16); // device dependent
 
     // set up drawing of the triangles
     vsg::ref_ptr<vsg::CmdDrawIndexed> drawIndexed = new vsg::CmdDrawIndexed(12, 1, 0, 0, 0); // device agnostic
