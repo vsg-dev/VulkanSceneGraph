@@ -31,6 +31,21 @@ IF(NOT CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
+if(CMAKE_COMPILER_IS_GNUCXX)
+#    set(VSG_WARNING_FLAGS -Wall -Wparentheses -Wno-long-long -Wno-import -pedantic -Wreturn-type -Wmissing-braces -Wunknown-pragmas -Wunused  -Wmaybe-uninitialized -Wextra -Wshadow -Wno-misleading-indentation)
+endif()
+
+SET(VSG_WARNING_FLAGS ${VSG_WARNING_FLAGS} CACHE STRING "Compiler flags to use." FORCE)
+
+
+foreach (flag ${VSG_WARNING_FLAGS})
+    if(NOT CMAKE_CXX_FLAGS MATCHES "${flag}")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
+    endif()
+endforeach ()
+
+
+
 # Find OpenSceneGraph packages for reference
 find_package(OpenThreads)
 find_package(osg)
