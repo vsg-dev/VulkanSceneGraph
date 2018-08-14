@@ -1,6 +1,7 @@
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/include
     ${Vulkan_INCLUDE_DIR}
+    ${GLFW_INCLUDE_DIR}
 )
 
 SET(HEADERS
@@ -58,6 +59,7 @@ SET(HEADERS
     viewer/Viewer.h
 
     utils/CommandLine.h
+    utils/stream.h
 )
 
 SET(SOURCES
@@ -75,6 +77,7 @@ SET(SOURCES
     vk/Surface.cpp
     vk/ImageView.cpp
     vk/BufferView.cpp
+    vk/BufferData.cpp
     vk/Instance.cpp
     vk/Swapchain.cpp
     vk/ShaderModule.cpp
@@ -100,8 +103,10 @@ SET(SOURCES
 
     viewer/Window.cpp
     viewer/Viewer.cpp
+
+    viewer/GLFW_Window.cpp
 )
 
 ADD_LIBRARY(vsg SHARED ${HEADER_FILES} ${SOURCES})
 
-TARGET_LINK_LIBRARIES(vsg  ${Vulkan_LIBRARY})
+TARGET_LINK_LIBRARIES(vsg  ${Vulkan_LIBRARY} ${GLFW_LIBRARY})

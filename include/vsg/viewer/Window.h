@@ -9,7 +9,6 @@
 namespace vsg
 {
 
-
     class Window : public Object
     {
     public:
@@ -17,7 +16,12 @@ namespace vsg
         Window(const Window&) = delete;
         Window& operator = (const Window&) = delete;
 
+        using Result = vsg::Result<Window, VkResult, VK_SUCCESS>;
+        static Result create(uint32_t width, uint32_t height, bool debugLayer=false, bool apiDumpLayer=false, Window* shareWindow=nullptr, AllocationCallbacks* allocator=nullptr);
+
         virtual bool valid() const { return false; }
+
+        virtual bool pollEvents() {}
 
         virtual bool resized() const { return false; }
         virtual void resize() {}

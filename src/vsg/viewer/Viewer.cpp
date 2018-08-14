@@ -62,6 +62,16 @@ bool Viewer::done() const
     return false;
 }
 
+bool Viewer::pollEvents()
+{
+    bool result = false;
+    for (auto& window : _windows)
+    {
+        if (window->pollEvents()) result = true;
+    }
+    return result;
+}
+
 void Viewer::reassignFrameCache()
 {
     for (auto& pair_pdo : _deviceMap)

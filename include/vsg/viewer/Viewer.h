@@ -39,6 +39,8 @@ namespace vsg
 
         bool done() const;
 
+        bool pollEvents();
+
         void submitFrame(vsg::Node* commandGraph);
 
         void reassignFrameCache();

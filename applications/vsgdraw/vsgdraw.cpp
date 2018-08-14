@@ -13,8 +13,7 @@
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/CommandPool.h>
-#include <vsg/vk/Buffer.h>
-#include <vsg/vk/DeviceMemory.h>
+#include <vsg/vk/BufferData.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/DescriptorSet.h>
@@ -28,6 +27,8 @@
 #include <vsg/viewer/Window.h>
 #include <vsg/viewer/Viewer.h>
 
+#include <vsg/utils/stream.h>
+
 #include <osg2vsg/ImageUtils.h>
 
 #include <iostream>
@@ -39,387 +40,6 @@
 #include <chrono>
 #include <cstring>
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-namespace vsg
-{
-    ////////////////////////////////////////////////////////////////////
-    //
-    //  ostream implementation
-    //
-    void print(std::ostream& out, const VkPhysicalDeviceProperties& properties)
-    {
-        out<<"VkPhysicalDeviceProperties {"<<std::endl;
-        out<<"   apiVersion = "<<properties.apiVersion<<std::endl;
-        out<<"   driverVersion = "<<properties.driverVersion<<std::endl;
-        out<<"   vendorID = "<<properties.vendorID<<std::endl;
-        out<<"   deviceID = "<<properties.deviceID<<std::endl;
-        out<<"   deviceType = "<<properties.deviceType<<std::endl;
-        out<<"   deviceName = "<<properties.deviceName<<std::endl;
-        out<<"   limits.maxDescriptorSetSamplers = "<<properties.limits.maxDescriptorSetSamplers<<std::endl;
-        out<<"   limits.maxImageDimension1D = "<<properties.limits.maxImageDimension1D<<std::endl;
-        out<<"   limits.maxImageDimension2D = "<<properties.limits.maxImageDimension2D<<std::endl;
-        out<<"   limits.maxImageDimension3D = "<<properties.limits.maxImageDimension3D<<std::endl;
-        out<<"   minUniformBufferOffsetAlignment = "<<properties.limits.minUniformBufferOffsetAlignment<<std::endl;
-        out<<"}"<<std::endl;
-    }
-
-    template<typename T>
-    void print(std::ostream& out, const std::string& description, const T& names)
-    {
-        out<<description<<".size()= "<<names.size()<<std::endl;
-        for (const auto& name : names)
-        {
-            out<<"    "<<name<<std::endl;
-        }
-    }
-
-
-};
-
-
-namespace glfw
-{
-
-vsg::Names getInstanceExtensions()
-{
-    uint32_t glfw_count;
-    const char** glfw_extensons = glfwGetRequiredInstanceExtensions(&glfw_count);
-    return vsg::Names(glfw_extensons, glfw_extensons+glfw_count);
-}
-
-// forward declare
-class GLFW_Instance;
-static vsg::ref_ptr<glfw::GLFW_Instance> getGLFW_Instance();
-
-class GLFW_Instance : public vsg::Object
-{
-public:
-protected:
-    GLFW_Instance()
-    {
-        std::cout<<"Calling glfwInit"<<std::endl;
-        glfwInit();
-    }
-
-    virtual ~GLFW_Instance()
-    {
-        std::cout<<"Calling glfwTerminate()"<<std::endl;
-        glfwTerminate();
-    }
-
-    friend vsg::ref_ptr<glfw::GLFW_Instance> getGLFW_Instance();
-};
-
-static vsg::ref_ptr<glfw::GLFW_Instance> getGLFW_Instance()
-{
-    static vsg::observer_ptr<glfw::GLFW_Instance> s_glfw_Instance = new glfw::GLFW_Instance;
-    return s_glfw_Instance;
-}
-
-
-class GLFWSurface : public vsg::Surface
-{
-public:
-
-    GLFWSurface(vsg::Instance* instance, GLFWwindow* window, vsg::AllocationCallbacks* allocator=nullptr) :
-        vsg::Surface(VK_NULL_HANDLE, instance, allocator)
-    {
-        if (glfwCreateWindowSurface(*instance, window, nullptr, &_surface) != VK_SUCCESS)
-        {
-            std::cout<<"Failed to create window surface"<<std::endl;
-        }
-        else
-        {
-            std::cout<<"Created window surface"<<std::endl;
-        }
-    }
-};
-
-class Window : public vsg::Window
-{
-public:
-
-    Window() = delete;
-    Window(const Window&) = delete;
-    Window& operator = (const Window&) = delete;
-
-    Window(uint32_t width, uint32_t height, bool debugLayer=false, bool apiDumpLayer=false, Window* shareWindow=nullptr) : _glwInstance(glfw::getGLFW_Instance())
-    {
-        std::cout<<"Calling glfwCreateWindow(..)"<<std::endl;
-
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
-        //glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-        _window = glfwCreateWindow(width, height, "Vulkan", nullptr, nullptr);
-
-        _debugLayersEnabled = debugLayer;
-
-        if (shareWindow)
-        {
-            // share the _instance, _physicalDevice and _devoce;
-            share(*shareWindow);
-
-            // use GLFW to create surface
-            _surface = new glfw::GLFWSurface(_instance, _window, nullptr);
-
-            // temporary hack to force vkGetPhysicalDeviceSurfaceSupportKHR to be called as the Vulkan
-            // debug layer is complaining about vkGetPhysicalDeviceSurfaceSupportKHR not being called
-            // for this _surface prior to swap chain creation
-            vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(_instance, VK_QUEUE_GRAPHICS_BIT, _surface);
-        }
-        else
-        {
-            vsg::Names instanceExtensions = glfw::getInstanceExtensions();
-
-            vsg::Names requestedLayers;
-            if (debugLayer)
-            {
-                instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-                requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
-                if (apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
-            }
-
-            vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
-
-
-            vsg::Names deviceExtensions;
-            deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-
-            vsg::print(std::cout,"instanceExtensions",instanceExtensions);
-            vsg::print(std::cout,"validatedNames",validatedNames);
-
-            _instance = vsg::Instance::create(instanceExtensions, validatedNames);
-
-            // use GLFW to create surface
-            _surface = new glfw::GLFWSurface(_instance, _window, nullptr);
-
-
-            // set up device
-            _physicalDevice = vsg::PhysicalDevice::create(_instance, VK_QUEUE_GRAPHICS_BIT,  _surface);
-            _device = vsg::Device::create(_physicalDevice, validatedNames, deviceExtensions);
-
-            // set up renderpass with the imageFormat that the swap chain will use
-            vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
-            VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
-            VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT;//VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
-            _renderPass = vsg::RenderPass::create(_device, imageFormat.format, depthFormat);
-        }
-
-        buildSwapchain(width, height);
-    }
-
-    virtual bool valid() const { return _window && !glfwWindowShouldClose(_window); }
-
-    virtual bool resized() const
-    {
-        int new_width, new_height;
-        glfwGetWindowSize(_window, &new_width, &new_height);
-        return (new_width!=int(_extent2D.width) || new_height!=int(_extent2D.height));
-    }
-
-    virtual void resize()
-    {
-        int new_width, new_height;
-        glfwGetWindowSize(_window, &new_width, &new_height);
-        buildSwapchain(new_width, new_height);
-    }
-
-    operator GLFWwindow* () { return _window; }
-    operator const GLFWwindow* () const { return _window; }
-
-protected:
-    virtual ~Window()
-    {
-        clear();
-
-        if (_window)
-        {
-            std::cout<<"Calling glfwDestroyWindow(_window);"<<std::endl;
-            glfwDestroyWindow(_window);
-        }
-    }
-
-    vsg::ref_ptr<glfw::GLFW_Instance>   _glwInstance;
-    GLFWwindow*                         _window;
-};
-
-
-}
-
-namespace vsg
-{
-    template<typename T>
-    inline std::ostream& operator << (std::ostream& output, const vsg::tvec2<T>& vec)
-    {
-        output << vec.x << " " << vec.y;
-        return output; // to enable cascading
-    }
-
-    template<typename T>
-    inline std::ostream& operator << (std::ostream& output, const vsg::tvec3<T>& vec)
-    {
-        output << vec.x << " " << vec.y<<" "<<vec.z;
-        return output; // to enable cascading
-    }
-
-    template<typename T>
-    inline std::ostream& operator << (std::ostream& output, const vsg::tvec4<T>& vec)
-    {
-        output << vec.x << " " << vec.y<<" "<<vec.z<<" "<<vec.w;
-        return output; // to enable cascading
-    }
-
-    template<typename T>
-    inline std::ostream& operator << (std::ostream& output, const vsg::tmat4<T>& mat)
-    {
-        output << std::endl;
-        output << "    "<<mat(0,0)<< " " << mat(1,0)<<" "<<mat(2,0)<<" "<<mat(3,0)<<std::endl;
-        output << "    "<<mat(0,1)<< " " << mat(1,1)<<" "<<mat(2,1)<<" "<<mat(3,1)<<std::endl;
-        output << "    "<<mat(0,2)<< " " << mat(1,2)<<" "<<mat(2,2)<<" "<<mat(3,2)<<std::endl;
-        output << "    "<<mat(0,3)<< " " << mat(1,3)<<" "<<mat(2,3)<<" "<<mat(3,3)<<std::endl;
-        return output; // to enable cascading
-    }
-
-    template< typename ... Args >
-    std::string make_string(Args const& ... args )
-    {
-        std::ostringstream stream;
-        using List= int[];
-        (void) List {0, ( (void)(stream << args), 0 ) ... };
-
-        return stream.str();
-    }
-
-
-    typedef std::vector<ref_ptr<Data>> DataList;
-    BufferDataList createBufferAndTransferData(Device* device, CommandPool* commandPool, VkQueue graphicsQueue, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
-    {
-        if (dataList.empty()) return BufferDataList();
-
-        BufferDataList bufferDataList;
-
-        VkDeviceSize alignment = 4;
-        if (usage==VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
-
-
-        VkDeviceSize totalSize = 0;
-        VkDeviceSize offset = 0;
-        bufferDataList.reserve(dataList.size());
-        for (auto& data : dataList)
-        {
-            bufferDataList.push_back(BufferData(0, offset, data->dataSize()));
-            VkDeviceSize endOfEntry = offset + data->dataSize();
-            offset = (alignment==1 || (endOfEntry%alignment)==0) ? endOfEntry: ((endOfEntry/alignment)+1)*alignment;
-        }
-
-        totalSize = bufferDataList.back()._offset + bufferDataList.back()._range;
-
-        for(auto& bufferData : bufferDataList)
-        {
-            std::cout<<"    Buffer entry "<<bufferData._offset<<" "<<bufferData._range<<std::endl;
-        }
-        std::cout<<"    totalSize = "<<totalSize<<std::endl;
-
-
-        ref_ptr<Buffer> stagingBuffer = vsg::Buffer::create(device, totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode);
-        ref_ptr<DeviceMemory> stagingMemory = vsg::DeviceMemory::create(device, stagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-        stagingBuffer->bind(stagingMemory, 0);
-
-        void* buffer_data;
-        stagingMemory->map(0, totalSize, 0, &buffer_data);
-        char* ptr = reinterpret_cast<char*>(buffer_data);
-
-        for (size_t i=0; i<dataList.size(); ++i)
-        {
-            const Data* data = dataList[i];
-            std::cout<<"   copying "<<data->dataSize()<<std::endl;
-            std::memcpy(ptr + bufferDataList[i]._offset, data->dataPointer(), data->dataSize());
-        }
-
-        stagingMemory->unmap();
-
-        ref_ptr<Buffer> deviceBuffer = vsg::Buffer::create(device, totalSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage, sharingMode);
-        ref_ptr<DeviceMemory> deviceMemory =  vsg::DeviceMemory::create(device, deviceBuffer,  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-        deviceBuffer->bind(deviceMemory, 0);
-
-        dispatchCommandsToQueue(device, commandPool, graphicsQueue, [&](VkCommandBuffer transferCommand)
-        {
-            std::cout<<"Doing copy"<<std::endl;
-
-            VkBufferCopy copyRegion = {};
-            copyRegion.srcOffset = 0;
-            copyRegion.dstOffset = 0;
-            copyRegion.size = totalSize;
-            vkCmdCopyBuffer(transferCommand, *stagingBuffer, *deviceBuffer, 1, &copyRegion);
-        });
-
-        // assign the buffer to the bufferData entries
-        for (auto& bufferData : bufferDataList)
-        {
-            bufferData._buffer = deviceBuffer;
-        }
-
-        return bufferDataList;
-    }
-
-    BufferDataList createHostVisibleBuffer(Device* device, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
-    {
-        if (dataList.empty()) return BufferDataList();
-
-        BufferDataList bufferDataList;
-
-        VkDeviceSize alignment = 4;
-        if (usage==VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
-
-        VkDeviceSize totalSize = 0;
-        VkDeviceSize offset = 0;
-        bufferDataList.reserve(dataList.size());
-        for (auto& data : dataList)
-        {
-            bufferDataList.push_back(BufferData(0, offset, data->dataSize(), data));
-            VkDeviceSize endOfEntry = offset + data->dataSize();
-            offset = (alignment==1 || (endOfEntry%alignment)==0) ? endOfEntry: ((endOfEntry/alignment)+1)*alignment;
-        }
-
-        totalSize = bufferDataList.back()._offset + bufferDataList.back()._range;
-
-        for(auto& bufferData : bufferDataList)
-        {
-            std::cout<<"    Buffer entry "<<bufferData._offset<<" "<<bufferData._range<<std::endl;
-        }
-        std::cout<<"    totalSize = "<<totalSize<<std::endl;
-
-        ref_ptr<Buffer> buffer = vsg::Buffer::create(device, totalSize, usage, sharingMode);
-        ref_ptr<DeviceMemory> memory = vsg::DeviceMemory::create(device, buffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-        buffer->bind(memory, 0);
-
-        for (auto& bufferData : bufferDataList)
-        {
-            bufferData._buffer = buffer;
-        }
-
-        return bufferDataList;
-    }
-
-    void copyDataListToBuffers(BufferDataList& bufferDataList)
-    {
-        for (auto& bufferData : bufferDataList)
-        {
-            DeviceMemory* dm = bufferData._buffer->getDeviceMemory();
-
-            void* buffer_data;
-            dm->map(bufferData._offset, bufferData._range, 0, &buffer_data);
-
-            char* ptr = reinterpret_cast<char*>(buffer_data);
-            std::memcpy(ptr, bufferData._data->dataPointer(), bufferData._data->dataSize());
-
-            dm->unmap();
-        }
-    }
-
-}
 
 int main(int argc, char** argv)
 {
@@ -450,12 +70,13 @@ int main(int argc, char** argv)
 
     vsg::ref_ptr<vsg::Viewer> viewer = new vsg::Viewer;
 
-    vsg::ref_ptr<glfw::Window> window = new glfw::Window(width, height, debugLayer, apiDumpLayer);
+    vsg::ref_ptr<vsg::Window> window = vsg::Window::create(width, height, debugLayer, apiDumpLayer);
     viewer->addWindow(window);
 
     for(int i=1; i<numWindows; ++i)
     {
-        viewer->addWindow(new glfw::Window(width, height, debugLayer, apiDumpLayer, window));
+        vsg::ref_ptr<vsg::Window> new_window = vsg::Window::create(width, height, debugLayer, apiDumpLayer, window);
+        viewer->addWindow( new_window );
     }
 
     vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = window->physicalDevice();
@@ -648,8 +269,7 @@ int main(int argc, char** argv)
 
     while (!viewer->done() && (numFrames<0 || (numFrames--)>0))
     {
-        //std::cout<<"In main loop"<<std::endl;
-        glfwPollEvents();
+        viewer->pollEvents();
 
         float previousTime = time;
         time = std::chrono::duration<float, std::chrono::seconds::period>(std::chrono::steady_clock::now()-startTime).count();
@@ -662,15 +282,7 @@ int main(int argc, char** argv)
 
         vsg::copyDataListToBuffers(uniformBufferData);
 
-#if 0
-        std::cout<<std::endl<<"New frame "<<time<<std::endl;
-        std::cout<<"projMatrix = {"<<projMatrix->value()<<"}"<<std::endl;
-        std::cout<<"viewMatrix = {"<<viewMatrix->value()<<"}"<<std::endl;
-        std::cout<<"modelMatrix = {"<<modelMatrix->value()<<"}"<<std::endl;
-#endif
-
         viewer->submitFrame(commandGraph);
-
     }
 
 

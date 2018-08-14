@@ -6,6 +6,8 @@
 #include <iostream>
 #include <chrono>
 
+#include "GLFW_Window.h"
+
 namespace vsg
 {
 
@@ -147,6 +149,12 @@ void Window::populateCommandBuffers(vsg::Node* commandGraph)
         CommandVisitor cv(frame.framebuffer, _renderPass, *frame.commandBuffer, _extent2D, _clearColor);
         cv.populateCommandBuffer(commandGraph);
     }
+}
+
+Window::Result Window::create(uint32_t width, uint32_t height, bool debugLayer, bool apiDumpLayer, vsg::Window* shareWindow, vsg::AllocationCallbacks* allocator)
+{
+    ref_ptr<vsg::Window> window = new glfw::GLFW_Window(width, height, debugLayer, apiDumpLayer, shareWindow);
+    return window;
 }
 
 }
