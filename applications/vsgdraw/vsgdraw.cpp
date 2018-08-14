@@ -27,6 +27,8 @@
 #include <vsg/viewer/Window.h>
 #include <vsg/viewer/Viewer.h>
 
+#include <vsg/utils/stream.h>
+
 #include <osg2vsg/ImageUtils.h>
 
 #include <iostream>
@@ -40,42 +42,6 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-
-namespace vsg
-{
-    ////////////////////////////////////////////////////////////////////
-    //
-    //  ostream implementation
-    //
-    void print(std::ostream& out, const VkPhysicalDeviceProperties& properties)
-    {
-        out<<"VkPhysicalDeviceProperties {"<<std::endl;
-        out<<"   apiVersion = "<<properties.apiVersion<<std::endl;
-        out<<"   driverVersion = "<<properties.driverVersion<<std::endl;
-        out<<"   vendorID = "<<properties.vendorID<<std::endl;
-        out<<"   deviceID = "<<properties.deviceID<<std::endl;
-        out<<"   deviceType = "<<properties.deviceType<<std::endl;
-        out<<"   deviceName = "<<properties.deviceName<<std::endl;
-        out<<"   limits.maxDescriptorSetSamplers = "<<properties.limits.maxDescriptorSetSamplers<<std::endl;
-        out<<"   limits.maxImageDimension1D = "<<properties.limits.maxImageDimension1D<<std::endl;
-        out<<"   limits.maxImageDimension2D = "<<properties.limits.maxImageDimension2D<<std::endl;
-        out<<"   limits.maxImageDimension3D = "<<properties.limits.maxImageDimension3D<<std::endl;
-        out<<"   minUniformBufferOffsetAlignment = "<<properties.limits.minUniformBufferOffsetAlignment<<std::endl;
-        out<<"}"<<std::endl;
-    }
-
-    template<typename T>
-    void print(std::ostream& out, const std::string& description, const T& names)
-    {
-        out<<description<<".size()= "<<names.size()<<std::endl;
-        for (const auto& name : names)
-        {
-            out<<"    "<<name<<std::endl;
-        }
-    }
-
-
-};
 
 
 namespace glfw
@@ -186,9 +152,6 @@ public:
             vsg::Names deviceExtensions;
             deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
-            vsg::print(std::cout,"instanceExtensions",instanceExtensions);
-            vsg::print(std::cout,"validatedNames",validatedNames);
-
             _instance = vsg::Instance::create(instanceExtensions, validatedNames);
 
             // use GLFW to create surface
@@ -247,52 +210,6 @@ protected:
 
 }
 
-namespace vsg
-{
-    template<typename T>
-    inline std::ostream& operator << (std::ostream& output, const vsg::tvec2<T>& vec)
-    {
-        output << vec.x << " " << vec.y;
-        return output; // to enable cascading
-    }
-
-    template<typename T>
-    inline std::ostream& operator << (std::ostream& output, const vsg::tvec3<T>& vec)
-    {
-        output << vec.x << " " << vec.y<<" "<<vec.z;
-        return output; // to enable cascading
-    }
-
-    template<typename T>
-    inline std::ostream& operator << (std::ostream& output, const vsg::tvec4<T>& vec)
-    {
-        output << vec.x << " " << vec.y<<" "<<vec.z<<" "<<vec.w;
-        return output; // to enable cascading
-    }
-
-    template<typename T>
-    inline std::ostream& operator << (std::ostream& output, const vsg::tmat4<T>& mat)
-    {
-        output << std::endl;
-        output << "    "<<mat(0,0)<< " " << mat(1,0)<<" "<<mat(2,0)<<" "<<mat(3,0)<<std::endl;
-        output << "    "<<mat(0,1)<< " " << mat(1,1)<<" "<<mat(2,1)<<" "<<mat(3,1)<<std::endl;
-        output << "    "<<mat(0,2)<< " " << mat(1,2)<<" "<<mat(2,2)<<" "<<mat(3,2)<<std::endl;
-        output << "    "<<mat(0,3)<< " " << mat(1,3)<<" "<<mat(2,3)<<" "<<mat(3,3)<<std::endl;
-        return output; // to enable cascading
-    }
-
-    template< typename ... Args >
-    std::string make_string(Args const& ... args )
-    {
-        std::ostringstream stream;
-        using List= int[];
-        (void) List {0, ( (void)(stream << args), 0 ) ... };
-
-        return stream.str();
-    }
-
-
-}
 
 int main(int argc, char** argv)
 {
@@ -521,7 +438,6 @@ int main(int argc, char** argv)
 
     while (!viewer->done() && (numFrames<0 || (numFrames--)>0))
     {
-        //std::cout<<"In main loop"<<std::endl;
         glfwPollEvents();
 
         float previousTime = time;
@@ -535,15 +451,7 @@ int main(int argc, char** argv)
 
         vsg::copyDataListToBuffers(uniformBufferData);
 
-#if 0
-        std::cout<<std::endl<<"New frame "<<time<<std::endl;
-        std::cout<<"projMatrix = {"<<projMatrix->value()<<"}"<<std::endl;
-        std::cout<<"viewMatrix = {"<<viewMatrix->value()<<"}"<<std::endl;
-        std::cout<<"modelMatrix = {"<<modelMatrix->value()<<"}"<<std::endl;
-#endif
-
         viewer->submitFrame(commandGraph);
-
     }
 
 

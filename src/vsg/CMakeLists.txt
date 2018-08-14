@@ -58,6 +58,7 @@ SET(HEADERS
     viewer/Viewer.h
 
     utils/CommandLine.h
+    utils/stream.h
 )
 
 SET(SOURCES
