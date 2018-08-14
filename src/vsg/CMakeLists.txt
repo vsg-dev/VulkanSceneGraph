@@ -75,6 +75,7 @@ SET(SOURCES
     vk/Surface.cpp
     vk/ImageView.cpp
     vk/BufferView.cpp
+    vk/BufferData.cpp
     vk/Instance.cpp
     vk/Swapchain.cpp
     vk/ShaderModule.cpp

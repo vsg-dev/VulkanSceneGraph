@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vsg/vk/Buffer.h>
+#include <vsg/vk/BufferData.h>
 #include <vsg/vk/Sampler.h>
 #include <vsg/vk/ImageView.h>
 #include <vsg/vk/BufferView.h>
@@ -106,23 +106,6 @@ namespace vsg
         std::vector<VkDescriptorImageInfo>  _imageInfos;
     };
 
-
-    class BufferData
-    {
-    public:
-        BufferData(Buffer* buffer, VkDeviceSize offset, VkDeviceSize range, Data* data=nullptr):
-            _buffer(buffer),
-            _offset(offset),
-            _range(range),
-            _data(data) {}
-
-        ref_ptr<Buffer> _buffer;
-        VkDeviceSize    _offset;
-        VkDeviceSize    _range;
-        ref_ptr<Data>   _data;
-    };
-
-    using BufferDataList = std::vector<BufferData>;
 
     class DescriptorBuffer : public Descriptor
     {
