@@ -85,7 +85,7 @@ namespace vsg
         void set(std::size_t i, const value_type& v) { _data[i] = v; }
 
         iterator begin() { return _data; }
-        const const_iterator begin() const { return _data; }
+        const_iterator begin() const { return _data; }
 
         iterator end() { return _data+_size; }
         const_iterator end() const { return _data+_size; }

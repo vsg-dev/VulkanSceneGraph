@@ -50,7 +50,7 @@ public:
     }
 };
 
-GLFW_Window::GLFW_Window(uint32_t width, uint32_t height, bool debugLayer, bool apiDumpLayer, vsg::Window* shareWindow) :
+GLFW_Window::GLFW_Window(uint32_t width, uint32_t height, bool debugLayer, bool apiDumpLayer, vsg::Window* shareWindow, vsg::AllocationCallbacks* allocator) :
     _glwInstance(glfw::getGLFW_Instance())
 {
     std::cout<<"Calling glfwCreateWindow(..)"<<std::endl;
@@ -93,21 +93,21 @@ GLFW_Window::GLFW_Window(uint32_t width, uint32_t height, bool debugLayer, bool 
         vsg::Names deviceExtensions;
         deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
-        _instance = vsg::Instance::create(instanceExtensions, validatedNames);
+        _instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
 
         // use GLFW to create surface
-        _surface = new glfw::GLFWSurface(_instance, _window, nullptr);
+        _surface = new glfw::GLFWSurface(_instance, _window, allocator);
 
 
         // set up device
         _physicalDevice = vsg::PhysicalDevice::create(_instance, VK_QUEUE_GRAPHICS_BIT,  _surface);
-        _device = vsg::Device::create(_physicalDevice, validatedNames, deviceExtensions);
+        _device = vsg::Device::create(_physicalDevice, validatedNames, deviceExtensions, allocator);
 
         // set up renderpass with the imageFormat that the swap chain will use
         vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
         VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
         VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT;//VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
-        _renderPass = vsg::RenderPass::create(_device, imageFormat.format, depthFormat);
+        _renderPass = vsg::RenderPass::create(_device, imageFormat.format, depthFormat, allocator);
     }
 
     buildSwapchain(width, height);

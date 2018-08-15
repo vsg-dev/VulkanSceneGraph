@@ -48,7 +48,7 @@ public:
     }
 };
 
-int main(int argc, char** argv)
+int main(int /*argc*/, char** /*argv*/)
 {
 
     auto start = std::chrono::high_resolution_clock::now(); // will eventually need to use chrono::steady_clock for frame stats

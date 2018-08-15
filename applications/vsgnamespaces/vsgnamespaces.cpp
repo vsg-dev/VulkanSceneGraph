@@ -102,7 +102,7 @@ namespace vsg
     class Pager; // read objects using background threads
 }
 
-int main(int argc, char** argv)
+int main(int /*argc*/, char** /*argv*/)
 {
     return 0;
 };

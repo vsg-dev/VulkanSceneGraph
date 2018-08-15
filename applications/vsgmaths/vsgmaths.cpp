@@ -51,7 +51,7 @@ float computeDelta(const vsg::dmat4& v, const osg::Matrixd& o)
     return delta;
 }
 
-int main(int argc, char** argv)
+int main(int /*argc*/, char** /*argv*/)
 {
 
     vsg::vec2 v;

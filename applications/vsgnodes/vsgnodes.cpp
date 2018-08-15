@@ -44,7 +44,7 @@ struct PrintVisitor : public vsg::Visitor
     }
 };
 
-int main(int argc, char** argv)
+int main(int /*argc*/, char** /*argv*/)
 {
 
     vsg::ref_ptr<vsg::Group> group = new vsg::Group;

@@ -70,7 +70,7 @@ VkFormat VkFormatForType()
     return VkFormatTypeMap[std::type_index(typeid(T))];
 }
 
-int main(int argc, char** argv)
+int main(int /*argc*/, char** /*argv*/)
 {
     std::cout<<"typeid(char) = "<<typeid(char).name()<<std::endl;
     std::cout<<"typeid(unsigned char) = "<<typeid(unsigned char).name()<<std::endl;

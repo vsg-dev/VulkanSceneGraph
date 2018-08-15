@@ -160,14 +160,14 @@ int main(int argc, char** argv)
 
 
     unsigned int count=0;
-    auto countFunc = [&](vsg::Object& object) { ++count; };
+    auto countFunc = [&](vsg::Object& /*object*/) { ++count; };
     LambdaVisitor<decltype(countFunc), vsg::Object> lv( countFunc ); // note, using of decltype(auto) is a C++14 feature
     scene->accept(lv);
     std::cout<<"LambdaVisitor "<<count<<std::endl;
 
 
     count = 0;
-    visit(scene, [&](vsg::Object& object) { ++count; } );
+    visit(scene, [&](vsg::Object& /*object*/) { ++count; } );
     std::cout<<"visit() count="<<count<<std::endl;
 
 
@@ -222,7 +222,7 @@ int main(int argc, char** argv)
     FunctionVisitor fv;
     fv.objectFunction = [&](vsg::Object&) { ++objects; };
     fv.nodeFunction = [&](vsg::Node&) { ++nodes; };
-    fv.groupFunction = [&](vsg::Group& group) { ++groups; };
+    fv.groupFunction = [&](vsg::Group& /*group*/) { ++groups; };
 
     scene->accept(fv);
 

@@ -115,7 +115,7 @@ public:
 };
 
 
-int main(int argc, char** argv)
+int main(int /*argc*/, char** /*argv*/)
 {
 
     vsg::ref_ptr<vsg::floatArray> floats = new vsg::floatArray(10);

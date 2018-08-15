@@ -72,9 +72,10 @@ VkExtent2D selectSwapExtent(SwapChainSupportDetails& details, uint32_t width, ui
     }
 }
 
-VkPresentModeKHR selectSwapPresentMode(SwapChainSupportDetails& details)
+VkPresentModeKHR selectSwapPresentMode(SwapChainSupportDetails& /*details*/)
 {
     VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
+    // TODO need to deciced upon a scheme for selecting which presentMode to select.
 #if 0
     for (const auto& availablePresentMode : details.presentModes)
     {

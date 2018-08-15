@@ -52,7 +52,7 @@ public:
 
 };
 
-int main(int argc, char** argv)
+int main(int /*argc*/, char** /*argv*/)
 {
 
     vsg::ref_ptr<vsg::QuadGroup> ref_node = new vsg::QuadGroup;
