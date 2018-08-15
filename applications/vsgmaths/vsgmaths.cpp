@@ -21,10 +21,6 @@
 #include <osg/Matrixd>
 #include <osg/io_utils>
 
-namespace vsg
-{
-};
-
 float computeDelta(const vsg::mat4& v, const osg::Matrixf& o)
 {
     vsg::mat4::value_type delta = 0.0f;

@@ -54,7 +54,7 @@ namespace vsg
 
     using ivec4 = tvec4<int>;
     using uivec4 = tvec4<unsigned int>;
-};
+}
 
 std::unordered_map<std::type_index, VkFormat> VkFormatTypeMap;
 

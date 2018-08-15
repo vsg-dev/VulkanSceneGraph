@@ -2,6 +2,17 @@
 
 #include <cmath>
 
+// we can't implement the anonymous union/structs combination without causing warnings, so disabled them for just this header
+#if defined(__GNUC__)
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wpedantic"
+#endif
+#if defined(__clang__)
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
+    #pragma clang diagnostic ignored "-Wnested-anon-types"
+#endif
+
 namespace vsg
 {
 
@@ -81,3 +92,10 @@ namespace vsg
                         lhs[0]*rhs[1] - rhs[0]*lhs[1]);
     }
 }
+
+#if defined(__clang__)
+    #pragma clang diagnostic pop
+#endif
+#if defined(__GNUC__)
+    #pragma GCC diagnostic pop
+#endif
