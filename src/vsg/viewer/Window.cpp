@@ -12,7 +12,7 @@ namespace vsg
 {
 
 Window::Window() :
-    _clearColor{0.2f, 0.2f, 0.4f, 1.0f},
+    _clearColor{{0.2f, 0.2f, 0.4f, 1.0f}},
     _debugLayersEnabled(false)
 {
 }
@@ -108,7 +108,7 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
 
     for (size_t i=0; i<imageViews.size(); ++i)
     {
-        std::array<VkImageView, 2> attachments = { *imageViews[i], *_depthImageView };
+        std::array<VkImageView, 2> attachments = {{ *imageViews[i], *_depthImageView }};
 
         VkFramebufferCreateInfo framebufferInfo = {};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
