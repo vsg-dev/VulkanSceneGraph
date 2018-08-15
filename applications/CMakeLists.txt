@@ -13,5 +13,3 @@ add_subdirectory(vsgpointer)
 add_subdirectory(vsgtypes)
 add_subdirectory(vsgcompute)
 add_subdirectory(vsgmemory)
-
-add_subdirectory(VulkanTutorial)
