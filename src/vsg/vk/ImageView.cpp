@@ -8,8 +8,8 @@ namespace vsg
 ImageView::ImageView(VkImageView imageView, Device* device, Image* image, AllocationCallbacks* allocator) :
     _imageView(imageView),
     _device(device),
-    _allocator(allocator),
-    _image(image)
+    _image(image),
+    _allocator(allocator)
 {
     std::cout<<"ImageView() with image="<<image<<std::endl;
 }

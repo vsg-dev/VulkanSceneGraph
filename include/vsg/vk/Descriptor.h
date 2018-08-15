@@ -60,6 +60,7 @@ namespace vsg
             _sampler = rhs._sampler;
             _imageView = rhs._imageView;
             _imageLayout = rhs._imageLayout;
+            return *this;
         }
 
         explicit operator bool() const { return _sampler.valid() && _imageView.valid(); }

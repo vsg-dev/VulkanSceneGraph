@@ -12,7 +12,7 @@ namespace vsg
         AllocationCallbacks() :
             VkAllocationCallbacks{} {}
 
-        operator VkAllocationCallbacks* () { return this!=nullptr ? &static_cast<VkAllocationCallbacks&>(*this) : nullptr; }
+        operator VkAllocationCallbacks* () { return (this!=nullptr) ? this : nullptr; }
 
     protected:
 

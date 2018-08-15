@@ -82,8 +82,6 @@ vsg::ImageData readImageFile(vsg::Device* device, vsg::CommandPool* commandPool,
     std::cout<<"Creating imageStagingBuffer and memorory size = "<<imageTotalSize<<std::endl;
 
 
-    VkFormat format =  VK_FORMAT_R8G8B8A8_UNORM; //                 osg2vsg::convertGLImageFormatToVulkan(osg_image->getDataType(), osg_image->getPixelFormat());
-
     std::cout<<"VK_FORMAT_R8G8B8A8_UNORM= "<<VK_FORMAT_R8G8B8A8_UNORM<<std::endl;
     std::cout<<"  osg2vsg : "<<osg2vsg::convertGLImageFormatToVulkan(osg_image->getDataType(), osg_image->getPixelFormat())<<std::endl;
 

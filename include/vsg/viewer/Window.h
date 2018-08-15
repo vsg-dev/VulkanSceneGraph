@@ -21,7 +21,7 @@ namespace vsg
 
         virtual bool valid() const { return false; }
 
-        virtual bool pollEvents() {}
+        virtual bool pollEvents() { return false; }
 
         virtual bool resized() const { return false; }
         virtual void resize() {}

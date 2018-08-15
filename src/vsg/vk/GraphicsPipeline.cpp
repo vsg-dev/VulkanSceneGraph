@@ -96,9 +96,9 @@ VertexInputState::VertexInputState() :
 }
 
 VertexInputState::VertexInputState(const Bindings& bindings, const Attributes& attributes) :
+    VkPipelineVertexInputStateCreateInfo{},
     _bindings(bindings),
-    _attributes(attributes),
-    VkPipelineVertexInputStateCreateInfo{}
+    _attributes(attributes)
 {
     sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexBindingDescriptionCount = _bindings.size();

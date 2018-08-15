@@ -6,11 +6,11 @@ namespace vsg
 {
 
 PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int graphicsFamily, int presentFamily, int computeFamily, Surface* surface) :
-    _instance(instance),
     _device(device),
     _graphicsFamily(graphicsFamily),
     _presentFamily(presentFamily),
     _computeFamily(computeFamily),
+    _instance(instance),
     _surface(surface)
 {
     vkGetPhysicalDeviceProperties(_device, &_properties);
@@ -52,7 +52,7 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags q
 
         VkQueueFlags matchedQueues = 0;
 
-        for (int i=0; i<queueFamilyCount; ++i)
+        for (uint32_t i=0; i<queueFamilyCount; ++i)
         {
             const auto& queueFamily = queueFamiles[i];
             if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)!=0)

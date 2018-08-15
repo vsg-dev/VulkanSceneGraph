@@ -28,7 +28,7 @@ namespace vsg
         virtual std::size_t dataSize() const { return sizeof(value_type); }
         virtual void* dataPointer() { return &_value; }
         virtual const void* dataPointer() const { return &_value; }
-        virtual void* dataRelease() {}
+        virtual void* dataRelease() { return nullptr; }
 
         Value& operator = (const Value& rhs) { _value = rhs._value; return *this; }
         Value& operator = (const value_type& rhs) { _value = rhs; return *this; }

@@ -6,7 +6,7 @@ namespace vsg
 {
 
 Sampler::Sampler(VkSampler Sampler, Device* device, AllocationCallbacks* allocator) :
-    _Sampler(Sampler),
+    _sampler(Sampler),
     _device(device),
     _allocator(allocator)
 {
@@ -14,10 +14,10 @@ Sampler::Sampler(VkSampler Sampler, Device* device, AllocationCallbacks* allocat
 
 Sampler::~Sampler()
 {
-    if (_Sampler)
+    if (_sampler)
     {
         std::cout<<"Calling vkDestroySampler"<<std::endl;
-        vkDestroySampler(*_device, _Sampler, *_allocator);
+        vkDestroySampler(*_device, _sampler, *_allocator);
     }
 }
 

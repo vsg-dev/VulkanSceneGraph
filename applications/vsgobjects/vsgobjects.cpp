@@ -61,7 +61,7 @@ int main(int argc, char** argv)
         vsg::ref_ptr<vsg::Group> group(new vsg::Group());
 
         std::cout<<"Adding child to group"<<std::endl;
-        size_t pos = group->addChild(new vsg::Node);
+        group->addChild(new vsg::Node);
         group->addChild(new vsg::Group);
 
         group->addChild(new vsg::Group);

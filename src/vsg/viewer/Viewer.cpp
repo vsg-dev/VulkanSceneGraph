@@ -103,7 +103,6 @@ void Viewer::submitFrame(vsg::Node* commandGraph)
         if (window->debugLayersEnabled()) debugLayersEnabled=true;
 
         vsg::Semaphore* imageAvailableSemaphore = window->imageAvailableSemaphore();
-        uint32_t imageIndex;
         VkResult result;
         if (window->resized() || (result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *(imageAvailableSemaphore), VK_NULL_HANDLE))!=VK_SUCCESS)
         {

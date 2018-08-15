@@ -48,7 +48,6 @@ int main(int argc, char** argv)
     uint32_t width = 800;
     uint32_t height = 600;
     int numFrames=-1;
-    bool useStagingBuffer = false;
     bool printFrameRate = false;
     int numWindows = 1;
 
@@ -58,7 +57,6 @@ int main(int argc, char** argv)
         if (vsg::CommandLine::read(argc, argv, vsg::CommandLine::Match("--api","-a"))) { apiDumpLayer = true; debugLayer = true; }
         if (vsg::CommandLine::read(argc, argv, vsg::CommandLine::Match("--window","-w"), width, height)) {}
         if (vsg::CommandLine::read(argc, argv, "-f", numFrames)) {}
-        if (vsg::CommandLine::read(argc, argv, "-s")) { useStagingBuffer = true; }
         if (vsg::CommandLine::read(argc, argv, "--fr")) { printFrameRate = true; }
         if (vsg::CommandLine::read(argc, argv, "--num-windows", numWindows)) {}
     }

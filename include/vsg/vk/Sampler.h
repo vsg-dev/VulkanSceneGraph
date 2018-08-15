@@ -14,9 +14,9 @@ namespace vsg
 
         static Result create(Device* device, AllocationCallbacks* allocator=nullptr);
 
-        VkSampler sampler() const { return _Sampler; }
+        VkSampler sampler() const { return _sampler; }
 
-        operator VkSampler () const { return _Sampler; }
+        operator VkSampler () const { return _sampler; }
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
@@ -24,8 +24,8 @@ namespace vsg
     protected:
         virtual ~Sampler();
 
+        VkSampler                       _sampler;
         ref_ptr<Device>                 _device;
-        VkSampler                         _Sampler;
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 

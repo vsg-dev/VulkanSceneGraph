@@ -30,15 +30,15 @@ namespace vsg
 
         virtual ~PhysicalDevice();
 
-        vsg::ref_ptr<Instance>      _instance;
-        vsg::ref_ptr<Surface>       _surface;
-
         VkPhysicalDevice            _device;
         int                         _graphicsFamily;
         int                         _presentFamily;
         int                         _computeFamily;
 
         VkPhysicalDeviceProperties  _properties;
+
+        vsg::ref_ptr<Instance>      _instance;
+        vsg::ref_ptr<Surface>       _surface;
     };
 
 

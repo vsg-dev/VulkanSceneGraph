@@ -32,6 +32,7 @@ IF(NOT CMAKE_BUILD_TYPE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
+    set(VSG_WARNING_FLAGS -Wall)
 #    set(VSG_WARNING_FLAGS -Wall -Wparentheses -Wno-long-long -Wno-import -pedantic -Wreturn-type -Wmissing-braces -Wunknown-pragmas -Wunused  -Wmaybe-uninitialized -Wextra -Wshadow -Wno-misleading-indentation)
 endif()
 
