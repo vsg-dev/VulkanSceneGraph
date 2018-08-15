@@ -5,8 +5,8 @@
 namespace vsg
 {
 
-CommandPool::CommandPool(VkCommandPool CommandPool, Device* device, AllocationCallbacks* allocator) :
-    _commandPool(CommandPool),
+CommandPool::CommandPool(VkCommandPool commandPool, Device* device, AllocationCallbacks* allocator) :
+    _commandPool(commandPool),
     _device(device),
     _allocator(allocator)
 {

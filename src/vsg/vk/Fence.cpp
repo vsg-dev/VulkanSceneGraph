@@ -5,8 +5,8 @@
 namespace vsg
 {
 
-Fence::Fence(VkFence Fence, Device* device, AllocationCallbacks* allocator) :
-    _vkFence(Fence),
+Fence::Fence(VkFence fence, Device* device, AllocationCallbacks* allocator) :
+    _vkFence(fence),
     _device(device),
     _allocator(allocator)
 {

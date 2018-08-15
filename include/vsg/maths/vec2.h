@@ -17,7 +17,7 @@ namespace vsg
         };
 
         tvec2() : value{} {}
-        tvec2(value_type x, value_type y) : value{x, y} {}
+        tvec2(value_type in_x, value_type in_y) : value{in_x, in_y} {}
 
         std::size_t size() const { return 2; }
 

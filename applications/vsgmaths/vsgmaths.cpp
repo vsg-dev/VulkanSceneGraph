@@ -70,8 +70,8 @@ int main(int argc, char** argv)
 
     std::cout<<"n = "<<n<<std::endl;
 
-    vsg::tvec2<int> i(2, 1);
-    std::cout<<"i = "<<i<<std::endl;
+    vsg::tvec2<int> iv(2, 1);
+    std::cout<<"iv = "<<iv<<std::endl;
 
 
     vsg::dvec4 colour(1.0, 0.9, 1.0, 0.5);

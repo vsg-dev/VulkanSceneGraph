@@ -133,11 +133,11 @@ int main(int argc, char** argv)
 
     vsg::ref_ptr<vsg::vec4Array> colours = new vsg::vec4Array();
     colours->resize(20);
-    vsg::vec4 c(0.25, 0.5, 0.75, 1.0);
+    vsg::vec4 colour(0.25, 0.5, 0.75, 1.0);
     for (std::size_t i=0; i<colours->size(); ++i)
     {
-        (*colours)[i] = c;
-        c = vsg::vec4(c.g, c.b, c.a, c.r);
+        (*colours)[i] = colour;
+        colour = vsg::vec4(colour.g, colour.b, colour.a, colour.r);
     }
 
     std::for_each(colours->begin(), colours->end(), [](vsg::vec4& c) {

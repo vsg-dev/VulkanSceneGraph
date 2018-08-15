@@ -8,8 +8,8 @@
 namespace vsg
 {
 
-DeviceMemory::DeviceMemory(VkDeviceMemory DeviceMemory, Device* device, AllocationCallbacks* allocator) :
-    _deviceMemory(DeviceMemory),
+DeviceMemory::DeviceMemory(VkDeviceMemory deviceMemory, Device* device, AllocationCallbacks* allocator) :
+    _deviceMemory(deviceMemory),
     _device(device),
     _allocator(allocator)
 {

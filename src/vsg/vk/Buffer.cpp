@@ -5,8 +5,8 @@
 namespace vsg
 {
 
-Buffer::Buffer(VkBuffer Buffer, VkBufferUsageFlags usage, VkSharingMode sharingMode, Device* device, AllocationCallbacks* allocator) :
-    _buffer(Buffer),
+Buffer::Buffer(VkBuffer buffer, VkBufferUsageFlags usage, VkSharingMode sharingMode, Device* device, AllocationCallbacks* allocator) :
+    _buffer(buffer),
     _usage(usage),
     _sharingMode(sharingMode),
     _device(device),

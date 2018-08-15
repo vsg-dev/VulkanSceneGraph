@@ -5,8 +5,8 @@
 namespace vsg
 {
 
-Image::Image(VkImage Image, Device* device, AllocationCallbacks* allocator) :
-    _image(Image),
+Image::Image(VkImage image, Device* device, AllocationCallbacks* allocator) :
+    _image(image),
     _device(device),
     _allocator(allocator)
 {

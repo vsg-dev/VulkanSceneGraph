@@ -5,8 +5,8 @@
 namespace vsg
 {
 
-Sampler::Sampler(VkSampler Sampler, Device* device, AllocationCallbacks* allocator) :
-    _sampler(Sampler),
+Sampler::Sampler(VkSampler sampler, Device* device, AllocationCallbacks* allocator) :
+    _sampler(sampler),
     _device(device),
     _allocator(allocator)
 {

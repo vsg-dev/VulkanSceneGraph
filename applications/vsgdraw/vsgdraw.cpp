@@ -260,9 +260,9 @@ int main(int argc, char** argv)
     auto startTime =std::chrono::steady_clock::now();
     float time = 0.0f;
 
-    for(auto& window : viewer->windows())
+    for (auto& win : viewer->windows())
     {
-        window->populateCommandBuffers(commandGraph);
+        win->populateCommandBuffers(commandGraph);
     }
 
     while (!viewer->done() && (numFrames<0 || (numFrames--)>0))
