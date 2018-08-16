@@ -37,7 +37,7 @@ GraphicsPipeline::Result GraphicsPipeline::create(Device* device, RenderPass* re
     }
 
     VkPipeline pipeline;
-    VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, *allocator, &pipeline );
+    VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &pipeline );
     if (result == VK_SUCCESS)
     {
         return new GraphicsPipeline(pipeline, device, renderPass, pipelineLayout, pipelineStates, allocator);

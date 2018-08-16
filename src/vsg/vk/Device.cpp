@@ -18,7 +18,7 @@ Device::~Device()
     if (_device)
     {
         std::cout<<"Calling vkDestroyDevice(..)"<<std::endl;
-        vkDestroyDevice(_device, *_allocator);
+        vkDestroyDevice(_device, _allocator);
     }
 }
 
@@ -65,7 +65,7 @@ Device::Result Device::create(PhysicalDevice* physicalDevice, Names& layers, Nam
     createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
 
     VkDevice device;
-    VkResult result = vkCreateDevice(*physicalDevice, &createInfo, *allocator, &device);
+    VkResult result = vkCreateDevice(*physicalDevice, &createInfo, allocator, &device);
     if (result == VK_SUCCESS)
     {
         std::cout<<"Created logical device"<<std::endl;

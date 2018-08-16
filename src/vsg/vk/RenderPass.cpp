@@ -13,6 +13,15 @@ RenderPass::RenderPass(VkRenderPass renderPass, Device* device, AllocationCallba
 {
 }
 
+RenderPass::~RenderPass()
+{
+    if (_renderPass)
+    {
+        std::cout<<"Calling vkDestroyRenderPass"<<std::endl;
+        vkDestroyRenderPass(*_device, _renderPass, _allocator);
+    }
+}
+
 RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator)
 {
     if (!device)
@@ -76,7 +85,7 @@ RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFo
     renderPassInfo.pDependencies = &dependency;
 
     VkRenderPass renderPass;
-    VkResult result = vkCreateRenderPass(*device, &renderPassInfo, *allocator, &renderPass);
+    VkResult result = vkCreateRenderPass(*device, &renderPassInfo, allocator, &renderPass);
 
     if (result == VK_SUCCESS)
     {
@@ -85,15 +94,6 @@ RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFo
     else
     {
         return Result("Error: vsg::RenderPass::create(...) Failed to create VkRenderPass.", result);
-    }
-}
-
-RenderPass::~RenderPass()
-{
-    if (_renderPass)
-    {
-        std::cout<<"Calling vkDestroyRenderPass"<<std::endl;
-        vkDestroyRenderPass(*_device, _renderPass, *_allocator);
     }
 }
 

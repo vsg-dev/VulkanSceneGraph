@@ -36,7 +36,7 @@ ComputePipeline::Result ComputePipeline::create(Device* device, PipelineLayout* 
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
     VkPipeline pipeline;
-    VkResult result = vkCreateComputePipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, *allocator, &pipeline );
+    VkResult result = vkCreateComputePipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &pipeline );
     if (result == VK_SUCCESS)
     {
         return new ComputePipeline(pipeline, device, pipelineLayout, shaderModule, allocator);

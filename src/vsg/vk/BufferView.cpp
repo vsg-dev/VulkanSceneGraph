@@ -18,7 +18,7 @@ BufferView::~BufferView()
     if (_bufferView)
     {
         std::cout<<"Calling vkDestroyBufferView(..)"<<std::endl;
-        vkDestroyBufferView(*_device, _bufferView, *_allocator);
+        vkDestroyBufferView(*_device, _bufferView, _allocator);
     }
 }
 
@@ -37,7 +37,7 @@ BufferView::Result BufferView::create(Buffer* buffer, VkFormat format, VkDeviceS
     createInfo.range = range;
 
     VkBufferView bufferView;
-    VkResult result = vkCreateBufferView(*(buffer->getDevice()), &createInfo, *allocator, &bufferView);
+    VkResult result = vkCreateBufferView(*(buffer->getDevice()), &createInfo, allocator, &bufferView);
     if (result==VK_SUCCESS)
     {
         return new BufferView(bufferView, buffer->getDevice(), buffer, allocator);

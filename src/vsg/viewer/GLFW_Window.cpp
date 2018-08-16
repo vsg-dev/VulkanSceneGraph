@@ -3,6 +3,8 @@
 
 #include <vsg/core/observer_ptr.h>
 
+#include <iostream>
+
 namespace glfw
 {
 

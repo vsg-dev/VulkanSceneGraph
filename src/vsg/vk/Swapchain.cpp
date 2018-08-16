@@ -104,6 +104,16 @@ Swapchain::Swapchain(VkSwapchainKHR swapchain, Device* device, Surface* surface,
 {
 }
 
+Swapchain::~Swapchain()
+{
+    _imageViews.clear();
+
+    if (_swapchain)
+    {
+        std::cout<<"Calling vkDestroySwapchainKHR(..)"<<std::endl;
+        vkDestroySwapchainKHR(*_device, _swapchain, _allocator);
+    }
+}
 
 Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, AllocationCallbacks*  allocator)
 {
@@ -161,7 +171,7 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
     VkSwapchainKHR swapchain;
-    VkResult result = vkCreateSwapchainKHR(*device, &createInfo, *allocator, &swapchain);
+    VkResult result = vkCreateSwapchainKHR(*device, &createInfo, allocator, &swapchain);
     if (result != VK_SUCCESS)
     {
         return Result("Error: Failed to create swap chain.", result);
@@ -184,17 +194,6 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
     }
 
     return sw;
-}
-
-Swapchain::~Swapchain()
-{
-    _imageViews.clear();
-
-    if (_swapchain)
-    {
-        std::cout<<"Calling vkDestroySwapchainKHR(..)"<<std::endl;
-        vkDestroySwapchainKHR(*_device, _swapchain, *_allocator);
-    }
 }
 
 

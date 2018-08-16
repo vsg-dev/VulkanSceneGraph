@@ -17,7 +17,7 @@ DescriptorSetLayout::~DescriptorSetLayout()
     std::cout<<"Calling vkDestroyDescriptorSetLayout "<<_descriptorSetLayout<<std::endl;
     if (_descriptorSetLayout)
     {
-        vkDestroyDescriptorSetLayout(*_device, _descriptorSetLayout, *_allocator);
+        vkDestroyDescriptorSetLayout(*_device, _descriptorSetLayout, _allocator);
     }
 }
 
@@ -34,7 +34,7 @@ DescriptorSetLayout::Result DescriptorSetLayout::create(Device* device, const De
     layoutInfo.pBindings = descriptorSetLayoutBindings.data();
 
     VkDescriptorSetLayout descriptorSetLayout;
-    VkResult result = vkCreateDescriptorSetLayout(*device, &layoutInfo, *allocator, &descriptorSetLayout);
+    VkResult result = vkCreateDescriptorSetLayout(*device, &layoutInfo, allocator, &descriptorSetLayout);
     if (result == VK_SUCCESS)
     {
         return new DescriptorSetLayout(device, descriptorSetLayout, allocator);

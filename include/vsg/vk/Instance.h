@@ -18,7 +18,7 @@ namespace vsg
     class Instance : public vsg::Object
     {
     public:
-        Instance(VkInstance instance, AllocationCallbacks* allocator=nullptr) : _instance(instance), _allocator(allocator) {}
+        Instance(VkInstance instance, AllocationCallbacks* allocator=nullptr);
 
         using Result = vsg::Result<Instance, VkResult, VK_SUCCESS>;
         static Result create(Names& instanceExtensions, Names& layers, AllocationCallbacks* allocator=nullptr);

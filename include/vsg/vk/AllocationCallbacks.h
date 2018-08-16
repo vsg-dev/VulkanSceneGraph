@@ -12,8 +12,6 @@ namespace vsg
         AllocationCallbacks() :
             VkAllocationCallbacks{} {}
 
-        operator VkAllocationCallbacks* () { return (this!=nullptr) ? this : nullptr; }
-
     protected:
 
         virtual ~AllocationCallbacks() {}

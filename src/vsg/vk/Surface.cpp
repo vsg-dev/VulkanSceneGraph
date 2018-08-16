@@ -17,7 +17,7 @@ Surface::~Surface()
     if (_surface)
     {
         std::cout<<"Calling vkDestroySurfaceKHR"<<std::endl;
-        vkDestroySurfaceKHR(*_instance, _surface, *_allocator);
+        vkDestroySurfaceKHR(*_instance, _surface, _allocator);
     }
 }
 

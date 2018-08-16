@@ -17,7 +17,7 @@ Semaphore::~Semaphore()
     if (_semaphore)
     {
         std::cout<<"Calling vkDestroySemaphore"<<std::endl;
-        vkDestroySemaphore(*_device, _semaphore, *_allocator);
+        vkDestroySemaphore(*_device, _semaphore, _allocator);
     }
 }
 
@@ -32,7 +32,7 @@ Semaphore::Result Semaphore::create(Device* device, AllocationCallbacks* allocat
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
     VkSemaphore semaphore;
-    VkResult result = vkCreateSemaphore(*device, &semaphoreInfo, *allocator, &semaphore);
+    VkResult result = vkCreateSemaphore(*device, &semaphoreInfo, allocator, &semaphore);
     if (result == VK_SUCCESS)
     {
         return new Semaphore(semaphore, device, allocator);

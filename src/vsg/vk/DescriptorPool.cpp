@@ -17,7 +17,7 @@ DescriptorPool::~DescriptorPool()
     std::cout<<"Calling vkDestroyDescriptorPool "<<_descriptorPool<<std::endl;
     if (_descriptorPool)
     {
-        vkDestroyDescriptorPool(*_device, _descriptorPool, *_allocator);
+        vkDestroyDescriptorPool(*_device, _descriptorPool, _allocator);
     }
 }
 
@@ -41,7 +41,7 @@ DescriptorPool::Result DescriptorPool::create(Device* device, uint32_t maxSets, 
     poolInfo.flags =VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT; // will we need VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT later?
 
     VkDescriptorPool descriptorPool;
-    VkResult result = vkCreateDescriptorPool(*device, &poolInfo, *allocator, &descriptorPool);
+    VkResult result = vkCreateDescriptorPool(*device, &poolInfo, allocator, &descriptorPool);
     if (result == VK_SUCCESS)
     {
         return new DescriptorPool(descriptorPool, device, allocator);

@@ -19,7 +19,7 @@ ImageView::~ImageView()
     if (_imageView)
     {
         std::cout<<"Calling vkDestroyImageView(..)"<<std::endl;
-        vkDestroyImageView(*_device, _imageView, *_allocator);
+        vkDestroyImageView(*_device, _imageView, _allocator);
     }
 }
 
@@ -39,7 +39,7 @@ ImageView::Result ImageView::create(Device* device, VkImage image, VkFormat form
     createInfo.subresourceRange.layerCount = 1;
 
     VkImageView view;
-    VkResult result = vkCreateImageView(*device, &createInfo, *allocator, &view);
+    VkResult result = vkCreateImageView(*device, &createInfo, allocator, &view);
     if (result==VK_SUCCESS)
     {
         return new ImageView(view, device, nullptr, allocator);
@@ -66,7 +66,7 @@ ImageView::Result ImageView::create(Device* device, Image* image, VkFormat forma
     createInfo.subresourceRange.layerCount = 1;
 
     VkImageView view;
-    VkResult result = vkCreateImageView(*device, &createInfo, *allocator, &view);
+    VkResult result = vkCreateImageView(*device, &createInfo, allocator, &view);
     if (result==VK_SUCCESS)
     {
         return new ImageView(view, device, image, allocator);

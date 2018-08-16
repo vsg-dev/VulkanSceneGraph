@@ -19,7 +19,7 @@ Buffer::~Buffer()
     if (_buffer)
     {
         std::cout<<"Calling vkDestroyBuffer"<<std::endl;
-        vkDestroyBuffer(*_device, _buffer, *_allocator);
+        vkDestroyBuffer(*_device, _buffer, _allocator);
     }
 }
 
@@ -37,7 +37,7 @@ Buffer::Result Buffer::create(Device* device, VkDeviceSize size, VkBufferUsageFl
     bufferInfo.sharingMode = sharingMode;
 
     VkBuffer buffer;
-    VkResult result = vkCreateBuffer(*device, &bufferInfo, *allocator, &buffer);
+    VkResult result = vkCreateBuffer(*device, &bufferInfo, allocator, &buffer);
     if (result == VK_SUCCESS)
     {
         return new Buffer(buffer, usage, sharingMode, device, allocator);

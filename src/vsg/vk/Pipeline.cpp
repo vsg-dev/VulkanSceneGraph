@@ -22,7 +22,7 @@ Pipeline::~Pipeline()
     if (_pipeline)
     {
         std::cout<<"Calling vkDestroyPipeline"<<std::endl;
-        vkDestroyPipeline(*_device, _pipeline, *_allocator);
+        vkDestroyPipeline(*_device, _pipeline, _allocator);
     }
 }
 

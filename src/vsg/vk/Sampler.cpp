@@ -17,7 +17,7 @@ Sampler::~Sampler()
     if (_sampler)
     {
         std::cout<<"Calling vkDestroySampler"<<std::endl;
-        vkDestroySampler(*_device, _sampler, *_allocator);
+        vkDestroySampler(*_device, _sampler, _allocator);
     }
 }
 
@@ -29,7 +29,7 @@ Sampler::Result Sampler::create(Device* device, const VkSamplerCreateInfo& creat
     }
 
     VkSampler sampler;
-    VkResult result = vkCreateSampler(*device, &createSamplerInfo, *allocator, &sampler);
+    VkResult result = vkCreateSampler(*device, &createSamplerInfo, allocator, &sampler);
     if (result == VK_SUCCESS)
     {
         return new Sampler(sampler, device, allocator);

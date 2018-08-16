@@ -17,7 +17,7 @@ Framebuffer::~Framebuffer()
     if (_framebuffer)
     {
         std::cout<<"Calling vkDestroyFramebuffer"<<std::endl;
-        vkDestroyFramebuffer(*_device, _framebuffer, *_allocator);
+        vkDestroyFramebuffer(*_device, _framebuffer, _allocator);
     }
 }
 
@@ -29,7 +29,7 @@ Framebuffer::Result Framebuffer::create(Device* device, VkFramebufferCreateInfo&
     }
 
     VkFramebuffer framebuffer;
-    VkResult result = vkCreateFramebuffer(*device,&framebufferInfo, *allocator, &framebuffer);
+    VkResult result = vkCreateFramebuffer(*device,&framebufferInfo, allocator, &framebuffer);
     if (result == VK_SUCCESS)
     {
         return new Framebuffer(framebuffer, device, allocator);

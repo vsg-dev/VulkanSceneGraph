@@ -3,8 +3,6 @@
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/Fence.h>
 
-#include <iostream>
-
 namespace vsg
 {
 
@@ -52,14 +50,17 @@ namespace vsg
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = commandBuffer->data();
 
-        vkQueueSubmit(queue, 1, &submitInfo, *fence);
-
         // we must wait for the queue to empty before we can safely clean up the commandBuffer
         if (fence)
         {
+            vkQueueSubmit(queue, 1, &submitInfo, *fence);
             fence->wait(timeout);
         }
-        else vkQueueWaitIdle(queue);
+        else
+        {
+            vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+            vkQueueWaitIdle(queue);
+        }
     }
 
 

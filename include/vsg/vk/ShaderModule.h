@@ -46,7 +46,7 @@ namespace vsg
             createInfo.pCode = reinterpret_cast<const uint32_t*>(shader.data());
 
             VkShaderModule shaderModule;
-            VkResult result = vkCreateShaderModule(*device, &createInfo, *allocator, &shaderModule);
+            VkResult result = vkCreateShaderModule(*device, &createInfo, allocator, &shaderModule);
             if (result == VK_SUCCESS)
             {
                 return new ShaderModule(stage, entryPointName, shaderModule, device, allocator);

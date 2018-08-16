@@ -18,7 +18,7 @@ PipelineLayout::~PipelineLayout()
     if (_pipelineLayout)
     {
         std::cout<<"Calling vkDestroyPipelineLayout"<<std::endl;
-        vkDestroyPipelineLayout(*_device, _pipelineLayout, *_allocator);
+        vkDestroyPipelineLayout(*_device, _pipelineLayout, _allocator);
     }
 }
 
@@ -42,7 +42,7 @@ PipelineLayout::Result PipelineLayout::create(Device* device, const DescriptorSe
 
 
     VkPipelineLayout pipelineLayout;
-    VkResult result = vkCreatePipelineLayout(*device, &pipelineLayoutInfo, *allocator, &pipelineLayout);
+    VkResult result = vkCreatePipelineLayout(*device, &pipelineLayoutInfo, allocator, &pipelineLayout);
     if (result == VK_SUCCESS)
     {
         return new PipelineLayout(pipelineLayout, descriptorSetLayouts, device, allocator);

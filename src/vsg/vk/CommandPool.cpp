@@ -12,6 +12,15 @@ CommandPool::CommandPool(VkCommandPool commandPool, Device* device, AllocationCa
 {
 }
 
+CommandPool::~CommandPool()
+{
+    if (_commandPool)
+    {
+        std::cout<<"Calling vkDestroyCommandPool"<<std::endl;
+        vkDestroyCommandPool(*_device, _commandPool, _allocator);
+    }
+}
+
 CommandPool::Result CommandPool::create(Device* device, uint32_t queueFamilyIndex, AllocationCallbacks* allocator)
 {
     if (!device)
@@ -28,7 +37,7 @@ CommandPool::Result CommandPool::create(Device* device, uint32_t queueFamilyInde
 
 
     VkCommandPool commandPool;
-    VkResult result = vkCreateCommandPool(*device, &poolInfo, *allocator, &commandPool);
+    VkResult result = vkCreateCommandPool(*device, &poolInfo, allocator, &commandPool);
     if (result == VK_SUCCESS)
     {
         return new CommandPool(commandPool, device, allocator);
@@ -36,15 +45,6 @@ CommandPool::Result CommandPool::create(Device* device, uint32_t queueFamilyInde
     else
     {
         return Result("Error: Failed to create command pool.", result);
-    }
-}
-
-CommandPool::~CommandPool()
-{
-    if (_commandPool)
-    {
-        std::cout<<"Calling vkDestroyCommandPool"<<std::endl;
-        vkDestroyCommandPool(*_device, _commandPool, *_allocator);
     }
 }
 

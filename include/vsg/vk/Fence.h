@@ -14,7 +14,7 @@ namespace vsg
 
         VkResult wait(uint64_t timeout) const { return vkWaitForFences(*_device, 1, &_vkFence, VK_TRUE, timeout); }
 
-        operator VkFence() const{ return (this!=nullptr) ? _vkFence : VK_NULL_HANDLE; }
+        operator VkFence() const { return _vkFence; }
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }

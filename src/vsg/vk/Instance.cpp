@@ -42,8 +42,42 @@ Names validateInstancelayerNames(const Names& names)
     return validatedNames;
 }
 
+Instance::Instance(VkInstance instance, AllocationCallbacks* allocator) :
+    _instance(instance),
+    _allocator(allocator)
+{
+}
+
+Instance::~Instance()
+{
+    if (_instance)
+    {
+        std::cout<<"Calling vkDestroyInstance"<<std::endl;
+        vkDestroyInstance(_instance, _allocator);
+    }
+}
+
 Instance::Result Instance::create(Names& instanceExtensions, Names& layers, AllocationCallbacks* allocator)
 {
+    std::cout<<"Instance::create()"<<std::endl;
+    std::cout<<"instanceExtensions : "<<std::endl;
+    for(auto & name : instanceExtensions)
+    {
+        std::cout<<"    "<<name<<std::endl;
+    }
+
+    std::cout<<"layers : "<<std::endl;
+    for(auto & name : layers)
+    {
+        std::cout<<"    "<<name<<std::endl;
+    }
+
+    VkAllocationCallbacks* ac = (allocator != nullptr) ? allocator : nullptr;
+    std::cout<<"allocator : "<<allocator<<std::endl;
+    std::cout<<"VkAllocationCallbacks* : "<<ac<<std::endl;
+
+    ac = nullptr;
+
     // applictin info
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -62,8 +96,9 @@ Instance::Result Instance::create(Names& instanceExtensions, Names& layers, Allo
     createInfo.enabledLayerCount = layers.size();
     createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
 
+
     VkInstance instance;
-    VkResult result = vkCreateInstance(&createInfo, *allocator, &instance);
+    VkResult result = vkCreateInstance(&createInfo, allocator, &instance);
     if (result == VK_SUCCESS)
     {
         std::cout<<"Created VkInstance"<<std::endl;
@@ -72,15 +107,6 @@ Instance::Result Instance::create(Names& instanceExtensions, Names& layers, Allo
     else
     {
         return Result("Error: vsg::Instance::create(...) failed to create VkInstance.", result);
-    }
-}
-
-Instance::~Instance()
-{
-    if (_instance)
-    {
-        std::cout<<"Calling vkDestroyInstance"<<std::endl;
-        vkDestroyInstance(_instance, *_allocator);
     }
 }
 

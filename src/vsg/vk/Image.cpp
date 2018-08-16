@@ -17,7 +17,7 @@ Image::~Image()
     if (_image)
     {
         std::cout<<"Calling vkDestroyImage"<<std::endl;
-        vkDestroyImage(*_device, _image, *_allocator);
+        vkDestroyImage(*_device, _image, _allocator);
     }
 }
 
@@ -29,7 +29,7 @@ Image::Result Image::create(Device* device, const VkImageCreateInfo& createImage
     }
 
     VkImage image;
-    VkResult result = vkCreateImage(*device, &createImageInfo, *allocator, &image);
+    VkResult result = vkCreateImage(*device, &createImageInfo, allocator, &image);
     if (result == VK_SUCCESS)
     {
         return new Image(image, device, allocator);

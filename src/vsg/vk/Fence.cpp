@@ -17,7 +17,7 @@ Fence::~Fence()
     if (_vkFence)
     {
         std::cout<<"Calling vkDestroyFence"<<std::endl;
-        vkDestroyFence(*_device, _vkFence, *_allocator);
+        vkDestroyFence(*_device, _vkFence, _allocator);
     }
 }
 
@@ -33,7 +33,7 @@ Fence::Result Fence::create(Device* device, VkFenceCreateFlags flags, Allocation
     createFenceInfo.flags = flags;
 
     VkFence fence;
-    VkResult result = vkCreateFence(*device, &createFenceInfo, *allocator, &fence);
+    VkResult result = vkCreateFence(*device, &createFenceInfo, allocator, &fence);
     if (result == VK_SUCCESS)
     {
         return new Fence(fence, device, allocator);
