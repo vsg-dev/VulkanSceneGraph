@@ -1,7 +1,5 @@
 #include <vsg/vk/CommandBuffer.h>
 
-#include <iostream>
-
 namespace vsg
 {
 
@@ -17,7 +15,6 @@ CommandBuffer::~CommandBuffer()
 {
     if (_commandBuffer)
     {
-        std::cout<<"Calling vkFreeCommandBuffers(..., _commandBuffer="<<_commandBuffer<<")"<<std::endl;
         vkFreeCommandBuffers((*_device), (*_commandPool), 1, &_commandBuffer);
     }
 }
@@ -88,7 +85,6 @@ CommandBuffers::~CommandBuffers()
 {
     if (!_buffers.empty())
     {
-        std::cout<<"Calling vkFreeCommandBuffers"<<std::endl;
         vkFreeCommandBuffers(*_device, *_commandPool, static_cast<uint32_t>(_buffers.size()), _buffers.data());
     }
 }

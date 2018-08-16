@@ -2,7 +2,6 @@
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/Image.h>
 
-#include <iostream>
 #include <cstring>
 
 namespace vsg
@@ -19,7 +18,6 @@ DeviceMemory::~DeviceMemory()
 {
     if (_deviceMemory)
     {
-        std::cout<<"Calling vkFreeMemory"<<std::endl;
         vkFreeMemory(*_device, _deviceMemory, _allocator);
     }
 }
@@ -51,8 +49,6 @@ DeviceMemory::Result DeviceMemory::create(Device* device, const VkMemoryRequirem
     allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocateInfo.allocationSize = memRequirements.size;
     allocateInfo.memoryTypeIndex = memoryTypeIndex;
-
-    std::cout<<"vkAllocateMemory(...) allocateInfo.allocationSize="<<allocateInfo.allocationSize<<std::endl;
 
     VkDeviceMemory deviceMemory;
     VkResult result = vkAllocateMemory(*device, &allocateInfo, allocator, &deviceMemory);
@@ -97,8 +93,6 @@ void DeviceMemory::unmap()
 void DeviceMemory::copy(VkDeviceSize offset, VkDeviceSize size, void* src_data)
 {
     // should we have checks against buffer having enough memory for copied data?
-
-    std::cout<<"DeviceMemory::copy("<<offset<<", "<<size<<", "<<src_data<<")"<<std::endl;
 
     void* buffer_data;
     map(offset, size, 0, &buffer_data);

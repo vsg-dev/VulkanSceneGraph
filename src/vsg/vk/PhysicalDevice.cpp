@@ -1,7 +1,5 @@
 #include <vsg/vk/PhysicalDevice.h>
 
-#include <iostream>
-
 namespace vsg
 {
 
@@ -29,15 +27,10 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags q
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(*instance, &deviceCount, devices.data());
 
-    std::cout<<"PhysicalDevice::create(...) deviceCount="<<deviceCount<<std::endl;
-
     for (const auto& device : devices)
     {
         VkPhysicalDeviceFeatures supportedFeatures;
         vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
-
-        std::cout<<"supportedFeatures.samplerAnisotropy = "<<supportedFeatures.samplerAnisotropy<<std::endl;
-
 
         // Checked the DeviceQueueFamilyProperties for support for graphics
         uint32_t queueFamilyCount = 0;
@@ -80,12 +73,7 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags q
 
         if (((matchedQueues & queueFlags)==queueFlags) && (surface==nullptr || presentFamily>=0))
         {
-            std::cout<<"   created PhysicalDevice, matchedQueues="<<matchedQueues<<std::endl;
             return new PhysicalDevice(instance, device, graphicsFamily, presentFamily, computeFamily, surface);
-        }
-        else
-        {
-            std::cout<<"   PhysicalDevice doesn't have required queue supoort matchedQueues="<<matchedQueues<<std::endl;
         }
     }
 
@@ -94,7 +82,6 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags q
 
 PhysicalDevice::~PhysicalDevice()
 {
-    std::cout<<"PhysicalDevice()::~PhysicalDevice()"<<std::endl;
 }
 
 }

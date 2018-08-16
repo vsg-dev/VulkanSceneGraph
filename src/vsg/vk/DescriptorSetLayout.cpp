@@ -1,7 +1,5 @@
 #include <vsg/vk/DescriptorSetLayout.h>
 
-#include <iostream>
-
 namespace vsg
 {
 
@@ -14,7 +12,6 @@ DescriptorSetLayout::DescriptorSetLayout(Device* device, VkDescriptorSetLayout d
 
 DescriptorSetLayout::~DescriptorSetLayout()
 {
-    std::cout<<"Calling vkDestroyDescriptorSetLayout "<<_descriptorSetLayout<<std::endl;
     if (_descriptorSetLayout)
     {
         vkDestroyDescriptorSetLayout(*_device, _descriptorSetLayout, _allocator);

@@ -1,7 +1,5 @@
 #include <vsg/vk/Framebuffer.h>
 
-#include <iostream>
-
 namespace vsg
 {
 
@@ -16,7 +14,6 @@ Framebuffer::~Framebuffer()
 {
     if (_framebuffer)
     {
-        std::cout<<"Calling vkDestroyFramebuffer"<<std::endl;
         vkDestroyFramebuffer(*_device, _framebuffer, _allocator);
     }
 }

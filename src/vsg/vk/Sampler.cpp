@@ -1,7 +1,5 @@
 #include <vsg/vk/Sampler.h>
 
-#include <iostream>
-
 namespace vsg
 {
 
@@ -16,7 +14,6 @@ Sampler::~Sampler()
 {
     if (_sampler)
     {
-        std::cout<<"Calling vkDestroySampler"<<std::endl;
         vkDestroySampler(*_device, _sampler, _allocator);
     }
 }

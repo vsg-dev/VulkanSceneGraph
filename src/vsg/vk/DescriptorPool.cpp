@@ -1,7 +1,5 @@
 #include <vsg/vk/DescriptorPool.h>
 
-#include <iostream>
-
 namespace vsg
 {
 
@@ -14,7 +12,6 @@ DescriptorPool::DescriptorPool(VkDescriptorPool descriptorPool, Device* device, 
 
 DescriptorPool::~DescriptorPool()
 {
-    std::cout<<"Calling vkDestroyDescriptorPool "<<_descriptorPool<<std::endl;
     if (_descriptorPool)
     {
         vkDestroyDescriptorPool(*_device, _descriptorPool, _allocator);

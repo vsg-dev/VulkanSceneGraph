@@ -5,7 +5,7 @@
 #include <vsg/maths/vec4.h>
 #include <vsg/maths/mat4.h>
 
-#include <iostream>
+#include <ostream>
 #include <sstream>
 
 namespace vsg

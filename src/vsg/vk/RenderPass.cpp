@@ -1,6 +1,5 @@
 #include <vsg/vk/RenderPass.h>
 
-#include <iostream>
 #include <array>
 
 namespace vsg
@@ -17,7 +16,6 @@ RenderPass::~RenderPass()
 {
     if (_renderPass)
     {
-        std::cout<<"Calling vkDestroyRenderPass"<<std::endl;
         vkDestroyRenderPass(*_device, _renderPass, _allocator);
     }
 }

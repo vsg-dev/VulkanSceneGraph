@@ -1,7 +1,5 @@
 #include <vsg/vk/ComputePipeline.h>
 
-#include <iostream>
-
 namespace vsg
 {
 

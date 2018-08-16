@@ -1,7 +1,5 @@
 #include <vsg/vk/Semaphore.h>
 
-#include <iostream>
-
 namespace vsg
 {
 
@@ -16,7 +14,6 @@ Semaphore::~Semaphore()
 {
     if (_semaphore)
     {
-        std::cout<<"Calling vkDestroySemaphore"<<std::endl;
         vkDestroySemaphore(*_device, _semaphore, _allocator);
     }
 }

@@ -1,7 +1,5 @@
 #include <vsg/vk/GraphicsPipeline.h>
 
-#include <iostream>
-
 namespace vsg
 {
 
@@ -60,7 +58,6 @@ ShaderStages::ShaderStages(const ShaderModules& shaderModules)
 
 ShaderStages::~ShaderStages()
 {
-    std::cout<<"~ShaderStages()"<<std::endl;
 }
 
 void ShaderStages::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
@@ -110,7 +107,6 @@ VertexInputState::VertexInputState(const Bindings& bindings, const Attributes& a
 
 VertexInputState::~VertexInputState()
 {
-    std::cout<<"~VertexInputState()"<<std::endl;
 }
 
 void VertexInputState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
@@ -134,7 +130,6 @@ InputAssemblyState::InputAssemblyState() :
 
 InputAssemblyState::~InputAssemblyState()
 {
-    std::cout<<"~InputAssemblyState()"<<std::endl;
 }
 
 void InputAssemblyState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
@@ -169,7 +164,6 @@ ViewportState::ViewportState(const VkExtent2D& extent) :
 
 ViewportState::~ViewportState()
 {
-    std::cout<<"~ViewportState()"<<std::endl;
 }
 
 void ViewportState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
@@ -197,7 +191,6 @@ RasterizationState::RasterizationState() :
 
 RasterizationState::~RasterizationState()
 {
-    std::cout<<"~RasterizationState()"<<std::endl;
 }
 
 void RasterizationState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
@@ -220,7 +213,6 @@ MultisampleState::MultisampleState() :
 
 MultisampleState::~MultisampleState()
 {
-    std::cout<<"~MultisampleState()"<<std::endl;
 }
 
 void MultisampleState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
@@ -246,7 +238,6 @@ DepthStencilState::DepthStencilState() :
 
 DepthStencilState::~DepthStencilState()
 {
-    std::cout<<"~DepthStencilState()"<<std::endl;
 }
 
 void DepthStencilState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
@@ -285,7 +276,6 @@ ColorBlendState::ColorBlendState() :
 
 ColorBlendState::~ColorBlendState()
 {
-    std::cout<<"~ColorBlendState()"<<std::endl;
 }
 
 void ColorBlendState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const

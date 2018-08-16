@@ -1,7 +1,5 @@
 #include <vsg/vk/CommandPool.h>
 
-#include <iostream>
-
 namespace vsg
 {
 
@@ -16,7 +14,6 @@ CommandPool::~CommandPool()
 {
     if (_commandPool)
     {
-        std::cout<<"Calling vkDestroyCommandPool"<<std::endl;
         vkDestroyCommandPool(*_device, _commandPool, _allocator);
     }
 }

@@ -1,7 +1,5 @@
 #include <vsg/vk/BufferView.h>
 
-#include <iostream>
-
 namespace vsg
 {
 
@@ -17,7 +15,6 @@ BufferView::~BufferView()
 {
     if (_bufferView)
     {
-        std::cout<<"Calling vkDestroyBufferView(..)"<<std::endl;
         vkDestroyBufferView(*_device, _bufferView, _allocator);
     }
 }

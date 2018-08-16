@@ -1,7 +1,5 @@
 #include <vsg/core/Auxiliary.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 Auxiliary::Auxiliary() :

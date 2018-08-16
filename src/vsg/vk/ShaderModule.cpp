@@ -16,7 +16,6 @@ ShaderModule::~ShaderModule()
 {
     if (_shaderModule)
     {
-        std::cout<<"Calling vkDestroyShaderModule()"<<std::endl;
         vkDestroyShaderModule(*_device, _shaderModule, _allocator);
     }
 }

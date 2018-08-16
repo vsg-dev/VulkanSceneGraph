@@ -2,15 +2,12 @@
 #include <vsg/core/Visitor.h>
 #include <vsg/core/Auxiliary.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 Object::Object() :
     _referenceCount(0),
     _auxiliary(nullptr)
 {
-//    std::cout<<"Object::Object() "<<this<<std::endl;
 }
 
 Object::~Object()
@@ -25,12 +22,10 @@ Object::~Object()
 void Object::ref() const
 {
     ++_referenceCount;
-//    std::cout<<"Object::ref() "<<this<<" "<<_referenceCount.load()<<std::endl;
 }
 
 void Object::unref() const
 {
-//    std::cout<<"Object::unref() "<<this<<" "<<_referenceCount.load()<<std::endl;
     if (_referenceCount.fetch_sub(1)<=1)
     {
         // what should happen when unref() called on an Object with ref() of zero?  Need to decide whether this buggy application usage should be tested for.
@@ -53,7 +48,6 @@ void Object::unref() const
 
 void Object::unref_nodelete() const
 {
-//    std::cout<<"Object::unref_nodelete() "<<this<<" "<<_referenceCount.load()<<std::endl;
     --_referenceCount;
 }
 

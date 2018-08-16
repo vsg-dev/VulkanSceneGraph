@@ -1,7 +1,5 @@
 #include <vsg/vk/ImageView.h>
 
-#include <iostream>
-
 namespace vsg
 {
 
@@ -11,22 +9,18 @@ ImageView::ImageView(VkImageView imageView, Device* device, Image* image, Alloca
     _image(image),
     _allocator(allocator)
 {
-    std::cout<<"ImageView() with image="<<image<<std::endl;
 }
 
 ImageView::~ImageView()
 {
     if (_imageView)
     {
-        std::cout<<"Calling vkDestroyImageView(..)"<<std::endl;
         vkDestroyImageView(*_device, _imageView, _allocator);
     }
 }
 
 ImageView::Result ImageView::create(Device* device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator)
 {
-    std::cout<<"ImageView::Result ImageView::create(Device* device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator)"<<std::endl;
-
     VkImageViewCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     createInfo.image = image;
@@ -52,8 +46,6 @@ ImageView::Result ImageView::create(Device* device, VkImage image, VkFormat form
 
 ImageView::Result ImageView::create(Device* device, Image* image, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator)
 {
-    std::cout<<"ImageView::Result ImageView::create(Device* device, Image* image, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator)"<<std::endl;
-
     VkImageViewCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     createInfo.image = *image;

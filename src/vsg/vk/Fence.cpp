@@ -1,7 +1,5 @@
 #include <vsg/vk/Fence.h>
 
-#include <iostream>
-
 namespace vsg
 {
 
@@ -16,7 +14,6 @@ Fence::~Fence()
 {
     if (_vkFence)
     {
-        std::cout<<"Calling vkDestroyFence"<<std::endl;
         vkDestroyFence(*_device, _vkFence, _allocator);
     }
 }

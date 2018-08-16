@@ -1,7 +1,5 @@
 #include <vsg/vk/Buffer.h>
 
-#include <iostream>
-
 namespace vsg
 {
 
@@ -18,7 +16,6 @@ Buffer::~Buffer()
 {
     if (_buffer)
     {
-        std::cout<<"Calling vkDestroyBuffer"<<std::endl;
         vkDestroyBuffer(*_device, _buffer, _allocator);
     }
 }

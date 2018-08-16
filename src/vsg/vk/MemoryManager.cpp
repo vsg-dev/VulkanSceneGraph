@@ -2,7 +2,6 @@
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/Image.h>
 
-#include <iostream>
 #include <cstring>
 
 // Useful links:

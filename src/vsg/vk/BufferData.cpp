@@ -1,8 +1,6 @@
 #include <vsg/vk/BufferData.h>
 #include <vsg/vk/CommandBuffer.h>
 
-#include <iostream>
-
 namespace vsg
 {
 

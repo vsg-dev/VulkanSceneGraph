@@ -5,8 +5,6 @@
 #include <vsg/vk/ImageView.h>
 #include <vsg/vk/BufferView.h>
 
-#include <iostream>
-
 namespace vsg
 {
 

@@ -2,7 +2,6 @@
 
 #include <array>
 
-#include <iostream>
 #include <typeinfo>
 
 namespace vsg
@@ -34,19 +33,16 @@ CommandVisitor::CommandVisitor(Framebuffer* framebuffer, RenderPass* renderPass,
 
 void CommandVisitor::apply(Object& object)
 {
-    std::cout<<"Visiting internal object : "<<typeid(object).name()<<std::endl;
     object.traverse(*this);
 }
 
 void CommandVisitor::apply(Node& object)
 {
-    std::cout<<"Visiting internal node : "<<typeid(object).name()<<std::endl;
     object.traverse(*this);
 }
 
 void CommandVisitor::apply(Command& cmd)
 {
-    std::cout<<"Visiting leaf node : "<<typeid(cmd).name()<<std::endl;
     cmd.dispatch(_commandBuffer);
 }
 

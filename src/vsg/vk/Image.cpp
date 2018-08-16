@@ -1,7 +1,5 @@
 #include <vsg/vk/Image.h>
 
-#include <iostream>
-
 namespace vsg
 {
 
@@ -16,7 +14,6 @@ Image::~Image()
 {
     if (_image)
     {
-        std::cout<<"Calling vkDestroyImage"<<std::endl;
         vkDestroyImage(*_device, _image, _allocator);
     }
 }
@@ -68,14 +65,6 @@ ImageMemoryBarrier::~ImageMemoryBarrier()
 
 void ImageMemoryBarrier::cmdPiplineBarrier(VkCommandBuffer commandBuffer, VkPipelineStageFlags sourceStage, VkPipelineStageFlags destinationStage)
 {
-    std::cout<<"vkCmdPipelineBarrier("<<std::endl;
-    std::cout<<"    sourceStage = "<<sourceStage<<std::endl;
-    std::cout<<"    destinationStage="<<destinationStage<<std::endl;
-    std::cout<<"    srcAccessMask = 0x"<<std::hex<<srcAccessMask<<std::endl;
-    std::cout<<"    dstAccessMask = 0x"<<dstAccessMask<<std::endl;
-    std::cout<<"    oldLayout = "<<std::dec<<oldLayout<<std::endl;
-    std::cout<<"    newLayout = "<<newLayout<<std::endl;
-
     vkCmdPipelineBarrier(commandBuffer,
                         sourceStage, destinationStage,
                         0,

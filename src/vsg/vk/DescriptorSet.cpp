@@ -1,7 +1,5 @@
 #include <vsg/vk/DescriptorSet.h>
 
-#include <iostream>
-
 namespace vsg
 {
 
@@ -16,7 +14,6 @@ DescriptorSet::DescriptorSet(VkDescriptorSet descriptorSet, Device* device, Desc
 
 DescriptorSet::~DescriptorSet()
 {
-    std::cout<<"Calling vkFreeDescriptorSets "<<_descriptorSet<<std::endl;
     if (_descriptorSet)
     {
         vkFreeDescriptorSets(*_device, *_descriptorPool, 1, &_descriptorSet);
@@ -42,7 +39,6 @@ DescriptorSet::Result DescriptorSet::create(Device* device, DescriptorPool* desc
     VkResult result = vkAllocateDescriptorSets(*device, &descriptSetAllocateInfo, &descriptorSet);
     if (result == VK_SUCCESS)
     {
-        std::cout<<"Creating DescriptorSet "<<descriptorSet<<std::endl;
         return new DescriptorSet(descriptorSet, device, descriptorPool, descriptorSetLayout, descriptors);
     }
     else

@@ -1,7 +1,5 @@
 #include <vsg/vk/Pipeline.h>
 
-#include <iostream>
-
 namespace vsg
 {
 
@@ -21,7 +19,6 @@ Pipeline::~Pipeline()
 {
     if (_pipeline)
     {
-        std::cout<<"Calling vkDestroyPipeline"<<std::endl;
         vkDestroyPipeline(*_device, _pipeline, _allocator);
     }
 }

@@ -2,7 +2,6 @@
 
 #include <vsg/vk/Device.h>
 #include <fstream>
-#include <iostream>
 
 namespace vsg
 {
