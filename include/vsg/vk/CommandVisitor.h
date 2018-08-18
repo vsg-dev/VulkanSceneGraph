@@ -16,11 +16,11 @@ namespace vsg
 
         ref_ptr<Framebuffer>    _framebuffer;
         ref_ptr<RenderPass>     _renderPass;
-        VkCommandBuffer         _commandBuffer;
+        ref_ptr<CommandBuffer>  _commandBuffer;
         VkExtent2D              _extent;
         VkClearColorValue       _clearColor;
 
-        CommandVisitor(Framebuffer* framebuffer, RenderPass* renderPass, VkCommandBuffer commandBuffer, const VkExtent2D& extent, const VkClearColorValue& clearColor);
+        CommandVisitor(Framebuffer* framebuffer, RenderPass* renderPass, CommandBuffer* commandBuffer, const VkExtent2D& extent, const VkClearColorValue& clearColor);
 
         void apply(Object& object);
 

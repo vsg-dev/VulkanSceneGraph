@@ -146,7 +146,7 @@ void Window::populateCommandBuffers(vsg::Node* commandGraph)
 {
     for(auto& frame : _frames)
     {
-        CommandVisitor cv(frame.framebuffer, _renderPass, *frame.commandBuffer, _extent2D, _clearColor);
+        CommandVisitor cv(frame.framebuffer, _renderPass, frame.commandBuffer, _extent2D, _clearColor);
         cv.populateCommandBuffer(commandGraph);
     }
 }

@@ -16,10 +16,12 @@ namespace vsg
 
         VkCommandBufferUsageFlags flags() const { return _flags; }
 
-        std::size_t size() const { return 1; }
         const VkCommandBuffer* data() const { return &_commandBuffer; }
 
         operator VkCommandBuffer () const { return _commandBuffer; }
+
+        Device* getDevice() { return _device; }
+        const Device* getDevice() const { return _device; }
 
     protected:
         virtual ~CommandBuffer();

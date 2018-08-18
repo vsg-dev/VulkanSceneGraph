@@ -47,7 +47,7 @@ namespace vsg
             update();
         }
 
-        virtual void dispatch(VkCommandBuffer commandBuffer) const
+        virtual void dispatch(CommandBuffer& commandBuffer) const
         {
             vkCmdBindDescriptorSets(commandBuffer, _bindPoint, *_pipelineLayout, 0, _vkDescriptorSets.size(), _vkDescriptorSets.data(), 0, nullptr);
         }

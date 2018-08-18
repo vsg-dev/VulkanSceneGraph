@@ -32,7 +32,7 @@ namespace vsg
             _offsets.push_back(offset);
         }
 
-        virtual void dispatch(VkCommandBuffer commandBuffer) const
+        virtual void dispatch(CommandBuffer& commandBuffer) const
         {
             vkCmdBindVertexBuffers(commandBuffer, _firstBinding, _buffers.size(), _vkBuffers.data(), _offsets.data());
         }

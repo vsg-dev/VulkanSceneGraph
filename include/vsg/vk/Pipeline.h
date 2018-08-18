@@ -18,7 +18,7 @@ namespace vsg
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
-        virtual void dispatch(VkCommandBuffer commandBuffer) const
+        virtual void dispatch(CommandBuffer& commandBuffer) const
         {
             vkCmdBindPipeline(commandBuffer, _bindPoint, _pipeline);
         }

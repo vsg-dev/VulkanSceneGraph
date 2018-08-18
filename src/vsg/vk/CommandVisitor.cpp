@@ -22,7 +22,7 @@ struct StoreAndRestore
 
 
 
-CommandVisitor::CommandVisitor(Framebuffer* framebuffer, RenderPass* renderPass, VkCommandBuffer commandBuffer, const VkExtent2D& extent, const VkClearColorValue& clearColor) :
+CommandVisitor::CommandVisitor(Framebuffer* framebuffer, RenderPass* renderPass, CommandBuffer* commandBuffer, const VkExtent2D& extent, const VkClearColorValue& clearColor) :
     _framebuffer(framebuffer),
     _renderPass(renderPass),
     _commandBuffer(commandBuffer),
@@ -43,7 +43,7 @@ void CommandVisitor::apply(Node& object)
 
 void CommandVisitor::apply(Command& cmd)
 {
-    cmd.dispatch(_commandBuffer);
+    cmd.dispatch(*_commandBuffer);
 }
 
 void CommandVisitor::populateCommandBuffer(vsg::Node* subgraph)
@@ -53,7 +53,7 @@ void CommandVisitor::populateCommandBuffer(vsg::Node* subgraph)
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
     // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
 
-    vkBeginCommandBuffer(_commandBuffer, &beginInfo);
+    vkBeginCommandBuffer(*_commandBuffer, &beginInfo);
 
         VkRenderPassBeginInfo renderPassInfo = {};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -68,13 +68,13 @@ void CommandVisitor::populateCommandBuffer(vsg::Node* subgraph)
 
         renderPassInfo.clearValueCount = clearValues.size();
         renderPassInfo.pClearValues = clearValues.data();
-        vkCmdBeginRenderPass(_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(*_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
             subgraph->accept(*this);
 
-        vkCmdEndRenderPass(_commandBuffer);
+        vkCmdEndRenderPass(*_commandBuffer);
 
-    vkEndCommandBuffer(_commandBuffer);
+    vkEndCommandBuffer(*_commandBuffer);
 }
 
 }

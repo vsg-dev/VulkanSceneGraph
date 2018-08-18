@@ -3,6 +3,7 @@
 #include <vulkan/vulkan.h>
 
 #include <vsg/nodes/Node.h>
+#include <vsg/vk/CommandBuffer.h>
 
 namespace vsg
 {
@@ -13,6 +14,6 @@ namespace vsg
 
         virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 
-        virtual void dispatch(VkCommandBuffer commandBuffer) const = 0;
+        virtual void dispatch(CommandBuffer& commandBuffer) const = 0;
     };
 }

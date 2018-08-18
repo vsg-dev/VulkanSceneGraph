@@ -18,7 +18,7 @@ namespace vsg
 
         virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 
-        virtual void dispatch(VkCommandBuffer commandBuffer) const
+        virtual void dispatch(CommandBuffer& commandBuffer) const
         {
             vkCmdBindIndexBuffer(commandBuffer, *_bufferData._buffer, _bufferData._offset, _indexType);
         }

@@ -20,7 +20,7 @@ namespace vsg
 
         virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 
-        virtual void dispatch(VkCommandBuffer commandBuffer) const
+        virtual void dispatch(CommandBuffer& commandBuffer) const
         {
             vkCmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
         }
@@ -43,7 +43,7 @@ namespace vsg
 
         virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 
-        virtual void dispatch(VkCommandBuffer commandBuffer) const
+        virtual void dispatch(CommandBuffer& commandBuffer) const
         {
             vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
         }

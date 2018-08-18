@@ -126,7 +126,7 @@ int main(int argc, char** argv)
     auto startTime =std::chrono::steady_clock::now();
 
     // dispatch commands
-    vsg::dispatchCommandsToQueue(device, commandPool, fence, 100000000000, computeQueue, [&](VkCommandBuffer commandBuffer)
+    vsg::dispatchCommandsToQueue(device, commandPool, fence, 100000000000, computeQueue, [&](vsg::CommandBuffer& commandBuffer)
     {
         pipeline->dispatch(commandBuffer);
         bindDescriptorSets->dispatch(commandBuffer);
