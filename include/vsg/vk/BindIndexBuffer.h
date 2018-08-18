@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vsg/vk/Buffer.h>
-#include <vsg/vk/CmdDraw.h>
+#include <vsg/vk/Command.h>
 #include <vsg/vk/Descriptor.h>
 
 namespace vsg

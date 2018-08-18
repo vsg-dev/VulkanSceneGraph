@@ -35,11 +35,11 @@ namespace vsg
 
     using DescriptorSets = std::vector<ref_ptr<DescriptorSet>>;
 
-    class CmdBindDescriptorSets : public Command
+    class BindDescriptorSets : public Command
     {
     public:
 
-        CmdBindDescriptorSets(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, const DescriptorSets& descriptorSets) :
+        BindDescriptorSets(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, const DescriptorSets& descriptorSets) :
             _bindPoint(bindPoint),
             _pipelineLayout(pipelineLayout),
             _descriptorSets(descriptorSets)
@@ -63,7 +63,7 @@ namespace vsg
 
 
     protected:
-        virtual ~CmdBindDescriptorSets() {}
+        virtual ~BindDescriptorSets() {}
 
         using VkDescriptorSets = std::vector<VkDescriptorSet>;
 

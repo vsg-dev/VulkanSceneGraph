@@ -5,7 +5,7 @@
 #include <vsg/vk/ShaderModule.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/PipelineLayout.h>
-#include <vsg/vk/CmdDraw.h>
+#include <vsg/vk/Command.h>
 
 namespace vsg
 {

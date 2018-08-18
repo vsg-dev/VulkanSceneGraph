@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vsg/vk/DeviceMemory.h>
-#include <vsg/vk/CmdDraw.h>
 
 namespace vsg
 {

@@ -8,7 +8,6 @@
 
 #include <vsg/maths/transform.h>
 
-#include <vsg/vk/CmdDraw.h>
 #include <vsg/vk/ShaderModule.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/ComputePipeline.h>
@@ -102,7 +101,7 @@ int main(int argc, char** argv)
 
     vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = vsg::PipelineLayout::create(device, {descriptorSetLayout}, {});
 
-    vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, {descriptorSet});
+    vsg::ref_ptr<vsg::BindDescriptorSets> bindDescriptorSets = new vsg::BindDescriptorSets(VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, {descriptorSet});
 
 
     // set up the compute pipeline

@@ -32,7 +32,7 @@ SET(HEADERS
     vk/ImageView.h
     vk/BufferView.h
     vk/Swapchain.h
-    vk/CmdDraw.h
+    vk/Draw.h
     vk/Pipeline.h
     vk/ComputePipeline.h
     vk/GraphicsPipeline.h

@@ -8,7 +8,7 @@
 
 #include <vsg/maths/transform.h>
 
-#include <vsg/vk/CmdDraw.h>
+#include <vsg/vk/Draw.h>
 #include <vsg/vk/ShaderModule.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/GraphicsPipeline.h>
@@ -194,7 +194,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::PipelineLayout> pipelineLayout = vsg::PipelineLayout::create(device, {descriptorSetLayout}, {});
 
     // setup binding of descriptors
-    vsg::ref_ptr<vsg::CmdBindDescriptorSets> bindDescriptorSets = new vsg::CmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, {descriptorSet}); // device dependent
+    vsg::ref_ptr<vsg::BindDescriptorSets> bindDescriptorSets = new vsg::BindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, {descriptorSet}); // device dependent
 
 
     // set up graphics pipeline
@@ -231,7 +231,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = new vsg::BindIndexBuffer(indexBufferData.front(), VK_INDEX_TYPE_UINT16); // device dependent
 
     // set up drawing of the triangles
-    vsg::ref_ptr<vsg::CmdDrawIndexed> drawIndexed = new vsg::CmdDrawIndexed(12, 1, 0, 0, 0); // device agnostic
+    vsg::ref_ptr<vsg::DrawIndexed> drawIndexed = new vsg::DrawIndexed(12, 1, 0, 0, 0); // device agnostic
 
     // set up what we want to render in a command graph
     // create command graph to contain all the Vulkan calls for specifically rendering the model
