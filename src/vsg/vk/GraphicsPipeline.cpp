@@ -74,9 +74,9 @@ void ShaderStages::update()
         VkPipelineShaderStageCreateInfo& stageInfo = (_stages)[i];
         ShaderModule* sm = _shaderModules[i];
         stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        stageInfo.stage = sm->getStage();
+        stageInfo.stage = sm->getShader()->stage();
         stageInfo.module = *sm;
-        stageInfo.pName = sm->getEntryPointName().c_str();
+        stageInfo.pName = sm->getShader()->entryPointName().c_str();
     }
 }
 

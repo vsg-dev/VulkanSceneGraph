@@ -66,6 +66,14 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    vsg::ref_ptr<vsg::Shader> vertexShader = vsg::Shader::read( VK_SHADER_STAGE_VERTEX_BIT, "main", "shaders/vert.spv");
+    vsg::ref_ptr<vsg::Shader> fragmentShader = vsg::Shader::read(VK_SHADER_STAGE_FRAGMENT_BIT, "main", "shaders/frag.spv");
+    if (!vertexShader || !fragmentShader)
+    {
+        std::cout<<"Could not create shaders"<<std::endl;
+        return 1;
+    }
+
     vsg::ref_ptr<vsg::Viewer> viewer = new vsg::Viewer;
 
     vsg::ref_ptr<vsg::Window> window = vsg::Window::create(width, height, debugLayer, apiDumpLayer);
@@ -82,15 +90,6 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Surface> surface = window->surface();
     vsg::ref_ptr<vsg::RenderPass> renderPass = window->renderPass();
 
-    vsg::ref_ptr<vsg::ShaderModule> vert = vsg::ShaderModule::read(device, VK_SHADER_STAGE_VERTEX_BIT, "main", "shaders/vert.spv");
-    vsg::ref_ptr<vsg::ShaderModule> frag = vsg::ShaderModule::read(device, VK_SHADER_STAGE_FRAGMENT_BIT, "main", "shaders/frag.spv");
-    if (!vert || !frag)
-    {
-        std::cout<<"Could not create shaders"<<std::endl;
-        return 1;
-    }
-    vsg::ShaderModules shaderModules{vert, frag};
-    vsg::ref_ptr<vsg::ShaderStages> shaderStages = new vsg::ShaderStages(shaderModules);
 
     VkQueue graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());
     VkQueue presentQueue = device->getQueue(physicalDevice->getPresentFamily());
@@ -211,6 +210,12 @@ int main(int argc, char** argv)
         VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0},
         VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0},
     };
+
+    vsg::ref_ptr<vsg::ShaderStages> shaderStages = new vsg::ShaderStages(
+    {
+        vsg::ShaderModule::create(device, vertexShader),
+        vsg::ShaderModule::create(device, fragmentShader)
+    });
 
     vsg::ref_ptr<vsg::GraphicsPipeline> pipeline = vsg::GraphicsPipeline::create(device, renderPass, pipelineLayout, // device dependent
     {

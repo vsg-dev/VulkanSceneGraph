@@ -25,7 +25,7 @@ ComputePipeline::Result ComputePipeline::create(Device* device, PipelineLayout* 
     stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     stageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
     stageInfo.module = *shaderModule;
-    stageInfo.pName = shaderModule->getEntryPointName().c_str();
+    stageInfo.pName = shaderModule->getShader()->entryPointName().c_str();
 
     VkComputePipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;

@@ -24,50 +24,40 @@ namespace vsg
         return true;
     }
 
+    class Shader : public Object
+    {
+    public:
+        using Contents = std::vector<char>;
+
+        Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const Contents& contents);
+
+        VkShaderStageFlagBits stage() const { return _stage; }
+        const std::string& entryPointName() const { return _entryPointName; }
+        const Contents& contents() const { return _contents; }
+
+        using Result = vsg::Result<Shader, VkResult, VK_SUCCESS>;
+        static Result read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename);
+
+    protected:
+        virtual ~Shader();
+
+        VkShaderStageFlagBits   _stage;
+        std::string             _entryPointName;
+        Contents                _contents;
+    };
+
     class ShaderModule : public vsg::Object
     {
     public:
-        ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, VkShaderModule shaderModule, Device* device, AllocationCallbacks* allocator=nullptr);
+        ShaderModule(VkShaderModule shaderModule, Device* device, Shader* shader, AllocationCallbacks* allocator=nullptr);
 
         using Result = vsg::Result<ShaderModule, VkResult, VK_SUCCESS>;
 
-        template<typename T>
-        static Result create(Device* device, VkShaderStageFlagBits stage, const std::string& entryPointName, const T& shader, AllocationCallbacks* allocator=nullptr)
-        {
-            if (!device)
-            {
-                return Result("Error: vsg::ShaderModule::create(...) failed to create logical device, undefined Instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-            }
-
-            VkShaderModuleCreateInfo createInfo = {};
-            createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-            createInfo.codeSize = shader.size();
-            createInfo.pCode = reinterpret_cast<const uint32_t*>(shader.data());
-
-            VkShaderModule shaderModule;
-            VkResult result = vkCreateShaderModule(*device, &createInfo, allocator, &shaderModule);
-            if (result == VK_SUCCESS)
-            {
-                return new ShaderModule(stage, entryPointName, shaderModule, device, allocator);
-            }
-            else
-            {
-                return Result("Error: vsg::ShaderModule::create(...) failed to create shader module.", result);
-            }
-        }
-
-        static Result read(Device* device, VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename, AllocationCallbacks* allocator=nullptr);
-
-        void setStage(VkShaderStageFlagBits stage) { _stage = stage; }
-        VkShaderStageFlagBits getStage() const { return _stage; }
-
-        void setEntryPointName(const std::string& name) { _name = name; }
-        const std::string& getEntryPointName() const { return _name; }
-
-        // add Shader type ? VK_SHADER_STAGE_VERTEX_BIT vs VK_SHADER_STAGE_FRAGMENT_BIT etc.
-        // so that it can be used to set up VkPipelineShaderStageCreateInfo
+        static Result create(Device* device, Shader* shader, AllocationCallbacks* allocator=nullptr);
 
         operator VkShaderModule () const { return _shaderModule; }
+
+        const Shader* getShader() const { return _shader; }
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
@@ -76,10 +66,9 @@ namespace vsg
         virtual ~ShaderModule();
 
         VkShaderModule                  _shaderModule;
-        VkShaderStageFlagBits           _stage;
-        std::string                     _name;
 
         ref_ptr<Device>                 _device;
+        ref_ptr<Shader>                 _shader;
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 

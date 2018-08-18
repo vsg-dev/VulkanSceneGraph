@@ -66,6 +66,14 @@ int main(int argc, char** argv)
         if (apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
     }
 
+    vsg::ref_ptr<vsg::Shader> computeShader = vsg::Shader::read(VK_SHADER_STAGE_COMPUTE_BIT, "main", "shaders/comp.spv");
+    if (!computeShader)
+    {
+        std::cout<<"Error : No shader loaded."<<std::endl;
+        return 1;
+    }
+
+
     vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
 
     vsg::ref_ptr<vsg::Instance> instance = vsg::Instance::create(instanceExtensions, validatedNames);
@@ -105,14 +113,8 @@ int main(int argc, char** argv)
 
 
     // set up the compute pipeline
-    vsg::ref_ptr<vsg::ShaderModule> computeShader = vsg::ShaderModule::read(device, VK_SHADER_STAGE_COMPUTE_BIT, "main", "shaders/comp.spv");
-    if (!computeShader)
-    {
-        std::cout<<"Could not create shaders"<<std::endl;
-        return 1;
-    }
-
-    vsg::ref_ptr<vsg::ComputePipeline> pipeline = vsg::ComputePipeline::create(device, pipelineLayout, computeShader);
+    vsg::ref_ptr<vsg::ShaderModule> computeShaderModule = vsg::ShaderModule::create(device, computeShader);
+    vsg::ref_ptr<vsg::ComputePipeline> pipeline = vsg::ComputePipeline::create(device, pipelineLayout, computeShaderModule);
 
 
     // setup command pool
