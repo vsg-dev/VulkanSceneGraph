@@ -22,7 +22,6 @@ namespace vsg
 
         virtual ~ComputePipeline();
 
-        ref_ptr<PipelineLayout> _pipelineLayout;
         ref_ptr<ShaderModule> _shaderModule;
     };
 

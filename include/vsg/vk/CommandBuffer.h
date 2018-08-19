@@ -2,6 +2,7 @@
 
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/Fence.h>
+#include <vsg/vk/Pipeline.h>
 
 namespace vsg
 {
@@ -23,13 +24,20 @@ namespace vsg
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
+        void setCurrentPipeline(const Pipeline* pipeline) { _currentPipeline = pipeline; }
+        const Pipeline* getCurrentPipeline() const { return _currentPipeline; }
+        const PipelineLayout* getCurrentPipelineLayout() const { return _currentPipelineLayout; }
+
     protected:
         virtual ~CommandBuffer();
 
-        ref_ptr<Device>             _device;
-        ref_ptr<CommandPool>        _commandPool;
-        VkCommandBuffer             _commandBuffer;
-        VkCommandBufferUsageFlags   _flags;
+        VkCommandBuffer                 _commandBuffer;
+        VkCommandBufferUsageFlags       _flags;
+
+        ref_ptr<Device>                 _device;
+        ref_ptr<CommandPool>            _commandPool;
+        ref_ptr<const Pipeline>         _currentPipeline;
+        ref_ptr<const PipelineLayout>   _currentPipelineLayout;
     };
 
     template<typename F>

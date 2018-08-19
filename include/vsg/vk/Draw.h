@@ -1,10 +1,7 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
-
-#include <vsg/nodes/Node.h>
-
 #include <vsg/vk/Command.h>
+#include <vsg/vk/CommandBuffer.h>
 
 namespace vsg
 {

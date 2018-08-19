@@ -50,6 +50,7 @@ SET(HEADERS
     vk/DescriptorSetLayout.h
     vk/Buffer.h
     vk/BindVertexBuffers.h
+    vk/PushContants.h
     vk/BindindexBuffer.h
     vk/Image.h
     vk/Sampler.h
@@ -96,6 +97,7 @@ SET(SOURCES
     vk/DescriptorPool.cpp
     vk/DescriptorSet.cpp
     vk/DescriptorSetLayout.cpp
+    vk/PushConstants.cpp
     vk/Buffer.cpp
     vk/Image.cpp
     vk/Sampler.cpp

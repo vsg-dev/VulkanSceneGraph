@@ -4,10 +4,10 @@ namespace vsg
 {
 
 CommandBuffer::CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags flags) :
-    _device(device),
-    _commandPool(commandPool),
     _commandBuffer(commandBuffer),
-    _flags(flags)
+    _flags(flags),
+    _device(device),
+    _commandPool(commandPool)
 {
 }
 

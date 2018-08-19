@@ -42,7 +42,6 @@ namespace vsg
         virtual ~GraphicsPipeline();
 
         ref_ptr<RenderPass>     _renderPass;
-        ref_ptr<PipelineLayout> _pipelineLayout;
         GraphicsPipelineStates  _pipelineStates;
     };
 

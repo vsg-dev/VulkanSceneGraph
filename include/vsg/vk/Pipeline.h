@@ -1,7 +1,8 @@
 #pragma once
 
-#include <vsg/vk/Command.h>
 #include <vsg/vk/Device.h>
+#include <vsg/vk/Command.h>
+#include <vsg/vk/PipelineLayout.h>
 
 namespace vsg
 {
@@ -9,7 +10,7 @@ namespace vsg
     class Pipeline : public Command
     {
     public:
-        Pipeline(VkPipeline pipeline, VkPipelineBindPoint bindPoint, Device* device, AllocationCallbacks* allocator=nullptr);
+        Pipeline(VkPipeline pipeline, VkPipelineBindPoint bindPoint, Device* device, PipelineLayout* pipelineLayout, AllocationCallbacks* allocator=nullptr);
 
         virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 
@@ -18,10 +19,10 @@ namespace vsg
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
-        virtual void dispatch(CommandBuffer& commandBuffer) const
-        {
-            vkCmdBindPipeline(commandBuffer, _bindPoint, _pipeline);
-        }
+        PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
+        const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
+
+        virtual void dispatch(CommandBuffer& commandBuffer) const;
 
     protected:
         virtual ~Pipeline();
@@ -29,6 +30,7 @@ namespace vsg
         VkPipeline                      _pipeline;
         VkPipelineBindPoint             _bindPoint;
         ref_ptr<Device>                 _device;
+        ref_ptr<PipelineLayout>         _pipelineLayout;
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 

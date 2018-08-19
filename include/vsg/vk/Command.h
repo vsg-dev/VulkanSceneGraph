@@ -3,10 +3,11 @@
 #include <vulkan/vulkan.h>
 
 #include <vsg/nodes/Node.h>
-#include <vsg/vk/CommandBuffer.h>
 
 namespace vsg
 {
+    class CommandBuffer;
+
     class Command : public Node
     {
     public:

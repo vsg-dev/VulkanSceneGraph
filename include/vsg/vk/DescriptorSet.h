@@ -5,6 +5,7 @@
 #include <vsg/vk/DescriptorSetLayout.h>
 #include <vsg/vk/PipelineLayout.h>
 #include <vsg/vk/Descriptor.h>
+#include <vsg/vk/CommandBuffer.h>
 
 namespace vsg
 {
