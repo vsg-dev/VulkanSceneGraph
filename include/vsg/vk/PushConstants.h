@@ -4,6 +4,8 @@
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
 
+#include <iostream>
+
 namespace vsg
 {
 
@@ -14,11 +16,16 @@ namespace vsg
 
         virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 
+        Data* getData() { return _data; }
+        const Data* getData() const { return _data; }
+
         virtual void dispatch(CommandBuffer& commandBuffer) const
         {
             const PipelineLayout* pipelineLayout = commandBuffer.getCurrentPipelineLayout();
+            std::cout<<"vkCmdPushConstants(pipeline="<<commandBuffer.getCurrentPipeline()<<", pipelineLayout="<<pipelineLayout<<",_stageFlags="<<_stageFlags<<" ._offset="<<_offset<<" _data->dataSize()="<<_data->dataSize()<<std::endl;
             if (pipelineLayout)
             {
+
                 vkCmdPushConstants(commandBuffer, *pipelineLayout, _stageFlags, _offset, _data->dataSize(), _data->dataPointer());
             }
         }

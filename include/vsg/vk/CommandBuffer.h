@@ -24,7 +24,12 @@ namespace vsg
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
-        void setCurrentPipeline(const Pipeline* pipeline) { _currentPipeline = pipeline; }
+        void setCurrentPipeline(const Pipeline* pipeline)
+        {
+            _currentPipeline = pipeline;
+            _currentPipelineLayout = (pipeline!=nullptr) ? pipeline->getPipelineLayout() : nullptr;
+        }
+
         const Pipeline* getCurrentPipeline() const { return _currentPipeline; }
         const PipelineLayout* getCurrentPipelineLayout() const { return _currentPipelineLayout; }
 

@@ -3,8 +3,8 @@
 namespace vsg
 {
 
-PushConstants::PushConstants(VkShaderStageFlags shaderFlags, uint32_t offset, Data* data):
-    _stageFlags(shaderFlags),
+PushConstants::PushConstants(VkShaderStageFlags stageFlags, uint32_t offset, Data* data):
+    _stageFlags(stageFlags),
     _offset(offset),
     _data(data)
 {
