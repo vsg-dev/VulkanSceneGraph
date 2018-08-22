@@ -79,6 +79,11 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Instance> instance = vsg::Instance::create(instanceExtensions, validatedNames);
     vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(instance, VK_QUEUE_COMPUTE_BIT);
     vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, validatedNames, deviceExtensions);
+    if (!device)
+    {
+        std::cout<<"Unable to create required Vulkan Deice."<<std::endl;
+        return 1;
+    }
 
     // get the queue for the compute commands
     VkQueue computeQueue = device->getQueue(physicalDevice->getComputeFamily());

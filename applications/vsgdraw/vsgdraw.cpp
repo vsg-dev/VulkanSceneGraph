@@ -70,13 +70,19 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Shader> fragmentShader = vsg::Shader::read(VK_SHADER_STAGE_FRAGMENT_BIT, "main", "shaders/frag.spv");
     if (!vertexShader || !fragmentShader)
     {
-        std::cout<<"Could not create shaders"<<std::endl;
+        std::cout<<"Could not create shaders."<<std::endl;
         return 1;
     }
 
     vsg::ref_ptr<vsg::Viewer> viewer = new vsg::Viewer;
 
     vsg::ref_ptr<vsg::Window> window = vsg::Window::create(width, height, debugLayer, apiDumpLayer);
+    if (!window)
+    {
+        std::cout<<"Could not create windows."<<std::endl;
+        return 1;
+    }
+
     viewer->addWindow(window);
 
     for(int i=1; i<numWindows; ++i)
@@ -236,7 +242,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = new vsg::BindIndexBuffer(indexBufferData.front(), VK_INDEX_TYPE_UINT16); // device dependent
 
     // set up drawing of the triangles
-    vsg::ref_ptr<vsg::DrawIndexed> drawIndexed = new vsg::DrawIndexed(12, 1, 0, 0, 0); // device agnostic
+    vsg::ref_ptr<vsg::DrawIndexed> drawIndexed = new vsg::DrawIndexed(12, 1, 0, 0, 0); // device independent
 
     // set up what we want to render in a command graph
     // create command graph to contain all the Vulkan calls for specifically rendering the model

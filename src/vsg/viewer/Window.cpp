@@ -153,7 +153,7 @@ void Window::populateCommandBuffers(vsg::Node* commandGraph)
 
 Window::Result Window::create(uint32_t width, uint32_t height, bool debugLayer, bool apiDumpLayer, vsg::Window* shareWindow, vsg::AllocationCallbacks* allocator)
 {
-    ref_ptr<vsg::Window> window = new glfw::GLFW_Window(width, height, debugLayer, apiDumpLayer, shareWindow, allocator);
+    ref_ptr<vsg::Window> window = glfw::GLFW_Window::create(width, height, debugLayer, apiDumpLayer, shareWindow, allocator);
     return window;
 }
 

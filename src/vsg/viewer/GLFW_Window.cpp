@@ -52,30 +52,48 @@ public:
     }
 };
 
-GLFW_Window::GLFW_Window(uint32_t width, uint32_t height, bool debugLayer, bool apiDumpLayer, vsg::Window* shareWindow, vsg::AllocationCallbacks* allocator) :
-    _glwInstance(glfw::getGLFW_Instance())
+GLFW_Window::GLFW_Window(GLFW_Instance* glfwInstance, GLFWwindow* window, vsg::Instance* instance, vsg::Surface* surface, vsg::PhysicalDevice* physicalDevice, vsg::Device* device, vsg::RenderPass* renderPass, bool debugLayersEnabled):
+    _glfwInstance(glfwInstance),
+    _window(window)
+{
+    _instance = instance;
+    _surface = surface;
+    _physicalDevice = physicalDevice;
+    _device = device;
+    _renderPass = renderPass;
+    _debugLayersEnabled = debugLayersEnabled;
+}
+
+
+GLFW_Window::Result GLFW_Window::create(uint32_t width, uint32_t height, bool debugLayer, bool apiDumpLayer, vsg::Window* shareWindow, vsg::AllocationCallbacks* allocator)
 {
     std::cout<<"Calling glfwCreateWindow(..)"<<std::endl;
+
+    vsg::ref_ptr<glfw::GLFW_Instance> glfwInstance = glfw::getGLFW_Instance();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
     //glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    _window = glfwCreateWindow(width, height, "Vulkan", nullptr, nullptr);
+    GLFWwindow* glfwWindow = glfwCreateWindow(width, height, "Vulkan", nullptr, nullptr);
+    if (!glfwWindow) return Result("Error: vsg::GLFW_Window::create(...) failed to Window.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
-    _debugLayersEnabled = debugLayer;
+    vsg::ref_ptr<GLFW_Window> window;
 
     if (shareWindow)
     {
-        // share the _instance, _physicalDevice and _devoce;
-        share(*shareWindow);
-
         // use GLFW to create surface
-        _surface = new glfw::GLFWSurface(_instance, _window, nullptr);
+        vsg::ref_ptr<vsg::Surface> surface = new glfw::GLFWSurface(shareWindow->instance(), glfwWindow, allocator);
+
+        window = new GLFW_Window(glfwInstance, glfwWindow,
+                                 shareWindow->instance(), shareWindow->surface(), shareWindow->physicalDevice(), shareWindow->device(), shareWindow->renderPass(), shareWindow->debugLayersEnabled());
+
+        // share the _instance, _physicalDevice and _device;
+        window->share(*shareWindow);
 
         // temporary hack to force vkGetPhysicalDeviceSurfaceSupportKHR to be called as the Vulkan
         // debug layer is complaining about vkGetPhysicalDeviceSurfaceSupportKHR not being called
         // for this _surface prior to swap chain creation
-        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(_instance, VK_QUEUE_GRAPHICS_BIT, _surface);
+        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(shareWindow->instance(), VK_QUEUE_GRAPHICS_BIT, surface);
     }
     else
     {
@@ -91,28 +109,37 @@ GLFW_Window::GLFW_Window(uint32_t width, uint32_t height, bool debugLayer, bool 
 
         vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
 
-
         vsg::Names deviceExtensions;
         deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
-        _instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
+        vsg::ref_ptr<vsg::Instance> instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
+        if (!instance) return Result("Error: vsg::GLFW_Window::create(...) failed to Window, unable to create Vulkan instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
         // use GLFW to create surface
-        _surface = new glfw::GLFWSurface(_instance, _window, allocator);
-
+        vsg::ref_ptr<vsg::Surface> surface = new glfw::GLFWSurface(instance, glfwWindow, allocator);
+        if (!surface) return Result("Error: vsg::GLFW_Window::create(...) failed to Window, unable to create GLFWSurface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
         // set up device
-        _physicalDevice = vsg::PhysicalDevice::create(_instance, VK_QUEUE_GRAPHICS_BIT,  _surface);
-        _device = vsg::Device::create(_physicalDevice, validatedNames, deviceExtensions, allocator);
+        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(instance, VK_QUEUE_GRAPHICS_BIT,  surface);
+        if (!physicalDevice) return Result("Error: vsg::GLFW_Window::create(...) failed to Window, no Vulkan PhysicalDevice supported .", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+
+        vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, validatedNames, deviceExtensions, allocator);
+        if (!device) return Result("Error: vsg::GLFW_Window::create(...) failed to Window, unable to create Vulkan logical Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
         // set up renderpass with the imageFormat that the swap chain will use
-        vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
+        vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*physicalDevice, *surface);
         VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
         VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT;//VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
-        _renderPass = vsg::RenderPass::create(_device, imageFormat.format, depthFormat, allocator);
+        vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, imageFormat.format, depthFormat, allocator);
+        if (!renderPass) return Result("Error: vsg::GLFW_Window::create(...) failed to Window, unable to create Vulkan RenderPass.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+
+        window = new GLFW_Window(glfwInstance, glfwWindow,
+                                 instance, surface, physicalDevice, device, renderPass, debugLayer);
     }
 
-    buildSwapchain(width, height);
+    window->buildSwapchain(width, height);
+
+    return window.get();
 }
 
 GLFW_Window::~GLFW_Window()
