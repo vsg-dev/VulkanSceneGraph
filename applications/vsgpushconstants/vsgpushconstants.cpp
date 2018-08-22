@@ -78,6 +78,12 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Viewer> viewer = new vsg::Viewer;
 
     vsg::ref_ptr<vsg::Window> window = vsg::Window::create(width, height, debugLayer, apiDumpLayer);
+    if (!window)
+    {
+        std::cout<<"Could not create windows."<<std::endl;
+        return 1;
+    }
+
     viewer->addWindow(window);
 
     for(int i=1; i<numWindows; ++i)

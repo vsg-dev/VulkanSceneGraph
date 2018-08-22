@@ -52,7 +52,7 @@ Instance::~Instance()
 {
     if (_instance)
     {
-        std::cout<<"Calling vkDestroyInstance"<<std::endl;
+        //std::cout<<"Calling vkDestroyInstance"<<std::endl;
         vkDestroyInstance(_instance, _allocator);
     }
 }

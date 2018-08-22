@@ -14,6 +14,10 @@ PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int 
     vkGetPhysicalDeviceProperties(_device, &_properties);
 }
 
+PhysicalDevice::~PhysicalDevice()
+{
+}
+
 PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags queueFlags, Surface* surface)
 {
     if (!instance)
@@ -78,10 +82,6 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags q
     }
 
     return PhysicalDevice::Result("Error: vsg::Device::create(...) failed to create physical device.", VK_INCOMPLETE);
-}
-
-PhysicalDevice::~PhysicalDevice()
-{
 }
 
 }
