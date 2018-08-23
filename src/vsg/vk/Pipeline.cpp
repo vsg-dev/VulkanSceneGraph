@@ -25,10 +25,18 @@ Pipeline::~Pipeline()
     }
 }
 
-void Pipeline::dispatch(CommandBuffer& commandBuffer) const
+BindPipeline::BindPipeline(Pipeline* pipeline):
+    _pipeline(pipeline)
 {
-    vkCmdBindPipeline(commandBuffer, _bindPoint, _pipeline);
-    commandBuffer.setCurrentPipeline(this);
 }
 
+BindPipeline::~BindPipeline()
+{
+}
+
+void BindPipeline::dispatch(CommandBuffer& commandBuffer) const
+{
+    vkCmdBindPipeline(commandBuffer, _pipeline->getBindPoint(), *_pipeline);
+    commandBuffer.setCurrentPipeline(_pipeline);
+}
 }

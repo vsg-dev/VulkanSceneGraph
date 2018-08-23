@@ -241,6 +241,8 @@ int main(int argc, char** argv)
         new vsg::DepthStencilState// device independent
     });
 
+    vsg::ref_ptr<vsg::BindPipeline> bindPipeline = new vsg::BindPipeline(pipeline);
+
     // set up vertex buffer binding
     vsg::ref_ptr<vsg::BindVertexBuffers> bindVertexBuffers = new vsg::BindVertexBuffers(0, vertexBufferData);  // device dependent
 
@@ -255,7 +257,7 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::Group> commandGraph = new vsg::Group;
 
     // set up the state configuration
-    commandGraph->addChild(pipeline);  // device dependent
+    commandGraph->addChild(bindPipeline);  // device dependent
     commandGraph->addChild(bindDescriptorSets);  // device dependent
 
     commandGraph->addChild(pushConstant_proj);

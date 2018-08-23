@@ -120,6 +120,7 @@ int main(int argc, char** argv)
     // set up the compute pipeline
     vsg::ref_ptr<vsg::ShaderModule> computeShaderModule = vsg::ShaderModule::create(device, computeShader);
     vsg::ref_ptr<vsg::ComputePipeline> pipeline = vsg::ComputePipeline::create(device, pipelineLayout, computeShaderModule);
+    vsg::ref_ptr<vsg::BindPipeline> bindPipeline = new vsg::BindPipeline(pipeline);
 
 
     // setup command pool
@@ -134,7 +135,7 @@ int main(int argc, char** argv)
     // dispatch commands
     vsg::dispatchCommandsToQueue(device, commandPool, fence, 100000000000, computeQueue, [&](vsg::CommandBuffer& commandBuffer)
     {
-        pipeline->dispatch(commandBuffer);
+        bindPipeline->dispatch(commandBuffer);
         bindDescriptorSets->dispatch(commandBuffer);
         vkCmdDispatch(commandBuffer, uint32_t(ceil(float(width)/float(workgroupSize))), uint32_t(ceil(float(height)/float(workgroupSize))), 1);
     });
