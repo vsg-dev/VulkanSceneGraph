@@ -60,6 +60,7 @@ SET(HEADERS
     viewer/Viewer.h
 
     utils/CommandLine.h
+    utils/FileSystem.h
     utils/stream.h
 )
 
@@ -105,8 +106,9 @@ SET(SOURCES
 
     viewer/Window.cpp
     viewer/Viewer.cpp
-
     viewer/GLFW_Window.cpp
+
+    utils/FileSystem.cpp
 )
 
 ADD_LIBRARY(vsg SHARED ${HEADER_FILES} ${SOURCES})
