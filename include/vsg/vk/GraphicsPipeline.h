@@ -29,7 +29,7 @@ namespace vsg
     class GraphicsPipeline : public Pipeline
     {
     public:
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
+        virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
 
         using Result = vsg::Result<GraphicsPipeline, VkResult, VK_SUCCESS>;
 
@@ -51,7 +51,7 @@ namespace vsg
     public:
         ShaderStages(const ShaderModules& shaderModules);
 
-        virtual VkStructureType getType() const { return VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO; }
+        virtual VkStructureType getType() const override { return VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO; }
 
         void setShaderModules(const ShaderModules& shaderModules) { _shaderModules = shaderModules; update(); }
         const ShaderModules& getShaderModules() const { return _shaderModules; }
@@ -63,7 +63,7 @@ namespace vsg
         VkPipelineShaderStageCreateInfo* data() { return _stages.data(); }
         const VkPipelineShaderStageCreateInfo* data() const { return _stages.data(); }
 
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const;
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
         virtual ~ShaderStages();
@@ -83,13 +83,13 @@ namespace vsg
         VertexInputState();
         VertexInputState(const Bindings& bindings, const Attributes& attributes);
 
-        virtual VkStructureType getType() const { return sType; }
+        virtual VkStructureType getType() const override { return sType; }
 
         const Bindings& geBindings() { return _bindings; }
 
         const Attributes& getAttributes() const { return _attributes; }
 
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const;
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
         virtual ~VertexInputState();
@@ -104,9 +104,9 @@ namespace vsg
     public:
         InputAssemblyState();
 
-        virtual VkStructureType getType() const { return sType; }
+        virtual VkStructureType getType() const override { return sType; }
 
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const;
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
         virtual ~InputAssemblyState();
@@ -118,12 +118,12 @@ namespace vsg
     public:
         ViewportState(const VkExtent2D& extent);
 
-        virtual VkStructureType getType() const { return sType; }
+        virtual VkStructureType getType() const override { return sType; }
 
         VkViewport& getViewport() { return _viewport; }
         VkRect2D& getScissor() { return _scissor; }
 
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const;
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
         virtual ~ViewportState();
@@ -138,9 +138,9 @@ namespace vsg
     public:
         RasterizationState();
 
-        virtual VkStructureType getType() const { return sType; }
+        virtual VkStructureType getType() const override { return sType; }
 
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const;
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
         virtual ~RasterizationState();
@@ -152,9 +152,9 @@ namespace vsg
     public:
         MultisampleState();
 
-        virtual VkStructureType getType() const { return sType; }
+        virtual VkStructureType getType() const override { return sType; }
 
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const;
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
         virtual ~MultisampleState();
@@ -166,9 +166,9 @@ namespace vsg
     public:
         DepthStencilState();
 
-        virtual VkStructureType getType() const { return sType; }
+        virtual VkStructureType getType() const override { return sType; }
 
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const;
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
         virtual ~DepthStencilState();
@@ -180,9 +180,9 @@ namespace vsg
     public:
         ColorBlendState();
 
-        virtual VkStructureType getType() const { return sType; }
+        virtual VkStructureType getType() const override { return sType; }
 
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const;
+        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
         using ColorBlendAttachments = std::vector<VkPipelineColorBlendAttachmentState>;
         const ColorBlendAttachments& getColorBlendAttachments() const { return _colorBlendAttachments; }

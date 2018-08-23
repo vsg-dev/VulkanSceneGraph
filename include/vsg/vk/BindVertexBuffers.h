@@ -20,7 +20,7 @@ namespace vsg
             }
         }
 
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
+        virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
 
         void setFirstBinding(uint32_t firstBinding) { _firstBinding = firstBinding; }
         uint32_t getFirstBinding() const { return _firstBinding; }
@@ -32,7 +32,7 @@ namespace vsg
             _offsets.push_back(offset);
         }
 
-        virtual void dispatch(CommandBuffer& commandBuffer) const
+        virtual void dispatch(CommandBuffer& commandBuffer) const override
         {
             vkCmdBindVertexBuffers(commandBuffer, _firstBinding, _buffers.size(), _vkBuffers.data(), _offsets.data());
         }

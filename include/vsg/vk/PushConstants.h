@@ -19,7 +19,7 @@ namespace vsg
         Data* getData() { return _data; }
         const Data* getData() const { return _data; }
 
-        virtual void dispatch(CommandBuffer& commandBuffer) const
+        virtual void dispatch(CommandBuffer& commandBuffer) const override
         {
             const PipelineLayout* pipelineLayout = commandBuffer.getCurrentPipelineLayout();
             std::cout<<"vkCmdPushConstants(pipeline="<<commandBuffer.getCurrentPipeline()<<", pipelineLayout="<<pipelineLayout<<",_stageFlags="<<_stageFlags<<" ._offset="<<_offset<<" _data->dataSize()="<<_data->dataSize()<<std::endl;

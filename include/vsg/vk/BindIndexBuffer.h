@@ -16,9 +16,9 @@ namespace vsg
 
         BindIndexBuffer(const BufferData& bufferData, VkIndexType indexType) : _bufferData(bufferData), _indexType(indexType) {}
 
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
+        virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
 
-        virtual void dispatch(CommandBuffer& commandBuffer) const
+        virtual void dispatch(CommandBuffer& commandBuffer) const override
         {
             vkCmdBindIndexBuffer(commandBuffer, *_bufferData._buffer, _bufferData._offset, _indexType);
         }

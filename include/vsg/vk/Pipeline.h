@@ -12,7 +12,7 @@ namespace vsg
     public:
         Pipeline(VkPipeline pipeline, VkPipelineBindPoint bindPoint, Device* device, PipelineLayout* pipelineLayout, AllocationCallbacks* allocator=nullptr);
 
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
+        virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
 
         operator VkPipeline () const { return _pipeline; }
 
@@ -42,7 +42,7 @@ namespace vsg
         Pipeline* getPipeline() { return _pipeline; }
         const Pipeline* getPipeline() const { return _pipeline; }
 
-        virtual void dispatch(CommandBuffer& commandBuffer) const;
+        virtual void dispatch(CommandBuffer& commandBuffer) const override;
 
     public:
         virtual ~BindPipeline();
