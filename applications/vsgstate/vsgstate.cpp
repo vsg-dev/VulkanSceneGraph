@@ -23,11 +23,13 @@
 #include <vsg/vk/BufferView.h>
 #include <vsg/vk/BindVertexBuffers.h>
 #include <vsg/vk/BindIndexBuffer.h>
+#include <vsg/vk/PushConstants.h>
 
 #include <vsg/viewer/Window.h>
 #include <vsg/viewer/Viewer.h>
 
 #include <vsg/utils/stream.h>
+#include <vsg/utils/FileSystem.h>
 
 #include <osg2vsg/ImageUtils.h>
 
@@ -39,6 +41,63 @@
 #include <set>
 #include <chrono>
 #include <cstring>
+#include <stack>
+
+
+namespace vsg
+{
+
+    template<class T>
+    class StateStack
+    {
+    public:
+
+        StateStack() : dirty(false) {}
+
+        using Stack = std::stack<ref_ptr<T>>;
+        Stack   stack;
+        bool    dirty;
+
+        void push(T* value) { stack.push(value); dirty = true; }
+        void pop() { stack.pop(); dirty = true; }
+
+        inline void dispatch(CommandBuffer& commandBuffer)
+        {
+            if (dirty)
+            {
+                stack.back()->dispatch(commandBuffer);
+            }
+        }
+    };
+
+    class StateGroup : public Group
+    {
+    public:
+        StateGroup() {}
+
+        virtual void accept(Visitor& visitor)
+        {
+            visitor.apply(*this);
+        }
+
+
+    };
+
+
+    class State : public Object
+    {
+    public:
+        State() {}
+
+        StateStack<BindPipeline>        pipelineStack;
+        StateStack<BindVertexBuffers>   vertexBufferStack;
+        StateStack<BindIndexBuffer>     vertexIndexStack;
+        StateStack<BindDescriptorSets>  descriptorStack;
+        StateStack<PushConstants>       pushContantsStack;
+    };
+
+
+}
 
 
 int main(int argc, char** argv)
@@ -66,8 +125,10 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    vsg::ref_ptr<vsg::Shader> vertexShader = vsg::Shader::read( VK_SHADER_STAGE_VERTEX_BIT, "main", "shaders/vert.spv");
-    vsg::ref_ptr<vsg::Shader> fragmentShader = vsg::Shader::read(VK_SHADER_STAGE_FRAGMENT_BIT, "main", "shaders/frag.spv");
+    vsg::Paths searchPaths = vsg::getEnvPaths("VSG_FILE_PATH");
+
+    vsg::ref_ptr<vsg::Shader> vertexShader = vsg::Shader::read( VK_SHADER_STAGE_VERTEX_BIT, "main", vsg::findFile("shaders/vert.spv", searchPaths));
+    vsg::ref_ptr<vsg::Shader> fragmentShader = vsg::Shader::read(VK_SHADER_STAGE_FRAGMENT_BIT, "main", vsg::findFile("shaders/frag.spv", searchPaths));
     if (!vertexShader || !fragmentShader)
     {
         std::cout<<"Could not create shaders."<<std::endl;
@@ -166,7 +227,7 @@ int main(int argc, char** argv)
     //
     // set up texture image
     //
-    vsg::ImageData imageData = osg2vsg::readImageFile(device, commandPool, graphicsQueue, "textures/lz.rgb");
+    vsg::ImageData imageData = osg2vsg::readImageFile(device, commandPool, graphicsQueue, vsg::findFile("textures/lz.rgb", searchPaths));
     if (!imageData.valid())
     {
         std::cout<<"Texture not created"<<std::endl;

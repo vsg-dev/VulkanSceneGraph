@@ -21,6 +21,8 @@
 #include <vsg/vk/Image.h>
 #include <vsg/vk/Sampler.h>
 
+#include <vsg/utils/FileSystem.h>
+
 #include <osg/ImageUtils>
 #include <osgDB/ReadFile>
 #include <osgDB/WriteFile>
@@ -66,7 +68,8 @@ int main(int argc, char** argv)
         if (apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
     }
 
-    vsg::ref_ptr<vsg::Shader> computeShader = vsg::Shader::read(VK_SHADER_STAGE_COMPUTE_BIT, "main", "shaders/comp.spv");
+    vsg::Paths searchPaths = vsg::getEnvPaths("VSG_FILE_PATH");
+    vsg::ref_ptr<vsg::Shader> computeShader = vsg::Shader::read(VK_SHADER_STAGE_COMPUTE_BIT, "main", vsg::findFile("shaders/comp.spv", searchPaths));
     if (!computeShader)
     {
         std::cout<<"Error : No shader loaded."<<std::endl;

@@ -28,6 +28,7 @@
 #include <vsg/viewer/Viewer.h>
 
 #include <vsg/utils/stream.h>
+#include <vsg/utils/FileSystem.h>
 
 #include <osg2vsg/ImageUtils.h>
 
@@ -66,8 +67,10 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    vsg::ref_ptr<vsg::Shader> vertexShader = vsg::Shader::read( VK_SHADER_STAGE_VERTEX_BIT, "main", "shaders/vert.spv");
-    vsg::ref_ptr<vsg::Shader> fragmentShader = vsg::Shader::read(VK_SHADER_STAGE_FRAGMENT_BIT, "main", "shaders/frag.spv");
+    vsg::Paths searchPaths = vsg::getEnvPaths("VSG_FILE_PATH");
+
+    vsg::ref_ptr<vsg::Shader> vertexShader = vsg::Shader::read( VK_SHADER_STAGE_VERTEX_BIT, "main", vsg::findFile("shaders/vert.spv", searchPaths));
+    vsg::ref_ptr<vsg::Shader> fragmentShader = vsg::Shader::read(VK_SHADER_STAGE_FRAGMENT_BIT, "main", vsg::findFile("shaders/frag.spv", searchPaths));
     if (!vertexShader || !fragmentShader)
     {
         std::cout<<"Could not create shaders."<<std::endl;
@@ -166,7 +169,7 @@ int main(int argc, char** argv)
     //
     // set up texture image
     //
-    vsg::ImageData imageData = osg2vsg::readImageFile(device, commandPool, graphicsQueue, "textures/lz.rgb");
+    vsg::ImageData imageData = osg2vsg::readImageFile(device, commandPool, graphicsQueue, vsg::findFile("textures/lz.rgb", searchPaths));
     if (!imageData.valid())
     {
         std::cout<<"Texture not created"<<std::endl;
