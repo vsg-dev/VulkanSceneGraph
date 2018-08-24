@@ -11,6 +11,7 @@ namespace vsg
     class Group;
     class QuadGroup;
     class LOD;
+    class StateGroup;
 
     class Command;
     class CommandBuffer;
@@ -51,6 +52,7 @@ namespace vsg
         virtual void apply(Group&);
         virtual void apply(QuadGroup&);
         virtual void apply(LOD&);
+        virtual void apply(StateGroup&);
 
         // Vulkan nodes
         virtual void apply(Command&);

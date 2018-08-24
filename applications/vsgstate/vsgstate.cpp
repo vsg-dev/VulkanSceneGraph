@@ -5,6 +5,7 @@
 #include <vsg/utils/CommandLine.h>
 
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/StateGroup.h>
 
 #include <vsg/maths/transform.h>
 
@@ -60,6 +61,9 @@ namespace vsg
 
         void push(T* value) { stack.push(value); dirty = true; }
         void pop() { stack.pop(); dirty = true; }
+        size_t size() const { return stack.size(); }
+        T& back() { return stack.back(); }
+        const T& back() const { return stack.back(); }
 
         inline void dispatch(CommandBuffer& commandBuffer)
         {
@@ -68,19 +72,6 @@ namespace vsg
                 stack.back()->dispatch(commandBuffer);
             }
         }
-    };
-
-    class StateGroup : public Group
-    {
-    public:
-        StateGroup() {}
-
-        virtual void accept(Visitor& visitor)
-        {
-            visitor.apply(*this);
-        }
-
-
     };
 
 
@@ -96,6 +87,51 @@ namespace vsg
         StateStack<PushConstants>       pushContantsStack;
     };
 
+
+    class MyBindPipeline : public StateComponent
+    {
+    public:
+
+        MyBindPipeline(BindPipeline* pipeline) : _pipeline(pipeline) {}
+
+        virtual void push(State& state) override { state.pipelineStack.push(_pipeline); std::cout<<"Pushing Pipeline"<<std::endl; }
+        virtual void pop(State& state) override { state.pipelineStack.pop(); std::cout<<"Popped Pipeline"<<std::endl; }
+
+        ref_ptr<BindPipeline> _pipeline;
+    };
+
+    class GraphicsVisitor : public Visitor
+    {
+    public:
+
+        State _state;
+
+        void apply(Node& node)
+        {
+            std::cout<<"Visiting "<<typeid(node).name()<<std::endl;
+            node.traverse(*this);
+        }
+
+        void apply(Command& command)
+        {
+            std::cout<<"Visiting Commnd "<<typeid(command).name()<<" "<<_state.pipelineStack.size()<<std::endl;
+            command.traverse(*this);
+        }
+
+        void apply(StateGroup& stateGroup)
+        {
+
+            std::cout<<"before GraphicsViitor::apply(StateGroup&)"<<std::endl;
+
+            stateGroup.push(_state);
+
+            stateGroup.traverse(*this);
+
+            stateGroup.pop(_state);
+
+            std::cout<<"after GraphicsViitor::apply(StateGroup&)"<<std::endl;
+        }
+    };
 
 }
 
@@ -325,6 +361,14 @@ int main(int argc, char** argv)
 
     // add the draw primitive command
     model->addChild(drawIndexed); // device independent
+
+    vsg::ref_ptr<vsg::StateGroup> stateGroup = new vsg::StateGroup;
+    stateGroup->addChild(commandGraph);
+    stateGroup->add(new vsg::MyBindPipeline(bindPipeline));
+
+    vsg::GraphicsVisitor graphicsVisitor;
+    stateGroup->accept(graphicsVisitor);
+
 
     //
     // end of initialize vulkan

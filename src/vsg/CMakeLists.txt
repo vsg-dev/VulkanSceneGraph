@@ -23,6 +23,7 @@ SET(HEADERS
     nodes/Node.h
     nodes/QuadGroup.h
     nodes/LOD.h
+    nodes/StateGroup.h
 
     vk/Instance.h
     vk/PhysicalDevice.h
@@ -73,6 +74,7 @@ SET(SOURCES
 
     nodes/Group.cpp
     nodes/Node.cpp
+    nodes/StateGroup.cpp
 
     vk/PhysicalDevice.cpp
     vk/Device.cpp

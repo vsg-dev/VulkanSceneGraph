@@ -4,6 +4,7 @@
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/LOD.h>
+#include <vsg/nodes/StateGroup.h>
 
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
@@ -56,6 +57,7 @@ void Visitor::apply(Node& value) { apply(static_cast<Object&>(value)); }
 void Visitor::apply(Group& value) { apply(static_cast<Node&>(value)); }
 void Visitor::apply(QuadGroup& value) { apply(static_cast<Node&>(value)); }
 void Visitor::apply(LOD& value) { apply(static_cast<Node&>(value)); }
+void Visitor::apply(StateGroup& value) { apply(static_cast<Group&>(value)); }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
