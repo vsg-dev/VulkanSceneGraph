@@ -1,5 +1,6 @@
 #include <vsg/vk/Pipeline.h>
 #include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/State.h>
 
 namespace vsg
 {
@@ -32,6 +33,18 @@ BindPipeline::BindPipeline(Pipeline* pipeline):
 
 BindPipeline::~BindPipeline()
 {
+}
+
+void BindPipeline::pushTo(State& state)
+{
+    state.dirty = true;
+    state.pipelineStack.push(this);
+}
+
+void BindPipeline::popFrom(State& state)
+{
+    state.dirty = true;
+    state.pipelineStack.pop();
 }
 
 void BindPipeline::dispatch(CommandBuffer& commandBuffer) const

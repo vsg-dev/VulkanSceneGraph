@@ -1,15 +1,13 @@
 #pragma once
 
 #include <vsg/core/Data.h>
-#include <vsg/vk/Command.h>
-#include <vsg/vk/CommandBuffer.h>
-
-#include <iostream>
+#include <vsg/vk/Device.h>
+#include <vsg/nodes/StateGroup.h>
 
 namespace vsg
 {
 
-   class PushConstants : public Command
+   class PushConstants : public StateComponent
     {
     public:
         PushConstants(VkShaderStageFlags shaderFlags, uint32_t offset, Data* data);
@@ -19,16 +17,9 @@ namespace vsg
         Data* getData() { return _data; }
         const Data* getData() const { return _data; }
 
-        virtual void dispatch(CommandBuffer& commandBuffer) const override
-        {
-            const PipelineLayout* pipelineLayout = commandBuffer.getCurrentPipelineLayout();
-            std::cout<<"vkCmdPushConstants(pipeline="<<commandBuffer.getCurrentPipeline()<<", pipelineLayout="<<pipelineLayout<<",_stageFlags="<<_stageFlags<<" ._offset="<<_offset<<" _data->dataSize()="<<_data->dataSize()<<std::endl;
-            if (pipelineLayout)
-            {
-
-                vkCmdPushConstants(commandBuffer, *pipelineLayout, _stageFlags, _offset, _data->dataSize(), _data->dataPointer());
-            }
-        }
+        virtual void pushTo(State& state) override;
+        virtual void popFrom(State& state) override;
+        virtual void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~PushConstants();

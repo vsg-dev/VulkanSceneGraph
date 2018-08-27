@@ -5,6 +5,7 @@
 #include <vsg/vk/Framebuffer.h>
 #include <vsg/vk/Semaphore.h>
 #include <vsg/vk/DeviceMemory.h>
+#include <vsg/vk/State.h>
 
 namespace vsg
 {
@@ -25,6 +26,13 @@ namespace vsg
 
         virtual bool resized() const { return false; }
         virtual void resize() {}
+
+
+        using Stages = std::vector<ref_ptr<Stage>>;
+        Stages _stages;
+
+        void addStage(Stage* stage) { _stages.push_back(stage); }
+
 
         const VkExtent2D& extent2D() { return _extent2D; }
 
@@ -72,7 +80,7 @@ namespace vsg
 
         bool debugLayersEnabled() const { return _debugLayersEnabled; }
 
-        void populateCommandBuffers(vsg::Node* commandGraph);
+        void populateCommandBuffers();
 
     protected:
 

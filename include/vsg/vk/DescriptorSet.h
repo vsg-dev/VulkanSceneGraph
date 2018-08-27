@@ -1,11 +1,10 @@
 #pragma once
 
-#include <vsg/vk/Command.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/DescriptorSetLayout.h>
 #include <vsg/vk/PipelineLayout.h>
 #include <vsg/vk/Descriptor.h>
-#include <vsg/vk/CommandBuffer.h>
+#include <vsg/nodes/StateGroup.h>
 
 namespace vsg
 {
@@ -36,7 +35,7 @@ namespace vsg
 
     using DescriptorSets = std::vector<ref_ptr<DescriptorSet>>;
 
-    class BindDescriptorSets : public Command
+    class BindDescriptorSets : public StateComponent
     {
     public:
 
@@ -48,10 +47,9 @@ namespace vsg
             update();
         }
 
-        virtual void dispatch(CommandBuffer& commandBuffer) const
-        {
-            vkCmdBindDescriptorSets(commandBuffer, _bindPoint, *_pipelineLayout, 0, _vkDescriptorSets.size(), _vkDescriptorSets.data(), 0, nullptr);
-        }
+        virtual void pushTo(State& state) override;
+        virtual void popFrom(State& state) override;
+        virtual void dispatch(CommandBuffer& commandBuffer) const override;
 
         void update()
         {

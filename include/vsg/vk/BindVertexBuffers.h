@@ -3,10 +3,11 @@
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/Command.h>
 #include <vsg/vk/Descriptor.h>
+#include <vsg/nodes/StateGroup.h>
 
 namespace vsg
 {
-    class BindVertexBuffers : public Command
+    class BindVertexBuffers : public StateComponent
     {
     public:
 
@@ -32,10 +33,9 @@ namespace vsg
             _offsets.push_back(offset);
         }
 
-        virtual void dispatch(CommandBuffer& commandBuffer) const override
-        {
-            vkCmdBindVertexBuffers(commandBuffer, _firstBinding, _buffers.size(), _vkBuffers.data(), _offsets.data());
-        }
+        virtual void pushTo(State& state) override;
+        virtual void popFrom(State& state) override;
+        virtual void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~BindVertexBuffers() {}

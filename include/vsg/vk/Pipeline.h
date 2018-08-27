@@ -1,8 +1,7 @@
 #pragma once
 
-#include <vsg/vk/Device.h>
-#include <vsg/vk/Command.h>
 #include <vsg/vk/PipelineLayout.h>
+#include <vsg/nodes/StateGroup.h>
 
 namespace vsg
 {
@@ -34,7 +33,7 @@ namespace vsg
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 
-    class BindPipeline : public Command
+    class BindPipeline : public StateComponent
     {
     public:
         BindPipeline(Pipeline* pipeline);
@@ -42,6 +41,8 @@ namespace vsg
         Pipeline* getPipeline() { return _pipeline; }
         const Pipeline* getPipeline() const { return _pipeline; }
 
+        virtual void pushTo(State& state) override;
+        virtual void popFrom(State& state) override;
         virtual void dispatch(CommandBuffer& commandBuffer) const override;
 
     public:

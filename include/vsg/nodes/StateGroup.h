@@ -6,14 +6,17 @@ namespace vsg
 {
     // forward declare
     class State;
+    class CommandBuffer;
 
     class StateComponent : public Object
     {
     public:
         StateComponent() {}
 
-        virtual void push(State& state) = 0;
-        virtual void pop(State& state) = 0;
+        virtual void pushTo(State& state) = 0;
+        virtual void popFrom(State& state) = 0;
+
+        virtual void dispatch(CommandBuffer& commandBuffer) const = 0;
 
     protected:
         virtual ~StateComponent() {}
@@ -30,8 +33,8 @@ namespace vsg
 
         void add(StateComponent* component) { _stateComponents.push_back(component); }
 
-        inline void push(State& state) { for(auto& component : _stateComponents) component->push(state); }
-        inline void pop(State& state) { for(auto& component : _stateComponents) component->pop(state); }
+        inline void pushTo(State& state) { for(auto& component : _stateComponents) component->pushTo(state); }
+        inline void popFrom(State& state) { for(auto& component : _stateComponents) component->popFrom(state); }
 
     protected:
         virtual ~StateGroup();

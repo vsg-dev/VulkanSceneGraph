@@ -1,14 +1,13 @@
 #pragma once
 
 #include <vsg/vk/Buffer.h>
-#include <vsg/vk/Command.h>
 #include <vsg/vk/Descriptor.h>
+#include <vsg/nodes/StateGroup.h>
 
 namespace vsg
 {
 
-
-    class BindIndexBuffer : public Command
+    class BindIndexBuffer : public StateComponent
     {
     public:
 
@@ -18,10 +17,9 @@ namespace vsg
 
         virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
 
-        virtual void dispatch(CommandBuffer& commandBuffer) const override
-        {
-            vkCmdBindIndexBuffer(commandBuffer, *_bufferData._buffer, _bufferData._offset, _indexType);
-        }
+        virtual void pushTo(State& state) override;
+        virtual void popFrom(State& state) override;
+        virtual void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~BindIndexBuffer() {}

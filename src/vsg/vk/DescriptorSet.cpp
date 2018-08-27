@@ -1,4 +1,5 @@
 #include <vsg/vk/DescriptorSet.h>
+#include <vsg/vk/State.h>
 
 namespace vsg
 {
@@ -60,5 +61,23 @@ void DescriptorSet::assign(const Descriptors& descriptors)
 
     vkUpdateDescriptorSets(*_device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
+
+void BindDescriptorSets::pushTo(State& state)
+{
+    state.dirty = true;
+    state.descriptorStack.push(this);
+}
+
+void BindDescriptorSets::popFrom(State& state)
+{
+    state.dirty = true;
+    state.descriptorStack.pop();
+}
+
+void BindDescriptorSets::dispatch(CommandBuffer& commandBuffer) const
+{
+    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, *_pipelineLayout, 0, _vkDescriptorSets.size(), _vkDescriptorSets.data(), 0, nullptr);
+}
+
 
 }

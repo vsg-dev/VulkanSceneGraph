@@ -38,7 +38,6 @@ void Window::clear()
     _device = 0;
     _physicalDevice = 0;
 
-
     std::cout<<"vsg::Window::clear() end"<<std::endl;
 }
 
@@ -142,12 +141,14 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     });
 }
 
-void Window::populateCommandBuffers(vsg::Node* commandGraph)
+void Window::populateCommandBuffers()
 {
     for(auto& frame : _frames)
     {
-        CommandVisitor cv(frame.framebuffer, _renderPass, frame.commandBuffer, _extent2D, _clearColor);
-        cv.populateCommandBuffer(commandGraph);
+        for (auto& stage : _stages)
+        {
+            stage->populateCommandBuffer(frame.commandBuffer, frame.framebuffer, _renderPass, _extent2D, _clearColor);
+        }
     }
 }
 

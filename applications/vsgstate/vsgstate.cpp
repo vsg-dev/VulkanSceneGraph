@@ -25,7 +25,10 @@
 #include <vsg/vk/BindVertexBuffers.h>
 #include <vsg/vk/BindIndexBuffer.h>
 #include <vsg/vk/PushConstants.h>
+#include <vsg/vk/State.h>
+#include <vsg/vk/CommandVisitor.h>
 
+#include <vsg/viewer/GraphicsStage.h>
 #include <vsg/viewer/Window.h>
 #include <vsg/viewer/Viewer.h>
 
@@ -42,98 +45,6 @@
 #include <set>
 #include <chrono>
 #include <cstring>
-#include <stack>
-
-
-namespace vsg
-{
-
-    template<class T>
-    class StateStack
-    {
-    public:
-
-        StateStack() : dirty(false) {}
-
-        using Stack = std::stack<ref_ptr<T>>;
-        Stack   stack;
-        bool    dirty;
-
-        void push(T* value) { stack.push(value); dirty = true; }
-        void pop() { stack.pop(); dirty = true; }
-        size_t size() const { return stack.size(); }
-        T& back() { return stack.back(); }
-        const T& back() const { return stack.back(); }
-
-        inline void dispatch(CommandBuffer& commandBuffer)
-        {
-            if (dirty)
-            {
-                stack.back()->dispatch(commandBuffer);
-            }
-        }
-    };
-
-
-    class State : public Object
-    {
-    public:
-        State() {}
-
-        StateStack<BindPipeline>        pipelineStack;
-        StateStack<BindVertexBuffers>   vertexBufferStack;
-        StateStack<BindIndexBuffer>     vertexIndexStack;
-        StateStack<BindDescriptorSets>  descriptorStack;
-        StateStack<PushConstants>       pushContantsStack;
-    };
-
-
-    class MyBindPipeline : public StateComponent
-    {
-    public:
-
-        MyBindPipeline(BindPipeline* pipeline) : _pipeline(pipeline) {}
-
-        virtual void push(State& state) override { state.pipelineStack.push(_pipeline); std::cout<<"Pushing Pipeline"<<std::endl; }
-        virtual void pop(State& state) override { state.pipelineStack.pop(); std::cout<<"Popped Pipeline"<<std::endl; }
-
-        ref_ptr<BindPipeline> _pipeline;
-    };
-
-    class GraphicsVisitor : public Visitor
-    {
-    public:
-
-        State _state;
-
-        void apply(Node& node)
-        {
-            std::cout<<"Visiting "<<typeid(node).name()<<std::endl;
-            node.traverse(*this);
-        }
-
-        void apply(Command& command)
-        {
-            std::cout<<"Visiting Commnd "<<typeid(command).name()<<" "<<_state.pipelineStack.size()<<std::endl;
-            command.traverse(*this);
-        }
-
-        void apply(StateGroup& stateGroup)
-        {
-
-            std::cout<<"before GraphicsViitor::apply(StateGroup&)"<<std::endl;
-
-            stateGroup.push(_state);
-
-            stateGroup.traverse(*this);
-
-            stateGroup.pop(_state);
-
-            std::cout<<"after GraphicsViitor::apply(StateGroup&)"<<std::endl;
-        }
-    };
-
-}
 
 
 int main(int argc, char** argv)
@@ -347,28 +258,23 @@ int main(int argc, char** argv)
     // create command graph to contain all the Vulkan calls for specifically rendering the model
     vsg::ref_ptr<vsg::Group> commandGraph = new vsg::Group;
 
+    vsg::ref_ptr<vsg::StateGroup> stateGroup = new vsg::StateGroup;
+    commandGraph->addChild(stateGroup);
+
     // set up the state configuration
-    commandGraph->addChild(bindPipeline);  // device dependent
-    commandGraph->addChild(bindDescriptorSets);  // device dependent
+    stateGroup->add(bindPipeline);  // device dependent
+    stateGroup->add(bindDescriptorSets);  // device dependent
 
     // add subgraph that represents the model to render
-    vsg::ref_ptr<vsg::Group> model = new vsg::Group;
-    commandGraph->addChild(model);
+    vsg::ref_ptr<vsg::StateGroup> model = new vsg::StateGroup;
+    stateGroup->addChild(model);
 
     // add the vertex and index buffer data
-    model->addChild(bindVertexBuffers); // device dependent
-    model->addChild(bindIndexBuffer); // device dependent
+    model->add(bindVertexBuffers); // device dependent
+    model->add(bindIndexBuffer); // device dependent
 
     // add the draw primitive command
     model->addChild(drawIndexed); // device independent
-
-    vsg::ref_ptr<vsg::StateGroup> stateGroup = new vsg::StateGroup;
-    stateGroup->addChild(commandGraph);
-    stateGroup->add(new vsg::MyBindPipeline(bindPipeline));
-
-    vsg::GraphicsVisitor graphicsVisitor;
-    stateGroup->accept(graphicsVisitor);
-
 
     //
     // end of initialize vulkan
@@ -380,7 +286,9 @@ int main(int argc, char** argv)
 
     for (auto& win : viewer->windows())
     {
-        win->populateCommandBuffers(commandGraph);
+        // add a GraphicsStage tp the Window to do dispatch of the command graph to the commnad buffer(s)
+        win->addStage(new vsg::GraphicsStage(commandGraph));
+        win->populateCommandBuffers();
     }
 
     while (!viewer->done() && (numFrames<0 || (numFrames--)>0))
@@ -398,9 +306,8 @@ int main(int argc, char** argv)
 
         vsg::copyDataListToBuffers(uniformBufferData);
 
-        viewer->submitFrame(commandGraph);
+        viewer->submitFrame();
     }
-
 
     // clean up done automatically thanks to ref_ptr<>
     return 0;

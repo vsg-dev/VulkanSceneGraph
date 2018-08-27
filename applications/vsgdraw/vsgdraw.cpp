@@ -5,6 +5,7 @@
 #include <vsg/utils/CommandLine.h>
 
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/StateGroup.h>
 
 #include <vsg/maths/transform.h>
 
@@ -23,7 +24,11 @@
 #include <vsg/vk/BufferView.h>
 #include <vsg/vk/BindVertexBuffers.h>
 #include <vsg/vk/BindIndexBuffer.h>
+#include <vsg/vk/PushConstants.h>
+#include <vsg/vk/State.h>
+#include <vsg/vk/CommandVisitor.h>
 
+#include <vsg/viewer/GraphicsStage.h>
 #include <vsg/viewer/Window.h>
 #include <vsg/viewer/Viewer.h>
 
@@ -253,20 +258,27 @@ int main(int argc, char** argv)
     // create command graph to contain all the Vulkan calls for specifically rendering the model
     vsg::ref_ptr<vsg::Group> commandGraph = new vsg::Group;
 
+    vsg::ref_ptr<vsg::StateGroup> stateGroup = new vsg::StateGroup;
+    commandGraph->addChild(stateGroup);
+
     // set up the state configuration
-    commandGraph->addChild(bindPipeline);  // device dependent
-    commandGraph->addChild(bindDescriptorSets);  // device dependent
+    stateGroup->add(bindPipeline);  // device dependent
+    stateGroup->add(bindDescriptorSets);  // device dependent
 
     // add subgraph that represents the model to render
-    vsg::ref_ptr<vsg::Group> model = new vsg::Group;
-    commandGraph->addChild(model);
+    vsg::ref_ptr<vsg::StateGroup> model = new vsg::StateGroup;
+    stateGroup->addChild(model);
 
     // add the vertex and index buffer data
-    model->addChild(bindVertexBuffers); // device dependent
-    model->addChild(bindIndexBuffer); // device dependent
+    model->add(bindVertexBuffers); // device dependent
+    model->add(bindIndexBuffer); // device dependent
 
     // add the draw primitive command
     model->addChild(drawIndexed); // device independent
+
+    // add a GraphicsStage tp the Window to do dispatch of the command graph to the commnad buffer(s)
+    window->addStage(new vsg::GraphicsStage(commandGraph));
+
 
     //
     // end of initialize vulkan
@@ -278,7 +290,7 @@ int main(int argc, char** argv)
 
     for (auto& win : viewer->windows())
     {
-        win->populateCommandBuffers(commandGraph);
+        win->populateCommandBuffers();
     }
 
     while (!viewer->done() && (numFrames<0 || (numFrames--)>0))
@@ -296,9 +308,8 @@ int main(int argc, char** argv)
 
         vsg::copyDataListToBuffers(uniformBufferData);
 
-        viewer->submitFrame(commandGraph);
+        viewer->submitFrame();
     }
-
 
     // clean up done automatically thanks to ref_ptr<>
     return 0;

@@ -5,6 +5,7 @@
 #include <vsg/utils/CommandLine.h>
 
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/StateGroup.h>
 
 #include <vsg/maths/transform.h>
 
@@ -24,7 +25,10 @@
 #include <vsg/vk/BindVertexBuffers.h>
 #include <vsg/vk/BindIndexBuffer.h>
 #include <vsg/vk/PushConstants.h>
+#include <vsg/vk/State.h>
+#include <vsg/vk/CommandVisitor.h>
 
+#include <vsg/viewer/GraphicsStage.h>
 #include <vsg/viewer/Window.h>
 #include <vsg/viewer/Viewer.h>
 
@@ -253,27 +257,27 @@ int main(int argc, char** argv)
     vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = new vsg::BindIndexBuffer(indexBufferData.front(), VK_INDEX_TYPE_UINT16); // device dependent
 
     // set up drawing of the triangles
-    vsg::ref_ptr<vsg::DrawIndexed> drawIndexed = new vsg::DrawIndexed(12, 1, 0, 0, 0); // device agnostic
+    vsg::ref_ptr<vsg::DrawIndexed> drawIndexed = new vsg::DrawIndexed(12, 1, 0, 0, 0); // device independent
 
     // set up what we want to render in a command graph
     // create command graph to contain all the Vulkan calls for specifically rendering the model
-    vsg::ref_ptr<vsg::Group> commandGraph = new vsg::Group;
+    vsg::ref_ptr<vsg::StateGroup> commandGraph = new vsg::StateGroup;
 
     // set up the state configuration
-    commandGraph->addChild(bindPipeline);  // device dependent
-    commandGraph->addChild(bindDescriptorSets);  // device dependent
+    commandGraph->add(bindPipeline);  // device dependent
+    commandGraph->add(bindDescriptorSets);  // device dependent
 
-    commandGraph->addChild(pushConstant_proj);
-    commandGraph->addChild(pushConstant_view);
-    commandGraph->addChild(pushConstant_model);
+    commandGraph->add(pushConstant_proj);
+    commandGraph->add(pushConstant_view);
+    commandGraph->add(pushConstant_model);
 
     // add subgraph that represents the model to render
-    vsg::ref_ptr<vsg::Group> model = new vsg::Group;
+    vsg::ref_ptr<vsg::StateGroup> model = new vsg::StateGroup;
     commandGraph->addChild(model);
 
     // add the vertex and index buffer data
-    model->addChild(bindVertexBuffers); // device dependent
-    model->addChild(bindIndexBuffer); // device dependent
+    model->add(bindVertexBuffers); // device dependent
+    model->add(bindIndexBuffer); // device dependent
 
     // add the draw primitive command
     model->addChild(drawIndexed); // device independent
@@ -288,7 +292,9 @@ int main(int argc, char** argv)
 
     for (auto& win : viewer->windows())
     {
-        win->populateCommandBuffers(commandGraph);
+        // add a GraphicsStage tp the Window to do dispatch of the command graph to the commnad buffer(s)
+        win->addStage(new vsg::GraphicsStage(commandGraph));
+        win->populateCommandBuffers();
     }
 
     while (!viewer->done() && (numFrames<0 || (numFrames--)>0))
@@ -306,10 +312,10 @@ int main(int argc, char** argv)
         for (auto& win : viewer->windows())
         {
             // we need to regenerate the CommandBuffer so that the PushConstants get called with the new values.
-            win->populateCommandBuffers(commandGraph);
+            win->populateCommandBuffers();
         }
 
-        viewer->submitFrame(commandGraph);
+        viewer->submitFrame();
     }
 
 

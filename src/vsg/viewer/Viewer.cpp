@@ -94,7 +94,7 @@ void Viewer::reassignFrameCache()
     }
 }
 
-void Viewer::submitFrame(vsg::Node* commandGraph)
+void Viewer::submitFrame()
 {
     bool debugLayersEnabled = false;
 
@@ -110,7 +110,7 @@ void Viewer::submitFrame(vsg::Node* commandGraph)
 
             reassignFrameCache();
 
-            window->populateCommandBuffers(commandGraph);
+            window->populateCommandBuffers();
 
             result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE);
             if (result!=VK_SUCCESS)
