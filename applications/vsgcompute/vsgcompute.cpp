@@ -1,40 +1,11 @@
-#include <vsg/core/ref_ptr.h>
-#include <vsg/core/observer_ptr.h>
-#include <vsg/core/Result.h>
-
-#include <vsg/utils/CommandLine.h>
-
-#include <vsg/nodes/Group.h>
-
-#include <vsg/maths/transform.h>
-
-#include <vsg/vk/ShaderModule.h>
-#include <vsg/vk/RenderPass.h>
-#include <vsg/vk/ComputePipeline.h>
-#include <vsg/vk/CommandPool.h>
-#include <vsg/vk/Buffer.h>
-#include <vsg/vk/DeviceMemory.h>
-#include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/DescriptorPool.h>
-#include <vsg/vk/DescriptorSet.h>
-#include <vsg/vk/DescriptorSetLayout.h>
-#include <vsg/vk/Image.h>
-#include <vsg/vk/Sampler.h>
-
-#include <vsg/utils/FileSystem.h>
+#include <vsg/all.h>
 
 #include <osg/ImageUtils>
 #include <osgDB/ReadFile>
 #include <osgDB/WriteFile>
 
 #include <iostream>
-#include <fstream>
-#include <sstream>
-#include <algorithm>
-#include <mutex>
-#include <set>
 #include <chrono>
-#include <cstring>
 
 int main(int argc, char** argv)
 {
