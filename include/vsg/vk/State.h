@@ -8,6 +8,7 @@
 #include <vsg/vk/CommandBuffer.h>
 
 #include <stack>
+#include <map>
 
 #include <iostream>
 
@@ -47,12 +48,14 @@ namespace vsg
     public:
         State() : dirty(false) {}
 
+        using PushConstantsMap = std::map<uint32_t, StateStack<PushConstants>>;
+
         bool                            dirty;
         StateStack<BindPipeline>        pipelineStack;
         StateStack<BindDescriptorSets>  descriptorStack;
         StateStack<BindVertexBuffers>   vertexBuffersStack;
         StateStack<BindIndexBuffer>     indexBufferStack;
-        StateStack<PushConstants>       pushConstantsStack;
+        PushConstantsMap                pushConstantsMap;
 
         inline void dispatch(CommandBuffer& commandBuffer)
         {
@@ -63,7 +66,10 @@ namespace vsg
                 descriptorStack.dispatch(commandBuffer);
                 vertexBuffersStack.dispatch(commandBuffer);
                 indexBufferStack.dispatch(commandBuffer);
-                pushConstantsStack.dispatch(commandBuffer);
+                for(auto& pushConstantsStack : pushConstantsMap)
+                {
+                    pushConstantsStack.second.dispatch(commandBuffer);
+                }
                 dirty = false;
             }
         }

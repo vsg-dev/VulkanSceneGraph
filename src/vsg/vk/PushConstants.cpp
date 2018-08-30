@@ -17,18 +17,17 @@ PushConstants::~PushConstants()
 
 void PushConstants::pushTo(State& state)
 {
-    state.pushConstantsStack.push(this);
+    state.pushConstantsMap[_offset].push(this);
 }
 
 void PushConstants::popFrom(State& state)
 {
-    state.pushConstantsStack.pop();
+    state.pushConstantsMap[_offset].pop();
 }
 
 void PushConstants::dispatch(CommandBuffer& commandBuffer) const
 {
     const PipelineLayout* pipelineLayout = commandBuffer.getCurrentPipelineLayout();
-    std::cout<<"vkCmdPushConstants(pipeline="<<commandBuffer.getCurrentPipeline()<<", pipelineLayout="<<pipelineLayout<<",_stageFlags="<<_stageFlags<<" ._offset="<<_offset<<" _data->dataSize()="<<_data->dataSize()<<std::endl;
     if (pipelineLayout)
     {
 
