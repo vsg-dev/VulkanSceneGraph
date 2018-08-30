@@ -28,6 +28,7 @@ void PushConstants::popFrom(State& state)
 void PushConstants::dispatch(CommandBuffer& commandBuffer) const
 {
     const PipelineLayout* pipelineLayout = commandBuffer.getCurrentPipelineLayout();
+    std::cout<<"vkCmdPushConstants(pipeline="<<commandBuffer.getCurrentPipeline()<<", pipelineLayout="<<pipelineLayout<<",_stageFlags="<<_stageFlags<<" ._offset="<<_offset<<" _data->dataSize()="<<_data->dataSize()<<std::endl;
     if (pipelineLayout)
     {
 
