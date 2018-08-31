@@ -40,6 +40,10 @@
 ## Introspection
 
 * [Cereal](https://github.com/USCiLab/cereal)
+* [cson - C++ Simple Obhject Notiaion](https://github.com/snawaz/cson)
+* [A Flexible Reflection System in C++: Part 1](http://preshing.com/20180116/a-primitive-reflection-system-in-cpp-part-1/ )
+* [A Flexible Reflection System in C++: Part 2](http://preshing.com/20180124/a-flexible-reflection-system-in-cpp-part-2/)
+* [Samll example of use of std::make_type, std::ref etc.](http://coliru.stacked-crooked.com/a/25638f2ebc6424bf)
 
 ## 3rd party scene graphs
 

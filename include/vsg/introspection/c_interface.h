@@ -10,17 +10,19 @@ extern "C"
 
     typedef void* vsgObjectPtr;
 
+    extern VSG_EXPORT void vsgRef(vsgObjectPtr object);
+
+    extern VSG_EXPORT void vsgUnref(vsgObjectPtr object);
+
     extern VSG_EXPORT vsgObjectPtr vsgCreate(const char* className);
+
+    extern VSG_EXPORT const char* vsgClassName(vsgObjectPtr object);
 
     extern VSG_EXPORT vsgObjectPtr vsgMethod(vsgObjectPtr object, const char* methodName);
 
     extern VSG_EXPORT vsgObjectPtr vsgGetProperty(vsgObjectPtr object, const char* propertyName);
 
     extern VSG_EXPORT vsgObjectPtr vsgSetProperty(vsgObjectPtr object, const char* propertyName, vsgObjectPtr* value);
-
-    extern VSG_EXPORT void vsgRef(vsgObjectPtr object);
-
-    extern VSG_EXPORT void vsgUnref(vsgObjectPtr object);
 
     extern VSG_EXPORT unsigned int vsgGetNumProperties(vsgObjectPtr object);
 
