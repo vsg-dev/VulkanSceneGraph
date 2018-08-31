@@ -6,6 +6,9 @@ INCLUDE_DIRECTORIES(
 
 SET(HEADERS
 
+    all.h
+
+    core.h
     core/Auxiliary.h
     core/Object.h
     core/Result.h
@@ -14,25 +17,32 @@ SET(HEADERS
     core/observer_ptr.h
     core/ref_ptr.h
 
+    introspection/c_interface.h
+
+    maths.h
     maths/mat4.h
     maths/vec2.h
     maths/vec3.h
     maths/vec4.h
 
+    nodes.h
     nodes/Group.h
     nodes/LOD.h
     nodes/Node.h
     nodes/QuadGroup.h
     nodes/StateGroup.h
 
+    utils.h
     utils/CommandLine.h
     utils/FileSystem.h
     utils/stream.h
 
+    viewer.h
     viewer/GraphicsStage.h
     viewer/Viewer.h
     viewer/Window.h
 
+    vk.h
     vk/BindVertexBuffers.h
     vk/BindindexBuffer.h
     vk/Buffer.h
@@ -73,6 +83,8 @@ SET(SOURCES
     core/Object.cpp
     core/Result.cpp
     core/Visitor.cpp
+
+    introspection/c_interface.cpp
 
     nodes/Group.cpp
     nodes/Node.cpp
