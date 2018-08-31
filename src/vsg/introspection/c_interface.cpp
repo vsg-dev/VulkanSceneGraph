@@ -16,6 +16,7 @@ namespace vsg
 {
 
 
+
 class TypeDescriptor : public vsg::Object
 {
 public:
@@ -24,7 +25,7 @@ public:
 
     std::string     className;
     CreateFunction  createFunction;
-    Properties  properties;
+    Properties      properties;
 };
 
 class Introspection : public Object
