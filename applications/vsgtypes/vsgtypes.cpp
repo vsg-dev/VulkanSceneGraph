@@ -99,12 +99,12 @@ int main(int /*argc*/, char** /*argv*/)
 
     VkFormatTypeMap[std::type_index(typeid(vsg::vec2))] =       VK_FORMAT_R32G32_SFLOAT;
     VkFormatTypeMap[std::type_index(typeid(vsg::dvec2))] =      VK_FORMAT_R64G64_SFLOAT;
-    //VkFormatTypeMap[std::type_index(typeid(vsg::uivec2))] =     VK_FORMAT_R32G32_UINT;
+    VkFormatTypeMap[std::type_index(typeid(vsg::uivec2))] =     VK_FORMAT_R32G32_UINT;
     VkFormatTypeMap[std::type_index(typeid(vsg::ivec2))] =      VK_FORMAT_R32G32_SINT;
 
     VkFormatTypeMap[std::type_index(typeid(vsg::vec3))] =       VK_FORMAT_R32G32B32_SFLOAT;
     VkFormatTypeMap[std::type_index(typeid(vsg::dvec3))] =      VK_FORMAT_R64G64B64_SFLOAT;
-    //VkFormatTypeMap[std::type_index(typeid(vsg::uivec3))] =     VK_FORMAT_R32G32B32_UINT;
+    VkFormatTypeMap[std::type_index(typeid(vsg::uivec3))] =     VK_FORMAT_R32G32B32_UINT;
     VkFormatTypeMap[std::type_index(typeid(vsg::ivec3))] =      VK_FORMAT_R32G32B32_SINT;
 
     VkFormatTypeMap[std::type_index(typeid(vsg::vec4))] =       VK_FORMAT_R32G32B32A32_SFLOAT;
