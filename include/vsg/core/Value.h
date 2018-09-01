@@ -68,6 +68,7 @@ namespace vsg
     }
 
     using stringValue = Value<std::string>;
+    using boolValue = Value<bool>;
     using intValue = Value<int>;
     using uintValue = Value<unsigned int>;
     using floatValue = Value<float>;

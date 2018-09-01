@@ -14,6 +14,7 @@ extern "C"
     {
         enum PropertyType
         {
+            TYPE_undefined,
             TYPE_Object,
             TYPE_bool,
             TYPE_char,
@@ -67,9 +68,9 @@ extern "C"
 
     extern VSG_EXPORT vsgObjectPtr vsgMethod(vsgObjectPtr object, const char* methodName);
 
-    extern VSG_EXPORT vsgObjectPtr vsgGetProperty(vsgObjectPtr object, const char* propertyName);
+    extern VSG_EXPORT struct Property vsgGetProperty(vsgObjectPtr object, const char* propertyName);
 
-    extern VSG_EXPORT vsgObjectPtr vsgSetProperty(vsgObjectPtr object, const char* propertyName, vsgObjectPtr* value);
+    extern VSG_EXPORT void vsgSetProperty(vsgObjectPtr object, const char* propertyName, struct Property property);
 
     extern VSG_EXPORT unsigned int vsgGetNumProperties(vsgObjectPtr object);
 

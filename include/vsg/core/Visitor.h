@@ -27,6 +27,7 @@ namespace vsg
 
         // Values
         virtual void apply(stringValue&);
+        virtual void apply(boolValue&);
         virtual void apply(intValue&);
         virtual void apply(uintValue&);
         virtual void apply(floatValue&);

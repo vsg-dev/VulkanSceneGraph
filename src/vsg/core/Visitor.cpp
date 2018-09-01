@@ -25,6 +25,7 @@ void Visitor::apply(Object&)
 // Values
 //
 void Visitor::apply(stringValue& value) { apply(static_cast<Object&>(value)); }
+void Visitor::apply(boolValue& value) { apply(static_cast<Object&>(value)); }
 void Visitor::apply(intValue& value) { apply(static_cast<Object&>(value)); }
 void Visitor::apply(uintValue& value) { apply(static_cast<Object&>(value)); }
 void Visitor::apply(floatValue& value) { apply(static_cast<Object&>(value)); }

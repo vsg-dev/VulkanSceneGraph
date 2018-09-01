@@ -4,6 +4,7 @@
 #include <vsg/core/Object.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
+#include <vsg/core/Visitor.h>
 
 #include <typeinfo>
 #include <typeindex>
@@ -130,14 +131,62 @@ vsgObjectPtr vsgMethod(vsgObjectPtr /*object*/, const char* /*methodName*/)
     return 0;
 }
 
-vsgObjectPtr vsgGetProperty(vsgObjectPtr /*object*/, const char* /*propertyName*/)
+
+class ObjectToPropertyVisitor : public vsg::Visitor
 {
-    return 0;
+public:
+
+    Property _property = {};
+
+    void apply(vsg::Object& value) override { _property.type = Property::TYPE_Object; _property.value._object = &value; std::cout<<"apply(vsg::Object&)"<<std::endl;}
+    void apply(vsg::boolValue& value) override { _property.type = Property::TYPE_bool; _property.value._bool = value.value(); std::cout<<"apply(vsg::boolValue&)"<<std::endl;}
+    void apply(vsg::intValue& value) override { _property.type = Property::TYPE_int; _property.value._int = value.value(); std::cout<<"apply(vsg::intValue&)"<<std::endl;}
+};
+
+struct Property vsgGetProperty(vsgObjectPtr objectPtr, const char* propertyName)
+{
+    if (!objectPtr) return Property{Property::TYPE_undefined,{0}};
+
+    vsg::Object* object = reinterpret_cast<vsg::Object*>(objectPtr);
+    vsg::Object* propertyObject = object->getObject(propertyName);
+    if (propertyObject)
+    {
+        ObjectToPropertyVisitor otpv;
+        propertyObject->accept(otpv);
+
+        std::cout<<"Return object"<<std::endl;
+        return otpv._property;
+    }
+    else
+    {
+        std::cout<<"Return empty, fallbck to TYPE_undefined."<<std::endl;
+
+        Property property;
+        property.type = Property::TYPE_undefined;
+        return property;
+    }
 }
 
-vsgObjectPtr vsgSetProperty(vsgObjectPtr /*object*/, const char* /*propertyName*/, vsgObjectPtr* /*value*/)
+void vsgSetProperty(vsgObjectPtr objectPtr, const char* propertyName, struct Property property)
 {
-    return 0;
+    std::cout<<"vsgSetProperty("<<objectPtr<<", "<<propertyName<<", "<<property.type<<std::endl;
+    if (!objectPtr) return;
+
+    vsg::Object* object = reinterpret_cast<vsg::Object*>(objectPtr);
+    switch(property.type)
+    {
+        case(Property::TYPE_Object) : object->setValue(propertyName, reinterpret_cast<vsg::Object*>(property.value._object)); break;
+        case(Property::TYPE_bool) : object->setValue(propertyName, bool(property.value._bool!=0)); break;
+        case(Property::TYPE_char) : object->setValue(propertyName, property.value._char); break;
+        case(Property::TYPE_unsigned_char) : object->setValue(propertyName, property.value._unsigned_char); break;
+        case(Property::TYPE_short) : object->setValue(propertyName, property.value._short); break;
+        case(Property::TYPE_unsigned_short) : object->setValue(propertyName, property.value._unsigned_short); break;
+        case(Property::TYPE_int) : object->setValue(propertyName, property.value._int); break;
+        case(Property::TYPE_unsigned_int) : object->setValue(propertyName, property.value._unsigned_int); break;
+        case(Property::TYPE_float) : object->setValue(propertyName, property.value._float); break;
+        case(Property::TYPE_double) : object->setValue(propertyName, property.value._double); break;
+        default: std::cout<<"Unhandling Property type"<<std::endl;
+    }
 }
 
 unsigned int vsgGetNumProperties(vsgObjectPtr /*object*/)
