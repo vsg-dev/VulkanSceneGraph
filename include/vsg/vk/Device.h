@@ -4,7 +4,7 @@
 
 namespace vsg
 {
-    class Device : public Object
+    class VSG_EXPORT Device : public Object
     {
     public:
         Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallbacks* allocator=nullptr);

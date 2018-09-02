@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+#include <vsg/core/Export.h>
+
 namespace vsg
 {
 
@@ -10,12 +12,12 @@ namespace vsg
 
     using Paths = std::vector<Path>;
 
-    extern Paths getEnvPaths(const char* env_var);
+    extern VSG_EXPORT Paths getEnvPaths(const char* env_var);
 
-    extern bool fileExists(const Path& path);
+    extern VSG_EXPORT bool fileExists(const Path& path);
 
-    extern Path concatePaths(const Path& left, const Path& right);
+    extern VSG_EXPORT Path concatePaths(const Path& left, const Path& right);
 
-    extern Path findFile(const Path& filename, const Paths& paths);
+    extern VSG_EXPORT Path findFile(const Path& filename, const Paths& paths);
 
 }

@@ -24,7 +24,7 @@ namespace vsg
         return true;
     }
 
-    class Shader : public Object
+    class VSG_EXPORT Shader : public Object
     {
     public:
         using Contents = std::vector<char>;
@@ -46,7 +46,7 @@ namespace vsg
         Contents                _contents;
     };
 
-    class ShaderModule : public vsg::Object
+    class VSG_EXPORT ShaderModule : public vsg::Object
     {
     public:
         ShaderModule(VkShaderModule shaderModule, Device* device, Shader* shader, AllocationCallbacks* allocator=nullptr);

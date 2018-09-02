@@ -17,7 +17,7 @@ namespace vsg
     class CommandBuffer;
     class RenderPass;
 
-    class Visitor : public Object
+    class VSG_EXPORT Visitor : public Object
     {
     public:
 

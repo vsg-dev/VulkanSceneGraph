@@ -3,6 +3,8 @@
 #include <atomic>
 #include <string>
 
+#include <vsg/core/Export.h>
+
 namespace vsg
 {
 
@@ -10,7 +12,7 @@ namespace vsg
     class Auxiliary;
     class Visitor;
 
-    class Object
+    class VSG_EXPORT Object
     {
     public:
         Object();

@@ -6,7 +6,7 @@
 namespace vsg
 {
 
-    class RenderPass : public Object
+    class VSG_EXPORT RenderPass : public Object
     {
     public:
         RenderPass(VkRenderPass renderPass, Device* device, AllocationCallbacks* allocator=nullptr);

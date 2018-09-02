@@ -4,7 +4,7 @@
 
 namespace vsg
 {
-    class BufferView : public Object
+    class VSG_EXPORT BufferView : public Object
     {
     public:
         BufferView(VkBufferView bufferView, Device* device, Buffer* buffer=nullptr, AllocationCallbacks* allocator=nullptr);

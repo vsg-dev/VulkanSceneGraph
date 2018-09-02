@@ -10,7 +10,7 @@
 namespace vsg
 {
 
-    class CommandVisitor : public Visitor
+    class VSG_EXPORT CommandVisitor : public Visitor
     {
     public:
 
@@ -30,6 +30,5 @@ namespace vsg
 
         void populateCommandBuffer(vsg::Node* subgraph);
     };
-
 
 }

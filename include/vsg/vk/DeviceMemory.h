@@ -8,7 +8,7 @@ namespace vsg
     class Buffer;
     class Image;
 
-    class DeviceMemory : public Object
+    class VSG_EXPORT DeviceMemory : public Object
     {
     public:
         DeviceMemory(VkDeviceMemory DeviceMemory, Device* device, AllocationCallbacks* allocator=nullptr);

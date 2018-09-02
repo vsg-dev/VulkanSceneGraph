@@ -8,7 +8,7 @@
 
 namespace vsg
 {
-    class QuadGroup : public vsg::Node
+    class VSG_EXPORT QuadGroup : public vsg::Node
     {
     public:
         QuadGroup() {}

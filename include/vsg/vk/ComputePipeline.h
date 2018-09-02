@@ -7,7 +7,7 @@
 namespace vsg
 {
 
-    class ComputePipeline : public Pipeline
+    class VSG_EXPORT ComputePipeline : public Pipeline
     {
     public:
         virtual void accept(Visitor& visitor) { visitor.apply(*this); }

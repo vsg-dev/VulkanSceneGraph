@@ -7,7 +7,7 @@
 namespace vsg
 {
 
-    class CommandBuffer : public Object
+    class VSG_EXPORT CommandBuffer : public Object
     {
     public:
         CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags flags);
@@ -85,7 +85,7 @@ namespace vsg
         dispatchCommandsToQueue(device, commandPool, nullptr, 0, queue, function);
     }
 
-    class CommandBuffers : public Object
+    class VSG_EXPORT CommandBuffers : public Object
     {
     public:
         using Buffers = std::vector<VkCommandBuffer>;

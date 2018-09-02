@@ -4,7 +4,7 @@
 
 namespace vsg
 {
-    class Buffer : public Object
+    class VSG_EXPORT Buffer : public Object
     {
     public:
         Buffer(VkBuffer Buffer, VkBufferUsageFlags usage, VkSharingMode sharingMode, Device* device, AllocationCallbacks* allocator=nullptr);

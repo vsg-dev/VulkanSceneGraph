@@ -7,7 +7,7 @@
 namespace vsg
 {
 
-    class Viewer : public Object
+    class VSG_EXPORT Viewer : public Object
     {
     public:
         Viewer();

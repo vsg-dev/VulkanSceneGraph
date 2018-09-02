@@ -8,7 +8,7 @@
 
 namespace vsg
 {
-    class Group : public vsg::Node
+    class VSG_EXPORT Group : public vsg::Node
     {
     public:
         Group();

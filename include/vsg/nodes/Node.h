@@ -5,7 +5,7 @@
 
 namespace vsg
 {
-    class Node : public vsg::Object
+    class VSG_EXPORT Node : public vsg::Object
     {
     public:
         Node();

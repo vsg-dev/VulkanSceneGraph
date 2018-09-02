@@ -4,7 +4,7 @@
 
 namespace vsg
 {
-    class Fence : public Object
+    class VSG_EXPORT Fence : public Object
     {
     public:
         Fence(VkFence Fence, Device* device, AllocationCallbacks* allocator=nullptr);

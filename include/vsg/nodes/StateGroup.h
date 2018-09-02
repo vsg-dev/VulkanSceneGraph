@@ -22,7 +22,7 @@ namespace vsg
         virtual ~StateComponent() {}
     };
 
-    class StateGroup : public Group
+    class VSG_EXPORT StateGroup : public Group
     {
     public:
         StateGroup();

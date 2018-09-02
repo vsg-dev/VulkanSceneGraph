@@ -7,7 +7,7 @@
 
 namespace vsg
 {
-    class BindVertexBuffers : public StateComponent
+    class VSG_EXPORT BindVertexBuffers : public StateComponent
     {
     public:
 

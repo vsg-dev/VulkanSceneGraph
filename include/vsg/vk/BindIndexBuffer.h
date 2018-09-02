@@ -7,7 +7,7 @@
 namespace vsg
 {
 
-    class BindIndexBuffer : public StateComponent
+    class VSG_EXPORT BindIndexBuffer : public StateComponent
     {
     public:
 
@@ -28,4 +28,5 @@ namespace vsg
         VkIndexType _indexType;
 
     };
+
 }

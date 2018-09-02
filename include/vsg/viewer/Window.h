@@ -10,7 +10,7 @@
 namespace vsg
 {
 
-    class Window : public Object
+    class VSG_EXPORT Window : public Object
     {
     public:
 

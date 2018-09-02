@@ -7,7 +7,7 @@
 namespace vsg
 {
 
-    class GraphicsVisitor : public Visitor
+    class VSG_EXPORT GraphicsVisitor : public Visitor
     {
     public:
 
@@ -22,7 +22,7 @@ namespace vsg
 
     };
 
-    class GraphicsStage : public Stage
+    class VSG_EXPORT GraphicsStage : public Stage
     {
     public:
 

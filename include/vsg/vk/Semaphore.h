@@ -4,7 +4,7 @@
 
 namespace vsg
 {
-    class Semaphore : public Object
+    class VSG_EXPORT Semaphore : public Object
     {
     public:
         Semaphore(VkSemaphore Semaphore, Device* device, AllocationCallbacks* allocator=nullptr);

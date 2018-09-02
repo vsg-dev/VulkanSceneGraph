@@ -26,7 +26,7 @@ namespace vsg
     using GraphicsPipelineStates = std::vector<ref_ptr<GraphicsPipelineState>>;
 
 
-    class GraphicsPipeline : public Pipeline
+    class VSG_EXPORT GraphicsPipeline : public Pipeline
     {
     public:
         virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
@@ -46,7 +46,7 @@ namespace vsg
     };
 
 
-    class ShaderStages : public GraphicsPipelineState
+    class VSG_EXPORT ShaderStages : public GraphicsPipelineState
     {
     public:
         ShaderStages(const ShaderModules& shaderModules);
@@ -74,7 +74,7 @@ namespace vsg
     };
 
 
-    class VertexInputState : public GraphicsPipelineState, public VkPipelineVertexInputStateCreateInfo
+    class VSG_EXPORT VertexInputState : public GraphicsPipelineState, public VkPipelineVertexInputStateCreateInfo
     {
     public:
         using Bindings = std::vector<VkVertexInputBindingDescription>;
@@ -99,7 +99,7 @@ namespace vsg
     };
 
 
-    class InputAssemblyState : public GraphicsPipelineState, public VkPipelineInputAssemblyStateCreateInfo
+    class VSG_EXPORT InputAssemblyState : public GraphicsPipelineState, public VkPipelineInputAssemblyStateCreateInfo
     {
     public:
         InputAssemblyState();
@@ -113,7 +113,7 @@ namespace vsg
     };
 
 
-    class ViewportState : public GraphicsPipelineState, public VkPipelineViewportStateCreateInfo
+    class VSG_EXPORT ViewportState : public GraphicsPipelineState, public VkPipelineViewportStateCreateInfo
     {
     public:
         ViewportState(const VkExtent2D& extent);
@@ -133,7 +133,7 @@ namespace vsg
     };
 
 
-    class RasterizationState : public GraphicsPipelineState, public VkPipelineRasterizationStateCreateInfo
+    class VSG_EXPORT RasterizationState : public GraphicsPipelineState, public VkPipelineRasterizationStateCreateInfo
     {
     public:
         RasterizationState();
@@ -147,7 +147,7 @@ namespace vsg
     };
 
 
-    class MultisampleState : public GraphicsPipelineState, public VkPipelineMultisampleStateCreateInfo
+    class VSG_EXPORT MultisampleState : public GraphicsPipelineState, public VkPipelineMultisampleStateCreateInfo
     {
     public:
         MultisampleState();
@@ -161,7 +161,7 @@ namespace vsg
     };
 
 
-    class DepthStencilState : public GraphicsPipelineState, public VkPipelineDepthStencilStateCreateInfo
+    class VSG_EXPORT DepthStencilState : public GraphicsPipelineState, public VkPipelineDepthStencilStateCreateInfo
     {
     public:
         DepthStencilState();
@@ -175,7 +175,7 @@ namespace vsg
     };
 
 
-    class ColorBlendState : public GraphicsPipelineState, public VkPipelineColorBlendStateCreateInfo
+    class VSG_EXPORT ColorBlendState : public GraphicsPipelineState, public VkPipelineColorBlendStateCreateInfo
     {
     public:
         ColorBlendState();

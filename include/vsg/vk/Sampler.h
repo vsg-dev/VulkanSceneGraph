@@ -4,7 +4,7 @@
 
 namespace vsg
 {
-    class Sampler : public Object
+    class VSG_EXPORT Sampler : public Object
     {
     public:
         Sampler(VkSampler Sampler, Device* device, AllocationCallbacks* allocator=nullptr);

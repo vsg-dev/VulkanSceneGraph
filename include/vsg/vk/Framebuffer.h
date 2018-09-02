@@ -6,7 +6,7 @@
 
 namespace vsg
 {
-    class Framebuffer : public Object
+    class VSG_EXPORT Framebuffer : public Object
     {
     public:
         Framebuffer(VkFramebuffer framebuffer, Device* device, AllocationCallbacks* allocator=nullptr);

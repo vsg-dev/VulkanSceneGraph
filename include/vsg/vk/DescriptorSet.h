@@ -9,7 +9,7 @@
 namespace vsg
 {
 
-    class DescriptorSet : public vsg::Object
+    class VSG_EXPORT DescriptorSet : public vsg::Object
     {
     public:
         DescriptorSet(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout, const Descriptors& descriptors);
@@ -35,7 +35,7 @@ namespace vsg
 
     using DescriptorSets = std::vector<ref_ptr<DescriptorSet>>;
 
-    class BindDescriptorSets : public StateComponent
+    class VSG_EXPORT BindDescriptorSets : public StateComponent
     {
     public:
 

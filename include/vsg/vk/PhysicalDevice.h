@@ -4,7 +4,7 @@
 
 namespace vsg
 {
-    class PhysicalDevice : public vsg::Object
+    class VSG_EXPORT PhysicalDevice : public vsg::Object
     {
     public:
         PhysicalDevice(Instance* instance, VkPhysicalDevice device, int graphicsFamily, int presentFamily, int computeFamily, Surface* surface);

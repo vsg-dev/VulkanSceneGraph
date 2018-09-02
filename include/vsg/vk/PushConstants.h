@@ -7,7 +7,7 @@
 namespace vsg
 {
 
-   class PushConstants : public StateComponent
+   class VSG_EXPORT PushConstants : public StateComponent
     {
     public:
         PushConstants(VkShaderStageFlags shaderFlags, uint32_t offset, Data* data);

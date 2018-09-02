@@ -4,7 +4,7 @@
 
 namespace vsg
 {
-    class ImageView : public Object
+    class VSG_EXPORT ImageView : public Object
     {
     public:
         ImageView(VkImageView imageView, Device* device, Image* image=nullptr, AllocationCallbacks* allocator=nullptr);

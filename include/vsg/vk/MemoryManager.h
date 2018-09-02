@@ -6,7 +6,7 @@
 
 namespace vsg
 {
-    class MemoryManager : public Object
+    class VSG_EXPORT MemoryManager : public Object
     {
     public:
         MemoryManager(Device* device, AllocationCallbacks* allocator=nullptr);

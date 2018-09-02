@@ -19,7 +19,7 @@ namespace vsg
         double    radius;
     };
 
-    class LOD : public vsg::Node
+    class VSG_EXPORT LOD : public vsg::Node
     {
     public:
         LOD() {}

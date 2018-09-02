@@ -13,9 +13,9 @@ namespace vsg
 {
     using Names = std::vector<const char*>;
 
-    extern Names validateInstancelayerNames(const Names& names);
+    extern VSG_EXPORT Names validateInstancelayerNames(const Names& names);
 
-    class Instance : public vsg::Object
+    class VSG_EXPORT Instance : public vsg::Object
     {
     public:
         Instance(VkInstance instance, AllocationCallbacks* allocator=nullptr);

@@ -6,7 +6,7 @@
 
 namespace vsg
 {
-    class CommandPool : public Object
+    class VSG_EXPORT CommandPool : public Object
     {
     public:
         CommandPool(VkCommandPool CommandPool, Device* device, AllocationCallbacks* allocator=nullptr);

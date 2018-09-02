@@ -10,7 +10,7 @@ namespace vsg
 {
 
     /** Auxiliary provides extra Object data that is rarely used, and hooks for observers.*/
-    class Auxiliary
+    class VSG_EXPORT Auxiliary
     {
     public:
         Auxiliary();

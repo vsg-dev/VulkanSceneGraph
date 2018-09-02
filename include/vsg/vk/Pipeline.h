@@ -6,7 +6,7 @@
 namespace vsg
 {
 
-    class Pipeline : public Object
+    class VSG_EXPORT Pipeline : public Object
     {
     public:
         Pipeline(VkPipeline pipeline, VkPipelineBindPoint bindPoint, Device* device, PipelineLayout* pipelineLayout, AllocationCallbacks* allocator=nullptr);
@@ -33,7 +33,7 @@ namespace vsg
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 
-    class BindPipeline : public StateComponent
+    class VSG_EXPORT BindPipeline : public StateComponent
     {
     public:
         BindPipeline(Pipeline* pipeline);

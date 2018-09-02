@@ -5,7 +5,7 @@
 
 namespace vsg
 {
-    class Surface : public vsg::Object
+    class VSG_EXPORT Surface : public vsg::Object
     {
     public:
         Surface(VkSurfaceKHR surface, Instance* instance, AllocationCallbacks* allocator=nullptr);

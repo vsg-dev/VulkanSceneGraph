@@ -4,7 +4,7 @@
 
 namespace vsg
 {
-    class Image : public Object
+    class VSG_EXPORT Image : public Object
     {
     public:
         Image(VkImage Image, Device* device, AllocationCallbacks* allocator=nullptr);
@@ -41,7 +41,7 @@ namespace vsg
         VkDeviceSize                    _memoryOffset;
     };
 
-    class ImageMemoryBarrier : public Object, public VkImageMemoryBarrier
+    class VSG_EXPORT ImageMemoryBarrier : public Object, public VkImageMemoryBarrier
     {
     public:
 
