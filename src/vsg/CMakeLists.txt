@@ -130,6 +130,12 @@ SET(SOURCES
     vk/Swapchain.cpp
 )
 
-ADD_LIBRARY(vsg SHARED ${HEADER_FILES} ${SOURCES})
+if   (VSG_SHARED_LIBRARY)
+    add_definitions(-DVSG_LIBRARY)
+    add_library(vsg SHARED ${HEADER_FILES} ${SOURCES})
+else ()
+    add_definitions(-DVSG_LIBRARY_STATIC)
+    add_library(vsg STATIC ${HEADER_FILES} ${SOURCES})
+endif()
 
 TARGET_LINK_LIBRARIES(vsg  ${Vulkan_LIBRARY} ${GLFW_LIBRARY})
