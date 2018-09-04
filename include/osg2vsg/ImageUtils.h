@@ -9,6 +9,8 @@
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/Descriptor.h>
 
+#include <osg2vsg/Export.h>
+
 namespace osg2vsg
 {
     using GLtoVkFormatMap = std::map<std::pair<GLenum, GLenum>, VkFormat>;
@@ -20,10 +22,10 @@ namespace osg2vsg
         {{GL_UNSIGNED_BYTE, GL_RGBA}, VK_FORMAT_R8G8B8A8_UNORM}
     };
 
-    VkFormat convertGLImageFormatToVulkan(GLenum dataType, GLenum pixelFormat);
+    extern OSG2VSG_EXPORT VkFormat convertGLImageFormatToVulkan(GLenum dataType, GLenum pixelFormat);
 
-    vsg::ref_ptr<osg::Image> formatImage(osg::Image* image, GLenum pixelFormat);
+    extern OSG2VSG_EXPORT vsg::ref_ptr<osg::Image> formatImage(osg::Image* image, GLenum pixelFormat);
 
-    vsg::ImageData readImageFile(vsg::Device* device, vsg::CommandPool* commandPool, VkQueue graphicsQueue, const std::string& filename);
+    extern OSG2VSG_EXPORT vsg::ImageData readImageFile(vsg::Device* device, vsg::CommandPool* commandPool, VkQueue graphicsQueue, const std::string& filename);
 }
 

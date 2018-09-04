@@ -1,3 +1,4 @@
+
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/include
     ${OSG_INCLUDE_DIR}
@@ -5,6 +6,7 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(HEADERS
+    Export.h
     ImageUtils.h
 )
 
