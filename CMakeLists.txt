@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(VulkanPlayground)
+project(VulkanSceneGraphPrototype)
 
 SET(OUTPUT_BINDIR ${PROJECT_BINARY_DIR}/bin)
 SET(OUTPUT_LIBDIR ${PROJECT_BINARY_DIR}/lib)
@@ -48,14 +48,6 @@ endforeach ()
 OPTION(VSG_SHARED_LIBRARY "Set to ON to build VulkanPlayground for dynamic linking.  Use OFF for static." ON)
 
 
-# Find OpenSceneGraph packages for reference
-find_package(OpenThreads)
-find_package(osg)
-find_package(osgDB)
-find_package(osgUtil)
-find_package(osgGA)
-find_package(osgViewer)
-
 find_package(GLFW)
 find_package(Vulkan)
 
@@ -67,7 +59,5 @@ IF(NOT DL_LIBRARY)
 ENDIF()
 
 
-
 # src directory contains all the example applications etc.
 add_subdirectory(src)
-add_subdirectory(applications)
