@@ -1,0 +1,121 @@
+#pragma once
+
+/* <editor-fold desc="MIT License">
+
+Copyright(c) 2018 Robert Osfield
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+</editor-fold> */
+
+#include <vsg/maths/vec3.h>
+#include <vsg/maths/mat4.h>
+
+namespace vsg
+{
+    const float PIf   = 3.14159265358979323846f;
+    const double PI   = 3.14159265358979323846;
+
+    float radians(float degrees) { return degrees * (PIf/180.0f); }
+    double radians(double degrees) { return degrees * (PI/180.0); }
+
+    float degrees(float radians) { return radians * (180.0f/PIf); }
+    double degrees(double radians) { return radians * (180.0/PI); }
+
+
+    template<typename T>
+    tmat4<T> rotate(T angle_radians, T x, T y, T z)
+    {
+        const T c = cos(angle_radians);
+        const T s = sin(angle_radians);
+        const T one_minus_c = 1-c;
+        return tmat4<T>(x*x*one_minus_c+c,     x*y*one_minus_c-z*s, x*z*one_minus_c+y*z, 0,
+                        y*x*one_minus_c+z*s,   y*y*one_minus_c+c,   y*z*one_minus_c-x*s, 0,
+                        x*z*one_minus_c-y*s,   y*z*one_minus_c+x*s, z*z*one_minus_c+c,   0,
+                        0,                     0,                   0,                   1);
+    }
+
+    template<typename T>
+    tmat4<T> rotate(T angle_radians, const tvec3<T>& v)
+    {
+        return rotate(angle_radians, v.x, v.y, v.z);
+    }
+
+    template<typename T>
+    tmat4<T> translate(T x, T y, T z)
+    {
+        return tmat4<T>(1, 0, 0, x,
+                        0, 1, 0, y,
+                        0, 0, 1, z,
+                        0, 0, 0, 1);
+    }
+
+    template<typename T>
+    tmat4<T> translate(const tvec3<T>& v)
+    {
+        return translate(v.x, v.y, v.z);
+    }
+
+    template<typename T>
+    tmat4<T> scale(T sx, T sy, T sz)
+    {
+        return tmat4<T>(sx, 0,  0,  0,
+                        0,  sy, 0,  0,
+                        0,  0,  sz, 0,
+                        0,  0,  0,  1);
+    }
+
+    template<typename T>
+    tmat4<T> scale(const tvec3<T>& v)
+    {
+        return scale(v.x, v.y, v.z);
+    }
+
+#if 0
+    // OpenGL style -1 to 1 depth range
+    template<typename T>
+    tmat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
+    {
+        T f = 1.0/tan(fovy_radians*0.5);
+        T r = 1.0/(zNear-zFar);
+        return tmat4<T>(f/aspectRatio, 0,  0,              0,
+                        0,             -f, 0,              0,
+                        0,             0,  (zFar+zNear)*r, (2.0*zFar*zNear)*r,
+                        0,             0,  -1,             0);
+    }
+#else
+    // Vulkan style 0 to 1 depth range
+    template<typename T>
+    tmat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
+    {
+        T f = 1.0/tan(fovy_radians*0.5);
+        T r = 1.0/(zNear-zFar);
+        return tmat4<T>(f/aspectRatio, 0,  0,           0,
+                        0,             -f, 0,           0,
+                        0,             0,  (zFar)*r,    (zFar*zNear)*r,
+                        0,             0,  -1,          0);
+    }
+#endif
+
+
+    template<typename T>
+    tmat4<T> lookAt(tvec3<T> const & eye, tvec3<T> const & center, tvec3<T> const & up )
+    {
+        using vec_type = tvec3<T>;
+
+        vec_type forward = normalize(center-eye);
+        vec_type up_normal = normalize(up);
+        vec_type side = normalize(cross(forward, up_normal));
+        vec_type u = normalize(cross(side, forward));
+
+        return tmat4<T>(side[0],     side[1],     side[2],      0,
+                        u[0],        u[1],        u[2],         0,
+                        -forward[0], -forward[1], -forward[2],  0,
+                        0,           0,           0,            1) *
+                vsg::translate(-eye.y, -eye.y, -eye.z);
+    }
+}
