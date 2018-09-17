@@ -14,6 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Visitor.h>
 #include <vsg/core/Auxiliary.h>
 
+#include <iostream>
+
 using namespace vsg;
 
 Object::Object() :
@@ -31,36 +33,22 @@ Object::~Object()
     }
 }
 
-void Object::ref() const
+void Object::_delete() const
 {
-    ++_referenceCount;
-}
+    // what should happen when _delete is called on an Object with ref() of zero?  Need to decide whether this buggy application usage should be tested for.
 
-void Object::unref() const
-{
-    if (_referenceCount.fetch_sub(1)<=1)
+    // if there is an auxiliary attached signal to it we wish to delete, and give it an opportunity to decide whether a delete is appropriate.
+    // if no auxiliary is attached then go straight ahead and delete.
+    if (_auxiliary==nullptr || _auxiliary->signalConnectedObjectToBeDeleted())
     {
-        // what should happen when unref() called on an Object with ref() of zero?  Need to decide whether this buggy application usage should be tested for.
-        if (_auxiliary)
-        {
-            _auxiliary->setConnectedObject(0);
-
-            if (_referenceCount.load()>0)
-            {
-                // in between the fetch_sub and the completion of setConnectedObject(0) a references was taken by another thread,
-                // we restore the connection  and abort the attempt to delete as it's no longer required.
-                _auxiliary->setConnectedObject(const_cast<Object*>(this));
-                return;
-            }
-        }
+        //std::cout<<"Object::_delete() "<<this<<" calling delete"<<std::endl;
 
         delete this;
     }
-}
-
-void Object::unref_nodelete() const
-{
-    --_referenceCount;
+    else
+    {
+        //std::cout<<"Object::_delete() "<<this<<" choosing not to delete"<<std::endl;
+    }
 }
 
 void Object::accept(Visitor& visitor)

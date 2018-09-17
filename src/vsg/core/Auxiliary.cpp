@@ -54,6 +54,23 @@ void Auxiliary::setConnectedObject(Object* object)
     //std::cout<<"Auxiliary::setConnectedObject("<<object<<") previous _connectedObject="<<_connectedObject<<std::endl;
 }
 
+bool Auxiliary::signalConnectedObjectToBeDeleted()
+{
+    Object* previousPtr = _connectedObject.exchange(0);
+    if (previousPtr->referenceCount()>0)
+    {
+        // referenceCount has been incremented by another thread, so now restore the _connectedObject
+        _connectedObject.exchange(previousPtr);
+
+        // return false, the object should not be deleted
+        return false;
+    }
+
+    // return true, the object should be deleted
+    return true;
+}
+
+
 void Auxiliary::setObject(const Object::Key& key, Object* object)
 {
     _objectMap[key] = object;

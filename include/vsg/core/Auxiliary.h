@@ -49,11 +49,15 @@ namespace vsg
 
         void setConnectedObject(Object* object);
 
+        /// reset the ConnectedObject pointer to 0 unless the ConnectedObject referenceCount goes back above 0,
+        /// return true if ConnectedObject should still be deleted, or false if the object should be kept.
+        bool signalConnectedObjectToBeDeleted();
+
         friend class Object;
 
         mutable std::atomic_uint _referenceCount;
 
-        Object* _connectedObject;
+        std::atomic<Object*> _connectedObject;
 
         ObjectMap _objectMap;
 
