@@ -12,16 +12,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/Node.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 Node::Node()
 {
-    std::cout<<"Node::Node()"<<std::endl;
 }
 
 Node::~Node()
 {
-    std::cout<<"Node::~Node()"<<std::endl;
 }
