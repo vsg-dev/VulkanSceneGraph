@@ -40,10 +40,10 @@ namespace vsg
             struct { value_type s, t; };
         };
 
-        tvec2() : value{} {}
-        tvec2(value_type in_x, value_type in_y) : value{in_x, in_y} {}
+        constexpr tvec2() : value{} {}
+        constexpr tvec2(value_type in_x, value_type in_y) : value{in_x, in_y} {}
 
-        std::size_t size() const { return 2; }
+        constexpr std::size_t size() const { return 2; }
 
         value_type & operator[] (std::size_t i) { return value[i]; }
         value_type operator[] (std::size_t i) const { return value[i]; }

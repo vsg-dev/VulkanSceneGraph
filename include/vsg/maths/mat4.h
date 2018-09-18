@@ -26,26 +26,26 @@ namespace vsg
 
         column_type value[4];
 
-        tmat4() : value{{1, 0, 0, 0},
+        constexpr tmat4() : value{{1, 0, 0, 0},
                         {0, 1, 0, 0},
                         {0, 0, 1, 0},
                         {0, 0, 0, 1}} {}
 
-        explicit tmat4(value_type v) : value{{v, 0, 0, 0},
-                                             {0, v, 0, 0},
-                                             {0, 0, v, 0},
-                                             {0, 0, 0, v}} {}
+        constexpr explicit tmat4(value_type v) : value{{v, 0, 0, 0},
+                                                       {0, v, 0, 0},
+                                                       {0, 0, v, 0},
+                                                       {0, 0, 0, v}} {}
 
-        tmat4(value_type v0, value_type v1, value_type v2, value_type v3,
-            value_type v4, value_type v5, value_type v6, value_type v7,
-            value_type v8, value_type v9, value_type v10, value_type v11,
-            value_type v12, value_type v13, value_type v14, value_type v15) :
-            value{{v0, v4, v8,  v12},
-                  {v1, v5, v9,  v13},
-                  {v2, v6, v10, v14},
-                  {v3, v7, v11, v15}} {}
+        constexpr tmat4(value_type v0, value_type v1, value_type v2, value_type v3,
+                        value_type v4, value_type v5, value_type v6, value_type v7,
+                        value_type v8, value_type v9, value_type v10, value_type v11,
+                        value_type v12, value_type v13, value_type v14, value_type v15) :
+                        value{{v0, v4, v8,  v12},
+                            {v1, v5, v9,  v13},
+                            {v2, v6, v10, v14},
+                            {v3, v7, v11, v15}} {}
 
-        tmat4(value_type v[16]) :
+        constexpr tmat4(value_type v[16]) :
             value{{v[0], v[4], v[8],  v[12]},
                   {v[1], v[5], v[9],  v[13]},
                   {v[2], v[6], v[10], v[14]},
@@ -60,9 +60,9 @@ namespace vsg
             value[3] = rhs[3];
         }
 
-        std::size_t size() const { return 16; }
-        std::size_t columns() const { return 4; }
-        std::size_t rows() const { return 4; }
+        constexpr std::size_t size() const { return 16; }
+        constexpr std::size_t columns() const { return 4; }
+        constexpr std::size_t rows() const { return 4; }
 
         column_type& operator[] (std::size_t c) { return value[c]; }
         column_type const& operator[] (std::size_t c) const { return value[c]; }

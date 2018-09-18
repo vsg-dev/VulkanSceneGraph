@@ -17,18 +17,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    const float PIf   = 3.14159265358979323846f;
-    const double PI   = 3.14159265358979323846;
+    constexpr const float PIf   = 3.14159265358979323846f;
+    constexpr double PI   = 3.14159265358979323846;
 
-    float radians(float degrees) { return degrees * (PIf/180.0f); }
-    double radians(double degrees) { return degrees * (PI/180.0); }
+    constexpr float radians(float degrees) noexcept { return degrees * (PIf/180.0f); }
+    constexpr double radians(double degrees) noexcept { return degrees * (PI/180.0); }
 
-    float degrees(float radians) { return radians * (180.0f/PIf); }
-    double degrees(double radians) { return radians * (180.0/PI); }
+    constexpr float degrees(float radians) noexcept { return radians * (180.0f/PIf); }
+    constexpr double degrees(double radians) noexcept { return radians * (180.0/PI); }
 
 
     template<typename T>
-    tmat4<T> rotate(T angle_radians, T x, T y, T z)
+    OPTIONAL_constexpr tmat4<T> rotate(T angle_radians, T x, T y, T z)
     {
         const T c = cos(angle_radians);
         const T s = sin(angle_radians);
@@ -40,13 +40,13 @@ namespace vsg
     }
 
     template<typename T>
-    tmat4<T> rotate(T angle_radians, const tvec3<T>& v)
+    constexpr tmat4<T> rotate(T angle_radians, const tvec3<T>& v)
     {
-        return rotate(angle_radians, v.x, v.y, v.z);
+        return rotate(angle_radians, v.value[0], v.value[1], v.value[2]);
     }
 
     template<typename T>
-    tmat4<T> translate(T x, T y, T z)
+    constexpr tmat4<T> translate(T x, T y, T z)
     {
         return tmat4<T>(1, 0, 0, x,
                         0, 1, 0, y,
@@ -55,13 +55,13 @@ namespace vsg
     }
 
     template<typename T>
-    tmat4<T> translate(const tvec3<T>& v)
+    constexpr tmat4<T> translate(const tvec3<T>& v)
     {
-        return translate(v.x, v.y, v.z);
+        return translate(v.value[0], v.value[1], v.value[2]);
     }
 
     template<typename T>
-    tmat4<T> scale(T sx, T sy, T sz)
+    constexpr tmat4<T> scale(T sx, T sy, T sz)
     {
         return tmat4<T>(sx, 0,  0,  0,
                         0,  sy, 0,  0,
@@ -70,27 +70,14 @@ namespace vsg
     }
 
     template<typename T>
-    tmat4<T> scale(const tvec3<T>& v)
+    constexpr tmat4<T> scale(const tvec3<T>& v)
     {
         return scale(v.x, v.y, v.z);
     }
 
-#if 0
-    // OpenGL style -1 to 1 depth range
-    template<typename T>
-    tmat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
-    {
-        T f = 1.0/tan(fovy_radians*0.5);
-        T r = 1.0/(zNear-zFar);
-        return tmat4<T>(f/aspectRatio, 0,  0,              0,
-                        0,             -f, 0,              0,
-                        0,             0,  (zFar+zNear)*r, (2.0*zFar*zNear)*r,
-                        0,             0,  -1,             0);
-    }
-#else
     // Vulkan style 0 to 1 depth range
     template<typename T>
-    tmat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
+    OPTIONAL_constexpr tmat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
     {
         T f = 1.0/tan(fovy_radians*0.5);
         T r = 1.0/(zNear-zFar);
@@ -99,11 +86,10 @@ namespace vsg
                         0,             0,  (zFar)*r,    (zFar*zNear)*r,
                         0,             0,  -1,          0);
     }
-#endif
 
 
     template<typename T>
-    tmat4<T> lookAt(tvec3<T> const & eye, tvec3<T> const & center, tvec3<T> const & up )
+    OPTIONAL_constexpr tmat4<T> lookAt(tvec3<T> const & eye, tvec3<T> const & center, tvec3<T> const & up)
     {
         using vec_type = tvec3<T>;
 
