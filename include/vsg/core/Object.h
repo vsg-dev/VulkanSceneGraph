@@ -32,10 +32,10 @@ namespace vsg
         virtual void accept(Visitor& visitor);
         virtual void traverse(Visitor&) {}
 
-        inline void ref() const { _referenceCount.fetch_add(1, std::memory_order_relaxed); }
-        inline void unref() const { if (_referenceCount.fetch_sub(1, std::memory_order_seq_cst)<=1) _delete(); }
-        inline void unref_nodelete() const { _referenceCount.fetch_sub(1, std::memory_order_seq_cst); }
-        inline unsigned int referenceCount() const { return _referenceCount.load(); }
+        inline void ref() const noexcept { _referenceCount.fetch_add(1, std::memory_order_relaxed); }
+        inline void unref() const noexcept { if (_referenceCount.fetch_sub(1, std::memory_order_seq_cst)<=1) _delete(); }
+        inline void unref_nodelete() const noexcept { _referenceCount.fetch_sub(1, std::memory_order_seq_cst); }
+        inline unsigned int referenceCount() const noexcept { return _referenceCount.load(); }
 
         struct Key
         {

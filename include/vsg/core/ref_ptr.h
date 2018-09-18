@@ -54,7 +54,7 @@ namespace vsg
             if (_ptr) _ptr->unref();
         }
 
-        ref_ptr& operator = (T* ptr)
+        ref_ptr& operator = (T* ptr) noexcept
         {
             if (ptr==_ptr) return *this;
 
@@ -70,7 +70,7 @@ namespace vsg
             return *this;
         }
 
-        ref_ptr& operator = (const ref_ptr& rhs)
+        ref_ptr& operator = (const ref_ptr& rhs) noexcept
         {
             if (rhs._ptr==_ptr) return *this;
 
@@ -88,7 +88,7 @@ namespace vsg
 
 
         template<class R>
-        ref_ptr& operator = (const ref_ptr<R>& rhs)
+        ref_ptr& operator = (const ref_ptr<R>& rhs) noexcept
         {
             if (rhs._ptr==_ptr) return *this;
 
@@ -104,21 +104,21 @@ namespace vsg
             return *this;
         }
 
-        bool valid() const { return _ptr!=nullptr; }
+        bool valid() const noexcept { return _ptr!=nullptr; }
 
-        explicit operator bool() const { return valid(); }
+        explicit operator bool() const noexcept { return valid(); }
 
         // potentially dangerous automatic type conversion, could cause dangling pointer if ref_ptr<> assigned to C pointer, if ref_ptr<> destruction cause an object delete.
-        operator T* () const { return _ptr; }
+        operator T* () const noexcept { return _ptr; }
 
-        T& operator*() const { return *_ptr; }
+        T& operator*() const noexcept { return *_ptr; }
 
-        T* operator->() const { return _ptr;}
+        T* operator->() const noexcept { return _ptr;}
 
-        T* get() const { return _ptr; }
+        T* get() const noexcept { return _ptr; }
 
 
-        T* release()
+        T* release() noexcept
         {
             T* temp_ptr = _ptr;
 
@@ -128,7 +128,7 @@ namespace vsg
             return temp_ptr;
         }
 
-        void swap(ref_ptr& rhs)
+        void swap(ref_ptr& rhs) noexcept
         {
             T* temp_ptr = _ptr;
             _ptr = rhs._ptr;
