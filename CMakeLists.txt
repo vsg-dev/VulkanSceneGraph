@@ -9,7 +9,9 @@ set(OUTPUT_BINDIR ${PROJECT_BINARY_DIR}/bin)
 set(OUTPUT_LIBDIR ${PROJECT_BINARY_DIR}/lib)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
+
 if(WIN32)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
 else(WIN32)
@@ -23,8 +25,9 @@ make_directory(${OUTPUT_LIBDIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
 
 # set compilation to use C++11
-set(CMAKE_CXX_STANDARD 11)
+#set(CMAKE_CXX_STANDARD 11)
 #set(CMAKE_CXX_STANDARD 14)
+#set(CMAKE_CXX_STANDARD 17)
 
 # Change the default build type to Release
 if(NOT CMAKE_BUILD_TYPE)
@@ -57,7 +60,6 @@ find_library(DL_LIBRARY dl)
 if(NOT DL_LIBRARY)
     set(DL_LIBRARY "") # change from NOTFOUND to empty when passed to linker
 endif()
-
 
 # src directory contains all the example applications etc.
 add_subdirectory(src/vsg)
