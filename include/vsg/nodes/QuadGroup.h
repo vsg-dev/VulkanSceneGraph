@@ -31,7 +31,7 @@ namespace vsg
         {
             for (auto child : _children)
             {
-                if (child.valid()) child->accept(visitor);
+                /*if (child.valid())*/ child->accept(visitor);
             }
         }
 
