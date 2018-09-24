@@ -25,15 +25,17 @@ namespace vsg
     public:
         QuadGroup() {}
 
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
-
-        inline virtual void traverse(Visitor& visitor)
+       template<class V> void t_accept(V& visitor) { visitor.apply(visitor); }
+        template<class V> void t_traverse(V& visitor)
         {
             for (auto child : _children)
             {
                 if (child.valid()) child->accept(visitor);
             }
         }
+
+        inline virtual void accept(Visitor& visitor) override { t_accept(visitor); }
+        inline virtual void traverse(Visitor& visitor) override { t_traverse(visitor); }
 
         void setChild(std::size_t pos, vsg::Node* node)
         {

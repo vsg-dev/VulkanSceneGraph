@@ -29,6 +29,9 @@ namespace vsg
     public:
         Object();
 
+        template<class V> void t_accept(V& visitor) { visitor.apply(*this); }
+        template<class V> void t_traverse(V& visitor) {}
+
         virtual void accept(Visitor& visitor);
         virtual void traverse(Visitor&) {}
 

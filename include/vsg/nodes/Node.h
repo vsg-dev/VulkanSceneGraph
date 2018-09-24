@@ -22,7 +22,8 @@ namespace vsg
     public:
         Node();
 
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
+        template<class V> void t_accept(V& visitor) { visitor.apply(visitor); }
+        virtual void accept(Visitor& visitor) override { t_accept(visitor); }
 
     protected:
 

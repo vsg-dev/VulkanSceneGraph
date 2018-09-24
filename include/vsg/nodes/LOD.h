@@ -36,16 +36,17 @@ namespace vsg
     public:
         LOD() {}
 
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
-
-        // traverse all chukdren
-        inline virtual void traverse(Visitor& visitor)
+        template<class V> void t_accept(V& visitor) { visitor.apply(visitor); }
+        template<class V> void t_traverse(V& visitor)
         {
             for (auto child : _children)
             {
                 if (child.valid()) child->accept(visitor);
             }
         }
+
+        inline virtual void accept(Visitor& visitor) override { t_accept(visitor); }
+        inline virtual void traverse(Visitor& visitor) override { t_traverse(visitor); }
 
         /// set the BondingSphere to use in culling/computation of which child is active.
         void setBoundingSphere(const Sphere& sphere) { _boundingSphere = sphere; }
