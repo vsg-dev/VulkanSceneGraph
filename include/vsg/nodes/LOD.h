@@ -36,7 +36,7 @@ namespace vsg
     public:
         LOD() {}
 
-        template<class V> void t_accept(V& visitor) { visitor.apply(visitor); }
+        template<class V> void t_accept(V& visitor) { visitor.apply(*this); }
         template<class V> void t_traverse(V& visitor)
         {
             for (auto child : _children)

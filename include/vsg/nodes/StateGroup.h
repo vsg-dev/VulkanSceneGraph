@@ -39,9 +39,9 @@ namespace vsg
     public:
         StateGroup();
 
-        template<class V> void t_accept(V& visitor) { visitor.apply(visitor); }
+        template<class V> void t_accept(V& visitor) { visitor.apply(*this); }
 
-        virtual void accept(Visitor& visitor) override { t_accept(visitor); }
+        virtual void accept(Visitor& visitor) override { StateGroup::t_accept(visitor); }
 
         using StateComponents = std::vector<ref_ptr<StateComponent>>;
 

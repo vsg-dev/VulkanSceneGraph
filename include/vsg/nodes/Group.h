@@ -25,17 +25,17 @@ namespace vsg
     public:
         Group();
 
-        template<class V> void t_accept(V& visitor) { visitor.apply(visitor); }
+        template<class V> void t_accept(V& visitor) { visitor.apply(*this); }
         template<class V> void t_traverse(V& visitor)
         {
             for (auto child : _children)
             {
-                if (child.valid()) child->accept(visitor);
+                if (child.valid()) child->t_accept(visitor);
             }
         }
 
-        inline virtual void accept(Visitor& visitor) override { t_accept(visitor); }
-        inline virtual void traverse(Visitor& visitor) override { t_traverse(visitor); }
+        inline virtual void accept(Visitor& visitor) override { Group::t_accept(visitor); }
+        inline virtual void traverse(Visitor& visitor) override { Group::t_traverse(visitor); }
 
         std::size_t addChild(vsg::Node* child) { std::size_t pos = _children.size(); _children.push_back(child); return pos; }
 

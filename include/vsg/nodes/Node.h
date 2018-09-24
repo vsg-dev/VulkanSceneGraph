@@ -22,8 +22,8 @@ namespace vsg
     public:
         Node();
 
-        template<class V> void t_accept(V& visitor) { visitor.apply(visitor); }
-        virtual void accept(Visitor& visitor) override { t_accept(visitor); }
+        template<class V> void t_accept(V& visitor) { visitor.apply(*this); }
+        virtual void accept(Visitor& visitor) override { Node::t_accept(visitor); }
 
     protected:
 
