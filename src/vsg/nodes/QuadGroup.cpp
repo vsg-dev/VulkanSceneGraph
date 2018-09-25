@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,20 +10,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Object.h>
-#include <vsg/core/Visitor.h>
+#include <vsg/nodes/QuadGroup.h>
 
-namespace vsg
+using namespace vsg;
+
+
+QuadGroup::QuadGroup()
 {
-    class VSG_EXPORT Node : public vsg::Object
-    {
-    public:
-        Node();
+}
 
-        virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
-
-    protected:
-
-        virtual ~Node();
-    };
+QuadGroup::~QuadGroup()
+{
 }

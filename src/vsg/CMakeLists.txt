@@ -16,6 +16,7 @@ SET(SOURCES
 
     nodes/Group.cpp
     nodes/Node.cpp
+    nodes/QuadGroup.cpp
     nodes/StateGroup.cpp
 
     utils/FileSystem.cpp

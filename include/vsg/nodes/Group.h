@@ -23,24 +23,21 @@ namespace vsg
     class VSG_EXPORT Group : public vsg::Node
     {
     public:
-        Group();
+        Group(size_t numChildren=0);
 
-        template<class V> void t_accept(V& visitor) { visitor.apply(*this); }
         template<class V> void t_traverse(V& visitor)
         {
-            for (auto child : _children)
-            {
-                if (child.valid()) child->t_accept(visitor);
-            }
+            for (auto child : _children) child->accept(visitor);
         }
 
-        inline virtual void accept(Visitor& visitor) override { Group::t_accept(visitor); }
+        inline virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
         inline virtual void traverse(Visitor& visitor) override { Group::t_traverse(visitor); }
 
         std::size_t addChild(vsg::Node* child) { std::size_t pos = _children.size(); _children.push_back(child); return pos; }
 
         void removeChild(std::size_t pos) { _children.erase(_children.begin()+pos); }
 
+        void setChild(std::size_t pos, Node* node) { _children[pos] = node; }
         vsg::Node* getChild(std::size_t pos) { return _children[pos].get(); }
         const vsg::Node* getChild(std::size_t pos) const { return _children[pos].get(); }
 

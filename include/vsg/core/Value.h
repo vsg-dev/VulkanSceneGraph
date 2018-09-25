@@ -31,9 +31,6 @@ namespace vsg
         Value(const value_type& in_value) : _value(in_value) {}
         Value(const Value& rhs) : _value(rhs._value) {}
 
-        template<class V> void t_accept(V& visitor) { visitor.apply(*this); }
-        template<class V> void t_traverse(V& visitor) {}
-
         // implementation provided by Visitor.h
         virtual void accept(Visitor& visitor) override;
 

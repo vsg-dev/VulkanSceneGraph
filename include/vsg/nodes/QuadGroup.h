@@ -17,44 +17,43 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Node.h>
 
 #include <array>
+#include <vector>
+
+//#define USE_std_array
 
 namespace vsg
 {
     class VSG_EXPORT QuadGroup : public vsg::Node
     {
     public:
-        QuadGroup() {}
+        QuadGroup();
 
-        template<class V> void t_accept(V& visitor) { visitor.apply(*this); }
         template<class V> void t_traverse(V& visitor)
         {
-            for (auto child : _children)
-            {
-                if (child.valid()) child->t_accept(visitor);
-            }
+            for(int i=0; i<4; ++i) _children[i]->accept(visitor);
         }
 
-        inline virtual void accept(Visitor& visitor) override { QuadGroup::t_accept(visitor); }
+        inline virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
         inline virtual void traverse(Visitor& visitor) override { QuadGroup::t_traverse(visitor); }
 
-        void setChild(std::size_t pos, vsg::Node* node)
-        {
-            _children[pos] = node;
-        }
-
+        void setChild(std::size_t pos, vsg::Node* node) { _children[pos] = node; }
         vsg::Node* getChild(std::size_t pos) { return _children[pos].get(); }
         const vsg::Node* getChild(std::size_t pos) const { return _children[pos].get(); }
 
         std::size_t getNumChildren() const { return 4; }
 
+#ifdef USE_std_array
         using Children = std::array< ref_ptr< vsg::Node>, 4 >;
+#else
+        using Children = ref_ptr< vsg::Node>[4];
+#endif
 
         Children& getChildren() { return _children; }
         const Children& getChildren() const { return _children; }
 
     protected:
 
-        virtual ~QuadGroup() {}
+        virtual ~QuadGroup();
 
         Children _children;
     };
