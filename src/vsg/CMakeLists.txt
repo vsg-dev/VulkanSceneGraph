@@ -25,6 +25,7 @@ SET(SOURCES
     viewer/GLFW_Window.cpp
     viewer/Viewer.cpp
     viewer/Window.cpp
+    viewer/DispatchTraversal.cpp
 
     vk/Buffer.cpp
     vk/BufferData.cpp

@@ -34,7 +34,9 @@ namespace vsg
         }
 
         inline virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
-        inline virtual void traverse(Visitor& visitor) override { QuadGroup::t_traverse(visitor); }
+        inline virtual void traverse(Visitor& visitor) override { t_traverse(visitor); }
+        inline virtual void accept(DispatchTraversal& visitor) override { visitor.apply(*this); }
+        inline virtual void traverse(DispatchTraversal& visitor) override { t_traverse(visitor); }
 
         void setChild(std::size_t pos, vsg::Node* node) { _children[pos] = node; }
         vsg::Node* getChild(std::size_t pos) { return _children[pos].get(); }

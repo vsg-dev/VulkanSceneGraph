@@ -31,7 +31,9 @@ namespace vsg
         }
 
         inline virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
-        inline virtual void traverse(Visitor& visitor) override { Group::t_traverse(visitor); }
+        inline virtual void traverse(Visitor& visitor) override { t_traverse(visitor); }
+        inline virtual void accept(DispatchTraversal& visitor) override { visitor.apply(*this); }
+        inline virtual void traverse(DispatchTraversal& visitor) override { t_traverse(visitor); }
 
         std::size_t addChild(vsg::Node* child) { std::size_t pos = _children.size(); _children.push_back(child); return pos; }
 

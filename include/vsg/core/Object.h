@@ -17,12 +17,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Export.h>
 
+#define VSG_HAS_DISPATCH_TRAVERSAL
+
 namespace vsg
 {
 
     // forward declare
     class Auxiliary;
     class Visitor;
+    class DispatchTraversal;
 
     class VSG_EXPORT Object
     {
@@ -33,6 +36,9 @@ namespace vsg
 
         virtual void accept(Visitor& visitor);
         virtual void traverse(Visitor&) {}
+
+        virtual void accept(DispatchTraversal& visitor);
+        virtual void traverse(DispatchTraversal& ) {}
 
         inline void ref() const noexcept { _referenceCount.fetch_add(1, std::memory_order_relaxed); }
         inline void unref() const noexcept { if (_referenceCount.fetch_sub(1, std::memory_order_seq_cst)<=1) _delete(); }

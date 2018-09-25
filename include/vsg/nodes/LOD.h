@@ -45,8 +45,10 @@ namespace vsg
             }
         }
 
-        inline virtual void accept(Visitor& visitor) override { t_accept(visitor); }
+        inline virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
         inline virtual void traverse(Visitor& visitor) override { t_traverse(visitor); }
+        inline virtual void accept(DispatchTraversal& visitor) override { visitor.apply(*this); }
+        inline virtual void traverse(DispatchTraversal& visitor) override { t_traverse(visitor); }
 
         /// set the BondingSphere to use in culling/computation of which child is active.
         void setBoundingSphere(const Sphere& sphere) { _boundingSphere = sphere; }

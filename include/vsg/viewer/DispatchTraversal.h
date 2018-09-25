@@ -12,46 +12,40 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/Group.h>
+#include <vsg/core/Object.h>
 
 namespace vsg
 {
-    // forward declare
-    class State;
+
+    // forward declare nodes
+    class Node;
+    class Group;
+    class QuadGroup;
+    class LOD;
+    class StateGroup;
+
+    class Command;
     class CommandBuffer;
+    class RenderPass;
 
-    class StateComponent : public Object
+    class VSG_EXPORT DispatchTraversal : public Object
     {
     public:
-        StateComponent() {}
 
-        virtual void pushTo(State& state) = 0;
-        virtual void popFrom(State& state) = 0;
+        unsigned int numNodes = 0;
 
-        virtual void dispatch(CommandBuffer& commandBuffer) const = 0;
+        void apply(Object& object);
 
-    protected:
-        virtual ~StateComponent() {}
-    };
+        // scene graph nodes
+        void apply(Node& object);
+        void apply(Group& object);
+        void apply(QuadGroup& object);
+        void apply(LOD& object);
+        void apply(StateGroup& object);
 
-    class VSG_EXPORT StateGroup : public Group
-    {
-    public:
-        StateGroup();
-
-        virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
-        virtual void accept(DispatchTraversal& visitor) override { visitor.apply(*this); }
-
-        using StateComponents = std::vector<ref_ptr<StateComponent>>;
-
-        void add(StateComponent* component) { _stateComponents.push_back(component); }
-
-        inline void pushTo(State& state) { for(auto& component : _stateComponents) component->pushTo(state); }
-        inline void popFrom(State& state) { for(auto& component : _stateComponents) component->popFrom(state); }
-
-    protected:
-        virtual ~StateGroup();
-
-        StateComponents _stateComponents;
+        // Vulkan nodes
+        void apply(Command& object);
+        void apply(CommandBuffer& object);
+        void apply(RenderPass& object);
     };
 }
