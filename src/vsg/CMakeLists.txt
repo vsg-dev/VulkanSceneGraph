@@ -21,11 +21,12 @@ SET(SOURCES
 
     utils/FileSystem.cpp
 
+    traversals/DispatchTraversal.cpp
+
     viewer/GraphicsStage.cpp
     viewer/GLFW_Window.cpp
     viewer/Viewer.cpp
     viewer/Window.cpp
-    viewer/DispatchTraversal.cpp
 
     vk/Buffer.cpp
     vk/BufferData.cpp

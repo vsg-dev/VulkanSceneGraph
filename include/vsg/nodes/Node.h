@@ -14,7 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Object.h>
 #include <vsg/core/Visitor.h>
-#include <vsg/viewer/DispatchTraversal.h>
+#include <vsg/traversals/DispatchTraversal.h>
 
 namespace vsg
 {
