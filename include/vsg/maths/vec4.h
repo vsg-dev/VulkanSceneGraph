@@ -27,7 +27,7 @@ namespace vsg
 {
 
     template<typename T>
-    struct tvec4
+    struct t_vec4
     {
         using value_type = T;
 
@@ -39,8 +39,8 @@ namespace vsg
             struct { value_type s, t, p, q; };
         };
 
-        constexpr tvec4() : value{} {}
-        constexpr tvec4(value_type in_x, value_type in_y, value_type in_z, value_type in_w) : value{in_x, in_y, in_z, in_w} {}
+        constexpr t_vec4() : value{} {}
+        constexpr t_vec4(value_type in_x, value_type in_y, value_type in_z, value_type in_w) : value{in_x, in_y, in_z, in_w} {}
 
         constexpr std::size_t size() const { return 4; }
 
@@ -48,7 +48,7 @@ namespace vsg
         value_type operator[] (std::size_t i) const { return value[i]; }
 
         template<typename R>
-        tvec4& operator = (const tvec4<R>& rhs)
+        t_vec4& operator = (const t_vec4<R>& rhs)
         {
             value[0] = rhs[0];
             value[1] = rhs[1];
@@ -61,8 +61,8 @@ namespace vsg
         const T* data() const { return value; }
     };
 
-    using vec4 = tvec4<float>;
-    using dvec4 = tvec4<double>;
+    using vec4 = t_vec4<float>;
+    using dvec4 = t_vec4<double>;
 
 }
 

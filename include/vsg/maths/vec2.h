@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-
 // we can't implement the anonymous union/structs combination without causing warnings, so disabled them for just this header
 #if defined(__GNUC__)
     #pragma GCC diagnostic push
@@ -28,7 +27,7 @@ namespace vsg
 {
 
     template<typename T>
-    struct tvec2
+    struct t_vec2
     {
         using value_type = T;
 
@@ -40,8 +39,8 @@ namespace vsg
             struct { value_type s, t; };
         };
 
-        constexpr tvec2() : value{} {}
-        constexpr tvec2(value_type in_x, value_type in_y) : value{in_x, in_y} {}
+        constexpr t_vec2() : value{} {}
+        constexpr t_vec2(value_type in_x, value_type in_y) : value{in_x, in_y} {}
 
         constexpr std::size_t size() const { return 2; }
 
@@ -49,7 +48,7 @@ namespace vsg
         value_type operator[] (std::size_t i) const { return value[i]; }
 
         template<typename R>
-        tvec2& operator = (const tvec2<R>& rhs)
+        t_vec2& operator = (const t_vec2<R>& rhs)
         {
             value[0] = rhs[0];
             value[1] = rhs[1];
@@ -60,8 +59,8 @@ namespace vsg
         const T* data() const { return value; }
     };
 
-    using vec2 = tvec2<float>;
-    using dvec2 = tvec2<double>;
+    using vec2 = t_vec2<float>;
+    using dvec2 = t_vec2<double>;
 
 }
 
