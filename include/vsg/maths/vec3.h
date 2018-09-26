@@ -25,12 +25,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     #pragma clang diagnostic ignored "-Wnested-anon-types"
 #endif
 
-#if __cplusplus >= 201703L
-    #define OPTIONAL_constexpr constexpr
-#else
-    #define OPTIONAL_constexpr
-#endif
-
 namespace vsg
 {
 
@@ -90,7 +84,7 @@ namespace vsg
     }
 
     template<typename T>
-    OPTIONAL_constexpr  tvec3<T> normalize(tvec3<T> const& v)
+    constexpr tvec3<T> normalize(tvec3<T> const& v)
     {
         T inverse_len = 1.0/length(v);
         return tvec3<T>(v[0]*inverse_len, v[1]*inverse_len, v[2]*inverse_len);

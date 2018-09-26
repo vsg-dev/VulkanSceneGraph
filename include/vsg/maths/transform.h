@@ -15,6 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/mat4.h>
 
+#include <cmath>
+
 namespace vsg
 {
     constexpr const float PIf   = 3.14159265358979323846f;
@@ -30,8 +32,8 @@ namespace vsg
     template<typename T>
     tmat4<T> rotate(T angle_radians, T x, T y, T z)
     {
-        const T c = cos(angle_radians);
-        const T s = sin(angle_radians);
+        const T c = std::cos(angle_radians);
+        const T s = std::sin(angle_radians);
         const T one_minus_c = 1-c;
         return tmat4<T>(x*x*one_minus_c+c,     x*y*one_minus_c-z*s, x*z*one_minus_c+y*z, 0,
                         y*x*one_minus_c+z*s,   y*y*one_minus_c+c,   y*z*one_minus_c-x*s, 0,
@@ -40,7 +42,7 @@ namespace vsg
     }
 
     template<typename T>
-    constexpr tmat4<T> rotate(T angle_radians, const tvec3<T>& v)
+    tmat4<T> rotate(T angle_radians, const tvec3<T>& v)
     {
         return rotate(angle_radians, v.value[0], v.value[1], v.value[2]);
     }
@@ -72,12 +74,12 @@ namespace vsg
     template<typename T>
     constexpr tmat4<T> scale(const tvec3<T>& v)
     {
-        return scale(v.x, v.y, v.z);
+        return scale(v.value[0], v.value[1], v.value[2]);
     }
 
     // Vulkan style 0 to 1 depth range
     template<typename T>
-    OPTIONAL_constexpr tmat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
+    constexpr tmat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
     {
         T f = 1.0/tan(fovy_radians*0.5);
         T r = 1.0/(zNear-zFar);
@@ -89,7 +91,7 @@ namespace vsg
 
 
     template<typename T>
-    OPTIONAL_constexpr tmat4<T> lookAt(tvec3<T> const & eye, tvec3<T> const & center, tvec3<T> const & up)
+    constexpr tmat4<T> lookAt(tvec3<T> const & eye, tvec3<T> const & center, tvec3<T> const & up)
     {
         using vec_type = tvec3<T>;
 
