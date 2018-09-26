@@ -24,7 +24,7 @@ namespace vsg
     public:
         PushConstants(VkShaderStageFlags shaderFlags, uint32_t offset, Data* data);
 
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
+        virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
 
         Data* getData() { return _data; }
         const Data* getData() const { return _data; }

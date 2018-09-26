@@ -76,14 +76,14 @@ namespace vsg
         }
 
         // release the data so that owneership can be passed on, the local data pointer and size is set to 0 and destruction of Array will no result in the data being deleted.
-        virtual void* dataRelease() { void* tmp = _data; _data = nullptr; _size=0; return tmp; }
+        virtual void* dataRelease() override { void* tmp = _data; _data = nullptr; _size=0; return tmp; }
 
-        virtual std::size_t valueSize() const { return sizeof(value_type); }
-        virtual std::size_t valueCount() const { return _size; }
+        virtual std::size_t valueSize() const override { return sizeof(value_type); }
+        virtual std::size_t valueCount() const override { return _size; }
 
-        virtual std::size_t dataSize() const { return _size * sizeof(value_type); }
-        virtual void* dataPointer() { return _data; }
-        virtual const void* dataPointer() const { return _data; }
+        virtual std::size_t dataSize() const override { return _size * sizeof(value_type); }
+        virtual void* dataPointer() override { return _data; }
+        virtual const void* dataPointer() const override { return _data; }
 
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }

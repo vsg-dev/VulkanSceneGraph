@@ -28,7 +28,7 @@ namespace vsg
 
 
     template<typename T>
-    OPTIONAL_constexpr tmat4<T> rotate(T angle_radians, T x, T y, T z)
+    tmat4<T> rotate(T angle_radians, T x, T y, T z)
     {
         const T c = cos(angle_radians);
         const T s = sin(angle_radians);
