@@ -25,40 +25,41 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-void DispatchTraversal::apply(Object& object)
+void DispatchTraversal::apply(const Object& object)
 {
 //    std::cout<<"Visiting object"<<std::endl;
     ++numNodes;
     object.traverse(*this);
 }
 
-void DispatchTraversal::apply(Node& object)
+void DispatchTraversal::apply(const Node& object)
 {
 //    std::cout<<"Visiting Node "<<std::endl;
     ++numNodes;
     object.traverse(*this);
 }
-void DispatchTraversal::apply(Group& object)
+void DispatchTraversal::apply(const Group& object)
 {
 //    std::cout<<"Visiting Group "<<std::endl;
     ++numNodes;
     object.traverse(*this);
 }
 
-void DispatchTraversal::apply(QuadGroup& object)
+void DispatchTraversal::apply(const QuadGroup& object)
 {
 //    std::cout<<"Visiting QuadGroup "<<std::endl;
     ++numNodes;
+
     object.traverse(*this);
 }
 
-void DispatchTraversal::apply(LOD& object)
+void DispatchTraversal::apply(const LOD& object)
 {
 //    std::cout<<"Visiting LOD "<<std::endl;
     ++numNodes;
     object.traverse(*this);
 }
-void DispatchTraversal::apply(StateGroup& object)
+void DispatchTraversal::apply(const StateGroup& object)
 {
 //    std::cout<<"Visiting StateGroup "<<std::endl;
     ++numNodes;
@@ -66,21 +67,21 @@ void DispatchTraversal::apply(StateGroup& object)
 }
 
 // Vulkan nodes
-void DispatchTraversal::apply(Command& object)
+void DispatchTraversal::apply(const Command& object)
 {
 //    std::cout<<"Visiting Command "<<std::endl;
     ++numNodes;
     object.traverse(*this);
 }
 
-void DispatchTraversal::apply(CommandBuffer& object)
+void DispatchTraversal::apply(const CommandBuffer& object)
 {
 //    std::cout<<"Visiting CommandBuffer "<<std::endl;
     ++numNodes;
     object.traverse(*this);
 }
 
-void DispatchTraversal::apply(RenderPass& object)
+void DispatchTraversal::apply(const RenderPass& object)
 {
 //    std::cout<<"Visiting RenderPass "<<std::endl;
     ++numNodes;

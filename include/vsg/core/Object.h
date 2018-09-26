@@ -32,13 +32,11 @@ namespace vsg
     public:
         Object();
 
-        template<class V> void t_traverse(V& visitor) {}
-
         virtual void accept(Visitor& visitor);
         virtual void traverse(Visitor&) {}
 
-        virtual void accept(DispatchTraversal& visitor);
-        virtual void traverse(DispatchTraversal& ) {}
+        virtual void accept(DispatchTraversal& visitor) const;
+        virtual void traverse(DispatchTraversal& ) const {}
 
         inline void ref() const noexcept { _referenceCount.fetch_add(1, std::memory_order_relaxed); }
         inline void unref() const noexcept { if (_referenceCount.fetch_sub(1, std::memory_order_seq_cst)<=1) _delete(); }

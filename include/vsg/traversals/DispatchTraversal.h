@@ -34,18 +34,18 @@ namespace vsg
 
         unsigned int numNodes = 0;
 
-        void apply(Object& object);
+        void apply(const Object& object);
 
         // scene graph nodes
-        void apply(Node& object);
-        void apply(Group& object);
-        void apply(QuadGroup& object);
-        void apply(LOD& object);
-        void apply(StateGroup& object);
+        void apply(const Node& object);
+        void apply(const Group& object);
+        void apply(const QuadGroup& object);
+        void apply(const LOD& object);
+        void apply(const StateGroup& object);
 
         // Vulkan nodes
-        void apply(Command& object);
-        void apply(CommandBuffer& object);
-        void apply(RenderPass& object);
+        void apply(const Command& object);
+        void apply(const CommandBuffer& object);
+        void apply(const RenderPass& object);
     };
 }

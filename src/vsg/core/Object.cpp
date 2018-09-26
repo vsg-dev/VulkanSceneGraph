@@ -58,7 +58,7 @@ void Object::accept(Visitor& visitor)
     visitor.apply(*this);
 }
 
-void Object::accept(DispatchTraversal& visitor)
+void Object::accept(DispatchTraversal& visitor) const
 {
     visitor.apply(*this);
 }

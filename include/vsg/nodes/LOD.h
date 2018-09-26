@@ -36,19 +36,12 @@ namespace vsg
     public:
         LOD() {}
 
-        template<class V> void t_accept(V& visitor) { visitor.apply(*this); }
-        template<class V> void t_traverse(V& visitor)
-        {
-            for (auto child : _children)
-            {
-                if (child.valid()) child->accept(visitor);
-            }
-        }
+        template<class N, class V> static void t_traverse(N& node, V& visitor) { for (auto& child : node._children) child->accept(visitor); }
 
         inline virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
-        inline virtual void traverse(Visitor& visitor) override { t_traverse(visitor); }
-        inline virtual void accept(DispatchTraversal& visitor) override { visitor.apply(*this); }
-        inline virtual void traverse(DispatchTraversal& visitor) override { t_traverse(visitor); }
+        inline virtual void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        inline virtual void accept(DispatchTraversal& visitor) const override { visitor.apply(*this); }
+        inline virtual void traverse(DispatchTraversal& visitor) const override { t_traverse(*this, visitor); }
 
         /// set the BondingSphere to use in culling/computation of which child is active.
         void setBoundingSphere(const Sphere& sphere) { _boundingSphere = sphere; }

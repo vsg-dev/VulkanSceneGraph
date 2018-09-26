@@ -28,15 +28,12 @@ namespace vsg
     public:
         QuadGroup();
 
-        template<class V> void t_traverse(V& visitor)
-        {
-            for(int i=0; i<4; ++i) _children[i]->accept(visitor);
-        }
+        template<class N, class V> static void t_traverse(N& node, V& visitor) { for(int i=0; i<4; ++i) node._children[i]->accept(visitor); }
 
         inline virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
-        inline virtual void traverse(Visitor& visitor) override { t_traverse(visitor); }
-        inline virtual void accept(DispatchTraversal& visitor) override { visitor.apply(*this); }
-        inline virtual void traverse(DispatchTraversal& visitor) override { t_traverse(visitor); }
+        inline virtual void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        inline virtual void accept(DispatchTraversal& visitor) const override { visitor.apply(*this); }
+        inline virtual void traverse(DispatchTraversal& visitor) const override { t_traverse(*this, visitor); }
 
         void setChild(std::size_t pos, vsg::Node* node) { _children[pos] = node; }
         vsg::Node* getChild(std::size_t pos) { return _children[pos].get(); }
