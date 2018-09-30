@@ -28,9 +28,11 @@ namespace vsg
         ref_ptr<CommandBuffer>  _commandBuffer;
         State                   _state;
 
-        void apply(Node& node);
-        void apply(StateGroup& stateGroup);
-        void apply(Command& command);
+        using Visitor::apply;
+
+        void apply(Node& node) override;
+        void apply(StateGroup& stateGroup) override;
+        void apply(Command& command) override;
 
     };
 
@@ -42,8 +44,8 @@ namespace vsg
 
         ref_ptr<Node> _commandGraph;
 
-        virtual void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass,
-                                           const VkExtent2D& extent2D, const VkClearColorValue& clearColor) override;
+        void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass,
+                                   const VkExtent2D& extent2D, const VkClearColorValue& clearColor) override;
 
     };
 

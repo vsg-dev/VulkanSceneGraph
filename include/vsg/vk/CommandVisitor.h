@@ -34,11 +34,13 @@ namespace vsg
 
         CommandVisitor(Framebuffer* framebuffer, RenderPass* renderPass, CommandBuffer* commandBuffer, const VkExtent2D& extent, const VkClearColorValue& clearColor);
 
-        void apply(Object& object);
+        using Visitor::apply;
 
-        void apply(Node& object);
+        void apply(Object& object) override;
 
-        void apply(Command& cmd);
+        void apply(Node& object) override;
+
+        void apply(Command& cmd) override;
 
         void populateCommandBuffer(vsg::Node* subgraph);
     };
