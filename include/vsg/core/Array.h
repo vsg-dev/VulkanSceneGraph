@@ -105,6 +105,7 @@ namespace vsg
     protected:
         virtual ~Array() { if (_data) delete [] _data; }
 
+    private:
         std::size_t _size;
         value_type* _data;
     };

@@ -82,6 +82,7 @@ namespace vsg
     protected:
         virtual ~Object();
 
+    private:
         virtual void _delete() const;
 
         mutable std::atomic_uint _referenceCount;

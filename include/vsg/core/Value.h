@@ -53,6 +53,7 @@ namespace vsg
 
     protected:
         virtual ~Value() {}
+    private:
         value_type _value;
     };
 
