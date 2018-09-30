@@ -27,10 +27,14 @@ namespace vsg
 
         template<class N, class V> static void t_traverse(N& node, V& visitor) { for (auto& child : node._children) child->accept(visitor); }
 
-        inline virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
-        inline virtual void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
-        inline virtual void accept(DispatchTraversal& visitor) const override { visitor.apply(*this); }
-        inline virtual void traverse(DispatchTraversal& visitor) const override { t_traverse(*this, visitor); }
+        inline void accept(Visitor& visitor) override { visitor.apply(*this); }
+        inline void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+#if 0
+        inline void accept(DispatchTraversal& visitor) const override { ++visitor.numNodes; t_traverse(*this, visitor); }
+#else
+        inline void accept(DispatchTraversal& visitor) const override { visitor.apply(*this); }
+#endif
+        inline void traverse(DispatchTraversal& visitor) const override { t_traverse(*this, visitor); }
 
         std::size_t addChild(vsg::Node* child) { std::size_t pos = _children.size(); _children.push_back(child); return pos; }
 

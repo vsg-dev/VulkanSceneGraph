@@ -23,8 +23,8 @@ namespace vsg
     public:
         Node();
 
-        virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
-        virtual void accept(DispatchTraversal& visitor)  const override { visitor.apply(*this); }
+        void accept(Visitor& visitor) override { visitor.apply(*this); }
+        void accept(DispatchTraversal& visitor) const override { visitor.apply(*this); }
 
     protected:
 
