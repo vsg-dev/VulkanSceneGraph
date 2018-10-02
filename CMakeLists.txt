@@ -67,5 +67,9 @@ if(NOT DL_LIBRARY)
     set(DL_LIBRARY "") # change from NOTFOUND to empty when passed to linker
 endif()
 
+add_custom_target(clobber
+    COMMAND git clean -d -f -x
+)
+
 # src directory contains all the example applications etc.
 add_subdirectory(src/vsg)
