@@ -14,13 +14,15 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
 
 if(WIN32)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
+    # set up local bin directory to place all binaries
+    make_directory(${OUTPUT_BINDIR})
+    make_directory(${OUTPUT_LIBDIR})
 else(WIN32)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
+    # set up local bin directory to place all binaries
+    make_directory(${OUTPUT_LIBDIR})
 endif(WIN32)
 
-# set up local bin directory to place all binaries
-make_directory(${OUTPUT_BINDIR})
-make_directory(${OUTPUT_LIBDIR})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
 

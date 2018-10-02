@@ -71,9 +71,9 @@ endif()
 target_link_libraries(vsg ${Vulkan_LIBRARY} ${GLFW_LIBRARY})
 
 install(TARGETS vsg
-        LIBRARY
-            DESTINATION lib
-            COMPONENT libvsg
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        COMPONENT libvsg
 )
 
 
