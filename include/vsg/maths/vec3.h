@@ -12,8 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <cmath>
-
 // we can't implement the anonymous union/structs combination without causing warnings, so disabled them for just this header
 #if defined(__GNUC__)
     #pragma GCC diagnostic push
@@ -25,17 +23,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     #pragma clang diagnostic ignored "-Wnested-anon-types"
 #endif
 
-#if __cplusplus >= 201703L
-    #define OPTIONAL_constexpr constexpr
-#else
-    #define OPTIONAL_constexpr
-#endif
+#include <cmath>
 
 namespace vsg
 {
 
     template<typename T>
-    struct tvec3
+    struct t_vec3
     {
         using value_type = T;
 
@@ -47,8 +41,8 @@ namespace vsg
             struct { value_type s, t, p; };
         };
 
-        constexpr tvec3() : value{} {}
-        constexpr tvec3(value_type in_x, value_type in_y, value_type in_z) : value{in_x, in_y, in_z} {}
+        constexpr t_vec3() : value{} {}
+        constexpr t_vec3(value_type in_x, value_type in_y, value_type in_z) : value{in_x, in_y, in_z} {}
 
         constexpr std::size_t size() const { return 3; }
 
@@ -56,7 +50,7 @@ namespace vsg
         value_type operator[] (std::size_t i) const { return value[i]; }
 
         template<typename R>
-        tvec3& operator = (const tvec3<R>& rhs)
+        t_vec3& operator = (const t_vec3<R>& rhs)
         {
             value[0] = rhs[0];
             value[1] = rhs[1];
@@ -68,44 +62,44 @@ namespace vsg
         const T* data() const { return value; }
     };
 
-    using vec3 = tvec3<float>;
-    using dvec3 = tvec3<double>;
+    using vec3 = t_vec3<float>;
+    using dvec3 = t_vec3<double>;
 
     template<typename T>
-    constexpr tvec3<T> operator - (tvec3<T> const& lhs, tvec3<T> const& rhs)
+    constexpr t_vec3<T> operator - (t_vec3<T> const& lhs, t_vec3<T> const& rhs)
     {
-        return tvec3<T>(lhs[0]-rhs[0], lhs[1]-rhs[1], lhs[2]-rhs[2]);
+        return t_vec3<T>(lhs[0]-rhs[0], lhs[1]-rhs[1], lhs[2]-rhs[2]);
     }
 
     template<typename T>
-    constexpr tvec3<T> operator + (tvec3<T> const& lhs, tvec3<T> const& rhs)
+    constexpr t_vec3<T> operator + (t_vec3<T> const& lhs, t_vec3<T> const& rhs)
     {
-        return tvec3<T>(lhs[0]-rhs[0], lhs[1]-rhs[1], lhs[2]-rhs[2]);
+        return t_vec3<T>(lhs[0]-rhs[0], lhs[1]-rhs[1], lhs[2]-rhs[2]);
     }
 
     template<typename T>
-    constexpr T length(tvec3<T> const& v)
+    constexpr T length(t_vec3<T> const& v)
     {
-        return sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+        return std::sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
     }
 
     template<typename T>
-    OPTIONAL_constexpr  tvec3<T> normalize(tvec3<T> const& v)
+    constexpr t_vec3<T> normalize(t_vec3<T> const& v)
     {
         T inverse_len = 1.0/length(v);
-        return tvec3<T>(v[0]*inverse_len, v[1]*inverse_len, v[2]*inverse_len);
+        return t_vec3<T>(v[0]*inverse_len, v[1]*inverse_len, v[2]*inverse_len);
     }
 
     template<typename T>
-    constexpr T dot(tvec3<T> const& lhs, tvec3<T> const& rhs)
+    constexpr T dot(t_vec3<T> const& lhs, t_vec3<T> const& rhs)
     {
         return lhs[0]*rhs[0] + lhs[1]*rhs[1] + lhs[2]-rhs[2];
     }
 
     template<typename T>
-    constexpr tvec3<T> cross(tvec3<T> const& lhs, tvec3<T> const& rhs)
+    constexpr t_vec3<T> cross(t_vec3<T> const& lhs, t_vec3<T> const& rhs)
     {
-        return tvec3<T>(lhs[1]*rhs[2] - rhs[1]*lhs[2],
+        return t_vec3<T>(lhs[1]*rhs[2] - rhs[1]*lhs[2],
                         lhs[2]*rhs[0] - rhs[2]*lhs[0],
                         lhs[0]*rhs[1] - rhs[0]*lhs[1]);
     }

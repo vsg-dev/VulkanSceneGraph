@@ -39,7 +39,8 @@ namespace vsg
     public:
         StateGroup();
 
-        virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
+        void accept(Visitor& visitor) override { visitor.apply(*this); }
+        void accept(DispatchTraversal& visitor) const override { visitor.apply(*this); }
 
         using StateComponents = std::vector<ref_ptr<StateComponent>>;
 

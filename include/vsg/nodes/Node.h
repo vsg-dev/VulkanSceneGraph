@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Object.h>
 #include <vsg/core/Visitor.h>
+#include <vsg/traversals/DispatchTraversal.h>
 
 namespace vsg
 {
@@ -22,7 +23,8 @@ namespace vsg
     public:
         Node();
 
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
+        void accept(Visitor& visitor) override { visitor.apply(*this); }
+        void accept(DispatchTraversal& visitor) const override { visitor.apply(*this); }
 
     protected:
 

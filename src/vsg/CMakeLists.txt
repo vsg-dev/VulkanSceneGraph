@@ -16,9 +16,12 @@ SET(SOURCES
 
     nodes/Group.cpp
     nodes/Node.cpp
+    nodes/QuadGroup.cpp
     nodes/StateGroup.cpp
 
     utils/FileSystem.cpp
+
+    traversals/DispatchTraversal.cpp
 
     viewer/GraphicsStage.cpp
     viewer/GLFW_Window.cpp
@@ -68,9 +71,9 @@ endif()
 target_link_libraries(vsg ${Vulkan_LIBRARY} ${GLFW_LIBRARY})
 
 install(TARGETS vsg
-        LIBRARY
-            DESTINATION lib
-            COMPONENT libvsg
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        COMPONENT libvsg
 )
 
 

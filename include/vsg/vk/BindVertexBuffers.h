@@ -33,7 +33,7 @@ namespace vsg
             }
         }
 
-        virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
+        void accept(Visitor& visitor) override { visitor.apply(*this); }
 
         void setFirstBinding(uint32_t firstBinding) { _firstBinding = firstBinding; }
         uint32_t getFirstBinding() const { return _firstBinding; }
@@ -45,9 +45,9 @@ namespace vsg
             _offsets.push_back(offset);
         }
 
-        virtual void pushTo(State& state) override;
-        virtual void popFrom(State& state) override;
-        virtual void dispatch(CommandBuffer& commandBuffer) const override;
+        void pushTo(State& state) override;
+        void popFrom(State& state) override;
+        void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~BindVertexBuffers() {}

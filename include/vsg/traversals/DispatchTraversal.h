@@ -12,41 +12,40 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/State.h>
-#include <vsg/vk/Framebuffer.h>
-#include <vsg/vk/RenderPass.h>
+#include <vsg/core/Object.h>
 
 namespace vsg
 {
 
-    class VSG_EXPORT GraphicsVisitor : public Visitor
+    // forward declare nodes
+    class Node;
+    class Group;
+    class QuadGroup;
+    class LOD;
+    class StateGroup;
+
+    class Command;
+    class CommandBuffer;
+    class RenderPass;
+
+    class VSG_EXPORT DispatchTraversal : public Object
     {
     public:
 
-        GraphicsVisitor(CommandBuffer* commandBuffer);
+        unsigned int numNodes = 0;
 
-        ref_ptr<CommandBuffer>  _commandBuffer;
-        State                   _state;
+        void apply(const Object& object);
 
-        using Visitor::apply;
+        // scene graph nodes
+        void apply(const Node& object);
+        void apply(const Group& object);
+        void apply(const QuadGroup& object);
+        void apply(const LOD& object);
+        void apply(const StateGroup& object);
 
-        void apply(Node& node) override;
-        void apply(StateGroup& stateGroup) override;
-        void apply(Command& command) override;
-
+        // Vulkan nodes
+        void apply(const Command& object);
+        void apply(const CommandBuffer& object);
+        void apply(const RenderPass& object);
     };
-
-    class VSG_EXPORT GraphicsStage : public Stage
-    {
-    public:
-
-        GraphicsStage(Node* commandGraph);
-
-        ref_ptr<Node> _commandGraph;
-
-        void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass,
-                                   const VkExtent2D& extent2D, const VkClearColorValue& clearColor) override;
-
-    };
-
 }

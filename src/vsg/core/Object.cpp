@@ -14,6 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Visitor.h>
 #include <vsg/core/Auxiliary.h>
 
+#include <vsg/traversals/DispatchTraversal.h>
+
 #include <iostream>
 
 using namespace vsg;
@@ -52,6 +54,11 @@ void Object::_delete() const
 }
 
 void Object::accept(Visitor& visitor)
+{
+    visitor.apply(*this);
+}
+
+void Object::accept(DispatchTraversal& visitor) const
 {
     visitor.apply(*this);
 }

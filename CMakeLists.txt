@@ -14,13 +14,15 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
 
 if(WIN32)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
+    # set up local bin directory to place all binaries
+    make_directory(${OUTPUT_BINDIR})
+    make_directory(${OUTPUT_LIBDIR})
 else(WIN32)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
+    # set up local bin directory to place all binaries
+    make_directory(${OUTPUT_LIBDIR})
 endif(WIN32)
 
-# set up local bin directory to place all binaries
-make_directory(${OUTPUT_BINDIR})
-make_directory(${OUTPUT_LIBDIR})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
 
@@ -28,6 +30,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
 #set(CMAKE_CXX_STANDARD 11)
 #set(CMAKE_CXX_STANDARD 14)
 #set(CMAKE_CXX_STANDARD 17)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Change the default build type to Release
 if(NOT CMAKE_BUILD_TYPE)
@@ -60,6 +66,10 @@ find_library(DL_LIBRARY dl)
 if(NOT DL_LIBRARY)
     set(DL_LIBRARY "") # change from NOTFOUND to empty when passed to linker
 endif()
+
+add_custom_target(clobber
+    COMMAND git clean -d -f -x
+)
 
 # src directory contains all the example applications etc.
 add_subdirectory(src/vsg)

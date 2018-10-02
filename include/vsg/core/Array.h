@@ -36,7 +36,7 @@ namespace vsg
         Array(const Array& rhs) : _data(rhs.data) {}
 
         // implementation provided by Visitor.h
-        virtual void accept(Visitor& visitor);
+        void accept(Visitor& visitor) override ;
 
         std::size_t size() const { return _size; }
         bool empty() const { return _size==0; }
@@ -76,14 +76,14 @@ namespace vsg
         }
 
         // release the data so that owneership can be passed on, the local data pointer and size is set to 0 and destruction of Array will no result in the data being deleted.
-        virtual void* dataRelease() { void* tmp = _data; _data = nullptr; _size=0; return tmp; }
+        void* dataRelease() override { void* tmp = _data; _data = nullptr; _size=0; return tmp; }
 
-        virtual std::size_t valueSize() const { return sizeof(value_type); }
-        virtual std::size_t valueCount() const { return _size; }
+        std::size_t valueSize() const override { return sizeof(value_type); }
+        std::size_t valueCount() const override { return _size; }
 
-        virtual std::size_t dataSize() const { return _size * sizeof(value_type); }
-        virtual void* dataPointer() { return _data; }
-        virtual const void* dataPointer() const { return _data; }
+        std::size_t dataSize() const override { return _size * sizeof(value_type); }
+        void* dataPointer() override { return _data; }
+        const void* dataPointer() const override { return _data; }
 
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
@@ -105,6 +105,7 @@ namespace vsg
     protected:
         virtual ~Array() { if (_data) delete [] _data; }
 
+    private:
         std::size_t _size;
         value_type* _data;
     };

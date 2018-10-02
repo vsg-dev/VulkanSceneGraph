@@ -1,8 +1,9 @@
 # 3rd Party Resources of interest
 
-## C++ Core Guidelines
+## C++ Core Guidelines etc.
 
 * [C++ Core Guidelines](https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md)
+* [CppCon Resources](https://github.com/cppcon)
 
 ## Best Practices
 

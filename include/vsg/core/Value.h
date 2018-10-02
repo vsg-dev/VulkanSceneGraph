@@ -32,15 +32,15 @@ namespace vsg
         Value(const Value& rhs) : _value(rhs._value) {}
 
         // implementation provided by Visitor.h
-        virtual void accept(Visitor& visitor);
+        void accept(Visitor& visitor) override;
 
-        virtual std::size_t valueSize() const { return sizeof(value_type); }
-        virtual std::size_t valueCount() const { return 1; }
+        std::size_t valueSize() const override { return sizeof(value_type); }
+        std::size_t valueCount() const override { return 1; }
 
-        virtual std::size_t dataSize() const { return sizeof(value_type); }
-        virtual void* dataPointer() { return &_value; }
-        virtual const void* dataPointer() const { return &_value; }
-        virtual void* dataRelease() { return nullptr; }
+        std::size_t dataSize() const override { return sizeof(value_type); }
+        void* dataPointer() override { return &_value; }
+        const void* dataPointer() const override { return &_value; }
+        void* dataRelease() override { return nullptr; }
 
         Value& operator = (const Value& rhs) { _value = rhs._value; return *this; }
         Value& operator = (const value_type& rhs) { _value = rhs; return *this; }
@@ -53,6 +53,7 @@ namespace vsg
 
     protected:
         virtual ~Value() {}
+    private:
         value_type _value;
     };
 

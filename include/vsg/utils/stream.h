@@ -23,28 +23,28 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     template<typename T>
-    inline std::ostream& operator << (std::ostream& output, const vsg::tvec2<T>& vec)
+    inline std::ostream& operator << (std::ostream& output, const vsg::t_vec2<T>& vec)
     {
         output << vec.x << " " << vec.y;
         return output; // to enable cascading
     }
 
     template<typename T>
-    inline std::ostream& operator << (std::ostream& output, const vsg::tvec3<T>& vec)
+    inline std::ostream& operator << (std::ostream& output, const vsg::t_vec3<T>& vec)
     {
         output << vec.x << " " << vec.y<<" "<<vec.z;
         return output; // to enable cascading
     }
 
     template<typename T>
-    inline std::ostream& operator << (std::ostream& output, const vsg::tvec4<T>& vec)
+    inline std::ostream& operator << (std::ostream& output, const vsg::t_vec4<T>& vec)
     {
         output << vec.x << " " << vec.y<<" "<<vec.z<<" "<<vec.w;
         return output; // to enable cascading
     }
 
     template<typename T>
-    inline std::ostream& operator << (std::ostream& output, const vsg::tmat4<T>& mat)
+    inline std::ostream& operator << (std::ostream& output, const vsg::t_mat4<T>& mat)
     {
         output << std::endl;
         output << "    "<<mat(0,0)<< " " << mat(1,0)<<" "<<mat(2,0)<<" "<<mat(3,0)<<std::endl;

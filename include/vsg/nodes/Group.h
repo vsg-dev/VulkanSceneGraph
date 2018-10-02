@@ -23,22 +23,24 @@ namespace vsg
     class VSG_EXPORT Group : public vsg::Node
     {
     public:
-        Group();
+        Group(size_t numChildren=0);
 
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
+        template<class N, class V> static void t_traverse(N& node, V& visitor) { for (auto& child : node._children) child->accept(visitor); }
 
-        inline virtual void traverse(Visitor& visitor)
-        {
-            for (auto child : _children)
-            {
-                /*if (child.valid())*/ child->accept(visitor);
-            }
-        }
+        inline void accept(Visitor& visitor) override { visitor.apply(*this); }
+        inline void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+#if 0
+        inline void accept(DispatchTraversal& visitor) const override { ++visitor.numNodes; t_traverse(*this, visitor); }
+#else
+        inline void accept(DispatchTraversal& visitor) const override { visitor.apply(*this); }
+#endif
+        inline void traverse(DispatchTraversal& visitor) const override { t_traverse(*this, visitor); }
 
         std::size_t addChild(vsg::Node* child) { std::size_t pos = _children.size(); _children.push_back(child); return pos; }
 
         void removeChild(std::size_t pos) { _children.erase(_children.begin()+pos); }
 
+        void setChild(std::size_t pos, Node* node) { _children[pos] = node; }
         vsg::Node* getChild(std::size_t pos) { return _children[pos].get(); }
         const vsg::Node* getChild(std::size_t pos) const { return _children[pos].get(); }
 

@@ -17,42 +17,46 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Node.h>
 
 #include <array>
+#include <vector>
+
+//#define USE_std_array
 
 namespace vsg
 {
     class VSG_EXPORT QuadGroup : public vsg::Node
     {
     public:
-        QuadGroup() {}
+        QuadGroup();
 
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
+        template<class N, class V> static void t_traverse(N& node, V& visitor) { for(int i=0; i<4; ++i) node._children[i]->accept(visitor); }
 
-        inline virtual void traverse(Visitor& visitor)
-        {
-            for (auto child : _children)
-            {
-                /*if (child.valid())*/ child->accept(visitor);
-            }
-        }
+        inline void accept(Visitor& visitor) override { visitor.apply(*this); }
+        inline void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+#if 0
+        inline void accept(DispatchTraversal& visitor) const override { ++visitor.numNodes; t_traverse(*this, visitor); }
+#else
+        inline void accept(DispatchTraversal& visitor) const override { visitor.apply(*this); }
+#endif
+        inline void traverse(DispatchTraversal& visitor) const override { t_traverse(*this, visitor); }
 
-        void setChild(std::size_t pos, vsg::Node* node)
-        {
-            _children[pos] = node;
-        }
-
+        void setChild(std::size_t pos, vsg::Node* node) { _children[pos] = node; }
         vsg::Node* getChild(std::size_t pos) { return _children[pos].get(); }
         const vsg::Node* getChild(std::size_t pos) const { return _children[pos].get(); }
 
         std::size_t getNumChildren() const { return 4; }
 
+#ifdef USE_std_array
         using Children = std::array< ref_ptr< vsg::Node>, 4 >;
+#else
+        using Children = ref_ptr< vsg::Node>[4];
+#endif
 
         Children& getChildren() { return _children; }
         const Children& getChildren() const { return _children; }
 
     protected:
 
-        virtual ~QuadGroup() {}
+        virtual ~QuadGroup();
 
         Children _children;
     };

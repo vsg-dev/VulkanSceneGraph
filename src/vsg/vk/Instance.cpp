@@ -33,7 +33,7 @@ Names validateInstancelayerNames(const Names& names)
     for (const auto& layer : availableLayers)
     {
         std::cout<<"layer="<<layer.layerName<<std::endl;
-        if (layer.layerName) layerNames.insert(layer.layerName);
+        if (layer.layerName[0]!=0) layerNames.insert(layer.layerName);
     }
 
     Names validatedNames;

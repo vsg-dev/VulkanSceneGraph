@@ -27,9 +27,9 @@ namespace vsg
             firstVertex(in_firstVertex),
             firstInstance(in_firstInstance) {}
 
-        virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
+        void accept(Visitor& visitor) override { visitor.apply(*this); }
 
-        virtual void dispatch(CommandBuffer& commandBuffer) const override
+        void dispatch(CommandBuffer& commandBuffer) const override
         {
             vkCmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
         }
@@ -50,9 +50,9 @@ namespace vsg
             vertexOffset(in_vertexOffset),
             firstInstance(in_firstInstance) {}
 
-        virtual void accept(Visitor& visitor) override { visitor.apply(*this); }
+        void accept(Visitor& visitor) override { visitor.apply(*this); }
 
-        virtual void dispatch(CommandBuffer& commandBuffer) const override
+        void dispatch(CommandBuffer& commandBuffer) const override
         {
             vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
         }

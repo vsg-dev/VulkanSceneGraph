@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,41 +10,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/State.h>
-#include <vsg/vk/Framebuffer.h>
-#include <vsg/vk/RenderPass.h>
+#include <vsg/nodes/QuadGroup.h>
 
-namespace vsg
+using namespace vsg;
+
+
+QuadGroup::QuadGroup()
 {
+}
 
-    class VSG_EXPORT GraphicsVisitor : public Visitor
-    {
-    public:
-
-        GraphicsVisitor(CommandBuffer* commandBuffer);
-
-        ref_ptr<CommandBuffer>  _commandBuffer;
-        State                   _state;
-
-        using Visitor::apply;
-
-        void apply(Node& node) override;
-        void apply(StateGroup& stateGroup) override;
-        void apply(Command& command) override;
-
-    };
-
-    class VSG_EXPORT GraphicsStage : public Stage
-    {
-    public:
-
-        GraphicsStage(Node* commandGraph);
-
-        ref_ptr<Node> _commandGraph;
-
-        void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass,
-                                   const VkExtent2D& extent2D, const VkClearColorValue& clearColor) override;
-
-    };
-
+QuadGroup::~QuadGroup()
+{
 }

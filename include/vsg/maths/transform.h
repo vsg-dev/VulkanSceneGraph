@@ -15,9 +15,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/mat4.h>
 
+#include <cmath>
+
 namespace vsg
 {
-    constexpr const float PIf   = 3.14159265358979323846f;
+    constexpr float PIf   = 3.14159265358979323846f;
     constexpr double PI   = 3.14159265358979323846;
 
     constexpr float radians(float degrees) noexcept { return degrees * (PIf/180.0f); }
@@ -28,60 +30,60 @@ namespace vsg
 
 
     template<typename T>
-    OPTIONAL_constexpr tmat4<T> rotate(T angle_radians, T x, T y, T z)
+    t_mat4<T> rotate(T angle_radians, T x, T y, T z)
     {
-        const T c = cos(angle_radians);
-        const T s = sin(angle_radians);
+        const T c = std::cos(angle_radians);
+        const T s = std::sin(angle_radians);
         const T one_minus_c = 1-c;
-        return tmat4<T>(x*x*one_minus_c+c,     x*y*one_minus_c-z*s, x*z*one_minus_c+y*z, 0,
+        return t_mat4<T>(x*x*one_minus_c+c,     x*y*one_minus_c-z*s, x*z*one_minus_c+y*z, 0,
                         y*x*one_minus_c+z*s,   y*y*one_minus_c+c,   y*z*one_minus_c-x*s, 0,
                         x*z*one_minus_c-y*s,   y*z*one_minus_c+x*s, z*z*one_minus_c+c,   0,
                         0,                     0,                   0,                   1);
     }
 
     template<typename T>
-    constexpr tmat4<T> rotate(T angle_radians, const tvec3<T>& v)
+    t_mat4<T> rotate(T angle_radians, const t_vec3<T>& v)
     {
         return rotate(angle_radians, v.value[0], v.value[1], v.value[2]);
     }
 
     template<typename T>
-    constexpr tmat4<T> translate(T x, T y, T z)
+    constexpr t_mat4<T> translate(T x, T y, T z)
     {
-        return tmat4<T>(1, 0, 0, x,
+        return t_mat4<T>(1, 0, 0, x,
                         0, 1, 0, y,
                         0, 0, 1, z,
                         0, 0, 0, 1);
     }
 
     template<typename T>
-    constexpr tmat4<T> translate(const tvec3<T>& v)
+    constexpr t_mat4<T> translate(const t_vec3<T>& v)
     {
         return translate(v.value[0], v.value[1], v.value[2]);
     }
 
     template<typename T>
-    constexpr tmat4<T> scale(T sx, T sy, T sz)
+    constexpr t_mat4<T> scale(T sx, T sy, T sz)
     {
-        return tmat4<T>(sx, 0,  0,  0,
+        return t_mat4<T>(sx, 0,  0,  0,
                         0,  sy, 0,  0,
                         0,  0,  sz, 0,
                         0,  0,  0,  1);
     }
 
     template<typename T>
-    constexpr tmat4<T> scale(const tvec3<T>& v)
+    constexpr t_mat4<T> scale(const t_vec3<T>& v)
     {
-        return scale(v.x, v.y, v.z);
+        return scale(v.value[0], v.value[1], v.value[2]);
     }
 
     // Vulkan style 0 to 1 depth range
     template<typename T>
-    OPTIONAL_constexpr tmat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
+    constexpr t_mat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
     {
-        T f = 1.0/tan(fovy_radians*0.5);
+        T f = 1.0/std::tan(fovy_radians*0.5);
         T r = 1.0/(zNear-zFar);
-        return tmat4<T>(f/aspectRatio, 0,  0,           0,
+        return t_mat4<T>(f/aspectRatio, 0,  0,           0,
                         0,             -f, 0,           0,
                         0,             0,  (zFar)*r,    (zFar*zNear)*r,
                         0,             0,  -1,          0);
@@ -89,16 +91,16 @@ namespace vsg
 
 
     template<typename T>
-    OPTIONAL_constexpr tmat4<T> lookAt(tvec3<T> const & eye, tvec3<T> const & center, tvec3<T> const & up)
+    constexpr t_mat4<T> lookAt(t_vec3<T> const & eye, t_vec3<T> const & center, t_vec3<T> const & up)
     {
-        using vec_type = tvec3<T>;
+        using vec_type = t_vec3<T>;
 
         vec_type forward = normalize(center-eye);
         vec_type up_normal = normalize(up);
         vec_type side = normalize(cross(forward, up_normal));
         vec_type u = normalize(cross(side, forward));
 
-        return tmat4<T>(side[0],     side[1],     side[2],      0,
+        return t_mat4<T>(side[0],     side[1],     side[2],      0,
                         u[0],        u[1],        u[2],         0,
                         -forward[0], -forward[1], -forward[2],  0,
                         0,           0,           0,            1) *
