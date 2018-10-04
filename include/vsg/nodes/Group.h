@@ -42,12 +42,12 @@ namespace vsg
         vsg::Node* getChild(std::size_t pos) { return _children[pos].get(); }
         const vsg::Node* getChild(std::size_t pos) const { return _children[pos].get(); }
 
-        std::size_t getNumChildren() const { return _children.size(); }
+        std::size_t getNumChildren() const noexcept { return _children.size(); }
 
         using Children = std::vector< ref_ptr< vsg::Node> >;
 
-        Children& getChildren() { return _children; }
-        const Children& getChildren() const { return _children; }
+        Children& getChildren() noexcept { return _children; }
+        const Children& getChildren() const noexcept { return _children; }
 
     protected:
 

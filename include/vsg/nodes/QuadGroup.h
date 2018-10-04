@@ -40,7 +40,7 @@ namespace vsg
         vsg::Node* getChild(std::size_t pos) { return _children[pos].get(); }
         const vsg::Node* getChild(std::size_t pos) const { return _children[pos].get(); }
 
-        constexpr std::size_t getNumChildren() const { return 4; }
+        constexpr std::size_t getNumChildren() const noexcept { return 4; }
 
 #ifdef USE_std_array
         using Children = std::array< ref_ptr< vsg::Node>, 4 >;
@@ -48,8 +48,8 @@ namespace vsg
         using Children = ref_ptr< vsg::Node>[4];
 #endif
 
-        Children& getChildren() { return _children; }
-        const Children& getChildren() const { return _children; }
+        Children& getChildren() noexcept { return _children; }
+        const Children& getChildren() const noexcept { return _children; }
 
     protected:
 
