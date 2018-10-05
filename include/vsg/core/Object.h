@@ -32,6 +32,9 @@ namespace vsg
     public:
         Object();
 
+        Object(const Object&) = delete;
+        Object& operator = (const Object&) = delete;
+
         virtual void accept(Visitor& visitor);
         virtual void traverse(Visitor&) {}
 
