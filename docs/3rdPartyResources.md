@@ -4,6 +4,7 @@
 
 * [C++ Core Guidelines](https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md)
 * [CppCon Resources](https://github.com/cppcon)
+* [Facebooks open source utility library](https://github.com/facebook/folly/tree/master/folly)
 
 ## Best Practices
 
