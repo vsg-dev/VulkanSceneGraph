@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
     class AllocationCallbacks : public vsg::Object, public VkAllocationCallbacks
     {
     public:
@@ -28,4 +29,48 @@ namespace vsg
 
         virtual ~AllocationCallbacks() {}
     };
+/*
+ * for reference:
+ *
+    typedef struct VkAllocationCallbacks {
+        void*                                   pUserData;
+        PFN_vkAllocationFunction                pfnAllocation;
+        PFN_vkReallocationFunction              pfnReallocation;
+        PFN_vkFreeFunction                      pfnFree;
+        PFN_vkInternalAllocationNotification    pfnInternalAllocation;
+        PFN_vkInternalFreeNotification          pfnInternalFree;
+    } VkAllocationCallbacks;
+
+
+    typedef void* (VKAPI_PTR *PFN_vkAllocationFunction)(
+    void*                                       pUserData,
+    size_t                                      size,
+    size_t                                      alignment,
+    VkSystemAllocationScope                     allocationScope);
+
+    typedef void* (VKAPI_PTR *PFN_vkReallocationFunction)(
+    void*                                       pUserData,
+    void*                                       pOriginal,
+    size_t                                      size,
+    size_t                                      alignment,
+    VkSystemAllocationScope                     allocationScope);
+
+    typedef void (VKAPI_PTR *PFN_vkFreeFunction)(
+    void*                                       pUserData,
+    void*                                       pMemory);
+
+    typedef void (VKAPI_PTR *PFN_vkInternalAllocationNotification)(
+    void*                                       pUserData,
+    size_t                                      size,
+    VkInternalAllocationType                    allocationType,
+    VkSystemAllocationScope                     allocationScope);
+
+    typedef void (VKAPI_PTR *PFN_vkInternalFreeNotification)(
+    void*                                       pUserData,
+    size_t                                      size,
+    VkInternalAllocationType                    allocationType,
+    VkSystemAllocationScope                     allocationScope);
+
+*/
+
 }
