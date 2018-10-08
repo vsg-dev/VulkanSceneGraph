@@ -9,6 +9,7 @@
 ## Best Practices
 
 * [Best Practices Criteria for Free/Libre and Open Source Software (FLOSS)](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md)
+* [include-what-you-use tool](https://include-what-you-use.org/)
 
 ## Tutorials
 
