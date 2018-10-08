@@ -57,7 +57,7 @@ void Auxiliary::setConnectedObject(Object* object)
 bool Auxiliary::signalConnectedObjectToBeDeleted()
 {
     Object* previousPtr = _connectedObject.exchange(0);
-    if (previousPtr->referenceCount()>0)
+    if (previousPtr && previousPtr->referenceCount()>0)
     {
         // referenceCount has been incremented by another thread, so now restore the _connectedObject
         _connectedObject.exchange(previousPtr);

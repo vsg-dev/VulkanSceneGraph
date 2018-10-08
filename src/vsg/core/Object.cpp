@@ -28,6 +28,8 @@ Object::Object() :
 
 Object::~Object()
 {
+    std::cout<<"Object::~Object() "<<this<<std::endl;
+
     if (_auxiliary)
     {
         _auxiliary->setConnectedObject(0);
@@ -43,9 +45,21 @@ void Object::_delete() const
     // if no auxiliary is attached then go straight ahead and delete.
     if (_auxiliary==nullptr || _auxiliary->signalConnectedObjectToBeDeleted())
     {
-        //std::cout<<"Object::_delete() "<<this<<" calling delete"<<std::endl;
+        std::cout<<"Object::_delete() "<<this<<" calling delete"<<std::endl;
 
-        delete this;
+        ref_ptr<Allocator> allocator = getAllocator();
+        if (allocator)
+        {
+            std::cout<<"Calling this->~Object();"<<std::endl;
+            this->~Object();
+
+            std::cout<<"After Calling this->~Object();"<<std::endl;
+            allocator->deallocate(this);
+        }
+        else
+        {
+            delete this;
+        }
     }
     else
     {
@@ -80,6 +94,19 @@ const Object* Object::getObject(const Key& key) const
     return _auxiliary->getObject(key);
 }
 
+void Object::setAuxiliary(Auxiliary* auxiliary)
+{
+    if (_auxiliary)
+    {
+        _auxiliary->setConnectedObject(nullptr);
+        _auxiliary->unref();
+    }
+    _auxiliary = auxiliary;
+    if (auxiliary)
+    {
+        auxiliary->ref();
+    }
+}
 
 Auxiliary* Object::getOrCreateAuxiliary()
 {
@@ -93,3 +120,7 @@ Auxiliary* Object::getOrCreateAuxiliary()
 }
 
 
+Allocator* Object::getAllocator() const
+{
+    return _auxiliary ? _auxiliary->getAllocator() : 0;
+}

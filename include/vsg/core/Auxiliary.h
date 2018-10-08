@@ -12,11 +12,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Object.h>
+#include <vsg/core/Allocator.h>
 #include <vsg/core/ref_ptr.h>
 
 #include <map>
-#include <algorithm>
 
 namespace vsg
 {
@@ -43,6 +42,9 @@ namespace vsg
         ObjectMap& getObjectMap() { return _objectMap; }
         const ObjectMap& getObjectMap() const { return _objectMap; }
 
+        void setAllocator(Allocator* allocator) { _allocator = allocator; }
+        Allocator* getAllocator() { return _allocator; }
+
     protected:
 
         virtual ~Auxiliary();
@@ -56,10 +58,9 @@ namespace vsg
         friend class Object;
 
         mutable std::atomic_uint _referenceCount;
-
-        std::atomic<Object*> _connectedObject;
-
-        ObjectMap _objectMap;
+        std::atomic<Object*>     _connectedObject;
+        ref_ptr<Allocator>   _allocator;
+        ObjectMap                _objectMap;
 
     };
 

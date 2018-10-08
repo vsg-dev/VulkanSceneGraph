@@ -26,6 +26,7 @@ namespace vsg
     class Auxiliary;
     class Visitor;
     class DispatchTraversal;
+    class Allocator;
 
     class VSG_EXPORT Object
     {
@@ -78,9 +79,12 @@ namespace vsg
         Object* getObject(const Key& key);
         const Object* getObject(const Key& key) const;
 
+        void setAuxiliary(Auxiliary* auxiliary);
         Auxiliary* getOrCreateAuxiliary();
         Auxiliary* getAuxiliary() { return _auxiliary; }
         const Auxiliary* getAuxiliary() const { return _auxiliary; }
+
+        Allocator* getAllocator() const;
 
     protected:
         virtual ~Object();
