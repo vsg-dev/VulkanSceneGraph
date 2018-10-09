@@ -32,7 +32,7 @@ Object::~Object()
 
     if (_auxiliary)
     {
-        _auxiliary->setConnectedObject(0);
+        _auxiliary->setConnectedObject(nullptr);
         _auxiliary->unref();
     }
 }
@@ -112,9 +112,8 @@ Auxiliary* Object::getOrCreateAuxiliary()
 {
     if (!_auxiliary)
     {
-        _auxiliary = new Auxiliary;
+        _auxiliary = new Auxiliary(this);
         _auxiliary->ref();
-        _auxiliary->setConnectedObject(this);
     }
     return _auxiliary;
 }

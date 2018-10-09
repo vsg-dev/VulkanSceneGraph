@@ -24,7 +24,8 @@ namespace vsg
     class VSG_EXPORT Auxiliary
     {
     public:
-        Auxiliary();
+        Auxiliary(Allocator* allocator);
+        Auxiliary(Object* object, Allocator* allocator=nullptr);
 
         Object* getConnectedObject() { return _connectedObject; }
         const Object* getConnectedObject() const { return _connectedObject; }
@@ -57,10 +58,10 @@ namespace vsg
 
         friend class Object;
 
-        mutable std::atomic_uint _referenceCount;
-        std::atomic<Object*>     _connectedObject;
-        ref_ptr<Allocator>   _allocator;
-        ObjectMap                _objectMap;
+        mutable std::atomic_uint    _referenceCount;
+        std::atomic<Object*>        _connectedObject;
+        ref_ptr<Allocator>          _allocator;
+        ObjectMap                   _objectMap;
 
     };
 

@@ -14,11 +14,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Auxiliary::Auxiliary() :
+Auxiliary::Auxiliary(Allocator* allocator) :
     _referenceCount(0),
-    _connectedObject(0)
+    _connectedObject(0),
+    _allocator(allocator)
 {
     //std::cout<<"Auxiliary::Auxiliary() "<<this<<" "<<_objectMap.size()<<std::endl;
+}
+
+Auxiliary::Auxiliary(Object* object, Allocator* allocator) :
+    _referenceCount(0),
+    _connectedObject(object),
+    _allocator(allocator)
+{
 }
 
 Auxiliary::~Auxiliary()
