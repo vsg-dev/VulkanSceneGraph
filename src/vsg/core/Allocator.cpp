@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Allocator.h>
+#include <vsg/core/Auxiliary.h>
 
 #include <iostream>
 
@@ -41,3 +42,30 @@ void Allocator::deallocate(const void* ptr, std::size_t size)
     std::cout<<"Allocator::deallocate("<<ptr<<", std::size_t "<<size<<")"<<std::endl;
     ::operator delete(const_cast<void*>(ptr));
 }
+
+Auxiliary* Allocator::getOrCreateSharedAuxiliary()
+{
+    if (!_sharedAuxiliary)
+    {
+        _sharedAuxiliary = new Auxiliary(this);
+        std::cout<<"Allocator::getOrCreateSharedAuxiliary() creating new : "<<_sharedAuxiliary<<std::endl;
+    }
+    else
+    {
+        std::cout<<"Allocator::getOrCreateSharedAuxiliary() returning existing : "<<_sharedAuxiliary<<std::endl;
+    }
+    return _sharedAuxiliary;
+}
+
+void Allocator::detachSharedAuxiliary(Auxiliary* auxiliary)
+{
+    if (_sharedAuxiliary==auxiliary)
+    {
+        std::cout<<"Allocator::detachSharedAuxiliary("<<auxiliary<<") detecing auxiliary"<<std::endl;
+    }
+    else
+    {
+        std::cout<<"Allocator::detachSharedAuxiliary("<<auxiliary<<") auxiliary not matched"<<std::endl;
+    }
+}
+

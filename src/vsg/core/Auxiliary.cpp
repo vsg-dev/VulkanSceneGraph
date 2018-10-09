@@ -35,6 +35,7 @@ Auxiliary::Auxiliary(Object* object, Allocator* allocator) :
 Auxiliary::~Auxiliary()
 {
     std::cout<<"Auxiliary::~Auxiliary() "<<this<<std::endl;
+    if (_allocator) _allocator->detachSharedAuxiliary(this);
 }
 
 void Auxiliary::ref() const

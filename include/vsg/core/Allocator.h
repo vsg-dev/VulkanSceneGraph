@@ -26,8 +26,14 @@ namespace vsg
 
         virtual void deallocate(const void* ptr, std::size_t size=0);
 
+        Auxiliary* getOrCreateSharedAuxiliary();
+
+        void detachSharedAuxiliary(Auxiliary* auxiliary);
+
     protected:
         virtual ~Allocator();
+
+        Auxiliary* _sharedAuxiliary;
     };
 
 }

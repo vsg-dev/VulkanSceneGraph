@@ -121,8 +121,6 @@ Auxiliary* Object::getOrCreateUniqueAuxiliary()
     {
         if (_auxiliary->getConnectedObject()!=this)
         {
-
-
             Auxiliary* previousAuxiliary = _auxiliary;
 
             _auxiliary = new Auxiliary(this, _auxiliary->getAllocator());
