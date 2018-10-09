@@ -55,13 +55,6 @@ void Auxiliary::unref_nodelete() const
     --_referenceCount;
 }
 
-
-void Auxiliary::setConnectedObject(Object* object)
-{
-    _connectedObject = object;
-    //std::cout<<"Auxiliary::setConnectedObject("<<object<<") previous _connectedObject="<<_connectedObject<<std::endl;
-}
-
 bool Auxiliary::signalConnectedObjectToBeDeleted()
 {
     Object* previousPtr = _connectedObject.exchange(0);
@@ -76,6 +69,11 @@ bool Auxiliary::signalConnectedObjectToBeDeleted()
 
     // return true, the object should be deleted
     return true;
+}
+
+void Auxiliary::resetConnectedObject()
+{
+    _connectedObject.exchange(0);
 }
 
 

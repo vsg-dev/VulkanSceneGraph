@@ -50,11 +50,11 @@ namespace vsg
 
         virtual ~Auxiliary();
 
-        void setConnectedObject(Object* object);
-
         /// reset the ConnectedObject pointer to 0 unless the ConnectedObject referenceCount goes back above 0,
         /// return true if ConnectedObject should still be deleted, or false if the object should be kept.
         bool signalConnectedObjectToBeDeleted();
+
+        void resetConnectedObject();
 
         friend class Object;
 
