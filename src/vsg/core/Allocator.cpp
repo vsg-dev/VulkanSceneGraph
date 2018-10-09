@@ -19,6 +19,7 @@ using namespace vsg;
 
 Allocator::~Allocator()
 {
+    std::cout<<"Allocator::~Allocator() "<<this<<std::endl;
 }
 
 void* Allocator::allocate(std::size_t n, const void* hint )

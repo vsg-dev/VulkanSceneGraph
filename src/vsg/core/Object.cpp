@@ -78,7 +78,7 @@ void Object::accept(DispatchTraversal& visitor) const
 
 void Object::setObject(const Key& key, Object* object)
 {
-    getOrCreateAuxiliary()->setObject(key, object);
+    getOrCreateUniqueAuxiliary()->setObject(key, object);
 }
 
 Object* Object::getObject(const Key& key)
@@ -109,12 +109,29 @@ void Object::setAuxiliary(Auxiliary* auxiliary)
     }
 }
 
-Auxiliary* Object::getOrCreateAuxiliary()
+Auxiliary* Object::getOrCreateUniqueAuxiliary()
 {
+    std::cout<<"Object::getOrCreateUniqueAuxiliary() _auxiliary="<<_auxiliary<<std::endl;
     if (!_auxiliary)
     {
         _auxiliary = new Auxiliary(this);
         _auxiliary->ref();
+    }
+    else
+    {
+        if (_auxiliary->getConnectedObject()!=this)
+        {
+
+
+            Auxiliary* previousAuxiliary = _auxiliary;
+
+            _auxiliary = new Auxiliary(this, _auxiliary->getAllocator());
+            _auxiliary->ref();
+
+            std::cout<<"Object::getOrCreateUniqueAuxiliary() _auxiliary="<<_auxiliary<<" replaces previousAuxiliary="<<previousAuxiliary<<std::endl;
+
+            previousAuxiliary->unref();
+        }
     }
     return _auxiliary;
 }

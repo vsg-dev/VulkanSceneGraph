@@ -80,9 +80,10 @@ namespace vsg
         const Object* getObject(const Key& key) const;
 
         void setAuxiliary(Auxiliary* auxiliary);
-        Auxiliary* getOrCreateAuxiliary();
         Auxiliary* getAuxiliary() { return _auxiliary; }
         const Auxiliary* getAuxiliary() const { return _auxiliary; }
+
+        Auxiliary* getOrCreateUniqueAuxiliary();
 
         Allocator* getAllocator() const;
 

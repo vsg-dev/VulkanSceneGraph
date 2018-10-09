@@ -12,6 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Auxiliary.h>
 
+#include <iostream>
+
 using namespace vsg;
 
 Auxiliary::Auxiliary(Allocator* allocator) :
@@ -19,7 +21,7 @@ Auxiliary::Auxiliary(Allocator* allocator) :
     _connectedObject(0),
     _allocator(allocator)
 {
-    //std::cout<<"Auxiliary::Auxiliary() "<<this<<" "<<_objectMap.size()<<std::endl;
+    std::cout<<"Auxiliary::Auxiliary(Allocator = "<<allocator<<") "<<this<<" "<<std::endl;
 }
 
 Auxiliary::Auxiliary(Object* object, Allocator* allocator) :
@@ -27,22 +29,23 @@ Auxiliary::Auxiliary(Object* object, Allocator* allocator) :
     _connectedObject(object),
     _allocator(allocator)
 {
+    std::cout<<"Auxiliary::Auxiliary(Object = "<<object<<", Allocator = "<<allocator<<") "<<this<<" "<<std::endl;
 }
 
 Auxiliary::~Auxiliary()
 {
-    //std::cout<<"Auxiliary::~Auxiliary() "<<this<<std::endl;
+    std::cout<<"Auxiliary::~Auxiliary() "<<this<<std::endl;
 }
 
 void Auxiliary::ref() const
 {
     ++_referenceCount;
-    //std::cout<<"Auxiliary::ref() "<<this<<" "<<_referenceCount.load()<<std::endl;
+    std::cout<<"Auxiliary::ref() "<<this<<" "<<_referenceCount.load()<<std::endl;
 }
 
 void Auxiliary::unref() const
 {
-    //std::cout<<"Auxiliary::unref() "<<this<<" "<<_referenceCount.load()<<std::endl;
+    std::cout<<"Auxiliary::unref() "<<this<<" "<<_referenceCount.load()<<std::endl;
     if (_referenceCount.fetch_sub(1)<=1)
     {
         delete this;
@@ -80,12 +83,12 @@ void Auxiliary::resetConnectedObject()
 void Auxiliary::setObject(const Object::Key& key, Object* object)
 {
     _objectMap[key] = object;
-    //std::cout<<"Auxiliary::setObject( ["<<key.name<<", "<<key.index<<"], "<<object<<")"<<" "<<_objectMap.size()<<" "<<&_objectMap<<std::endl;
+    std::cout<<"Auxiliary::setObject( ["<<key.name<<", "<<key.index<<"], "<<object<<")"<<" "<<_objectMap.size()<<" "<<&_objectMap<<std::endl;
 }
 
 Object* Auxiliary::getObject(const Object::Key& key)
 {
-    //std::cout<<"Auxiliary::getObject( ["<<key.name<<", "<<key.index<<"])"<<std::endl;
+    std::cout<<"Auxiliary::getObject( ["<<key.name<<", "<<key.index<<"])"<<std::endl;
     ObjectMap::iterator itr = _objectMap.find(key);
     if (itr != _objectMap.end()) return itr->second.get();
     else return nullptr;
@@ -93,7 +96,7 @@ Object* Auxiliary::getObject(const Object::Key& key)
 
 const Object* Auxiliary::getObject(const Object::Key& key) const
 {
-    //std::cout<<"Auxiliary::getObject( ["<<key.name<<", "<<key.index<<"]) const"<<std::endl;
+    std::cout<<"Auxiliary::getObject( ["<<key.name<<", "<<key.index<<"]) const"<<std::endl;
     ObjectMap::const_iterator itr = _objectMap.find(key);
     if (itr != _objectMap.end()) return itr->second.get();
     else return nullptr;
