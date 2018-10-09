@@ -79,11 +79,9 @@ namespace vsg
         Object* getObject(const Key& key);
         const Object* getObject(const Key& key) const;
 
-        void setAuxiliary(Auxiliary* auxiliary);
+        Auxiliary* getOrCreateUniqueAuxiliary();
         Auxiliary* getAuxiliary() { return _auxiliary; }
         const Auxiliary* getAuxiliary() const { return _auxiliary; }
-
-        Auxiliary* getOrCreateUniqueAuxiliary();
 
         Allocator* getAllocator() const;
 
@@ -92,6 +90,11 @@ namespace vsg
 
     private:
         virtual void _delete() const;
+
+        friend class Allocator;
+        friend class Auxiliary;
+
+        void setAuxiliary(Auxiliary* auxiliary);
 
         mutable std::atomic_uint _referenceCount;
 

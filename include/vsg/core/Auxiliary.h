@@ -24,9 +24,6 @@ namespace vsg
     class VSG_EXPORT Auxiliary
     {
     public:
-        Auxiliary(Allocator* allocator);
-        Auxiliary(Object* object, Allocator* allocator=nullptr);
-
         Object* getConnectedObject() { return _connectedObject; }
         const Object* getConnectedObject() const { return _connectedObject; }
 
@@ -48,6 +45,9 @@ namespace vsg
 
     protected:
 
+        Auxiliary(Allocator* allocator);
+        Auxiliary(Object* object, Allocator* allocator=nullptr);
+
         virtual ~Auxiliary();
 
         /// reset the ConnectedObject pointer to 0 unless the ConnectedObject referenceCount goes back above 0,
@@ -57,6 +57,7 @@ namespace vsg
         void resetConnectedObject();
 
         friend class Object;
+        friend class Allocator;
 
         mutable std::atomic_uint    _referenceCount;
         std::atomic<Object*>        _connectedObject;

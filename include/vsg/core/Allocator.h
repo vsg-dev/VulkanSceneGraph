@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Object.h>
+#include <vsg/core/ref_ptr.h>
 
 namespace vsg
 {
@@ -29,6 +30,16 @@ namespace vsg
         Auxiliary* getOrCreateSharedAuxiliary();
 
         void detachSharedAuxiliary(Auxiliary* auxiliary);
+
+        template<typename T, typename... Args>
+        ref_ptr<T> create(Args&&... args)
+        {
+            // need to think about alignment...
+            void* ptr = allocate(sizeof(T));
+            T* object = new (ptr) T(std::forward<Args>(args)...);
+            object->setAuxiliary(getOrCreateSharedAuxiliary());
+            return object;
+        }
 
     protected:
         virtual ~Allocator();
