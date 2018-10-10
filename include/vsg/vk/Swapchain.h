@@ -29,7 +29,7 @@ namespace vsg
     extern VSG_EXPORT VkExtent2D selectSwapExtent(SwapChainSupportDetails& details, uint32_t width, uint32_t height);
     extern VSG_EXPORT VkPresentModeKHR selectSwapPresentMode(SwapChainSupportDetails& details);
 
-    class VSG_EXPORT Swapchain : public vsg::Object
+    class VSG_EXPORT Swapchain : public Inherit<Object, Swapchain>
     {
     public:
         Swapchain(VkSwapchainKHR swapchain, Device* device, Surface* surface, AllocationCallbacks*  allocator=nullptr);

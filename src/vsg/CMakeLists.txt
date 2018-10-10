@@ -7,6 +7,7 @@ INCLUDE_DIRECTORIES(
 
 SET(SOURCES
 
+    core/Allocator.cpp
     core/Auxiliary.cpp
     core/Object.cpp
     core/Result.cpp

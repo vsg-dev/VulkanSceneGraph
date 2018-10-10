@@ -12,19 +12,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Object.h>
-#include <vsg/core/Visitor.h>
-#include <vsg/traversals/DispatchTraversal.h>
+#include <vsg/core/Inherit.h>
 
 namespace vsg
 {
-    class VSG_EXPORT Node : public vsg::Object
+    class VSG_EXPORT Node : public Inherit<Object, Node>
     {
     public:
         Node();
-
-        void accept(Visitor& visitor) override { visitor.apply(*this); }
-        void accept(DispatchTraversal& visitor) const override { visitor.apply(*this); }
 
     protected:
 

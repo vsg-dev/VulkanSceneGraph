@@ -21,17 +21,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     template<int NUM_CHILDREN>
-    class FixedGroup : public vsg::Node
+    class FixedGroup : public Inherit<Node, FixedGroup<NUM_CHILDREN>>
     {
     public:
         FixedGroup() {}
 
         template<class N, class V> static void t_traverse(N& node, V& visitor) { for (auto& child : node._children) child->accept(visitor); }
 
-        void accept(Visitor& visitor) override { visitor.apply(*this); }
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
-
-        void accept(DispatchTraversal& visitor) const override { visitor.apply(*this); }
         void traverse(DispatchTraversal& visitor) const override { t_traverse(*this, visitor); }
 
         void setChild(std::size_t pos, vsg::Node* node) { _children[pos] = node; }

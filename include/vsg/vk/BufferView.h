@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_EXPORT BufferView : public Object
+    class VSG_EXPORT BufferView : public Inherit<Object, BufferView>
     {
     public:
         BufferView(VkBufferView bufferView, Device* device, Buffer* buffer=nullptr, AllocationCallbacks* allocator=nullptr);

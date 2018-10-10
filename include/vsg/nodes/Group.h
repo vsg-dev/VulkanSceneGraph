@@ -21,17 +21,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_EXPORT Group : public vsg::Node
+    class VSG_EXPORT Group : public Inherit<Node, Group>
     {
     public:
         Group(size_t numChildren=0);
 
         template<class N, class V> static void t_traverse(N& node, V& visitor) { for (auto& child : node._children) child->accept(visitor); }
 
-        void accept(Visitor& visitor) override { visitor.apply(*this); }
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
-
-        void accept(DispatchTraversal& visitor) const override { visitor.apply(*this); }
         void traverse(DispatchTraversal& visitor) const override { t_traverse(*this, visitor); }
 
         std::size_t addChild(vsg::Node* child) { std::size_t pos = _children.size(); _children.push_back(child); return pos; }
@@ -55,4 +52,5 @@ namespace vsg
 
         Children _children;
     };
+
 }

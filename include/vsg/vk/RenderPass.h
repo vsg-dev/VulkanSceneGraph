@@ -13,12 +13,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/Device.h>
-#include <vsg/nodes/Group.h>
 
 namespace vsg
 {
 
-    class VSG_EXPORT RenderPass : public Object
+    class VSG_EXPORT RenderPass : public Inherit<Object, RenderPass>
     {
     public:
         RenderPass(VkRenderPass renderPass, Device* device, AllocationCallbacks* allocator=nullptr);

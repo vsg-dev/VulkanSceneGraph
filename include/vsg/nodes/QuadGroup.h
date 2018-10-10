@@ -23,17 +23,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_EXPORT QuadGroup : public vsg::Node
+    class VSG_EXPORT QuadGroup : public Inherit<Node, QuadGroup>
     {
     public:
         QuadGroup();
 
         template<class N, class V> static void t_traverse(N& node, V& visitor) { for(int i=0; i<4; ++i) node._children[i]->accept(visitor); }
 
-        void accept(Visitor& visitor) override { visitor.apply(*this); }
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
-
-        void accept(DispatchTraversal& visitor) const override { visitor.apply(*this); }
         void traverse(DispatchTraversal& visitor) const override { t_traverse(*this, visitor); }
 
         void setChild(std::size_t pos, vsg::Node* node) { _children[pos] = node; }

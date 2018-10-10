@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class Draw : public Command
+    class Draw : public Inherit<Command, Draw>
     {
     public:
         Draw(uint32_t in_vertexCount, uint32_t in_instanceCount, uint32_t in_firstVertex, uint32_t in_firstInstance):
@@ -26,8 +26,6 @@ namespace vsg
             instanceCount(in_instanceCount),
             firstVertex(in_firstVertex),
             firstInstance(in_firstInstance) {}
-
-        void accept(Visitor& visitor) override { visitor.apply(*this); }
 
         void dispatch(CommandBuffer& commandBuffer) const override
         {
@@ -40,7 +38,7 @@ namespace vsg
         uint32_t firstInstance;
     };
 
-    class DrawIndexed : public Command
+    class DrawIndexed : public Inherit<Command, Draw>
     {
     public:
         DrawIndexed(uint32_t in_indexCount, uint32_t in_instanceCount, uint32_t in_firstIndex, int32_t in_vertexOffset, uint32_t in_firstInstance):
@@ -49,8 +47,6 @@ namespace vsg
             firstIndex(in_firstIndex),
             vertexOffset(in_vertexOffset),
             firstInstance(in_firstInstance) {}
-
-        void accept(Visitor& visitor) override { visitor.apply(*this); }
 
         void dispatch(CommandBuffer& commandBuffer) const override
         {

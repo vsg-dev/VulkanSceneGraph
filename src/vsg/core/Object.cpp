@@ -16,9 +16,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/traversals/DispatchTraversal.h>
 
-#include <iostream>
 
 using namespace vsg;
+
+#if 1
+#include <iostream>
+#define DEBUG_NOTIFY if (false) std::cout
+#else
+#include <iostream>
+#define DEBUG_NOTIFY std::cout
+#endif
 
 Object::Object() :
     _referenceCount(0),
@@ -28,9 +35,10 @@ Object::Object() :
 
 Object::~Object()
 {
+    DEBUG_NOTIFY<<"Object::~Object() "<<this<<std::endl;
+
     if (_auxiliary)
     {
-        _auxiliary->setConnectedObject(0);
         _auxiliary->unref();
     }
 }
@@ -43,9 +51,23 @@ void Object::_delete() const
     // if no auxiliary is attached then go straight ahead and delete.
     if (_auxiliary==nullptr || _auxiliary->signalConnectedObjectToBeDeleted())
     {
-        //std::cout<<"Object::_delete() "<<this<<" calling delete"<<std::endl;
+        DEBUG_NOTIFY<<"Object::_delete() "<<this<<" calling delete"<<std::endl;
 
-        delete this;
+        ref_ptr<Allocator> allocator = getAllocator();
+        if (allocator)
+        {
+            std::size_t size = getSizeOf();
+
+            DEBUG_NOTIFY<<"Calling this->~Object();"<<std::endl;
+            this->~Object();
+
+            DEBUG_NOTIFY<<"After Calling this->~Object();"<<std::endl;
+            allocator->deallocate(this, size);
+        }
+        else
+        {
+            delete this;
+        }
     }
     else
     {
@@ -65,7 +87,7 @@ void Object::accept(DispatchTraversal& visitor) const
 
 void Object::setObject(const Key& key, Object* object)
 {
-    getOrCreateAuxiliary()->setObject(key, object);
+    getOrCreateUniqueAuxiliary()->setObject(key, object);
 }
 
 Object* Object::getObject(const Key& key)
@@ -80,16 +102,59 @@ const Object* Object::getObject(const Key& key) const
     return _auxiliary->getObject(key);
 }
 
-
-Auxiliary* Object::getOrCreateAuxiliary()
+void Object::setAuxiliary(Auxiliary* auxiliary)
 {
+    if (_auxiliary)
+    {
+        _auxiliary->resetConnectedObject();
+        _auxiliary->unref();
+    }
+
+    _auxiliary = auxiliary;
+
+    if (auxiliary)
+    {
+        auxiliary->ref();
+    }
+}
+
+Auxiliary* Object::getOrCreateUniqueAuxiliary()
+{
+    DEBUG_NOTIFY<<"Object::getOrCreateUniqueAuxiliary() _auxiliary="<<_auxiliary<<std::endl;
     if (!_auxiliary)
     {
-        _auxiliary = new Auxiliary;
+        _auxiliary = new Auxiliary(this);
         _auxiliary->ref();
-        _auxiliary->setConnectedObject(this);
+    }
+    else
+    {
+        if (_auxiliary->getConnectedObject()!=this)
+        {
+            Auxiliary* previousAuxiliary = _auxiliary;
+            Allocator* allocator = previousAuxiliary->getAllocator();
+            if (allocator)
+            {
+                void* ptr = allocator->allocate(sizeof(Auxiliary));
+                _auxiliary = new (ptr) Auxiliary(this, allocator);
+                DEBUG_NOTIFY<<"   used Allocator to allocate _auxiliary="<<_auxiliary<<std::endl;
+            }
+            else
+            {
+                _auxiliary = new Auxiliary(this, allocator);
+            }
+
+            _auxiliary->ref();
+
+            DEBUG_NOTIFY<<"Object::getOrCreateUniqueAuxiliary() _auxiliary="<<_auxiliary<<" replaces previousAuxiliary="<<previousAuxiliary<<std::endl;
+
+            previousAuxiliary->unref();
+        }
     }
     return _auxiliary;
 }
 
 
+Allocator* Object::getAllocator() const
+{
+    return _auxiliary ? _auxiliary->getAllocator() : 0;
+}

@@ -31,16 +31,14 @@ namespace vsg
         double    radius;
     };
 
-    class VSG_EXPORT LOD : public vsg::Node
+    class VSG_EXPORT LOD : public Inherit<Node, LOD>
     {
     public:
         LOD() {}
 
         template<class N, class V> static void t_traverse(N& node, V& visitor) { for (auto& child : node._children) child->accept(visitor); }
 
-        inline void accept(Visitor& visitor) override { visitor.apply(*this); }
         inline void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
-        inline void accept(DispatchTraversal& visitor) const override { visitor.apply(*this); }
         inline void traverse(DispatchTraversal& visitor) const override { t_traverse(*this, visitor); }
 
         /// set the BondingSphere to use in culling/computation of which child is active.
@@ -53,9 +51,9 @@ namespace vsg
         void setMinimumArea(std::size_t pos, double area) { _minimumAreas[pos] = area; }
         double getMinimumArea(std::size_t pos) const { return _minimumAreas[pos]; }
 
-        void setChild(std::size_t pos, vsg::Node* node) { _children[pos] = node;}
-        vsg::Node* getChild(std::size_t pos) { return _children[pos].get(); }
-        const vsg::Node* getChild(std::size_t pos) const { return _children[pos].get(); }
+        void setChild(std::size_t pos, Node* node) { _children[pos] = node;}
+        Node* getChild(std::size_t pos) { return _children[pos].get(); }
+        const Node* getChild(std::size_t pos) const { return _children[pos].get(); }
 
         std::size_t getNumChildren() const { return 2; }
 
@@ -63,7 +61,7 @@ namespace vsg
         MinimumAreas& getMinimumAreas() { return _minimumAreas; }
         const MinimumAreas& getMinimumAreas() const { return _minimumAreas; }
 
-        using Children = std::array< ref_ptr< vsg::Node>, 2 >;
+        using Children = std::array< ref_ptr<Node>, 2 >;
         Children& getChildren() { return _children; }
         const Children& getChildren() const { return _children; }
 

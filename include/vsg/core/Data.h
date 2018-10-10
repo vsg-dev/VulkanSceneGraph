@@ -22,6 +22,8 @@ namespace vsg
 
         Data() {};
 
+        std::size_t getSizeOf() const noexcept override { return sizeof(Data); }
+
         virtual std::size_t valueSize() const = 0;
         virtual std::size_t valueCount() const = 0;
 

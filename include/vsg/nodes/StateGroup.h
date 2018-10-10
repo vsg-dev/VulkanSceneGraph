@@ -20,7 +20,7 @@ namespace vsg
     class State;
     class CommandBuffer;
 
-    class StateComponent : public Object
+    class StateComponent : public Inherit<Object, StateComponent>
     {
     public:
         StateComponent() {}
@@ -34,13 +34,10 @@ namespace vsg
         virtual ~StateComponent() {}
     };
 
-    class VSG_EXPORT StateGroup : public Group
+    class VSG_EXPORT StateGroup : public Inherit<Group, StateGroup>
     {
     public:
         StateGroup();
-
-        void accept(Visitor& visitor) override { visitor.apply(*this); }
-        void accept(DispatchTraversal& visitor) const override { visitor.apply(*this); }
 
         using StateComponents = std::vector<ref_ptr<StateComponent>>;
 

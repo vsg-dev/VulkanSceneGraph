@@ -18,7 +18,7 @@ namespace vsg
 {
     using DescriptorSetLayoutBindings = std::vector<VkDescriptorSetLayoutBinding>;
 
-    class VSG_EXPORT DescriptorSetLayout : public vsg::Object
+    class VSG_EXPORT DescriptorSetLayout : public Inherit<Object, DescriptorSetLayout>
     {
     public:
         DescriptorSetLayout(Device* device, VkDescriptorSetLayout DescriptorSetLayout, AllocationCallbacks* allocator=nullptr);

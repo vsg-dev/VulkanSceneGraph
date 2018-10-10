@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_EXPORT Device : public Object
+    class VSG_EXPORT Device : public Inherit<Object, Device>
     {
     public:
         Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallbacks* allocator=nullptr);

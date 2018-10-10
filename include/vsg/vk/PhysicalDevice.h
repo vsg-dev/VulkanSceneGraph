@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_EXPORT PhysicalDevice : public vsg::Object
+    class VSG_EXPORT PhysicalDevice : public Inherit<Object, PhysicalDevice>
     {
     public:
         PhysicalDevice(Instance* instance, VkPhysicalDevice device, int graphicsFamily, int presentFamily, int computeFamily, Surface* surface);

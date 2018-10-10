@@ -12,41 +12,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/State.h>
-#include <vsg/vk/Framebuffer.h>
-#include <vsg/vk/RenderPass.h>
+#include <vsg/core/Visitor.h>
+#include <vsg/traversals/DispatchTraversal.h>
 
 namespace vsg
 {
 
-    class VSG_EXPORT GraphicsVisitor : public Visitor
+    // Use the Curiously Reacurring Template Pattern
+    // to provide the classes versions of accept(..) and getSizeOf()
+    template<class ParentClass, class Subclass>
+    class Inherit : public ParentClass
     {
     public:
+        template<typename... Args>
+        Inherit(Args&&... args) : ParentClass(std::forward<Args>(args)...) {}
 
-        GraphicsVisitor(CommandBuffer* commandBuffer);
-
-        ref_ptr<CommandBuffer>  _commandBuffer;
-        State                   _state;
-
-        using Visitor::apply;
-
-        void apply(Node& node) override;
-        void apply(StateGroup& stateGroup) override;
-        void apply(Command& command) override;
-
-    };
-
-    class VSG_EXPORT GraphicsStage : public Inherit<Stage, GraphicsStage>
-    {
-    public:
-
-        GraphicsStage(Node* commandGraph);
-
-        ref_ptr<Node> _commandGraph;
-
-        void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass,
-                                   const VkExtent2D& extent2D, const VkClearColorValue& clearColor) override;
-
+        void accept(Visitor& visitor) override { visitor.apply(static_cast<Subclass&>(*this)); }
+        void accept(DispatchTraversal& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
+        std::size_t getSizeOf() const noexcept override { return sizeof(Subclass); }
     };
 
 }

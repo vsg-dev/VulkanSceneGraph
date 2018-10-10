@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_EXPORT Sampler : public Object
+    class VSG_EXPORT Sampler : public Inherit<Object, Sampler>
     {
     public:
         Sampler(VkSampler Sampler, Device* device, AllocationCallbacks* allocator=nullptr);

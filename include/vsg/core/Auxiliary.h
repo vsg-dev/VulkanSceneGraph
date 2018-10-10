@@ -12,11 +12,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Object.h>
+#include <vsg/core/Allocator.h>
 #include <vsg/core/ref_ptr.h>
 
 #include <map>
-#include <algorithm>
 
 namespace vsg
 {
@@ -25,10 +24,10 @@ namespace vsg
     class VSG_EXPORT Auxiliary
     {
     public:
-        Auxiliary();
-
         Object* getConnectedObject() { return _connectedObject; }
         const Object* getConnectedObject() const { return _connectedObject; }
+
+        virtual std::size_t getSizeOf() const { return sizeof(Auxiliary); }
 
         void ref() const;
         void unref() const;
@@ -43,23 +42,29 @@ namespace vsg
         ObjectMap& getObjectMap() { return _objectMap; }
         const ObjectMap& getObjectMap() const { return _objectMap; }
 
+        void setAllocator(Allocator* allocator) { _allocator = allocator; }
+        Allocator* getAllocator() { return _allocator; }
+
     protected:
 
-        virtual ~Auxiliary();
+        Auxiliary(Allocator* allocator);
+        Auxiliary(Object* object, Allocator* allocator=nullptr);
 
-        void setConnectedObject(Object* object);
+        virtual ~Auxiliary();
 
         /// reset the ConnectedObject pointer to 0 unless the ConnectedObject referenceCount goes back above 0,
         /// return true if ConnectedObject should still be deleted, or false if the object should be kept.
         bool signalConnectedObjectToBeDeleted();
 
+        void resetConnectedObject();
+
         friend class Object;
+        friend class Allocator;
 
-        mutable std::atomic_uint _referenceCount;
-
-        std::atomic<Object*> _connectedObject;
-
-        ObjectMap _objectMap;
+        mutable std::atomic_uint    _referenceCount;
+        std::atomic<Object*>        _connectedObject;
+        ref_ptr<Allocator>          _allocator;
+        ObjectMap                   _objectMap;
 
     };
 

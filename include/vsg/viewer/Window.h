@@ -22,7 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_EXPORT Window : public Object
+    class VSG_EXPORT Window : public Inherit<Object, Window>
     {
     public:
 

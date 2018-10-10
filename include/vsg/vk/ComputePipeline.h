@@ -19,11 +19,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_EXPORT ComputePipeline : public Pipeline
+    class VSG_EXPORT ComputePipeline : public Inherit<Pipeline, ComputePipeline>
     {
     public:
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
-
         using Result = vsg::Result<ComputePipeline, VkResult, VK_SUCCESS>;
 
         /** Crreate a ComputePipeline.*/

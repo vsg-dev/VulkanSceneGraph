@@ -20,12 +20,10 @@ namespace vsg
 {
     class CommandBuffer;
 
-    class Command : public Node
+    class Command : public Inherit<Node, Command>
     {
     public:
         Command() {}
-
-        virtual void accept(Visitor& visitor) { visitor.apply(*this); }
 
         virtual void dispatch(CommandBuffer& commandBuffer) const = 0;
     };
