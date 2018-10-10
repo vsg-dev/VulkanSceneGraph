@@ -97,7 +97,7 @@ namespace vsg
         dispatchCommandsToQueue(device, commandPool, nullptr, 0, queue, function);
     }
 
-    class VSG_EXPORT CommandBuffers : public Object
+    class VSG_EXPORT CommandBuffers : public Inherit<Object, CommandBuffers>
     {
     public:
         using Buffers = std::vector<VkCommandBuffer>;

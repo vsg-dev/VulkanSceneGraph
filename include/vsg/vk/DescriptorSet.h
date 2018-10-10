@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_EXPORT DescriptorSet : public vsg::Object
+    class VSG_EXPORT DescriptorSet : public Inherit<Object, DescriptorSet>
     {
     public:
         DescriptorSet(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout, const Descriptors& descriptors);
