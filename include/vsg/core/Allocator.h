@@ -14,8 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Inherit.h>
 #include <vsg/core/ref_ptr.h>
-
-#include <iostream>
+#include <vsg/utils/stream.h>
 
 namespace vsg
 {
@@ -45,7 +44,7 @@ namespace vsg
             std::size_t new_size = object->getSizeOf();
             if (new_size != size)
             {
-                std::cout<<"Warning: Allocator::create("<<typeid(T).name()<<") mismatch sizeof() = "<<size<<", "<<new_size<<std::endl;
+                throw make_string("Warning: Allocator::create(",typeid(T).name(),") mismatch sizeof() = ",size,", ",new_size);
             }
             return object;
         }

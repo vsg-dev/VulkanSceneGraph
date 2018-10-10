@@ -16,9 +16,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/traversals/DispatchTraversal.h>
 
-#include <iostream>
 
 using namespace vsg;
+
+#if 1
+#include <iostream>
+#define DEBUG_NOTIFY if (false) std::cout
+#else
+#include <iostream>
+#define DEBUG_NOTIFY std::cout
+#endif
 
 Object::Object() :
     _referenceCount(0),
@@ -28,7 +35,7 @@ Object::Object() :
 
 Object::~Object()
 {
-    std::cout<<"Object::~Object() "<<this<<std::endl;
+    DEBUG_NOTIFY<<"Object::~Object() "<<this<<std::endl;
 
     if (_auxiliary)
     {
@@ -44,17 +51,17 @@ void Object::_delete() const
     // if no auxiliary is attached then go straight ahead and delete.
     if (_auxiliary==nullptr || _auxiliary->signalConnectedObjectToBeDeleted())
     {
-        std::cout<<"Object::_delete() "<<this<<" calling delete"<<std::endl;
+        DEBUG_NOTIFY<<"Object::_delete() "<<this<<" calling delete"<<std::endl;
 
         ref_ptr<Allocator> allocator = getAllocator();
         if (allocator)
         {
             std::size_t size = getSizeOf();
 
-            std::cout<<"Calling this->~Object();"<<std::endl;
+            DEBUG_NOTIFY<<"Calling this->~Object();"<<std::endl;
             this->~Object();
 
-            std::cout<<"After Calling this->~Object();"<<std::endl;
+            DEBUG_NOTIFY<<"After Calling this->~Object();"<<std::endl;
             allocator->deallocate(this, size);
         }
         else
@@ -113,7 +120,7 @@ void Object::setAuxiliary(Auxiliary* auxiliary)
 
 Auxiliary* Object::getOrCreateUniqueAuxiliary()
 {
-    std::cout<<"Object::getOrCreateUniqueAuxiliary() _auxiliary="<<_auxiliary<<std::endl;
+    DEBUG_NOTIFY<<"Object::getOrCreateUniqueAuxiliary() _auxiliary="<<_auxiliary<<std::endl;
     if (!_auxiliary)
     {
         _auxiliary = new Auxiliary(this);
@@ -129,7 +136,7 @@ Auxiliary* Object::getOrCreateUniqueAuxiliary()
             {
                 void* ptr = allocator->allocate(sizeof(Auxiliary));
                 _auxiliary = new (ptr) Auxiliary(this, allocator);
-                std::cout<<"   used Allocator to allocate _auxiliary="<<_auxiliary<<std::endl;
+                DEBUG_NOTIFY<<"   used Allocator to allocate _auxiliary="<<_auxiliary<<std::endl;
             }
             else
             {
@@ -138,7 +145,7 @@ Auxiliary* Object::getOrCreateUniqueAuxiliary()
 
             _auxiliary->ref();
 
-            std::cout<<"Object::getOrCreateUniqueAuxiliary() _auxiliary="<<_auxiliary<<" replaces previousAuxiliary="<<previousAuxiliary<<std::endl;
+            DEBUG_NOTIFY<<"Object::getOrCreateUniqueAuxiliary() _auxiliary="<<_auxiliary<<" replaces previousAuxiliary="<<previousAuxiliary<<std::endl;
 
             previousAuxiliary->unref();
         }

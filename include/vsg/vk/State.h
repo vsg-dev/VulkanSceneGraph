@@ -22,8 +22,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <stack>
 #include <map>
 
-#include <iostream>
-
 namespace vsg
 {
     template<class T>
@@ -47,7 +45,6 @@ namespace vsg
         {
             if (dirty && !stack.empty())
             {
-                std::cout<<"StateStack::dispatch() "<<size()<<" name="<<typeid(T).name()<<std::endl;
                 stack.top()->dispatch(commandBuffer);
                 dirty = false;
             }
@@ -71,7 +68,6 @@ namespace vsg
 
         inline void dispatch(CommandBuffer& commandBuffer)
         {
-            std::cout<<"State::dispatch() dirty="<<dirty<<std::endl;
             if (dirty)
             {
                 pipelineStack.dispatch(commandBuffer);
