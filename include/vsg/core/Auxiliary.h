@@ -27,6 +27,8 @@ namespace vsg
         Object* getConnectedObject() { return _connectedObject; }
         const Object* getConnectedObject() const { return _connectedObject; }
 
+        virtual std::size_t getSizeOf() const { return sizeof(Auxiliary); }
+
         void ref() const;
         void unref() const;
         void unref_nodelete() const;

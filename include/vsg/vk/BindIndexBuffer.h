@@ -19,15 +19,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_EXPORT BindIndexBuffer : public StateComponent
+    class VSG_EXPORT BindIndexBuffer : public Inherit<StateComponent, BindIndexBuffer>
     {
     public:
 
         BindIndexBuffer(Buffer* buffer, VkDeviceSize offset, VkIndexType indexType) : _bufferData(buffer, offset, 0), _indexType(indexType) {}
 
         BindIndexBuffer(const BufferData& bufferData, VkIndexType indexType) : _bufferData(bufferData), _indexType(indexType) {}
-
-        void accept(Visitor& visitor) override { visitor.apply(*this); }
 
         void pushTo(State& state) override;
         void popFrom(State& state) override;

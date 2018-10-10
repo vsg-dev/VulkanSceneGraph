@@ -49,7 +49,22 @@ void Auxiliary::unref() const
     std::cout<<"Auxiliary::unref() "<<this<<" "<<_referenceCount.load()<<std::endl;
     if (_referenceCount.fetch_sub(1)<=1)
     {
-        delete this;
+        if (_allocator)
+        {
+            ref_ptr<Allocator> allocator = _allocator;
+
+            std::size_t size = getSizeOf();
+
+            std::cout<<"  Calling this->~Auxiliary();"<<std::endl;
+            this->~Auxiliary();
+
+            std::cout<<"  After Calling this->~Auxiliary();"<<std::endl;
+            allocator->deallocate(this, size);
+        }
+        else
+        {
+            delete this;
+        }
     }
 }
 

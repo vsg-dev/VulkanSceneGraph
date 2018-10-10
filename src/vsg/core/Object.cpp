@@ -49,11 +49,13 @@ void Object::_delete() const
         ref_ptr<Allocator> allocator = getAllocator();
         if (allocator)
         {
+            std::size_t size = getSizeOf();
+
             std::cout<<"Calling this->~Object();"<<std::endl;
             this->~Object();
 
             std::cout<<"After Calling this->~Object();"<<std::endl;
-            allocator->deallocate(this);
+            allocator->deallocate(this, size);
         }
         else
         {
@@ -122,8 +124,18 @@ Auxiliary* Object::getOrCreateUniqueAuxiliary()
         if (_auxiliary->getConnectedObject()!=this)
         {
             Auxiliary* previousAuxiliary = _auxiliary;
+            Allocator* allocator = previousAuxiliary->getAllocator();
+            if (allocator)
+            {
+                void* ptr = allocator->allocate(sizeof(Auxiliary));
+                _auxiliary = new (ptr) Auxiliary(this, allocator);
+                std::cout<<"   used Allocator to allocate _auxiliary="<<_auxiliary<<std::endl;
+            }
+            else
+            {
+                _auxiliary = new Auxiliary(this, allocator);
+            }
 
-            _auxiliary = new Auxiliary(this, _auxiliary->getAllocator());
             _auxiliary->ref();
 
             std::cout<<"Object::getOrCreateUniqueAuxiliary() _auxiliary="<<_auxiliary<<" replaces previousAuxiliary="<<previousAuxiliary<<std::endl;

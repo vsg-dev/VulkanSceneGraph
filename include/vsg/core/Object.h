@@ -36,6 +36,8 @@ namespace vsg
         Object(const Object&) = delete;
         Object& operator = (const Object&) = delete;
 
+        virtual std::size_t getSizeOf() const noexcept { return sizeof(Object); }
+
         virtual void accept(Visitor& visitor);
         virtual void traverse(Visitor&) {}
 
@@ -91,10 +93,10 @@ namespace vsg
     private:
         virtual void _delete() const;
 
+        void setAuxiliary(Auxiliary* auxiliary);
+
         friend class Allocator;
         friend class Auxiliary;
-
-        void setAuxiliary(Auxiliary* auxiliary);
 
         mutable std::atomic_uint _referenceCount;
 

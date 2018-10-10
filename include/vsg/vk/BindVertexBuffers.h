@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_EXPORT BindVertexBuffers : public StateComponent
+    class VSG_EXPORT BindVertexBuffers : public Inherit<StateComponent, BindVertexBuffers>
     {
     public:
 
@@ -32,8 +32,6 @@ namespace vsg
                 add(bufferData._buffer, bufferData._offset);
             }
         }
-
-        void accept(Visitor& visitor) override { visitor.apply(*this); }
 
         void setFirstBinding(uint32_t firstBinding) { _firstBinding = firstBinding; }
         uint32_t getFirstBinding() const { return _firstBinding; }

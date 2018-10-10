@@ -16,7 +16,7 @@ namespace vsg
 {
 
 ComputePipeline::ComputePipeline(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator):
-    Pipeline(pipeline, VK_PIPELINE_BIND_POINT_COMPUTE, device, pipelineLayout, allocator),
+    Inherit(pipeline, VK_PIPELINE_BIND_POINT_COMPUTE, device, pipelineLayout, allocator),
     _shaderModule(shaderModule)
 {
 }

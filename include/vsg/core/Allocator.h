@@ -12,13 +12,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Object.h>
+#include <vsg/core/Inherit.h>
 #include <vsg/core/ref_ptr.h>
+
+#include <iostream>
 
 namespace vsg
 {
 
-    class Allocator : public vsg::Object
+    class Allocator : public Inherit<Object, Allocator>
     {
     public:
         virtual void* allocate(std::size_t n, const void* hint );
@@ -35,16 +37,27 @@ namespace vsg
         ref_ptr<T> create(Args&&... args)
         {
             // need to think about alignment...
-            void* ptr = allocate(sizeof(T));
+            std::size_t size = sizeof(T);
+            void* ptr = allocate(size);
             T* object = new (ptr) T(std::forward<Args>(args)...);
             object->setAuxiliary(getOrCreateSharedAuxiliary());
+
+            std::size_t new_size = object->getSizeOf();
+            if (new_size != size)
+            {
+                std::cout<<"Warning: Allocator::create("<<typeid(T).name()<<") mismatch sizeof() = "<<size<<", "<<new_size<<std::endl;
+            }
             return object;
         }
 
     protected:
         virtual ~Allocator();
 
-        Auxiliary* _sharedAuxiliary;
+        Auxiliary*  _sharedAuxiliary = nullptr;
+        std::size_t _bytesAllocated = 0;
+        std::size_t _countAllocated = 0;
+        std::size_t _bytesDeallocated = 0;
+        std::size_t _countDeallocated = 0;
     };
 
 }

@@ -21,19 +21,26 @@ using namespace vsg;
 Allocator::~Allocator()
 {
     std::cout<<"Allocator::~Allocator() "<<this<<std::endl;
+    std::cout<<"     _bytesAllocated = "<<_bytesAllocated<<std::endl;
+    std::cout<<"     _countAllocated = "<<_countAllocated<<std::endl;
+    std::cout<<"     _bytesDeallocated = "<<_bytesDeallocated<<std::endl;
+    std::cout<<"     _countDellocated = "<<_countDeallocated<<std::endl;
 }
 
-void* Allocator::allocate(std::size_t n, const void* hint )
+void* Allocator::allocate(std::size_t size, const void* hint )
 {
-    std::cout<<"Allocator::allocate(std::size_t "<<n<<", const void*"<< hint<<" )"<<std::endl;
-
-    return ::operator new (n);
+    std::cout<<"Allocator::allocate(std::size_t "<<size<<", const void*"<< hint<<" )"<<std::endl;
+    _bytesAllocated += size;
+    ++_countAllocated;
+    return ::operator new (size);
 }
 
 void* Allocator::allocate(std::size_t size)
 {
     void* ptr = ::operator new (size);
     std::cout<<"Allocator::allocate(std::size_t "<<size<<") "<<ptr<<std::endl;
+    _bytesAllocated += size;
+    ++_countAllocated;
     return ptr;
 }
 
@@ -41,13 +48,16 @@ void Allocator::deallocate(const void* ptr, std::size_t size)
 {
     std::cout<<"Allocator::deallocate("<<ptr<<", std::size_t "<<size<<")"<<std::endl;
     ::operator delete(const_cast<void*>(ptr));
+    _bytesDeallocated += size;
+    ++_countDeallocated;
 }
 
 Auxiliary* Allocator::getOrCreateSharedAuxiliary()
 {
     if (!_sharedAuxiliary)
     {
-        _sharedAuxiliary = new Auxiliary(this);
+        void* ptr = allocate(sizeof(Auxiliary));
+        _sharedAuxiliary = new (ptr) Auxiliary(this);
         std::cout<<"Allocator::getOrCreateSharedAuxiliary() creating new : "<<_sharedAuxiliary<<std::endl;
     }
     else

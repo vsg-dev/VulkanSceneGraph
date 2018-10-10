@@ -55,7 +55,7 @@ namespace vsg
 
     };
 
-    class State : public Object
+    class State : public Inherit<Object, State>
     {
     public:
         State() : dirty(false) {}
@@ -90,7 +90,7 @@ namespace vsg
 
     class Framebuffer;
     class Renderpass;
-    class Stage : public Object
+    class Stage : public Inherit<Object, Stage>
     {
     public:
         Stage() {}

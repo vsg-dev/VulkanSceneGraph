@@ -22,7 +22,7 @@ namespace vsg
 
     using DescriptorBufferInfos = std::vector<VkDescriptorBufferInfo>;
 
-    class Descriptor : public Object
+    class Descriptor : public Inherit<Object, Descriptor>
     {
     public:
         Descriptor(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType):
@@ -84,12 +84,12 @@ namespace vsg
 
     using ImageDataList = std::vector<ImageData>;
 
-    class VSG_EXPORT DescriptorImage : public Descriptor
+    class VSG_EXPORT DescriptorImage : public Inherit<Descriptor, DescriptorImage>
     {
     public:
 
         DescriptorImage(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const ImageDataList& imageDataList) :
-            Descriptor(dstBinding, dstArrayElement, descriptorType),
+            Inherit(dstBinding, dstArrayElement, descriptorType),
             _imageDataList(imageDataList)
         {
             // convert from VSG to Vk
@@ -118,12 +118,12 @@ namespace vsg
     };
 
 
-    class VSG_EXPORT DescriptorBuffer : public Descriptor
+    class VSG_EXPORT DescriptorBuffer : public Inherit<Descriptor, DescriptorBuffer>
     {
     public:
 
         DescriptorBuffer(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferDataList& bufferDataList) :
-            Descriptor(dstBinding, dstArrayElement, descriptorType),
+            Inherit(dstBinding, dstArrayElement, descriptorType),
             _bufferDataList(bufferDataList)
         {
             // convert from VSG to Vk
@@ -153,12 +153,12 @@ namespace vsg
 
     using BufferViewList = std::vector<ref_ptr<BufferView>>;
 
-    class VSG_EXPORT DescriptorTexelBufferView : public Descriptor
+    class VSG_EXPORT DescriptorTexelBufferView : public Inherit<Descriptor, DescriptorTexelBufferView>
     {
     public:
 
         DescriptorTexelBufferView(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferViewList& texelBufferViews) :
-            Descriptor(dstBinding, dstArrayElement, descriptorType),
+            Inherit(dstBinding, dstArrayElement, descriptorType),
             _texelBufferViewList(texelBufferViews)
         {
             _texelBufferViews.resize(_texelBufferViewList.size());

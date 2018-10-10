@@ -19,15 +19,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-   class VSG_EXPORT PushConstants : public StateComponent
+   class VSG_EXPORT PushConstants : public Inherit<StateComponent, PushConstants>
     {
     public:
         PushConstants(VkShaderStageFlags shaderFlags, uint32_t offset, Data* data);
 
-        void accept(Visitor& visitor) override { visitor.apply(*this); }
-
-        Data* getData() { return _data; }
-        const Data* getData() const { return _data; }
+        Data* getData() noexcept { return _data; }
+        const Data* getData() const noexcept { return _data; }
 
         void pushTo(State& state) override;
         void popFrom(State& state) override;

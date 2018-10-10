@@ -47,7 +47,7 @@ namespace vsg
 
     using DescriptorSets = std::vector<ref_ptr<DescriptorSet>>;
 
-    class VSG_EXPORT BindDescriptorSets : public StateComponent
+    class VSG_EXPORT BindDescriptorSets : public Inherit<StateComponent, BindDescriptorSets>
     {
     public:
 
