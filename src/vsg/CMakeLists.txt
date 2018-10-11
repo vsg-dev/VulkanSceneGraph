@@ -23,6 +23,7 @@ SET(SOURCES
     utils/FileSystem.cpp
 
     traversals/DispatchTraversal.cpp
+    traversals/CullTraversal.cpp
 
     viewer/GraphicsStage.cpp
     viewer/GLFW_Window.cpp

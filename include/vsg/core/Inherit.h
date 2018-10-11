@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Visitor.h>
 #include <vsg/traversals/DispatchTraversal.h>
+#include <vsg/traversals/CullTraversal.h>
 
 namespace vsg
 {
@@ -27,9 +28,11 @@ namespace vsg
         template<typename... Args>
         Inherit(Args&&... args) : ParentClass(std::forward<Args>(args)...) {}
 
+        std::size_t sizeofObject() const noexcept override { return sizeof(Subclass); }
+
         void accept(Visitor& visitor) override { visitor.apply(static_cast<Subclass&>(*this)); }
         void accept(DispatchTraversal& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
-        std::size_t sizeofObject() const noexcept override { return sizeof(Subclass); }
+        void accept(CullTraversal& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
     };
 
 }

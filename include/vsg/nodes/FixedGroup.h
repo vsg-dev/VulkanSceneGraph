@@ -30,6 +30,7 @@ namespace vsg
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(DispatchTraversal& visitor) const override { t_traverse(*this, visitor); }
+        void traverse(CullTraversal& visitor) const override { t_traverse(*this, visitor); }
 
         void setChild(std::size_t pos, vsg::Node* node) { _children[pos] = node; }
 
