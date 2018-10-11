@@ -71,5 +71,9 @@ add_custom_target(clobber
     COMMAND git clean -d -f -x
 )
 
+add_custom_target(build_all_h
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/build_all_h.cmake
+)
+
 # src directory contains all the example applications etc.
 add_subdirectory(src/vsg)
