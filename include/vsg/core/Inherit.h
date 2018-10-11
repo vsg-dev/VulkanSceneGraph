@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Visitor.h>
+#include <vsg/core/ConstVisitor.h>
 #include <vsg/traversals/DispatchTraversal.h>
 #include <vsg/traversals/CullTraversal.h>
 
@@ -31,6 +32,7 @@ namespace vsg
         std::size_t sizeofObject() const noexcept override { return sizeof(Subclass); }
 
         void accept(Visitor& visitor) override { visitor.apply(static_cast<Subclass&>(*this)); }
+        void accept(ConstVisitor& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
         void accept(DispatchTraversal& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
         void accept(CullTraversal& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
     };

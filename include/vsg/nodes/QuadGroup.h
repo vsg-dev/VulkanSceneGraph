@@ -31,6 +31,7 @@ namespace vsg
         template<class N, class V> static void t_traverse(N& node, V& visitor) { for(int i=0; i<4; ++i) node._children[i]->accept(visitor); }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(DispatchTraversal& visitor) const override { t_traverse(*this, visitor); }
         void traverse(CullTraversal& visitor) const override { t_traverse(*this, visitor); }
 

@@ -39,6 +39,7 @@ namespace vsg
 
         // implementation provided by Visitor.h
         void accept(Visitor& visitor) override ;
+        void accept(ConstVisitor& visitor) const override ;
 
         std::size_t size() const { return _size; }
         bool empty() const { return _size==0; }

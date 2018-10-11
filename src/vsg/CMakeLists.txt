@@ -12,6 +12,7 @@ SET(SOURCES
     core/Object.cpp
     core/Result.cpp
     core/Visitor.cpp
+    core/ConstVisitor.cpp
 
     introspection/c_interface.cpp
 

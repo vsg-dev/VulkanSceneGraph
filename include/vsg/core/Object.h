@@ -23,6 +23,7 @@ namespace vsg
     // forward declare
     class Auxiliary;
     class Visitor;
+    class ConstVisitor;
     class DispatchTraversal;
     class CullTraversal;
     class Allocator;
@@ -39,6 +40,9 @@ namespace vsg
 
         virtual void accept(Visitor& visitor);
         virtual void traverse(Visitor&) {}
+
+        virtual void accept(ConstVisitor& visitor) const;
+        virtual void traverse(ConstVisitor&) const {}
 
         virtual void accept(DispatchTraversal& visitor) const;
         virtual void traverse(DispatchTraversal& ) const {}
