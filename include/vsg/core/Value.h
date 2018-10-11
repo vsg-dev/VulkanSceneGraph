@@ -31,7 +31,7 @@ namespace vsg
         Value(const value_type& in_value) : _value(in_value) {}
         Value(const Value& rhs) : _value(rhs._value) {}
 
-        std::size_t getSizeOf() const noexcept override { return sizeof(Value); }
+        std::size_t sizeofObject() const noexcept override { return sizeof(Value); }
 
         // implementation provided by Visitor.h
         void accept(Visitor& visitor) override;

@@ -41,7 +41,7 @@ namespace vsg
             T* object = new (ptr) T(std::forward<Args>(args)...);
             object->setAuxiliary(getOrCreateSharedAuxiliary());
 
-            std::size_t new_size = object->getSizeOf();
+            std::size_t new_size = object->sizeofObject();
             if (new_size != size)
             {
                 throw make_string("Warning: Allocator::create(",typeid(T).name(),") mismatch sizeof() = ",size,", ",new_size);

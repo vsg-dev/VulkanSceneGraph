@@ -56,7 +56,7 @@ void Object::_delete() const
         ref_ptr<Allocator> allocator = getAllocator();
         if (allocator)
         {
-            std::size_t size = getSizeOf();
+            std::size_t size = sizeofObject();
 
             DEBUG_NOTIFY<<"Calling this->~Object();"<<std::endl;
             this->~Object();

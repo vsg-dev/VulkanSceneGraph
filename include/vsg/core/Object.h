@@ -36,7 +36,7 @@ namespace vsg
         Object(const Object&) = delete;
         Object& operator = (const Object&) = delete;
 
-        virtual std::size_t getSizeOf() const noexcept { return sizeof(Object); }
+        virtual std::size_t sizeofObject() const noexcept { return sizeof(Object); }
 
         virtual void accept(Visitor& visitor);
         virtual void traverse(Visitor&) {}

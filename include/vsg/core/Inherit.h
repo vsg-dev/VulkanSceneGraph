@@ -19,7 +19,7 @@ namespace vsg
 {
 
     // Use the Curiously Recurring Template Pattern
-    // to provide the classes versions of accept(..) and getSizeOf()
+    // to provide the classes versions of accept(..) and sizeofObject()
     template<class ParentClass, class Subclass>
     class Inherit : public ParentClass
     {
@@ -29,7 +29,7 @@ namespace vsg
 
         void accept(Visitor& visitor) override { visitor.apply(static_cast<Subclass&>(*this)); }
         void accept(DispatchTraversal& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
-        std::size_t getSizeOf() const noexcept override { return sizeof(Subclass); }
+        std::size_t sizeofObject() const noexcept override { return sizeof(Subclass); }
     };
 
 }
