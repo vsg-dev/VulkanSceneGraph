@@ -13,6 +13,7 @@ SET(SOURCES
     core/Result.cpp
     core/Visitor.cpp
     core/ConstVisitor.cpp
+    core/Version.cpp
 
     introspection/c_interface.cpp
 
@@ -72,6 +73,8 @@ else ()
 endif()
 
 target_link_libraries(vsg ${Vulkan_LIBRARY} ${GLFW_LIBRARY})
+
+set_target_properties(vsg PROPERTIES VERSION ${VSG_MAJOR_VERSION}.${VSG_MINOR_VERSION}.${VSG_PATCH_VERSION} SOVERSION ${VSG_SOVERSION})
 
 install(TARGETS vsg
         LIBRARY DESTINATION lib

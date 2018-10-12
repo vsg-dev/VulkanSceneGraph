@@ -2,6 +2,16 @@ cmake_minimum_required(VERSION 3.5)
 
 project(VulkanSceneGraphPrototype)
 
+set(VSG_MAJOR_VERSION 0)
+set(VSG_MINOR_VERSION 0)
+set(VSG_PATCH_VERSION 0)
+set(VSG_SOVERSION 0)
+
+# create the version header
+set(VSG_VERSION_HEADER "${PROJECT_BINARY_DIR}/include/vsg/core/Version.h")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/vsg/core/Version.h.in" "${VSG_VERSION_HEADER}")
+
+
 # find the various depdendencies
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}/CMakeModules/")
 
@@ -25,11 +35,6 @@ endif(WIN32)
 
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
-
-# set compilation to use C++11
-#set(CMAKE_CXX_STANDARD 11)
-#set(CMAKE_CXX_STANDARD 14)
-#set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -66,6 +71,9 @@ find_library(DL_LIBRARY dl)
 if(NOT DL_LIBRARY)
     set(DL_LIBRARY "") # change from NOTFOUND to empty when passed to linker
 endif()
+
+
+
 
 add_custom_target(clobber
     COMMAND git clean -d -f -x

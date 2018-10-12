@@ -4,6 +4,8 @@ cmake_uninstall.cmake
 lib/
 bin/
 
+include/vsg/core/Version.h
+
 *.pc
 *.conf
 CMakeCache.txt
