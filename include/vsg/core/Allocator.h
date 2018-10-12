@@ -12,16 +12,29 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Inherit.h>
+#include <vsg/core/Object.h>
+#include <vsg/core/Visitor.h>
+#include <vsg/core/ConstVisitor.h>
 #include <vsg/core/ref_ptr.h>
+
 #include <vsg/utils/stream.h>
+
+#include <vsg/traversals/DispatchTraversal.h>
+#include <vsg/traversals/CullTraversal.h>
 
 namespace vsg
 {
 
-    class Allocator : public Inherit<Object, Allocator>
+    class Allocator : public Object
     {
     public:
+        std::size_t sizeofObject() const noexcept override { return sizeof(Allocator); }
+
+        void accept(Visitor& visitor) override { visitor.apply(static_cast<Allocator&>(*this)); }
+        void accept(ConstVisitor& visitor) const override { visitor.apply(static_cast<const Allocator&>(*this)); }
+        void accept(DispatchTraversal& visitor) const override { visitor.apply(static_cast<const Allocator&>(*this)); }
+        void accept(CullTraversal& visitor) const override { visitor.apply(static_cast<const Allocator&>(*this)); }
+
         virtual void* allocate(std::size_t n, const void* hint );
 
         virtual void* allocate(std::size_t size);
@@ -32,13 +45,15 @@ namespace vsg
 
         void detachSharedAuxiliary(Auxiliary* auxiliary);
 
+#if 1
+        // likely to remove this create method, as vsg::Inherit::create(..) now provides same functionality.
         template<typename T, typename... Args>
-        ref_ptr<T> create(Args&&... args)
+        ref_ptr<T> create(Args... args)
         {
             // need to think about alignment...
             std::size_t size = sizeof(T);
             void* ptr = allocate(size);
-            T* object = new (ptr) T(std::forward<Args>(args)...);
+            ref_ptr<T> object = new (ptr) T(args...);
             object->setAuxiliary(getOrCreateSharedAuxiliary());
 
             std::size_t new_size = object->sizeofObject();
@@ -48,6 +63,7 @@ namespace vsg
             }
             return object;
         }
+#endif
 
     protected:
         virtual ~Allocator();

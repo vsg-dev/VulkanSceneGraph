@@ -14,6 +14,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Visitor.h>
 #include <vsg/core/ConstVisitor.h>
+#include <vsg/core/Allocator.h>
+#include <vsg/core/ref_ptr.h>
+
 #include <vsg/traversals/DispatchTraversal.h>
 #include <vsg/traversals/CullTraversal.h>
 
@@ -27,7 +30,38 @@ namespace vsg
     {
     public:
         template<typename... Args>
-        Inherit(Args&&... args) : ParentClass(std::forward<Args>(args)...) {}
+        Inherit(Args... args) : ParentClass(args...) {}
+
+#if 1
+        template<typename... Args>
+        static ref_ptr<Subclass> create(ref_ptr<Allocator> allocator, Args... args)
+        {
+            if (allocator)
+            {
+                // need to think about alignment...
+                const std::size_t size = sizeof(Subclass);
+                void* ptr = allocator->allocate(size);
+
+                ref_ptr<Subclass> object = new (ptr) Subclass(args...);
+                object->setAuxiliary(allocator->getOrCreateSharedAuxiliary());
+
+                // check the sizeof(Subclass) is consistent with Subclass::sizeOfObject()
+                // could we use static_assert here?
+                if (std::size_t new_size = object->sizeofObject(); new_size != size)
+                {
+                    throw make_string("Warning: Allocator::create(",typeid(Subclass).name(),") mismatch sizeof() = ",size,", ",new_size);
+                }
+                return object;
+            }
+            else return new Subclass(args...);
+        }
+
+        template<typename... Args>
+        static ref_ptr<Subclass> create(Args... args)
+        {
+            return new Subclass(args...);
+        }
+#endif
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Subclass); }
 

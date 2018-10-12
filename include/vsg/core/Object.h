@@ -97,10 +97,10 @@ namespace vsg
     protected:
         virtual ~Object();
 
-    private:
         virtual void _delete() const;
-
         void setAuxiliary(Auxiliary* auxiliary);
+
+    private:
 
         friend class Allocator;
         friend class Auxiliary;
