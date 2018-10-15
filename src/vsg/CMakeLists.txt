@@ -1,5 +1,6 @@
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_BINARY_DIR}/include
     ${Vulkan_INCLUDE_DIR}
     ${GLFW_INCLUDE_DIR}
 )
@@ -81,7 +82,6 @@ install(TARGETS vsg
         ARCHIVE DESTINATION lib
         COMPONENT libvsg
 )
-
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/vsg DESTINATION include)
 
