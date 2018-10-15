@@ -1,6 +1,5 @@
-#ifndef VSG_EXPORT
-#define VSG_EXPORT
-
+#ifndef VSG_EXPORT_H
+#define VSG_EXPORT_H
 
 /* <editor-fold desc="MIT License">
 
@@ -14,16 +13,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
-    #  if defined( VSG_LIBRARY_STATIC )
-    #    define VSG_EXPORT
-    #  elif defined( VSG_LIBRARY )
-    #    define VSG_EXPORT   __declspec(dllexport)
-    #  else
-    #    define VSG_EXPORT   __declspec(dllimport)
-    #  endif
+
+#if (defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__))
+    #if defined(vsg_EXPORTS)
+        #define VSG_EXPORT __declspec(dllexport)
+    #elif defined(VSG_SHARED_LIBRARY)
+        #define VSG_EXPORT __declspec(dllimport)
+    #else
+        #define VSG_EXPORT
+    #endif
 #else
-    #  define VSG_EXPORT
+    #define VSG_EXPORT
 #endif
 
 #endif
