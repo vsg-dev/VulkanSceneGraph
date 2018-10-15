@@ -5,6 +5,13 @@ include_directories(
     ${GLFW_INCLUDE_DIR}
 )
 
+SET(HEADER_PATH ${CMAKE_SOURCE_DIR}/include/vsg)
+
+set(HEADERS
+    ${HEADER_PATH}/all.h
+    ${CMAKE_BINARY_DIR}/include/vsg/core/Version.h
+)
+
 set(SOURCES
 
     core/Allocator.cpp
@@ -67,10 +74,10 @@ set(SOURCES
 
 if (BUILD_SHARED_LIBS)
     add_definitions(-DVSG_LIBRARY)
-    add_library(vsg SHARED ${SOURCES})
+    add_library(vsg SHARED ${HEADERS} ${SOURCES})
 else()
     add_definitions(-DVSG_LIBRARY_STATIC)
-    add_library(vsg STATIC ${SOURCES})
+    add_library(vsg STATIC ${HEADERS} ${SOURCES})
 endif()
 
 target_link_libraries(vsg ${Vulkan_LIBRARY} ${GLFW_LIBRARY})
