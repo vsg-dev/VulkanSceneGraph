@@ -1,11 +1,10 @@
-
-INCLUDE_DIRECTORIES(
+include_directories(
     ${CMAKE_SOURCE_DIR}/include
     ${Vulkan_INCLUDE_DIR}
     ${GLFW_INCLUDE_DIR}
 )
 
-SET(SOURCES
+set(SOURCES
 
     core/Allocator.cpp
     core/Auxiliary.cpp
@@ -64,10 +63,11 @@ SET(SOURCES
     vk/Surface.cpp
     vk/Swapchain.cpp
 )
-if   (VSG_SHARED_LIBRARY)
+
+if (BUILD_SHARED_LIBS)
     add_definitions(-DVSG_LIBRARY)
     add_library(vsg SHARED ${SOURCES})
-else ()
+else()
     add_definitions(-DVSG_LIBRARY_STATIC)
     add_library(vsg STATIC ${SOURCES})
 endif()

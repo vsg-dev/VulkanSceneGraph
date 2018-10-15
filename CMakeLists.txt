@@ -59,9 +59,6 @@ foreach (flag ${VSG_WARNING_FLAGS})
     endif()
 endforeach ()
 
-# Dynamic vs Static Linking
-OPTION(VSG_SHARED_LIBRARY "Set to ON to build VulkanPlayground for dynamic linking.  Use OFF for static." ON)
-
 
 find_package(GLFW)
 find_package(Vulkan)
