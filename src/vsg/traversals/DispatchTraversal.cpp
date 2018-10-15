@@ -25,6 +25,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+#define INLINE_TRAVERSE
+
 void DispatchTraversal::apply(const Object& object)
 {
 //    std::cout<<"Visiting object"<<std::endl;
@@ -38,19 +40,26 @@ void DispatchTraversal::apply(const Node& object)
     ++numNodes;
     object.traverse(*this);
 }
-void DispatchTraversal::apply(const Group& object)
+void DispatchTraversal::apply(const Group& group)
 {
 //    std::cout<<"Visiting Group "<<std::endl;
     ++numNodes;
-    object.traverse(*this);
+#ifdef INLINE_TRAVERSE
+        vsg::Group::t_traverse(group, *this);
+#else
+        group.traverse(*this);
+#endif
 }
 
-void DispatchTraversal::apply(const QuadGroup& object)
+void DispatchTraversal::apply(const QuadGroup& group)
 {
 //    std::cout<<"Visiting QuadGroup "<<std::endl;
     ++numNodes;
-
-    object.traverse(*this);
+#ifdef INLINE_TRAVERSE
+        vsg::QuadGroup::t_traverse(group, *this);
+#else
+        group.traverse(*this);
+#endif
 }
 
 void DispatchTraversal::apply(const LOD& object)
