@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_EXPORT GraphicsVisitor : public Visitor
+    class VSG_DECLSPEC GraphicsVisitor : public Visitor
     {
     public:
 
@@ -36,7 +36,7 @@ namespace vsg
 
     };
 
-    class VSG_EXPORT GraphicsStage : public Inherit<Stage, GraphicsStage>
+    class VSG_DECLSPEC GraphicsStage : public Inherit<Stage, GraphicsStage>
     {
     public:
 

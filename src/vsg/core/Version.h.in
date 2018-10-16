@@ -23,7 +23,7 @@ extern "C"
     #define VSG_VERSION_STRING   "@VSG_MAJOR_VERSION@.@VSG_MINOR_VERSION@.@VSG_PATCH_VERSION@"
     #define VSG_SOVERSION_STRING "@VSG_SOVERSION@"
 
-    extern VSG_EXPORT const char* vsgGetVersion();
-    extern VSG_EXPORT const char* vsgGetSOVersion();
+    extern VSG_DECLSPEC const char* vsgGetVersion();
+    extern VSG_DECLSPEC const char* vsgGetSOVersion();
 
 }

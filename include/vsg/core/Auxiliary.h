@@ -21,7 +21,7 @@ namespace vsg
 {
 
     /** Auxiliary provides extra Object data that is rarely used, and hooks for observers.*/
-    class VSG_EXPORT Auxiliary
+    class VSG_DECLSPEC Auxiliary
     {
     public:
         Object* getConnectedObject() { return _connectedObject; }

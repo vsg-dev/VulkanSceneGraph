@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_EXPORT Buffer : public Inherit<Object, Buffer>
+    class VSG_DECLSPEC Buffer : public Inherit<Object, Buffer>
     {
     public:
         Buffer(VkBuffer Buffer, VkBufferUsageFlags usage, VkSharingMode sharingMode, Device* device, AllocationCallbacks* allocator=nullptr);

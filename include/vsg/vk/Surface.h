@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_EXPORT Surface : public Inherit<Object, Surface>
+    class VSG_DECLSPEC Surface : public Inherit<Object, Surface>
     {
     public:
         Surface(VkSurfaceKHR surface, Instance* instance, AllocationCallbacks* allocator=nullptr);

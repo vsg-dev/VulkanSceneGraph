@@ -31,7 +31,7 @@ namespace vsg
         double    radius;
     };
 
-    class VSG_EXPORT LOD : public Inherit<Node, LOD>
+    class VSG_DECLSPEC LOD : public Inherit<Node, LOD>
     {
     public:
         LOD() {}

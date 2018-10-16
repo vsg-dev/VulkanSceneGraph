@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_EXPORT CommandPool : public Inherit<Object, CommandPool>
+    class VSG_DECLSPEC CommandPool : public Inherit<Object, CommandPool>
     {
     public:
         CommandPool(VkCommandPool CommandPool, Device* device, AllocationCallbacks* allocator=nullptr);

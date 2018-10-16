@@ -84,7 +84,7 @@ namespace vsg
 
     using ImageDataList = std::vector<ImageData>;
 
-    class VSG_EXPORT DescriptorImage : public Inherit<Descriptor, DescriptorImage>
+    class VSG_DECLSPEC DescriptorImage : public Inherit<Descriptor, DescriptorImage>
     {
     public:
 
@@ -118,7 +118,7 @@ namespace vsg
     };
 
 
-    class VSG_EXPORT DescriptorBuffer : public Inherit<Descriptor, DescriptorBuffer>
+    class VSG_DECLSPEC DescriptorBuffer : public Inherit<Descriptor, DescriptorBuffer>
     {
     public:
 
@@ -153,7 +153,7 @@ namespace vsg
 
     using BufferViewList = std::vector<ref_ptr<BufferView>>;
 
-    class VSG_EXPORT DescriptorTexelBufferView : public Inherit<Descriptor, DescriptorTexelBufferView>
+    class VSG_DECLSPEC DescriptorTexelBufferView : public Inherit<Descriptor, DescriptorTexelBufferView>
     {
     public:
 

@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_EXPORT Image : public Inherit<Object, Image>
+    class VSG_DECLSPEC Image : public Inherit<Object, Image>
     {
     public:
         Image(VkImage Image, Device* device, AllocationCallbacks* allocator=nullptr);
@@ -53,7 +53,7 @@ namespace vsg
         VkDeviceSize                    _memoryOffset;
     };
 
-    class VSG_EXPORT ImageMemoryBarrier : public Inherit<Object, ImageMemoryBarrier>, public VkImageMemoryBarrier
+    class VSG_DECLSPEC ImageMemoryBarrier : public Inherit<Object, ImageMemoryBarrier>, public VkImageMemoryBarrier
     {
     public:
 

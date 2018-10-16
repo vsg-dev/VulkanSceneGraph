@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_EXPORT BindVertexBuffers : public Inherit<StateComponent, BindVertexBuffers>
+    class VSG_DECLSPEC BindVertexBuffers : public Inherit<StateComponent, BindVertexBuffers>
     {
     public:
 

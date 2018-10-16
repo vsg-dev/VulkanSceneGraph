@@ -28,7 +28,7 @@ namespace vsg
     class CullTraversal;
     class Allocator;
 
-    class VSG_EXPORT Object
+    class VSG_DECLSPEC Object
     {
     public:
         Object();

@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_EXPORT Pipeline : public Inherit<Object, Pipeline>
+    class VSG_DECLSPEC Pipeline : public Inherit<Object, Pipeline>
     {
     public:
         Pipeline(VkPipeline pipeline, VkPipelineBindPoint bindPoint, Device* device, PipelineLayout* pipelineLayout, AllocationCallbacks* allocator=nullptr);
@@ -43,7 +43,7 @@ namespace vsg
         ref_ptr<AllocationCallbacks>    _allocator;
     };
 
-    class VSG_EXPORT BindPipeline : public Inherit<StateComponent, BindPipeline>
+    class VSG_DECLSPEC BindPipeline : public Inherit<StateComponent, BindPipeline>
     {
     public:
         BindPipeline(Pipeline* pipeline);

@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_EXPORT ComputePipeline : public Inherit<Pipeline, ComputePipeline>
+    class VSG_DECLSPEC ComputePipeline : public Inherit<Pipeline, ComputePipeline>
     {
     public:
         using Result = vsg::Result<ComputePipeline, VkResult, VK_SUCCESS>;

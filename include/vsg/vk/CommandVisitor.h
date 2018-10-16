@@ -22,7 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_EXPORT CommandVisitor : public Visitor
+    class VSG_DECLSPEC CommandVisitor : public Visitor
     {
     public:
 

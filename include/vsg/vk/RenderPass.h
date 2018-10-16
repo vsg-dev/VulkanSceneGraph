@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_EXPORT RenderPass : public Inherit<Object, RenderPass>
+    class VSG_DECLSPEC RenderPass : public Inherit<Object, RenderPass>
     {
     public:
         RenderPass(VkRenderPass renderPass, Device* device, AllocationCallbacks* allocator=nullptr);

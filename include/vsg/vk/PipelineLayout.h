@@ -20,7 +20,7 @@ namespace vsg
     using DescriptorSetLayouts = std::vector<ref_ptr<DescriptorSetLayout>>;
     using PushConstantRanges = std::vector<VkPushConstantRange>;
 
-    class VSG_EXPORT PipelineLayout : public Inherit<Object, PipelineLayout>
+    class VSG_DECLSPEC PipelineLayout : public Inherit<Object, PipelineLayout>
     {
     public:
         PipelineLayout(VkPipelineLayout pipelineLayout, const DescriptorSetLayouts& descrtorSetLayouts, Device* device, AllocationCallbacks* allocator=nullptr);

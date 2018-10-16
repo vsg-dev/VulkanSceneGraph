@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_EXPORT MemoryManager : public Inherit<Object, MemoryManager>
+    class VSG_DECLSPEC MemoryManager : public Inherit<Object, MemoryManager>
     {
     public:
         MemoryManager(Device* device, AllocationCallbacks* allocator=nullptr);

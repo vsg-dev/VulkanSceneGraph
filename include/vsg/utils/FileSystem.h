@@ -24,12 +24,12 @@ namespace vsg
 
     using Paths = std::vector<Path>;
 
-    extern VSG_EXPORT Paths getEnvPaths(const char* env_var);
+    extern VSG_DECLSPEC Paths getEnvPaths(const char* env_var);
 
-    extern VSG_EXPORT bool fileExists(const Path& path);
+    extern VSG_DECLSPEC bool fileExists(const Path& path);
 
-    extern VSG_EXPORT Path concatePaths(const Path& left, const Path& right);
+    extern VSG_DECLSPEC Path concatePaths(const Path& left, const Path& right);
 
-    extern VSG_EXPORT Path findFile(const Path& filename, const Paths& paths);
+    extern VSG_DECLSPEC Path findFile(const Path& filename, const Paths& paths);
 
 }

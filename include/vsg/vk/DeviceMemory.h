@@ -20,7 +20,7 @@ namespace vsg
     class Buffer;
     class Image;
 
-    class VSG_EXPORT DeviceMemory : public Inherit<Object, DeviceMemory>
+    class VSG_DECLSPEC DeviceMemory : public Inherit<Object, DeviceMemory>
     {
     public:
         DeviceMemory(VkDeviceMemory DeviceMemory, Device* device, AllocationCallbacks* allocator=nullptr);

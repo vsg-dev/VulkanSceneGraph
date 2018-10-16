@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_EXPORT Fence : public Inherit<Object, Fence>
+    class VSG_DECLSPEC Fence : public Inherit<Object, Fence>
     {
     public:
         Fence(VkFence Fence, Device* device, AllocationCallbacks* allocator=nullptr);

@@ -28,7 +28,7 @@ namespace vsg
     class CommandBuffer;
     class RenderPass;
 
-    class VSG_EXPORT CullTraversal : public Object
+    class VSG_DECLSPEC CullTraversal : public Object
     {
     public:
 

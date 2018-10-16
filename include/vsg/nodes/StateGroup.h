@@ -34,7 +34,7 @@ namespace vsg
         virtual ~StateComponent() {}
     };
 
-    class VSG_EXPORT StateGroup : public Inherit<Group, StateGroup>
+    class VSG_DECLSPEC StateGroup : public Inherit<Group, StateGroup>
     {
     public:
         StateGroup();

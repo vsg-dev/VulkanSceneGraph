@@ -19,7 +19,7 @@ namespace vsg
 
     using DescriptorPoolSizes = std::vector<VkDescriptorPoolSize>;
 
-    class VSG_EXPORT DescriptorPool : public Inherit<Object, DescriptorPool>
+    class VSG_DECLSPEC DescriptorPool : public Inherit<Object, DescriptorPool>
     {
     public:
         DescriptorPool(VkDescriptorPool descriptorPool, Device* device, AllocationCallbacks* allocator=nullptr);

@@ -24,12 +24,12 @@ namespace vsg
         std::vector<VkPresentModeKHR>   presentModes;
     };
 
-    extern VSG_EXPORT SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
-    extern VSG_EXPORT VkSurfaceFormatKHR selectSwapSurfaceFormat(SwapChainSupportDetails& details);
-    extern VSG_EXPORT VkExtent2D selectSwapExtent(SwapChainSupportDetails& details, uint32_t width, uint32_t height);
-    extern VSG_EXPORT VkPresentModeKHR selectSwapPresentMode(SwapChainSupportDetails& details);
+    extern VSG_DECLSPEC SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
+    extern VSG_DECLSPEC VkSurfaceFormatKHR selectSwapSurfaceFormat(SwapChainSupportDetails& details);
+    extern VSG_DECLSPEC VkExtent2D selectSwapExtent(SwapChainSupportDetails& details, uint32_t width, uint32_t height);
+    extern VSG_DECLSPEC VkPresentModeKHR selectSwapPresentMode(SwapChainSupportDetails& details);
 
-    class VSG_EXPORT Swapchain : public Inherit<Object, Swapchain>
+    class VSG_DECLSPEC Swapchain : public Inherit<Object, Swapchain>
     {
     public:
         Swapchain(VkSwapchainKHR swapchain, Device* device, Surface* surface, AllocationCallbacks*  allocator=nullptr);

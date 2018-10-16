@@ -70,23 +70,23 @@ extern "C"
         } value;
     };
 
-    extern VSG_EXPORT void vsgRef(vsgObjectPtr object);
+    extern VSG_DECLSPEC void vsgRef(vsgObjectPtr object);
 
-    extern VSG_EXPORT void vsgUnref(vsgObjectPtr object);
+    extern VSG_DECLSPEC void vsgUnref(vsgObjectPtr object);
 
-    extern VSG_EXPORT vsgObjectPtr vsgCreate(const char* className);
+    extern VSG_DECLSPEC vsgObjectPtr vsgCreate(const char* className);
 
-    extern VSG_EXPORT const char* vsgClassName(vsgObjectPtr object);
+    extern VSG_DECLSPEC const char* vsgClassName(vsgObjectPtr object);
 
-    extern VSG_EXPORT vsgObjectPtr vsgMethod(vsgObjectPtr object, const char* methodName);
+    extern VSG_DECLSPEC vsgObjectPtr vsgMethod(vsgObjectPtr object, const char* methodName);
 
-    extern VSG_EXPORT struct Property vsgGetProperty(vsgObjectPtr object, const char* propertyName);
+    extern VSG_DECLSPEC struct Property vsgGetProperty(vsgObjectPtr object, const char* propertyName);
 
-    extern VSG_EXPORT void vsgSetProperty(vsgObjectPtr object, const char* propertyName, struct Property property);
+    extern VSG_DECLSPEC void vsgSetProperty(vsgObjectPtr object, const char* propertyName, struct Property property);
 
-    extern VSG_EXPORT unsigned int vsgGetNumProperties(vsgObjectPtr object);
+    extern VSG_DECLSPEC unsigned int vsgGetNumProperties(vsgObjectPtr object);
 
-    extern VSG_EXPORT const char* vsgGetPropertyName(vsgObjectPtr object, unsigned int index);
+    extern VSG_DECLSPEC const char* vsgGetPropertyName(vsgObjectPtr object, unsigned int index);
 
 #ifdef __cplusplus
 }
