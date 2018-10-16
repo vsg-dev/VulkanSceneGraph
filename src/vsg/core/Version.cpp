@@ -26,5 +26,15 @@ const char* vsgGetSOVersion()
     return VSG_SOVERSION_STRING;
 }
 
+int vsgBuildAsSharedLibrary()
+{
+#ifdef vsg_EXPORTS
+    return 1;
+#else
+    return 0;
+#endif
+}
+
+
 
 }
