@@ -90,5 +90,5 @@ install(TARGETS vsg
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/vsg DESTINATION include)
 
 if (NOT(${CMAKE_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR}))
-    install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/vsg DESTINATION include)
+    install(DIRECTORY ${CMAKE_BINARY_DIR}/include/vsg DESTINATION include)
 endif()
