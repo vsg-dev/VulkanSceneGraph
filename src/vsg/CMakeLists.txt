@@ -1,8 +1,6 @@
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_BINARY_DIR}/include
-    ${Vulkan_INCLUDE_DIR}
-    ${GLFW_INCLUDE_DIR}
 )
 
 SET(HEADER_PATH ${CMAKE_SOURCE_DIR}/include/vsg)
@@ -76,9 +74,12 @@ add_definitions(${VSG_DEFINITIONS})
 
 add_library(vsg ${HEADERS} ${SOURCES})
 
-target_link_libraries(vsg ${Vulkan_LIBRARY} ${GLFW_LIBRARY})
+target_link_libraries(vsg Vulkan::Vulkan GLFW::GLFW)
 
-set_target_properties(vsg PROPERTIES VERSION ${VSG_MAJOR_VERSION}.${VSG_MINOR_VERSION}.${VSG_PATCH_VERSION} SOVERSION ${VSG_SOVERSION})
+set_target_properties(vsg
+        PROPERTIES VERSION ${VSG_MAJOR_VERSION}.${VSG_MINOR_VERSION}.${VSG_PATCH_VERSION}
+        SOVERSION ${VSG_SOVERSION}
+)
 
 install(TARGETS vsg
         LIBRARY DESTINATION lib
