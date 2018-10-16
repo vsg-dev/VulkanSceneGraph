@@ -74,13 +74,13 @@ void DescriptorSet::assign(const Descriptors& descriptors)
     vkUpdateDescriptorSets(*_device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
-void BindDescriptorSets::pushTo(State& state)
+void BindDescriptorSets::pushTo(State& state) const
 {
     state.dirty = true;
     state.descriptorStack.push(this);
 }
 
-void BindDescriptorSets::popFrom(State& state)
+void BindDescriptorSets::popFrom(State& state) const
 {
     state.dirty = true;
     state.descriptorStack.pop();

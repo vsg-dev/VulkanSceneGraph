@@ -59,8 +59,8 @@ namespace vsg
             update();
         }
 
-        void pushTo(State& state) override;
-        void popFrom(State& state) override;
+        void pushTo(State& state)  const override;
+        void popFrom(State& state) const override;
         void dispatch(CommandBuffer& commandBuffer) const override;
 
         void update()

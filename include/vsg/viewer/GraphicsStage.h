@@ -19,23 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_DECLSPEC GraphicsVisitor : public Visitor
-    {
-    public:
-
-        GraphicsVisitor(CommandBuffer* commandBuffer);
-
-        ref_ptr<CommandBuffer>  _commandBuffer;
-        State                   _state;
-
-        using Visitor::apply;
-
-        void apply(Node& node) override;
-        void apply(StateGroup& stateGroup) override;
-        void apply(Command& command) override;
-
-    };
-
     class VSG_DECLSPEC GraphicsStage : public Inherit<Stage, GraphicsStage>
     {
     public:

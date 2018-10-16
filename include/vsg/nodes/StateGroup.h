@@ -25,8 +25,8 @@ namespace vsg
     public:
         StateComponent() {}
 
-        virtual void pushTo(State& state) = 0;
-        virtual void popFrom(State& state) = 0;
+        virtual void pushTo(State& state) const = 0;
+        virtual void popFrom(State& state) const = 0;
 
         virtual void dispatch(CommandBuffer& commandBuffer) const = 0;
 
@@ -43,8 +43,8 @@ namespace vsg
 
         void add(StateComponent* component) { _stateComponents.push_back(component); }
 
-        inline void pushTo(State& state) { for(auto& component : _stateComponents) component->pushTo(state); }
-        inline void popFrom(State& state) { for(auto& component : _stateComponents) component->popFrom(state); }
+        inline void pushTo(State& state) const { for(auto& component : _stateComponents) component->pushTo(state); }
+        inline void popFrom(State& state) const { for(auto& component : _stateComponents) component->popFrom(state); }
 
     protected:
         virtual ~StateGroup();

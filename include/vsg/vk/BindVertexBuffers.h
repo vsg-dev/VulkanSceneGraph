@@ -43,8 +43,8 @@ namespace vsg
             _offsets.push_back(offset);
         }
 
-        void pushTo(State& state) override;
-        void popFrom(State& state) override;
+        void pushTo(State& state) const override;
+        void popFrom(State& state) const override;
         void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:

@@ -47,13 +47,13 @@ BindPipeline::~BindPipeline()
 {
 }
 
-void BindPipeline::pushTo(State& state)
+void BindPipeline::pushTo(State& state) const
 {
     state.dirty = true;
     state.pipelineStack.push(this);
 }
 
-void BindPipeline::popFrom(State& state)
+void BindPipeline::popFrom(State& state) const
 {
     state.dirty = true;
     state.pipelineStack.pop();

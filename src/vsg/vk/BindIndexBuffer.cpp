@@ -16,13 +16,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-void BindIndexBuffer::pushTo(State& state)
+void BindIndexBuffer::pushTo(State& state) const
 {
     state.dirty = true;
     state.indexBufferStack.push(this);
 }
 
-void BindIndexBuffer::popFrom(State& state)
+void BindIndexBuffer::popFrom(State& state) const
 {
     state.dirty = true;
     state.indexBufferStack.pop();

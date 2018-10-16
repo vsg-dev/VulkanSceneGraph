@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Object.h>
+#include <memory>
 
 namespace vsg
 {
@@ -23,29 +24,30 @@ namespace vsg
     class QuadGroup;
     class LOD;
     class StateGroup;
-
     class Command;
     class CommandBuffer;
-    class RenderPass;
 
     class VSG_DECLSPEC DispatchTraversal : public Object
     {
     public:
 
-        unsigned int numNodes = 0;
+        DispatchTraversal(CommandBuffer* commandBuffer=nullptr);
+        ~DispatchTraversal();
 
         void apply(const Object& object);
 
         // scene graph nodes
-        void apply(const Node& object);
         void apply(const Group& object);
         void apply(const QuadGroup& object);
         void apply(const LOD& object);
-        void apply(const StateGroup& object);
 
         // Vulkan nodes
-        void apply(const Command& object);
-        void apply(const CommandBuffer& object);
-        void apply(const RenderPass& object);
+        void apply(const StateGroup& object);
+        void apply(const Command& command);
+
+    protected:
+
+        class Data;
+        Data* _data;
     };
 }

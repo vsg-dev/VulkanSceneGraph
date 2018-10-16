@@ -31,11 +31,11 @@ namespace vsg
 
         StateStack() : dirty(false) {}
 
-        using Stack = std::stack<ref_ptr<T>>;
+        using Stack = std::stack<ref_ptr<const T>>;
         Stack   stack;
         bool    dirty;
 
-        void push(T* value) { stack.push(value); dirty = true; }
+        void push(const T* value) { stack.push(value); dirty = true; }
         void pop() { stack.pop(); dirty = true; }
         size_t size() const { return stack.size(); }
         T& top() { return stack.top(); }

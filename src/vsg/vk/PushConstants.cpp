@@ -27,12 +27,12 @@ PushConstants::~PushConstants()
 {
 }
 
-void PushConstants::pushTo(State& state)
+void PushConstants::pushTo(State& state) const
 {
     state.pushConstantsMap[_offset].push(this);
 }
 
-void PushConstants::popFrom(State& state)
+void PushConstants::popFrom(State& state) const
 {
     state.pushConstantsMap[_offset].pop();
 }

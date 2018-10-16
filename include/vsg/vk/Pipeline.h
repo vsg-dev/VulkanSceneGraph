@@ -51,8 +51,8 @@ namespace vsg
         Pipeline* getPipeline() { return _pipeline; }
         const Pipeline* getPipeline() const { return _pipeline; }
 
-        void pushTo(State& state) override;
-        void popFrom(State& state) override;
+        void pushTo(State& state) const override;
+        void popFrom(State& state) const override;
         void dispatch(CommandBuffer& commandBuffer) const override;
 
     public:

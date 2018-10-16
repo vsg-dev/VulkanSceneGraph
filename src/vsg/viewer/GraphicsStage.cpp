@@ -18,38 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-GraphicsVisitor::GraphicsVisitor(CommandBuffer* commandBuffer) :
-    _commandBuffer(commandBuffer)
-{
-}
-
-void GraphicsVisitor::apply(Node& node)
-{
-    std::cout<<"Visiting "<<typeid(node).name()<<" "<<this<<std::endl;
-    node.traverse(*this);
-}
-
-void GraphicsVisitor::apply(StateGroup& stateGroup)
-{
-
-    std::cout<<"before GraphicsViitor::apply(StateGroup&)"<<std::endl;
-
-    stateGroup.pushTo(_state);
-
-    stateGroup.traverse(*this);
-
-    stateGroup.popFrom(_state);
-
-    std::cout<<"after GraphicsViitor::apply(StateGroup&)"<<std::endl;
-}
-
-void GraphicsVisitor::apply(Command& command)
-{
-    std::cout<<"before GraphicsViitor::apply(Comand& command)"<<typeid(command).name()<<std::endl;
-
-    _state.dispatch(*_commandBuffer);
-    command.dispatch(*_commandBuffer);
-}
 
 GraphicsStage::GraphicsStage(Node* commandGraph) :
     _commandGraph(commandGraph)
@@ -58,7 +26,8 @@ GraphicsStage::GraphicsStage(Node* commandGraph) :
 
 void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor)
 {
-    vsg::GraphicsVisitor graphicsVisitor(commandBuffer);
+    DispatchTraversal dispatchTraversal(commandBuffer);
+
 
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -82,7 +51,7 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
         renderPassInfo.pClearValues = clearValues.data();
         vkCmdBeginRenderPass(*commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-            _commandGraph->accept(graphicsVisitor);
+            _commandGraph->accept(dispatchTraversal);
 
         vkCmdEndRenderPass(*commandBuffer);
 

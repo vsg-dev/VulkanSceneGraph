@@ -27,8 +27,8 @@ namespace vsg
 
         BindIndexBuffer(const BufferData& bufferData, VkIndexType indexType) : _bufferData(bufferData), _indexType(indexType) {}
 
-        void pushTo(State& state) override;
-        void popFrom(State& state) override;
+        void pushTo(State& state) const override;
+        void popFrom(State& state) const override;
         void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:
