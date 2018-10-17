@@ -16,12 +16,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Allocator.h>
 #include <vsg/core/Array.h>
 #include <vsg/core/Auxiliary.h>
+#include <vsg/core/ConstVisitor.h>
 #include <vsg/core/Data.h>
 #include <vsg/core/Export.h>
 #include <vsg/core/Inherit.h>
 #include <vsg/core/Object.h>
 #include <vsg/core/Result.h>
 #include <vsg/core/Value.h>
+#include <vsg/core/Version.h>
 #include <vsg/core/Visitor.h>
 #include <vsg/core/observer_ptr.h>
 #include <vsg/core/ref_ptr.h>
@@ -42,6 +44,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/StateGroup.h>
 
 // Traversal header files
+#include <vsg/traversals/CullTraversal.h>
 #include <vsg/traversals/DispatchTraversal.h>
 
 // Viewer header files
