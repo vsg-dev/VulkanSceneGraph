@@ -64,7 +64,7 @@ Paths getEnvPaths(const char* env_var)
 bool fileExists(const Path& path)
 {
 #if defined(WIN32)
-    return _access( path.c_str(), F_OK ) == 0;
+    return _access( path.c_str(), 0 ) == 0;
 #else
     return access( path.c_str(), F_OK ) == 0;
 #endif

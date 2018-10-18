@@ -42,31 +42,11 @@ find_path(GLFW_INCLUDE_DIR
     "$ENV{GLFW_SDK}/include"
   )
 
-
 # GLFW library
-if(WIN32)
-  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    find_library(GLFW_LIBRARY
-      NAMES glfw3  glfw
-      PATHS
-        "$ENV{GLFW_SDK}/Lib"
-        "$ENV{GLFW_SDK}/Bin"
-        )
-  elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-    find_library(GLFW_LIBRARY
-      NAMES glfw3-1  glfw
-      PATHS
-        "$ENV{GLFW_SDK}/Lib32"
-        "$ENV{GLFW_SDK}/Bin32"
-        NO_SYSTEM_ENVIRONMENT_PATH
-        )
-  endif()
-else()
-    find_library(GLFW_LIBRARY
-      NAMES glfw3 glfw
-      PATHS
-        "$ENV{GLFW_SDK}/lib")
-endif()
+find_library(GLFW_LIBRARY
+    NAMES glfw3 glfw
+    PATHS
+    "$ENV{GLFW_SDK}/lib")
 
 set(GLFW_LIBRARIES ${GLFW_LIBRARY})
 set(GLFW_INCLUDE_DIRS ${GLFW_INCLUDE_DIR})
