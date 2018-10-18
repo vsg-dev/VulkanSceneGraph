@@ -22,7 +22,7 @@ Command line instructions for default building of static library (.a/.lib) in so
 Command line instructions for building shared library (.so/.lib + .dll) in out of source:
 
     git clone https://github.com/robertosfield/VulkanSceneGraphPrototype.git
-    mkdir vsg-sharead-build
+    mkdir vsg-shared-build
     cd vsg-shared-build
     cmake ../VulkanSceneGraphPrototype -DBUILD_SHARED_LIBS=ON
     make -j 8
