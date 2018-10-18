@@ -23,7 +23,7 @@ Resources associated with ExplorationPhase work:
 ### 2. Prototype Phase, October-December 2018 (present work)
 **Goal : Rapid prototyping of main classes, library and test applications to establish how the scene graph API will broadly look and work.**
 
-Develop as a throw away prototype, but keep in mind that not not of functionality is being prototyped, but scoping out the work practices that will work best once work on the final software starts.
+Develop as a throw away prototype, but keep in mind that more than functionality is being prototyped, scoping out the best practices that will achieve rapid and robust software once work on the final VSG library starts.
 
 ### 3. Core Development Phase, January-Summer 2019
 **Goal: Implement the final class interfaces and implemetation**
