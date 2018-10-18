@@ -10,7 +10,7 @@ VulkanSceneGraphPrototype (VSG) is a prototype for a modern scene graph library 
 ## Roadmap
 
 ### 1. Exploration Phase, June-September 2018 (completed)
-**Goal : Establsih which technologies and board techniques to use**
+**Goal : Establish which technologies and board techniques to use**
 
 Learn and experiment with Vulkan, modern C++, and possible 3rd party dependencies.
 Experimenting with different approaches to object/scene graph design and implementation
