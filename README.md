@@ -50,7 +50,7 @@ To link your lib/application to required dependnecies you'll need:
 
     target_link_libraries(mytargetname VSG::VSG GLFW::GLFW Vulkan::Vulkan)
 
-This will tell CMAke to set up all the appropriate include paths, libs and any definitions (such as the VSG_SHARED_LIBRARY #define that is required under Windows with shared library builds to select the correct declspec()).
+This will tell CMAke to set up all the appropriate include paths, libs and any definitions (such as the VSG_SHARED_LIBRARY #define that is required under Windows with shared library builds to select the correct declspec().)
 
 ## Examples of VSG in testing/in use/how to work with VSG
 
