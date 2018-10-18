@@ -2,29 +2,29 @@ VulkanSceneGraphPrototype (VSG) is a prototype for a modern scene graph library 
 
 ## High level Roadmap
 
-### 1. Exploration Phase, June-September 2018 (completed)
->**Goal : Establsih which technologies and board techniques to use**
+> ### 1. Exploration Phase, June-September 2018 (completed)
+>>**Goal : Establsih which technologies and board techniques to use**
 
->Learn and experiment with Vulkan, modern C++, and possible 3rd party dependencies.
->Experimenting with different approaches to object/scene graph design and implementation
+>>Learn and experiment with Vulkan, modern C++, and possible 3rd party dependencies.
+>>Experimenting with different approaches to object/scene graph design and implementation
 
->Resources associated with ExplorationPhase work:
+>>Resources associated with ExplorationPhase work:
 
-> * [Areas of Interest](docs/ExplorationPhase/AreasOfInterest.md)
-> * [3rd Party Resources](docs/ExplorationPhase/3rdPartyResources.md)
+>> * [Areas of Interest](docs/ExplorationPhase/AreasOfInterest.md)
+>> * [3rd Party Resources](docs/ExplorationPhase/3rdPartyResources.md)
 
-### 2. Prototype Phase, October-December 2018 (present work)
->**Goal : Rapid prototyping of main classes, library and test applications to establish how the scene graph API will broadly look and work.**
+> ### 2. Prototype Phase, October-December 2018 (present work)
+>> **Goal : Rapid prototyping of main classes, library and test applications to establish how the scene graph API will broadly look and work.**
 
->Develop as a throw away prototype, but keep in mind that not not of functionality is being prototyped, but scoping out the work practices that will work best once work on the final software starts.
+>>Develop as a throw away prototype, but keep in mind that not not of functionality is being prototyped, but scoping out the work practices that will work best once work on the final software starts.
 
-### 3. Core Development Work, January-Summer 2019
->**Goal: Implement the final class interfaces and implemetation**
+> ### 3. Core Development Work, January-Summer 2019
+>>**Goal: Implement the final class interfaces and implemetation**
 
->Using the protyping work as a guide implement the final scene graph library with the aim of creatig a solid interface and implementation.
+>>Using the protyping work as a guide implement the final scene graph library with the aim of creatig a solid interface and implementation.
 
-### 4. Release Work,  Fall 2019 onwards 
->**Goal: Test scene graph library against real-world applications and shake down the API and implementation for it's first stable release.**
+> ### 4. Release Work,  Fall 2019 onwards 
+>>**Goal: Test scene graph library against real-world applications and shake down the API and implementation for it's first stable release.**
 
 ## Prerequisites
 * C++17 complient compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
