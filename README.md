@@ -25,12 +25,12 @@ Resources associated with ExplorationPhase work:
 
 Develop as a throw away prototype, but keep in mind that not not of functionality is being prototyped, but scoping out the work practices that will work best once work on the final software starts.
 
-### 3. Core Development Work, January-Summer 2019
+### 3. Core Development Phase, January-Summer 2019
 **Goal: Implement the final class interfaces and implemetation**
 
 Using the protyping work as a guide implement the final scene graph library with the aim of creatig a solid interface and implementation.
 
-### 4. Release Work,  Fall 2019 onwards 
+### 4. Release Phase,  Fall 2019 onwards 
 **Goal: Test scene graph library against real-world applications and shake down the API and implementation for it's first stable release.**
 
 ## Prerequisites
