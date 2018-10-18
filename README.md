@@ -4,7 +4,7 @@ VulkanSceneGraphPrototype (VSG) is a prototype for a modern scene graph library 
 * [Roadmap](#roadmap)
 * [Prerequisites](#prerequisites)
 * [Building the VSG](#building-the-vsg)
-* [Examples of VSG in use](#Examples-of-vsg-in-use)
+* [Examples of VSG in use](#examples-of-vsg-in-use)
 * [Using the VSG within your own projects](#using-the-vsg-within-your-own-projects)
 
 ## Roadmap
