@@ -1,11 +1,20 @@
 VulkanSceneGraphPrototype (VSG) is a prototype for a modern scene graph library built upon Vulkan graphics/compute API.  The software is written in C++17, and follows the [CppCoreGuidlines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines).  The source code is published under the [MIT License](LICENSE.md).
 
-## Contents
+## Index of this brief introduction page
+* [Project index](#project-index)
 * [Roadmap](#roadmap)
 * [Prerequisites](#prerequisites)
 * [Building the VSG](#building-the-vsg)
 * [Examples of VSG in use](#examples-of-vsg-in-use)
 * [Using the VSG within your own projects](#using-the-vsg-within-your-own-projects)
+* 
+---
+
+## Project index
+* Community Resources :  [Code of Conduct](docs/CODE_OF_CONDUCT.md), [Contributing guide](CONTRIBUTING.md)
+* 
+
+---
 
 ## Roadmap
 
@@ -15,10 +24,7 @@ VulkanSceneGraphPrototype (VSG) is a prototype for a modern scene graph library 
 Learn and experiment with Vulkan, modern C++, and possible 3rd party dependencies.
 Experimenting with different approaches to object/scene graph design and implementation
 
-Resources associated with ExplorationPhase work:
-
-* [Areas of Interest](docs/ExplorationPhase/AreasOfInterest.md)
-* [3rd Party Resources](docs/ExplorationPhase/3rdPartyResources.md)
+Resources associated with ExplorationPhase work: [Areas of Interest](docs/ExplorationPhase/AreasOfInterest.md), [3rd Party Resources](docs/ExplorationPhase/3rdPartyResources.md)
 
 ### 2. Prototype Phase, October-December 2018 (present work)
 **Goal : Rapid prototyping of main classes, library and test applications to establish how the scene graph API will broadly look and work.**
@@ -67,7 +73,7 @@ Command line instructions for building shared library (.so/.lib + .dll) in out o
 
 ## Examples of VSG in use
 
-It's still very early days for the project so we don't have many projects that use to the VSG to reference, for our own testing purposes we have two project which may serve as an illiustration of how to compile against the VSG and how to use parts of it's API.  These projects are:
+It's still very early days for the project so we don't have many projects that use to the VSG to reference, for our own testing purposes we have two project which may serve as an illustration of how to compile against the VSG and how to use parts of it's API.  These projects are:
 * [osg2vsg](https://github.com/robertosfield/osg2vsg)
 * [vsgFramework](https://github.com/robertosfield/vsgFramework)
 
