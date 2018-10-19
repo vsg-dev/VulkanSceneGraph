@@ -268,7 +268,7 @@ As general finding, the 3rd party dependencies reviewed have all provide useful 
 
 **Project name:** VulkanSceneGraph preferred, may need to use VkSceneGraph due to trademark.
 
-**Language:** minimum C++11, possible C++14 or C++17 usage.
+**Language:** C++17 minumum standard.
 
 **Build tool:** lead choice CMake due to familiarity and market penetration, possible xmake.
 
@@ -278,7 +278,14 @@ As general finding, the 3rd party dependencies reviewed have all provide useful 
 
 **Windowing:** local native Windowing support provided, with ability to use 3rd party Windowing
 
-**Vulkan integration:** lightweight local C++ wrappers, naming and style inspired by Vulkan C API. Provide convenient and robust setup and clean of resources.
+**Vulkan integration:** Aim for coherent naming and granularity as underlying Vulkan API
+
+* lightweight local C++ wrappers of Vulkan objects, naming and style inspired by Vulkan C API. 
+* Provide convenient and robust setup and clean of resources.
+* Standard naming VkFeature -> vsg::Feature in include/vsg/vk/Feature.h
+* Cmd naming VkCmdFeature -> vsg::Feature, subclassed from vsg::Command
+* State VkCmdFeature -> vsg::Feature, subclassed from vsg::StateComponent
+
 
 **Single library:** all core, maths, nodes, utilities, vulkan and viewer provided in libvsg library, can be either be used as static or dynamic library.
 
@@ -308,14 +315,7 @@ Use std::atomic to provide efficient, thread safe reference counts
 To minimize the size of majority of internal scene graph nodes and leave nodes the ancillary data that only few objects required are moved out of the
 Base vsg::Object/Node classes into an vsg::Auxiliary object.
 
-
-**Vulkan:** Aim for coherent naming and granularity as underlying Vulkan API
-
-* Standard naming VkFeature -> vsg::Feature in include/vsg/vk/Feature.h
-* Cmd naming VkCmdFeature -> vsg::Feature, subclassed from vsg::Command
-* State VkCmdFeature -> vsg::Feature, subclassed from vsg::StateComponent
-
-**Unification:**
+]**Unification:**
 All vsg::Object support intrusive reference counting and meta data support All vsg::Object support type safe query via vsg::Visitor
 
 All uniform and vertex array data can be handled via the Data interface Single value data via the vsg::Value template Array data via the vsg::Array template
