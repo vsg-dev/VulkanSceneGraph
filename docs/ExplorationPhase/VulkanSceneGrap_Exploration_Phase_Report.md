@@ -284,70 +284,54 @@ As general finding, the 3rd party dependencies reviewed have all provide useful 
 
 **Namespace:** vsg used for all categories of functionality in keeping
 
-**Headers:**         .h used for public classes/functions
-                Categories of functionality placed in appropriately name subdirectories i.e.
-                        include/vsg/core/Object.h
-                        include/vsg/nodes/Group.h
-                        include/vsg/vk/Instance.h
-                For convenience high level headers wrap up all vsg/*/*.h headers
-                        include/vsg/core.h includes all vsg/core/*.h
-                        include/vsg/nodes.h to include all include/vsg/nodes/*.h
-                        include/vsg/all.h to include all public headers.
+**Headers:** .h used for public classes/functions
+
+    Categories of functionality placed in appropriately name subdirectories i.e.
+            include/vsg/core/Object.h
+            include/vsg/nodes/Group.h
+            include/vsg/vk/Instance.h
+    For convenience high level include/vsg/all.h head to includes all vsg/*/*.h
+
+**Source:** .cpp extension used
+
+    Categories of functionality placed in appropriate name subdirectories i.e.
+            src/vsg/core/Visitor.cpp
+            src/vsg/viewer/Viewer.cpp
 
 
-**Source:**        .cpp extension used
-                Categories of functionality placed in appropriate name subdirectories i.e.
-                        src/vsg/core/Visitor.cpp
-                        src/vsg/viewer/Viewer.cpp
-
-
-**Memory:**        To address the main performance scene graph bottleneck have a general
-goal of improving cache coherency and lowering memory bandwidth load.
-
+**Memory:** To address the main performance scene graph bottleneck have a general goal of improving cache coherency and lowering memory bandwidth load.
 
 Intrusive reference counting twice as memory efficient as std::shared_ptr<>.
 vsg::ref_ptr<>, vsg::observer_ptr<> and vsg::Object
 
-
 Use std::atomic to provide efficient, thread safe reference counts
-
 
 To minimize the size of majority of internal scene graph nodes and leave nodes the ancillary data that only few objects required are moved out of the
 Base vsg::Object/Node classes into an vsg::Auxiliary object.
 
 
-**Vulkan:**        Standard naming VkFeature -> vsg::Feature in include/vsg/vk/Feature.h
-                Cmd naming VkCmdFeature -> vsg::Feature, subclassed from vsg::Command
-                State VkCmdFeature -> vsg::Feature, subclassed from vsg::StateComponent
+**Vulkan:** 
+    Standard naming VkFeature -> vsg::Feature in include/vsg/vk/Feature.h
+    Cmd naming VkCmdFeature -> vsg::Feature, subclassed from vsg::Command
+    State VkCmdFeature -> vsg::Feature, subclassed from vsg::StateComponent
+
+**Unification:**
+All vsg::Object support intrusive reference counting and meta data support All vsg::Object support type safe query via vsg::Visitor
+
+All uniform and vertex array data can be handled via the Data interface Single value data via the vsg::Value template Array data via the vsg::Array template
 
 
-**Unification:**        All vsg::Object support intrusive reference counting and meta data support
-                All vsg::Object support type safe query via vsg::Visitor
-
-
-                All uniform and vertex array data can be handled via the Data interface
-                Single value data via the vsg::Value template
-                Array data via the vsg::Array template
-
-
-                The main scene graph and the rendering backends command graph utilize
-the same scene graph hierarchy.
+The main scene graph and the rendering backends command graph utilize the same scene graph hierarchy.
 
 
 Vulkan Compute and Graphics is support all with the same Vulkan wrappers,
 scene graph and command graph hierarchies.
 
 
-Usage models: Application developers will be able to dispatch data directly to Vulkan using
-        the VSG’s Vulkan wrappers in a form of an immediate mode, creating their
-        own command graphs that using standard vsg command visitors or their own        custom visitors, through to using visitor to cull the main scene graph down to a
-command graph each frame and dispatching this vulkan.
+**Usage models:** Application developers will be able to dispatch data directly to Vulkan using the VSG’s Vulkan wrappers in a form of an immediate mode, creating their own command graphs that using standard vsg command visitors or their own custom visitors, through to using visitor to cull the main scene graph down to a command graph each frame and dispatching this vulkan.
 
 
-**Reflection:**        Not explored during Exploration Phase so will need to be addressed in future.
-                Aim to provide reflection for all core scene graph objects
-                Will provide support for reading/writing scene graph objects
-                Open the door to scripting
+**Reflection:** Not explored during Exploration Phase so will need to be addressed in future. Aim to provide reflection for all core scene graph objects. Will provide support for reading/writing scene graph objects. Open the door to scripting
 
 
 **IO:**                Support for loading 3rd party images and 3d models is currently deemed
