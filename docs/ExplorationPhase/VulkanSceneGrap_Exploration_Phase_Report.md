@@ -286,23 +286,22 @@ As general finding, the 3rd party dependencies reviewed have all provide useful 
 
 **Headers:** .h used for public classes/functions
 
-    Categories of functionality placed in appropriately name subdirectories i.e.
-            include/vsg/core/Object.h
-            include/vsg/nodes/Group.h
-            include/vsg/vk/Instance.h
-    For convenience high level include/vsg/all.h head to includes all vsg/*/*.h
+Categories of functionality placed in appropriately name subdirectories i.e.
+* include/vsg/core/Object.h
+* include/vsg/nodes/Group.h
+* include/vsg/vk/Instance.h
+For convenience high level include/vsg/all.h head to includes all vsg/*/*.h
 
 **Source:** .cpp extension used
 
-    Categories of functionality placed in appropriate name subdirectories i.e.
-            src/vsg/core/Visitor.cpp
-            src/vsg/viewer/Viewer.cpp
+Categories of functionality placed in appropriate name subdirectories i.e.
+* src/vsg/core/Visitor.cpp
+* src/vsg/viewer/Viewer.cpp
 
 
 **Memory:** To address the main performance scene graph bottleneck have a general goal of improving cache coherency and lowering memory bandwidth load.
 
-Intrusive reference counting twice as memory efficient as std::shared_ptr<>.
-vsg::ref_ptr<>, vsg::observer_ptr<> and vsg::Object
+Intrusive reference counting twice as memory efficient as std::shared_ptr<>, and results in ~50% better traversals speeds. Use vsg::ref_ptr<>, vsg::observer_ptr<> and vsg::Object.
 
 Use std::atomic to provide efficient, thread safe reference counts
 
@@ -310,10 +309,11 @@ To minimize the size of majority of internal scene graph nodes and leave nodes t
 Base vsg::Object/Node classes into an vsg::Auxiliary object.
 
 
-**Vulkan:** 
-    Standard naming VkFeature -> vsg::Feature in include/vsg/vk/Feature.h
-    Cmd naming VkCmdFeature -> vsg::Feature, subclassed from vsg::Command
-    State VkCmdFeature -> vsg::Feature, subclassed from vsg::StateComponent
+**Vulkan:** Aim for coherent naming and granularity as underlying Vulkan API
+
+* Standard naming VkFeature -> vsg::Feature in include/vsg/vk/Feature.h
+* Cmd naming VkCmdFeature -> vsg::Feature, subclassed from vsg::Command
+* State VkCmdFeature -> vsg::Feature, subclassed from vsg::StateComponent
 
 **Unification:**
 All vsg::Object support intrusive reference counting and meta data support All vsg::Object support type safe query via vsg::Visitor
