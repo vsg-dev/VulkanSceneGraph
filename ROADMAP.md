@@ -15,7 +15,7 @@ Experimenting with different approaches to object/scene graph design and impleme
 * Develop as a throw away functional prototype (3rd parties should not assume any of the API is stable.)
 * Scope out the best practices that will achieve rapid and robust software development once work on the final VSG starts:
     * Static code anaysis (cppcheck has been added.)
-    * Dynamic analysis (such as LVLM sanitizers)
+    * Dynamic analysis (such as LLVM sanitizers)
     * Follow [CppCoreGuidlines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines)
     * Follow [Best Practices](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md)
 * Build addon libraries, as sparate projects, to provide additional features:
