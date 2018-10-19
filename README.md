@@ -1,5 +1,7 @@
 VulkanSceneGraphPrototype (VSG) is a prototype for a modern scene graph library built upon Vulkan graphics/compute API.  The software is written in C++17, and follows the [CppCoreGuidlines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines).  The source code is published under the [MIT License](LICENSE.md).
 
+This repository contains basic documentation, C++ headers and source and CMake build scripts to build the prototype libvsg library.  Additional support libraries and examples are provided in seperate repositories, links to these provided below.
+
 ## Index of this brief introduction page
 * [Project index](#project-index)
 * [Roadmap](#roadmap)
@@ -7,12 +9,14 @@ VulkanSceneGraphPrototype (VSG) is a prototype for a modern scene graph library 
 * [Building the VSG](#building-the-vsg)
 * [Examples of VSG in use](#examples-of-vsg-in-use)
 * [Using the VSG within your own projects](#using-the-vsg-within-your-own-projects)
-* 
+
 ---
 
 ## Project index
 * Community Resources :  [Code of Conduct](docs/CODE_OF_CONDUCT.md), [Contributing guide](CONTRIBUTING.md)
-* 
+* Exploration Phase Materials : [Areas of Interest](docs/ExplorationPhase/AreasOfInterest.md), [3rd Party Resources](docs/ExplorationPhase/3rdPartyResources.md)
+* Headers - the public interface : [include/vsg/](include/vsg)
+* Source - the implementation : [src/vsg/](src/vsg)
 
 ---
 
@@ -23,8 +27,6 @@ VulkanSceneGraphPrototype (VSG) is a prototype for a modern scene graph library 
 
 Learn and experiment with Vulkan, modern C++, and possible 3rd party dependencies.
 Experimenting with different approaches to object/scene graph design and implementation
-
-Resources associated with ExplorationPhase work: [Areas of Interest](docs/ExplorationPhase/AreasOfInterest.md), [3rd Party Resources](docs/ExplorationPhase/3rdPartyResources.md)
 
 ### 2. Prototype Phase, October-December 2018 (present work)
 **Goal : Rapid prototyping of main classes, library and test applications to establish how the scene graph API will broadly look and work.**
