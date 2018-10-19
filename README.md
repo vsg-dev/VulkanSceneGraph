@@ -5,8 +5,7 @@ This repository contains basic documentation, C++ headers and source and CMake b
 ## Index of this brief introduction page
 * [Project index](#project-index)
 * [Roadmap](#roadmap)
-* [Prerequisites](#prerequisites)
-* [Building the VSG](#building-the-vsg)
+* [Quick guide too building the VSG](#quick-guide-to-building-the-vsg)
 * [Examples of VSG in use](#examples-of-vsg-in-use)
 * [Using the VSG within your own projects](#using-the-vsg-within-your-own-projects)
 
@@ -15,6 +14,7 @@ This repository contains basic documentation, C++ headers and source and CMake b
 ## Project index
 * Community Resources :  [Code of Conduct](docs/CODE_OF_CONDUCT.md), [Contributing guide](docs/CONTRIBUTING.md)
 * Exploration Phase Materials : [Areas of Interest](docs/ExplorationPhase/AreasOfInterest.md), [3rd Party Resources](docs/ExplorationPhase/3rdPartyResources.md)
+* Detailed Build and install [instrucutions](INSTALL.md)
 * Headers - the public interface : [include/vsg/](include/vsg)
 * Source - the implementation : [src/vsg/](src/vsg)
 
@@ -43,7 +43,9 @@ Using the protyping work as a guide implement the final scene graph library with
 
 ---
 
-## Prerequisites
+## Quick Guide to building the VSG
+
+### Prerequisites:
 * C++17 compliant compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
 * [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.
 * [CMake](https://www.cmake.org) 3.5 or later.
@@ -52,9 +54,8 @@ Using the protyping work as a guide implement the final scene graph library with
 
 The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against oldeer versions.  If you find success with older versions let us know and we can related the version info.
 
-## Building the VSG
-
-Command line instructions for default building of static library (.a/.lib) in source:
+###Command line build instructions:
+To build and install the static libvsg library (.a/.lib) in source:
 
     git clone https://github.com/robertosfield/VulkanSceneGraphPrototype.git
     cd VulkanSceneGraphPrototype
@@ -62,14 +63,7 @@ Command line instructions for default building of static library (.a/.lib) in so
     make -j 8
     make install
 
-Command line instructions for building shared library (.so/.lib + .dll) in out of source:
-
-    git clone https://github.com/robertosfield/VulkanSceneGraphPrototype.git
-    mkdir vsg-shared-build
-    cd vsg-shared-build
-    cmake ../VulkanSceneGraphPrototype -DBUILD_SHARED_LIBS=ON
-    make -j 8
-    make install
+Full details of how to build of the VSG can be found in the [INSTALL.md](INSTALL.md) file.
 
 ---
 
@@ -83,29 +77,4 @@ Three examples within the vsgFramework project that may be of paricular interest
 * [Vulkan Tutorial](https://vulkan-tutorial.com/)  ported as [vsgFramework/applications/vsgdraw](https://github.com/robertosfield/vsgFramework/blob/master/applications/vsgdraw/vsgdraw.cpp)
 * Version of vsgdraw using vkPushConstants [vsgFramework.applications/vsgpushconstants](https://github.com/robertosfield/vsgFramework/blob/master/applications/vsgpushconstants/vsgpushconstants.cpp)
 * [vulkan_minimal_compute](https://github.com/Erkaman/vulkan_minimal_compute) tutorial ported to VSG [vsgFramework/applications/vsgcompute](https://github.com/robertosfield/vsgFramework/blob/master/applications/vsgcompute/vsgcompute.cpp)
-
-
-## Using the VSG within your own projects
-
-The project is currently a prototype that is undergoing continuous development so it isn't recommend to use as base for long term software development. At this point it's available for developers who want to test the bleeding edge and provide feedback on it's fitness for purpose.
-
-To assist with setting up software to work with the VSG we provided [FindVSG.cmake](https://github.com/robertosfield/VulkanSceneGraphPrototype/blob/master/CMakeModules/FindVSG.cmake), [FindGLFW.cmake](https://github.com/robertosfield/VulkanSceneGraphPrototype/blob/master/CMakeModules/FindGLFW.cmake) and [FindVulkan.cmake](https://github.com/robertosfield/VulkanSceneGraphPrototype/blob/master/CMakeModules/FindVulkan.cmake) within the [VullkanSceneGraphPrototype/CMakeModules](https://github.com/robertosfield/VulkanSceneGraphPrototype/tree/master/CMakeModules) directory.  Feel free to copy these into your own project.
-
-Within your CMake CMakeLists.txt script to find the VSG related dependencies you'll need to add:
-
-   find_package(VSG)
-   find_package(GLFW)
-   find_package(Vulkan)
-
-To select C++17 compilation you'll need:
-
-    set(CMAKE_CXX_STANDARD 17)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-    set(CMAKE_CXX_EXTENSIONS OFF)
-
-To link your lib/application to required dependnecies you'll need:
-
-    target_link_libraries(mytargetname VSG::VSG GLFW::GLFW Vulkan::Vulkan)
-
-This will tell CMAke to set up all the appropriate include paths, libs and any definitions (such as the VSG_SHARED_LIBRARY #define that is required under Windows with shared library builds to select the correct declspec().)
 

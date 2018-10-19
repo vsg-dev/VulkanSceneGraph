@@ -1,3 +1,14 @@
+## Prerequisites
+* C++17 compliant compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
+* [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.
+* [CMake](https://www.cmake.org) 3.5 or later.
+* [GLFW](https://www.glfw.org)  3.3 or later.  The plan is to implement native Windowing support so this dependency will
+ later be removed.
+
+The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against oldeer versions.  If you find success with older versions let us know and we can related the version info.
+
+---
+
 ## Quick guide to building and install the VSG from the command line:
 
 Command line instructions for default building of static library (.a/.lib) in source:
@@ -43,9 +54,9 @@ This lists the options:
     
 Most of these are standard options which you can look up in CMake and make documentation, the following are ones we've added so require explanation:
 
-    make clobber     *#remove all files not part of the git repository*
-    make cppcheck    *#run cppcheck on source and headers to generate a static analysis*
-    make build_all_h *#autoatically generate the include/vsg/all.h from all the files that match include/vsg/*/*.h*
+    make clobber     # remove all files not part of the git repository - including all temporary CMake and build files.
+    make cppcheck    # run cppcheck on source and headers to generate a static analysis
+    make build_all_h # generate the include/vsg/all.h from all the files that match include/vsg/*/*.h
 
 ---
 
