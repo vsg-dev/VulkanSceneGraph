@@ -266,17 +266,17 @@ As general finding, the 3rd party dependencies reviewed have all provide useful 
 ## 8) High Level Design Decisions
 
 
-**Project name:** VulkanSceneGraph preferred, may need to use VkSceneGraph due to trademark.
+**Project name:** VulkanSceneGraph preferred, may need to use VkSceneGraph is permission from Khronos is not secured. 
 
 **Language:** C++17 minumum standard.
 
-**Build tool:** lead choice CMake due to familiarity and market penetration, possible xmake.
+**Build tool:** lead choice CMake due to familiarity and market penetration.
 
 **Source code control:** git hosted on github.
 
 **Maths :** local GLSL style maths class, inspired by GLSL, GLM and the Vulkan conventions.
 
-**Windowing:** local native Windowing support provided, with ability to use 3rd party Windowing
+**Windowing:** local native Windowing integrated with core VSG library, with ability to use 3rd party Windowing
 
 **Vulkan integration:** Aim for coherent naming and granularity as underlying Vulkan API
 
