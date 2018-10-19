@@ -13,7 +13,7 @@ This repository contains basic documentation, C++ headers and source and CMake b
 ---
 
 ## Project index
-* Community Resources :  [Code of Conduct](docs/CODE_OF_CONDUCT.md), [Contributing guide](CONTRIBUTING.md)
+* Community Resources :  [Code of Conduct](docs/CODE_OF_CONDUCT.md), [Contributing guide](docs/CONTRIBUTING.md)
 * Exploration Phase Materials : [Areas of Interest](docs/ExplorationPhase/AreasOfInterest.md), [3rd Party Resources](docs/ExplorationPhase/3rdPartyResources.md)
 * Headers - the public interface : [include/vsg/](include/vsg)
 * Source - the implementation : [src/vsg/](src/vsg)
