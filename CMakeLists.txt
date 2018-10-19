@@ -79,5 +79,12 @@ add_custom_target(build_all_h
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/build_all_h.cmake
 )
 
+find_program(CPPCHECK cppcheck)
+if (CPPCHECK)
+    add_custom_target(cppcheck
+        COMMAND ${CPPCHECK} ${CMAKE_CURRENT_SOURCE_DIR}/src/vsg/*/*.cpp -I ${CMAKE_CURRENT_SOURCE_DIR}/include/ --quiet --enable=all
+    )
+endif()
+
 # src directory contains all the example applications etc.
 add_subdirectory(src/vsg)
