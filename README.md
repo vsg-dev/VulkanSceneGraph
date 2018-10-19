@@ -33,6 +33,8 @@ Using the protyping work as a guide implement the final scene graph library with
 ### 4. Release Phase,  Fall 2019 onwards 
 **Goal: Test scene graph library against real-world applications and shake down the API and implementation for it's first stable release.**
 
+---
+
 ## Prerequisites
 * C++17 complient compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
 * [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.
@@ -60,6 +62,8 @@ Command line instructions for building shared library (.so/.lib + .dll) in out o
     cmake ../VulkanSceneGraphPrototype -DBUILD_SHARED_LIBS=ON
     make -j 8
     make install
+
+---
 
 ## Examples of VSG in use
 
