@@ -1,7 +1,7 @@
-#VSG Exploration Phase Report
+# VSG Exploration Phase Report
 This document discusses the work carried out during the Exploration Phase and conclusions and results from this work.  Links to 3rd party resources used are included inline with this document, click on highlighted keywords to follow links.
 
-##Original Plan for topics to be tackled during exploration phase:
+## Original Plan for topics to be tackled during exploration phase:
 1. Gain familiarity and experiment with Vulkan API and associated tools such as glslang, SPIR-V Tools etc.
 2. Develop an intuitive, flexible and high performing conceptual and class mapping for Vulkan functionality into the Application and Scene Graph domains.
 3. Experiment with different approaches to core scene graph design and implementation to find out which approaches deliver the best balance between performance, flexibility and scalability, whilst providing a clean and intuitive design and implementation.
@@ -16,7 +16,7 @@ The document will discuss the work and findings from each of these areas, number
 7. Exploration Conclusions
 8. High Level Design Decisions
 
-##VulkanPlayground repository:
+## VulkanPlayground repository:
 To provide a base for experimental work during the exploration a project was created on github:
 https://github.com/robertosfield/VulkanPlayground
 
@@ -51,7 +51,7 @@ The vsgcompute testbed use the vsg Vulkan wrappers directly as immediate mode, s
 
 ---
 
-##2) Develop class mapping for Vulkan functionality
+## 2) Develop class mapping for Vulkan functionality
 Two of the three months of the Exploration Phase have been dedicated to learning and experimenting with Vulkan.  Vulkan requires a great deal of setup to do basic things so progress in this area was been slow.  The current Vulkan encapsulation that can be found in VulkanPlayground/include/vsg/vk and src/vsg/vk are functionality and usable as is, but should be considered a first pass implementation.
 
 
@@ -266,25 +266,25 @@ As general finding, the 3rd party dependencies reviewed have all provide useful 
 ## 8) High Level Design Decisions
 
 
-<u>Project name:</u> VulkanSceneGraph preferred, may need to use VkSceneGraph due to trademark.
+**Project name:** VulkanSceneGraph preferred, may need to use VkSceneGraph due to trademark.
 
 **Language:** minimum C++11, possible C++14 or C++17 usage.
 
-Build tool: lead choice CMake due to familiarity and market penetration, possible xmake.
+**Build tool:** lead choice CMake due to familiarity and market penetration, possible xmake.
 
-Source code control: git hosted on github.
+**Source code control:** git hosted on github.
 
-Maths : local GLSL style maths class, inspired by GLSL, GLM and the Vulkan conventions.
+**Maths :** local GLSL style maths class, inspired by GLSL, GLM and the Vulkan conventions.
 
-Windowing: local native Windowing support provided, with ability to use 3rd party Windowing
+**Windowing:** local native Windowing support provided, with ability to use 3rd party Windowing
 
-Vulkan integration: lightweight local C++ wrappers, naming and style inspired by Vulkan C API. Provide convenient and robust setup and clean of resources.
+**Vulkan integration:** lightweight local C++ wrappers, naming and style inspired by Vulkan C API. Provide convenient and robust setup and clean of resources.
 
-Single library : all core, maths, nodes, utilities, vulkan and viewer provided in libvsg library, can be either be used as static or dynamic library.
+**Single library:** all core, maths, nodes, utilities, vulkan and viewer provided in libvsg library, can be either be used as static or dynamic library.
 
-Namespace : vsg used for all categories of functionality in keeping
+**Namespace:** vsg used for all categories of functionality in keeping
 
-Headers :         .h used for public classes/functions
+**Headers:**         .h used for public classes/functions
                 Categories of functionality placed in appropriately name subdirectories i.e.
                         include/vsg/core/Object.h
                         include/vsg/nodes/Group.h
@@ -295,13 +295,13 @@ Headers :         .h used for public classes/functions
                         include/vsg/all.h to include all public headers.
 
 
- Source:        .cpp extension used
+**Source:**        .cpp extension used
                 Categories of functionality placed in appropriate name subdirectories i.e.
                         src/vsg/core/Visitor.cpp
                         src/vsg/viewer/Viewer.cpp
 
 
-Memory:        To address the main performance scene graph bottleneck have a general
+**Memory:**        To address the main performance scene graph bottleneck have a general
 goal of improving cache coherency and lowering memory bandwidth load.
 
 
@@ -316,12 +316,12 @@ To minimize the size of majority of internal scene graph nodes and leave nodes t
 Base vsg::Object/Node classes into an vsg::Auxiliary object.
 
 
-Vulkan:        Standard naming VkFeature -> vsg::Feature in include/vsg/vk/Feature.h
+**Vulkan:**        Standard naming VkFeature -> vsg::Feature in include/vsg/vk/Feature.h
                 Cmd naming VkCmdFeature -> vsg::Feature, subclassed from vsg::Command
                 State VkCmdFeature -> vsg::Feature, subclassed from vsg::StateComponent
 
 
-Unification:        All vsg::Object support intrusive reference counting and meta data support
+**Unification:**        All vsg::Object support intrusive reference counting and meta data support
                 All vsg::Object support type safe query via vsg::Visitor
 
 
@@ -344,13 +344,13 @@ Usage models: Application developers will be able to dispatch data directly to V
 command graph each frame and dispatching this vulkan.
 
 
-Reflection:        Not explored during Exploration Phase so will need to be addressed in future.
+**Reflection:**        Not explored during Exploration Phase so will need to be addressed in future.
                 Aim to provide reflection for all core scene graph objects
                 Will provide support for reading/writing scene graph objects
                 Open the door to scripting
 
 
-IO:                Support for loading 3rd party images and 3d models is currently deemed
+**IO:**                Support for loading 3rd party images and 3d models is currently deemed
 outwith the scope core libvsg library.  Only IO supported will be via the
 native scene graph objects support for reflection. This IO support will 
 enable scene graphs, images and shaders to read and written without
