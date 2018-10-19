@@ -4,7 +4,6 @@ This repository contains basic documentation, C++ headers and source and CMake b
 
 ## Index of this brief introduction page
 * [Project index](#project-index)
-* [Roadmap](#roadmap)
 * [Quick guide too building the VSG](#quick-guide-to-building-the-vsg)
 * [Examples of VSG in use](#examples-of-vsg-in-use)
 * [Using the VSG within your own projects](#using-the-vsg-within-your-own-projects)
@@ -12,36 +11,15 @@ This repository contains basic documentation, C++ headers and source and CMake b
 ---
 
 ## Project index
-* Community Resources :  [Code of Conduct](docs/CODE_OF_CONDUCT.md), [Contributing guide](docs/CONTRIBUTING.md)
+* Detailed build and install [instructions](INSTALL.md)
+* Software development [RoadMap](ROADMAP.md)
+* Community resources :  [Code of Conduct](docs/CODE_OF_CONDUCT.md), [Contributing guide](docs/CONTRIBUTING.md)
 * Exploration Phase Materials : [Areas of Interest](docs/ExplorationPhase/AreasOfInterest.md), [3rd Party Resources](docs/ExplorationPhase/3rdPartyResources.md)
-* Detailed Build and install [instrucutions](INSTALL.md)
 * Headers - the public interface : [include/vsg/](include/vsg)
 * Source - the implementation : [src/vsg/](src/vsg)
 
 ---
 
-## Roadmap
-
-### 1. Exploration Phase, June-September 2018 (completed)
-**Goal : Establish which technologies and board techniques to use**
-
-Learn and experiment with Vulkan, modern C++, and possible 3rd party dependencies.
-Experimenting with different approaches to object/scene graph design and implementation
-
-### 2. Prototype Phase, October-December 2018 (present work)
-**Goal : Rapid prototyping of main classes, library and test applications to establish how the scene graph API will broadly look and work.**
-
-Develop as a throw away prototype, but keep in mind that more than functionality is being prototyped, scoping out the best practices that will achieve rapid and robust software once work on the final VSG library starts. Port to Android.
-
-### 3. Core Development Phase, January-Summer 2019
-**Goal: Implement the final class interfaces and implemetation**
-
-Using the protyping work as a guide implement the final scene graph library with the aim of creatig a solid interface and implementation.
-
-### 4. Release Phase,  Fall 2019 onwards 
-**Goal: Test scene graph library against real-world applications and shake down the API and implementation for it's first stable release.**
-
----
 
 ## Quick Guide to building the VSG
 
