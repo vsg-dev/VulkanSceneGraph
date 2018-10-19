@@ -10,6 +10,9 @@
 
 * [Best Practices Criteria for Free/Libre and Open Source Software (FLOSS)](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md)
 * [include-what-you-use tool](https://include-what-you-use.org/)
+* [clang address sanitizer](https://clang.llvm.org/docs/AddressSanitizer.html)
+* [clang thread sanitizer](https://clang.llvm.org/docs/ThreadSanitizer.html)
+* [clang memory sanitizer](https://clang.llvm.org/docs/MemorySanitizer.html)
 
 ## Tutorials
 
