@@ -2,8 +2,10 @@ VulkanSceneGraphPrototype (VSG) is a prototype for a modern, cross platform, hig
 
 This repository contains basic documentation, C++ headers and source and CMake build scripts to build the prototype libvsg library.  Additional support libraries and examples are provided in seperate repositories, links to these provided below.  The software currently builds under Linux and Windows.  We plan on providing support for Android by the end of 2018, and later add OSX and iOS support using [MoltenVk](https://github.com/KhronosGroup/MoltenVK).
 
+The VulkanSceneGraphPrototype is the precusor to final VulkanSceneGraph/VkSceneGraph project, the prototype will be developed through to the end of 2018, then in 2019 we'll begin work on the final project that will be appropriate for use within user compute and graphics middle-ware and applications.
 
-## Project index
+
+## Useful links within the codebase:
 * Detailed build and install [instructions](INSTALL.md)
 * Software development [RoadMap](ROADMAP.md)
 * Community resources :  [Code of Conduct](docs/CODE_OF_CONDUCT.md), [Contributing guide](docs/CONTRIBUTING.md)
@@ -23,7 +25,7 @@ This repository contains basic documentation, C++ headers and source and CMake b
 * [GLFW](https://www.glfw.org)  3.3 or later.  The plan is to implement native Windowing support so this dependency will
  later be removed.
 
-The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against oldeer versions.  If you find success with older versions let us know and we can related the version info.
+The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against oldeer versions.  If you find success with older versions let us know and we can update the version info.
 
 ###Command line build instructions:
 To build and install the static libvsg library (.a/.lib) in source:
