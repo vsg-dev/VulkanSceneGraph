@@ -1,6 +1,6 @@
-VulkanSceneGraphPrototype (VSG) is a prototype for a modern scene graph library built upon Vulkan graphics/compute API.  The software is written in C++17, and follows the [CppCoreGuidlines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines).  The source code is published under the [MIT License](LICENSE.md).
+VulkanSceneGraphPrototype (VSG) is a prototype for a modern, cross platform scene graph library built upon Vulkan graphics/compute API.  The software is written in C++17, and follows the [CppCoreGuidlines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines).  The source code is published under the [MIT License](LICENSE.md).
 
-This repository contains basic documentation, C++ headers and source and CMake build scripts to build the prototype libvsg library.  Additional support libraries and examples are provided in seperate repositories, links to these provided below.
+This repository contains basic documentation, C++ headers and source and CMake build scripts to build the prototype libvsg library.  Additional support libraries and examples are provided in seperate repositories, links to these provided below.  The software currently builds under Linux and Windows.  We plan on providing support for Android by the end of 2018, and later add OSX and iOS support using [MoltenVk](https://github.com/KhronosGroup/MoltenVK).
 
 ## Index of this brief introduction page
 * [Project index](#project-index)
@@ -31,7 +31,7 @@ Experimenting with different approaches to object/scene graph design and impleme
 ### 2. Prototype Phase, October-December 2018 (present work)
 **Goal : Rapid prototyping of main classes, library and test applications to establish how the scene graph API will broadly look and work.**
 
-Develop as a throw away prototype, but keep in mind that more than functionality is being prototyped, scoping out the best practices that will achieve rapid and robust software once work on the final VSG library starts.
+Develop as a throw away prototype, but keep in mind that more than functionality is being prototyped, scoping out the best practices that will achieve rapid and robust software once work on the final VSG library starts. Port to Android.
 
 ### 3. Core Development Phase, January-Summer 2019
 **Goal: Implement the final class interfaces and implemetation**
