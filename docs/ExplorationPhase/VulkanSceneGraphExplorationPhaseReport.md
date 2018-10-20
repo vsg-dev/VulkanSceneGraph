@@ -13,8 +13,8 @@ This document discusses the work carried out during the Exploration Phase and co
 The document will discuss the work and findings from each of these areas, numbering of sections follows the above guide from the original plan.  A final section in this document will provide:
 
 
-7. [Exploration Conclusions](#exploration-phase-conclusions)
-8. [High Level Design Decisions](High_Level_Design_Decisions.md)
+7. [Exploration Conclusions](#7.-exploration-phase-conclusions)
+8. [High Level Design Decisions](HighLevelDesignDecisions.md)
 
 ## VulkanPlayground repository and successors:
 To provide a base for experimental work during the exploration a project was created on github : [VulkanPlayground](
@@ -40,7 +40,7 @@ Now that the Exploration Phase is completed the work on VulkanPlayground has fed
 
 ---
 
-## 1) Gain familiarity and experiment with Vulkan API and tools
+## 1. Gain familiarity and experiment with Vulkan API and tools
 The process of familiarization with Vulkan and associated tools was progressed by working through the VulkanTutorial and vulkan_minimal_compute tutorials, remapping the functionality that these tutorials provided into reusable C++ class wrappers for Vulkan functionality.  The Vulkan Programming Guide book and Khronos online reference guides for Vulkan were used to fill out knowledge of the API and how it functioned.
 
 
@@ -57,7 +57,7 @@ The vsgcompute testbed use the vsg Vulkan wrappers directly as immediate mode, s
 
 ---
 
-## 2) Develop class mapping for Vulkan functionality
+## 2. Develop class mapping for Vulkan functionality
 Two of the three months of the Exploration Phase have been dedicated to learning and experimenting with Vulkan.  Vulkan requires a great deal of setup to do basic things so progress in this area was been slow.  The current Vulkan encapsulation that can be found in VulkanPlayground/include/vsg/vk and src/vsg/vk are functionality and usable as is, but should be considered a first pass implementation.
 
 
@@ -68,10 +68,10 @@ Initial work has been done on exposing the Vulkan functionality within the scene
 
 ---
 
-## 3) Exploration of core scene graph design and implementation
+## 3. Exploration of core scene graph design and implementation
 The core functionality such as memory management, type safe object operations, extensible object properties, maths functionality and memory footprint were fleshed out in series of classes within the prototype vsg library and the application testbeds. The general approach has been to create core classes that are smaller in memory footprint, more flexibility and coherent than their counterparts within the OpenSceneGraph.  
 
-### 3.1) Efficient memory management
+### 3.1 Efficient memory management
 The smaller memory footprint is key part of address the memory bandwidth that is the main bottleneck for scene graph traversals.  Several approaches have been tested to address memory footprint and cache coherency:
 
 
@@ -89,7 +89,7 @@ The osggroups testbed application provides a comparison of different approaches 
 
 Smart pointer usage also has a profound effect on memory footprint and hence performance. The osgpointer testbed compares use a intrusive reference counting (vsg::ref_ptr) vs using C++11’s std::shared_ptr.  On 64 bit Linux systems vsg::ref_ptr<> is 8 bytes in size vs std::shared_ptr<> that is 16 bytes.  The internal nodes of a scene graph use smart pointers to hold references to their children so also are impacted by the smart pointer size.  vsg::QuadGroup using ref_ptr<> is 56 bytes vs 104 bytes required for the equivalent fixed size Group using shared_ptr<>.   This test illustrates how std::shared_ptr<> is a significant step back compared to the intrusive reference counting and should not be used in any performance sensitive areas of the VSG project.
 
-### 3.2) Improving Flexibility and coherence
+### 3.2 Improving Flexibility and coherence
 The OpenSceneGraph’s long life has meant that features have been added over time with multiple class hierarchies being used for different purposes.  For instance the scene graph is distinct to the rendering backend graphs, uniforms are different to arrays, traversal and type safe operations on object also have different mechanisms.
 
 
@@ -103,7 +103,7 @@ The lightweight nodes within the scene graph also mean that the cost of creating
 
 ---
 
-## 4) Scope of core VulkanSceneGraph vs 3rd party libraries
+## 4. Scope of core VulkanSceneGraph vs 3rd party libraries
 There are range of 3rd party libraries that could be useful and if useful a range of ways that they might be integrated:
 
 * used as external dependencies
@@ -124,7 +124,7 @@ Each of these areas we review the 3rd party libraries to look at their relevance
 
 Creating this same functionality directly ourselves offers the opportunity of creating a coherent design for all features and minimizing the work required for assembling dependencies, with the downside that all locally implemented features must be designed, implemented, tested, debugged and maintained ourselves.
 
-### 4.1) Maths
+### 4.1 Maths
 To improve the coherence between the VSG and Vulkan’s use of GLSL the plan is to use the same naming and conventions as GLSL.  The GLM library fulfills this goal so has been reviewed with consideration of using it as 3rd party dependencies.
 
 
@@ -134,7 +134,7 @@ GLM is well established, this is both a positive and a negative.  It is likely t
 The disadvantage of GLM is that is very large, 46913 lines of code in headers, and the majority of it’s functionality will be rarely used by a scene graph user. GLM is als written for OpenGL, while GLSL is usable with Vulkan, the application level elements and conventions are not all compatible.  The depth range and vertical orientation of clip space are different between OpenGL and Vulkan so require GLM results to be adapted so they can be used with Vulkan - the projection matrix setup is an example of this.
 
 
-GLM is used by a number of Vulkan based projects, for instance NVidia’s VkHLF, vulkan-cpp-library pumex, the VulkanTutorial all use GLM.  
+GLM is used by a number of Vulkan based projects, for instance NVidia’s VkHLF, vulkan-cpp-library pumex, the VulkanTutorial all use GLM.
 
 
 When considering whether to create local classes vs using 3rd dependencies a key aspect is just how much work would be required to create the subset of functionality that the VSG requires.  The key elements for the VSG are vec2, vec3, vec4 and mat4 classes, so as an experiment VSG template classes for each of these were implemented, enabling the standard float variations as well as double and integer versions are very local cost.  GLM provide a few design/implementation pointers that helped in this work.  The total code base for this functionality is presently just 429 lines of code (found in VulkanPlayground/include/vsg/maths).  This is 1/100th of the code base of GLM.  These locally created classes also were written to be directly compatible with Vulkan’s clip space conventions so no application level adaptation is required.
@@ -146,7 +146,7 @@ The prototype maths classes provide in vsg/maths are still very basic, it’s li
 For the VSG project is looks best to provide our own maths classes, it gives us the ability to be fully coherent with how Vulkan works and with the conventions that will be used in the rest of the VSG, and provides a small code footprint for users to navigate and learn, and avoids adding a large 3rd party dependency.
 
 
-### 4.2) Windowing
+### 4.2 Windowing
 The work carried out in replicating the VulkanTutorial used the same GLFW library the the VulkanTutorial uses to create a Window and associated Vulkan surface.  GLFW is a C library and requires initialization and clean up in a particular order controlled at the application level.  
 
 
@@ -171,7 +171,7 @@ To provide the most coherent user experience the approach for the VSG will be:
 * Provide native windowing implementations for all the major platforms - the implementations would be internal to the VSG library, either directly with source code or by linking to 3rd party libraries.  First pass would be linking to 3rd party library, then moving source code internally to keep dependencies simple.
 * Public interface to Windowing and Events need adaptable to 3rd party windowing libraries such as Qt etc.
 
-### 4.3) Vulkan wrappers
+### 4.3 Vulkan wrappers
 The main Vulkan headers are all C headers that contain functions to create and destroy objects and functions dispatch commands, as well as structs used to pack properties used to setup the Vulkan objects and control the commands, queues etc.  Using Vulkan C headers directly can result in large amount of setup code and careful management of the lifetime of resources.
 
 
@@ -199,7 +199,7 @@ The vulkan-cpp-library was also considered.  This is C++11 library that uses the
 The VkHLF (Vulkan High Level Framework) is a C++11 wrapper for Vulkan that builds upon vulkan.hpp adding better memory management and other facilities.  VkHLF is developed by NVidia is a up to date and looks to be actively maintained.  The class naming and style is also coherent with Vulkan so it’s relatively easy to relate VkHLF code to underlying Vulkan C API and Vulkan documentation that is predominately relates to the Vulkan C API.  VkHLF uses a NVidia drafted LICENSE that looks similar in principle to the MIT LICENSE.
 
 
-The VkHLF is a serious body of work but still quite modest in size - 3,633 lines of code in the headers and another 5,142 lines of code in implementation.  However, it depends upon the vulkan.hpp C++ bindings, so we have vkhlf::Instance (from vkhlf/Instance.h) wrapping a vk::Instance (from vulkan/vulkan.hpp) wrapping VkInstance from vulkan_core.h.  This tells us vulkan.hpp is flawed - it simply doesn’t provide enough useful functionality to be useful on it’s own, so VkHLF adds some of those missing features.  
+The VkHLF is a serious body of work but still quite modest in size - 3,633 lines of code in the headers and another 5,142 lines of code in implementation.  However, it depends upon the vulkan.hpp C++ bindings, so we have vkhlf::Instance (from vkhlf/Instance.h) wrapping a vk::Instance (from vulkan/vulkan.hpp) wrapping VkInstance from vulkan_core.h.  This tells us vulkan.hpp is flawed - it simply doesn’t provide enough useful functionality to be useful on it’s own, so VkHLF adds some of those missing features.
 
 
 However, design and implementation wise it’s simply not a good practice - working around flaws in a 3rd party body work functionality by building upon that flawed body of work.  It may resolve some of the flaws but it’s still built upon a flawed foundation.  You don’t built upon a sandy beach and expect your your building to remain robust long term.
@@ -224,7 +224,7 @@ The vsg/vk headers now total 1,839 lines of code, while the vsg/vk implementatio
 
 ---
 
-## 5) Gain familiarity and experiment with C++11, C++14 and C++17
+## 5. Gain familiarity and experiment with C++11, C++14 and C++17
 The VulkanPlayground has adopted C++11 from the start, both the application testbeds and the vsg prototype library have been used to trial various C++11 features. C++11 is huge step forward for C++ programmers, enabling code to be cleaner, more succinct and more robust.
 
 Not all features of C++11 are useful for scene graphs - testing of std::shared_ptr<> found that it’s memory overhead compared to locally provided intrusive reference counting is prohibitive and precludes its use in the context of a scene graph where memory footprint and bandwidth are key bottlenecks.
@@ -235,7 +235,7 @@ Notes for September Extension of Exploration Phase: explored C++14 and C++17 and
 
 ---
 
-## 6) Test build tool options CMake and xmake.
+## 6. Test build tool options CMake and xmake.
 Familiarity with Cmake made it an easy choice for the first pass of work on VulkanPlayground.  There hasn’t been sufficient time to look at xmake within the three month Exploration Phase so it hasn’t been possible to evaluate the pros and cons of CMake vs xmake for the final VSG project.
 
 
@@ -245,7 +245,7 @@ For xmake to be adopted it will need to offer benefits for VSG developers and us
 
 ---
 
-## 7) Exploration Phase Conclusions
+## 7. Exploration Phase Conclusions
 The Exploration Phase has covered most of key areas of investigation outlined in the original plan for this phase.  Vulkan while well designed is verbose and complex to work with so has taken the majority of the available time to explore, to an extent that there has been insufficient time to research use of C++14, 17 and xmake within the scope of the 8 weeks work available.  The one month extension to the Exploration Phase focused on C++17 and confirmed as appropriate version for final VSG.
 
 
