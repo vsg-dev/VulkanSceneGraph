@@ -1,5 +1,5 @@
 
-# 8) High Level Design Decisions
+# High Level Design Decisions
 
 **Project name:** VulkanSceneGraph preferred, may need to use VkSceneGraph is permission from Khronos is not secured.
 
@@ -11,7 +11,7 @@
 
 **Maths :** local GLSL style maths class, inspired by GLSL, GLM and the Vulkan conventions.
 
-**Windowing:** local native Windowing integrated with core VSG library, with ability to use 3rd party Windowing
+**Windowing:** local native Windowing integrated with core VSG library, with ability to use 3rd party Windowing (short term use GLFW to get started quickly.)
 
 **Vulkan integration:** Aim for coherent naming and granularity as underlying Vulkan API
 
@@ -24,7 +24,7 @@
 
 **Single library:** all core, maths, nodes, utilities, vulkan and viewer provided in libvsg library, can be either be used as static or dynamic library.
 
-**Namespace:** vsg used for all categories of functionality in keeping
+**Namespace:** vsg used for all categories of functionality within the libvsg library.
 
 **Headers:** .h used for public classes/functions
 
