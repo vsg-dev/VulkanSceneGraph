@@ -13,7 +13,7 @@ This document discusses the work carried out during the Exploration Phase and co
 The document will discuss the work and findings from each of these areas, numbering of sections follows the above guide from the original plan.  A final section in this document will provide:
 
 
-7. [Exploration Conclusions](#7.-exploration-phase-conclusions)
+7. [Exploration Conclusions](#7-exploration-phase-conclusions)
 8. [High Level Design Decisions](HighLevelDesignDecisions.md)
 
 ## VulkanPlayground repository and successors:
@@ -245,7 +245,7 @@ For xmake to be adopted it will need to offer benefits for VSG developers and us
 
 ---
 
-## 7. Exploration Phase Conclusions
+## 7 Exploration Phase Conclusions
 The Exploration Phase has covered most of key areas of investigation outlined in the original plan for this phase.  Vulkan while well designed is verbose and complex to work with so has taken the majority of the available time to explore, to an extent that there has been insufficient time to research use of C++14, 17 and xmake within the scope of the 8 weeks work available.  The one month extension to the Exploration Phase focused on C++17 and confirmed as appropriate version for final VSG.
 
 
