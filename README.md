@@ -28,7 +28,7 @@ The VulkanSceneGraphPrototype is the precusor to final VulkanSceneGraph/VkSceneG
 
 The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against oldeer versions.  If you find success with older versions let us know and we can update the version info.
 
-###Command line build instructions:
+### Command line build instructions:
 To build and install the static libvsg library (.a/.lib) in source:
 
     git clone https://github.com/robertosfield/VulkanSceneGraphPrototype.git
@@ -37,7 +37,7 @@ To build and install the static libvsg library (.a/.lib) in source:
     make -j 8
     make install
 
-Full details of how to build of the VSG can be found in the [INSTALL.md](INSTALL.md) file.
+Full details om how to build of the VSG can be found in the [INSTALL.md](INSTALL.md) file.
 
 ---
 
