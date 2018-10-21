@@ -8,17 +8,17 @@
 
 **Source code control:** git hosted on github.
 
-**Maths :** local GLSL style maths class, inspired by GLSL, GLM and the Vulkan conventions.
+**Maths :** local GLSL style [maths](../../include/vsg/maths/) classes, inspired by GLSL, GLM and the Vulkan conventions.
 
 **Windowing:** local native Windowing integrated with core VSG library, with ability to use 3rd party Windowing (short term use GLFW to get started quickly.)
 
 **Vulkan integration:** Aim for coherent naming and granularity as underlying Vulkan API
 
-* lightweight local C++ wrappers of Vulkan objects, naming and style inspired by Vulkan C API.
+* lightweight [local C++ encapsulation](../../include/vsg/vk) of Vulkan objects, naming and style inspired by Vulkan C API.
 * Provide convenient and robust setup and clean of resources.
 * Standard naming VkFeature -> vsg::Feature in include/vsg/vk/Feature.h
-* Cmd naming VkCmdFeature -> vsg::Feature, subclassed from vsg::Command
-* State VkCmdFeature -> vsg::Feature, subclassed from vsg::StateComponent
+* Cmd naming VkCmdFeature -> vsg::Feature, subclassed from [vsg::Command](../../include/vsg/vk/Command.h)
+* State VkCmdFeature -> vsg::Feature, subclassed from vsg::StateComponent and aggregated within a [vsg::StateGroup](../../include/vsg/nodes/StateGroup.h) node.
 
 
 **Single library:** all core, maths, nodes, utilities, vulkan and viewer provided in libvsg library, can be either be used as static or dynamic library.
@@ -28,35 +28,39 @@
 **Headers:** .h used for public classes/functions
 
 Categories of functionality placed in appropriately name subdirectories i.e.
-* include/vsg/core/Object.h
-* include/vsg/nodes/Group.h
-* include/vsg/vk/Instance.h
+
+* [include/vsg/core](../../include/vsg/core/)/Object.h
+* [include/vsg/nodes/](../../include/vsg/nodes/)Group.h
+* [include/vsg/vk/](../../include/vsg/vk/)Instance.h
 For convenience high level include/vsg/all.h head to includes all vsg/*/*.h
 
 **Source:** .cpp extension used
 
 Categories of functionality placed in appropriate name subdirectories i.e.
-* src/vsg/core/Visitor.cpp
-* src/vsg/viewer/Viewer.cpp
+
+* [src/vsg/core/](../../src/vsg/core/)Visitor.cpp
+* [src/vsg/viewer/](../../src/vsg/viewer/)Viewer.cpp
 
 
 **Memory:** To address the main performance scene graph bottleneck have a general goal of improving cache coherency and lowering memory bandwidth load.
 
-Intrusive reference counting twice as memory efficient as std::shared_ptr<>, and results in ~50% better traversals speeds. Use vsg::ref_ptr<>, vsg::observer_ptr<> and vsg::Object.
+Intrusive reference counting twice as memory efficient as std::shared_ptr<>, and results in ~50% better traversals speeds. Use [vsg::ref_ptr<>](../../include/vsg/core/ref_ptr.h), [vsg::observer_ptr<>](../../include/vsg/core/observer_ptr.h) and vsg::Object.
 
 Use std::atomic to provide efficient, thread safe reference counts
 
 To minimize the size of majority of internal scene graph nodes and leave nodes the ancillary data that only few objects required are moved out of the
-Base vsg::Object/Node classes into an vsg::Auxiliary object.
+Base vsg::Object/Node classes into an [vsg::Auxiliary](../../include/vsg/core/Auxiliary.h) object.
+
+To enable greater control over memory manangment [vsg::Allocator](../../include/vsg/core/Allocator.h) class to enable application to control how the scene graph allocates and deletes memory.
 
 **Unification:**
-All vsg::Object support intrusive reference counting and meta data support All vsg::Object support type safe query via vsg::Visitor
+All vsg::Object support intrusive reference counting and meta data support All vsg::Object support type safe query via [vsg::Visitor](../../include/vsg/core/Visitor.h) and [vsg::ConstVisitor](../../include/vsg/core/ConstVisitor.h)
 
-All uniform and vertex array data can be handled via the Data interface Single value data via the vsg::Value template Array data via the vsg::Array template
+All uniform and vertex array data can be handled via the [Data](../../include/vsg/core/Data.h) interface Single value data via the [vsg::Value](](../../include/vsg/core/Value.h)) template Array data via the [vsg::Array](](../../include/vsg/core/Array.h)) template classes
 
 The main scene graph and the rendering backends command graph utilize the same scene graph hierarchy.
 
-Vulkan Compute and Graphics to be supported with the same Vulkan wrappers, scene graph and command graph hierarchies.
+Vulkan [Compute](../../include/vsg/vk/ComputePipeline.h) and [Graphics](../../include/vsg/vk/GraphicsPipeline.h) to be supported with the same Vulkan wrappers, scene graph and command graph hierarchies.
 
 
 **Usage models:** Application developers will be able to dispatch data directly to Vulkan using the VSG’s Vulkan wrappers in a form of an immediate mode, creating their own command graphs that using standard vsg command visitors or their own custom visitors, through to using visitor to cull the main scene graph down to a command graph each frame and dispatching this vulkan.
