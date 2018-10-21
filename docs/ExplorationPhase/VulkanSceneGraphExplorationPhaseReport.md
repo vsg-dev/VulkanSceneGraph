@@ -14,7 +14,7 @@ The document will discuss the work and findings from each of these areas, number
 
 
 7. [Exploration Conclusions](#7-exploration-phase-conclusions)
-8. [High Level Design Decisions](HighLevelDesignDecisions.md)
+8. [High Level Design Decisions](../Design/HighLevelDesignDecisions.md)
 
 ## VulkanPlayground repository and successors:
 To provide a base for experimental work during the exploration a project was created on github : [VulkanPlayground](
@@ -33,7 +33,7 @@ The VulkanPlayground is a meant as throwaway prototyping repository rather than 
 
 Now that the Exploration Phase is completed the work on VulkanPlayground has fed into the Prototype Phase, with the repository being broken up into three component repositories that are publically available and public under the MIT License:
 
-* [VulkanSceneGraphPrototype](https://github.com/robertosfield/VulkanSceneGraphPrototype) the core scene graph 
+* [VulkanSceneGraphPrototype](https://github.com/robertosfield/VulkanSceneGraphPrototype) the core scene graph
 * [osg2vsg](https://github.com/robertosfield/osg2vsg) helper library to read/writes images using the OSG
 * [vsgFramework](https://github.com/robertosfield/vsgFramework) experiment with building applications and libraries
 
@@ -61,7 +61,7 @@ The vsgcompute testbed use the vsg Vulkan wrappers directly as immediate mode, s
 Two of the three months of the Exploration Phase have been dedicated to learning and experimenting with Vulkan.  Vulkan requires a great deal of setup to do basic things so progress in this area was been slow.  The current Vulkan encapsulation that can be found in VulkanPlayground/include/vsg/vk and src/vsg/vk are functionality and usable as is, but should be considered a first pass implementation.
 
 
-The current encapsulation of Vulkan has followed the principle of one C++ class to each key Vulkan object type, so VkPipeline is wrapped up in vsg::Pipeline class found in include/vsg/vk/Pipeline etc. 
+The current encapsulation of Vulkan has followed the principle of one C++ class to each key Vulkan object type, so VkPipeline is wrapped up in vsg::Pipeline class found in include/vsg/vk/Pipeline etc.
 
 
 Initial work has been done on exposing the Vulkan functionality within the scene graph and viewers.  This work is ongoing and will not be resolvable within the original three month Exploration Phase. Areas in Vulkan left to be resolved are how multi-threading and multi-device support will be handled, and what means the Vulkan objects will connected the the scene, command graphs and viewers.
@@ -69,13 +69,13 @@ Initial work has been done on exposing the Vulkan functionality within the scene
 ---
 
 ## 3. Exploration of core scene graph design and implementation
-The core functionality such as memory management, type safe object operations, extensible object properties, maths functionality and memory footprint were fleshed out in series of classes within the prototype vsg library and the application testbeds. The general approach has been to create core classes that are smaller in memory footprint, more flexibility and coherent than their counterparts within the OpenSceneGraph.  
+The core functionality such as memory management, type safe object operations, extensible object properties, maths functionality and memory footprint were fleshed out in series of classes within the prototype vsg library and the application testbeds. The general approach has been to create core classes that are smaller in memory footprint, more flexibility and coherent than their counterparts within the OpenSceneGraph.
 
 ### 3.1 Efficient memory management
 The smaller memory footprint is key part of address the memory bandwidth that is the main bottleneck for scene graph traversals.  Several approaches have been tested to address memory footprint and cache coherency:
 
 
-* Move properties that aren’t used on all Objects out into an optional Ancillary class 
+* Move properties that aren’t used on all Objects out into an optional Ancillary class
 * Provided option to using fixed sized array to improve cache coherency
 
 
@@ -147,7 +147,7 @@ For the VSG project is looks best to provide our own maths classes, it gives us 
 
 
 ### 4.2 Windowing
-The work carried out in replicating the VulkanTutorial used the same GLFW library the the VulkanTutorial uses to create a Window and associated Vulkan surface.  GLFW is a C library and requires initialization and clean up in a particular order controlled at the application level.  
+The work carried out in replicating the VulkanTutorial used the same GLFW library the the VulkanTutorial uses to create a Window and associated Vulkan surface.  GLFW is a C library and requires initialization and clean up in a particular order controlled at the application level.
 
 
 To make the window creation and clean up easier a GLFW_Window and GLFW_Instance classes were written to provide a C++ interface and an automatic means of clean up, decoupling that the testbed applications for having to handle this task.  This functionality was eventually wrapped up inside the prototype vsg library completely so the public vsg interface is now entirely agnostic of windowing library used to create the windows. The total GLFW codebase is presently 37,246 lines of  code. GLFW is licensed under zlib License.
@@ -162,7 +162,7 @@ Another reference for Windowing is how the pumex (a C++ rendering based framewor
 Paweł Księżopolski, the author of Pumex, is a previous contributor to the OpenSceneGraph project and I believe remains a OpenSceneGraph user in his professional career.  Pumex is probably the closest any 3rd party project has come to delivering what the VSG aims to provide, so is technically a competitor, but I am optimistic that Pawel will view our work on VSG favourably and may wish to collaborate and sharing work.
 
 
-The small size of WSI-Window and in particular the tiny size of Windowing support in pumex provides encouragement that implementation native Windowing within the VSG will not be a large task.  We can either learn form or possibly even sharing code directly for the implementation side.  
+The small size of WSI-Window and in particular the tiny size of Windowing support in pumex provides encouragement that implementation native Windowing within the VSG will not be a large task.  We can either learn form or possibly even sharing code directly for the implementation side.
 
 
 To provide the most coherent user experience the approach for the VSG will be:
@@ -184,10 +184,10 @@ The vulkan.hpp header is an auto-generated C++11 compatible wrapper for vulkan.h
 “The goal of the Vulkan-Hpp is to provide header only C++ bindings for the Vulkan C API to improve the developers Vulkan experience without introducing CPU runtime cost. It adds features like type safety for enums and bitfields, STL container support, exceptions and simple enumerations.”
 
 
-The vulkan.hpp in the 1.1.82.0 release of the VulkanSDK is 45177 lines of code.  This single header is so large that github reports “(Sorry about that, but we can’t show files that are this big right now.)”.  All the classes that this header provide are in this single header, this in exact opposition to widely adopted best practice for C++ of having a single class per header. 
+The vulkan.hpp in the 1.1.82.0 release of the VulkanSDK is 45177 lines of code.  This single header is so large that github reports “(Sorry about that, but we can’t show files that are this big right now.)”.  All the classes that this header provide are in this single header, this in exact opposition to widely adopted best practice for C++ of having a single class per header.
 
 
-For the huge size of vulkan.hpp there is few really compelling features added over the C API.  There is some primitive memory management support but no where near sufficient for the purpose of serious application or scene graph development.  To use Vulkan within the scene graph we still need to add this coherent memory/resource management - we still need to wrap the Vulkan objects, so if one uses vulkan.hpp you have two extra levels of wrapper and indirection for the underlying Vulkan objects and functions that are doing the work. 
+For the huge size of vulkan.hpp there is few really compelling features added over the C API.  There is some primitive memory management support but no where near sufficient for the purpose of serious application or scene graph development.  To use Vulkan within the scene graph we still need to add this coherent memory/resource management - we still need to wrap the Vulkan objects, so if one uses vulkan.hpp you have two extra levels of wrapper and indirection for the underlying Vulkan objects and functions that are doing the work.
 
 
 Managing complexity of design and implementation is of key importance for all software projects, adding complexity should only ever be done when it adds value that justifies it.  Vulkan.hpp performs poorly by this metric and does not justify itself for use in the VSG project.

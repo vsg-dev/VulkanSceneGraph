@@ -9,7 +9,7 @@ Experimenting with different approaches to object/scene graph design and impleme
 * [Areas of Interest](docs/ExplorationPhase/AreasOfInterest.md)
 * [3rd Party Resources](docs/ExplorationPhase/3rdPartyResources.md)
 * [Exploration Phase Report](docs/ExplorationPhase/VulkanSceneGraphExplorationPhaseReport.md)
-* [High Level Desin Decisions](docs/ExplorationPhase/HighLevelDesignDecisions.md)
+* [High Level Desin Decisions](docs/Design/HighLevelDesignDecisions.md)
 
 ### 2. Prototype Phase, October-December 2018 (present work)
 **Goal : Rapid prototyping of main classes, library and test applications to establish how the scene graph API will broadly look and work.**
