@@ -1,6 +1,6 @@
 # High Level Design Decisions
 
-**Project name:** VulkanSceneGraph preferred, may need to use VkSceneGraph is permission from Khronos is not secured.
+**Project name:** VulkanSceneGraph preferred, may need to use VkSceneGraph if permission from Khronos is not secured.
 
 **Language:** C++17 minumum standard.
 
