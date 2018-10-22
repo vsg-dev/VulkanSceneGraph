@@ -1,4 +1,4 @@
-#Disign Principles and Philosophy
+# Disign Principles and Philosophy
 
 > *"Successful Software Lives For Ever"*
 
@@ -19,7 +19,7 @@ There are two broad areas that will determine the ***Success*** of VulkanSceneGr
 
 > ***"You live for Performance, but die a slow, painful death without Productivity"***
 
-##Performance
+## Performance
 
 Performance can be mean different things to different applications, some applications maximum framerate may be the goal, others frame drops when targetting a fixed frame rate is critical, while others may look to minimize power demands required to achieve a target frame rate and visual quality. In all these cases overall efficiency of taking a representation of 2d or 3d world and rendering it on a GPU the key determiner, the lower overhead on the complete computer system the better the effeciency and potential performance.
 
@@ -61,7 +61,7 @@ The reason for this dramatic improvement is due to:
 These are benefits even before we compared Vulkan vs OpneGL improvements, it's still too early in the projects life to be able to compare on realistic scenes, as things progress we'll provide more results.  We cna be confident that the improvements in efficiency of the scene graph traversals combined with the efficiency of Vulkan will substaintially improve the ability to have large and complex worlds, and reduce the power over-head required to achieve a specific level of visual quality.
 
 
-##Productivity
+## Productivity
 
 To be written up.
 
