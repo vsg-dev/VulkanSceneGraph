@@ -15,7 +15,7 @@ For the OpenSceneGraph project what made it a success was it achieved ***perform
 
 Technology moves on, Vulkan is displacing OpenGL is the graphics API of choice for high performance cross platform graphics development.  C++ has begun evolving more rapidly and now C++17 offers many features that make appplications faster, more robust and easier to develop and maintain. Ideas on scene graphs have also advanced, a well designed clean room scene graph has the potential for improving graphics and compute performance and developer productivity beyond the previous start of art.  The VulkanSceneGraph project goal is to embody the potential of Vulkan and modern C++ and create middle-ware for next generation of graphics applications, and for it to remain a valued tool for the next decade and beyond.
 
-There are two broad areas that will determine the ***Success*** of VulkanSceneGraph : ***Performance*** and ***Productivity***.  The rest of this document will break these down areas and discuss the design principles that will aim to deliver in these areas.  I'll coin another phrase to emphasise how both are equally crucial to success:
+There are two broad areas that will determine the success of the VulkanSceneGraph : ***Performance*** and ***Productivity***.  The rest of this document will break these areas down and discuss the design principles that will aim to deliver in these areas.  I'll coin another phrase to emphasise how both are equally crucial to success:
 
 > ***"You live for Performance, but die a slow, painful death without Productivity"***
 
