@@ -21,7 +21,7 @@ There are two broad areas that will determine the ***Success*** of VulkanSceneGr
 
 ## Performance
 
-Performance can be mean different things to different applications, some applications maximum framerate may be the goal, others frame drops when targetting a fixed frame rate is critical, while others may look to minimize power demands required to achieve a target frame rate and visual quality. In all these cases overall efficiency of taking a representation of 2d or 3d world and rendering it on a GPU the key determiner, the lower overhead on the complete computer system the better the effeciency and potential performance.
+Performance can be mean different things to different applications, some applications maximum framerate may be the goal, others avoiding frame drops when targetting a fixed frame rate is critical, while others may look to minimize power demands required to achieve a target frame rate and visual quality. In all these cases overall efficiency of taking a representation of 2d or 3d world and rendering it on a GPU the key determiner, the lower overhead on the complete computer system the better the effeciency and potential performance.
 
 The stages of work that are crucial to undertake effeciently with a graphics application are:
 
