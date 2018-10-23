@@ -75,7 +75,7 @@ These are benefits even before we compared Vulkan vs OpneGL improvements, it's s
 
 The tools and middle-ware you choose for your projects are key determinants of the amount of work needed to achieve required functionality and to maintain and enchance that functionality through the softwares life. The approach that we take within the VulkanSceneGraph project not only determines how productive it's own development is, it will have a great influence on how productive users of it will be.  Follows are princiles that we are following to help us all achieve better productivity.
 
-### General project development principles:
+### General project development principles that aid Productivity:
 
 * Use Best Practices that have been established in the wider industry:
     * [FOSS Best Proacices](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md) are used a guide of how to organize and maintain the project
@@ -93,7 +93,7 @@ The tools and middle-ware you choose for your projects are key determinants of t
 * Use github as it's widely used, and structure the repository in ways that are familiar to others and work well with standard tools.
 
 
-### Scene Graph related principles:
+### Scene Graph related principles that aid Productivity:
 
 * ***"minimal and complete"*** : VulkanSceneGraph library to be focused on creating and traversing a scene graph and basic rendering in a viewer.
     * Additonal libraries and frameworks to provide domain specific types of functionality, such as 3rd party data loaders to be provided by a family of supplimentary libraries.
@@ -112,7 +112,7 @@ The tools and middle-ware you choose for your projects are key determinants of t
     * Intrusive reference counting
 * Good baseline *Performance* opens the door to better *Productivity* : The lower overheads achieved with the new scene graph and Vulkan reduces the need for complex application level optimizations - to hit frame rate or latecny targets less work needs to be done to workaround CPU bottlenecks previously associated with scene graph traversal and GL dispatch.
 
-### Software quality principles:
+### Software quality principles that aid Productivity:
 
 * Short cuts in code quality are *"Fools Gold"* when it comes to Productivity
 * Take pride in clarity and efficiency of code
