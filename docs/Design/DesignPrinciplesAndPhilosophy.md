@@ -11,7 +11,7 @@ First lets break down the opening phrase, *"Successful Software Lives For Ever"*
 * How long is *"For Ever"* : Long enough that time during maintainance and evolution is significantly longer than initial time to develop the first stable release.  Software that is unreliable, hard to maintain and evolve becomes unsustainable in the long term, it looses it's relevance because of it and fails. Success dmands good design, implementation and responsive curation over many years.
 
 
-For the OpenSceneGraph project what made it a success was it achieved ***performance*** levels that competed well with the best propritary and open source scene graphs, and was well designed enough to help with developers be ***productive*** over long term application development and deployment. Responsive of contributors to support of community  has also been crucial for the OpenSceneGraph remaining relevent to real-time graphics application developers for nearly two decades.
+For the OpenSceneGraph project what made it a success was it achieved [***performance***](#performace) levels that competed well with the best propritary and open source scene graphs, and was well designed enough to help with developers be [***productive***](#productivity) over long term application development and deployment. Responsive of contributors to support of community  has also been crucial for the OpenSceneGraph remaining relevent to real-time graphics application developers for nearly two decades.
 
 Technology moves on, Vulkan is displacing OpenGL is the graphics API of choice for high performance cross platform graphics development.  C++ has begun evolving more rapidly and now C++17 offers many features that make appplications faster, more robust and easier to develop and maintain. Ideas on scene graphs have also advanced, a well designed clean room scene graph has the potential for improving graphics and compute performance and developer productivity beyond the previous start of art.  The VulkanSceneGraph project goal is to embody the potential of Vulkan and modern C++ and create middle-ware for next generation of graphics applications, and for it to remain a valued tool for the next decade and beyond.
 
@@ -21,7 +21,7 @@ There are two broad areas that will determine the success of the VulkanSceneGrap
 
 ## Performance
 
-Performance can be mean different things to different applications, some applications maximum framerate may be the goal, others avoiding frame drops when targetting a fixed frame rate is critical, while others may look to minimize power demands required to achieve a target frame rate and visual quality. In all these cases overall efficiency of taking a representation of 2d or 3d world and rendering it on a GPU the key determiner, the lower overhead on the complete computer system the better the effeciency and potential performance.
+Performance can be mean different things to different applications, some applications maximum framerate may be the goal, others avoiding frame drops when targetting a fixed frame rate is critical, for VR minimizing latency is crucial, while others may look to minimize power demands required to achieve a target frame rate and visual quality. In all these cases overall efficiency of taking a representation of 2d or 3d world and rendering it on a GPU the key determiner, the lower overhead on the complete computer system the better the effeciency and potential performance.
 
 The stages of work that are crucial to undertake effeciently with a graphics application are:
 
@@ -31,17 +31,20 @@ The stages of work that are crucial to undertake effeciently with a graphics app
 1. Dispatch traversal - sending the data in the dispatch graph to the GPU(s)
 1. Graphics Processing - graohcis and compute work done on the GPU(s)
 
-The adoption of Vulkan provides a significant reduction in CPU overhed with dispatching data compared to OpenGL and Direct3D, this immediately reduce cost of the stage 4 - dispatch traversl. However, the benefits are only fully realized if the scene graph overhead involved in dispatch traversal stage and cost of paging, updating and cull traversal are proportionally reduced.  To deliver on all the potential benefits that Vulkan has the scene graph must take similiar strides forwards in reducing overheads and improving efficiency.
+The adoption of Vulkan provides a significant reduction in CPU overhed with dispatching data compared to OpenGL and Direct3D(prior to 11), this immediately reduce cost of the stage 4 - dispatch traversl. However, the benefits are only fully realized if the scene graph overhead involved in dispatch traversal stage and cost of paging, updating and cull traversal are proportionally reduced.  To deliver on all the potential benefits that Vulkan has the scene graph must take similiar strides forwards in reducing overheads and improving efficiency.
 
-The principles used as guide to achieving effeciency are:
+The principles used as guide to achieving effeciency include:
 
-* Minimize memory foorprint of scene graph objects
+* Benchmarking is fundamental to determining performance bottlenecks and qualifying that changes are effective
+* Minimize memory footprint of scene graph objects
 * Avoid non essential data storage
 * Pack commonly accessed data for cache friendly access
 * Avoid non essential conditionals
 * Choose coding techniques that are friendly compiler to optimization and CPU parallism
 
 An example of minziming footprint, non essential conditions and data storage has already impacted the design and implementation can be seen in minizing the size of the core [vsg::Object](../../include/vsg/core/Object.h) that is backbone of the scene graph by moving all optional data out into an optional [vsg::Auxiliary](../../include/vsg/core/Auxiliary.h) class.  This change reduces the size of vsg::Object to 24 bytes, compared to the OpenSceneGraph's osg::Object class that is 72 bytes.  The vsg::Node class adds no exta data members overhead so remains at 24 bytes, while the OpenSceneGraph's osg::Node class footprint is 20 bytes.  These memory footprint reductions are carried over to all objects in the scene graph.
+
+Scene graphs are fundamentally a graph of objects connected by pointers between those objects.  The size of those objects is inextricably connected to the size of pointers. C++11 onwards provides the std::shared_ptr<> which on 64bit systems has a size of 16 bytes, while the VSG's intrusive reference counting enables the vsg::ref_ptr<> to have a size of 8 bytes.  In experiments with creation of quad tree scene graph using std::shared_ptr<> vs vsg:::ref_ptr<>, the shared_ptr<> results in a 75% more memory used overall, and 65% slower traversal speeds.  This significant difference illustrates that one should not assume that C++ core features are always the most efficient tool.
 
 Traversals of a scene graph and dipatch graphs are the main operations that a scene graph undertakes each frame, cache misses and lower the cycle overhead per object visited is key to reducing traversal times.  The memory footprint reduction immediately reduces the number of page fault that occurm and avoiding non essential conditionals provides a second improvement as it reduces number of cycles required per object visited.
 
@@ -58,12 +61,48 @@ The reason for this dramatic improvement is due to:
 * reduction in conditionals, reducing number of instructions per object visited and improving CPU ability to prefetch and speculativity execute
 * improvement in number of instructions per cycle that the CPU can sustain
 
-These are benefits even before we compared Vulkan vs OpneGL improvements, it's still too early in the projects life to be able to compare on realistic scenes, as things progress we'll provide more results.  We cna be confident that the improvements in efficiency of the scene graph traversals combined with the efficiency of Vulkan will substaintially improve the ability to have large and complex worlds, and reduce the power over-head required to achieve a specific level of visual quality.
+These are benefits even before we compared Vulkan vs OpneGL improvements, it's still too early in the projects life to be able to compare on realistic scenes, as things progress we'll provide more results.  We can be confident that the improvements in efficiency of the scene graph traversals combined with the efficiency of Vulkan will substaintially improve the ability to have large and complex worlds, and reduce the power over-head required to achieve a specific level of visual quality.
 
 
 ## Productivity
 
-To be written up.
+The tools and middle-ware you choose for your projects are key determinants of the amount of work needed to achieve required functionality and to maintain and enchance that functionality through the softwares life. The approach that we take within the VulkanSceneGraph project not only determines how productive it's own development is, it will have a great influence on how productive users of it will be.  Follows are princiles that we are following to help us all achieve better productivity.
+
+General project development principles:
+
+* Use Best Practices that have been established in the wider industry:
+    * [FOSS Best Proacices](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md) are used a guide of how to organize and maintain the project
+    * [CppCoreGuidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) are used a guide to design and implementation
+* Use C++17 to benefit from the improvements in C++ that result in clearner and more maintainable code
+    * Use features and idioms of that make sense for a scene graph
+    * Don't use features because they are new, trendy, or the "standard" way of doing things - they must make the code cleaner and more maintable without hindering performance (i.e don't use vsg::shared_ptr<> as it has huge performance penalty.)  
+    * Don't make assumptions, implement and benchmark.
+* Use CMake for cross-platform as it's effective and the defacto standard build tool used in real-tme graphics industry
+* Minimal dependencies for the VukanSceneGraph library to ensure it's quick and easy to build:
+    * C++17
+    * Vulkan
+    * CMake
+    * Native Windowing
+* ***"minimal and complete"*** : VulkanSceneGraph library to be focused on creating and traversing a scene graph and basic rendering in a viewer.
+* Additonal libraries and frameworks to provide domain specific types of functionality, such as 3rd party data loaders to be provided by a family of supplimentary libraries.  
+* Developers to just pick the libraries they need from the family and only inherit the 3rd party dependencies they need for the project they have.
+
+Scene Graph related principles:
+
+* Meaningfull encapsulation of Vulkan
+    * Vulkan is fast and flexible, but it is also long winded to implement basic functionality - it can take 1500 lines of code just to get a depth sorted quads on screen!
+    * Simply wrapping Vulkan within C++ classes doesn't address what developers actually need
+    * Developers need higher level functionality to manage their scenes and computational workflow
+    * Need to encapsulate Vulkan in a way that reduces the work required to set up and use Vulkan
+* Encapsulation of Vulkan to fit coherently in with how it's used in a scene graph
+* Scene graph design and implementation must also fit with how Vulkan works - a symbiotic realtionship
+* ***""If it ain't broke, don't fix it."*** : A number of approaches used in OpenSceneGraph project remain relevant to the new scene graph:
+    * Visitor pattern variation that couples type safe operation and scene graph traversals
+    * Mulit-pass, multi-stage rendering
+    * Viewer, View and Camera and Windowing relationships
+    * Intrusive reference counting
+
+* 
 
 
 
