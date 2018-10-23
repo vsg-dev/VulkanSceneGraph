@@ -80,9 +80,9 @@ The tools and middle-ware you choose for your projects are key determinants of t
 * Use Best Practices that have been established in the wider industry:
     * [FOSS Best Proacices](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md) are used a guide of how to organize and maintain the project
     * [CppCoreGuidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) are used a guide to design and implementation
-* Use C++17 to benefit from the improvements in C++ that result in clearner and more maintainable code
+* Use C++17 to benefit from the improvements in C++ that result in cleaner and more maintainable code
     * Use features and idioms of that make sense for a scene graph
-    * Don't use features because they are new, trendy, or the "standard" way of doing things - they must make the code cleaner and more maintable without hindering performance (i.e don't use vsg::shared_ptr<> as it has huge performance penalty.)  
+    * Don't use features because they are new, trendy, or the "standard" way of doing things - they must make the code cleaner and more maintable without hindering performance (i.e don't use vsg::shared_ptr<> as it has huge performance penalty.)
     * Don't make assumptions, implement and benchmark.
 * Use CMake for cross-platform as it's effective and the defacto standard build tool used in real-tme graphics industry, when implementing scripts make them work in standard ways that developers will be familiar with
 * Minimize dependencies for the VukanSceneGraph library to ensure it's quick and easy to build:
@@ -96,7 +96,7 @@ The tools and middle-ware you choose for your projects are key determinants of t
 ### Scene Graph related principles:
 
 * ***"minimal and complete"*** : VulkanSceneGraph library to be focused on creating and traversing a scene graph and basic rendering in a viewer.
-    * Additonal libraries and frameworks to provide domain specific types of functionality, such as 3rd party data loaders to be provided by a family of supplimentary libraries.  
+    * Additonal libraries and frameworks to provide domain specific types of functionality, such as 3rd party data loaders to be provided by a family of supplimentary libraries.
     * Developers to just pick the libraries they need from the family and only inherit the 3rd party dependencies they need for the project they have.
 * Meaningfull encapsulation of Vulkan
     * Vulkan is fast and flexible, but it is also long winded to implement basic functionality - it can take 1500 lines of code just to get a depth sorted quads on screen!
