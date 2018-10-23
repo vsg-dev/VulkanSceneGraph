@@ -110,6 +110,7 @@ The tools and middle-ware you choose for your projects are key determinants of t
     * Mulit-pass, multi-stage rendering
     * Viewer, View and Camera and Windowing relationships
     * Intrusive reference counting
+* Good baseline *Performance* opens the door to better *Productivity* : The lower overheads achieved with the new scene graph and Vulkan reduces the need for complex application level optimizations - to hit frame rate or latecny targets less work needs to be done to workaround CPU bottlenecks previously associated with scene graph traversal and GL dispatch.
 
 ### Software quality principles:
 
