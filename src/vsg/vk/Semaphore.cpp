@@ -34,7 +34,7 @@ Semaphore::Result Semaphore::create(Device* device, AllocationCallbacks* allocat
 {
     if (!device)
     {
-        return Semaphore::Result("Error: vsg::Semaphore::create(...) failed to create command pool, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return Result("Error: vsg::Semaphore::create(...) failed to create command pool, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     VkSemaphoreCreateInfo semaphoreInfo = {};
@@ -44,7 +44,7 @@ Semaphore::Result Semaphore::create(Device* device, AllocationCallbacks* allocat
     VkResult result = vkCreateSemaphore(*device, &semaphoreInfo, allocator, &semaphore);
     if (result == VK_SUCCESS)
     {
-        return new Semaphore(semaphore, device, allocator);
+        return Result(new Semaphore(semaphore, device, allocator));
     }
     else
     {

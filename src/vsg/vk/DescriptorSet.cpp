@@ -52,7 +52,7 @@ DescriptorSet::Result DescriptorSet::create(Device* device, DescriptorPool* desc
     VkResult result = vkAllocateDescriptorSets(*device, &descriptSetAllocateInfo, &descriptorSet);
     if (result == VK_SUCCESS)
     {
-        return new DescriptorSet(descriptorSet, device, descriptorPool, descriptorSetLayout, descriptors);
+        return Result(new DescriptorSet(descriptorSet, device, descriptorPool, descriptorSetLayout, descriptors));
     }
     else
     {

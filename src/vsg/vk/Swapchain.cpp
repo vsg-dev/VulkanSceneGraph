@@ -206,7 +206,7 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
         if (view) sw->getImageViews().push_back(view);
     }
 
-    return sw;
+    return Result(sw);
 }
 
 

@@ -46,7 +46,7 @@ DescriptorSetLayout::Result DescriptorSetLayout::create(Device* device, const De
     VkResult result = vkCreateDescriptorSetLayout(*device, &layoutInfo, allocator, &descriptorSetLayout);
     if (result == VK_SUCCESS)
     {
-        return new DescriptorSetLayout(device, descriptorSetLayout, allocator);
+        return Result(new DescriptorSetLayout(device, descriptorSetLayout, allocator));
     }
     else
     {

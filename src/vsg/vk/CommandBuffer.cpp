@@ -35,7 +35,7 @@ CommandBuffer::Result CommandBuffer::create(Device* device,  CommandPool* comman
 {
     if (!device || !commandPool)
     {
-        return CommandBuffer::Result("Error: vsg::CommandBuffer::create(...) failed to create command buffers, undefined Device or CommandPool.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return Result("Error: vsg::CommandBuffer::create(...) failed to create command buffers, undefined Device or CommandPool.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     VkCommandBufferAllocateInfo allocateInfo = {};
@@ -48,7 +48,7 @@ CommandBuffer::Result CommandBuffer::create(Device* device,  CommandPool* comman
     VkResult result = vkAllocateCommandBuffers(*device, &allocateInfo, &buffer);
     if (result == VK_SUCCESS)
     {
-        return new CommandBuffer(device, commandPool, buffer, flags);
+        return Result(new CommandBuffer(device, commandPool, buffer, flags));
     }
     else
     {
@@ -71,7 +71,7 @@ CommandBuffers::Result CommandBuffers::create(Device* device,  CommandPool* comm
 {
     if (!device || !commandPool)
     {
-        return CommandBuffers::Result("Error: vsg::CommandBuffers::create(...) failed to create command buffers, undefined Device or CommandPool.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return Result("Error: vsg::CommandBuffers::create(...) failed to create command buffers, undefined Device or CommandPool.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     Buffers buffers(size);
@@ -85,7 +85,7 @@ CommandBuffers::Result CommandBuffers::create(Device* device,  CommandPool* comm
     VkResult result = vkAllocateCommandBuffers(*device, &allocateInfo, buffers.data());
     if (result == VK_SUCCESS)
     {
-        return new CommandBuffers(device, commandPool, buffers);
+        return Result(new CommandBuffers(device, commandPool, buffers));
     }
     else
     {

@@ -53,7 +53,7 @@ DescriptorPool::Result DescriptorPool::create(Device* device, uint32_t maxSets, 
     VkResult result = vkCreateDescriptorPool(*device, &poolInfo, allocator, &descriptorPool);
     if (result == VK_SUCCESS)
     {
-        return new DescriptorPool(descriptorPool, device, allocator);
+        return Result(new DescriptorPool(descriptorPool, device, allocator));
     }
     else
     {

@@ -34,7 +34,7 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags q
 {
     if (!instance)
     {
-        return PhysicalDevice::Result("Error: vsg::PhysicalDevice::create(...) failed to create physical device, undefined Instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return Result("Error: vsg::PhysicalDevice::create(...) failed to create physical device, undefined Instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     uint32_t deviceCount = 0;
@@ -89,11 +89,11 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags q
 
         if (((matchedQueues & queueFlags)==queueFlags) && (surface==nullptr || presentFamily>=0))
         {
-            return new PhysicalDevice(instance, device, graphicsFamily, presentFamily, computeFamily, surface);
+            return Result(new PhysicalDevice(instance, device, graphicsFamily, presentFamily, computeFamily, surface));
         }
     }
 
-    return PhysicalDevice::Result("Error: vsg::Device::create(...) failed to create physical device.", VK_INCOMPLETE);
+    return Result("Error: vsg::Device::create(...) failed to create physical device.", VK_INCOMPLETE);
 }
 
 }

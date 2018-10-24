@@ -54,7 +54,7 @@ PipelineLayout::Result PipelineLayout::create(Device* device, const DescriptorSe
     VkResult result = vkCreatePipelineLayout(*device, &pipelineLayoutInfo, allocator, &pipelineLayout);
     if (result == VK_SUCCESS)
     {
-        return new PipelineLayout(pipelineLayout, descriptorSetLayouts, device, allocator);
+        return Result(new PipelineLayout(pipelineLayout, descriptorSetLayouts, device, allocator));
     }
     else
     {

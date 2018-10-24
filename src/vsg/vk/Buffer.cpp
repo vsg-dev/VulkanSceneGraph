@@ -49,7 +49,7 @@ Buffer::Result Buffer::create(Device* device, VkDeviceSize size, VkBufferUsageFl
     VkResult result = vkCreateBuffer(*device, &bufferInfo, allocator, &buffer);
     if (result == VK_SUCCESS)
     {
-        return new Buffer(buffer, usage, sharingMode, device, allocator);
+        return Result(new Buffer(buffer, usage, sharingMode, device, allocator));
     }
     else
     {

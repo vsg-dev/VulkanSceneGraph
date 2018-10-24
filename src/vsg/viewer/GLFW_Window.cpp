@@ -150,7 +150,7 @@ GLFW_Window::Result GLFW_Window::create(uint32_t width, uint32_t height, bool de
 
     window->buildSwapchain(width, height);
 
-    return window.get();
+    return Result(window);
 }
 
 GLFW_Window::~GLFW_Window()

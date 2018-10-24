@@ -41,7 +41,7 @@ Framebuffer::Result Framebuffer::create(Device* device, VkFramebufferCreateInfo&
     VkResult result = vkCreateFramebuffer(*device,&framebufferInfo, allocator, &framebuffer);
     if (result == VK_SUCCESS)
     {
-        return new Framebuffer(framebuffer, device, allocator);
+        return Result(new Framebuffer(framebuffer, device, allocator));
     }
     else
     {

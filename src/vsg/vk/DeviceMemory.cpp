@@ -66,7 +66,7 @@ DeviceMemory::Result DeviceMemory::create(Device* device, const VkMemoryRequirem
     VkResult result = vkAllocateMemory(*device, &allocateInfo, allocator, &deviceMemory);
     if (result == VK_SUCCESS)
     {
-        return new DeviceMemory(deviceMemory, device, allocator);
+        return Result(new DeviceMemory(deviceMemory, device, allocator));
     }
     else
     {

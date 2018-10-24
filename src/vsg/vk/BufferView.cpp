@@ -35,7 +35,7 @@ BufferView::Result BufferView::create(Buffer* buffer, VkFormat format, VkDeviceS
 {
     if (!buffer)
     {
-        return BufferView::Result("Error: vsg::BufferView::create(...) failed to create BufferView, buffer not defiend.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return Result("Error: vsg::BufferView::create(...) failed to create BufferView, buffer not defiend.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     VkBufferViewCreateInfo createInfo = {};
@@ -49,7 +49,7 @@ BufferView::Result BufferView::create(Buffer* buffer, VkFormat format, VkDeviceS
     VkResult result = vkCreateBufferView(*(buffer->getDevice()), &createInfo, allocator, &bufferView);
     if (result==VK_SUCCESS)
     {
-        return new BufferView(bufferView, buffer->getDevice(), buffer, allocator);
+        return Result(new BufferView(bufferView, buffer->getDevice(), buffer, allocator));
     }
     else
     {

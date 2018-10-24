@@ -36,7 +36,7 @@ Shader::Result Shader::read(VkShaderStageFlagBits stage, const std::string& entr
     Contents buffer;
     if (readFile(buffer, filename))
     {
-        return new Shader(stage, entryPointName, buffer);
+        return Result(new Shader(stage, entryPointName, buffer));
     }
     else
     {
@@ -80,7 +80,7 @@ ShaderModule::Result ShaderModule::create(Device* device, Shader* shader, Alloca
     VkResult result = vkCreateShaderModule(*device, &createInfo, allocator, &shaderModule);
     if (result == VK_SUCCESS)
     {
-        return new ShaderModule(shaderModule, device, shader, allocator);
+        return Result(new ShaderModule(shaderModule, device, shader, allocator));
     }
     else
     {

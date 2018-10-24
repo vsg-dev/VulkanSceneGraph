@@ -49,7 +49,7 @@ CommandPool::Result CommandPool::create(Device* device, uint32_t queueFamilyInde
     VkResult result = vkCreateCommandPool(*device, &poolInfo, allocator, &commandPool);
     if (result == VK_SUCCESS)
     {
-        return new CommandPool(commandPool, device, allocator);
+        return Result(new CommandPool(commandPool, device, allocator));
     }
     else
     {

@@ -99,7 +99,7 @@ RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFo
 
     if (result == VK_SUCCESS)
     {
-        return new RenderPass(renderPass, device, allocator);
+        return Result(new RenderPass(renderPass, device, allocator));
     }
     else
     {

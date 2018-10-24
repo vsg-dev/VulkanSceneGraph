@@ -34,14 +34,14 @@ Image::Result Image::create(Device* device, const VkImageCreateInfo& createImage
 {
     if (!device)
     {
-        return Image::Result("Error: vsg::Image::create(...) failed to create vkImage, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return Result("Error: vsg::Image::create(...) failed to create vkImage, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     VkImage image;
     VkResult result = vkCreateImage(*device, &createImageInfo, allocator, &image);
     if (result == VK_SUCCESS)
     {
-        return new Image(image, device, allocator);
+        return Result(new Image(image, device, allocator));
     }
     else
     {

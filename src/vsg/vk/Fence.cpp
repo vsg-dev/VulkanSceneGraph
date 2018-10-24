@@ -34,7 +34,7 @@ Fence::Result Fence::create(Device* device, VkFenceCreateFlags flags, Allocation
 {
     if (!device)
     {
-        return Fence::Result("Error: vsg::Fence::create(...) failed to create Fence, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return Result("Error: vsg::Fence::create(...) failed to create Fence, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     VkFenceCreateInfo createFenceInfo = {};
@@ -45,7 +45,7 @@ Fence::Result Fence::create(Device* device, VkFenceCreateFlags flags, Allocation
     VkResult result = vkCreateFence(*device, &createFenceInfo, allocator, &fence);
     if (result == VK_SUCCESS)
     {
-        return new Fence(fence, device, allocator);
+        return Result(new Fence(fence, device, allocator));
     }
     else
     {

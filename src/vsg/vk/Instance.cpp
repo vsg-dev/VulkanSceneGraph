@@ -114,7 +114,7 @@ Instance::Result Instance::create(Names& instanceExtensions, Names& layers, Allo
     if (result == VK_SUCCESS)
     {
         std::cout<<"Created VkInstance"<<std::endl;
-        return new Instance(instance, allocator);
+        return Result(new Instance(instance, allocator));
     }
     else
     {

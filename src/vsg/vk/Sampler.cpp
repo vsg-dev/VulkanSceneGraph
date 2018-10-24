@@ -34,14 +34,14 @@ Sampler::Result Sampler::create(Device* device, const VkSamplerCreateInfo& creat
 {
     if (!device)
     {
-        return Sampler::Result("Error: vsg::Sampler::create(...) failed to create vkSampler, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return Result("Error: vsg::Sampler::create(...) failed to create vkSampler, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     VkSampler sampler;
     VkResult result = vkCreateSampler(*device, &createSamplerInfo, allocator, &sampler);
     if (result == VK_SUCCESS)
     {
-        return new Sampler(sampler, device, allocator);
+        return Result(new Sampler(sampler, device, allocator));
     }
     else
     {

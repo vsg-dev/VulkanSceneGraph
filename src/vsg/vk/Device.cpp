@@ -78,7 +78,7 @@ Device::Result Device::create(PhysicalDevice* physicalDevice, Names& layers, Nam
     VkResult result = vkCreateDevice(*physicalDevice, &createInfo, allocator, &device);
     if (result == VK_SUCCESS)
     {
-        return new Device(device, physicalDevice, allocator);
+        return Result(new Device(device, physicalDevice, allocator));
     }
     else
     {
