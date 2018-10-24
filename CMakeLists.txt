@@ -81,8 +81,11 @@ add_custom_target(build_all_h
 
 find_program(CPPCHECK cppcheck)
 if (CPPCHECK)
+    set(CPPCHECK_SUPPRESION_LIST_FILE "${CMAKE_SOURCE_DIR}/CMakeModules/cppcheck-suppression-list.txt")
+    set(CPPCHECK_SUPPRESION_LIST "--suppressions-list=${CPPCHECK_SUPPRESION_LIST_FILE}")
+    set(CPPCHECK_EXTRA_OPTIONS "" CACHE STRING "additional commndline options to use when invoking cppcheck")
     add_custom_target(cppcheck
-        COMMAND ${CPPCHECK} ${CMAKE_CURRENT_SOURCE_DIR}/src/vsg/*/*.cpp -I ${CMAKE_CURRENT_SOURCE_DIR}/include/ --quiet --enable=style
+        COMMAND ${CPPCHECK} ${CMAKE_CURRENT_SOURCE_DIR}/src/vsg/*/*.cpp -I ${CMAKE_CURRENT_SOURCE_DIR}/include/ --quiet --enable=style ${CPPCHECK_EXTRA_OPTIONS} ${CPPCHECK_SUPPRESION_LIST}
     )
 endif()
 

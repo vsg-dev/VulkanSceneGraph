@@ -1,0 +1,7 @@
+// suppress Key related errors
+// noExplicitConstructor:*/include/vsg/core/Object.h
+// noExplicitConstructor:*/include/vsg/core/ref_ptr.h
+
+// suppress the warning about valid C++17 if (init; condition) usage
+syntaxError:*/include/vsg/core/Inherit.h
+
