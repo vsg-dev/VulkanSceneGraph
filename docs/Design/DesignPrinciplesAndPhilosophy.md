@@ -90,7 +90,10 @@ The tools and middle-ware you choose for your projects are key determinants of t
     * Vulkan
     * CMake
     * Native Windowing
-* Use github as it's widely used, and structure the repository in ways that are familiar to others and work well with standard tools.
+* Use github as it's widely used, and structure the repository in ways that are familiar to others and work well with standard tools so no need to learn new tools & workflows
+* Create documentation to help others use the VSG, and contribute to the VSG development
+* Build a community to enable developers tp help each other and coordinate testing, debugging and feature development, and to share best practice
+* Work towards building a cohesive collection of companion libraries and high level frameworks ontop of the VSG to enable developers to use high level, domain specific frameworks and tools
 
 
 ### Scene Graph related principles that aid Productivity:
