@@ -31,7 +31,7 @@ namespace vsg
     {
     public:
 
-        DispatchTraversal(CommandBuffer* commandBuffer=nullptr);
+        explicit DispatchTraversal(CommandBuffer* commandBuffer=nullptr);
         ~DispatchTraversal();
 
         void apply(const Object& object);

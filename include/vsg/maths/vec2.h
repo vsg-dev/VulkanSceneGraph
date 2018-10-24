@@ -40,6 +40,7 @@ namespace vsg
         };
 
         constexpr t_vec2() : value{} {}
+        constexpr t_vec2(const t_vec2& v) : value{v.x, v.y} {}
         constexpr t_vec2(value_type in_x, value_type in_y) : value{in_x, in_y} {}
 
         constexpr std::size_t size() const { return 2; }

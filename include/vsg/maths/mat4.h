@@ -45,7 +45,7 @@ namespace vsg
                             {v2, v6, v10, v14},
                             {v3, v7, v11, v15}} {}
 
-        constexpr t_mat4(value_type v[16]) :
+        constexpr explicit t_mat4(value_type v[16]) :
             value{{v[0], v[4], v[8],  v[12]},
                   {v[1], v[5], v[9],  v[13]},
                   {v[2], v[6], v[10], v[14]},
