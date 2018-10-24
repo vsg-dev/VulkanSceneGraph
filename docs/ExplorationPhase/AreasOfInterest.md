@@ -16,7 +16,7 @@
 * Setup and Configuration
 * State and geometry data
   * Creation of buffers
-  * Unfiorms
+  * Uniforms
   * Textures
   * Arrays
   * Primitives
@@ -25,7 +25,7 @@
   * runtime shader compilation options
 * Presentation of graphics
 * Threading
-* Syncronziation
+* Synchronization
 
 ## C++
 * Features and availability of C++ 11, 14 and 17
@@ -52,7 +52,7 @@
   * Thread pools
 
 ## Scene Graph
-* Scope out the minimal set of Node classs required
+* Scope out the minimal set of Node classes required
   * NullNode to avoiding the need for if (!node) doSomething
   * Fixed size vs variable size Containers in Groups etc.
   * Level of Detail
@@ -60,16 +60,16 @@
   * MaskNode (shift node mask checks from all nodes to specialized node?)
   *Cameras
 * Traversal
-  * Vistor Pattern
+  * Visitor Pattern
   * Possibilities for inlining vs virtual functions
   * RenderTraversal
   * ComputeTraversal
   * UpdateTraversal
-  * EvenTraversal
+  * EventTraversal
   * Multi-pass and Multi-stage rendering control
 * State
   * Buffers
-  * Unforms
+  * Uniforms
   * Textures
   * Arrays
   * Primitives
@@ -81,12 +81,12 @@
 
 ## Viewer
 * Window creation
-* Vulkan initialization and syncronization
+* Vulkan initialization and synchronization
 * Presentation of graphics, swap management
 * Threading
 * Single view vs multi view
 
-## Interoprability
+## Interoperability
 * Converting scene graph data from OpenSceneGraph data to leverages loaders
 * Rendering Vulkan graphics within a OpenGL graphics context
 

@@ -4,7 +4,7 @@
 
 * [C++ Core Guidelines](https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md)
 * [CppCon Resources](https://github.com/cppcon)
-* [Facebooks open source utility library](https://github.com/facebook/folly/tree/master/folly)
+* [Facebook's open source utility library](https://github.com/facebook/folly/tree/master/folly)
 
 ## Best Practices
 
@@ -23,7 +23,7 @@
 ## Vulkan based projects
 
 * [Pumex](https://github.com/pumexx/pumex)
-* [VkHLF NVidia's C++ layer ontop of Vulkan](https://github.com/nvpro-pipeline/VkHLF)
+* [VkHLF NVidia's C++ layer on-top of Vulkan](https://github.com/nvpro-pipeline/VkHLF)
 * [Vulkan Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator)
 
 ## Maths
@@ -46,15 +46,15 @@
 ## Introspection
 
 * [Cereal](https://github.com/USCiLab/cereal)
-* [cson - C++ Simple Obhject Notiaion](https://github.com/snawaz/cson)
+* [cson - C++ Simple Object Notation](https://github.com/snawaz/cson)
 * [A Flexible Reflection System in C++: Part 1](http://preshing.com/20180116/a-primitive-reflection-system-in-cpp-part-1/ )
 * [A Flexible Reflection System in C++: Part 2](http://preshing.com/20180124/a-flexible-reflection-system-in-cpp-part-2/)
-* [Samll example of use of std::make_type, std::ref etc.](http://coliru.stacked-crooked.com/a/25638f2ebc6424bf)
+* [Small example of use of std::make_type, std::ref etc.](http://coliru.stacked-crooked.com/a/25638f2ebc6424bf)
 
 ## 3rd party scene graphs
 
 * Paul Martz's [JAG](https://github.com/pmartz/jag-3d/)
-* Jeremy Moles' Heirograph scenegraph (need reference)
+* Jeremy Moles' Heirograph scene graph (need reference)
 
 ## Suggestions in osg-users ML/forum post from Paweł Księżopolski
 
@@ -95,7 +95,7 @@ associated with Vulkan :
 
 * [Awesome List of Vulkan resources](https://github.com/vinjn/awesome-vulkan)
 
-## Vulkan Prestations
+## Vulkan Presentations
 * [Keeping-your-GPU-fed](https://www.khronos.org/assets/uploads/developers/library/2016-vulkan-devday-uk/7-Keeping-your-GPU-fed.pdf)
 * [Samsung Vulkan Usage Recommendations](https://developer.samsung.com/game/usage)
 * [AMD Vulkan Device Memory](https://gpuopen.com/vulkan-device-memory/)

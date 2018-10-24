@@ -18,7 +18,7 @@ The document will discuss the work and findings from each of these areas, number
 
 ## VulkanPlayground repository and successors:
 To provide a base for experimental work during the exploration a project was created on github : [VulkanPlayground](
-https://github.com/robertosfield/VulkanPlayground) which has been kept a private repositry.
+https://github.com/robertosfield/VulkanPlayground) which has been kept a private repository.
 
 The VulkanPlayground is a meant as throwaway prototyping repository rather than as a alpha version of the final scene graph project. The project contains:
 
@@ -29,9 +29,9 @@ The VulkanPlayground is a meant as throwaway prototyping repository rather than 
     * vk : Vulkan wrapper classes
    * viewer :  Viewer, Window and GraphicsStage classes
 * prototype osg2vsg utility library for loading images using the OSG and converting to vsg/Vulkan objects
-* Testbed applications that experiment with various aspects of the vsg prototype
+* Test-bed applications that experiment with various aspects of the vsg prototype
 
-Now that the Exploration Phase is completed the work on VulkanPlayground has fed into the Prototype Phase, with the repository being broken up into three component repositories that are publically available and public under the MIT License:
+Now that the Exploration Phase is completed the work on VulkanPlayground has fed into the Prototype Phase, with the repository being broken up into three component repositories that are publicly available and public under the MIT License:
 
 * [VulkanSceneGraphPrototype](https://github.com/robertosfield/VulkanSceneGraphPrototype) the core scene graph
 * [osg2vsg](https://github.com/robertosfield/osg2vsg) helper library to read/writes images using the OSG
@@ -47,13 +47,13 @@ The process of familiarization with Vulkan and associated tools was progressed b
 GLFW was used for creating Vulkan windows and glslang used to convert GLSL Vulkan compatible shaders into SPIRV .spv shaders usable but Vulkan.
 
 
-The work on following the VulkanTutorial can be found in the vsgdraw example, and vulkan_minimal_compute  can be found in the vsgcompute testbed applications.  Both these applications provide similar functionality as the original examples, but do so it using the prototype vsg classes.  The benefit from this vsg classes is that the vsgdraw.cpp and vsgcompute.cpp are less than 1/5th the size of the original tutorials that they are mapped from.  The vsg versions are also more linear in their layout and should be easier to follow than the originals that they recreate.
+The work on following the VulkanTutorial can be found in the vsgdraw example, and vulkan_minimal_compute  can be found in the vsgcompute test-bed applications.  Both these applications provide similar functionality as the original examples, but do so it using the prototype vsg classes.  The benefit from this vsg classes is that the vsgdraw.cpp and vsgcompute.cpp are less than 1/5th the size of the original tutorials that they are mapped from.  The vsg versions are also more linear in their layout and should be easier to follow than the originals that they recreate.
 
 
-The vsgdraw testbed using some basic graph functionality it is very simplistic compared to what the final scene graph will provide - there is no culling, a graph is used just to hang state and command functionality in the form of a command graph that is traversed to dispatch to Vulkan.
+The vsgdraw test-bed using some basic graph functionality it is very simplistic compared to what the final scene graph will provide - there is no culling, a graph is used just to hang state and command functionality in the form of a command graph that is traversed to dispatch to Vulkan.
 
 
-The vsgcompute testbed use the vsg Vulkan wrappers directly as immediate mode, setting up and dispatching data and command to Vulkan directly.
+The vsgcompute test-bed use the vsg Vulkan wrappers directly as immediate mode, setting up and dispatching data and command to Vulkan directly.
 
 ---
 
@@ -69,7 +69,7 @@ Initial work has been done on exposing the Vulkan functionality within the scene
 ---
 
 ## 3. Exploration of core scene graph design and implementation
-The core functionality such as memory management, type safe object operations, extensible object properties, maths functionality and memory footprint were fleshed out in series of classes within the prototype vsg library and the application testbeds. The general approach has been to create core classes that are smaller in memory footprint, more flexibility and coherent than their counterparts within the OpenSceneGraph.
+The core functionality such as memory management, type safe object operations, extensible object properties, maths functionality and memory footprint were fleshed out in series of classes within the prototype vsg library and the application test-beds. The general approach has been to create core classes that are smaller in memory footprint, more flexibility and coherent than their counterparts within the OpenSceneGraph.
 
 ### 3.1 Efficient memory management
 The smaller memory footprint is key part of address the memory bandwidth that is the main bottleneck for scene graph traversals.  Several approaches have been tested to address memory footprint and cache coherency:
@@ -79,27 +79,27 @@ The smaller memory footprint is key part of address the memory bandwidth that is
 * Provided option to using fixed sized array to improve cache coherency
 
 
-The osggroups testbed application provides a comparison of different approaches within the VSG as well as comparing to OSG equivalents testing creation, destruction and traversal of quad tree test scene graphs.  This testbed illustrates how time to create, delete and traverse are all related to the memory footprint.  Finding are:
+The osggroups test-bed application provides a comparison of different approaches within the VSG as well as comparing to OSG equivalents testing creation, destruction and traversal of quad tree test scene graphs.  This test-bed illustrates how time to create, delete and traverse are all related to the memory footprint.  Finding are:
 
 
 * Fixed sized vsg::QuadGroup requires 56 bytes vs 264 for osg::Group with 4 children
 * vsg::QuadGroup, time to create is 1/5th of osg::Group with 4 children
-* Traversal time is over 2x as fast as OSG
+* Traversals can be up to 10 times faster than OpenSceneGraph
 
 
-Smart pointer usage also has a profound effect on memory footprint and hence performance. The osgpointer testbed compares use a intrusive reference counting (vsg::ref_ptr) vs using C++11’s std::shared_ptr.  On 64 bit Linux systems vsg::ref_ptr<> is 8 bytes in size vs std::shared_ptr<> that is 16 bytes.  The internal nodes of a scene graph use smart pointers to hold references to their children so also are impacted by the smart pointer size.  vsg::QuadGroup using ref_ptr<> is 56 bytes vs 104 bytes required for the equivalent fixed size Group using shared_ptr<>.   This test illustrates how std::shared_ptr<> is a significant step back compared to the intrusive reference counting and should not be used in any performance sensitive areas of the VSG project.
+Smart pointer usage also has a profound effect on memory footprint and hence performance. The osgpointer test-bed compares use a intrusive reference counting (vsg::ref_ptr) vs using C++11’s std::shared_ptr.  On 64 bit Linux systems vsg::ref_ptr<> is 8 bytes in size vs std::shared_ptr<> that is 16 bytes.  The internal nodes of a scene graph use smart pointers to hold references to their children so also are impacted by the smart pointer size.  vsg::QuadGroup using ref_ptr<> is 56 bytes vs 104 bytes required for the equivalent fixed size Group using shared_ptr<>.   This test illustrates how std::shared_ptr<> is a significant step back compared to the intrusive reference counting and should not be used in any performance sensitive areas of the VSG project.
 
 ### 3.2 Improving Flexibility and coherence
-The OpenSceneGraph’s long life has meant that features have been added over time with multiple class hierarchies being used for different purposes.  For instance the scene graph is distinct to the rendering backend graphs, uniforms are different to arrays, traversal and type safe operations on object also have different mechanisms.
+The OpenSceneGraph’s long life has meant that features have been added over time with multiple class hierarchies being used for different purposes.  For instance the scene graph is distinct to the rendering back-end graphs, uniforms are different to arrays, traversal and type safe operations on object also have different mechanisms.
 
 
-To address traversal and type safe operations in a more generic way the osg::NodeViistor (and other equivalents within the OSG) are replaced by a single vsg::Visitor base class that all vsg::Objects can be interfaced with.
+To address traversal and type safe operations in a more generic way the osg::NodeVisitor (and other equivalents within the OSG) are replaced by a single vsg::Visitor base class that all vsg::Objects can be interfaced with.
 
 
 Uniforms and vertex arrays are also supported using the same vsg::Data base class with ,vsg::Value and vsg::Array template classes to provide wrapping of single value or arrays of values respectively.
 
 
-The lightweight nodes within the scene graph also mean that the cost of creating companion graphs is lower so there no need for specialized graphs as is done with the OSG.  The same node classes can now be used for both the main scene graph and the rendering backend which is done with a command graph - which is essentially a scene graph used to hold data and commands that will be dispatched into the Vulkan Command Buffers.
+The lightweight nodes within the scene graph also mean that the cost of creating companion graphs is lower so there no need for specialized graphs as is done with the OSG.  The same node classes can now be used for both the main scene graph and the rendering back-end which is done with a command graph - which is essentially a scene graph used to hold data and commands that will be dispatched into the Vulkan Command Buffers.
 
 ---
 
@@ -125,13 +125,13 @@ Each of these areas we review the 3rd party libraries to look at their relevance
 Creating this same functionality directly ourselves offers the opportunity of creating a coherent design for all features and minimizing the work required for assembling dependencies, with the downside that all locally implemented features must be designed, implemented, tested, debugged and maintained ourselves.
 
 ### 4.1 Maths
-To improve the coherence between the VSG and Vulkan’s use of GLSL the plan is to use the same naming and conventions as GLSL.  The GLM library fulfills this goal so has been reviewed with consideration of using it as 3rd party dependencies.
+To improve the coherence between the VSG and Vulkan’s use of GLSL the plan is to use the same naming and conventions as GLSL.  The GLM library fulfils this goal so has been reviewed with consideration of using it as 3rd party dependencies.
 
 
 GLM is well established, this is both a positive and a negative.  It is likely to be well tested across platforms and should be reliable, it’s design and implementation follow GLSL equivalents very closely to a high level provide a coherent experience between the C++ application domain and the shaders passed to the graphics hardware.
 
 
-The disadvantage of GLM is that is very large, 46913 lines of code in headers, and the majority of it’s functionality will be rarely used by a scene graph user. GLM is als written for OpenGL, while GLSL is usable with Vulkan, the application level elements and conventions are not all compatible.  The depth range and vertical orientation of clip space are different between OpenGL and Vulkan so require GLM results to be adapted so they can be used with Vulkan - the projection matrix setup is an example of this.
+The disadvantage of GLM is that is very large, 46913 lines of code in headers, and the majority of it’s functionality will be rarely used by a scene graph user. GLM is also written for OpenGL, while GLSL is usable with Vulkan, the application level elements and conventions are not all compatible.  The depth range and vertical orientation of clip space are different between OpenGL and Vulkan so require GLM results to be adapted so they can be used with Vulkan - the projection matrix setup is an example of this.
 
 
 GLM is used by a number of Vulkan based projects, for instance NVidia’s VkHLF, vulkan-cpp-library pumex, the VulkanTutorial all use GLM.
@@ -150,7 +150,7 @@ For the VSG project is looks best to provide our own maths classes, it gives us 
 The work carried out in replicating the VulkanTutorial used the same GLFW library the the VulkanTutorial uses to create a Window and associated Vulkan surface.  GLFW is a C library and requires initialization and clean up in a particular order controlled at the application level.
 
 
-To make the window creation and clean up easier a GLFW_Window and GLFW_Instance classes were written to provide a C++ interface and an automatic means of clean up, decoupling that the testbed applications for having to handle this task.  This functionality was eventually wrapped up inside the prototype vsg library completely so the public vsg interface is now entirely agnostic of windowing library used to create the windows. The total GLFW codebase is presently 37,246 lines of  code. GLFW is licensed under zlib License.
+To make the window creation and clean up easier a GLFW_Window and GLFW_Instance classes were written to provide a C++ interface and an automatic means of clean up, decoupling that the test-bed applications for having to handle this task.  This functionality was eventually wrapped up inside the prototype vsg library completely so the public vsg interface is now entirely agnostic of windowing library used to create the windows. The total GLFW codebase is presently 37,246 lines of  code. GLFW is licensed under zlib License.
 
 
 Another Windowing library that provides Vulkan support is WSI-Window.  This is written specifically for Vulka in C++ and has Windows, Linux and Android support.  Feature wise WSI-Window is a possibility, however, the style of WSI-Window interface is not coherent with Vulkan, or VSG work so far, and some elements of the implementation are a somewhere odd.  WSI-Window codebase is currently 3,679 lines of code.  WSI-Windows is licensed under Apache License.
@@ -193,7 +193,7 @@ For the huge size of vulkan.hpp there is few really compelling features added ov
 Managing complexity of design and implementation is of key importance for all software projects, adding complexity should only ever be done when it adds value that justifies it.  Vulkan.hpp performs poorly by this metric and does not justify itself for use in the VSG project.
 
 
-The vulkan-cpp-library was also considered.  This is C++11 library that uses the Apache License and authored by an Google employee as their own project.  The project has laid dormant for 2 years.  The class naming and coding style takes notes far more from the C++ standard library than Vulkan that it wraps.  This approach means that resulting code breaks with the style of all Vulkan headers and documentation, this inconherence is really jarring.  This project is clearly an experiment that was dropped by the author before it was complete and no one else has come along to pick it up to finish it or maintain it.
+The vulkan-cpp-library was also considered.  This is C++11 library that uses the Apache License and authored by an Google employee as their own project.  The project has laid dormant for 2 years.  The class naming and coding style takes notes far more from the C++ standard library than Vulkan that it wraps.  This approach means that resulting code breaks with the style of all Vulkan headers and documentation, this incoherence is really jarring.  This project is clearly an experiment that was dropped by the author before it was complete and no one else has come along to pick it up to finish it or maintain it.
 
 
 The VkHLF (Vulkan High Level Framework) is a C++11 wrapper for Vulkan that builds upon vulkan.hpp adding better memory management and other facilities.  VkHLF is developed by NVidia is a up to date and looks to be actively maintained.  The class naming and style is also coherent with Vulkan so it’s relatively easy to relate VkHLF code to underlying Vulkan C API and Vulkan documentation that is predominately relates to the Vulkan C API.  VkHLF uses a NVidia drafted LICENSE that looks similar in principle to the MIT LICENSE.
@@ -208,16 +208,16 @@ However, design and implementation wise it’s simply not a good practice - work
 The existence of VkHLF shout out that what if Khronos want to provide a C++ wrapper to Vulkan then it should be in the form of VkHLF without any extra levels of auto-generated headers in between.  Perhaps in the future Khronos will do just this, but at this point in time VkHLF is a step in the wrong direction, it’s building upon sand (vulkan.hpp) not rock (vulkan.h).
 
 
-For a scene graph the Vulkan objects and functions need to be created and invoked in specific ways that make sense for the scene graph and the applications that build upon it.  For a scene graph wrapping Vulkan in a C++ API is not it’s primary purpose, the primary purpose is efficient pass data to graphics hardware to be processed by the GPU.  Extra facilities that make usage in the context of a scene graph easier don’t exist in a general purpose C++ wrapper for Vulkan, so you’d need to add them, and when you do you add an extra layer of classes and objects.  One has to be careful how you wrap Vulkan, if done well it works efficiently and adds clarity of how the functionality relates to the underlying API, if done badly it adds memory or computation overhead and obfusticated what the software is doing.
+For a scene graph the Vulkan objects and functions need to be created and invoked in specific ways that make sense for the scene graph and the applications that build upon it.  For a scene graph wrapping Vulkan in a C++ API is not it’s primary purpose, the primary purpose is efficient pass data to graphics hardware to be processed by the GPU.  Extra facilities that make usage in the context of a scene graph easier don’t exist in a general purpose C++ wrapper for Vulkan, so you’d need to add them, and when you do you add an extra layer of classes and objects.  One has to be careful how you wrap Vulkan, if done well it works efficiently and adds clarity of how the functionality relates to the underlying API, if done badly it adds memory or computation overhead and obfuscated what the software is doing.
 
 
-The pumex project has also tackled this same issue - how to wrap up Vulkan functionality in the context of a scene graph.  The approach that Pawel has taken is the use the vulkan.h C API wrapping selected features with pumex classes named in a coherent way to the underlying Vulkan features, so VkDevice maps to pumex::Device.  The Vulkan C API is a well designed and easy to follow API - it’s very verbose, but it’s coherent, the layers you need ontop to make it useful to a C++11 scene graph are actually quite lightweight.
+The pumex project has also tackled this same issue - how to wrap up Vulkan functionality in the context of a scene graph.  The approach that Pawel has taken is the use the vulkan.h C API wrapping selected features with pumex classes named in a coherent way to the underlying Vulkan features, so VkDevice maps to pumex::Device.  The Vulkan C API is a well designed and easy to follow API - it’s very verbose, but it’s coherent, the layers you need on-top to make it useful to a C++11 scene graph are actually quite lightweight.
 
 
 Pumex is rendering library in it’s own right, it’s not a Vulkan wrapper, it has basic scene graph functionality already provided - elements of which are reminiscent of the OpenSceneGraph that reveal it’s author's long exposure to the OSG. Pumex can be thought of as a prototype for the VSG project rather than a 3rd party library that the VSG library would build upon.  It illustrates nicely that wrapping Vulkan ourselves need not be an significant task, and offers opportunities to build a coherent bridge between the C++11 application domain and the lower level C domain that Vulkan works within.
 
 
-The VulkanPlayground work experimenting with wrapping Vulkan is not based on pumex, rather it’s a based of incrementally recreating the VulkanTutorial functionality in a series of C++ wrappers for Vulkan objects.  The wrappers are all located in VulkanPlayground/include/vsg/vk. The vsg namespace is used so VkDevice maps to vsg::Device.  The granularity of the approach is similar that that pumex uses but completely independently derived, with interface and implementation are far more minimal in the vsg equivalents.  The vsg wrappers focus on creation, automatic resource cleanup and memory management.  This is only prototype work so focus on key functionality rather than completeness of API and implementation.
+The VulkanPlayground work experimenting with wrapping Vulkan is not based on pumex, rather it’s a based of incrementally recreating the VulkanTutorial functionality in a series of C++ wrappers for Vulkan objects.  The wrappers are all located in VulkanPlayground/include/vsg/vk. The vsg namespace is used so VkDevice maps to vsg::Device.  The granularity of the approach is similar that that pumex uses but completely independently derived, with interface and implementation are far more minimal in the vsg equivalents.  The vsg wrappers focus on creation, automatic resource clean-up and memory management.  This is only prototype work so focus on key functionality rather than completeness of API and implementation.
 
 
 The vsg/vk headers now total 1,839 lines of code, while the vsg/vk implementations total 2,337 lines of code for a total of 4167 lines of code.  This is slightly less than half the size of VkHLF headers and source, and less than 1/10th the size of vulkan.hpp C++11 headers.  Despite the vsg/vk wrappers for Vulkan being a fraction of the size of vulkan.hpp they are far useful for the purpose of creating a scene graph.  The naming conventions have been kept coherent with the underlying vulkan.h C API and were possible the C structs and enums can be used directly.  The prototype work done VulkanPlayground illustrate how providing our own Vulkan wrappers is the best way to provide lightweight, coherent and useful encapsulation of Vulkan.
@@ -225,7 +225,7 @@ The vsg/vk headers now total 1,839 lines of code, while the vsg/vk implementatio
 ---
 
 ## 5. Gain familiarity and experiment with C++11, C++14 and C++17
-The VulkanPlayground has adopted C++11 from the start, both the application testbeds and the vsg prototype library have been used to trial various C++11 features. C++11 is huge step forward for C++ programmers, enabling code to be cleaner, more succinct and more robust.
+The VulkanPlayground has adopted C++11 from the start, both the application test-beds and the vsg prototype library have been used to trial various C++11 features. C++11 is huge step forward for C++ programmers, enabling code to be cleaner, more succinct and more robust.
 
 Not all features of C++11 are useful for scene graphs - testing of std::shared_ptr<> found that it’s memory overhead compared to locally provided intrusive reference counting is prohibitive and precludes its use in the context of a scene graph where memory footprint and bandwidth are key bottlenecks.
 
@@ -256,13 +256,13 @@ VkHLF is the best of the C++ wrappers of Vulkan but builds upon the autogenerate
 
 A key part of the work in this phase has been focused on learning Vulkan and to this end creating of C++ wrappers for key Vulkan objects directly using the Vulkan C API provided a way of testing Vulkan and how best to manage it in C++ and within a scene graph .  The Vulkan C API is well designed and favours wrapping in C++ objects that add resource management.  The general approach has take Vulkan object like VkDevice map to a vsg::Device class.
 
-Recreating the the VulkanTutorial was done using these C++ wrappers and has enabled a reduction in code size from 1530 lines to 275 lines in the vsgdraw.cpp testbed.  A similar code size reduction was achieved with the porting of the vulkan_minimal_compute tutorial to use these vsg Vulkan wrappers - 805 lines down to 141 lines.
+Recreating the the VulkanTutorial was done using these C++ wrappers and has enabled a reduction in code size from 1530 lines to 275 lines in the vsgdraw.cpp test-bed.  A similar code size reduction was achieved with the porting of the vulkan_minimal_compute tutorial to use these vsg Vulkan wrappers - 805 lines down to 141 lines.
 
 
 Work has begun on adapting the Vulkan wrappers to work with the needs of a general purpose scene graph.  This work has not been completed, there has simply been too much work required to tame Vulkan to complete this experimental work within the 3 month time frame.  This means parts of the VSG design is still open ended.
 
 
-Windowing has not been a major focus during this phase, GLFW has been used as it provides an easy means for creating a Vulkan capable Window and Surface on which vulkan can be rendered with.  GLFW was used primarily because the VulkanTutorial and other tutorial code use it, rather than using this to evaluate it’s suitability for VSG to use as it’s main mains for creating windows.  The pumex project has its own windowing support that while more limited than GLFW is small and entirely focused on Vulkan rather than a GL windowing library that has been adapted to support Vulkan as well.  The small size of the code required to providing windowing and event handling in pumex shows that handling native windowing within the VSG project will not be a significant challenge.  Providing nativing windowing support ourselves will provide of a coherent public interface and avoid adding external dependencies.  Pumex is an open source project under the MIT license so sharing code is also a possibility.
+Windowing has not been a major focus during this phase, GLFW has been used as it provides an easy means for creating a Vulkan capable Window and Surface on which vulkan can be rendered with.  GLFW was used primarily because the VulkanTutorial and other tutorial code use it, rather than using this to evaluate it’s suitability for VSG to use as it’s main mains for creating windows.  The pumex project has its own windowing support that while more limited than GLFW is small and entirely focused on Vulkan rather than a GL windowing library that has been adapted to support Vulkan as well.  The small size of the code required to providing windowing and event handling in pumex shows that handling native windowing within the VSG project will not be a significant challenge.  Providing native windowing support ourselves will provide of a coherent public interface and avoid adding external dependencies.  Pumex is an open source project under the MIT license so sharing code is also a possibility.
 
 
 As a general finding, the 3rd party dependencies reviewed have all provide useful insight into how or not to implement various features, ultimately none are useful enough directly to justify using as a direct 3rd party dependency, in the areas of maths, vulkan integration and windowing we can provide our own classes that are coherent with each other and to tuned to the requirements of use with a scene graph and graphics applications that build upon them.
