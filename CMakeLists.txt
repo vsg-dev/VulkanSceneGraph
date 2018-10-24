@@ -82,7 +82,7 @@ add_custom_target(build_all_h
 find_program(CPPCHECK cppcheck)
 if (CPPCHECK)
     add_custom_target(cppcheck
-        COMMAND ${CPPCHECK} ${CMAKE_CURRENT_SOURCE_DIR}/src/vsg/*/*.cpp -I ${CMAKE_CURRENT_SOURCE_DIR}/include/ --quiet --enable=all
+        COMMAND ${CPPCHECK} ${CMAKE_CURRENT_SOURCE_DIR}/src/vsg/*/*.cpp -I ${CMAKE_CURRENT_SOURCE_DIR}/include/ --quiet --enable=style
     )
 endif()
 

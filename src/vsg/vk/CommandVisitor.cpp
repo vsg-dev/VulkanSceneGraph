@@ -20,20 +20,6 @@ namespace vsg
 {
 
 
-template<typename T>
-struct StoreAndRestore
-{
-    using P = T*;
-
-    T _value;
-    P _ptr;
-
-    StoreAndRestore(T& value) : _value(value), _ptr(&value) {}
-    ~StoreAndRestore() { *_ptr = _value; }
-};
-
-
-
 CommandVisitor::CommandVisitor(Framebuffer* framebuffer, RenderPass* renderPass, CommandBuffer* commandBuffer, const VkExtent2D& extent, const VkClearColorValue& clearColor) :
     _framebuffer(framebuffer),
     _renderPass(renderPass),

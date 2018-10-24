@@ -30,7 +30,7 @@ using namespace vsg;
 
 struct DispatchTraversal::Data
 {
-    Data(CommandBuffer* commandBuffer):
+    explicit Data(CommandBuffer* commandBuffer):
         _commandBuffer(commandBuffer)
     {
         std::cout<<"DispatchTraversal::Data::Data("<<commandBuffer<<")"<<std::endl;

@@ -75,7 +75,7 @@ public:
 
     static ref_ptr<Introspection>& instance()
     {
-        static ref_ptr<Introspection> s_introspection = new Introspection;
+        static ref_ptr<Introspection> s_introspection(new Introspection);
         return s_introspection;
     }
 
