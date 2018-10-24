@@ -46,7 +46,6 @@ namespace vsg
                 object->setAuxiliary(allocator->getOrCreateSharedAuxiliary());
 
                 // check the sizeof(Subclass) is consistent with Subclass::sizeOfObject()
-                // could we use static_assert here?
                 if (std::size_t new_size = object->sizeofObject(); new_size != size)
                 {
                     throw make_string("Warning: Allocator::create(",typeid(Subclass).name(),") mismatch sizeof() = ",size,", ",new_size);

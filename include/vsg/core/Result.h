@@ -27,8 +27,8 @@ namespace vsg
     {
     public:
 
-        Result(R result) : _printMessageOnError(true), _result(result) {}
         Result(const std::string& message, R result) : _printMessageOnError(true), _result(result), _message(message) {}
+        explicit Result(R result) : _printMessageOnError(true), _result(result) {}
         explicit Result(ref_ptr<T> ptr) : _printMessageOnError(false), _result(validValue), _ptr(ptr) {}
 
         Result(const Result& rhs) :
