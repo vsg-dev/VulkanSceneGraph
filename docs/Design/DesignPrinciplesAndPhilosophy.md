@@ -36,9 +36,9 @@ The stages of work that are crucial to undertake effeciently with a graphics app
 1. Upating the scene(s)
 1. Cull traversal - view frustum etc. culling to generate a dispatch graph
 1. Dispatch traversal - sending the data in the dispatch graph to the GPU(s)
-1. Graphics Processing - graohcis and compute work done on the GPU(s)
+1. Graphics Processing - graphcis and compute work done on the GPU(s)
 
-The adoption of Vulkan provides a significant reduction in CPU overhed with dispatching data compared to OpenGL and Direct3D(prior to 11), this immediately reduce cost of the stage 4 - dispatch traversl. However, the benefits are only fully realized if the scene graph overhead involved in dispatch traversal stage and cost of paging, updating and cull traversal are proportionally reduced.  To deliver on all the potential benefits that Vulkan has the scene graph must take similiar strides forwards in reducing overheads and improving efficiency.
+The adoption of Vulkan provides a significant reduction in CPU overhed with dispatching data compared to OpenGL and Direct3D(prior to 11), this immediately reduce cost of the stage 4 - dispatch traversal. However, the benefits are only fully realized if the scene graph overhead involved in dispatch traversal stage and cost of paging, updating and cull traversal are proportionally reduced.  To deliver on all the potential benefits that Vulkan has the scene graph must take similiar strides forwards in reducing overheads and improving efficiency.
 
 The principles used as guide to achieving effeciency include:
 
