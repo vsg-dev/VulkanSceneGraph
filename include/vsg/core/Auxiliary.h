@@ -47,8 +47,8 @@ namespace vsg
 
     protected:
 
-        Auxiliary(Allocator* allocator);
-        Auxiliary(Object* object, Allocator* allocator=nullptr);
+        explicit Auxiliary(Allocator* allocator);
+        explicit Auxiliary(Object* object, Allocator* allocator=nullptr);
 
         virtual ~Auxiliary();
 

@@ -33,7 +33,6 @@ namespace vsg
         Array(std::size_t numElements) : _size(numElements), _data(new value_type[numElements]) {}
         Array(std::size_t numElements, value_type* data) : _size(numElements), _data(data) {}
         Array(std::initializer_list<value_type> l) : _size(l.size()), _data(new value_type[l.size()]) { value_type* ptr = _data; for (value_type const & v : l) { (*ptr++) = v; } }
-        Array(const Array& rhs) : _data(rhs.data) {}
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Data); }
 

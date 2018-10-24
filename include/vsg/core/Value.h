@@ -28,8 +28,8 @@ namespace vsg
         using value_type = T;
 
         Value() {}
-        Value(const value_type& in_value) : _value(in_value) {}
         Value(const Value& rhs) : _value(rhs._value) {}
+        explicit Value(const value_type& in_value) : _value(in_value) {}
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Value); }
 
