@@ -1,4 +1,4 @@
-# Disign Principles and Philosophy
+# Design Principles and Philosophy
 
 > *"Successful Software Lives For Ever"*
 
