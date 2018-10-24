@@ -20,7 +20,7 @@ Experimenting with different approaches to object/scene graph design and impleme
     * Static code analysis (cppcheck added 19.10.18)
     * Dynamic analysis (such as LLVM sanitizers)
     * Follow [CppCoreGuidlines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines)
-    * Follow [Best Practices](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md)
+    * Follow [FOSS Best Practices](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md)
 * Build add-on libraries, as separate projects, to provide additional features:
     * 3rd party image loading
     * 3rd party 3D model loading (including FBX)
