@@ -71,9 +71,10 @@ namespace vsg
     bool Object::getValue(const std::string& key, T& value) const
     {
         using ValueT = Value<T>;
-        const ValueT* vo = dynamic_cast<const ValueT*>(getObject(key));
-        if (vo)
+        const Object* object = getObject(key);
+        if (object && (typeid(*object)==typeid(ValueT)))
         {
+            const ValueT* vo = static_cast<const ValueT*>(getObject(key));
             value = *vo;
             return true;
         }
