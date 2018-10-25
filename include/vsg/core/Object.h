@@ -56,42 +56,22 @@ namespace vsg
         inline void unref_nodelete() const noexcept { _referenceCount.fetch_sub(1, std::memory_order_seq_cst); }
         inline unsigned int referenceCount() const noexcept { return _referenceCount.load(); }
 
-        struct Key
-        {
-            Key(const char* in_name) : name(in_name), index(0) {}
-            Key(const std::string& in_name) : name(in_name), index(0) {}
-            Key(int in_index) : index(in_index) {}
+        // meta data access methods
+        template<typename T> void setValue(const std::string& key, const T& value);
+        void setValue(const std::string& key, const char* value) { setValue(key, value ? std::string(value) : std::string()); }
 
-            Key(const char* in_name, int in_index) : name(in_name), index(in_index) {}
-            Key(const std::string& in_name, int in_index) : name(in_name), index(in_index) {}
+        template<typename T> bool getValue(const std::string& key, T& value) const;
 
-            bool operator < (const Key& rhs) const
-            {
-                if (name<rhs.name) return true;
-                if (name>rhs.name) return false;
-                return (index<rhs.index);
-            }
+        void setObject(const std::string& key, Object* object);
+        Object* getObject(const std::string& key);
+        const Object* getObject(const std::string& key) const;
 
-            std::string name;
-            int         index;
-        };
-
-        template<typename T>
-        void setValue(const Key& key, const T& value);
-
-        void setValue(const Key& key, const char* value) { setValue(key, value ? std::string(value) : std::string()); }
-
-        template<typename T>
-        bool getValue(const Key& key, T& value) const;
-
-        void setObject(const Key& key, Object* object);
-        Object* getObject(const Key& key);
-        const Object* getObject(const Key& key) const;
-
+        // Auxiliary object access methods, the optional Auxiliary is used to store meta data and links to Allocator
         Auxiliary* getOrCreateUniqueAuxiliary();
         Auxiliary* getAuxiliary() { return _auxiliary; }
         const Auxiliary* getAuxiliary() const { return _auxiliary; }
 
+        // convinience method for getting the optional Allocator, if present this Allocator would have been used to create this Objects memory
         Allocator* getAllocator() const;
 
     protected:

@@ -102,23 +102,23 @@ void Auxiliary::resetConnectedObject()
 }
 
 
-void Auxiliary::setObject(const Object::Key& key, Object* object)
+void Auxiliary::setObject(const std::string& key, Object* object)
 {
     _objectMap[key] = object;
-    DEBUG_NOTIFY<<"Auxiliary::setObject( ["<<key.name<<", "<<key.index<<"], "<<object<<")"<<" "<<_objectMap.size()<<" "<<&_objectMap<<std::endl;
+    DEBUG_NOTIFY<<"Auxiliary::setObject( ["<<key<<"], "<<object<<")"<<" "<<_objectMap.size()<<" "<<&_objectMap<<std::endl;
 }
 
-Object* Auxiliary::getObject(const Object::Key& key)
+Object* Auxiliary::getObject(const std::string& key)
 {
-    DEBUG_NOTIFY<<"Auxiliary::getObject( ["<<key.name<<", "<<key.index<<"])"<<std::endl;
+    DEBUG_NOTIFY<<"Auxiliary::getObject( ["<<key<<"])"<<std::endl;
     ObjectMap::iterator itr = _objectMap.find(key);
     if (itr != _objectMap.end()) return itr->second.get();
     else return nullptr;
 }
 
-const Object* Auxiliary::getObject(const Object::Key& key) const
+const Object* Auxiliary::getObject(const std::string& key) const
 {
-    DEBUG_NOTIFY<<"Auxiliary::getObject( ["<<key.name<<", "<<key.index<<"]) const"<<std::endl;
+    DEBUG_NOTIFY<<"Auxiliary::getObject( ["<<key<<"]) const"<<std::endl;
     ObjectMap::const_iterator itr = _objectMap.find(key);
     if (itr != _objectMap.end()) return itr->second.get();
     else return nullptr;

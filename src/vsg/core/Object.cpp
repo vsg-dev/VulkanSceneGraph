@@ -97,18 +97,18 @@ void Object::accept(CullTraversal& visitor) const
     visitor.apply(*this);
 }
 
-void Object::setObject(const Key& key, Object* object)
+void Object::setObject(const std::string& key, Object* object)
 {
     getOrCreateUniqueAuxiliary()->setObject(key, object);
 }
 
-Object* Object::getObject(const Key& key)
+Object* Object::getObject(const std::string& key)
 {
     if (!_auxiliary) return nullptr;
     return _auxiliary->getObject(key);
 }
 
-const Object* Object::getObject(const Key& key) const
+const Object* Object::getObject(const std::string& key) const
 {
     if (!_auxiliary) return nullptr;
     return _auxiliary->getObject(key);

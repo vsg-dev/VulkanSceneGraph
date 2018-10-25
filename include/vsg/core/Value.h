@@ -61,14 +61,14 @@ namespace vsg
     };
 
     template<typename T>
-    void Object::setValue(const Key& key, const T& value)
+    void Object::setValue(const std::string& key, const T& value)
     {
         using ValueT = Value<T>;
         setObject(key, new ValueT(value));
     }
 
     template<typename T>
-    bool Object::getValue(const Key& key, T& value) const
+    bool Object::getValue(const std::string& key, T& value) const
     {
         using ValueT = Value<T>;
         const ValueT* vo = dynamic_cast<const ValueT*>(getObject(key));

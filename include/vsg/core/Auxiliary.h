@@ -34,11 +34,11 @@ namespace vsg
         void unref_nodelete() const;
         inline unsigned int referenceCount() const { return _referenceCount.load(); }
 
-        void setObject(const Object::Key& key, Object* object);
-        Object* getObject(const Object::Key& key);
-        const Object* getObject(const Object::Key& key) const;
+        void setObject(const std::string& key, Object* object);
+        Object* getObject(const std::string& key);
+        const Object* getObject(const std::string& key) const;
 
-        typedef std::map< Object::Key, vsg::ref_ptr<Object> > ObjectMap;
+        using ObjectMap = std::map<std::string, vsg::ref_ptr<Object>>;
         ObjectMap& getObjectMap() { return _objectMap; }
         const ObjectMap& getObjectMap() const { return _objectMap; }
 
