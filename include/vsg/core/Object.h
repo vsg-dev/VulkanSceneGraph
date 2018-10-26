@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <string>
 
 #include <vsg/core/Export.h>
+#include <vsg/core/ref_ptr.h>
 
 namespace vsg
 {
@@ -35,6 +36,8 @@ namespace vsg
 
         Object(const Object&) = delete;
         Object& operator = (const Object&) = delete;
+
+        //static ref_ptr<Object> create(Allocator* allocator=nullptr);
 
         virtual std::size_t sizeofObject() const noexcept { return sizeof(Object); }
 

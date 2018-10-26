@@ -77,6 +77,29 @@ void Object::_delete() const
     }
 }
 
+#if 0
+ref_ptr<Object> Object::create(Allocator* allocator)
+{
+    if (allocator)
+    {
+        // need to think about alignment...
+        const std::size_t size = sizeof(Object);
+        void* ptr = allocator->allocate(size);
+
+        ref_ptr<Object> object(new (ptr) Object());
+        object->setAuxiliary(allocator->getOrCreateSharedAuxiliary());
+
+        // check the sizeof(Object) is consistent with Object::sizeOfObject()
+        if (std::size_t new_size = object->sizeofObject(); new_size != size)
+        {
+            throw make_string("Warning: Allocator::create(",typeid(Object).name(),") mismatch sizeof() = ",size,", ",new_size);
+        }
+        return object;
+    }
+    else return ref_ptr<Object>(new Object());
+}
+#endif
+
 void Object::accept(Visitor& visitor)
 {
     visitor.apply(*this);

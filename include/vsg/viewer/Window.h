@@ -43,7 +43,7 @@ namespace vsg
         using Stages = std::vector<ref_ptr<Stage>>;
         Stages _stages;
 
-        void addStage(Stage* stage) { _stages.push_back(stage); }
+        void addStage(ref_ptr<Stage> stage) { _stages.push_back(stage); }
 
 
         const VkExtent2D& extent2D() { return _extent2D; }

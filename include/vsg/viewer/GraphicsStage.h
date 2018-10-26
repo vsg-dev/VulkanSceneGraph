@@ -23,7 +23,7 @@ namespace vsg
     {
     public:
 
-        GraphicsStage(Node* commandGraph);
+        GraphicsStage(ref_ptr<Node> commandGraph);
 
         ref_ptr<Node> _commandGraph;
 

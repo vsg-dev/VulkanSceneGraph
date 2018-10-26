@@ -38,7 +38,7 @@ namespace vsg
         uint32_t firstInstance;
     };
 
-    class DrawIndexed : public Inherit<Command, Draw>
+    class DrawIndexed : public Inherit<Command, DrawIndexed>
     {
     public:
         DrawIndexed(uint32_t in_indexCount, uint32_t in_instanceCount, uint32_t in_firstIndex, int32_t in_vertexOffset, uint32_t in_firstInstance):

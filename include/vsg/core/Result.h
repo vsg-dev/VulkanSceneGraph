@@ -29,7 +29,12 @@ namespace vsg
 
         Result(const std::string& message, R result) : _printMessageOnError(true), _result(result), _message(message) {}
         explicit Result(R result) : _printMessageOnError(true), _result(result) {}
-        explicit Result(ref_ptr<T> ptr) : _printMessageOnError(false), _result(validValue), _ptr(ptr) {}
+
+        template<class U>
+        explicit Result(ref_ptr<U> ptr) : _printMessageOnError(false), _result(validValue), _ptr(ptr) {}
+
+        template<class U>
+        explicit Result(U* ptr) : _printMessageOnError(false), _result(validValue), _ptr(ptr) {}
 
         Result(const Result& rhs) :
             _printMessageOnError(rhs._printMessageOnError),

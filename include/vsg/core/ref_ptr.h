@@ -28,7 +28,7 @@ namespace vsg
             if (_ptr) _ptr->ref();
         }
 
-        ref_ptr(T* ptr):
+        explicit ref_ptr(T* ptr):
             _ptr(ptr)
         {
             if (_ptr) _ptr->ref();
@@ -36,7 +36,7 @@ namespace vsg
 
 
         template<class R>
-        ref_ptr(R* ptr):
+        explicit ref_ptr(R* ptr):
             _ptr(ptr)
         {
             if (_ptr) _ptr->ref();

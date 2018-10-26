@@ -31,11 +31,11 @@ Viewer::~Viewer()
     }
 }
 
-void Viewer::addWindow(Window* window)
+void Viewer::addWindow(ref_ptr<Window> window)
 {
     _windows.push_back(window);
 
-    Device* device = window->device();
+    ref_ptr<Device> device(window->device());
     PhysicalDevice* physicalDevice = window->physicalDevice();
     if (_deviceMap.find(device)==_deviceMap.end())
     {

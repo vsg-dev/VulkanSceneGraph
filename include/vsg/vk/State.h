@@ -35,7 +35,7 @@ namespace vsg
         Stack   stack;
         bool    dirty;
 
-        void push(const T* value) { stack.push(value); dirty = true; }
+        void push(const T* value) { stack.push(ref_ptr<const T>(value)); dirty = true; }
         void pop() { stack.pop(); dirty = true; }
         size_t size() const { return stack.size(); }
         T& top() { return stack.top(); }

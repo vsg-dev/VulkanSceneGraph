@@ -19,7 +19,7 @@ namespace vsg
 {
 
 
-GraphicsStage::GraphicsStage(Node* commandGraph) :
+GraphicsStage::GraphicsStage(ref_ptr<Node> commandGraph) :
     _commandGraph(commandGraph)
 {
 }

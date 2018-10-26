@@ -41,7 +41,11 @@ namespace vsg
 
         using StateComponents = std::vector<ref_ptr<StateComponent>>;
 
+#if 1
+        void add(ref_ptr<StateComponent> component) { _stateComponents.push_back(component); }
+#else
         void add(StateComponent* component) { _stateComponents.push_back(component); }
+#endif
 
         inline void pushTo(State& state) const { for(auto& component : _stateComponents) component->pushTo(state); }
         inline void popFrom(State& state) const { for(auto& component : _stateComponents) component->popFrom(state); }

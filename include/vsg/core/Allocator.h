@@ -45,26 +45,6 @@ namespace vsg
 
         void detachSharedAuxiliary(Auxiliary* auxiliary);
 
-#if 1
-        // likely to remove this create method, as vsg::Inherit::create(..) now provides same functionality.
-        template<typename T, typename... Args>
-        ref_ptr<T> create(Args... args)
-        {
-            // need to think about alignment...
-            std::size_t size = sizeof(T);
-            void* ptr = allocate(size);
-            ref_ptr<T> object = new (ptr) T(args...);
-            object->setAuxiliary(getOrCreateSharedAuxiliary());
-
-            std::size_t new_size = object->sizeofObject();
-            if (new_size != size)
-            {
-                throw make_string("Warning: Allocator::create(",typeid(T).name(),") mismatch sizeof() = ",size,", ",new_size);
-            }
-            return object;
-        }
-#endif
-
     protected:
         virtual ~Allocator();
 

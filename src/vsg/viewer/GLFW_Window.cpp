@@ -40,7 +40,7 @@ GLFW_Instance::~GLFW_Instance()
 
 vsg::ref_ptr<glfw::GLFW_Instance> getGLFW_Instance()
 {
-    static vsg::observer_ptr<glfw::GLFW_Instance> s_glfw_Instance = new glfw::GLFW_Instance;
+    static vsg::observer_ptr<glfw::GLFW_Instance> s_glfw_Instance(new glfw::GLFW_Instance);
     return s_glfw_Instance;
 }
 
@@ -93,7 +93,7 @@ GLFW_Window::Result GLFW_Window::create(uint32_t width, uint32_t height, bool de
     if (shareWindow)
     {
         // use GLFW to create surface
-        vsg::ref_ptr<vsg::Surface> surface = new glfw::GLFWSurface(shareWindow->instance(), glfwWindow, allocator);
+        vsg::ref_ptr<vsg::Surface> surface(new glfw::GLFWSurface(shareWindow->instance(), glfwWindow, allocator));
 
         window = new GLFW_Window(glfwInstance, glfwWindow,
                                  shareWindow->instance(), shareWindow->surface(), shareWindow->physicalDevice(), shareWindow->device(), shareWindow->renderPass(), shareWindow->debugLayersEnabled());
@@ -127,7 +127,7 @@ GLFW_Window::Result GLFW_Window::create(uint32_t width, uint32_t height, bool de
         if (!instance) return Result("Error: vsg::GLFW_Window::create(...) failed to create Window, unable to create Vulkan instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
         // use GLFW to create surface
-        vsg::ref_ptr<vsg::Surface> surface = new glfw::GLFWSurface(instance, glfwWindow, allocator);
+        vsg::ref_ptr<vsg::Surface> surface(new glfw::GLFWSurface(instance, glfwWindow, allocator));
         if (!surface) return Result("Error: vsg::GLFW_Window::create(...) failed to create Window, unable to create GLFWSurface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
         // set up device

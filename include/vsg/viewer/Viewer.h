@@ -44,7 +44,7 @@ namespace vsg
 
         using DeviceMap = std::map<ref_ptr<Device>, PerDeviceObjects>;
 
-        void addWindow(Window* window);
+        void addWindow(ref_ptr<Window> window);
 
         Windows& windows() { return _windows; }
         const Windows& windows() const { return _windows; }

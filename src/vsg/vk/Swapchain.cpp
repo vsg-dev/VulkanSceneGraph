@@ -190,7 +190,7 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
         return Result("Error: Failed to create swap chain.", result);
     }
 
-    ref_ptr<Swapchain> sw = new Swapchain(swapchain, device, surface);
+    ref_ptr<Swapchain> sw(new Swapchain(swapchain, device, surface));
 
     sw->_format = surfaceFormat.format;
     sw->_extent = extent;

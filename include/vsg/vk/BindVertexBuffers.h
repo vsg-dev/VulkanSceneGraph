@@ -36,7 +36,7 @@ namespace vsg
         void setFirstBinding(uint32_t firstBinding) { _firstBinding = firstBinding; }
         uint32_t getFirstBinding() const { return _firstBinding; }
 
-        void add(Buffer* buffer, VkDeviceSize offset)
+        void add(ref_ptr<Buffer> buffer, VkDeviceSize offset)
         {
             _buffers.push_back(buffer);
             _vkBuffers.push_back(*buffer);

@@ -30,19 +30,19 @@ namespace vsg
         }
 
         template<class R>
-        observer_ptr(R* ptr):
+        explicit observer_ptr(R* ptr):
             _auxiliary(ptr ? ptr->getOrCreateUniqueAuxiliary() : nullptr)
         {
         }
 
         template<class R>
-        observer_ptr(const observer_ptr<R>& ptr):
+        explicit observer_ptr(const observer_ptr<R>& ptr):
             _auxiliary(ptr._auxiliary)
         {
         }
 
         template<class R>
-        observer_ptr(const ref_ptr<R>& ptr):
+        explicit observer_ptr(const ref_ptr<R>& ptr):
             _auxiliary(ptr.valid() ? ptr->getOrCreateUniqueAuxiliary() : nullptr)
         {
         }
@@ -87,7 +87,7 @@ namespace vsg
         operator ref_ptr<R> () const
         {
             if (!_auxiliary.valid()) return ref_ptr<R>();
-            return static_cast<T*>(_auxiliary->getConnectedObject());
+            return ref_ptr<R>(static_cast<T*>(_auxiliary->getConnectedObject()));
         }
 
     protected:
