@@ -58,10 +58,9 @@ namespace vsg
     std::string make_string(Args const& ... args )
     {
         std::ostringstream stream;
-        using List= int[];
-        (void) List {0, ( (void)(stream << args), 0 ) ... };
-
+        (stream<< ...<<args);
         return stream.str();
     }
-
 }
+
+
