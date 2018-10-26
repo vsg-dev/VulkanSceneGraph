@@ -43,8 +43,15 @@ find_path(VSG_INCLUDE_DIR
     "$ENV{VSG_DIR}/include"
   )
 
-find_library(VSG_LIBRARY
-    NAMES vsg
+find_library(VSG_LIBRARY_RELEASE
+    NAMES vsg vsgs
+    PATHS
+    ${VSG_DIR}/lib
+    "$ENV{VSG_DIR}/lib"
+)
+
+find_library(VSG_LIBRARY_DEBUG
+    NAMES vsgd vsgrd
     PATHS
     ${VSG_DIR}/lib
     "$ENV{VSG_DIR}/lib"
@@ -53,10 +60,12 @@ find_library(VSG_LIBRARY
 set(VSG_LIBRARIES ${VSG_LIBRARY})
 set(VSG_INCLUDE_DIRS ${VSG_INCLUDE_DIR})
 
+include(SelectLibraryConfigurations)
+select_library_configurations(VSG)
+
+
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(VSG
-  DEFAULT_MSG
-  VSG_LIBRARY VSG_INCLUDE_DIR)
+find_package_handle_standard_args(VSG REQUIRED_VARS VSG_LIBRARY VSG_INCLUDE_DIR)
 
 
 if (VSG_FOUND)
@@ -95,10 +104,24 @@ endif()
 
 # mark_as_advanced(VSG_INCLUDE_DIR VSG_LIBRARY)
 
-if(VSG_FOUND AND NOT TARGET VSG::VSG)
-  add_library(VSG::VSG UNKNOWN IMPORTED)
-  set_target_properties(VSG::VSG PROPERTIES
-    INTERFACE_COMPILE_DEFINITIONS "${VSG_DEFINITIONS}"
-    IMPORTED_LOCATION "${VSG_LIBRARIES}"
-    INTERFACE_INCLUDE_DIRECTORIES "${VSG_INCLUDE_DIRS}")
+if(VSG_FOUND)
+
+    if (NOT TARGET VSG::VSG)
+
+        add_library(VSG::VSG UNKNOWN IMPORTED)
+
+        set_target_properties(VSG::VSG PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${VSG_INCLUDE_DIR}")
+
+        if (VSG_LIBRARY_RELEASE)
+            set_property(TARGET VSG::VSG APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+            set_target_properties(VSG::VSG PROPERTIES IMPORTED_LOCATION_RELEASE "${VSG_LIBRARY_RELEASE}")
+        endif()
+
+        if (VSG_LIBRARY_DEBUG)
+            set_property(TARGET VSG::VSG APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
+            set_target_properties(VSG::VSG PROPERTIES IMPORTED_LOCATION_DEBUG "${VSG_LIBRARY_DEBUG}")
+        endif()
+
+    endif()
+
 endif()
