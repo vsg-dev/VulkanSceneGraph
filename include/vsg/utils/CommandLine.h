@@ -13,251 +13,117 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <sstream>
-#include <list>
+#include <typeinfo>
+#include <vector>
 
 namespace vsg
 {
 
-namespace CommandLine
+class CommandLine
 {
+public:
 
-    class Convert
-    {
-    public:
-        Convert() {}
-
-        template<typename T>
-        bool operator() (const char* field, T& value)
-        {
-            _str.clear();
-            _str.str(field);
-            _str >> value;
-            return !_str.fail();
-        }
-
-        std::istringstream _str;
-    };
-
-    class Match
-    {
-    public:
-        using Matches = std::list<std::string>;
-
-        Matches _matches;
-
-        Match(const char* match) { _matches.push_back(match); }
-        Match(const char* match1, const char* match2) { _matches.push_back(match1); _matches.push_back(match2); }
-
-        Match(const std::string& match) { _matches.push_back(match); }
-        Match(const std::string& match1, const std::string& match2) { _matches.push_back(match1); _matches.push_back(match2); }
-
-        bool operator() (const char* field) const
-        {
-            for (const std::string& match : _matches)
-            {
-                if (match==field) return true;
-            }
-            return false;
-        }
-    };
-
-
-    void removeArguments(int& argc, char** argv, int pos, int num)
-    {
-        // remove argument from argv
-        for (int i=pos; i<argc-num; ++i)
-        {
-            argv[i] = argv[i+num];
-        }
-        argc -= num;
-    }
-
-    bool read(int& argc, char** argv, const Match& match)
-    {
-        for (int i=1; i<argc; ++i)
-        {
-            if (match(argv[i]))
-            {
-                removeArguments(argc, argv, i, 1);
-                return true;
-            }
-        }
-        return false;
-    }
+    CommandLine(int* argc, char** argv) : _argc(argc), _argv(argv) {}
 
     template<typename T>
-    bool read(int& argc, char** argv, const Match& match, T& value)
+    bool read(int& i, T& value)
     {
-        for (int i=1; i<argc; ++i)
+        if (i>=*_argc) return false;
+
+        _istr.clear();
+        _istr.str(_argv[i]);
+        _istr >> value;
+
+        ++i;
+
+        return (!_istr.fail());
+    }
+
+    void remove(int i, int num)
+    {
+        if (i>=*_argc) return;
+
+        int source = i+num;
+        if (source>=*_argc)
         {
-            if (match(argv[i]))
+            // removed section is at end of argv so just reset argc to i
+            *_argc = i;
+            return;
+        }
+
+        // shift all the remaining entries down to fill the removed space
+        for(; source<*_argc; ++i, ++source)
+        {
+            _argv[i] = _argv[source];
+        }
+
+        *_argc -= num;
+    }
+
+    template<typename T> std::string type_name(const T&) { return vsg::make_string(" <",typeid(T).name(),">"); }
+    std::string type_name(const std::string&) { return " <string>"; }
+    std::string type_name(const int&) { return " <int>"; }
+    std::string type_name(const unsigned int&) { return " <uint>"; }
+    std::string type_name(const float&) { return " <float>"; }
+    std::string type_name(const double&) { return "<double>"; }
+
+    template< typename ... Args>
+    bool read(const std::string& match, Args& ... args)
+    {
+        for(int i=0; i< *_argc; ++i)
+        {
+            if (match == _argv[i])
             {
-                if (i+1<argc)
+                int start = i;
+                ++i;
+
+                // match any parameters
+                bool result = ( read(i, args) && ... );
+
+                if (result)
                 {
-                    Convert convert;
-
-                    T local;
-                    if (!convert(argv[i+1],local))
-                    {
-                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+1]);
-                    }
-
-                    value = local;
-
-                    removeArguments(argc, argv, i, 2);
-
-                    return true;
+                    remove(start, i-start);
                 }
                 else
                 {
-                    throw std::runtime_error(std::string("Warning : Not enough parameters to match : ")+argv[i]+" <value>");
+                    std::string parameters = ( match + ... + type_name(args));
+                    std::string errorMessage = std::string("Failed to match command line required parameters for ") + parameters;
+                    _errorMessages.push_back(errorMessage);
                 }
+
+                return result;
             }
         }
         return false;
     }
 
-    template<typename T1, typename T2>
-    bool read(int& argc, char** argv, const Match& match, T1& value1, T2& value2)
+    template< typename ... Args>
+    bool read(std::initializer_list<std::string> matches, Args& ... args)
     {
-        for (int i=1; i<argc; ++i)
-        {
-            if (match(argv[i]))
-            {
-                if (i+2<argc)
-                {
-                    Convert convert;
-
-                    T1 local1;
-                    if (!convert(argv[i+1],local1))
-                    {
-                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+1]);
-                    }
-
-                    T2 local2;
-                    if (!convert(argv[i+2],local2))
-                    {
-                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+2]);
-                    }
-
-                    value1 = local1;
-                    value2 = local2;
-
-                    removeArguments(argc, argv, i, 3);
-
-                    return true;
-                }
-                else
-                {
-                    throw std::runtime_error(std::string("Warning : Not enough parameters to match : ")+argv[i]+" <value>");
-                }
-            }
-        }
-        return false;
+        bool result = false;
+        for(auto str : matches) result = read(str, args...) | result;
+        return result;
     }
 
+    using Messages = std::vector<std::string>;
+    bool errors() const { return !_errorMessages.empty(); }
 
-    template<typename T1, typename T2, typename T3>
-    bool read(int& argc, char** argv, const Match& match, T1& value1, T2& value2, T3& value3)
+    Messages& getErrorMessages() { return _errorMessages; }
+    const Messages& getErrorMessages() const { return _errorMessages; }
+
+    int writeErrorMessages(std::ostream& out) const
     {
-        for (int i=1; i<argc; ++i)
-        {
-            if (match(argv[i]))
-            {
-                if (i+3<argc)
-                {
-                    Convert convert;
-
-                    T1 local1;
-                    if (!convert(argv[i+1],local1))
-                    {
-                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+1]);
-                    }
-
-                    T2 local2;
-                    if (!convert(argv[i+2],local2))
-                    {
-                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+2]);
-                    }
-
-                    T3 local3;
-                    if (!convert(argv[i+3],local3))
-                    {
-                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+3]);
-                    }
-
-                    value1 = local1;
-                    value2 = local2;
-                    value3 = local3;
-
-                    removeArguments(argc, argv, i, 4);
-
-                    return true;
-                }
-                else
-                {
-                    throw std::runtime_error(std::string("Warning : Not enough parameters to match : ")+argv[i]+" <value>");
-                }
-            }
-        }
-        return false;
+        if (_errorMessages.empty()) return 1;
+        for(auto message : _errorMessages) out << message << std::endl;
+        return 0;
     }
 
-
-    template<typename T1, typename T2, typename T3, typename T4>
-    bool read(int& argc, char** argv, const Match& match, T1& value1, T2& value2, T3& value3, T4& value4)
-    {
-        for (int i=1; i<argc; ++i)
-        {
-            if (match(argv[i]))
-            {
-                if (i+4<argc)
-                {
-                    Convert convert;
-
-                    T1 local1;
-                    if (!convert(argv[i+1],local1))
-                    {
-                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+1]);
-                    }
-
-                    T2 local2;
-                    if (!convert(argv[i+2],local2))
-                    {
-                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+2]);
-                    }
-
-                    T3 local3;
-                    if (!convert(argv[i+3],local3))
-                    {
-                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+3]);
-                    }
-
-                    T4 local4;
-                    if (!convert(argv[i+4],local4))
-                    {
-                        throw std::runtime_error(std::string("Warning : error reading command line parameter : ")+argv[i+4]);
-                    }
-
-                    value1 = local1;
-                    value2 = local2;
-                    value3 = local3;
-                    value4 = local4;
-
-                    removeArguments(argc, argv, i, 5);
-
-                    return true;
-                }
-                else
-                {
-                    throw std::runtime_error(std::string("Warning : Not enough parameters to match : ")+argv[i]+" <value>");
-                }
-            }
-        }
-        return false;
-    }
-
-} // CommandLine
+protected:
+    int*                _argc;
+    char**              _argv;
+    std::istringstream  _istr;
+    Messages            _errorMessages;
+};
 
 
 } // vsg

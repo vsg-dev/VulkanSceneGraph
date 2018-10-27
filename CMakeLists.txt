@@ -95,7 +95,7 @@ if (CPPCHECK)
     set(CPPCHECK_SUPPRESION_LIST "--suppressions-list=${CPPCHECK_SUPPRESION_LIST_FILE}")
     set(CPPCHECK_EXTRA_OPTIONS "" CACHE STRING "additional commndline options to use when invoking cppcheck")
     add_custom_target(cppcheck
-        COMMAND ${CPPCHECK} --quiet --enable=style ${CPPCHECK_EXTRA_OPTIONS} ${CPPCHECK_SUPPRESION_LIST} ${PATH_TO_SOURCE}src/vsg/*/*.cpp -I ${PATH_TO_SOURCE}include/
+        COMMAND ${CPPCHECK} --quiet --enable=style --language=c++  ${CPPCHECK_EXTRA_OPTIONS} ${CPPCHECK_SUPPRESION_LIST} ${PATH_TO_SOURCE}include/vsg/*/*.h ${PATH_TO_SOURCE}src/vsg/*/*.cpp -I ${PATH_TO_SOURCE}include/
     )
 endif()
 
