@@ -105,6 +105,23 @@ public:
         return result;
     }
 
+    template< typename T, typename ... Args>
+    T value(T defaultValue, const std::string& match, Args& ... args)
+    {
+        T value{defaultValue};
+        read(match, args..., value);
+        return value;
+    }
+
+    template< typename T, typename ... Args>
+    T value(T defaultValue, std::initializer_list<std::string> matches, Args& ... args)
+    {
+        T value{defaultValue};
+        read(matches, args..., value);
+        return value;
+    }
+
+
     using Messages = std::vector<std::string>;
     bool errors() const { return !_errorMessages.empty(); }
 
