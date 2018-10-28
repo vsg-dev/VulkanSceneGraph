@@ -12,12 +12,45 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <sstream>
 #include <typeinfo>
 #include <vector>
+#include <iostream>
+
+#include <vsg/utils/stream.h>
 
 namespace vsg
 {
+
+template<typename T> constexpr const char* type_name(const T&) noexcept { return typeid(T).name(); }
+
+constexpr const char* type_name(const std::string&) noexcept    { return "string"; }
+constexpr const char* type_name(bool) noexcept                  { return "char"; }
+constexpr const char* type_name(char) noexcept                  { return "char"; }
+constexpr const char* type_name(unsigned char) noexcept         { return "uchar"; }
+constexpr const char* type_name(short) noexcept                 { return "short"; }
+constexpr const char* type_name(unsigned short) noexcept        { return "ushort"; }
+constexpr const char* type_name(int) noexcept                   { return "int"; }
+constexpr const char* type_name(unsigned int) noexcept          { return "uint"; }
+constexpr const char* type_name(float) noexcept                 { return "float"; }
+constexpr const char* type_name(double) noexcept                { return "double"; }
+
+constexpr const char* type_name(const vec2&) noexcept           { return "vec2"; }
+constexpr const char* type_name(const vec3&) noexcept           { return "vec3"; }
+constexpr const char* type_name(const vec4&) noexcept           { return "vec4"; }
+constexpr const char* type_name(const mat4&) noexcept           { return "mat4"; }
+constexpr const char* type_name(const dvec2&) noexcept          { return "dvec2"; }
+constexpr const char* type_name(const dvec3&) noexcept          { return "dvec3"; }
+constexpr const char* type_name(const dvec4&) noexcept          { return "dvec4"; }
+constexpr const char* type_name(const dmat4&) noexcept          { return "dmat4"; }
+
+
+template<typename T> constexpr std::size_t type_num_elements(T) noexcept { return 1; }
+template<typename T> constexpr std::size_t type_num_elements(const t_vec2<T>&) noexcept { return 2; }
+template<typename T> constexpr std::size_t type_num_elements(const t_vec3<T>&) noexcept { return 3; }
+template<typename T> constexpr std::size_t type_num_elements(const t_vec4<T>&) noexcept { return 4; }
+template<typename T> constexpr std::size_t type_num_elements(const t_mat4<T>&) noexcept { return 16; }
+template<typename T, typename R> constexpr std::size_t type_num_elements(const std::pair<T,R>&) noexcept { return 2; }
+
 
 class CommandLine
 {
@@ -28,10 +61,28 @@ public:
     template<typename T>
     bool read(int& i, T& value)
     {
-        if (i>=*_argc) return false;
+        const int num_args = *_argc;
+        if (i>=num_args) return false;
+
+        std::size_t num_elements = type_num_elements(value);
 
         _istr.clear();
-        _istr.str(_argv[i]);
+        if (num_elements==1)
+        {
+            _istr.str(_argv[i]);
+            ++i;
+        }
+        else
+        {
+            std::string str;
+            for(; num_elements>0 && i<num_args; --num_elements, ++i)
+            {
+                str += ' ';
+                str += _argv[i];
+            }
+
+            _istr.str(str);
+        }
         _istr >> value;
 
         ++i;
@@ -60,12 +111,6 @@ public:
         *_argc -= num;
     }
 
-    template<typename T> std::string type_name(const T&) { return vsg::make_string(" <",typeid(T).name(),">"); }
-    std::string type_name(const std::string&) { return " <string>"; }
-    std::string type_name(const int&) { return " <int>"; }
-    std::string type_name(const unsigned int&) { return " <uint>"; }
-    std::string type_name(const float&) { return " <float>"; }
-    std::string type_name(const double&) { return "<double>"; }
 
     template< typename ... Args>
     bool read(const std::string& match, Args& ... args)
@@ -86,7 +131,7 @@ public:
                 }
                 else
                 {
-                    std::string parameters = ( match + ... + type_name(args));
+                    std::string parameters = ( (match+" ") + ... + type_name(args));
                     std::string errorMessage = std::string("Failed to match command line required parameters for ") + parameters;
                     _errorMessages.push_back(errorMessage);
                 }
