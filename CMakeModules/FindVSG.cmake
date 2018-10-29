@@ -93,13 +93,17 @@ if (VSG_FOUND)
 
     #message("file " ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CmakeTmp/vsg_test.cxx)
     #message("CompileResult " ${CompileResult})
-    #message("CompileOutput " ${CompileOutput})
     #message("RunResult " ${RunResult})
     #message("RunOutput " ${RunOutput})
 
-    if (${RunResult} EQUAL 1)
-        set(VSG_DEFINITIONS VSG_SHARED_LIBRARY)
+    if (${CompileResult})
+        if (${RunResult} EQUAL 1)
+            set(VSG_DEFINITIONS VSG_SHARED_LIBRARY)
+        endif()
+    else()
+        message("Compile Error compiling vsg library type test application, follow is build output of test:\n\n" ${CompileOutput})
     endif()
+
 endif()
 
 # mark_as_advanced(VSG_INCLUDE_DIR VSG_LIBRARY)
