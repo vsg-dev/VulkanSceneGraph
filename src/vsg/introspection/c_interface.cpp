@@ -98,7 +98,7 @@ public:
     TypeDescriptor* typeDescriptor(const vsg::Object* object) const
     {
         IndexTypeDescriptorMap::const_iterator itr = _indexTypeDescriptorMap.find(std::type_index(typeid(*object)));
-        return (itr != _indexTypeDescriptorMap.end()) ? itr->second : nullptr;
+        return (itr != _indexTypeDescriptorMap.end()) ? itr->second.get() : nullptr;
     }
 
 };
