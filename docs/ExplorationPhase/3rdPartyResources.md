@@ -4,7 +4,6 @@
 
 * [C++ Core Guidelines](https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md)
 * [CppCon Resources](https://github.com/cppcon)
-* [Facebook's open source utility library](https://github.com/facebook/folly/tree/master/folly)
 
 ## Best Practices
 
@@ -13,6 +12,11 @@
 * [clang address sanitizer](https://clang.llvm.org/docs/AddressSanitizer.html)
 * [clang thread sanitizer](https://clang.llvm.org/docs/ThreadSanitizer.html)
 * [clang memory sanitizer](https://clang.llvm.org/docs/MemorySanitizer.html)
+
+## Package managers
+* [conan](https://conan.io/), [github](https://github.com/conan-io/conan)
+* [hunter](https://docs.hunter.sh/en/latest/), [github](https://github.com/ruslo/hunter)
+* [vcpkg](https://github.com/Microsoft/vcpkg)
 
 ## Tutorials
 
@@ -30,7 +34,7 @@
 
 * [GLM](http://glm.g-truc.net) - GLSL style maths classes/functions
 * [GMTL](http://ggt.sourceforge.net/html/main.html)
-* [GLSL](https://www.khronos.org/opengl/wiki/Data_Type_(GLSL))
+* [GLSL](https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)
 
 ## Image and 3D model loaders
 
