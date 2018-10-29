@@ -77,12 +77,11 @@ add_definitions(${VSG_DEFINITIONS})
 
 add_library(vsg ${HEADERS} ${SOURCES})
 
-target_link_libraries(vsg Vulkan::Vulkan GLFW::GLFW)
+set_property(TARGET vsg PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET vsg PROPERTY VERSION ${VSG_MAJOR_VERSION}.${VSG_MINOR_VERSION}.${VSG_PATCH_VERSION})
+set_property(TARGET vsg PROPERTY SOVERSION ${VSG_SOVERSION})
 
-set_target_properties(vsg
-        PROPERTIES VERSION ${VSG_MAJOR_VERSION}.${VSG_MINOR_VERSION}.${VSG_PATCH_VERSION}
-        SOVERSION ${VSG_SOVERSION}
-)
+target_link_libraries(vsg Vulkan::Vulkan GLFW::GLFW)
 
 install(TARGETS vsg
         LIBRARY DESTINATION lib
