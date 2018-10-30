@@ -99,5 +99,13 @@ if (CPPCHECK)
     )
 endif()
 
+
+find_program(CLANGFORMAT clang-format)
+if (CLANGFORMAT)
+    add_custom_target(clang-format
+        COMMAND ${CLANGFORMAT} -i ${PATH_TO_SOURCE}include/vsg/*/*.h ${PATH_TO_SOURCE}src/vsg/*/*.cpp
+    )
+endif()
+
 # src directory contains all the example applications etc.
 add_subdirectory(src/vsg)
