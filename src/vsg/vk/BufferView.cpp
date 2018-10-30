@@ -12,8 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/BufferView.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 BufferView::BufferView(VkBufferView bufferView, Device* device, Buffer* buffer, AllocationCallbacks* allocator) :
     _bufferView(bufferView),
@@ -55,7 +54,4 @@ BufferView::Result BufferView::create(Buffer* buffer, VkFormat format, VkDeviceS
     {
         return Result("Error: Failed to create BufferView.", result);
     }
-}
-
-
 }

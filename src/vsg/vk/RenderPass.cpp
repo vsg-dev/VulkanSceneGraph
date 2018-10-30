@@ -14,8 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <array>
 
-namespace vsg
-{
+using namespace vsg;
 
 RenderPass::RenderPass(VkRenderPass renderPass, Device* device, AllocationCallbacks* allocator) :
     _renderPass(renderPass),
@@ -105,6 +104,4 @@ RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFo
     {
         return Result("Error: vsg::RenderPass::create(...) Failed to create VkRenderPass.", result);
     }
-}
-
 }

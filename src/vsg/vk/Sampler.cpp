@@ -12,8 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Sampler.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 Sampler::Sampler(VkSampler sampler, Device* device, AllocationCallbacks* allocator) :
     _sampler(sampler),
@@ -72,6 +71,4 @@ Sampler::Result Sampler::create(Device* device, AllocationCallbacks* allocator)
     samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
     return create(device, samplerInfo, allocator);
-}
-
 }

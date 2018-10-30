@@ -38,8 +38,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 //
 
 
-namespace vsg
-{
+using namespace vsg;
 
 MemoryManager::MemoryManager(Device* device, AllocationCallbacks* allocator) :
     _device(device),
@@ -61,7 +60,4 @@ DeviceMemory* MemoryManager::createMemory(const VkMemoryRequirements& memRequire
 {
     ref_ptr<DeviceMemory> memory = DeviceMemory::create(_device, memRequirements, properties, _allocator);
     return memory.release();
-}
-
-
 }

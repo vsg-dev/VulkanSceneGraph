@@ -14,8 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/State.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -63,5 +62,4 @@ void BindPipeline::dispatch(CommandBuffer& commandBuffer) const
 {
     vkCmdBindPipeline(commandBuffer, _pipeline->getBindPoint(), *_pipeline);
     commandBuffer.setCurrentPipeline(_pipeline);
-}
 }

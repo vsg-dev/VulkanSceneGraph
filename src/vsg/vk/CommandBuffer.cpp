@@ -12,8 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/CommandBuffer.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 CommandBuffer::CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags flags) :
     _commandBuffer(commandBuffer),
@@ -99,6 +98,4 @@ CommandBuffers::~CommandBuffers()
     {
         vkFreeCommandBuffers(*_device, *_commandPool, static_cast<uint32_t>(_buffers.size()), _buffers.data());
     }
-}
-
 }

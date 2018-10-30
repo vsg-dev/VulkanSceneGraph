@@ -16,8 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <typeinfo>
 
-namespace vsg
-{
+using namespace vsg;
 
 
 CommandVisitor::CommandVisitor(Framebuffer* framebuffer, RenderPass* renderPass, CommandBuffer* commandBuffer, const VkExtent2D& extent, const VkClearColorValue& clearColor) :
@@ -73,6 +72,4 @@ void CommandVisitor::populateCommandBuffer(vsg::Node* subgraph)
         vkCmdEndRenderPass(*_commandBuffer);
 
     vkEndCommandBuffer(*_commandBuffer);
-}
-
 }

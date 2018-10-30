@@ -13,8 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/PushConstants.h>
 #include <vsg/vk/State.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 PushConstants::PushConstants(VkShaderStageFlags stageFlags, uint32_t offset, Data* data):
     _stageFlags(stageFlags),
@@ -45,6 +44,4 @@ void PushConstants::dispatch(CommandBuffer& commandBuffer) const
 
         vkCmdPushConstants(commandBuffer, *pipelineLayout, _stageFlags, _offset, _data->dataSize(), _data->dataPointer());
     }
-}
-
 }

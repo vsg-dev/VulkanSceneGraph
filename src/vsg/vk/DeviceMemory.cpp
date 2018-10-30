@@ -16,8 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <cstring>
 
-namespace vsg
-{
+using namespace vsg;
 
 DeviceMemory::DeviceMemory(VkDeviceMemory deviceMemory, Device* device, AllocationCallbacks* allocator) :
     _deviceMemory(deviceMemory),
@@ -117,7 +116,4 @@ void DeviceMemory::copy(VkDeviceSize offset, VkDeviceSize size, void* src_data)
 void DeviceMemory::copy(VkDeviceSize offset, Data* data)
 {
     copy(offset, data->dataSize(), data->dataPointer());
-}
-
-
 }

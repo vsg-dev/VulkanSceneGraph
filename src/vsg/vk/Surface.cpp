@@ -12,8 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Surface.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 Surface::Surface(VkSurfaceKHR surface, Instance* instance, AllocationCallbacks* allocator) :
     _surface(surface),
@@ -28,6 +27,4 @@ Surface::~Surface()
     {
         vkDestroySurfaceKHR(*_instance, _surface, _allocator);
     }
-}
-
 }

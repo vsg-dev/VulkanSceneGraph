@@ -15,8 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <set>
 #include <iostream>
 
-namespace vsg
-{
+using namespace vsg;
 
 Names validateInstancelayerNames(const Names& names)
 {
@@ -121,5 +120,3 @@ Instance::Result Instance::create(Names& instanceExtensions, Names& layers, Allo
         return Result("Error: vsg::Instance::create(...) failed to create VkInstance.", result);
     }
 }
-
-} // end of namespace vsg

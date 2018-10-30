@@ -12,8 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Buffer.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 Buffer::Buffer(VkBuffer buffer, VkBufferUsageFlags usage, VkSharingMode sharingMode, Device* device, AllocationCallbacks* allocator) :
     _buffer(buffer),
@@ -55,6 +54,4 @@ Buffer::Result Buffer::create(Device* device, VkDeviceSize size, VkBufferUsageFl
     {
         return Result("Error: Failed to create vkBuffer.", result);
     }
-}
-
 }

@@ -12,8 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/PhysicalDevice.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int graphicsFamily, int presentFamily, int computeFamily, Surface* surface) :
     _device(device),
@@ -94,6 +93,4 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags q
     }
 
     return Result("Error: vsg::Device::create(...) failed to create physical device.", VK_INCOMPLETE);
-}
-
 }

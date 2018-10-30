@@ -12,8 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Semaphore.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 Semaphore::Semaphore(VkSemaphore semaphore, Device* device, AllocationCallbacks* allocator) :
     _semaphore(semaphore),
@@ -50,6 +49,4 @@ Semaphore::Result Semaphore::create(Device* device, AllocationCallbacks* allocat
     {
         return Result("Error: Failed to create semaphore.", result);
     }
-}
-
 }

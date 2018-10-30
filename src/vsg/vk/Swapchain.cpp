@@ -18,8 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <limits>
 #include <iostream>
 
-namespace vsg
-{
+using namespace vsg;
 
 SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface)
 {
@@ -207,7 +206,4 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
     }
 
     return Result(sw);
-}
-
-
 }

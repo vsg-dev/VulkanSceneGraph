@@ -12,8 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/CommandPool.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 CommandPool::CommandPool(VkCommandPool commandPool, Device* device, AllocationCallbacks* allocator) :
     _commandPool(commandPool),
@@ -55,6 +54,4 @@ CommandPool::Result CommandPool::create(Device* device, uint32_t queueFamilyInde
     {
         return Result("Error: Failed to create command pool.", result);
     }
-}
-
 }

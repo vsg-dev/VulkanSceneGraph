@@ -13,8 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/BindIndexBuffer.h>
 #include <vsg/vk/State.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 void BindIndexBuffer::pushTo(State& state) const
 {
@@ -31,6 +30,4 @@ void BindIndexBuffer::popFrom(State& state) const
 void BindIndexBuffer::dispatch(CommandBuffer& commandBuffer) const
 {
     vkCmdBindIndexBuffer(commandBuffer, *_bufferData._buffer, _bufferData._offset, _indexType);
-}
-
 }

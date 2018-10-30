@@ -12,8 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Image.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 Image::Image(VkImage image, Device* device, AllocationCallbacks* allocator) :
     _image(image),
@@ -83,6 +82,4 @@ void ImageMemoryBarrier::cmdPiplineBarrier(VkCommandBuffer commandBuffer, VkPipe
                         0, nullptr,
                         0, nullptr,
                         1, static_cast<VkImageMemoryBarrier*>(this));
-}
-
 }

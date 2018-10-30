@@ -14,8 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <set>
 
-namespace vsg
-{
+using namespace vsg;
 
 Device::Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallbacks* allocator) :
     _device(device),
@@ -91,9 +90,4 @@ VkQueue Device::getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
     VkQueue queue;
     vkGetDeviceQueue(_device, queueFamilyIndex, queueIndex, &queue);
     return queue;
-}
-
-
-
-
 }

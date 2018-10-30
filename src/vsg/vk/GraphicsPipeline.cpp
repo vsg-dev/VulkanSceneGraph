@@ -12,8 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/GraphicsPipeline.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 GraphicsPipeline::GraphicsPipeline(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator):
     Inherit(pipeline, VK_PIPELINE_BIND_POINT_GRAPHICS, device, pipelineLayout, allocator),
@@ -298,6 +297,4 @@ void ColorBlendState::update()
 {
     attachmentCount = _colorBlendAttachments.size();
     pAttachments = _colorBlendAttachments.data();
-}
-
 }

@@ -12,8 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/DescriptorPool.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 DescriptorPool::DescriptorPool(VkDescriptorPool descriptorPool, Device* device, AllocationCallbacks* allocator) :
     _descriptorPool(descriptorPool),
@@ -59,6 +58,4 @@ DescriptorPool::Result DescriptorPool::create(Device* device, uint32_t maxSets, 
     {
         return Result("Error: Failed to create DescriptorPool.", result);
     }
-}
-
 }

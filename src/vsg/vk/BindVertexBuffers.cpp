@@ -13,8 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/BindVertexBuffers.h>
 #include <vsg/vk/State.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 void BindVertexBuffers::pushTo(State& state) const
 {
@@ -31,6 +30,4 @@ void BindVertexBuffers::popFrom(State& state) const
 void BindVertexBuffers::dispatch(CommandBuffer& commandBuffer) const
 {
     vkCmdBindVertexBuffers(commandBuffer, _firstBinding, _buffers.size(), _vkBuffers.data(), _offsets.data());
-}
-
 }

@@ -12,8 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/DescriptorSetLayout.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 DescriptorSetLayout::DescriptorSetLayout(Device* device, VkDescriptorSetLayout descriptorSetLayout, AllocationCallbacks* allocator) :
     _device(device),
@@ -52,6 +51,4 @@ DescriptorSetLayout::Result DescriptorSetLayout::create(Device* device, const De
     {
         return Result("Error: Failed to create DescriptorSetLayout.", result);
     }
-}
-
 }

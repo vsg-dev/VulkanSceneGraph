@@ -12,8 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/ComputePipeline.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 ComputePipeline::ComputePipeline(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator):
     Inherit(pipeline, VK_PIPELINE_BIND_POINT_COMPUTE, device, pipelineLayout, allocator),
@@ -54,6 +53,4 @@ ComputePipeline::Result ComputePipeline::create(Device* device, PipelineLayout* 
     {
         return ComputePipeline::Result("Error: vsg::Pipeline::createCompute(...) failed to create VkPipeline.", result);
     }
-}
-
 }

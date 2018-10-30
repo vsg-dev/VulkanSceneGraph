@@ -12,8 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/PipelineLayout.h>
 
-namespace vsg
-{
+using namespace vsg;
 
 PipelineLayout::PipelineLayout(VkPipelineLayout pipelineLayout, const DescriptorSetLayouts& descriptorSetLayouts, Device* device, AllocationCallbacks* allocator) :
     _pipelineLayout(pipelineLayout),
@@ -60,6 +59,4 @@ PipelineLayout::Result PipelineLayout::create(Device* device, const DescriptorSe
     {
         return Result("Error: Failed to create PipelineLayout.", result);
     }
-}
-
 }
