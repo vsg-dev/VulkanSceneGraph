@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Object.h>
 #include <memory>
+#include <vsg/core/Object.h>
 
 namespace vsg
 {
@@ -30,8 +30,7 @@ namespace vsg
     class VSG_DECLSPEC DispatchTraversal : public Object
     {
     public:
-
-        explicit DispatchTraversal(CommandBuffer* commandBuffer=nullptr);
+        explicit DispatchTraversal(CommandBuffer* commandBuffer = nullptr);
         ~DispatchTraversal();
 
         void apply(const Object& object);
@@ -46,8 +45,7 @@ namespace vsg
         void apply(const Command& command);
 
     protected:
-
         class Data;
         Data* _data;
     };
-}
+} // namespace vsg

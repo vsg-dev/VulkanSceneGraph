@@ -17,28 +17,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-
 Allocator::~Allocator()
 {
-    std::cout<<"Allocator::~Allocator() "<<this<<std::endl;
-    std::cout<<"     _bytesAllocated = "<<_bytesAllocated<<std::endl;
-    std::cout<<"     _countAllocated = "<<_countAllocated<<std::endl;
-    std::cout<<"     _bytesDeallocated = "<<_bytesDeallocated<<std::endl;
-    std::cout<<"     _countDellocated = "<<_countDeallocated<<std::endl;
+    std::cout << "Allocator::~Allocator() " << this << std::endl;
+    std::cout << "     _bytesAllocated = " << _bytesAllocated << std::endl;
+    std::cout << "     _countAllocated = " << _countAllocated << std::endl;
+    std::cout << "     _bytesDeallocated = " << _bytesDeallocated << std::endl;
+    std::cout << "     _countDellocated = " << _countDeallocated << std::endl;
 }
 
-void* Allocator::allocate(std::size_t size, const void* hint )
+void* Allocator::allocate(std::size_t size, const void* hint)
 {
-    std::cout<<"Allocator::allocate(std::size_t "<<size<<", const void*"<< hint<<" )"<<std::endl;
+    std::cout << "Allocator::allocate(std::size_t " << size << ", const void*" << hint << " )" << std::endl;
     _bytesAllocated += size;
     ++_countAllocated;
-    return ::operator new (size);
+    return ::operator new(size);
 }
 
 void* Allocator::allocate(std::size_t size)
 {
-    void* ptr = ::operator new (size);
-    std::cout<<"Allocator::allocate(std::size_t "<<size<<") "<<ptr<<std::endl;
+    void* ptr = ::operator new(size);
+    std::cout << "Allocator::allocate(std::size_t " << size << ") " << ptr << std::endl;
     _bytesAllocated += size;
     ++_countAllocated;
     return ptr;
@@ -46,7 +45,7 @@ void* Allocator::allocate(std::size_t size)
 
 void Allocator::deallocate(const void* ptr, std::size_t size)
 {
-    std::cout<<"Allocator::deallocate("<<ptr<<", std::size_t "<<size<<")"<<std::endl;
+    std::cout << "Allocator::deallocate(" << ptr << ", std::size_t " << size << ")" << std::endl;
     ::operator delete(const_cast<void*>(ptr));
     _bytesDeallocated += size;
     ++_countDeallocated;
@@ -58,24 +57,23 @@ Auxiliary* Allocator::getOrCreateSharedAuxiliary()
     {
         void* ptr = allocate(sizeof(Auxiliary));
         _sharedAuxiliary = new (ptr) Auxiliary(this);
-        std::cout<<"Allocator::getOrCreateSharedAuxiliary() creating new : "<<_sharedAuxiliary<<std::endl;
+        std::cout << "Allocator::getOrCreateSharedAuxiliary() creating new : " << _sharedAuxiliary << std::endl;
     }
     else
     {
-        std::cout<<"Allocator::getOrCreateSharedAuxiliary() returning existing : "<<_sharedAuxiliary<<std::endl;
+        std::cout << "Allocator::getOrCreateSharedAuxiliary() returning existing : " << _sharedAuxiliary << std::endl;
     }
     return _sharedAuxiliary;
 }
 
 void Allocator::detachSharedAuxiliary(Auxiliary* auxiliary)
 {
-    if (_sharedAuxiliary==auxiliary)
+    if (_sharedAuxiliary == auxiliary)
     {
-        std::cout<<"Allocator::detachSharedAuxiliary("<<auxiliary<<") detecing auxiliary"<<std::endl;
+        std::cout << "Allocator::detachSharedAuxiliary(" << auxiliary << ") detecing auxiliary" << std::endl;
     }
     else
     {
-        std::cout<<"Allocator::detachSharedAuxiliary("<<auxiliary<<") auxiliary not matched"<<std::endl;
+        std::cout << "Allocator::detachSharedAuxiliary(" << auxiliary << ") auxiliary not matched" << std::endl;
     }
 }
-

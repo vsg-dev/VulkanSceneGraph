@@ -19,8 +19,7 @@ namespace vsg
     class Data : public Object
     {
     public:
-
-        Data() {};
+        Data(){};
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Data); }
 
@@ -34,6 +33,5 @@ namespace vsg
 
     protected:
         virtual ~Data() {}
-
     };
-}
+} // namespace vsg

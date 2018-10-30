@@ -28,18 +28,18 @@ namespace vsg
 
         struct PerDeviceObjects
         {
-            Windows                             windows;
-            VkQueue                             graphicsQueue;
-            VkQueue                             presentQueue;
-            ref_ptr<Semaphore>                  renderFinishedSemaphore;
+            Windows windows;
+            VkQueue graphicsQueue;
+            VkQueue presentQueue;
+            ref_ptr<Semaphore> renderFinishedSemaphore;
 
             // cache data to used each frame
-            std::vector<uint32_t>               imageIndices;
-            std::vector<VkSemaphore>            waitSemaphores;
-            std::vector<VkSemaphore>            signalSemaphores;
-            std::vector<VkCommandBuffer>        commandBuffers;
-            std::vector<VkSwapchainKHR>         swapchains;
-            std::vector<VkPipelineStageFlags>   waitStages;
+            std::vector<uint32_t> imageIndices;
+            std::vector<VkSemaphore> waitSemaphores;
+            std::vector<VkSemaphore> signalSemaphores;
+            std::vector<VkCommandBuffer> commandBuffers;
+            std::vector<VkSwapchainKHR> swapchains;
+            std::vector<VkPipelineStageFlags> waitStages;
         };
 
         using DeviceMap = std::map<ref_ptr<Device>, PerDeviceObjects>;
@@ -60,9 +60,9 @@ namespace vsg
     protected:
         virtual ~Viewer();
 
-        Windows             _windows;
-        DeviceMap           _deviceMap;
-        ref_ptr<Semaphore>  _renderFinishedSemaphore;
+        Windows _windows;
+        DeviceMap _deviceMap;
+        ref_ptr<Semaphore> _renderFinishedSemaphore;
     };
 
-}
+} // namespace vsg

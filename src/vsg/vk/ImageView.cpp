@@ -45,7 +45,7 @@ ImageView::Result ImageView::create(Device* device, VkImage image, VkFormat form
 
     VkImageView view;
     VkResult result = vkCreateImageView(*device, &createInfo, allocator, &view);
-    if (result==VK_SUCCESS)
+    if (result == VK_SUCCESS)
     {
         return Result(new ImageView(view, device, nullptr, allocator));
     }
@@ -70,7 +70,7 @@ ImageView::Result ImageView::create(Device* device, Image* image, VkFormat forma
 
     VkImageView view;
     VkResult result = vkCreateImageView(*device, &createInfo, allocator, &view);
-    if (result==VK_SUCCESS)
+    if (result == VK_SUCCESS)
     {
         return Result(new ImageView(view, device, image, allocator));
     }

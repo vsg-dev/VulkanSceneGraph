@@ -46,7 +46,7 @@ BufferView::Result BufferView::create(Buffer* buffer, VkFormat format, VkDeviceS
 
     VkBufferView bufferView;
     VkResult result = vkCreateBufferView(*(buffer->getDevice()), &createInfo, allocator, &bufferView);
-    if (result==VK_SUCCESS)
+    if (result == VK_SUCCESS)
     {
         return Result(new BufferView(bufferView, buffer->getDevice(), buffer, allocator));
     }

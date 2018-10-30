@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <string>
 #include <ostream>
+#include <string>
 
 #include <vsg/core/ref_ptr.h>
 
@@ -26,15 +26,25 @@ namespace vsg
     class Result
     {
     public:
-
-        Result(const std::string& message, R result) : _printMessageOnError(true), _result(result), _message(message) {}
-        explicit Result(R result) : _printMessageOnError(true), _result(result) {}
+        Result(const std::string& message, R result) :
+            _printMessageOnError(true),
+            _result(result),
+            _message(message) {}
+        explicit Result(R result) :
+            _printMessageOnError(true),
+            _result(result) {}
 
         template<class U>
-        explicit Result(ref_ptr<U> ptr) : _printMessageOnError(false), _result(validValue), _ptr(ptr) {}
+        explicit Result(ref_ptr<U> ptr) :
+            _printMessageOnError(false),
+            _result(validValue),
+            _ptr(ptr) {}
 
         template<class U>
-        explicit Result(U* ptr) : _printMessageOnError(false), _result(validValue), _ptr(ptr) {}
+        explicit Result(U* ptr) :
+            _printMessageOnError(false),
+            _result(validValue),
+            _ptr(ptr) {}
 
         Result(const Result& rhs) :
             _printMessageOnError(rhs._printMessageOnError),
@@ -45,7 +55,7 @@ namespace vsg
             rhs._printMessageOnError = false;
         }
 
-        Result& operator = (const Result& rhs)
+        Result& operator=(const Result& rhs)
         {
             _printMessageOnError = rhs._printMessageOnError;
             _result = rhs._result;
@@ -57,29 +67,38 @@ namespace vsg
 
         ~Result()
         {
-            if (_result!=validValue && _printMessageOnError)
+            if (_result != validValue && _printMessageOnError)
             {
-                if (_message.empty()) error_stream()<<"Warning: unhandled error value : "<<_result<<std::endl;
-                else error_stream()<<_message<<std::endl;
+                if (_message.empty())
+                    error_stream() << "Warning: unhandled error value : " << _result << std::endl;
+                else
+                    error_stream() << _message << std::endl;
             }
         }
 
-        R result() { _printMessageOnError = false; return _result; }
+        R result()
+        {
+            _printMessageOnError = false;
+            return _result;
+        }
 
-        const std::string& message() { _printMessageOnError = false; return _message; }
+        const std::string& message()
+        {
+            _printMessageOnError = false;
+            return _message;
+        }
 
         bool valid() const { return _ptr.valid(); }
 
         ref_ptr<T> object() { return _ptr; }
 
-        operator ref_ptr<T> () { return _ptr; }
+        operator ref_ptr<T>() { return _ptr; }
 
     protected:
-
-        mutable bool    _printMessageOnError;
-        R               _result;
-        std::string     _message;
-        ref_ptr<T>      _ptr;
+        mutable bool _printMessageOnError;
+        R _result;
+        std::string _message;
+        ref_ptr<T> _ptr;
     };
 
-}
+} // namespace vsg

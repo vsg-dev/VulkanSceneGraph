@@ -12,10 +12,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/ConstVisitor.h>
 
-#include <vsg/nodes/Node.h>
 #include <vsg/nodes/Group.h>
-#include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/LOD.h>
+#include <vsg/nodes/Node.h>
+#include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 
 #include <vsg/vk/Command.h>
@@ -36,46 +36,126 @@ void ConstVisitor::apply(const Object&)
 //
 // Values
 //
-void ConstVisitor::apply(const stringValue& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const boolValue& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const intValue& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const uintValue& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const floatValue& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const doubleValue& value) {apply(static_cast<const Object&>(value)); }
+void ConstVisitor::apply(const stringValue& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const boolValue& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const intValue& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const uintValue& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const floatValue& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const doubleValue& value)
+{
+    apply(static_cast<const Object&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Arrays
 //
-void ConstVisitor::apply(const ubyteArray& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const ushortArray& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const uintArray& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const floatArray& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const doubleArray& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const vec2Array& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const vec3Array& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const vec4Array& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const mat4Array& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const dvec2Array& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const dvec3Array& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const dvec4Array& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const dmat4Array& value) { apply(static_cast<const Object&>(value)); }
-
+void ConstVisitor::apply(const ubyteArray& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const ushortArray& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const uintArray& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const floatArray& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const doubleArray& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const vec2Array& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const vec3Array& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const vec4Array& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const mat4Array& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const dvec2Array& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const dvec3Array& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const dvec4Array& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const dmat4Array& value)
+{
+    apply(static_cast<const Object&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Nodes
 //
-void ConstVisitor::apply(const Node& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const Group& value) { apply(static_cast<const Node&>(value)); }
-void ConstVisitor::apply(const QuadGroup& value) { apply(static_cast<const Node&>(value)); }
-void ConstVisitor::apply(const LOD& value) { apply(static_cast<const Node&>(value)); }
-void ConstVisitor::apply(const StateGroup& value) { apply(static_cast<const Group&>(value)); }
+void ConstVisitor::apply(const Node& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const Group& value)
+{
+    apply(static_cast<const Node&>(value));
+}
+void ConstVisitor::apply(const QuadGroup& value)
+{
+    apply(static_cast<const Node&>(value));
+}
+void ConstVisitor::apply(const LOD& value)
+{
+    apply(static_cast<const Node&>(value));
+}
+void ConstVisitor::apply(const StateGroup& value)
+{
+    apply(static_cast<const Group&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Vulkan Object
 //
-void ConstVisitor::apply(const Command& value) { apply(static_cast<const Node&>(value)); }
-void ConstVisitor::apply(const CommandBuffer& value) { apply(static_cast<const Object&>(value)); }
-void ConstVisitor::apply(const RenderPass& value) { apply(static_cast<const Object&>(value)); }
+void ConstVisitor::apply(const Command& value)
+{
+    apply(static_cast<const Node&>(value));
+}
+void ConstVisitor::apply(const CommandBuffer& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const RenderPass& value)
+{
+    apply(static_cast<const Object&>(value));
+}

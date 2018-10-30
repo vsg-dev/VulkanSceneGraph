@@ -28,7 +28,11 @@ namespace vsg
     public:
         QuadGroup();
 
-        template<class N, class V> static void t_traverse(N& node, V& visitor) { for(int i=0; i<4; ++i) node._children[i]->accept(visitor); }
+        template<class N, class V>
+        static void t_traverse(N& node, V& visitor)
+        {
+            for (int i = 0; i < 4; ++i) node._children[i]->accept(visitor);
+        }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
@@ -42,19 +46,21 @@ namespace vsg
         constexpr std::size_t getNumChildren() const noexcept { return 4; }
 
 #ifdef USE_std_array
-        using Children = std::array< ref_ptr< vsg::Node>, 4 >;
+        using Children = std::array<ref_ptr<vsg::Node>, 4>;
 #else
-        using Children = ref_ptr< vsg::Node>[4];
+        using Children = ref_ptr<vsg::Node>[4];
 #endif
 
-        Children& getChildren() noexcept { return _children; }
+        Children& getChildren() noexcept
+        {
+            return _children;
+        }
         const Children& getChildren() const noexcept { return _children; }
 
     protected:
-
         virtual ~QuadGroup();
 
         Children _children;
     };
 
-}
+} // namespace vsg

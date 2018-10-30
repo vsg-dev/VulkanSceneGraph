@@ -15,7 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-PushConstants::PushConstants(VkShaderStageFlags stageFlags, uint32_t offset, Data* data):
+PushConstants::PushConstants(VkShaderStageFlags stageFlags, uint32_t offset, Data* data) :
     _stageFlags(stageFlags),
     _offset(offset),
     _data(data)

@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Value.h>
 #include <vsg/core/Array.h>
+#include <vsg/core/Value.h>
 
 namespace vsg
 {
@@ -32,7 +32,6 @@ namespace vsg
     class VSG_DECLSPEC ConstVisitor : public Object
     {
     public:
-
         ConstVisitor();
 
         virtual void apply(const Object&);
@@ -73,7 +72,6 @@ namespace vsg
         virtual void apply(const RenderPass&);
     };
 
-
     // provide Value<>::accept() implementation
     template<typename T>
     void Value<T>::accept(ConstVisitor& visitor) const { visitor.apply(*this); }
@@ -82,4 +80,4 @@ namespace vsg
     template<typename T>
     void Array<T>::accept(ConstVisitor& visitor) const { visitor.apply(*this); }
 
-}
+} // namespace vsg

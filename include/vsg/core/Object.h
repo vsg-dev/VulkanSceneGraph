@@ -35,7 +35,7 @@ namespace vsg
         Object();
 
         Object(const Object&) = delete;
-        Object& operator = (const Object&) = delete;
+        Object& operator=(const Object&) = delete;
 
         //static ref_ptr<Object> create(Allocator* allocator=nullptr);
 
@@ -48,22 +48,27 @@ namespace vsg
         virtual void traverse(ConstVisitor&) const {}
 
         virtual void accept(DispatchTraversal& visitor) const;
-        virtual void traverse(DispatchTraversal& ) const {}
+        virtual void traverse(DispatchTraversal&) const {}
 
         virtual void accept(CullTraversal& visitor) const;
-        virtual void traverse(CullTraversal& ) const {}
+        virtual void traverse(CullTraversal&) const {}
 
         // ref counting methods
         inline void ref() const noexcept { _referenceCount.fetch_add(1, std::memory_order_relaxed); }
-        inline void unref() const noexcept { if (_referenceCount.fetch_sub(1, std::memory_order_seq_cst)<=1) _delete(); }
+        inline void unref() const noexcept
+        {
+            if (_referenceCount.fetch_sub(1, std::memory_order_seq_cst) <= 1) _delete();
+        }
         inline void unref_nodelete() const noexcept { _referenceCount.fetch_sub(1, std::memory_order_seq_cst); }
         inline unsigned int referenceCount() const noexcept { return _referenceCount.load(); }
 
         // meta data access methods
-        template<typename T> void setValue(const std::string& key, const T& value);
+        template<typename T>
+        void setValue(const std::string& key, const T& value);
         void setValue(const std::string& key, const char* value) { setValue(key, value ? std::string(value) : std::string()); }
 
-        template<typename T> bool getValue(const std::string& key, T& value) const;
+        template<typename T>
+        bool getValue(const std::string& key, T& value) const;
 
         void setObject(const std::string& key, Object* object);
         Object* getObject(const std::string& key);
@@ -84,7 +89,6 @@ namespace vsg
         void setAuxiliary(Auxiliary* auxiliary);
 
     private:
-
         friend class Allocator;
         friend class Auxiliary;
 
@@ -93,4 +97,4 @@ namespace vsg
         Auxiliary* _auxiliary;
     };
 
-}
+} // namespace vsg

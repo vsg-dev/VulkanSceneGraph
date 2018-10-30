@@ -26,28 +26,30 @@ namespace vsg
 
         column_type value[4];
 
-        constexpr t_mat4() : value{{1, 0, 0, 0},
-                        {0, 1, 0, 0},
-                        {0, 0, 1, 0},
-                        {0, 0, 0, 1}} {}
+        constexpr t_mat4() :
+            value{{1, 0, 0, 0},
+                  {0, 1, 0, 0},
+                  {0, 0, 1, 0},
+                  {0, 0, 0, 1}} {}
 
-        constexpr explicit t_mat4(value_type v) : value{{v, 0, 0, 0},
-                                                       {0, v, 0, 0},
-                                                       {0, 0, v, 0},
-                                                       {0, 0, 0, v}} {}
+        constexpr explicit t_mat4(value_type v) :
+            value{{v, 0, 0, 0},
+                  {0, v, 0, 0},
+                  {0, 0, v, 0},
+                  {0, 0, 0, v}} {}
 
         constexpr t_mat4(value_type v0, value_type v1, value_type v2, value_type v3,
-                        value_type v4, value_type v5, value_type v6, value_type v7,
-                        value_type v8, value_type v9, value_type v10, value_type v11,
-                        value_type v12, value_type v13, value_type v14, value_type v15) :
-                        value{{v0, v4, v8,  v12},
-                            {v1, v5, v9,  v13},
-                            {v2, v6, v10, v14},
-                            {v3, v7, v11, v15}} {}
+                         value_type v4, value_type v5, value_type v6, value_type v7,
+                         value_type v8, value_type v9, value_type v10, value_type v11,
+                         value_type v12, value_type v13, value_type v14, value_type v15) :
+            value{{v0, v4, v8, v12},
+                  {v1, v5, v9, v13},
+                  {v2, v6, v10, v14},
+                  {v3, v7, v11, v15}} {}
 
         constexpr explicit t_mat4(value_type v[16]) :
-            value{{v[0], v[4], v[8],  v[12]},
-                  {v[1], v[5], v[9],  v[13]},
+            value{{v[0], v[4], v[8], v[12]},
+                  {v[1], v[5], v[9], v[13]},
                   {v[2], v[6], v[10], v[14]},
                   {v[3], v[7], v[11], v[15]}} {}
 
@@ -64,14 +66,14 @@ namespace vsg
         constexpr std::size_t columns() const { return 4; }
         constexpr std::size_t rows() const { return 4; }
 
-        column_type& operator[] (std::size_t c) { return value[c]; }
-        column_type const& operator[] (std::size_t c) const { return value[c]; }
+        column_type& operator[](std::size_t c) { return value[c]; }
+        column_type const& operator[](std::size_t c) const { return value[c]; }
 
-        value_type & operator() (std::size_t c, std::size_t r) { return value[c][r]; }
-        value_type operator() (std::size_t c, std::size_t r) const { return value[c][r]; }
+        value_type& operator()(std::size_t c, std::size_t r) { return value[c][r]; }
+        value_type operator()(std::size_t c, std::size_t r) const { return value[c][r]; }
 
         template<typename R>
-        t_mat4& operator = (const t_mat4<R>& rhs)
+        t_mat4& operator=(const t_mat4<R>& rhs)
         {
             value[0] = rhs[0];
             value[1] = rhs[1];
@@ -82,7 +84,6 @@ namespace vsg
 
         T* data() { return value[0].data(); }
         const T* data() const { return value[0].data(); }
-
     };
 
     using mat4 = t_mat4<float>;
@@ -91,14 +92,14 @@ namespace vsg
     template<typename T>
     T dot(const t_mat4<T>& lhs, const t_mat4<T>& rhs, int c, int r)
     {
-        return lhs[0][r]*rhs[c][0] +
-               lhs[1][r]*rhs[c][1] +
-               lhs[2][r]*rhs[c][2] +
-               lhs[3][r]*rhs[c][3];
+        return lhs[0][r] * rhs[c][0] +
+               lhs[1][r] * rhs[c][1] +
+               lhs[2][r] * rhs[c][2] +
+               lhs[3][r] * rhs[c][3];
     }
 
     template<typename T>
-    t_mat4<T> operator * (t_mat4<T> const& lhs, t_mat4<T> const& rhs)
+    t_mat4<T> operator*(t_mat4<T> const& lhs, t_mat4<T> const& rhs)
     {
         return t_mat4<T>(dot(lhs, rhs, 0, 0), dot(lhs, rhs, 1, 0), dot(lhs, rhs, 2, 0), dot(lhs, rhs, 3, 0),
                          dot(lhs, rhs, 0, 1), dot(lhs, rhs, 1, 1), dot(lhs, rhs, 2, 1), dot(lhs, rhs, 3, 1),
@@ -106,4 +107,4 @@ namespace vsg
                          dot(lhs, rhs, 0, 3), dot(lhs, rhs, 1, 3), dot(lhs, rhs, 2, 3), dot(lhs, rhs, 3, 3));
     }
 
-}
+} // namespace vsg

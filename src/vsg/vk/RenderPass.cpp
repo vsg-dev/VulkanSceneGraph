@@ -38,7 +38,6 @@ RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFo
         return Result("Error: vsg::RenderPass::create(...) failed to create RenderPass, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
-
     VkAttachmentDescription colorAttachment = {};
     colorAttachment.format = imageFormat;
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -72,7 +71,6 @@ RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFo
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
     subpass.pDepthStencilAttachment = &depthAttachmentRef;
-
 
     VkSubpassDependency dependency = {};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;

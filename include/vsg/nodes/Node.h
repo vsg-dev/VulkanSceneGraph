@@ -22,7 +22,6 @@ namespace vsg
         Node();
 
     protected:
-
         virtual ~Node();
     };
-}
+} // namespace vsg

@@ -14,7 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-GraphicsPipeline::GraphicsPipeline(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator):
+GraphicsPipeline::GraphicsPipeline(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator) :
     Inherit(pipeline, VK_PIPELINE_BIND_POINT_GRAPHICS, device, pipelineLayout, allocator),
     _renderPass(renderPass),
     _pipelineStates(pipelineStates)
@@ -45,7 +45,7 @@ GraphicsPipeline::Result GraphicsPipeline::create(Device* device, RenderPass* re
     }
 
     VkPipeline pipeline;
-    VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &pipeline );
+    VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &pipeline);
     if (result == VK_SUCCESS)
     {
         return Result(new GraphicsPipeline(pipeline, device, renderPass, pipelineLayout, pipelineStates, allocator));
@@ -55,7 +55,6 @@ GraphicsPipeline::Result GraphicsPipeline::create(Device* device, RenderPass* re
         return GraphicsPipeline::Result("Error: vsg::Pipeline::createGraphics(...) failed to create VkPipeline.", result);
     }
 }
-
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -79,7 +78,7 @@ void ShaderStages::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
 void ShaderStages::update()
 {
     _stages.resize(_shaderModules.size());
-    for (size_t i=0; i<_shaderModules.size(); ++i)
+    for (size_t i = 0; i < _shaderModules.size(); ++i)
     {
         VkPipelineShaderStageCreateInfo& stageInfo = (_stages)[i];
         ShaderModule* sm = _shaderModules[i];
@@ -89,7 +88,6 @@ void ShaderStages::update()
         stageInfo.pName = sm->getShader()->entryPointName().c_str();
     }
 }
-
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -124,8 +122,6 @@ void VertexInputState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
     pipelineInfo.pVertexInputState = this;
 }
 
-
-
 ////////////////////////////////////////////////////////////////////////
 //
 // InputAssemblyState
@@ -146,7 +142,6 @@ void InputAssemblyState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
 {
     pipelineInfo.pInputAssemblyState = this;
 }
-
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -181,20 +176,19 @@ void ViewportState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
     pipelineInfo.pViewportState = this;
 }
 
-
 ////////////////////////////////////////////////////////////////////////
 //
 // RasterizationState
 //
 RasterizationState::RasterizationState() :
-    VkPipelineRasterizationStateCreateInfo {}
+    VkPipelineRasterizationStateCreateInfo{}
 {
     sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     depthClampEnable = VK_FALSE;
     polygonMode = VK_POLYGON_MODE_FILL;
     lineWidth = 1.0f;
     cullMode = VK_CULL_MODE_BACK_BIT;
-//    frontFace = VK_FRONT_FACE_CLOCKWISE;
+    //    frontFace = VK_FRONT_FACE_CLOCKWISE;
     frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     depthBiasEnable = VK_FALSE;
 }
@@ -208,7 +202,6 @@ void RasterizationState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
     pipelineInfo.pRasterizationState = this;
 }
 
-
 ////////////////////////////////////////////////////////////////////////
 //
 // MultisampleState
@@ -217,7 +210,7 @@ MultisampleState::MultisampleState() :
     VkPipelineMultisampleStateCreateInfo{}
 {
     sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    sampleShadingEnable =VK_FALSE;
+    sampleShadingEnable = VK_FALSE;
     rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 }
 
@@ -230,7 +223,6 @@ void MultisampleState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
     pipelineInfo.pMultisampleState = this;
 }
 
-
 ////////////////////////////////////////////////////////////////////////
 //
 // DepthStencilState
@@ -239,7 +231,7 @@ DepthStencilState::DepthStencilState() :
     VkPipelineDepthStencilStateCreateInfo{}
 {
     sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-    depthTestEnable =VK_TRUE;
+    depthTestEnable = VK_TRUE;
     depthWriteEnable = VK_TRUE;
     depthCompareOp = VK_COMPARE_OP_LESS;
     depthBoundsTestEnable = VK_FALSE;
@@ -255,7 +247,6 @@ void DepthStencilState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
     pipelineInfo.pDepthStencilState = this;
 }
 
-
 ////////////////////////////////////////////////////////////////////////
 //
 // ColorBlendState
@@ -268,9 +259,9 @@ ColorBlendState::ColorBlendState() :
     VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
     colorBlendAttachment.blendEnable = VK_FALSE;
     colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
-                                        VK_COLOR_COMPONENT_G_BIT |
-                                        VK_COLOR_COMPONENT_B_BIT |
-                                        VK_COLOR_COMPONENT_A_BIT;
+                                          VK_COLOR_COMPONENT_G_BIT |
+                                          VK_COLOR_COMPONENT_B_BIT |
+                                          VK_COLOR_COMPONENT_A_BIT;
 
     _colorBlendAttachments.push_back(colorBlendAttachment);
 

@@ -19,14 +19,14 @@ namespace vsg
     class VSG_DECLSPEC Image : public Inherit<Object, Image>
     {
     public:
-        Image(VkImage Image, Device* device, AllocationCallbacks* allocator=nullptr);
+        Image(VkImage Image, Device* device, AllocationCallbacks* allocator = nullptr);
 
         using Result = vsg::Result<Image, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, const VkImageCreateInfo& createImageInfo, AllocationCallbacks* allocator=nullptr);
+        static Result create(Device* device, const VkImageCreateInfo& createImageInfo, AllocationCallbacks* allocator = nullptr);
 
         VkImage image() const { return _image; }
 
-        operator VkImage () const { return _image; }
+        operator VkImage() const { return _image; }
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
@@ -45,28 +45,27 @@ namespace vsg
     protected:
         virtual ~Image();
 
-        VkImage                         _image;
-        ref_ptr<Device>                 _device;
-        ref_ptr<AllocationCallbacks>    _allocator;
+        VkImage _image;
+        ref_ptr<Device> _device;
+        ref_ptr<AllocationCallbacks> _allocator;
 
-        ref_ptr<DeviceMemory>           _deviceMemory;
-        VkDeviceSize                    _memoryOffset;
+        ref_ptr<DeviceMemory> _deviceMemory;
+        VkDeviceSize _memoryOffset;
     };
 
     class VSG_DECLSPEC ImageMemoryBarrier : public Inherit<Object, ImageMemoryBarrier>, public VkImageMemoryBarrier
     {
     public:
-
-        ImageMemoryBarrier(VkAccessFlags in_srcAccessMask=0, VkAccessFlags in_destAccessMask=0,
-                            VkImageLayout in_oldLayout=VK_IMAGE_LAYOUT_UNDEFINED, VkImageLayout in_newLayout=VK_IMAGE_LAYOUT_UNDEFINED,
-                            Image* in_image=nullptr);
+        ImageMemoryBarrier(VkAccessFlags in_srcAccessMask = 0, VkAccessFlags in_destAccessMask = 0,
+                           VkImageLayout in_oldLayout = VK_IMAGE_LAYOUT_UNDEFINED, VkImageLayout in_newLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+                           Image* in_image = nullptr);
 
         void cmdPiplineBarrier(VkCommandBuffer commandBuffer, VkPipelineStageFlags sourceStage, VkPipelineStageFlags destinationStage);
 
         virtual ~ImageMemoryBarrier();
 
     protected:
-        ref_ptr<Image>  _image;
+        ref_ptr<Image> _image;
     };
 
-}
+} // namespace vsg

@@ -12,16 +12,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Surface.h>
 #include <vsg/vk/ImageView.h>
+#include <vsg/vk/Surface.h>
 
 namespace vsg
 {
     struct SwapChainSupportDetails
     {
-        VkSurfaceCapabilitiesKHR        capabilities;
+        VkSurfaceCapabilitiesKHR capabilities;
         std::vector<VkSurfaceFormatKHR> formats;
-        std::vector<VkPresentModeKHR>   presentModes;
+        std::vector<VkPresentModeKHR> presentModes;
     };
 
     extern VSG_DECLSPEC SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
@@ -32,10 +32,10 @@ namespace vsg
     class VSG_DECLSPEC Swapchain : public Inherit<Object, Swapchain>
     {
     public:
-        Swapchain(VkSwapchainKHR swapchain, Device* device, Surface* surface, AllocationCallbacks*  allocator=nullptr);
+        Swapchain(VkSwapchainKHR swapchain, Device* device, Surface* surface, AllocationCallbacks* allocator = nullptr);
 
         using Result = vsg::Result<Swapchain, VkResult, VK_SUCCESS>;
-        static Result create(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, AllocationCallbacks*  allocator=nullptr);
+        static Result create(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, AllocationCallbacks* allocator = nullptr);
 
         operator VkSwapchainKHR() const { return _swapchain; }
 
@@ -48,17 +48,15 @@ namespace vsg
         const ImageViews& getImageViews() const { return _imageViews; }
 
     protected:
-
         virtual ~Swapchain();
 
-        vsg::ref_ptr<Device>                _device;
-        vsg::ref_ptr<Surface>               _surface;
-        VkSwapchainKHR                      _swapchain;
-        VkFormat                            _format;
-        VkExtent2D                          _extent;
-        ImageViews                          _imageViews;
+        vsg::ref_ptr<Device> _device;
+        vsg::ref_ptr<Surface> _surface;
+        VkSwapchainKHR _swapchain;
+        VkFormat _format;
+        VkExtent2D _extent;
+        ImageViews _imageViews;
 
-        vsg::ref_ptr<AllocationCallbacks>   _allocator;
-
+        vsg::ref_ptr<AllocationCallbacks> _allocator;
     };
-}
+} // namespace vsg

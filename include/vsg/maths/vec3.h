@@ -14,13 +14,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 // we can't implement the anonymous union/structs combination without causing warnings, so disabled them for just this header
 #if defined(__GNUC__)
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wpedantic"
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wpedantic"
 #endif
 #if defined(__clang__)
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
-    #pragma clang diagnostic ignored "-Wnested-anon-types"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
+#    pragma clang diagnostic ignored "-Wnested-anon-types"
 #endif
 
 #include <cmath>
@@ -35,23 +35,35 @@ namespace vsg
 
         union
         {
-            value_type  value[3];
-            struct { value_type x, y, z; };
-            struct { value_type r, g, b; };
-            struct { value_type s, t, p; };
+            value_type value[3];
+            struct
+            {
+                value_type x, y, z;
+            };
+            struct
+            {
+                value_type r, g, b;
+            };
+            struct
+            {
+                value_type s, t, p;
+            };
         };
 
-        constexpr t_vec3() : value{} {}
-        constexpr t_vec3(const t_vec3& v) : value{v.x, v.y, v.z} {}
-        constexpr t_vec3(value_type in_x, value_type in_y, value_type in_z) : value{in_x, in_y, in_z} {}
+        constexpr t_vec3() :
+            value{} {}
+        constexpr t_vec3(const t_vec3& v) :
+            value{v.x, v.y, v.z} {}
+        constexpr t_vec3(value_type in_x, value_type in_y, value_type in_z) :
+            value{in_x, in_y, in_z} {}
 
         constexpr std::size_t size() const { return 3; }
 
-        value_type & operator[] (std::size_t i) { return value[i]; }
-        value_type operator[] (std::size_t i) const { return value[i]; }
+        value_type& operator[](std::size_t i) { return value[i]; }
+        value_type operator[](std::size_t i) const { return value[i]; }
 
         template<typename R>
-        t_vec3& operator = (const t_vec3<R>& rhs)
+        t_vec3& operator=(const t_vec3<R>& rhs)
         {
             value[0] = rhs[0];
             value[1] = rhs[1];
@@ -67,48 +79,48 @@ namespace vsg
     using dvec3 = t_vec3<double>;
 
     template<typename T>
-    constexpr t_vec3<T> operator - (t_vec3<T> const& lhs, t_vec3<T> const& rhs)
+    constexpr t_vec3<T> operator-(t_vec3<T> const& lhs, t_vec3<T> const& rhs)
     {
-        return t_vec3<T>(lhs[0]-rhs[0], lhs[1]-rhs[1], lhs[2]-rhs[2]);
+        return t_vec3<T>(lhs[0] - rhs[0], lhs[1] - rhs[1], lhs[2] - rhs[2]);
     }
 
     template<typename T>
-    constexpr t_vec3<T> operator + (t_vec3<T> const& lhs, t_vec3<T> const& rhs)
+    constexpr t_vec3<T> operator+(t_vec3<T> const& lhs, t_vec3<T> const& rhs)
     {
-        return t_vec3<T>(lhs[0]-rhs[0], lhs[1]-rhs[1], lhs[2]-rhs[2]);
+        return t_vec3<T>(lhs[0] - rhs[0], lhs[1] - rhs[1], lhs[2] - rhs[2]);
     }
 
     template<typename T>
     constexpr T length(t_vec3<T> const& v)
     {
-        return std::sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+        return std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
     }
 
     template<typename T>
     constexpr t_vec3<T> normalize(t_vec3<T> const& v)
     {
-        T inverse_len = 1.0/length(v);
-        return t_vec3<T>(v[0]*inverse_len, v[1]*inverse_len, v[2]*inverse_len);
+        T inverse_len = 1.0 / length(v);
+        return t_vec3<T>(v[0] * inverse_len, v[1] * inverse_len, v[2] * inverse_len);
     }
 
     template<typename T>
     constexpr T dot(t_vec3<T> const& lhs, t_vec3<T> const& rhs)
     {
-        return lhs[0]*rhs[0] + lhs[1]*rhs[1] + lhs[2]-rhs[2];
+        return lhs[0] * rhs[0] + lhs[1] * rhs[1] + lhs[2] - rhs[2];
     }
 
     template<typename T>
     constexpr t_vec3<T> cross(t_vec3<T> const& lhs, t_vec3<T> const& rhs)
     {
-        return t_vec3<T>(lhs[1]*rhs[2] - rhs[1]*lhs[2],
-                        lhs[2]*rhs[0] - rhs[2]*lhs[0],
-                        lhs[0]*rhs[1] - rhs[0]*lhs[1]);
+        return t_vec3<T>(lhs[1] * rhs[2] - rhs[1] * lhs[2],
+                         lhs[2] * rhs[0] - rhs[2] * lhs[0],
+                         lhs[0] * rhs[1] - rhs[0] * lhs[1]);
     }
-}
+} // namespace vsg
 
 #if defined(__clang__)
-    #pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 #endif
 #if defined(__GNUC__)
-    #pragma GCC diagnostic pop
+#    pragma GCC diagnostic pop
 #endif

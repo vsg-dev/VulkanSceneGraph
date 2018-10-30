@@ -21,20 +21,20 @@ namespace vsg
     class VSG_DECLSPEC DescriptorSetLayout : public Inherit<Object, DescriptorSetLayout>
     {
     public:
-        DescriptorSetLayout(Device* device, VkDescriptorSetLayout DescriptorSetLayout, AllocationCallbacks* allocator=nullptr);
+        DescriptorSetLayout(Device* device, VkDescriptorSetLayout DescriptorSetLayout, AllocationCallbacks* allocator = nullptr);
 
         using Result = vsg::Result<DescriptorSetLayout, VkResult, VK_SUCCESS>;
 
-        static Result create(Device* device, const DescriptorSetLayoutBindings& descriptorSetLayoutBindings, AllocationCallbacks* allocator=nullptr);
+        static Result create(Device* device, const DescriptorSetLayoutBindings& descriptorSetLayoutBindings, AllocationCallbacks* allocator = nullptr);
 
-        operator const VkDescriptorSetLayout& () const { return _descriptorSetLayout; }
+        operator const VkDescriptorSetLayout&() const { return _descriptorSetLayout; }
 
     protected:
         virtual ~DescriptorSetLayout();
 
-        ref_ptr<Device>                 _device;
-        VkDescriptorSetLayout           _descriptorSetLayout;
-        ref_ptr<AllocationCallbacks>    _allocator;
+        ref_ptr<Device> _device;
+        VkDescriptorSetLayout _descriptorSetLayout;
+        ref_ptr<AllocationCallbacks> _allocator;
     };
 
-}
+} // namespace vsg

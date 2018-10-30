@@ -13,14 +13,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/DispatchTraversal.h>
 
 #include <vsg/nodes/Group.h>
-#include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/LOD.h>
+#include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/State.h>
 #include <vsg/vk/RenderPass.h>
+#include <vsg/vk/State.h>
 
 #include <iostream>
 
@@ -30,22 +30,22 @@ using namespace vsg;
 
 struct DispatchTraversal::Data
 {
-    explicit Data(CommandBuffer* commandBuffer):
+    explicit Data(CommandBuffer* commandBuffer) :
         _commandBuffer(commandBuffer)
     {
-        std::cout<<"DispatchTraversal::Data::Data("<<commandBuffer<<")"<<std::endl;
+        std::cout << "DispatchTraversal::Data::Data(" << commandBuffer << ")" << std::endl;
     }
 
     ~Data()
     {
-        std::cout<<"DispatchTraversal::Data::~Data()"<<std::endl;
+        std::cout << "DispatchTraversal::Data::~Data()" << std::endl;
     }
 
-    State                  _state;
+    State _state;
     ref_ptr<CommandBuffer> _commandBuffer;
 };
 
-DispatchTraversal::DispatchTraversal(CommandBuffer* commandBuffer):
+DispatchTraversal::DispatchTraversal(CommandBuffer* commandBuffer) :
     _data(new Data(commandBuffer))
 {
 }
@@ -57,7 +57,7 @@ DispatchTraversal::~DispatchTraversal()
 
 void DispatchTraversal::apply(const Object& object)
 {
-//    std::cout<<"Visiting object"<<std::endl;
+    //    std::cout<<"Visiting object"<<std::endl;
     object.traverse(*this);
 }
 
@@ -65,9 +65,9 @@ void DispatchTraversal::apply(const Group& group)
 {
 //    std::cout<<"Visiting Group "<<std::endl;
 #ifdef INLINE_TRAVERSE
-        vsg::Group::t_traverse(group, *this);
+    vsg::Group::t_traverse(group, *this);
 #else
-        group.traverse(*this);
+    group.traverse(*this);
 #endif
 }
 
@@ -75,32 +75,32 @@ void DispatchTraversal::apply(const QuadGroup& group)
 {
 //    std::cout<<"Visiting QuadGroup "<<std::endl;
 #ifdef INLINE_TRAVERSE
-        vsg::QuadGroup::t_traverse(group, *this);
+    vsg::QuadGroup::t_traverse(group, *this);
 #else
-        group.traverse(*this);
+    group.traverse(*this);
 #endif
 }
 
 void DispatchTraversal::apply(const LOD& object)
 {
-//    std::cout<<"Visiting LOD "<<std::endl;
+    //    std::cout<<"Visiting LOD "<<std::endl;
     object.traverse(*this);
 }
 
 void DispatchTraversal::apply(const StateGroup& stateGroup)
 {
-//    std::cout<<"Visiting StateGroup "<<std::endl;
+    //    std::cout<<"Visiting StateGroup "<<std::endl;
     stateGroup.pushTo(_data->_state);
 
     stateGroup.traverse(*this);
 
-//    stateGroup.popFrom(_data->_state);
+    //    stateGroup.popFrom(_data->_state);
 }
 
 // Vulkan nodes
 void DispatchTraversal::apply(const Command& command)
 {
-//    std::cout<<"Visiting Command "<<std::endl;
+    //    std::cout<<"Visiting Command "<<std::endl;
     _data->_state.dispatch(*(_data->_commandBuffer));
     command.dispatch(*(_data->_commandBuffer));
 }

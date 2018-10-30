@@ -60,16 +60,16 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags q
 
         VkQueueFlags matchedQueues = 0;
 
-        for (uint32_t i=0; i<queueFamilyCount; ++i)
+        for (uint32_t i = 0; i < queueFamilyCount; ++i)
         {
             const auto& queueFamily = queueFamiles[i];
-            if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)!=0)
+            if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0)
             {
                 graphicsFamily = i;
                 matchedQueues |= VK_QUEUE_GRAPHICS_BIT;
             }
 
-            if ((queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT)!=0)
+            if ((queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) != 0)
             {
                 computeFamily = i;
                 matchedQueues |= VK_QUEUE_COMPUTE_BIT;
@@ -79,14 +79,14 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags q
             {
                 VkBool32 presentSupported = false;
                 vkGetPhysicalDeviceSurfaceSupportKHR(device, i, *surface, &presentSupported);
-                if (queueFamily.queueCount>0 && presentSupported)
+                if (queueFamily.queueCount > 0 && presentSupported)
                 {
                     presentFamily = i;
                 }
             }
         }
 
-        if (((matchedQueues & queueFlags)==queueFlags) && (surface==nullptr || presentFamily>=0))
+        if (((matchedQueues & queueFlags) == queueFlags) && (surface == nullptr || presentFamily >= 0))
         {
             return Result(new PhysicalDevice(instance, device, graphicsFamily, presentFamily, computeFamily, surface));
         }

@@ -22,13 +22,13 @@ namespace vsg
     class VSG_DECLSPEC DescriptorPool : public Inherit<Object, DescriptorPool>
     {
     public:
-        DescriptorPool(VkDescriptorPool descriptorPool, Device* device, AllocationCallbacks* allocator=nullptr);
+        DescriptorPool(VkDescriptorPool descriptorPool, Device* device, AllocationCallbacks* allocator = nullptr);
 
         using Result = vsg::Result<DescriptorPool, VkResult, VK_SUCCESS>;
 
-        static Result create(Device* device, uint32_t maxSets, const DescriptorPoolSizes& descriptorPoolSizes, AllocationCallbacks* allocator=nullptr);
+        static Result create(Device* device, uint32_t maxSets, const DescriptorPoolSizes& descriptorPoolSizes, AllocationCallbacks* allocator = nullptr);
 
-        operator const VkDescriptorPool& () const { return _descriptorPool; }
+        operator const VkDescriptorPool&() const { return _descriptorPool; }
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
@@ -36,8 +36,8 @@ namespace vsg
     protected:
         virtual ~DescriptorPool();
 
-        VkDescriptorPool                _descriptorPool;
-        ref_ptr<Device>                 _device;
-        ref_ptr<AllocationCallbacks>    _allocator;
+        VkDescriptorPool _descriptorPool;
+        ref_ptr<Device> _device;
+        ref_ptr<AllocationCallbacks> _allocator;
     };
-}
+} // namespace vsg

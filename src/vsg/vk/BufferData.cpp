@@ -15,15 +15,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-BufferDataList createBufferAndTransferData(Device* device, CommandPool* commandPool, VkQueue graphicsQueue, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
+BufferDataList vsg::createBufferAndTransferData(Device* device, CommandPool* commandPool, VkQueue graphicsQueue, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
 {
     if (dataList.empty()) return BufferDataList();
 
     BufferDataList bufferDataList;
 
     VkDeviceSize alignment = 4;
-    if (usage==VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
-
+    if (usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
 
     VkDeviceSize totalSize = 0;
     VkDeviceSize offset = 0;
@@ -32,7 +31,7 @@ BufferDataList createBufferAndTransferData(Device* device, CommandPool* commandP
     {
         bufferDataList.push_back(BufferData(0, offset, data->dataSize()));
         VkDeviceSize endOfEntry = offset + data->dataSize();
-        offset = (alignment==1 || (endOfEntry%alignment)==0) ? endOfEntry: ((endOfEntry/alignment)+1)*alignment;
+        offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
     }
 
     totalSize = bufferDataList.back()._offset + bufferDataList.back()._range;
@@ -45,7 +44,7 @@ BufferDataList createBufferAndTransferData(Device* device, CommandPool* commandP
     stagingMemory->map(0, totalSize, 0, &buffer_data);
     char* ptr = reinterpret_cast<char*>(buffer_data);
 
-    for (size_t i=0; i<dataList.size(); ++i)
+    for (size_t i = 0; i < dataList.size(); ++i)
     {
         const Data* data = dataList[i];
         std::memcpy(ptr + bufferDataList[i]._offset, data->dataPointer(), data->dataSize());
@@ -54,11 +53,10 @@ BufferDataList createBufferAndTransferData(Device* device, CommandPool* commandP
     stagingMemory->unmap();
 
     ref_ptr<Buffer> deviceBuffer = vsg::Buffer::create(device, totalSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage, sharingMode);
-    ref_ptr<DeviceMemory> deviceMemory =  vsg::DeviceMemory::create(device, deviceBuffer,  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    ref_ptr<DeviceMemory> deviceMemory = vsg::DeviceMemory::create(device, deviceBuffer, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     deviceBuffer->bind(deviceMemory, 0);
 
-    dispatchCommandsToQueue(device, commandPool, graphicsQueue, [&](VkCommandBuffer transferCommand)
-    {
+    dispatchCommandsToQueue(device, commandPool, graphicsQueue, [&](VkCommandBuffer transferCommand) {
         VkBufferCopy copyRegion = {};
         copyRegion.srcOffset = 0;
         copyRegion.dstOffset = 0;
@@ -75,14 +73,14 @@ BufferDataList createBufferAndTransferData(Device* device, CommandPool* commandP
     return bufferDataList;
 }
 
-BufferDataList createHostVisibleBuffer(Device* device, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
+BufferDataList vsg::createHostVisibleBuffer(Device* device, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
 {
     if (dataList.empty()) return BufferDataList();
 
     BufferDataList bufferDataList;
 
     VkDeviceSize alignment = 4;
-    if (usage==VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
+    if (usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
 
     VkDeviceSize totalSize = 0;
     VkDeviceSize offset = 0;
@@ -91,7 +89,7 @@ BufferDataList createHostVisibleBuffer(Device* device, const DataList& dataList,
     {
         bufferDataList.push_back(BufferData(0, offset, data->dataSize(), data));
         VkDeviceSize endOfEntry = offset + data->dataSize();
-        offset = (alignment==1 || (endOfEntry%alignment)==0) ? endOfEntry: ((endOfEntry/alignment)+1)*alignment;
+        offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
     }
 
     totalSize = bufferDataList.back()._offset + bufferDataList.back()._range;
@@ -108,7 +106,7 @@ BufferDataList createHostVisibleBuffer(Device* device, const DataList& dataList,
     return bufferDataList;
 }
 
-void copyDataListToBuffers(BufferDataList& bufferDataList)
+void vsg::copyDataListToBuffers(BufferDataList& bufferDataList)
 {
     for (auto& bufferData : bufferDataList)
     {

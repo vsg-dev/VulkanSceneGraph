@@ -27,4 +27,4 @@ namespace vsg
 
         virtual void dispatch(CommandBuffer& commandBuffer) const = 0;
     };
-}
+} // namespace vsg

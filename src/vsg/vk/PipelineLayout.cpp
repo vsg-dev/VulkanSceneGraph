@@ -38,7 +38,7 @@ PipelineLayout::Result PipelineLayout::create(Device* device, const DescriptorSe
     }
 
     std::vector<VkDescriptorSetLayout> layouts;
-    for(auto dsl : descriptorSetLayouts) layouts.push_back(*dsl);
+    for (auto dsl : descriptorSetLayouts) layouts.push_back(*dsl);
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo;
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -47,7 +47,6 @@ PipelineLayout::Result PipelineLayout::create(Device* device, const DescriptorSe
     pipelineLayoutInfo.pSetLayouts = layouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = pushConstantRanges.size();
     pipelineLayoutInfo.pPushConstantRanges = pushConstantRanges.data();
-
 
     VkPipelineLayout pipelineLayout;
     VkResult result = vkCreatePipelineLayout(*device, &pipelineLayoutInfo, allocator, &pipelineLayout);

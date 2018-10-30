@@ -15,9 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <array>
 #include <iostream>
 
-namespace vsg
-{
-
+using namespace vsg;
 
 GraphicsStage::GraphicsStage(ref_ptr<Node> commandGraph) :
     _commandGraph(commandGraph)
@@ -28,7 +26,6 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
 {
     DispatchTraversal dispatchTraversal(commandBuffer);
 
-
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
@@ -36,27 +33,24 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
 
     vkBeginCommandBuffer(*commandBuffer, &beginInfo);
 
-        VkRenderPassBeginInfo renderPassInfo = {};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = *renderPass;
-        renderPassInfo.framebuffer = *framebuffer;
-        renderPassInfo.renderArea.offset = {0, 0};
-        renderPassInfo.renderArea.extent = extent2D;
+    VkRenderPassBeginInfo renderPassInfo = {};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass = *renderPass;
+    renderPassInfo.framebuffer = *framebuffer;
+    renderPassInfo.renderArea.offset = {0, 0};
+    renderPassInfo.renderArea.extent = extent2D;
 
-        std::array<VkClearValue, 2> clearValues = {};
-        clearValues[0].color = clearColor;
-        clearValues[1].depthStencil = {1.0f, 0};
+    std::array<VkClearValue, 2> clearValues = {};
+    clearValues[0].color = clearColor;
+    clearValues[1].depthStencil = {1.0f, 0};
 
-        renderPassInfo.clearValueCount = clearValues.size();
-        renderPassInfo.pClearValues = clearValues.data();
-        vkCmdBeginRenderPass(*commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    renderPassInfo.clearValueCount = clearValues.size();
+    renderPassInfo.pClearValues = clearValues.data();
+    vkCmdBeginRenderPass(*commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-            _commandGraph->accept(dispatchTraversal);
+    _commandGraph->accept(dispatchTraversal);
 
-        vkCmdEndRenderPass(*commandBuffer);
+    vkCmdEndRenderPass(*commandBuffer);
 
     vkEndCommandBuffer(*commandBuffer);
-
-}
-
 }

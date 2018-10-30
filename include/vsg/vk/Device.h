@@ -19,10 +19,10 @@ namespace vsg
     class VSG_DECLSPEC Device : public Inherit<Object, Device>
     {
     public:
-        Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallbacks* allocator=nullptr);
+        Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallbacks* allocator = nullptr);
 
         using Result = vsg::Result<Device, VkResult, VK_SUCCESS>;
-        static Result create(PhysicalDevice* physicalDevice, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator=nullptr);
+        static Result create(PhysicalDevice* physicalDevice, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator = nullptr);
 
         const PhysicalDevice* getPhysicalDevice() const { return _physicalDevice.get(); }
 
@@ -32,15 +32,14 @@ namespace vsg
         AllocationCallbacks* getAllocationCallbacks() { return _allocator.get(); }
         const AllocationCallbacks* getAllocationCallbacks() const { return _allocator.get(); }
 
-        VkQueue getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex=0);
+        VkQueue getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex = 0);
 
     protected:
-
         virtual ~Device();
 
-        VkDevice                            _device;
-        vsg::ref_ptr<PhysicalDevice>        _physicalDevice;
-        vsg::ref_ptr<AllocationCallbacks>   _allocator;
+        VkDevice _device;
+        vsg::ref_ptr<PhysicalDevice> _physicalDevice;
+        vsg::ref_ptr<AllocationCallbacks> _allocator;
     };
 
-}
+} // namespace vsg

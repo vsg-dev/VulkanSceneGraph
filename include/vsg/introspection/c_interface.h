@@ -49,24 +49,24 @@ extern "C"
 
         union PropertyValue
         {
-            vsgObjectPtr    _object;
-            char            _bool;
-            char            _char;
-            unsigned char   _unsigned_char;
-            short           _short;
-            unsigned short  _unsigned_short;
-            int             _int;
-            unsigned int    _unsigned_int;
-            float           _float;
-            double          _double;
-            float           _vec2[2];
-            float           _vec3[3];
-            float           _vec4[4];
-            double          _dvec2[2];
-            double          _dvec3[3];
-            double          _dvec4[4];
-            float           _mat4[4][4];
-            double          _dma4t[4][4];
+            vsgObjectPtr _object;
+            char _bool;
+            char _char;
+            unsigned char _unsigned_char;
+            short _short;
+            unsigned short _unsigned_short;
+            int _int;
+            unsigned int _unsigned_int;
+            float _float;
+            double _double;
+            float _vec2[2];
+            float _vec3[3];
+            float _vec4[4];
+            double _dvec2[2];
+            double _dvec3[3];
+            double _dvec4[4];
+            float _mat4[4][4];
+            double _dma4t[4][4];
         } value;
     };
 

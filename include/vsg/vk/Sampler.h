@@ -19,16 +19,16 @@ namespace vsg
     class VSG_DECLSPEC Sampler : public Inherit<Object, Sampler>
     {
     public:
-        Sampler(VkSampler Sampler, Device* device, AllocationCallbacks* allocator=nullptr);
+        Sampler(VkSampler Sampler, Device* device, AllocationCallbacks* allocator = nullptr);
 
         using Result = vsg::Result<Sampler, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, const VkSamplerCreateInfo& createSamplerInfo, AllocationCallbacks* allocator=nullptr);
+        static Result create(Device* device, const VkSamplerCreateInfo& createSamplerInfo, AllocationCallbacks* allocator = nullptr);
 
-        static Result create(Device* device, AllocationCallbacks* allocator=nullptr);
+        static Result create(Device* device, AllocationCallbacks* allocator = nullptr);
 
         VkSampler sampler() const { return _sampler; }
 
-        operator VkSampler () const { return _sampler; }
+        operator VkSampler() const { return _sampler; }
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
@@ -36,9 +36,9 @@ namespace vsg
     protected:
         virtual ~Sampler();
 
-        VkSampler                       _sampler;
-        ref_ptr<Device>                 _device;
-        ref_ptr<AllocationCallbacks>    _allocator;
+        VkSampler _sampler;
+        ref_ptr<Device> _device;
+        ref_ptr<AllocationCallbacks> _allocator;
     };
 
-}
+} // namespace vsg

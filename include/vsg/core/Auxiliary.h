@@ -47,9 +47,8 @@ namespace vsg
         Allocator* getAllocator() { return _allocator; }
 
     protected:
-
         explicit Auxiliary(Allocator* allocator);
-        explicit Auxiliary(Object* object, Allocator* allocator=nullptr);
+        explicit Auxiliary(Object* object, Allocator* allocator = nullptr);
 
         virtual ~Auxiliary();
 
@@ -62,11 +61,10 @@ namespace vsg
         friend class Object;
         friend class Allocator;
 
-        mutable std::atomic_uint    _referenceCount;
-        std::atomic<Object*>        _connectedObject;
-        ref_ptr<Allocator>          _allocator;
-        ObjectMap                   _objectMap;
-
+        mutable std::atomic_uint _referenceCount;
+        std::atomic<Object*> _connectedObject;
+        ref_ptr<Allocator> _allocator;
+        ObjectMap _objectMap;
     };
 
-}
+} // namespace vsg

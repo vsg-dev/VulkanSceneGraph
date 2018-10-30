@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Device.h>
 #include <fstream>
+#include <vsg/vk/Device.h>
 
 namespace vsg
 {
@@ -27,10 +27,10 @@ namespace vsg
 
         using value_type = typename T::value_type;
         size_t valueSize = sizeof(value_type);
-        buffer.resize(fileSize/valueSize);
+        buffer.resize(fileSize / valueSize);
 
         fin.seekg(0);
-        fin.read(buffer.data(), buffer.size()*valueSize);
+        fin.read(buffer.data(), buffer.size() * valueSize);
         fin.close();
 
         return true;
@@ -53,21 +53,21 @@ namespace vsg
     protected:
         virtual ~Shader();
 
-        VkShaderStageFlagBits   _stage;
-        std::string             _entryPointName;
-        Contents                _contents;
+        VkShaderStageFlagBits _stage;
+        std::string _entryPointName;
+        Contents _contents;
     };
 
     class VSG_DECLSPEC ShaderModule : public Inherit<Object, ShaderModule>
     {
     public:
-        ShaderModule(VkShaderModule shaderModule, Device* device, Shader* shader, AllocationCallbacks* allocator=nullptr);
+        ShaderModule(VkShaderModule shaderModule, Device* device, Shader* shader, AllocationCallbacks* allocator = nullptr);
 
         using Result = vsg::Result<ShaderModule, VkResult, VK_SUCCESS>;
 
-        static Result create(Device* device, Shader* shader, AllocationCallbacks* allocator=nullptr);
+        static Result create(Device* device, Shader* shader, AllocationCallbacks* allocator = nullptr);
 
-        operator VkShaderModule () const { return _shaderModule; }
+        operator VkShaderModule() const { return _shaderModule; }
 
         const Shader* getShader() const { return _shader; }
 
@@ -77,13 +77,13 @@ namespace vsg
     protected:
         virtual ~ShaderModule();
 
-        VkShaderModule                  _shaderModule;
+        VkShaderModule _shaderModule;
 
-        ref_ptr<Device>                 _device;
-        ref_ptr<Shader>                 _shader;
-        ref_ptr<AllocationCallbacks>    _allocator;
+        ref_ptr<Device> _device;
+        ref_ptr<Shader> _shader;
+        ref_ptr<AllocationCallbacks> _allocator;
     };
 
     using ShaderModules = std::vector<ref_ptr<ShaderModule>>;
 
-}
+} // namespace vsg

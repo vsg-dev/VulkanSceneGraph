@@ -12,12 +12,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/vk/Command.h>
 #include <vsg/vk/Pipeline.h>
 #include <vsg/vk/PipelineLayout.h>
-#include <vsg/vk/ShaderModule.h>
 #include <vsg/vk/RenderPass.h>
-#include <vsg/vk/PipelineLayout.h>
-#include <vsg/vk/Command.h>
+#include <vsg/vk/ShaderModule.h>
 
 namespace vsg
 {
@@ -37,24 +36,22 @@ namespace vsg
 
     using GraphicsPipelineStates = std::vector<ref_ptr<GraphicsPipelineState>>;
 
-
     class VSG_DECLSPEC GraphicsPipeline : public Inherit<Pipeline, GraphicsPipeline>
     {
     public:
         using Result = vsg::Result<GraphicsPipeline, VkResult, VK_SUCCESS>;
 
         /** Crreate a GraphicsPipeline.*/
-        static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator=nullptr);
+        static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
 
     protected:
         GraphicsPipeline(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator);
 
         virtual ~GraphicsPipeline();
 
-        ref_ptr<RenderPass>     _renderPass;
-        GraphicsPipelineStates  _pipelineStates;
+        ref_ptr<RenderPass> _renderPass;
+        GraphicsPipelineStates _pipelineStates;
     };
-
 
     class VSG_DECLSPEC ShaderStages : public Inherit<GraphicsPipelineState, ShaderStages>
     {
@@ -63,7 +60,11 @@ namespace vsg
 
         VkStructureType getType() const override { return VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO; }
 
-        void setShaderModules(const ShaderModules& shaderModules) { _shaderModules = shaderModules; update(); }
+        void setShaderModules(const ShaderModules& shaderModules)
+        {
+            _shaderModules = shaderModules;
+            update();
+        }
         const ShaderModules& getShaderModules() const { return _shaderModules; }
 
         void update();
@@ -79,10 +80,9 @@ namespace vsg
         virtual ~ShaderStages();
 
         using Stages = std::vector<VkPipelineShaderStageCreateInfo>;
-        Stages          _stages;
-        ShaderModules   _shaderModules;
+        Stages _stages;
+        ShaderModules _shaderModules;
     };
-
 
     class VSG_DECLSPEC VertexInputState : public Inherit<GraphicsPipelineState, VertexInputState>, public VkPipelineVertexInputStateCreateInfo
     {
@@ -104,10 +104,9 @@ namespace vsg
     protected:
         virtual ~VertexInputState();
 
-        Bindings                                _bindings;
-        Attributes                              _attributes;
+        Bindings _bindings;
+        Attributes _attributes;
     };
-
 
     class VSG_DECLSPEC InputAssemblyState : public Inherit<GraphicsPipelineState, InputAssemblyState>, public VkPipelineInputAssemblyStateCreateInfo
     {
@@ -121,7 +120,6 @@ namespace vsg
     protected:
         virtual ~InputAssemblyState();
     };
-
 
     class VSG_DECLSPEC ViewportState : public Inherit<GraphicsPipelineState, ViewportState>, public VkPipelineViewportStateCreateInfo
     {
@@ -138,10 +136,9 @@ namespace vsg
     protected:
         virtual ~ViewportState();
 
-        VkViewport                          _viewport;
-        VkRect2D                            _scissor;
+        VkViewport _viewport;
+        VkRect2D _scissor;
     };
-
 
     class VSG_DECLSPEC RasterizationState : public Inherit<GraphicsPipelineState, RasterizationState>, public VkPipelineRasterizationStateCreateInfo
     {
@@ -156,7 +153,6 @@ namespace vsg
         virtual ~RasterizationState();
     };
 
-
     class VSG_DECLSPEC MultisampleState : public Inherit<GraphicsPipelineState, MultisampleState>, public VkPipelineMultisampleStateCreateInfo
     {
     public:
@@ -170,7 +166,6 @@ namespace vsg
         virtual ~MultisampleState();
     };
 
-
     class VSG_DECLSPEC DepthStencilState : public Inherit<GraphicsPipelineState, DepthStencilState>, public VkPipelineDepthStencilStateCreateInfo
     {
     public:
@@ -183,7 +178,6 @@ namespace vsg
     protected:
         virtual ~DepthStencilState();
     };
-
 
     class VSG_DECLSPEC ColorBlendState : public Inherit<GraphicsPipelineState, ColorBlendState>, public VkPipelineColorBlendStateCreateInfo
     {
@@ -205,7 +199,4 @@ namespace vsg
         ColorBlendAttachments _colorBlendAttachments;
     };
 
-
-
-
-}
+} // namespace vsg

@@ -12,27 +12,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/maths/mat4.h>
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
-#include <vsg/maths/mat4.h>
 
-#include <ostream>
 #include <istream>
+#include <ostream>
 #include <sstream>
 
 namespace vsg
 {
     // stream support for std::t_vec2
     template<typename T>
-    std::ostream& operator << (std::ostream& output, const vsg::t_vec2<T>& vec)
+    std::ostream& operator<<(std::ostream& output, const vsg::t_vec2<T>& vec)
     {
         output << vec.x << " " << vec.y;
         return output;
     }
 
     template<typename T>
-    std::istream& operator >> (std::istream& input, vsg::t_vec2<T>& vec)
+    std::istream& operator>>(std::istream& input, vsg::t_vec2<T>& vec)
     {
         input >> vec.x >> vec.y;
         return input;
@@ -40,14 +40,14 @@ namespace vsg
 
     // stream support for std::t_vec3
     template<typename T>
-    std::ostream& operator << (std::ostream& output, const vsg::t_vec3<T>& vec)
+    std::ostream& operator<<(std::ostream& output, const vsg::t_vec3<T>& vec)
     {
-        output << vec.x << " " << vec.y<<" "<<vec.z;
+        output << vec.x << " " << vec.y << " " << vec.z;
         return output;
     }
 
     template<typename T>
-    std::istream& operator >> (std::istream& input, vsg::t_vec3<T>& vec)
+    std::istream& operator>>(std::istream& input, vsg::t_vec3<T>& vec)
     {
         input >> vec.x >> vec.y >> vec.z;
         return input;
@@ -55,14 +55,14 @@ namespace vsg
 
     // stream support for std::t_vec4
     template<typename T>
-    std::ostream& operator << (std::ostream& output, const vsg::t_vec4<T>& vec)
+    std::ostream& operator<<(std::ostream& output, const vsg::t_vec4<T>& vec)
     {
-        output << vec.x << " " << vec.y<<" "<<vec.z<<" "<<vec.w;
+        output << vec.x << " " << vec.y << " " << vec.z << " " << vec.w;
         return output;
     }
 
     template<typename T>
-    std::istream& operator >> (std::istream& input, vsg::t_vec4<T>& vec)
+    std::istream& operator>>(std::istream& input, vsg::t_vec4<T>& vec)
     {
         input >> vec.x >> vec.y >> vec.z >> vec.w;
         return input;
@@ -70,48 +70,46 @@ namespace vsg
 
     // stream support for std::t_mat4
     template<typename T>
-    std::ostream& operator << (std::ostream& output, const vsg::t_mat4<T>& mat)
+    std::ostream& operator<<(std::ostream& output, const vsg::t_mat4<T>& mat)
     {
         output << std::endl;
-        output << "    "<<mat(0,0)<< " " << mat(1,0)<<" "<<mat(2,0)<<" "<<mat(3,0)<<std::endl;
-        output << "    "<<mat(0,1)<< " " << mat(1,1)<<" "<<mat(2,1)<<" "<<mat(3,1)<<std::endl;
-        output << "    "<<mat(0,2)<< " " << mat(1,2)<<" "<<mat(2,2)<<" "<<mat(3,2)<<std::endl;
-        output << "    "<<mat(0,3)<< " " << mat(1,3)<<" "<<mat(2,3)<<" "<<mat(3,3)<<std::endl;
+        output << "    " << mat(0, 0) << " " << mat(1, 0) << " " << mat(2, 0) << " " << mat(3, 0) << std::endl;
+        output << "    " << mat(0, 1) << " " << mat(1, 1) << " " << mat(2, 1) << " " << mat(3, 1) << std::endl;
+        output << "    " << mat(0, 2) << " " << mat(1, 2) << " " << mat(2, 2) << " " << mat(3, 2) << std::endl;
+        output << "    " << mat(0, 3) << " " << mat(1, 3) << " " << mat(2, 3) << " " << mat(3, 3) << std::endl;
         return output;
     }
 
     template<typename T>
-    std::istream& operator << (std::istream& input, vsg::t_mat4<T>& mat)
+    std::istream& operator<<(std::istream& input, vsg::t_mat4<T>& mat)
     {
-        input >> mat(0,0) >> mat(1,0) >> mat(2,0) >> mat(3,0);
-        input >> mat(0,1) >> mat(1,1) >> mat(2,1) >> mat(3,1);
-        input >> mat(0,2) >> mat(1,2) >> mat(2,2) >> mat(3,2);
-        input >> mat(0,3) >> mat(1,3) >> mat(2,3) >> mat(3,3);
+        input >> mat(0, 0) >> mat(1, 0) >> mat(2, 0) >> mat(3, 0);
+        input >> mat(0, 1) >> mat(1, 1) >> mat(2, 1) >> mat(3, 1);
+        input >> mat(0, 2) >> mat(1, 2) >> mat(2, 2) >> mat(3, 2);
+        input >> mat(0, 3) >> mat(1, 3) >> mat(2, 3) >> mat(3, 3);
         return input;
     }
 
     // stream support for std::pair
     template<typename T, typename R>
-    std::ostream& operator << (std::ostream& output, const std::pair<T,R>& wd)
+    std::ostream& operator<<(std::ostream& output, const std::pair<T, R>& wd)
     {
-        output << wd.first <<" "<< wd.second;
+        output << wd.first << " " << wd.second;
         return output;
     }
 
     template<typename T, typename R>
-    std::istream& operator >> (std::istream& input, std::pair<T,R>& wd)
+    std::istream& operator>>(std::istream& input, std::pair<T, R>& wd)
     {
         input >> wd.first >> wd.second;
         return input;
     }
 
-    template< typename ... Args >
-    std::string make_string(Args const& ... args )
+    template<typename... Args>
+    std::string make_string(Args const&... args)
     {
         std::ostringstream stream;
-        (stream<< ...<<args);
+        (stream << ... << args);
         return stream.str();
     }
-}
-
-
+} // namespace vsg

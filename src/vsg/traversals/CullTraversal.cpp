@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/CullTraversal.h>
 
 #include <vsg/nodes/Group.h>
-#include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/LOD.h>
+#include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 
 #include <vsg/vk/Command.h>
@@ -27,27 +27,27 @@ using namespace vsg;
 
 void CullTraversal::apply(const Object& object)
 {
-//    std::cout<<"Visiting object"<<std::endl;
+    //    std::cout<<"Visiting object"<<std::endl;
     ++numNodes;
     object.traverse(*this);
 }
 
 void CullTraversal::apply(const Node& object)
 {
-//    std::cout<<"Visiting Node "<<std::endl;
+    //    std::cout<<"Visiting Node "<<std::endl;
     ++numNodes;
     object.traverse(*this);
 }
 void CullTraversal::apply(const Group& object)
 {
-//    std::cout<<"Visiting Group "<<std::endl;
+    //    std::cout<<"Visiting Group "<<std::endl;
     ++numNodes;
     object.traverse(*this);
 }
 
 void CullTraversal::apply(const QuadGroup& object)
 {
-//    std::cout<<"Visiting QuadGroup "<<std::endl;
+    //    std::cout<<"Visiting QuadGroup "<<std::endl;
     ++numNodes;
 
     object.traverse(*this);
@@ -55,13 +55,13 @@ void CullTraversal::apply(const QuadGroup& object)
 
 void CullTraversal::apply(const LOD& object)
 {
-//    std::cout<<"Visiting LOD "<<std::endl;
+    //    std::cout<<"Visiting LOD "<<std::endl;
     ++numNodes;
     object.traverse(*this);
 }
 void CullTraversal::apply(const StateGroup& object)
 {
-//    std::cout<<"Visiting StateGroup "<<std::endl;
+    //    std::cout<<"Visiting StateGroup "<<std::endl;
     ++numNodes;
     object.traverse(*this);
 }
@@ -69,21 +69,21 @@ void CullTraversal::apply(const StateGroup& object)
 // Vulkan nodes
 void CullTraversal::apply(const Command& object)
 {
-//    std::cout<<"Visiting Command "<<std::endl;
+    //    std::cout<<"Visiting Command "<<std::endl;
     ++numNodes;
     object.traverse(*this);
 }
 
 void CullTraversal::apply(const CommandBuffer& object)
 {
-//    std::cout<<"Visiting CommandBuffer "<<std::endl;
+    //    std::cout<<"Visiting CommandBuffer "<<std::endl;
     ++numNodes;
     object.traverse(*this);
 }
 
 void CullTraversal::apply(const RenderPass& object)
 {
-//    std::cout<<"Visiting RenderPass "<<std::endl;
+    //    std::cout<<"Visiting RenderPass "<<std::endl;
     ++numNodes;
     object.traverse(*this);
 }

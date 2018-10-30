@@ -22,9 +22,9 @@ namespace vsg
         PhysicalDevice(Instance* instance, VkPhysicalDevice device, int graphicsFamily, int presentFamily, int computeFamily, Surface* surface);
 
         using Result = vsg::Result<PhysicalDevice, VkResult, VK_SUCCESS>;
-        static Result create(Instance* instance, VkQueueFlags queueFlags, Surface* surface=nullptr);
+        static Result create(Instance* instance, VkQueueFlags queueFlags, Surface* surface = nullptr);
 
-        bool complete() const { return _device!=VK_NULL_HANDLE && _graphicsFamily>=0 && _presentFamily>=0; }
+        bool complete() const { return _device != VK_NULL_HANDLE && _graphicsFamily >= 0 && _presentFamily >= 0; }
 
         const Instance* getInstance() const { return _instance.get(); }
         const Surface* getSurface() const { return _surface.get(); }
@@ -39,19 +39,17 @@ namespace vsg
         const VkPhysicalDeviceProperties& getProperties() const { return _properties; }
 
     protected:
-
         virtual ~PhysicalDevice();
 
-        VkPhysicalDevice            _device;
-        int                         _graphicsFamily;
-        int                         _presentFamily;
-        int                         _computeFamily;
+        VkPhysicalDevice _device;
+        int _graphicsFamily;
+        int _presentFamily;
+        int _computeFamily;
 
-        VkPhysicalDeviceProperties  _properties;
+        VkPhysicalDeviceProperties _properties;
 
-        vsg::ref_ptr<Instance>      _instance;
-        vsg::ref_ptr<Surface>       _surface;
+        vsg::ref_ptr<Instance> _instance;
+        vsg::ref_ptr<Surface> _surface;
     };
 
-
-}
+} // namespace vsg

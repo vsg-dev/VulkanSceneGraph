@@ -65,7 +65,7 @@ void DescriptorSet::assign(const Descriptors& descriptors)
     _descriptors = descriptors;
 
     std::vector<VkWriteDescriptorSet> descriptorWrites(_descriptors.size());
-    for (size_t i=0; i<_descriptors.size(); ++i)
+    for (size_t i = 0; i < _descriptors.size(); ++i)
     {
         _descriptors[i]->assignTo(descriptorWrites[i], _descriptorSet);
     }

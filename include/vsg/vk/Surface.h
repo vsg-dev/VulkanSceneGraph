@@ -20,21 +20,18 @@ namespace vsg
     class VSG_DECLSPEC Surface : public Inherit<Object, Surface>
     {
     public:
-        Surface(VkSurfaceKHR surface, Instance* instance, AllocationCallbacks* allocator=nullptr);
+        Surface(VkSurfaceKHR surface, Instance* instance, AllocationCallbacks* allocator = nullptr);
 
         operator VkSurfaceKHR() const { return _surface; }
 
         Instance* getInstance() { return _instance; }
         const Instance* getInstance() const { return _instance; }
 
-
     protected:
-
         virtual ~Surface();
 
-        VkSurfaceKHR                    _surface;
-        ref_ptr<Instance>               _instance;
-        ref_ptr<AllocationCallbacks>    _allocator;
-
+        VkSurfaceKHR _surface;
+        ref_ptr<Instance> _instance;
+        ref_ptr<AllocationCallbacks> _allocator;
     };
-}
+} // namespace vsg

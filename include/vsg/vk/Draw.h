@@ -21,7 +21,7 @@ namespace vsg
     class Draw : public Inherit<Command, Draw>
     {
     public:
-        Draw(uint32_t in_vertexCount, uint32_t in_instanceCount, uint32_t in_firstVertex, uint32_t in_firstInstance):
+        Draw(uint32_t in_vertexCount, uint32_t in_instanceCount, uint32_t in_firstVertex, uint32_t in_firstInstance) :
             vertexCount(in_vertexCount),
             instanceCount(in_instanceCount),
             firstVertex(in_firstVertex),
@@ -41,7 +41,7 @@ namespace vsg
     class DrawIndexed : public Inherit<Command, DrawIndexed>
     {
     public:
-        DrawIndexed(uint32_t in_indexCount, uint32_t in_instanceCount, uint32_t in_firstIndex, int32_t in_vertexOffset, uint32_t in_firstInstance):
+        DrawIndexed(uint32_t in_indexCount, uint32_t in_instanceCount, uint32_t in_firstIndex, int32_t in_vertexOffset, uint32_t in_firstInstance) :
             indexCount(in_indexCount),
             instanceCount(in_instanceCount),
             firstIndex(in_firstIndex),
@@ -59,4 +59,4 @@ namespace vsg
         uint32_t vertexOffset;
         uint32_t firstInstance;
     };
-}
+} // namespace vsg

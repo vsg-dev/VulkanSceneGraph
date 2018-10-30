@@ -26,10 +26,9 @@ namespace vsg
             VkAllocationCallbacks{} {}
 
     protected:
-
         virtual ~AllocationCallbacks() {}
     };
-/*
+    /*
  * for reference:
  *
     typedef struct VkAllocationCallbacks {
@@ -73,4 +72,4 @@ namespace vsg
 
 */
 
-}
+} // namespace vsg

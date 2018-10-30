@@ -26,7 +26,11 @@ namespace vsg
     public:
         FixedGroup() {}
 
-        template<class N, class V> static void t_traverse(N& node, V& visitor) { for (auto& child : node._children) child->accept(visitor); }
+        template<class N, class V>
+        static void t_traverse(N& node, V& visitor)
+        {
+            for (auto& child : node._children) child->accept(visitor);
+        }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
@@ -40,16 +44,15 @@ namespace vsg
 
         constexpr std::size_t getNumChildren() const { return NUM_CHILDREN; }
 
-        using Children = std::array< ref_ptr< vsg::Node>, NUM_CHILDREN >;
+        using Children = std::array<ref_ptr<vsg::Node>, NUM_CHILDREN>;
 
         Children& getChildren() { return _children; }
         const Children& getChildren() const { return _children; }
 
     protected:
-
         virtual ~FixedGroup() {}
 
         Children _children;
     };
 
-}
+} // namespace vsg

@@ -12,15 +12,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Pipeline.h>
-#include <vsg/vk/DescriptorSet.h>
-#include <vsg/vk/BindVertexBuffers.h>
 #include <vsg/vk/BindIndexBuffer.h>
-#include <vsg/vk/PushConstants.h>
+#include <vsg/vk/BindVertexBuffers.h>
 #include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/DescriptorSet.h>
+#include <vsg/vk/Pipeline.h>
+#include <vsg/vk/PushConstants.h>
 
-#include <stack>
 #include <map>
+#include <stack>
 
 namespace vsg
 {
@@ -28,15 +28,23 @@ namespace vsg
     class StateStack
     {
     public:
-
-        StateStack() : dirty(false) {}
+        StateStack() :
+            dirty(false) {}
 
         using Stack = std::stack<ref_ptr<const T>>;
-        Stack   stack;
-        bool    dirty;
+        Stack stack;
+        bool dirty;
 
-        void push(const T* value) { stack.push(ref_ptr<const T>(value)); dirty = true; }
-        void pop() { stack.pop(); dirty = true; }
+        void push(const T* value)
+        {
+            stack.push(ref_ptr<const T>(value));
+            dirty = true;
+        }
+        void pop()
+        {
+            stack.pop();
+            dirty = true;
+        }
         size_t size() const { return stack.size(); }
         T& top() { return stack.top(); }
         const T& top() const { return stack.top(); }
@@ -49,22 +57,22 @@ namespace vsg
                 dirty = false;
             }
         }
-
     };
 
     class State : public Inherit<Object, State>
     {
     public:
-        State() : dirty(false) {}
+        State() :
+            dirty(false) {}
 
         using PushConstantsMap = std::map<uint32_t, StateStack<PushConstants>>;
 
-        bool                            dirty;
-        StateStack<BindPipeline>        pipelineStack;
-        StateStack<BindDescriptorSets>  descriptorStack;
-        StateStack<BindVertexBuffers>   vertexBuffersStack;
-        StateStack<BindIndexBuffer>     indexBufferStack;
-        PushConstantsMap                pushConstantsMap;
+        bool dirty;
+        StateStack<BindPipeline> pipelineStack;
+        StateStack<BindDescriptorSets> descriptorStack;
+        StateStack<BindVertexBuffers> vertexBuffersStack;
+        StateStack<BindIndexBuffer> indexBufferStack;
+        PushConstantsMap pushConstantsMap;
 
         inline void dispatch(CommandBuffer& commandBuffer)
         {
@@ -74,7 +82,7 @@ namespace vsg
                 descriptorStack.dispatch(commandBuffer);
                 vertexBuffersStack.dispatch(commandBuffer);
                 indexBufferStack.dispatch(commandBuffer);
-                for(auto& pushConstantsStack : pushConstantsMap)
+                for (auto& pushConstantsStack : pushConstantsMap)
                 {
                     pushConstantsStack.second.dispatch(commandBuffer);
                 }
@@ -82,7 +90,6 @@ namespace vsg
             }
         }
     };
-
 
     class Framebuffer;
     class Renderpass;
@@ -93,4 +100,4 @@ namespace vsg
 
         virtual void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent, const VkClearColorValue& clearColor) = 0;
     };
-}
+} // namespace vsg

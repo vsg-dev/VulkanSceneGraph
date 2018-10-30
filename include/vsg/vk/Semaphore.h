@@ -19,12 +19,12 @@ namespace vsg
     class VSG_DECLSPEC Semaphore : public Inherit<Object, Semaphore>
     {
     public:
-        Semaphore(VkSemaphore Semaphore, Device* device, AllocationCallbacks* allocator=nullptr);
+        Semaphore(VkSemaphore Semaphore, Device* device, AllocationCallbacks* allocator = nullptr);
 
         using Result = vsg::Result<Semaphore, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, AllocationCallbacks* allocator=nullptr);
+        static Result create(Device* device, AllocationCallbacks* allocator = nullptr);
 
-        operator VkSemaphore () const { return _semaphore; }
+        operator VkSemaphore() const { return _semaphore; }
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
@@ -32,9 +32,9 @@ namespace vsg
     protected:
         virtual ~Semaphore();
 
-        VkSemaphore                     _semaphore;
-        ref_ptr<Device>                 _device;
-        ref_ptr<AllocationCallbacks>    _allocator;
+        VkSemaphore _semaphore;
+        ref_ptr<Device> _device;
+        ref_ptr<AllocationCallbacks> _allocator;
     };
 
-}
+} // namespace vsg

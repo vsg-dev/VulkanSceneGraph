@@ -12,20 +12,21 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/Command.h>
 #include <vsg/vk/Descriptor.h>
-#include <vsg/nodes/StateGroup.h>
 
 namespace vsg
 {
     class VSG_DECLSPEC BindVertexBuffers : public Inherit<StateComponent, BindVertexBuffers>
     {
     public:
+        BindVertexBuffers() :
+            _firstBinding(0) {}
 
-        BindVertexBuffers() : _firstBinding(0) {}
-
-        BindVertexBuffers(uint32_t firstBinding, const BufferDataList& bufferDataList) : _firstBinding(firstBinding)
+        BindVertexBuffers(uint32_t firstBinding, const BufferDataList& bufferDataList) :
+            _firstBinding(firstBinding)
         {
             for (auto& bufferData : bufferDataList)
             {
@@ -58,6 +59,5 @@ namespace vsg
         Buffers _buffers;
         VkBuffers _vkBuffers;
         Offsets _offsets;
-
     };
-}
+} // namespace vsg

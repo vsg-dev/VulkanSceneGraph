@@ -16,54 +16,54 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <iostream>
 
-namespace glfw
-{
+using namespace glfw;
 
-vsg::Names getInstanceExtensions()
+vsg::Names glfw::getInstanceExtensions()
 {
     uint32_t glfw_count;
     const char** glfw_extensons = glfwGetRequiredInstanceExtensions(&glfw_count);
-    return vsg::Names(glfw_extensons, glfw_extensons+glfw_count);
+    return vsg::Names(glfw_extensons, glfw_extensons + glfw_count);
 }
 
 GLFW_Instance::GLFW_Instance()
 {
-    std::cout<<"Calling glfwInit"<<std::endl;
+    std::cout << "Calling glfwInit" << std::endl;
     glfwInit();
 }
 
 GLFW_Instance::~GLFW_Instance()
 {
-    std::cout<<"Calling glfwTerminate()"<<std::endl;
+    std::cout << "Calling glfwTerminate()" << std::endl;
     glfwTerminate();
 }
 
-vsg::ref_ptr<glfw::GLFW_Instance> getGLFW_Instance()
+vsg::ref_ptr<glfw::GLFW_Instance> glfw::getGLFW_Instance()
 {
     static vsg::observer_ptr<glfw::GLFW_Instance> s_glfw_Instance(new glfw::GLFW_Instance);
     return s_glfw_Instance;
 }
 
-
-class GLFWSurface : public vsg::Surface
+namespace glfw
 {
-public:
-
-    GLFWSurface(vsg::Instance* instance, GLFWwindow* window, vsg::AllocationCallbacks* allocator=nullptr) :
-        vsg::Surface(VK_NULL_HANDLE, instance, allocator)
+    class GLFWSurface : public vsg::Surface
     {
-        if (glfwCreateWindowSurface(*instance, window, nullptr, &_surface) != VK_SUCCESS)
+    public:
+        GLFWSurface(vsg::Instance* instance, GLFWwindow* window, vsg::AllocationCallbacks* allocator = nullptr) :
+            vsg::Surface(VK_NULL_HANDLE, instance, allocator)
         {
-            std::cout<<"Failed to create window surface"<<std::endl;
+            if (glfwCreateWindowSurface(*instance, window, nullptr, &_surface) != VK_SUCCESS)
+            {
+                std::cout << "Failed to create window surface" << std::endl;
+            }
+            else
+            {
+                std::cout << "Created window surface" << std::endl;
+            }
         }
-        else
-        {
-            std::cout<<"Created window surface"<<std::endl;
-        }
-    }
-};
+    };
+} // namespace glfw
 
-GLFW_Window::GLFW_Window(GLFW_Instance* glfwInstance, GLFWwindow* window, vsg::Instance* instance, vsg::Surface* surface, vsg::PhysicalDevice* physicalDevice, vsg::Device* device, vsg::RenderPass* renderPass, bool debugLayersEnabled):
+GLFW_Window::GLFW_Window(GLFW_Instance* glfwInstance, GLFWwindow* window, vsg::Instance* instance, vsg::Surface* surface, vsg::PhysicalDevice* physicalDevice, vsg::Device* device, vsg::RenderPass* renderPass, bool debugLayersEnabled) :
     _glfwInstance(glfwInstance),
     _window(window)
 {
@@ -75,10 +75,9 @@ GLFW_Window::GLFW_Window(GLFW_Instance* glfwInstance, GLFWwindow* window, vsg::I
     _debugLayersEnabled = debugLayersEnabled;
 }
 
-
 GLFW_Window::Result GLFW_Window::create(uint32_t width, uint32_t height, bool debugLayer, bool apiDumpLayer, vsg::Window* shareWindow, vsg::AllocationCallbacks* allocator)
 {
-    std::cout<<"Calling glfwCreateWindow(..)"<<std::endl;
+    std::cout << "Calling glfwCreateWindow(..)" << std::endl;
 
     vsg::ref_ptr<glfw::GLFW_Instance> glfwInstance = glfw::getGLFW_Instance();
 
@@ -131,7 +130,7 @@ GLFW_Window::Result GLFW_Window::create(uint32_t width, uint32_t height, bool de
         if (!surface) return Result("Error: vsg::GLFW_Window::create(...) failed to create Window, unable to create GLFWSurface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
         // set up device
-        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(instance, VK_QUEUE_GRAPHICS_BIT,  surface);
+        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(instance, VK_QUEUE_GRAPHICS_BIT, surface);
         if (!physicalDevice) return Result("Error: vsg::GLFW_Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
         vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, validatedNames, deviceExtensions, allocator);
@@ -140,7 +139,7 @@ GLFW_Window::Result GLFW_Window::create(uint32_t width, uint32_t height, bool de
         // set up renderpass with the imageFormat that the swap chain will use
         vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*physicalDevice, *surface);
         VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
-        VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT;//VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
+        VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
         vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, imageFormat.format, depthFormat, allocator);
         if (!renderPass) return Result("Error: vsg::GLFW_Window::create(...) failed to create Window, unable to create Vulkan RenderPass.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
@@ -159,7 +158,7 @@ GLFW_Window::~GLFW_Window()
 
     if (_window)
     {
-        std::cout<<"Calling glfwDestroyWindow(_window);"<<std::endl;
+        std::cout << "Calling glfwDestroyWindow(_window);" << std::endl;
         glfwDestroyWindow(_window);
     }
 }
@@ -174,7 +173,7 @@ bool GLFW_Window::resized() const
 {
     int new_width, new_height;
     glfwGetWindowSize(_window, &new_width, &new_height);
-    return (new_width!=int(_extent2D.width) || new_height!=int(_extent2D.height));
+    return (new_width != int(_extent2D.width) || new_height != int(_extent2D.height));
 }
 
 void GLFW_Window::resize()
@@ -183,8 +182,3 @@ void GLFW_Window::resize()
     glfwGetWindowSize(_window, &new_width, &new_height);
     buildSwapchain(new_width, new_height);
 }
-
-
-
-}
-

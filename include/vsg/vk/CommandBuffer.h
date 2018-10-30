@@ -25,13 +25,13 @@ namespace vsg
         CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags flags);
 
         using Result = vsg::Result<CommandBuffer, VkResult, VK_SUCCESS>;
-        static Result create(Device* device,  CommandPool* commandPool, VkCommandBufferUsageFlags flags);
+        static Result create(Device* device, CommandPool* commandPool, VkCommandBufferUsageFlags flags);
 
         VkCommandBufferUsageFlags flags() const { return _flags; }
 
         const VkCommandBuffer* data() const { return &_commandBuffer; }
 
-        operator VkCommandBuffer () const { return _commandBuffer; }
+        operator VkCommandBuffer() const { return _commandBuffer; }
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
@@ -39,7 +39,7 @@ namespace vsg
         void setCurrentPipeline(const Pipeline* pipeline)
         {
             _currentPipeline = pipeline;
-            _currentPipelineLayout = (pipeline!=nullptr) ? pipeline->getPipelineLayout() : nullptr;
+            _currentPipelineLayout = (pipeline != nullptr) ? pipeline->getPipelineLayout() : nullptr;
         }
 
         const Pipeline* getCurrentPipeline() const { return _currentPipeline; }
@@ -48,13 +48,13 @@ namespace vsg
     protected:
         virtual ~CommandBuffer();
 
-        VkCommandBuffer                 _commandBuffer;
-        VkCommandBufferUsageFlags       _flags;
+        VkCommandBuffer _commandBuffer;
+        VkCommandBufferUsageFlags _flags;
 
-        ref_ptr<Device>                 _device;
-        ref_ptr<CommandPool>            _commandPool;
-        ref_ptr<const Pipeline>         _currentPipeline;
-        ref_ptr<const PipelineLayout>   _currentPipelineLayout;
+        ref_ptr<Device> _device;
+        ref_ptr<CommandPool> _commandPool;
+        ref_ptr<const Pipeline> _currentPipeline;
+        ref_ptr<const PipelineLayout> _currentPipelineLayout;
     };
 
     template<typename F>
@@ -68,7 +68,7 @@ namespace vsg
 
         vkBeginCommandBuffer(*commandBuffer, &beginInfo);
 
-            function(*commandBuffer);
+        function(*commandBuffer);
 
         vkEndCommandBuffer(*commandBuffer);
 
@@ -90,7 +90,6 @@ namespace vsg
         }
     }
 
-
     template<typename F>
     void dispatchCommandsToQueue(Device* device, CommandPool* commandPool, VkQueue queue, F function)
     {
@@ -105,22 +104,20 @@ namespace vsg
         CommandBuffers(Device* device, CommandPool* commandPool, const Buffers& buffers);
 
         using Result = vsg::Result<CommandBuffers, VkResult, VK_SUCCESS>;
-        static Result create(Device* device,  CommandPool* commandPool, size_t size);
+        static Result create(Device* device, CommandPool* commandPool, size_t size);
 
         std::size_t size() const { return _buffers.size(); }
         const VkCommandBuffer* data() const { return _buffers.data(); }
 
-        const VkCommandBuffer& operator [] (size_t i) const { return _buffers[i]; }
+        const VkCommandBuffer& operator[](size_t i) const { return _buffers[i]; }
         const VkCommandBuffer& at(size_t i) const { return _buffers[i]; }
 
     protected:
         virtual ~CommandBuffers();
 
-        ref_ptr<Device>         _device;
-        ref_ptr<CommandPool>    _commandPool;
-        Buffers                 _buffers;
+        ref_ptr<Device> _device;
+        ref_ptr<CommandPool> _commandPool;
+        Buffers _buffers;
     };
 
-
-
-}
+} // namespace vsg

@@ -10,15 +10,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-
 #include <vsg/core/Result.h>
 
 #include <iostream>
 
-namespace vsg
+std::ostream& vsg::notice_stream()
 {
+    return std::cout;
+}
 
-    std::ostream& notice_stream() { return std::cout; }
-    std::ostream& error_stream() { return std::cerr; }
-
+std::ostream& vsg::error_stream()
+{
+    return std::cerr;
 }

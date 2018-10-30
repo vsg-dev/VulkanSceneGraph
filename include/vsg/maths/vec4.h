@@ -14,13 +14,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 // we can't implement the anonymous union/structs combination without causing warnings, so disabled them for just this header
 #if defined(__GNUC__)
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wpedantic"
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wpedantic"
 #endif
 #if defined(__clang__)
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
-    #pragma clang diagnostic ignored "-Wnested-anon-types"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
+#    pragma clang diagnostic ignored "-Wnested-anon-types"
 #endif
 
 namespace vsg
@@ -33,23 +33,35 @@ namespace vsg
 
         union
         {
-            value_type  value[4];
-            struct { value_type x, y, z, w; };
-            struct { value_type r, g, b, a; };
-            struct { value_type s, t, p, q; };
+            value_type value[4];
+            struct
+            {
+                value_type x, y, z, w;
+            };
+            struct
+            {
+                value_type r, g, b, a;
+            };
+            struct
+            {
+                value_type s, t, p, q;
+            };
         };
 
-        constexpr t_vec4() : value{} {}
-        constexpr t_vec4(const t_vec4& v) : value{v.x, v.y, v.z, v.w} {}
-        constexpr t_vec4(value_type in_x, value_type in_y, value_type in_z, value_type in_w) : value{in_x, in_y, in_z, in_w} {}
+        constexpr t_vec4() :
+            value{} {}
+        constexpr t_vec4(const t_vec4& v) :
+            value{v.x, v.y, v.z, v.w} {}
+        constexpr t_vec4(value_type in_x, value_type in_y, value_type in_z, value_type in_w) :
+            value{in_x, in_y, in_z, in_w} {}
 
         constexpr std::size_t size() const { return 4; }
 
-        value_type & operator[] (std::size_t i) { return value[i]; }
-        value_type operator[] (std::size_t i) const { return value[i]; }
+        value_type& operator[](std::size_t i) { return value[i]; }
+        value_type operator[](std::size_t i) const { return value[i]; }
 
         template<typename R>
-        t_vec4& operator = (const t_vec4<R>& rhs)
+        t_vec4& operator=(const t_vec4<R>& rhs)
         {
             value[0] = rhs[0];
             value[1] = rhs[1];
@@ -65,11 +77,11 @@ namespace vsg
     using vec4 = t_vec4<float>;
     using dvec4 = t_vec4<double>;
 
-}
+} // namespace vsg
 
 #if defined(__clang__)
-    #pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 #endif
 #if defined(__GNUC__)
-    #pragma GCC diagnostic pop
+#    pragma GCC diagnostic pop
 #endif

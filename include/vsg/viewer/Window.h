@@ -12,11 +12,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/CommandPool.h>
 #include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/CommandPool.h>
+#include <vsg/vk/DeviceMemory.h>
 #include <vsg/vk/Framebuffer.h>
 #include <vsg/vk/Semaphore.h>
-#include <vsg/vk/DeviceMemory.h>
 #include <vsg/vk/State.h>
 
 namespace vsg
@@ -25,12 +25,11 @@ namespace vsg
     class VSG_DECLSPEC Window : public Inherit<Object, Window>
     {
     public:
-
         Window(const Window&) = delete;
-        Window& operator = (const Window&) = delete;
+        Window& operator=(const Window&) = delete;
 
         using Result = vsg::Result<Window, VkResult, VK_SUCCESS>;
-        static Result create(uint32_t width, uint32_t height, bool debugLayer=false, bool apiDumpLayer=false, Window* shareWindow=nullptr, AllocationCallbacks* allocator=nullptr);
+        static Result create(uint32_t width, uint32_t height, bool debugLayer = false, bool apiDumpLayer = false, Window* shareWindow = nullptr, AllocationCallbacks* allocator = nullptr);
 
         virtual bool valid() const { return false; }
 
@@ -39,12 +38,10 @@ namespace vsg
         virtual bool resized() const { return false; }
         virtual void resize() {}
 
-
         using Stages = std::vector<ref_ptr<Stage>>;
         Stages _stages;
 
         void addStage(ref_ptr<Stage> stage) { _stages.push_back(stage); }
-
 
         const VkExtent2D& extent2D() { return _extent2D; }
 
@@ -95,7 +92,6 @@ namespace vsg
         void populateCommandBuffers();
 
     protected:
-
         Window();
 
         virtual ~Window();
@@ -106,35 +102,33 @@ namespace vsg
 
         struct Frame
         {
-            ref_ptr<ImageView>      imageView;
-            ref_ptr<Framebuffer>    framebuffer;
-            ref_ptr<CommandPool>    commandPool;
-            ref_ptr<CommandBuffer>  commandBuffer;
-
+            ref_ptr<ImageView> imageView;
+            ref_ptr<Framebuffer> framebuffer;
+            ref_ptr<CommandPool> commandPool;
+            ref_ptr<CommandBuffer> commandBuffer;
         };
 
         using Frames = std::vector<Frame>;
 
-        VkExtent2D              _extent2D;
-        VkClearColorValue       _clearColor;
+        VkExtent2D _extent2D;
+        VkClearColorValue _clearColor;
 
-        ref_ptr<Instance>       _instance;
+        ref_ptr<Instance> _instance;
         ref_ptr<PhysicalDevice> _physicalDevice;
-        ref_ptr<Device>         _device;
-        ref_ptr<Surface>        _surface;
-        ref_ptr<Swapchain>      _swapchain;
-        ref_ptr<RenderPass>     _renderPass;
-        ref_ptr<Image>          _depthImage;
-        ref_ptr<DeviceMemory>   _depthImageMemory;
-        ref_ptr<ImageView>      _depthImageView;
+        ref_ptr<Device> _device;
+        ref_ptr<Surface> _surface;
+        ref_ptr<Swapchain> _swapchain;
+        ref_ptr<RenderPass> _renderPass;
+        ref_ptr<Image> _depthImage;
+        ref_ptr<DeviceMemory> _depthImageMemory;
+        ref_ptr<ImageView> _depthImageView;
 
-        ref_ptr<Semaphore>      _imageAvailableSemaphore;
+        ref_ptr<Semaphore> _imageAvailableSemaphore;
 
-        Frames                  _frames;
+        Frames _frames;
 
-        bool                    _debugLayersEnabled;
-        uint32_t                _nextImageIndex;
+        bool _debugLayersEnabled;
+        uint32_t _nextImageIndex;
     };
 
-
-}
+} // namespace vsg

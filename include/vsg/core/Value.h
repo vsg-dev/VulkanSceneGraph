@@ -14,10 +14,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Data.h>
 
+#include <vsg/maths/mat4.h>
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
-#include <vsg/maths/mat4.h>
 
 namespace vsg
 {
@@ -28,8 +28,10 @@ namespace vsg
         using value_type = T;
 
         Value() {}
-        Value(const Value& rhs) : _value(rhs._value) {}
-        explicit Value(const value_type& in_value) : _value(in_value) {}
+        Value(const Value& rhs) :
+            _value(rhs._value) {}
+        explicit Value(const value_type& in_value) :
+            _value(in_value) {}
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Value); }
 
@@ -45,17 +47,26 @@ namespace vsg
         const void* dataPointer() const override { return &_value; }
         void* dataRelease() override { return nullptr; }
 
-        Value& operator = (const Value& rhs) { _value = rhs._value; return *this; }
-        Value& operator = (const value_type& rhs) { _value = rhs; return *this; }
+        Value& operator=(const Value& rhs)
+        {
+            _value = rhs._value;
+            return *this;
+        }
+        Value& operator=(const value_type& rhs)
+        {
+            _value = rhs;
+            return *this;
+        }
 
-        operator value_type& () { return _value; }
-        operator const value_type& () const { return _value; }
+        operator value_type&() { return _value; }
+        operator const value_type&() const { return _value; }
 
         value_type& value() { return _value; }
         const value_type& value() const { return _value; }
 
     protected:
         virtual ~Value() {}
+
     private:
         value_type _value;
     };
@@ -72,7 +83,7 @@ namespace vsg
     {
         using ValueT = Value<T>;
         const Object* object = getObject(key);
-        if (object && (typeid(*object)==typeid(ValueT)))
+        if (object && (typeid(*object) == typeid(ValueT)))
         {
             const ValueT* vo = static_cast<const ValueT*>(getObject(key));
             value = *vo;
@@ -98,4 +109,4 @@ namespace vsg
     using dvec3Value = Value<dvec3>;
     using dvec4Value = Value<dvec4>;
     using dmat4Value = Value<dmat4>;
-}
+} // namespace vsg

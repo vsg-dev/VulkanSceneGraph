@@ -31,7 +31,6 @@ namespace vsg
     class VSG_DECLSPEC CullTraversal : public Object
     {
     public:
-
         unsigned int numNodes = 0;
 
         void apply(const Object& object);
@@ -48,4 +47,4 @@ namespace vsg
         void apply(const CommandBuffer& object);
         void apply(const RenderPass& object);
     };
-}
+} // namespace vsg

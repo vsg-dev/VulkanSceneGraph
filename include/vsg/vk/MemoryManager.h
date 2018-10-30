@@ -21,7 +21,7 @@ namespace vsg
     class VSG_DECLSPEC MemoryManager : public Inherit<Object, MemoryManager>
     {
     public:
-        MemoryManager(Device* device, AllocationCallbacks* allocator=nullptr);
+        MemoryManager(Device* device, AllocationCallbacks* allocator = nullptr);
 
         Buffer* createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 
@@ -33,8 +33,8 @@ namespace vsg
     protected:
         virtual ~MemoryManager();
 
-        ref_ptr<Device>                 _device;
-        ref_ptr<AllocationCallbacks>    _allocator;
+        ref_ptr<Device> _device;
+        ref_ptr<AllocationCallbacks> _allocator;
     };
 
-}
+} // namespace vsg

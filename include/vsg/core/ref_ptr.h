@@ -19,8 +19,8 @@ namespace vsg
     class ref_ptr
     {
     public:
-
-        ref_ptr() : _ptr(nullptr) {}
+        ref_ptr() :
+            _ptr(nullptr) {}
 
         ref_ptr(const ref_ptr& rhs) :
             _ptr(rhs._ptr)
@@ -28,22 +28,21 @@ namespace vsg
             if (_ptr) _ptr->ref();
         }
 
-        explicit ref_ptr(T* ptr):
-            _ptr(ptr)
-        {
-            if (_ptr) _ptr->ref();
-        }
-
-
-        template<class R>
-        explicit ref_ptr(R* ptr):
+        explicit ref_ptr(T* ptr) :
             _ptr(ptr)
         {
             if (_ptr) _ptr->ref();
         }
 
         template<class R>
-        ref_ptr(const ref_ptr<R>& ptr):
+        explicit ref_ptr(R* ptr) :
+            _ptr(ptr)
+        {
+            if (_ptr) _ptr->ref();
+        }
+
+        template<class R>
+        ref_ptr(const ref_ptr<R>& ptr) :
             _ptr(ptr._ptr)
         {
             if (_ptr) _ptr->ref();
@@ -54,9 +53,9 @@ namespace vsg
             if (_ptr) _ptr->unref();
         }
 
-        ref_ptr& operator = (T* ptr) noexcept
+        ref_ptr& operator=(T* ptr) noexcept
         {
-            if (ptr==_ptr) return *this;
+            if (ptr == _ptr) return *this;
 
             T* temp_ptr = _ptr;
 
@@ -70,9 +69,9 @@ namespace vsg
             return *this;
         }
 
-        ref_ptr& operator = (const ref_ptr& rhs) noexcept
+        ref_ptr& operator=(const ref_ptr& rhs) noexcept
         {
-            if (rhs._ptr==_ptr) return *this;
+            if (rhs._ptr == _ptr) return *this;
 
             T* temp_ptr = _ptr;
 
@@ -85,12 +84,11 @@ namespace vsg
 
             return *this;
         }
-
 
         template<class R>
-        ref_ptr& operator = (const ref_ptr<R>& rhs) noexcept
+        ref_ptr& operator=(const ref_ptr<R>& rhs) noexcept
         {
-            if (rhs._ptr==_ptr) return *this;
+            if (rhs._ptr == _ptr) return *this;
 
             T* temp_ptr = _ptr;
 
@@ -104,19 +102,18 @@ namespace vsg
             return *this;
         }
 
-        bool valid() const noexcept { return _ptr!=nullptr; }
+        bool valid() const noexcept { return _ptr != nullptr; }
 
         explicit operator bool() const noexcept { return valid(); }
 
         // potentially dangerous automatic type conversion, could cause dangling pointer if ref_ptr<> assigned to C pointer, if ref_ptr<> destruction cause an object delete.
-        operator T* () const noexcept { return _ptr; }
+        operator T*() const noexcept { return _ptr; }
 
         T& operator*() const noexcept { return *_ptr; }
 
-        T* operator->() const noexcept { return _ptr;}
+        T* operator->() const noexcept { return _ptr; }
 
         T* get() const noexcept { return _ptr; }
-
 
         T* release() noexcept
         {
@@ -136,11 +133,10 @@ namespace vsg
         }
 
     protected:
-
-        template<class R> friend class ref_ptr;
+        template<class R>
+        friend class ref_ptr;
 
         T* _ptr;
-
     };
 
-}
+} // namespace vsg

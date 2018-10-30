@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/ref_ptr.h>
 #include <vsg/core/Result.h>
+#include <vsg/core/ref_ptr.h>
 
 #include <vsg/vk/AllocationCallbacks.h>
 
@@ -30,10 +30,10 @@ namespace vsg
     class VSG_DECLSPEC Instance : public Inherit<Object, Instance>
     {
     public:
-        Instance(VkInstance instance, AllocationCallbacks* allocator=nullptr);
+        Instance(VkInstance instance, AllocationCallbacks* allocator = nullptr);
 
         using Result = vsg::Result<Instance, VkResult, VK_SUCCESS>;
-        static Result create(Names& instanceExtensions, Names& layers, AllocationCallbacks* allocator=nullptr);
+        static Result create(Names& instanceExtensions, Names& layers, AllocationCallbacks* allocator = nullptr);
 
         operator VkInstance() const { return _instance; }
         VkInstance getInstance() const { return _instance; }
@@ -42,10 +42,9 @@ namespace vsg
         const AllocationCallbacks* getAllocationCallbacks() const { return _allocator.get(); }
 
     protected:
-
         virtual ~Instance();
 
-        VkInstance                      _instance;
-        ref_ptr<AllocationCallbacks>    _allocator;
+        VkInstance _instance;
+        ref_ptr<AllocationCallbacks> _allocator;
     };
-}
+} // namespace vsg

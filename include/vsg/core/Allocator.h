@@ -12,15 +12,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/ConstVisitor.h>
 #include <vsg/core/Object.h>
 #include <vsg/core/Visitor.h>
-#include <vsg/core/ConstVisitor.h>
 #include <vsg/core/ref_ptr.h>
 
 #include <vsg/utils/stream.h>
 
-#include <vsg/traversals/DispatchTraversal.h>
 #include <vsg/traversals/CullTraversal.h>
+#include <vsg/traversals/DispatchTraversal.h>
 
 namespace vsg
 {
@@ -35,11 +35,11 @@ namespace vsg
         void accept(DispatchTraversal& visitor) const override { visitor.apply(static_cast<const Allocator&>(*this)); }
         void accept(CullTraversal& visitor) const override { visitor.apply(static_cast<const Allocator&>(*this)); }
 
-        virtual void* allocate(std::size_t n, const void* hint );
+        virtual void* allocate(std::size_t n, const void* hint);
 
         virtual void* allocate(std::size_t size);
 
-        virtual void deallocate(const void* ptr, std::size_t size=0);
+        virtual void deallocate(const void* ptr, std::size_t size = 0);
 
         Auxiliary* getOrCreateSharedAuxiliary();
 
@@ -48,11 +48,11 @@ namespace vsg
     protected:
         virtual ~Allocator();
 
-        Auxiliary*  _sharedAuxiliary = nullptr;
+        Auxiliary* _sharedAuxiliary = nullptr;
         std::size_t _bytesAllocated = 0;
         std::size_t _countAllocated = 0;
         std::size_t _bytesDeallocated = 0;
         std::size_t _countDeallocated = 0;
     };
 
-}
+} // namespace vsg

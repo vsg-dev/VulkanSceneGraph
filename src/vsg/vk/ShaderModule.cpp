@@ -47,7 +47,7 @@ Shader::Result Shader::read(VkShaderStageFlagBits stage, const std::string& entr
 //
 // ShaderModule
 //
-ShaderModule::ShaderModule(VkShaderModule shaderModule, Device* device, Shader* shader, AllocationCallbacks* allocator):
+ShaderModule::ShaderModule(VkShaderModule shaderModule, Device* device, Shader* shader, AllocationCallbacks* allocator) :
     _shaderModule(shaderModule),
     _device(device),
     _shader(shader),

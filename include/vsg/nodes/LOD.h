@@ -16,19 +16,21 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/Node.h>
 
-#include <array>
 #include <algorithm>
+#include <array>
 
 namespace vsg
 {
     struct Sphere
     {
-        Sphere() : center{0.0,0.0,0.0}, radius(-1.0) {}
+        Sphere() :
+            center{0.0, 0.0, 0.0},
+            radius(-1.0) {}
 
-        bool valid() const { return radius>=0.0; }
+        bool valid() const { return radius >= 0.0; }
 
-        double    center[3];
-        double    radius;
+        double center[3];
+        double radius;
     };
 
     class VSG_DECLSPEC LOD : public Inherit<Node, LOD>
@@ -36,7 +38,11 @@ namespace vsg
     public:
         LOD() {}
 
-        template<class N, class V> static void t_traverse(N& node, V& visitor) { for (auto& child : node._children) child->accept(visitor); }
+        template<class N, class V>
+        static void t_traverse(N& node, V& visitor)
+        {
+            for (auto& child : node._children) child->accept(visitor);
+        }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
@@ -48,32 +54,30 @@ namespace vsg
         Sphere& getBoundingSphere() { return _boundingSphere; }
         const Sphere& getBoundingSphere() const { return _boundingSphere; }
 
-
         /// set the minimum screen space area that a child is visible from
         void setMinimumArea(std::size_t pos, double area) { _minimumAreas[pos] = area; }
         double getMinimumArea(std::size_t pos) const { return _minimumAreas[pos]; }
 
-        void setChild(std::size_t pos, Node* node) { _children[pos] = node;}
+        void setChild(std::size_t pos, Node* node) { _children[pos] = node; }
         Node* getChild(std::size_t pos) { return _children[pos].get(); }
         const Node* getChild(std::size_t pos) const { return _children[pos].get(); }
 
         std::size_t getNumChildren() const { return 2; }
 
-        using MinimumAreas = std::array< double, 2 > ;
+        using MinimumAreas = std::array<double, 2>;
         MinimumAreas& getMinimumAreas() { return _minimumAreas; }
         const MinimumAreas& getMinimumAreas() const { return _minimumAreas; }
 
-        using Children = std::array< ref_ptr<Node>, 2 >;
+        using Children = std::array<ref_ptr<Node>, 2>;
         Children& getChildren() { return _children; }
         const Children& getChildren() const { return _children; }
 
     protected:
-
         virtual ~LOD() {}
 
-        Sphere          _boundingSphere;
-        MinimumAreas    _minimumAreas;
-        Children        _children;
+        Sphere _boundingSphere;
+        MinimumAreas _minimumAreas;
+        Children _children;
     };
 
-}
+} // namespace vsg

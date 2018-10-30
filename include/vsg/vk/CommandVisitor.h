@@ -14,10 +14,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Visitor.h>
 
-#include <vsg/vk/Framebuffer.h>
-#include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/RenderPass.h>
 #include <vsg/vk/Command.h>
+#include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/Framebuffer.h>
+#include <vsg/vk/RenderPass.h>
 
 namespace vsg
 {
@@ -25,12 +25,11 @@ namespace vsg
     class VSG_DECLSPEC CommandVisitor : public Visitor
     {
     public:
-
-        ref_ptr<Framebuffer>    _framebuffer;
-        ref_ptr<RenderPass>     _renderPass;
-        ref_ptr<CommandBuffer>  _commandBuffer;
-        VkExtent2D              _extent;
-        VkClearColorValue       _clearColor;
+        ref_ptr<Framebuffer> _framebuffer;
+        ref_ptr<RenderPass> _renderPass;
+        ref_ptr<CommandBuffer> _commandBuffer;
+        VkExtent2D _extent;
+        VkClearColorValue _clearColor;
 
         CommandVisitor(Framebuffer* framebuffer, RenderPass* renderPass, CommandBuffer* commandBuffer, const VkExtent2D& extent, const VkClearColorValue& clearColor);
 
@@ -45,4 +44,4 @@ namespace vsg
         void populateCommandBuffer(vsg::Node* subgraph);
     };
 
-}
+} // namespace vsg

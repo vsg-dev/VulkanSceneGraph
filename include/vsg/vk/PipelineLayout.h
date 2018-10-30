@@ -23,13 +23,13 @@ namespace vsg
     class VSG_DECLSPEC PipelineLayout : public Inherit<Object, PipelineLayout>
     {
     public:
-        PipelineLayout(VkPipelineLayout pipelineLayout, const DescriptorSetLayouts& descrtorSetLayouts, Device* device, AllocationCallbacks* allocator=nullptr);
+        PipelineLayout(VkPipelineLayout pipelineLayout, const DescriptorSetLayouts& descrtorSetLayouts, Device* device, AllocationCallbacks* allocator = nullptr);
 
         using Result = vsg::Result<PipelineLayout, VkResult, VK_SUCCESS>;
 
-        static Result create(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags=0, AllocationCallbacks* allocator=nullptr);
+        static Result create(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags = 0, AllocationCallbacks* allocator = nullptr);
 
-        operator VkPipelineLayout () const { return _pipelineLayout; }
+        operator VkPipelineLayout() const { return _pipelineLayout; }
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
@@ -37,11 +37,11 @@ namespace vsg
     protected:
         virtual ~PipelineLayout();
 
-        VkPipelineLayout                _pipelineLayout;
-        DescriptorSetLayouts            _descriptorSetLayouts;
+        VkPipelineLayout _pipelineLayout;
+        DescriptorSetLayouts _descriptorSetLayouts;
 
-        ref_ptr<Device>                 _device;
-        ref_ptr<AllocationCallbacks>    _allocator;
+        ref_ptr<Device> _device;
+        ref_ptr<AllocationCallbacks> _allocator;
     };
 
-}
+} // namespace vsg

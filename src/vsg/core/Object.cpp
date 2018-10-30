@@ -10,23 +10,23 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Auxiliary.h>
+#include <vsg/core/ConstVisitor.h>
 #include <vsg/core/Object.h>
 #include <vsg/core/Visitor.h>
-#include <vsg/core/ConstVisitor.h>
-#include <vsg/core/Auxiliary.h>
 
-#include <vsg/traversals/DispatchTraversal.h>
 #include <vsg/traversals/CullTraversal.h>
-
+#include <vsg/traversals/DispatchTraversal.h>
 
 using namespace vsg;
 
 #if 1
-#include <iostream>
-#define DEBUG_NOTIFY if (false) std::cout
+#    include <iostream>
+#    define DEBUG_NOTIFY \
+        if (false) std::cout
 #else
-#include <iostream>
-#define DEBUG_NOTIFY std::cout
+#    include <iostream>
+#    define DEBUG_NOTIFY std::cout
 #endif
 
 Object::Object() :
@@ -37,7 +37,7 @@ Object::Object() :
 
 Object::~Object()
 {
-    DEBUG_NOTIFY<<"Object::~Object() "<<this<<std::endl;
+    DEBUG_NOTIFY << "Object::~Object() " << this << std::endl;
 
     if (_auxiliary)
     {
@@ -51,19 +51,19 @@ void Object::_delete() const
 
     // if there is an auxiliary attached signal to it we wish to delete, and give it an opportunity to decide whether a delete is appropriate.
     // if no auxiliary is attached then go straight ahead and delete.
-    if (_auxiliary==nullptr || _auxiliary->signalConnectedObjectToBeDeleted())
+    if (_auxiliary == nullptr || _auxiliary->signalConnectedObjectToBeDeleted())
     {
-        DEBUG_NOTIFY<<"Object::_delete() "<<this<<" calling delete"<<std::endl;
+        DEBUG_NOTIFY << "Object::_delete() " << this << " calling delete" << std::endl;
 
         ref_ptr<Allocator> allocator(getAllocator());
         if (allocator)
         {
             std::size_t size = sizeofObject();
 
-            DEBUG_NOTIFY<<"Calling this->~Object();"<<std::endl;
+            DEBUG_NOTIFY << "Calling this->~Object();" << std::endl;
             this->~Object();
 
-            DEBUG_NOTIFY<<"After Calling this->~Object();"<<std::endl;
+            DEBUG_NOTIFY << "After Calling this->~Object();" << std::endl;
             allocator->deallocate(this, size);
         }
         else
@@ -155,7 +155,7 @@ void Object::setAuxiliary(Auxiliary* auxiliary)
 
 Auxiliary* Object::getOrCreateUniqueAuxiliary()
 {
-    DEBUG_NOTIFY<<"Object::getOrCreateUniqueAuxiliary() _auxiliary="<<_auxiliary<<std::endl;
+    DEBUG_NOTIFY << "Object::getOrCreateUniqueAuxiliary() _auxiliary=" << _auxiliary << std::endl;
     if (!_auxiliary)
     {
         _auxiliary = new Auxiliary(this);
@@ -163,7 +163,7 @@ Auxiliary* Object::getOrCreateUniqueAuxiliary()
     }
     else
     {
-        if (_auxiliary->getConnectedObject()!=this)
+        if (_auxiliary->getConnectedObject() != this)
         {
             Auxiliary* previousAuxiliary = _auxiliary;
             Allocator* allocator = previousAuxiliary->getAllocator();
@@ -171,7 +171,7 @@ Auxiliary* Object::getOrCreateUniqueAuxiliary()
             {
                 void* ptr = allocator->allocate(sizeof(Auxiliary));
                 _auxiliary = new (ptr) Auxiliary(this, allocator);
-                DEBUG_NOTIFY<<"   used Allocator to allocate _auxiliary="<<_auxiliary<<std::endl;
+                DEBUG_NOTIFY << "   used Allocator to allocate _auxiliary=" << _auxiliary << std::endl;
             }
             else
             {
@@ -180,14 +180,13 @@ Auxiliary* Object::getOrCreateUniqueAuxiliary()
 
             _auxiliary->ref();
 
-            DEBUG_NOTIFY<<"Object::getOrCreateUniqueAuxiliary() _auxiliary="<<_auxiliary<<" replaces previousAuxiliary="<<previousAuxiliary<<std::endl;
+            DEBUG_NOTIFY << "Object::getOrCreateUniqueAuxiliary() _auxiliary=" << _auxiliary << " replaces previousAuxiliary=" << previousAuxiliary << std::endl;
 
             previousAuxiliary->unref();
         }
     }
     return _auxiliary;
 }
-
 
 Allocator* Object::getAllocator() const
 {

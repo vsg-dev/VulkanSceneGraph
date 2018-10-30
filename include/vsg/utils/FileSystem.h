@@ -32,4 +32,4 @@ namespace vsg
 
     extern VSG_DECLSPEC Path findFile(const Path& filename, const Paths& paths);
 
-}
+} // namespace vsg

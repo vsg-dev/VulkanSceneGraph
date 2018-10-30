@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/PipelineLayout.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/vk/PipelineLayout.h>
 
 namespace vsg
 {
@@ -21,9 +21,9 @@ namespace vsg
     class VSG_DECLSPEC Pipeline : public Inherit<Object, Pipeline>
     {
     public:
-        Pipeline(VkPipeline pipeline, VkPipelineBindPoint bindPoint, Device* device, PipelineLayout* pipelineLayout, AllocationCallbacks* allocator=nullptr);
+        Pipeline(VkPipeline pipeline, VkPipelineBindPoint bindPoint, Device* device, PipelineLayout* pipelineLayout, AllocationCallbacks* allocator = nullptr);
 
-        operator VkPipeline () const { return _pipeline; }
+        operator VkPipeline() const { return _pipeline; }
 
         VkPipelineBindPoint getBindPoint() const { return _bindPoint; }
 
@@ -36,11 +36,11 @@ namespace vsg
     protected:
         virtual ~Pipeline();
 
-        VkPipeline                      _pipeline;
-        VkPipelineBindPoint             _bindPoint;
-        ref_ptr<Device>                 _device;
-        ref_ptr<PipelineLayout>         _pipelineLayout;
-        ref_ptr<AllocationCallbacks>    _allocator;
+        VkPipeline _pipeline;
+        VkPipelineBindPoint _bindPoint;
+        ref_ptr<Device> _device;
+        ref_ptr<PipelineLayout> _pipelineLayout;
+        ref_ptr<AllocationCallbacks> _allocator;
     };
 
     class VSG_DECLSPEC BindPipeline : public Inherit<StateComponent, BindPipeline>
@@ -61,4 +61,4 @@ namespace vsg
         ref_ptr<Pipeline> _pipeline;
     };
 
-}
+} // namespace vsg

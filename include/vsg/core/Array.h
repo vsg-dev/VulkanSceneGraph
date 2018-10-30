@@ -14,10 +14,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Data.h>
 
+#include <vsg/maths/mat4.h>
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
-#include <vsg/maths/mat4.h>
 
 namespace vsg
 {
@@ -29,26 +29,43 @@ namespace vsg
         using iterator = value_type*;
         using const_iterator = const value_type*;
 
-        Array() : _size(0), _data(nullptr) {}
-        Array(std::size_t numElements, value_type* data) : _size(numElements), _data(data) {}
-        explicit Array(std::initializer_list<value_type> l) : _size(l.size()), _data(new value_type[l.size()]) { value_type* ptr = _data; for (value_type const & v : l) { (*ptr++) = v; } }
-        explicit Array(std::size_t numElements) : _size(numElements), _data(new value_type[numElements]) {}
+        Array() :
+            _size(0),
+            _data(nullptr) {}
+        Array(std::size_t numElements, value_type* data) :
+            _size(numElements),
+            _data(data) {}
+        explicit Array(std::initializer_list<value_type> l) :
+            _size(l.size()),
+            _data(new value_type[l.size()])
+        {
+            value_type* ptr = _data;
+            for (value_type const& v : l) { (*ptr++) = v; }
+        }
+        explicit Array(std::size_t numElements) :
+            _size(numElements),
+            _data(new value_type[numElements]) {}
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Data); }
 
         // implementation provided by Visitor.h
-        void accept(Visitor& visitor) override ;
-        void accept(ConstVisitor& visitor) const override ;
+        void accept(Visitor& visitor) override;
+        void accept(ConstVisitor& visitor) const override;
 
         std::size_t size() const { return _size; }
-        bool empty() const { return _size==0; }
+        bool empty() const { return _size == 0; }
 
         // should Array be fixed size?
-        void clear() { _size = 0; if (_data) { delete [] _data; } _data = nullptr; }
+        void clear()
+        {
+            _size = 0;
+            if (_data) { delete[] _data; }
+            _data = nullptr;
+        }
 
         void assign(std::size_t numElements, value_type* data)
         {
-            if (_data!=nullptr) delete [] _data;
+            if (_data != nullptr) delete[] _data;
 
             _size = numElements;
             _data = data;
@@ -63,22 +80,28 @@ namespace vsg
                 std::size_t size_to_copy = std::min(_size, size);
 
                 _size = size;
-                _data = size>0 ? new value_type[size] : nullptr;
+                _data = size > 0 ? new value_type[size] : nullptr;
 
                 // copy data
-                for(std::size_t i=0; i<size_to_copy; ++i) _data[i] = original_data[i];
+                for (std::size_t i = 0; i < size_to_copy; ++i) _data[i] = original_data[i];
 
-                delete [] original_data;
+                delete[] original_data;
             }
             else
             {
                 _size = size;
-                _data = size>0 ? new value_type[size] : nullptr;
+                _data = size > 0 ? new value_type[size] : nullptr;
             }
         }
 
         // release the data so that owneership can be passed on, the local data pointer and size is set to 0 and destruction of Array will no result in the data being deleted.
-        void* dataRelease() override { void* tmp = _data; _data = nullptr; _size=0; return tmp; }
+        void* dataRelease() override
+        {
+            void* tmp = _data;
+            _data = nullptr;
+            _size = 0;
+            return tmp;
+        }
 
         std::size_t valueSize() const override { return sizeof(value_type); }
         std::size_t valueCount() const override { return _size; }
@@ -90,8 +113,8 @@ namespace vsg
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
-        value_type& operator [] (std::size_t i) { return _data[i]; }
-        const value_type& operator [] (std::size_t i) const { return _data[i]; }
+        value_type& operator[](std::size_t i) { return _data[i]; }
+        const value_type& operator[](std::size_t i) const { return _data[i]; }
 
         value_type& at(std::size_t i) { return _data[i]; }
         const value_type& at(std::size_t i) const { return _data[i]; }
@@ -101,11 +124,14 @@ namespace vsg
         iterator begin() { return _data; }
         const_iterator begin() const { return _data; }
 
-        iterator end() { return _data+_size; }
-        const_iterator end() const { return _data+_size; }
+        iterator end() { return _data + _size; }
+        const_iterator end() const { return _data + _size; }
 
     protected:
-        virtual ~Array() { if (_data) delete [] _data; }
+        virtual ~Array()
+        {
+            if (_data) delete[] _data;
+        }
 
     private:
         std::size_t _size;
@@ -127,4 +153,4 @@ namespace vsg
     using dvec3Array = Array<dvec3>;
     using dvec4Array = Array<dvec4>;
     using dmat4Array = Array<dmat4>;
-}
+} // namespace vsg

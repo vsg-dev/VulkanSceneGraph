@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/Descriptor.h>
-#include <vsg/nodes/StateGroup.h>
 
 namespace vsg
 {
@@ -22,10 +22,13 @@ namespace vsg
     class VSG_DECLSPEC BindIndexBuffer : public Inherit<StateComponent, BindIndexBuffer>
     {
     public:
+        BindIndexBuffer(Buffer* buffer, VkDeviceSize offset, VkIndexType indexType) :
+            _bufferData(buffer, offset, 0),
+            _indexType(indexType) {}
 
-        BindIndexBuffer(Buffer* buffer, VkDeviceSize offset, VkIndexType indexType) : _bufferData(buffer, offset, 0), _indexType(indexType) {}
-
-        BindIndexBuffer(const BufferData& bufferData, VkIndexType indexType) : _bufferData(bufferData), _indexType(indexType) {}
+        BindIndexBuffer(const BufferData& bufferData, VkIndexType indexType) :
+            _bufferData(bufferData),
+            _indexType(indexType) {}
 
         void pushTo(State& state) const override;
         void popFrom(State& state) const override;
@@ -36,7 +39,6 @@ namespace vsg
 
         BufferData _bufferData;
         VkIndexType _indexType;
-
     };
 
-}
+} // namespace vsg

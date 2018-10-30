@@ -21,6 +21,7 @@ protected:
 };
 
 extern vsg::ref_ptr<glfw::GLFW_Instance> getGLFW_Instance();
+extern vsg::Names getInstanceExtensions();
 
 
 class GLFW_Window : public vsg::Window

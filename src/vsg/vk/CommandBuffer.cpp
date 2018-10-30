@@ -30,7 +30,7 @@ CommandBuffer::~CommandBuffer()
     }
 }
 
-CommandBuffer::Result CommandBuffer::create(Device* device,  CommandPool* commandPool, VkCommandBufferUsageFlags flags)
+CommandBuffer::Result CommandBuffer::create(Device* device, CommandPool* commandPool, VkCommandBufferUsageFlags flags)
 {
     if (!device || !commandPool)
     {
@@ -66,7 +66,7 @@ CommandBuffers::CommandBuffers(Device* device, CommandPool* commandPool, const B
 {
 }
 
-CommandBuffers::Result CommandBuffers::create(Device* device,  CommandPool* commandPool, size_t size)
+CommandBuffers::Result CommandBuffers::create(Device* device, CommandPool* commandPool, size_t size)
 {
     if (!device || !commandPool)
     {
@@ -79,7 +79,7 @@ CommandBuffers::Result CommandBuffers::create(Device* device,  CommandPool* comm
     allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocateInfo.commandPool = *commandPool;
     allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocateInfo.commandBufferCount = (uint32_t) buffers.size();
+    allocateInfo.commandBufferCount = (uint32_t)buffers.size();
 
     VkResult result = vkAllocateCommandBuffers(*device, &allocateInfo, buffers.data());
     if (result == VK_SUCCESS)

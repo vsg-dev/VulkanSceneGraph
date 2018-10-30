@@ -12,11 +12,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/nodes/StateGroup.h>
+#include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/DescriptorSetLayout.h>
 #include <vsg/vk/PipelineLayout.h>
-#include <vsg/vk/Descriptor.h>
-#include <vsg/nodes/StateGroup.h>
 
 namespace vsg
 {
@@ -32,17 +32,16 @@ namespace vsg
 
         void assign(const Descriptors& descriptors);
 
-        operator VkDescriptorSet () const { return _descriptorSet; }
+        operator VkDescriptorSet() const { return _descriptorSet; }
 
     protected:
         virtual ~DescriptorSet();
 
-        VkDescriptorSet                 _descriptorSet;
-        ref_ptr<Device>                 _device;
-        ref_ptr<DescriptorPool>         _descriptorPool;
-        ref_ptr<DescriptorSetLayout>    _descriptorSetLayout;
-        Descriptors                     _descriptors;
-
+        VkDescriptorSet _descriptorSet;
+        ref_ptr<Device> _device;
+        ref_ptr<DescriptorPool> _descriptorPool;
+        ref_ptr<DescriptorSetLayout> _descriptorSetLayout;
+        Descriptors _descriptors;
     };
 
     using DescriptorSets = std::vector<ref_ptr<DescriptorSet>>;
@@ -50,7 +49,6 @@ namespace vsg
     class VSG_DECLSPEC BindDescriptorSets : public Inherit<StateComponent, BindDescriptorSets>
     {
     public:
-
         BindDescriptorSets(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, const DescriptorSets& descriptorSets) :
             _bindPoint(bindPoint),
             _pipelineLayout(pipelineLayout),
@@ -59,29 +57,28 @@ namespace vsg
             update();
         }
 
-        void pushTo(State& state)  const override;
+        void pushTo(State& state) const override;
         void popFrom(State& state) const override;
         void dispatch(CommandBuffer& commandBuffer) const override;
 
         void update()
         {
             _vkDescriptorSets.resize(_descriptorSets.size());
-            for (size_t i=0; i<_descriptorSets.size(); ++i)
+            for (size_t i = 0; i < _descriptorSets.size(); ++i)
             {
                 _vkDescriptorSets[i] = *(_descriptorSets[i]);
             }
         }
-
 
     protected:
         virtual ~BindDescriptorSets() {}
 
         using VkDescriptorSets = std::vector<VkDescriptorSet>;
 
-        VkPipelineBindPoint         _bindPoint;
-        ref_ptr<PipelineLayout>     _pipelineLayout;
-        DescriptorSets              _descriptorSets;
-        VkDescriptorSets            _vkDescriptorSets;
+        VkPipelineBindPoint _bindPoint;
+        ref_ptr<PipelineLayout> _pipelineLayout;
+        DescriptorSets _descriptorSets;
+        VkDescriptorSets _vkDescriptorSets;
     };
 
-}
+} // namespace vsg

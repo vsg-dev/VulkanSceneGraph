@@ -39,9 +39,9 @@ Device::Result Device::create(PhysicalDevice* physicalDevice, Names& layers, Nam
     }
 
     std::set<int> uniqueQueueFamiles;
-    if (physicalDevice->getGraphicsFamily()>=0) uniqueQueueFamiles.insert(physicalDevice->getGraphicsFamily());
-    if (physicalDevice->getComputeFamily()>=0) uniqueQueueFamiles.insert(physicalDevice->getComputeFamily());
-    if (physicalDevice->getPresentFamily()>=0) uniqueQueueFamiles.insert(physicalDevice->getPresentFamily());
+    if (physicalDevice->getGraphicsFamily() >= 0) uniqueQueueFamiles.insert(physicalDevice->getGraphicsFamily());
+    if (physicalDevice->getComputeFamily() >= 0) uniqueQueueFamiles.insert(physicalDevice->getComputeFamily());
+    if (physicalDevice->getPresentFamily() >= 0) uniqueQueueFamiles.insert(physicalDevice->getPresentFamily());
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 

@@ -18,7 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-
 CommandVisitor::CommandVisitor(Framebuffer* framebuffer, RenderPass* renderPass, CommandBuffer* commandBuffer, const VkExtent2D& extent, const VkClearColorValue& clearColor) :
     _framebuffer(framebuffer),
     _renderPass(renderPass),
@@ -52,24 +51,24 @@ void CommandVisitor::populateCommandBuffer(vsg::Node* subgraph)
 
     vkBeginCommandBuffer(*_commandBuffer, &beginInfo);
 
-        VkRenderPassBeginInfo renderPassInfo = {};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = *_renderPass;
-        renderPassInfo.framebuffer = *_framebuffer;
-        renderPassInfo.renderArea.offset = {0, 0};
-        renderPassInfo.renderArea.extent = _extent;
+    VkRenderPassBeginInfo renderPassInfo = {};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass = *_renderPass;
+    renderPassInfo.framebuffer = *_framebuffer;
+    renderPassInfo.renderArea.offset = {0, 0};
+    renderPassInfo.renderArea.extent = _extent;
 
-        std::array<VkClearValue, 2> clearValues = {};
-        clearValues[0].color = _clearColor;
-        clearValues[1].depthStencil = {1.0f, 0};
+    std::array<VkClearValue, 2> clearValues = {};
+    clearValues[0].color = _clearColor;
+    clearValues[1].depthStencil = {1.0f, 0};
 
-        renderPassInfo.clearValueCount = clearValues.size();
-        renderPassInfo.pClearValues = clearValues.data();
-        vkCmdBeginRenderPass(*_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    renderPassInfo.clearValueCount = clearValues.size();
+    renderPassInfo.pClearValues = clearValues.data();
+    vkCmdBeginRenderPass(*_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-            subgraph->accept(*this);
+    subgraph->accept(*this);
 
-        vkCmdEndRenderPass(*_commandBuffer);
+    vkCmdEndRenderPass(*_commandBuffer);
 
     vkEndCommandBuffer(*_commandBuffer);
 }

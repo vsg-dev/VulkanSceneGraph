@@ -12,11 +12,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/viewer/Viewer.h>
 
-#include <iostream>
 #include <chrono>
+#include <iostream>
 
-namespace vsg
-{
+using namespace vsg;
 
 Viewer::Viewer()
 {
@@ -37,7 +36,7 @@ void Viewer::addWindow(ref_ptr<Window> window)
 
     ref_ptr<Device> device(window->device());
     PhysicalDevice* physicalDevice = window->physicalDevice();
-    if (_deviceMap.find(device)==_deviceMap.end())
+    if (_deviceMap.find(device) == _deviceMap.end())
     {
         // set up per device settings
         PerDeviceObjects& new_pdo = _deviceMap[device];
@@ -50,7 +49,7 @@ void Viewer::addWindow(ref_ptr<Window> window)
     // add per window details to pdo
     PerDeviceObjects& pdo = _deviceMap[device];
     pdo.windows.push_back(window);
-    pdo.imageIndices.push_back(0); // to be filled in by submitFrame()
+    pdo.imageIndices.push_back(0);   // to be filled in by submitFrame()
     pdo.commandBuffers.push_back(0); // to be filled in by submitFrame()
     pdo.waitSemaphores.push_back(*(window->imageAvailableSemaphore()));
     pdo.swapchains.push_back(*(window->swapchain()));
@@ -97,7 +96,7 @@ void Viewer::reassignFrameCache()
 
         for (auto window : pdo.windows)
         {
-            pdo.imageIndices.push_back(0); // to be filled in by submitFrame()
+            pdo.imageIndices.push_back(0);   // to be filled in by submitFrame()
             pdo.commandBuffers.push_back(0); // to be filled in by submitFrame()
             pdo.waitSemaphores.push_back(*(window->imageAvailableSemaphore()));
             pdo.swapchains.push_back(*(window->swapchain()));
@@ -112,11 +111,11 @@ void Viewer::submitFrame()
 
     for (auto& window : _windows)
     {
-        if (window->debugLayersEnabled()) debugLayersEnabled=true;
+        if (window->debugLayersEnabled()) debugLayersEnabled = true;
 
         vsg::Semaphore* imageAvailableSemaphore = window->imageAvailableSemaphore();
         VkResult result;
-        if (window->resized() || (result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *(imageAvailableSemaphore), VK_NULL_HANDLE))!=VK_SUCCESS)
+        if (window->resized() || (result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *(imageAvailableSemaphore), VK_NULL_HANDLE)) != VK_SUCCESS)
         {
             window->resize();
 
@@ -125,9 +124,9 @@ void Viewer::submitFrame()
             window->populateCommandBuffers();
 
             result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE);
-            if (result!=VK_SUCCESS)
+            if (result != VK_SUCCESS)
             {
-                std::cout<<"Failed to aquire image VkResult="<<result<<std::endl;
+                std::cout << "Failed to aquire image VkResult=" << result << std::endl;
                 return;
             }
         }
@@ -138,7 +137,7 @@ void Viewer::submitFrame()
         PerDeviceObjects& pdo = pair_pdo.second;
 
         // fill in the imageIndices and commandBuffers associated with each window
-        for (size_t i=0; i<pdo.windows.size(); ++i)
+        for (size_t i = 0; i < pdo.windows.size(); ++i)
         {
             uint32_t imageIndex = pdo.windows[i]->nextImageIndex();
             pdo.imageIndices[i] = imageIndex;
@@ -160,7 +159,7 @@ void Viewer::submitFrame()
 
         if (vkQueueSubmit(pdo.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
         {
-            std::cout<<"Error: failed to submit draw command buffer."<<std::endl;
+            std::cout << "Error: failed to submit draw command buffer." << std::endl;
             return;
         }
     }
@@ -178,7 +177,6 @@ void Viewer::submitFrame()
         presentInfo.pImageIndices = pdo.imageIndices.data();
 
         vkQueuePresentKHR(pdo.presentQueue, &presentInfo);
-
     }
 
     if (debugLayersEnabled)
@@ -189,8 +187,4 @@ void Viewer::submitFrame()
             vkQueueWaitIdle(pdo.presentQueue);
         }
     }
-}
-
-
-
 }

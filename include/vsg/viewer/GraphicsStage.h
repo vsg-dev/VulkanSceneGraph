@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/State.h>
 #include <vsg/vk/Framebuffer.h>
 #include <vsg/vk/RenderPass.h>
+#include <vsg/vk/State.h>
 
 namespace vsg
 {
@@ -22,14 +22,12 @@ namespace vsg
     class VSG_DECLSPEC GraphicsStage : public Inherit<Stage, GraphicsStage>
     {
     public:
-
         GraphicsStage(ref_ptr<Node> commandGraph);
 
         ref_ptr<Node> _commandGraph;
 
         void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass,
                                    const VkExtent2D& extent2D, const VkClearColorValue& clearColor) override;
-
     };
 
-}
+} // namespace vsg

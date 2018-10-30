@@ -13,13 +13,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Data.h>
-#include <vsg/vk/Device.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/vk/Device.h>
 
 namespace vsg
 {
 
-   class VSG_DECLSPEC PushConstants : public Inherit<StateComponent, PushConstants>
+    class VSG_DECLSPEC PushConstants : public Inherit<StateComponent, PushConstants>
     {
     public:
         PushConstants(VkShaderStageFlags shaderFlags, uint32_t offset, Data* data);
@@ -34,10 +34,9 @@ namespace vsg
     protected:
         virtual ~PushConstants();
 
-        VkShaderStageFlags  _stageFlags;
-        uint32_t            _offset;
-        ref_ptr<Data>       _data;
+        VkShaderStageFlags _stageFlags;
+        uint32_t _offset;
+        ref_ptr<Data> _data;
     };
 
-
-}
+} // namespace vsg

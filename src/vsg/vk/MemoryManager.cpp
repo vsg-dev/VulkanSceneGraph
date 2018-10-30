@@ -10,9 +10,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/MemoryManager.h>
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/Image.h>
+#include <vsg/vk/MemoryManager.h>
 
 #include <cstring>
 
@@ -36,7 +36,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 //
 // Pool resources as OS Window allocations can be expensive, place buffers and textures in single pools, 256MB is reasonalbe base
 //
-
 
 using namespace vsg;
 
