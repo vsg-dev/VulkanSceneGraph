@@ -32,7 +32,6 @@ namespace vsg
         void ref() const;
         void unref() const;
         void unref_nodelete() const;
-
         inline unsigned int referenceCount() const { return _referenceCount.load(); }
 
         void setObject(const std::string& key, Object* object);
