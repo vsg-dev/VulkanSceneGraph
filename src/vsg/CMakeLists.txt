@@ -77,6 +77,29 @@ add_definitions(${VSG_DEFINITIONS})
 
 add_library(vsg ${HEADERS} ${SOURCES})
 
+if(MSVC)
+    # ensure the libraries are all built in the lib directory
+    macro(SET_OUTPUT_DIR_PROPERTY TARGET_TARGETNAME RELATIVE_OUTDIR)
+        # Global properties (All generators but VS & Xcode)
+        set_target_properties(${TARGET_TARGETNAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_LIBDIR}/${RELATIVE_OUTDIR}")
+        set_target_properties(${TARGET_TARGETNAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_LIBDIR}/${RELATIVE_OUTDIR}")
+        set_target_properties(${TARGET_TARGETNAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_LIBDIR}/${RELATIVE_OUTDIR}")
+
+        # Per-configuration property (VS, Xcode)
+        foreach(CONF ${CMAKE_CONFIGURATION_TYPES})        # For each configuration (Debug, Release, MinSizeRel... and/or anything the user chooses)
+            string(TOUPPER "${CONF}" CONF)                # Go uppercase (DEBUG, RELEASE...)
+
+            # We use "FILE(TO_CMAKE_PATH", to create nice looking paths
+            set_target_properties(${TARGET_TARGETNAME} PROPERTIES "ARCHIVE_OUTPUT_DIRECTORY_${CONF}" "${OUTPUT_LIBDIR}/${RELATIVE_OUTDIR}")
+            set_target_properties(${TARGET_TARGETNAME} PROPERTIES "RUNTIME_OUTPUT_DIRECTORY_${CONF}" "${OUTPUT_LIBDIR}/${RELATIVE_OUTDIR}")
+            set_target_properties(${TARGET_TARGETNAME} PROPERTIES "LIBRARY_OUTPUT_DIRECTORY_${CONF}" "${OUTPUT_LIBDIR}/${RELATIVE_OUTDIR}")
+        endforeach()
+    endmacro()
+
+    SET_OUTPUT_DIR_PROPERTY(vsg "")
+endif()
+
+# set up versions and position independent code that is required for unices
 set_property(TARGET vsg PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET vsg PROPERTY VERSION ${VSG_MAJOR_VERSION}.${VSG_MINOR_VERSION}.${VSG_PATCH_VERSION})
 set_property(TARGET vsg PROPERTY SOVERSION ${VSG_SOVERSION})
