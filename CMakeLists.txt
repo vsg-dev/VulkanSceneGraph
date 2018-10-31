@@ -122,5 +122,7 @@ if (CLANGFORMAT)
     )
 endif()
 
-# src directory contains all the example applications etc.
+#
+# src directory contains all the source of the vsg library
+#
 add_subdirectory(src/vsg)
