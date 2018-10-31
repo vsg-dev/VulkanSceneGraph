@@ -68,13 +68,6 @@ endforeach ()
 find_package(GLFW)
 find_package(Vulkan)
 
-find_package(Threads)
-
-find_library(DL_LIBRARY dl)
-if(NOT DL_LIBRARY)
-    set(DL_LIBRARY "") # change from NOTFOUND to empty when passed to linker
-endif()
-
 
 # create doxygen build target
 find_package(Doxygen REQUIRED dot)
