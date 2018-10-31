@@ -78,15 +78,16 @@ endif()
 
 # create doxygen build target
 find_package(Doxygen REQUIRED dot)
+if (DOXYGEN_FOUND)
+    set(DOXYGEN_GENERATE_HTML YES)
+    set(DOXYGEN_GENERATE_MAN NO)
 
-set(DOXYGEN_GENERATE_HTML YES)
-set(DOXYGEN_GENERATE_MAN NO)
-
-doxygen_add_docs(
-    docs
-    ${PROJECT_SOURCE_DIR}/include/vsg
-    COMMENT "Use doxygen to Generate html documentaion"
-)
+    doxygen_add_docs(
+        docs
+        ${PROJECT_SOURCE_DIR}/include/vsg
+        COMMENT "Use doxygen to Generate html documentaion"
+    )
+endif()
 
 # add clobber build target to clear all the non git registered files/directories
 add_custom_target(clobber
