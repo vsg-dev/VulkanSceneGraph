@@ -18,6 +18,11 @@
 * [hunter](https://docs.hunter.sh/en/latest/), [github](https://github.com/ruslo/hunter)
 * [vcpkg](https://github.com/Microsoft/vcpkg)
 
+## Documentation tools
+* [doxygen](http://www.doxygen.org/)
+* [cldoc] (http://jessevdk.github.io/cldoc/)
+* [DoxyPress](http://www.copperspice.com/documentation-doxypress.html)
+
 ## Tutorials
 
 * [Vulkan Tutorial](https://vulkan-tutorial.com/)

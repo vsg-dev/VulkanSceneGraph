@@ -76,14 +76,29 @@ if(NOT DL_LIBRARY)
 endif()
 
 
+# create doxygen build target
+find_package(Doxygen REQUIRED dot)
+
+set(DOXYGEN_GENERATE_HTML YES)
+set(DOXYGEN_GENERATE_MAN NO)
+
+doxygen_add_docs(
+    docs
+    ${PROJECT_SOURCE_DIR}/include/vsg
+    COMMENT "Use doxygen to Generate html documentaion"
+)
+
+# add clobber build target to clear all the non git registered files/directories
 add_custom_target(clobber
     COMMAND git clean -d -f -x
 )
 
+# automatically buil_all_h build target to generate the include/vsg/all.h from the headers in the include/vsg/* directories
 add_custom_target(build_all_h
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/build_all_h.cmake
 )
 
+# add cppcheck build target to provide static analysis of codebase
 find_program(CPPCHECK cppcheck)
 if (CPPCHECK)
     file(RELATIVE_PATH PATH_TO_SOURCE ${PROJECT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR} )
@@ -99,7 +114,7 @@ if (CPPCHECK)
     )
 endif()
 
-
+# add clang-foramt build target to enforce a standard code style guide.
 find_program(CLANGFORMAT clang-format)
 if (CLANGFORMAT)
     add_custom_target(clang-format
