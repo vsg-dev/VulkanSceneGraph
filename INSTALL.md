@@ -9,9 +9,9 @@ The above dependency versions are known to work so they've been set as the curre
 
 ---
 
-## Quick guide to building and install the VSG from the command line:
+## Quick guide to build and install the VSG from the command line:
 
-Command line instructions for default building of static library (.a/.lib) in source:
+Command line instructions for default build of static library (.a/.lib) in source:
 
     git clone https://github.com/robertosfield/VulkanSceneGraphPrototype.git
     cd VulkanSceneGraphPrototype
@@ -39,24 +39,27 @@ Once you have generated the build system using *cmake* as above, you can list th
 This lists the options:
 
     ... all (the default if no target is provided)
-    ... clean
-    ... depend
-    ... install/strip
-    ... install/local
-    ... install
-    ... build_all_h
-    ... rebuild_cache
-    ... clobber
-    ... edit_cache
-    ... cppcheck
-    ... list_install_components
-    ... vsg
-    
+	... clean
+	... depend
+	... install/strip
+	... install/local
+	... rebuild_cache
+	... clobber
+	... install
+	... docs
+	... build_all_h
+	... list_install_components
+	... cppcheck
+	... clang-format
+	... edit_cache
+	... vsg
+
 Most of these are standard options which you can look up in CMake and make documentation, the following are ones we've added so require explanation:
 
-    make clobber     # remove all files not part of the git repository - including all temporary CMake and build files.
-    make cppcheck    # run cppcheck on source and headers to generate a static analysis
-    make build_all_h # generate the include/vsg/all.h from all the files that match include/vsg/*/*.h
+    make clobber      # remove all files not part of the git repository - including all temporary CMake and build files.
+    make cppcheck     # run cppcheck on headers & source to generate a static analysis
+    make clang-format # run clang-format on headers & source to format to style specified by .clang-format specification
+    make build_all_h  # generate the include/vsg/all.h from all the files that match include/vsg/*/*.h
 
 ---
 
