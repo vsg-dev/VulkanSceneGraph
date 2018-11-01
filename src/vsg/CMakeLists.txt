@@ -98,18 +98,44 @@ set_property(TARGET vsg PROPERTY VERSION ${VSG_MAJOR_VERSION}.${VSG_MINOR_VERSIO
 set_property(TARGET vsg PROPERTY SOVERSION ${VSG_SOVERSION})
 set_property(TARGET vsg PROPERTY CXX_STANDARD 17)
 
-target_include_directories(vsg PUBLIC ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include)
+target_include_directories(vsg PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
 target_link_libraries(vsg Vulkan::Vulkan GLFW::GLFW)
 
-
-install(TARGETS vsg
+install(TARGETS vsg EXPORT vsgTargets
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
-        COMPONENT libvsg
+        RUNTIME DESTINATION bin
+        INCLUDES DESTINATION include
 )
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/vsg DESTINATION include)
-
 if (NOT(${CMAKE_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR}))
     install(DIRECTORY ${CMAKE_BINARY_DIR}/include/vsg DESTINATION include)
 endif()
+
+# [==[
+install(EXPORT vsgTargets
+    FILE vsgTargets.cmake
+    NAMESPACE vsg::
+    DESTINATION lib/cmake/vsg
+)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file("vsgConfigVersion.cmake"
+    VERSION ${VSG_MAJOR_VERSION}.${VSG_MINOR_VERSION}.${VSG_PATCH_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+install(FILES "vsgConfig.cmake" "vsgConfigVersion.cmake"
+    DESTINATION lib/cmake/vsg
+)
+
+# ]==]
+
+
+
