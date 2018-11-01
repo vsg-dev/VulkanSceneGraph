@@ -1,8 +1,3 @@
-include_directories(
-    ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_BINARY_DIR}/include
-)
-
 # collect all the headers in the source directory
 file(GLOB HEADERS ${CMAKE_SOURCE_DIR}/include/vsg/*.h ${CMAKE_SOURCE_DIR}/include/vsg/*/*.h)
 
@@ -104,6 +99,7 @@ set_property(TARGET vsg PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET vsg PROPERTY VERSION ${VSG_MAJOR_VERSION}.${VSG_MINOR_VERSION}.${VSG_PATCH_VERSION})
 set_property(TARGET vsg PROPERTY SOVERSION ${VSG_SOVERSION})
 
+target_include_directories(vsg PUBLIC ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include)
 target_link_libraries(vsg Vulkan::Vulkan GLFW::GLFW)
 
 install(TARGETS vsg
