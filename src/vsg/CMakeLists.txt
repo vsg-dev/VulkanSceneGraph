@@ -68,8 +68,6 @@ set(SOURCES
     vk/Swapchain.cpp
 )
 
-add_definitions(${VSG_DEFINITIONS})
-
 add_library(vsg ${HEADERS} ${SOURCES})
 
 if(MSVC)
@@ -101,6 +99,7 @@ set_property(TARGET vsg PROPERTY SOVERSION ${VSG_SOVERSION})
 
 target_include_directories(vsg PUBLIC ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include)
 target_link_libraries(vsg Vulkan::Vulkan GLFW::GLFW)
+
 
 install(TARGETS vsg
         LIBRARY DESTINATION lib
