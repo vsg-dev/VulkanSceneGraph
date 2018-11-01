@@ -23,6 +23,11 @@
 * [cldoc] (http://jessevdk.github.io/cldoc/)
 * [DoxyPress](http://www.copperspice.com/documentation-doxypress.html)
 
+## Video presentations
+
+* [GDC 2016: High-performance, Low-Overhead Rendering with OpenGL and Vulkan](https://www.youtube.com/watch?v=PPWysKFHq9c)
+* [C++Now 2017: Daniel Pfeifer “Effective CMake"]()https://www.youtube.com/watch?v=bsXLMQ6WgIk)
+
 ## Tutorials
 
 * [Vulkan Tutorial](https://vulkan-tutorial.com/)
@@ -48,9 +53,6 @@
 * [STB](https://github.com/nothings/stb) stb_image.h etc.
 * [DevIL](http://openil.sourceforge.net/) DevIL image library, [repo](https://github.com/DentonW/DevIL)
 
-## Video presentations
-
-* [GDC 2016: High-performance, Low-Overhead Rendering with OpenGL and Vulkan](https://www.youtube.com/watch?v=PPWysKFHq9c)
 
 ## Introspection
 
