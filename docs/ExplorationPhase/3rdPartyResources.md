@@ -23,6 +23,10 @@
 * [cldoc] (http://jessevdk.github.io/cldoc/)
 * [DoxyPress](http://www.copperspice.com/documentation-doxypress.html)
 
+## Runtime analysis tools
+
+* [chrome://tracer](https://www.chromium.org/developers/how-tos/trace-event-profiling-tool), [gettings started](https://google.github.io/tracing-framework/getting-started.html#installing), [JSON format](https://docs.google.com/document/d/1CvAClvFfyA5R-PhYUmn5OOQtYMH4h6I0nSsKchNAySU/preview#heading=h.5n45avt6fg8n)
+
 ## Video presentations
 
 * [GDC 2016: High-performance, Low-Overhead Rendering with OpenGL and Vulkan](https://www.youtube.com/watch?v=PPWysKFHq9c)
