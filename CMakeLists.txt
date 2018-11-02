@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.7)
 
 project(VulkanSceneGraphPrototype)
 
@@ -60,7 +60,7 @@ foreach (flag ${VSG_WARNING_FLAGS})
 endforeach ()
 
 
-find_package(GLFW)
+find_package(glfw3)
 find_package(Vulkan)
 
 
