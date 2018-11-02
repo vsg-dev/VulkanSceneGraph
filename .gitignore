@@ -13,6 +13,8 @@ Doxyfile.docs
 docs/ExplorationPhase/3rdPartyResources.md.backup
 src/vsg/vsgConfigVersion.cmake
 
+html
+
 *.pc
 *.conf
 CMakeCache.txt
