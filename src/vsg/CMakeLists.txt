@@ -104,7 +104,7 @@ target_include_directories(vsg PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(vsg Vulkan::Vulkan glfw3)
+target_link_libraries(vsg Vulkan::Vulkan glfw)
 
 install(TARGETS vsg EXPORT vsgTargets
         LIBRARY DESTINATION lib
