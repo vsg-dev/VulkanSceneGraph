@@ -61,7 +61,7 @@ find_package(Vulkan)
 
 
 # create doxygen build target
-find_package(Doxygen REQUIRED dot)
+find_package(Doxygen QUIET)
 if (DOXYGEN_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
