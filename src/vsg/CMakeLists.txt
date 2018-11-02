@@ -113,6 +113,10 @@ install(TARGETS vsg EXPORT vsgTargets
         INCLUDES DESTINATION include
 )
 
+if (BUILD_SHARED_LIBS)
+    target_compile_definitions(vsg INTERFACE VSG_SHARED_LIBRARY)
+endif()
+
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/vsg DESTINATION include)
 if (NOT(${CMAKE_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR}))
     install(DIRECTORY ${CMAKE_BINARY_DIR}/include/vsg DESTINATION include)
