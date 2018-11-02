@@ -11,10 +11,6 @@ set(VSG_SOVERSION 0)
 set(VSG_VERSION_HEADER "${PROJECT_BINARY_DIR}/include/vsg/core/Version.h")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/vsg/core/Version.h.in" "${VSG_VERSION_HEADER}")
 
-
-# find the various depdendencies
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}/CMakeModules/")
-
 set(OUTPUT_BINDIR ${PROJECT_BINARY_DIR}/bin)
 set(OUTPUT_LIBDIR ${PROJECT_BINARY_DIR}/lib)
 
@@ -84,7 +80,7 @@ add_custom_target(clobber
 
 # automatically buil_all_h build target to generate the include/vsg/all.h from the headers in the include/vsg/* directories
 add_custom_target(build_all_h
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/build_all_h.cmake
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/build/build_all_h.cmake
 )
 
 # add cppcheck build target to provide static analysis of codebase
@@ -95,7 +91,7 @@ if (CPPCHECK)
         set(PATH_TO_SOURCE "${PATH_TO_SOURCE}/")
     endif()
 
-    set(CPPCHECK_SUPPRESION_LIST_FILE "${CMAKE_SOURCE_DIR}/CMakeModules/cppcheck-suppression-list.txt")
+    set(CPPCHECK_SUPPRESION_LIST_FILE "${CMAKE_SOURCE_DIR}/build/cppcheck-suppression-list.txt")
     set(CPPCHECK_SUPPRESION_LIST "--suppressions-list=${CPPCHECK_SUPPRESION_LIST_FILE}")
     set(CPPCHECK_EXTRA_OPTIONS "" CACHE STRING "additional commndline options to use when invoking cppcheck")
     add_custom_target(cppcheck

@@ -20,7 +20,7 @@ macro(BUILD_ALL_H)
     file(GLOB VIEWER_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/include include/vsg/viewer/*.h )
     file(GLOB VK_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/include include/vsg/vk/*.h )
 
-    file(READ ${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/header_license_preamble.txt ALL_H_CONTENTS)
+    file(READ ${CMAKE_CURRENT_SOURCE_DIR}/build/header_license_preamble.txt ALL_H_CONTENTS)
     APPEND_INCLUDES(ALL_H_CONTENTS CORE_HEADERS "// Core header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS MATHS_HEADERS "// Maths header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS NODES_HEADERS "// Node header files\n")

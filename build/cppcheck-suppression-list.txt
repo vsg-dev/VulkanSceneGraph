@@ -1,5 +1,5 @@
 // suppress Key related errors
-noExplicitConstructor:*include/vsg/core/ref_ptr.h:46
+noExplicitConstructor:*include/vsg/core/ref_ptr.h:45
 
 // suppress C union Key related false positives
 unusedStructMember:*include/vsg/introspection/c_interface.h
