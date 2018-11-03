@@ -46,6 +46,7 @@
 
 ## Maths
 
+* [Rotors for angles](http://marctenbosch.com/quaternions/)
 * [GLM](http://glm.g-truc.net) - GLSL style maths classes/functions
 * [GMTL](http://ggt.sourceforge.net/html/main.html)
 * [GLSL](https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)
