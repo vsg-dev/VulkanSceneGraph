@@ -104,7 +104,7 @@ target_include_directories(vsg PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(vsg Vulkan::Vulkan glfw)
+target_link_libraries(vsg PUBLIC Vulkan::Vulkan PRIVATE glfw)
 
 install(TARGETS vsg EXPORT vsgTargets
         LIBRARY DESTINATION lib
@@ -140,6 +140,3 @@ install(FILES "vsgConfig.cmake" "${CMAKE_BINARY_DIR}/src/vsg/vsgConfigVersion.cm
 )
 
 # ]==]
-
-
-

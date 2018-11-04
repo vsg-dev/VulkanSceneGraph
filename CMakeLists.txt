@@ -45,16 +45,8 @@ endif(NOT CMAKE_BUILD_TYPE)
 if(CMAKE_COMPILER_IS_GNUCXX)
     set(VSG_WARNING_FLAGS -Wall -Wparentheses -Wno-long-long -Wno-import -Wreturn-type -Wmissing-braces -Wunknown-pragmas -Wmaybe-uninitialized -Wshadow -Wunused -Wno-misleading-indentation -Wextra -pedantic)
 endif()
-
 set(VSG_WARNING_FLAGS ${VSG_WARNING_FLAGS} CACHE STRING "Compiler flags to use." FORCE)
-
-
-foreach (flag ${VSG_WARNING_FLAGS})
-    if(NOT CMAKE_CXX_FLAGS MATCHES "${flag}")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
-    endif()
-endforeach ()
-
+add_compile_options(${VSG_WARNING_FLAGS})
 
 find_package(glfw3)
 find_package(Vulkan)
@@ -81,6 +73,11 @@ add_custom_target(clobber
 # automatically buil_all_h build target to generate the include/vsg/all.h from the headers in the include/vsg/* directories
 add_custom_target(build_all_h
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/build/build_all_h.cmake
+)
+
+# automatically buil_all_h build target to generate the include/vsg/all.h from the headers in the include/vsg/* directories
+add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/build/uninstall.cmake
 )
 
 # add cppcheck build target to provide static analysis of codebase
