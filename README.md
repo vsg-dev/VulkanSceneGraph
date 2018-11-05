@@ -44,11 +44,13 @@ Full details on how to build of the VSG can be found in the [INSTALL.md](INSTALL
 ## Examples of VSG in use
 
 It's still very early days for the project so we don't have many projects that use to the VSG to reference, for our own testing purposes we have two project which may serve as an illustration of how to compile against the VSG and how to use parts of it's API.  These projects are:
-* [osg2vsg](https://github.com/robertosfield/osg2vsg)
-* [vsgFramework](https://github.com/robertosfield/vsgFramework)
 
-Three examples within the vsgFramework project that may be of particular interest are ports of Vulkan tutorials to the VSG API.  In each case the VSG version requires less than 1/5th the amount of code to achieve the same functionality.
-* [Vulkan Tutorial](https://vulkan-tutorial.com/)  ported as [vsgFramework/applications/vsgdraw](https://github.com/robertosfield/vsgFramework/blob/master/applications/vsgdraw/vsgdraw.cpp)
-* Version of vsgdraw using vkPushConstants [vsgFramework.applications/vsgpushconstants](https://github.com/robertosfield/vsgFramework/blob/master/applications/vsgpushconstants/vsgpushconstants.cpp)
-* [vulkan_minimal_compute](https://github.com/Erkaman/vulkan_minimal_compute) tutorial ported to VSG [vsgFramework/applications/vsgcompute](https://github.com/robertosfield/vsgFramework/blob/master/applications/vsgcompute/vsgcompute.cpp)
+* [osg2vsg](https://github.com/robertosfield/osg2vsg) utility library that integrates OpenSceneGraph with the VSG to leverages data and image loaders.
+* [vsgExamples](https://github.com/robertosfield/vsgExamples) example programs that we are using to test out VSG functionality and illustrates usage.
+
+Three examples within the vsgExamples project that may be of particular interest are ports of Vulkan tutorials to the VSG API.  In each case the VSG version requires less than 1/5th the amount of code to achieve the same functionality.
+
+* [Vulkan Tutorial](https://vulkan-tutorial.com/) ported as [vsgExamples/examples_osg2vsg/vsgdraw](https://github.com/robertosfield/vsgExamples/blob/master/examples_osg2vsg/vsgdraw/vsgdraw.cpp)
+* Version of vsgdraw using vkPushConstants [vsgExamples.examples_osg2vsg/vsgpushconstants](https://github.com/robertosfield/vsgExamples/blob/master/examples_osg2vsg/vsgpushconstants/vsgpushconstants.cpp)
+* [vulkan_minimal_compute](https://github.com/Erkaman/vulkan_minimal_compute) tutorial ported to VSG [vsgExamples/examples_osg2vsg/vsgcompute](https://github.com/robertosfield/vsgExamples/blob/master/examples_osg2vsg/vsgcompute/vsgcompute.cpp)
 
