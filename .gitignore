@@ -1,5 +1,4 @@
 
-cmake_uninstall.cmake
 
 lib/
 bin/
@@ -17,6 +16,8 @@ html
 
 *.pc
 *.conf
+*.backup
+cmake_uninstall.cmake
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
