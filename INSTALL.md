@@ -47,6 +47,7 @@ This lists the options:
 	... clobber
 	... install
 	... docs
+	... uninstall
 	... build_all_h
 	... list_install_components
 	... cppcheck
