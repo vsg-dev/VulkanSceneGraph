@@ -84,7 +84,15 @@ To select C++17 compilation you'll need:
 
 To link your lib/application to required dependencies you'll need:
 
-    target_link_libraries(mytargetname vsg::vsg glfw3 Vulkan::Vulkan)
+    target_link_libraries(mytargetname vsg::vsg)
 
 This will tell CMake to set up all the appropriate include paths, libs and any definitions (such as the VSG_SHARED_LIBRARY #define that is required under Windows with shared library builds to select the correct declspec().)
+
+For example, a bare minimum CMakeLists.txt file to compile a single file application would be:
+
+	cmake_minimum_required(VERSION 3.7)
+	find_package(vsg REQUIRED)
+	add_executable(myapp "myapp.cpp")
+	set_property(TARGET myapp PROPERTY CXX_STANDARD 17)
+	target_link_libraries(myapp vsg::vsg)
 
