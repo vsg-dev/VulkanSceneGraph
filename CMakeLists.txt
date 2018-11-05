@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.7)
 
-project(VulkanSceneGraphPrototype)
+project(VSG
+    VERSION 1.2.3
+    DESCRIPTION "Vulkan/VkSceneGraph Prototype library"
+    LANGUAGES CXX
+)
 
-set(VSG_MAJOR_VERSION 0)
-set(VSG_MINOR_VERSION 0)
-set(VSG_PATCH_VERSION 0)
-set(VSG_SOVERSION 0)
+set(VSG_SOVERSION 4)
 
 # create the version header
 set(VSG_VERSION_HEADER "${PROJECT_BINARY_DIR}/include/vsg/core/Version.h")
