@@ -22,7 +22,7 @@ The VulkanSceneGraphPrototype is the precursor to final VulkanSceneGraph/VkScene
 ### Prerequisites:
 * C++17 compliant compiler i.e.. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
 * [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.
-* [CMake](https://www.cmake.org) 3.5 or later.
+* [CMake](https://www.cmake.org) 3.7 or later.
 * [GLFW](https://www.glfw.org)  3.3 or later.  The plan is to implement native Windowing support so this dependency will
  later be removed.
 
