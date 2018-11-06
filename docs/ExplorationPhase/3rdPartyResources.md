@@ -4,7 +4,7 @@
 
 * [C++ Core Guidelines](https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md)
 * [CppCon Resources](https://github.com/cppcon)
-
+* [GNU Reserved-Names](https://www.gnu.org/software/libc/manual/html_node/Reserved-Names.html)
 ## Best Practices
 
 * [Best Practices Criteria for Free/Libre and Open Source Software (FLOSS)](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md)
