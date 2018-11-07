@@ -51,7 +51,7 @@
 * [Rotors for angles](http://marctenbosch.com/quaternions/)
 * [GLM](http://glm.g-truc.net) - GLSL style maths classes/functions
 * [GMTL](http://ggt.sourceforge.net/html/main.html)
-* [GLSL](https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)
+* [GLSL data types](https://www.khronos.org/opengl/wiki/Data_Type_GLSL)
 
 ## Image and 3D model loaders
 * [Assimp](https://github.com/assimp/assimp) 3D models loading
