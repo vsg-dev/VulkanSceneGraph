@@ -15,6 +15,8 @@ Experimenting with different approaches to object/scene graph design and impleme
 ### 2. Prototype Phase, October-December 2018 (present work)
 **Goal : Rapid prototyping of main classes, library and test applications to establish how the scene graph API will broadly look and work.**
 
+For a fine grained work plan see [Prototype Phase Workplan](docs/PrototypePhase/Workplan.md).  The coarse grain plan follows:
+
 * Develop as a throw away functional prototype (3rd parties should not assume any of the API is stable.)
 * Scope out the best practices that will achieve rapid and robust software development once work on the final VSG starts:
     * Static code analysis (cppcheck added 19.10.18)
@@ -31,6 +33,8 @@ Experimenting with different approaches to object/scene graph design and impleme
 * Port to Android
 * Create community infrastructure - forum/mailing lists etc..
 * Prototyping to inform plans for Core Development Phase
+
+
 
 ### 3. Core Development Phase, January-Summer 2019
 **Goal: Implement the final class interfaces and implementation**

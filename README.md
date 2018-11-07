@@ -44,7 +44,7 @@ Full details on how to build of the VSG can be found in the [INSTALL.md](INSTALL
 
 ---
 
-## Examples of VSG in use
+## Examples of the VSG in use
 
 It's still very early days for the project so we don't have many projects that use to the VSG to reference, for our own testing purposes we have two project which may serve as an illustration of how to compile against the VSG and how to use parts of it's API.  These projects are:
 
