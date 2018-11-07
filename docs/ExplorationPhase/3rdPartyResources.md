@@ -22,7 +22,8 @@
 * [doxygen](http://www.doxygen.org/)
 * [cldoc](http://jessevdk.github.io/cldoc/)
 * [DoxyPress](http://www.copperspice.com/documentation-doxypress.html)
-* [Using github](http://stat545.com/bit006_github-browsability-wins.html) and [example of images, csv and pdf rendering](https://github.com/kbroman/FruitSnacks) 
+* [Using github](http://stat545.com/bit006_github-browsability-wins.html) and [example of images, csv and pdf rendering](https://github.com/kbroman/FruitSnacks)
+* [GitHub Pages](https://pages.github.com/)
 
 ## Runtime analysis tools
 * [chrome://tracer](https://www.chromium.org/developers/how-tos/trace-event-profiling-tool), [gettings started](https://google.github.io/tracing-framework/getting-started.html#installing), [JSON format](https://docs.google.com/document/d/1CvAClvFfyA5R-PhYUmn5OOQtYMH4h6I0nSsKchNAySU/preview#heading=h.5n45avt6fg8n)
