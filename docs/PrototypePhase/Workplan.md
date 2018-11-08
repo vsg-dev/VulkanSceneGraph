@@ -45,7 +45,7 @@ Add-on libraries will provide image and 3d model loaders, and integration with 3
 - [ ] vsg*Image - possible integration of the 3rd party image readers/writers
 - [ ] vsg*Model - possible integration of the 3rd party model readers/writers
 - [ ] vsgGLSLang - possible integration with the [GLSLslang](https://github.com/KhronosGroup/glslang) library for reading GLSL shaders and converting to SPIRV shaders compatible with Vulkan/VSG.
-* 
+
 ## Example/Testbed development
 All the software developed above needs testing, so we need to continue to expand the list of test applications that can test both the API usage and runtime behaviour/performance. Testing software is the primary focus during the **Prototype Phase** so applications developed during just as examples will not be attempted.  The test programs can still serve as examples for others to learn from. To main places for testbed development will be:
 - [ ] [vsgExamples](https://github.com/robertosfield/vsgExamples) - a set of test programs that will later evolve into our example set. Unit tests will likely need to be spawned off this project, possibly integrated into core VSG repository.  vsgExamples will rely upon 3rd party dependencies like vsg and osg2vsg being built and installed.
