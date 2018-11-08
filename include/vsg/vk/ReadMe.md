@@ -1,11 +1,11 @@
-# include/vsg/ck headers
+# include/vsg/vk headers
 The **include/vsg/vk** header directory contains the Vulkan C API integration classes. The integration class add support for reference counting of Vulkan objects and automatic lifetime management to ensure that Vukan objects can not be deleted while they are still be used, and finally automatic clean up was once the references are removed.
 
 ## High Level Vulkan integration classes
 
 High level Vulkan integration concerns Vulkan objects that are created at the Application, Window and Viewer level and don't change as scene graph/command graph level Vulkan objects are created and destroyed.
 
-* [include/vsg/vk/Instance.h](Instance.h) - wrapper for vkInstance
+* [include/vsg/vk/Instance.h](Instance.h) - wrapper for [vkInstance](https://www.khronos.org/registry/vulkan/specs/1.1-extensions/man/html/VkInstance.html)
 * [include/vsg/vk/PhysicalDevice.h](PhysicalDevice.h) - wrapper for vkPhysicalDevice
 * [include/vsg/vk/Surface.h](Surface.h) - wrapper for vkSurface
 * [include/vsg/vk/Device.h](Device.h) -
