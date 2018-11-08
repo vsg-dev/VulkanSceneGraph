@@ -1,5 +1,5 @@
 # Vulkan/VkSceneGraph Headers
-For convenience the [include/vsg/all.h](include/vsg/all.h) is provided that includes all headers for you.  While quick to add to your code it will likely slow you compile compared to explicitly including just the headers you need.
+For convenience the [include/vsg/all.h](all.h) is provided that includes all headers for you.  While quick to add to your code it will likely slow you compile compared to explicitly including just the headers you need.
 
 ```C++
 #include <vsg/all.h> // prefer convenience over compile speed
