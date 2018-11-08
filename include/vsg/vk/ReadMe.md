@@ -6,7 +6,7 @@ The **include/vsg/vk** header directory contains the Vulkan C API integration cl
 High level Vulkan integration concerns Vulkan objects that are created at the Application, Window and Viewer level and don't change as scene graph/command graph level Vulkan objects are created and destroyed.
 
 * [include/vsg/vk/Instance.h](Instance.h) - wrapper for [vkInstance](https://www.khronos.org/registry/vulkan/specs/1.1-extensions/man/html/VkInstance.html)
-* [include/vsg/vk/PhysicalDevice.h](PhysicalDevice.h) - wrapper for vkPhysicalDevice
+* [include/vsg/vk/PhysicalDevice.h](PhysicalDevice.h) - wrapper for [vkPhysicalDevice](https://www.khronos.org/registry/vulkan/specs/1.1-extensions/man/html/VkPhysicalDevice.html)
 * [include/vsg/vk/Surface.h](Surface.h) - wrapper for vkSurface
 * [include/vsg/vk/Device.h](Device.h) -
 * [include/vsg/vk/RenderPass.h](RenderPass.h) -
