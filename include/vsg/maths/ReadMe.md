@@ -1,5 +1,5 @@
 # include/vsg/maths headers
-The **include/vsg/maths** header directory contains the vector, matrix classes, and maths.  The interface and conventions are kept the same as GLSL so C++ usage can be kept consistent with shaders usage.
+The **include/vsg/maths** header directory contains the vector, matrix classes and maths functions. The interface and conventions are kept the same as GLSL so C++ usage can be kept consistent with shaders usage.
 
 The vector and maths classes are simple types, do not subclass from vsg::Object, so should be treated like ints, floats etc. The memory storage used aligns with the types expected by Vulkan so can be used directly for uniform, vertex and image data.
 
