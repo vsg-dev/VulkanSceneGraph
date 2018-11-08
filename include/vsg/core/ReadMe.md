@@ -1,4 +1,4 @@
-# include/vsg/core
+# include/vsg/core headers
 The **include/vsg/core** header directory contains the base classes, smart pointers and memory management classes.
 
 
