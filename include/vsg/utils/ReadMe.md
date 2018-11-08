@@ -1,5 +1,5 @@
-# include/vsg/traversals headers
-The **include/vsg/traversals** header directory contains general utility classes and functions.
+# include/vsg/utils headers
+The **include/vsg/utils** header directory contains general utility classes and functions.
 
 ## CommandLine parsing
 [include/vsg/utils/CommandLine.h](CommandLine.h) provides convenience class for reading command line arguments into basic types like int, string, and compound types like vsg::vec2, std::pair<>, as well as providing a means for setting default values. 
