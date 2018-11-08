@@ -9,7 +9,7 @@ The vector and maths classes are simple types, do not subclass from vsg::Object,
 * [include/vsg/maths/vec4.h](vec4.h) - template class for 4d vectors, provides vsg::vec4 (float), vsg::dvec4 (double) versions.
 
 ## Matrix classes
-* [include/vsg/maths/mat4]()mat4.h) - template class for 4x4 matrix, providing vsg::mat4 (float) and vsg::dmat4 (double) versions.
+* [include/vsg/maths/mat4.h](mat4.h) - template class for 4x4 matrix, providing vsg::mat4 (float) and vsg::dmat4 (double) versions.
 
 ## Matrix/Vector support functions
 * [include/vsg/maths/transform.h](transform.h) - provides a range of convenience functions for creation of matrices and operations on matrices and vector.
