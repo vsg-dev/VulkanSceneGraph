@@ -1,4 +1,4 @@
-| [View as Website](https://robertosfield.github.io/VulkanSceneGraphPrototype/) |  [View as GitHub repository](https://github.com/robertosfield/VulkanSceneGraphPrototype) |
+| [View as Website](https://vsg-dev.github.io/VulkanSceneGraphPrototype/) |  [View as GitHub repository](https://github.com/robertosfield/VulkanSceneGraphPrototype) |
 
 
 VulkanSceneGraphPrototype (VSG) is a prototype for a modern, cross platform, high performance scene graph library built upon Vulkan graphics/compute API. The software is written in C++17, and follows the [CppCoreGuidlines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) and [FOSS Best Practices](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md).  The source code is published under the [MIT License](LICENSE.md).
