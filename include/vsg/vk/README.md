@@ -1,5 +1,32 @@
 # include/vsg/vk headers
-The **include/vsg/vk** header directory contains the Vulkan C API integration classes. The integration class add support for reference counting of Vulkan objects and automatic lifetime management to ensure that Vukan objects can not be deleted while they are still be used, and finally automatic clean up was once the references are removed.
+The **include/vsg/vk** header directory contains the Vulkan C API integration classes.
+
+## Naming convention
+The Vulkan integration wrappers follow the convention **VkName -> vsg::Name** with the wrapper class found in the **include/vsg/vk/Name.h**. For example **VkInstance** is wrapped by the class vsg::Instance which is located in header [include/vsg/vk/Instance.h](Instance.h).
+
+## Memory management
+The Vulkan integration classes add support automatic lifetime management to ensure that Vukan objects can not be deleted while they are still be used, and finally automatic clean up was once the references are removed.
+
+The lifetime management is provided by leveraging the vsg's intrusive reference counting support provided by vsg::ref_ptr<> and vsg::Object base class. To ensure that higher level Vulkan objects (vkDevice/vsg::Device etc.) are not deleted before lower level Vulkan objects (vsg::CommandPool, vsg::BufferData etc.) are still using/reference them the lower level Vulkan wrapper classes hold a vsg::ref_ptr<> reference to the high level Vulkan wrapper classes.
+
+The scheme of lower level Vulkan wrappers holding reference to high level Vulkan Wrappers is outwardly the inverse of how one would normally think of ownership hierarchy, which would be along the lines of an Instance owning a list logical Devices, but the power behind this scheme is it enables decoupled, thread safe and robust lifetime management whilst remaining simple to implement and easy to use. The following pseudo code illustrates:
+
+```c++
+{
+    vsg::ref_ptr<vsg::Instance> instance = vsg::Instance::create(...);
+    vsg::ref_ptr<vsg::Device> device = vsg::Device::create(instance,...); // device holds a ref_ptr<> to instance
+
+   // even if we try to discard the instance explicitly,
+   // or it goes out of scope things remain safe
+   instance = nullptr; // instance isn't deleted, as Device still needs it
+
+   ...
+   // application code using Device
+   ...
+
+} // device goes out of scope, both Device and Instance automatically
+  // cleaned up in the correct order VkDevice then VkInstance.
+```
 
 ## High Level Vulkan integration classes
 
