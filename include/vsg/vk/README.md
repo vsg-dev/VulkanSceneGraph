@@ -2,7 +2,7 @@
 The **include/vsg/vk** header directory contains the Vulkan C API integration classes.
 
 ## Naming convention
-The Vulkan integration wrappers follow the convention **VkName -> vsg::Name** with the wrapper class found in the **include/vsg/vk/Name.h**. For example **VkInstance** is wrapped by the class vsg::Instance which is located in header [include/vsg/vk/Instance.h](Instance.h).
+The Vulkan integration wrappers follow the convention **VkName -> vsg::Name** with the wrapper class found in the header **include/vsg/vk/Name.h**. For example **VkInstance** is wrapped by the class vsg::Instance which is located in header [include/vsg/vk/Instance.h](Instance.h).
 
 ## Memory management
 The Vulkan integration classes add support automatic lifetime management to ensure that Vukan objects can not be deleted while they are still be used, and finally automatic clean up was once the references are removed.
