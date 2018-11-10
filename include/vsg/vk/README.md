@@ -18,7 +18,7 @@ The scheme of lower level Vulkan wrappers holding reference to high level Vulkan
 
    // even if we try to discard the instance explicitly,
    // or it goes out of scope things remain safe
-   instance = nullptr; // instance isn't deleted, as Device still needs it
+   instance = nullptr; // Instance object isn't deleted, as Device still needs it
 
    ...
    // application code using Device
