@@ -28,6 +28,8 @@ The scheme of lower level Vulkan wrappers holding reference to high level Vulkan
   // cleaned up in the correct order VkDevice then VkInstance.
 ```
 
+To see an example of memory management working in a full blown code see the [vsgdraw](https://github.com/vsg-dev/vsgExamples/tree/master/examples_osg2vsg/vsgdraw) found in [vsgExample](https://github.com/vsg-dev/vsgExamples) repository. The key is there won't asee any explicit management of lifetime, it's all done for you when all the ref_ptr<> go out of scope at the end of main. To see that Vulkan is being cleaned up correctly run this example with the --api command line thus: ```vsgdraw --api``` to see all Vulkan API calls output to the console.
+
 ## High Level Vulkan integration classes
 
 High level Vulkan integration concerns Vulkan objects that are created at the Application, Window and Viewer level and don't change as scene graph/command graph level Vulkan objects are created and destroyed.
