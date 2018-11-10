@@ -16,7 +16,7 @@ We have created a [Vulkan/VkSceneGraph Developer Discussion Group](https://group
 * Detailed build and install [instructions](INSTALL.md)
 * Headers - the public interface : [include/vsg/](include/vsg)
 * Source - the implementation : [src/vsg/](src/vsg)
-* Tests & Examples - companion repository with test and example programs : [https://github.com/vsg-dev/vsgExamples](https://github.com/vsg-dev/vsgExamples)
+* Tests & Examples - companion repository : [https://github.com/vsg-dev/vsgExamples](https://github.com/vsg-dev/vsgExamples)
 * Software development [Road Map](ROADMAP.md)
 * Design : [Principles and Philosophy](docs/Design/DesignPrinciplesAndPhilosophy.md),  [High Level Decisions](docs/Design/HighLevelDesignDecisions.md)
 * Community resources :  [Code of Conduct](docs/CODE_OF_CONDUCT.md), [Contributing guide](docs/CONTRIBUTING.md)
