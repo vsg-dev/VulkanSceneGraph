@@ -9,13 +9,13 @@ The **include/vsg/core** header directory contains the base classes, smart point
 
 ## Smart pointers & Memory management classes
 * [include/vsg/core/ref_ptr.h](ref_ptr.h) - template smart pointer class that uses vsg::Object's intrusive reference count to robustly management object lifetime. Similar to role std::shared_ptr<> but higher performance virtual of having half the memory footprint, holding just a single C pointer internally rather than two pointers that std::shared_ptr<> requires.
-* [include/vsg/core/observer_ptr.h](observer_ptr.h) - template smart pointer class for non owning pointer references. Similar in role to std::weak_ptr<> holds. bit works with the VSG's intrusive reference counting.
+* [include/vsg/core/observer_ptr.h](observer_ptr.h) - template smart pointer class for non owning pointer references. Similar in role to std::weak_ptr<> but works with the VSG's intrusive reference counting.
 * [include/vsg/core/Allocator.h](Allocator.h) - base class that provides a standard interface for custom allocation and deleting of allocated memory.
 
 ## Data container classes
 * [include/vsg/core/Data.h](Data.h) - base class that abstracts the provision of data (typically passed to Vulkan or for storing meta data.)
-* [include/vsg/core/Value.h](Value.h) - template Data class that provides a single simple type (such as int, vsg::vec2 etc.)
-* [include/vsg/core/Array.h](Array.h) - template Data class that provides an Array of simpler types (such as int, vsg::vec2 etc.)
+* [include/vsg/core/Value.h](Value.h) - template Data class that provides a single simple type (such as int, vsg::vec2 etc.)  Typical uses : storing meta data values, uniforms and vertex array data.
+* [include/vsg/core/Array.h](Array.h) - template Data class that provides an 1D Array of simpler types (such as int, vsg::vec2 etc.).  Typical uses : storing uniforms, vertex array data, and 1D texture/image data.
 
 ## Visitor pattern classes
 
