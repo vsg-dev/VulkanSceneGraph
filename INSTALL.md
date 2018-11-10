@@ -13,7 +13,7 @@ The above dependency versions are known to work so they've been set as the curre
 
 Command line instructions for default build of static library (.a/.lib) in source:
 
-    git clone https://github.com/robertosfield/VulkanSceneGraphPrototype.git
+    git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
     cd VulkanSceneGraphPrototype
     cmake .
     make -j 8
@@ -21,7 +21,7 @@ Command line instructions for default build of static library (.a/.lib) in sourc
 
 Command line instructions for building shared library (.so/.lib + .dll) in out of source:
 
-    git clone https://github.com/robertosfield/VulkanSceneGraphPrototype.git
+    git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
     mkdir vsg-shared-build
     cd vsg-shared-build
     cmake ../VulkanSceneGraphPrototype -DBUILD_SHARED_LIBS=ON
@@ -63,7 +63,7 @@ Most of these are standard options which you can look up in CMake and make docum
 	# run cppcheck on headers & source to generate a static analysis
     make cppcheck
 
-    # run clang-format on headers & source to format to style specified by .clang-format specification  
+    # run clang-format on headers & source to format to style specified by .clang-format specification
     make clang-format
 
     # generate the include/vsg/all.h from all the files that match include/vsg/*/*.h

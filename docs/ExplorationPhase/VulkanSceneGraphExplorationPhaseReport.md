@@ -18,7 +18,7 @@ The document will discuss the work and findings from each of these areas, number
 
 ## VulkanPlayground repository and successors:
 To provide a base for experimental work during the exploration a project was created on github : [VulkanPlayground](
-https://github.com/robertosfield/VulkanPlayground) which has been kept a private repository.
+https://github.com/vsg-dev/VulkanPlayground) which has been kept a private repository.
 
 The VulkanPlayground is a meant as throwaway prototyping repository rather than as a alpha version of the final scene graph project. The project contains:
 
@@ -33,9 +33,9 @@ The VulkanPlayground is a meant as throwaway prototyping repository rather than 
 
 Now that the Exploration Phase is completed the work on VulkanPlayground has fed into the Prototype Phase, with the repository being broken up into three component repositories that are publicly available and public under the MIT License:
 
-* [VulkanSceneGraphPrototype](https://github.com/robertosfield/VulkanSceneGraphPrototype) the core scene graph
-* [osg2vsg](https://github.com/robertosfield/osg2vsg) helper library to read/writes images using the OSG
-* [vsgFramework](https://github.com/robertosfield/vsgFramework) experiment with building applications and libraries
+* [VulkanSceneGraphPrototype](https://github.com/vsg-dev/VulkanSceneGraphPrototype) the core scene graph
+* [osg2vsg](https://github.com/vsg-dev/osg2vsg) helper library to read/writes images using the OSG
+* [vsgFramework](https://github.com/vsg-dev/vsgFramework) experiment with building applications and libraries
 
 
 ---

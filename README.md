@@ -1,4 +1,4 @@
-| [View as Website](https://vsg-dev.github.io/VulkanSceneGraphPrototype/) |  [View as GitHub repository](https://github.com/robertosfield/VulkanSceneGraphPrototype) |
+| [View as Website](https://vsg-dev.github.io/VulkanSceneGraphPrototype/) |  [View as GitHub repository](https://github.com/vsg-dev/VulkanSceneGraphPrototype) |
 
 
 VulkanSceneGraphPrototype (VSG) is a prototype for a modern, cross platform, high performance scene graph library built upon [Vulkan](https://www.khronos.org/vulkan/) graphics/compute API. The software is written in [C++17](https://en.wikipedia.org/wiki/C%2B%2B17), and follows the [CppCoreGuidlines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) and [FOSS Best Practices](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md).  The source code is published under the [MIT License](LICENSE.md).
@@ -39,7 +39,7 @@ The above dependency versions are known to work so they've been set as the curre
 ### Command line build instructions:
 To build and install the static libvsg library (.a/.lib) in source:
 
-    git clone https://github.com/robertosfield/VulkanSceneGraphPrototype.git
+    git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
     cd VulkanSceneGraphPrototype
     cmake .
     make -j 8
@@ -53,12 +53,12 @@ Full details on how to build of the VSG can be found in the [INSTALL.md](INSTALL
 
 It's still very early days for the project so we don't have many projects that use to the VSG to reference, for our own testing purposes we have two project which may serve as an illustration of how to compile against the VSG and how to use parts of it's API.  These projects are:
 
-* [osg2vsg](https://github.com/robertosfield/osg2vsg) utility library that integrates OpenSceneGraph with the VSG to leverages data and image loaders.
-* [vsgExamples](https://github.com/robertosfield/vsgExamples) example programs that we are using to test out VSG functionality and illustrates usage.
+* [osg2vsg](https://github.com/vsg-dev/osg2vsg) utility library that integrates OpenSceneGraph with the VSG to leverages data and image loaders.
+* [vsgExamples](https://github.com/vsg-dev/vsgExamples) example programs that we are using to test out VSG functionality and illustrates usage.
 
 Three examples within the vsgExamples project that may be of particular interest are ports of Vulkan tutorials to the VSG API.  In each case the VSG version requires less than 1/5th the amount of code to achieve the same functionality.
 
-* [Vulkan Tutorial](https://vulkan-tutorial.com/) ported as [vsgExamples/examples_osg2vsg/vsgdraw](https://github.com/robertosfield/vsgExamples/blob/master/examples_osg2vsg/vsgdraw/)
-* Version of vsgdraw using vkPushConstants [vsgExamples.examples_osg2vsg/vsgpushconstants](https://github.com/robertosfield/vsgExamples/blob/master/examples_osg2vsg/vsgpushconstants/)
-* [vulkan_minimal_compute](https://github.com/Erkaman/vulkan_minimal_compute) tutorial ported to VSG [vsgExamples/examples_osg2vsg/vsgcompute](https://github.com/robertosfield/vsgExamples/blob/master/examples_osg2vsg/vsgcompute/)
+* [Vulkan Tutorial](https://vulkan-tutorial.com/) ported as [vsgExamples/examples_osg2vsg/vsgdraw](https://github.com/vsg-dev/vsgExamples/blob/master/examples_osg2vsg/vsgdraw/)
+* Version of vsgdraw using vkPushConstants [vsgExamples.examples_osg2vsg/vsgpushconstants](https://github.com/vsg-dev/vsgExamples/blob/master/examples_osg2vsg/vsgpushconstants/)
+* [vulkan_minimal_compute](https://github.com/Erkaman/vulkan_minimal_compute) tutorial ported to VSG [vsgExamples/examples_osg2vsg/vsgcompute](https://github.com/vsg-dev/vsgExamples/blob/master/examples_osg2vsg/vsgcompute/)
 

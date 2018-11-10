@@ -1,4 +1,4 @@
-# Prototype Phase Work Plan	
+# Prototype Phase Work Plan
 The aim of the Prototype Phase, October-December 2018, is fill out prototypes for main elements of the core VSG scene graph library, add-on libraries and test programs.  These prototypes will functional and help solidify the choices in supporting technologies used and the design and implementation approaches used.
 
 ## General project infrastructure
@@ -36,17 +36,17 @@ The initial development work has been done under Linux, with support for additio
 - [ ] Development of platform specific Windowing support to replace the current depdenceny on GLFW.
 
 ## Add-on library development
-Add-on libraries will provide image and 3d model loaders, and integration with 3rd party software.  
+Add-on libraries will provide image and 3d model loaders, and integration with 3rd party software.
 
-- [ ] [osg2vsg](https://github.com/robertosfield/osg2vsg) OpenSceneGraph/VSG integration support library: 
+- [ ] [osg2vsg](https://github.com/vsg-dev/osg2vsg) OpenSceneGraph/VSG integration support library:
 	* Convert existing osg::Image loading/vulkan object creation to use vsg::Array2d/3d
 	* Basic support for converting osg::Node scene graph objects to vsg::Node equivalents
-	
+
 - [ ] vsg*Image - possible integration of the 3rd party image readers/writers
 - [ ] vsg*Model - possible integration of the 3rd party model readers/writers
 - [ ] vsgGLSLang - possible integration with the [GLSLslang](https://github.com/KhronosGroup/glslang) library for reading GLSL shaders and converting to SPIRV shaders compatible with Vulkan/VSG.
 
 ## Example/Testbed development
 All the software developed above needs testing, so we need to continue to expand the list of test applications that can test both the API usage and runtime behaviour/performance. Testing software is the primary focus during the **Prototype Phase** so applications developed during just as examples will not be attempted.  The test programs can still serve as examples for others to learn from. To main places for testbed development will be:
-- [ ] [vsgExamples](https://github.com/robertosfield/vsgExamples) - a set of test programs that will later evolve into our example set. Unit tests will likely need to be spawned off this project, possibly integrated into core VSG repository.  vsgExamples will rely upon 3rd party dependencies like vsg and osg2vsg being built and installed.
-- [ ] [vsgFramwork](https://github.com/robertosfield/vsgFramework) - an experiment with using CMake to find external dependencies and if they aren't available fallback to using  [ExternalProject_Add()](https://cmake.org/cmake/help/latest/module/ExternalProject.html) to check out and build 3rd party dependencies.
+- [ ] [vsgExamples](https://github.com/vsg-dev/vsgExamples) - a set of test programs that will later evolve into our example set. Unit tests will likely need to be spawned off this project, possibly integrated into core VSG repository.  vsgExamples will rely upon 3rd party dependencies like vsg and osg2vsg being built and installed.
+- [ ] [vsgFramwork](https://github.com/vsg-dev/vsgFramework) - an experiment with using CMake to find external dependencies and if they aren't available fallback to using  [ExternalProject_Add()](https://cmake.org/cmake/help/latest/module/ExternalProject.html) to check out and build 3rd party dependencies.
