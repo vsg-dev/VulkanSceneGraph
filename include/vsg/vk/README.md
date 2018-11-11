@@ -52,10 +52,6 @@ High level Vulkan integration concerns Vulkan objects that are created at the Ap
 
 Low level Vulkan integration concern Vulkan objects that relate to data and commands defined in Scene Graphs and Command Graphs.
 
-
-* [include/vsg/vk/Command.h](Command.h) -
-* [include/vsg/vk/BindIndexBuffer.h](BindIndexBuffer.h) -
-* [include/vsg/vk/BindVertexBuffers.h](BindVertexBuffers.h) -
 * [include/vsg/vk/BufferData.h](BufferData.h) -
 * [include/vsg/vk/Buffer.h](Buffer.h) -
 * [include/vsg/vk/Buffer.h](Buffer.h) -
@@ -64,7 +60,6 @@ Low level Vulkan integration concern Vulkan objects that relate to data and comm
 * [include/vsg/vk/DescriptorSet.h](DescriptorSet.h) -
 * [include/vsg/vk/DescriptorSetLayout.h](DescriptorSetLayout.h) -
 * [include/vsg/vk/DeviceMemory.h](DeviceMemory.h) -
-* [include/vsg/vk/Draw.h](Draw.h) -
 * [include/vsg/vk/Image.h](Image.h) -
 * [include/vsg/vk/ImageView.h](ImageView.h) -
 * [include/vsg/vk/Pipeline.h](Pipeline.h) -
@@ -74,6 +69,15 @@ Low level Vulkan integration concern Vulkan objects that relate to data and comm
 * [include/vsg/vk/PushConstants.h](PushConstants.h) -
 * [include/vsg/vk/Sampler.h](Sampler.h) -
 * [include/vsg/vk/ShaderModule.h](ShaderModule.h) -
+
+## Vulkan command integration classes
+
+Vulkan commands have a specific role in Vulkan so to encapsulate this the [vsg::Command](Commnd.h) pure virtual base class provides **virtual void dispatch(CommandBuffer&) const** is overridden in the subclasses to provide specific Vulkan command calls.
+
+* [include/vsg/vk/Command.h](Command.h) -
+* [include/vsg/vk/Draw.h](Draw.h) -
+* [include/vsg/vk/BindIndexBuffer.h](BindIndexBuffer.h) -
+* [include/vsg/vk/BindVertexBuffers.h](BindVertexBuffers.h) -
 
 ## Memory management classes
 
