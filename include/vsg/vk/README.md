@@ -46,7 +46,6 @@ High level Vulkan integration concerns Vulkan objects that are created at the Ap
 * [include/vsg/vk/Swapchain.h](Swapchain.h) -
 * [include/vsg/vk/CommandBuffer.h](CommandBuffer.h) -
 * [include/vsg/vk/CommandPool.h](CommandPool.h) -
-* [include/vsg/vk/CommandVisitor.h](CommandVisitor.h) -
 * [include/vsg/vk/Fence.h](Fence.h) -
 * [include/vsg/vk/Framebuffer.h](Framebuffer.h) -
 * [include/vsg/vk/State.h](State.h) -

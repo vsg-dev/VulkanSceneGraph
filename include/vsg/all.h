@@ -62,7 +62,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/CommandPool.h>
-#include <vsg/vk/CommandVisitor.h>
 #include <vsg/vk/ComputePipeline.h>
 #include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorPool.h>

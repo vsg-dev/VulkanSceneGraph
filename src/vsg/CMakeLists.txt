@@ -42,7 +42,6 @@ set(SOURCES
     vk/BindVertexBuffers.cpp
     vk/CommandBuffer.cpp
     vk/CommandPool.cpp
-    vk/CommandVisitor.cpp
     vk/ComputePipeline.cpp
     vk/DescriptorPool.cpp
     vk/DescriptorSet.cpp
