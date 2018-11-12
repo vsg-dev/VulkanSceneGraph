@@ -42,6 +42,7 @@ namespace vsg
         //static ref_ptr<Object> create(Allocator* allocator=nullptr);
 
         virtual std::size_t sizeofObject() const noexcept { return sizeof(Object); }
+        virtual const char* className() const { return "vsg::Object"; }
 
         virtual void accept(Visitor& visitor);
         virtual void traverse(Visitor&) {}

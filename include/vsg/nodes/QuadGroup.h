@@ -28,6 +28,8 @@ namespace vsg
     public:
         QuadGroup();
 
+        const char* className() const override { return "vsg::QuadGroup"; }
+
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {

@@ -125,12 +125,10 @@ void Object::accept(CullTraversal& visitor) const
 
 void Object::read(Input& /*input*/)
 {
-    std::cout<<"Object::read()"<<std::endl;
 }
 
 void Object::write(Output& /*output*/) const
 {
-    std::cout<<"Object::write()"<<std::endl;
 }
 
 

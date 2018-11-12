@@ -21,6 +21,8 @@ namespace vsg
     public:
         Node();
 
+        const char* className() const override { return "vsg::Node"; }
+
     protected:
         virtual ~Node();
     };

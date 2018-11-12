@@ -43,6 +43,6 @@ void Group::write(Output& output) const
     output.write("NumChildren", static_cast<uint32_t>(_children.size()));
     for(auto& child : _children)
     {
-        output.write("child", child.get());
+        output.write("Child", child.get());
     }
 }

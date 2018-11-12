@@ -47,7 +47,7 @@ namespace vsg
 #endif
 
         // write object
-        virtual void write(const char* propertyName, Object* object) = 0;
+        virtual void write(const char* propertyName, const Object* object) = 0;
 
         template<typename W, typename T>
         void write(const char* propertyName, W value) { W v{static_cast<W>(value)}; write(propertyName, v); }
