@@ -28,6 +28,8 @@ namespace vsg
     class DispatchTraversal;
     class CullTraversal;
     class Allocator;
+    class Input;
+    class Output;
 
     class VSG_DECLSPEC Object
     {
@@ -52,6 +54,9 @@ namespace vsg
 
         virtual void accept(CullTraversal& visitor) const;
         virtual void traverse(CullTraversal&) const {}
+
+        virtual void read(Input& input);
+        virtual void write(Output& output) const;
 
         // ref counting methods
         inline void ref() const noexcept { _referenceCount.fetch_add(1, std::memory_order_relaxed); }

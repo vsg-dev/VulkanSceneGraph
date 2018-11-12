@@ -18,6 +18,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/CullTraversal.h>
 #include <vsg/traversals/DispatchTraversal.h>
 
+#include <vsg/io/Input.h>
+#include <vsg/io/Output.h>
+
 using namespace vsg;
 
 #if 1
@@ -119,6 +122,17 @@ void Object::accept(CullTraversal& visitor) const
 {
     visitor.apply(*this);
 }
+
+void Object::read(Input& /*input*/)
+{
+    std::cout<<"Object::read()"<<std::endl;
+}
+
+void Object::write(Output& /*output*/) const
+{
+    std::cout<<"Object::write()"<<std::endl;
+}
+
 
 void Object::setObject(const std::string& key, Object* object)
 {

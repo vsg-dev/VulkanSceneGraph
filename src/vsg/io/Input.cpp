@@ -10,39 +10,3 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/Group.h>
-#include <vsg/io/Input.h>
-#include <vsg/io/Output.h>
-
-using namespace vsg;
-
-Group::Group(size_t numChildren) :
-    _children(numChildren)
-{
-}
-
-Group::~Group()
-{
-}
-
-void Group::read(Input& input)
-{
-    Node::read(input);
-
-    _children.resize(input.readValue<uint32_t>());
-    for(auto& child : _children)
-    {
-        child = input.readObject<Node>();
-    }
-}
-
-void Group::write(Output& output) const
-{
-    Node::write(output);
-
-    output.write("NumChildren", static_cast<uint32_t>(_children.size()));
-    for(auto& child : _children)
-    {
-        output.write("child", child.get());
-    }
-}

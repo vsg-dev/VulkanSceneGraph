@@ -27,6 +27,9 @@ set(SOURCES
 
     utils/FileSystem.cpp
 
+    io/Input.cpp
+    io/Output.cpp
+
     traversals/DispatchTraversal.cpp
     traversals/CullTraversal.cpp
 
