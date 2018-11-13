@@ -28,17 +28,18 @@ using namespace vsg;
 
 #define INLINE_TRAVERSE
 
-struct DispatchTraversal::Data
+class DispatchTraversal::InternalData
 {
-    explicit Data(CommandBuffer* commandBuffer) :
+public:
+    explicit InternalData(CommandBuffer* commandBuffer) :
         _commandBuffer(commandBuffer)
     {
-        std::cout << "DispatchTraversal::Data::Data(" << commandBuffer << ")" << std::endl;
+        std::cout << "DispatchTraversal::InternalData::InternalData(" << commandBuffer << ")" << std::endl;
     }
 
-    ~Data()
+    ~InternalData()
     {
-        std::cout << "DispatchTraversal::Data::~Data()" << std::endl;
+        std::cout << "DispatchTraversal::InternalData::~InternalData()" << std::endl;
     }
 
     State _state;
@@ -46,7 +47,7 @@ struct DispatchTraversal::Data
 };
 
 DispatchTraversal::DispatchTraversal(CommandBuffer* commandBuffer) :
-    _data(new Data(commandBuffer))
+    _data(new InternalData(commandBuffer))
 {
 }
 

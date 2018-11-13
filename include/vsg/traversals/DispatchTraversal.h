@@ -45,7 +45,7 @@ namespace vsg
         void apply(const Command& command);
 
     protected:
-        class Data;
-        Data* _data;
+        class InternalData;
+        InternalData* _data;
     };
 } // namespace vsg
