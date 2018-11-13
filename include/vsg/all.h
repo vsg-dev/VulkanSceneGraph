@@ -89,7 +89,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Surface.h>
 #include <vsg/vk/Swapchain.h>
 
-// Inpute/Output header files
+// Input/Output header files
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
 #include <vsg/io/stream.h>

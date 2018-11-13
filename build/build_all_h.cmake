@@ -28,7 +28,7 @@ macro(BUILD_ALL_H)
     APPEND_INCLUDES(ALL_H_CONTENTS TRAVERSAL_HEADERS "// Traversal header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS VIEWER_HEADERS "// Viewer header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS VK_HEADERS "// Vulkan related header files\n")
-    APPEND_INCLUDES(ALL_H_CONTENTS IO_HEADERS "// Inpute/Output header files\n")
+    APPEND_INCLUDES(ALL_H_CONTENTS IO_HEADERS "// Input/Output header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS UTILS_HEADERS "// Utiltiy header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS INTROSPECTION_HEADERS "// Introspection header files\n")
 
