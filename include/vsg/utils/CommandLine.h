@@ -43,6 +43,9 @@ namespace vsg
     constexpr const char* type_name(const dmat4&) noexcept { return "vsg::dmat4"; }
 
     template<typename T>
+    constexpr const char* type_name(const T&) noexcept { return typeid(T).name(); }
+
+    template<typename T>
     constexpr std::size_t type_num_elements(T) noexcept { return 1; }
     template<typename T>
     constexpr std::size_t type_num_elements(const t_vec2<T>&) noexcept { return 2; }
