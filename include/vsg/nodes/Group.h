@@ -25,7 +25,7 @@ namespace vsg
     public:
         Group(size_t numChildren = 0);
 
-        const char* className() const override { return "vsg::Group"; }
+        const char* className() const noexcept override { return "vsg::Group"; }
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)

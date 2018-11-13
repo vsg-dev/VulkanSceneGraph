@@ -21,9 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    template<typename T>
-    constexpr const char* type_name(const T&) noexcept { return typeid(T).name(); }
-
+    const char* type_name(const Object& object) noexcept { return object.className(); }
     constexpr const char* type_name(const std::string&) noexcept { return "string"; }
     constexpr const char* type_name(bool) noexcept { return "char"; }
     constexpr const char* type_name(char) noexcept { return "char"; }
@@ -35,14 +33,14 @@ namespace vsg
     constexpr const char* type_name(float) noexcept { return "float"; }
     constexpr const char* type_name(double) noexcept { return "double"; }
 
-    constexpr const char* type_name(const vec2&) noexcept { return "vec2"; }
-    constexpr const char* type_name(const vec3&) noexcept { return "vec3"; }
-    constexpr const char* type_name(const vec4&) noexcept { return "vec4"; }
-    constexpr const char* type_name(const mat4&) noexcept { return "mat4"; }
-    constexpr const char* type_name(const dvec2&) noexcept { return "dvec2"; }
-    constexpr const char* type_name(const dvec3&) noexcept { return "dvec3"; }
-    constexpr const char* type_name(const dvec4&) noexcept { return "dvec4"; }
-    constexpr const char* type_name(const dmat4&) noexcept { return "dmat4"; }
+    constexpr const char* type_name(const vec2&) noexcept { return "vsg::vec2"; }
+    constexpr const char* type_name(const vec3&) noexcept { return "vsg::vec3"; }
+    constexpr const char* type_name(const vec4&) noexcept { return "vsg::vec4"; }
+    constexpr const char* type_name(const mat4&) noexcept { return "vsg::mat4"; }
+    constexpr const char* type_name(const dvec2&) noexcept { return "vsg::dvec2"; }
+    constexpr const char* type_name(const dvec3&) noexcept { return "vsg::dvec3"; }
+    constexpr const char* type_name(const dvec4&) noexcept { return "vsg::dvec4"; }
+    constexpr const char* type_name(const dmat4&) noexcept { return "vsg::dmat4"; }
 
     template<typename T>
     constexpr std::size_t type_num_elements(T) noexcept { return 1; }
