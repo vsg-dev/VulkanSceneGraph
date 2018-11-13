@@ -2,7 +2,7 @@
 The **include/vsg/utils** header directory contains general utility classes and functions.
 
 ## CommandLine parsing
-[include/vsg/utils/CommandLine.h](CommandLine.h) provides convenience class for reading command line arguments into basic types like int, string, and compound types like vsg::vec2, std::pair<>, as well as providing a means for setting default values. 
+[include/vsg/utils/CommandLine.h](CommandLine.h) provides convenience class for reading command line arguments into basic types like int, string, and compound types like vsg::vec2, std::pair<>, as well as providing a means for setting default values.
 
 Example usage:
 
@@ -19,9 +19,6 @@ int main(int argc, char** argv)
     auto [width, height] = arguments.value(std::pair<uint32_t, uint32_t>(800, 600), {"--window", "-w"});
     if (arguments.errors()) return arguments.writeErrorMessages(std::cerr);
 ```
-
-## stream support
-[include/vsg/utils/stream.h](stream.h) provides overloads of the << and >> stream operators for std::pair<>, and the vsg::vec2, vsg::vec3, vsg::vec4 and vsg::mat4 in both their float and double variants.
 
 ## File system support
 Original plan was to use C++17's filesystem support, unfortunately this is only fully supported under VisualStudio 2017 at this point in time so we've fallen back to providing a set of helper functions for checking for file existence and searching file paths.
