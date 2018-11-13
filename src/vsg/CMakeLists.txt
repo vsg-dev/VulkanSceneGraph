@@ -93,27 +93,30 @@ if(MSVC)
 
     SET_OUTPUT_DIR_PROPERTY(vsg "")
 
-    # place source files into group folders
-    function(ASSIGN_SOURCE_GROUPS GROUP_NAME ROOT_FOLDER)
-        foreach(FILE IN ITEMS ${ARGN})
-            if (IS_ABSOLUTE "${FILE}")
-                file(RELATIVE_PATH RELATIVE_SOURCE "${ROOT_FOLDER}" "${FILE}")
-            else()
-                set(RELATIVE_SOURCE "${FILE}")
-            endif()
-            get_filename_component(SOURCE_PATH "${RELATIVE_SOURCE}" PATH)
-            string(REPLACE "/" "\\" SOURCE_PATH_MSVC "${SOURCE_PATH}")
-            source_group("${GROUP_NAME}\\${SOURCE_PATH_MSVC}" FILES "${FILE}")
-        endforeach()
-    endfunction(ASSIGN_SOURCE_GROUPS)
-        
-    # enable folders for MSVC
-    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-    # group source files and headers
-    ASSIGN_SOURCE_GROUPS("Source Files" "${CMAKE_CURRENT_SOURCE_DIR}" ${SOURCES})
-    ASSIGN_SOURCE_GROUPS("Header Files" "${CMAKE_SOURCE_DIR}/include/vsg" ${HEADERS})
 endif()
+
+
+# place header and source files into group folders to help IDE's present the files in a logical manner
+function(ASSIGN_SOURCE_GROUPS GROUP_NAME ROOT_FOLDER)
+    foreach(FILE IN ITEMS ${ARGN})
+        if (IS_ABSOLUTE "${FILE}")
+            file(RELATIVE_PATH RELATIVE_SOURCE "${ROOT_FOLDER}" "${FILE}")
+        else()
+            set(RELATIVE_SOURCE "${FILE}")
+        endif()
+        get_filename_component(SOURCE_PATH "${RELATIVE_SOURCE}" PATH)
+        string(REPLACE "/" "\\" SOURCE_PATH_MSVC "${SOURCE_PATH}")
+        source_group("${GROUP_NAME}\\${SOURCE_PATH_MSVC}" FILES "${FILE}")
+    endforeach()
+endfunction(ASSIGN_SOURCE_GROUPS)
+
+# enable folders for MSVC
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+# group source files and headers
+ASSIGN_SOURCE_GROUPS("Source Files" "${CMAKE_CURRENT_SOURCE_DIR}" ${SOURCES})
+ASSIGN_SOURCE_GROUPS("Header Files" "${CMAKE_SOURCE_DIR}/include/vsg" ${HEADERS})
+
 
 # set up versions and position independent code that is required for unices
 set_property(TARGET vsg PROPERTY VERSION ${VSG_VERSION_MAJOR}.${VSG_VERSION_MINOR}.${VSG_VERSION_PATCH})
