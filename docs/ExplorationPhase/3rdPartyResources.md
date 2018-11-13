@@ -42,6 +42,7 @@
 * [Samsung Vulkan Usage Recommendations](https://developer.samsung.com/game/usage)
 * [AMD Vulkan Device Memory](https://gpuopen.com/vulkan-device-memory/)
 * [NVIDIA Vulkan Memory management](https://developer.nvidia.com/vulkan-memory-management)
+* [Vulkan Spec](https://renderdoc.org/vkspec_chunked/index.html)
 
 ## Vulkan based projects
 * [Pumex](https://github.com/pumexx/pumex)
