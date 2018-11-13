@@ -21,46 +21,46 @@ namespace vsg
     {
     public:
         // read single values
-        virtual void read(int8_t& value) = 0;
-        virtual void read(uint8_t& value) = 0;
-        virtual void read(int16_t& value) = 0;
-        virtual void read(uint16_t& value) = 0;
-        virtual void read(int32_t& value) = 0;
-        virtual void read(uint32_t& value) = 0;
-        virtual void read(int64_t& value) = 0;
-        virtual void read(uint64_t& value) = 0;
-        virtual void read(float& value) = 0;
-        virtual void read(double& value) = 0;
+        virtual void read(const char* propertyName, int8_t& value) = 0;
+        virtual void read(const char* propertyName, uint8_t& value) = 0;
+        virtual void read(const char* propertyName, int16_t& value) = 0;
+        virtual void read(const char* propertyName, uint16_t& value) = 0;
+        virtual void read(const char* propertyName, int32_t& value) = 0;
+        virtual void read(const char* propertyName, uint32_t& value) = 0;
+        virtual void read(const char* propertyName, int64_t& value) = 0;
+        virtual void read(const char* propertyName, uint64_t& value) = 0;
+        virtual void read(const char* propertyName, float& value) = 0;
+        virtual void read(const char* propertyName, double& value) = 0;
 
-
+#if 0
         // read contiguous array of values
-        virtual void read(size_t num, int8_t* values) = 0;
-        virtual void read(size_t num, uint8_t& value) = 0;
-        virtual void read(size_t num, int16_t& value) = 0;
-        virtual void read(size_t num, uint16_t& value) = 0;
-        virtual void read(size_t num, int32_t& value) = 0;
-        virtual void read(size_t num, uint32_t& value) = 0;
-        virtual void read(size_t num, int64_t& value) = 0;
-        virtual void read(size_t num, uint64_t& value) = 0;
-        virtual void read(size_t num, float& value) = 0;
-        virtual void read(size_t num, double& value) = 0;
-
+        virtual void read(const char* propertyName, size_t num, int8_t* values) = 0;
+        virtual void read(const char* propertyName, size_t num, uint8_t& value) = 0;
+        virtual void read(const char* propertyName, size_t num, int16_t& value) = 0;
+        virtual void read(const char* propertyName, size_t num, uint16_t& value) = 0;
+        virtual void read(const char* propertyName, size_t num, int32_t& value) = 0;
+        virtual void read(const char* propertyName, size_t num, uint32_t& value) = 0;
+        virtual void read(const char* propertyName, size_t num, int64_t& value) = 0;
+        virtual void read(const char* propertyName, size_t num, uint64_t& value) = 0;
+        virtual void read(const char* propertyName, size_t num, float& value) = 0;
+        virtual void read(const char* propertyName, size_t num, double& value) = 0;
+#endif
         // read object
-        virtual ref_ptr<Object> readObject() = 0;
+        virtual ref_ptr<Object> readObject(const char* propertyName) = 0;
 
         // read object of a particular type
         template<class T>
-        ref_ptr<T> readObject()
+        ref_ptr<T> readObject(const char* propertyName)
         {
-            ref_ptr<Object> object = readObject();
+            ref_ptr<Object> object = readObject(propertyName);
             return ref_ptr<T>(dynamic_cast<T*>(object.get()));
         }
 
         template<typename T>
-        T readValue()
+        T readValue(const char* propertyName)
         {
             T value{};
-            read(value);
+            read(propertyName, value);
             return value;
         }
     };

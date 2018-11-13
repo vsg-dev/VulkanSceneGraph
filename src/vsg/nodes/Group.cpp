@@ -29,10 +29,10 @@ void Group::read(Input& input)
 {
     Node::read(input);
 
-    _children.resize(input.readValue<uint32_t>());
+    _children.resize(input.readValue<uint32_t>("NumChildren"));
     for(auto& child : _children)
     {
-        child = input.readObject<Node>();
+        child = input.readObject<Node>("Child");
     }
 }
 
