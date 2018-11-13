@@ -91,8 +91,6 @@ namespace vsg
             }
             _istr >> value;
 
-            ++i;
-
             return (!_istr.fail());
         }
 
@@ -120,7 +118,7 @@ namespace vsg
         template<typename... Args>
         bool read(const std::string& match, Args&... args)
         {
-            for (int i = 0; i < *_argc; ++i)
+            for (int i = 1; i < *_argc; ++i)
             {
                 if (match == _argv[i])
                 {
