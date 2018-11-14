@@ -5,7 +5,7 @@ VulkanSceneGraphPrototype (VSG) is a prototype for a modern, cross platform, hig
 
 The project aims to bring the performance of Vulkan to the wider developer community by providing a modern, high quality software library that is easy to use and focused on making the development of high performance graphics and compute applications a productive and fun experience.
 
-This repository contains basic documentation, C++ headers and source and CMake build scripts to build the prototype libvsg library.  Additional support libraries and examples are provided in separate repositories, links to these are provided below.  The software currently builds under Linux, Windows and macOS using [MoltenVk](https://github.com/KhronosGroup/MoltenVK). We plan on providing support for Android by the end of 2018, and later add iOS support.
+This repository contains basic documentation, C++ headers and source and CMake build scripts to build the prototype libvsg library.  Additional support libraries and examples are provided in separate repositories, links to these are provided below.  The software currently builds under Linux, Windows and macOS (using [MoltenVk](https://github.com/KhronosGroup/MoltenVK)). We plan on providing support for Android by the end of 2018, and later add iOS support.
 
 The VulkanSceneGraphPrototype is the precursor to final VulkanSceneGraph/VkSceneGraph project, the prototype will be developed through to the end of 2018, then in 2019 we'll begin work on the final library that will be appropriate for use within user compute and graphics middle-ware and applications.
 
