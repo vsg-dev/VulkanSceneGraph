@@ -39,6 +39,9 @@ namespace vsg
     public:
         StateGroup();
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
         using StateComponents = std::vector<ref_ptr<StateComponent>>;
 
 #if 1

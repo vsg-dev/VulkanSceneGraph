@@ -12,6 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/StateGroup.h>
 
+#include <vsg/io/Input.h>
+#include <vsg/io/Output.h>
+
 using namespace vsg;
 
 StateGroup::StateGroup()
@@ -20,4 +23,26 @@ StateGroup::StateGroup()
 
 StateGroup::~StateGroup()
 {
+}
+
+void StateGroup::read(Input& input)
+{
+    Group::read(input);
+
+    _stateComponents.resize(input.readValue<uint32_t>("NumStateComponents"));
+    for (auto& child : _stateComponents)
+    {
+        child = input.readObject<StateComponent>("StateComponent");
+    }
+}
+
+void StateGroup::write(Output& output) const
+{
+    Group::write(output);
+
+    output.write("NumStateComponents", static_cast<uint32_t>(_stateComponents.size()));
+    for (auto& child : _stateComponents)
+    {
+        output.write("StateComponent", child.get());
+    }
 }
