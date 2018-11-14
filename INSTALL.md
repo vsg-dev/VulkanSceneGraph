@@ -30,6 +30,18 @@ Command line instructions for building shared library (.so/.lib + .dll) in out o
 
 ---
 
+## Quick guide to build and install the VSG for Windows using Visual Studio 2017
+
+Command line instruction for default build of static library (.lib) in source:
+
+    git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
+    cd VulkanSceneGraphPrototype
+    cmake . -G "Visual Studio 15 2017 Win64"
+    
+After running cmake open the generated VSG.sln file and build the all target. Once built you can run the install target. If you are using the default cmake install path (in Program Files folder), ensure you have started Visual Studio as administrator otherwise the install will fail.
+
+---
+
 ## Available build targets
 
 Once you have generated the build system using *cmake* as above, you can list the available make options using:
