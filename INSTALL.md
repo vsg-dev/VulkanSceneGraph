@@ -5,7 +5,7 @@
 * [GLFW](https://www.glfw.org)  3.3 or later.  The plan is to implement native Windowing support so this dependency will
  later be removed.
 
-The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against oldeer versions.  If you find success with older versions let us know and we can related the version info.
+The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against older versions. If you find success with older versions let us know and we can update the version info.
 
 ---
 
@@ -27,6 +27,30 @@ Command line instructions for building shared library (.so/.lib + .dll) in out o
     cmake ../VulkanSceneGraphPrototype -DBUILD_SHARED_LIBS=ON
     make -j 8
     make install
+
+---
+
+## Quick guide to build and install the VSG for Windows using Visual Studio 2017
+
+Command line instructions for default build of static library (.lib) in source:
+
+    git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
+    cd VulkanSceneGraphPrototype
+    cmake . -G "Visual Studio 15 2017 Win64"
+    
+After running cmake open the generated VSG.sln file and build the All target. Once built you can run the install target. If you are using the default cmake install path (in Program Files folder), ensure you have started Visual Studio as administrator otherwise the install will fail.
+
+---
+
+## Quick guide to build and install the VSG for macOS using Xcode 9
+
+Command line instructions for default build of static library (.lib) in source:
+
+    git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
+    cd VulkanSceneGraphPrototype
+    cmake . -G "Xcode"
+    
+After running cmake open the generated VSG.xcodeproj file and build the All target. Once built you can run the install target. Please note that for release builds you currently need to use the Archive option in xcode. This will rebuild everytime so you can just select the install target and run Archive which will also build the All target.
 
 ---
 
@@ -73,7 +97,7 @@ Most of these are standard options which you can look up in CMake and make docum
 
 ## Using the VSG within your own projects
 
-The project is currently a prototype that is undergoing continuous development so it isn't recommend to use as base for long term software development. At this point it's available for developers who want to test the bleeding edge and provide feedback on it's fitness for purpose. Following instructions assume your project uses CMake, which are this early stage in the project is the recommended route when using the VSG.
+The project is currently a prototype that is undergoing continuous development so it isn't recommend to use as base for long term software development. At this point it's available for developers who want to test the bleeding edge and provide feedback on it's fitness for purpose. Following instructions assume your project uses CMake, which at this early stage in the project is the recommended route when using the VSG.
 
 To assist with setting up software to work with the VSG when you install the library a CMake package configuration file will be installed in the lib/cmake/vsg directory. Within your CMake CMakeLists.txt script to find the VSG related dependencies you'll need to add:
 
