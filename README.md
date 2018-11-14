@@ -3,9 +3,9 @@
 
 VulkanSceneGraphPrototype (VSG) is a prototype for a modern, cross platform, high performance scene graph library built upon [Vulkan](https://www.khronos.org/vulkan/) graphics/compute API. The software is written in [C++17](https://en.wikipedia.org/wiki/C%2B%2B17), and follows the [CppCoreGuidlines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) and [FOSS Best Practices](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md).  The source code is published under the [MIT License](LICENSE.md).
 
-The project aims to bring the performance of Vulkan to wider developer community by providing a modern, high quality software library that is easy to use and focused on making the development of high performance graphics and compute applications a productive and fun experience.
+The project aims to bring the performance of Vulkan to the wider developer community by providing a modern, high quality software library that is easy to use and focused on making the development of high performance graphics and compute applications a productive and fun experience.
 
-This repository contains basic documentation, C++ headers and source and CMake build scripts to build the prototype libvsg library.  Additional support libraries and examples are provided in separate repositories, links to these provided below.  The software currently builds under Linux and Windows.  We plan on providing support for Android by the end of 2018, and later add OSX and iOS support using [MoltenVk](https://github.com/KhronosGroup/MoltenVK).
+This repository contains basic documentation, C++ headers and source and CMake build scripts to build the prototype libvsg library.  Additional support libraries and examples are provided in separate repositories, links to these are provided below.  The software currently builds under Linux and Windows.  We plan on providing support for Android by the end of 2018, and later add OSX and iOS support using [MoltenVk](https://github.com/KhronosGroup/MoltenVK).
 
 The VulkanSceneGraphPrototype is the precursor to final VulkanSceneGraph/VkSceneGraph project, the prototype will be developed through to the end of 2018, then in 2019 we'll begin work on the final library that will be appropriate for use within user compute and graphics middle-ware and applications.
 
