@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class ObjectFactory : public vsg::Object
+    class VSG_DECLSPEC ObjectFactory : public vsg::Object
     {
     public:
         ObjectFactory();
