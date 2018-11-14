@@ -42,6 +42,18 @@ After running cmake open the generated VSG.sln file and build the All target. On
 
 ---
 
+## Quick guide to build and install the VSG for macOS using Xcode 9
+
+Command line instructions for default build of static library (.lib) in source:
+
+    git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
+    cd VulkanSceneGraphPrototype
+    cmake . -G "Xcode"
+    
+After running cmake open the generated VSG.xcodeproj file and build the All target. Once built you can run the install target. Please note that for release builds you currently need to use the Archive option in xcode. This will rebuild everytime so you can just select the install target and run Archive which will also build the All target.
+
+---
+
 ## Available build targets
 
 Once you have generated the build system using *cmake* as above, you can list the available make options using:
