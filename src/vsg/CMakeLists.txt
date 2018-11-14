@@ -25,8 +25,8 @@ set(SOURCES
     nodes/QuadGroup.cpp
     nodes/StateGroup.cpp
 
-    utils/FileSystem.cpp
 
+    io/FileSystem.cpp
     io/Input.cpp
     io/Output.cpp
     io/ObjectFactory.cpp

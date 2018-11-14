@@ -90,13 +90,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Swapchain.h>
 
 // Input/Output header files
+#include <vsg/io/FileSystem.h>
 #include <vsg/io/Input.h>
+#include <vsg/io/ObjectFactory.h>
 #include <vsg/io/Output.h>
 #include <vsg/io/stream.h>
 
 // Utiltiy header files
 #include <vsg/utils/CommandLine.h>
-#include <vsg/utils/FileSystem.h>
 
 // Introspection header files
 #include <vsg/introspection/c_interface.h>
