@@ -29,6 +29,7 @@ set(SOURCES
 
     io/Input.cpp
     io/Output.cpp
+    io/ObjectFactory.cpp
 
     traversals/DispatchTraversal.cpp
     traversals/CullTraversal.cpp
