@@ -12,6 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/ObjectFactory.h>
 
+#include <vsg/core/Array.h>
+#include <vsg/core/Value.h>
+
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
@@ -20,16 +23,36 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+#define REGISTER_new(ClassName) _createMap[#ClassName] = []() { return ref_ptr<Object>(new ClassName()); }
+#define REGISTER_create(ClassName) _createMap[#ClassName] = []() { return ClassName::create(); }
+
 ObjectFactory::ObjectFactory()
 {
-    _createMap["nulltr"] = []() { return vsg::ref_ptr<vsg::Object>(); };
-    _createMap["vsg::Object"] = []() { return vsg::ref_ptr<vsg::Object>(new vsg::Object()); };
+    _createMap["nulltr"] = []() { return ref_ptr<Object>(); };
+
+    REGISTER_new(vsg::Object);
+
+    // values
+    REGISTER_new(vsg::stringValue);
+    REGISTER_new(vsg::boolValue);
+    REGISTER_new(vsg::intValue);
+    REGISTER_new(vsg::uintValue);
+    REGISTER_new(vsg::floatValue);
+    REGISTER_new(vsg::doubleValue);
+    REGISTER_new(vsg::vec2Value);
+    REGISTER_new(vsg::vec3Value);
+    REGISTER_new(vsg::vec4Value);
+    REGISTER_new(vsg::mat4Value);
+    REGISTER_new(vsg::dvec2Value);
+    REGISTER_new(vsg::dvec3Value);
+    REGISTER_new(vsg::dvec4Value);
+    REGISTER_new(vsg::dmat4Value);
 
     // ndodes
-    _createMap["vsg::Node"] = []() { return vsg::Node::create(); };
-    _createMap["vsg::Group"] = []() { return vsg::Group::create(); };
-    _createMap["vsg::QuadGroup"] = []() { return vsg::QuadGroup::create(); };
-    _createMap["vsg::StateGroup"] = []() { return vsg::StateGroup::create(); };
+    REGISTER_create(vsg::Node);
+    REGISTER_create(vsg::Group);
+    REGISTER_create(vsg::QuadGroup);
+    REGISTER_create(vsg::StateGroup);
 }
 
 vsg::ref_ptr<vsg::Object> ObjectFactory::create(const std::string& className)

@@ -32,6 +32,8 @@ namespace vsg
         virtual void write(const char* propertyName, float value) = 0;
         virtual void write(const char* propertyName, double value) = 0;
 
+        virtual void write(const char* propertyName, const std::string& str) = 0;
+
 #if 0
         // write contiguous array of values
         virtual void write(const char* propertyName, size_t num, const int8_t* values) = 0;

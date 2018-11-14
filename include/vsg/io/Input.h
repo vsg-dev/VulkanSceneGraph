@@ -32,6 +32,8 @@ namespace vsg
         virtual void read(const char* propertyName, float& value) = 0;
         virtual void read(const char* propertyName, double& value) = 0;
 
+        virtual void read(const char* propertyName, std::string& value) = 0;
+
 #if 0
         // read contiguous array of values
         virtual void read(const char* propertyName, size_t num, int8_t* values) = 0;
@@ -45,6 +47,8 @@ namespace vsg
         virtual void read(const char* propertyName, size_t num, float& value) = 0;
         virtual void read(const char* propertyName, size_t num, double& value) = 0;
 #endif
+
+
         // read object
         virtual ref_ptr<Object> readObject(const char* propertyName) = 0;
 
@@ -63,6 +67,7 @@ namespace vsg
             read(propertyName, value);
             return value;
         }
+
     };
 
 } // namespace vsg
