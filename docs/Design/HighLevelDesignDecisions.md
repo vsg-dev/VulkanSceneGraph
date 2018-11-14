@@ -27,7 +27,7 @@
 
 **Headers:** .h used for public classes/functions
 
-Categories of functionality placed in appropriately name subdirectories i.e.
+Categories of functionality placed in appropriately named subdirectories i.e.
 
 * [include/vsg/core](../../include/vsg/core/)/Object.h
 * [include/vsg/nodes/](../../include/vsg/nodes/)Group.h
@@ -36,20 +36,19 @@ For convenience high level include/vsg/all.h head to includes all vsg/*/*.h
 
 **Source:** .cpp extension used
 
-Categories of functionality placed in appropriate name subdirectories i.e.
+Categories of functionality placed in appropriate named subdirectories i.e.
 
 * [src/vsg/core/](../../src/vsg/core/)Visitor.cpp
 * [src/vsg/viewer/](../../src/vsg/viewer/)Viewer.cpp
 
 
-**Memory:** To address the main performance scene graph bottleneck have a general goal of improving cache coherency and lowering memory bandwidth load.
+**Memory:** To address the main scene graph performance bottleneck have a general goal of improving cache coherency and lowering memory bandwidth load.
 
 Intrusive reference counting twice as memory efficient as std::shared_ptr<>, and results in ~50% better traversals speeds. Use [vsg::ref_ptr<>](../../include/vsg/core/ref_ptr.h), [vsg::observer_ptr<>](../../include/vsg/core/observer_ptr.h) and vsg::Object.
 
 Use std::atomic to provide efficient, thread safe reference counts
 
-To minimize the size of majority of internal scene graph nodes and leave nodes the ancillary data that only few objects required are moved out of the
-Base vsg::Object/Node classes into an [vsg::Auxiliary](../../include/vsg/core/Auxiliary.h) object.
+To minimize the size of majority of internal scene graph nodes and leave nodes the ancillary data that only a few objects required are moved out of the base vsg::Object/Node classes into an [vsg::Auxiliary](../../include/vsg/core/Auxiliary.h) object.
 
 To enable greater control over memory management [vsg::Allocator](../../include/vsg/core/Allocator.h) class to enable application to control how the scene graph allocates and deletes memory.
 
@@ -63,17 +62,16 @@ The main scene graph and the rendering back-ends command graph utilize the same 
 Vulkan [Compute](../../include/vsg/vk/ComputePipeline.h) and [Graphics](../../include/vsg/vk/GraphicsPipeline.h) to be supported with the same Vulkan wrappers, scene graph and command graph hierarchies.
 
 
-**Usage models:** Application developers will be able to dispatch data directly to Vulkan using the VSG’s Vulkan wrappers in a form of an immediate mode, creating their own command graphs that using standard vsg command visitors or their own custom visitors, through to using visitor to cull the main scene graph down to a command graph each frame and dispatching this vulkan.
+**Usage models:** Application developers will be able to dispatch data directly to Vulkan using the VSG’s Vulkan wrappers in a form of an immediate mode, creating their own command graphs that use standard vsg command visitors or their own custom visitors, through to using visitor to cull the main scene graph down to a command graph each frame and dispatching this vulkan.
 
 
 **Introspection:** Not explored during Exploration Phase so will need to be addressed in future. Aim to provide introspection/reflection for all core scene graph objects to provide support for reading/writing scene graph objects and open the door to scripting.
 
 
-**IO:** Support for loading 3rd party images and 3D models is currently deemed outwith the scope core libvsg library.  Only IO supported will be via the native scene graph objects support for reflection. This IO support will enable scene graphs, images and shaders to read and written without
-any additional libraries.
+**IO:** Support for loading 3rd party images and 3D models is currently deemed out of scope of the core libvsg library. Only IO supported will be via the native scene graph objects support for reflection. This IO support will enable scene graphs, images and shaders to read and written without any additional libraries.
 
 
 Support for 3rd party images, 3D models and shaders will be provided by add
 on libraries. To aid with porting of OpenSceneGraph application a osg2vsg
 library will be developed so that all loaders that the OpenSceneGraph has will
-be available.  These 3rd party on libraries providing image. 3D model and shaders will form an important part of testing of the VSG project as it evolves and are expected to development in conjunction with the VSG project.
+be available.  These 3rd party on libraries providing image. 3D model and shaders will form an important part of testing of the VSG project as it evolves and are expected to develop in conjunction with the VSG project.

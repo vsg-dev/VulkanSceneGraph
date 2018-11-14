@@ -1,7 +1,7 @@
 ## Roadmap
 
 ### 1. Exploration Phase, June-September 2018 (completed)
-**Goal : Establish which technologies and board techniques to use**
+**Goal : Establish which technologies and broad techniques to use**
 
 Learn and experiment with Vulkan, modern C++, and possible 3rd party dependencies.
 Experimenting with different approaches to object/scene graph design and implementation. Exploration Phase Materials : 
@@ -15,7 +15,7 @@ Experimenting with different approaches to object/scene graph design and impleme
 ### 2. Prototype Phase, October-December 2018 (present work)
 **Goal : Rapid prototyping of main classes, library and test applications to establish how the scene graph API will broadly look and work.**
 
-For a fine grained work plan see [Prototype Phase Workplan](docs/PrototypePhase/Workplan.md).  The coarse grain plan follows:
+For a fine grained work plan see [Prototype Phase Workplan](docs/PrototypePhase/Workplan.md). The coarse grain plan follows:
 
 * Develop as a throw away functional prototype (3rd parties should not assume any of the API is stable.)
 * Scope out the best practices that will achieve rapid and robust software development once work on the final VSG starts:
