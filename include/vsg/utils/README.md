@@ -19,18 +19,3 @@ int main(int argc, char** argv)
     auto [width, height] = arguments.value(std::pair<uint32_t, uint32_t>(800, 600), {"--window", "-w"});
     if (arguments.errors()) return arguments.writeErrorMessages(std::cerr);
 ```
-
-## File system support
-Original plan was to use C++17's filesystem support, unfortunately this is only fully supported under VisualStudio 2017 at this point in time so we've fallen back to providing a set of helper functions for checking for file existence and searching file paths.
-
-[include/vsg/utils/FileSystem.h](FileSystem.h) - provides vsg::getEnvPaths(..), fileExist(..), concactPaths(..) and findFile(..) convinience functions
-
-Example usage:
-
-```c++
-    // read shaders
-    vsg::Paths searchPaths = vsg::getEnvPaths("VSG_FILE_PATH");
-
-    vsg::ref_ptr<vsg::Shader> vertexShader = vsg::Shader::read( VK_SHADER_STAGE_VERTEX_BIT, "main", vsg::findFile("shaders/vert.spv", searchPaths));
-    vsg::ref_ptr<vsg::Shader> fragmentShader = vsg::Shader::read(VK_SHADER_STAGE_FRAGMENT_BIT, "main", vsg::findFile("shaders/frag.spv", searchPaths));
-```
