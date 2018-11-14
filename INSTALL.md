@@ -5,7 +5,7 @@
 * [GLFW](https://www.glfw.org)  3.3 or later.  The plan is to implement native Windowing support so this dependency will
  later be removed.
 
-The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against older versions. If you find success with older versions let us know and we can alter the version info.
+The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against older versions. If you find success with older versions let us know and we can update the version info.
 
 ---
 
