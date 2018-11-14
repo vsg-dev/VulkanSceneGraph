@@ -109,7 +109,7 @@ To select C++17 compilation you'll need:
 
 To link your lib/application to required dependencies you'll need:
 
-    target_link_libraries(mytargetname vsg::vsg)
+	target_link_libraries(mytargetname vsg::vsg)
 
 This will tell CMake to set up all the appropriate include paths, libs and any definitions (such as the VSG_SHARED_LIBRARY #define that is required under Windows with shared library builds to select the correct declspec().)
 
@@ -121,3 +121,34 @@ For example, a bare minimum CMakeLists.txt file to compile a single file applica
 	set_property(TARGET myapp PROPERTY CXX_STANDARD 17)
 	target_link_libraries(myapp vsg::vsg)
 
+---
+	
+## Detailed instructions for setting up your environment and building for Microsoft Windows
+
+VSG application currently have two main dependancies, the Vulkan SDK itself and for now GLFW for window creation. LunarG provides a convient installer for the Vulkan SDK and runtime on Windows.
+
+[Vulkan Downloads] (https://vulkan.lunarg.com/sdk/home#windows)
+
+From there download and install the Vulkan SDK (1.1 or later) and the Vulkan runtime. Once installed we need to let CMake know where to find the Vulkan SDK. Both VSG and GLFW use the VULKAN_SDK environment variable to find the Vulkan SDK so go ahead and add it.
+
+	VULKAN_SDK = C:\VulkanSDK\1.1.85.0
+
+Next we need to download build and install GLFW with Vulkan support. GLFW does provide prebuilt binaries for Windows. However they do not ship the CMake.config files required for CMake to find the GLFW headers and lib.
+
+    git clone https://github.com/glfw/glfw.git
+    cd ./glfw
+    cmake . -G "Visual Studio 15 2017 Win64"
+
+Once CMake is finished open the generated GLFW.sln file and build the Install target for release. Remember to open Visual Studio as Administrator if installing to the Program Files folder, the default. Finally CMake needs to know where GLFW is installed on your system. As it's using CMake.config files we use the CMAKE_PREFIX_PATH environment variable to inform CMake of the location of our installed libraries. So go ahead and add GLFW to this list. Example below.
+
+    CMAKE_PREFIX_PATH = C:\Program Files\GLFW;C:\Program Files\VSG
+
+You can see in the example that we also have VSG in the list, this will be required later once VSG is built and installed and we want to utilise it with other CMake based projects.
+
+So now we have the Vulkan SDK and GLFW installed and findable by CMake so we can go ahead and build VSG. Below are simple instructions for downloading the VSG source code, generating a Visual Studio project using CMake and finally building and installing VSG onto your system.
+
+    git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
+    cd VulkanSceneGraphPrototype
+    cmake . -G "Visual Studio 15 2017 Win64"
+    
+After running CMake open the generated VSG.sln file and build the All target. Once built you can run the install target. If you are using the default CMake install path (in Program Files folder), ensure you have started Visual Studio as administrator otherwise the install will fail.
