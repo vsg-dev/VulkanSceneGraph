@@ -23,17 +23,15 @@ namespace vsg
     class ObjectFactory : public vsg::Object
     {
     public:
-
         ObjectFactory();
 
         virtual vsg::ref_ptr<vsg::Object> create(const std::string& className);
 
     protected:
-
         using CreateFunction = std::function<vsg::ref_ptr<vsg::Object>()>;
         using CreateMap = std::map<std::string, CreateFunction>;
 
         CreateMap _createMap;
     };
 
-}
+} // namespace vsg

@@ -131,7 +131,6 @@ void Object::write(Output& /*output*/) const
 {
 }
 
-
 void Object::setObject(const std::string& key, Object* object)
 {
     getOrCreateUniqueAuxiliary()->setObject(key, object);

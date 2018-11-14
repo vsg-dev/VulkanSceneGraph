@@ -22,24 +22,24 @@ using namespace vsg;
 
 ObjectFactory::ObjectFactory()
 {
-    _createMap["nulltr"] = [](){ return vsg::ref_ptr<vsg::Object>(); };
-    _createMap["vsg::Object"] = [](){ return vsg::ref_ptr<vsg::Object>(new vsg::Object()); };
+    _createMap["nulltr"] = []() { return vsg::ref_ptr<vsg::Object>(); };
+    _createMap["vsg::Object"] = []() { return vsg::ref_ptr<vsg::Object>(new vsg::Object()); };
 
     // ndodes
-    _createMap["vsg::Node"] = [](){ return vsg::Node::create(); };
-    _createMap["vsg::Group"] = [](){ return vsg::Group::create(); };
-    _createMap["vsg::QuadGroup"] = [](){ return vsg::QuadGroup::create(); };
-    _createMap["vsg::StateGroup"] = [](){ return vsg::StateGroup::create(); };
+    _createMap["vsg::Node"] = []() { return vsg::Node::create(); };
+    _createMap["vsg::Group"] = []() { return vsg::Group::create(); };
+    _createMap["vsg::QuadGroup"] = []() { return vsg::QuadGroup::create(); };
+    _createMap["vsg::StateGroup"] = []() { return vsg::StateGroup::create(); };
 }
 
 vsg::ref_ptr<vsg::Object> ObjectFactory::create(const std::string& className)
 {
-    if (auto itr = _createMap.find(className); itr!=_createMap.end())
+    if (auto itr = _createMap.find(className); itr != _createMap.end())
     {
-        std::cout<<"Using _createMap for "<<className<<std::endl;
+        std::cout << "Using _createMap for " << className << std::endl;
         return (itr->second)();
     }
 
-    std::cout<<"Warnig: ObjectFactory::create("<<className<< ") failed to find means to create object"<<std::endl;
+    std::cout << "Warnig: ObjectFactory::create(" << className << ") failed to find means to create object" << std::endl;
     return vsg::ref_ptr<vsg::Object>();
 }
