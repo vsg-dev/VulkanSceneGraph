@@ -125,7 +125,7 @@ For example, a bare minimum CMakeLists.txt file to compile a single file applica
 	
 ## Detailed instructions for setting up your environment and building for Microsoft Windows
 
-VSG application currently have two main dependancies, the Vulkan SDK itself and for now GLFW for window creation. LunarG provides a convient installer for the Vulkan SDK and runtime on Windows.
+VSG currently has two main dependancies, the Vulkan SDK itself and for now GLFW for window creation. LunarG provides a convient installer for the Vulkan SDK and runtime on Windows.
 
 [Vulkan Downloads](https://vulkan.lunarg.com/sdk/home#windows)
 
