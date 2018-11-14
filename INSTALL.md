@@ -9,7 +9,7 @@ The above dependency versions are known to work so they've been set as the curre
 
 ---
 
-## Quick guide to build and install the VSG from the command line:
+## Quick guide to build and install the VSG for Unix from the command line:
 
 Command line instructions for default build of static library (.a/.lib) in source:
 
