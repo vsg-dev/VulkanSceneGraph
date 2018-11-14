@@ -127,7 +127,7 @@ For example, a bare minimum CMakeLists.txt file to compile a single file applica
 
 VSG application currently have two main dependancies, the Vulkan SDK itself and for now GLFW for window creation. LunarG provides a convient installer for the Vulkan SDK and runtime on Windows.
 
-[Vulkan Downloads] (https://vulkan.lunarg.com/sdk/home#windows)
+[Vulkan Downloads](https://vulkan.lunarg.com/sdk/home#windows)
 
 From there download and install the Vulkan SDK (1.1 or later) and the Vulkan runtime. Once installed we need to let CMake know where to find the Vulkan SDK. Both VSG and GLFW use the VULKAN_SDK environment variable to find the Vulkan SDK so go ahead and add it.
 
