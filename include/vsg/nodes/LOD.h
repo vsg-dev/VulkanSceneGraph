@@ -33,6 +33,8 @@ namespace vsg
         double radius;
     };
 
+    VSG_type_name(vsg::LOD)
+
     class VSG_DECLSPEC LOD : public Inherit<Node, LOD>
     {
     public:

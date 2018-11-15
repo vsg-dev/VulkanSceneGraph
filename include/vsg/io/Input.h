@@ -20,46 +20,69 @@ namespace vsg
     class Input
     {
     public:
-        // read single values
-        virtual void read(const char* propertyName, int8_t& value) = 0;
-        virtual void read(const char* propertyName, uint8_t& value) = 0;
-        virtual void read(const char* propertyName, int16_t& value) = 0;
-        virtual void read(const char* propertyName, uint16_t& value) = 0;
-        virtual void read(const char* propertyName, int32_t& value) = 0;
-        virtual void read(const char* propertyName, uint32_t& value) = 0;
-        virtual void read(const char* propertyName, int64_t& value) = 0;
-        virtual void read(const char* propertyName, uint64_t& value) = 0;
-        virtual void read(const char* propertyName, float& value) = 0;
-        virtual void read(const char* propertyName, double& value) = 0;
 
-        virtual void read(const char* propertyName, std::string& value) = 0;
+        /// return true if property name matches the next token in the stream, or if propery names are not required for format
+        virtual bool matchPropertyName(const char* propertyName) = 0;
 
-#if 0
-        // read contiguous array of values
-        virtual void read(const char* propertyName, size_t num, int8_t* values) = 0;
-        virtual void read(const char* propertyName, size_t num, uint8_t& value) = 0;
-        virtual void read(const char* propertyName, size_t num, int16_t& value) = 0;
-        virtual void read(const char* propertyName, size_t num, uint16_t& value) = 0;
-        virtual void read(const char* propertyName, size_t num, int32_t& value) = 0;
-        virtual void read(const char* propertyName, size_t num, uint32_t& value) = 0;
-        virtual void read(const char* propertyName, size_t num, int64_t& value) = 0;
-        virtual void read(const char* propertyName, size_t num, uint64_t& value) = 0;
-        virtual void read(const char* propertyName, size_t num, float& value) = 0;
-        virtual void read(const char* propertyName, size_t num, double& value) = 0;
-#endif
-
+        // read value(s)
+        virtual void read(size_t num, int8_t* value) = 0;
+        virtual void read(size_t num, uint8_t* value) = 0;
+        virtual void read(size_t num, int16_t* value) = 0;
+        virtual void read(size_t num, uint16_t* value) = 0;
+        virtual void read(size_t num, int32_t* value) = 0;
+        virtual void read(size_t num, uint32_t* value) = 0;
+        virtual void read(size_t num, int64_t* value) = 0;
+        virtual void read(size_t num, uint64_t* value) = 0;
+        virtual void read(size_t num, float* value) = 0;
+        virtual void read(size_t num, double* value) = 0;
+        virtual void read(size_t num, std::string* value) = 0;
 
         // read object
-        virtual ref_ptr<Object> readObject(const char* propertyName) = 0;
+        virtual ref_ptr<Object> read() = 0;
+
+        // map char to int8_t
+        void read(size_t num, char* value) { read(num, reinterpret_cast<int8_t*>(value)); }
+        void read(size_t num, bool* value) { read(num, reinterpret_cast<int8_t*>(value)); }
+
+        // vec/mat versions of read methods
+        void read(size_t num, vec2* value) { read(num*value->size(), value->data()); }
+        void read(size_t num, dvec2* value) { read(num*value->size(), value->data()); }
+        void read(size_t num, vec3* value) { read(num*value->size(), value->data()); }
+        void read(size_t num, dvec3* value) { read(num*value->size(), value->data()); }
+        void read(size_t num, vec4* value) { read(num*value->size(), value->data()); }
+        void read(size_t num, dvec4* value) { read(num*value->size(), value->data()); }
+        void read(size_t num, mat4* value) { read(num*value->size(), value->data()); }
+        void read(size_t num, dmat4* value) { read(num*value->size(), value->data()); }
+
+        // match property name and read value(s)
+        template<typename... Args>
+        void read(const char* propertyName, Args&... args)
+        {
+            if (!matchPropertyName(propertyName)) return;
+
+            // use fold expression to expand arugments and map to appropriate read method
+            (read(1, &(args)), ...);
+        }
+
+        // read object of a particular type
+        ref_ptr<Object> readObject(const char* propertyName)
+        {
+            if (!matchPropertyName(propertyName)) return ref_ptr<Object>();
+
+            return read();
+        }
 
         // read object of a particular type
         template<class T>
         ref_ptr<T> readObject(const char* propertyName)
         {
-            ref_ptr<Object> object = readObject(propertyName);
+            if (!matchPropertyName(propertyName)) return ref_ptr<T>();
+
+            ref_ptr<Object> object = read();
             return ref_ptr<T>(dynamic_cast<T*>(object.get()));
         }
 
+        // read a value of particular type
         template<typename T>
         T readValue(const char* propertyName)
         {

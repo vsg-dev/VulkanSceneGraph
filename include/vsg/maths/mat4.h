@@ -89,6 +89,9 @@ namespace vsg
     using mat4 = t_mat4<float>;
     using dmat4 = t_mat4<double>;
 
+    VSG_type_name(vsg::mat4)
+    VSG_type_name(vsg::dmat4)
+
     template<typename T>
     T dot(const t_mat4<T>& lhs, const t_mat4<T>& rhs, int c, int r)
     {

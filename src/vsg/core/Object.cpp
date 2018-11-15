@@ -143,16 +143,16 @@ void Object::write(Output& output) const
     {
         // we have a unique auxuliary, need to write out it's ObjectMap entries
         const Auxiliary::ObjectMap& objectMap = _auxiliary->getObjectMap();
-        output.write("NumUserObjects", static_cast<uint32_t>(objectMap.size()));
+        output.writeValue<uint32_t>("NumUserObjects", objectMap.size());
         for (auto& entry : objectMap)
         {
             output.write("Key", entry.first);
-            output.write("Object", entry.second.get());
+            output.writeObject("Object", entry.second.get());
         }
     }
     else
     {
-        output.write("NumUserObjects", uint32_t{0});
+        output.writeValue<uint32_t>("NumUserObjects", 0);
     }
 }
 

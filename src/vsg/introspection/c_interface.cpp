@@ -196,7 +196,7 @@ extern "C"
         vsg::Object* object = reinterpret_cast<vsg::Object*>(objectPtr);
         switch (property.type)
         {
-        case (Property::TYPE_Object): object->setValue(propertyName, reinterpret_cast<vsg::Object*>(property.value._object)); break;
+            case (Property::TYPE_Object): object->setObject(propertyName, reinterpret_cast<vsg::Object*>(property.value._object)); break;
         case (Property::TYPE_bool): object->setValue(propertyName, bool(property.value._bool != 0)); break;
         case (Property::TYPE_char): object->setValue(propertyName, property.value._char); break;
         case (Property::TYPE_unsigned_char): object->setValue(propertyName, property.value._unsigned_char); break;

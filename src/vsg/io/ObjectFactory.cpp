@@ -23,36 +23,36 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#define REGISTER_new(ClassName) _createMap[#ClassName] = []() { return ref_ptr<Object>(new ClassName()); }
-#define REGISTER_create(ClassName) _createMap[#ClassName] = []() { return ClassName::create(); }
+#define VSG_REGISTER_new(ClassName) _createMap[#ClassName] = []() { return ref_ptr<Object>(new ClassName()); }
+#define VSG_REGISTER_create(ClassName) _createMap[#ClassName] = []() { return ClassName::create(); }
 
 ObjectFactory::ObjectFactory()
 {
     _createMap["nulltr"] = []() { return ref_ptr<Object>(); };
 
-    REGISTER_new(vsg::Object);
+    VSG_REGISTER_new(vsg::Object);
 
     // values
-    REGISTER_new(vsg::stringValue);
-    REGISTER_new(vsg::boolValue);
-    REGISTER_new(vsg::intValue);
-    REGISTER_new(vsg::uintValue);
-    REGISTER_new(vsg::floatValue);
-    REGISTER_new(vsg::doubleValue);
-    REGISTER_new(vsg::vec2Value);
-    REGISTER_new(vsg::vec3Value);
-    REGISTER_new(vsg::vec4Value);
-    REGISTER_new(vsg::mat4Value);
-    REGISTER_new(vsg::dvec2Value);
-    REGISTER_new(vsg::dvec3Value);
-    REGISTER_new(vsg::dvec4Value);
-    REGISTER_new(vsg::dmat4Value);
+    VSG_REGISTER_new(vsg::stringValue);
+    VSG_REGISTER_new(vsg::boolValue);
+    VSG_REGISTER_new(vsg::intValue);
+    VSG_REGISTER_new(vsg::uintValue);
+    VSG_REGISTER_new(vsg::floatValue);
+    VSG_REGISTER_new(vsg::doubleValue);
+    VSG_REGISTER_new(vsg::vec2Value);
+    VSG_REGISTER_new(vsg::vec3Value);
+    VSG_REGISTER_new(vsg::vec4Value);
+    VSG_REGISTER_new(vsg::mat4Value);
+    VSG_REGISTER_new(vsg::dvec2Value);
+    VSG_REGISTER_new(vsg::dvec3Value);
+    VSG_REGISTER_new(vsg::dvec4Value);
+    VSG_REGISTER_new(vsg::dmat4Value);
 
     // ndodes
-    REGISTER_create(vsg::Node);
-    REGISTER_create(vsg::Group);
-    REGISTER_create(vsg::QuadGroup);
-    REGISTER_create(vsg::StateGroup);
+    VSG_REGISTER_create(vsg::Node);
+    VSG_REGISTER_create(vsg::Group);
+    VSG_REGISTER_create(vsg::QuadGroup);
+    VSG_REGISTER_create(vsg::StateGroup);
 }
 
 vsg::ref_ptr<vsg::Object> ObjectFactory::create(const std::string& className)

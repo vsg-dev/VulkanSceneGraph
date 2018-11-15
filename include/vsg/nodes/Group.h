@@ -20,12 +20,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    VSG_type_name(vsg::Group)
+
     class VSG_DECLSPEC Group : public Inherit<Node, Group>
     {
     public:
         Group(size_t numChildren = 0);
-
-        const char* className() const noexcept override { return "vsg::Group"; }
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)

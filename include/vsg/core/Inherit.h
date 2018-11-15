@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/ConstVisitor.h>
 #include <vsg/core/Visitor.h>
 #include <vsg/core/ref_ptr.h>
+#include <vsg/core/type_name.h>
 
 #include <vsg/traversals/CullTraversal.h>
 #include <vsg/traversals/DispatchTraversal.h>
@@ -68,6 +69,8 @@ namespace vsg
         void accept(ConstVisitor& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
         void accept(DispatchTraversal& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
         void accept(CullTraversal& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
+
+        const char* className() const noexcept override { return type_name<Subclass>(); }
     };
 
 } // namespace vsg

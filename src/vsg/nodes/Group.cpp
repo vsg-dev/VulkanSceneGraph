@@ -41,9 +41,9 @@ void Group::write(Output& output) const
 {
     Node::write(output);
 
-    output.write("NumChildren", static_cast<uint32_t>(_children.size()));
+    output.writeValue<uint32_t>("NumChildren", _children.size());
     for (auto& child : _children)
     {
-        output.write("Child", child.get());
+        output.writeObject("Child", child.get());
     }
 }

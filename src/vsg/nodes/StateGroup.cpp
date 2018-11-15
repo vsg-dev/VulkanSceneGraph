@@ -40,9 +40,9 @@ void StateGroup::write(Output& output) const
 {
     Group::write(output);
 
-    output.write("NumStateComponents", static_cast<uint32_t>(_stateComponents.size()));
+    output.writeValue<uint32_t>("NumStateComponents", _stateComponents.size());
     for (auto& child : _stateComponents)
     {
-        output.write("StateComponent", child.get());
+        output.writeObject("StateComponent", child.get());
     }
 }

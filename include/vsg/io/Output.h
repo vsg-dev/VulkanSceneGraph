@@ -20,39 +20,60 @@ namespace vsg
     class Output
     {
     public:
-        // write single values
-        virtual void write(const char* propertyName, int8_t value) = 0;
-        virtual void write(const char* propertyName, uint8_t value) = 0;
-        virtual void write(const char* propertyName, int16_t value) = 0;
-        virtual void write(const char* propertyName, uint16_t value) = 0;
-        virtual void write(const char* propertyName, int32_t value) = 0;
-        virtual void write(const char* propertyName, uint32_t value) = 0;
-        virtual void write(const char* propertyName, int64_t value) = 0;
-        virtual void write(const char* propertyName, uint64_t value) = 0;
-        virtual void write(const char* propertyName, float value) = 0;
-        virtual void write(const char* propertyName, double value) = 0;
 
-        virtual void write(const char* propertyName, const std::string& str) = 0;
+        // write property name if appropriate for format
+        virtual void writePropertyName(const char* propertyName) = 0;
 
-#if 0
-        // write contiguous array of values
-        virtual void write(const char* propertyName, size_t num, const int8_t* values) = 0;
-        virtual void write(const char* propertyName, size_t num, const uint8_t& value) = 0;
-        virtual void write(const char* propertyName, size_t num, const int16_t& value) = 0;
-        virtual void write(const char* propertyName, size_t num, const uint16_t& value) = 0;
-        virtual void write(const char* propertyName, size_t num, const int32_t& value) = 0;
-        virtual void write(const char* propertyName, size_t num, const uint32_t& value) = 0;
-        virtual void write(const char* propertyName, size_t num, const int64_t& value) = 0;
-        virtual void write(const char* propertyName, size_t num, const uint64_t& value) = 0;
-        virtual void write(const char* propertyName, size_t num, const float* value) = 0;
-        virtual void write(const char* propertyName, size_t num, const double* value) = 0;
-#endif
+
+        // write contiguous array of value(s)
+        virtual void write(size_t num, const int8_t* values) = 0;
+        virtual void write(size_t num, const uint8_t* value) = 0;
+        virtual void write(size_t num, const int16_t* value) = 0;
+        virtual void write(size_t num, const uint16_t* value) = 0;
+        virtual void write(size_t num, const int32_t* value) = 0;
+        virtual void write(size_t num, const uint32_t* value) = 0;
+        virtual void write(size_t num, const int64_t* value) = 0;
+        virtual void write(size_t num, const uint64_t* value) = 0;
+        virtual void write(size_t num, const float* value) = 0;
+        virtual void write(size_t num, const double* value) = 0;
+        virtual void write(size_t num, const std::string* value) = 0;
 
         // write object
-        virtual void write(const char* propertyName, const Object* object) = 0;
+        virtual void write(const Object* object) = 0;
 
+        // map char to int8_t
+        void write(size_t num, const char* value) { write(num, reinterpret_cast<const int8_t*>(value)); }
+        void write(size_t num, const bool* value) { write(num, reinterpret_cast<const int8_t*>(value)); }
+
+        // vec/mat versions of write methods
+        void write(size_t num, const vec2* value) { write(num*value->size(), value->data()); }
+        void write(size_t num, const dvec2* value) { write(num*value->size(), value->data()); }
+        void write(size_t num, const vec3* value) { write(num*value->size(), value->data()); }
+        void write(size_t num, const dvec3* value) { write(num*value->size(), value->data()); }
+        void write(size_t num, const vec4* value) { write(num*value->size(), value->data()); }
+        void write(size_t num, const dvec4* value) { write(num*value->size(), value->data()); }
+        void write(size_t num, const mat4* value) { write(num*value->size(), value->data()); }
+        void write(size_t num, const dmat4* value) { write(num*value->size(), value->data()); }
+
+        // match propertyname and write value(s)
+        template<typename... Args>
+        void write(const char* propertyName, Args&... args)
+        {
+            writePropertyName(propertyName);
+
+            // use fold expression to expand arugments and map to appropriate write method
+            (write(1, &(args)), ...);
+        }
+
+        void writeObject(const char* propertyName, const Object* object)
+        {
+            writePropertyName(propertyName);
+            write(object);
+        }
+
+        /// write a value casting it specified type i.e. output.write<uint32_t>("Value", value);
         template<typename W, typename T>
-        void write(const char* propertyName, W value)
+        void writeValue(const char* propertyName, T value)
         {
             W v{static_cast<W>(value)};
             write(propertyName, v);

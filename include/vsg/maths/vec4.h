@@ -23,6 +23,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    pragma clang diagnostic ignored "-Wnested-anon-types"
 #endif
 
+#include <vsg/core/type_name.h>
+
 namespace vsg
 {
 
@@ -76,6 +78,9 @@ namespace vsg
 
     using vec4 = t_vec4<float>;
     using dvec4 = t_vec4<double>;
+
+    VSG_type_name(vsg::vec4)
+    VSG_type_name(vsg::dvec4)
 
 } // namespace vsg
 

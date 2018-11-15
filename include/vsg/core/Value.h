@@ -13,11 +13,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Data.h>
+#include <vsg/core/type_name.h>
 
 #include <vsg/maths/mat4.h>
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
+
+#include <vsg/io/Input.h>
+#include <vsg/io/Output.h>
 
 namespace vsg
 {
@@ -38,6 +42,21 @@ namespace vsg
         // implementation provided by Visitor.h
         void accept(Visitor& visitor) override;
         void accept(ConstVisitor& visitor) const override;
+
+        const char* className() const noexcept override { return type_name<Value>(); }
+
+        void read(Input& input) override
+        {
+            Data::read(input);
+            input.read("Value", _value);
+        }
+
+        void write(Output& output) const override
+        {
+            Data::write(output);
+            output.write("Value", _value);
+        }
+
 
         std::size_t valueSize() const override { return sizeof(value_type); }
         std::size_t valueCount() const override { return 1; }
@@ -109,4 +128,8 @@ namespace vsg
     using dvec3Value = Value<dvec3>;
     using dvec4Value = Value<dvec4>;
     using dmat4Value = Value<dmat4>;
+
+    VSG_type_name(vsg::stringValue)
+    VSG_type_name(vsg::doubleValue)
+
 } // namespace vsg

@@ -20,6 +20,7 @@ namespace vsg
     class State;
     class CommandBuffer;
 
+
     class StateComponent : public Inherit<Object, StateComponent>
     {
     public:
@@ -33,6 +34,10 @@ namespace vsg
     protected:
         virtual ~StateComponent() {}
     };
+
+    VSG_type_name(vsg::StateComponent)
+    VSG_type_name(vsg::StateGroup)
+
 
     class VSG_DECLSPEC StateGroup : public Inherit<Group, StateGroup>
     {
@@ -70,4 +75,6 @@ namespace vsg
 
         StateComponents _stateComponents;
     };
+
+
 } // namespace vsg

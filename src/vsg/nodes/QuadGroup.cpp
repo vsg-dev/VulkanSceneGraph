@@ -41,6 +41,6 @@ void QuadGroup::write(Output& output) const
 
     for (auto& child : _children)
     {
-        output.write("Child", child.get());
+        output.writeObject("Child", child.get());
     }
 }
