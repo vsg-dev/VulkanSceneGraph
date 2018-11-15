@@ -129,6 +129,18 @@ namespace vsg
     using dmat4Value = Value<dmat4>;
 
     VSG_type_name(vsg::stringValue);
+    VSG_type_name(vsg::boolValue);
+    VSG_type_name(vsg::intValue);
+    VSG_type_name(vsg::uintValue);
+    VSG_type_name(vsg::floatValue);
     VSG_type_name(vsg::doubleValue);
+    VSG_type_name(vsg::vec2Value);
+    VSG_type_name(vsg::vec3Value);
+    VSG_type_name(vsg::vec4Value);
+    VSG_type_name(vsg::mat4Value);
+    VSG_type_name(vsg::dvec2Value);
+    VSG_type_name(vsg::dvec3Value);
+    VSG_type_name(vsg::dvec4Value);
+    VSG_type_name(vsg::dmat4Value);
 
 } // namespace vsg
