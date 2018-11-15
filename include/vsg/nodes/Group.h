@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    VSG_type_name(vsg::Group)
+    VSG_type_name(vsg::Group);
 
     class VSG_DECLSPEC Group : public Inherit<Node, Group>
     {

@@ -126,10 +126,10 @@ void Object::accept(CullTraversal& visitor) const
 void Object::read(Input& input)
 {
     auto numObjects = input.readValue<uint32_t>("NumUserObjects");
-    if (numObjects>0)
+    if (numObjects > 0)
     {
         Auxiliary::ObjectMap& objectMap = getOrCreateUniqueAuxiliary()->getObjectMap();
-        for (;numObjects>0; --numObjects)
+        for (; numObjects > 0; --numObjects)
         {
             std::string key = input.readValue<std::string>("Key");
             objectMap[key] = input.readObject("Object");
@@ -139,7 +139,7 @@ void Object::read(Input& input)
 
 void Object::write(Output& output) const
 {
-    if (_auxiliary &&  _auxiliary->getConnectedObject() == this)
+    if (_auxiliary && _auxiliary->getConnectedObject() == this)
     {
         // we have a unique auxuliary, need to write out it's ObjectMap entries
         const Auxiliary::ObjectMap& objectMap = _auxiliary->getObjectMap();

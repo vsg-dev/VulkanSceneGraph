@@ -21,7 +21,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-
     template<typename T>
     constexpr std::size_t type_num_elements(T) noexcept { return 1; }
     template<typename T>

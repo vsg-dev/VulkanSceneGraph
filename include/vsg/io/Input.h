@@ -20,7 +20,6 @@ namespace vsg
     class Input
     {
     public:
-
         /// return true if property name matches the next token in the stream, or if propery names are not required for format
         virtual bool matchPropertyName(const char* propertyName) = 0;
 
@@ -45,14 +44,14 @@ namespace vsg
         void read(size_t num, bool* value) { read(num, reinterpret_cast<int8_t*>(value)); }
 
         // vec/mat versions of read methods
-        void read(size_t num, vec2* value) { read(num*value->size(), value->data()); }
-        void read(size_t num, dvec2* value) { read(num*value->size(), value->data()); }
-        void read(size_t num, vec3* value) { read(num*value->size(), value->data()); }
-        void read(size_t num, dvec3* value) { read(num*value->size(), value->data()); }
-        void read(size_t num, vec4* value) { read(num*value->size(), value->data()); }
-        void read(size_t num, dvec4* value) { read(num*value->size(), value->data()); }
-        void read(size_t num, mat4* value) { read(num*value->size(), value->data()); }
-        void read(size_t num, dmat4* value) { read(num*value->size(), value->data()); }
+        void read(size_t num, vec2* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, dvec2* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, vec3* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, dvec3* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, vec4* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, dvec4* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, mat4* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, dmat4* value) { read(num * value->size(), value->data()); }
 
         // match property name and read value(s)
         template<typename... Args>
@@ -90,7 +89,6 @@ namespace vsg
             read(propertyName, value);
             return value;
         }
-
     };
 
 } // namespace vsg

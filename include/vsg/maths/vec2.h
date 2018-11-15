@@ -77,8 +77,8 @@ namespace vsg
     using vec2 = t_vec2<float>;
     using dvec2 = t_vec2<double>;
 
-    VSG_type_name(vsg::vec2)
-    VSG_type_name(vsg::dvec2)
+    VSG_type_name(vsg::vec2);
+    VSG_type_name(vsg::dvec2);
 
 } // namespace vsg
 

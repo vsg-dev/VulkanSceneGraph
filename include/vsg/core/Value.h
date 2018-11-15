@@ -57,7 +57,6 @@ namespace vsg
             output.write("Value", _value);
         }
 
-
         std::size_t valueSize() const override { return sizeof(value_type); }
         std::size_t valueCount() const override { return 1; }
 
@@ -129,7 +128,7 @@ namespace vsg
     using dvec4Value = Value<dvec4>;
     using dmat4Value = Value<dmat4>;
 
-    VSG_type_name(vsg::stringValue)
-    VSG_type_name(vsg::doubleValue)
+    VSG_type_name(vsg::stringValue);
+    VSG_type_name(vsg::doubleValue);
 
 } // namespace vsg

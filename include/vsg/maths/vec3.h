@@ -80,8 +80,8 @@ namespace vsg
     using vec3 = t_vec3<float>;
     using dvec3 = t_vec3<double>;
 
-    VSG_type_name(vsg::vec3)
-    VSG_type_name(vsg::dvec3)
+    VSG_type_name(vsg::vec3);
+    VSG_type_name(vsg::dvec3);
 
     template<typename T>
     constexpr t_vec3<T> operator-(t_vec3<T> const& lhs, t_vec3<T> const& rhs)

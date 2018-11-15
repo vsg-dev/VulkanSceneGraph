@@ -23,7 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    VSG_type_name(vsg::QuadGroup)
+    VSG_type_name(vsg::QuadGroup);
 
     class VSG_DECLSPEC QuadGroup : public Inherit<Node, QuadGroup>
     {

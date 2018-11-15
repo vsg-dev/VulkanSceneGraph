@@ -16,6 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    // clang-format off
+
     template<typename T>
     constexpr const char* type_name() noexcept { return typeid(T).name(); }
 
@@ -34,5 +36,7 @@ namespace vsg
     template<> constexpr const char* type_name<double>()noexcept { return "double"; }
 
     #define VSG_type_name(T) template<> constexpr const char* type_name<T>() noexcept { return #T; }
+
+    // clang-format on
 
 } // namespace vsg

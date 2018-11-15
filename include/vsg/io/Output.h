@@ -20,10 +20,8 @@ namespace vsg
     class Output
     {
     public:
-
         // write property name if appropriate for format
         virtual void writePropertyName(const char* propertyName) = 0;
-
 
         // write contiguous array of value(s)
         virtual void write(size_t num, const int8_t* values) = 0;
@@ -46,14 +44,14 @@ namespace vsg
         void write(size_t num, const bool* value) { write(num, reinterpret_cast<const int8_t*>(value)); }
 
         // vec/mat versions of write methods
-        void write(size_t num, const vec2* value) { write(num*value->size(), value->data()); }
-        void write(size_t num, const dvec2* value) { write(num*value->size(), value->data()); }
-        void write(size_t num, const vec3* value) { write(num*value->size(), value->data()); }
-        void write(size_t num, const dvec3* value) { write(num*value->size(), value->data()); }
-        void write(size_t num, const vec4* value) { write(num*value->size(), value->data()); }
-        void write(size_t num, const dvec4* value) { write(num*value->size(), value->data()); }
-        void write(size_t num, const mat4* value) { write(num*value->size(), value->data()); }
-        void write(size_t num, const dmat4* value) { write(num*value->size(), value->data()); }
+        void write(size_t num, const vec2* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const dvec2* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const vec3* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const dvec3* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const vec4* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const dvec4* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const mat4* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const dmat4* value) { write(num * value->size(), value->data()); }
 
         // match propertyname and write value(s)
         template<typename... Args>

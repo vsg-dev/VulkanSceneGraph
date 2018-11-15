@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    VSG_type_name(vsg::Node)
+    VSG_type_name(vsg::Node);
 
     class VSG_DECLSPEC Node : public Inherit<Object, Node>
     {
