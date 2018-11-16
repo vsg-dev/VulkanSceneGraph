@@ -49,7 +49,7 @@ namespace vsg
             _size(numElements),
             _data(new value_type[numElements]) {}
 
-        std::size_t sizeofObject() const noexcept override { return sizeof(Data); }
+        std::size_t sizeofObject() const noexcept override { return sizeof(Array); }
 
         // implementation provided by Visitor.h
         void accept(Visitor& visitor) override;
