@@ -127,6 +127,9 @@ namespace vsg
         void* dataPointer() override { return _data; }
         const void* dataPointer() const override { return _data; }
 
+        size_t width() const { return _width; }
+        size_t height() const { return _height; }
+
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
@@ -138,6 +141,9 @@ namespace vsg
 
         value_type& operator()(std::size_t i, std::size_t j) { return _data[i+j*_width]; }
         const value_type& operator()(std::size_t i, std::size_t j) const { return _data[i+j*_width]; }
+
+        value_type& at(std::size_t i, std::size_t j) { return _data[i+j*_width]; }
+        const value_type& at(std::size_t i, std::size_t j) const { return _data[i+j*_width]; }
 
         void set(std::size_t i, const value_type& v) { _data[i] = v; }
         void set(std::size_t i, std::size_t j, const value_type& v) { _data[i+j*_width] = v; }
