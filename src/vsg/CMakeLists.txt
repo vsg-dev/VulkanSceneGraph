@@ -27,6 +27,8 @@ set(SOURCES
 
 
     io/FileSystem.cpp
+    io/AsciiInput.cpp
+    io/AsciiOutput.cpp
     io/Input.cpp
     io/Output.cpp
     io/ObjectFactory.cpp
