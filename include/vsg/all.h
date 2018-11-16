@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 // Core header files
 #include <vsg/core/Allocator.h>
 #include <vsg/core/Array.h>
+#include <vsg/core/Array2D.h>
 #include <vsg/core/Auxiliary.h>
 #include <vsg/core/ConstVisitor.h>
 #include <vsg/core/Data.h>

@@ -12,8 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/ObjectFactory.h>
 
-#include <vsg/core/Array.h>
 #include <vsg/core/Value.h>
+#include <vsg/core/Array.h>
+#include <vsg/core/Array2D.h>
 
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/QuadGroup.h>
@@ -54,16 +55,28 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::uintArray);
     VSG_REGISTER_new(vsg::floatArray);
     VSG_REGISTER_new(vsg::doubleArray);
-
     VSG_REGISTER_new(vsg::vec2Array);
     VSG_REGISTER_new(vsg::vec3Array);
     VSG_REGISTER_new(vsg::vec4Array);
     VSG_REGISTER_new(vsg::mat4Array);
-
     VSG_REGISTER_new(vsg::dvec2Array);
     VSG_REGISTER_new(vsg::dvec3Array);
     VSG_REGISTER_new(vsg::dvec4Array);
     VSG_REGISTER_new(vsg::dmat4Array);
+
+    // arrays
+    VSG_REGISTER_new(vsg::ubyteArray2D);
+    VSG_REGISTER_new(vsg::ushortArray2D);
+    VSG_REGISTER_new(vsg::uintArray2D);
+    VSG_REGISTER_new(vsg::floatArray2D);
+    VSG_REGISTER_new(vsg::doubleArray2D);
+    VSG_REGISTER_new(vsg::vec2Array2D);
+    VSG_REGISTER_new(vsg::vec3Array2D);
+    VSG_REGISTER_new(vsg::vec4Array2D);
+    VSG_REGISTER_new(vsg::mat4Array2D);
+    VSG_REGISTER_new(vsg::dvec2Array2D);
+    VSG_REGISTER_new(vsg::dvec3Array2D);
+    VSG_REGISTER_new(vsg::dvec4Array2D);
 
     // nodes
     VSG_REGISTER_create(vsg::Node);
