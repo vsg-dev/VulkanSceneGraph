@@ -113,34 +113,26 @@ namespace vsg
         }
     }
 
-    using stringValue = Value<std::string>;
-    using boolValue = Value<bool>;
-    using intValue = Value<int>;
-    using uintValue = Value<unsigned int>;
-    using floatValue = Value<float>;
-    using doubleValue = Value<double>;
-    using vec2Value = Value<vec2>;
-    using vec3Value = Value<vec3>;
-    using vec4Value = Value<vec4>;
-    using mat4Value = Value<mat4>;
-    using dvec2Value = Value<dvec2>;
-    using dvec3Value = Value<dvec3>;
-    using dvec4Value = Value<dvec4>;
-    using dmat4Value = Value<dmat4>;
 
-    VSG_type_name(vsg::stringValue);
-    VSG_type_name(vsg::boolValue);
-    VSG_type_name(vsg::intValue);
-    VSG_type_name(vsg::uintValue);
-    VSG_type_name(vsg::floatValue);
-    VSG_type_name(vsg::doubleValue);
-    VSG_type_name(vsg::vec2Value);
-    VSG_type_name(vsg::vec3Value);
-    VSG_type_name(vsg::vec4Value);
-    VSG_type_name(vsg::mat4Value);
-    VSG_type_name(vsg::dvec2Value);
-    VSG_type_name(vsg::dvec3Value);
-    VSG_type_name(vsg::dvec4Value);
-    VSG_type_name(vsg::dmat4Value);
+    #define VSG_value(N, T) \
+        using N = Value<T>; \
+        template<> constexpr const char* type_name<N>() noexcept { return "vsg::"#N; }
+
+    VSG_value(stringValue, std::string);
+    VSG_value(boolValue, bool);
+    VSG_value(intValue, int);
+    VSG_value(uintValue, unsigned int);
+    VSG_value(floatValue, float);
+    VSG_value(doubleValue, double);
+
+    VSG_value(vec2Value, vec2);
+    VSG_value(vec3Value, vec3);
+    VSG_value(vec4Value, vec4);
+    VSG_value(mat4Value, mat4);
+
+    VSG_value(dvec2Value, dvec2);
+    VSG_value(dvec3Value, dvec3);
+    VSG_value(dvec4Value, dvec4);
+    VSG_value(dmat4Value, dmat4);
 
 } // namespace vsg
