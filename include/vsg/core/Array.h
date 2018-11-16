@@ -19,6 +19,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
 
+#include <vsg/io/Input.h>
+#include <vsg/io/Output.h>
+
 namespace vsg
 {
     template<typename T>
@@ -51,6 +54,40 @@ namespace vsg
         // implementation provided by Visitor.h
         void accept(Visitor& visitor) override;
         void accept(ConstVisitor& visitor) const override;
+
+        const char* className() const noexcept override { return type_name<Array>(); }
+
+        void read(Input& input) override
+        {
+            Data::read(input);
+            size_t size = input.readValue<uint32_t>("Size");
+            if (input.matchPropertyName("Data"))
+            {
+                if (_data) // if data already may be able to reuse it
+                {
+                    if (_size!=size) // if existing data is a different size delete old, and create new
+                    {
+                        delete [] _data;
+                        _size = size;
+                        _data = new value_type[size];
+                    }
+                }
+                else // allocate space for data
+                {
+                    _size = size;
+                    _data = new value_type[size];
+                }
+                input.read(_size, _data);
+            }
+        }
+
+        void write(Output& output) const override
+        {
+            Data::write(output);
+            output.writeValue<uint32_t>("Size", _size);
+            output.writePropertyName("Data");
+            output.write(_size, _data);
+        }
 
         std::size_t size() const { return _size; }
         bool empty() const { return _size == 0; }
@@ -138,19 +175,24 @@ namespace vsg
         value_type* _data;
     };
 
-    using ubyteArray = Array<std::uint8_t>;
-    using ushortArray = Array<std::uint16_t>;
-    using uintArray = Array<std::uint32_t>;
-    using floatArray = Array<float>;
-    using doubleArray = Array<double>;
+    #define VSG_array(N, T) \
+        using N = Array<T>; \
+        template<> constexpr const char* type_name<N>() noexcept { return "vsg::"#N; }
 
-    using vec2Array = Array<vec2>;
-    using vec3Array = Array<vec3>;
-    using vec4Array = Array<vec4>;
-    using mat4Array = Array<mat4>;
+    VSG_array(ubyteArray, std::uint8_t);
+    VSG_array(ushortArray, std::uint16_t);
+    VSG_array(uintArray, std::uint32_t);
+    VSG_array(floatArray, float);
+    VSG_array(doubleArray, double);
 
-    using dvec2Array = Array<dvec2>;
-    using dvec3Array = Array<dvec3>;
-    using dvec4Array = Array<dvec4>;
-    using dmat4Array = Array<dmat4>;
+    VSG_array(vec2Array, vec2);
+    VSG_array(vec3Array, vec3);
+    VSG_array(vec4Array, vec4);
+    VSG_array(mat4Array, mat4);
+
+    VSG_array(dvec2Array, dvec2);
+    VSG_array(dvec3Array, dvec3);
+    VSG_array(dvec4Array, dvec4);
+    VSG_array(dmat4Array, dmat4);
+
 } // namespace vsg

@@ -48,7 +48,24 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::dvec4Value);
     VSG_REGISTER_new(vsg::dmat4Value);
 
-    // ndodes
+    // arrays
+    VSG_REGISTER_new(vsg::ubyteArray);
+    VSG_REGISTER_new(vsg::ushortArray);
+    VSG_REGISTER_new(vsg::uintArray);
+    VSG_REGISTER_new(vsg::floatArray);
+    VSG_REGISTER_new(vsg::doubleArray);
+
+    VSG_REGISTER_new(vsg::vec2Array);
+    VSG_REGISTER_new(vsg::vec3Array);
+    VSG_REGISTER_new(vsg::vec4Array);
+    VSG_REGISTER_new(vsg::mat4Array);
+
+    VSG_REGISTER_new(vsg::dvec2Array);
+    VSG_REGISTER_new(vsg::dvec3Array);
+    VSG_REGISTER_new(vsg::dvec4Array);
+    VSG_REGISTER_new(vsg::dmat4Array);
+
+    // nodes
     VSG_REGISTER_create(vsg::Node);
     VSG_REGISTER_create(vsg::Group);
     VSG_REGISTER_create(vsg::QuadGroup);
