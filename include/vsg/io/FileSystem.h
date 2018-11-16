@@ -28,6 +28,8 @@ namespace vsg
 
     extern VSG_DECLSPEC bool fileExists(const Path& path);
 
+    extern VSG_DECLSPEC Path fileExtension(const Path& path);
+
     extern VSG_DECLSPEC Path concatePaths(const Path& left, const Path& right);
 
     extern VSG_DECLSPEC Path findFile(const Path& filename, const Paths& paths);
