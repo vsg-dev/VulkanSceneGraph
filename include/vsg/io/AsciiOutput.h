@@ -14,59 +14,63 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/Output.h>
 
-#include <unordered_map>
 #include <fstream>
+#include <unordered_map>
 
 namespace vsg
 {
 
-class VSG_DECLSPEC AsciiOutput : public vsg::Output
-{
-public:
-
+    class VSG_DECLSPEC AsciiOutput : public vsg::Output
+    {
+    public:
         AsciiOutput(std::ostream& output);
 
-        std::ostream& indent() { _output.write(_indentationString, std::min(_indentation, _maximumIndentation)); return _output; }
+        std::ostream& indent()
+        {
+            _output.write(_indentationString, std::min(_indentation, _maximumIndentation));
+            return _output;
+        }
 
         // write property name if appropriate for format
         void writePropertyName(const char* propertyName) override;
 
-        template<typename T> void _write(size_t num, const T* value)
+        template<typename T>
+        void _write(size_t num, const T* value)
         {
-            if (num==1)
+            if (num == 1)
             {
-                _output<<' '<<*value<<'\n';
+                _output << ' ' << *value << '\n';
             }
             else
             {
-                for(;num>0;--num, ++value) _output<<' '<<*value;
-                _output<<'\n';
+                for (; num > 0; --num, ++value) _output << ' ' << *value;
+                _output << '\n';
             }
         }
 
-
         // write contiguous array of value(s)
-        void write(size_t num, const int8_t* value) override        { _write(num, value); }
-        void write(size_t num, const uint8_t* value) override       { _write(num, value); }
-        void write(size_t num, const int16_t* value)  override      { _write(num, value); }
-        void write(size_t num, const uint16_t* value)  override     { _write(num, value); }
-        void write(size_t num, const int32_t* value)  override      { _write(num, value); }
-        void write(size_t num, const uint32_t* value)  override     { _write(num, value); }
-        void write(size_t num, const int64_t* value)  override      { _write(num, value); }
-        void write(size_t num, const uint64_t* value)  override     { _write(num, value); }
-        void write(size_t num, const float* value)  override        { _write(num, value); }
-        void write(size_t num, const double* value)  override       { _write(num, value); }
-
+        void write(size_t num, const int8_t* value) override { _write(num, value); }
+        void write(size_t num, const uint8_t* value) override { _write(num, value); }
+        void write(size_t num, const int16_t* value) override { _write(num, value); }
+        void write(size_t num, const uint16_t* value) override { _write(num, value); }
+        void write(size_t num, const int32_t* value) override { _write(num, value); }
+        void write(size_t num, const uint32_t* value) override { _write(num, value); }
+        void write(size_t num, const int64_t* value) override { _write(num, value); }
+        void write(size_t num, const uint64_t* value) override { _write(num, value); }
+        void write(size_t num, const float* value) override { _write(num, value); }
+        void write(size_t num, const double* value) override { _write(num, value); }
 
         void _write(const std::string& str)
         {
-            _output<<'"';
-            for(auto c : str)
+            _output << '"';
+            for (auto c : str)
             {
-                if (c=='"') _output<<"\\\"";
-                else _output<<c;
+                if (c == '"')
+                    _output << "\\\"";
+                else
+                    _output << c;
             }
-            _output<<'"';
+            _output << '"';
         }
 
         void write(size_t num, const std::string* value);
@@ -74,9 +78,8 @@ public:
         // write object
         void write(const vsg::Object* object);
 
-protected:
-
-        std::ostream&   _output;
+    protected:
+        std::ostream& _output;
 
         using ObjectID = uint32_t;
 #if 0
@@ -86,13 +89,13 @@ protected:
         using ObjectIDMap = std::unordered_map<const vsg::Object*, ObjectID>;
 #endif
 
-        ObjectIDMap     _objectIDMap;
-        ObjectID        _objectID = 0;
-        std::size_t     _indentationStep = 2;
-        std::size_t     _indentation = 0;
-        std::size_t     _maximumIndentation = 0;
+        ObjectIDMap _objectIDMap;
+        ObjectID _objectID = 0;
+        std::size_t _indentationStep = 2;
+        std::size_t _indentation = 0;
+        std::size_t _maximumIndentation = 0;
         // 24 characters long enough for 12 levels of nesting
-        const char*     _indentationString = "                        ";
-};
+        const char* _indentationString = "                        ";
+    };
 
-}
+} // namespace vsg

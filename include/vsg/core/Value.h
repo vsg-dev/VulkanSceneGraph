@@ -23,6 +23,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
 
+#define VSG_value(N, T) \
+    using N = Value<T>; \
+    template<>          \
+    constexpr const char* type_name<N>() noexcept { return "vsg::" #N; }
+
 namespace vsg
 {
     template<typename T>
@@ -112,11 +117,6 @@ namespace vsg
             return false;
         }
     }
-
-
-    #define VSG_value(N, T) \
-        using N = Value<T>; \
-        template<> constexpr const char* type_name<N>() noexcept { return "vsg::"#N; }
 
     VSG_value(stringValue, std::string);
     VSG_value(boolValue, bool);

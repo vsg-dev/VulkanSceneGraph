@@ -26,26 +26,26 @@ AsciiInput::AsciiInput(std::istream& input) :
     _objectFactory = new vsg::ObjectFactory;
 
     // write header
-    const char* match_token="#vsga";
+    const char* match_token = "#vsga";
     char read_token[5];
     _input.read(read_token, 5);
-    if (std::strncmp(match_token, read_token, 5)!=0)
+    if (std::strncmp(match_token, read_token, 5) != 0)
     {
-        std::cout<<"Header token not matched"<<std::endl;
+        std::cout << "Header token not matched" << std::endl;
         throw std::string("Error: header not matched.");
     }
 
     char read_line[1024];
-    _input.getline(read_line, sizeof(read_line)-1);
-    std::cout<<"First line ["<<read_line<<"]"<<std::endl;
+    _input.getline(read_line, sizeof(read_line) - 1);
+    std::cout << "First line [" << read_line << "]" << std::endl;
 }
 
 bool AsciiInput::matchPropertyName(const char* propertyName)
 {
     _input >> _readPropertyName;
-    if (_readPropertyName!=propertyName)
+    if (_readPropertyName != propertyName)
     {
-        std::cout<<"Error: unable to match "<<propertyName<<std::endl;
+        std::cout << "Error: unable to match " << propertyName << std::endl;
         return false;
     }
     return true;
@@ -55,12 +55,12 @@ std::optional<AsciiInput::ObjectID> AsciiInput::objectID()
 {
     std::string token;
     _input >> token;
-    if (token.compare(0, 3, "id=")==0)
+    if (token.compare(0, 3, "id=") == 0)
     {
         token.erase(0, 3);
         std::stringstream str(token);
         ObjectID id;
-        str>>id;
+        str >> id;
         return std::optional<ObjectID>{id};
     }
     else
@@ -75,22 +75,23 @@ void AsciiInput::_read(std::string& value)
     _input >> c;
     if (_input.good())
     {
-        if (c=='"')
+        if (c == '"')
         {
             _input.get(c);
-            while( _input.good())
+            while (_input.good())
             {
-                if (c=='\\')
+                if (c == '\\')
                 {
                     _input.get(c);
-                    if (c=='"') value.push_back(c);
+                    if (c == '"')
+                        value.push_back(c);
                     else
                     {
                         value.push_back('\\');
                         value.push_back(c);
                     }
                 }
-                else if (c!='"')
+                else if (c != '"')
                 {
                     value.push_back(c);
                 }
@@ -103,20 +104,20 @@ void AsciiInput::_read(std::string& value)
         }
         else
         {
-            _input>>value;
+            _input >> value;
         }
     }
 }
 
 void AsciiInput::read(size_t num, std::string* value)
 {
-    if (num==1)
+    if (num == 1)
     {
         _read(*value);
     }
     else
     {
-        for(;num>0;--num, ++value)
+        for (; num > 0; --num, ++value)
         {
             _read(*value);
         }
@@ -161,7 +162,7 @@ vsg::ref_ptr<vsg::Object> AsciiInput::read()
             }
             else
             {
-                std::cout<<"Could not find means to create object"<<std::endl;
+                std::cout << "Could not find means to create object" << std::endl;
             }
         }
     }

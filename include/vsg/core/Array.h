@@ -22,6 +22,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
 
+#define VSG_array(N, T) \
+    using N = Array<T>; \
+    template<>          \
+    constexpr const char* type_name<N>() noexcept { return "vsg::" #N; }
+
 namespace vsg
 {
     template<typename T>
@@ -65,9 +70,9 @@ namespace vsg
             {
                 if (_data) // if data already may be able to reuse it
                 {
-                    if (_size!=size) // if existing data is a different size delete old, and create new
+                    if (_size != size) // if existing data is a different size delete old, and create new
                     {
-                        delete [] _data;
+                        delete[] _data;
                         _size = size;
                         _data = new value_type[size];
                     }
@@ -174,10 +179,6 @@ namespace vsg
         std::size_t _size;
         value_type* _data;
     };
-
-    #define VSG_array(N, T) \
-        using N = Array<T>; \
-        template<> constexpr const char* type_name<N>() noexcept { return "vsg::"#N; }
 
     VSG_array(ubyteArray, std::uint8_t);
     VSG_array(ushortArray, std::uint16_t);

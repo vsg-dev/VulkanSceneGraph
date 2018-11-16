@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/ObjectFactory.h>
 
-#include <vsg/core/Value.h>
 #include <vsg/core/Array.h>
 #include <vsg/core/Array2D.h>
+#include <vsg/core/Value.h>
 
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/QuadGroup.h>

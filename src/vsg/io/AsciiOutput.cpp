@@ -26,40 +26,39 @@ AsciiOutput::AsciiOutput(std::ostream& output) :
     _output.imbue(std::locale::classic());
 
     // write header
-    _output<<"#vsga "<<vsgGetVersion()<<"\n";
+    _output << "#vsga " << vsgGetVersion() << "\n";
 }
 
 void AsciiOutput::writePropertyName(const char* propertyName)
 {
-    indent()<<propertyName;
+    indent() << propertyName;
 }
-
 
 void AsciiOutput::write(size_t num, const std::string* value)
 {
-    if (num==1)
+    if (num == 1)
     {
-        _output<<' ';
+        _output << ' ';
         _write(*value);
-        _output<<'\n';
+        _output << '\n';
     }
     else
     {
-        for(;num>0;--num, ++value)
+        for (; num > 0; --num, ++value)
         {
-            _output<<' ';
+            _output << ' ';
             _write(*value);
         }
-        _output<<'\n';
+        _output << '\n';
     }
 }
 
 void AsciiOutput::write(const vsg::Object* object)
 {
-    if (auto itr = _objectIDMap.find(object); itr !=  _objectIDMap.end())
+    if (auto itr = _objectIDMap.find(object); itr != _objectIDMap.end())
     {
         // write out the objectID
-        _output<<" id="<<itr->second<<"\n";
+        _output << " id=" << itr->second << "\n";
         return;
     }
 
@@ -71,16 +70,16 @@ void AsciiOutput::write(const vsg::Object* object)
 #if 0
         _output<<"id="<<id<<" "<<vsg::type_name(*object)<<"\n";
 #else
-        _output<<" id="<<id<<" "<<object->className()<<"\n";
+        _output << " id=" << id << " " << object->className() << "\n";
 #endif
-        indent()<<"{\n";
+        indent() << "{\n";
         _indentation += _indentationStep;
         object->write(*this);
         _indentation -= _indentationStep;
-        indent()<<"}\n";
+        indent() << "}\n";
     }
     else
     {
-        _output<<" id="<<id<<" nullptr\n";
+        _output << " id=" << id << " nullptr\n";
     }
 }
