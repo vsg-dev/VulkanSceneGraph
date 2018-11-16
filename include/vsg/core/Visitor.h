@@ -69,7 +69,6 @@ namespace vsg
         virtual void apply(vec2Array2D&);
         virtual void apply(vec3Array2D&);
         virtual void apply(vec4Array2D&);
-        virtual void apply(mat4Array2D&);
         virtual void apply(dvec2Array2D&);
         virtual void apply(dvec3Array2D&);
         virtual void apply(dvec4Array2D&);

@@ -184,6 +184,5 @@ namespace vsg
     VSG_array2D(dvec2Array2D, dvec2);
     VSG_array2D(dvec3Array2D, dvec3);
     VSG_array2D(dvec4Array2D, dvec4);
-    VSG_array2D(dmat4Array2D, dmat4);
 
 } // namespace vsg

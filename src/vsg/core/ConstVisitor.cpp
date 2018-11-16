@@ -120,6 +120,55 @@ void ConstVisitor::apply(const dmat4Array& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// Array2Ds
+//
+void ConstVisitor::apply(const ubyteArray2D& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const ushortArray2D& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const uintArray2D& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const floatArray2D& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const doubleArray2D& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const vec2Array2D& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const vec3Array2D& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const vec4Array2D& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const dvec2Array2D& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const dvec3Array2D& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const dvec4Array2D& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // Nodes
 //
 void ConstVisitor::apply(const Node& value)

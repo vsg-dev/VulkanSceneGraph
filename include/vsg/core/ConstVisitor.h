@@ -69,7 +69,6 @@ namespace vsg
         virtual void apply(const vec2Array2D&);
         virtual void apply(const vec3Array2D&);
         virtual void apply(const vec4Array2D&);
-        virtual void apply(const mat4Array2D&);
         virtual void apply(const dvec2Array2D&);
         virtual void apply(const dvec3Array2D&);
         virtual void apply(const dvec4Array2D&);
