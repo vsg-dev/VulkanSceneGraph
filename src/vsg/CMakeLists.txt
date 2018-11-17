@@ -31,7 +31,6 @@ set(SOURCES
     traversals/CullTraversal.cpp
 
     viewer/GraphicsStage.cpp
-    viewer/GLFW_Window.cpp
     viewer/Viewer.cpp
     viewer/Window.cpp
 
@@ -48,6 +47,7 @@ set(SOURCES
     vk/DescriptorSetLayout.cpp
     vk/Device.cpp
     vk/DeviceMemory.cpp
+    vk/Extensions.cpp
     vk/Fence.cpp
     vk/Framebuffer.cpp
     vk/GraphicsPipeline.cpp
@@ -66,6 +66,14 @@ set(SOURCES
     vk/Surface.cpp
     vk/Swapchain.cpp
 )
+
+# add platform specific Window implementation
+if(WIN32)
+    set(SOURCES ${SOURCES} viewer/Win32_Window.cpp)
+else()
+    set(SOURCES ${SOURCES} viewer/GLFW_Window.cpp)
+endif()
+
 
 add_library(vsg ${HEADERS} ${SOURCES})
 
@@ -122,7 +130,17 @@ set_property(TARGET vsg PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET vsg PROPERTY CXX_STANDARD 17)
 
 target_include_directories(vsg PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include> $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
-target_link_libraries(vsg PUBLIC Vulkan::Vulkan PRIVATE glfw)
+
+# set up library dependancies
+set(LIBRARIES PUBLIC Vulkan::Vulkan)
+
+if(WIN32)
+    set(LIBRARIES ${LIBRARIES})
+else()
+    set(LIBRARIES ${LIBRARIES} PRIVATE glfw)
+endif()
+
+target_link_libraries(vsg ${LIBRARIES})
 
 install(TARGETS vsg EXPORT vsgTargets
         LIBRARY DESTINATION lib

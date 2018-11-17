@@ -1,6 +1,9 @@
 include(CMakeFindDependencyMacro)
 
 find_dependency(Vulkan)
-find_dependency(glfw3)
+
+if(NOT WIN32)
+    find_dependency(glfw3)
+endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/vsgTargets.cmake")
