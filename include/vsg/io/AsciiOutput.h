@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/Output.h>
 
+#include <algorithm>
 #include <fstream>
 #include <unordered_map>
 
