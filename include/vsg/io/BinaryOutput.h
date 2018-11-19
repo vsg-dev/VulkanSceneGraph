@@ -31,7 +31,7 @@ namespace vsg
         template<typename T>
         void _write(size_t num, const T* value)
         {
-            _output.write(reinterpret_cast<const char*>(value), num*sizeof(T));
+            _output.write(reinterpret_cast<const char*>(value), num * sizeof(T));
         }
 
         // write contiguous array of value(s)

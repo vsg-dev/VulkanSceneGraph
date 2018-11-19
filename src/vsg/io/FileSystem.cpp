@@ -22,7 +22,7 @@ using namespace vsg;
 
 const char UNIX_PATH_SEPARATOR = '/';
 const char WINDOWS_PATH_SEPARATOR = '\\';
-const char * const PATH_SEPARATORS = "/\\";
+const char* const PATH_SEPARATORS = "/\\";
 
 #if defined(WIN32) && !defined(__CYGWIN__)
 const char delimiterNative = WINDOWS_PATH_SEPARATOR;
@@ -73,10 +73,9 @@ Path vsg::fileExtension(const Path& path)
 {
     std::string::size_type dot = path.find_last_of('.');
     std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
-    if (dot==std::string::npos || (slash!=std::string::npos && dot<slash)) return Path{};
-    return path.substr(dot+1);
+    if (dot == std::string::npos || (slash != std::string::npos && dot < slash)) return Path{};
+    return path.substr(dot + 1);
 }
-
 
 Path vsg::concatePaths(const Path& left, const Path& right)
 {

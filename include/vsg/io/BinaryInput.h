@@ -42,7 +42,7 @@ namespace vsg
         template<typename T>
         void _read(size_t num, T* value)
         {
-            _input.read(reinterpret_cast<char*>(value), num*sizeof(T));
+            _input.read(reinterpret_cast<char*>(value), num * sizeof(T));
         }
 
         // read value(s)

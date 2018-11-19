@@ -76,7 +76,7 @@ vsg::ref_ptr<vsg::Object> BinaryInput::read()
         std::string className = readValue<std::string>(nullptr);
 
         vsg::ref_ptr<vsg::Object> object;
-        if (className!="nullptr")
+        if (className != "nullptr")
         {
             object = _objectFactory->create(className.c_str());
             if (object)
@@ -85,7 +85,7 @@ vsg::ref_ptr<vsg::Object> BinaryInput::read()
             }
             else
             {
-                std::cout<<"Unable to create instance of class : "<<className<<std::endl;
+                std::cout << "Unable to create instance of class : " << className << std::endl;
             }
         }
 
