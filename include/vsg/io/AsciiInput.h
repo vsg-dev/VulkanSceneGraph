@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/ObjectFactory.h>
 
 #include <fstream>
+#include <optional>
 #include <unordered_map>
 
 namespace vsg
