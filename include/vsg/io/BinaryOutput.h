@@ -20,32 +20,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_DECLSPEC AsciiOutput : public vsg::Output
+    class VSG_DECLSPEC BinaryOutput : public vsg::Output
     {
     public:
-        AsciiOutput(std::ostream& output);
-
-        std::ostream& indent()
-        {
-            _output.write(_indentationString, std::min(_indentation, _maximumIndentation));
-            return _output;
-        }
+        BinaryOutput(std::ostream& output);
 
         // write property name if appropriate for format
-        void writePropertyName(const char* propertyName) override;
+        void writePropertyName(const char*) override {}
 
         template<typename T>
         void _write(size_t num, const T* value)
         {
-            if (num == 1)
-            {
-                _output << ' ' << *value << '\n';
-            }
-            else
-            {
-                for (; num > 0; --num, ++value) _output << ' ' << *value;
-                _output << '\n';
-            }
+            _output.write(reinterpret_cast<const char*>(value), num*sizeof(T));
         }
 
         // write contiguous array of value(s)
@@ -62,15 +48,9 @@ namespace vsg
 
         void _write(const std::string& str)
         {
-            _output << '"';
-            for (auto c : str)
-            {
-                if (c == '"')
-                    _output << "\\\"";
-                else
-                    _output << c;
-            }
-            _output << '"';
+            uint32_t size = str.size();
+            _output.write(reinterpret_cast<const char*>(&size), sizeof(uint32_t));
+            _output.write(str.c_str(), size);
         }
 
         void write(size_t num, const std::string* value) override;
@@ -91,11 +71,6 @@ namespace vsg
 
         ObjectIDMap _objectIDMap;
         ObjectID _objectID = 0;
-        std::size_t _indentationStep = 2;
-        std::size_t _indentation = 0;
-        std::size_t _maximumIndentation = 0;
-        // 24 characters long enough for 12 levels of nesting
-        const char* _indentationString = "                        ";
     };
 
 } // namespace vsg
