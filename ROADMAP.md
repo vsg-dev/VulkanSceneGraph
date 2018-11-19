@@ -52,6 +52,7 @@ Using the prototyping work as a guide implement the final scene graph library wi
     * Support for PBR shaders
     * Support for Text rendering
 * Development of test suite of programs and data
+* Support for RTX Mesh shaders and ray tracing
 * Port to OSX and iOS
 
 ### 4. Release Phase,  Fall 2019 onwards
