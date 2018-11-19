@@ -20,6 +20,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    VSG_type_name(vsg::Group);
+
     class VSG_DECLSPEC Group : public Inherit<Node, Group>
     {
     public:
@@ -35,6 +37,9 @@ namespace vsg
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(DispatchTraversal& visitor) const override { t_traverse(*this, visitor); }
         void traverse(CullTraversal& visitor) const override { t_traverse(*this, visitor); }
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         std::size_t addChild(vsg::ref_ptr<Node> child)
         {

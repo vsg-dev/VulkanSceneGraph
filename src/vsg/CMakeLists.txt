@@ -25,7 +25,15 @@ set(SOURCES
     nodes/QuadGroup.cpp
     nodes/StateGroup.cpp
 
-    utils/FileSystem.cpp
+
+    io/FileSystem.cpp
+    io/AsciiInput.cpp
+    io/AsciiOutput.cpp
+    io/BinaryInput.cpp
+    io/BinaryOutput.cpp
+    io/Input.cpp
+    io/Output.cpp
+    io/ObjectFactory.cpp
 
     traversals/DispatchTraversal.cpp
     traversals/CullTraversal.cpp

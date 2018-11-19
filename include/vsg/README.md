@@ -11,13 +11,15 @@ The headers that provide the library classes and definitions are organized in su
 
 * [include/vsg/maths](maths/) - GLSL style maths classes
 
-* [include/vsg/nodes](nodes/) - Graph node classes 
+* [include/vsg/nodes](nodes/) - Graph node classes
 
 * [include/vsg/traversals](traversals/) - Graph traversals
 
 * [include/vsg/vk](vk/) - Vulkan integration classes
 
 * [include/vsg/viewer](viewer/) - Viewer/Windowing classes
+
+* [include/vsg/io](io/) - File system, stream and native file format support
 
 * [include/vsg/utils](utils/) - Utility classes/template functions
 

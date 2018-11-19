@@ -34,10 +34,16 @@ namespace vsg
         virtual ~StateComponent() {}
     };
 
+    VSG_type_name(vsg::StateComponent);
+    VSG_type_name(vsg::StateGroup);
+
     class VSG_DECLSPEC StateGroup : public Inherit<Group, StateGroup>
     {
     public:
         StateGroup();
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         using StateComponents = std::vector<ref_ptr<StateComponent>>;
 
@@ -67,4 +73,5 @@ namespace vsg
 
         StateComponents _stateComponents;
     };
+
 } // namespace vsg

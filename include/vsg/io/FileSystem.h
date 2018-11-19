@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,39 +12,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/StateGroup.h>
+#include <string>
+#include <vector>
 
-#include <vsg/io/Input.h>
-#include <vsg/io/Output.h>
+#include <vsg/core/Export.h>
 
-using namespace vsg;
-
-StateGroup::StateGroup()
+namespace vsg
 {
-}
 
-StateGroup::~StateGroup()
-{
-}
+    using Path = std::string;
 
-void StateGroup::read(Input& input)
-{
-    Group::read(input);
+    using Paths = std::vector<Path>;
 
-    _stateComponents.resize(input.readValue<uint32_t>("NumStateComponents"));
-    for (auto& child : _stateComponents)
-    {
-        child = input.readObject<StateComponent>("StateComponent");
-    }
-}
+    extern VSG_DECLSPEC Paths getEnvPaths(const char* env_var);
 
-void StateGroup::write(Output& output) const
-{
-    Group::write(output);
+    extern VSG_DECLSPEC bool fileExists(const Path& path);
 
-    output.writeValue<uint32_t>("NumStateComponents", _stateComponents.size());
-    for (auto& child : _stateComponents)
-    {
-        output.writeObject("StateComponent", child.get());
-    }
-}
+    extern VSG_DECLSPEC Path fileExtension(const Path& path);
+
+    extern VSG_DECLSPEC Path concatePaths(const Path& left, const Path& right);
+
+    extern VSG_DECLSPEC Path findFile(const Path& filename, const Paths& paths);
+
+} // namespace vsg

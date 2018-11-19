@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,24 +10,57 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <string>
-#include <vector>
+#include <vsg/core/Version.h>
 
-#include <vsg/core/Export.h>
+#include <vsg/io/BinaryOutput.h>
 
-namespace vsg
+#include <cstring>
+
+using namespace vsg;
+
+BinaryOutput::BinaryOutput(std::ostream& output) :
+    _output(output)
 {
+    // write header
+    _output << "#vsgb " << vsgGetVersion() << "\n";
+}
 
-    using Path = std::string;
+void BinaryOutput::write(size_t num, const std::string* value)
+{
+    if (num == 1)
+    {
+        _write(*value);
+    }
+    else
+    {
+        for (; num > 0; --num, ++value)
+        {
+            _write(*value);
+        }
+    }
+}
 
-    using Paths = std::vector<Path>;
+void BinaryOutput::write(const vsg::Object* object)
+{
+    if (auto itr = _objectIDMap.find(object); itr != _objectIDMap.end())
+    {
+        // write out the objectID
+        uint32_t id = itr->second;
+        _output.write(reinterpret_cast<const char*>(&id), sizeof(id));
+        return;
+    }
 
-    extern VSG_DECLSPEC Paths getEnvPaths(const char* env_var);
+    ObjectID id = _objectID++;
+    _objectIDMap[object] = id;
 
-    extern VSG_DECLSPEC bool fileExists(const Path& path);
-
-    extern VSG_DECLSPEC Path concatePaths(const Path& left, const Path& right);
-
-    extern VSG_DECLSPEC Path findFile(const Path& filename, const Paths& paths);
-
-} // namespace vsg
+    _output.write(reinterpret_cast<const char*>(&id), sizeof(id));
+    if (object)
+    {
+        _write(std::string(object->className()));
+        object->write(*this);
+    }
+    else
+    {
+        _write(std::string("nullptr"));
+    }
+}

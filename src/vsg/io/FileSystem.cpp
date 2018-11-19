@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/utils/FileSystem.h>
+#include <vsg/io/FileSystem.h>
 
 #if defined(WIN32) && !defined(__CYGWIN__)
 #    include <io.h>
@@ -22,6 +22,7 @@ using namespace vsg;
 
 const char UNIX_PATH_SEPARATOR = '/';
 const char WINDOWS_PATH_SEPARATOR = '\\';
+const char * const PATH_SEPARATORS = "/\\";
 
 #if defined(WIN32) && !defined(__CYGWIN__)
 const char delimiterNative = WINDOWS_PATH_SEPARATOR;
@@ -67,6 +68,15 @@ bool vsg::fileExists(const Path& path)
     return access(path.c_str(), F_OK) == 0;
 #endif
 }
+
+Path vsg::fileExtension(const Path& path)
+{
+    std::string::size_type dot = path.find_last_of('.');
+    std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
+    if (dot==std::string::npos || (slash!=std::string::npos && dot<slash)) return Path{};
+    return path.substr(dot+1);
+}
+
 
 Path vsg::concatePaths(const Path& left, const Path& right)
 {

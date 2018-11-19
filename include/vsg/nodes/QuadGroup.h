@@ -23,6 +23,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    VSG_type_name(vsg::QuadGroup);
+
     class VSG_DECLSPEC QuadGroup : public Inherit<Node, QuadGroup>
     {
     public:
@@ -38,6 +40,9 @@ namespace vsg
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(DispatchTraversal& visitor) const override { t_traverse(*this, visitor); }
         void traverse(CullTraversal& visitor) const override { t_traverse(*this, visitor); }
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         void setChild(std::size_t pos, vsg::Node* node) { _children[pos] = node; }
         vsg::Node* getChild(std::size_t pos) { return _children[pos].get(); }
