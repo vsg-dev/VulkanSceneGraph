@@ -93,6 +93,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 // Input/Output header files
 #include <vsg/io/AsciiInput.h>
 #include <vsg/io/AsciiOutput.h>
+#include <vsg/io/BinaryInput.h>
+#include <vsg/io/BinaryOutput.h>
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/ObjectFactory.h>

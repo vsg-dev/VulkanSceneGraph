@@ -31,6 +31,10 @@ namespace vsg
         virtual const void* dataPointer() const = 0;
         virtual void* dataRelease() = 0;
 
+        virtual std::size_t width() const = 0;
+        virtual std::size_t height() const = 0;
+        virtual std::size_t depth() const = 0;
+
     protected:
         virtual ~Data() {}
     };

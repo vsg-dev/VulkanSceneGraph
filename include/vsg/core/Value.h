@@ -70,6 +70,10 @@ namespace vsg
         const void* dataPointer() const override { return &_value; }
         void* dataRelease() override { return nullptr; }
 
+        std::size_t width() const override { return 1; }
+        std::size_t height() const override { return 1; }
+        std::size_t depth() const override { return 1; }
+
         Value& operator=(const Value& rhs)
         {
             _value = rhs._value;

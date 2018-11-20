@@ -131,8 +131,9 @@ namespace vsg
         void* dataPointer() override { return _data; }
         const void* dataPointer() const override { return _data; }
 
-        size_t width() const { return _width; }
-        size_t height() const { return _height; }
+        std::size_t width() const override { return _width; }
+        std::size_t height() const override { return _height; }
+        std::size_t depth() const override { return 1; }
 
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
