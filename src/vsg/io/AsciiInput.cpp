@@ -129,7 +129,7 @@ vsg::ref_ptr<vsg::Object> AsciiInput::read()
     auto result = objectID();
     if (result)
     {
-        ObjectID id = result.value();
+        ObjectID id = *result;
         //std::cout<<"   matched result="<<id<<std::endl;
 
         if (auto itr = _objectIDMap.find(id); itr != _objectIDMap.end())
