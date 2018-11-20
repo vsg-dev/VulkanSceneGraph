@@ -77,7 +77,7 @@ Path vsg::fileExtension(const Path& path)
     return path.substr(dot + 1);
 }
 
-Path vsg::concatePaths(const Path& left, const Path& right)
+Path vsg::concatPaths(const Path& left, const Path& right)
 {
     if (left.empty())
     {
@@ -103,7 +103,7 @@ Path vsg::findFile(const Path& filename, const Paths& paths)
 {
     for (auto path : paths)
     {
-        Path fullpath = concatePaths(path, filename);
+        Path fullpath = concatPaths(path, filename);
         if (fileExists(fullpath))
         {
             return fullpath;
