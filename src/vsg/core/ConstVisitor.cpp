@@ -97,10 +97,6 @@ void ConstVisitor::apply(const vec4Array& value)
 {
     apply(static_cast<const Object&>(value));
 }
-void ConstVisitor::apply(const mat4Array& value)
-{
-    apply(static_cast<const Object&>(value));
-}
 void ConstVisitor::apply(const dvec2Array& value)
 {
     apply(static_cast<const Object&>(value));
@@ -110,6 +106,22 @@ void ConstVisitor::apply(const dvec3Array& value)
     apply(static_cast<const Object&>(value));
 }
 void ConstVisitor::apply(const dvec4Array& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const ubvec2Array& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const ubvec3Array& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const ubvec4Array& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const mat4Array& value)
 {
     apply(static_cast<const Object&>(value));
 }

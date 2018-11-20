@@ -97,10 +97,6 @@ void Visitor::apply(vec4Array& value)
 {
     apply(static_cast<Object&>(value));
 }
-void Visitor::apply(mat4Array& value)
-{
-    apply(static_cast<Object&>(value));
-}
 void Visitor::apply(dvec2Array& value)
 {
     apply(static_cast<Object&>(value));
@@ -110,6 +106,22 @@ void Visitor::apply(dvec3Array& value)
     apply(static_cast<Object&>(value));
 }
 void Visitor::apply(dvec4Array& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(ubvec2Array& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(ubvec3Array& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(ubvec4Array& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(mat4Array& value)
 {
     apply(static_cast<Object&>(value));
 }
