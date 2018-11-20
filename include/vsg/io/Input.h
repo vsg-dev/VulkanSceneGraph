@@ -50,11 +50,14 @@ namespace vsg
 
         // vec/mat versions of read methods
         void read(size_t num, vec2* value) { read(num * value->size(), value->data()); }
-        void read(size_t num, dvec2* value) { read(num * value->size(), value->data()); }
         void read(size_t num, vec3* value) { read(num * value->size(), value->data()); }
-        void read(size_t num, dvec3* value) { read(num * value->size(), value->data()); }
         void read(size_t num, vec4* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, dvec2* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, dvec3* value) { read(num * value->size(), value->data()); }
         void read(size_t num, dvec4* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, ubvec2* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, ubvec3* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, ubvec4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, mat4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, dmat4* value) { read(num * value->size(), value->data()); }
 

@@ -189,11 +189,16 @@ namespace vsg
     VSG_array(vec2Array, vec2);
     VSG_array(vec3Array, vec3);
     VSG_array(vec4Array, vec4);
-    VSG_array(mat4Array, mat4);
 
     VSG_array(dvec2Array, dvec2);
     VSG_array(dvec3Array, dvec3);
     VSG_array(dvec4Array, dvec4);
+
+    VSG_array(ubvec2Array, ubvec2);
+    VSG_array(ubvec3Array, ubvec3);
+    VSG_array(ubvec4Array, ubvec4);
+
+    VSG_array(mat4Array, mat4);
     VSG_array(dmat4Array, dmat4);
 
 } // namespace vsg

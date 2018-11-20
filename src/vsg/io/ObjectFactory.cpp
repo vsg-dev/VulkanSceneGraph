@@ -43,10 +43,13 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::vec2Value);
     VSG_REGISTER_new(vsg::vec3Value);
     VSG_REGISTER_new(vsg::vec4Value);
-    VSG_REGISTER_new(vsg::mat4Value);
     VSG_REGISTER_new(vsg::dvec2Value);
     VSG_REGISTER_new(vsg::dvec3Value);
     VSG_REGISTER_new(vsg::dvec4Value);
+    VSG_REGISTER_new(vsg::ubvec2Value);
+    VSG_REGISTER_new(vsg::ubvec3Value);
+    VSG_REGISTER_new(vsg::ubvec4Value);
+    VSG_REGISTER_new(vsg::mat4Value);
     VSG_REGISTER_new(vsg::dmat4Value);
 
     // arrays
@@ -58,10 +61,13 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::vec2Array);
     VSG_REGISTER_new(vsg::vec3Array);
     VSG_REGISTER_new(vsg::vec4Array);
-    VSG_REGISTER_new(vsg::mat4Array);
     VSG_REGISTER_new(vsg::dvec2Array);
     VSG_REGISTER_new(vsg::dvec3Array);
     VSG_REGISTER_new(vsg::dvec4Array);
+    VSG_REGISTER_new(vsg::ubvec2Array);
+    VSG_REGISTER_new(vsg::ubvec3Array);
+    VSG_REGISTER_new(vsg::ubvec4Array);
+    VSG_REGISTER_new(vsg::mat4Array);
     VSG_REGISTER_new(vsg::dmat4Array);
 
     // arrays
@@ -73,10 +79,12 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::vec2Array2D);
     VSG_REGISTER_new(vsg::vec3Array2D);
     VSG_REGISTER_new(vsg::vec4Array2D);
-    VSG_REGISTER_new(vsg::mat4Array2D);
     VSG_REGISTER_new(vsg::dvec2Array2D);
     VSG_REGISTER_new(vsg::dvec3Array2D);
     VSG_REGISTER_new(vsg::dvec4Array2D);
+    VSG_REGISTER_new(vsg::ubvec2Array2D);
+    VSG_REGISTER_new(vsg::ubvec3Array2D);
+    VSG_REGISTER_new(vsg::ubvec4Array2D);
 
     // nodes
     VSG_REGISTER_create(vsg::Node);

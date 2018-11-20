@@ -72,6 +72,9 @@ namespace vsg
         virtual void apply(const dvec2Array2D&);
         virtual void apply(const dvec3Array2D&);
         virtual void apply(const dvec4Array2D&);
+        virtual void apply(const ubvec2Array2D&);
+        virtual void apply(const ubvec3Array2D&);
+        virtual void apply(const ubvec4Array2D&);
 
         // Nodes
         virtual void apply(const Node&);

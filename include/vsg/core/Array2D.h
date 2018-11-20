@@ -179,10 +179,13 @@ namespace vsg
     VSG_array2D(vec2Array2D, vec2);
     VSG_array2D(vec3Array2D, vec3);
     VSG_array2D(vec4Array2D, vec4);
-    VSG_array2D(mat4Array2D, mat4);
 
     VSG_array2D(dvec2Array2D, dvec2);
     VSG_array2D(dvec3Array2D, dvec3);
     VSG_array2D(dvec4Array2D, dvec4);
+
+    VSG_array2D(ubvec2Array2D, ubvec2);
+    VSG_array2D(ubvec3Array2D, ubvec3);
+    VSG_array2D(ubvec4Array2D, ubvec4);
 
 } // namespace vsg

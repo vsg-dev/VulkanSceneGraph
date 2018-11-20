@@ -166,6 +166,18 @@ void ConstVisitor::apply(const dvec4Array2D& value)
 {
     apply(static_cast<const Object&>(value));
 }
+void ConstVisitor::apply(const ubvec2Array2D& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const ubvec3Array2D& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const ubvec4Array2D& value)
+{
+    apply(static_cast<const Object&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

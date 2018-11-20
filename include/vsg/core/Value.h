@@ -128,11 +128,16 @@ namespace vsg
     VSG_value(vec2Value, vec2);
     VSG_value(vec3Value, vec3);
     VSG_value(vec4Value, vec4);
-    VSG_value(mat4Value, mat4);
 
     VSG_value(dvec2Value, dvec2);
     VSG_value(dvec3Value, dvec3);
     VSG_value(dvec4Value, dvec4);
+
+    VSG_value(ubvec2Value, ubvec2);
+    VSG_value(ubvec3Value, ubvec3);
+    VSG_value(ubvec4Value, ubvec4);
+
+    VSG_value(mat4Value, mat4);
     VSG_value(dmat4Value, dmat4);
 
 } // namespace vsg

@@ -50,11 +50,14 @@ namespace vsg
 
         // vec/mat versions of write methods
         void write(size_t num, const vec2* value) { write(num * value->size(), value->data()); }
-        void write(size_t num, const dvec2* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const vec3* value) { write(num * value->size(), value->data()); }
-        void write(size_t num, const dvec3* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const vec4* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const dvec2* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const dvec3* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const dvec4* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const ubvec2* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const ubvec3* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const ubvec4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const mat4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const dmat4* value) { write(num * value->size(), value->data()); }
 

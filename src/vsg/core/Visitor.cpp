@@ -166,6 +166,18 @@ void Visitor::apply(dvec4Array2D& value)
 {
     apply(static_cast<Object&>(value));
 }
+void Visitor::apply(ubvec2Array2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(ubvec3Array2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(ubvec4Array2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
