@@ -58,7 +58,7 @@ It's still very early days for the project so we don't have many projects that u
 
 Three examples within the vsgExamples project that may be of particular interest are ports of Vulkan tutorials to the VSG API.  In each case the VSG version requires less than 1/5th the amount of code to achieve the same functionality.
 
-* [Vulkan Tutorial](https://vulkan-tutorial.com/) ported as [vsgExamples/examples_osg2vsg/vsgdraw](https://github.com/vsg-dev/vsgExamples/blob/master/examples_osg2vsg/vsgdraw/)
+* [Vulkan Tutorial](https://vulkan-tutorial.com/) ported as [vsgExamples/examples_vsg/vsgdraw](https://github.com/vsg-dev/vsgExamples/blob/master/examples_vsg/vsgdraw/)
 * Version of vsgdraw using vkPushConstants [vsgExamples.examples_osg2vsg/vsgpushconstants](https://github.com/vsg-dev/vsgExamples/blob/master/examples_osg2vsg/vsgpushconstants/)
 * [vulkan_minimal_compute](https://github.com/Erkaman/vulkan_minimal_compute) tutorial ported to VSG [vsgExamples/examples_osg2vsg/vsgcompute](https://github.com/vsg-dev/vsgExamples/blob/master/examples_osg2vsg/vsgcompute/)
 
