@@ -35,6 +35,7 @@ set(SOURCES
     io/Input.cpp
     io/Output.cpp
     io/ObjectFactory.cpp
+    io/ReaderWriter.cpp
 
     traversals/DispatchTraversal.cpp
     traversals/CullTraversal.cpp
