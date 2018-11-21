@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,41 +10,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Object.h>
+#include <vsg/core/Data.h>
+#include <vsg/io/Input.h>
+#include <vsg/io/Output.h>
 
-#include <vulkan/vulkan.h>
+using namespace vsg;
 
-namespace vsg
+void Data::read(Input& input)
 {
-    class VSG_DECLSPEC Data : public Object
-    {
-    public:
-        Data(){}
-        explicit Data(VkFormat format) : _format(format) {}
+    Object::read(input);
+    _format = static_cast<VkFormat>(input.readValue<std::int32_t>("Format"));
+}
 
-        std::size_t sizeofObject() const noexcept override { return sizeof(Data); }
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        void setFormat(VkFormat format) { _format = format; }
-        VkFormat getFormat() const { return _format; }
-
-        virtual std::size_t valueSize() const = 0;
-        virtual std::size_t valueCount() const = 0;
-
-        virtual std::size_t dataSize() const = 0;
-        virtual void* dataPointer() = 0;
-        virtual const void* dataPointer() const = 0;
-        virtual void* dataRelease() = 0;
-
-        virtual std::size_t width() const = 0;
-        virtual std::size_t height() const = 0;
-        virtual std::size_t depth() const = 0;
-
-    protected:
-        virtual ~Data() {}
-
-        VkFormat _format = VK_FORMAT_UNDEFINED;
-    };
-} // namespace vsg
+void Data::write(Output& output) const
+{
+    Object::write(output);
+    output.writeValue<std::int32_t>("Format", _format);
+}

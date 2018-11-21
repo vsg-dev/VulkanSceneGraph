@@ -12,10 +12,11 @@ set(SOURCES
 
     core/Allocator.cpp
     core/Auxiliary.cpp
+    core/ConstVisitor.cpp
+    core/Data.cpp
     core/Object.cpp
     core/Result.cpp
     core/Visitor.cpp
-    core/ConstVisitor.cpp
     core/Version.cpp
 
     introspection/c_interface.cpp
