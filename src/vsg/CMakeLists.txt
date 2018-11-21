@@ -52,6 +52,7 @@ set(SOURCES
     vk/CommandBuffer.cpp
     vk/CommandPool.cpp
     vk/ComputePipeline.cpp
+    vk/Descriptor.cpp
     vk/DescriptorPool.cpp
     vk/DescriptorSet.cpp
     vk/DescriptorSetLayout.cpp
