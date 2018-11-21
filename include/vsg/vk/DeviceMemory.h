@@ -49,21 +49,23 @@ namespace vsg
     };
 
     template<class T>
-    class MappedArray : public T
+    class MappedData : public T
     {
     public:
         using value_type = typename T::value_type;
 
-        MappedArray(DeviceMemory* deviceMemory, VkDeviceSize offset, size_t numElements, VkMemoryMapFlags flags = 0) :
+        template<typename... Args>
+        MappedData(DeviceMemory* deviceMemory, VkDeviceSize offset, VkMemoryMapFlags flags, Args&... args) :
             T(),
             _deviceMemory(deviceMemory)
         {
             void* pData;
+            size_t numElements = (args * ...);
             _deviceMemory->map(offset, numElements * sizeof(value_type), flags, &pData);
-            T::assign(numElements, static_cast<value_type*>(pData));
+            T::assign(args..., static_cast<value_type*>(pData));
         }
 
-        virtual ~MappedArray()
+        virtual ~MappedData()
         {
             T::dataRelease(); // make sure that the Array doesn't delete this memory
             _deviceMemory->unmap();
