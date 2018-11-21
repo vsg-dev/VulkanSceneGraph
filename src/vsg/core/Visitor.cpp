@@ -97,10 +97,6 @@ void Visitor::apply(vec4Array& value)
 {
     apply(static_cast<Object&>(value));
 }
-void Visitor::apply(mat4Array& value)
-{
-    apply(static_cast<Object&>(value));
-}
 void Visitor::apply(dvec2Array& value)
 {
     apply(static_cast<Object&>(value));
@@ -113,7 +109,84 @@ void Visitor::apply(dvec4Array& value)
 {
     apply(static_cast<Object&>(value));
 }
+void Visitor::apply(ubvec2Array& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(ubvec3Array& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(ubvec4Array& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(mat4Array& value)
+{
+    apply(static_cast<Object&>(value));
+}
 void Visitor::apply(dmat4Array& value)
+{
+    apply(static_cast<Object&>(value));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Array2Ds
+//
+void Visitor::apply(ubyteArray2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(ushortArray2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(uintArray2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(floatArray2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(doubleArray2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(vec2Array2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(vec3Array2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(vec4Array2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(dvec2Array2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(dvec3Array2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(dvec4Array2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(ubvec2Array2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(ubvec3Array2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(ubvec4Array2D& value)
 {
     apply(static_cast<Object&>(value));
 }

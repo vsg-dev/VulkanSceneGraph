@@ -99,7 +99,7 @@ void DeviceMemory::unmap()
     vkUnmapMemory(*_device, _deviceMemory);
 }
 
-void DeviceMemory::copy(VkDeviceSize offset, VkDeviceSize size, void* src_data)
+void DeviceMemory::copy(VkDeviceSize offset, VkDeviceSize size, const void* src_data)
 {
     // should we have checks against buffer having enough memory for copied data?
 
@@ -111,7 +111,7 @@ void DeviceMemory::copy(VkDeviceSize offset, VkDeviceSize size, void* src_data)
     unmap();
 }
 
-void DeviceMemory::copy(VkDeviceSize offset, Data* data)
+void DeviceMemory::copy(VkDeviceSize offset, const Data* data)
 {
     copy(offset, data->dataSize(), data->dataPointer());
 }

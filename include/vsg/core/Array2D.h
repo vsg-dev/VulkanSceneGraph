@@ -22,118 +22,96 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
 
-#define VSG_array(N, T) \
-    using N = Array<T>; \
-    template<>          \
+#define VSG_array2D(N, T) \
+    using N = Array2D<T>; \
+    template<>            \
     constexpr const char* type_name<N>() noexcept { return "vsg::" #N; }
 
 namespace vsg
 {
     template<typename T>
-    class Array : public Data
+    class Array2D : public Data
     {
     public:
         using value_type = T;
         using iterator = value_type*;
         using const_iterator = const value_type*;
 
-        Array() :
-            _size(0),
+        Array2D() :
+            _width(0),
+            _height(),
             _data(nullptr) {}
-        Array(std::size_t numElements, value_type* data) :
-            _size(numElements),
+        Array2D(std::size_t width, std::size_t height, value_type* data) :
+            _width(width),
+            _height(height),
             _data(data) {}
-        explicit Array(std::initializer_list<value_type> l) :
-            _size(l.size()),
-            _data(new value_type[l.size()])
-        {
-            value_type* ptr = _data;
-            for (value_type const& v : l) { (*ptr++) = v; }
-        }
-        explicit Array(std::size_t numElements) :
-            _size(numElements),
-            _data(new value_type[numElements]) {}
+        explicit Array2D(std::size_t width, std::size_t height) :
+            _width(width),
+            _height(height),
+            _data(new value_type[width * height]) {}
 
-        std::size_t sizeofObject() const noexcept override { return sizeof(Array); }
+        std::size_t sizeofObject() const noexcept override { return sizeof(Array2D); }
 
         // implementation provided by Visitor.h
         void accept(Visitor& visitor) override;
         void accept(ConstVisitor& visitor) const override;
 
-        const char* className() const noexcept override { return type_name<Array>(); }
+        const char* className() const noexcept override { return type_name<Array2D>(); }
 
         void read(Input& input) override
         {
             Data::read(input);
-            size_t size = input.readValue<uint32_t>("Size");
+            size_t width = input.readValue<uint32_t>("Width");
+            size_t height = input.readValue<uint32_t>("Height");
+            size_t new_size = width * height;
             if (input.matchPropertyName("Data"))
             {
                 if (_data) // if data already may be able to reuse it
                 {
-                    if (_size != size) // if existing data is a different size delete old, and create new
+                    size_t original_size = width * height;
+                    if (original_size != new_size) // if existing data is a different size delete old, and create new
                     {
                         delete[] _data;
-                        _size = size;
-                        _data = new value_type[size];
+                        _data = new value_type[new_size];
                     }
                 }
                 else // allocate space for data
                 {
-                    _size = size;
-                    _data = new value_type[size];
+                    _data = new value_type[new_size];
                 }
-                input.read(_size, _data);
+                _width = width;
+                _height = height;
+                input.read(new_size, _data);
             }
         }
 
         void write(Output& output) const override
         {
             Data::write(output);
-            output.writeValue<uint32_t>("Size", _size);
+            output.writeValue<uint32_t>("Width", _width);
+            output.writeValue<uint32_t>("Height", _height);
             output.writePropertyName("Data");
-            output.write(_size, _data);
+            output.write(_width * _height, _data);
         }
 
-        std::size_t size() const { return _size; }
-        bool empty() const { return _size == 0; }
+        std::size_t size() const { return _width * _height; }
+        bool empty() const { return _width == 0 && _height == 0; }
 
-        // should Array be fixed size?
         void clear()
         {
-            _size = 0;
+            _width = 0;
+            _height = 0;
             if (_data) { delete[] _data; }
             _data = nullptr;
         }
 
-        void assign(std::size_t numElements, value_type* data)
+        void assign(std::size_t width, std::size_t height, value_type* data)
         {
-            if (_data != nullptr) delete[] _data;
+            if (_data) delete[] _data;
 
-            _size = numElements;
+            _width = width;
+            _height = height;
             _data = data;
-        }
-
-        void resize(std::size_t size)
-        {
-            if (_data)
-            {
-                value_type* original_data = _data;
-
-                std::size_t size_to_copy = std::min(_size, size);
-
-                _size = size;
-                _data = size > 0 ? new value_type[size] : nullptr;
-
-                // copy data
-                for (std::size_t i = 0; i < size_to_copy; ++i) _data[i] = original_data[i];
-
-                delete[] original_data;
-            }
-            else
-            {
-                _size = size;
-                _data = size > 0 ? new value_type[size] : nullptr;
-            }
         }
 
         // release the data so that owneership can be passed on, the local data pointer and size is set to 0 and destruction of Array will no result in the data being deleted.
@@ -141,19 +119,20 @@ namespace vsg
         {
             void* tmp = _data;
             _data = nullptr;
-            _size = 0;
+            _width = 0;
+            _height = 0;
             return tmp;
         }
 
         std::size_t valueSize() const override { return sizeof(value_type); }
-        std::size_t valueCount() const override { return _size; }
+        std::size_t valueCount() const override { return _width * _height; }
 
-        std::size_t dataSize() const override { return _size * sizeof(value_type); }
+        std::size_t dataSize() const override { return (_width * _height) * sizeof(value_type); }
         void* dataPointer() override { return _data; }
         const void* dataPointer() const override { return _data; }
 
-        std::size_t width() const override { return _size; }
-        std::size_t height() const override { return 1; }
+        std::size_t width() const override { return _width; }
+        std::size_t height() const override { return _height; }
         std::size_t depth() const override { return 1; }
 
         value_type* data() { return _data; }
@@ -165,44 +144,49 @@ namespace vsg
         value_type& at(std::size_t i) { return _data[i]; }
         const value_type& at(std::size_t i) const { return _data[i]; }
 
+        value_type& operator()(std::size_t i, std::size_t j) { return _data[i + j * _width]; }
+        const value_type& operator()(std::size_t i, std::size_t j) const { return _data[i + j * _width]; }
+
+        value_type& at(std::size_t i, std::size_t j) { return _data[i + j * _width]; }
+        const value_type& at(std::size_t i, std::size_t j) const { return _data[i + j * _width]; }
+
         void set(std::size_t i, const value_type& v) { _data[i] = v; }
+        void set(std::size_t i, std::size_t j, const value_type& v) { _data[i + j * _width] = v; }
 
         iterator begin() { return _data; }
         const_iterator begin() const { return _data; }
 
-        iterator end() { return _data + _size; }
-        const_iterator end() const { return _data + _size; }
+        iterator end() { return _data + (_width * _height); }
+        const_iterator end() const { return _data + (_width * _height); }
 
     protected:
-        virtual ~Array()
+        virtual ~Array2D()
         {
             if (_data) delete[] _data;
         }
 
     private:
-        std::size_t _size;
+        std::size_t _width;
+        std::size_t _height;
         value_type* _data;
     };
 
-    VSG_array(ubyteArray, std::uint8_t);
-    VSG_array(ushortArray, std::uint16_t);
-    VSG_array(uintArray, std::uint32_t);
-    VSG_array(floatArray, float);
-    VSG_array(doubleArray, double);
+    VSG_array2D(ubyteArray2D, std::uint8_t);
+    VSG_array2D(ushortArray2D, std::uint16_t);
+    VSG_array2D(uintArray2D, std::uint32_t);
+    VSG_array2D(floatArray2D, float);
+    VSG_array2D(doubleArray2D, double);
 
-    VSG_array(vec2Array, vec2);
-    VSG_array(vec3Array, vec3);
-    VSG_array(vec4Array, vec4);
+    VSG_array2D(vec2Array2D, vec2);
+    VSG_array2D(vec3Array2D, vec3);
+    VSG_array2D(vec4Array2D, vec4);
 
-    VSG_array(dvec2Array, dvec2);
-    VSG_array(dvec3Array, dvec3);
-    VSG_array(dvec4Array, dvec4);
+    VSG_array2D(dvec2Array2D, dvec2);
+    VSG_array2D(dvec3Array2D, dvec3);
+    VSG_array2D(dvec4Array2D, dvec4);
 
-    VSG_array(ubvec2Array, ubvec2);
-    VSG_array(ubvec3Array, ubvec3);
-    VSG_array(ubvec4Array, ubvec4);
-
-    VSG_array(mat4Array, mat4);
-    VSG_array(dmat4Array, dmat4);
+    VSG_array2D(ubvec2Array2D, ubvec2);
+    VSG_array2D(ubvec3Array2D, ubvec3);
+    VSG_array2D(ubvec4Array2D, ubvec4);
 
 } // namespace vsg

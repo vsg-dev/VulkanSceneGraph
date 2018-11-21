@@ -13,11 +13,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Data.h>
+#include <vsg/core/type_name.h>
 
 #include <vsg/maths/mat4.h>
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
+
+#include <vsg/io/Input.h>
+#include <vsg/io/Output.h>
+
+#define VSG_value(N, T) \
+    using N = Value<T>; \
+    template<>          \
+    constexpr const char* type_name<N>() noexcept { return "vsg::" #N; }
 
 namespace vsg
 {
@@ -39,6 +48,20 @@ namespace vsg
         void accept(Visitor& visitor) override;
         void accept(ConstVisitor& visitor) const override;
 
+        const char* className() const noexcept override { return type_name<Value>(); }
+
+        void read(Input& input) override
+        {
+            Data::read(input);
+            input.read("Value", _value);
+        }
+
+        void write(Output& output) const override
+        {
+            Data::write(output);
+            output.write("Value", _value);
+        }
+
         std::size_t valueSize() const override { return sizeof(value_type); }
         std::size_t valueCount() const override { return 1; }
 
@@ -46,6 +69,10 @@ namespace vsg
         void* dataPointer() override { return &_value; }
         const void* dataPointer() const override { return &_value; }
         void* dataRelease() override { return nullptr; }
+
+        std::size_t width() const override { return 1; }
+        std::size_t height() const override { return 1; }
+        std::size_t depth() const override { return 1; }
 
         Value& operator=(const Value& rhs)
         {
@@ -95,18 +122,26 @@ namespace vsg
         }
     }
 
-    using stringValue = Value<std::string>;
-    using boolValue = Value<bool>;
-    using intValue = Value<int>;
-    using uintValue = Value<unsigned int>;
-    using floatValue = Value<float>;
-    using doubleValue = Value<double>;
-    using vec2Value = Value<vec2>;
-    using vec3Value = Value<vec3>;
-    using vec4Value = Value<vec4>;
-    using mat4Value = Value<mat4>;
-    using dvec2Value = Value<dvec2>;
-    using dvec3Value = Value<dvec3>;
-    using dvec4Value = Value<dvec4>;
-    using dmat4Value = Value<dmat4>;
+    VSG_value(stringValue, std::string);
+    VSG_value(boolValue, bool);
+    VSG_value(intValue, int);
+    VSG_value(uintValue, unsigned int);
+    VSG_value(floatValue, float);
+    VSG_value(doubleValue, double);
+
+    VSG_value(vec2Value, vec2);
+    VSG_value(vec3Value, vec3);
+    VSG_value(vec4Value, vec4);
+
+    VSG_value(dvec2Value, dvec2);
+    VSG_value(dvec3Value, dvec3);
+    VSG_value(dvec4Value, dvec4);
+
+    VSG_value(ubvec2Value, ubvec2);
+    VSG_value(ubvec3Value, ubvec3);
+    VSG_value(ubvec4Value, ubvec4);
+
+    VSG_value(mat4Value, mat4);
+    VSG_value(dmat4Value, dmat4);
+
 } // namespace vsg

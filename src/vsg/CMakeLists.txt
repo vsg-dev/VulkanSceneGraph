@@ -12,10 +12,11 @@ set(SOURCES
 
     core/Allocator.cpp
     core/Auxiliary.cpp
+    core/ConstVisitor.cpp
+    core/Data.cpp
     core/Object.cpp
     core/Result.cpp
     core/Visitor.cpp
-    core/ConstVisitor.cpp
     core/Version.cpp
 
     introspection/c_interface.cpp
@@ -25,7 +26,15 @@ set(SOURCES
     nodes/QuadGroup.cpp
     nodes/StateGroup.cpp
 
-    utils/FileSystem.cpp
+
+    io/FileSystem.cpp
+    io/AsciiInput.cpp
+    io/AsciiOutput.cpp
+    io/BinaryInput.cpp
+    io/BinaryOutput.cpp
+    io/Input.cpp
+    io/Output.cpp
+    io/ObjectFactory.cpp
 
     traversals/DispatchTraversal.cpp
     traversals/CullTraversal.cpp
@@ -42,6 +51,7 @@ set(SOURCES
     vk/CommandBuffer.cpp
     vk/CommandPool.cpp
     vk/ComputePipeline.cpp
+    vk/Descriptor.cpp
     vk/DescriptorPool.cpp
     vk/DescriptorSet.cpp
     vk/DescriptorSetLayout.cpp

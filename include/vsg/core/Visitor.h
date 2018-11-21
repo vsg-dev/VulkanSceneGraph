@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Array.h>
+#include <vsg/core/Array2D.h>
 #include <vsg/core/Value.h>
 
 namespace vsg
@@ -53,11 +54,30 @@ namespace vsg
         virtual void apply(vec2Array&);
         virtual void apply(vec3Array&);
         virtual void apply(vec4Array&);
-        virtual void apply(mat4Array&);
         virtual void apply(dvec2Array&);
         virtual void apply(dvec3Array&);
         virtual void apply(dvec4Array&);
+        virtual void apply(ubvec2Array&);
+        virtual void apply(ubvec3Array&);
+        virtual void apply(ubvec4Array&);
+        virtual void apply(mat4Array&);
         virtual void apply(dmat4Array&);
+
+        // Array2Ds
+        virtual void apply(ubyteArray2D&);
+        virtual void apply(ushortArray2D&);
+        virtual void apply(uintArray2D&);
+        virtual void apply(floatArray2D&);
+        virtual void apply(doubleArray2D&);
+        virtual void apply(vec2Array2D&);
+        virtual void apply(vec3Array2D&);
+        virtual void apply(vec4Array2D&);
+        virtual void apply(dvec2Array2D&);
+        virtual void apply(dvec3Array2D&);
+        virtual void apply(dvec4Array2D&);
+        virtual void apply(ubvec2Array2D&);
+        virtual void apply(ubvec3Array2D&);
+        virtual void apply(ubvec4Array2D&);
 
         // Nodes
         virtual void apply(Node&);
@@ -79,5 +99,9 @@ namespace vsg
     // provide Array<>::accept() implementation
     template<typename T>
     void Array<T>::accept(Visitor& visitor) { visitor.apply(*this); }
+
+    // provide Array2D<>::accept() implementation
+    template<typename T>
+    void Array2D<T>::accept(Visitor& visitor) { visitor.apply(*this); }
 
 } // namespace vsg

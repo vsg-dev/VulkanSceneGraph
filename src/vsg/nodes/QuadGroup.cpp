@@ -12,6 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/QuadGroup.h>
 
+#include <vsg/io/Input.h>
+#include <vsg/io/Output.h>
+
 using namespace vsg;
 
 QuadGroup::QuadGroup()
@@ -20,4 +23,24 @@ QuadGroup::QuadGroup()
 
 QuadGroup::~QuadGroup()
 {
+}
+
+void QuadGroup::read(Input& input)
+{
+    Node::read(input);
+
+    for (auto& child : _children)
+    {
+        child = input.readObject<Node>("Child");
+    }
+}
+
+void QuadGroup::write(Output& output) const
+{
+    Node::write(output);
+
+    for (auto& child : _children)
+    {
+        output.writeObject("Child", child.get());
+    }
 }

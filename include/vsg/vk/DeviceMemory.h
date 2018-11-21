@@ -31,8 +31,8 @@ namespace vsg
         static Result create(Device* device, Buffer* buffer, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator = nullptr);
         static Result create(Device* device, Image* image, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator = nullptr);
 
-        void copy(VkDeviceSize offset, VkDeviceSize size, void* src_data);
-        void copy(VkDeviceSize offset, Data* data);
+        void copy(VkDeviceSize offset, VkDeviceSize size, const void* src_data);
+        void copy(VkDeviceSize offset, const Data* data);
 
         /// wrapper of vkMapMemory
         VkResult map(VkDeviceSize offset, VkDeviceSize size, VkMemoryMapFlags flags, void** ppData);

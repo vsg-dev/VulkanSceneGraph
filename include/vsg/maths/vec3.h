@@ -23,6 +23,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    pragma clang diagnostic ignored "-Wnested-anon-types"
 #endif
 
+#include <vsg/core/type_name.h>
+
 #include <cmath>
 
 namespace vsg
@@ -77,6 +79,11 @@ namespace vsg
 
     using vec3 = t_vec3<float>;
     using dvec3 = t_vec3<double>;
+    using ubvec3 = t_vec3<std::uint8_t>;
+
+    VSG_type_name(vsg::vec3);
+    VSG_type_name(vsg::dvec3);
+    VSG_type_name(vsg::ubvec3);
 
     template<typename T>
     constexpr t_vec3<T> operator-(t_vec3<T> const& lhs, t_vec3<T> const& rhs)

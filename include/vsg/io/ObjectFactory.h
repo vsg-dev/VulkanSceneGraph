@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,39 +12,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/StateGroup.h>
+#include <vsg/core/Object.h>
 
-#include <vsg/io/Input.h>
-#include <vsg/io/Output.h>
+#include <functional>
+#include <map>
 
-using namespace vsg;
-
-StateGroup::StateGroup()
+namespace vsg
 {
-}
 
-StateGroup::~StateGroup()
-{
-}
-
-void StateGroup::read(Input& input)
-{
-    Group::read(input);
-
-    _stateComponents.resize(input.readValue<uint32_t>("NumStateComponents"));
-    for (auto& child : _stateComponents)
+    class VSG_DECLSPEC ObjectFactory : public vsg::Object
     {
-        child = input.readObject<StateComponent>("StateComponent");
-    }
-}
+    public:
+        ObjectFactory();
 
-void StateGroup::write(Output& output) const
-{
-    Group::write(output);
+        virtual vsg::ref_ptr<vsg::Object> create(const std::string& className);
 
-    output.writeValue<uint32_t>("NumStateComponents", _stateComponents.size());
-    for (auto& child : _stateComponents)
-    {
-        output.writeObject("StateComponent", child.get());
-    }
-}
+    protected:
+        using CreateFunction = std::function<vsg::ref_ptr<vsg::Object>()>;
+        using CreateMap = std::map<std::string, CreateFunction>;
+
+        CreateMap _createMap;
+    };
+
+} // namespace vsg

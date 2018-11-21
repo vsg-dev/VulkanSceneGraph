@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 // Core header files
 #include <vsg/core/Allocator.h>
 #include <vsg/core/Array.h>
+#include <vsg/core/Array2D.h>
 #include <vsg/core/Auxiliary.h>
 #include <vsg/core/ConstVisitor.h>
 #include <vsg/core/Data.h>
@@ -27,6 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Visitor.h>
 #include <vsg/core/observer_ptr.h>
 #include <vsg/core/ref_ptr.h>
+#include <vsg/core/type_name.h>
 
 // Maths header files
 #include <vsg/maths/mat4.h>
@@ -88,10 +90,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Surface.h>
 #include <vsg/vk/Swapchain.h>
 
+// Input/Output header files
+#include <vsg/io/AsciiInput.h>
+#include <vsg/io/AsciiOutput.h>
+#include <vsg/io/BinaryInput.h>
+#include <vsg/io/BinaryOutput.h>
+#include <vsg/io/FileSystem.h>
+#include <vsg/io/Input.h>
+#include <vsg/io/ObjectFactory.h>
+#include <vsg/io/Output.h>
+#include <vsg/io/stream.h>
+
 // Utiltiy header files
 #include <vsg/utils/CommandLine.h>
-#include <vsg/utils/FileSystem.h>
-#include <vsg/utils/stream.h>
 
 // Introspection header files
 #include <vsg/introspection/c_interface.h>

@@ -14,14 +14,23 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Object.h>
 
+#include <vulkan/vulkan.h>
+
 namespace vsg
 {
-    class Data : public Object
+    class VSG_DECLSPEC Data : public Object
     {
     public:
-        Data(){};
+        Data(){}
+        explicit Data(VkFormat format) : _format(format) {}
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Data); }
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        void setFormat(VkFormat format) { _format = format; }
+        VkFormat getFormat() const { return _format; }
 
         virtual std::size_t valueSize() const = 0;
         virtual std::size_t valueCount() const = 0;
@@ -31,7 +40,13 @@ namespace vsg
         virtual const void* dataPointer() const = 0;
         virtual void* dataRelease() = 0;
 
+        virtual std::size_t width() const = 0;
+        virtual std::size_t height() const = 0;
+        virtual std::size_t depth() const = 0;
+
     protected:
         virtual ~Data() {}
+
+        VkFormat _format = VK_FORMAT_UNDEFINED;
     };
 } // namespace vsg

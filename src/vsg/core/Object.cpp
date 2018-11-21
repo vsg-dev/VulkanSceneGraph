@@ -18,6 +18,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/CullTraversal.h>
 #include <vsg/traversals/DispatchTraversal.h>
 
+#include <vsg/io/Input.h>
+#include <vsg/io/Output.h>
+
 using namespace vsg;
 
 #if 1
@@ -118,6 +121,39 @@ void Object::accept(DispatchTraversal& visitor) const
 void Object::accept(CullTraversal& visitor) const
 {
     visitor.apply(*this);
+}
+
+void Object::read(Input& input)
+{
+    auto numObjects = input.readValue<uint32_t>("NumUserObjects");
+    if (numObjects > 0)
+    {
+        Auxiliary::ObjectMap& objectMap = getOrCreateUniqueAuxiliary()->getObjectMap();
+        for (; numObjects > 0; --numObjects)
+        {
+            std::string key = input.readValue<std::string>("Key");
+            objectMap[key] = input.readObject("Object");
+        }
+    }
+}
+
+void Object::write(Output& output) const
+{
+    if (_auxiliary && _auxiliary->getConnectedObject() == this)
+    {
+        // we have a unique auxuliary, need to write out it's ObjectMap entries
+        const Auxiliary::ObjectMap& objectMap = _auxiliary->getObjectMap();
+        output.writeValue<uint32_t>("NumUserObjects", objectMap.size());
+        for (auto& entry : objectMap)
+        {
+            output.write("Key", entry.first);
+            output.writeObject("Object", entry.second.get());
+        }
+    }
+    else
+    {
+        output.writeValue<uint32_t>("NumUserObjects", 0);
+    }
 }
 
 void Object::setObject(const std::string& key, Object* object)

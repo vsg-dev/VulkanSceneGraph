@@ -10,39 +10,57 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/StateGroup.h>
+#include <vsg/core/Version.h>
 
-#include <vsg/io/Input.h>
-#include <vsg/io/Output.h>
+#include <vsg/io/BinaryOutput.h>
+
+#include <cstring>
 
 using namespace vsg;
 
-StateGroup::StateGroup()
+BinaryOutput::BinaryOutput(std::ostream& output) :
+    _output(output)
 {
+    // write header
+    _output << "#vsgb " << vsgGetVersion() << "\n";
 }
 
-StateGroup::~StateGroup()
+void BinaryOutput::write(size_t num, const std::string* value)
 {
-}
-
-void StateGroup::read(Input& input)
-{
-    Group::read(input);
-
-    _stateComponents.resize(input.readValue<uint32_t>("NumStateComponents"));
-    for (auto& child : _stateComponents)
+    if (num == 1)
     {
-        child = input.readObject<StateComponent>("StateComponent");
+        _write(*value);
+    }
+    else
+    {
+        for (; num > 0; --num, ++value)
+        {
+            _write(*value);
+        }
     }
 }
 
-void StateGroup::write(Output& output) const
+void BinaryOutput::write(const vsg::Object* object)
 {
-    Group::write(output);
-
-    output.writeValue<uint32_t>("NumStateComponents", _stateComponents.size());
-    for (auto& child : _stateComponents)
+    if (auto itr = _objectIDMap.find(object); itr != _objectIDMap.end())
     {
-        output.writeObject("StateComponent", child.get());
+        // write out the objectID
+        uint32_t id = itr->second;
+        _output.write(reinterpret_cast<const char*>(&id), sizeof(id));
+        return;
+    }
+
+    ObjectID id = _objectID++;
+    _objectIDMap[object] = id;
+
+    _output.write(reinterpret_cast<const char*>(&id), sizeof(id));
+    if (object)
+    {
+        _write(std::string(object->className()));
+        object->write(*this);
+    }
+    else
+    {
+        _write(std::string("nullptr"));
     }
 }

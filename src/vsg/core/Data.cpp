@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,24 +10,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <string>
-#include <vector>
+#include <vsg/core/Data.h>
+#include <vsg/io/Input.h>
+#include <vsg/io/Output.h>
 
-#include <vsg/core/Export.h>
+using namespace vsg;
 
-namespace vsg
+void Data::read(Input& input)
 {
+    Object::read(input);
+    _format = static_cast<VkFormat>(input.readValue<std::int32_t>("Format"));
+}
 
-    using Path = std::string;
-
-    using Paths = std::vector<Path>;
-
-    extern VSG_DECLSPEC Paths getEnvPaths(const char* env_var);
-
-    extern VSG_DECLSPEC bool fileExists(const Path& path);
-
-    extern VSG_DECLSPEC Path concatePaths(const Path& left, const Path& right);
-
-    extern VSG_DECLSPEC Path findFile(const Path& filename, const Paths& paths);
-
-} // namespace vsg
+void Data::write(Output& output) const
+{
+    Object::write(output);
+    output.writeValue<std::int32_t>("Format", _format);
+}
