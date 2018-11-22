@@ -21,8 +21,9 @@ namespace vsg
     class VSG_DECLSPEC Data : public Object
     {
     public:
-        Data(){}
-        explicit Data(VkFormat format) : _format(format) {}
+        Data() {}
+        explicit Data(VkFormat format) :
+            _format(format) {}
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Data); }
 

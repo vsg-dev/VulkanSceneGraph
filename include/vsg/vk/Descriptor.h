@@ -85,7 +85,6 @@ namespace vsg
     /// transfer Data to graphics memory, returning ImageData configuration.
     extern VSG_DECLSPEC vsg::ImageData transferImageData(Device* device, CommandPool* commandPool, VkQueue graphicsQueue, const Data* data);
 
-
     using ImageDataList = std::vector<ImageData>;
 
     class VSG_DECLSPEC DescriptorImage : public Inherit<Descriptor, DescriptorImage>

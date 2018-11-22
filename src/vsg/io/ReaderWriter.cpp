@@ -10,11 +10,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/ReaderWriter.h>
-#include <vsg/io/BinaryInput.h>
-#include <vsg/io/BinaryOutput.h>
 #include <vsg/io/AsciiInput.h>
 #include <vsg/io/AsciiOutput.h>
+#include <vsg/io/BinaryInput.h>
+#include <vsg/io/BinaryOutput.h>
+#include <vsg/io/ReaderWriter.h>
 
 using namespace vsg;
 
@@ -25,7 +25,7 @@ void CompositeReaderWriter::add(ref_ptr<ReaderWriter> reader)
 
 vsg::ref_ptr<vsg::Object> CompositeReaderWriter::readFile(const vsg::Path& filename) const
 {
-    for(auto& reader : _readerWriters)
+    for (auto& reader : _readerWriters)
     {
         if (auto object = reader->readFile(filename); object.valid()) return object;
     }
@@ -34,7 +34,7 @@ vsg::ref_ptr<vsg::Object> CompositeReaderWriter::readFile(const vsg::Path& filen
 
 bool CompositeReaderWriter::writeFile(const vsg::Object* object, const vsg::Path& filename) const
 {
-    for(auto& writer : _readerWriters)
+    for (auto& writer : _readerWriters)
     {
         if (writer->writeFile(object, filename)) return true;
     }
@@ -46,13 +46,13 @@ vsg::ref_ptr<vsg::Object> vsgReaderWriter::readFile(const vsg::Path& filename) c
     if (vsg::fileExists(filename))
     {
         auto ext = vsg::fileExtension(filename);
-        if (ext=="vsga")
+        if (ext == "vsga")
         {
             std::ifstream fin(filename);
             vsg::AsciiInput input(fin);
             return input.readObject("Root");
         }
-        else if (ext=="vsgb")
+        else if (ext == "vsgb")
         {
             std::ifstream fin(filename, std::ios::in | std::ios::binary);
             vsg::BinaryInput input(fin);
@@ -72,14 +72,14 @@ vsg::ref_ptr<vsg::Object> vsgReaderWriter::readFile(const vsg::Path& filename) c
 bool vsgReaderWriter::writeFile(const vsg::Object* object, const vsg::Path& filename) const
 {
     auto ext = vsg::fileExtension(filename);
-    if (ext=="vsga")
+    if (ext == "vsga")
     {
         std::ofstream fout(filename);
         vsg::AsciiOutput output(fout);
         output.writeObject("Root", object);
         return true;
     }
-    else if (ext=="vsgb")
+    else if (ext == "vsgb")
     {
         std::ofstream fout(filename, std::ios::out | std::ios::binary);
         vsg::BinaryOutput output(fout);

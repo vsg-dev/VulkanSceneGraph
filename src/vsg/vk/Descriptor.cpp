@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Descriptor.h>
 #include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/Descriptor.h>
 
 #include <iostream>
 
@@ -26,10 +26,10 @@ ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQue
 
     VkDeviceSize imageTotalSize = data->dataSize();
 
-    std::cout<<"data->dataSize() = "<<data->dataSize()<<std::endl;
-    std::cout<<"data->width() = "<<data->width()<<std::endl;
-    std::cout<<"data->height() = "<<data->height()<<std::endl;
-    std::cout<<"data->depth() = "<<data->depth()<<std::endl;
+    std::cout << "data->dataSize() = " << data->dataSize() << std::endl;
+    std::cout << "data->width() = " << data->width() << std::endl;
+    std::cout << "data->height() = " << data->height() << std::endl;
+    std::cout << "data->depth() = " << data->depth() << std::endl;
 
     ref_ptr<Buffer> imageStagingBuffer = Buffer::create(device, imageTotalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE);
     ref_ptr<DeviceMemory> imageStagingMemory = DeviceMemory::create(device, imageStagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
@@ -38,11 +38,11 @@ ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQue
     // copy image data to staging memory
     imageStagingMemory->copy(0, imageTotalSize, data->dataPointer());
 
-    std::cout<<"Creating imageStagingBuffer and memorory size = "<<imageTotalSize<<std::endl;
+    std::cout << "Creating imageStagingBuffer and memorory size = " << imageTotalSize << std::endl;
 
     VkImageCreateInfo imageCreateInfo = {};
     imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    imageCreateInfo.imageType = data->depth()>1 ? VK_IMAGE_TYPE_3D : (data->width()>1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
+    imageCreateInfo.imageType = data->depth() > 1 ? VK_IMAGE_TYPE_3D : (data->width() > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
     imageCreateInfo.extent.width = data->width();
     imageCreateInfo.extent.height = data->height();
     imageCreateInfo.extent.depth = data->depth();
@@ -69,21 +69,18 @@ ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQue
 
     textureImage->bind(textureImageDeviceMemory, 0);
 
-
-    dispatchCommandsToQueue(device, commandPool, graphicsQueue, [&](VkCommandBuffer commandBuffer)
-    {
-
-        std::cout<<"Need to dispatch VkCmd's to "<<commandBuffer<<std::endl;
+    dispatchCommandsToQueue(device, commandPool, graphicsQueue, [&](VkCommandBuffer commandBuffer) {
+        std::cout << "Need to dispatch VkCmd's to " << commandBuffer << std::endl;
 
         ImageMemoryBarrier preCopyImageMemoryBarrier(
-                        0, VK_ACCESS_TRANSFER_WRITE_BIT,
-                        VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                        textureImage);
+            0, VK_ACCESS_TRANSFER_WRITE_BIT,
+            VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            textureImage);
 
         preCopyImageMemoryBarrier.cmdPiplineBarrier(commandBuffer,
-                        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+                                                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
 
-        std::cout<<"CopyBufferToImage()"<<std::endl;
+        std::cout << "CopyBufferToImage()" << std::endl;
 
         VkBufferImageCopy region = {};
         region.bufferOffset = 0;
@@ -98,17 +95,17 @@ ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQue
 
         vkCmdCopyBufferToImage(commandBuffer, *imageStagingBuffer, *textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-        std::cout<<"Post CopyBufferToImage()"<<std::endl;
+        std::cout << "Post CopyBufferToImage()" << std::endl;
 
         ImageMemoryBarrier postCopyImageMemoryBarrier(
-                        VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
-                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                        textureImage);
+            VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            textureImage);
 
         postCopyImageMemoryBarrier.cmdPiplineBarrier(commandBuffer,
-                        VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+                                                     VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
 
-        std::cout<<"Post postCopyImageMemoryBarrier()"<<std::endl;
+        std::cout << "Post postCopyImageMemoryBarrier()" << std::endl;
     });
 
     // clean up staging buffer
@@ -118,8 +115,8 @@ ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQue
     ref_ptr<Sampler> textureSampler = Sampler::create(device);
     ref_ptr<ImageView> textureImageView = ImageView::create(device, textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT);
 
-    std::cout<<"textureSampler = "<<textureSampler.get()<<std::endl;
-    std::cout<<"textureImageView = "<<textureImageView.get()<<std::endl;
+    std::cout << "textureSampler = " << textureSampler.get() << std::endl;
+    std::cout << "textureImageView = " << textureImageView.get() << std::endl;
 
     return ImageData(textureSampler, textureImageView, VK_IMAGE_LAYOUT_UNDEFINED);
 }
