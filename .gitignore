@@ -54,3 +54,12 @@ install_manifest.txt
 *.exe
 *.out
 *.app
+
+# Visual Studio files
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+.vs/
+x64/
+src/vsg/vsg.dir/

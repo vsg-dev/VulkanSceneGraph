@@ -16,7 +16,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <chrono>
 #include <iostream>
 
+#ifdef _WIN32
+#include "Win32_Window.h"
+#else
 #include "GLFW_Window.h"
+#endif
 
 namespace vsg
 {
@@ -159,9 +163,23 @@ namespace vsg
         }
     }
 
+    // just kept for backwards compat for now
     Window::Result Window::create(uint32_t width, uint32_t height, bool debugLayer, bool apiDumpLayer, vsg::Window* shareWindow, vsg::AllocationCallbacks* allocator)
     {
-        ref_ptr<vsg::Window> window = glfw::GLFW_Window::create(width, height, debugLayer, apiDumpLayer, shareWindow, allocator);
+        Window::Traits traits;
+        traits.width = width;
+        traits.height = height;
+        traits.shareWindow = shareWindow;
+        return create(traits, debugLayer, apiDumpLayer, allocator);
+    }
+            
+    Window::Result Window::create(const Window::Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+    {
+#ifdef _WIN32
+        ref_ptr<vsg::Window> window = vsg::Win32_Window::create(traits, debugLayer, apiDumpLayer, allocator);
+#else
+        ref_ptr<vsg::Window> window = glfw::GLFW_Window::create(traits.width, traits.height, debugLayer, apiDumpLayer, traits.shareWindow, allocator);
+#endif
         return Result(window);
     }
 

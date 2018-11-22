@@ -12,6 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <any>
+
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/DeviceMemory.h>
@@ -28,8 +30,24 @@ namespace vsg
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
 
+		struct Traits
+		{
+            uint32_t x = 0;
+            uint32_t y = 0;
+            uint32_t width = 800;
+            uint32_t height = 600;
+            uint32_t screenNum = 0;
+
+            std::string title = "vsg window";
+            bool decoration = true;
+
+            Window* shareWindow = nullptr;
+            std::any nativeHandle = nullptr;
+		};
+
         using Result = vsg::Result<Window, VkResult, VK_SUCCESS>;
-        static Result create(uint32_t width, uint32_t height, bool debugLayer = false, bool apiDumpLayer = false, Window* shareWindow = nullptr, AllocationCallbacks* allocator = nullptr);
+        static Result Window::create(uint32_t width, uint32_t height, bool debugLayer = false, bool apiDumpLayer = false, vsg::Window* shareWindow = nullptr, vsg::AllocationCallbacks* allocator = nullptr); // for backward compat
+        static Result create(const Traits& traits, bool debugLayer = false, bool apiDumpLayer = false, AllocationCallbacks* allocator = nullptr);
 
         virtual bool valid() const { return false; }
 
