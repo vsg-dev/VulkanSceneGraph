@@ -19,22 +19,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-uint32_t vsg::getExtensionPropertiesCount()
+ExtensionProperties vsg::getExtensionProperties()
 {
     uint32_t extCount = 0;
-    VkResult err = vkEnumerateInstanceExtensionProperties(NULL, &extCount, NULL);
+    VkResult err = vkEnumerateInstanceExtensionProperties(nullptr, &extCount, nullptr);
     if (err)
     {
         std::cout << "Error: vsg::getExtensionPropertiesCount(...) failed, could not get extension count from vkEnumerateInstanceExtensionProperties." << std::endl;
-        return 0;
+        return ExtensionProperties();
     }
-    return extCount;
-}
-
-ExtensionProperties vsg::getExtensionProperties()
-{
-    uint32_t extCount = getExtensionPropertiesCount();
-    if (extCount == 0) return ExtensionProperties();
 
     ExtensionProperties extensionProperties(extCount);
     VkResult err = vkEnumerateInstanceExtensionProperties(nullptr, &extCount, extensionProperties.data());

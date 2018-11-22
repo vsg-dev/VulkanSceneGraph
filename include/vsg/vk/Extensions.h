@@ -18,8 +18,6 @@ namespace vsg
 {
     using ExtensionProperties = std::vector<VkExtensionProperties>;
 
-    extern VSG_DECLSPEC uint32_t getExtensionPropertiesCount();
-
     extern VSG_DECLSPEC ExtensionProperties getExtensionProperties();
 
     extern VSG_DECLSPEC bool isExtensionSupported(const char* extensionName);
