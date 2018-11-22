@@ -75,6 +75,13 @@ namespace vsg
 
         T* data() { return value; }
         const T* data() const { return value; }
+
+        void set(value_type in_x, value_type in_y, value_type in_z)
+        {
+            x = in_x;
+            y = in_y;
+            z = in_z;
+        }
     };
 
     using vec3 = t_vec3<float>;
