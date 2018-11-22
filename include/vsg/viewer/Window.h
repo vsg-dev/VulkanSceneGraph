@@ -46,7 +46,7 @@ namespace vsg
 		};
 
         using Result = vsg::Result<Window, VkResult, VK_SUCCESS>;
-        static Result Window::create(uint32_t width, uint32_t height, bool debugLayer = false, bool apiDumpLayer = false, vsg::Window* shareWindow = nullptr, vsg::AllocationCallbacks* allocator = nullptr); // for backward compat
+        static Result create(uint32_t width, uint32_t height, bool debugLayer = false, bool apiDumpLayer = false, vsg::Window* shareWindow = nullptr, vsg::AllocationCallbacks* allocator = nullptr); // for backward compat
         static Result create(const Traits& traits, bool debugLayer = false, bool apiDumpLayer = false, AllocationCallbacks* allocator = nullptr);
 
         virtual bool valid() const { return false; }
