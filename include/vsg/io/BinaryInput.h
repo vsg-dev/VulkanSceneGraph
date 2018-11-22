@@ -28,7 +28,7 @@ namespace vsg
     public:
         using ObjectID = uint32_t;
 
-        BinaryInput(std::istream& input);
+        explicit BinaryInput(std::istream& input);
 
         bool matchPropertyName(const char*) override { return true; }
 

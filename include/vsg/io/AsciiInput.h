@@ -29,7 +29,7 @@ namespace vsg
     public:
         using ObjectID = uint32_t;
 
-        AsciiInput(std::istream& input);
+        explicit AsciiInput(std::istream& input);
 
         bool matchPropertyName(const char* propertyName) override;
 

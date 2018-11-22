@@ -6,4 +6,9 @@ unusedStructMember:*include/vsg/introspection/c_interface.h
 
 // suppress the warning about valid C++17 if (init; condition) usage
 syntaxError:*include/vsg/core/Inherit.h
+syntaxError:*src/vsg/io/AsciiOutput.cpp
+syntaxError:*src/vsg/io/AsciiInput.cpp
+syntaxError:*src/vsg/io/BinaryOutput.cpp
+syntaxError:*src/vsg/io/BinaryInput.cpp
+syntaxError:*src/vsg/io/ReaderWriter.cpp
 
