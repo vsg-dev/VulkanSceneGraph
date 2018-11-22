@@ -16,8 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/AsciiInput.h>
 #include <vsg/io/AsciiOutput.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 void CompositeReaderWriter::add(ref_ptr<ReaderWriter> reader)
@@ -62,7 +60,6 @@ vsg::ref_ptr<vsg::Object> vsgReaderWriter::readFile(const vsg::Path& filename) c
         }
         else
         {
-            std::cout<<"Warning: file format not supported : "<<filename<<std::endl;
             return vsg::ref_ptr<vsg::Object>();
         }
     }
@@ -84,7 +81,7 @@ bool vsgReaderWriter::writeFile(const vsg::Object* object, const vsg::Path& file
     }
     else if (ext=="vsgb")
     {
-        std::ofstream fout(filename, std::ios::in | std::ios::binary);
+        std::ofstream fout(filename, std::ios::out | std::ios::binary);
         vsg::BinaryOutput output(fout);
         output.writeObject("Root", object);
         return true;
