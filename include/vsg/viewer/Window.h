@@ -42,7 +42,7 @@ namespace vsg
             bool decoration = true;
 
             Window* shareWindow = nullptr;
-            std::any nativeHandle = nullptr;
+            std::any nativeHandle;
         };
 
         using Result = vsg::Result<Window, VkResult, VK_SUCCESS>;
