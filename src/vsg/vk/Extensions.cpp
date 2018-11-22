@@ -67,7 +67,7 @@ bool vsg::isExtensionListSupported(const Names& extensionList)
 
         bool operator()(const char* rh) const
         {
-            return strcmp(rh, _searchName);
+            return strcmp(rh, _searchName)==0;
         }
     };
 
