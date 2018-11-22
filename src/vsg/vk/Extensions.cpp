@@ -19,10 +19,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-ExtensionProperties vsg::getExtensionProperties()
+ExtensionProperties vsg::getExtensionProperties(const char* pLayerName)
 {
     uint32_t extCount = 0;
-    VkResult err = vkEnumerateInstanceExtensionProperties(nullptr, &extCount, nullptr);
+    VkResult err = vkEnumerateInstanceExtensionProperties(pLayerName, &extCount, nullptr);
     if (err)
     {
         std::cout << "Error: vsg::getExtensionPropertiesCount(...) failed, could not get extension count from vkEnumerateInstanceExtensionProperties." << std::endl;
@@ -30,7 +30,7 @@ ExtensionProperties vsg::getExtensionProperties()
     }
 
     ExtensionProperties extensionProperties(extCount);
-    VkResult err = vkEnumerateInstanceExtensionProperties(nullptr, &extCount, extensionProperties.data());
+    err = vkEnumerateInstanceExtensionProperties(pLayerName, &extCount, extensionProperties.data());
     if (err)
     {
         std::cout << "Error: vsg::getExtensionProperties(...) failed, could not get extension properties from vkEnumerateInstanceExtensionProperties." << std::endl;
