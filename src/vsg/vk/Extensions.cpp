@@ -58,23 +58,11 @@ bool vsg::isExtensionSupported(const char* extensionName)
 
 bool vsg::isExtensionListSupported(const Names& extensionList)
 {
-    struct ConstCharComparator
-    {
-        const char* _searchName;
-
-        ConstCharComparator(const char* searchName) :
-            _searchName(searchName) {}
-
-        bool operator()(const char* rh) const
-        {
-            return strcmp(rh, _searchName)==0;
-        }
-    };
-
     ExtensionProperties extProps = getExtensionProperties();
     for (auto prop : extProps)
     {
-        if (std::find_if(extensionList.begin(), extensionList.end(), ConstCharComparator(prop.extensionName)) == extensionList.end()) return false;
+        auto compare = [&](const char* rhs) { return strcmp(prop.extensionName, rhs)==0; };
+        if (std::find_if(extensionList.begin(), extensionList.end(), compare) == extensionList.end()) return false;
     }
     return true;
 }
