@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include "Win32_Window.h"
 
-#include <vsg/vk/Extensions.h>
 #include <vsg/core/observer_ptr.h>
+#include <vsg/vk/Extensions.h>
 
 #include <iostream>
 
@@ -28,7 +28,7 @@ namespace vsg
     vsg::Names vsg::getInstanceExtensions()
     {
         // check the extensions are avaliable first
-        Names requiredExtensions = { "VK_KHR_surface", "VK_KHR_win32_surface" };
+        Names requiredExtensions = {"VK_KHR_surface", "VK_KHR_win32_surface"};
 
         if (!vsg::isExtensionListSupported(requiredExtensions))
         {
@@ -46,9 +46,9 @@ namespace vsg
             vsg::Surface(VK_NULL_HANDLE, instance, allocator)
         {
             VkWin32SurfaceCreateInfoKHR surfaceCreateInfo{};
-            surfaceCreateInfo.sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+            surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
             surfaceCreateInfo.hinstance = ::GetModuleHandle(NULL);
-            surfaceCreateInfo.hwnd      = window;
+            surfaceCreateInfo.hwnd = window;
 
             auto result = vkCreateWin32SurfaceKHR(*instance, &surfaceCreateInfo, nullptr, &_surface);
         }
@@ -85,18 +85,18 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
 
     // register window class
     WNDCLASSEX wc;
-    wc.cbSize        = sizeof(WNDCLASSEX);
-    wc.style         = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
-    wc.lpfnWndProc   = Win32WindowProc;
-    wc.cbClsExtra    = 0;
-    wc.cbWndExtra    = 0;
-    wc.hInstance     = ::GetModuleHandle(NULL);
-    wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
-    wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+    wc.cbSize = sizeof(WNDCLASSEX);
+    wc.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+    wc.lpfnWndProc = Win32WindowProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ::GetModuleHandle(NULL);
+    wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = 0;
-    wc.lpszMenuName  = 0;
+    wc.lpszMenuName = 0;
     wc.lpszClassName = kWindowClassName.c_str();
-    wc.hIconSm       = 0;
+    wc.hIconSm = 0;
 
     if (::RegisterClassEx(&wc) == 0)
     {
@@ -107,7 +107,7 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
     // fetch screen display information
 
     std::vector<DISPLAY_DEVICE> displayDevices;
-    for (unsigned int deviceNum = 0; ; ++deviceNum)
+    for (unsigned int deviceNum = 0;; ++deviceNum)
     {
         DISPLAY_DEVICE displayDevice;
         displayDevice.cb = sizeof(displayDevice);
@@ -118,8 +118,8 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
 
         displayDevices.push_back(displayDevice);
     }
-    
-    if(traits.screenNum >= displayDevices.size()) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+
+    if (traits.screenNum >= displayDevices.size()) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     DEVMODE deviceMode;
     deviceMode.dmSize = sizeof(deviceMode);
@@ -137,14 +137,14 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
     unsigned int windowStyle = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | (traits.decoration ? WS_CAPTION : 0);
     unsigned int extendedStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 
-    if(!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, AdjustWindowRectEx failed.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, AdjustWindowRectEx failed.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     // create the window
     hwnd = ::CreateWindowEx(extendedStyle, kWindowClassName.c_str(), traits.title.c_str(), windowStyle,
                             windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
                             NULL, NULL, ::GetModuleHandle(NULL), NULL);
 
-    if(hwnd == nullptr) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, CreateWindowEx did not return a valid window handle.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    if (hwnd == nullptr) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, CreateWindowEx did not return a valid window handle.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     GetClientRect(hwnd, &windowRect);
 
@@ -174,7 +174,7 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
     }
     else
     {
-        vsg::Names instanceExtensions =  vsg::getInstanceExtensions();
+        vsg::Names instanceExtensions = vsg::getInstanceExtensions();
 
         vsg::Names requestedLayers;
         if (debugLayer)
@@ -387,7 +387,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
 
 void Win32_Window::registerWindow(HWND hwnd, Win32_Window* window)
 {
-    s_registeredWindows.insert({ hwnd,window });
+    s_registeredWindows.insert({hwnd, window});
 }
 
 void Win32_Window::unregisterWindow(HWND hwnd)

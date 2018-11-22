@@ -30,8 +30,8 @@ namespace vsg
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
 
-		struct Traits
-		{
+        struct Traits
+        {
             uint32_t x = 0;
             uint32_t y = 0;
             uint32_t width = 800;
@@ -43,7 +43,7 @@ namespace vsg
 
             Window* shareWindow = nullptr;
             std::any nativeHandle = nullptr;
-		};
+        };
 
         using Result = vsg::Result<Window, VkResult, VK_SUCCESS>;
         static Result create(uint32_t width, uint32_t height, bool debugLayer = false, bool apiDumpLayer = false, vsg::Window* shareWindow = nullptr, vsg::AllocationCallbacks* allocator = nullptr); // for backward compat

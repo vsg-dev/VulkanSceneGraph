@@ -17,9 +17,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <iostream>
 
 #ifdef _WIN32
-#include "Win32_Window.h"
+#    include "Win32_Window.h"
 #else
-#include "GLFW_Window.h"
+#    include "GLFW_Window.h"
 #endif
 
 namespace vsg
@@ -172,7 +172,7 @@ namespace vsg
         traits.shareWindow = shareWindow;
         return create(traits, debugLayer, apiDumpLayer, allocator);
     }
-            
+
     Window::Result Window::create(const Window::Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
     {
 #ifdef _WIN32

@@ -34,7 +34,7 @@ uint32_t vsg::getExtensionPropertiesCount()
 ExtensionProperties vsg::getExtensionProperties()
 {
     uint32_t extCount = getExtensionPropertiesCount();
-    if(extCount == 0) return ExtensionProperties();
+    if (extCount == 0) return ExtensionProperties();
 
     ExtensionProperties extensionProperties(extCount);
     VkResult err = vkEnumerateInstanceExtensionProperties(nullptr, &extCount, extensionProperties.data());
@@ -51,7 +51,7 @@ bool vsg::isExtensionSupported(const char* extensionName)
     ExtensionProperties extProps = getExtensionProperties();
     for (auto prop : extProps)
     {
-        if(strcmp(prop.extensionName, extensionName) == 0) return true;
+        if (strcmp(prop.extensionName, extensionName) == 0) return true;
     }
     return false;
 }
@@ -62,9 +62,10 @@ bool vsg::isExtensionListSupported(const Names& extensionList)
     {
         const char* _searchName;
 
-        ConstCharComparator(const char* searchName) : _searchName(searchName) {}
+        ConstCharComparator(const char* searchName) :
+            _searchName(searchName) {}
 
-        bool operator () (const char* rh) const
+        bool operator()(const char* rh) const
         {
             return strcmp(rh, _searchName);
         }
@@ -73,7 +74,7 @@ bool vsg::isExtensionListSupported(const Names& extensionList)
     ExtensionProperties extProps = getExtensionProperties();
     for (auto prop : extProps)
     {
-        if(std::find_if(extensionList.begin(), extensionList.end(), ConstCharComparator(prop.extensionName)) == extensionList.end()) return false;
+        if (std::find_if(extensionList.begin(), extensionList.end(), ConstCharComparator(prop.extensionName)) == extensionList.end()) return false;
     }
     return true;
 }
