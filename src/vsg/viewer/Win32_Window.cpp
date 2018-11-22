@@ -77,7 +77,7 @@ Win32_Window::Win32_Window(HWND window, vsg::Instance* instance, vsg::Surface* s
     registerWindow(_window, this);
 }
 
-Win32_Window::Result Win32_Window::create(uint32_t width, uint32_t height, bool debugLayer, bool apiDumpLayer, vsg::Window* shareWindow, vsg::AllocationCallbacks* allocator)
+Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
 {
     std::cout << "Calling CreateWindowEx(..)" << std::endl;
 
@@ -104,12 +104,6 @@ Win32_Window::Result Win32_Window::create(uint32_t width, uint32_t height, bool 
         if (lastError != ERROR_CLASS_ALREADY_EXISTS) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, could not register window class.", VK_ERROR_INITIALIZATION_FAILED);
     }
 
-    // traits
-    std::string windowTitle = "vsg window";
-    unsigned int screenNum = 0;
-    int x = 0;
-    int y = 0;
-
     // fetch screen display information
 
     std::vector<DISPLAY_DEVICE> displayDevices;
@@ -125,28 +119,28 @@ Win32_Window::Result Win32_Window::create(uint32_t width, uint32_t height, bool 
         displayDevices.push_back(displayDevice);
     }
     
-    if(screenNum >= displayDevices.size()) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    if(traits.screenNum >= displayDevices.size()) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     DEVMODE deviceMode;
     deviceMode.dmSize = sizeof(deviceMode);
     deviceMode.dmDriverExtra = 0;
 
-    if (!::EnumDisplaySettings(displayDevices[screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    if (!::EnumDisplaySettings(displayDevices[traits.screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     // setup window rect and style
     RECT windowRect;
-    windowRect.left     = deviceMode.dmPosition.x + x;
-    windowRect.top      = deviceMode.dmPosition.y + y;
-    windowRect.right    = windowRect.left + width;
-    windowRect.bottom   = windowRect.top + height;
+    windowRect.left = deviceMode.dmPosition.x + traits.x;
+    windowRect.top = deviceMode.dmPosition.y + traits.y;
+    windowRect.right = windowRect.left + traits.width;
+    windowRect.bottom = windowRect.top + traits.height;
 
-    unsigned int windowStyle = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+    unsigned int windowStyle = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | (traits.decoration ? WS_CAPTION : 0);
     unsigned int extendedStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 
     if(!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, AdjustWindowRectEx failed.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     // create the window
-    hwnd = ::CreateWindowEx(extendedStyle, kWindowClassName.c_str(), windowTitle.c_str(), windowStyle,
+    hwnd = ::CreateWindowEx(extendedStyle, kWindowClassName.c_str(), traits.title.c_str(), windowStyle,
                             windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
                             NULL, NULL, ::GetModuleHandle(NULL), NULL);
 
@@ -163,20 +157,20 @@ Win32_Window::Result Win32_Window::create(uint32_t width, uint32_t height, bool 
 
     vsg::ref_ptr<Win32_Window> window;
 
-    if (shareWindow)
+    if (traits.shareWindow)
     {
-        // use GLFW to create surface
-        vsg::ref_ptr<vsg::Surface> surface(new vsg::Win32Surface(shareWindow->instance(), hwnd, allocator));
+        // create surface
+        vsg::ref_ptr<vsg::Surface> surface(new vsg::Win32Surface(traits.shareWindow->instance(), hwnd, allocator));
 
-        window = new Win32_Window(hwnd, shareWindow->instance(), shareWindow->surface(), shareWindow->physicalDevice(), shareWindow->device(), shareWindow->renderPass(), shareWindow->debugLayersEnabled());
+        window = new Win32_Window(hwnd, traits.shareWindow->instance(), traits.shareWindow->surface(), traits.shareWindow->physicalDevice(), traits.shareWindow->device(), traits.shareWindow->renderPass(), traits.shareWindow->debugLayersEnabled());
 
         // share the _instance, _physicalDevice and _device;
-        window->share(*shareWindow);
+        window->share(*traits.shareWindow);
 
         // temporary hack to force vkGetPhysicalDeviceSurfaceSupportKHR to be called as the Vulkan
         // debug layer is complaining about vkGetPhysicalDeviceSurfaceSupportKHR not being called
         // for this _surface prior to swap chain creation
-        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(shareWindow->instance(), VK_QUEUE_GRAPHICS_BIT, surface);
+        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(traits.shareWindow->instance(), VK_QUEUE_GRAPHICS_BIT, surface);
     }
     else
     {
