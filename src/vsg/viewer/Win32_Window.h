@@ -33,7 +33,6 @@ namespace vsg
         Win32_Window(const Win32_Window&) = delete;
         Win32_Window operator = (const Win32_Window &) = delete;
 
-        using Result = vsg::Result<vsg::Window, VkResult, VK_SUCCESS>;
         static Result create(const Traits& traits, bool debugLayer = false, bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
 
         virtual bool valid() const { return _window; /*&& !glfwWindowShouldClose(_window);*/ }

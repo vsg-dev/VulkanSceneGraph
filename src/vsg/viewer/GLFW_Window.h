@@ -32,7 +32,6 @@ public:
     GLFW_Window(const GLFW_Window&) = delete;
     GLFW_Window& operator = (const GLFW_Window&) = delete;
 
-    using Result = vsg::Result<vsg::Window, VkResult, VK_SUCCESS>;
     static Result create(uint32_t width, uint32_t height, bool debugLayer=false, bool apiDumpLayer=false, vsg::Window* shareWindow=nullptr, vsg::AllocationCallbacks* allocator=nullptr);
 
     virtual bool valid() const { return _window && !glfwWindowShouldClose(_window); }
