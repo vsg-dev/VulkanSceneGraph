@@ -18,14 +18,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <iostream>
 
 using namespace vsg;
+using namespace vsgWin32;
 
-namespace vsg
+namespace vsgWin32
 {
     const std::string kWindowClassName = "vsg_Win32_Window_Class";
 
     std::unordered_map<HWND, Win32_Window*> Win32_Window::s_registeredWindows;
 
-    vsg::Names vsg::getInstanceExtensions()
+    vsg::Names vsgWin32::getInstanceExtensions()
     {
         // check the extensions are avaliable first
         Names requiredExtensions = {"VK_KHR_surface", "VK_KHR_win32_surface"};
@@ -174,7 +175,7 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
     }
     else
     {
-        vsg::Names instanceExtensions = vsg::getInstanceExtensions();
+        vsg::Names instanceExtensions = vsgWin32::getInstanceExtensions();
 
         vsg::Names requestedLayers;
         if (debugLayer)
@@ -278,6 +279,7 @@ void Win32_Window::resize()
 
 LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam)
 {
+    // following event handling code is a placeholder that uses pumex code to help give us an idea of what will be needed
     switch (msg)
     {
     case WM_CLOSE:
