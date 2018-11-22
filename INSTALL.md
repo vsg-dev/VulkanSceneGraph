@@ -2,8 +2,7 @@
 * C++17 compliant compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
 * [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.
 * [CMake](https://www.cmake.org) 3.7 or later.
-* [GLFW](https://www.glfw.org)  3.3 or later.  The plan is to implement native Windowing support so this dependency will
- later be removed.
+* Under Linux and macOS : [GLFW](https://www.glfw.org)  3.3 or later.  The plan is to implement native Windowing support so this dependency will later be removed, so far only Windows has native Windowing.
 
 The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against older versions. If you find success with older versions let us know and we can update the version info.
 
@@ -37,7 +36,7 @@ Command line instructions for default build of static library (.lib) in source:
     git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
     cd VulkanSceneGraphPrototype
     cmake . -G "Visual Studio 15 2017 Win64"
-    
+
 After running cmake open the generated VSG.sln file and build the All target. Once built you can run the install target. If you are using the default cmake install path (in Program Files folder), ensure you have started Visual Studio as administrator otherwise the install will fail.
 
 ---
@@ -49,7 +48,7 @@ Command line instructions for default build of static library (.lib) in source:
     git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
     cd VulkanSceneGraphPrototype
     cmake . -G "Xcode"
-    
+
 After running cmake open the generated VSG.xcodeproj file and build the All target. Once built you can run the install target. Please note that for release builds you currently need to use the Archive option in xcode. This will rebuild everytime so you can just select the install target and run Archive which will also build the All target.
 
 ---
@@ -122,7 +121,7 @@ For example, a bare minimum CMakeLists.txt file to compile a single file applica
 	target_link_libraries(myapp vsg::vsg)
 
 ---
-	
+
 ## Detailed instructions for setting up your environment and building for Microsoft Windows
 
 VSG currently has two main dependancies, the Vulkan SDK itself and for now GLFW for window creation. LunarG provides a convient installer for the Vulkan SDK and runtime on Windows.
@@ -150,5 +149,5 @@ So now we have the Vulkan SDK and GLFW installed and findable by CMake so we can
     git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
     cd VulkanSceneGraphPrototype
     cmake . -G "Visual Studio 15 2017 Win64"
-    
+
 After running CMake open the generated VSG.sln file and build the All target. Once built you can run the install target. If you are using the default CMake install path (in Program Files folder), ensure you have started Visual Studio as administrator otherwise the install will fail.
