@@ -11,11 +11,13 @@ int main(int argc, char** argv)
 {
     // set up defaults and read command line arguments to override them
     vsg::CommandLine arguments(&argc, argv);
-    auto debugLayer = arguments.value(false, {"--debug","-d"});
-    auto apiDumpLayer = arguments.value(false, {"--api","-a"});
+    auto debugLayer = arguments.read({"--debug","-d"});
+    auto apiDumpLayer = arguments.read({"--api","-a"});
+    auto printFrameRate = arguments.read("--fr");
     auto numFrames = arguments.value(-1, "-f");
-    auto printFrameRate = arguments.value(false, "--fr");
     auto numWindows = arguments.value(1, "--num-windows");
     auto [width, height] = arguments.value(std::pair<uint32_t, uint32_t>(800, 600), {"--window", "-w"});
     if (arguments.errors()) return arguments.writeErrorMessages(std::cerr);
+    ...
+}
 ```
