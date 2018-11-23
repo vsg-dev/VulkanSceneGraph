@@ -5,43 +5,45 @@ The aim of the Prototype Phase, October-December 2018, is to fill out prototypes
 
 We need to flesh out the following high level project infrastructure:
 
-- [ ] Layout used in core, add-on and supporting applications/examples.
+- [x] Layout used in core, add-on and supporting applications/examples.
 	- Follow [FOSS Best Practices](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md)
-- [ ] Conventions (naming, coding style etc.) used in core, add-on and supporting applications/examples.
-    - [ ] Follow [CppCoreGuidlines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines)
-- [ ] 3rd party tools used in development and testing
-	- [x] Static code analysis (cppcheck added 19.10.18)
-    - Dynamic analysis (such as LLVM sanitizers)
-- [ ] Website(s) - what requires dedicated websites, vs embedded in git-hub repositories.
+- [x] Conventions (naming, coding style etc.) used in core, add-on and supporting applications/examples.
+    - [x] Follow [CppCoreGuidlines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines)
+- [x] Website(s) - what requires dedicated websites, vs embedded in git-hub repositories.
 	- [x] Initial approach to see how rich the experience can be with just README.md etc.
 - [x] Developer/Community discussion forum(s)
-	- [x] Create googlegroup [Vulkan/VkSceneGraph Developer Discussion Group](https://groups.google.com/forum/#!forum/vsg-users) as a starter.
+	- [x] Create googlegroup [Vulkan/VkSceneGraph Developer Discussion Group](https://- [ ] 3rd party tools used in development and testing
+	- [x] Static code analysis (cppcheck added 19.10.18)
+    - Dynamic analysis (such as LLVM sanitizers)
+groups.google.com/forum/#!forum/vsg-users) as a starter.
 
 ## Core Scene Graph development
 Core scene graph work will be primarily tackled by Robert Osfield.
 
+- [x] Support for object serialization and reading/writing to native ascii/binary format.
+- [x] Creation of vsg::Array2d (completed), vsg::Array3D (completed) classes to mirror the existing [vsg::Array](../../include/vsg/core/Array.h) class to enable more streamlined support for texture data.
 - [ ] Create a unified memory allocator interface to enable custom memory allocation for both scene graph objects and Vulkan objects.  Need to bring together the current [vsg::Allocator](../../include/vsg/core/Allocator.h) and [VkAllocationCallbacks](../../include/vsg/vk/AllocationCallback.h)
 - [ ] Create basic [CullTraversal](../../include/traversal/CullTraversal.h) class that culls subgraphs, based on bounding sphere vs view frustum polytope, and accumulates scene graph state to generate a Command Graph
 - [ ] Flesh out more [DispatchTraversal](../../include/traversals/DispatchTraversal.h) class that traverses the Command Graph
 - [ ] Investigate unifying the [vsg::QuadGroup](../../include/nodes/QuadGroup.h) and [vsg::Group](../../include/nodes/Group.h) classes using a small size array optimization approach. Currently vsg::QuadGroup with is fixed size children array is faster than vsg::Group for creation and traversal, but is less flexible. Can we avoid the user space complexity of having two classes using small size optimizations?
 - [ ] Restructure the scene graph level Vulkan object creation to use on-demand Vulkan object creation to enable handling of multiple logical devices and scene graph creation prior to viewer/logical device setup.
 - [ ] Restructure the viewer/window level Vulkan object creation so that it uses a more standard MyClass::create(..) API and returns a vsg::ref_ptr<MyClass> rather than a vsg::Result<MyClass>. Use exceptions to handle errors.
-- [ ] Creation of vsg::Array2d (done), vsg::Array3d classes to mirror the existing [vsg::Array](../../include/vsg/core/Array.h) class to enable more streamlined support for texture data.
-- [x] Support for object serialization and reading/writing to native ascii/binary format.
 
 ## Cross platform support
 The initial development work has been done under Linux, with support for additional platform to be tackled in the prototype phase. Cross platform work to be led by Thomas Hogarth.
 
 - [x] Initial Windows support was added in October, this will be refined to provide as straight forward developer experience as we can achieve.
-- [ ] Port to Android to begin in November/December.
 - [ ] Development of platform specific Windowing support to replace the current dependency on GLFW.
+	- [x] Win32_Window native windowing class for Windows
+	- [ ] Xcb_Window native Windowing for Unices
+- [ ] Port to Android to begin in November/December.
 
 ## Add-on library development
 Add-on libraries will provide image and 3d model loaders, and integration with 3rd party software.
 
 - [ ] [osg2vsg](https://github.com/vsg-dev/osg2vsg) OpenSceneGraph/VSG integration support library:
-	* Convert existing osg::Image loading/vulkan object creation to use vsg::Array2d/3d
-	* Basic support for converting osg::Node scene graph objects to vsg::Node equivalents
+	- [ ] Convert existing osg::Image loading/vulkan object creation to use vsg::Array2D(completed)/3D
+	- [ ] Basic support for converting osg::Node scene graph objects to vsg::Node equivalents
 
 - [ ] vsg*Image - possible integration of the 3rd party image readers/writers
 - [ ] vsg*Model - possible integration of the 3rd party model readers/writers
