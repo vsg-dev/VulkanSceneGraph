@@ -39,7 +39,7 @@ namespace vsg
 
         Array2D() :
             _width(0),
-            _height(),
+            _height(0),
             _data(nullptr) {}
         Array2D(std::size_t width, std::size_t height, value_type* data) :
             _width(width),
@@ -68,7 +68,7 @@ namespace vsg
             {
                 if (_data) // if data already may be able to reuse it
                 {
-                    size_t original_size = width * height;
+                    size_t original_size = size();
                     if (original_size != new_size) // if existing data is a different size delete old, and create new
                     {
                         delete[] _data;
@@ -138,26 +138,28 @@ namespace vsg
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
+        size_t index(std::size_t i, std::size_t j) const noexcept { return i + j * _width; }
+
         value_type& operator[](std::size_t i) { return _data[i]; }
         const value_type& operator[](std::size_t i) const { return _data[i]; }
 
         value_type& at(std::size_t i) { return _data[i]; }
         const value_type& at(std::size_t i) const { return _data[i]; }
 
-        value_type& operator()(std::size_t i, std::size_t j) { return _data[i + j * _width]; }
-        const value_type& operator()(std::size_t i, std::size_t j) const { return _data[i + j * _width]; }
+        value_type& operator()(std::size_t i, std::size_t j) { return _data[index(i,j)]; }
+        const value_type& operator()(std::size_t i, std::size_t j) const { return _data[index(i,j)]; }
 
-        value_type& at(std::size_t i, std::size_t j) { return _data[i + j * _width]; }
-        const value_type& at(std::size_t i, std::size_t j) const { return _data[i + j * _width]; }
+        value_type& at(std::size_t i, std::size_t j) { return _data[index(i,j)]; }
+        const value_type& at(std::size_t i, std::size_t j) const { return _data[index(i,j)]; }
 
         void set(std::size_t i, const value_type& v) { _data[i] = v; }
-        void set(std::size_t i, std::size_t j, const value_type& v) { _data[i + j * _width] = v; }
+        void set(std::size_t i, std::size_t j, const value_type& v) { _data[index(i,j)] = v; }
 
         iterator begin() { return _data; }
         const_iterator begin() const { return _data; }
 
-        iterator end() { return _data + (_width * _height); }
-        const_iterator end() const { return _data + (_width * _height); }
+        iterator end() { return _data + size(); }
+        const_iterator end() const { return _data + size(); }
 
     protected:
         virtual ~Array2D()
