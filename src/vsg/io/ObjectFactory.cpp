@@ -87,7 +87,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::ubvec3Array2D);
     VSG_REGISTER_new(vsg::ubvec4Array2D);
 
-    // array2Ds
+    // array3Ds
     VSG_REGISTER_new(vsg::ubyteArray3D);
     VSG_REGISTER_new(vsg::ushortArray3D);
     VSG_REGISTER_new(vsg::uintArray3D);
