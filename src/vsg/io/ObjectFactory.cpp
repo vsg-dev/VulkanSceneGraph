@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Array.h>
 #include <vsg/core/Array2D.h>
+#include <vsg/core/Array3D.h>
 #include <vsg/core/Value.h>
 
 #include <vsg/nodes/Group.h>
@@ -70,7 +71,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::mat4Array);
     VSG_REGISTER_new(vsg::dmat4Array);
 
-    // arrays
+    // array2Ds
     VSG_REGISTER_new(vsg::ubyteArray2D);
     VSG_REGISTER_new(vsg::ushortArray2D);
     VSG_REGISTER_new(vsg::uintArray2D);
@@ -85,6 +86,22 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::ubvec2Array2D);
     VSG_REGISTER_new(vsg::ubvec3Array2D);
     VSG_REGISTER_new(vsg::ubvec4Array2D);
+
+    // array2Ds
+    VSG_REGISTER_new(vsg::ubyteArray3D);
+    VSG_REGISTER_new(vsg::ushortArray3D);
+    VSG_REGISTER_new(vsg::uintArray3D);
+    VSG_REGISTER_new(vsg::floatArray3D);
+    VSG_REGISTER_new(vsg::doubleArray3D);
+    VSG_REGISTER_new(vsg::vec2Array3D);
+    VSG_REGISTER_new(vsg::vec3Array3D);
+    VSG_REGISTER_new(vsg::vec4Array3D);
+    VSG_REGISTER_new(vsg::dvec2Array3D);
+    VSG_REGISTER_new(vsg::dvec3Array3D);
+    VSG_REGISTER_new(vsg::dvec4Array3D);
+    VSG_REGISTER_new(vsg::ubvec2Array3D);
+    VSG_REGISTER_new(vsg::ubvec3Array3D);
+    VSG_REGISTER_new(vsg::ubvec4Array3D);
 
     // nodes
     VSG_REGISTER_create(vsg::Node);

@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Array.h>
 #include <vsg/core/Array2D.h>
+#include <vsg/core/Array3D.h>
 #include <vsg/core/Value.h>
 
 namespace vsg
@@ -79,6 +80,22 @@ namespace vsg
         virtual void apply(const ubvec3Array2D&);
         virtual void apply(const ubvec4Array2D&);
 
+        // Array3Ds
+        virtual void apply(const ubyteArray3D&);
+        virtual void apply(const ushortArray3D&);
+        virtual void apply(const uintArray3D&);
+        virtual void apply(const floatArray3D&);
+        virtual void apply(const doubleArray3D&);
+        virtual void apply(const vec2Array3D&);
+        virtual void apply(const vec3Array3D&);
+        virtual void apply(const vec4Array3D&);
+        virtual void apply(const dvec2Array3D&);
+        virtual void apply(const dvec3Array3D&);
+        virtual void apply(const dvec4Array3D&);
+        virtual void apply(const ubvec2Array3D&);
+        virtual void apply(const ubvec3Array3D&);
+        virtual void apply(const ubvec4Array3D&);
+
         // Nodes
         virtual void apply(const Node&);
         virtual void apply(const Group&);
@@ -103,5 +120,9 @@ namespace vsg
     // provide Array2D<>::accept() implementation
     template<typename T>
     void Array2D<T>::accept(ConstVisitor& visitor) const { visitor.apply(*this); }
+
+    // provide Array3D<>::accept() implementation
+    template<typename T>
+    void Array3D<T>::accept(ConstVisitor& visitor) const { visitor.apply(*this); }
 
 } // namespace vsg
