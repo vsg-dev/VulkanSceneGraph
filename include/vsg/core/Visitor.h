@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Array.h>
 #include <vsg/core/Array2D.h>
+#include <vsg/core/Array3D.h>
 #include <vsg/core/Value.h>
 
 namespace vsg
@@ -79,6 +80,22 @@ namespace vsg
         virtual void apply(ubvec3Array2D&);
         virtual void apply(ubvec4Array2D&);
 
+        // Array3Ds
+        virtual void apply(ubyteArray3D&);
+        virtual void apply(ushortArray3D&);
+        virtual void apply(uintArray3D&);
+        virtual void apply(floatArray3D&);
+        virtual void apply(doubleArray3D&);
+        virtual void apply(vec2Array3D&);
+        virtual void apply(vec3Array3D&);
+        virtual void apply(vec4Array3D&);
+        virtual void apply(dvec2Array3D&);
+        virtual void apply(dvec3Array3D&);
+        virtual void apply(dvec4Array3D&);
+        virtual void apply(ubvec2Array3D&);
+        virtual void apply(ubvec3Array3D&);
+        virtual void apply(ubvec4Array3D&);
+
         // Nodes
         virtual void apply(Node&);
         virtual void apply(Group&);
@@ -103,5 +120,9 @@ namespace vsg
     // provide Array2D<>::accept() implementation
     template<typename T>
     void Array2D<T>::accept(Visitor& visitor) { visitor.apply(*this); }
+
+    // provide Array3D<>::accept() implementation
+    template<typename T>
+    void Array3D<T>::accept(Visitor& visitor) { visitor.apply(*this); }
 
 } // namespace vsg
