@@ -52,10 +52,10 @@ bool vsg::isExtensionSupported(const char* extensionName)
 bool vsg::isExtensionListSupported(const Names& extensionList)
 {
     ExtensionProperties extProps = getExtensionProperties();
-    for (auto prop : extProps)
+    for (auto ext : extensionList)
     {
-        auto compare = [&](const char* rhs) { return strcmp(prop.extensionName, rhs)==0; };
-        if (std::find_if(extensionList.begin(), extensionList.end(), compare) == extensionList.end()) return false;
+        auto compare = [&](const VkExtensionProperties& rhs) { return strcmp(ext, rhs.extensionName)==0; };
+        if (std::find_if(extProps.begin(), extProps.end(), compare) == extProps.end()) return false;
     }
     return true;
 }

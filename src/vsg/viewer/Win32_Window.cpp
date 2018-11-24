@@ -161,7 +161,7 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
     if (traits.shareWindow)
     {
         // create surface
-        vsg::ref_ptr<vsg::Surface> surface(new vsg::Win32Surface(traits.shareWindow->instance(), hwnd, allocator));
+        vsg::ref_ptr<vsg::Surface> surface(new vsgWin32::Win32Surface(traits.shareWindow->instance(), hwnd, allocator));
 
         window = new Win32_Window(hwnd, traits.shareWindow->instance(), traits.shareWindow->surface(), traits.shareWindow->physicalDevice(), traits.shareWindow->device(), traits.shareWindow->renderPass(), traits.shareWindow->debugLayersEnabled());
 
@@ -194,7 +194,7 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
         if (!instance) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, unable to create Vulkan instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
         // use GLFW to create surface
-        vsg::ref_ptr<vsg::Surface> surface(new vsg::Win32Surface(instance, hwnd, allocator));
+        vsg::ref_ptr<vsg::Surface> surface(new vsgWin32::Win32Surface(instance, hwnd, allocator));
         if (!surface) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, unable to create Win32Surface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
         // set up device
