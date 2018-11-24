@@ -18,6 +18,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/build")
+
 SET(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "add a postfix, usually d on windows")
 SET(CMAKE_RELEASE_POSTFIX "" CACHE STRING "add a postfix, usually empty on windows")
 SET(CMAKE_RELWITHDEBINFO_POSTFIX "rd" CACHE STRING "add a postfix, usually empty on windows")
@@ -48,8 +50,21 @@ endif()
 set(VSG_WARNING_FLAGS ${VSG_WARNING_FLAGS} CACHE STRING "Compiler flags to use." FORCE)
 add_compile_options(${VSG_WARNING_FLAGS})
 
-find_package(glfw3)
 find_package(Vulkan)
+
+if (ANDROID)
+    # TODO
+elseif (WIN32)
+    # just use native windowing
+elseif (APPLE)
+    find_package(glfw3)
+else()
+    find_package(glfw3)
+    find_package(PkgConfig)
+    pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
+    option(USE_GLFW "Use GLFW for Windowing" ${GLFW_FOUND})
+endif()
+
 
 
 # create doxygen build target

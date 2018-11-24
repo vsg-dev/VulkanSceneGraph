@@ -173,14 +173,4 @@ namespace vsg
         return create(traits, debugLayer, apiDumpLayer, allocator);
     }
 
-    Window::Result Window::create(const Window::Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
-    {
-#ifdef _WIN32
-        ref_ptr<vsg::Window> window = vsgWin32::Win32_Window::create(traits, debugLayer, apiDumpLayer, allocator);
-#else
-        ref_ptr<vsg::Window> window = glfw::GLFW_Window::create(traits.width, traits.height, debugLayer, apiDumpLayer, traits.shareWindow, allocator);
-#endif
-        return Result(window);
-    }
-
 } // namespace vsg

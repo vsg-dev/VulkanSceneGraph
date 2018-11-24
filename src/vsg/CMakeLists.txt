@@ -79,10 +79,24 @@ set(SOURCES
 )
 
 # add platform specific Window implementation
-if(WIN32)
+# set up library dependancies
+set(LIBRARIES PUBLIC Vulkan::Vulkan)
+
+if (ANDROID)
+    # TODO
+elseif (WIN32)
     set(SOURCES ${SOURCES} viewer/Win32_Window.cpp)
-else()
+elseif (APPLE)
     set(SOURCES ${SOURCES} viewer/GLFW_Window.cpp)
+    set(LIBRARIES ${LIBRARIES} PRIVATE glfw PkgConfig::xcb)
+else()
+    if (USE_GLFW)
+        set(SOURCES ${SOURCES} viewer/GLFW_Window.cpp)
+        set(LIBRARIES ${LIBRARIES} PRIVATE glfw)
+    else()
+        set(SOURCES ${SOURCES} viewer/Xcb_Window.cpp)
+        set(LIBRARIES ${LIBRARIES} PRIVATE PkgConfig::xcb)
+    endif()
 endif()
 
 
@@ -142,14 +156,6 @@ set_property(TARGET vsg PROPERTY CXX_STANDARD 17)
 
 target_include_directories(vsg PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include> $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
 
-# set up library dependancies
-set(LIBRARIES PUBLIC Vulkan::Vulkan)
-
-if(WIN32)
-    set(LIBRARIES ${LIBRARIES})
-else()
-    set(LIBRARIES ${LIBRARIES} PRIVATE glfw)
-endif()
 
 target_link_libraries(vsg ${LIBRARIES})
 

@@ -20,6 +20,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 using namespace vsgWin32;
 
+namespace vsg
+{
+    // Provide the Window::create(...) implementation that automatically maps to a GLFW_Window
+    Window::Result Window::create(const Window::Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+    {
+        ref_ptr<vsg::Window> window = vsgWin32::Win32_Window::create(traits, debugLayer, apiDumpLayer, allocator);
+    }
+}
+
 namespace vsgWin32
 {
     const std::string kWindowClassName = "vsg_Win32_Window_Class";
