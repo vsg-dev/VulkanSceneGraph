@@ -35,7 +35,7 @@ namespace vsgWin32
 
         static Result create(const Traits& traits, bool debugLayer = false, bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
 
-        virtual bool valid() const { return _window; /*&& !glfwWindowShouldClose(_window);*/ }
+        virtual bool valid() const { return _window && !_shouldClose; }
 
         virtual bool pollEvents();
 
@@ -48,20 +48,13 @@ namespace vsgWin32
 
         LRESULT handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam);
 
-        // use these to keep track of window handles mapped to Win32_Windows
-        static void registerWindow(HWND hwnd, Win32_Window* window);
-        static void unregisterWindow(HWND hwnd);
-
-        static Win32_Window* getWindow(HWND hwnd);
-
     protected:
         virtual ~Win32_Window();
 
         Win32_Window (HWND window, vsg::Instance* instance, vsg::Surface* surface, vsg::PhysicalDevice* physicalDevice, vsg::Device* device, vsg::RenderPass* renderPass, bool debugLayersEnabled);
 
         HWND _window;
-
-        static std::unordered_map<HWND, Win32_Window*> s_registeredWindows;
+        bool _shouldClose;
     };
 
 } // namespace vsg

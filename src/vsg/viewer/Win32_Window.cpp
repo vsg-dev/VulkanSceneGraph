@@ -33,8 +33,6 @@ namespace vsgWin32
 {
     const std::string kWindowClassName = "vsg_Win32_Window_Class";
 
-    std::unordered_map<HWND, Win32_Window*> Win32_Window::s_registeredWindows;
-
     vsg::Names vsgWin32::getInstanceExtensions()
     {
         // check the extensions are avaliable first
@@ -67,7 +65,7 @@ namespace vsgWin32
     // our windows events callback
     LRESULT CALLBACK Win32WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
-        Win32_Window* win = Win32_Window::getWindow(hwnd);
+        Win32_Window* win = (Win32_Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
         if (win != nullptr) return win->handleWin32Messages(msg, wParam, lParam);
         return ::DefWindowProc(hwnd, msg, wParam, lParam);
     }
@@ -75,7 +73,8 @@ namespace vsgWin32
 } // namespace vsg
 
 Win32_Window::Win32_Window(HWND window, vsg::Instance* instance, vsg::Surface* surface, vsg::PhysicalDevice* physicalDevice, vsg::Device* device, vsg::RenderPass* renderPass, bool debugLayersEnabled) :
-    _window(window)
+    _window(window),
+    _shouldClose(false)
 {
     _instance = instance;
     _surface = surface;
@@ -84,7 +83,7 @@ Win32_Window::Win32_Window(HWND window, vsg::Instance* instance, vsg::Surface* s
     _renderPass = renderPass;
     _debugLayersEnabled = debugLayersEnabled;
 
-    registerWindow(_window, this);
+    SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)this);
 }
 
 Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
@@ -117,12 +116,11 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
     // fetch screen display information
 
     std::vector<DISPLAY_DEVICE> displayDevices;
-    for (unsigned int deviceNum = 0;; ++deviceNum)
-    {
-        DISPLAY_DEVICE displayDevice;
-        displayDevice.cb = sizeof(displayDevice);
+    DISPLAY_DEVICE displayDevice;
+    displayDevice.cb = sizeof(displayDevice);
 
-        if (!::EnumDisplayDevices(NULL, deviceNum, &displayDevice, 0)) break;
+    for (uint32_t deviceNum = 0; EnumDisplayDevices(nullptr, deviceNum, &displayDevice, 0); ++deviceNum)
+    {
         if (displayDevice.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER) continue;
         if (!(displayDevice.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP)) continue;
 
@@ -137,10 +135,13 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
 
     if (!::EnumDisplaySettings(displayDevices[traits.screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
+    int32_t screenx = deviceMode.dmPosition.x + traits.x;
+    int32_t screeny = deviceMode.dmPosition.y + traits.y;
+
     // setup window rect and style
     RECT windowRect;
-    windowRect.left = deviceMode.dmPosition.x + traits.x;
-    windowRect.top = deviceMode.dmPosition.y + traits.y;
+    windowRect.left = screenx;
+    windowRect.top = screeny;
     windowRect.right = windowRect.left + traits.width;
     windowRect.bottom = windowRect.top + traits.height;
 
@@ -156,14 +157,15 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
 
     if (hwnd == nullptr) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, CreateWindowEx did not return a valid window handle.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
-    GetClientRect(hwnd, &windowRect);
+    // resposition once the window has been created to account for borders etc
+    ::SetWindowPos(hwnd, nullptr, screenx, screeny, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, 0);
 
-    uint32_t finalWidth = windowRect.right - windowRect.left;
-    uint32_t finalHeight = windowRect.bottom - windowRect.top;
+    // get client rect to find final width height of the view
+    RECT clientRect;
+    ::GetClientRect(hwnd, &clientRect);
 
-    ShowWindow(hwnd, SW_SHOW);
-    SetForegroundWindow(hwnd);
-    SetFocus(hwnd);
+    uint32_t finalWidth = clientRect.right - clientRect.left;
+    uint32_t finalHeight = clientRect.bottom - clientRect.top;
 
     vsg::ref_ptr<Win32_Window> window;
 
@@ -225,6 +227,10 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
 
     window->buildSwapchain(finalWidth, finalHeight);
 
+    ShowWindow(hwnd, SW_SHOW);
+    SetForegroundWindow(hwnd);
+    SetFocus(hwnd);
+
     return Result(window);
 }
 
@@ -237,11 +243,10 @@ Win32_Window::~Win32_Window()
         std::cout << "Calling DestroyWindow(_window);" << std::endl;
 
         ::DestroyWindow(_window);
-        unregisterWindow(_window);
         _window = nullptr;
 
-        if (s_registeredWindows.empty())
-            ::UnregisterClass(kWindowClassName.c_str(), ::GetModuleHandle(NULL));
+        // when should we unregister??
+        ::UnregisterClass(kWindowClassName.c_str(), ::GetModuleHandle(NULL));
     }
 }
 
@@ -253,7 +258,8 @@ bool Win32_Window::pollEvents()
     {
         if (msg.message == WM_QUIT)
         {
-            // glfw uses this to close windows
+            // somehow close all windows
+            _shouldClose = true;
         }
         else
         {
@@ -272,7 +278,8 @@ bool Win32_Window::resized() const
     int width = windowRect.right - windowRect.left;
     int height = windowRect.bottom - windowRect.top;
 
-    return (width != int(_extent2D.width) || height != int(_extent2D.height));
+    // at the moment the close event is occuring then the check for resize is happening, which means the window is rect returns 0. So for now ignore potential resize if should close
+    return !_shouldClose && ((width != int(_extent2D.width) || height != int(_extent2D.height)));
 }
 
 void Win32_Window::resize()
@@ -292,6 +299,8 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     switch (msg)
     {
     case WM_CLOSE:
+        std::cout << "close window" << std::endl;
+        _shouldClose = true;
         break;
     case WM_DESTROY:
         break;
@@ -391,27 +400,4 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         break;
     }
     return ::DefWindowProc(_window, msg, wParam, lParam);
-}
-
-//
-// static functions for registering windows
-
-void Win32_Window::registerWindow(HWND hwnd, Win32_Window* window)
-{
-    s_registeredWindows.insert({hwnd, window});
-}
-
-void Win32_Window::unregisterWindow(HWND hwnd)
-{
-    s_registeredWindows.erase(hwnd);
-}
-
-Win32_Window* Win32_Window::getWindow(HWND hwnd)
-{
-    auto it = s_registeredWindows.find(hwnd);
-    if (it == end(s_registeredWindows))
-        it = s_registeredWindows.find(nullptr);
-    if (it == end(s_registeredWindows))
-        return nullptr;
-    return it->second;
 }
