@@ -32,13 +32,15 @@ namespace vsg
 
         struct Traits
         {
-            uint32_t x = 0;
-            uint32_t y = 0;
+            uint32_t x = 100;
+            uint32_t y = 100;
             uint32_t width = 800;
             uint32_t height = 600;
             uint32_t screenNum = 0;
 
-            std::string title = "vsg window";
+            std::string windowClass = "vsg::Window";
+            std::string windowTitle = "vsg window";
+
             bool decoration = true;
 
             Window* shareWindow = nullptr;

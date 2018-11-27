@@ -31,8 +31,6 @@ namespace vsg
 
 namespace vsgWin32
 {
-    const std::string kWindowClassName = "vsg_Win32_Window_Class";
-
     vsg::Names vsgWin32::getInstanceExtensions()
     {
         // check the extensions are avaliable first
@@ -104,7 +102,7 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = 0;
     wc.lpszMenuName = 0;
-    wc.lpszClassName = kWindowClassName.c_str();
+    wc.lpszClassName = traits.windowClass.c_str();
     wc.hIconSm = 0;
 
     if (::RegisterClassEx(&wc) == 0)
@@ -151,7 +149,7 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
     if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, AdjustWindowRectEx failed.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     // create the window
-    hwnd = ::CreateWindowEx(extendedStyle, kWindowClassName.c_str(), traits.title.c_str(), windowStyle,
+    hwnd = ::CreateWindowEx(extendedStyle, traits.windowClass.c_str(), traits.windowTitle.c_str(), windowStyle,
                             windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
                             NULL, NULL, ::GetModuleHandle(NULL), NULL);
 
@@ -246,7 +244,7 @@ Win32_Window::~Win32_Window()
         _window = nullptr;
 
         // when should we unregister??
-        ::UnregisterClass(kWindowClassName.c_str(), ::GetModuleHandle(NULL));
+        ::UnregisterClass(traits.windowClass.c_str(), ::GetModuleHandle(NULL));
     }
 }
 

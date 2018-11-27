@@ -10,6 +10,7 @@ elseif (APPLE)
     find_dependency(glfw3)
 else()
     find_dependency(glfw3)
+    find_dependency(X11)
 
     find_package(PkgConfig)
     pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
