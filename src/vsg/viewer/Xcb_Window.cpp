@@ -34,6 +34,25 @@ namespace vsg
 using namespace vsg;
 using namespace xcb;
 
+KeyboardMap::KeyboardMap()
+{
+    _modifierMask=0xff;
+}
+
+void KeyboardMap::add(uint16_t keycode, uint16_t modifier, KeySymbol key)
+{
+    //std::cout<<"Added ["<<keycode<<", "<<modifier<<"] "<<(int)key<<std::endl;
+    _keycodeMap[KeycodeModifier(keycode, modifier)] = key;
+}
+
+void KeyboardMap::add(uint16_t keycode, std::initializer_list<std::pair<uint16_t, KeySymbol> > combinations)
+{
+    for(auto [modifier, key] : combinations)
+    {
+        add(keycode, modifier, key);
+    }
+}
+
 // reference
 // https://harrylovescode.gitbooks.io/vulkan-api/content/chap04/chap04-linux.html
 
@@ -66,6 +85,54 @@ vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bo
 
     // get the screeen
     const xcb_setup_t* setup = xcb_get_setup(settings._connection);
+
+    vsg::ref_ptr<KeyboardMap> keyboard(new KeyboardMap);
+
+    {
+        std::cout<<"   *** stting up : min_keycode="<<(int)(setup->min_keycode)<<", max_keycode="<<(int)(setup->max_keycode)<<std::endl;
+
+        xcb_keycode_t min_keycode = setup->min_keycode;
+        xcb_keycode_t max_keycode = setup->max_keycode;
+
+#if 0
+        for(int keycode = min_keycode; keycode <= max_keycode; ++keycode)
+        {
+            std::cout<<"       keycode = "<<(int)keycode<<std::endl;
+        }
+#endif
+        xcb_get_keyboard_mapping_cookie_t keyboard_mapping_cookie = xcb_get_keyboard_mapping(settings._connection, min_keycode, (max_keycode-min_keycode)+1);
+        xcb_get_keyboard_mapping_reply_t * keyboard_mapping_reply = xcb_get_keyboard_mapping_reply(settings._connection, keyboard_mapping_cookie, nullptr);
+
+
+        std::cout<<"     keysyms_per_keycode = "<<int(keyboard_mapping_reply->keysyms_per_keycode)<<std::endl;
+        std::cout<<"     sequence = "<<keyboard_mapping_reply->sequence<<std::endl;
+        std::cout<<"     length = "<<keyboard_mapping_reply->length<<std::endl;
+
+        const xcb_keysym_t * keysyms = xcb_get_keyboard_mapping_keysyms (keyboard_mapping_reply);
+        int length = xcb_get_keyboard_mapping_keysyms_length (keyboard_mapping_reply);
+
+        std::cout<<"     xcb_get_keyboard_mapping_keysyms_length() = "<<length<<std::endl;
+        int keysyms_per_keycode = keyboard_mapping_reply->keysyms_per_keycode;
+        for(int i=0; i<length; i+=keysyms_per_keycode)
+        {
+            const xcb_keysym_t * keysym = &keysyms[i];
+            xcb_keycode_t keycode = min_keycode +i/keysyms_per_keycode;
+            std::cout<<"     keycode = "<<int(keycode)<<std::endl;
+            for(int m=0; m<keysyms_per_keycode; ++m)
+            {
+                std::cout<<"          keysym["<<m<<"] "<<int(keysym[m])<<" "<<std::hex<<int(keysym[m])<<std::dec;
+                if (keysym[m]>=32 && keysym[m]<256) std::cout<<" ["<<uint8_t(keysym[m])<<"]";
+                std::cout<<std::endl;
+                if (keysym[m]!=0) keyboard->add(keycode, m, static_cast<KeySymbol>(keysym[m]));
+            }
+        }
+
+        free(keyboard_mapping_reply);
+    }
+
+
+
+
     xcb_screen_iterator_t screen_iterator = xcb_setup_roots_iterator(setup);
     for (;screenNum>0; --screenNum) xcb_screen_next(&screen_iterator);
     settings._screen = screen_iterator.data;
@@ -282,9 +349,26 @@ vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bo
                 {
                     auto key_press = reinterpret_cast<const xcb_key_press_event_t*>(event);
                     std::cout<<"key_press = "<<int(key_press->detail)<<", time="<<key_press->time<<", root_x="<<key_press->root_x<<", root_y"<<key_press->root_y<<", "<<key_press->event_x<<", "<<key_press->event_y<<", state="<<key_press->state<<std::endl;
+                    const char* keystr = XKeysymToString( XkbKeycodeToKeysym(x11_display, key_press->detail, 0, key_press->state) );
+                    if (keystr) std::cout<<"  looks like " <<keystr<<std::endl;
 
-                    std::cout<<"    key = "<<XKeysymToString( XkbKeycodeToKeysym(x11_display, key_press->detail, 0, 0) )<<std::endl;
+                    KeySymbol keySymbol = keyboard->getKeySymbol(key_press->detail, key_press->state);
+                    if (keySymbol!=xcb::KeySymbol::KEY_Undefined)
+                    {
+                        if (keySymbol>=32 && keySymbol<255) std::cout<<"  keyboard map to : "<<(char)keySymbol<<" 0x"<<std::hex<<keySymbol<<std::dec<<std::endl;
+                        else std::cout<<" keyboard -> 0x"<<std::hex<<keySymbol<<std::dec<<std::endl;
+                    }
+                    else
+                    {
+                        std::cout<<" keyboard no mapping found: "<<keySymbol<<std::endl;
+                    }
 
+                    for(int i=0; i<7; ++i)
+                    {
+                        const char* str = XKeysymToString( XkbKeycodeToKeysym(x11_display, key_press->detail, 0, i) );
+                        if (str) std::cout<<"    key "<<i<<" = "<<str<<std::endl;
+                        else std::cout<<"    key "<<i<<" =  NULL"<<std::endl;
+                    }
 
                     break;
                 }
