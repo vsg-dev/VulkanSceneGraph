@@ -21,6 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <thread>
 #include <chrono>
 #include <iostream>
+#include <list>
 
 namespace vsg
 {
@@ -318,8 +319,16 @@ vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bo
 
     bool close = false;
 
+    bool first_xcb_time = true;
+    xcb_timestamp_t first_xcb_timestamp = 0;
+    vsg::clock::time_point first_xcb_time_point = vsg::clock::now();
+    vsg::clock::time_point start_point = first_xcb_time_point;
+
     while(!close)
     {
+        using EventQueue = std::list<ref_ptr<vsg::UIEvent>>;
+        EventQueue events;
+
         xcb_generic_event_t *event;
         int i=0;
         while ((event = xcb_poll_for_event(settings._connection)) )
@@ -331,7 +340,7 @@ vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bo
                 case(XCB_EXPOSE):
                 {
                     auto expose = reinterpret_cast<const xcb_expose_event_t*>(event);
-                    std::cout<<"expose "<<expose->window<<", "<<expose->x<<", "<<expose->y<<", "<<expose->width<<", "<<expose->height<<std::endl;
+                    std::cout<<"expose "<<expose->window<<", "<<expose->x<<", "<<expose->y<<", "<<expose->width<<", "<<expose->height<<", count="<<expose->count<<std::endl;
                     break;
                 }
                 case XCB_CLIENT_MESSAGE:
@@ -348,6 +357,24 @@ vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bo
                 case XCB_KEY_PRESS:
                 {
                     auto key_press = reinterpret_cast<const xcb_key_press_event_t*>(event);
+
+                    if (first_xcb_time)
+                    {
+                        first_xcb_time = false;
+                        first_xcb_timestamp = key_press->time;
+                        first_xcb_time_point = vsg::clock::now();
+                    }
+
+                    xcb_timestamp_t relative_event_time = (key_press->time-first_xcb_timestamp);
+                    vsg::clock::time_point event_time = first_xcb_time_point + std::chrono::milliseconds(relative_event_time);
+
+                    vsg::KeySymbol keySymbol = keyboard->getKeySymbol(key_press->detail, 0);
+                    vsg::KeySymbol keySymbolModified = keyboard->getKeySymbol(key_press->detail, key_press->state);
+                    events.emplace_back(new vsg::KeyPressEvent(0, event_time, keySymbol, keySymbolModified, KeyModifier(key_press->state), 0));
+
+                    std::cout<<"relative_event_time = "<<relative_event_time<<std::endl;
+
+#if 0
                     std::cout<<"key_press = "<<int(key_press->detail)<<", time="<<key_press->time<<", root_x="<<key_press->root_x<<", root_y"<<key_press->root_y<<", "<<key_press->event_x<<", "<<key_press->event_y<<", state="<<key_press->state<<std::endl;
                     const char* keystr = XKeysymToString( XkbKeycodeToKeysym(x11_display, key_press->detail, 0, key_press->state) );
                     if (keystr) std::cout<<"  looks like " <<keystr<<std::endl;
@@ -369,13 +396,15 @@ vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bo
                         if (str) std::cout<<"    key "<<i<<" = "<<str<<std::endl;
                         else std::cout<<"    key "<<i<<" =  NULL"<<std::endl;
                     }
-
+#endif
                     break;
                 }
                 case XCB_KEY_RELEASE:
                 {
+#if 0
                     auto key_release = reinterpret_cast<const xcb_key_release_event_t*>(event);
                     std::cout<<"key_release = "<<int(key_release->detail)<<", time="<<key_release->time<<", root_x="<<key_release->root_x<<", root_y"<<key_release->root_y<<", "<<key_release->event_x<<", "<<key_release->event_y<<", state="<<key_release->state<<std::endl;
+#endif
                     break;
                 }
                 default:
@@ -386,6 +415,12 @@ vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bo
             }
             free(event);
         }
+
+        for(auto& vsg_event : events)
+        {
+            std::cout<<"event "<<vsg_event->className()<<" time="<<std::chrono::duration<double>(vsg_event->time - start_point).count()<<std::endl;
+        }
+
         if (i>0) std::cout<<std::endl;
     }
 
