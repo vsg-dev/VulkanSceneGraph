@@ -159,7 +159,7 @@ vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bo
     {
         settings._screen->black_pixel,
         override_redirect,
-        XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE
+        XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_PROPERTY_CHANGE
     };
 
     // ceate window
@@ -231,6 +231,27 @@ vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bo
 
     std::cout<<"Create window : "<<traits.windowTitle<<std::endl;
 
+    bool first_xcb_time = true;
+    xcb_timestamp_t first_xcb_timestamp = 0;
+    vsg::clock::time_point first_xcb_time_point = vsg::clock::now();
+    vsg::clock::time_point start_point = first_xcb_time_point;
+
+    // work out the X server timestamp by checking for the property notify events that result for the above xcb_change_property calls.
+    {
+        xcb_generic_event_t *event = nullptr;
+        while (first_xcb_time && (event = xcb_wait_for_event(settings._connection)))
+        {
+            uint8_t response_type = event->response_type & ~0x80;
+            if (response_type==XCB_PROPERTY_NOTIFY)
+            {
+                auto propety_notify = reinterpret_cast<const xcb_property_notify_event_t*>(event);
+                first_xcb_time = false;
+                first_xcb_timestamp = propety_notify->time;
+                first_xcb_time_point = vsg::clock::now();
+            }
+            free(event);
+        }
+    }
 
 
     xcb_map_window(settings._connection, settings._window);
@@ -319,11 +340,6 @@ vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bo
 
     bool close = false;
 
-    bool first_xcb_time = true;
-    xcb_timestamp_t first_xcb_timestamp = 0;
-    vsg::clock::time_point first_xcb_time_point = vsg::clock::now();
-    vsg::clock::time_point start_point = first_xcb_time_point;
-
     while(!close)
     {
         using EventQueue = std::list<ref_ptr<vsg::UIEvent>>;
@@ -358,53 +374,22 @@ vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bo
                 {
                     auto key_press = reinterpret_cast<const xcb_key_press_event_t*>(event);
 
-                    if (first_xcb_time)
-                    {
-                        first_xcb_time = false;
-                        first_xcb_timestamp = key_press->time;
-                        first_xcb_time_point = vsg::clock::now();
-                    }
-
-                    xcb_timestamp_t relative_event_time = (key_press->time-first_xcb_timestamp);
-                    vsg::clock::time_point event_time = first_xcb_time_point + std::chrono::milliseconds(relative_event_time);
-
+                    vsg::clock::time_point event_time = first_xcb_time_point + std::chrono::milliseconds(key_press->time-first_xcb_timestamp);
                     vsg::KeySymbol keySymbol = keyboard->getKeySymbol(key_press->detail, 0);
                     vsg::KeySymbol keySymbolModified = keyboard->getKeySymbol(key_press->detail, key_press->state);
                     events.emplace_back(new vsg::KeyPressEvent(0, event_time, keySymbol, keySymbolModified, KeyModifier(key_press->state), 0));
 
-                    std::cout<<"relative_event_time = "<<relative_event_time<<std::endl;
-
-#if 0
-                    std::cout<<"key_press = "<<int(key_press->detail)<<", time="<<key_press->time<<", root_x="<<key_press->root_x<<", root_y"<<key_press->root_y<<", "<<key_press->event_x<<", "<<key_press->event_y<<", state="<<key_press->state<<std::endl;
-                    const char* keystr = XKeysymToString( XkbKeycodeToKeysym(x11_display, key_press->detail, 0, key_press->state) );
-                    if (keystr) std::cout<<"  looks like " <<keystr<<std::endl;
-
-                    vsg::KeySymbol keySymbol = keyboard->getKeySymbol(key_press->detail, key_press->state);
-                    if (keySymbol!=vsg::KEY_Undefined)
-                    {
-                        if (keySymbol>=32 && keySymbol<255) std::cout<<"  keyboard map to : "<<(char)keySymbol<<" 0x"<<std::hex<<keySymbol<<std::dec<<std::endl;
-                        else std::cout<<" keyboard -> 0x"<<std::hex<<keySymbol<<std::dec<<std::endl;
-                    }
-                    else
-                    {
-                        std::cout<<" keyboard no mapping found: "<<keySymbol<<std::endl;
-                    }
-
-                    for(int i=0; i<7; ++i)
-                    {
-                        const char* str = XKeysymToString( XkbKeycodeToKeysym(x11_display, key_press->detail, 0, i) );
-                        if (str) std::cout<<"    key "<<i<<" = "<<str<<std::endl;
-                        else std::cout<<"    key "<<i<<" =  NULL"<<std::endl;
-                    }
-#endif
                     break;
                 }
                 case XCB_KEY_RELEASE:
                 {
-#if 0
                     auto key_release = reinterpret_cast<const xcb_key_release_event_t*>(event);
-                    std::cout<<"key_release = "<<int(key_release->detail)<<", time="<<key_release->time<<", root_x="<<key_release->root_x<<", root_y"<<key_release->root_y<<", "<<key_release->event_x<<", "<<key_release->event_y<<", state="<<key_release->state<<std::endl;
-#endif
+
+                    vsg::clock::time_point event_time = first_xcb_time_point + std::chrono::milliseconds(key_release->time-first_xcb_timestamp);
+                    vsg::KeySymbol keySymbol = keyboard->getKeySymbol(key_release->detail, 0);
+                    vsg::KeySymbol keySymbolModified = keyboard->getKeySymbol(key_release->detail, key_release->state);
+                    events.emplace_back(new vsg::KeyReleaseEvent(0, event_time, keySymbol, keySymbolModified, KeyModifier(key_release->state), 0));
+
                     break;
                 }
                 default:
@@ -416,9 +401,33 @@ vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bo
             free(event);
         }
 
+        struct PrintEvents : public vsg::Visitor
+        {
+            vsg::clock::time_point start_point;
+
+            PrintEvents(vsg::clock::time_point in_start_point) : start_point(in_start_point) {}
+
+            void apply(vsg::UIEvent& event)
+            {
+                std::cout<<"event : "<<event.className()<<", "<<std::chrono::duration<double>(event.time - start_point).count()<<std::endl;
+            }
+
+            void apply(vsg::KeyReleaseEvent& keyRelease)
+            {
+                std::cout<<"KeyReleaeEvent : "<<keyRelease.className()<<", "<<std::chrono::duration<double>(keyRelease.time - start_point).count()<<", "<<keyRelease.keyBase<<std::endl;
+            }
+
+            void apply(vsg::KeyPressEvent& keyPress)
+            {
+                std::cout<<"KeyPressEvent : "<<keyPress.className()<<", "<<std::chrono::duration<double>(keyPress.time - start_point).count()<<", "<<keyPress.keyBase<<", "<<keyPress.keyModified<<std::endl;
+            }
+        };
+
+        PrintEvents print(start_point);
+
         for(auto& vsg_event : events)
         {
-            std::cout<<"event "<<vsg_event->className()<<" time="<<std::chrono::duration<double>(vsg_event->time - start_point).count()<<std::endl;
+            vsg_event->accept(print);
         }
 
         if (i>0) std::cout<<std::endl;
