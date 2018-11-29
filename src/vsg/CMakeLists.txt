@@ -96,7 +96,6 @@ else()
     else()
         set(SOURCES ${SOURCES} viewer/Xcb_Window.cpp)
         set(LIBRARIES ${LIBRARIES} PRIVATE PkgConfig::xcb)
-        set(LIBRARIES ${LIBRARIES} PRIVATE ${X11_LIBRARIES})
     endif()
 endif()
 

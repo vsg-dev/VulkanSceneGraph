@@ -16,8 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <xcb/xproto.h>
 
-#include <X11/XKBlib.h>
-
 #include <thread>
 #include <chrono>
 #include <iostream>
@@ -68,8 +66,6 @@ vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bo
 
     bool fullscreen = false;//true;
     uint32_t override_redirect = 0; // fullscreen ? 1 : 0;
-
-    Display* x11_display = XOpenDisplay(displayName);
 
     // open connection
     settings._connection = xcb_connect(displayName, &screenNum);
@@ -482,8 +478,6 @@ vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bo
 
     // close connection
     xcb_disconnect(settings._connection);
-
-    XCloseDisplay(x11_display);
 
     std::cout<<"Disconnect"<<std::endl;
 

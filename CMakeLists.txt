@@ -59,7 +59,6 @@ elseif (APPLE)
 else()
     find_package(glfw3)
 
-    find_package(X11)
     find_package(PkgConfig)
     pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
     option(USE_GLFW "Use GLFW for Windowing" OFF)
