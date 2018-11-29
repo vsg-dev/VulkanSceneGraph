@@ -20,16 +20,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    // forward declare nodes
+    // forward declare nodes classes
     class Node;
     class Group;
     class QuadGroup;
     class LOD;
     class StateGroup;
 
+    // forward declare vulkan classes
     class Command;
     class CommandBuffer;
     class RenderPass;
+
+    // forward declare ui events classes
+    class UIEvent;
+    class KeyEvent;
+    class KeyPressEvent;
+    class KeyReleaseEvent;
+    class PointerEvent;
+    class ButtonPressEvent;
+    class ButtonReleaseEvent;
 
     class VSG_DECLSPEC Visitor : public Object
     {
@@ -107,6 +117,15 @@ namespace vsg
         virtual void apply(Command&);
         virtual void apply(CommandBuffer&);
         virtual void apply(RenderPass&);
+
+        // ui events
+        virtual void apply(UIEvent&);
+        virtual void apply(KeyEvent&);
+        virtual void apply(KeyPressEvent&);
+        virtual void apply(KeyReleaseEvent&);
+        virtual void apply(PointerEvent&);
+        virtual void apply(ButtonPressEvent&);
+        virtual void apply(ButtonReleaseEvent&);
     };
 
     // provide Value<>::accept() implementation
