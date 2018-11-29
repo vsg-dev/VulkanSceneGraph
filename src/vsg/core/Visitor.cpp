@@ -22,6 +22,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/RenderPass.h>
 
+#include <vsg/ui/KeyEvent.h>
+#include <vsg/ui/PointerEvent.h>
+
 using namespace vsg;
 
 Visitor::Visitor()
@@ -293,3 +296,37 @@ void Visitor::apply(RenderPass& value)
 {
     apply(static_cast<Object&>(value));
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// UI Events
+//
+void Visitor::apply(UIEvent& event)
+{
+    apply(static_cast<Object&>(event));
+}
+void Visitor::apply(KeyEvent& event)
+{
+    apply(static_cast<UIEvent&>(event));
+}
+void Visitor::apply(KeyPressEvent& event)
+{
+    apply(static_cast<KeyEvent&>(event));
+}
+void Visitor::apply(KeyReleaseEvent& event)
+{
+    apply(static_cast<KeyEvent&>(event));
+}
+void Visitor::apply(PointerEvent& event)
+{
+    apply(static_cast<UIEvent&>(event));
+}
+void Visitor::apply(ButtonPressEvent& event)
+{
+    apply(static_cast<PointerEvent&>(event));
+}
+void Visitor::apply(ButtonReleaseEvent& event)
+{
+    apply(static_cast<PointerEvent&>(event));
+}
+
