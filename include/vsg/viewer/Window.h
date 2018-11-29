@@ -43,6 +43,7 @@ namespace vsg
 
             Window* shareWindow = nullptr;
             std::any nativeHandle;
+            void* nativeWindow;
         };
 
         using Result = vsg::Result<Window, VkResult, VK_SUCCESS>;

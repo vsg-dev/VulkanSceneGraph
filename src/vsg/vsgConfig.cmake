@@ -2,7 +2,7 @@ include(CMakeFindDependencyMacro)
 
 find_dependency(Vulkan)
 
-if(NOT WIN32)
+if(NOT WIN32 AND NOT ANDROID)
     find_dependency(glfw3)
 endif()
 

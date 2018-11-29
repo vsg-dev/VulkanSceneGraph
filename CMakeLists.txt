@@ -48,7 +48,14 @@ endif()
 set(VSG_WARNING_FLAGS ${VSG_WARNING_FLAGS} CACHE STRING "Compiler flags to use." FORCE)
 add_compile_options(${VSG_WARNING_FLAGS})
 
-find_package(glfw3)
+if(NOT ANDROID)
+    find_package(glfw3)
+else()
+    find_library(AndroidLib android)
+    if(CMAKE_SYSTEM_VERSION GREATER 24)
+        find_library(AndroidNativeWindowLib nativewindow)
+    endif()
+endif()
 find_package(Vulkan)
 
 
