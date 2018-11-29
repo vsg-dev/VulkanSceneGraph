@@ -352,8 +352,8 @@ vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bo
                     const char* keystr = XKeysymToString( XkbKeycodeToKeysym(x11_display, key_press->detail, 0, key_press->state) );
                     if (keystr) std::cout<<"  looks like " <<keystr<<std::endl;
 
-                    KeySymbol keySymbol = keyboard->getKeySymbol(key_press->detail, key_press->state);
-                    if (keySymbol!=xcb::KeySymbol::KEY_Undefined)
+                    vsg::KeySymbol keySymbol = keyboard->getKeySymbol(key_press->detail, key_press->state);
+                    if (keySymbol!=vsg::KEY_Undefined)
                     {
                         if (keySymbol>=32 && keySymbol<255) std::cout<<"  keyboard map to : "<<(char)keySymbol<<" 0x"<<std::hex<<keySymbol<<std::dec<<std::endl;
                         else std::cout<<" keyboard -> 0x"<<std::hex<<keySymbol<<std::dec<<std::endl;
