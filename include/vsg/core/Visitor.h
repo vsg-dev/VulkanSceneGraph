@@ -34,6 +34,9 @@ namespace vsg
 
     // forward declare ui events classes
     class UIEvent;
+    class WindowEvent;
+    class ExposeWindowEvent;
+    class DeleteWindowEvent;
     class KeyEvent;
     class KeyPressEvent;
     class KeyReleaseEvent;
@@ -120,6 +123,9 @@ namespace vsg
 
         // ui events
         virtual void apply(UIEvent&);
+        virtual void apply(WindowEvent&);
+        virtual void apply(ExposeWindowEvent&);
+        virtual void apply(DeleteWindowEvent&);
         virtual void apply(KeyEvent&);
         virtual void apply(KeyPressEvent&);
         virtual void apply(KeyReleaseEvent&);

@@ -305,9 +305,21 @@ void Visitor::apply(UIEvent& event)
 {
     apply(static_cast<Object&>(event));
 }
-void Visitor::apply(KeyEvent& event)
+void Visitor::apply(WindowEvent& event)
 {
     apply(static_cast<UIEvent&>(event));
+}
+void Visitor::apply(ExposeWindowEvent& event)
+{
+    apply(static_cast<WindowEvent&>(event));
+}
+void Visitor::apply(DeleteWindowEvent& event)
+{
+    apply(static_cast<WindowEvent&>(event));
+}
+void Visitor::apply(KeyEvent& event)
+{
+    apply(static_cast<WindowEvent&>(event));
 }
 void Visitor::apply(KeyPressEvent& event)
 {
@@ -319,7 +331,7 @@ void Visitor::apply(KeyReleaseEvent& event)
 }
 void Visitor::apply(PointerEvent& event)
 {
-    apply(static_cast<UIEvent&>(event));
+    apply(static_cast<WindowEvent&>(event));
 }
 void Visitor::apply(ButtonPressEvent& event)
 {

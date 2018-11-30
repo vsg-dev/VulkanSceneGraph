@@ -346,92 +346,49 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
         using Events = std::list<ref_ptr<vsg::UIEvent>>;
         Events events;
 
-        xcb_generic_event_t *event;
-        int i=0;
-        while ((event = xcb_poll_for_event(_connection)) )
-        {
-            ++i;
-            uint8_t response_type = event->response_type & ~0x80;
-            switch(response_type)
+       if (pollEvents(events))
+       {
+            struct PrintEvents : public vsg::Visitor
             {
-                case(XCB_EXPOSE):
-                {
-                    auto expose = reinterpret_cast<const xcb_expose_event_t*>(event);
-                    std::cout<<"expose "<<expose->window<<", "<<expose->x<<", "<<expose->y<<", "<<expose->width<<", "<<expose->height<<", count="<<expose->count<<std::endl;
-                    break;
-                }
-                case XCB_CLIENT_MESSAGE:
-                {
-                    auto client_message = reinterpret_cast<const xcb_client_message_event_t*>(event);
-                    if (client_message->data.data32[0]==_wmDeleteWindow)
-                    {
-                        std::cout<<"client message "<<client_message->data.data32[0]<<std::endl;
-                        std::cout<<"     _wmDeleteWindow = "<<_wmDeleteWindow<<std::endl;
-                        close = true;
-                    }
-                    break;
-                }
-                case XCB_KEY_PRESS:
-                {
-                    auto key_press = reinterpret_cast<const xcb_key_press_event_t*>(event);
+                vsg::clock::time_point start_point;
+                bool& close;
 
-                    vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(key_press->time-_first_xcb_timestamp);
-                    vsg::KeySymbol keySymbol = _keyboard->getKeySymbol(key_press->detail, 0);
-                    vsg::KeySymbol keySymbolModified = _keyboard->getKeySymbol(key_press->detail, key_press->state);
-                    events.emplace_back(new vsg::KeyPressEvent(0, event_time, keySymbol, keySymbolModified, KeyModifier(key_press->state), 0));
+                PrintEvents(vsg::clock::time_point in_start_point, bool& in_close) : start_point(in_start_point), close(in_close) {}
 
-                    break;
-                }
-                case XCB_KEY_RELEASE:
+                void apply(vsg::UIEvent& event)
                 {
-                    auto key_release = reinterpret_cast<const xcb_key_release_event_t*>(event);
-
-                    vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(key_release->time-_first_xcb_timestamp);
-                    vsg::KeySymbol keySymbol = _keyboard->getKeySymbol(key_release->detail, 0);
-                    vsg::KeySymbol keySymbolModified = _keyboard->getKeySymbol(key_release->detail, key_release->state);
-                    events.emplace_back(new vsg::KeyReleaseEvent(0, event_time, keySymbol, keySymbolModified, KeyModifier(key_release->state), 0));
-
-                    break;
+                    std::cout<<"event : "<<event.className()<<", "<<std::chrono::duration<double>(event.time - start_point).count()<<std::endl;
                 }
-                default:
+
+                void apply(vsg::ExposeWindowEvent& event)
                 {
-                    std::cout<<"event not handled, response_type = "<<(int)response_type<<std::endl;
-                    break;
+                    std::cout<<"Expose window : "<<event.className()<<", "<<std::chrono::duration<double>(event.time - start_point).count()<<" "<<event.x<<", "<<event.y<<", "<<event.width<<", "<<event.height<<std::endl;
                 }
+
+                void apply(vsg::DeleteWindowEvent& event)
+                {
+                    std::cout<<"Delete window : "<<event.className()<<", "<<std::chrono::duration<double>(event.time - start_point).count()<<std::endl;
+                    close = true;
+                }
+
+                void apply(vsg::KeyReleaseEvent& keyRelease)
+                {
+                    std::cout<<"KeyReleaeEvent : "<<keyRelease.className()<<", "<<std::chrono::duration<double>(keyRelease.time - start_point).count()<<", "<<keyRelease.keyBase<<std::endl;
+                }
+
+                void apply(vsg::KeyPressEvent& keyPress)
+                {
+                    std::cout<<"KeyPressEvent : "<<keyPress.className()<<", "<<std::chrono::duration<double>(keyPress.time - start_point).count()<<", "<<keyPress.keyBase<<", "<<keyPress.keyModified<<std::endl;
+                }
+            };
+
+            PrintEvents print(start_point, close);
+
+            for(auto& vsg_event : events)
+            {
+                vsg_event->accept(print);
             }
-            free(event);
         }
-
-        struct PrintEvents : public vsg::Visitor
-        {
-            vsg::clock::time_point start_point;
-
-            PrintEvents(vsg::clock::time_point in_start_point) : start_point(in_start_point) {}
-
-            void apply(vsg::UIEvent& event)
-            {
-                std::cout<<"event : "<<event.className()<<", "<<std::chrono::duration<double>(event.time - start_point).count()<<std::endl;
-            }
-
-            void apply(vsg::KeyReleaseEvent& keyRelease)
-            {
-                std::cout<<"KeyReleaeEvent : "<<keyRelease.className()<<", "<<std::chrono::duration<double>(keyRelease.time - start_point).count()<<", "<<keyRelease.keyBase<<std::endl;
-            }
-
-            void apply(vsg::KeyPressEvent& keyPress)
-            {
-                std::cout<<"KeyPressEvent : "<<keyPress.className()<<", "<<std::chrono::duration<double>(keyPress.time - start_point).count()<<", "<<keyPress.keyBase<<", "<<keyPress.keyModified<<std::endl;
-            }
-        };
-
-        PrintEvents print(start_point);
-
-        for(auto& vsg_event : events)
-        {
-            vsg_event->accept(print);
-        }
-
-        if (i>0) std::cout<<std::endl;
     }
 
 
@@ -472,23 +429,20 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
 
 
 #endif
-
-    std::cout<<"Destroy window"<<std::endl;
-
-    xcb_destroy_window(_connection, _window);
-
-    xcb_flush(_connection);
-
-
-
-    // close connection
-    xcb_disconnect(_connection);
-
-    std::cout<<"Disconnect"<<std::endl;
 }
+
 
 Xcb_Window::~Xcb_Window()
 {
+    if (_connection!=nullptr)
+    {
+        if (_window!=0) xcb_destroy_window(_connection, _window);
+
+        xcb_flush(_connection);
+        xcb_disconnect(_connection);
+
+        std::cout<<"Disconnect"<<std::endl;
+    }
     std::cout<<"Destruction Xcb_Widnow"<<std::endl;
 }
 
@@ -511,16 +465,19 @@ bool Xcb_Window::pollEvents(Events& events)
             case(XCB_EXPOSE):
             {
                 auto expose = reinterpret_cast<const xcb_expose_event_t*>(event);
-                std::cout<<"expose "<<expose->window<<", "<<expose->x<<", "<<expose->y<<", "<<expose->width<<", "<<expose->height<<", count="<<expose->count<<std::endl;
+
+                vsg::clock::time_point event_time = vsg::clock::now();
+                events.emplace_back(new vsg::ExposeWindowEvent(this, event_time, expose->x, expose->y, expose->width, expose->height));
                 break;
             }
             case XCB_CLIENT_MESSAGE:
             {
                 auto client_message = reinterpret_cast<const xcb_client_message_event_t*>(event);
+
                 if (client_message->data.data32[0]==_wmDeleteWindow)
                 {
-                    std::cout<<"client message "<<client_message->data.data32[0]<<std::endl;
-                    std::cout<<"     _wmDeleteWindow = "<<_wmDeleteWindow<<std::endl;
+                    vsg::clock::time_point event_time = vsg::clock::now();
+                    events.emplace_back(new vsg::DeleteWindowEvent(this, event_time));
                 }
                 break;
             }
@@ -531,7 +488,7 @@ bool Xcb_Window::pollEvents(Events& events)
                 vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(key_press->time-_first_xcb_timestamp);
                 vsg::KeySymbol keySymbol = _keyboard->getKeySymbol(key_press->detail, 0);
                 vsg::KeySymbol keySymbolModified = _keyboard->getKeySymbol(key_press->detail, key_press->state);
-                events.emplace_back(new vsg::KeyPressEvent(0, event_time, keySymbol, keySymbolModified, KeyModifier(key_press->state), 0));
+                events.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, keySymbolModified, KeyModifier(key_press->state), 0));
 
                 break;
             }
@@ -542,7 +499,7 @@ bool Xcb_Window::pollEvents(Events& events)
                 vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(key_release->time-_first_xcb_timestamp);
                 vsg::KeySymbol keySymbol = _keyboard->getKeySymbol(key_release->detail, 0);
                 vsg::KeySymbol keySymbolModified = _keyboard->getKeySymbol(key_release->detail, key_release->state);
-                events.emplace_back(new vsg::KeyReleaseEvent(0, event_time, keySymbol, keySymbolModified, KeyModifier(key_release->state), 0));
+                events.emplace_back(new vsg::KeyReleaseEvent(this, event_time, keySymbol, keySymbolModified, KeyModifier(key_release->state), 0));
 
                 break;
             }
