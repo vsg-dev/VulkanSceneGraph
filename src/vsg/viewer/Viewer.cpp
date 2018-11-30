@@ -76,9 +76,10 @@ bool Viewer::done() const
 bool Viewer::pollEvents()
 {
     bool result = false;
+    Events events;
     for (auto& window : _windows)
     {
-        if (window->pollEvents()) result = true;
+        if (window->pollEvents(events)) result = true;
     }
     return result;
 }

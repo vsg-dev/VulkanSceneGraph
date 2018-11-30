@@ -210,7 +210,7 @@ namespace xcb
 
         bool valid() const override;
 
-        bool pollEvents() override;
+        bool pollEvents(vsg::Events& events) override;
 
         bool resized() const override;
 
@@ -226,6 +226,11 @@ namespace xcb
         xcb_window_t _window{};
         xcb_atom_t _wmProtocols{};
         xcb_atom_t _wmDeleteWindow{};
+
+        xcb_timestamp_t _first_xcb_timestamp = 0;
+        vsg::clock::time_point _first_xcb_time_point;
+
+        vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 
 

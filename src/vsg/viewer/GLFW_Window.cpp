@@ -173,7 +173,7 @@ GLFW_Window::~GLFW_Window()
     }
 }
 
-bool GLFW_Window::pollEvents()
+bool GLFW_Window::pollEvents(vsg::Events& /*events*/)
 {
     glfwPollEvents();
     return false;

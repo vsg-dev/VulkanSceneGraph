@@ -19,7 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <thread>
 #include <chrono>
 #include <iostream>
-#include <list>
 
 namespace vsg
 {
@@ -92,7 +91,7 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
     // get the screeen
     const xcb_setup_t* setup = xcb_get_setup(_connection);
 
-    vsg::ref_ptr<KeyboardMap> keyboard(new KeyboardMap);
+    _keyboard = new KeyboardMap;
 
     {
         std::cout<<"   *** stting up : min_keycode="<<(int)(setup->min_keycode)<<", max_keycode="<<(int)(setup->max_keycode)<<std::endl;
@@ -129,7 +128,7 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
                 std::cout<<"          keysym["<<m<<"] "<<int(keysym[m])<<" "<<std::hex<<int(keysym[m])<<std::dec;
                 if (keysym[m]>=32 && keysym[m]<256) std::cout<<" ["<<uint8_t(keysym[m])<<"]";
                 std::cout<<std::endl;
-                if (keysym[m]!=0) keyboard->add(keycode, m, static_cast<KeySymbol>(keysym[m]));
+                if (keysym[m]!=0) _keyboard->add(keycode, m, static_cast<KeySymbol>(keysym[m]));
             }
         }
 
@@ -236,28 +235,25 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
 
     std::cout<<"Create window : "<<traits.windowTitle<<std::endl;
 
-    bool first_xcb_time = true;
-    xcb_timestamp_t first_xcb_timestamp = 0;
-    vsg::clock::time_point first_xcb_time_point = vsg::clock::now();
-    vsg::clock::time_point start_point = first_xcb_time_point;
 
     // work out the X server timestamp by checking for the property notify events that result for the above xcb_change_property calls.
+    _first_xcb_timestamp = 0;
+    _first_xcb_time_point = vsg::clock::now();
     {
         xcb_generic_event_t *event = nullptr;
-        while (first_xcb_time && (event = xcb_wait_for_event(_connection)))
+        while (_first_xcb_timestamp==0 && (event = xcb_wait_for_event(_connection)))
         {
             uint8_t response_type = event->response_type & ~0x80;
             if (response_type==XCB_PROPERTY_NOTIFY)
             {
                 auto propety_notify = reinterpret_cast<const xcb_property_notify_event_t*>(event);
-                first_xcb_time = false;
-                first_xcb_timestamp = propety_notify->time;
-                first_xcb_time_point = vsg::clock::now();
+                _first_xcb_timestamp = propety_notify->time;
+                _first_xcb_time_point = vsg::clock::now();
             }
             free(event);
         }
     }
-
+    vsg::clock::time_point start_point = _first_xcb_time_point;
 
     xcb_map_window(_connection, _window);
 
@@ -347,8 +343,8 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
 
     while(!close)
     {
-        using EventQueue = std::list<ref_ptr<vsg::UIEvent>>;
-        EventQueue events;
+        using Events = std::list<ref_ptr<vsg::UIEvent>>;
+        Events events;
 
         xcb_generic_event_t *event;
         int i=0;
@@ -379,9 +375,9 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
                 {
                     auto key_press = reinterpret_cast<const xcb_key_press_event_t*>(event);
 
-                    vsg::clock::time_point event_time = first_xcb_time_point + std::chrono::milliseconds(key_press->time-first_xcb_timestamp);
-                    vsg::KeySymbol keySymbol = keyboard->getKeySymbol(key_press->detail, 0);
-                    vsg::KeySymbol keySymbolModified = keyboard->getKeySymbol(key_press->detail, key_press->state);
+                    vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(key_press->time-_first_xcb_timestamp);
+                    vsg::KeySymbol keySymbol = _keyboard->getKeySymbol(key_press->detail, 0);
+                    vsg::KeySymbol keySymbolModified = _keyboard->getKeySymbol(key_press->detail, key_press->state);
                     events.emplace_back(new vsg::KeyPressEvent(0, event_time, keySymbol, keySymbolModified, KeyModifier(key_press->state), 0));
 
                     break;
@@ -390,9 +386,9 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
                 {
                     auto key_release = reinterpret_cast<const xcb_key_release_event_t*>(event);
 
-                    vsg::clock::time_point event_time = first_xcb_time_point + std::chrono::milliseconds(key_release->time-first_xcb_timestamp);
-                    vsg::KeySymbol keySymbol = keyboard->getKeySymbol(key_release->detail, 0);
-                    vsg::KeySymbol keySymbolModified = keyboard->getKeySymbol(key_release->detail, key_release->state);
+                    vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(key_release->time-_first_xcb_timestamp);
+                    vsg::KeySymbol keySymbol = _keyboard->getKeySymbol(key_release->detail, 0);
+                    vsg::KeySymbol keySymbolModified = _keyboard->getKeySymbol(key_release->detail, key_release->state);
                     events.emplace_back(new vsg::KeyReleaseEvent(0, event_time, keySymbol, keySymbolModified, KeyModifier(key_release->state), 0));
 
                     break;
@@ -501,9 +497,65 @@ bool Xcb_Window::valid() const
     return _window!=9;
 }
 
-bool Xcb_Window::pollEvents()
+bool Xcb_Window::pollEvents(Events& events)
 {
-    return false;
+    unsigned numEventsBefore = events.size();
+    xcb_generic_event_t *event;
+    int i=0;
+    while ((event = xcb_poll_for_event(_connection)) )
+    {
+        ++i;
+        uint8_t response_type = event->response_type & ~0x80;
+        switch(response_type)
+        {
+            case(XCB_EXPOSE):
+            {
+                auto expose = reinterpret_cast<const xcb_expose_event_t*>(event);
+                std::cout<<"expose "<<expose->window<<", "<<expose->x<<", "<<expose->y<<", "<<expose->width<<", "<<expose->height<<", count="<<expose->count<<std::endl;
+                break;
+            }
+            case XCB_CLIENT_MESSAGE:
+            {
+                auto client_message = reinterpret_cast<const xcb_client_message_event_t*>(event);
+                if (client_message->data.data32[0]==_wmDeleteWindow)
+                {
+                    std::cout<<"client message "<<client_message->data.data32[0]<<std::endl;
+                    std::cout<<"     _wmDeleteWindow = "<<_wmDeleteWindow<<std::endl;
+                }
+                break;
+            }
+            case XCB_KEY_PRESS:
+            {
+                auto key_press = reinterpret_cast<const xcb_key_press_event_t*>(event);
+
+                vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(key_press->time-_first_xcb_timestamp);
+                vsg::KeySymbol keySymbol = _keyboard->getKeySymbol(key_press->detail, 0);
+                vsg::KeySymbol keySymbolModified = _keyboard->getKeySymbol(key_press->detail, key_press->state);
+                events.emplace_back(new vsg::KeyPressEvent(0, event_time, keySymbol, keySymbolModified, KeyModifier(key_press->state), 0));
+
+                break;
+            }
+            case XCB_KEY_RELEASE:
+            {
+                auto key_release = reinterpret_cast<const xcb_key_release_event_t*>(event);
+
+                vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(key_release->time-_first_xcb_timestamp);
+                vsg::KeySymbol keySymbol = _keyboard->getKeySymbol(key_release->detail, 0);
+                vsg::KeySymbol keySymbolModified = _keyboard->getKeySymbol(key_release->detail, key_release->state);
+                events.emplace_back(new vsg::KeyReleaseEvent(0, event_time, keySymbol, keySymbolModified, KeyModifier(key_release->state), 0));
+
+                break;
+            }
+            default:
+            {
+                std::cout<<"event not handled, response_type = "<<(int)response_type<<std::endl;
+                break;
+            }
+        }
+        free(event);
+    }
+    unsigned numEventsAfter = events.size();
+    return numEventsBefore!=numEventsAfter;
 }
 
 bool Xcb_Window::resized() const

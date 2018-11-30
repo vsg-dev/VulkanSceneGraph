@@ -34,13 +34,13 @@ public:
 
     static Result create(uint32_t width, uint32_t height, bool debugLayer=false, bool apiDumpLayer=false, vsg::Window* shareWindow=nullptr, vsg::AllocationCallbacks* allocator=nullptr);
 
-    virtual bool valid() const { return _window && !glfwWindowShouldClose(_window); }
+    bool valid() const override { return _window && !glfwWindowShouldClose(_window); }
 
-    virtual bool pollEvents();
+    bool pollEvents(vsg::Events& events) override;
 
-    virtual bool resized() const;
+    bool resized() const override;
 
-    virtual void resize();
+    void resize() override;
 
     operator GLFWwindow* () { return _window; }
     operator const GLFWwindow* () const { return _window; }

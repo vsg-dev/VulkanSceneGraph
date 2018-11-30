@@ -14,12 +14,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <any>
 
+#include <vsg/ui/UIEvent.h>
+
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/DeviceMemory.h>
 #include <vsg/vk/Framebuffer.h>
 #include <vsg/vk/Semaphore.h>
 #include <vsg/vk/State.h>
+
 
 namespace vsg
 {
@@ -53,7 +56,7 @@ namespace vsg
 
         virtual bool valid() const { return false; }
 
-        virtual bool pollEvents() { return false; }
+        virtual bool pollEvents(Events& /*events*/) { return false; }
 
         virtual bool resized() const { return false; }
         virtual void resize() {}

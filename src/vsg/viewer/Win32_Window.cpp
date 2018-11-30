@@ -248,7 +248,7 @@ Win32_Window::~Win32_Window()
     }
 }
 
-bool Win32_Window::pollEvents()
+bool Win32_Window::pollEvents(vsg::Events& events)
 {
     MSG msg;
 
