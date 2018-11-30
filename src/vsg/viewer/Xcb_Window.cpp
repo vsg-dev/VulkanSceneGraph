@@ -332,9 +332,11 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
 
     xcb_flush(_connection);
 
-    uint32_t width = traits.width;
-    uint32_t height = traits.height;
-    buildSwapchain(width, height);
+    // sleep to give the window manage time to do any repositing and resizing
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    // build the swap chain, reuse the reize() for this
+    resize();
 }
 
 
@@ -374,6 +376,9 @@ bool Xcb_Window::pollEvents(Events& events)
 
                 vsg::clock::time_point event_time = vsg::clock::now();
                 events.emplace_back(new vsg::ExposeWindowEvent(this, event_time, expose->x, expose->y, expose->width, expose->height));
+
+                _windowResized = (expose->width != _extent2D.width || expose->height != _extent2D.height);
+
                 break;
             }
             case XCB_CLIENT_MESSAGE:
@@ -452,9 +457,25 @@ bool Xcb_Window::pollEvents(Events& events)
 
 bool Xcb_Window::resized() const
 {
+#if 0
+    return _windowResized;
+#else
+    xcb_get_geometry_reply_t* geometry_reply = xcb_get_geometry_reply(_connection, xcb_get_geometry(_connection, _window), nullptr);
+    if (geometry_reply)
+    {
+        return (geometry_reply->width != _extent2D.width || geometry_reply->height != _extent2D.height);
+    }
+
     return false;
+#endif
 }
 
 void Xcb_Window::resize()
 {
+    xcb_get_geometry_reply_t* geometry_reply = xcb_get_geometry_reply(_connection, xcb_get_geometry(_connection, _window), nullptr);
+    if (geometry_reply)
+    {
+        buildSwapchain(geometry_reply->width, geometry_reply->height);
+    }
+    _windowResized = false;
 }
