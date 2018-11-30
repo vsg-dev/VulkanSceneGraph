@@ -22,17 +22,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace xcb
 {
 
-    struct Settings
-    {
-        xcb_connection_t* _connection = nullptr;
-        xcb_screen_t* _screen = nullptr;
-        xcb_window_t _window{};
-        xcb_atom_t _wmProtocols{};
-        xcb_atom_t _wmDeleteWindow{};
-    };
-
-
-
     class KeyboardMap : public vsg::Object
     {
     public:
@@ -209,7 +198,7 @@ namespace xcb
         return false;
     }
 
-    class Xcb_Window : public vsg::Window, protected Settings
+    class Xcb_Window : public vsg::Window
     {
     public:
 
@@ -228,9 +217,15 @@ namespace xcb
         void resize() override;
 
     protected:
-        Xcb_Window(Settings& settings , vsg::Instance* instance, vsg::Surface* surface, vsg::PhysicalDevice* physicalDevice, vsg::Device* device, vsg::RenderPass* renderPass, bool debugLayersEnabled);
+        Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator);
 
         ~Xcb_Window();
+
+        xcb_connection_t* _connection = nullptr;
+        xcb_screen_t* _screen = nullptr;
+        xcb_window_t _window{};
+        xcb_atom_t _wmProtocols{};
+        xcb_atom_t _wmDeleteWindow{};
     };
 
 
