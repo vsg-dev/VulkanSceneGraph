@@ -35,13 +35,13 @@ namespace vsgWin32
 
         static Result create(const Traits& traits, bool debugLayer = false, bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
 
-        virtual bool valid() const { return _window && !_shouldClose; }
+        bool valid() const override { return _window && !_shouldClose; }
 
-        virtual bool pollEvents();
+        bool pollEvents(vsg::Events& events) override;
 
-        virtual bool resized() const;
+        bool resized() const override;
 
-        virtual void resize();
+        void resize() override;
 
         operator HWND () { return _window; }
         operator const HWND () const { return _window; }

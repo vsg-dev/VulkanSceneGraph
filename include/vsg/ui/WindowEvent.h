@@ -12,25 +12,45 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Inherit.h>
-
-#include <chrono>
-#include <list>
+#include <vsg/core/observer_ptr.h>
+#include <vsg/ui/UIEvent.h>
+#include <vsg/viewer/Window.h>
 
 namespace vsg
 {
 
-    using clock = std::chrono::steady_clock;
-    using time_point = clock::time_point;
-
-    class UIEvent : public Inherit<Object, UIEvent>
+    class WindowEvent : public Inherit<UIEvent, WindowEvent>
     {
     public:
-        UIEvent(time_point in_time):
-            time(in_time) {}
+        WindowEvent(Window* in_window, time_point in_time):
+            Inherit(in_time),
+            window(in_window) {}
 
-        time_point time;
+        observer_ptr<Window> window;
     };
 
-    using Events = std::list<ref_ptr<UIEvent>>;
+    class ExposeWindowEvent : public Inherit<WindowEvent, ExposeWindowEvent>
+    {
+    public:
+        ExposeWindowEvent(Window* in_window, time_point in_time, int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height):
+            Inherit(in_window, in_time),
+            x(in_x),
+            y(in_y),
+            width(in_width),
+            height(in_height) {}
+
+        int x = 0;
+        int y = 0;
+        int width  = 0;
+        int height = 0;
+    };
+
+    class DeleteWindowEvent : public Inherit<WindowEvent, DeleteWindowEvent>
+    {
+    public:
+        DeleteWindowEvent(Window* in_window, time_point in_time):
+            Inherit(in_window, in_time) {}
+    };
+
+
 }

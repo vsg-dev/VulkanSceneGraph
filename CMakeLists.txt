@@ -48,8 +48,22 @@ endif()
 set(VSG_WARNING_FLAGS ${VSG_WARNING_FLAGS} CACHE STRING "Compiler flags to use." FORCE)
 add_compile_options(${VSG_WARNING_FLAGS})
 
-find_package(glfw3)
 find_package(Vulkan)
+
+if (ANDROID)
+    # TODO
+elseif (WIN32)
+    # just use native windowing
+elseif (APPLE)
+    find_package(glfw3)
+else()
+    find_package(glfw3)
+
+    find_package(PkgConfig)
+    pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
+    option(USE_GLFW "Use GLFW for Windowing" OFF)
+endif()
+
 
 
 # create doxygen build target

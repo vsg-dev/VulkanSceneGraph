@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/observer_ptr.h>
-#include <vsg/ui/UIEvent.h>
+#include <vsg/ui/WindowEvent.h>
 #include <vsg/viewer/Window.h>
 
 namespace vsg
@@ -30,33 +30,44 @@ namespace vsg
 
     // VSG_type_name(vsg::PointerEvent);
 
-    class PointerEvent : public Inherit<UIEvent, PointerEvent>
+    class PointerEvent : public Inherit<WindowEvent, PointerEvent>
     {
     public:
         PointerEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask):
-            Inherit(in_time),
-            window(in_window),
+            Inherit(in_window, in_time),
             x(in_x),
             y(in_y),
-            buttonMask(in_buttonMask) {}
+            mask(in_buttonMask) {}
 
-        observer_ptr<Window> window;
         uint32_t x;
         uint32_t y;
-        ButtonMask buttonMask;
+        ButtonMask mask;
     };
 
     class ButtonPressEvent : public Inherit<PointerEvent, ButtonPressEvent>
     {
     public:
-        ButtonPressEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask):
-            Inherit(in_window, in_time, in_x, in_y, in_buttonMask) {}
+        ButtonPressEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask, uint32_t in_button):
+            Inherit(in_window, in_time, in_x, in_y, in_buttonMask),
+            button(in_button) {}
+
+        uint32_t button;
     };
 
     class ButtonReleaseEvent : public Inherit<PointerEvent, ButtonReleaseEvent>
     {
     public:
-        ButtonReleaseEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask):
+        ButtonReleaseEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask, uint32_t in_button):
+            Inherit(in_window, in_time, in_x, in_y, in_buttonMask),
+            button(in_button) {}
+
+        uint32_t button;
+    };
+
+    class MoveEvent : public Inherit<PointerEvent, MoveEvent>
+    {
+    public:
+        MoveEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask):
             Inherit(in_window, in_time, in_x, in_y, in_buttonMask) {}
     };
 

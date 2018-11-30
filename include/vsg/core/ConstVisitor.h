@@ -34,12 +34,16 @@ namespace vsg
 
     // forward declare ui events classes
     class UIEvent;
+    class WindowEvent;
+    class ExposeWindowEvent;
+    class DeleteWindowEvent;
     class KeyEvent;
     class KeyPressEvent;
     class KeyReleaseEvent;
     class PointerEvent;
     class ButtonPressEvent;
     class ButtonReleaseEvent;
+    class MoveEvent;
 
     class VSG_DECLSPEC ConstVisitor : public Object
     {
@@ -120,12 +124,16 @@ namespace vsg
 
         // ui events
         virtual void apply(const UIEvent&);
+        virtual void apply(const WindowEvent&);
+        virtual void apply(const ExposeWindowEvent&);
+        virtual void apply(const DeleteWindowEvent&);
         virtual void apply(const KeyEvent&);
         virtual void apply(const KeyPressEvent&);
         virtual void apply(const KeyReleaseEvent&);
         virtual void apply(const PointerEvent&);
         virtual void apply(const ButtonPressEvent&);
         virtual void apply(const ButtonReleaseEvent&);
+        virtual void apply(const MoveEvent&);
     };
 
     // provide Value<>::accept() implementation

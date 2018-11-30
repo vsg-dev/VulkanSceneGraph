@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/observer_ptr.h>
-#include <vsg/ui/UIEvent.h>
+#include <vsg/ui/WindowEvent.h>
 #include <vsg/viewer/Window.h>
 
 namespace vsg
@@ -264,18 +264,16 @@ namespace vsg
         MODKEY_Meta = 128
     };
 
-    class KeyEvent : public Inherit<UIEvent, KeyEvent>
+    class KeyEvent : public Inherit<WindowEvent, KeyEvent>
     {
     public:
         KeyEvent(Window* in_window, time_point in_time, KeySymbol in_keyBase, KeySymbol in_keyModified, KeyModifier in_modifier, uint32_t in_repeatCount=0):
-            Inherit(in_time),
-            window(in_window),
+            Inherit(in_window, in_time),
             keyBase(in_keyBase),
             keyModified(in_keyModified),
             keyModifier(in_modifier),
             repeatCount(in_repeatCount) {}
 
-        observer_ptr<Window> window;
         KeySymbol keyBase;
         KeySymbol keyModified;
         KeyModifier keyModifier;
