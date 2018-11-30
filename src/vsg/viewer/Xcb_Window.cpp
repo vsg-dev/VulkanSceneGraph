@@ -370,6 +370,20 @@ bool Xcb_Window::pollEvents(Events& events)
         uint8_t response_type = event->response_type & ~0x80;
         switch(response_type)
         {
+#if 0
+            case(XCB_CONFIGURE_NOTIFY):
+            {
+                auto configure = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
+
+                //vsg::clock::time_point event_time = vsg::clock::now();
+                //events.emplace_back(new vsg::ExposeWindowEvent(this, event_time, expose->x, expose->y, expose->width, expose->height));
+
+                std::cout<<"XCB_CONFIGURE_NOTIFY    x = "<<configure->x<<", y = "<<configure->y<<", "<<configure->width<<", "<<configure->height<<std::endl;
+
+                _windowResized = (configure->width != _extent2D.width || configure->height != _extent2D.height);
+                break;
+            }
+#endif
             case(XCB_EXPOSE):
             {
                 auto expose = reinterpret_cast<const xcb_expose_event_t*>(event);
