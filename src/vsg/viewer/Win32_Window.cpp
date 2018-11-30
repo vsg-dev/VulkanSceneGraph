@@ -34,7 +34,7 @@ namespace vsgWin32
     vsg::Names vsgWin32::getInstanceExtensions()
     {
         // check the extensions are avaliable first
-        Names requiredExtensions = {"VK_KHR_surface", "VK_KHR_win32_surface"};
+        Names requiredExtensions = {VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME};
 
         if (!vsg::isExtensionListSupported(requiredExtensions))
         {

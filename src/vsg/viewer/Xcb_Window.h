@@ -198,6 +198,12 @@ namespace xcb
         return false;
     }
 
+    class Xcb_Surface : public vsg::Surface
+    {
+    public:
+        Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, xcb_window_t window, vsg::AllocationCallbacks* allocator = nullptr);
+    };
+
     class Xcb_Window : public vsg::Window
     {
     public:
@@ -226,6 +232,8 @@ namespace xcb
         xcb_window_t _window{};
         xcb_atom_t _wmProtocols{};
         xcb_atom_t _wmDeleteWindow{};
+
+        bool _closeEventRecieved = false;
 
         xcb_timestamp_t _first_xcb_timestamp = 0;
         vsg::clock::time_point _first_xcb_time_point;

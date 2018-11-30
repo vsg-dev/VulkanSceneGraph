@@ -17,6 +17,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <xcb/xproto.h>
 
+#include <vulkan/vulkan_xcb.h>
+
 #include <thread>
 #include <chrono>
 #include <iostream>
@@ -52,16 +54,31 @@ void KeyboardMap::add(uint16_t keycode, std::initializer_list<std::pair<uint16_t
     }
 }
 
+Xcb_Surface::Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, xcb_window_t window, vsg::AllocationCallbacks* allocator) :
+    vsg::Surface(VK_NULL_HANDLE, instance, allocator)
+{
+    VkXcbSurfaceCreateInfoKHR surfaceCreateInfo{};
+    surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
+    surfaceCreateInfo.connection = connection;
+    surfaceCreateInfo.window = window;
+
+    /*VkResult result =*/ vkCreateXcbSurfaceKHR(*instance, &surfaceCreateInfo, nullptr, &_surface);
+}
+
 // reference
 // https://harrylovescode.gitbooks.io/vulkan-api/content/chap04/chap04-linux.html
 
 vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
 {
-    ref_ptr<Window> window(new Xcb_Window(traits, debugLayer, apiDumpLayer, allocator));
-
-    return Result("Failed to created Window, no Xcb implementation yet.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-
-//    return window;
+    try
+    {
+        ref_ptr<Window> window(new Xcb_Window(traits, debugLayer, apiDumpLayer, allocator));
+        return Result(window);
+    }
+    catch(vsg::Window::Result result)
+    {
+        return result;
+    }
 }
 
 
@@ -251,9 +268,73 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
 #endif
 
 
+    //xcb_flush(_connection);
+
+    if (traits.shareWindow)
+    {
+        throw Result("Error: vsg::Xcb_Window::create(...) Sharing of Windows not Not supported yet.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    }
+    else
+    {
+        Names instanceExtensions = {VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_XCB_SURFACE_EXTENSION_NAME};
+
+        vsg::Names requestedLayers;
+        if (debugLayer)
+        {
+            instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+            requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+            if (apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
+        }
+
+        vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
+
+        vsg::Names deviceExtensions;
+        deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
+        vsg::ref_ptr<vsg::Instance> instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
+        if (!instance) throw Result("Error: vsg::Xcb_Window::create(...) failed to create Window, unable to create Vulkan instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+
+        std::cout<<"Instance created"<<std::endl;
+
+        // use GLFW to create surface
+        vsg::ref_ptr<vsg::Surface> surface(new Xcb_Surface(instance, _connection, _window, allocator));
+        if (!surface) throw Result("Error: vsg::Xcb_Window::create(...) failed to create Window, unable to create GLFWSurface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+
+        std::cout<<"Surface created"<<std::endl;
+
+        // set up device
+        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(instance, VK_QUEUE_GRAPHICS_BIT, surface);
+        if (!physicalDevice) throw Result("Error: vsg::Xcb_Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+
+        std::cout<<"Physical Device created"<<std::endl;
+
+        vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, validatedNames, deviceExtensions, allocator);
+        if (!device) throw Result("Error: vsg::Xcb_Window::create(...) failed to create Window, unable to create Vulkan logical Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+
+        std::cout<<"Device created"<<std::endl;
+
+        // set up renderpass with the imageFormat that the swap chain will use
+        vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*physicalDevice, *surface);
+        VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
+        VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
+        vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, imageFormat.format, depthFormat, allocator);
+        if (!renderPass) throw Result("Error: vsg::Xcb_Window::create(...) failed to create Window, unable to create Vulkan RenderPass.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+
+        _instance = instance;
+        _surface = surface;
+        _physicalDevice = physicalDevice;
+        _device = device;
+        _renderPass = renderPass;
+        _debugLayersEnabled = debugLayer;
+
+        std::cout<<"Renderpass created"<<std::endl;
+    }
+
     xcb_flush(_connection);
 
-    std::this_thread::sleep_for( std::chrono::seconds(10) );
+    uint32_t width = traits.width;
+    uint32_t height = traits.height;
+    buildSwapchain(width, height);
 }
 
 
@@ -273,7 +354,7 @@ Xcb_Window::~Xcb_Window()
 
 bool Xcb_Window::valid() const
 {
-    return _window!=9;
+    return _window!=9 && !_closeEventRecieved;
 }
 
 bool Xcb_Window::pollEvents(Events& events)
@@ -303,6 +384,8 @@ bool Xcb_Window::pollEvents(Events& events)
                 {
                     vsg::clock::time_point event_time = vsg::clock::now();
                     events.emplace_back(new vsg::DeleteWindowEvent(this, event_time));
+
+                    _closeEventRecieved = true;
                 }
                 break;
             }
