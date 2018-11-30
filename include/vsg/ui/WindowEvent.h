@@ -22,7 +22,7 @@ namespace vsg
     class WindowEvent : public Inherit<UIEvent, WindowEvent>
     {
     public:
-        WindowEvent(Window* in_window, time_point in_time):
+        WindowEvent(Window* in_window, time_point in_time) :
             Inherit(in_time),
             window(in_window) {}
 
@@ -32,7 +32,7 @@ namespace vsg
     class ExposeWindowEvent : public Inherit<WindowEvent, ExposeWindowEvent>
     {
     public:
-        ExposeWindowEvent(Window* in_window, time_point in_time, int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height):
+        ExposeWindowEvent(Window* in_window, time_point in_time, int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height) :
             Inherit(in_window, in_time),
             x(in_x),
             y(in_y),
@@ -41,16 +41,15 @@ namespace vsg
 
         int x = 0;
         int y = 0;
-        int width  = 0;
+        int width = 0;
         int height = 0;
     };
 
     class DeleteWindowEvent : public Inherit<WindowEvent, DeleteWindowEvent>
     {
     public:
-        DeleteWindowEvent(Window* in_window, time_point in_time):
+        DeleteWindowEvent(Window* in_window, time_point in_time) :
             Inherit(in_window, in_time) {}
     };
 
-
-}
+} // namespace vsg

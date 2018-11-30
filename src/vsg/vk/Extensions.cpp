@@ -54,7 +54,7 @@ bool vsg::isExtensionListSupported(const Names& extensionList)
     ExtensionProperties extProps = getExtensionProperties();
     for (auto ext : extensionList)
     {
-        auto compare = [&](const VkExtensionProperties& rhs) { return strcmp(ext, rhs.extensionName)==0; };
+        auto compare = [&](const VkExtensionProperties& rhs) { return strcmp(ext, rhs.extensionName) == 0; };
         if (std::find_if(extProps.begin(), extProps.end(), compare) == extProps.end()) return false;
     }
     return true;

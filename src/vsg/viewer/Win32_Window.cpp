@@ -27,7 +27,7 @@ namespace vsg
     {
         ref_ptr<vsg::Window> window = vsgWin32::Win32_Window::create(traits, debugLayer, apiDumpLayer, allocator);
     }
-}
+} // namespace vsg
 
 namespace vsgWin32
 {
@@ -68,7 +68,7 @@ namespace vsgWin32
         return ::DefWindowProc(hwnd, msg, wParam, lParam);
     }
 
-} // namespace vsg
+} // namespace vsgWin32
 
 Win32_Window::Win32_Window(HWND window, vsg::Instance* instance, vsg::Surface* surface, vsg::PhysicalDevice* physicalDevice, vsg::Device* device, vsg::RenderPass* renderPass, bool debugLayersEnabled) :
     _window(window),

@@ -33,7 +33,7 @@ namespace vsg
     class PointerEvent : public Inherit<WindowEvent, PointerEvent>
     {
     public:
-        PointerEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask):
+        PointerEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask) :
             Inherit(in_window, in_time),
             x(in_x),
             y(in_y),
@@ -47,7 +47,7 @@ namespace vsg
     class ButtonPressEvent : public Inherit<PointerEvent, ButtonPressEvent>
     {
     public:
-        ButtonPressEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask, uint32_t in_button):
+        ButtonPressEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask, uint32_t in_button) :
             Inherit(in_window, in_time, in_x, in_y, in_buttonMask),
             button(in_button) {}
 
@@ -57,7 +57,7 @@ namespace vsg
     class ButtonReleaseEvent : public Inherit<PointerEvent, ButtonReleaseEvent>
     {
     public:
-        ButtonReleaseEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask, uint32_t in_button):
+        ButtonReleaseEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask, uint32_t in_button) :
             Inherit(in_window, in_time, in_x, in_y, in_buttonMask),
             button(in_button) {}
 
@@ -67,8 +67,8 @@ namespace vsg
     class MoveEvent : public Inherit<PointerEvent, MoveEvent>
     {
     public:
-        MoveEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask):
+        MoveEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask) :
             Inherit(in_window, in_time, in_x, in_y, in_buttonMask) {}
     };
 
-}
+} // namespace vsg

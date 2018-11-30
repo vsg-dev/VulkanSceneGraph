@@ -345,4 +345,3 @@ void Visitor::apply(MoveEvent& event)
 {
     apply(static_cast<PointerEvent&>(event));
 }
-

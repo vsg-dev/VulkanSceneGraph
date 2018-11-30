@@ -26,7 +26,7 @@ namespace vsg
         ref_ptr<vsg::Window> window = glfw::GLFW_Window::create(traits.width, traits.height, debugLayer, apiDumpLayer, traits.shareWindow, allocator);
         return Result(window);
     }
-}
+} // namespace vsg
 
 vsg::Names glfw::getInstanceExtensions()
 {

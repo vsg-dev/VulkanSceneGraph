@@ -26,11 +26,11 @@ namespace vsg
     class UIEvent : public Inherit<Object, UIEvent>
     {
     public:
-        UIEvent(time_point in_time):
+        UIEvent(time_point in_time) :
             time(in_time) {}
 
         time_point time;
     };
 
     using Events = std::list<ref_ptr<UIEvent>>;
-}
+} // namespace vsg
