@@ -49,6 +49,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/CullTraversal.h>
 #include <vsg/traversals/DispatchTraversal.h>
 
+// User Interface abstraction header files
+#include <vsg/ui/KeyEvent.h>
+#include <vsg/ui/PointerEvent.h>
+#include <vsg/ui/UIEvent.h>
+#include <vsg/ui/WindowEvent.h>
+
 // Viewer header files
 #include <vsg/viewer/GraphicsStage.h>
 #include <vsg/viewer/Viewer.h>
