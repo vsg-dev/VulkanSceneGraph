@@ -341,3 +341,7 @@ void ConstVisitor::apply(const ButtonReleaseEvent& event)
 {
     apply(static_cast<const PointerEvent&>(event));
 }
+void ConstVisitor::apply(const MoveEvent& event)
+{
+    apply(static_cast<const PointerEvent&>(event));
+}

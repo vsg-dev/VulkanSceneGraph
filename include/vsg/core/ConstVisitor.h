@@ -43,6 +43,7 @@ namespace vsg
     class PointerEvent;
     class ButtonPressEvent;
     class ButtonReleaseEvent;
+    class MoveEvent;
 
     class VSG_DECLSPEC ConstVisitor : public Object
     {
@@ -132,6 +133,7 @@ namespace vsg
         virtual void apply(const PointerEvent&);
         virtual void apply(const ButtonPressEvent&);
         virtual void apply(const ButtonReleaseEvent&);
+        virtual void apply(const MoveEvent&);
     };
 
     // provide Value<>::accept() implementation

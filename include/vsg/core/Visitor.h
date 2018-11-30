@@ -43,6 +43,7 @@ namespace vsg
     class PointerEvent;
     class ButtonPressEvent;
     class ButtonReleaseEvent;
+    class MoveEvent;
 
     class VSG_DECLSPEC Visitor : public Object
     {
@@ -132,6 +133,7 @@ namespace vsg
         virtual void apply(PointerEvent&);
         virtual void apply(ButtonPressEvent&);
         virtual void apply(ButtonReleaseEvent&);
+        virtual void apply(MoveEvent&);
     };
 
     // provide Value<>::accept() implementation

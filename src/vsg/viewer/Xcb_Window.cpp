@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include "Xcb_Window.h"
 
 #include <vsg/vk/Extensions.h>
+#include <vsg/ui/PointerEvent.h>
 
 #include <xcb/xproto.h>
 
@@ -380,6 +381,21 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
                 {
                     std::cout<<"KeyPressEvent : "<<keyPress.className()<<", "<<std::chrono::duration<double>(keyPress.time - start_point).count()<<", "<<keyPress.keyBase<<", "<<keyPress.keyModified<<std::endl;
                 }
+
+                void apply(vsg::ButtonPressEvent& buttonPress)
+                {
+                    std::cout<<"ButtonPress : "<<buttonPress.className()<<", "<<std::chrono::duration<double>(buttonPress.time - start_point).count()<<", "<<buttonPress.x<<", "<<buttonPress.y<<", "<<buttonPress.mask<<", "<<buttonPress.button<<std::endl;
+                }
+
+                void apply(vsg::ButtonReleaseEvent& buttonRelease)
+                {
+                    std::cout<<"ButtonRelease : "<<buttonRelease.className()<<", "<<std::chrono::duration<double>(buttonRelease.time - start_point).count()<<", "<<buttonRelease.x<<", "<<buttonRelease.y<<", "<<buttonRelease.mask<<", "<<buttonRelease.button<<std::endl;
+                }
+
+                void apply(vsg::MoveEvent& move)
+                {
+                    std::cout<<"MoveEvent : "<<move.className()<<", "<<std::chrono::duration<double>(move.time - start_point).count()<<", "<<move.x<<", "<<move.y<<", "<<move.mask<<std::endl;
+                }
             };
 
             PrintEvents print(start_point, close);
@@ -500,6 +516,33 @@ bool Xcb_Window::pollEvents(Events& events)
                 vsg::KeySymbol keySymbol = _keyboard->getKeySymbol(key_release->detail, 0);
                 vsg::KeySymbol keySymbolModified = _keyboard->getKeySymbol(key_release->detail, key_release->state);
                 events.emplace_back(new vsg::KeyReleaseEvent(this, event_time, keySymbol, keySymbolModified, KeyModifier(key_release->state), 0));
+
+                break;
+            }
+            case(XCB_BUTTON_PRESS):
+            {
+                auto button_press = reinterpret_cast<const xcb_button_press_event_t*>(event);
+
+                vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_press->time-_first_xcb_timestamp);
+                events.emplace_back(new vsg::ButtonPressEvent(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(button_press->state), button_press->detail));
+
+                break;
+            }
+            case(XCB_BUTTON_RELEASE):
+            {
+                auto button_release = reinterpret_cast<const xcb_button_release_event_t*>(event);
+
+                vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_release->time-_first_xcb_timestamp);
+                events.emplace_back(new vsg::ButtonPressEvent(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(button_release->state), button_release->detail));
+
+                break;
+            }
+            case(XCB_MOTION_NOTIFY):
+            {
+                auto motion_notify = reinterpret_cast<const xcb_motion_notify_event_t*>(event);
+
+                vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(motion_notify->time-_first_xcb_timestamp);
+                events.emplace_back(new vsg::MoveEvent(this, event_time, motion_notify->event_x, motion_notify->event_y, vsg::ButtonMask(motion_notify->state)));
 
                 break;
             }
