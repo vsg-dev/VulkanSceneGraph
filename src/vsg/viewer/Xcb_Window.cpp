@@ -262,6 +262,8 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
 
     //xcb_flush(_connection);
 
+#if 1
+
     if (traits.shareWindow)
     {
         throw Result("Error: vsg::Xcb_Window::create(...) Sharing of Windows not Not supported yet.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
@@ -321,6 +323,7 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
 
         std::cout << "Renderpass created" << std::endl;
     }
+#endif
 
     xcb_flush(_connection);
 
@@ -333,6 +336,9 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
 
 Xcb_Window::~Xcb_Window()
 {
+    // detach Vulkan obects
+    clear();
+
     if (_connection != nullptr)
     {
         if (_window != 0) xcb_destroy_window(_connection, _window);
@@ -477,6 +483,8 @@ bool Xcb_Window::resized() const
 
 void Xcb_Window::resize()
 {
+    if (!_surface) return;
+
     xcb_get_geometry_reply_t* geometry_reply = xcb_get_geometry_reply(_connection, xcb_get_geometry(_connection, _window), nullptr);
     if (geometry_reply)
     {
