@@ -138,7 +138,7 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
 
 
 
-
+    // select the appropriate screen for the window
     xcb_screen_iterator_t screen_iterator = xcb_setup_roots_iterator(setup);
     for (;screenNum>0; --screenNum) xcb_screen_next(&screen_iterator);
     _screen = screen_iterator.data;
@@ -221,21 +221,8 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
     MotifHints hints = fullscreen ? MotifHints::borderless() : MotifHints::window();
     xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, motifHintAtom, motifHintAtom, 32, 5, &hints);
 
-#if 0
-    // allowed actions
-    AtomRequest wmAllowedActions(_connection, "_NET_WM_ALLOWED_ACTIONS");
-    AtomRequest wmActionFullScreen(_connection, "_NET_WM_ACTION_FULLSCREEN");
-    std::vector<xcb_atom_t> actionAtoms
-    {
-        wmActionFullScreen
-    };
-
-    xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, wmAllowedActions, XCB_ATOM_ATOM, 32, actionAtoms.size(), actionAtoms.data());
-
-#endif
 
     std::cout<<"Create window : "<<traits.windowTitle<<std::endl;
-
 
     // work out the X server timestamp by checking for the property notify events that result for the above xcb_change_property calls.
     _first_xcb_timestamp = 0;
@@ -254,10 +241,7 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
             free(event);
         }
     }
-    vsg::clock::time_point start_point = _first_xcb_time_point;
-
     xcb_map_window(_connection, _window);
-
 
 #if 0
     // reconfigure the window position and size.
@@ -266,185 +250,10 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
     xcb_flush(_connection);
 #endif
 
+
     xcb_flush(_connection);
 
-
-
-
-
-
-    // trial and error has found that querying window geometry immediately does not reflect windowing manager resizing so have to add in a short sleep for it to complete
-    std::this_thread::sleep_for( std::chrono::milliseconds(10) );
-
-
-
-
-
-
-
-
-    std::map<std::string, xcb_drawable_t>  windows;
-    windows["main"] = _window;
-
-    xcb_query_tree_cookie_t tree_cookie = xcb_query_tree(_connection, _window);
-    xcb_query_tree_reply_t* tree_reply = xcb_query_tree_reply(_connection, tree_cookie, nullptr);
-
-    xcb_drawable_t root{};
-
-    if (tree_reply!=nullptr)
-    {
-        root = tree_reply->root;
-
-        windows["parent"] = tree_reply->parent;
-
-        std::cout<<"number children = "<<tree_reply->children_len<<std::endl;
-
-        free(tree_reply);
-    }
-
-#if 1
-    for(int i=0; i<1; ++i)
-    {
-        for(auto[name, window] : windows)
-        {
-            int32_t x, y;
-            uint32_t width, height;
-
-            xcb_get_geometry_reply_t* geometry_reply = xcb_get_geometry_reply(_connection, xcb_get_geometry(_connection, window), nullptr);
-            if (geometry_reply!=nullptr)
-            {
-                x = geometry_reply->x;
-                y = geometry_reply->y;
-                width  = geometry_reply->width;
-                height = geometry_reply->height;
-
-                std::cout<<"  geometry_rely : "<<name<<", "<<window<<" ["<<x<<", "<<y<<", "<<width<<", "<<height<<"]"<<std::endl;
-
-                xcb_translate_coordinates_cookie_t trans_cookie = xcb_translate_coordinates(_connection, window, root, -x, -y);
-                xcb_translate_coordinates_reply_t* trans_reply = xcb_translate_coordinates_reply(_connection, trans_cookie, nullptr);
-                if (trans_reply)
-                {
-                    std::cout<<"      trans->dst_x = "<<trans_reply->dst_x<<", trans->dst_y = "<<trans_reply->dst_y<<std::endl;
-                    free(trans_reply);
-                }
-
-                free(geometry_reply);
-            }
-            else
-            {
-                std::cout<<"  no geometry_rely : "<<name<<", "<<window<<std::endl;
-            }
-        }
-        std::this_thread::sleep_for( std::chrono::milliseconds(10) );
-    }
-#endif
-
-
-    bool close = false;
-
-    while(!close)
-    {
-        using Events = std::list<ref_ptr<vsg::UIEvent>>;
-        Events events;
-
-       if (pollEvents(events))
-       {
-            struct PrintEvents : public vsg::Visitor
-            {
-                vsg::clock::time_point start_point;
-                bool& close;
-
-                PrintEvents(vsg::clock::time_point in_start_point, bool& in_close) : start_point(in_start_point), close(in_close) {}
-
-                void apply(vsg::UIEvent& event)
-                {
-                    std::cout<<"event : "<<event.className()<<", "<<std::chrono::duration<double>(event.time - start_point).count()<<std::endl;
-                }
-
-                void apply(vsg::ExposeWindowEvent& event)
-                {
-                    std::cout<<"Expose window : "<<event.className()<<", "<<std::chrono::duration<double>(event.time - start_point).count()<<" "<<event.x<<", "<<event.y<<", "<<event.width<<", "<<event.height<<std::endl;
-                }
-
-                void apply(vsg::DeleteWindowEvent& event)
-                {
-                    std::cout<<"Delete window : "<<event.className()<<", "<<std::chrono::duration<double>(event.time - start_point).count()<<std::endl;
-                    close = true;
-                }
-
-                void apply(vsg::KeyReleaseEvent& keyRelease)
-                {
-                    std::cout<<"KeyReleaeEvent : "<<keyRelease.className()<<", "<<std::chrono::duration<double>(keyRelease.time - start_point).count()<<", "<<keyRelease.keyBase<<std::endl;
-                }
-
-                void apply(vsg::KeyPressEvent& keyPress)
-                {
-                    std::cout<<"KeyPressEvent : "<<keyPress.className()<<", "<<std::chrono::duration<double>(keyPress.time - start_point).count()<<", "<<keyPress.keyBase<<", "<<keyPress.keyModified<<std::endl;
-                }
-
-                void apply(vsg::ButtonPressEvent& buttonPress)
-                {
-                    std::cout<<"ButtonPress : "<<buttonPress.className()<<", "<<std::chrono::duration<double>(buttonPress.time - start_point).count()<<", "<<buttonPress.x<<", "<<buttonPress.y<<", "<<buttonPress.mask<<", "<<buttonPress.button<<std::endl;
-                }
-
-                void apply(vsg::ButtonReleaseEvent& buttonRelease)
-                {
-                    std::cout<<"ButtonRelease : "<<buttonRelease.className()<<", "<<std::chrono::duration<double>(buttonRelease.time - start_point).count()<<", "<<buttonRelease.x<<", "<<buttonRelease.y<<", "<<buttonRelease.mask<<", "<<buttonRelease.button<<std::endl;
-                }
-
-                void apply(vsg::MoveEvent& move)
-                {
-                    std::cout<<"MoveEvent : "<<move.className()<<", "<<std::chrono::duration<double>(move.time - start_point).count()<<", "<<move.x<<", "<<move.y<<", "<<move.mask<<std::endl;
-                }
-            };
-
-            PrintEvents print(start_point, close);
-
-            for(auto& vsg_event : events)
-            {
-                vsg_event->accept(print);
-            }
-        }
-    }
-
-
-#if 0
-    for(int i=0; i<1000; ++i)
-    {
-        int32_t x, y;
-        uint32_t width, height;
-        if (xcb::getWindowGeometry(_connection, _window, x, y, width, height))
-        {
-            std::cout<<"Window geometry : "<<x<<", "<<y<<", "<<width<<", "<<height<<std::endl;
-        }
-
-        std::this_thread::sleep_for( std::chrono::milliseconds(10) );
-    }
-#endif
-
-#if 0
-    std::this_thread::sleep_for( std::chrono::seconds(4) );
-
-#if 1
-    std::cout<<"Ummap window"<<std::endl;
-
-    xcb_unmap_window(_connection, _window);
-    xcb_flush(_connection);
-
-    std::this_thread::sleep_for( std::chrono::seconds(2) );
-#endif
-
-#if 1
-    std::cout<<"map window"<<std::endl;
-
-    xcb_map_window(_connection, _window);
-    xcb_flush(_connection);
-
-    std::this_thread::sleep_for( std::chrono::seconds(4) );
-#endif
-
-
-#endif
+    std::this_thread::sleep_for( std::chrono::seconds(10) );
 }
 
 
