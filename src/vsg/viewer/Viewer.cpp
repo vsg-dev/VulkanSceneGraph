@@ -139,7 +139,6 @@ bool Viewer::pollEvents()
             }
         };
 
-
         bool close = false;
         PrintEvents print(_start_point, close);
         for (auto& vsg_event : events)
