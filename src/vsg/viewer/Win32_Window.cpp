@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include "Win32_Window.h"
 
-#include <vsg/core/observer_ptr.h>
 #include <vsg/vk/Extensions.h>
 
 #include <iostream>
@@ -22,10 +21,10 @@ using namespace vsgWin32;
 
 namespace vsg
 {
-    // Provide the Window::create(...) implementation that automatically maps to a GLFW_Window
+    // Provide the Window::create(...) implementation that automatically maps to a Win32_Window
     Window::Result Window::create(const Window::Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
     {
-        ref_ptr<vsg::Window> window = vsgWin32::Win32_Window::create(traits, debugLayer, apiDumpLayer, allocator);
+        return vsgWin32::Win32_Window::create(traits, debugLayer, apiDumpLayer, allocator);
     }
 } // namespace vsg
 
@@ -70,25 +69,272 @@ namespace vsgWin32
 
 } // namespace vsgWin32
 
-Win32_Window::Win32_Window(HWND window, vsg::Instance* instance, vsg::Surface* surface, vsg::PhysicalDevice* physicalDevice, vsg::Device* device, vsg::RenderPass* renderPass, bool debugLayersEnabled) :
-    _window(window),
-    _shouldClose(false)
+KeyboardMap::KeyboardMap()
 {
-    _instance = instance;
-    _surface = surface;
-    _physicalDevice = physicalDevice;
-    _device = device;
-    _renderPass = renderPass;
-    _debugLayersEnabled = debugLayersEnabled;
+    _keycodeMap = 
+    {
+        { 0x0, KEY_Undefined },
 
-    SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)this);
+        { VK_SPACE, KEY_Space },
+
+        { '0', KEY_0 },
+        { '1', KEY_1 },
+        { '2', KEY_2 },
+        { '3', KEY_3 },
+        { '4', KEY_4 },
+        { '5', KEY_5 },
+        { '6', KEY_6 },
+        { '7', KEY_7 },
+        { '8', KEY_8 },
+        { '9', KEY_9 },
+
+        { 'a', KEY_a },
+        { 'b', KEY_b },
+        { 'c', KEY_c },
+        { 'd', KEY_d },
+        { 'e', KEY_e },
+        { 'f', KEY_f },
+        { 'g', KEY_g },
+        { 'h', KEY_h },
+        { 'i', KEY_i },
+        { 'j', KEY_j },
+        { 'k', KEY_k },
+        { 'l', KEY_l },
+        { 'm', KEY_m },
+        { 'n', KEY_n },
+        { 'o', KEY_o },
+        { 'p', KEY_p },
+        { 'q', KEY_q },
+        { 'r', KEY_r },
+        { 's', KEY_s },
+        { 't', KEY_t },
+        { 'u', KEY_u },
+        { 'z', KEY_v },
+        { 'w', KEY_w },
+        { 'x', KEY_x },
+        { 'y', KEY_y },
+        { 'z', KEY_z },
+
+        { 'A', KEY_A },
+        { 'B', KEY_B },
+        { 'C', KEY_C },
+        { 'D', KEY_D },
+        { 'E', KEY_E },
+        { 'F', KEY_F },
+        { 'G', KEY_G },
+        { 'H', KEY_H },
+        { 'I', KEY_I },
+        { 'J', KEY_J },
+        { 'K', KEY_K },
+        { 'L', KEY_L },
+        { 'M', KEY_M },
+        { 'N', KEY_N },
+        { 'O', KEY_O },
+        { 'P', KEY_P },
+        { 'Q', KEY_Q },
+        { 'R', KEY_R },
+        { 'S', KEY_S },
+        { 'T', KEY_T },
+        { 'U', KEY_U },
+        { 'V', KEY_V },
+        { 'W', KEY_W },
+        { 'X', KEY_X },
+        { 'Y', KEY_Y },
+        { 'Z', KEY_Z },
+        
+        //KEY_Exclaim = 0x21,
+        //KEY_Quotedbl = 0x22,
+        //KEY_Hash = 0x23,
+        //KEY_Dollar = 0x24,
+        //KEY_Ampersand = 0x26,
+        { 0xde, KEY_Quote },
+        //    KEY_Leftparen = 0x28,
+        //    KEY_Rightparen = 0x29,
+        //    KEY_Asterisk = 0x2A,
+        //    KEY_Plus = 0x2B,
+        { 0xbc, KEY_Comma },
+        { 0xbd, KEY_Minus },
+        { 0xbe, KEY_Period },
+        { 0xbf, KEY_Slash },
+        //    KEY_Colon = 0x3A,
+        { 0xba, KEY_Semicolon },
+        //    KEY_Less = 0x3C,
+        { 0xbb, KEY_Equals },
+        //    KEY_Greater = 0x3E,
+        //    KEY_Question = 0x3F,
+        //    KEY_At = 0x40,
+        { 0xdb, KEY_Leftbracket },
+        { 0xdc, KEY_Backslash },
+        { 0xdd, KEY_Rightbracket },
+        //    KEY_Caret = 0x5E,
+        //    KEY_Underscore = 0x5F,
+        { 0xc0, KEY_Backquote },
+
+        { VK_BACK, KEY_BackSpace }, /* back space, back char */
+        { VK_TAB, KEY_Tab },
+        //    KEY_Linefeed = 0xFF0A, /* Linefeed, LF */
+        { VK_CLEAR, KEY_Clear },
+        { VK_RETURN, KEY_Return }, /* Return, enter */
+        { VK_PAUSE, KEY_Pause },  /* Pause, hold */
+        { VK_SCROLL, KEY_Scroll_Lock },
+        //    KEY_Sys_Req = 0xFF15,
+        { VK_ESCAPE, KEY_Escape },
+        { VK_DELETE ,KEY_Delete }, /* Delete, rubout */
+
+        /* Cursor control & motion */
+
+        { VK_HOME, KEY_Home },
+        { VK_LEFT, KEY_Left },  /* Move left, left arrow */
+        { VK_UP, KEY_Up },    /* Move up, up arrow */
+        { VK_RIGHT, KEY_Right }, /* Move right, right arrow */
+        { VK_DOWN, KEY_Down },  /* Move down, down arrow */
+        { VK_PRIOR, KEY_Prior }, /* Prior, previous */
+        //{ VK_, KEY_Page_Up = 0xFF55,
+        { VK_NEXT, KEY_Next }, /* Next */
+        //KEY_Page_Down = 0xFF56,
+        { VK_END, KEY_End },   /* EOL */
+        //{ KEY_Begin = 0xFF58, /* BOL */
+
+        /* Misc Functions */
+
+        { VK_SELECT, KEY_Select }, /* Select, mark */
+        { VK_PRINT, KEY_Print },
+        { VK_EXECUTE, KEY_Execute }, /* Execute, run, do */
+        { VK_INSERT, KEY_Insert },  /* Insert, insert here */
+        //{ KEY_Undo = 0xFF65,    /* Undo, oops */
+        //KEY_Redo = 0xFF66,    /* redo, again */
+        { VK_APPS, KEY_Menu },    /* On Windows, this is VK_APPS, the context-menu key */
+        // KEY_Find = 0xFF68,    /* Find, search */
+        { VK_CANCEL, KEY_Cancel },  /* Cancel, stop, abort, exit */
+        { VK_HELP, KEY_Help },    /* Help */
+        //{ KEY_Break = 0xFF6B,
+        //KEY_Mode_switch = 0xFF7E,   /* Character set switch */
+        //KEY_Script_switch = 0xFF7E, /* Alias for mode_switch */
+        { VK_NUMLOCK, KEY_Num_Lock },
+
+        /* Keypad Functions, keypad numbers cleverly chosen to map to ascii */
+
+        //KEY_KP_Space = 0xFF80, /* space */
+        //KEY_KP_Tab = 0xFF89,
+        //KEY_KP_Enter = 0xFF8D, /* enter */
+        //KEY_KP_F1 = 0xFF91,    /* PF1, KP_A, ... */
+        //KEY_KP_F2 = 0xFF92,
+        //KEY_KP_F3 = 0xFF93,
+        //KEY_KP_F4 = 0xFF94,
+        //KEY_KP_Home = 0xFF95,
+        //KEY_KP_Left = 0xFF96,
+        //KEY_KP_Up = 0xFF97,
+        //KEY_KP_Right = 0xFF98,
+        //KEY_KP_Down = 0xFF99,
+        //KEY_KP_Prior = 0xFF9A,
+        //KEY_KP_Page_Up = 0xFF9A,
+        //KEY_KP_Next = 0xFF9B,
+        //KEY_KP_Page_Down = 0xFF9B,
+        //KEY_KP_End = 0xFF9C,
+        //KEY_KP_Begin = 0xFF9D,
+        //KEY_KP_Insert = 0xFF9E,
+        //KEY_KP_Delete = 0xFF9F,
+        //KEY_KP_Equal = 0xFFBD, /* equals */
+        //KEY_KP_Multiply = 0xFFAA,
+        //KEY_KP_Add = 0xFFAB,
+        //KEY_KP_Separator = 0xFFAC, /* separator, often comma */
+        //KEY_KP_Subtract = 0xFFAD,
+        //KEY_KP_Decimal = 0xFFAE,
+        //KEY_KP_Divide = 0xFFAF,
+
+        { VK_NUMPAD0, KEY_KP_0 },
+        { VK_NUMPAD1, KEY_KP_1 },
+        { VK_NUMPAD2, KEY_KP_2 },
+        { VK_NUMPAD3, KEY_KP_3 },
+        { VK_NUMPAD4, KEY_KP_4 },
+        { VK_NUMPAD5, KEY_KP_5 },
+        { VK_NUMPAD6, KEY_KP_6 },
+        { VK_NUMPAD7, KEY_KP_7 },
+        { VK_NUMPAD8, KEY_KP_8 },
+        { VK_NUMPAD9, KEY_KP_9 },
+
+        /*
+        * Auxiliary Functions; note the duplicate definitions for left and right
+        * function keys;  Sun keyboards and a few other manufactures have such
+        * function key groups on the left and/or right sides of the keyboard.
+        * We've not found a keyboard with more than 35 function keys total.
+        */
+
+        { VK_F1, KEY_F1 },
+        { VK_F2, KEY_F2 },
+        { VK_F3, KEY_F3 },
+        { VK_F4, KEY_F4 },
+        { VK_F5, KEY_F5 },
+        { VK_F6, KEY_F6 },
+        { VK_F7, KEY_F7 },
+        { VK_F8, KEY_F8 },
+        { VK_F9, KEY_F9 },
+        { VK_F10, KEY_F10 },
+        { VK_F11, KEY_F11 },
+        { VK_F12, KEY_F12 },
+        { VK_F13, KEY_F13 },
+        { VK_F14, KEY_F14 },
+        { VK_F15, KEY_F15 },
+        { VK_F16, KEY_F16 },
+        { VK_F17, KEY_F17 },
+        { VK_F18, KEY_F18 },
+        { VK_F19, KEY_F19 },
+        { VK_F20, KEY_F20 },
+        { VK_F21, KEY_F21 },
+        { VK_F22, KEY_F22 },
+        { VK_F23, KEY_F23 },
+        { VK_F24, KEY_F24 },
+
+        //KEY_F25 = 0xFFD6,
+        //KEY_F26 = 0xFFD7,
+        //KEY_F27 = 0xFFD8,
+        //KEY_F28 = 0xFFD9,
+        //KEY_F29 = 0xFFDA,
+        //KEY_F30 = 0xFFDB,
+        //KEY_F31 = 0xFFDC,
+        //KEY_F32 = 0xFFDD,
+        //KEY_F33 = 0xFFDE,
+        //KEY_F34 = 0xFFDF,
+        //KEY_F35 = 0xFFE0,
+
+        /* Modifiers */
+
+        { VK_LSHIFT, KEY_Shift_L },    /* Left shift */
+        { VK_RSHIFT, KEY_Shift_R },    /* Right shift */
+        { VK_LCONTROL, KEY_Control_L },  /* Left control */
+        { VK_RCONTROL, KEY_Control_R },  /* Right control */
+        { VK_CAPITAL, KEY_Caps_Lock },  /* Caps lock */
+        //KEY_Shift_Lock = 0xFFE6, /* Shift lock */
+
+        //KEY_Meta_L = 0xFFE7,  /* Left meta */
+        //KEY_Meta_R = 0xFFE8,  /* Right meta */
+        { VK_LMENU, KEY_Alt_L },   /* Left alt */
+        { VK_RMENU, KEY_Alt_R },   /* Right alt */
+        { VK_LWIN, KEY_Super_L }, /* Left super */
+        { VK_RWIN, KEY_Super_R } /* Right super */
+        //KEY_Hyper_L = 0xFFED, /* Left hyper */
+        //KEY_Hyper_R = 0xFFEE  /* Right hyper */
+    };
 }
 
 Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
 {
-    std::cout << "Calling CreateWindowEx(..)" << std::endl;
+    try
+    {
+        ref_ptr<Window> window(new Win32_Window(traits, debugLayer, apiDumpLayer, allocator));
+        return Result(window);
+    }
+    catch (vsg::Window::Result result)
+    {
+        return result;
+    }
+}
 
-    HWND hwnd;
+Win32_Window::Win32_Window(const Window::Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator) :
+    _window(nullptr),
+    _shouldClose(false)
+{
+    _keyboard = new KeyboardMap;
 
     // register window class
     WNDCLASSEX wc;
@@ -105,10 +351,10 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
     wc.lpszClassName = traits.windowClass.c_str();
     wc.hIconSm = 0;
 
-    if (::RegisterClassEx(&wc) == 0)
+    if(::RegisterClassEx(&wc) == 0)
     {
         auto lastError = ::GetLastError();
-        if (lastError != ERROR_CLASS_ALREADY_EXISTS) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, could not register window class.", VK_ERROR_INITIALIZATION_FAILED);
+        if (lastError != ERROR_CLASS_ALREADY_EXISTS) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, could not register window class.", VK_ERROR_INITIALIZATION_FAILED);
     }
 
     // fetch screen display information
@@ -125,13 +371,13 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
         displayDevices.push_back(displayDevice);
     }
 
-    if (traits.screenNum >= displayDevices.size()) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    if (traits.screenNum >= displayDevices.size()) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     DEVMODE deviceMode;
     deviceMode.dmSize = sizeof(deviceMode);
     deviceMode.dmDriverExtra = 0;
 
-    if (!::EnumDisplaySettings(displayDevices[traits.screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    if (!::EnumDisplaySettings(displayDevices[traits.screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     int32_t screenx = deviceMode.dmPosition.x + traits.x;
     int32_t screeny = deviceMode.dmPosition.y + traits.y;
@@ -146,21 +392,24 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
     unsigned int windowStyle = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | (traits.decoration ? WS_CAPTION : 0);
     unsigned int extendedStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 
-    if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, AdjustWindowRectEx failed.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, AdjustWindowRectEx failed.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     // create the window
-    hwnd = ::CreateWindowEx(extendedStyle, traits.windowClass.c_str(), traits.windowTitle.c_str(), windowStyle,
+    _window = ::CreateWindowEx(extendedStyle, traits.windowClass.c_str(), traits.windowTitle.c_str(), windowStyle,
                             windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
                             NULL, NULL, ::GetModuleHandle(NULL), NULL);
 
-    if (hwnd == nullptr) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, CreateWindowEx did not return a valid window handle.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    if (_window == nullptr) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, CreateWindowEx did not return a valid window handle.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+
+    // set window handle user data pointer to hold ref to this so we can retrieve in WindowsProc
+    SetWindowLongPtr(_window, GWLP_USERDATA, (LONG_PTR)this);
 
     // resposition once the window has been created to account for borders etc
-    ::SetWindowPos(hwnd, nullptr, screenx, screeny, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, 0);
+    ::SetWindowPos(_window, nullptr, screenx, screeny, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, 0);
 
     // get client rect to find final width height of the view
     RECT clientRect;
-    ::GetClientRect(hwnd, &clientRect);
+    ::GetClientRect(_window, &clientRect);
 
     uint32_t finalWidth = clientRect.right - clientRect.left;
     uint32_t finalHeight = clientRect.bottom - clientRect.top;
@@ -169,13 +418,12 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
 
     if (traits.shareWindow)
     {
-        // create surface
-        vsg::ref_ptr<vsg::Surface> surface(new vsgWin32::Win32Surface(traits.shareWindow->instance(), hwnd, allocator));
-
-        window = new Win32_Window(hwnd, traits.shareWindow->instance(), traits.shareWindow->surface(), traits.shareWindow->physicalDevice(), traits.shareWindow->device(), traits.shareWindow->renderPass(), traits.shareWindow->debugLayersEnabled());
-
         // share the _instance, _physicalDevice and _device;
         window->share(*traits.shareWindow);
+
+        // create surface
+        vsg::ref_ptr<vsg::Surface> surface(new vsgWin32::Win32Surface(traits.shareWindow->instance(), _window, allocator));
+        _surface = surface;
 
         // temporary hack to force vkGetPhysicalDeviceSurfaceSupportKHR to be called as the Vulkan
         // debug layer is complaining about vkGetPhysicalDeviceSurfaceSupportKHR not being called
@@ -200,36 +448,39 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
         deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
         vsg::ref_ptr<vsg::Instance> instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
-        if (!instance) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, unable to create Vulkan instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        if (!instance) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, unable to create Vulkan instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
-        // use GLFW to create surface
-        vsg::ref_ptr<vsg::Surface> surface(new vsgWin32::Win32Surface(instance, hwnd, allocator));
-        if (!surface) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, unable to create Win32Surface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        // create wind32 surface
+        vsg::ref_ptr<vsg::Surface> surface(new vsgWin32::Win32Surface(instance, _window, allocator));
+        if (!surface) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, unable to create Win32Surface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
         // set up device
         vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(instance, VK_QUEUE_GRAPHICS_BIT, surface);
-        if (!physicalDevice) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        if (!physicalDevice) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
         vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, validatedNames, deviceExtensions, allocator);
-        if (!device) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, unable to create Vulkan logical Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        if (!device) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, unable to create Vulkan logical Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
         // set up renderpass with the imageFormat that the swap chain will use
         vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*physicalDevice, *surface);
         VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
         VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
         vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, imageFormat.format, depthFormat, allocator);
-        if (!renderPass) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, unable to create Vulkan RenderPass.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        if (!renderPass) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, unable to create Vulkan RenderPass.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
-        window = new Win32_Window(hwnd, instance, surface, physicalDevice, device, renderPass, debugLayer);
+        _instance = instance;
+        _surface = surface;
+        _physicalDevice = physicalDevice;
+        _device = device;
+        _renderPass = renderPass;
+        _debugLayersEnabled = debugLayer;
     }
 
-    window->buildSwapchain(finalWidth, finalHeight);
+    buildSwapchain(finalWidth, finalHeight);
 
-    ShowWindow(hwnd, SW_SHOW);
-    SetForegroundWindow(hwnd);
-    SetFocus(hwnd);
-
-    return Result(window);
+    ShowWindow(_window, SW_SHOW);
+    SetForegroundWindow(_window);
+    SetFocus(_window);
 }
 
 Win32_Window::~Win32_Window()
@@ -240,11 +491,14 @@ Win32_Window::~Win32_Window()
     {
         std::cout << "Calling DestroyWindow(_window);" << std::endl;
 
+        TCHAR className[MAX_PATH];
+        GetClassName(_window, className, MAX_PATH);
+
         ::DestroyWindow(_window);
         _window = nullptr;
 
         // when should we unregister??
-        ::UnregisterClass(traits.windowClass.c_str(), ::GetModuleHandle(NULL));
+        ::UnregisterClass(className, ::GetModuleHandle(NULL));
     }
 }
 
@@ -265,6 +519,14 @@ bool Win32_Window::pollEvents(vsg::Events& events)
             DispatchMessageW(&msg);
         }
     }
+
+    if(_bufferedEvents.size() > 0)
+    {
+        events.splice(events.end(), _bufferedEvents);
+        _bufferedEvents.clear();
+        return true;
+    }
+
     return false;
 }
 
@@ -293,12 +555,25 @@ void Win32_Window::resize()
 
 LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    // following event handling code is a placeholder that uses pumex code to help give us an idea of what will be needed
+    vsg::clock::time_point event_time = vsg::clock::now();
+
+    // get the current window rect
+    RECT windowRect;
+    GetClientRect(_window, &windowRect);
+
+    int32_t winx = windowRect.left;
+    int32_t winy = windowRect.top;
+    int32_t winw = windowRect.right - windowRect.left;
+    int32_t winh = windowRect.bottom - windowRect.top;
+
     switch (msg)
     {
     case WM_CLOSE:
         std::cout << "close window" << std::endl;
         _shouldClose = true;
+        break;
+    case WM_SHOWWINDOW:
+        _bufferedEvents.emplace_back(new vsg::ExposeWindowEvent(this, event_time, winx, winy, winw, winh));
         break;
     case WM_DESTROY:
         break;
@@ -307,67 +582,42 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         break;
     case WM_MOUSEMOVE:
     {
-        /*float mx = GET_X_LPARAM(lParam);
-        float my = GET_Y_LPARAM(lParam);*/
+        float mx = GET_X_LPARAM(lParam);
+        float my = GET_Y_LPARAM(lParam);
+
+        _bufferedEvents.emplace_back(new vsg::MoveEvent(this, event_time, mx, my, getButtonMask(wParam)));
     }
     break;
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
     case WM_RBUTTONDOWN:
     {
-        /*::SetCapture(_hwnd);
+        uint32_t mx = GET_X_LPARAM(lParam);
+        uint32_t my = GET_Y_LPARAM(lParam);
 
-        InputEvent::MouseButton button = InputEvent::BUTTON_UNDEFINED;
-        if (msg == WM_LBUTTONDOWN)      button = InputEvent::LEFT;
-        else if (msg == WM_MBUTTONDOWN) button = InputEvent::MIDDLE;
-        else                            button = InputEvent::RIGHT;
-        pressedMouseButtons.insert(button);
-
-        float mx = GET_X_LPARAM(lParam);
-        float my = GET_Y_LPARAM(lParam);
-        normalizeMouseCoordinates(mx, my);
-        pushInputEvent(InputEvent(timeNow, InputEvent::MOUSE_KEY_PRESSED, button, mx, my));
-        */
+        _bufferedEvents.emplace_back(new vsg::ButtonPressEvent(this, event_time, mx, my, getButtonMask(wParam), getButtonEventDetail(msg)));
+        
+        //::SetCapture(_window);
     }
     break;
     case WM_LBUTTONUP:
     case WM_MBUTTONUP:
     case WM_RBUTTONUP:
     {
-        /*InputEvent::MouseButton button = InputEvent::BUTTON_UNDEFINED;
-        if (msg == WM_LBUTTONUP)      button = InputEvent::LEFT;
-        else if (msg == WM_MBUTTONUP) button = InputEvent::MIDDLE;
-        else                          button = InputEvent::RIGHT;
+        uint32_t mx = GET_X_LPARAM(lParam);
+        uint32_t my = GET_Y_LPARAM(lParam);
 
-        pressedMouseButtons.erase(button);
-        if (pressedMouseButtons.empty())
-            ::ReleaseCapture();
+        uint32_t button = msg == WM_LBUTTONDOWN ? 1 : (msg == WM_RBUTTONDOWN ? 2 : msg == WM_MBUTTONDOWN ? 3 : (msg == WM_XBUTTONDOWN ? 4 : 0)); // need to determine x1, x2
+        _bufferedEvents.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, mx, my, getButtonMask(wParam), getButtonEventDetail(msg)));
 
-        float mx = GET_X_LPARAM(lParam);
-        float my = GET_Y_LPARAM(lParam);
-        normalizeMouseCoordinates(mx, my);
-        pushInputEvent(InputEvent(timeNow, InputEvent::MOUSE_KEY_RELEASED, button, mx, my));
-        */
+        //::ReleaseCapture(); // should only release once all mouse buttons are released ??
     }
     break;
     case WM_LBUTTONDBLCLK:
     case WM_MBUTTONDBLCLK:
     case WM_RBUTTONDBLCLK:
     {
-        /*::SetCapture(_hwnd);
-
-        InputEvent::MouseButton button;
-        if (msg == WM_LBUTTONDBLCLK)      button = InputEvent::LEFT;
-        else if (msg == WM_MBUTTONDBLCLK) button = InputEvent::MIDDLE;
-        else                              button = InputEvent::RIGHT;
-
-        pressedMouseButtons.insert(button);
-
-        float mx = GET_X_LPARAM(lParam);
-        float my = GET_Y_LPARAM(lParam);
-        normalizeMouseCoordinates(mx, my);
-        pushInputEvent(InputEvent(timeNow, InputEvent::MOUSE_KEY_DOUBLE_PRESSED, button, mx, my));
-        */
+        //::SetCapture(_window);
     }
     break;
     case WM_MOUSEWHEEL:
@@ -381,17 +631,16 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     case WM_KEYDOWN:
     case WM_SYSKEYDOWN:
     {
-        /*InputEvent::Key key = win32KeyCodeToPumex(wParam);
-        pushInputEvent(InputEvent(timeNow, InputEvent::KEYBOARD_KEY_PRESSED, key));
-        */
+        vsg::KeySymbol keySymbol = _keyboard->getKeySymbol(wParam, lParam, false);
+        std::cout << "keysymbol 0x" << std::hex << (int)keySymbol << std::endl;
+        vsg::KeySymbol keySymbolModified = keySymbol; //_keyboard->getKeySymbol(key_press->detail, key_press->state);
+        _bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, keySymbolModified, vsg::KeyModifier::MODKEY_Alt, 0));
+
         break;
     }
     case WM_KEYUP:
     case WM_SYSKEYUP:
     {
-        /*InputEvent::Key key = win32KeyCodeToPumex(wParam);
-        pushInputEvent(InputEvent(timeNow, InputEvent::KEYBOARD_KEY_RELEASED, key));
-        */
         break;
     }
     default:
