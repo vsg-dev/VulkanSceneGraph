@@ -34,18 +34,24 @@ namespace vsgWin32
 
         using VirtualKeyToKeySymbolMap = std::map<uint16_t, vsg::KeySymbol>;
 
-        vsg::KeySymbol getKeySymbol(WPARAM wParam, LPARAM lParam, bool applyModifier)
+        bool getKeySymbol(WPARAM wParam, LPARAM lParam, vsg::KeySymbol& keySymbol, vsg::KeySymbol& modifiedKeySymbol, vsg::KeyModifier& keyModifier)
         {
-            uint32_t modifierMask = 0;
+            uint16_t modifierMask = 0;
 
-            bool rightSide = (lParam & 0x01000000) != 0;
+            //bool rightSide = (lParam & 0x01000000) != 0;
             int virtualKey = ::MapVirtualKeyEx((lParam >> 16) & 0xff, 3, ::GetKeyboardLayout(0));
 
-            std::cout << "MapVirtualKeyEx 0x" << std::hex << virtualKey << std::endl;
-
             auto itr = _keycodeMap.find(virtualKey);
-            if (itr == _keycodeMap.end()) return vsg::KEY_Undefined;
+            if (itr == _keycodeMap.end()) return false;
 
+            keySymbol = itr->second;
+            modifiedKeySymbol = keySymbol;
+
+            BYTE keyState[256];
+            if (virtualKey==0 || !::GetKeyboardState(keyState))
+            {
+                return false;
+            }
 
             switch (virtualKey)
             {
@@ -64,58 +70,23 @@ namespace vsgWin32
                     modifierMask |= vsg::KeyModifier::MODKEY_Alt;
                     break;
 
-                //////////////////
-                default          :
-                //////////////////
-
+                default:
                     virtualKey = wParam;
                     break;
             }
 
-            if (keyState[VK_CAPITAL] & 0x01) modifierMask |= osgGA::GUIEventAdapter::MODKEY_CAPS_LOCK;
-            if (keyState[VK_NUMLOCK] & 0x01) modifierMask |= osgGA::GUIEventAdapter::MODKEY_NUM_LOCK;
+            if (keyState[VK_CAPITAL] & 0x01) modifierMask |= vsg::KeyModifier::MODKEY_CapsLock;
+            if (keyState[VK_NUMLOCK] & 0x01) modifierMask |= vsg::KeyModifier::MODKEY_NumLock;
 
-
-            vsg::KeySymbol baseKeySymbol = itr->second;
-
-            BYTE keyState[256];
-            if (virtualKey==0 || !::GetKeyboardState(keyState))
-            {
-                return vsg::KEY_Undefined;
-            }
+            keyModifier = (vsg::KeyModifier) modifierMask;
 
             char asciiKey[2];
             int numChars = ::ToAscii(wParam, (lParam>>16)&0xff, keyState, reinterpret_cast<WORD*>(asciiKey), 0);
-            if (numChars>0) baseKeySymbol = (vsg::KeySymbol)asciiKey[0];
+            if (numChars>0) modifiedKeySymbol = (vsg::KeySymbol)asciiKey[0];
 
-            std::cout << "moded ascii: " << asciiKey << std::endl;
+            std::cout << "moded ascii: " << asciiKey[0] << "  0x" << std::hex << asciiKey[0] << std::endl;
 
-            return baseKeySymbol;
-
-            /*auto itr = _keycodeMap.find(KeycodeModifier(keycode, 0));
-            if (itr == _keycodeMap.end()) return vsg::KEY_Undefined;
-
-            vsg::KeySymbol baseKeySymbol = itr->second;
-            if (modifier == 0) return baseKeySymbol;
-
-            bool shift = (modifier & vsg::MODKEY_Shift) != 0;
-            uint16_t index = 0;
-
-            if (baseKeySymbol >= vsg::KEY_KP_Space && baseKeySymbol <= vsg::KEY_KP_Divide)
-            {
-                // numeric keypad values
-                bool numLock = ((modifier & vsg::MODKEY_NumLock) != 0);
-                index = (numLock && !shift) ? 1 : 0;
-            }
-            else
-            {
-                bool capsLock = (modifier & vsg::MODKEY_CapsLock) != 0;
-                index = (capsLock ? !shift : shift) ? 1 : 0;
-            }
-            if (index == 0) return baseKeySymbol;
-
-            if (itr = _keycodeMap.find(KeycodeModifier(keycode, index)); itr != _keycodeMap.end()) return itr->second;
-            return vsg::KEY_Undefined;*/
+            return true;
         }
 
     protected:

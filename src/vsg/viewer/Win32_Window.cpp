@@ -142,32 +142,32 @@ KeyboardMap::KeyboardMap()
         { 'Y', KEY_Y },
         { 'Z', KEY_Z },
         
-        //KEY_Exclaim = 0x21,
-        //KEY_Quotedbl = 0x22,
-        //KEY_Hash = 0x23,
-        //KEY_Dollar = 0x24,
-        //KEY_Ampersand = 0x26,
-        { 0xde, KEY_Quote },
-        //    KEY_Leftparen = 0x28,
-        //    KEY_Rightparen = 0x29,
-        //    KEY_Asterisk = 0x2A,
-        //    KEY_Plus = 0x2B,
-        { 0xbc, KEY_Comma },
-        { 0xbd, KEY_Minus },
-        { 0xbe, KEY_Period },
-        { 0xbf, KEY_Slash },
-        //    KEY_Colon = 0x3A,
-        { 0xba, KEY_Semicolon },
-        //    KEY_Less = 0x3C,
-        { 0xbb, KEY_Equals },
-        //    KEY_Greater = 0x3E,
-        //    KEY_Question = 0x3F,
-        //    KEY_At = 0x40,
-        { 0xdb, KEY_Leftbracket },
-        { 0xdc, KEY_Backslash },
-        { 0xdd, KEY_Rightbracket },
-        //    KEY_Caret = 0x5E,
-        //    KEY_Underscore = 0x5F,
+        { '!', KEY_Exclaim },
+        { '"', KEY_Quotedbl },
+        { '#', KEY_Hash },
+        { '$', KEY_Dollar },
+        { '&', KEY_Ampersand },
+        { VK_OEM_7, KEY_Quote },
+        { '(', KEY_Leftparen },
+        { ')', KEY_Rightparen },
+        { '*', KEY_Asterisk },
+        { '+', KEY_Plus },
+        { VK_OEM_COMMA, KEY_Comma },
+        { VK_OEM_MINUS, KEY_Minus },
+        { VK_OEM_PERIOD, KEY_Period },
+        { VK_OEM_2, KEY_Slash },
+        { ':', KEY_Colon },
+        { VK_OEM_1, KEY_Semicolon },
+        { '<', KEY_Less },
+        { VK_OEM_PLUS, KEY_Equals }, // + isnt an unmodded key, why does windows map is as a virtual??
+        { '>', KEY_Greater },
+        { '?', KEY_Question },
+        { '@',KEY_At },
+        { VK_OEM_4, KEY_Leftbracket },
+        { VK_OEM_5, KEY_Backslash },
+        { VK_OEM_6, KEY_Rightbracket },
+        { '|', KEY_Caret },
+        { '_', KEY_Underscore },
         { 0xc0, KEY_Backquote },
 
         { VK_BACK, KEY_BackSpace }, /* back space, back char */
@@ -631,16 +631,27 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     case WM_KEYDOWN:
     case WM_SYSKEYDOWN:
     {
-        vsg::KeySymbol keySymbol = _keyboard->getKeySymbol(wParam, lParam, false);
-        std::cout << "keysymbol 0x" << std::hex << (int)keySymbol << std::endl;
-        vsg::KeySymbol keySymbolModified = keySymbol; //_keyboard->getKeySymbol(key_press->detail, key_press->state);
-        _bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, keySymbolModified, vsg::KeyModifier::MODKEY_Alt, 0));
+        vsg::KeySymbol keySymbol, modifiedKeySymbol;
+        vsg::KeyModifier keyModifier;
+        if(_keyboard->getKeySymbol(wParam, lParam, keySymbol, modifiedKeySymbol, keyModifier))
+        {
+            int repeatCount = (lParam & 0xffff);
+            std::cout << "Repeat count: " << repeatCount << std::endl;
+            _bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier, repeatCount));
+        }
 
         break;
     }
     case WM_KEYUP:
     case WM_SYSKEYUP:
     {
+        vsg::KeySymbol keySymbol, modifiedKeySymbol;
+        vsg::KeyModifier keyModifier;
+        if(_keyboard->getKeySymbol(wParam, lParam, keySymbol, modifiedKeySymbol, keyModifier))
+        {
+            _bufferedEvents.emplace_back(new vsg::KeyReleaseEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier, 0));
+        }
+
         break;
     }
     default:
