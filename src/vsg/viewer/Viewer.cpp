@@ -19,6 +19,7 @@ using namespace vsg;
 
 Viewer::Viewer()
 {
+    _start_point = clock::now();
 }
 
 Viewer::~Viewer()
@@ -138,10 +139,8 @@ bool Viewer::pollEvents()
             }
         };
 
-        clock::time_point start_point = clock::now();
-
         bool close = false;
-        PrintEvents print(start_point, close);
+        PrintEvents print(_start_point, close);
         for (auto& vsg_event : events)
         {
             vsg_event->accept(print);
