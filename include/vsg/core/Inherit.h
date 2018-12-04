@@ -31,6 +31,10 @@ namespace vsg
     {
     public:
         template<typename... Args>
+        Inherit(Allocator* allocator, Args... args) :
+            ParentClass(allocator, args...) {}
+
+        template<typename... Args>
         Inherit(Args... args) :
             ParentClass(args...) {}
 
@@ -43,8 +47,8 @@ namespace vsg
                 const std::size_t size = sizeof(Subclass);
                 void* ptr = allocator->allocate(size);
 
-                ref_ptr<Subclass> object(new (ptr) Subclass(args...));
-                object->setAuxiliary(allocator->getOrCreateSharedAuxiliary());
+                ref_ptr<Subclass> object(new (ptr) Subclass(allocator, args...));
+                // object->setAuxiliary(allocator->getOrCreateSharedAuxiliary());
 
                 // check the sizeof(Subclass) is consistent with Subclass::sizeOfObject()
                 if (std::size_t new_size = object->sizeofObject(); new_size != size)

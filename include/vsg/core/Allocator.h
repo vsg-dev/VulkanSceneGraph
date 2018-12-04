@@ -82,7 +82,7 @@ namespace vsg
             {
                 for(size_t i=0; i<size; ++i)
                 {
-                    (ptr[i])->~T();
+                    (ptr[i]).~T();
                 }
                 deallocate(ptr, size*sizeof(T));
             }

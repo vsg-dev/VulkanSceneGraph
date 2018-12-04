@@ -22,6 +22,12 @@ Group::Group(size_t numChildren) :
 {
 }
 
+Group::Group(Allocator* allocator, size_t numChildren) :
+    Inherit(allocator),
+    _children(numChildren)
+{
+}
+
 Group::~Group()
 {
 }
