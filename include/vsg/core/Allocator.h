@@ -41,6 +41,54 @@ namespace vsg
 
         virtual void deallocate(const void* ptr, std::size_t size = 0);
 
+        template<typename T, typename... Args>
+        T* newObject(Args... args)
+        {
+            void* ptr = allocate(sizeof(T));
+            if (ptr)
+            {
+                T* t = new (ptr) T(args...);
+                return t;
+            }
+            return nullptr;
+        }
+
+        template<typename T>
+        void deleteObject(T* ptr)
+        {
+            if (ptr)
+            {
+                ptr->~T();
+                deallocate(ptr, sizeof(T));
+            }
+        }
+
+        template<typename T>
+        T* newArray(size_t size)
+        {
+            void* ptr = allocate(size*sizeof(T));
+            if (ptr)
+            {
+                T* t = new (ptr) T[size];
+                return t;
+            }
+            return nullptr;
+        }
+
+        template<typename T>
+        void deleteArray(T* ptr, size_t size)
+        {
+            if (ptr)
+            {
+                for(size_t i=0; i<size; ++i)
+                {
+                    (ptr[i])->~T();
+                }
+                deallocate(ptr, size*sizeof(T));
+            }
+        }
+
+
         Auxiliary* getOrCreateSharedAuxiliary();
 
         void detachSharedAuxiliary(Auxiliary* auxiliary);
