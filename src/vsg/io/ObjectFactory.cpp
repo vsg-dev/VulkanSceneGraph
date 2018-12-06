@@ -18,7 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Value.h>
 
 #include <vsg/nodes/Group.h>
-#include <vsg/nodes/SmallGroup.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 
@@ -108,7 +107,6 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::Node);
     VSG_REGISTER_create(vsg::Group);
     VSG_REGISTER_create(vsg::QuadGroup);
-    VSG_REGISTER_create(vsg::SmallGroup);
     VSG_REGISTER_create(vsg::StateGroup);
 }
 
