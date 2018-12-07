@@ -127,11 +127,14 @@ extern "C"
 
     const char* vsgClassName(vsgObjectPtr object)
     {
-        vsg::TypeDescriptor* td = vsg::Introspection::instance()->typeDescriptor(reinterpret_cast<vsg::Object*>(object));
-        if (td)
-            return td->className.c_str();
+        if (object)
+        {
+            return reinterpret_cast<vsg::Object*>(object)->className();
+        }
         else
+        {
             return 0;
+        }
     }
 
     vsgObjectPtr vsgMethod(vsgObjectPtr /*object*/, const char* /*methodName*/)
@@ -192,8 +195,8 @@ extern "C"
     {
         std::cout << "vsgSetProperty(" << objectPtr << ", " << propertyName << ", " << property.type << std::endl;
         if (!objectPtr) return;
-
         vsg::Object* object = reinterpret_cast<vsg::Object*>(objectPtr);
+#if 1
         switch (property.type)
         {
         case (Property::TYPE_Object): object->setObject(propertyName, reinterpret_cast<vsg::Object*>(property.value._object)); break;
@@ -208,6 +211,7 @@ extern "C"
         case (Property::TYPE_double): object->setValue(propertyName, property.value._double); break;
         default: std::cout << "Unhandling Property type" << std::endl;
         }
+#endif
     }
 
     unsigned int vsgGetNumProperties(vsgObjectPtr /*object*/)
