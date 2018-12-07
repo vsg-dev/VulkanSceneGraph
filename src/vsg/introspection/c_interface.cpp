@@ -46,9 +46,9 @@ namespace vsg
 
             std::cout << "Introspection()" << std::endl;
 
-            add(std::type_index(typeid(vsg::Group)), "vsg::Group", []() { return new vsg::Group; });
-            add(std::type_index(typeid(vsg::LOD)), "vsg::LOD", []() { return new vsg::LOD; });
-            add(std::type_index(typeid(vsg::Node)), "vsg::Node", []() { return new vsg::Node; });
+            add(std::type_index(typeid(vsg::Group)), vsg::type_name<vsg::Group>(), []() { return new vsg::Group; });
+            add(std::type_index(typeid(vsg::LOD)), vsg::type_name<vsg::LOD>(), []() { return new vsg::LOD; });
+            add(std::type_index(typeid(vsg::Node)), vsg::type_name<vsg::Node>(), []() { return new vsg::Node; });
         }
         virtual ~Introspection() { std::cout << "~Introspection()" << std::endl; }
 
