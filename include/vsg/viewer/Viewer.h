@@ -49,6 +49,9 @@ namespace vsg
         Windows& windows() { return _windows; }
         const Windows& windows() const { return _windows; }
 
+        clock::time_point& start_point() { return _start_point; }
+        const clock::time_point& start_point() const { return _start_point; }
+
         bool done() const;
 
         bool pollEvents();
