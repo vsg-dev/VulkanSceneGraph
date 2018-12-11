@@ -26,6 +26,7 @@ namespace vsg
     Window::Result Window::create(const Window::Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
     {
         ref_ptr<vsg::Window> window = vsgWin32::Win32_Window::create(traits, debugLayer, apiDumpLayer, allocator);
+        return Result(window);
     }
 } // namespace vsg
 
@@ -244,6 +245,7 @@ Win32_Window::~Win32_Window()
         _window = nullptr;
 
         // when should we unregister??
+        Window::Traits traits;
         ::UnregisterClass(traits.windowClass.c_str(), ::GetModuleHandle(NULL));
     }
 }
