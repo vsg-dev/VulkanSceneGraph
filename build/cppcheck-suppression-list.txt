@@ -11,4 +11,4 @@ syntaxError:*src/vsg/io/AsciiInput.cpp
 syntaxError:*src/vsg/io/BinaryOutput.cpp
 syntaxError:*src/vsg/io/BinaryInput.cpp
 syntaxError:*src/vsg/io/ReaderWriter.cpp
-
+syntaxError:*src/vsg/io/FileSystem.cpp
