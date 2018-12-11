@@ -71,7 +71,7 @@ ShaderStages::~ShaderStages()
 
 void ShaderStages::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
 {
-    pipelineInfo.stageCount = size();
+    pipelineInfo.stageCount = static_cast<uint32_t>(size());
     pipelineInfo.pStages = data();
 }
 
@@ -107,9 +107,9 @@ VertexInputState::VertexInputState(const Bindings& bindings, const Attributes& a
     _attributes(attributes)
 {
     sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexBindingDescriptionCount = _bindings.size();
+    vertexBindingDescriptionCount = static_cast<uint32_t>(_bindings.size());
     pVertexBindingDescriptions = _bindings.data();
-    vertexAttributeDescriptionCount = _attributes.size();
+    vertexAttributeDescriptionCount = static_cast<uint32_t>(_attributes.size());
     pVertexAttributeDescriptions = _attributes.data();
 }
 
@@ -267,7 +267,7 @@ ColorBlendState::ColorBlendState() :
 
     logicOpEnable = VK_FALSE;
     logicOp = VK_LOGIC_OP_COPY;
-    attachmentCount = _colorBlendAttachments.size();
+    attachmentCount = static_cast<uint32_t>(_colorBlendAttachments.size());
     pAttachments = _colorBlendAttachments.data();
     blendConstants[0] = 0.0f;
     blendConstants[1] = 0.0f;
@@ -286,6 +286,6 @@ void ColorBlendState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
 
 void ColorBlendState::update()
 {
-    attachmentCount = _colorBlendAttachments.size();
+    attachmentCount = static_cast<uint32_t>(_colorBlendAttachments.size());
     pAttachments = _colorBlendAttachments.data();
 }

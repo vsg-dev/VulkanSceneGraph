@@ -44,7 +44,7 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
     clearValues[0].color = clearColor;
     clearValues[1].depthStencil = {1.0f, 0};
 
-    renderPassInfo.clearValueCount = clearValues.size();
+    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
     vkCmdBeginRenderPass(*commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 

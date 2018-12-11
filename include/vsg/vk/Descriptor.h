@@ -109,7 +109,7 @@ namespace vsg
         virtual void assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
         {
             Descriptor::assignTo(wds, descriptorSet);
-            wds.descriptorCount = _imageInfos.size();
+            wds.descriptorCount = static_cast<uint32_t>(_imageInfos.size());
             wds.pImageInfo = _imageInfos.data();
         }
 
@@ -140,7 +140,7 @@ namespace vsg
         virtual void assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
         {
             Descriptor::assignTo(wds, descriptorSet);
-            wds.descriptorCount = _bufferInfos.size();
+            wds.descriptorCount = static_cast<uint32_t>(_bufferInfos.size());
             wds.pBufferInfo = _bufferInfos.data();
         }
 
@@ -170,7 +170,7 @@ namespace vsg
             std::vector<VkBufferView> texelBufferViews(_texelBufferViewList.size());
 
             Descriptor::assignTo(wds, descriptorSet);
-            wds.descriptorCount = _texelBufferViews.size();
+            wds.descriptorCount = static_cast<uint32_t>(_texelBufferViews.size());
             wds.pTexelBufferView = _texelBufferViews.data();
         }
 

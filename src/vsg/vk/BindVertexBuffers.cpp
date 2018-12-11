@@ -29,5 +29,5 @@ void BindVertexBuffers::popFrom(State& state) const
 
 void BindVertexBuffers::dispatch(CommandBuffer& commandBuffer) const
 {
-    vkCmdBindVertexBuffers(commandBuffer, _firstBinding, _buffers.size(), _vkBuffers.data(), _offsets.data());
+    vkCmdBindVertexBuffers(commandBuffer, _firstBinding, static_cast<uint32_t>(_buffers.size()), _vkBuffers.data(), _offsets.data());
 }

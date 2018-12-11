@@ -70,7 +70,7 @@ void DescriptorSet::assign(const Descriptors& descriptors)
         _descriptors[i]->assignTo(descriptorWrites[i], _descriptorSet);
     }
 
-    vkUpdateDescriptorSets(*_device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    vkUpdateDescriptorSets(*_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }
 
 void BindDescriptorSets::pushTo(State& state) const
@@ -87,5 +87,5 @@ void BindDescriptorSets::popFrom(State& state) const
 
 void BindDescriptorSets::dispatch(CommandBuffer& commandBuffer) const
 {
-    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, *_pipelineLayout, 0, _vkDescriptorSets.size(), _vkDescriptorSets.data(), 0, nullptr);
+    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, *_pipelineLayout, 0, static_cast<uint32_t>(_vkDescriptorSets.size()), _vkDescriptorSets.data(), 0, nullptr);
 }

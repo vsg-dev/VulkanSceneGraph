@@ -43,9 +43,9 @@ ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQue
     VkImageCreateInfo imageCreateInfo = {};
     imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageCreateInfo.imageType = data->depth() > 1 ? VK_IMAGE_TYPE_3D : (data->width() > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
-    imageCreateInfo.extent.width = data->width();
-    imageCreateInfo.extent.height = data->height();
-    imageCreateInfo.extent.depth = data->depth();
+    imageCreateInfo.extent.width = static_cast<uint32_t>(data->width());
+    imageCreateInfo.extent.height = static_cast<uint32_t>(data->height());
+    imageCreateInfo.extent.depth = static_cast<uint32_t>(data->depth());
     imageCreateInfo.mipLevels = 1;
     imageCreateInfo.arrayLayers = 1;
     imageCreateInfo.format = data->getFormat();
