@@ -66,7 +66,7 @@ namespace vsg
         template<typename T>
         T* newArray(size_t size)
         {
-            void* ptr = allocate(size*sizeof(T));
+            void* ptr = allocate(size * sizeof(T));
             if (ptr)
             {
                 T* t = new (ptr) T[size];
@@ -80,14 +80,13 @@ namespace vsg
         {
             if (ptr)
             {
-                for(size_t i=0; i<size; ++i)
+                for (size_t i = 0; i < size; ++i)
                 {
                     (ptr[i]).~T();
                 }
-                deallocate(ptr, size*sizeof(T));
+                deallocate(ptr, size * sizeof(T));
             }
         }
-
 
         Auxiliary* getOrCreateSharedAuxiliary();
 

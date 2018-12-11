@@ -21,7 +21,7 @@ namespace vsg
     class VSG_DECLSPEC Node : public Inherit<Object, Node>
     {
     public:
-        Node(Allocator* allocator=nullptr);
+        Node(Allocator* allocator = nullptr);
 
         const char* className() const noexcept override { return "vsg::Node"; }
 

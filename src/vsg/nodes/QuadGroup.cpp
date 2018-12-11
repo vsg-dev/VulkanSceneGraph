@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-QuadGroup::QuadGroup(Allocator* allocator):
+QuadGroup::QuadGroup(Allocator* allocator) :
     Inherit(allocator)
 {
 }

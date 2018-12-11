@@ -13,12 +13,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/FileSystem.h>
 
 #if defined(WIN32) && !defined(__CYGWIN__)
+#    include <cstdlib>
 #    include <io.h>
-#   include <cstdlib>
 #else
 #    include <unistd.h>
 #endif
-
 
 using namespace vsg;
 
@@ -44,7 +43,7 @@ Paths vsg::getEnvPaths(const char* env_var)
 #if defined(WIN32) && !defined(__CYGWIN__)
     char env_value[4096];
     std::size_t len;
-    if (auto error = getenv_s(&len, env_value, sizeof(env_value)-1, env_var); error!=0 || len==0)
+    if (auto error = getenv_s(&len, env_value, sizeof(env_value) - 1, env_var); error != 0 || len == 0)
     {
         return filepaths;
     }
