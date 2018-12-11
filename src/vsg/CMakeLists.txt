@@ -83,7 +83,15 @@ set(SOURCES
 set(LIBRARIES PUBLIC Vulkan::Vulkan)
 
 if (ANDROID)
-    # TODO
+    set(HEADERS ${HEADERS} ${CMAKE_SOURCE_DIR}/include/vsg/viewer/platforms/Android_Window.h)
+    set(SOURCES ${SOURCES} viewer/Android_Window.cpp)
+
+    if(CMAKE_SYSTEM_VERSION GREATER 24)
+        set(LIBRARIES ${LIBRARIES} PRIVATE ${AndroidLib} PRIVATE ${AndroidNativeWindowLib})
+    else()
+        set(LIBRARIES ${LIBRARIES} PRIVATE ${AndroidLib})
+    endif()
+
 elseif (WIN32)
     set(SOURCES ${SOURCES} viewer/Win32_Window.cpp)
 elseif (APPLE)
@@ -158,6 +166,7 @@ target_include_directories(vsg PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/incl
 
 
 target_link_libraries(vsg ${LIBRARIES})
+
 
 install(TARGETS vsg EXPORT vsgTargets
         LIBRARY DESTINATION lib

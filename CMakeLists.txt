@@ -48,10 +48,14 @@ endif()
 set(VSG_WARNING_FLAGS ${VSG_WARNING_FLAGS} CACHE STRING "Compiler flags to use." FORCE)
 add_compile_options(${VSG_WARNING_FLAGS})
 
+
 find_package(Vulkan)
 
 if (ANDROID)
-    # TODO
+    find_library(AndroidLib android)
+    if(CMAKE_SYSTEM_VERSION GREATER 24)
+        find_library(AndroidNativeWindowLib nativewindow)
+    endif()
 elseif (WIN32)
     # just use native windowing
 elseif (APPLE)
