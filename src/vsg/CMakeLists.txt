@@ -83,6 +83,7 @@ set(SOURCES
 set(LIBRARIES PUBLIC Vulkan::Vulkan)
 
 if (ANDROID)
+    set(HEADERS ${HEADERS} ${CMAKE_SOURCE_DIR}/include/vsg/viewer/platforms/Android_Window.h)
     set(SOURCES ${SOURCES} viewer/Android_Window.cpp)
 
     if(CMAKE_SYSTEM_VERSION GREATER 24)

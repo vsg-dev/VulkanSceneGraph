@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include "Android_Window.h"
+#include <vsg/viewer/platforms/Android_Window.h>
 
 #include <android/log.h>
 #include <android/looper.h>
@@ -76,21 +76,6 @@ namespace vsgAndroid
         clock_gettime(CLOCK_MONOTONIC, &res);
         return 1000 * res.tv_sec + res.tv_nsec / 1e6;
     }
-
-    //
-    // android_app Input Event callback
-    //
-    /*static int32_t android_handleinput(struct android_app* app, AInputEvent* event)
-    {
-        struct AppData* appData = (struct AppData*)app->userData;
-        if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
-        {
-            appData->x = AMotionEvent_getX(event, 0);
-            appData->y = AMotionEvent_getY(event, 0);
-            return 1;
-        }
-        return 0;
-    }*/
 
 } // namespace vsgAndroid
 
@@ -193,7 +178,7 @@ KeyboardMap::KeyboardMap()
         { AKEYCODE_RIGHT_BRACKET, KEY_Rightbracket },
         { '|', KEY_Caret },
         { '_', KEY_Underscore },
-        { 0xc0, KEY_Backquote },
+        { '`', KEY_Backquote },
 
         { AKEYCODE_DEL, KEY_BackSpace }, /* back space, back char */
         { AKEYCODE_TAB, KEY_Tab },
@@ -331,8 +316,8 @@ KeyboardMap::KeyboardMap()
         { AKEYCODE_CAPS_LOCK, KEY_Caps_Lock },  /* Caps lock */
         //KEY_Shift_Lock = 0xFFE6, /* Shift lock */
 
-        { AKEYCODE_META_LEFT, KEY_Meta_L } /* Left meta */
-        { AKEYCODE_META_RIGHT, KEY_Meta_R } /* Right meta */
+        { AKEYCODE_META_LEFT, KEY_Meta_L }, /* Left meta */
+        { AKEYCODE_META_RIGHT, KEY_Meta_R }, /* Right meta */
         { AKEYCODE_ALT_LEFT, KEY_Alt_L },   /* Left alt */
         { AKEYCODE_ALT_RIGHT, KEY_Alt_R },   /* Right alt */
         //{ VK_LWIN, KEY_Super_L }, /* Left super */
@@ -382,7 +367,7 @@ Android_Window::Android_Window(const vsg::Window::Traits& traits, bool debugLaye
 
     if (traits.shareWindow)
     {
-        // use GLFW to create surface
+        // create Android surface for the ANativeWindow
         vsg::ref_ptr<vsg::Surface> surface(new vsgAndroid::AndroidSurface(traits.shareWindow->instance(), nativeWindow, allocator));
 
         _instance = traits.shareWindow->instance();
@@ -540,6 +525,8 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
             float x = AMotionEvent_getX(anEvent, p);
             float y = AMotionEvent_getY(anEvent, p);
 
+            LOG("touch xy: %f, %f", x, y);
+
             switch(action)
             {
                 case AMOTION_EVENT_ACTION_DOWN:
@@ -561,7 +548,7 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
     {
         auto action = AKeyEvent_getAction(anEvent);
 
-        int64_t time AKeyEvent_getEventTime(anEvent) / 1e-6;
+        int64_t time = AKeyEvent_getEventTime(anEvent) / 1e-6;
         vsg::clock::time_point event_time = _first_android_time_point + std::chrono::milliseconds(time - _first_android_timestamp);
 
         int32_t keycode = AKeyEvent_getKeyCode(anEvent);
@@ -572,7 +559,7 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
 
         vsg::KeySymbol keySymbol, modifiedKeySymbol;
         vsg::KeyModifier keyModifier;
-        if(!_keyboard.getKeySymbol(keycode, metastate, keySymbol, modifiedKeySymbol, keyModifier))
+        if(!_keyboard->getKeySymbol(keycode, metastate, keySymbol, modifiedKeySymbol, keyModifier))
             return false;
 
          switch(action)

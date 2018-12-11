@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #define VK_USE_PLATFORM_ANDROID_KHR
 
 #include <vsg/viewer/Window.h>
+#include <vsg/ui/KeyEvent.h>
 
 #include <android/input.h>
 #include <android/native_window.h>
@@ -48,11 +49,7 @@ namespace vsgAndroid
 
             keyModifier = (vsg::KeyModifier) modifierMask;
 
-            char asciiKey[2];
-            int numChars = ::ToAscii(wParam, (lParam>>16)&0xff, keyState, reinterpret_cast<WORD*>(asciiKey), 0);
-            if (numChars>0) modifiedKeySymbol = (vsg::KeySymbol)asciiKey[0];
-
-            std::cout << "moded ascii: " << asciiKey[0] << "  0x" << std::hex << asciiKey[0] << std::endl;
+            // need to get the modified key somehow but seems we may need to talk to java for that :(
 
             return true;
         }
