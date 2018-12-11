@@ -14,9 +14,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #if defined(WIN32) && !defined(__CYGWIN__)
 #    include <io.h>
+#   include <cstdlib>
 #else
 #    include <unistd.h>
 #endif
+
 
 using namespace vsg;
 
@@ -39,23 +41,31 @@ Paths vsg::getEnvPaths(const char* env_var)
     Paths filepaths;
     if (!env_var) return filepaths;
 
-    const char* env_value = getenv(env_var);
-    if (env_value != nullptr)
+#if defined(WIN32) && !defined(__CYGWIN__)
+    char env_value[4096];
+    std::size_t len;
+    if (auto error = getenv_s(&len, env_value, sizeof(env_value)-1, env_var); error!=0 || len==0)
     {
-        std::string paths(env_value);
-
-        std::string::size_type start = 0;
-        std::string::size_type end;
-        while ((end = paths.find_first_of(envPathDelimiter, start)) != std::string::npos)
-        {
-            filepaths.push_back(paths.substr(start, end - start));
-            start = end + 1;
-        }
-
-        std::string lastPath(paths, start, std::string::npos);
-        if (!lastPath.empty())
-            filepaths.push_back(lastPath);
+        return filepaths;
     }
+#else
+    const char* env_value = getenv(env_var);
+    if (env_value == nullptr) return filepaths;
+#endif
+
+    std::string paths(env_value);
+
+    std::string::size_type start = 0;
+    std::string::size_type end;
+    while ((end = paths.find_first_of(envPathDelimiter, start)) != std::string::npos)
+    {
+        filepaths.push_back(paths.substr(start, end - start));
+        start = end + 1;
+    }
+
+    std::string lastPath(paths, start, std::string::npos);
+    if (!lastPath.empty())
+        filepaths.push_back(lastPath);
 
     return filepaths;
 }
