@@ -46,9 +46,9 @@ namespace vsg
 
             std::cout << "Introspection()" << std::endl;
 
-            add(std::type_index(typeid(vsg::Group)), "vsg::Group", []() { return new vsg::Group; });
-            add(std::type_index(typeid(vsg::LOD)), "vsg::LOD", []() { return new vsg::LOD; });
-            add(std::type_index(typeid(vsg::Node)), "vsg::Node", []() { return new vsg::Node; });
+            add(std::type_index(typeid(vsg::Group)), vsg::type_name<vsg::Group>(), []() { return new vsg::Group; });
+            add(std::type_index(typeid(vsg::LOD)), vsg::type_name<vsg::LOD>(), []() { return new vsg::LOD; });
+            add(std::type_index(typeid(vsg::Node)), vsg::type_name<vsg::Node>(), []() { return new vsg::Node; });
         }
         virtual ~Introspection() { std::cout << "~Introspection()" << std::endl; }
 
@@ -127,11 +127,14 @@ extern "C"
 
     const char* vsgClassName(vsgObjectPtr object)
     {
-        vsg::TypeDescriptor* td = vsg::Introspection::instance()->typeDescriptor(reinterpret_cast<vsg::Object*>(object));
-        if (td)
-            return td->className.c_str();
+        if (object)
+        {
+            return reinterpret_cast<vsg::Object*>(object)->className();
+        }
         else
+        {
             return 0;
+        }
     }
 
     vsgObjectPtr vsgMethod(vsgObjectPtr /*object*/, const char* /*methodName*/)
@@ -192,8 +195,8 @@ extern "C"
     {
         std::cout << "vsgSetProperty(" << objectPtr << ", " << propertyName << ", " << property.type << std::endl;
         if (!objectPtr) return;
-
         vsg::Object* object = reinterpret_cast<vsg::Object*>(objectPtr);
+#if 1
         switch (property.type)
         {
         case (Property::TYPE_Object): object->setObject(propertyName, reinterpret_cast<vsg::Object*>(property.value._object)); break;
@@ -208,6 +211,7 @@ extern "C"
         case (Property::TYPE_double): object->setValue(propertyName, property.value._double); break;
         default: std::cout << "Unhandling Property type" << std::endl;
         }
+#endif
     }
 
     unsigned int vsgGetNumProperties(vsgObjectPtr /*object*/)

@@ -147,7 +147,7 @@ namespace vsg
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
-        size_t index(std::size_t i, std::size_t j, std::size_t k) const noexcept { return i + j * _width + k * _width*_height; }
+        size_t index(std::size_t i, std::size_t j, std::size_t k) const noexcept { return i + j * _width + k * _width * _height; }
 
         value_type& operator[](std::size_t i) { return _data[i]; }
         const value_type& operator[](std::size_t i) const { return _data[i]; }

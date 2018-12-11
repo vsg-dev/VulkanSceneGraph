@@ -146,14 +146,14 @@ namespace vsg
         value_type& at(std::size_t i) { return _data[i]; }
         const value_type& at(std::size_t i) const { return _data[i]; }
 
-        value_type& operator()(std::size_t i, std::size_t j) { return _data[index(i,j)]; }
-        const value_type& operator()(std::size_t i, std::size_t j) const { return _data[index(i,j)]; }
+        value_type& operator()(std::size_t i, std::size_t j) { return _data[index(i, j)]; }
+        const value_type& operator()(std::size_t i, std::size_t j) const { return _data[index(i, j)]; }
 
-        value_type& at(std::size_t i, std::size_t j) { return _data[index(i,j)]; }
-        const value_type& at(std::size_t i, std::size_t j) const { return _data[index(i,j)]; }
+        value_type& at(std::size_t i, std::size_t j) { return _data[index(i, j)]; }
+        const value_type& at(std::size_t i, std::size_t j) const { return _data[index(i, j)]; }
 
         void set(std::size_t i, const value_type& v) { _data[i] = v; }
-        void set(std::size_t i, std::size_t j, const value_type& v) { _data[index(i,j)] = v; }
+        void set(std::size_t i, std::size_t j, const value_type& v) { _data[index(i, j)] = v; }
 
         iterator begin() { return _data; }
         const_iterator begin() const { return _data; }

@@ -305,9 +305,21 @@ void ConstVisitor::apply(const UIEvent& event)
 {
     apply(static_cast<const Object&>(event));
 }
-void ConstVisitor::apply(const KeyEvent& event)
+void ConstVisitor::apply(const WindowEvent& event)
 {
     apply(static_cast<const UIEvent&>(event));
+}
+void ConstVisitor::apply(const ExposeWindowEvent& event)
+{
+    apply(static_cast<const WindowEvent&>(event));
+}
+void ConstVisitor::apply(const DeleteWindowEvent& event)
+{
+    apply(static_cast<const WindowEvent&>(event));
+}
+void ConstVisitor::apply(const KeyEvent& event)
+{
+    apply(static_cast<const WindowEvent&>(event));
 }
 void ConstVisitor::apply(const KeyPressEvent& event)
 {
@@ -319,13 +331,17 @@ void ConstVisitor::apply(const KeyReleaseEvent& event)
 }
 void ConstVisitor::apply(const PointerEvent& event)
 {
-    apply(static_cast<const UIEvent&>(event));
+    apply(static_cast<const WindowEvent&>(event));
 }
 void ConstVisitor::apply(const ButtonPressEvent& event)
 {
     apply(static_cast<const PointerEvent&>(event));
 }
 void ConstVisitor::apply(const ButtonReleaseEvent& event)
+{
+    apply(static_cast<const PointerEvent&>(event));
+}
+void ConstVisitor::apply(const MoveEvent& event)
 {
     apply(static_cast<const PointerEvent&>(event));
 }

@@ -20,14 +20,21 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 using namespace vsgWin32;
 
+namespace vsg
+{
+    // Provide the Window::create(...) implementation that automatically maps to a GLFW_Window
+    Window::Result Window::create(const Window::Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+    {
+        ref_ptr<vsg::Window> window = vsgWin32::Win32_Window::create(traits, debugLayer, apiDumpLayer, allocator);
+    }
+} // namespace vsg
+
 namespace vsgWin32
 {
-    const std::string kWindowClassName = "vsg_Win32_Window_Class";
-
     vsg::Names vsgWin32::getInstanceExtensions()
     {
         // check the extensions are avaliable first
-        Names requiredExtensions = {"VK_KHR_surface", "VK_KHR_win32_surface"};
+        Names requiredExtensions = {VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME};
 
         if (!vsg::isExtensionListSupported(requiredExtensions))
         {
@@ -61,7 +68,7 @@ namespace vsgWin32
         return ::DefWindowProc(hwnd, msg, wParam, lParam);
     }
 
-} // namespace vsg
+} // namespace vsgWin32
 
 Win32_Window::Win32_Window(HWND window, vsg::Instance* instance, vsg::Surface* surface, vsg::PhysicalDevice* physicalDevice, vsg::Device* device, vsg::RenderPass* renderPass, bool debugLayersEnabled) :
     _window(window),
@@ -95,7 +102,7 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = 0;
     wc.lpszMenuName = 0;
-    wc.lpszClassName = kWindowClassName.c_str();
+    wc.lpszClassName = traits.windowClass.c_str();
     wc.hIconSm = 0;
 
     if (::RegisterClassEx(&wc) == 0)
@@ -142,7 +149,7 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
     if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) return Result("Error: vsg::Win32_Window::create(...) failed to create Window, AdjustWindowRectEx failed.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     // create the window
-    hwnd = ::CreateWindowEx(extendedStyle, kWindowClassName.c_str(), traits.title.c_str(), windowStyle,
+    hwnd = ::CreateWindowEx(extendedStyle, traits.windowClass.c_str(), traits.windowTitle.c_str(), windowStyle,
                             windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
                             NULL, NULL, ::GetModuleHandle(NULL), NULL);
 
@@ -237,11 +244,11 @@ Win32_Window::~Win32_Window()
         _window = nullptr;
 
         // when should we unregister??
-        ::UnregisterClass(kWindowClassName.c_str(), ::GetModuleHandle(NULL));
+        ::UnregisterClass(traits.windowClass.c_str(), ::GetModuleHandle(NULL));
     }
 }
 
-bool Win32_Window::pollEvents()
+bool Win32_Window::pollEvents(vsg::Events& events)
 {
     MSG msg;
 

@@ -12,9 +12,10 @@ We need to flesh out the following high level project infrastructure:
 - [x] Website(s) - what requires dedicated websites, vs embedded in git-hub repositories.
 	- [x] Initial approach to see how rich the experience can be with just README.md etc.
 - [x] Developer/Community discussion forum(s)
-	- [x] Create googlegroup [Vulkan/VkSceneGraph Developer Discussion Group](https://- [ ] 3rd party tools used in development and testing
+	- [x] Create googlegroup [Vulkan/VkSceneGraph Developer Discussion Group](https://groups.google.com/forum/#!forum/vsg-users)
+- [ ] 3rd party tools used in development and testing
 	- [x] Static code analysis (cppcheck added 19.10.18)
-    - Dynamic analysis (such as LLVM sanitizers)
+    - [ ] Dynamic analysis such as LLVM sanitizers and valgrind
 groups.google.com/forum/#!forum/vsg-users) as a starter.
 
 ## Core Scene Graph development
@@ -33,16 +34,16 @@ Core scene graph work will be primarily tackled by Robert Osfield.
 The initial development work has been done under Linux, with support for additional platform to be tackled in the prototype phase. Cross platform work to be led by Thomas Hogarth.
 
 - [x] Initial Windows support was added in October, this will be refined to provide as straight forward developer experience as we can achieve.
-- [ ] Development of platform specific Windowing support to replace the current dependency on GLFW.
+- [x] Development of platform specific Windowing support to replace the current dependency on GLFW.
 	- [x] Win32_Window native windowing class for Windows
-	- [ ] Xcb_Window native Windowing for Unices
-- [ ] Port to Android to begin in November/December.
+	- [x] Xcb_Window native Windowing for Unices
+- [ ] Port to Android to begin in November/December (underway).
 
 ## Add-on library development
 Add-on libraries will provide image and 3d model loaders, and integration with 3rd party software.
 
 - [ ] [osg2vsg](https://github.com/vsg-dev/osg2vsg) OpenSceneGraph/VSG integration support library:
-	- [ ] Convert existing osg::Image loading/vulkan object creation to use vsg::Array2D(completed)/3D
+	- [x] Convert existing osg::Image loading/vulkan object creation to use vsg::Array2D(completed)/3D
 	- [ ] Basic support for converting osg::Node scene graph objects to vsg::Node equivalents
 
 - [ ] vsg*Image - possible integration of the 3rd party image readers/writers

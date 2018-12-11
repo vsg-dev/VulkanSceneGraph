@@ -63,6 +63,7 @@ namespace vsg
         Windows _windows;
         DeviceMap _deviceMap;
         ref_ptr<Semaphore> _renderFinishedSemaphore;
+        clock::time_point _start_point;
     };
 
 } // namespace vsg

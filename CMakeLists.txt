@@ -48,15 +48,26 @@ endif()
 set(VSG_WARNING_FLAGS ${VSG_WARNING_FLAGS} CACHE STRING "Compiler flags to use." FORCE)
 add_compile_options(${VSG_WARNING_FLAGS})
 
-if(NOT ANDROID)
-    find_package(glfw3)
-else()
+
+find_package(Vulkan)
+
+if (ANDROID)
     find_library(AndroidLib android)
     if(CMAKE_SYSTEM_VERSION GREATER 24)
         find_library(AndroidNativeWindowLib nativewindow)
     endif()
+elseif (WIN32)
+    # just use native windowing
+elseif (APPLE)
+    find_package(glfw3)
+else()
+    find_package(glfw3)
+
+    find_package(PkgConfig)
+    pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
+    option(USE_GLFW "Use GLFW for Windowing" OFF)
 endif()
-find_package(Vulkan)
+
 
 
 # create doxygen build target

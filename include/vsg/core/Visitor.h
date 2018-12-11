@@ -34,12 +34,16 @@ namespace vsg
 
     // forward declare ui events classes
     class UIEvent;
+    class WindowEvent;
+    class ExposeWindowEvent;
+    class DeleteWindowEvent;
     class KeyEvent;
     class KeyPressEvent;
     class KeyReleaseEvent;
     class PointerEvent;
     class ButtonPressEvent;
     class ButtonReleaseEvent;
+    class MoveEvent;
 
     class VSG_DECLSPEC Visitor : public Object
     {
@@ -120,12 +124,16 @@ namespace vsg
 
         // ui events
         virtual void apply(UIEvent&);
+        virtual void apply(WindowEvent&);
+        virtual void apply(ExposeWindowEvent&);
+        virtual void apply(DeleteWindowEvent&);
         virtual void apply(KeyEvent&);
         virtual void apply(KeyPressEvent&);
         virtual void apply(KeyReleaseEvent&);
         virtual void apply(PointerEvent&);
         virtual void apply(ButtonPressEvent&);
         virtual void apply(ButtonReleaseEvent&);
+        virtual void apply(MoveEvent&);
     };
 
     // provide Value<>::accept() implementation

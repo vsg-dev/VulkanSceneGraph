@@ -12,50 +12,44 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#define VK_USE_PLATFORM_WIN32_KHR
-
+#include <vsg/core/observer_ptr.h>
+#include <vsg/ui/UIEvent.h>
 #include <vsg/viewer/Window.h>
 
-#include <unordered_map>
-
-#include <windows.h>
-#include <windowsx.h>
-
-namespace vsgWin32
+namespace vsg
 {
-    extern vsg::Names getInstanceExtensions();
 
-    class Win32_Window : public vsg::Window
+    class WindowEvent : public Inherit<UIEvent, WindowEvent>
     {
     public:
+        WindowEvent(Window* in_window, time_point in_time) :
+            Inherit(in_time),
+            window(in_window) {}
 
-        Win32_Window() = delete;
-        Win32_Window(const Win32_Window&) = delete;
-        Win32_Window operator = (const Win32_Window &) = delete;
+        observer_ptr<Window> window;
+    };
 
-        static Result create(const Traits& traits, bool debugLayer = false, bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
+    class ExposeWindowEvent : public Inherit<WindowEvent, ExposeWindowEvent>
+    {
+    public:
+        ExposeWindowEvent(Window* in_window, time_point in_time, int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height) :
+            Inherit(in_window, in_time),
+            x(in_x),
+            y(in_y),
+            width(in_width),
+            height(in_height) {}
 
-        bool valid() const override { return _window && !_shouldClose; }
+        int x = 0;
+        int y = 0;
+        int width = 0;
+        int height = 0;
+    };
 
-        bool pollEvents(vsg::Events& events) override;
-
-        bool resized() const override;
-
-        void resize() override;
-
-        operator HWND () { return _window; }
-        operator const HWND () const { return _window; }
-
-        LRESULT handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam);
-
-    protected:
-        virtual ~Win32_Window();
-
-        Win32_Window (HWND window, vsg::Instance* instance, vsg::Surface* surface, vsg::PhysicalDevice* physicalDevice, vsg::Device* device, vsg::RenderPass* renderPass, bool debugLayersEnabled);
-
-        HWND _window;
-        bool _shouldClose;
+    class DeleteWindowEvent : public Inherit<WindowEvent, DeleteWindowEvent>
+    {
+    public:
+        DeleteWindowEvent(Window* in_window, time_point in_time) :
+            Inherit(in_window, in_time) {}
     };
 
 } // namespace vsg
-

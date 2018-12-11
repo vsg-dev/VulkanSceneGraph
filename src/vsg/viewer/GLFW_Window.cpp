@@ -18,6 +18,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace glfw;
 
+namespace vsg
+{
+    // Provide the Window::create(...) implementation that automatically maps to a GLFW_Window
+    Window::Result Window::create(const Window::Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+    {
+        ref_ptr<vsg::Window> window = glfw::GLFW_Window::create(traits.width, traits.height, debugLayer, apiDumpLayer, traits.shareWindow, allocator);
+        return Result(window);
+    }
+} // namespace vsg
+
 vsg::Names glfw::getInstanceExtensions()
 {
     uint32_t glfw_count;
@@ -163,7 +173,7 @@ GLFW_Window::~GLFW_Window()
     }
 }
 
-bool GLFW_Window::pollEvents()
+bool GLFW_Window::pollEvents(vsg::Events& /*events*/)
 {
     glfwPollEvents();
     return false;

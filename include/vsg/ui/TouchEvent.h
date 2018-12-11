@@ -18,57 +18,41 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    // VSG_type_name(vsg::TouchEvent);
 
-    enum ButtonMask : uint16_t
-    {
-        BUTTON_MASK_1 = 256,
-        BUTTON_MASK_2 = 512,
-        BUTTON_MASK_3 = 1024,
-        BUTTON_MASK_4 = 2048,
-        BUTTON_MASK_5 = 4096
-    };
-
-    // VSG_type_name(vsg::PointerEvent);
-
-    class PointerEvent : public Inherit<WindowEvent, PointerEvent>
+    class TouchEvent : public Inherit<WindowEvent, TouchEvent>
     {
     public:
-        PointerEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask) :
+        TouchEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, uint32_t in_id) :
             Inherit(in_window, in_time),
             x(in_x),
             y(in_y),
-            mask(in_buttonMask) {}
+            id(in_id) {}
 
         uint32_t x;
         uint32_t y;
-        ButtonMask mask;
+        uint32_t id;
     };
 
-    class ButtonPressEvent : public Inherit<PointerEvent, ButtonPressEvent>
+    class TouchDownEvent : public Inherit<TouchEvent, TouchDownEvent>
     {
     public:
-        ButtonPressEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask, uint32_t in_button) :
-            Inherit(in_window, in_time, in_x, in_y, in_buttonMask),
-            button(in_button) {}
-
-        uint32_t button;
+        TouchDownEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, uint32_t in_id) :
+            Inherit(in_window, in_time, in_x, in_y, in_id) {}
     };
 
-    class ButtonReleaseEvent : public Inherit<PointerEvent, ButtonReleaseEvent>
+    class TouchUpEvent : public Inherit<TouchEvent, TouchUpEvent>
     {
     public:
-        ButtonReleaseEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask, uint32_t in_button) :
-            Inherit(in_window, in_time, in_x, in_y, in_buttonMask),
-            button(in_button) {}
-
-        uint32_t button;
+        TouchUpEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, uint32_t in_id) :
+            Inherit(in_window, in_time, in_x, in_y, in_id) {}
     };
 
-    class MoveEvent : public Inherit<PointerEvent, MoveEvent>
+    class TouchMoveEvent : public Inherit<TouchEvent, TouchMoveEvent>
     {
     public:
-        MoveEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, ButtonMask in_buttonMask) :
-            Inherit(in_window, in_time, in_x, in_y, in_buttonMask) {}
+        TouchMoveEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, uint32_t in_id) :
+            Inherit(in_window, in_time, in_x, in_y, in_id) {}
     };
 
 } // namespace vsg

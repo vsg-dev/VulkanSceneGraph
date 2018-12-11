@@ -16,11 +16,51 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/viewer/Window.h>
 
+#include <android/input.h>
 #include <android/native_window.h>
 
 namespace vsgAndroid
 {
     extern vsg::Names getInstanceExtensions();
+
+    class KeyboardMap : public vsg::Object
+    {
+    public:
+        KeyboardMap();
+
+        using AKeyCodeToKeySymbolMap = std::map<uint32_t, vsg::KeySymbol>;
+
+        bool getKeySymbol(uint32_t keycode, uint32_t metastate, vsg::KeySymbol& keySymbol, vsg::KeySymbol& modifiedKeySymbol, vsg::KeyModifier& keyModifier)
+        {
+            auto itr = _keycodeMap.find(keycode);
+            if (itr == _keycodeMap.end()) return false;
+
+            keySymbol = itr->second;
+            modifiedKeySymbol = keySymbol;
+
+            uint16_t modifierMask = 0;
+
+            if (metastate & AMETA_ALT_ON) modifierMask |= vsg::KeyModifier::MODKEY_Alt;
+            if (metastate & AMETA_CTRL_ON) modifierMask |= vsg::KeyModifier::MODKEY_Control;
+            if (metastate & AMETA_SHIFT_ON) modifierMask |= vsg::KeyModifier::MODKEY_Shift;
+            if (metastate & AMETA_CAPS_LOCK_ON) modifierMask |= vsg::KeyModifier::MODKEY_CapsLock;
+            if (metastate & AMETA_NUM_LOCK_ON) modifierMask |= vsg::KeyModifier::MODKEY_NumLock;
+
+            keyModifier = (vsg::KeyModifier) modifierMask;
+
+            char asciiKey[2];
+            int numChars = ::ToAscii(wParam, (lParam>>16)&0xff, keyState, reinterpret_cast<WORD*>(asciiKey), 0);
+            if (numChars>0) modifiedKeySymbol = (vsg::KeySymbol)asciiKey[0];
+
+            std::cout << "moded ascii: " << asciiKey[0] << "  0x" << std::hex << asciiKey[0] << std::endl;
+
+            return true;
+        }
+
+    protected:
+        AKeyCodeToKeySymbolMap _keycodeMap;
+    };
+
 
     class Android_Window : public vsg::Window
     {
@@ -35,21 +75,26 @@ namespace vsgAndroid
 
         virtual bool valid() const { return _window; }
 
-        virtual bool pollEvents();
+        virtual bool pollEvents(vsg::Events& events);
 
         virtual bool resized() const;
 
         virtual void resize();
 
-        operator ANativeWindow* () { return _window; }
-        operator const ANativeWindow* () const { return _window; }
+        bool handleAndroidInputEvent(AInputEvent* anEvent);
 
     protected:
         virtual ~Android_Window();
 
-        Android_Window(ANativeWindow* window, vsg::Instance* instance, vsg::Surface* surface, vsg::PhysicalDevice* physicalDevice, vsg::Device* device, vsg::RenderPass* renderPass, bool debugLayersEnabled);
+        Android_Window(const vsg::Window::Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator);
 
         ANativeWindow* _window;
+
+        int64_t _first_android_timestamp = 0;
+        vsg::clock::time_point _first_android_time_point;
+
+        vsg::Events _bufferedEvents;
+        vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 
 } // namespace vsg

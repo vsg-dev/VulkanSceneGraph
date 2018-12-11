@@ -32,10 +32,11 @@ using namespace vsg;
 #    define DEBUG_NOTIFY std::cout
 #endif
 
-Object::Object() :
+Object::Object(Allocator* allocator) :
     _referenceCount(0),
     _auxiliary(nullptr)
 {
+    if (allocator) _auxiliary = allocator->getOrCreateSharedAuxiliary();
 }
 
 Object::~Object()

@@ -19,6 +19,7 @@ using namespace vsg;
 
 Viewer::Viewer()
 {
+    _start_point = clock::now();
 }
 
 Viewer::~Viewer()
@@ -73,13 +74,79 @@ bool Viewer::done() const
     return false;
 }
 
+#include <vsg/ui/KeyEvent.h>
+#include <vsg/ui/PointerEvent.h>
+
 bool Viewer::pollEvents()
 {
     bool result = false;
+    Events events;
     for (auto& window : _windows)
     {
-        if (window->pollEvents()) result = true;
+        if (window->pollEvents(events)) result = true;
     }
+
+    if (result)
+    {
+        struct PrintEvents : public vsg::Visitor
+        {
+            vsg::clock::time_point start_point;
+            bool& close;
+
+            PrintEvents(vsg::clock::time_point in_start_point, bool& in_close) :
+                start_point(in_start_point),
+                close(in_close) {}
+
+            void apply(vsg::UIEvent& event)
+            {
+                std::cout << "event : " << event.className() << ", " << std::chrono::duration<double>(event.time - start_point).count() << std::endl;
+            }
+
+            void apply(vsg::ExposeWindowEvent& event)
+            {
+                std::cout << "Expose window : " << event.className() << ", " << std::chrono::duration<double>(event.time - start_point).count() << " " << event.x << ", " << event.y << ", " << event.width << ", " << event.height << std::endl;
+            }
+
+            void apply(vsg::DeleteWindowEvent& event)
+            {
+                std::cout << "Delete window : " << event.className() << ", " << std::chrono::duration<double>(event.time - start_point).count() << std::endl;
+                close = true;
+            }
+
+            void apply(vsg::KeyReleaseEvent& keyRelease)
+            {
+                std::cout << "KeyReleaeEvent : " << keyRelease.className() << ", " << std::chrono::duration<double>(keyRelease.time - start_point).count() << ", " << keyRelease.keyBase << std::endl;
+            }
+
+            void apply(vsg::KeyPressEvent& keyPress)
+            {
+                std::cout << "KeyPressEvent : " << keyPress.className() << ", " << std::chrono::duration<double>(keyPress.time - start_point).count() << ", " << keyPress.keyBase << ", " << keyPress.keyModified << std::endl;
+            }
+
+            void apply(vsg::ButtonPressEvent& buttonPress)
+            {
+                std::cout << "ButtonPress : " << buttonPress.className() << ", " << std::chrono::duration<double>(buttonPress.time - start_point).count() << ", " << buttonPress.x << ", " << buttonPress.y << ", " << buttonPress.mask << ", " << buttonPress.button << std::endl;
+            }
+
+            void apply(vsg::ButtonReleaseEvent& buttonRelease)
+            {
+                std::cout << "ButtonRelease : " << buttonRelease.className() << ", " << std::chrono::duration<double>(buttonRelease.time - start_point).count() << ", " << buttonRelease.x << ", " << buttonRelease.y << ", " << buttonRelease.mask << ", " << buttonRelease.button << std::endl;
+            }
+
+            void apply(vsg::MoveEvent& move)
+            {
+                std::cout << "MoveEvent : " << move.className() << ", " << std::chrono::duration<double>(move.time - start_point).count() << ", " << move.x << ", " << move.y << ", " << move.mask << std::endl;
+            }
+        };
+
+        bool close = false;
+        PrintEvents print(_start_point, close);
+        for (auto& vsg_event : events)
+        {
+            vsg_event->accept(print);
+        }
+    }
+
     return result;
 }
 

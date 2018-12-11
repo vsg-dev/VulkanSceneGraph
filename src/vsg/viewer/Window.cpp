@@ -16,14 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <chrono>
 #include <iostream>
 
-#if defined(_WIN32)
-#    include "Win32_Window.h"
-#elif defined(__ANDROID__)
-#    include "Android_Window.h"
-#else
-#    include "GLFW_Window.h"
-#endif
-
 namespace vsg
 {
 
@@ -173,18 +165,6 @@ namespace vsg
         traits.height = height;
         traits.shareWindow = shareWindow;
         return create(traits, debugLayer, apiDumpLayer, allocator);
-    }
-
-    Window::Result Window::create(const Window::Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
-    {
-#if defined(_WIN32)
-        ref_ptr<vsg::Window> window = vsgWin32::Win32_Window::create(traits, debugLayer, apiDumpLayer, allocator);
-#elif defined(__ANDROID__)
-        ref_ptr<vsg::Window> window = vsgAndroid::Android_Window::create(traits, debugLayer, apiDumpLayer, allocator);
-#else
-        ref_ptr<vsg::Window> window = glfw::GLFW_Window::create(traits.width, traits.height, debugLayer, apiDumpLayer, traits.shareWindow, allocator);
-#endif
-        return Result(window);
     }
 
 } // namespace vsg
