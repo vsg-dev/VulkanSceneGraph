@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    VSG_type_name(vsg::WindowEvent);
     class WindowEvent : public Inherit<UIEvent, WindowEvent>
     {
     public:
@@ -29,6 +30,7 @@ namespace vsg
         observer_ptr<Window> window;
     };
 
+    VSG_type_name(vsg::ExposeWindowEvent);
     class ExposeWindowEvent : public Inherit<WindowEvent, ExposeWindowEvent>
     {
     public:
@@ -45,6 +47,7 @@ namespace vsg
         int height = 0;
     };
 
+    VSG_type_name(vsg::DeleteWindowEvent);
     class DeleteWindowEvent : public Inherit<WindowEvent, DeleteWindowEvent>
     {
     public:

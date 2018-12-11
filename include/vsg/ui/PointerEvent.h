@@ -28,8 +28,7 @@ namespace vsg
         BUTTON_MASK_5 = 4096
     };
 
-    // VSG_type_name(vsg::PointerEvent);
-
+    VSG_type_name(vsg::PointerEvent);
     class PointerEvent : public Inherit<WindowEvent, PointerEvent>
     {
     public:
@@ -44,6 +43,7 @@ namespace vsg
         ButtonMask mask;
     };
 
+    VSG_type_name(vsg::ButtonPressEvent);
     class ButtonPressEvent : public Inherit<PointerEvent, ButtonPressEvent>
     {
     public:
@@ -54,6 +54,7 @@ namespace vsg
         uint32_t button;
     };
 
+    VSG_type_name(vsg::ButtonReleaseEvent);
     class ButtonReleaseEvent : public Inherit<PointerEvent, ButtonReleaseEvent>
     {
     public:
@@ -64,6 +65,7 @@ namespace vsg
         uint32_t button;
     };
 
+    VSG_type_name(vsg::MoveEvent);
     class MoveEvent : public Inherit<PointerEvent, MoveEvent>
     {
     public:

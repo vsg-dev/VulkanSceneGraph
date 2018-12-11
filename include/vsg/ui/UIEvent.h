@@ -23,6 +23,7 @@ namespace vsg
     using clock = std::chrono::steady_clock;
     using time_point = clock::time_point;
 
+    VSG_type_name(vsg::UIEvent);
     class UIEvent : public Inherit<Object, UIEvent>
     {
     public:

@@ -273,6 +273,7 @@ namespace vsg
         MODKEY_Meta = 128
     };
 
+    VSG_type_name(vsg::KeyEvent);
     class KeyEvent : public Inherit<WindowEvent, KeyEvent>
     {
     public:
@@ -289,6 +290,7 @@ namespace vsg
         uint32_t repeatCount;
     };
 
+    VSG_type_name(vsg::KeyPressEvent);
     class KeyPressEvent : public Inherit<KeyEvent, KeyPressEvent>
     {
     public:
@@ -296,6 +298,7 @@ namespace vsg
             Inherit(in_window, in_time, in_keyBase, in_keyModified, in_modifier, in_repeatCount) {}
     };
 
+    VSG_type_name(vsg::KeyReleaseEvent);
     class KeyReleaseEvent : public Inherit<KeyEvent, KeyReleaseEvent>
     {
     public:
