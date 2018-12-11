@@ -16,7 +16,6 @@ We need to flesh out the following high level project infrastructure:
 - [ ] 3rd party tools used in development and testing
 	- [x] Static code analysis (cppcheck added 19.10.18)
     - [ ] Dynamic analysis such as LLVM sanitizers and valgrind
-groups.google.com/forum/#!forum/vsg-users) as a starter.
 
 ## Core Scene Graph development
 Core scene graph work will be primarily tackled by Robert Osfield.
@@ -37,7 +36,7 @@ The initial development work has been done under Linux, with support for additio
 - [x] Development of platform specific Windowing support to replace the current dependency on GLFW.
 	- [x] Win32_Window native windowing class for Windows
 	- [x] Xcb_Window native Windowing for Unices
-- [ ] Port to Android to begin in November/December (underway).
+- [x] Port to Android : support within VSG completed, vsgExample being created.
 
 ## Add-on library development
 Add-on libraries will provide image and 3d model loaders, and integration with 3rd party software.

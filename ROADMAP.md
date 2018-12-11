@@ -20,7 +20,7 @@ For a fine grained work plan see [Prototype Phase Workplan](docs/PrototypePhase/
 * Develop as a throw away functional prototype (3rd parties should not assume any of the API is stable.)
 * Create native Windowing under Windows (Win32) and Linux (Xcb) (done)
 * Create community infrastructure - forum/mailing lists etc.. (done)
-* Port to Android (underway)
+* Port to Android (initial support checked in, example being prepared)
 * Scope out the best practices that will achieve rapid and robust software development once work on the final VSG starts:
     * Static code analysis (cppcheck added 19.10.18)
     * Dynamic analysis, such as LLVM sanitizers) and valgrind
