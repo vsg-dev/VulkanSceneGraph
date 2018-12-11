@@ -34,7 +34,9 @@ namespace vsg
     class VSG_DECLSPEC Object
     {
     public:
-        Object(Allocator* allocator=nullptr);
+        Object();
+
+        explicit Object(Allocator* allocator);
 
         Object(const Object&) = delete;
         Object& operator=(const Object&) = delete;
