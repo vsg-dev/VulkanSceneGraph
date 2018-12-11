@@ -18,8 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    // VSG_type_name(vsg::TouchEvent);
 
+    VSG_type_name(vsg::TouchEvent);
     class TouchEvent : public Inherit<WindowEvent, TouchEvent>
     {
     public:
@@ -34,6 +34,7 @@ namespace vsg
         uint32_t id;
     };
 
+    VSG_type_name(vsg::TouchDownEvent);
     class TouchDownEvent : public Inherit<TouchEvent, TouchDownEvent>
     {
     public:
@@ -41,6 +42,7 @@ namespace vsg
             Inherit(in_window, in_time, in_x, in_y, in_id) {}
     };
 
+    VSG_type_name(vsg::TouchUpEvent);
     class TouchUpEvent : public Inherit<TouchEvent, TouchUpEvent>
     {
     public:
@@ -48,6 +50,7 @@ namespace vsg
             Inherit(in_window, in_time, in_x, in_y, in_id) {}
     };
 
+    VSG_type_name(vsg::TouchMoveEvent);
     class TouchMoveEvent : public Inherit<TouchEvent, TouchMoveEvent>
     {
     public:

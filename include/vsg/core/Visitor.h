@@ -44,6 +44,10 @@ namespace vsg
     class ButtonPressEvent;
     class ButtonReleaseEvent;
     class MoveEvent;
+    class TouchEvent;
+    class TouchDownEvent;
+    class TouchUpEvent;
+    class TouchMoveEvent;
 
     class VSG_DECLSPEC Visitor : public Object
     {
@@ -134,6 +138,10 @@ namespace vsg
         virtual void apply(ButtonPressEvent&);
         virtual void apply(ButtonReleaseEvent&);
         virtual void apply(MoveEvent&);
+        virtual void apply(TouchEvent&);
+        virtual void apply(TouchDownEvent&);
+        virtual void apply(TouchUpEvent&);
+        virtual void apply(TouchMoveEvent&);
     };
 
     // provide Value<>::accept() implementation
