@@ -38,7 +38,7 @@ DescriptorSetLayout::Result DescriptorSetLayout::create(Device* device, const De
 
     VkDescriptorSetLayoutCreateInfo layoutInfo = {};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = descriptorSetLayoutBindings.size();
+    layoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetLayoutBindings.size());
     layoutInfo.pBindings = descriptorSetLayoutBindings.data();
 
     VkDescriptorSetLayout descriptorSetLayout;

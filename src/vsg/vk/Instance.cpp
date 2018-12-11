@@ -101,10 +101,10 @@ Instance::Result Instance::create(Names& instanceExtensions, Names& layers, Allo
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
 
-    createInfo.enabledExtensionCount = instanceExtensions.size();
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(instanceExtensions.size());
     createInfo.ppEnabledExtensionNames = instanceExtensions.empty() ? nullptr : instanceExtensions.data();
 
-    createInfo.enabledLayerCount = layers.size();
+    createInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
     createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
 
     VkInstance instance;

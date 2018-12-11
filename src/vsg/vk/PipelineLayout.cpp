@@ -43,9 +43,9 @@ PipelineLayout::Result PipelineLayout::create(Device* device, const DescriptorSe
     VkPipelineLayoutCreateInfo pipelineLayoutInfo;
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.flags = flags;
-    pipelineLayoutInfo.setLayoutCount = layouts.size();
+    pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(layouts.size());
     pipelineLayoutInfo.pSetLayouts = layouts.data();
-    pipelineLayoutInfo.pushConstantRangeCount = pushConstantRanges.size();
+    pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstantRanges.size());
     pipelineLayoutInfo.pPushConstantRanges = pushConstantRanges.data();
 
     VkPipelineLayout pipelineLayout;

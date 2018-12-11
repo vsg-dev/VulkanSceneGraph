@@ -214,14 +214,14 @@ void Viewer::submitFrame()
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-        submitInfo.waitSemaphoreCount = pdo.waitSemaphores.size();
+        submitInfo.waitSemaphoreCount = static_cast<uint32_t>(pdo.waitSemaphores.size());
         submitInfo.pWaitSemaphores = pdo.waitSemaphores.data();
         submitInfo.pWaitDstStageMask = pdo.waitStages.data();
 
-        submitInfo.commandBufferCount = pdo.commandBuffers.size();
+        submitInfo.commandBufferCount = static_cast<uint32_t>(pdo.commandBuffers.size());
         submitInfo.pCommandBuffers = pdo.commandBuffers.data();
 
-        submitInfo.signalSemaphoreCount = pdo.signalSemaphores.size();
+        submitInfo.signalSemaphoreCount = static_cast<uint32_t>(pdo.signalSemaphores.size());
         submitInfo.pSignalSemaphores = pdo.signalSemaphores.data();
 
         if (vkQueueSubmit(pdo.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
@@ -237,9 +237,9 @@ void Viewer::submitFrame()
 
         VkPresentInfoKHR presentInfo = {};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-        presentInfo.waitSemaphoreCount = pdo.signalSemaphores.size();
+        presentInfo.waitSemaphoreCount = static_cast<uint32_t>(pdo.signalSemaphores.size());
         presentInfo.pWaitSemaphores = pdo.signalSemaphores.data();
-        presentInfo.swapchainCount = pdo.swapchains.size();
+        presentInfo.swapchainCount = static_cast<uint32_t>(pdo.swapchains.size());
         presentInfo.pSwapchains = pdo.swapchains.data();
         presentInfo.pImageIndices = pdo.imageIndices.data();
 

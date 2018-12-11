@@ -48,7 +48,7 @@ namespace vsg
 
         void _write(const std::string& str)
         {
-            uint32_t size = str.size();
+            uint32_t size = static_cast<uint32_t>(str.size());
             _output.write(reinterpret_cast<const char*>(&size), sizeof(uint32_t));
             _output.write(str.c_str(), size);
         }
