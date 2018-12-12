@@ -83,8 +83,8 @@ set(SOURCES
 set(LIBRARIES PUBLIC Vulkan::Vulkan)
 
 if (ANDROID)
-    set(HEADERS ${HEADERS} ${CMAKE_SOURCE_DIR}/include/vsg/viewer/platforms/Android_Window.h)
-    set(SOURCES ${SOURCES} viewer/Android_Window.cpp)
+    set(HEADERS ${HEADERS} ${CMAKE_SOURCE_DIR}/include/vsg/platform/android/Android_Window.h)
+    set(SOURCES ${SOURCES} platform/android/Android_Window.cpp)
 
     if(CMAKE_SYSTEM_VERSION GREATER 24)
         set(LIBRARIES ${LIBRARIES} PRIVATE ${AndroidLib} PRIVATE ${AndroidNativeWindowLib})
@@ -93,7 +93,7 @@ if (ANDROID)
     endif()
 
 elseif (WIN32)
-    set(SOURCES ${SOURCES} viewer/Win32_Window.cpp)
+    set(SOURCES ${SOURCES} platform/win32/Win32_Window.cpp)
 elseif (APPLE)
     set(SOURCES ${SOURCES} viewer/GLFW_Window.cpp)
     set(LIBRARIES ${LIBRARIES} PRIVATE glfw)

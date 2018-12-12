@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/viewer/platforms/Android_Window.h>
+#include <vsg/platform/android/Android_Window.h>
 
 #include <android/log.h>
 #include <android/looper.h>

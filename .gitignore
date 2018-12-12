@@ -63,3 +63,8 @@ install_manifest.txt
 .vs/
 x64/
 src/vsg/vsg.dir/
+
+#xcode
+DerivedData/
+*.build
+*.xcodeproj
