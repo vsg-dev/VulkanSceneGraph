@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include "Win32_Window.h"
+#include <vsg/platform/win32/Win32_Window.h>
 
 #include <vsg/vk/Extensions.h>
 
