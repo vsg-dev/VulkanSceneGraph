@@ -53,6 +53,7 @@ Requires Android NDK 18 and CMake 3.13 (lower CMake versions may work but have n
 	make -j 8
 	make install
 
+More detailed Android platform instructions can be found [below](#detailed-instructions-for-setting-up-your-environment-and-building-for-android).
 
 ## Quick build instructions for macOS using Xcode 9
 
