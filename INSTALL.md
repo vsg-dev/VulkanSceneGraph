@@ -138,22 +138,48 @@ From there download and install the Vulkan SDK (1.1 or later) and the Vulkan run
 
 	VULKAN_SDK = C:\VulkanSDK\1.1.85.0
 
-Next we need to download build and install GLFW with Vulkan support. GLFW does provide prebuilt binaries for Windows. However they do not ship the CMake.config files required for CMake to find the GLFW headers and lib.
-
-    git clone https://github.com/glfw/glfw.git
-    cd ./glfw
-    cmake . -G "Visual Studio 15 2017 Win64"
-
-Once CMake is finished open the generated GLFW.sln file and build the Install target for release. Remember to open Visual Studio as Administrator if installing to the Program Files folder, the default. Finally CMake needs to know where GLFW is installed on your system. As it's using CMake.config files we use the CMAKE_PREFIX_PATH environment variable to inform CMake of the location of our installed libraries. So go ahead and add GLFW to this list. Example below.
-
-    CMAKE_PREFIX_PATH = C:\Program Files\GLFW;C:\Program Files\VSG
-
-You can see in the example that we also have VSG in the list, this will be required later once VSG is built and installed and we want to utilise it with other CMake based projects.
-
-So now we have the Vulkan SDK and GLFW installed and findable by CMake so we can go ahead and build VSG. Below are simple instructions for downloading the VSG source code, generating a Visual Studio project using CMake and finally building and installing VSG onto your system.
+So now we have the Vulkan SDK installed and findable by CMake so we can go ahead and build VSG. Below are simple instructions for downloading the VSG source code, generating a Visual Studio project using CMake and finally building and installing VSG onto your system.
 
     git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
     cd VulkanSceneGraphPrototype
     cmake . -G "Visual Studio 15 2017 Win64"
 
 After running CMake open the generated VSG.sln file and build the All target. Once built you can run the install target. If you are using the default CMake install path (in Program Files folder), ensure you have started Visual Studio as administrator otherwise the install will fail.
+
+It's recommended at this point that you add the VSG install path to you CMAKE_PREFIX_PATH, this will allow other CMake projects, like the vsgExamples project to find your VSG installation. CMAKE_PREFIX_PATH can be set as an environment variable on you system.
+
+    CMAKE_PREFIX_PATH = C:\Program Files\VSG
+
+
+## Detailed instructions for setting up your environment and building for Android
+
+This guide is to build VSG for Android, these steps have been completed on macOS but should be almost identical on Linux and similar on Windows. Inorder to build VSG for Android you'll need the following installed on your machine.
+
+	Android NDK 18
+	CMake 3.13
+
+The easiest way to get the Android NDK installed is via Android Studio. Follow the link below to download and install it for your OS.
+
+[Android Studio](https://developer.android.com/studio/)
+
+If you got to the 'SDK Manager' ensure you have at least Android API level 24 installed, then go to the 'SDK Tools' tab and check the 'NDK' option. Once done click apply and Android Studio should download and install these components for you. 
+
+If you already have Android Studio and or the NDK installed. Still go to the 'SDK Manager' and see if you need to update your NDK to version 18.
+
+Take note of the 'Android SDK Location' as you'll need it when running CMake to generate our Android make files.
+
+So now we have the Android NDK installed lets go ahead and fetch the VSG source then use CMake to generate the make files.
+
+	git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
+	cd VulkanSceneGraphPrototype
+	cmake ./ \
+	-DCMAKE_BUILD_TYPE="Debug" \
+	-DCMAKE_SYSTEM_NAME="Android" \
+	-DCMAKE_SYSTEM_VERSION=24 \
+	-DCMAKE_ANDROID_STL_TYPE="c++_static" \
+	-DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
+	-DCMAKE_ANDROID_NDK=/location/of/Android/sdk/ndk-bundle \
+	-DCMAKE_INSTALL_PREFIX=/usr/local/android
+	
+Make sure you change the DCMAKE_ANDROID_NDK path to the path of your NDK, typically this is the 'Android SDK Location' you noted down earlier 
+
