@@ -35,7 +35,7 @@ Command line instructions for default build of static library (.lib) in source:
 
 After running cmake open the generated VSG.sln file and build the All target. Once built you can run the install target. If you are using the default cmake install path (in Program Files folder), ensure you have started Visual Studio as administrator otherwise the install will fail.
 
-More detailed Windows platform instructions can be found [below](#-detailed-instructions-for-setting-up-your-environment-and-building-for-microsoft-windows).
+More detailed Windows platform instructions can be found [below](#detailed-instructions-for-setting-up-your-environment-and-building-for-microsoft-windows).
 
 ## Quick build instructions for Android
 
