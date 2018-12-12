@@ -1,7 +1,7 @@
 ## Build and Install instructions index
 * [Prerequisites](#prerequisites) - list of project external dependencies
 * Unix
-	* [Quick Unix instructions](#quick-build-instructions-for-unix-from-the-command line)
+	* [Quick Unix instructions](#quick-build-instructions-for-unix-from-the-command-line)
 * Windows
 	* [Quick Windows instructions](#quick-build-instructions-for-windows-using-visual-studio-2017)
 	* [Detailed Windows instructions](#detailed-instructions-for-setting-up-your-environment-and-building-for-microsoft-windows)
