@@ -35,6 +35,8 @@ Command line instructions for default build of static library (.lib) in source:
 
 After running cmake open the generated VSG.sln file and build the All target. Once built you can run the install target. If you are using the default cmake install path (in Program Files folder), ensure you have started Visual Studio as administrator otherwise the install will fail.
 
+More detailed Windows platform detailed can be found [below](#-Detailed-instructions-for-setting-up-your-environment-and-building-for-Microsoft-Windows).
+
 ## Quick build instructions for Android
 
 Requires Android NDK 18 and CMake 3.13 (lower CMake versions may work but have not been tested).
@@ -190,3 +192,7 @@ Now we've generated the make files we can simply run
 	
 That's it, you've built VSG for Android and installed the required headers and library files onto your machine ready to use with you project or the Android vsgExamples.
 
+<<<<<<< INSTALL.md
+=======
+After running CMake open the generated VSG.sln file and build the All target. Once built you can run the install target. If you are using the default CMake install path (in Program Files folder), ensure you have started Visual Studio as administrator otherwise the install will fail.
+>>>>>>> INSTALL.md.tmp
