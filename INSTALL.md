@@ -1,3 +1,20 @@
+## Build and Install instructions index
+* [Prerequisites](#prerequisites) - list of project external dependencies
+* Unix
+	* [Quick Unix instructions](#quick-build-instructions-for-unix-from-the-command line)
+* Windows
+	* [Quick Windows instructions](#quick-build-instructions-for-windows-using-visual-studio-2017)
+	* [Detailed Windows instructions](#detailed-instructions-for-setting-up-your-environment-and-building-for-microsoft-windows)
+* Android
+	* [Quick Android instructions](#quick-build-instructions-for-android)
+	* [Detailed Android instructions](#detailed-instructions-for-setting-up-your-environment-and-building-for-android)
+* macOS
+	* [Quick macOS instructions](#quick-build-instructions-for-macOS-using-xcode-9)
+* [Build targets](#available-build-targets)
+* [Using the VSG within your own projects](#using-the-vsg-within-your-own-projects)
+
+---
+
 ## Prerequisites
 * C++17 compliant compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
 * [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.
@@ -6,7 +23,7 @@
 
 The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against older versions. If you find success with older versions let us know and we can update the version info.
 
-## Quick build instructions for Unix from the command line:
+## Quick build instructions for Unix from the command line
 
 Command line instructions for default build of static library (.a/.lib) in source:
 
@@ -64,6 +81,8 @@ Command line instructions for default build of static library (.lib) in source:
     cmake . -G "Xcode"
 
 After running cmake open the generated VSG.xcodeproj file and build the All target. Once built you can run the install target. Please note that for release builds you currently need to use the Archive option in xcode. This will rebuild every time so you can just select the install target and run Archive which will also build the All target.
+
+---
 
 ## Available build targets
 
@@ -130,6 +149,7 @@ For example, a bare minimum CMakeLists.txt file to compile a single file applica
 	set_property(TARGET myapp PROPERTY CXX_STANDARD 17)
 	target_link_libraries(myapp vsg::vsg)
 
+---
 
 ## Detailed instructions for setting up your environment and building for Microsoft Windows
 
