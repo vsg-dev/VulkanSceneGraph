@@ -17,9 +17,11 @@ The headers that provide the library classes and definitions are organized in su
 
 * [include/vsg/vk](vk/) - Vulkan integration classes
 
+* [include/vsg/io](io/) - File system, stream and native file format support
+
 * [include/vsg/viewer](viewer/) - Viewer/Windowing classes
 
-* [include/vsg/io](io/) - File system, stream and native file format support
+* [include/vsg/platform](platform/) - Platform specific Windowing/support classes
 
 * [include/vsg/utils](utils/) - Utility classes/template functions
 
