@@ -10,10 +10,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include "Xcb_Window.h"
 
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/vk/Extensions.h>
+#include <vsg/platform/unix/Xcb_Window.h>
 
 #include <xcb/xproto.h>
 
