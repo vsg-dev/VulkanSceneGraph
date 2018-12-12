@@ -19,6 +19,8 @@ The headers that provide the library classes and definitions are organized in su
 
 * [include/vsg/io](io/) - File system, stream and native file format support
 
+* [include/vsg/ui](ui/) - User Interface Event classes
+
 * [include/vsg/viewer](viewer/) - Viewer/Windowing classes
 
 * [include/vsg/platform](platform/) - Platform specific Windowing/support classes
