@@ -2,13 +2,11 @@
 * C++17 compliant compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
 * [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.
 * [CMake](https://www.cmake.org) 3.7 or later.
-*  Under macOS : [GLFW](https://www.glfw.org)  3.3 or later.  The plan is to implement native Windowing support so this dependency will later be removed, so far Windows and Linux has native Windowing so don't require GLFW.
+* Under macOS : [GLFW](https://www.glfw.org)  3.3 or later.  The plan is to implement native Windowing support so this dependency will later be removed. Windows, Linux and Android have native Windowing so don't require GLFW.
 
 The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against older versions. If you find success with older versions let us know and we can update the version info.
 
----
-
-## Quick guide to build and install the VSG for Unix from the command line:
+## Quick build instructions for Unix from the command line:
 
 Command line instructions for default build of static library (.a/.lib) in source:
 
@@ -27,9 +25,7 @@ Command line instructions for building shared library (.so/.lib + .dll) in out o
     make -j 8
     make install
 
----
-
-## Quick guide to build and install the VSG for Windows using Visual Studio 2017
+## Quick build instructions for Windows using Visual Studio 2017
 
 Command line instructions for default build of static library (.lib) in source:
 
@@ -39,9 +35,24 @@ Command line instructions for default build of static library (.lib) in source:
 
 After running cmake open the generated VSG.sln file and build the All target. Once built you can run the install target. If you are using the default cmake install path (in Program Files folder), ensure you have started Visual Studio as administrator otherwise the install will fail.
 
----
+## Quick build instructions for Android
 
-## Quick guide to build and install the VSG for macOS using Xcode 9
+Requires Android NDK 18.  Full build instructions coming soon.
+
+	cmake ./ \
+	-DCMAKE_BUILD_TYPE="Debug" \
+	-DCMAKE_SYSTEM_NAME="Android" \
+	-DCMAKE_SYSTEM_VERSION=24 \
+	-DCMAKE_ANDROID_STL_TYPE="c++_static" \
+	-DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
+	-DCMAKE_ANDROID_NDK=/location/of/Android/sdk/ndk-bundle \
+	-DCMAKE_INSTALL_PREFIX=/usr/local/android
+	
+	make -j 8
+	make install
+
+
+## Quick build instructions for macOS using Xcode 9
 
 Command line instructions for default build of static library (.lib) in source:
 
@@ -49,9 +60,7 @@ Command line instructions for default build of static library (.lib) in source:
     cd VulkanSceneGraphPrototype
     cmake . -G "Xcode"
 
-After running cmake open the generated VSG.xcodeproj file and build the All target. Once built you can run the install target. Please note that for release builds you currently need to use the Archive option in xcode. This will rebuild everytime so you can just select the install target and run Archive which will also build the All target.
-
----
+After running cmake open the generated VSG.xcodeproj file and build the All target. Once built you can run the install target. Please note that for release builds you currently need to use the Archive option in xcode. This will rebuild every time so you can just select the install target and run Archive which will also build the All target.
 
 ## Available build targets
 
@@ -92,8 +101,6 @@ Most of these are standard options which you can look up in CMake and make docum
     # generate the include/vsg/all.h from all the files that match include/vsg/*/*.h
     make build_all_h
 
----
-
 ## Using the VSG within your own projects
 
 The project is currently a prototype that is undergoing continuous development so it isn't recommend to use as base for long term software development. At this point it's available for developers who want to test the bleeding edge and provide feedback on it's fitness for purpose. Following instructions assume your project uses CMake, which at this early stage in the project is the recommended route when using the VSG.
@@ -120,7 +127,6 @@ For example, a bare minimum CMakeLists.txt file to compile a single file applica
 	set_property(TARGET myapp PROPERTY CXX_STANDARD 17)
 	target_link_libraries(myapp vsg::vsg)
 
----
 
 ## Detailed instructions for setting up your environment and building for Microsoft Windows
 

@@ -5,7 +5,7 @@ VulkanSceneGraphPrototype (VSG) is a prototype for a modern, cross platform, hig
 
 The project aims to bring the performance of Vulkan to the wider developer community by providing a modern, high quality software library that is easy to use and focused on making the development of high performance graphics and compute applications a productive and fun experience.
 
-This repository contains basic documentation, C++ headers and source and CMake build scripts to build the prototype libvsg library.  Additional support libraries and examples are provided in separate repositories, links to these are provided below.  The software currently builds under Linux, Windows and macOS (using [MoltenVk](https://github.com/KhronosGroup/MoltenVK)). We plan on providing support for Android by the end of 2018, and later add iOS support.
+This repository contains basic documentation, C++ headers and source and CMake build scripts to build the prototype libvsg library.  Additional support libraries and examples are provided in separate repositories, links to these are provided below.  The software currently builds under Linux, Windows, Android and macOS (using [MoltenVk](https://github.com/KhronosGroup/MoltenVK)). Support for iOS will be added in 2019.
 
 The VulkanSceneGraphPrototype is the precursor to final VulkanSceneGraph/VkSceneGraph project, the prototype will be developed through to the end of 2018, then in 2019 we'll begin work on the final library that will be appropriate for use within user compute and graphics middle-ware and applications.
 
@@ -31,7 +31,7 @@ We have created a [Vulkan/VkSceneGraph Developer Discussion Group](https://group
 * C++17 compliant compiler i.e.. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
 * [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.
 * [CMake](https://www.cmake.org) 3.7 or later.
-* Under macOS : [GLFW](https://www.glfw.org)  3.3 or later.  The plan is to implement native Windowing support so this dependency will later be removed, so far Windows and Linux has native Windowing so don't require GLFW.
+* Under macOS : [GLFW](https://www.glfw.org)  3.3 or later.  The plan is to implement native Windowing support so this dependency will later be removed, so far Windows, Linux and Android has native Windowing so don't require GLFW.
 
 The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against older versions.  If you find success with older versions let us know and we can update the version info.
 
@@ -44,7 +44,7 @@ To build and install the static libvsg library (.a/.lib) in source:
     make -j 8
     make install
 
-Full details on how to build of the VSG (Unix/Windows/OSX) can be found in the [INSTALL.md](INSTALL.md) file.
+Full details on how to build of the VSG (Unix/Windows/Android/macOS) can be found in the [INSTALL.md](INSTALL.md) file.
 
 ---
 
