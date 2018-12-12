@@ -37,7 +37,7 @@ After running cmake open the generated VSG.sln file and build the All target. On
 
 ## Quick build instructions for Android
 
-Requires Android NDK 18.  Full build instructions coming soon.
+Requires Android NDK 18 and CMake 3.13 (lower CMake versions may work but have not been tested).
 
 	cmake ./ \
 	-DCMAKE_BUILD_TYPE="Debug" \
@@ -181,5 +181,12 @@ So now we have the Android NDK installed lets go ahead and fetch the VSG source 
 	-DCMAKE_ANDROID_NDK=/location/of/Android/sdk/ndk-bundle \
 	-DCMAKE_INSTALL_PREFIX=/usr/local/android
 	
-Make sure you change the DCMAKE_ANDROID_NDK path to the path of your NDK, typically this is the 'Android SDK Location' you noted down earlier 
+Make sure you change the -DCMAKE_ANDROID_NDK path to the path of your NDK, typically this is the 'Android SDK Location'/ndk-bundle. Also note the -DCMAKE_INSTALL_PREFIX. This is where the VSG library and header will be installed. It's useful to change this from the default to seperate your Android version from your native OS version. Depending where you put it you may need to manually create the top level folder first depending on permissions.
+
+Now we've generated the make files we can simply run
+
+	make -j 8
+	make install
+	
+That's it, you've built VSG for Android and installed the required headers and library files onto your machine ready to use with you project or the Android vsgExamples.
 
