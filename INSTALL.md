@@ -23,6 +23,8 @@
 
 The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against older versions. If you find success with older versions let us know and we can update the version info.
 
+---
+
 ## Quick build instructions for Unix from the command line
 
 Command line instructions for default build of static library (.a/.lib) in source:
@@ -42,6 +44,8 @@ Command line instructions for building shared library (.so/.lib + .dll) in out o
     make -j 8
     make install
 
+---
+
 ## Quick build instructions for Windows using Visual Studio 2017
 
 Command line instructions for default build of static library (.lib) in source:
@@ -53,6 +57,8 @@ Command line instructions for default build of static library (.lib) in source:
 After running cmake open the generated VSG.sln file and build the All target. Once built you can run the install target. If you are using the default cmake install path (in Program Files folder), ensure you have started Visual Studio as administrator otherwise the install will fail.
 
 More detailed Windows platform instructions can be found [below](#detailed-instructions-for-setting-up-your-environment-and-building-for-microsoft-windows).
+
+---
 
 ## Quick build instructions for Android
 
@@ -71,6 +77,8 @@ Requires Android NDK 18 and CMake 3.13 (lower CMake versions may work but have n
 	make install
 
 More detailed Android platform instructions can be found [below](#detailed-instructions-for-setting-up-your-environment-and-building-for-android).
+
+---
 
 ## Quick build instructions for macOS using Xcode 9
 
@@ -114,7 +122,7 @@ Most of these are standard options which you can look up in CMake and make docum
     # remove all files not part of the git repository - including all temporary CMake and build files.
     make clobber
 
-	# run cppcheck on headers & source to generate a static analysis
+    # run cppcheck on headers & source to generate a static analysis
     make cppcheck
 
     # run clang-format on headers & source to format to style specified by .clang-format specification
@@ -122,6 +130,8 @@ Most of these are standard options which you can look up in CMake and make docum
 
     # generate the include/vsg/all.h from all the files that match include/vsg/*/*.h
     make build_all_h
+
+---
 
 ## Using the VSG within your own projects
 
@@ -173,6 +183,7 @@ It's recommended at this point that you add the VSG install path to you CMAKE_PR
 
     CMAKE_PREFIX_PATH = C:\Program Files\VSG
 
+---
 
 ## Detailed instructions for setting up your environment and building for Android
 
