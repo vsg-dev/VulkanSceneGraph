@@ -369,12 +369,8 @@ Android_Window::Android_Window(const vsg::Window::Traits& traits, bool debugLaye
     {
         // create Android surface for the ANativeWindow
         vsg::ref_ptr<vsg::Surface> surface(new vsgAndroid::AndroidSurface(traits.shareWindow->instance(), nativeWindow, allocator));
-
-        _instance = traits.shareWindow->instance();
+        
         _surface = surface;
-        _physicalDevice = traits.shareWindow->physicalDevice();
-        _device = traits.shareWindow->device();
-        _renderPass = traits.shareWindow->renderPass();
         _debugLayersEnabled = traits.shareWindow->debugLayersEnabled();
 
         // share the _instance, _physicalDevice and _device;
@@ -405,8 +401,8 @@ Android_Window::Android_Window(const vsg::Window::Traits& traits, bool debugLaye
         vsg::ref_ptr<vsg::Instance> instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
         if (!instance) throw Result("Error: vsg::Android_Window::create(...) failed to create Window, unable to create Vulkan instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
-        // use GLFW to create surface
-        vsg::ref_ptr<vsg::Surface> surface(new vsgAndroid::AndroidSurface(instance, nativeWindow, allocator));
+        // create surface using passed ANativeWindow
+        vsg::ref_ptr<vsg::Surface> surface(new vsgAndroid::AndroidSurface(instance, _window, allocator));
         if (!surface) throw Result("Error: vsg::Android_Window::create(...) failed to create Window, unable to create Win32Surface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
         // set up device
@@ -462,16 +458,18 @@ bool Android_Window::pollEvents(vsg::Events& events)
 bool Android_Window::resized() const
 {
     // just hack resize for now
-    int width = int(_extent2D.width);
-    int height = int(_extent2D.height);
+    auto width = ANativeWindow_getWidth(_window);
+    auto height = ANativeWindow_getHeight(_window);
 
     return (width != int(_extent2D.width) || height != int(_extent2D.height));
 }
 
 void Android_Window::resize()
 {
-    int width = int(_extent2D.width);
-    int height = int(_extent2D.height);
+    auto width = ANativeWindow_getWidth(_window);
+    auto height = ANativeWindow_getHeight(_window);
+
+    LOG("resize event = wh: %d, %d", width, height);
 
     buildSwapchain(width, height);
 }
@@ -525,18 +523,19 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
             float x = AMotionEvent_getX(anEvent, p);
             float y = AMotionEvent_getY(anEvent, p);
 
-            LOG("touch xy: %f, %f", x, y);
-
             switch (action)
             {
             case AMOTION_EVENT_ACTION_DOWN:
+                LOG("touch down event = id: %d - xy: %f, %f", id, x, y);
                 _bufferedEvents.emplace_back(new vsg::TouchDownEvent(this, event_time, x, y, id));
                 break;
             case AMOTION_EVENT_ACTION_MOVE:
+                LOG("touch move event = id: %d - xy: %f, %f", id, x, y);
                 _bufferedEvents.emplace_back(new vsg::TouchMoveEvent(this, event_time, x, y, id));
                 break;
             case AMOTION_EVENT_ACTION_UP:
             case AMOTION_EVENT_ACTION_CANCEL: // for now just treat cancel as up
+                LOG("touch up event = id: %d - xy: %f, %f", id, x, y);
                 _bufferedEvents.emplace_back(new vsg::TouchUpEvent(this, event_time, x, y, id));
                 break;
             default: break;
@@ -564,16 +563,18 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
 
         switch (action)
         {
-        case AKEY_EVENT_ACTION_DOWN:
-            _bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
-            break;
-        case AKEY_EVENT_ACTION_UP:
-            _bufferedEvents.emplace_back(new vsg::KeyReleaseEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
-            break;
-            //case AKEY_EVENT_ACTION_MULTIPLE:
-            //   _bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier);
-            //   break;
-        default: break;
+            case AKEY_EVENT_ACTION_DOWN:
+                LOG("key down event = unmodified: %d modified:%d", int32_t(keySymbol), int32_t(modifiedKeySymbol));
+                _bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
+                break;
+            case AKEY_EVENT_ACTION_UP:
+                LOG("key up event = unmodified: %d modified:%d", int32_t(keySymbol), int32_t(modifiedKeySymbol));
+                _bufferedEvents.emplace_back(new vsg::KeyReleaseEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
+                break;
+                //case AKEY_EVENT_ACTION_MULTIPLE:
+                //   _bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier);
+                //   break;
+            default: break;
         }
         return true;
     }
