@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/viewer/Window.h>
+#include <vsg/viewer/View.h>
 
 #include <map>
 
@@ -25,6 +26,7 @@ namespace vsg
         Viewer();
 
         using Windows = std::vector<ref_ptr<Window>>;
+        using Views = std::vector<ref_ptr<View>>;
 
         struct PerDeviceObjects
         {
@@ -44,10 +46,21 @@ namespace vsg
 
         using DeviceMap = std::map<ref_ptr<Device>, PerDeviceObjects>;
 
+
+        /// add Window to Viewer
         void addWindow(ref_ptr<Window> window);
 
         Windows& windows() { return _windows; }
         const Windows& windows() const { return _windows; }
+
+
+
+        /// add View to Viewer
+        void addView(ref_ptr<View> view);
+
+        Views& getViews() { return _views; }
+        const Views& getViews() const { return _views; }
+
 
         clock::time_point& start_point() { return _start_point; }
         const clock::time_point& start_point() const { return _start_point; }
@@ -64,6 +77,8 @@ namespace vsg
         virtual ~Viewer();
 
         Windows _windows;
+        Views   _views;
+
         DeviceMap _deviceMap;
         ref_ptr<Semaphore> _renderFinishedSemaphore;
         clock::time_point _start_point;
