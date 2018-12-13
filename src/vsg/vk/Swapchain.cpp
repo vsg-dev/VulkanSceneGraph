@@ -145,15 +145,15 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
     VkPresentModeKHR presentMode = selectSwapPresentMode(details);
     VkExtent2D extent = selectSwapExtent(details, width, height);
 
-    uint32_t imageCount = details.capabilities.minImageCount + 1;
-    if (details.capabilities.maxImageCount > 0 && imageCount > details.capabilities.maxImageCount)
-    {
-        imageCount = details.capabilities.maxImageCount;
-    }
+    uint32_t imageCount = 2; // double buffer
+    imageCount = std::max(imageCount, details.capabilities.minImageCount); // Vulkan spec requires minImageCount to be 1 or greater
+    if (details.capabilities.maxImageCount > 0) imageCount = std::min(imageCount, details.capabilities.maxImageCount); // Vulkan spec specifies 0 as being unlimited number of images
 
     std::cout << "Swapcain::create(..) " << std::endl;
     std::cout << "     details.capabilities.minImageCount=" << details.capabilities.minImageCount << std::endl;
     std::cout << "     details.capabilities.maxImageCount=" << details.capabilities.maxImageCount << std::endl;
+    std::cout << "     imageCount = "<<imageCount<<std::endl;
+
 
     VkSwapchainCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
