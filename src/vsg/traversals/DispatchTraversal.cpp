@@ -34,12 +34,12 @@ public:
     explicit InternalData(CommandBuffer* commandBuffer) :
         _commandBuffer(commandBuffer)
     {
-        std::cout << "DispatchTraversal::InternalData::InternalData(" << commandBuffer << ")" << std::endl;
+//        std::cout << "DispatchTraversal::InternalData::InternalData(" << commandBuffer << ")" << std::endl;
     }
 
     ~InternalData()
     {
-        std::cout << "DispatchTraversal::InternalData::~InternalData()" << std::endl;
+//        std::cout << "DispatchTraversal::InternalData::~InternalData()" << std::endl;
     }
 
     State _state;

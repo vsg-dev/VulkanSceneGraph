@@ -44,6 +44,8 @@ namespace vsg
         /** Crreate a GraphicsPipeline.*/
         static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
 
+        const GraphicsPipelineStates& getPipelineStates() const { return _pipelineStates; }
+
     protected:
         GraphicsPipeline(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator);
 

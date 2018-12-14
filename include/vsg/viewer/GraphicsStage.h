@@ -26,8 +26,7 @@ namespace vsg
 
         ref_ptr<Node> _commandGraph;
 
-        void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass,
-                                   const VkExtent2D& extent2D, const VkClearColorValue& clearColor) override;
+        void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor) override;
     };
 
 } // namespace vsg

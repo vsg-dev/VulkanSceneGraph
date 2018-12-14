@@ -16,5 +16,14 @@ using namespace vsg;
 
 Camera::Camera()
 {
+    _projectionMatrix = new Perspective();
+    _viewMatrix = new LookAt();
 }
+
+Camera::Camera(ref_ptr<ProjectionMatrix> projectionMatrix, ref_ptr<ViewMatrix> viewMatrix):
+    _projectionMatrix(projectionMatrix),
+    _viewMatrix(viewMatrix)
+{
+}
+
 
