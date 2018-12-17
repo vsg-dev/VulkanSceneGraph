@@ -343,11 +343,17 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
     uint16_t window_class = XCB_WINDOW_CLASS_INPUT_OUTPUT;
     xcb_visualid_t visual = XCB_COPY_FROM_PARENT;
     uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_OVERRIDE_REDIRECT | XCB_CW_EVENT_MASK;
+    uint32_t event_mask = XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
+                          XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE |
+                          XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW |
+                          XCB_EVENT_MASK_FOCUS_CHANGE |
+                          XCB_EVENT_MASK_PROPERTY_CHANGE;
     uint32_t value_list[] =
         {
             _screen->black_pixel,
             override_redirect,
-            XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_PROPERTY_CHANGE};
+            event_mask
+        };
 
     // ceate window
     if (fullscreen)
@@ -537,6 +543,51 @@ bool Xcb_Window::pollEvents(Events& events)
         uint8_t response_type = event->response_type & ~0x80;
         switch (response_type)
         {
+        case(XCB_DESTROY_NOTIFY):
+        {
+            //std::cout<<"xcb_destroy_notify_event_t"<<std::endl;
+            break;
+        }
+        case(XCB_UNMAP_NOTIFY):
+        {
+            //std::cout<<"xcb_unmap_notify_event_t"<<std::endl;
+            break;
+        }
+        case(XCB_MAP_NOTIFY):
+        {
+            //std::cout<<"xcb_map_notify_event_t"<<std::endl;
+            break;
+        }
+        case(XCB_LIST_PROPERTIES):
+        {
+            //std::cout<<"xcb_list_properties_request_t"<<std::endl;
+            break;
+        }
+        case(XCB_PROPERTY_NOTIFY):
+        {
+            //std::cout<<"xcb_property_notify_event_t"<<std::endl;
+            break;
+        }
+        case(XCB_FOCUS_IN):
+        {
+            //std::cout<<"xcb_focus_in_event_t"<<std::endl;
+            break;
+        }
+        case(XCB_FOCUS_OUT):
+        {
+            //std::cout<<"xcb_focus_out_event_t"<<std::endl;
+            break;
+        }
+        case(XCB_ENTER_NOTIFY):
+        {
+            //std::cout<<"xcb_enter_notify_event_t"<<std::endl;
+            break;
+        }
+        case(XCB_LEAVE_NOTIFY):
+        {
+            //std::cout<<"xcb_leave_notify_event_t"<<std::endl;
+            break;
+        }
         case(XCB_CONFIGURE_NOTIFY):
         {
             auto configure = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
