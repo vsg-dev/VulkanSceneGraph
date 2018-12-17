@@ -25,6 +25,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/type_name.h>
 
+#include <cmath>
+
 namespace vsg
 {
 
@@ -87,6 +89,38 @@ namespace vsg
     VSG_type_name(vsg::vec2);
     VSG_type_name(vsg::dvec2);
     VSG_type_name(vsg::ubvec2);
+
+
+    template<typename T>
+    constexpr t_vec2<T> operator-(t_vec2<T> const& lhs, t_vec2<T> const& rhs)
+    {
+        return t_vec2<T>(lhs[0] - rhs[0], lhs[1] - rhs[1]);
+    }
+
+    template<typename T>
+    constexpr t_vec2<T> operator+(t_vec2<T> const& lhs, t_vec2<T> const& rhs)
+    {
+        return t_vec2<T>(lhs[0] + rhs[0], lhs[1] + rhs[1]);
+    }
+
+    template<typename T>
+    constexpr T length(t_vec2<T> const& v)
+    {
+        return std::sqrt(v[0] * v[0] + v[1] * v[1]);
+    }
+
+    template<typename T>
+    constexpr t_vec2<T> normalize(t_vec2<T> const& v)
+    {
+        T inverse_len = 1.0 / length(v);
+        return t_vec2<T>(v[0] * inverse_len, v[1] * inverse_len);
+    }
+
+    template<typename T>
+    constexpr T dot(t_vec2<T> const& lhs, t_vec2<T> const& rhs)
+    {
+        return lhs[0] * rhs[0] + lhs[1] * rhs[1] + lhs[2]*rhs[2];
+    }
 
 } // namespace vsg
 
