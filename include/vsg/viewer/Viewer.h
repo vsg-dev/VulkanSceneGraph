@@ -67,7 +67,14 @@ namespace vsg
 
         bool done() const;
 
-        bool pollEvents();
+        /// poll the events for all attached widnows, return true if new events are available
+        bool pollEvents(bool discardPreviousEvents=true);
+
+        /// get the current set of Events that are filled in by prior calls to pollEvents
+        Events& getEvents() { return _events; }
+
+        /// get the const current set of Events that are filled in by prior calls to pollEvents
+        const Events& getEvents() const { return _events; }
 
         void submitFrame();
 
@@ -81,7 +88,9 @@ namespace vsg
 
         DeviceMap _deviceMap;
         ref_ptr<Semaphore> _renderFinishedSemaphore;
+
         clock::time_point _start_point;
+        Events _events;
     };
 
 } // namespace vsg
