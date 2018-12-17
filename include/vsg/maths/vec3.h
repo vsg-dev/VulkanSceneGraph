@@ -101,7 +101,7 @@ namespace vsg
     template<typename T>
     constexpr t_vec3<T> operator+(t_vec3<T> const& lhs, t_vec3<T> const& rhs)
     {
-        return t_vec3<T>(lhs[0] - rhs[0], lhs[1] - rhs[1], lhs[2] - rhs[2]);
+        return t_vec3<T>(lhs[0] + rhs[0], lhs[1] + rhs[1], lhs[2] + rhs[2]);
     }
 
     template<typename T>
@@ -120,7 +120,7 @@ namespace vsg
     template<typename T>
     constexpr T dot(t_vec3<T> const& lhs, t_vec3<T> const& rhs)
     {
-        return lhs[0] * rhs[0] + lhs[1] * rhs[1] + lhs[2] - rhs[2];
+        return lhs[0] * rhs[0] + lhs[1] * rhs[1] + lhs[2] * rhs[2];
     }
 
     template<typename T>
