@@ -537,20 +537,17 @@ bool Xcb_Window::pollEvents(Events& events)
         uint8_t response_type = event->response_type & ~0x80;
         switch (response_type)
         {
-#if 0
-            case(XCB_CONFIGURE_NOTIFY):
-            {
-                auto configure = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
+        case(XCB_CONFIGURE_NOTIFY):
+        {
+            auto configure = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
 
-                //vsg::clock::time_point event_time = vsg::clock::now();
-                //events.emplace_back(new vsg::ExposeWindowEvent(this, event_time, expose->x, expose->y, expose->width, expose->height));
+            //vsg::clock::time_point event_time = vsg::clock::now();
+            //events.emplace_back(new vsg::ExposeWindowEvent(this, event_time, expose->x, expose->y, expose->width, expose->height));
 
-                std::cout<<"XCB_CONFIGURE_NOTIFY    x = "<<configure->x<<", y = "<<configure->y<<", "<<configure->width<<", "<<configure->height<<std::endl;
+            _windowResized = (configure->width != _extent2D.width || configure->height != _extent2D.height);
 
-                _windowResized = (configure->width != _extent2D.width || configure->height != _extent2D.height);
-                break;
-            }
-#endif
+            break;
+        }
         case (XCB_EXPOSE):
         {
             auto expose = reinterpret_cast<const xcb_expose_event_t*>(event);
@@ -638,17 +635,7 @@ bool Xcb_Window::pollEvents(Events& events)
 
 bool Xcb_Window::resized() const
 {
-#if 0
     return _windowResized;
-#else
-    xcb_get_geometry_reply_t* geometry_reply = xcb_get_geometry_reply(_connection, xcb_get_geometry(_connection, _window), nullptr);
-    if (geometry_reply)
-    {
-        return (geometry_reply->width != _extent2D.width || geometry_reply->height != _extent2D.height);
-    }
-
-    return false;
-#endif
 }
 
 void Xcb_Window::resize()
@@ -659,6 +646,8 @@ void Xcb_Window::resize()
     if (geometry_reply)
     {
         buildSwapchain(geometry_reply->width, geometry_reply->height);
+
+        free(geometry_reply);
     }
     _windowResized = false;
 }
