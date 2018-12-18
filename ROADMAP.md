@@ -18,7 +18,7 @@ Experimenting with different approaches to object/scene graph design and impleme
 For a fine grained work plan see [Prototype Phase Workplan](docs/PrototypePhase/Workplan.md). The coarse grain plan follows:
 
 * Develop as a throw away functional prototype (3rd parties should not assume any of the API is stable.)
-* Create native Windowing under Windows (Win32) and Linux (Xcb) (done)
+* Create native Windowing under Windows (Win32), Linux (Xcb) and Android (done)
 * Create community infrastructure - forum/mailing lists etc.. (done)
 * Port to Android (initial support checked in, example being prepared)
 * Scope out the best practices that will achieve rapid and robust software development once work on the final VSG starts:
@@ -54,7 +54,7 @@ Using the prototyping work as a guide implement the final scene graph library wi
     * Support for Text rendering
 * Development of test suite of programs and data
 * Support for RTX Mesh shaders and ray tracing
-* Port to OSX and iOS
+* Port to iOS
 
 ### 4. Release Phase,  Fall 2019 onwards
 **Goal: Test scene graph library against real-world applications and shake down the API and implementation for it's first stable release.**
