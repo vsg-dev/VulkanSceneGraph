@@ -74,8 +74,6 @@ bool Viewer::done() const
     return false;
 }
 
-#include <vsg/ui/PrintEvents.h>
-
 bool Viewer::pollEvents(bool discardPreviousEvents)
 {
     bool result = false;
