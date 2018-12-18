@@ -107,6 +107,19 @@ namespace vsg
     }
 
     template<typename T>
+    constexpr t_vec4<T> operator*(t_vec4<T> const& lhs, T rhs)
+    {
+        return t_vec4<T>(lhs[0]*rhs, lhs[1]*rhs, lhs[2]*rhs, lhs[3]*rhs);
+    }
+
+    template<typename T>
+    constexpr t_vec4<T> operator/(t_vec4<T> const& lhs, T rhs)
+    {
+        T inv = 1.0/rhs;
+        return t_vec4<T>(lhs[0]*inv, lhs[1]*inv, lhs[2]*inv, lhs[3]*inv);
+    }
+
+    template<typename T>
     constexpr T length(t_vec4<T> const& v)
     {
         return std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2] + v[3] * v[3]);
