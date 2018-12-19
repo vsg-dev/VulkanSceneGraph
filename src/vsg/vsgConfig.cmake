@@ -7,8 +7,9 @@ if (ANDROID)
 elseif (WIN32)
     # just use native windowing
 elseif (APPLE)
-    find_dependency(glfw3)
+    # just use native windowing
 else()
+    # use Xcb for native windowing
     find_package(PkgConfig)
     pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
 endif()

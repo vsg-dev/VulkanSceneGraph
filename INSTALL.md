@@ -19,7 +19,6 @@
 * C++17 compliant compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
 * [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.
 * [CMake](https://www.cmake.org) 3.7 or later.
-* Under macOS : [GLFW](https://www.glfw.org)  3.3 or later.  The plan is to implement native Windowing support so this dependency will later be removed. The VSG provides native windowing for Windows, Linux and Android so don't require GLFW.
 
 The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against older versions. If you find success with older versions let us know and we can update the version info.
 
@@ -163,11 +162,11 @@ For example, a bare minimum CMakeLists.txt file to compile a single file applica
 
 ## Detailed instructions for setting up your environment and building for Microsoft Windows
 
-VSG currently has two main dependancies, the Vulkan SDK itself and for now GLFW for window creation. LunarG provides a convient installer for the Vulkan SDK and runtime on Windows.
+The VSG has one dependency, the Vulkan SDK itself. LunarG provides a convenient installer for the Vulkan SDK and runtime on Windows.
 
 [Vulkan Downloads](https://vulkan.lunarg.com/sdk/home#windows)
 
-From there download and install the Vulkan SDK (1.1 or later) and the Vulkan runtime. Once installed we need to let CMake know where to find the Vulkan SDK. Both VSG and GLFW use the VULKAN_SDK environment variable to find the Vulkan SDK so go ahead and add it.
+From there download and install the Vulkan SDK (1.1 or later) and the Vulkan runtime. Once installed we need to let CMake know where to find the Vulkan SDK. The VSG uses the VULKAN_SDK environment variable to find the Vulkan SDK so go ahead and add it.
 
 	VULKAN_SDK = C:\VulkanSDK\1.1.85.0
 

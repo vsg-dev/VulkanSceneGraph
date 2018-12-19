@@ -33,10 +33,11 @@ Core scene graph work will be primarily tackled by Robert Osfield.
 The initial development work has been done under Linux, with support for additional platform to be tackled in the prototype phase. Cross platform work to be led by Thomas Hogarth.
 
 - [x] Initial Windows support was added in October, this will be refined to provide as straight forward developer experience as we can achieve.
-- [x] Development of platform specific Windowing support to replace the current dependency on GLFW.
+- [x] Development of platform specific Windowing support to replace the dependency on GLFW (done.)
 	- [x] Win32_Window native windowing class for Windows
 	- [x] Xcb_Window native Windowing for Unices
-- [x] Port to Android : support within VSG completed, vsgExample being created.
+- [x] Port to Android : completed with vsgExample/Android example illustrating how to create an Android application
+- [x] Port to macOS near completion (just key events left to resolve) with  native windowing provided by MacOS_Window.mm 
 
 ## Add-on library development
 Add-on libraries will provide image and 3d model loaders, and integration with 3rd party software.
