@@ -30,6 +30,20 @@ namespace vsg
     {
         return vsgXcb::Xcb_Window::create(traits, debugLayer, apiDumpLayer, allocator);
     }
+
+    vsg::Names Window::getInstanceExtensions()
+    {
+        // check the extensions are avaliable first
+        Names requiredExtensions = {VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_XCB_SURFACE_EXTENSION_NAME};
+
+        if (!vsg::isExtensionListSupported(requiredExtensions))
+        {
+            std::cout << "Error: vsg::getInstanceExtensions(...) unable to create window, VK_KHR_surface or VK_KHR_win32_surface not supported." << std::endl;
+            return Names();
+        }
+
+        return requiredExtensions;
+    }
 } // namespace vsg
 
 namespace vsgXcb
