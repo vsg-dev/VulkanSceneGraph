@@ -24,8 +24,8 @@ namespace vsg
         BUTTON_MASK_1 = 256,
         BUTTON_MASK_2 = 512,
         BUTTON_MASK_3 = 1024,
-        BUTTON_MASK_4 = 2048,
-        BUTTON_MASK_5 = 4096
+        BUTTON_MASK_4 = 2048, /// mouse wheel up
+        BUTTON_MASK_5 = 4096 /// mouse wheel down
     };
 
     VSG_type_name(vsg::PointerEvent);
