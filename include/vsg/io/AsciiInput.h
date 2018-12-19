@@ -18,8 +18,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/ObjectFactory.h>
 
 #include <fstream>
-#include <optional>
 #include <unordered_map>
+
+#if __APPLE__
+#include <experimental/optional>
+#else
+#include <optional>
+#endif
 
 namespace vsg
 {
@@ -33,7 +38,13 @@ namespace vsg
 
         bool matchPropertyName(const char* propertyName) override;
 
-        std::optional<ObjectID> objectID();
+        #if __APPLE__
+        using OptionalObjectID = std::experimental::optional<ObjectID>;
+        #else
+        using OptionalObjectID = std::optional<ObjectID>;
+        #endif
+        
+        OptionalObjectID objectID();
 
         template<typename T>
         void _read(size_t num, T* value)

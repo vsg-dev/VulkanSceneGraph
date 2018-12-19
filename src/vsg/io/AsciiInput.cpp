@@ -51,7 +51,7 @@ bool AsciiInput::matchPropertyName(const char* propertyName)
     return true;
 }
 
-std::optional<AsciiInput::ObjectID> AsciiInput::objectID()
+AsciiInput::OptionalObjectID AsciiInput::objectID()
 {
     std::string token;
     _input >> token;
@@ -61,11 +61,15 @@ std::optional<AsciiInput::ObjectID> AsciiInput::objectID()
         std::stringstream str(token);
         ObjectID id;
         str >> id;
-        return std::optional<ObjectID>{id};
+        return OptionalObjectID {id};
     }
     else
     {
+#if __APPLE__
+        return std::experimental::nullopt;
+#else
         return std::nullopt;
+#endif
     }
 }
 
