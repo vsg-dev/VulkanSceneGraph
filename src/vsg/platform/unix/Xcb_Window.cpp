@@ -26,7 +26,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to a Xcb_Window
-    Window::Result Window::create(vsg::ref_ptr<:Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
     {
         return vsgXcb::Xcb_Window::create(traits, debugLayer, apiDumpLayer, allocator);
     }
@@ -238,7 +238,7 @@ Xcb_Surface::Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, 
 //
 // Xcb_Window
 //
-vsg::Window::Result Xcb_Window::create(vsg::ref_ptr<:Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+vsg::Window::Result Xcb_Window::create(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
 {
     try
     {
@@ -251,7 +251,7 @@ vsg::Window::Result Xcb_Window::create(vsg::ref_ptr<:Window::Traits> traits, boo
     }
 }
 
-Xcb_Window::Xcb_Window(vsg::ref_ptr<:Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator) :
+Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator) :
     Window(traits, debugLayer, apiDumpLayer, allocator)
 {
     std::cout << "Xcb_Window() " << traits->x << ", " << traits->y << ", " << traits->width << ", " << traits->height << std::endl;
