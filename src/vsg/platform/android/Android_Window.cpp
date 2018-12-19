@@ -36,11 +36,8 @@ namespace vsg
     {
         return vsgAndroid::Android_Window::create(traits, debugLayer, apiDumpLayer, allocator);
     }
-} // namespace vsg
 
-namespace vsgAndroid
-{
-    vsg::Names vsgAndroid::getInstanceExtensions()
+    vsg::Names Window::getInstanceExtensions()
     {
         // check the extensions are avaliable first
         Names requiredExtensions = {"VK_KHR_surface", "VK_KHR_android_surface"};
@@ -54,6 +51,10 @@ namespace vsgAndroid
         return requiredExtensions;
     }
 
+} // namespace vsg
+
+namespace vsgAndroid
+{
     class AndroidSurface : public vsg::Surface
     {
     public:
@@ -384,48 +385,13 @@ Android_Window::Android_Window(vsg::ref_ptr<Window::Traits> traits, bool debugLa
     }
     else
     {
-        vsg::Names instanceExtensions = vsgAndroid::getInstanceExtensions();
-
-        vsg::Names requestedLayers;
-        if (debugLayer)
-        {
-            instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-            requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
-            if (apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
-        }
-
-        vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
-
-        vsg::Names deviceExtensions;
-        deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-
-        vsg::ref_ptr<vsg::Instance> instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
-        if (!instance) throw Result("Error: vsg::Android_Window::create(...) failed to create Window, unable to create Vulkan instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-
         // create surface using passed ANativeWindow
-        vsg::ref_ptr<vsg::Surface> surface(new vsgAndroid::AndroidSurface(instance, _window, allocator));
+        vsg::ref_ptr<vsg::Surface> surface(new vsgAndroid::AndroidSurface(_instance, _window, allocator));
         if (!surface) throw Result("Error: vsg::Android_Window::create(...) failed to create Window, unable to create Win32Surface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        _surface = surface;
 
         // set up device
-        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(instance, VK_QUEUE_GRAPHICS_BIT, surface);
-        if (!physicalDevice) throw Result("Error: vsg::Android_Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-
-        vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, validatedNames, deviceExtensions, allocator);
-        if (!device) throw Result("Error: vsg::Android_Window::create(...) failed to create Window, unable to create Vulkan logical Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-
-        // set up renderpass with the imageFormat that the swap chain will use
-        vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*physicalDevice, *surface);
-        VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
-        VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
-        vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, imageFormat.format, depthFormat, allocator);
-        if (!renderPass) throw Result("Error: vsg::Android_Window::create(...) failed to create Window, unable to create Vulkan RenderPass.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-
-        _instance = instance;
-        _surface = surface;
-        _physicalDevice = physicalDevice;
-        _device = device;
-        _renderPass = renderPass;
-        _debugLayersEnabled = debugLayer;
+        initaliseDevice(apiDumpLayer, allocator);
     }
 
     buildSwapchain(finalWidth, finalHeight);
