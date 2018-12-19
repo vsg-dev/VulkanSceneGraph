@@ -32,7 +32,7 @@ using namespace vsgAndroid;
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to an Android_Window
-    Window::Result Window::create(const Window::Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
     {
         return vsgAndroid::Android_Window::create(traits, debugLayer, apiDumpLayer, allocator);
     }
@@ -327,7 +327,7 @@ KeyboardMap::KeyboardMap()
         };
 }
 
-vsg::Window::Result Android_Window::create(const vsg::Window::Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+vsg::Window::Result Android_Window::create(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
 {
     try
     {
@@ -340,46 +340,47 @@ vsg::Window::Result Android_Window::create(const vsg::Window::Traits& traits, bo
     }
 }
 
-Android_Window::Android_Window(const vsg::Window::Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+Android_Window::Android_Window(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator) :
+    Window(traits, debugLayer, apiDumpLayer, allocator)
 {
     _keyboard = new KeyboardMap;
 
-    /*if(!traits.nativeHandle.has_value())
+    /*if(!traits->nativeHandle.has_value())
     {
-        return Result("Error: vsg::Android_Window::create(...) failed to create Window, Android requires a NativeWindow passed via traits.nativeHandle.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return Result("Error: vsg::Android_Window::create(...) failed to create Window, Android requires a NativeWindow passed via traits->nativeHandle.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }*/
 
-    //ANativeWindow* nativeWindow = *std::any_cast<ANativeWindow*>(&traits.nativeHandle);
-    ANativeWindow* nativeWindow = static_cast<ANativeWindow*>(traits.nativeWindow);
+    //ANativeWindow* nativeWindow = *std::any_cast<ANativeWindow*>(&traits->nativeHandle);
+    ANativeWindow* nativeWindow = static_cast<ANativeWindow*>(traits->nativeWindow);
 
     if (nativeWindow == nullptr)
     {
-        throw Result("Error: vsg::Android_Window::create(...) failed to create Window, traits.nativeHandle is not a valid ANativeWindow.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        throw Result("Error: vsg::Android_Window::create(...) failed to create Window, traits->nativeHandle is not a valid ANativeWindow.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     _window = nativeWindow;
 
     // we could get the width height from the window?
-    uint32_t finalWidth = traits.width;
-    uint32_t finalHeight = traits.height;
+    uint32_t finalWidth = traits->width;
+    uint32_t finalHeight = traits->height;
 
     vsg::ref_ptr<Android_Window> window;
 
-    if (traits.shareWindow)
+    if (traits->shareWindow)
     {
         // create Android surface for the ANativeWindow
-        vsg::ref_ptr<vsg::Surface> surface(new vsgAndroid::AndroidSurface(traits.shareWindow->instance(), nativeWindow, allocator));
+        vsg::ref_ptr<vsg::Surface> surface(new vsgAndroid::AndroidSurface(traits->shareWindow->instance(), nativeWindow, allocator));
         
         _surface = surface;
-        _debugLayersEnabled = traits.shareWindow->debugLayersEnabled();
+        _debugLayersEnabled = traits->shareWindow->debugLayersEnabled();
 
         // share the _instance, _physicalDevice and _device;
-        window->share(*traits.shareWindow);
+        window->share(*traits->shareWindow);
 
         // temporary hack to force vkGetPhysicalDeviceSurfaceSupportKHR to be called as the Vulkan
         // debug layer is complaining about vkGetPhysicalDeviceSurfaceSupportKHR not being called
         // for this _surface prior to swap chain creation
-        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(traits.shareWindow->instance(), VK_QUEUE_GRAPHICS_BIT, surface);
+        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(traits->shareWindow->instance(), VK_QUEUE_GRAPHICS_BIT, surface);
     }
     else
     {
