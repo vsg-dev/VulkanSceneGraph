@@ -20,12 +20,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <fstream>
 #include <unordered_map>
 
-#if __APPLE__
-#include <experimental/optional>
-#else
-#include <optional>
-#endif
-
 namespace vsg
 {
 
@@ -38,12 +32,8 @@ namespace vsg
 
         bool matchPropertyName(const char* propertyName) override;
 
-        #if __APPLE__
-        using OptionalObjectID = std::experimental::optional<ObjectID>;
-        #else
-        using OptionalObjectID = std::optional<ObjectID>;
-        #endif
-        
+        using OptionalObjectID = std::pair<bool, ObjectID>;
+
         OptionalObjectID objectID();
 
         template<typename T>
