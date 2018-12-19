@@ -481,9 +481,9 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, boo
 
         std::cout << "Instance created" << std::endl;
 
-        // use GLFW to create surface
+        // use Xcb to create surface
         vsg::ref_ptr<vsg::Surface> surface(new Xcb_Surface(instance, _connection, _window, allocator));
-        if (!surface) throw Result("Error: vsg::Xcb_Window::create(...) failed to create Window, unable to create GLFWSurface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        if (!surface) throw Result("Error: vsg::Xcb_Window::create(...) failed to create Window, unable to create Xcb_Surface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
         std::cout << "Surface created" << std::endl;
 
