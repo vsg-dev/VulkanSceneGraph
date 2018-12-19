@@ -659,7 +659,7 @@ bool Xcb_Window::pollEvents(Events& events)
             auto button_release = reinterpret_cast<const xcb_button_release_event_t*>(event);
 
             vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_release->time - _first_xcb_timestamp);
-            events.emplace_back(new vsg::ButtonPressEvent(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(button_release->state), button_release->detail));
+            events.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(button_release->state), button_release->detail));
 
             break;
         }
