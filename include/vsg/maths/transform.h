@@ -102,6 +102,6 @@ namespace vsg
                          u[0], u[1], u[2], 0,
                          -forward[0], -forward[1], -forward[2], 0,
                          0, 0, 0, 1) *
-               vsg::translate(-eye.y, -eye.y, -eye.z);
+               vsg::translate(-eye.x, -eye.y, -eye.z);
     }
 } // namespace vsg
