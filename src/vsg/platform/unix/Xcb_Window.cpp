@@ -26,7 +26,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to a Xcb_Window
-    Window::Result Window::create(const Window::Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
     {
         return vsgXcb::Xcb_Window::create(traits, debugLayer, apiDumpLayer, allocator);
     }
@@ -238,7 +238,7 @@ Xcb_Surface::Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, 
 //
 // Xcb_Window
 //
-vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+vsg::Window::Result Xcb_Window::create(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
 {
     try
     {
@@ -251,12 +251,13 @@ vsg::Window::Result Xcb_Window::create(const Traits& traits, bool debugLayer, bo
     }
 }
 
-Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator) :
+    Window(traits, debugLayer, apiDumpLayer, allocator)
 {
-    std::cout << "Xcb_Window() " << traits.x << ", " << traits.y << ", " << traits.width << ", " << traits.height << std::endl;
+    std::cout << "Xcb_Window() " << traits->x << ", " << traits->y << ", " << traits->width << ", " << traits->height << std::endl;
 
     const char* displayName = 0;
-    int screenNum = traits.screenNum;
+    int screenNum = traits->screenNum;
 
     bool fullscreen = false;        //true;
     uint32_t override_redirect = 0; // fullscreen ? 1 : 0;
@@ -369,7 +370,7 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
     else
     {
         xcb_create_window(_connection, depth, _window, parent,
-                          traits.x, traits.y, traits.width, traits.height,
+                          traits->x, traits->y, traits->width, traits->height,
                           border_width,
                           window_class,
                           visual,
@@ -378,10 +379,10 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
     }
 
     // set class of window to enable window manager configuration with rules for positioning
-    xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8, traits.windowClass.size(), traits.windowClass.data());
+    xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8, traits->windowClass.size(), traits->windowClass.data());
 
     // set title of window
-    xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, traits.windowTitle.size(), traits.windowTitle.data());
+    xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, traits->windowTitle.size(), traits->windowTitle.data());
 
     // make requests for the atoms
     AtomRequest protocols(_connection, "WM_PROTOCOLS");
@@ -408,7 +409,7 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
     MotifHints hints = fullscreen ? MotifHints::borderless() : MotifHints::window();
     xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, motifHintAtom, motifHintAtom, 32, 5, &hints);
 
-    std::cout << "Create window : " << traits.windowTitle << std::endl;
+    std::cout << "Create window : " << traits->windowTitle << std::endl;
 
     // work out the X server timestamp by checking for the property notify events that result for the above xcb_change_property calls.
     _first_xcb_timestamp = 0;
@@ -440,7 +441,7 @@ Xcb_Window::Xcb_Window(const Traits& traits, bool debugLayer, bool apiDumpLayer,
 
 #if 1
 
-    if (traits.shareWindow)
+    if (traits->shareWindow)
     {
         throw Result("Error: vsg::Xcb_Window::create(...) Sharing of Windows not Not supported yet.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }

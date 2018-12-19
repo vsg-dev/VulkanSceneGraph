@@ -22,7 +22,7 @@ using namespace vsgWin32;
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to a Win32_Window
-    Window::Result Window::create(const Window::Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
     {
         return vsgWin32::Win32_Window::create(traits, debugLayer, apiDumpLayer, allocator);
     }
@@ -317,7 +317,7 @@ KeyboardMap::KeyboardMap()
         };
 }
 
-Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+Win32_Window::Result Win32_Window::create(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
 {
     try
     {
@@ -330,7 +330,8 @@ Win32_Window::Result Win32_Window::create(const Traits& traits, bool debugLayer,
     }
 }
 
-Win32_Window::Win32_Window(const Window::Traits& traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator) :
+Win32_Window::Win32_Window(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator) :
+    Window(traits, debugLayer, apiDumpLayer, allocator),
     _window(nullptr),
     _shouldClose(false)
 {
@@ -348,7 +349,7 @@ Win32_Window::Win32_Window(const Window::Traits& traits, bool debugLayer, bool a
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = 0;
     wc.lpszMenuName = 0;
-    wc.lpszClassName = traits.windowClass.c_str();
+    wc.lpszClassName = traits->windowClass.c_str();
     wc.hIconSm = 0;
 
     if (::RegisterClassEx(&wc) == 0)
@@ -371,31 +372,31 @@ Win32_Window::Win32_Window(const Window::Traits& traits, bool debugLayer, bool a
         displayDevices.push_back(displayDevice);
     }
 
-    if (traits.screenNum >= displayDevices.size()) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    if (traits->screenNum >= displayDevices.size()) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     DEVMODE deviceMode;
     deviceMode.dmSize = sizeof(deviceMode);
     deviceMode.dmDriverExtra = 0;
 
-    if (!::EnumDisplaySettings(displayDevices[traits.screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    if (!::EnumDisplaySettings(displayDevices[traits->screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
-    int32_t screenx = deviceMode.dmPosition.x + traits.x;
-    int32_t screeny = deviceMode.dmPosition.y + traits.y;
+    int32_t screenx = deviceMode.dmPosition.x + traits->x;
+    int32_t screeny = deviceMode.dmPosition.y + traits->y;
 
     // setup window rect and style
     RECT windowRect;
     windowRect.left = screenx;
     windowRect.top = screeny;
-    windowRect.right = windowRect.left + traits.width;
-    windowRect.bottom = windowRect.top + traits.height;
+    windowRect.right = windowRect.left + traits->width;
+    windowRect.bottom = windowRect.top + traits->height;
 
-    unsigned int windowStyle = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | (traits.decoration ? WS_CAPTION : 0);
+    unsigned int windowStyle = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | (traits->decoration ? WS_CAPTION : 0);
     unsigned int extendedStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 
     if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, AdjustWindowRectEx failed.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     // create the window
-    _window = ::CreateWindowEx(extendedStyle, traits.windowClass.c_str(), traits.windowTitle.c_str(), windowStyle,
+    _window = ::CreateWindowEx(extendedStyle, traits->windowClass.c_str(), traits->windowTitle.c_str(), windowStyle,
                                windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
                                NULL, NULL, ::GetModuleHandle(NULL), NULL);
 
@@ -416,19 +417,19 @@ Win32_Window::Win32_Window(const Window::Traits& traits, bool debugLayer, bool a
 
     vsg::ref_ptr<Win32_Window> window;
 
-    if (traits.shareWindow)
+    if (traits->shareWindow)
     {
         // share the _instance, _physicalDevice and _device;
-        window->share(*traits.shareWindow);
+        window->share(*traits->shareWindow);
 
         // create surface
-        vsg::ref_ptr<vsg::Surface> surface(new vsgWin32::Win32Surface(traits.shareWindow->instance(), _window, allocator));
+        vsg::ref_ptr<vsg::Surface> surface(new vsgWin32::Win32Surface(traits->shareWindow->instance(), _window, allocator));
         _surface = surface;
 
         // temporary hack to force vkGetPhysicalDeviceSurfaceSupportKHR to be called as the Vulkan
         // debug layer is complaining about vkGetPhysicalDeviceSurfaceSupportKHR not being called
         // for this _surface prior to swap chain creation
-        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(traits.shareWindow->instance(), VK_QUEUE_GRAPHICS_BIT, surface);
+        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(traits->shareWindow->instance(), VK_QUEUE_GRAPHICS_BIT, surface);
     }
     else
     {

@@ -12,7 +12,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#if __APPLE__
+#include <experimental/any>
+#else
 #include <any>
+#endif
 
 #include <vsg/ui/UIEvent.h>
 
@@ -32,10 +36,15 @@ namespace vsg
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
 
-        struct Traits
+        class Traits : public Inherit<Object, Traits>
         {
-            uint32_t x = 100;
-            uint32_t y = 100;
+        public:
+            Traits() {}
+            Traits(const Traits&) = delete;
+            Traits& operator=(const Traits&) = delete;
+        
+            int32_t x = 100;
+            int32_t y = 100;
             uint32_t width = 800;
             uint32_t height = 600;
             uint32_t screenNum = 0;
@@ -44,15 +53,31 @@ namespace vsg
             std::string windowTitle = "vsg window";
 
             bool decoration = true;
+            bool hdpi = true;
 
             Window* shareWindow = nullptr;
+            
+            #if __APPLE__
+            std::experimental::any nativeHandle;
+            #else
             std::any nativeHandle;
+            #endif
+
             void* nativeWindow;
+            
+            // values filled by window creation
+            uint32_t finalBackingWidth = 0;
+            uint32_t finalBackingHeight = 0;
+            
+        protected:
+            virtual ~Traits() {}
         };
 
         using Result = vsg::Result<Window, VkResult, VK_SUCCESS>;
         static Result create(uint32_t width, uint32_t height, bool debugLayer = false, bool apiDumpLayer = false, vsg::Window* shareWindow = nullptr, vsg::AllocationCallbacks* allocator = nullptr); // for backward compat
-        static Result create(const Traits& traits, bool debugLayer = false, bool apiDumpLayer = false, AllocationCallbacks* allocator = nullptr);
+        static Result create(vsg::ref_ptr<Traits> traits, bool debugLayer = false, bool apiDumpLayer = false, AllocationCallbacks* allocator = nullptr);
+        
+        static vsg::Names getInstanceExtensions();
 
         virtual bool valid() const { return false; }
 
@@ -115,12 +140,13 @@ namespace vsg
         void populateCommandBuffers();
 
     protected:
-        Window();
+        Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator);
 
         virtual ~Window();
 
         virtual void clear();
         void share(const Window& window);
+        void initaliseDevice( bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
         void buildSwapchain(uint32_t width, uint32_t height);
 
         struct Frame
@@ -132,6 +158,8 @@ namespace vsg
         };
 
         using Frames = std::vector<Frame>;
+
+        ref_ptr<Traits> _traits;
 
         VkExtent2D _extent2D;
         VkClearColorValue _clearColor;
