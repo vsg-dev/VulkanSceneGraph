@@ -22,18 +22,15 @@ using namespace vsgWin32;
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to a Win32_Window
-    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
     {
         return vsgWin32::Win32_Window::create(traits, debugLayer, apiDumpLayer, allocator);
     }
-} // namespace vsg
 
-namespace vsgWin32
-{
-    vsg::Names vsgWin32::getInstanceExtensions()
+    vsg::Names Window::getInstanceExtensions()
     {
         // check the extensions are avaliable first
-        Names requiredExtensions = {VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME};
+        Names requiredExtensions = { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME };
 
         if (!vsg::isExtensionListSupported(requiredExtensions))
         {
@@ -44,6 +41,10 @@ namespace vsgWin32
         return requiredExtensions;
     }
 
+} // namespace vsg
+
+namespace vsgWin32
+{
     class Win32Surface : public vsg::Surface
     {
     public:
@@ -433,48 +434,13 @@ Win32_Window::Win32_Window(vsg::ref_ptr<Window::Traits> traits, bool debugLayer,
     }
     else
     {
-        vsg::Names instanceExtensions = vsgWin32::getInstanceExtensions();
-
-        vsg::Names requestedLayers;
-        if (debugLayer)
-        {
-            instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-            requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
-            if (apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
-        }
-
-        vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
-
-        vsg::Names deviceExtensions;
-        deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-
-        vsg::ref_ptr<vsg::Instance> instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
-        if (!instance) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, unable to create Vulkan instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-
-        // create wind32 surface
-        vsg::ref_ptr<vsg::Surface> surface(new vsgWin32::Win32Surface(instance, _window, allocator));
+        // create win32 surface
+        vsg::ref_ptr<vsg::Surface> surface(new vsgWin32::Win32Surface(_instance, _window, allocator));
         if (!surface) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, unable to create Win32Surface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        _surface = surface;
 
         // set up device
-        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(instance, VK_QUEUE_GRAPHICS_BIT, surface);
-        if (!physicalDevice) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-
-        vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, validatedNames, deviceExtensions, allocator);
-        if (!device) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, unable to create Vulkan logical Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-
-        // set up renderpass with the imageFormat that the swap chain will use
-        vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*physicalDevice, *surface);
-        VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
-        VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
-        vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, imageFormat.format, depthFormat, allocator);
-        if (!renderPass) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, unable to create Vulkan RenderPass.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-
-        _instance = instance;
-        _surface = surface;
-        _physicalDevice = physicalDevice;
-        _device = device;
-        _renderPass = renderPass;
-        _debugLayersEnabled = debugLayer;
+        initaliseDevice(apiDumpLayer, allocator);
     }
 
     buildSwapchain(finalWidth, finalHeight);
