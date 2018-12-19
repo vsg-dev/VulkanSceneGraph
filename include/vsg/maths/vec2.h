@@ -98,6 +98,12 @@ namespace vsg
     }
 
     template<typename T>
+    constexpr t_vec2<T> operator-(t_vec2<T> const& v)
+    {
+        return t_vec2<T>(-v[0], -v[1]);
+    }
+
+    template<typename T>
     constexpr t_vec2<T> operator+(t_vec2<T> const& lhs, t_vec2<T> const& rhs)
     {
         return t_vec2<T>(lhs[0] + rhs[0], lhs[1] + rhs[1]);
