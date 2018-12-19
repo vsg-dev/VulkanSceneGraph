@@ -61,15 +61,11 @@ AsciiInput::OptionalObjectID AsciiInput::objectID()
         std::stringstream str(token);
         ObjectID id;
         str >> id;
-        return OptionalObjectID {id};
+        return OptionalObjectID {true, id};
     }
     else
     {
-#if __APPLE__
-        return std::experimental::nullopt;
-#else
-        return std::nullopt;
-#endif
+        return OptionalObjectID(false, 0);
     }
 }
 
@@ -131,9 +127,9 @@ void AsciiInput::read(size_t num, std::string* value)
 vsg::ref_ptr<vsg::Object> AsciiInput::read()
 {
     auto result = objectID();
-    if (result)
+    if (result.first)
     {
-        ObjectID id = *result;
+        ObjectID id = result.second;
         //std::cout<<"   matched result="<<id<<std::endl;
 
         if (auto itr = _objectIDMap.find(id); itr != _objectIDMap.end())
