@@ -78,6 +78,9 @@ namespace vsg
             center(in_center),
             up(in_up)
         {
+            dvec3 look = normalize(center-eye);
+            dvec3 side = normalize(cross(look, up));
+            up = normalize(cross(side, look));
         }
 
         void get(mat4& matrix) const override { matrix = lookAt(eye, center, up); }
