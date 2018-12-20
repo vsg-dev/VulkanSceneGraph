@@ -23,10 +23,6 @@ Window::Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugLayer, bool a
     _clearColor{{0.2f, 0.2f, 0.4f, 1.0f}},
     _debugLayersEnabled(debugLayer)
 {
-    // ensure backing width/height have valid values
-    _traits->finalBackingWidth = _traits->width;
-    _traits->finalBackingHeight = _traits->height;
-
     // create the vkInstance
     vsg::Names instanceExtensions = getInstanceExtensions();
 

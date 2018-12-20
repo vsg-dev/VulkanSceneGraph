@@ -65,10 +65,6 @@ namespace vsg
 
             void* nativeWindow;
             
-            // values filled by window creation
-            uint32_t finalBackingWidth = 0;
-            uint32_t finalBackingHeight = 0;
-            
         protected:
             virtual ~Traits() {}
         };

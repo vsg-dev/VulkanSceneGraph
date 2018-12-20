@@ -59,7 +59,8 @@ if (ANDROID)
 elseif (WIN32)
     # just use native windowing
 elseif (APPLE)
-    # just use native windowing
+    find_library(COCOA_LIBRARY Cocoa)
+    find_library(QUARTZCORE_LIBRARY QuartzCore)
 else()
     # just use Xcb for native windowing
     find_package(PkgConfig)
