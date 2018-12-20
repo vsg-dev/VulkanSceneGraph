@@ -10,6 +10,7 @@
 	* [Detailed Android instructions](#detailed-instructions-for-setting-up-your-environment-and-building-for-android)
 * macOS
 	* [Quick macOS instructions](#quick-build-instructions-for-macOS-using-xcode-9)
+	* [Detailed Android instructions](#detailed-instructions-for-setting-up-your-environment-and-building-for-macos)
 * [Build targets](#available-build-targets)
 * [Using the VSG within your own projects](#using-the-vsg-within-your-own-projects)
 
