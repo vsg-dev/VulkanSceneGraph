@@ -139,6 +139,7 @@ std::cout << "canBecomeKeyWindow" << std::endl;
 
 - (BOOL)windowShouldClose:(id)sender
 {
+    window->shouldClose(true);
     return NO;
 }
 
@@ -389,6 +390,59 @@ namespace vsgMacOS
             auto result = vkCreateMacOSSurfaceMVK(*instance, &surfaceCreateInfo, nullptr, &_surface);
         }
     };
+    
+    void createApplicationMenus(void)
+    {
+        NSString *appName;
+        NSString *title;
+        NSMenu *appleMenu;
+        NSMenuItem *menuItem;
+
+        /* Create the main menu bar */
+        [NSApp setMainMenu:[[NSMenu alloc] init]];
+
+        /* Create the application menu */
+        appName = @"App Title";
+        appleMenu = [[NSMenu alloc] initWithTitle:@""];
+
+        /* Add menu items */
+        title = [@"About " stringByAppendingString:appName];
+        [appleMenu addItemWithTitle:title action:@selector(orderFrontStandardAboutPanel:) keyEquivalent:@""];
+
+        [appleMenu addItem:[NSMenuItem separatorItem]];
+
+        NSMenu* service_menu = [[NSMenu alloc] init];
+        NSMenuItem* service_menu_item = [[NSMenuItem alloc] initWithTitle:@"Services" action:nil keyEquivalent:@""];
+        [service_menu_item setSubmenu: service_menu];
+        [appleMenu addItem: service_menu_item];
+        [NSApp setServicesMenu: service_menu];
+
+        [appleMenu addItem:[NSMenuItem separatorItem]];
+
+        title = [@"Hide " stringByAppendingString:appName];
+        [appleMenu addItemWithTitle:title action:@selector(hide:) keyEquivalent:@/*"h"*/"h"];
+
+        menuItem = (NSMenuItem *)[appleMenu addItemWithTitle:@"Hide Others" action:@selector(hideOtherApplications:) keyEquivalent:@/*"h"*/""];
+        [menuItem setKeyEquivalentModifierMask:(NSEventModifierFlagOption|NSEventModifierFlagCommand)];
+
+        [appleMenu addItemWithTitle:@"Show All" action:@selector(unhideAllApplications:) keyEquivalent:@""];
+
+        [appleMenu addItem:[NSMenuItem separatorItem]];
+
+        title = [@"Quit " stringByAppendingString:appName];
+        [appleMenu addItemWithTitle:title action:@selector(terminate:) keyEquivalent:@/*"q"*/"q"];
+
+        /* Put menu into the menubar */
+        menuItem = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""];
+        [menuItem setSubmenu:appleMenu];
+        [[NSApp mainMenu] addItem:menuItem];
+        [menuItem release];
+
+        /* Tell the application object that this is now the application menu */
+        //[NSApp setServicesMenu:appleMenu];
+        //[NSApp setAppleMenu:appleMenu];
+        [appleMenu release];
+    }
 
 } // namespace vsgMacOS
 
@@ -411,32 +465,32 @@ KeyboardMap::KeyboardMap()
         { kVK_ANSI_8, KEY_8 },
         { kVK_ANSI_9, KEY_9 },
 
-        { 'a', KEY_a },
-        { 'b', KEY_b },
-        { 'c', KEY_c },
-        { 'd', KEY_d },
-        { 'e', KEY_e },
-        { 'f', KEY_f },
-        { 'g', KEY_g },
-        { 'h', KEY_h },
-        { 'i', KEY_i },
-        { 'j', KEY_j },
-        { 'k', KEY_k },
-        { 'l', KEY_l },
-        { 'm', KEY_m },
-        { 'n', KEY_n },
-        { 'o', KEY_o },
-        { 'p', KEY_p },
-        { 'q', KEY_q },
-        { 'r', KEY_r },
-        { 's', KEY_s },
-        { 't', KEY_t },
-        { 'u', KEY_u },
-        { 'z', KEY_v },
-        { 'w', KEY_w },
-        { 'x', KEY_x },
-        { 'y', KEY_y },
-        { 'z', KEY_z },
+        { kVK_ANSI_A, KEY_a },
+        { kVK_ANSI_B, KEY_b },
+        { kVK_ANSI_C, KEY_c },
+        { kVK_ANSI_D, KEY_d },
+        { kVK_ANSI_E, KEY_e },
+        { kVK_ANSI_F, KEY_f },
+        { kVK_ANSI_G, KEY_g },
+        { kVK_ANSI_H, KEY_h },
+        { kVK_ANSI_I, KEY_i },
+        { kVK_ANSI_J, KEY_j },
+        { kVK_ANSI_K, KEY_k },
+        { kVK_ANSI_L, KEY_l },
+        { kVK_ANSI_M, KEY_m },
+        { kVK_ANSI_N, KEY_n },
+        { kVK_ANSI_O, KEY_o },
+        { kVK_ANSI_P, KEY_p },
+        { kVK_ANSI_Q, KEY_q },
+        { kVK_ANSI_R, KEY_r },
+        { kVK_ANSI_S, KEY_s },
+        { kVK_ANSI_T, KEY_t },
+        { kVK_ANSI_U, KEY_u },
+        { kVK_ANSI_Z, KEY_v },
+        { kVK_ANSI_W, KEY_w },
+        { kVK_ANSI_X, KEY_x },
+        { kVK_ANSI_Y, KEY_y },
+        { kVK_ANSI_Z, KEY_z },
 
         { 'A', KEY_A },
         { 'B', KEY_B },
@@ -644,9 +698,18 @@ bool KeyboardMap::getKeySymbol(NSEvent* anEvent, vsg::KeySymbol& keySymbol, vsg:
 {
     unsigned short keycode = [anEvent keyCode];
     NSEventModifierFlags modifierFlags = [anEvent modifierFlags];
-    
+    //NSLog(@"keycode: %d", keycode);
+    // try find the raw keycode
     auto itr = _keycodeMap.find(keycode);
-    if (itr == _keycodeMap.end()) return false;
+    if (itr == _keycodeMap.end())
+    {
+        // if we don't find it, try the unmodified characters
+        NSString* unmodcharacters = [anEvent charactersIgnoringModifiers];
+        if ( [unmodcharacters length] == 0 ) return false; // dead key
+        unsigned short unmodkeychar = [unmodcharacters characterAtIndex:0];
+        itr = _keycodeMap.find(unmodkeychar);
+        if (itr == _keycodeMap.end()) return false;
+    }
 
     keySymbol = itr->second;
     modifiedKeySymbol = keySymbol;
@@ -660,9 +723,14 @@ bool KeyboardMap::getKeySymbol(NSEvent* anEvent, vsg::KeySymbol& keySymbol, vsg:
     if (modifierFlags & NSEventModifierFlagNumericPad) modifierMask |= vsg::KeyModifier::MODKEY_NumLock;
 
     keyModifier = (vsg::KeyModifier) modifierMask;
+    
+    if(modifierMask == 0) return true;
 
+    // try find modified by using characters
     NSString* characters = [anEvent characters];
     if ( [characters length] == 0 ) return true; // dead key
+    
+    //NSLog(@"characters: %@", characters);
     
     if ( [characters length] == 1 )
     {
@@ -750,8 +818,8 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugL
     [_metalLayer setContentsScale:devicePixelScale];
     
     // we could get the width height from the window?
-    traits->finalBackingWidth = traits->width * devicePixelScale;
-    traits->finalBackingHeight = traits->height * devicePixelScale;
+    uint32_t finalwidth = traits->width * devicePixelScale;
+    uint32_t finalheight = traits->height * devicePixelScale;
 
     if (traits->shareWindow)
     {
@@ -780,12 +848,13 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugL
         initaliseDevice(apiDumpLayer, allocator);
     }
 
-    buildSwapchain(traits->finalBackingWidth, traits->finalBackingHeight);
+    buildSwapchain(finalwidth, finalheight);
 
     _first_macos_timestamp = [[NSProcessInfo processInfo] systemUptime];
     _first_macos_time_point = vsg::clock::now();
     
     // show
+    //vsgMacOS::createApplicationMenus();
     [NSApp activateIgnoringOtherApps:YES];
     [_window makeKeyAndOrderFront:nil];
 }
@@ -901,7 +970,7 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
         // keyboard events
         case NSEventTypeKeyDown:
         case NSEventTypeKeyUp:
-        case NSEventTypeFlagsChanged:
+        //case NSEventTypeFlagsChanged:
         {
             vsg::KeySymbol keySymbol, modifiedKeySymbol;
             vsg::KeyModifier keyModifier;
