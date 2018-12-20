@@ -221,4 +221,45 @@ Now we've generated the make files we can simply run
 	make -j 8
 	make install
 
-That's it, you've built VSG for Android and installed the required headers and library files onto your machine ready to use with you project or the Android vsgExamples.
+That's it, you've built VSG for Android and installed the required headers and library files onto your machine ready to use with your project or the Android vsgExamples.
+
+
+## Detailed instructions for setting up your environment and building for macOS
+
+macOS does not natively support Vulkan. However the excellent MoltenVK libary has been developed which translates Vulkan calls into the Metal equivalents allowing you to run Vulkan applications on macOS and iOS. This can be downloaded from the LunarG website and has been packaged in a way it's extremely similar to the other platform sdks.
+
+[Vulkan Downloads](https://vulkan.lunarg.com/sdk/home#mac)
+
+Download the sdk and unpack it. There's no form of installer but you're able to place the root sdk folder anywhere on your machine. The sdk contains detailed instuctions on how to setup MoltenVK to work on your machine as well has how to redistribute your application contained in the /Documentation/getting_started_macos.md file.
+
+As with other platforms we need the VULKAN_SDK variable which should point to your downloaded sdk folder. Specifically the macOS subfolder of the sdk. This is needed so CMake can find the sdk. Unique to macOS we also need to set environment variables pointing a few files within the sdk. Again the getting started document in the sdk has detailed information relating to these. A quick cheat sheet is provided here, if you use a .bash_profile file in your user folder you can add the following.
+
+	export VULKAN_SDK="/path/to/your/vulkansdk/macOS"
+	export VK_LAYER_PATH="$VULKAN_SDK/etc/vulkan/explicit_layer.d"
+	export VK_ICD_FILENAMES="$VULKAN_SDK/etc/vulkan/icd.d/MoltenVK_icd.json"
+	export PATH="$VULKAN_SDK:$VULKAN_SDK/bin:$PATH"
+	export DYLD_LIBRARY_PATH="$VULKAN_SDK/lib:$DYLD_LIBRARY_PATH"
+
+At this point MoltenVK application should be able to run on your machine, as a quick test it's worth running vulkaninfo executable contained within vulkansdk/macOS/bin. If this runs and doesn't produce any errors it's a good indication the sdk is setup correctly.
+
+So now we're ready to build VSG. With the SDK installed this is very similar to other platforms. You can simple run the following commands to clone the source and use CMake to generate and Xcode project.
+
+	git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
+	cd VulkanSceneGraphPrototype
+	cmake . -G "Xcode"
+	
+Once CMake has finished you can open the generated Xcode project and build the 'install' target. This will build VSG and install the headers and generated library onto your machine.
+
+Again, as with other platforms it's useful to now set your CMAKE_PREFIX_PATH to point to the VSG library we have just installed. If you've installed to the default location you can add the following to you .bash_profile file.
+
+	export CMAKE_PREFIX_PATH="/usr/local/lib/cmake/vsg"
+	
+That's it, we've installed the MoltenVK sdk, built VSG and prepared are machine so other CMake projects can find and use the VSG library.
+
+**Important Note!**
+
+Xcode typically ignores the system environment variables, so when running a VSG application from within Xcode you may run into issues. One solution is to add the environment variables to to the run scheme. This can be done by going to 'Product>Scheme>Edit Scheme>Arguments. Then added the above mentioned environment variables.
+
+
+
+
