@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,21 +10,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Framebuffer.h>
-#include <vsg/vk/RenderPass.h>
-#include <vsg/vk/State.h>
+#include <vsg/viewer/View.h>
 
-namespace vsg
+using namespace vsg;
+
+View::View()
 {
+    _camera = new Camera;
+}
 
-    class VSG_DECLSPEC GraphicsStage : public Inherit<Stage, GraphicsStage>
-    {
-    public:
-        GraphicsStage(ref_ptr<Node> commandGraph);
-
-        ref_ptr<Node> _commandGraph;
-
-        void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor) override;
-    };
-
-} // namespace vsg
