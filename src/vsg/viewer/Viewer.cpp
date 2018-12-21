@@ -59,19 +59,28 @@ void Viewer::addWindow(ref_ptr<Window> window)
 
 bool Viewer::done() const
 {
-    for (auto window : _windows)
+    bool needToReportDone = _done;
+    if (!needToReportDone)
     {
-        if (!window->valid())
+        for (auto window : _windows)
         {
-            // don't exit mainloop while the any devices are still active
-            for (auto& pair_pdo : _deviceMap)
-            {
-                vkDeviceWaitIdle(*pair_pdo.first);
-            }
-            return true;
+            if (!window->valid()) needToReportDone = true;
         }
     }
-    return false;
+
+    if (needToReportDone)
+    {
+        // don't exit mainloop while the any devices are still active
+        for (auto& pair_pdo : _deviceMap)
+        {
+            vkDeviceWaitIdle(*pair_pdo.first);
+        }
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 bool Viewer::pollEvents(bool discardPreviousEvents)
