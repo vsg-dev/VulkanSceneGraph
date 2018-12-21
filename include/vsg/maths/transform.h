@@ -22,9 +22,11 @@ namespace vsg
     constexpr float PIf = 3.14159265358979323846f;
     constexpr double PI = 3.14159265358979323846;
 
+    /// convert degrees to radians
     constexpr float radians(float degrees) noexcept { return degrees * (PIf / 180.0f); }
     constexpr double radians(double degrees) noexcept { return degrees * (PI / 180.0); }
 
+    /// convert radians to degrees
     constexpr float degrees(float radians) noexcept { return radians * (180.0f / PIf); }
     constexpr double degrees(double radians) noexcept { return radians * (180.0 / PI); }
 
@@ -34,7 +36,7 @@ namespace vsg
         const T c = std::cos(angle_radians);
         const T s = std::sin(angle_radians);
         const T one_minus_c = 1 - c;
-        return t_mat4<T>(x * x * one_minus_c + c, x * y * one_minus_c - z * s, x * z * one_minus_c + y * z, 0,
+        return t_mat4<T>(x * x * one_minus_c + c, x * y * one_minus_c - z * s, x * z * one_minus_c + y * s, 0,
                          y * x * one_minus_c + z * s, y * y * one_minus_c + c, y * z * one_minus_c - x * s, 0,
                          x * z * one_minus_c - y * s, y * z * one_minus_c + x * s, z * z * one_minus_c + c, 0,
                          0, 0, 0, 1);
@@ -75,6 +77,17 @@ namespace vsg
     {
         return scale(v.value[0], v.value[1], v.value[2]);
     }
+
+    template<typename T>
+    constexpr t_mat4<T> transpose(const t_mat4<T>& m)
+    {
+        return t_mat4<T>(m[0][0], m[0][1], m[0][2], m[0][3],
+                         m[1][0], m[1][1], m[1][2], m[1][3],
+                         m[2][0], m[2][1], m[2][2], m[2][3],
+                         m[3][0], m[3][1], m[3][2], m[3][3]);
+    }
+
+
 
     // Vulkan style 0 to 1 depth range
     template<typename T>
