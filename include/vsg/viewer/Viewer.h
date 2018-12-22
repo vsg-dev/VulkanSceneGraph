@@ -65,11 +65,11 @@ namespace vsg
         clock::time_point& start_point() { return _start_point; }
         const clock::time_point& start_point() const { return _start_point; }
 
-        /// return true if the done flag is set or any associated windows are invalid.
-        bool done() const;
+        /// return true if viewer is valid and active
+        bool active() const;
 
-        void setDone(bool flag) { _done = flag; }
-        bool getDone() const { return _done; }
+        /// schedule closure of the viewer and associated windows, after a call to Viewer::close() the Viewer::active() method will return false
+        void close() { _close = true; }
 
         /// poll the events for all attached widnows, return true if new events are available
         bool pollEvents(bool discardPreviousEvents=true);
@@ -87,7 +87,7 @@ namespace vsg
     protected:
         virtual ~Viewer();
 
-        bool _done = false;
+        bool _close = false;
 
         Windows _windows;
         Views   _views;

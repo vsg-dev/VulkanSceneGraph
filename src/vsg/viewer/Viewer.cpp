@@ -57,29 +57,29 @@ void Viewer::addWindow(ref_ptr<Window> window)
     pdo.waitStages.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 }
 
-bool Viewer::done() const
+bool Viewer::active() const
 {
-    bool needToReportDone = _done;
-    if (!needToReportDone)
+    bool viewerIsActive = !_close;
+    if (viewerIsActive)
     {
         for (auto window : _windows)
         {
-            if (!window->valid()) needToReportDone = true;
+            if (!window->valid()) viewerIsActive = false;
         }
     }
 
-    if (needToReportDone)
+    if (!viewerIsActive)
     {
         // don't exit mainloop while the any devices are still active
         for (auto& pair_pdo : _deviceMap)
         {
             vkDeviceWaitIdle(*pair_pdo.first);
         }
-        return true;
+        return false;
     }
     else
     {
-        return false;
+        return true;
     }
 }
 
@@ -120,6 +120,8 @@ void Viewer::reassignFrameCache()
 
 void Viewer::submitFrame()
 {
+    if (_close) return;
+
     bool debugLayersEnabled = false;
 
     for (auto& window : _windows)
