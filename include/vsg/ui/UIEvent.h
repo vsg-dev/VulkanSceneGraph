@@ -34,4 +34,5 @@ namespace vsg
     };
 
     using Events = std::list<ref_ptr<UIEvent>>;
+    using EventHandlers = std::list<vsg::ref_ptr<vsg::Visitor>>;
 } // namespace vsg

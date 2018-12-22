@@ -118,6 +118,24 @@ void Viewer::reassignFrameCache()
     }
 }
 
+void Viewer::advance()
+{
+    pollEvents(true);
+
+    // TODO, new to crete a FrameStamp event
+}
+
+void Viewer::handleEvents()
+{
+    for (auto& vsg_event : _events)
+    {
+        for(auto& handler : _eventHandlers)
+        {
+            vsg_event->accept(*handler);
+        }
+    }
+}
+
 void Viewer::submitFrame()
 {
     if (_close) return;
