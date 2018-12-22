@@ -632,7 +632,7 @@ bool Xcb_Window::pollEvents(Events& events)
             if (client_message->data.data32[0] == _wmDeleteWindow)
             {
                 vsg::clock::time_point event_time = vsg::clock::now();
-                events.emplace_back(new vsg::DeleteWindowEvent(this, event_time));
+                events.emplace_back(new vsg::CloseWindowEvent(this, event_time));
             }
             break;
         }

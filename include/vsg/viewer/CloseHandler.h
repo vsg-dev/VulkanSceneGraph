@@ -37,7 +37,7 @@ namespace vsg
             if (closeKey!=KEY_Undefined && keyPress.keyBase==closeKey) close();
         }
 
-        void apply(DeleteWindowEvent& deleteWindowEvent) override
+        void apply(CloseWindowEvent& closeWindowEvent) override
         {
             close();
         }

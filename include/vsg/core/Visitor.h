@@ -36,7 +36,7 @@ namespace vsg
     class UIEvent;
     class WindowEvent;
     class ExposeWindowEvent;
-    class DeleteWindowEvent;
+    class CloseWindowEvent;
     class KeyEvent;
     class KeyPressEvent;
     class KeyReleaseEvent;
@@ -130,7 +130,7 @@ namespace vsg
         virtual void apply(UIEvent&);
         virtual void apply(WindowEvent&);
         virtual void apply(ExposeWindowEvent&);
-        virtual void apply(DeleteWindowEvent&);
+        virtual void apply(CloseWindowEvent&);
         virtual void apply(KeyEvent&);
         virtual void apply(KeyPressEvent&);
         virtual void apply(KeyReleaseEvent&);

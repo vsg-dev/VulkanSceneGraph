@@ -537,7 +537,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     {
     case WM_CLOSE:
         std::cout << "close window" << std::endl;
-        _shouldClose = true;
+        _bufferedEvents..emplace_back(new vsg::CloseWindowEvent(this, event_time));
         break;
     case WM_SHOWWINDOW:
         _bufferedEvents.emplace_back(new vsg::ExposeWindowEvent(this, event_time, winx, winy, winw, winh));

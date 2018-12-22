@@ -47,11 +47,11 @@ namespace vsg
         int height = 0;
     };
 
-    VSG_type_name(vsg::DeleteWindowEvent);
-    class DeleteWindowEvent : public Inherit<WindowEvent, DeleteWindowEvent>
+    VSG_type_name(vsg::CloseWindowEvent);
+    class CloseWindowEvent : public Inherit<WindowEvent, CloseWindowEvent>
     {
     public:
-        DeleteWindowEvent(Window* in_window, time_point in_time) :
+        CloseWindowEvent(Window* in_window, time_point in_time) :
             Inherit(in_window, in_time) {}
     };
 
