@@ -21,7 +21,7 @@ We have created a [Vulkan/VkSceneGraph Developer Discussion Group](https://group
 * Design : [Principles and Philosophy](docs/Design/DesignPrinciplesAndPhilosophy.md),  [High Level Decisions](docs/Design/HighLevelDesignDecisions.md)
 * Community resources :  [Code of Conduct](docs/CODE_OF_CONDUCT.md), [Contributing guide](docs/CONTRIBUTING.md)
 * Exploration Phase Materials (*completed*): [Areas of Interest](docs/ExplorationPhase/AreasOfInterest.md), [3rd Party Resources](docs/ExplorationPhase/3rdPartyResources.md) and [Exploration Phase Report](docs/ExplorationPhase/VulkanSceneGraphExplorationPhaseReport.md)
-* Prototype Phase Materials (*completed*): [Workplan](docs/PrototypePhase/Workplan.md) and [Prototype Phase Report](docs/ProtypePhase/PrototypePhaseReport.md)
+* Prototype Phase Materials (*completed*): [Workplan](docs/PrototypePhase/Workplan.md) and [Prototype Phase Report](docs/ProtoypePhase/PrototypePhaseReport.md)
 
 ---
 
