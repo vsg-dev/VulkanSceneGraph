@@ -4,7 +4,7 @@
 **Goal : Establish which technologies and broad techniques to use**
 
 Learn and experiment with Vulkan, modern C++, and possible 3rd party dependencies.
-Experimenting with different approaches to object/scene graph design and implementation. Exploration Phase Materials : 
+Experimenting with different approaches to object/scene graph design and implementation. Exploration Phase Materials :
 
 * [Principles and Philosophy](docs/Design/DesignPrinciplesAndPhilosophy.md)
 * [High Level Design Decisions](docs/Design/HighLevelDesignDecisions.md)
@@ -21,7 +21,7 @@ Prototype Phase Materials:
 * [Prototype Phase Report](docs/PrototypePhase/PrototypePhaseReport.md)
 
 ### 3. Core Development Phase, January-Summer 2019
-**Goal: Implement the final class interfaces and implementation**
+**Goal: Create the final class interfaces and implementation**
 
 Using the prototyping work as a guide implement the final scene graph library with the aim of creating a solid interface and implementation.
 
