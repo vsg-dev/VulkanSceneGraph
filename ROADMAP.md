@@ -37,7 +37,7 @@ Using the prototyping work as a guide implement the final scene graph library wi
     * Support for Text rendering
 * Development of test suite of programs and data
 * Support for RTX Mesh shaders and ray tracing
-* Port to OSX and iOS
+* Port to iOS
 
 ### 4. Release Phase,  Fall 2019 onwards
 **Goal: Test scene graph library against real-world applications and shake down the API and implementation for it's first stable release.**

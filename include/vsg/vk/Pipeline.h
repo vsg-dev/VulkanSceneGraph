@@ -48,6 +48,7 @@ namespace vsg
     public:
         BindPipeline(Pipeline* pipeline);
 
+        void setPipeline(Pipeline* pipeline) { _pipeline = pipeline; }
         Pipeline* getPipeline() { return _pipeline; }
         const Pipeline* getPipeline() const { return _pipeline; }
 
