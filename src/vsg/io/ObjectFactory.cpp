@@ -30,7 +30,7 @@ using namespace vsg;
 
 ObjectFactory::ObjectFactory()
 {
-    _createMap["nulltr"] = []() { return ref_ptr<Object>(); };
+    _createMap["nullptr"] = []() { return ref_ptr<Object>(); };
 
     VSG_REGISTER_new(vsg::Object);
 
