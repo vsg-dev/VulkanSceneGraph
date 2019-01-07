@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <atomic>
 #include <string>
+#include <optional>
 
 #include <vsg/core/Export.h>
 #include <vsg/core/ref_ptr.h>
@@ -76,7 +77,7 @@ namespace vsg
         void setValue(const std::string& key, const char* value) { setValue(key, value ? std::string(value) : std::string()); }
 
         template<typename T>
-        bool getValue(const std::string& key, T& value) const;
+        std::optional<T> getValue(const std::string& key) const;
 
         void setObject(const std::string& key, Object* object);
         Object* getObject(const std::string& key);
