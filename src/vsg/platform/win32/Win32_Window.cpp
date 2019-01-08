@@ -333,8 +333,7 @@ Win32_Window::Result Win32_Window::create(vsg::ref_ptr<Window::Traits> traits, b
 
 Win32_Window::Win32_Window(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator) :
     Window(traits, debugLayer, apiDumpLayer, allocator),
-    _window(nullptr),
-    _shouldClose(false)
+    _window(nullptr)
 {
     _keyboard = new KeyboardMap;
 
@@ -471,6 +470,8 @@ Win32_Window::~Win32_Window()
 
 bool Win32_Window::pollEvents(vsg::Events& events)
 {
+    vsg::clock::time_point event_time = vsg::clock::now();
+
     MSG msg;
 
     while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
@@ -478,7 +479,7 @@ bool Win32_Window::pollEvents(vsg::Events& events)
         if (msg.message == WM_QUIT)
         {
             // somehow close all windows
-            _shouldClose = true;
+            events.emplace_back(new vsg::CloseWindowEvent(this, event_time));
         }
         else
         {
@@ -506,7 +507,7 @@ bool Win32_Window::resized() const
     int height = windowRect.bottom - windowRect.top;
 
     // at the moment the close event is occuring then the check for resize is happening, which means the window is rect returns 0. So for now ignore potential resize if should close
-    return !_shouldClose && ((width != int(_extent2D.width) || height != int(_extent2D.height)));
+    return width != int(_extent2D.width) || height != int(_extent2D.height);
 }
 
 void Win32_Window::resize()
@@ -537,7 +538,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     {
     case WM_CLOSE:
         std::cout << "close window" << std::endl;
-        _bufferedEvents..emplace_back(new vsg::CloseWindowEvent(this, event_time));
+        _bufferedEvents.emplace_back(new vsg::CloseWindowEvent(this, event_time));
         break;
     case WM_SHOWWINDOW:
         _bufferedEvents.emplace_back(new vsg::ExposeWindowEvent(this, event_time, winx, winy, winw, winh));

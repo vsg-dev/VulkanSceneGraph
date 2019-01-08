@@ -113,7 +113,7 @@ namespace vsgWin32
 
         static Result create(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugLayer = false, bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
 
-        bool valid() const override { return _window && !_shouldClose; }
+        bool valid() const override { return _window; }
 
         bool pollEvents(vsg::Events& events) override;
 
@@ -132,7 +132,6 @@ namespace vsgWin32
         Win32_Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugLayer = false, bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
 
         HWND _window;
-        bool _shouldClose;
 
         vsg::Events _bufferedEvents;
         vsg::ref_ptr<KeyboardMap> _keyboard;

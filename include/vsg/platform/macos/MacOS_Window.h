@@ -50,7 +50,7 @@ namespace vsgMacOS
         using Result = vsg::Result<vsg::Window, VkResult, VK_SUCCESS>;
         static Result create(vsg::ref_ptr<Window::Traits> traits, bool debugLayer=false, bool apiDumpLayer=false, vsg::AllocationCallbacks* allocator=nullptr);
 
-        virtual bool valid() const { return _window && !_shouldClose; }
+        virtual bool valid() const { return _window; }
 
         virtual bool pollEvents(vsg::Events& events);
 
@@ -71,7 +71,7 @@ namespace vsgMacOS
             return _first_macos_time_point + std::chrono::milliseconds(elapsedmilli);
         }
 
-        void shouldClose(bool shouldClose) { _shouldClose = shouldClose; }
+        void queueEvent(vsg::UIEvent* anEvent) { _bufferedEvents.emplace_back(anEvent); }
 
     protected:
         virtual ~MacOS_Window();
@@ -81,8 +81,6 @@ namespace vsgMacOS
         vsg_MacOS_NSWindow* _window;
         vsg_MacOS_NSView* _view;
         CAMetalLayer* _metalLayer;
-
-        bool _shouldClose;
 
         double _first_macos_timestamp = 0;
         vsg::clock::time_point _first_macos_time_point;
