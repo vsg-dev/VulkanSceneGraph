@@ -139,8 +139,8 @@ std::cout << "canBecomeKeyWindow" << std::endl;
 
 - (BOOL)windowShouldClose:(id)sender
 {
-    // TODO: need to change to generating a vsg::CloseWindowEvent to all applications to decide when window should close
-    window->shouldClose(true);
+    vsg::clock::time_point event_time = vsg::clock::now();
+    window->queueEvent(new vsg::CloseWindowEvent(window, event_time));
     return NO;
 }
 
