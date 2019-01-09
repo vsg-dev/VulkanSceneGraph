@@ -48,6 +48,11 @@ namespace vsg
     class TouchDownEvent;
     class TouchUpEvent;
     class TouchMoveEvent;
+    class TerminateEvent;
+    class FrameEvent;
+
+    // forward declare general classes
+    class FrameStamp;
 
     class VSG_DECLSPEC ConstVisitor : public Object
     {
@@ -142,6 +147,11 @@ namespace vsg
         virtual void apply(const TouchDownEvent&);
         virtual void apply(const TouchUpEvent&);
         virtual void apply(const TouchMoveEvent&);
+        virtual void apply(const TerminateEvent&);
+        virtual void apply(const FrameEvent&);
+
+        // general classes
+        virtual void apply(const FrameStamp&);
     };
 
     // provide Value<>::accept() implementation

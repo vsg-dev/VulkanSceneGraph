@@ -25,6 +25,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/TouchEvent.h>
+#include <vsg/ui/ApplicationEvent.h>
 
 using namespace vsg;
 
@@ -361,4 +362,21 @@ void ConstVisitor::apply(const TouchUpEvent& event)
 void ConstVisitor::apply(const TouchMoveEvent& event)
 {
     apply(static_cast<const TouchEvent&>(event));
+}
+void ConstVisitor::apply(const TerminateEvent& event)
+{
+    apply(static_cast<const UIEvent&>(event));
+}
+void ConstVisitor::apply(const FrameEvent& event)
+{
+    apply(static_cast<const UIEvent&>(event));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// General classes
+//
+void ConstVisitor::apply(const FrameStamp& fs)
+{
+    apply(static_cast<const Object&>(fs));
 }

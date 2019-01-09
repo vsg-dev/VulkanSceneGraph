@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 
+#include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/vk/Extensions.h>
 #include <vsg/platform/unix/Xcb_Window.h>
@@ -560,7 +561,8 @@ bool Xcb_Window::pollEvents(Events& events)
         {
         case(XCB_DESTROY_NOTIFY):
         {
-            std::cout<<"xcb_destroy_notify_event_t"<<std::endl;
+            vsg::clock::time_point event_time = vsg::clock::now();
+            events.emplace_back(new vsg::TerminateEvent(event_time));
             break;
         }
         case(XCB_UNMAP_NOTIFY):

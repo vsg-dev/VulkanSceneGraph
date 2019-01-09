@@ -15,6 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/Window.h>
 #include <vsg/viewer/View.h>
 
+#include <vsg/ui/ApplicationEvent.h>
+
 #include <map>
 
 namespace vsg
@@ -65,6 +67,10 @@ namespace vsg
         clock::time_point& start_point() { return _start_point; }
         const clock::time_point& start_point() const { return _start_point; }
 
+        FrameStamp* getFrameStamp() { return _frameStamp; }
+        const FrameStamp* getFrameStamp() const { return _frameStamp; }
+
+
         /// return true if viewer is valid and active
         bool active() const;
 
@@ -108,6 +114,8 @@ namespace vsg
         virtual ~Viewer();
 
         bool _close = false;
+
+        ref_ptr<FrameStamp> _frameStamp;
 
         Windows _windows;
         Views   _views;

@@ -12,45 +12,42 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/viewer/Viewer.h>
+#include <vsg/core/observer_ptr.h>
+#include <vsg/ui/UIEvent.h>
+#include <vsg/viewer/Window.h>
 
 namespace vsg
 {
 
-    class CloseHandler : public Inherit<Visitor, CloseHandler>
+    VSG_type_name(vsg::TerminateEvent);
+    class TerminateEvent : public Inherit<UIEvent, TerminateEvent>
     {
     public:
-
-        CloseHandler(Viewer* viewer) : _viewer(viewer) {}
-
-        KeySymbol closeKey = KEY_Escape; // KEY_Undefined
-
-        virtual void close()
-        {
-            // take a ref_ptr<> of the oberserv_ptr<> to be able to safely access it
-            ref_ptr<Viewer> viewer = _viewer;
-            if (viewer) viewer->close();
-        }
-
-        void apply(KeyPressEvent& keyPress) override
-        {
-            if (closeKey!=KEY_Undefined && keyPress.keyBase==closeKey) close();
-        }
-
-        void apply(CloseWindowEvent&) override
-        {
-            close();
-        }
-
-        void apply(TerminateEvent&) override
-        {
-            close();
-        }
-
-    protected:
-
-        // use observer_ptr<> to avoid circular reference
-        observer_ptr<Viewer> _viewer;
+        TerminateEvent(time_point in_time) :
+            Inherit(in_time) {}
     };
 
-}
+    VSG_type_name(vsg::FrameStamp);
+    class FrameStamp : public Inherit<Object, FrameStamp>
+    {
+    public:
+        FrameStamp(time_point in_time, uint64_t in_frameCount) :
+            time(in_time),
+            frameCount(in_frameCount) {}
+
+        time_point time;
+        uint64_t frameCount;
+    };
+
+    VSG_type_name(vsg::FrameEvent);
+    class FrameEvent : public Inherit<UIEvent, FrameEvent>
+    {
+    public:
+        FrameEvent(ref_ptr<FrameStamp> fs) :
+            Inherit(fs->time),
+            frameStamp(fs) {}
+
+        ref_ptr<FrameStamp> frameStamp;
+    };
+
+} // namespace vsg
