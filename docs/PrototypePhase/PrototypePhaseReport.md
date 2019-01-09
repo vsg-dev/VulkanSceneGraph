@@ -1,4 +1,4 @@
-# VulkanSceneGraph Prototype Phase
+# VulkanSceneGraph Prototype Phase Report
 
 The objective of the three month Prototype Phase, October-December 2018, was to flesh out:
 

@@ -15,6 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
 
+#include <iostream>
+
 namespace vsg
 {
     struct PrintEvents : public vsg::Visitor
@@ -34,9 +36,9 @@ namespace vsg
             std::cout << "Expose window : " << event.className() << ", " << std::chrono::duration<double>(event.time - start_point).count() << " " << event.x << ", " << event.y << ", " << event.width << ", " << event.height << std::endl;
         }
 
-        void apply(vsg::DeleteWindowEvent& event)
+        void apply(vsg::CloseWindowEvent& event)
         {
-            std::cout << "Delete window : " << event.className() << ", " << std::chrono::duration<double>(event.time - start_point).count() << std::endl;
+            std::cout << "Close window : " << event.className() << ", " << std::chrono::duration<double>(event.time - start_point).count() << std::endl;
         }
 
         void apply(vsg::KeyReleaseEvent& keyRelease)

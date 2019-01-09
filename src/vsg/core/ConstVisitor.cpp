@@ -314,7 +314,7 @@ void ConstVisitor::apply(const ExposeWindowEvent& event)
 {
     apply(static_cast<const WindowEvent&>(event));
 }
-void ConstVisitor::apply(const DeleteWindowEvent& event)
+void ConstVisitor::apply(const CloseWindowEvent& event)
 {
     apply(static_cast<const WindowEvent&>(event));
 }

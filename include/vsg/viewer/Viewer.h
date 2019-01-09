@@ -65,7 +65,11 @@ namespace vsg
         clock::time_point& start_point() { return _start_point; }
         const clock::time_point& start_point() const { return _start_point; }
 
-        bool done() const;
+        /// return true if viewer is valid and active
+        bool active() const;
+
+        /// schedule closure of the viewer and associated windows, after a call to Viewer::close() the Viewer::active() method will return false
+        void close() { _close = true; }
 
         /// poll the events for all attached widnows, return true if new events are available
         bool pollEvents(bool discardPreviousEvents=true);
@@ -76,12 +80,34 @@ namespace vsg
         /// get the const current set of Events that are filled in by prior calls to pollEvents
         const Events& getEvents() const { return _events; }
 
+
+        /// add event handler
+        void addEventHandler(ref_ptr<Visitor> eventHandler) { _eventHandlers.emplace_back(eventHandler); }
+
+        void addEventHandlers(EventHandlers&& eventHandlers) { _eventHandlers.splice(_eventHandlers.end(), eventHandlers); }
+
+        /// get the const list of EventHandlers
+        EventHandlers& getEventHandlers() { return _eventHandlers; }
+
+        /// get the const list of EventHandlers
+        const EventHandlers& getEventHandlers() const { return _eventHandlers; }
+
+
+        /// poll for pending events and place them in the Events list and update generate FrameStamp to signify the advancement to a new frame.
+        void advance();
+
+        /// pass the Events into the any register EventHandlers
+        void handleEvents();
+
+        /// submit Vulkan Commands into the queues to render the a frame
         void submitFrame();
 
         void reassignFrameCache();
 
     protected:
         virtual ~Viewer();
+
+        bool _close = false;
 
         Windows _windows;
         Views   _views;
@@ -91,6 +117,7 @@ namespace vsg
 
         clock::time_point _start_point;
         Events _events;
+        EventHandlers _eventHandlers;
     };
 
 } // namespace vsg

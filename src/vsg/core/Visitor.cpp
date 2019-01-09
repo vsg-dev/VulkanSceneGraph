@@ -314,7 +314,7 @@ void Visitor::apply(ExposeWindowEvent& event)
 {
     apply(static_cast<WindowEvent&>(event));
 }
-void Visitor::apply(DeleteWindowEvent& event)
+void Visitor::apply(CloseWindowEvent& event)
 {
     apply(static_cast<WindowEvent&>(event));
 }

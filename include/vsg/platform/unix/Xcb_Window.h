@@ -77,7 +77,6 @@ namespace vsgXcb
         xcb_atom_t _wmProtocols{};
         xcb_atom_t _wmDeleteWindow{};
 
-        bool _closeEventRecieved = false;
         bool _windowResized = false;
 
         xcb_timestamp_t _first_xcb_timestamp = 0;

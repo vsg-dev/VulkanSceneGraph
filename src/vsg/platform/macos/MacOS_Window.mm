@@ -37,7 +37,7 @@ namespace vsg
     {
         return vsgMacOS::MacOS_Window::create(traits, debugLayer, apiDumpLayer, allocator);
     }
-    
+
     vsg::Names Window::getInstanceExtensions()
     {
         ExtensionProperties exts = vsg::getExtensionProperties();
@@ -56,7 +56,7 @@ namespace vsg
 
         return requiredExtensions;
     }
-    
+
 } // namespace vsg
 
 
@@ -139,7 +139,8 @@ std::cout << "canBecomeKeyWindow" << std::endl;
 
 - (BOOL)windowShouldClose:(id)sender
 {
-    window->shouldClose(true);
+    vsg::clock::time_point event_time = vsg::clock::now();
+    window->queueEvent(new vsg::CloseWindowEvent(window, event_time));
     return NO;
 }
 
@@ -390,7 +391,7 @@ namespace vsgMacOS
             auto result = vkCreateMacOSSurfaceMVK(*instance, &surfaceCreateInfo, nullptr, &_surface);
         }
     };
-    
+
     void createApplicationMenus(void)
     {
         NSString *appName;
@@ -723,15 +724,15 @@ bool KeyboardMap::getKeySymbol(NSEvent* anEvent, vsg::KeySymbol& keySymbol, vsg:
     if (modifierFlags & NSEventModifierFlagNumericPad) modifierMask |= vsg::KeyModifier::MODKEY_NumLock;
 
     keyModifier = (vsg::KeyModifier) modifierMask;
-    
+
     if(modifierMask == 0) return true;
 
     // try find modified by using characters
     NSString* characters = [anEvent characters];
     if ( [characters length] == 0 ) return true; // dead key
-    
+
     //NSLog(@"characters: %@", characters);
-    
+
     if ( [characters length] == 1 )
     {
         unsigned short keychar = [characters characterAtIndex:0];
@@ -793,22 +794,22 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugL
                                                               styleMask:styleMask
                                                               backing:NSBackingStoreBuffered
                                                               defer:NO];
-    
+
     vsg_MacOS_NSWindowDelegate* windowDelegate = [[vsg_MacOS_NSWindowDelegate alloc] initWithVsgWindow:this];
     [_window setDelegate:windowDelegate];
-    
+
     [_window setTitle:[NSString stringWithUTF8String:traits->windowTitle.c_str()]];
     [_window setAcceptsMouseMovedEvents:NO];
     [_window setRestorable:NO];
     [_window setOpaque:YES];
     [_window setBackgroundColor:[NSColor whiteColor]];
-    
+
     // create view
     _view = [[vsg_MacOS_NSView alloc] initWithVsgWindow:this];
     [_view setWantsBestResolutionOpenGLSurface:_traits->hdpi];
     [_view setAutoresizingMask: (NSViewWidthSizable | NSViewHeightSizable) ];
     [_view setWantsLayer:YES];
-    
+
     // attach view to window
     [_window setContentView:_view];
     _window.initialFirstResponder = _view;
@@ -816,7 +817,7 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugL
 
     auto devicePixelScale = _traits->hdpi ? [_window backingScaleFactor] : 1.0f;
     [_metalLayer setContentsScale:devicePixelScale];
-    
+
     // we could get the width height from the window?
     uint32_t finalwidth = traits->width * devicePixelScale;
     uint32_t finalheight = traits->height * devicePixelScale;
@@ -825,7 +826,7 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugL
     {
         // create MacOS surface for the NSView
         vsg::ref_ptr<vsg::Surface> surface(new vsgMacOS::MacOSSurface(traits->shareWindow->instance(), _view, allocator));
-        
+
         _surface = surface;
         _debugLayersEnabled = traits->shareWindow->debugLayersEnabled();
 
@@ -843,7 +844,7 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugL
         vsg::ref_ptr<vsg::Surface> surface(new vsgMacOS::MacOSSurface(_instance, _view, allocator));
         if (!surface) throw Result("Error: vsg::MacOS_Window::create(...) failed to create Window, unable to create MacOSSurface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
         _surface = surface;
-        
+
         // initalise device now the surface has been created
         initaliseDevice(apiDumpLayer, allocator);
     }
@@ -852,7 +853,7 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugL
 
     _first_macos_timestamp = [[NSProcessInfo processInfo] systemUptime];
     _first_macos_time_point = vsg::clock::now();
-    
+
     // show
     //vsgMacOS::createApplicationMenus();
     [NSApp activateIgnoringOtherApps:YES];
@@ -893,7 +894,7 @@ bool MacOS_Window::resized() const
     const NSRect contentRect = [_view frame];
 
     auto devicePixelScale = _traits->hdpi ? [_window backingScaleFactor] : 1.0f;
-    
+
     uint32_t width = contentRect.size.width * devicePixelScale;
     uint32_t height = contentRect.size.height * devicePixelScale;
 
@@ -903,10 +904,10 @@ bool MacOS_Window::resized() const
 void MacOS_Window::resize()
 {
     const NSRect contentRect = [_view frame];
-    
+
     auto devicePixelScale = _traits->hdpi ? [_window backingScaleFactor] : 1.0f;
     //[_metalLayer setContentsScale:devicePixelScale];
-    
+
     uint32_t width = contentRect.size.width * devicePixelScale;
     uint32_t height = contentRect.size.height * devicePixelScale;
 
@@ -933,7 +934,7 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
             const NSPoint pos = [anEvent locationInWindow];
             NSInteger buttonNumber = [anEvent buttonNumber];
             NSUInteger pressedButtons = [NSEvent pressedMouseButtons];
-            
+
             auto buttonMask = 0;
             if(pressedButtons & (1 << 0)) buttonMask |= vsg::BUTTON_MASK_1;
             if(pressedButtons & (1 << 1)) buttonMask |= vsg::BUTTON_MASK_2;
@@ -976,7 +977,7 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
             vsg::KeyModifier keyModifier;
             if (!_keyboard->getKeySymbol(anEvent, keySymbol, modifiedKeySymbol, keyModifier))
                 return false;
-            
+
             switch([anEvent type])
             {
                 case NSEventTypeKeyDown:
@@ -991,7 +992,7 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
                 }
                 default: break;
             }
-            
+
             return true;
         }
         default: break;

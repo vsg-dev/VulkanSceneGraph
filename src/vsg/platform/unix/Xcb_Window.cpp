@@ -544,7 +544,7 @@ Xcb_Window::~Xcb_Window()
 
 bool Xcb_Window::valid() const
 {
-    return _window != 9 && !_closeEventRecieved;
+    return _window != 0;
 }
 
 bool Xcb_Window::pollEvents(Events& events)
@@ -560,7 +560,7 @@ bool Xcb_Window::pollEvents(Events& events)
         {
         case(XCB_DESTROY_NOTIFY):
         {
-            //std::cout<<"xcb_destroy_notify_event_t"<<std::endl;
+            std::cout<<"xcb_destroy_notify_event_t"<<std::endl;
             break;
         }
         case(XCB_UNMAP_NOTIFY):
@@ -632,9 +632,7 @@ bool Xcb_Window::pollEvents(Events& events)
             if (client_message->data.data32[0] == _wmDeleteWindow)
             {
                 vsg::clock::time_point event_time = vsg::clock::now();
-                events.emplace_back(new vsg::DeleteWindowEvent(this, event_time));
-
-                _closeEventRecieved = true;
+                events.emplace_back(new vsg::CloseWindowEvent(this, event_time));
             }
             break;
         }

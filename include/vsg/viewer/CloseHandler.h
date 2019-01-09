@@ -12,27 +12,40 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Inherit.h>
-
-#include <chrono>
-#include <list>
+#include <vsg/viewer/Viewer.h>
 
 namespace vsg
 {
 
-    using clock = std::chrono::steady_clock;
-    using time_point = clock::time_point;
-
-    VSG_type_name(vsg::UIEvent);
-    class UIEvent : public Inherit<Object, UIEvent>
+    class CloseHandler : public Inherit<Visitor, CloseHandler>
     {
     public:
-        UIEvent(time_point in_time) :
-            time(in_time) {}
 
-        time_point time;
+        CloseHandler(Viewer* viewer) : _viewer(viewer) {}
+
+        KeySymbol closeKey = KEY_Escape; // KEY_Undefined
+
+        virtual void close()
+        {
+            // take a ref_ptr<> of the oberserv_ptr<> to be able to safely access it
+            ref_ptr<Viewer> viewer = _viewer;
+            if (viewer) viewer->close();
+        }
+
+        void apply(KeyPressEvent& keyPress) override
+        {
+            if (closeKey!=KEY_Undefined && keyPress.keyBase==closeKey) close();
+        }
+
+        void apply(CloseWindowEvent& closeWindowEvent) override
+        {
+            close();
+        }
+
+    protected:
+
+        // use observer_ptr<> to avoid circular reference
+        observer_ptr<Viewer> _viewer;
     };
 
-    using Events = std::list<ref_ptr<UIEvent>>;
-    using EventHandlers = std::list<vsg::ref_ptr<vsg::Visitor>>;
-} // namespace vsg
+}

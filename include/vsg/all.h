@@ -52,12 +52,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 // User Interface abstraction header files
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
+#include <vsg/ui/PrintEvents.h>
 #include <vsg/ui/TouchEvent.h>
 #include <vsg/ui/UIEvent.h>
 #include <vsg/ui/WindowEvent.h>
 
 // Viewer header files
+#include <vsg/viewer/Camera.h>
+#include <vsg/viewer/CloseHandler.h>
 #include <vsg/viewer/GraphicsStage.h>
+#include <vsg/viewer/View.h>
 #include <vsg/viewer/Viewer.h>
 #include <vsg/viewer/Window.h>
 

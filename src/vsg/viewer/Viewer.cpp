@@ -57,21 +57,30 @@ void Viewer::addWindow(ref_ptr<Window> window)
     pdo.waitStages.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 }
 
-bool Viewer::done() const
+bool Viewer::active() const
 {
-    for (auto window : _windows)
+    bool viewerIsActive = !_close;
+    if (viewerIsActive)
     {
-        if (!window->valid())
+        for (auto window : _windows)
         {
-            // don't exit mainloop while the any devices are still active
-            for (auto& pair_pdo : _deviceMap)
-            {
-                vkDeviceWaitIdle(*pair_pdo.first);
-            }
-            return true;
+            if (!window->valid()) viewerIsActive = false;
         }
     }
-    return false;
+
+    if (!viewerIsActive)
+    {
+        // don't exit mainloop while the any devices are still active
+        for (auto& pair_pdo : _deviceMap)
+        {
+            vkDeviceWaitIdle(*pair_pdo.first);
+        }
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
 
 bool Viewer::pollEvents(bool discardPreviousEvents)
@@ -109,8 +118,28 @@ void Viewer::reassignFrameCache()
     }
 }
 
+void Viewer::advance()
+{
+    pollEvents(true);
+
+    // TODO, new to crete a FrameStamp event
+}
+
+void Viewer::handleEvents()
+{
+    for (auto& vsg_event : _events)
+    {
+        for(auto& handler : _eventHandlers)
+        {
+            vsg_event->accept(*handler);
+        }
+    }
+}
+
 void Viewer::submitFrame()
 {
+    if (_close) return;
+
     bool debugLayersEnabled = false;
 
     for (auto& window : _windows)
