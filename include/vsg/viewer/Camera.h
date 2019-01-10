@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Inherit.h>
 #include <vsg/maths/transform.h>
+#include <vsg/vk/GraphicsPipeline.h>
 
 namespace vsg
 {
@@ -98,7 +99,7 @@ namespace vsg
 
         Camera();
 
-        Camera(ref_ptr<ProjectionMatrix> projectionMatrix, ref_ptr<ViewMatrix> viewMatrix);
+        Camera(ref_ptr<ProjectionMatrix> projectionMatrix, ref_ptr<ViewMatrix> viewMatrix, ref_ptr<ViewportState> viewportState);
 
         void setProjectionMatrix(ref_ptr<ProjectionMatrix> projectionMatrix) { _projectionMatrix = projectionMatrix; }
         ProjectionMatrix* getProjectionMatrix() const { return _projectionMatrix; }
@@ -106,9 +107,13 @@ namespace vsg
         void setViewMatrix(ref_ptr<ViewMatrix> viewMatrix) { _viewMatrix = viewMatrix; }
         ViewMatrix* getViewMatrix() const { return _viewMatrix; }
 
+        void setViewportState(ref_ptr<ViewportState> viewportState) { _viewportState = viewportState; }
+        ViewportState* getViewportState() const { return _viewportState; }
+
     protected:
 
         ref_ptr<ProjectionMatrix> _projectionMatrix;
         ref_ptr<ViewMatrix> _viewMatrix;
+        ref_ptr<ViewportState> _viewportState;
     };
 }
