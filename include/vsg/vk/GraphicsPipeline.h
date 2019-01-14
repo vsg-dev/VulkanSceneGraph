@@ -45,6 +45,9 @@ namespace vsg
         /** Crreate a GraphicsPipeline.*/
         static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
 
+        RenderPass* getRenderPass() { return _renderPass; }
+        const RenderPass* getRenderPass() const { return _renderPass; }
+
         GraphicsPipelineStates& getPipelineStates() { return _pipelineStates; }
         const GraphicsPipelineStates& getPipelineStates() const { return _pipelineStates; }
 
