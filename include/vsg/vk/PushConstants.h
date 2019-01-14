@@ -38,5 +38,6 @@ namespace vsg
         uint32_t _offset;
         ref_ptr<Data> _data;
     };
+    VSG_type_name(vsg::PushConstants);
 
 } // namespace vsg

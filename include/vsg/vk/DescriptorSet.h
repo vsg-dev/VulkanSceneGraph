@@ -43,6 +43,7 @@ namespace vsg
         ref_ptr<DescriptorSetLayout> _descriptorSetLayout;
         Descriptors _descriptors;
     };
+    VSG_type_name(vsg::DescriptorSet);
 
     using DescriptorSets = std::vector<ref_ptr<DescriptorSet>>;
 
@@ -80,5 +81,6 @@ namespace vsg
         DescriptorSets _descriptorSets;
         VkDescriptorSets _vkDescriptorSets;
     };
+    VSG_type_name(vsg::BindDescriptorSets);
 
 } // namespace vsg

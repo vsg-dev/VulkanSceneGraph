@@ -37,6 +37,7 @@ namespace vsg
         uint32_t firstVertex;
         uint32_t firstInstance;
     };
+    VSG_type_name(vsg::Draw);
 
     class DrawIndexed : public Inherit<Command, DrawIndexed>
     {
@@ -59,4 +60,7 @@ namespace vsg
         uint32_t vertexOffset;
         uint32_t firstInstance;
     };
+    VSG_type_name(vsg::DrawIndexed);
+
+
 } // namespace vsg

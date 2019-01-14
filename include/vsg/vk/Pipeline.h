@@ -42,6 +42,7 @@ namespace vsg
         ref_ptr<PipelineLayout> _pipelineLayout;
         ref_ptr<AllocationCallbacks> _allocator;
     };
+    VSG_type_name(vsg::Pipeline);
 
     class VSG_DECLSPEC BindPipeline : public Inherit<StateComponent, BindPipeline>
     {
@@ -61,5 +62,6 @@ namespace vsg
 
         ref_ptr<Pipeline> _pipeline;
     };
+    VSG_type_name(vsg::BindPipeline);
 
 } // namespace vsg

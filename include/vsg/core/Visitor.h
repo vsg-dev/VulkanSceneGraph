@@ -31,6 +31,20 @@ namespace vsg
     class Command;
     class CommandBuffer;
     class RenderPass;
+    class BindPipeline;
+    class GraphicsPipeline;
+    class ComputePipeline;
+    class Draw;
+    class DrawIndexed;
+    class ShaderStages;
+    class GraphicsPipelineState;
+    class VertexInputState;
+    class InputAssemblyState;
+    class ViewportState;
+    class RasterizationState;
+    class MultisampleState;
+    class DepthStencilState;
+    class ColorBlendState;
 
     // forward declare ui events classes
     class UIEvent;
@@ -130,6 +144,18 @@ namespace vsg
         virtual void apply(Command&);
         virtual void apply(CommandBuffer&);
         virtual void apply(RenderPass&);
+        virtual void apply(BindPipeline&);
+        virtual void apply(GraphicsPipeline&);
+        virtual void apply(ComputePipeline&);
+        virtual void apply(GraphicsPipelineState&);
+        virtual void apply(ShaderStages&);
+        virtual void apply(VertexInputState&);
+        virtual void apply(InputAssemblyState&);
+        virtual void apply(ViewportState&);
+        virtual void apply(RasterizationState&);
+        virtual void apply(MultisampleState&);
+        virtual void apply(DepthStencilState&);
+        virtual void apply(ColorBlendState&);
 
         // ui events
         virtual void apply(UIEvent&);

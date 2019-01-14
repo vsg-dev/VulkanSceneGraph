@@ -40,5 +40,6 @@ namespace vsg
         BufferData _bufferData;
         VkIndexType _indexType;
     };
+    VSG_type_name(vsg::BindIndexBuffer);
 
 } // namespace vsg

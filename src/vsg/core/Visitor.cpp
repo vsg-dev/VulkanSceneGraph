@@ -21,6 +21,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/RenderPass.h>
+#include <vsg/vk/GraphicsPipeline.h>
+#include <vsg/vk/ComputePipeline.h>
 
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
@@ -297,6 +299,54 @@ void Visitor::apply(CommandBuffer& value)
 void Visitor::apply(RenderPass& value)
 {
     apply(static_cast<Object&>(value));
+}
+void Visitor::apply(BindPipeline& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(GraphicsPipeline& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(ComputePipeline& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(GraphicsPipelineState& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(ShaderStages& value)
+{
+    apply(static_cast<GraphicsPipelineState&>(value));
+}
+void Visitor::apply(VertexInputState& value)
+{
+    apply(static_cast<GraphicsPipelineState&>(value));
+}
+void Visitor::apply(InputAssemblyState& value)
+{
+    apply(static_cast<GraphicsPipelineState&>(value));
+}
+void Visitor::apply(ViewportState& value)
+{
+    apply(static_cast<GraphicsPipelineState&>(value));
+}
+void Visitor::apply(RasterizationState& value)
+{
+    apply(static_cast<GraphicsPipelineState&>(value));
+}
+void Visitor::apply(MultisampleState& value)
+{
+    apply(static_cast<GraphicsPipelineState&>(value));
+}
+void Visitor::apply(DepthStencilState& value)
+{
+    apply(static_cast<GraphicsPipelineState&>(value));
+}
+void Visitor::apply(ColorBlendState& value)
+{
+    apply(static_cast<GraphicsPipelineState&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

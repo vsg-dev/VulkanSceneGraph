@@ -33,6 +33,7 @@ namespace vsg
     protected:
         virtual ~GraphicsPipelineState() {}
     };
+    VSG_type_name(vsg::GraphicsPipelineState);
 
     using GraphicsPipelineStates = std::vector<ref_ptr<GraphicsPipelineState>>;
 
@@ -44,6 +45,7 @@ namespace vsg
         /** Crreate a GraphicsPipeline.*/
         static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
 
+        GraphicsPipelineStates& getPipelineStates() { return _pipelineStates; }
         const GraphicsPipelineStates& getPipelineStates() const { return _pipelineStates; }
 
     protected:
@@ -54,6 +56,7 @@ namespace vsg
         ref_ptr<RenderPass> _renderPass;
         GraphicsPipelineStates _pipelineStates;
     };
+    VSG_type_name(vsg::GraphicsPipeline);
 
     class VSG_DECLSPEC ShaderStages : public Inherit<GraphicsPipelineState, ShaderStages>
     {
@@ -85,6 +88,7 @@ namespace vsg
         Stages _stages;
         ShaderModules _shaderModules;
     };
+    VSG_type_name(vsg::ShaderStages);
 
     class VSG_DECLSPEC VertexInputState : public Inherit<GraphicsPipelineState, VertexInputState>, public VkPipelineVertexInputStateCreateInfo
     {
@@ -109,6 +113,7 @@ namespace vsg
         Bindings _bindings;
         Attributes _attributes;
     };
+    VSG_type_name(vsg::VertexInputState);
 
     class VSG_DECLSPEC InputAssemblyState : public Inherit<GraphicsPipelineState, InputAssemblyState>, public VkPipelineInputAssemblyStateCreateInfo
     {
@@ -122,6 +127,7 @@ namespace vsg
     protected:
         virtual ~InputAssemblyState();
     };
+    VSG_type_name(vsg::InputAssemblyState);
 
     class VSG_DECLSPEC ViewportState : public Inherit<GraphicsPipelineState, ViewportState>, public VkPipelineViewportStateCreateInfo
     {
@@ -141,6 +147,7 @@ namespace vsg
         VkViewport _viewport;
         VkRect2D _scissor;
     };
+    VSG_type_name(vsg::ViewportState);
 
     class VSG_DECLSPEC RasterizationState : public Inherit<GraphicsPipelineState, RasterizationState>, public VkPipelineRasterizationStateCreateInfo
     {
@@ -154,6 +161,7 @@ namespace vsg
     protected:
         virtual ~RasterizationState();
     };
+    VSG_type_name(vsg::RasterizationState);
 
     class VSG_DECLSPEC MultisampleState : public Inherit<GraphicsPipelineState, MultisampleState>, public VkPipelineMultisampleStateCreateInfo
     {
@@ -167,6 +175,7 @@ namespace vsg
     protected:
         virtual ~MultisampleState();
     };
+    VSG_type_name(vsg::MultisampleState);
 
     class VSG_DECLSPEC DepthStencilState : public Inherit<GraphicsPipelineState, DepthStencilState>, public VkPipelineDepthStencilStateCreateInfo
     {
@@ -180,6 +189,7 @@ namespace vsg
     protected:
         virtual ~DepthStencilState();
     };
+    VSG_type_name(vsg::DepthStencilState);
 
     class VSG_DECLSPEC ColorBlendState : public Inherit<GraphicsPipelineState, ColorBlendState>, public VkPipelineColorBlendStateCreateInfo
     {
@@ -200,5 +210,6 @@ namespace vsg
 
         ColorBlendAttachments _colorBlendAttachments;
     };
+    VSG_type_name(vsg::ColorBlendState);
 
 } // namespace vsg

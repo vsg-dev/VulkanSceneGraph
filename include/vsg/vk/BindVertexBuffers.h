@@ -60,4 +60,6 @@ namespace vsg
         VkBuffers _vkBuffers;
         Offsets _offsets;
     };
+    VSG_type_name(vsg::BindVertexBuffers);
+
 } // namespace vsg
