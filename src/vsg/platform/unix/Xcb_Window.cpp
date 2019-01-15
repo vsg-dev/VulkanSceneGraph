@@ -609,8 +609,8 @@ bool Xcb_Window::pollEvents(Events& events)
         {
             auto configure = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
 
-            //vsg::clock::time_point event_time = vsg::clock::now();
-            //events.emplace_back(new vsg::ExposeWindowEvent(this, event_time, expose->x, expose->y, expose->width, expose->height));
+            vsg::clock::time_point event_time = vsg::clock::now();
+            events.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, configure->x, configure->y, configure->width, configure->height));
 
             _windowResized = (configure->width != _extent2D.width || configure->height != _extent2D.height);
 

@@ -47,6 +47,24 @@ namespace vsg
         int height = 0;
     };
 
+
+    VSG_type_name(vsg::ConfigureWindowEvent);
+    class ConfigureWindowEvent : public Inherit<WindowEvent, ConfigureWindowEvent>
+    {
+    public:
+        ConfigureWindowEvent(Window* in_window, time_point in_time, int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height) :
+            Inherit(in_window, in_time),
+            x(in_x),
+            y(in_y),
+            width(in_width),
+            height(in_height) {}
+
+        int x = 0;
+        int y = 0;
+        int width = 0;
+        int height = 0;
+    };
+
     VSG_type_name(vsg::CloseWindowEvent);
     class CloseWindowEvent : public Inherit<WindowEvent, CloseWindowEvent>
     {

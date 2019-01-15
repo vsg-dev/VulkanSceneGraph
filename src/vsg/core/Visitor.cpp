@@ -365,6 +365,10 @@ void Visitor::apply(ExposeWindowEvent& event)
 {
     apply(static_cast<WindowEvent&>(event));
 }
+void Visitor::apply(ConfigureWindowEvent& event)
+{
+    apply(static_cast<WindowEvent&>(event));
+}
 void Visitor::apply(CloseWindowEvent& event)
 {
     apply(static_cast<WindowEvent&>(event));
