@@ -125,8 +125,7 @@ void Viewer::advance()
 
     // create FrameStamp for frame
     auto time = vsg::clock::now();
-    _frameStamp = _frameStamp ? new vsg::FrameStamp(time, _frameStamp->frameCount + 1) :
-                                new vsg::FrameStamp(time, 0);
+    _frameStamp = _frameStamp ? new vsg::FrameStamp(time, _frameStamp->frameCount + 1) : new vsg::FrameStamp(time, 0);
 
     // create an event for the new frame.
     _events.emplace_back(new FrameEvent(_frameStamp));
@@ -136,7 +135,7 @@ void Viewer::handleEvents()
 {
     for (auto& vsg_event : _events)
     {
-        for(auto& handler : _eventHandlers)
+        for (auto& handler : _eventHandlers)
         {
             vsg_event->accept(*handler);
         }

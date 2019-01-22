@@ -30,8 +30,7 @@ namespace vsg
     class Perspective : public Inherit<ProjectionMatrix, Perspective>
     {
     public:
-
-        Perspective():
+        Perspective() :
             fieldOfViewY(60.0),
             aspectRatio(1.0),
             nearDistance(1.0),
@@ -39,7 +38,7 @@ namespace vsg
         {
         }
 
-        Perspective(double fov, double ar, double nd, double fd):
+        Perspective(double fov, double ar, double nd, double fd) :
             fieldOfViewY(fov),
             aspectRatio(ar),
             nearDistance(nd),
@@ -66,20 +65,19 @@ namespace vsg
     class LookAt : public Inherit<ViewMatrix, LookAt>
     {
     public:
-
-        LookAt():
+        LookAt() :
             eye(0.0, 0.0, 0.0),
             center(0.0, 1.0, 0.0),
             up(0.0, 0.0, 1.0)
         {
         }
 
-        LookAt(const dvec3& in_eye, const dvec3& in_center, const dvec3& in_up):
+        LookAt(const dvec3& in_eye, const dvec3& in_center, const dvec3& in_up) :
             eye(in_eye),
             center(in_center),
             up(in_up)
         {
-            dvec3 look = normalize(center-eye);
+            dvec3 look = normalize(center - eye);
             dvec3 side = normalize(cross(look, up));
             up = normalize(cross(side, look));
         }
@@ -92,11 +90,9 @@ namespace vsg
         dvec3 up;
     };
 
-
     class Camera : public Inherit<Object, Object>
     {
     public:
-
         Camera();
 
         Camera(ref_ptr<ProjectionMatrix> projectionMatrix, ref_ptr<ViewMatrix> viewMatrix, ref_ptr<ViewportState> viewportState);
@@ -111,9 +107,8 @@ namespace vsg
         ViewportState* getViewportState() const { return _viewportState; }
 
     protected:
-
         ref_ptr<ProjectionMatrix> _projectionMatrix;
         ref_ptr<ViewMatrix> _viewMatrix;
         ref_ptr<ViewportState> _viewportState;
     };
-}
+} // namespace vsg

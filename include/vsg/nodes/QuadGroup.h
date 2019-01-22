@@ -56,7 +56,10 @@ namespace vsg
         using Children = ref_ptr<vsg::Node>[4];
 #endif
 
-        Children& getChildren() noexcept { return _children; }
+        Children& getChildren() noexcept
+        {
+            return _children;
+        }
         const Children& getChildren() const noexcept { return _children; }
 
     protected:

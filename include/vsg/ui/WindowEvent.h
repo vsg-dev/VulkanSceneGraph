@@ -47,7 +47,6 @@ namespace vsg
         int height = 0;
     };
 
-
     VSG_type_name(vsg::ConfigureWindowEvent);
     class ConfigureWindowEvent : public Inherit<WindowEvent, ConfigureWindowEvent>
     {

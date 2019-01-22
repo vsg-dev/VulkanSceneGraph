@@ -66,4 +66,4 @@ namespace vsg
             std::cout << "MoveEvent : " << move.className() << ", " << std::chrono::duration<double>(move.time - start_point).count() << ", " << move.x << ", " << move.y << ", " << move.mask << std::endl;
         }
     };
-}
+} // namespace vsg

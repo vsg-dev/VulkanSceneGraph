@@ -61,7 +61,7 @@ AsciiInput::OptionalObjectID AsciiInput::objectID()
         std::stringstream str(token);
         ObjectID id;
         str >> id;
-        return OptionalObjectID {true, id};
+        return OptionalObjectID{true, id};
     }
     else
     {

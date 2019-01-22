@@ -13,9 +13,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #if __APPLE__
-#include <experimental/any>
+#    include <experimental/any>
 #else
-#include <any>
+#    include <any>
 #endif
 
 #include <vsg/ui/UIEvent.h>
@@ -42,7 +42,7 @@ namespace vsg
             Traits() {}
             Traits(const Traits&) = delete;
             Traits& operator=(const Traits&) = delete;
-        
+
             int32_t x = 100;
             int32_t y = 100;
             uint32_t width = 800;
@@ -56,15 +56,15 @@ namespace vsg
             bool hdpi = true;
 
             Window* shareWindow = nullptr;
-            
-            #if __APPLE__
+
+#if __APPLE__
             std::experimental::any nativeHandle;
-            #else
+#else
             std::any nativeHandle;
-            #endif
+#endif
 
             void* nativeWindow;
-            
+
         protected:
             virtual ~Traits() {}
         };
@@ -72,7 +72,7 @@ namespace vsg
         using Result = vsg::Result<Window, VkResult, VK_SUCCESS>;
         static Result create(uint32_t width, uint32_t height, bool debugLayer = false, bool apiDumpLayer = false, vsg::Window* shareWindow = nullptr, vsg::AllocationCallbacks* allocator = nullptr); // for backward compat
         static Result create(vsg::ref_ptr<Traits> traits, bool debugLayer = false, bool apiDumpLayer = false, AllocationCallbacks* allocator = nullptr);
-        
+
         static vsg::Names getInstanceExtensions();
 
         virtual bool valid() const { return false; }
@@ -142,7 +142,7 @@ namespace vsg
 
         virtual void clear();
         void share(const Window& window);
-        void initaliseDevice( bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
+        void initaliseDevice(bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
         void buildSwapchain(uint32_t width, uint32_t height);
 
         struct Frame

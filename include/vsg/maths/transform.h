@@ -87,8 +87,6 @@ namespace vsg
                          m[3][0], m[3][1], m[3][2], m[3][3]);
     }
 
-
-
     // Vulkan style 0 to 1 depth range
     template<typename T>
     constexpr t_mat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)

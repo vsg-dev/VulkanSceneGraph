@@ -90,7 +90,6 @@ namespace vsg
     VSG_type_name(vsg::dvec2);
     VSG_type_name(vsg::ubvec2);
 
-
     template<typename T>
     constexpr t_vec2<T> operator-(t_vec2<T> const& lhs, t_vec2<T> const& rhs)
     {
@@ -112,14 +111,14 @@ namespace vsg
     template<typename T>
     constexpr t_vec2<T> operator*(t_vec2<T> const& lhs, T rhs)
     {
-        return t_vec2<T>(lhs[0]*rhs, lhs[1]*rhs);
+        return t_vec2<T>(lhs[0] * rhs, lhs[1] * rhs);
     }
 
     template<typename T>
     constexpr t_vec2<T> operator/(t_vec2<T> const& lhs, T rhs)
     {
-        T inv = 1.0/rhs;
-        return t_vec2<T>(lhs[0]*inv, lhs[1]*inv);
+        T inv = 1.0 / rhs;
+        return t_vec2<T>(lhs[0] * inv, lhs[1] * inv);
     }
 
     template<typename T>
@@ -138,7 +137,7 @@ namespace vsg
     template<typename T>
     constexpr T dot(t_vec2<T> const& lhs, t_vec2<T> const& rhs)
     {
-        return lhs[0] * rhs[0] + lhs[1] * rhs[1] + lhs[2]*rhs[2];
+        return lhs[0] * rhs[0] + lhs[1] * rhs[1] + lhs[2] * rhs[2];
     }
 
 } // namespace vsg

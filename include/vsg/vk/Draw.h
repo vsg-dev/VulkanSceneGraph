@@ -62,5 +62,4 @@ namespace vsg
     };
     VSG_type_name(vsg::DrawIndexed);
 
-
 } // namespace vsg

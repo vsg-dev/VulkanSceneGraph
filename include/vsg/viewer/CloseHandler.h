@@ -20,8 +20,8 @@ namespace vsg
     class CloseHandler : public Inherit<Visitor, CloseHandler>
     {
     public:
-
-        CloseHandler(Viewer* viewer) : _viewer(viewer) {}
+        CloseHandler(Viewer* viewer) :
+            _viewer(viewer) {}
 
         KeySymbol closeKey = KEY_Escape; // KEY_Undefined
 
@@ -34,7 +34,7 @@ namespace vsg
 
         void apply(KeyPressEvent& keyPress) override
         {
-            if (closeKey!=KEY_Undefined && keyPress.keyBase==closeKey) close();
+            if (closeKey != KEY_Undefined && keyPress.keyBase == closeKey) close();
         }
 
         void apply(CloseWindowEvent&) override
@@ -48,9 +48,8 @@ namespace vsg
         }
 
     protected:
-
         // use observer_ptr<> to avoid circular reference
         observer_ptr<Viewer> _viewer;
     };
 
-}
+} // namespace vsg

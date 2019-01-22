@@ -20,11 +20,9 @@ Camera::Camera()
     _viewMatrix = new LookAt();
 }
 
-Camera::Camera(ref_ptr<ProjectionMatrix> projectionMatrix, ref_ptr<ViewMatrix> viewMatrix, ref_ptr<ViewportState> viewportState):
+Camera::Camera(ref_ptr<ProjectionMatrix> projectionMatrix, ref_ptr<ViewMatrix> viewMatrix, ref_ptr<ViewportState> viewportState) :
     _projectionMatrix(projectionMatrix),
     _viewMatrix(viewMatrix),
     _viewportState(viewportState)
 {
 }
-
-

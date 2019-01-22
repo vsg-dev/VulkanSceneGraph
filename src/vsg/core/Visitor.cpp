@@ -20,14 +20,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/RenderPass.h>
-#include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/ComputePipeline.h>
+#include <vsg/vk/GraphicsPipeline.h>
+#include <vsg/vk/RenderPass.h>
 
+#include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/TouchEvent.h>
-#include <vsg/ui/ApplicationEvent.h>
 
 using namespace vsg;
 

@@ -35,7 +35,6 @@ namespace vsg
     };
     VSG_type_name(vsg::StateComponent);
 
-
     class VSG_DECLSPEC StateGroup : public Inherit<Group, StateGroup>
     {
     public:
@@ -58,7 +57,10 @@ namespace vsg
         }
 #endif
 
-        StateComponents& getStateComponents() { return _stateComponents; }
+        StateComponents& getStateComponents()
+        {
+            return _stateComponents;
+        }
         const StateComponents& getStateComponents() const { return _stateComponents; }
 
         inline void pushTo(State& state) const

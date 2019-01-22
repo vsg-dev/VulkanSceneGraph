@@ -18,4 +18,3 @@ View::View()
 {
     _camera = new Camera;
 }
-

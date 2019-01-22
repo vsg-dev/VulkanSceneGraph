@@ -12,15 +12,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/viewer/Camera.h>
 #include <vsg/nodes/Node.h>
+#include <vsg/viewer/Camera.h>
 
 namespace vsg
 {
     class View : public Inherit<Object, View>
     {
     public:
-
         View();
 
         /// set the master Camear of the View
@@ -33,8 +32,7 @@ namespace vsg
         Node* getScene() const { return _scene; }
 
     protected:
-
         ref_ptr<Camera> _camera;
         ref_ptr<Node> _scene;
     };
-}
+} // namespace vsg
