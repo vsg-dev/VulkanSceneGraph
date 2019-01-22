@@ -95,7 +95,7 @@ void DispatchTraversal::apply(const StateGroup& stateGroup)
 
     stateGroup.traverse(*this);
 
-    //    stateGroup.popFrom(_data->_state);
+    stateGroup.popFrom(_data->_state);
 }
 
 // Vulkan nodes
