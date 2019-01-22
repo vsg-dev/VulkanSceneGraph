@@ -123,7 +123,7 @@ namespace vsg
     template<typename T>
     t_vec3<T> operator*(t_mat4<T> const& lhs, t_vec3<T> const& rhs)
     {
-        T inv = 1.0 / (lhs[0][3] * rhs[0] + lhs[1][3] * rhs[1] + lhs[2][3] * rhs[2] + lhs[3][3]);
+        T inv = static_cast<T>(1.0) / (lhs[0][3] * rhs[0] + lhs[1][3] * rhs[1] + lhs[2][3] * rhs[2] + lhs[3][3]);
         return t_vec3<T>((lhs[0][0] * rhs[0] + lhs[1][0] * rhs[1] + lhs[2][0] * rhs[2] + lhs[3][0]) * inv,
                          (lhs[0][1] * rhs[0] + lhs[1][1] * rhs[1] + lhs[2][1] * rhs[2] + lhs[3][1]) * inv,
                          (lhs[0][2] * rhs[0] + lhs[1][2] * rhs[1] + lhs[2][2] * rhs[2] + lhs[3][2]) * inv);
