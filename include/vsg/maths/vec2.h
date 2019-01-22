@@ -117,7 +117,7 @@ namespace vsg
     template<typename T>
     constexpr t_vec2<T> operator/(t_vec2<T> const& lhs, T rhs)
     {
-        T inv = 1.0 / rhs;
+        T inv = static_cast<T>(1.0) / rhs;
         return t_vec2<T>(lhs[0] * inv, lhs[1] * inv);
     }
 
@@ -130,7 +130,7 @@ namespace vsg
     template<typename T>
     constexpr t_vec2<T> normalize(t_vec2<T> const& v)
     {
-        T inverse_len = 1.0 / length(v);
+        T inverse_len = static_cast<T>(1.0) / length(v);
         return t_vec2<T>(v[0] * inverse_len, v[1] * inverse_len);
     }
 
