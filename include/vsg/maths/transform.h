@@ -93,8 +93,8 @@ namespace vsg
     template<typename T>
     constexpr t_mat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
     {
-        T f = 1.0 / std::tan(fovy_radians * 0.5);
-        T r = 1.0 / (zNear - zFar);
+        T f = static_cast<T>(1.0 / std::tan(fovy_radians * 0.5));
+        T r = static_cast<T>(1.0 / (zNear - zFar));
         return t_mat4<T>(f / aspectRatio, 0, 0, 0,
                          0, -f, 0, 0,
                          0, 0, (zFar)*r, (zFar * zNear) * r,
