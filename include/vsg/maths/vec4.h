@@ -67,10 +67,10 @@ namespace vsg
         template<typename R>
         t_vec4& operator=(const t_vec4<R>& rhs)
         {
-            value[0] = rhs[0];
-            value[1] = rhs[1];
-            value[2] = rhs[2];
-            value[3] = rhs[3];
+            value[0] = static_cast<value_type>(rhs[0]);
+            value[1] = static_cast<value_type>(rhs[1]);
+            value[2] = static_cast<value_type>(rhs[2]);
+            value[3] = static_cast<value_type>(rhs[3]);
             return *this;
         }
 
