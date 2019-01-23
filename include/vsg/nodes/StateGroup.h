@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/nodes/Group.h>
+#include <vsg/vk/Command.h>
 
 namespace vsg
 {
@@ -20,15 +21,13 @@ namespace vsg
     class State;
     class CommandBuffer;
 
-    class StateComponent : public Inherit<Object, StateComponent>
+    class StateComponent : public Inherit<Command, StateComponent>
     {
     public:
         StateComponent() {}
 
         virtual void pushTo(State& state) const = 0;
         virtual void popFrom(State& state) const = 0;
-
-        virtual void dispatch(CommandBuffer& commandBuffer) const = 0;
 
     protected:
         virtual ~StateComponent() {}
