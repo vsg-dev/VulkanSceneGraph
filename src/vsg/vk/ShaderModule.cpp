@@ -43,6 +43,34 @@ Shader::Result Shader::read(VkShaderStageFlagBits stage, const std::string& entr
     }
 }
 
+
+void Shader::read(Input& input)
+{
+    Object::read(input);
+
+    _stage = static_cast<VkShaderStageFlagBits>(input.readValue<int32_t>("Stage"));
+
+    input.read("EntryPoint", _entryPointName);
+
+    _contents.resize(input.readValue<uint32_t>("ContentsSize"));
+    input.matchPropertyName("Contents");
+    input.read(_contents.size(), _contents.data());
+}
+
+void Shader::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeValue<int32_t>("Stage", _stage);
+
+    output.write("EntryPoint",  _entryPointName);
+
+    output.writeValue<uint32_t>("ContentsSize", _contents.size());
+    output.writePropertyName("Contents");
+    output.write(_contents.size(), _contents.data());
+}
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // ShaderModule

@@ -27,11 +27,14 @@ namespace vsg
 
         using value_type = typename T::value_type;
         size_t valueSize = sizeof(value_type);
-        buffer.resize(fileSize / valueSize);
+        size_t bufferSize = (fileSize + valueSize - 1) / valueSize;
+        buffer.resize(bufferSize);
 
         fin.seekg(0);
-        fin.read(buffer.data(), buffer.size() * valueSize);
+        fin.read(reinterpret_cast<char*>(buffer.data()), fileSize);
         fin.close();
+
+        // buffer.size() * valueSize
 
         return true;
     }
@@ -39,7 +42,7 @@ namespace vsg
     class VSG_DECLSPEC Shader : public Inherit<Object, Shader>
     {
     public:
-        using Contents = std::vector<char>;
+        using Contents = std::vector<uint32_t>;
 
         Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const Contents& contents);
 
@@ -50,6 +53,9 @@ namespace vsg
         using Result = vsg::Result<Shader, VkResult, VK_SUCCESS>;
         static Result read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename);
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
     protected:
         virtual ~Shader();
 
@@ -57,6 +63,7 @@ namespace vsg
         std::string _entryPointName;
         Contents _contents;
     };
+    VSG_type_name(vsg::Shader);
 
     class VSG_DECLSPEC ShaderModule : public Inherit<Object, ShaderModule>
     {
@@ -83,6 +90,7 @@ namespace vsg
         ref_ptr<Shader> _shader;
         ref_ptr<AllocationCallbacks> _allocator;
     };
+    VSG_type_name(vsg::ShaderModule);
 
     using ShaderModules = std::vector<ref_ptr<ShaderModule>>;
 
