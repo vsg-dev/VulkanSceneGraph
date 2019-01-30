@@ -32,7 +32,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/type_name.h>
 
 // Maths header files
+#include <vsg/maths/box.h>
 #include <vsg/maths/mat4.h>
+#include <vsg/maths/sphere.h>
 #include <vsg/maths/transform.h>
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
@@ -50,6 +52,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/DispatchTraversal.h>
 
 // User Interface abstraction header files
+#include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/PrintEvents.h>
