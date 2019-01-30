@@ -222,7 +222,6 @@ vsg::KeySymbol KeyboardMap::getKeySymbol(uint16_t keycode, uint16_t modifier)
 }
 void KeyboardMap::add(uint16_t keycode, uint16_t modifier, KeySymbol key)
 {
-    //std::cout<<"Added ["<<keycode<<", "<<modifier<<"] "<<(int)key<<std::endl;
     _keycodeMap[KeycodeModifier(keycode, modifier)] = key;
 }
 
@@ -297,39 +296,22 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, boo
     _keyboard = new KeyboardMap;
 
     {
-        std::cout << "   *** stting up : min_keycode=" << (int)(setup->min_keycode) << ", max_keycode=" << (int)(setup->max_keycode) << std::endl;
-
         xcb_keycode_t min_keycode = setup->min_keycode;
         xcb_keycode_t max_keycode = setup->max_keycode;
 
-#if 0
-        for(int keycode = min_keycode; keycode <= max_keycode; ++keycode)
-        {
-            std::cout<<"       keycode = "<<(int)keycode<<std::endl;
-        }
-#endif
         xcb_get_keyboard_mapping_cookie_t keyboard_mapping_cookie = xcb_get_keyboard_mapping(_connection, min_keycode, (max_keycode - min_keycode) + 1);
         xcb_get_keyboard_mapping_reply_t* keyboard_mapping_reply = xcb_get_keyboard_mapping_reply(_connection, keyboard_mapping_cookie, nullptr);
-
-        std::cout << "     keysyms_per_keycode = " << int(keyboard_mapping_reply->keysyms_per_keycode) << std::endl;
-        std::cout << "     sequence = " << keyboard_mapping_reply->sequence << std::endl;
-        std::cout << "     length = " << keyboard_mapping_reply->length << std::endl;
 
         const xcb_keysym_t* keysyms = xcb_get_keyboard_mapping_keysyms(keyboard_mapping_reply);
         int length = xcb_get_keyboard_mapping_keysyms_length(keyboard_mapping_reply);
 
-        std::cout << "     xcb_get_keyboard_mapping_keysyms_length() = " << length << std::endl;
         int keysyms_per_keycode = keyboard_mapping_reply->keysyms_per_keycode;
         for (int i = 0; i < length; i += keysyms_per_keycode)
         {
             const xcb_keysym_t* keysym = &keysyms[i];
             xcb_keycode_t keycode = min_keycode + i / keysyms_per_keycode;
-            std::cout << "     keycode = " << int(keycode) << std::endl;
             for (int m = 0; m < keysyms_per_keycode; ++m)
             {
-                std::cout << "          keysym[" << m << "] " << int(keysym[m]) << " " << std::hex << int(keysym[m]) << std::dec;
-                if (keysym[m] >= 32 && keysym[m] < 256) std::cout << " [" << uint8_t(keysym[m]) << "]";
-                std::cout << std::endl;
                 if (keysym[m] != 0) _keyboard->add(keycode, m, static_cast<KeySymbol>(keysym[m]));
             }
         }
