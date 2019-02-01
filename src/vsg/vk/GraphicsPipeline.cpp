@@ -157,6 +157,8 @@ ViewportState::ViewportState(const VkExtent2D& extent) :
     _viewport.y = 0.0f;
     _viewport.width = static_cast<float>(extent.width);
     _viewport.height = static_cast<float>(extent.height);
+    _viewport.minDepth = 0.0f;
+    _viewport.maxDepth = 1.0f;
 
     _scissor.offset = {0, 0};
     _scissor.extent = extent;
