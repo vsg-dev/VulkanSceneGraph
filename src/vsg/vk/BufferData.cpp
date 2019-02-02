@@ -38,6 +38,12 @@ BufferDataList vsg::createBufferAndTransferData(Device* device, CommandPool* com
 
     ref_ptr<Buffer> stagingBuffer = vsg::Buffer::create(device, totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode);
     ref_ptr<DeviceMemory> stagingMemory = vsg::DeviceMemory::create(device, stagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    if (!stagingMemory)
+    {
+        return BufferDataList();
+    }
+
     stagingBuffer->bind(stagingMemory, 0);
 
     void* buffer_data;
