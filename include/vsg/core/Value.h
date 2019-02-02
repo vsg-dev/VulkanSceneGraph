@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Data.h>
 #include <vsg/core/type_name.h>
 
+#include <vsg/maths/mat3.h>
 #include <vsg/maths/mat4.h>
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
@@ -140,6 +141,9 @@ namespace vsg
     VSG_value(ubvec2Value, ubvec2);
     VSG_value(ubvec3Value, ubvec3);
     VSG_value(ubvec4Value, ubvec4);
+
+    VSG_value(mat3Value, mat3);
+    VSG_value(dmat3Value, dmat3);
 
     VSG_value(mat4Value, mat4);
     VSG_value(dmat4Value, dmat4);
