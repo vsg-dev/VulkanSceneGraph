@@ -45,6 +45,7 @@ set(SOURCES
     viewer/View.cpp
     viewer/Viewer.cpp
     viewer/Window.cpp
+    viewer/Trackball.cpp
 
     vk/Buffer.cpp
     vk/BufferData.cpp
