@@ -33,6 +33,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 // Maths header files
 #include <vsg/maths/box.h>
+#include <vsg/maths/mat3.h>
 #include <vsg/maths/mat4.h>
 #include <vsg/maths/sphere.h>
 #include <vsg/maths/transform.h>
@@ -64,6 +65,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/CloseHandler.h>
 #include <vsg/viewer/GraphicsStage.h>
+#include <vsg/viewer/Trackball.h>
 #include <vsg/viewer/View.h>
 #include <vsg/viewer/Viewer.h>
 #include <vsg/viewer/Window.h>
