@@ -42,13 +42,17 @@ namespace vsg
     class VSG_DECLSPEC Shader : public Inherit<Object, Shader>
     {
     public:
-        using Contents = std::vector<uint32_t>;
+        using Source = std::string;
+        using SPIRV = std::vector<uint32_t>;
 
-        Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const Contents& contents);
+        Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const SPIRV& spirv);
+        Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source);
+        Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source, const SPIRV& spirv);
 
         VkShaderStageFlagBits stage() const { return _stage; }
         const std::string& entryPointName() const { return _entryPointName; }
-        const Contents& contents() const { return _contents; }
+        const std::string& source() const { return _source; }
+        const SPIRV& spirv() const { return _spirv; }
 
         using Result = vsg::Result<Shader, VkResult, VK_SUCCESS>;
         static Result read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename);
@@ -61,7 +65,8 @@ namespace vsg
 
         VkShaderStageFlagBits _stage;
         std::string _entryPointName;
-        Contents _contents;
+        std::string _source;
+        SPIRV _spirv;
     };
     VSG_type_name(vsg::Shader);
 

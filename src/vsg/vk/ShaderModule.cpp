@@ -19,10 +19,25 @@ using namespace vsg;
 // Shader
 //
 
-Shader::Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const Contents& contents) :
+Shader::Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const SPIRV& spirv) :
     _stage(stage),
     _entryPointName(entryPointName),
-    _contents(contents)
+    _spirv(spirv)
+{
+}
+
+Shader::Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source) :
+    _stage(stage),
+    _entryPointName(entryPointName),
+    _source(source)
+{
+}
+
+Shader::Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source, const SPIRV& spirv) :
+    _stage(stage),
+    _entryPointName(entryPointName),
+    _source(source),
+    _spirv(spirv)
 {
 }
 
@@ -32,7 +47,7 @@ Shader::~Shader()
 
 Shader::Result Shader::read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename)
 {
-    Contents buffer;
+    SPIRV buffer;
     if (readFile(buffer, filename))
     {
         return Result(new Shader(stage, entryPointName, buffer));
@@ -51,10 +66,11 @@ void Shader::read(Input& input)
     _stage = static_cast<VkShaderStageFlagBits>(input.readValue<int32_t>("Stage"));
 
     input.read("EntryPoint", _entryPointName);
+    input.read("Source", _source);
 
-    _contents.resize(input.readValue<uint32_t>("ContentsSize"));
-    input.matchPropertyName("Contents");
-    input.read(_contents.size(), _contents.data());
+    _spirv.resize(input.readValue<uint32_t>("SPIRVSize"));
+    input.matchPropertyName("SPIRV");
+    input.read(_spirv.size(), _spirv.data());
 }
 
 void Shader::write(Output& output) const
@@ -64,10 +80,11 @@ void Shader::write(Output& output) const
     output.writeValue<int32_t>("Stage", _stage);
 
     output.write("EntryPoint",  _entryPointName);
+    output.write("Source", _source);
 
-    output.writeValue<uint32_t>("ContentsSize", _contents.size());
-    output.writePropertyName("Contents");
-    output.write(_contents.size(), _contents.data());
+    output.writeValue<uint32_t>("SPIRVSize", _spirv.size());
+    output.writePropertyName("SPIRV");
+    output.write(_spirv.size(), _spirv.data());
 }
 
 
@@ -95,13 +112,18 @@ ShaderModule::Result ShaderModule::create(Device* device, Shader* shader, Alloca
 {
     if (!device || !shader)
     {
-        return Result("Error: vsg::ShaderModule::create(...) failed to create logical device, or Shader.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return Result("Error: vsg::ShaderModule::create(...) failed, requires valid logical device and Shader.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    }
+
+    if (shader->spirv().empty())
+    {
+        return Result("Error: vsg::ShaderModule::create(...) failed. requires Shader with valid spirv contents.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     VkShaderModuleCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.codeSize = shader->contents().size() * sizeof(Shader::Contents::value_type);
-    createInfo.pCode = shader->contents().data();
+    createInfo.codeSize = shader->spirv().size() * sizeof(Shader::SPIRV::value_type);
+    createInfo.pCode = shader->spirv().data();
 
     VkShaderModule shaderModule;
     VkResult result = vkCreateShaderModule(*device, &createInfo, allocator, &shaderModule);
