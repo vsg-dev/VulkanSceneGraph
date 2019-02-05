@@ -49,9 +49,16 @@ namespace vsg
         Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source);
         Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source, const SPIRV& spirv);
 
+        VkShaderStageFlagBits& stage() { return _stage; }
         VkShaderStageFlagBits stage() const { return _stage; }
+
+        std::string& entryPointName() { return _entryPointName; }
         const std::string& entryPointName() const { return _entryPointName; }
+
+        std::string& source() { return _source; }
         const std::string& source() const { return _source; }
+
+        SPIRV& spirv() { return _spirv; }
         const SPIRV& spirv() const { return _spirv; }
 
         using Result = vsg::Result<Shader, VkResult, VK_SUCCESS>;
