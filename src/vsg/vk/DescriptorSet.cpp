@@ -55,7 +55,7 @@ DescriptorSet::Result DescriptorSet::create(Device* device, DescriptorPool* desc
     }
     else
     {
-        return Result("Error: Failed to create DescriptorPool.", result);
+        return Result("Error: Failed to create DescriptorSet.", result);
     }
 }
 
