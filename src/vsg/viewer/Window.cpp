@@ -205,6 +205,16 @@ void Window::populateCommandBuffers()
     }
 }
 
+void Window::populateCommandBuffers(uint32_t index)
+{
+    Frame& frame = _frames[index];
+    for (auto& stage : _stages)
+    {
+        stage->populateCommandBuffer(frame.commandBuffer, frame.framebuffer, _renderPass, _extent2D, _clearColor);
+    }
+}
+
+
 // just kept for backwards compat for now
 Window::Result Window::create(uint32_t width, uint32_t height, bool debugLayer, bool apiDumpLayer, vsg::Window* shareWindow, vsg::AllocationCallbacks* allocator)
 {

@@ -135,6 +135,8 @@ namespace vsg
 
         void populateCommandBuffers();
 
+        void populateCommandBuffers(uint32_t index);
+
     protected:
         Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator);
 

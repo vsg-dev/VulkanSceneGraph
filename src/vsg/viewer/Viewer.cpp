@@ -156,6 +156,13 @@ void Viewer::submitFrame()
         VkResult result;
         if (window->resized() || (result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *(imageAvailableSemaphore), VK_NULL_HANDLE)) != VK_SUCCESS)
         {
+            // wait till queue are empty before we resize.
+            for (auto& pair_pdo : _deviceMap)
+            {
+                PerDeviceObjects& pdo = pair_pdo.second;
+                vkQueueWaitIdle(pdo.presentQueue);
+            }
+
             window->resize();
 
             reassignFrameCache();
@@ -227,3 +234,111 @@ void Viewer::submitFrame()
         }
     }
 }
+
+bool Viewer::aquireNextFrame()
+{
+    if (_close) return false;
+
+    for (auto& window : _windows)
+    {
+        vsg::Semaphore* imageAvailableSemaphore = window->imageAvailableSemaphore();
+        VkResult result;
+        if (window->resized() || (result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *(imageAvailableSemaphore), VK_NULL_HANDLE)) != VK_SUCCESS)
+        {
+            // wait till queue are empty before we resize.
+            for (auto& pair_pdo : _deviceMap)
+            {
+                PerDeviceObjects& pdo = pair_pdo.second;
+                vkQueueWaitIdle(pdo.presentQueue);
+            }
+
+            window->resize();
+
+            reassignFrameCache();
+
+            window->populateCommandBuffers();
+
+            result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE);
+            if (result != VK_SUCCESS)
+            {
+                std::cout << "Failed to aquire image VkResult=" << result << std::endl;
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool Viewer::populateNextFrame()
+{
+   for (auto& window : _windows)
+   {
+        window->populateCommandBuffers(window->nextImageIndex());
+   }
+   return true;
+}
+
+bool Viewer::submitNextFrame()
+{
+    bool debugLayersEnabled = false;
+
+    for (auto& pair_pdo : _deviceMap)
+    {
+        PerDeviceObjects& pdo = pair_pdo.second;
+
+        // fill in the imageIndices and commandBuffers associated with each window
+        for (size_t i = 0; i < pdo.windows.size(); ++i)
+        {
+            Window* window = pdo.windows[i];
+            if (window->debugLayersEnabled()) debugLayersEnabled = true;
+            uint32_t imageIndex = window->nextImageIndex();
+            pdo.imageIndices[i] = imageIndex;
+            pdo.commandBuffers[i] = *(window->commandBuffer(imageIndex));
+        }
+
+        VkSubmitInfo submitInfo = {};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+        submitInfo.waitSemaphoreCount = static_cast<uint32_t>(pdo.waitSemaphores.size());
+        submitInfo.pWaitSemaphores = pdo.waitSemaphores.data();
+        submitInfo.pWaitDstStageMask = pdo.waitStages.data();
+
+        submitInfo.commandBufferCount = static_cast<uint32_t>(pdo.commandBuffers.size());
+        submitInfo.pCommandBuffers = pdo.commandBuffers.data();
+
+        submitInfo.signalSemaphoreCount = static_cast<uint32_t>(pdo.signalSemaphores.size());
+        submitInfo.pSignalSemaphores = pdo.signalSemaphores.data();
+
+        if (vkQueueSubmit(pdo.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
+        {
+            std::cout << "Error: failed to submit draw command buffer." << std::endl;
+            return false;
+        }
+    }
+
+    for (auto& pair_pdo : _deviceMap)
+    {
+        PerDeviceObjects& pdo = pair_pdo.second;
+
+        VkPresentInfoKHR presentInfo = {};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfo.waitSemaphoreCount = static_cast<uint32_t>(pdo.signalSemaphores.size());
+        presentInfo.pWaitSemaphores = pdo.signalSemaphores.data();
+        presentInfo.swapchainCount = static_cast<uint32_t>(pdo.swapchains.size());
+        presentInfo.pSwapchains = pdo.swapchains.data();
+        presentInfo.pImageIndices = pdo.imageIndices.data();
+
+        vkQueuePresentKHR(pdo.presentQueue, &presentInfo);
+    }
+
+    //if (debugLayersEnabled)
+    {
+        for (auto& pair_pdo : _deviceMap)
+        {
+            PerDeviceObjects& pdo = pair_pdo.second;
+            vkQueueWaitIdle(pdo.presentQueue);
+        }
+    }
+    return true;
+}
+

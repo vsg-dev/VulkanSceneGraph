@@ -103,6 +103,12 @@ namespace vsg
 
         void reassignFrameCache();
 
+        bool aquireNextFrame();
+
+        bool populateNextFrame();
+
+        bool submitNextFrame();
+
     protected:
         virtual ~Viewer();
 
