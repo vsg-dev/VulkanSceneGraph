@@ -127,7 +127,8 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     }
 
     // is width and height even required here as the surface appear to control it.
-    _swapchain = Swapchain::create(_physicalDevice, _device, _surface, width, height);
+
+    _swapchain = Swapchain::create(_physicalDevice, _device, _surface, width, height, _traits->swapchainPreferences);
 
     // pass back the extents used by the swap chain.
     _extent2D = _swapchain->getExtent();

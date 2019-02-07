@@ -57,6 +57,8 @@ namespace vsg
             bool debugLayer = false;
             bool apiDumpLayer = false;
 
+            SwapchainPreferences swapchainPreferences;
+
             Window* shareWindow = nullptr;
 
             AllocationCallbacks* allocator = nullptr;
