@@ -27,9 +27,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to a Xcb_Window
-    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits)
     {
-        return vsgXcb::Xcb_Window::create(traits, debugLayer, apiDumpLayer, allocator);
+        return vsgXcb::Xcb_Window::create(traits);
     }
 
     vsg::Names Window::getInstanceExtensions()
@@ -252,11 +252,11 @@ Xcb_Surface::Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, 
 //
 // Xcb_Window
 //
-vsg::Window::Result Xcb_Window::create(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+vsg::Window::Result Xcb_Window::create(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator)
 {
     try
     {
-        ref_ptr<Window> window(new Xcb_Window(traits, debugLayer, apiDumpLayer, allocator));
+        ref_ptr<Window> window(new Xcb_Window(traits,  allocator));
         return Result(window);
     }
     catch (vsg::Window::Result result)
@@ -265,8 +265,8 @@ vsg::Window::Result Xcb_Window::create(vsg::ref_ptr<Window::Traits> traits, bool
     }
 }
 
-Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator) :
-    Window(traits, debugLayer, apiDumpLayer, allocator)
+Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator) :
+    Window(traits, allocator)
 {
     std::cout << "Xcb_Window() " << traits->x << ", " << traits->y << ", " << traits->width << ", " << traits->height << std::endl;
 
@@ -443,14 +443,14 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, boo
     else
     {
         // use Xcb to create surface
-        vsg::ref_ptr<vsg::Surface> surface(new Xcb_Surface(_instance, _connection, _window, allocator));
+        vsg::ref_ptr<vsg::Surface> surface(new Xcb_Surface(_instance, _connection, _window, _traits->allocator));
         if (!surface) throw Result("Error: vsg::Xcb_Window::create(...) failed to create Window, unable to create Xcb_Surface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
         _surface = surface;
         std::cout << "Surface created" << std::endl;
 
         // set up device
-        initaliseDevice(apiDumpLayer, allocator);
+        initaliseDevice();
     }
 
     xcb_flush(_connection);

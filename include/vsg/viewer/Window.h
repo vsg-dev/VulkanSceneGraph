@@ -54,8 +54,12 @@ namespace vsg
 
             bool decoration = true;
             bool hdpi = true;
+            bool debugLayer = false;
+            bool apiDumpLayer = false;
 
             Window* shareWindow = nullptr;
+
+            AllocationCallbacks* allocator = nullptr;
 
 #if __APPLE__
             std::experimental::any nativeHandle;
@@ -70,8 +74,11 @@ namespace vsg
         };
 
         using Result = vsg::Result<Window, VkResult, VK_SUCCESS>;
-        static Result create(uint32_t width, uint32_t height, bool debugLayer = false, bool apiDumpLayer = false, vsg::Window* shareWindow = nullptr, vsg::AllocationCallbacks* allocator = nullptr); // for backward compat
-        static Result create(vsg::ref_ptr<Traits> traits, bool debugLayer = false, bool apiDumpLayer = false, AllocationCallbacks* allocator = nullptr);
+        static Result create(vsg::ref_ptr<Traits> traits);
+
+        // for backward compatability
+        static Result create(uint32_t width, uint32_t height, bool debugLayer = false, bool apiDumpLayer = false, vsg::Window* shareWindow = nullptr, vsg::AllocationCallbacks* allocator = nullptr);
+        static Result create(vsg::ref_ptr<Traits> traits, bool debugLayer, bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
 
         static vsg::Names getInstanceExtensions();
 
@@ -131,20 +138,20 @@ namespace vsg
 
         uint32_t nextImageIndex() const { return _nextImageIndex; }
 
-        bool debugLayersEnabled() const { return _debugLayersEnabled; }
+        bool debugLayersEnabled() const { return _traits->debugLayer; }
 
         void populateCommandBuffers();
 
         void populateCommandBuffers(uint32_t index);
 
     protected:
-        Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator);
+        Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator);
 
         virtual ~Window();
 
         virtual void clear();
         void share(const Window& window);
-        void initaliseDevice(bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
+        void initaliseDevice();
         void buildSwapchain(uint32_t width, uint32_t height);
 
         struct Frame
@@ -175,8 +182,6 @@ namespace vsg
         ref_ptr<Semaphore> _imageAvailableSemaphore;
 
         Frames _frames;
-
-        bool _debugLayersEnabled;
         uint32_t _nextImageIndex;
     };
 

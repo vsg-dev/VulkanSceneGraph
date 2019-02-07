@@ -18,20 +18,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Window::Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator) :
+Window::Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator) :
     _traits(traits),
-    _clearColor{{0.2f, 0.2f, 0.4f, 1.0f}},
-    _debugLayersEnabled(debugLayer)
+    _clearColor{{0.2f, 0.2f, 0.4f, 1.0f}}
 {
     // create the vkInstance
     vsg::Names instanceExtensions = getInstanceExtensions();
 
     vsg::Names requestedLayers;
-    if (debugLayer)
+    if (traits && traits->debugLayer)
     {
         instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
         requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
-        if (apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
+        if (traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
     }
 
     vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
@@ -72,13 +71,13 @@ void Window::share(const Window& window)
     _renderPass = window._renderPass;
 }
 
-void Window::initaliseDevice(bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+void Window::initaliseDevice()
 {
     vsg::Names requestedLayers;
-    if (_debugLayersEnabled)
+    if (_traits->debugLayer)
     {
         requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
-        if (apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
+        if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
     }
 
     vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
@@ -90,14 +89,14 @@ void Window::initaliseDevice(bool apiDumpLayer, vsg::AllocationCallbacks* alloca
     vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(_instance, VK_QUEUE_GRAPHICS_BIT, _surface);
     if (!physicalDevice) throw Result("Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
-    vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, validatedNames, deviceExtensions, allocator);
+    vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, validatedNames, deviceExtensions, _traits->allocator);
     if (!device) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan logical Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     // set up renderpass with the imageFormat that the swap chain will use
     vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*physicalDevice, *_surface);
     VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
     VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
-    vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, imageFormat.format, depthFormat, allocator);
+    vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, imageFormat.format, depthFormat, _traits->allocator);
     if (!renderPass) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan RenderPass.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     _physicalDevice = physicalDevice;
@@ -222,5 +221,17 @@ Window::Result Window::create(uint32_t width, uint32_t height, bool debugLayer, 
     traits->width = width;
     traits->height = height;
     traits->shareWindow = shareWindow;
-    return create(traits, debugLayer, apiDumpLayer, allocator);
+    traits->debugLayer = debugLayer;
+    traits->apiDumpLayer = apiDumpLayer;
+    traits->allocator = allocator;
+    return create(traits);
+}
+
+// just kept for backwards compat for now
+Window::Result Window::create(vsg::ref_ptr<Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+{
+    traits->debugLayer = debugLayer;
+    traits->apiDumpLayer = apiDumpLayer;
+    traits->allocator = allocator;
+    return create(traits);
 }
