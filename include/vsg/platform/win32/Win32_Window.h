@@ -69,7 +69,7 @@ namespace vsgWin32
                     break;
 
                 default:
-                    virtualKey = wParam;
+                    virtualKey = static_cast<int>(wParam);
                     break;
             }
 
@@ -79,7 +79,7 @@ namespace vsgWin32
             keyModifier = (vsg::KeyModifier) modifierMask;
 
             char asciiKey[2];
-            int numChars = ::ToAscii(wParam, (lParam>>16)&0xff, keyState, reinterpret_cast<WORD*>(asciiKey), 0);
+            int numChars = ::ToAscii(static_cast<UINT>(wParam), (lParam>>16)&0xff, keyState, reinterpret_cast<WORD*>(asciiKey), 0);
             if (numChars>0) modifiedKeySymbol = (vsg::KeySymbol)asciiKey[0];
 
             std::cout << "moded ascii: " << asciiKey[0] << "  0x" << std::hex << asciiKey[0] << std::endl;
@@ -111,7 +111,7 @@ namespace vsgWin32
         Win32_Window(const Win32_Window&) = delete;
         Win32_Window operator=(const Win32_Window&) = delete;
 
-        static Result create(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugLayer = false, bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
+        static Result create(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator = nullptr);
 
         bool valid() const override { return _window; }
 
@@ -129,7 +129,7 @@ namespace vsgWin32
     protected:
         virtual ~Win32_Window();
 
-        Win32_Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugLayer = false, bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
+        Win32_Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator = nullptr);
 
         HWND _window;
 
