@@ -32,8 +32,9 @@ namespace vsg
 
     struct SwapchainPreferences
     {
+        uint32_t imageCount = 3; // default to triple buffering
         VkSurfaceFormatKHR surfaceFormat = {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
-        VkPresentModeKHR presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+        VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
     };
 
 
@@ -43,7 +44,7 @@ namespace vsg
         Swapchain(VkSwapchainKHR swapchain, Device* device, Surface* surface, AllocationCallbacks* allocator = nullptr);
 
         using Result = vsg::Result<Swapchain, VkResult, VK_SUCCESS>;
-        static Result create(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, const SwapchainPreferences& preferences, AllocationCallbacks* allocator = nullptr);
+        static Result create(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences, AllocationCallbacks* allocator = nullptr);
 
         operator VkSwapchainKHR() const { return _swapchain; }
 

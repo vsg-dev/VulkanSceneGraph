@@ -145,7 +145,7 @@ Swapchain::~Swapchain()
     }
 }
 
-Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, const SwapchainPreferences& preferences, AllocationCallbacks* allocator)
+Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences, AllocationCallbacks* allocator)
 {
     if (!physicalDevice || !device || !surface)
     {
@@ -160,10 +160,15 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
     VkPresentModeKHR presentMode = selectSwapPresentMode(details, preferences.presentMode);
     VkExtent2D extent = selectSwapExtent(details, width, height);
 
-    //uint32_t imageCount = 2;                                                                                           // double buffer
-    uint32_t imageCount = 3;                                                                                           // triple buffer
-    imageCount = std::max(imageCount, details.capabilities.minImageCount);                                             // Vulkan spec requires minImageCount to be 1 or greater
+    uint32_t imageCount = std::max(preferences.imageCount, details.capabilities.minImageCount);                     // Vulkan spec requires minImageCount to be 1 or greater
     if (details.capabilities.maxImageCount > 0) imageCount = std::min(imageCount, details.capabilities.maxImageCount); // Vulkan spec specifies 0 as being unlimited number of images
+
+
+    // apply the selected settings back to preferences to calling code can dtermine the active settings.
+    preferences.imageCount = imageCount;
+    preferences.presentMode = presentMode;
+    preferences.surfaceFormat = surfaceFormat;
+
 
     std::cout << "Swapcain::create(..) " << std::endl;
     std::cout << "     details.capabilities.minImageCount=" << details.capabilities.minImageCount << std::endl;
