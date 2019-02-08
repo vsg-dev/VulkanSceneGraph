@@ -22,9 +22,9 @@ using namespace vsgWin32;
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to a Win32_Window
-    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits)
     {
-        return vsgWin32::Win32_Window::create(traits, debugLayer, apiDumpLayer, allocator);
+        return vsgWin32::Win32_Window::create(traits);
     }
 
     vsg::Names Window::getInstanceExtensions()
@@ -318,11 +318,11 @@ KeyboardMap::KeyboardMap()
         };
 }
 
-Win32_Window::Result Win32_Window::create(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+Win32_Window::Result Win32_Window::create(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator)
 {
     try
     {
-        ref_ptr<Window> window(new Win32_Window(traits, debugLayer, apiDumpLayer, allocator));
+        ref_ptr<Window> window(new Win32_Window(traits, allocator));
         return Result(window);
     }
     catch (vsg::Window::Result result)
@@ -331,8 +331,8 @@ Win32_Window::Result Win32_Window::create(vsg::ref_ptr<Window::Traits> traits, b
     }
 }
 
-Win32_Window::Win32_Window(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator) :
-    Window(traits, debugLayer, apiDumpLayer, allocator),
+Win32_Window::Win32_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator) :
+    Window(traits, allocator),
     _window(nullptr)
 {
     _keyboard = new KeyboardMap;
@@ -439,7 +439,7 @@ Win32_Window::Win32_Window(vsg::ref_ptr<Window::Traits> traits, bool debugLayer,
         _surface = surface;
 
         // set up device
-        initaliseDevice(apiDumpLayer, allocator);
+        initaliseDevice();
     }
 
     buildSwapchain(finalWidth, finalHeight);
@@ -550,8 +550,8 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         break;
     case WM_MOUSEMOVE:
     {
-        float mx = GET_X_LPARAM(lParam);
-        float my = GET_Y_LPARAM(lParam);
+        int32_t mx = GET_X_LPARAM(lParam);
+        int32_t my = GET_Y_LPARAM(lParam);
 
         _bufferedEvents.emplace_back(new vsg::MoveEvent(this, event_time, mx, my, getButtonMask(wParam)));
     }
