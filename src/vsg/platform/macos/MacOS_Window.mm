@@ -33,9 +33,9 @@ using namespace vsgMacOS;
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to an Android_Window
-    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits)
     {
-        return vsgMacOS::MacOS_Window::create(traits, debugLayer, apiDumpLayer, allocator);
+        return vsgMacOS::MacOS_Window::create(traits, nullptr);
     }
 
     vsg::Names Window::getInstanceExtensions()
@@ -102,7 +102,7 @@ std::cout << "applicationDidFinishLaunching" << std::endl;
 
 - (BOOL)canBecomeKeyWindow
 {
-std::cout << "canBecomeKeyWindow" << std::endl;
+    //std::cout << "canBecomeKeyWindow" << std::endl;
     return YES;
 }
 
@@ -162,12 +162,12 @@ std::cout << "canBecomeKeyWindow" << std::endl;
 
 - (void)windowDidBecomeKey:(NSNotification *)notification
 {
-    std::cout << "windowDidBecomeKey" << std::endl;
+    //std::cout << "windowDidBecomeKey" << std::endl;
 }
 
 - (void)windowDidResignKey:(NSNotification *)notification
 {
-    std::cout << "windowDidResignKey" << std::endl;
+    //std::cout << "windowDidResignKey" << std::endl;
 }
 
 @end
@@ -388,7 +388,7 @@ namespace vsgMacOS
             surfaceCreateInfo.flags = 0;
             surfaceCreateInfo.pView = window;
 
-            auto result = vkCreateMacOSSurfaceMVK(*instance, &surfaceCreateInfo, nullptr, &_surface);
+            /*auto result = */ vkCreateMacOSSurfaceMVK(*instance, &surfaceCreateInfo, nullptr, &_surface);
         }
     };
 
@@ -744,11 +744,11 @@ bool KeyboardMap::getKeySymbol(NSEvent* anEvent, vsg::KeySymbol& keySymbol, vsg:
     return true;
 }
 
-vsg::Window::Result MacOS_Window::create(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+vsg::Window::Result MacOS_Window::create(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator)
 {
     try
     {
-        ref_ptr<Window> window(new MacOS_Window(traits, debugLayer, apiDumpLayer, allocator));
+        ref_ptr<Window> window(new MacOS_Window(traits, allocator));
         return Result(window);
     }
     catch (vsg::Window::Result result)
@@ -758,8 +758,8 @@ vsg::Window::Result MacOS_Window::create(vsg::ref_ptr<vsg::Window::Traits> trait
     }
 }
 
-MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator) :
-    Window(traits, debugLayer, apiDumpLayer, allocator)
+MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator) :
+    Window(traits, allocator)
 {
     _keyboard = new KeyboardMap;
 
@@ -828,7 +828,6 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugL
         vsg::ref_ptr<vsg::Surface> surface(new vsgMacOS::MacOSSurface(traits->shareWindow->instance(), _view, allocator));
 
         _surface = surface;
-        _debugLayersEnabled = traits->shareWindow->debugLayersEnabled();
 
         // share the _instance, _physicalDevice and _device;
         share(*traits->shareWindow);
@@ -846,7 +845,7 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugL
         _surface = surface;
 
         // initalise device now the surface has been created
-        initaliseDevice(apiDumpLayer, allocator);
+        initaliseDevice();
     }
 
     buildSwapchain(finalwidth, finalheight);
