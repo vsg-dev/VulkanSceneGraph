@@ -30,6 +30,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    #if __APPLE__
+        using std_any = std::experimental::any;
+    #else
+        using std_any = std::any;
+    #endif
+
     class VSG_DECLSPEC Window : public Inherit<Object, Window>
     {
     public:
@@ -43,10 +49,23 @@ namespace vsg
             Traits(const Traits&) = delete;
             Traits& operator=(const Traits&) = delete;
 
-            int32_t x = 100;
-            int32_t y = 100;
-            uint32_t width = 800;
-            uint32_t height = 600;
+            Traits(int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height) :
+                x(in_x),
+                y(in_y),
+                width(in_width),
+                height(in_height) {}
+
+                Traits(uint32_t in_width, uint32_t in_height) :
+                width(in_width),
+                height(in_height) {}
+
+            int32_t x = 0;
+            int32_t y = 0;
+            uint32_t width = 1280;
+            uint32_t height = 1024;
+
+            bool fullscreen = false;
+
             uint32_t screenNum = 0;
 
             std::string windowClass = "vsg::Window";
@@ -55,14 +74,19 @@ namespace vsg
             bool decoration = true;
             bool hdpi = true;
 
+            // X11 hint of whether to ignore the Window managers redirection of window size/position
+            bool overrideRedirect = false;
+
+            bool debugLayer = false;
+            bool apiDumpLayer = false;
+
+            SwapchainPreferences swapchainPreferences;
+
             Window* shareWindow = nullptr;
 
-#if __APPLE__
-            std::experimental::any nativeHandle;
-#else
-            std::any nativeHandle;
-#endif
+            AllocationCallbacks* allocator = nullptr;
 
+            std_any nativeHandle;
             void* nativeWindow;
 
         protected:
@@ -70,8 +94,11 @@ namespace vsg
         };
 
         using Result = vsg::Result<Window, VkResult, VK_SUCCESS>;
-        static Result create(uint32_t width, uint32_t height, bool debugLayer = false, bool apiDumpLayer = false, vsg::Window* shareWindow = nullptr, vsg::AllocationCallbacks* allocator = nullptr); // for backward compat
-        static Result create(vsg::ref_ptr<Traits> traits, bool debugLayer = false, bool apiDumpLayer = false, AllocationCallbacks* allocator = nullptr);
+        static Result create(vsg::ref_ptr<Traits> traits);
+
+        // for backward compatability
+        static Result create(uint32_t width, uint32_t height, bool debugLayer = false, bool apiDumpLayer = false, vsg::Window* shareWindow = nullptr, vsg::AllocationCallbacks* allocator = nullptr);
+        static Result create(vsg::ref_ptr<Traits> traits, bool debugLayer, bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
 
         static vsg::Names getInstanceExtensions();
 
@@ -131,20 +158,20 @@ namespace vsg
 
         uint32_t nextImageIndex() const { return _nextImageIndex; }
 
-        bool debugLayersEnabled() const { return _debugLayersEnabled; }
+        bool debugLayersEnabled() const { return _traits->debugLayer; }
 
         void populateCommandBuffers();
 
         void populateCommandBuffers(uint32_t index);
 
     protected:
-        Window(vsg::ref_ptr<vsg::Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator);
+        Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator);
 
         virtual ~Window();
 
         virtual void clear();
         void share(const Window& window);
-        void initaliseDevice(bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
+        void initaliseDevice();
         void buildSwapchain(uint32_t width, uint32_t height);
 
         struct Frame
@@ -175,8 +202,6 @@ namespace vsg
         ref_ptr<Semaphore> _imageAvailableSemaphore;
 
         Frames _frames;
-
-        bool _debugLayersEnabled;
         uint32_t _nextImageIndex;
     };
 

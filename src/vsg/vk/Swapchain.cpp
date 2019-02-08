@@ -14,6 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Surface.h>
 #include <vsg/vk/Swapchain.h>
 
+#include <vsg/viewer/Window.h>
+
 #include <algorithm>
 #include <iostream>
 #include <limits>
@@ -47,7 +49,7 @@ SwapChainSupportDetails vsg::querySwapChainSupport(VkPhysicalDevice device, VkSu
     return details;
 }
 
-VkSurfaceFormatKHR vsg::selectSwapSurfaceFormat(SwapChainSupportDetails& details)
+VkSurfaceFormatKHR vsg::selectSwapSurfaceFormat(const SwapChainSupportDetails& details, VkSurfaceFormatKHR preferredSurfaceFormat)
 {
     if (details.formats.empty() || (details.formats.size() == 1 && details.formats[0].format == VK_FORMAT_UNDEFINED))
     {
@@ -55,21 +57,31 @@ VkSurfaceFormatKHR vsg::selectSwapSurfaceFormat(SwapChainSupportDetails& details
         return {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
     }
 
+    // check if requested format is available
     for (const auto& availableFormat : details.formats)
     {
-        if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM &&
-            availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+        if (availableFormat.format == preferredSurfaceFormat.format && availableFormat.colorSpace == preferredSurfaceFormat.colorSpace)
         {
             return availableFormat;
         }
     }
 
+    // fallbck to checkeing for {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR}
+    for (const auto& availableFormat : details.formats)
+    {
+        if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+        {
+            return availableFormat;
+        }
+    }
+
+    // fallback to using the first on the list of available formats
     return details.formats[0];
 }
 
-VkExtent2D vsg::selectSwapExtent(SwapChainSupportDetails& details, uint32_t width, uint32_t height)
+VkExtent2D vsg::selectSwapExtent(const SwapChainSupportDetails& details, uint32_t width, uint32_t height)
 {
-    VkSurfaceCapabilitiesKHR& capabilities = details.capabilities;
+    const VkSurfaceCapabilitiesKHR& capabilities = details.capabilities;
 
     if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
     {
@@ -84,17 +96,22 @@ VkExtent2D vsg::selectSwapExtent(SwapChainSupportDetails& details, uint32_t widt
     }
 }
 
-VkPresentModeKHR vsg::selectSwapPresentMode(SwapChainSupportDetails& /*details*/)
+VkPresentModeKHR vsg::selectSwapPresentMode(const SwapChainSupportDetails& details, VkPresentModeKHR preferredPresentMode)
 {
-    VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
-    // TODO need to deciced upon a scheme for selecting which presentMode to select.
-#if 0
-    for (const auto& availablePresentMode : details.presentModes)
+    // select requested presentMode if it's available.
+    for (auto availablePresentMode : details.presentModes)
+    {
+        if (availablePresentMode==preferredPresentMode) return availablePresentMode;
+    }
+
+    // requested presetnMode not available so fallback for checking of VK_PRESENT_MODE_MAILBOX_KHR available
+    for(auto availablePresentMode : details.presentModes)
     {
         if (availablePresentMode==VK_PRESENT_MODE_MAILBOX_KHR) return availablePresentMode;
-        else if (availablePresentMode==VK_PRESENT_MODE_IMMEDIATE_KHR) presentMode = availablePresentMode;
     }
-#endif
+
+    // fallback to VK_PRESENT_MODE_FIFO_KHR
+    return VK_PRESENT_MODE_FIFO_KHR;
 
     /**
     From https://github.com/LunarG/VulkanSamples/issues/98 :
@@ -107,8 +124,6 @@ VkPresentModeKHR vsg::selectSwapPresentMode(SwapChainSupportDetails& /*details*/
 
     VK_PRESENT_MODE_MAILBOX_KHR. I'm guessing that this is for applications that generally render/present a new frame every refresh cycle, but are occasionally early. In this case, they want the new image to be displayed instead of the previously-queued-for-presentation image that has not yet been displayed.
 **/
-
-    return presentMode;
 }
 
 Swapchain::Swapchain(VkSwapchainKHR swapchain, Device* device, Surface* surface, AllocationCallbacks* allocator) :
@@ -130,7 +145,7 @@ Swapchain::~Swapchain()
     }
 }
 
-Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, AllocationCallbacks* allocator)
+Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences, AllocationCallbacks* allocator)
 {
     if (!physicalDevice || !device || !surface)
     {
@@ -141,13 +156,19 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
 
     SwapChainSupportDetails details = querySwapChainSupport(*physicalDevice, *surface);
 
-    VkSurfaceFormatKHR surfaceFormat = selectSwapSurfaceFormat(details);
-    VkPresentModeKHR presentMode = selectSwapPresentMode(details);
+    VkSurfaceFormatKHR surfaceFormat = selectSwapSurfaceFormat(details, preferences.surfaceFormat);
+    VkPresentModeKHR presentMode = selectSwapPresentMode(details, preferences.presentMode);
     VkExtent2D extent = selectSwapExtent(details, width, height);
 
-    uint32_t imageCount = 2;                                                                                           // double buffer
-    imageCount = std::max(imageCount, details.capabilities.minImageCount);                                             // Vulkan spec requires minImageCount to be 1 or greater
+    uint32_t imageCount = std::max(preferences.imageCount, details.capabilities.minImageCount);                     // Vulkan spec requires minImageCount to be 1 or greater
     if (details.capabilities.maxImageCount > 0) imageCount = std::min(imageCount, details.capabilities.maxImageCount); // Vulkan spec specifies 0 as being unlimited number of images
+
+
+    // apply the selected settings back to preferences to calling code can dtermine the active settings.
+    preferences.imageCount = imageCount;
+    preferences.presentMode = presentMode;
+    preferences.surfaceFormat = surfaceFormat;
+
 
     std::cout << "Swapcain::create(..) " << std::endl;
     std::cout << "     details.capabilities.minImageCount=" << details.capabilities.minImageCount << std::endl;
