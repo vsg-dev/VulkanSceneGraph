@@ -102,7 +102,7 @@ std::cout << "applicationDidFinishLaunching" << std::endl;
 
 - (BOOL)canBecomeKeyWindow
 {
-std::cout << "canBecomeKeyWindow" << std::endl;
+    //std::cout << "canBecomeKeyWindow" << std::endl;
     return YES;
 }
 
@@ -162,12 +162,12 @@ std::cout << "canBecomeKeyWindow" << std::endl;
 
 - (void)windowDidBecomeKey:(NSNotification *)notification
 {
-    std::cout << "windowDidBecomeKey" << std::endl;
+    //std::cout << "windowDidBecomeKey" << std::endl;
 }
 
 - (void)windowDidResignKey:(NSNotification *)notification
 {
-    std::cout << "windowDidResignKey" << std::endl;
+    //std::cout << "windowDidResignKey" << std::endl;
 }
 
 @end
