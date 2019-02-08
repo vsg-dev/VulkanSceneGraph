@@ -272,9 +272,8 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallb
 
     const char* displayName = 0;
     int screenNum = traits->screenNum;
-
-    bool fullscreen = false;        //true;
-    uint32_t override_redirect = 0; // fullscreen ? 1 : 0;
+    bool fullscreen =  traits->fullscreen;
+    uint32_t override_redirect = traits->overrideRedirect;
 
     // open connection
     _connection = xcb_connect(displayName, &screenNum);
@@ -403,7 +402,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallb
 
     // set whethert the window should have a border or not, and if so what resize/move/close functions to enable
     AtomRequest motifHintAtom(_connection, "_MOTIF_WM_HINTS");
-    MotifHints hints = fullscreen ? MotifHints::borderless() : MotifHints::window();
+    MotifHints hints = (fullscreen || !_traits->decoration) ? MotifHints::borderless() : MotifHints::window();
     xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, motifHintAtom, motifHintAtom, 32, 5, &hints);
 
     std::cout << "Create window : " << traits->windowTitle << std::endl;

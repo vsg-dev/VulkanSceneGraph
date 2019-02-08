@@ -30,6 +30,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    #if __APPLE__
+        using std_any = std::experimental::any;
+    #else
+        using std_any = std::any;
+    #endif
+
     class VSG_DECLSPEC Window : public Inherit<Object, Window>
     {
     public:
@@ -43,10 +49,23 @@ namespace vsg
             Traits(const Traits&) = delete;
             Traits& operator=(const Traits&) = delete;
 
-            int32_t x = 100;
-            int32_t y = 100;
-            uint32_t width = 800;
-            uint32_t height = 600;
+            Traits(int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height) :
+                x(in_x),
+                y(in_y),
+                width(in_width),
+                height(in_height) {}
+
+                Traits(uint32_t in_width, uint32_t in_height) :
+                width(in_width),
+                height(in_height) {}
+
+            int32_t x = 0;
+            int32_t y = 0;
+            uint32_t width = 1280;
+            uint32_t height = 1024;
+
+            bool fullscreen = false;
+
             uint32_t screenNum = 0;
 
             std::string windowClass = "vsg::Window";
@@ -54,6 +73,10 @@ namespace vsg
 
             bool decoration = true;
             bool hdpi = true;
+
+            // X11 hint of whether to ignore the Window managers redirection of window size/position
+            bool overrideRedirect = false;
+
             bool debugLayer = false;
             bool apiDumpLayer = false;
 
@@ -63,12 +86,7 @@ namespace vsg
 
             AllocationCallbacks* allocator = nullptr;
 
-#if __APPLE__
-            std::experimental::any nativeHandle;
-#else
-            std::any nativeHandle;
-#endif
-
+            std_any nativeHandle;
             void* nativeWindow;
 
         protected:
