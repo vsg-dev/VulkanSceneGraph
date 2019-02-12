@@ -154,19 +154,12 @@ namespace vsgXcb
 
             if (tree_reply)
             {
-                xcb_translate_coordinates_cookie_t trans_cookie = xcb_translate_coordinates(connection, window, tree_reply->parent, x, y);
+                xcb_translate_coordinates_cookie_t trans_cookie = xcb_translate_coordinates(connection, window, geometry_reply->root, x, y);
                 xcb_translate_coordinates_reply_t* trans_reply = xcb_translate_coordinates_reply(connection, trans_cookie, nullptr);
                 if (trans_reply)
                 {
-                    std::cout<<"trans->dst_x = "<<trans_reply->dst_x<<", trans->dst_y = "<<trans_reply->dst_y<<std::endl;
-                    free(trans_reply);
-                }
-
-                trans_cookie = xcb_translate_coordinates(connection, window, geometry_reply->root, x, y);
-                trans_reply = xcb_translate_coordinates_reply(connection, trans_cookie, nullptr);
-                if (trans_reply)
-                {
-                    std::cout<<"2nd trans->dst_x = "<<trans_reply->dst_x<<", trans->dst_y = "<<trans_reply->dst_y<<std::endl;
+                    x = trans_reply->dst_x;
+                    y = trans_reply->dst_y;
                     free(trans_reply);
                 }
 
@@ -524,10 +517,31 @@ bool Xcb_Window::pollEvents(Events& events)
         {
             auto configure = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
 
-            vsg::clock::time_point event_time = vsg::clock::now();
-            events.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, configure->x, configure->y, configure->width, configure->height));
+            // Xcb configure events can come with x,y == (0,0) or with values relative to the root, so explictly get the new geometry and substitude if required to avoid inconsistencis
+            int32_t x = configure->x;
+            int32_t y  = configure->y;
+            if (configure->x==0 && configure->y==0)
+            {
+                uint32_t width,  height;
+                vsgXcb::getWindowGeometry(_connection, _window, x, y, width, height);
+            }
 
-            _windowResized = (configure->width != _extent2D.width || configure->height != _extent2D.height);
+            bool previousConfigureEventsIsEquvilant = false;
+            for(auto previousEvent : events)
+            {
+                vsg::ConfigureWindowEvent* cwe = dynamic_cast<vsg::ConfigureWindowEvent*>(previousEvent.get());
+                if (cwe)
+                {
+                    previousConfigureEventsIsEquvilant = (cwe->x==x) && (cwe->y==y) && (cwe->width==configure->width) && (cwe->height==configure->height);
+                }
+            }
+
+            if (!previousConfigureEventsIsEquvilant)
+            {
+                vsg::clock::time_point event_time = vsg::clock::now();
+                events.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, x, y, configure->width, configure->height));
+                _windowResized = (configure->width != _extent2D.width || configure->height != _extent2D.height);
+            }
 
             break;
         }
