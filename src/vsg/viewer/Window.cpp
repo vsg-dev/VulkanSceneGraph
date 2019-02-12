@@ -47,8 +47,6 @@ Window::~Window()
 
 void Window::clear()
 {
-    std::cout << "vsg::Window::clear() start" << std::endl;
-
     _frames.clear();
     _swapchain = 0;
 
@@ -60,8 +58,6 @@ void Window::clear()
     _surface = 0;
     _device = 0;
     _physicalDevice = 0;
-
-    std::cout << "vsg::Window::clear() end" << std::endl;
 }
 
 void Window::share(const Window& window)

@@ -268,8 +268,6 @@ vsg::Window::Result Xcb_Window::create(vsg::ref_ptr<Window::Traits> traits, vsg:
 Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator) :
     Window(traits, allocator)
 {
-    std::cout << "Xcb_Window() " << traits->x << ", " << traits->y << ", " << traits->width << ", " << traits->height << std::endl;
-
     const char* displayName = 0;
     int screenNum = traits->screenNum;
     bool fullscreen =  traits->fullscreen;
@@ -284,8 +282,6 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallb
         //return Result("Failed to created Window, unable able to establish xcb connection.", VK_ERROR_INVALID_EXTERNAL_HANDLE);  TODO need to throw?
         return;
     }
-
-    std::cout << "    created connection " << _connection << " screenNum=" << screenNum << " " << std::endl;
 
     // TODO, should record Traits within Window? Should pass back selected screeenNum?
 
@@ -322,17 +318,9 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallb
     xcb_screen_iterator_t screen_iterator = xcb_setup_roots_iterator(setup);
     for (; screenNum > 0; --screenNum) xcb_screen_next(&screen_iterator);
     _screen = screen_iterator.data;
-    std::cout << "    selected screen " << _screen << std::endl;
 
     // generate the widnow id
     _window = xcb_generate_id(_connection);
-
-    std::cout << "    _window " << _window << std::endl;
-
-    std::cout << "    screen.width_in_pixels = " << _screen->width_in_pixels << std::endl;
-    std::cout << "    screen.height_in_pixels = " << _screen->height_in_pixels << std::endl;
-    std::cout << "    width_in_millimeters = " << _screen->width_in_millimeters << std::endl;
-    std::cout << "    height_in_millimeters = " << _screen->height_in_millimeters << std::endl;
 
     uint8_t depth = XCB_COPY_FROM_PARENT;
     xcb_window_t parent = _screen->root;
@@ -396,16 +384,12 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallb
         std::vector<xcb_atom_t> stateAtoms{wmFullScreen};
 
         xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, wmState, XCB_ATOM_ATOM, 32, stateAtoms.size(), stateAtoms.data());
-
-        std::cout << "Set up full screen" << std::endl;
     }
 
     // set whethert the window should have a border or not, and if so what resize/move/close functions to enable
     AtomRequest motifHintAtom(_connection, "_MOTIF_WM_HINTS");
     MotifHints hints = (fullscreen || !_traits->decoration) ? MotifHints::borderless() : MotifHints::window();
     xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, motifHintAtom, motifHintAtom, 32, 5, &hints);
-
-    std::cout << "Create window : " << traits->windowTitle << std::endl;
 
     // work out the X server timestamp by checking for the property notify events that result for the above xcb_change_property calls.
     _first_xcb_timestamp = 0;
@@ -446,7 +430,6 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallb
         if (!surface) throw Result("Error: vsg::Xcb_Window::create(...) failed to create Window, unable to create Xcb_Surface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
         _surface = surface;
-        std::cout << "Surface created" << std::endl;
 
         // set up device
         initaliseDevice();
@@ -472,10 +455,7 @@ Xcb_Window::~Xcb_Window()
 
         xcb_flush(_connection);
         xcb_disconnect(_connection);
-
-        std::cout << "Disconnect" << std::endl;
     }
-    std::cout << "Destruction Xcb_Widnow" << std::endl;
 }
 
 bool Xcb_Window::valid() const
