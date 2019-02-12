@@ -52,7 +52,6 @@ void Viewer::addWindow(ref_ptr<Window> window)
     pdo.windows.push_back(window);
     pdo.imageIndices.push_back(0);   // to be filled in by submitFrame()
     pdo.commandBuffers.push_back(0); // to be filled in by submitFrame()
-    pdo.waitSemaphores.push_back(*(window->imageAvailableSemaphore()));
     pdo.swapchains.push_back(*(window->swapchain()));
     pdo.waitStages.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 }
@@ -103,7 +102,6 @@ void Viewer::reassignFrameCache()
         PerDeviceObjects& pdo = pair_pdo.second;
         pdo.imageIndices.clear();
         pdo.commandBuffers.clear();
-        pdo.waitSemaphores.clear();
         pdo.swapchains.clear();
         pdo.waitStages.clear();
 
@@ -111,7 +109,6 @@ void Viewer::reassignFrameCache()
         {
             pdo.imageIndices.push_back(0);   // to be filled in by submitFrame()
             pdo.commandBuffers.push_back(0); // to be filled in by submitFrame()
-            pdo.waitSemaphores.push_back(*(window->imageAvailableSemaphore()));
             pdo.swapchains.push_back(*(window->swapchain()));
             pdo.waitStages.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
         }
@@ -142,130 +139,49 @@ void Viewer::handleEvents()
     }
 }
 
-void Viewer::submitFrame()
+bool Viewer::aquireNextFrame()
 {
-    if (_close) return;
+    if (_close) return false;
 
-    bool debugLayersEnabled = false;
-
+    // handle resizing of windows
+    bool windowResized = false;
     for (auto& window : _windows)
     {
-        if (window->debugLayersEnabled()) debugLayersEnabled = true;
-
-        vsg::Semaphore* imageAvailableSemaphore = window->imageAvailableSemaphore();
-        VkResult result;
-        if (window->resized() || (result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *(imageAvailableSemaphore), VK_NULL_HANDLE)) != VK_SUCCESS)
-        {
-            // wait till queue are empty before we resize.
-            for (auto& pair_pdo : _deviceMap)
-            {
-                PerDeviceObjects& pdo = pair_pdo.second;
-                vkQueueWaitIdle(pdo.presentQueue);
-            }
-
-            window->resize();
-
-            reassignFrameCache();
-
-            window->populateCommandBuffers();
-
-            result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE);
-            if (result != VK_SUCCESS)
-            {
-                std::cout << "Failed to aquire image VkResult=" << result << std::endl;
-                return;
-            }
-        }
+        if (window->resized()) windowResized = true;
     }
 
-    for (auto& pair_pdo : _deviceMap)
+    if (windowResized)
     {
-        PerDeviceObjects& pdo = pair_pdo.second;
-
-        // fill in the imageIndices and commandBuffers associated with each window
-        for (size_t i = 0; i < pdo.windows.size(); ++i)
-        {
-            uint32_t imageIndex = pdo.windows[i]->nextImageIndex();
-            pdo.imageIndices[i] = imageIndex;
-            pdo.commandBuffers[i] = *(pdo.windows[i]->commandBuffer(imageIndex));
-        }
-
-        VkSubmitInfo submitInfo = {};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-        submitInfo.waitSemaphoreCount = static_cast<uint32_t>(pdo.waitSemaphores.size());
-        submitInfo.pWaitSemaphores = pdo.waitSemaphores.data();
-        submitInfo.pWaitDstStageMask = pdo.waitStages.data();
-
-        submitInfo.commandBufferCount = static_cast<uint32_t>(pdo.commandBuffers.size());
-        submitInfo.pCommandBuffers = pdo.commandBuffers.data();
-
-        submitInfo.signalSemaphoreCount = static_cast<uint32_t>(pdo.signalSemaphores.size());
-        submitInfo.pSignalSemaphores = pdo.signalSemaphores.data();
-
-        if (vkQueueSubmit(pdo.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
-        {
-            std::cout << "Error: failed to submit draw command buffer." << std::endl;
-            return;
-        }
-    }
-
-    for (auto& pair_pdo : _deviceMap)
-    {
-        PerDeviceObjects& pdo = pair_pdo.second;
-
-        VkPresentInfoKHR presentInfo = {};
-        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-        presentInfo.waitSemaphoreCount = static_cast<uint32_t>(pdo.signalSemaphores.size());
-        presentInfo.pWaitSemaphores = pdo.signalSemaphores.data();
-        presentInfo.swapchainCount = static_cast<uint32_t>(pdo.swapchains.size());
-        presentInfo.pSwapchains = pdo.swapchains.data();
-        presentInfo.pImageIndices = pdo.imageIndices.data();
-
-        vkQueuePresentKHR(pdo.presentQueue, &presentInfo);
-    }
-
-    if (debugLayersEnabled)
-    {
+        // wait till queue are empty before we resize.
         for (auto& pair_pdo : _deviceMap)
         {
             PerDeviceObjects& pdo = pair_pdo.second;
             vkQueueWaitIdle(pdo.presentQueue);
         }
+
+
+        // resize the windows
+        for (auto& window : _windows)
+        {
+            if (window->resized()) window->resize();
+        }
+
+        // reassign frame cache
+        reassignFrameCache();
     }
-}
 
-bool Viewer::aquireNextFrame()
-{
-    if (_close) return false;
-
+    // aquire the next images
     for (auto& window : _windows)
     {
-        vsg::Semaphore* imageAvailableSemaphore = window->imageAvailableSemaphore();
-        VkResult result;
-        if (window->resized() || (result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *(imageAvailableSemaphore), VK_NULL_HANDLE)) != VK_SUCCESS)
+        vsg::Semaphore* imageAvailableSemaphore = window->frame(window->nextImageIndex()).imageAvailableSemaphore;
+        VkResult result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *(imageAvailableSemaphore), VK_NULL_HANDLE);
+        if (result != VK_SUCCESS)
         {
-            // wait till queue are empty before we resize.
-            for (auto& pair_pdo : _deviceMap)
-            {
-                PerDeviceObjects& pdo = pair_pdo.second;
-                vkQueueWaitIdle(pdo.presentQueue);
-            }
-
-            window->resize();
-
-            reassignFrameCache();
-
-            window->populateCommandBuffers();
-
-            result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *imageAvailableSemaphore, VK_NULL_HANDLE);
-            if (result != VK_SUCCESS)
-            {
-                std::cout << "Failed to aquire image VkResult=" << result << std::endl;
-                return false;
-            }
+            std::cout << "Failed to aquire image VkResult=" << result << std::endl;
+            return false;
         }
     }
+
     return true;
 }
 
@@ -286,6 +202,16 @@ bool Viewer::submitNextFrame()
     {
         PerDeviceObjects& pdo = pair_pdo.second;
 
+        VkFence fence = VK_NULL_HANDLE;
+
+        std::vector<VkSemaphore> waitSemaphores;
+        for(auto& window : pdo.windows)
+        {
+            waitSemaphores.push_back(*(window->frame(window->nextImageIndex()).imageAvailableSemaphore));
+            fence = *(window->frame(window->nextImageIndex()).commandsCompletedFence);
+            window->frame(window->nextImageIndex()).checkCommandsCompletedFence = true;
+        }
+
         // fill in the imageIndices and commandBuffers associated with each window
         for (size_t i = 0; i < pdo.windows.size(); ++i)
         {
@@ -299,8 +225,8 @@ bool Viewer::submitNextFrame()
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-        submitInfo.waitSemaphoreCount = static_cast<uint32_t>(pdo.waitSemaphores.size());
-        submitInfo.pWaitSemaphores = pdo.waitSemaphores.data();
+        submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
+        submitInfo.pWaitSemaphores = waitSemaphores.data();
         submitInfo.pWaitDstStageMask = pdo.waitStages.data();
 
         submitInfo.commandBufferCount = static_cast<uint32_t>(pdo.commandBuffers.size());
@@ -309,7 +235,7 @@ bool Viewer::submitNextFrame()
         submitInfo.signalSemaphoreCount = static_cast<uint32_t>(pdo.signalSemaphores.size());
         submitInfo.pSignalSemaphores = pdo.signalSemaphores.data();
 
-        if (vkQueueSubmit(pdo.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
+        if (vkQueueSubmit(pdo.graphicsQueue, 1, &submitInfo, fence) != VK_SUCCESS)
         {
             std::cout << "Error: failed to submit draw command buffer." << std::endl;
             return false;
@@ -331,14 +257,25 @@ bool Viewer::submitNextFrame()
         vkQueuePresentKHR(pdo.presentQueue, &presentInfo);
     }
 
-    //if (debugLayersEnabled)
+    if (debugLayersEnabled)
     {
+        auto startTime = std::chrono::steady_clock::now();
+
         for (auto& pair_pdo : _deviceMap)
         {
             PerDeviceObjects& pdo = pair_pdo.second;
             vkQueueWaitIdle(pdo.presentQueue);
         }
+
+        std::cout<<"Viewer::submitFrame() vkQueueWaitIdle() completed in "<<std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now()-startTime).count()<<"ms"<<std::endl;
     }
+
+    // advance each window to the next frame
+    for (auto& window : _windows)
+    {
+        window->advanceNextImageIndex();
+    }
+
     return true;
 }
 

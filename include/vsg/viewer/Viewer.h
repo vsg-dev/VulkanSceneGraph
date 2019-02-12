@@ -39,7 +39,6 @@ namespace vsg
 
             // cache data to used each frame
             std::vector<uint32_t> imageIndices;
-            std::vector<VkSemaphore> waitSemaphores;
             std::vector<VkSemaphore> signalSemaphores;
             std::vector<VkCommandBuffer> commandBuffers;
             std::vector<VkSwapchainKHR> swapchains;
@@ -98,9 +97,6 @@ namespace vsg
         /// pass the Events into the any register EventHandlers
         void handleEvents();
 
-        /// submit Vulkan Commands into the queues to render the a frame
-        void submitFrame();
-
         void reassignFrameCache();
 
         bool aquireNextFrame();
@@ -120,7 +116,6 @@ namespace vsg
         Views _views;
 
         DeviceMap _deviceMap;
-        ref_ptr<Semaphore> _renderFinishedSemaphore;
 
         clock::time_point _start_point;
         Events _events;

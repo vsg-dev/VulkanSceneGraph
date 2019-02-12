@@ -148,9 +148,6 @@ namespace vsg
         CommandBuffer* commandBuffer(size_t i) { return _frames[i].commandBuffer; }
         const CommandBuffer* commandBuffer(size_t i) const { return _frames[i].commandBuffer; }
 
-        Semaphore* imageAvailableSemaphore() { return _imageAvailableSemaphore; }
-        const Semaphore* imageAvailableSemaphore() const { return _imageAvailableSemaphore; }
-
         VkResult acquireNextImage(uint64_t timeout, VkSemaphore samaphore, VkFence fence)
         {
             return vkAcquireNextImageKHR(*_device, *_swapchain, timeout, samaphore, fence, &_nextImageIndex);
@@ -158,11 +155,32 @@ namespace vsg
 
         uint32_t nextImageIndex() const { return _nextImageIndex; }
 
+        void advanceNextImageIndex() { _nextImageIndex = (_nextImageIndex+1) % _frames.size(); }
+
         bool debugLayersEnabled() const { return _traits->debugLayer; }
 
-        void populateCommandBuffers();
-
         void populateCommandBuffers(uint32_t index);
+
+        struct Frame
+        {
+            // do we need a imageAvailableSemaphore per Frame? Probably..
+            ref_ptr<Semaphore> imageAvailableSemaphore;
+
+            ref_ptr<ImageView> imageView;
+            ref_ptr<Framebuffer> framebuffer;
+
+            // should we have multiple commandPool and commandBuffer?
+            ref_ptr<CommandPool> commandPool;
+            ref_ptr<CommandBuffer> commandBuffer;
+
+            bool checkCommandsCompletedFence = false;
+            ref_ptr<Fence> commandsCompletedFence;
+        };
+
+        using Frames = std::vector<Frame>;
+
+        Frame& frame(uint32_t i) { return _frames[i]; }
+        Frames& frames() { return _frames; }
 
     protected:
         Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator);
@@ -174,15 +192,6 @@ namespace vsg
         void initaliseDevice();
         void buildSwapchain(uint32_t width, uint32_t height);
 
-        struct Frame
-        {
-            ref_ptr<ImageView> imageView;
-            ref_ptr<Framebuffer> framebuffer;
-            ref_ptr<CommandPool> commandPool;
-            ref_ptr<CommandBuffer> commandBuffer;
-        };
-
-        using Frames = std::vector<Frame>;
 
         ref_ptr<Traits> _traits;
 

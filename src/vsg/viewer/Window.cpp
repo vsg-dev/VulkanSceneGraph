@@ -20,7 +20,8 @@ using namespace vsg;
 
 Window::Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator) :
     _traits(traits),
-    _clearColor{{0.2f, 0.2f, 0.4f, 1.0f}}
+    _clearColor{{0.2f, 0.2f, 0.4f, 1.0f}},
+    _nextImageIndex(0)
 {
     // create the vkInstance
     vsg::Names instanceExtensions = getInstanceExtensions();
@@ -174,11 +175,13 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
         framebufferInfo.height = _extent2D.height;
         framebufferInfo.layers = 1;
 
+        ref_ptr<Semaphore> ias = vsg::Semaphore::create(_device);
         ref_ptr<Framebuffer> fb = Framebuffer::create(_device, framebufferInfo);
         ref_ptr<CommandPool> cp = CommandPool::create(_device, _physicalDevice->getGraphicsFamily());
         ref_ptr<CommandBuffer> cb = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+        ref_ptr<Fence> fence = Fence::create(_device);
 
-        _frames.push_back({imageViews[i], fb, cp, cb});
+        _frames.push_back({ias, imageViews[i], fb, cp, cb, false, fence});
     }
 
     dispatchCommandsToQueue(_device, _frames[0].commandPool, _device->getQueue(_physicalDevice->getGraphicsFamily()), [&](VkCommandBuffer commandBuffer) {
@@ -192,28 +195,32 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
         depthImageMemoryBarrier.cmdPiplineBarrier(commandBuffer,
                                                   VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT);
     });
-}
 
-void Window::populateCommandBuffers()
-{
-    for (auto& frame : _frames)
-    {
-        for (auto& stage : _stages)
-        {
-            stage->populateCommandBuffer(frame.commandBuffer, frame.framebuffer, _renderPass, _extent2D, _clearColor);
-        }
-    }
+    _nextImageIndex = 0;
 }
 
 void Window::populateCommandBuffers(uint32_t index)
 {
     Frame& frame = _frames[index];
+
+    if (frame.commandsCompletedFence)
+    {
+        if (frame.checkCommandsCompletedFence)
+        {
+            while(frame.commandsCompletedFence->wait(1000000000)==VK_TIMEOUT)
+            {
+                std::cout<<"populateCommandBuffers("<<index<<") frame.commandsCompletedFence->wait(1000) failed with VK_TIMEOUT."<<std::endl;
+            }
+        }
+
+        frame.commandsCompletedFence->reset();
+    }
+
     for (auto& stage : _stages)
     {
         stage->populateCommandBuffer(frame.commandBuffer, frame.framebuffer, _renderPass, _extent2D, _clearColor);
     }
 }
-
 
 // just kept for backwards compat for now
 Window::Result Window::create(uint32_t width, uint32_t height, bool debugLayer, bool apiDumpLayer, vsg::Window* shareWindow, vsg::AllocationCallbacks* allocator)
