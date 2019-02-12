@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQueue graphicsQueue, const Data* data)
+ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQueue graphicsQueue, const Data* data, Sampler* sampler)
 {
     if (!data)
     {
@@ -107,7 +107,7 @@ ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQue
     imageStagingBuffer = 0;
     imageStagingMemory = 0;
 
-    ref_ptr<Sampler> textureSampler = Sampler::create(device);
+    ref_ptr<Sampler> textureSampler = sampler != nullptr ? Sampler::Result(sampler) : Sampler::create(device);
     ref_ptr<ImageView> textureImageView = ImageView::create(device, textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT);
 
     return ImageData(textureSampler, textureImageView, VK_IMAGE_LAYOUT_UNDEFINED);
