@@ -41,10 +41,10 @@ namespace vsg
             width(in_width),
             height(in_height) {}
 
-        int x = 0;
-        int y = 0;
-        int width = 0;
-        int height = 0;
+        int32_t x = 0;
+        int32_t y = 0;
+        uint32_t width = 0;
+        uint32_t height = 0;
     };
 
     VSG_type_name(vsg::ConfigureWindowEvent);
@@ -58,10 +58,10 @@ namespace vsg
             width(in_width),
             height(in_height) {}
 
-        int x = 0;
-        int y = 0;
-        int width = 0;
-        int height = 0;
+        int32_t x = 0;
+        int32_t y = 0;
+        uint32_t width = 0;
+        uint32_t height = 0;
     };
 
     VSG_type_name(vsg::CloseWindowEvent);
