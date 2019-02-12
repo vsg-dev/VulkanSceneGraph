@@ -32,9 +32,9 @@ using namespace vsgAndroid;
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to an Android_Window
-    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits)
     {
-        return vsgAndroid::Android_Window::create(traits, debugLayer, apiDumpLayer, allocator);
+        return vsgAndroid::Android_Window::create(traits, nullptr);
     }
 
     vsg::Names Window::getInstanceExtensions()
@@ -328,11 +328,11 @@ KeyboardMap::KeyboardMap()
         };
 }
 
-vsg::Window::Result Android_Window::create(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+vsg::Window::Result Android_Window::create(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator)
 {
     try
     {
-        ref_ptr<Window> window(new Android_Window(traits, debugLayer, apiDumpLayer, allocator));
+        ref_ptr<Window> window(new Android_Window(traits, allocator));
         return Result(window);
     }
     catch (vsg::Window::Result result)
@@ -341,8 +341,8 @@ vsg::Window::Result Android_Window::create(vsg::ref_ptr<Window::Traits> traits, 
     }
 }
 
-Android_Window::Android_Window(vsg::ref_ptr<Window::Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator) :
-    Window(traits, debugLayer, apiDumpLayer, allocator)
+Android_Window::Android_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator) :
+    Window(traits, allocator)
 {
     _keyboard = new KeyboardMap;
 
@@ -373,7 +373,6 @@ Android_Window::Android_Window(vsg::ref_ptr<Window::Traits> traits, bool debugLa
         vsg::ref_ptr<vsg::Surface> surface(new vsgAndroid::AndroidSurface(traits->shareWindow->instance(), nativeWindow, allocator));
         
         _surface = surface;
-        _debugLayersEnabled = traits->shareWindow->debugLayersEnabled();
 
         // share the _instance, _physicalDevice and _device;
         window->share(*traits->shareWindow);
@@ -387,11 +386,11 @@ Android_Window::Android_Window(vsg::ref_ptr<Window::Traits> traits, bool debugLa
     {
         // create surface using passed ANativeWindow
         vsg::ref_ptr<vsg::Surface> surface(new vsgAndroid::AndroidSurface(_instance, _window, allocator));
-        if (!surface) throw Result("Error: vsg::Android_Window::create(...) failed to create Window, unable to create Win32Surface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        if (!surface) throw Result("Error: vsg::Android_Window::create(...) failed to create Window, unable to create AndroidSurface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
         _surface = surface;
 
         // set up device
-        initaliseDevice(apiDumpLayer, allocator);
+        initaliseDevice();
     }
 
     buildSwapchain(finalWidth, finalHeight);
