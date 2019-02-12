@@ -70,6 +70,7 @@ Instance::~Instance()
 
 Instance::Result Instance::create(Names& instanceExtensions, Names& layers, AllocationCallbacks* allocator)
 {
+#if 0
     std::cout << "Instance::create()" << std::endl;
     std::cout << "instanceExtensions : " << std::endl;
     for (auto& name : instanceExtensions)
@@ -82,12 +83,8 @@ Instance::Result Instance::create(Names& instanceExtensions, Names& layers, Allo
     {
         std::cout << "    " << name << std::endl;
     }
-
-    VkAllocationCallbacks* ac = (allocator != nullptr) ? allocator : nullptr;
     std::cout << "allocator : " << allocator << std::endl;
-    std::cout << "VkAllocationCallbacks* : " << ac << std::endl;
-
-    ac = nullptr;
+#endif
 
     // applictin info
     VkApplicationInfo appInfo = {};
@@ -111,7 +108,7 @@ Instance::Result Instance::create(Names& instanceExtensions, Names& layers, Allo
     VkResult result = vkCreateInstance(&createInfo, allocator, &instance);
     if (result == VK_SUCCESS)
     {
-        std::cout << "Created VkInstance" << std::endl;
+        //std::cout << "Created VkInstance" << std::endl;
         return Result(new Instance(instance, allocator));
     }
     else

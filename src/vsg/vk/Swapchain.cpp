@@ -140,7 +140,7 @@ Swapchain::~Swapchain()
 
     if (_swapchain)
     {
-        std::cout << "Calling vkDestroySwapchainKHR(..)" << std::endl;
+        //std::cout << "Calling vkDestroySwapchainKHR(..)" << std::endl;
         vkDestroySwapchainKHR(*_device, _swapchain, _allocator);
     }
 }
@@ -152,7 +152,6 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
         return Swapchain::Result("Error: vsg::Swapchain::create(...) failed to create swapchain, undefined inputs.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
-    std::cout << "Swapchain::create(...., width = " << width << ", height = " << height << ")" << std::endl;
 
     SwapChainSupportDetails details = querySwapChainSupport(*physicalDevice, *surface);
 
@@ -169,11 +168,12 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
     preferences.presentMode = presentMode;
     preferences.surfaceFormat = surfaceFormat;
 
-
-    std::cout << "Swapcain::create(..) " << std::endl;
+#if 0
+    std::cout << "Swapchain::create(...., width = " << width << ", height = " << height << ")" << std::endl;
     std::cout << "     details.capabilities.minImageCount=" << details.capabilities.minImageCount << std::endl;
     std::cout << "     details.capabilities.maxImageCount=" << details.capabilities.maxImageCount << std::endl;
     std::cout << "     imageCount = " << imageCount << std::endl;
+#endif
 
     VkSwapchainCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
