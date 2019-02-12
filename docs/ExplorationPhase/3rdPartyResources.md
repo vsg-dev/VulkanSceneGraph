@@ -60,7 +60,7 @@
 * [GLI](http://gli.g-truc.net) Loading/manipulating images/textures
 * [STB](https://github.com/nothings/stb) stb_image.h etc.
 * [DevIL](http://openil.sourceforge.net/) DevIL image library, [repo](https://github.com/DentonW/DevIL)
-
+* [FreeImage] (http://freeimage.sourceforge.net/) FreeImage image library (GPLv2/GPLv3/FreeImage License), [repo] (https://sourceforge.net/p/freeimage/code/) 
 
 ## Introspection
 * [Cereal](https://github.com/USCiLab/cereal)
