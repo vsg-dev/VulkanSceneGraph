@@ -26,6 +26,10 @@ namespace vsg
 
         VkResult wait(uint64_t timeout) const { return vkWaitForFences(*_device, 1, &_vkFence, VK_TRUE, timeout); }
 
+        VkResult reset() const { return vkResetFences(*_device, 1, &_vkFence); }
+
+        VkResult status() const { return vkGetFenceStatus(*_device, _vkFence); }
+
         operator VkFence() const { return _vkFence; }
 
         Device* getDevice() { return _device; }
