@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/ConstVisitor.h>
 
+#include <vsg/nodes/Commands.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/Node.h>
@@ -264,6 +265,10 @@ void ConstVisitor::apply(const ubvec4Array3D& value)
 // Nodes
 //
 void ConstVisitor::apply(const Node& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const Commands& value)
 {
     apply(static_cast<const Object&>(value));
 }

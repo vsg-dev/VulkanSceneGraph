@@ -21,6 +21,7 @@ set(SOURCES
 
     introspection/c_interface.cpp
 
+    nodes/Commands.cpp
     nodes/Group.cpp
     nodes/Node.cpp
     nodes/QuadGroup.cpp

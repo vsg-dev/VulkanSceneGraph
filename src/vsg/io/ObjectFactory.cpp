@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Array3D.h>
 #include <vsg/core/Value.h>
 
+#include <vsg/nodes/Commands.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
@@ -105,6 +106,7 @@ ObjectFactory::ObjectFactory()
 
     // nodes
     VSG_REGISTER_create(vsg::Node);
+    VSG_REGISTER_create(vsg::Commands);
     VSG_REGISTER_create(vsg::Group);
     VSG_REGISTER_create(vsg::QuadGroup);
     VSG_REGISTER_create(vsg::StateGroup);

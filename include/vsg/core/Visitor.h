@@ -22,6 +22,7 @@ namespace vsg
 
     // forward declare nodes classes
     class Node;
+    class Commands;
     class Group;
     class QuadGroup;
     class LOD;
@@ -136,6 +137,7 @@ namespace vsg
 
         // Nodes
         virtual void apply(Node&);
+        virtual void apply(Commands&);
         virtual void apply(Group&);
         virtual void apply(QuadGroup&);
         virtual void apply(LOD&);

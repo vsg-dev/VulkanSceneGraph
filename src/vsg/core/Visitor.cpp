@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Visitor.h>
 
+#include <vsg/nodes/Commands.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/Node.h>
@@ -264,6 +265,10 @@ void Visitor::apply(ubvec4Array3D& value)
 // Nodes
 //
 void Visitor::apply(Node& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(Commands& value)
 {
     apply(static_cast<Object&>(value));
 }
