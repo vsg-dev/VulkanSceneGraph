@@ -159,7 +159,6 @@ bool Viewer::aquireNextFrame()
             vkQueueWaitIdle(pdo.presentQueue);
         }
 
-
         // resize the windows
         for (auto& window : _windows)
         {
@@ -187,11 +186,11 @@ bool Viewer::aquireNextFrame()
 
 bool Viewer::populateNextFrame()
 {
-   for (auto& window : _windows)
-   {
+    for (auto& window : _windows)
+    {
         window->populateCommandBuffers(window->nextImageIndex());
-   }
-   return true;
+    }
+    return true;
 }
 
 bool Viewer::submitNextFrame()
@@ -205,7 +204,7 @@ bool Viewer::submitNextFrame()
         VkFence fence = VK_NULL_HANDLE;
 
         std::vector<VkSemaphore> waitSemaphores;
-        for(auto& window : pdo.windows)
+        for (auto& window : pdo.windows)
         {
             waitSemaphores.push_back(*(window->frame(window->nextImageIndex()).imageAvailableSemaphore));
             fence = *(window->frame(window->nextImageIndex()).commandsCompletedFence);
@@ -267,7 +266,7 @@ bool Viewer::submitNextFrame()
             vkQueueWaitIdle(pdo.presentQueue);
         }
 
-        std::cout<<"Viewer::submitFrame() vkQueueWaitIdle() completed in "<<std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now()-startTime).count()<<"ms"<<std::endl;
+        std::cout << "Viewer::submitFrame() vkQueueWaitIdle() completed in " << std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - startTime).count() << "ms" << std::endl;
     }
 
     // advance each window to the next frame
@@ -278,4 +277,3 @@ bool Viewer::submitNextFrame()
 
     return true;
 }
-

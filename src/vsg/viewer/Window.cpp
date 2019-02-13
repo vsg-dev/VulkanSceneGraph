@@ -203,9 +203,9 @@ void Window::populateCommandBuffers(uint32_t index)
     {
         if (frame.checkCommandsCompletedFence)
         {
-            while(frame.commandsCompletedFence->wait(1000000000)==VK_TIMEOUT)
+            while (frame.commandsCompletedFence->wait(1000000000) == VK_TIMEOUT)
             {
-                std::cout<<"populateCommandBuffers("<<index<<") frame.commandsCompletedFence->wait(1000) failed with VK_TIMEOUT."<<std::endl;
+                std::cout << "populateCommandBuffers(" << index << ") frame.commandsCompletedFence->wait(1000) failed with VK_TIMEOUT." << std::endl;
             }
         }
 

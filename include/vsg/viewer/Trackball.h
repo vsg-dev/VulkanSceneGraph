@@ -11,9 +11,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/maths/transform.h>
+#include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
-#include <vsg/ui/ApplicationEvent.h>
 #include <vsg/viewer/Camera.h>
 
 namespace vsg
@@ -29,16 +29,15 @@ namespace vsg
         vec_type u = normalize(cross(side, forward));
 
         return translate(eye.x, eye.y, eye.z) *
-            t_mat4<T>(side[0], u[0], -forward[0], 0,
-                            side[1], u[1], -forward[1], 0,
-                            side[2], u[2], -forward[2], 0,
-                            0, 0, 0, 1);
+               t_mat4<T>(side[0], u[0], -forward[0], 0,
+                         side[1], u[1], -forward[1], 0,
+                         side[2], u[2], -forward[2], 0,
+                         0, 0, 0, 1);
     }
 
     class Trackball : public Inherit<Visitor, Trackball>
     {
     public:
-
         Trackball(ref_ptr<Camera> camera);
 
         /// compute non dimensional window coordinate (-1,1) from event coords
@@ -72,5 +71,4 @@ namespace vsg
         dvec3 prev_tbc;
     };
 
-}
-
+} // namespace vsg

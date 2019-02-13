@@ -33,7 +33,7 @@ Trackball::Trackball(ref_ptr<Camera> camera) :
 /// compute non dimensional window coordinate (-1,1) from event coords
 dvec2 Trackball::ndc(PointerEvent& event)
 {
-    dvec2 v = dvec2((static_cast<double>(event.x)/window_width)*2.0-1.0, (static_cast<double>(event.y)/window_height)*2.0-1.0);
+    dvec2 v = dvec2((static_cast<double>(event.x) / window_width) * 2.0 - 1.0, (static_cast<double>(event.y) / window_height) * 2.0 - 1.0);
     //std::cout<<"ndc = "<<v<<std::endl;
     return v;
 }
@@ -44,9 +44,9 @@ dvec3 Trackball::tbc(PointerEvent& event)
     dvec2 v = ndc(event);
 
     double l = length(v);
-    if (l<1.0f)
+    if (l < 1.0f)
     {
-        double h = 0.5 + cos(l*PI)*0.5;
+        double h = 0.5 + cos(l * PI) * 0.5;
         return dvec3(v.x, -v.y, h);
     }
     else
@@ -57,7 +57,7 @@ dvec3 Trackball::tbc(PointerEvent& event)
 
 void Trackball::apply(KeyPressEvent& keyPress)
 {
-    if (keyPress.keyBase==_homeKey)
+    if (keyPress.keyBase == _homeKey)
     {
         LookAt* lookAt = dynamic_cast<LookAt*>(_camera->getViewMatrix());
         if (lookAt && _homeLookAt)
@@ -73,8 +73,7 @@ void Trackball::apply(ConfigureWindowEvent& configureWindow)
 {
     window_width = static_cast<double>(configureWindow.width);
     window_height = static_cast<double>(configureWindow.height);
-
-    std::cout<<"Trackball::apply(ConfigureWindowEvent& "<<window_width<<", "<<window_height<<")"<<std::endl;
+    // std::cout<<"Trackball::apply(ConfigureWindowEvent& "<<configureWindow.x<<", "<<configureWindow.y<<", "<<window_width<<", "<<window_height<<")"<<std::endl;
 }
 
 void Trackball::apply(ButtonPressEvent& buttonPress)
@@ -107,9 +106,9 @@ void Trackball::apply(MoveEvent& moveEvent)
     {
         dvec3 xp = cross(normalize(new_tbc), normalize(prev_tbc));
         double xp_len = length(xp);
-        if (xp_len>0.0)
+        if (xp_len > 0.0)
         {
-            dvec3 axis = xp/xp_len;
+            dvec3 axis = xp / xp_len;
             double angle = asin(xp_len);
             rotate(angle, axis);
         }
@@ -131,9 +130,8 @@ void Trackball::apply(MoveEvent& moveEvent)
 
 void Trackball::apply(FrameEvent& /*frame*/)
 {
-//    std::cout<<"Frame "<<frame.frameStamp->frameCount<<std::endl;
+    //    std::cout<<"Frame "<<frame.frameStamp->frameCount<<std::endl;
 }
-
 
 void Trackball::rotate(double angle, const dvec3& axis)
 {
@@ -161,9 +159,8 @@ void Trackball::pan(dvec2& delta)
     dvec3 lookNormal = normalize(lookVector);
     dvec3 sideNormal = cross(_lookAt->up, lookNormal);
     double distance = length(lookVector);
-    dvec3 translation = sideNormal * (delta.x*distance) + _lookAt->up * (delta.y*distance);
+    dvec3 translation = sideNormal * (delta.x * distance) + _lookAt->up * (delta.y * distance);
 
     _lookAt->eye = _lookAt->eye + translation;
     _lookAt->center = _lookAt->center + translation;
 }
-

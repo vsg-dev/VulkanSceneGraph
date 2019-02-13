@@ -101,13 +101,13 @@ VkPresentModeKHR vsg::selectSwapPresentMode(const SwapChainSupportDetails& detai
     // select requested presentMode if it's available.
     for (auto availablePresentMode : details.presentModes)
     {
-        if (availablePresentMode==preferredPresentMode) return availablePresentMode;
+        if (availablePresentMode == preferredPresentMode) return availablePresentMode;
     }
 
     // requested presetnMode not available so fallback for checking of VK_PRESENT_MODE_MAILBOX_KHR available
-    for(auto availablePresentMode : details.presentModes)
+    for (auto availablePresentMode : details.presentModes)
     {
-        if (availablePresentMode==VK_PRESENT_MODE_MAILBOX_KHR) return availablePresentMode;
+        if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) return availablePresentMode;
     }
 
     // fallback to VK_PRESENT_MODE_FIFO_KHR
@@ -152,16 +152,14 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
         return Swapchain::Result("Error: vsg::Swapchain::create(...) failed to create swapchain, undefined inputs.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
-
     SwapChainSupportDetails details = querySwapChainSupport(*physicalDevice, *surface);
 
     VkSurfaceFormatKHR surfaceFormat = selectSwapSurfaceFormat(details, preferences.surfaceFormat);
     VkPresentModeKHR presentMode = selectSwapPresentMode(details, preferences.presentMode);
     VkExtent2D extent = selectSwapExtent(details, width, height);
 
-    uint32_t imageCount = std::max(preferences.imageCount, details.capabilities.minImageCount);                     // Vulkan spec requires minImageCount to be 1 or greater
+    uint32_t imageCount = std::max(preferences.imageCount, details.capabilities.minImageCount);                        // Vulkan spec requires minImageCount to be 1 or greater
     if (details.capabilities.maxImageCount > 0) imageCount = std::min(imageCount, details.capabilities.maxImageCount); // Vulkan spec specifies 0 as being unlimited number of images
-
 
     // apply the selected settings back to preferences to calling code can dtermine the active settings.
     preferences.imageCount = imageCount;

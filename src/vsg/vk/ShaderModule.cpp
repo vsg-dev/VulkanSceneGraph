@@ -58,7 +58,6 @@ Shader::Result Shader::read(VkShaderStageFlagBits stage, const std::string& entr
     }
 }
 
-
 void Shader::read(Input& input)
 {
     Object::read(input);
@@ -79,14 +78,13 @@ void Shader::write(Output& output) const
 
     output.writeValue<int32_t>("Stage", _stage);
 
-    output.write("EntryPoint",  _entryPointName);
+    output.write("EntryPoint", _entryPointName);
     output.write("Source", _source);
 
     output.writeValue<uint32_t>("SPIRVSize", _spirv.size());
     output.writePropertyName("SPIRV");
     output.write(_spirv.size(), _spirv.data());
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //

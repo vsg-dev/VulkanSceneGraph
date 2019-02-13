@@ -30,11 +30,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    #if __APPLE__
-        using std_any = std::experimental::any;
-    #else
-        using std_any = std::any;
-    #endif
+#if __APPLE__
+    using std_any = std::experimental::any;
+#else
+    using std_any = std::any;
+#endif
 
     class VSG_DECLSPEC Window : public Inherit<Object, Window>
     {
@@ -55,7 +55,7 @@ namespace vsg
                 width(in_width),
                 height(in_height) {}
 
-                Traits(uint32_t in_width, uint32_t in_height) :
+            Traits(uint32_t in_width, uint32_t in_height) :
                 width(in_width),
                 height(in_height) {}
 
@@ -155,7 +155,7 @@ namespace vsg
 
         uint32_t nextImageIndex() const { return _nextImageIndex; }
 
-        void advanceNextImageIndex() { _nextImageIndex = (_nextImageIndex+1) % _frames.size(); }
+        void advanceNextImageIndex() { _nextImageIndex = (_nextImageIndex + 1) % _frames.size(); }
 
         bool debugLayersEnabled() const { return _traits->debugLayer; }
 
@@ -191,7 +191,6 @@ namespace vsg
         void share(const Window& window);
         void initaliseDevice();
         void buildSwapchain(uint32_t width, uint32_t height);
-
 
         ref_ptr<Traits> _traits;
 

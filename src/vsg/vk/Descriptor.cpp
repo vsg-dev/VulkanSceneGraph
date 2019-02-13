@@ -72,7 +72,6 @@ ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQue
     textureImage->bind(textureImageDeviceMemory, 0);
 
     dispatchCommandsToQueue(device, commandPool, graphicsQueue, [&](VkCommandBuffer commandBuffer) {
-
         ImageMemoryBarrier preCopyImageMemoryBarrier(
             0, VK_ACCESS_TRANSFER_WRITE_BIT,
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
