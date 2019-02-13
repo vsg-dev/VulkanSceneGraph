@@ -153,6 +153,11 @@ namespace vsg
             return vkAcquireNextImageKHR(*_device, *_swapchain, timeout, samaphore, fence, &_nextImageIndex);
         }
 
+        VkResult acquireNextImage(uint64_t timeout=std::numeric_limits<uint64_t>::max())
+        {
+            return vkAcquireNextImageKHR(*_device, *_swapchain, timeout, *(_frames[_nextImageIndex].imageAvailableSemaphore), VK_NULL_HANDLE, &_nextImageIndex);
+        }
+
         uint32_t nextImageIndex() const { return _nextImageIndex; }
 
         void advanceNextImageIndex() { _nextImageIndex = (_nextImageIndex + 1) % _frames.size(); }

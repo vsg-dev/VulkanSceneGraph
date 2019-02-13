@@ -143,45 +143,41 @@ bool Viewer::aquireNextFrame()
 {
     if (_close) return false;
 
-    // handle resizing of windows
-    bool windowResized = false;
+    bool needToReassingFrameCache = false;
+    VkResult result = VK_SUCCESS;
     for (auto& window : _windows)
     {
-        if (window->resized()) windowResized = true;
+        unsigned int numTries = 0;
+        unsigned int maximumTries = 10;
+        while(((result = window->acquireNextImage())==VK_ERROR_OUT_OF_DATE_KHR) && (numTries < maximumTries))
+        {
+            ++numTries;
+
+            // wait till queue are empty before we resize.
+            for (auto& pair_pdo : _deviceMap)
+            {
+                PerDeviceObjects& pdo = pair_pdo.second;
+                vkQueueWaitIdle(pdo.presentQueue);
+            }
+
+            //std::cout<<"window->acquireNextImage(), result==VK_ERROR_OUT_OF_DATE_KHR  rebuild swap chain : resized="<<window->resized()<<" numTries="<<numTries<<std::endl;
+
+            // resize to rebuild all the internal Vulkan objects associated wiht the window.
+            window->resize();
+
+            needToReassingFrameCache = true;
+        }
+
+        if (result!=VK_SUCCESS) break;
     }
 
-    if (windowResized)
+    if (needToReassingFrameCache)
     {
-        // wait till queue are empty before we resize.
-        for (auto& pair_pdo : _deviceMap)
-        {
-            PerDeviceObjects& pdo = pair_pdo.second;
-            vkQueueWaitIdle(pdo.presentQueue);
-        }
-
-        // resize the windows
-        for (auto& window : _windows)
-        {
-            if (window->resized()) window->resize();
-        }
-
         // reassign frame cache
         reassignFrameCache();
     }
 
-    // aquire the next images
-    for (auto& window : _windows)
-    {
-        vsg::Semaphore* imageAvailableSemaphore = window->frame(window->nextImageIndex()).imageAvailableSemaphore;
-        VkResult result = window->acquireNextImage(std::numeric_limits<uint64_t>::max(), *(imageAvailableSemaphore), VK_NULL_HANDLE);
-        if (result != VK_SUCCESS)
-        {
-            std::cout << "Failed to aquire image VkResult=" << result << std::endl;
-            return false;
-        }
-    }
-
-    return true;
+    return result==VK_SUCCESS;
 }
 
 bool Viewer::populateNextFrame()
