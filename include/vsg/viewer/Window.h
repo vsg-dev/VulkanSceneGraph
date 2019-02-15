@@ -110,7 +110,6 @@ namespace vsg
         virtual void resize() {}
 
         using Stages = std::vector<ref_ptr<Stage>>;
-        Stages _stages;
 
         void addStage(ref_ptr<Stage> stage) { _stages.push_back(stage); }
 
@@ -216,6 +215,8 @@ namespace vsg
 
         Frames _frames;
         uint32_t _nextImageIndex;
+
+        Stages _stages;
     };
 
 } // namespace vsg

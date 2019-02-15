@@ -14,16 +14,130 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <array>
 #include <iostream>
+#include <limits>
 
 using namespace vsg;
 
-GraphicsStage::GraphicsStage(ref_ptr<Node> commandGraph) :
-    _commandGraph(commandGraph)
+namespace vsg
+{
+    class UpdatePipeline : public vsg::Visitor
+    {
+    public:
+
+        vsg::ref_ptr<vsg::ViewportState> _viewportState;
+
+        UpdatePipeline(vsg::ViewportState* viewportState) :
+            _viewportState(viewportState) {}
+
+        void apply(vsg::BindPipeline& bindPipeline)
+        {
+            vsg::GraphicsPipeline* graphicsPipeline = dynamic_cast<vsg::GraphicsPipeline*>(bindPipeline.getPipeline());
+            if (graphicsPipeline)
+            {
+                bool needToRegenerateGraphicsPipeline = false;
+                for(auto& pipelineState : graphicsPipeline->getPipelineStates())
+                {
+                    if (pipelineState==_viewportState)
+                    {
+                        needToRegenerateGraphicsPipeline = true;
+                    }
+                }
+                if (needToRegenerateGraphicsPipeline)
+                {
+
+                    vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getRenderPass()->getDevice(),
+                                                                                                    graphicsPipeline->getRenderPass(),
+                                                                                                    graphicsPipeline->getPipelineLayout(),
+                                                                                                    graphicsPipeline->getPipelineStates());
+
+                    bindPipeline.setPipeline(new_pipeline);
+                }
+            }
+        }
+
+        void apply(vsg::Group& group)
+        {
+            group.traverse(*this);
+        }
+    };
+};
+
+GraphicsStage::GraphicsStage(ref_ptr<Node> commandGraph, ref_ptr<Camera> camera) :
+    _camera(camera),
+    _commandGraph(commandGraph),
+    _projMatrix(new vsg::mat4Value),
+    _viewMatrix(new vsg::mat4Value),
+    _extent2D{ std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max() }
 {
 }
 
 void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor)
 {
+    // handle any changes in window size
+    if (_extent2D.width == std::numeric_limits<uint32_t>::max())
+    {
+        std::cout<<"First time"<<std::endl;
+        _extent2D = extent2D;
+
+        if (_camera)
+        {
+            ref_ptr<Perspective> perspective(dynamic_cast<Perspective*>(_camera->getProjectionMatrix()));
+            if (perspective)
+            {
+                perspective->aspectRatio = static_cast<double>(extent2D.width) / static_cast<double>(extent2D.height);
+            }
+
+            if (_camera->getViewportState())
+            {
+                _camera->getViewportState()->getViewport().width = static_cast<float>(extent2D.width);
+                _camera->getViewportState()->getViewport().height = static_cast<float>(extent2D.height);
+                _camera->getViewportState()->getScissor().extent = extent2D;
+            }
+            else
+            {
+                _camera->setViewportState(ViewportState::create(extent2D));
+            }
+            _viewport = _camera->getViewportState();
+        }
+        else if (!_viewport)
+        {
+            _viewport = ViewportState::create(extent2D);
+        }
+
+    }
+    else if ((_extent2D.width != extent2D.width) || (_extent2D.height != extent2D.height))
+    {
+        std::cout<<"Extent changed"<<std::endl;
+        _extent2D = extent2D;
+
+        if (_camera)
+        {
+            ref_ptr<Perspective> perspective(dynamic_cast<Perspective*>(_camera->getProjectionMatrix()));
+            if (perspective)
+            {
+                perspective->aspectRatio = static_cast<double>(extent2D.width) / static_cast<double>(extent2D.height);
+            }
+        }
+
+        _viewport->getViewport().width = static_cast<float>(extent2D.width);
+        _viewport->getViewport().height = static_cast<float>(extent2D.height);
+        _viewport->getScissor().extent = extent2D;
+
+        vsg::UpdatePipeline updatePipeline(_viewport);
+        _commandGraph->accept(updatePipeline);
+
+    }
+
+
+    // if required get projection and view matrices from the Camera
+    if (_camera)
+    {
+        if (_projMatrix) _camera->getProjectionMatrix()->get((*_projMatrix));
+        if (_viewMatrix) _camera->getViewMatrix()->get((*_viewMatrix));
+    }
+
+
+    // set up the dispatching of the commands into the command buffer
     DispatchTraversal dispatchTraversal(commandBuffer);
 
     VkCommandBufferBeginInfo beginInfo = {};
@@ -48,6 +162,7 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
     renderPassInfo.pClearValues = clearValues.data();
     vkCmdBeginRenderPass(*commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
+    // traverse the command buffer to place the commands into the command buffer.
     _commandGraph->accept(dispatchTraversal);
 
     vkCmdEndRenderPass(*commandBuffer);
