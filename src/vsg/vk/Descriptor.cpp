@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQueue graphicsQueue, const Data* data, Sampler* sampler)
+ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQueue queue, const Data* data, Sampler* sampler)
 {
     if (!data)
     {
@@ -71,7 +71,7 @@ ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQue
 
     textureImage->bind(textureImageDeviceMemory, 0);
 
-    dispatchCommandsToQueue(device, commandPool, graphicsQueue, [&](VkCommandBuffer commandBuffer) {
+    dispatchCommandsToQueue(device, commandPool, queue, [&](VkCommandBuffer commandBuffer) {
         ImageMemoryBarrier preCopyImageMemoryBarrier(
             0, VK_ACCESS_TRANSFER_WRITE_BIT,
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
