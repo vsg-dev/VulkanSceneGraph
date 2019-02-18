@@ -76,7 +76,6 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
     // handle any changes in window size
     if (_extent2D.width == std::numeric_limits<uint32_t>::max())
     {
-        std::cout<<"First time"<<std::endl;
         _extent2D = extent2D;
 
         if (_camera)
@@ -107,7 +106,6 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
     }
     else if ((_extent2D.width != extent2D.width) || (_extent2D.height != extent2D.height))
     {
-        std::cout<<"Extent changed"<<std::endl;
         _extent2D = extent2D;
 
         if (_camera)
