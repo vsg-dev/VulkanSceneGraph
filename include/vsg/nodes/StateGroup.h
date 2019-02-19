@@ -34,47 +34,77 @@ namespace vsg
     };
     VSG_type_name(vsg::StateComponent);
 
-    class VSG_DECLSPEC StateGroup : public Inherit<Group, StateGroup>
+    class VSG_DECLSPEC StateSet : public Inherit<Object, StateSet>
     {
     public:
-        StateGroup(Allocator* allocator = nullptr);
+        StateSet(Allocator* allocator = nullptr);
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
         using StateComponents = std::vector<ref_ptr<StateComponent>>;
 
-#if 1
+        inline void pushTo(State& state) const
+        {
+            for(auto& component : _stateComponents)
+            {
+                component->pushTo(state);
+            }
+        }
+
+        inline void popFrom(State& state) const
+        {
+            for(auto& component : _stateComponents)
+            {
+                component->pushTo(state);
+            }
+        }
+
+        inline void add(ref_ptr<StateComponent> component)
+        {
+            _stateComponents.push_back(component);
+        }
+
+        StateComponents _stateComponents;
+
+    protected:
+        virtual ~StateSet();
+    };
+
+
+    class VSG_DECLSPEC StateGroup : public Inherit<Group, StateGroup>
+    {
+    public:
+        StateGroup(Allocator* allocator = nullptr);
+
+        StateGroup(StateSet* stateset);
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        using StateComponents = std::vector<ref_ptr<StateComponent>>;
+
         void add(ref_ptr<StateComponent> component)
         {
-            _stateComponents.push_back(component);
+            _stateset->add(component);
         }
-#else
-        void add(StateComponent* component)
-        {
-            _stateComponents.push_back(component);
-        }
-#endif
 
-        StateComponents& getStateComponents()
-        {
-            return _stateComponents;
-        }
-        const StateComponents& getStateComponents() const { return _stateComponents; }
+        StateSet* getStateSet() { return _stateset; }
+        const StateSet* getStateSet() const { return _stateset; }
 
         inline void pushTo(State& state) const
         {
-            for (auto& component : _stateComponents) component->pushTo(state);
+            _stateset->pushTo(state);
         }
         inline void popFrom(State& state) const
         {
-            for (auto& component : _stateComponents) component->popFrom(state);
+            _stateset->popFrom(state);
         }
 
     protected:
         virtual ~StateGroup();
 
-        StateComponents _stateComponents;
+        ref_ptr<StateSet> _stateset;
     };
     VSG_type_name(vsg::StateGroup);
 

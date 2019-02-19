@@ -17,8 +17,46 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-StateGroup::StateGroup(Allocator* allocator) :
+StateSet::StateSet(Allocator* allocator) :
     Inherit(allocator)
+{
+}
+
+StateSet::~StateSet()
+{
+}
+
+void StateSet::read(Input& input)
+{
+    Object::read(input);
+
+    _stateComponents.resize(input.readValue<uint32_t>("NumStateComponents"));
+    for (auto& child : _stateComponents)
+    {
+        child = input.readObject<StateComponent>("StateComponent");
+    }
+}
+
+void StateSet::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeValue<uint32_t>("NumStateComponents", _stateComponents.size());
+    for (auto& child : _stateComponents)
+    {
+        output.writeObject("StateComponent", child.get());
+    }
+}
+
+StateGroup::StateGroup(Allocator* allocator) :
+    Inherit(allocator),
+    _stateset(new StateSet)
+{
+}
+
+StateGroup::StateGroup(StateSet* stateset) :
+    Inherit(stateset ? stateset->getAllocator() : 0),
+    _stateset(stateset)
 {
 }
 
@@ -30,20 +68,12 @@ void StateGroup::read(Input& input)
 {
     Group::read(input);
 
-    _stateComponents.resize(input.readValue<uint32_t>("NumStateComponents"));
-    for (auto& child : _stateComponents)
-    {
-        child = input.readObject<StateComponent>("StateComponent");
-    }
+    _stateset = input.readObject<StateSet>("StateSet");
 }
 
 void StateGroup::write(Output& output) const
 {
     Group::write(output);
 
-    output.writeValue<uint32_t>("NumStateComponents", _stateComponents.size());
-    for (auto& child : _stateComponents)
-    {
-        output.writeObject("StateComponent", child.get());
-    }
+    output.writeObject("StateSet", _stateset.get());
 }
