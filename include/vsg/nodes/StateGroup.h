@@ -20,11 +20,14 @@ namespace vsg
     // forward declare
     class State;
     class CommandBuffer;
+    class Context;
 
     class StateComponent : public Inherit<Command, StateComponent>
     {
     public:
         StateComponent() {}
+
+        virtual void compile(Context& /*context*/) {}
 
         virtual void pushTo(State& state) const = 0;
         virtual void popFrom(State& state) const = 0;
@@ -43,6 +46,14 @@ namespace vsg
         void write(Output& output) const override;
 
         using StateComponents = std::vector<ref_ptr<StateComponent>>;
+
+        inline void compile(Context& context)
+        {
+            for(auto& component : _stateComponents)
+            {
+                component->compile(context);
+            }
+        }
 
         inline void pushTo(State& state) const
         {
