@@ -82,6 +82,20 @@ namespace vsg
             up = normalize(cross(side, look));
         }
 
+        void transform(const dmat4& matrix)
+        {
+            up = normalize(matrix * (eye + up) - matrix * eye);
+            center = matrix * center;
+            eye = matrix * eye;
+        }
+
+        void set(const dmat4& matrix)
+        {
+            up = normalize(matrix * (dvec3(0.0, 0.0, 0.0) + dvec3(0.0, 1.0, 0.0)) - matrix * dvec3(0.0, 0.0, 0.0));
+            center = matrix * dvec3(0.0, 0.0, -1.0);
+            eye = matrix * dvec3(0.0, 0.0, 0.0);
+        }
+
         void get(mat4& matrix) const override { matrix = lookAt(eye, center, up); }
         void get(dmat4& matrix) const override { matrix = lookAt(eye, center, up); }
 
