@@ -23,7 +23,8 @@ namespace vsg
     class Command : public Inherit<Node, Command>
     {
     public:
-        Command() {}
+        Command(Allocator* allocator = nullptr) :
+            Inherit(allocator) {}
 
         virtual void dispatch(CommandBuffer& commandBuffer) const = 0;
     };

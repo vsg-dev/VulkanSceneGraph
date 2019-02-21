@@ -25,7 +25,7 @@ namespace vsg
     class StateComponent : public Inherit<Command, StateComponent>
     {
     public:
-        StateComponent() {}
+        StateComponent(Allocator* allocator = nullptr) : Inherit(allocator) {}
 
         virtual void compile(Context& /*context*/) {}
 
@@ -81,6 +81,7 @@ namespace vsg
     protected:
         virtual ~StateSet();
     };
+    VSG_type_name(vsg::StateSet);
 
 
     class VSG_DECLSPEC StateGroup : public Inherit<Group, StateGroup>
@@ -100,6 +101,7 @@ namespace vsg
             _stateset->add(component);
         }
 
+        void setStateSet(ref_ptr<StateSet> stateset) { _stateset = stateset; }
         StateSet* getStateSet() { return _stateset; }
         const StateSet* getStateSet() const { return _stateset; }
 
