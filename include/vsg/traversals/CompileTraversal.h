@@ -30,7 +30,7 @@ namespace vsg
         VkQueue graphicsQueue = 0;
 
         ref_ptr<DescriptorPool> descriptorPool;
-        ref_ptr<DescriptorSetLayout> descriptorSetLayout;
+        DescriptorSetLayouts descriptorSetLayouts;
         ref_ptr<PipelineLayout> pipelineLayout;
 
         ref_ptr<mat4Value> projMatrix;

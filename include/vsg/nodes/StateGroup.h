@@ -47,7 +47,7 @@ namespace vsg
 
         using StateComponents = std::vector<ref_ptr<StateComponent>>;
 
-        inline void compile(Context& context)
+        virtual void compile(Context& context)
         {
             for(auto& component : _stateComponents)
             {
@@ -55,7 +55,7 @@ namespace vsg
             }
         }
 
-        inline void pushTo(State& state) const
+        virtual void pushTo(State& state) const
         {
             for(auto& component : _stateComponents)
             {
@@ -63,11 +63,11 @@ namespace vsg
             }
         }
 
-        inline void popFrom(State& state) const
+        virtual void popFrom(State& state) const
         {
             for(auto& component : _stateComponents)
             {
-                component->pushTo(state);
+                component->popFrom(state);
             }
         }
 
