@@ -107,7 +107,7 @@ ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQue
     imageStagingMemory = 0;
 
     ref_ptr<Sampler> textureSampler = sampler != nullptr ? Sampler::Result(sampler) : Sampler::create(device);
-    ref_ptr<ImageView> textureImageView = ImageView::create(device, textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT);
+    ref_ptr<ImageView> textureImageView = ImageView::create(device, textureImage, data->getFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
 
     return ImageData(textureSampler, textureImageView, VK_IMAGE_LAYOUT_UNDEFINED);
 }
