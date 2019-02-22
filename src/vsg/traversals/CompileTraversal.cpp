@@ -50,7 +50,7 @@ CompileTraversal::~CompileTraversal()
 
 void CompileTraversal::apply(Object& object)
 {
-    std::cout<<"CompileTraversal::apply("<<object.className()<<")"<<std::endl;
+    // std::cout<<"CompileTraversal::apply("<<object.className()<<")"<<std::endl;
     object.traverse(*this);
 }
 
