@@ -30,6 +30,20 @@ ImageView::~ImageView()
     }
 }
 
+ImageView::Result ImageView::create(Device* device, const VkImageViewCreateInfo& createInfo, AllocationCallbacks* allocator)
+{
+    VkImageView view;
+    VkResult result = vkCreateImageView(*device, &createInfo, allocator, &view);
+    if (result == VK_SUCCESS)
+    {
+        return Result(new ImageView(view, device, nullptr, allocator));
+    }
+    else
+    {
+        return Result("Error: Failed to create ImageView.", result);
+    }
+}
+
 ImageView::Result ImageView::create(Device* device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator)
 {
     VkImageViewCreateInfo createInfo = {};
@@ -43,16 +57,7 @@ ImageView::Result ImageView::create(Device* device, VkImage image, VkFormat form
     createInfo.subresourceRange.baseArrayLayer = 0;
     createInfo.subresourceRange.layerCount = 1;
 
-    VkImageView view;
-    VkResult result = vkCreateImageView(*device, &createInfo, allocator, &view);
-    if (result == VK_SUCCESS)
-    {
-        return Result(new ImageView(view, device, nullptr, allocator));
-    }
-    else
-    {
-        return Result("Error: Failed to create ImageView.", result);
-    }
+    return create(device, createInfo, allocator);
 }
 
 ImageView::Result ImageView::create(Device* device, Image* image, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator)
@@ -68,14 +73,5 @@ ImageView::Result ImageView::create(Device* device, Image* image, VkFormat forma
     createInfo.subresourceRange.baseArrayLayer = 0;
     createInfo.subresourceRange.layerCount = 1;
 
-    VkImageView view;
-    VkResult result = vkCreateImageView(*device, &createInfo, allocator, &view);
-    if (result == VK_SUCCESS)
-    {
-        return Result(new ImageView(view, device, image, allocator));
-    }
-    else
-    {
-        return Result("Error: Failed to create ImageView.", result);
-    }
+    return create(device, createInfo, allocator);
 }

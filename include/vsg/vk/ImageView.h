@@ -23,6 +23,8 @@ namespace vsg
 
         using Result = vsg::Result<ImageView, VkResult, VK_SUCCESS>;
 
+        static Result create(Device* device, const VkImageViewCreateInfo& createInfo, AllocationCallbacks* allocator = nullptr);
+
         static Result create(Device* device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator = nullptr);
 
         static Result create(Device* device, Image* image, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator = nullptr);
