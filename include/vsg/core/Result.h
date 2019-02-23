@@ -88,7 +88,9 @@ namespace vsg
             return _message;
         }
 
-        bool valid() const { return _ptr.valid(); }
+        bool valid() const noexcept { return _ptr.valid(); }
+
+        explicit operator bool() const noexcept { return valid(); }
 
         ref_ptr<T> object() { return _ptr; }
 

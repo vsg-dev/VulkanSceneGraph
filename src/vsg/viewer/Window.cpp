@@ -153,7 +153,7 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
 
     vkBindImageMemory(*_device, *_depthImage, *_depthImageMemory, 0);
 
-    _depthImageView = ImageView::create(_device, _depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+    _depthImageView = ImageView::create(_device, _depthImage, VK_IMAGE_VIEW_TYPE_2D, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
 
     // set up framebuffer and associated resources
     Swapchain::ImageViews& imageViews = _swapchain->getImageViews();

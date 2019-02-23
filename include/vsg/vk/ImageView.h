@@ -25,15 +25,16 @@ namespace vsg
 
         static Result create(Device* device, const VkImageViewCreateInfo& createInfo, AllocationCallbacks* allocator = nullptr);
 
-        static Result create(Device* device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator = nullptr);
+        static Result create(Device* device, VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator = nullptr);
 
-        static Result create(Device* device, Image* image, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator = nullptr);
+        static Result create(Device* device, Image* image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator = nullptr);
 
         operator VkImageView() const { return _imageView; }
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
+        void setImage(Image* image) { _image = image; }
         Image* getImage() { return _image; }
         const Image* getImage() const { return _image; }
 

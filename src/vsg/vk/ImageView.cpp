@@ -44,12 +44,12 @@ ImageView::Result ImageView::create(Device* device, const VkImageViewCreateInfo&
     }
 }
 
-ImageView::Result ImageView::create(Device* device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator)
+ImageView::Result ImageView::create(Device* device, VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator)
 {
     VkImageViewCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     createInfo.image = image;
-    createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    createInfo.viewType = type;
     createInfo.format = format;
     createInfo.subresourceRange.aspectMask = aspectFlags;
     createInfo.subresourceRange.baseMipLevel = 0;
@@ -60,18 +60,20 @@ ImageView::Result ImageView::create(Device* device, VkImage image, VkFormat form
     return create(device, createInfo, allocator);
 }
 
-ImageView::Result ImageView::create(Device* device, Image* image, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator)
+ImageView::Result ImageView::create(Device* device, Image* image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator)
 {
     VkImageViewCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     createInfo.image = *image;
-    createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D; // read from image?
-    createInfo.format = format;
+    createInfo.viewType = type; // read from image?
+    createInfo.format = format; // read from image?
     createInfo.subresourceRange.aspectMask = aspectFlags;
     createInfo.subresourceRange.baseMipLevel = 0;
     createInfo.subresourceRange.levelCount = 1;
     createInfo.subresourceRange.baseArrayLayer = 0;
     createInfo.subresourceRange.layerCount = 1;
 
-    return create(device, createInfo, allocator);
+    Result result = create(device, createInfo, allocator);
+    if (result) result.object()->setImage(image);
+    return result;
 }

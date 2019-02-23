@@ -222,7 +222,7 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
 
     for (std::size_t i = 0; i < images.size(); ++i)
     {
-        ref_ptr<ImageView> view = ImageView::create(device, images[i], surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT, allocator);
+        ref_ptr<ImageView> view = ImageView::create(device, images[i], VK_IMAGE_VIEW_TYPE_2D, surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT, allocator);
         if (view) sw->getImageViews().push_back(view);
     }
 
