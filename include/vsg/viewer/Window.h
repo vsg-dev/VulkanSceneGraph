@@ -113,6 +113,9 @@ namespace vsg
 
         void addStage(ref_ptr<Stage> stage) { _stages.push_back(stage); }
 
+        Stages& stages() { return _stages; }
+        const Stages& stages() const { return _stages; }
+
         const VkExtent2D& extent2D() { return _extent2D; }
 
         Instance* instance() { return _instance; }
