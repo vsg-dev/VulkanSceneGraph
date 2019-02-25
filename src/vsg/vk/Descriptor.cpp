@@ -42,9 +42,12 @@ ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQue
     std::cout << "Creating imageStagingBuffer and memorory size = " << imageTotalSize << std::endl;
 #endif
 
+    VkImageType imageType = data->depth() > 1 ? VK_IMAGE_TYPE_3D : (data->width() > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
+    VkImageViewType imageViewType = data->depth() > 1 ? VK_IMAGE_VIEW_TYPE_3D : (data->width() > 1 ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
+
     VkImageCreateInfo imageCreateInfo = {};
     imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    imageCreateInfo.imageType = data->depth() > 1 ? VK_IMAGE_TYPE_3D : (data->width() > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
+    imageCreateInfo.imageType = imageType;
     imageCreateInfo.extent.width = static_cast<uint32_t>(data->width());
     imageCreateInfo.extent.height = static_cast<uint32_t>(data->height());
     imageCreateInfo.extent.depth = static_cast<uint32_t>(data->depth());
@@ -107,7 +110,9 @@ ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQue
     imageStagingMemory = 0;
 
     ref_ptr<Sampler> textureSampler = sampler != nullptr ? Sampler::Result(sampler) : Sampler::create(device);
-    ref_ptr<ImageView> textureImageView = ImageView::create(device, textureImage, data->getFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
+    ref_ptr<ImageView> textureImageView = ImageView::create(device, textureImage, imageViewType, data->getFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
+
+    if (textureImageView) textureImageView->setImage(textureImage);
 
     return ImageData(textureSampler, textureImageView, VK_IMAGE_LAYOUT_UNDEFINED);
 }
