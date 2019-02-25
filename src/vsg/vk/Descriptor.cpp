@@ -110,22 +110,7 @@ ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQue
     imageStagingMemory = 0;
 
     ref_ptr<Sampler> textureSampler = sampler != nullptr ? Sampler::Result(sampler) : Sampler::create(device);
-#if 1
-    VkImageViewCreateInfo imageViewCreateInfo = {};
-    imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    imageViewCreateInfo.image = *textureImage;
-    imageViewCreateInfo.viewType = imageViewType;
-    imageViewCreateInfo.format = data->getFormat();
-    imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
-    imageViewCreateInfo.subresourceRange.levelCount = 1;
-    imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
-    imageViewCreateInfo.subresourceRange.layerCount = 1;
-
-    ref_ptr<ImageView> textureImageView = ImageView::create(device, imageViewCreateInfo);
-#else
-    ref_ptr<ImageView> textureImageView = ImageView::create(device, textureImage, data->getFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
-#endif
+    ref_ptr<ImageView> textureImageView = ImageView::create(device, textureImage, imageViewType, data->getFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
 
     if (textureImageView) textureImageView->setImage(textureImage);
 
