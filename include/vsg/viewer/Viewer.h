@@ -105,6 +105,8 @@ namespace vsg
 
         bool submitNextFrame();
 
+        void compile();
+
     protected:
         virtual ~Viewer();
 

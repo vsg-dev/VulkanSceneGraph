@@ -11,6 +11,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/viewer/Viewer.h>
+#include <vsg/viewer/GraphicsStage.h>
+#include <vsg/traversals/CompileTraversal.h>
 
 #include <chrono>
 #include <iostream>
@@ -272,4 +274,43 @@ bool Viewer::submitNextFrame()
     }
 
     return true;
+}
+
+void Viewer::compile()
+{
+    for (auto& window : _windows)
+    {
+        // compile the Vulkan objects
+        // create high level Vulkan objects associated the main window
+        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice(window->physicalDevice());
+        vsg::ref_ptr<vsg::Device> device(window->device());
+
+        vsg::CompileTraversal compile;
+        compile.context.device = window->device();
+        compile.context.commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
+        compile.context.renderPass = window->renderPass();
+        compile.context.graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());
+
+        for(auto& stage : window->stages())
+        {
+            GraphicsStage* gs = dynamic_cast<GraphicsStage*>(stage.get());
+            if (gs)
+            {
+                if (gs->_camera->getViewportState()) compile.context.viewport = gs->_camera->getViewportState();
+                else if (gs->_viewport)  compile.context.viewport = gs->_viewport;
+                else compile.context.viewport = vsg::ViewportState::create(window->extent2D());
+
+                compile.context.projMatrix = gs->_projMatrix;
+                compile.context.viewMatrix = gs->_viewMatrix;
+
+                std::cout<<"Compiling GraphicsStage "<<compile.context.viewport<<   std::endl;
+
+                gs->_commandGraph->accept(compile);
+            }
+            else
+            {
+                std::cout<<"Warning : Viewer::compile() has not handled Stage : "<<stage->className()<<std::endl;
+            }
+        }
+    }
 }
