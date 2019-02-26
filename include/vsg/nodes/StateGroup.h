@@ -67,7 +67,7 @@ namespace vsg
         {
             for(auto& component : _stateComponents)
             {
-                component->pushTo(state);
+                component->popFrom(state);
             }
         }
 
