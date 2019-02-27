@@ -17,7 +17,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    using DescriptorSetLayouts = std::vector<ref_ptr<DescriptorSetLayout>>;
     using PushConstantRanges = std::vector<VkPushConstantRange>;
 
     class VSG_DECLSPEC PipelineLayout : public Inherit<Object, PipelineLayout>
