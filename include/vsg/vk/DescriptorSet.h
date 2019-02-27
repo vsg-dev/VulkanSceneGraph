@@ -30,14 +30,6 @@ namespace vsg
 
         static Result create(Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors);
 
-#if 1
-        // deprecated, kept for backwards compatibility
-        static Result create(Device* device, DescriptorPool* descriptorPool, ref_ptr<DescriptorSetLayout> descriptorSetLayout, const Descriptors& descriptors)
-        {
-            return DescriptorSet::create(device, descriptorPool, DescriptorSetLayouts{descriptorSetLayout}, descriptors);
-        }
-#endif
-
         void assign(const Descriptors& descriptors);
 
         operator VkDescriptorSet() const { return _descriptorSet; }
