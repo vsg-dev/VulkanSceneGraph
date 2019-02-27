@@ -58,9 +58,19 @@ namespace vsg
     class VSG_DECLSPEC BindDescriptorSets : public Inherit<StateComponent, BindDescriptorSets>
     {
     public:
+        BindDescriptorSets(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, uint32_t firstSet, const DescriptorSets& descriptorSets) :
+            _bindPoint(bindPoint),
+            _pipelineLayout(pipelineLayout),
+            _firstSet(firstSet),
+            _descriptorSets(descriptorSets)
+        {
+            update();
+        }
+
         BindDescriptorSets(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, const DescriptorSets& descriptorSets) :
             _bindPoint(bindPoint),
             _pipelineLayout(pipelineLayout),
+            _firstSet(0),
             _descriptorSets(descriptorSets)
         {
             update();
@@ -86,6 +96,7 @@ namespace vsg
 
         VkPipelineBindPoint _bindPoint;
         ref_ptr<PipelineLayout> _pipelineLayout;
+        uint32_t _firstSet;
         DescriptorSets _descriptorSets;
         VkDescriptorSets _vkDescriptorSets;
     };

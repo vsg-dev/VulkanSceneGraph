@@ -91,5 +91,5 @@ void BindDescriptorSets::popFrom(State& state) const
 
 void BindDescriptorSets::dispatch(CommandBuffer& commandBuffer) const
 {
-    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, *_pipelineLayout, 0, static_cast<uint32_t>(_vkDescriptorSets.size()), _vkDescriptorSets.data(), 0, nullptr);
+    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, *_pipelineLayout, _firstSet, static_cast<uint32_t>(_vkDescriptorSets.size()), _vkDescriptorSets.data(), 0, nullptr);
 }
