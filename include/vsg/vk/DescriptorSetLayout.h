@@ -37,4 +37,6 @@ namespace vsg
         ref_ptr<AllocationCallbacks> _allocator;
     };
 
+    using DescriptorSetLayouts = std::vector<vsg::ref_ptr<vsg::DescriptorSetLayout>>;
+
 } // namespace vsg

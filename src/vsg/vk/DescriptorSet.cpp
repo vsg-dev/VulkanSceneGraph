@@ -15,11 +15,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-DescriptorSet::DescriptorSet(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout, const Descriptors& descriptors) :
+DescriptorSet::DescriptorSet(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors) :
     _descriptorSet(descriptorSet),
     _device(device),
     _descriptorPool(descriptorPool),
-    _descriptorSetLayout(descriptorSetLayout)
+    _descriptorSetLayouts(descriptorSetLayouts)
 {
     assign(descriptors);
 }
@@ -32,26 +32,30 @@ DescriptorSet::~DescriptorSet()
     }
 }
 
-DescriptorSet::Result DescriptorSet::create(Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout, const Descriptors& descriptors)
+DescriptorSet::Result DescriptorSet::create(Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors)
 {
-    if (!device || !descriptorPool || !descriptorSetLayout)
+    if (!device || !descriptorPool || descriptorSetLayouts.empty())
     {
-        return Result("Error: vsg::DescriptorPool::create(...) failed to create DescriptorPool, undefined Device, DescriptorPool or DescriptorSetLayout.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return Result("Error: vsg::DescriptorPool::create(...) failed to create DescriptorPool, undefined Device, DescriptorPool or DescriptorSetLayouts.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
-    VkDescriptorSetLayout descriptorSetLayouts[] = {*descriptorSetLayout};
+    std::vector<VkDescriptorSetLayout> vkdescriptorSetLayouts;
+    for(auto& descriptorSetLayout : descriptorSetLayouts)
+    {
+        vkdescriptorSetLayouts.push_back(*descriptorSetLayout);
+    }
 
     VkDescriptorSetAllocateInfo descriptSetAllocateInfo = {};
     descriptSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     descriptSetAllocateInfo.descriptorPool = *descriptorPool;
-    descriptSetAllocateInfo.descriptorSetCount = 1;
-    descriptSetAllocateInfo.pSetLayouts = descriptorSetLayouts;
+    descriptSetAllocateInfo.descriptorSetCount = vkdescriptorSetLayouts.size();
+    descriptSetAllocateInfo.pSetLayouts = vkdescriptorSetLayouts.data();
 
     VkDescriptorSet descriptorSet;
     VkResult result = vkAllocateDescriptorSets(*device, &descriptSetAllocateInfo, &descriptorSet);
     if (result == VK_SUCCESS)
     {
-        return Result(new DescriptorSet(descriptorSet, device, descriptorPool, descriptorSetLayout, descriptors));
+        return Result(new DescriptorSet(descriptorSet, device, descriptorPool, descriptorSetLayouts, descriptors));
     }
     else
     {
@@ -87,5 +91,5 @@ void BindDescriptorSets::popFrom(State& state) const
 
 void BindDescriptorSets::dispatch(CommandBuffer& commandBuffer) const
 {
-    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, *_pipelineLayout, 0, static_cast<uint32_t>(_vkDescriptorSets.size()), _vkDescriptorSets.data(), 0, nullptr);
+    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, *_pipelineLayout, _firstSet, static_cast<uint32_t>(_vkDescriptorSets.size()), _vkDescriptorSets.data(), 0, nullptr);
 }
