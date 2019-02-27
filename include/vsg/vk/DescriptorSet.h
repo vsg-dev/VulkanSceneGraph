@@ -24,11 +24,19 @@ namespace vsg
     class VSG_DECLSPEC DescriptorSet : public Inherit<Object, DescriptorSet>
     {
     public:
-        DescriptorSet(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout, const Descriptors& descriptors);
+        DescriptorSet(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors);
 
         using Result = vsg::Result<DescriptorSet, VkResult, VK_SUCCESS>;
 
-        static Result create(Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout, const Descriptors& descriptors);
+        static Result create(Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors);
+
+#if 1
+        // deprecated, kept for backwards compatibility
+        static Result create(Device* device, DescriptorPool* descriptorPool, ref_ptr<DescriptorSetLayout> descriptorSetLayout, const Descriptors& descriptors)
+        {
+            return DescriptorSet::create(device, descriptorPool, DescriptorSetLayouts{descriptorSetLayout}, descriptors);
+        }
+#endif
 
         void assign(const Descriptors& descriptors);
 
@@ -40,7 +48,7 @@ namespace vsg
         VkDescriptorSet _descriptorSet;
         ref_ptr<Device> _device;
         ref_ptr<DescriptorPool> _descriptorPool;
-        ref_ptr<DescriptorSetLayout> _descriptorSetLayout;
+        DescriptorSetLayouts _descriptorSetLayouts;
         Descriptors _descriptors;
     };
     VSG_type_name(vsg::DescriptorSet);
