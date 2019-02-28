@@ -58,7 +58,7 @@ namespace vsg
 
         virtual void popFrom(State& state) const
         {
-            _bindDescriptorSets->pushTo(state);
+            _bindDescriptorSets->popFrom(state);
         }
 
         inline void add(ref_ptr<StateAttribute> attribute)
