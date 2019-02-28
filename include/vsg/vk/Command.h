@@ -19,6 +19,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     class CommandBuffer;
+    class State;
+    class Context;
 
     class Command : public Inherit<Node, Command>
     {
@@ -28,4 +30,20 @@ namespace vsg
 
         virtual void dispatch(CommandBuffer& commandBuffer) const = 0;
     };
+
+    class StateCommand : public Inherit<Command, StateCommand>
+    {
+    public:
+        StateCommand(Allocator* allocator = nullptr) : Inherit(allocator) {}
+
+        virtual void compile(Context& /*context*/) {}
+
+        virtual void pushTo(State& state) const = 0;
+        virtual void popFrom(State& state) const = 0;
+
+    protected:
+        virtual ~StateCommand() {}
+    };
+    VSG_type_name(vsg::StateCommand);
+
 } // namespace vsg

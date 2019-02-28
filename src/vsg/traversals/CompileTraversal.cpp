@@ -70,7 +70,7 @@ void CompileTraversal::apply(Group& group)
 void CompileTraversal::apply(StateGroup& stateGroup)
 {
     // std::cout<<"CompileTraversal::apply(StateGroup&)"<<std::endl;
-    if (stateGroup.getStateSet()) stateGroup.getStateSet()->compile(context);
+    stateGroup.compile(context);
 
     stateGroup.traverse(*this);
 }

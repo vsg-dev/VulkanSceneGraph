@@ -18,7 +18,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 StateSet::StateSet(Allocator* allocator) :
-    Inherit(allocator)
+    Inherit(allocator),
+    _bindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
+    _firstSet(0)
 {
 }
 
@@ -26,14 +28,29 @@ StateSet::~StateSet()
 {
 }
 
+void StateSet::compile(Context& context)
+{
+    Descriptors descriptors;
+    descriptors.reserve(_attributes.size());
+    for(auto& attribute : _attributes)
+    {
+        auto descriptor = attribute->compile(context);
+        if (descriptor) descriptors.push_back(descriptor);
+    }
+
+    // should descriptorSetLayouts be provided by StateSet? A shared instance?
+    DescriptorSets descriptorSets{DescriptorSet::create(context.device, context.descriptorPool, context.descriptorSetLayouts, descriptors)};
+    _bindDescriptorSets = BindDescriptorSets::create(_bindPoint, context.pipelineLayout, _firstSet, descriptorSets);
+}
+
 void StateSet::read(Input& input)
 {
     Object::read(input);
 
-    _stateComponents.resize(input.readValue<uint32_t>("NumStateCommands"));
-    for (auto& child : _stateComponents)
+    _attributes.resize(input.readValue<uint32_t>("NumStateAttributes"));
+    for (auto& child : _attributes)
     {
-        child = input.readObject<StateCommand>("StateCommand");
+        child = input.readObject<StateAttribute>("StateAttribute");
     }
 }
 
@@ -41,22 +58,15 @@ void StateSet::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeValue<uint32_t>("NumStateCommands", _stateComponents.size());
-    for (auto& child : _stateComponents)
+    output.writeValue<uint32_t>("NumStateAttributes", _attributes.size());
+    for (auto& child : _attributes)
     {
-        output.writeObject("StateCommand", child.get());
+        output.writeObject("StateAttribute", child.get());
     }
 }
 
 StateGroup::StateGroup(Allocator* allocator) :
-    Inherit(allocator),
-    _stateset(new StateSet)
-{
-}
-
-StateGroup::StateGroup(StateSet* stateset) :
-    Inherit(stateset ? stateset->getAllocator() : 0),
-    _stateset(stateset)
+    Inherit(allocator)
 {
 }
 
@@ -68,12 +78,28 @@ void StateGroup::read(Input& input)
 {
     Group::read(input);
 
-    _stateset = input.readObject<StateSet>("StateSet");
+    _stateCommands.resize(input.readValue<uint32_t>("NumStateCommands"));
+    for (auto& child : _stateCommands)
+    {
+        child = input.readObject<StateCommand>("StateCommand");
+    }
 }
 
 void StateGroup::write(Output& output) const
 {
     Group::write(output);
 
-    output.writeObject("StateSet", _stateset.get());
+    output.writeValue<uint32_t>("NumStateCommands", _stateCommands.size());
+    for (auto& child : _stateCommands)
+    {
+        output.writeObject("StateCommand", child.get());
+    }
+}
+
+void StateGroup::compile(Context& context)
+{
+    for(auto& stateCommand : _stateCommands)
+    {
+        stateCommand->compile(context);
+    }
 }

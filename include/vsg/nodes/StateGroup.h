@@ -14,30 +14,32 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/Group.h>
 #include <vsg/vk/Command.h>
+#include <vsg/vk/Descriptor.h>
+#include <vsg/vk/DescriptorSet.h>
+
+#include <vsg/traversals/CompileTraversal.h>
 
 namespace vsg
 {
     // forward declare
     class State;
     class CommandBuffer;
-    class Context;
 
-    class StateCommand : public Inherit<Command, StateCommand>
+    // scene graph interface for encapsulating the creation Descriptor's such as for wrapping uniforms and textures
+    class StateAttribute : public Inherit<Object, StateAttribute>
     {
     public:
-        StateCommand(Allocator* allocator = nullptr) : Inherit(allocator) {}
+        StateAttribute(Allocator* allocator = nullptr) : Inherit(allocator) {}
 
-        virtual void compile(Context& /*context*/) {}
-
-        virtual void pushTo(State& state) const = 0;
-        virtual void popFrom(State& state) const = 0;
+        virtual ref_ptr<vsg::Descriptor> compile(Context& /*context*/) = 0;
 
     protected:
-        virtual ~StateCommand() {}
+        virtual ~StateAttribute() {}
     };
-    VSG_type_name(vsg::StateCommand);
+    VSG_type_name(vsg::StateAttribute);
 
-    class VSG_DECLSPEC StateSet : public Inherit<Object, StateSet>
+    // scene graph interface for enacpsulating the binding of StateAttributes togther into a single VkCmdBindDescriptorSets/VkDescriptorSets
+    class VSG_DECLSPEC StateSet : public Inherit<StateCommand, StateSet>
     {
     public:
         StateSet(Allocator* allocator = nullptr);
@@ -45,41 +47,39 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        using StateCommands = std::vector<ref_ptr<StateCommand>>;
+        using StateAttributes = std::vector<ref_ptr<StateAttribute>>;
 
-        virtual void compile(Context& context)
-        {
-            for(auto& component : _stateComponents)
-            {
-                component->compile(context);
-            }
-        }
+        virtual void compile(Context& context);
 
         virtual void pushTo(State& state) const
         {
-            for(auto& component : _stateComponents)
-            {
-                component->pushTo(state);
-            }
+            _bindDescriptorSets->pushTo(state);
         }
 
         virtual void popFrom(State& state) const
         {
-            for(auto& component : _stateComponents)
-            {
-                component->popFrom(state);
-            }
+            _bindDescriptorSets->pushTo(state);
         }
 
-        inline void add(ref_ptr<StateCommand> component)
+        inline void add(ref_ptr<StateAttribute> attribute)
         {
-            _stateComponents.push_back(component);
+            _attributes.push_back(attribute);
         }
 
-        StateCommands _stateComponents;
+        void dispatch(CommandBuffer& commandBuffer) const override
+        {
+            _bindDescriptorSets->dispatch(commandBuffer);
+        }
+
+        StateAttributes _attributes;
+        VkPipelineBindPoint _bindPoint;
+        uint32_t _firstSet;
 
     protected:
         virtual ~StateSet();
+
+
+        ref_ptr<BindDescriptorSets> _bindDescriptorSets;
     };
     VSG_type_name(vsg::StateSet);
 
@@ -89,35 +89,37 @@ namespace vsg
     public:
         StateGroup(Allocator* allocator = nullptr);
 
-        StateGroup(StateSet* stateset);
-
         void read(Input& input) override;
         void write(Output& output) const override;
 
         using StateCommands = std::vector<ref_ptr<StateCommand>>;
 
-        void add(ref_ptr<StateCommand> component)
+        void add(ref_ptr<StateCommand> stateCommand)
         {
-            _stateset->add(component);
+            _stateCommands.push_back(stateCommand);
         }
-
-        void setStateSet(ref_ptr<StateSet> stateset) { _stateset = stateset; }
-        StateSet* getStateSet() { return _stateset; }
-        const StateSet* getStateSet() const { return _stateset; }
 
         inline void pushTo(State& state) const
         {
-            _stateset->pushTo(state);
+            for(auto& stateCommand : _stateCommands)
+            {
+                stateCommand->pushTo(state);
+            }
         }
         inline void popFrom(State& state) const
         {
-            _stateset->popFrom(state);
+            for(auto& stateCommand : _stateCommands)
+            {
+                stateCommand->popFrom(state);
+            }
         }
+
+        virtual void compile(Context& context);
 
     protected:
         virtual ~StateGroup();
 
-        ref_ptr<StateSet> _stateset;
+        StateCommands _stateCommands;
     };
     VSG_type_name(vsg::StateGroup);
 
