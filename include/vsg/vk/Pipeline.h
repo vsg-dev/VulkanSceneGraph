@@ -44,7 +44,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Pipeline);
 
-    class VSG_DECLSPEC BindPipeline : public Inherit<StateComponent, BindPipeline>
+    class VSG_DECLSPEC BindPipeline : public Inherit<StateCommand, BindPipeline>
     {
     public:
         BindPipeline(Pipeline* pipeline);

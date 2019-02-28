@@ -22,10 +22,10 @@ namespace vsg
     class CommandBuffer;
     class Context;
 
-    class StateComponent : public Inherit<Command, StateComponent>
+    class StateCommand : public Inherit<Command, StateCommand>
     {
     public:
-        StateComponent(Allocator* allocator = nullptr) : Inherit(allocator) {}
+        StateCommand(Allocator* allocator = nullptr) : Inherit(allocator) {}
 
         virtual void compile(Context& /*context*/) {}
 
@@ -33,9 +33,9 @@ namespace vsg
         virtual void popFrom(State& state) const = 0;
 
     protected:
-        virtual ~StateComponent() {}
+        virtual ~StateCommand() {}
     };
-    VSG_type_name(vsg::StateComponent);
+    VSG_type_name(vsg::StateCommand);
 
     class VSG_DECLSPEC StateSet : public Inherit<Object, StateSet>
     {
@@ -45,7 +45,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        using StateComponents = std::vector<ref_ptr<StateComponent>>;
+        using StateCommands = std::vector<ref_ptr<StateCommand>>;
 
         virtual void compile(Context& context)
         {
@@ -71,12 +71,12 @@ namespace vsg
             }
         }
 
-        inline void add(ref_ptr<StateComponent> component)
+        inline void add(ref_ptr<StateCommand> component)
         {
             _stateComponents.push_back(component);
         }
 
-        StateComponents _stateComponents;
+        StateCommands _stateComponents;
 
     protected:
         virtual ~StateSet();
@@ -94,9 +94,9 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        using StateComponents = std::vector<ref_ptr<StateComponent>>;
+        using StateCommands = std::vector<ref_ptr<StateCommand>>;
 
-        void add(ref_ptr<StateComponent> component)
+        void add(ref_ptr<StateCommand> component)
         {
             _stateset->add(component);
         }

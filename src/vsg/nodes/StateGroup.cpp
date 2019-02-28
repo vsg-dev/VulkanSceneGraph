@@ -30,10 +30,10 @@ void StateSet::read(Input& input)
 {
     Object::read(input);
 
-    _stateComponents.resize(input.readValue<uint32_t>("NumStateComponents"));
+    _stateComponents.resize(input.readValue<uint32_t>("NumStateCommands"));
     for (auto& child : _stateComponents)
     {
-        child = input.readObject<StateComponent>("StateComponent");
+        child = input.readObject<StateCommand>("StateCommand");
     }
 }
 
@@ -41,10 +41,10 @@ void StateSet::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeValue<uint32_t>("NumStateComponents", _stateComponents.size());
+    output.writeValue<uint32_t>("NumStateCommands", _stateComponents.size());
     for (auto& child : _stateComponents)
     {
-        output.writeObject("StateComponent", child.get());
+        output.writeObject("StateCommand", child.get());
     }
 }
 

@@ -47,7 +47,7 @@ namespace vsg
 
     using DescriptorSets = std::vector<ref_ptr<DescriptorSet>>;
 
-    class VSG_DECLSPEC BindDescriptorSets : public Inherit<StateComponent, BindDescriptorSets>
+    class VSG_DECLSPEC BindDescriptorSets : public Inherit<StateCommand, BindDescriptorSets>
     {
     public:
         BindDescriptorSets(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, uint32_t firstSet, const DescriptorSets& descriptorSets) :
