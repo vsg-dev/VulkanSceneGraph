@@ -38,7 +38,7 @@ void PushConstants::popFrom(State& state) const
 
 void PushConstants::dispatch(CommandBuffer& commandBuffer) const
 {
-    const PipelineLayout* pipelineLayout = commandBuffer.getCurrentPipelineLayout();
+    const PipelineLayout::Implementation* pipelineLayout = commandBuffer.getCurrentPipelineLayout();
     if (pipelineLayout)
     {
 

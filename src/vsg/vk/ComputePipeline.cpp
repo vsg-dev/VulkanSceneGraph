@@ -14,7 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-ComputePipeline::ComputePipeline(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator) :
+ComputePipeline::ComputePipeline(VkPipeline pipeline, Device* device, PipelineLayout::Implementation* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator) :
     Inherit(pipeline, VK_PIPELINE_BIND_POINT_COMPUTE, device, pipelineLayout, allocator),
     _shaderModule(shaderModule)
 {
@@ -24,7 +24,7 @@ ComputePipeline::~ComputePipeline()
 {
 }
 
-ComputePipeline::Result ComputePipeline::create(Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator)
+ComputePipeline::Result ComputePipeline::create(Device* device, PipelineLayout::Implementation* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator)
 {
     if (!device || !pipelineLayout || !shaderModule)
     {

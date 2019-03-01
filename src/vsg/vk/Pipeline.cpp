@@ -20,7 +20,7 @@ using namespace vsg;
 //
 // Pipeline
 //
-Pipeline::Pipeline(VkPipeline pipeline, VkPipelineBindPoint bindPoint, Device* device, PipelineLayout* pipelineLayout, AllocationCallbacks* allocator) :
+Pipeline::Pipeline(VkPipeline pipeline, VkPipelineBindPoint bindPoint, Device* device, PipelineLayout::Implementation* pipelineLayout, AllocationCallbacks* allocator) :
     _pipeline(pipeline),
     _bindPoint(bindPoint),
     _device(device),

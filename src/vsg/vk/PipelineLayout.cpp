@@ -11,10 +11,35 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/PipelineLayout.h>
+#include <vsg/traversals/CompileTraversal.h>
 
 using namespace vsg;
 
-PipelineLayout::PipelineLayout(VkPipelineLayout pipelineLayout, const DescriptorSetLayouts& descriptorSetLayouts, Device* device, AllocationCallbacks* allocator) :
+//////////////////////////////////////
+//
+// PipelineLayout
+//
+PipelineLayout::PipelineLayout(const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags):
+    _descriptorSetLayouts(descriptorSetLayouts),
+    _pushConstantRanges(pushConstantRanges),
+    _flags(flags)
+{
+}
+
+PipelineLayout::~PipelineLayout()
+{
+}
+
+void PipelineLayout::compile(Context& context)
+{
+    if (!_implementation) _implementation = PipelineLayout::Implementation::create(context.device, _descriptorSetLayouts, _pushConstantRanges, _flags);
+}
+
+//////////////////////////////////////
+//
+// PipelineLayout::Implementation
+//
+PipelineLayout::Implementation::Implementation(VkPipelineLayout pipelineLayout, const DescriptorSetLayouts& descriptorSetLayouts, Device* device, AllocationCallbacks* allocator) :
     _pipelineLayout(pipelineLayout),
     _descriptorSetLayouts(descriptorSetLayouts),
     _device(device),
@@ -22,7 +47,7 @@ PipelineLayout::PipelineLayout(VkPipelineLayout pipelineLayout, const Descriptor
 {
 }
 
-PipelineLayout::~PipelineLayout()
+PipelineLayout::Implementation::~Implementation()
 {
     if (_pipelineLayout)
     {
@@ -30,7 +55,7 @@ PipelineLayout::~PipelineLayout()
     }
 }
 
-PipelineLayout::Result PipelineLayout::create(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags, AllocationCallbacks* allocator)
+PipelineLayout::Implementation::Result PipelineLayout::Implementation::create(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags, AllocationCallbacks* allocator)
 {
     if (!device)
     {
@@ -52,7 +77,7 @@ PipelineLayout::Result PipelineLayout::create(Device* device, const DescriptorSe
     VkResult result = vkCreatePipelineLayout(*device, &pipelineLayoutInfo, allocator, &pipelineLayout);
     if (result == VK_SUCCESS)
     {
-        return Result(new PipelineLayout(pipelineLayout, descriptorSetLayouts, device, allocator));
+        return Result(new PipelineLayout::Implementation(pipelineLayout, descriptorSetLayouts, device, allocator));
     }
     else
     {

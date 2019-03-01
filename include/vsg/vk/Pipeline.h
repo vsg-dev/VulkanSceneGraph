@@ -21,7 +21,7 @@ namespace vsg
     class VSG_DECLSPEC Pipeline : public Inherit<Object, Pipeline>
     {
     public:
-        Pipeline(VkPipeline pipeline, VkPipelineBindPoint bindPoint, Device* device, PipelineLayout* pipelineLayout, AllocationCallbacks* allocator = nullptr);
+        Pipeline(VkPipeline pipeline, VkPipelineBindPoint bindPoint, Device* device, PipelineLayout::Implementation* pipelineLayout, AllocationCallbacks* allocator = nullptr);
 
         operator VkPipeline() const { return _pipeline; }
 
@@ -30,8 +30,8 @@ namespace vsg
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
-        PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
-        const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
+        PipelineLayout::Implementation* getPipelineLayout() { return _pipelineLayout; }
+        const PipelineLayout::Implementation* getPipelineLayout() const { return _pipelineLayout; }
 
     protected:
         virtual ~Pipeline();
@@ -39,7 +39,7 @@ namespace vsg
         VkPipeline _pipeline;
         VkPipelineBindPoint _bindPoint;
         ref_ptr<Device> _device;
-        ref_ptr<PipelineLayout> _pipelineLayout;
+        ref_ptr<PipelineLayout::Implementation> _pipelineLayout;
         ref_ptr<AllocationCallbacks> _allocator;
     };
     VSG_type_name(vsg::Pipeline);

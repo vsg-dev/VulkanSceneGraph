@@ -18,29 +18,56 @@ namespace vsg
 {
 
     using PushConstantRanges = std::vector<VkPushConstantRange>;
+    class Context;
 
     class VSG_DECLSPEC PipelineLayout : public Inherit<Object, PipelineLayout>
     {
     public:
-        PipelineLayout(VkPipelineLayout pipelineLayout, const DescriptorSetLayouts& descrtorSetLayouts, Device* device, AllocationCallbacks* allocator = nullptr);
+        PipelineLayout(const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags=0);
 
-        using Result = vsg::Result<PipelineLayout, VkResult, VK_SUCCESS>;
+        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        {
+        public:
+            Implementation(VkPipelineLayout pipelineLayout, const DescriptorSetLayouts& descrtorSetLayouts, Device* device, AllocationCallbacks* allocator = nullptr);
 
-        static Result create(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags = 0, AllocationCallbacks* allocator = nullptr);
+            using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
-        operator VkPipelineLayout() const { return _pipelineLayout; }
+            static Result create(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags = 0, AllocationCallbacks* allocator = nullptr);
 
-        Device* getDevice() { return _device; }
-        const Device* getDevice() const { return _device; }
+            operator VkPipelineLayout() const { return _pipelineLayout; }
+
+            Device* getDevice() { return _device; }
+            const Device* getDevice() const { return _device; }
+
+        protected:
+            virtual ~Implementation();
+
+            VkPipelineLayout _pipelineLayout;
+            DescriptorSetLayouts _descriptorSetLayouts;
+
+            ref_ptr<Device> _device;
+            ref_ptr<AllocationCallbacks> _allocator;
+        };
+
+        // compile the Vulkna PipelineLayout object, context parameter used for Device
+        void compile(Context& context);
+
+        // remove the local reference to the Vulkan PipelineLayout implementation
+        void release() { _implementation = nullptr; }
+
+        operator VkPipelineLayout() const { return *_implementation; }
+
+        Implementation* implementation() { return _implementation; }
+        const Implementation* implementation() const { return _implementation; }
 
     protected:
         virtual ~PipelineLayout();
 
-        VkPipelineLayout _pipelineLayout;
         DescriptorSetLayouts _descriptorSetLayouts;
+        PushConstantRanges _pushConstantRanges;
+        VkPipelineLayoutCreateFlags _flags;
 
-        ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
+        ref_ptr<Implementation> _implementation;
     };
 
 } // namespace vsg

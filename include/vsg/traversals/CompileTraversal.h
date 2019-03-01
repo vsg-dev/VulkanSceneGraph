@@ -33,7 +33,7 @@ namespace vsg
 
         ref_ptr<DescriptorPool> descriptorPool;
         DescriptorSetLayouts descriptorSetLayouts;
-        ref_ptr<PipelineLayout> pipelineLayout;
+        ref_ptr<PipelineLayout::Implementation> pipelineLayout;
 
         ref_ptr<mat4Value> projMatrix;
         ref_ptr<mat4Value> viewMatrix;
