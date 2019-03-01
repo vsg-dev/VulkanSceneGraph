@@ -11,17 +11,40 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/DescriptorSetLayout.h>
+#include <vsg/traversals/CompileTraversal.h>
 
 using namespace vsg;
 
-DescriptorSetLayout::DescriptorSetLayout(Device* device, VkDescriptorSetLayout descriptorSetLayout, AllocationCallbacks* allocator) :
+//////////////////////////////////////
+//
+// DescriptorSetLayout
+//
+DescriptorSetLayout::DescriptorSetLayout(const DescriptorSetLayoutBindings& descriptorSetLayoutBindings):
+    _descriptorSetLayoutBindings(descriptorSetLayoutBindings)
+{
+}
+
+DescriptorSetLayout::~DescriptorSetLayout()
+{
+}
+
+void DescriptorSetLayout::compile(Context& context)
+{
+    if (!_implementation) _implementation = DescriptorSetLayout::Implementation::create(context.device, _descriptorSetLayoutBindings);
+}
+
+//////////////////////////////////////
+//
+// DescriptorSetLayout::Implementation
+//
+DescriptorSetLayout::Implementation::Implementation(Device* device, VkDescriptorSetLayout descriptorSetLayout, AllocationCallbacks* allocator) :
     _device(device),
     _descriptorSetLayout(descriptorSetLayout),
     _allocator(allocator)
 {
 }
 
-DescriptorSetLayout::~DescriptorSetLayout()
+DescriptorSetLayout::Implementation::~Implementation()
 {
     if (_descriptorSetLayout)
     {
@@ -29,7 +52,7 @@ DescriptorSetLayout::~DescriptorSetLayout()
     }
 }
 
-DescriptorSetLayout::Result DescriptorSetLayout::create(Device* device, const DescriptorSetLayoutBindings& descriptorSetLayoutBindings, AllocationCallbacks* allocator)
+DescriptorSetLayout::Implementation::Result DescriptorSetLayout::Implementation::create(Device* device, const DescriptorSetLayoutBindings& descriptorSetLayoutBindings, AllocationCallbacks* allocator)
 {
     if (!device)
     {
@@ -45,7 +68,7 @@ DescriptorSetLayout::Result DescriptorSetLayout::create(Device* device, const De
     VkResult result = vkCreateDescriptorSetLayout(*device, &layoutInfo, allocator, &descriptorSetLayout);
     if (result == VK_SUCCESS)
     {
-        return Result(new DescriptorSetLayout(device, descriptorSetLayout, allocator));
+        return Result(new Implementation(device, descriptorSetLayout, allocator));
     }
     else
     {

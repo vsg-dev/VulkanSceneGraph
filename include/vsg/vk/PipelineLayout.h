@@ -49,10 +49,10 @@ namespace vsg
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
-        // compile the Vulkna PipelineLayout object, context parameter used for Device
+        // compile the Vulkna object, context parameter used for Device
         void compile(Context& context);
 
-        // remove the local reference to the Vulkan PipelineLayout implementation
+        // remove the local reference to the Vulkan implementation
         void release() { _implementation = nullptr; }
 
         operator VkPipelineLayout() const { return *_implementation; }
