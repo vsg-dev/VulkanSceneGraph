@@ -43,8 +43,8 @@
 * [AMD Vulkan Device Memory](https://gpuopen.com/vulkan-device-memory/)
 * [NVIDIA Vulkan Memory management](https://developer.nvidia.com/vulkan-memory-management)
 * [Vulkan Spec](https://renderdoc.org/vkspec_chunked/index.html)
-* [Vulkan Shader Resource Binding] (https://developer.nvidia.com/vulkan-shader-resource-binding)
-* [Lessons Learned While Building a Vulkan Material System] (http://kylehalladay.com/blog/tutorial/2017/11/27/Vulkan-Material-System.html)
+* [Vulkan Shader Resource Binding](https://developer.nvidia.com/vulkan-shader-resource-binding)
+* [Lessons Learned While Building a Vulkan Material System](http://kylehalladay.com/blog/tutorial/2017/11/27/Vulkan-Material-System.html)
 
 ## Vulkan based projects
 * [Pumex](https://github.com/pumexx/pumex)

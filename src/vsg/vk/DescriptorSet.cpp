@@ -80,13 +80,18 @@ void DescriptorSet::assign(const Descriptors& descriptors)
 void BindDescriptorSets::pushTo(State& state) const
 {
     state.dirty = true;
-    state.descriptorStack.push(this);
+
+    // make sure there is an appropriate descriptorStack entry available.
+    if (_firstSet >= state.descriptorStacks.size())  state.descriptorStacks.resize(_firstSet+1);
+
+    // push this to the appropriate descriptorStack
+    state.descriptorStacks[_firstSet].push(this);
 }
 
 void BindDescriptorSets::popFrom(State& state) const
 {
     state.dirty = true;
-    state.descriptorStack.pop();
+    state.descriptorStacks[_firstSet].pop();
 }
 
 void BindDescriptorSets::dispatch(CommandBuffer& commandBuffer) const

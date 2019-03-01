@@ -65,13 +65,17 @@ namespace vsg
         State() :
             dirty(false) {}
 
+        using PipelineStack = StateStack<BindPipeline>;
+        using DescriptorStacks = std::vector<StateStack<BindDescriptorSets>>;
+        using VertexBuffersStack = StateStack<BindVertexBuffers>;
+        using IndexBufferStack = StateStack<BindIndexBuffer>;
         using PushConstantsMap = std::map<uint32_t, StateStack<PushConstants>>;
 
         bool dirty;
-        StateStack<BindPipeline> pipelineStack;
-        StateStack<BindDescriptorSets> descriptorStack;
-        StateStack<BindVertexBuffers> vertexBuffersStack;
-        StateStack<BindIndexBuffer> indexBufferStack;
+        PipelineStack pipelineStack;
+        DescriptorStacks descriptorStacks;
+        VertexBuffersStack vertexBuffersStack;
+        IndexBufferStack indexBufferStack;
         PushConstantsMap pushConstantsMap;
 
         inline void dispatch(CommandBuffer& commandBuffer)
@@ -79,7 +83,11 @@ namespace vsg
             if (dirty)
             {
                 pipelineStack.dispatch(commandBuffer);
-                descriptorStack.dispatch(commandBuffer);
+                for(auto& descriptorStack : descriptorStacks)
+                {
+                    descriptorStack.dispatch(commandBuffer);
+                }
+
                 vertexBuffersStack.dispatch(commandBuffer);
                 indexBufferStack.dispatch(commandBuffer);
                 for (auto& pushConstantsStack : pushConstantsMap)
