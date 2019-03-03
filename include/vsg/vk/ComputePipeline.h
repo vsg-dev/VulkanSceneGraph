@@ -25,10 +25,10 @@ namespace vsg
         using Result = vsg::Result<ComputePipeline, VkResult, VK_SUCCESS>;
 
         /** Crreate a ComputePipeline.*/
-        static Result create(Device* device, PipelineLayout::Implementation* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator = nullptr);
+        static Result create(Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator = nullptr);
 
     protected:
-        ComputePipeline(VkPipeline pipeline, Device* device, PipelineLayout::Implementation* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator);
+        ComputePipeline(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator);
 
         virtual ~ComputePipeline();
 

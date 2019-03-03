@@ -16,8 +16,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    using DescriptorSetLayoutBindings = std::vector<VkDescriptorSetLayoutBinding>;
+    // forward declare
     class Context;
+
+    using DescriptorSetLayoutBindings = std::vector<VkDescriptorSetLayoutBinding>;
 
     class VSG_DECLSPEC DescriptorSetLayout : public Inherit<Object, DescriptorSetLayout>
     {
@@ -44,7 +46,7 @@ namespace vsg
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
-        // compile the Vulkna object, context parameter used for Device
+        // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);
 
         // remove the local reference to the Vulkan implementation
@@ -63,6 +65,6 @@ namespace vsg
         ref_ptr<Implementation> _implementation;
     };
 
-    using DescriptorSetLayouts = std::vector<vsg::ref_ptr<vsg::DescriptorSetLayout::Implementation>>;
+    using DescriptorSetLayouts = std::vector<vsg::ref_ptr<vsg::DescriptorSetLayout>>;
 
 } // namespace vsg

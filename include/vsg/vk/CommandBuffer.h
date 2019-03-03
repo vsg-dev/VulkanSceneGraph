@@ -43,7 +43,7 @@ namespace vsg
         }
 
         const Pipeline* getCurrentPipeline() const { return _currentPipeline; }
-        const PipelineLayout::Implementation* getCurrentPipelineLayout() const { return _currentPipelineLayout; }
+        const PipelineLayout* getCurrentPipelineLayout() const { return _currentPipelineLayout; }
 
     protected:
         virtual ~CommandBuffer();
@@ -54,7 +54,7 @@ namespace vsg
         ref_ptr<Device> _device;
         ref_ptr<CommandPool> _commandPool;
         ref_ptr<const Pipeline> _currentPipeline;
-        ref_ptr<const PipelineLayout::Implementation> _currentPipelineLayout;
+        ref_ptr<const PipelineLayout> _currentPipelineLayout;
     };
 
     template<typename F>

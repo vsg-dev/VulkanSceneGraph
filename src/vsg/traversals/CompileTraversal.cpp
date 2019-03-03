@@ -54,6 +54,11 @@ void CompileTraversal::apply(Object& object)
     object.traverse(*this);
 }
 
+void CompileTraversal::apply(Command& command)
+{
+    command.compile(context);
+}
+
 void CompileTraversal::apply(Group& group)
 {
     auto graphics = dynamic_cast<GraphicsNode*>(&group);

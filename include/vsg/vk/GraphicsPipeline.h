@@ -43,7 +43,7 @@ namespace vsg
         using Result = vsg::Result<GraphicsPipeline, VkResult, VK_SUCCESS>;
 
         /** Crreate a GraphicsPipeline.*/
-        static Result create(Device* device, RenderPass* renderPass, PipelineLayout::Implementation* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
+        static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
 
         RenderPass* getRenderPass() { return _renderPass; }
         const RenderPass* getRenderPass() const { return _renderPass; }
@@ -52,7 +52,7 @@ namespace vsg
         const GraphicsPipelineStates& getPipelineStates() const { return _pipelineStates; }
 
     protected:
-        GraphicsPipeline(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout::Implementation* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator);
+        GraphicsPipeline(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator);
 
         virtual ~GraphicsPipeline();
 

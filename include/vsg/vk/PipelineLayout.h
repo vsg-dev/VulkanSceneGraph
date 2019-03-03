@@ -16,9 +16,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    // forward declare
+    class Context;
 
     using PushConstantRanges = std::vector<VkPushConstantRange>;
-    class Context;
 
     class VSG_DECLSPEC PipelineLayout : public Inherit<Object, PipelineLayout>
     {
@@ -49,7 +50,7 @@ namespace vsg
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
-        // compile the Vulkna object, context parameter used for Device
+        // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);
 
         // remove the local reference to the Vulkan implementation

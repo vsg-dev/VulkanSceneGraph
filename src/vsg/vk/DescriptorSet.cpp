@@ -15,7 +15,29 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-DescriptorSet::DescriptorSet(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors) :
+DescriptorSet::DescriptorSet(const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors):
+    _descriptorSetLayouts(descriptorSetLayouts),
+    _descriptors(descriptors)
+{
+}
+
+DescriptorSet::~DescriptorSet()
+{
+}
+
+void DescriptorSet::compile(Context& context)
+{
+    if (!_implementation)
+    {
+        // make sure all the contributing objects are compiled
+        for(auto& descriptorSetLayout : _descriptorSetLayouts) descriptorSetLayout->compile(context);
+        for(auto& descriptor : _descriptors) descriptor->compile(context);
+
+        _implementation = DescriptorSet::Implementation::create(context.device, context.descriptorPool, _descriptorSetLayouts, _descriptors);
+    }
+}
+
+DescriptorSet::Implementation::Implementation(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors) :
     _descriptorSet(descriptorSet),
     _device(device),
     _descriptorPool(descriptorPool),
@@ -24,7 +46,7 @@ DescriptorSet::DescriptorSet(VkDescriptorSet descriptorSet, Device* device, Desc
     assign(descriptors);
 }
 
-DescriptorSet::~DescriptorSet()
+DescriptorSet::Implementation::~Implementation()
 {
     if (_descriptorSet)
     {
@@ -32,7 +54,7 @@ DescriptorSet::~DescriptorSet()
     }
 }
 
-DescriptorSet::Result DescriptorSet::create(Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors)
+DescriptorSet::Implementation::Result DescriptorSet::Implementation::create(Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors)
 {
     if (!device || !descriptorPool || descriptorSetLayouts.empty())
     {
@@ -45,6 +67,7 @@ DescriptorSet::Result DescriptorSet::create(Device* device, DescriptorPool* desc
         vkdescriptorSetLayouts.push_back(*descriptorSetLayout);
     }
 
+
     VkDescriptorSetAllocateInfo descriptSetAllocateInfo = {};
     descriptSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     descriptSetAllocateInfo.descriptorPool = *descriptorPool;
@@ -55,7 +78,7 @@ DescriptorSet::Result DescriptorSet::create(Device* device, DescriptorPool* desc
     VkResult result = vkAllocateDescriptorSets(*device, &descriptSetAllocateInfo, &descriptorSet);
     if (result == VK_SUCCESS)
     {
-        return Result(new DescriptorSet(descriptorSet, device, descriptorPool, descriptorSetLayouts, descriptors));
+        return Result(new DescriptorSet::Implementation(descriptorSet, device, descriptorPool, descriptorSetLayouts, descriptors));
     }
     else
     {
@@ -63,7 +86,7 @@ DescriptorSet::Result DescriptorSet::create(Device* device, DescriptorPool* desc
     }
 }
 
-void DescriptorSet::assign(const Descriptors& descriptors)
+void DescriptorSet::Implementation::assign(const Descriptors& descriptors)
 {
     // should we doing anything about previous _descriptor that may have been assigned?
     _descriptors = descriptors;
@@ -96,5 +119,16 @@ void BindDescriptorSets::popFrom(State& state) const
 
 void BindDescriptorSets::dispatch(CommandBuffer& commandBuffer) const
 {
-    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, *_pipelineLayout, _firstSet, static_cast<uint32_t>(_vkDescriptorSets.size()), _vkDescriptorSets.data(), 0, nullptr);
+    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, *(_pipelineLayout), _firstSet, static_cast<uint32_t>(_vkDescriptorSets.size()), _vkDescriptorSets.data(), 0, nullptr);
+}
+
+void BindDescriptorSets::compile(Context& context)
+{
+    _vkDescriptorSets.resize(_descriptorSets.size());
+    for (size_t i = 0; i < _descriptorSets.size(); ++i)
+    {
+        _descriptorSets[i]->compile(context);
+
+        _vkDescriptorSets[i] = *(_descriptorSets[i]);
+    }
 }

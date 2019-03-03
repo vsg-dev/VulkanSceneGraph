@@ -28,6 +28,8 @@ namespace vsg
         Command(Allocator* allocator = nullptr) :
             Inherit(allocator) {}
 
+        virtual void compile(Context& /*context*/) {}
+
         virtual void dispatch(CommandBuffer& commandBuffer) const = 0;
     };
 
@@ -35,8 +37,6 @@ namespace vsg
     {
     public:
         StateCommand(Allocator* allocator = nullptr) : Inherit(allocator) {}
-
-        virtual void compile(Context& /*context*/) {}
 
         virtual void pushTo(State& state) const = 0;
         virtual void popFrom(State& state) const = 0;

@@ -19,6 +19,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    // forward declare
+    class Context;
 
     using DescriptorBufferInfos = std::vector<VkDescriptorBufferInfo>;
 
@@ -35,6 +37,9 @@ namespace vsg
         uint32_t _dstBinding;
         uint32_t _dstArrayElement;
         VkDescriptorType _descriptorType;
+
+        // compile the Vulkan object, context parameter used for Device
+        virtual void compile(Context& /*context*/) {}
 
         virtual void assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
         {

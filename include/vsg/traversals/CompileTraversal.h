@@ -32,8 +32,6 @@ namespace vsg
         VkQueue graphicsQueue = 0;
 
         ref_ptr<DescriptorPool> descriptorPool;
-        DescriptorSetLayouts descriptorSetLayouts;
-        ref_ptr<PipelineLayout::Implementation> pipelineLayout;
 
         ref_ptr<mat4Value> projMatrix;
         ref_ptr<mat4Value> viewMatrix;
@@ -60,6 +58,7 @@ namespace vsg
         ~CompileTraversal();
 
         void apply(Object& object);
+        void apply(Command& command);
         void apply(Group& group);
         void apply(StateGroup& stateGroup);
         void apply(GraphicsNode& graphics);

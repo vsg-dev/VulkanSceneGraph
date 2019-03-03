@@ -25,64 +25,6 @@ namespace vsg
     class State;
     class CommandBuffer;
 
-    // scene graph interface for encapsulating the creation Descriptor's such as for wrapping uniforms and textures
-    class StateAttribute : public Inherit<Object, StateAttribute>
-    {
-    public:
-        StateAttribute(Allocator* allocator = nullptr) : Inherit(allocator) {}
-
-        virtual ref_ptr<vsg::Descriptor> compile(Context& /*context*/) = 0;
-
-    protected:
-        virtual ~StateAttribute() {}
-    };
-    VSG_type_name(vsg::StateAttribute);
-
-    // scene graph interface for enacpsulating the binding of StateAttributes togther into a single VkCmdBindDescriptorSets/VkDescriptorSets
-    class VSG_DECLSPEC StateSet : public Inherit<StateCommand, StateSet>
-    {
-    public:
-        StateSet(Allocator* allocator = nullptr);
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        using StateAttributes = std::vector<ref_ptr<StateAttribute>>;
-
-        virtual void compile(Context& context);
-
-        virtual void pushTo(State& state) const
-        {
-            _bindDescriptorSets->pushTo(state);
-        }
-
-        virtual void popFrom(State& state) const
-        {
-            _bindDescriptorSets->popFrom(state);
-        }
-
-        inline void add(ref_ptr<StateAttribute> attribute)
-        {
-            _attributes.push_back(attribute);
-        }
-
-        void dispatch(CommandBuffer& commandBuffer) const override
-        {
-            _bindDescriptorSets->dispatch(commandBuffer);
-        }
-
-        StateAttributes _attributes;
-        VkPipelineBindPoint _bindPoint;
-        uint32_t _firstSet;
-
-    protected:
-        virtual ~StateSet();
-
-
-        ref_ptr<BindDescriptorSets> _bindDescriptorSets;
-    };
-    VSG_type_name(vsg::StateSet);
-
 
     class VSG_DECLSPEC StateGroup : public Inherit<Group, StateGroup>
     {
