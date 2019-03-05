@@ -152,6 +152,9 @@ namespace vsg
         // remove the local reference to the Vulkan implementation
         void release();
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
     protected:
         virtual ~ShaderStages();
 

@@ -215,6 +215,28 @@ void ShaderStages::release()
     _stages.clear();
 }
 
+void ShaderStages::read(Input& input)
+{
+    Object::read(input);
+
+    _shaderModules.resize(input.readValue<uint32_t>("NumShaderModule"));
+    for (auto& shaderModule : _shaderModules)
+    {
+        shaderModule = input.readObject<ShaderModule>("ShaderModule");
+    }
+}
+
+void ShaderStages::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeValue<uint32_t>("NumShaderModule", _shaderModules.size());
+    for (auto& shaderModule : _shaderModules)
+    {
+        output.writeObject("ShaderModule", shaderModule.get());
+    }
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 //
