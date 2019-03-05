@@ -83,9 +83,10 @@ namespace vsg
 
         operator VkPipeline() const { return _implementation->_pipeline; }
 
-    protected:
-        GraphicsPipeline(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator);
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
+    protected:
         virtual ~GraphicsPipeline();
 
         ref_ptr<Device> _device;
@@ -113,6 +114,9 @@ namespace vsg
 
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context) override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
     public:
         virtual ~BindGraphicsPipeline();

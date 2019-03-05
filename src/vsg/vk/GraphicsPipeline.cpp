@@ -49,6 +49,28 @@ void GraphicsPipeline::compile(Context& context)
     }
 }
 
+void GraphicsPipeline::read(Input& input)
+{
+    Object::read(input);
+
+    _pipelineStates.resize(input.readValue<uint32_t>("NumPipelineStates"));
+    for (auto& pipelineState : _pipelineStates)
+    {
+        pipelineState = input.readObject<GraphicsPipelineState>("PipelineState");
+    }
+}
+
+void GraphicsPipeline::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeValue<uint32_t>("NumPipelineStates", _pipelineStates.size());
+    for (auto& pipelineState : _pipelineStates)
+    {
+        output.writeObject("PipelineState", pipelineState.get());
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////
 //
 // GraphicsPipeline::Implementation
@@ -133,6 +155,20 @@ void BindGraphicsPipeline::dispatch(CommandBuffer& commandBuffer) const
 void BindGraphicsPipeline::compile(Context& context)
 {
     if (_pipeline) _pipeline->compile(context);
+}
+
+void BindGraphicsPipeline::read(Input& input)
+{
+    StateCommand::read(input);
+
+    _pipeline  = input.readObject<GraphicsPipeline>("GraphicsPipeline");
+}
+
+void BindGraphicsPipeline::write(Output& output) const
+{
+    StateCommand::write(output);
+
+    output.writeObject("GraphicsPipeline", _pipeline.get());
 }
 
 ////////////////////////////////////////////////////////////////////////
