@@ -285,9 +285,18 @@ void Viewer::compile()
         vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice(window->physicalDevice());
         vsg::ref_ptr<vsg::Device> device(window->device());
 
+        // TODO need to traverse the stages to figure out the maxSets and descriptorPoolSizes, hardwire for now
+        uint32_t maxSets = 1090;
+        uint32_t maxDescriptors = 1000;
+        DescriptorPoolSizes descriptorPoolSizes
+        {
+            {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, maxDescriptors} // type, descriptorCount // total descriptors of a type across all sets
+        };
+
         vsg::CompileTraversal compile;
         compile.context.device = window->device();
         compile.context.commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
+        compile.context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
         compile.context.renderPass = window->renderPass();
         compile.context.graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());
 

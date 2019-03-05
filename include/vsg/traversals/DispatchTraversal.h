@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <memory>
 #include <vsg/core/Object.h>
+#include <vsg/maths/mat4.h>
 
 namespace vsg
 {
@@ -32,6 +33,9 @@ namespace vsg
     public:
         explicit DispatchTraversal(CommandBuffer* commandBuffer = nullptr);
         ~DispatchTraversal();
+
+        void setProjectionMatrix(const dmat4& projMatrix);
+        void setViewMatrix(const dmat4& viewMatrix);
 
         void apply(const Object& object);
 

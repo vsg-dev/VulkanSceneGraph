@@ -305,7 +305,11 @@ void ConstVisitor::apply(const RenderPass& value)
 {
     apply(static_cast<const Object&>(value));
 }
-void ConstVisitor::apply(const BindPipeline& value)
+void ConstVisitor::apply(const BindComputePipeline& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const BindGraphicsPipeline& value)
 {
     apply(static_cast<const Object&>(value));
 }

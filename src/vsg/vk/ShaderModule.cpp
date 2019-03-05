@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/ShaderModule.h>
+#include <vsg/traversals/CompileTraversal.h>
 
 using namespace vsg;
 
@@ -19,21 +20,21 @@ using namespace vsg;
 // Shader
 //
 
-Shader::Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const SPIRV& spirv) :
+ShaderModule::ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, const SPIRV& spirv) :
     _stage(stage),
     _entryPointName(entryPointName),
     _spirv(spirv)
 {
 }
 
-Shader::Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source) :
+ShaderModule::ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source) :
     _stage(stage),
     _entryPointName(entryPointName),
     _source(source)
 {
 }
 
-Shader::Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source, const SPIRV& spirv) :
+ShaderModule::ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source, const SPIRV& spirv) :
     _stage(stage),
     _entryPointName(entryPointName),
     _source(source),
@@ -41,24 +42,24 @@ Shader::Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, c
 {
 }
 
-Shader::~Shader()
+ShaderModule::~ShaderModule()
 {
 }
 
-Shader::Result Shader::read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename)
+ShaderModule::Result ShaderModule::read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename)
 {
     SPIRV buffer;
     if (readFile(buffer, filename))
     {
-        return Result(new Shader(stage, entryPointName, buffer));
+        return Result(new ShaderModule(stage, entryPointName, buffer));
     }
     else
     {
-        return Shader::Result("Error: vsg::Shader::read(..) failed to read shader file.", VK_INCOMPLETE);
+        return ShaderModule::Result("Error: vsg::ShaderModule::read(..) failed to read shader file.", VK_INCOMPLETE);
     }
 }
 
-void Shader::read(Input& input)
+void ShaderModule::read(Input& input)
 {
     Object::read(input);
 
@@ -72,7 +73,7 @@ void Shader::read(Input& input)
     input.read(_spirv.size(), _spirv.data());
 }
 
-void Shader::write(Output& output) const
+void ShaderModule::write(Output& output) const
 {
     Object::write(output);
 
@@ -86,48 +87,45 @@ void Shader::write(Output& output) const
     output.write(_spirv.size(), _spirv.data());
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// ShaderModule
-//
-ShaderModule::ShaderModule(VkShaderModule shaderModule, Device* device, Shader* shader, AllocationCallbacks* allocator) :
+void ShaderModule::compile(Context& context)
+{
+    if (!_implementation) _implementation = Implementation::create(context.device, this);
+}
+
+ShaderModule::Implementation::Implementation(VkShaderModule shaderModule, Device* device, AllocationCallbacks* allocator):
     _shaderModule(shaderModule),
     _device(device),
-    _shader(shader),
     _allocator(allocator)
 {
 }
 
-ShaderModule::~ShaderModule()
+ShaderModule::Implementation::~Implementation()
 {
-    if (_shaderModule)
-    {
-        vkDestroyShaderModule(*_device, _shaderModule, _allocator);
-    }
+    vkDestroyShaderModule(*_device, _shaderModule, _allocator);
 }
 
-ShaderModule::Result ShaderModule::create(Device* device, Shader* shader, AllocationCallbacks* allocator)
+ShaderModule::Implementation::Result ShaderModule::Implementation::create(Device* device, ShaderModule* shaderModule, AllocationCallbacks* allocator)
 {
-    if (!device || !shader)
+    if (!device || !shaderModule)
     {
         return Result("Error: vsg::ShaderModule::create(...) failed, requires valid logical device and Shader.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
-    if (shader->spirv().empty())
+    if (shaderModule->spirv().empty())
     {
         return Result("Error: vsg::ShaderModule::create(...) failed. requires Shader with valid spirv contents.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     VkShaderModuleCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.codeSize = shader->spirv().size() * sizeof(Shader::SPIRV::value_type);
-    createInfo.pCode = shader->spirv().data();
+    createInfo.codeSize = shaderModule->spirv().size() * sizeof(ShaderModule::SPIRV::value_type);
+    createInfo.pCode = shaderModule->spirv().data();
 
-    VkShaderModule shaderModule;
-    VkResult result = vkCreateShaderModule(*device, &createInfo, allocator, &shaderModule);
+    VkShaderModule sm;
+    VkResult result = vkCreateShaderModule(*device, &createInfo, allocator, &sm);
     if (result == VK_SUCCESS)
     {
-        return Result(new ShaderModule(shaderModule, device, shader, allocator));
+        return Result(new ShaderModule::Implementation(sm, device, allocator));
     }
     else
     {

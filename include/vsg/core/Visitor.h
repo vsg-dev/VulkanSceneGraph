@@ -32,7 +32,8 @@ namespace vsg
     class Command;
     class CommandBuffer;
     class RenderPass;
-    class BindPipeline;
+    class BindComputePipeline;
+    class BindGraphicsPipeline;
     class GraphicsPipeline;
     class ComputePipeline;
     class Draw;
@@ -147,7 +148,8 @@ namespace vsg
         virtual void apply(Command&);
         virtual void apply(CommandBuffer&);
         virtual void apply(RenderPass&);
-        virtual void apply(BindPipeline&);
+        virtual void apply(BindComputePipeline&);
+        virtual void apply(BindGraphicsPipeline&);
         virtual void apply(GraphicsPipeline&);
         virtual void apply(ComputePipeline&);
         virtual void apply(GraphicsPipelineState&);

@@ -16,7 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/BindVertexBuffers.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/DescriptorSet.h>
-#include <vsg/vk/Pipeline.h>
+#include <vsg/vk/ComputePipeline.h>
+#include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/PushConstants.h>
 
 #include <map>
@@ -59,41 +60,113 @@ namespace vsg
         }
     };
 
+    class MatrixStack
+    {
+    public:
+        MatrixStack(uint32_t in_offset=0) :
+            offset(in_offset)
+        {
+            // make sure there is an initial matrix
+            matrixStack.push(mat4());
+        }
+
+        using mat4Stack = std::stack<mat4>;
+        using dmat4Stack = std::stack<dmat4>;
+
+        mat4Stack matrixStack;
+        VkShaderStageFlags stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        uint32_t offset = 0;
+        bool dirty = false;
+
+        inline void set(const mat4& matrix)
+        {
+            matrixStack = mat4Stack();
+            matrixStack.push(matrix);
+            dirty = true;
+        }
+
+        inline void set(const dmat4& matrix)
+        {
+            matrixStack = mat4Stack();
+            matrixStack.push(matrix);
+            dirty = true;
+        }
+
+        inline void push(const mat4& matrix)
+        {
+            matrixStack.push(matrix);
+            dirty = true;
+        }
+
+        const mat4& top() const { return matrixStack.top(); }
+
+        inline void pop()
+        {
+            matrixStack.pop();
+            dirty = true;
+        }
+
+        inline void dispatch(CommandBuffer& commandBuffer)
+        {
+            if (dirty)
+            {
+                const PipelineLayout::Implementation* pipelineLayout = commandBuffer.getCurrentPipelineLayout()->implementation();
+                vkCmdPushConstants(commandBuffer, *pipelineLayout, stageFlags, offset, sizeof(vsg::mat4), matrixStack.top().data());
+                dirty = false;
+            }
+        }
+    };
+
     class State : public Inherit<Object, State>
     {
     public:
         State() :
             dirty(false) {}
 
-        using PipelineStack = StateStack<BindPipeline>;
+        using ComputePipelineStack = StateStack<BindComputePipeline>;
+        using GraphicsPipelineStack = StateStack<BindGraphicsPipeline>;
         using DescriptorStacks = std::vector<StateStack<BindDescriptorSets>>;
         using VertexBuffersStack = StateStack<BindVertexBuffers>;
         using IndexBufferStack = StateStack<BindIndexBuffer>;
         using PushConstantsMap = std::map<uint32_t, StateStack<PushConstants>>;
 
         bool dirty;
-        PipelineStack pipelineStack;
+        ComputePipelineStack computePipelineStack;
+        GraphicsPipelineStack graphicsPipelineStack;
+
         DescriptorStacks descriptorStacks;
+
+        MatrixStack projectionMatrixStack{0};
+        MatrixStack viewMatrixStack{64};
+        MatrixStack modelMatrixStack{128};
+
+        PushConstantsMap pushConstantsMap;
+
         VertexBuffersStack vertexBuffersStack;
         IndexBufferStack indexBufferStack;
-        PushConstantsMap pushConstantsMap;
 
         inline void dispatch(CommandBuffer& commandBuffer)
         {
             if (dirty)
             {
-                pipelineStack.dispatch(commandBuffer);
+                computePipelineStack.dispatch(commandBuffer);
+                graphicsPipelineStack.dispatch(commandBuffer);
                 for(auto& descriptorStack : descriptorStacks)
                 {
                     descriptorStack.dispatch(commandBuffer);
                 }
 
-                vertexBuffersStack.dispatch(commandBuffer);
-                indexBufferStack.dispatch(commandBuffer);
+                projectionMatrixStack.dispatch(commandBuffer);
+                viewMatrixStack.dispatch(commandBuffer);
+                modelMatrixStack.dispatch(commandBuffer);
+
                 for (auto& pushConstantsStack : pushConstantsMap)
                 {
                     pushConstantsStack.second.dispatch(commandBuffer);
                 }
+
+                vertexBuffersStack.dispatch(commandBuffer);
+                indexBufferStack.dispatch(commandBuffer);
                 dirty = false;
             }
         }

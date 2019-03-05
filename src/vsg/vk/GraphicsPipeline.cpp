@@ -11,13 +11,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/GraphicsPipeline.h>
+#include <vsg/vk/State.h>
 
 using namespace vsg;
 
-GraphicsPipeline::GraphicsPipeline(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator) :
-    Inherit(pipeline, VK_PIPELINE_BIND_POINT_GRAPHICS, device, pipelineLayout, allocator),
-    _renderPass(renderPass),
-    _pipelineStates(pipelineStates)
+
+////////////////////////////////////////////////////////////////////////
+//
+// GraphicsPipeline
+//
+GraphicsPipeline::GraphicsPipeline(PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator):
+    _pipelineLayout(pipelineLayout),
+    _pipelineStates(pipelineStates),
+    _allocator(allocator)
 {
 }
 
@@ -25,11 +31,43 @@ GraphicsPipeline::~GraphicsPipeline()
 {
 }
 
-GraphicsPipeline::Result GraphicsPipeline::create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator)
+void GraphicsPipeline::compile(Context& context)
+{
+    if (!_implementation)
+    {
+        _pipelineLayout->compile(context);
+
+        for(auto& pipelineState : _pipelineStates)
+        {
+            pipelineState->compile(context);
+        }
+
+        GraphicsPipelineStates full_pipelineStates = _pipelineStates;
+        full_pipelineStates.emplace_back(context.viewport);
+
+        _implementation = GraphicsPipeline::Implementation::create(context.device, context.renderPass, _pipelineLayout, full_pipelineStates, _allocator);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// GraphicsPipeline::Implementation
+//
+GraphicsPipeline::Implementation::Implementation(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator) :
+    _pipeline(pipeline),
+    _device(device),
+    _renderPass(renderPass),
+    _pipelineLayout(pipelineLayout),
+    _pipelineStates(pipelineStates),
+    _allocator(allocator)
+{
+}
+
+GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator)
 {
     if (!device || !renderPass || !pipelineLayout)
     {
-        return GraphicsPipeline::Result("Error: vsg::GraphicsPipeline::create(...) failed to create graphics pipeline, inputs not defined.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return Result("Error: vsg::GraphicsPipeline::create(...) failed to create graphics pipeline, inputs not defined.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
@@ -48,12 +86,53 @@ GraphicsPipeline::Result GraphicsPipeline::create(Device* device, RenderPass* re
     VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &pipeline);
     if (result == VK_SUCCESS)
     {
-        return Result(new GraphicsPipeline(pipeline, device, renderPass, pipelineLayout, pipelineStates, allocator));
+        return Result(new Implementation(pipeline, device, renderPass, pipelineLayout, pipelineStates, allocator));
     }
     else
     {
-        return GraphicsPipeline::Result("Error: vsg::Pipeline::createGraphics(...) failed to create VkPipeline.", result);
+        return Result("Error: vsg::Pipeline::createGraphics(...) failed to create VkPipeline.", result);
     }
+}
+
+GraphicsPipeline::Implementation::~Implementation()
+{
+    vkDestroyPipeline(*_device, _pipeline, _allocator);
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// BindGraphicsPipeline
+//
+BindGraphicsPipeline::BindGraphicsPipeline(GraphicsPipeline* pipeline) :
+    _pipeline(pipeline)
+{
+}
+
+BindGraphicsPipeline::~BindGraphicsPipeline()
+{
+}
+
+void BindGraphicsPipeline::pushTo(State& state) const
+{
+    state.dirty = true;
+    state.graphicsPipelineStack.push(this);
+}
+
+void BindGraphicsPipeline::popFrom(State& state) const
+{
+    state.dirty = true;
+    state.graphicsPipelineStack.pop();
+}
+
+void BindGraphicsPipeline::dispatch(CommandBuffer& commandBuffer) const
+{
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, *_pipeline);
+    commandBuffer.setCurrentPipelineLayout(_pipeline->getPipelineLayout());
+}
+
+void BindGraphicsPipeline::compile(Context& context)
+{
+    if (_pipeline) _pipeline->compile(context);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -75,19 +154,31 @@ void ShaderStages::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
     pipelineInfo.pStages = data();
 }
 
-void ShaderStages::update()
+void ShaderStages::compile(Context& context)
 {
     _stages.resize(_shaderModules.size());
     for (size_t i = 0; i < _shaderModules.size(); ++i)
     {
         VkPipelineShaderStageCreateInfo& stageInfo = (_stages)[i];
         ShaderModule* sm = _shaderModules[i];
+        sm->compile(context);
         stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        stageInfo.stage = sm->getShader()->stage();
+        stageInfo.stage = sm->stage();
         stageInfo.module = *sm;
-        stageInfo.pName = sm->getShader()->entryPointName().c_str();
+        stageInfo.pName = sm->entryPointName().c_str();
     }
 }
+
+void ShaderStages::release()
+{
+    for(auto& shaderModules : _shaderModules)
+    {
+        shaderModules->release();
+    }
+
+    _stages.clear();
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 //

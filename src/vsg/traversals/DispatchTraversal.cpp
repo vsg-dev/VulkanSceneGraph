@@ -56,6 +56,16 @@ DispatchTraversal::~DispatchTraversal()
     delete _data;
 }
 
+void DispatchTraversal::setProjectionMatrix(const dmat4& projMatrix)
+{
+    _data->_state.projectionMatrixStack.set(projMatrix);
+}
+
+void DispatchTraversal::setViewMatrix(const dmat4& viewMatrix)
+{
+    _data->_state.viewMatrixStack.set(viewMatrix);
+}
+
 void DispatchTraversal::apply(const Object& object)
 {
     //    std::cout<<"Visiting object"<<std::endl;

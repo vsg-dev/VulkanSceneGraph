@@ -29,9 +29,9 @@ namespace vsg
         UpdatePipeline(vsg::ViewportState* viewportState) :
             _viewportState(viewportState) {}
 
-        void apply(vsg::BindPipeline& bindPipeline)
+        void apply(vsg::BindGraphicsPipeline& bindPipeline)
         {
-            vsg::GraphicsPipeline* graphicsPipeline = dynamic_cast<vsg::GraphicsPipeline*>(bindPipeline.getPipeline());
+            GraphicsPipeline* graphicsPipeline = bindPipeline.getPipeline();
             if (graphicsPipeline)
             {
                 bool needToRegenerateGraphicsPipeline = false;
@@ -44,11 +44,8 @@ namespace vsg
                 }
                 if (needToRegenerateGraphicsPipeline)
                 {
-
-                    vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getRenderPass()->getDevice(),
-                                                                                                    graphicsPipeline->getRenderPass(),
-                                                                                                    graphicsPipeline->getPipelineLayout(),
-                                                                                                    graphicsPipeline->getPipelineStates());
+                    // TODO need to invoke a new compile traversal
+                    vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getPipelineLayout(), graphicsPipeline->getPipelineStates());
 
                     bindPipeline.setPipeline(new_pipeline);
                 }
@@ -137,6 +134,8 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
 
     // set up the dispatching of the commands into the command buffer
     DispatchTraversal dispatchTraversal(commandBuffer);
+    dispatchTraversal.setProjectionMatrix(_projMatrix->value());
+    dispatchTraversal.setViewMatrix(_viewMatrix->value());
 
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;

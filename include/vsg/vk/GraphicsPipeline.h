@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/Command.h>
-#include <vsg/vk/Pipeline.h>
 #include <vsg/vk/PipelineLayout.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/ShaderModule.h>
@@ -30,6 +29,12 @@ namespace vsg
 
         virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const = 0;
 
+        // compile the Vulkan object, context parameter used for Device
+        virtual void compile(Context& /*context*/) {}
+
+        // remove the local reference to the Vulkan implementation
+        virtual void release() {}
+
     protected:
         virtual ~GraphicsPipelineState() {}
     };
@@ -37,29 +42,85 @@ namespace vsg
 
     using GraphicsPipelineStates = std::vector<ref_ptr<GraphicsPipelineState>>;
 
-    class VSG_DECLSPEC GraphicsPipeline : public Inherit<Pipeline, GraphicsPipeline>
+    class VSG_DECLSPEC GraphicsPipeline : public Inherit<Object, GraphicsPipeline>
     {
     public:
-        using Result = vsg::Result<GraphicsPipeline, VkResult, VK_SUCCESS>;
 
-        /** Crreate a GraphicsPipeline.*/
-        static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
+        GraphicsPipeline(PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
 
-        RenderPass* getRenderPass() { return _renderPass; }
-        const RenderPass* getRenderPass() const { return _renderPass; }
+        PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
+        const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
 
         GraphicsPipelineStates& getPipelineStates() { return _pipelineStates; }
         const GraphicsPipelineStates& getPipelineStates() const { return _pipelineStates; }
+
+        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        {
+        public:
+            Implementation(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
+            virtual ~Implementation();
+
+            using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
+
+            /** Crreate a GraphicsPipeline.*/
+            static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
+
+            VkPipeline _pipeline;
+
+            // TODO need to convert to use Implementation versions of RenderPass and PipelineLayout
+            ref_ptr<Device> _device;
+            ref_ptr<RenderPass> _renderPass;
+            ref_ptr<PipelineLayout> _pipelineLayout;
+            GraphicsPipelineStates _pipelineStates;
+            ref_ptr<AllocationCallbacks> _allocator;
+        };
+
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context);
+
+        // remove the local reference to the Vulkan implementation
+        void release() { _implementation = nullptr; }
+
+        operator VkPipeline() const { return _implementation->_pipeline; }
 
     protected:
         GraphicsPipeline(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator);
 
         virtual ~GraphicsPipeline();
 
+        ref_ptr<Device> _device;
         ref_ptr<RenderPass> _renderPass;
+        ref_ptr<PipelineLayout> _pipelineLayout;
         GraphicsPipelineStates _pipelineStates;
+        ref_ptr<AllocationCallbacks> _allocator;
+
+        ref_ptr<Implementation> _implementation;
     };
     VSG_type_name(vsg::GraphicsPipeline);
+
+    class VSG_DECLSPEC BindGraphicsPipeline : public Inherit<StateCommand, BindGraphicsPipeline>
+    {
+    public:
+        BindGraphicsPipeline(GraphicsPipeline* pipeline);
+
+        void setPipeline(GraphicsPipeline* pipeline) { _pipeline = pipeline; }
+        GraphicsPipeline* getPipeline() { return _pipeline; }
+        const GraphicsPipeline* getPipeline() const { return _pipeline; }
+
+        void pushTo(State& state) const override;
+        void popFrom(State& state) const override;
+        void dispatch(CommandBuffer& commandBuffer) const override;
+
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context) override;
+
+    public:
+        virtual ~BindGraphicsPipeline();
+
+        ref_ptr<GraphicsPipeline> _pipeline;
+    };
+    VSG_type_name(vsg::BindGraphicsPipeline);
+
 
     class VSG_DECLSPEC ShaderStages : public Inherit<GraphicsPipelineState, ShaderStages>
     {
@@ -71,11 +132,8 @@ namespace vsg
         void setShaderModules(const ShaderModules& shaderModules)
         {
             _shaderModules = shaderModules;
-            update();
         }
         const ShaderModules& getShaderModules() const { return _shaderModules; }
-
-        void update();
 
         std::size_t size() const { return _stages.size(); }
 
@@ -84,12 +142,19 @@ namespace vsg
 
         void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context);
+
+        // remove the local reference to the Vulkan implementation
+        void release();
+
     protected:
         virtual ~ShaderStages();
 
+        ShaderModules _shaderModules;
+
         using Stages = std::vector<VkPipelineShaderStageCreateInfo>;
         Stages _stages;
-        ShaderModules _shaderModules;
     };
     VSG_type_name(vsg::ShaderStages);
 

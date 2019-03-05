@@ -72,7 +72,6 @@ set(SOURCES
     vk/Instance.cpp
     vk/MemoryManager.cpp
     vk/PhysicalDevice.cpp
-    vk/Pipeline.cpp
     vk/PipelineLayout.cpp
     vk/PushConstants.cpp
     vk/RenderPass.cpp

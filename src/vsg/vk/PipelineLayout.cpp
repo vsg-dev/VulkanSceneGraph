@@ -32,7 +32,14 @@ PipelineLayout::~PipelineLayout()
 
 void PipelineLayout::compile(Context& context)
 {
-    if (!_implementation) _implementation = PipelineLayout::Implementation::create(context.device, _descriptorSetLayouts, _pushConstantRanges, _flags);
+    if (!_implementation)
+    {
+        for (auto dsl : _descriptorSetLayouts)
+        {
+            dsl->compile(context);
+        }
+        _implementation = PipelineLayout::Implementation::create(context.device, _descriptorSetLayouts, _pushConstantRanges, _flags);
+    }
 }
 
 //////////////////////////////////////
@@ -63,7 +70,10 @@ PipelineLayout::Implementation::Result PipelineLayout::Implementation::create(De
     }
 
     std::vector<VkDescriptorSetLayout> layouts;
-    for (auto dsl : descriptorSetLayouts) layouts.push_back(*dsl);
+    for (auto& dsl : descriptorSetLayouts)
+    {
+        layouts.push_back(*dsl);
+    }
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo;
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;

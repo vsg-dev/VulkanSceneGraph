@@ -11,12 +11,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/ComputePipeline.h>
+#include <vsg/traversals/CompileTraversal.h>
+#include <vsg/vk/State.h>
 
 using namespace vsg;
 
-ComputePipeline::ComputePipeline(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator) :
-    Inherit(pipeline, VK_PIPELINE_BIND_POINT_COMPUTE, device, pipelineLayout, allocator),
-    _shaderModule(shaderModule)
+////////////////////////////////////////////////////////////////////////
+//
+// ComputePipeline
+//
+ComputePipeline::ComputePipeline(PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator) :
+    _pipelineLayout(pipelineLayout),
+    _shaderModule(shaderModule),
+    _allocator(allocator)
 {
 }
 
@@ -24,7 +31,29 @@ ComputePipeline::~ComputePipeline()
 {
 }
 
-ComputePipeline::Result ComputePipeline::create(Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator)
+void ComputePipeline::compile(Context& context)
+{
+    if (!_implementation)
+    {
+        _pipelineLayout->compile(context);
+        _shaderModule->compile(context);
+        _implementation = ComputePipeline::Implementation::create(context.device, _pipelineLayout, _shaderModule, _allocator);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// ComputePipeline::Implementation
+//
+ComputePipeline::Implementation::Implementation(VkPipeline pipeline, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator) :
+    _pipeline(pipeline),
+    _pipelineLayout(pipelineLayout),
+    _shaderModule(shaderModule),
+    _allocator(allocator)
+{
+}
+
+ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator)
 {
     if (!device || !pipelineLayout || !shaderModule)
     {
@@ -35,7 +64,7 @@ ComputePipeline::Result ComputePipeline::create(Device* device, PipelineLayout* 
     stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     stageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
     stageInfo.module = *shaderModule;
-    stageInfo.pName = shaderModule->getShader()->entryPointName().c_str();
+    stageInfo.pName = shaderModule->entryPointName().c_str();
 
     VkComputePipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
@@ -47,10 +76,47 @@ ComputePipeline::Result ComputePipeline::create(Device* device, PipelineLayout* 
     VkResult result = vkCreateComputePipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &pipeline);
     if (result == VK_SUCCESS)
     {
-        return Result(new ComputePipeline(pipeline, device, pipelineLayout, shaderModule, allocator));
+        return Result(new ComputePipeline::Implementation(pipeline, pipelineLayout, shaderModule, allocator));
     }
     else
     {
-        return ComputePipeline::Result("Error: vsg::Pipeline::createCompute(...) failed to create VkPipeline.", result);
+        return Result("Error: vsg::Pipeline::createCompute(...) failed to create VkPipeline.", result);
     }
 }
+
+////////////////////////////////////////////////////////////////////////
+//
+// BindComputePipeline
+//
+BindComputePipeline::BindComputePipeline(ComputePipeline* pipeline) :
+    _pipeline(pipeline)
+{
+}
+
+BindComputePipeline::~BindComputePipeline()
+{
+}
+
+void BindComputePipeline::pushTo(State& state) const
+{
+    state.dirty = true;
+    state.computePipelineStack.push(this);
+}
+
+void BindComputePipeline::popFrom(State& state) const
+{
+    state.dirty = true;
+    state.computePipelineStack.pop();
+}
+
+void BindComputePipeline::dispatch(CommandBuffer& commandBuffer) const
+{
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, *_pipeline);
+    commandBuffer.setCurrentPipelineLayout(_pipeline->getPipelineLayout());
+}
+
+void BindComputePipeline::compile(Context& context)
+{
+    if (_pipeline) _pipeline->compile(context);
+}
+
