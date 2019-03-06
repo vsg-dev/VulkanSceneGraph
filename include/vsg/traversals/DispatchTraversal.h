@@ -25,7 +25,9 @@ namespace vsg
     class QuadGroup;
     class LOD;
     class StateGroup;
+    class MatrixTransform;
     class Command;
+    class Commands;
     class CommandBuffer;
 
     class VSG_DECLSPEC DispatchTraversal : public Object
@@ -45,7 +47,9 @@ namespace vsg
         void apply(const LOD& object);
 
         // Vulkan nodes
+        void apply(const MatrixTransform& mt);
         void apply(const StateGroup& object);
+        void apply(const Commands& commands);
         void apply(const Command& command);
 
     protected:
