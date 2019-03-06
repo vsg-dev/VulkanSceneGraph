@@ -23,8 +23,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    struct Context
+    class Context
     {
+    public:
         ref_ptr<Device> device;
         ref_ptr<CommandPool> commandPool;
         ref_ptr<RenderPass> renderPass;
