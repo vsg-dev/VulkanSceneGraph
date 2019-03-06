@@ -29,11 +29,13 @@ PushConstants::~PushConstants()
 void PushConstants::pushTo(State& state) const
 {
     state.pushConstantsMap[_offset].push(this);
+    state.dirty = true;
 }
 
 void PushConstants::popFrom(State& state) const
 {
     state.pushConstantsMap[_offset].pop();
+    state.dirty = true;
 }
 
 void PushConstants::dispatch(CommandBuffer& commandBuffer) const
