@@ -23,6 +23,7 @@ set(SOURCES
 
     nodes/Commands.cpp
     nodes/Group.cpp
+    nodes/Geometry.cpp
     nodes/Node.cpp
     nodes/QuadGroup.cpp
     nodes/StateGroup.cpp
