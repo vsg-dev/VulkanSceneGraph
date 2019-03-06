@@ -184,4 +184,21 @@ namespace vsg
         std::vector<VkBufferView> _texelBufferViews;
     };
 
+    class Texture : public Inherit<Descriptor, Texture>
+    {
+    public:
+        Texture();
+
+        void compile(Context& context) override;
+
+        void assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
+
+        // settings
+        VkSamplerCreateInfo _samplerInfo;
+        ref_ptr<Data> _textureData;
+
+        ref_ptr<vsg::Descriptor> _implementation;
+    };
+    VSG_type_name(vsg::Texture)
+
 } // namespace vsg
