@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     // forward declare
-    class Context;
+    struct Context;
 
     template<typename T>
     bool readFile(T& buffer, const std::string& filename)

@@ -71,7 +71,7 @@ DescriptorSet::Implementation::Result DescriptorSet::Implementation::create(Devi
     VkDescriptorSetAllocateInfo descriptSetAllocateInfo = {};
     descriptSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     descriptSetAllocateInfo.descriptorPool = *descriptorPool;
-    descriptSetAllocateInfo.descriptorSetCount = vkdescriptorSetLayouts.size();
+    descriptSetAllocateInfo.descriptorSetCount = static_cast<uint32_t>(vkdescriptorSetLayouts.size());
     descriptSetAllocateInfo.pSetLayouts = vkdescriptorSetLayouts.data();
 
     VkDescriptorSet descriptorSet;
