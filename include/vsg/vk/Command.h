@@ -20,7 +20,7 @@ namespace vsg
 {
     class CommandBuffer;
     class State;
-    struct Context;
+    class Context;
 
     class Command : public Inherit<Node, Command>
     {
