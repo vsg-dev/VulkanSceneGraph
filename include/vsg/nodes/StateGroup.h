@@ -35,6 +35,9 @@ namespace vsg
 
         using StateCommands = std::vector<ref_ptr<StateCommand>>;
 
+        StateCommands& getStateCommands() { return _stateCommands; }
+        const StateCommands& getStateCommands() const { return _stateCommands; }
+
         void add(ref_ptr<StateCommand> stateCommand)
         {
             _stateCommands.push_back(stateCommand);

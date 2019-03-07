@@ -27,6 +27,9 @@ namespace vsg
 
         DescriptorSet(const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors);
 
+        const DescriptorSetLayouts& getDescriptorSetLayouts()const { return _descriptorSetLayouts; }
+        const Descriptors& getDescriptors() const { return _descriptors; }
+
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
         public:
@@ -91,6 +94,11 @@ namespace vsg
             _descriptorSets(descriptorSets)
         {
         }
+
+        VkPipelineBindPoint getBindPoint() { return _bindPoint; }
+        const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
+        uint32_t getFirstSet() { return _firstSet; }
+        const DescriptorSets& getDescriptorSets() const { return _descriptorSets; }
 
         void pushTo(State& state) const override;
         void popFrom(State& state) const override;
