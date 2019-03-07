@@ -290,7 +290,8 @@ void Viewer::compile()
         uint32_t maxDescriptors = 1000;
         DescriptorPoolSizes descriptorPoolSizes
         {
-            {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, maxDescriptors} // type, descriptorCount // total descriptors of a type across all sets
+            { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, maxDescriptors }, // type, descriptorCount // total descriptors of a type across all sets
+            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, maxDescriptors } // type, descriptorCount // total descriptors of a type across all sets
         };
 
         vsg::CompileTraversal compile;

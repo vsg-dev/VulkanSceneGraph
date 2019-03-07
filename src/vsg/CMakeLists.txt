@@ -82,6 +82,7 @@ set(SOURCES
     vk/ShaderModule.cpp
     vk/Surface.cpp
     vk/Swapchain.cpp
+    vk/Uniform.cpp
 )
 
 # add platform specific Window implementation

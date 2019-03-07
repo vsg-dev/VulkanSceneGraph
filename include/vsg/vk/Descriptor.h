@@ -184,7 +184,7 @@ namespace vsg
         std::vector<VkBufferView> _texelBufferViews;
     };
 
-    class Texture : public Inherit<Descriptor, Texture>
+    class VSG_DECLSPEC Texture : public Inherit<Descriptor, Texture>
     {
     public:
         Texture();

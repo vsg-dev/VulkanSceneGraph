@@ -111,6 +111,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/State.h>
 #include <vsg/vk/Surface.h>
 #include <vsg/vk/Swapchain.h>
+#include <vsg/vk/Uniform.h>
 
 // Input/Output header files
 #include <vsg/io/AsciiInput.h>
