@@ -23,14 +23,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class Geometry : public Inherit<GraphicsNode, Geometry>
+    class Geometry : public Inherit<Node, Geometry>
     {
     public:
         Geometry(Allocator* allocator = nullptr);
 
         void accept(DispatchTraversal& dv) const override;
 
-        void compile(Context& context) override;
+        void compile(Context& context);
 
         using Commands = std::vector<ref_ptr<Command>>;
 

@@ -23,8 +23,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    struct Context
+    class Context
     {
+    public:
         ref_ptr<Device> device;
         ref_ptr<CommandPool> commandPool;
         ref_ptr<RenderPass> renderPass;
@@ -37,20 +38,6 @@ namespace vsg
         ref_ptr<mat4Value> viewMatrix;
     };
 
-    class GraphicsNode : public Inherit<Group, GraphicsNode>
-    {
-    public:
-        GraphicsNode(Allocator* allocator = nullptr):
-            Inherit(allocator) {}
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        virtual void compile(Context& context) = 0;
-    };
-    VSG_type_name(vsg::GraphicsNode)
-
-
     class VSG_DECLSPEC CompileTraversal : public Visitor
     {
     public:
@@ -59,9 +46,8 @@ namespace vsg
 
         void apply(Object& object);
         void apply(Command& command);
-        void apply(Group& group);
         void apply(StateGroup& stateGroup);
-        void apply(GraphicsNode& graphics);
+        void apply(Geometry& geometry);
 
         Context context;
     };

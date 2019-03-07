@@ -18,6 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Node.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/Geometry.h>
 
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
@@ -287,6 +289,14 @@ void Visitor::apply(LOD& value)
 void Visitor::apply(StateGroup& value)
 {
     apply(static_cast<Group&>(value));
+}
+void Visitor::apply(MatrixTransform& value)
+{
+    apply(static_cast<Group&>(value));
+}
+void Visitor::apply(Geometry& value)
+{
+    apply(static_cast<Node&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

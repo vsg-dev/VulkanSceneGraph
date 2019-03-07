@@ -25,7 +25,6 @@ namespace vsg
     class State;
     class CommandBuffer;
 
-
     class VSG_DECLSPEC StateGroup : public Inherit<Group, StateGroup>
     {
     public:
