@@ -15,6 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/CompileTraversal.h>
 
 #include <chrono>
+#include <set>
+#include <map>
 #include <iostream>
 
 using namespace vsg;
@@ -276,8 +278,86 @@ bool Viewer::submitNextFrame()
     return true;
 }
 
+class CollectDescriptorStats : public ConstVisitor
+{
+public:
+
+    using Descriptors = std::set<const Descriptor*>;
+    using DescriptorSets = std::set<const DescriptorSet*>;
+    using DescriptorTypeMap = std::map<VkDescriptorType, uint32_t>;
+
+    void apply(const Object& object)
+    {
+        object.traverse(*this);
+    }
+
+    void apply(const StateGroup& stategroup)
+    {
+        for(auto& command : stategroup.getStateCommands())
+        {
+#if 1
+            const BindDescriptorSets* bds = dynamic_cast<const BindDescriptorSets*>(command.get());
+            if (bds)
+            {
+                for(auto& descriptorSet : bds->getDescriptorSets())
+                {
+                    apply(*descriptorSet);
+                }
+            }
+#else
+            command->accept(*this);
+#endif
+        }
+
+        stategroup.traverse(*this);
+    }
+
+    void apply(const DescriptorSet& descriptorSet)
+    {
+        if (descriptorSets.count(&descriptorSet)==0)
+        {
+            descriptorSets.insert(&descriptorSet);
+            for(auto& descriptor : descriptorSet.getDescriptors())
+            {
+                apply(*descriptor);
+            }
+        }
+    }
+
+    void apply(const Descriptor& descriptor)
+    {
+        if (descriptors.count(&descriptor)==0)
+        {
+            descriptors.insert(&descriptor);
+            ++descriptorTypeMap[descriptor._descriptorType];
+        }
+    }
+
+
+    uint32_t computeNumDescriptorSets() const
+    {
+        return descriptorSets.size();
+    }
+
+    DescriptorPoolSizes computeDescriptorPoolSizes() const
+    {
+        DescriptorPoolSizes poolSizes;
+        for(auto& [type, count] : descriptorTypeMap)
+        {
+            poolSizes.push_back(VkDescriptorPoolSize{type, count});
+        }
+        return poolSizes;
+    }
+
+    Descriptors descriptors;
+    DescriptorSets descriptorSets;
+    DescriptorTypeMap  descriptorTypeMap;
+};
+
+
 void Viewer::compile()
 {
+
     for (auto& window : _windows)
     {
         // compile the Vulkan objects
@@ -285,20 +365,34 @@ void Viewer::compile()
         vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice(window->physicalDevice());
         vsg::ref_ptr<vsg::Device> device(window->device());
 
-        // TODO need to traverse the stages to figure out the maxSets and descriptorPoolSizes, hardwire for now
-        uint32_t maxSets = 1090;
-        uint32_t maxDescriptors = 1000;
-        DescriptorPoolSizes descriptorPoolSizes
+        CollectDescriptorStats collectStats;
+        for(auto& stage : window->stages())
         {
-            {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, maxDescriptors} // type, descriptorCount // total descriptors of a type across all sets
-        };
+            GraphicsStage* gs = dynamic_cast<GraphicsStage*>(stage.get());
+            if (gs)
+            {
+                gs->_commandGraph->accept(collectStats);
+            }
+        }
+
+        uint32_t maxSets = collectStats.computeNumDescriptorSets();
+        DescriptorPoolSizes descriptorPoolSizes = collectStats.computeDescriptorPoolSizes();
+
+
+        std::cout<<"maxSets = "<<maxSets<<std::endl;
+        std::cout<<"    type\tcount"<<std::endl;
+        for(auto& [type, count] : descriptorPoolSizes)
+        {
+            std::cout<<"    "<<type<<"\t\t"<<count<<std::endl;
+        }
 
         vsg::CompileTraversal compile;
         compile.context.device = window->device();
         compile.context.commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
-        compile.context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
         compile.context.renderPass = window->renderPass();
         compile.context.graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());
+
+        if (maxSets>0) compile.context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
 
         for(auto& stage : window->stages())
         {
