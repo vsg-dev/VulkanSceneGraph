@@ -130,6 +130,7 @@ Texture::Texture() :
     Inherit(0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
 {
     // set default sampler info
+    _samplerInfo = {};
     _samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
     _samplerInfo.minFilter = VK_FILTER_LINEAR;
     _samplerInfo.magFilter = VK_FILTER_LINEAR;

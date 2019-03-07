@@ -23,7 +23,7 @@ namespace vsg
     {
     public:
 
-        ComputePipeline(PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator);
+        ComputePipeline(PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator = nullptr);
 
         PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
         const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
@@ -34,7 +34,8 @@ namespace vsg
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
         public:
-            Implementation(VkPipeline pipeline, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator);
+            Implementation(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator);
+            virtual ~Implementation();
 
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
@@ -42,6 +43,8 @@ namespace vsg
             static Result create(Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator = nullptr);
 
             VkPipeline _pipeline;
+
+            ref_ptr<Device> _device;
             ref_ptr<PipelineLayout> _pipelineLayout;
             ref_ptr<ShaderModule> _shaderModule;
             ref_ptr<AllocationCallbacks> _allocator;

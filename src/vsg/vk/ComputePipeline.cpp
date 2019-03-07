@@ -45,12 +45,18 @@ void ComputePipeline::compile(Context& context)
 //
 // ComputePipeline::Implementation
 //
-ComputePipeline::Implementation::Implementation(VkPipeline pipeline, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator) :
+ComputePipeline::Implementation::Implementation(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator) :
+    _device(device),
     _pipeline(pipeline),
     _pipelineLayout(pipelineLayout),
     _shaderModule(shaderModule),
     _allocator(allocator)
 {
+}
+
+ComputePipeline::Implementation::~Implementation()
+{
+    vkDestroyPipeline(*_device, _pipeline, _allocator);
 }
 
 ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator)
@@ -76,7 +82,7 @@ ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(
     VkResult result = vkCreateComputePipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &pipeline);
     if (result == VK_SUCCESS)
     {
-        return Result(new ComputePipeline::Implementation(pipeline, pipelineLayout, shaderModule, allocator));
+        return Result(new ComputePipeline::Implementation(pipeline, device, pipelineLayout, shaderModule, allocator));
     }
     else
     {
