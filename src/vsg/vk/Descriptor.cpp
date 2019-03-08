@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // vsg::transferImageData
@@ -122,6 +123,17 @@ ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQue
     return ImageData(textureSampler, textureImageView, VK_IMAGE_LAYOUT_UNDEFINED);
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// DescriptorBuffer
+//
+void DescriptorBuffer::copyDataListToBuffers()
+{
+    vsg::copyDataListToBuffers(_bufferDataList);
+}
+
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // Texture
@@ -166,4 +178,31 @@ void Texture::compile(Context& context)
 void Texture::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
 {
     if (_implementation) _implementation->assignTo(wds, descriptorSet);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// Uniform
+//
+Uniform::Uniform() :
+    Inherit(0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+{
+}
+
+void Uniform::compile(Context& context)
+{
+    auto bufferDataList = vsg::createHostVisibleBuffer(context.device, _dataList, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    vsg::copyDataListToBuffers(bufferDataList);
+    _implementation = vsg::DescriptorBuffer::create(_dstBinding, _dstArrayElement, _descriptorType, bufferDataList);
+}
+
+void Uniform::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+{
+    if (_implementation) _implementation->assignTo(wds, descriptorSet);
+}
+
+void Uniform::copyDataListToBuffers()
+{
+    if (_implementation) _implementation->copyDataListToBuffers();
 }

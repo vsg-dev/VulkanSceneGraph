@@ -149,6 +149,8 @@ namespace vsg
             wds.pBufferInfo = _bufferInfos.data();
         }
 
+        void copyDataListToBuffers();
+
     protected:
         BufferDataList _bufferDataList;
         std::vector<VkDescriptorBufferInfo> _bufferInfos;
@@ -200,5 +202,23 @@ namespace vsg
         ref_ptr<vsg::Descriptor> _implementation;
     };
     VSG_type_name(vsg::Texture)
+
+    class VSG_DECLSPEC Uniform : public Inherit<Descriptor, Uniform>
+    {
+    public:
+        Uniform();
+
+        void compile(Context& context) override;
+
+        void assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
+
+        void copyDataListToBuffers();
+
+        // settings
+        DataList _dataList;
+
+        ref_ptr<vsg::DescriptorBuffer> _implementation;
+    };
+    VSG_type_name(vsg::Uniform)
 
 } // namespace vsg
