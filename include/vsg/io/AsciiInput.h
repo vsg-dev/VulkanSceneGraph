@@ -52,9 +52,29 @@ namespace vsg
             }
         }
 
+        template<typename R, typename T>
+        void _read_withcast(size_t num, T* value)
+        {
+            if (num == 1)
+            {
+                R v;
+                _input >> v;
+                *value = static_cast<T>(v);
+            }
+            else
+            {
+                R v;
+                for (; num > 0; --num, ++value)
+                {
+                    _input >> v;
+                    *value = static_cast<T>(v);
+                }
+            }
+        }
+
         // read value(s)
-        virtual void read(size_t num, int8_t* value) override { _read(num, value); }
-        virtual void read(size_t num, uint8_t* value) override { _read(num, value); }
+        virtual void read(size_t num, int8_t* value) override { _read_withcast<int16_t>(num, value); }
+        virtual void read(size_t num, uint8_t* value) override { _read_withcast<uint16_t>(num, value); }
         virtual void read(size_t num, int16_t* value) override { _read(num, value); }
         virtual void read(size_t num, uint16_t* value) override { _read(num, value); }
         virtual void read(size_t num, int32_t* value) override { _read(num, value); }

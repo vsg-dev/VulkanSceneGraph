@@ -49,9 +49,24 @@ namespace vsg
             }
         }
 
+        template<typename R, typename T>
+        void _write_withcast(size_t num, const T* value)
+        {
+            if (num == 1)
+            {
+                _output << ' ' << static_cast<R>(*value) << '\n';
+            }
+            else
+            {
+                for (; num > 0; --num, ++value) _output << ' ' << static_cast<R>(*value);
+                _output << '\n';
+            }
+        }
+
         // write contiguous array of value(s)
-        void write(size_t num, const int8_t* value) override { _write(num, value); }
-        void write(size_t num, const uint8_t* value) override { _write(num, value); }
+        void write(size_t num, const int8_t* value) override { _write_withcast<int16_t>(num, value); }
+        void write(size_t num, const uint8_t* value) override { _write_withcast<uint16_t>(num, value); }
+
         void write(size_t num, const int16_t* value) override { _write(num, value); }
         void write(size_t num, const uint16_t* value) override { _write(num, value); }
         void write(size_t num, const int32_t* value) override { _write(num, value); }

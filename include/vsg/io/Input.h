@@ -61,6 +61,10 @@ namespace vsg
         void read(size_t num, mat4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, dmat4* value) { read(num * value->size(), value->data()); }
 
+        // treat non standard type as raw data,
+        template<typename T>
+        void read(size_t num, T* value) { read(num*sizeof(T), reinterpret_cast<uint8_t*>(value)); }
+
         // match property name and read value(s)
         template<typename... Args>
         void read(const char* propertyName, Args&... args)

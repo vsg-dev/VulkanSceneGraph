@@ -61,6 +61,9 @@ namespace vsg
         void write(size_t num, const mat4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const dmat4* value) { write(num * value->size(), value->data()); }
 
+        template<typename T>
+        void write(size_t num, const T* value) { write(num*sizeof(T), reinterpret_cast<const uint8_t*>(value)); }
+
         // match propertyname and write value(s)
         template<typename... Args>
         void write(const char* propertyName, Args&... args)
