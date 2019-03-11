@@ -15,10 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Object.h>
 
 #include <vsg/io/Input.h>
-#include <vsg/io/ObjectFactory.h>
 
 #include <fstream>
-#include <unordered_map>
 
 namespace vsg
 {
@@ -26,8 +24,6 @@ namespace vsg
     class VSG_DECLSPEC BinaryInput : public vsg::Input
     {
     public:
-        using ObjectID = uint32_t;
-
         explicit BinaryInput(std::istream& input);
 
         bool matchPropertyName(const char*) override { return true; }
@@ -68,16 +64,6 @@ namespace vsg
 
     protected:
         std::istream& _input;
-
-#if 0
-        using ObjectIDMap = std::map<ObjectID, vsg::ref_ptr<vsg::Object>>;
-#else
-        // 47% faster for overall write for large scene graph than std::map<>!
-        using ObjectIDMap = std::unordered_map<ObjectID, vsg::ref_ptr<vsg::Object>>;
-#endif
-
-        ObjectIDMap _objectIDMap;
-        vsg::ref_ptr<vsg::ObjectFactory> _objectFactory;
     };
 
 } // namespace vsg

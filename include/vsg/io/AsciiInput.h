@@ -18,7 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/ObjectFactory.h>
 
 #include <fstream>
-#include <unordered_map>
 
 namespace vsg
 {
@@ -96,16 +95,7 @@ namespace vsg
     protected:
         std::istream& _input;
 
-#if 0
-        using ObjectIDMap = std::map<ObjectID, vsg::ref_ptr<vsg::Object>>;
-#else
-        // 47% faster for overall write for large scene graph than std::map<>!
-        using ObjectIDMap = std::unordered_map<ObjectID, vsg::ref_ptr<vsg::Object>>;
-#endif
-
         std::string _readPropertyName;
-        ObjectIDMap _objectIDMap;
-        vsg::ref_ptr<vsg::ObjectFactory> _objectFactory;
     };
 
 } // namespace vsg

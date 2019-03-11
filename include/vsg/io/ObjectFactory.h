@@ -27,9 +27,13 @@ namespace vsg
 
         virtual vsg::ref_ptr<vsg::Object> create(const std::string& className);
 
-    protected:
         using CreateFunction = std::function<vsg::ref_ptr<vsg::Object>()>;
         using CreateMap = std::map<std::string, CreateFunction>;
+
+        CreateMap& getCreateMap() { return _createMap; }
+        const CreateMap& getCreateMap() const { return _createMap; }
+
+    protected:
 
         CreateMap _createMap;
     };

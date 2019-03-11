@@ -19,6 +19,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
 
+#include <vsg/io/ObjectFactory.h>
+
+#include <unordered_map>
+
 namespace vsg
 {
 
@@ -101,6 +105,18 @@ namespace vsg
             read(propertyName, value);
             return value;
         }
+
+        using ObjectID = uint32_t;
+        using ObjectIDMap = std::unordered_map<ObjectID, vsg::ref_ptr<vsg::Object>>;
+        ObjectIDMap& getObjectIDMap() { return _objectIDMap; }
+        const ObjectIDMap& getObjectIDMap() const { return _objectIDMap; }
+
+        vsg::ObjectFactory* getObjectFactory() { return _objectFactory; }
+        const vsg::ObjectFactory* getObjectFactory() const { return _objectFactory; }
+
+    protected:
+        ObjectIDMap _objectIDMap;
+        vsg::ref_ptr<vsg::ObjectFactory> _objectFactory;
     };
 
 } // namespace vsg
