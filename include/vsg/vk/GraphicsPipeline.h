@@ -192,6 +192,8 @@ namespace vsg
     protected:
         virtual ~VertexInputState();
 
+        void _assign();
+
         Bindings _bindings;
         Attributes _attributes;
     };

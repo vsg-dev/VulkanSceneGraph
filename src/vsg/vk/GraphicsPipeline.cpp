@@ -268,24 +268,65 @@ VertexInputState::VertexInputState(const Bindings& bindings, const Attributes& a
     _attributes(attributes)
 {
     sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexBindingDescriptionCount = static_cast<uint32_t>(_bindings.size());
-    pVertexBindingDescriptions = _bindings.data();
-    vertexAttributeDescriptionCount = static_cast<uint32_t>(_attributes.size());
-    pVertexAttributeDescriptions = _attributes.data();
+    _assign();
 }
 
 VertexInputState::~VertexInputState()
 {
 }
 
+void VertexInputState::_assign()
+{
+    vertexBindingDescriptionCount = static_cast<uint32_t>(_bindings.size());
+    pVertexBindingDescriptions = _bindings.data();
+    vertexAttributeDescriptionCount = static_cast<uint32_t>(_attributes.size());
+    pVertexAttributeDescriptions = _attributes.data();
+}
+
 void VertexInputState::read(Input& input)
 {
     Object::read(input);
+
+    _bindings.resize(input.readValue<uint32_t>("NumBindings"));
+    for (auto& binding : _bindings)
+    {
+        input.read("binding", binding.binding);
+        input.read("stride", binding.stride);
+        binding.inputRate = static_cast<VkVertexInputRate>(input.readValue<uint32_t>("inputRate"));
+    }
+
+    _attributes.resize(input.readValue<uint32_t>("NumAttributes"));
+    for (auto& attribute : _attributes)
+    {
+        input.read("location", attribute.location);
+        input.read("binding", attribute.binding);
+        attribute.format = static_cast<VkFormat>(input.readValue<uint32_t>("format"));
+        input.read("offset", attribute.offset);
+    }
+
+    _assign();
 }
 
 void VertexInputState::write(Output& output) const
 {
     Object::write(output);
+
+    output.writeValue<uint32_t>("NumBindings", _bindings.size());
+    for (auto& binding : _bindings)
+    {
+        output.write("binding", binding.binding);
+        output.write("stride", binding.stride);
+        output.writeValue<uint32_t>("inputRate", binding.inputRate);
+    }
+
+    output.writeValue<uint32_t>("NumAttributes", _attributes.size());
+    for (auto& attribute : _attributes)
+    {
+        output.write("location", attribute.location);
+        output.write("binding", attribute.binding);
+        output.writeValue<uint32_t>("format", attribute.format);
+        output.write("offset", attribute.offset);
+    }
 }
 
 
