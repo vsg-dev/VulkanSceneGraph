@@ -25,7 +25,11 @@ namespace vsg
     {
     public:
 
+        DescriptorSetLayout();
         DescriptorSetLayout(const DescriptorSetLayoutBindings& descriptorSetLayoutBindings);
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
@@ -64,6 +68,7 @@ namespace vsg
 
         ref_ptr<Implementation> _implementation;
     };
+    VSG_type_name(vsg::DescriptorSetLayout);
 
     using DescriptorSetLayouts = std::vector<vsg::ref_ptr<vsg::DescriptorSetLayout>>;
 

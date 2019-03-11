@@ -30,6 +30,9 @@ namespace vsg
 
         void accept(DispatchTraversal& dv) const override;
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
         void compile(Context& context);
 
         using Commands = std::vector<ref_ptr<Command>>;

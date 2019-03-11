@@ -24,6 +24,9 @@ namespace vsg
         MatrixTransform(Allocator* allocator = nullptr);
         MatrixTransform(const mat4& matrix, Allocator* allocator = nullptr);
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
         void setMatrix(const mat4& matrix) { (*_matrix) = matrix; }
         mat4& getMatrix() { return _matrix->value(); }
         const mat4& getMatrix() const { return _matrix->value(); }

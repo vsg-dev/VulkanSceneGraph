@@ -162,7 +162,7 @@ vsg::ref_ptr<vsg::Object> AsciiInput::read()
             }
             else
             {
-                std::cout << "Could not find means to create object" << std::endl;
+                std::cout << "Could not find means to create " <<className.c_str()<< std::endl;
             }
         }
     }

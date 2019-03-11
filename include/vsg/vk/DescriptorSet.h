@@ -25,7 +25,11 @@ namespace vsg
     {
     public:
 
+        DescriptorSet();
         DescriptorSet(const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors);
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         const DescriptorSetLayouts& getDescriptorSetLayouts()const { return _descriptorSetLayouts; }
         const Descriptors& getDescriptors() const { return _descriptors; }
@@ -79,6 +83,8 @@ namespace vsg
     class VSG_DECLSPEC BindDescriptorSets : public Inherit<StateCommand, BindDescriptorSets>
     {
     public:
+        BindDescriptorSets();
+
         BindDescriptorSets(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, uint32_t firstSet, const DescriptorSets& descriptorSets) :
             _bindPoint(bindPoint),
             _pipelineLayout(pipelineLayout),
@@ -94,6 +100,9 @@ namespace vsg
             _descriptorSets(descriptorSets)
         {
         }
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         VkPipelineBindPoint getBindPoint() { return _bindPoint; }
         const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }

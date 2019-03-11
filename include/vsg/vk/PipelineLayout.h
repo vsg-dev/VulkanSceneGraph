@@ -24,7 +24,11 @@ namespace vsg
     class VSG_DECLSPEC PipelineLayout : public Inherit<Object, PipelineLayout>
     {
     public:
+        PipelineLayout();
         PipelineLayout(const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags=0);
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         DescriptorSetLayouts& getDescriptorSetLayouts() { return _descriptorSetLayouts; }
         const DescriptorSetLayouts& getDescriptorSetLayouts() const { return _descriptorSetLayouts; }
@@ -80,5 +84,6 @@ namespace vsg
 
         ref_ptr<Implementation> _implementation;
     };
+    VSG_type_name(vsg::PipelineLayout);
 
 } // namespace vsg

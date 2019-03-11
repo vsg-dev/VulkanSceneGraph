@@ -21,27 +21,35 @@ namespace vsg
     class Draw : public Inherit<Command, Draw>
     {
     public:
+        Draw() {}
+
         Draw(uint32_t in_vertexCount, uint32_t in_instanceCount, uint32_t in_firstVertex, uint32_t in_firstInstance) :
             vertexCount(in_vertexCount),
             instanceCount(in_instanceCount),
             firstVertex(in_firstVertex),
             firstInstance(in_firstInstance) {}
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
         void dispatch(CommandBuffer& commandBuffer) const override
         {
             vkCmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
         }
 
-        uint32_t vertexCount;
-        uint32_t instanceCount;
-        uint32_t firstVertex;
-        uint32_t firstInstance;
+        uint32_t vertexCount = 0;
+        uint32_t instanceCount = 0;
+        uint32_t firstVertex = 0;
+        uint32_t firstInstance = 0;
     };
     VSG_type_name(vsg::Draw);
 
     class DrawIndexed : public Inherit<Command, DrawIndexed>
     {
     public:
+        DrawIndexed() {}
+
+
         DrawIndexed(uint32_t in_indexCount, uint32_t in_instanceCount, uint32_t in_firstIndex, int32_t in_vertexOffset, uint32_t in_firstInstance) :
             indexCount(in_indexCount),
             instanceCount(in_instanceCount),
@@ -49,16 +57,19 @@ namespace vsg
             vertexOffset(in_vertexOffset),
             firstInstance(in_firstInstance) {}
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
         void dispatch(CommandBuffer& commandBuffer) const override
         {
             vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
         }
 
-        uint32_t indexCount;
-        uint32_t instanceCount;
-        uint32_t firstIndex;
-        uint32_t vertexOffset;
-        uint32_t firstInstance;
+        uint32_t indexCount = 0;
+        uint32_t instanceCount = 0;
+        uint32_t firstIndex = 0;
+        uint32_t vertexOffset = 0;
+        uint32_t firstInstance = 0;
     };
     VSG_type_name(vsg::DrawIndexed);
 

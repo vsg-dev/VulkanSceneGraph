@@ -65,6 +65,7 @@ set(SOURCES
     vk/DescriptorSetLayout.cpp
     vk/Device.cpp
     vk/DeviceMemory.cpp
+    vk/Draw.cpp
     vk/Extensions.cpp
     vk/Fence.cpp
     vk/Framebuffer.cpp

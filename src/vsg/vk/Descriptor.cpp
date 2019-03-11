@@ -163,6 +163,20 @@ Texture::Texture() :
     _samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 }
 
+void Texture::read(Input& input)
+{
+    Object::read(input);
+
+    _textureData = input.readObject<Data>("TextureData");
+}
+
+void Texture::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeObject("TextureData", _textureData.get());
+}
+
 void Texture::compile(Context& context)
 {
     ref_ptr<Sampler> sampler = Sampler::create(context.device, _samplerInfo, nullptr);
@@ -188,6 +202,28 @@ void Texture::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet)
 Uniform::Uniform() :
     Inherit(0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
 {
+}
+
+void Uniform::read(Input& input)
+{
+    Object::read(input);
+
+    _dataList.resize(input.readValue<uint32_t>("NumData"));
+    for (auto& data : _dataList)
+    {
+        data = input.readObject<Data>("Data");
+    }
+}
+
+void Uniform::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeValue<uint32_t>("NumData", _dataList.size());
+    for (auto& data : _dataList)
+    {
+        output.writeObject("Data", data.get());
+    }
 }
 
 void Uniform::compile(Context& context)

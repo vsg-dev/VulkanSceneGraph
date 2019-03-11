@@ -20,6 +20,10 @@ using namespace vsg;
 //
 // GraphicsPipeline
 //
+GraphicsPipeline::GraphicsPipeline()
+{
+}
+
 GraphicsPipeline::GraphicsPipeline(PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator):
     _pipelineLayout(pipelineLayout),
     _pipelineStates(pipelineStates),
@@ -29,6 +33,32 @@ GraphicsPipeline::GraphicsPipeline(PipelineLayout* pipelineLayout, const Graphic
 
 GraphicsPipeline::~GraphicsPipeline()
 {
+}
+
+void GraphicsPipeline::read(Input& input)
+{
+    Object::read(input);
+
+    _pipelineLayout = input.readObject<PipelineLayout>("PipelineLayout");
+
+    _pipelineStates.resize(input.readValue<uint32_t>("NumPipelineStates"));
+    for (auto& pipelineState : _pipelineStates)
+    {
+        pipelineState = input.readObject<GraphicsPipelineState>("PipelineState");
+    }
+}
+
+void GraphicsPipeline::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeObject("PipelineLayout", _pipelineLayout.get());
+
+    output.writeValue<uint32_t>("NumPipelineStates", _pipelineStates.size());
+    for (auto& pipelineState : _pipelineStates)
+    {
+        output.writeObject("PipelineState", pipelineState.get());
+    }
 }
 
 void GraphicsPipeline::compile(Context& context)
@@ -46,28 +76,6 @@ void GraphicsPipeline::compile(Context& context)
         full_pipelineStates.emplace_back(context.viewport);
 
         _implementation = GraphicsPipeline::Implementation::create(context.device, context.renderPass, _pipelineLayout, full_pipelineStates, _allocator);
-    }
-}
-
-void GraphicsPipeline::read(Input& input)
-{
-    Object::read(input);
-
-    _pipelineStates.resize(input.readValue<uint32_t>("NumPipelineStates"));
-    for (auto& pipelineState : _pipelineStates)
-    {
-        pipelineState = input.readObject<GraphicsPipelineState>("PipelineState");
-    }
-}
-
-void GraphicsPipeline::write(Output& output) const
-{
-    Object::write(output);
-
-    output.writeValue<uint32_t>("NumPipelineStates", _pipelineStates.size());
-    for (auto& pipelineState : _pipelineStates)
-    {
-        output.writeObject("PipelineState", pipelineState.get());
     }
 }
 
@@ -134,6 +142,20 @@ BindGraphicsPipeline::~BindGraphicsPipeline()
 {
 }
 
+void BindGraphicsPipeline::read(Input& input)
+{
+    StateCommand::read(input);
+
+    _pipeline  = input.readObject<GraphicsPipeline>("GraphicsPipeline");
+}
+
+void BindGraphicsPipeline::write(Output& output) const
+{
+    StateCommand::write(output);
+
+    output.writeObject("GraphicsPipeline", _pipeline.get());
+}
+
 void BindGraphicsPipeline::pushTo(State& state) const
 {
     state.dirty = true;
@@ -157,24 +179,14 @@ void BindGraphicsPipeline::compile(Context& context)
     if (_pipeline) _pipeline->compile(context);
 }
 
-void BindGraphicsPipeline::read(Input& input)
-{
-    StateCommand::read(input);
-
-    _pipeline  = input.readObject<GraphicsPipeline>("GraphicsPipeline");
-}
-
-void BindGraphicsPipeline::write(Output& output) const
-{
-    StateCommand::write(output);
-
-    output.writeObject("GraphicsPipeline", _pipeline.get());
-}
-
 ////////////////////////////////////////////////////////////////////////
 //
 // ShaderStages
 //
+ShaderStages::ShaderStages()
+{
+}
+
 ShaderStages::ShaderStages(const ShaderModules& shaderModules)
 {
     setShaderModules(shaderModules);
@@ -182,6 +194,28 @@ ShaderStages::ShaderStages(const ShaderModules& shaderModules)
 
 ShaderStages::~ShaderStages()
 {
+}
+
+void ShaderStages::read(Input& input)
+{
+    Object::read(input);
+
+    _shaderModules.resize(input.readValue<uint32_t>("NumShaderModule"));
+    for (auto& shaderModule : _shaderModules)
+    {
+        shaderModule = input.readObject<ShaderModule>("ShaderModule");
+    }
+}
+
+void ShaderStages::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeValue<uint32_t>("NumShaderModule", _shaderModules.size());
+    for (auto& shaderModule : _shaderModules)
+    {
+        output.writeObject("ShaderModule", shaderModule.get());
+    }
 }
 
 void ShaderStages::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
@@ -215,28 +249,6 @@ void ShaderStages::release()
     _stages.clear();
 }
 
-void ShaderStages::read(Input& input)
-{
-    Object::read(input);
-
-    _shaderModules.resize(input.readValue<uint32_t>("NumShaderModule"));
-    for (auto& shaderModule : _shaderModules)
-    {
-        shaderModule = input.readObject<ShaderModule>("ShaderModule");
-    }
-}
-
-void ShaderStages::write(Output& output) const
-{
-    Object::write(output);
-
-    output.writeValue<uint32_t>("NumShaderModule", _shaderModules.size());
-    for (auto& shaderModule : _shaderModules)
-    {
-        output.writeObject("ShaderModule", shaderModule.get());
-    }
-}
-
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -266,6 +278,17 @@ VertexInputState::~VertexInputState()
 {
 }
 
+void VertexInputState::read(Input& input)
+{
+    Object::read(input);
+}
+
+void VertexInputState::write(Output& output) const
+{
+    Object::write(output);
+}
+
+
 void VertexInputState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
 {
     pipelineInfo.pVertexInputState = this;
@@ -287,6 +310,16 @@ InputAssemblyState::~InputAssemblyState()
 {
 }
 
+void InputAssemblyState::read(Input& input)
+{
+    Object::read(input);
+}
+
+void InputAssemblyState::write(Output& output) const
+{
+    Object::write(output);
+}
+
 void InputAssemblyState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
 {
     pipelineInfo.pInputAssemblyState = this;
@@ -296,6 +329,13 @@ void InputAssemblyState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
 //
 // ViewportState
 //
+ViewportState::ViewportState() :
+    VkPipelineViewportStateCreateInfo{},
+    _viewport{},
+    _scissor{}
+{
+}
+
 ViewportState::ViewportState(const VkExtent2D& extent) :
     VkPipelineViewportStateCreateInfo{},
     _viewport{},

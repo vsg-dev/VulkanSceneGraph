@@ -19,6 +19,9 @@ using namespace vsg;
 //
 // Shader
 //
+ShaderModule::ShaderModule()
+{
+}
 
 ShaderModule::ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, const SPIRV& spirv) :
     _stage(stage),

@@ -10,39 +10,48 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/MatrixTransform.h>
-#include <vsg/io/stream.h>
-
-#include <iostream>
+#include <vsg/vk/Draw.h>
 
 using namespace vsg;
 
-MatrixTransform::MatrixTransform(Allocator* allocator):
-    Inherit(allocator)
+void Draw::read(Input& input)
 {
-    _matrix = new mat4Value;
-    _pushConstant = vsg::PushConstants::create(VK_SHADER_STAGE_VERTEX_BIT, 128, _matrix);
+    Command::read(input);
+
+    input.read("vertexCount", vertexCount);
+    input.read("instanceCount", instanceCount);
+    input.read("firstVertex", firstVertex);
+    input.read("firstInstance", firstInstance);
 }
 
-MatrixTransform::MatrixTransform(const mat4& matrix, Allocator* allocator):
-    Inherit(allocator)
+void Draw::write(Output& output) const
 {
-    _matrix = new mat4Value(matrix);
-    _pushConstant = vsg::PushConstants::create(VK_SHADER_STAGE_VERTEX_BIT, 128, _matrix);
+    Command::write(output);
+
+    output.write("vertexCount", vertexCount);
+    output.write("instanceCount", instanceCount);
+    output.write("firstVertex", firstVertex);
+    output.write("firstInstance", firstInstance);
 }
 
-
-void MatrixTransform::read(Input& input)
+void DrawIndexed::read(Input& input)
 {
-    Group::read(input);
+    Command::read(input);
 
-    input.read("Matrix", _matrix->value());
+    input.read("indexCount", indexCount);
+    input.read("instanceCount", instanceCount);
+    input.read("firstIndex", firstIndex);
+    input.read("vertexOffset", vertexOffset);
+    input.read("firstInstance", firstInstance);
 }
 
-void MatrixTransform::write(Output& output) const
+void DrawIndexed::write(Output& output) const
 {
-    Group::write(output);
+    Command::write(output);
 
-    output.write("Matrix", _matrix->value());
+    output.write("indexCount", indexCount);
+    output.write("instanceCount", instanceCount);
+    output.write("firstIndex", firstIndex);
+    output.write("vertexOffset", vertexOffset);
+    output.write("firstInstance", firstInstance);
 }
-

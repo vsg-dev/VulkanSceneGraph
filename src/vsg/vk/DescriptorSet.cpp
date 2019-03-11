@@ -15,6 +15,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+DescriptorSet::DescriptorSet()
+{
+}
+
 DescriptorSet::DescriptorSet(const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors):
     _descriptorSetLayouts(descriptorSetLayouts),
     _descriptors(descriptors)
@@ -23,6 +27,40 @@ DescriptorSet::DescriptorSet(const DescriptorSetLayouts& descriptorSetLayouts, c
 
 DescriptorSet::~DescriptorSet()
 {
+}
+
+void DescriptorSet::read(Input& input)
+{
+    Object::read(input);
+
+    _descriptorSetLayouts.resize(input.readValue<uint32_t>("NumDescriptorSetLayouts"));
+    for (auto& descriptorSetLayout : _descriptorSetLayouts)
+    {
+        descriptorSetLayout = input.readObject<DescriptorSetLayout>("DescriptorSetLayout");
+    }
+
+    _descriptors.resize(input.readValue<uint32_t>("NumDescriptors"));
+    for (auto& descriptor : _descriptors)
+    {
+        descriptor = input.readObject<Descriptor>("Descriptor");
+    }
+}
+
+void DescriptorSet::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeValue<uint32_t>("NumDescriptorSetLayouts", _descriptorSetLayouts.size());
+    for (auto& descriptorSetLayout : _descriptorSetLayouts)
+    {
+        output.writeObject("DescriptorSetLayout", descriptorSetLayout.get());
+    }
+
+    output.writeValue<uint32_t>("NumDescriptors", _descriptors.size());
+    for (auto& descriptor : _descriptors)
+    {
+        output.writeObject("Descriptor", descriptor.get());
+    }
 }
 
 void DescriptorSet::compile(Context& context)
@@ -98,6 +136,43 @@ void DescriptorSet::Implementation::assign(const Descriptors& descriptors)
     }
 
     vkUpdateDescriptorSets(*_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+}
+
+BindDescriptorSets::BindDescriptorSets():
+    _bindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
+    _firstSet(0)
+{
+}
+
+
+void BindDescriptorSets::read(Input& input)
+{
+    Object::read(input);
+
+    _pipelineLayout = input.readObject<PipelineLayout>("PipelineLayout");
+
+    input.read("firstSet", _firstSet);
+
+    _descriptorSets.resize(input.readValue<uint32_t>("NumDescriptorSets"));
+    for (auto& descriptorSet : _descriptorSets)
+    {
+        descriptorSet = input.readObject<DescriptorSet>("DescriptorSets");
+    }
+}
+
+void BindDescriptorSets::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeObject("PipelineLayout", _pipelineLayout.get());
+
+    output.write("firstSet", _firstSet);
+
+    output.writeValue<uint32_t>("NumDescriptorSets", _descriptorSets.size());
+    for (auto& descriptorSet : _descriptorSets)
+    {
+        output.writeObject("DescriptorSets", descriptorSet.get());
+    }
 }
 
 void BindDescriptorSets::pushTo(State& state) const

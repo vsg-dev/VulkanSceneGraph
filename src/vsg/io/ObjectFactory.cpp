@@ -21,6 +21,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/Geometry.h>
+
+#include <vsg/vk/Descriptor.h>
+#include <vsg/vk/GraphicsPipeline.h>
+#include <vsg/vk/ComputePipeline.h>
+#include <vsg/vk/ShaderModule.h>
+#include <vsg/vk/PipelineLayout.h>
+#include <vsg/vk/DescriptorSet.h>
+#include <vsg/vk/DescriptorSetLayout.h>
+#include <vsg/vk/Draw.h>
 
 #include <iostream>
 
@@ -110,6 +121,35 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::Group);
     VSG_REGISTER_create(vsg::QuadGroup);
     VSG_REGISTER_create(vsg::StateGroup);
+    VSG_REGISTER_create(vsg::MatrixTransform);
+    VSG_REGISTER_create(vsg::Geometry);
+
+    // vulkan objects
+    VSG_REGISTER_create(vsg::BindGraphicsPipeline);
+    VSG_REGISTER_create(vsg::PipelineLayout);
+    VSG_REGISTER_create(vsg::GraphicsPipeline);
+    VSG_REGISTER_create(vsg::BindComputePipeline);
+    VSG_REGISTER_create(vsg::ComputePipeline);
+    VSG_REGISTER_create(vsg::ShaderStages);
+    VSG_REGISTER_create(vsg::ShaderModule);
+    VSG_REGISTER_create(vsg::Texture);
+    VSG_REGISTER_create(vsg::Uniform);
+    VSG_REGISTER_create(vsg::VertexInputState);
+    VSG_REGISTER_create(vsg::InputAssemblyState);
+    VSG_REGISTER_create(vsg::RasterizationState);
+    VSG_REGISTER_create(vsg::MultisampleState);
+    VSG_REGISTER_create(vsg::ColorBlendState);
+    VSG_REGISTER_create(vsg::ViewportState);
+    VSG_REGISTER_create(vsg::MultisampleState);
+    VSG_REGISTER_create(vsg::DepthStencilState);
+    VSG_REGISTER_create(vsg::ColorBlendState);
+    VSG_REGISTER_create(vsg::Draw);
+    VSG_REGISTER_create(vsg::DrawIndexed);
+    VSG_REGISTER_create(vsg::BindDescriptorSets);
+    VSG_REGISTER_create(vsg::DescriptorSet);
+    VSG_REGISTER_create(vsg::DescriptorSetLayout);
+    VSG_REGISTER_create(vsg::Texture);
+    VSG_REGISTER_create(vsg::Uniform);
 }
 
 vsg::ref_ptr<vsg::Object> ObjectFactory::create(const std::string& className)

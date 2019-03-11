@@ -1,4 +1,3 @@
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -30,13 +29,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#if 0
-#define DEBUG_OUTPUT std::cout
-#else
-#define DEBUG_OUTPUT if (false) std::cout
-#endif
-
-
 //
 //  Geometry node
 //       vertex arrays
@@ -58,6 +50,44 @@ Geometry::Geometry(Allocator* allocator) :
 void Geometry::accept(DispatchTraversal& dv) const
 {
     if (_renderImplementation) _renderImplementation->accept(dv);
+}
+
+void Geometry::read(Input& input)
+{
+    Node::read(input);
+
+    _arrays.resize(input.readValue<uint32_t>("NumArrays"));
+    for (auto& array : _arrays)
+    {
+        array = input.readObject<Data>("Array");
+    }
+
+    _indices = input.readObject<Data>("Indices");
+
+    _commands.resize(input.readValue<uint32_t>("NumCommands"));
+    for (auto& command : _commands)
+    {
+        command = input.readObject<Command>("Command");
+    }
+}
+
+void Geometry::write(Output& output) const
+{
+    Node::write(output);
+
+    output.writeValue<uint32_t>("NumArrays", _arrays.size());
+    for (auto& array : _arrays)
+    {
+        output.writeObject("Array", array.get());
+    }
+
+    output.writeObject("Indices", _indices.get());
+
+    output.writeValue<uint32_t>("NumCommands", _commands.size());
+    for (auto& command : _commands)
+    {
+        output.writeObject("Command", command.get());
+    }
 }
 
 void Geometry::compile(Context& context)

@@ -46,7 +46,12 @@ namespace vsg
     {
     public:
 
+        GraphicsPipeline();
+
         GraphicsPipeline(PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
         const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
@@ -83,9 +88,6 @@ namespace vsg
 
         operator VkPipeline() const { return _implementation->_pipeline; }
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
     protected:
         virtual ~GraphicsPipeline();
 
@@ -102,7 +104,10 @@ namespace vsg
     class VSG_DECLSPEC BindGraphicsPipeline : public Inherit<StateCommand, BindGraphicsPipeline>
     {
     public:
-        BindGraphicsPipeline(GraphicsPipeline* pipeline);
+        BindGraphicsPipeline(GraphicsPipeline* pipeline=nullptr);
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         void setPipeline(GraphicsPipeline* pipeline) { _pipeline = pipeline; }
         GraphicsPipeline* getPipeline() { return _pipeline; }
@@ -115,9 +120,6 @@ namespace vsg
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context) override;
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
     public:
         virtual ~BindGraphicsPipeline();
 
@@ -129,7 +131,11 @@ namespace vsg
     class VSG_DECLSPEC ShaderStages : public Inherit<GraphicsPipelineState, ShaderStages>
     {
     public:
+        ShaderStages();
         ShaderStages(const ShaderModules& shaderModules);
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         VkStructureType getType() const override { return VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO; }
 
@@ -152,8 +158,6 @@ namespace vsg
         // remove the local reference to the Vulkan implementation
         void release();
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
 
     protected:
         virtual ~ShaderStages();
@@ -173,6 +177,9 @@ namespace vsg
 
         VertexInputState();
         VertexInputState(const Bindings& bindings, const Attributes& attributes);
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         VkStructureType getType() const override { return sType; }
 
@@ -195,6 +202,9 @@ namespace vsg
     public:
         InputAssemblyState();
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
         VkStructureType getType() const override { return sType; }
 
         void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
@@ -207,6 +217,7 @@ namespace vsg
     class VSG_DECLSPEC ViewportState : public Inherit<GraphicsPipelineState, ViewportState>, public VkPipelineViewportStateCreateInfo
     {
     public:
+        ViewportState();
         ViewportState(const VkExtent2D& extent);
 
         VkStructureType getType() const override { return sType; }

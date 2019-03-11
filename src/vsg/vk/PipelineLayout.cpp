@@ -19,6 +19,11 @@ using namespace vsg;
 //
 // PipelineLayout
 //
+PipelineLayout::PipelineLayout():
+    _flags(0)
+{
+}
+
 PipelineLayout::PipelineLayout(const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags):
     _descriptorSetLayouts(descriptorSetLayouts),
     _pushConstantRanges(pushConstantRanges),
@@ -28,6 +33,48 @@ PipelineLayout::PipelineLayout(const DescriptorSetLayouts& descriptorSetLayouts,
 
 PipelineLayout::~PipelineLayout()
 {
+}
+
+void PipelineLayout::read(Input& input)
+{
+    Object::read(input);
+
+    _flags = static_cast<VkPipelineLayoutCreateFlags>(input.readValue<uint32_t>("Flags"));
+
+    _descriptorSetLayouts.resize(input.readValue<uint32_t>("NumDescriptorSetLayouts"));
+    for (auto& descriptorLayout : _descriptorSetLayouts)
+    {
+        descriptorLayout = input.readObject<DescriptorSetLayout>("DescriptorSetLayout");
+    }
+
+    _pushConstantRanges.resize(input.readValue<uint32_t>("NumPushConstantRanges"));
+    for (auto& pushConstantRange : _pushConstantRanges)
+    {
+        pushConstantRange.stageFlags = static_cast<VkShaderStageFlags>(input.readValue<uint32_t>("stageFlags"));
+        input.read("offset", pushConstantRange.offset);
+        input.read("size", pushConstantRange.size);
+    }
+}
+
+void PipelineLayout::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeValue<uint32_t>("Flags", _flags);
+
+    output.writeValue<uint32_t>("NumDescriptorSetLayouts", _descriptorSetLayouts.size());
+    for (auto& descriptorLayout : _descriptorSetLayouts)
+    {
+        output.writeObject("DescriptorSetLayout", descriptorLayout);
+    }
+
+    output.writeValue<uint32_t>("NumPushConstantRanges", _pushConstantRanges.size());
+    for (auto& pushConstantRange : _pushConstantRanges)
+    {
+        output.writeValue<uint32_t>("stageFlags", pushConstantRange.stageFlags);
+        output.write("offset", pushConstantRange.offset);
+        output.write("size", pushConstantRange.size);
+    }
 }
 
 void PipelineLayout::compile(Context& context)

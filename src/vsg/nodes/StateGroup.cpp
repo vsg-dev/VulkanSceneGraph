@@ -31,9 +31,9 @@ void StateGroup::read(Input& input)
     Group::read(input);
 
     _stateCommands.resize(input.readValue<uint32_t>("NumStateCommands"));
-    for (auto& child : _stateCommands)
+    for (auto& command : _stateCommands)
     {
-        child = input.readObject<StateCommand>("StateCommand");
+        command = input.readObject<StateCommand>("StateCommand");
     }
 }
 
@@ -42,9 +42,9 @@ void StateGroup::write(Output& output) const
     Group::write(output);
 
     output.writeValue<uint32_t>("NumStateCommands", _stateCommands.size());
-    for (auto& child : _stateCommands)
+    for (auto& command : _stateCommands)
     {
-        output.writeObject("StateCommand", child.get());
+        output.writeObject("StateCommand", command.get());
     }
 }
 

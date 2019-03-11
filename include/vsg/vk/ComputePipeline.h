@@ -23,7 +23,11 @@ namespace vsg
     {
     public:
 
+        ComputePipeline();
         ComputePipeline(PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator = nullptr);
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
         const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
@@ -72,7 +76,10 @@ namespace vsg
     class VSG_DECLSPEC BindComputePipeline : public Inherit<StateCommand, BindComputePipeline>
     {
     public:
-        BindComputePipeline(ComputePipeline* pipeline);
+        BindComputePipeline(ComputePipeline* pipeline=nullptr);
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         void setPipeline(ComputePipeline* pipeline) { _pipeline = pipeline; }
         ComputePipeline* getPipeline() { return _pipeline; }

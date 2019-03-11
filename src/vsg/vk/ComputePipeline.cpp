@@ -20,6 +20,10 @@ using namespace vsg;
 //
 // ComputePipeline
 //
+ComputePipeline::ComputePipeline()
+{
+}
+
 ComputePipeline::ComputePipeline(PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator) :
     _pipelineLayout(pipelineLayout),
     _shaderModule(shaderModule),
@@ -29,6 +33,22 @@ ComputePipeline::ComputePipeline(PipelineLayout* pipelineLayout, ShaderModule* s
 
 ComputePipeline::~ComputePipeline()
 {
+}
+
+void ComputePipeline::read(Input& input)
+{
+    Object::read(input);
+
+    _pipelineLayout = input.readObject<PipelineLayout>("PipelineLayout");
+    _shaderModule = input.readObject<ShaderModule>("ShaderModule");
+}
+
+void ComputePipeline::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeObject("PipelineLayout", _pipelineLayout.get());
+    output.writeObject("ShaderModule", _shaderModule.get());
 }
 
 void ComputePipeline::compile(Context& context)
@@ -46,8 +66,8 @@ void ComputePipeline::compile(Context& context)
 // ComputePipeline::Implementation
 //
 ComputePipeline::Implementation::Implementation(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator) :
-    _device(device),
     _pipeline(pipeline),
+    _device(device),
     _pipelineLayout(pipelineLayout),
     _shaderModule(shaderModule),
     _allocator(allocator)
@@ -101,6 +121,20 @@ BindComputePipeline::BindComputePipeline(ComputePipeline* pipeline) :
 
 BindComputePipeline::~BindComputePipeline()
 {
+}
+
+void BindComputePipeline::read(Input& input)
+{
+    StateCommand::read(input);
+
+    _pipeline  = input.readObject<ComputePipeline>("ComputePipeline");
+}
+
+void BindComputePipeline::write(Output& output) const
+{
+    StateCommand::write(output);
+
+    output.writeObject("ComputePipeline", _pipeline.get());
 }
 
 void BindComputePipeline::pushTo(State& state) const

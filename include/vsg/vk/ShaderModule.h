@@ -48,9 +48,13 @@ namespace vsg
         using Source = std::string;
         using SPIRV = std::vector<uint32_t>;
 
+        ShaderModule();
         ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, const SPIRV& spirv);
         ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source);
         ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source, const SPIRV& spirv);
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         VkShaderStageFlagBits& stage() { return _stage; }
         VkShaderStageFlagBits stage() const { return _stage; }
@@ -66,9 +70,6 @@ namespace vsg
 
         using Result = vsg::Result<ShaderModule, VkResult, VK_SUCCESS>;
         static Result read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename);
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
 
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {

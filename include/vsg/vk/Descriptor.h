@@ -191,6 +191,9 @@ namespace vsg
     public:
         Texture();
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
         void compile(Context& context) override;
 
         void assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
@@ -207,6 +210,9 @@ namespace vsg
     {
     public:
         Uniform();
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         void compile(Context& context) override;
 
