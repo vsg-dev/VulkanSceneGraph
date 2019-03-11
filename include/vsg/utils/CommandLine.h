@@ -15,7 +15,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/type_name.h>
 #include <vsg/io/stream.h>
 
-#include <iostream>
 #include <vector>
 
 namespace vsg
@@ -40,6 +39,8 @@ namespace vsg
         CommandLine(int* argc, char** argv) :
             _argc(argc),
             _argv(argv) {}
+
+        char* operator[] (int i) { return _argv[i]; }
 
         template<typename T>
         bool read(int& i, T& value)
