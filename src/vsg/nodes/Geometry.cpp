@@ -10,18 +10,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/vk/BindIndexBuffer.h>
+#include <vsg/vk/BindVertexBuffers.h>
 #include <vsg/vk/BufferData.h>
 #include <vsg/vk/Descriptor.h>
-#include <vsg/vk/DescriptorSet.h>
 #include <vsg/vk/DescriptorPool.h>
-#include <vsg/vk/BindVertexBuffers.h>
-#include <vsg/vk/BindIndexBuffer.h>
+#include <vsg/vk/DescriptorSet.h>
 #include <vsg/vk/Draw.h>
 
 #include <vsg/io/ReaderWriter.h>
 
 #include <vsg/traversals/DispatchTraversal.h>
-
 
 #include <vsg/nodes/Geometry.h>
 
@@ -97,18 +96,17 @@ void Geometry::compile(Context& context)
     _renderImplementation = new vsg::Group;
 
     // set up vertex buffer binding
-    vsg::ref_ptr<vsg::BindVertexBuffers> bindVertexBuffers = vsg::BindVertexBuffers::create(0, vertexBufferData);  // device dependent
-    _renderImplementation->addChild(bindVertexBuffers); // device dependent
+    vsg::ref_ptr<vsg::BindVertexBuffers> bindVertexBuffers = vsg::BindVertexBuffers::create(0, vertexBufferData); // device dependent
+    _renderImplementation->addChild(bindVertexBuffers);                                                           // device dependent
 
     // set up index buffer binding
-    if(_indices &&_indices->dataSize() > 0)
+    if (_indices && _indices->dataSize() > 0)
     {
-        auto indexBufferData = vsg::createBufferAndTransferData(context.device, context.commandPool, context.graphicsQueue, { _indices }, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+        auto indexBufferData = vsg::createBufferAndTransferData(context.device, context.commandPool, context.graphicsQueue, {_indices}, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
         vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = vsg::BindIndexBuffer::create(indexBufferData.front(), VK_INDEX_TYPE_UINT16); // device dependent
-        _renderImplementation->addChild(bindIndexBuffer); // device dependent
+        _renderImplementation->addChild(bindIndexBuffer);                                                                                 // device dependent
     }
 
     // add the commands in the the _renderImplementation group.
-    for(auto& command : _commands) _renderImplementation->addChild(command);
+    for (auto& command : _commands) _renderImplementation->addChild(command);
 }
-

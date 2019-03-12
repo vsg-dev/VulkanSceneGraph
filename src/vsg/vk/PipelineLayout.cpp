@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/PipelineLayout.h>
 #include <vsg/traversals/CompileTraversal.h>
+#include <vsg/vk/PipelineLayout.h>
 
 using namespace vsg;
 
@@ -19,12 +19,12 @@ using namespace vsg;
 //
 // PipelineLayout
 //
-PipelineLayout::PipelineLayout():
+PipelineLayout::PipelineLayout() :
     _flags(0)
 {
 }
 
-PipelineLayout::PipelineLayout(const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags):
+PipelineLayout::PipelineLayout(const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags) :
     _descriptorSetLayouts(descriptorSetLayouts),
     _pushConstantRanges(pushConstantRanges),
     _flags(flags)

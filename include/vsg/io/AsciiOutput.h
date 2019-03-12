@@ -53,15 +53,19 @@ namespace vsg
         {
             if (num == 1)
             {
-                if (std::isfinite(*value)) _output << ' ' << *value << '\n';
-                else _output << ' ' << 0.0 << '\n'; // fallback to using 0.0 when the value is NaN or Infinite to prevent problems when reading
+                if (std::isfinite(*value))
+                    _output << ' ' << *value << '\n';
+                else
+                    _output << ' ' << 0.0 << '\n'; // fallback to using 0.0 when the value is NaN or Infinite to prevent problems when reading
             }
             else
             {
                 for (; num > 0; --num, ++value)
                 {
-                    if (std::isfinite(*value)) _output << ' ' << *value;
-                    else _output << ' ' << 0.0; // fallback to using 0.0 when the value is NaN or Infinite to prevent problems when reading
+                    if (std::isfinite(*value))
+                        _output << ' ' << *value;
+                    else
+                        _output << ' ' << 0.0; // fallback to using 0.0 when the value is NaN or Infinite to prevent problems when reading
                 }
                 _output << '\n';
             }

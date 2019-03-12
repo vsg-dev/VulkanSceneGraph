@@ -40,7 +40,7 @@ namespace vsg
             _argc(argc),
             _argv(argv) {}
 
-        char* operator[] (int i) { return _argv[i]; }
+        char* operator[](int i) { return _argv[i]; }
 
         template<typename T>
         bool read(int& i, T& value)

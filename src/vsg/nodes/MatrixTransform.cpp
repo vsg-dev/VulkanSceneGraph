@@ -10,27 +10,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/MatrixTransform.h>
 #include <vsg/io/stream.h>
+#include <vsg/nodes/MatrixTransform.h>
 
 #include <iostream>
 
 using namespace vsg;
 
-MatrixTransform::MatrixTransform(Allocator* allocator):
+MatrixTransform::MatrixTransform(Allocator* allocator) :
     Inherit(allocator)
 {
     _matrix = new mat4Value;
     _pushConstant = vsg::PushConstants::create(VK_SHADER_STAGE_VERTEX_BIT, 128, _matrix);
 }
 
-MatrixTransform::MatrixTransform(const mat4& matrix, Allocator* allocator):
+MatrixTransform::MatrixTransform(const mat4& matrix, Allocator* allocator) :
     Inherit(allocator)
 {
     _matrix = new mat4Value(matrix);
     _pushConstant = vsg::PushConstants::create(VK_SHADER_STAGE_VERTEX_BIT, 128, _matrix);
 }
-
 
 void MatrixTransform::read(Input& input)
 {
@@ -45,4 +44,3 @@ void MatrixTransform::write(Output& output) const
 
     output.write("Matrix", _matrix->value());
 }
-

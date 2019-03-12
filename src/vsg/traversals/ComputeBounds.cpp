@@ -10,9 +10,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/traversals/ComputeBounds.h>
-#include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/Geometry.h>
+#include <vsg/nodes/MatrixTransform.h>
+#include <vsg/traversals/ComputeBounds.h>
 
 using namespace vsg;
 
@@ -27,11 +27,11 @@ void ComputeBounds::apply(const vsg::Node& node)
 
 void ComputeBounds::apply(const vsg::Group& group)
 {
-    if (auto transform = dynamic_cast<const vsg::MatrixTransform*>(&group); transform!=nullptr)
+    if (auto transform = dynamic_cast<const vsg::MatrixTransform*>(&group); transform != nullptr)
     {
         apply(*transform);
     }
-    else if (auto geometry = dynamic_cast<const vsg::Geometry*>(&group); geometry!=nullptr)
+    else if (auto geometry = dynamic_cast<const vsg::Geometry*>(&group); geometry != nullptr)
     {
         apply(*geometry);
     }
@@ -62,11 +62,11 @@ void ComputeBounds::apply(const vsg::vec3Array& vertices)
 {
     if (matrixStack.empty())
     {
-        for(auto vertex : vertices) bounds.add(vertex);
+        for (auto vertex : vertices) bounds.add(vertex);
     }
     else
     {
         auto matrix = matrixStack.back();
-        for(auto vertex : vertices) bounds.add(matrix * vertex);
+        for (auto vertex : vertices) bounds.add(matrix * vertex);
     }
 }

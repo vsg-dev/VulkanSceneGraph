@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/ComputePipeline.h>
 #include <vsg/traversals/CompileTraversal.h>
+#include <vsg/vk/ComputePipeline.h>
 #include <vsg/vk/State.h>
 
 using namespace vsg;
@@ -127,7 +127,7 @@ void BindComputePipeline::read(Input& input)
 {
     StateCommand::read(input);
 
-    _pipeline  = input.readObject<ComputePipeline>("ComputePipeline");
+    _pipeline = input.readObject<ComputePipeline>("ComputePipeline");
 }
 
 void BindComputePipeline::write(Output& output) const
@@ -159,4 +159,3 @@ void BindComputePipeline::compile(Context& context)
 {
     if (_pipeline) _pipeline->compile(context);
 }
-

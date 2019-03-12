@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/DescriptorSetLayout.h>
 #include <vsg/traversals/CompileTraversal.h>
+#include <vsg/vk/DescriptorSetLayout.h>
 
 using namespace vsg;
 
@@ -23,7 +23,7 @@ DescriptorSetLayout::DescriptorSetLayout()
 {
 }
 
-DescriptorSetLayout::DescriptorSetLayout(const DescriptorSetLayoutBindings& descriptorSetLayoutBindings):
+DescriptorSetLayout::DescriptorSetLayout(const DescriptorSetLayoutBindings& descriptorSetLayoutBindings) :
     _descriptorSetLayoutBindings(descriptorSetLayoutBindings)
 {
 }
@@ -59,7 +59,6 @@ void DescriptorSetLayout::write(Output& output) const
         output.writeValue<uint32_t>("stageFlags", dslb.stageFlags);
     }
 }
-
 
 void DescriptorSetLayout::compile(Context& context)
 {

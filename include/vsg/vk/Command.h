@@ -36,7 +36,8 @@ namespace vsg
     class StateCommand : public Inherit<Command, StateCommand>
     {
     public:
-        StateCommand(Allocator* allocator = nullptr) : Inherit(allocator) {}
+        StateCommand(Allocator* allocator = nullptr) :
+            Inherit(allocator) {}
 
         virtual void pushTo(State& state) const = 0;
         virtual void popFrom(State& state) const = 0;

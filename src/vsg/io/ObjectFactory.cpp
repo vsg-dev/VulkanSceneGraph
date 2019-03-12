@@ -18,20 +18,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Value.h>
 
 #include <vsg/nodes/Commands.h>
+#include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
-#include <vsg/nodes/MatrixTransform.h>
-#include <vsg/nodes/Geometry.h>
 
-#include <vsg/vk/Descriptor.h>
-#include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/ComputePipeline.h>
-#include <vsg/vk/ShaderModule.h>
-#include <vsg/vk/PipelineLayout.h>
+#include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorSet.h>
 #include <vsg/vk/DescriptorSetLayout.h>
 #include <vsg/vk/Draw.h>
+#include <vsg/vk/GraphicsPipeline.h>
+#include <vsg/vk/PipelineLayout.h>
+#include <vsg/vk/ShaderModule.h>
 
 #include <iostream>
 

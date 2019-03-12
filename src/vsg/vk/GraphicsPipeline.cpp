@@ -15,7 +15,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-
 ////////////////////////////////////////////////////////////////////////
 //
 // GraphicsPipeline
@@ -24,7 +23,7 @@ GraphicsPipeline::GraphicsPipeline()
 {
 }
 
-GraphicsPipeline::GraphicsPipeline(PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator):
+GraphicsPipeline::GraphicsPipeline(PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator) :
     _pipelineLayout(pipelineLayout),
     _pipelineStates(pipelineStates),
     _allocator(allocator)
@@ -67,7 +66,7 @@ void GraphicsPipeline::compile(Context& context)
     {
         _pipelineLayout->compile(context);
 
-        for(auto& pipelineState : _pipelineStates)
+        for (auto& pipelineState : _pipelineStates)
         {
             pipelineState->compile(context);
         }
@@ -146,7 +145,7 @@ void BindGraphicsPipeline::read(Input& input)
 {
     StateCommand::read(input);
 
-    _pipeline  = input.readObject<GraphicsPipeline>("GraphicsPipeline");
+    _pipeline = input.readObject<GraphicsPipeline>("GraphicsPipeline");
 }
 
 void BindGraphicsPipeline::write(Output& output) const
@@ -241,14 +240,13 @@ void ShaderStages::compile(Context& context)
 
 void ShaderStages::release()
 {
-    for(auto& shaderModules : _shaderModules)
+    for (auto& shaderModules : _shaderModules)
     {
         shaderModules->release();
     }
 
     _stages.clear();
 }
-
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -328,7 +326,6 @@ void VertexInputState::write(Output& output) const
         output.write("offset", attribute.offset);
     }
 }
-
 
 void VertexInputState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
 {

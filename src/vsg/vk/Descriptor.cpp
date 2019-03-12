@@ -10,14 +10,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/traversals/CompileTraversal.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Descriptor.h>
-#include <vsg/traversals/CompileTraversal.h>
 
 #include <iostream>
 
 using namespace vsg;
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -123,7 +122,6 @@ ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQue
     return ImageData(textureSampler, textureImageView, VK_IMAGE_LAYOUT_UNDEFINED);
 }
 
-
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // DescriptorBuffer
@@ -132,7 +130,6 @@ void DescriptorBuffer::copyDataListToBuffers()
 {
     vsg::copyDataListToBuffers(_bufferDataList);
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -193,7 +190,6 @@ void Texture::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet)
 {
     if (_implementation) _implementation->assignTo(wds, descriptorSet);
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //

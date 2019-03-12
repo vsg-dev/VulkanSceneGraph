@@ -146,7 +146,7 @@ vsg::ref_ptr<vsg::Object> AsciiInput::read()
 
             vsg::ref_ptr<vsg::Object> object;
 
-            if (className!="nullptr")
+            if (className != "nullptr")
             {
                 object = _objectFactory->create(className.c_str());
 
@@ -162,7 +162,7 @@ vsg::ref_ptr<vsg::Object> AsciiInput::read()
                 }
                 else
                 {
-                    std::cout << "Could not find means to create " <<className.c_str()<< std::endl;
+                    std::cout << "Could not find means to create " << className.c_str() << std::endl;
                 }
             }
 

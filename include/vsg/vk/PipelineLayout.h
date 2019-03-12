@@ -25,7 +25,7 @@ namespace vsg
     {
     public:
         PipelineLayout();
-        PipelineLayout(const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags=0);
+        PipelineLayout(const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags = 0);
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -38,7 +38,6 @@ namespace vsg
 
         VkPipelineLayoutCreateFlags& getVkPipelineLayoutCreateFlags() { return _flags; }
         VkPipelineLayoutCreateFlags getVkPipelineLayoutCreateFlags() const { return _flags; }
-
 
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {

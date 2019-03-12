@@ -35,4 +35,4 @@ namespace vsg
         void apply(const vsg::vec3Array& vertices);
     };
 
-} // namespace vsg;
+} // namespace vsg

@@ -49,7 +49,6 @@ namespace vsg
     public:
         DrawIndexed() {}
 
-
         DrawIndexed(uint32_t in_indexCount, uint32_t in_instanceCount, uint32_t in_firstIndex, int32_t in_vertexOffset, uint32_t in_firstInstance) :
             indexCount(in_indexCount),
             instanceCount(in_instanceCount),

@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/ShaderModule.h>
 #include <vsg/traversals/CompileTraversal.h>
+#include <vsg/vk/ShaderModule.h>
 
 using namespace vsg;
 
@@ -95,7 +95,7 @@ void ShaderModule::compile(Context& context)
     if (!_implementation) _implementation = Implementation::create(context.device, this);
 }
 
-ShaderModule::Implementation::Implementation(VkShaderModule shaderModule, Device* device, AllocationCallbacks* allocator):
+ShaderModule::Implementation::Implementation(VkShaderModule shaderModule, Device* device, AllocationCallbacks* allocator) :
     _shaderModule(shaderModule),
     _device(device),
     _allocator(allocator)

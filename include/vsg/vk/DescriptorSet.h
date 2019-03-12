@@ -24,14 +24,13 @@ namespace vsg
     class VSG_DECLSPEC DescriptorSet : public Inherit<Object, DescriptorSet>
     {
     public:
-
         DescriptorSet();
         DescriptorSet(const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors);
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        const DescriptorSetLayouts& getDescriptorSetLayouts()const { return _descriptorSetLayouts; }
+        const DescriptorSetLayouts& getDescriptorSetLayouts() const { return _descriptorSetLayouts; }
         const Descriptors& getDescriptors() const { return _descriptors; }
 
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>

@@ -47,4 +47,4 @@ namespace vsg
     };
     VSG_type_name(vsg::MatrixTransform);
 
-}
+} // namespace vsg

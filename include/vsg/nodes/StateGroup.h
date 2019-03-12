@@ -45,14 +45,14 @@ namespace vsg
 
         inline void pushTo(State& state) const
         {
-            for(auto& stateCommand : _stateCommands)
+            for (auto& stateCommand : _stateCommands)
             {
                 stateCommand->pushTo(state);
             }
         }
         inline void popFrom(State& state) const
         {
-            for(auto& stateCommand : _stateCommands)
+            for (auto& stateCommand : _stateCommands)
             {
                 stateCommand->popFrom(state);
             }

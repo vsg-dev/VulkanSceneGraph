@@ -14,12 +14,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/Node.h>
 
+#include <vsg/traversals/CompileTraversal.h>
+#include <vsg/vk/CommandPool.h>
+#include <vsg/vk/DescriptorPool.h>
+#include <vsg/vk/DescriptorSet.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/PushConstants.h>
-#include <vsg/vk/CommandPool.h>
-#include <vsg/vk/DescriptorSet.h>
-#include <vsg/vk/DescriptorPool.h>
-#include <vsg/traversals/CompileTraversal.h>
 
 namespace vsg
 {
@@ -47,4 +47,4 @@ namespace vsg
     };
     VSG_type_name(vsg::Geometry)
 
-}
+} // namespace vsg

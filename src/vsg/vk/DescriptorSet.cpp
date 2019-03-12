@@ -19,7 +19,7 @@ DescriptorSet::DescriptorSet()
 {
 }
 
-DescriptorSet::DescriptorSet(const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors):
+DescriptorSet::DescriptorSet(const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors) :
     _descriptorSetLayouts(descriptorSetLayouts),
     _descriptors(descriptors)
 {
@@ -68,8 +68,8 @@ void DescriptorSet::compile(Context& context)
     if (!_implementation)
     {
         // make sure all the contributing objects are compiled
-        for(auto& descriptorSetLayout : _descriptorSetLayouts) descriptorSetLayout->compile(context);
-        for(auto& descriptor : _descriptors) descriptor->compile(context);
+        for (auto& descriptorSetLayout : _descriptorSetLayouts) descriptorSetLayout->compile(context);
+        for (auto& descriptor : _descriptors) descriptor->compile(context);
 
         _implementation = DescriptorSet::Implementation::create(context.device, context.descriptorPool, _descriptorSetLayouts, _descriptors);
     }
@@ -100,11 +100,10 @@ DescriptorSet::Implementation::Result DescriptorSet::Implementation::create(Devi
     }
 
     std::vector<VkDescriptorSetLayout> vkdescriptorSetLayouts;
-    for(auto& descriptorSetLayout : descriptorSetLayouts)
+    for (auto& descriptorSetLayout : descriptorSetLayouts)
     {
         vkdescriptorSetLayouts.push_back(*descriptorSetLayout);
     }
-
 
     VkDescriptorSetAllocateInfo descriptSetAllocateInfo = {};
     descriptSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -138,12 +137,11 @@ void DescriptorSet::Implementation::assign(const Descriptors& descriptors)
     vkUpdateDescriptorSets(*_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }
 
-BindDescriptorSets::BindDescriptorSets():
+BindDescriptorSets::BindDescriptorSets() :
     _bindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
     _firstSet(0)
 {
 }
-
 
 void BindDescriptorSets::read(Input& input)
 {
@@ -180,7 +178,7 @@ void BindDescriptorSets::pushTo(State& state) const
     state.dirty = true;
 
     // make sure there is an appropriate descriptorStack entry available.
-    if (_firstSet >= state.descriptorStacks.size())  state.descriptorStacks.resize(_firstSet+1);
+    if (_firstSet >= state.descriptorStacks.size()) state.descriptorStacks.resize(_firstSet + 1);
 
     // push this to the appropriate descriptorStack
     state.descriptorStacks[_firstSet].push(this);

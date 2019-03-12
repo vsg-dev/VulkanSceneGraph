@@ -24,7 +24,6 @@ namespace vsg
     class VSG_DECLSPEC DescriptorSetLayout : public Inherit<Object, DescriptorSetLayout>
     {
     public:
-
         DescriptorSetLayout();
         DescriptorSetLayout(const DescriptorSetLayoutBindings& descriptorSetLayoutBindings);
 
@@ -40,7 +39,7 @@ namespace vsg
 
             static Result create(Device* device, const DescriptorSetLayoutBindings& descriptorSetLayoutBindings, AllocationCallbacks* allocator = nullptr);
 
-            operator VkDescriptorSetLayout () const { return _descriptorSetLayout; }
+            operator VkDescriptorSetLayout() const { return _descriptorSetLayout; }
 
         protected:
             virtual ~Implementation();

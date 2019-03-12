@@ -10,14 +10,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/viewer/Viewer.h>
-#include <vsg/viewer/GraphicsStage.h>
 #include <vsg/traversals/CompileTraversal.h>
+#include <vsg/viewer/GraphicsStage.h>
+#include <vsg/viewer/Viewer.h>
 
 #include <chrono>
-#include <set>
-#include <map>
 #include <iostream>
+#include <map>
+#include <set>
 
 using namespace vsg;
 
@@ -153,7 +153,7 @@ bool Viewer::aquireNextFrame()
     {
         unsigned int numTries = 0;
         unsigned int maximumTries = 10;
-        while(((result = window->acquireNextImage())==VK_ERROR_OUT_OF_DATE_KHR) && (numTries < maximumTries))
+        while (((result = window->acquireNextImage()) == VK_ERROR_OUT_OF_DATE_KHR) && (numTries < maximumTries))
         {
             ++numTries;
 
@@ -172,7 +172,7 @@ bool Viewer::aquireNextFrame()
             needToReassingFrameCache = true;
         }
 
-        if (result!=VK_SUCCESS) break;
+        if (result != VK_SUCCESS) break;
     }
 
     if (needToReassingFrameCache)
@@ -181,7 +181,7 @@ bool Viewer::aquireNextFrame()
         reassignFrameCache();
     }
 
-    return result==VK_SUCCESS;
+    return result == VK_SUCCESS;
 }
 
 bool Viewer::populateNextFrame()
@@ -281,7 +281,6 @@ bool Viewer::submitNextFrame()
 class CollectDescriptorStats : public ConstVisitor
 {
 public:
-
     using Descriptors = std::set<const Descriptor*>;
     using DescriptorSets = std::set<const DescriptorSet*>;
     using DescriptorTypeMap = std::map<VkDescriptorType, uint32_t>;
@@ -293,13 +292,13 @@ public:
 
     void apply(const StateGroup& stategroup)
     {
-        for(auto& command : stategroup.getStateCommands())
+        for (auto& command : stategroup.getStateCommands())
         {
 #if 1
             const BindDescriptorSets* bds = dynamic_cast<const BindDescriptorSets*>(command.get());
             if (bds)
             {
-                for(auto& descriptorSet : bds->getDescriptorSets())
+                for (auto& descriptorSet : bds->getDescriptorSets())
                 {
                     apply(*descriptorSet);
                 }
@@ -314,10 +313,10 @@ public:
 
     void apply(const DescriptorSet& descriptorSet)
     {
-        if (descriptorSets.count(&descriptorSet)==0)
+        if (descriptorSets.count(&descriptorSet) == 0)
         {
             descriptorSets.insert(&descriptorSet);
-            for(auto& descriptor : descriptorSet.getDescriptors())
+            for (auto& descriptor : descriptorSet.getDescriptors())
             {
                 apply(*descriptor);
             }
@@ -326,13 +325,12 @@ public:
 
     void apply(const Descriptor& descriptor)
     {
-        if (descriptors.count(&descriptor)==0)
+        if (descriptors.count(&descriptor) == 0)
         {
             descriptors.insert(&descriptor);
             ++descriptorTypeMap[descriptor._descriptorType];
         }
     }
-
 
     uint32_t computeNumDescriptorSets() const
     {
@@ -342,7 +340,7 @@ public:
     DescriptorPoolSizes computeDescriptorPoolSizes() const
     {
         DescriptorPoolSizes poolSizes;
-        for(auto& [type, count] : descriptorTypeMap)
+        for (auto& [type, count] : descriptorTypeMap)
         {
             poolSizes.push_back(VkDescriptorPoolSize{type, count});
         }
@@ -351,9 +349,8 @@ public:
 
     Descriptors descriptors;
     DescriptorSets descriptorSets;
-    DescriptorTypeMap  descriptorTypeMap;
+    DescriptorTypeMap descriptorTypeMap;
 };
-
 
 void Viewer::compile()
 {
@@ -366,7 +363,7 @@ void Viewer::compile()
         vsg::ref_ptr<vsg::Device> device(window->device());
 
         CollectDescriptorStats collectStats;
-        for(auto& stage : window->stages())
+        for (auto& stage : window->stages())
         {
             GraphicsStage* gs = dynamic_cast<GraphicsStage*>(stage.get());
             if (gs)
@@ -378,12 +375,11 @@ void Viewer::compile()
         uint32_t maxSets = collectStats.computeNumDescriptorSets();
         DescriptorPoolSizes descriptorPoolSizes = collectStats.computeDescriptorPoolSizes();
 
-
-        std::cout<<"maxSets = "<<maxSets<<std::endl;
-        std::cout<<"    type\tcount"<<std::endl;
-        for(auto& [type, count] : descriptorPoolSizes)
+        std::cout << "maxSets = " << maxSets << std::endl;
+        std::cout << "    type\tcount" << std::endl;
+        for (auto& [type, count] : descriptorPoolSizes)
         {
-            std::cout<<"    "<<type<<"\t\t"<<count<<std::endl;
+            std::cout << "    " << type << "\t\t" << count << std::endl;
         }
 
         vsg::CompileTraversal compile;
@@ -392,27 +388,30 @@ void Viewer::compile()
         compile.context.renderPass = window->renderPass();
         compile.context.graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());
 
-        if (maxSets>0) compile.context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
+        if (maxSets > 0) compile.context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
 
-        for(auto& stage : window->stages())
+        for (auto& stage : window->stages())
         {
             GraphicsStage* gs = dynamic_cast<GraphicsStage*>(stage.get());
             if (gs)
             {
-                if (gs->_camera->getViewportState()) compile.context.viewport = gs->_camera->getViewportState();
-                else if (gs->_viewport)  compile.context.viewport = gs->_viewport;
-                else compile.context.viewport = vsg::ViewportState::create(window->extent2D());
+                if (gs->_camera->getViewportState())
+                    compile.context.viewport = gs->_camera->getViewportState();
+                else if (gs->_viewport)
+                    compile.context.viewport = gs->_viewport;
+                else
+                    compile.context.viewport = vsg::ViewportState::create(window->extent2D());
 
                 compile.context.projMatrix = gs->_projMatrix;
                 compile.context.viewMatrix = gs->_viewMatrix;
 
-                std::cout<<"Compiling GraphicsStage "<<compile.context.viewport<<   std::endl;
+                std::cout << "Compiling GraphicsStage " << compile.context.viewport << std::endl;
 
                 gs->_commandGraph->accept(compile);
             }
             else
             {
-                std::cout<<"Warning : Viewer::compile() has not handled Stage : "<<stage->className()<<std::endl;
+                std::cout << "Warning : Viewer::compile() has not handled Stage : " << stage->className() << std::endl;
             }
         }
     }

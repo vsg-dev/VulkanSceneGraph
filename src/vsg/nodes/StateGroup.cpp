@@ -50,7 +50,7 @@ void StateGroup::write(Output& output) const
 
 void StateGroup::compile(Context& context)
 {
-    for(auto& stateCommand : _stateCommands)
+    for (auto& stateCommand : _stateCommands)
     {
         stateCommand->compile(context);
     }

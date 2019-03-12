@@ -18,8 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Group.h>
 
 #include <vsg/vk/CommandPool.h>
-#include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/DescriptorPool.h>
+#include <vsg/vk/GraphicsPipeline.h>
 
 namespace vsg
 {

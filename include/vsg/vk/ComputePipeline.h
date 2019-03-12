@@ -22,7 +22,6 @@ namespace vsg
     class VSG_DECLSPEC ComputePipeline : public Inherit<Object, ComputePipeline>
     {
     public:
-
         ComputePipeline();
         ComputePipeline(PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator = nullptr);
 
@@ -63,7 +62,6 @@ namespace vsg
         operator VkPipeline() const { return _implementation->_pipeline; }
 
     protected:
-
         virtual ~ComputePipeline();
 
         ref_ptr<PipelineLayout> _pipelineLayout;
@@ -76,7 +74,7 @@ namespace vsg
     class VSG_DECLSPEC BindComputePipeline : public Inherit<StateCommand, BindComputePipeline>
     {
     public:
-        BindComputePipeline(ComputePipeline* pipeline=nullptr);
+        BindComputePipeline(ComputePipeline* pipeline = nullptr);
 
         void read(Input& input) override;
         void write(Output& output) const override;

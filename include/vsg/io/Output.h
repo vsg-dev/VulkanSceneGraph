@@ -64,7 +64,7 @@ namespace vsg
         void write(size_t num, const dmat4* value) { write(num * value->size(), value->data()); }
 
         template<typename T>
-        void write(size_t num, const T* value) { write(num*sizeof(T), reinterpret_cast<const uint8_t*>(value)); }
+        void write(size_t num, const T* value) { write(num * sizeof(T), reinterpret_cast<const uint8_t*>(value)); }
 
         // match propertyname and write value(s)
         template<typename... Args>
@@ -89,6 +89,7 @@ namespace vsg
             W v{static_cast<W>(value)};
             write(propertyName, v);
         }
+
     protected:
         using ObjectID = uint32_t;
         using ObjectIDMap = std::unordered_map<const vsg::Object*, ObjectID>;

@@ -45,7 +45,6 @@ namespace vsg
     class VSG_DECLSPEC GraphicsPipeline : public Inherit<Object, GraphicsPipeline>
     {
     public:
-
         GraphicsPipeline();
 
         GraphicsPipeline(PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
@@ -104,7 +103,7 @@ namespace vsg
     class VSG_DECLSPEC BindGraphicsPipeline : public Inherit<StateCommand, BindGraphicsPipeline>
     {
     public:
-        BindGraphicsPipeline(GraphicsPipeline* pipeline=nullptr);
+        BindGraphicsPipeline(GraphicsPipeline* pipeline = nullptr);
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -126,7 +125,6 @@ namespace vsg
         ref_ptr<GraphicsPipeline> _pipeline;
     };
     VSG_type_name(vsg::BindGraphicsPipeline);
-
 
     class VSG_DECLSPEC ShaderStages : public Inherit<GraphicsPipelineState, ShaderStages>
     {
@@ -157,7 +155,6 @@ namespace vsg
 
         // remove the local reference to the Vulkan implementation
         void release();
-
 
     protected:
         virtual ~ShaderStages();

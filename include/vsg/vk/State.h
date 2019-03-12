@@ -15,8 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/BindIndexBuffer.h>
 #include <vsg/vk/BindVertexBuffers.h>
 #include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/DescriptorSet.h>
 #include <vsg/vk/ComputePipeline.h>
+#include <vsg/vk/DescriptorSet.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/PushConstants.h>
 
@@ -63,7 +63,7 @@ namespace vsg
     class MatrixStack
     {
     public:
-        MatrixStack(uint32_t in_offset=0) :
+        MatrixStack(uint32_t in_offset = 0) :
             offset(in_offset)
         {
             // make sure there is an initial matrix
@@ -151,7 +151,7 @@ namespace vsg
             {
                 computePipelineStack.dispatch(commandBuffer);
                 graphicsPipelineStack.dispatch(commandBuffer);
-                for(auto& descriptorStack : descriptorStacks)
+                for (auto& descriptorStack : descriptorStacks)
                 {
                     descriptorStack.dispatch(commandBuffer);
                 }

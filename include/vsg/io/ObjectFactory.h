@@ -34,7 +34,6 @@ namespace vsg
         const CreateMap& getCreateMap() const { return _createMap; }
 
     protected:
-
         CreateMap _createMap;
     };
 
