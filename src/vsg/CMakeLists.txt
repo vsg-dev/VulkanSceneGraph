@@ -43,6 +43,7 @@ set(SOURCES
     traversals/DispatchTraversal.cpp
     traversals/CullTraversal.cpp
     traversals/CompileTraversal.cpp
+    traversals/ComputeBounds.cpp
 
     viewer/Camera.cpp
     viewer/GraphicsStage.cpp
