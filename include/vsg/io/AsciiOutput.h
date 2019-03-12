@@ -16,7 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <algorithm>
 #include <fstream>
-#include <unordered_map>
 
 namespace vsg
 {
@@ -97,16 +96,6 @@ namespace vsg
     protected:
         std::ostream& _output;
 
-        using ObjectID = uint32_t;
-#if 0
-        using ObjectIDMap = std::map<const vsg::Object*, ObjectID>;
-#else
-        // 47% faster for overall write for large scene graph than std::map<>!
-        using ObjectIDMap = std::unordered_map<const vsg::Object*, ObjectID>;
-#endif
-
-        ObjectIDMap _objectIDMap;
-        ObjectID _objectID = 0;
         std::size_t _indentationStep = 2;
         std::size_t _indentation = 0;
         std::size_t _maximumIndentation = 0;

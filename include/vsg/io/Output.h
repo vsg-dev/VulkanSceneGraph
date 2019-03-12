@@ -19,6 +19,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
 
+#include <unordered_map>
+
 namespace vsg
 {
 
@@ -87,6 +89,12 @@ namespace vsg
             W v{static_cast<W>(value)};
             write(propertyName, v);
         }
+    protected:
+        using ObjectID = uint32_t;
+        using ObjectIDMap = std::unordered_map<const vsg::Object*, ObjectID>;
+
+        ObjectIDMap _objectIDMap;
+        ObjectID _objectID = 0;
     };
 
 } // namespace vsg
