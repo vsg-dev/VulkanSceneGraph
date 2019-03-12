@@ -48,6 +48,25 @@ namespace vsg
             }
         }
 
+        template<typename T>
+        void _write_real(size_t num, const T* value)
+        {
+            if (num == 1)
+            {
+                if (std::isfinite(*value)) _output << ' ' << *value << '\n';
+                else _output << ' ' << 0.0 << '\n'; // fallback to using 0.0 when the value is NaN or Infinite to prevent problems when reading
+            }
+            else
+            {
+                for (; num > 0; --num, ++value)
+                {
+                    if (std::isfinite(*value)) _output << ' ' << *value;
+                    else _output << ' ' << 0.0; // fallback to using 0.0 when the value is NaN or Infinite to prevent problems when reading
+                }
+                _output << '\n';
+            }
+        }
+
         template<typename R, typename T>
         void _write_withcast(size_t num, const T* value)
         {
@@ -72,8 +91,8 @@ namespace vsg
         void write(size_t num, const uint32_t* value) override { _write(num, value); }
         void write(size_t num, const int64_t* value) override { _write(num, value); }
         void write(size_t num, const uint64_t* value) override { _write(num, value); }
-        void write(size_t num, const float* value) override { _write(num, value); }
-        void write(size_t num, const double* value) override { _write(num, value); }
+        void write(size_t num, const float* value) override { _write_real(num, value); }
+        void write(size_t num, const double* value) override { _write_real(num, value); }
 
         void _write(const std::string& str)
         {
