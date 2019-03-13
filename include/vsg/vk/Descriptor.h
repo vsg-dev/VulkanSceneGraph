@@ -42,16 +42,16 @@ namespace vsg
         {
             Object::read(input);
 
-            _dstBinding = input.readValue<uint32_t>("DstBinding");
-            _dstArrayElement = input.readValue<uint32_t>("DstArrayElement");
+            input.read("DstBinding", _dstBinding);
+            input.read("DstArrayElement", _dstArrayElement);
         }
 
         void write(Output& output) const override
         {
             Object::write(output);
 
-            output.writeValue<uint32_t>("DstBinding", _dstBinding);
-            output.writeValue<uint32_t>("DstArrayElement", _dstArrayElement);
+            output.write("DstBinding", _dstBinding);
+            output.write("DstArrayElement", _dstArrayElement);
         }
 
         // compile the Vulkan object, context parameter used for Device
