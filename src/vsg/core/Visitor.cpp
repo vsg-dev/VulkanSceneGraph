@@ -13,8 +13,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Visitor.h>
 
 #include <vsg/nodes/Commands.h>
+#include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
+#include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/Node.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
@@ -288,6 +290,14 @@ void Visitor::apply(StateGroup& value)
 {
     apply(static_cast<Group&>(value));
 }
+void Visitor::apply(MatrixTransform& value)
+{
+    apply(static_cast<Group&>(value));
+}
+void Visitor::apply(Geometry& value)
+{
+    apply(static_cast<Node&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -305,7 +315,11 @@ void Visitor::apply(RenderPass& value)
 {
     apply(static_cast<Object&>(value));
 }
-void Visitor::apply(BindPipeline& value)
+void Visitor::apply(BindComputePipeline& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(BindGraphicsPipeline& value)
 {
     apply(static_cast<Object&>(value));
 }

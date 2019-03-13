@@ -23,9 +23,11 @@ set(SOURCES
 
     nodes/Commands.cpp
     nodes/Group.cpp
+    nodes/Geometry.cpp
     nodes/Node.cpp
     nodes/QuadGroup.cpp
     nodes/StateGroup.cpp
+    nodes/MatrixTransform.cpp
 
 
     io/FileSystem.cpp
@@ -41,6 +43,7 @@ set(SOURCES
     traversals/DispatchTraversal.cpp
     traversals/CullTraversal.cpp
     traversals/CompileTraversal.cpp
+    traversals/ComputeBounds.cpp
 
     viewer/Camera.cpp
     viewer/GraphicsStage.cpp
@@ -63,6 +66,7 @@ set(SOURCES
     vk/DescriptorSetLayout.cpp
     vk/Device.cpp
     vk/DeviceMemory.cpp
+    vk/Draw.cpp
     vk/Extensions.cpp
     vk/Fence.cpp
     vk/Framebuffer.cpp
@@ -72,7 +76,6 @@ set(SOURCES
     vk/Instance.cpp
     vk/MemoryManager.cpp
     vk/PhysicalDevice.cpp
-    vk/Pipeline.cpp
     vk/PipelineLayout.cpp
     vk/PushConstants.cpp
     vk/RenderPass.cpp

@@ -23,32 +23,28 @@ namespace vsg
     class UpdatePipeline : public vsg::Visitor
     {
     public:
-
         vsg::ref_ptr<vsg::ViewportState> _viewportState;
 
         UpdatePipeline(vsg::ViewportState* viewportState) :
             _viewportState(viewportState) {}
 
-        void apply(vsg::BindPipeline& bindPipeline)
+        void apply(vsg::BindGraphicsPipeline& bindPipeline)
         {
-            vsg::GraphicsPipeline* graphicsPipeline = dynamic_cast<vsg::GraphicsPipeline*>(bindPipeline.getPipeline());
+            GraphicsPipeline* graphicsPipeline = bindPipeline.getPipeline();
             if (graphicsPipeline)
             {
                 bool needToRegenerateGraphicsPipeline = false;
-                for(auto& pipelineState : graphicsPipeline->getPipelineStates())
+                for (auto& pipelineState : graphicsPipeline->getPipelineStates())
                 {
-                    if (pipelineState==_viewportState)
+                    if (pipelineState == _viewportState)
                     {
                         needToRegenerateGraphicsPipeline = true;
                     }
                 }
                 if (needToRegenerateGraphicsPipeline)
                 {
-
-                    vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getRenderPass()->getDevice(),
-                                                                                                    graphicsPipeline->getRenderPass(),
-                                                                                                    graphicsPipeline->getPipelineLayout(),
-                                                                                                    graphicsPipeline->getPipelineStates());
+                    // TODO need to invoke a new compile traversal
+                    vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getPipelineLayout(), graphicsPipeline->getPipelineStates());
 
                     bindPipeline.setPipeline(new_pipeline);
                 }
@@ -60,14 +56,14 @@ namespace vsg
             group.traverse(*this);
         }
     };
-};
+}; // namespace vsg
 
 GraphicsStage::GraphicsStage(ref_ptr<Node> commandGraph, ref_ptr<Camera> camera) :
     _camera(camera),
     _commandGraph(commandGraph),
     _projMatrix(new vsg::mat4Value),
     _viewMatrix(new vsg::mat4Value),
-    _extent2D{ std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max() }
+    _extent2D{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()}
 {
 }
 
@@ -102,7 +98,6 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
         {
             _viewport = ViewportState::create(extent2D);
         }
-
     }
     else if ((_extent2D.width != extent2D.width) || (_extent2D.height != extent2D.height))
     {
@@ -123,9 +118,7 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
 
         vsg::UpdatePipeline updatePipeline(_viewport);
         _commandGraph->accept(updatePipeline);
-
     }
-
 
     // if required get projection and view matrices from the Camera
     if (_camera)
@@ -134,9 +127,10 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
         if (_viewMatrix) _camera->getViewMatrix()->get((*_viewMatrix));
     }
 
-
     // set up the dispatching of the commands into the command buffer
     DispatchTraversal dispatchTraversal(commandBuffer);
+    dispatchTraversal.setProjectionMatrix(_projMatrix->value());
+    dispatchTraversal.setViewMatrix(_viewMatrix->value());
 
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;

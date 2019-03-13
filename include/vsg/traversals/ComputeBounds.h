@@ -12,32 +12,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Data.h>
-#include <vsg/nodes/StateGroup.h>
-#include <vsg/vk/Device.h>
+#include <vsg/core/ConstVisitor.h>
+#include <vsg/maths/box.h>
 
 namespace vsg
 {
 
-    class VSG_DECLSPEC PushConstants : public Inherit<StateCommand, PushConstants>
+    class VSG_DECLSPEC ComputeBounds : public vsg::ConstVisitor
     {
     public:
-        PushConstants(VkShaderStageFlags shaderFlags, uint32_t offset, Data* data);
+        ComputeBounds();
 
-        Data* getData() noexcept { return _data; }
-        const Data* getData() const noexcept { return _data; }
+        vsg::dbox bounds;
 
-        void pushTo(State& state) const override;
-        void popFrom(State& state) const override;
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        using MatrixStack = std::vector<vsg::mat4>;
+        MatrixStack matrixStack;
 
-    protected:
-        virtual ~PushConstants();
-
-        VkShaderStageFlags _stageFlags;
-        uint32_t _offset;
-        ref_ptr<Data> _data;
+        void apply(const vsg::Node& node);
+        void apply(const vsg::Group& group);
+        void apply(const vsg::MatrixTransform& transform);
+        void apply(const vsg::Geometry& geometry);
+        void apply(const vsg::vec3Array& vertices);
     };
-    VSG_type_name(vsg::PushConstants);
 
 } // namespace vsg

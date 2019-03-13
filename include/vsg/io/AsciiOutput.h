@@ -16,7 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <algorithm>
 #include <fstream>
-#include <unordered_map>
 
 namespace vsg
 {
@@ -49,17 +48,55 @@ namespace vsg
             }
         }
 
+        template<typename T>
+        void _write_real(size_t num, const T* value)
+        {
+            if (num == 1)
+            {
+                if (std::isfinite(*value))
+                    _output << ' ' << *value << '\n';
+                else
+                    _output << ' ' << 0.0 << '\n'; // fallback to using 0.0 when the value is NaN or Infinite to prevent problems when reading
+            }
+            else
+            {
+                for (; num > 0; --num, ++value)
+                {
+                    if (std::isfinite(*value))
+                        _output << ' ' << *value;
+                    else
+                        _output << ' ' << 0.0; // fallback to using 0.0 when the value is NaN or Infinite to prevent problems when reading
+                }
+                _output << '\n';
+            }
+        }
+
+        template<typename R, typename T>
+        void _write_withcast(size_t num, const T* value)
+        {
+            if (num == 1)
+            {
+                _output << ' ' << static_cast<R>(*value) << '\n';
+            }
+            else
+            {
+                for (; num > 0; --num, ++value) _output << ' ' << static_cast<R>(*value);
+                _output << '\n';
+            }
+        }
+
         // write contiguous array of value(s)
-        void write(size_t num, const int8_t* value) override { _write(num, value); }
-        void write(size_t num, const uint8_t* value) override { _write(num, value); }
+        void write(size_t num, const int8_t* value) override { _write_withcast<int16_t>(num, value); }
+        void write(size_t num, const uint8_t* value) override { _write_withcast<uint16_t>(num, value); }
+
         void write(size_t num, const int16_t* value) override { _write(num, value); }
         void write(size_t num, const uint16_t* value) override { _write(num, value); }
         void write(size_t num, const int32_t* value) override { _write(num, value); }
         void write(size_t num, const uint32_t* value) override { _write(num, value); }
         void write(size_t num, const int64_t* value) override { _write(num, value); }
         void write(size_t num, const uint64_t* value) override { _write(num, value); }
-        void write(size_t num, const float* value) override { _write(num, value); }
-        void write(size_t num, const double* value) override { _write(num, value); }
+        void write(size_t num, const float* value) override { _write_real(num, value); }
+        void write(size_t num, const double* value) override { _write_real(num, value); }
 
         void _write(const std::string& str)
         {
@@ -82,16 +119,6 @@ namespace vsg
     protected:
         std::ostream& _output;
 
-        using ObjectID = uint32_t;
-#if 0
-        using ObjectIDMap = std::map<const vsg::Object*, ObjectID>;
-#else
-        // 47% faster for overall write for large scene graph than std::map<>!
-        using ObjectIDMap = std::unordered_map<const vsg::Object*, ObjectID>;
-#endif
-
-        ObjectIDMap _objectIDMap;
-        ObjectID _objectID = 0;
         std::size_t _indentationStep = 2;
         std::size_t _indentation = 0;
         std::size_t _maximumIndentation = 0;

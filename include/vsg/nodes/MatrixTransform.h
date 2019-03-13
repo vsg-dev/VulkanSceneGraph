@@ -12,32 +12,39 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Data.h>
-#include <vsg/nodes/StateGroup.h>
-#include <vsg/vk/Device.h>
+#include <vsg/nodes/Group.h>
+#include <vsg/vk/PushConstants.h>
 
 namespace vsg
 {
 
-    class VSG_DECLSPEC PushConstants : public Inherit<StateCommand, PushConstants>
+    class MatrixTransform : public Inherit<Group, MatrixTransform>
     {
     public:
-        PushConstants(VkShaderStageFlags shaderFlags, uint32_t offset, Data* data);
+        MatrixTransform(Allocator* allocator = nullptr);
+        MatrixTransform(const mat4& matrix, Allocator* allocator = nullptr);
 
-        Data* getData() noexcept { return _data; }
-        const Data* getData() const noexcept { return _data; }
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
-        void pushTo(State& state) const override;
-        void popFrom(State& state) const override;
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void setMatrix(const mat4& matrix) { (*_matrix) = matrix; }
+        mat4& getMatrix() { return _matrix->value(); }
+        const mat4& getMatrix() const { return _matrix->value(); }
+
+        inline void pushTo(State& state) const
+        {
+            _pushConstant->pushTo(state);
+        }
+
+        inline void popFrom(State& state) const
+        {
+            _pushConstant->popFrom(state);
+        }
 
     protected:
-        virtual ~PushConstants();
-
-        VkShaderStageFlags _stageFlags;
-        uint32_t _offset;
-        ref_ptr<Data> _data;
+        ref_ptr<mat4Value> _matrix;
+        ref_ptr<PushConstants> _pushConstant;
     };
-    VSG_type_name(vsg::PushConstants);
+    VSG_type_name(vsg::MatrixTransform);
 
 } // namespace vsg

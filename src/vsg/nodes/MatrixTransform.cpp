@@ -10,56 +10,37 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/Pipeline.h>
-#include <vsg/vk/State.h>
+#include <vsg/io/stream.h>
+#include <vsg/nodes/MatrixTransform.h>
+
+#include <iostream>
 
 using namespace vsg;
 
-////////////////////////////////////////////////////////////////////////
-//
-// Pipeline
-//
-Pipeline::Pipeline(VkPipeline pipeline, VkPipelineBindPoint bindPoint, Device* device, PipelineLayout* pipelineLayout, AllocationCallbacks* allocator) :
-    _pipeline(pipeline),
-    _bindPoint(bindPoint),
-    _device(device),
-    _pipelineLayout(pipelineLayout),
-    _allocator(allocator)
+MatrixTransform::MatrixTransform(Allocator* allocator) :
+    Inherit(allocator)
 {
+    _matrix = new mat4Value;
+    _pushConstant = vsg::PushConstants::create(VK_SHADER_STAGE_VERTEX_BIT, 128, _matrix);
 }
 
-Pipeline::~Pipeline()
+MatrixTransform::MatrixTransform(const mat4& matrix, Allocator* allocator) :
+    Inherit(allocator)
 {
-    if (_pipeline)
-    {
-        vkDestroyPipeline(*_device, _pipeline, _allocator);
-    }
+    _matrix = new mat4Value(matrix);
+    _pushConstant = vsg::PushConstants::create(VK_SHADER_STAGE_VERTEX_BIT, 128, _matrix);
 }
 
-BindPipeline::BindPipeline(Pipeline* pipeline) :
-    _pipeline(pipeline)
+void MatrixTransform::read(Input& input)
 {
+    Group::read(input);
+
+    input.read("Matrix", _matrix->value());
 }
 
-BindPipeline::~BindPipeline()
+void MatrixTransform::write(Output& output) const
 {
-}
+    Group::write(output);
 
-void BindPipeline::pushTo(State& state) const
-{
-    state.dirty = true;
-    state.pipelineStack.push(this);
-}
-
-void BindPipeline::popFrom(State& state) const
-{
-    state.dirty = true;
-    state.pipelineStack.pop();
-}
-
-void BindPipeline::dispatch(CommandBuffer& commandBuffer) const
-{
-    vkCmdBindPipeline(commandBuffer, _pipeline->getBindPoint(), *_pipeline);
-    commandBuffer.setCurrentPipeline(_pipeline);
+    output.write("Matrix", _matrix->value());
 }
