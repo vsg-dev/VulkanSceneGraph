@@ -162,14 +162,14 @@ Texture::Texture() :
 
 void Texture::read(Input& input)
 {
-    Object::read(input);
+    Descriptor::read(input);
 
     _textureData = input.readObject<Data>("TextureData");
 }
 
 void Texture::write(Output& output) const
 {
-    Object::write(output);
+    Descriptor::write(output);
 
     output.writeObject("TextureData", _textureData.get());
 }
@@ -202,7 +202,7 @@ Uniform::Uniform() :
 
 void Uniform::read(Input& input)
 {
-    Object::read(input);
+    Descriptor::read(input);
 
     _dataList.resize(input.readValue<uint32_t>("NumData"));
     for (auto& data : _dataList)
@@ -213,7 +213,7 @@ void Uniform::read(Input& input)
 
 void Uniform::write(Output& output) const
 {
-    Object::write(output);
+    Descriptor::write(output);
 
     output.writeValue<uint32_t>("NumData", _dataList.size());
     for (auto& data : _dataList)

@@ -38,6 +38,22 @@ namespace vsg
         uint32_t _dstArrayElement;
         VkDescriptorType _descriptorType;
 
+        void read(Input& input) override
+        {
+            Object::read(input);
+
+            _dstBinding = input.readValue<uint32_t>("DstBinding");
+            _dstArrayElement = input.readValue<uint32_t>("DstArrayElement");
+        }
+
+        void write(Output& output) const override
+        {
+            Object::write(output);
+
+            output.writeValue<uint32_t>("DstBinding", _dstBinding);
+            output.writeValue<uint32_t>("DstArrayElement", _dstArrayElement);
+        }
+
         // compile the Vulkan object, context parameter used for Device
         virtual void compile(Context& /*context*/) {}
 
@@ -206,7 +222,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Texture)
 
-        class VSG_DECLSPEC Uniform : public Inherit<Descriptor, Uniform>
+    class VSG_DECLSPEC Uniform : public Inherit<Descriptor, Uniform>
     {
     public:
         Uniform();
@@ -227,7 +243,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Uniform)
 
-        struct Material
+    struct Material
     {
         vec4 ambientColor;
         vec4 diffuseColor;
