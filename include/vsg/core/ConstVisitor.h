@@ -27,12 +27,15 @@ namespace vsg
     class QuadGroup;
     class LOD;
     class StateGroup;
+    class MatrixTransform;
+    class Geometry;
 
     // forward declare vulkan classes
     class Command;
     class CommandBuffer;
     class RenderPass;
-    class BindPipeline;
+    class BindComputePipeline;
+    class BindGraphicsPipeline;
     class GraphicsPipeline;
     class ComputePipeline;
     class Draw;
@@ -142,12 +145,15 @@ namespace vsg
         virtual void apply(const QuadGroup&);
         virtual void apply(const LOD&);
         virtual void apply(const StateGroup&);
+        virtual void apply(const MatrixTransform&);
+        virtual void apply(const Geometry&);
 
         // Vulkan nodes
         virtual void apply(const Command&);
         virtual void apply(const CommandBuffer&);
         virtual void apply(const RenderPass&);
-        virtual void apply(const BindPipeline&);
+        virtual void apply(const BindComputePipeline&);
+        virtual void apply(const BindGraphicsPipeline&);
         virtual void apply(const GraphicsPipeline&);
         virtual void apply(const ComputePipeline&);
         virtual void apply(const GraphicsPipelineState&);

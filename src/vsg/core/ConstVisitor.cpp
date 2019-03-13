@@ -13,8 +13,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/ConstVisitor.h>
 
 #include <vsg/nodes/Commands.h>
+#include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
+#include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/Node.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
@@ -259,6 +261,14 @@ void ConstVisitor::apply(const ubvec4Array3D& value)
 {
     apply(static_cast<const Object&>(value));
 }
+void ConstVisitor::apply(const MatrixTransform& value)
+{
+    apply(static_cast<const Group&>(value));
+}
+void ConstVisitor::apply(const Geometry& value)
+{
+    apply(static_cast<const Node&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -305,7 +315,11 @@ void ConstVisitor::apply(const RenderPass& value)
 {
     apply(static_cast<const Object&>(value));
 }
-void ConstVisitor::apply(const BindPipeline& value)
+void ConstVisitor::apply(const BindComputePipeline& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const BindGraphicsPipeline& value)
 {
     apply(static_cast<const Object&>(value));
 }

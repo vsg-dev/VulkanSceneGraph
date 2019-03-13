@@ -12,32 +12,39 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Data.h>
-#include <vsg/nodes/StateGroup.h>
-#include <vsg/vk/Device.h>
+#include <vsg/nodes/Node.h>
+
+#include <vsg/traversals/CompileTraversal.h>
+#include <vsg/vk/CommandPool.h>
+#include <vsg/vk/DescriptorPool.h>
+#include <vsg/vk/DescriptorSet.h>
+#include <vsg/vk/GraphicsPipeline.h>
+#include <vsg/vk/PushConstants.h>
 
 namespace vsg
 {
-
-    class VSG_DECLSPEC PushConstants : public Inherit<StateCommand, PushConstants>
+    class Geometry : public Inherit<Node, Geometry>
     {
     public:
-        PushConstants(VkShaderStageFlags shaderFlags, uint32_t offset, Data* data);
+        Geometry(Allocator* allocator = nullptr);
 
-        Data* getData() noexcept { return _data; }
-        const Data* getData() const noexcept { return _data; }
+        void accept(DispatchTraversal& dv) const override;
 
-        void pushTo(State& state) const override;
-        void popFrom(State& state) const override;
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
-    protected:
-        virtual ~PushConstants();
+        void compile(Context& context);
 
-        VkShaderStageFlags _stageFlags;
-        uint32_t _offset;
-        ref_ptr<Data> _data;
+        using Commands = std::vector<ref_ptr<Command>>;
+
+        // settings
+        DataList _arrays;
+        ref_ptr<Data> _indices;
+        Commands _commands;
+
+        // compiled objects
+        ref_ptr<Group> _renderImplementation;
     };
-    VSG_type_name(vsg::PushConstants);
+    VSG_type_name(vsg::Geometry)
 
 } // namespace vsg

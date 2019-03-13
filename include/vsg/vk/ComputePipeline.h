@@ -12,27 +12,89 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Pipeline.h>
+#include <vsg/vk/Command.h>
 #include <vsg/vk/PipelineLayout.h>
 #include <vsg/vk/ShaderModule.h>
 
 namespace vsg
 {
 
-    class VSG_DECLSPEC ComputePipeline : public Inherit<Pipeline, ComputePipeline>
+    class VSG_DECLSPEC ComputePipeline : public Inherit<Object, ComputePipeline>
     {
     public:
-        using Result = vsg::Result<ComputePipeline, VkResult, VK_SUCCESS>;
+        ComputePipeline();
+        ComputePipeline(PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator = nullptr);
 
-        /** Crreate a ComputePipeline.*/
-        static Result create(Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator = nullptr);
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
+        const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
+
+        ShaderModule* getShaderModule() { return _shaderModule; }
+        const ShaderModule* getShaderModule() const { return _shaderModule; }
+
+        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        {
+        public:
+            Implementation(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator);
+            virtual ~Implementation();
+
+            using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
+
+            /** Create a ComputePipeline.*/
+            static Result create(Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator = nullptr);
+
+            VkPipeline _pipeline;
+
+            ref_ptr<Device> _device;
+            ref_ptr<PipelineLayout> _pipelineLayout;
+            ref_ptr<ShaderModule> _shaderModule;
+            ref_ptr<AllocationCallbacks> _allocator;
+        };
+
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context);
+
+        // remove the local reference to the Vulkan implementation
+        void release() { _implementation = nullptr; }
+
+        operator VkPipeline() const { return _implementation->_pipeline; }
 
     protected:
-        ComputePipeline(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator);
-
         virtual ~ComputePipeline();
 
+        ref_ptr<PipelineLayout> _pipelineLayout;
         ref_ptr<ShaderModule> _shaderModule;
+        ref_ptr<AllocationCallbacks> _allocator;
+
+        ref_ptr<Implementation> _implementation;
     };
+
+    class VSG_DECLSPEC BindComputePipeline : public Inherit<StateCommand, BindComputePipeline>
+    {
+    public:
+        BindComputePipeline(ComputePipeline* pipeline = nullptr);
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        void setPipeline(ComputePipeline* pipeline) { _pipeline = pipeline; }
+        ComputePipeline* getPipeline() { return _pipeline; }
+        const ComputePipeline* getPipeline() const { return _pipeline; }
+
+        void pushTo(State& state) const override;
+        void popFrom(State& state) const override;
+        void dispatch(CommandBuffer& commandBuffer) const override;
+
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context) override;
+
+    public:
+        virtual ~BindComputePipeline();
+
+        ref_ptr<ComputePipeline> _pipeline;
+    };
+    VSG_type_name(vsg::BindComputePipeline);
 
 } // namespace vsg

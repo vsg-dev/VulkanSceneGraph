@@ -14,110 +14,56 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/Group.h>
 #include <vsg/vk/Command.h>
+#include <vsg/vk/Descriptor.h>
+#include <vsg/vk/DescriptorSet.h>
+
+#include <vsg/traversals/CompileTraversal.h>
 
 namespace vsg
 {
     // forward declare
     class State;
     class CommandBuffer;
-    class Context;
-
-    class StateComponent : public Inherit<Command, StateComponent>
-    {
-    public:
-        StateComponent(Allocator* allocator = nullptr) : Inherit(allocator) {}
-
-        virtual void compile(Context& /*context*/) {}
-
-        virtual void pushTo(State& state) const = 0;
-        virtual void popFrom(State& state) const = 0;
-
-    protected:
-        virtual ~StateComponent() {}
-    };
-    VSG_type_name(vsg::StateComponent);
-
-    class VSG_DECLSPEC StateSet : public Inherit<Object, StateSet>
-    {
-    public:
-        StateSet(Allocator* allocator = nullptr);
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        using StateComponents = std::vector<ref_ptr<StateComponent>>;
-
-        virtual void compile(Context& context)
-        {
-            for(auto& component : _stateComponents)
-            {
-                component->compile(context);
-            }
-        }
-
-        virtual void pushTo(State& state) const
-        {
-            for(auto& component : _stateComponents)
-            {
-                component->pushTo(state);
-            }
-        }
-
-        virtual void popFrom(State& state) const
-        {
-            for(auto& component : _stateComponents)
-            {
-                component->popFrom(state);
-            }
-        }
-
-        inline void add(ref_ptr<StateComponent> component)
-        {
-            _stateComponents.push_back(component);
-        }
-
-        StateComponents _stateComponents;
-
-    protected:
-        virtual ~StateSet();
-    };
-    VSG_type_name(vsg::StateSet);
-
 
     class VSG_DECLSPEC StateGroup : public Inherit<Group, StateGroup>
     {
     public:
         StateGroup(Allocator* allocator = nullptr);
 
-        StateGroup(StateSet* stateset);
-
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        using StateComponents = std::vector<ref_ptr<StateComponent>>;
+        using StateCommands = std::vector<ref_ptr<StateCommand>>;
 
-        void add(ref_ptr<StateComponent> component)
+        StateCommands& getStateCommands() { return _stateCommands; }
+        const StateCommands& getStateCommands() const { return _stateCommands; }
+
+        void add(ref_ptr<StateCommand> stateCommand)
         {
-            _stateset->add(component);
+            _stateCommands.push_back(stateCommand);
         }
-
-        void setStateSet(ref_ptr<StateSet> stateset) { _stateset = stateset; }
-        StateSet* getStateSet() { return _stateset; }
-        const StateSet* getStateSet() const { return _stateset; }
 
         inline void pushTo(State& state) const
         {
-            _stateset->pushTo(state);
+            for (auto& stateCommand : _stateCommands)
+            {
+                stateCommand->pushTo(state);
+            }
         }
         inline void popFrom(State& state) const
         {
-            _stateset->popFrom(state);
+            for (auto& stateCommand : _stateCommands)
+            {
+                stateCommand->popFrom(state);
+            }
         }
+
+        virtual void compile(Context& context);
 
     protected:
         virtual ~StateGroup();
 
-        ref_ptr<StateSet> _stateset;
+        StateCommands _stateCommands;
     };
     VSG_type_name(vsg::StateGroup);
 

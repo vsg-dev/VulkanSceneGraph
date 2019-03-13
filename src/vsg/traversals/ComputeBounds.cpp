@@ -10,48 +10,63 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/StateGroup.h>
-
-#include <vsg/io/Input.h>
-#include <vsg/io/Output.h>
+#include <vsg/nodes/Geometry.h>
+#include <vsg/nodes/MatrixTransform.h>
+#include <vsg/traversals/ComputeBounds.h>
 
 using namespace vsg;
 
-StateGroup::StateGroup(Allocator* allocator) :
-    Inherit(allocator)
+ComputeBounds::ComputeBounds()
 {
 }
 
-StateGroup::~StateGroup()
+void ComputeBounds::apply(const vsg::Node& node)
 {
+    node.traverse(*this);
 }
 
-void StateGroup::read(Input& input)
+void ComputeBounds::apply(const vsg::Group& group)
 {
-    Group::read(input);
-
-    _stateCommands.resize(input.readValue<uint32_t>("NumStateCommands"));
-    for (auto& command : _stateCommands)
+    if (auto transform = dynamic_cast<const vsg::MatrixTransform*>(&group); transform != nullptr)
     {
-        command = input.readObject<StateCommand>("StateCommand");
+        apply(*transform);
+    }
+    else if (auto geometry = dynamic_cast<const vsg::Geometry*>(&group); geometry != nullptr)
+    {
+        apply(*geometry);
+    }
+    else
+    {
+        group.traverse(*this);
     }
 }
 
-void StateGroup::write(Output& output) const
+void ComputeBounds::apply(const vsg::MatrixTransform& transform)
 {
-    Group::write(output);
+    matrixStack.push_back(transform.getMatrix());
 
-    output.writeValue<uint32_t>("NumStateCommands", _stateCommands.size());
-    for (auto& command : _stateCommands)
+    transform.traverse(*this);
+
+    matrixStack.pop_back();
+}
+
+void ComputeBounds::apply(const vsg::Geometry& geometry)
+{
+    if (!geometry._arrays.empty())
     {
-        output.writeObject("StateCommand", command.get());
+        geometry._arrays[0]->accept(*this);
     }
 }
 
-void StateGroup::compile(Context& context)
+void ComputeBounds::apply(const vsg::vec3Array& vertices)
 {
-    for (auto& stateCommand : _stateCommands)
+    if (matrixStack.empty())
     {
-        stateCommand->compile(context);
+        for (auto vertex : vertices) bounds.add(vertex);
+    }
+    else
+    {
+        auto matrix = matrixStack.back();
+        for (auto vertex : vertices) bounds.add(matrix * vertex);
     }
 }

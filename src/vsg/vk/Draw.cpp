@@ -10,39 +10,48 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/PushConstants.h>
-#include <vsg/vk/State.h>
+#include <vsg/vk/Draw.h>
 
 using namespace vsg;
 
-PushConstants::PushConstants(VkShaderStageFlags stageFlags, uint32_t offset, Data* data) :
-    _stageFlags(stageFlags),
-    _offset(offset),
-    _data(data)
+void Draw::read(Input& input)
 {
+    Command::read(input);
+
+    input.read("vertexCount", vertexCount);
+    input.read("instanceCount", instanceCount);
+    input.read("firstVertex", firstVertex);
+    input.read("firstInstance", firstInstance);
 }
 
-PushConstants::~PushConstants()
+void Draw::write(Output& output) const
 {
+    Command::write(output);
+
+    output.write("vertexCount", vertexCount);
+    output.write("instanceCount", instanceCount);
+    output.write("firstVertex", firstVertex);
+    output.write("firstInstance", firstInstance);
 }
 
-void PushConstants::pushTo(State& state) const
+void DrawIndexed::read(Input& input)
 {
-    state.pushConstantsMap[_offset].push(this);
-    state.dirty = true;
+    Command::read(input);
+
+    input.read("indexCount", indexCount);
+    input.read("instanceCount", instanceCount);
+    input.read("firstIndex", firstIndex);
+    input.read("vertexOffset", vertexOffset);
+    input.read("firstInstance", firstInstance);
 }
 
-void PushConstants::popFrom(State& state) const
+void DrawIndexed::write(Output& output) const
 {
-    state.pushConstantsMap[_offset].pop();
-    state.dirty = true;
-}
+    Command::write(output);
 
-void PushConstants::dispatch(CommandBuffer& commandBuffer) const
-{
-    const PipelineLayout::Implementation* pipelineLayout = commandBuffer.getCurrentPipelineLayout()->implementation();
-    if (pipelineLayout)
-    {
-        vkCmdPushConstants(commandBuffer, *pipelineLayout, _stageFlags, _offset, static_cast<uint32_t>(_data->dataSize()), _data->dataPointer());
-    }
+    output.write("indexCount", indexCount);
+    output.write("instanceCount", instanceCount);
+    output.write("firstIndex", firstIndex);
+    output.write("vertexOffset", vertexOffset);
+    output.write("firstInstance", firstInstance);
 }

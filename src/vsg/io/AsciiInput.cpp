@@ -144,26 +144,31 @@ vsg::ref_ptr<vsg::Object> AsciiInput::read()
 
             //std::cout<<"Loading new object "<<className<<std::endl;
 
-            vsg::ref_ptr<vsg::Object> object = _objectFactory->create(className.c_str());
+            vsg::ref_ptr<vsg::Object> object;
 
-            if (object)
+            if (className != "nullptr")
             {
-                matchPropertyName("{");
+                object = _objectFactory->create(className.c_str());
 
-                object->read(*this);
+                if (object)
+                {
+                    matchPropertyName("{");
 
-                //std::cout<<"Loaded object, assigning to _objectIDMap."<<object.get()<<std::endl;
+                    object->read(*this);
 
-                matchPropertyName("}");
+                    //std::cout<<"Loaded object, assigning to _objectIDMap."<<object.get()<<std::endl;
 
-                _objectIDMap[id] = object;
-
-                return object;
+                    matchPropertyName("}");
+                }
+                else
+                {
+                    std::cout << "Could not find means to create " << className.c_str() << std::endl;
+                }
             }
-            else
-            {
-                std::cout << "Could not find means to create object" << std::endl;
-            }
+
+            _objectIDMap[id] = object;
+
+            return object;
         }
     }
     return vsg::ref_ptr<vsg::Object>();

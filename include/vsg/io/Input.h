@@ -19,6 +19,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
 
+#include <vsg/io/ObjectFactory.h>
+
+#include <unordered_map>
+
 namespace vsg
 {
 
@@ -61,6 +65,10 @@ namespace vsg
         void read(size_t num, mat4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, dmat4* value) { read(num * value->size(), value->data()); }
 
+        // treat non standard type as raw data,
+        template<typename T>
+        void read(size_t num, T* value) { read(num * sizeof(T), reinterpret_cast<uint8_t*>(value)); }
+
         // match property name and read value(s)
         template<typename... Args>
         void read(const char* propertyName, Args&... args)
@@ -97,6 +105,18 @@ namespace vsg
             read(propertyName, value);
             return value;
         }
+
+        using ObjectID = uint32_t;
+        using ObjectIDMap = std::unordered_map<ObjectID, vsg::ref_ptr<vsg::Object>>;
+        ObjectIDMap& getObjectIDMap() { return _objectIDMap; }
+        const ObjectIDMap& getObjectIDMap() const { return _objectIDMap; }
+
+        vsg::ObjectFactory* getObjectFactory() { return _objectFactory; }
+        const vsg::ObjectFactory* getObjectFactory() const { return _objectFactory; }
+
+    protected:
+        ObjectIDMap _objectIDMap;
+        vsg::ref_ptr<vsg::ObjectFactory> _objectFactory;
     };
 
 } // namespace vsg

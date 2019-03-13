@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/traversals/CompileTraversal.h>
 
+#include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/QuadGroup.h>
@@ -26,20 +27,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-/////////////////////////////////////////////////////////////////////////////////////////
-//
-// GraphicsNode
-//
-void GraphicsNode::read(Input& input)
-{
-    Group::read(input);
-}
-
-void GraphicsNode::write(Output& output) const
-{
-    Group::write(output);
-}
-
 CompileTraversal::CompileTraversal()
 {
 }
@@ -50,33 +37,22 @@ CompileTraversal::~CompileTraversal()
 
 void CompileTraversal::apply(Object& object)
 {
-    // std::cout<<"CompileTraversal::apply("<<object.className()<<")"<<std::endl;
     object.traverse(*this);
 }
 
-void CompileTraversal::apply(Group& group)
+void CompileTraversal::apply(Command& command)
 {
-    auto graphics = dynamic_cast<GraphicsNode*>(&group);
-    if (graphics)
-    {
-        apply(*graphics);
-    }
-    else
-    {
-        group.traverse(*this);
-    }
+    command.compile(context);
 }
 
 void CompileTraversal::apply(StateGroup& stateGroup)
 {
-    // std::cout<<"CompileTraversal::apply(StateGroup&)"<<std::endl;
-    if (stateGroup.getStateSet()) stateGroup.getStateSet()->compile(context);
-
+    stateGroup.compile(context);
     stateGroup.traverse(*this);
 }
 
-void CompileTraversal::apply(GraphicsNode& graphics)
+void CompileTraversal::apply(Geometry& geometry)
 {
-    graphics.compile(context);
-    graphics.traverse(*this);
+    geometry.compile(context);
+    geometry.traverse(*this);
 }

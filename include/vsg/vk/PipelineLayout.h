@@ -16,31 +16,73 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    // forward declare
+    class Context;
 
     using PushConstantRanges = std::vector<VkPushConstantRange>;
 
     class VSG_DECLSPEC PipelineLayout : public Inherit<Object, PipelineLayout>
     {
     public:
-        PipelineLayout(VkPipelineLayout pipelineLayout, const DescriptorSetLayouts& descrtorSetLayouts, Device* device, AllocationCallbacks* allocator = nullptr);
+        PipelineLayout();
+        PipelineLayout(const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags = 0);
 
-        using Result = vsg::Result<PipelineLayout, VkResult, VK_SUCCESS>;
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
-        static Result create(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags = 0, AllocationCallbacks* allocator = nullptr);
+        DescriptorSetLayouts& getDescriptorSetLayouts() { return _descriptorSetLayouts; }
+        const DescriptorSetLayouts& getDescriptorSetLayouts() const { return _descriptorSetLayouts; }
 
-        operator VkPipelineLayout() const { return _pipelineLayout; }
+        PushConstantRanges& getPushConstantRange() { return _pushConstantRanges; }
+        const PushConstantRanges& getPushConstantRange() const { return _pushConstantRanges; }
 
-        Device* getDevice() { return _device; }
-        const Device* getDevice() const { return _device; }
+        VkPipelineLayoutCreateFlags& getVkPipelineLayoutCreateFlags() { return _flags; }
+        VkPipelineLayoutCreateFlags getVkPipelineLayoutCreateFlags() const { return _flags; }
+
+        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        {
+        public:
+            Implementation(VkPipelineLayout pipelineLayout, const DescriptorSetLayouts& descrtorSetLayouts, Device* device, AllocationCallbacks* allocator = nullptr);
+
+            using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
+
+            static Result create(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags = 0, AllocationCallbacks* allocator = nullptr);
+
+            operator VkPipelineLayout() const { return _pipelineLayout; }
+
+            Device* getDevice() { return _device; }
+            const Device* getDevice() const { return _device; }
+
+        protected:
+            virtual ~Implementation();
+
+            VkPipelineLayout _pipelineLayout;
+            DescriptorSetLayouts _descriptorSetLayouts;
+
+            ref_ptr<Device> _device;
+            ref_ptr<AllocationCallbacks> _allocator;
+        };
+
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context);
+
+        // remove the local reference to the Vulkan implementation
+        void release() { _implementation = nullptr; }
+
+        operator VkPipelineLayout() const { return *_implementation; }
+
+        Implementation* implementation() { return _implementation; }
+        const Implementation* implementation() const { return _implementation; }
 
     protected:
         virtual ~PipelineLayout();
 
-        VkPipelineLayout _pipelineLayout;
         DescriptorSetLayouts _descriptorSetLayouts;
+        PushConstantRanges _pushConstantRanges;
+        VkPipelineLayoutCreateFlags _flags;
 
-        ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
+        ref_ptr<Implementation> _implementation;
     };
+    VSG_type_name(vsg::PipelineLayout);
 
 } // namespace vsg

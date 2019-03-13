@@ -380,20 +380,49 @@ Win32_Window::Win32_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationC
 
     if (!::EnumDisplaySettings(displayDevices[traits->screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
-    int32_t screenx = deviceMode.dmPosition.x + traits->x;
-    int32_t screeny = deviceMode.dmPosition.y + traits->y;
-
     // setup window rect and style
+    int32_t screenx = 0;
+    int32_t screeny = 0;
     RECT windowRect;
-    windowRect.left = screenx;
-    windowRect.top = screeny;
-    windowRect.right = windowRect.left + traits->width;
-    windowRect.bottom = windowRect.top + traits->height;
 
-    unsigned int windowStyle = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | (traits->decoration ? WS_CAPTION : 0);
-    unsigned int extendedStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+    unsigned int windowStyle = WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+    unsigned int extendedStyle = 0;
 
-    if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, AdjustWindowRectEx failed.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    if(!traits->fullscreen)
+    {
+        screenx = deviceMode.dmPosition.x + traits->x;
+        screeny = deviceMode.dmPosition.y + traits->y;
+
+        windowRect.left = screenx;
+        windowRect.top = screeny;
+        windowRect.right = windowRect.left + traits->width;
+        windowRect.bottom = windowRect.top + traits->height;
+
+        if (traits->decoration)
+        {
+            windowStyle |= WS_OVERLAPPEDWINDOW;
+
+            extendedStyle |= WS_EX_WINDOWEDGE | 
+                WS_EX_APPWINDOW |
+                WS_EX_OVERLAPPEDWINDOW |
+                WS_EX_ACCEPTFILES |
+                WS_EX_LTRREADING;
+
+            // if decorated call adjust to account for borders etc
+            if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, AdjustWindowRectEx failed.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+
+        }
+    }
+    else
+    {
+        screenx = deviceMode.dmPosition.x;
+        screeny = deviceMode.dmPosition.y;
+
+        windowRect.left = screenx;
+        windowRect.top = screeny;
+        windowRect.right = windowRect.left + deviceMode.dmPelsWidth;
+        windowRect.bottom = windowRect.top + deviceMode.dmPelsHeight;
+    }
 
     // create the window
     _window = ::CreateWindowEx(extendedStyle, traits->windowClass.c_str(), traits->windowTitle.c_str(), windowStyle,
@@ -579,8 +608,8 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         _bufferedEvents.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, mx, my, getButtonMask(wParam), getButtonEventDetail(msg)));
 
         //::ReleaseCapture(); // should only release once all mouse buttons are released ??
+        break;
     }
-    break;
     case WM_LBUTTONDBLCLK:
     case WM_MBUTTONDBLCLK:
     case WM_RBUTTONDBLCLK:
@@ -591,9 +620,11 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     case WM_MOUSEWHEEL:
         break;
     case WM_MOVE:
-        break;
     case WM_SIZE:
+    {
+        _bufferedEvents.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, winx, winy, winw, winh));
         break;
+    }
     case WM_EXITSIZEMOVE:
         break;
     case WM_KEYDOWN:
@@ -607,7 +638,6 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
             std::cout << "Repeat count: " << repeatCount << std::endl;
             _bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier, repeatCount));
         }
-
         break;
     }
     case WM_KEYUP:

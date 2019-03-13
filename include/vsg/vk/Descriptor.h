@@ -19,6 +19,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    // forward declare
+    class Context;
 
     using DescriptorBufferInfos = std::vector<VkDescriptorBufferInfo>;
 
@@ -35,6 +37,25 @@ namespace vsg
         uint32_t _dstBinding;
         uint32_t _dstArrayElement;
         VkDescriptorType _descriptorType;
+
+        void read(Input& input) override
+        {
+            Object::read(input);
+
+            input.read("DstBinding", _dstBinding);
+            input.read("DstArrayElement", _dstArrayElement);
+        }
+
+        void write(Output& output) const override
+        {
+            Object::write(output);
+
+            output.write("DstBinding", _dstBinding);
+            output.write("DstArrayElement", _dstArrayElement);
+        }
+
+        // compile the Vulkan object, context parameter used for Device
+        virtual void compile(Context& /*context*/) {}
 
         virtual void assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
         {
@@ -144,6 +165,8 @@ namespace vsg
             wds.pBufferInfo = _bufferInfos.data();
         }
 
+        void copyDataListToBuffers();
+
     protected:
         BufferDataList _bufferDataList;
         std::vector<VkDescriptorBufferInfo> _bufferInfos;
@@ -178,5 +201,76 @@ namespace vsg
         BufferViewList _texelBufferViewList;
         std::vector<VkBufferView> _texelBufferViews;
     };
+
+    class VSG_DECLSPEC Texture : public Inherit<Descriptor, Texture>
+    {
+    public:
+        Texture();
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        void compile(Context& context) override;
+
+        void assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
+
+        // settings
+        VkSamplerCreateInfo _samplerInfo;
+        ref_ptr<Data> _textureData;
+
+        ref_ptr<vsg::Descriptor> _implementation;
+    };
+    VSG_type_name(vsg::Texture)
+
+    class VSG_DECLSPEC Uniform : public Inherit<Descriptor, Uniform>
+    {
+    public:
+        Uniform();
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        void compile(Context& context) override;
+
+        void assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
+
+        void copyDataListToBuffers();
+
+        // settings
+        DataList _dataList;
+
+        ref_ptr<vsg::DescriptorBuffer> _implementation;
+    };
+    VSG_type_name(vsg::Uniform)
+
+    struct Material
+    {
+        vec4 ambientColor;
+        vec4 diffuseColor;
+        vec4 specularColor;
+        float shine;
+    };
+
+    class VSG_DECLSPEC MaterialValue : public Inherit<Value<Material>, MaterialValue>
+    {
+    public:
+        MaterialValue() {}
+
+        void read(Input& input) override
+        {
+            value().ambientColor = input.readValue<vec4>("ambientColor");
+            value().diffuseColor = input.readValue<vec4>("diffuseColor");
+            value().specularColor = input.readValue<vec4>("specularColor");
+            value().shine = input.readValue<float>("shine");
+        }
+        void write(Output& output) const override
+        {
+            output.writeValue<vec4>("ambientColor", value().ambientColor);
+            output.writeValue<vec4>("diffuseColor", value().diffuseColor);
+            output.writeValue<vec4>("specularColor", value().specularColor);
+            output.writeValue<float>("shine", value().shine);
+        }
+    };
+    VSG_type_name(vsg::MaterialValue)
 
 } // namespace vsg

@@ -17,6 +17,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    // forward declare
+    class Context;
+
     template<typename T>
     bool readFile(T& buffer, const std::string& filename)
     {
@@ -39,15 +42,19 @@ namespace vsg
         return true;
     }
 
-    class VSG_DECLSPEC Shader : public Inherit<Object, Shader>
+    class VSG_DECLSPEC ShaderModule : public Inherit<Object, ShaderModule>
     {
     public:
         using Source = std::string;
         using SPIRV = std::vector<uint32_t>;
 
-        Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const SPIRV& spirv);
-        Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source);
-        Shader(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source, const SPIRV& spirv);
+        ShaderModule();
+        ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, const SPIRV& spirv);
+        ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source);
+        ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source, const SPIRV& spirv);
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         VkShaderStageFlagBits& stage() { return _stage; }
         VkShaderStageFlagBits stage() const { return _stage; }
@@ -61,46 +68,44 @@ namespace vsg
         SPIRV& spirv() { return _spirv; }
         const SPIRV& spirv() const { return _spirv; }
 
-        using Result = vsg::Result<Shader, VkResult, VK_SUCCESS>;
+        using Result = vsg::Result<ShaderModule, VkResult, VK_SUCCESS>;
         static Result read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename);
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
+        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        {
+        public:
+            Implementation(VkShaderModule shaderModule, Device* device, AllocationCallbacks* allocator);
+            virtual ~Implementation();
+
+            using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
+
+            /** Create a ComputePipeline.*/
+            static Result create(Device* device, ShaderModule* shader, AllocationCallbacks* allocator = nullptr);
+
+            operator VkShaderModule() const { return _shaderModule; }
+
+            VkShaderModule _shaderModule;
+            ref_ptr<Device> _device;
+            ref_ptr<AllocationCallbacks> _allocator;
+        };
+
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context);
+
+        // remove the local reference to the Vulkan implementation
+        void release() { _implementation = nullptr; }
+
+        operator VkShaderModule() const { return _implementation->_shaderModule; }
 
     protected:
-        virtual ~Shader();
+        virtual ~ShaderModule();
 
         VkShaderStageFlagBits _stage;
         std::string _entryPointName;
         std::string _source;
         SPIRV _spirv;
-    };
-    VSG_type_name(vsg::Shader);
 
-    class VSG_DECLSPEC ShaderModule : public Inherit<Object, ShaderModule>
-    {
-    public:
-        ShaderModule(VkShaderModule shaderModule, Device* device, Shader* shader, AllocationCallbacks* allocator = nullptr);
-
-        using Result = vsg::Result<ShaderModule, VkResult, VK_SUCCESS>;
-
-        static Result create(Device* device, Shader* shader, AllocationCallbacks* allocator = nullptr);
-
-        operator VkShaderModule() const { return _shaderModule; }
-
-        const Shader* getShader() const { return _shader; }
-
-        Device* getDevice() { return _device; }
-        const Device* getDevice() const { return _device; }
-
-    protected:
-        virtual ~ShaderModule();
-
-        VkShaderModule _shaderModule;
-
-        ref_ptr<Device> _device;
-        ref_ptr<Shader> _shader;
-        ref_ptr<AllocationCallbacks> _allocator;
+        ref_ptr<Implementation> _implementation;
     };
     VSG_type_name(vsg::ShaderModule);
 

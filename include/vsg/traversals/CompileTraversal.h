@@ -15,14 +15,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <memory>
 #include <vsg/core/Object.h>
 
+#include <vsg/nodes/Group.h>
+
 #include <vsg/vk/CommandPool.h>
-#include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/DescriptorPool.h>
+#include <vsg/vk/GraphicsPipeline.h>
 
 namespace vsg
 {
-    struct Context
+    class Context
     {
+    public:
         ref_ptr<Device> device;
         ref_ptr<CommandPool> commandPool;
         ref_ptr<RenderPass> renderPass;
@@ -30,26 +33,10 @@ namespace vsg
         VkQueue graphicsQueue = 0;
 
         ref_ptr<DescriptorPool> descriptorPool;
-        DescriptorSetLayouts descriptorSetLayouts;
-        ref_ptr<PipelineLayout> pipelineLayout;
 
         ref_ptr<mat4Value> projMatrix;
         ref_ptr<mat4Value> viewMatrix;
     };
-
-    class GraphicsNode : public Inherit<Group, GraphicsNode>
-    {
-    public:
-        GraphicsNode(Allocator* allocator = nullptr):
-            Inherit(allocator) {}
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        virtual void compile(Context& context) = 0;
-    };
-    VSG_type_name(vsg::GraphicsNode)
-
 
     class VSG_DECLSPEC CompileTraversal : public Visitor
     {
@@ -58,9 +45,9 @@ namespace vsg
         ~CompileTraversal();
 
         void apply(Object& object);
-        void apply(Group& group);
+        void apply(Command& command);
         void apply(StateGroup& stateGroup);
-        void apply(GraphicsNode& graphics);
+        void apply(Geometry& geometry);
 
         Context context;
     };

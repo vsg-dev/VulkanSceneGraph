@@ -12,8 +12,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/traversals/DispatchTraversal.h>
 
+#include <vsg/nodes/Commands.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
+#include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 
@@ -54,6 +56,16 @@ DispatchTraversal::DispatchTraversal(CommandBuffer* commandBuffer) :
 DispatchTraversal::~DispatchTraversal()
 {
     delete _data;
+}
+
+void DispatchTraversal::setProjectionMatrix(const dmat4& projMatrix)
+{
+    _data->_state.projectionMatrixStack.set(projMatrix);
+}
+
+void DispatchTraversal::setViewMatrix(const dmat4& viewMatrix)
+{
+    _data->_state.viewMatrixStack.set(viewMatrix);
 }
 
 void DispatchTraversal::apply(const Object& object)
@@ -98,7 +110,26 @@ void DispatchTraversal::apply(const StateGroup& stateGroup)
     stateGroup.popFrom(_data->_state);
 }
 
+void DispatchTraversal::apply(const MatrixTransform& mt)
+{
+    mt.pushTo(_data->_state);
+
+    mt.traverse(*this);
+
+    mt.popFrom(_data->_state);
+}
+
 // Vulkan nodes
+void DispatchTraversal::apply(const Commands& commands)
+{
+    //    std::cout<<"Visiting Command "<<std::endl;
+    _data->_state.dispatch(*(_data->_commandBuffer));
+    for (auto& command : commands.getChildren())
+    {
+        command->dispatch(*(_data->_commandBuffer));
+    }
+}
+
 void DispatchTraversal::apply(const Command& command)
 {
     //    std::cout<<"Visiting Command "<<std::endl;
