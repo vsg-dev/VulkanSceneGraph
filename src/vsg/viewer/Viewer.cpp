@@ -375,13 +375,14 @@ void Viewer::compile()
         uint32_t maxSets = collectStats.computeNumDescriptorSets();
         DescriptorPoolSizes descriptorPoolSizes = collectStats.computeDescriptorPoolSizes();
 
+#if 0
         std::cout << "maxSets = " << maxSets << std::endl;
         std::cout << "    type\tcount" << std::endl;
         for (auto& [type, count] : descriptorPoolSizes)
         {
             std::cout << "    " << type << "\t\t" << count << std::endl;
         }
-
+#endif
         vsg::CompileTraversal compile;
         compile.context.device = window->device();
         compile.context.commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
@@ -405,7 +406,7 @@ void Viewer::compile()
                 compile.context.projMatrix = gs->_projMatrix;
                 compile.context.viewMatrix = gs->_viewMatrix;
 
-                std::cout << "Compiling GraphicsStage " << compile.context.viewport << std::endl;
+                // std::cout << "Compiling GraphicsStage " << compile.context.viewport << std::endl;
 
                 gs->_commandGraph->accept(compile);
             }
