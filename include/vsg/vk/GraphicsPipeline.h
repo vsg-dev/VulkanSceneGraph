@@ -279,14 +279,24 @@ namespace vsg
     class VSG_DECLSPEC ColorBlendState : public Inherit<GraphicsPipelineState, ColorBlendState>, public VkPipelineColorBlendStateCreateInfo
     {
     public:
+        using ColorBlendAttachments = std::vector<VkPipelineColorBlendAttachmentState>;
+
         ColorBlendState();
+        ColorBlendState(const ColorBlendAttachments& colorBlendAttachments);
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         VkStructureType getType() const override { return sType; }
 
         void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
-        using ColorBlendAttachments = std::vector<VkPipelineColorBlendAttachmentState>;
         const ColorBlendAttachments& getColorBlendAttachments() const { return _colorBlendAttachments; }
+        void setColorBlendAttachments(const ColorBlendAttachments& colorBlendAttachments)
+        {
+            _colorBlendAttachments = colorBlendAttachments;
+            update();
+        }
 
         void update();
 

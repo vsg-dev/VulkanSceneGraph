@@ -334,7 +334,7 @@ public:
 
     uint32_t computeNumDescriptorSets() const
     {
-        return descriptorSets.size();
+        return static_cast<uint32_t>(descriptorSets.size());
     }
 
     DescriptorPoolSizes computeDescriptorPoolSizes() const
