@@ -27,6 +27,16 @@ namespace vsg
         DescriptorSet();
         DescriptorSet(const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors);
 
+        template<class N, class V>
+        static void t_traverse(N& ds, V& visitor)
+        {
+            for (auto& dsl: ds._descriptorSetLayouts) dsl->accept(visitor);
+            for (auto& descriptor : ds._descriptors) descriptor->accept(visitor);
+        }
+
+        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -99,6 +109,16 @@ namespace vsg
             _descriptorSets(descriptorSets)
         {
         }
+
+        template<class N, class V>
+        static void t_traverse(N& bds, V& visitor)
+        {
+            if (bds._pipelineLayout) bds._pipelineLayout->accept(visitor);
+            for (auto& ds : bds._descriptorSets) ds->accept(visitor);
+        }
+
+        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
 
         void read(Input& input) override;
         void write(Output& output) const override;
