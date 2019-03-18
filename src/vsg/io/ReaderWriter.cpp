@@ -46,7 +46,7 @@ vsg::ref_ptr<vsg::Object> vsgReaderWriter::readFile(const vsg::Path& filename) c
     if (vsg::fileExists(filename))
     {
         auto ext = vsg::fileExtension(filename);
-        if (ext == "vsga")
+        if (ext == "vsga" || ext == "vsgt")
         {
             std::ifstream fin(filename);
             vsg::AsciiInput input(fin);
@@ -72,7 +72,7 @@ vsg::ref_ptr<vsg::Object> vsgReaderWriter::readFile(const vsg::Path& filename) c
 bool vsgReaderWriter::writeFile(const vsg::Object* object, const vsg::Path& filename) const
 {
     auto ext = vsg::fileExtension(filename);
-    if (ext == "vsga")
+    if (ext == "vsga" || ext == "vsgt")
     {
         std::ofstream fout(filename);
         vsg::AsciiOutput output(fout);

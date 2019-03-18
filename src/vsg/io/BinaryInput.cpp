@@ -37,7 +37,7 @@ BinaryInput::BinaryInput(std::istream& input) :
 
     char read_line[1024];
     _input.getline(read_line, sizeof(read_line) - 1);
-    std::cout << "First line [" << read_line << "]" << std::endl;
+    //std::cout << "First line [" << read_line << "]" << std::endl;
 }
 
 void BinaryInput::_read(std::string& value)
