@@ -328,8 +328,8 @@ public:
         if (descriptors.count(&descriptor) == 0)
         {
             descriptors.insert(&descriptor);
-            ++descriptorTypeMap[descriptor._descriptorType];
         }
+        ++descriptorTypeMap[descriptor._descriptorType];
     }
 
     uint32_t computeNumDescriptorSets() const
@@ -375,7 +375,7 @@ void Viewer::compile()
         uint32_t maxSets = collectStats.computeNumDescriptorSets();
         DescriptorPoolSizes descriptorPoolSizes = collectStats.computeDescriptorPoolSizes();
 
-#if 0
+#if 1
         std::cout << "maxSets = " << maxSets << std::endl;
         std::cout << "    type\tcount" << std::endl;
         for (auto& [type, count] : descriptorPoolSizes)
