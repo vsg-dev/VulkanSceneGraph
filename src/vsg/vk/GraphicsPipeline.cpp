@@ -504,8 +504,68 @@ ColorBlendState::ColorBlendState() :
     blendConstants[3] = 0.0f;
 }
 
+ColorBlendState::ColorBlendState(const ColorBlendAttachments& colorBlendAttachments) :
+    ColorBlendState()
+{
+    setColorBlendAttachments(colorBlendAttachments);
+}
+
 ColorBlendState::~ColorBlendState()
 {
+}
+
+void ColorBlendState::read(Input& input)
+{
+    Object::read(input);
+
+    logicOp = static_cast<VkLogicOp>(input.readValue<uint32_t>("logicOp"));
+    logicOpEnable = static_cast<VkBool32>(input.readValue<uint32_t>("logicOpEnable"));
+
+    _colorBlendAttachments.resize(input.readValue<uint32_t>("NumColorBlendAttachments"));
+    for (auto& colorBlendAttachment : _colorBlendAttachments)
+    {
+        colorBlendAttachment.blendEnable = static_cast<VkBool32>(input.readValue<uint32_t>("blendEnable"));
+        colorBlendAttachment.srcColorBlendFactor = static_cast<VkBlendFactor>(input.readValue<uint32_t>("srcColorBlendFactor"));
+        colorBlendAttachment.dstColorBlendFactor = static_cast<VkBlendFactor>(input.readValue<uint32_t>("dstColorBlendFactor"));
+        colorBlendAttachment.colorBlendOp = static_cast<VkBlendOp>(input.readValue<uint32_t>("colorBlendOp"));
+        colorBlendAttachment.srcAlphaBlendFactor = static_cast<VkBlendFactor>(input.readValue<uint32_t>("srcAlphaBlendFactor"));
+        colorBlendAttachment.dstAlphaBlendFactor = static_cast<VkBlendFactor>(input.readValue<uint32_t>("dstAlphaBlendFactor"));
+        colorBlendAttachment.alphaBlendOp = static_cast<VkBlendOp>(input.readValue<uint32_t>("alphaBlendOp"));
+        colorBlendAttachment.colorWriteMask = static_cast<VkColorComponentFlags>(input.readValue<uint32_t>("colorWriteMask"));
+    }
+
+    input.read("blendConstants0", blendConstants[0]);
+    input.read("blendConstants1", blendConstants[1]);
+    input.read("blendConstants2", blendConstants[2]);
+    input.read("blendConstants3", blendConstants[3]);
+
+    update();
+}
+
+void ColorBlendState::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeValue<uint32_t>("logicOp", logicOp);
+    output.writeValue<uint32_t>("logicOpEnable", logicOpEnable);
+
+    output.writeValue<uint32_t>("NumColorBlendAttachments", _colorBlendAttachments.size());
+    for (auto& colorBlendAttachment : _colorBlendAttachments)
+    {
+        output.writeValue<uint32_t>("blendEnable", colorBlendAttachment.blendEnable);
+        output.writeValue<uint32_t>("srcColorBlendFactor", colorBlendAttachment.srcColorBlendFactor);
+        output.writeValue<uint32_t>("dstColorBlendFactor", colorBlendAttachment.dstColorBlendFactor);
+        output.writeValue<uint32_t>("colorBlendOp", colorBlendAttachment.colorBlendOp);
+        output.writeValue<uint32_t>("srcAlphaBlendFactor", colorBlendAttachment.srcAlphaBlendFactor);
+        output.writeValue<uint32_t>("dstAlphaBlendFactor", colorBlendAttachment.dstAlphaBlendFactor);
+        output.writeValue<uint32_t>("alphaBlendOp", colorBlendAttachment.alphaBlendOp);
+        output.writeValue<uint32_t>("colorWriteMask", colorBlendAttachment.colorWriteMask);
+    }
+
+    output.write("blendConstants0", blendConstants[0]);
+    output.write("blendConstants1", blendConstants[1]);
+    output.write("blendConstants2", blendConstants[2]);
+    output.write("blendConstants3", blendConstants[3]);
 }
 
 void ColorBlendState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
