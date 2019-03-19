@@ -197,6 +197,9 @@ void BindDescriptorSets::dispatch(CommandBuffer& commandBuffer) const
 
 void BindDescriptorSets::compile(Context& context)
 {
+    // no need to compile if already compiled
+    if (_vkDescriptorSets.size()==_descriptorSets.size()) return;
+
     _vkDescriptorSets.resize(_descriptorSets.size());
     for (size_t i = 0; i < _descriptorSets.size(); ++i)
     {

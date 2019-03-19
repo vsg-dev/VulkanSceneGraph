@@ -176,6 +176,8 @@ void Texture::write(Output& output) const
 
 void Texture::compile(Context& context)
 {
+    if (_implementation) return;
+
     ref_ptr<Sampler> sampler = Sampler::create(context.device, _samplerInfo, nullptr);
     vsg::ImageData imageData = vsg::transferImageData(context.device, context.commandPool, context.graphicsQueue, _textureData, sampler);
     if (!imageData.valid())
@@ -224,6 +226,8 @@ void Uniform::write(Output& output) const
 
 void Uniform::compile(Context& context)
 {
+    if (_implementation) return;
+
     auto bufferDataList = vsg::createHostVisibleBuffer(context.device, _dataList, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     vsg::copyDataListToBuffers(bufferDataList);
     _implementation = vsg::DescriptorBuffer::create(_dstBinding, _dstArrayElement, _descriptorType, bufferDataList);

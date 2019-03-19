@@ -91,6 +91,8 @@ void Geometry::write(Output& output) const
 
 void Geometry::compile(Context& context)
 {
+    if (_renderImplementation) return;
+
     auto vertexBufferData = vsg::createBufferAndTransferData(context.device, context.commandPool, context.graphicsQueue, _arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
 
     _renderImplementation = new vsg::Group;
