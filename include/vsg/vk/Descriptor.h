@@ -104,7 +104,10 @@ namespace vsg
     };
 
     /// transfer Data to graphics memory, returning ImageData configuration.
-    extern VSG_DECLSPEC vsg::ImageData transferImageData(Device* device, CommandPool* commandPool, VkQueue queue, const Data* data, Sampler* sampler = nullptr);
+    //extern VSG_DECLSPEC vsg::ImageData transferImageData(Device* device, CommandPool* commandPool, VkQueue queue, const Data* data, Sampler* sampler = nullptr);
+
+    /// transfer Data to graphics memory, returning ImageData configuration.
+    extern VSG_DECLSPEC vsg::ImageData transferImageData(Context& context, const Data* data, Sampler* sampler = nullptr);
 
     using ImageDataList = std::vector<ImageData>;
 

@@ -37,7 +37,10 @@ namespace vsg
     using BufferDataList = std::vector<BufferData>;
     using DataList = std::vector<ref_ptr<Data>>;
 
-    BufferDataList createBufferAndTransferData(Device* device, CommandPool* commandPool, VkQueue graphicsQueue, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
+    // forward declare
+    class Context;
+
+    BufferDataList createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 
     BufferDataList createHostVisibleBuffer(Device* device, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 

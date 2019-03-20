@@ -93,7 +93,7 @@ void Geometry::compile(Context& context)
 {
     if (_renderImplementation) return;
 
-    auto vertexBufferData = vsg::createBufferAndTransferData(context.device, context.commandPool, context.graphicsQueue, _arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    auto vertexBufferData = vsg::createBufferAndTransferData(context, _arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
 
     _renderImplementation = new vsg::Group;
 
@@ -104,7 +104,7 @@ void Geometry::compile(Context& context)
     // set up index buffer binding
     if (_indices && _indices->dataSize() > 0)
     {
-        auto indexBufferData = vsg::createBufferAndTransferData(context.device, context.commandPool, context.graphicsQueue, {_indices}, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+        auto indexBufferData = vsg::createBufferAndTransferData(context, {_indices}, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
         vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = vsg::BindIndexBuffer::create(indexBufferData.front(), VK_INDEX_TYPE_UINT16); // device dependent
         _renderImplementation->addChild(bindIndexBuffer);                                                                                 // device dependent
     }

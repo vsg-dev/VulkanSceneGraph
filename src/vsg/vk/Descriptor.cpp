@@ -22,12 +22,14 @@ using namespace vsg;
 //
 // vsg::transferImageData
 //
-ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQueue queue, const Data* data, Sampler* sampler)
+ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sampler)
 {
     if (!data)
     {
         return ImageData();
     }
+
+    Device* device = context.device;
 
     VkDeviceSize imageTotalSize = data->dataSize();
 
@@ -71,6 +73,67 @@ ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQue
         return ImageData();
     }
 
+#if 1
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(*device, *textureImage, &memRequirements);
+
+    VkDeviceSize totalSize = memRequirements.size;
+
+    ref_ptr<DeviceMemory> deviceMemory;
+    DeviceMemory::OptionalMemoryOffset reservedSlot(false, 0);
+
+    for(auto& memoryPool : context.memoryPools)
+    {
+        if (!memoryPool->full() && memoryPool->getMemoryRequirements().memoryTypeBits==memRequirements.memoryTypeBits)
+        {
+            reservedSlot = memoryPool->reserve(totalSize);
+            if (reservedSlot.first)
+            {
+                deviceMemory = memoryPool;
+                break;
+            }
+        }
+    }
+
+    if (!deviceMemory)
+    {
+        VkDeviceSize minumumDeviceMemorySize = context.minimumImageDeviceMemorySize;
+
+        // clamp to an aligned size
+        minumumDeviceMemorySize = ((minumumDeviceMemorySize+memRequirements.alignment-1)/memRequirements.alignment)*memRequirements.alignment;
+
+        //std::cout<<"Creating new local DeviceMemory"<<std::endl;
+        if (memRequirements.size<minumumDeviceMemorySize) memRequirements.size = minumumDeviceMemorySize;
+
+        deviceMemory = vsg::DeviceMemory::create(device, memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        if (deviceMemory)
+        {
+            reservedSlot = deviceMemory->reserve(totalSize);
+            if (!deviceMemory->full())
+            {
+                //std::cout<<"  inserting DeviceMemory into memoryPool "<<deviceMemory.get()<<std::endl;
+                context.memoryPools.push_back(deviceMemory);
+            }
+        }
+    }
+    else
+    {
+        if (deviceMemory->full())
+        {
+            //std::cout<<"DeviceMemory is full "<<deviceMemory.get()<<std::endl;
+        }
+    }
+
+    if (!reservedSlot.first)
+    {
+        std::cout<<"Failed to reserve slot"<<std::endl;
+        return ImageData();
+    }
+
+    //std::cout<<"DeviceMemory "<<deviceMemory.get()<<" slot position = "<<reservedSlot.second<<", size = "<<totalSize<<std::endl;
+    textureImage->bind(deviceMemory, reservedSlot.second);
+#else
+
     ref_ptr<DeviceMemory> textureImageDeviceMemory = DeviceMemory::create(device, textureImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     if (!textureImageDeviceMemory)
     {
@@ -78,8 +141,9 @@ ImageData vsg::transferImageData(Device* device, CommandPool* commandPool, VkQue
     }
 
     textureImage->bind(textureImageDeviceMemory, 0);
+#endif
 
-    dispatchCommandsToQueue(device, commandPool, queue, [&](VkCommandBuffer commandBuffer) {
+    dispatchCommandsToQueue(device, context.commandPool, context.graphicsQueue, [&](VkCommandBuffer commandBuffer) {
         ImageMemoryBarrier preCopyImageMemoryBarrier(
             0, VK_ACCESS_TRANSFER_WRITE_BIT,
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -179,7 +243,7 @@ void Texture::compile(Context& context)
     if (_implementation) return;
 
     ref_ptr<Sampler> sampler = Sampler::create(context.device, _samplerInfo, nullptr);
-    vsg::ImageData imageData = vsg::transferImageData(context.device, context.commandPool, context.graphicsQueue, _textureData, sampler);
+    vsg::ImageData imageData = vsg::transferImageData(context, _textureData, sampler);
     if (!imageData.valid())
     {
         return;
