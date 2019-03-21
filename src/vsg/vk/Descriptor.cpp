@@ -252,9 +252,10 @@ void Texture::compile(Context& context)
     _implementation = vsg::DescriptorImage::create(_dstBinding, _dstArrayElement, _descriptorType, vsg::ImageDataList{imageData});
 }
 
-void Texture::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+bool Texture::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
 {
-    if (_implementation) _implementation->assignTo(wds, descriptorSet);
+    if (_implementation) return _implementation->assignTo(wds, descriptorSet);
+    else return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -297,9 +298,10 @@ void Uniform::compile(Context& context)
     _implementation = vsg::DescriptorBuffer::create(_dstBinding, _dstArrayElement, _descriptorType, bufferDataList);
 }
 
-void Uniform::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+bool Uniform::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
 {
-    if (_implementation) _implementation->assignTo(wds, descriptorSet);
+    if (_implementation) return _implementation->assignTo(wds, descriptorSet);
+    else return false;
 }
 
 void Uniform::copyDataListToBuffers()
