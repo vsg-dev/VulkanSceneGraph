@@ -93,20 +93,41 @@ void Geometry::compile(Context& context)
 {
     if (_renderImplementation) return;
 
-    auto vertexBufferData = vsg::createBufferAndTransferData(context, _arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-
     _renderImplementation = new vsg::Group;
 
+    bool failure = false;
+
     // set up vertex buffer binding
-    vsg::ref_ptr<vsg::BindVertexBuffers> bindVertexBuffers = vsg::BindVertexBuffers::create(0, vertexBufferData); // device dependent
-    _renderImplementation->addChild(bindVertexBuffers);                                                           // device dependent
+    if (!_arrays.empty())
+    {
+        auto vertexBufferData = vsg::createBufferAndTransferData(context, _arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+        if (!vertexBufferData.empty())
+        {
+            vsg::ref_ptr<vsg::BindVertexBuffers> bindVertexBuffers = vsg::BindVertexBuffers::create(0, vertexBufferData);
+            if (bindVertexBuffers) _renderImplementation->addChild(bindVertexBuffers);
+            else failure = true;
+        }
+        else failure = true;
+    }
 
     // set up index buffer binding
     if (_indices && _indices->dataSize() > 0)
     {
         auto indexBufferData = vsg::createBufferAndTransferData(context, {_indices}, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-        vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = vsg::BindIndexBuffer::create(indexBufferData.front(), VK_INDEX_TYPE_UINT16); // device dependent
-        _renderImplementation->addChild(bindIndexBuffer);                                                                                 // device dependent
+        if (!indexBufferData.empty())
+        {
+            vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = vsg::BindIndexBuffer::create(indexBufferData.front(), VK_INDEX_TYPE_UINT16);
+            if (bindIndexBuffer) _renderImplementation->addChild(bindIndexBuffer);
+            else failure = true;
+        }
+        else failure = true;
+    }
+
+    if (failure)
+    {
+        //std::cout<<"Failed to create required arrays/indices buffers on GPU."<<std::endl;
+        _renderImplementation->getChildren().clear();
+        return;
     }
 
     // add the commands in the the _renderImplementation group.
