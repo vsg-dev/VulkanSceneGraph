@@ -97,27 +97,34 @@ void Geometry::compile(Context& context)
 
     bool failure = false;
 
-    // set up vertex buffer binding
-    if (!_arrays.empty())
+    if (_indices)
+    {
+        DataList dataList;
+        dataList.reserve(_arrays.size()+1);
+        dataList.insert(dataList.end(), _arrays.begin(), _arrays.end());
+        dataList.emplace_back(_indices);
+
+        auto bufferData = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+        if (!bufferData.empty())
+        {
+            BufferDataList vertexBufferData(bufferData.begin(), bufferData.begin()+_arrays.size());
+            vsg::ref_ptr<vsg::BindVertexBuffers> bindVertexBuffers = vsg::BindVertexBuffers::create(0, vertexBufferData);
+            if (bindVertexBuffers) _renderImplementation->addChild(bindVertexBuffers);
+            else failure = true;
+
+            vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = vsg::BindIndexBuffer::create(bufferData.back(), VK_INDEX_TYPE_UINT16);
+            if (bindIndexBuffer) _renderImplementation->addChild(bindIndexBuffer);
+            else failure = true;
+        }
+        else failure = true;
+    }
+    else
     {
         auto vertexBufferData = vsg::createBufferAndTransferData(context, _arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
         if (!vertexBufferData.empty())
         {
             vsg::ref_ptr<vsg::BindVertexBuffers> bindVertexBuffers = vsg::BindVertexBuffers::create(0, vertexBufferData);
             if (bindVertexBuffers) _renderImplementation->addChild(bindVertexBuffers);
-            else failure = true;
-        }
-        else failure = true;
-    }
-
-    // set up index buffer binding
-    if (_indices && _indices->dataSize() > 0)
-    {
-        auto indexBufferData = vsg::createBufferAndTransferData(context, {_indices}, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-        if (!indexBufferData.empty())
-        {
-            vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = vsg::BindIndexBuffer::create(indexBufferData.front(), VK_INDEX_TYPE_UINT16);
-            if (bindIndexBuffer) _renderImplementation->addChild(bindIndexBuffer);
             else failure = true;
         }
         else failure = true;
