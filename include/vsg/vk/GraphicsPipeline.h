@@ -151,10 +151,10 @@ namespace vsg
         void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
         // compile the Vulkan object, context parameter used for Device
-        void compile(Context& context);
+        void compile(Context& context) override;
 
         // remove the local reference to the Vulkan implementation
-        void release();
+        void release() override;
 
     protected:
         virtual ~ShaderStages();
