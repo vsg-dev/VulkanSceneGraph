@@ -63,13 +63,15 @@ DeviceMemory::Result DeviceMemory::create(Device* device, const VkMemoryRequirem
 #if 0
     if (properties & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
     {
-        static VkDeviceSize s_TotalMemoryAllocated = 0;
-        s_TotalMemoryAllocated += memRequirements.size;
-        std::cout<<"Device Local DeviceMemory::DeviceMemory() "<<memRequirements.size<<", "<<memRequirements.alignment<<", "<<memRequirements.memoryTypeBits<<",  s_TotalMemoryAllocated = "<<s_TotalMemoryAllocated<<std::endl;
+        static VkDeviceSize s_TotalDeviceMemoryAllocated = 0;
+        s_TotalDeviceMemoryAllocated += memRequirements.size;
+        std::cout<<"Device Local DeviceMemory::DeviceMemory() "<<memRequirements.size<<", "<<memRequirements.alignment<<", "<<memRequirements.memoryTypeBits<<",  s_TotalMemoryAllocated = "<<s_TotalDeviceMemoryAllocated<<std::endl;
     }
     else
     {
-        std::cout<<"Staging DeviceMemory::DeviceMemory() "<<memRequirements.size<<", "<<memRequirements.alignment<<", "<<memRequirements.memoryTypeBits<<",  s_TotalMemoryAllocated = "<<s_TotalMemoryAllocated<<std::endl;
+        static VkDeviceSize s_TotalHostMemoryAllocated = 0;
+        s_TotalHostMemoryAllocated += memRequirements.size;
+        std::cout<<"Staging DeviceMemory::DeviceMemory() "<<memRequirements.size<<", "<<memRequirements.alignment<<", "<<memRequirements.memoryTypeBits<<",  s_TotalMemoryAllocated = "<<s_TotalHostMemoryAllocated<<std::endl;
     }
 #endif
 

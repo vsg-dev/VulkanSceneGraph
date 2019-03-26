@@ -15,18 +15,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-void BindIndexBuffer::pushTo(State& state) const
-{
-    state.dirty = true;
-    state.indexBufferStack.push(this);
-}
-
-void BindIndexBuffer::popFrom(State& state) const
-{
-    state.dirty = true;
-    state.indexBufferStack.pop();
-}
-
 void BindIndexBuffer::dispatch(CommandBuffer& commandBuffer) const
 {
     vkCmdBindIndexBuffer(commandBuffer, *_bufferData._buffer, _bufferData._offset, _indexType);

@@ -37,8 +37,8 @@ namespace vsg
         ref_ptr<mat4Value> projMatrix;
         ref_ptr<mat4Value> viewMatrix;
 #if 1
-        VkDeviceSize minimumBufferDeviceMemorySize = 1024 * 1024;
-        VkDeviceSize minimumImageDeviceMemorySize = 1024 * 1024;
+        VkDeviceSize minimumBufferDeviceMemorySize = 16 * 1024 * 1024;
+        VkDeviceSize minimumImageDeviceMemorySize = 16 * 1024 * 1024;
 #else
         VkDeviceSize minimumBufferDeviceMemorySize = 1; //1024 * 1024;
         VkDeviceSize minimumImageDeviceMemorySize = 1; //1024 * 1024;
