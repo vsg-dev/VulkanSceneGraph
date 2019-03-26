@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,36 +10,36 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-namespace vsg
+#include <vsg/io/stream.h>
+#include <vsg/nodes/CullGroup.h>
+
+using namespace vsg;
+
+CullGroup::CullGroup(Allocator* allocator) :
+    Inherit(allocator)
 {
-    template<typename T>
-    struct t_sphere
-    {
-        using value_type = T;
-        using vec_type = t_vec3<T>;
+}
 
-        t_sphere() :
-            center{0.0, 0.0, 0.0},
-            radius(-1.0) {}
+CullGroup::CullGroup(const dsphere& bound, Allocator* allocator) :
+    Inherit(allocator)
+{
+    _bound = bound;
+}
 
-        t_sphere(const vec_type& c, value_type r) :
-            center(c),
-            radius(r) {}
+CullGroup::~CullGroup()
+{
+}
 
-        constexpr std::size_t size() const { return 4; }
+void CullGroup::read(Input& input)
+{
+    Group::read(input);
 
-        bool valid() const { return radius >= 0.0; }
+    input.read("Bound", _bound);
+}
 
-        T* data() { return center.data(); }
-        const T* data() const { return center.data(); }
+void CullGroup::write(Output& output) const
+{
+    Group::write(output);
 
-        vec_type center;
-        value_type radius;
-    };
-
-    using sphere = t_sphere<float>;
-    using dsphere = t_sphere<double>;
-
-    VSG_type_name(vsg::sphere);
-    VSG_type_name(vsg::dsphere);
-} // namespace vsg
+    output.write("Bound",_bound);
+}

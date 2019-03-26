@@ -23,6 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/nodes/CullGroup.h>
 
 #include <vsg/vk/ComputePipeline.h>
 #include <vsg/vk/Descriptor.h>
@@ -122,6 +123,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::Group);
     VSG_REGISTER_create(vsg::QuadGroup);
     VSG_REGISTER_create(vsg::StateGroup);
+    VSG_REGISTER_create(vsg::CullGroup);
     VSG_REGISTER_create(vsg::MatrixTransform);
     VSG_REGISTER_create(vsg::Geometry);
 

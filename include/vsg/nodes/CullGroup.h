@@ -12,36 +12,29 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/nodes/Group.h>
+#include <vsg/maths/sphere.h>
+
 namespace vsg
 {
-    template<typename T>
-    struct t_sphere
+    class VSG_DECLSPEC CullGroup : public Inherit<Group, CullGroup>
     {
-        using value_type = T;
-        using vec_type = t_vec3<T>;
+    public:
+        CullGroup(Allocator* allocator = nullptr);
 
-        t_sphere() :
-            center{0.0, 0.0, 0.0},
-            radius(-1.0) {}
+        CullGroup(const dsphere& bound, Allocator* allocator = nullptr);
 
-        t_sphere(const vec_type& c, value_type r) :
-            center(c),
-            radius(r) {}
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
-        constexpr std::size_t size() const { return 4; }
+        void setBound(const dsphere& bound) { _bound = bound; }
+        const dsphere& getBound() const { return _bound; }
 
-        bool valid() const { return radius >= 0.0; }
+    protected:
+        virtual ~CullGroup();
 
-        T* data() { return center.data(); }
-        const T* data() const { return center.data(); }
-
-        vec_type center;
-        value_type radius;
+        dsphere _bound;
     };
+    VSG_type_name(vsg::CullGroup);
 
-    using sphere = t_sphere<float>;
-    using dsphere = t_sphere<double>;
-
-    VSG_type_name(vsg::sphere);
-    VSG_type_name(vsg::dsphere);
 } // namespace vsg

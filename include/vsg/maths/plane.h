@@ -27,9 +27,9 @@ namespace vsg
             n{0.0, 0.0, 0.0},
             p(0.0) {}
 
-        t_plane(value_type nx, value_type ny, value_type nz, value_type p) :
+        t_plane(value_type nx, value_type ny, value_type nz, value_type in_p) :
             n(nx, ny, nz),
-            p(p) {}
+            p(in_p) {}
 
         t_plane(const vec_type& normal, value_type in_p) :
             n(normal),
@@ -39,7 +39,12 @@ namespace vsg
             n(normal),
             p(position * normal) {}
 
+        constexpr std::size_t size() const { return 4; }
+
         bool valid() const { return n.x!=0.0 && n.y!=0.0 && n.z!=0.0; }
+
+        T* data() { return n.data(); }
+        const T* data() const { return n.data(); }
 
         /// normal
         vec_type n;

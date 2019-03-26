@@ -13,8 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/stream.h>
 #include <vsg/nodes/MatrixTransform.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 MatrixTransform::MatrixTransform(Allocator* allocator) :

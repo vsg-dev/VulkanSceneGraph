@@ -20,6 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Node.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/nodes/CullGroup.h>
 
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
@@ -261,14 +262,6 @@ void ConstVisitor::apply(const ubvec4Array3D& value)
 {
     apply(static_cast<const Object&>(value));
 }
-void ConstVisitor::apply(const MatrixTransform& value)
-{
-    apply(static_cast<const Group&>(value));
-}
-void ConstVisitor::apply(const Geometry& value)
-{
-    apply(static_cast<const Node&>(value));
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -297,6 +290,18 @@ void ConstVisitor::apply(const LOD& value)
 void ConstVisitor::apply(const StateGroup& value)
 {
     apply(static_cast<const Group&>(value));
+}
+void ConstVisitor::apply(const CullGroup& value)
+{
+    apply(static_cast<const Group&>(value));
+}
+void ConstVisitor::apply(const MatrixTransform& value)
+{
+    apply(static_cast<const Group&>(value));
+}
+void ConstVisitor::apply(const Geometry& value)
+{
+    apply(static_cast<const Node&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

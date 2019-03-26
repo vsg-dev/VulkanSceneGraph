@@ -20,6 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Node.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/nodes/CullGroup.h>
 
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
@@ -287,6 +288,10 @@ void Visitor::apply(LOD& value)
     apply(static_cast<Node&>(value));
 }
 void Visitor::apply(StateGroup& value)
+{
+    apply(static_cast<Group&>(value));
+}
+void Visitor::apply(CullGroup& value)
 {
     apply(static_cast<Group&>(value));
 }
