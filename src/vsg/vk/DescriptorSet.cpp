@@ -128,13 +128,16 @@ void DescriptorSet::Implementation::assign(const Descriptors& descriptors)
     // should we doing anything about previous _descriptor that may have been assigned?
     _descriptors = descriptors;
 
+    if (_descriptors.empty()) return;
+
+    uint32_t descritorCount = 0;
     std::vector<VkWriteDescriptorSet> descriptorWrites(_descriptors.size());
     for (size_t i = 0; i < _descriptors.size(); ++i)
     {
-        _descriptors[i]->assignTo(descriptorWrites[i], _descriptorSet);
+        if (_descriptors[i]->assignTo(descriptorWrites[descritorCount], _descriptorSet)) ++descritorCount;
     }
 
-    vkUpdateDescriptorSets(*_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+    vkUpdateDescriptorSets(*_device, descritorCount, descriptorWrites.data(), 0, nullptr);
 }
 
 BindDescriptorSets::BindDescriptorSets() :

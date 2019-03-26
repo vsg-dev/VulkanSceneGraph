@@ -57,7 +57,7 @@ namespace vsg
         // compile the Vulkan object, context parameter used for Device
         virtual void compile(Context& /*context*/) {}
 
-        virtual void assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+        virtual bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
         {
             wds = {};
             wds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -65,6 +65,8 @@ namespace vsg
             wds.dstBinding = _dstBinding;
             wds.dstArrayElement = _dstArrayElement;
             wds.descriptorType = _descriptorType;
+
+            return false;
         }
     };
 
@@ -104,7 +106,10 @@ namespace vsg
     };
 
     /// transfer Data to graphics memory, returning ImageData configuration.
-    extern VSG_DECLSPEC vsg::ImageData transferImageData(Device* device, CommandPool* commandPool, VkQueue queue, const Data* data, Sampler* sampler = nullptr);
+    //extern VSG_DECLSPEC vsg::ImageData transferImageData(Device* device, CommandPool* commandPool, VkQueue queue, const Data* data, Sampler* sampler = nullptr);
+
+    /// transfer Data to graphics memory, returning ImageData configuration.
+    extern VSG_DECLSPEC vsg::ImageData transferImageData(Context& context, const Data* data, Sampler* sampler = nullptr);
 
     using ImageDataList = std::vector<ImageData>;
 
@@ -127,11 +132,12 @@ namespace vsg
             }
         }
 
-        virtual void assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+        virtual bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
         {
             Descriptor::assignTo(wds, descriptorSet);
             wds.descriptorCount = static_cast<uint32_t>(_imageInfos.size());
             wds.pImageInfo = _imageInfos.data();
+            return true;
         }
 
     protected:
@@ -158,11 +164,12 @@ namespace vsg
             }
         }
 
-        virtual void assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+        virtual bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
         {
             Descriptor::assignTo(wds, descriptorSet);
             wds.descriptorCount = static_cast<uint32_t>(_bufferInfos.size());
             wds.pBufferInfo = _bufferInfos.data();
+            return true;
         }
 
         void copyDataListToBuffers();
@@ -188,13 +195,14 @@ namespace vsg
             }
         }
 
-        virtual void assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+        virtual bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
         {
             std::vector<VkBufferView> texelBufferViews(_texelBufferViewList.size());
 
             Descriptor::assignTo(wds, descriptorSet);
             wds.descriptorCount = static_cast<uint32_t>(_texelBufferViews.size());
             wds.pTexelBufferView = _texelBufferViews.data();
+            return true;
         }
 
     protected:
@@ -212,7 +220,7 @@ namespace vsg
 
         void compile(Context& context) override;
 
-        void assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
+        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
 
         // settings
         VkSamplerCreateInfo _samplerInfo;
@@ -232,7 +240,7 @@ namespace vsg
 
         void compile(Context& context) override;
 
-        void assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
+        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
 
         void copyDataListToBuffers();
 
