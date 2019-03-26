@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_DECLSPEC BindIndexBuffer : public Inherit<StateCommand, BindIndexBuffer>
+    class VSG_DECLSPEC BindIndexBuffer : public Inherit<Command, BindIndexBuffer>
     {
     public:
         BindIndexBuffer(Buffer* buffer, VkDeviceSize offset, VkIndexType indexType) :
@@ -30,8 +30,6 @@ namespace vsg
             _bufferData(bufferData),
             _indexType(indexType) {}
 
-        void pushTo(State& state) const override;
-        void popFrom(State& state) const override;
         void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:

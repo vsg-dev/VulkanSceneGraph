@@ -22,6 +22,8 @@ using namespace vsg;
 
 BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
 {
+    //return BufferDataList();
+
     //std::cout<<"New vsg::createBufferAndTransferData()"<<std::endl;
 
     // compute memory requirements
@@ -60,27 +62,6 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
 
     totalSize = bufferDataList.back()._offset + bufferDataList.back()._range;
 
-    ref_ptr<Buffer> stagingBuffer = vsg::Buffer::create(device, totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode);
-    ref_ptr<DeviceMemory> stagingMemory = vsg::DeviceMemory::create(device, stagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-    if (!stagingMemory)
-    {
-        return BufferDataList();
-    }
-
-    stagingBuffer->bind(stagingMemory, 0);
-
-    void* buffer_data;
-    stagingMemory->map(0, totalSize, 0, &buffer_data);
-    char* ptr = reinterpret_cast<char*>(buffer_data);
-
-    for (size_t i = 0; i < dataList.size(); ++i)
-    {
-        const Data* data = dataList[i];
-        std::memcpy(ptr + bufferDataList[i]._offset, data->dataPointer(), data->dataSize());
-    }
-
-    stagingMemory->unmap();
 
     ref_ptr<Buffer> deviceBuffer = vsg::Buffer::create(device, totalSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage, sharingMode);
 
@@ -141,6 +122,36 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
     //std::cout<<"DeviceMemory "<<deviceMemory.get()<<" slot position = "<<reservedSlot.second<<", size = "<<totalSize<<std::endl;
     deviceBuffer->bind(deviceMemory, reservedSlot.second);
 
+    // assign the buffer to the bufferData entries
+    for (auto& bufferData : bufferDataList)
+    {
+        bufferData._buffer = deviceBuffer;
+    }
+
+#if 1
+
+    ref_ptr<Buffer> stagingBuffer = vsg::Buffer::create(device, totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode);
+    ref_ptr<DeviceMemory> stagingMemory = vsg::DeviceMemory::create(device, stagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    if (!stagingMemory)
+    {
+        return BufferDataList();
+    }
+
+    stagingBuffer->bind(stagingMemory, 0);
+
+    void* buffer_data;
+    stagingMemory->map(0, totalSize, 0, &buffer_data);
+    char* ptr = reinterpret_cast<char*>(buffer_data);
+
+    for (size_t i = 0; i < dataList.size(); ++i)
+    {
+        const Data* data = dataList[i];
+        std::memcpy(ptr + bufferDataList[i]._offset, data->dataPointer(), data->dataSize());
+    }
+
+    stagingMemory->unmap();
+
     dispatchCommandsToQueue(device, context.commandPool, context.graphicsQueue, [&](VkCommandBuffer transferCommand) {
         VkBufferCopy copyRegion = {};
         copyRegion.srcOffset = 0;
@@ -148,12 +159,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
         copyRegion.size = totalSize;
         vkCmdCopyBuffer(transferCommand, *stagingBuffer, *deviceBuffer, 1, &copyRegion);
     });
-
-    // assign the buffer to the bufferData entries
-    for (auto& bufferData : bufferDataList)
-    {
-        bufferData._buffer = deviceBuffer;
-    }
+#endif
 
     return bufferDataList;
 }

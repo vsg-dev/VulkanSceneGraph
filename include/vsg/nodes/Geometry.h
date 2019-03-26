@@ -21,19 +21,21 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/PushConstants.h>
 
+#define GEOMETRY_AS_COMMAND
+
 namespace vsg
 {
-    class Geometry : public Inherit<Node, Geometry>
+
+    class Geometry : public Inherit<Command, Geometry>
     {
     public:
         Geometry(Allocator* allocator = nullptr);
 
-        void accept(DispatchTraversal& dv) const override;
-
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void compile(Context& context);
+        void compile(Context& context) override;
+        void dispatch(CommandBuffer& commandBuffer) const override;
 
         using Commands = std::vector<ref_ptr<Command>>;
 
@@ -43,7 +45,7 @@ namespace vsg
         Commands _commands;
 
         // compiled objects
-        ref_ptr<Group> _renderImplementation;
+        Commands _renderImplementation;
     };
     VSG_type_name(vsg::Geometry)
 

@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_DECLSPEC BindVertexBuffers : public Inherit<StateCommand, BindVertexBuffers>
+    class VSG_DECLSPEC BindVertexBuffers : public Inherit<Command, BindVertexBuffers>
     {
     public:
         BindVertexBuffers() :
@@ -44,8 +44,6 @@ namespace vsg
             _offsets.push_back(offset);
         }
 
-        void pushTo(State& state) const override;
-        void popFrom(State& state) const override;
         void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:
