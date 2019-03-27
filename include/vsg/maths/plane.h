@@ -12,6 +12,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+// we can't implement the anonymous union/structs combination without causing warnings, so disabled them for just this header
+#if defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wpedantic"
+#endif
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
+#    pragma clang diagnostic ignored "-Wnested-anon-types"
+#endif
+
 #include <vsg/maths/sphere.h>
 
 namespace vsg
@@ -23,34 +34,52 @@ namespace vsg
         using value_type = T;
         using vec_type = t_vec3<T>;
 
-        t_plane() :
-            n{0.0, 0.0, 0.0},
-            p(0.0) {}
+        union
+        {
+            value_type value[4];
 
-        t_plane(value_type nx, value_type ny, value_type nz, value_type in_p) :
-            n(nx, ny, nz),
-            p(in_p) {}
+            // Hessian Normal Form
+            struct
+            {
+                vec_type n;
+                value_type p;
+            };
+        };
 
-        t_plane(const vec_type& normal, value_type in_p) :
-            n(normal),
-            p(in_p) {}
+        constexpr t_plane() :
+            value{0.0, 0.0, 0.0, 0.0}  {}
 
-        t_plane(const vec_type& position, const vec_type& normal) :
-            n(normal),
-            p(position * normal) {}
+        constexpr t_plane(const t_plane& p) :
+            value{p[0], p[1], p[2], p[3]} {}
+
+        constexpr t_plane(value_type nx, value_type ny, value_type nz, value_type in_p) :
+            value{nx, ny, nz, in_p} {}
+
+        constexpr t_plane(const vec_type& normal, value_type in_p) :
+            value{normal.x, normal.y, normal.z, in_p} {}
+
+        constexpr t_plane(const vec_type& position, const vec_type& normal) :
+            value{normal.x, normal.y, normal.z, position * normal} {}
 
         constexpr std::size_t size() const { return 4; }
 
+        value_type& operator[](std::size_t i) { return value[i]; }
+        value_type operator[](std::size_t i) const { return value[i]; }
+
+        template<typename R>
+        t_plane& operator=(const t_plane<R>& rhs)
+        {
+            value[0] = static_cast<value_type>(rhs[0]);
+            value[1] = static_cast<value_type>(rhs[1]);
+            value[2] = static_cast<value_type>(rhs[2]);
+            value[3] = static_cast<value_type>(rhs[3]);
+            return *this;
+        }
+
         bool valid() const { return n.x!=0.0 && n.y!=0.0 && n.z!=0.0; }
 
-        T* data() { return n.data(); }
-        const T* data() const { return n.data(); }
-
-        /// normal
-        vec_type n;
-
-        /// distance from origin
-        value_type p;
+        T* data() { return value; }
+        const T* data() const { return value; }
     };
 
     using plane = t_plane<float>;
@@ -83,3 +112,10 @@ namespace vsg
         return intersect(polytope.begin(), polytope.end(), s);
     }
 } // namespace vsg
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#endif
+#if defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
