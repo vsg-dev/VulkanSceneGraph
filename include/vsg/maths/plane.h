@@ -23,10 +23,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    pragma clang diagnostic ignored "-Wnested-anon-types"
 #endif
 
+#include <vsg/maths/sphere.h>
+
 namespace vsg
 {
+    /** plane template class representing the plane in Hessian Normal Form : n.x = -p.*/
     template<typename T>
-    struct t_sphere
+    struct t_plane
     {
         using value_type = T;
         using vec_type = t_vec3<T>;
@@ -35,26 +38,28 @@ namespace vsg
         {
             value_type value[4];
 
+            // Hessian Normal Form
             struct
             {
-                value_type x, y, z, r;
-            };
-
-            struct
-            {
-                vec_type center;
-                value_type radius;
+                vec_type n;
+                value_type p;
             };
         };
 
-        constexpr t_sphere() :
-            value{0.0, 0.0, 0.0, -1.0} {}
+        constexpr t_plane() :
+            value{0.0, 0.0, 0.0, 0.0} {}
 
-        constexpr t_sphere(const t_sphere& s) :
-            value{s[0], s[1], s[2], s[3]} {}
+        constexpr t_plane(const t_plane& pl) :
+            value{pl[0], pl[1], pl[2], pl[3]} {}
 
-        constexpr t_sphere(const vec_type& c, value_type rad) :
-            value{c.x, c.y, c.z, rad} {}
+        constexpr t_plane(value_type nx, value_type ny, value_type nz, value_type in_p) :
+            value{nx, ny, nz, in_p} {}
+
+        constexpr t_plane(const vec_type& normal, value_type in_p) :
+            value{normal.x, normal.y, normal.z, in_p} {}
+
+        constexpr t_plane(const vec_type& position, const vec_type& normal) :
+            value{normal.x, normal.y, normal.z, position * normal} {}
 
         constexpr std::size_t size() const { return 4; }
 
@@ -62,7 +67,7 @@ namespace vsg
         value_type operator[](std::size_t i) const { return value[i]; }
 
         template<typename R>
-        t_sphere& operator=(const t_sphere<R>& rhs)
+        t_plane& operator=(const t_plane<R>& rhs)
         {
             value[0] = static_cast<value_type>(rhs[0]);
             value[1] = static_cast<value_type>(rhs[1]);
@@ -71,17 +76,41 @@ namespace vsg
             return *this;
         }
 
-        bool valid() const { return radius >= 0.0; }
+        bool valid() const { return n.x != 0.0 && n.y != 0.0 && n.z != 0.0; }
 
         T* data() { return value; }
         const T* data() const { return value; }
     };
 
-    using sphere = t_sphere<float>;
-    using dsphere = t_sphere<double>;
+    using plane = t_plane<float>;
+    using dplane = t_plane<double>;
 
-    VSG_type_name(vsg::sphere);
-    VSG_type_name(vsg::dsphere);
+    VSG_type_name(vsg::plane);
+    VSG_type_name(vsg::dplane);
+
+    template<typename T>
+    constexpr T distance(t_plane<T> const& pl, t_vec3<T> const& v)
+    {
+        return dot(pl.n, v) - pl.p;
+    }
+
+    /** return true if bounding sphere is wholly or partially intersects with convex polytope defined by a list of planes with normals pointing inwards towards center of the polytope. */
+    template<class PlaneItr, typename T>
+    constexpr bool intersect(PlaneItr first, PlaneItr last, t_sphere<T> const& s)
+    {
+        auto negative_radius = -s.radius;
+        for (auto itr = first; itr != last; ++itr)
+        {
+            if (distance(*itr, s.center) < negative_radius) return false;
+        }
+        return true;
+    }
+
+    template<class Polytope, typename T>
+    constexpr bool intersect(Polytope const& polytope, t_sphere<T> const& s)
+    {
+        return intersect(polytope.begin(), polytope.end(), s);
+    }
 } // namespace vsg
 
 #if defined(__clang__)

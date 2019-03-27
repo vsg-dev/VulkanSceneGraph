@@ -10,15 +10,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/traversals/CompileTraversal.h>
 #include <vsg/vk/BufferData.h>
 #include <vsg/vk/CommandBuffer.h>
-#include <vsg/traversals/CompileTraversal.h>
 
 #include <iostream>
 
-
 using namespace vsg;
-
 
 BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
 {
@@ -62,7 +60,6 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
 
     totalSize = bufferDataList.back()._offset + bufferDataList.back()._range;
 
-
     ref_ptr<Buffer> deviceBuffer = vsg::Buffer::create(device, totalSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage, sharingMode);
 
     VkMemoryRequirements memRequirements;
@@ -71,9 +68,9 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
     ref_ptr<DeviceMemory> deviceMemory;
     DeviceMemory::OptionalMemoryOffset reservedSlot(false, 0);
 
-    for(auto& memoryPool : context.memoryPools)
+    for (auto& memoryPool : context.memoryPools)
     {
-        if (!memoryPool->full() && memoryPool->getMemoryRequirements().memoryTypeBits==memRequirements.memoryTypeBits)
+        if (!memoryPool->full() && memoryPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits)
         {
             reservedSlot = memoryPool->reserve(totalSize);
             if (reservedSlot.first)
@@ -89,10 +86,10 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
         VkDeviceSize minumumDeviceMemorySize = context.minimumBufferDeviceMemorySize;
 
         // clamp to an aligned size
-        minumumDeviceMemorySize = ((minumumDeviceMemorySize+memRequirements.alignment-1)/memRequirements.alignment)*memRequirements.alignment;
+        minumumDeviceMemorySize = ((minumumDeviceMemorySize + memRequirements.alignment - 1) / memRequirements.alignment) * memRequirements.alignment;
 
         //std::cout<<"Creating new local DeviceMemory"<<std::endl;
-        if (memRequirements.size<minumumDeviceMemorySize) memRequirements.size = minumumDeviceMemorySize;
+        if (memRequirements.size < minumumDeviceMemorySize) memRequirements.size = minumumDeviceMemorySize;
 
         deviceMemory = vsg::DeviceMemory::create(device, memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         if (deviceMemory)
@@ -115,7 +112,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
 
     if (!reservedSlot.first)
     {
-        std::cout<<"Failed to reserve slot"<<std::endl;
+        std::cout << "Failed to reserve slot" << std::endl;
         return BufferDataList();
     }
 

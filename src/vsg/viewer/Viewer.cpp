@@ -285,12 +285,14 @@ public:
     using DescriptorSets = std::set<const DescriptorSet*>;
     using DescriptorTypeMap = std::map<VkDescriptorType, uint32_t>;
 
-    void apply(const Object& object)
+    using ConstVisitor::apply;
+
+    void apply(const Object& object) override
     {
         object.traverse(*this);
     }
 
-    void apply(const StateGroup& stategroup)
+    void apply(const StateGroup& stategroup) override
     {
         for (auto& command : stategroup.getStateCommands())
         {

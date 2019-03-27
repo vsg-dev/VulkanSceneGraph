@@ -27,6 +27,7 @@ namespace vsg
     class QuadGroup;
     class LOD;
     class StateGroup;
+    class CullGroup;
     class MatrixTransform;
     class Geometry;
 
@@ -145,6 +146,7 @@ namespace vsg
         virtual void apply(const QuadGroup&);
         virtual void apply(const LOD&);
         virtual void apply(const StateGroup&);
+        virtual void apply(const CullGroup&);
         virtual void apply(const MatrixTransform&);
         virtual void apply(const Geometry&);
 

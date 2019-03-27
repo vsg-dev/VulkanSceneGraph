@@ -27,6 +27,7 @@ set(SOURCES
     nodes/Node.cpp
     nodes/QuadGroup.cpp
     nodes/StateGroup.cpp
+    nodes/CullGroup.cpp
     nodes/MatrixTransform.cpp
 
 

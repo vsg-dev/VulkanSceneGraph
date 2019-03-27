@@ -12,53 +12,29 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <memory>
-#include <vsg/core/Object.h>
-
+#include <vsg/maths/sphere.h>
 #include <vsg/nodes/Group.h>
-
-#include <vsg/vk/CommandPool.h>
-#include <vsg/vk/DescriptorPool.h>
-#include <vsg/vk/GraphicsPipeline.h>
 
 namespace vsg
 {
-    class Context
+    class VSG_DECLSPEC CullGroup : public Inherit<Group, CullGroup>
     {
     public:
-        ref_ptr<Device> device;
-        ref_ptr<CommandPool> commandPool;
-        ref_ptr<RenderPass> renderPass;
-        ref_ptr<ViewportState> viewport;
-        VkQueue graphicsQueue = 0;
+        CullGroup(Allocator* allocator = nullptr);
 
-        ref_ptr<DescriptorPool> descriptorPool;
+        CullGroup(const dsphere& bound, Allocator* allocator = nullptr);
 
-        ref_ptr<mat4Value> projMatrix;
-        ref_ptr<mat4Value> viewMatrix;
-#if 1
-        VkDeviceSize minimumBufferDeviceMemorySize = 16 * 1024 * 1024;
-        VkDeviceSize minimumImageDeviceMemorySize = 16 * 1024 * 1024;
-#else
-        VkDeviceSize minimumBufferDeviceMemorySize = 1; //1024 * 1024;
-        VkDeviceSize minimumImageDeviceMemorySize = 1;  //1024 * 1024;
-#endif
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
-        using MemoryPools = std::vector<ref_ptr<DeviceMemory>>;
-        MemoryPools memoryPools;
+        void setBound(const dsphere& bound) { _bound = bound; }
+        const dsphere& getBound() const { return _bound; }
+
+    protected:
+        virtual ~CullGroup();
+
+        dsphere _bound;
     };
+    VSG_type_name(vsg::CullGroup);
 
-    class VSG_DECLSPEC CompileTraversal : public Visitor
-    {
-    public:
-        explicit CompileTraversal();
-        ~CompileTraversal();
-
-        void apply(Object& object);
-        void apply(Command& command);
-        void apply(StateGroup& stateGroup);
-        void apply(Geometry& geometry);
-
-        Context context;
-    };
 } // namespace vsg

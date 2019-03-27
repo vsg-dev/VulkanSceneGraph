@@ -30,7 +30,7 @@ namespace vsg
         template<class N, class V>
         static void t_traverse(N& ds, V& visitor)
         {
-            for (auto& dsl: ds._descriptorSetLayouts) dsl->accept(visitor);
+            for (auto& dsl : ds._descriptorSetLayouts) dsl->accept(visitor);
             for (auto& descriptor : ds._descriptors) descriptor->accept(visitor);
         }
 

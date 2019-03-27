@@ -230,7 +230,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Texture)
 
-    class VSG_DECLSPEC Uniform : public Inherit<Descriptor, Uniform>
+        class VSG_DECLSPEC Uniform : public Inherit<Descriptor, Uniform>
     {
     public:
         Uniform();
@@ -251,7 +251,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Uniform)
 
-    struct Material
+        struct Material
     {
         vec4 ambientColor;
         vec4 diffuseColor;

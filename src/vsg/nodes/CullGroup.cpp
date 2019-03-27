@@ -11,34 +11,35 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/stream.h>
-#include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/CullGroup.h>
 
 using namespace vsg;
 
-MatrixTransform::MatrixTransform(Allocator* allocator) :
+CullGroup::CullGroup(Allocator* allocator) :
     Inherit(allocator)
 {
-    _matrix = new mat4Value;
-    _pushConstant = vsg::PushConstants::create(VK_SHADER_STAGE_VERTEX_BIT, 128, _matrix);
 }
 
-MatrixTransform::MatrixTransform(const mat4& matrix, Allocator* allocator) :
+CullGroup::CullGroup(const dsphere& bound, Allocator* allocator) :
     Inherit(allocator)
 {
-    _matrix = new mat4Value(matrix);
-    _pushConstant = vsg::PushConstants::create(VK_SHADER_STAGE_VERTEX_BIT, 128, _matrix);
+    _bound = bound;
 }
 
-void MatrixTransform::read(Input& input)
+CullGroup::~CullGroup()
+{
+}
+
+void CullGroup::read(Input& input)
 {
     Group::read(input);
 
-    input.read("Matrix", _matrix->value());
+    input.read("Bound", _bound);
 }
 
-void MatrixTransform::write(Output& output) const
+void CullGroup::write(Output& output) const
 {
     Group::write(output);
 
-    output.write("Matrix", _matrix->value());
+    output.write("Bound", _bound);
 }

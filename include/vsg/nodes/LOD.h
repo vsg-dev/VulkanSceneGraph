@@ -21,18 +21,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    struct Sphere
-    {
-        Sphere() :
-            center{0.0, 0.0, 0.0},
-            radius(-1.0) {}
-
-        bool valid() const { return radius >= 0.0; }
-
-        double center[3];
-        double radius;
-    };
-
     VSG_type_name(vsg::LOD);
 
     class VSG_DECLSPEC LOD : public Inherit<Node, LOD>
@@ -51,10 +39,8 @@ namespace vsg
         void traverse(DispatchTraversal& visitor) const override { t_traverse(*this, visitor); }
         void traverse(CullTraversal& visitor) const override { t_traverse(*this, visitor); }
 
-        /// set the BondingSphere to use in culling/computation of which child is active.
-        void setBoundingSphere(const Sphere& sphere) { _boundingSphere = sphere; }
-        Sphere& getBoundingSphere() { return _boundingSphere; }
-        const Sphere& getBoundingSphere() const { return _boundingSphere; }
+        void setBound(const dsphere& bound) { _bound = bound; }
+        const dsphere& getBound() const { return _bound; }
 
         /// set the minimum screen space area that a child is visible from
         void setMinimumArea(std::size_t pos, double area) { _minimumAreas[pos] = area; }
@@ -77,7 +63,7 @@ namespace vsg
     protected:
         virtual ~LOD() {}
 
-        Sphere _boundingSphere;
+        dsphere _bound;
         MinimumAreas _minimumAreas;
         Children _children;
     };

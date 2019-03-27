@@ -60,7 +60,6 @@ namespace vsg
         using MemorySlots = std::multimap<VkDeviceSize, VkDeviceSize>;
         using MemorySlot = MemorySlots::value_type;
         MemorySlots _availableMemory;
-
     };
 
     template<class T>

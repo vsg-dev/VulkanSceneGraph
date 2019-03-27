@@ -14,7 +14,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Object.h>
 
+#include <vsg/maths/box.h>
 #include <vsg/maths/mat4.h>
+#include <vsg/maths/plane.h>
+#include <vsg/maths/sphere.h>
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
@@ -64,6 +67,12 @@ namespace vsg
         void read(size_t num, ubvec4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, mat4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, dmat4* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, sphere* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, dsphere* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, box* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, dbox* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, plane* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, dplane* value) { read(num * value->size(), value->data()); }
 
         // treat non standard type as raw data,
         template<typename T>
