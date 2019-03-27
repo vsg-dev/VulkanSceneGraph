@@ -55,6 +55,40 @@ namespace vsg
         double farDistance;
     };
 
+    class Orthographic : public Inherit<ProjectionMatrix, Orthographic>
+    {
+    public:
+        Orthographic() :
+            left(-1.0),
+            right(1.0),
+            bottom(-1.0),
+            top(1.0),
+            nearDistance(1.0),
+            farDistance(10000.0)
+        {
+        }
+
+        Orthographic(double l, double r, double b, double t, double nd, double fd) :
+            left(l),
+            right(r),
+            bottom(b),
+            top(t),
+            nearDistance(nd),
+            farDistance(fd)
+        {
+        }
+
+        void get(mat4& matrix) const override { matrix = orthographic(left, right, bottom, top, nearDistance, farDistance); }
+        void get(dmat4& matrix) const override { matrix = orthographic(left, right, bottom, top, nearDistance, farDistance); }
+
+        double left;
+        double right;
+        double bottom;
+        double top;
+        double nearDistance;
+        double farDistance;
+    };
+
     class ViewMatrix : public Inherit<Object, ViewMatrix>
     {
     public:

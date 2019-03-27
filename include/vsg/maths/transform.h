@@ -99,6 +99,16 @@ namespace vsg
                          0, 0, -1, 0);
     }
 
+    // from vulkan cookbook
+    template<typename T>
+    constexpr t_mat4<T> orthographic(T left, T right, T bottom, T top, T zNear, T zFar)
+    {
+        return t_mat4<T>(2.0f / (right - left), 0.0f, 0.0f,  0.0f,
+                         0.0f, 2.0f / (bottom - top), 0.0f, 0.0f,
+                         0.0f, 0.0f, 1.0f / (zNear - zFar), 0.0f,
+                        -(right + left) / (right - left), -(bottom + top) / (bottom - top), zNear / (zNear - zFar), 1.0f);
+    }
+
     template<typename T>
     constexpr t_mat4<T> lookAt(t_vec3<T> const& eye, t_vec3<T> const& center, t_vec3<T> const& up)
     {
