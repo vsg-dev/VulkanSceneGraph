@@ -82,9 +82,9 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     ref_ptr<DeviceMemory> deviceMemory;
     DeviceMemory::OptionalMemoryOffset reservedSlot(false, 0);
 
-    for(auto& memoryPool : context.memoryPools)
+    for (auto& memoryPool : context.memoryPools)
     {
-        if (!memoryPool->full() && memoryPool->getMemoryRequirements().memoryTypeBits==memRequirements.memoryTypeBits)
+        if (!memoryPool->full() && memoryPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits)
         {
             reservedSlot = memoryPool->reserve(totalSize);
             if (reservedSlot.first)
@@ -100,10 +100,10 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
         VkDeviceSize minumumDeviceMemorySize = context.minimumImageDeviceMemorySize;
 
         // clamp to an aligned size
-        minumumDeviceMemorySize = ((minumumDeviceMemorySize+memRequirements.alignment-1)/memRequirements.alignment)*memRequirements.alignment;
+        minumumDeviceMemorySize = ((minumumDeviceMemorySize + memRequirements.alignment - 1) / memRequirements.alignment) * memRequirements.alignment;
 
         //std::cout<<"Creating new local DeviceMemory"<<std::endl;
-        if (memRequirements.size<minumumDeviceMemorySize) memRequirements.size = minumumDeviceMemorySize;
+        if (memRequirements.size < minumumDeviceMemorySize) memRequirements.size = minumumDeviceMemorySize;
 
         deviceMemory = vsg::DeviceMemory::create(device, memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         if (deviceMemory)
@@ -126,7 +126,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
     if (!reservedSlot.first)
     {
-        std::cout<<"Failed to reserve slot"<<std::endl;
+        std::cout << "Failed to reserve slot" << std::endl;
         return ImageData();
     }
 
@@ -254,8 +254,10 @@ void Texture::compile(Context& context)
 
 bool Texture::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
 {
-    if (_implementation) return _implementation->assignTo(wds, descriptorSet);
-    else return false;
+    if (_implementation)
+        return _implementation->assignTo(wds, descriptorSet);
+    else
+        return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -300,8 +302,10 @@ void Uniform::compile(Context& context)
 
 bool Uniform::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
 {
-    if (_implementation) return _implementation->assignTo(wds, descriptorSet);
-    else return false;
+    if (_implementation)
+        return _implementation->assignTo(wds, descriptorSet);
+    else
+        return false;
 }
 
 void Uniform::copyDataListToBuffers()

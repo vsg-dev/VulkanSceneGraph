@@ -41,5 +41,5 @@ void CullGroup::write(Output& output) const
 {
     Group::write(output);
 
-    output.write("Bound",_bound);
+    output.write("Bound", _bound);
 }

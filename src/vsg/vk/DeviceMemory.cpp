@@ -140,18 +140,18 @@ DeviceMemory::OptionalMemoryOffset DeviceMemory::reserve(VkDeviceSize size)
     if (full()) return OptionalMemoryOffset(false, 0);
 
     auto itr = _availableMemory.lower_bound(size);
-    if (itr!=_availableMemory.end())
+    if (itr != _availableMemory.end())
     {
 
         MemorySlot slot(*itr);
         _availableMemory.erase(itr);
 
-        VkDeviceSize alignedEnd = ((size + _memoryRequirements.alignment -1)/_memoryRequirements.alignment)*_memoryRequirements.alignment;
+        VkDeviceSize alignedEnd = ((size + _memoryRequirements.alignment - 1) / _memoryRequirements.alignment) * _memoryRequirements.alignment;
         //std::cout<<"size = "<<size<<", alignedEnd = "<<alignedEnd<<std::endl;
 
-        if (alignedEnd<slot.first)
+        if (alignedEnd < slot.first)
         {
-            MemorySlot slotUnused(slot.first-alignedEnd, slot.second+alignedEnd);
+            MemorySlot slotUnused(slot.first - alignedEnd, slot.second + alignedEnd);
             _availableMemory.insert(slotUnused);
             //std::cout<<"   slot unused "<<slotUnused.first<<", "<<slotUnused.second<<std::endl;
         }

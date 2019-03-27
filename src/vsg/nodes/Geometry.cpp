@@ -89,23 +89,28 @@ void Geometry::compile(Context& context)
     if (_indices)
     {
         DataList dataList;
-        dataList.reserve(_arrays.size()+1);
+        dataList.reserve(_arrays.size() + 1);
         dataList.insert(dataList.end(), _arrays.begin(), _arrays.end());
         dataList.emplace_back(_indices);
 
         auto bufferData = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
         if (!bufferData.empty())
         {
-            BufferDataList vertexBufferData(bufferData.begin(), bufferData.begin()+_arrays.size());
+            BufferDataList vertexBufferData(bufferData.begin(), bufferData.begin() + _arrays.size());
             vsg::ref_ptr<vsg::BindVertexBuffers> bindVertexBuffers = vsg::BindVertexBuffers::create(0, vertexBufferData);
-            if (bindVertexBuffers) _renderImplementation.emplace_back(bindVertexBuffers);
-            else failure = true;
+            if (bindVertexBuffers)
+                _renderImplementation.emplace_back(bindVertexBuffers);
+            else
+                failure = true;
 
             vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = vsg::BindIndexBuffer::create(bufferData.back(), VK_INDEX_TYPE_UINT16);
-            if (bindIndexBuffer) _renderImplementation.emplace_back(bindIndexBuffer);
-            else failure = true;
+            if (bindIndexBuffer)
+                _renderImplementation.emplace_back(bindIndexBuffer);
+            else
+                failure = true;
         }
-        else failure = true;
+        else
+            failure = true;
     }
     else
     {
@@ -113,10 +118,13 @@ void Geometry::compile(Context& context)
         if (!vertexBufferData.empty())
         {
             vsg::ref_ptr<vsg::BindVertexBuffers> bindVertexBuffers = vsg::BindVertexBuffers::create(0, vertexBufferData);
-            if (bindVertexBuffers) _renderImplementation.emplace_back(bindVertexBuffers);
-            else failure = true;
+            if (bindVertexBuffers)
+                _renderImplementation.emplace_back(bindVertexBuffers);
+            else
+                failure = true;
         }
-        else failure = true;
+        else
+            failure = true;
     }
 
     if (failure)
@@ -132,7 +140,7 @@ void Geometry::compile(Context& context)
 
 void Geometry::dispatch(CommandBuffer& commandBuffer) const
 {
-    for(auto& command : _renderImplementation)
+    for (auto& command : _renderImplementation)
     {
         command->dispatch(commandBuffer);
     }

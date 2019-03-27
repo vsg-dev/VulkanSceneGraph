@@ -14,13 +14,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Object.h>
 
+#include <vsg/maths/box.h>
 #include <vsg/maths/mat4.h>
+#include <vsg/maths/plane.h>
+#include <vsg/maths/sphere.h>
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
-#include <vsg/maths/box.h>
-#include <vsg/maths/plane.h>
-#include <vsg/maths/sphere.h>
 
 #include <unordered_map>
 

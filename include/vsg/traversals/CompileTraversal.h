@@ -41,7 +41,7 @@ namespace vsg
         VkDeviceSize minimumImageDeviceMemorySize = 16 * 1024 * 1024;
 #else
         VkDeviceSize minimumBufferDeviceMemorySize = 1; //1024 * 1024;
-        VkDeviceSize minimumImageDeviceMemorySize = 1; //1024 * 1024;
+        VkDeviceSize minimumImageDeviceMemorySize = 1;  //1024 * 1024;
 #endif
 
         using MemoryPools = std::vector<ref_ptr<DeviceMemory>>;

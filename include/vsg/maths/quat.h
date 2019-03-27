@@ -26,7 +26,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    pragma clang diagnostic ignored "-Wnested-anon-types"
 #endif
 
-
 namespace vsg
 {
 
@@ -155,24 +154,24 @@ namespace vsg
         T one(1.0);
 
         T cosomega = dot(from, to);
-        if (cosomega<0.0)
+        if (cosomega < 0.0)
         {
             cosomega = -cosomega;
             to = -to;
         }
 
-        if ( (1.0-cosomega) > epsilon)
+        if ((1.0 - cosomega) > epsilon)
         {
             T omega = acos(cosomega);
             T sinomega = sin(omega);
-            T scale_from = sin((one -r) * omega) / sinomega;
+            T scale_from = sin((one - r) * omega) / sinomega;
             T scale_to = sin(r * omega) / sinomega;
             return (from * scale_from) + (to * scale_to);
         }
         else
         {
             // quaternion's are very close so just linearly interpolate
-            return (from * (one-r)) + (to * r);
+            return (from * (one - r)) + (to * r);
         }
     }
 
@@ -193,8 +192,8 @@ namespace vsg
         T one(1.0);
         T two(2.0);
 
-        return t_mat4<T>(one - two * (qyy+qzz),  two * (qxy-qwz), two * (qxz+qwy), zero,
-                         two * (qxy + qwz),  one - two * (qxx + qzz), two * (qyz-qwx), zero,
+        return t_mat4<T>(one - two * (qyy + qzz), two * (qxy - qwz), two * (qxz + qwy), zero,
+                         two * (qxy + qwz), one - two * (qxx + qzz), two * (qyz - qwx), zero,
                          two * (qxz - qwy), two * (qyz + qwx), one - two * (qxx + qyy), zero,
                          zero, zero, zero, 1.0);
     }

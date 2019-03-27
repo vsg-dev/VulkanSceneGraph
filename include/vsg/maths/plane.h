@@ -47,7 +47,7 @@ namespace vsg
         };
 
         constexpr t_plane() :
-            value{0.0, 0.0, 0.0, 0.0}  {}
+            value{0.0, 0.0, 0.0, 0.0} {}
 
         constexpr t_plane(const t_plane& pl) :
             value{pl[0], pl[1], pl[2], pl[3]} {}
@@ -76,7 +76,7 @@ namespace vsg
             return *this;
         }
 
-        bool valid() const { return n.x!=0.0 && n.y!=0.0 && n.z!=0.0; }
+        bool valid() const { return n.x != 0.0 && n.y != 0.0 && n.z != 0.0; }
 
         T* data() { return value; }
         const T* data() const { return value; }
@@ -99,7 +99,7 @@ namespace vsg
     constexpr bool intersect(PlaneItr first, PlaneItr last, t_sphere<T> const& s)
     {
         auto negative_radius = -s.radius;
-        for(auto itr = first; itr!=last; ++itr)
+        for (auto itr = first; itr != last; ++itr)
         {
             if (distance(*itr, s.center) < negative_radius) return false;
         }
