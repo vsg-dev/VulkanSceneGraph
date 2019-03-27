@@ -49,8 +49,8 @@ namespace vsg
         constexpr t_plane() :
             value{0.0, 0.0, 0.0, 0.0}  {}
 
-        constexpr t_plane(const t_plane& p) :
-            value{p[0], p[1], p[2], p[3]} {}
+        constexpr t_plane(const t_plane& pl) :
+            value{pl[0], pl[1], pl[2], pl[3]} {}
 
         constexpr t_plane(value_type nx, value_type ny, value_type nz, value_type in_p) :
             value{nx, ny, nz, in_p} {}
