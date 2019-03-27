@@ -118,6 +118,9 @@ namespace vsg
 
         const VkExtent2D& extent2D() { return _extent2D; }
 
+        VkClearColorValue& clearColor() { return _clearColor; }
+        const VkClearColorValue& clearColor() const { return _clearColor; }
+
         Instance* instance() { return _instance; }
         const Instance* instance() const { return _instance; }
 
