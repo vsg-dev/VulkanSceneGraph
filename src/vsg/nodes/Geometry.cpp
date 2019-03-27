@@ -28,27 +28,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+/////////////////////////////////////////////////////////////////////////////////////////
 //
 //  Geometry node
 //       vertex arrays
 //       index arrays
 //       draw + draw DrawIndexed
-//       push constants for per geometry colours etc.
-//
-//       Maps to a Group containing StateGroup + Binds + DrawIndex/Draw etc + Push constants
-//
-/////////////////////////////////////////////////////////////////////////////////////////
-//
-// Geometry
 //
 Geometry::Geometry(Allocator* allocator) :
     Inherit(allocator)
 {
-}
-
-void Geometry::accept(DispatchTraversal& dv) const
-{
-    if (_renderImplementation) _renderImplementation->accept(dv);
 }
 
 void Geometry::read(Input& input)
@@ -91,24 +80,60 @@ void Geometry::write(Output& output) const
 
 void Geometry::compile(Context& context)
 {
-    if (_renderImplementation) return;
+    if (!_renderImplementation.empty()) return;
 
-    auto vertexBufferData = vsg::createBufferAndTransferData(context.device, context.commandPool, context.graphicsQueue, _arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    _renderImplementation.clear();
 
-    _renderImplementation = new vsg::Group;
+    bool failure = false;
 
-    // set up vertex buffer binding
-    vsg::ref_ptr<vsg::BindVertexBuffers> bindVertexBuffers = vsg::BindVertexBuffers::create(0, vertexBufferData); // device dependent
-    _renderImplementation->addChild(bindVertexBuffers);                                                           // device dependent
-
-    // set up index buffer binding
-    if (_indices && _indices->dataSize() > 0)
+    if (_indices)
     {
-        auto indexBufferData = vsg::createBufferAndTransferData(context.device, context.commandPool, context.graphicsQueue, {_indices}, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-        vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = vsg::BindIndexBuffer::create(indexBufferData.front(), VK_INDEX_TYPE_UINT16); // device dependent
-        _renderImplementation->addChild(bindIndexBuffer);                                                                                 // device dependent
+        DataList dataList;
+        dataList.reserve(_arrays.size()+1);
+        dataList.insert(dataList.end(), _arrays.begin(), _arrays.end());
+        dataList.emplace_back(_indices);
+
+        auto bufferData = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+        if (!bufferData.empty())
+        {
+            BufferDataList vertexBufferData(bufferData.begin(), bufferData.begin()+_arrays.size());
+            vsg::ref_ptr<vsg::BindVertexBuffers> bindVertexBuffers = vsg::BindVertexBuffers::create(0, vertexBufferData);
+            if (bindVertexBuffers) _renderImplementation.emplace_back(bindVertexBuffers);
+            else failure = true;
+
+            vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = vsg::BindIndexBuffer::create(bufferData.back(), VK_INDEX_TYPE_UINT16);
+            if (bindIndexBuffer) _renderImplementation.emplace_back(bindIndexBuffer);
+            else failure = true;
+        }
+        else failure = true;
+    }
+    else
+    {
+        auto vertexBufferData = vsg::createBufferAndTransferData(context, _arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+        if (!vertexBufferData.empty())
+        {
+            vsg::ref_ptr<vsg::BindVertexBuffers> bindVertexBuffers = vsg::BindVertexBuffers::create(0, vertexBufferData);
+            if (bindVertexBuffers) _renderImplementation.emplace_back(bindVertexBuffers);
+            else failure = true;
+        }
+        else failure = true;
     }
 
-    // add the commands in the the _renderImplementation group.
-    for (auto& command : _commands) _renderImplementation->addChild(command);
+    if (failure)
+    {
+        //std::cout<<"Failed to create required arrays/indices buffers on GPU."<<std::endl;
+        _renderImplementation.clear();
+        return;
+    }
+
+    // add the commands in the the _renderImplementation.
+    _renderImplementation.insert(_renderImplementation.end(), _commands.begin(), _commands.end());
+}
+
+void Geometry::dispatch(CommandBuffer& commandBuffer) const
+{
+    for(auto& command : _renderImplementation)
+    {
+        command->dispatch(commandBuffer);
+    }
 }

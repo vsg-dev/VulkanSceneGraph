@@ -15,6 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Array.h>
 #include <vsg/vk/Device.h>
 
+#include <map>
+
 namespace vsg
 {
     class Buffer;
@@ -23,7 +25,7 @@ namespace vsg
     class VSG_DECLSPEC DeviceMemory : public Inherit<Object, DeviceMemory>
     {
     public:
-        DeviceMemory(VkDeviceMemory DeviceMemory, Device* device, AllocationCallbacks* allocator = nullptr);
+        DeviceMemory(VkDeviceMemory DeviceMemory, const VkMemoryRequirements& memRequirements, Device* device, AllocationCallbacks* allocator = nullptr);
 
         using Result = vsg::Result<DeviceMemory, VkResult, VK_SUCCESS>;
         static Result create(Device* device, const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator = nullptr);
@@ -40,12 +42,25 @@ namespace vsg
 
         operator VkDeviceMemory() const { return _deviceMemory; }
 
+        const VkMemoryRequirements& getMemoryRequirements() { return _memoryRequirements; }
+
+        using OptionalMemoryOffset = std::pair<bool, VkDeviceSize>;
+        OptionalMemoryOffset reserve(VkDeviceSize size);
+
+        bool full() const { return _availableMemory.empty(); }
+
     protected:
         virtual ~DeviceMemory();
 
         VkDeviceMemory _deviceMemory;
+        VkMemoryRequirements _memoryRequirements;
         ref_ptr<Device> _device;
         ref_ptr<AllocationCallbacks> _allocator;
+
+        using MemorySlots = std::multimap<VkDeviceSize, VkDeviceSize>;
+        using MemorySlot = MemorySlots::value_type;
+        MemorySlots _availableMemory;
+
     };
 
     template<class T>

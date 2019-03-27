@@ -32,7 +32,7 @@ using namespace vsgMacOS;
 
 namespace vsg
 {
-    // Provide the Window::create(...) implementation that automatically maps to an Android_Window
+    // Provide the Window::create(...) implementation that automatically maps to a MacOS_Window
     Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits)
     {
         return vsgMacOS::MacOS_Window::create(traits, nullptr);
@@ -80,7 +80,6 @@ namespace vsg
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification
 {
-std::cout << "applicationDidFinishLaunching" << std::endl;
     [NSApp stop:nil];
 }
 
@@ -120,19 +119,23 @@ std::cout << "applicationDidFinishLaunching" << std::endl;
 @interface vsg_MacOS_NSWindowDelegate : NSObject <NSWindowDelegate>
 {
     vsgMacOS::MacOS_Window* window;
+    vsg::ref_ptr<vsg::Window::Traits> _traits;
 }
 
-- (instancetype)initWithVsgWindow:(vsgMacOS::MacOS_Window*)initWindow;
+- (instancetype)initWithVsgWindow:(vsgMacOS::MacOS_Window*)initWindow andTraits:(vsg::ref_ptr<vsg::Window::Traits>)traits;
 
 @end
 
 @implementation vsg_MacOS_NSWindowDelegate
 
-- (instancetype)initWithVsgWindow:(vsgMacOS::MacOS_Window*)initWindow
+- (instancetype)initWithVsgWindow:(vsgMacOS::MacOS_Window*)initWindow andTraits:(vsg::ref_ptr<vsg::Window::Traits>)traits
 {
     self = [super init];
     if (self != nil)
+    {
         window = initWindow;
+        _traits = traits;
+    }
 
     return self;
 }
@@ -144,20 +147,40 @@ std::cout << "applicationDidFinishLaunching" << std::endl;
     return NO;
 }
 
+- (void) handleFrameSizeChange
+{
+    vsg::clock::time_point event_time = vsg::clock::now();
+    
+    const NSRect contentRect = [window-> view() frame];
+
+    auto devicePixelScale = _traits->hdpi ? [window->window() backingScaleFactor] : 1.0f;
+
+    uint32_t width = contentRect.size.width * devicePixelScale;
+    uint32_t height = contentRect.size.height * devicePixelScale;
+    
+    //std::cout << "handleFrameSizeChange: " << width << ", " << height << std::endl;
+    
+    window->queueEvent(new vsg::ConfigureWindowEvent(window, event_time, contentRect.origin.x, contentRect.origin.y, width, height));
+}
+
 - (void)windowDidResize:(NSNotification *)notification
 {
+    [self handleFrameSizeChange];
 }
 
 - (void)windowDidMove:(NSNotification *)notification
 {
+    [self handleFrameSizeChange];
 }
 
 - (void)windowDidMiniaturize:(NSNotification *)notification
 {
+    [self handleFrameSizeChange];
 }
 
 - (void)windowDidDeminiaturize:(NSNotification *)notification
 {
+    [self handleFrameSizeChange];
 }
 
 - (void)windowDidBecomeKey:(NSNotification *)notification
@@ -795,7 +818,7 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::Alloca
                                                               backing:NSBackingStoreBuffered
                                                               defer:NO];
 
-    vsg_MacOS_NSWindowDelegate* windowDelegate = [[vsg_MacOS_NSWindowDelegate alloc] initWithVsgWindow:this];
+    vsg_MacOS_NSWindowDelegate* windowDelegate = [[vsg_MacOS_NSWindowDelegate alloc] initWithVsgWindow:this andTraits:traits];
     [_window setDelegate:windowDelegate];
 
     [_window setTitle:[NSString stringWithUTF8String:traits->windowTitle.c_str()]];
@@ -857,6 +880,10 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::Alloca
     //vsgMacOS::createApplicationMenus();
     [NSApp activateIgnoringOtherApps:YES];
     [_window makeKeyAndOrderFront:nil];
+    
+    // manually trigger configure here??
+    vsg::clock::time_point event_time = vsg::clock::now();
+    _bufferedEvents.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, _traits->x, _traits->y, finalwidth, finalheight));
 }
 
 MacOS_Window::~MacOS_Window()
@@ -929,10 +956,22 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
         case NSEventTypeOtherMouseUp:
         case NSEventTypeOtherMouseDragged:
         {
-            const NSRect contentRect = [_view frame];
-            const NSPoint pos = [anEvent locationInWindow];
+            NSRect contentRect = [_view frame];
+            NSPoint pos = [anEvent locationInWindow];
+            
+            // dpi scale as needed
+            auto devicePixelScale = _traits->hdpi ? [_window backingScaleFactor] : 1.0f;
+            contentRect.size.width = contentRect.size.width * devicePixelScale;
+            contentRect.size.height = contentRect.size.height * devicePixelScale;
+            
+            pos.x = pos.x * devicePixelScale;
+            pos.y = pos.y * devicePixelScale;
+            
+            
             NSInteger buttonNumber = [anEvent buttonNumber];
             NSUInteger pressedButtons = [NSEvent pressedMouseButtons];
+            
+            //std::cout << "NSEventTypeMouseMoved(etc): " << pos.x << ", " << pos.y << std::endl;
 
             auto buttonMask = 0;
             if(pressedButtons & (1 << 0)) buttonMask |= vsg::BUTTON_MASK_1;

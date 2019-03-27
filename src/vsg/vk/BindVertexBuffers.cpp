@@ -15,18 +15,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-void BindVertexBuffers::pushTo(State& state) const
-{
-    state.dirty = true;
-    state.vertexBuffersStack.push(this);
-}
-
-void BindVertexBuffers::popFrom(State& state) const
-{
-    state.dirty = true;
-    state.vertexBuffersStack.pop();
-}
-
 void BindVertexBuffers::dispatch(CommandBuffer& commandBuffer) const
 {
     vkCmdBindVertexBuffers(commandBuffer, _firstBinding, static_cast<uint32_t>(_buffers.size()), _vkBuffers.data(), _offsets.data());
