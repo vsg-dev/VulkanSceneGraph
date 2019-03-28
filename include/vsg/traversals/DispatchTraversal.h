@@ -25,6 +25,7 @@ namespace vsg
     class QuadGroup;
     class LOD;
     class StateGroup;
+    class CullGroup;
     class MatrixTransform;
     class Command;
     class Commands;
@@ -42,9 +43,10 @@ namespace vsg
         void apply(const Object& object);
 
         // scene graph nodes
-        void apply(const Group& object);
-        void apply(const QuadGroup& object);
-        void apply(const LOD& object);
+        void apply(const Group& group);
+        void apply(const QuadGroup& quadGrouo);
+        void apply(const LOD& load);
+        void apply(const CullGroup& cullGroup);
 
         // Vulkan nodes
         void apply(const MatrixTransform& mt);

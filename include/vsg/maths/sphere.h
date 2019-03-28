@@ -56,7 +56,12 @@ namespace vsg
         constexpr t_sphere(const t_sphere& s) :
             value{s[0], s[1], s[2], s[3]} {}
 
-        constexpr t_sphere(const center_type& c, value_type rad) :
+        template<typename R>
+        constexpr explicit t_sphere(const t_sphere<R>& s) :
+            value{s[0], s[1], s[2], s[3]} {}
+
+        template<typename R>
+        constexpr t_sphere(const t_vec3<R>& c, T rad) :
             value{c.x, c.y, c.z, rad} {}
 
         constexpr std::size_t size() const { return 4; }

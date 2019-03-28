@@ -59,6 +59,10 @@ namespace vsg
         constexpr t_vec3(value_type in_x, value_type in_y, value_type in_z) :
             value{in_x, in_y, in_z} {}
 
+        template<typename R>
+        constexpr explicit t_vec3(const t_vec3<R>& v) :
+            value{v.x, v.y, v.z} {}
+
         constexpr std::size_t size() const { return 3; }
 
         value_type& operator[](std::size_t i) { return value[i]; }

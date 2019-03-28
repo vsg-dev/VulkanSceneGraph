@@ -22,18 +22,18 @@ namespace vsg
     public:
         CullGroup(Allocator* allocator = nullptr);
 
-        CullGroup(const dsphere& bound, Allocator* allocator = nullptr);
+        CullGroup(const sphere& bound, Allocator* allocator = nullptr);
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void setBound(const dsphere& bound) { _bound = bound; }
-        const dsphere& getBound() const { return _bound; }
+        void setBound(const sphere& bound) { _bound = bound; }
+        const sphere& getBound() const { return _bound; }
 
     protected:
         virtual ~CullGroup();
 
-        dsphere _bound;
+        sphere _bound;
     };
     VSG_type_name(vsg::CullGroup);
 

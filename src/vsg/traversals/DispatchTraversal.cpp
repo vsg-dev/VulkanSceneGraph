@@ -18,11 +18,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/nodes/CullGroup.h>
 
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
+
+#include <vsg/maths/plane.h>
 
 #include <iostream>
 
@@ -33,10 +36,28 @@ using namespace vsg;
 class DispatchTraversal::InternalData
 {
 public:
+    State _state;
+    ref_ptr<CommandBuffer> _commandBuffer;
+
+    using Polytope = std::vector<vsg::plane>;
+
+    Polytope _frustumUnit;
+
+    bool _frustumDirty;
+    Polytope _frustum;
+
     explicit InternalData(CommandBuffer* commandBuffer) :
         _commandBuffer(commandBuffer)
     {
         //        std::cout << "DispatchTraversal::InternalData::InternalData(" << commandBuffer << ")" << std::endl;
+        _frustumUnit = Polytope{
+            vsg::plane(1.0, 0.0, 0.0, 1.0),  // left plane
+            vsg::plane(-1.0, 0.0, 0.0, 1.0), // right plane
+            vsg::plane(0.0, 1.0, 0.0, 1.0),  // bottom plane
+            vsg::plane(0.0, -1.0, 0.0, 1.0)  // top plane
+        };
+
+        _frustumDirty = true;
     }
 
     ~InternalData()
@@ -44,8 +65,27 @@ public:
         //        std::cout << "DispatchTraversal::InternalData::~InternalData()" << std::endl;
     }
 
-    State _state;
-    ref_ptr<CommandBuffer> _commandBuffer;
+    template<typename T>
+    constexpr bool intersect(t_sphere<T> const& s)
+    {
+        if (_frustumDirty)
+        {
+            auto pmv = _state.projectionMatrixStack.top() * _state.viewMatrixStack.top() * _state.modelMatrixStack.top();
+
+#if 0
+            std::cout<<"   pmv = "<<pmv<<std::endl;
+            std::cout<<"   s = "<<s.vec<<std::endl;
+#endif
+            _frustum.clear();
+            for(auto& pl : _frustumUnit)
+            {
+                _frustum.push_back( pl * pmv );
+            }
+        }
+
+        return vsg::intersect(_frustum, s);
+    }
+
 };
 
 DispatchTraversal::DispatchTraversal(CommandBuffer* commandBuffer) :
@@ -98,6 +138,14 @@ void DispatchTraversal::apply(const LOD& object)
 {
     //    std::cout<<"Visiting LOD "<<std::endl;
     object.traverse(*this);
+}
+
+void DispatchTraversal::apply(const CullGroup& cullGroup)
+{
+    if (_data->intersect(cullGroup.getBound()))
+    {
+        cullGroup.traverse(*this);
+    }
 }
 
 void DispatchTraversal::apply(const StateGroup& stateGroup)

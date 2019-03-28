@@ -55,14 +55,25 @@ namespace vsg
         constexpr t_plane(const t_plane& pl) :
             value{pl[0], pl[1], pl[2], pl[3]} {}
 
+        constexpr explicit t_plane(const t_vec4<T>& v) :
+            value{v[0], v[1], v[2], v[3]} {}
+
         constexpr t_plane(value_type nx, value_type ny, value_type nz, value_type in_p) :
-            value{nx, ny, nz, in_p} {}
+        value{nx, ny, nz, in_p} {}
 
         constexpr t_plane(const normal_type& normal, value_type in_p) :
             value{normal.x, normal.y, normal.z, in_p} {}
 
         constexpr t_plane(const normal_type& position, const normal_type& normal) :
             value{normal.x, normal.y, normal.z, position * normal} {}
+
+        template<typename R>
+        constexpr explicit t_plane(const t_plane<R>& v) :
+            value{v[0], v[1], v[2], v[3]} {}
+
+        template<typename R>
+        constexpr explicit t_plane(const t_vec4<T>& v) :
+            value{v[0], v[1], v[2], v[3]} {}
 
         constexpr std::size_t size() const { return 4; }
 
@@ -93,6 +104,12 @@ namespace vsg
 
     template<typename T>
     constexpr T distance(t_plane<T> const& pl, t_vec3<T> const& v)
+    {
+        return dot(pl.n, v) + pl.p;
+    }
+
+    template<typename T, typename R>
+    constexpr T distance(t_plane<T> const& pl, t_vec3<R> const& v)
     {
         return dot(pl.n, v) + pl.p;
     }
