@@ -32,16 +32,19 @@ namespace vsg
     struct t_plane
     {
         using value_type = T;
-        using vec_type = t_vec3<T>;
+        using vec_type = t_vec4<T>;
+        using normal_type = t_vec3<T>;
 
         union
         {
             value_type value[4];
 
+            vec_type vec;
+
             // Hessian Normal Form
             struct
             {
-                vec_type n;
+                normal_type n;
                 value_type p;
             };
         };
@@ -55,10 +58,10 @@ namespace vsg
         constexpr t_plane(value_type nx, value_type ny, value_type nz, value_type in_p) :
             value{nx, ny, nz, in_p} {}
 
-        constexpr t_plane(const vec_type& normal, value_type in_p) :
+        constexpr t_plane(const normal_type& normal, value_type in_p) :
             value{normal.x, normal.y, normal.z, in_p} {}
 
-        constexpr t_plane(const vec_type& position, const vec_type& normal) :
+        constexpr t_plane(const normal_type& position, const normal_type& normal) :
             value{normal.x, normal.y, normal.z, position * normal} {}
 
         constexpr std::size_t size() const { return 4; }

@@ -29,11 +29,14 @@ namespace vsg
     struct t_sphere
     {
         using value_type = T;
-        using vec_type = t_vec3<T>;
+        using vec_type = t_vec4<T>;
+        using center_type = t_vec3<T>;
 
         union
         {
             value_type value[4];
+
+            vec_type vec;
 
             struct
             {
@@ -42,7 +45,7 @@ namespace vsg
 
             struct
             {
-                vec_type center;
+                center_type center;
                 value_type radius;
             };
         };
@@ -53,7 +56,7 @@ namespace vsg
         constexpr t_sphere(const t_sphere& s) :
             value{s[0], s[1], s[2], s[3]} {}
 
-        constexpr t_sphere(const vec_type& c, value_type rad) :
+        constexpr t_sphere(const center_type& c, value_type rad) :
             value{c.x, c.y, c.z, rad} {}
 
         constexpr std::size_t size() const { return 4; }
