@@ -160,11 +160,13 @@ void DispatchTraversal::apply(const StateGroup& stateGroup)
 
 void DispatchTraversal::apply(const MatrixTransform& mt)
 {
-    mt.pushTo(_data->_state);
+    _data->_state.modelMatrixStack.push(mt.getMatrix());
+    _data->_state.dirty = true;
 
     mt.traverse(*this);
 
-    mt.popFrom(_data->_state);
+    _data->_state.modelMatrixStack.pop();
+    _data->_state.dirty = true;
 }
 
 // Vulkan nodes
