@@ -94,7 +94,7 @@ namespace vsg
     template<typename T>
     constexpr T distance(t_plane<T> const& pl, t_vec3<T> const& v)
     {
-        return dot(pl.n, v) - pl.p;
+        return dot(pl.n, v) + pl.p;
     }
 
     /** return true if bounding sphere is wholly or partially intersects with convex polytope defined by a list of planes with normals pointing inwards towards center of the polytope. */
