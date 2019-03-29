@@ -59,6 +59,7 @@ namespace vsg
 
         using Children = std::vector<ref_ptr<vsg::Node>>;
 
+        void setChildren(const Children& children) { _children = children; }
         Children& getChildren() noexcept { return _children; }
         const Children& getChildren() const noexcept { return _children; }
 
