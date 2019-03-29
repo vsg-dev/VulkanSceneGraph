@@ -68,6 +68,7 @@ namespace vsg
         {
             // make sure there is an initial matrix
             matrixStack.push(mat4());
+            dirty = true;
         }
 
         using mat4Stack = std::stack<mat4>;
