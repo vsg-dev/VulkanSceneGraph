@@ -81,6 +81,8 @@ public:
             {
                 _frustum.push_back( pl * pmv );
             }
+
+            _frustumDirty = false;
         }
 
         return vsg::intersect(_frustum, s);
@@ -142,10 +144,20 @@ void DispatchTraversal::apply(const LOD& object)
 
 void DispatchTraversal::apply(const CullGroup& cullGroup)
 {
+#if 0
+    // no culling
+    cullGroup.traverse(*this);
+#else
     if (_data->intersect(cullGroup.getBound()))
     {
+        //std::cout<<"Passed node"<<std::endl;
         cullGroup.traverse(*this);
     }
+    else
+    {
+        //std::cout<<"Culling node"<<std::endl;
+    }
+#endif
 }
 
 void DispatchTraversal::apply(const StateGroup& stateGroup)

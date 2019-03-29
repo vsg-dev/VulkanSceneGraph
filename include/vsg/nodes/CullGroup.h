@@ -28,7 +28,7 @@ namespace vsg
         void write(Output& output) const override;
 
         void setBound(const sphere& bound) { _bound = bound; }
-        const sphere& getBound() const { return _bound; }
+        inline const sphere& getBound() const { return _bound; }
 
     protected:
         virtual ~CullGroup();
