@@ -344,7 +344,7 @@ InputAssemblyState::InputAssemblyState() :
     primitiveRestartEnable = VK_FALSE;
 }
 
-InputAssemblyState::InputAssemblyState(const VkPrimitiveTopology& primitiveTopology, const bool& enablePrimitiveRestart) :
+InputAssemblyState::InputAssemblyState(VkPrimitiveTopology primitiveTopology, bool enablePrimitiveRestart) :
     VkPipelineInputAssemblyStateCreateInfo{}
 {
     sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;

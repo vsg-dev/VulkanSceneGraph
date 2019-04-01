@@ -200,7 +200,7 @@ namespace vsg
     {
     public:
         InputAssemblyState();
-        InputAssemblyState(const VkPrimitiveTopology& primitiveTopology, const bool& enablePrimitiveRestart = false);
+        InputAssemblyState(VkPrimitiveTopology primitiveTopology, bool enablePrimitiveRestart = false);
 
         void read(Input& input) override;
         void write(Output& output) const override;
