@@ -200,6 +200,7 @@ namespace vsg
     {
     public:
         InputAssemblyState();
+        InputAssemblyState(const VkPrimitiveTopology& primitiveTopology, const bool& enablePrimitiveRestart = false);
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -266,6 +267,9 @@ namespace vsg
     {
     public:
         DepthStencilState();
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         VkStructureType getType() const override { return sType; }
 
