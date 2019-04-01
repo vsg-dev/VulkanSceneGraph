@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/nodes/Group.h>
-#include <vsg/vk/PushConstants.h>
 
 namespace vsg
 {
@@ -31,19 +30,8 @@ namespace vsg
         mat4& getMatrix() { return _matrix->value(); }
         const mat4& getMatrix() const { return _matrix->value(); }
 
-        inline void pushTo(State& state) const
-        {
-            _pushConstant->pushTo(state);
-        }
-
-        inline void popFrom(State& state) const
-        {
-            _pushConstant->popFrom(state);
-        }
-
     protected:
         ref_ptr<mat4Value> _matrix;
-        ref_ptr<PushConstants> _pushConstant;
     };
     VSG_type_name(vsg::MatrixTransform);
 

@@ -19,14 +19,12 @@ MatrixTransform::MatrixTransform(Allocator* allocator) :
     Inherit(allocator)
 {
     _matrix = new mat4Value;
-    _pushConstant = vsg::PushConstants::create(VK_SHADER_STAGE_VERTEX_BIT, 128, _matrix);
 }
 
 MatrixTransform::MatrixTransform(const mat4& matrix, Allocator* allocator) :
     Inherit(allocator)
 {
     _matrix = new mat4Value(matrix);
-    _pushConstant = vsg::PushConstants::create(VK_SHADER_STAGE_VERTEX_BIT, 128, _matrix);
 }
 
 void MatrixTransform::read(Input& input)
