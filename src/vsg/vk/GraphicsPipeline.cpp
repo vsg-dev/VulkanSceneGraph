@@ -344,6 +344,14 @@ InputAssemblyState::InputAssemblyState() :
     primitiveRestartEnable = VK_FALSE;
 }
 
+InputAssemblyState::InputAssemblyState(VkPrimitiveTopology primitiveTopology, bool enablePrimitiveRestart) :
+    VkPipelineInputAssemblyStateCreateInfo{}
+{
+    sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    topology = primitiveTopology;
+    primitiveRestartEnable = enablePrimitiveRestart ? VK_TRUE : VK_FALSE;
+}
+
 InputAssemblyState::~InputAssemblyState()
 {
 }
@@ -351,11 +359,17 @@ InputAssemblyState::~InputAssemblyState()
 void InputAssemblyState::read(Input& input)
 {
     Object::read(input);
+
+    topology = static_cast<VkPrimitiveTopology>(input.readValue<uint32_t>("topology"));
+    primitiveRestartEnable = static_cast<VkBool32>(input.readValue<uint32_t>("primitiveRestartEnable"));
 }
 
 void InputAssemblyState::write(Output& output) const
 {
     Object::write(output);
+
+    output.writeValue<uint32_t>("topology", topology);
+    output.writeValue<uint32_t>("primitiveRestartEnable", primitiveRestartEnable);
 }
 
 void InputAssemblyState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
@@ -469,6 +483,28 @@ DepthStencilState::DepthStencilState() :
 
 DepthStencilState::~DepthStencilState()
 {
+}
+
+void DepthStencilState::read(Input& input)
+{
+    Object::read(input);
+
+    depthTestEnable = static_cast<VkBool32>(input.readValue<uint32_t>("depthTestEnable"));
+    depthWriteEnable = static_cast<VkBool32>(input.readValue<uint32_t>("depthWriteEnable"));
+    depthCompareOp = static_cast<VkCompareOp>(input.readValue<uint32_t>("depthCompareOp"));
+    depthBoundsTestEnable = static_cast<VkBool32>(input.readValue<uint32_t>("depthBoundsTestEnable"));
+    stencilTestEnable = static_cast<VkBool32>(input.readValue<uint32_t>("stencilTestEnable"));
+}
+
+void DepthStencilState::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeValue<uint32_t>("depthTestEnable", depthTestEnable);
+    output.writeValue<uint32_t>("depthWriteEnable", depthWriteEnable);
+    output.writeValue<uint32_t>("depthCompareOp", depthCompareOp);
+    output.writeValue<uint32_t>("depthBoundsTestEnable", depthBoundsTestEnable);
+    output.writeValue<uint32_t>("stencilTestEnable", stencilTestEnable);
 }
 
 void DepthStencilState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
