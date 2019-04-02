@@ -143,6 +143,20 @@ KeyboardMap::KeyboardMap()
             {'Y', KEY_Y},
             {'Z', KEY_Z},
 
+            /* Cursor control & motion */
+
+            {VK_HOME, KEY_Home},
+            {VK_LEFT, KEY_Left},   /* Move left, left arrow */
+            {VK_UP, KEY_Up},       /* Move up, up arrow */
+            {VK_RIGHT, KEY_Right}, /* Move right, right arrow */
+            {VK_DOWN, KEY_Down},   /* Move down, down arrow */
+            {VK_PRIOR, KEY_Prior}, /* Prior, previous */
+            //{ VK_, KEY_Page_Up = 0xFF55,
+            {VK_NEXT, KEY_Next}, /* Next */
+            //KEY_Page_Down = 0xFF56,
+            {VK_END, KEY_End}, /* EOL */
+            //{ KEY_Begin = 0xFF58, /* BOL */
+
             {'!', KEY_Exclaim},
             {'"', KEY_Quotedbl},
             {'#', KEY_Hash},
@@ -181,20 +195,6 @@ KeyboardMap::KeyboardMap()
             //    KEY_Sys_Req = 0xFF15,
             {VK_ESCAPE, KEY_Escape},
             {VK_DELETE, KEY_Delete}, /* Delete, rubout */
-
-            /* Cursor control & motion */
-
-            {VK_HOME, KEY_Home},
-            {VK_LEFT, KEY_Left},   /* Move left, left arrow */
-            {VK_UP, KEY_Up},       /* Move up, up arrow */
-            {VK_RIGHT, KEY_Right}, /* Move right, right arrow */
-            {VK_DOWN, KEY_Down},   /* Move down, down arrow */
-            {VK_PRIOR, KEY_Prior}, /* Prior, previous */
-            //{ VK_, KEY_Page_Up = 0xFF55,
-            {VK_NEXT, KEY_Next}, /* Next */
-            //KEY_Page_Down = 0xFF56,
-            {VK_END, KEY_End}, /* EOL */
-            //{ KEY_Begin = 0xFF58, /* BOL */
 
             /* Misc Functions */
 
@@ -635,7 +635,6 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         if (_keyboard->getKeySymbol(wParam, lParam, keySymbol, modifiedKeySymbol, keyModifier))
         {
             int repeatCount = (lParam & 0xffff);
-            std::cout << "Repeat count: " << repeatCount << std::endl;
             _bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier, repeatCount));
         }
         break;

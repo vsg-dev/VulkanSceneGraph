@@ -42,7 +42,6 @@ namespace vsgWin32
 
             //bool rightSide = (lParam & 0x01000000) != 0;
             int virtualKey = ::MapVirtualKeyEx((lParam >> 16) & 0xff, 3, ::GetKeyboardLayout(0));
-
             auto itr = _keycodeMap.find(virtualKey);
             if (itr == _keycodeMap.end()) return false;
 
@@ -85,8 +84,6 @@ namespace vsgWin32
             char asciiKey[2];
             int numChars = ::ToAscii(static_cast<UINT>(wParam), (lParam>>16)&0xff, keyState, reinterpret_cast<WORD*>(asciiKey), 0);
             if (numChars>0) modifiedKeySymbol = (vsg::KeySymbol)asciiKey[0];
-
-            std::cout << "moded ascii: " << asciiKey[0] << "  0x" << std::hex << asciiKey[0] << std::endl;
 
             return true;
         }
