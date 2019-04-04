@@ -132,15 +132,23 @@ void Viewer::advance()
     _events.emplace_back(new FrameEvent(_frameStamp));
 }
 
-void Viewer::handleEvents()
+bool Viewer::advanceToNextFrame()
 {
-    for (auto& vsg_event : _events)
-    {
-        for (auto& handler : _eventHandlers)
-        {
-            vsg_event->accept(*handler);
-        }
-    }
+    if (!active()) return false;
+
+    // poll all the windows for events.
+    pollEvents(true);
+
+    if (!aquireNextFrame()) return false;
+
+    // create FrameStamp for frame
+    auto time = vsg::clock::now();
+    _frameStamp = _frameStamp ? new vsg::FrameStamp(time, _frameStamp->frameCount + 1) : new vsg::FrameStamp(time, 0);
+
+    // create an event for the new frame.
+    _events.emplace_back(new FrameEvent(_frameStamp));
+
+    return true;
 }
 
 bool Viewer::aquireNextFrame()
@@ -182,6 +190,17 @@ bool Viewer::aquireNextFrame()
     }
 
     return result == VK_SUCCESS;
+}
+
+void Viewer::handleEvents()
+{
+    for (auto& vsg_event : _events)
+    {
+        for (auto& handler : _eventHandlers)
+        {
+            vsg_event->accept(*handler);
+        }
+    }
 }
 
 bool Viewer::populateNextFrame()
