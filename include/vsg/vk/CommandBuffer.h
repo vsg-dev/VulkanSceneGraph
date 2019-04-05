@@ -37,6 +37,9 @@ namespace vsg
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
+        CommandPool* getCommandPool() { return _commandPool; }
+        const CommandPool* getCommandPool() const { return _commandPool; }
+
         void setCurrentPipelineLayout(const PipelineLayout* pipelineLayout) { _currentPipelineLayout = pipelineLayout; }
         const PipelineLayout* getCurrentPipelineLayout() const { return _currentPipelineLayout; }
 

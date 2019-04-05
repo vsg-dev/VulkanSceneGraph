@@ -79,6 +79,10 @@ namespace vsg
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
+        // get the Vulkan GrphicsPipeline::Implementation
+        Implementation* getImplementation() { return _implementation; }
+        const Implementation* getImplementation() const { return _implementation; }
+
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);
 
@@ -118,6 +122,8 @@ namespace vsg
 
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context) override;
+
+        virtual void release();
 
     public:
         virtual ~BindGraphicsPipeline();

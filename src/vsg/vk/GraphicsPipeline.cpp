@@ -178,6 +178,12 @@ void BindGraphicsPipeline::compile(Context& context)
     if (_pipeline) _pipeline->compile(context);
 }
 
+void BindGraphicsPipeline::release()
+{
+    if (_pipeline) _pipeline->release();
+}
+
+
 ////////////////////////////////////////////////////////////////////////
 //
 // ShaderStages

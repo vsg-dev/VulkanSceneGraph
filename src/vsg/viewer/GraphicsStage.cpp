@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/GraphicsStage.h>
 
 #include <array>
-#include <iostream>
 #include <limits>
 
 using namespace vsg;
@@ -23,10 +22,9 @@ namespace vsg
     class UpdatePipeline : public vsg::Visitor
     {
     public:
-        vsg::ref_ptr<vsg::ViewportState> _viewportState;
+        Context context;
 
-        UpdatePipeline(vsg::ViewportState* viewportState) :
-            _viewportState(viewportState) {}
+        UpdatePipeline() {}
 
         void apply(vsg::BindGraphicsPipeline& bindPipeline)
         {
@@ -36,24 +34,58 @@ namespace vsg
                 bool needToRegenerateGraphicsPipeline = false;
                 for (auto& pipelineState : graphicsPipeline->getPipelineStates())
                 {
-                    if (pipelineState == _viewportState)
+                    if (pipelineState == context.viewport)
                     {
                         needToRegenerateGraphicsPipeline = true;
+                        break;
                     }
                 }
+
+                if (graphicsPipeline->getImplementation())
+                {
+                    for (auto& pipelineState : graphicsPipeline->getImplementation()->_pipelineStates)
+                    {
+                        if (pipelineState == context.viewport)
+                        {
+                            needToRegenerateGraphicsPipeline = true;
+                            break;
+                        }
+                    }
+                }
+
                 if (needToRegenerateGraphicsPipeline)
                 {
-                    // TODO need to invoke a new compile traversal
                     vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getPipelineLayout(), graphicsPipeline->getPipelineStates());
 
+                    bindPipeline.release();
+
                     bindPipeline.setPipeline(new_pipeline);
+
+                    bindPipeline.compile(context);
                 }
             }
         }
 
-        void apply(vsg::Group& group)
+        void apply(vsg::Object& object)
         {
-            group.traverse(*this);
+            object.traverse(*this);
+        }
+
+        void apply(vsg::StateGroup& sg)
+        {
+            for (auto& command : sg.getStateCommands())
+            {
+    #if 1
+                BindGraphicsPipeline* bindGaphicsPipeline = dynamic_cast<BindGraphicsPipeline*>(command.get());
+                if (bindGaphicsPipeline)
+                {
+                    apply(*bindGaphicsPipeline);
+                }
+    #else
+                command->accept(*this);
+    #endif
+            }
+            sg.traverse(*this);
         }
     };
 }; // namespace vsg
@@ -116,7 +148,13 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
         _viewport->getViewport().height = static_cast<float>(extent2D.height);
         _viewport->getScissor().extent = extent2D;
 
-        vsg::UpdatePipeline updatePipeline(_viewport);
+        vsg::UpdatePipeline updatePipeline;
+
+        updatePipeline.context.device = commandBuffer->getDevice();
+        updatePipeline.context.commandPool = commandBuffer->getCommandPool();
+        updatePipeline.context.renderPass = renderPass;
+        updatePipeline.context.viewport = _viewport;
+
         _commandGraph->accept(updatePipeline);
     }
 
