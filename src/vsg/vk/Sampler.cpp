@@ -14,8 +14,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Sampler::Sampler(VkSampler sampler, Device* device, AllocationCallbacks* allocator) :
+Sampler::Sampler(VkSampler sampler, const VkSamplerCreateInfo& info, Device* device, AllocationCallbacks* allocator) :
     _sampler(sampler),
+    _info(info),
     _device(device),
     _allocator(allocator)
 {
@@ -40,7 +41,7 @@ Sampler::Result Sampler::create(Device* device, const VkSamplerCreateInfo& creat
     VkResult result = vkCreateSampler(*device, &createSamplerInfo, allocator, &sampler);
     if (result == VK_SUCCESS)
     {
-        return Result(new Sampler(sampler, device, allocator));
+        return Result(new Sampler(sampler, createSamplerInfo, device, allocator));
     }
     else
     {
