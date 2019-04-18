@@ -277,7 +277,7 @@ bool Viewer::submitNextFrame()
 
     if (debugLayersEnabled)
     {
-        auto startTime = std::chrono::steady_clock::now();
+        //auto startTime = std::chrono::steady_clock::now();
 
         for (auto& pair_pdo : _deviceMap)
         {
@@ -285,7 +285,7 @@ bool Viewer::submitNextFrame()
             vkQueueWaitIdle(pdo.presentQueue);
         }
 
-        std::cout << "Viewer::submitFrame() vkQueueWaitIdle() completed in " << std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - startTime).count() << "ms" << std::endl;
+        //std::cout << "Viewer::submitFrame() vkQueueWaitIdle() completed in " << std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - startTime).count() << "ms" << std::endl;
     }
 
     // advance each window to the next frame
