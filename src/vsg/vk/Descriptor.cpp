@@ -40,17 +40,37 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     // copy image data to staging memory
     imageStagingMemory->copy(0, imageTotalSize, data->dataPointer());
 
+    uint32_t mipLevels = sampler != nullptr ? sampler->info().maxLod : 1;
+
+    mipLevels = 1;
+
+    if (mipLevels>1)
+    {
+        VkFormatProperties formatProperties;
+        vkGetPhysicalDeviceFormatProperties(*(device->getPhysicalDevice()), data->getFormat(), &formatProperties);
+
+        if ((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)==0)
+        {
+            std::cout<<"vsg::transferImageData(..) failed : formatProperties.optimalTilingFeatures sampling not supported, disabling mipmap generation"<<std::endl;
+            mipLevels = 1;
+        }
+    }
+
+
 #if 0
     std::cout << "data->dataSize() = " << data->dataSize() << std::endl;
     std::cout << "data->width() = " << data->width() << std::endl;
     std::cout << "data->height() = " << data->height() << std::endl;
     std::cout << "data->depth() = " << data->depth() << std::endl;
+    std::cout << "sampler->info().maxLod = " << sampler->info().maxLod << std::endl;
 
-    std::cout << "Creating imageStagingBuffer and memorory size = " << imageTotalSize << std::endl;
+    std::cout << "Creating imageStagingBuffer and memorory size = " << imageTotalSize << " mipLevels = "<<mipLevels<<std::endl;
 #endif
+
 
     VkImageType imageType = data->depth() > 1 ? VK_IMAGE_TYPE_3D : (data->width() > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
     VkImageViewType imageViewType = data->depth() > 1 ? VK_IMAGE_VIEW_TYPE_3D : (data->width() > 1 ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
+    VkImageLayout imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
     VkImageCreateInfo imageCreateInfo = {};
     imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -58,14 +78,19 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     imageCreateInfo.extent.width = static_cast<uint32_t>(data->width());
     imageCreateInfo.extent.height = static_cast<uint32_t>(data->height());
     imageCreateInfo.extent.depth = static_cast<uint32_t>(data->depth());
-    imageCreateInfo.mipLevels = 1;
+    imageCreateInfo.mipLevels = mipLevels;
     imageCreateInfo.arrayLayers = 1;
     imageCreateInfo.format = data->getFormat();
     imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-    imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    imageCreateInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+    imageCreateInfo.initialLayout = imageLayout;
+    imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT ;
     imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    if (mipLevels>1)
+    {
+        imageCreateInfo.usage = imageCreateInfo.usage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    }
 
     ref_ptr<Image> textureImage = Image::create(device, imageCreateInfo);
     if (!textureImage)
@@ -172,6 +197,8 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
         postCopyImageMemoryBarrier.cmdPiplineBarrier(commandBuffer,
                                                      VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+
+        imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     });
 
     // clean up staging buffer
@@ -183,7 +210,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
     if (textureImageView) textureImageView->setImage(textureImage);
 
-    return ImageData(textureSampler, textureImageView, VK_IMAGE_LAYOUT_UNDEFINED);
+    return ImageData(textureSampler, textureImageView, imageLayout);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -227,14 +254,48 @@ Texture::Texture() :
 void Texture::read(Input& input)
 {
     Descriptor::read(input);
-
+#if 1
+    input.readValue<uint32_t>("flags", _samplerInfo.flags);
+    input.readValue<uint32_t>("minFilter", _samplerInfo.minFilter);
+    input.readValue<uint32_t>("magFilter", _samplerInfo.magFilter);
+    input.readValue<uint32_t>("mipmapMode", _samplerInfo.mipmapMode);
+    input.readValue<uint32_t>("addressModeU", _samplerInfo.addressModeU);
+    input.readValue<uint32_t>("addressModeV", _samplerInfo.addressModeV);
+    input.readValue<uint32_t>("addressModeW", _samplerInfo.addressModeW);
+    input.read("mipLodBias", _samplerInfo.mipLodBias);
+    input.readValue<uint32_t>("anisotropyEnable", _samplerInfo.anisotropyEnable);
+    input.read("maxAnisotropy", _samplerInfo.maxAnisotropy);
+    input.readValue<uint32_t>("compareEnable", _samplerInfo.compareEnable);
+    input.readValue<uint32_t>("compareOp", _samplerInfo.compareOp);
+    input.read("minLod", _samplerInfo.minLod);
+    input.read("maxLod", _samplerInfo.maxLod);
+    input.readValue<uint32_t>("borderColor", _samplerInfo.borderColor);
+    input.readValue<uint32_t>("unnormalizedCoordinates", _samplerInfo.unnormalizedCoordinates);
+#endif
     _textureData = input.readObject<Data>("TextureData");
 }
 
 void Texture::write(Output& output) const
 {
     Descriptor::write(output);
-
+#if 1
+    output.writeValue<uint32_t>("flags", _samplerInfo.flags);
+    output.writeValue<uint32_t>("minFilter", _samplerInfo.minFilter);
+    output.writeValue<uint32_t>("magFilter", _samplerInfo.magFilter);
+    output.writeValue<uint32_t>("mipmapMode", _samplerInfo.mipmapMode);
+    output.writeValue<uint32_t>("addressModeU", _samplerInfo.addressModeU);
+    output.writeValue<uint32_t>("addressModeV", _samplerInfo.addressModeV);
+    output.writeValue<uint32_t>("addressModeW", _samplerInfo.addressModeW);
+    output.write("mipLodBias", _samplerInfo.mipLodBias);
+    output.writeValue<uint32_t>("anisotropyEnable", _samplerInfo.anisotropyEnable);
+    output.write("maxAnisotropy", _samplerInfo.maxAnisotropy);
+    output.writeValue<uint32_t>("compareEnable", _samplerInfo.compareEnable);
+    output.writeValue<uint32_t>("compareOp", _samplerInfo.compareOp);
+    output.write("minlod", _samplerInfo.minLod);
+    output.write("maxLod", _samplerInfo.maxLod);
+    output.writeValue<uint32_t>("borderColor", _samplerInfo.borderColor);
+    output.writeValue<uint32_t>("unnormalizedCoordinates", _samplerInfo.unnormalizedCoordinates);
+#endif
     output.writeObject("TextureData", _textureData.get());
 }
 
