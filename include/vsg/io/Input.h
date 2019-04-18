@@ -115,6 +115,15 @@ namespace vsg
             return value;
         }
 
+        /// write a value casting it specified type i.e. output.write<uint32_t>("Value", value);
+        template<typename W, typename T>
+        void readValue(const char* propertyName, T& value)
+        {
+            W read_value{};
+            read(propertyName, read_value);
+            value = static_cast<T>(read_value);
+        }
+
         using ObjectID = uint32_t;
         using ObjectIDMap = std::unordered_map<ObjectID, vsg::ref_ptr<vsg::Object>>;
         ObjectIDMap& getObjectIDMap() { return _objectIDMap; }
