@@ -50,7 +50,7 @@ Full details on how to build of the VSG (Unix/Windows/Android/macOS) can be foun
 It's still very early days for the project so we don't have many projects that use to the VSG to reference, for our own testing purposes we have two project which may serve as an illustration of how to compile against the VSG and how to use parts of it's API.  These projects are:
 
 * [vsgExamples](https://github.com/vsg-dev/vsgExamples) example programs that we are using to test out VSG functionality and illustrates usage.
-* [osg2vsg](https://github.com/vsg-dev/osg2vsg) utility library that integrates OpenSceneGraph with the VSG to leverages 3d model and image loaders and converts them to VSG equivalents.  Once converted they can be viewed with the osg2vsg application, or loaded and rendered by [vsgviewer](https://github.com/vsg-dev/vsgExamples/Desktop/vsgviewer) provided by vsgExamples.
+* [osg2vsg](https://github.com/vsg-dev/osg2vsg) utility library that integrates OpenSceneGraph with the VSG to leverages 3d model and image loaders and converts them to VSG equivalents.  Once converted they can be viewed with the osg2vsg application, or loaded and rendered by [vsgviewer](https://github.com/vsg-dev/vsgExamples/tree/master/Desktop/vsgviewer) provided by vsgExamples.
 
 Three examples within the vsgExamples project that may be of particular interest are ports of Vulkan tutorials to the VSG API.  In each case the VSG version requires less than 1/5th the amount of code to achieve the same functionality.
 
