@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Array.h>
 #include <vsg/core/Array2D.h>
 #include <vsg/core/Array3D.h>
+#include <vsg/core/Objects.h>
 #include <vsg/core/Value.h>
 
 #include <vsg/nodes/Commands.h>
@@ -46,6 +47,7 @@ ObjectFactory::ObjectFactory()
     _createMap["nullptr"] = []() { return ref_ptr<Object>(); };
 
     VSG_REGISTER_new(vsg::Object);
+    VSG_REGISTER_new(vsg::Objects);
 
     // values
     VSG_REGISTER_new(vsg::stringValue);

@@ -19,6 +19,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    // forward decalre Objects
+    class Objects;
 
     // forward declare nodes classes
     class Node;
@@ -80,6 +82,7 @@ namespace vsg
         Visitor();
 
         virtual void apply(Object&);
+        virtual void apply(Objects&);
 
         // Values
         virtual void apply(stringValue&);

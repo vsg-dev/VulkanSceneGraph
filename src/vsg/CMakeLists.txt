@@ -15,6 +15,7 @@ set(SOURCES
     core/ConstVisitor.cpp
     core/Data.cpp
     core/Object.cpp
+    core/Objects.cpp
     core/Result.cpp
     core/Visitor.cpp
     core/Version.cpp
