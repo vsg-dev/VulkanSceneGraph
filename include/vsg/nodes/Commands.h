@@ -23,7 +23,7 @@ namespace vsg
 {
     VSG_type_name(vsg::Commands);
 
-    class VSG_DECLSPEC Commands : public Inherit<Node, Commands>
+    class VSG_DECLSPEC Commands : public Inherit<Command, Commands>
     {
     public:
         Commands(size_t numChildren = 0);
@@ -62,6 +62,8 @@ namespace vsg
 
         Children& getChildren() noexcept { return _children; }
         const Children& getChildren() const noexcept { return _children; }
+
+        void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~Commands();

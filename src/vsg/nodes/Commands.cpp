@@ -53,3 +53,11 @@ void Commands::write(Output& output) const
         output.writeObject("Child", child.get());
     }
 }
+
+void Commands::dispatch(CommandBuffer& commandBuffer) const
+{
+    for (auto& command : _children)
+    {
+        command->dispatch(commandBuffer);
+    }
+}
