@@ -483,6 +483,11 @@ bool Xcb_Window::pollEvents(Events& events)
             //std::cout<<"xcb_map_notify_event_t"<<std::endl;
             break;
         }
+        case (XCB_MAPPING_NOTIFY):
+        {
+            //std::cout<<"xcb_mapping_notify_event_t"<<std::endl;
+            break;
+        }
         case(XCB_LIST_PROPERTIES):
         {
             //std::cout<<"xcb_list_properties_request_t"<<std::endl;
