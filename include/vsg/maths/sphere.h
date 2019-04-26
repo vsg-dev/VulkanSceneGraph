@@ -23,6 +23,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    pragma clang diagnostic ignored "-Wnested-anon-types"
 #endif
 
+#include <vsg/maths/vec3.h>
+#include <vsg/maths/vec4.h>
+
 namespace vsg
 {
     template<typename T>
