@@ -37,15 +37,15 @@ namespace vsg
         void compile(Context& context) override;
         void dispatch(CommandBuffer& commandBuffer) const override;
 
-        using Commands = std::vector<ref_ptr<Command>>;
+        using DrawCommands = std::vector<ref_ptr<Command>>;
 
         // settings
         DataList _arrays;
         ref_ptr<Data> _indices;
-        Commands _commands;
+        DrawCommands _commands;
 
         // compiled objects
-        Commands _renderImplementation;
+        DrawCommands _renderImplementation;
     };
     VSG_type_name(vsg::Geometry)
 
