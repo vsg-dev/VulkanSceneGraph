@@ -91,7 +91,6 @@ namespace vsg
         /// get the const list of EventHandlers
         const EventHandlers& getEventHandlers() const { return _eventHandlers; }
 
-
         /// convinience method for advancing to the next frame.
         /// Check active status, return false if viewer no longer active.
         /// lf still active poll for pending events and place them in the Events list and advance to the next frame, update generate FrameStamp to signify the advancement to a new frame and return true.

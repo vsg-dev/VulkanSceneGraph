@@ -103,10 +103,10 @@ namespace vsg
     template<typename T>
     constexpr t_mat4<T> orthographic(T left, T right, T bottom, T top, T zNear, T zFar)
     {
-        return t_mat4<T>(2.0f / (right - left), 0.0f, 0.0f,  0.0f,
+        return t_mat4<T>(2.0f / (right - left), 0.0f, 0.0f, 0.0f,
                          0.0f, 2.0f / (bottom - top), 0.0f, 0.0f,
                          0.0f, 0.0f, 1.0f / (zNear - zFar), 0.0f,
-                        -(right + left) / (right - left), -(bottom + top) / (bottom - top), zNear / (zNear - zFar), 1.0f);
+                         -(right + left) / (right - left), -(bottom + top) / (bottom - top), zNear / (zNear - zFar), 1.0f);
     }
 
     template<typename T>
