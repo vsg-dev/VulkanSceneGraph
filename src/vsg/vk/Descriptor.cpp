@@ -416,7 +416,7 @@ void Texture::write(Output& output) const
     output.write("maxAnisotropy", _samplerInfo.maxAnisotropy);
     output.writeValue<uint32_t>("compareEnable", _samplerInfo.compareEnable);
     output.writeValue<uint32_t>("compareOp", _samplerInfo.compareOp);
-    output.write("minlod", _samplerInfo.minLod);
+    output.write("minLod", _samplerInfo.minLod);
     output.write("maxLod", _samplerInfo.maxLod);
     output.writeValue<uint32_t>("borderColor", _samplerInfo.borderColor);
     output.writeValue<uint32_t>("unnormalizedCoordinates", _samplerInfo.unnormalizedCoordinates);
