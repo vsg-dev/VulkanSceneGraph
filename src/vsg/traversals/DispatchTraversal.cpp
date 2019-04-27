@@ -13,12 +13,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/DispatchTraversal.h>
 
 #include <vsg/nodes/Commands.h>
+#include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
-#include <vsg/nodes/CullGroup.h>
 
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
@@ -77,9 +77,9 @@ public:
             std::cout<<"   s = "<<s.vec<<std::endl;
 #endif
             _frustum.clear();
-            for(auto& pl : _frustumUnit)
+            for (auto& pl : _frustumUnit)
             {
-                _frustum.push_back( pl * pmv );
+                _frustum.push_back(pl * pmv);
             }
 
             _frustumDirty = false;
@@ -87,7 +87,6 @@ public:
 
         return vsg::intersect(_frustum, s);
     }
-
 };
 
 DispatchTraversal::DispatchTraversal(CommandBuffer* commandBuffer) :

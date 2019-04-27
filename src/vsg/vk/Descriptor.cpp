@@ -41,25 +41,24 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     imageStagingMemory->copy(0, imageTotalSize, data->dataPointer());
 
     uint32_t mipLevels = sampler != nullptr ? sampler->info().maxLod : 1;
-    if (mipLevels==0)
+    if (mipLevels == 0)
     {
         mipLevels = 1;
     }
 
     //mipLevels = 1;  // disable mipmapping
 
-    if (mipLevels>1)
+    if (mipLevels > 1)
     {
         VkFormatProperties formatProperties;
         vkGetPhysicalDeviceFormatProperties(*(device->getPhysicalDevice()), data->getFormat(), &formatProperties);
 
-        if ((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)==0)
+        if ((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT) == 0)
         {
-            std::cout<<"vsg::transferImageData(..) failed : formatProperties.optimalTilingFeatures sampling not supported, disabling mipmap generation"<<std::endl;
+            std::cout << "vsg::transferImageData(..) failed : formatProperties.optimalTilingFeatures sampling not supported, disabling mipmap generation" << std::endl;
             mipLevels = 1;
         }
     }
-
 
 #if 0
     std::cout << "data->dataSize() = " << data->dataSize() << std::endl;
@@ -70,7 +69,6 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
     std::cout << "Creating imageStagingBuffer and memorory size = " << imageTotalSize << " mipLevels = "<<mipLevels<<std::endl;
 #endif
-
 
     VkImageType imageType = data->depth() > 1 ? VK_IMAGE_TYPE_3D : (data->width() > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
     VkImageViewType imageViewType = data->depth() > 1 ? VK_IMAGE_VIEW_TYPE_3D : (data->width() > 1 ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
@@ -87,11 +85,11 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     imageCreateInfo.format = data->getFormat();
     imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT ;
+    imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    if (mipLevels>1)
+    if (mipLevels > 1)
     {
         imageCreateInfo.usage = imageCreateInfo.usage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
@@ -172,12 +170,9 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     textureImage->bind(textureImageDeviceMemory, 0);
 #endif
 
-
-    if (mipLevels>1)
+    if (mipLevels > 1)
     {
-        dispatchCommandsToQueue(device, context.commandPool, context.graphicsQueue, [&](VkCommandBuffer commandBuffer)
-        {
-
+        dispatchCommandsToQueue(device, context.commandPool, context.graphicsQueue, [&](VkCommandBuffer commandBuffer) {
             VkImageMemoryBarrier preCopyBarrier = {};
             preCopyBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
             preCopyBarrier.srcAccessMask = 0;
@@ -194,10 +189,10 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
             preCopyBarrier.subresourceRange.baseMipLevel = 0;
 
             vkCmdPipelineBarrier(commandBuffer,
-                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
-                    0, nullptr,
-                    0, nullptr,
-                    1, &preCopyBarrier);
+                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+                                 0, nullptr,
+                                 0, nullptr,
+                                 1, &preCopyBarrier);
 
             VkBufferImageCopy region = {};
             region.bufferOffset = 0;
@@ -211,7 +206,6 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
             region.imageExtent = {static_cast<uint32_t>(data->width()), static_cast<uint32_t>(data->height()), 1};
 
             vkCmdCopyBufferToImage(commandBuffer, *imageStagingBuffer, *textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-
 
             VkImageMemoryBarrier barrier = {};
             barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -235,10 +229,10 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
                 barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 
                 vkCmdPipelineBarrier(commandBuffer,
-                    VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
-                    0, nullptr,
-                    0, nullptr,
-                    1, &barrier);
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+                                     0, nullptr,
+                                     0, nullptr,
+                                     1, &barrier);
 
                 VkImageBlit blit = {};
                 blit.srcOffsets[0] = {0, 0, 0};
@@ -248,17 +242,17 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
                 blit.srcSubresource.baseArrayLayer = 0;
                 blit.srcSubresource.layerCount = 1;
                 blit.dstOffsets[0] = {0, 0, 0};
-                blit.dstOffsets[1] = { mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1 };
+                blit.dstOffsets[1] = {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1};
                 blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                 blit.dstSubresource.mipLevel = i;
                 blit.dstSubresource.baseArrayLayer = 0;
                 blit.dstSubresource.layerCount = 1;
 
                 vkCmdBlitImage(commandBuffer,
-                    *textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                    *textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                    1, &blit,
-                    VK_FILTER_LINEAR);
+                               *textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               *textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                               1, &blit,
+                               VK_FILTER_LINEAR);
 
                 barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
                 barrier.newLayout = targetImageLayout;
@@ -266,10 +260,10 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
                 barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
                 vkCmdPipelineBarrier(commandBuffer,
-                    VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
-                    0, nullptr,
-                    0, nullptr,
-                    1, &barrier);
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+                                     0, nullptr,
+                                     0, nullptr,
+                                     1, &barrier);
 
                 if (mipWidth > 1) mipWidth /= 2;
                 if (mipHeight > 1) mipHeight /= 2;
@@ -282,19 +276,16 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
             barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
             vkCmdPipelineBarrier(commandBuffer,
-                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
-                0, nullptr,
-                0, nullptr,
-                1, &barrier);
-
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+                                 0, nullptr,
+                                 0, nullptr,
+                                 1, &barrier);
         });
-
     }
     else
     {
         // no mip maps required so just copy image without any extra processing.
-        dispatchCommandsToQueue(device, context.commandPool, context.graphicsQueue, [&](VkCommandBuffer commandBuffer)
-        {
+        dispatchCommandsToQueue(device, context.commandPool, context.graphicsQueue, [&](VkCommandBuffer commandBuffer) {
             ImageMemoryBarrier preCopyImageMemoryBarrier(
                 0, VK_ACCESS_TRANSFER_WRITE_BIT,
                 VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -329,7 +320,6 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     imageStagingMemory = 0;
 
     ref_ptr<Sampler> textureSampler = sampler != nullptr ? Sampler::Result(sampler) : Sampler::create(device);
-
 
     VkImageViewCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;

@@ -75,15 +75,15 @@ namespace vsg
         {
             for (auto& command : sg.getStateCommands())
             {
-    #if 1
+#if 1
                 BindGraphicsPipeline* bindGaphicsPipeline = dynamic_cast<BindGraphicsPipeline*>(command.get());
                 if (bindGaphicsPipeline)
                 {
                     apply(*bindGaphicsPipeline);
                 }
-    #else
+#else
                 command->accept(*this);
-    #endif
+#endif
             }
             sg.traverse(*this);
         }

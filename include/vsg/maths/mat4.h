@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/maths/plane.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
-#include <vsg/maths/plane.h>
 
 namespace vsg
 {
@@ -128,12 +128,12 @@ namespace vsg
                                lhs[0][1] * rhs[0] + lhs[1][1] * rhs[1] + lhs[2][1] * rhs[2] + lhs[3][1] * rhs[3],
                                lhs[0][2] * rhs[0] + lhs[1][2] * rhs[1] + lhs[2][2] * rhs[2] + lhs[3][2] * rhs[3],
                                lhs[0][3] * rhs[0] + lhs[1][3] * rhs[1] + lhs[2][3] * rhs[2] + lhs[3][3] * rhs[3]);
-        T inv = static_cast<T>(1.0)/length(transformed.n);
-        return t_plane<T>(transformed[0]*inv, transformed[1]*inv, transformed[2]*inv, transformed[3]*inv);
+        T inv = static_cast<T>(1.0) / length(transformed.n);
+        return t_plane<T>(transformed[0] * inv, transformed[1] * inv, transformed[2] * inv, transformed[3] * inv);
     }
 
     template<typename T>
-    t_vec4<T> operator*( t_vec4<T> const& lhs, t_mat4<T> const& rhs)
+    t_vec4<T> operator*(t_vec4<T> const& lhs, t_mat4<T> const& rhs)
     {
         return t_vec4<T>(lhs[0] * rhs[0][0] + lhs[1] * rhs[0][1] + lhs[2] * rhs[0][2] + lhs[3] * rhs[0][3],
                          lhs[0] * rhs[1][0] + lhs[1] * rhs[1][1] + lhs[2] * rhs[1][2] + lhs[3] * rhs[1][3],
@@ -142,14 +142,14 @@ namespace vsg
     }
 
     template<typename T>
-    t_plane<T> operator*( t_plane<T> const& lhs, t_mat4<T> const& rhs)
+    t_plane<T> operator*(t_plane<T> const& lhs, t_mat4<T> const& rhs)
     {
         t_plane<T> transformed(lhs[0] * rhs[0][0] + lhs[1] * rhs[0][1] + lhs[2] * rhs[0][2] + lhs[3] * rhs[0][3],
                                lhs[0] * rhs[1][0] + lhs[1] * rhs[1][1] + lhs[2] * rhs[1][2] + lhs[3] * rhs[1][3],
                                lhs[0] * rhs[2][0] + lhs[1] * rhs[2][1] + lhs[2] * rhs[2][2] + lhs[3] * rhs[2][3],
                                lhs[0] * rhs[3][0] + lhs[1] * rhs[3][1] + lhs[2] * rhs[3][2] + lhs[3] * rhs[3][3]);
-        T inv = static_cast<T>(1.0)/length(transformed.n);
-        return t_plane<T>(transformed[0]*inv, transformed[1]*inv, transformed[2]*inv, transformed[3]*inv);
+        T inv = static_cast<T>(1.0) / length(transformed.n);
+        return t_plane<T>(transformed[0] * inv, transformed[1] * inv, transformed[2] * inv, transformed[3] * inv);
     }
 
     template<typename T>

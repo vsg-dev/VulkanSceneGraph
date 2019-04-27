@@ -59,7 +59,7 @@ namespace vsg
             value{v[0], v[1], v[2], v[3]} {}
 
         constexpr t_plane(value_type nx, value_type ny, value_type nz, value_type in_p) :
-        value{nx, ny, nz, in_p} {}
+            value{nx, ny, nz, in_p} {}
 
         constexpr t_plane(const normal_type& normal, value_type in_p) :
             value{normal.x, normal.y, normal.z, in_p} {}

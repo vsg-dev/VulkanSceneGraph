@@ -23,6 +23,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    pragma clang diagnostic ignored "-Wnested-anon-types"
 #endif
 
+#include <vsg/maths/vec3.h>
+#include <vsg/maths/vec4.h>
+
 namespace vsg
 {
     template<typename T>
@@ -58,7 +61,7 @@ namespace vsg
 
         template<typename R>
         constexpr explicit t_sphere(const t_sphere<R>& s) :
-            value{ static_cast<value_type>(s[0]), static_cast<value_type>(s[1]), static_cast<value_type>(s[2]), static_cast<value_type>(s[3])} {}
+            value{static_cast<value_type>(s[0]), static_cast<value_type>(s[1]), static_cast<value_type>(s[2]), static_cast<value_type>(s[3])} {}
 
         template<typename R>
         constexpr t_sphere(const t_vec3<R>& c, T rad) :
