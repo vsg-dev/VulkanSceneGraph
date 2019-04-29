@@ -146,7 +146,8 @@ void DescriptorSet::Implementation::assign(const Descriptors& descriptors)
 //
 BindDescriptorSets::BindDescriptorSets() :
     _bindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
-    _firstSet(0)
+    _firstSet(0),
+    _vkPipelineLayout(0)
 {
 }
 
@@ -204,6 +205,9 @@ void BindDescriptorSets::dispatch(CommandBuffer& commandBuffer) const
 
 void BindDescriptorSets::compile(Context& context)
 {
+    if (_vkPipelineLayout!=0 && _vkDescriptorSets.size()>0) return;
+
+    _pipelineLayout->compile(context);
     _vkPipelineLayout = *(_pipelineLayout);
 
     // no need to compile if already compiled
@@ -224,7 +228,9 @@ void BindDescriptorSets::compile(Context& context)
 //
 BindDescriptorSet::BindDescriptorSet() :
     _bindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
-    _firstSet(0)
+    _firstSet(0),
+    _vkPipelineLayout(0),
+    _vkDescriptorSet(0)
 {
 }
 
@@ -275,11 +281,12 @@ void BindDescriptorSet::dispatch(CommandBuffer& commandBuffer) const
 void BindDescriptorSet::compile(Context& context)
 {
     // no need to compile if already compiled
-    if (_vkDescriptorSet!=0 && _vkPipelineLayout!=0) return;
+    if (_vkPipelineLayout!=0 && _vkDescriptorSet!=0) return;
 
     // check if pipeline and descriptor set are assigned.
     if (!_descriptorSet || !_pipelineLayout) return;
 
+    _pipelineLayout->compile(context);
     _vkPipelineLayout = *(_pipelineLayout);
 
     _descriptorSet->compile(context);
