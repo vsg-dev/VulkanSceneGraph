@@ -195,7 +195,7 @@ namespace vsg
         VkPipelineBindPoint getBindPoint() { return _bindPoint; }
         const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
         uint32_t getFirstSet() { return _firstSet; }
-        const DescriptorSet* getDescriptorSets() const { return _descriptorSet; }
+        const DescriptorSet* getDescriptorSet() const { return _descriptorSet; }
 
         void pushTo(State& state) const override;
         void popFrom(State& state) const override;

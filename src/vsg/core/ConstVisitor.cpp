@@ -28,6 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/ComputePipeline.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/RenderPass.h>
+#include <vsg/vk/DescriptorSet.h>
 
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/KeyEvent.h>
@@ -323,6 +324,18 @@ void ConstVisitor::apply(const CommandBuffer& value)
     apply(static_cast<const Object&>(value));
 }
 void ConstVisitor::apply(const RenderPass& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const BindDescriptorSet& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const BindDescriptorSets& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const DescriptorSet& value)
 {
     apply(static_cast<const Object&>(value));
 }

@@ -315,18 +315,7 @@ public:
     {
         for (auto& command : stategroup.getStateCommands())
         {
-#if 1
-            const BindDescriptorSets* bds = dynamic_cast<const BindDescriptorSets*>(command.get());
-            if (bds)
-            {
-                for (auto& descriptorSet : bds->getDescriptorSets())
-                {
-                    apply(*descriptorSet);
-                }
-            }
-#else
             command->accept(*this);
-#endif
         }
 
         stategroup.traverse(*this);
