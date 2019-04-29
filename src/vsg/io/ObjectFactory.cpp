@@ -151,6 +151,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::Draw);
     VSG_REGISTER_create(vsg::DrawIndexed);
     VSG_REGISTER_create(vsg::BindDescriptorSets);
+    VSG_REGISTER_create(vsg::BindDescriptorSet);
     VSG_REGISTER_create(vsg::DescriptorSet);
     VSG_REGISTER_create(vsg::DescriptorSetLayout);
     VSG_REGISTER_create(vsg::Texture);

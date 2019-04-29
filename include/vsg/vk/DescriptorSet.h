@@ -96,16 +96,18 @@ namespace vsg
 
         BindDescriptorSets(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, uint32_t firstSet, const DescriptorSets& descriptorSets) :
             _bindPoint(bindPoint),
-            _pipelineLayout(pipelineLayout),
             _firstSet(firstSet),
+            _vkPipelineLayout(0),
+            _pipelineLayout(pipelineLayout),
             _descriptorSets(descriptorSets)
         {
         }
 
         BindDescriptorSets(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, const DescriptorSets& descriptorSets) :
             _bindPoint(bindPoint),
-            _pipelineLayout(pipelineLayout),
             _firstSet(0),
+            _vkPipelineLayout(0),
+            _pipelineLayout(pipelineLayout),
             _descriptorSets(descriptorSets)
         {
         }
@@ -138,14 +140,84 @@ namespace vsg
     protected:
         virtual ~BindDescriptorSets() {}
 
+        using VkDescriptorSets = std::vector<VkDescriptorSet>;
+
         VkPipelineBindPoint _bindPoint;
-        ref_ptr<PipelineLayout> _pipelineLayout;
         uint32_t _firstSet;
+        VkPipelineLayout _vkPipelineLayout;
+        VkDescriptorSets _vkDescriptorSets;
+
+        // settings
+        ref_ptr<PipelineLayout> _pipelineLayout;
         DescriptorSets _descriptorSets;
 
-        using VkDescriptorSets = std::vector<VkDescriptorSet>;
-        VkDescriptorSets _vkDescriptorSets;
     };
     VSG_type_name(vsg::BindDescriptorSets);
+
+    class VSG_DECLSPEC BindDescriptorSet : public Inherit<StateCommand, BindDescriptorSet>
+    {
+    public:
+        BindDescriptorSet();
+
+        BindDescriptorSet(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, uint32_t firstSet, DescriptorSet* descriptorSet) :
+            _bindPoint(bindPoint),
+            _firstSet(firstSet),
+            _vkPipelineLayout(0),
+            _vkDescriptorSet(0),
+            _pipelineLayout(pipelineLayout),
+            _descriptorSet(descriptorSet)
+        {
+        }
+
+        BindDescriptorSet(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, DescriptorSet* descriptorSet) :
+            _bindPoint(bindPoint),
+            _firstSet(0),
+            _vkPipelineLayout(0),
+            _vkDescriptorSet(0),
+            _pipelineLayout(pipelineLayout),
+            _descriptorSet(descriptorSet)
+        {
+        }
+
+        template<class N, class V>
+        static void t_traverse(N& bds, V& visitor)
+        {
+            if (bds._pipelineLayout) bds._pipelineLayout->accept(visitor);
+            if (bds._descriptorSet) bds._descriptorSet->accept(visitor);
+        }
+
+        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        VkPipelineBindPoint getBindPoint() { return _bindPoint; }
+        const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
+        uint32_t getFirstSet() { return _firstSet; }
+        const DescriptorSet* getDescriptorSets() const { return _descriptorSet; }
+
+        void pushTo(State& state) const override;
+        void popFrom(State& state) const override;
+        void dispatch(CommandBuffer& commandBuffer) const override;
+
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context) override;
+
+    protected:
+        virtual ~BindDescriptorSet() {}
+
+        VkPipelineBindPoint _bindPoint;
+        uint32_t _firstSet;
+        VkPipelineLayout _vkPipelineLayout;
+        VkDescriptorSet _vkDescriptorSet;
+
+        // settings
+        ref_ptr<PipelineLayout> _pipelineLayout;
+        ref_ptr<DescriptorSet> _descriptorSet;
+
+    };
+    VSG_type_name(vsg::BindDescriptorSet);
+
 
 } // namespace vsg

@@ -140,6 +140,10 @@ void DescriptorSet::Implementation::assign(const Descriptors& descriptors)
     vkUpdateDescriptorSets(*_device, descritorCount, descriptorWrites.data(), 0, nullptr);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// BindDescriptorSets
+//
 BindDescriptorSets::BindDescriptorSets() :
     _bindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
     _firstSet(0)
@@ -195,11 +199,13 @@ void BindDescriptorSets::popFrom(State& state) const
 
 void BindDescriptorSets::dispatch(CommandBuffer& commandBuffer) const
 {
-    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, *(_pipelineLayout), _firstSet, static_cast<uint32_t>(_vkDescriptorSets.size()), _vkDescriptorSets.data(), 0, nullptr);
+    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, _vkPipelineLayout, _firstSet, static_cast<uint32_t>(_vkDescriptorSets.size()), _vkDescriptorSets.data(), 0, nullptr);
 }
 
 void BindDescriptorSets::compile(Context& context)
 {
+    _vkPipelineLayout = *(_pipelineLayout);
+
     // no need to compile if already compiled
     if (_vkDescriptorSets.size() == _descriptorSets.size()) return;
 
@@ -210,4 +216,72 @@ void BindDescriptorSets::compile(Context& context)
 
         _vkDescriptorSets[i] = *(_descriptorSets[i]);
     }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// BindDescriptorSet
+//
+BindDescriptorSet::BindDescriptorSet() :
+    _bindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
+    _firstSet(0)
+{
+}
+
+void BindDescriptorSet::read(Input& input)
+{
+    Object::read(input);
+
+    _pipelineLayout = input.readObject<PipelineLayout>("PipelineLayout");
+
+    input.read("firstSet", _firstSet);
+
+    _descriptorSet = input.readObject<DescriptorSet>("DescriptorSet");
+}
+
+void BindDescriptorSet::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeObject("PipelineLayout", _pipelineLayout.get());
+
+    output.write("firstSet", _firstSet);
+
+    output.writeObject("DescriptorSet", _descriptorSet.get());
+}
+
+void BindDescriptorSet::pushTo(State& state) const
+{
+    state.dirty = true;
+
+    // make sure there is an appropriate descriptorStack entry available.
+    if (_firstSet >= state.descriptorStacks.size()) state.descriptorStacks.resize(_firstSet + 1);
+
+    // push this to the appropriate descriptorStack
+    state.descriptorStacks[_firstSet].push(this);
+}
+
+void BindDescriptorSet::popFrom(State& state) const
+{
+    state.dirty = true;
+    state.descriptorStacks[_firstSet].pop();
+}
+
+void BindDescriptorSet::dispatch(CommandBuffer& commandBuffer) const
+{
+    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, _vkPipelineLayout, _firstSet, 1, &_vkDescriptorSet, 0, nullptr);
+}
+
+void BindDescriptorSet::compile(Context& context)
+{
+    // no need to compile if already compiled
+    if (_vkDescriptorSet!=0 && _vkPipelineLayout!=0) return;
+
+    // check if pipeline and descriptor set are assigned.
+    if (!_descriptorSet || !_pipelineLayout) return;
+
+    _vkPipelineLayout = *(_pipelineLayout);
+
+    _descriptorSet->compile(context);
+    _vkDescriptorSet = *(_descriptorSet);
 }
