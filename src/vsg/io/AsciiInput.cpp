@@ -45,7 +45,7 @@ bool AsciiInput::matchPropertyName(const char* propertyName)
     _input >> _readPropertyName;
     if (_readPropertyName != propertyName)
     {
-        std::cout << "Error: unable to match " << propertyName << std::endl;
+        std::cout << "Error: unable to match " << propertyName << " got " << _readPropertyName << " instead." << std::endl;
         return false;
     }
     return true;
