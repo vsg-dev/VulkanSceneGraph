@@ -30,6 +30,7 @@ namespace vsg
     class LOD;
     class StateGroup;
     class CullGroup;
+    class CullNode;
     class MatrixTransform;
     class Geometry;
 
@@ -153,6 +154,7 @@ namespace vsg
         virtual void apply(const LOD&);
         virtual void apply(const StateGroup&);
         virtual void apply(const CullGroup&);
+        virtual void apply(const CullNode&);
         virtual void apply(const MatrixTransform&);
         virtual void apply(const Geometry&);
 

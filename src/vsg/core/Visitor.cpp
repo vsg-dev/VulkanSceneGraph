@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/Commands.h>
 #include <vsg/nodes/CullGroup.h>
+#include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
@@ -301,6 +302,10 @@ void Visitor::apply(StateGroup& value)
 void Visitor::apply(CullGroup& value)
 {
     apply(static_cast<Group&>(value));
+}
+void Visitor::apply(CullNode& value)
+{
+    apply(static_cast<Node&>(value));
 }
 void Visitor::apply(MatrixTransform& value)
 {

@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/Commands.h>
 #include <vsg/nodes/CullGroup.h>
+#include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/MatrixTransform.h>
@@ -151,6 +152,25 @@ void DispatchTraversal::apply(const CullGroup& cullGroup)
     {
         //std::cout<<"Passed node"<<std::endl;
         cullGroup.traverse(*this);
+    }
+    else
+    {
+        //std::cout<<"Culling node"<<std::endl;
+    }
+#endif
+}
+
+
+void DispatchTraversal::apply(const CullNode& cullNode)
+{
+#if 0
+    // no culling
+    cullGroup.traverse(*this);
+#else
+    if (_data->intersect(cullNode.getBound()))
+    {
+        //std::cout<<"Passed node"<<std::endl;
+        cullNode.traverse(*this);
     }
     else
     {
