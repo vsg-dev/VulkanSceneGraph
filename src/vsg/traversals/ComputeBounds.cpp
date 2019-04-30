@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/nodes/Geometry.h>
+#include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/traversals/ComputeBounds.h>
 
@@ -55,6 +56,13 @@ void ComputeBounds::apply(const vsg::Geometry& geometry)
     if (!geometry._arrays.empty())
     {
         geometry._arrays[0]->accept(*this);
+    }
+}
+void ComputeBounds::apply(const vsg::VertexIndexDraw& vid)
+{
+    if (!vid._arrays.empty())
+    {
+        vid._arrays[0]->accept(*this);
     }
 }
 

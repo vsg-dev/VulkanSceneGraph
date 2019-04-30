@@ -32,6 +32,7 @@ namespace vsg
         void apply(const vsg::Group& group);
         void apply(const vsg::MatrixTransform& transform);
         void apply(const vsg::Geometry& geometry);
+        void apply(const vsg::VertexIndexDraw& vid);
         void apply(const vsg::vec3Array& vertices);
     };
 

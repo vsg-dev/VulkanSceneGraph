@@ -33,6 +33,7 @@ namespace vsg
     class CullNode;
     class MatrixTransform;
     class Geometry;
+    class VertexIndexDraw;
 
     // forward declare vulkan classes
     class Command;
@@ -157,6 +158,7 @@ namespace vsg
         virtual void apply(CullNode&);
         virtual void apply(MatrixTransform&);
         virtual void apply(Geometry&);
+        virtual void apply(VertexIndexDraw&);
 
         // Vulkan nodes
         virtual void apply(Command&);
