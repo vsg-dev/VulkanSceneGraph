@@ -205,7 +205,7 @@ void BindDescriptorSets::dispatch(CommandBuffer& commandBuffer) const
 
 void BindDescriptorSets::compile(Context& context)
 {
-    if (_vkPipelineLayout!=0 && _vkDescriptorSets.size()>0) return;
+    if (_vkPipelineLayout != 0 && _vkDescriptorSets.size() > 0) return;
 
     _pipelineLayout->compile(context);
     _vkPipelineLayout = *(_pipelineLayout);
@@ -281,7 +281,7 @@ void BindDescriptorSet::dispatch(CommandBuffer& commandBuffer) const
 void BindDescriptorSet::compile(Context& context)
 {
     // no need to compile if already compiled
-    if (_vkPipelineLayout!=0 && _vkDescriptorSet!=0) return;
+    if (_vkPipelineLayout != 0 && _vkDescriptorSet != 0) return;
 
     // check if pipeline and descriptor set are assigned.
     if (!_descriptorSet || !_pipelineLayout) return;

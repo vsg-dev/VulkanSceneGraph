@@ -15,8 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Node.h>
 
 #include <vsg/traversals/CompileTraversal.h>
-#include <vsg/vk/Command.h>
 #include <vsg/vk/BufferData.h>
+#include <vsg/vk/Command.h>
 
 #define GEOMETRY_AS_COMMAND
 

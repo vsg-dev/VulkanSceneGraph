@@ -32,7 +32,7 @@ namespace vsg
 
         BufferData(const BufferData&) = default;
 
-        BufferData& operator = (const BufferData&) = default;
+        BufferData& operator=(const BufferData&) = default;
 
         ref_ptr<Buffer> _buffer;
         VkDeviceSize _offset = 0;

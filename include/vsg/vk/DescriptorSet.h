@@ -150,7 +150,6 @@ namespace vsg
         // settings
         ref_ptr<PipelineLayout> _pipelineLayout;
         DescriptorSets _descriptorSets;
-
     };
     VSG_type_name(vsg::BindDescriptorSets);
 
@@ -215,9 +214,7 @@ namespace vsg
         // settings
         ref_ptr<PipelineLayout> _pipelineLayout;
         ref_ptr<DescriptorSet> _descriptorSet;
-
     };
     VSG_type_name(vsg::BindDescriptorSet);
-
 
 } // namespace vsg

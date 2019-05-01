@@ -82,15 +82,14 @@ void VertexIndexDraw::write(Output& output) const
 
 void VertexIndexDraw::compile(Context& context)
 {
-    if (_arrays.size()==0 || !_indices)
+    if (_arrays.size() == 0 || !_indices)
     {
-        std::cout<<"Warning VertexIndexDraw does not contain required arrays and/or indices"<<std::endl;
+        std::cout << "Warning VertexIndexDraw does not contain required arrays and/or indices" << std::endl;
         return;
     }
 
     // check to see if we've already been compiled
-    if (_buffers.size()==_arrays.size()) return;
-
+    if (_buffers.size() == _arrays.size()) return;
 
     bool failure = false;
 
@@ -112,7 +111,7 @@ void VertexIndexDraw::compile(Context& context)
         }
 
         _bufferData = bufferDataList.back();
-        _indexType = VK_INDEX_TYPE_UINT16;  // TODO need to check Index type
+        _indexType = VK_INDEX_TYPE_UINT16; // TODO need to check Index type
     }
     else
     {
@@ -121,7 +120,7 @@ void VertexIndexDraw::compile(Context& context)
 
     if (failure)
     {
-        std::cout<<"Failed to create required arrays/indices buffers on GPU."<<std::endl;
+        std::cout << "Failed to create required arrays/indices buffers on GPU." << std::endl;
         return;
     }
 }

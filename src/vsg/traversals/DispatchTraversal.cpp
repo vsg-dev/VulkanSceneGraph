@@ -160,7 +160,6 @@ void DispatchTraversal::apply(const CullGroup& cullGroup)
 #endif
 }
 
-
 void DispatchTraversal::apply(const CullNode& cullNode)
 {
 #if 0
