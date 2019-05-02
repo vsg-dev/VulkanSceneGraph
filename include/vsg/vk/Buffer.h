@@ -19,7 +19,7 @@ namespace vsg
     class VSG_DECLSPEC Buffer : public Inherit<Object, Buffer>
     {
     public:
-        Buffer(VkBuffer Buffer, VkBufferUsageFlags usage, VkSharingMode sharingMode, Device* device, AllocationCallbacks* allocator = nullptr);
+        Buffer(VkBuffer Buffer, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode, Device* device, AllocationCallbacks* allocator = nullptr);
 
         using Result = vsg::Result<Buffer, VkResult, VK_SUCCESS>;
         static Result create(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode, AllocationCallbacks* allocator = nullptr);
@@ -47,6 +47,11 @@ namespace vsg
 
         operator VkBuffer() const { return _buffer; }
 
+        using OptionalBufferOffset = std::pair<bool, VkDeviceSize>;
+        OptionalBufferOffset reserve(VkDeviceSize size, VkDeviceSize alignment);
+
+        bool full() const { return _availableMemory.empty(); }
+
     protected:
         virtual ~Buffer();
 
@@ -59,5 +64,9 @@ namespace vsg
 
         ref_ptr<DeviceMemory> _deviceMemory;
         VkDeviceSize _memoryOffset;
+
+        using MemorySlots = std::multimap<VkDeviceSize, VkDeviceSize>;
+        using MemorySlot = MemorySlots::value_type;
+        MemorySlots _availableMemory;
     };
 } // namespace vsg
