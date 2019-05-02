@@ -12,15 +12,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Buffer.h>
 
+#include <iostream>
+
 using namespace vsg;
 
-Buffer::Buffer(VkBuffer buffer, VkBufferUsageFlags usage, VkSharingMode sharingMode, Device* device, AllocationCallbacks* allocator) :
+Buffer::Buffer(VkBuffer buffer, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode, Device* device, AllocationCallbacks* allocator) :
     _buffer(buffer),
     _usage(usage),
     _sharingMode(sharingMode),
     _device(device),
     _allocator(allocator)
 {
+    _availableMemory.insert(MemorySlot(size, 0));
 }
 
 Buffer::~Buffer()
@@ -48,10 +51,53 @@ Buffer::Result Buffer::create(Device* device, VkDeviceSize size, VkBufferUsageFl
     VkResult result = vkCreateBuffer(*device, &bufferInfo, allocator, &buffer);
     if (result == VK_SUCCESS)
     {
-        return Result(new Buffer(buffer, usage, sharingMode, device, allocator));
+        return Result(new Buffer(buffer, size, usage, sharingMode, device, allocator));
     }
     else
     {
         return Result("Error: Failed to create vkBuffer.", result);
     }
+}
+
+Buffer::OptionalBufferOffset Buffer::reserve(VkDeviceSize size, VkDeviceSize alignment)
+{
+    if (full()) return OptionalBufferOffset(false, 0);
+
+    auto itr = _availableMemory.lower_bound(size);
+    while (itr != _availableMemory.end())
+    {
+        MemorySlot slot(*itr);
+        VkDeviceSize slotStart = slot.second;
+        VkDeviceSize slotSize = slot.first;
+
+        VkDeviceSize alignedStart = ((slotStart + alignment - 1) / alignment) * alignment;
+        if (((alignedStart-slotStart)+size) <= slotSize)
+        {
+            VkDeviceSize alignedEnd = ((alignedStart + size + alignment - 1) / alignment) * alignment;
+            VkDeviceSize alignedSize = alignedEnd - slotStart;
+
+            _availableMemory.erase(itr);
+
+            //std::cout<<"size = "<<size<<", alignedEnd = "<<alignedEnd<<std::endl;
+
+            if (alignedEnd < slot.first)
+            {
+                MemorySlot slotUnused(slotSize - alignedSize, alignedEnd);
+                _availableMemory.insert(slotUnused);
+                //std::cout<<"   slot unused position = " <<slotUnused.second<<" size = "<<slotUnused.first<<", "<<std::endl;
+            }
+            else
+            {
+                //std::cout<<"   slot completely used "<<_availableMemory.size()<<std::endl;
+            }
+            return OptionalBufferOffset(true, slot.second);
+        }
+        else
+        {
+            std::cout<<"Slot slotStart = "<<slotStart<<", slotSize = "<<slotSize<<" not big enough once for request size = "<<size<<std::endl;
+            ++itr;
+        }
+    }
+
+    return OptionalBufferOffset(false, 0);
 }
