@@ -15,7 +15,56 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+void BindVertexBuffers::read(Input& input)
+{
+    Command::read(input);
+
+    // clear Vulkan objects
+    _buffers.clear();
+    _vkBuffers.clear();
+    _offsets.clear();
+
+    // read vertex arrays
+    _arrays.resize(input.readValue<uint32_t>("NumArrays"));
+    for (auto& array : _arrays)
+    {
+        array = input.readObject<Data>("Array");
+    }
+}
+
+void BindVertexBuffers::write(Output& output) const
+{
+    Command::write(output);
+
+    output.writeValue<uint32_t>("NumArrays", _arrays.size());
+    for (auto& array : _arrays)
+    {
+        output.writeObject("Array", array.get());
+    }
+}
+
 void BindVertexBuffers::dispatch(CommandBuffer& commandBuffer) const
 {
     vkCmdBindVertexBuffers(commandBuffer, _firstBinding, static_cast<uint32_t>(_buffers.size()), _vkBuffers.data(), _offsets.data());
+}
+
+void BindVertexBuffers::compile(Context& context)
+{
+    // nothing to compile
+    if (_arrays.empty()) return;
+
+    // already compiled
+    if (_buffers.size()==_arrays.size()) return;
+
+    _buffers.clear();
+    _vkBuffers.clear();
+    _offsets.clear();
+
+    auto bufferDataList = vsg::createBufferAndTransferData(context, _arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    for (auto& bufferData : bufferDataList)
+    {
+        _buffers.push_back(bufferData._buffer);
+        _vkBuffers.push_back(*(bufferData._buffer));
+        _offsets.push_back(bufferData._offset);
+    }
 }

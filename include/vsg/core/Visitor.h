@@ -42,6 +42,8 @@ namespace vsg
     class BindDescriptorSet;
     class BindDescriptorSets;
     class DescriptorSet;
+    class BindVertexBuffers;
+    class BindIndexBuffer;
     class BindComputePipeline;
     class BindGraphicsPipeline;
     class GraphicsPipeline;
@@ -167,6 +169,8 @@ namespace vsg
         virtual void apply(BindDescriptorSet&);
         virtual void apply(BindDescriptorSets&);
         virtual void apply(DescriptorSet&);
+        virtual void apply(BindVertexBuffers&);
+        virtual void apply(BindIndexBuffer&);
         virtual void apply(BindComputePipeline&);
         virtual void apply(BindGraphicsPipeline&);
         virtual void apply(GraphicsPipeline&);

@@ -36,6 +36,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/PipelineLayout.h>
 #include <vsg/vk/ShaderModule.h>
+#include <vsg/vk/BindVertexBuffers.h>
+#include <vsg/vk/BindIndexBuffer.h>
 
 #include <iostream>
 
@@ -156,6 +158,8 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::DrawIndexed);
     VSG_REGISTER_create(vsg::BindDescriptorSets);
     VSG_REGISTER_create(vsg::BindDescriptorSet);
+    VSG_REGISTER_create(vsg::BindVertexBuffers);
+    VSG_REGISTER_create(vsg::BindIndexBuffer);
     VSG_REGISTER_create(vsg::DescriptorSet);
     VSG_REGISTER_create(vsg::DescriptorSetLayout);
     VSG_REGISTER_create(vsg::Texture);

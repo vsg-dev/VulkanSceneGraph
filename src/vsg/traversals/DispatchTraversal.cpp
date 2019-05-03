@@ -202,7 +202,6 @@ void DispatchTraversal::apply(const MatrixTransform& mt)
 // Vulkan nodes
 void DispatchTraversal::apply(const Commands& commands)
 {
-    //    std::cout<<"Visiting Command "<<std::endl;
     _data->_state.dispatch(*(_data->_commandBuffer));
     for (auto& command : commands.getChildren())
     {
