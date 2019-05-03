@@ -40,7 +40,7 @@ namespace vsg
 
         // vkCmdBindVertexBuffers settinggs
         // vkCmdBindVertexBuffers(commandBuffer, _firstBinding, static_cast<uint32_t>(_vkBuffers.size()), _vkBuffers.data(), _offsets.data());
-        uint32_t _firstBinding;
+        uint32_t _firstBinding = 0;
         Buffers _buffers;
         VkBuffers _vkBuffers;
         Offsets _offsets;
@@ -48,7 +48,7 @@ namespace vsg
         // vkCmdBindIndexBuffer setttings;
         // vkCmdBindIndexBuffer(commandBuffer, *_bufferData._buffer, _bufferData._offset, _indexType);
         BufferData _bufferData;
-        VkIndexType _indexType;
+        VkIndexType _indexType = VK_INDEX_TYPE_UINT16;
 
         // vkCmdDrawIndexed settings
         // vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);

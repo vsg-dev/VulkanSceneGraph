@@ -24,8 +24,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/VertexIndexDraw.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -80,11 +78,13 @@ void VertexIndexDraw::write(Output& output) const
     output.write("firstInstance", firstInstance);
 }
 
+#include <set>
+
 void VertexIndexDraw::compile(Context& context)
 {
     if (_arrays.size() == 0 || !_indices)
     {
-        std::cout << "Warning VertexIndexDraw does not contain required arrays and/or indices" << std::endl;
+        // VertexIndexDraw does not contain required arrays and/or indices
         return;
     }
 
@@ -92,6 +92,10 @@ void VertexIndexDraw::compile(Context& context)
     if (_buffers.size() == _arrays.size()) return;
 
     bool failure = false;
+
+    _buffers.clear();
+    _vkBuffers.clear();
+    _offsets.clear();
 
     DataList dataList;
     dataList.reserve(_arrays.size() + 1);
@@ -120,7 +124,11 @@ void VertexIndexDraw::compile(Context& context)
 
     if (failure)
     {
-        std::cout << "Failed to create required arrays/indices buffers on GPU." << std::endl;
+        //std::cout << "Failed to create required arrays/indices buffers on GPU." << std::endl;
+        _buffers.clear();
+        _vkBuffers.clear();
+        _offsets.clear();
+        _bufferData = BufferData();
         return;
     }
 }

@@ -25,6 +25,10 @@ namespace vsg
         BindVertexBuffers() :
             _firstBinding(0) {}
 
+        BindVertexBuffers(uint32_t firstBinding, const DataList& arrays) :
+            _firstBinding(firstBinding),
+            _arrays(arrays) {}
+
         BindVertexBuffers(uint32_t firstBinding, const BufferDataList& bufferDataList) :
             _firstBinding(firstBinding)
         {
@@ -44,6 +48,15 @@ namespace vsg
             _offsets.push_back(offset);
         }
 
+        void setArrays(const DataList& arrays) { _arrays = arrays; }
+        DataList& getArrays() { return _arrays; }
+        const DataList& getArrays() const { return _arrays; }
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        void compile(Context& context) override;
+
         void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:
@@ -57,6 +70,7 @@ namespace vsg
         Buffers _buffers;
         VkBuffers _vkBuffers;
         Offsets _offsets;
+        DataList _arrays;
     };
     VSG_type_name(vsg::BindVertexBuffers);
 

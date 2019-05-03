@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/nodes/Commands.h>
 
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
@@ -43,6 +44,11 @@ void CompileTraversal::apply(Object& object)
 void CompileTraversal::apply(Command& command)
 {
     command.compile(context);
+}
+
+void CompileTraversal::apply(Commands& commands)
+{
+    commands.compile(context);
 }
 
 void CompileTraversal::apply(StateGroup& stateGroup)

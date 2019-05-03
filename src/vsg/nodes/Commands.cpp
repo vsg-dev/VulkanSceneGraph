@@ -54,6 +54,14 @@ void Commands::write(Output& output) const
     }
 }
 
+void Commands::compile(Context& context)
+{
+    for (auto& command : _children)
+    {
+        command->compile(context);
+    }
+}
+
 void Commands::dispatch(CommandBuffer& commandBuffer) const
 {
     for (auto& command : _children)

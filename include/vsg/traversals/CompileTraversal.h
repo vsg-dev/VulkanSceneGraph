@@ -61,6 +61,7 @@ namespace vsg
 
         void apply(Object& object);
         void apply(Command& command);
+        void apply(Commands& commands);
         void apply(StateGroup& stateGroup);
         void apply(Geometry& geometry);
 
