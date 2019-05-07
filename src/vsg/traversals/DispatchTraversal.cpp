@@ -32,7 +32,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#define INLINE_TRAVERSE
+#define USE_TRANSFORM_ACCUMULATION 1
+#define INLINE_TRAVERSE 1
 
 class DispatchTraversal::InternalData
 {
@@ -118,7 +119,7 @@ void DispatchTraversal::apply(const Object& object)
 void DispatchTraversal::apply(const Group& group)
 {
 //    std::cout<<"Visiting Group "<<std::endl;
-#ifdef INLINE_TRAVERSE
+#if INLINE_TRAVERSE
     vsg::Group::t_traverse(group, *this);
 #else
     group.traverse(*this);
@@ -128,7 +129,7 @@ void DispatchTraversal::apply(const Group& group)
 void DispatchTraversal::apply(const QuadGroup& group)
 {
 //    std::cout<<"Visiting QuadGroup "<<std::endl;
-#ifdef INLINE_TRAVERSE
+#if INLINE_TRAVERSE
     vsg::QuadGroup::t_traverse(group, *this);
 #else
     group.traverse(*this);
@@ -189,7 +190,8 @@ void DispatchTraversal::apply(const StateGroup& stateGroup)
 
 void DispatchTraversal::apply(const MatrixTransform& mt)
 {
-#if 0
+#if USE_TRANSFORM_ACCUMULATION
+    //std::cout<<"Using accumulation"<<std::endl;
     _data->_state.modelMatrixStack.pushAndPreMult(mt.getMatrix());
 #else
     _data->_state.modelMatrixStack.push(mt.getMatrix());

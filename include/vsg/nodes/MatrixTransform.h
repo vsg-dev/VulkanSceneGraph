@@ -17,14 +17,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+#define USE_MATRIX_DOUBLE 0
+#define USE_MATRIX_VALUE 0
+
     class MatrixTransform : public Inherit<Group, MatrixTransform>
     {
     public:
 
-#if 0
-        using value_type = float;
-#else
+#if USE_MATRIX_DOUBLE
         using value_type = double;
+#else
+        using value_type = float;
 #endif
         using Matrix = t_mat4<value_type>;
         using MatrixValue = Value<Matrix>;
@@ -35,12 +38,22 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
+#if USE_MATRIX_VALUE
         void setMatrix(const Matrix& matrix) { (*_matrix) = matrix; }
         Matrix& getMatrix() { return _matrix->value(); }
         const Matrix& getMatrix() const { return _matrix->value(); }
+#else
+        void setMatrix(const Matrix& matrix) { _matrix = matrix; }
+        Matrix& getMatrix() { return _matrix; }
+        const Matrix& getMatrix() const { return _matrix; }
+#endif
 
     protected:
+#if USE_MATRIX_VALUE
         ref_ptr<MatrixValue> _matrix;
+#else
+        Matrix _matrix;
+#endif
     };
     VSG_type_name(vsg::MatrixTransform);
 

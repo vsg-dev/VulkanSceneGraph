@@ -23,8 +23,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <map>
 #include <stack>
 
+
 namespace vsg
 {
+
+    #define USE_DOUBLE_MATRIX_STACK 0
+
     template<class T>
     class StateStack
     {
@@ -60,7 +64,6 @@ namespace vsg
         }
     };
 
-    #define USE_DOUBLE_MATRIX_STACK 1
 
     class MatrixStack
     {
