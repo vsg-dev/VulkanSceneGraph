@@ -20,18 +20,27 @@ namespace vsg
     class MatrixTransform : public Inherit<Group, MatrixTransform>
     {
     public:
+
+#if 0
+        using value_type = float;
+#else
+        using value_type = double;
+#endif
+        using Matrix = t_mat4<value_type>;
+        using MatrixValue = Value<Matrix>;
+
         MatrixTransform(Allocator* allocator = nullptr);
-        MatrixTransform(const mat4& matrix, Allocator* allocator = nullptr);
+        MatrixTransform(const Matrix& matrix, Allocator* allocator = nullptr);
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void setMatrix(const mat4& matrix) { (*_matrix) = matrix; }
-        mat4& getMatrix() { return _matrix->value(); }
-        const mat4& getMatrix() const { return _matrix->value(); }
+        void setMatrix(const Matrix& matrix) { (*_matrix) = matrix; }
+        Matrix& getMatrix() { return _matrix->value(); }
+        const Matrix& getMatrix() const { return _matrix->value(); }
 
     protected:
-        ref_ptr<mat4Value> _matrix;
+        ref_ptr<MatrixValue> _matrix;
     };
     VSG_type_name(vsg::MatrixTransform);
 

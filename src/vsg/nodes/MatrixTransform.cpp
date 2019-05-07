@@ -18,13 +18,13 @@ using namespace vsg;
 MatrixTransform::MatrixTransform(Allocator* allocator) :
     Inherit(allocator)
 {
-    _matrix = new mat4Value;
+    _matrix = new MatrixValue;
 }
 
-MatrixTransform::MatrixTransform(const mat4& matrix, Allocator* allocator) :
+MatrixTransform::MatrixTransform(const Matrix& matrix, Allocator* allocator) :
     Inherit(allocator)
 {
-    _matrix = new mat4Value(matrix);
+    _matrix = new MatrixValue(matrix);
 }
 
 void MatrixTransform::read(Input& input)
