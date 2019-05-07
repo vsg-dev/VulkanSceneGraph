@@ -40,7 +40,9 @@ public:
     State _state;
     ref_ptr<CommandBuffer> _commandBuffer;
 
-    using Polytope = std::vector<vsg::plane>;
+    using value_type = MatrixStack::value_type;
+    using Plane = t_plane<value_type>;
+    using Polytope = std::vector<Plane>;
 
     Polytope _frustumUnit;
 
@@ -52,11 +54,13 @@ public:
     {
         //        std::cout << "DispatchTraversal::InternalData::InternalData(" << commandBuffer << ")" << std::endl;
         _frustumUnit = Polytope{
-            vsg::plane(1.0, 0.0, 0.0, 1.0),  // left plane
-            vsg::plane(-1.0, 0.0, 0.0, 1.0), // right plane
-            vsg::plane(0.0, 1.0, 0.0, 1.0),  // bottom plane
-            vsg::plane(0.0, -1.0, 0.0, 1.0)  // top plane
+            Plane(1.0, 0.0, 0.0, 1.0),  // left plane
+            Plane(-1.0, 0.0, 0.0, 1.0), // right plane
+            Plane(0.0, 1.0, 0.0, 1.0),  // bottom plane
+            Plane(0.0, -1.0, 0.0, 1.0)  // top plane
         };
+
+        // std::cout<<"Plane::value_type  = "<<type_name<value_type>() <<std::endl;
 
         _frustumDirty = true;
     }
@@ -72,11 +76,6 @@ public:
         if (_frustumDirty)
         {
             auto pmv = _state.projectionMatrixStack.top() * _state.viewMatrixStack.top() * _state.modelMatrixStack.top();
-
-#if 0
-            std::cout<<"   pmv = "<<pmv<<std::endl;
-            std::cout<<"   s = "<<s.vec<<std::endl;
-#endif
             _frustum.clear();
             for (auto& pl : _frustumUnit)
             {
@@ -190,7 +189,12 @@ void DispatchTraversal::apply(const StateGroup& stateGroup)
 
 void DispatchTraversal::apply(const MatrixTransform& mt)
 {
+#if 0
+    _data->_state.modelMatrixStack.pushAndPreMult(mt.getMatrix());
+#else
     _data->_state.modelMatrixStack.push(mt.getMatrix());
+#endif
+
     _data->_state.dirty = true;
 
     mt.traverse(*this);

@@ -60,6 +60,8 @@ namespace vsg
         }
     };
 
+    #define USE_DOUBLE_MATRIX_STACK 1
+
     class MatrixStack
     {
     public:
@@ -71,24 +73,32 @@ namespace vsg
             dirty = true;
         }
 
-        using mat4Stack = std::stack<mat4>;
-        using dmat4Stack = std::stack<dmat4>;
+#if USE_DOUBLE_MATRIX_STACK
+        using value_type = double;
+        using alternative_type = float;
+#else
+        using value_type = float;
+        using alternative_type = double;
+#endif
 
-        mat4Stack matrixStack;
+        using Matrix = t_mat4<value_type>;
+        using AlternativeMatrix = t_mat4<alternative_type>;
+
+        std::stack<Matrix> matrixStack;
         VkShaderStageFlags stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
         uint32_t offset = 0;
         bool dirty = false;
 
         inline void set(const mat4& matrix)
         {
-            matrixStack = mat4Stack();
+            matrixStack = {};
             matrixStack.push(matrix);
             dirty = true;
         }
 
         inline void set(const dmat4& matrix)
         {
-            matrixStack = mat4Stack();
+            matrixStack = {};
             matrixStack.push(matrix);
             dirty = true;
         }
@@ -98,8 +108,37 @@ namespace vsg
             matrixStack.push(matrix);
             dirty = true;
         }
+        inline void push(const dmat4& matrix)
+        {
+            matrixStack.push(matrix);
+            dirty = true;
+        }
 
-        const mat4& top() const { return matrixStack.top(); }
+        inline void pushAndPosMult(const Matrix& matrix)
+        {
+            matrixStack.push( matrixStack.top() * matrix );
+            dirty = true;
+        }
+
+        inline void pushAndPosMult(const AlternativeMatrix& matrix)
+        {
+            matrixStack.push( matrixStack.top() * Matrix(matrix) );
+            dirty = true;
+        }
+
+        inline void pushAndPreMult(const Matrix& matrix)
+        {
+            matrixStack.push( matrix * matrixStack.top() );
+            dirty = true;
+        }
+
+        inline void pushAndPreMult(const AlternativeMatrix& matrix)
+        {
+            matrixStack.push( Matrix(matrix) * matrixStack.top() );
+            dirty = true;
+        }
+
+        const Matrix& top() const { return matrixStack.top(); }
 
         inline void pop()
         {
@@ -112,7 +151,14 @@ namespace vsg
             if (dirty)
             {
                 const PipelineLayout::Implementation* pipelineLayout = commandBuffer.getCurrentPipelineLayout()->implementation();
-                vkCmdPushConstants(commandBuffer, *pipelineLayout, stageFlags, offset, sizeof(vsg::mat4), matrixStack.top().data());
+
+#if USE_DOUBLE_MATRIX_STACK
+                // make sure matrix is a float matrix.
+                mat4 newmatrix(matrixStack.top());
+                vkCmdPushConstants(commandBuffer, *pipelineLayout, stageFlags, offset, sizeof(newmatrix), newmatrix.data());
+#else
+                vkCmdPushConstants(commandBuffer, *pipelineLayout, stageFlags, offset, sizeof(Matrix), matrixStack.top().data());
+#endif
                 dirty = false;
             }
         }
