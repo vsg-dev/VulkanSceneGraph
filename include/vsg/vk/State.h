@@ -28,6 +28,8 @@ namespace vsg
 {
 
     #define USE_DOUBLE_MATRIX_STACK 0
+    #define USE_COMPUTE_PIPELIE_STACK 0
+    #define USE_PUSH_CONSTNANT_STACK 0
 
     template<class T>
     class StateStack
@@ -181,7 +183,10 @@ namespace vsg
         using PushConstantsMap = std::map<uint32_t, StateStack<PushConstants>>;
 
         bool dirty;
+#if USE_COMPUTE_PIPELIE_STACK
         ComputePipelineStack computePipelineStack;
+#endif
+
         GraphicsPipelineStack graphicsPipelineStack;
 
         DescriptorStacks descriptorStacks;
@@ -190,13 +195,17 @@ namespace vsg
         MatrixStack viewMatrixStack{64};
         MatrixStack modelMatrixStack{128};
 
+#if USE_PUSH_CONSTNANT_STACK
         PushConstantsMap pushConstantsMap;
+#endif
 
         inline void dispatch(CommandBuffer& commandBuffer)
         {
             if (dirty)
             {
+#if USE_COMPUTE_PIPELIE_STACK
                 computePipelineStack.dispatch(commandBuffer);
+#endif
                 graphicsPipelineStack.dispatch(commandBuffer);
                 for (auto& descriptorStack : descriptorStacks)
                 {
@@ -207,10 +216,12 @@ namespace vsg
                 viewMatrixStack.dispatch(commandBuffer);
                 modelMatrixStack.dispatch(commandBuffer);
 
+#if USE_PUSH_CONSTNANT_STACK
                 for (auto& pushConstantsStack : pushConstantsMap)
                 {
                     pushConstantsStack.second.dispatch(commandBuffer);
                 }
+#endif
                 dirty = false;
             }
         }
