@@ -72,7 +72,7 @@ namespace vsg
             offset(in_offset)
         {
             // make sure there is an initial matrix
-            matrixStack.push(mat4());
+            matrixStack.emplace(mat4());
             dirty = true;
         }
 
@@ -95,49 +95,49 @@ namespace vsg
         inline void set(const mat4& matrix)
         {
             matrixStack = {};
-            matrixStack.push(matrix);
+            matrixStack.emplace(matrix);
             dirty = true;
         }
 
         inline void set(const dmat4& matrix)
         {
             matrixStack = {};
-            matrixStack.push(matrix);
+            matrixStack.emplace(matrix);
             dirty = true;
         }
 
         inline void push(const mat4& matrix)
         {
-            matrixStack.push(matrix);
+            matrixStack.emplace(matrix);
             dirty = true;
         }
         inline void push(const dmat4& matrix)
         {
-            matrixStack.push(matrix);
+            matrixStack.emplace(matrix);
             dirty = true;
         }
 
         inline void pushAndPosMult(const Matrix& matrix)
         {
-            matrixStack.push( matrixStack.top() * matrix );
+            matrixStack.emplace( matrixStack.top() * matrix );
             dirty = true;
         }
 
         inline void pushAndPosMult(const AlternativeMatrix& matrix)
         {
-            matrixStack.push( matrixStack.top() * Matrix(matrix) );
+            matrixStack.emplace( matrixStack.top() * Matrix(matrix) );
             dirty = true;
         }
 
         inline void pushAndPreMult(const Matrix& matrix)
         {
-            matrixStack.push( matrix * matrixStack.top() );
+            matrixStack.emplace( matrix * matrixStack.top() );
             dirty = true;
         }
 
         inline void pushAndPreMult(const AlternativeMatrix& matrix)
         {
-            matrixStack.push( Matrix(matrix) * matrixStack.top() );
+            matrixStack.emplace( Matrix(matrix) * matrixStack.top() );
             dirty = true;
         }
 
