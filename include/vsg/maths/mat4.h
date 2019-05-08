@@ -121,14 +121,14 @@ namespace vsg
                          lhs[0][3] * rhs[0] + lhs[1][3] * rhs[1] + lhs[2][3] * rhs[2] + lhs[3][3] * rhs[3]);
     }
 
-    template<typename T>
-    t_vec4<T> operator*(t_mat4<T> const& lhs, t_plane<T> const& rhs)
+    template<typename T, typename R>
+    t_plane<R> operator*(t_mat4<T> const& lhs, t_plane<R> const& rhs)
     {
-        t_plane<T> transformed(lhs[0][0] * rhs[0] + lhs[1][0] * rhs[1] + lhs[2][0] * rhs[2] + lhs[3][0] * rhs[3],
+        t_plane<R> transformed(lhs[0][0] * rhs[0] + lhs[1][0] * rhs[1] + lhs[2][0] * rhs[2] + lhs[3][0] * rhs[3],
                                lhs[0][1] * rhs[0] + lhs[1][1] * rhs[1] + lhs[2][1] * rhs[2] + lhs[3][1] * rhs[3],
                                lhs[0][2] * rhs[0] + lhs[1][2] * rhs[1] + lhs[2][2] * rhs[2] + lhs[3][2] * rhs[3],
                                lhs[0][3] * rhs[0] + lhs[1][3] * rhs[1] + lhs[2][3] * rhs[2] + lhs[3][3] * rhs[3]);
-        T inv = static_cast<T>(1.0) / length(transformed.n);
+        T inv = static_cast<R>(1.0) / length(transformed.n);
         return t_plane<T>(transformed[0] * inv, transformed[1] * inv, transformed[2] * inv, transformed[3] * inv);
     }
 
@@ -141,8 +141,8 @@ namespace vsg
                          lhs[0] * rhs[3][0] + lhs[1] * rhs[3][1] + lhs[2] * rhs[3][2] + lhs[3] * rhs[3][3]);
     }
 
-    template<typename T>
-    t_plane<T> operator*(t_plane<T> const& lhs, t_mat4<T> const& rhs)
+    template<typename T, typename R>
+    t_plane<T> operator*(t_plane<T> const& lhs, t_mat4<R> const& rhs)
     {
         t_plane<T> transformed(lhs[0] * rhs[0][0] + lhs[1] * rhs[0][1] + lhs[2] * rhs[0][2] + lhs[3] * rhs[0][3],
                                lhs[0] * rhs[1][0] + lhs[1] * rhs[1][1] + lhs[2] * rhs[1][2] + lhs[3] * rhs[1][3],

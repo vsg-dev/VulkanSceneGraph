@@ -139,14 +139,18 @@ void BindComputePipeline::write(Output& output) const
 
 void BindComputePipeline::pushTo(State& state) const
 {
+#if USE_COMPUTE_PIPELIE_STACK
     state.dirty = true;
     state.computePipelineStack.push(this);
+#endif
 }
 
 void BindComputePipeline::popFrom(State& state) const
 {
+#if USE_COMPUTE_PIPELIE_STACK
     state.dirty = true;
     state.computePipelineStack.pop();
+#endif
 }
 
 void BindComputePipeline::dispatch(CommandBuffer& commandBuffer) const

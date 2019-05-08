@@ -23,8 +23,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <map>
 #include <stack>
 
+
 namespace vsg
 {
+
+    #define USE_DOUBLE_MATRIX_STACK 0
+    #define USE_COMPUTE_PIPELIE_STACK 1
+    #define USE_PUSH_CONSTNANT_STACK 1
+
     template<class T>
     class StateStack
     {
@@ -60,6 +66,7 @@ namespace vsg
         }
     };
 
+
     class MatrixStack
     {
     public:
@@ -67,39 +74,76 @@ namespace vsg
             offset(in_offset)
         {
             // make sure there is an initial matrix
-            matrixStack.push(mat4());
+            matrixStack.emplace(mat4());
             dirty = true;
         }
 
-        using mat4Stack = std::stack<mat4>;
-        using dmat4Stack = std::stack<dmat4>;
+#if USE_DOUBLE_MATRIX_STACK
+        using value_type = double;
+        using alternative_type = float;
+#else
+        using value_type = float;
+        using alternative_type = double;
+#endif
 
-        mat4Stack matrixStack;
+        using Matrix = t_mat4<value_type>;
+        using AlternativeMatrix = t_mat4<alternative_type>;
+
+        std::stack<Matrix> matrixStack;
         VkShaderStageFlags stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
         uint32_t offset = 0;
         bool dirty = false;
 
         inline void set(const mat4& matrix)
         {
-            matrixStack = mat4Stack();
-            matrixStack.push(matrix);
+            matrixStack = {};
+            matrixStack.emplace(matrix);
             dirty = true;
         }
 
         inline void set(const dmat4& matrix)
         {
-            matrixStack = mat4Stack();
-            matrixStack.push(matrix);
+            matrixStack = {};
+            matrixStack.emplace(matrix);
             dirty = true;
         }
 
         inline void push(const mat4& matrix)
         {
-            matrixStack.push(matrix);
+            matrixStack.emplace(matrix);
+            dirty = true;
+        }
+        inline void push(const dmat4& matrix)
+        {
+            matrixStack.emplace(matrix);
             dirty = true;
         }
 
-        const mat4& top() const { return matrixStack.top(); }
+        inline void pushAndPosMult(const Matrix& matrix)
+        {
+            matrixStack.emplace( matrixStack.top() * matrix );
+            dirty = true;
+        }
+
+        inline void pushAndPosMult(const AlternativeMatrix& matrix)
+        {
+            matrixStack.emplace( matrixStack.top() * Matrix(matrix) );
+            dirty = true;
+        }
+
+        inline void pushAndPreMult(const Matrix& matrix)
+        {
+            matrixStack.emplace( matrix * matrixStack.top() );
+            dirty = true;
+        }
+
+        inline void pushAndPreMult(const AlternativeMatrix& matrix)
+        {
+            matrixStack.emplace( Matrix(matrix) * matrixStack.top() );
+            dirty = true;
+        }
+
+        const Matrix& top() const { return matrixStack.top(); }
 
         inline void pop()
         {
@@ -111,7 +155,13 @@ namespace vsg
         {
             if (dirty)
             {
-                vkCmdPushConstants(commandBuffer, commandBuffer.getCurrentPipelineLayout(), stageFlags, offset, sizeof(vsg::mat4), matrixStack.top().data());
+#if USE_DOUBLE_MATRIX_STACK
+                // make sure matrix is a float matrix.
+                mat4 newmatrix(matrixStack.top());
+                vkCmdPushConstants(commandBuffer, commandBuffer.getCurrentPipelineLayout(), stageFlags, offset, sizeof(newmatrix), newmatrix.data());
+#else
+                vkCmdPushConstants(commandBuffer, commandBuffer.getCurrentPipelineLayout(), stageFlags, offset, sizeof(Matrix), matrixStack.top().data());
+#endif
                 dirty = false;
             }
         }
@@ -131,7 +181,10 @@ namespace vsg
         using PushConstantsMap = std::map<uint32_t, StateStack<PushConstants>>;
 
         bool dirty;
+#if USE_COMPUTE_PIPELIE_STACK
         ComputePipelineStack computePipelineStack;
+#endif
+
         GraphicsPipelineStack graphicsPipelineStack;
 
         DescriptorStacks descriptorStacks;
@@ -140,13 +193,17 @@ namespace vsg
         MatrixStack viewMatrixStack{64};
         MatrixStack modelMatrixStack{128};
 
+#if USE_PUSH_CONSTNANT_STACK
         PushConstantsMap pushConstantsMap;
+#endif
 
         inline void dispatch(CommandBuffer& commandBuffer)
         {
             if (dirty)
             {
+#if USE_COMPUTE_PIPELIE_STACK
                 computePipelineStack.dispatch(commandBuffer);
+#endif
                 graphicsPipelineStack.dispatch(commandBuffer);
                 for (auto& descriptorStack : descriptorStacks)
                 {
@@ -157,10 +214,12 @@ namespace vsg
                 viewMatrixStack.dispatch(commandBuffer);
                 modelMatrixStack.dispatch(commandBuffer);
 
+#if USE_PUSH_CONSTNANT_STACK
                 for (auto& pushConstantsStack : pushConstantsMap)
                 {
                     pushConstantsStack.second.dispatch(commandBuffer);
                 }
+#endif
                 dirty = false;
             }
         }
