@@ -34,6 +34,7 @@ using namespace vsg;
 
 #define USE_TRANSFORM_ACCUMULATION 1
 #define INLINE_TRAVERSE 1
+#define USE_FRUSTUM_ARRAY 1
 
 class DispatchTraversal::InternalData
 {
@@ -43,7 +44,12 @@ public:
 
     using value_type = MatrixStack::value_type;
     using Plane = t_plane<value_type>;
+
+#if USE_FRUSTUM_ARRAY
+    using Polytope = std::array<Plane, 4>;
+#else
     using Polytope = std::vector<Plane>;
+#endif
 
     Polytope _frustumUnit;
 
@@ -54,12 +60,12 @@ public:
         _commandBuffer(commandBuffer)
     {
         //        std::cout << "DispatchTraversal::InternalData::InternalData(" << commandBuffer << ")" << std::endl;
-        _frustumUnit = Polytope{
+        _frustumUnit = Polytope{{
             Plane(1.0, 0.0, 0.0, 1.0),  // left plane
             Plane(-1.0, 0.0, 0.0, 1.0), // right plane
             Plane(0.0, 1.0, 0.0, 1.0),  // bottom plane
             Plane(0.0, -1.0, 0.0, 1.0)  // top plane
-        };
+        }};
 
         // std::cout<<"Plane::value_type  = "<<type_name<value_type>() <<std::endl;
 
@@ -77,12 +83,19 @@ public:
         if (_frustumDirty)
         {
             auto pmv = _state.projectionMatrixStack.top() * _state.viewMatrixStack.top() * _state.modelMatrixStack.top();
+
+#if USE_FRUSTUM_ARRAY
+            _frustum[0] = _frustumUnit[0] * pmv;
+            _frustum[1] = _frustumUnit[1] * pmv;
+            _frustum[2] = _frustumUnit[2] * pmv;
+            _frustum[3] = _frustumUnit[3] * pmv;
+#else
             _frustum.clear();
             for (auto& pl : _frustumUnit)
             {
                 _frustum.push_back(pl * pmv);
             }
-
+#endif
             _frustumDirty = false;
         }
 
