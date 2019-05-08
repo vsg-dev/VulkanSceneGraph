@@ -40,8 +40,8 @@ namespace vsg
         CommandPool* getCommandPool() { return _commandPool; }
         const CommandPool* getCommandPool() const { return _commandPool; }
 
-        void setCurrentPipelineLayout(const PipelineLayout* pipelineLayout) { _currentPipelineLayout = pipelineLayout; }
-        const PipelineLayout* getCurrentPipelineLayout() const { return _currentPipelineLayout; }
+        void setCurrentPipelineLayout(VkPipelineLayout pipelineLayout) { _currentPipelineLayout = pipelineLayout; }
+        VkPipelineLayout getCurrentPipelineLayout() const { return _currentPipelineLayout; }
 
     protected:
         virtual ~CommandBuffer();
@@ -51,7 +51,7 @@ namespace vsg
 
         ref_ptr<Device> _device;
         ref_ptr<CommandPool> _commandPool;
-        ref_ptr<const PipelineLayout> _currentPipelineLayout;
+        VkPipelineLayout _currentPipelineLayout;
     };
 
     template<typename F>

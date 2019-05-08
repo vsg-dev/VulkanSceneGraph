@@ -18,7 +18,8 @@ CommandBuffer::CommandBuffer(Device* device, CommandPool* commandPool, VkCommand
     _commandBuffer(commandBuffer),
     _flags(flags),
     _device(device),
-    _commandPool(commandPool)
+    _commandPool(commandPool),
+    _currentPipelineLayout(0)
 {
 }
 

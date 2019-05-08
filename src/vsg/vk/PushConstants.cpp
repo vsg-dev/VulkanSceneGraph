@@ -40,9 +40,5 @@ void PushConstants::popFrom(State& state) const
 
 void PushConstants::dispatch(CommandBuffer& commandBuffer) const
 {
-    const PipelineLayout::Implementation* pipelineLayout = commandBuffer.getCurrentPipelineLayout()->implementation();
-    if (pipelineLayout)
-    {
-        vkCmdPushConstants(commandBuffer, *pipelineLayout, _stageFlags, _offset, static_cast<uint32_t>(_data->dataSize()), _data->dataPointer());
-    }
+    vkCmdPushConstants(commandBuffer, commandBuffer.getCurrentPipelineLayout(), _stageFlags, _offset, static_cast<uint32_t>(_data->dataSize()), _data->dataPointer());
 }

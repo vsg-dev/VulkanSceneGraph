@@ -152,7 +152,7 @@ void BindComputePipeline::popFrom(State& state) const
 void BindComputePipeline::dispatch(CommandBuffer& commandBuffer) const
 {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, *_pipeline);
-    commandBuffer.setCurrentPipelineLayout(_pipeline->getPipelineLayout());
+    commandBuffer.setCurrentPipelineLayout(*(_pipeline->getPipelineLayout()));
 }
 
 void BindComputePipeline::compile(Context& context)

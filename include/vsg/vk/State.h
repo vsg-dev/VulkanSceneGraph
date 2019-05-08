@@ -44,7 +44,7 @@ namespace vsg
         void pop()
         {
             stack.pop();
-            dirty = true;
+            dirty = !stack.empty();
         }
         size_t size() const { return stack.size(); }
         T& top() { return stack.top(); }
@@ -52,7 +52,7 @@ namespace vsg
 
         inline void dispatch(CommandBuffer& commandBuffer)
         {
-            if (dirty && !stack.empty())
+            if (dirty)
             {
                 stack.top()->dispatch(commandBuffer);
                 dirty = false;
@@ -111,8 +111,7 @@ namespace vsg
         {
             if (dirty)
             {
-                const PipelineLayout::Implementation* pipelineLayout = commandBuffer.getCurrentPipelineLayout()->implementation();
-                vkCmdPushConstants(commandBuffer, *pipelineLayout, stageFlags, offset, sizeof(vsg::mat4), matrixStack.top().data());
+                vkCmdPushConstants(commandBuffer, commandBuffer.getCurrentPipelineLayout(), stageFlags, offset, sizeof(vsg::mat4), matrixStack.top().data());
                 dirty = false;
             }
         }
