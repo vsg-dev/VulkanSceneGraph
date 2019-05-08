@@ -18,25 +18,39 @@ using namespace vsg;
 MatrixTransform::MatrixTransform(Allocator* allocator) :
     Inherit(allocator)
 {
-    _matrix = new mat4Value;
+#if USE_MATRIX_VALUE
+    _matrix = new MatrixValue;
+#endif
 }
 
-MatrixTransform::MatrixTransform(const mat4& matrix, Allocator* allocator) :
+MatrixTransform::MatrixTransform(const Matrix& matrix, Allocator* allocator) :
     Inherit(allocator)
 {
-    _matrix = new mat4Value(matrix);
+#if USE_MATRIX_VALUE
+    _matrix = new MatrixValue(matrix);
+#else
+    _matrix = matrix;
+#endif
 }
 
 void MatrixTransform::read(Input& input)
 {
     Group::read(input);
 
+#if USE_MATRIX_VALUE
     input.read("Matrix", _matrix->value());
+#else
+    input.read("Matrix", _matrix);
+#endif
 }
 
 void MatrixTransform::write(Output& output) const
 {
     Group::write(output);
 
+#if USE_MATRIX_VALUE
     output.write("Matrix", _matrix->value());
+#else
+    output.write("Matrix", _matrix);
+#endif
 }

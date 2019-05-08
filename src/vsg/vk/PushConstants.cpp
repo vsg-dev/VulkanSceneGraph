@@ -28,14 +28,18 @@ PushConstants::~PushConstants()
 
 void PushConstants::pushTo(State& state) const
 {
+#if USE_PUSH_CONSTNANT_STACK
     state.pushConstantsMap[_offset].push(this);
     state.dirty = true;
+#endif
 }
 
 void PushConstants::popFrom(State& state) const
 {
+#if USE_PUSH_CONSTNANT_STACK
     state.pushConstantsMap[_offset].pop();
     state.dirty = true;
+#endif
 }
 
 void PushConstants::dispatch(CommandBuffer& commandBuffer) const
