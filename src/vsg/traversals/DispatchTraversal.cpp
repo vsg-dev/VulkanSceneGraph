@@ -32,7 +32,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#define USE_TRANSFORM_ACCUMULATION 1
 #define INLINE_TRAVERSE 1
 #define USE_FRUSTUM_ARRAY 1
 
@@ -82,7 +81,7 @@ public:
     {
         if (_frustumDirty)
         {
-            auto pmv = _state.projectionMatrixStack.top() * _state.viewMatrixStack.top() * _state.modelMatrixStack.top();
+            auto pmv = _state.projectionMatrixStack.top() * _state.modelviewMatrixStack.top();
 
 #if USE_FRUSTUM_ARRAY
             _frustum[0] = _frustumUnit[0] * pmv;
@@ -120,7 +119,7 @@ void DispatchTraversal::setProjectionMatrix(const dmat4& projMatrix)
 
 void DispatchTraversal::setViewMatrix(const dmat4& viewMatrix)
 {
-    _data->_state.viewMatrixStack.set(viewMatrix);
+    _data->_state.modelviewMatrixStack.set(viewMatrix);
 }
 
 void DispatchTraversal::apply(const Object& object)
@@ -203,18 +202,12 @@ void DispatchTraversal::apply(const StateGroup& stateGroup)
 
 void DispatchTraversal::apply(const MatrixTransform& mt)
 {
-#if USE_TRANSFORM_ACCUMULATION
-    //std::cout<<"Using accumulation"<<std::endl;
-    _data->_state.modelMatrixStack.pushAndPreMult(mt.getMatrix());
-#else
-    _data->_state.modelMatrixStack.push(mt.getMatrix());
-#endif
-
+    _data->_state.modelviewMatrixStack.pushAndPreMult(mt.getMatrix());
     _data->_state.dirty = true;
 
     mt.traverse(*this);
 
-    _data->_state.modelMatrixStack.pop();
+    _data->_state.modelviewMatrixStack.pop();
     _data->_state.dirty = true;
 }
 

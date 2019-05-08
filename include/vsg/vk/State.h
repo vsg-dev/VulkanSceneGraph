@@ -133,13 +133,13 @@ namespace vsg
 
         inline void pushAndPreMult(const Matrix& matrix)
         {
-            matrixStack.emplace( matrix * matrixStack.top() );
+            matrixStack.emplace( matrixStack.top() * matrix );
             dirty = true;
         }
 
         inline void pushAndPreMult(const AlternativeMatrix& matrix)
         {
-            matrixStack.emplace( Matrix(matrix) * matrixStack.top() );
+            matrixStack.emplace( matrixStack.top() * Matrix(matrix) );
             dirty = true;
         }
 
@@ -190,8 +190,7 @@ namespace vsg
         DescriptorStacks descriptorStacks;
 
         MatrixStack projectionMatrixStack{0};
-        MatrixStack viewMatrixStack{64};
-        MatrixStack modelMatrixStack{128};
+        MatrixStack modelviewMatrixStack{64};
 
 #if USE_PUSH_CONSTNANT_STACK
         PushConstantsMap pushConstantsMap;
@@ -211,8 +210,7 @@ namespace vsg
                 }
 
                 projectionMatrixStack.dispatch(commandBuffer);
-                viewMatrixStack.dispatch(commandBuffer);
-                modelMatrixStack.dispatch(commandBuffer);
+                modelviewMatrixStack.dispatch(commandBuffer);
 
 #if USE_PUSH_CONSTNANT_STACK
                 for (auto& pushConstantsStack : pushConstantsMap)
