@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 PushConstants::PushConstants(VkShaderStageFlags stageFlags, uint32_t offset, Data* data) :
+    Inherit(2), // slot 0
     _stageFlags(stageFlags),
     _offset(offset),
     _data(data)
@@ -24,22 +25,6 @@ PushConstants::PushConstants(VkShaderStageFlags stageFlags, uint32_t offset, Dat
 
 PushConstants::~PushConstants()
 {
-}
-
-void PushConstants::pushTo(State& state) const
-{
-#if USE_PUSH_CONSTNANT_STACK
-    state.pushConstantsMap[_offset].push(this);
-    state.dirty = true;
-#endif
-}
-
-void PushConstants::popFrom(State& state) const
-{
-#if USE_PUSH_CONSTNANT_STACK
-    state.pushConstantsMap[_offset].pop();
-    state.dirty = true;
-#endif
 }
 
 void PushConstants::dispatch(CommandBuffer& commandBuffer) const

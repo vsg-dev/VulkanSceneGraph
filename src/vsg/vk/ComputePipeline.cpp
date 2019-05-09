@@ -115,6 +115,7 @@ ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(
 // BindComputePipeline
 //
 BindComputePipeline::BindComputePipeline(ComputePipeline* pipeline) :
+    Inherit(0), // slot 0
     _pipeline(pipeline)
 {
 }
@@ -135,22 +136,6 @@ void BindComputePipeline::write(Output& output) const
     StateCommand::write(output);
 
     output.writeObject("ComputePipeline", _pipeline.get());
-}
-
-void BindComputePipeline::pushTo(State& state) const
-{
-#if USE_COMPUTE_PIPELIE_STACK
-    state.dirty = true;
-    state.computePipelineStack.push(this);
-#endif
-}
-
-void BindComputePipeline::popFrom(State& state) const
-{
-#if USE_COMPUTE_PIPELIE_STACK
-    state.dirty = true;
-    state.computePipelineStack.pop();
-#endif
 }
 
 void BindComputePipeline::dispatch(CommandBuffer& commandBuffer) const

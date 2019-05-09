@@ -22,7 +22,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     // forward declare
-    class State;
     class CommandBuffer;
 
     class VSG_DECLSPEC StateGroup : public Inherit<Group, StateGroup>
@@ -41,21 +40,6 @@ namespace vsg
         void add(ref_ptr<StateCommand> stateCommand)
         {
             _stateCommands.push_back(stateCommand);
-        }
-
-        inline void pushTo(State& state) const
-        {
-            for (auto& stateCommand : _stateCommands)
-            {
-                stateCommand->pushTo(state);
-            }
-        }
-        inline void popFrom(State& state) const
-        {
-            for (auto& stateCommand : _stateCommands)
-            {
-                stateCommand->popFrom(state);
-            }
         }
 
         virtual void compile(Context& context);

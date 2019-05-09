@@ -19,7 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     class CommandBuffer;
-    class State;
     class Context;
 
     class Command : public Inherit<Node, Command>
@@ -36,14 +35,21 @@ namespace vsg
     class StateCommand : public Inherit<Command, StateCommand>
     {
     public:
-        StateCommand(Allocator* allocator = nullptr) :
-            Inherit(allocator) {}
+        StateCommand(uint32_t slot = 0, Allocator* allocator = nullptr) :
+            Inherit(allocator),
+            _slot(slot) {}
 
-        virtual void pushTo(State& state) const = 0;
-        virtual void popFrom(State& state) const = 0;
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        void setSlot(uint32_t slot) { _slot = slot; }
+        uint32_t getSlot() const { return _slot; }
+
 
     protected:
         virtual ~StateCommand() {}
+
+        uint32_t _slot;
     };
     VSG_type_name(vsg::StateCommand);
 

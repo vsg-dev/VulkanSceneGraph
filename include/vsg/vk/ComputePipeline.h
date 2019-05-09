@@ -83,8 +83,6 @@ namespace vsg
         ComputePipeline* getPipeline() { return _pipeline; }
         const ComputePipeline* getPipeline() const { return _pipeline; }
 
-        void pushTo(State& state) const override;
-        void popFrom(State& state) const override;
         void dispatch(CommandBuffer& commandBuffer) const override;
 
         // compile the Vulkan object, context parameter used for Device

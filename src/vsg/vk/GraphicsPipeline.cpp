@@ -133,6 +133,7 @@ GraphicsPipeline::Implementation::~Implementation()
 // BindGraphicsPipeline
 //
 BindGraphicsPipeline::BindGraphicsPipeline(GraphicsPipeline* pipeline) :
+    Inherit(0), // slot 0
     _pipeline(pipeline)
 {
 }
@@ -153,18 +154,6 @@ void BindGraphicsPipeline::write(Output& output) const
     StateCommand::write(output);
 
     output.writeObject("GraphicsPipeline", _pipeline.get());
-}
-
-void BindGraphicsPipeline::pushTo(State& state) const
-{
-    state.dirty = true;
-    state.graphicsPipelineStack.push(this);
-}
-
-void BindGraphicsPipeline::popFrom(State& state) const
-{
-    state.dirty = true;
-    state.graphicsPipelineStack.pop();
 }
 
 void BindGraphicsPipeline::dispatch(CommandBuffer& commandBuffer) const

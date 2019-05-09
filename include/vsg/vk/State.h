@@ -42,12 +42,13 @@ namespace vsg
         Stack stack;
         bool dirty;
 
-        void push(const T* value)
+        template<class R>
+        inline void push(ref_ptr<R> value)
         {
-            stack.push(ref_ptr<const T>(value));
+            stack.push(value);
             dirty = true;
         }
-        void pop()
+        inline void pop()
         {
             stack.pop();
             dirty = !stack.empty();
@@ -171,51 +172,30 @@ namespace vsg
     {
     public:
         State() :
-            dirty(false) {}
+            dirty(false),
+            stateStacks(3) {}
 
-        using ComputePipelineStack = StateStack<BindComputePipeline>;
-        using GraphicsPipelineStack = StateStack<BindGraphicsPipeline>;
-        using DescriptorStacks = std::vector<StateStack<Command>>;
-        using PushConstantsMap = std::map<uint32_t, StateStack<PushConstants>>;
+        using StateStacks = std::vector<StateStack<StateCommand>>;
 
         bool dirty;
-#if USE_COMPUTE_PIPELIE_STACK
-        ComputePipelineStack computePipelineStack;
-#endif
 
-        GraphicsPipelineStack graphicsPipelineStack;
-
-        DescriptorStacks descriptorStacks;
+        StateStacks stateStacks;
 
         MatrixStack projectionMatrixStack{0};
         MatrixStack modelviewMatrixStack{64};
-
-#if USE_PUSH_CONSTNANT_STACK
-        PushConstantsMap pushConstantsMap;
-#endif
 
         inline void dispatch(CommandBuffer& commandBuffer)
         {
             if (dirty)
             {
-#if USE_COMPUTE_PIPELIE_STACK
-                computePipelineStack.dispatch(commandBuffer);
-#endif
-                graphicsPipelineStack.dispatch(commandBuffer);
-                for (auto& descriptorStack : descriptorStacks)
+                for (auto& stateStack : stateStacks)
                 {
-                    descriptorStack.dispatch(commandBuffer);
+                    stateStack.dispatch(commandBuffer);
                 }
 
                 projectionMatrixStack.dispatch(commandBuffer);
                 modelviewMatrixStack.dispatch(commandBuffer);
 
-#if USE_PUSH_CONSTNANT_STACK
-                for (auto& pushConstantsStack : pushConstantsMap)
-                {
-                    pushConstantsStack.second.dispatch(commandBuffer);
-                }
-#endif
                 dirty = false;
             }
         }

@@ -193,22 +193,35 @@ void DispatchTraversal::apply(const CullNode& cullNode)
 void DispatchTraversal::apply(const StateGroup& stateGroup)
 {
     //    std::cout<<"Visiting StateGroup "<<std::endl;
-    stateGroup.pushTo(_data->_state);
+
+    const StateGroup::StateCommands& stateCommands =  stateGroup.getStateCommands();
+    State& state = _data->_state;
+
+    for(auto& command : stateCommands)
+    {
+        state.stateStacks[command->getSlot()].push(command);
+    }
+    state.dirty = true;
 
     stateGroup.traverse(*this);
 
-    stateGroup.popFrom(_data->_state);
+    for(auto& command : stateCommands)
+    {
+        state.stateStacks[command->getSlot()].pop();
+    }
+    state.dirty = true;
 }
 
 void DispatchTraversal::apply(const MatrixTransform& mt)
 {
-    _data->_state.modelviewMatrixStack.pushAndPreMult(mt.getMatrix());
-    _data->_state.dirty = true;
+    State& state = _data->_state;
+    state.modelviewMatrixStack.pushAndPreMult(mt.getMatrix());
+    state.dirty = true;
 
     mt.traverse(*this);
 
-    _data->_state.modelviewMatrixStack.pop();
-    _data->_state.dirty = true;
+    state.modelviewMatrixStack.pop();
+    state.dirty = true;
 }
 
 // Vulkan nodes
