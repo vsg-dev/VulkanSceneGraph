@@ -176,8 +176,6 @@ namespace vsg
         using ComputePipelineStack = StateStack<BindComputePipeline>;
         using GraphicsPipelineStack = StateStack<BindGraphicsPipeline>;
         using DescriptorStacks = std::vector<StateStack<Command>>;
-        using VertexBuffersStack = StateStack<BindVertexBuffers>;
-        using IndexBufferStack = StateStack<BindIndexBuffer>;
         using PushConstantsMap = std::map<uint32_t, StateStack<PushConstants>>;
 
         bool dirty;
