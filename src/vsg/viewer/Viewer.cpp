@@ -11,6 +11,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/traversals/CompileTraversal.h>
+
+#include <vsg/nodes/StateGroup.h>
+
+#include <vsg/vk/Descriptor.h>
+
 #include <vsg/viewer/GraphicsStage.h>
 #include <vsg/viewer/Viewer.h>
 

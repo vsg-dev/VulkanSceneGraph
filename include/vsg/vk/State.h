@@ -201,13 +201,4 @@ namespace vsg
         }
     };
 
-    class Framebuffer;
-    class Renderpass;
-    class Stage : public Inherit<Object, Stage>
-    {
-    public:
-        Stage() {}
-
-        virtual void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent, const VkClearColorValue& clearColor) = 0;
-    };
 } // namespace vsg
