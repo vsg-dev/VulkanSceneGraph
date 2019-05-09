@@ -171,11 +171,33 @@ namespace vsg
     class State : public Inherit<Object, State>
     {
     public:
-        State() :
-            dirty(false),
-            stateStacks(3) {}
 
+        explicit State(CommandBuffer* commandBuffer) :
+            _commandBuffer(commandBuffer),
+            dirty(false),
+            stateStacks(3)
+        {
+            _frustumUnit = Polytope{{
+                Plane(1.0, 0.0, 0.0, 1.0),  // left plane
+                Plane(-1.0, 0.0, 0.0, 1.0), // right plane
+                Plane(0.0, 1.0, 0.0, 1.0),  // bottom plane
+                Plane(0.0, -1.0, 0.0, 1.0)  // top plane
+            }};
+
+            _frustumDirty = true;
+        }
+
+        using value_type = MatrixStack::value_type;
+        using Plane = t_plane<value_type>;
+        using Polytope = std::array<Plane, 4>;
         using StateStacks = std::vector<StateStack<StateCommand>>;
+
+        ref_ptr<CommandBuffer> _commandBuffer;
+
+        Polytope _frustumUnit;
+
+        bool _frustumDirty;
+        Polytope _frustum;
 
         bool dirty;
 
@@ -184,20 +206,38 @@ namespace vsg
         MatrixStack projectionMatrixStack{0};
         MatrixStack modelviewMatrixStack{64};
 
-        inline void dispatch(CommandBuffer& commandBuffer)
+        inline void dispatch()
         {
             if (dirty)
             {
                 for (auto& stateStack : stateStacks)
                 {
-                    stateStack.dispatch(commandBuffer);
+                    stateStack.dispatch(*_commandBuffer);
                 }
 
-                projectionMatrixStack.dispatch(commandBuffer);
-                modelviewMatrixStack.dispatch(commandBuffer);
+                projectionMatrixStack.dispatch(*_commandBuffer);
+                modelviewMatrixStack.dispatch(*_commandBuffer);
 
                 dirty = false;
             }
+        }
+
+        template<typename T>
+        constexpr bool intersect(t_sphere<T> const& s)
+        {
+            if (_frustumDirty)
+            {
+                auto pmv = projectionMatrixStack.top() * modelviewMatrixStack.top();
+
+                _frustum[0] = _frustumUnit[0] * pmv;
+                _frustum[1] = _frustumUnit[1] * pmv;
+                _frustum[2] = _frustumUnit[2] * pmv;
+                _frustum[3] = _frustumUnit[3] * pmv;
+
+                _frustumDirty = false;
+            }
+
+            return vsg::intersect(_frustum, s);
         }
     };
 
