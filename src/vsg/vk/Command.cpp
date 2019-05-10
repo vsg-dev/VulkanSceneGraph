@@ -18,12 +18,12 @@ void StateCommand::read(Input& input)
 {
     Command::read(input);
 
-    input.read("slot", _slot);
+    input.read("Slot", _slot);
 }
 
 void StateCommand::write(Output& output) const
 {
     Command::write(output);
 
-    output.write("slot", _slot);
+    output.write("Slot", _slot);
 }
