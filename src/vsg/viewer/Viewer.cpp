@@ -326,6 +326,14 @@ public:
         stategroup.traverse(*this);
     }
 
+    void apply(const StateCommand& stateCommand) override
+    {
+        std::cout<<"apply(const StateCommand& stateCommand)"<<std::endl;
+
+        if (stateCommand.getSlot() > maxSlot) maxSlot = stateCommand.getSlot();
+
+        stateCommand.traverse(*this);
+    }
     void apply(const DescriptorSet& descriptorSet)
     {
         if (descriptorSets.count(&descriptorSet) == 0)
@@ -365,6 +373,7 @@ public:
     Descriptors descriptors;
     DescriptorSets descriptorSets;
     DescriptorTypeMap descriptorTypeMap;
+    uint32_t maxSlot = 0;
 };
 
 void Viewer::compile()
@@ -390,7 +399,8 @@ void Viewer::compile()
         uint32_t maxSets = collectStats.computeNumDescriptorSets();
         DescriptorPoolSizes descriptorPoolSizes = collectStats.computeDescriptorPoolSizes();
 
-#if 0
+#if 1
+        std::cout << "maxSlot = " << collectStats.maxSlot << std::endl;
         std::cout << "maxSets = " << maxSets << std::endl;
         std::cout << "    type\tcount" << std::endl;
         for (auto& [type, count] : descriptorPoolSizes)
