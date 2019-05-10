@@ -28,8 +28,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/maths/plane.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 #define INLINE_TRAVERSE 1
