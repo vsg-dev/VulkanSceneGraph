@@ -34,8 +34,8 @@ using namespace vsg;
 #define USE_FRUSTUM_ARRAY 1
 
 
-DispatchTraversal::DispatchTraversal(CommandBuffer* commandBuffer) :
-    _state(new State(commandBuffer))
+DispatchTraversal::DispatchTraversal(CommandBuffer* commandBuffer, uint32_t maxSlot) :
+    _state(new State(commandBuffer, maxSlot))
 {
 }
 

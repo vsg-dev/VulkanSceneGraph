@@ -31,6 +31,7 @@ namespace vsg
         vsg::ref_ptr<ViewportState> _viewport;
 
         VkExtent2D _extent2D;
+        uint32_t _maxSlot = 2;
 
         void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor) override;
     };

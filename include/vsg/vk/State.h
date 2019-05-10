@@ -171,10 +171,10 @@ namespace vsg
     {
     public:
 
-        explicit State(CommandBuffer* commandBuffer) :
+        explicit State(CommandBuffer* commandBuffer, uint32_t maxSlot) :
             _commandBuffer(commandBuffer),
             dirty(false),
-            stateStacks(3)
+            stateStacks(maxSlot+1)
         {
             _frustumUnit = Polytope{{
                 Plane(1.0, 0.0, 0.0, 1.0),  // left plane

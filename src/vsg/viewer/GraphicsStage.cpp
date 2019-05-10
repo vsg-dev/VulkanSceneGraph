@@ -170,7 +170,7 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
     }
 
     // set up the dispatching of the commands into the command buffer
-    DispatchTraversal dispatchTraversal(commandBuffer);
+    DispatchTraversal dispatchTraversal(commandBuffer, _maxSlot);
     dispatchTraversal.setProjectionMatrix(_projMatrix->value());
     dispatchTraversal.setViewMatrix(_viewMatrix->value());
 

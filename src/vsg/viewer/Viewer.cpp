@@ -328,8 +328,6 @@ public:
 
     void apply(const StateCommand& stateCommand) override
     {
-        std::cout<<"apply(const StateCommand& stateCommand)"<<std::endl;
-
         if (stateCommand.getSlot() > maxSlot) maxSlot = stateCommand.getSlot();
 
         stateCommand.traverse(*this);
@@ -399,7 +397,7 @@ void Viewer::compile()
         uint32_t maxSets = collectStats.computeNumDescriptorSets();
         DescriptorPoolSizes descriptorPoolSizes = collectStats.computeDescriptorPoolSizes();
 
-#if 1
+#if 0
         std::cout << "maxSlot = " << collectStats.maxSlot << std::endl;
         std::cout << "maxSets = " << maxSets << std::endl;
         std::cout << "    type\tcount" << std::endl;
@@ -421,6 +419,8 @@ void Viewer::compile()
             GraphicsStage* gs = dynamic_cast<GraphicsStage*>(stage.get());
             if (gs)
             {
+                gs->_maxSlot = collectStats.maxSlot;
+
                 if (gs->_camera->getViewportState())
                     compile.context.viewport = gs->_camera->getViewportState();
                 else if (gs->_viewport)
