@@ -331,6 +331,10 @@ void Visitor::apply(Command& value)
 {
     apply(static_cast<Node&>(value));
 }
+void Visitor::apply(StateCommand& value)
+{
+    apply(static_cast<Command&>(value));
+}
 void Visitor::apply(CommandBuffer& value)
 {
     apply(static_cast<Object&>(value));
@@ -341,11 +345,11 @@ void Visitor::apply(RenderPass& value)
 }
 void Visitor::apply(BindDescriptorSet& value)
 {
-    apply(static_cast<Command&>(value));
+    apply(static_cast<StateCommand&>(value));
 }
 void Visitor::apply(BindDescriptorSets& value)
 {
-    apply(static_cast<Command&>(value));
+    apply(static_cast<StateCommand&>(value));
 }
 void Visitor::apply(DescriptorSet& value)
 {
@@ -361,11 +365,11 @@ void Visitor::apply(BindIndexBuffer& value)
 }
 void Visitor::apply(BindComputePipeline& value)
 {
-    apply(static_cast<Object&>(value));
+    apply(static_cast<StateCommand&>(value));
 }
 void Visitor::apply(BindGraphicsPipeline& value)
 {
-    apply(static_cast<Object&>(value));
+    apply(static_cast<StateCommand&>(value));
 }
 void Visitor::apply(GraphicsPipeline& value)
 {

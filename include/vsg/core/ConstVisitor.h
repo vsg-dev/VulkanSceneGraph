@@ -37,6 +37,7 @@ namespace vsg
 
     // forward declare vulkan classes
     class Command;
+    class StateCommand;
     class CommandBuffer;
     class RenderPass;
     class BindDescriptorSet;
@@ -164,6 +165,7 @@ namespace vsg
 
         // Vulkan nodes
         virtual void apply(const Command&);
+        virtual void apply(const StateCommand&);
         virtual void apply(const CommandBuffer&);
         virtual void apply(const RenderPass&);
         virtual void apply(const BindDescriptorSet&);

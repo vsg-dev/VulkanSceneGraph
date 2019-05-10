@@ -331,6 +331,10 @@ void ConstVisitor::apply(const Command& value)
 {
     apply(static_cast<const Node&>(value));
 }
+void ConstVisitor::apply(const StateCommand& value)
+{
+    apply(static_cast<const Command&>(value));
+}
 void ConstVisitor::apply(const CommandBuffer& value)
 {
     apply(static_cast<const Object&>(value));
@@ -341,11 +345,11 @@ void ConstVisitor::apply(const RenderPass& value)
 }
 void ConstVisitor::apply(const BindDescriptorSet& value)
 {
-    apply(static_cast<const Command&>(value));
+    apply(static_cast<const StateCommand&>(value));
 }
 void ConstVisitor::apply(const BindDescriptorSets& value)
 {
-    apply(static_cast<const Command&>(value));
+    apply(static_cast<const StateCommand&>(value));
 }
 void ConstVisitor::apply(const DescriptorSet& value)
 {
@@ -361,11 +365,11 @@ void ConstVisitor::apply(const BindIndexBuffer& value)
 }
 void ConstVisitor::apply(const BindComputePipeline& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const StateCommand&>(value));
 }
 void ConstVisitor::apply(const BindGraphicsPipeline& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const StateCommand&>(value));
 }
 void ConstVisitor::apply(const GraphicsPipeline& value)
 {
