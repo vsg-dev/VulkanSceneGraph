@@ -22,9 +22,9 @@ namespace vsg
     class VSG_DECLSPEC BindIndexBuffer : public Inherit<Command, BindIndexBuffer>
     {
     public:
-        BindIndexBuffer(Data* indices = nullptr) :
+        BindIndexBuffer(Data* indices = nullptr, VkIndexType indexType = VK_INDEX_TYPE_UINT16) :
             _bufferData(nullptr, 0, 0, indices),
-            _indexType(VK_INDEX_TYPE_UINT16) {}
+            _indexType(indexType) {}
 
         BindIndexBuffer(Buffer* buffer, VkDeviceSize offset, VkIndexType indexType) :
             _bufferData(buffer, offset, 0),

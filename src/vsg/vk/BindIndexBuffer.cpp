@@ -26,6 +26,7 @@ void BindIndexBuffer::read(Input& input)
 
     // read the key indices data
     _bufferData._data = input.readObject<Data>("Indices");
+    _indexType = static_cast<VkIndexType>(input.readValue<uint32_t>("indexType"));
 }
 
 void BindIndexBuffer::write(Output& output) const
@@ -34,6 +35,7 @@ void BindIndexBuffer::write(Output& output) const
 
     // write indices data
     output.writeObject("Indices", _bufferData._data.get());
+    output.writeValue<uint32_t>("indexType", _indexType);
 }
 
 void BindIndexBuffer::dispatch(CommandBuffer& commandBuffer) const

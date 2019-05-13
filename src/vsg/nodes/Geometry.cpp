@@ -49,6 +49,7 @@ void Geometry::read(Input& input)
     }
 
     _indices = input.readObject<Data>("Indices");
+    _indexType = static_cast<VkIndexType>(input.readValue<uint32_t>("indexType"));
 
     _commands.resize(input.readValue<uint32_t>("NumCommands"));
     for (auto& command : _commands)
@@ -68,6 +69,7 @@ void Geometry::write(Output& output) const
     }
 
     output.writeObject("Indices", _indices.get());
+    output.writeValue<uint32_t>("indexType", _indexType);
 
     output.writeValue<uint32_t>("NumCommands", _commands.size());
     for (auto& command : _commands)
@@ -101,7 +103,7 @@ void Geometry::compile(Context& context)
             else
                 failure = true;
 
-            vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = vsg::BindIndexBuffer::create(bufferData.back(), VK_INDEX_TYPE_UINT16);
+            vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = vsg::BindIndexBuffer::create(bufferData.back(), _indexType);
             if (bindIndexBuffer)
                 _renderImplementation.emplace_back(bindIndexBuffer);
             else

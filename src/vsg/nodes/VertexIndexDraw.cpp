@@ -49,6 +49,7 @@ void VertexIndexDraw::read(Input& input)
     }
 
     _indices = input.readObject<Data>("Indices");
+    _indexType = static_cast<VkIndexType>(input.readValue<uint32_t>("indexType"));
 
     // vkCmdDrawIndexed settings
     input.read("indexCount", indexCount);
@@ -69,6 +70,7 @@ void VertexIndexDraw::write(Output& output) const
     }
 
     output.writeObject("Indices", _indices.get());
+    output.writeValue<uint32_t>("indexType", _indexType);
 
     // vkCmdDrawIndexed settings
     output.write("indexCount", indexCount);
@@ -115,7 +117,7 @@ void VertexIndexDraw::compile(Context& context)
         }
 
         _bufferData = bufferDataList.back();
-        _indexType = VK_INDEX_TYPE_UINT16; // TODO need to check Index type
+        //_indexType = VK_INDEX_TYPE_UINT16; // TODO need to check Index type
     }
     else
     {

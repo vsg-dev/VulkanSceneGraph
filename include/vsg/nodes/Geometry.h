@@ -43,6 +43,7 @@ namespace vsg
         DataList _arrays;
         ref_ptr<Data> _indices;
         DrawCommands _commands;
+        VkIndexType _indexType = VK_INDEX_TYPE_UINT16;
 
         // compiled objects
         DrawCommands _renderImplementation;
