@@ -19,19 +19,32 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /** Compute the VkIndexType from Data source's value size.*/
+    inline VkIndexType computeIndexType(Data* indices)
+    {
+        if (indices)
+        {
+            switch(indices->valueSize())
+            {
+                case(2) : return VK_INDEX_TYPE_UINT16;
+                case(4) : return VK_INDEX_TYPE_UINT32;
+                default : return VK_INDEX_TYPE_NONE_NV;
+            }
+        }
+        return VK_INDEX_TYPE_NONE_NV;
+    }
+
     class VSG_DECLSPEC BindIndexBuffer : public Inherit<Command, BindIndexBuffer>
     {
     public:
-        BindIndexBuffer(Data* indices = nullptr) :
-            _bufferData(nullptr, 0, 0, indices),
-            _indexType(VK_INDEX_TYPE_UINT16) {}
+        BindIndexBuffer() : _indexType(VK_INDEX_TYPE_NONE_NV) {}
+
+        BindIndexBuffer(Data* indices);
+
+        BindIndexBuffer(const BufferData& bufferData);
 
         BindIndexBuffer(Buffer* buffer, VkDeviceSize offset, VkIndexType indexType) :
             _bufferData(buffer, offset, 0),
-            _indexType(indexType) {}
-
-        BindIndexBuffer(const BufferData& bufferData, VkIndexType indexType) :
-            _bufferData(bufferData),
             _indexType(indexType) {}
 
         void setIndices(ref_ptr<Data> indices) { _bufferData._data = indices; }

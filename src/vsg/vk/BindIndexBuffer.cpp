@@ -15,6 +15,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+BindIndexBuffer::BindIndexBuffer(Data* indices) :
+    _bufferData(nullptr, 0, 0, indices),
+    _indexType(computeIndexType(indices))
+{
+}
+
+BindIndexBuffer::BindIndexBuffer(const BufferData& bufferData) :
+    _bufferData(bufferData),
+    _indexType(computeIndexType(bufferData._data))
+{
+}
+
 void BindIndexBuffer::read(Input& input)
 {
     Command::read(input);

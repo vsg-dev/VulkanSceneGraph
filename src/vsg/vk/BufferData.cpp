@@ -53,7 +53,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
     bufferDataList.reserve(dataList.size());
     for (auto& data : dataList)
     {
-        bufferDataList.push_back(BufferData(0, offset, data->dataSize()));
+        bufferDataList.push_back(BufferData(0, offset, data->dataSize(), data));
         VkDeviceSize endOfEntry = offset + data->dataSize();
         offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
     }
