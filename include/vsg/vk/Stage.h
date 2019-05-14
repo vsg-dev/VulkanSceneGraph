@@ -12,28 +12,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Stage.h>
-
-#include <vsg/viewer/Camera.h>
+#include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/Framebuffer.h>
+#include <vsg/vk/RenderPass.h>
 
 namespace vsg
 {
-
-    class VSG_DECLSPEC GraphicsStage : public Inherit<Stage, GraphicsStage>
+    class Framebuffer;
+    class Renderpass;
+    class Stage : public Inherit<Object, Stage>
     {
     public:
-        GraphicsStage(ref_ptr<Node> commandGraph, ref_ptr<Camera> camera = ref_ptr<Camera>());
+        Stage() {}
 
-        ref_ptr<Camera> _camera;
-        ref_ptr<Node> _commandGraph;
-        vsg::ref_ptr<vsg::mat4Value> _projMatrix;
-        vsg::ref_ptr<vsg::mat4Value> _viewMatrix;
-        vsg::ref_ptr<ViewportState> _viewport;
-
-        VkExtent2D _extent2D;
-        uint32_t _maxSlot = 2;
-
-        void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor) override;
+        virtual void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent, const VkClearColorValue& clearColor) = 0;
     };
-
 } // namespace vsg

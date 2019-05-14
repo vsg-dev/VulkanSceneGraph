@@ -10,7 +10,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/nodes/StateGroup.h>
+
 #include <vsg/viewer/GraphicsStage.h>
+
+#include <vsg/traversals/CompileTraversal.h>
 
 #include <array>
 #include <limits>
@@ -166,7 +170,7 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
     }
 
     // set up the dispatching of the commands into the command buffer
-    DispatchTraversal dispatchTraversal(commandBuffer);
+    DispatchTraversal dispatchTraversal(commandBuffer, _maxSlot);
     dispatchTraversal.setProjectionMatrix(_projMatrix->value());
     dispatchTraversal.setViewMatrix(_viewMatrix->value());
 

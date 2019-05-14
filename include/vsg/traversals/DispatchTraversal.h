@@ -31,11 +31,12 @@ namespace vsg
     class Command;
     class Commands;
     class CommandBuffer;
+    class State;
 
     class VSG_DECLSPEC DispatchTraversal : public Object
     {
     public:
-        explicit DispatchTraversal(CommandBuffer* commandBuffer = nullptr);
+        explicit DispatchTraversal(CommandBuffer* commandBuffer = nullptr, uint32_t maxSlot = 2);
         ~DispatchTraversal();
 
         void setProjectionMatrix(const dmat4& projMatrix);
@@ -57,7 +58,6 @@ namespace vsg
         void apply(const Command& command);
 
     protected:
-        class InternalData;
-        InternalData* _data;
+        State* _state;
     };
 } // namespace vsg

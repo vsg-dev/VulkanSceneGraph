@@ -95,6 +95,7 @@ namespace vsg
         BindDescriptorSets();
 
         BindDescriptorSets(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, uint32_t firstSet, const DescriptorSets& descriptorSets) :
+            Inherit(1), // slot 1
             _bindPoint(bindPoint),
             _firstSet(firstSet),
             _vkPipelineLayout(0),
@@ -104,6 +105,7 @@ namespace vsg
         }
 
         BindDescriptorSets(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, const DescriptorSets& descriptorSets) :
+            Inherit(1), // slot 1
             _bindPoint(bindPoint),
             _firstSet(0),
             _vkPipelineLayout(0),
@@ -130,8 +132,6 @@ namespace vsg
         uint32_t getFirstSet() { return _firstSet; }
         const DescriptorSets& getDescriptorSets() const { return _descriptorSets; }
 
-        void pushTo(State& state) const override;
-        void popFrom(State& state) const override;
         void dispatch(CommandBuffer& commandBuffer) const override;
 
         // compile the Vulkan object, context parameter used for Device
@@ -159,6 +159,7 @@ namespace vsg
         BindDescriptorSet();
 
         BindDescriptorSet(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, uint32_t firstSet, DescriptorSet* descriptorSet) :
+            Inherit(1), // slot 1
             _bindPoint(bindPoint),
             _firstSet(firstSet),
             _vkPipelineLayout(0),
@@ -169,6 +170,7 @@ namespace vsg
         }
 
         BindDescriptorSet(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, DescriptorSet* descriptorSet) :
+            Inherit(1), // slot 1
             _bindPoint(bindPoint),
             _firstSet(0),
             _vkPipelineLayout(0),
@@ -196,8 +198,6 @@ namespace vsg
         uint32_t getFirstSet() { return _firstSet; }
         const DescriptorSet* getDescriptorSet() const { return _descriptorSet; }
 
-        void pushTo(State& state) const override;
-        void popFrom(State& state) const override;
         void dispatch(CommandBuffer& commandBuffer) const override;
 
         // compile the Vulkan object, context parameter used for Device

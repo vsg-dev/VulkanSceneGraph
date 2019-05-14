@@ -61,6 +61,7 @@ set(SOURCES
     vk/BufferView.cpp
     vk/BindIndexBuffer.cpp
     vk/BindVertexBuffers.cpp
+    vk/Command.cpp
     vk/CommandBuffer.cpp
     vk/CommandPool.cpp
     vk/ComputePipeline.cpp

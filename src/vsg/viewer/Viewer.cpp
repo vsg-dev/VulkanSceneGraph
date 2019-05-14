@@ -11,6 +11,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/traversals/CompileTraversal.h>
+
+#include <vsg/nodes/StateGroup.h>
+
+#include <vsg/vk/Descriptor.h>
+
 #include <vsg/viewer/GraphicsStage.h>
 #include <vsg/viewer/Viewer.h>
 
@@ -321,6 +326,12 @@ public:
         stategroup.traverse(*this);
     }
 
+    void apply(const StateCommand& stateCommand) override
+    {
+        if (stateCommand.getSlot() > maxSlot) maxSlot = stateCommand.getSlot();
+
+        stateCommand.traverse(*this);
+    }
     void apply(const DescriptorSet& descriptorSet)
     {
         if (descriptorSets.count(&descriptorSet) == 0)
@@ -360,6 +371,7 @@ public:
     Descriptors descriptors;
     DescriptorSets descriptorSets;
     DescriptorTypeMap descriptorTypeMap;
+    uint32_t maxSlot = 0;
 };
 
 void Viewer::compile()
@@ -386,6 +398,7 @@ void Viewer::compile()
         DescriptorPoolSizes descriptorPoolSizes = collectStats.computeDescriptorPoolSizes();
 
 #if 0
+        std::cout << "maxSlot = " << collectStats.maxSlot << std::endl;
         std::cout << "maxSets = " << maxSets << std::endl;
         std::cout << "    type\tcount" << std::endl;
         for (auto& [type, count] : descriptorPoolSizes)
@@ -406,6 +419,8 @@ void Viewer::compile()
             GraphicsStage* gs = dynamic_cast<GraphicsStage*>(stage.get());
             if (gs)
             {
+                gs->_maxSlot = collectStats.maxSlot;
+
                 if (gs->_camera->getViewportState())
                     compile.context.viewport = gs->_camera->getViewportState();
                 else if (gs->_viewport)

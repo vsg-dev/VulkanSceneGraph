@@ -101,7 +101,7 @@ void Geometry::compile(Context& context)
             else
                 failure = true;
 
-            vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = vsg::BindIndexBuffer::create(bufferData.back(), VK_INDEX_TYPE_UINT16);
+            vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = vsg::BindIndexBuffer::create(bufferData.back());
             if (bindIndexBuffer)
                 _renderImplementation.emplace_back(bindIndexBuffer);
             else

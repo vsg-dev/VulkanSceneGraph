@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,28 +10,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Stage.h>
+#include <vsg/vk/BindIndexBuffer.h>
 
-#include <vsg/viewer/Camera.h>
+using namespace vsg;
 
-namespace vsg
+void StateCommand::read(Input& input)
 {
+    Command::read(input);
 
-    class VSG_DECLSPEC GraphicsStage : public Inherit<Stage, GraphicsStage>
-    {
-    public:
-        GraphicsStage(ref_ptr<Node> commandGraph, ref_ptr<Camera> camera = ref_ptr<Camera>());
+    input.read("Slot", _slot);
+}
 
-        ref_ptr<Camera> _camera;
-        ref_ptr<Node> _commandGraph;
-        vsg::ref_ptr<vsg::mat4Value> _projMatrix;
-        vsg::ref_ptr<vsg::mat4Value> _viewMatrix;
-        vsg::ref_ptr<ViewportState> _viewport;
+void StateCommand::write(Output& output) const
+{
+    Command::write(output);
 
-        VkExtent2D _extent2D;
-        uint32_t _maxSlot = 2;
-
-        void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor) override;
-    };
-
-} // namespace vsg
+    output.write("Slot", _slot);
+}

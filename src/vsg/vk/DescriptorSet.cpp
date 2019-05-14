@@ -11,7 +11,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/DescriptorSet.h>
-#include <vsg/vk/State.h>
+#include <vsg/vk/CommandBuffer.h>
+
+#include <vsg/traversals/CompileTraversal.h>
 
 using namespace vsg;
 
@@ -145,6 +147,7 @@ void DescriptorSet::Implementation::assign(const Descriptors& descriptors)
 // BindDescriptorSets
 //
 BindDescriptorSets::BindDescriptorSets() :
+    Inherit(1), // slot 1
     _bindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
     _firstSet(0),
     _vkPipelineLayout(0)
@@ -179,23 +182,6 @@ void BindDescriptorSets::write(Output& output) const
     {
         output.writeObject("DescriptorSets", descriptorSet.get());
     }
-}
-
-void BindDescriptorSets::pushTo(State& state) const
-{
-    state.dirty = true;
-
-    // make sure there is an appropriate descriptorStack entry available.
-    if (_firstSet >= state.descriptorStacks.size()) state.descriptorStacks.resize(_firstSet + 1);
-
-    // push this to the appropriate descriptorStack
-    state.descriptorStacks[_firstSet].push(this);
-}
-
-void BindDescriptorSets::popFrom(State& state) const
-{
-    state.dirty = true;
-    state.descriptorStacks[_firstSet].pop();
 }
 
 void BindDescriptorSets::dispatch(CommandBuffer& commandBuffer) const
@@ -236,7 +222,7 @@ BindDescriptorSet::BindDescriptorSet() :
 
 void BindDescriptorSet::read(Input& input)
 {
-    Object::read(input);
+    StateCommand::read(input);
 
     _pipelineLayout = input.readObject<PipelineLayout>("PipelineLayout");
 
@@ -247,30 +233,13 @@ void BindDescriptorSet::read(Input& input)
 
 void BindDescriptorSet::write(Output& output) const
 {
-    Object::write(output);
+    StateCommand::write(output);
 
     output.writeObject("PipelineLayout", _pipelineLayout.get());
 
     output.write("firstSet", _firstSet);
 
     output.writeObject("DescriptorSet", _descriptorSet.get());
-}
-
-void BindDescriptorSet::pushTo(State& state) const
-{
-    state.dirty = true;
-
-    // make sure there is an appropriate descriptorStack entry available.
-    if (_firstSet >= state.descriptorStacks.size()) state.descriptorStacks.resize(_firstSet + 1);
-
-    // push this to the appropriate descriptorStack
-    state.descriptorStacks[_firstSet].push(this);
-}
-
-void BindDescriptorSet::popFrom(State& state) const
-{
-    state.dirty = true;
-    state.descriptorStacks[_firstSet].pop();
 }
 
 void BindDescriptorSet::dispatch(CommandBuffer& commandBuffer) const

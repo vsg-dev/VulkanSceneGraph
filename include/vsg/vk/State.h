@@ -23,7 +23,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <map>
 #include <stack>
 
-
 namespace vsg
 {
 
@@ -42,12 +41,13 @@ namespace vsg
         Stack stack;
         bool dirty;
 
-        void push(const T* value)
+        template<class R>
+        inline void push(ref_ptr<R> value)
         {
-            stack.push(ref_ptr<const T>(value));
+            stack.push(value);
             dirty = true;
         }
-        void pop()
+        inline void pop()
         {
             stack.pop();
             dirty = !stack.empty();
@@ -133,13 +133,13 @@ namespace vsg
 
         inline void pushAndPreMult(const Matrix& matrix)
         {
-            matrixStack.emplace( matrix * matrixStack.top() );
+            matrixStack.emplace( matrixStack.top() * matrix );
             dirty = true;
         }
 
         inline void pushAndPreMult(const AlternativeMatrix& matrix)
         {
-            matrixStack.emplace( Matrix(matrix) * matrixStack.top() );
+            matrixStack.emplace( matrixStack.top() * Matrix(matrix) );
             dirty = true;
         }
 
@@ -170,68 +170,74 @@ namespace vsg
     class State : public Inherit<Object, State>
     {
     public:
-        State() :
-            dirty(false) {}
 
-        using ComputePipelineStack = StateStack<BindComputePipeline>;
-        using GraphicsPipelineStack = StateStack<BindGraphicsPipeline>;
-        using DescriptorStacks = std::vector<StateStack<Command>>;
-        using VertexBuffersStack = StateStack<BindVertexBuffers>;
-        using IndexBufferStack = StateStack<BindIndexBuffer>;
-        using PushConstantsMap = std::map<uint32_t, StateStack<PushConstants>>;
+        explicit State(CommandBuffer* commandBuffer, uint32_t maxSlot) :
+            _commandBuffer(commandBuffer),
+            dirty(false),
+            stateStacks(maxSlot+1)
+        {
+            _frustumUnit = Polytope{{
+                Plane(1.0, 0.0, 0.0, 1.0),  // left plane
+                Plane(-1.0, 0.0, 0.0, 1.0), // right plane
+                Plane(0.0, 1.0, 0.0, 1.0),  // bottom plane
+                Plane(0.0, -1.0, 0.0, 1.0)  // top plane
+            }};
+
+            _frustumDirty = true;
+        }
+
+        using value_type = MatrixStack::value_type;
+        using Plane = t_plane<value_type>;
+        using Polytope = std::array<Plane, 4>;
+        using StateStacks = std::vector<StateStack<StateCommand>>;
+
+        ref_ptr<CommandBuffer> _commandBuffer;
+
+        Polytope _frustumUnit;
+
+        bool _frustumDirty;
+        Polytope _frustum;
 
         bool dirty;
-#if USE_COMPUTE_PIPELIE_STACK
-        ComputePipelineStack computePipelineStack;
-#endif
 
-        GraphicsPipelineStack graphicsPipelineStack;
-
-        DescriptorStacks descriptorStacks;
+        StateStacks stateStacks;
 
         MatrixStack projectionMatrixStack{0};
-        MatrixStack viewMatrixStack{64};
-        MatrixStack modelMatrixStack{128};
+        MatrixStack modelviewMatrixStack{64};
 
-#if USE_PUSH_CONSTNANT_STACK
-        PushConstantsMap pushConstantsMap;
-#endif
-
-        inline void dispatch(CommandBuffer& commandBuffer)
+        inline void dispatch()
         {
             if (dirty)
             {
-#if USE_COMPUTE_PIPELIE_STACK
-                computePipelineStack.dispatch(commandBuffer);
-#endif
-                graphicsPipelineStack.dispatch(commandBuffer);
-                for (auto& descriptorStack : descriptorStacks)
+                for (auto& stateStack : stateStacks)
                 {
-                    descriptorStack.dispatch(commandBuffer);
+                    stateStack.dispatch(*_commandBuffer);
                 }
 
-                projectionMatrixStack.dispatch(commandBuffer);
-                viewMatrixStack.dispatch(commandBuffer);
-                modelMatrixStack.dispatch(commandBuffer);
+                projectionMatrixStack.dispatch(*_commandBuffer);
+                modelviewMatrixStack.dispatch(*_commandBuffer);
 
-#if USE_PUSH_CONSTNANT_STACK
-                for (auto& pushConstantsStack : pushConstantsMap)
-                {
-                    pushConstantsStack.second.dispatch(commandBuffer);
-                }
-#endif
                 dirty = false;
             }
         }
+
+        template<typename T>
+        constexpr bool intersect(t_sphere<T> const& s)
+        {
+            if (_frustumDirty)
+            {
+                auto pmv = projectionMatrixStack.top() * modelviewMatrixStack.top();
+
+                _frustum[0] = _frustumUnit[0] * pmv;
+                _frustum[1] = _frustumUnit[1] * pmv;
+                _frustum[2] = _frustumUnit[2] * pmv;
+                _frustum[3] = _frustumUnit[3] * pmv;
+
+                _frustumDirty = false;
+            }
+
+            return vsg::intersect(_frustum, s);
+        }
     };
 
-    class Framebuffer;
-    class Renderpass;
-    class Stage : public Inherit<Object, Stage>
-    {
-    public:
-        Stage() {}
-
-        virtual void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent, const VkClearColorValue& clearColor) = 0;
-    };
 } // namespace vsg
