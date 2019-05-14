@@ -14,8 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/BufferData.h>
 #include <vsg/vk/BufferView.h>
-#include <vsg/vk/ImageView.h>
-#include <vsg/vk/Sampler.h>
+#include <vsg/vk/ImageData.h>
 
 namespace vsg
 {
@@ -71,47 +70,6 @@ namespace vsg
     };
 
     using Descriptors = std::vector<vsg::ref_ptr<vsg::Descriptor>>;
-
-    class ImageData
-    {
-    public:
-        ImageData() :
-            _imageLayout(VK_IMAGE_LAYOUT_UNDEFINED) {}
-
-        ImageData(const ImageData& id) :
-            _sampler(id._sampler),
-            _imageView(id._imageView),
-            _imageLayout(id._imageLayout) {}
-
-        ImageData(Sampler* sampler, ImageView* imageView, VkImageLayout imageLayout = VK_IMAGE_LAYOUT_UNDEFINED) :
-            _sampler(sampler),
-            _imageView(imageView),
-            _imageLayout(imageLayout) {}
-
-        ImageData& operator=(const ImageData& rhs)
-        {
-            _sampler = rhs._sampler;
-            _imageView = rhs._imageView;
-            _imageLayout = rhs._imageLayout;
-            return *this;
-        }
-
-        explicit operator bool() const { return _sampler.valid() && _imageView.valid(); }
-
-        bool valid() const { return _sampler.valid() && _imageView.valid(); }
-
-        ref_ptr<Sampler> _sampler;
-        ref_ptr<ImageView> _imageView;
-        VkImageLayout _imageLayout;
-    };
-
-    /// transfer Data to graphics memory, returning ImageData configuration.
-    //extern VSG_DECLSPEC vsg::ImageData transferImageData(Device* device, CommandPool* commandPool, VkQueue queue, const Data* data, Sampler* sampler = nullptr);
-
-    /// transfer Data to graphics memory, returning ImageData configuration.
-    extern VSG_DECLSPEC vsg::ImageData transferImageData(Context& context, const Data* data, Sampler* sampler = nullptr);
-
-    using ImageDataList = std::vector<ImageData>;
 
     class VSG_DECLSPEC DescriptorImage : public Inherit<Descriptor, DescriptorImage>
     {
