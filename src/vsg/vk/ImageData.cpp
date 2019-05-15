@@ -71,16 +71,22 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     std::cout << "Creating imageStagingBuffer and memorory size = " << imageTotalSize << " mipLevels = "<<mipLevels<<std::endl;
 #endif
 
-    VkImageType imageType = data->depth() > 1 ? VK_IMAGE_TYPE_3D : (data->width() > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
-    VkImageViewType imageViewType = data->depth() > 1 ? VK_IMAGE_VIEW_TYPE_3D : (data->width() > 1 ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
+    // take the block deminsions into account for image size to allow for any bloack compressed image foramts where the data dimensions is based in number of blocks so needs to be multiple to get final pixel count
+    BlockDimensions blockDimensions = data->getBlockDimensions();
+    uint32_t width = data->width() * blockDimensions.w;
+    uint32_t height = data->height() * blockDimensions.h;
+    uint32_t depth = data->depth();
+
+    VkImageType imageType = depth > 1 ? VK_IMAGE_TYPE_3D : (width > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
+    VkImageViewType imageViewType = depth > 1 ? VK_IMAGE_VIEW_TYPE_3D : (width > 1 ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
     VkImageLayout targetImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
     VkImageCreateInfo imageCreateInfo = {};
     imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageCreateInfo.imageType = imageType;
-    imageCreateInfo.extent.width = static_cast<uint32_t>(data->width());
-    imageCreateInfo.extent.height = static_cast<uint32_t>(data->height());
-    imageCreateInfo.extent.depth = static_cast<uint32_t>(data->depth());
+    imageCreateInfo.extent.width = width;
+    imageCreateInfo.extent.height = height;
+    imageCreateInfo.extent.depth = depth;
     imageCreateInfo.mipLevels = mipLevels;
     imageCreateInfo.arrayLayers = 1;
     imageCreateInfo.format = data->getFormat();
@@ -204,7 +210,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
             region.imageSubresource.baseArrayLayer = 0;
             region.imageSubresource.layerCount = 1;
             region.imageOffset = {0, 0, 0};
-            region.imageExtent = {static_cast<uint32_t>(data->width()), static_cast<uint32_t>(data->height()), 1};
+            region.imageExtent = {width, height, depth};
 
             vkCmdCopyBufferToImage(commandBuffer, *imageStagingBuffer, *textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
@@ -218,8 +224,9 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
             barrier.subresourceRange.layerCount = 1;
             barrier.subresourceRange.levelCount = 1;
 
-            int32_t mipWidth = data->width();
-            int32_t mipHeight = data->height();
+            int32_t mipWidth = width;
+            int32_t mipHeight = height;
+            int32_t mipDepth = depth;
 
             for (uint32_t i = 1; i < mipLevels; ++i)
             {
@@ -237,13 +244,13 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
                 VkImageBlit blit = {};
                 blit.srcOffsets[0] = {0, 0, 0};
-                blit.srcOffsets[1] = {mipWidth, mipHeight, 1};
+                blit.srcOffsets[1] = {mipWidth, mipHeight, mipDepth};
                 blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                 blit.srcSubresource.mipLevel = i - 1;
                 blit.srcSubresource.baseArrayLayer = 0;
                 blit.srcSubresource.layerCount = 1;
                 blit.dstOffsets[0] = {0, 0, 0};
-                blit.dstOffsets[1] = {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1};
+                blit.dstOffsets[1] = {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, mipDepth > 1 ? mipDepth / 2 : 1};
                 blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                 blit.dstSubresource.mipLevel = i;
                 blit.dstSubresource.baseArrayLayer = 0;
@@ -268,6 +275,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
                 if (mipWidth > 1) mipWidth /= 2;
                 if (mipHeight > 1) mipHeight /= 2;
+                if (mipDepth > 1) mipDepth /= 2;
             }
 
             barrier.subresourceRange.baseMipLevel = mipLevels - 1;
@@ -303,7 +311,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
             region.imageSubresource.baseArrayLayer = 0;
             region.imageSubresource.layerCount = 1;
             region.imageOffset = {0, 0, 0};
-            region.imageExtent = {static_cast<uint32_t>(data->width()), static_cast<uint32_t>(data->height()), 1};
+            region.imageExtent = {width, height, depth};
 
             vkCmdCopyBufferToImage(commandBuffer, *imageStagingBuffer, *textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 

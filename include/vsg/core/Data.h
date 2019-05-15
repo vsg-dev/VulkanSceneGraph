@@ -18,6 +18,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    struct BlockDimensions
+    {
+        uint32_t w = 1;
+        uint32_t h = 1;
+    };
+
+    /** 64 bit block of compressed texel data.*/
+    using block64 = uint8_t[8];
+
+    /** 128 bit block of compressed texel data.*/
+    using block128 = uint8_t[16];
+
+
     class VSG_DECLSPEC Data : public Object
     {
     public:
@@ -32,6 +45,13 @@ namespace vsg
 
         void setFormat(VkFormat format) { _format = format; }
         VkFormat getFormat() const { return _format; }
+
+        /** Set BlockDimensions, used for block compressed data, default of 1,1 is uncompessed.
+          * A single block (Block64/Block128) is stored as a single value with the Data object. */
+        void setBlockDimensions(BlockDimensions blockDimensions) { _blockDimensions = blockDimensions; }
+
+        /** Get the BlockDimensions.*/
+        BlockDimensions getBlockDimensions() const { return _blockDimensions; }
 
         virtual std::size_t valueSize() const = 0;
         virtual std::size_t valueCount() const = 0;
@@ -49,5 +69,6 @@ namespace vsg
         virtual ~Data() {}
 
         VkFormat _format = VK_FORMAT_UNDEFINED;
+        BlockDimensions _blockDimensions;
     };
 } // namespace vsg

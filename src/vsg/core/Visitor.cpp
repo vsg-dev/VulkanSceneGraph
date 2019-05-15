@@ -151,6 +151,14 @@ void Visitor::apply(dmat4Array& value)
 {
     apply(static_cast<Object&>(value));
 }
+void Visitor::apply(block64Array& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(block128Array& value)
+{
+    apply(static_cast<Object&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -212,6 +220,14 @@ void Visitor::apply(ubvec4Array2D& value)
 {
     apply(static_cast<Object&>(value));
 }
+void Visitor::apply(block64Array2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(block128Array2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -270,6 +286,14 @@ void Visitor::apply(ubvec3Array3D& value)
     apply(static_cast<Object&>(value));
 }
 void Visitor::apply(ubvec4Array3D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(block64Array3D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(block128Array3D& value)
 {
     apply(static_cast<Object&>(value));
 }

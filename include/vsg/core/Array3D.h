@@ -201,4 +201,7 @@ namespace vsg
     VSG_array3D(ubvec3Array3D, ubvec3);
     VSG_array3D(ubvec4Array3D, ubvec4);
 
+    VSG_array3D(block64Array3D, block64);
+    VSG_array3D(block128Array3D, block128);
+
 } // namespace vsg

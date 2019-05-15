@@ -20,10 +20,18 @@ void Data::read(Input& input)
 {
     Object::read(input);
     _format = static_cast<VkFormat>(input.readValue<std::int32_t>("Format"));
+
+    if (input.matchPropertyName("BlockDimensions"))
+    {
+        input.read(2, &_blockDimensions.w);
+    }
 }
 
 void Data::write(Output& output) const
 {
     Object::write(output);
     output.writeValue<std::int32_t>("Format", _format);
+
+    output.writePropertyName("BlockDimensions");
+    output.write(2, &_blockDimensions.w);
 }

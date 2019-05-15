@@ -205,4 +205,7 @@ namespace vsg
     VSG_array(mat4Array, mat4);
     VSG_array(dmat4Array, dmat4);
 
+    VSG_array(block64Array, block64);
+    VSG_array(block128Array, block128);
+
 } // namespace vsg
