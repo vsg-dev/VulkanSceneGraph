@@ -62,5 +62,6 @@ void BindIndexBuffer::compile(Context& context)
     if (!bufferDataList.empty())
     {
         _bufferData = bufferDataList.back();
+        _indexType = computeIndexType(_bufferData._data);
     }
 }
