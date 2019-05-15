@@ -115,7 +115,7 @@ void VertexIndexDraw::compile(Context& context)
         }
 
         _bufferData = bufferDataList.back();
-        _indexType = VK_INDEX_TYPE_UINT16; // TODO need to check Index type
+        _indexType = computeIndexType(_indices); // TODO need to check Index type
     }
     else
     {
