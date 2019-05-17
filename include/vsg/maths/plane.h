@@ -112,7 +112,7 @@ namespace vsg
     constexpr T distance(t_plane<T> const& pl, t_vec3<R> const& v)
     {
         using normal_type = typename t_plane<T>::normal_type;
-        return dot(pl.n,  normal_type(v)) + pl.p;
+        return dot(pl.n, normal_type(v)) + pl.p;
     }
 
     /** return true if bounding sphere is wholly or partially intersects with convex polytope defined by a list of planes with normals pointing inwards towards center of the polytope. */

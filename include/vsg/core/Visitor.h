@@ -117,6 +117,8 @@ namespace vsg
         virtual void apply(ubvec4Array&);
         virtual void apply(mat4Array&);
         virtual void apply(dmat4Array&);
+        virtual void apply(block64Array&);
+        virtual void apply(block128Array&);
 
         // Array2Ds
         virtual void apply(ubyteArray2D&);
@@ -133,6 +135,8 @@ namespace vsg
         virtual void apply(ubvec2Array2D&);
         virtual void apply(ubvec3Array2D&);
         virtual void apply(ubvec4Array2D&);
+        virtual void apply(block64Array2D&);
+        virtual void apply(block128Array2D&);
 
         // Array3Ds
         virtual void apply(ubyteArray3D&);
@@ -149,6 +153,8 @@ namespace vsg
         virtual void apply(ubvec2Array3D&);
         virtual void apply(ubvec3Array3D&);
         virtual void apply(ubvec4Array3D&);
+        virtual void apply(block64Array3D&);
+        virtual void apply(block128Array3D&);
 
         // Nodes
         virtual void apply(Node&);

@@ -26,9 +26,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    #define USE_DOUBLE_MATRIX_STACK 0
-    #define USE_COMPUTE_PIPELIE_STACK 1
-    #define USE_PUSH_CONSTNANT_STACK 1
+#define USE_DOUBLE_MATRIX_STACK 0
+#define USE_COMPUTE_PIPELIE_STACK 1
+#define USE_PUSH_CONSTNANT_STACK 1
 
     template<class T>
     class StateStack
@@ -65,7 +65,6 @@ namespace vsg
             }
         }
     };
-
 
     class MatrixStack
     {
@@ -121,25 +120,25 @@ namespace vsg
 
         inline void pushAndPosMult(const Matrix& matrix)
         {
-            matrixStack.emplace( matrixStack.top() * matrix );
+            matrixStack.emplace(matrixStack.top() * matrix);
             dirty = true;
         }
 
         inline void pushAndPosMult(const AlternativeMatrix& matrix)
         {
-            matrixStack.emplace( matrixStack.top() * Matrix(matrix) );
+            matrixStack.emplace(matrixStack.top() * Matrix(matrix));
             dirty = true;
         }
 
         inline void pushAndPreMult(const Matrix& matrix)
         {
-            matrixStack.emplace( matrixStack.top() * matrix );
+            matrixStack.emplace(matrixStack.top() * matrix);
             dirty = true;
         }
 
         inline void pushAndPreMult(const AlternativeMatrix& matrix)
         {
-            matrixStack.emplace( matrixStack.top() * Matrix(matrix) );
+            matrixStack.emplace(matrixStack.top() * Matrix(matrix));
             dirty = true;
         }
 
@@ -170,11 +169,10 @@ namespace vsg
     class State : public Inherit<Object, State>
     {
     public:
-
         explicit State(CommandBuffer* commandBuffer, uint32_t maxSlot) :
             _commandBuffer(commandBuffer),
             dirty(false),
-            stateStacks(maxSlot+1)
+            stateStacks(maxSlot + 1)
         {
             _frustumUnit = Polytope{{
                 Plane(1.0, 0.0, 0.0, 1.0),  // left plane

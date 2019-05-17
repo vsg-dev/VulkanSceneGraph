@@ -45,7 +45,6 @@ namespace vsg
         void setSlot(uint32_t slot) { _slot = slot; }
         uint32_t getSlot() const { return _slot; }
 
-
     protected:
         virtual ~StateCommand() {}
 

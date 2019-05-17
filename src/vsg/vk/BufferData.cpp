@@ -88,7 +88,6 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
             deviceSize = minumumBufferSize;
         }
 
-
         deviceBuffer = vsg::Buffer::create(device, deviceSize, bufferUsageFlags, sharingMode);
         // std::cout<<"Created new Buffer "<<deviceBuffer.get()<<" totalSize "<<totalSize<<" deviceSize = "<<deviceSize<<std::endl;
 
@@ -185,7 +184,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
     stagingMemory->unmap();
 
     // shift the offsets if we are not writing to the start of the deviceBuffer.
-    if (reservedBufferSlot.second>0)
+    if (reservedBufferSlot.second > 0)
     {
         for (auto& bufferData : bufferDataList)
         {

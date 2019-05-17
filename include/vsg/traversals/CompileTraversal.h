@@ -41,7 +41,7 @@ namespace vsg
         VkDeviceSize minimumBufferDeviceMemorySize = 16 * 1024 * 1024;
         VkDeviceSize minimumImageDeviceMemorySize = 16 * 1024 * 1024;
 #else
-        VkDeviceSize minimumBufferSize = 1; //1024 * 1024;
+        VkDeviceSize minimumBufferSize = 1;             //1024 * 1024;
         VkDeviceSize minimumBufferDeviceMemorySize = 1; //1024 * 1024;
         VkDeviceSize minimumImageDeviceMemorySize = 1;  //1024 * 1024;
 #endif

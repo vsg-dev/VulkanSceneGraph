@@ -77,6 +77,7 @@ set(SOURCES
     vk/Framebuffer.cpp
     vk/GraphicsPipeline.cpp
     vk/Image.cpp
+    vk/ImageData.cpp
     vk/ImageView.cpp
     vk/Instance.cpp
     vk/MemoryManager.cpp

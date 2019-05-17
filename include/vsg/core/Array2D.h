@@ -45,7 +45,12 @@ namespace vsg
             _width(width),
             _height(height),
             _data(data) {}
-        explicit Array2D(std::size_t width, std::size_t height) :
+        Array2D(std::size_t width, std::size_t height, value_type* data, Layout layout) :
+            Data(layout),
+            _width(width),
+            _height(height),
+            _data(data) {}
+        Array2D(std::size_t width, std::size_t height) :
             _width(width),
             _height(height),
             _data(new value_type[width * height]) {}
@@ -60,15 +65,16 @@ namespace vsg
 
         void read(Input& input) override
         {
+            size_t original_size = size();
+
             Data::read(input);
             size_t width = input.readValue<uint32_t>("Width");
             size_t height = input.readValue<uint32_t>("Height");
-            size_t new_size = width * height;
+            size_t new_size = computeValueCountIncludingMipmaps(width, height, 1, _layout.maxNumMipmaps);
             if (input.matchPropertyName("Data"))
             {
                 if (_data) // if data already may be able to reuse it
                 {
-                    size_t original_size = size();
                     if (original_size != new_size) // if existing data is a different size delete old, and create new
                     {
                         delete[] _data;
@@ -79,8 +85,10 @@ namespace vsg
                 {
                     _data = new value_type[new_size];
                 }
+
                 _width = width;
                 _height = height;
+
                 input.read(new_size, _data);
             }
         }
@@ -91,10 +99,11 @@ namespace vsg
             output.writeValue<uint32_t>("Width", _width);
             output.writeValue<uint32_t>("Height", _height);
             output.writePropertyName("Data");
-            output.write(_width * _height, _data);
+            output.write(valueCount(), _data);
         }
 
-        std::size_t size() const { return _width * _height; }
+        std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? (_width * _height) : computeValueCountIncludingMipmaps(_width, _height, 1, _layout.maxNumMipmaps); }
+
         bool empty() const { return _width == 0 && _height == 0; }
 
         void clear()
@@ -105,10 +114,11 @@ namespace vsg
             _data = nullptr;
         }
 
-        void assign(std::size_t width, std::size_t height, value_type* data)
+        void assign(std::size_t width, std::size_t height, value_type* data, Layout layout = Layout())
         {
             if (_data) delete[] _data;
 
+            _layout = layout;
             _width = width;
             _height = height;
             _data = data;
@@ -125,11 +135,15 @@ namespace vsg
         }
 
         std::size_t valueSize() const override { return sizeof(value_type); }
-        std::size_t valueCount() const override { return _width * _height; }
+        std::size_t valueCount() const override { return size(); }
 
-        std::size_t dataSize() const override { return (_width * _height) * sizeof(value_type); }
+        std::size_t dataSize() const override { return size() * sizeof(value_type); }
+
         void* dataPointer() override { return _data; }
         const void* dataPointer() const override { return _data; }
+
+        void* dataPointer(size_t i) override { return _data + i; }
+        const void* dataPointer(size_t i) const override { return _data + i; }
 
         std::size_t width() const override { return _width; }
         std::size_t height() const override { return _height; }
@@ -190,5 +204,8 @@ namespace vsg
     VSG_array2D(ubvec2Array2D, ubvec2);
     VSG_array2D(ubvec3Array2D, ubvec3);
     VSG_array2D(ubvec4Array2D, ubvec4);
+
+    VSG_array2D(block64Array2D, block64);
+    VSG_array2D(block128Array2D, block128);
 
 } // namespace vsg

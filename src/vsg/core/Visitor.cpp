@@ -25,14 +25,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 
+#include <vsg/vk/BindIndexBuffer.h>
+#include <vsg/vk/BindVertexBuffers.h>
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/ComputePipeline.h>
 #include <vsg/vk/DescriptorSet.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/RenderPass.h>
-#include <vsg/vk/BindVertexBuffers.h>
-#include <vsg/vk/BindIndexBuffer.h>
 
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/KeyEvent.h>
@@ -151,6 +151,14 @@ void Visitor::apply(dmat4Array& value)
 {
     apply(static_cast<Object&>(value));
 }
+void Visitor::apply(block64Array& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(block128Array& value)
+{
+    apply(static_cast<Object&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -212,6 +220,14 @@ void Visitor::apply(ubvec4Array2D& value)
 {
     apply(static_cast<Object&>(value));
 }
+void Visitor::apply(block64Array2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(block128Array2D& value)
+{
+    apply(static_cast<Object&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -270,6 +286,14 @@ void Visitor::apply(ubvec3Array3D& value)
     apply(static_cast<Object&>(value));
 }
 void Visitor::apply(ubvec4Array3D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(block64Array3D& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(block128Array3D& value)
 {
     apply(static_cast<Object&>(value));
 }

@@ -43,6 +43,10 @@ namespace vsg
         Array(std::size_t numElements, value_type* data) :
             _size(numElements),
             _data(data) {}
+        Array(std::size_t numElements, value_type* data, Layout layout) :
+            Data(layout),
+            _size(numElements),
+            _data(data) {}
         explicit Array(std::initializer_list<value_type> l) :
             _size(l.size()),
             _data(new value_type[l.size()])
@@ -64,25 +68,31 @@ namespace vsg
 
         void read(Input& input) override
         {
+            std::size_t original_size = size();
+
             Data::read(input);
             size_t size = input.readValue<uint32_t>("Size");
+            size_t new_size = computeValueCountIncludingMipmaps(size, 1, 1, _layout.maxNumMipmaps);
+
             if (input.matchPropertyName("Data"))
             {
                 if (_data) // if data already may be able to reuse it
                 {
-                    if (_size != size) // if existing data is a different size delete old, and create new
+                    if (original_size != new_size) // if existing data is a different size delete old, and create new
                     {
                         delete[] _data;
-                        _size = size;
-                        _data = new value_type[size];
+                        _size = new_size;
+                        _data = new value_type[new_size];
                     }
                 }
                 else // allocate space for data
                 {
-                    _size = size;
-                    _data = new value_type[size];
+                    _data = new value_type[new_size];
                 }
-                input.read(_size, _data);
+
+                _size = new_size;
+
+                input.read(new_size, _data);
             }
         }
 
@@ -91,10 +101,11 @@ namespace vsg
             Data::write(output);
             output.writeValue<uint32_t>("Size", _size);
             output.writePropertyName("Data");
-            output.write(_size, _data);
+            output.write(valueCount(), _data);
         }
 
-        std::size_t size() const { return _size; }
+        std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? _size : computeValueCountIncludingMipmaps(_size, 1, 1, _layout.maxNumMipmaps); }
+
         bool empty() const { return _size == 0; }
 
         // should Array be fixed size?
@@ -105,35 +116,13 @@ namespace vsg
             _data = nullptr;
         }
 
-        void assign(std::size_t numElements, value_type* data)
+        void assign(std::size_t numElements, value_type* data, Layout layout = Layout())
         {
             if (_data != nullptr) delete[] _data;
 
+            _layout = layout;
             _size = numElements;
             _data = data;
-        }
-
-        void resize(std::size_t size)
-        {
-            if (_data)
-            {
-                value_type* original_data = _data;
-
-                std::size_t size_to_copy = std::min(_size, size);
-
-                _size = size;
-                _data = size > 0 ? new value_type[size] : nullptr;
-
-                // copy data
-                for (std::size_t i = 0; i < size_to_copy; ++i) _data[i] = original_data[i];
-
-                delete[] original_data;
-            }
-            else
-            {
-                _size = size;
-                _data = size > 0 ? new value_type[size] : nullptr;
-            }
         }
 
         // release the data so that owneership can be passed on, the local data pointer and size is set to 0 and destruction of Array will no result in the data being deleted.
@@ -146,11 +135,15 @@ namespace vsg
         }
 
         std::size_t valueSize() const override { return sizeof(value_type); }
-        std::size_t valueCount() const override { return _size; }
+        std::size_t valueCount() const override { return size(); }
 
-        std::size_t dataSize() const override { return _size * sizeof(value_type); }
+        std::size_t dataSize() const override { return size() * sizeof(value_type); }
+
         void* dataPointer() override { return _data; }
         const void* dataPointer() const override { return _data; }
+
+        void* dataPointer(size_t i) override { return _data + i; }
+        const void* dataPointer(size_t i) const override { return _data + i; }
 
         std::size_t width() const override { return _size; }
         std::size_t height() const override { return 1; }
@@ -204,5 +197,8 @@ namespace vsg
 
     VSG_array(mat4Array, mat4);
     VSG_array(dmat4Array, dmat4);
+
+    VSG_array(block64Array, block64);
+    VSG_array(block128Array, block128);
 
 } // namespace vsg
