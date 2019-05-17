@@ -56,7 +56,7 @@ void BindVertexBuffers::compile(Context& context)
     if (_arrays.empty()) return;
 
     // already compiled
-    if (_buffers.size()==_arrays.size()) return;
+    if (_buffers.size() == _arrays.size()) return;
 
     _buffers.clear();
     _vkBuffers.clear();

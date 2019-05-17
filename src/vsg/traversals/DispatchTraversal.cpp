@@ -33,7 +33,6 @@ using namespace vsg;
 #define INLINE_TRAVERSE 1
 #define USE_FRUSTUM_ARRAY 1
 
-
 DispatchTraversal::DispatchTraversal(CommandBuffer* commandBuffer, uint32_t maxSlot) :
     _state(new State(commandBuffer, maxSlot))
 {
@@ -126,8 +125,8 @@ void DispatchTraversal::apply(const StateGroup& stateGroup)
 {
     //    std::cout<<"Visiting StateGroup "<<std::endl;
 
-    const StateGroup::StateCommands& stateCommands =  stateGroup.getStateCommands();
-    for(auto& command : stateCommands)
+    const StateGroup::StateCommands& stateCommands = stateGroup.getStateCommands();
+    for (auto& command : stateCommands)
     {
         _state->stateStacks[command->getSlot()].push(command);
     }
@@ -135,7 +134,7 @@ void DispatchTraversal::apply(const StateGroup& stateGroup)
 
     stateGroup.traverse(*this);
 
-    for(auto& command : stateCommands)
+    for (auto& command : stateCommands)
     {
         _state->stateStacks[command->getSlot()].pop();
     }

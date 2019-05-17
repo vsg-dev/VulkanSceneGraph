@@ -22,7 +22,6 @@ namespace vsg
     class MatrixTransform : public Inherit<Group, MatrixTransform>
     {
     public:
-
 #if USE_MATRIX_DOUBLE
         using value_type = double;
 #else

@@ -11,8 +11,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/traversals/CompileTraversal.h>
-#include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Buffer.h>
+#include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/ImageData.h>
 
 #include <iostream>
@@ -193,7 +193,6 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     {
         // mipmap required and supplied by Data
         dispatchCommandsToQueue(device, context.commandPool, context.graphicsQueue, [&](VkCommandBuffer commandBuffer) {
-
             ImageMemoryBarrier preCopyImageMemoryBarrier(
                 0, VK_ACCESS_TRANSFER_WRITE_BIT,
                 VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -205,7 +204,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
             uint32_t mipHeight = height;
             uint32_t mipDepth = depth;
             auto valueSize = data->valueSize();
-            for(uint32_t mipLevel = 0; mipLevel<mipLevels; ++mipLevel)
+            for (uint32_t mipLevel = 0; mipLevel < mipLevels; ++mipLevel)
             {
                 VkBufferImageCopy region = {};
                 region.bufferOffset = mipmapOffsets[mipLevel] * valueSize;
@@ -403,4 +402,3 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
     return ImageData(textureSampler, textureImageView, targetImageLayout);
 }
-

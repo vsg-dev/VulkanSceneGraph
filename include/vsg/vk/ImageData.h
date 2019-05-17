@@ -50,11 +50,9 @@ namespace vsg
         VkImageLayout _imageLayout;
     };
 
-
     /// transfer Data to graphics memory, returning ImageData configuration.
     extern VSG_DECLSPEC vsg::ImageData transferImageData(Context& context, const Data* data, Sampler* sampler = nullptr);
 
     using ImageDataList = std::vector<ImageData>;
-
 
 } // namespace vsg

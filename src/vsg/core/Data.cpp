@@ -34,7 +34,6 @@ void Data::write(Output& output) const
 
     output.writePropertyName("Layout");
     output.write(4, &_layout.maxNumMipmaps);
-
 }
 
 Data::MipmapOffsets Data::computeMipmapOffsets() const
@@ -42,7 +41,7 @@ Data::MipmapOffsets Data::computeMipmapOffsets() const
     uint32_t numMipmaps = _layout.maxNumMipmaps;
 
     MipmapOffsets offsets;
-    if (numMipmaps==0) return offsets;
+    if (numMipmaps == 0) return offsets;
 
     auto w = width();
     auto h = height();
@@ -50,7 +49,7 @@ Data::MipmapOffsets Data::computeMipmapOffsets() const
 
     std::size_t lastPosition = 0;
     offsets.push_back(lastPosition);
-    while (numMipmaps>1 && (w>1 || h>1 || d>1))
+    while (numMipmaps > 1 && (w > 1 || h > 1 || d > 1))
     {
         lastPosition += (w * h * d);
         offsets.push_back(lastPosition);
@@ -66,10 +65,10 @@ Data::MipmapOffsets Data::computeMipmapOffsets() const
 
 std::size_t Data::computeValueCountIncludingMipmaps(uint32_t w, uint32_t h, uint32_t d, uint32_t numMipmaps)
 {
-    if (numMipmaps<=1) return w*h*d;
+    if (numMipmaps <= 1) return w * h * d;
 
     std::size_t lastPosition = (w * h * d);
-    while (numMipmaps>1 && (w>1 || h>1 || d>1))
+    while (numMipmaps > 1 && (w > 1 || h > 1 || d > 1))
     {
         --numMipmaps;
 

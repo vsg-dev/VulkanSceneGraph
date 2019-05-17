@@ -109,7 +109,7 @@ namespace vsg
             output.write(valueCount(), _data);
         }
 
-        std::size_t size() const { return (_layout.maxNumMipmaps<=1) ? (_width * _height * _depth) : computeValueCountIncludingMipmaps(_width, _height, _depth, _layout.maxNumMipmaps); }
+        std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? (_width * _height * _depth) : computeValueCountIncludingMipmaps(_width, _height, _depth, _layout.maxNumMipmaps); }
 
         bool empty() const { return _width == 0 && _height == 0 && _depth == 0; }
 
@@ -152,8 +152,8 @@ namespace vsg
         void* dataPointer() override { return _data; }
         const void* dataPointer() const override { return _data; }
 
-        void* dataPointer(size_t i) override { return _data+i; }
-        const void* dataPointer(size_t i) const override { return _data+i; }
+        void* dataPointer(size_t i) override { return _data + i; }
+        const void* dataPointer(size_t i) const override { return _data + i; }
 
         std::size_t width() const override { return _width; }
         std::size_t height() const override { return _height; }

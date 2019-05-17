@@ -71,7 +71,7 @@ Buffer::OptionalBufferOffset Buffer::reserve(VkDeviceSize size, VkDeviceSize ali
         VkDeviceSize slotSize = slot.first;
 
         VkDeviceSize alignedStart = ((slotStart + alignment - 1) / alignment) * alignment;
-        if (((alignedStart-slotStart)+size) <= slotSize)
+        if (((alignedStart - slotStart) + size) <= slotSize)
         {
             VkDeviceSize alignedEnd = ((alignedStart + size + alignment - 1) / alignment) * alignment;
             VkDeviceSize alignedSize = alignedEnd - slotStart;
@@ -94,7 +94,7 @@ Buffer::OptionalBufferOffset Buffer::reserve(VkDeviceSize size, VkDeviceSize ali
         }
         else
         {
-            std::cout<<"Slot slotStart = "<<slotStart<<", slotSize = "<<slotSize<<" not big enough once for request size = "<<size<<std::endl;
+            std::cout << "Slot slotStart = " << slotStart << ", slotSize = " << slotSize << " not big enough once for request size = " << size << std::endl;
             ++itr;
         }
     }

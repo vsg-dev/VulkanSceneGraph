@@ -30,7 +30,6 @@ namespace vsg
     class VSG_DECLSPEC Data : public Object
     {
     public:
-
         /* Layout used for configuruing use of mipmaps and block compressed data.
          * Default of no mipmapping and {1,1,1} is uncompessed.
          * A single block (Block64/Block128) is stored as a single value with the Data object. */
@@ -62,13 +61,11 @@ namespace vsg
         void setFormat(VkFormat format) { _format = format; }
         VkFormat getFormat() const { return _format; }
 
-
         /** Set Layout */
         void setLayout(Layout layout) { _layout = layout; }
 
         /** Get the Layout.*/
         Layout getLayout() const { return _layout; }
-
 
         virtual std::size_t valueSize() const = 0;
         virtual std::size_t valueCount() const = 0;
