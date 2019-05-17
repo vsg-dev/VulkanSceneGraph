@@ -21,9 +21,9 @@ void Data::read(Input& input)
     Object::read(input);
     _format = static_cast<VkFormat>(input.readValue<std::int32_t>("Format"));
 
-    if (input.matchPropertyName("BlockDimensions"))
+    if (input.matchPropertyName("Layout"))
     {
-        input.read(2, &_blockDimensions.w);
+        input.read(4, &_layout.maxNumMipmaps);
     }
 }
 
@@ -32,6 +32,53 @@ void Data::write(Output& output) const
     Object::write(output);
     output.writeValue<std::int32_t>("Format", _format);
 
-    output.writePropertyName("BlockDimensions");
-    output.write(2, &_blockDimensions.w);
+    output.writePropertyName("Layout");
+    output.write(4, &_layout.maxNumMipmaps);
+
+}
+
+Data::MipmapOffsets Data::computeMipmapOffsets() const
+{
+    uint32_t numMipmaps = _layout.maxNumMipmaps;
+
+    MipmapOffsets offsets;
+    if (numMipmaps==0) return offsets;
+
+    auto w = width();
+    auto h = height();
+    auto d = depth();
+
+    std::size_t lastPosition = 0;
+    offsets.push_back(lastPosition);
+    while (numMipmaps>1 && (w>1 || h>1 || d>1))
+    {
+        lastPosition += (w * h * d);
+        offsets.push_back(lastPosition);
+
+        --numMipmaps;
+        if (w > 1) w /= 2;
+        if (h > 1) h /= 2;
+        if (d > 1) d /= 2;
+    }
+
+    return offsets;
+}
+
+std::size_t Data::computeValueCountIncludingMipmaps(uint32_t w, uint32_t h, uint32_t d, uint32_t numMipmaps)
+{
+    if (numMipmaps<=1) return w*h*d;
+
+    std::size_t lastPosition = (w * h * d);
+    while (numMipmaps>1 && (w>1 || h>1 || d>1))
+    {
+        --numMipmaps;
+
+        if (w > 1) w /= 2;
+        if (h > 1) h /= 2;
+        if (d > 1) d /= 2;
+
+        lastPosition += (w * h * d);
+    }
+
+    return lastPosition;
 }

@@ -49,17 +49,30 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
     //mipLevels = 1;  // disable mipmapping
 
+    Data::Layout layout = data->getLayout();
+    auto mipmapOffsets = data->computeMipmapOffsets();
+
     if (mipLevels > 1)
     {
-        VkFormatProperties formatProperties;
-        vkGetPhysicalDeviceFormatProperties(*(device->getPhysicalDevice()), data->getFormat(), &formatProperties);
-
-        if ((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT) == 0)
+        if (mipmapOffsets.size() > 1)
         {
-            std::cout << "vsg::transferImageData(..) failed : formatProperties.optimalTilingFeatures sampling not supported, disabling mipmap generation" << std::endl;
-            mipLevels = 1;
+            mipLevels = std::min(mipLevels, uint32_t(mipmapOffsets.size()));
+        }
+        else
+        {
+            VkFormatProperties formatProperties;
+            vkGetPhysicalDeviceFormatProperties(*(device->getPhysicalDevice()), data->getFormat(), &formatProperties);
+
+            if ((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT) == 0)
+            {
+                std::cout << "vsg::transferImageData(..) failed : formatProperties.optimalTilingFeatures sampling not supported, disabling mipmap generation" << std::endl;
+                mipLevels = 1;
+            }
         }
     }
+
+    bool useDataMipmaps = (mipLevels > 1) && (mipmapOffsets.size() > 1);
+    bool generatMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
 
 #if 0
     std::cout << "data->dataSize() = " << data->dataSize() << std::endl;
@@ -72,10 +85,9 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 #endif
 
     // take the block deminsions into account for image size to allow for any bloack compressed image foramts where the data dimensions is based in number of blocks so needs to be multiple to get final pixel count
-    BlockDimensions blockDimensions = data->getBlockDimensions();
-    uint32_t width = data->width() * blockDimensions.w;
-    uint32_t height = data->height() * blockDimensions.h;
-    uint32_t depth = data->depth();
+    uint32_t width = data->width() * layout.blockWidth;
+    uint32_t height = data->height() * layout.blockHeight;
+    uint32_t depth = data->depth() * layout.blockDepth;
 
     VkImageType imageType = depth > 1 ? VK_IMAGE_TYPE_3D : (width > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
     VkImageViewType imageViewType = depth > 1 ? VK_IMAGE_VIEW_TYPE_3D : (width > 1 ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
@@ -96,7 +108,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    if (mipLevels > 1)
+    if (generatMipmaps)
     {
         imageCreateInfo.usage = imageCreateInfo.usage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
@@ -177,8 +189,53 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     textureImage->bind(textureImageDeviceMemory, 0);
 #endif
 
-    if (mipLevels > 1)
+    if (useDataMipmaps)
     {
+        // mipmap required and supplied by Data
+        dispatchCommandsToQueue(device, context.commandPool, context.graphicsQueue, [&](VkCommandBuffer commandBuffer) {
+
+            ImageMemoryBarrier preCopyImageMemoryBarrier(
+                0, VK_ACCESS_TRANSFER_WRITE_BIT,
+                VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                textureImage);
+
+            preCopyImageMemoryBarrier.cmdPiplineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+
+            uint32_t mipWidth = width;
+            uint32_t mipHeight = height;
+            uint32_t mipDepth = depth;
+            auto valueSize = data->valueSize();
+            for(uint32_t mipLevel = 0; mipLevel<mipLevels; ++mipLevel)
+            {
+                VkBufferImageCopy region = {};
+                region.bufferOffset = mipmapOffsets[mipLevel] * valueSize;
+                region.bufferRowLength = 0;
+                region.bufferImageHeight = 0;
+                region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                region.imageSubresource.mipLevel = mipLevel;
+                region.imageSubresource.baseArrayLayer = 0;
+                region.imageSubresource.layerCount = 1;
+                region.imageOffset = {0, 0, 0};
+                region.imageExtent = {mipWidth, mipHeight, mipDepth};
+
+                vkCmdCopyBufferToImage(commandBuffer, *imageStagingBuffer, *textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+                if (mipWidth > 1) mipWidth /= 2;
+                if (mipHeight > 1) mipHeight /= 2;
+                if (mipDepth > 1) mipDepth /= 2;
+            }
+
+            ImageMemoryBarrier postCopyImageMemoryBarrier(
+                VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, targetImageLayout,
+                textureImage);
+
+            postCopyImageMemoryBarrier.cmdPiplineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+        });
+    }
+    else if (generatMipmaps)
+    {
+        // generate mipmaps using Vulkan
         dispatchCommandsToQueue(device, context.commandPool, context.graphicsQueue, [&](VkCommandBuffer commandBuffer) {
             VkImageMemoryBarrier preCopyBarrier = {};
             preCopyBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
