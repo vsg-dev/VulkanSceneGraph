@@ -12,3 +12,6 @@ syntaxError:*src/vsg/io/BinaryOutput.cpp
 syntaxError:*src/vsg/io/BinaryInput.cpp
 syntaxError:*src/vsg/io/ReaderWriter.cpp
 syntaxError:*src/vsg/io/FileSystem.cpp
+
+// suppress warnings about never used variables that are used in .cpp's
+unusedStructMember:include/vsg/core/Data.h
