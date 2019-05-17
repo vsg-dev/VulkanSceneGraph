@@ -26,19 +26,19 @@ namespace vsg
         {
             switch (indices->valueSize())
             {
-            case (2): return VK_INDEX_TYPE_UINT16;
-            case (4): return VK_INDEX_TYPE_UINT32;
-            default: return VK_INDEX_TYPE_NONE_NV;
+                case(2) : return VK_INDEX_TYPE_UINT16;
+                case(4) : return VK_INDEX_TYPE_UINT32;
+                default : break;
             }
         }
-        return VK_INDEX_TYPE_NONE_NV;
+        // nothing valid assigned
+        return VK_INDEX_TYPE_MAX_ENUM;
     }
 
     class VSG_DECLSPEC BindIndexBuffer : public Inherit<Command, BindIndexBuffer>
     {
     public:
-        BindIndexBuffer() :
-            _indexType(VK_INDEX_TYPE_NONE_NV) {}
+        BindIndexBuffer() : _indexType(VK_INDEX_TYPE_MAX_ENUM) {}
 
         BindIndexBuffer(Data* indices);
 
