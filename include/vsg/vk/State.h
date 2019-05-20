@@ -26,9 +26,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-#define USE_DOUBLE_MATRIX_STACK 0
-#define USE_COMPUTE_PIPELIE_STACK 1
-#define USE_PUSH_CONSTNANT_STACK 1
+#define MATRIX_STACK_TYPE 0
 
     template<class T>
     class StateStack
@@ -220,7 +218,7 @@ namespace vsg
         }
 
         template<typename T>
-        constexpr bool intersect(t_sphere<T> const& s)
+        bool intersect(t_sphere<T> const& s)
         {
             if (_frustumDirty)
             {
