@@ -91,10 +91,14 @@ namespace vsg
     using vec3 = t_vec3<float>;
     using dvec3 = t_vec3<double>;
     using ubvec3 = t_vec3<std::uint8_t>;
+    using usvec3 = t_vec3<std::uint16_t>;
+    using uivec3 = t_vec3<std::uint32_t>;
 
     VSG_type_name(vsg::vec3);
     VSG_type_name(vsg::dvec3);
     VSG_type_name(vsg::ubvec3);
+    VSG_type_name(vsg::usvec3);
+    VSG_type_name(vsg::uivec3);
 
     template<typename T>
     constexpr t_vec3<T> operator-(t_vec3<T> const& lhs, t_vec3<T> const& rhs)

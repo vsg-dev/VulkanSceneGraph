@@ -72,7 +72,7 @@ namespace vsg
 
             Data::read(input);
             size_t size = input.readValue<uint32_t>("Size");
-            size_t new_size = computeValueCountIncludingMipmaps(size, 1, 1, _layout.maxNumMipmaps);
+            size_t new_size = computeValueCountIncludingMipmaps(static_cast<uint32_t>(size), 1, 1, _layout.maxNumMipmaps);
 
             if (input.matchPropertyName("Data"))
             {
@@ -104,7 +104,7 @@ namespace vsg
             output.write(valueCount(), _data);
         }
 
-        std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? _size : computeValueCountIncludingMipmaps(_size, 1, 1, _layout.maxNumMipmaps); }
+        std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? _size : computeValueCountIncludingMipmaps(static_cast<uint32_t>(_size), 1, 1, _layout.maxNumMipmaps); }
 
         bool empty() const { return _size == 0; }
 
@@ -194,6 +194,14 @@ namespace vsg
     VSG_array(ubvec2Array, ubvec2);
     VSG_array(ubvec3Array, ubvec3);
     VSG_array(ubvec4Array, ubvec4);
+
+    VSG_array(usvec2Array, usvec2);
+    VSG_array(usvec3Array, usvec3);
+    VSG_array(usvec4Array, usvec4);
+
+    VSG_array(uivec2Array, uivec2);
+    VSG_array(uivec3Array, uivec3);
+    VSG_array(uivec4Array, uivec4);
 
     VSG_array(mat4Array, mat4);
     VSG_array(dmat4Array, dmat4);
