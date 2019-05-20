@@ -30,6 +30,7 @@ set(SOURCES
     nodes/StateGroup.cpp
     nodes/CullGroup.cpp
     nodes/CullNode.cpp
+    nodes/LOD.cpp
     nodes/MatrixTransform.cpp
     nodes/VertexIndexDraw.cpp
 
