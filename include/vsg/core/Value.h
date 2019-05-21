@@ -76,9 +76,9 @@ namespace vsg
 
         void* dataRelease() override { return nullptr; }
 
-        std::size_t width() const override { return 1; }
-        std::size_t height() const override { return 1; }
-        std::size_t depth() const override { return 1; }
+        std::uint32_t width() const override { return 1; }
+        std::uint32_t height() const override { return 1; }
+        std::uint32_t depth() const override { return 1; }
 
         Value& operator=(const Value& rhs)
         {

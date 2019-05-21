@@ -68,31 +68,30 @@ namespace vsg
 
         void read(Input& input) override
         {
-            std::size_t original_size = size();
+            std::size_t original_total_size = size();
 
             Data::read(input);
-            size_t size = input.readValue<uint32_t>("Size");
-            size_t new_size = computeValueCountIncludingMipmaps(size, 1, 1, _layout.maxNumMipmaps);
+            std::uint32_t width_size = input.readValue<uint32_t>("Size");
+            std::size_t new_total_size = computeValueCountIncludingMipmaps(width_size, 1, 1, _layout.maxNumMipmaps);
 
             if (input.matchPropertyName("Data"))
             {
                 if (_data) // if data already may be able to reuse it
                 {
-                    if (original_size != new_size) // if existing data is a different size delete old, and create new
+                    if (original_total_size != new_total_size) // if existing data is a different size delete old, and create new
                     {
                         delete[] _data;
-                        _size = new_size;
-                        _data = new value_type[new_size];
+                        _data = new value_type[new_total_size];
                     }
                 }
                 else // allocate space for data
                 {
-                    _data = new value_type[new_size];
+                    _data = new value_type[new_total_size];
                 }
 
-                _size = new_size;
+                _size = width_size;
 
-                input.read(new_size, _data);
+                input.read(new_total_size, _data);
             }
         }
 
@@ -101,7 +100,7 @@ namespace vsg
             Data::write(output);
             output.writeValue<uint32_t>("Size", _size);
             output.writePropertyName("Data");
-            output.write(valueCount(), _data);
+            output.write(size(), _data);
         }
 
         std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? _size : computeValueCountIncludingMipmaps(_size, 1, 1, _layout.maxNumMipmaps); }
@@ -116,7 +115,7 @@ namespace vsg
             _data = nullptr;
         }
 
-        void assign(std::size_t numElements, value_type* data, Layout layout = Layout())
+        void assign(std::uint32_t numElements, value_type* data, Layout layout = Layout())
         {
             if (_data != nullptr) delete[] _data;
 
@@ -145,9 +144,9 @@ namespace vsg
         void* dataPointer(size_t i) override { return _data + i; }
         const void* dataPointer(size_t i) const override { return _data + i; }
 
-        std::size_t width() const override { return _size; }
-        std::size_t height() const override { return 1; }
-        std::size_t depth() const override { return 1; }
+        std::uint32_t width() const override { return _size; }
+        std::uint32_t height() const override { return 1; }
+        std::uint32_t depth() const override { return 1; }
 
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
@@ -173,7 +172,7 @@ namespace vsg
         }
 
     private:
-        std::size_t _size;
+        std::uint32_t _size;
         value_type* _data;
     };
 

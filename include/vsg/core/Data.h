@@ -80,13 +80,13 @@ namespace vsg
 
         virtual void* dataRelease() = 0;
 
-        virtual std::size_t width() const = 0;
-        virtual std::size_t height() const = 0;
-        virtual std::size_t depth() const = 0;
+        virtual std::uint32_t width() const = 0;
+        virtual std::uint32_t height() const = 0;
+        virtual std::uint32_t depth() const = 0;
 
         using MipmapOffsets = std::vector<std::size_t>;
         MipmapOffsets computeMipmapOffsets() const;
-        static std::size_t computeValueCountIncludingMipmaps(uint32_t w, uint32_t h, uint32_t d, uint32_t maxNumMipmaps);
+        static std::size_t computeValueCountIncludingMipmaps(std::size_t w, std::size_t h, std::size_t d, uint32_t maxNumMipmaps);
 
     protected:
         virtual ~Data() {}
