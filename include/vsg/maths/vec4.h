@@ -93,10 +93,14 @@ namespace vsg
     using vec4 = t_vec4<float>;
     using dvec4 = t_vec4<double>;
     using ubvec4 = t_vec4<std::uint8_t>;
+    using usvec4 = t_vec4<std::uint16_t>;
+    using uivec4 = t_vec4<std::uint32_t>;
 
     VSG_type_name(vsg::vec4);
     VSG_type_name(vsg::dvec4);
     VSG_type_name(vsg::ubvec4);
+    VSG_type_name(vsg::usvec4);
+    VSG_type_name(vsg::uivec4);
 
     template<typename T>
     constexpr t_vec4<T> operator-(t_vec4<T> const& lhs, t_vec4<T> const& rhs)
