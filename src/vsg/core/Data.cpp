@@ -63,7 +63,7 @@ Data::MipmapOffsets Data::computeMipmapOffsets() const
     return offsets;
 }
 
-std::size_t Data::computeValueCountIncludingMipmaps(uint32_t w, uint32_t h, uint32_t d, uint32_t numMipmaps)
+std::size_t Data::computeValueCountIncludingMipmaps(std::size_t w, std::size_t h, std::size_t d, uint32_t numMipmaps)
 {
     if (numMipmaps <= 1) return w * h * d;
 
