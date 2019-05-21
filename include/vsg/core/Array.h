@@ -71,7 +71,7 @@ namespace vsg
             std::size_t original_size = size();
 
             Data::read(input);
-            size_t size = input.readValue<uint32_t>("Size");
+            uint32_t size = input.readValue<uint32_t>("Size");
             size_t new_size = computeValueCountIncludingMipmaps(size, 1, 1, _layout.maxNumMipmaps);
 
             if (input.matchPropertyName("Data"))

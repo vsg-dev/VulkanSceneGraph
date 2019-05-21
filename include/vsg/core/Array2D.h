@@ -68,8 +68,8 @@ namespace vsg
             size_t original_size = size();
 
             Data::read(input);
-            size_t width = input.readValue<uint32_t>("Width");
-            size_t height = input.readValue<uint32_t>("Height");
+            uint32_t width = input.readValue<uint32_t>("Width");
+            uint32_t height = input.readValue<uint32_t>("Height");
             size_t new_size = computeValueCountIncludingMipmaps(width, height, 1, _layout.maxNumMipmaps);
             if (input.matchPropertyName("Data"))
             {
