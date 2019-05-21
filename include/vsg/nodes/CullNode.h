@@ -17,23 +17,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-#define USE_SPHERE_DOUBLE 0
 
     /** CullNode that enables view frustum culling on a single child node.
      * A valid node must always be assigned to a CullNode before it's used, as, for performance reasons, there are no internal checks made when accessing the child.*/
     class VSG_DECLSPEC CullNode : public Inherit<Node, CullNode>
     {
     public:
-#if USE_SPHERE_DOUBLE
-        using value_type = double;
-#else
-        using value_type = float;
-#endif
+        using value_type = TRANSFORM_VALUE_TYPE;
         using Sphere = t_sphere<value_type>;
 
         CullNode(Allocator* allocator = nullptr);
 
-        CullNode(const sphere& bound, Node* child, Allocator* allocator = nullptr);
+        CullNode(const Sphere& bound, Node* child, Allocator* allocator = nullptr);
 
         void traverse(Visitor& visitor) override { _child->accept(visitor); }
         void traverse(ConstVisitor& visitor) const override { _child->accept(visitor); }

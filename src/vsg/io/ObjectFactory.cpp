@@ -27,6 +27,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
+#include <vsg/nodes/LOD.h>
 
 #include <vsg/vk/BindIndexBuffer.h>
 #include <vsg/vk/BindVertexBuffers.h>
@@ -137,6 +138,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::StateGroup);
     VSG_REGISTER_create(vsg::CullGroup);
     VSG_REGISTER_create(vsg::CullNode);
+    VSG_REGISTER_create(vsg::LOD);
     VSG_REGISTER_create(vsg::MatrixTransform);
     VSG_REGISTER_create(vsg::Geometry);
     VSG_REGISTER_create(vsg::VertexIndexDraw);

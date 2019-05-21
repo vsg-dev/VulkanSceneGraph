@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,22 +10,44 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Inherit.h>
+#include <vsg/io/stream.h>
+#include <vsg/nodes/LOD.h>
 
-namespace vsg
+using namespace vsg;
+
+LOD::LOD(Allocator* allocator) :
+    Inherit(allocator)
 {
-    #define TRANSFORM_VALUE_TYPE float
+}
 
-    class VSG_DECLSPEC Node : public Inherit<Object, Node>
+LOD::~LOD()
+{
+}
+
+void LOD::read(Input& input)
+{
+    Node::read(input);
+
+    input.read("Bound", _bound);
+
+    _children.resize(input.readValue<uint32_t>("NumChildren"));
+    for (auto& lodChild : _children)
     {
-    public:
-        Node(Allocator* allocator = nullptr);
+        input.read("MinimumScreenHeightRatio", lodChild.minimumScreenHeightRatio);
+        lodChild.child = input.readObject<Node>("Child");
+    }
+}
 
-        const char* className() const noexcept override { return "vsg::Node"; }
+void LOD::write(Output& output) const
+{
+    Node::write(output);
 
-    protected:
-        virtual ~Node();
-    };
-    VSG_type_name(vsg::Node);
+    output.write("Bound", _bound);
 
-} // namespace vsg
+    output.writeValue<uint32_t>("NumChildren", _children.size());
+    for (auto& lodChild : _children)
+    {
+        output.write("MinimumScreenHeightRatio", lodChild.minimumScreenHeightRatio);
+        output.writeObject("Child", lodChild.child);
+    }
+}

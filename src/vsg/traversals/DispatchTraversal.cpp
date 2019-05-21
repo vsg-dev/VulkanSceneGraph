@@ -79,10 +79,33 @@ void DispatchTraversal::apply(const QuadGroup& group)
 #endif
 }
 
-void DispatchTraversal::apply(const LOD& object)
+void DispatchTraversal::apply(const LOD& lod)
 {
-    //    std::cout<<"Visiting LOD "<<std::endl;
-    object.traverse(*this);
+    auto sphere = lod.getBound();
+
+    // check if lod bounding sphere is in vie frustum.
+    if (!_state->intersect(sphere))
+    {
+        return;
+    }
+
+    const auto& proj = _state->projectionMatrixStack.top();
+    const auto& mv = _state->modelviewMatrixStack.top();
+    auto f = -proj[1][1];
+    vsg::vec4 lv(mv[0][2],  mv[1][2], mv[2][2], mv[3][2]);
+
+    auto distance = std::abs(lv.x * sphere.x + lv.y * sphere.y + lv.z  * sphere.z + lv.w);
+    auto rf = sphere.r * f;
+
+    for(auto lodChild : lod.getChildren())
+    {
+        bool child_visible = rf > (lodChild.minimumScreenHeightRatio * distance);
+        if (child_visible)
+        {
+            lodChild.child->accept(*this);
+            return;
+        }
+    }
 }
 
 void DispatchTraversal::apply(const CullGroup& cullGroup)

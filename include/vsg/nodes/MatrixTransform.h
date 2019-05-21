@@ -17,16 +17,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-#define USE_MATRIX_DOUBLE 0
-
     class MatrixTransform : public Inherit<Group, MatrixTransform>
     {
     public:
-#if USE_MATRIX_DOUBLE
-        using value_type = double;
-#else
-        using value_type = float;
-#endif
+        using value_type = TRANSFORM_VALUE_TYPE;
         using Matrix = t_mat4<value_type>;
 
         MatrixTransform(Allocator* allocator = nullptr);
