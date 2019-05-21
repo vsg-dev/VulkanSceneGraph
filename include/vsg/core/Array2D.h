@@ -65,12 +65,12 @@ namespace vsg
 
         void read(Input& input) override
         {
-            size_t original_size = size();
+            std::size_t original_size = size();
 
             Data::read(input);
-            uint32_t width = input.readValue<uint32_t>("Width");
-            uint32_t height = input.readValue<uint32_t>("Height");
-            size_t new_size = computeValueCountIncludingMipmaps(width, height, 1, _layout.maxNumMipmaps);
+            std::uint32_t width = input.readValue<uint32_t>("Width");
+            std::uint32_t height = input.readValue<uint32_t>("Height");
+            std::size_t new_size = computeValueCountIncludingMipmaps(width, height, 1, _layout.maxNumMipmaps);
             if (input.matchPropertyName("Data"))
             {
                 if (_data) // if data already may be able to reuse it
