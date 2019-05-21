@@ -114,7 +114,7 @@ namespace vsg
             _data = nullptr;
         }
 
-        void assign(std::size_t width, std::size_t height, value_type* data, Layout layout = Layout())
+        void assign(std::uint32_t width, std::uint32_t height, value_type* data, Layout layout = Layout())
         {
             if (_data) delete[] _data;
 
@@ -145,14 +145,14 @@ namespace vsg
         void* dataPointer(size_t i) override { return _data + i; }
         const void* dataPointer(size_t i) const override { return _data + i; }
 
-        std::size_t width() const override { return _width; }
-        std::size_t height() const override { return _height; }
-        std::size_t depth() const override { return 1; }
+        std::uint32_t width() const override { return _width; }
+        std::uint32_t height() const override { return _height; }
+        std::uint32_t depth() const override { return 1; }
 
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
-        size_t index(std::size_t i, std::size_t j) const noexcept { return i + j * _width; }
+        size_t index(std::uint32_t i, std::uint32_t j) const noexcept { return i + j * _width; }
 
         value_type& operator[](std::size_t i) { return _data[i]; }
         const value_type& operator[](std::size_t i) const { return _data[i]; }
@@ -160,14 +160,14 @@ namespace vsg
         value_type& at(std::size_t i) { return _data[i]; }
         const value_type& at(std::size_t i) const { return _data[i]; }
 
-        value_type& operator()(std::size_t i, std::size_t j) { return _data[index(i, j)]; }
-        const value_type& operator()(std::size_t i, std::size_t j) const { return _data[index(i, j)]; }
+        value_type& operator()(std::uint32_t i, std::uint32_t j) { return _data[index(i, j)]; }
+        const value_type& operator()(std::uint32_t i, std::uint32_t j) const { return _data[index(i, j)]; }
 
-        value_type& at(std::size_t i, std::size_t j) { return _data[index(i, j)]; }
-        const value_type& at(std::size_t i, std::size_t j) const { return _data[index(i, j)]; }
+        value_type& at(std::uint32_t i, std::uint32_t j) { return _data[index(i, j)]; }
+        const value_type& at(std::uint32_t i, std::uint32_t j) const { return _data[index(i, j)]; }
 
         void set(std::size_t i, const value_type& v) { _data[i] = v; }
-        void set(std::size_t i, std::size_t j, const value_type& v) { _data[index(i, j)] = v; }
+        void set(std::uint32_t i, std::uint32_t j, const value_type& v) { _data[index(i, j)] = v; }
 
         iterator begin() { return _data; }
         const_iterator begin() const { return _data; }
@@ -182,8 +182,8 @@ namespace vsg
         }
 
     private:
-        std::size_t _width;
-        std::size_t _height;
+        std::uint32_t _width;
+        std::uint32_t _height;
         value_type* _data;
     };
 

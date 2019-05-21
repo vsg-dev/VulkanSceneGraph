@@ -116,7 +116,7 @@ namespace vsg
             _data = nullptr;
         }
 
-        void assign(std::size_t numElements, value_type* data, Layout layout = Layout())
+        void assign(std::uint32_t numElements, value_type* data, Layout layout = Layout())
         {
             if (_data != nullptr) delete[] _data;
 
@@ -145,9 +145,9 @@ namespace vsg
         void* dataPointer(size_t i) override { return _data + i; }
         const void* dataPointer(size_t i) const override { return _data + i; }
 
-        std::size_t width() const override { return _size; }
-        std::size_t height() const override { return 1; }
-        std::size_t depth() const override { return 1; }
+        std::uint32_t width() const override { return _size; }
+        std::uint32_t height() const override { return 1; }
+        std::uint32_t depth() const override { return 1; }
 
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
@@ -173,7 +173,7 @@ namespace vsg
         }
 
     private:
-        std::size_t _size;
+        std::uint32_t _size;
         value_type* _data;
     };
 
