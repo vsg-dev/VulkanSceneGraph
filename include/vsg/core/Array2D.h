@@ -205,6 +205,14 @@ namespace vsg
     VSG_array2D(ubvec3Array2D, ubvec3);
     VSG_array2D(ubvec4Array2D, ubvec4);
 
+    VSG_array2D(usvec2Array2D, usvec2);
+    VSG_array2D(usvec3Array2D, usvec3);
+    VSG_array2D(usvec4Array2D, usvec4);
+
+    VSG_array2D(uivec2Array2D, uivec2);
+    VSG_array2D(uivec3Array2D, uivec3);
+    VSG_array2D(uivec4Array2D, uivec4);
+
     VSG_array2D(block64Array2D, block64);
     VSG_array2D(block128Array2D, block128);
 

@@ -195,6 +195,14 @@ namespace vsg
     VSG_array(ubvec3Array, ubvec3);
     VSG_array(ubvec4Array, ubvec4);
 
+    VSG_array(usvec2Array, usvec2);
+    VSG_array(usvec3Array, usvec3);
+    VSG_array(usvec4Array, usvec4);
+
+    VSG_array(uivec2Array, uivec2);
+    VSG_array(uivec3Array, uivec3);
+    VSG_array(uivec4Array, uivec4);
+
     VSG_array(mat4Array, mat4);
     VSG_array(dmat4Array, dmat4);
 
