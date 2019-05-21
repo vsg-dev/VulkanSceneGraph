@@ -75,7 +75,7 @@ namespace vsg
             size_t width = input.readValue<uint32_t>("Width");
             size_t height = input.readValue<uint32_t>("Height");
             size_t depth = input.readValue<uint32_t>("Depth");
-            size_t new_size = computeValueCountIncludingMipmaps(static_cast<uint32_t>(width), static_cast<uint32_t>(height), static_cast<uint32_t>(depth), _layout.maxNumMipmaps);
+            size_t new_size = computeValueCountIncludingMipmaps(width, height, depth, _layout.maxNumMipmaps);
             if (input.matchPropertyName("Data"))
             {
                 if (_data) // if data already may be able to reuse it
@@ -109,7 +109,7 @@ namespace vsg
             output.write(valueCount(), _data);
         }
 
-        std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? (_width * _height * _depth) : computeValueCountIncludingMipmaps(static_cast<uint32_t>(_width), static_cast<uint32_t>(_height), static_cast<uint32_t>(_depth), _layout.maxNumMipmaps); }
+        std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? (_width * _height * _depth) : computeValueCountIncludingMipmaps(_width, _height, _depth, _layout.maxNumMipmaps); }
 
         bool empty() const { return _width == 0 && _height == 0 && _depth == 0; }
 

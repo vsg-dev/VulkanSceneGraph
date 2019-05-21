@@ -147,14 +147,6 @@ namespace vsg
     VSG_value(ubvec3Value, ubvec3);
     VSG_value(ubvec4Value, ubvec4);
 
-    VSG_value(usvec2Value, usvec2);
-    VSG_value(usvec3Value, usvec3);
-    VSG_value(usvec4Value, usvec4);
-
-    VSG_value(uivec2Value, uivec2);
-    VSG_value(uivec3Value, uivec3);
-    VSG_value(uivec4Value, uivec4);
-
     VSG_value(mat3Value, mat3);
     VSG_value(dmat3Value, dmat3);
 

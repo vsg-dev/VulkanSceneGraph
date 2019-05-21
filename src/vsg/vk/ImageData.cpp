@@ -16,7 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/ImageData.h>
 
 #include <iostream>
-#include <algorithm>
 
 using namespace vsg;
 
@@ -42,7 +41,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     // copy image data to staging memory
     imageStagingMemory->copy(0, imageTotalSize, data->dataPointer());
 
-    uint32_t mipLevels = sampler != nullptr ? static_cast<uint32_t>(sampler->info().maxLod) : 1;
+    uint32_t mipLevels = sampler != nullptr ? sampler->info().maxLod : 1;
     if (mipLevels == 0)
     {
         mipLevels = 1;
@@ -86,9 +85,9 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 #endif
 
     // take the block deminsions into account for image size to allow for any bloack compressed image foramts where the data dimensions is based in number of blocks so needs to be multiple to get final pixel count
-    uint32_t width = static_cast<uint32_t>(data->width()) * layout.blockWidth;
-    uint32_t height = static_cast<uint32_t>(data->height()) * layout.blockHeight;
-    uint32_t depth = static_cast<uint32_t>(data->depth()) * layout.blockDepth;
+    uint32_t width = data->width() * layout.blockWidth;
+    uint32_t height = data->height() * layout.blockHeight;
+    uint32_t depth = data->depth() * layout.blockDepth;
 
     VkImageType imageType = depth > 1 ? VK_IMAGE_TYPE_3D : (width > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
     VkImageViewType imageViewType = depth > 1 ? VK_IMAGE_VIEW_TYPE_3D : (width > 1 ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);

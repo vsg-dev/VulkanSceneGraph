@@ -85,14 +85,10 @@ namespace vsg
     using vec2 = t_vec2<float>;
     using dvec2 = t_vec2<double>;
     using ubvec2 = t_vec2<std::uint8_t>;
-    using usvec2 = t_vec2<std::uint16_t>;
-    using uivec2 = t_vec2<std::uint32_t>;
 
     VSG_type_name(vsg::vec2);
     VSG_type_name(vsg::dvec2);
     VSG_type_name(vsg::ubvec2);
-    VSG_type_name(vsg::usvec2);
-    VSG_type_name(vsg::uivec2);
 
     template<typename T>
     constexpr t_vec2<T> operator-(t_vec2<T> const& lhs, t_vec2<T> const& rhs)

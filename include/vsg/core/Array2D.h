@@ -70,7 +70,7 @@ namespace vsg
             Data::read(input);
             size_t width = input.readValue<uint32_t>("Width");
             size_t height = input.readValue<uint32_t>("Height");
-            size_t new_size = computeValueCountIncludingMipmaps(static_cast<uint32_t>(width), static_cast<uint32_t>(height), 1, _layout.maxNumMipmaps);
+            size_t new_size = computeValueCountIncludingMipmaps(width, height, 1, _layout.maxNumMipmaps);
             if (input.matchPropertyName("Data"))
             {
                 if (_data) // if data already may be able to reuse it
@@ -102,7 +102,7 @@ namespace vsg
             output.write(valueCount(), _data);
         }
 
-        std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? (_width * _height) : computeValueCountIncludingMipmaps(static_cast<uint32_t>(_width), static_cast<uint32_t>(_height), 1, _layout.maxNumMipmaps); }
+        std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? (_width * _height) : computeValueCountIncludingMipmaps(_width, _height, 1, _layout.maxNumMipmaps); }
 
         bool empty() const { return _width == 0 && _height == 0; }
 
@@ -204,14 +204,6 @@ namespace vsg
     VSG_array2D(ubvec2Array2D, ubvec2);
     VSG_array2D(ubvec3Array2D, ubvec3);
     VSG_array2D(ubvec4Array2D, ubvec4);
-
-    VSG_array2D(usvec2Array2D, usvec2);
-    VSG_array2D(usvec3Array2D, usvec3);
-    VSG_array2D(usvec4Array2D, usvec4);
-
-    VSG_array2D(uivec2Array2D, uivec2);
-    VSG_array2D(uivec3Array2D, uivec3);
-    VSG_array2D(uivec4Array2D, uivec4);
 
     VSG_array2D(block64Array2D, block64);
     VSG_array2D(block128Array2D, block128);
