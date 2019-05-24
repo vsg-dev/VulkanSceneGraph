@@ -140,6 +140,12 @@ if(MSVC)
     endmacro()
 
     SET_OUTPUT_DIR_PROPERTY(vsg "")
+	
+    option(ENABLE_MP_FLAG "Turning on this option will add the multi-processor flag in MSVC for VSG and it's included projects" OFF)
+	
+    if(ENABLE_MP_FLAG)
+        target_compile_options(vsg PRIVATE "/MP")
+    endif()
 
 endif()
 
