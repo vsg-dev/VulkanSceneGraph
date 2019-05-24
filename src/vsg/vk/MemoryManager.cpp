@@ -17,24 +17,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <cstring>
 
 // Useful links:
-//    AMD's Vulan Device Memory discussion : https://gpuopen.com/vulkan-device-memory/
+//    AMD's Vulkan Device Memory discussion : https://gpuopen.com/vulkan-device-memory/
 //    NVIDIA's Vulkan Memory Management  : https://developer.nvidia.com/vulkan-memory-management
 //
 // General comments
 //
-// Deivce local resources - use VkMemoryPropertyFlags of VK_DEVICE_LOCAL and not HOST_VISIBLE
+// Device local resources - use VkMemoryPropertyFlags of VK_DEVICE_LOCAL and not HOST_VISIBLE
 //
-// If Divice local allocations fail fallbac to HOST_VISIBLE with HOST_COHERENT but without HOST_CACHED
+// If Device local allocations fail fallback to HOST_VISIBLE with HOST_COHERENT but without HOST_CACHED
 //
-// Allocate high prioroty resources first i.e. Render Targets, then lower priotity objects
+// Allocate high priority resources first i.e. Render Targets, then lower priority objects
 //
 // On Window resizes be prepared to free all resources, then reallocated high priority ones
 //
-// CPU->GPU data flow Use DEVICE_LOCAL with HOST_VISIBLE for cases where you want to update Device local memory, ie. updloading constant data, keep allocation sizes below 256MB)
+// CPU->GPU data flow Use DEVICE_LOCAL with HOST_VISIBLE for cases where you want to update Device local memory, ie. uploading constant data, keep allocation sizes below 256MB)
 //
 // GPU->CPU data flow use HOST_VISIBLE with HOST_COHERENT and HOST_CACHED, only memory type that supports cached reads by the CPU.  Screen captures, compute results etc.
 //
-// Pool resources as OS Window allocations can be expensive, place buffers and textures in single pools, 256MB is reasonalbe base
+// Pool resources as OS Window allocations can be expensive, place buffers and textures in single pools, 256MB is reasonable base
 //
 
 using namespace vsg;

@@ -82,7 +82,7 @@ namespace vsg
         {
             writePropertyName(propertyName);
 
-            // use fold expression to expand arugments and map to appropriate write method
+            // use fold expression to expand arguments and map to appropriate write method
             (write(1, &(args)), ...);
         }
 

@@ -132,7 +132,7 @@ void Geometry::compile(Context& context)
         return;
     }
 
-    // add the commands in the the _renderImplementation.
+    // add the commands in the _renderImplementation.
     _renderImplementation.insert(_renderImplementation.end(), _commands.begin(), _commands.end());
 }
 

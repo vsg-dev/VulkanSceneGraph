@@ -29,7 +29,7 @@ namespace vsg
 
     vsg::Names Window::getInstanceExtensions()
     {
-        // check the extensions are avaliable first
+        // check the extensions are available first
         Names requiredExtensions = { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME };
 
         if (!vsg::isExtensionListSupported(requiredExtensions))
@@ -174,7 +174,7 @@ KeyboardMap::KeyboardMap()
             {':', KEY_Colon},
             {VK_OEM_1, KEY_Semicolon},
             {'<', KEY_Less},
-            {VK_OEM_PLUS, KEY_Equals}, // + isnt an unmodded key, why does windows map is as a virtual??
+            {VK_OEM_PLUS, KEY_Equals}, // + isn't an unmodded key, why does windows map is as a virtual??
             {'>', KEY_Greater},
             {'?', KEY_Question},
             {'@', KEY_At},
@@ -434,7 +434,7 @@ Win32_Window::Win32_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationC
     // set window handle user data pointer to hold ref to this so we can retrieve in WindowsProc
     SetWindowLongPtr(_window, GWLP_USERDATA, (LONG_PTR)this);
 
-    // resposition once the window has been created to account for borders etc
+    // reposition once the window has been created to account for borders etc
     ::SetWindowPos(_window, nullptr, screenx, screeny, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, 0);
 
     // get client rect to find final width height of the view
@@ -535,7 +535,7 @@ bool Win32_Window::resized() const
     int width = windowRect.right - windowRect.left;
     int height = windowRect.bottom - windowRect.top;
 
-    // at the moment the close event is occuring then the check for resize is happening, which means the window is rect returns 0. So for now ignore potential resize if should close
+    // at the moment the close event is occurring then the check for resize is happening, which means the window is rect returns 0. So for now ignore potential resize if should close
     return width != int(_extent2D.width) || height != int(_extent2D.height);
 }
 

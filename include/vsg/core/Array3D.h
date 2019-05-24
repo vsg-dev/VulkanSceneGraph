@@ -133,7 +133,7 @@ namespace vsg
             _data = data;
         }
 
-        // release the data so that owneership can be passed on, the local data pointer and size is set to 0 and destruction of Array will no result in the data being deleted.
+        // release the data so that ownership can be passed on, the local data pointer and size is set to 0 and destruction of Array will no result in the data being deleted.
         void* dataRelease() override
         {
             void* tmp = _data;

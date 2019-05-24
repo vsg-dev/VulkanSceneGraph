@@ -96,7 +96,7 @@ namespace vsg
         using Result = vsg::Result<Window, VkResult, VK_SUCCESS>;
         static Result create(vsg::ref_ptr<Traits> traits);
 
-        // for backward compatability
+        // for backward compatibility
         static Result create(uint32_t width, uint32_t height, bool debugLayer = false, bool apiDumpLayer = false, vsg::Window* shareWindow = nullptr, vsg::AllocationCallbacks* allocator = nullptr);
         static Result create(vsg::ref_ptr<Traits> traits, bool debugLayer, bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
 

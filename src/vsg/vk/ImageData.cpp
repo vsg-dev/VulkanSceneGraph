@@ -82,10 +82,10 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     std::cout << "data->depth() = " << data->depth() << std::endl;
     std::cout << "sampler->info().maxLod = " << sampler->info().maxLod << std::endl;
 
-    std::cout << "Creating imageStagingBuffer and memorory size = " << imageTotalSize << " mipLevels = "<<mipLevels<<std::endl;
+    std::cout << "Creating imageStagingBuffer and memory size = " << imageTotalSize << " mipLevels = "<<mipLevels<<std::endl;
 #endif
 
-    // take the block deminsions into account for image size to allow for any bloack compressed image foramts where the data dimensions is based in number of blocks so needs to be multiple to get final pixel count
+    // take the block dimensions into account for image size to allow for any block compressed image formats where the data dimensions is based in number of blocks so needs to be multiple to get final pixel count
     uint32_t width = data->width() * layout.blockWidth;
     uint32_t height = data->height() * layout.blockHeight;
     uint32_t depth = data->depth() * layout.blockDepth;
