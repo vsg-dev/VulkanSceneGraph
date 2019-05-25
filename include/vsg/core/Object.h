@@ -87,7 +87,7 @@ namespace vsg
         Auxiliary* getAuxiliary() { return _auxiliary; }
         const Auxiliary* getAuxiliary() const { return _auxiliary; }
 
-        // convinience method for getting the optional Allocator, if present this Allocator would have been used to create this Objects memory
+        // convenience method for getting the optional Allocator, if present this Allocator would have been used to create this Objects memory
         Allocator* getAllocator() const;
 
     protected:

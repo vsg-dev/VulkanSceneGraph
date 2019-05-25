@@ -71,7 +71,7 @@ namespace vsg
         /// schedule closure of the viewer and associated windows, after a call to Viewer::close() the Viewer::active() method will return false
         void close() { _close = true; }
 
-        /// poll the events for all attached widnows, return true if new events are available
+        /// poll the events for all attached windows, return true if new events are available
         bool pollEvents(bool discardPreviousEvents = true);
 
         /// get the current set of Events that are filled in by prior calls to pollEvents

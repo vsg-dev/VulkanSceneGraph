@@ -22,7 +22,7 @@ namespace vsg
     public:
         View();
 
-        /// set the master Camear of the View
+        /// set the master Camera of the View
         void setCamera(ref_ptr<Camera> camera);
         Camera* getCamera() { return _camera; }
         const Camera* getCamera() const { return _camera; }

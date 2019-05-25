@@ -60,7 +60,7 @@ Sampler::Result Sampler::create(Device* device, AllocationCallbacks* allocator)
     samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 #if 1
-    // requres Logical device to have deviceFeatures.samplerAnisotropy = VK_TRUE; set when creating the vsg::Deivce
+    // requires Logical device to have deviceFeatures.samplerAnisotropy = VK_TRUE; set when creating the vsg::Device
     samplerInfo.anisotropyEnable = VK_TRUE;
     samplerInfo.maxAnisotropy = 16;
 #else

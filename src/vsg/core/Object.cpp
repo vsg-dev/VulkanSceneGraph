@@ -148,7 +148,7 @@ void Object::write(Output& output) const
 {
     if (_auxiliary && _auxiliary->getConnectedObject() == this)
     {
-        // we have a unique auxuliary, need to write out it's ObjectMap entries
+        // we have a unique auxiliary, need to write out it's ObjectMap entries
         const Auxiliary::ObjectMap& objectMap = _auxiliary->getObjectMap();
         output.writeValue<uint32_t>("NumUserObjects", objectMap.size());
         for (auto& entry : objectMap)

@@ -70,7 +70,7 @@ void Allocator::detachSharedAuxiliary(Auxiliary* auxiliary)
 {
     if (_sharedAuxiliary == auxiliary)
     {
-        std::cout << "Allocator::detachSharedAuxiliary(" << auxiliary << ") detecing auxiliary" << std::endl;
+        std::cout << "Allocator::detachSharedAuxiliary(" << auxiliary << ") detecting auxiliary" << std::endl;
     }
     else
     {

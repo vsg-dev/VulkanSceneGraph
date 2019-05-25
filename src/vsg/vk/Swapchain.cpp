@@ -53,7 +53,7 @@ VkSurfaceFormatKHR vsg::selectSwapSurfaceFormat(const SwapChainSupportDetails& d
 {
     if (details.formats.empty() || (details.formats.size() == 1 && details.formats[0].format == VK_FORMAT_UNDEFINED))
     {
-        std::cout << "selectSwapSurfaceFormat() VK_FORMAT_UNDEFINED, so using fallbalck " << std::endl;
+        std::cout << "selectSwapSurfaceFormat() VK_FORMAT_UNDEFINED, so using fallback " << std::endl;
         return {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
     }
 
@@ -66,7 +66,7 @@ VkSurfaceFormatKHR vsg::selectSwapSurfaceFormat(const SwapChainSupportDetails& d
         }
     }
 
-    // fallbck to checkeing for {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR}
+    // fallback to checking for {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR}
     for (const auto& availableFormat : details.formats)
     {
         if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
@@ -161,7 +161,7 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
     uint32_t imageCount = std::max(preferences.imageCount, details.capabilities.minImageCount);                        // Vulkan spec requires minImageCount to be 1 or greater
     if (details.capabilities.maxImageCount > 0) imageCount = std::min(imageCount, details.capabilities.maxImageCount); // Vulkan spec specifies 0 as being unlimited number of images
 
-    // apply the selected settings back to preferences to calling code can dtermine the active settings.
+    // apply the selected settings back to preferences to calling code can determine the active settings.
     preferences.imageCount = imageCount;
     preferences.presentMode = presentMode;
     preferences.surfaceFormat = surfaceFormat;

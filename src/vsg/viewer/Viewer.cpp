@@ -179,7 +179,7 @@ bool Viewer::aquireNextFrame()
 
             //std::cout<<"window->acquireNextImage(), result==VK_ERROR_OUT_OF_DATE_KHR  rebuild swap chain : resized="<<window->resized()<<" numTries="<<numTries<<std::endl;
 
-            // resize to rebuild all the internal Vulkan objects associated wiht the window.
+            // resize to rebuild all the internal Vulkan objects associated with the window.
             window->resize();
 
             needToReassingFrameCache = true;

@@ -23,11 +23,11 @@ namespace vsg
 {
 
     /** Level of Detail Node,
-     *  Chidlren should be ordered with the highest resolution LODChild first, thought to lowest resolution LOD child last.
+     *  Children should be ordered with the highest resolution LODChild first, thought to lowest resolution LOD child last.
      *  The LODChild struct stores the visibleHeightRatio and child that it's associated with.
      *  During culling tHe visibleHeightRatio is used as a ratio of screen height that Bound sphere occupies on screen needs to be at least in order for the associated child to be traversed.
      *  Once on child passes this test no more children are checked, so that no more than on child will ever being traversed in a cull or dispatch traversal.
-     *  If no LODChild pass the visible hiehgt test then none of the LOD's children will be visibile.
+     *  If no LODChild pass the visible height test then none of the LOD's children will be visible.
      *  During the cull or dispatch traversals the Bound sphere is also checked against the view frustum so that LOD's also enable view frustum culling for subgraphs so there is no need for a separate CullNode/CullGroup to decorate it. */
     class VSG_DECLSPEC LOD : public Inherit<Node, LOD>
     {

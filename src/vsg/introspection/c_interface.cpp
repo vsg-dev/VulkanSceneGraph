@@ -183,7 +183,7 @@ extern "C"
         }
         else
         {
-            std::cout << "Return empty, fallbck to TYPE_undefined." << std::endl;
+            std::cout << "Return empty, fallback to TYPE_undefined." << std::endl;
 
             Property property;
             property.type = Property::TYPE_undefined;
@@ -209,7 +209,7 @@ extern "C"
         case (Property::TYPE_unsigned_int): object->setValue(propertyName, property.value._unsigned_int); break;
         case (Property::TYPE_float): object->setValue(propertyName, property.value._float); break;
         case (Property::TYPE_double): object->setValue(propertyName, property.value._double); break;
-        default: std::cout << "Unhandling Property type" << std::endl;
+        default: std::cout << "Unhandled Property type" << std::endl;
         }
 #endif
     }

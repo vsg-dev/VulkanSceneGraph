@@ -218,7 +218,7 @@ void Window::populateCommandBuffers(uint32_t index)
     }
 }
 
-// just kept for backwards compat for now
+// just kept for backwards compatibility for now
 Window::Result Window::create(uint32_t width, uint32_t height, bool debugLayer, bool apiDumpLayer, vsg::Window* shareWindow, vsg::AllocationCallbacks* allocator)
 {
     vsg::ref_ptr<Window::Traits> traits(new Window::Traits());
@@ -231,7 +231,7 @@ Window::Result Window::create(uint32_t width, uint32_t height, bool debugLayer, 
     return create(traits);
 }
 
-// just kept for backwards compat for now
+// just kept for backwards compatibility for now
 Window::Result Window::create(vsg::ref_ptr<Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
 {
     traits->debugLayer = debugLayer;

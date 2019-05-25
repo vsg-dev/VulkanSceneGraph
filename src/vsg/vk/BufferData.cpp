@@ -33,7 +33,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
     //    copy data to staging memory
     // unmap staging memory
     //
-    // crete device buffer
+    // create device buffer
     // create device memory
     // submit command to copy from staging buffer to device buffer
     //

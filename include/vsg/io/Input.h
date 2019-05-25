@@ -33,7 +33,7 @@ namespace vsg
     class Input
     {
     public:
-        /// return true if property name matches the next token in the stream, or if propery names are not required for format
+        /// return true if property name matches the next token in the stream, or if property names are not required for format
         virtual bool matchPropertyName(const char* propertyName) = 0;
 
         // read value(s)
@@ -85,7 +85,7 @@ namespace vsg
         {
             if (!matchPropertyName(propertyName)) return;
 
-            // use fold expression to expand arugments and map to appropriate read method
+            // use fold expression to expand arguments and map to appropriate read method
             (read(1, &(args)), ...);
         }
 

@@ -27,7 +27,7 @@ namespace vsg
         /// write object to specified file, return true on success, return false on failure.
         virtual bool writeFile(const vsg::Object* /*object*/, const vsg::Path& /*filename*/) const { return false; }
 
-        /// convinence method for casting a read object to a specified type.
+        /// convenience method for casting a read object to a specified type.
         template<class T>
         vsg::ref_ptr<T> read(const vsg::Path& filename) const
         {

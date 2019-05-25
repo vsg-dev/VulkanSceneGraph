@@ -131,7 +131,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/ReaderWriter.h>
 #include <vsg/io/stream.h>
 
-// Utiltiy header files
+// Utility header files
 #include <vsg/utils/CommandLine.h>
 
 // Introspection header files
