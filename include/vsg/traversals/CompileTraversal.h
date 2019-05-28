@@ -26,14 +26,26 @@ namespace vsg
     class Context
     {
     public:
-        ref_ptr<Device> device; // used by BufferData.cpp, ComputePipeline.cpp, Descriptor.cpp, Descriptor.cpp, DescriptorSet.cpp, DescriptorSetLayout.cpp, GraphicsPipeline.cpp, ImageData.cpp, PipelineLayout.cpp, ShaderModule.cpp
-        ref_ptr<CommandPool> commandPool; // used by BufferData.cpp, ImageData.cpp
-        ref_ptr<RenderPass> renderPass; // used by GraphicsPipeline.cpp
-        ref_ptr<ViewportState> viewport; // used by GraphicsPipeline.cpp
+
+        // used by BufferData.cpp, ComputePipeline.cpp, Descriptor.cpp, Descriptor.cpp, DescriptorSet.cpp, DescriptorSetLayout.cpp, GraphicsPipeline.cpp, ImageData.cpp, PipelineLayout.cpp, ShaderModule.cpp
+        ref_ptr<Device> device;
+
+         // used by GraphicsPipeline.cpp
+        ref_ptr<RenderPass> renderPass;
+        ref_ptr<ViewportState> viewport;
+
+         // DescriptorSet.cpp
+        ref_ptr<DescriptorPool> descriptorPool;
+
+        // transfer data settings
+        // used by BufferData.cpp, ImageData.cpp
+        using MemoryPools = std::vector<ref_ptr<DeviceMemory>>;
+        using BufferPools = std::vector<ref_ptr<Buffer>>;
+
         VkQueue graphicsQueue = 0;
-
-        ref_ptr<DescriptorPool> descriptorPool; // DescriptorSet.cpp
-
+        ref_ptr<CommandPool> commandPool;
+        MemoryPools memoryPools;
+        BufferPools bufferPools;
 #if 1
         VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
         VkDeviceSize minimumBufferDeviceMemorySize = 16 * 1024 * 1024;
@@ -43,12 +55,6 @@ namespace vsg
         VkDeviceSize minimumBufferDeviceMemorySize = 1; //1024 * 1024;
         VkDeviceSize minimumImageDeviceMemorySize = 1;  //1024 * 1024;
 #endif
-
-        using MemoryPools = std::vector<ref_ptr<DeviceMemory>>;
-        MemoryPools memoryPools;
-
-        using BufferPools = std::vector<ref_ptr<Buffer>>;
-        BufferPools bufferPools;
     };
 
     class VSG_DECLSPEC CompileTraversal : public Visitor
