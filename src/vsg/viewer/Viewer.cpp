@@ -374,7 +374,7 @@ public:
     uint32_t maxSlot = 0;
 };
 
-void Viewer::compile()
+void Viewer::compile(BufferPreferences bufferPreferences)
 {
 
     for (auto& window : _windows)
@@ -407,6 +407,7 @@ void Viewer::compile()
         }
 #endif
         vsg::CompileTraversal compile;
+        compile.context.bufferPreferences = bufferPreferences;
         compile.context.device = window->device();
         compile.context.commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
         compile.context.renderPass = window->renderPass();

@@ -82,7 +82,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
     {
         VkDeviceSize deviceSize = totalSize;
 
-        VkDeviceSize minumumBufferSize = context.minimumBufferSize;
+        VkDeviceSize minumumBufferSize = context.bufferPreferences.minimumBufferSize;
         if (deviceSize < minumumBufferSize)
         {
             deviceSize = minumumBufferSize;
@@ -121,7 +121,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
 
         if (!deviceMemory)
         {
-            VkDeviceSize minumumDeviceMemorySize = context.minimumBufferDeviceMemorySize;
+            VkDeviceSize minumumDeviceMemorySize = context.bufferPreferences.minimumBufferDeviceMemorySize;
 
             // clamp to an aligned size
             minumumDeviceMemorySize = ((minumumDeviceMemorySize + memRequirements.alignment - 1) / memRequirements.alignment) * memRequirements.alignment;

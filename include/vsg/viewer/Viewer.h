@@ -110,7 +110,7 @@ namespace vsg
 
         bool submitNextFrame();
 
-        void compile();
+        void compile(BufferPreferences bufferPreferences = {});
 
     protected:
         virtual ~Viewer();

@@ -23,6 +23,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    struct BufferPreferences
+    {
+        VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
+        VkDeviceSize minimumBufferDeviceMemorySize = 16 * 1024 * 1024;
+        VkDeviceSize minimumImageDeviceMemorySize = 16 * 1024 * 1024;
+    };
+
     class Context
     {
     public:
@@ -46,15 +53,8 @@ namespace vsg
         ref_ptr<CommandPool> commandPool;
         MemoryPools memoryPools;
         BufferPools bufferPools;
-#if 1
-        VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
-        VkDeviceSize minimumBufferDeviceMemorySize = 16 * 1024 * 1024;
-        VkDeviceSize minimumImageDeviceMemorySize = 16 * 1024 * 1024;
-#else
-        VkDeviceSize minimumBufferSize = 1;             //1024 * 1024;
-        VkDeviceSize minimumBufferDeviceMemorySize = 1; //1024 * 1024;
-        VkDeviceSize minimumImageDeviceMemorySize = 1;  //1024 * 1024;
-#endif
+
+        BufferPreferences bufferPreferences;
     };
 
     class VSG_DECLSPEC CompileTraversal : public Visitor

@@ -144,7 +144,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
     if (!deviceMemory)
     {
-        VkDeviceSize minumumDeviceMemorySize = context.minimumImageDeviceMemorySize;
+        VkDeviceSize minumumDeviceMemorySize = context.bufferPreferences.minimumImageDeviceMemorySize;
 
         // clamp to an aligned size
         minumumDeviceMemorySize = ((minumumDeviceMemorySize + memRequirements.alignment - 1) / memRequirements.alignment) * memRequirements.alignment;
