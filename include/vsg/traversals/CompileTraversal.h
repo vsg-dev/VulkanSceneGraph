@@ -26,16 +26,14 @@ namespace vsg
     class Context
     {
     public:
-        ref_ptr<Device> device;
-        ref_ptr<CommandPool> commandPool;
-        ref_ptr<RenderPass> renderPass;
-        ref_ptr<ViewportState> viewport;
+        ref_ptr<Device> device; // used by BufferData.cpp, ComputePipeline.cpp, Descriptor.cpp, Descriptor.cpp, DescriptorSet.cpp, DescriptorSetLayout.cpp, GraphicsPipeline.cpp, ImageData.cpp, PipelineLayout.cpp, ShaderModule.cpp
+        ref_ptr<CommandPool> commandPool; // used by BufferData.cpp, ImageData.cpp
+        ref_ptr<RenderPass> renderPass; // used by GraphicsPipeline.cpp
+        ref_ptr<ViewportState> viewport; // used by GraphicsPipeline.cpp
         VkQueue graphicsQueue = 0;
 
-        ref_ptr<DescriptorPool> descriptorPool;
+        ref_ptr<DescriptorPool> descriptorPool; // DescriptorSet.cpp
 
-        ref_ptr<mat4Value> projMatrix;
-        ref_ptr<mat4Value> viewMatrix;
 #if 1
         VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
         VkDeviceSize minimumBufferDeviceMemorySize = 16 * 1024 * 1024;

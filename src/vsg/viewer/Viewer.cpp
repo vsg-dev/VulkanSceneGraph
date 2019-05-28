@@ -428,9 +428,6 @@ void Viewer::compile()
                 else
                     compile.context.viewport = vsg::ViewportState::create(window->extent2D());
 
-                compile.context.projMatrix = gs->_projMatrix;
-                compile.context.viewMatrix = gs->_viewMatrix;
-
                 // std::cout << "Compiling GraphicsStage " << compile.context.viewport << std::endl;
 
                 gs->_commandGraph->accept(compile);
