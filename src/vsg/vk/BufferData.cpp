@@ -65,7 +65,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
     ref_ptr<Buffer> deviceBuffer;
     Buffer::OptionalBufferOffset reservedBufferSlot(false, 0);
 
-    for (auto& bufferFromPool : context.bufferPools)
+    for (auto& bufferFromPool : context.deviceBufferPools)
     {
         if (!bufferFromPool->full() && bufferFromPool->usage() == bufferUsageFlags)
         {
@@ -95,7 +95,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
         if (!deviceBuffer->full())
         {
             // std::cout<<"   inserting new Buffer into Context.bufferPools"<<std::endl;
-            context.bufferPools.push_back(deviceBuffer);
+            context.deviceBufferPools.push_back(deviceBuffer);
         }
 
         //std::cout<<"   reservedBufferSlot.second = "<<reservedBufferSlot.second<<std::endl;
@@ -106,7 +106,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
         ref_ptr<DeviceMemory> deviceMemory;
         DeviceMemory::OptionalMemoryOffset reservedMemorySlot(false, 0);
 
-        for (auto& memoryFromPool : context.memoryPools)
+        for (auto& memoryFromPool : context.deviceMemoryPools)
         {
             if (!memoryFromPool->full() && memoryFromPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits)
             {
@@ -134,7 +134,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
                 reservedMemorySlot = deviceMemory->reserve(deviceSize);
                 if (!deviceMemory->full())
                 {
-                    context.memoryPools.push_back(deviceMemory);
+                    context.deviceMemoryPools.push_back(deviceMemory);
                 }
             }
         }

@@ -129,7 +129,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     ref_ptr<DeviceMemory> deviceMemory;
     DeviceMemory::OptionalMemoryOffset reservedSlot(false, 0);
 
-    for (auto& memoryPool : context.memoryPools)
+    for (auto& memoryPool : context.deviceMemoryPools)
     {
         if (!memoryPool->full() && memoryPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits)
         {
@@ -159,7 +159,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
             if (!deviceMemory->full())
             {
                 //std::cout<<"  inserting DeviceMemory into memoryPool "<<deviceMemory.get()<<std::endl;
-                context.memoryPools.push_back(deviceMemory);
+                context.deviceMemoryPools.push_back(deviceMemory);
             }
         }
     }

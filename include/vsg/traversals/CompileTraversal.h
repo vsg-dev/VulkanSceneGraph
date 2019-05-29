@@ -49,12 +49,12 @@ namespace vsg
         using MemoryPools = std::vector<ref_ptr<DeviceMemory>>;
         using BufferPools = std::vector<ref_ptr<Buffer>>;
 
+        BufferPreferences bufferPreferences;
         VkQueue graphicsQueue = 0;
         ref_ptr<CommandPool> commandPool;
-        MemoryPools memoryPools;
-        BufferPools bufferPools;
 
-        BufferPreferences bufferPreferences;
+        MemoryPools deviceMemoryPools;
+        BufferPools deviceBufferPools;
     };
 
     class VSG_DECLSPEC CompileTraversal : public Visitor
