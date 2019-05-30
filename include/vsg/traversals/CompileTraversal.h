@@ -13,6 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <memory>
+#include <deque>
+
 #include <vsg/core/Object.h>
 
 #include <vsg/nodes/Group.h>
@@ -36,8 +38,10 @@ namespace vsg
     {
     public:
 
-        ref_ptr<Device> device;
+        MemoryBufferPools(const std::string& name, Device* in_device, BufferPreferences preferences);
 
+        std::string name;
+        ref_ptr<Device> device;
         BufferPreferences bufferPreferences;
 
         // transfer data settings
@@ -48,15 +52,24 @@ namespace vsg
         using BufferPools = std::vector<ref_ptr<Buffer>>;
         BufferPools bufferPools;
 
-        BufferData reserveBufferData(VkDeviceSize totalSize, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode);
+        BufferData reserveBufferData(VkDeviceSize totalSize, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties);
 
         using DeviceMemoryOffset = std::pair<ref_ptr<DeviceMemory>,VkDeviceSize>;
-        DeviceMemoryOffset reserveMemory(VkMemoryRequirements memRequirements);
+        DeviceMemoryOffset reserveMemory(VkMemoryRequirements memRequirements, VkMemoryPropertyFlags memoryProperties);
+
+
+        using CopyPair = std::pair<BufferData, BufferData>;
+        using CopyQueue = std::deque<CopyPair>;
+
+        CopyQueue bufferDataToCopy;
+
     };
 
     class Context
     {
     public:
+
+        Context(Device* in_device,  BufferPreferences bufferPreferences = {});
 
         // used by BufferData.cpp, ComputePipeline.cpp, Descriptor.cpp, Descriptor.cpp, DescriptorSet.cpp, DescriptorSetLayout.cpp, GraphicsPipeline.cpp, ImageData.cpp, PipelineLayout.cpp, ShaderModule.cpp
         ref_ptr<Device> device;
@@ -83,7 +96,7 @@ namespace vsg
     class VSG_DECLSPEC CompileTraversal : public Visitor
     {
     public:
-        explicit CompileTraversal();
+        explicit CompileTraversal(Device* in_device,  BufferPreferences bufferPreferences = {});
         ~CompileTraversal();
 
         void apply(Object& object);

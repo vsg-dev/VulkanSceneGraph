@@ -28,9 +28,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode)
+MemoryBufferPools::MemoryBufferPools(const std::string& in_name, Device* in_device, BufferPreferences preferences):
+    name(in_name),
+    device(in_device),
+    bufferPreferences(preferences)
 {
-    BufferData deviceBufferData;
+}
+
+
+BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties)
+{
+    BufferData bufferData;
     for (auto& bufferFromPool : bufferPools)
     {
         if (!bufferFromPool->full() && bufferFromPool->usage() == bufferUsageFlags)
@@ -38,105 +46,102 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
             Buffer::OptionalBufferOffset reservedBufferSlot = bufferFromPool->reserve(totalSize, alignment);
             if (reservedBufferSlot.first)
             {
-                deviceBufferData._buffer = bufferFromPool;
-                deviceBufferData._offset = reservedBufferSlot.second;
-                deviceBufferData._range = totalSize;
+                bufferData._buffer = bufferFromPool;
+                bufferData._offset = reservedBufferSlot.second;
+                bufferData._range = totalSize;
 
-                std::cout<<"MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") _offset = "<<deviceBufferData._offset<<std::endl;
+                std::cout<<name<<" : MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") _offset = "<<bufferData._offset<<std::endl;
 
-                return deviceBufferData;
+                return bufferData;
             }
         }
     }
-    std::cout<<"Failed to space in existing buffers with  MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") "<<std::endl;
+    std::cout<<name<<" : Failed to space in existing buffers with  MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") bufferPools.size() = "<<bufferPools.size()<<" looking to allocated new Buffer."<<std::endl;
 
-    if (!deviceBufferData._buffer)
+    VkDeviceSize deviceSize = totalSize;
+
+    VkDeviceSize minumumBufferSize = bufferPreferences.minimumBufferSize;
+    if (deviceSize < minumumBufferSize)
     {
-        VkDeviceSize deviceSize = totalSize;
-
-        VkDeviceSize minumumBufferSize = bufferPreferences.minimumBufferSize;
-        if (deviceSize < minumumBufferSize)
-        {
-            deviceSize = minumumBufferSize;
-        }
-
-        deviceBufferData._buffer = vsg::Buffer::create(device, deviceSize, bufferUsageFlags, sharingMode);
-
-        Buffer::OptionalBufferOffset reservedBufferSlot = deviceBufferData._buffer->reserve(totalSize, alignment);
-        deviceBufferData._offset = reservedBufferSlot.second;
-        deviceBufferData._range = totalSize;
-
-
-        // std::cout<<"Created new Buffer "<<deviceBufferData._buffer.get()<<" totalSize "<<totalSize<<" deviceSize = "<<deviceSize<<std::endl;
-
-        if (!deviceBufferData._buffer->full())
-        {
-            // std::cout<<"   inserting new Buffer into Context.bufferPools"<<std::endl;
-            bufferPools.push_back(deviceBufferData._buffer);
-        }
-
-        //std::cout<<"   deviceBufferData._offset = "<<deviceBufferData._offset<<std::endl;
-
-        VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(*device, *deviceBufferData._buffer, &memRequirements);
-
-        ref_ptr<DeviceMemory> deviceMemory;
-        DeviceMemory::OptionalMemoryOffset reservedMemorySlot(false, 0);
-
-        for (auto& memoryFromPool : memoryPools)
-        {
-            if (!memoryFromPool->full() && memoryFromPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits)
-            {
-                reservedMemorySlot = memoryFromPool->reserve(deviceSize);
-                if (reservedMemorySlot.first)
-                {
-                    deviceMemory = memoryFromPool;
-                    break;
-                }
-            }
-        }
-
-        if (!deviceMemory)
-        {
-            VkDeviceSize minumumDeviceMemorySize = bufferPreferences.minimumBufferDeviceMemorySize;
-
-            // clamp to an aligned size
-            minumumDeviceMemorySize = ((minumumDeviceMemorySize + memRequirements.alignment - 1) / memRequirements.alignment) * memRequirements.alignment;
-
-            if (memRequirements.size < minumumDeviceMemorySize) memRequirements.size = minumumDeviceMemorySize;
-
-            deviceMemory = vsg::DeviceMemory::create(device, memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-            if (deviceMemory)
-            {
-                reservedMemorySlot = deviceMemory->reserve(deviceSize);
-                if (!deviceMemory->full())
-                {
-                    memoryPools.push_back(deviceMemory);
-                }
-            }
-        }
-        else
-        {
-            if (deviceMemory->full())
-            {
-                //std::cout<<"DeviceMemory is full "<<deviceMemory.get()<<std::endl;
-            }
-        }
-
-        if (!reservedMemorySlot.first)
-        {
-            std::cout<<"Completely Failed to space for MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") "<<std::endl;
-            return BufferData();
-        }
-
-        std::cout<<"Allocated new buffer, MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") "<<std::endl;
-        deviceBufferData._buffer->bind(deviceMemory, reservedMemorySlot.second);
+        deviceSize = minumumBufferSize;
     }
 
-    return deviceBufferData;
+    bufferData._buffer = vsg::Buffer::create(device, deviceSize, bufferUsageFlags, sharingMode);
+
+    Buffer::OptionalBufferOffset reservedBufferSlot = bufferData._buffer->reserve(totalSize, alignment);
+    bufferData._offset = reservedBufferSlot.second;
+    bufferData._range = totalSize;
+
+
+    std::cout<<name<<" : Created new Buffer "<<bufferData._buffer.get()<<" totalSize "<<totalSize<<" deviceSize = "<<deviceSize<<std::endl;
+
+    if (!bufferData._buffer->full())
+    {
+        std::cout<<name<<"  inserting new Buffer into Context.bufferPools"<<std::endl;
+        bufferPools.push_back(bufferData._buffer);
+    }
+
+    std::cout<<name<<" : bufferData._offset = "<<bufferData._offset<<std::endl;
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(*device, *bufferData._buffer, &memRequirements);
+
+    ref_ptr<DeviceMemory> deviceMemory;
+    DeviceMemory::OptionalMemoryOffset reservedMemorySlot(false, 0);
+
+    for (auto& memoryFromPool : memoryPools)
+    {
+        if (!memoryFromPool->full() && memoryFromPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits)
+        {
+            reservedMemorySlot = memoryFromPool->reserve(deviceSize);
+            if (reservedMemorySlot.first)
+            {
+                deviceMemory = memoryFromPool;
+                break;
+            }
+        }
+    }
+
+    if (!deviceMemory)
+    {
+        VkDeviceSize minumumDeviceMemorySize = bufferPreferences.minimumBufferDeviceMemorySize;
+
+        // clamp to an aligned size
+        minumumDeviceMemorySize = ((minumumDeviceMemorySize + memRequirements.alignment - 1) / memRequirements.alignment) * memRequirements.alignment;
+
+        if (memRequirements.size < minumumDeviceMemorySize) memRequirements.size = minumumDeviceMemorySize;
+
+        deviceMemory = vsg::DeviceMemory::create(device, memRequirements, memoryProperties); // VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        if (deviceMemory)
+        {
+            reservedMemorySlot = deviceMemory->reserve(deviceSize);
+            if (!deviceMemory->full())
+            {
+                memoryPools.push_back(deviceMemory);
+            }
+        }
+    }
+    else
+    {
+        if (deviceMemory->full())
+        {
+            std::cout<<name<<" : DeviceMemory is full "<<deviceMemory.get()<<std::endl;
+        }
+    }
+
+    if (!reservedMemorySlot.first)
+    {
+        std::cout<<name<<" : Completely Failed to space for MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") "<<std::endl;
+        return BufferData();
+    }
+
+    std::cout<<name<<" : Allocated new buffer, MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") "<<std::endl;
+    bufferData._buffer->bind(deviceMemory, reservedMemorySlot.second);
+
+    return bufferData;
 }
 
-MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryRequirements memRequirements)
+MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryRequirements memRequirements, VkMemoryPropertyFlags memoryProperties)
 {
     VkDeviceSize totalSize = memRequirements.size;
 
@@ -166,7 +171,7 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
         //std::cout<<"Creating new local DeviceMemory"<<std::endl;
         if (memRequirements.size < minumumDeviceMemorySize) memRequirements.size = minumumDeviceMemorySize;
 
-        deviceMemory = vsg::DeviceMemory::create(device, memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        deviceMemory = vsg::DeviceMemory::create(device, memRequirements, memoryProperties);
         if (deviceMemory)
         {
             reservedSlot = deviceMemory->reserve(totalSize);
@@ -191,12 +196,20 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
         return DeviceMemoryOffset();
     }
 
-    std::cout << "MemoryBufferPools::reserveMemory() allocated memory at " << reservedSlot.second << std::endl;
+    //std::cout << "MemoryBufferPools::reserveMemory() allocated memory at " << reservedSlot.second << std::endl;
     return MemoryBufferPools::DeviceMemoryOffset(deviceMemory, reservedSlot.second);
 }
 
 
-CompileTraversal::CompileTraversal()
+Context::Context(Device* in_device,  BufferPreferences bufferPreferences):
+    device(in_device),
+    deviceMemoryBufferPools("Device_MemoryBufferPool", device, bufferPreferences),
+    stagingMemoryBufferPools("Staging_MemoryBufferPool", device, bufferPreferences)
+{
+}
+
+CompileTraversal::CompileTraversal(Device* in_device,  BufferPreferences bufferPreferences):
+    context(in_device, bufferPreferences)
 {
 }
 

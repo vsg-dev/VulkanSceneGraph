@@ -406,10 +406,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             std::cout << "    " << type << "\t\t" << count << std::endl;
         }
 #endif
-        vsg::CompileTraversal compile;
-        compile.context.deviceMemoryBufferPools.device = window->device();
-        compile.context.deviceMemoryBufferPools.bufferPreferences = bufferPreferences;
-        compile.context.device = window->device();
+        vsg::CompileTraversal compile(device, bufferPreferences);
         compile.context.commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
         compile.context.renderPass = window->renderPass();
         compile.context.graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());

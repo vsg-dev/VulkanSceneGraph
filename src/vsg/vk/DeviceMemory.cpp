@@ -27,6 +27,7 @@ DeviceMemory::DeviceMemory(VkDeviceMemory deviceMemory, const VkMemoryRequiremen
     _allocator(allocator)
 {
     _availableMemory.insert(MemorySlot(memRequirements.size, 0));
+//std::cout<<"DeviceMemory::DeviceMemory() memRequirements.size = "<<memRequirements.size<<std::endl;
 }
 
 DeviceMemory::~DeviceMemory()

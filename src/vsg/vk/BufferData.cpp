@@ -20,6 +20,8 @@ using namespace vsg;
 
 BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
 {
+    std::cout<<"\nvsg::createBufferAndTransferData()"<<std::endl;
+
     //return BufferDataList();
 
     //std::cout<<"New vsg::createBufferAndTransferData()"<<std::endl;
@@ -63,14 +65,40 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
     VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage;
 
 
-    BufferData deviceBufferData = context.deviceMemoryBufferPools.reserveBufferData(totalSize, alignment, bufferUsageFlags, sharingMode);
+    BufferData deviceBufferData = context.deviceMemoryBufferPools.reserveBufferData(totalSize, alignment, bufferUsageFlags, sharingMode, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
+    //std::cout<<"deviceBufferData._buffer "<<deviceBufferData._buffer.get()<<", "<<deviceBufferData._offset<<", "<<deviceBufferData._range<<")"<<std::endl;
 
     // assign the buffer to the bufferData entries
     for (auto& bufferData : bufferDataList)
     {
         bufferData._buffer = deviceBufferData._buffer;
     }
+
+#define USE_STAGING_BUFFER_POOL 1
+
+
+#if USE_STAGING_BUFFER_POOL
+
+    BufferData stagingBufferData = context.stagingMemoryBufferPools.reserveBufferData(totalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    //std::cout<<"stagingBufferData._buffer "<<stagingBufferData._buffer.get()<<", "<<stagingBufferData._offset<<", "<<stagingBufferData._range<<")"<<std::endl;
+
+    ref_ptr<Buffer> stagingBuffer( stagingBufferData._buffer );
+    ref_ptr<DeviceMemory> stagingMemory( stagingBuffer->getDeviceMemory() );
+
+    if (!stagingMemory)
+    {
+        return BufferDataList();
+    }
+
+    void* buffer_data;
+    stagingMemory->map(stagingBufferData._offset, totalSize, 0, &buffer_data);
+    char* ptr = reinterpret_cast<char*>(buffer_data);
+
+    //std::cout<<"    buffer_data " <<buffer_data<<", stagingBufferData._offset="<<stagingBufferData._offset<<", "<<totalSize<< std::endl;
+
+#else
 
     ref_ptr<Buffer> stagingBuffer = vsg::Buffer::create(device, totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode);
     ref_ptr<DeviceMemory> stagingMemory = vsg::DeviceMemory::create(device, stagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
@@ -85,6 +113,10 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
     void* buffer_data;
     stagingMemory->map(0, totalSize, 0, &buffer_data);
     char* ptr = reinterpret_cast<char*>(buffer_data);
+
+    //std::cout<<"    buffer_data " <<buffer_data<<", offset="<<0<<", "<<totalSize<< std::endl;
+#endif
+
 
     for (size_t i = 0; i < dataList.size(); ++i)
     {
@@ -103,6 +135,20 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
         }
     }
 
+#if USE_STAGING_BUFFER_POOL
+
+    dispatchCommandsToQueue(device, context.commandPool, context.graphicsQueue, [&](VkCommandBuffer transferCommand) {
+        VkBufferCopy copyRegion = {};
+        copyRegion.srcOffset = stagingBufferData._offset;
+        copyRegion.dstOffset = deviceBufferData._offset;
+        copyRegion.size = totalSize;
+        vkCmdCopyBuffer(transferCommand, *stagingBufferData._buffer, *deviceBufferData._buffer, 1, &copyRegion);
+    });
+
+    stagingBufferData._buffer->release(stagingBufferData._offset, stagingBufferData._range);
+
+#else
+
     dispatchCommandsToQueue(device, context.commandPool, context.graphicsQueue, [&](VkCommandBuffer transferCommand) {
         VkBufferCopy copyRegion = {};
         copyRegion.srcOffset = 0;
@@ -110,6 +156,9 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
         copyRegion.size = totalSize;
         vkCmdCopyBuffer(transferCommand, *stagingBuffer, *deviceBufferData._buffer, 1, &copyRegion);
     });
+
+
+#endif
 
     return bufferDataList;
 }

@@ -50,6 +50,8 @@ namespace vsg
         using OptionalBufferOffset = std::pair<bool, VkDeviceSize>;
         OptionalBufferOffset reserve(VkDeviceSize size, VkDeviceSize alignment);
 
+        void release(VkDeviceSize offset, VkDeviceSize size);
+
         bool full() const { return _availableMemory.empty(); }
 
     protected:

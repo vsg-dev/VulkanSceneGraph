@@ -28,7 +28,8 @@ namespace vsg
     public:
         Context context;
 
-        UpdatePipeline() {}
+        UpdatePipeline(Device* device) :
+            context(device) {}
 
         void apply(vsg::BindGraphicsPipeline& bindPipeline)
         {
@@ -152,9 +153,8 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
         _viewport->getViewport().height = static_cast<float>(extent2D.height);
         _viewport->getScissor().extent = extent2D;
 
-        vsg::UpdatePipeline updatePipeline;
+        vsg::UpdatePipeline updatePipeline(commandBuffer->getDevice());
 
-        updatePipeline.context.device = commandBuffer->getDevice();
         updatePipeline.context.commandPool = commandBuffer->getCommandPool();
         updatePipeline.context.renderPass = renderPass;
         updatePipeline.context.viewport = _viewport;

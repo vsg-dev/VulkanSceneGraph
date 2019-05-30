@@ -26,6 +26,8 @@ using namespace vsg;
 //
 ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sampler)
 {
+    std::cout<<"\nvsg::transferImageData()"<<std::endl;
+
     if (!data)
     {
         return ImageData();
@@ -123,9 +125,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(*device, *textureImage, &memRequirements);
 
-    VkDeviceSize totalSize = memRequirements.size;
-
-    auto[deviceMemory, offset] = context.deviceMemoryBufferPools.reserveMemory(memRequirements);
+    auto[deviceMemory, offset] = context.deviceMemoryBufferPools.reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     if (!deviceMemory)
     {

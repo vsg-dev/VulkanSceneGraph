@@ -63,6 +63,9 @@ Buffer::OptionalBufferOffset Buffer::reserve(VkDeviceSize size, VkDeviceSize ali
 {
     if (full()) return OptionalBufferOffset(false, 0);
 
+    std::cout<<"Buffer::reserve("<<size<<", "<<alignment<<")  this = "<<this<<std::endl;
+
+
     auto itr = _availableMemory.lower_bound(size);
     while (itr != _availableMemory.end())
     {
@@ -78,26 +81,32 @@ Buffer::OptionalBufferOffset Buffer::reserve(VkDeviceSize size, VkDeviceSize ali
 
             _availableMemory.erase(itr);
 
-            //std::cout<<"size = "<<size<<", alignedEnd = "<<alignedEnd<<std::endl;
+            std::cout<<"Found slot, slotStart = "<<slotStart<<",  size = "<<alignedSize<<", alignedEnd = "<<alignedEnd<<std::endl;
 
             if (alignedEnd < slot.first)
             {
                 MemorySlot slotUnused(slotSize - alignedSize, alignedEnd);
                 _availableMemory.insert(slotUnused);
-                //std::cout<<"   slot unused position = " <<slotUnused.second<<" size = "<<slotUnused.first<<", "<<std::endl;
+                std::cout<<"   slot unused position = " <<slotUnused.second<<" size = "<<slotUnused.first<<", "<<std::endl;
             }
             else
             {
-                //std::cout<<"   slot completely used "<<_availableMemory.size()<<std::endl;
+                std::cout<<"   slot completely used,  availableMemory.size() = "<<_availableMemory.size()<<std::endl;
             }
             return OptionalBufferOffset(true, slot.second);
         }
         else
         {
-            std::cout << "Slot slotStart = " << slotStart << ", slotSize = " << slotSize << " not big enough once for request size = " << size << std::endl;
+            std::cout << "    Slot slotStart = " << slotStart << ", slotSize = " << slotSize << " not big enough once for request size = " << size << std::endl;
             ++itr;
         }
     }
 
     return OptionalBufferOffset(false, 0);
+}
+
+void Buffer::release(VkDeviceSize offset, VkDeviceSize size)
+{
+    std::cout<<"Buffer::release("<<offset<<", "<<size<<") this = "<<this<<std::endl;
+    _availableMemory.insert(MemorySlot(size, offset));
 }
