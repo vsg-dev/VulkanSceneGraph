@@ -407,7 +407,8 @@ void Viewer::compile(BufferPreferences bufferPreferences)
         }
 #endif
         vsg::CompileTraversal compile;
-        compile.context.bufferPreferences = bufferPreferences;
+        compile.context.deviceMemoryBufferPools.device = window->device();
+        compile.context.deviceMemoryBufferPools.bufferPreferences = bufferPreferences;
         compile.context.device = window->device();
         compile.context.commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
         compile.context.renderPass = window->renderPass();

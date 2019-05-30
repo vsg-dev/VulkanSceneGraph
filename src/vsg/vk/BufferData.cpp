@@ -62,103 +62,14 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
 
     VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage;
 
-    ref_ptr<Buffer> deviceBuffer;
-    Buffer::OptionalBufferOffset reservedBufferSlot(false, 0);
 
-    for (auto& bufferFromPool : context.deviceBufferPools)
-    {
-        if (!bufferFromPool->full() && bufferFromPool->usage() == bufferUsageFlags)
-        {
-            reservedBufferSlot = bufferFromPool->reserve(totalSize, alignment);
-            if (reservedBufferSlot.first)
-            {
-                deviceBuffer = bufferFromPool;
-                break;
-            }
-        }
-    }
+    BufferData deviceBufferData = context.deviceMemoryBufferPools.reserveBufferData(totalSize, alignment, bufferUsageFlags, sharingMode);
 
-    if (!deviceBuffer)
-    {
-        VkDeviceSize deviceSize = totalSize;
-
-        VkDeviceSize minumumBufferSize = context.bufferPreferences.minimumBufferSize;
-        if (deviceSize < minumumBufferSize)
-        {
-            deviceSize = minumumBufferSize;
-        }
-
-        deviceBuffer = vsg::Buffer::create(device, deviceSize, bufferUsageFlags, sharingMode);
-        // std::cout<<"Created new Buffer "<<deviceBuffer.get()<<" totalSize "<<totalSize<<" deviceSize = "<<deviceSize<<std::endl;
-
-        reservedBufferSlot = deviceBuffer->reserve(totalSize, alignment);
-        if (!deviceBuffer->full())
-        {
-            // std::cout<<"   inserting new Buffer into Context.bufferPools"<<std::endl;
-            context.deviceBufferPools.push_back(deviceBuffer);
-        }
-
-        //std::cout<<"   reservedBufferSlot.second = "<<reservedBufferSlot.second<<std::endl;
-
-        VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(*device, *deviceBuffer, &memRequirements);
-
-        ref_ptr<DeviceMemory> deviceMemory;
-        DeviceMemory::OptionalMemoryOffset reservedMemorySlot(false, 0);
-
-        for (auto& memoryFromPool : context.deviceMemoryPools)
-        {
-            if (!memoryFromPool->full() && memoryFromPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits)
-            {
-                reservedMemorySlot = memoryFromPool->reserve(deviceSize);
-                if (reservedMemorySlot.first)
-                {
-                    deviceMemory = memoryFromPool;
-                    break;
-                }
-            }
-        }
-
-        if (!deviceMemory)
-        {
-            VkDeviceSize minumumDeviceMemorySize = context.bufferPreferences.minimumBufferDeviceMemorySize;
-
-            // clamp to an aligned size
-            minumumDeviceMemorySize = ((minumumDeviceMemorySize + memRequirements.alignment - 1) / memRequirements.alignment) * memRequirements.alignment;
-
-            if (memRequirements.size < minumumDeviceMemorySize) memRequirements.size = minumumDeviceMemorySize;
-
-            deviceMemory = vsg::DeviceMemory::create(device, memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-            if (deviceMemory)
-            {
-                reservedMemorySlot = deviceMemory->reserve(deviceSize);
-                if (!deviceMemory->full())
-                {
-                    context.deviceMemoryPools.push_back(deviceMemory);
-                }
-            }
-        }
-        else
-        {
-            if (deviceMemory->full())
-            {
-                //std::cout<<"DeviceMemory is full "<<deviceMemory.get()<<std::endl;
-            }
-        }
-
-        if (!reservedMemorySlot.first)
-        {
-            std::cout << "vsg::createBufferAndTransferData(..) Failed to reserve slot" << std::endl;
-            return BufferDataList();
-        }
-
-        deviceBuffer->bind(deviceMemory, reservedMemorySlot.second);
-    }
 
     // assign the buffer to the bufferData entries
     for (auto& bufferData : bufferDataList)
     {
-        bufferData._buffer = deviceBuffer;
+        bufferData._buffer = deviceBufferData._buffer;
     }
 
     ref_ptr<Buffer> stagingBuffer = vsg::Buffer::create(device, totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode);
@@ -184,20 +95,20 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
     stagingMemory->unmap();
 
     // shift the offsets if we are not writing to the start of the deviceBuffer.
-    if (reservedBufferSlot.second > 0)
+    if (deviceBufferData._offset > 0)
     {
         for (auto& bufferData : bufferDataList)
         {
-            bufferData._offset += reservedBufferSlot.second;
+            bufferData._offset += deviceBufferData._offset;
         }
     }
 
     dispatchCommandsToQueue(device, context.commandPool, context.graphicsQueue, [&](VkCommandBuffer transferCommand) {
         VkBufferCopy copyRegion = {};
         copyRegion.srcOffset = 0;
-        copyRegion.dstOffset = reservedBufferSlot.second;
+        copyRegion.dstOffset = deviceBufferData._offset;
         copyRegion.size = totalSize;
-        vkCmdCopyBuffer(transferCommand, *stagingBuffer, *deviceBuffer, 1, &copyRegion);
+        vkCmdCopyBuffer(transferCommand, *stagingBuffer, *deviceBufferData._buffer, 1, &copyRegion);
     });
 
     return bufferDataList;
