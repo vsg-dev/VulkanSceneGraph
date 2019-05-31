@@ -123,6 +123,7 @@ ShaderModule::Implementation::Result ShaderModule::Implementation::create(Device
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.codeSize = shaderModule->spirv().size() * sizeof(ShaderModule::SPIRV::value_type);
     createInfo.pCode = shaderModule->spirv().data();
+    createInfo.pNext = nullptr;
 
     VkShaderModule sm;
     VkResult result = vkCreateShaderModule(*device, &createInfo, allocator, &sm);

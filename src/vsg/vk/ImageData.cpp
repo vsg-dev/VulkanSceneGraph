@@ -108,6 +108,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    imageCreateInfo.pNext = nullptr;
 
     if (generatMipmaps)
     {
@@ -397,6 +398,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     createInfo.subresourceRange.levelCount = mipLevels;
     createInfo.subresourceRange.baseArrayLayer = 0;
     createInfo.subresourceRange.layerCount = 1;
+    createInfo.pNext = nullptr;
 
     ref_ptr<ImageView> textureImageView = ImageView::create(device, createInfo);
     if (textureImageView) textureImageView->setImage(textureImage);

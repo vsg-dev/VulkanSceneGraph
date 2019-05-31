@@ -147,6 +147,7 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     depthImageCreateInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
     depthImageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     depthImageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    depthImageCreateInfo.pNext = nullptr;
 
     _depthImage = Image::create(_device, depthImageCreateInfo);
     _depthImageMemory = DeviceMemory::create(_device, _depthImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
