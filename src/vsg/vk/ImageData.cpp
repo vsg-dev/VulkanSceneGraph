@@ -26,7 +26,7 @@ using namespace vsg;
 //
 ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sampler)
 {
-    std::cout<<"\nvsg::transferImageData()"<<std::endl;
+    // std::cout<<"\nvsg::transferImageData()"<<std::endl;
 
     if (!data)
     {

@@ -70,5 +70,9 @@ namespace vsg
         using MemorySlots = std::multimap<VkDeviceSize, VkDeviceSize>;
         using MemorySlot = MemorySlots::value_type;
         MemorySlots _availableMemory;
+
+        using OffsetSizes = std::map<VkDeviceSize, VkDeviceSize>;
+        using OffsetSize = OffsetSizes::value_type;
+        OffsetSizes _offsetSizes;
     };
 } // namespace vsg

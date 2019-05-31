@@ -50,13 +50,13 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
                 bufferData._offset = reservedBufferSlot.second;
                 bufferData._range = totalSize;
 
-                std::cout<<name<<" : MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") _offset = "<<bufferData._offset<<std::endl;
+                // std::cout<<name<<" : MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") _offset = "<<bufferData._offset<<std::endl;
 
                 return bufferData;
             }
         }
     }
-    std::cout<<name<<" : Failed to space in existing buffers with  MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") bufferPools.size() = "<<bufferPools.size()<<" looking to allocated new Buffer."<<std::endl;
+    // std::cout<<name<<" : Failed to space in existing buffers with  MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") bufferPools.size() = "<<bufferPools.size()<<" looking to allocated new Buffer."<<std::endl;
 
     VkDeviceSize deviceSize = totalSize;
 
@@ -73,15 +73,15 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
     bufferData._range = totalSize;
 
 
-    std::cout<<name<<" : Created new Buffer "<<bufferData._buffer.get()<<" totalSize "<<totalSize<<" deviceSize = "<<deviceSize<<std::endl;
+    // std::cout<<name<<" : Created new Buffer "<<bufferData._buffer.get()<<" totalSize "<<totalSize<<" deviceSize = "<<deviceSize<<std::endl;
 
     if (!bufferData._buffer->full())
     {
-        std::cout<<name<<"  inserting new Buffer into Context.bufferPools"<<std::endl;
+        // std::cout<<name<<"  inserting new Buffer into Context.bufferPools"<<std::endl;
         bufferPools.push_back(bufferData._buffer);
     }
 
-    std::cout<<name<<" : bufferData._offset = "<<bufferData._offset<<std::endl;
+    // std::cout<<name<<" : bufferData._offset = "<<bufferData._offset<<std::endl;
 
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(*device, *bufferData._buffer, &memRequirements);
@@ -131,11 +131,11 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
 
     if (!reservedMemorySlot.first)
     {
-        std::cout<<name<<" : Completely Failed to space for MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") "<<std::endl;
+        // std::cout<<name<<" : Completely Failed to space for MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") "<<std::endl;
         return BufferData();
     }
 
-    std::cout<<name<<" : Allocated new buffer, MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") "<<std::endl;
+    // std::cout<<name<<" : Allocated new buffer, MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") "<<std::endl;
     bufferData._buffer->bind(deviceMemory, reservedMemorySlot.second);
 
     return bufferData;

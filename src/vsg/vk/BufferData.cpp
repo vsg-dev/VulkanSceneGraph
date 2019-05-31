@@ -20,7 +20,7 @@ using namespace vsg;
 
 BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
 {
-    std::cout<<"\nvsg::createBufferAndTransferData()"<<std::endl;
+    //std::cout<<"\nvsg::createBufferAndTransferData()"<<std::endl;
 
     //return BufferDataList();
 
