@@ -37,10 +37,6 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
     VkDeviceSize imageTotalSize = data->dataSize();
 
-#define USE_STAGING_BUFFER_POOL 1
-
-#if USE_STAGING_BUFFER_POOL
-
     VkDeviceSize alignment = 4;
     BufferData stagingBufferData = context.stagingMemoryBufferPools.reserveBufferData(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
@@ -58,17 +54,6 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     // copy image data to staging memory
     imageStagingMemory->copy(imageStagingBuffer->getMemoryOffset() + bufferOffset, imageTotalSize, data->dataPointer());
 
-#else
-
-    ref_ptr<Buffer> imageStagingBuffer = Buffer::create(device, imageTotalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    ref_ptr<DeviceMemory> imageStagingMemory = DeviceMemory::create(device, imageStagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    imageStagingBuffer->bind(imageStagingMemory, 0);
-    VkDeviceSize bufferOffset = 0;
-
-    // copy image data to staging memory
-    imageStagingMemory->copy(0, imageTotalSize, data->dataPointer());
-
-#endif
 
     uint32_t mipLevels = sampler != nullptr ? sampler->info().maxLod : 1;
     if (mipLevels == 0)
@@ -351,9 +336,8 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
             postCopyImageMemoryBarrier.cmdPiplineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
         });
     }
-#if USE_STAGING_BUFFER_POOL
+
     stagingBufferData._buffer->release(stagingBufferData._offset, stagingBufferData._range);
-#endif
 
     // clean up staging buffer
     imageStagingBuffer = 0;
