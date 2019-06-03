@@ -34,6 +34,8 @@ namespace vsg
         DeviceMemory* getDeviceMemory() { return _deviceMemory; }
         const DeviceMemory* getDeviceMemory() const { return _deviceMemory; }
 
+        VkDeviceSize getMemoryOffset() const { return _memoryOffset; }
+
         VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
         {
             VkResult result = vkBindBufferMemory(*_device, _buffer, *deviceMemory, memoryOffset);

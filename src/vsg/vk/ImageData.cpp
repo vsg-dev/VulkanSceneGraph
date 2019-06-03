@@ -37,12 +37,38 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
     VkDeviceSize imageTotalSize = data->dataSize();
 
+#define USE_STAGING_BUFFER_POOL 1
+
+#if USE_STAGING_BUFFER_POOL
+
+    VkDeviceSize alignment = 4;
+    BufferData stagingBufferData = context.stagingMemoryBufferPools.reserveBufferData(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    //std::cout<<"stagingBufferData._buffer "<<stagingBufferData._buffer.get()<<", "<<stagingBufferData._offset<<", "<<stagingBufferData._range<<")"<<std::endl;
+
+    ref_ptr<Buffer> imageStagingBuffer( stagingBufferData._buffer );
+    ref_ptr<DeviceMemory> imageStagingMemory( imageStagingBuffer->getDeviceMemory() );
+    VkDeviceSize bufferOffset = stagingBufferData._offset;
+
+    if (!imageStagingMemory)
+    {
+        return ImageData();
+    }
+
+    // copy image data to staging memory
+    imageStagingMemory->copy(imageStagingBuffer->getMemoryOffset() + bufferOffset, imageTotalSize, data->dataPointer());
+
+#else
+
     ref_ptr<Buffer> imageStagingBuffer = Buffer::create(device, imageTotalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE);
     ref_ptr<DeviceMemory> imageStagingMemory = DeviceMemory::create(device, imageStagingBuffer, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     imageStagingBuffer->bind(imageStagingMemory, 0);
+    VkDeviceSize bufferOffset = 0;
 
     // copy image data to staging memory
     imageStagingMemory->copy(0, imageTotalSize, data->dataPointer());
+
+#endif
 
     uint32_t mipLevels = sampler != nullptr ? sampler->info().maxLod : 1;
     if (mipLevels == 0)
@@ -153,7 +179,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
             for (uint32_t mipLevel = 0; mipLevel < mipLevels; ++mipLevel)
             {
                 VkBufferImageCopy region = {};
-                region.bufferOffset = mipmapOffsets[mipLevel] * valueSize;
+                region.bufferOffset = bufferOffset + mipmapOffsets[mipLevel] * valueSize;
                 region.bufferRowLength = 0;
                 region.bufferImageHeight = 0;
                 region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -204,7 +230,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
                                  1, &preCopyBarrier);
 
             VkBufferImageCopy region = {};
-            region.bufferOffset = 0;
+            region.bufferOffset = bufferOffset;
             region.bufferRowLength = 0;
             region.bufferImageHeight = 0;
             region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -305,7 +331,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
             preCopyImageMemoryBarrier.cmdPiplineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
 
             VkBufferImageCopy region = {};
-            region.bufferOffset = 0;
+            region.bufferOffset = bufferOffset;
             region.bufferRowLength = 0;
             region.bufferImageHeight = 0;
             region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -325,6 +351,9 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
             postCopyImageMemoryBarrier.cmdPiplineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
         });
     }
+#if USE_STAGING_BUFFER_POOL
+    stagingBufferData._buffer->release(stagingBufferData._offset, stagingBufferData._range);
+#endif
 
     // clean up staging buffer
     imageStagingBuffer = 0;

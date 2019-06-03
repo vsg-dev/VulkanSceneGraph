@@ -93,7 +93,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
     }
 
     void* buffer_data;
-    stagingMemory->map(stagingBufferData._offset, totalSize, 0, &buffer_data);
+    stagingMemory->map(stagingBuffer->getMemoryOffset() + stagingBufferData._offset, totalSize, 0, &buffer_data);
     char* ptr = reinterpret_cast<char*>(buffer_data);
 
     //std::cout<<"    buffer_data " <<buffer_data<<", stagingBufferData._offset="<<stagingBufferData._offset<<", "<<totalSize<< std::endl;
