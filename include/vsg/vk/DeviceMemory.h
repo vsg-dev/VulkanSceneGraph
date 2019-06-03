@@ -22,6 +22,30 @@ namespace vsg
     class Buffer;
     class Image;
 
+    class VSG_DECLSPEC MemorySlots
+    {
+    public:
+        MemorySlots(VkDeviceSize availableMemorySize);
+
+        using OptionalOffset = std::pair<bool, VkDeviceSize>;
+        OptionalOffset reserve(VkDeviceSize size, VkDeviceSize alignment);
+
+        void release(VkDeviceSize offset, VkDeviceSize size);
+
+        bool full() const { return _availableMemory.empty(); }
+
+    protected:
+
+        using SizeOffsets = std::multimap<VkDeviceSize, VkDeviceSize>;
+        using SizeOffset = SizeOffsets::value_type;
+        SizeOffsets _availableMemory;
+
+        using OffsetSizes = std::map<VkDeviceSize, VkDeviceSize>;
+        using OffsetSize = OffsetSizes::value_type;
+        OffsetSizes _offsetSizes;
+    };
+
+
     class VSG_DECLSPEC DeviceMemory : public Inherit<Object, DeviceMemory>
     {
     public:
@@ -44,10 +68,9 @@ namespace vsg
 
         const VkMemoryRequirements& getMemoryRequirements() { return _memoryRequirements; }
 
-        using OptionalMemoryOffset = std::pair<bool, VkDeviceSize>;
-        OptionalMemoryOffset reserve(VkDeviceSize size);
-
-        bool full() const { return _availableMemory.empty(); }
+        MemorySlots::OptionalOffset reserve(VkDeviceSize size) { return _memorySlots.reserve(size, _memoryRequirements.alignment); }
+        void release(VkDeviceSize offset, VkDeviceSize size) { _memorySlots.release(offset, size); }
+        bool full() const { return _memorySlots.full(); }
 
     protected:
         virtual ~DeviceMemory();
@@ -57,9 +80,7 @@ namespace vsg
         ref_ptr<Device> _device;
         ref_ptr<AllocationCallbacks> _allocator;
 
-        using MemorySlots = std::multimap<VkDeviceSize, VkDeviceSize>;
-        using MemorySlot = MemorySlots::value_type;
-        MemorySlots _availableMemory;
+        MemorySlots _memorySlots;
     };
 
     template<class T>

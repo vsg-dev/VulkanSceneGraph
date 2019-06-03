@@ -43,7 +43,7 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
     {
         if (!bufferFromPool->full() && bufferFromPool->usage() == bufferUsageFlags)
         {
-            Buffer::OptionalBufferOffset reservedBufferSlot = bufferFromPool->reserve(totalSize, alignment);
+            MemorySlots::OptionalOffset reservedBufferSlot = bufferFromPool->reserve(totalSize, alignment);
             if (reservedBufferSlot.first)
             {
                 bufferData._buffer = bufferFromPool;
@@ -68,7 +68,7 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
 
     bufferData._buffer = vsg::Buffer::create(device, deviceSize, bufferUsageFlags, sharingMode);
 
-    Buffer::OptionalBufferOffset reservedBufferSlot = bufferData._buffer->reserve(totalSize, alignment);
+    MemorySlots::OptionalOffset reservedBufferSlot = bufferData._buffer->reserve(totalSize, alignment);
     bufferData._offset = reservedBufferSlot.second;
     bufferData._range = totalSize;
 
@@ -87,7 +87,7 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
     vkGetBufferMemoryRequirements(*device, *bufferData._buffer, &memRequirements);
 
     ref_ptr<DeviceMemory> deviceMemory;
-    DeviceMemory::OptionalMemoryOffset reservedMemorySlot(false, 0);
+    MemorySlots::OptionalOffset reservedMemorySlot(false, 0);
 
     for (auto& memoryFromPool : memoryPools)
     {
@@ -146,7 +146,7 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
     VkDeviceSize totalSize = memRequirements.size;
 
     ref_ptr<DeviceMemory> deviceMemory;
-    DeviceMemory::OptionalMemoryOffset reservedSlot(false, 0);
+    MemorySlots::OptionalOffset reservedSlot(false, 0);
 
     for (auto& memoryPool : memoryPools)
     {
