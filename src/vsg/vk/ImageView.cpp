@@ -56,6 +56,7 @@ ImageView::Result ImageView::create(Device* device, VkImage image, VkImageViewTy
     createInfo.subresourceRange.levelCount = 1;
     createInfo.subresourceRange.baseArrayLayer = 0;
     createInfo.subresourceRange.layerCount = 1;
+    createInfo.pNext = nullptr;
 
     return create(device, createInfo, allocator);
 }
@@ -72,6 +73,7 @@ ImageView::Result ImageView::create(Device* device, Image* image, VkImageViewTyp
     createInfo.subresourceRange.levelCount = 1;
     createInfo.subresourceRange.baseArrayLayer = 0;
     createInfo.subresourceRange.layerCount = 1;
+    createInfo.pNext = nullptr;
 
     Result result = create(device, createInfo, allocator);
     if (result) result.object()->setImage(image);

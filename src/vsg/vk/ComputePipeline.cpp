@@ -92,12 +92,14 @@ ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(
     stageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
     stageInfo.module = *shaderModule;
     stageInfo.pName = shaderModule->entryPointName().c_str();
+    stageInfo.pNext = nullptr;
 
     VkComputePipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
     pipelineInfo.layout = *pipelineLayout;
     pipelineInfo.stage = stageInfo;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+    pipelineInfo.pNext = nullptr;
 
     VkPipeline pipeline;
     VkResult result = vkCreateComputePipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &pipeline);

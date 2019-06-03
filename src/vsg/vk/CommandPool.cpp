@@ -42,6 +42,7 @@ CommandPool::Result CommandPool::create(Device* device, uint32_t queueFamilyInde
     //poolInfo.flags = 0;
     poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
     //poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+    poolInfo.pNext = nullptr;
 
     VkCommandPool commandPool;
     VkResult result = vkCreateCommandPool(*device, &poolInfo, allocator, &commandPool);
