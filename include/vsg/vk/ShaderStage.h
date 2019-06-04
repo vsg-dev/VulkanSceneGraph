@@ -42,7 +42,7 @@ namespace vsg
 
         using SpecializationMapEntries = std::vector<VkSpecializationMapEntry>;
 
-        void setSpecializationMapEntryies(const SpecializationMapEntries& sme) { _specializationMapEntries = sme; }
+        void setSpecializationMapEntries(const SpecializationMapEntries& sme) { _specializationMapEntries = sme; }
         SpecializationMapEntries& getSpecializationMapEntries() { return _specializationMapEntries; }
         const SpecializationMapEntries& getSpecializationMapEntries() const { return _specializationMapEntries; }
 
