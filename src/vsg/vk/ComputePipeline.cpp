@@ -25,9 +25,9 @@ ComputePipeline::ComputePipeline()
 {
 }
 
-ComputePipeline::ComputePipeline(PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator) :
+ComputePipeline::ComputePipeline(PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator) :
     _pipelineLayout(pipelineLayout),
-    _shaderModule(shaderModule),
+    _shaderStage(shaderStage),
     _allocator(allocator)
 {
 }
@@ -41,7 +41,7 @@ void ComputePipeline::read(Input& input)
     Object::read(input);
 
     _pipelineLayout = input.readObject<PipelineLayout>("PipelineLayout");
-    _shaderModule = input.readObject<ShaderModule>("ShaderModule");
+    _shaderStage = input.readObject<ShaderStage>("ShaderStage");
 }
 
 void ComputePipeline::write(Output& output) const
@@ -49,7 +49,7 @@ void ComputePipeline::write(Output& output) const
     Object::write(output);
 
     output.writeObject("PipelineLayout", _pipelineLayout.get());
-    output.writeObject("ShaderModule", _shaderModule.get());
+    output.writeObject("ShaderStage", _shaderStage.get());
 }
 
 void ComputePipeline::compile(Context& context)
@@ -57,8 +57,8 @@ void ComputePipeline::compile(Context& context)
     if (!_implementation)
     {
         _pipelineLayout->compile(context);
-        _shaderModule->compile(context);
-        _implementation = ComputePipeline::Implementation::create(context.device, _pipelineLayout, _shaderModule, _allocator);
+        _shaderStage->compile(context);
+        _implementation = ComputePipeline::Implementation::create(context.device, _pipelineLayout, _shaderStage, _allocator);
     }
 }
 
@@ -66,11 +66,11 @@ void ComputePipeline::compile(Context& context)
 //
 // ComputePipeline::Implementation
 //
-ComputePipeline::Implementation::Implementation(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator) :
+ComputePipeline::Implementation::Implementation(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator) :
     _pipeline(pipeline),
     _device(device),
     _pipelineLayout(pipelineLayout),
-    _shaderModule(shaderModule),
+    _shaderStage(shaderStage),
     _allocator(allocator)
 {
 }
@@ -80,18 +80,15 @@ ComputePipeline::Implementation::~Implementation()
     vkDestroyPipeline(*_device, _pipeline, _allocator);
 }
 
-ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator)
+ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator)
 {
-    if (!device || !pipelineLayout || !shaderModule)
+    if (!device || !pipelineLayout || !shaderStage)
     {
-        return Result("Error: vsg::ComputePipeline::create(...) failed to create compute pipeline, undefined device, pipelinLayout or shaderModule.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return Result("Error: vsg::ComputePipeline::create(...) failed to create compute pipeline, undefined device, pipelinLayout or shaderStage.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     VkPipelineShaderStageCreateInfo stageInfo = {};
-    stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    stageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
-    stageInfo.module = *shaderModule;
-    stageInfo.pName = shaderModule->entryPointName().c_str();
+    shaderStage->apply(stageInfo);
 
     VkComputePipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
@@ -103,7 +100,7 @@ ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(
     VkResult result = vkCreateComputePipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &pipeline);
     if (result == VK_SUCCESS)
     {
-        return Result(new ComputePipeline::Implementation(pipeline, device, pipelineLayout, shaderModule, allocator));
+        return Result(new ComputePipeline::Implementation(pipeline, device, pipelineLayout, shaderStage, allocator));
     }
     else
     {

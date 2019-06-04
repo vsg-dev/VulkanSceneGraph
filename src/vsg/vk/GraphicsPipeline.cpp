@@ -25,8 +25,9 @@ GraphicsPipeline::GraphicsPipeline()
 {
 }
 
-GraphicsPipeline::GraphicsPipeline(PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator) :
+GraphicsPipeline::GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator) :
     _pipelineLayout(pipelineLayout),
+    _shaderStages(shaderStages),
     _pipelineStates(pipelineStates),
     _allocator(allocator)
 {
@@ -42,6 +43,12 @@ void GraphicsPipeline::read(Input& input)
 
     _pipelineLayout = input.readObject<PipelineLayout>("PipelineLayout");
 
+    _shaderStages.resize(input.readValue<uint32_t>("NumShaderStages"));
+    for (auto& shaderStage : _shaderStages)
+    {
+        shaderStage = input.readObject<ShaderStage>("ShaderStage");
+    }
+
     _pipelineStates.resize(input.readValue<uint32_t>("NumPipelineStates"));
     for (auto& pipelineState : _pipelineStates)
     {
@@ -54,6 +61,12 @@ void GraphicsPipeline::write(Output& output) const
     Object::write(output);
 
     output.writeObject("PipelineLayout", _pipelineLayout.get());
+
+    output.writeValue<uint32_t>("NumShaderStages", _shaderStages.size());
+    for (auto& shaderStage : _shaderStages)
+    {
+        output.writeObject("ShaderStage", shaderStage.get());
+    }
 
     output.writeValue<uint32_t>("NumPipelineStates", _pipelineStates.size());
     for (auto& pipelineState : _pipelineStates)
@@ -68,6 +81,11 @@ void GraphicsPipeline::compile(Context& context)
     {
         _pipelineLayout->compile(context);
 
+        for (auto& shaderStage : _shaderStages)
+        {
+            shaderStage->compile(context);
+        }
+
         for (auto& pipelineState : _pipelineStates)
         {
             pipelineState->compile(context);
@@ -76,7 +94,7 @@ void GraphicsPipeline::compile(Context& context)
         GraphicsPipelineStates full_pipelineStates = _pipelineStates;
         full_pipelineStates.emplace_back(context.viewport);
 
-        _implementation = GraphicsPipeline::Implementation::create(context.device, context.renderPass, _pipelineLayout, full_pipelineStates, _allocator);
+        _implementation = GraphicsPipeline::Implementation::create(context.device, context.renderPass, _pipelineLayout, _shaderStages, full_pipelineStates, _allocator);
     }
 }
 
@@ -84,17 +102,18 @@ void GraphicsPipeline::compile(Context& context)
 //
 // GraphicsPipeline::Implementation
 //
-GraphicsPipeline::Implementation::Implementation(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator) :
+GraphicsPipeline::Implementation::Implementation(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator) :
     _pipeline(pipeline),
     _device(device),
     _renderPass(renderPass),
     _pipelineLayout(pipelineLayout),
+    _shaderStages(shaderStages),
     _pipelineStates(pipelineStates),
     _allocator(allocator)
 {
 }
 
-GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator)
+GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator)
 {
     if (!device || !renderPass || !pipelineLayout)
     {
@@ -108,6 +127,15 @@ GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::creat
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
+    std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfo(shaderStages.size());
+    for(size_t i = 0; i < shaderStages.size(); ++i)
+    {
+        shaderStages[i]->apply(shaderStageCreateInfo[i]);
+    }
+
+    pipelineInfo.stageCount = shaderStageCreateInfo.size();
+    pipelineInfo.pStages = shaderStageCreateInfo.data();
+
     for (auto pipelineState : pipelineStates)
     {
         pipelineState->apply(pipelineInfo);
@@ -117,7 +145,7 @@ GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::creat
     VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &pipeline);
     if (result == VK_SUCCESS)
     {
-        return Result(new Implementation(pipeline, device, renderPass, pipelineLayout, pipelineStates, allocator));
+        return Result(new Implementation(pipeline, device, renderPass, pipelineLayout, shaderStages, pipelineStates, allocator));
     }
     else
     {
@@ -172,76 +200,6 @@ void BindGraphicsPipeline::compile(Context& context)
 void BindGraphicsPipeline::release()
 {
     if (_pipeline) _pipeline->release();
-}
-
-////////////////////////////////////////////////////////////////////////
-//
-// ShaderStages
-//
-ShaderStages::ShaderStages()
-{
-}
-
-ShaderStages::ShaderStages(const ShaderModules& shaderModules)
-{
-    setShaderModules(shaderModules);
-}
-
-ShaderStages::~ShaderStages()
-{
-}
-
-void ShaderStages::read(Input& input)
-{
-    Object::read(input);
-
-    _shaderModules.resize(input.readValue<uint32_t>("NumShaderModule"));
-    for (auto& shaderModule : _shaderModules)
-    {
-        shaderModule = input.readObject<ShaderModule>("ShaderModule");
-    }
-}
-
-void ShaderStages::write(Output& output) const
-{
-    Object::write(output);
-
-    output.writeValue<uint32_t>("NumShaderModule", _shaderModules.size());
-    for (auto& shaderModule : _shaderModules)
-    {
-        output.writeObject("ShaderModule", shaderModule.get());
-    }
-}
-
-void ShaderStages::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
-{
-    pipelineInfo.stageCount = static_cast<uint32_t>(size());
-    pipelineInfo.pStages = data();
-}
-
-void ShaderStages::compile(Context& context)
-{
-    _stages.resize(_shaderModules.size());
-    for (size_t i = 0; i < _shaderModules.size(); ++i)
-    {
-        VkPipelineShaderStageCreateInfo& stageInfo = (_stages)[i];
-        ShaderModule* sm = _shaderModules[i];
-        sm->compile(context);
-        stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        stageInfo.stage = sm->stage();
-        stageInfo.module = *sm;
-        stageInfo.pName = sm->entryPointName().c_str();
-    }
-}
-
-void ShaderStages::release()
-{
-    for (auto& shaderModules : _shaderModules)
-    {
-        shaderModules->release();
-    }
-
-    _stages.clear();
 }
 
 ////////////////////////////////////////////////////////////////////////

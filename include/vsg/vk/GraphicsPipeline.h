@@ -15,7 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Command.h>
 #include <vsg/vk/PipelineLayout.h>
 #include <vsg/vk/RenderPass.h>
-#include <vsg/vk/ShaderModule.h>
+#include <vsg/vk/ShaderStage.h>
 
 namespace vsg
 {
@@ -47,7 +47,7 @@ namespace vsg
     public:
         GraphicsPipeline();
 
-        GraphicsPipeline(PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
+        GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -55,19 +55,22 @@ namespace vsg
         PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
         const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
 
+        ShaderStages& getShaderStages() { return _shaderStages; }
+        const ShaderStages& getShaderStages() const { return _shaderStages; }
+
         GraphicsPipelineStates& getPipelineStates() { return _pipelineStates; }
         const GraphicsPipelineStates& getPipelineStates() const { return _pipelineStates; }
 
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
         public:
-            Implementation(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
+            Implementation(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
             virtual ~Implementation();
 
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
             /** Create a GraphicsPipeline.*/
-            static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
+            static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
 
             VkPipeline _pipeline;
 
@@ -75,6 +78,7 @@ namespace vsg
             ref_ptr<Device> _device;
             ref_ptr<RenderPass> _renderPass;
             ref_ptr<PipelineLayout> _pipelineLayout;
+            ShaderStages _shaderStages;
             GraphicsPipelineStates _pipelineStates;
             ref_ptr<AllocationCallbacks> _allocator;
         };
@@ -97,6 +101,7 @@ namespace vsg
         ref_ptr<Device> _device;
         ref_ptr<RenderPass> _renderPass;
         ref_ptr<PipelineLayout> _pipelineLayout;
+        ShaderStages _shaderStages;
         GraphicsPipelineStates _pipelineStates;
         ref_ptr<AllocationCallbacks> _allocator;
 
@@ -130,45 +135,6 @@ namespace vsg
     };
     VSG_type_name(vsg::BindGraphicsPipeline);
 
-    class VSG_DECLSPEC ShaderStages : public Inherit<GraphicsPipelineState, ShaderStages>
-    {
-    public:
-        ShaderStages();
-        ShaderStages(const ShaderModules& shaderModules);
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        VkStructureType getType() const override { return VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO; }
-
-        void setShaderModules(const ShaderModules& shaderModules)
-        {
-            _shaderModules = shaderModules;
-        }
-        const ShaderModules& getShaderModules() const { return _shaderModules; }
-
-        std::size_t size() const { return _stages.size(); }
-
-        VkPipelineShaderStageCreateInfo* data() { return _stages.data(); }
-        const VkPipelineShaderStageCreateInfo* data() const { return _stages.data(); }
-
-        void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
-
-        // compile the Vulkan object, context parameter used for Device
-        void compile(Context& context) override;
-
-        // remove the local reference to the Vulkan implementation
-        void release() override;
-
-    protected:
-        virtual ~ShaderStages();
-
-        ShaderModules _shaderModules;
-
-        using Stages = std::vector<VkPipelineShaderStageCreateInfo>;
-        Stages _stages;
-    };
-    VSG_type_name(vsg::ShaderStages);
 
     class VSG_DECLSPEC VertexInputState : public Inherit<GraphicsPipelineState, VertexInputState>, public VkPipelineVertexInputStateCreateInfo
     {
