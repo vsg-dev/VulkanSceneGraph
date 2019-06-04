@@ -87,8 +87,21 @@ ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(
         return Result("Error: vsg::ComputePipeline::create(...) failed to create compute pipeline, undefined device, pipelinLayout or shaderStage.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
+    VkSpecializationInfo specializationInfo = {};
     VkPipelineShaderStageCreateInfo stageInfo = {};
     shaderStage->apply(stageInfo);
+
+    if (!shaderStage->getSpecializationMapEntries().empty() && shaderStage->getSpecializationData()!=nullptr)
+    {
+        // assign a VkSpecializationInfo for this shaderStageCreateInfo
+        stageInfo.pSpecializationInfo = &specializationInfo;
+
+        // assign the values from the ShaderStage into the specializationInfo
+        specializationInfo.mapEntryCount = shaderStage->getSpecializationMapEntries().size();
+        specializationInfo.pMapEntries = shaderStage->getSpecializationMapEntries().data();
+        specializationInfo.dataSize = shaderStage->getSpecializationData()->dataSize();
+        specializationInfo.pData = shaderStage->getSpecializationData()->dataPointer();
+    }
 
     VkComputePipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
