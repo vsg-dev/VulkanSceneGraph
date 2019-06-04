@@ -127,10 +127,25 @@ GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::creat
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
+    // need to allocate VkSpecializationInfo where required.
+    std::vector<VkSpecializationInfo> specializationInfos(shaderStages.size());
     std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfo(shaderStages.size());
     for(size_t i = 0; i < shaderStages.size(); ++i)
     {
-        shaderStages[i]->apply(shaderStageCreateInfo[i]);
+        const ShaderStage* shaderStage = shaderStages[i];
+        shaderStage->apply(shaderStageCreateInfo[i]);
+        if (!shaderStage->getSpecializationMapEntries().empty() && shaderStage->getSpecializationData()!=nullptr)
+        {
+            // assign a VkSpecializationInfo for this shaderStageCreateInfo
+            VkSpecializationInfo& specializationInfo = specializationInfos[i];
+            shaderStageCreateInfo[i].pSpecializationInfo = &specializationInfo;
+
+            // assign the values from the ShaderStage into the specializationInfo
+            specializationInfo.mapEntryCount = shaderStage->getSpecializationMapEntries().size();
+            specializationInfo.pMapEntries = shaderStage->getSpecializationMapEntries().data();
+            specializationInfo.dataSize = shaderStage->getSpecializationData()->dataSize();
+            specializationInfo.pData = shaderStage->getSpecializationData()->dataPointer();
+        }
     }
 
     pipelineInfo.stageCount = shaderStageCreateInfo.size();
