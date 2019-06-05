@@ -70,6 +70,7 @@ Sampler::Result Sampler::create(Device* device, AllocationCallbacks* allocator)
     samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;
     samplerInfo.compareEnable = VK_FALSE;
+    samplerInfo.pNext = nullptr;
 
     return create(device, samplerInfo, allocator);
 }

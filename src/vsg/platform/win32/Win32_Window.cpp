@@ -55,6 +55,7 @@ namespace vsgWin32
             surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
             surfaceCreateInfo.hinstance = ::GetModuleHandle(NULL);
             surfaceCreateInfo.hwnd = window;
+            surfaceCreateInfo.pNext = nullptr;
 
             auto result = vkCreateWin32SurfaceKHR(*instance, &surfaceCreateInfo, nullptr, &_surface);
         }

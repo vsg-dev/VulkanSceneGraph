@@ -47,6 +47,7 @@ DescriptorPool::Result DescriptorPool::create(Device* device, uint32_t maxSets, 
     poolInfo.pPoolSizes = descriptorPoolSizes.data();
     poolInfo.maxSets = maxSets;
     poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT; // will we need VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT later?
+    poolInfo.pNext = nullptr;
 
     VkDescriptorPool descriptorPool;
     VkResult result = vkCreateDescriptorPool(*device, &poolInfo, allocator, &descriptorPool);

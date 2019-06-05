@@ -89,6 +89,7 @@ ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(
 
     VkSpecializationInfo specializationInfo = {};
     VkPipelineShaderStageCreateInfo stageInfo = {};
+    stageInfo.pNext = nullptr;
     shaderStage->apply(stageInfo);
 
     if (!shaderStage->getSpecializationMapEntries().empty() && shaderStage->getSpecializationData()!=nullptr)
@@ -108,6 +109,7 @@ ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(
     pipelineInfo.layout = *pipelineLayout;
     pipelineInfo.stage = stageInfo;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+    pipelineInfo.pNext = nullptr;
 
     VkPipeline pipeline;
     VkResult result = vkCreateComputePipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &pipeline);

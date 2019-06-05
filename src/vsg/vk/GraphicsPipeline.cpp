@@ -126,12 +126,14 @@ GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::creat
     pipelineInfo.renderPass = *renderPass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+    pipelineInfo.pNext = nullptr;
 
     std::vector<VkSpecializationInfo> specializationInfos(shaderStages.size());
     std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfo(shaderStages.size());
     for(size_t i = 0; i < shaderStages.size(); ++i)
     {
         const ShaderStage* shaderStage = shaderStages[i];
+        shaderStageCreateInfo[i].pNext = nullptr;
         shaderStage->apply(shaderStageCreateInfo[i]);
         if (!shaderStage->getSpecializationMapEntries().empty() && shaderStage->getSpecializationData()!=nullptr)
         {
@@ -226,6 +228,7 @@ VertexInputState::VertexInputState() :
     sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexBindingDescriptionCount = 0;
     vertexAttributeDescriptionCount = 0;
+    pNext = nullptr;
 }
 
 VertexInputState::VertexInputState(const Bindings& bindings, const Attributes& attributes) :
@@ -234,6 +237,7 @@ VertexInputState::VertexInputState(const Bindings& bindings, const Attributes& a
     _attributes(attributes)
 {
     sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    pNext = nullptr;
     _assign();
 }
 
@@ -310,6 +314,7 @@ InputAssemblyState::InputAssemblyState() :
     sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     primitiveRestartEnable = VK_FALSE;
+    pNext = nullptr;
 }
 
 InputAssemblyState::InputAssemblyState(VkPrimitiveTopology primitiveTopology, bool enablePrimitiveRestart) :
@@ -318,6 +323,7 @@ InputAssemblyState::InputAssemblyState(VkPrimitiveTopology primitiveTopology, bo
     sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     topology = primitiveTopology;
     primitiveRestartEnable = enablePrimitiveRestart ? VK_TRUE : VK_FALSE;
+    pNext = nullptr;
 }
 
 InputAssemblyState::~InputAssemblyState()
@@ -354,6 +360,8 @@ ViewportState::ViewportState() :
     _viewport{},
     _scissor{}
 {
+    sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    pNext = nullptr;
 }
 
 ViewportState::ViewportState(const VkExtent2D& extent) :
@@ -362,6 +370,7 @@ ViewportState::ViewportState(const VkExtent2D& extent) :
     _scissor{}
 {
     sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    pNext = nullptr;
     _viewport.x = 0.0f;
     _viewport.y = 0.0f;
     _viewport.width = static_cast<float>(extent.width);
@@ -402,6 +411,7 @@ RasterizationState::RasterizationState() :
     //    frontFace = VK_FRONT_FACE_CLOCKWISE;
     frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     depthBiasEnable = VK_FALSE;
+    pNext = nullptr;
 }
 
 RasterizationState::~RasterizationState()
@@ -423,6 +433,7 @@ MultisampleState::MultisampleState() :
     sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     sampleShadingEnable = VK_FALSE;
     rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    pNext = nullptr;
 }
 
 MultisampleState::~MultisampleState()
@@ -447,6 +458,7 @@ DepthStencilState::DepthStencilState() :
     depthCompareOp = VK_COMPARE_OP_LESS;
     depthBoundsTestEnable = VK_FALSE;
     stencilTestEnable = VK_FALSE;
+    pNext = nullptr;
 }
 
 DepthStencilState::~DepthStencilState()
@@ -506,6 +518,7 @@ ColorBlendState::ColorBlendState() :
     blendConstants[1] = 0.0f;
     blendConstants[2] = 0.0f;
     blendConstants[3] = 0.0f;
+    pNext = nullptr;
 }
 
 ColorBlendState::ColorBlendState(const ColorBlendAttachments& colorBlendAttachments) :

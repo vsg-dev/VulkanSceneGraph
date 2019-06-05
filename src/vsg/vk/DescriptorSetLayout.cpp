@@ -95,6 +95,7 @@ DescriptorSetLayout::Implementation::Result DescriptorSetLayout::Implementation:
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetLayoutBindings.size());
     layoutInfo.pBindings = descriptorSetLayoutBindings.data();
+    layoutInfo.pNext = nullptr;
 
     VkDescriptorSetLayout descriptorSetLayout;
     VkResult result = vkCreateDescriptorSetLayout(*device, &layoutInfo, allocator, &descriptorSetLayout);
