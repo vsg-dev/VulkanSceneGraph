@@ -386,7 +386,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     imageStagingBuffer = 0;
     imageStagingMemory = 0;
 
-    ref_ptr<Sampler> textureSampler = sampler != nullptr ? Sampler::Result(sampler) : Sampler::create(device);
+    ref_ptr<Sampler> textureSampler((sampler != nullptr) ? sampler : Sampler::create());
 
     VkImageViewCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;

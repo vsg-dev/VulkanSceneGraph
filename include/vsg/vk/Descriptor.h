@@ -103,6 +103,31 @@ namespace vsg
         std::vector<VkDescriptorImageInfo> _imageInfos;
     };
 
+    class VSG_DECLSPEC DescriptorImages : public Inherit<Descriptor, DescriptorImages>
+    {
+    public:
+
+        using SamplerImage = std::pair<ref_ptr<Sampler>, ref_ptr<Data>>;
+        using SamplerImages = std::vector<SamplerImage>;
+
+        DescriptorImages();
+
+        DescriptorImages(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const SamplerImages& sampleImages);
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        void compile(Context& context) override;
+
+        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
+
+    protected:
+        SamplerImages _samplerImages;
+        ImageDataList _imageDataList;
+        std::vector<VkDescriptorImageInfo> _imageInfos;
+    };
+    VSG_type_name(vsg::DescriptorImages)
+
     class VSG_DECLSPEC DescriptorBuffer : public Inherit<Descriptor, DescriptorBuffer>
     {
     public:
@@ -188,7 +213,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Texture)
 
-        class VSG_DECLSPEC Uniform : public Inherit<Descriptor, Uniform>
+    class VSG_DECLSPEC Uniform : public Inherit<Descriptor, Uniform>
     {
     public:
         Uniform();
