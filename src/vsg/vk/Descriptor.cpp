@@ -18,6 +18,69 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// DescriptorImages
+//
+DescriptorImage::DescriptorImage():
+    Inherit(0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
+{
+}
+
+DescriptorImage::DescriptorImage(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, ref_ptr<Sampler> sampler, ref_ptr<Data> image) :
+    Inherit(dstBinding, dstArrayElement, descriptorType),
+    _samplerImage(sampler, image)
+{
+}
+
+DescriptorImage::DescriptorImage(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const SamplerImage& samplerImage) :
+    Inherit(dstBinding, dstArrayElement, descriptorType),
+    _samplerImage(samplerImage)
+{
+}
+
+void DescriptorImage::read(Input& input)
+{
+    _imageData._sampler = nullptr;
+    _imageData._imageView = nullptr;
+
+    Descriptor::read(input);
+
+    _samplerImage.first = input.readObject<Sampler>("Sampler");
+    _samplerImage.second = input.readObject<Data>("Image");
+}
+
+void DescriptorImage::write(Output& output) const
+{
+    Descriptor::write(output);
+
+    output.writeObject("Sampler", _samplerImage.first.get());
+    output.writeObject("Image", _samplerImage.second.get());
+}
+
+void DescriptorImage::compile(Context& context)
+{
+    // check if we have already compiled the imageData.
+    if (_imageData) return;
+
+    _samplerImage.first->compile(context);
+    _imageData = vsg::transferImageData(context, _samplerImage.second, _samplerImage.first);
+
+    // convert from VSG to Vk
+    _imageInfo.sampler = *(_imageData._sampler);
+    _imageInfo.imageView = *(_imageData._imageView);
+    _imageInfo.imageLayout = _imageData._imageLayout;
+}
+
+bool DescriptorImage::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+{
+    Descriptor::assignTo(wds, descriptorSet);
+    wds.descriptorCount = 1;
+    wds.pImageInfo = &_imageInfo;
+    return true;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // DescriptorImages
@@ -85,7 +148,6 @@ void DescriptorImages::compile(Context& context)
     }
 }
 
-
 bool DescriptorImages::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
 {
     Descriptor::assignTo(wds, descriptorSet);
@@ -102,108 +164,6 @@ bool DescriptorImages::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descr
 void DescriptorBuffer::copyDataListToBuffers()
 {
     vsg::copyDataListToBuffers(_bufferDataList);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-//
-// Texture
-//
-Texture::Texture() :
-    Inherit(0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
-{
-    // set default sampler info
-    _samplerInfo = {};
-    _samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    _samplerInfo.minFilter = VK_FILTER_LINEAR;
-    _samplerInfo.magFilter = VK_FILTER_LINEAR;
-    _samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    _samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    _samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-#if 1
-    // requires Logical device to have deviceFeatures.samplerAnisotropy = VK_TRUE; set when creating the vsg::Device
-    _samplerInfo.anisotropyEnable = VK_TRUE;
-    _samplerInfo.maxAnisotropy = 16;
-#else
-    _samplerInfo.anisotropyEnable = VK_FALSE;
-    _samplerInfo.maxAnisotropy = 1;
-#endif
-    _samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-    _samplerInfo.unnormalizedCoordinates = VK_FALSE;
-    _samplerInfo.compareEnable = VK_FALSE;
-    _samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-}
-
-void Texture::read(Input& input)
-{
-    Descriptor::read(input);
-#if 1
-    input.readValue<uint32_t>("flags", _samplerInfo.flags);
-    input.readValue<uint32_t>("minFilter", _samplerInfo.minFilter);
-    input.readValue<uint32_t>("magFilter", _samplerInfo.magFilter);
-    input.readValue<uint32_t>("mipmapMode", _samplerInfo.mipmapMode);
-    input.readValue<uint32_t>("addressModeU", _samplerInfo.addressModeU);
-    input.readValue<uint32_t>("addressModeV", _samplerInfo.addressModeV);
-    input.readValue<uint32_t>("addressModeW", _samplerInfo.addressModeW);
-    input.read("mipLodBias", _samplerInfo.mipLodBias);
-    input.readValue<uint32_t>("anisotropyEnable", _samplerInfo.anisotropyEnable);
-    input.read("maxAnisotropy", _samplerInfo.maxAnisotropy);
-    input.readValue<uint32_t>("compareEnable", _samplerInfo.compareEnable);
-    input.readValue<uint32_t>("compareOp", _samplerInfo.compareOp);
-    input.read("minLod", _samplerInfo.minLod);
-    input.read("maxLod", _samplerInfo.maxLod);
-    input.readValue<uint32_t>("borderColor", _samplerInfo.borderColor);
-    input.readValue<uint32_t>("unnormalizedCoordinates", _samplerInfo.unnormalizedCoordinates);
-#endif
-    _textureData = input.readObject<Data>("TextureData");
-}
-
-void Texture::write(Output& output) const
-{
-    Descriptor::write(output);
-#if 1
-    output.writeValue<uint32_t>("flags", _samplerInfo.flags);
-    output.writeValue<uint32_t>("minFilter", _samplerInfo.minFilter);
-    output.writeValue<uint32_t>("magFilter", _samplerInfo.magFilter);
-    output.writeValue<uint32_t>("mipmapMode", _samplerInfo.mipmapMode);
-    output.writeValue<uint32_t>("addressModeU", _samplerInfo.addressModeU);
-    output.writeValue<uint32_t>("addressModeV", _samplerInfo.addressModeV);
-    output.writeValue<uint32_t>("addressModeW", _samplerInfo.addressModeW);
-    output.write("mipLodBias", _samplerInfo.mipLodBias);
-    output.writeValue<uint32_t>("anisotropyEnable", _samplerInfo.anisotropyEnable);
-    output.write("maxAnisotropy", _samplerInfo.maxAnisotropy);
-    output.writeValue<uint32_t>("compareEnable", _samplerInfo.compareEnable);
-    output.writeValue<uint32_t>("compareOp", _samplerInfo.compareOp);
-    output.write("minLod", _samplerInfo.minLod);
-    output.write("maxLod", _samplerInfo.maxLod);
-    output.writeValue<uint32_t>("borderColor", _samplerInfo.borderColor);
-    output.writeValue<uint32_t>("unnormalizedCoordinates", _samplerInfo.unnormalizedCoordinates);
-#endif
-    output.writeObject("TextureData", _textureData.get());
-}
-
-void Texture::compile(Context& context)
-{
-    if (_implementation) return;
-
-    //ref_ptr<Sampler> sampler = Sampler::create(context.device, _samplerInfo, nullptr);
-    ref_ptr<Sampler> sampler = Sampler::create();
-    sampler->info() = _samplerInfo;
-    sampler->compile(context);
-    vsg::ImageData imageData = vsg::transferImageData(context, _textureData, sampler);
-    if (!imageData.valid())
-    {
-        return;
-    }
-
-    _implementation = vsg::DescriptorImage::create(_dstBinding, _dstArrayElement, _descriptorType, vsg::ImageDataList{imageData});
-}
-
-bool Texture::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
-{
-    if (_implementation)
-        return _implementation->assignTo(wds, descriptorSet);
-    else
-        return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
