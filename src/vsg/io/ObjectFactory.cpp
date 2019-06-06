@@ -166,7 +166,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::GraphicsPipeline);
     VSG_REGISTER_create(vsg::BindComputePipeline);
     VSG_REGISTER_create(vsg::ComputePipeline);
-    VSG_REGISTER_create(vsg::ShaderStages);
+    VSG_REGISTER_create(vsg::ShaderStage);
     VSG_REGISTER_create(vsg::ShaderModule);
     VSG_REGISTER_create(vsg::Texture);
     VSG_REGISTER_create(vsg::Uniform);

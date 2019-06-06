@@ -49,18 +49,12 @@ namespace vsg
         using SPIRV = std::vector<uint32_t>;
 
         ShaderModule();
-        ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, const SPIRV& spirv);
-        ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source);
-        ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source, const SPIRV& spirv);
+        ShaderModule(const Source& spirv);
+        ShaderModule(const SPIRV& spirv);
+        ShaderModule(const Source& source, const SPIRV& spirv);
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        VkShaderStageFlagBits& stage() { return _stage; }
-        VkShaderStageFlagBits stage() const { return _stage; }
-
-        std::string& entryPointName() { return _entryPointName; }
-        const std::string& entryPointName() const { return _entryPointName; }
 
         std::string& source() { return _source; }
         const std::string& source() const { return _source; }
@@ -69,7 +63,7 @@ namespace vsg
         const SPIRV& spirv() const { return _spirv; }
 
         using Result = vsg::Result<ShaderModule, VkResult, VK_SUCCESS>;
-        static Result read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename);
+        static Result read(const std::string& filename);
 
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
@@ -100,15 +94,11 @@ namespace vsg
     protected:
         virtual ~ShaderModule();
 
-        VkShaderStageFlagBits _stage;
-        std::string _entryPointName;
         std::string _source;
         SPIRV _spirv;
 
         ref_ptr<Implementation> _implementation;
     };
     VSG_type_name(vsg::ShaderModule);
-
-    using ShaderModules = std::vector<ref_ptr<ShaderModule>>;
 
 } // namespace vsg

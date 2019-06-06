@@ -23,23 +23,17 @@ ShaderModule::ShaderModule()
 {
 }
 
-ShaderModule::ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, const SPIRV& spirv) :
-    _stage(stage),
-    _entryPointName(entryPointName),
-    _spirv(spirv)
-{
-}
-
-ShaderModule::ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source) :
-    _stage(stage),
-    _entryPointName(entryPointName),
+ShaderModule::ShaderModule(const Source& source) :
     _source(source)
 {
 }
 
-ShaderModule::ShaderModule(VkShaderStageFlagBits stage, const std::string& entryPointName, const Source& source, const SPIRV& spirv) :
-    _stage(stage),
-    _entryPointName(entryPointName),
+ShaderModule::ShaderModule(const SPIRV& spirv) :
+    _spirv(spirv)
+{
+}
+
+ShaderModule::ShaderModule(const Source& source, const SPIRV& spirv) :
     _source(source),
     _spirv(spirv)
 {
@@ -49,12 +43,12 @@ ShaderModule::~ShaderModule()
 {
 }
 
-ShaderModule::Result ShaderModule::read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename)
+ShaderModule::Result ShaderModule::read(const std::string& filename)
 {
     SPIRV buffer;
     if (readFile(buffer, filename))
     {
-        return Result(new ShaderModule(stage, entryPointName, buffer));
+        return Result(new ShaderModule(buffer));
     }
     else
     {
@@ -66,9 +60,6 @@ void ShaderModule::read(Input& input)
 {
     Object::read(input);
 
-    _stage = static_cast<VkShaderStageFlagBits>(input.readValue<int32_t>("Stage"));
-
-    input.read("EntryPoint", _entryPointName);
     input.read("Source", _source);
 
     _spirv.resize(input.readValue<uint32_t>("SPIRVSize"));
@@ -80,9 +71,6 @@ void ShaderModule::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeValue<int32_t>("Stage", _stage);
-
-    output.write("EntryPoint", _entryPointName);
     output.write("Source", _source);
 
     output.writeValue<uint32_t>("SPIRVSize", _spirv.size());
