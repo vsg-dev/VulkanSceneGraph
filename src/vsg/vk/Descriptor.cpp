@@ -68,8 +68,12 @@ void DescriptorImage::compile(Context& context)
     _imageData = vsg::transferImageData(context, _samplerImage.second, _samplerImage.first);
 
     // convert from VSG to Vk
-    _imageInfo.sampler = *(_imageData._sampler);
-    _imageInfo.imageView = *(_imageData._imageView);
+    if (_imageData._sampler) _imageInfo.sampler = *(_imageData._sampler);
+    else _imageInfo.sampler = 0;
+
+    if (_imageData._imageView) _imageInfo.imageView = *(_imageData._imageView);
+    else _imageData._imageView = 0;
+
     _imageInfo.imageLayout = _imageData._imageLayout;
 }
 
@@ -142,8 +146,12 @@ void DescriptorImages::compile(Context& context)
     {
         const ImageData& data = _imageDataList[i];
         VkDescriptorImageInfo& info = _imageInfos[i];
-        info.sampler = *(data._sampler);
-        info.imageView = *(data._imageView);
+        if (data._sampler) info.sampler = *(data._sampler);
+        else info.sampler = 0;
+
+        if (data._imageView) info.imageView = *(data._imageView);
+        else info.imageView = 0;
+
         info.imageLayout = data._imageLayout;
     }
 }
