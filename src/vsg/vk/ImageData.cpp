@@ -24,11 +24,11 @@ using namespace vsg;
 //
 // vsg::transferImageData
 //
-ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sampler)
+ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sampler, VkImageLayout targetImageLayout)
 {
     if (!data)
     {
-        return ImageData();
+        return ImageData(sampler, nullptr, targetImageLayout);
     }
 
     Device* device = context.device;
@@ -92,7 +92,6 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
     VkImageType imageType = depth > 1 ? VK_IMAGE_TYPE_3D : (width > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
     VkImageViewType imageViewType = depth > 1 ? VK_IMAGE_VIEW_TYPE_3D : (width > 1 ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
-    VkImageLayout targetImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
     VkImageCreateInfo imageCreateInfo = {};
     imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -386,8 +385,6 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     imageStagingBuffer = 0;
     imageStagingMemory = 0;
 
-    ref_ptr<Sampler> textureSampler = sampler != nullptr ? Sampler::Result(sampler) : Sampler::create(device);
-
     VkImageViewCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     createInfo.image = *textureImage;
@@ -403,5 +400,5 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     ref_ptr<ImageView> textureImageView = ImageView::create(device, createInfo);
     if (textureImageView) textureImageView->setImage(textureImage);
 
-    return ImageData(textureSampler, textureImageView, targetImageLayout);
+    return ImageData(sampler, textureImageView, targetImageLayout);
 }

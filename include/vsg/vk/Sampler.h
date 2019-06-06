@@ -16,31 +16,50 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    class Context;
+
     class VSG_DECLSPEC Sampler : public Inherit<Object, Sampler>
     {
     public:
-        Sampler(VkSampler Sampler, const VkSamplerCreateInfo& info, Device* device, AllocationCallbacks* allocator = nullptr);
+        Sampler();
 
-        using Result = vsg::Result<Sampler, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, const VkSamplerCreateInfo& createSamplerInfo, AllocationCallbacks* allocator = nullptr);
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
-        static Result create(Device* device, AllocationCallbacks* allocator = nullptr);
+        void compile(Context& context);
 
-        VkSampler sampler() const { return _sampler; }
-        operator VkSampler() const { return _sampler; }
+        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        {
+        public:
+            Implementation(VkSampler Sampler, Device* device, AllocationCallbacks* allocator = nullptr);
 
-        const VkSamplerCreateInfo& info() { return _info; }
+            using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
-        Device* getDevice() { return _device; }
-        const Device* getDevice() const { return _device; }
+            static Result create(Device* device, const VkSamplerCreateInfo& createSamplerInfo, AllocationCallbacks* allocator = nullptr);
+
+            operator VkSampler() const { return _sampler; }
+
+        protected:
+            virtual ~Implementation();
+
+            VkSampler _sampler;
+            ref_ptr<Device> _device;
+            ref_ptr<AllocationCallbacks> _allocator;
+        };
+
+        VkSamplerCreateInfo& info() { return _samplerInfo; }
+        const VkSamplerCreateInfo& info() const { return _samplerInfo; }
+
+        VkSampler sampler() const { return *_implementation; }
+        operator VkSampler() const { return *_implementation; }
 
     protected:
         virtual ~Sampler();
 
-        VkSampler _sampler;
-        VkSamplerCreateInfo _info;
-        ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
+        VkSamplerCreateInfo _samplerInfo;
+
+        ref_ptr<Implementation> _implementation;
     };
+    VSG_type_name(vsg::Sampler)
 
 } // namespace vsg

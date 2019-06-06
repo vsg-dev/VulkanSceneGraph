@@ -51,7 +51,7 @@ namespace vsg
     };
 
     /// transfer Data to graphics memory, returning ImageData configuration.
-    extern VSG_DECLSPEC vsg::ImageData transferImageData(Context& context, const Data* data, Sampler* sampler = nullptr);
+    extern VSG_DECLSPEC vsg::ImageData transferImageData(Context& context, const Data* data, Sampler* sampler = nullptr, VkImageLayout targetImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     using ImageDataList = std::vector<ImageData>;
 

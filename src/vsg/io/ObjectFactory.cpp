@@ -39,6 +39,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/PipelineLayout.h>
 #include <vsg/vk/ShaderModule.h>
+#include <vsg/vk/Sampler.h>
 
 #include <iostream>
 
@@ -168,7 +169,6 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::ComputePipeline);
     VSG_REGISTER_create(vsg::ShaderStage);
     VSG_REGISTER_create(vsg::ShaderModule);
-    VSG_REGISTER_create(vsg::Texture);
     VSG_REGISTER_create(vsg::Uniform);
     VSG_REGISTER_create(vsg::VertexInputState);
     VSG_REGISTER_create(vsg::InputAssemblyState);
@@ -187,8 +187,9 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::BindIndexBuffer);
     VSG_REGISTER_create(vsg::DescriptorSet);
     VSG_REGISTER_create(vsg::DescriptorSetLayout);
-    VSG_REGISTER_create(vsg::Texture);
-    VSG_REGISTER_create(vsg::Uniform);
+    VSG_REGISTER_create(vsg::DescriptorImage);
+    VSG_REGISTER_create(vsg::DescriptorImages);
+    VSG_REGISTER_create(vsg::Sampler);
 }
 
 vsg::ref_ptr<vsg::Object> ObjectFactory::create(const std::string& className)
