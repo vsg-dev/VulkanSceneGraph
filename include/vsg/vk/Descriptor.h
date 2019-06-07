@@ -152,29 +152,11 @@ namespace vsg
     class VSG_DECLSPEC DescriptorBuffer : public Inherit<Descriptor, DescriptorBuffer>
     {
     public:
-        DescriptorBuffer(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferDataList& bufferDataList) :
-            Inherit(dstBinding, dstArrayElement, descriptorType),
-            _bufferDataList(bufferDataList)
-        {
-            // convert from VSG to Vk
-            _bufferInfos.resize(_bufferDataList.size());
-            for (size_t i = 0; i < _bufferDataList.size(); ++i)
-            {
-                const BufferData& data = _bufferDataList[i];
-                VkDescriptorBufferInfo& info = _bufferInfos[i];
-                info.buffer = *(data._buffer);
-                info.offset = data._offset;
-                info.range = data._range;
-            }
-        }
+        DescriptorBuffer(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferDataList& bufferDataList);
 
-        virtual bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
-        {
-            Descriptor::assignTo(wds, descriptorSet);
-            wds.descriptorCount = static_cast<uint32_t>(_bufferInfos.size());
-            wds.pBufferInfo = _bufferInfos.data();
-            return true;
-        }
+        void compile(Context& context) override;
+
+        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
 
         void copyDataListToBuffers();
 

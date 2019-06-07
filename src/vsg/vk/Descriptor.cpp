@@ -183,6 +183,35 @@ uint32_t DescriptorImages::getNumDescriptors() const
 //
 // DescriptorBuffer
 //
+DescriptorBuffer::DescriptorBuffer(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferDataList& bufferDataList) :
+    Inherit(dstBinding, dstArrayElement, descriptorType),
+    _bufferDataList(bufferDataList)
+{
+    // convert from VSG to Vk
+    _bufferInfos.resize(_bufferDataList.size());
+    for (size_t i = 0; i < _bufferDataList.size(); ++i)
+    {
+        const BufferData& data = _bufferDataList[i];
+        VkDescriptorBufferInfo& info = _bufferInfos[i];
+        info.buffer = *(data._buffer);
+        info.offset = data._offset;
+        info.range = data._range;
+    }
+}
+
+void DescriptorBuffer::compile(Context& /*context*/)
+{
+//    vsg::copyDataListToBuffers(_bufferDataList);
+}
+
+bool DescriptorBuffer::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+{
+    Descriptor::assignTo(wds, descriptorSet);
+    wds.descriptorCount = static_cast<uint32_t>(_bufferInfos.size());
+    wds.pBufferInfo = _bufferInfos.data();
+    return true;
+}
+
 void DescriptorBuffer::copyDataListToBuffers()
 {
     vsg::copyDataListToBuffers(_bufferDataList);
@@ -224,8 +253,8 @@ void Uniform::compile(Context& context)
     if (_implementation) return;
 
     auto bufferDataList = vsg::createHostVisibleBuffer(context.device, _dataList, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    vsg::copyDataListToBuffers(bufferDataList);
     _implementation = vsg::DescriptorBuffer::create(_dstBinding, _dstArrayElement, _descriptorType, bufferDataList);
+    //vsg::copyDataListToBuffers(bufferDataList);
 }
 
 bool Uniform::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
