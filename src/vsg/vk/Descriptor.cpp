@@ -174,6 +174,10 @@ bool DescriptorImages::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descr
     return true;
 }
 
+uint32_t DescriptorImages::getNumDescriptors() const
+{
+    return static_cast<uint32_t>(std::max(_imageDataList.size(), _samplerImages.size()));
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //

@@ -67,6 +67,8 @@ namespace vsg
 
             return false;
         }
+
+        virtual uint32_t getNumDescriptors() const { return 1; }
     };
 
     using Descriptors = std::vector<vsg::ref_ptr<vsg::Descriptor>>;
@@ -104,6 +106,8 @@ namespace vsg
 
         bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
 
+        uint32_t getNumDescriptors() const override { return 1; }
+
     protected:
         SamplerImage _samplerImage;
 
@@ -133,6 +137,8 @@ namespace vsg
         void compile(Context& context) override;
 
         bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
+
+        uint32_t getNumDescriptors() const override;
 
     protected:
         SamplerImages _samplerImages;
@@ -172,6 +178,8 @@ namespace vsg
 
         void copyDataListToBuffers();
 
+        uint32_t getNumDescriptors() const override { return static_cast<uint32_t>(_bufferDataList.size()); }
+
     protected:
         BufferDataList _bufferDataList;
         std::vector<VkDescriptorBufferInfo> _bufferInfos;
@@ -203,6 +211,8 @@ namespace vsg
             return true;
         }
 
+        uint32_t getNumDescriptors() const override { return static_cast<uint32_t>(_texelBufferViewList.size()); }
+
     protected:
         BufferViewList _texelBufferViewList;
         std::vector<VkBufferView> _texelBufferViews;
@@ -221,6 +231,8 @@ namespace vsg
         bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
 
         void copyDataListToBuffers();
+
+        uint32_t getNumDescriptors() const override { return static_cast<uint32_t>(_dataList.size()); }
 
         // settings
         DataList _dataList;
