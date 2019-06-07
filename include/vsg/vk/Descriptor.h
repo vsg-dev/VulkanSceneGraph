@@ -92,6 +92,11 @@ namespace vsg
         SamplerImage& getSamplerImage() { return _samplerImage; }
         const SamplerImage& getSamplerImage() const { return _samplerImage; }
 
+
+        /** ImageData is automatically filled in by the DecriptorImage::compile() using the sampler and image data objects.*/
+        ImageData& getImageData() { return _imageData; }
+        const ImageData& getImageData() const { return _imageData; }
+
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -117,6 +122,10 @@ namespace vsg
 
         SamplerImages& getSamplerImages() { return _samplerImages; }
         const SamplerImages& getSamplerImages() const { return _samplerImages; }
+
+        /** ImageDataList is automatically filled in by the DecriptorImage::compile() using the sampler and image data objects.*/
+        ImageDataList& getImageDataList() { return _imageDataList; }
+        const ImageDataList& getImageDataList() const { return _imageDataList; }
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -220,7 +229,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Uniform)
 
-        struct Material
+    struct Material
     {
         vec4 ambientColor;
         vec4 diffuseColor;
