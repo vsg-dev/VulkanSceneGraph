@@ -24,19 +24,22 @@ using namespace vsg;
 // DescriptorImages
 //
 DescriptorImage::DescriptorImage():
-    Inherit(0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
+    Inherit(0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER),
+    _imageInfo{0, 0, VK_IMAGE_LAYOUT_UNDEFINED}
 {
 }
 
 DescriptorImage::DescriptorImage(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, ref_ptr<Sampler> sampler, ref_ptr<Data> image) :
     Inherit(dstBinding, dstArrayElement, descriptorType),
-    _samplerImage(sampler, image)
+    _samplerImage(sampler, image),
+    _imageInfo{0, 0, VK_IMAGE_LAYOUT_UNDEFINED}
 {
 }
 
 DescriptorImage::DescriptorImage(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const SamplerImage& samplerImage) :
     Inherit(dstBinding, dstArrayElement, descriptorType),
-    _samplerImage(samplerImage)
+    _samplerImage(samplerImage),
+    _imageInfo{0, 0, VK_IMAGE_LAYOUT_UNDEFINED}
 {
 }
 
@@ -62,10 +65,14 @@ void DescriptorImage::write(Output& output) const
 void DescriptorImage::compile(Context& context)
 {
     // check if we have already compiled the imageData.
-    if (_imageData) return;
+    if (_imageInfo.sampler || _imageInfo.imageView) return;
 
-    _samplerImage.first->compile(context);
-    _imageData = vsg::transferImageData(context, _samplerImage.second, _samplerImage.first);
+    // compile and copy over any sampler + buffer data that is required.
+    if (_samplerImage.first || _samplerImage.second)
+    {
+        if (_samplerImage.first) _samplerImage.first->compile(context);
+        _imageData = vsg::transferImageData(context, _samplerImage.second, _samplerImage.first);
+    }
 
     // convert from VSG to Vk
     if (_imageData._sampler) _imageInfo.sampler = *(_imageData._sampler);
@@ -130,14 +137,17 @@ void DescriptorImages::write(Output& output) const
 void DescriptorImages::compile(Context& context)
 {
     // check if we have already compiled the imageData.
-    if (_imageDataList.size()==_samplerImages.size()) return;
+    if (_imageInfos.size() == _imageDataList.size() || _samplerImages.empty()) return;
 
-    _imageDataList.clear();
-    _imageDataList.reserve(_samplerImages.size());
-    for(auto& samplerImage : _samplerImages)
+    if (!_samplerImages.empty())
     {
-        samplerImage.first->compile(context);
-        _imageDataList.emplace_back(vsg::transferImageData(context, samplerImage.second, samplerImage.first));
+        _imageDataList.clear();
+        _imageDataList.reserve(_samplerImages.size());
+        for(auto& samplerImage : _samplerImages)
+        {
+            samplerImage.first->compile(context);
+            _imageDataList.emplace_back(vsg::transferImageData(context, samplerImage.second, samplerImage.first));
+        }
     }
 
     // convert from VSG to Vk
