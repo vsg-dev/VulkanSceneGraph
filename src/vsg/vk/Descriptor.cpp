@@ -80,7 +80,7 @@ void DescriptorImage::compile(Context& context)
     else _imageInfo.sampler = 0;
 
     if (_imageData._imageView) _imageInfo.imageView = *(_imageData._imageView);
-    else _imageData._imageView = 0;
+    else _imageInfo.imageView = 0;
 
     _imageInfo.imageLayout = _imageData._imageLayout;
 }
@@ -138,7 +138,7 @@ void DescriptorImages::write(Output& output) const
 void DescriptorImages::compile(Context& context)
 {
     // check if we have already compiled the imageData.
-    if (_imageInfos.size() == _imageDataList.size() || _samplerImages.empty()) return;
+    if ((_imageInfos.size() == _imageDataList.size() && _imageInfos.size() != 0) || _samplerImages.empty()) return;
 
     if (!_samplerImages.empty())
     {
