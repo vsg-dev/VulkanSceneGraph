@@ -85,19 +85,16 @@ namespace vsg
 
         DescriptorImage(const SamplerImage& samplerImage, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-        Sampler* getSampler() { return _samplerImage.first; }
-        const Sampler* getSampler() const { return _samplerImage.first; }
-
-        Data* getImage() { return _samplerImage.second; }
-        const Data* getImage() const { return _samplerImage.second; }
-
-        SamplerImage& getSamplerImage() { return _samplerImage; }
-        const SamplerImage& getSamplerImage() const { return _samplerImage; }
+        DescriptorImage(const SamplerImages& samplerImages, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
 
-        /** ImageData is automatically filled in by the DecriptorImage::compile() using the sampler and image data objects.*/
-        ImageData& getImageData() { return _imageData; }
-        const ImageData& getImageData() const { return _imageData; }
+        SamplerImages& getSamplerImages() { return _samplerImages; }
+        const SamplerImages& getSamplerImages() const { return _samplerImages; }
+
+        /** ImageDataList is automatically filled in by the DecriptorImage::compile() using the sampler and image data objects.*/
+        ImageDataList& getImageDataList() { return _imageDataList; }
+        const ImageDataList& getImageDataList() const { return _imageDataList; }
+
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -106,13 +103,14 @@ namespace vsg
 
         bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
 
-        uint32_t getNumDescriptors() const override { return 1; }
+        uint32_t getNumDescriptors() const override;
 
     protected:
-        SamplerImage _samplerImage;
+        SamplerImages _samplerImages;
 
-        ImageData _imageData;
-        VkDescriptorImageInfo _imageInfo;
+        // populated by compile()
+        ImageDataList _imageDataList;
+        std::vector<VkDescriptorImageInfo> _imageInfos;
     };
     VSG_type_name(vsg::DescriptorImage)
 
