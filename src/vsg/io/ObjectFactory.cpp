@@ -187,7 +187,6 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::DescriptorSet);
     VSG_REGISTER_create(vsg::DescriptorSetLayout);
     VSG_REGISTER_create(vsg::DescriptorImage);
-    VSG_REGISTER_create(vsg::DescriptorImages);
     VSG_REGISTER_create(vsg::DescriptorBuffer);
     VSG_REGISTER_create(vsg::Sampler);
 }
