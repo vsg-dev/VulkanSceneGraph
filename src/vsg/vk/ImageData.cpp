@@ -120,7 +120,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
         return ImageData();
     }
 
-#if 1
+
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(*device, *textureImage, &memRequirements);
 
@@ -179,16 +179,6 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
     //std::cout<<"DeviceMemory "<<deviceMemory.get()<<" slot position = "<<reservedSlot.second<<", size = "<<totalSize<<std::endl;
     textureImage->bind(deviceMemory, reservedSlot.second);
-#else
-
-    ref_ptr<DeviceMemory> textureImageDeviceMemory = DeviceMemory::create(device, textureImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-    if (!textureImageDeviceMemory)
-    {
-        return ImageData();
-    }
-
-    textureImage->bind(textureImageDeviceMemory, 0);
-#endif
 
     if (useDataMipmaps)
     {
