@@ -169,7 +169,6 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::ComputePipeline);
     VSG_REGISTER_create(vsg::ShaderStage);
     VSG_REGISTER_create(vsg::ShaderModule);
-    VSG_REGISTER_create(vsg::Uniform);
     VSG_REGISTER_create(vsg::VertexInputState);
     VSG_REGISTER_create(vsg::InputAssemblyState);
     VSG_REGISTER_create(vsg::RasterizationState);
@@ -189,6 +188,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::DescriptorSetLayout);
     VSG_REGISTER_create(vsg::DescriptorImage);
     VSG_REGISTER_create(vsg::DescriptorImages);
+    VSG_REGISTER_create(vsg::DescriptorBuffer);
     VSG_REGISTER_create(vsg::Sampler);
 }
 
