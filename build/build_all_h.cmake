@@ -31,7 +31,7 @@ macro(BUILD_ALL_H)
     APPEND_INCLUDES(ALL_H_CONTENTS VIEWER_HEADERS "// Viewer header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS VK_HEADERS "// Vulkan related header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS IO_HEADERS "// Input/Output header files\n")
-    APPEND_INCLUDES(ALL_H_CONTENTS UTILS_HEADERS "// Utiltiy header files\n")
+    APPEND_INCLUDES(ALL_H_CONTENTS UTILS_HEADERS "// Utility header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS INTROSPECTION_HEADERS "// Introspection header files\n")
 
     file(WRITE include/vsg/all.h ${ALL_H_CONTENTS})
