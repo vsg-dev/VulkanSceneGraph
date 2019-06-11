@@ -81,9 +81,9 @@ namespace vsg
     public:
         DescriptorImage();
 
-        DescriptorImage(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, ref_ptr<Sampler> sampler, ref_ptr<Data> image);
+        DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> image, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-        DescriptorImage(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const SamplerImage& samplerImage);
+        DescriptorImage(const SamplerImage& samplerImage, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
         Sampler* getSampler() { return _samplerImage.first; }
         const Sampler* getSampler() const { return _samplerImage.first; }
@@ -121,7 +121,7 @@ namespace vsg
     public:
         DescriptorImages();
 
-        DescriptorImages(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const SamplerImages& sampleImages);
+        DescriptorImages(const SamplerImages& sampleImages, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
 
         SamplerImages& getSamplerImages() { return _samplerImages; }

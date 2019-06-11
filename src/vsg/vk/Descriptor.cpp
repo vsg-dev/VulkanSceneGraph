@@ -30,14 +30,14 @@ DescriptorImage::DescriptorImage():
 {
 }
 
-DescriptorImage::DescriptorImage(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, ref_ptr<Sampler> sampler, ref_ptr<Data> image) :
+DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> image, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
     Inherit(dstBinding, dstArrayElement, descriptorType),
     _samplerImage(sampler, image),
     _imageInfo{0, 0, VK_IMAGE_LAYOUT_UNDEFINED}
 {
 }
 
-DescriptorImage::DescriptorImage(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const SamplerImage& samplerImage) :
+DescriptorImage::DescriptorImage(const SamplerImage& samplerImage, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
     Inherit(dstBinding, dstArrayElement, descriptorType),
     _samplerImage(samplerImage),
     _imageInfo{0, 0, VK_IMAGE_LAYOUT_UNDEFINED}
@@ -102,7 +102,7 @@ DescriptorImages::DescriptorImages():
 {
 }
 
-DescriptorImages::DescriptorImages(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const SamplerImages& samplerImages) :
+DescriptorImages::DescriptorImages(const SamplerImages& samplerImages, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
     Inherit(dstBinding, dstArrayElement, descriptorType),
     _samplerImages(samplerImages)
 {
