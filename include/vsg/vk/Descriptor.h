@@ -152,20 +152,36 @@ namespace vsg
     class VSG_DECLSPEC DescriptorBuffer : public Inherit<Descriptor, DescriptorBuffer>
     {
     public:
-        DescriptorBuffer(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferDataList& bufferDataList);
+        DescriptorBuffer();
+
+        DescriptorBuffer(ref_ptr<Data> data, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+
+        DescriptorBuffer(const DataList& dataList, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+
+        DescriptorBuffer(const BufferDataList& bufferDataList, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+
+
+        DataList& getDataList() { return _dataList; }
+        const DataList& getDataList() const { return _dataList; }
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         void compile(Context& context) override;
 
         bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
 
+        uint32_t getNumDescriptors() const override;
+
         void copyDataListToBuffers();
 
-        uint32_t getNumDescriptors() const override { return static_cast<uint32_t>(_bufferDataList.size()); }
 
     protected:
+        DataList _dataList;
         BufferDataList _bufferDataList;
         std::vector<VkDescriptorBufferInfo> _bufferInfos;
     };
+    VSG_type_name(vsg::DescriptorBuffer)
 
     using BufferViewList = std::vector<ref_ptr<BufferView>>;
 
@@ -199,29 +215,7 @@ namespace vsg
         BufferViewList _texelBufferViewList;
         std::vector<VkBufferView> _texelBufferViews;
     };
-
-    class VSG_DECLSPEC Uniform : public Inherit<Descriptor, Uniform>
-    {
-    public:
-        Uniform();
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        void compile(Context& context) override;
-
-        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
-
-        void copyDataListToBuffers();
-
-        uint32_t getNumDescriptors() const override { return static_cast<uint32_t>(_dataList.size()); }
-
-        // settings
-        DataList _dataList;
-
-        ref_ptr<vsg::DescriptorBuffer> _implementation;
-    };
-    VSG_type_name(vsg::Uniform)
+    VSG_type_name(vsg::DescriptorTexelBufferView)
 
     struct Material
     {
