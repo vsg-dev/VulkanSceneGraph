@@ -14,7 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Command.h>
 #include <vsg/vk/PipelineLayout.h>
-#include <vsg/vk/ShaderModule.h>
+#include <vsg/vk/ShaderStage.h>
 
 namespace vsg
 {
@@ -23,7 +23,7 @@ namespace vsg
     {
     public:
         ComputePipeline();
-        ComputePipeline(PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator = nullptr);
+        ComputePipeline(PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator = nullptr);
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -31,25 +31,25 @@ namespace vsg
         PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
         const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
 
-        ShaderModule* getShaderModule() { return _shaderModule; }
-        const ShaderModule* getShaderModule() const { return _shaderModule; }
+        ShaderStage* getShaderStage() { return _shaderStage; }
+        const ShaderStage* getShaderStage() const { return _shaderStage; }
 
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
         public:
-            Implementation(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator);
+            Implementation(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator);
             virtual ~Implementation();
 
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
             /** Create a ComputePipeline.*/
-            static Result create(Device* device, PipelineLayout* pipelineLayout, ShaderModule* shaderModule, AllocationCallbacks* allocator = nullptr);
+            static Result create(Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator = nullptr);
 
             VkPipeline _pipeline;
 
             ref_ptr<Device> _device;
             ref_ptr<PipelineLayout> _pipelineLayout;
-            ref_ptr<ShaderModule> _shaderModule;
+            ref_ptr<ShaderStage> _shaderStage;
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
@@ -65,7 +65,7 @@ namespace vsg
         virtual ~ComputePipeline();
 
         ref_ptr<PipelineLayout> _pipelineLayout;
-        ref_ptr<ShaderModule> _shaderModule;
+        ref_ptr<ShaderStage> _shaderStage;
         ref_ptr<AllocationCallbacks> _allocator;
 
         ref_ptr<Implementation> _implementation;

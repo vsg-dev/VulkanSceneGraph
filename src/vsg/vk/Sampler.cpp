@@ -11,18 +11,95 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/Sampler.h>
+#include <vsg/traversals/CompileTraversal.h>
 
 using namespace vsg;
 
-Sampler::Sampler(VkSampler sampler, const VkSamplerCreateInfo& info, Device* device, AllocationCallbacks* allocator) :
+Sampler::Sampler()
+{
+    // set default sampler info
+    _samplerInfo = {};
+    _samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    _samplerInfo.pNext = nullptr;
+    _samplerInfo.flags = 0;
+    _samplerInfo.minFilter = VK_FILTER_LINEAR;
+    _samplerInfo.magFilter = VK_FILTER_LINEAR;
+    _samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    _samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    _samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+#if 1
+    // requires Logical device to have deviceFeatures.samplerAnisotropy = VK_TRUE; set when creating the vsg::Device
+    _samplerInfo.anisotropyEnable = VK_TRUE;
+    _samplerInfo.maxAnisotropy = 16;
+#else
+    _samplerInfo.anisotropyEnable = VK_FALSE;
+    _samplerInfo.maxAnisotropy = 1;
+#endif
+    _samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+    _samplerInfo.unnormalizedCoordinates = VK_FALSE;
+    _samplerInfo.compareEnable = VK_FALSE;
+    _samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+}
+
+Sampler::~Sampler()
+{
+}
+
+void Sampler::read(Input& input)
+{
+    input.readValue<uint32_t>("flags", _samplerInfo.flags);
+    input.readValue<uint32_t>("minFilter", _samplerInfo.minFilter);
+    input.readValue<uint32_t>("magFilter", _samplerInfo.magFilter);
+    input.readValue<uint32_t>("mipmapMode", _samplerInfo.mipmapMode);
+    input.readValue<uint32_t>("addressModeU", _samplerInfo.addressModeU);
+    input.readValue<uint32_t>("addressModeV", _samplerInfo.addressModeV);
+    input.readValue<uint32_t>("addressModeW", _samplerInfo.addressModeW);
+    input.read("mipLodBias", _samplerInfo.mipLodBias);
+    input.readValue<uint32_t>("anisotropyEnable", _samplerInfo.anisotropyEnable);
+    input.read("maxAnisotropy", _samplerInfo.maxAnisotropy);
+    input.readValue<uint32_t>("compareEnable", _samplerInfo.compareEnable);
+    input.readValue<uint32_t>("compareOp", _samplerInfo.compareOp);
+    input.read("minLod", _samplerInfo.minLod);
+    input.read("maxLod", _samplerInfo.maxLod);
+    input.readValue<uint32_t>("borderColor", _samplerInfo.borderColor);
+    input.readValue<uint32_t>("unnormalizedCoordinates", _samplerInfo.unnormalizedCoordinates);
+}
+
+void Sampler::write(Output& output) const
+{
+    output.writeValue<uint32_t>("flags", _samplerInfo.flags);
+    output.writeValue<uint32_t>("minFilter", _samplerInfo.minFilter);
+    output.writeValue<uint32_t>("magFilter", _samplerInfo.magFilter);
+    output.writeValue<uint32_t>("mipmapMode", _samplerInfo.mipmapMode);
+    output.writeValue<uint32_t>("addressModeU", _samplerInfo.addressModeU);
+    output.writeValue<uint32_t>("addressModeV", _samplerInfo.addressModeV);
+    output.writeValue<uint32_t>("addressModeW", _samplerInfo.addressModeW);
+    output.write("mipLodBias", _samplerInfo.mipLodBias);
+    output.writeValue<uint32_t>("anisotropyEnable", _samplerInfo.anisotropyEnable);
+    output.write("maxAnisotropy", _samplerInfo.maxAnisotropy);
+    output.writeValue<uint32_t>("compareEnable", _samplerInfo.compareEnable);
+    output.writeValue<uint32_t>("compareOp", _samplerInfo.compareOp);
+    output.write("minLod", _samplerInfo.minLod);
+    output.write("maxLod", _samplerInfo.maxLod);
+    output.writeValue<uint32_t>("borderColor", _samplerInfo.borderColor);
+    output.writeValue<uint32_t>("unnormalizedCoordinates", _samplerInfo.unnormalizedCoordinates);
+}
+
+void Sampler::compile(Context& context)
+{
+    if (_implementation) return;
+
+    _implementation = Implementation::create(context.device, _samplerInfo);
+}
+
+Sampler::Implementation::Implementation(VkSampler sampler, Device* device, AllocationCallbacks* allocator) :
     _sampler(sampler),
-    _info(info),
     _device(device),
     _allocator(allocator)
 {
 }
 
-Sampler::~Sampler()
+Sampler::Implementation::~Implementation()
 {
     if (_sampler)
     {
@@ -30,7 +107,7 @@ Sampler::~Sampler()
     }
 }
 
-Sampler::Result Sampler::create(Device* device, const VkSamplerCreateInfo& createSamplerInfo, AllocationCallbacks* allocator)
+Sampler::Implementation::Result Sampler::Implementation::create(Device* device, const VkSamplerCreateInfo& createSamplerInfo, AllocationCallbacks* allocator)
 {
     if (!device)
     {
@@ -41,7 +118,7 @@ Sampler::Result Sampler::create(Device* device, const VkSamplerCreateInfo& creat
     VkResult result = vkCreateSampler(*device, &createSamplerInfo, allocator, &sampler);
     if (result == VK_SUCCESS)
     {
-        return Result(new Sampler(sampler, createSamplerInfo, device, allocator));
+        return Result(new Sampler::Implementation(sampler, device, allocator));
     }
     else
     {
@@ -49,27 +126,3 @@ Sampler::Result Sampler::create(Device* device, const VkSamplerCreateInfo& creat
     }
 }
 
-Sampler::Result Sampler::create(Device* device, AllocationCallbacks* allocator)
-{
-    VkSamplerCreateInfo samplerInfo = {};
-    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    samplerInfo.minFilter = VK_FILTER_LINEAR;
-    samplerInfo.magFilter = VK_FILTER_LINEAR;
-    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-#if 1
-    // requires Logical device to have deviceFeatures.samplerAnisotropy = VK_TRUE; set when creating the vsg::Device
-    samplerInfo.anisotropyEnable = VK_TRUE;
-    samplerInfo.maxAnisotropy = 16;
-#else
-    samplerInfo.anisotropyEnable = VK_FALSE;
-    samplerInfo.maxAnisotropy = 1;
-#endif
-    samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-    samplerInfo.unnormalizedCoordinates = VK_FALSE;
-    samplerInfo.compareEnable = VK_FALSE;
-
-    return create(device, samplerInfo, allocator);
-}

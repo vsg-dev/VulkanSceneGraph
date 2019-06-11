@@ -67,75 +67,86 @@ namespace vsg
 
             return false;
         }
+
+        virtual uint32_t getNumDescriptors() const { return 1; }
     };
 
     using Descriptors = std::vector<vsg::ref_ptr<vsg::Descriptor>>;
 
+    using SamplerImage = std::pair<ref_ptr<Sampler>, ref_ptr<Data>>;
+    using SamplerImages = std::vector<SamplerImage>;
+
     class VSG_DECLSPEC DescriptorImage : public Inherit<Descriptor, DescriptorImage>
     {
     public:
-        DescriptorImage(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const ImageDataList& imageDataList) :
-            Inherit(dstBinding, dstArrayElement, descriptorType),
-            _imageDataList(imageDataList)
-        {
-            // convert from VSG to Vk
-            _imageInfos.resize(_imageDataList.size());
-            for (size_t i = 0; i < _imageDataList.size(); ++i)
-            {
-                const ImageData& data = _imageDataList[i];
-                VkDescriptorImageInfo& info = _imageInfos[i];
-                info.sampler = *(data._sampler);
-                info.imageView = *(data._imageView);
-                info.imageLayout = data._imageLayout;
-            }
-        }
+        DescriptorImage();
 
-        virtual bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
-        {
-            Descriptor::assignTo(wds, descriptorSet);
-            wds.descriptorCount = static_cast<uint32_t>(_imageInfos.size());
-            wds.pImageInfo = _imageInfos.data();
-            return true;
-        }
+        DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> image, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+
+        DescriptorImage(const SamplerImage& samplerImage, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+
+        DescriptorImage(const SamplerImages& samplerImages, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+
+
+        SamplerImages& getSamplerImages() { return _samplerImages; }
+        const SamplerImages& getSamplerImages() const { return _samplerImages; }
+
+        /** ImageDataList is automatically filled in by the DecriptorImage::compile() using the sampler and image data objects.*/
+        ImageDataList& getImageDataList() { return _imageDataList; }
+        const ImageDataList& getImageDataList() const { return _imageDataList; }
+
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        void compile(Context& context) override;
+
+        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
+
+        uint32_t getNumDescriptors() const override;
 
     protected:
+        SamplerImages _samplerImages;
+
+        // populated by compile()
         ImageDataList _imageDataList;
         std::vector<VkDescriptorImageInfo> _imageInfos;
     };
+    VSG_type_name(vsg::DescriptorImage)
 
     class VSG_DECLSPEC DescriptorBuffer : public Inherit<Descriptor, DescriptorBuffer>
     {
     public:
-        DescriptorBuffer(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferDataList& bufferDataList) :
-            Inherit(dstBinding, dstArrayElement, descriptorType),
-            _bufferDataList(bufferDataList)
-        {
-            // convert from VSG to Vk
-            _bufferInfos.resize(_bufferDataList.size());
-            for (size_t i = 0; i < _bufferDataList.size(); ++i)
-            {
-                const BufferData& data = _bufferDataList[i];
-                VkDescriptorBufferInfo& info = _bufferInfos[i];
-                info.buffer = *(data._buffer);
-                info.offset = data._offset;
-                info.range = data._range;
-            }
-        }
+        DescriptorBuffer();
 
-        virtual bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
-        {
-            Descriptor::assignTo(wds, descriptorSet);
-            wds.descriptorCount = static_cast<uint32_t>(_bufferInfos.size());
-            wds.pBufferInfo = _bufferInfos.data();
-            return true;
-        }
+        DescriptorBuffer(ref_ptr<Data> data, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+
+        DescriptorBuffer(const DataList& dataList, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+
+        DescriptorBuffer(const BufferDataList& bufferDataList, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+
+
+        DataList& getDataList() { return _dataList; }
+        const DataList& getDataList() const { return _dataList; }
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        void compile(Context& context) override;
+
+        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
+
+        uint32_t getNumDescriptors() const override;
 
         void copyDataListToBuffers();
 
+
     protected:
+        DataList _dataList;
         BufferDataList _bufferDataList;
         std::vector<VkDescriptorBufferInfo> _bufferInfos;
     };
+    VSG_type_name(vsg::DescriptorBuffer)
 
     using BufferViewList = std::vector<ref_ptr<BufferView>>;
 
@@ -163,53 +174,15 @@ namespace vsg
             return true;
         }
 
+        uint32_t getNumDescriptors() const override { return static_cast<uint32_t>(_texelBufferViewList.size()); }
+
     protected:
         BufferViewList _texelBufferViewList;
         std::vector<VkBufferView> _texelBufferViews;
     };
+    VSG_type_name(vsg::DescriptorTexelBufferView)
 
-    class VSG_DECLSPEC Texture : public Inherit<Descriptor, Texture>
-    {
-    public:
-        Texture();
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        void compile(Context& context) override;
-
-        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
-
-        // settings
-        VkSamplerCreateInfo _samplerInfo;
-        ref_ptr<Data> _textureData;
-
-        ref_ptr<vsg::Descriptor> _implementation;
-    };
-    VSG_type_name(vsg::Texture)
-
-        class VSG_DECLSPEC Uniform : public Inherit<Descriptor, Uniform>
-    {
-    public:
-        Uniform();
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        void compile(Context& context) override;
-
-        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
-
-        void copyDataListToBuffers();
-
-        // settings
-        DataList _dataList;
-
-        ref_ptr<vsg::DescriptorBuffer> _implementation;
-    };
-    VSG_type_name(vsg::Uniform)
-
-        struct Material
+    struct Material
     {
         vec4 ambientColor;
         vec4 diffuseColor;

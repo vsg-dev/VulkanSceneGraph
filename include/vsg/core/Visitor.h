@@ -51,7 +51,7 @@ namespace vsg
     class ComputePipeline;
     class Draw;
     class DrawIndexed;
-    class ShaderStages;
+    class ShaderStage;
     class GraphicsPipelineState;
     class VertexInputState;
     class InputAssemblyState;
@@ -184,7 +184,7 @@ namespace vsg
         virtual void apply(GraphicsPipeline&);
         virtual void apply(ComputePipeline&);
         virtual void apply(GraphicsPipelineState&);
-        virtual void apply(ShaderStages&);
+        virtual void apply(ShaderStage&);
         virtual void apply(VertexInputState&);
         virtual void apply(InputAssemblyState&);
         virtual void apply(ViewportState&);

@@ -407,9 +407,9 @@ void ConstVisitor::apply(const GraphicsPipelineState& value)
 {
     apply(static_cast<const Object&>(value));
 }
-void ConstVisitor::apply(const ShaderStages& value)
+void ConstVisitor::apply(const ShaderStage& value)
 {
-    apply(static_cast<const GraphicsPipelineState&>(value));
+    apply(static_cast<const Object&>(value));
 }
 void ConstVisitor::apply(const VertexInputState& value)
 {

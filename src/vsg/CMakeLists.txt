@@ -89,6 +89,7 @@ set(SOURCES
     vk/Sampler.cpp
     vk/Semaphore.cpp
     vk/ShaderModule.cpp
+    vk/ShaderStage.cpp
     vk/Surface.cpp
     vk/Swapchain.cpp
 )

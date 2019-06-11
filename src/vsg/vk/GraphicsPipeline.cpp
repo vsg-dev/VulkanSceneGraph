@@ -25,8 +25,9 @@ GraphicsPipeline::GraphicsPipeline()
 {
 }
 
-GraphicsPipeline::GraphicsPipeline(PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator) :
+GraphicsPipeline::GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator) :
     _pipelineLayout(pipelineLayout),
+    _shaderStages(shaderStages),
     _pipelineStates(pipelineStates),
     _allocator(allocator)
 {
@@ -42,6 +43,12 @@ void GraphicsPipeline::read(Input& input)
 
     _pipelineLayout = input.readObject<PipelineLayout>("PipelineLayout");
 
+    _shaderStages.resize(input.readValue<uint32_t>("NumShaderStages"));
+    for (auto& shaderStage : _shaderStages)
+    {
+        shaderStage = input.readObject<ShaderStage>("ShaderStage");
+    }
+
     _pipelineStates.resize(input.readValue<uint32_t>("NumPipelineStates"));
     for (auto& pipelineState : _pipelineStates)
     {
@@ -54,6 +61,12 @@ void GraphicsPipeline::write(Output& output) const
     Object::write(output);
 
     output.writeObject("PipelineLayout", _pipelineLayout.get());
+
+    output.writeValue<uint32_t>("NumShaderStages", _shaderStages.size());
+    for (auto& shaderStage : _shaderStages)
+    {
+        output.writeObject("ShaderStage", shaderStage.get());
+    }
 
     output.writeValue<uint32_t>("NumPipelineStates", _pipelineStates.size());
     for (auto& pipelineState : _pipelineStates)
@@ -68,6 +81,11 @@ void GraphicsPipeline::compile(Context& context)
     {
         _pipelineLayout->compile(context);
 
+        for (auto& shaderStage : _shaderStages)
+        {
+            shaderStage->compile(context);
+        }
+
         for (auto& pipelineState : _pipelineStates)
         {
             pipelineState->compile(context);
@@ -76,7 +94,7 @@ void GraphicsPipeline::compile(Context& context)
         GraphicsPipelineStates full_pipelineStates = _pipelineStates;
         full_pipelineStates.emplace_back(context.viewport);
 
-        _implementation = GraphicsPipeline::Implementation::create(context.device, context.renderPass, _pipelineLayout, full_pipelineStates, _allocator);
+        _implementation = GraphicsPipeline::Implementation::create(context.device, context.renderPass, _pipelineLayout, _shaderStages, full_pipelineStates, _allocator);
     }
 }
 
@@ -84,17 +102,18 @@ void GraphicsPipeline::compile(Context& context)
 //
 // GraphicsPipeline::Implementation
 //
-GraphicsPipeline::Implementation::Implementation(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator) :
+GraphicsPipeline::Implementation::Implementation(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator) :
     _pipeline(pipeline),
     _device(device),
     _renderPass(renderPass),
     _pipelineLayout(pipelineLayout),
+    _shaderStages(shaderStages),
     _pipelineStates(pipelineStates),
     _allocator(allocator)
 {
 }
 
-GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator)
+GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator)
 {
     if (!device || !renderPass || !pipelineLayout)
     {
@@ -107,6 +126,31 @@ GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::creat
     pipelineInfo.renderPass = *renderPass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+    pipelineInfo.pNext = nullptr;
+
+    std::vector<VkSpecializationInfo> specializationInfos(shaderStages.size());
+    std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfo(shaderStages.size());
+    for(size_t i = 0; i < shaderStages.size(); ++i)
+    {
+        const ShaderStage* shaderStage = shaderStages[i];
+        shaderStageCreateInfo[i].pNext = nullptr;
+        shaderStage->apply(shaderStageCreateInfo[i]);
+        if (!shaderStage->getSpecializationMapEntries().empty() && shaderStage->getSpecializationData()!=nullptr)
+        {
+            // assign a VkSpecializationInfo for this shaderStageCreateInfo
+            VkSpecializationInfo& specializationInfo = specializationInfos[i];
+            shaderStageCreateInfo[i].pSpecializationInfo = &specializationInfo;
+
+            // assign the values from the ShaderStage into the specializationInfo
+            specializationInfo.mapEntryCount = shaderStage->getSpecializationMapEntries().size();
+            specializationInfo.pMapEntries = shaderStage->getSpecializationMapEntries().data();
+            specializationInfo.dataSize = shaderStage->getSpecializationData()->dataSize();
+            specializationInfo.pData = shaderStage->getSpecializationData()->dataPointer();
+        }
+    }
+
+    pipelineInfo.stageCount = shaderStageCreateInfo.size();
+    pipelineInfo.pStages = shaderStageCreateInfo.data();
 
     for (auto pipelineState : pipelineStates)
     {
@@ -117,7 +161,7 @@ GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::creat
     VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &pipeline);
     if (result == VK_SUCCESS)
     {
-        return Result(new Implementation(pipeline, device, renderPass, pipelineLayout, pipelineStates, allocator));
+        return Result(new Implementation(pipeline, device, renderPass, pipelineLayout, shaderStages, pipelineStates, allocator));
     }
     else
     {
@@ -176,76 +220,6 @@ void BindGraphicsPipeline::release()
 
 ////////////////////////////////////////////////////////////////////////
 //
-// ShaderStages
-//
-ShaderStages::ShaderStages()
-{
-}
-
-ShaderStages::ShaderStages(const ShaderModules& shaderModules)
-{
-    setShaderModules(shaderModules);
-}
-
-ShaderStages::~ShaderStages()
-{
-}
-
-void ShaderStages::read(Input& input)
-{
-    Object::read(input);
-
-    _shaderModules.resize(input.readValue<uint32_t>("NumShaderModule"));
-    for (auto& shaderModule : _shaderModules)
-    {
-        shaderModule = input.readObject<ShaderModule>("ShaderModule");
-    }
-}
-
-void ShaderStages::write(Output& output) const
-{
-    Object::write(output);
-
-    output.writeValue<uint32_t>("NumShaderModule", _shaderModules.size());
-    for (auto& shaderModule : _shaderModules)
-    {
-        output.writeObject("ShaderModule", shaderModule.get());
-    }
-}
-
-void ShaderStages::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
-{
-    pipelineInfo.stageCount = static_cast<uint32_t>(size());
-    pipelineInfo.pStages = data();
-}
-
-void ShaderStages::compile(Context& context)
-{
-    _stages.resize(_shaderModules.size());
-    for (size_t i = 0; i < _shaderModules.size(); ++i)
-    {
-        VkPipelineShaderStageCreateInfo& stageInfo = (_stages)[i];
-        ShaderModule* sm = _shaderModules[i];
-        sm->compile(context);
-        stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        stageInfo.stage = sm->stage();
-        stageInfo.module = *sm;
-        stageInfo.pName = sm->entryPointName().c_str();
-    }
-}
-
-void ShaderStages::release()
-{
-    for (auto& shaderModules : _shaderModules)
-    {
-        shaderModules->release();
-    }
-
-    _stages.clear();
-}
-
-////////////////////////////////////////////////////////////////////////
-//
 // VertexInputState
 //
 VertexInputState::VertexInputState() :
@@ -254,6 +228,7 @@ VertexInputState::VertexInputState() :
     sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexBindingDescriptionCount = 0;
     vertexAttributeDescriptionCount = 0;
+    pNext = nullptr;
 }
 
 VertexInputState::VertexInputState(const Bindings& bindings, const Attributes& attributes) :
@@ -262,6 +237,7 @@ VertexInputState::VertexInputState(const Bindings& bindings, const Attributes& a
     _attributes(attributes)
 {
     sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    pNext = nullptr;
     _assign();
 }
 
@@ -338,6 +314,7 @@ InputAssemblyState::InputAssemblyState() :
     sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     primitiveRestartEnable = VK_FALSE;
+    pNext = nullptr;
 }
 
 InputAssemblyState::InputAssemblyState(VkPrimitiveTopology primitiveTopology, bool enablePrimitiveRestart) :
@@ -346,6 +323,7 @@ InputAssemblyState::InputAssemblyState(VkPrimitiveTopology primitiveTopology, bo
     sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     topology = primitiveTopology;
     primitiveRestartEnable = enablePrimitiveRestart ? VK_TRUE : VK_FALSE;
+    pNext = nullptr;
 }
 
 InputAssemblyState::~InputAssemblyState()
@@ -382,6 +360,8 @@ ViewportState::ViewportState() :
     _viewport{},
     _scissor{}
 {
+    sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    pNext = nullptr;
 }
 
 ViewportState::ViewportState(const VkExtent2D& extent) :
@@ -390,6 +370,7 @@ ViewportState::ViewportState(const VkExtent2D& extent) :
     _scissor{}
 {
     sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    pNext = nullptr;
     _viewport.x = 0.0f;
     _viewport.y = 0.0f;
     _viewport.width = static_cast<float>(extent.width);
@@ -430,6 +411,7 @@ RasterizationState::RasterizationState() :
     //    frontFace = VK_FRONT_FACE_CLOCKWISE;
     frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     depthBiasEnable = VK_FALSE;
+    pNext = nullptr;
 }
 
 RasterizationState::~RasterizationState()
@@ -451,6 +433,7 @@ MultisampleState::MultisampleState() :
     sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     sampleShadingEnable = VK_FALSE;
     rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    pNext = nullptr;
 }
 
 MultisampleState::~MultisampleState()
@@ -475,6 +458,7 @@ DepthStencilState::DepthStencilState() :
     depthCompareOp = VK_COMPARE_OP_LESS;
     depthBoundsTestEnable = VK_FALSE;
     stencilTestEnable = VK_FALSE;
+    pNext = nullptr;
 }
 
 DepthStencilState::~DepthStencilState()
@@ -534,6 +518,7 @@ ColorBlendState::ColorBlendState() :
     blendConstants[1] = 0.0f;
     blendConstants[2] = 0.0f;
     blendConstants[3] = 0.0f;
+    pNext = nullptr;
 }
 
 ColorBlendState::ColorBlendState(const ColorBlendAttachments& colorBlendAttachments) :

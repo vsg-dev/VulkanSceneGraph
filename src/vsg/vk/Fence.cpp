@@ -39,6 +39,7 @@ Fence::Result Fence::create(Device* device, VkFenceCreateFlags flags, Allocation
     VkFenceCreateInfo createFenceInfo = {};
     createFenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     createFenceInfo.flags = flags;
+    createFenceInfo.pNext = nullptr;
 
     VkFence fence;
     VkResult result = vkCreateFence(*device, &createFenceInfo, allocator, &fence);

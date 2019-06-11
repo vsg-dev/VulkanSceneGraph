@@ -129,6 +129,7 @@ PipelineLayout::Implementation::Result PipelineLayout::Implementation::create(De
     pipelineLayoutInfo.pSetLayouts = layouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstantRanges.size());
     pipelineLayoutInfo.pPushConstantRanges = pushConstantRanges.data();
+    pipelineLayoutInfo.pNext = nullptr;
 
     VkPipelineLayout pipelineLayout;
     VkResult result = vkCreatePipelineLayout(*device, &pipelineLayoutInfo, allocator, &pipelineLayout);

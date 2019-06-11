@@ -350,7 +350,7 @@ public:
         {
             descriptors.insert(&descriptor);
         }
-        ++descriptorTypeMap[descriptor._descriptorType];
+        descriptorTypeMap[descriptor._descriptorType] += descriptor.getNumDescriptors();
     }
 
     uint32_t computeNumDescriptorSets() const

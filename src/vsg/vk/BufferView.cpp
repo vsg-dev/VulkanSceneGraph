@@ -43,6 +43,7 @@ BufferView::Result BufferView::create(Buffer* buffer, VkFormat format, VkDeviceS
     createInfo.format = format;
     createInfo.offset = offset;
     createInfo.range = range;
+    createInfo.pNext = nullptr;
 
     VkBufferView bufferView;
     VkResult result = vkCreateBufferView(*(buffer->getDevice()), &createInfo, allocator, &bufferView);

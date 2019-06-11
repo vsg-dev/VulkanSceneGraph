@@ -203,6 +203,8 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
 
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
+    createInfo.pNext = nullptr;
+
     VkSwapchainKHR swapchain;
     VkResult result = vkCreateSwapchainKHR(*device, &createInfo, allocator, &swapchain);
     if (result != VK_SUCCESS)

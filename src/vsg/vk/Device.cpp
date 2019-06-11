@@ -53,6 +53,7 @@ Device::Result Device::create(PhysicalDevice* physicalDevice, Names& layers, Nam
         queueCreateInfo.queueFamilyIndex = queueFamily;
         queueCreateInfo.queueCount = 1;
         queueCreateInfo.pQueuePriorities = &queuePriority;
+        queueCreateInfo.pNext = nullptr;
         queueCreateInfos.push_back(queueCreateInfo);
     }
 
@@ -72,6 +73,8 @@ Device::Result Device::create(PhysicalDevice* physicalDevice, Names& layers, Nam
 
     createInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
     createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
+
+    createInfo.pNext = nullptr;
 
     VkDevice device;
     VkResult result = vkCreateDevice(*physicalDevice, &createInfo, allocator, &device);

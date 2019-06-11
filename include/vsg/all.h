@@ -105,6 +105,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Framebuffer.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/Image.h>
+#include <vsg/vk/ImageData.h>
 #include <vsg/vk/ImageView.h>
 #include <vsg/vk/Instance.h>
 #include <vsg/vk/MemoryManager.h>
@@ -115,6 +116,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Sampler.h>
 #include <vsg/vk/Semaphore.h>
 #include <vsg/vk/ShaderModule.h>
+#include <vsg/vk/ShaderStage.h>
+#include <vsg/vk/Stage.h>
 #include <vsg/vk/State.h>
 #include <vsg/vk/Surface.h>
 #include <vsg/vk/Swapchain.h>

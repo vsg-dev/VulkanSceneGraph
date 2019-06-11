@@ -14,129 +14,143 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Descriptor.h>
 
+#include <algorithm>
 #include <iostream>
 
 using namespace vsg;
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// DescriptorImages
+//
+DescriptorImage::DescriptorImage():
+    Inherit(0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
+{
+}
+
+DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> image, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
+    Inherit(dstBinding, dstArrayElement, descriptorType)
+{
+    if (sampler || image) _samplerImages.emplace_back(SamplerImage(sampler, image));
+}
+
+DescriptorImage::DescriptorImage(const SamplerImage& samplerImage, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
+    Inherit(dstBinding, dstArrayElement, descriptorType)
+{
+    if (samplerImage.first || samplerImage.second) _samplerImages.emplace_back(samplerImage);
+}
+
+DescriptorImage::DescriptorImage(const SamplerImages& samplerImages, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType):
+    Inherit(dstBinding, dstArrayElement, descriptorType),
+    _samplerImages(samplerImages)
+{
+}
+
+void DescriptorImage::read(Input& input)
+{
+    _imageDataList.clear();
+    _imageInfos.clear();
+
+    Descriptor::read(input);
+
+    _samplerImages.resize(input.readValue<uint32_t>("NumImages"));
+    for (auto& samplerImage : _samplerImages)
+    {
+        samplerImage.first = input.readObject<Sampler>("Sampler");
+        samplerImage.second = input.readObject<Data>("Image");
+    }
+}
+
+void DescriptorImage::write(Output& output) const
+{
+    Descriptor::write(output);
+
+    output.writeValue<uint32_t>("NumImages", _samplerImages.size());
+    for (auto& samplerImage : _samplerImages)
+    {
+        output.writeObject("Sampler", samplerImage.first.get());
+        output.writeObject("Image", samplerImage.second.get());
+    }
+}
+
+void DescriptorImage::compile(Context& context)
+{
+    // check if we have already compiled the imageData.
+    if ((_imageInfos.size() >= _imageDataList.size()) && (_imageInfos.size() >= _samplerImages.size())) return;
+
+    if (!_samplerImages.empty())
+    {
+        _imageDataList.clear();
+        _imageDataList.reserve(_samplerImages.size());
+        for(auto& samplerImage : _samplerImages)
+        {
+            samplerImage.first->compile(context);
+            _imageDataList.emplace_back(vsg::transferImageData(context, samplerImage.second, samplerImage.first));
+        }
+    }
+
+    // convert from VSG to Vk
+    _imageInfos.resize(_imageDataList.size());
+    for (size_t i = 0; i < _imageDataList.size(); ++i)
+    {
+        const ImageData& data = _imageDataList[i];
+        VkDescriptorImageInfo& info = _imageInfos[i];
+        if (data._sampler) info.sampler = *(data._sampler);
+        else info.sampler = 0;
+
+        if (data._imageView) info.imageView = *(data._imageView);
+        else info.imageView = 0;
+
+        info.imageLayout = data._imageLayout;
+    }
+}
+
+bool DescriptorImage::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+{
+    Descriptor::assignTo(wds, descriptorSet);
+    wds.descriptorCount = static_cast<uint32_t>(_imageInfos.size());
+    wds.pImageInfo = _imageInfos.data();
+    return true;
+}
+
+uint32_t DescriptorImage::getNumDescriptors() const
+{
+    return static_cast<uint32_t>(std::max(_imageDataList.size(), _samplerImages.size()));
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // DescriptorBuffer
 //
-void DescriptorBuffer::copyDataListToBuffers()
-{
-    vsg::copyDataListToBuffers(_bufferDataList);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-//
-// Texture
-//
-Texture::Texture() :
-    Inherit(0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
-{
-    // set default sampler info
-    _samplerInfo = {};
-    _samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    _samplerInfo.minFilter = VK_FILTER_LINEAR;
-    _samplerInfo.magFilter = VK_FILTER_LINEAR;
-    _samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    _samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    _samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-#if 1
-    // requires Logical device to have deviceFeatures.samplerAnisotropy = VK_TRUE; set when creating the vsg::Device
-    _samplerInfo.anisotropyEnable = VK_TRUE;
-    _samplerInfo.maxAnisotropy = 16;
-#else
-    _samplerInfo.anisotropyEnable = VK_FALSE;
-    _samplerInfo.maxAnisotropy = 1;
-#endif
-    _samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-    _samplerInfo.unnormalizedCoordinates = VK_FALSE;
-    _samplerInfo.compareEnable = VK_FALSE;
-    _samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-}
-
-void Texture::read(Input& input)
-{
-    Descriptor::read(input);
-#if 1
-    input.readValue<uint32_t>("flags", _samplerInfo.flags);
-    input.readValue<uint32_t>("minFilter", _samplerInfo.minFilter);
-    input.readValue<uint32_t>("magFilter", _samplerInfo.magFilter);
-    input.readValue<uint32_t>("mipmapMode", _samplerInfo.mipmapMode);
-    input.readValue<uint32_t>("addressModeU", _samplerInfo.addressModeU);
-    input.readValue<uint32_t>("addressModeV", _samplerInfo.addressModeV);
-    input.readValue<uint32_t>("addressModeW", _samplerInfo.addressModeW);
-    input.read("mipLodBias", _samplerInfo.mipLodBias);
-    input.readValue<uint32_t>("anisotropyEnable", _samplerInfo.anisotropyEnable);
-    input.read("maxAnisotropy", _samplerInfo.maxAnisotropy);
-    input.readValue<uint32_t>("compareEnable", _samplerInfo.compareEnable);
-    input.readValue<uint32_t>("compareOp", _samplerInfo.compareOp);
-    input.read("minLod", _samplerInfo.minLod);
-    input.read("maxLod", _samplerInfo.maxLod);
-    input.readValue<uint32_t>("borderColor", _samplerInfo.borderColor);
-    input.readValue<uint32_t>("unnormalizedCoordinates", _samplerInfo.unnormalizedCoordinates);
-#endif
-    _textureData = input.readObject<Data>("TextureData");
-}
-
-void Texture::write(Output& output) const
-{
-    Descriptor::write(output);
-#if 1
-    output.writeValue<uint32_t>("flags", _samplerInfo.flags);
-    output.writeValue<uint32_t>("minFilter", _samplerInfo.minFilter);
-    output.writeValue<uint32_t>("magFilter", _samplerInfo.magFilter);
-    output.writeValue<uint32_t>("mipmapMode", _samplerInfo.mipmapMode);
-    output.writeValue<uint32_t>("addressModeU", _samplerInfo.addressModeU);
-    output.writeValue<uint32_t>("addressModeV", _samplerInfo.addressModeV);
-    output.writeValue<uint32_t>("addressModeW", _samplerInfo.addressModeW);
-    output.write("mipLodBias", _samplerInfo.mipLodBias);
-    output.writeValue<uint32_t>("anisotropyEnable", _samplerInfo.anisotropyEnable);
-    output.write("maxAnisotropy", _samplerInfo.maxAnisotropy);
-    output.writeValue<uint32_t>("compareEnable", _samplerInfo.compareEnable);
-    output.writeValue<uint32_t>("compareOp", _samplerInfo.compareOp);
-    output.write("minLod", _samplerInfo.minLod);
-    output.write("maxLod", _samplerInfo.maxLod);
-    output.writeValue<uint32_t>("borderColor", _samplerInfo.borderColor);
-    output.writeValue<uint32_t>("unnormalizedCoordinates", _samplerInfo.unnormalizedCoordinates);
-#endif
-    output.writeObject("TextureData", _textureData.get());
-}
-
-void Texture::compile(Context& context)
-{
-    if (_implementation) return;
-
-    ref_ptr<Sampler> sampler = Sampler::create(context.device, _samplerInfo, nullptr);
-    vsg::ImageData imageData = vsg::transferImageData(context, _textureData, sampler);
-    if (!imageData.valid())
-    {
-        return;
-    }
-
-    _implementation = vsg::DescriptorImage::create(_dstBinding, _dstArrayElement, _descriptorType, vsg::ImageDataList{imageData});
-}
-
-bool Texture::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
-{
-    if (_implementation)
-        return _implementation->assignTo(wds, descriptorSet);
-    else
-        return false;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-//
-// Uniform
-//
-Uniform::Uniform() :
+DescriptorBuffer::DescriptorBuffer() :
     Inherit(0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
 {
 }
 
-void Uniform::read(Input& input)
+DescriptorBuffer::DescriptorBuffer(ref_ptr<Data> data, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
+    Inherit(dstBinding, dstArrayElement, descriptorType)
 {
+    if (data) _dataList.emplace_back(data);
+}
+
+DescriptorBuffer::DescriptorBuffer(const DataList& dataList, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
+    Inherit(dstBinding, dstArrayElement, descriptorType),
+    _dataList(dataList)
+{
+}
+
+DescriptorBuffer::DescriptorBuffer(const BufferDataList& bufferDataList, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
+    Inherit(dstBinding, dstArrayElement, descriptorType),
+    _bufferDataList(bufferDataList)
+{
+}
+
+void DescriptorBuffer::read(Input& input)
+{
+    _bufferDataList.clear();
+    _bufferInfos.clear();
+
     Descriptor::read(input);
 
     _dataList.resize(input.readValue<uint32_t>("NumData"));
@@ -146,7 +160,7 @@ void Uniform::read(Input& input)
     }
 }
 
-void Uniform::write(Output& output) const
+void DescriptorBuffer::write(Output& output) const
 {
     Descriptor::write(output);
 
@@ -157,24 +171,49 @@ void Uniform::write(Output& output) const
     }
 }
 
-void Uniform::compile(Context& context)
+void DescriptorBuffer::compile(Context& context)
 {
-    if (_implementation) return;
+    // check if already compiled
+    if ((_bufferInfos.size() >= _bufferDataList.size()) && (_bufferInfos.size() >= _dataList.size())) return;
 
-    auto bufferDataList = vsg::createHostVisibleBuffer(context.device, _dataList, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    vsg::copyDataListToBuffers(bufferDataList);
-    _implementation = vsg::DescriptorBuffer::create(_dstBinding, _dstArrayElement, _descriptorType, bufferDataList);
+
+    if (_bufferDataList.size()<_dataList.size())
+    {
+        VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+#if 1
+        _bufferDataList = vsg::createHostVisibleBuffer(context.device, _dataList, bufferUsageFlags, VK_SHARING_MODE_EXCLUSIVE);
+        vsg::copyDataListToBuffers(_bufferDataList);
+#else
+        _bufferDataList = vsg::createBufferAndTransferData(context, _dataList, bufferUsageFlags, VK_SHARING_MODE_EXCLUSIVE);
+#endif
+    }
+
+    // convert from VSG to Vk
+    _bufferInfos.resize(_bufferDataList.size());
+    for (size_t i = 0; i < _bufferDataList.size(); ++i)
+    {
+        const BufferData& data = _bufferDataList[i];
+        VkDescriptorBufferInfo& info = _bufferInfos[i];
+        info.buffer = *(data._buffer);
+        info.offset = data._offset;
+        info.range = data._range;
+    }
 }
 
-bool Uniform::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+bool DescriptorBuffer::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
 {
-    if (_implementation)
-        return _implementation->assignTo(wds, descriptorSet);
-    else
-        return false;
+    Descriptor::assignTo(wds, descriptorSet);
+    wds.descriptorCount = static_cast<uint32_t>(_bufferInfos.size());
+    wds.pBufferInfo = _bufferInfos.data();
+    return true;
 }
 
-void Uniform::copyDataListToBuffers()
+uint32_t DescriptorBuffer::getNumDescriptors() const
 {
-    if (_implementation) _implementation->copyDataListToBuffers();
+    return static_cast<uint32_t>(std::max(_bufferDataList.size(), _dataList.size()));
+}
+
+void DescriptorBuffer::copyDataListToBuffers()
+{
+    vsg::copyDataListToBuffers(_bufferDataList);
 }

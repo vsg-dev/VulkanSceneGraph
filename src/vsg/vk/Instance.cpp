@@ -104,6 +104,8 @@ Instance::Result Instance::create(Names& instanceExtensions, Names& layers, Allo
     createInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
     createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
 
+    createInfo.pNext = nullptr;
+
     VkInstance instance;
     VkResult result = vkCreateInstance(&createInfo, allocator, &instance);
     if (result == VK_SUCCESS)
