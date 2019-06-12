@@ -135,7 +135,6 @@ namespace vsg
     };
     VSG_type_name(vsg::BindGraphicsPipeline);
 
-
     class VSG_DECLSPEC VertexInputState : public Inherit<GraphicsPipelineState, VertexInputState>, public VkPipelineVertexInputStateCreateInfo
     {
     public:

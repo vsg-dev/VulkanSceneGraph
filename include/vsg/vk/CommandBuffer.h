@@ -78,7 +78,7 @@ namespace vsg
         if (fence)
         {
             vkQueueSubmit(queue, 1, &submitInfo, *fence);
-            fence->wait(timeout);
+            if (timeout>=0) fence->wait(timeout);
         }
         else
         {

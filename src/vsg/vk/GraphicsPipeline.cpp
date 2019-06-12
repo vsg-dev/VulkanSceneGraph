@@ -130,12 +130,12 @@ GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::creat
 
     std::vector<VkSpecializationInfo> specializationInfos(shaderStages.size());
     std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfo(shaderStages.size());
-    for(size_t i = 0; i < shaderStages.size(); ++i)
+    for (size_t i = 0; i < shaderStages.size(); ++i)
     {
         const ShaderStage* shaderStage = shaderStages[i];
         shaderStageCreateInfo[i].pNext = nullptr;
         shaderStage->apply(shaderStageCreateInfo[i]);
-        if (!shaderStage->getSpecializationMapEntries().empty() && shaderStage->getSpecializationData()!=nullptr)
+        if (!shaderStage->getSpecializationMapEntries().empty() && shaderStage->getSpecializationData() != nullptr)
         {
             // assign a VkSpecializationInfo for this shaderStageCreateInfo
             VkSpecializationInfo& specializationInfo = specializationInfos[i];

@@ -19,12 +19,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // DescriptorImages
 //
-DescriptorImage::DescriptorImage():
+DescriptorImage::DescriptorImage() :
     Inherit(0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
 {
 }
@@ -41,7 +40,7 @@ DescriptorImage::DescriptorImage(const SamplerImage& samplerImage, uint32_t dstB
     if (samplerImage.first || samplerImage.second) _samplerImages.emplace_back(samplerImage);
 }
 
-DescriptorImage::DescriptorImage(const SamplerImages& samplerImages, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType):
+DescriptorImage::DescriptorImage(const SamplerImages& samplerImages, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
     Inherit(dstBinding, dstArrayElement, descriptorType),
     _samplerImages(samplerImages)
 {
@@ -83,7 +82,7 @@ void DescriptorImage::compile(Context& context)
     {
         _imageDataList.clear();
         _imageDataList.reserve(_samplerImages.size());
-        for(auto& samplerImage : _samplerImages)
+        for (auto& samplerImage : _samplerImages)
         {
             samplerImage.first->compile(context);
             _imageDataList.emplace_back(vsg::transferImageData(context, samplerImage.second, samplerImage.first));
@@ -96,11 +95,15 @@ void DescriptorImage::compile(Context& context)
     {
         const ImageData& data = _imageDataList[i];
         VkDescriptorImageInfo& info = _imageInfos[i];
-        if (data._sampler) info.sampler = *(data._sampler);
-        else info.sampler = 0;
+        if (data._sampler)
+            info.sampler = *(data._sampler);
+        else
+            info.sampler = 0;
 
-        if (data._imageView) info.imageView = *(data._imageView);
-        else info.imageView = 0;
+        if (data._imageView)
+            info.imageView = *(data._imageView);
+        else
+            info.imageView = 0;
 
         info.imageLayout = data._imageLayout;
     }
@@ -176,8 +179,7 @@ void DescriptorBuffer::compile(Context& context)
     // check if already compiled
     if ((_bufferInfos.size() >= _bufferDataList.size()) && (_bufferInfos.size() >= _dataList.size())) return;
 
-
-    if (_bufferDataList.size()<_dataList.size())
+    if (_bufferDataList.size() < _dataList.size())
     {
         VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 #if 1

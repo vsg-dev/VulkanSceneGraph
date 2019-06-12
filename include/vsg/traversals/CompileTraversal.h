@@ -68,17 +68,16 @@ namespace vsg
     class Context
     {
     public:
-
         Context(Device* in_device,  BufferPreferences bufferPreferences = {});
 
         // used by BufferData.cpp, ComputePipeline.cpp, Descriptor.cpp, Descriptor.cpp, DescriptorSet.cpp, DescriptorSetLayout.cpp, GraphicsPipeline.cpp, ImageData.cpp, PipelineLayout.cpp, ShaderModule.cpp
         ref_ptr<Device> device;
 
-         // used by GraphicsPipeline.cpp
+        // used by GraphicsPipeline.cpp
         ref_ptr<RenderPass> renderPass;
         ref_ptr<ViewportState> viewport;
 
-         // DescriptorSet.cpp
+        // DescriptorSet.cpp
         ref_ptr<DescriptorPool> descriptorPool;
 
         // transfer data settings

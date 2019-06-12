@@ -15,8 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/ImageData.h>
 
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 
 using namespace vsg;
 

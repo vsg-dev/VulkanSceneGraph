@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Sampler.h>
 #include <vsg/traversals/CompileTraversal.h>
+#include <vsg/vk/Sampler.h>
 
 using namespace vsg;
 
@@ -125,4 +125,3 @@ Sampler::Implementation::Result Sampler::Implementation::create(Device* device, 
         return Result("Error: Failed to create vkSampler.", result);
     }
 }
-

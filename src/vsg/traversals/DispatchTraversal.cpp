@@ -92,12 +92,12 @@ void DispatchTraversal::apply(const LOD& lod)
     const auto& proj = _state->projectionMatrixStack.top();
     const auto& mv = _state->modelviewMatrixStack.top();
     auto f = -proj[1][1];
-    vsg::vec4 lv(mv[0][2],  mv[1][2], mv[2][2], mv[3][2]);
+    vsg::vec4 lv(mv[0][2], mv[1][2], mv[2][2], mv[3][2]);
 
-    auto distance = std::abs(lv.x * sphere.x + lv.y * sphere.y + lv.z  * sphere.z + lv.w);
+    auto distance = std::abs(lv.x * sphere.x + lv.y * sphere.y + lv.z * sphere.z + lv.w);
     auto rf = sphere.r * f;
 
-    for(auto lodChild : lod.getChildren())
+    for (auto lodChild : lod.getChildren())
     {
         bool child_visible = rf > (lodChild.minimumScreenHeightRatio * distance);
         if (child_visible)
