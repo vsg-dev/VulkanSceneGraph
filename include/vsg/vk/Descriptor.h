@@ -87,14 +87,12 @@ namespace vsg
 
         DescriptorImage(const SamplerImages& samplerImages, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-
         SamplerImages& getSamplerImages() { return _samplerImages; }
         const SamplerImages& getSamplerImages() const { return _samplerImages; }
 
         /** ImageDataList is automatically filled in by the DecriptorImage::compile() using the sampler and image data objects.*/
         ImageDataList& getImageDataList() { return _imageDataList; }
         const ImageDataList& getImageDataList() const { return _imageDataList; }
-
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -114,7 +112,7 @@ namespace vsg
     };
     VSG_type_name(vsg::DescriptorImage)
 
-    class VSG_DECLSPEC DescriptorBuffer : public Inherit<Descriptor, DescriptorBuffer>
+        class VSG_DECLSPEC DescriptorBuffer : public Inherit<Descriptor, DescriptorBuffer>
     {
     public:
         DescriptorBuffer();
@@ -124,7 +122,6 @@ namespace vsg
         DescriptorBuffer(const DataList& dataList, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 
         DescriptorBuffer(const BufferDataList& bufferDataList, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-
 
         DataList& getDataList() { return _dataList; }
         const DataList& getDataList() const { return _dataList; }
@@ -140,7 +137,6 @@ namespace vsg
 
         void copyDataListToBuffers();
 
-
     protected:
         DataList _dataList;
         BufferDataList _bufferDataList;
@@ -148,7 +144,7 @@ namespace vsg
     };
     VSG_type_name(vsg::DescriptorBuffer)
 
-    using BufferViewList = std::vector<ref_ptr<BufferView>>;
+        using BufferViewList = std::vector<ref_ptr<BufferView>>;
 
     class VSG_DECLSPEC DescriptorTexelBufferView : public Inherit<Descriptor, DescriptorTexelBufferView>
     {
@@ -182,7 +178,7 @@ namespace vsg
     };
     VSG_type_name(vsg::DescriptorTexelBufferView)
 
-    struct Material
+        struct Material
     {
         vec4 ambientColor;
         vec4 diffuseColor;

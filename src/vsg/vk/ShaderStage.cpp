@@ -15,7 +15,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-
 ShaderStage::ShaderStage()
 {
 }
@@ -72,7 +71,7 @@ void ShaderStage::read(Input& input)
     _shaderModule = input.readObject<ShaderModule>("ShaderModule");
 
     _specializationMapEntries.resize(input.readValue<uint32_t>("NumSpecializationMapEntries"));
-    for(auto& specializationMapEntry : _specializationMapEntries)
+    for (auto& specializationMapEntry : _specializationMapEntries)
     {
         input.read("constantID", specializationMapEntry.constantID);
         input.read("offset", specializationMapEntry.offset);
@@ -93,7 +92,7 @@ void ShaderStage::write(Output& output) const
     output.writeObject("ShaderModule", _shaderModule.get());
 
     output.writeValue<uint32_t>("NumSpecializationMapEntries", _specializationMapEntries.size());
-    for(auto& specializationMapEntry : _specializationMapEntries)
+    for (auto& specializationMapEntry : _specializationMapEntries)
     {
         output.write("constantID", specializationMapEntry.constantID);
         output.write("offset", specializationMapEntry.offset);
@@ -115,4 +114,3 @@ void ShaderStage::compile(Context& context)
 {
     if (_shaderModule) _shaderModule->compile(context);
 }
-

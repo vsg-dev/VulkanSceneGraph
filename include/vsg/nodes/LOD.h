@@ -43,7 +43,7 @@ namespace vsg
             ref_ptr<Node> child;
         };
 
-        using Children = std::vector< LODChild >;
+        using Children = std::vector<LODChild>;
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
@@ -61,7 +61,6 @@ namespace vsg
 
         void setBound(const Sphere& bound) { _bound = bound; }
         inline const Sphere& getBound() const { return _bound; }
-
 
         void setChild(std::size_t pos, const LODChild& lodChild) { _children[pos] = lodChild; }
         LODChild& getChild(std::size_t pos) { return _children[pos]; }

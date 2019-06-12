@@ -20,7 +20,6 @@ namespace vsg
     // forward declare
     class Context;
 
-
     class VSG_DECLSPEC ShaderStage : public Inherit<Object, ShaderStage>
     {
     public:
@@ -62,7 +61,6 @@ namespace vsg
         void compile(Context& context);
 
     protected:
-
         VkShaderStageFlagBits _stage;
         std::string _entryPointName;
         ref_ptr<ShaderModule> _shaderModule;
@@ -72,6 +70,5 @@ namespace vsg
     VSG_type_name(vsg::ShaderStage);
 
     using ShaderStages = std::vector<ref_ptr<ShaderStage>>;
-
 
 } // namespace vsg

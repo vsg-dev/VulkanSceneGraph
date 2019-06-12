@@ -92,7 +92,7 @@ ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(
     stageInfo.pNext = nullptr;
     shaderStage->apply(stageInfo);
 
-    if (!shaderStage->getSpecializationMapEntries().empty() && shaderStage->getSpecializationData()!=nullptr)
+    if (!shaderStage->getSpecializationMapEntries().empty() && shaderStage->getSpecializationData() != nullptr)
     {
         // assign a VkSpecializationInfo for this shaderStageCreateInfo
         stageInfo.pSpecializationInfo = &specializationInfo;
