@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/ImageView.h>
 #include <vsg/vk/Sampler.h>
+#include <vsg/vk/BufferData.h>
 
 namespace vsg
 {
@@ -48,6 +49,25 @@ namespace vsg
         ref_ptr<Sampler> _sampler;
         ref_ptr<ImageView> _imageView;
         VkImageLayout _imageLayout;
+    };
+
+    class CopyAndReleaseImageDataCommand : public Command
+    {
+    public:
+
+        CopyAndReleaseImageDataCommand(BufferData src, ImageData dest, uint32_t numMipMapLevels):
+            source(src),
+            destination(dest),
+            mipLevels(numMipMapLevels) {}
+
+        void dispatch(CommandBuffer& commandBuffer) const override;
+
+        BufferData source;
+        ImageData destination;
+        uint32_t mipLevels = 1;
+
+    protected:
+        virtual ~CopyAndReleaseImageDataCommand();
     };
 
     /// transfer Data to graphics memory, returning ImageData configuration.

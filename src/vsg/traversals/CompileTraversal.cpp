@@ -25,6 +25,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/State.h>
 
 #include <iostream>
+#include <chrono>
 
 using namespace vsg;
 
@@ -206,6 +207,89 @@ Context::Context(Device* in_device,  BufferPreferences bufferPreferences):
     deviceMemoryBufferPools("Device_MemoryBufferPool", device, bufferPreferences),
     stagingMemoryBufferPools("Staging_MemoryBufferPool", device, bufferPreferences)
 {
+}
+
+ref_ptr<CommandBuffer> Context::getOrCreateCommandBuffer()
+{
+    if (!commandBuffer)
+    {
+        commandBuffer = vsg::CommandBuffer::create(device, commandPool, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+    }
+
+    return commandBuffer;
+}
+
+ref_ptr<Fence> Context::getOrCreateFence()
+{
+    if (!fence)
+    {
+        fence = vsg::Fence::create(device);
+    }
+
+    return fence;
+}
+
+void Context::dispatchCommands()
+{
+    if (commands.empty()) return;
+
+    //auto before_compile = std::chrono::steady_clock::now();
+
+    uint64_t timeout = 100000000000;
+    getOrCreateCommandBuffer();
+    getOrCreateFence();
+
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = commandBuffer->flags();
+
+    vkBeginCommandBuffer(*commandBuffer, &beginInfo);
+
+    // issue commands of interest
+    {
+        for(auto& command : commands)
+        {
+            command->dispatch(*commandBuffer);
+        }
+    }
+
+    vkEndCommandBuffer(*commandBuffer);
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = commandBuffer->data();
+
+    // we must wait for the queue to empty before we can safely clean up the commandBuffer
+    if (fence)
+    {
+        vkQueueSubmit(graphicsQueue, 1, &submitInfo, *fence);
+        if (timeout>0)
+        {
+            VkResult result = fence->wait(timeout);
+            if (result==VK_SUCCESS) { /*std::cout<<"Fence has successedully signaled"<<std::endl;*/ }
+            else {
+                std::cout<<"Fence failed to signal : "<<result<<std::endl;
+                while((result = fence->wait(timeout)) != VK_SUCCESS)
+                {
+                    std::cout<<"   Fence failed again, trying another wait : "<<result<<std::endl;
+                }
+                std::cout<<"   Finally we have success. "<<result<<std::endl;
+
+            }
+
+            fence->reset();
+        }
+    }
+    else
+    {
+        vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(graphicsQueue);
+    }
+
+    commands.clear();
+
+    //std::cout<<"Context::dispatchCommands()  time "<<std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - before_compile).count()<<"ms"<<std::endl;;
 }
 
 CompileTraversal::CompileTraversal(Device* in_device,  BufferPreferences bufferPreferences):

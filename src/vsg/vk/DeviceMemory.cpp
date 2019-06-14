@@ -83,6 +83,7 @@ MemorySlots::OptionalOffset MemorySlots::reserve(VkDeviceSize size, VkDeviceSize
 
 void MemorySlots::release(VkDeviceSize offset, VkDeviceSize size)
 {
+    //std::cout<<"MemorySlots::release("<<offset<<", "<<size<<")"<<std::endl;
     if (_offsetSizes.empty())
     {
         // first empty space

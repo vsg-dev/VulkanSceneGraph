@@ -175,7 +175,11 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
         ref_ptr<Semaphore> ias = vsg::Semaphore::create(_device);
         ref_ptr<Framebuffer> fb = Framebuffer::create(_device, framebufferInfo);
         ref_ptr<CommandPool> cp = CommandPool::create(_device, _physicalDevice->getGraphicsFamily());
+#if 0
+        ref_ptr<CommandBuffer> cb = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+#else
         ref_ptr<CommandBuffer> cb = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+#endif
         ref_ptr<Fence> fence = Fence::create(_device);
 
         _frames.push_back({ias, imageViews[i], fb, cp, cb, false, fence});

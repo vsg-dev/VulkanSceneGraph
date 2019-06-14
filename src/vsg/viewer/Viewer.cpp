@@ -430,6 +430,8 @@ void Viewer::compile(BufferPreferences bufferPreferences)
                 // std::cout << "Compiling GraphicsStage " << compile.context.viewport << std::endl;
 
                 gs->_commandGraph->accept(compile);
+
+                compile.context.dispatchCommands();
             }
             else
             {

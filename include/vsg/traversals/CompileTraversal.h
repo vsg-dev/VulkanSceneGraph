@@ -23,6 +23,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/BufferData.h>
+#include <vsg/vk/Fence.h>
+#include <vsg/vk/Command.h>
 
 namespace vsg
 {
@@ -65,6 +67,7 @@ namespace vsg
 
     };
 
+
     class Context
     {
     public:
@@ -87,6 +90,15 @@ namespace vsg
 
         VkQueue graphicsQueue = 0;
         ref_ptr<CommandPool> commandPool;
+        ref_ptr<CommandBuffer> commandBuffer;
+        ref_ptr<Fence> fence;
+
+        std::vector<ref_ptr<Command>> commands;
+
+        void dispatchCommands();
+
+        ref_ptr<CommandBuffer> getOrCreateCommandBuffer();
+        ref_ptr<Fence> getOrCreateFence();
 
         MemoryBufferPools deviceMemoryBufferPools;
         MemoryBufferPools stagingMemoryBufferPools;
