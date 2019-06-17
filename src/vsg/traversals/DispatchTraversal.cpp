@@ -130,7 +130,7 @@ void DispatchTraversal::apply(const CullNode& cullNode)
 {
 #if 0
     // no culling
-    cullGroup.traverse(*this);
+    cullNode.traverse(*this);
 #else
     if (_state->intersect(cullNode.getBound()))
     {
@@ -168,11 +168,13 @@ void DispatchTraversal::apply(const MatrixTransform& mt)
 {
     _state->modelviewMatrixStack.pushAndPreMult(mt.getMatrix());
     _state->dirty = true;
+    _state->_frustumDirty = true;
 
     mt.traverse(*this);
 
     _state->modelviewMatrixStack.pop();
     _state->dirty = true;
+    _state->_frustumDirty = true;
 }
 
 // Vulkan nodes
