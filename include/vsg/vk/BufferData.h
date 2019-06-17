@@ -13,12 +13,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/Buffer.h>
-#include <vsg/vk/CommandPool.h>
+#include <vsg/vk/Command.h>
 
 #include <cstring>
 
 namespace vsg
 {
+    // forward declare
+    class Context;
+    class CommandBuffer;
+
     class BufferData
     {
     public:
@@ -34,6 +38,14 @@ namespace vsg
 
         BufferData& operator=(const BufferData&) = default;
 
+        void release()
+        {
+            if (_buffer && _range > 0) _buffer->release(_offset, _range);
+            _buffer = 0;
+            _offset = 0;
+            _range = 0;
+        }
+
         ref_ptr<Buffer> _buffer;
         VkDeviceSize _offset = 0;
         VkDeviceSize _range = 0;
@@ -42,9 +54,6 @@ namespace vsg
 
     using BufferDataList = std::vector<BufferData>;
     using DataList = std::vector<ref_ptr<Data>>;
-
-    // forward declare
-    class Context;
 
     BufferDataList createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 

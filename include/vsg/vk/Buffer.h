@@ -34,6 +34,8 @@ namespace vsg
         DeviceMemory* getDeviceMemory() { return _deviceMemory; }
         const DeviceMemory* getDeviceMemory() const { return _deviceMemory; }
 
+        VkDeviceSize getMemoryOffset() const { return _memoryOffset; }
+
         VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
         {
             VkResult result = vkBindBufferMemory(*_device, _buffer, *deviceMemory, memoryOffset);
@@ -47,10 +49,9 @@ namespace vsg
 
         operator VkBuffer() const { return _buffer; }
 
-        using OptionalBufferOffset = std::pair<bool, VkDeviceSize>;
-        OptionalBufferOffset reserve(VkDeviceSize size, VkDeviceSize alignment);
-
-        bool full() const { return _availableMemory.empty(); }
+        MemorySlots::OptionalOffset reserve(VkDeviceSize size, VkDeviceSize alignment) { return _memorySlots.reserve(size, alignment); }
+        void release(VkDeviceSize offset, VkDeviceSize size) { _memorySlots.release(offset, size); }
+        bool full() const { return _memorySlots.full(); }
 
     protected:
         virtual ~Buffer();
@@ -65,8 +66,6 @@ namespace vsg
         ref_ptr<DeviceMemory> _deviceMemory;
         VkDeviceSize _memoryOffset;
 
-        using MemorySlots = std::multimap<VkDeviceSize, VkDeviceSize>;
-        using MemorySlot = MemorySlots::value_type;
-        MemorySlots _availableMemory;
+        MemorySlots _memorySlots;
     };
 } // namespace vsg

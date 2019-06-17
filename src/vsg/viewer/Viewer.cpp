@@ -406,9 +406,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             std::cout << "    " << type << "\t\t" << count << std::endl;
         }
 #endif
-        vsg::CompileTraversal compile;
-        compile.context.bufferPreferences = bufferPreferences;
-        compile.context.device = window->device();
+        vsg::CompileTraversal compile(device, bufferPreferences);
         compile.context.commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
         compile.context.renderPass = window->renderPass();
         compile.context.graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());
@@ -432,6 +430,8 @@ void Viewer::compile(BufferPreferences bufferPreferences)
                 // std::cout << "Compiling GraphicsStage " << compile.context.viewport << std::endl;
 
                 gs->_commandGraph->accept(compile);
+
+                compile.context.dispatchCommands();
             }
             else
             {

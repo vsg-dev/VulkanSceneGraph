@@ -12,54 +12,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <deque>
 #include <memory>
+
 #include <vsg/core/Object.h>
 
 #include <vsg/nodes/Group.h>
 
+#include <vsg/vk/BufferData.h>
 #include <vsg/vk/CommandPool.h>
+#include <vsg/vk/Context.h>
 #include <vsg/vk/DescriptorPool.h>
+#include <vsg/vk/Fence.h>
 #include <vsg/vk/GraphicsPipeline.h>
 
 namespace vsg
 {
-    struct BufferPreferences
-    {
-        VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
-        VkDeviceSize minimumBufferDeviceMemorySize = 16 * 1024 * 1024;
-        VkDeviceSize minimumImageDeviceMemorySize = 16 * 1024 * 1024;
-    };
-
-    class Context
-    {
-    public:
-        // used by BufferData.cpp, ComputePipeline.cpp, Descriptor.cpp, Descriptor.cpp, DescriptorSet.cpp, DescriptorSetLayout.cpp, GraphicsPipeline.cpp, ImageData.cpp, PipelineLayout.cpp, ShaderModule.cpp
-        ref_ptr<Device> device;
-
-        // used by GraphicsPipeline.cpp
-        ref_ptr<RenderPass> renderPass;
-        ref_ptr<ViewportState> viewport;
-
-        // DescriptorSet.cpp
-        ref_ptr<DescriptorPool> descriptorPool;
-
-        // transfer data settings
-        // used by BufferData.cpp, ImageData.cpp
-        using MemoryPools = std::vector<ref_ptr<DeviceMemory>>;
-        using BufferPools = std::vector<ref_ptr<Buffer>>;
-
-        VkQueue graphicsQueue = 0;
-        ref_ptr<CommandPool> commandPool;
-        MemoryPools memoryPools;
-        BufferPools bufferPools;
-
-        BufferPreferences bufferPreferences;
-    };
-
     class VSG_DECLSPEC CompileTraversal : public Visitor
     {
     public:
-        explicit CompileTraversal();
+        explicit CompileTraversal(Device* in_device, BufferPreferences bufferPreferences = {});
         ~CompileTraversal();
 
         void apply(Object& object);
