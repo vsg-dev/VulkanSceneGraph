@@ -40,7 +40,7 @@ namespace vsg
 
         void release()
         {
-            if (_buffer && _range>0) _buffer->release(_offset, _range);
+            if (_buffer && _range > 0) _buffer->release(_offset, _range);
             _buffer = 0;
             _offset = 0;
             _range = 0;
@@ -54,7 +54,6 @@ namespace vsg
 
     using BufferDataList = std::vector<BufferData>;
     using DataList = std::vector<ref_ptr<Data>>;
-
 
     BufferDataList createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 

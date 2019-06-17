@@ -12,26 +12,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <memory>
 #include <deque>
+#include <memory>
 
 #include <vsg/core/Object.h>
 
 #include <vsg/nodes/Group.h>
 
-#include <vsg/vk/CommandPool.h>
-#include <vsg/vk/DescriptorPool.h>
-#include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/BufferData.h>
-#include <vsg/vk/Fence.h>
+#include <vsg/vk/CommandPool.h>
 #include <vsg/vk/Context.h>
+#include <vsg/vk/DescriptorPool.h>
+#include <vsg/vk/Fence.h>
+#include <vsg/vk/GraphicsPipeline.h>
 
 namespace vsg
 {
     class VSG_DECLSPEC CompileTraversal : public Visitor
     {
     public:
-        explicit CompileTraversal(Device* in_device,  BufferPreferences bufferPreferences = {});
+        explicit CompileTraversal(Device* in_device, BufferPreferences bufferPreferences = {});
         ~CompileTraversal();
 
         void apply(Object& object);

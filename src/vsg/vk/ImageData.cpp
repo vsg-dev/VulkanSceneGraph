@@ -43,8 +43,8 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
     //std::cout<<"stagingBufferData._buffer "<<stagingBufferData._buffer.get()<<", "<<stagingBufferData._offset<<", "<<stagingBufferData._range<<")"<<std::endl;
 
-    ref_ptr<Buffer> imageStagingBuffer( stagingBufferData._buffer );
-    ref_ptr<DeviceMemory> imageStagingMemory( imageStagingBuffer->getDeviceMemory() );
+    ref_ptr<Buffer> imageStagingBuffer(stagingBufferData._buffer);
+    ref_ptr<DeviceMemory> imageStagingMemory(imageStagingBuffer->getDeviceMemory());
 
     if (!imageStagingMemory)
     {
@@ -53,7 +53,6 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
     // copy image data to staging memory
     imageStagingMemory->copy(imageStagingBuffer->getMemoryOffset() + stagingBufferData._offset, imageTotalSize, data->dataPointer());
-
 
     uint32_t mipLevels = sampler != nullptr ? sampler->info().maxLod : 1;
     if (mipLevels == 0)
@@ -135,7 +134,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(*device, *textureImage, &memRequirements);
 
-    auto[deviceMemory, offset] = context.deviceMemoryBufferPools.reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    auto [deviceMemory, offset] = context.deviceMemoryBufferPools.reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     if (!deviceMemory)
     {

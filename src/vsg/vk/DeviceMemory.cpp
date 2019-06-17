@@ -49,13 +49,13 @@ MemorySlots::OptionalOffset MemorySlots::reserve(VkDeviceSize size, VkDeviceSize
         {
             // remove slot
             _availableMemory.erase(itr);
-            if (auto offsetSize_itr = _offsetSizes.find(slotStart); offsetSize_itr !=  _offsetSizes.end()) _offsetSizes.erase(offsetSize_itr);
+            if (auto offsetSize_itr = _offsetSizes.find(slotStart); offsetSize_itr != _offsetSizes.end()) _offsetSizes.erase(offsetSize_itr);
 
             // check if there the front of the slot isn't used completely, if so generate an available space for it.
             if (alignedStart > slotStart)
             {
                 // insert new slot with previous slots start and new end.
-                VkDeviceSize preAlignedStartSize = alignedStart-slotStart;
+                VkDeviceSize preAlignedStartSize = alignedStart - slotStart;
                 _availableMemory.insert(SizeOffset(preAlignedStartSize, slotStart));
                 _offsetSizes.insert(OffsetSize(slotStart, preAlignedStartSize));
             }
@@ -64,7 +64,7 @@ MemorySlots::OptionalOffset MemorySlots::reserve(VkDeviceSize size, VkDeviceSize
             if (alignedSize < slotSize)
             {
                 // insert new slot with new end and new size
-                VkDeviceSize postAlignedEndSize = slotSize-alignedSize;
+                VkDeviceSize postAlignedEndSize = slotSize - alignedSize;
                 _availableMemory.insert(SizeOffset(postAlignedEndSize, alignedEnd));
                 _offsetSizes.insert(OffsetSize(alignedEnd, postAlignedEndSize));
             }
@@ -73,7 +73,7 @@ MemorySlots::OptionalOffset MemorySlots::reserve(VkDeviceSize size, VkDeviceSize
         }
         else
         {
-//            std::cout << "    Slot slotStart = " << slotStart << ", slotSize = " << slotSize << " not big enough once for request size = " << size << std::endl;
+            //            std::cout << "    Slot slotStart = " << slotStart << ", slotSize = " << slotSize << " not big enough once for request size = " << size << std::endl;
             ++itr;
         }
     }
@@ -100,13 +100,14 @@ void MemorySlots::release(VkDeviceSize offset, VkDeviceSize size)
 
     auto slotAfter = _offsetSizes.upper_bound(offset);
     auto slotBefore = slotAfter;
-    if (slotBefore != _offsetSizes.end()) --slotBefore;
-    else slotBefore = _offsetSizes.rbegin().base();
+    if (slotBefore != _offsetSizes.end())
+        --slotBefore;
+    else
+        slotBefore = _offsetSizes.rbegin().base();
 
-    auto eraseSlot = [&] (OffsetSizes::iterator offsetSizeItr)
-    {
+    auto eraseSlot = [&](OffsetSizes::iterator offsetSizeItr) {
         auto range = _availableMemory.equal_range(offsetSizeItr->second);
-        for(auto itr = range.first; itr != range.second; ++itr)
+        for (auto itr = range.first; itr != range.second; ++itr)
         {
             if (itr->second == offsetSizeItr->first)
             {

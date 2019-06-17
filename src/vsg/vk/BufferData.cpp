@@ -68,7 +68,6 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
 
     VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage;
 
-
     BufferData deviceBufferData = context.deviceMemoryBufferPools.reserveBufferData(totalSize, alignment, bufferUsageFlags, sharingMode, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     //std::cout<<"deviceBufferData._buffer "<<deviceBufferData._buffer.get()<<", "<<deviceBufferData._offset<<", "<<deviceBufferData._range<<")"<<std::endl;
@@ -84,14 +83,13 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
 
     //std::cout<<"stagingBufferData._buffer "<<stagingBufferData._buffer.get()<<", "<<stagingBufferData._offset<<", "<<stagingBufferData._range<<")"<<std::endl;
 
-    ref_ptr<Buffer> stagingBuffer( stagingBufferData._buffer );
-    ref_ptr<DeviceMemory> stagingMemory( stagingBuffer->getDeviceMemory() );
+    ref_ptr<Buffer> stagingBuffer(stagingBufferData._buffer);
+    ref_ptr<DeviceMemory> stagingMemory(stagingBuffer->getDeviceMemory());
 
     if (!stagingMemory)
     {
         return BufferDataList();
     }
-
 
     void* buffer_data;
     stagingMemory->map(stagingBuffer->getMemoryOffset() + stagingBufferData._offset, stagingBufferData._range, 0, &buffer_data);
@@ -110,8 +108,8 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
     CopyAndReleaseBufferDataCommand* previous = context.copyBufferDataCommands.empty() ? nullptr : context.copyBufferDataCommands.back().get();
     if (previous)
     {
-        bool sourceMatched = (previous->source._buffer == stagingBufferData._buffer) && ((previous->source._offset+previous->source._range) == stagingBufferData._offset);
-        bool destinationMatched = (previous->destination._buffer == deviceBufferData._buffer) && ((previous->destination._offset+previous->destination._range) == deviceBufferData._offset);
+        bool sourceMatched = (previous->source._buffer == stagingBufferData._buffer) && ((previous->source._offset + previous->source._range) == stagingBufferData._offset);
+        bool destinationMatched = (previous->destination._buffer == deviceBufferData._buffer) && ((previous->destination._offset + previous->destination._range) == deviceBufferData._offset);
 
         if (sourceMatched && destinationMatched)
         {
