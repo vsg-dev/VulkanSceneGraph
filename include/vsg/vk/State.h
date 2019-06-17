@@ -190,6 +190,7 @@ namespace vsg
         ref_ptr<CommandBuffer> _commandBuffer;
 
         Polytope _frustumUnit;
+        Polytope _frustumProjected;
 
         bool _frustumDirty;
         Polytope _frustum;
@@ -200,6 +201,26 @@ namespace vsg
 
         MatrixStack projectionMatrixStack{0};
         MatrixStack modelviewMatrixStack{64};
+
+        void setProjectionMatrix(const dmat4& projMatrix)
+        {
+            projectionMatrixStack.set(projMatrix);
+
+            const auto& proj = projectionMatrixStack.top();
+
+            _frustumProjected[0] = _frustumUnit[0] * proj;
+            _frustumProjected[1] = _frustumUnit[1] * proj;
+            _frustumProjected[2] = _frustumUnit[2] * proj;
+            _frustumProjected[3] = _frustumUnit[3] * proj;
+
+            _frustumDirty = true;
+        }
+
+        void setViewMatrix(const dmat4& viewMatrix)
+        {
+            modelviewMatrixStack.set(viewMatrix);
+            _frustumDirty = true;
+        }
 
         inline void dispatch()
         {
@@ -222,12 +243,12 @@ namespace vsg
         {
             if (_frustumDirty)
             {
-                auto pmv = projectionMatrixStack.top() * modelviewMatrixStack.top();
+                const auto mv = modelviewMatrixStack.top();
 
-                _frustum[0] = _frustumUnit[0] * pmv;
-                _frustum[1] = _frustumUnit[1] * pmv;
-                _frustum[2] = _frustumUnit[2] * pmv;
-                _frustum[3] = _frustumUnit[3] * pmv;
+                _frustum[0] = _frustumProjected[0] * mv;
+                _frustum[1] = _frustumProjected[1] * mv;
+                _frustum[2] = _frustumProjected[2] * mv;
+                _frustum[3] = _frustumProjected[3] * mv;
 
                 _frustumDirty = false;
             }

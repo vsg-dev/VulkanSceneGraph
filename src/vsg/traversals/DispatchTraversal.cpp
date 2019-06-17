@@ -45,12 +45,12 @@ DispatchTraversal::~DispatchTraversal()
 
 void DispatchTraversal::setProjectionMatrix(const dmat4& projMatrix)
 {
-    _state->projectionMatrixStack.set(projMatrix);
+    _state->setProjectionMatrix(projMatrix);
 }
 
 void DispatchTraversal::setViewMatrix(const dmat4& viewMatrix)
 {
-    _state->modelviewMatrixStack.set(viewMatrix);
+    _state->setViewMatrix(viewMatrix);
 }
 
 void DispatchTraversal::apply(const Object& object)
