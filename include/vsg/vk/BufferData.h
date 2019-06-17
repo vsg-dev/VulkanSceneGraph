@@ -56,25 +56,6 @@ namespace vsg
     using DataList = std::vector<ref_ptr<Data>>;
 
 
-    class CopyAndReleaseBufferDataCommand : public Command
-    {
-    public:
-
-        CopyAndReleaseBufferDataCommand(BufferData src, BufferData dest):
-            source(src),
-            destination(dest) {}
-
-        BufferData source;
-        BufferData destination;
-
-        void dispatch(CommandBuffer& commandBuffer) const override;
-
-    protected:
-        virtual ~CopyAndReleaseBufferDataCommand();
-    };
-
-
-
     BufferDataList createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 
     BufferDataList createHostVisibleBuffer(Device* device, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);

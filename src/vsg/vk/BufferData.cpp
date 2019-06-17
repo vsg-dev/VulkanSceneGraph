@@ -20,25 +20,6 @@ using namespace vsg;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
-// vsg::CopyAndReleaseBufferDataCommand
-//
-CopyAndReleaseBufferDataCommand::~CopyAndReleaseBufferDataCommand()
-{
-    source.release();
-}
-
-void CopyAndReleaseBufferDataCommand::dispatch(CommandBuffer& commandBuffer) const
-{
-    //std::cout<<"CopyAndReleaseBufferDataCommand::dispatch(CommandBuffer& commandBuffer) source._offset = "<<source._offset<<", "<<destination._offset<<std::endl;
-    VkBufferCopy copyRegion = {};
-    copyRegion.srcOffset = source._offset;
-    copyRegion.dstOffset = destination._offset;
-    copyRegion.size = source._range;
-    vkCmdCopyBuffer(commandBuffer, *source._buffer, *destination._buffer, 1, &copyRegion);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-//
 // vsg::createBufferAndTransferData
 //
 BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
@@ -126,7 +107,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
 
     stagingMemory->unmap();
 
-    CopyAndReleaseBufferDataCommand* previous = context.commands.empty() ? nullptr : dynamic_cast<CopyAndReleaseBufferDataCommand*>(context.commands.back().get());
+    CopyAndReleaseBufferDataCommand* previous = context.copyBufferDataCommands.empty() ? nullptr : context.copyBufferDataCommands.back().get();
     if (previous)
     {
         bool sourceMatched = (previous->source._buffer == stagingBufferData._buffer) && ((previous->source._offset+previous->source._range) == stagingBufferData._offset);
@@ -134,14 +115,14 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
 
         if (sourceMatched && destinationMatched)
         {
-            // std::cout<<"Source matched = "<<sourceMatched<<" destinationMatched = "<<destinationMatched<<std::endl;
+            //std::cout<<"Source matched = "<<sourceMatched<<" destinationMatched = "<<destinationMatched<<std::endl;
             previous->source._range += stagingBufferData._range;
             previous->destination._range += stagingBufferData._range;
             return bufferDataList;
         }
     }
 
-    context.commands.emplace_back(new CopyAndReleaseBufferDataCommand(stagingBufferData, deviceBufferData));
+    context.copyBufferDataCommands.emplace_back(new CopyAndReleaseBufferDataCommand(stagingBufferData, deviceBufferData));
 
     return bufferDataList;
 }

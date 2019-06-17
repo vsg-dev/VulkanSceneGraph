@@ -51,25 +51,6 @@ namespace vsg
         VkImageLayout _imageLayout;
     };
 
-    class CopyAndReleaseImageDataCommand : public Command
-    {
-    public:
-
-        CopyAndReleaseImageDataCommand(BufferData src, ImageData dest, uint32_t numMipMapLevels):
-            source(src),
-            destination(dest),
-            mipLevels(numMipMapLevels) {}
-
-        void dispatch(CommandBuffer& commandBuffer) const override;
-
-        BufferData source;
-        ImageData destination;
-        uint32_t mipLevels = 1;
-
-    protected:
-        virtual ~CopyAndReleaseImageDataCommand();
-    };
-
     /// transfer Data to graphics memory, returning ImageData configuration.
     extern VSG_DECLSPEC vsg::ImageData transferImageData(Context& context, const Data* data, Sampler* sampler = nullptr, VkImageLayout targetImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
