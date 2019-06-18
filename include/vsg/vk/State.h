@@ -178,8 +178,6 @@ namespace vsg
                 Plane(0.0, 1.0, 0.0, 1.0),  // bottom plane
                 Plane(0.0, -1.0, 0.0, 1.0)  // top plane
             }};
-
-            _frustumDirty = true;
         }
 
         using value_type = MatrixStack::value_type;
@@ -192,8 +190,8 @@ namespace vsg
         Polytope _frustumUnit;
         Polytope _frustumProjected;
 
-        bool _frustumDirty;
-        Polytope _frustum;
+        using PolytopeStack = std::stack<Polytope>;
+        PolytopeStack _frustumStack;
 
         bool dirty;
 
@@ -202,7 +200,7 @@ namespace vsg
         MatrixStack projectionMatrixStack{0};
         MatrixStack modelviewMatrixStack{64};
 
-        void setProjectionMatrix(const dmat4& projMatrix)
+        void setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
         {
             projectionMatrixStack.set(projMatrix);
 
@@ -213,13 +211,14 @@ namespace vsg
             _frustumProjected[2] = _frustumUnit[2] * proj;
             _frustumProjected[3] = _frustumUnit[3] * proj;
 
-            _frustumDirty = true;
-        }
-
-        void setViewMatrix(const dmat4& viewMatrix)
-        {
             modelviewMatrixStack.set(viewMatrix);
-            _frustumDirty = true;
+
+
+            // clear frustum stack
+            while (!_frustumStack.empty()) _frustumStack.pop();
+
+            // push frustum in world coords
+            pushFrustum();
         }
 
         inline void dispatch()
@@ -238,22 +237,24 @@ namespace vsg
             }
         }
 
+        inline void pushFrustum()
+        {
+            const auto mv = modelviewMatrixStack.top();
+            _frustumStack.push( Polytope{{ _frustumProjected[0] * mv,
+                                           _frustumProjected[1] * mv,
+                                           _frustumProjected[2] * mv,
+                                           _frustumProjected[3] * mv }} );
+        }
+
+        inline void popFrustum()
+        {
+            _frustumStack.pop();
+        }
+
         template<typename T>
         bool intersect(t_sphere<T> const& s)
         {
-            if (_frustumDirty)
-            {
-                const auto mv = modelviewMatrixStack.top();
-
-                _frustum[0] = _frustumProjected[0] * mv;
-                _frustum[1] = _frustumProjected[1] * mv;
-                _frustum[2] = _frustumProjected[2] * mv;
-                _frustum[3] = _frustumProjected[3] * mv;
-
-                _frustumDirty = false;
-            }
-
-            return vsg::intersect(_frustum, s);
+            return vsg::intersect(_frustumStack.top(), s);
         }
     };
 

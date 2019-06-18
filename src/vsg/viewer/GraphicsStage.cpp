@@ -171,8 +171,7 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
 
     // set up the dispatching of the commands into the command buffer
     DispatchTraversal dispatchTraversal(commandBuffer, _maxSlot);
-    dispatchTraversal.setProjectionMatrix(_projMatrix->value());
-    dispatchTraversal.setViewMatrix(_viewMatrix->value());
+    dispatchTraversal.setProjectionAndViewMatrix(_projMatrix->value(), _viewMatrix->value());
 
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;

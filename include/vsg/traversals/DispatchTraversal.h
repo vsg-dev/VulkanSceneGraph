@@ -39,8 +39,7 @@ namespace vsg
         explicit DispatchTraversal(CommandBuffer* commandBuffer = nullptr, uint32_t maxSlot = 2);
         ~DispatchTraversal();
 
-        void setProjectionMatrix(const dmat4& projMatrix);
-        void setViewMatrix(const dmat4& viewMatrix);
+        void setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix);
 
         void apply(const Object& object);
 

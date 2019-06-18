@@ -43,14 +43,9 @@ DispatchTraversal::~DispatchTraversal()
     delete _state;
 }
 
-void DispatchTraversal::setProjectionMatrix(const dmat4& projMatrix)
+void DispatchTraversal::setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
 {
-    _state->setProjectionMatrix(projMatrix);
-}
-
-void DispatchTraversal::setViewMatrix(const dmat4& viewMatrix)
-{
-    _state->setViewMatrix(viewMatrix);
+    _state->setProjectionAndViewMatrix(projMatrix, viewMatrix);
 }
 
 void DispatchTraversal::apply(const Object& object)
@@ -167,14 +162,14 @@ void DispatchTraversal::apply(const StateGroup& stateGroup)
 void DispatchTraversal::apply(const MatrixTransform& mt)
 {
     _state->modelviewMatrixStack.pushAndPreMult(mt.getMatrix());
+    _state->pushFrustum();
     _state->dirty = true;
-    _state->_frustumDirty = true;
 
     mt.traverse(*this);
 
     _state->modelviewMatrixStack.pop();
+    _state->popFrustum();
     _state->dirty = true;
-    _state->_frustumDirty = true;
 }
 
 // Vulkan nodes
