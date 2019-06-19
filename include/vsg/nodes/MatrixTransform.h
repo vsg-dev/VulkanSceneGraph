@@ -33,8 +33,12 @@ namespace vsg
         Matrix& getMatrix() { return _matrix; }
         const Matrix& getMatrix() const { return _matrix; }
 
+        void setSubgraphRequiresLocalFrustum(bool flag) { _subgraphRequiresLocalFrustum = flag; }
+        bool getSubgraphRequiresLocalFrustum() const { return _subgraphRequiresLocalFrustum; }
+
     protected:
         Matrix _matrix;
+        bool _subgraphRequiresLocalFrustum;
     };
     VSG_type_name(vsg::MatrixTransform);
 

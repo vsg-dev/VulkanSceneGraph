@@ -16,13 +16,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 MatrixTransform::MatrixTransform(Allocator* allocator) :
-    Inherit(allocator)
+    Inherit(allocator),
+    _subgraphRequiresLocalFrustum(true)
 {
 }
 
 MatrixTransform::MatrixTransform(const Matrix& matrix, Allocator* allocator) :
     Inherit(allocator),
-    _matrix(matrix)
+    _matrix(matrix),
+    _subgraphRequiresLocalFrustum(true)
 {
 }
 
@@ -31,6 +33,8 @@ void MatrixTransform::read(Input& input)
     Group::read(input);
 
     input.read("Matrix", _matrix);
+    input.read("SubgraphRequiresLocalFrustum", _subgraphRequiresLocalFrustum);
+
 }
 
 void MatrixTransform::write(Output& output) const
@@ -38,4 +42,5 @@ void MatrixTransform::write(Output& output) const
     Group::write(output);
 
     output.write("Matrix", _matrix);
+    output.write("SubgraphRequiresLocalFrustum", _subgraphRequiresLocalFrustum);
 }

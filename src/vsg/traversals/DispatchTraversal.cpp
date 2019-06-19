@@ -161,15 +161,28 @@ void DispatchTraversal::apply(const StateGroup& stateGroup)
 
 void DispatchTraversal::apply(const MatrixTransform& mt)
 {
-    _state->modelviewMatrixStack.pushAndPreMult(mt.getMatrix());
-    _state->pushFrustum();
-    _state->dirty = true;
+    if (mt.getSubgraphRequiresLocalFrustum())
+    {
+        _state->modelviewMatrixStack.pushAndPreMult(mt.getMatrix());
+        _state->pushFrustum();
+        _state->dirty = true;
 
-    mt.traverse(*this);
+        mt.traverse(*this);
 
-    _state->modelviewMatrixStack.pop();
-    _state->popFrustum();
-    _state->dirty = true;
+        _state->modelviewMatrixStack.pop();
+        _state->popFrustum();
+        _state->dirty = true;
+    }
+    else
+    {
+        _state->modelviewMatrixStack.pushAndPreMult(mt.getMatrix());
+        _state->dirty = true;
+
+        mt.traverse(*this);
+
+        _state->modelviewMatrixStack.pop();
+        _state->dirty = true;
+    }
 }
 
 // Vulkan nodes
