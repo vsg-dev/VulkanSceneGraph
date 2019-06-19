@@ -26,7 +26,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-#define MATRIX_STACK_TYPE 0
+#define USE_DOUBLE_MATRIX_STACK 1
 
     template<class T>
     class StateStack
@@ -157,6 +157,7 @@ namespace vsg
                 mat4 newmatrix(matrixStack.top());
                 vkCmdPushConstants(commandBuffer, commandBuffer.getCurrentPipelineLayout(), stageFlags, offset, sizeof(newmatrix), newmatrix.data());
 #else
+
                 vkCmdPushConstants(commandBuffer, commandBuffer.getCurrentPipelineLayout(), stageFlags, offset, sizeof(Matrix), matrixStack.top().data());
 #endif
                 dirty = false;

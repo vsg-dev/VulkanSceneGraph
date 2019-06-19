@@ -21,7 +21,7 @@ MatrixTransform::MatrixTransform(Allocator* allocator) :
 {
 }
 
-MatrixTransform::MatrixTransform(const Matrix& matrix, Allocator* allocator) :
+MatrixTransform::MatrixTransform(const dmat4& matrix, Allocator* allocator) :
     Inherit(allocator),
     _matrix(matrix),
     _subgraphRequiresLocalFrustum(true)

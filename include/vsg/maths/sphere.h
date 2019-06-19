@@ -60,7 +60,7 @@ namespace vsg
             value{s[0], s[1], s[2], s[3]} {}
 
         template<typename R>
-        constexpr explicit t_sphere(const t_sphere<R>& s) :
+        constexpr t_sphere(const t_sphere<R>& s) :
             value{static_cast<value_type>(s[0]), static_cast<value_type>(s[1]), static_cast<value_type>(s[2]), static_cast<value_type>(s[3])} {}
 
         template<typename R>
