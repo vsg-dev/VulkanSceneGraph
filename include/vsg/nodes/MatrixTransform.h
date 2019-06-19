@@ -20,24 +20,21 @@ namespace vsg
     class MatrixTransform : public Inherit<Group, MatrixTransform>
     {
     public:
-        using value_type = TRANSFORM_VALUE_TYPE;
-        using Matrix = t_mat4<value_type>;
-
         MatrixTransform(Allocator* allocator = nullptr);
-        MatrixTransform(const Matrix& matrix, Allocator* allocator = nullptr);
+        MatrixTransform(const dmat4& matrix, Allocator* allocator = nullptr);
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void setMatrix(const Matrix& matrix) { _matrix = matrix; }
-        Matrix& getMatrix() { return _matrix; }
-        const Matrix& getMatrix() const { return _matrix; }
+        void setMatrix(const dmat4& matrix) { _matrix = matrix; }
+        dmat4& getMatrix() { return _matrix; }
+        const dmat4& getMatrix() const { return _matrix; }
 
         void setSubgraphRequiresLocalFrustum(bool flag) { _subgraphRequiresLocalFrustum = flag; }
         bool getSubgraphRequiresLocalFrustum() const { return _subgraphRequiresLocalFrustum; }
 
     protected:
-        Matrix _matrix;
+        dmat4 _matrix;
         bool _subgraphRequiresLocalFrustum;
     };
     VSG_type_name(vsg::MatrixTransform);

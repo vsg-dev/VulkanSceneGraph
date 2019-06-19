@@ -34,12 +34,9 @@ namespace vsg
     public:
         LOD(Allocator* allocator = nullptr);
 
-        using value_type = TRANSFORM_VALUE_TYPE;
-        using Sphere = t_sphere<value_type>;
-
         struct LODChild
         {
-            value_type minimumScreenHeightRatio = 0.0; // 0.0 is always visible
+            double minimumScreenHeightRatio = 0.0; // 0.0 is always visible
             ref_ptr<Node> child;
         };
 
@@ -59,8 +56,8 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void setBound(const Sphere& bound) { _bound = bound; }
-        inline const Sphere& getBound() const { return _bound; }
+        void setBound(const dsphere& bound) { _bound = bound; }
+        inline const dsphere& getBound() const { return _bound; }
 
         void setChild(std::size_t pos, const LODChild& lodChild) { _children[pos] = lodChild; }
         LODChild& getChild(std::size_t pos) { return _children[pos]; }
@@ -76,7 +73,7 @@ namespace vsg
     protected:
         virtual ~LOD();
 
-        Sphere _bound;
+        dsphere _bound;
         Children _children;
     };
     VSG_type_name(vsg::LOD);

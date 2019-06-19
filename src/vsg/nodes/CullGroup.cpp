@@ -20,7 +20,7 @@ CullGroup::CullGroup(Allocator* allocator) :
 {
 }
 
-CullGroup::CullGroup(const sphere& bound, Allocator* allocator) :
+CullGroup::CullGroup(const dsphere& bound, Allocator* allocator) :
     Inherit(allocator)
 {
     _bound = bound;

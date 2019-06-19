@@ -20,7 +20,7 @@ CullNode::CullNode(Allocator* allocator) :
 {
 }
 
-CullNode::CullNode(const sphere& bound, Node* child, Allocator* allocator) :
+CullNode::CullNode(const dsphere& bound, Node* child, Allocator* allocator) :
     Inherit(allocator),
     _bound(bound),
     _child(child)
