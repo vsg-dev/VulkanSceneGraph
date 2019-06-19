@@ -214,7 +214,6 @@ namespace vsg
 
             modelviewMatrixStack.set(viewMatrix);
 
-
             // clear frustum stack
             while (!_frustumStack.empty()) _frustumStack.pop();
 
@@ -241,10 +240,10 @@ namespace vsg
         inline void pushFrustum()
         {
             const auto mv = modelviewMatrixStack.top();
-            _frustumStack.push( Polytope{{ _frustumProjected[0] * mv,
-                                           _frustumProjected[1] * mv,
-                                           _frustumProjected[2] * mv,
-                                           _frustumProjected[3] * mv }} );
+            _frustumStack.push(Polytope{{_frustumProjected[0] * mv,
+                                         _frustumProjected[1] * mv,
+                                         _frustumProjected[2] * mv,
+                                         _frustumProjected[3] * mv}});
         }
 
         inline void popFrustum()

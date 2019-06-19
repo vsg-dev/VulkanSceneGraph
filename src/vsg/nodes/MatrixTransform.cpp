@@ -34,7 +34,6 @@ void MatrixTransform::read(Input& input)
 
     input.read("Matrix", _matrix);
     input.read("SubgraphRequiresLocalFrustum", _subgraphRequiresLocalFrustum);
-
 }
 
 void MatrixTransform::write(Output& output) const
