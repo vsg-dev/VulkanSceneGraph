@@ -24,6 +24,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
+#include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
@@ -157,6 +158,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::CullGroup);
     VSG_REGISTER_create(vsg::CullNode);
     VSG_REGISTER_create(vsg::LOD);
+    VSG_REGISTER_create(vsg::PagedLOD);
     VSG_REGISTER_create(vsg::MatrixTransform);
     VSG_REGISTER_create(vsg::Geometry);
     VSG_REGISTER_create(vsg::VertexIndexDraw);

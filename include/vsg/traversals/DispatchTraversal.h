@@ -24,6 +24,7 @@ namespace vsg
     class Group;
     class QuadGroup;
     class LOD;
+    class PagedLOD;
     class StateGroup;
     class CullGroup;
     class CullNode;
@@ -46,7 +47,8 @@ namespace vsg
         // scene graph nodes
         void apply(const Group& group);
         void apply(const QuadGroup& quadGrouo);
-        void apply(const LOD& load);
+        void apply(const LOD& lod);
+        void apply(const PagedLOD& pagedLOD);
         void apply(const CullGroup& cullGroup);
         void apply(const CullNode& cullNode);
 

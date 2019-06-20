@@ -31,6 +31,7 @@ set(SOURCES
     nodes/CullGroup.cpp
     nodes/CullNode.cpp
     nodes/LOD.cpp
+    nodes/PagedLOD.cpp
     nodes/MatrixTransform.cpp
     nodes/VertexIndexDraw.cpp
 

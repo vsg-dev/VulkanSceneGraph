@@ -20,6 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/nodes/PagedLOD.h>
 
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
@@ -29,6 +30,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/plane.h>
 
 using namespace vsg;
+
+#include <iostream>
 
 #define INLINE_TRAVERSE 1
 #define USE_FRUSTUM_ARRAY 1
@@ -76,10 +79,10 @@ void DispatchTraversal::apply(const QuadGroup& group)
 
 void DispatchTraversal::apply(const LOD& lod)
 {
-    auto sphere = lod.getBound();
+    auto boundingSphere = lod.getBound();
 
-    // check if lod bounding sphere is in vie frustum.
-    if (!_state->intersect(sphere))
+    // check if lod bounding sphere is in view frustum.
+    if (!_state->intersect(boundingSphere))
     {
         return;
     }
@@ -89,8 +92,8 @@ void DispatchTraversal::apply(const LOD& lod)
     auto f = -proj[1][1];
     vsg::vec4 lv(mv[0][2], mv[1][2], mv[2][2], mv[3][2]);
 
-    auto distance = std::abs(lv.x * sphere.x + lv.y * sphere.y + lv.z * sphere.z + lv.w);
-    auto rf = sphere.r * f;
+    auto distance = std::abs(lv.x * boundingSphere.x + lv.y * boundingSphere.y + lv.z * boundingSphere.z + lv.w);
+    auto rf = boundingSphere.r * f;
 
     for (auto lodChild : lod.getChildren())
     {
@@ -99,6 +102,52 @@ void DispatchTraversal::apply(const LOD& lod)
         {
             lodChild.child->accept(*this);
             return;
+        }
+    }
+}
+
+void DispatchTraversal::apply(const PagedLOD& lod)
+{
+    auto boundingSphere = lod.getBound();
+
+    // check if lod bounding sphere is in view frustum.
+    if (!_state->intersect(boundingSphere))
+    {
+        return;
+    }
+
+    const auto& proj = _state->projectionMatrixStack.top();
+    const auto& mv = _state->modelviewMatrixStack.top();
+    auto f = -proj[1][1];
+    vsg::vec4 lv(mv[0][2], mv[1][2], mv[2][2], mv[3][2]);
+
+    auto distance = std::abs(lv.x * boundingSphere.x + lv.y * boundingSphere.y + lv.z * boundingSphere.z + lv.w);
+    auto rf = boundingSphere.r * f;
+
+    for (auto lodChild : lod.getChildren())
+    {
+        auto cutoff = lodChild.minimumScreenHeightRatio * distance;
+        bool child_visible = rf > cutoff;
+        if (child_visible)
+        {
+            if (lodChild.child)
+            {
+                lodChild.child->accept(*this);
+                return;
+            }
+            else
+            {
+                auto priority = rf / cutoff;
+                if (lodChild.databaseRequest)
+                {
+                    std::cout<<"PagedLOD rerequesting child "<<lodChild.filename<<" "<<priority<<std::endl;
+                }
+                else
+                {
+                    // create DatabaseRequest
+                    std::cout<<"PagedLOD first time request for child "<<lodChild.filename<<" "<<priority<<std::endl;
+                }
+            }
         }
     }
 }
