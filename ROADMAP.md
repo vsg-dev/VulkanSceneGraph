@@ -37,7 +37,7 @@ Using the prototyping work as a guide implement the final scene graph library wi
     * Support for Text rendering
 * Development of test suite of programs and data
 * Support for RTX Mesh shaders and ray tracing
-* Support for integration with OpenGL/OSG applications via [EXT\_external\_object](https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_external_objects.txt)
+* Support for integration with OpenGL/OSG applications via [EXT\_external\_object](https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_external_objects.txt) & [VK\_KHR\_external\_memory](https://www.khronos.org/registry/vulkan/specs/1.1-extensions/man/html/VK_KHR_external_memory.html#versions-1.1-promotions)
 * Port to iOS
 
 ### 4. Release Phase,  Fall 2019 onwards
