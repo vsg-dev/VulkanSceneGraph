@@ -37,6 +37,7 @@ Using the prototyping work as a guide implement the final scene graph library wi
     * Support for Text rendering
 * Development of test suite of programs and data
 * Support for RTX Mesh shaders and ray tracing
+* Support for integration with OpenGL/OSG applications via [EXT\_external\_object](https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_external_objects.txt)
 * Port to iOS
 
 ### 4. Release Phase,  Fall 2019 onwards
