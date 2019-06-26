@@ -43,6 +43,10 @@ namespace vsg
         explicit Value(const value_type& in_value) :
             _value(in_value) {}
 
+        template<typename... Args>
+        explicit Value(Args... args) :
+            _value(args...) {}
+
         std::size_t sizeofObject() const noexcept override { return sizeof(Value); }
 
         // implementation provided by Visitor.h
