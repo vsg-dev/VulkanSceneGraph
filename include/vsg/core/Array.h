@@ -58,6 +58,18 @@ namespace vsg
             _size(numElements),
             _data(new value_type[numElements]) {}
 
+        template<typename... Args>
+        static ref_ptr<Array> create(Args... args)
+        {
+            return ref_ptr<Array>(new Array(args...));
+        }
+
+        static ref_ptr<Array> create(std::initializer_list<value_type> l)
+        {
+            return ref_ptr<Array>(new Array(l));
+        }
+
+
         std::size_t sizeofObject() const noexcept override { return sizeof(Array); }
 
         // implementation provided by Visitor.h

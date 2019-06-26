@@ -98,6 +98,12 @@ namespace vsg
             T::assign(args..., static_cast<value_type*>(pData));
         }
 
+        template<typename... Args>
+        static ref_ptr<MappedData> create(Args... args)
+        {
+            return ref_ptr<MappedData>(new MappedData(args...));
+        }
+
         virtual ~MappedData()
         {
             T::dataRelease(); // make sure that the Array doesn't delete this memory

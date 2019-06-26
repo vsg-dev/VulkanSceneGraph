@@ -55,6 +55,12 @@ namespace vsg
             _height(height),
             _data(new value_type[width * height]) {}
 
+        template<typename... Args>
+        static ref_ptr<Array2D> create(Args... args)
+        {
+            return ref_ptr<Array2D>(new Array2D(args...));
+        }
+
         std::size_t sizeofObject() const noexcept override { return sizeof(Array2D); }
 
         // implementation provided by Visitor.h

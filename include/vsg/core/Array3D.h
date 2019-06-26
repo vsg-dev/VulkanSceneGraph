@@ -59,6 +59,12 @@ namespace vsg
             _depth(depth),
             _data(new value_type[width * height * depth]) {}
 
+        template<typename... Args>
+        static ref_ptr<Array3D> create(Args... args)
+        {
+            return ref_ptr<Array3D>(new Array3D(args...));
+        }
+
         std::size_t sizeofObject() const noexcept override { return sizeof(Array3D); }
 
         // implementation provided by Visitor.h
