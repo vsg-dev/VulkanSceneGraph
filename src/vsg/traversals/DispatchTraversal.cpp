@@ -87,9 +87,8 @@ void DispatchTraversal::apply(const LOD& lod)
     const auto& proj = _state->projectionMatrixStack.top();
     const auto& mv = _state->modelviewMatrixStack.top();
     auto f = -proj[1][1];
-    vsg::vec4 lv(mv[0][2], mv[1][2], mv[2][2], mv[3][2]);
 
-    auto distance = std::abs(lv.x * sphere.x + lv.y * sphere.y + lv.z * sphere.z + lv.w);
+    auto distance = std::abs(mv[0][2] * sphere.x + mv[1][2] * sphere.y + mv[2][2] * sphere.z + mv[3][2]);
     auto rf = sphere.r * f;
 
     for (auto lodChild : lod.getChildren())
