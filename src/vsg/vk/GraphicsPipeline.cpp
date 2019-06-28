@@ -142,14 +142,14 @@ GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::creat
             shaderStageCreateInfo[i].pSpecializationInfo = &specializationInfo;
 
             // assign the values from the ShaderStage into the specializationInfo
-            specializationInfo.mapEntryCount = shaderStage->getSpecializationMapEntries().size();
+            specializationInfo.mapEntryCount = static_cast<uint32_t>(shaderStage->getSpecializationMapEntries().size());
             specializationInfo.pMapEntries = shaderStage->getSpecializationMapEntries().data();
             specializationInfo.dataSize = shaderStage->getSpecializationData()->dataSize();
             specializationInfo.pData = shaderStage->getSpecializationData()->dataPointer();
         }
     }
 
-    pipelineInfo.stageCount = shaderStageCreateInfo.size();
+    pipelineInfo.stageCount = static_cast<uint32_t>(shaderStageCreateInfo.size());
     pipelineInfo.pStages = shaderStageCreateInfo.data();
 
     for (auto pipelineState : pipelineStates)
