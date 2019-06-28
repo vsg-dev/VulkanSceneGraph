@@ -12,13 +12,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Object.h>
+#include <vsg/core/Inherit.h>
 #include <vsg/io/FileSystem.h>
 
 namespace vsg
 {
 
-    class ReaderWriter : public vsg::Object
+    class ReaderWriter : public Inherit<Object, ReaderWriter>
     {
     public:
         /// read object from specified file, return object on success, return null ref_ptr<> on failure.
@@ -35,8 +35,9 @@ namespace vsg
             return vsg::ref_ptr<T>(dynamic_cast<T*>(object.get()));
         }
     };
+    VSG_type_name(vsg::ReaderWriter);
 
-    class VSG_DECLSPEC CompositeReaderWriter : public ReaderWriter
+    class VSG_DECLSPEC CompositeReaderWriter : public Inherit<ReaderWriter, CompositeReaderWriter>
     {
     public:
         using ReaderWriters = std::vector<vsg::ref_ptr<ReaderWriter>>;
@@ -50,13 +51,15 @@ namespace vsg
     protected:
         ReaderWriters _readerWriters;
     };
+    VSG_type_name(vsg::CompositeReaderWriter);
 
-    class VSG_DECLSPEC vsgReaderWriter : public ReaderWriter
+    class VSG_DECLSPEC vsgReaderWriter : public Inherit<ReaderWriter, vsgReaderWriter>
     {
     public:
         vsg::ref_ptr<vsg::Object> readFile(const vsg::Path& filename) const override;
 
         bool writeFile(const vsg::Object* object, const vsg::Path& filename) const override;
     };
+    VSG_type_name(vsg::vsgReaderWriter);
 
 } // namespace vsg
