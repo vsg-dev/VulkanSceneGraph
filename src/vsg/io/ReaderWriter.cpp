@@ -23,25 +23,25 @@ void CompositeReaderWriter::add(ref_ptr<ReaderWriter> reader)
     _readerWriters.emplace_back(reader);
 }
 
-vsg::ref_ptr<vsg::Object> CompositeReaderWriter::readFile(const vsg::Path& filename) const
+vsg::ref_ptr<vsg::Object> CompositeReaderWriter::readFile(const vsg::Path& filename, Options* options) const
 {
     for (auto& reader : _readerWriters)
     {
-        if (auto object = reader->readFile(filename); object.valid()) return object;
+        if (auto object = reader->readFile(filename, options); object.valid()) return object;
     }
     return vsg::ref_ptr<vsg::Object>();
 }
 
-bool CompositeReaderWriter::writeFile(const vsg::Object* object, const vsg::Path& filename) const
+bool CompositeReaderWriter::writeFile(const vsg::Object* object, const vsg::Path& filename, Options* options) const
 {
     for (auto& writer : _readerWriters)
     {
-        if (writer->writeFile(object, filename)) return true;
+        if (writer->writeFile(object, filename, options)) return true;
     }
     return false;
 }
 
-vsg::ref_ptr<vsg::Object> vsgReaderWriter::readFile(const vsg::Path& filename) const
+vsg::ref_ptr<vsg::Object> vsgReaderWriter::readFile(const vsg::Path& filename, Options* options) const
 {
     if (vsg::fileExists(filename))
     {
@@ -49,13 +49,13 @@ vsg::ref_ptr<vsg::Object> vsgReaderWriter::readFile(const vsg::Path& filename) c
         if (ext == "vsga" || ext == "vsgt")
         {
             std::ifstream fin(filename);
-            vsg::AsciiInput input(fin);
+            vsg::AsciiInput input(fin, options);
             return input.readObject("Root");
         }
         else if (ext == "vsgb")
         {
             std::ifstream fin(filename, std::ios::in | std::ios::binary);
-            vsg::BinaryInput input(fin);
+            vsg::BinaryInput input(fin, options);
             return input.readObject("Root");
         }
         else
@@ -69,20 +69,20 @@ vsg::ref_ptr<vsg::Object> vsgReaderWriter::readFile(const vsg::Path& filename) c
     }
 }
 
-bool vsgReaderWriter::writeFile(const vsg::Object* object, const vsg::Path& filename) const
+bool vsgReaderWriter::writeFile(const vsg::Object* object, const vsg::Path& filename, Options* options) const
 {
     auto ext = vsg::fileExtension(filename);
     if (ext == "vsga" || ext == "vsgt")
     {
         std::ofstream fout(filename);
-        vsg::AsciiOutput output(fout);
+        vsg::AsciiOutput output(fout, options);
         output.writeObject("Root", object);
         return true;
     }
     else if (ext == "vsgb")
     {
         std::ofstream fout(filename, std::ios::out | std::ios::binary);
-        vsg::BinaryOutput output(fout);
+        vsg::BinaryOutput output(fout, options);
         output.writeObject("Root", object);
         return true;
     }

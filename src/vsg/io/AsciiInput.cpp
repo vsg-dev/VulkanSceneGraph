@@ -18,8 +18,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-AsciiInput::AsciiInput(std::istream& input) :
-    _input(input)
+AsciiInput::AsciiInput(std::istream& input, Options* options) :
+    _input(input),
+    _options(options)
 {
     _input.imbue(std::locale::classic());
 

@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Object.h>
 
 #include <vsg/io/Input.h>
+#include <vsg/io/Options.h>
 
 #include <fstream>
 
@@ -24,7 +25,7 @@ namespace vsg
     class VSG_DECLSPEC BinaryInput : public vsg::Input
     {
     public:
-        explicit BinaryInput(std::istream& input);
+        explicit BinaryInput(std::istream& input, Options* options = nullptr);
 
         bool matchPropertyName(const char*) override { return true; }
 
@@ -64,6 +65,7 @@ namespace vsg
 
     protected:
         std::istream& _input;
+        ref_ptr<Options> _options;
     };
 
 } // namespace vsg

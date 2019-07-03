@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Object.h>
 
 #include <vsg/io/Input.h>
+#include <vsg/io/Options.h>
 #include <vsg/io/ObjectFactory.h>
 
 #include <fstream>
@@ -27,7 +28,7 @@ namespace vsg
     public:
         using ObjectID = uint32_t;
 
-        explicit AsciiInput(std::istream& input);
+        explicit AsciiInput(std::istream& input, Options* options = nullptr);
 
         bool matchPropertyName(const char* propertyName) override;
 
@@ -94,6 +95,7 @@ namespace vsg
 
     protected:
         std::istream& _input;
+        ref_ptr<Options> _options;
 
         std::string _readPropertyName;
     };

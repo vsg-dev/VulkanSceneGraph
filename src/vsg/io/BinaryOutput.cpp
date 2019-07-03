@@ -18,8 +18,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-BinaryOutput::BinaryOutput(std::ostream& output) :
-    _output(output)
+BinaryOutput::BinaryOutput(std::ostream& output, Options* options) :
+    _output(output),
+    _options(options)
 {
     // write header
     _output << "#vsgb " << vsgGetVersion() << "\n";
