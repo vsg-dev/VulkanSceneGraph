@@ -51,7 +51,7 @@ Data::MipmapOffsets Data::computeMipmapOffsets() const
     offsets.push_back(lastPosition);
     while (numMipmaps > 1 && (w > 1 || h > 1 || d > 1))
     {
-        lastPosition += (w * h * d);
+        lastPosition += (static_cast<std::size_t>(w) * h * d);
         offsets.push_back(lastPosition);
 
         --numMipmaps;
