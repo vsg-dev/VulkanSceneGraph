@@ -42,22 +42,22 @@ namespace vsg
             _height(0),
             _depth(0),
             _data(nullptr) {}
-        Array3D(std::size_t width, std::size_t height, std::size_t depth, value_type* data) :
+        Array3D(std::uint32_t width, std::uint32_t height, std::uint32_t depth, value_type* data) :
             _width(width),
             _height(height),
             _depth(depth),
             _data(data) {}
-        Array3D(std::size_t width, std::size_t height, std::size_t depth, value_type* data, Layout layout) :
+        Array3D(std::uint32_t width, std::uint32_t height, std::uint32_t depth, value_type* data, Layout layout) :
             Data(layout),
             _width(width),
             _height(height),
             _depth(depth),
             _data(data) {}
-        Array3D(std::size_t width, std::size_t height, std::size_t depth) :
+        Array3D(std::uint32_t width, std::uint32_t height, std::uint32_t depth) :
             _width(width),
             _height(height),
             _depth(depth),
-            _data(new value_type[width * height * depth]) {}
+            _data(new value_type[static_cast<std::size_t>(width) * height * depth]) {}
 
         template<typename... Args>
         static ref_ptr<Array3D> create(Args... args)
@@ -78,9 +78,9 @@ namespace vsg
             std::size_t original_size = size();
 
             Data::read(input);
-            std::uint32_t width = input.readValue<uint32_t>("Width");
-            std::uint32_t height = input.readValue<uint32_t>("Height");
-            std::uint32_t depth = input.readValue<uint32_t>("Depth");
+            std::uint32_t width = input.readValue<std::uint32_t>("Width");
+            std::uint32_t height = input.readValue<std::uint32_t>("Height");
+            std::uint32_t depth = input.readValue<std::uint32_t>("Depth");
             std::size_t new_size = computeValueCountIncludingMipmaps(width, height, depth, _layout.maxNumMipmaps);
             if (input.matchPropertyName("Data"))
             {
@@ -108,14 +108,14 @@ namespace vsg
         void write(Output& output) const override
         {
             Data::write(output);
-            output.writeValue<uint32_t>("Width", _width);
-            output.writeValue<uint32_t>("Height", _height);
-            output.writeValue<uint32_t>("Depth", _depth);
+            output.writeValue<std::uint32_t>("Width", _width);
+            output.writeValue<std::uint32_t>("Height", _height);
+            output.writeValue<std::uint32_t>("Depth", _depth);
             output.writePropertyName("Data");
             output.write(valueCount(), _data);
         }
 
-        std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? (_width * _height * _depth) : computeValueCountIncludingMipmaps(_width, _height, _depth, _layout.maxNumMipmaps); }
+        std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? (static_cast<std::size_t>(_width) * _height * _depth) : computeValueCountIncludingMipmaps(_width, _height, _depth, _layout.maxNumMipmaps); }
 
         bool empty() const { return _width == 0 && _height == 0 && _depth == 0; }
 
@@ -158,8 +158,8 @@ namespace vsg
         void* dataPointer() override { return _data; }
         const void* dataPointer() const override { return _data; }
 
-        void* dataPointer(size_t i) override { return _data + i; }
-        const void* dataPointer(size_t i) const override { return _data + i; }
+        void* dataPointer(std::size_t i) override { return _data + i; }
+        const void* dataPointer(std::size_t i) const override { return _data + i; }
 
         std::uint32_t width() const override { return _width; }
         std::uint32_t height() const override { return _height; }
@@ -168,7 +168,7 @@ namespace vsg
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
-        size_t index(std::uint32_t i, std::uint32_t j, std::uint32_t k) const noexcept { return i + j * _width + k * (_width * _height); }
+        std::size_t index(std::uint32_t i, std::uint32_t j, std::uint32_t k) const noexcept {return static_cast<std::size_t>(k) * _width * _height + static_cast<std::size_t>(j) * _width + i; }
 
         value_type& operator[](std::size_t i) { return _data[i]; }
         const value_type& operator[](std::size_t i) const { return _data[i]; }

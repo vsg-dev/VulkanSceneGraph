@@ -43,9 +43,9 @@ Data::MipmapOffsets Data::computeMipmapOffsets() const
     MipmapOffsets offsets;
     if (numMipmaps == 0) return offsets;
 
-    auto w = width();
-    auto h = height();
-    auto d = depth();
+    std::size_t w = width();
+    std::size_t h = height();
+    std::size_t d = depth();
 
     std::size_t lastPosition = 0;
     offsets.push_back(lastPosition);
