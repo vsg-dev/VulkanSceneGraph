@@ -108,11 +108,16 @@ if (CPPCHECK)
         set(PATH_TO_SOURCE "${PATH_TO_SOURCE}/")
     endif()
 
+    include(ProcessorCount)
+    ProcessorCount(CPU_CORES)
+
     set(CPPCHECK_SUPPRESION_LIST_FILE "${CMAKE_SOURCE_DIR}/build/cppcheck-suppression-list.txt")
     set(CPPCHECK_SUPPRESION_LIST "--suppressions-list=${CPPCHECK_SUPPRESION_LIST_FILE}")
     set(CPPCHECK_EXTRA_OPTIONS "" CACHE STRING "additional commndline options to use when invoking cppcheck")
     add_custom_target(cppcheck
-        COMMAND ${CPPCHECK} --quiet --enable=style --language=c++  ${CPPCHECK_EXTRA_OPTIONS} ${CPPCHECK_SUPPRESION_LIST} ${PATH_TO_SOURCE}include/vsg/*/*.h ${PATH_TO_SOURCE}src/vsg/*/*.cpp -I ${PATH_TO_SOURCE}include/
+        COMMAND ${CPPCHECK} -j ${CPU_CORES} --quiet --enable=style --language=c++ ${CPPCHECK_EXTRA_OPTIONS} ${CPPCHECK_SUPPRESION_LIST} ${PATH_TO_SOURCE}include/vsg/*/*.h ${PATH_TO_SOURCE}src/vsg/*/*.cpp -I ${PATH_TO_SOURCE}include/
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Static code analsysi using cppcheck"
     )
 endif()
 
@@ -121,6 +126,8 @@ find_program(CLANGFORMAT clang-format)
 if (CLANGFORMAT)
     add_custom_target(clang-format
         COMMAND ${CLANGFORMAT} -i ${PATH_TO_SOURCE}include/vsg/*/*.h ${PATH_TO_SOURCE}src/vsg/*/*.cpp
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Automated code format using clang-format"
     )
 endif()
 
