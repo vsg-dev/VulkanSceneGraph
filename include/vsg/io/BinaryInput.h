@@ -25,7 +25,7 @@ namespace vsg
     class VSG_DECLSPEC BinaryInput : public vsg::Input
     {
     public:
-        explicit BinaryInput(std::istream& input, Options* options = nullptr);
+        explicit BinaryInput(std::istream& input, ref_ptr<const Options> options = {});
 
         bool matchPropertyName(const char*) override { return true; }
 
@@ -65,7 +65,7 @@ namespace vsg
 
     protected:
         std::istream& _input;
-        ref_ptr<Options> _options;
+        ref_ptr<const Options> _options;
     };
 
 } // namespace vsg

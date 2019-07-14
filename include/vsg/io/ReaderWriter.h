@@ -23,10 +23,10 @@ namespace vsg
     {
     public:
         /// read object from specified file, return object on success, return null ref_ptr<> on failure.
-        virtual vsg::ref_ptr<vsg::Object> readFile(const vsg::Path& /*filename*/, Options* /*options*/ = nullptr) const { return vsg::ref_ptr<vsg::Object>(); }
+        virtual vsg::ref_ptr<vsg::Object> readFile(const vsg::Path& /*filename*/, ref_ptr<const Options> = {}) const { return vsg::ref_ptr<vsg::Object>(); }
 
         /// write object to specified file, return true on success, return false on failure.
-        virtual bool writeFile(const vsg::Object* /*object*/, const vsg::Path& /*filename*/, Options* /*options*/ = nullptr) const { return false; }
+        virtual bool writeFile(const vsg::Object* /*object*/, const vsg::Path& /*filename*/, ref_ptr<const Options> = {}) const { return false; }
 
         /// convenience method for casting a read object to a specified type.
         template<class T>
@@ -45,9 +45,9 @@ namespace vsg
 
         void add(ref_ptr<ReaderWriter> reader);
 
-        vsg::ref_ptr<vsg::Object> readFile(const vsg::Path& filename, Options* options = nullptr) const override;
+        vsg::ref_ptr<vsg::Object> readFile(const vsg::Path& filename, ref_ptr<const Options> options = {}) const override;
 
-        bool writeFile(const vsg::Object* object, const vsg::Path& filename, Options* options = nullptr) const override;
+        bool writeFile(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options = {}) const override;
 
     protected:
         ReaderWriters _readerWriters;
@@ -57,9 +57,9 @@ namespace vsg
     class VSG_DECLSPEC vsgReaderWriter : public Inherit<ReaderWriter, vsgReaderWriter>
     {
     public:
-        vsg::ref_ptr<vsg::Object> readFile(const vsg::Path& filename, Options* options = nullptr) const override;
+        vsg::ref_ptr<vsg::Object> readFile(const vsg::Path& filename, ref_ptr<const Options> options = {}) const override;
 
-        bool writeFile(const vsg::Object* object, const vsg::Path& filename, Options* options = nullptr) const override;
+        bool writeFile(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> ooptions = {}) const override;
     };
     VSG_type_name(vsg::vsgReaderWriter);
 

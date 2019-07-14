@@ -24,7 +24,7 @@ namespace vsg
     class VSG_DECLSPEC AsciiOutput : public vsg::Output
     {
     public:
-        explicit AsciiOutput(std::ostream& output, Options* options = nullptr);
+        explicit AsciiOutput(std::ostream& output, ref_ptr<const Options> options = {});
 
         std::ostream& indent()
         {
@@ -119,7 +119,7 @@ namespace vsg
 
     protected:
         std::ostream& _output;
-        ref_ptr<Options> _options;
+        ref_ptr<const Options> _options;
 
         std::size_t _indentationStep = 2;
         std::size_t _indentation = 0;

@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-BinaryInput::BinaryInput(std::istream& input, Options* options) :
+BinaryInput::BinaryInput(std::istream& input, ref_ptr<const Options> options) :
     _input(input),
     _options(options)
 {

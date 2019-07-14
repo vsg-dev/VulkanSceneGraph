@@ -28,7 +28,7 @@ namespace vsg
     public:
         using ObjectID = uint32_t;
 
-        explicit AsciiInput(std::istream& input, Options* options = nullptr);
+        explicit AsciiInput(std::istream& input, ref_ptr<const Options> options = {});
 
         bool matchPropertyName(const char* propertyName) override;
 
@@ -95,7 +95,7 @@ namespace vsg
 
     protected:
         std::istream& _input;
-        ref_ptr<Options> _options;
+        ref_ptr<const Options> _options;
 
         std::string _readPropertyName;
     };

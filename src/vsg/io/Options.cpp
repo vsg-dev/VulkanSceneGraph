@@ -10,58 +10,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Version.h>
-
-#include <vsg/io/BinaryOutput.h>
-
-#include <cstring>
+#include <vsg/io/Options.h>
 
 using namespace vsg;
 
-BinaryOutput::BinaryOutput(std::ostream& output, ref_ptr<const Options> options) :
-    _output(output),
-    _options(options)
+#include <vsg/io/Options.h>
+
+using namespace vsg;
+
+Options::Options()
 {
-    // write header
-    _output << "#vsgb " << vsgGetVersion() << "\n";
-}
-
-void BinaryOutput::write(size_t num, const std::string* value)
-{
-    if (num == 1)
-    {
-        _write(*value);
-    }
-    else
-    {
-        for (; num > 0; --num, ++value)
-        {
-            _write(*value);
-        }
-    }
-}
-
-void BinaryOutput::write(const vsg::Object* object)
-{
-    if (auto itr = _objectIDMap.find(object); itr != _objectIDMap.end())
-    {
-        // write out the objectID
-        uint32_t id = itr->second;
-        _output.write(reinterpret_cast<const char*>(&id), sizeof(id));
-        return;
-    }
-
-    ObjectID id = _objectID++;
-    _objectIDMap[object] = id;
-
-    _output.write(reinterpret_cast<const char*>(&id), sizeof(id));
-    if (object)
-    {
-        _write(std::string(object->className()));
-        object->write(*this);
-    }
-    else
-    {
-        _write(std::string("nullptr"));
-    }
 }

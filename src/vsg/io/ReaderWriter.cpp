@@ -23,7 +23,7 @@ void CompositeReaderWriter::add(ref_ptr<ReaderWriter> reader)
     _readerWriters.emplace_back(reader);
 }
 
-vsg::ref_ptr<vsg::Object> CompositeReaderWriter::readFile(const vsg::Path& filename, Options* options) const
+vsg::ref_ptr<vsg::Object> CompositeReaderWriter::readFile(const vsg::Path& filename, ref_ptr<const Options> options) const
 {
     for (auto& reader : _readerWriters)
     {
@@ -32,7 +32,7 @@ vsg::ref_ptr<vsg::Object> CompositeReaderWriter::readFile(const vsg::Path& filen
     return vsg::ref_ptr<vsg::Object>();
 }
 
-bool CompositeReaderWriter::writeFile(const vsg::Object* object, const vsg::Path& filename, Options* options) const
+bool CompositeReaderWriter::writeFile(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const
 {
     for (auto& writer : _readerWriters)
     {
@@ -41,7 +41,7 @@ bool CompositeReaderWriter::writeFile(const vsg::Object* object, const vsg::Path
     return false;
 }
 
-vsg::ref_ptr<vsg::Object> vsgReaderWriter::readFile(const vsg::Path& filename, Options* options) const
+vsg::ref_ptr<vsg::Object> vsgReaderWriter::readFile(const vsg::Path& filename, ref_ptr<const Options> options) const
 {
     if (vsg::fileExists(filename))
     {
@@ -69,7 +69,7 @@ vsg::ref_ptr<vsg::Object> vsgReaderWriter::readFile(const vsg::Path& filename, O
     }
 }
 
-bool vsgReaderWriter::writeFile(const vsg::Object* object, const vsg::Path& filename, Options* options) const
+bool vsgReaderWriter::writeFile(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const
 {
     auto ext = vsg::fileExtension(filename);
     if (ext == "vsga" || ext == "vsgt")

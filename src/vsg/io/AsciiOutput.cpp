@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-AsciiOutput::AsciiOutput(std::ostream& output, Options* options) :
+AsciiOutput::AsciiOutput(std::ostream& output, ref_ptr<const Options> options) :
     _output(output),
     _options(options)
 {
