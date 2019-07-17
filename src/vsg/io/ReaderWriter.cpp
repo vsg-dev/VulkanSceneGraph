@@ -69,6 +69,26 @@ vsg::ref_ptr<vsg::Object> vsgReaderWriter::readFile(const vsg::Path& filename, r
     }
 }
 
+vsg::ref_ptr<vsg::Object> vsgReaderWriter::readFile(std::istream& fin, vsg::ref_ptr<const vsg::Options> options) const
+{
+    Path filename; // TODO need to determine extension using options?
+    auto ext = vsg::fileExtension(filename);
+    if (ext == "vsga" || ext == "vsgt")
+    {
+        vsg::AsciiInput input(fin, options);
+        return input.readObject("Root");
+    }
+    else if (ext == "vsgb")
+    {
+        vsg::BinaryInput input(fin, options);
+        return input.readObject("Root");
+    }
+    else
+    {
+        return vsg::ref_ptr<vsg::Object>();
+    }
+}
+
 bool vsgReaderWriter::writeFile(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const
 {
     auto ext = vsg::fileExtension(filename);
@@ -82,6 +102,28 @@ bool vsgReaderWriter::writeFile(const vsg::Object* object, const vsg::Path& file
     else if (ext == "vsgb")
     {
         std::ofstream fout(filename, std::ios::out | std::ios::binary);
+        vsg::BinaryOutput output(fout, options);
+        output.writeObject("Root", object);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool vsgReaderWriter::writeFile(const vsg::Object* object, std::ostream& fout, ref_ptr<const Options> options) const
+{
+    Path filename; // TODO need to determine extension using options?
+    auto ext = vsg::fileExtension(filename);
+    if (ext == "vsga" || ext == "vsgt")
+    {
+        vsg::AsciiOutput output(fout, options);
+        output.writeObject("Root", object);
+        return true;
+    }
+    else if (ext == "vsgb")
+    {
         vsg::BinaryOutput output(fout, options);
         output.writeObject("Root", object);
         return true;
