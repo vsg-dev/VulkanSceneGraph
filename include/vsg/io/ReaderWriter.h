@@ -30,9 +30,9 @@ namespace vsg
 
         /// convenience method for casting a read object to a specified type.
         template<class T>
-        vsg::ref_ptr<T> read(const vsg::Path& filename) const
+        vsg::ref_ptr<T> read(const vsg::Path& filename, ref_ptr<const Options> options = {}) const
         {
-            auto object = readFile(filename);
+            auto object = readFile(filename, options);
             return vsg::ref_ptr<T>(dynamic_cast<T*>(object.get()));
         }
     };
