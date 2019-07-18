@@ -83,7 +83,6 @@ MemorySlots::OptionalOffset MemorySlots::reserve(VkDeviceSize size, VkDeviceSize
 
 void MemorySlots::release(VkDeviceSize offset, VkDeviceSize size)
 {
-    //std::cout<<"MemorySlots::release("<<offset<<", "<<size<<")"<<std::endl;
     if (_offsetSizes.empty())
     {
         // first empty space
@@ -92,18 +91,30 @@ void MemorySlots::release(VkDeviceSize offset, VkDeviceSize size)
         return;
     }
 
-    // need to find adjacent blocks before and after to see if we abut so we can join them togeher options are:
+    // need to find adjacent blocks before and after to see if we can join them togeher options are:
     //    abutes to neither before or after
     //    abutes to before, so replace before with new combined legnth
     //    abutes to after, so remove after entry and insert new enty with combined length
     //    abutes to both before and after, so replace before with newly combined length of all three, remove after entry
 
     auto slotAfter = _offsetSizes.upper_bound(offset);
+
     auto slotBefore = slotAfter;
     if (slotBefore != _offsetSizes.end())
-        --slotBefore;
+    {
+        if (slotBefore == _offsetSizes.begin())
+        {
+            slotBefore = _offsetSizes.end();
+        }
+        else
+        {
+            --slotBefore;
+        }
+    }
     else
+    {
         slotBefore = _offsetSizes.rbegin().base();
+    }
 
     auto eraseSlot = [&](OffsetSizes::iterator offsetSizeItr) {
         auto range = _availableMemory.equal_range(offsetSizeItr->second);
