@@ -75,6 +75,9 @@ namespace vsg
         bool writeFile(const vsg::Object* object, const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> ooptions = {}) const override;
         bool writeFile(const vsg::Object* object, std::ostream& fout, vsg::ref_ptr<const vsg::Options> options = {}) const override;
 
+        ObjectFactory* getObjectFactory() { return _objectFactory; }
+        const ObjectFactory* getObjectFactory() const { return _objectFactory; }
+
     protected:
         ref_ptr<ObjectFactory> _objectFactory;
     };
