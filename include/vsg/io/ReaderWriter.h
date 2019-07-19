@@ -67,11 +67,16 @@ namespace vsg
     class VSG_DECLSPEC vsgReaderWriter : public Inherit<ReaderWriter, vsgReaderWriter>
     {
     public:
+        vsgReaderWriter();
+
         vsg::ref_ptr<vsg::Object> readFile(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options = {}) const override;
         vsg::ref_ptr<vsg::Object> readFile(std::istream& fin, vsg::ref_ptr<const vsg::Options> options = {}) const override;
 
         bool writeFile(const vsg::Object* object, const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> ooptions = {}) const override;
         bool writeFile(const vsg::Object* object, std::ostream& fout, vsg::ref_ptr<const vsg::Options> options = {}) const override;
+
+    protected:
+        ref_ptr<ObjectFactory> _objectFactory;
     };
     VSG_type_name(vsg::vsgReaderWriter);
 

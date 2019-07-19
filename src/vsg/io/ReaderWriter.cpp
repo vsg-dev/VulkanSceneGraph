@@ -41,6 +41,11 @@ bool CompositeReaderWriter::writeFile(const vsg::Object* object, const vsg::Path
     return false;
 }
 
+vsgReaderWriter::vsgReaderWriter()
+{
+    _objectFactory = new vsg::ObjectFactory;
+}
+
 vsg::ref_ptr<vsg::Object> vsgReaderWriter::readFile(const vsg::Path& filename, ref_ptr<const Options> options) const
 {
     if (vsg::fileExists(filename))
@@ -49,13 +54,13 @@ vsg::ref_ptr<vsg::Object> vsgReaderWriter::readFile(const vsg::Path& filename, r
         if (ext == "vsga" || ext == "vsgt")
         {
             std::ifstream fin(filename);
-            vsg::AsciiInput input(fin, options);
+            vsg::AsciiInput input(fin, _objectFactory, options);
             return input.readObject("Root");
         }
         else if (ext == "vsgb")
         {
             std::ifstream fin(filename, std::ios::in | std::ios::binary);
-            vsg::BinaryInput input(fin, options);
+            vsg::BinaryInput input(fin, _objectFactory, options);
             return input.readObject("Root");
         }
         else
@@ -75,12 +80,12 @@ vsg::ref_ptr<vsg::Object> vsgReaderWriter::readFile(std::istream& fin, vsg::ref_
     auto ext = vsg::fileExtension(filename);
     if (ext == "vsga" || ext == "vsgt")
     {
-        vsg::AsciiInput input(fin, options);
+        vsg::AsciiInput input(fin, _objectFactory, options);
         return input.readObject("Root");
     }
     else if (ext == "vsgb")
     {
-        vsg::BinaryInput input(fin, options);
+        vsg::BinaryInput input(fin, _objectFactory, options);
         return input.readObject("Root");
     }
     else

@@ -18,13 +18,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-AsciiInput::AsciiInput(std::istream& input, ref_ptr<const Options> options) :
+AsciiInput::AsciiInput(std::istream& input, ref_ptr<ObjectFactory> objectFactory, ref_ptr<const Options> options) :
+    Input(objectFactory),
     _input(input),
     _options(options)
 {
     _input.imbue(std::locale::classic());
-
-    _objectFactory = new vsg::ObjectFactory;
 
     // write header
     const char* match_token = "#vsga";

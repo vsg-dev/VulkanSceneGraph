@@ -33,6 +33,11 @@ namespace vsg
     class Input
     {
     public:
+        Input(ref_ptr<ObjectFactory> objectFactory) :
+            _objectFactory(objectFactory)
+        {
+        }
+
         /// return true if property name matches the next token in the stream, or if property names are not required for format
         virtual bool matchPropertyName(const char* propertyName) = 0;
 
@@ -126,16 +131,16 @@ namespace vsg
         }
 
         using ObjectID = uint32_t;
-        using ObjectIDMap = std::unordered_map<ObjectID, vsg::ref_ptr<vsg::Object>>;
+        using ObjectIDMap = std::unordered_map<ObjectID, ref_ptr<Object>>;
         ObjectIDMap& getObjectIDMap() { return _objectIDMap; }
         const ObjectIDMap& getObjectIDMap() const { return _objectIDMap; }
 
-        vsg::ObjectFactory* getObjectFactory() { return _objectFactory; }
-        const vsg::ObjectFactory* getObjectFactory() const { return _objectFactory; }
+        ObjectFactory* getObjectFactory() { return _objectFactory; }
+        const ObjectFactory* getObjectFactory() const { return _objectFactory; }
 
     protected:
         ObjectIDMap _objectIDMap;
-        vsg::ref_ptr<vsg::ObjectFactory> _objectFactory;
+        ref_ptr<ObjectFactory> _objectFactory;
     };
 
 } // namespace vsg
