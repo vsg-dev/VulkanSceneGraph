@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,33 +12,28 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/AsciiInput.h>
-#include <vsg/io/AsciiOutput.h>
-#include <vsg/io/BinaryInput.h>
-#include <vsg/io/BinaryOutput.h>
 #include <vsg/io/ReaderWriter.h>
 
-using namespace vsg;
-
-void CompositeReaderWriter::add(ref_ptr<ReaderWriter> reader)
+namespace vsg
 {
-    _readerWriters.emplace_back(reader);
-}
 
-vsg::ref_ptr<vsg::Object> CompositeReaderWriter::readFile(const vsg::Path& filename, ref_ptr<const Options> options) const
-{
-    for (auto& reader : _readerWriters)
+    class VSG_DECLSPEC ReaderWriter_vsg : public Inherit<ReaderWriter, ReaderWriter_vsg>
     {
-        if (auto object = reader->readFile(filename, options); object.valid()) return object;
-    }
-    return vsg::ref_ptr<vsg::Object>();
-}
+    public:
+        ReaderWriter_vsg();
 
-bool CompositeReaderWriter::writeFile(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const
-{
-    for (auto& writer : _readerWriters)
-    {
-        if (writer->writeFile(object, filename, options)) return true;
-    }
-    return false;
-}
+        vsg::ref_ptr<vsg::Object> readFile(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options = {}) const override;
+        vsg::ref_ptr<vsg::Object> readFile(std::istream& fin, vsg::ref_ptr<const vsg::Options> options = {}) const override;
+
+        bool writeFile(const vsg::Object* object, const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> ooptions = {}) const override;
+        bool writeFile(const vsg::Object* object, std::ostream& fout, vsg::ref_ptr<const vsg::Options> options = {}) const override;
+
+        ObjectFactory* getObjectFactory() { return _objectFactory; }
+        const ObjectFactory* getObjectFactory() const { return _objectFactory; }
+
+    protected:
+        ref_ptr<ObjectFactory> _objectFactory;
+    };
+    VSG_type_name(vsg::ReaderWriter_vsg);
+
+} // namespace vsg
