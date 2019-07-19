@@ -23,11 +23,6 @@ AsciiOutput::AsciiOutput(std::ostream& output, ref_ptr<const Options> options) :
     _options(options)
 {
     _maximumIndentation = std::strlen(_indentationString);
-
-    _output.imbue(std::locale::classic());
-
-    // write header
-    _output << "#vsga " << vsgGetVersion() << "\n";
 }
 
 void AsciiOutput::writePropertyName(const char* propertyName)

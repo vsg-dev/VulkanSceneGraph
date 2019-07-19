@@ -23,21 +23,6 @@ AsciiInput::AsciiInput(std::istream& input, ref_ptr<ObjectFactory> objectFactory
     _input(input),
     _options(options)
 {
-    _input.imbue(std::locale::classic());
-
-    // write header
-    const char* match_token = "#vsga";
-    char read_token[5];
-    _input.read(read_token, 5);
-    if (std::strncmp(match_token, read_token, 5) != 0)
-    {
-        std::cout << "Header token not matched" << std::endl;
-        throw std::string("Error: header not matched.");
-    }
-
-    char read_line[1024];
-    _input.getline(read_line, sizeof(read_line) - 1);
-    //std::cout << "First line [" << read_line << "]" << std::endl;
 }
 
 bool AsciiInput::matchPropertyName(const char* propertyName)

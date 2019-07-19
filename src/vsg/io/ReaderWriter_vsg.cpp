@@ -15,6 +15,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/BinaryInput.h>
 #include <vsg/io/BinaryOutput.h>
 #include <vsg/io/ReaderWriter_vsg.h>
+#include <vsg/core/Version.h>
+
+#include <cstring>
+#include <iostream>
 
 using namespace vsg;
 
@@ -23,21 +27,59 @@ ReaderWriter_vsg::ReaderWriter_vsg()
     _objectFactory = new vsg::ObjectFactory;
 }
 
+ReaderWriter_vsg::FormatType ReaderWriter_vsg::readHeader(std::istream& fin) const
+{
+    fin.imbue(std::locale::classic());
+
+    // write header
+    const char* match_token_ascii = "#vsga";
+    const char* match_token_binary = "#vsgb";
+    char read_token[5];
+    fin.read(read_token, 5);
+
+    FormatType type = NOT_RECOGNIZED;
+    if (std::strncmp(match_token_ascii, read_token, 5) == 0) type = ASCII;
+    else if (std::strncmp(match_token_binary, read_token, 5) == 0) type = BINARY;
+
+    if (type == NOT_RECOGNIZED)
+    {
+        std::cout << "Header token not matched" << std::endl;
+        return type;
+    }
+
+    char read_line[1024];
+    fin.getline(read_line, sizeof(read_line) - 1);
+    std::cout << "First line [" << read_line << "]" << std::endl;
+
+    return type;
+}
+
+void ReaderWriter_vsg::writeHeader(std::ostream& fout, FormatType type) const
+{
+    if (type==NOT_RECOGNIZED) return;
+
+    fout.imbue(std::locale::classic());
+    if (type == BINARY) fout << "#vsgb";
+    else fout << "#vsga";
+
+    fout << " "<<vsgGetVersion() << "\n";
+}
+
 vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::readFile(const vsg::Path& filename, ref_ptr<const Options> options) const
 {
-    if (vsg::fileExists(filename))
+    auto ext = vsg::fileExtension(filename);
+    if ((ext=="vsga" || ext=="vsgt" || ext=="vsgb") && vsg::fileExists(filename))
     {
-        auto ext = vsg::fileExtension(filename);
-        if (ext == "vsga" || ext == "vsgt")
+        std::ifstream fin(filename);
+        FormatType type = readHeader(fin);
+        if (type == BINARY)
         {
-            std::ifstream fin(filename);
-            vsg::AsciiInput input(fin, _objectFactory, options);
+            vsg::BinaryInput input(fin, _objectFactory, options);
             return input.readObject("Root");
         }
-        else if (ext == "vsgb")
+        else if (type == ASCII)
         {
-            std::ifstream fin(filename, std::ios::in | std::ios::binary);
-            vsg::BinaryInput input(fin, _objectFactory, options);
+            vsg::AsciiInput input(fin, _objectFactory, options);
             return input.readObject("Root");
         }
         else
@@ -53,38 +95,39 @@ vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::readFile(const vsg::Path& filename, 
 
 vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::readFile(std::istream& fin, vsg::ref_ptr<const vsg::Options> options) const
 {
-    Path filename; // TODO need to determine extension using options?
-    auto ext = vsg::fileExtension(filename);
-    if (ext == "vsga" || ext == "vsgt")
+    FormatType type = readHeader(fin);
+    if (type == BINARY)
     {
         vsg::AsciiInput input(fin, _objectFactory, options);
         return input.readObject("Root");
     }
-    else if (ext == "vsgb")
+    else if (type == ASCII)
     {
         vsg::BinaryInput input(fin, _objectFactory, options);
         return input.readObject("Root");
     }
-    else
-    {
-        return vsg::ref_ptr<vsg::Object>();
-    }
+
+    return vsg::ref_ptr<vsg::Object>();
 }
 
 bool ReaderWriter_vsg::writeFile(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const
 {
     auto ext = vsg::fileExtension(filename);
-    if (ext == "vsga" || ext == "vsgt")
+    if (ext == "vsgb")
     {
-        std::ofstream fout(filename);
-        vsg::AsciiOutput output(fout, options);
+        std::ofstream fout(filename, std::ios::out | std::ios::binary);
+        writeHeader(fout, BINARY);
+
+        vsg::BinaryOutput output(fout, options);
         output.writeObject("Root", object);
         return true;
     }
-    else if (ext == "vsgb")
+    else if (ext == "vsga" || ext == "vsgt")
     {
-        std::ofstream fout(filename, std::ios::out | std::ios::binary);
-        vsg::BinaryOutput output(fout, options);
+        std::ofstream fout(filename);
+        writeHeader(fout, ASCII);
+
+        vsg::AsciiOutput output(fout, options);
         output.writeObject("Root", object);
         return true;
     }
@@ -96,22 +139,24 @@ bool ReaderWriter_vsg::writeFile(const vsg::Object* object, const vsg::Path& fil
 
 bool ReaderWriter_vsg::writeFile(const vsg::Object* object, std::ostream& fout, ref_ptr<const Options> options) const
 {
-    Path filename; // TODO need to determine extension using options?
-    auto ext = vsg::fileExtension(filename);
-    if (ext == "vsga" || ext == "vsgt")
+#if 0
+    if (fout.openmode() & std::ios_base::openmode::binary)
     {
-        vsg::AsciiOutput output(fout, options);
-        output.writeObject("Root", object);
-        return true;
-    }
-    else if (ext == "vsgb")
-    {
+        std::cout<<"Binary outputstream"<<std::endl;
+        writeHeader(fout, BINARY);
+
         vsg::BinaryOutput output(fout, options);
         output.writeObject("Root", object);
         return true;
     }
     else
+#endif
     {
-        return false;
+        std::cout<<"Ascii outputstream"<<std::endl;
+        writeHeader(fout, ASCII);
+
+        vsg::AsciiOutput output(fout, options);
+        output.writeObject("Root", object);
+        return true;
     }
 }

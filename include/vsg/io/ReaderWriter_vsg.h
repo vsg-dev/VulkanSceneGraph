@@ -31,9 +31,21 @@ namespace vsg
         ObjectFactory* getObjectFactory() { return _objectFactory; }
         const ObjectFactory* getObjectFactory() const { return _objectFactory; }
 
+        enum FormatType
+        {
+            BINARY,
+            ASCII,
+            NOT_RECOGNIZED
+        };
+
+        FormatType readHeader(std::istream& fin) const;
+        void writeHeader(std::ostream& fout, FormatType type) const;
+
     protected:
         ref_ptr<ObjectFactory> _objectFactory;
     };
     VSG_type_name(vsg::ReaderWriter_vsg);
+
+    //using vsgReaderWriter = ReaderWriter_vsg;
 
 } // namespace vsg
