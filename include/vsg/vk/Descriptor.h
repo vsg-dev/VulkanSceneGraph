@@ -160,7 +160,7 @@ namespace vsg
             }
         }
 
-        virtual bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+        virtual bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override
         {
             std::vector<VkBufferView> texelBufferViews(_texelBufferViewList.size());
 
