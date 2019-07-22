@@ -23,20 +23,20 @@ void CompositeReaderWriter::add(ref_ptr<ReaderWriter> reader)
     _readerWriters.emplace_back(reader);
 }
 
-vsg::ref_ptr<vsg::Object> CompositeReaderWriter::readFile(const vsg::Path& filename, ref_ptr<const Options> options) const
+vsg::ref_ptr<vsg::Object> CompositeReaderWriter::read(const vsg::Path& filename, ref_ptr<const Options> options) const
 {
     for (auto& reader : _readerWriters)
     {
-        if (auto object = reader->readFile(filename, options); object.valid()) return object;
+        if (auto object = reader->read(filename, options); object.valid()) return object;
     }
     return vsg::ref_ptr<vsg::Object>();
 }
 
-bool CompositeReaderWriter::writeFile(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const
+bool CompositeReaderWriter::write(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const
 {
     for (auto& writer : _readerWriters)
     {
-        if (writer->writeFile(object, filename, options)) return true;
+        if (writer->write(object, filename, options)) return true;
     }
     return false;
 }

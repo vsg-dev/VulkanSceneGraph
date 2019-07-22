@@ -65,7 +65,7 @@ void ReaderWriter_vsg::writeHeader(std::ostream& fout, FormatType type) const
     fout << " "<<vsgGetVersion() << "\n";
 }
 
-vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::readFile(const vsg::Path& filename, ref_ptr<const Options> options) const
+vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(const vsg::Path& filename, ref_ptr<const Options> options) const
 {
     auto ext = vsg::fileExtension(filename);
     if ((ext=="vsga" || ext=="vsgt" || ext=="vsgb") && vsg::fileExists(filename))
@@ -93,7 +93,7 @@ vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::readFile(const vsg::Path& filename, 
     }
 }
 
-vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::readFile(std::istream& fin, vsg::ref_ptr<const vsg::Options> options) const
+vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(std::istream& fin, vsg::ref_ptr<const vsg::Options> options) const
 {
     FormatType type = readHeader(fin);
     if (type == BINARY)
@@ -110,7 +110,7 @@ vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::readFile(std::istream& fin, vsg::ref
     return vsg::ref_ptr<vsg::Object>();
 }
 
-bool ReaderWriter_vsg::writeFile(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const
+bool ReaderWriter_vsg::write(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const
 {
     auto ext = vsg::fileExtension(filename);
     if (ext == "vsgb")
@@ -137,7 +137,7 @@ bool ReaderWriter_vsg::writeFile(const vsg::Object* object, const vsg::Path& fil
     }
 }
 
-bool ReaderWriter_vsg::writeFile(const vsg::Object* object, std::ostream& fout, ref_ptr<const Options> options) const
+bool ReaderWriter_vsg::write(const vsg::Object* object, std::ostream& fout, ref_ptr<const Options> options) const
 {
 #if 0
     if (fout.openmode() & std::ios_base::openmode::binary)

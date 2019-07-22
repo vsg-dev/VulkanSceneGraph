@@ -22,11 +22,11 @@ namespace vsg
     public:
         ReaderWriter_vsg();
 
-        vsg::ref_ptr<vsg::Object> readFile(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options = {}) const override;
-        vsg::ref_ptr<vsg::Object> readFile(std::istream& fin, vsg::ref_ptr<const vsg::Options> options = {}) const override;
+        vsg::ref_ptr<vsg::Object> read(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options = {}) const override;
+        vsg::ref_ptr<vsg::Object> read(std::istream& fin, vsg::ref_ptr<const vsg::Options> options = {}) const override;
 
-        bool writeFile(const vsg::Object* object, const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> ooptions = {}) const override;
-        bool writeFile(const vsg::Object* object, std::ostream& fout, vsg::ref_ptr<const vsg::Options> options = {}) const override;
+        bool write(const vsg::Object* object, const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> ooptions = {}) const override;
+        bool write(const vsg::Object* object, std::ostream& fout, vsg::ref_ptr<const vsg::Options> options = {}) const override;
 
         ObjectFactory* getObjectFactory() { return _objectFactory; }
         const ObjectFactory* getObjectFactory() const { return _objectFactory; }
@@ -45,7 +45,5 @@ namespace vsg
         ref_ptr<ObjectFactory> _objectFactory;
     };
     VSG_type_name(vsg::ReaderWriter_vsg);
-
-    //using vsgReaderWriter = ReaderWriter_vsg;
 
 } // namespace vsg
