@@ -43,16 +43,16 @@ namespace vsg
         }
 
         // read value(s)
-        virtual void read(size_t num, int8_t* value) override { _read(num, value); }
-        virtual void read(size_t num, uint8_t* value) override { _read(num, value); }
-        virtual void read(size_t num, int16_t* value) override { _read(num, value); }
-        virtual void read(size_t num, uint16_t* value) override { _read(num, value); }
-        virtual void read(size_t num, int32_t* value) override { _read(num, value); }
-        virtual void read(size_t num, uint32_t* value) override { _read(num, value); }
-        virtual void read(size_t num, int64_t* value) override { _read(num, value); }
-        virtual void read(size_t num, uint64_t* value) override { _read(num, value); }
-        virtual void read(size_t num, float* value) override { _read(num, value); }
-        virtual void read(size_t num, double* value) override { _read(num, value); }
+        void read(size_t num, int8_t* value) override { _read(num, value); }
+        void read(size_t num, uint8_t* value) override { _read(num, value); }
+        void read(size_t num, int16_t* value) override { _read(num, value); }
+        void read(size_t num, uint16_t* value) override { _read(num, value); }
+        void read(size_t num, int32_t* value) override { _read(num, value); }
+        void read(size_t num, uint32_t* value) override { _read(num, value); }
+        void read(size_t num, int64_t* value) override { _read(num, value); }
+        void read(size_t num, uint64_t* value) override { _read(num, value); }
+        void read(size_t num, float* value) override { _read(num, value); }
+        void read(size_t num, double* value) override { _read(num, value); }
 
         // read in an individual string
         void _read(std::string& value);

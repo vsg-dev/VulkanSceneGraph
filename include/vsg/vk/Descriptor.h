@@ -112,7 +112,7 @@ namespace vsg
     };
     VSG_type_name(vsg::DescriptorImage)
 
-        class VSG_DECLSPEC DescriptorBuffer : public Inherit<Descriptor, DescriptorBuffer>
+    class VSG_DECLSPEC DescriptorBuffer : public Inherit<Descriptor, DescriptorBuffer>
     {
     public:
         DescriptorBuffer();
@@ -144,7 +144,7 @@ namespace vsg
     };
     VSG_type_name(vsg::DescriptorBuffer)
 
-        using BufferViewList = std::vector<ref_ptr<BufferView>>;
+    using BufferViewList = std::vector<ref_ptr<BufferView>>;
 
     class VSG_DECLSPEC DescriptorTexelBufferView : public Inherit<Descriptor, DescriptorTexelBufferView>
     {
@@ -160,7 +160,7 @@ namespace vsg
             }
         }
 
-        virtual bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override
+        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override
         {
             std::vector<VkBufferView> texelBufferViews(_texelBufferViewList.size());
 
@@ -178,7 +178,7 @@ namespace vsg
     };
     VSG_type_name(vsg::DescriptorTexelBufferView)
 
-        struct Material
+    struct Material
     {
         vec4 ambientColor;
         vec4 diffuseColor;
