@@ -25,7 +25,7 @@ namespace vsg
     class VSG_DECLSPEC BinaryInput : public vsg::Input
     {
     public:
-        explicit BinaryInput(std::istream& input, ref_ptr<const Options> options = {});
+        BinaryInput(std::istream& input, ref_ptr<ObjectFactory> objectFactory, ref_ptr<const Options> options = {});
 
         bool matchPropertyName(const char*) override { return true; }
 

@@ -45,6 +45,7 @@ set(SOURCES
     io/Options.cpp
     io/ObjectFactory.cpp
     io/ReaderWriter.cpp
+    io/ReaderWriter_vsg.cpp
 
     traversals/DispatchTraversal.cpp
     traversals/CullTraversal.cpp

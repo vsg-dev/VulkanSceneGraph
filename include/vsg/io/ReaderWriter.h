@@ -22,21 +22,33 @@ namespace vsg
     class ReaderWriter : public Inherit<Object, ReaderWriter>
     {
     public:
-        /// read object from specified file, return object on success, return null ref_ptr<> on failure.
-        virtual vsg::ref_ptr<vsg::Object> readFile(const vsg::Path& /*filename*/, ref_ptr<const Options> = {}) const { return vsg::ref_ptr<vsg::Object>(); }
-
-        /// write object to specified file, return true on success, return false on failure.
-        virtual bool writeFile(const vsg::Object* /*object*/, const vsg::Path& /*filename*/, ref_ptr<const Options> = {}) const { return false; }
+        /// convenience method for casting a read object to a specified type.
+        template<class T>
+        vsg::ref_ptr<T> read_cast(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options = {}) const
+        {
+            auto object = read(filename, options);
+            return vsg::ref_ptr<T>(dynamic_cast<T*>(object.get()));
+        }
 
         /// convenience method for casting a read object to a specified type.
         template<class T>
-        vsg::ref_ptr<T> read(const vsg::Path& filename, ref_ptr<const Options> options = {}) const
+        vsg::ref_ptr<T> read_cast(std::istream& fin, vsg::ref_ptr<const vsg::Options> options = {}) const
         {
-            auto object = readFile(filename, options);
+            auto object = read(fin, options);
             return vsg::ref_ptr<T>(dynamic_cast<T*>(object.get()));
         }
+
+        /// read object from specified file, return object on success, return null ref_ptr<> on failure.
+        virtual vsg::ref_ptr<vsg::Object> read(const vsg::Path& /*filename*/, vsg::ref_ptr<const vsg::Options> = {}) const { return vsg::ref_ptr<vsg::Object>(); }
+        virtual vsg::ref_ptr<vsg::Object> read(std::istream& /*fin*/, vsg::ref_ptr<const vsg::Options> = {}) const { return vsg::ref_ptr<vsg::Object>(); }
+
+        /// write object to specified file, return true on success, return false on failure.
+        virtual bool write(const vsg::Object* /*object*/, const vsg::Path& /*filename*/, vsg::ref_ptr<const vsg::Options> = {}) const { return false; }
+        virtual bool write(const vsg::Object* /*object*/, std::ostream& /*fout*/, vsg::ref_ptr<const vsg::Options> = {}) const { return false; }
+
     };
     VSG_type_name(vsg::ReaderWriter);
+
 
     class VSG_DECLSPEC CompositeReaderWriter : public Inherit<ReaderWriter, CompositeReaderWriter>
     {
@@ -45,22 +57,13 @@ namespace vsg
 
         void add(ref_ptr<ReaderWriter> reader);
 
-        vsg::ref_ptr<vsg::Object> readFile(const vsg::Path& filename, ref_ptr<const Options> options = {}) const override;
+        vsg::ref_ptr<vsg::Object> read(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options = {}) const override;
 
-        bool writeFile(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options = {}) const override;
+        bool write(const vsg::Object* object, const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options = {}) const override;
 
     protected:
         ReaderWriters _readerWriters;
     };
     VSG_type_name(vsg::CompositeReaderWriter);
-
-    class VSG_DECLSPEC vsgReaderWriter : public Inherit<ReaderWriter, vsgReaderWriter>
-    {
-    public:
-        vsg::ref_ptr<vsg::Object> readFile(const vsg::Path& filename, ref_ptr<const Options> options = {}) const override;
-
-        bool writeFile(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> ooptions = {}) const override;
-    };
-    VSG_type_name(vsg::vsgReaderWriter);
 
 } // namespace vsg

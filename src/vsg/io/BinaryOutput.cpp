@@ -22,8 +22,6 @@ BinaryOutput::BinaryOutput(std::ostream& output, ref_ptr<const Options> options)
     _output(output),
     _options(options)
 {
-    // write header
-    _output << "#vsgb " << vsgGetVersion() << "\n";
 }
 
 void BinaryOutput::write(size_t num, const std::string* value)
