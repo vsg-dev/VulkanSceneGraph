@@ -12,11 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#if __APPLE__
-#    include <experimental/any>
-#else
-#    include <any>
-#endif
+#include <any>
 
 #include <vsg/ui/UIEvent.h>
 
@@ -29,12 +25,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-
-#if __APPLE__
-    using std_any = std::experimental::any;
-#else
-    using std_any = std::any;
-#endif
 
     class VSG_DECLSPEC Window : public Inherit<Object, Window>
     {
@@ -86,7 +76,7 @@ namespace vsg
 
             AllocationCallbacks* allocator = nullptr;
 
-            std_any nativeHandle;
+            std::any nativeHandle;
             void* nativeWindow;
 
         protected:
