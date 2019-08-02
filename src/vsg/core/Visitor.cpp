@@ -10,8 +10,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Objects.h>
 #include <vsg/core/Visitor.h>
+#include <vsg/core/Objects.h>
+#include <vsg/core/External.h>
 
 #include <vsg/nodes/Commands.h>
 #include <vsg/nodes/CullGroup.h>
@@ -52,6 +53,11 @@ void Visitor::apply(Object&)
 void Visitor::apply(Objects& value)
 {
     apply(static_cast<Object&>(value));
+}
+
+void Visitor::apply(External& value)
+{
+    apply(static_cast<External&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
