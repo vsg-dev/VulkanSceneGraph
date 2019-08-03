@@ -70,7 +70,7 @@ vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(const vsg::Path& filename, ref_
     auto ext = vsg::fileExtension(filename);
     if ((ext=="vsga" || ext=="vsgt" || ext=="vsgb") && vsg::fileExists(filename))
     {
-        std::ifstream fin(filename);
+        std::ifstream fin(filename, std::ios::in | std::ios::binary);
         FormatType type = readHeader(fin);
         if (type == BINARY)
         {
@@ -98,12 +98,12 @@ vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(std::istream& fin, vsg::ref_ptr
     FormatType type = readHeader(fin);
     if (type == BINARY)
     {
-        vsg::AsciiInput input(fin, _objectFactory, options);
+        vsg::BinaryInput input(fin, _objectFactory, options);
         return input.readObject("Root");
     }
     else if (type == ASCII)
     {
-        vsg::BinaryInput input(fin, _objectFactory, options);
+        vsg::AsciiInput input(fin, _objectFactory, options);
         return input.readObject("Root");
     }
 
