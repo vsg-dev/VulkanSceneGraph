@@ -24,6 +24,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec4.h>
 
 #include <vsg/io/ObjectFactory.h>
+#include <vsg/io/FileSystem.h>
 
 #include <unordered_map>
 
@@ -56,6 +57,9 @@ namespace vsg
 
         // read object
         virtual ref_ptr<Object> read() = 0;
+
+        // read object from file
+        virtual ref_ptr<Object> readFile(const Path& path) = 0;
 
         // map char to int8_t
         void read(size_t num, char* value) { read(num, reinterpret_cast<int8_t*>(value)); }

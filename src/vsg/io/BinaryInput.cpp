@@ -78,3 +78,9 @@ vsg::ref_ptr<vsg::Object> BinaryInput::read()
         return object;
     }
 }
+
+ref_ptr<Object> BinaryInput::readFile(const Path& path)
+{
+    std::cout<<"BinaryInput::readFile("<<path<<")"<<std::endl;
+    return {};
+}

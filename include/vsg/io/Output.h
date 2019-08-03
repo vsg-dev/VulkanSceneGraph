@@ -23,6 +23,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
 
+#include <vsg/io/FileSystem.h>
+
 #include <unordered_map>
 
 namespace vsg
@@ -49,6 +51,9 @@ namespace vsg
 
         // write object
         virtual void write(const Object* object) = 0;
+
+        // write external file if reqquired
+        virtual void writeFile(const Object* object, const Path& path) = 0;
 
         // map char to int8_t
         void write(size_t num, const char* value) { write(num, reinterpret_cast<const int8_t*>(value)); }

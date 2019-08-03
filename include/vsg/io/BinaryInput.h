@@ -63,6 +63,9 @@ namespace vsg
         // read object
         vsg::ref_ptr<vsg::Object> read() override;
 
+        // read object from file
+        virtual ref_ptr<Object> readFile(const Path& path);
+
     protected:
         std::istream& _input;
         ref_ptr<const Options> _options;

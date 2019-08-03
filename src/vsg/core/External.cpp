@@ -44,8 +44,7 @@ void External::read(Input& input)
 
     if (!_filename.empty())
     {
-        // if we need to invoke ReaderWriter for it.
-
+        _object = input.readFile(_filename);
     }
 }
 
@@ -56,7 +55,8 @@ void External::write(Output& output) const
     output.write("Filename", _filename);
 
     // if we should write out object then need to invoke ReaderWriter for it.
-    // if (!_filename.empty())
-    // {
-    // }
+    if (!_filename.empty() && _object.valid())
+    {
+        output.writeFile(_object, _filename);
+    }
 }

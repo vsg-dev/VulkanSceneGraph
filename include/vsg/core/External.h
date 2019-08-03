@@ -15,6 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Inherit.h>
 #include <vsg/core/ref_ptr.h>
 
+#include <vsg/io/FileSystem.h>
+
 namespace vsg
 {
     VSG_type_name(vsg::External);
@@ -40,8 +42,8 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void setFilename(const std::string& filename) { _filename = filename; }
-        std::string getFilename() const { return _filename; }
+        void setFilename(const Path& filename) { _filename = filename; }
+        const Path& getFilename() const { return _filename; }
 
         void setObject(ref_ptr<Object> object) { _object = object; }
         Object* getObject() { return _object; }
@@ -50,7 +52,7 @@ namespace vsg
     protected:
         virtual ~External();
 
-        std::string _filename;
+        Path _filename;
         ref_ptr<Object> _object;
     };
 

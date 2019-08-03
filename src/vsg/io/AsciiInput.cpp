@@ -158,3 +158,9 @@ vsg::ref_ptr<vsg::Object> AsciiInput::read()
     }
     return vsg::ref_ptr<vsg::Object>();
 }
+
+ref_ptr<Object> AsciiInput::readFile(const Path& path)
+{
+    std::cout<<"AsciiInput::readFile("<<path<<")"<<std::endl;
+    return {};
+}

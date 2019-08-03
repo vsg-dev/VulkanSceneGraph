@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/AsciiOutput.h>
 
 #include <cstring>
+#include <iostream>
 
 using namespace vsg;
 
@@ -78,4 +79,9 @@ void AsciiOutput::write(const vsg::Object* object)
     {
         _output << " id=" << id << " nullptr\n";
     }
+}
+
+void AsciiOutput::writeFile(const Object* object, const Path& path)
+{
+    std::cout<<"AsciiOutput::writeFile("<<path<<")"<<std::endl;
 }
