@@ -65,7 +65,7 @@ namespace vsg
         inline void ref() const noexcept { _referenceCount.fetch_add(1, std::memory_order_relaxed); }
         inline void unref() const noexcept
         {
-            if (_referenceCount.fetch_sub(1, std::memory_order_seq_cst) <= 1) _delete();
+            if (_referenceCount.fetch_sub(1, std::memory_order_seq_cst) <= 1) _attemptDelete();
         }
         inline void unref_nodelete() const noexcept { _referenceCount.fetch_sub(1, std::memory_order_seq_cst); }
         inline unsigned int referenceCount() const noexcept { return _referenceCount.load(); }
@@ -93,7 +93,7 @@ namespace vsg
     protected:
         virtual ~Object();
 
-        virtual void _delete() const;
+        virtual void _attemptDelete() const;
         void setAuxiliary(Auxiliary* auxiliary);
 
     private:
