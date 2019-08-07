@@ -168,7 +168,7 @@ namespace vsg
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
-        std::size_t index(std::uint32_t i, std::uint32_t j, std::uint32_t k) const noexcept {return static_cast<std::size_t>(k) * _width * _height + static_cast<std::size_t>(j) * _width + i; }
+        std::size_t index(std::uint32_t i, std::uint32_t j, std::uint32_t k) const noexcept { return static_cast<std::size_t>(k) * _width * _height + static_cast<std::size_t>(j) * _width + i; }
 
         value_type& operator[](std::size_t i) { return _data[i]; }
         const value_type& operator[](std::size_t i) const { return _data[i]; }

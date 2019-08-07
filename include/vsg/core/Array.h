@@ -69,7 +69,6 @@ namespace vsg
             return ref_ptr<Array>(new Array(l));
         }
 
-
         std::size_t sizeofObject() const noexcept override { return sizeof(Array); }
 
         // implementation provided by Visitor.h
