@@ -55,7 +55,7 @@ Object::~Object()
     }
 }
 
-void Object::_delete() const
+void Object::_attemptDelete() const
 {
     // what should happen when _delete is called on an Object with ref() of zero?  Need to decide whether this buggy application usage should be tested for.
 
