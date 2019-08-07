@@ -10,12 +10,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Version.h>
 #include <vsg/io/AsciiInput.h>
 #include <vsg/io/AsciiOutput.h>
 #include <vsg/io/BinaryInput.h>
 #include <vsg/io/BinaryOutput.h>
 #include <vsg/io/ReaderWriter_vsg.h>
-#include <vsg/core/Version.h>
 
 #include <cstring>
 #include <iostream>
@@ -38,8 +38,10 @@ ReaderWriter_vsg::FormatType ReaderWriter_vsg::readHeader(std::istream& fin) con
     fin.read(read_token, 5);
 
     FormatType type = NOT_RECOGNIZED;
-    if (std::strncmp(match_token_ascii, read_token, 5) == 0) type = ASCII;
-    else if (std::strncmp(match_token_binary, read_token, 5) == 0) type = BINARY;
+    if (std::strncmp(match_token_ascii, read_token, 5) == 0)
+        type = ASCII;
+    else if (std::strncmp(match_token_binary, read_token, 5) == 0)
+        type = BINARY;
 
     if (type == NOT_RECOGNIZED)
     {
@@ -56,19 +58,21 @@ ReaderWriter_vsg::FormatType ReaderWriter_vsg::readHeader(std::istream& fin) con
 
 void ReaderWriter_vsg::writeHeader(std::ostream& fout, FormatType type) const
 {
-    if (type==NOT_RECOGNIZED) return;
+    if (type == NOT_RECOGNIZED) return;
 
     fout.imbue(std::locale::classic());
-    if (type == BINARY) fout << "#vsgb";
-    else fout << "#vsga";
+    if (type == BINARY)
+        fout << "#vsgb";
+    else
+        fout << "#vsga";
 
-    fout << " "<<vsgGetVersion() << "\n";
+    fout << " " << vsgGetVersion() << "\n";
 }
 
 vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(const vsg::Path& filename, ref_ptr<const Options> options) const
 {
     auto ext = vsg::fileExtension(filename);
-    if ((ext=="vsga" || ext=="vsgt" || ext=="vsgb") && vsg::fileExists(filename))
+    if ((ext == "vsga" || ext == "vsgt" || ext == "vsgb") && vsg::fileExists(filename))
     {
         std::ifstream fin(filename, std::ios::in | std::ios::binary);
         FormatType type = readHeader(fin);
@@ -152,7 +156,7 @@ bool ReaderWriter_vsg::write(const vsg::Object* object, std::ostream& fout, ref_
     else
 #endif
     {
-        std::cout<<"Ascii outputstream"<<std::endl;
+        std::cout << "Ascii outputstream" << std::endl;
         writeHeader(fout, ASCII);
 
         vsg::AsciiOutput output(fout, options);
