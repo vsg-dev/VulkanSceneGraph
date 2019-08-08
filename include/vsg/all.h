@@ -131,8 +131,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/ObjectFactory.h>
+#include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
 #include <vsg/io/ReaderWriter.h>
+#include <vsg/io/ReaderWriter_vsg.h>
 #include <vsg/io/stream.h>
 
 // Utility header files

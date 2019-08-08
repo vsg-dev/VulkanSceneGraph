@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
 
 #include <fstream>
@@ -22,7 +23,7 @@ namespace vsg
     class VSG_DECLSPEC BinaryOutput : public vsg::Output
     {
     public:
-        explicit BinaryOutput(std::ostream& output);
+        explicit BinaryOutput(std::ostream& output, ref_ptr<const Options> options = {});
 
         // write property name if appropriate for format
         void writePropertyName(const char*) override {}
@@ -59,6 +60,7 @@ namespace vsg
 
     protected:
         std::ostream& _output;
+        ref_ptr<const Options> _options;
     };
 
 } // namespace vsg

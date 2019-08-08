@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,28 +10,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <string>
-#include <vector>
+#include <vsg/io/Options.h>
 
-#include <vsg/core/Export.h>
+using namespace vsg;
 
-namespace vsg
+#include <vsg/io/Options.h>
+
+using namespace vsg;
+
+Options::Options()
 {
-
-    using Path = std::string;
-
-    using Paths = std::vector<Path>;
-
-    extern VSG_DECLSPEC Paths getEnvPaths(const char* env_var);
-
-    extern VSG_DECLSPEC bool fileExists(const Path& path);
-
-    extern VSG_DECLSPEC Path fileExtension(const Path& path);
-
-    extern VSG_DECLSPEC Path simpleFilename(const Path& path);
-
-    extern VSG_DECLSPEC Path concatPaths(const Path& left, const Path& right);
-
-    extern VSG_DECLSPEC Path findFile(const Path& filename, const Paths& paths);
-
-} // namespace vsg
+}

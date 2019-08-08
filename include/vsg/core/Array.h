@@ -40,23 +40,34 @@ namespace vsg
         Array() :
             _size(0),
             _data(nullptr) {}
-        Array(std::size_t numElements, value_type* data) :
+        Array(std::uint32_t numElements, value_type* data) :
             _size(numElements),
             _data(data) {}
-        Array(std::size_t numElements, value_type* data, Layout layout) :
+        Array(std::uint32_t numElements, value_type* data, Layout layout) :
             Data(layout),
             _size(numElements),
             _data(data) {}
         explicit Array(std::initializer_list<value_type> l) :
-            _size(l.size()),
+            _size(static_cast<std::uint32_t>(l.size())),
             _data(new value_type[l.size()])
         {
             value_type* ptr = _data;
             for (value_type const& v : l) { (*ptr++) = v; }
         }
-        explicit Array(std::size_t numElements) :
+        explicit Array(std::uint32_t numElements) :
             _size(numElements),
             _data(new value_type[numElements]) {}
+
+        template<typename... Args>
+        static ref_ptr<Array> create(Args... args)
+        {
+            return ref_ptr<Array>(new Array(args...));
+        }
+
+        static ref_ptr<Array> create(std::initializer_list<value_type> l)
+        {
+            return ref_ptr<Array>(new Array(l));
+        }
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Array); }
 
@@ -71,7 +82,7 @@ namespace vsg
             std::size_t original_total_size = size();
 
             Data::read(input);
-            std::uint32_t width_size = input.readValue<uint32_t>("Size");
+            std::uint32_t width_size = input.readValue<std::uint32_t>("Size");
             std::size_t new_total_size = computeValueCountIncludingMipmaps(width_size, 1, 1, _layout.maxNumMipmaps);
 
             if (input.matchPropertyName("Data"))
@@ -98,7 +109,7 @@ namespace vsg
         void write(Output& output) const override
         {
             Data::write(output);
-            output.writeValue<uint32_t>("Size", _size);
+            output.writeValue<std::uint32_t>("Size", _size);
             output.writePropertyName("Data");
             output.write(size(), _data);
         }
@@ -141,8 +152,8 @@ namespace vsg
         void* dataPointer() override { return _data; }
         const void* dataPointer() const override { return _data; }
 
-        void* dataPointer(size_t i) override { return _data + i; }
-        const void* dataPointer(size_t i) const override { return _data + i; }
+        void* dataPointer(std::size_t i) override { return _data + i; }
+        const void* dataPointer(std::size_t i) const override { return _data + i; }
 
         std::uint32_t width() const override { return _size; }
         std::uint32_t height() const override { return 1; }

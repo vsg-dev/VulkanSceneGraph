@@ -43,8 +43,10 @@ set(SOURCES
     io/BinaryOutput.cpp
     io/Input.cpp
     io/Output.cpp
+    io/Options.cpp
     io/ObjectFactory.cpp
     io/ReaderWriter.cpp
+    io/ReaderWriter_vsg.cpp
 
     traversals/DispatchTraversal.cpp
     traversals/CullTraversal.cpp

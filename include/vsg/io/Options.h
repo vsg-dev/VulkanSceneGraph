@@ -12,28 +12,23 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <string>
-#include <vector>
-
-#include <vsg/core/Export.h>
+#include <vsg/core/Inherit.h>
+#include <vsg/io/FileSystem.h>
 
 namespace vsg
 {
 
-    using Path = std::string;
-
-    using Paths = std::vector<Path>;
-
-    extern VSG_DECLSPEC Paths getEnvPaths(const char* env_var);
-
-    extern VSG_DECLSPEC bool fileExists(const Path& path);
-
-    extern VSG_DECLSPEC Path fileExtension(const Path& path);
-
-    extern VSG_DECLSPEC Path simpleFilename(const Path& path);
-
-    extern VSG_DECLSPEC Path concatPaths(const Path& left, const Path& right);
-
-    extern VSG_DECLSPEC Path findFile(const Path& filename, const Paths& paths);
+    class Options : public Inherit<Object, Options>
+    {
+    public:
+        Options();
+        // TODO:
+        //    add support for FileCache
+        //    add support for ObjectCache
+        //    add support for Finding paths
+        //    add support for Reading nested files
+        //    add support for Writing nested files
+    };
+    VSG_type_name(vsg::Options);
 
 } // namespace vsg

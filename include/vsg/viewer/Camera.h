@@ -138,7 +138,7 @@ namespace vsg
         dvec3 up;
     };
 
-    class Camera : public Inherit<Object, Object>
+    class Camera : public Inherit<Object, Camera>
     {
     public:
         Camera();

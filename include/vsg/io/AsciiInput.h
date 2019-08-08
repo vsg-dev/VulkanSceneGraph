@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/Input.h>
 #include <vsg/io/ObjectFactory.h>
+#include <vsg/io/Options.h>
 
 #include <fstream>
 
@@ -27,7 +28,7 @@ namespace vsg
     public:
         using ObjectID = uint32_t;
 
-        explicit AsciiInput(std::istream& input);
+        AsciiInput(std::istream& input, ref_ptr<ObjectFactory> objectFactory, ref_ptr<const Options> options = {});
 
         bool matchPropertyName(const char* propertyName) override;
 
@@ -72,16 +73,16 @@ namespace vsg
         }
 
         // read value(s)
-        virtual void read(size_t num, int8_t* value) override { _read_withcast<int16_t>(num, value); }
-        virtual void read(size_t num, uint8_t* value) override { _read_withcast<uint16_t>(num, value); }
-        virtual void read(size_t num, int16_t* value) override { _read(num, value); }
-        virtual void read(size_t num, uint16_t* value) override { _read(num, value); }
-        virtual void read(size_t num, int32_t* value) override { _read(num, value); }
-        virtual void read(size_t num, uint32_t* value) override { _read(num, value); }
-        virtual void read(size_t num, int64_t* value) override { _read(num, value); }
-        virtual void read(size_t num, uint64_t* value) override { _read(num, value); }
-        virtual void read(size_t num, float* value) override { _read(num, value); }
-        virtual void read(size_t num, double* value) override { _read(num, value); }
+        void read(size_t num, int8_t* value) override { _read_withcast<int16_t>(num, value); }
+        void read(size_t num, uint8_t* value) override { _read_withcast<uint16_t>(num, value); }
+        void read(size_t num, int16_t* value) override { _read(num, value); }
+        void read(size_t num, uint16_t* value) override { _read(num, value); }
+        void read(size_t num, int32_t* value) override { _read(num, value); }
+        void read(size_t num, uint32_t* value) override { _read(num, value); }
+        void read(size_t num, int64_t* value) override { _read(num, value); }
+        void read(size_t num, uint64_t* value) override { _read(num, value); }
+        void read(size_t num, float* value) override { _read(num, value); }
+        void read(size_t num, double* value) override { _read(num, value); }
 
         // read in an individual string
         void _read(std::string& value);
@@ -94,6 +95,7 @@ namespace vsg
 
     protected:
         std::istream& _input;
+        ref_ptr<const Options> _options;
 
         std::string _readPropertyName;
     };

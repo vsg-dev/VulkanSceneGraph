@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/ref_ptr.h>
 
 #include <map>
+#include <mutex>
 
 namespace vsg
 {
@@ -24,6 +25,8 @@ namespace vsg
     class VSG_DECLSPEC Auxiliary
     {
     public:
+        std::mutex& getMutex() const { return _mutex; }
+
         Object* getConnectedObject() { return _connectedObject; }
         const Object* getConnectedObject() const { return _connectedObject; }
 
@@ -61,7 +64,10 @@ namespace vsg
         friend class Allocator;
 
         mutable std::atomic_uint _referenceCount;
-        std::atomic<Object*> _connectedObject;
+
+        mutable std::mutex _mutex;
+        Object* _connectedObject;
+
         ref_ptr<Allocator> _allocator;
         ObjectMap _objectMap;
     };

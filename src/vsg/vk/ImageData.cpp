@@ -54,7 +54,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     // copy image data to staging memory
     imageStagingMemory->copy(imageStagingBuffer->getMemoryOffset() + stagingBufferData._offset, imageTotalSize, data->dataPointer());
 
-    uint32_t mipLevels = sampler != nullptr ? sampler->info().maxLod : 1;
+    uint32_t mipLevels = sampler != nullptr ? static_cast<uint32_t>(ceil(sampler->info().maxLod)) : 1;
     if (mipLevels == 0)
     {
         mipLevels = 1;

@@ -18,15 +18,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-AsciiOutput::AsciiOutput(std::ostream& output) :
-    _output(output)
+AsciiOutput::AsciiOutput(std::ostream& output, ref_ptr<const Options> options) :
+    _output(output),
+    _options(options)
 {
     _maximumIndentation = std::strlen(_indentationString);
-
-    _output.imbue(std::locale::classic());
-
-    // write header
-    _output << "#vsga " << vsgGetVersion() << "\n";
 }
 
 void AsciiOutput::writePropertyName(const char* propertyName)

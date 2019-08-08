@@ -332,7 +332,7 @@ public:
 
         stateCommand.traverse(*this);
     }
-    void apply(const DescriptorSet& descriptorSet)
+    void apply(const DescriptorSet& descriptorSet) override
     {
         if (descriptorSets.count(&descriptorSet) == 0)
         {

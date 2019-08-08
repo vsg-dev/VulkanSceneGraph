@@ -47,6 +47,12 @@ namespace vsg
         explicit Value(Args... args) :
             _value(args...) {}
 
+        template<typename... Args>
+        static ref_ptr<Value> create(Args... args)
+        {
+            return ref_ptr<Value>(new Value(args...));
+        }
+
         std::size_t sizeofObject() const noexcept override { return sizeof(Value); }
 
         // implementation provided by Visitor.h

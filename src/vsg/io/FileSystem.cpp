@@ -86,6 +86,26 @@ Path vsg::fileExtension(const Path& path)
     return path.substr(dot + 1);
 }
 
+Path vsg::simpleFilename(const Path& path)
+{
+    std::string::size_type dot = path.find_last_of('.');
+    std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
+    if (slash != std::string::npos)
+    {
+        if ((dot == std::string::npos) || (dot < slash))
+            return path.substr(slash + 1);
+        else
+            return path.substr(slash + 1, dot - slash - 1);
+    }
+    else
+    {
+        if (dot == std::string::npos)
+            return path;
+        else
+            return path.substr(0, dot);
+    }
+}
+
 Path vsg::concatPaths(const Path& left, const Path& right)
 {
     if (left.empty())

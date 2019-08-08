@@ -79,10 +79,10 @@ void DispatchTraversal::apply(const QuadGroup& group)
 
 void DispatchTraversal::apply(const LOD& lod)
 {
-    auto boundingSphere = lod.getBound();
+    auto sphere = lod.getBound();
 
     // check if lod bounding sphere is in view frustum.
-    if (!_state->intersect(boundingSphere))
+    if (!_state->intersect(sphere))
     {
         return;
     }
@@ -90,10 +90,9 @@ void DispatchTraversal::apply(const LOD& lod)
     const auto& proj = _state->projectionMatrixStack.top();
     const auto& mv = _state->modelviewMatrixStack.top();
     auto f = -proj[1][1];
-    vsg::vec4 lv(mv[0][2], mv[1][2], mv[2][2], mv[3][2]);
 
-    auto distance = std::abs(lv.x * boundingSphere.x + lv.y * boundingSphere.y + lv.z * boundingSphere.z + lv.w);
-    auto rf = boundingSphere.r * f;
+    auto distance = std::abs(mv[0][2] * sphere.x + mv[1][2] * sphere.y + mv[2][2] * sphere.z + mv[3][2]);
+    auto rf = sphere.r * f;
 
     for (auto lodChild : lod.getChildren())
     {
@@ -108,10 +107,10 @@ void DispatchTraversal::apply(const LOD& lod)
 
 void DispatchTraversal::apply(const PagedLOD& lod)
 {
-    auto boundingSphere = lod.getBound();
+    auto sphere = lod.getBound();
 
     // check if lod bounding sphere is in view frustum.
-    if (!_state->intersect(boundingSphere))
+    if (!_state->intersect(sphere))
     {
         return;
     }
@@ -119,10 +118,9 @@ void DispatchTraversal::apply(const PagedLOD& lod)
     const auto& proj = _state->projectionMatrixStack.top();
     const auto& mv = _state->modelviewMatrixStack.top();
     auto f = -proj[1][1];
-    vsg::vec4 lv(mv[0][2], mv[1][2], mv[2][2], mv[3][2]);
 
-    auto distance = std::abs(lv.x * boundingSphere.x + lv.y * boundingSphere.y + lv.z * boundingSphere.z + lv.w);
-    auto rf = boundingSphere.r * f;
+    auto distance = std::abs(mv[0][2] * sphere.x + mv[1][2] * sphere.y + mv[2][2] * sphere.z + mv[3][2]);
+    auto rf = sphere.r * f;
 
     for (auto lodChild : lod.getChildren())
     {

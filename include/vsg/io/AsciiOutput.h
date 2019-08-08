@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
 
 #include <algorithm>
@@ -23,7 +24,7 @@ namespace vsg
     class VSG_DECLSPEC AsciiOutput : public vsg::Output
     {
     public:
-        explicit AsciiOutput(std::ostream& output);
+        AsciiOutput(std::ostream& output, ref_ptr<const Options> options = {});
 
         std::ostream& indent()
         {
@@ -118,6 +119,7 @@ namespace vsg
 
     protected:
         std::ostream& _output;
+        ref_ptr<const Options> _options;
 
         std::size_t _indentationStep = 2;
         std::size_t _indentation = 0;
