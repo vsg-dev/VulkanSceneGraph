@@ -13,21 +13,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Inherit.h>
+#include <vsg/core/observer_ptr.h>
 #include <vsg/io/FileSystem.h>
 
 namespace vsg
 {
 
+    class FileCache;
+    class ObjectCache;
+    class ReaderWriter;
+
     class Options : public Inherit<Object, Options>
     {
     public:
         Options();
-        // TODO:
-        //    add support for FileCache
-        //    add support for ObjectCache
-        //    add support for Finding paths
-        //    add support for Reading nested files
-        //    add support for Writing nested files
+
+        observer_ptr<FileCache> fileCache;
+        observer_ptr<ObjectCache> objectCache;
+        observer_ptr<ReaderWriter> readerWriter;
+
+        Paths paths;
     };
     VSG_type_name(vsg::Options);
 
