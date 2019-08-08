@@ -86,9 +86,9 @@ namespace vsg
             return *this;
         }
 
-        bool valid() const { return _auxiliary.valid() && _auxiliary->getConnectedObject() != nullptr; }
+        bool valid() const noexcept { return _auxiliary.valid() && _auxiliary->getConnectedObject() != nullptr; }
 
-        explicit operator bool() const { return valid(); }
+        explicit operator bool() const noexcept { return valid(); }
 
         /// convert observer_ptr into a ref_ptr so that Object that pointed to can be safely accessed.
         template<class R>
