@@ -100,7 +100,7 @@ namespace vsg
             if (_auxiliary->getConnectedObject() != nullptr)
                 return ref_ptr<R>(_ptr);
             else
-                ref_ptr<R>();
+                return {};
         }
 
     protected:
