@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/BinaryInput.h>
+#include <vsg/io/ReaderWriter.h>
 
 #include <cstring>
 #include <iostream>
@@ -81,6 +82,5 @@ vsg::ref_ptr<vsg::Object> BinaryInput::read()
 
 ref_ptr<Object> BinaryInput::readFile(const Path& path)
 {
-    std::cout<<"BinaryInput::readFile("<<path<<")"<<std::endl;
-    return {};
+    return vsg::readFile(path, _options);
 }

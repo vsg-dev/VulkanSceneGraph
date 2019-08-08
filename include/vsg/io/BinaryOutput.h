@@ -59,7 +59,7 @@ namespace vsg
         void write(const vsg::Object* object) override;
 
         // write external file if reqquired
-        virtual void writeFile(const Object* object, const Path& path);
+        bool writeFile(const Object* object, const Path& path) override;
 
     protected:
         std::ostream& _output;

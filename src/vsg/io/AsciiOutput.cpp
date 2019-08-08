@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Version.h>
 
 #include <vsg/io/AsciiOutput.h>
+#include <vsg/io/ReaderWriter.h>
 
 #include <cstring>
 #include <iostream>
@@ -81,7 +82,7 @@ void AsciiOutput::write(const vsg::Object* object)
     }
 }
 
-void AsciiOutput::writeFile(const Object* object, const Path& path)
+bool AsciiOutput::writeFile(const Object* object, const Path& path)
 {
-    std::cout<<"AsciiOutput::writeFile("<<path<<")"<<std::endl;
+    return vsg::writeFile(object, path, _options);
 }
