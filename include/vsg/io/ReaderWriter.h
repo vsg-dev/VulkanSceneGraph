@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Inherit.h>
-#include <vsg/io/Options.h>
 #include <vsg/io/FileSystem.h>
+#include <vsg/io/Options.h>
 
 namespace vsg
 {
@@ -45,10 +45,8 @@ namespace vsg
         /// write object to specified file, return true on success, return false on failure.
         virtual bool write(const vsg::Object* /*object*/, const vsg::Path& /*filename*/, vsg::ref_ptr<const vsg::Options> = {}) const { return false; }
         virtual bool write(const vsg::Object* /*object*/, std::ostream& /*fout*/, vsg::ref_ptr<const vsg::Options> = {}) const { return false; }
-
     };
     VSG_type_name(vsg::ReaderWriter);
-
 
     class VSG_DECLSPEC CompositeReaderWriter : public Inherit<ReaderWriter, CompositeReaderWriter>
     {

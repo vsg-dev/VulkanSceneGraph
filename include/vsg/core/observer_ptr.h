@@ -21,27 +21,32 @@ namespace vsg
     class observer_ptr
     {
     public:
-        observer_ptr() {}
+        observer_ptr() :
+            _ptr(nullptr) {}
 
         observer_ptr(const observer_ptr& rhs) :
+            _ptr(rhs._ptr),
             _auxiliary(rhs._auxiliary)
         {
         }
 
         template<class R>
         explicit observer_ptr(R* ptr) :
+            _ptr(ptr),
             _auxiliary(ptr ? ptr->getOrCreateUniqueAuxiliary() : nullptr)
         {
         }
 
         template<class R>
         explicit observer_ptr(const observer_ptr<R>& ptr) :
+            _ptr(ptr._ptr),
             _auxiliary(ptr._auxiliary)
         {
         }
 
         template<class R>
         explicit observer_ptr(const ref_ptr<R>& ptr) :
+            _ptr(ptr.get()),
             _auxiliary(ptr.valid() ? ptr->getOrCreateUniqueAuxiliary() : nullptr)
         {
         }
@@ -53,12 +58,14 @@ namespace vsg
         template<class R>
         observer_ptr& operator=(R* ptr)
         {
+            _ptr = ptr;
             _auxiliary = ptr ? ptr->getOrCreateUniqueAuxiliary() : nullptr;
             return *this;
         }
 
         observer_ptr& operator=(const observer_ptr& rhs)
         {
+            _ptr = rhs._ptr;
             _auxiliary = rhs._auxiliary;
             return *this;
         }
@@ -66,6 +73,7 @@ namespace vsg
         template<class R>
         observer_ptr& operator=(const observer_ptr<R>& rhs)
         {
+            _ptr = rhs._ptr;
             _auxiliary = rhs._auxiliary;
             return *this;
         }
@@ -73,6 +81,7 @@ namespace vsg
         template<class R>
         observer_ptr& operator=(const ref_ptr<R>& rhs)
         {
+            _ptr = rhs.get();
             _auxiliary = rhs.valid() ? rhs->getOrCreateUniqueAuxiliary() : nullptr;
             return *this;
         }
@@ -85,14 +94,20 @@ namespace vsg
         template<class R>
         operator ref_ptr<R>() const
         {
-            if (!_auxiliary.valid()) return ref_ptr<R>();
-            return ref_ptr<R>(static_cast<T*>(_auxiliary->getConnectedObject()));
+            if (!_auxiliary) return ref_ptr<R>();
+
+            std::lock_guard<std::mutex> guard(_auxiliary->getMutex());
+            if (_auxiliary->getConnectedObject() != nullptr)
+                return ref_ptr<R>(_ptr);
+            else
+                ref_ptr<R>();
         }
 
     protected:
         template<class R>
         friend class observer_ptr;
 
+        T* _ptr;
         ref_ptr<Auxiliary> _auxiliary;
     };
 

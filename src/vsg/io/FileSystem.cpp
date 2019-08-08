@@ -92,13 +92,17 @@ Path vsg::simpleFilename(const Path& path)
     std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
     if (slash != std::string::npos)
     {
-        if ((dot == std::string::npos) || (dot < slash)) return path.substr(slash+1);
-        else return path.substr(slash+1, dot-slash-1);
+        if ((dot == std::string::npos) || (dot < slash))
+            return path.substr(slash + 1);
+        else
+            return path.substr(slash + 1, dot - slash - 1);
     }
     else
     {
-        if (dot == std::string::npos) return path;
-        else return path.substr(0, dot);
+        if (dot == std::string::npos)
+            return path;
+        else
+            return path.substr(0, dot);
     }
 }
 
