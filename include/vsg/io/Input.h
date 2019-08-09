@@ -75,6 +75,12 @@ namespace vsg
         void read(size_t num, ubvec2* value) { read(num * value->size(), value->data()); }
         void read(size_t num, ubvec3* value) { read(num * value->size(), value->data()); }
         void read(size_t num, ubvec4* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, usvec2* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, usvec3* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, usvec4* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, uivec2* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, uivec3* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, uivec4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, mat4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, dmat4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, sphere* value) { read(num * value->size(), value->data()); }
@@ -135,7 +141,7 @@ namespace vsg
         }
 
         using ObjectID = uint32_t;
-        using ObjectIDMap = std::unordered_map<ObjectID, ref_ptr<Object>>;
+        using ObjectIDMap = std::map<ObjectID, ref_ptr<Object>>;
         ObjectIDMap& getObjectIDMap() { return _objectIDMap; }
         const ObjectIDMap& getObjectIDMap() const { return _objectIDMap; }
 

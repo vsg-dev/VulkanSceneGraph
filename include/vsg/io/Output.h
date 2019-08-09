@@ -69,6 +69,12 @@ namespace vsg
         void write(size_t num, const ubvec2* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const ubvec3* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const ubvec4* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const usvec2* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const usvec3* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const usvec4* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const uivec2* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const uivec3* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const uivec4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const mat4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const dmat4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const sphere* value) { write(num * value->size(), value->data()); }
@@ -105,9 +111,16 @@ namespace vsg
             write(propertyName, v);
         }
 
-    protected:
         using ObjectID = uint32_t;
+        void setObjectID(ObjectID id) { _objectID = id; }
+        ObjectID getObjectID() const { return _objectID; }
+
+
         using ObjectIDMap = std::unordered_map<const vsg::Object*, ObjectID>;
+        ObjectIDMap& getObjectIDMap() { return _objectIDMap; }
+        const ObjectIDMap& getObjectIDMap() const { return _objectIDMap; }
+
+    protected:
 
         ObjectIDMap _objectIDMap;
         ObjectID _objectID = 0;
