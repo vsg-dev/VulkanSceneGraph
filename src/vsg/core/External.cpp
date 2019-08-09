@@ -11,11 +11,42 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/External.h>
+#include <vsg/core/ConstVisitor.h>
 
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
 
+#include <unordered_map>
+
+#include <iostream>
+
 using namespace vsg;
+
+class CollectIDs : public ConstVisitor
+{
+public:
+    CollectIDs() {}
+
+    void apply(const Object& object) override
+    {
+        auto itr = _objectIDMap.find(&object);
+        if (itr == _objectIDMap.end())
+        {
+            ObjectID id = _objectID++;
+            _objectIDMap[&object] = id;
+            object.traverse(*this);
+
+        }
+    }
+
+    using ObjectID = uint32_t;
+    using ObjectIDMap = std::unordered_map<const Object*, ObjectID>;
+
+    ObjectID _objectID = 0;
+    ObjectIDMap _objectIDMap;
+
+};
+
 
 External::External()
 {
@@ -40,23 +71,63 @@ void External::read(Input& input)
 {
     Object::read(input);
 
+    uint32_t idBegin = 0, idEnd = 0;
+    input.read("ObjectIDRange", idBegin, idEnd);
     input.read("Filename", _filename);
 
     if (!_filename.empty())
     {
         _object = input.readFile(_filename);
+
+        if (_object)
+        {
+            CollectIDs collectIDs;
+            collectIDs._objectID = idBegin;
+            _object->accept(collectIDs);
+
+            for(auto [object, objectID] : collectIDs._objectIDMap)
+            {
+                if ((idBegin <= objectID) && (objectID < idEnd))
+                {
+                    input.getObjectIDMap()[objectID] = const_cast<Object*>(object);
+                }
+                else
+                {
+                    std::cout<<"External::read() : warning object out of ObjectIDRange "<<objectID<<", "<<object<<std::endl;
+                }
+            }
+        }
     }
+
+
 }
 
 void External::write(Output& output) const
 {
     Object::write(output);
 
-    output.write("Filename", _filename);
+    uint32_t idBegin = output.getObjectID();
+    uint32_t idEnd = idBegin;
 
     // if we should write out object then need to invoke ReaderWriter for it.
-    if (!_filename.empty() && _object.valid())
+    if (!_filename.empty() && _object)
     {
         output.writeFile(_object, _filename);
+
+        CollectIDs collectIDs;
+        collectIDs._objectID = idBegin;
+        _object->accept(collectIDs);
+
+        for(auto [object, objectID] : collectIDs._objectIDMap)
+        {
+            output.getObjectIDMap()[object] = objectID;
+        }
+
+        output.setObjectID(collectIDs._objectID);
     }
+    idEnd = output.getObjectID();
+
+    output.write("ObjectIDRange", idBegin, idEnd);
+    output.write("Filename", _filename);
+
 }
