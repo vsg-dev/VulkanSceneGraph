@@ -19,8 +19,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    // forward declare Objects
+    // forward declare core Objects
     class Objects;
+    class External;
 
     // forward declare nodes classes
     class Node;
@@ -91,6 +92,7 @@ namespace vsg
 
         virtual void apply(Object&);
         virtual void apply(Objects&);
+        virtual void apply(External&);
 
         // Values
         virtual void apply(stringValue&);

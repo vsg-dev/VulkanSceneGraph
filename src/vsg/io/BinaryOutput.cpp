@@ -13,8 +13,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Version.h>
 
 #include <vsg/io/BinaryOutput.h>
+#include <vsg/io/ReaderWriter.h>
 
 #include <cstring>
+#include <iostream>
 
 using namespace vsg;
 
@@ -62,4 +64,9 @@ void BinaryOutput::write(const vsg::Object* object)
     {
         _write(std::string("nullptr"));
     }
+}
+
+bool BinaryOutput::writeFile(const Object* object, const Path& path)
+{
+    return vsg::writeFile(object, path, _options);
 }

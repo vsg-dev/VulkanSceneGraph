@@ -117,6 +117,9 @@ namespace vsg
         // write object
         void write(const vsg::Object* object) override;
 
+        // write external file if reqquired
+        bool writeFile(const Object* object, const Path& path) override;
+
     protected:
         std::ostream& _output;
         ref_ptr<const Options> _options;

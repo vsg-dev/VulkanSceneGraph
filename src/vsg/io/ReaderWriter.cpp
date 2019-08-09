@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/BinaryInput.h>
 #include <vsg/io/BinaryOutput.h>
 #include <vsg/io/ReaderWriter.h>
+#include <vsg/io/ReaderWriter_vsg.h>
 
 using namespace vsg;
 
@@ -39,4 +40,48 @@ bool CompositeReaderWriter::write(const vsg::Object* object, const vsg::Path& fi
         if (writer->write(object, filename, options)) return true;
     }
     return false;
+}
+
+ref_ptr<Object> vsg::readFile(const Path& path, ref_ptr<const Options> options)
+{
+    if (options)
+    {
+        ref_ptr<ReaderWriter> rw = options->readerWriter;
+        if (rw)
+        {
+            auto object = rw->read(path, options);
+            if (object) return object;
+        }
+    }
+
+    auto ext = vsg::fileExtension(path);
+    if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
+    {
+        ReaderWriter_vsg rw;
+        return rw.read(path, options);
+    }
+
+    return {};
+}
+
+bool vsg::writeFile(const Object* object, const Path& path, ref_ptr<const Options> options)
+{
+    if (options)
+    {
+        ref_ptr<ReaderWriter> rw = options->readerWriter;
+        if (rw)
+        {
+            if (rw->write(object, path, options)) return true;
+        }
+    }
+
+    auto ext = vsg::fileExtension(path);
+    if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
+    {
+        ReaderWriter_vsg rw;
+        return rw.write(object, path, options);
+    }
+
+    return false;
+
 }

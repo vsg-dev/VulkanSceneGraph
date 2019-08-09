@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/AsciiInput.h>
+#include <vsg/io/ReaderWriter.h>
 
 #include <cstring>
 #include <iostream>
@@ -157,4 +158,9 @@ vsg::ref_ptr<vsg::Object> AsciiInput::read()
         }
     }
     return vsg::ref_ptr<vsg::Object>();
+}
+
+ref_ptr<Object> AsciiInput::readFile(const Path& path)
+{
+    return vsg::readFile(path, _options);
 }

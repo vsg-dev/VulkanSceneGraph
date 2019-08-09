@@ -64,4 +64,10 @@ namespace vsg
     };
     VSG_type_name(vsg::CompositeReaderWriter);
 
+    /** convience method for reading objects from file.*/
+    ref_ptr<Object> readFile(const Path& path, ref_ptr<const Options> options = {});
+
+    /** convience method for writing objects to file.*/
+    bool writeFile(const Object* object, const Path& path, ref_ptr<const Options> options = {});
+
 } // namespace vsg

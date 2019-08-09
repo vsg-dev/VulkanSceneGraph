@@ -14,6 +14,7 @@ set(SOURCES
     core/Auxiliary.cpp
     core/ConstVisitor.cpp
     core/Data.cpp
+    core/External.cpp
     core/Object.cpp
     core/Objects.cpp
     core/Result.cpp
