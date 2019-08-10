@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Inherit.h>
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/Options.h>
+#include <vsg/ui/UIEvent.h>
 
 namespace vsg
 {
@@ -23,18 +24,29 @@ namespace vsg
     {
     public:
 
-        using FilenameOption = std::pair<Path, ref_ptr<const Options>>;
-        using ObjectCacheMap = std::map<FilenameOption, ref_ptr<Object>>;
+        void setDefaultUnusedDuration(double duration) { _defaultUnusedDuration = duration; }
+        double getDefaultUnusedDuration() const { return _defaultUnusedDuration; }
+
+        /// remove any objects that no longer have an external referneces from cache.that are are haven't been referenced within their expiry time
+        void removeExpiredUnusedObjects();
+
+        /// remove all objects from cache
+        void clear();
 
         /// get entry from ObjectCache that matches filename and option. return null when no object matches.
-        ref_ptr<Object> get(const Path& filename, ref_ptr<const Options> options = {}) const;
+        ref_ptr<Object> get(const Path& filename, ref_ptr<const Options> options = {});
 
         /// add entry from ObjectCache that matches filename and option.
         void add(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options = {});
 
     protected:
 
+        using FilenameOption = std::pair<Path, ref_ptr<const Options>>;
+        using ObjectTimepoint = std::tuple<ref_ptr<Object>, double, clock::time_point>;
+        using ObjectCacheMap = std::map<FilenameOption, ObjectTimepoint>;
+
         mutable std::mutex _mutex;
+        double _defaultUnusedDuration = 1.0;
         ObjectCacheMap _objectCacheMap;
     };
     VSG_type_name(vsg::ObjectCache);

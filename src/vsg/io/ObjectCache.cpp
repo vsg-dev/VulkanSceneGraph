@@ -14,14 +14,50 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-ref_ptr<Object> ObjectCache::get(const Path& filename, ref_ptr<const Options> options) const
+void ObjectCache::removeExpiredUnusedObjects()
+{
+    // TODO get current timestamp to use as a reference for expiry
+    auto time = vsg::clock::now();
+
+    std::lock_guard<std::mutex> guard(_mutex);
+    for(auto itr = _objectCacheMap.begin(); itr != _objectCacheMap.end();)
+    {
+        auto current_itr = itr++;
+        ObjectTimepoint& ot = current_itr->second;
+        if (std::get<0>(ot)->referenceCount()>1)
+        {
+            std::get<2>(ot) = time;
+        }
+        else
+        {
+            // TODO need to check if expired
+            auto timeSinceLastExternallyReferenced = std::chrono::duration<double, std::chrono::seconds::period>(time - std::get<2>(ot)).count();
+            if (timeSinceLastExternallyReferenced > std::get<1>(ot))
+            {
+                _objectCacheMap.erase(current_itr);
+            }
+        }
+    }
+}
+
+void ObjectCache::clear()
+{
+    std::lock_guard<std::mutex> guard(_mutex);
+
+    // remove all objects from cache
+    _objectCacheMap.clear();
+}
+
+ref_ptr<Object> ObjectCache::get(const Path& filename, ref_ptr<const Options> options)
 {
     std::lock_guard<std::mutex> guard(_mutex);
 
     FilenameOption filenameOption(filename, options);
     if (auto itr = _objectCacheMap.find(filenameOption); itr != _objectCacheMap.end())
     {
-        return itr->second;
+        ObjectTimepoint& ot = itr->second;
+        std::get<2>(ot) = vsg::clock::now();
+        return std::get<0>(ot);
     }
     else
     {
@@ -33,10 +69,12 @@ void ObjectCache::add(ref_ptr<Object> object, const Path& filename, ref_ptr<cons
 {
     std::lock_guard<std::mutex> guard(_mutex);
 
+    double duration = _defaultUnusedDuration;
+    auto time = vsg::clock::now();
     FilenameOption filenameOption(filename, options);
     if (auto itr = _objectCacheMap.find(filenameOption); itr == _objectCacheMap.end())
     {
-        _objectCacheMap[filenameOption] = object;
+        _objectCacheMap[filenameOption] = {object, duration, time};
     }
 }
 
