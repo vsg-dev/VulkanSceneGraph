@@ -41,12 +41,18 @@ namespace vsg
 
     protected:
 
+        struct ObjectTimepoint
+        {
+            ref_ptr<Object> object;
+            double unusedDurationBeforeExpiry = 0.0;
+            clock::time_point lastUsedTimepoint;
+        };
+
         using FilenameOption = std::pair<Path, ref_ptr<const Options>>;
-        using ObjectTimepoint = std::tuple<ref_ptr<Object>, double, clock::time_point>;
         using ObjectCacheMap = std::map<FilenameOption, ObjectTimepoint>;
 
         mutable std::mutex _mutex;
-        double _defaultUnusedDuration = 1.0;
+        double _defaultUnusedDuration = 0.0;
         ObjectCacheMap _objectCacheMap;
     };
     VSG_type_name(vsg::ObjectCache);

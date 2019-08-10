@@ -24,15 +24,15 @@ void ObjectCache::removeExpiredUnusedObjects()
     {
         auto current_itr = itr++;
         ObjectTimepoint& ot = current_itr->second;
-        if (std::get<0>(ot)->referenceCount()>1)
+        if (ot.object->referenceCount()>1)
         {
-            std::get<2>(ot) = time;
+            ot.lastUsedTimepoint = time;
         }
         else
         {
             // TODO need to check if expired
-            auto timeSinceLastExternallyReferenced = std::chrono::duration<double, std::chrono::seconds::period>(time - std::get<2>(ot)).count();
-            if (timeSinceLastExternallyReferenced > std::get<1>(ot))
+            auto timeSinceLasUsed = std::chrono::duration<double, std::chrono::seconds::period>(time - ot.lastUsedTimepoint).count();
+            if (timeSinceLasUsed > ot.unusedDurationBeforeExpiry)
             {
                 _objectCacheMap.erase(current_itr);
             }
@@ -56,8 +56,8 @@ ref_ptr<Object> ObjectCache::get(const Path& filename, ref_ptr<const Options> op
     if (auto itr = _objectCacheMap.find(filenameOption); itr != _objectCacheMap.end())
     {
         ObjectTimepoint& ot = itr->second;
-        std::get<2>(ot) = vsg::clock::now();
-        return std::get<0>(ot);
+        ot.lastUsedTimepoint = vsg::clock::now();
+        return ot.object;
     }
     else
     {
