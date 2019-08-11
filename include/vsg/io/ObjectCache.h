@@ -33,11 +33,20 @@ namespace vsg
         /// remove all objects from cache
         void clear();
 
+        /// check if a cache entry contains an entry for specificied filename.
+        bool contains(const Path& filename, ref_ptr<const Options> options = {});
+
         /// get entry from ObjectCache that matches filename and option. return null when no object matches.
         ref_ptr<Object> get(const Path& filename, ref_ptr<const Options> options = {});
 
         /// add entry from ObjectCache that matches filename and option.
         void add(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options = {});
+
+        /// remove entry matching filename and option.
+        void remove(const Path& filename, ref_ptr<const Options> options = {});
+
+        /// remove entry matching object.
+        void remove(ref_ptr<Object> object);
 
     protected:
 

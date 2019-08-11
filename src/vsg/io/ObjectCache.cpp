@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/ObjectCache.h>
+#include <iostream>
 
 using namespace vsg;
 
@@ -48,6 +49,14 @@ void ObjectCache::clear()
     _objectCacheMap.clear();
 }
 
+bool ObjectCache::contains(const Path& filename, ref_ptr<const Options> options)
+{
+    std::lock_guard<std::mutex> guard(_mutex);
+
+    FilenameOption filenameOption(filename, options);
+    return _objectCacheMap.find(filenameOption) != _objectCacheMap.end();
+}
+
 ref_ptr<Object> ObjectCache::get(const Path& filename, ref_ptr<const Options> options)
 {
     std::lock_guard<std::mutex> guard(_mutex);
@@ -78,4 +87,32 @@ void ObjectCache::add(ref_ptr<Object> object, const Path& filename, ref_ptr<cons
     }
 }
 
+void ObjectCache::remove(const Path& filename, ref_ptr<const Options> options)
+{
+    std::lock_guard<std::mutex> guard(_mutex);
 
+    FilenameOption filenameOption(filename, options);
+    if (auto itr = _objectCacheMap.find(filenameOption); itr != _objectCacheMap.end())
+    {
+        _objectCacheMap.erase(itr);
+    }
+}
+
+
+void ObjectCache::remove(ref_ptr<Object> object)
+{
+    std::cout<<"ObjectCache::remove("<<object.get()<<") "<<_objectCacheMap.size()<<std::endl;
+
+    std::lock_guard<std::mutex> guard(_mutex);
+
+    for(auto itr = _objectCacheMap.begin(); itr != _objectCacheMap.end();)
+    {
+        auto current_itr = itr++;
+        if (current_itr->second.object == object)
+        {
+            std::cout<<"    removing "<<object.get()<<" "<<current_itr->first.first<<std::endl;
+            _objectCacheMap.erase(current_itr);
+        }
+    }
+    std::cout<<"after ObjectCache::remove("<<object.get()<<") "<<_objectCacheMap.size()<<std::endl;
+}
