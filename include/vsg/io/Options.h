@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class FileCache;
+    //class FileCache;
     class ObjectCache;
     class ReaderWriter;
 
@@ -27,12 +27,17 @@ namespace vsg
     {
     public:
         Options();
+        Options(const Options& options);
+        Options& operator=(const Options& rhs) = delete;
 
-        observer_ptr<FileCache> fileCache;
-        observer_ptr<ObjectCache> objectCache;
-        observer_ptr<ReaderWriter> readerWriter;
+        //ref_ptr<FileCache> fileCache;
+        ref_ptr<ObjectCache> objectCache;
+        ref_ptr<ReaderWriter> readerWriter;
 
         Paths paths;
+
+    protected:
+        virtual ~Options();
     };
     VSG_type_name(vsg::Options);
 
