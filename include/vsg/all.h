@@ -131,6 +131,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/BinaryOutput.h>
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/Input.h>
+#include <vsg/io/ObjectCache.h>
 #include <vsg/io/ObjectFactory.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/Output.h>

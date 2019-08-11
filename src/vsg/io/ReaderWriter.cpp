@@ -15,7 +15,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/BinaryInput.h>
 #include <vsg/io/BinaryOutput.h>
 #include <vsg/io/ReaderWriter.h>
+#include <vsg/io/ObjectCache.h>
 #include <vsg/io/ReaderWriter_vsg.h>
+
+#include <iostream>
 
 using namespace vsg;
 
@@ -42,46 +45,80 @@ bool CompositeReaderWriter::write(const vsg::Object* object, const vsg::Path& fi
     return false;
 }
 
-ref_ptr<Object> vsg::readFile(const Path& path, ref_ptr<const Options> options)
+ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
 {
+    std::cout<<"vsg::read("<<filename<<", "<<options.get()<<")"<<std::endl;
+
+    ref_ptr<Object> object;
     if (options)
     {
-        ref_ptr<ReaderWriter> rw = options->readerWriter;
-        if (rw)
+        if (options->objectCache)
         {
-            auto object = rw->read(path, options);
-            if (object) return object;
+            std::cout<<"We have an Object cache"<<std::endl;
+
+            object = options->objectCache->get(filename, options);
+            if (object)
+            {
+                std::cout<<"Returning object from object cache : "<<filename<<std::endl;
+                return object;
+            }
+        }
+
+        if (options->readerWriter)
+        {
+            object = options->readerWriter->read(filename, options);
         }
     }
 
-    auto ext = vsg::fileExtension(path);
-    if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
+    if (!object)
     {
-        ReaderWriter_vsg rw;
-        return rw.read(path, options);
+        // fallback to using native ReaderWriter_vsg if extension is compatible
+        auto ext = vsg::fileExtension(filename);
+        if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
+        {
+            ReaderWriter_vsg rw;
+            object = rw.read(filename, options);
+        }
     }
 
-    return {};
+    if (options->objectCache && object)
+    {
+        std::cout<<"Adding Object to ObjectCche "<<object.get()<<std::endl;
+        options->objectCache->add(object, filename, options);
+    }
+
+    return object;
 }
 
-bool vsg::writeFile(const Object* object, const Path& path, ref_ptr<const Options> options)
+bool vsg::writeFile(const Object* object, const Path& filename, ref_ptr<const Options> options)
 {
+    bool fileWritten = false;
     if (options)
     {
-        ref_ptr<ReaderWriter> rw = options->readerWriter;
-        if (rw)
+        // don't write the file if it's already contained in the ObjectCache
+        if (options->objectCache && options->objectCache->contains(filename, options)) return true;
+
+        if (options->readerWriter)
         {
-            if (rw->write(object, path, options)) return true;
+            fileWritten = options->readerWriter->write(object, filename, options);
         }
     }
 
-    auto ext = vsg::fileExtension(path);
-    if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
+    if (!fileWritten)
     {
-        ReaderWriter_vsg rw;
-        return rw.write(object, path, options);
+        // fallback to using native ReaderWriter_vsg if extension is compatible
+        auto ext = vsg::fileExtension(filename);
+        if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
+        {
+            ReaderWriter_vsg rw;
+            fileWritten = rw.write(object, filename, options);
+        }
     }
 
-    return false;
+    if (options->objectCache && fileWritten)
+    {
+        options->objectCache->add(ref_ptr<Object>(const_cast<Object*>(object)), filename, options); // TODO
+    }
 
+    return fileWritten;
 }

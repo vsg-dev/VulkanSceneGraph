@@ -162,5 +162,5 @@ vsg::ref_ptr<vsg::Object> AsciiInput::read()
 
 ref_ptr<Object> AsciiInput::readFile(const Path& path)
 {
-    return vsg::readFile(path, _options);
+    return vsg::read(path, _options);
 }
