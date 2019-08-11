@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/ObjectCache.h>
 #include <iostream>
+#include <vsg/io/ObjectCache.h>
 
 using namespace vsg;
 
@@ -21,11 +21,11 @@ void ObjectCache::removeExpiredUnusedObjects()
     auto time = vsg::clock::now();
 
     std::lock_guard<std::mutex> guard(_mutex);
-    for(auto itr = _objectCacheMap.begin(); itr != _objectCacheMap.end();)
+    for (auto itr = _objectCacheMap.begin(); itr != _objectCacheMap.end();)
     {
         auto current_itr = itr++;
         ObjectTimepoint& ot = current_itr->second;
-        if (ot.object->referenceCount()>1)
+        if (ot.object->referenceCount() > 1)
         {
             ot.lastUsedTimepoint = time;
         }
@@ -98,21 +98,20 @@ void ObjectCache::remove(const Path& filename, ref_ptr<const Options> options)
     }
 }
 
-
 void ObjectCache::remove(ref_ptr<Object> object)
 {
-    std::cout<<"ObjectCache::remove("<<object.get()<<") "<<_objectCacheMap.size()<<std::endl;
+    std::cout << "ObjectCache::remove(" << object.get() << ") " << _objectCacheMap.size() << std::endl;
 
     std::lock_guard<std::mutex> guard(_mutex);
 
-    for(auto itr = _objectCacheMap.begin(); itr != _objectCacheMap.end();)
+    for (auto itr = _objectCacheMap.begin(); itr != _objectCacheMap.end();)
     {
         auto current_itr = itr++;
         if (current_itr->second.object == object)
         {
-            std::cout<<"    removing "<<object.get()<<" "<<current_itr->first.first<<std::endl;
+            std::cout << "    removing " << object.get() << " " << current_itr->first.first << std::endl;
             _objectCacheMap.erase(current_itr);
         }
     }
-    std::cout<<"after ObjectCache::remove("<<object.get()<<") "<<_objectCacheMap.size()<<std::endl;
+    std::cout << "after ObjectCache::remove(" << object.get() << ") " << _objectCacheMap.size() << std::endl;
 }

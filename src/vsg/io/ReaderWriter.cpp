@@ -14,8 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/AsciiOutput.h>
 #include <vsg/io/BinaryInput.h>
 #include <vsg/io/BinaryOutput.h>
-#include <vsg/io/ReaderWriter.h>
 #include <vsg/io/ObjectCache.h>
+#include <vsg/io/ReaderWriter.h>
 #include <vsg/io/ReaderWriter_vsg.h>
 
 #include <iostream>
@@ -47,19 +47,19 @@ bool CompositeReaderWriter::write(const vsg::Object* object, const vsg::Path& fi
 
 ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
 {
-    std::cout<<"vsg::read("<<filename<<", "<<options.get()<<")"<<std::endl;
+    std::cout << "vsg::read(" << filename << ", " << options.get() << ")" << std::endl;
 
     ref_ptr<Object> object;
     if (options)
     {
         if (options->objectCache)
         {
-            std::cout<<"We have an Object cache"<<std::endl;
+            std::cout << "We have an Object cache" << std::endl;
 
             object = options->objectCache->get(filename, options);
             if (object)
             {
-                std::cout<<"Returning object from object cache : "<<filename<<std::endl;
+                std::cout << "Returning object from object cache : " << filename << std::endl;
                 return object;
             }
         }
@@ -83,7 +83,7 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
 
     if (options->objectCache && object)
     {
-        std::cout<<"Adding Object to ObjectCche "<<object.get()<<std::endl;
+        std::cout << "Adding Object to ObjectCche " << object.get() << std::endl;
         options->objectCache->add(object, filename, options);
     }
 

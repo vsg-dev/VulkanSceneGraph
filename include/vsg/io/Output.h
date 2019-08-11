@@ -115,13 +115,11 @@ namespace vsg
         void setObjectID(ObjectID id) { _objectID = id; }
         ObjectID getObjectID() const { return _objectID; }
 
-
         using ObjectIDMap = std::unordered_map<const vsg::Object*, ObjectID>;
         ObjectIDMap& getObjectIDMap() { return _objectIDMap; }
         const ObjectIDMap& getObjectIDMap() const { return _objectIDMap; }
 
     protected:
-
         ObjectIDMap _objectIDMap;
         ObjectID _objectID = 0;
     };

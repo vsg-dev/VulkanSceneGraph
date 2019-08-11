@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/External.h>
 #include <vsg/core/ConstVisitor.h>
+#include <vsg/core/External.h>
 
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
@@ -35,7 +35,6 @@ public:
             ObjectID id = _objectID++;
             _objectIDMap[&object] = id;
             object.traverse(*this);
-
         }
     }
 
@@ -44,9 +43,7 @@ public:
 
     ObjectID _objectID = 0;
     ObjectIDMap _objectIDMap;
-
 };
-
 
 External::External()
 {
@@ -57,7 +54,7 @@ External::External(Allocator* allocator) :
 {
 }
 
-External::External(const std::string& filename, ref_ptr<Object> object):
+External::External(const std::string& filename, ref_ptr<Object> object) :
     _filename(filename),
     _object(object)
 {
@@ -85,7 +82,7 @@ void External::read(Input& input)
             collectIDs._objectID = idBegin;
             _object->accept(collectIDs);
 
-            for(auto [object, objectID] : collectIDs._objectIDMap)
+            for (auto [object, objectID] : collectIDs._objectIDMap)
             {
                 if ((idBegin <= objectID) && (objectID < idEnd))
                 {
@@ -93,13 +90,11 @@ void External::read(Input& input)
                 }
                 else
                 {
-                    std::cout<<"External::read() : warning object out of ObjectIDRange "<<objectID<<", "<<object<<std::endl;
+                    std::cout << "External::read() : warning object out of ObjectIDRange " << objectID << ", " << object << std::endl;
                 }
             }
         }
     }
-
-
 }
 
 void External::write(Output& output) const
@@ -118,7 +113,7 @@ void External::write(Output& output) const
         collectIDs._objectID = idBegin;
         _object->accept(collectIDs);
 
-        for(auto [object, objectID] : collectIDs._objectIDMap)
+        for (auto [object, objectID] : collectIDs._objectIDMap)
         {
             output.getObjectIDMap()[object] = objectID;
         }
@@ -129,5 +124,4 @@ void External::write(Output& output) const
 
     output.write("ObjectIDRange", idBegin, idEnd);
     output.write("Filename", _filename);
-
 }

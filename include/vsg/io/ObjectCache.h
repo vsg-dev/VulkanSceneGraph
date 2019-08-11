@@ -23,7 +23,6 @@ namespace vsg
     class ObjectCache : public Inherit<Object, ObjectCache>
     {
     public:
-
         void setDefaultUnusedDuration(double duration) { _defaultUnusedDuration = duration; }
         double getDefaultUnusedDuration() const { return _defaultUnusedDuration; }
 
@@ -49,7 +48,6 @@ namespace vsg
         void remove(ref_ptr<Object> object);
 
     protected:
-
         struct ObjectTimepoint
         {
             ref_ptr<Object> object;
