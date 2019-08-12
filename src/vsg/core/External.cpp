@@ -107,7 +107,7 @@ void External::write(Output& output) const
     // if we should write out object then need to invoke ReaderWriter for it.
     if (!_filename.empty() && _object)
     {
-        output.writeFile(_object, _filename);
+        output.write(_object, _filename);
 
         CollectIDs collectIDs;
         collectIDs._objectID = idBegin;

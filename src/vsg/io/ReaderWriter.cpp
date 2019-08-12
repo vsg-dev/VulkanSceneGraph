@@ -82,7 +82,7 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
     return object;
 }
 
-bool vsg::writeFile(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options)
+bool vsg::write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options)
 {
     bool fileWritten = false;
     if (options)
