@@ -82,5 +82,5 @@ vsg::ref_ptr<vsg::Object> BinaryInput::read()
 
 ref_ptr<Object> BinaryInput::readFile(const Path& path)
 {
-    return vsg::readFile(path, _options);
+    return vsg::read(path, _options);
 }

@@ -49,13 +49,13 @@ namespace vsg
         virtual void write(size_t num, const double* value) = 0;
         virtual void write(size_t num, const std::string* value) = 0;
 
-        // write object
+        /// write object
         virtual void write(const Object* object) = 0;
 
-        // write external file if reqquired
-        virtual bool writeFile(const Object* object, const Path& path) = 0;
+        /// write external file if reqquired
+        virtual bool write(ref_ptr<Object> object, const Path& filename) = 0;
 
-        // map char to int8_t
+        /// map char to int8_t
         void write(size_t num, const char* value) { write(num, reinterpret_cast<const int8_t*>(value)); }
         void write(size_t num, const bool* value) { write(num, reinterpret_cast<const int8_t*>(value)); }
 
@@ -115,13 +115,11 @@ namespace vsg
         void setObjectID(ObjectID id) { _objectID = id; }
         ObjectID getObjectID() const { return _objectID; }
 
-
         using ObjectIDMap = std::unordered_map<const vsg::Object*, ObjectID>;
         ObjectIDMap& getObjectIDMap() { return _objectIDMap; }
         const ObjectIDMap& getObjectIDMap() const { return _objectIDMap; }
 
     protected:
-
         ObjectIDMap _objectIDMap;
         ObjectID _objectID = 0;
     };

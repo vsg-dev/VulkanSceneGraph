@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/FileSystem.h>
+#include <vsg/io/Options.h>
 
 #if defined(WIN32) && !defined(__CYGWIN__)
 #    include <cstdlib>
@@ -139,4 +140,16 @@ Path vsg::findFile(const Path& filename, const Paths& paths)
         }
     }
     return Path();
+}
+
+Path vsg::findFile(const Path& filename, const Options* options)
+{
+    if (options && !options->paths.empty())
+    {
+        return findFile(filename, options->paths);
+    }
+    else
+    {
+        return fileExists(filename) ? filename : Path();
+    }
 }

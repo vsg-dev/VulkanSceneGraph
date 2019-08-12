@@ -114,11 +114,11 @@ namespace vsg
 
         void write(size_t num, const std::string* value) override;
 
-        // write object
+        /// write object
         void write(const vsg::Object* object) override;
 
-        // write external file if reqquired
-        bool writeFile(const Object* object, const Path& path) override;
+        /// write external file if reqquired
+        bool write(ref_ptr<Object> object, const Path& filename) override;
 
     protected:
         std::ostream& _output;

@@ -65,9 +65,16 @@ namespace vsg
     VSG_type_name(vsg::CompositeReaderWriter);
 
     /** convience method for reading objects from file.*/
-    ref_ptr<Object> readFile(const Path& path, ref_ptr<const Options> options = {});
+    extern VSG_DECLSPEC ref_ptr<Object> read(const Path& filename, ref_ptr<const Options> options = {});
+
+    template<class T>
+    ref_ptr<T> read_cast(const Path& filename, ref_ptr<const Options> options = {})
+    {
+        auto object = read(filename, options);
+        return vsg::ref_ptr<T>(dynamic_cast<T*>(object.get()));
+    }
 
     /** convience method for writing objects to file.*/
-    bool writeFile(const Object* object, const Path& path, ref_ptr<const Options> options = {});
+    extern VSG_DECLSPEC bool write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options = {});
 
 } // namespace vsg
