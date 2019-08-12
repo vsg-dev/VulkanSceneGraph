@@ -72,9 +72,12 @@ void ReaderWriter_vsg::writeHeader(std::ostream& fout, FormatType type) const
 vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(const vsg::Path& filename, ref_ptr<const Options> options) const
 {
     auto ext = vsg::fileExtension(filename);
-    if ((ext == "vsga" || ext == "vsgt" || ext == "vsgb") && vsg::fileExists(filename))
+    if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
     {
-        std::ifstream fin(filename, std::ios::in | std::ios::binary);
+        vsg::Path filenameToUse = findFile(filename, options);
+        if (filenameToUse.empty()) return {};
+
+        std::ifstream fin(filenameToUse, std::ios::in | std::ios::binary);
         FormatType type = readHeader(fin);
         if (type == BINARY)
         {
@@ -86,15 +89,10 @@ vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(const vsg::Path& filename, ref_
             vsg::AsciiInput input(fin, _objectFactory, options);
             return input.readObject("Root");
         }
-        else
-        {
-            return vsg::ref_ptr<vsg::Object>();
-        }
     }
-    else
-    {
-        return vsg::ref_ptr<vsg::Object>();
-    }
+
+    // return null as no means for loading file has been found
+    return {};
 }
 
 vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(std::istream& fin, vsg::ref_ptr<const vsg::Options> options) const

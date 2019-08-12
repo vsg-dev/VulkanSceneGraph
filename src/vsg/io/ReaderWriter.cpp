@@ -74,8 +74,9 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
         }
     }
 
-    if (options->objectCache && object)
+    if (object && options && options->objectCache)
     {
+        // place loaded object into the ObjectCache
         options->objectCache->add(object, filename, options);
     }
 
