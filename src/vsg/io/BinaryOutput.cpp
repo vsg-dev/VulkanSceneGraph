@@ -66,7 +66,7 @@ void BinaryOutput::write(const vsg::Object* object)
     }
 }
 
-bool BinaryOutput::writeFile(const Object* object, const Path& path)
+bool BinaryOutput::writeFile(ref_ptr<Object> object, const Path& path)
 {
     return vsg::writeFile(object, path, _options);
 }

@@ -82,7 +82,7 @@ void AsciiOutput::write(const vsg::Object* object)
     }
 }
 
-bool AsciiOutput::writeFile(const Object* object, const Path& path)
+bool AsciiOutput::writeFile(ref_ptr<Object> object, const Path& path)
 {
     return vsg::writeFile(object, path, _options);
 }

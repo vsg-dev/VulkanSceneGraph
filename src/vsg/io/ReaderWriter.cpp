@@ -90,7 +90,7 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
     return object;
 }
 
-bool vsg::writeFile(const Object* object, const Path& filename, ref_ptr<const Options> options)
+bool vsg::writeFile(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options)
 {
     bool fileWritten = false;
     if (options)
@@ -117,7 +117,7 @@ bool vsg::writeFile(const Object* object, const Path& filename, ref_ptr<const Op
 
     if (options->objectCache && fileWritten)
     {
-        options->objectCache->add(ref_ptr<Object>(const_cast<Object*>(object)), filename, options); // TODO
+        options->objectCache->add(object, filename, options); // TODO
     }
 
     return fileWritten;

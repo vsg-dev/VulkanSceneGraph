@@ -75,6 +75,6 @@ namespace vsg
     }
 
     /** convience method for writing objects to file.*/
-    bool writeFile(const Object* object, const Path& path, ref_ptr<const Options> options = {});
+    bool writeFile(ref_ptr<Object> object, const Path& path, ref_ptr<const Options> options = {});
 
 } // namespace vsg
