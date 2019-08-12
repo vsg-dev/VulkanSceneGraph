@@ -18,8 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/ReaderWriter.h>
 #include <vsg/io/ReaderWriter_vsg.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 void CompositeReaderWriter::add(ref_ptr<ReaderWriter> reader)
@@ -47,19 +45,14 @@ bool CompositeReaderWriter::write(const vsg::Object* object, const vsg::Path& fi
 
 ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
 {
-    std::cout << "vsg::read(" << filename << ", " << options.get() << ")" << std::endl;
-
     ref_ptr<Object> object;
     if (options)
     {
         if (options->objectCache)
         {
-            std::cout << "We have an Object cache" << std::endl;
-
             object = options->objectCache->get(filename, options);
             if (object)
             {
-                std::cout << "Returning object from object cache : " << filename << std::endl;
                 return object;
             }
         }
@@ -83,7 +76,6 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
 
     if (options->objectCache && object)
     {
-        std::cout << "Adding Object to ObjectCche " << object.get() << std::endl;
         options->objectCache->add(object, filename, options);
     }
 
@@ -115,9 +107,9 @@ bool vsg::writeFile(ref_ptr<Object> object, const Path& filename, ref_ptr<const 
         }
     }
 
-    if (options->objectCache && fileWritten)
+    if (fileWritten && options && options->objectCache)
     {
-        options->objectCache->add(object, filename, options); // TODO
+        options->objectCache->add(object, filename, options);
     }
 
     return fileWritten;
