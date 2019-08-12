@@ -10,14 +10,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <iostream>
 #include <vsg/io/ObjectCache.h>
 
 using namespace vsg;
 
 void ObjectCache::removeExpiredUnusedObjects()
 {
-    // TODO get current timestamp to use as a reference for expiry
     auto time = vsg::clock::now();
 
     std::lock_guard<std::mutex> guard(_mutex);
@@ -31,7 +29,6 @@ void ObjectCache::removeExpiredUnusedObjects()
         }
         else
         {
-            // TODO need to check if expired
             auto timeSinceLasUsed = std::chrono::duration<double, std::chrono::seconds::period>(time - ot.lastUsedTimepoint).count();
             if (timeSinceLasUsed > ot.unusedDurationBeforeExpiry)
             {
@@ -100,8 +97,6 @@ void ObjectCache::remove(const Path& filename, ref_ptr<const Options> options)
 
 void ObjectCache::remove(ref_ptr<Object> object)
 {
-    std::cout << "ObjectCache::remove(" << object.get() << ") " << _objectCacheMap.size() << std::endl;
-
     std::lock_guard<std::mutex> guard(_mutex);
 
     for (auto itr = _objectCacheMap.begin(); itr != _objectCacheMap.end();)
@@ -109,9 +104,7 @@ void ObjectCache::remove(ref_ptr<Object> object)
         auto current_itr = itr++;
         if (current_itr->second.object == object)
         {
-            std::cout << "    removing " << object.get() << " " << current_itr->first.first << std::endl;
             _objectCacheMap.erase(current_itr);
         }
     }
-    std::cout << "after ObjectCache::remove(" << object.get() << ") " << _objectCacheMap.size() << std::endl;
 }
