@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
+#include <vsg/io/ReaderWriter.h>
 
 #include <unordered_map>
 
@@ -90,7 +91,7 @@ void External::read(Input& input)
     {
         if (!filename.empty())
         {
-            _entries[filename] = input.readFile(filename);
+            _entries[filename] = vsg::read(filename, input.options);
         }
         else
         {
@@ -111,7 +112,7 @@ void External::read(Input& input)
     {
         if ((idBegin <= objectID) && (objectID < idEnd))
         {
-            input.getObjectIDMap()[objectID] = const_cast<Object*>(object);
+            input.objectIDMap[objectID] = const_cast<Object*>(object);
         }
         else
         {
@@ -125,13 +126,13 @@ void External::write(Output& output) const
     Object::write(output);
 
     CollectIDs collectIDs;
-    uint32_t idBegin = collectIDs._objectID = output.getObjectID();
+    uint32_t idBegin = collectIDs._objectID = output.objectID;
     for(auto& [filename, externalObject] : _entries)
     {
         if (!filename.empty() && externalObject) externalObject->accept(collectIDs);
     }
     uint32_t idEnd = collectIDs._objectID;
-    output.setObjectID(idEnd);
+    output.objectID = idEnd;
 
 
     output.write("ObjectIDRange", idBegin, idEnd);
@@ -148,7 +149,7 @@ void External::write(Output& output) const
         // if we should write out object then need to invoke ReaderWriter for it.
         if (!filename.empty() && externalObject)
         {
-            output.write(externalObject, filename);
+            vsg::write(externalObject, filename, output.options);
         }
     }
 }

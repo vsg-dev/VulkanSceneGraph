@@ -31,13 +31,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    // forward declare
+    class Options;
+
     class Input
     {
     public:
-        Input(ref_ptr<ObjectFactory> objectFactory) :
-            _objectFactory(objectFactory)
-        {
-        }
+        Input(ref_ptr<ObjectFactory> in_objectFactory, ref_ptr<const Options> in_options = {});
+
+        Options& operator=(const Options& rhs) = delete;
 
         /// return true if property name matches the next token in the stream, or if property names are not required for format
         virtual bool matchPropertyName(const char* propertyName) = 0;
@@ -57,9 +59,6 @@ namespace vsg
 
         // read object
         virtual ref_ptr<Object> read() = 0;
-
-        // read object from file
-        virtual ref_ptr<Object> readFile(const Path& path) = 0;
 
         // map char to int8_t
         void read(size_t num, char* value) { read(num, reinterpret_cast<int8_t*>(value)); }
@@ -142,15 +141,14 @@ namespace vsg
 
         using ObjectID = uint32_t;
         using ObjectIDMap = std::map<ObjectID, ref_ptr<Object>>;
-        ObjectIDMap& getObjectIDMap() { return _objectIDMap; }
-        const ObjectIDMap& getObjectIDMap() const { return _objectIDMap; }
 
-        ObjectFactory* getObjectFactory() { return _objectFactory; }
-        const ObjectFactory* getObjectFactory() const { return _objectFactory; }
+        ObjectIDMap objectIDMap;
+        ref_ptr<ObjectFactory> objectFactory;
+        ref_ptr<const Options> options;
 
     protected:
-        ObjectIDMap _objectIDMap;
-        ref_ptr<ObjectFactory> _objectFactory;
+        virtual ~Input();
+
     };
 
 } // namespace vsg
