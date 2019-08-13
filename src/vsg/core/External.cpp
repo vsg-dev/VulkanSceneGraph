@@ -80,9 +80,9 @@ void External::read(Input& input)
     uint32_t count = input.readValue<uint32_t>("NumEntries");
 
     std::vector<Path> filenames(count);
-    for (uint32_t i=0; i<count; ++i)
+    for(auto& filename : filenames)
     {
-        input.read("Filename", filenames[i]);
+        input.read("Filename", filename);
     }
 
     // read the files and set up the map
@@ -137,6 +137,12 @@ void External::write(Output& output) const
     output.write("ObjectIDRange", idBegin, idEnd);
     output.writeValue<uint32_t>("NumEntries", _entries.size());
 
+    for(auto itr =  _entries.begin(); itr !=  _entries.end(); ++itr)
+    {
+        output.write("Filename", itr->first);
+    }
+
+    // write out files.
     for(auto& [filename, externalObject] : _entries)
     {
         // if we should write out object then need to invoke ReaderWriter for it.
@@ -144,8 +150,5 @@ void External::write(Output& output) const
         {
             output.write(externalObject, filename);
         }
-        idEnd = output.getObjectID();
-
-        output.write("Filename", filename);
     }
 }
