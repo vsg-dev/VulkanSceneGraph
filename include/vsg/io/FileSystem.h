@@ -14,8 +14,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <string>
 #include <vector>
+#include <map>
 
-#include <vsg/core/Export.h>
+#include <vsg/core/Object.h>
 
 namespace vsg
 {
@@ -23,6 +24,7 @@ namespace vsg
     class Options;
     using Path = std::string;
     using Paths = std::vector<Path>;
+    using PathObjects = std::map<Path, ref_ptr<Object>>;
 
     extern VSG_DECLSPEC Paths getEnvPaths(const char* env_var);
 

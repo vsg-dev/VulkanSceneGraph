@@ -55,7 +55,7 @@ External::External(Allocator* allocator) :
 {
 }
 
-External::External(const FilenameObjectMap& entries) :
+External::External(const PathObjects& entries) :
     _entries(entries)
 {
 }
@@ -80,12 +80,13 @@ void External::read(Input& input)
 
     uint32_t count = input.readValue<uint32_t>("NumEntries");
 
-    std::vector<Path> filenames(count);
+    Paths filenames(count);
     for(auto& filename : filenames)
     {
         input.read("Filename", filename);
     }
 
+#if 0
     // read the files and set up the map
     for(auto& filename : filenames)
     {
@@ -98,7 +99,11 @@ void External::read(Input& input)
             _entries[filename] = nullptr;
         }
     }
+#else
 
+    _entries = vsg::read(filenames, input.options);
+
+#endif
 
     // collect the ids from the files
     CollectIDs collectIDs;

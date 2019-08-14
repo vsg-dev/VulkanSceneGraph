@@ -17,8 +17,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/FileSystem.h>
 
-#include <map>
-
 namespace vsg
 {
     VSG_type_name(vsg::External);
@@ -26,11 +24,10 @@ namespace vsg
     class VSG_DECLSPEC External : public Inherit<Object, External>
     {
     public:
-        using FilenameObjectMap = std::map<Path, ref_ptr<Object>>;
 
         External();
         explicit External(Allocator* allocator);
-        explicit External(const FilenameObjectMap& entries);
+        explicit External(const PathObjects& entries);
         External(const std::string& filename, ref_ptr<Object> object);
 
         template<class O, class V>
@@ -52,14 +49,14 @@ namespace vsg
 
         void add(const Path& filename, ref_ptr<Object> object = {}) { _entries[filename] = object; }
 
-        void setEntries(const FilenameObjectMap& entries) { _entries = entries; }
-        FilenameObjectMap& getEntries() { return _entries; }
-        const FilenameObjectMap& getEntries() const { return _entries; }
+        void setEntries(const PathObjects& entries) { _entries = entries; }
+        PathObjects& getEntries() { return _entries; }
+        const PathObjects& getEntries() const { return _entries; }
 
     protected:
         virtual ~External();
 
-        FilenameObjectMap _entries;
+        PathObjects _entries;
     };
 
 } // namespace vsg

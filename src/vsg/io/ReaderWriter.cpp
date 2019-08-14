@@ -83,6 +83,24 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
     return object;
 }
 
+PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
+{
+    PathObjects entries;
+    for(auto& filename : filenames)
+    {
+        if (!filename.empty())
+        {
+            entries[filename] = vsg::read(filename, options);
+        }
+        else
+        {
+            entries[filename] = nullptr;
+        }
+    }
+    return entries;
+}
+
+
 bool vsg::write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options)
 {
     bool fileWritten = false;

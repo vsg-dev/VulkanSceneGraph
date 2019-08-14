@@ -67,6 +67,10 @@ namespace vsg
     /** convience method for reading objects from file.*/
     extern VSG_DECLSPEC ref_ptr<Object> read(const Path& filename, ref_ptr<const Options> options = {});
 
+    /** convience method for reading objects from files.*/
+    extern VSG_DECLSPEC PathObjects read(const Paths& filenames, ref_ptr<const Options> options = {});
+
+
     template<class T>
     ref_ptr<T> read_cast(const Path& filename, ref_ptr<const Options> options = {})
     {
