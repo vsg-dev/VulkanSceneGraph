@@ -86,24 +86,7 @@ void External::read(Input& input)
         input.read("Filename", filename);
     }
 
-#if 0
-    // read the files and set up the map
-    for(auto& filename : filenames)
-    {
-        if (!filename.empty())
-        {
-            _entries[filename] = vsg::read(filename, input.options);
-        }
-        else
-        {
-            _entries[filename] = nullptr;
-        }
-    }
-#else
-
     _entries = vsg::read(filenames, input.options);
-
-#endif
 
     // collect the ids from the files
     CollectIDs collectIDs;
@@ -139,6 +122,11 @@ void External::write(Output& output) const
     uint32_t idEnd = collectIDs._objectID;
     output.objectID = idEnd;
 
+    // pass the object id's onto the output's objectIDMap
+    for(auto& [object, objectID] : collectIDs._objectIDMap)
+    {
+        output.objectIDMap[object] = objectID;
+    }
 
     output.write("ObjectIDRange", idBegin, idEnd);
     output.writeValue<uint32_t>("NumEntries", _entries.size());
