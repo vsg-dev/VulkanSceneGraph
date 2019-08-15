@@ -18,6 +18,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/ReaderWriter.h>
 #include <vsg/io/ReaderWriter_vsg.h>
 
+#include <thread>
+#include <iostream>
+#include <chrono>
+
 using namespace vsg;
 
 void CompositeReaderWriter::add(ref_ptr<ReaderWriter> reader)
@@ -83,20 +87,196 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
     return object;
 }
 
+struct Active : public Object
+{
+    Active() : active(true) {}
+
+    std::atomic_bool active;
+
+    explicit operator bool() const noexcept { return active; }
+
+protected:
+    virtual ~Active() {}
+};
+
+struct Operation : public Object
+{
+    Operation(const Path& f, ref_ptr<const Options> opt, ref_ptr<Object>& obj, std::atomic_uint& controlVar) :
+        filename(f),
+        options(opt),
+        object(obj),
+        readLeftToComplete(controlVar) {}
+
+    Path filename;
+    ref_ptr<const Options> options;
+    ref_ptr<Object>& object;
+    std::atomic_uint& readLeftToComplete;
+};
+
+struct OperationQueue : public Object
+{
+    std::mutex _mutex;
+    std::list<ref_ptr<Operation>> _queue;
+
+    void add(ref_ptr<Operation> operation)
+    {
+        std::lock_guard<std::mutex> guard(_mutex);
+        _queue.emplace_back(operation);
+    }
+
+    ref_ptr<Operation> take()
+    {
+        std::lock_guard<std::mutex> guard(_mutex);
+        if (_queue.empty()) return {};
+
+        ref_ptr<Operation> operation = _queue.front();
+
+        _queue.erase(_queue.begin());
+
+        return operation;
+    }
+};
+
+
 PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
 {
-    PathObjects entries;
-    for(auto& filename : filenames)
+    enum ThreadingModel
     {
-        if (!filename.empty())
+        SingleThreaded,
+        ThreadPerLoad,
+        ThreadPool
+    };
+
+    //ThreadingModel threadingModel = SingleThreaded;
+    //ThreadingModel threadingModel = ThreadPerLoad;
+    ThreadingModel threadingModel = ThreadPool;
+
+// start of thread pool setup
+    ref_ptr<OperationQueue> operationQueue;
+    ref_ptr<Active> active;
+    std::vector<std::thread> poolThreads;
+
+    if (threadingModel == ThreadPool)
+    {
+        operationQueue = new OperationQueue;
+        active = new Active;
+
+        auto run = [operationQueue, active]()
         {
-            entries[filename] = vsg::read(filename, options);
-        }
-        else
+            while(*active)
+            {
+                ref_ptr<Operation> operation = operationQueue->take();
+                if (operation)
+                {
+                    operation->object = vsg::read(operation->filename, operation->options);
+                    --(operation->readLeftToComplete);
+                }
+            }
+        };
+
+        size_t numThreads = 16;
+        for(size_t i=0; i<numThreads; ++i)
         {
-            entries[filename] = nullptr;
+            poolThreads.emplace_back(std::thread(run));
         }
     }
+// end of thread pool setup
+
+    auto before_vsg_load = std::chrono::steady_clock::now();
+
+    PathObjects entries;
+
+    switch(threadingModel)
+    {
+        case(SingleThreaded) :
+        {
+            for(auto& filename : filenames)
+            {
+                if (!filename.empty())
+                {
+                    entries[filename] = vsg::read(filename, options);
+                }
+                else
+                {
+                    entries[filename] = nullptr;
+                }
+            }
+            break;
+        }
+
+        case(ThreadPerLoad) :
+        {
+            auto readFile = [](const Path& filename, ref_ptr<const Options> opt, ref_ptr<Object>& object)
+            {
+                object = vsg::read(filename, opt);
+            };
+
+            for(auto& filename : filenames)
+            {
+                entries[filename] = nullptr;
+            }
+
+            std::vector<std::thread> threads;
+            for(auto& [filename, object] : entries)
+            {
+                threads.emplace_back(std::thread(readFile, std::ref(filename), options, std::ref(object)));
+            }
+
+            for(auto& thread : threads)
+            {
+                thread.join();
+            }
+            break;
+        }
+
+        case(ThreadPool) :
+        {
+            std::atomic_uint readLeftToComplete = filenames.size();
+
+            // set up the entries container for operations to write to.
+            for(auto& filename : filenames)
+            {
+                entries[filename] = nullptr;
+            }
+
+            // add operations
+            for(auto& [filename, object] : entries)
+            {
+                operationQueue->add(ref_ptr<Operation>(new Operation(filename, options, object, readLeftToComplete)));
+            }
+
+            // use this thread to read the files as well
+            while(ref_ptr<Operation> operation = operationQueue->take())
+            {
+                operation->object = vsg::read(operation->filename, operation->options);
+                --(operation->readLeftToComplete);
+            }
+
+            // spinlock wait for the read operations to complete.
+            while(readLeftToComplete != 0)
+            {
+                std::this_thread::yield();
+            }
+
+            break;
+        }
+    }
+
+    auto vsg_loadTime = std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - before_vsg_load).count();
+    std::cout<<"After batch load() time =  "<<vsg_loadTime<<std::endl;
+
+// clean up thread pool
+    if (threadingModel == ThreadPool)
+    {
+        active->active = false;
+
+        for(auto& thread : poolThreads)
+        {
+            thread.join();
+        }
+    }
+// end of clean of thread pool
+
     return entries;
 }
 
