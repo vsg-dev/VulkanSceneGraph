@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,29 +12,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/ReaderWriter.h>
+#include <vsg/core/Inherit.h>
+#include <vsg/io/FileSystem.h>
+#include <vsg/io/Options.h>
 
-using namespace vsg;
-
-void CompositeReaderWriter::add(ref_ptr<ReaderWriter> reader)
+namespace vsg
 {
-    _readerWriters.emplace_back(reader);
-}
 
-vsg::ref_ptr<vsg::Object> CompositeReaderWriter::read(const vsg::Path& filename, ref_ptr<const Options> options) const
-{
-    for (auto& reader : _readerWriters)
-    {
-        if (auto object = reader->read(filename, options); object.valid()) return object;
-    }
-    return vsg::ref_ptr<vsg::Object>();
-}
+    /** convience method for writing objects to file.*/
+    extern VSG_DECLSPEC bool write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options = {});
 
-bool CompositeReaderWriter::write(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const
-{
-    for (auto& writer : _readerWriters)
-    {
-        if (writer->write(object, filename, options)) return true;
-    }
-    return false;
-}
+} // namespace vsg

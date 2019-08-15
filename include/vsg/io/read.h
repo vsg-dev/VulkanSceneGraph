@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,29 +12,25 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/ReaderWriter.h>
+#include <vsg/core/Inherit.h>
+#include <vsg/io/FileSystem.h>
+#include <vsg/io/Options.h>
 
-using namespace vsg;
-
-void CompositeReaderWriter::add(ref_ptr<ReaderWriter> reader)
+namespace vsg
 {
-    _readerWriters.emplace_back(reader);
-}
 
-vsg::ref_ptr<vsg::Object> CompositeReaderWriter::read(const vsg::Path& filename, ref_ptr<const Options> options) const
-{
-    for (auto& reader : _readerWriters)
+    /** convience method for reading objects from file.*/
+    extern VSG_DECLSPEC ref_ptr<Object> read(const Path& filename, ref_ptr<const Options> options = {});
+
+    /** convience method for reading objects from files.*/
+    extern VSG_DECLSPEC PathObjects read(const Paths& filenames, ref_ptr<const Options> options = {});
+
+    /** convience method for reading file with cast to specificed type.*/
+    template<class T>
+    ref_ptr<T> read_cast(const Path& filename, ref_ptr<const Options> options = {})
     {
-        if (auto object = reader->read(filename, options); object.valid()) return object;
+        auto object = read(filename, options);
+        return vsg::ref_ptr<T>(dynamic_cast<T*>(object.get()));
     }
-    return vsg::ref_ptr<vsg::Object>();
-}
 
-bool CompositeReaderWriter::write(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const
-{
-    for (auto& writer : _readerWriters)
-    {
-        if (writer->write(object, filename, options)) return true;
-    }
-    return false;
-}
+} // namespace vsg

@@ -48,6 +48,8 @@ set(SOURCES
     io/ObjectFactory.cpp
     io/ReaderWriter.cpp
     io/ReaderWriter_vsg.cpp
+    io/read.cpp
+    io/write.cpp
 
     traversals/DispatchTraversal.cpp
     traversals/CullTraversal.cpp
