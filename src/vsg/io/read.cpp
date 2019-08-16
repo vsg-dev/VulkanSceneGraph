@@ -72,19 +72,33 @@ protected:
     virtual ~Active() {}
 };
 
+
 struct Operation : public Object
 {
-    Operation(const Path& f, ref_ptr<const Options> opt, ref_ptr<Object>& obj, std::atomic_uint& controlVar) :
+    virtual void run() = 0;
+};
+
+struct ReadOperation : public Operation
+{
+    ReadOperation(const Path& f, ref_ptr<const Options> opt, ref_ptr<Object>& obj, std::atomic_uint& controlVar) :
         filename(f),
         options(opt),
         object(obj),
         readLeftToComplete(controlVar) {}
+
+    void run() override
+    {
+        object = vsg::read(filename, options);
+        --readLeftToComplete;
+    }
 
     Path filename;
     ref_ptr<const Options> options;
     ref_ptr<Object>& object;
     std::atomic_uint& readLeftToComplete;
 };
+
+
 
 struct OperationQueue : public Object
 {
@@ -139,11 +153,8 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
             while(*active)
             {
                 ref_ptr<Operation> operation = operationQueue->take();
-                if (operation)
-                {
-                    operation->object = vsg::read(operation->filename, operation->options);
-                    --(operation->readLeftToComplete);
-                }
+                if (operation) operation->run();
+                else std::this_thread::yield();
             }
         };
 
@@ -215,14 +226,13 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
             // add operations
             for(auto& [filename, object] : entries)
             {
-                operationQueue->add(ref_ptr<Operation>(new Operation(filename, options, object, readLeftToComplete)));
+                operationQueue->add(ref_ptr<Operation>(new ReadOperation(filename, options, object, readLeftToComplete)));
             }
 
             // use this thread to read the files as well
             while(ref_ptr<Operation> operation = operationQueue->take())
             {
-                operation->object = vsg::read(operation->filename, operation->options);
-                --(operation->readLeftToComplete);
+                operation->run();
             }
 
             // spinlock wait for the read operations to complete.
