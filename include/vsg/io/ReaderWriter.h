@@ -21,6 +21,9 @@ namespace vsg
 
     class ReaderWriter : public Inherit<Object, ReaderWriter>
     {
+        using vsg::Object::read;
+        using vsg::Object::write;
+
     public:
         /// convenience method for casting a read object to a specified type.
         template<class T>
