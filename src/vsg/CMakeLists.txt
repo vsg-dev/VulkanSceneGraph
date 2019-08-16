@@ -102,8 +102,12 @@ set(SOURCES
 )
 
 # add platform specific Window implementation
+
 # set up library dependencies
-set(LIBRARIES PUBLIC Vulkan::Vulkan)
+set(LIBRARIES PUBLIC
+    Vulkan::Vulkan
+    Threads::Threads
+)
 
 if (ANDROID)
     set(HEADERS ${HEADERS} ${CMAKE_SOURCE_DIR}/include/vsg/platform/android/Android_Window.h)
