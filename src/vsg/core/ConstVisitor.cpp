@@ -57,7 +57,7 @@ void ConstVisitor::apply(const Objects& value)
 
 void ConstVisitor::apply(const External& value)
 {
-    apply(static_cast<const External&>(value));
+    apply(static_cast<const Object&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

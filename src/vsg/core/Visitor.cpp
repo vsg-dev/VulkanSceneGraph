@@ -57,7 +57,7 @@ void Visitor::apply(Objects& value)
 
 void Visitor::apply(External& value)
 {
-    apply(static_cast<External&>(value));
+    apply(static_cast<Object&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
