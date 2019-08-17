@@ -67,7 +67,9 @@ namespace vsg
 
                 _istr.str(str);
             }
-            _istr >> value;
+            
+            // don't use the >> operator here as it will truncate strings if a space is found
+            value = _istr.str();
 
             return (!_istr.fail());
         }
