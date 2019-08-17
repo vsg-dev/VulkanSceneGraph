@@ -35,8 +35,8 @@ The above dependency versions are known to work so they've been set as the curre
 ### Command line build instructions:
 To build and install the static libvsg library (.a/.lib) in source:
 
-    git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
-    cd VulkanSceneGraphPrototype
+    git clone https://github.com/vsg-dev/VulkanSceneGraph.git
+    cd VulkanSceneGraph
     cmake .
     make -j 8
     make install
