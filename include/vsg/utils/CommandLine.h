@@ -67,9 +67,16 @@ namespace vsg
 
                 _istr.str(str);
             }
-            
-            // don't use the >> operator here as it will truncate strings if a space is found
-            value = _istr.str();
+
+            // check if we are dealing with a string as the >> operator will truncate on a space
+            if constexpr (std::is_same_v<T, std::string>)
+            {
+                value = _istr.str();
+            }
+            else
+            {
+                _istr >> value;
+            }
 
             return (!_istr.fail());
         }
