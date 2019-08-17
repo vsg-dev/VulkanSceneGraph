@@ -48,28 +48,36 @@ namespace vsg
             const int num_args = *_argc;
             if (i >= num_args) return false;
 
-            std::size_t num_elements = type_num_elements(value);
-
-            _istr.clear();
-            if (num_elements == 1)
+            if constexpr (std::is_same_v<T, std::string>)
             {
-                _istr.str(_argv[i]);
-                ++i;
+                value = _argv[i++];
+                return true;
             }
             else
             {
-                std::string str;
-                for (; num_elements > 0 && i < num_args; --num_elements, ++i)
+                std::size_t num_elements = type_num_elements(value);
+
+                _istr.clear();
+                if (num_elements == 1)
                 {
-                    str += ' ';
-                    str += _argv[i];
+                    _istr.str(_argv[i]);
+                    ++i;
                 }
+                else
+                {
+                    std::string str;
+                    for (; num_elements > 0 && i < num_args; --num_elements, ++i)
+                    {
+                        str += ' ';
+                        str += _argv[i];
+                    }
 
-                _istr.str(str);
+                    _istr.str(str);
+                }
+                _istr >> value;
+
+                return (!_istr.fail());
             }
-            _istr >> value;
-
-            return (!_istr.fail());
         }
 
         void remove(int i, int num)
