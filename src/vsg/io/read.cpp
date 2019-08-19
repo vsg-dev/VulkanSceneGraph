@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <iostream>
 #include <chrono>
 #include <condition_variable>
+#include <typeinfo>
 
 using namespace vsg;
 
@@ -60,6 +61,9 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
 
     return object;
 }
+
+namespace vsg
+{
 
 struct Active : public Object
 {
@@ -119,8 +123,12 @@ struct Operation : public Object
 };
 
 
-struct OperationQueue : public Object
+class OperationQueue : public Inherit<Object, OperationQueue>
 {
+public:
+    OperationQueue(ref_ptr<Active> in_active) :
+        _active(in_active) {}
+
     std::mutex _mutex;
     std::condition_variable _cv;
     std::list<ref_ptr<Operation>> _queue;
@@ -186,7 +194,79 @@ struct OperationQueue : public Object
         return operation;
     }
 };
+VSG_type_name(vsg::OperationQueue)
 
+class OperationProcessor : public Inherit<Object, OperationQueue>
+{
+public:
+
+    OperationProcessor(uint32_t numThreads, ref_ptr<Active> in_active = {}) :
+        active(in_active)
+    {
+        if (!active) active  = new Active;
+        queue = new OperationQueue(active);
+
+        auto run = [](ref_ptr<OperationQueue> q, ref_ptr<Active> a)
+        {
+            while(*(a))
+            {
+                ref_ptr<Operation> operation = q->take_when_avilable();
+                if (operation) operation->run();
+            }
+        };
+
+        for(size_t i=0; i<numThreads; ++i)
+        {
+            threads.emplace_back(std::thread(run, std::ref(queue), std::ref(active)));
+        }
+    }
+
+    void add(ref_ptr<Operation> operation)
+    {
+        queue->add(operation);
+    }
+
+    template<typename Iterator>
+    void add(Iterator begin, Iterator end)
+    {
+        queue->add(begin, end);
+    }
+
+    /// use this thread to run operations till the queue is empty as well
+    /// this thread will consume and run operations in parallel with any threads associated with this OperationProcessor.
+    void run()
+    {
+        while(ref_ptr<Operation> operation = queue->take())
+        {
+            operation->run();
+        }
+    }
+
+    /// stop theads
+    void stop()
+    {
+        active->active = false;
+        for(auto& thread : threads)
+        {
+            thread.join();
+        }
+        threads.clear();
+    }
+
+    using Threads = std::list<std::thread>;
+    Threads threads;
+    ref_ptr<OperationQueue> queue;
+    ref_ptr<Active> active;
+
+protected:
+    virtual ~OperationProcessor()
+    {
+        stop();
+    }
+};
+VSG_type_name(vsg::OperationProcessor)
+
+}
 
 struct ReadOperation : public Operation
 {
@@ -208,6 +288,7 @@ struct ReadOperation : public Operation
     ref_ptr<Latch> latch;
 };
 
+
 PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
 {
     enum ThreadingModel
@@ -221,34 +302,8 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
     //ThreadingModel threadingModel = ThreadPerLoad;
     ThreadingModel threadingModel = ThreadPool;
 
-// start of thread pool setup
-    ref_ptr<OperationQueue> operationQueue;
-    ref_ptr<Active> active;
-    std::vector<std::thread> poolThreads;
-
-    if (threadingModel == ThreadPool)
-    {
-        operationQueue = new OperationQueue;
-        active = new Active;
-
-        operationQueue->_active = active;
-
-        auto run = [operationQueue, active]()
-        {
-            while(*active)
-            {
-                ref_ptr<Operation> operation = operationQueue->take_when_avilable();
-                if (operation) operation->run();
-            }
-        };
-
-        size_t numThreads = 8;
-        for(size_t i=0; i<numThreads; ++i)
-        {
-            poolThreads.emplace_back(std::thread(run));
-        }
-    }
-// end of thread pool setup
+    ref_ptr<OperationProcessor> operationProcessor;
+    if (threadingModel == ThreadPool) operationProcessor = new OperationProcessor(8);
 
     auto before_vsg_load = std::chrono::steady_clock::now();
 
@@ -311,15 +366,13 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
             // add operations
             for(auto& [filename, object] : entries)
             {
-                operationQueue->add(ref_ptr<Operation>(new ReadOperation(filename, options, object, latch)));
+                operationProcessor->add(ref_ptr<Operation>(new ReadOperation(filename, options, object, latch)));
             }
 
             // use this thread to read the files as well
-            while(ref_ptr<Operation> operation = operationQueue->take())
-            {
-                operation->run();
-            }
+            operationProcessor->run();
 
+            // wait till all the read opeartions have completed
             latch->wait();
             break;
         }
@@ -327,20 +380,6 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
 
     auto vsg_loadTime = std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - before_vsg_load).count();
     std::cout<<"After batch load() time =  "<<vsg_loadTime<<std::endl;
-
-// clean up thread pool
-    if (threadingModel == ThreadPool)
-    {
-        std::cout<<"\nWork COMPLETED time to stop threads"<<std::endl;
-
-        active->active = false;
-
-        for(auto& thread : poolThreads)
-        {
-            thread.join();
-        }
-    }
-// end of clean of thread pool
 
     return entries;
 }
