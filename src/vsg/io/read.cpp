@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <thread>
 #include <iostream>
 #include <chrono>
+#include <condition_variable>
 
 using namespace vsg;
 
@@ -73,47 +74,84 @@ protected:
 };
 
 
+struct Latch : public Object
+{
+    Latch(uint32_t num) :
+        count(num) {}
+
+    void count_down()
+    {
+        --count;
+        if (is_ready())
+        {
+            std::unique_lock lock(_mutex);
+            cv.notify_all();
+        }
+    }
+
+    bool is_ready() const
+    {
+        return (count==0);
+    }
+
+    void wait()
+    {
+        // use while loop to return immediate when latch already released
+        // and to handle cases where the condition variable releases spuriously.
+        while (count != 0)
+        {
+            std::unique_lock lock(_mutex);
+            cv.wait(lock);
+        }
+    }
+
+    std::atomic_uint count;
+    std::mutex _mutex;
+    std::condition_variable cv;
+
+protected:
+    virtual ~Latch() {}
+};
+
 struct Operation : public Object
 {
     virtual void run() = 0;
 };
 
-struct ReadOperation : public Operation
-{
-    ReadOperation(const Path& f, ref_ptr<const Options> opt, ref_ptr<Object>& obj, std::atomic_uint& controlVar) :
-        filename(f),
-        options(opt),
-        object(obj),
-        readLeftToComplete(controlVar) {}
-
-    void run() override
-    {
-        object = vsg::read(filename, options);
-        --readLeftToComplete;
-    }
-
-    Path filename;
-    ref_ptr<const Options> options;
-    ref_ptr<Object>& object;
-    std::atomic_uint& readLeftToComplete;
-};
-
-
 
 struct OperationQueue : public Object
 {
     std::mutex _mutex;
+    std::condition_variable _cv;
     std::list<ref_ptr<Operation>> _queue;
+    ref_ptr<Active> _active;
 
     void add(ref_ptr<Operation> operation)
     {
-        std::lock_guard<std::mutex> guard(_mutex);
+        std::unique_lock lock(_mutex);
         _queue.emplace_back(operation);
+        _cv.notify_one();
+    }
+
+    template<typename Iterator>
+    void add(Iterator begin, Iterator end)
+    {
+        size_t numAdditions = 0;
+        std::unique_lock lock(_mutex);
+        for(auto itr = begin; itr != end; ++itr)
+        {
+            _queue.emplace_back(*itr);
+            ++numAdditions;
+        }
+
+        if (numAdditions==1) _cv.notify_one();
+        else if (numAdditions>1) _cv.notify_all();
     }
 
     ref_ptr<Operation> take()
     {
-        std::lock_guard<std::mutex> guard(_mutex);
+        std::unique_lock lock(_mutex);
+
         if (_queue.empty()) return {};
 
         ref_ptr<Operation> operation = _queue.front();
@@ -122,8 +160,53 @@ struct OperationQueue : public Object
 
         return operation;
     }
+
+    ref_ptr<Operation> take_when_avilable()
+    {
+        std::chrono::duration waitDuration = std::chrono::milliseconds(100);
+
+        std::unique_lock lock(_mutex);
+
+        // wait to the conditional variable signals that an operation has been added
+        while (_queue.empty() && *_active)
+        {
+            //std::cout<<"Waiting on condition variable"<<std::endl;
+            _cv.wait_for(lock, waitDuration);
+        }
+
+        // if the threads we are associated with should no longer running go for a quick exit and return nothing.
+        if (!*_active)
+        {
+            return {};
+        }
+
+        // remove and return the head of the queue
+        ref_ptr<Operation> operation = _queue.front();
+        _queue.erase(_queue.begin());
+        return operation;
+    }
 };
 
+
+struct ReadOperation : public Operation
+{
+    ReadOperation(const Path& f, ref_ptr<const Options> opt, ref_ptr<Object>& obj, ref_ptr<Latch> l) :
+        filename(f),
+        options(opt),
+        object(obj),
+        latch(l) {}
+
+    void run() override
+    {
+        object = vsg::read(filename, options);
+        latch->count_down();
+    }
+
+    Path filename;
+    ref_ptr<const Options> options;
+    ref_ptr<Object>& object;
+    ref_ptr<Latch> latch;
+};
 
 PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
 {
@@ -148,17 +231,18 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
         operationQueue = new OperationQueue;
         active = new Active;
 
+        operationQueue->_active = active;
+
         auto run = [operationQueue, active]()
         {
             while(*active)
             {
-                ref_ptr<Operation> operation = operationQueue->take();
+                ref_ptr<Operation> operation = operationQueue->take_when_avilable();
                 if (operation) operation->run();
-                else std::this_thread::yield();
             }
         };
 
-        size_t numThreads = 16;
+        size_t numThreads = 8;
         for(size_t i=0; i<numThreads; ++i)
         {
             poolThreads.emplace_back(std::thread(run));
@@ -215,18 +299,19 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
 
         case(ThreadPool) :
         {
-            std::atomic_uint readLeftToComplete = filenames.size();
-
             // set up the entries container for operations to write to.
             for(auto& filename : filenames)
             {
                 entries[filename] = nullptr;
             }
 
+            // use latch to syncronize this thread with the file reading threads
+            ref_ptr<Latch> latch(new Latch(filenames.size()));
+
             // add operations
             for(auto& [filename, object] : entries)
             {
-                operationQueue->add(ref_ptr<Operation>(new ReadOperation(filename, options, object, readLeftToComplete)));
+                operationQueue->add(ref_ptr<Operation>(new ReadOperation(filename, options, object, latch)));
             }
 
             // use this thread to read the files as well
@@ -235,12 +320,7 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
                 operation->run();
             }
 
-            // spinlock wait for the read operations to complete.
-            while(readLeftToComplete != 0)
-            {
-                std::this_thread::yield();
-            }
-
+            latch->wait();
             break;
         }
     }
@@ -251,6 +331,8 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
 // clean up thread pool
     if (threadingModel == ThreadPool)
     {
+        std::cout<<"\nWork COMPLETED time to stop threads"<<std::endl;
+
         active->active = false;
 
         for(auto& thread : poolThreads)
