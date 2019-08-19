@@ -19,11 +19,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-class VSG_DECLSPEC OperationProcessor : public Inherit<Object, OperationQueue>
+class VSG_DECLSPEC OperationThreads : public Inherit<Object, OperationQueue>
 {
 public:
 
-    OperationProcessor(uint32_t numThreads, ref_ptr<Active> in_active = {});
+    OperationThreads(uint32_t numThreads, ref_ptr<Active> in_active = {});
 
     void add(ref_ptr<Operation> operation)
     {
@@ -37,7 +37,7 @@ public:
     }
 
     /// use this thread to run operations till the queue is empty as well
-    /// this thread will consume and run operations in parallel with any threads associated with this OperationProcessor.
+    /// this thread will consume and run operations in parallel with any threads associated with this OperationThreads.
     void run();
 
     /// stop theads
@@ -49,11 +49,11 @@ public:
     ref_ptr<Active> active;
 
 protected:
-    virtual ~OperationProcessor()
+    virtual ~OperationThreads()
     {
         stop();
     }
 };
-VSG_type_name(vsg::OperationProcessor)
+VSG_type_name(vsg::OperationThreads)
 
 }

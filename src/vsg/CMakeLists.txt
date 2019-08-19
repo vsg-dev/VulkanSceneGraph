@@ -56,8 +56,8 @@ set(SOURCES
     traversals/CompileTraversal.cpp
     traversals/ComputeBounds.cpp
 
-    threading/OperationProcessor.cpp
     threading/OperationQueue.cpp
+    threading/OperationThreads.cpp
 
     viewer/Camera.cpp
     viewer/GraphicsStage.cpp

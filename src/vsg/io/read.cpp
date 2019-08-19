@@ -14,7 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/ReaderWriter_vsg.h>
 #include <vsg/io/read.h>
 
-#include <vsg/threading/OperationProcessor.h>
+#include <vsg/threading/OperationThreads.h>
 
 #include <thread>
 #include <iostream>
@@ -88,14 +88,14 @@ struct ReadOperation : public Operation
 
 PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
 {
-    ref_ptr<OperationProcessor> operationProcessor;
-    if (options) operationProcessor = options->operationProcessor;
+    ref_ptr<OperationThreads> operationThreads;
+    if (options) operationThreads = options->operationThreads;
 
     auto before_vsg_load = std::chrono::steady_clock::now();
 
     PathObjects entries;
 
-    if (operationProcessor && filenames.size()>1)
+    if (operationThreads && filenames.size()>1)
     {
         // set up the entries container for operations to write to.
         for(auto& filename : filenames)
@@ -109,11 +109,11 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
         // add operations
         for(auto& [filename, object] : entries)
         {
-            operationProcessor->add(ref_ptr<Operation>(new ReadOperation(filename, options, object, latch)));
+            operationThreads->add(ref_ptr<Operation>(new ReadOperation(filename, options, object, latch)));
         }
 
         // use this thread to read the files as well
-        operationProcessor->run();
+        operationThreads->run();
 
         // wait till all the read opeartions have completed
         latch->wait();
