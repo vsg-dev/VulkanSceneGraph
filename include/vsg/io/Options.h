@@ -22,6 +22,7 @@ namespace vsg
     //class FileCache;
     class ObjectCache;
     class ReaderWriter;
+    class OperationProcessor;
 
     class Options : public Inherit<Object, Options>
     {
@@ -33,6 +34,8 @@ namespace vsg
         //ref_ptr<FileCache> fileCache;
         ref_ptr<ObjectCache> objectCache;
         ref_ptr<ReaderWriter> readerWriter;
+
+        ref_ptr<OperationProcessor> operationProcessor;
 
         Paths paths;
 

@@ -88,90 +88,49 @@ struct ReadOperation : public Operation
 
 PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
 {
-    enum ThreadingModel
-    {
-        SingleThreaded,
-        ThreadPerLoad,
-        ThreadPool
-    };
-
-    //ThreadingModel threadingModel = SingleThreaded;
-    //ThreadingModel threadingModel = ThreadPerLoad;
-    ThreadingModel threadingModel = ThreadPool;
-
     ref_ptr<OperationProcessor> operationProcessor;
-    if (threadingModel == ThreadPool) operationProcessor = new OperationProcessor(8);
+    if (options) operationProcessor = options->operationProcessor;
 
     auto before_vsg_load = std::chrono::steady_clock::now();
 
     PathObjects entries;
 
-    switch(threadingModel)
+    if (operationProcessor && filenames.size()>1)
     {
-        case(SingleThreaded) :
+        // set up the entries container for operations to write to.
+        for(auto& filename : filenames)
         {
-            for(auto& filename : filenames)
-            {
-                if (!filename.empty())
-                {
-                    entries[filename] = vsg::read(filename, options);
-                }
-                else
-                {
-                    entries[filename] = nullptr;
-                }
-            }
-            break;
+            entries[filename] = nullptr;
         }
 
-        case(ThreadPerLoad) :
-        {
-            auto readFile = [](const Path& filename, ref_ptr<const Options> opt, ref_ptr<Object>& object)
-            {
-                object = vsg::read(filename, opt);
-            };
+        // use latch to syncronize this thread with the file reading threads
+        ref_ptr<Latch> latch(new Latch(filenames.size()));
 
-            for(auto& filename : filenames)
+        // add operations
+        for(auto& [filename, object] : entries)
+        {
+            operationProcessor->add(ref_ptr<Operation>(new ReadOperation(filename, options, object, latch)));
+        }
+
+        // use this thread to read the files as well
+        operationProcessor->run();
+
+        // wait till all the read opeartions have completed
+        latch->wait();
+    }
+    else
+    {
+        // run reads single threaded
+        for(auto& filename : filenames)
+        {
+            if (!filename.empty())
+            {
+                entries[filename] = vsg::read(filename, options);
+            }
+            else
             {
                 entries[filename] = nullptr;
             }
-
-            std::vector<std::thread> threads;
-            for(auto& [filename, object] : entries)
-            {
-                threads.emplace_back(std::thread(readFile, std::ref(filename), options, std::ref(object)));
-            }
-
-            for(auto& thread : threads)
-            {
-                thread.join();
-            }
-            break;
-        }
-
-        case(ThreadPool) :
-        {
-            // set up the entries container for operations to write to.
-            for(auto& filename : filenames)
-            {
-                entries[filename] = nullptr;
-            }
-
-            // use latch to syncronize this thread with the file reading threads
-            ref_ptr<Latch> latch(new Latch(filenames.size()));
-
-            // add operations
-            for(auto& [filename, object] : entries)
-            {
-                operationProcessor->add(ref_ptr<Operation>(new ReadOperation(filename, options, object, latch)));
-            }
-
-            // use this thread to read the files as well
-            operationProcessor->run();
-
-            // wait till all the read opeartions have completed
-            latch->wait();
-            break;
         }
     }
 

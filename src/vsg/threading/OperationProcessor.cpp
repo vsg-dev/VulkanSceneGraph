@@ -14,6 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+#include <iostream>
+
 OperationProcessor::OperationProcessor(uint32_t numThreads, ref_ptr<Active> in_active) :
     active(in_active)
 {
@@ -25,7 +27,10 @@ OperationProcessor::OperationProcessor(uint32_t numThreads, ref_ptr<Active> in_a
         while(*(a))
         {
             ref_ptr<Operation> operation = q->take_when_avilable();
-            if (operation) operation->run();
+            if (operation)
+            {
+                operation->run();
+            }
         }
     };
 
