@@ -121,4 +121,3 @@ uint32_t DescriptorImage::getNumDescriptors() const
 {
     return static_cast<uint32_t>(std::max(_imageDataList.size(), _samplerImages.size()));
 }
-

@@ -26,47 +26,20 @@ namespace vsg
     class Descriptor : public Inherit<Object, Descriptor>
     {
     public:
-        Descriptor(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
-            _dstBinding(dstBinding),
-            _dstArrayElement(dstArrayElement),
-            _descriptorType(descriptorType)
-        {
-        }
+        Descriptor(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType);
 
         uint32_t _dstBinding;
         uint32_t _dstArrayElement;
         VkDescriptorType _descriptorType;
 
-        void read(Input& input) override
-        {
-            Object::read(input);
+        void read(Input& input) override;
 
-            input.read("DstBinding", _dstBinding);
-            input.read("DstArrayElement", _dstArrayElement);
-        }
-
-        void write(Output& output) const override
-        {
-            Object::write(output);
-
-            output.write("DstBinding", _dstBinding);
-            output.write("DstArrayElement", _dstArrayElement);
-        }
+        void write(Output& output) const override;
 
         // compile the Vulkan object, context parameter used for Device
         virtual void compile(Context& /*context*/) {}
 
-        virtual bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
-        {
-            wds = {};
-            wds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            wds.dstSet = descriptorSet;
-            wds.dstBinding = _dstBinding;
-            wds.dstArrayElement = _dstArrayElement;
-            wds.descriptorType = _descriptorType;
-
-            return false;
-        }
+        virtual bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const;
 
         virtual uint32_t getNumDescriptors() const { return 1; }
     };

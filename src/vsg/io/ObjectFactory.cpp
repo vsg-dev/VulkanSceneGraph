@@ -36,9 +36,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorBuffer.h>
 #include <vsg/vk/DescriptorImage.h>
-#include <vsg/vk/DescriptorTexelBufferView.h>
 #include <vsg/vk/DescriptorSet.h>
 #include <vsg/vk/DescriptorSetLayout.h>
+#include <vsg/vk/DescriptorTexelBufferView.h>
 #include <vsg/vk/Draw.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/PipelineLayout.h>

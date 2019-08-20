@@ -19,3 +19,38 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+
+Descriptor::Descriptor(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
+    _dstBinding(dstBinding),
+    _dstArrayElement(dstArrayElement),
+    _descriptorType(descriptorType)
+{
+}
+
+void Descriptor::read(Input& input)
+{
+    Object::read(input);
+
+    input.read("DstBinding", _dstBinding);
+    input.read("DstArrayElement", _dstArrayElement);
+}
+
+void Descriptor::write(Output& output) const
+{
+    Object::write(output);
+
+    output.write("DstBinding", _dstBinding);
+    output.write("DstArrayElement", _dstArrayElement);
+}
+
+bool Descriptor::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+{
+    wds = {};
+    wds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    wds.dstSet = descriptorSet;
+    wds.dstBinding = _dstBinding;
+    wds.dstArrayElement = _dstArrayElement;
+    wds.descriptorType = _descriptorType;
+
+    return false;
+}

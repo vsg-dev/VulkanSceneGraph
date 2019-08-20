@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/ImageData.h>
 #include <vsg/vk/Descriptor.h>
+#include <vsg/vk/ImageData.h>
 
 namespace vsg
 {
