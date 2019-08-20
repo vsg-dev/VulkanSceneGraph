@@ -64,28 +64,6 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
     return object;
 }
 
-
-struct ReadOperation : public Operation
-{
-    ReadOperation(const Path& f, ref_ptr<const Options> opt, ref_ptr<Object>& obj, ref_ptr<Latch> l) :
-        filename(f),
-        options(opt),
-        object(obj),
-        latch(l) {}
-
-    void run() override
-    {
-        object = vsg::read(filename, options);
-        latch->count_down();
-    }
-
-    Path filename;
-    ref_ptr<const Options> options;
-    ref_ptr<Object>& object;
-    ref_ptr<Latch> latch;
-};
-
-
 PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
 {
     ref_ptr<OperationThreads> operationThreads;
@@ -102,6 +80,26 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
         {
             entries[filename] = nullptr;
         }
+
+        struct ReadOperation : public Operation
+        {
+            ReadOperation(const Path& f, ref_ptr<const Options> opt, ref_ptr<Object>& obj, ref_ptr<Latch> l) :
+                filename(f),
+                options(opt),
+                object(obj),
+                latch(l) {}
+
+            void run() override
+            {
+                object = vsg::read(filename, options);
+                latch->count_down();
+            }
+
+            Path filename;
+            ref_ptr<const Options> options;
+            ref_ptr<Object>& object;
+            ref_ptr<Latch> latch;
+        };
 
         // use latch to syncronize this thread with the file reading threads
         ref_ptr<Latch> latch(new Latch(filenames.size()));
