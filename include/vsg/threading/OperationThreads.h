@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,26 +12,48 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/ObjectCache.h>
-#include <vsg/io/Options.h>
-#include <vsg/io/ReaderWriter.h>
-#include <vsg/threading/OperationThreads.h>
+#include <vsg/threading/OperationQueue.h>
 
-using namespace vsg;
+#include <thread>
 
-Options::Options()
+namespace vsg
 {
-}
 
-Options::Options(const Options& options) :
-    Inherit(),
-    //    fileCache(options.fileCache),
-    objectCache(options.objectCache),
-    readerWriter(options.readerWriter),
-    operationThreads(options.operationThreads)
+class VSG_DECLSPEC OperationThreads : public Inherit<Object, OperationQueue>
 {
-}
+public:
 
-Options::~Options()
-{
+    OperationThreads(uint32_t numThreads, ref_ptr<Active> in_active = {});
+
+    void add(ref_ptr<Operation> operation)
+    {
+        queue->add(operation);
+    }
+
+    template<typename Iterator>
+    void add(Iterator begin, Iterator end)
+    {
+        queue->add(begin, end);
+    }
+
+    /// use this thread to run operations till the queue is empty as well
+    /// this thread will consume and run operations in parallel with any threads associated with this OperationThreads.
+    void run();
+
+    /// stop theads
+    void stop();
+
+    using Threads = std::list<std::thread>;
+    Threads threads;
+    ref_ptr<OperationQueue> queue;
+    ref_ptr<Active> active;
+
+protected:
+    virtual ~OperationThreads()
+    {
+        stop();
+    }
+};
+VSG_type_name(vsg::OperationThreads)
+
 }

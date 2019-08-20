@@ -24,36 +24,39 @@ namespace vsg
     class VSG_DECLSPEC External : public Inherit<Object, External>
     {
     public:
-        External();
-        External(const std::string& filename, ref_ptr<Object> object);
-        External(Allocator* allocator);
 
-        template<class N, class V>
-        static void t_traverse(N& node, V& visitor)
+        External();
+        explicit External(Allocator* allocator);
+        explicit External(const PathObjects& entries);
+        External(const std::string& filename, ref_ptr<Object> object);
+
+        template<class O, class V>
+        static void t_traverse(O& object, V& visitor)
         {
-            if (node._object) node._object->accept(visitor);
+            for(auto itr = object._entries.begin(); itr != object._entries.end(); ++itr)
+            {
+                if (itr->second) itr->second->accept(visitor);
+            }
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
-        void traverse(DispatchTraversal& visitor) const override { t_traverse(*this, visitor); }
-        void traverse(CullTraversal& visitor) const override { t_traverse(*this, visitor); }
+        void traverse(DispatchTraversal&) const override { /* Nothing to do.*/ }
+        void traverse(CullTraversal&) const override { /* Nothing to do.*/ }
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void setFilename(const Path& filename) { _filename = filename; }
-        const Path& getFilename() const { return _filename; }
+        void add(const Path& filename, ref_ptr<Object> object = {}) { _entries[filename] = object; }
 
-        void setObject(ref_ptr<Object> object) { _object = object; }
-        Object* getObject() { return _object; }
-        const Object* getObject() const { return _object; }
+        void setEntries(const PathObjects& entries) { _entries = entries; }
+        PathObjects& getEntries() { return _entries; }
+        const PathObjects& getEntries() const { return _entries; }
 
     protected:
         virtual ~External();
 
-        Path _filename;
-        ref_ptr<Object> _object;
+        PathObjects _entries;
     };
 
 } // namespace vsg

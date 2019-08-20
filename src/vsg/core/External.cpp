@@ -15,6 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
+#include <vsg/io/read.h>
+#include <vsg/io/write.h>
 
 #include <unordered_map>
 
@@ -54,9 +56,13 @@ External::External(Allocator* allocator) :
 {
 }
 
+External::External(const PathObjects& entries) :
+    _entries(entries)
+{
+}
+
 External::External(const std::string& filename, ref_ptr<Object> object) :
-    _filename(filename),
-    _object(object)
+    _entries{{filename, object}}
 {
 }
 
@@ -66,33 +72,40 @@ External::~External()
 
 void External::read(Input& input)
 {
+    _entries.clear();
+
     Object::read(input);
 
     uint32_t idBegin = 0, idEnd = 0;
     input.read("ObjectIDRange", idBegin, idEnd);
-    input.read("Filename", _filename);
 
-    if (!_filename.empty())
+    uint32_t count = input.readValue<uint32_t>("NumEntries");
+
+    Paths filenames(count);
+    for(auto& filename : filenames)
     {
-        _object = input.readFile(_filename);
+        input.read("Filename", filename);
+    }
 
-        if (_object)
+    _entries = vsg::read(filenames, input.options);
+
+    // collect the ids from the files
+    CollectIDs collectIDs;
+    collectIDs._objectID = idBegin;
+    for(auto itr = _entries.begin(); itr != _entries.end(); ++itr)
+    {
+        if (itr->second) itr->second->accept(collectIDs);
+    }
+
+    for (auto [object, objectID] : collectIDs._objectIDMap)
+    {
+        if ((idBegin <= objectID) && (objectID < idEnd))
         {
-            CollectIDs collectIDs;
-            collectIDs._objectID = idBegin;
-            _object->accept(collectIDs);
-
-            for (auto [object, objectID] : collectIDs._objectIDMap)
-            {
-                if ((idBegin <= objectID) && (objectID < idEnd))
-                {
-                    input.getObjectIDMap()[objectID] = const_cast<Object*>(object);
-                }
-                else
-                {
-                    std::cout << "External::read() : warning object out of ObjectIDRange " << objectID << ", " << object << std::endl;
-                }
-            }
+            input.objectIDMap[objectID] = const_cast<Object*>(object);
+        }
+        else
+        {
+            std::cout << "External::read() : warning object out of ObjectIDRange " << objectID << ", " << object << std::endl;
         }
     }
 }
@@ -101,27 +114,36 @@ void External::write(Output& output) const
 {
     Object::write(output);
 
-    uint32_t idBegin = output.getObjectID();
-    uint32_t idEnd = idBegin;
-
-    // if we should write out object then need to invoke ReaderWriter for it.
-    if (!_filename.empty() && _object)
+    CollectIDs collectIDs;
+    uint32_t idBegin = collectIDs._objectID = output.objectID;
+    for(auto& [filename, externalObject] : _entries)
     {
-        output.write(_object, _filename);
-
-        CollectIDs collectIDs;
-        collectIDs._objectID = idBegin;
-        _object->accept(collectIDs);
-
-        for (auto [object, objectID] : collectIDs._objectIDMap)
-        {
-            output.getObjectIDMap()[object] = objectID;
-        }
-
-        output.setObjectID(collectIDs._objectID);
+        if (!filename.empty() && externalObject) externalObject->accept(collectIDs);
     }
-    idEnd = output.getObjectID();
+    uint32_t idEnd = collectIDs._objectID;
+    output.objectID = idEnd;
+
+    // pass the object id's onto the output's objectIDMap
+    for(auto& [object, objectID] : collectIDs._objectIDMap)
+    {
+        output.objectIDMap[object] = objectID;
+    }
 
     output.write("ObjectIDRange", idBegin, idEnd);
-    output.write("Filename", _filename);
+    output.writeValue<uint32_t>("NumEntries", _entries.size());
+
+    for(auto itr =  _entries.begin(); itr !=  _entries.end(); ++itr)
+    {
+        output.write("Filename", itr->first);
+    }
+
+    // write out files.
+    for(auto& [filename, externalObject] : _entries)
+    {
+        // if we should write out object then need to invoke ReaderWriter for it.
+        if (!filename.empty() && externalObject)
+        {
+            vsg::write(externalObject, filename, output.options);
+        }
+    }
 }

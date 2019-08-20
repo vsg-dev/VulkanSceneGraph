@@ -48,11 +48,16 @@ set(SOURCES
     io/ObjectFactory.cpp
     io/ReaderWriter.cpp
     io/ReaderWriter_vsg.cpp
+    io/read.cpp
+    io/write.cpp
 
     traversals/DispatchTraversal.cpp
     traversals/CullTraversal.cpp
     traversals/CompileTraversal.cpp
     traversals/ComputeBounds.cpp
+
+    threading/OperationQueue.cpp
+    threading/OperationThreads.cpp
 
     viewer/Camera.cpp
     viewer/GraphicsStage.cpp
@@ -100,8 +105,12 @@ set(SOURCES
 )
 
 # add platform specific Window implementation
+
 # set up library dependencies
-set(LIBRARIES PUBLIC Vulkan::Vulkan)
+set(LIBRARIES PUBLIC
+    Vulkan::Vulkan
+    Threads::Threads
+)
 
 if (ANDROID)
     set(HEADERS ${HEADERS} ${CMAKE_SOURCE_DIR}/include/vsg/platform/android/Android_Window.h)

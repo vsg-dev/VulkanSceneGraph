@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,26 +12,25 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/ObjectCache.h>
+#include <vsg/core/Inherit.h>
+#include <vsg/io/FileSystem.h>
 #include <vsg/io/Options.h>
-#include <vsg/io/ReaderWriter.h>
-#include <vsg/threading/OperationThreads.h>
 
-using namespace vsg;
-
-Options::Options()
+namespace vsg
 {
-}
 
-Options::Options(const Options& options) :
-    Inherit(),
-    //    fileCache(options.fileCache),
-    objectCache(options.objectCache),
-    readerWriter(options.readerWriter),
-    operationThreads(options.operationThreads)
-{
-}
+    /** convience method for reading objects from file.*/
+    extern VSG_DECLSPEC ref_ptr<Object> read(const Path& filename, ref_ptr<const Options> options = {});
 
-Options::~Options()
-{
-}
+    /** convience method for reading objects from files.*/
+    extern VSG_DECLSPEC PathObjects read(const Paths& filenames, ref_ptr<const Options> options = {});
+
+    /** convience method for reading file with cast to specificed type.*/
+    template<class T>
+    ref_ptr<T> read_cast(const Path& filename, ref_ptr<const Options> options = {})
+    {
+        auto object = read(filename, options);
+        return vsg::ref_ptr<T>(dynamic_cast<T*>(object.get()));
+    }
+
+} // namespace vsg

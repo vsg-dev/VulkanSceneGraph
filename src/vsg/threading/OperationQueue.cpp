@@ -10,26 +10,49 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/ObjectCache.h>
-#include <vsg/io/Options.h>
-#include <vsg/io/ReaderWriter.h>
-#include <vsg/threading/OperationThreads.h>
+#include <vsg/threading/OperationQueue.h>
 
 using namespace vsg;
 
-Options::Options()
+OperationQueue::OperationQueue(ref_ptr<Active> in_active) :
+    _active(in_active)
 {
 }
 
-Options::Options(const Options& options) :
-    Inherit(),
-    //    fileCache(options.fileCache),
-    objectCache(options.objectCache),
-    readerWriter(options.readerWriter),
-    operationThreads(options.operationThreads)
+ref_ptr<Operation> OperationQueue::take()
 {
+    std::unique_lock lock(_mutex);
+
+    if (_queue.empty()) return {};
+
+    ref_ptr<Operation> operation = _queue.front();
+
+    _queue.erase(_queue.begin());
+
+    return operation;
 }
 
-Options::~Options()
+ref_ptr<Operation> OperationQueue::take_when_avilable()
 {
+    std::chrono::duration waitDuration = std::chrono::milliseconds(100);
+
+    std::unique_lock lock(_mutex);
+
+    // wait to the conditional variable signals that an operation has been added
+    while (_queue.empty() && *_active)
+    {
+        //std::cout<<"Waiting on condition variable"<<std::endl;
+        _cv.wait_for(lock, waitDuration);
+    }
+
+    // if the threads we are associated with should no longer running go for a quick exit and return nothing.
+    if (!*_active)
+    {
+        return {};
+    }
+
+    // remove and return the head of the queue
+    ref_ptr<Operation> operation = _queue.front();
+    _queue.erase(_queue.begin());
+    return operation;
 }

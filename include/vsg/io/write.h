@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,26 +12,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/ObjectCache.h>
+#include <vsg/core/Inherit.h>
+#include <vsg/io/FileSystem.h>
 #include <vsg/io/Options.h>
-#include <vsg/io/ReaderWriter.h>
-#include <vsg/threading/OperationThreads.h>
 
-using namespace vsg;
-
-Options::Options()
+namespace vsg
 {
-}
 
-Options::Options(const Options& options) :
-    Inherit(),
-    //    fileCache(options.fileCache),
-    objectCache(options.objectCache),
-    readerWriter(options.readerWriter),
-    operationThreads(options.operationThreads)
-{
-}
+    /** convience method for writing objects to file.*/
+    extern VSG_DECLSPEC bool write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options = {});
 
-Options::~Options()
-{
-}
+} // namespace vsg

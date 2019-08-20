@@ -10,26 +10,48 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/ObjectCache.h>
-#include <vsg/io/Options.h>
-#include <vsg/io/ReaderWriter.h>
 #include <vsg/threading/OperationThreads.h>
 
 using namespace vsg;
 
-Options::Options()
+OperationThreads::OperationThreads(uint32_t numThreads, ref_ptr<Active> in_active) :
+    active(in_active)
 {
+    if (!active) active  = new Active;
+    queue = new OperationQueue(active);
+
+    auto run = [](ref_ptr<OperationQueue> q, ref_ptr<Active> a)
+    {
+        while(*(a))
+        {
+            ref_ptr<Operation> operation = q->take_when_avilable();
+            if (operation)
+            {
+                operation->run();
+            }
+        }
+    };
+
+    for(size_t i=0; i<numThreads; ++i)
+    {
+        threads.emplace_back(std::thread(run, std::ref(queue), std::ref(active)));
+    }
 }
 
-Options::Options(const Options& options) :
-    Inherit(),
-    //    fileCache(options.fileCache),
-    objectCache(options.objectCache),
-    readerWriter(options.readerWriter),
-    operationThreads(options.operationThreads)
+void OperationThreads::run()
 {
+    while(ref_ptr<Operation> operation = queue->take())
+    {
+        operation->run();
+    }
 }
 
-Options::~Options()
+void OperationThreads::stop()
 {
+    active->active = false;
+    for(auto& thread : threads)
+    {
+        thread.join();
+    }
+    threads.clear();
 }

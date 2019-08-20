@@ -64,6 +64,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/CullTraversal.h>
 #include <vsg/traversals/DispatchTraversal.h>
 
+// Threading header files
+#include <vsg/threading/OperationQueue.h>
+#include <vsg/threading/OperationThreads.h>
+
 // User Interface abstraction header files
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/KeyEvent.h>
@@ -137,7 +141,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Output.h>
 #include <vsg/io/ReaderWriter.h>
 #include <vsg/io/ReaderWriter_vsg.h>
+#include <vsg/io/read.h>
 #include <vsg/io/stream.h>
+#include <vsg/io/write.h>
 
 // Utility header files
 #include <vsg/utils/CommandLine.h>

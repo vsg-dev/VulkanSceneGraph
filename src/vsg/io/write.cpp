@@ -11,25 +11,40 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/ObjectCache.h>
-#include <vsg/io/Options.h>
-#include <vsg/io/ReaderWriter.h>
-#include <vsg/threading/OperationThreads.h>
+#include <vsg/io/ReaderWriter_vsg.h>
+#include <vsg/io/write.h>
 
 using namespace vsg;
 
-Options::Options()
+bool vsg::write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options)
 {
-}
+    bool fileWritten = false;
+    if (options)
+    {
+        // don't write the file if it's already contained in the ObjectCache
+        if (options->objectCache && options->objectCache->contains(filename, options)) return true;
 
-Options::Options(const Options& options) :
-    Inherit(),
-    //    fileCache(options.fileCache),
-    objectCache(options.objectCache),
-    readerWriter(options.readerWriter),
-    operationThreads(options.operationThreads)
-{
-}
+        if (options->readerWriter)
+        {
+            fileWritten = options->readerWriter->write(object, filename, options);
+        }
+    }
 
-Options::~Options()
-{
+    if (!fileWritten)
+    {
+        // fallback to using native ReaderWriter_vsg if extension is compatible
+        auto ext = vsg::fileExtension(filename);
+        if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
+        {
+            ReaderWriter_vsg rw;
+            fileWritten = rw.write(object, filename, options);
+        }
+    }
+
+    if (fileWritten && options && options->objectCache)
+    {
+        options->objectCache->add(object, filename, options);
+    }
+
+    return fileWritten;
 }
