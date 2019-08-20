@@ -12,10 +12,30 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/Descriptor.h>
+#include <vsg/vk/DescriptorTexelBufferView.h>
 
 #include <algorithm>
 #include <iostream>
 
 using namespace vsg;
 
+DescriptorTexelBufferView::DescriptorTexelBufferView(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferViewList& texelBufferViews) :
+    Inherit(dstBinding, dstArrayElement, descriptorType),
+    _texelBufferViewList(texelBufferViews)
+{
+    _texelBufferViews.resize(_texelBufferViewList.size());
+    for (size_t i = 0; i < _texelBufferViewList.size(); ++i)
+    {
+        _texelBufferViews[i] = *(_texelBufferViewList[i]);
+    }
+}
+
+bool DescriptorTexelBufferView::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+{
+    std::vector<VkBufferView> texelBufferViews(_texelBufferViewList.size());
+
+    Descriptor::assignTo(wds, descriptorSet);
+    wds.descriptorCount = static_cast<uint32_t>(_texelBufferViews.size());
+    wds.pTexelBufferView = _texelBufferViews.data();
+    return true;
+}

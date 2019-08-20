@@ -77,6 +77,9 @@ set(SOURCES
     vk/ComputePipeline.cpp
     vk/Context.cpp
     vk/Descriptor.cpp
+    vk/DescriptorBuffer.cpp
+    vk/DescriptorImage.cpp
+    vk/DescriptorTexelBufferView.cpp
     vk/DescriptorPool.cpp
     vk/DescriptorSet.cpp
     vk/DescriptorSetLayout.cpp
