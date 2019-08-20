@@ -91,7 +91,17 @@ namespace vsg
 
         // treat non standard type as raw data,
         template<typename T>
-        void read(size_t num, T* value) { read(num * sizeof(T), reinterpret_cast<uint8_t*>(value)); }
+        void read(size_t num, T* value)
+        {
+            if constexpr (has_read_write<T>())
+            {
+                for(size_t i=0; i<num; ++i) value[i].read(*this);
+            }
+            else
+            {
+                read(num * sizeof(T), reinterpret_cast<uint8_t*>(value));
+            }
+        }
 
         // match property name and read value(s)
         template<typename... Args>

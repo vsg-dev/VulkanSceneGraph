@@ -34,6 +34,36 @@ namespace vsg
     };
     VSG_type_name(vsg::DescriptorTexelBufferView)
 
+    struct material
+    {
+        vec4 ambientColor;
+        vec4 diffuseColor;
+        vec4 specularColor;
+        float shine;
+
+        void read(vsg::Input& input)
+        {
+            ambientColor = input.readValue<vsg::vec4>("ambientColor");
+            diffuseColor = input.readValue<vsg::vec4>("diffuseColor");
+            specularColor = input.readValue<vsg::vec4>("specularColor");
+            shine = input.readValue<float>("shine");
+        }
+
+        void write(vsg::Output& output) const
+        {
+            output.writeValue<vsg::vec4>("ambientColor", ambientColor);
+            output.writeValue<vsg::vec4>("diffuseColor", diffuseColor);
+            output.writeValue<vsg::vec4>("specularColor", specularColor);
+            output.writeValue<float>("shine", shine);
+        }
+    };
+
+    template <>
+    constexpr bool has_read_write<material>() { return true; }
+
+    VSG_value(materialValue, material);
+    VSG_array(materialArray, material);
+
     struct Material
     {
         vec4 ambientColor;

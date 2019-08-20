@@ -86,7 +86,17 @@ namespace vsg
         void write(size_t num, const dplane* value) { write(num * value->size(), value->data()); }
 
         template<typename T>
-        void write(size_t num, const T* value) { write(num * sizeof(T), reinterpret_cast<const uint8_t*>(value)); }
+        void write(size_t num, const T* value)
+        {
+            if constexpr (has_read_write<T>())
+            {
+                for(size_t i=0; i<num; ++i) value[i].write(*this);
+            }
+            else
+            {
+                write(num * sizeof(T), reinterpret_cast<const uint8_t*>(value));
+            }
+        }
 
         // match propertyname and write value(s)
         template<typename... Args>
