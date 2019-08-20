@@ -12,7 +12,7 @@ We need to flesh out the following high level project infrastructure:
 - [x] Website(s) - what requires dedicated websites, vs embedded in git-hub repositories.
 	- [x] Initial approach to see how rich the experience can be with just README.md etc.
 - [x] Developer/Community discussion forum(s)
-	- [x] Create googlegroup [Vulkan/VkSceneGraph Developer Discussion Group](https://groups.google.com/forum/#!forum/vsg-users)
+	- [x] Create googlegroup [VulkanSceneGraph Developer Discussion Group](https://groups.google.com/forum/#!forum/vsg-users)
 - [ ] 3rd party tools used in development and testing
 	- [x] Static code analysis (cppcheck added 19.10.18)
     - [ ] Dynamic analysis such as LLVM sanitizers and valgrind
