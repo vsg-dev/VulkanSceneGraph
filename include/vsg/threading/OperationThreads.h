@@ -19,41 +19,40 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-class VSG_DECLSPEC OperationThreads : public Inherit<Object, OperationQueue>
-{
-public:
-
-    OperationThreads(uint32_t numThreads, ref_ptr<Active> in_active = {});
-
-    void add(ref_ptr<Operation> operation)
+    class VSG_DECLSPEC OperationThreads : public Inherit<Object, OperationQueue>
     {
-        queue->add(operation);
-    }
+    public:
+        OperationThreads(uint32_t numThreads, ref_ptr<Active> in_active = {});
 
-    template<typename Iterator>
-    void add(Iterator begin, Iterator end)
-    {
-        queue->add(begin, end);
-    }
+        void add(ref_ptr<Operation> operation)
+        {
+            queue->add(operation);
+        }
 
-    /// use this thread to run operations till the queue is empty as well
-    /// this thread will consume and run operations in parallel with any threads associated with this OperationThreads.
-    void run();
+        template<typename Iterator>
+        void add(Iterator begin, Iterator end)
+        {
+            queue->add(begin, end);
+        }
 
-    /// stop theads
-    void stop();
+        /// use this thread to run operations till the queue is empty as well
+        /// this thread will consume and run operations in parallel with any threads associated with this OperationThreads.
+        void run();
 
-    using Threads = std::list<std::thread>;
-    Threads threads;
-    ref_ptr<OperationQueue> queue;
-    ref_ptr<Active> active;
+        /// stop theads
+        void stop();
 
-protected:
-    virtual ~OperationThreads()
-    {
-        stop();
-    }
-};
-VSG_type_name(vsg::OperationThreads)
+        using Threads = std::list<std::thread>;
+        Threads threads;
+        ref_ptr<OperationQueue> queue;
+        ref_ptr<Active> active;
 
-}
+    protected:
+        virtual ~OperationThreads()
+        {
+            stop();
+        }
+    };
+    VSG_type_name(vsg::OperationThreads)
+
+} // namespace vsg

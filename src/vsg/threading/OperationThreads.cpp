@@ -17,12 +17,11 @@ using namespace vsg;
 OperationThreads::OperationThreads(uint32_t numThreads, ref_ptr<Active> in_active) :
     active(in_active)
 {
-    if (!active) active  = new Active;
+    if (!active) active = new Active;
     queue = new OperationQueue(active);
 
-    auto run = [](ref_ptr<OperationQueue> q, ref_ptr<Active> a)
-    {
-        while(*(a))
+    auto run = [](ref_ptr<OperationQueue> q, ref_ptr<Active> a) {
+        while (*(a))
         {
             ref_ptr<Operation> operation = q->take_when_avilable();
             if (operation)
@@ -32,7 +31,7 @@ OperationThreads::OperationThreads(uint32_t numThreads, ref_ptr<Active> in_activ
         }
     };
 
-    for(size_t i=0; i<numThreads; ++i)
+    for (size_t i = 0; i < numThreads; ++i)
     {
         threads.emplace_back(std::thread(run, std::ref(queue), std::ref(active)));
     }
@@ -40,7 +39,7 @@ OperationThreads::OperationThreads(uint32_t numThreads, ref_ptr<Active> in_activ
 
 void OperationThreads::run()
 {
-    while(ref_ptr<Operation> operation = queue->take())
+    while (ref_ptr<Operation> operation = queue->take())
     {
         operation->run();
     }
@@ -49,7 +48,7 @@ void OperationThreads::run()
 void OperationThreads::stop()
 {
     active->active = false;
-    for(auto& thread : threads)
+    for (auto& thread : threads)
     {
         thread.join();
     }

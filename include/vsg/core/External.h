@@ -24,7 +24,6 @@ namespace vsg
     class VSG_DECLSPEC External : public Inherit<Object, External>
     {
     public:
-
         External();
         explicit External(Allocator* allocator);
         explicit External(const PathObjects& entries);
@@ -33,7 +32,7 @@ namespace vsg
         template<class O, class V>
         static void t_traverse(O& object, V& visitor)
         {
-            for(auto itr = object._entries.begin(); itr != object._entries.end(); ++itr)
+            for (auto itr = object._entries.begin(); itr != object._entries.end(); ++itr)
             {
                 if (itr->second) itr->second->accept(visitor);
             }
@@ -41,8 +40,8 @@ namespace vsg
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
-        void traverse(DispatchTraversal&) const override { /* Nothing to do.*/ }
-        void traverse(CullTraversal&) const override { /* Nothing to do.*/ }
+        void traverse(DispatchTraversal&) const override {}
+        void traverse(CullTraversal&) const override {}
 
         void read(Input& input) override;
         void write(Output& output) const override;

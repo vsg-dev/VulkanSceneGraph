@@ -148,7 +148,6 @@ namespace vsg
 
     protected:
         virtual ~Input();
-
     };
 
 } // namespace vsg

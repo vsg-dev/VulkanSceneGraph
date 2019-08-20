@@ -16,10 +16,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/threading/OperationThreads.h>
 
-#include <thread>
-#include <iostream>
 #include <chrono>
 #include <condition_variable>
+#include <iostream>
+#include <thread>
 #include <typeinfo>
 
 using namespace vsg;
@@ -73,10 +73,10 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
 
     PathObjects entries;
 
-    if (operationThreads && filenames.size()>1)
+    if (operationThreads && filenames.size() > 1)
     {
         // set up the entries container for operations to write to.
-        for(auto& filename : filenames)
+        for (auto& filename : filenames)
         {
             entries[filename] = nullptr;
         }
@@ -105,7 +105,7 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
         ref_ptr<Latch> latch(new Latch(filenames.size()));
 
         // add operations
-        for(auto& [filename, object] : entries)
+        for (auto& [filename, object] : entries)
         {
             operationThreads->add(ref_ptr<Operation>(new ReadOperation(filename, options, object, latch)));
         }
@@ -119,7 +119,7 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
     else
     {
         // run reads single threaded
-        for(auto& filename : filenames)
+        for (auto& filename : filenames)
         {
             if (!filename.empty())
             {
@@ -133,7 +133,7 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
     }
 
     auto vsg_loadTime = std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - before_vsg_load).count();
-    std::cout<<"After batch load() time =  "<<vsg_loadTime<<std::endl;
+    std::cout << "After batch load() time =  " << vsg_loadTime << std::endl;
 
     return entries;
 }

@@ -82,7 +82,7 @@ void External::read(Input& input)
     uint32_t count = input.readValue<uint32_t>("NumEntries");
 
     Paths filenames(count);
-    for(auto& filename : filenames)
+    for (auto& filename : filenames)
     {
         input.read("Filename", filename);
     }
@@ -92,7 +92,7 @@ void External::read(Input& input)
     // collect the ids from the files
     CollectIDs collectIDs;
     collectIDs._objectID = idBegin;
-    for(auto itr = _entries.begin(); itr != _entries.end(); ++itr)
+    for (auto itr = _entries.begin(); itr != _entries.end(); ++itr)
     {
         if (itr->second) itr->second->accept(collectIDs);
     }
@@ -116,7 +116,7 @@ void External::write(Output& output) const
 
     CollectIDs collectIDs;
     uint32_t idBegin = collectIDs._objectID = output.objectID;
-    for(auto& [filename, externalObject] : _entries)
+    for (auto& [filename, externalObject] : _entries)
     {
         if (!filename.empty() && externalObject) externalObject->accept(collectIDs);
     }
@@ -124,7 +124,7 @@ void External::write(Output& output) const
     output.objectID = idEnd;
 
     // pass the object id's onto the output's objectIDMap
-    for(auto& [object, objectID] : collectIDs._objectIDMap)
+    for (auto& [object, objectID] : collectIDs._objectIDMap)
     {
         output.objectIDMap[object] = objectID;
     }
@@ -132,13 +132,13 @@ void External::write(Output& output) const
     output.write("ObjectIDRange", idBegin, idEnd);
     output.writeValue<uint32_t>("NumEntries", _entries.size());
 
-    for(auto itr =  _entries.begin(); itr !=  _entries.end(); ++itr)
+    for (auto itr = _entries.begin(); itr != _entries.end(); ++itr)
     {
         output.write("Filename", itr->first);
     }
 
     // write out files.
-    for(auto& [filename, externalObject] : _entries)
+    for (auto& [filename, externalObject] : _entries)
     {
         // if we should write out object then need to invoke ReaderWriter for it.
         if (!filename.empty() && externalObject)
