@@ -16,12 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/threading/OperationThreads.h>
 
-#include <chrono>
-#include <condition_variable>
-#include <iostream>
-#include <thread>
-#include <typeinfo>
-
 using namespace vsg;
 
 ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
@@ -69,8 +63,6 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
 {
     ref_ptr<OperationThreads> operationThreads;
     if (options) operationThreads = options->operationThreads;
-
-    auto before_vsg_load = std::chrono::steady_clock::now();
 
     PathObjects entries;
 
@@ -132,9 +124,6 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
             }
         }
     }
-
-    auto vsg_loadTime = std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - before_vsg_load).count();
-    std::cout << "After batch load() time =  " << vsg_loadTime << std::endl;
 
     return entries;
 }
