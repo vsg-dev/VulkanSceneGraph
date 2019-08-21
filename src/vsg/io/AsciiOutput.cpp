@@ -13,14 +13,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Version.h>
 
 #include <vsg/io/AsciiOutput.h>
+#include <vsg/io/ReaderWriter.h>
 
 #include <cstring>
+#include <iostream>
 
 using namespace vsg;
 
-AsciiOutput::AsciiOutput(std::ostream& output, ref_ptr<const Options> options) :
-    _output(output),
-    _options(options)
+AsciiOutput::AsciiOutput(std::ostream& output, ref_ptr<const Options> in_options) :
+    Output(in_options),
+    _output(output)
 {
     _maximumIndentation = std::strlen(_indentationString);
 }
@@ -51,15 +53,15 @@ void AsciiOutput::write(size_t num, const std::string* value)
 
 void AsciiOutput::write(const vsg::Object* object)
 {
-    if (auto itr = _objectIDMap.find(object); itr != _objectIDMap.end())
+    if (auto itr = objectIDMap.find(object); itr != objectIDMap.end())
     {
         // write out the objectID
         _output << " id=" << itr->second << "\n";
         return;
     }
 
-    ObjectID id = _objectID++;
-    _objectIDMap[object] = id;
+    ObjectID id = objectID++;
+    objectIDMap[object] = id;
 
     if (object)
     {

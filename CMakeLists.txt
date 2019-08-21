@@ -53,6 +53,7 @@ add_compile_options(${VSG_WARNING_FLAGS})
 
 
 find_package(Vulkan)
+find_package(Threads)
 
 if (ANDROID)
     find_library(AndroidLib android)

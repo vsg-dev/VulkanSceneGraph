@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/BinaryInput.h>
+#include <vsg/io/ReaderWriter.h>
 
 #include <cstring>
 #include <iostream>
@@ -18,10 +19,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-BinaryInput::BinaryInput(std::istream& input, ref_ptr<ObjectFactory> objectFactory, ref_ptr<const Options> options) :
-    Input(objectFactory),
-    _input(input),
-    _options(options)
+BinaryInput::BinaryInput(std::istream& input, ref_ptr<ObjectFactory> in_objectFactory, ref_ptr<const Options> in_options) :
+    Input(in_objectFactory, in_options),
+    _input(input)
 {
 }
 
@@ -52,7 +52,7 @@ vsg::ref_ptr<vsg::Object> BinaryInput::read()
 {
     ObjectID id = objectID();
 
-    if (auto itr = _objectIDMap.find(id); itr != _objectIDMap.end())
+    if (auto itr = objectIDMap.find(id); itr != objectIDMap.end())
     {
         return itr->second;
     }
@@ -63,7 +63,7 @@ vsg::ref_ptr<vsg::Object> BinaryInput::read()
         vsg::ref_ptr<vsg::Object> object;
         if (className != "nullptr")
         {
-            object = _objectFactory->create(className.c_str());
+            object = objectFactory->create(className.c_str());
             if (object)
             {
                 object->read(*this);
@@ -74,7 +74,7 @@ vsg::ref_ptr<vsg::Object> BinaryInput::read()
             }
         }
 
-        _objectIDMap[id] = object;
+        objectIDMap[id] = object;
         return object;
     }
 }

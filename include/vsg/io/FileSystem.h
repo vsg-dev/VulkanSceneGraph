@@ -12,17 +12,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <map>
 #include <string>
 #include <vector>
 
-#include <vsg/core/Export.h>
+#include <vsg/core/Object.h>
 
 namespace vsg
 {
 
+    class Options;
     using Path = std::string;
-
     using Paths = std::vector<Path>;
+    using PathObjects = std::map<Path, ref_ptr<Object>>;
 
     extern VSG_DECLSPEC Paths getEnvPaths(const char* env_var);
 
@@ -35,5 +37,7 @@ namespace vsg
     extern VSG_DECLSPEC Path concatPaths(const Path& left, const Path& right);
 
     extern VSG_DECLSPEC Path findFile(const Path& filename, const Paths& paths);
+
+    extern VSG_DECLSPEC Path findFile(const Path& filename, const Options* options);
 
 } // namespace vsg

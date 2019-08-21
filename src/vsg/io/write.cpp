@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,45 +10,41 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/ui/KeyEvent.h>
-#include <vsg/viewer/Viewer.h>
+#include <vsg/io/ObjectCache.h>
+#include <vsg/io/ReaderWriter_vsg.h>
+#include <vsg/io/write.h>
 
-namespace vsg
+using namespace vsg;
+
+bool vsg::write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options)
 {
-
-    class CloseHandler : public Inherit<Visitor, CloseHandler>
+    bool fileWritten = false;
+    if (options)
     {
-    public:
-        CloseHandler(Viewer* viewer) :
-            _viewer(viewer) {}
+        // don't write the file if it's already contained in the ObjectCache
+        if (options->objectCache && options->objectCache->contains(filename, options)) return true;
 
-        KeySymbol closeKey = KEY_Escape; // KEY_Undefined
-
-        virtual void close()
+        if (options->readerWriter)
         {
-            // take a ref_ptr<> of the oberserv_ptr<> to be able to safely access it
-            ref_ptr<Viewer> viewer = _viewer;
-            if (viewer) viewer->close();
+            fileWritten = options->readerWriter->write(object, filename, options);
         }
+    }
 
-        void apply(KeyPressEvent& keyPress) override
+    if (!fileWritten)
+    {
+        // fallback to using native ReaderWriter_vsg if extension is compatible
+        auto ext = vsg::fileExtension(filename);
+        if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
         {
-            if (closeKey != KEY_Undefined && keyPress.keyBase == closeKey) close();
+            ReaderWriter_vsg rw;
+            fileWritten = rw.write(object, filename, options);
         }
+    }
 
-        void apply(CloseWindowEvent&) override
-        {
-            close();
-        }
+    if (fileWritten && options && options->objectCache)
+    {
+        options->objectCache->add(object, filename, options);
+    }
 
-        void apply(TerminateEvent&) override
-        {
-            close();
-        }
-
-    protected:
-        // use observer_ptr<> to avoid circular reference
-        observer_ptr<Viewer> _viewer;
-    };
-
-} // namespace vsg
+    return fileWritten;
+}

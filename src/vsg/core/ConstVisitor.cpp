@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/ConstVisitor.h>
+#include <vsg/core/External.h>
 #include <vsg/core/Objects.h>
 
 #include <vsg/nodes/Commands.h>
@@ -50,6 +51,11 @@ void ConstVisitor::apply(const Object&)
 }
 
 void ConstVisitor::apply(const Objects& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+
+void ConstVisitor::apply(const External& value)
 {
     apply(static_cast<const Object&>(value));
 }

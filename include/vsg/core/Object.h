@@ -31,6 +31,9 @@ namespace vsg
     class Input;
     class Output;
 
+    template <typename T>
+    constexpr bool has_read_write() { return false; }
+
     class VSG_DECLSPEC Object
     {
     public:
@@ -104,5 +107,8 @@ namespace vsg
 
         Auxiliary* _auxiliary;
     };
+
+    template <>
+    constexpr bool has_read_write<Object>() { return true; }
 
 } // namespace vsg

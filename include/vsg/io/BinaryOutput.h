@@ -23,7 +23,7 @@ namespace vsg
     class VSG_DECLSPEC BinaryOutput : public vsg::Output
     {
     public:
-        explicit BinaryOutput(std::ostream& output, ref_ptr<const Options> options = {});
+        explicit BinaryOutput(std::ostream& output, ref_ptr<const Options> in_options = {});
 
         // write property name if appropriate for format
         void writePropertyName(const char*) override {}
@@ -55,12 +55,11 @@ namespace vsg
 
         void write(size_t num, const std::string* value) override;
 
-        // write object
+        /// write object
         void write(const vsg::Object* object) override;
 
     protected:
         std::ostream& _output;
-        ref_ptr<const Options> _options;
     };
 
 } // namespace vsg

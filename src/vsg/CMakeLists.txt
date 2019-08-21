@@ -14,6 +14,7 @@ set(SOURCES
     core/Auxiliary.cpp
     core/ConstVisitor.cpp
     core/Data.cpp
+    core/External.cpp
     core/Object.cpp
     core/Objects.cpp
     core/Result.cpp
@@ -42,16 +43,22 @@ set(SOURCES
     io/BinaryInput.cpp
     io/BinaryOutput.cpp
     io/Input.cpp
+    io/ObjectCache.cpp
     io/Output.cpp
     io/Options.cpp
     io/ObjectFactory.cpp
     io/ReaderWriter.cpp
     io/ReaderWriter_vsg.cpp
+    io/read.cpp
+    io/write.cpp
 
     traversals/DispatchTraversal.cpp
     traversals/CullTraversal.cpp
     traversals/CompileTraversal.cpp
     traversals/ComputeBounds.cpp
+
+    threading/OperationQueue.cpp
+    threading/OperationThreads.cpp
 
     viewer/Camera.cpp
     viewer/GraphicsStage.cpp
@@ -71,6 +78,9 @@ set(SOURCES
     vk/ComputePipeline.cpp
     vk/Context.cpp
     vk/Descriptor.cpp
+    vk/DescriptorBuffer.cpp
+    vk/DescriptorImage.cpp
+    vk/DescriptorTexelBufferView.cpp
     vk/DescriptorPool.cpp
     vk/DescriptorSet.cpp
     vk/DescriptorSetLayout.cpp
@@ -99,8 +109,12 @@ set(SOURCES
 )
 
 # add platform specific Window implementation
+
 # set up library dependencies
-set(LIBRARIES PUBLIC Vulkan::Vulkan)
+set(LIBRARIES PUBLIC
+    Vulkan::Vulkan
+    Threads::Threads
+)
 
 if (ANDROID)
     set(HEADERS ${HEADERS} ${CMAKE_SOURCE_DIR}/include/vsg/platform/android/Android_Window.h)

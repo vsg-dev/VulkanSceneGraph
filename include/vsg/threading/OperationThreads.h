@@ -12,45 +12,47 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/ui/KeyEvent.h>
-#include <vsg/viewer/Viewer.h>
+#include <vsg/threading/OperationQueue.h>
+
+#include <thread>
 
 namespace vsg
 {
 
-    class CloseHandler : public Inherit<Visitor, CloseHandler>
+    class VSG_DECLSPEC OperationThreads : public Inherit<Object, OperationQueue>
     {
     public:
-        CloseHandler(Viewer* viewer) :
-            _viewer(viewer) {}
+        OperationThreads(uint32_t numThreads, ref_ptr<Active> in_active = {});
 
-        KeySymbol closeKey = KEY_Escape; // KEY_Undefined
-
-        virtual void close()
+        void add(ref_ptr<Operation> operation)
         {
-            // take a ref_ptr<> of the oberserv_ptr<> to be able to safely access it
-            ref_ptr<Viewer> viewer = _viewer;
-            if (viewer) viewer->close();
+            queue->add(operation);
         }
 
-        void apply(KeyPressEvent& keyPress) override
+        template<typename Iterator>
+        void add(Iterator begin, Iterator end)
         {
-            if (closeKey != KEY_Undefined && keyPress.keyBase == closeKey) close();
+            queue->add(begin, end);
         }
 
-        void apply(CloseWindowEvent&) override
-        {
-            close();
-        }
+        /// use this thread to run operations till the queue is empty as well
+        /// this thread will consume and run operations in parallel with any threads associated with this OperationThreads.
+        void run();
 
-        void apply(TerminateEvent&) override
-        {
-            close();
-        }
+        /// stop theads
+        void stop();
+
+        using Threads = std::list<std::thread>;
+        Threads threads;
+        ref_ptr<OperationQueue> queue;
+        ref_ptr<Active> active;
 
     protected:
-        // use observer_ptr<> to avoid circular reference
-        observer_ptr<Viewer> _viewer;
+        virtual ~OperationThreads()
+        {
+            stop();
+        }
     };
+    VSG_type_name(vsg::OperationThreads)
 
 } // namespace vsg

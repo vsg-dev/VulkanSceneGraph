@@ -24,7 +24,7 @@ namespace vsg
     class VSG_DECLSPEC AsciiOutput : public vsg::Output
     {
     public:
-        AsciiOutput(std::ostream& output, ref_ptr<const Options> options = {});
+        AsciiOutput(std::ostream& output, ref_ptr<const Options> in_options = {});
 
         std::ostream& indent()
         {
@@ -114,12 +114,11 @@ namespace vsg
 
         void write(size_t num, const std::string* value) override;
 
-        // write object
+        /// write object
         void write(const vsg::Object* object) override;
 
     protected:
         std::ostream& _output;
-        ref_ptr<const Options> _options;
 
         std::size_t _indentationStep = 2;
         std::size_t _indentation = 0;
