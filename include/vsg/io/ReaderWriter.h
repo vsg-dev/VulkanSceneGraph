@@ -22,6 +22,9 @@ namespace vsg
     class ReaderWriter : public Inherit<Object, ReaderWriter>
     {
     public:
+        using vsg::Object::read;
+        using vsg::Object::write;
+
         /// convenience method for casting a read object to a specified type.
         template<class T>
         vsg::ref_ptr<T> read_cast(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options = {}) const
@@ -63,18 +66,5 @@ namespace vsg
         ReaderWriters _readerWriters;
     };
     VSG_type_name(vsg::CompositeReaderWriter);
-
-    /** convience method for reading objects from file.*/
-    extern VSG_DECLSPEC ref_ptr<Object> read(const Path& filename, ref_ptr<const Options> options = {});
-
-    template<class T>
-    ref_ptr<T> read_cast(const Path& filename, ref_ptr<const Options> options = {})
-    {
-        auto object = read(filename, options);
-        return vsg::ref_ptr<T>(dynamic_cast<T*>(object.get()));
-    }
-
-    /** convience method for writing objects to file.*/
-    extern VSG_DECLSPEC bool write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options = {});
 
 } // namespace vsg

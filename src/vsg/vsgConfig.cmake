@@ -1,6 +1,7 @@
 include(CMakeFindDependencyMacro)
 
 find_dependency(Vulkan)
+find_dependency(Threads)
 
 if (ANDROID)
     # TODO

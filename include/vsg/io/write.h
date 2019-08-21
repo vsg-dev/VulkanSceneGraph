@@ -12,45 +12,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/ui/KeyEvent.h>
-#include <vsg/viewer/Viewer.h>
+#include <vsg/core/Inherit.h>
+#include <vsg/io/FileSystem.h>
+#include <vsg/io/Options.h>
 
 namespace vsg
 {
 
-    class CloseHandler : public Inherit<Visitor, CloseHandler>
-    {
-    public:
-        CloseHandler(Viewer* viewer) :
-            _viewer(viewer) {}
-
-        KeySymbol closeKey = KEY_Escape; // KEY_Undefined
-
-        virtual void close()
-        {
-            // take a ref_ptr<> of the oberserv_ptr<> to be able to safely access it
-            ref_ptr<Viewer> viewer = _viewer;
-            if (viewer) viewer->close();
-        }
-
-        void apply(KeyPressEvent& keyPress) override
-        {
-            if (closeKey != KEY_Undefined && keyPress.keyBase == closeKey) close();
-        }
-
-        void apply(CloseWindowEvent&) override
-        {
-            close();
-        }
-
-        void apply(TerminateEvent&) override
-        {
-            close();
-        }
-
-    protected:
-        // use observer_ptr<> to avoid circular reference
-        observer_ptr<Viewer> _viewer;
-    };
+    /** convience method for writing objects to file.*/
+    extern VSG_DECLSPEC bool write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options = {});
 
 } // namespace vsg

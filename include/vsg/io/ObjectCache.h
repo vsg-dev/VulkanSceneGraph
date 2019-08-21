@@ -47,13 +47,21 @@ namespace vsg
         /// remove entry matching object.
         void remove(ref_ptr<Object> object);
 
-    protected:
         struct ObjectTimepoint
         {
+            std::mutex mutex;
             ref_ptr<Object> object;
             double unusedDurationBeforeExpiry = 0.0;
             clock::time_point lastUsedTimepoint;
         };
+
+        inline ObjectTimepoint& getObjectTimepoint(const Path& filename, ref_ptr<const Options> options = {})
+        {
+            std::lock_guard<std::mutex> guard(_mutex);
+            return _objectCacheMap[FilenameOption(filename, options)];
+        }
+
+    protected:
 
         using FilenameOption = std::pair<Path, ref_ptr<const Options>>;
         using ObjectCacheMap = std::map<FilenameOption, ObjectTimepoint>;

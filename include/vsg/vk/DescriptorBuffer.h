@@ -13,37 +13,40 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/BufferData.h>
-#include <vsg/vk/BufferView.h>
-#include <vsg/vk/ImageData.h>
+#include <vsg/vk/Descriptor.h>
 
 namespace vsg
 {
-    // forward declare
-    class Context;
-
-    using DescriptorBufferInfos = std::vector<VkDescriptorBufferInfo>;
-
-    class Descriptor : public Inherit<Object, Descriptor>
+    class VSG_DECLSPEC DescriptorBuffer : public Inherit<Descriptor, DescriptorBuffer>
     {
     public:
-        Descriptor(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType);
+        DescriptorBuffer();
 
-        uint32_t _dstBinding;
-        uint32_t _dstArrayElement;
-        VkDescriptorType _descriptorType;
+        DescriptorBuffer(ref_ptr<Data> data, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+
+        DescriptorBuffer(const DataList& dataList, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+
+        DescriptorBuffer(const BufferDataList& bufferDataList, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+
+        DataList& getDataList() { return _dataList; }
+        const DataList& getDataList() const { return _dataList; }
 
         void read(Input& input) override;
-
         void write(Output& output) const override;
 
-        // compile the Vulkan object, context parameter used for Device
-        virtual void compile(Context& /*context*/) {}
+        void compile(Context& context) override;
 
-        virtual bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const;
+        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
 
-        virtual uint32_t getNumDescriptors() const { return 1; }
+        uint32_t getNumDescriptors() const override;
+
+        void copyDataListToBuffers();
+
+    protected:
+        DataList _dataList;
+        BufferDataList _bufferDataList;
+        std::vector<VkDescriptorBufferInfo> _bufferInfos;
     };
-
-    using Descriptors = std::vector<vsg::ref_ptr<vsg::Descriptor>>;
+    VSG_type_name(vsg::DescriptorBuffer)
 
 } // namespace vsg

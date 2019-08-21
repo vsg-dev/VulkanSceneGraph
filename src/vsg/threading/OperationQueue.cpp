@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,45 +10,49 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/ui/KeyEvent.h>
-#include <vsg/viewer/Viewer.h>
+#include <vsg/threading/OperationQueue.h>
 
-namespace vsg
+using namespace vsg;
+
+OperationQueue::OperationQueue(ref_ptr<Active> in_active) :
+    _active(in_active)
 {
+}
 
-    class CloseHandler : public Inherit<Visitor, CloseHandler>
+ref_ptr<Operation> OperationQueue::take()
+{
+    std::unique_lock lock(_mutex);
+
+    if (_queue.empty()) return {};
+
+    ref_ptr<Operation> operation = _queue.front();
+
+    _queue.erase(_queue.begin());
+
+    return operation;
+}
+
+ref_ptr<Operation> OperationQueue::take_when_avilable()
+{
+    std::chrono::duration waitDuration = std::chrono::milliseconds(100);
+
+    std::unique_lock lock(_mutex);
+
+    // wait to the conditional variable signals that an operation has been added
+    while (_queue.empty() && *_active)
     {
-    public:
-        CloseHandler(Viewer* viewer) :
-            _viewer(viewer) {}
+        //std::cout<<"Waiting on condition variable"<<std::endl;
+        _cv.wait_for(lock, waitDuration);
+    }
 
-        KeySymbol closeKey = KEY_Escape; // KEY_Undefined
+    // if the threads we are associated with should no longer running go for a quick exit and return nothing.
+    if (!*_active)
+    {
+        return {};
+    }
 
-        virtual void close()
-        {
-            // take a ref_ptr<> of the oberserv_ptr<> to be able to safely access it
-            ref_ptr<Viewer> viewer = _viewer;
-            if (viewer) viewer->close();
-        }
-
-        void apply(KeyPressEvent& keyPress) override
-        {
-            if (closeKey != KEY_Undefined && keyPress.keyBase == closeKey) close();
-        }
-
-        void apply(CloseWindowEvent&) override
-        {
-            close();
-        }
-
-        void apply(TerminateEvent&) override
-        {
-            close();
-        }
-
-    protected:
-        // use observer_ptr<> to avoid circular reference
-        observer_ptr<Viewer> _viewer;
-    };
-
-} // namespace vsg
+    // remove and return the head of the queue
+    ref_ptr<Operation> operation = _queue.front();
+    _queue.erase(_queue.begin());
+    return operation;
+}

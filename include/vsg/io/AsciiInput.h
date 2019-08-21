@@ -28,7 +28,7 @@ namespace vsg
     public:
         using ObjectID = uint32_t;
 
-        AsciiInput(std::istream& input, ref_ptr<ObjectFactory> objectFactory, ref_ptr<const Options> options = {});
+        AsciiInput(std::istream& input, ref_ptr<ObjectFactory> in_objectFactory, ref_ptr<const Options> in_options = {});
 
         bool matchPropertyName(const char* propertyName) override;
 
@@ -93,12 +93,8 @@ namespace vsg
         // read object
         vsg::ref_ptr<vsg::Object> read() override;
 
-        // read object from file
-        ref_ptr<Object> readFile(const Path& path) override;
-
     protected:
         std::istream& _input;
-        ref_ptr<const Options> _options;
 
         std::string _readPropertyName;
     };

@@ -9,3 +9,18 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 </editor-fold> */
+
+#include <vsg/io/Input.h>
+#include <vsg/io/Options.h>
+
+using namespace vsg;
+
+Input::Input(ref_ptr<ObjectFactory> in_objectFactory, ref_ptr<const Options> in_options) :
+    objectFactory(in_objectFactory),
+    options(in_options)
+{
+}
+
+Input::~Input()
+{
+}
