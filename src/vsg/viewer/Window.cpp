@@ -26,6 +26,8 @@ Window::Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallback
     // create the vkInstance
     vsg::Names instanceExtensions = getInstanceExtensions();
 
+    instanceExtensions.insert(instanceExtensions.end(), traits->instanceExtensionNames.begin(), traits->instanceExtensionNames.end());
+
     vsg::Names requestedLayers;
     if (traits && traits->debugLayer)
     {
@@ -81,6 +83,8 @@ void Window::initaliseDevice()
 
     vsg::Names deviceExtensions;
     deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
+    deviceExtensions.insert(deviceExtensions.end(), _traits->deviceExtensionNames.begin(), _traits->deviceExtensionNames.end());
 
     // set up device
     vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(_instance, VK_QUEUE_GRAPHICS_BIT, _surface);
