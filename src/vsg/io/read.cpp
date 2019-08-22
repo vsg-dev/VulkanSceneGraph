@@ -16,60 +16,53 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/threading/OperationThreads.h>
 
-#include <chrono>
-#include <condition_variable>
-#include <iostream>
-#include <thread>
-#include <typeinfo>
-
 using namespace vsg;
 
 ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
 {
-    ref_ptr<Object> object;
-    if (options)
+    auto read_file = [&]() -> ref_ptr<Object>
     {
-        if (options->objectCache)
+        if (options && options->readerWriter)
         {
-            object = options->objectCache->get(filename, options);
-            if (object)
-            {
-                return object;
-            }
+            auto object = options->readerWriter->read(filename, options);
+            if (object) return object;
         }
 
-        if (options->readerWriter)
-        {
-            object = options->readerWriter->read(filename, options);
-        }
-    }
-
-    if (!object)
-    {
-        // fallback to using native ReaderWriter_vsg if extension is compatible
         auto ext = vsg::fileExtension(filename);
         if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
         {
             ReaderWriter_vsg rw;
-            object = rw.read(filename, options);
+            return rw.read(filename, options);
         }
-    }
+        else
+        {
+            return {};
+        }
+    };
 
-    if (object && options && options->objectCache)
+    if (options && options->objectCache)
     {
-        // place loaded object into the ObjectCache
-        options->objectCache->add(object, filename, options);
-    }
+        auto& ot = options->objectCache->getObjectTimepoint(filename, options);
 
-    return object;
+        std::lock_guard<std::mutex> guard(ot.mutex);
+        if (ot.object) return ot.object;
+
+        ot.object = read_file();
+        ot.unusedDurationBeforeExpiry = options->objectCache->getDefaultUnusedDuration();
+        ot.lastUsedTimepoint = vsg::clock::now();
+
+        return ot.object;
+    }
+    else
+    {
+        return read_file();
+    }
 }
 
 PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
 {
     ref_ptr<OperationThreads> operationThreads;
     if (options) operationThreads = options->operationThreads;
-
-    auto before_vsg_load = std::chrono::steady_clock::now();
 
     PathObjects entries;
 
@@ -131,9 +124,6 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
             }
         }
     }
-
-    auto vsg_loadTime = std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - before_vsg_load).count();
-    std::cout << "After batch load() time =  " << vsg_loadTime << std::endl;
 
     return entries;
 }
