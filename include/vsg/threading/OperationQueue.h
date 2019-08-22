@@ -35,7 +35,7 @@ namespace vsg
 
     struct Latch : public Object
     {
-        Latch(uint32_t num) :
+        Latch(unsigned int num) :
             count(num) {}
 
         void count_down()
