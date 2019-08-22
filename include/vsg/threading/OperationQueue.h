@@ -35,7 +35,7 @@ namespace vsg
 
     struct Latch : public Object
     {
-        Latch(uint32_t num) :
+        Latch(size_t num) :
             count(num) {}
 
         void count_down()
@@ -64,7 +64,8 @@ namespace vsg
             }
         }
 
-        std::atomic_uint count;
+    private:
+        std::atomic_size_t count;
         std::mutex _mutex;
         std::condition_variable cv;
 
