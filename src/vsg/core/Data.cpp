@@ -21,10 +21,7 @@ void Data::read(Input& input)
     Object::read(input);
     _format = static_cast<VkFormat>(input.readValue<std::int32_t>("Format"));
 
-    if (input.matchPropertyName("Layout"))
-    {
-        input.read(4, &_layout.maxNumMipmaps);
-    }
+    input.read("Layout",  _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth);
 }
 
 void Data::write(Output& output) const
@@ -32,8 +29,7 @@ void Data::write(Output& output) const
     Object::write(output);
     output.writeValue<std::int32_t>("Format", _format);
 
-    output.writePropertyName("Layout");
-    output.write(4, &_layout.maxNumMipmaps);
+    output.write("Layout", _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth);
 }
 
 Data::MipmapOffsets Data::computeMipmapOffsets() const
