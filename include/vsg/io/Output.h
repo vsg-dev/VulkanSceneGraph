@@ -37,10 +37,13 @@ namespace vsg
 
         Options& operator=(const Options& rhs) = delete;
 
-        // write property name if appropriate for format
+        /// write property name if appropriate for format
         virtual void writePropertyName(const char* propertyName) = 0;
 
-        // write contiguous array of value(s)
+        /// write end of line character if required.
+        virtual void writeEndOfLine() = 0;
+
+        /// write contiguous array of value(s)
         virtual void write(size_t num, const int8_t* values) = 0;
         virtual void write(size_t num, const uint8_t* value) = 0;
         virtual void write(size_t num, const int16_t* value) = 0;
@@ -106,6 +109,8 @@ namespace vsg
 
             // use fold expression to expand arguments and map to appropriate write method
             (write(1, &(args)), ...);
+
+            writeEndOfLine();
         }
 
         void writeObject(const char* propertyName, const Object* object)
