@@ -32,20 +32,22 @@ namespace vsg
             return _output;
         }
 
-        // write property name if appropriate for format
+        /// write property name if appropriate for format
         void writePropertyName(const char* propertyName) override;
+
+        /// write end of line as an \n
+        void writeEndOfLine() override { _output << '\n'; }
 
         template<typename T>
         void _write(size_t num, const T* value)
         {
             if (num == 1)
             {
-                _output << ' ' << *value << '\n';
+                _output << ' ' << *value;
             }
             else
             {
                 for (; num > 0; --num, ++value) _output << ' ' << *value;
-                _output << '\n';
             }
         }
 
@@ -55,9 +57,9 @@ namespace vsg
             if (num == 1)
             {
                 if (std::isfinite(*value))
-                    _output << ' ' << *value << '\n';
+                    _output << ' ' << *value;
                 else
-                    _output << ' ' << 0.0 << '\n'; // fallback to using 0.0 when the value is NaN or Infinite to prevent problems when reading
+                    _output << ' ' << 0.0; // fallback to using 0.0 when the value is NaN or Infinite to prevent problems when reading
             }
             else
             {
@@ -68,7 +70,6 @@ namespace vsg
                     else
                         _output << ' ' << 0.0; // fallback to using 0.0 when the value is NaN or Infinite to prevent problems when reading
                 }
-                _output << '\n';
             }
         }
 
@@ -77,12 +78,11 @@ namespace vsg
         {
             if (num == 1)
             {
-                _output << ' ' << static_cast<R>(*value) << '\n';
+                _output << ' ' << static_cast<R>(*value);
             }
             else
             {
                 for (; num > 0; --num, ++value) _output << ' ' << static_cast<R>(*value);
-                _output << '\n';
             }
         }
 
