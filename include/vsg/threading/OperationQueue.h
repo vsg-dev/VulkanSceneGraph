@@ -33,43 +33,44 @@ namespace vsg
         virtual ~Active() {}
     };
 
-    struct Latch : public Object
+    class Latch : public Inherit<Object, Latch>
     {
-        Latch(uint32_t num) :
-            count(num) {}
+    public:
+        Latch(size_t num) :
+            _count(num) {}
 
         void count_down()
         {
-            --count;
+            --_count;
             if (is_ready())
             {
                 std::unique_lock lock(_mutex);
-                cv.notify_all();
+                _cv.notify_all();
             }
         }
 
         bool is_ready() const
         {
-            return (count == 0);
+            return (_count == 0);
         }
 
         void wait()
         {
             // use while loop to return immediate when latch already released
             // and to handle cases where the condition variable releases spuriously.
-            while (count != 0)
+            while (_count != 0)
             {
                 std::unique_lock lock(_mutex);
-                cv.wait(lock);
+                _cv.wait(lock);
             }
         }
 
-        std::atomic_uint count;
-        std::mutex _mutex;
-        std::condition_variable cv;
-
     protected:
         virtual ~Latch() {}
+
+        std::atomic_size_t _count;
+        std::mutex _mutex;
+        std::condition_variable _cv;
     };
 
     struct Operation : public Object
@@ -82,10 +83,8 @@ namespace vsg
     public:
         OperationQueue(ref_ptr<Active> in_active);
 
-        std::mutex _mutex;
-        std::condition_variable _cv;
-        std::list<ref_ptr<Operation>> _queue;
-        ref_ptr<Active> _active;
+        Active* getActive() { return _active; }
+        const Active* getActive() const { return _active; }
 
         void add(ref_ptr<Operation> operation)
         {
@@ -114,6 +113,14 @@ namespace vsg
         ref_ptr<Operation> take();
 
         ref_ptr<Operation> take_when_avilable();
+
+    protected:
+
+        std::mutex _mutex;
+        std::condition_variable _cv;
+        std::list<ref_ptr<Operation>> _queue;
+        ref_ptr<Active> _active;
+
     };
     VSG_type_name(vsg::OperationQueue)
 

@@ -112,6 +112,7 @@ namespace vsg
             output.writeValue<std::uint32_t>("Size", _size);
             output.writePropertyName("Data");
             output.write(size(), _data);
+            output.writeEndOfLine();
         }
 
         std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? _size : computeValueCountIncludingMipmaps(_size, 1, 1, _layout.maxNumMipmaps); }

@@ -38,7 +38,6 @@ void AsciiOutput::write(size_t num, const std::string* value)
     {
         _output << ' ';
         _write(*value);
-        _output << '\n';
     }
     else
     {
@@ -47,7 +46,6 @@ void AsciiOutput::write(size_t num, const std::string* value)
             _output << ' ';
             _write(*value);
         }
-        _output << '\n';
     }
 }
 
@@ -56,7 +54,7 @@ void AsciiOutput::write(const vsg::Object* object)
     if (auto itr = objectIDMap.find(object); itr != objectIDMap.end())
     {
         // write out the objectID
-        _output << " id=" << itr->second << "\n";
+        _output << " id=" << itr->second <<"\n";
         return;
     }
 
