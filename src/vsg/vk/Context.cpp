@@ -140,7 +140,7 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
     return bufferData;
 }
 
-MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryRequirements memRequirements, VkMemoryPropertyFlags memoryProperties)
+MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryRequirements memRequirements, VkMemoryPropertyFlags memoryProperties, void* pNextAllocInfo)
 {
     VkDeviceSize totalSize = memRequirements.size;
 
@@ -170,7 +170,7 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
         //std::cout<<"Creating new local DeviceMemory"<<std::endl;
         if (memRequirements.size < minumumDeviceMemorySize) memRequirements.size = minumumDeviceMemorySize;
 
-        deviceMemory = vsg::DeviceMemory::create(device, memRequirements, memoryProperties);
+        deviceMemory = vsg::DeviceMemory::create(device, memRequirements, memoryProperties, pNextAllocInfo);
         if (deviceMemory)
         {
             reservedSlot = deviceMemory->reserve(totalSize);

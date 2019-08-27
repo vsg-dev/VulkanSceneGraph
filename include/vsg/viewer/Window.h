@@ -72,6 +72,9 @@ namespace vsg
 
             SwapchainPreferences swapchainPreferences;
 
+            vsg::Names instanceExtensionNames;
+            vsg::Names deviceExtensionNames;
+
             Window* shareWindow = nullptr;
 
             AllocationCallbacks* allocator = nullptr;
