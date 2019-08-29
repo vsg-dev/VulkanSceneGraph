@@ -49,7 +49,7 @@ namespace vsg
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
-            for (auto& lodChild : node._children) lodChild.child->accept(visitor);
+            for (auto& lodChild : node._children) { if (lodChild.child) lodChild.child->accept(visitor); }
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
