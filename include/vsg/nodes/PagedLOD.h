@@ -38,8 +38,8 @@ namespace vsg
 
         struct PagedLODChild
         {
-            Path filename;
             double minimumScreenHeightRatio = 0.0; // 0.0 is always visible
+            Path filename;
             ref_ptr<Node> child;
             ref_ptr<Object> databaseRequest;
         };
