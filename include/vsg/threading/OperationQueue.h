@@ -70,6 +70,8 @@ namespace vsg
             }
         }
 
+        std::atomic_size_t& count() { return _count; }
+
     protected:
         virtual ~Latch() {}
 
