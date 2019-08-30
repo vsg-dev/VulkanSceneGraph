@@ -126,7 +126,7 @@ Path vsg::removeExtension(const Path& path)
     std::string::size_type dot = path.find_last_of('.');
     std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
     if (dot == std::string::npos || (slash != std::string::npos && dot < slash)) return path;
-    else if (dot > 1) return path.substr(0, dot-1);
+    else if (dot > 1) return path.substr(0, dot);
     else return Path();
 }
 
