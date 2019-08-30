@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    struct Active : public Object
+    struct Active : public Inherit<Object, Active>
     {
         Active() :
             active(true) {}
@@ -38,6 +38,11 @@ namespace vsg
     public:
         Latch(size_t num) :
             _count(num) {}
+
+        void count_up()
+        {
+            ++_count;
+        }
 
         void count_down()
         {
