@@ -14,6 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Stage.h>
 
+#include <vsg/io/DatabasePager.h>
+
 #include <vsg/viewer/Camera.h>
 
 namespace vsg
@@ -26,9 +28,11 @@ namespace vsg
 
         ref_ptr<Camera> _camera;
         ref_ptr<Node> _commandGraph;
-        vsg::ref_ptr<vsg::mat4Value> _projMatrix;
-        vsg::ref_ptr<vsg::mat4Value> _viewMatrix;
-        vsg::ref_ptr<ViewportState> _viewport;
+        ref_ptr<mat4Value> _projMatrix;
+        ref_ptr<mat4Value> _viewMatrix;
+        ref_ptr<ViewportState> _viewport;
+
+        ref_ptr<DatabasePager> databasePager;
 
         VkExtent2D _extent2D;
         uint32_t _maxSlot = 2;

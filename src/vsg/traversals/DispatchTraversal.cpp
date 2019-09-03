@@ -27,6 +27,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
 
+#include <vsg/io/Options.h>
+#include <vsg/io/DatabasePager.h>
+
 #include <vsg/maths/plane.h>
 
 using namespace vsg;
@@ -133,18 +136,11 @@ void DispatchTraversal::apply(const PagedLOD& lod)
                 lodChild.child->accept(*this);
                 return;
             }
-            else
+            else if (databasePager)
             {
+                // TODO need to resolve const aspect and priority
                 auto priority = rf / cutoff;
-                if (lodChild.databaseRequest)
-                {
-                    std::cout<<"PagedLOD rerequesting child "<<lodChild.filename<<" "<<priority<<std::endl;
-                }
-                else
-                {
-                    // create DatabaseRequest
-                    std::cout<<"PagedLOD first time request for child "<<lodChild.filename<<" "<<priority<<std::endl;
-                }
+                databasePager->request(ref_ptr<PagedLOD>(const_cast<PagedLOD*>(&lod)));
             }
         }
     }

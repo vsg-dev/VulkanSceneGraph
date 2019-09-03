@@ -33,6 +33,7 @@ namespace vsg
     class Commands;
     class CommandBuffer;
     class State;
+    class DatabasePager;
 
     class VSG_DECLSPEC DispatchTraversal : public Object
     {
@@ -58,7 +59,11 @@ namespace vsg
         void apply(const Commands& commands);
         void apply(const Command& command);
 
+        // used to handle loading of PagedLOD external children.
+        ref_ptr<DatabasePager> databasePager;
+
     protected:
         State* _state;
+
     };
 } // namespace vsg

@@ -39,6 +39,7 @@ set(SOURCES
 
     io/FileSystem.cpp
     io/AsciiInput.cpp
+    io/DatabasePager.cpp
     io/AsciiOutput.cpp
     io/BinaryInput.cpp
     io/BinaryOutput.cpp
