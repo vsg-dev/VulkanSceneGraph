@@ -32,6 +32,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/ComputePipeline.h>
+#include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorSet.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/RenderPass.h>
@@ -385,6 +386,10 @@ void Visitor::apply(BindDescriptorSet& value)
 void Visitor::apply(BindDescriptorSets& value)
 {
     apply(static_cast<StateCommand&>(value));
+}
+void Visitor::apply(Descriptor& value)
+{
+    apply(static_cast<Object&>(value));
 }
 void Visitor::apply(DescriptorSet& value)
 {
