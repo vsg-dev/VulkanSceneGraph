@@ -29,6 +29,7 @@ namespace vsg
     class Group;
     class QuadGroup;
     class LOD;
+    class PagedLOD;
     class StateGroup;
     class CullGroup;
     class CullNode;
@@ -164,6 +165,7 @@ namespace vsg
         virtual void apply(Group&);
         virtual void apply(QuadGroup&);
         virtual void apply(LOD&);
+        virtual void apply(PagedLOD&);
         virtual void apply(StateGroup&);
         virtual void apply(CullGroup&);
         virtual void apply(CullNode&);
