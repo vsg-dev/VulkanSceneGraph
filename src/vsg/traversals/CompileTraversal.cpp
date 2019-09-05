@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/nodes/PagedLOD.h>
 
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
@@ -29,6 +30,82 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+
+/////////////////////////////////////////////////////////////////////
+//
+// CollectDescriptorStats
+//
+void CollectDescriptorStats::apply(const Object& object)
+{
+    object.traverse(*this);
+}
+
+void CollectDescriptorStats::apply(const PagedLOD& plod)
+{
+    if (plod.getMaxSlot() > maxSlot) maxSlot = plod.getMaxSlot();
+
+    for(auto& [type, count] : plod.getDescriptorPoolSizes())
+    {
+        descriptorTypeMap[type] += count;
+    }
+
+    plod.traverse(*this);
+}
+
+void CollectDescriptorStats::apply(const StateGroup& stategroup)
+{
+    for (auto& command : stategroup.getStateCommands())
+    {
+        command->accept(*this);
+    }
+
+    stategroup.traverse(*this);
+}
+
+void CollectDescriptorStats::apply(const StateCommand& stateCommand)
+{
+    if (stateCommand.getSlot() > maxSlot) maxSlot = stateCommand.getSlot();
+
+    stateCommand.traverse(*this);
+}
+void CollectDescriptorStats::apply(const DescriptorSet& descriptorSet)
+{
+    if (descriptorSets.count(&descriptorSet) == 0)
+    {
+        descriptorSets.insert(&descriptorSet);
+
+        descriptorSet.traverse(*this);
+    }
+}
+
+void CollectDescriptorStats::apply(const Descriptor& descriptor)
+{
+    if (descriptors.count(&descriptor) == 0)
+    {
+        descriptors.insert(&descriptor);
+    }
+    descriptorTypeMap[descriptor._descriptorType] += descriptor.getNumDescriptors();
+}
+
+uint32_t CollectDescriptorStats::computeNumDescriptorSets() const
+{
+    return static_cast<uint32_t>(descriptorSets.size());
+}
+
+DescriptorPoolSizes CollectDescriptorStats::computeDescriptorPoolSizes() const
+{
+    DescriptorPoolSizes poolSizes;
+    for (auto& [type, count] : descriptorTypeMap)
+    {
+        poolSizes.push_back(VkDescriptorPoolSize{type, count});
+    }
+    return poolSizes;
+}
+
+/////////////////////////////////////////////////////////////////////
+//
+// CompielTraversal
+//
 CompileTraversal::CompileTraversal(Device* in_device, BufferPreferences bufferPreferences) :
     context(in_device, bufferPreferences)
 {

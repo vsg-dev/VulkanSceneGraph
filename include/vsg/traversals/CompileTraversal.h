@@ -24,21 +24,50 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Context.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Fence.h>
+#include <vsg/vk/Descriptor.h>
 #include <vsg/vk/GraphicsPipeline.h>
+
+#include <set>
 
 namespace vsg
 {
+    class CollectDescriptorStats : public ConstVisitor
+    {
+    public:
+        using Descriptors = std::set<const Descriptor*>;
+        using DescriptorSets = std::set<const DescriptorSet*>;
+        using DescriptorTypeMap = std::map<VkDescriptorType, uint32_t>;
+
+        using ConstVisitor::apply;
+
+        void apply(const Object& object) override;
+        void apply(const PagedLOD& plod) override;
+        void apply(const StateGroup& stategroup) override;
+        void apply(const StateCommand& stateCommand) override;
+        void apply(const DescriptorSet& descriptorSet) override;
+        void apply(const Descriptor& descriptor) override;
+
+        uint32_t computeNumDescriptorSets() const;
+
+        DescriptorPoolSizes computeDescriptorPoolSizes() const;
+
+        Descriptors descriptors;
+        DescriptorSets descriptorSets;
+        DescriptorTypeMap descriptorTypeMap;
+        uint32_t maxSlot = 0;
+    };
+
     class VSG_DECLSPEC CompileTraversal : public Visitor
     {
     public:
         explicit CompileTraversal(Device* in_device, BufferPreferences bufferPreferences = {});
         ~CompileTraversal();
 
-        void apply(Object& object);
-        void apply(Command& command);
-        void apply(Commands& commands);
-        void apply(StateGroup& stateGroup);
-        void apply(Geometry& geometry);
+        void apply(Object& object) override;
+        void apply(Command& command) override;
+        void apply(Commands& commands) override;
+        void apply(StateGroup& stateGroup) override;
+        void apply(Geometry& geometry) override;
 
         Context context;
     };
