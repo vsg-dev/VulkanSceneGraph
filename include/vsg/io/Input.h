@@ -140,7 +140,7 @@ namespace vsg
             return value;
         }
 
-        /// write a value casting it specified type i.e. output.write<uint32_t>("Value", value);
+        /// read a value as a type, then cast it another type
         template<typename W, typename T>
         void readValue(const char* propertyName, T& value)
         {
