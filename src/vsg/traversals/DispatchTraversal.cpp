@@ -32,6 +32,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/maths/plane.h>
 
+#include <vsg/threading/atomics.h>
+
 using namespace vsg;
 
 #include <iostream>
@@ -108,9 +110,9 @@ void DispatchTraversal::apply(const LOD& lod)
     }
 }
 
-void DispatchTraversal::apply(const PagedLOD& lod)
+void DispatchTraversal::apply(const PagedLOD& plod)
 {
-    auto sphere = lod.getBound();
+    auto sphere = plod.getBound();
 
     // check if lod bounding sphere is in view frustum.
     if (!_state->intersect(sphere))
@@ -125,22 +127,39 @@ void DispatchTraversal::apply(const PagedLOD& lod)
     auto distance = std::abs(mv[0][2] * sphere.x + mv[1][2] * sphere.y + mv[2][2] * sphere.z + mv[3][2]);
     auto rf = sphere.r * f;
 
-    for (auto lodChild : lod.getChildren())
+    // check the high res child to see if it's visible
     {
-        auto cutoff = lodChild.minimumScreenHeightRatio * distance;
+        const auto& child = plod.getChild(0);
+        auto cutoff = child.minimumScreenHeightRatio * distance;
         bool child_visible = rf > cutoff;
         if (child_visible)
         {
-            if (lodChild.child)
+            if (child.node)
             {
-                lodChild.child->accept(*this);
+                // high res visibile and avaialb so traverse it
+                child.node->accept(*this);
                 return;
             }
             else if (databasePager)
             {
-                // TODO need to resolve const aspect and priority
+                // TODO need to resolve const aspect and priority, also need to check based on
                 auto priority = rf / cutoff;
-                databasePager->request(ref_ptr<PagedLOD>(const_cast<PagedLOD*>(&lod)));
+                exchange_if_greater(plod.priority, priority);
+                databasePager->request(ref_ptr<PagedLOD>(const_cast<PagedLOD*>(&plod)));
+            }
+        }
+    }
+
+    // check the low res child to see if it's visible
+    {
+        const auto& child = plod.getChild(1);
+        auto cutoff = child.minimumScreenHeightRatio * distance;
+        bool child_visible = rf > cutoff;
+        if (child_visible)
+        {
+            if (child.node)
+            {
+                child.node->accept(*this);
             }
         }
     }

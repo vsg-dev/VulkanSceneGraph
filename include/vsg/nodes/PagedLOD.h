@@ -18,6 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/FileSystem.h>
 
+#include <vsg/vk/DescriptorPool.h>
+
 #include <algorithm>
 #include <array>
 
@@ -36,19 +38,27 @@ namespace vsg
     public:
         PagedLOD(Allocator* allocator = nullptr);
 
-        struct PagedLODChild
+        struct Child
         {
             double minimumScreenHeightRatio = 0.0; // 0.0 is always visible
-            Path filename;
-            ref_ptr<Node> child;
+            ref_ptr<Node> node;
+            // TODO need a record of the last time traversed
         };
 
-        using Children = std::vector<PagedLODChild>;
+        // external file to load when child 0 is null.
+        Path filename;
+
+        // priority value assigned by cull/dispatch traversal as a guide to how important the external child is for loading.
+        mutable std::atomic<double> priority;
+
+        // TODO need status of external file load
+
+        using Children = std::array<Child, 2>;
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
-            for (auto& lodChild : node._children) { if (lodChild.child) lodChild.child->accept(visitor); }
+            for (auto& child : node._children) { if (child.node) child.node->accept(visitor); }
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
@@ -62,22 +72,30 @@ namespace vsg
         void setBound(const dsphere& bound) { _bound = bound; }
         inline const dsphere& getBound() const { return _bound; }
 
-        void setChild(std::size_t pos, const PagedLODChild& lodChild) { _children[pos] = lodChild; }
-        PagedLODChild& getChild(std::size_t pos) { return _children[pos]; }
-        const PagedLODChild& getChild(std::size_t pos) const { return _children[pos]; }
-
-        void addChild(const PagedLODChild& lodChild) { _children.emplace_back(lodChild); }
+        void setChild(std::size_t pos, const Child& lodChild) { _children[pos] = lodChild; }
+        Child& getChild(std::size_t pos) { return _children[pos]; }
+        const Child& getChild(std::size_t pos) const { return _children[pos]; }
 
         std::size_t getNumChildren() const { return _children.size(); }
 
         Children& getChildren() { return _children; }
         const Children& getChildren() const { return _children; }
 
+        void setMaxSlot(uint32_t slot) { _maxSlot = slot; }
+        uint32_t getMaxSlot() const { return _maxSlot; }
+
+        void setDescriptorPoolSizes(const DescriptorPoolSizes& dps) { _descriptorPoolSizes = dps; }
+        DescriptorPoolSizes& getDescriptorPoolSizes() { return _descriptorPoolSizes; }
+        const DescriptorPoolSizes& getDescriptorPoolSizes() const { return _descriptorPoolSizes; }
+
     protected:
         virtual ~PagedLOD();
 
         dsphere _bound;
         Children _children;
+
+        uint32_t _maxSlot = 0;
+        DescriptorPoolSizes _descriptorPoolSizes;
     };
     VSG_type_name(vsg::PagedLOD);
 

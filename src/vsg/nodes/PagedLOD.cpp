@@ -30,13 +30,21 @@ void PagedLOD::read(Input& input)
 
     input.read("Bound", _bound);
 
-    _children.resize(input.readValue<uint32_t>("NumChildren"));
-    for (auto& lodChild : _children)
+    input.read("maxSlot", _maxSlot);
+
+    _descriptorPoolSizes.resize(input.readValue<uint32_t>("NumDescriptorPoolSize"));
+    for (auto& [type, count] : _descriptorPoolSizes)
     {
-        input.read("Filename", lodChild.filename);
-        input.read("MinimumScreenHeightRatio", lodChild.minimumScreenHeightRatio);
-        lodChild.child = input.readObject<Node>("Child");
+        input.readValue<uint32_t>("type", type);
+        input.read("count", count);
     }
+
+    input.read("MinimumScreenHeightRatio", _children[0].minimumScreenHeightRatio);
+    input.read("Filename", filename);
+    _children[0].node = nullptr;
+
+    input.read("MinimumScreenHeightRatio", _children[1].minimumScreenHeightRatio);
+    _children[1].node = input.readObject<Node>("Child");
 }
 
 void PagedLOD::write(Output& output) const
@@ -45,11 +53,18 @@ void PagedLOD::write(Output& output) const
 
     output.write("Bound", _bound);
 
-    output.writeValue<uint32_t>("NumChildren", _children.size());
-    for (auto& lodChild : _children)
+    output.write("maxSlot", _maxSlot);
+
+    output.writeValue<uint32_t>("NumDescriptorPoolSize", _descriptorPoolSizes.size());
+    for (auto& [type, count] : _descriptorPoolSizes)
     {
-        output.write("Filename", lodChild.filename);
-        output.write("MinimumScreenHeightRatio", lodChild.minimumScreenHeightRatio);
-        output.writeObject("Child", lodChild.child);
+        output.writeValue<uint32_t>("type", type);
+        output.write("count", count);
     }
+
+    output.write("MinimumScreenHeightRatio", _children[0].minimumScreenHeightRatio);
+    output.write("Filename", filename);
+
+    output.write("MinimumScreenHeightRatio", _children[1].minimumScreenHeightRatio);
+    output.writeObject("Child", _children[1].node);
 }

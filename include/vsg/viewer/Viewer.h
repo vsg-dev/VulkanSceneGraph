@@ -113,6 +113,8 @@ namespace vsg
 
         void compile(BufferPreferences bufferPreferences = {});
 
+        ref_ptr<CompileTraversal> _compileTraversal;
+
     protected:
         virtual ~Viewer();
 
