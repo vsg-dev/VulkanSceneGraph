@@ -17,37 +17,127 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+/////////////////////////////////////////////////////////////////////////
+//
+// DatabasePager
+//
+DatabaseQueue::DatabaseQueue(ref_ptr<Active> in_active) :
+    _active(in_active)
+{
+}
+
+ref_ptr<PagedLOD> DatabaseQueue::take_when_avilable()
+{
+    std::chrono::duration waitDuration = std::chrono::milliseconds(100);
+
+    std::unique_lock lock(_mutex);
+
+    // wait to the conditional variable signals that an operation has been added
+    while (_queue.empty() && *_active)
+    {
+        //std::cout<<"Waiting on condition variable"<<std::endl;
+        _cv.wait_for(lock, waitDuration);
+    }
+
+    // if the threads we are associated with should no longer running go for a quick exit and return nothing.
+    if (!*_active)
+    {
+        return {};
+    }
+
+    // remove and return the head of the queue
+    ref_ptr<PagedLOD> plod= _queue.front();
+    _queue.erase(_queue.begin());
+    return plod;
+}
+
+/////////////////////////////////////////////////////////////////////////
+//
+// DatabasePager
+//
 DatabasePager::DatabasePager()
 {
+    if (!_active) _active = Active::create();
+
+    _requestQueue = DatabaseQueue::create(_active);
+    _toMergeQueue = DatabaseQueue::create(_active);
+}
+
+void DatabasePager::start()
+{
+    auto run = [](ref_ptr<DatabaseQueue> requestQueue, ref_ptr<DatabaseQueue> mergeQueue, ref_ptr<CompileTraversal> /*ct*/, ref_ptr<Active> a)
+    {
+        while (*(a))
+        {
+            auto plod = requestQueue->take_when_avilable();
+            if (plod)
+            {
+                auto subgraph = vsg::read_cast<vsg::Node>(plod->filename);
+
+                if (subgraph)
+                {
+#if 0
+                    // compiling subgarph
+                    if (ct)
+                    {
+                        subgraph->accept(*ct);
+                        ct->context.dispatchCommands();
+                    }
+#endif
+                    //std::cout<<"   assigned subgraph to plod"<<std::endl;
+                    plod->pending = subgraph;
+
+                    // move to the merge queue;
+                    mergeQueue->add(plod);
+                }
+            }
+        }
+    };
+
+    _databaseThreads.push_back(std::thread(run, std::ref(_requestQueue), std::ref(_toMergeQueue), std::ref(compileTraversal), std::ref(_active)));
 }
 
 DatabasePager::~DatabasePager()
 {
+    std::cout<<"DatabasePager::~DatabasePager()"<<std::endl;
+
+    _active->active = false;
+
+    for(auto& thread : _databaseThreads)
+    {
+        thread.join();
+    }
 }
 
 void DatabasePager::request(ref_ptr<PagedLOD> plod)
 {
     std::cout<<"DatabasePager::reqquest("<<plod.get()<<") "<<plod->filename<<", "<<plod->priority<<std::endl;
-
-    auto subgraph = vsg::read_cast<vsg::Node>(plod->filename);
-
-    if (subgraph)
-    {
-        // compiling subgarph
-        if (compileTraversal)
-        {
-            subgraph->accept(*compileTraversal);
-            compileTraversal->context.dispatchCommands();
-        }
-
-        //std::cout<<"   assigned subgraph to plod"<<std::endl;
-        plod->getChild(0).node = subgraph;
-
-    }
+    _requestQueue->add(plod);
 }
 
 void DatabasePager::updateSceneGraph()
 {
-    //std::cout<<"DatabasePager::updateSceneGraph()"<<std::endl;
-}
+    auto nodes = _toMergeQueue->take();
+    if (!nodes.empty())
+    {
+        std::cout<<"DatabasePager::updateSceneGraph() nodes to merge"<<std::endl;
+        for(auto& plod : nodes)
+        {
+#if 0
+            // compiling subgarph
+            if (compileTraversal)
+            {
+                plod->pending->accept(*compileTraversal);
+                compileTraversal->context.dispatchCommands();
+            }
+#endif
+            std::cout<<"   Merged "<<plod->filename<<" after "<<plod->requestCount.load()<<std::endl;
+            plod->getChild(0).node = plod->pending;
 
+        }
+    }
+    else
+    {
+        //std::cout<<"DatabasePager::updateSceneGraph() nothing to merge"<<std::endl;
+    }
+}

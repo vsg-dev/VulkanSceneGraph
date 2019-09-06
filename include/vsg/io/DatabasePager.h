@@ -19,19 +19,61 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/PagedLOD.h>
 
+#include <vsg/threading/OperationQueue.h>
+
 #include <vsg/traversals/CompileTraversal.h>
+
+#include <list>
+#include <thread>
 
 namespace vsg
 {
+    class VSG_DECLSPEC DatabaseQueue : public Inherit<Object, DatabaseQueue>
+    {
+    public:
+        DatabaseQueue(ref_ptr<Active> in_active);
+
+        using Nodes = std::list<ref_ptr<PagedLOD>>;
+
+        Active* getActive() { return _active; }
+        const Active* getActive() const { return _active; }
+
+        void add(ref_ptr<PagedLOD> plod)
+        {
+            std::unique_lock lock(_mutex);
+            _queue.emplace_back(plod);
+            _cv.notify_one();
+        }
+
+        ref_ptr<PagedLOD> take_when_avilable();
+
+        Nodes take()
+        {
+            std::unique_lock lock(_mutex);
+            Nodes nodes;
+            nodes.swap(_queue);
+            return nodes;
+        }
+
+    protected:
+
+        std::mutex _mutex;
+        std::condition_variable _cv;
+        Nodes _queue;
+        ref_ptr<Active> _active;
+    };
+    VSG_type_name(vsg::DatabaseQueue)
 
     class DatabasePager : public Inherit<Object, DatabasePager>
     {
     public:
         DatabasePager();
 
+        virtual void start();
+
         virtual void request(ref_ptr<PagedLOD> plod);
 
-        void updateSceneGraph();
+        virtual void updateSceneGraph();
 
         ref_ptr<const Options> options;
 
@@ -39,6 +81,15 @@ namespace vsg
 
     protected:
         virtual ~DatabasePager();
+
+
+        ref_ptr<Active> _active;
+        ref_ptr<DatabaseQueue> _requestQueue;
+        ref_ptr<DatabaseQueue> _toMergeQueue;
+
+        std::list<std::thread> _databaseThreads;
+
+
     };
     VSG_type_name(vsg::DatabasePager);
 

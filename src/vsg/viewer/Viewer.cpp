@@ -350,6 +350,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
                 if (gs->databasePager)
                 {
                     gs->databasePager->compileTraversal = compile;
+                    gs->databasePager->start();
                 }
 
                 gs->_maxSlot = collectStats.maxSlot;

@@ -91,6 +91,9 @@ namespace vsg
         DescriptorPoolSizes& getDescriptorPoolSizes() { return _descriptorPoolSizes; }
         const DescriptorPoolSizes& getDescriptorPoolSizes() const { return _descriptorPoolSizes; }
 
+        mutable std::atomic_uint requestCount = 0;
+        ref_ptr<Node> pending;
+
     protected:
         virtual ~PagedLOD();
 
