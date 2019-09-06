@@ -48,7 +48,6 @@ DispatchTraversal::DispatchTraversal(CommandBuffer* commandBuffer, uint32_t maxS
 
 DispatchTraversal::~DispatchTraversal()
 {
-    delete _state;
 }
 
 void DispatchTraversal::setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)

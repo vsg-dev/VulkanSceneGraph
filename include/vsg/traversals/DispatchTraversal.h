@@ -63,7 +63,7 @@ namespace vsg
         ref_ptr<DatabasePager> databasePager;
 
     protected:
-        State* _state;
+        ref_ptr<State> _state;
 
     };
 } // namespace vsg
