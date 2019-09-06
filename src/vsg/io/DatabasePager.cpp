@@ -33,13 +33,22 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
 
     if (subgraph)
     {
-        std::cout<<"   assigned subgraph to plod"<<std::endl;
+        // compiling subgarph
+        if (compileTraversal)
+        {
+            subgraph->accept(*compileTraversal);
+            compileTraversal->context.dispatchCommands();
+
+        }
+
+        //std::cout<<"   assigned subgraph to plod"<<std::endl;
         plod->getChild(0).node = subgraph;
+
     }
 }
 
 void DatabasePager::updateSceneGraph()
 {
-    std::cout<<"DatabasePager::updateSceneGraph()"<<std::endl;
+    //std::cout<<"DatabasePager::updateSceneGraph()"<<std::endl;
 }
 
