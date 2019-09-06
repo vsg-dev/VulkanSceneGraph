@@ -549,7 +549,8 @@ void Context::dispatchCommands()
         vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
         vkQueueWaitIdle(graphicsQueue);
     }
-
+    copyBufferDataCommands.clear();
+    copyImageDataCommands.clear();
     commands.clear();
 
     std::cout << "Context::dispatchCommands()  time " << std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - before_compile).count() << "ms" << std::endl;
