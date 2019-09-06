@@ -42,16 +42,25 @@ void CollectDescriptorStats::apply(const Object& object)
 
 void CollectDescriptorStats::apply(const PagedLOD& plod)
 {
+#if 1
     if (plod.getMaxSlot() > maxSlot) maxSlot = plod.getMaxSlot();
 
-    externalNumDescriptorSets += plod.getNumDescriptorSets();
-
-    for(auto& [type, count] : plod.getDescriptorPoolSizes())
+    if (!plod.getDescriptorPoolSizes().empty() || plod.getNumDescriptorSets()>9)
     {
-        descriptorTypeMap[type] += count;
-    }
+        externalNumDescriptorSets += plod.getNumDescriptorSets();
 
+        for(auto& [type, count] : plod.getDescriptorPoolSizes())
+        {
+            descriptorTypeMap[type] += count;
+        }
+    }
+    else
+    {
+        plod.traverse(*this);
+    }
+#else
     plod.traverse(*this);
+#endif
 }
 
 void CollectDescriptorStats::apply(const StateGroup& stategroup)
