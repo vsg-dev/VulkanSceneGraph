@@ -55,6 +55,7 @@ namespace vsg
         DescriptorSets descriptorSets;
         DescriptorTypeMap descriptorTypeMap;
         uint32_t maxSlot = 0;
+        uint32_t externalNumDescriptorSets = 0;
     };
 
     class VSG_DECLSPEC CompileTraversal : public Visitor

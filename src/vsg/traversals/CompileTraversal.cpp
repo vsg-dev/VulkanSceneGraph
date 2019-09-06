@@ -44,6 +44,8 @@ void CollectDescriptorStats::apply(const PagedLOD& plod)
 {
     if (plod.getMaxSlot() > maxSlot) maxSlot = plod.getMaxSlot();
 
+    externalNumDescriptorSets += plod.getNumDescriptorSets();
+
     for(auto& [type, count] : plod.getDescriptorPoolSizes())
     {
         descriptorTypeMap[type] += count;
@@ -89,7 +91,7 @@ void CollectDescriptorStats::apply(const Descriptor& descriptor)
 
 uint32_t CollectDescriptorStats::computeNumDescriptorSets() const
 {
-    return static_cast<uint32_t>(descriptorSets.size());
+    return externalNumDescriptorSets + static_cast<uint32_t>(descriptorSets.size());
 }
 
 DescriptorPoolSizes CollectDescriptorStats::computeDescriptorPoolSizes() const
