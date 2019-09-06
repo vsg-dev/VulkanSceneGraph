@@ -335,32 +335,37 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             std::cout << "    " << type << "\t\t" << count << std::endl;
         }
 #endif
-        vsg::CompileTraversal compile(device, bufferPreferences);
-        compile.context.commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
-        compile.context.renderPass = window->renderPass();
-        compile.context.graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());
+        ref_ptr<CompileTraversal> compile(new CompileTraversal(device, bufferPreferences));
+        compile->context.commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
+        compile->context.renderPass = window->renderPass();
+        compile->context.graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());
 
-        if (maxSets > 0) compile.context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
+        if (maxSets > 0) compile->context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
 
         for (auto& stage : window->stages())
         {
             GraphicsStage* gs = dynamic_cast<GraphicsStage*>(stage.get());
             if (gs)
             {
+                if (gs->databasePager)
+                {
+                    gs->databasePager->compileTraversal = compile;
+                }
+
                 gs->_maxSlot = collectStats.maxSlot;
 
                 if (gs->_camera->getViewportState())
-                    compile.context.viewport = gs->_camera->getViewportState();
+                    compile->context.viewport = gs->_camera->getViewportState();
                 else if (gs->_viewport)
-                    compile.context.viewport = gs->_viewport;
+                    compile->context.viewport = gs->_viewport;
                 else
-                    compile.context.viewport = vsg::ViewportState::create(window->extent2D());
+                    compile->context.viewport = vsg::ViewportState::create(window->extent2D());
 
                 // std::cout << "Compiling GraphicsStage " << compile.context.viewport << std::endl;
 
-                gs->_commandGraph->accept(compile);
+                gs->_commandGraph->accept(*compile);
 
-                compile.context.dispatchCommands();
+                compile->context.dispatchCommands();
             }
             else
             {
