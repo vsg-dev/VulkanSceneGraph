@@ -44,6 +44,16 @@ void PagedLOD::read(Input& input)
     input.read("Filename", filename);
     _children[0].node = nullptr;
 
+    if (!input.filename.empty())
+    {
+        auto path = filePath(input.filename);
+        if (!path.empty())
+        {
+            filename = concatPaths(path, filename);
+        }
+    }
+
+
     input.read("MinimumScreenHeightRatio", _children[1].minimumScreenHeightRatio);
     _children[1].node = input.readObject<Node>("Child");
 }

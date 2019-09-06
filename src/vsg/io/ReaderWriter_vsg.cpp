@@ -82,11 +82,13 @@ vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(const vsg::Path& filename, ref_
         if (type == BINARY)
         {
             vsg::BinaryInput input(fin, _objectFactory, options);
+            input.filename = filenameToUse;
             return input.readObject("Root");
         }
         else if (type == ASCII)
         {
             vsg::AsciiInput input(fin, _objectFactory, options);
+            input.filename = filenameToUse;
             return input.readObject("Root");
         }
     }

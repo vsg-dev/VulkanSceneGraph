@@ -155,6 +155,7 @@ namespace vsg
         ObjectIDMap objectIDMap;
         ref_ptr<ObjectFactory> objectFactory;
         ref_ptr<const Options> options;
+        Path filename;
 
     protected:
         virtual ~Input();

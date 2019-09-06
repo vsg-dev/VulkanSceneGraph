@@ -38,7 +38,6 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
         {
             subgraph->accept(*compileTraversal);
             compileTraversal->context.dispatchCommands();
-
         }
 
         //std::cout<<"   assigned subgraph to plod"<<std::endl;
