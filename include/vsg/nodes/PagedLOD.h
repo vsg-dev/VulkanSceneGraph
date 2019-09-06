@@ -81,6 +81,9 @@ namespace vsg
         Children& getChildren() { return _children; }
         const Children& getChildren() const { return _children; }
 
+        void setNumDescriptorSets(uint32_t count) { _numDescriptorSets = count; }
+        uint32_t getNumDescriptorSets() const { return _numDescriptorSets; }
+
         void setMaxSlot(uint32_t slot) { _maxSlot = slot; }
         uint32_t getMaxSlot() const { return _maxSlot; }
 
@@ -95,6 +98,7 @@ namespace vsg
         Children _children;
 
         uint32_t _maxSlot = 0;
+        uint32_t _numDescriptorSets = 0;
         DescriptorPoolSizes _descriptorPoolSizes;
     };
     VSG_type_name(vsg::PagedLOD);

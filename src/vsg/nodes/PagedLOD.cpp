@@ -30,7 +30,8 @@ void PagedLOD::read(Input& input)
 
     input.read("Bound", _bound);
 
-    input.read("maxSlot", _maxSlot);
+    input.read("MaxSlot", _maxSlot);
+    input.read("NumDescriptorSets", _numDescriptorSets);
 
     _descriptorPoolSizes.resize(input.readValue<uint32_t>("NumDescriptorPoolSize"));
     for (auto& [type, count] : _descriptorPoolSizes)
@@ -53,7 +54,8 @@ void PagedLOD::write(Output& output) const
 
     output.write("Bound", _bound);
 
-    output.write("maxSlot", _maxSlot);
+    output.write("MaxSlot", _maxSlot);
+    output.write("NumDescriptorSets", _numDescriptorSets);
 
     output.writeValue<uint32_t>("NumDescriptorPoolSize", _descriptorPoolSizes.size());
     for (auto& [type, count] : _descriptorPoolSizes)
