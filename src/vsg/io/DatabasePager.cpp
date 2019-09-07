@@ -67,6 +67,8 @@ void DatabasePager::start()
 {
     auto run = [](ref_ptr<DatabaseQueue> requestQueue, ref_ptr<DatabaseQueue> mergeQueue, ref_ptr<CompileTraversal> /*ct*/, ref_ptr<Active> a)
     {
+        std::cout<<"Started DatabaseThread run"<<std::endl;
+
         while (*(a))
         {
             auto plod = requestQueue->take_when_avilable();
@@ -76,14 +78,6 @@ void DatabasePager::start()
 
                 if (subgraph)
                 {
-#if 0
-                    // compiling subgarph
-                    if (ct)
-                    {
-                        subgraph->accept(*ct);
-                        ct->context.dispatchCommands();
-                    }
-#endif
                     //std::cout<<"   assigned subgraph to plod"<<std::endl;
                     plod->pending = subgraph;
 
@@ -92,9 +86,14 @@ void DatabasePager::start()
                 }
             }
         }
+        std::cout<<"Finsihed DatabaseThread"<<std::endl;
     };
 
-    _databaseThreads.push_back(std::thread(run, std::ref(_requestQueue), std::ref(_toMergeQueue), std::ref(compileTraversal), std::ref(_active)));
+    int numThreads = 4;
+    for(int i=0; i<numThreads; ++i)
+    {
+        _databaseThreads.push_back(std::thread(run, std::ref(_requestQueue), std::ref(_toMergeQueue), std::ref(compileTraversal), std::ref(_active)));
+    }
 }
 
 DatabasePager::~DatabasePager()
@@ -111,7 +110,7 @@ DatabasePager::~DatabasePager()
 
 void DatabasePager::request(ref_ptr<PagedLOD> plod)
 {
-    std::cout<<"DatabasePager::reqquest("<<plod.get()<<") "<<plod->filename<<", "<<plod->priority<<std::endl;
+    //std::cout<<"DatabasePager::reqquest("<<plod.get()<<") "<<plod->filename<<", "<<plod->priority<<std::endl;
     _requestQueue->add(plod);
 }
 
@@ -123,7 +122,7 @@ void DatabasePager::updateSceneGraph()
         std::cout<<"DatabasePager::updateSceneGraph() nodes to merge"<<std::endl;
         for(auto& plod : nodes)
         {
-#if 0
+#if 1
             // compiling subgarph
             if (compileTraversal)
             {
@@ -138,6 +137,6 @@ void DatabasePager::updateSceneGraph()
     }
     else
     {
-        //std::cout<<"DatabasePager::updateSceneGraph() nothing to merge"<<std::endl;
+        std::cout<<"DatabasePager::updateSceneGraph() nothing to merge"<<std::endl;
     }
 }
