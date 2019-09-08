@@ -141,15 +141,13 @@ void DispatchTraversal::apply(const PagedLOD& plod)
             }
             else if (databasePager)
             {
-                // TODO need to resolve const aspect and priority, also need to check based on
                 auto priority = rf / cutoff;
                 exchange_if_greater(plod.priority, priority);
 
                 auto previousRequestCount = plod.requestCount.fetch_add(1);
                 if (previousRequestCount==0)
                 {
-                    // we are first request
-                    std::cout<<"first request "<<&plod<<", "<<plod.requestCount.load()<<std::endl;;
+                    // we are first request so tell the databasePager about it
                     databasePager->request(ref_ptr<PagedLOD>(const_cast<PagedLOD*>(&plod)));
                 }
                 else

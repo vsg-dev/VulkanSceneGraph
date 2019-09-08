@@ -524,7 +524,7 @@ void Context::dispatchCommands()
     // we must wait for the queue to empty before we can safely clean up the commandBuffer
     if (fence)
     {
-        vkQueueSubmit(graphicsQueue, 1, &submitInfo, *fence);
+        graphicsQueue->submit(submitInfo, fence);
         if (timeout > 0)
         {
             VkResult result = fence->wait(timeout);
@@ -546,13 +546,12 @@ void Context::dispatchCommands()
     }
     else
     {
-        vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(graphicsQueue);
+        graphicsQueue->submit(submitInfo);
+        graphicsQueue->waitIdle();
     }
     copyBufferDataCommands.clear();
     copyImageDataCommands.clear();
     commands.clear();
 
-    std::cout << "Context::dispatchCommands()  time " << std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - before_compile).count() << "ms" << std::endl;
-    ;
+    //std::cout << "Context::dispatchCommands()  time " << std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - before_compile).count() << "ms" << std::endl;
 }

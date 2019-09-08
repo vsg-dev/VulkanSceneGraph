@@ -55,7 +55,7 @@ namespace vsg
     };
 
     template<typename F>
-    void dispatchCommandsToQueue(Device* device, CommandPool* commandPool, Fence* fence, uint64_t timeout, VkQueue queue, F function)
+    void dispatchCommandsToQueue(Device* device, CommandPool* commandPool, Fence* fence, uint64_t timeout, Queue* queue, F function)
     {
         vsg::ref_ptr<vsg::CommandBuffer> commandBuffer = vsg::CommandBuffer::create(device, commandPool, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
@@ -77,18 +77,18 @@ namespace vsg
         // we must wait for the queue to empty before we can safely clean up the commandBuffer
         if (fence)
         {
-            vkQueueSubmit(queue, 1, &submitInfo, *fence);
+            queue->submit(submitInfo, fence);
             if (timeout > 0) fence->wait(timeout);
         }
         else
         {
-            vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
-            vkQueueWaitIdle(queue);
+            queue->submit(submitInfo, VK_NULL_HANDLE);
+            queue->waitIdle();
         }
     }
 
     template<typename F>
-    void dispatchCommandsToQueue(Device* device, CommandPool* commandPool, VkQueue queue, F function)
+    void dispatchCommandsToQueue(Device* device, CommandPool* commandPool, Queue* queue, F function)
     {
         dispatchCommandsToQueue(device, commandPool, nullptr, 0, queue, function);
     }

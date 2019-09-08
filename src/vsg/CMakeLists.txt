@@ -100,6 +100,7 @@ set(SOURCES
     vk/PhysicalDevice.cpp
     vk/PipelineLayout.cpp
     vk/PushConstants.cpp
+    vk/Queue.cpp
     vk/RenderPass.cpp
     vk/Sampler.cpp
     vk/Semaphore.cpp

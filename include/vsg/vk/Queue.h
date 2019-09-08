@@ -12,37 +12,50 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Device.h>
+#include <vsg/core/Object.h>
+#include <vulkan/vulkan.h>
+
+#include <mutex>
+#include <vector>
 
 namespace vsg
 {
-    class VSG_DECLSPEC Fence : public Inherit<Object, Fence>
+    // forward declare
+    class Fence;
+
+    class VSG_DECLSPEC Queue : public Object
     {
     public:
-        Fence(VkFence Fence, Device* device, AllocationCallbacks* allocator = nullptr);
+        operator VkQueue() const { return _vkQueue; }
 
-        using Result = vsg::Result<Fence, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, VkFenceCreateFlags flags = 0, AllocationCallbacks* allocator = nullptr);
+        VkQueue queue() const { return _vkQueue; }
+        uint32_t queueFamilyIndex() const { return _queueFamilyIndex; }
+        uint32_t queueIndex() const { return _queueIndex; }
 
-        VkResult wait(uint64_t timeout) const { return vkWaitForFences(*_device, 1, &_vkFence, VK_TRUE, timeout); }
+        VkResult submit(const std::vector<VkSubmitInfo>& submitInfos, Fence* fence = nullptr);
 
-        VkResult reset() const { return vkResetFences(*_device, 1, &_vkFence); }
+        VkResult submit(const VkSubmitInfo& submitInfo, Fence* fence = nullptr);
 
-        VkResult status() const { return vkGetFenceStatus(*_device, _vkFence); }
+        VkResult present(const VkPresentInfoKHR& info);
 
-        VkFence fence() const { return _vkFence; }
-
-        operator VkFence() const { return _vkFence; }
-
-        Device* getDevice() { return _device; }
-        const Device* getDevice() const { return _device; }
+        VkResult waitIdle();
 
     protected:
-        virtual ~Fence();
 
-        VkFence _vkFence;
-        ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
+        Queue(VkQueue queue, uint32_t queueFamilyIndex, uint32_t queueIndex);
+        virtual ~Queue();
+
+        Queue() = delete;
+        Queue(const Queue&) = delete;
+        Queue& operator = (const Queue&) = delete;
+
+        // allow only Device to create Queue to ensure that queues are shared
+        friend class Device;
+
+        VkQueue _vkQueue;
+        uint32_t _queueFamilyIndex;
+        uint32_t _queueIndex;
+        std::mutex _mutex;
     };
 
 } // namespace vsg

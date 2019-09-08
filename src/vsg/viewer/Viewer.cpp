@@ -174,7 +174,7 @@ bool Viewer::aquireNextFrame()
             for (auto& pair_pdo : _deviceMap)
             {
                 PerDeviceObjects& pdo = pair_pdo.second;
-                vkQueueWaitIdle(pdo.presentQueue);
+                pdo.presentQueue->waitIdle();
             }
 
             //std::cout<<"window->acquireNextImage(), result==VK_ERROR_OUT_OF_DATE_KHR  rebuild swap chain : resized="<<window->resized()<<" numTries="<<numTries<<std::endl;
@@ -225,13 +225,13 @@ bool Viewer::submitNextFrame()
     {
         PerDeviceObjects& pdo = pair_pdo.second;
 
-        VkFence fence = VK_NULL_HANDLE;
+        ref_ptr<Fence> fence;
 
         std::vector<VkSemaphore> waitSemaphores;
         for (auto& window : pdo.windows)
         {
             waitSemaphores.push_back(*(window->frame(window->nextImageIndex()).imageAvailableSemaphore));
-            fence = *(window->frame(window->nextImageIndex()).commandsCompletedFence);
+            fence = window->frame(window->nextImageIndex()).commandsCompletedFence;
             window->frame(window->nextImageIndex()).checkCommandsCompletedFence = true;
         }
 
@@ -258,7 +258,7 @@ bool Viewer::submitNextFrame()
         submitInfo.signalSemaphoreCount = static_cast<uint32_t>(pdo.signalSemaphores.size());
         submitInfo.pSignalSemaphores = pdo.signalSemaphores.data();
 
-        if (vkQueueSubmit(pdo.graphicsQueue, 1, &submitInfo, fence) != VK_SUCCESS)
+        if (pdo.graphicsQueue->submit(submitInfo, fence) != VK_SUCCESS)
         {
             std::cout << "Error: failed to submit draw command buffer." << std::endl;
             return false;
@@ -277,7 +277,7 @@ bool Viewer::submitNextFrame()
         presentInfo.pSwapchains = pdo.swapchains.data();
         presentInfo.pImageIndices = pdo.imageIndices.data();
 
-        vkQueuePresentKHR(pdo.presentQueue, &presentInfo);
+        pdo.presentQueue->present(presentInfo);
     }
 
     if (debugLayersEnabled)
@@ -287,7 +287,7 @@ bool Viewer::submitNextFrame()
         for (auto& pair_pdo : _deviceMap)
         {
             PerDeviceObjects& pdo = pair_pdo.second;
-            vkQueueWaitIdle(pdo.presentQueue);
+            pdo.presentQueue->waitIdle();
         }
 
         //std::cout << "Viewer::submitFrame() vkQueueWaitIdle() completed in " << std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - startTime).count() << "ms" << std::endl;

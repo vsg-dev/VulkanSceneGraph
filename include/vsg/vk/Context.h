@@ -120,7 +120,7 @@ namespace vsg
         using MemoryPools = std::vector<ref_ptr<DeviceMemory>>;
         using BufferPools = std::vector<ref_ptr<Buffer>>;
 
-        VkQueue graphicsQueue = 0;
+        ref_ptr<Queue> graphicsQueue;
         ref_ptr<CommandPool> commandPool;
         ref_ptr<CommandBuffer> commandBuffer;
         ref_ptr<Fence> fence;

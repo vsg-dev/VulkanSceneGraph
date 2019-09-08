@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,37 +10,41 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Device.h>
+#include <vsg/vk/Queue.h>
+#include <vsg/vk/Fence.h>
 
-namespace vsg
+using namespace vsg;
+
+Queue::Queue(VkQueue queue, uint32_t queueFamilyIndex, uint32_t queueIndex) :
+    _vkQueue(queue),
+    _queueFamilyIndex(queueFamilyIndex),
+    _queueIndex(queueIndex)
 {
-    class VSG_DECLSPEC Fence : public Inherit<Object, Fence>
-    {
-    public:
-        Fence(VkFence Fence, Device* device, AllocationCallbacks* allocator = nullptr);
+}
 
-        using Result = vsg::Result<Fence, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, VkFenceCreateFlags flags = 0, AllocationCallbacks* allocator = nullptr);
+Queue::~Queue()
+{
+}
 
-        VkResult wait(uint64_t timeout) const { return vkWaitForFences(*_device, 1, &_vkFence, VK_TRUE, timeout); }
+VkResult Queue::submit(const std::vector<VkSubmitInfo>& submitInfos, Fence* fence)
+{
+    std::lock_guard<std::mutex> guard(_mutex);
+    return vkQueueSubmit(_vkQueue, submitInfos.size(), submitInfos.data(), (fence==nullptr) ? VK_NULL_HANDLE : fence->fence());
+}
 
-        VkResult reset() const { return vkResetFences(*_device, 1, &_vkFence); }
+VkResult Queue::submit(const VkSubmitInfo& submitInfo, Fence* fence)
+{
+    std::lock_guard<std::mutex> guard(_mutex);
+    return vkQueueSubmit(_vkQueue, 1, &submitInfo, (fence==nullptr) ? VK_NULL_HANDLE : fence->fence());
+}
 
-        VkResult status() const { return vkGetFenceStatus(*_device, _vkFence); }
+VkResult Queue::present(const VkPresentInfoKHR& info)
+{
+    std::lock_guard<std::mutex> guard(_mutex);
+    return vkQueuePresentKHR(_vkQueue, &info);
+}
 
-        VkFence fence() const { return _vkFence; }
-
-        operator VkFence() const { return _vkFence; }
-
-        Device* getDevice() { return _device; }
-        const Device* getDevice() const { return _device; }
-
-    protected:
-        virtual ~Fence();
-
-        VkFence _vkFence;
-        ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
-    };
-
-} // namespace vsg
+VkResult Queue::waitIdle()
+{
+    return vkQueueWaitIdle(_vkQueue);
+}

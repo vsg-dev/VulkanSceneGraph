@@ -79,6 +79,7 @@ void CollectDescriptorStats::apply(const StateCommand& stateCommand)
 
     stateCommand.traverse(*this);
 }
+
 void CollectDescriptorStats::apply(const DescriptorSet& descriptorSet)
 {
     if (descriptorSets.count(&descriptorSet) == 0)
