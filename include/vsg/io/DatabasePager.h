@@ -85,9 +85,11 @@ namespace vsg
 
         ref_ptr<Active> _active;
         ref_ptr<DatabaseQueue> _requestQueue;
+        ref_ptr<DatabaseQueue> _compileQueue;
         ref_ptr<DatabaseQueue> _toMergeQueue;
 
-        std::list<std::thread> _databaseThreads;
+        std::list<std::thread> _readThreads;
+        std::list<std::thread> _compileThreads;
 
 
     };
