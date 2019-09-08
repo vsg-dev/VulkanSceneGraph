@@ -156,8 +156,6 @@ void DatabasePager::start()
         _compileThreads.push_back(std::thread(compile, std::ref(_compileQueue), std::ref(_toMergeQueue), std::ref(compileTraversal), std::ref(_active)));
     }
 
-
-
 }
 
 void DatabasePager::request(ref_ptr<PagedLOD> plod)
