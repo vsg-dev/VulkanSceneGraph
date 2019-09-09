@@ -31,13 +31,19 @@ DescriptorImage::DescriptorImage() :
 DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> image, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
     Inherit(dstBinding, dstArrayElement, descriptorType)
 {
-    if (sampler || image) _samplerImages.emplace_back(SamplerImage(sampler, image));
+    if (sampler || image) _samplerImages.emplace_back(SamplerImage {sampler, image, ref_ptr<ImageView>()});
+}
+
+DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<ImageView> image, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
+    Inherit(dstBinding, dstArrayElement, descriptorType)
+{
+    if (sampler || image) _samplerImages.emplace_back(SamplerImage{sampler, ref_ptr<Data>(), image});
 }
 
 DescriptorImage::DescriptorImage(const SamplerImage& samplerImage, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
     Inherit(dstBinding, dstArrayElement, descriptorType)
 {
-    if (samplerImage.first || samplerImage.second) _samplerImages.emplace_back(samplerImage);
+    if (samplerImage.sampler || samplerImage.data || samplerImage.imageView) _samplerImages.emplace_back(samplerImage);
 }
 
 DescriptorImage::DescriptorImage(const SamplerImages& samplerImages, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
@@ -56,8 +62,8 @@ void DescriptorImage::read(Input& input)
     _samplerImages.resize(input.readValue<uint32_t>("NumImages"));
     for (auto& samplerImage : _samplerImages)
     {
-        samplerImage.first = input.readObject<Sampler>("Sampler");
-        samplerImage.second = input.readObject<Data>("Image");
+        samplerImage.sampler = input.readObject<Sampler>("Sampler");
+        samplerImage.data = input.readObject<Data>("Image");
     }
 }
 
@@ -68,8 +74,8 @@ void DescriptorImage::write(Output& output) const
     output.writeValue<uint32_t>("NumImages", _samplerImages.size());
     for (auto& samplerImage : _samplerImages)
     {
-        output.writeObject("Sampler", samplerImage.first.get());
-        output.writeObject("Image", samplerImage.second.get());
+        output.writeObject("Sampler", samplerImage.sampler.get());
+        output.writeObject("Image", samplerImage.data.get());
     }
 }
 
@@ -84,8 +90,15 @@ void DescriptorImage::compile(Context& context)
         _imageDataList.reserve(_samplerImages.size());
         for (auto& samplerImage : _samplerImages)
         {
-            samplerImage.first->compile(context);
-            _imageDataList.emplace_back(vsg::transferImageData(context, samplerImage.second, samplerImage.first));
+            samplerImage.sampler->compile(context);
+            if (samplerImage.imageView)
+            {
+                _imageDataList.emplace_back(ImageData(samplerImage.sampler, samplerImage.imageView));
+            }
+            else
+            {
+                _imageDataList.emplace_back(vsg::transferImageData(context, samplerImage.data, samplerImage.sampler));
+            }
         }
     }
 
