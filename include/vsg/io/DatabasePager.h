@@ -47,6 +47,8 @@ namespace vsg
 
         ref_ptr<PagedLOD> take_when_avilable();
 
+        Nodes take_all_when_available();
+
         Nodes take()
         {
             std::unique_lock lock(_mutex);
