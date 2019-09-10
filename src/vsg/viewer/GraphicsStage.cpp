@@ -95,6 +95,198 @@ namespace vsg
     };
 }; // namespace vsg
 
+OffscreenRenderPass::OffscreenRenderPass(Device* device, ref_ptr<Node> commandGraph, ref_ptr<Camera> camera, VkExtent2D extents) :
+    _camera(camera),
+    _commandGraph(commandGraph),
+    _projMatrix(new vsg::mat4Value),
+    _viewMatrix(new vsg::mat4Value),
+    _extent2D(extents)
+{
+    VkFormat colorFormat = VK_FORMAT_R8G8B8A8_UNORM;
+    VkImageLayout colorFinalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+    VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT;
+    VkImageLayout depthFinalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    //
+    // create render pass
+    //
+
+    RenderPass::Attachments attachments;
+
+    VkAttachmentDescription colorAttachment = {};
+    colorAttachment.format = colorFormat;
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    colorAttachment.storeOp = colorFinalLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL ? VK_ATTACHMENT_STORE_OP_DONT_CARE : VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachment.finalLayout = colorFinalLayout;
+    attachments.push_back(colorAttachment);
+
+    VkAttachmentDescription depthAttachment = {};
+    depthAttachment.format = depthFormat;
+    depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    depthAttachment.storeOp = depthFinalLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL ? VK_ATTACHMENT_STORE_OP_DONT_CARE : VK_ATTACHMENT_STORE_OP_STORE;
+    depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depthAttachment.finalLayout = depthFinalLayout;
+    attachments.push_back(depthAttachment);
+
+    VkAttachmentReference colorAttachmentRef = {};
+    colorAttachmentRef.attachment = 0;
+    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentReference depthAttachmentRef = {};
+    depthAttachmentRef.attachment = 1;
+    depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    RenderPass::Subpasses subpasses;
+
+    VkSubpassDescription subpass = {};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentRef;
+    subpass.pDepthStencilAttachment = &depthAttachmentRef;
+    subpasses.push_back(subpass);
+
+    RenderPass::Dependancies dependancies;
+
+    VkSubpassDependency dependency = {};
+    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.dstSubpass = 0;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.srcAccessMask = 0;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependancies.push_back(dependency);
+
+    _renderPass = RenderPass::create(device, attachments, subpasses, dependancies);
+
+    //
+    // create color and depth images for frame buffer attachments
+    //
+
+    VkImageCreateInfo imageCreateInfo = {};
+    imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+    imageCreateInfo.extent.width = _extent2D.width;
+    imageCreateInfo.extent.height = _extent2D.height;
+    imageCreateInfo.extent.depth = 1;
+    imageCreateInfo.mipLevels = 1;
+    imageCreateInfo.arrayLayers = 1;
+    imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    imageCreateInfo.pNext = nullptr;
+
+    // create color
+    imageCreateInfo.format = colorFormat;
+    imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;// VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+    _colorImage = Image::create(device, imageCreateInfo);
+    _colorImageMemory = DeviceMemory::create(device, _colorImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    vkBindImageMemory(*device, *_colorImage, *_colorImageMemory, 0);
+
+    _colorImageView = ImageView::create(device, _colorImage, VK_IMAGE_VIEW_TYPE_2D, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+
+    // create depth
+    imageCreateInfo.format = depthFormat;
+    imageCreateInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+
+    _depthImage = Image::create(device, imageCreateInfo);
+    _depthImageMemory = DeviceMemory::create(device, _depthImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    vkBindImageMemory(*device, *_depthImage, *_depthImageMemory, 0);
+
+    _depthImageView = ImageView::create(device, _depthImage, VK_IMAGE_VIEW_TYPE_2D, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+
+    std::array<VkImageView, 2> fbAttachments = {{*_colorImageView, *_depthImageView}};
+
+    //
+    // create frame buffer
+    //
+
+    VkFramebufferCreateInfo framebufferInfo = {};
+    framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    framebufferInfo.renderPass = *_renderPass;
+    framebufferInfo.attachmentCount = static_cast<uint32_t>(fbAttachments.size());
+    framebufferInfo.pAttachments = fbAttachments.data();
+    framebufferInfo.width = _extent2D.width;
+    framebufferInfo.height = _extent2D.height;
+    framebufferInfo.layers = 1;
+
+    _frameBuffer = Framebuffer::create(device, framebufferInfo);
+    _semaphore = vsg::Semaphore::create(device);
+}
+
+void OffscreenRenderPass::populateCommandBuffer(CommandBuffer* commandBuffer)
+{
+    if (!_viewport)
+    {
+        if (_camera)
+        {
+            ref_ptr<Perspective> perspective(dynamic_cast<Perspective*>(_camera->getProjectionMatrix()));
+            if (perspective)
+            {
+                perspective->aspectRatio = static_cast<double>(_extent2D.width) / static_cast<double>(_extent2D.height);
+            }
+
+            if (_camera->getViewportState())
+            {
+                _camera->getViewportState()->getViewport().width = static_cast<float>(_extent2D.width);
+                _camera->getViewportState()->getViewport().height = static_cast<float>(_extent2D.height);
+                _camera->getViewportState()->getScissor().extent = _extent2D;
+            }
+            else
+            {
+                _camera->setViewportState(ViewportState::create(_extent2D));
+            }
+            _viewport = _camera->getViewportState();
+        }
+        else
+        {
+            _viewport = ViewportState::create(_extent2D);
+        }
+    }
+
+    // if required get projection and view matrices from the Camera
+    if (_camera)
+    {
+        if (_projMatrix) _camera->getProjectionMatrix()->get((*_projMatrix));
+        if (_viewMatrix) _camera->getViewMatrix()->get((*_viewMatrix));
+    }
+
+    // set up the dispatching of the commands into the command buffer
+    DispatchTraversal dispatchTraversal(commandBuffer, _maxSlot);
+    dispatchTraversal.setProjectionAndViewMatrix(_projMatrix->value(), _viewMatrix->value());
+
+    VkRenderPassBeginInfo renderPassInfo = {};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass = *_renderPass;
+    renderPassInfo.framebuffer = *_frameBuffer;
+    renderPassInfo.renderArea.offset = {0, 0};
+    renderPassInfo.renderArea.extent = _extent2D;
+
+    std::array<VkClearValue, 2> clearValues = {};
+    clearValues[0].color = {0.2f, 0.9f, 0.2f, 1.0f};
+    clearValues[1].depthStencil = {1.0f, 0};
+
+    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    renderPassInfo.pClearValues = clearValues.data();
+    vkCmdBeginRenderPass(*commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    // traverse the command buffer to place the commands into the command buffer.
+    _commandGraph->accept(dispatchTraversal);
+
+    vkCmdEndRenderPass(*commandBuffer);
+}
+
 GraphicsStage::GraphicsStage(ref_ptr<Node> commandGraph, ref_ptr<Camera> camera) :
     _camera(camera),
     _commandGraph(commandGraph),
@@ -179,6 +371,11 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
     // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
 
     vkBeginCommandBuffer(*commandBuffer, &beginInfo);
+
+    if (_offscreenPreRenderPass)
+    {
+        _offscreenPreRenderPass->populateCommandBuffer(commandBuffer);
+    }
 
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

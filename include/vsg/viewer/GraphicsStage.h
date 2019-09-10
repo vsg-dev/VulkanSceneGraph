@@ -12,12 +12,40 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Stage.h>
+#include <vsg/Viewer/Window.h>
 
 #include <vsg/viewer/Camera.h>
 
 namespace vsg
 {
+    class VSG_DECLSPEC OffscreenRenderPass : public Inherit<Object, OffscreenRenderPass>
+    {
+    public:
+        OffscreenRenderPass(Device* device, ref_ptr<Node> commandGraph, ref_ptr<Camera> camera, VkExtent2D dimensions);
+
+        ref_ptr<Camera> _camera;
+        ref_ptr<Node> _commandGraph;
+        vsg::ref_ptr<vsg::mat4Value> _projMatrix;
+        vsg::ref_ptr<vsg::mat4Value> _viewMatrix;
+        vsg::ref_ptr<ViewportState> _viewport;
+
+        VkExtent2D _extent2D;
+        uint32_t _maxSlot = 2;
+
+        ref_ptr<Image> _colorImage;
+        ref_ptr<ImageView> _colorImageView;
+        ref_ptr<DeviceMemory> _colorImageMemory;
+
+        ref_ptr<Image> _depthImage;
+        ref_ptr<ImageView> _depthImageView;
+        ref_ptr<DeviceMemory> _depthImageMemory;
+
+        ref_ptr<Framebuffer> _frameBuffer;
+        ref_ptr<RenderPass> _renderPass;
+        ref_ptr<Semaphore> _semaphore;
+
+        void populateCommandBuffer(CommandBuffer* commandBuffer);
+    };
 
     class VSG_DECLSPEC GraphicsStage : public Inherit<Stage, GraphicsStage>
     {
@@ -32,6 +60,8 @@ namespace vsg
 
         VkExtent2D _extent2D;
         uint32_t _maxSlot = 2;
+
+        ref_ptr<OffscreenRenderPass> _offscreenPreRenderPass;
 
         void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor) override;
     };

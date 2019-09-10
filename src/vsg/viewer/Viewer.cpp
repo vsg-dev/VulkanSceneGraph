@@ -391,6 +391,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             if (gs)
             {
                 gs->_commandGraph->accept(collectStats);
+                if (gs->_offscreenPreRenderPass) gs->_offscreenPreRenderPass->_commandGraph->accept(collectStats);
             }
         }
 
@@ -430,6 +431,21 @@ void Viewer::compile(BufferPreferences bufferPreferences)
                 // std::cout << "Compiling GraphicsStage " << compile.context.viewport << std::endl;
 
                 gs->_commandGraph->accept(compile);
+
+                if (gs->_offscreenPreRenderPass)
+                {
+                    //HACK, switch the compile context render pass and viewport
+                    compile.context.renderPass = gs->_offscreenPreRenderPass->_renderPass;
+
+                    if (gs->_offscreenPreRenderPass->_camera->getViewportState())
+                        compile.context.viewport = gs->_offscreenPreRenderPass->_camera->getViewportState();
+                    else if (gs->_offscreenPreRenderPass->_viewport)
+                        compile.context.viewport = gs->_offscreenPreRenderPass->_viewport;
+
+                    gs->_offscreenPreRenderPass->_commandGraph->accept(compile);
+
+                    compile.context.renderPass = window->renderPass();
+                }
 
                 compile.context.dispatchCommands();
             }
