@@ -28,8 +28,8 @@ namespace vsg
 
         ref_ptr<Camera> _camera;
         ref_ptr<Node> _commandGraph;
-        ref_ptr<mat4Value> _projMatrix;
-        ref_ptr<mat4Value> _viewMatrix;
+        ref_ptr<dmat4Value> _projMatrix;
+        ref_ptr<dmat4Value> _viewMatrix;
         ref_ptr<ViewportState> _viewport;
 
         ref_ptr<DatabasePager> databasePager;

@@ -100,8 +100,8 @@ namespace vsg
 GraphicsStage::GraphicsStage(ref_ptr<Node> commandGraph, ref_ptr<Camera> camera) :
     _camera(camera),
     _commandGraph(commandGraph),
-    _projMatrix(new vsg::mat4Value),
-    _viewMatrix(new vsg::mat4Value),
+    _projMatrix(new vsg::dmat4Value),
+    _viewMatrix(new vsg::dmat4Value),
     _extent2D{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()}
 {
 }
