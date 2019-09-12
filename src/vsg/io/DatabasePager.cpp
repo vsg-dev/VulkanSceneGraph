@@ -119,7 +119,7 @@ void DatabasePager::start()
     //
     // set up read thread(s)
     //
-    auto read = [](ref_ptr<DatabaseQueue> requestQueue, ref_ptr<DatabaseQueue> compileQueue, ref_ptr<Active> a)
+    auto read = [](ref_ptr<DatabaseQueue> requestQueue, ref_ptr<DatabaseQueue> compileQueue, ref_ptr<Active> a, std::atomic_uint& dp_numActiveRequests)
     {
         //std::cout<<"Started DatabaseThread read thread"<<std::endl;
 
@@ -142,6 +142,10 @@ void DatabasePager::start()
                     // move to the merge queue;
                     compileQueue->add(plod);
                 }
+                else
+                {
+                    --dp_numActiveRequests;
+                }
             }
         }
         //std::cout<<"Finsihed DatabaseThread read thread"<<std::endl;
@@ -149,7 +153,7 @@ void DatabasePager::start()
 
     for(int i=0; i<numReadThreads; ++i)
     {
-        _readThreads.push_back(std::thread(read, std::ref(_requestQueue), std::ref(_compileQueue), std::ref(_active)));
+        _readThreads.emplace_back(std::thread(read, std::ref(_requestQueue), std::ref(_compileQueue), std::ref(_active), std::ref(numActiveRequests)));
     }
 
 
@@ -168,27 +172,16 @@ void DatabasePager::start()
             {
                 for(auto& plod : nodesToCompile)
                 {
-                    if (plod && plod->pending)
-                    {
-
-                        //std::cout<<"    compiling "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
-
-                        // compiling subgarph
-                        plod->pending->accept(*ct);
-                    }
+                    // compiling subgarph
+                    plod->pending->accept(*ct);
                 }
 
                 ct->context.dispatchCommands();
 
                 for(auto& plod : nodesToCompile)
                 {
-                    if (plod && plod->pending)
-                    {
-                        //std::cout<<"    finished compile "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
-
-                        toMergeQueue->add(plod);
-
-                    }
+                    //std::cout<<"    finished compile "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
+                    toMergeQueue->add(plod);
                 }
             }
         }
@@ -197,13 +190,15 @@ void DatabasePager::start()
 
     for(int i=0; i<numCompileThreads; ++i)
     {
-        _compileThreads.push_back(std::thread(compile, std::ref(_compileQueue), std::ref(_toMergeQueue), std::ref(compileTraversal), std::ref(_active)));
+        _compileThreads.emplace_back(std::thread(compile, std::ref(_compileQueue), std::ref(_toMergeQueue), std::ref(compileTraversal), std::ref(_active)));
     }
 
 }
 
 void DatabasePager::request(ref_ptr<PagedLOD> plod)
 {
+    ++numActiveRequests;
+
     //std::cout<<"DatabasePager::reqquest("<<plod.get()<<") "<<plod->filename<<", "<<plod->priority<<std::endl;
     _requestQueue->add(plod);
 }
@@ -213,13 +208,14 @@ void DatabasePager::updateSceneGraph()
     auto nodes = _toMergeQueue->take();
     if (!nodes.empty())
     {
-        //std::cout<<"DatabasePager::updateSceneGraph() nodes to merge"<<std::endl;
+        // std::cout<<"DatabasePager::updateSceneGraph() nodes to merge : nodes.size() = "<<nodes.size()<<", "<<numActiveRequests.load()<<std::endl;
         for(auto& plod : nodes)
         {
             //std::cout<<"   Merged "<<plod->filename<<" after "<<plod->requestCount.load()<<std::endl;
             plod->getChild(0).node = plod->pending;
 
         }
+        numActiveRequests -= nodes.size();
     }
     else
     {

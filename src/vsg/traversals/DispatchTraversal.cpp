@@ -30,6 +30,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/io/DatabasePager.h>
 
+#include <vsg/ui/ApplicationEvent.h>
+
 #include <vsg/maths/plane.h>
 
 #include <vsg/threading/atomics.h>
@@ -41,7 +43,8 @@ using namespace vsg;
 #define INLINE_TRAVERSE 1
 #define USE_FRUSTUM_ARRAY 1
 
-DispatchTraversal::DispatchTraversal(CommandBuffer* commandBuffer, uint32_t maxSlot) :
+DispatchTraversal::DispatchTraversal(CommandBuffer* commandBuffer, uint32_t maxSlot, ref_ptr<FrameStamp> fs) :
+    frameStamp(fs),
     _state(new State(commandBuffer, maxSlot))
 {
 }
@@ -133,6 +136,9 @@ void DispatchTraversal::apply(const PagedLOD& plod)
         bool child_visible = rf > cutoff;
         if (child_visible)
         {
+            plod.frameHighResLastUsed = frameStamp->frameCount;
+            plod.frameLastUsed = frameStamp->frameCount;
+
             if (child.node)
             {
                 // high res visibile and avaialb so traverse it
@@ -165,9 +171,12 @@ void DispatchTraversal::apply(const PagedLOD& plod)
         bool child_visible = rf > cutoff;
         if (child_visible)
         {
+            plod.frameLastUsed = frameStamp->frameCount;
+
             if (child.node)
             {
                 child.node->accept(*this);
+                return;
             }
         }
     }

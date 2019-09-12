@@ -34,11 +34,12 @@ namespace vsg
     class CommandBuffer;
     class State;
     class DatabasePager;
+    class FrameStamp;
 
     class VSG_DECLSPEC DispatchTraversal : public Object
     {
     public:
-        explicit DispatchTraversal(CommandBuffer* commandBuffer = nullptr, uint32_t maxSlot = 2);
+        explicit DispatchTraversal(CommandBuffer* commandBuffer = nullptr, uint32_t maxSlot = 2, ref_ptr<FrameStamp> fs = {});
         ~DispatchTraversal();
 
         void setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix);
@@ -61,6 +62,8 @@ namespace vsg
 
         // used to handle loading of PagedLOD external children.
         ref_ptr<DatabasePager> databasePager;
+
+        ref_ptr<FrameStamp> frameStamp;
 
     protected:
         ref_ptr<State> _state;

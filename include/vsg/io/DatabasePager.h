@@ -81,6 +81,8 @@ namespace vsg
 
         ref_ptr<CompileTraversal> compileTraversal;
 
+        std::atomic_uint numActiveRequests = 0;
+
     protected:
         virtual ~DatabasePager();
 

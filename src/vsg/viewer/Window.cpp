@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/viewer/Window.h>
+#include <vsg/ui/ApplicationEvent.h>
 
 #include <array>
 #include <chrono>
@@ -204,7 +205,7 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     _nextImageIndex = 0;
 }
 
-void Window::populateCommandBuffers(uint32_t index)
+void Window::populateCommandBuffers(uint32_t index, ref_ptr<vsg::FrameStamp> frameStamp)
 {
     Frame& frame = _frames[index];
 
@@ -223,7 +224,7 @@ void Window::populateCommandBuffers(uint32_t index)
 
     for (auto& stage : _stages)
     {
-        stage->populateCommandBuffer(frame.commandBuffer, frame.framebuffer, _renderPass, _extent2D, _clearColor);
+        stage->populateCommandBuffer(frame.commandBuffer, frame.framebuffer, _renderPass, _extent2D, _clearColor, frameStamp);
     }
 }
 

@@ -212,7 +212,7 @@ bool Viewer::populateNextFrame()
 {
     for (auto& window : _windows)
     {
-        window->populateCommandBuffers(window->nextImageIndex());
+        window->populateCommandBuffers(window->nextImageIndex(), _frameStamp);
     }
     return true;
 }

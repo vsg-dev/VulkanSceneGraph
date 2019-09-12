@@ -92,6 +92,8 @@ namespace vsg
         const DescriptorPoolSizes& getDescriptorPoolSizes() const { return _descriptorPoolSizes; }
 
         mutable std::atomic_uint requestCount = 0;
+        mutable std::atomic_uint64_t frameHighResLastUsed = 0;
+        mutable std::atomic_uint64_t frameLastUsed = 0;
         ref_ptr<Node> pending;
 
     protected:
