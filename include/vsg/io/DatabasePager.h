@@ -75,19 +75,26 @@ namespace vsg
 
         virtual void request(ref_ptr<PagedLOD> plod);
 
-        virtual void updateSceneGraph();
+        virtual void updateSceneGraph(FrameStamp* frameStamp);
 
         ref_ptr<const Options> options;
 
         ref_ptr<CompileTraversal> compileTraversal;
 
         std::atomic_uint numActiveRequests = 0;
+        std::atomic_uint64_t frameCount;
 
     protected:
         virtual ~DatabasePager();
 
+        inline void requestDiscarded(PagedLOD* plod)
+        {
+            plod->requestCount = 0;
+            --numActiveRequests;
+        }
 
         ref_ptr<Active> _active;
+
         ref_ptr<DatabaseQueue> _requestQueue;
         ref_ptr<DatabaseQueue> _compileQueue;
         ref_ptr<DatabaseQueue> _toMergeQueue;

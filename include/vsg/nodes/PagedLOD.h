@@ -49,7 +49,7 @@ namespace vsg
         Path filename;
 
         // priority value assigned by cull/dispatch traversal as a guide to how important the external child is for loading.
-        mutable std::atomic<double> priority;
+        mutable std::atomic<double> priority = 0.0;
 
         // TODO need status of external file load
 
