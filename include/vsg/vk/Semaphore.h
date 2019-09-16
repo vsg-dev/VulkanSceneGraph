@@ -22,7 +22,7 @@ namespace vsg
         Semaphore(VkSemaphore Semaphore, Device* device, AllocationCallbacks* allocator = nullptr);
 
         using Result = vsg::Result<Semaphore, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, AllocationCallbacks* allocator = nullptr);
+        static Result create(Device* device, void* pNextCreateInfo = nullptr, AllocationCallbacks* allocator = nullptr);
 
         operator VkSemaphore() const { return _semaphore; }
 

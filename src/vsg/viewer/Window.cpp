@@ -221,10 +221,19 @@ void Window::populateCommandBuffers(uint32_t index)
         frame.commandsCompletedFence->reset();
     }
 
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+    // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
+
+    vkBeginCommandBuffer(*frame.commandBuffer, &beginInfo);
+
     for (auto& stage : _stages)
     {
         stage->populateCommandBuffer(frame.commandBuffer, frame.framebuffer, _renderPass, _extent2D, _clearColor);
     }
+
+    vkEndCommandBuffer(*frame.commandBuffer);
 }
 
 // just kept for backwards compatibility for now

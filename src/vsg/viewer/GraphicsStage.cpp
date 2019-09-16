@@ -95,13 +95,123 @@ namespace vsg
     };
 }; // namespace vsg
 
-OffscreenRenderPass::OffscreenRenderPass(Device* device, ref_ptr<Node> commandGraph, ref_ptr<Camera> camera, VkExtent2D extents) :
+GraphicsStage::GraphicsStage(ref_ptr<Node> commandGraph, ref_ptr<Camera> camera) :
     _camera(camera),
     _commandGraph(commandGraph),
     _projMatrix(new vsg::mat4Value),
     _viewMatrix(new vsg::mat4Value),
-    _extent2D(extents)
+    _extent2D{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()}
 {
+}
+
+void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor)
+{
+    // handle any changes in window size
+    if (_extent2D.width == std::numeric_limits<uint32_t>::max())
+    {
+        _extent2D = extent2D;
+
+        if (_camera)
+        {
+            ref_ptr<Perspective> perspective(dynamic_cast<Perspective*>(_camera->getProjectionMatrix()));
+            if (perspective)
+            {
+                perspective->aspectRatio = static_cast<double>(extent2D.width) / static_cast<double>(extent2D.height);
+            }
+
+            if (_camera->getViewportState())
+            {
+                _camera->getViewportState()->getViewport().width = static_cast<float>(extent2D.width);
+                _camera->getViewportState()->getViewport().height = static_cast<float>(extent2D.height);
+                _camera->getViewportState()->getScissor().extent = extent2D;
+            }
+            else
+            {
+                _camera->setViewportState(ViewportState::create(extent2D));
+            }
+            _viewport = _camera->getViewportState();
+        }
+        else if (!_viewport)
+        {
+            _viewport = ViewportState::create(extent2D);
+        }
+    }
+    else if ((_extent2D.width != extent2D.width) || (_extent2D.height != extent2D.height))
+    {
+        _extent2D = extent2D;
+
+        if (_camera)
+        {
+            ref_ptr<Perspective> perspective(dynamic_cast<Perspective*>(_camera->getProjectionMatrix()));
+            if (perspective)
+            {
+                perspective->aspectRatio = static_cast<double>(extent2D.width) / static_cast<double>(extent2D.height);
+            }
+        }
+
+        _viewport->getViewport().width = static_cast<float>(extent2D.width);
+        _viewport->getViewport().height = static_cast<float>(extent2D.height);
+        _viewport->getScissor().extent = extent2D;
+
+        vsg::UpdatePipeline updatePipeline(commandBuffer->getDevice());
+
+        updatePipeline.context.commandPool = commandBuffer->getCommandPool();
+        updatePipeline.context.renderPass = renderPass;
+        updatePipeline.context.viewport = _viewport;
+
+        _commandGraph->accept(updatePipeline);
+    }
+
+    // if required get projection and view matrices from the Camera
+    if (_camera)
+    {
+        if (_projMatrix) _camera->getProjectionMatrix()->get((*_projMatrix));
+        if (_viewMatrix) _camera->getViewMatrix()->get((*_viewMatrix));
+    }
+
+    // set up the dispatching of the commands into the command buffer
+    DispatchTraversal dispatchTraversal(commandBuffer, _maxSlot);
+    dispatchTraversal.setProjectionAndViewMatrix(_projMatrix->value(), _viewMatrix->value());
+
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+    // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
+
+    //vkBeginCommandBuffer(*commandBuffer, &beginInfo);
+
+    VkRenderPassBeginInfo renderPassInfo = {};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass = *renderPass;
+    renderPassInfo.framebuffer = *framebuffer;
+    renderPassInfo.renderArea.offset = {0, 0};
+    renderPassInfo.renderArea.extent = extent2D;
+
+    std::array<VkClearValue, 2> clearValues = {};
+    clearValues[0].color = clearColor;
+    clearValues[1].depthStencil = {1.0f, 0};
+
+    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    renderPassInfo.pClearValues = clearValues.data();
+    vkCmdBeginRenderPass(*commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    // traverse the command buffer to place the commands into the command buffer.
+    _commandGraph->accept(dispatchTraversal);
+
+    vkCmdEndRenderPass(*commandBuffer);
+
+    //vkEndCommandBuffer(*commandBuffer);
+}
+
+//
+// OffscreenGraphicsStage
+//
+
+OffscreenGraphicsStage::OffscreenGraphicsStage(Device* device, ref_ptr<Node> commandGraph, ref_ptr<Camera> camera, VkExtent2D extents) :
+    Inherit(commandGraph, camera)
+{
+    _extent2D = extents;
+
     VkFormat colorFormat = VK_FORMAT_R8G8B8A8_UNORM;
     VkImageLayout colorFinalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
@@ -186,7 +296,7 @@ OffscreenRenderPass::OffscreenRenderPass(Device* device, ref_ptr<Node> commandGr
 
     // create color
     imageCreateInfo.format = colorFormat;
-    imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;// VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT; // VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
     _colorImage = Image::create(device, imageCreateInfo);
     _colorImageMemory = DeviceMemory::create(device, _colorImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
@@ -225,7 +335,7 @@ OffscreenRenderPass::OffscreenRenderPass(Device* device, ref_ptr<Node> commandGr
     _semaphore = vsg::Semaphore::create(device);
 }
 
-void OffscreenRenderPass::populateCommandBuffer(CommandBuffer* commandBuffer)
+void OffscreenGraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor)
 {
     if (!_viewport)
     {
@@ -266,6 +376,13 @@ void OffscreenRenderPass::populateCommandBuffer(CommandBuffer* commandBuffer)
     DispatchTraversal dispatchTraversal(commandBuffer, _maxSlot);
     dispatchTraversal.setProjectionAndViewMatrix(_projMatrix->value(), _viewMatrix->value());
 
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+    // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
+
+    //vkBeginCommandBuffer(*commandBuffer, &beginInfo);
+
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = *_renderPass;
@@ -285,117 +402,6 @@ void OffscreenRenderPass::populateCommandBuffer(CommandBuffer* commandBuffer)
     _commandGraph->accept(dispatchTraversal);
 
     vkCmdEndRenderPass(*commandBuffer);
-}
 
-GraphicsStage::GraphicsStage(ref_ptr<Node> commandGraph, ref_ptr<Camera> camera) :
-    _camera(camera),
-    _commandGraph(commandGraph),
-    _projMatrix(new vsg::mat4Value),
-    _viewMatrix(new vsg::mat4Value),
-    _extent2D{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()}
-{
-}
-
-void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor)
-{
-    // handle any changes in window size
-    if (_extent2D.width == std::numeric_limits<uint32_t>::max())
-    {
-        _extent2D = extent2D;
-
-        if (_camera)
-        {
-            ref_ptr<Perspective> perspective(dynamic_cast<Perspective*>(_camera->getProjectionMatrix()));
-            if (perspective)
-            {
-                perspective->aspectRatio = static_cast<double>(extent2D.width) / static_cast<double>(extent2D.height);
-            }
-
-            if (_camera->getViewportState())
-            {
-                _camera->getViewportState()->getViewport().width = static_cast<float>(extent2D.width);
-                _camera->getViewportState()->getViewport().height = static_cast<float>(extent2D.height);
-                _camera->getViewportState()->getScissor().extent = extent2D;
-            }
-            else
-            {
-                _camera->setViewportState(ViewportState::create(extent2D));
-            }
-            _viewport = _camera->getViewportState();
-        }
-        else if (!_viewport)
-        {
-            _viewport = ViewportState::create(extent2D);
-        }
-    }
-    else if ((_extent2D.width != extent2D.width) || (_extent2D.height != extent2D.height))
-    {
-        _extent2D = extent2D;
-
-        if (_camera)
-        {
-            ref_ptr<Perspective> perspective(dynamic_cast<Perspective*>(_camera->getProjectionMatrix()));
-            if (perspective)
-            {
-                perspective->aspectRatio = static_cast<double>(extent2D.width) / static_cast<double>(extent2D.height);
-            }
-        }
-
-        _viewport->getViewport().width = static_cast<float>(extent2D.width);
-        _viewport->getViewport().height = static_cast<float>(extent2D.height);
-        _viewport->getScissor().extent = extent2D;
-
-        vsg::UpdatePipeline updatePipeline(commandBuffer->getDevice());
-
-        updatePipeline.context.commandPool = commandBuffer->getCommandPool();
-        updatePipeline.context.renderPass = renderPass;
-        updatePipeline.context.viewport = _viewport;
-
-        _commandGraph->accept(updatePipeline);
-    }
-
-    // if required get projection and view matrices from the Camera
-    if (_camera)
-    {
-        if (_projMatrix) _camera->getProjectionMatrix()->get((*_projMatrix));
-        if (_viewMatrix) _camera->getViewMatrix()->get((*_viewMatrix));
-    }
-
-    // set up the dispatching of the commands into the command buffer
-    DispatchTraversal dispatchTraversal(commandBuffer, _maxSlot);
-    dispatchTraversal.setProjectionAndViewMatrix(_projMatrix->value(), _viewMatrix->value());
-
-    VkCommandBufferBeginInfo beginInfo = {};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-    // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
-
-    vkBeginCommandBuffer(*commandBuffer, &beginInfo);
-
-    if (_offscreenPreRenderPass)
-    {
-        _offscreenPreRenderPass->populateCommandBuffer(commandBuffer);
-    }
-
-    VkRenderPassBeginInfo renderPassInfo = {};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = *renderPass;
-    renderPassInfo.framebuffer = *framebuffer;
-    renderPassInfo.renderArea.offset = {0, 0};
-    renderPassInfo.renderArea.extent = extent2D;
-
-    std::array<VkClearValue, 2> clearValues = {};
-    clearValues[0].color = clearColor;
-    clearValues[1].depthStencil = {1.0f, 0};
-
-    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-    renderPassInfo.pClearValues = clearValues.data();
-    vkCmdBeginRenderPass(*commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-    // traverse the command buffer to place the commands into the command buffer.
-    _commandGraph->accept(dispatchTraversal);
-
-    vkCmdEndRenderPass(*commandBuffer);
-
-    vkEndCommandBuffer(*commandBuffer);
+    //vkEndCommandBuffer(*commandBuffer);
 }

@@ -109,7 +109,7 @@ namespace vsg
 
         bool populateNextFrame();
 
-        bool submitNextFrame();
+        bool submitNextFrame(std::vector<VkSemaphore> externalWaits = {}, std::vector<VkPipelineStageFlags> externalWaitStages = {}, std::vector<VkSemaphore> externalSignals = {});
 
         void compile(BufferPreferences bufferPreferences = {});
 
