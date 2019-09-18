@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/FileSystem.h>
 
 #include <vsg/vk/DescriptorPool.h>
+#include <vsg/vk/Semaphore.h>
 
 #include <algorithm>
 #include <array>
@@ -95,6 +96,7 @@ namespace vsg
         mutable std::atomic_uint64_t frameHighResLastUsed = 0;
         mutable std::atomic_uint64_t frameLastUsed = 0;
         ref_ptr<Node> pending;
+        ref_ptr<Semaphore> semaphore;
 
     protected:
         virtual ~PagedLOD();

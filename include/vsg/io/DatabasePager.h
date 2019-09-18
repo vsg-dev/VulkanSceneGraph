@@ -28,6 +28,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    struct CulledPagedLODs: public Inherit<Object, CulledPagedLODs>
+    {
+        std::vector<const PagedLOD*> completelyCulled;
+        std::vector<const PagedLOD*> highresCulled;
+    };
+
     class VSG_DECLSPEC DatabaseQueue : public Inherit<Object, DatabaseQueue>
     {
     public:
@@ -49,7 +56,7 @@ namespace vsg
 
         Nodes take_all_when_available();
 
-        Nodes take()
+        Nodes take_all()
         {
             std::unique_lock lock(_mutex);
             Nodes nodes;
@@ -77,6 +84,10 @@ namespace vsg
 
         virtual void updateSceneGraph(FrameStamp* frameStamp);
 
+
+        using Semaphores = std::set<ref_ptr<Semaphore>>;
+        Semaphores& getSemaphores() { return _semaphores; }
+
         ref_ptr<const Options> options;
 
         ref_ptr<CompileTraversal> compileTraversal;
@@ -102,7 +113,7 @@ namespace vsg
         std::list<std::thread> _readThreads;
         std::list<std::thread> _compileThreads;
 
-
+        Semaphores _semaphores;
     };
     VSG_type_name(vsg::DatabasePager);
 

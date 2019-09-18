@@ -233,6 +233,20 @@ bool Viewer::submitNextFrame()
             waitSemaphores.push_back(*(window->frame(window->nextImageIndex()).imageAvailableSemaphore));
             fence = window->frame(window->nextImageIndex()).commandsCompletedFence;
             window->frame(window->nextImageIndex()).checkCommandsCompletedFence = true;
+
+            // copy semaphore's assigned to database pagers
+            for(auto& stage : window->stages())
+            {
+                GraphicsStage* gs = dynamic_cast<GraphicsStage*>(stage.get());
+                DatabasePager* db = gs ? gs->databasePager.get() : nullptr;
+                if (db)
+                {
+                    for(auto& semaphore : db->getSemaphores())
+                    {
+                        waitSemaphores.emplace_back(*semaphore);
+                    }
+                }
+            }
         }
 
         // fill in the imageIndices and commandBuffers associated with each window
@@ -366,7 +380,8 @@ void Viewer::compile(BufferPreferences bufferPreferences)
 
                 gs->_commandGraph->accept(*compile);
 
-                compile->context.dispatchCommands();
+                compile->context.dispatch();
+                compile->context.waitForCompletion();
             }
             else
             {

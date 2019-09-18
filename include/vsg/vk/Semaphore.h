@@ -26,6 +26,8 @@ namespace vsg
 
         operator VkSemaphore() const { return _semaphore; }
 
+        const VkSemaphore* data() const { return &_semaphore; }
+
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 

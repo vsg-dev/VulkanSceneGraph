@@ -35,6 +35,7 @@ namespace vsg
     class State;
     class DatabasePager;
     class FrameStamp;
+    class CulledPagedLODs;
 
     class VSG_DECLSPEC DispatchTraversal : public Object
     {
@@ -62,6 +63,7 @@ namespace vsg
 
         // used to handle loading of PagedLOD external children.
         ref_ptr<DatabasePager> databasePager;
+        ref_ptr<CulledPagedLODs> culledPagedLODs;
 
         ref_ptr<FrameStamp> frameStamp;
 

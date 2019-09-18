@@ -62,13 +62,20 @@ namespace vsg
     {
     public:
         explicit CompileTraversal(Device* in_device, BufferPreferences bufferPreferences = {});
+        CompileTraversal(const CompileTraversal& ct);
         ~CompileTraversal();
+
 
         void apply(Object& object) override;
         void apply(Command& command) override;
         void apply(Commands& commands) override;
         void apply(StateGroup& stateGroup) override;
         void apply(Geometry& geometry) override;
+
+        void compile(Object* object);
+
+        ref_ptr<Fence> fence;
+        ref_ptr<Semaphore> semaphore;
 
         Context context;
     };

@@ -466,10 +466,24 @@ void CopyAndReleaseImageDataCommand::dispatch(CommandBuffer& commandBuffer) cons
 //
 Context::Context(Device* in_device, BufferPreferences bufferPreferences) :
     device(in_device),
-    deviceMemoryBufferPools("Device_MemoryBufferPool", device, bufferPreferences),
-    stagingMemoryBufferPools("Staging_MemoryBufferPool", device, bufferPreferences)
+    deviceMemoryBufferPools(MemoryBufferPools::create("Device_MemoryBufferPool", device, bufferPreferences)),
+    stagingMemoryBufferPools(MemoryBufferPools::create("Staging_MemoryBufferPool", device, bufferPreferences))
+{
+    //semaphore = vsg::Semaphore::create(device);
+}
+
+Context::Context(const Context& context) :
+    device(context.device),
+    renderPass(context.renderPass),
+    viewport(context.viewport),
+    descriptorPool(context.descriptorPool),
+    graphicsQueue(context.graphicsQueue),
+    commandPool(context.commandPool),
+    deviceMemoryBufferPools(context.deviceMemoryBufferPools),
+    stagingMemoryBufferPools(context.stagingMemoryBufferPools)
 {
 }
+
 
 ref_ptr<CommandBuffer> Context::getOrCreateCommandBuffer()
 {
@@ -481,25 +495,15 @@ ref_ptr<CommandBuffer> Context::getOrCreateCommandBuffer()
     return commandBuffer;
 }
 
-ref_ptr<Fence> Context::getOrCreateFence()
-{
-    if (!fence)
-    {
-        fence = vsg::Fence::create(device);
-    }
-
-    return fence;
-}
-
-void Context::dispatchCommands()
+void Context::dispatch()
 {
     if (commands.empty() && copyBufferDataCommands.empty() && copyImageDataCommands.empty()) return;
 
-    auto before_compile = std::chrono::steady_clock::now();
+    //auto before_compile = std::chrono::steady_clock::now();
 
-    uint64_t timeout = 100000000000;
+    if (!fence) fence = vsg::Fence::create(device);
+
     getOrCreateCommandBuffer();
-    getOrCreateFence();
 
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -520,38 +524,59 @@ void Context::dispatchCommands()
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = commandBuffer->data();
-
-    // we must wait for the queue to empty before we can safely clean up the commandBuffer
-    if (fence)
+    if (semaphore)
     {
-        graphicsQueue->submit(submitInfo, fence);
-        if (timeout > 0)
-        {
-            VkResult result = fence->wait(timeout);
-            if (result == VK_SUCCESS)
-            { /*std::cout<<"Fence has successedully signaled"<<std::endl;*/
-            }
-            else
-            {
-                std::cout << "Fence failed to signal : " << result << std::endl;
-                while ((result = fence->wait(timeout)) != VK_SUCCESS)
-                {
-                    std::cout << "   Fence failed again, trying another wait : " << result << std::endl;
-                }
-                std::cout << "   Finally we have success. " << result << std::endl;
-            }
-
-            fence->reset();
-        }
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = semaphore->data();
     }
     else
     {
-        graphicsQueue->submit(submitInfo);
+        submitInfo.signalSemaphoreCount = 0;
+        submitInfo.pSignalSemaphores = nullptr;
+    }
+
+
+    if (fence) fence->reset();
+
+    graphicsQueue->submit(submitInfo, fence);
+    //std::cout << "Context::dispatchCommands()  time " << std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - before_compile).count() << "ms" << std::endl;
+}
+
+void Context::waitForCompletion()
+{
+    if (!commandBuffer || !fence) return;
+
+    if (commands.empty() && copyBufferDataCommands.empty() && copyImageDataCommands.empty()) return;
+
+
+    // we must wait for the queue to empty before we can safely clean up the commandBuffer
+#if 1
+    uint64_t timeout = 100000000000;
+    if (timeout > 0)
+    {
+        VkResult result = fence->wait(timeout);
+        if (result == VK_SUCCESS)
+        {
+            // std::cout<<"Fence has successedully signaled"<<std::endl;
+        }
+        else
+        {
+            std::cout << "Fence failed to signal : " << result << std::endl;
+            while ((result = fence->wait(timeout)) != VK_SUCCESS)
+            {
+                std::cout << "   Fence failed again, trying another wait : " << result << std::endl;
+            }
+            std::cout << "   Finally we have success. " << result << std::endl;
+        }
+
+    }
+#else
+    {
         graphicsQueue->waitIdle();
     }
+#endif
+
     copyBufferDataCommands.clear();
     copyImageDataCommands.clear();
     commands.clear();
-
-    //std::cout << "Context::dispatchCommands()  time " << std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - before_compile).count() << "ms" << std::endl;
 }

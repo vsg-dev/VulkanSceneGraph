@@ -185,13 +185,37 @@ void DatabasePager::start()
         _readThreads.emplace_back(std::thread(read, std::ref(_requestQueue), std::ref(_compileQueue), std::ref(_active), std::ref(*this)));
     }
 
-
     //
     // set up compile thread(s)
     //
-    auto compile = [](ref_ptr<DatabaseQueue> compileQueue, ref_ptr<DatabaseQueue> toMergeQueue, ref_ptr<CompileTraversal> ct, ref_ptr<Active> a, DatabasePager& databasePager)
+    auto compile = [](ref_ptr<DatabaseQueue> compileQueue, ref_ptr<DatabaseQueue> toMergeQueue, ref_ptr<CompileTraversal> db_ct, ref_ptr<Active> a, DatabasePager& databasePager)
     {
         //std::cout<<"Started DatabaseThread compile thread"<<std::endl;
+
+
+        std::list<ref_ptr<CompileTraversal>> compileTraversals;
+
+        int numCompileContexts = 30;
+        if (numCompileContexts <= 1)
+        {
+            compileTraversals.emplace_back(db_ct);
+        }
+        else
+        {
+            compileTraversals.emplace_back(db_ct);
+            for(int i=1; i<numCompileContexts; ++i)
+            {
+                compileTraversals.emplace_back(new CompileTraversal(*db_ct));
+            }
+        }
+
+        // assign semaphores
+        for(auto& ct : compileTraversals)
+        {
+            ct->context.semaphore = Semaphore::create(ct->context.device);
+        }
+
+        auto compile_itr = compileTraversals.begin();
 
         while (*(a))
         {
@@ -199,8 +223,24 @@ void DatabasePager::start()
 
             if (!nodesToCompile.empty())
             {
-                DatabaseQueue::Nodes nodesCompiled;
+                CompileTraversal* ct = compile_itr->get();
 
+                ++compile_itr;
+                // adveance the compile iterator to the next CompileTraversal in the list, wrap around if we get to the end
+                if (compile_itr == compileTraversals.end())
+                {
+                    // std::cout<<"Wrapping aroind"<<std::endl;
+                    compile_itr = compileTraversals.begin();
+                }
+                else
+                {
+                    // std::cout<<"Using next CompileTraversal"<<std::endl;
+                }
+
+
+                ct->context.waitForCompletion();
+
+                DatabaseQueue::Nodes nodesCompiled;
                 for(auto& plod : nodesToCompile)
                 {
                     uint64_t frameDelta = databasePager.frameCount - plod->frameHighResLastUsed.load();
@@ -223,10 +263,12 @@ void DatabasePager::start()
 
                 if (!nodesCompiled.empty())
                 {
-                    ct->context.dispatchCommands();
+                    ct->context.dispatch();
 
                     for(auto& plod : nodesCompiled)
                     {
+                        plod->semaphore = ct->context.semaphore;
+
                         //std::cout<<"    finished compile "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
                         toMergeQueue->add(plod);
                     }
@@ -263,7 +305,9 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
 {
     frameCount = frameStamp ? frameStamp->frameCount : 0;
 
-    auto nodes = _toMergeQueue->take();
+    _semaphores.clear();
+
+    auto nodes = _toMergeQueue->take_all();
     if (!nodes.empty())
     {
         //std::cout<<"DatabasePager::updateSceneGraph() nodes to merge : nodes.size() = "<<nodes.size()<<", "<<numActiveRequests.load()<<std::endl;
@@ -271,6 +315,9 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
         {
             //std::cout<<"   Merged "<<plod->filename<<" after "<<plod->requestCount.load()<<" priority "<<plod->priority.load()<<" "<<frameCount - plod->frameHighResLastUsed.load()<<std::endl;
             plod->getChild(0).node = plod->pending;
+
+            // insert any semaphore into a set that will be used by the GraphicsStage
+            if (plod->semaphore) _semaphores.insert(plod->semaphore);
 
         }
         numActiveRequests -= nodes.size();
