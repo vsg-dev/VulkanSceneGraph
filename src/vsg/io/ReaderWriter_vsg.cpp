@@ -74,10 +74,12 @@ vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(const vsg::Path& filename, ref_
     auto ext = vsg::fileExtension(filename);
     if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
     {
-        vsg::Path filenameToUse = findFile(filename, options);
+        vsg::Path filenameToUse = options ? findFile(filename, options) : filename;
         if (filenameToUse.empty()) return {};
 
         std::ifstream fin(filenameToUse, std::ios::in | std::ios::binary);
+        if (!fin) return {};
+
         FormatType type = readHeader(fin);
         if (type == BINARY)
         {
