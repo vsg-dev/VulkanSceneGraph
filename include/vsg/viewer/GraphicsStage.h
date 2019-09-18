@@ -38,7 +38,7 @@ namespace vsg
     class VSG_DECLSPEC OffscreenGraphicsStage : public Inherit<GraphicsStage, OffscreenGraphicsStage>
     {
     public:
-        OffscreenGraphicsStage(Device* device, ref_ptr<Node> commandGraph, ref_ptr<Camera> camera, VkExtent2D dimensions);
+        OffscreenGraphicsStage(Device* device, ref_ptr<Node> commandGraph, ref_ptr<Camera> camera, VkExtent2D extents, ref_ptr<ImageView> colorImageView, ref_ptr<ImageView> depthImageView, VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR);
 
         ref_ptr<Image> _colorImage;
         ref_ptr<ImageView> _colorImageView;

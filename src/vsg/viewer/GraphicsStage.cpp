@@ -207,7 +207,7 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
 // OffscreenGraphicsStage
 //
 
-OffscreenGraphicsStage::OffscreenGraphicsStage(Device* device, ref_ptr<Node> commandGraph, ref_ptr<Camera> camera, VkExtent2D extents) :
+OffscreenGraphicsStage::OffscreenGraphicsStage(Device* device, ref_ptr<Node> commandGraph, ref_ptr<Camera> camera, VkExtent2D extents, ref_ptr<ImageView> colorImageView, ref_ptr<ImageView> depthImageView, VkAttachmentLoadOp loadOp) :
     Inherit(commandGraph, camera)
 {
     _extent2D = extents;
@@ -227,8 +227,8 @@ OffscreenGraphicsStage::OffscreenGraphicsStage(Device* device, ref_ptr<Node> com
     VkAttachmentDescription colorAttachment = {};
     colorAttachment.format = colorFormat;
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    colorAttachment.storeOp = colorFinalLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL ? VK_ATTACHMENT_STORE_OP_DONT_CARE : VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachment.loadOp = loadOp;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE; // for now make this store
     colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -238,8 +238,8 @@ OffscreenGraphicsStage::OffscreenGraphicsStage(Device* device, ref_ptr<Node> com
     VkAttachmentDescription depthAttachment = {};
     depthAttachment.format = depthFormat;
     depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    depthAttachment.storeOp = depthFinalLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL ? VK_ATTACHMENT_STORE_OP_DONT_CARE : VK_ATTACHMENT_STORE_OP_STORE;
+    depthAttachment.loadOp = loadOp;
+    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;  // for now make this store
     depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -280,6 +280,9 @@ OffscreenGraphicsStage::OffscreenGraphicsStage(Device* device, ref_ptr<Node> com
     // create color and depth images for frame buffer attachments
     //
 
+    _colorImageView = colorImageView;
+    _depthImageView = depthImageView;
+
     VkImageCreateInfo imageCreateInfo = {};
     imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -294,27 +297,33 @@ OffscreenGraphicsStage::OffscreenGraphicsStage(Device* device, ref_ptr<Node> com
     imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     imageCreateInfo.pNext = nullptr;
 
-    // create color
-    imageCreateInfo.format = colorFormat;
-    imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT; // VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    if (!_colorImageView)
+    {
+        // create color
+        imageCreateInfo.format = colorFormat;
+        imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT; // VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    _colorImage = Image::create(device, imageCreateInfo);
-    _colorImageMemory = DeviceMemory::create(device, _colorImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        _colorImage = Image::create(device, imageCreateInfo);
+        _colorImageMemory = DeviceMemory::create(device, _colorImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    vkBindImageMemory(*device, *_colorImage, *_colorImageMemory, 0);
+        vkBindImageMemory(*device, *_colorImage, *_colorImageMemory, 0);
 
-    _colorImageView = ImageView::create(device, _colorImage, VK_IMAGE_VIEW_TYPE_2D, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+        _colorImageView = ImageView::create(device, _colorImage, VK_IMAGE_VIEW_TYPE_2D, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+    }
 
-    // create depth
-    imageCreateInfo.format = depthFormat;
-    imageCreateInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    if (!_depthImageView)
+    {
+        // create depth
+        imageCreateInfo.format = depthFormat;
+        imageCreateInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 
-    _depthImage = Image::create(device, imageCreateInfo);
-    _depthImageMemory = DeviceMemory::create(device, _depthImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        _depthImage = Image::create(device, imageCreateInfo);
+        _depthImageMemory = DeviceMemory::create(device, _depthImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    vkBindImageMemory(*device, *_depthImage, *_depthImageMemory, 0);
+        vkBindImageMemory(*device, *_depthImage, *_depthImageMemory, 0);
 
-    _depthImageView = ImageView::create(device, _depthImage, VK_IMAGE_VIEW_TYPE_2D, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+        _depthImageView = ImageView::create(device, _depthImage, VK_IMAGE_VIEW_TYPE_2D, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+    }
 
     std::array<VkImageView, 2> fbAttachments = {{*_colorImageView, *_depthImageView}};
 
@@ -349,8 +358,8 @@ void OffscreenGraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer,
 
             if (_camera->getViewportState())
             {
-                _camera->getViewportState()->getViewport().width = static_cast<float>(_extent2D.width);
-                _camera->getViewportState()->getViewport().height = static_cast<float>(_extent2D.height);
+                //_camera->getViewportState()->getViewport().width = static_cast<float>(_extent2D.width);
+                //_camera->getViewportState()->getViewport().height = static_cast<float>(_extent2D.height);
                 _camera->getViewportState()->getScissor().extent = _extent2D;
             }
             else
