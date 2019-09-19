@@ -29,7 +29,7 @@ Semaphore::~Semaphore()
     }
 }
 
-Semaphore::Result Semaphore::create(Device* device, AllocationCallbacks* allocator)
+Semaphore::Result Semaphore::create(Device* device, void* pNextCreateInfo, AllocationCallbacks* allocator)
 {
     if (!device)
     {
@@ -38,7 +38,7 @@ Semaphore::Result Semaphore::create(Device* device, AllocationCallbacks* allocat
 
     VkSemaphoreCreateInfo semaphoreInfo = {};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    semaphoreInfo.pNext = nullptr;
+    semaphoreInfo.pNext = pNextCreateInfo;
 
     VkSemaphore semaphore;
     VkResult result = vkCreateSemaphore(*device, &semaphoreInfo, allocator, &semaphore);

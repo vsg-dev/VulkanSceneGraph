@@ -217,7 +217,7 @@ bool Viewer::populateNextFrame()
     return true;
 }
 
-bool Viewer::submitNextFrame()
+bool Viewer::submitNextFrame(std::vector<VkSemaphore> externalWaits, std::vector<VkPipelineStageFlags> externalWaitStages, std::vector<VkSemaphore> externalSignals)
 {
     bool debugLayersEnabled = false;
 
@@ -228,6 +228,16 @@ bool Viewer::submitNextFrame()
         VkFence fence = VK_NULL_HANDLE;
 
         std::vector<VkSemaphore> waitSemaphores;
+        waitSemaphores.insert(waitSemaphores.end(), externalWaits.begin(), externalWaits.end());
+
+        std::vector<VkPipelineStageFlags> waitStages;
+        waitStages.insert(waitStages.end(), externalWaitStages.begin(), externalWaitStages.end());
+        waitStages.insert(waitStages.end(), pdo.waitStages.begin(), pdo.waitStages.end());
+
+        std::vector<VkSemaphore> signals;
+        signals.insert(signals.end(), externalSignals.begin(), externalSignals.end());
+        signals.insert(signals.end(), pdo.signalSemaphores.begin(), pdo.signalSemaphores.end());
+
         for (auto& window : pdo.windows)
         {
             waitSemaphores.push_back(*(window->frame(window->nextImageIndex()).imageAvailableSemaphore));
@@ -250,13 +260,13 @@ bool Viewer::submitNextFrame()
 
         submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
         submitInfo.pWaitSemaphores = waitSemaphores.data();
-        submitInfo.pWaitDstStageMask = pdo.waitStages.data();
+        submitInfo.pWaitDstStageMask = waitStages.data();
 
         submitInfo.commandBufferCount = static_cast<uint32_t>(pdo.commandBuffers.size());
         submitInfo.pCommandBuffers = pdo.commandBuffers.data();
 
-        submitInfo.signalSemaphoreCount = static_cast<uint32_t>(pdo.signalSemaphores.size());
-        submitInfo.pSignalSemaphores = pdo.signalSemaphores.data();
+        submitInfo.signalSemaphoreCount = static_cast<uint32_t>(signals.size());
+        submitInfo.pSignalSemaphores = signals.data();
 
         if (vkQueueSubmit(pdo.graphicsQueue, 1, &submitInfo, fence) != VK_SUCCESS)
         {
