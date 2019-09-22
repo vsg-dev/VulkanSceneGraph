@@ -46,5 +46,6 @@ VkResult Queue::present(const VkPresentInfoKHR& info)
 
 VkResult Queue::waitIdle()
 {
+    std::lock_guard<std::mutex> guard(_mutex);
     return vkQueueWaitIdle(_vkQueue);
 }
