@@ -520,6 +520,8 @@ void Context::dispatch()
 
     vkEndCommandBuffer(*commandBuffer);
 
+    VkPipelineStageFlags waitDstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.commandBufferCount = 1;
@@ -528,6 +530,7 @@ void Context::dispatch()
     {
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = semaphore->data();
+        submitInfo.pWaitDstStageMask = &waitDstStageMask;
     }
     else
     {

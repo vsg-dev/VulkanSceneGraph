@@ -27,6 +27,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    // forward declare
+    class PagedLODList;
+
     /** Level of Detail Node,
      *  Children should be ordered with the highest resolution PagedLODChild first, thought to lowest resolution PagedLOD child last.
      *  The PagedLODChild struct stores the visibleHeightRatio and child that it's associated with.
@@ -94,9 +97,15 @@ namespace vsg
 
         mutable std::atomic_uint requestCount = 0;
         mutable std::atomic_uint64_t frameHighResLastUsed = 0;
-        mutable std::atomic_uint64_t frameLastUsed = 0;
+
+        bool highResActive(uint64_t frameCount) const { return (frameCount - frameHighResLastUsed.load())<=1; }
+
         ref_ptr<Node> pending;
         ref_ptr<Semaphore> semaphore;
+
+        ref_ptr<PagedLODList> list;
+        PagedLOD* previous = 0;
+        PagedLOD* next = 0;
 
     protected:
         virtual ~PagedLOD();
@@ -109,5 +118,15 @@ namespace vsg
         DescriptorPoolSizes _descriptorPoolSizes;
     };
     VSG_type_name(vsg::PagedLOD);
+
+    struct PagedLODList : public Inherit<Object, PagedLODList>
+    {
+        uint32_t count = 0;
+        PagedLOD* head = nullptr;
+        PagedLOD* tail = nullptr;
+
+        void add(PagedLOD* plod);
+        void remove(PagedLOD* plod);
+    };
 
 } // namespace vsg

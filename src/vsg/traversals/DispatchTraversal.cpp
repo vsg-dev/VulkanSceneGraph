@@ -51,23 +51,6 @@ DispatchTraversal::DispatchTraversal(CommandBuffer* commandBuffer, uint32_t maxS
 
 DispatchTraversal::~DispatchTraversal()
 {
-    if (culledPagedLODs)
-    {
-        std::cout<<"completelyCulled,size() = "<<culledPagedLODs->completelyCulled.size()<<", highresCulled.size() = "<<culledPagedLODs->highresCulled.size()<<std::endl;
-#if 0
-        for(auto& culled : culledPagedLODs->completelyCulled)
-        {
-            uint64_t delta = frameStamp->frameCount - culled->frameLastUsed;
-            std::cout<<"    culled last used "<<delta<<std::endl;
-        }
-
-        for(auto& culled : culledPagedLODs->highresCulled)
-        {
-            uint64_t delta = frameStamp->frameCount - culled->frameHighResLastUsed;
-            std::cout<<"    high res last used "<<delta<<std::endl;
-        }
-#endif
-    }
 }
 
 void DispatchTraversal::setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
@@ -133,10 +116,16 @@ void DispatchTraversal::apply(const PagedLOD& plod)
 {
     auto sphere = plod.getBound();
 
+    auto frameCount = frameStamp->frameCount;
+
     // check if lod bounding sphere is in view frustum.
     if (!_state->intersect(sphere))
     {
-        if (culledPagedLODs) culledPagedLODs->completelyCulled.emplace_back(&plod);
+        if ((frameCount-plod.frameHighResLastUsed)>1 && culledPagedLODs)
+        {
+            culledPagedLODs->highresCulled.emplace_back(&plod);
+        }
+
         return;
     }
 
@@ -154,8 +143,11 @@ void DispatchTraversal::apply(const PagedLOD& plod)
         bool child_visible = rf > cutoff;
         if (child_visible)
         {
-            plod.frameHighResLastUsed = frameStamp->frameCount;
-            plod.frameLastUsed = frameStamp->frameCount;
+            auto previousHighResUsed = plod.frameHighResLastUsed.exchange(frameCount);
+            if (culledPagedLODs && ((frameCount-previousHighResUsed) > 1))
+            {
+                culledPagedLODs->newHighresRequired.emplace_back(&plod);
+            }
 
             if (child.node)
             {
@@ -180,8 +172,14 @@ void DispatchTraversal::apply(const PagedLOD& plod)
                 }
             }
         }
+        else
+        {
+            if (culledPagedLODs && ((frameCount-plod.frameHighResLastUsed)<=1))
+            {
+                culledPagedLODs->highresCulled.emplace_back(&plod);
+            }
+        }
     }
-    if (culledPagedLODs) culledPagedLODs->highresCulled.emplace_back(&plod);
 
     // check the low res child to see if it's visible
     {
@@ -190,12 +188,9 @@ void DispatchTraversal::apply(const PagedLOD& plod)
         bool child_visible = rf > cutoff;
         if (child_visible)
         {
-            plod.frameLastUsed = frameStamp->frameCount;
-
             if (child.node)
             {
                 child.node->accept(*this);
-                return;
             }
         }
     }

@@ -15,6 +15,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// PagedLOD
+//
 PagedLOD::PagedLOD(Allocator* allocator) :
     Inherit(allocator)
 {
@@ -22,6 +26,7 @@ PagedLOD::PagedLOD(Allocator* allocator) :
 
 PagedLOD::~PagedLOD()
 {
+    if (list) list->remove(this);
 }
 
 void PagedLOD::read(Input& input)
@@ -79,4 +84,73 @@ void PagedLOD::write(Output& output) const
 
     output.write("MinimumScreenHeightRatio", _children[1].minimumScreenHeightRatio);
     output.writeObject("Child", _children[1].node);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// PagedLODList
+//
+void PagedLODList::add(PagedLOD* plod)
+{
+    // make sure the plod is in this list
+    ++count;
+
+    if (!head) head = plod;
+
+    if (plod->list)
+    {
+        // check if plod is already added to this list
+        if (plod->list==this) return;
+
+        // remove from original ist.
+        plod->list->remove(plod);
+
+        plod->list = this;
+        plod->previous = tail;
+        plod->next = nullptr;
+
+        if (tail) tail->next = plod;
+        tail = plod;
+    }
+    else
+    {
+        plod->list = this;
+        plod->previous = tail;
+        plod->next = nullptr;
+        if (tail) tail->next = plod;
+        tail = plod;
+    }
+}
+
+void PagedLODList::remove(PagedLOD* plod)
+{
+    // make sure the plod is in this list
+    if (plod->list!=this)
+    {
+        return;
+    }
+
+    --count;
+
+    if (plod->previous)
+    {
+        plod->previous->next = plod->next;
+    }
+    else
+    {
+        head = plod->next;
+    }
+
+    if (plod->next)
+    {
+        plod->next->previous = plod->previous;
+    }
+    else
+    {
+        tail = plod->previous;
+    }
+
+    plod->previous = nullptr;
+    plod->next = nullptr;
+    plod->list = nullptr;
 }

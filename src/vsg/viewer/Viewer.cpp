@@ -228,9 +228,12 @@ bool Viewer::submitNextFrame()
         ref_ptr<Fence> fence;
 
         std::vector<VkSemaphore> waitSemaphores;
+        std::vector<VkPipelineStageFlags> waitDstStageMasks;
         for (auto& window : pdo.windows)
         {
             waitSemaphores.push_back(*(window->frame(window->nextImageIndex()).imageAvailableSemaphore));
+            waitDstStageMasks.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+
             fence = window->frame(window->nextImageIndex()).commandsCompletedFence;
             window->frame(window->nextImageIndex()).checkCommandsCompletedFence = true;
 
@@ -244,6 +247,7 @@ bool Viewer::submitNextFrame()
                     for(auto& semaphore : db->getSemaphores())
                     {
                         waitSemaphores.emplace_back(*semaphore);
+                        waitDstStageMasks.emplace_back(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
                     }
                 }
             }
@@ -264,7 +268,7 @@ bool Viewer::submitNextFrame()
 
         submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
         submitInfo.pWaitSemaphores = waitSemaphores.data();
-        submitInfo.pWaitDstStageMask = pdo.waitStages.data();
+        submitInfo.pWaitDstStageMask = waitDstStageMasks.data();
 
         submitInfo.commandBufferCount = static_cast<uint32_t>(pdo.commandBuffers.size());
         submitInfo.pCommandBuffers = pdo.commandBuffers.data();

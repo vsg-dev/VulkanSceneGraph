@@ -31,8 +31,14 @@ namespace vsg
 
     struct CulledPagedLODs: public Inherit<Object, CulledPagedLODs>
     {
-        std::vector<const PagedLOD*> completelyCulled;
+        void clear()
+        {
+            highresCulled.clear();
+            newHighresRequired.clear();
+        }
+
         std::vector<const PagedLOD*> highresCulled;
+        std::vector<const PagedLOD*> newHighresRequired;
     };
 
     class VSG_DECLSPEC DatabaseQueue : public Inherit<Object, DatabaseQueue>
@@ -94,6 +100,13 @@ namespace vsg
 
         std::atomic_uint numActiveRequests = 0;
         std::atomic_uint64_t frameCount;
+
+        ref_ptr<PagedLODList> activePagedLODs;
+        ref_ptr<PagedLODList> inactivePagedLODs;
+
+        ref_ptr<CulledPagedLODs> culledPagedLODs;
+
+        uint32_t targetMaxNumPagedLODWithHighResSubgraphs = 10000;
 
     protected:
         virtual ~DatabasePager();

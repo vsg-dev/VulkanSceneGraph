@@ -107,6 +107,11 @@ DatabasePager::DatabasePager()
 {
     if (!_active) _active = Active::create();
 
+    activePagedLODs = PagedLODList::create();
+    inactivePagedLODs = PagedLODList::create();
+
+    culledPagedLODs = CulledPagedLODs::create();
+
     _requestQueue = DatabaseQueue::create(_active);
     _compileQueue = DatabaseQueue::create(_active);
     _toMergeQueue = DatabaseQueue::create(_active);
@@ -192,10 +197,15 @@ void DatabasePager::start()
     {
         //std::cout<<"Started DatabaseThread compile thread"<<std::endl;
 
-
         std::list<ref_ptr<CompileTraversal>> compileTraversals;
 
         int numCompileContexts = 30;
+#if 1
+        for(int i=0; i<numCompileContexts; ++i)
+        {
+            compileTraversals.emplace_back(new CompileTraversal(*db_ct));
+        }
+#else
         if (numCompileContexts <= 1)
         {
             compileTraversals.emplace_back(db_ct);
@@ -208,7 +218,7 @@ void DatabasePager::start()
                 compileTraversals.emplace_back(new CompileTraversal(*db_ct));
             }
         }
-
+#endif
         // assign semaphores
         for(auto& ct : compileTraversals)
         {
@@ -305,9 +315,75 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
 {
     frameCount = frameStamp ? frameStamp->frameCount : 0;
 
+
     _semaphores.clear();
 
     auto nodes = _toMergeQueue->take_all();
+
+    if (culledPagedLODs)
+    {
+        struct RegisterInActivePaged : public ConstVisitor
+        {
+            uint64_t frameCount = 0;
+            PagedLODList* inactiveList = nullptr;
+
+            RegisterInActivePaged(uint64_t fc, PagedLODList* inactive) : frameCount(fc), inactiveList(inactive)  {}
+
+            void apply(const vsg::Node& node) override
+            {
+                node.traverse(*this);
+            }
+
+            void apply(const vsg::PagedLOD& plod) override
+            {
+                if (plod.list && plod.list != inactiveList && !plod.highResActive(frameCount))
+                {
+                    //std::cout<<"    nested new inactive "<<std::endl;
+                    plod.traverse(*this);
+                    inactiveList->add(const_cast<PagedLOD*>(&plod));
+                }
+            }
+        } registerInActivePaged(frameCount, inactivePagedLODs);
+
+        // run the registry visitor through the children of the PagedLOD
+        for(auto& plod : culledPagedLODs->highresCulled)
+        {
+            plod->accept(registerInActivePaged);
+        }
+
+        //std::cout<<"  newly active nodes:"<<std::endl;
+        for(auto& plod : culledPagedLODs->newHighresRequired)
+        {
+            activePagedLODs->add(const_cast<PagedLOD*>(plod));
+        }
+
+        culledPagedLODs->clear();
+
+        // set the number of PageDLOD to expire
+        uint32_t total = inactivePagedLODs->count + activePagedLODs->count;
+        if ((nodes.size()+total) > targetMaxNumPagedLODWithHighResSubgraphs)
+        {
+            uint32_t numPagedLODHighRestSubgraphsToRemove = (nodes.size()+total) - targetMaxNumPagedLODWithHighResSubgraphs;
+            uint32_t targetNumInactive = (numPagedLODHighRestSubgraphsToRemove < inactivePagedLODs->count) ?
+                (inactivePagedLODs->count - numPagedLODHighRestSubgraphsToRemove) : 0;
+
+            while(inactivePagedLODs->count > targetNumInactive)
+            {
+                PagedLOD* plod = inactivePagedLODs->head;
+                if (plod)
+                {
+                    // std::cout<<"    trimming "<<plod<<std::endl;
+                    inactivePagedLODs->remove(plod);
+                    plod->getChild(0).node = nullptr;
+                    plod->pending = nullptr;
+                    plod->requestCount = 0;
+                    plod->frameHighResLastUsed = 0;
+                }
+            }
+        }
+
+    }
+
     if (!nodes.empty())
     {
         //std::cout<<"DatabasePager::updateSceneGraph() nodes to merge : nodes.size() = "<<nodes.size()<<", "<<numActiveRequests.load()<<std::endl;
