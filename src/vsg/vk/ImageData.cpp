@@ -78,7 +78,13 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
             if ((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT) == 0)
             {
-                std::cout << "vsg::transferImageData(..) failed : formatProperties.optimalTilingFeatures sampling not supported, disabling mipmap generation" << std::endl;
+                std::cout << "vsg::transferImageData(..) failed : formatProperties.optimalTilingFeatures VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT not supported, disabling mipmap generation." << std::endl;
+                mipLevels = 1;
+            }
+
+            if ((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) == 0)
+            {
+                std::cout << "vsg::transferImageData(..) failed : formatProperties.optimalTilingFeatures VK_FORMAT_FEATURE_BLIT_DST_BIT not supported, disabling mipmap generation." << std::endl;
                 mipLevels = 1;
             }
         }
