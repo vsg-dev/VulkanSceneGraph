@@ -484,6 +484,11 @@ Context::Context(const Context& context) :
 {
 }
 
+Context::~Context()
+{
+    waitForCompletion();
+}
+
 
 ref_ptr<CommandBuffer> Context::getOrCreateCommandBuffer()
 {

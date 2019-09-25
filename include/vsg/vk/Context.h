@@ -108,6 +108,8 @@ namespace vsg
 
         Context(const Context& context);
 
+        virtual ~Context();
+
         // used by BufferData.cpp, ComputePipeline.cpp, Descriptor.cpp, Descriptor.cpp, DescriptorSet.cpp, DescriptorSetLayout.cpp, GraphicsPipeline.cpp, ImageData.cpp, PipelineLayout.cpp, ShaderModule.cpp
         ref_ptr<Device> device;
 
@@ -140,6 +142,7 @@ namespace vsg
 
         ref_ptr<MemoryBufferPools> deviceMemoryBufferPools;
         ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;
+
     };
 
 } // namespace vsg
