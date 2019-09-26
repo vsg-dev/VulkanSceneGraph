@@ -17,6 +17,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+#define USE_MUTEX 1
+
 DescriptorSet::DescriptorSet()
 {
 }
@@ -73,6 +75,9 @@ void DescriptorSet::compile(Context& context)
         for (auto& descriptorSetLayout : _descriptorSetLayouts) descriptorSetLayout->compile(context);
         for (auto& descriptor : _descriptors) descriptor->compile(context);
 
+#if USE_MUTEX
+        std::lock_guard<std::mutex> lock(context.descriptorPool->getMutex());
+#endif
         _implementation = DescriptorSet::Implementation::create(context.device, context.descriptorPool, _descriptorSetLayouts, _descriptors);
     }
 }
@@ -90,6 +95,9 @@ DescriptorSet::Implementation::~Implementation()
 {
     if (_descriptorSet)
     {
+#if USE_MUTEX
+        std::lock_guard<std::mutex> lock(_descriptorPool->getMutex());
+#endif
         vkFreeDescriptorSets(*_device, *_descriptorPool, 1, &_descriptorSet);
     }
 }
