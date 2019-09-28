@@ -22,14 +22,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+// use a static handle that is initialzaed once at start up to avoid multithreaded issues associated with calling std::locale::classic().
+auto s_class_locale = std::locale::classic();
+
 ReaderWriter_vsg::ReaderWriter_vsg()
 {
-    _objectFactory = new vsg::ObjectFactory;
+    _objectFactory = ObjectFactory::instance();
 }
 
 ReaderWriter_vsg::FormatType ReaderWriter_vsg::readHeader(std::istream& fin) const
 {
-    fin.imbue(std::locale::classic());
+    fin.imbue(s_class_locale);
 
     // write header
     const char* match_token_ascii = "#vsga";
@@ -60,7 +63,7 @@ void ReaderWriter_vsg::writeHeader(std::ostream& fout, FormatType type) const
 {
     if (type == NOT_RECOGNIZED) return;
 
-    fout.imbue(std::locale::classic());
+    fout.imbue(s_class_locale);
     if (type == BINARY)
         fout << "#vsgb";
     else
