@@ -33,6 +33,9 @@ namespace vsg
         CreateMap& getCreateMap() { return _createMap; }
         const CreateMap& getCreateMap() const { return _createMap; }
 
+        /// return the ObjectFactory singleton instance
+        static ref_ptr<ObjectFactory>& instance();
+
     protected:
         CreateMap _createMap;
     };

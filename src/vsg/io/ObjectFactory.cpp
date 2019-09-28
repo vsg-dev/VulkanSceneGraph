@@ -46,12 +46,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Sampler.h>
 #include <vsg/vk/ShaderModule.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 #define VSG_REGISTER_new(ClassName) _createMap[#ClassName] = []() { return ref_ptr<Object>(new ClassName()); }
 #define VSG_REGISTER_create(ClassName) _createMap[#ClassName] = []() { return ClassName::create(); }
+
+// declare the ObjectFactory singleton as static to be initialized at start up.
+static ref_ptr<ObjectFactory> s_ObjectFactory(new ObjectFactory);
+
+ref_ptr<ObjectFactory>& ObjectFactory::instance()
+{
+    return s_ObjectFactory;
+}
 
 ObjectFactory::ObjectFactory()
 {
