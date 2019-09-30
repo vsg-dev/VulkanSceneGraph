@@ -313,8 +313,7 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
 
 void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
 {
-    frameCount = frameStamp ? frameStamp->frameCount : 0;
-
+    frameCount.exchange(frameStamp ? frameStamp->frameCount : 0);
 
     _semaphores.clear();
 
