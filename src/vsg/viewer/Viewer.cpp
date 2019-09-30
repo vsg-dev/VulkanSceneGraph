@@ -365,12 +365,6 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             GraphicsStage* gs = dynamic_cast<GraphicsStage*>(stage.get());
             if (gs)
             {
-                if (gs->databasePager)
-                {
-                    gs->databasePager->compileTraversal = compile;
-                    gs->databasePager->start();
-                }
-
                 gs->_maxSlot = collectStats.maxSlot;
 
                 if (gs->_camera->getViewportState())
@@ -386,6 +380,12 @@ void Viewer::compile(BufferPreferences bufferPreferences)
 
                 compile->context.dispatch();
                 compile->context.waitForCompletion();
+
+                if (gs->databasePager)
+                {
+                    gs->databasePager->compileTraversal = compile;
+                    gs->databasePager->start();
+                }
             }
             else
             {
