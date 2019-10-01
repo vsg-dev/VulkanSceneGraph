@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Inherit.h>
 
 #include <condition_variable>
+#include <mutex>
 #include <list>
 
 namespace vsg
@@ -95,7 +96,7 @@ namespace vsg
 
         void add(ref_ptr<Operation> operation)
         {
-            std::unique_lock lock(_mutex);
+            std::scoped_lock lock(_mutex);
             _queue.emplace_back(operation);
             _cv.notify_one();
         }
@@ -104,7 +105,7 @@ namespace vsg
         void add(Iterator begin, Iterator end)
         {
             size_t numAdditions = 0;
-            std::unique_lock lock(_mutex);
+            std::scoped_lock lock(_mutex);
             for (auto itr = begin; itr != end; ++itr)
             {
                 _queue.emplace_back(*itr);

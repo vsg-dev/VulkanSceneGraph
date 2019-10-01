@@ -53,7 +53,7 @@ namespace vsg
 
         void add(ref_ptr<PagedLOD> plod)
         {
-            std::unique_lock lock(_mutex);
+            std::scoped_lock lock(_mutex);
             _queue.emplace_back(plod);
             _cv.notify_one();
         }
@@ -64,13 +64,14 @@ namespace vsg
 
         Nodes take_all()
         {
-            std::unique_lock lock(_mutex);
+            std::scoped_lock lock(_mutex);
             Nodes nodes;
             nodes.swap(_queue);
             return nodes;
         }
 
     protected:
+        virtual ~DatabaseQueue();
 
         std::mutex _mutex;
         std::condition_variable _cv;

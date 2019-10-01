@@ -27,10 +27,13 @@ DatabaseQueue::DatabaseQueue(ref_ptr<Active> in_active) :
 {
 }
 
+DatabaseQueue::~DatabaseQueue()
+{
+}
+
 ref_ptr<PagedLOD> DatabaseQueue::take_when_avilable()
 {
     std::chrono::duration waitDuration = std::chrono::milliseconds(100);
-
     std::unique_lock lock(_mutex);
 
     // wait to the conditional variable signals that an operation has been added
@@ -41,7 +44,7 @@ ref_ptr<PagedLOD> DatabaseQueue::take_when_avilable()
     }
 
     // if the threads we are associated with should no longer running go for a quick exit and return nothing.
-    if (!*_active)
+    if (_queue.empty() || !(*_active))
     {
         return {};
     }
@@ -85,6 +88,7 @@ DatabaseQueue::Nodes DatabaseQueue::take_all_when_available()
         _cv.wait_for(lock, waitDuration);
     }
 
+
     // if the threads we are associated with should no longer running go for a quick exit and return nothing.
     if (!*_active)
     {
@@ -122,7 +126,7 @@ DatabasePager::~DatabasePager()
 {
     //d::cout<<"DatabasePager::~DatabasePager()"<<std::endl;
 
-    _active->active = false;
+    _active->active.exchange(false);
 
     for(auto& thread : _readThreads)
     {
