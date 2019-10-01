@@ -174,7 +174,6 @@ void DatabasePager::start()
 
                 if (subgraph)
                 {
-
                     {
                         //std::cout<<"   assigned subgraph to plod"<<std::endl;
                         std::scoped_lock<std::mutex> lock(databasePager.pendingPagedLODMutex);
@@ -266,10 +265,24 @@ void DatabasePager::start()
                     {
                         // std::cout<<"    compiling "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
 
-                        // compiling subgarph
-                        plod->pending->accept(*ct);
+                        ref_ptr<Node> subgraph;
+                        {
+                            std::scoped_lock<std::mutex> lock(databasePager.pendingPagedLODMutex);
+                            subgraph = plod->pending;
+                        }
 
-                        nodesCompiled.emplace_back(plod);
+                        // compiling subgarph
+                        if (subgraph)
+                        {
+                            subgraph->accept(*ct);
+                            nodesCompiled.emplace_back(plod);
+                        }
+                        else
+                        {
+                            // need to reset the PLOD so that it's no longer part of the DatabasePager's queues and is ready to be compile when next reqested.
+                            // std::cout<<"Expire compile requrest"<<std::endl;
+                            databasePager.requestDiscarded(plod);
+                        }
                     }
                     else
                     {
