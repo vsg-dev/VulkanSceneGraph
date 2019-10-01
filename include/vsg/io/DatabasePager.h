@@ -114,7 +114,7 @@ namespace vsg
 
         inline void requestDiscarded(PagedLOD* plod)
         {
-            plod->requestCount = 0;
+            plod->requestCount.exchange(0);
             --numActiveRequests;
         }
 
