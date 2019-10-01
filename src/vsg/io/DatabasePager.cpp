@@ -379,8 +379,8 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
                     inactivePagedLODs->remove(plod);
                     plod->getChild(0).node = nullptr;
                     plod->pending = nullptr;
-                    plod->requestCount = 0;
-                    plod->frameHighResLastUsed = 0;
+                    plod->requestCount.exchange(0);
+                    plod->frameHighResLastUsed.exchange(0);
                 }
             }
         }
