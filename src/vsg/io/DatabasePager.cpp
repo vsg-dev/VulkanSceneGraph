@@ -174,8 +174,12 @@ void DatabasePager::start()
 
                 if (subgraph)
                 {
-                    //std::cout<<"   assigned subgraph to plod"<<std::endl;
-                    plod->pending = subgraph;
+
+                    {
+                        //std::cout<<"   assigned subgraph to plod"<<std::endl;
+                        std::scoped_lock<std::mutex> lock(databasePager.pendingPagedLODMutex);
+                        plod->pending = subgraph;
+                    }
 
                     // move to the merge queue;
                     compileQueue->add(plod);
@@ -377,8 +381,12 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
                 {
                     // std::cout<<"    trimming "<<plod<<std::endl;
                     inactivePagedLODs->remove(plod);
-                    plod->getChild(0).node = nullptr;
-                    plod->pending = nullptr;
+                    {
+                        std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
+                        ref_ptr<Node> subgraph = plod->pending; // TODO pass onto a background thread to do deletion.
+                        plod->pending = nullptr;
+                        plod->getChild(0).node = nullptr;
+                    }
                     plod->requestCount.exchange(0);
                     plod->frameHighResLastUsed.exchange(0);
                 }

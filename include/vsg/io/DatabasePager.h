@@ -109,6 +109,8 @@ namespace vsg
 
         uint32_t targetMaxNumPagedLODWithHighResSubgraphs = 10000;
 
+        std::mutex pendingPagedLODMutex;
+
     protected:
         virtual ~DatabasePager();
 
