@@ -92,6 +92,8 @@ void PagedLOD::write(Output& output) const
 //
 void PagedLODList::add(PagedLOD* plod)
 {
+    std::scoped_lock<std::mutex> lock(mutex);
+
     // make sure the plod is in this list
     ++count;
 
@@ -124,6 +126,8 @@ void PagedLODList::add(PagedLOD* plod)
 
 void PagedLODList::remove(PagedLOD* plod)
 {
+    std::scoped_lock<std::mutex> lock(mutex);
+
     // make sure the plod is in this list
     if (plod->list!=this)
     {

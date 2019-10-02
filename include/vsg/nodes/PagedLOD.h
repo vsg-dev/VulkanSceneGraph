@@ -121,6 +121,7 @@ namespace vsg
 
     struct PagedLODList : public Inherit<Object, PagedLODList>
     {
+        std::mutex mutex;
         uint32_t count = 0;
         PagedLOD* head = nullptr;
         PagedLOD* tail = nullptr;
