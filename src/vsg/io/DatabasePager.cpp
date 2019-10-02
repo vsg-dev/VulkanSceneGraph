@@ -321,7 +321,13 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
     ++numActiveRequests;
 
     //std::cout<<"DatabasePager::reqquest("<<plod.get()<<") "<<plod->filename<<", "<<plod->priority<<std::endl;
-    if (plod->pending)
+    bool hasPending = false;
+    {
+        std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
+        hasPending = plod->pending.valid();
+    }
+
+    if (hasPending)
     {
         //std::cout<<"DatabasePager::reqquest("<<plod.get()<<") has pending subgraphs to transfer to compile "<<plod->filename<<", "<<plod->priority<<" plog="<<plod.get()<<std::endl;
         _compileQueue->add(plod);
