@@ -37,7 +37,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
     VkDeviceSize imageTotalSize = data->dataSize();
 
-    VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->dataSize()));
+    VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
     BufferData stagingBufferData = context.stagingMemoryBufferPools->reserveBufferData(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     stagingBufferData._data = const_cast<Data*>(data);
 
