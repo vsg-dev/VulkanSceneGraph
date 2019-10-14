@@ -34,6 +34,9 @@ namespace vsg
 
         bool full() const { return _availableMemory.empty(); }
 
+        void report() const;
+        bool check() const;
+
     protected:
         using SizeOffsets = std::multimap<VkDeviceSize, VkDeviceSize>;
         using SizeOffset = SizeOffsets::value_type;
@@ -42,6 +45,11 @@ namespace vsg
         using OffsetSizes = std::map<VkDeviceSize, VkDeviceSize>;
         using OffsetSize = OffsetSizes::value_type;
         OffsetSizes _offsetSizes;
+
+        using OffsetAllocatedSlot = std::map<VkDeviceSize, OffsetSize>;
+        OffsetSizes _reservedOffsetSizes;
+
+        VkDeviceSize _totalMemorySize;
     };
 
     class VSG_DECLSPEC DeviceMemory : public Inherit<Object, DeviceMemory>

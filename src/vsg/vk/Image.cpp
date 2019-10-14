@@ -12,6 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Image.h>
 
+#include <iostream>
+
 using namespace vsg;
 
 Image::Image(VkImage image, Device* device, AllocationCallbacks* allocator) :
@@ -23,6 +25,12 @@ Image::Image(VkImage image, Device* device, AllocationCallbacks* allocator) :
 
 Image::~Image()
 {
+    if (_deviceMemory)
+    {
+        std::cout<<"Image::~Image() calling _deviceMemory::relase() _memoryOffset = "<<_memoryOffset<<std::endl;
+        _deviceMemory->release(_memoryOffset, 0); // TODO, we don't locally have a size allocated
+    }
+
     if (_image)
     {
         vkDestroyImage(*_device, _image, _allocator);

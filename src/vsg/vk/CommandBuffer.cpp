@@ -56,6 +56,7 @@ CommandBuffer::Result CommandBuffer::create(Device* device, CommandPool* command
     }
 }
 
+#if 0
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // CommandBuffers
@@ -100,3 +101,4 @@ CommandBuffers::~CommandBuffers()
         vkFreeCommandBuffers(*_device, *_commandPool, static_cast<uint32_t>(_buffers.size()), _buffers.data());
     }
 }
+#endif

@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/DatabasePager.h>
 #include <vsg/io/read.h>
 #include <vsg/ui/ApplicationEvent.h>
+#include <vsg/threading/atomics.h>
 
 #include <iostream>
 
@@ -31,25 +32,47 @@ DatabaseQueue::~DatabaseQueue()
 {
 }
 
+void DatabaseQueue::add(ref_ptr<PagedLOD> plod)
+{
+    // std::cout<<"DatabaseQueue::add("<<plod<<") status = "<<plod->requestStatus.load()<<std::endl;
+
+    std::scoped_lock lock(_mutex);
+    _queue.emplace_back(plod);
+    _cv.notify_one();
+}
+
+void DatabaseQueue::add(Nodes& nodes)
+{
+    std::scoped_lock lock(_mutex);
+
+    _queue.insert(_queue.end(), nodes.begin(), nodes.end());
+
+    _cv.notify_one();
+}
+
+
 ref_ptr<PagedLOD> DatabaseQueue::take_when_avilable()
 {
+    //std::cout<<"DatabaseQueue::take_when_avilable() A _identifier = "<<_identifier<<" size = "<<_queue.size()<<std::endl;
+
     std::chrono::duration waitDuration = std::chrono::milliseconds(100);
     std::unique_lock lock(_mutex);
 
     // wait to the conditional variable signals that an operation has been added
     while (_queue.empty() && *_active)
     {
-        //std::cout<<"Waiting on condition variable"<<std::endl;
+        //std::cout<<"   Waiting on condition variable B _identifier = "<<_identifier<<" size = "<<_queue.size()<<std::endl;
         _cv.wait_for(lock, waitDuration);
     }
 
     // if the threads we are associated with should no longer running go for a quick exit and return nothing.
     if (_queue.empty() || !(*_active))
     {
+        //std::cout<<"DatabaseQueue::take_when_avilable() C _identifier = "<<_identifier<<" emoty"<<std::endl;
         return {};
     }
 
-    //std::cout<<"DatabaseQueue::take_when_avilable() "<<_queue.size()<<std::endl;
+    //std::cout<<"DatabaseQueue::take_when_avilable() D _identifier = "<<_identifier<<" "<<_queue.size()<<std::endl;
 
 #if 1
 
@@ -65,7 +88,7 @@ ref_ptr<PagedLOD> DatabaseQueue::take_when_avilable()
     ref_ptr<PagedLOD> plod = *highest_itr;
     _queue.erase(highest_itr);
 
-    return plod;
+    //std::cout<<"Returning "<<plod.get()<<std::dec<<" variable _identifier = "<<_identifier<<" size = "<<_queue.size()<<std::endl;
 
 #else
     // remove and return the head of the queue
@@ -84,7 +107,7 @@ DatabaseQueue::Nodes DatabaseQueue::take_all_when_available()
     // wait to the conditional variable signals that an operation has been added
     while (_queue.empty() && *_active)
     {
-        //std::cout<<"Waiting on condition variable"<<std::endl;
+        //std::cout<<"take_all_when_available() _identifier = "<<_identifier<<" Waiting on condition variable"<<_queue.size()<<std::endl;
         _cv.wait_for(lock, waitDuration);
     }
 
@@ -111,14 +134,14 @@ DatabasePager::DatabasePager()
 {
     if (!_active) _active = Active::create();
 
-    activePagedLODs = PagedLODList::create();
-    inactivePagedLODs = PagedLODList::create();
-
     culledPagedLODs = CulledPagedLODs::create();
 
     _requestQueue = DatabaseQueue::create(_active);
     _compileQueue = DatabaseQueue::create(_active);
     _toMergeQueue = DatabaseQueue::create(_active);
+
+
+    pagedLODContainer = PagedLODContainer::create(10000);
 }
 
 
@@ -157,22 +180,22 @@ void DatabasePager::start()
             if (plod)
             {
                 uint64_t frameDelta = databasePager.frameCount - plod->frameHighResLastUsed.load();
-                if (frameDelta>1)
+                if (frameDelta>1 || !compare_exchange(plod->requestStatus, PagedLOD::ReadRequest, PagedLOD::Reading))
                 {
                     // std::cout<<"Expire read requrest"<<std::endl;
                     databasePager.requestDiscarded(plod);
                     continue;
                 }
 
-                // std::cout<<"    reading "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
+                //std::cout<<"    reading "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
 
                 auto subgraph = vsg::read_cast<vsg::Node>(plod->filename);
 
                 // std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-                //std::cout<<"    finished reading "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
+                // std::cout<<"    finished reading "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
 
-                if (subgraph)
+                if (subgraph && compare_exchange(plod->requestStatus, PagedLOD::Reading, PagedLOD::CompileRequest))
                 {
                     {
                         //std::cout<<"   assigned subgraph to plod"<<std::endl;
@@ -206,7 +229,7 @@ void DatabasePager::start()
 
         std::list<ref_ptr<CompileTraversal>> compileTraversals;
 
-        int numCompileContexts = 30;
+        int numCompileContexts = 1;
 #if 1
         for(int i=0; i<numCompileContexts; ++i)
         {
@@ -230,13 +253,36 @@ void DatabasePager::start()
         for(auto& ct : compileTraversals)
         {
             ct->context.semaphore = Semaphore::create(ct->context.device);
+            ct->context.semaphore->pipelineStageFlags() = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
         }
 
         auto compile_itr = compileTraversals.begin();
 
         while (*(a))
         {
-            auto nodesToCompile = compileQueue->take_all_when_available();
+            auto nodesToCompileOrDelete = compileQueue->take_all_when_available();
+
+            DatabaseQueue::Nodes nodesToCompile;
+            for(auto& plod : nodesToCompileOrDelete)
+            {
+                if (compare_exchange(plod->requestStatus, PagedLOD::DeleteRequest, PagedLOD::Deleting))
+                {
+                    std::cout<<"    from compile thread releasing subgraph for plod = "<<plod<<std::endl;
+                    ref_ptr<Node> subgraph;
+                    {
+                        std::scoped_lock<std::mutex> lock(databasePager.pendingPagedLODMutex);
+                        subgraph = plod->pending;
+                        plod->pending = nullptr;
+                    }
+
+                    //plod->requestStatus.exchange(PagedLOD::NoRequest);
+                    databasePager.requestDiscarded(plod);
+                }
+                else
+                {
+                    nodesToCompile.emplace_back(plod);
+                }
+            }
 
             if (!nodesToCompile.empty())
             {
@@ -246,7 +292,7 @@ void DatabasePager::start()
                 // adveance the compile iterator to the next CompileTraversal in the list, wrap around if we get to the end
                 if (compile_itr == compileTraversals.end())
                 {
-                    // std::cout<<"Wrapping aroind"<<std::endl;
+                    // std::cout<<"Wrapping around"<<std::endl;
                     compile_itr = compileTraversals.begin();
                 }
                 else
@@ -254,31 +300,74 @@ void DatabasePager::start()
                     // std::cout<<"Using next CompileTraversal"<<std::endl;
                 }
 
+                std::cout<<"Compile Semaphore befoe wait Semaphore "<<*(ct->context.semaphore->data())<<" , count "<<ct->context.semaphore->numDependentSubmissions().load()<<std::endl;
 
                 ct->context.waitForCompletion();
+
+                std::cout<<"Compile Semaphore after wait Semaphore "<<*(ct->context.semaphore->data())<<" , count "<<ct->context.semaphore->numDependentSubmissions().load()<<std::endl;
+
+#if 1
+                if (ct->context.semaphore->numDependentSubmissions().load()>0)
+                {
+                    ct->context.semaphore = Semaphore::create(ct->context.device);
+                    ct->context.semaphore->pipelineStageFlags() = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+                    std::cout<<"Semaphore not ready to reuse so creating a new one "<<*(ct->context.semaphore)<<std::endl;
+                }
+                else
+                {
+                    std::cout<<"Reuseing Semaphore "<<*(ct->context.semaphore)<<std::endl;
+                }
+#else
+                auto before_wait_for_semaphore = clock::now();
+
+                while (ct->context.semaphore->numDependentSubmissions().load()>0 && *(a))
+                {
+                    std::cout<<"Semaphore isn't ready yet Semaphore "<<*(ct->context.semaphore->data())<<", count "<<ct->context.semaphore->numDependentSubmissions().load()<<std::endl;
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                }
+
+                std::cout<<"Semaphore wait : "<<std::chrono::duration<double, std::chrono::milliseconds::period>(clock::now() - before_wait_for_semaphore).count()<<std::endl;
+
+
+#endif
+                ct->context.semaphore->numDependentSubmissions().exchange(1);
 
                 DatabaseQueue::Nodes nodesCompiled;
                 for(auto& plod : nodesToCompile)
                 {
-                    uint64_t frameDelta = databasePager.frameCount - plod->frameHighResLastUsed.load();
-                    if (frameDelta<=1)
+                    if (compare_exchange(plod->requestStatus, PagedLOD::CompileRequest, PagedLOD::Compiling))
                     {
-                        // std::cout<<"    compiling "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
-
-                        ref_ptr<Node> subgraph;
+                        uint64_t frameDelta = databasePager.frameCount - plod->frameHighResLastUsed.load();
+                        if (frameDelta<=1)
                         {
-                            std::scoped_lock<std::mutex> lock(databasePager.pendingPagedLODMutex);
-                            subgraph = plod->pending;
-                        }
+                            std::cout<<"    compiling "<<plod->filename<<", "<<plod->requestCount.load()<<" Semaphore "<<*(ct->context.semaphore->data())<<", count "<<ct->context.semaphore->numDependentSubmissions().load()<<std::endl;
 
-                        // compiling subgarph
-                        if (subgraph)
-                        {
-                            subgraph->accept(*ct);
-                            nodesCompiled.emplace_back(plod);
+                            ref_ptr<Node> subgraph;
+                            {
+                                std::scoped_lock<std::mutex> lock(databasePager.pendingPagedLODMutex);
+                                subgraph = plod->pending;
+                            }
+
+                            // compiling subgarph
+                            if (subgraph)
+                            {
+                                subgraph->accept(*ct);
+                                nodesCompiled.emplace_back(plod);
+                            }
+                            else
+                            {
+                                // need to reset the PLOD so that it's no longer part of the DatabasePager's queues and is ready to be compile when next reqested.
+                                std::cout<<"Expire compile requrest "<<plod->filename<<std::endl;
+                                databasePager.requestDiscarded(plod);
+                            }
                         }
                         else
                         {
+                            {
+                                std::scoped_lock<std::mutex> lock(databasePager.pendingPagedLODMutex);
+                                plod->pending = nullptr;
+                            }
+
                             // need to reset the PLOD so that it's no longer part of the DatabasePager's queues and is ready to be compile when next reqested.
                             // std::cout<<"Expire compile requrest"<<std::endl;
                             databasePager.requestDiscarded(plod);
@@ -286,9 +375,7 @@ void DatabasePager::start()
                     }
                     else
                     {
-                        // need to reset the PLOD so that it's no longer part of the DatabasePager's queues and is ready to be compile when next reqested.
-                        // std::cout<<"Expire compile requrest"<<std::endl;
-                        databasePager.requestDiscarded(plod);
+                        std::cout<<"PagedLOD::requestStatus not DeleteRequest or CompileRequest so ignoring status = "<<plod->requestStatus.load()<<std::endl;
                     }
                 }
 
@@ -298,11 +385,29 @@ void DatabasePager::start()
 
                     for(auto& plod : nodesCompiled)
                     {
-                        plod->semaphore = ct->context.semaphore;
+#if 0
+                        if (compare_exchange(plod->requestStatus, PagedLOD::Compiling, PagedLOD::MergeRequest))
+                        {
+                            plod->semaphore = ct->context.semaphore;
 
-                        //std::cout<<"    finished compile "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
-                        toMergeQueue->add(plod);
+                            //std::cout<<"    finished compile "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
+                            toMergeQueue->add(plod);
+                        }
+                        else
+                        {
+                            std::cout<<"PagedLOD::requestStatus not Compiling so ignoring status = "<<plod->requestStatus.load()<<std::endl;
+                        }
+#else
+                            plod->semaphore = ct->context.semaphore;
+
+                            plod->requestStatus.exchange(PagedLOD::MergeRequest);
+
+                            std::cout<<"    finished compile "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
+//                            toMergeQueue->add(plod);
+#endif
                     }
+
+                    toMergeQueue->add(nodesCompiled);
                 }
             }
         }
@@ -320,7 +425,7 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
 {
     ++numActiveRequests;
 
-    //std::cout<<"DatabasePager::reqquest("<<plod.get()<<") "<<plod->filename<<", "<<plod->priority<<std::endl;
+    //std::cout<<"DatabasePager::request("<<plod.get()<<") "<<plod->filename<<", "<<plod->priority<<std::endl;
     bool hasPending = false;
     {
         std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
@@ -329,13 +434,37 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
 
     if (hasPending)
     {
-        //std::cout<<"DatabasePager::reqquest("<<plod.get()<<") has pending subgraphs to transfer to compile "<<plod->filename<<", "<<plod->priority<<" plog="<<plod.get()<<std::endl;
-        _compileQueue->add(plod);
+        // std::cout<<"DatabasePager::reqquest("<<plod.get()<<") has pending subgraphs to transfer to compile "<<plod->filename<<", "<<plod->priority<<" plog="<<plod.get()<<std::endl;
+        if (compare_exchange(plod->requestStatus, PagedLOD::NoRequest, PagedLOD::CompileRequest))
+        {
+            _compileQueue->add(plod);
+        }
+        else
+        {
+            std::cout<<"Attempted DatabasePager::reqquest("<<plod.get()<<") with pending comile but but plod.requestState() = "<<plod->requestStatus.load()<<" is not NoRequest"<<std::endl;
+        }
     }
     else
     {
-        _requestQueue->add(plod);
+        if (compare_exchange(plod->requestStatus, PagedLOD::NoRequest, PagedLOD::ReadRequest))
+        {
+            // std::cout<<"DatabasePager::reqquest("<<plod.get()<<") adding to requeQueue "<<plod->filename<<", "<<plod->priority<<" plog="<<plod.get()<<std::endl;
+            _requestQueue->add(plod);
+        }
+        else
+        {
+            //std::cout<<"Attempted DatabasePager::reqquest("<<plod.get()<<") but plod.requestState() = "<<plod->requestStatus.load()<<" is not NoRequest"<<std::endl;
+        }
     }
+}
+
+void DatabasePager::requestDiscarded(PagedLOD* plod)
+{
+    //std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
+    //plod->pending = nullptr;
+    plod->requestCount.exchange(0);
+    plod->requestStatus.exchange(PagedLOD::NoRequest);
+    --numActiveRequests;
 }
 
 void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
@@ -348,12 +477,17 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
 
     if (culledPagedLODs)
     {
+        auto start_tick = clock::now();
+
+        auto previous_activeList_count = pagedLODContainer->activeList.count;
+        auto& elements = pagedLODContainer->elements;
+#if 0
         struct RegisterInActivePaged : public ConstVisitor
         {
             uint64_t frameCount = 0;
-            PagedLODList* inactiveList = nullptr;
+            PagedLODContainer* plodContainer = nullptr;
 
-            RegisterInActivePaged(uint64_t fc, PagedLODList* inactive) : frameCount(fc), inactiveList(inactive)  {}
+            RegisterInActivePaged(uint64_t fc, PagedLODContainer* container) : frameCount(fc), plodContainer(container)  {}
 
             void apply(const vsg::Node& node) override
             {
@@ -362,55 +496,125 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
 
             void apply(const vsg::PagedLOD& plod) override
             {
-                if (plod.list && plod.list != inactiveList && !plod.highResActive(frameCount))
+                if ((plod.index != 0) && (plodContainer->elements[plod.index].list == &(plodContainer->activeList)) && (plod.requestStatus.load() == PagedLOD::NoRequest) && !plod.highResActive(frameCount))
                 {
-                    //std::cout<<"    nested new inactive "<<std::endl;
+                    //if (plod.requestStatus.load() != PagedLOD::NoRequest) std::cout<<"RegisterInActivePaged::apply() requestStatus = "<<plod.requestStatus.load()<<std::endl;
+
+                    //std::cout<<"    nested new inactive "<<&plod<<std::endl;
                     plod.traverse(*this);
-                    inactiveList->add(const_cast<PagedLOD*>(&plod));
+                    plodContainer->inactive(&plod);
                 }
             }
-        } registerInActivePaged(frameCount, inactivePagedLODs);
+        } registerInActivePaged(frameCount, pagedLODContainer);
 
         // run the registry visitor through the children of the PagedLOD
         for(auto& plod : culledPagedLODs->highresCulled)
         {
             plod->accept(registerInActivePaged);
         }
+#else
+
+        for(auto& plod : culledPagedLODs->highresCulled)
+        {
+            if ((plod->index != 0) && (elements[plod->index].list == &(pagedLODContainer->activeList)) && !plod->highResActive(frameCount))
+            {
+                pagedLODContainer->inactive(plod);
+            }
+        }
+
+        auto& activeList = pagedLODContainer->activeList;
+        uint32_t switchedCount = 0;
+        for(uint32_t index = activeList.head; index != 0;)
+        {
+            auto& element = elements[index];
+            index = element.next;
+
+            if (!element.plod->highResActive(frameCount))
+            {
+                //std::cout<<"   active to inactive "<<index<<std::endl;
+                ++switchedCount;
+                pagedLODContainer->inactive(element.plod.get());
+            }
+        }
+
+        if (switchedCount>0)
+        {
+            std::cout<<"active to inactive "<<switchedCount<<std::endl;
+        }
+#endif
+        auto after_inactive_tick = clock::now();
 
         //std::cout<<"  newly active nodes:"<<std::endl;
+
+
         for(auto& plod : culledPagedLODs->newHighresRequired)
         {
-            activePagedLODs->add(const_cast<PagedLOD*>(plod));
+            pagedLODContainer->active(plod);
         }
+
+        auto after_activeList_count = pagedLODContainer->activeList.count;
+
+        if (after_activeList_count > previous_activeList_count)
+        {
+            //std::cout<<"previous_activeList_count = "<<previous_activeList_count<<", after_activeList_count = "<<after_activeList_count<<", culledPagedLODs->newHighresRequired = "<<culledPagedLODs->newHighresRequired.size()<<std::endl;
+        }
+
+
+        auto after_active_tick = clock::now();
 
         culledPagedLODs->clear();
 
-        // set the number of PageDLOD to expire
-        uint32_t total = inactivePagedLODs->count + activePagedLODs->count;
+        // set the number of PagedLOD to expire
+        uint32_t total = pagedLODContainer->activeList.count + pagedLODContainer->inactiveList.count;
         if ((nodes.size()+total) > targetMaxNumPagedLODWithHighResSubgraphs)
         {
             uint32_t numPagedLODHighRestSubgraphsToRemove = (nodes.size()+total) - targetMaxNumPagedLODWithHighResSubgraphs;
-            uint32_t targetNumInactive = (numPagedLODHighRestSubgraphsToRemove < inactivePagedLODs->count) ?
-                (inactivePagedLODs->count - numPagedLODHighRestSubgraphsToRemove) : 0;
+            uint32_t targetNumInactive = (numPagedLODHighRestSubgraphsToRemove < pagedLODContainer->inactiveList.count) ?
+                (pagedLODContainer->inactiveList.count - numPagedLODHighRestSubgraphsToRemove) : 0;
 
-            while(inactivePagedLODs->count > targetNumInactive)
+            // std::cout<<"Need to remove, inactive count = "<<pagedLODContainer->inactiveList.count <<", target = "<< targetNumInactive<<std::endl;
+
+            for(uint32_t index = pagedLODContainer->inactiveList.head; (index != 0) && (pagedLODContainer->inactiveList.count > targetNumInactive);)
             {
-                PagedLOD* plod = inactivePagedLODs->head;
-                if (plod)
+                auto& element = elements[index];
+                index = element.next;
+
+                auto plod = element.plod;
+#if 1
+                if (compare_exchange(plod->requestStatus, PagedLOD::NoRequest, PagedLOD::DeleteRequest))
+#else
+                if (plod->requestStatus.exchange(PagedLOD::DeleteRequest))
+#endif
                 {
-                    // std::cout<<"    trimming "<<plod<<std::endl;
-                    inactivePagedLODs->remove(plod);
-                    {
-                        std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
-                        ref_ptr<Node> subgraph = plod->pending; // TODO pass onto a background thread to do deletion.
-                        plod->pending = nullptr;
-                        plod->getChild(0).node = nullptr;
-                    }
-                    plod->requestCount.exchange(0);
-                    plod->frameHighResLastUsed.exchange(0);
+                    std::cout<<"    trimming "<<plod<<std::endl;
+
+                    plod->getChild(0).node = nullptr;
+                    _compileQueue->add(plod);
+                    pagedLODContainer->remove(plod);
                 }
             }
         }
+
+#if 1
+
+        unsigned int numOrhphanedPagedLOD = 0;
+        for(auto& element : pagedLODContainer->elements)
+        {
+            if (element.plod && element.plod->referenceCount()==1)
+            {
+                std::cout<<"plod with reference count 1 also has index = "<<element.plod->index<<" "<<element.list->name<<std::endl;
+
+                ++numOrhphanedPagedLOD;
+            }
+        }
+        if (numOrhphanedPagedLOD!=0)  std::cout<<"Found PagdLOD in pagedLODContainer wihtout external references "<<numOrhphanedPagedLOD<<std::endl;
+#endif
+        auto end_tick = clock::now();
+#if 0
+        std::cout<<"Time to check for inactive = "<<std::chrono::duration<double, std::chrono::milliseconds::period>(after_inactive_tick - start_tick).count()<<
+                    " active = "<<std::chrono::duration<double, std::chrono::milliseconds::period>(after_active_tick -  after_inactive_tick).count()<<
+                    " merge = "<<std::chrono::duration<double, std::chrono::milliseconds::period>(end_tick - after_active_tick).count()<<"   effective fps = "<<(1.0/std::chrono::duration<double, std::chrono::seconds::period>(end_tick - after_active_tick).count())<<std::endl;
+#endif
 
     }
 
@@ -419,12 +623,27 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
         //std::cout<<"DatabasePager::updateSceneGraph() nodes to merge : nodes.size() = "<<nodes.size()<<", "<<numActiveRequests.load()<<std::endl;
         for(auto& plod : nodes)
         {
-            //std::cout<<"   Merged "<<plod->filename<<" after "<<plod->requestCount.load()<<" priority "<<plod->priority.load()<<" "<<frameCount - plod->frameHighResLastUsed.load()<<std::endl;
-            plod->getChild(0).node = plod->pending;
+#if 1
+            plod->requestStatus.exchange(PagedLOD::Merging);
+#else
+            if (compare_exchange(plod->requestStatus, PagedLOD::MergeRequest, PagedLOD::Merging))
+#endif
+            {
+                std::cout<<"   Merged "<<plod->filename<<" after "<<plod->requestCount.load()<<" priority "<<plod->priority.load()<<" "<<frameCount - plod->frameHighResLastUsed.load()<<" plod = "<<plod.get()<<" "<<*(plod->semaphore->data())<<std::endl;
+                {
+                    std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
+                    plod->getChild(0).node = plod->pending;
+                }
 
-            // insert any semaphore into a set that will be used by the GraphicsStage
-            if (plod->semaphore) _semaphores.insert(plod->semaphore);
+                // insert any semaphore into a set that will be used by the GraphicsStage
+                if (plod->semaphore)
+                {
+                    _semaphores.insert(plod->semaphore);
+                    plod->semaphore = nullptr;
+                }
 
+                plod->requestStatus.exchange(PagedLOD::NoRequest);
+            }
         }
         numActiveRequests -= nodes.size();
     }

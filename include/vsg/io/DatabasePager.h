@@ -51,12 +51,9 @@ namespace vsg
         Active* getActive() { return _active; }
         const Active* getActive() const { return _active; }
 
-        void add(ref_ptr<PagedLOD> plod)
-        {
-            std::scoped_lock lock(_mutex);
-            _queue.emplace_back(plod);
-            _cv.notify_one();
-        }
+        void add(ref_ptr<PagedLOD> plod);
+
+        void add(Nodes& nodes);
 
         ref_ptr<PagedLOD> take_when_avilable();
 
@@ -102,23 +99,18 @@ namespace vsg
         std::atomic_uint numActiveRequests = 0;
         std::atomic_uint64_t frameCount;
 
-        ref_ptr<PagedLODList> activePagedLODs;
-        ref_ptr<PagedLODList> inactivePagedLODs;
-
         ref_ptr<CulledPagedLODs> culledPagedLODs;
 
         uint32_t targetMaxNumPagedLODWithHighResSubgraphs = 10000;
 
         std::mutex pendingPagedLODMutex;
 
+        ref_ptr<PagedLODContainer> pagedLODContainer;
+
     protected:
         virtual ~DatabasePager();
 
-        inline void requestDiscarded(PagedLOD* plod)
-        {
-            plod->requestCount.exchange(0);
-            --numActiveRequests;
-        }
+        void requestDiscarded(PagedLOD* plod);
 
         ref_ptr<Active> _active;
 

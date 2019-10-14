@@ -95,17 +95,8 @@ namespace vsg
         DescriptorPoolSizes& getDescriptorPoolSizes() { return _descriptorPoolSizes; }
         const DescriptorPoolSizes& getDescriptorPoolSizes() const { return _descriptorPoolSizes; }
 
-        mutable std::atomic_uint requestCount = 0;
-        mutable std::atomic_uint64_t frameHighResLastUsed = 0;
-
         bool highResActive(uint64_t frameCount) const { return (frameCount - frameHighResLastUsed.load())<=1; }
 
-        ref_ptr<Node> pending;
-        ref_ptr<Semaphore> semaphore;
-
-        ref_ptr<PagedLODList> list;
-        PagedLOD* previous = 0;
-        PagedLOD* next = 0;
 
     protected:
         virtual ~PagedLOD();
@@ -113,21 +104,79 @@ namespace vsg
         dsphere _bound;
         Children _children;
 
+    public:
+
+        mutable std::atomic_uint64_t frameHighResLastUsed = 0;
+        mutable std::atomic_uint requestCount = 0;
+
+        enum RequestStatus : unsigned int
+        {
+            NoRequest  = 0,
+            ReadRequest = 1,
+            Reading = 2,
+            CompileRequest = 3,
+            Compiling = 4,
+            MergeRequest = 5,
+            Merging = 6,
+            DeleteRequest = 7,
+            Deleting = 8
+        };
+
+        mutable std::atomic<RequestStatus> requestStatus = NoRequest;
+        mutable uint32_t index = 0;
+
+        ref_ptr<Node> pending;
+        ref_ptr<Semaphore> semaphore;
+
+    protected:
+
         uint32_t _maxSlot = 0;
         uint32_t _numDescriptorSets = 0;
         DescriptorPoolSizes _descriptorPoolSizes;
     };
     VSG_type_name(vsg::PagedLOD);
 
-    struct PagedLODList : public Inherit<Object, PagedLODList>
+    struct PagedLODContainer : public Inherit<Object, PagedLODContainer>
     {
-        std::mutex mutex;
-        uint32_t count = 0;
-        PagedLOD* head = nullptr;
-        PagedLOD* tail = nullptr;
+        PagedLODContainer(uint32_t maxNumPagedLOD = 10000);
 
-        void add(PagedLOD* plod);
+        struct List
+        {
+            uint32_t head = 0;
+            uint32_t tail = 0;
+            uint32_t count = 0;
+            std::string name;
+        };
+
+        struct Element
+        {
+            uint32_t previous = 0;
+            uint32_t next = 0;
+            ref_ptr<PagedLOD> plod;
+            List* list = 0;
+        };
+
+        using Elements = std::vector<Element>;
+
+        Elements elements;
+        List availableList;
+        List inactiveList;
+        List activeList;
+
+        void resize(uint32_t new_size);
+        void resize();
+        void inactive(const PagedLOD* plod);
+        void active(const PagedLOD* plod);
         void remove(PagedLOD* plod);
+
+        void _move(const PagedLOD* plod, List* targetList);
+
+        bool check();
+        bool check(List& list);
+
+        void print(std::ostream& out);
+
     };
+
 
 } // namespace vsg

@@ -38,4 +38,12 @@ void exchange_multiply(std::atomic<T>& reference, T t)
     while(!reference.compare_exchange_weak(original_value, original_value*t)) {}
 };
 
+template<typename T>
+bool compare_exchange(std::atomic<T>& reference, T from, T to)
+{
+    T original_value = from;
+    return reference.compare_exchange_strong(original_value, to);
+};
+
+
 } // namespace vsg

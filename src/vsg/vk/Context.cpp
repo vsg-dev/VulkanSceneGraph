@@ -533,12 +533,14 @@ void Context::dispatch()
     submitInfo.pCommandBuffers = commandBuffer->data();
     if (semaphore)
     {
+        std::cout<<"void Context::dispatch() "<<this<<" semaphore = "<<*(semaphore->data())<<std::endl;
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = semaphore->data();
         submitInfo.pWaitDstStageMask = &waitDstStageMask;
     }
     else
     {
+        std::cout<<"void Context::dispatch() "<<this<<" no semaphore = "<<std::endl;
         submitInfo.signalSemaphoreCount = 0;
         submitInfo.pSignalSemaphores = nullptr;
     }
@@ -552,29 +554,38 @@ void Context::dispatch()
 
 void Context::waitForCompletion()
 {
-    if (!commandBuffer || !fence) return;
+    if (!commandBuffer || !fence)
+    {
+        if (semaphore) std::cout<<"void Context::waitForCompletion() "<<this<<" A semaphore = "<<*(semaphore->data())<<std::endl;
+        return;
+    }
 
-    if (commands.empty() && copyBufferDataCommands.empty() && copyImageDataCommands.empty()) return;
+    if (commands.empty() && copyBufferDataCommands.empty() && copyImageDataCommands.empty())
+    {
+        if (semaphore) std::cout<<"void Context::waitForCompletion() "<<this<<" B semaphore = "<<*(semaphore->data())<<std::endl;
+        return;
+    }
 
+    if (semaphore) std::cout<<"void Context::waitForCompletion() C "<<this<<" semaphore = "<<*(semaphore->data())<<std::endl;
 
     // we must wait for the queue to empty before we can safely clean up the commandBuffer
 #if 1
-    uint64_t timeout = 100000000000;
+    uint64_t timeout = 1000000000;
     if (timeout > 0)
     {
         VkResult result = fence->wait(timeout);
         if (result == VK_SUCCESS)
         {
-            // std::cout<<"Fence has successedully signaled"<<std::endl;
+            std::cout<<"void Context::waitForCompletion() D "<<this<<" Fence has successedully signaled"<<std::endl;
         }
         else
         {
-            std::cout << "Fence failed to signal : " << result << std::endl;
+            std::cout << "Context::waitForCompletion() "<<this<<" Fence failed to signal : " << result << std::endl;
             while ((result = fence->wait(timeout)) != VK_SUCCESS)
             {
-                std::cout << "   Fence failed again, trying another wait : " << result << std::endl;
+                std::cout << "Context::waitForCompletion() "<<this<<" Fence failed again, trying another wait : " << result << std::endl;
             }
-            std::cout << "   Finally we have success. " << result << std::endl;
+            std::cout << "Context::waitForCompletion()  "<<this<<" Finally we have success. " << result << std::endl;
         }
 
     }

@@ -92,7 +92,7 @@ namespace vsg
     {
         dispatchCommandsToQueue(device, commandPool, nullptr, 0, queue, function);
     }
-
+#if 0
     class VSG_DECLSPEC CommandBuffers : public Inherit<Object, CommandBuffers>
     {
     public:
@@ -116,5 +116,6 @@ namespace vsg
         ref_ptr<CommandPool> _commandPool;
         Buffers _buffers;
     };
+#endif
 
 } // namespace vsg

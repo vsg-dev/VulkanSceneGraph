@@ -221,6 +221,7 @@ bool Viewer::submitNextFrame()
 {
     bool debugLayersEnabled = false;
 
+    bool hasDBSemaphore = false;
     for (auto& pair_pdo : _deviceMap)
     {
         PerDeviceObjects& pdo = pair_pdo.second;
@@ -244,14 +245,29 @@ bool Viewer::submitNextFrame()
                 DatabasePager* db = gs ? gs->databasePager.get() : nullptr;
                 if (db)
                 {
+                    //std::cout<<"Viewer::submitNextFrame()"<<std::endl;
                     for(auto& semaphore : db->getSemaphores())
                     {
+                        if (semaphore->numDependentSubmissions().load()>1)
+                        {
+                            std::cout<<"    Warning: Viewer::submitNextFrame() waitSemaphore "<<*(semaphore->data())<<" "<<semaphore->numDependentSubmissions().load()<<std::endl;
+                        }
+                        else
+                        {
+                            // std::cout<<"    Viewer::submitNextFrame() waitSemaphore "<<*(semaphore->data())<<" "<<semaphore->numDependentSubmissions().load()<<std::endl;
+                        }
+                        hasDBSemaphore = true;
                         waitSemaphores.emplace_back(*semaphore);
-                        waitDstStageMasks.emplace_back(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+                        waitDstStageMasks.emplace_back(semaphore->pipelineStageFlags());
+
+                        semaphore->numDependentSubmissions().fetch_add(1);
+                        fence->dependentSemaphores().emplace_back(semaphore);
                     }
                 }
             }
         }
+
+        // if (!hasDBSemaphore) std::cout<<"Viewer::submitNextFrame() no DB wait semaphores required."<<std::endl;
 
         // fill in the imageIndices and commandBuffers associated with each window
         for (size_t i = 0; i < pdo.windows.size(); ++i)

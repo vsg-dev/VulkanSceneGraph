@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Device.h>
+#include <vsg/vk/Semaphore.h>
 
 namespace vsg
 {
@@ -34,13 +34,18 @@ namespace vsg
 
         operator VkFence() const { return _vkFence; }
 
+        Semaphores& dependentSemaphores() { return _dependentSemaphores; }
+
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
+
 
     protected:
         virtual ~Fence();
 
         VkFence _vkFence;
+        Semaphores _dependentSemaphores;
+
         ref_ptr<Device> _device;
         ref_ptr<AllocationCallbacks> _allocator;
     };

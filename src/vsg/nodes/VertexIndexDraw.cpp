@@ -26,6 +26,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+#include <iostream>
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 //  VertexIndexDraw node
@@ -36,6 +38,20 @@ using namespace vsg;
 VertexIndexDraw::VertexIndexDraw(Allocator* allocator) :
     Inherit(allocator)
 {
+}
+
+VertexIndexDraw::~VertexIndexDraw()
+{
+    std::cout<<"VertexIndexDraw::~VertexIndexDraw()"<<std::endl;
+
+    for(size_t i=0; i<_buffers.size(); ++i)
+    {
+        if (_buffers[i])
+        {
+            std::cout<<"    buffer::release(_buffers[i].= "<<_buffers[i].get()<<", _offsets[i] = "<<_offsets[i]<<")"<<std::endl;
+            _buffers[i]->release(_offsets[i], 0);
+        }
+    }
 }
 
 void VertexIndexDraw::read(Input& input)
