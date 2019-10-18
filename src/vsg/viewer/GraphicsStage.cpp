@@ -240,8 +240,8 @@ OffscreenGraphicsStage::OffscreenGraphicsStage(Device* device, ref_ptr<Node> com
     depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
     depthAttachment.loadOp = loadOp;
     depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;  // for now make this store
-    depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.stencilLoadOp = loadOp;
+    depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
     depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     depthAttachment.finalLayout = depthFinalLayout;
     attachments.push_back(depthAttachment);
@@ -264,15 +264,27 @@ OffscreenGraphicsStage::OffscreenGraphicsStage(Device* device, ref_ptr<Node> com
     subpasses.push_back(subpass);
 
     RenderPass::Dependancies dependancies;
-
     VkSubpassDependency dependency = {};
+
+    
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     dependency.dstSubpass = 0;
-    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.srcAccessMask = 0;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
     dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependency.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
     dependancies.push_back(dependency);
+
+    dependency.srcSubpass = 0;
+    dependency.dstSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependency.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+    dependancies.push_back(dependency);
+
 
     _renderPass = RenderPass::create(device, attachments, subpasses, dependancies);
 
@@ -403,8 +415,8 @@ void OffscreenGraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer,
     clearValues[0].color = {0.2f, 0.9f, 0.2f, 1.0f};
     clearValues[1].depthStencil = {1.0f, 0};
 
-    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-    renderPassInfo.pClearValues = clearValues.data();
+    //renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    //renderPassInfo.pClearValues = clearValues.data();
     vkCmdBeginRenderPass(*commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
     // traverse the command buffer to place the commands into the command buffer.

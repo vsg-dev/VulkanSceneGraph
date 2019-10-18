@@ -93,7 +93,9 @@ void DescriptorImage::compile(Context& context)
             samplerImage.sampler->compile(context);
             if (samplerImage.imageView)
             {
-                _imageDataList.emplace_back(ImageData(samplerImage.sampler, samplerImage.imageView));
+                ImageData imagedata = ImageData(samplerImage.sampler, samplerImage.imageView);
+                imagedata._imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL; //no way to set this from an image view at the moment
+                _imageDataList.emplace_back(imagedata);
             }
             else
             {

@@ -437,6 +437,16 @@ void Viewer::compile(BufferPreferences bufferPreferences)
                 else
                     compile.context.viewport = vsg::ViewportState::create(window->extent2D());
 
+                OffscreenGraphicsStage* osgs = dynamic_cast<OffscreenGraphicsStage*>(gs);
+                if (osgs)
+                {
+                    compile.context.renderPass = osgs->_renderPass;
+                }
+                else
+                {
+                    compile.context.renderPass = window->renderPass();
+                }
+
                 // std::cout << "Compiling GraphicsStage " << compile.context.viewport << std::endl;
 
                 gs->_commandGraph->accept(compile);
