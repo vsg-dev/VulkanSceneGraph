@@ -23,10 +23,13 @@ namespace vsg
     class VSG_DECLSPEC BinaryOutput : public vsg::Output
     {
     public:
-        explicit BinaryOutput(std::ostream& output, ref_ptr<const Options> options = {});
+        explicit BinaryOutput(std::ostream& output, ref_ptr<const Options> in_options = {});
 
-        // write property name if appropriate for format
+        /// write property name an non op for binary
         void writePropertyName(const char*) override {}
+
+        /// write end of line a non op for binary
+        void writeEndOfLine() override {}
 
         template<typename T>
         void _write(size_t num, const T* value)
@@ -58,12 +61,8 @@ namespace vsg
         /// write object
         void write(const vsg::Object* object) override;
 
-        /// write external file if reqquired
-        bool write(ref_ptr<Object> object, const Path& filename) override;
-
     protected:
         std::ostream& _output;
-        ref_ptr<const Options> _options;
     };
 
 } // namespace vsg

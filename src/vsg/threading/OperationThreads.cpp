@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,45 +10,47 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/ui/KeyEvent.h>
-#include <vsg/viewer/Viewer.h>
+#include <vsg/threading/OperationThreads.h>
 
-namespace vsg
+using namespace vsg;
+
+OperationThreads::OperationThreads(uint32_t numThreads, ref_ptr<Active> in_active) :
+    active(in_active)
 {
+    if (!active) active = new Active;
+    queue = new OperationQueue(active);
 
-    class CloseHandler : public Inherit<Visitor, CloseHandler>
-    {
-    public:
-        CloseHandler(Viewer* viewer) :
-            _viewer(viewer) {}
-
-        KeySymbol closeKey = KEY_Escape; // KEY_Undefined
-
-        virtual void close()
+    auto run = [](ref_ptr<OperationQueue> q, ref_ptr<Active> a) {
+        while (*(a))
         {
-            // take a ref_ptr<> of the oberserv_ptr<> to be able to safely access it
-            ref_ptr<Viewer> viewer = _viewer;
-            if (viewer) viewer->close();
+            ref_ptr<Operation> operation = q->take_when_avilable();
+            if (operation)
+            {
+                operation->run();
+            }
         }
-
-        void apply(KeyPressEvent& keyPress) override
-        {
-            if (closeKey != KEY_Undefined && keyPress.keyBase == closeKey) close();
-        }
-
-        void apply(CloseWindowEvent&) override
-        {
-            close();
-        }
-
-        void apply(TerminateEvent&) override
-        {
-            close();
-        }
-
-    protected:
-        // use observer_ptr<> to avoid circular reference
-        observer_ptr<Viewer> _viewer;
     };
 
-} // namespace vsg
+    for (size_t i = 0; i < numThreads; ++i)
+    {
+        threads.emplace_back(std::thread(run, std::ref(queue), std::ref(active)));
+    }
+}
+
+void OperationThreads::run()
+{
+    while (ref_ptr<Operation> operation = queue->take())
+    {
+        operation->run();
+    }
+}
+
+void OperationThreads::stop()
+{
+    active->active = false;
+    for (auto& thread : threads)
+    {
+        thread.join();
+    }
+    threads.clear();
+}

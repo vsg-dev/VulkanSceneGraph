@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/ObjectCache.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/ReaderWriter.h>
+#include <vsg/threading/OperationThreads.h>
 
 using namespace vsg;
 
@@ -24,7 +25,8 @@ Options::Options(const Options& options) :
     Inherit(),
     //    fileCache(options.fileCache),
     objectCache(options.objectCache),
-    readerWriter(options.readerWriter)
+    readerWriter(options.readerWriter),
+    operationThreads(options.operationThreads)
 {
 }
 

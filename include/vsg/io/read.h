@@ -12,45 +12,25 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/ui/KeyEvent.h>
-#include <vsg/viewer/Viewer.h>
+#include <vsg/core/Inherit.h>
+#include <vsg/io/FileSystem.h>
+#include <vsg/io/Options.h>
 
 namespace vsg
 {
 
-    class CloseHandler : public Inherit<Visitor, CloseHandler>
+    /** convience method for reading objects from file.*/
+    extern VSG_DECLSPEC ref_ptr<Object> read(const Path& filename, ref_ptr<const Options> options = {});
+
+    /** convience method for reading objects from files.*/
+    extern VSG_DECLSPEC PathObjects read(const Paths& filenames, ref_ptr<const Options> options = {});
+
+    /** convience method for reading file with cast to specificed type.*/
+    template<class T>
+    ref_ptr<T> read_cast(const Path& filename, ref_ptr<const Options> options = {})
     {
-    public:
-        CloseHandler(Viewer* viewer) :
-            _viewer(viewer) {}
-
-        KeySymbol closeKey = KEY_Escape; // KEY_Undefined
-
-        virtual void close()
-        {
-            // take a ref_ptr<> of the oberserv_ptr<> to be able to safely access it
-            ref_ptr<Viewer> viewer = _viewer;
-            if (viewer) viewer->close();
-        }
-
-        void apply(KeyPressEvent& keyPress) override
-        {
-            if (closeKey != KEY_Undefined && keyPress.keyBase == closeKey) close();
-        }
-
-        void apply(CloseWindowEvent&) override
-        {
-            close();
-        }
-
-        void apply(TerminateEvent&) override
-        {
-            close();
-        }
-
-    protected:
-        // use observer_ptr<> to avoid circular reference
-        observer_ptr<Viewer> _viewer;
-    };
+        auto object = read(filename, options);
+        return vsg::ref_ptr<T>(dynamic_cast<T*>(object.get()));
+    }
 
 } // namespace vsg

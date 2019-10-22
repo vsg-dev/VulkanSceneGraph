@@ -31,15 +31,15 @@ namespace vsg
     {
     public:
         template<typename... Args>
-        Inherit(Allocator* allocator, Args... args) :
+        Inherit(Allocator* allocator, Args&&... args) :
             ParentClass(allocator, args...) {}
 
         template<typename... Args>
-        Inherit(Args... args) :
+        Inherit(Args&&... args) :
             ParentClass(args...) {}
 
         template<typename... Args>
-        static ref_ptr<Subclass> create(ref_ptr<Allocator> allocator, Args... args)
+        static ref_ptr<Subclass> create(ref_ptr<Allocator> allocator, Args&&... args)
         {
             if (allocator)
             {
@@ -62,7 +62,7 @@ namespace vsg
         }
 
         template<typename... Args>
-        static ref_ptr<Subclass> create(Args... args)
+        static ref_ptr<Subclass> create(Args&&... args)
         {
             return ref_ptr<Subclass>(new Subclass(args...));
         }

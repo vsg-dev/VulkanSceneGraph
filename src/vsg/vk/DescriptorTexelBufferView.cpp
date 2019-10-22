@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,45 +10,32 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/ui/KeyEvent.h>
-#include <vsg/viewer/Viewer.h>
+#include <vsg/traversals/CompileTraversal.h>
+#include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/DescriptorTexelBufferView.h>
 
-namespace vsg
+#include <algorithm>
+#include <iostream>
+
+using namespace vsg;
+
+DescriptorTexelBufferView::DescriptorTexelBufferView(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferViewList& texelBufferViews) :
+    Inherit(dstBinding, dstArrayElement, descriptorType),
+    _texelBufferViewList(texelBufferViews)
 {
-
-    class CloseHandler : public Inherit<Visitor, CloseHandler>
+    _texelBufferViews.resize(_texelBufferViewList.size());
+    for (size_t i = 0; i < _texelBufferViewList.size(); ++i)
     {
-    public:
-        CloseHandler(Viewer* viewer) :
-            _viewer(viewer) {}
+        _texelBufferViews[i] = *(_texelBufferViewList[i]);
+    }
+}
 
-        KeySymbol closeKey = KEY_Escape; // KEY_Undefined
+bool DescriptorTexelBufferView::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+{
+    std::vector<VkBufferView> texelBufferViews(_texelBufferViewList.size());
 
-        virtual void close()
-        {
-            // take a ref_ptr<> of the oberserv_ptr<> to be able to safely access it
-            ref_ptr<Viewer> viewer = _viewer;
-            if (viewer) viewer->close();
-        }
-
-        void apply(KeyPressEvent& keyPress) override
-        {
-            if (closeKey != KEY_Undefined && keyPress.keyBase == closeKey) close();
-        }
-
-        void apply(CloseWindowEvent&) override
-        {
-            close();
-        }
-
-        void apply(TerminateEvent&) override
-        {
-            close();
-        }
-
-    protected:
-        // use observer_ptr<> to avoid circular reference
-        observer_ptr<Viewer> _viewer;
-    };
-
-} // namespace vsg
+    Descriptor::assignTo(wds, descriptorSet);
+    wds.descriptorCount = static_cast<uint32_t>(_texelBufferViews.size());
+    wds.pTexelBufferView = _texelBufferViews.data();
+    return true;
+}

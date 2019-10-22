@@ -34,8 +34,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/BindVertexBuffers.h>
 #include <vsg/vk/ComputePipeline.h>
 #include <vsg/vk/Descriptor.h>
+#include <vsg/vk/DescriptorBuffer.h>
+#include <vsg/vk/DescriptorImage.h>
 #include <vsg/vk/DescriptorSet.h>
 #include <vsg/vk/DescriptorSetLayout.h>
+#include <vsg/vk/DescriptorTexelBufferView.h>
 #include <vsg/vk/Draw.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/PipelineLayout.h>
@@ -81,6 +84,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::uivec4Value);
     VSG_REGISTER_new(vsg::mat4Value);
     VSG_REGISTER_new(vsg::dmat4Value);
+    VSG_REGISTER_new(vsg::materialValue);
     VSG_REGISTER_new(vsg::MaterialValue);
 
     // arrays
@@ -108,6 +112,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::dmat4Array);
     VSG_REGISTER_new(vsg::block64Array);
     VSG_REGISTER_new(vsg::block128Array);
+    VSG_REGISTER_new(vsg::materialArray);
 
     // array2Ds
     VSG_REGISTER_new(vsg::ubyteArray2D);

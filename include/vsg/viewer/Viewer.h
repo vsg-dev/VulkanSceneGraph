@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/Window.h>
 
 #include <vsg/ui/ApplicationEvent.h>
+#include <vsg/vk/Context.h>
 
 #include <map>
 

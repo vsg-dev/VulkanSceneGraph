@@ -10,13 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/AsciiInput.h>
-#include <vsg/io/AsciiOutput.h>
-#include <vsg/io/BinaryInput.h>
-#include <vsg/io/BinaryOutput.h>
-#include <vsg/io/ObjectCache.h>
 #include <vsg/io/ReaderWriter.h>
-#include <vsg/io/ReaderWriter_vsg.h>
 
 using namespace vsg;
 
@@ -41,77 +35,4 @@ bool CompositeReaderWriter::write(const vsg::Object* object, const vsg::Path& fi
         if (writer->write(object, filename, options)) return true;
     }
     return false;
-}
-
-ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
-{
-    ref_ptr<Object> object;
-    if (options)
-    {
-        if (options->objectCache)
-        {
-            object = options->objectCache->get(filename, options);
-            if (object)
-            {
-                return object;
-            }
-        }
-
-        if (options->readerWriter)
-        {
-            object = options->readerWriter->read(filename, options);
-        }
-    }
-
-    if (!object)
-    {
-        // fallback to using native ReaderWriter_vsg if extension is compatible
-        auto ext = vsg::fileExtension(filename);
-        if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
-        {
-            ReaderWriter_vsg rw;
-            object = rw.read(filename, options);
-        }
-    }
-
-    if (object && options && options->objectCache)
-    {
-        // place loaded object into the ObjectCache
-        options->objectCache->add(object, filename, options);
-    }
-
-    return object;
-}
-
-bool vsg::write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options)
-{
-    bool fileWritten = false;
-    if (options)
-    {
-        // don't write the file if it's already contained in the ObjectCache
-        if (options->objectCache && options->objectCache->contains(filename, options)) return true;
-
-        if (options->readerWriter)
-        {
-            fileWritten = options->readerWriter->write(object, filename, options);
-        }
-    }
-
-    if (!fileWritten)
-    {
-        // fallback to using native ReaderWriter_vsg if extension is compatible
-        auto ext = vsg::fileExtension(filename);
-        if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
-        {
-            ReaderWriter_vsg rw;
-            fileWritten = rw.write(object, filename, options);
-        }
-    }
-
-    if (fileWritten && options && options->objectCache)
-    {
-        options->objectCache->add(object, filename, options);
-    }
-
-    return fileWritten;
 }

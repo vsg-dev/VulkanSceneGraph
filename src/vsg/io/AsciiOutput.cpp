@@ -20,9 +20,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-AsciiOutput::AsciiOutput(std::ostream& output, ref_ptr<const Options> options) :
-    _output(output),
-    _options(options)
+AsciiOutput::AsciiOutput(std::ostream& output, ref_ptr<const Options> in_options) :
+    Output(in_options),
+    _output(output)
 {
     _maximumIndentation = std::strlen(_indentationString);
 }
@@ -38,7 +38,6 @@ void AsciiOutput::write(size_t num, const std::string* value)
     {
         _output << ' ';
         _write(*value);
-        _output << '\n';
     }
     else
     {
@@ -47,21 +46,20 @@ void AsciiOutput::write(size_t num, const std::string* value)
             _output << ' ';
             _write(*value);
         }
-        _output << '\n';
     }
 }
 
 void AsciiOutput::write(const vsg::Object* object)
 {
-    if (auto itr = _objectIDMap.find(object); itr != _objectIDMap.end())
+    if (auto itr = objectIDMap.find(object); itr != objectIDMap.end())
     {
         // write out the objectID
-        _output << " id=" << itr->second << "\n";
+        _output << " id=" << itr->second <<"\n";
         return;
     }
 
-    ObjectID id = _objectID++;
-    _objectIDMap[object] = id;
+    ObjectID id = objectID++;
+    objectIDMap[object] = id;
 
     if (object)
     {
@@ -80,9 +78,4 @@ void AsciiOutput::write(const vsg::Object* object)
     {
         _output << " id=" << id << " nullptr\n";
     }
-}
-
-bool AsciiOutput::write(ref_ptr<Object> object, const Path& filename)
-{
-    return vsg::write(object, filename, _options);
 }

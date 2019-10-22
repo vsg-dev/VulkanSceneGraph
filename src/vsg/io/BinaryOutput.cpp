@@ -20,9 +20,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-BinaryOutput::BinaryOutput(std::ostream& output, ref_ptr<const Options> options) :
-    _output(output),
-    _options(options)
+BinaryOutput::BinaryOutput(std::ostream& output, ref_ptr<const Options> in_options) :
+    Output(in_options),
+    _output(output)
 {
 }
 
@@ -43,7 +43,7 @@ void BinaryOutput::write(size_t num, const std::string* value)
 
 void BinaryOutput::write(const vsg::Object* object)
 {
-    if (auto itr = _objectIDMap.find(object); itr != _objectIDMap.end())
+    if (auto itr = objectIDMap.find(object); itr != objectIDMap.end())
     {
         // write out the objectID
         uint32_t id = itr->second;
@@ -51,8 +51,8 @@ void BinaryOutput::write(const vsg::Object* object)
         return;
     }
 
-    ObjectID id = _objectID++;
-    _objectIDMap[object] = id;
+    ObjectID id = objectID++;
+    objectIDMap[object] = id;
 
     _output.write(reinterpret_cast<const char*>(&id), sizeof(id));
     if (object)
@@ -64,9 +64,4 @@ void BinaryOutput::write(const vsg::Object* object)
     {
         _write(std::string("nullptr"));
     }
-}
-
-bool BinaryOutput::write(ref_ptr<Object> object, const Path& filename)
-{
-    return vsg::write(object, filename, _options);
 }

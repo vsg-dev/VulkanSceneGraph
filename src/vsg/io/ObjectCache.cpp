@@ -49,19 +49,17 @@ void ObjectCache::clear()
 bool ObjectCache::contains(const Path& filename, ref_ptr<const Options> options)
 {
     std::lock_guard<std::mutex> guard(_mutex);
-
-    FilenameOption filenameOption(filename, options);
-    return _objectCacheMap.find(filenameOption) != _objectCacheMap.end();
+    return _objectCacheMap.find(FilenameOption(filename, options)) != _objectCacheMap.end();
 }
 
 ref_ptr<Object> ObjectCache::get(const Path& filename, ref_ptr<const Options> options)
 {
     std::lock_guard<std::mutex> guard(_mutex);
 
-    FilenameOption filenameOption(filename, options);
-    if (auto itr = _objectCacheMap.find(filenameOption); itr != _objectCacheMap.end())
+    if (auto itr = _objectCacheMap.find(FilenameOption(filename, options)); itr != _objectCacheMap.end())
     {
         ObjectTimepoint& ot = itr->second;
+        std::lock_guard<std::mutex> ot_guard(ot.mutex);
         ot.lastUsedTimepoint = vsg::clock::now();
         return ot.object;
     }
@@ -73,15 +71,12 @@ ref_ptr<Object> ObjectCache::get(const Path& filename, ref_ptr<const Options> op
 
 void ObjectCache::add(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options)
 {
-    std::lock_guard<std::mutex> guard(_mutex);
+    ObjectTimepoint& ot = _objectCacheMap[FilenameOption(filename, options)];
 
-    double duration = _defaultUnusedDuration;
-    auto time = vsg::clock::now();
-    FilenameOption filenameOption(filename, options);
-    if (auto itr = _objectCacheMap.find(filenameOption); itr == _objectCacheMap.end())
-    {
-        _objectCacheMap[filenameOption] = {object, duration, time};
-    }
+    std::lock_guard<std::mutex> guard(ot.mutex);
+    ot.object = object;
+    ot.unusedDurationBeforeExpiry = _defaultUnusedDuration;
+    ot.lastUsedTimepoint = vsg::clock::now();
 }
 
 void ObjectCache::remove(const Path& filename, ref_ptr<const Options> options)
