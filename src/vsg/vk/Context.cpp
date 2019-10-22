@@ -462,6 +462,21 @@ void CopyAndReleaseImageDataCommand::dispatch(CommandBuffer& commandBuffer) cons
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
+// vsg::SetImageLayoutCommand
+//
+
+void SetImageLayoutCommand::dispatch(CommandBuffer & commandBuffer) const
+{
+    ImageMemoryBarrier transitionLayoutMemoryBarrier(
+        0, VK_ACCESS_SHADER_READ_BIT,
+        VK_IMAGE_LAYOUT_UNDEFINED, _image._imageLayout,
+        _image._imageView->getImage());
+
+    transitionLayoutMemoryBarrier.cmdPiplineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
 // vsg::Context
 //
 Context::Context(Device* in_device, BufferPreferences bufferPreferences) :

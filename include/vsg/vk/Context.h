@@ -100,6 +100,20 @@ namespace vsg
         virtual ~CopyAndReleaseImageDataCommand();
     };
 
+    class SetImageLayoutCommand : public Command
+    {
+    public:
+        SetImageLayoutCommand(ImageData image) :
+            _image(image) {}
+
+        void dispatch(CommandBuffer& commandBuffer) const override;
+
+        ImageData _image;
+
+    protected:
+        virtual ~SetImageLayoutCommand() {}
+    };
+
     class Context
     {
     public:

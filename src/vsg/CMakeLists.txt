@@ -56,11 +56,13 @@ set(SOURCES
 
     viewer/Camera.cpp
     viewer/GraphicsStage.cpp
+    viewer/RayTracingStage.cpp
     viewer/View.cpp
     viewer/Viewer.cpp
     viewer/Window.cpp
     viewer/Trackball.cpp
 
+    vk/AccelerationStructure.cpp
     vk/Buffer.cpp
     vk/BufferData.cpp
     vk/BufferView.cpp
@@ -90,6 +92,8 @@ set(SOURCES
     vk/PhysicalDevice.cpp
     vk/PipelineLayout.cpp
     vk/PushConstants.cpp
+    vk/RayTracingPipeline.cpp
+    vk/RayTracingShaderBindings.cpp
     vk/RenderPass.cpp
     vk/Sampler.cpp
     vk/Semaphore.cpp

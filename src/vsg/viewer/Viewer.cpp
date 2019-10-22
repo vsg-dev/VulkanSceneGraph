@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Descriptor.h>
 
 #include <vsg/viewer/GraphicsStage.h>
+#include <vsg/viewer/RayTracingStage.h>
 #include <vsg/viewer/Viewer.h>
 
 #include <chrono>
@@ -392,6 +393,11 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             {
                 gs->_commandGraph->accept(collectStats);
             }
+            RayTracingStage* rts = dynamic_cast<RayTracingStage*>(stage.get());
+            if (rts)
+            {
+                rts->_commandGraph->accept(collectStats);
+            }
         }
 
         uint32_t maxSets = collectStats.computeNumDescriptorSets();
@@ -416,6 +422,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
         for (auto& stage : window->stages())
         {
             GraphicsStage* gs = dynamic_cast<GraphicsStage*>(stage.get());
+            RayTracingStage* rts = dynamic_cast<RayTracingStage*>(stage.get());
             if (gs)
             {
                 gs->_maxSlot = collectStats.maxSlot;
@@ -430,6 +437,14 @@ void Viewer::compile(BufferPreferences bufferPreferences)
                 // std::cout << "Compiling GraphicsStage " << compile.context.viewport << std::endl;
 
                 gs->_commandGraph->accept(compile);
+
+                compile.context.dispatchCommands();
+            }
+            else if (rts)
+            {
+                rts->_maxSlot = collectStats.maxSlot;
+
+                rts->_commandGraph->accept(compile);
 
                 compile.context.dispatchCommands();
             }
