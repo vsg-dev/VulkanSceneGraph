@@ -46,6 +46,9 @@ namespace vsg
 
         // compiled objects
         DrawCommands _renderImplementation;
+
+    protected:
+        virtual ~Geometry();
     };
     VSG_type_name(vsg::Geometry)
 
