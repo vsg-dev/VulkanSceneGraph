@@ -103,12 +103,18 @@ namespace vsg
     class SetImageLayoutCommand : public Command
     {
     public:
-        SetImageLayoutCommand(ImageData image) :
-            _image(image) {}
+        SetImageLayoutCommand(Image* image, VkAccessFlags srcAccessMask, VkAccessFlags destAccessMask, VkImageLayout oldLayout, VkImageLayout newLayout, VkPipelineStageFlags srcStage, VkPipelineStageFlags destStage);
+        SetImageLayoutCommand(ImageData image);
 
         void dispatch(CommandBuffer& commandBuffer) const override;
 
-        ImageData _image;
+        ref_ptr<Image> _image;
+        VkAccessFlags _srcAccessMask;
+        VkAccessFlags _destAccessMask;
+        VkImageLayout _oldLayout;
+        VkImageLayout _newLayout;
+        VkPipelineStageFlags _srcStage;
+        VkPipelineStageFlags _destStage;
 
     protected:
         virtual ~SetImageLayoutCommand() {}

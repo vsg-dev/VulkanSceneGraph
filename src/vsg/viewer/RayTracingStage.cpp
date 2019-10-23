@@ -22,12 +22,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-RayTracingStage::RayTracingStage(ref_ptr<Node> commandGraph, ref_ptr<RayTracingShaderBindings> shaderBindings, const VkExtent2D& extents, ref_ptr<Camera> camera) :
+RayTracingStage::RayTracingStage(ref_ptr<Node> commandGraph, ref_ptr<RayTracingShaderBindings> shaderBindings, ImageView* storageImage, const VkExtent2D& extents, ref_ptr<Camera> camera) :
     _camera(camera),
     _commandGraph(commandGraph),
     _shaderBindings(shaderBindings),
     _projMatrix(new vsg::mat4Value),
     _viewMatrix(new vsg::mat4Value),
+    _storageImage(storageImage),
     _extent2D(extents)
 {
 }
@@ -58,11 +59,62 @@ void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Frameb
     _commandGraph->accept(dispatchTraversal);
 
     extensions->vkCmdTraceRaysNV(*commandBuffer,
-                     _shaderBindings->raygenTableBuffer(), _shaderBindings->raygeTableOffset(),
-                     _shaderBindings->missTableBuffer(), _shaderBindings->missTableOffset(), _shaderBindings->missTableStride(),
-                     _shaderBindings->hitTableBuffer(), _shaderBindings->hitTableOffset(), _shaderBindings->hitTableStride(),
-                     _shaderBindings->callableTableBuffer(), _shaderBindings->callableTableOffset(), _shaderBindings->callableTableStride(),
-                     _extent2D.width, _extent2D.height, 1);
+                                    _shaderBindings->raygenTableBuffer(), _shaderBindings->raygeTableOffset(),
+                                    _shaderBindings->missTableBuffer(), _shaderBindings->missTableOffset(), _shaderBindings->missTableStride(),
+                                    _shaderBindings->hitTableBuffer(), _shaderBindings->hitTableOffset(), _shaderBindings->hitTableStride(),
+                                    _shaderBindings->callableTableBuffer(), _shaderBindings->callableTableOffset(), _shaderBindings->callableTableStride(),
+                                    _extent2D.width, _extent2D.height, 1);
+
+    //  transition image layouts for copy
+    /*
+    ImageMemoryBarrier transitionSwapChainToWriteDest(
+        0, VK_ACCESS_TRANSFER_WRITE_BIT,
+        VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        framebuffer->getAttachment(0)->getImage());
+
+    transitionSwapChainToWriteDest.cmdPiplineBarrier(*commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+
+    ImageMemoryBarrier transitionStorageImageToReadSrc(
+        0, VK_ACCESS_TRANSFER_READ_BIT,
+        VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        _storageImage->getImage());
+
+    transitionStorageImageToReadSrc.cmdPiplineBarrier(*commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+
+    // copy storage image to swap chain
+    
+    VkImageCopy copyRegion{};
+    copyRegion.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+    copyRegion.srcOffset = {0, 0, 0};
+    copyRegion.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+    copyRegion.dstOffset = {0, 0, 0};
+    copyRegion.extent = {_extent2D.width, _extent2D.height, 1};
+    vkCmdCopyImage(*commandBuffer, *_storageImage->getImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, *framebuffer->getAttachment(0)->getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+    
+
+    // transition image layouts back
+
+    ImageMemoryBarrier transitionSwapChainToOriginal(
+        VK_ACCESS_TRANSFER_WRITE_BIT, 0,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+        framebuffer->getAttachment(0)->getImage());
+
+    transitionSwapChainToOriginal.cmdPiplineBarrier(*commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+
+    ImageMemoryBarrier transitionStorageImageToOriginal(
+        VK_ACCESS_TRANSFER_READ_BIT, 0,
+        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL,
+        _storageImage->getImage());
+
+    transitionStorageImageToOriginal.cmdPiplineBarrier(*commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+    */
+
+    ImageMemoryBarrier transitionSwapChainToOriginal(
+        0, 0,
+        VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+        framebuffer->getAttachment(0)->getImage());
+
+    transitionSwapChainToOriginal.cmdPiplineBarrier(*commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
 
     vkEndCommandBuffer(*commandBuffer);
 }

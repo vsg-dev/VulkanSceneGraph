@@ -23,7 +23,7 @@ namespace vsg
     class VSG_DECLSPEC RayTracingStage : public Inherit<Stage, RayTracingStage>
     {
     public:
-        RayTracingStage(ref_ptr<Node> commandGraph, ref_ptr<RayTracingShaderBindings> shaderBindings, const VkExtent2D& extents, ref_ptr<Camera> camera = ref_ptr<Camera>());
+        RayTracingStage(ref_ptr<Node> commandGraph, ref_ptr<RayTracingShaderBindings> shaderBindings, ImageView* storageImage, const VkExtent2D& extents, ref_ptr<Camera> camera = ref_ptr<Camera>());
 
         ref_ptr<Camera> _camera;
         ref_ptr<Node> _commandGraph;
@@ -31,6 +31,8 @@ namespace vsg
         vsg::ref_ptr<vsg::mat4Value> _projMatrix;
         vsg::ref_ptr<vsg::mat4Value> _viewMatrix;
         vsg::ref_ptr<ViewportState> _viewport;
+
+        ref_ptr<ImageView> _storageImage;
 
         VkExtent2D _extent2D;
         uint32_t _maxSlot = 2;

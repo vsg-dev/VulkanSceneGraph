@@ -30,10 +30,10 @@ RayTracingShaderBindings::RayTracingShaderBindings(const ShaderStages& shaders, 
     Inherit(nullptr),
     _device(device),
     _shaderStages(shaders),
-    _raygenIndex(-1),
-    _missIndex(-1),
-    _closestHitIndex(-1),
-    _callableIndex(-1)
+    _raygenIndex(0xFFFFFFFF),
+    _missIndex(0xFFFFFFFF),
+    _closestHitIndex(0xFFFFFFFF),
+    _callableIndex(0xFFFFFFFF)
 {
     // generate create infos and binding indicies
     for (uint32_t i = 0; i < _shaderStages.size(); i++)
@@ -41,10 +41,12 @@ RayTracingShaderBindings::RayTracingShaderBindings(const ShaderStages& shaders, 
 
         VkRayTracingShaderGroupCreateInfoNV createinfo;
         createinfo.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
+        createinfo.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
         createinfo.generalShader = VK_SHADER_UNUSED_NV;
         createinfo.closestHitShader = VK_SHADER_UNUSED_NV;
         createinfo.anyHitShader = VK_SHADER_UNUSED_NV;
         createinfo.intersectionShader = VK_SHADER_UNUSED_NV;
+        createinfo.pNext = nullptr;
 
         switch(_shaderStages[i]->getShaderStageFlagBits())
         {
@@ -104,6 +106,8 @@ void RayTracingShaderBindings::compile(Context& context, const VkPipeline& pipel
 {
     Extensions* extensions = Extensions::Get(_device, true);
 
+    uint32_t numCreateInfos = static_cast<uint32_t>(_shaderGroupCreateInfos.size());
+
     // query raytracing properties of device
     _rayTracingProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV;
     _rayTracingProperties.pNext = nullptr;
@@ -113,9 +117,9 @@ void RayTracingShaderBindings::compile(Context& context, const VkPipeline& pipel
     vkGetPhysicalDeviceProperties2(*_device->getPhysicalDevice(), &deviceProps2);
 
     const uint32_t shaderGroupHandleSize = _rayTracingProperties.shaderGroupHandleSize;
-    const uint32_t sbtSize = shaderGroupHandleSize * _shaderGroupCreateInfos.size();
+    const uint32_t sbtSize = shaderGroupHandleSize * numCreateInfos;
 
-    BufferData bindingTableBufferData = context.stagingMemoryBufferPools.reserveBufferData(sbtSize, 4, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+    BufferData bindingTableBufferData = context.stagingMemoryBufferPools.reserveBufferData(sbtSize, 4, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV | VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
     _bindingTableBuffer = ref_ptr<Buffer>(bindingTableBufferData._buffer);
     _bindingTableMemory = ref_ptr<DeviceMemory>(_bindingTableBuffer->getDeviceMemory());
@@ -131,66 +135,66 @@ void RayTracingShaderBindings::compile(Context& context, const VkPipeline& pipel
 
     // get shader handles
     auto shaderHandleStorage = new uint8_t[sbtSize];
-    extensions->vkGetRayTracingShaderGroupHandlesNV(*_device, pipeline, 0, _shaderGroupCreateInfos.size(), sbtSize, shaderHandleStorage);
+    extensions->vkGetRayTracingShaderGroupHandlesNV(*_device, pipeline, 0, numCreateInfos, sbtSize, shaderHandleStorage);
 
-    if(_raygenIndex != -1) ptr += copyShaderIdentifier(ptr, shaderHandleStorage, _raygenIndex, shaderGroupHandleSize);
-    if (_missIndex != -1) ptr += copyShaderIdentifier(ptr, shaderHandleStorage, _missIndex, shaderGroupHandleSize);
-    if (_closestHitIndex != -1)  ptr += copyShaderIdentifier(ptr, shaderHandleStorage, _closestHitIndex, shaderGroupHandleSize);
+    if (_raygenIndex != 0xFFFFFFFF) ptr += copyShaderIdentifier(ptr, shaderHandleStorage, _raygenIndex, shaderGroupHandleSize);
+    if (_missIndex != 0xFFFFFFFF) ptr += copyShaderIdentifier(ptr, shaderHandleStorage, _missIndex, shaderGroupHandleSize);
+    if (_closestHitIndex != 0xFFFFFFFF) ptr += copyShaderIdentifier(ptr, shaderHandleStorage, _closestHitIndex, shaderGroupHandleSize);
 
     _bindingTableMemory->unmap();
 }
 
 VkBuffer RayTracingShaderBindings::raygenTableBuffer() const
 {
-    return _raygenIndex != -1 ? (VkBuffer)*_bindingTableBuffer : VK_NULL_HANDLE;
+    return _raygenIndex != 0xFFFFFFFF ? (VkBuffer)*_bindingTableBuffer : VK_NULL_HANDLE;
 }
 
 VkDeviceSize RayTracingShaderBindings::raygeTableOffset() const
 {
-    return _raygenIndex != -1 ? _rayTracingProperties.shaderGroupHandleSize * _raygenIndex : 0;
+    return _raygenIndex != 0xFFFFFFFF ? _rayTracingProperties.shaderGroupHandleSize * _raygenIndex : 0;
 }
 
 VkBuffer RayTracingShaderBindings::missTableBuffer() const
 {
-    return _missIndex != -1 ? (VkBuffer)*_bindingTableBuffer : VK_NULL_HANDLE;
+    return _missIndex != 0xFFFFFFFF ? (VkBuffer)*_bindingTableBuffer : VK_NULL_HANDLE;
 }
 
 VkDeviceSize RayTracingShaderBindings::missTableOffset() const
 {
-    return _missIndex != -1 ? _rayTracingProperties.shaderGroupHandleSize * _missIndex : 0;
+    return _missIndex != 0xFFFFFFFF ? _rayTracingProperties.shaderGroupHandleSize * _missIndex : 0;
 }
 
 VkDeviceSize RayTracingShaderBindings::missTableStride() const
 {
-    return _missIndex != -1 ? _rayTracingProperties.shaderGroupHandleSize : 0;
+    return _missIndex != 0xFFFFFFFF ? _rayTracingProperties.shaderGroupHandleSize : 0;
 }
 
 VkBuffer RayTracingShaderBindings::hitTableBuffer() const
 {
-    return _closestHitIndex != -1 ? (VkBuffer)*_bindingTableBuffer : VK_NULL_HANDLE;
+    return _closestHitIndex != 0xFFFFFFFF ? (VkBuffer)*_bindingTableBuffer : VK_NULL_HANDLE;
 }
 
 VkDeviceSize RayTracingShaderBindings::hitTableOffset() const
 {
-    return _closestHitIndex != -1 ? _rayTracingProperties.shaderGroupHandleSize * _closestHitIndex : 0;
+    return _closestHitIndex != 0xFFFFFFFF ? _rayTracingProperties.shaderGroupHandleSize * _closestHitIndex : 0;
 }
 
 VkDeviceSize RayTracingShaderBindings::hitTableStride() const
 {
-    return _closestHitIndex != -1 ? _rayTracingProperties.shaderGroupHandleSize : 0;
+    return _closestHitIndex != 0xFFFFFFFF ? _rayTracingProperties.shaderGroupHandleSize : 0;
 }
 
 VkBuffer RayTracingShaderBindings::callableTableBuffer() const
 {
-    return _callableIndex != -1 ? (VkBuffer)*_bindingTableBuffer : VK_NULL_HANDLE;
+    return _callableIndex != 0xFFFFFFFF ? (VkBuffer)*_bindingTableBuffer : VK_NULL_HANDLE;
 }
 
 VkDeviceSize RayTracingShaderBindings::callableTableOffset() const
 {
-    return _callableIndex != -1 ? _rayTracingProperties.shaderGroupHandleSize * _callableIndex : 0;
+    return _callableIndex != 0xFFFFFFFF ? _rayTracingProperties.shaderGroupHandleSize * _callableIndex : 0;
 }
 
 VkDeviceSize RayTracingShaderBindings::callableTableStride() const
 {
-    return _callableIndex != -1 ? _rayTracingProperties.shaderGroupHandleSize : 0;
+    return _callableIndex != 0xFFFFFFFF ? _rayTracingProperties.shaderGroupHandleSize : 0;
 }

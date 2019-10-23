@@ -134,6 +134,7 @@ namespace vsg
 
         // populated by compile()
         std::vector <VkAccelerationStructureNV> _vkAccelerationStructures;
+        VkWriteDescriptorSetAccelerationStructureNV _descriptorAccelerationStructureInfo;
     };
     VSG_type_name(vsg::DescriptorAccelerationStructure)
 

@@ -465,14 +465,38 @@ void CopyAndReleaseImageDataCommand::dispatch(CommandBuffer& commandBuffer) cons
 // vsg::SetImageLayoutCommand
 //
 
-void SetImageLayoutCommand::dispatch(CommandBuffer & commandBuffer) const
+SetImageLayoutCommand::SetImageLayoutCommand(Image* image, VkAccessFlags srcAccessMask, VkAccessFlags destAccessMask, VkImageLayout oldLayout, VkImageLayout newLayout, VkPipelineStageFlags srcStage, VkPipelineStageFlags destStage) :
+    Command(),
+    _image(image),
+    _srcAccessMask(srcAccessMask),
+    _destAccessMask(destAccessMask),
+    _oldLayout(oldLayout),
+    _newLayout(newLayout),
+    _srcStage(srcStage),
+    _destStage(destStage)
+{
+}
+
+SetImageLayoutCommand::SetImageLayoutCommand(ImageData image) :
+    Command(),
+    _srcAccessMask(0),
+    _destAccessMask(VK_ACCESS_SHADER_READ_BIT),
+    _oldLayout(VK_IMAGE_LAYOUT_UNDEFINED),
+    _newLayout(image._imageLayout),
+    _srcStage(VK_PIPELINE_STAGE_TRANSFER_BIT),
+    _destStage(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT),
+    _image(image._imageView->getImage())
+{
+}
+
+void SetImageLayoutCommand::dispatch(CommandBuffer& commandBuffer) const
 {
     ImageMemoryBarrier transitionLayoutMemoryBarrier(
-        0, VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_UNDEFINED, _image._imageLayout,
-        _image._imageView->getImage());
+        _srcAccessMask, _destAccessMask,
+        _oldLayout, _newLayout,
+        _image);
 
-    transitionLayoutMemoryBarrier.cmdPiplineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+    transitionLayoutMemoryBarrier.cmdPiplineBarrier(commandBuffer, _srcStage, _destStage);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

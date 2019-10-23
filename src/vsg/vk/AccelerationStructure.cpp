@@ -121,9 +121,15 @@ void AccelerationGeometry::compile(Context& context)
     _geometry.geometry.triangles.indexType = VK_INDEX_TYPE_UINT32;
     _geometry.geometry.triangles.transformData = VK_NULL_HANDLE;
     _geometry.geometry.triangles.transformOffset = 0;
-    _geometry.geometry.aabbs = {};
-    _geometry.geometry.aabbs.sType = {VK_STRUCTURE_TYPE_GEOMETRY_AABB_NV};
+    _geometry.geometry.triangles.pNext = nullptr;
+    _geometry.geometry.aabbs.numAABBs = 0;
+    _geometry.geometry.aabbs.aabbData = VK_NULL_HANDLE;
+    _geometry.geometry.aabbs.offset = 0;
+    _geometry.geometry.aabbs.stride = 0;
+    _geometry.geometry.aabbs.sType = VK_STRUCTURE_TYPE_GEOMETRY_AABB_NV;
+    _geometry.geometry.aabbs.pNext = nullptr;
     _geometry.flags = VK_GEOMETRY_OPAQUE_BIT_NV;
+    _geometry.pNext = nullptr;
 }
 
 AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeNV type, Device* device, Allocator* allocator) :
@@ -301,25 +307,24 @@ void DescriptorAccelerationStructure::compile(Context& context)
         accelstruct->compile(context);
         _vkAccelerationStructures.push_back(*accelstruct);
     }
+
+    _descriptorAccelerationStructureInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV;
+    _descriptorAccelerationStructureInfo.accelerationStructureCount = static_cast<uint32_t>(_vkAccelerationStructures.size());
+    _descriptorAccelerationStructureInfo.pAccelerationStructures = _vkAccelerationStructures.data();
+    _descriptorAccelerationStructureInfo.pNext = nullptr;
 }
 
 bool DescriptorAccelerationStructure::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
 {
     Descriptor::assignTo(wds, descriptorSet);
 
-    VkWriteDescriptorSetAccelerationStructureNV descriptorAccelerationStructureInfo;
-    descriptorAccelerationStructureInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV;
-    descriptorAccelerationStructureInfo.accelerationStructureCount = static_cast<uint32_t>(_vkAccelerationStructures.size());
-    descriptorAccelerationStructureInfo.pAccelerationStructures = _vkAccelerationStructures.data();
-    descriptorAccelerationStructureInfo.pNext = nullptr;
-
     wds.descriptorCount = static_cast<uint32_t>(_vkAccelerationStructures.size()); // is this correct??
-    wds.pNext = &descriptorAccelerationStructureInfo;
+    wds.pNext = &_descriptorAccelerationStructureInfo;
 
     return true;
 }
 
 uint32_t DescriptorAccelerationStructure::getNumDescriptors() const
 {
-    return static_cast<uint32_t>(_vkAccelerationStructures.size());
+    return static_cast<uint32_t>(_accelerationStructures.size());
 }
