@@ -27,7 +27,6 @@ Image::~Image()
 {
     if (_deviceMemory)
     {
-        std::cout<<"Image::~Image() calling _deviceMemory::relase() _memoryOffset = "<<_memoryOffset<<std::endl;
         _deviceMemory->release(_memoryOffset, 0); // TODO, we don't locally have a size allocated
     }
 

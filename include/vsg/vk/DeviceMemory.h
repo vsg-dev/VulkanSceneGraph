@@ -34,6 +34,11 @@ namespace vsg
 
         bool full() const { return _availableMemory.empty(); }
 
+        VkDeviceSize maximumAvailableSpace() const { return _availableMemory.empty() ? 0 : _availableMemory.rbegin()->first; }
+        VkDeviceSize totalAvailableSize() const;
+        VkDeviceSize totalReservedSize() const;
+        VkDeviceSize totalMemorySize() const { return _totalMemorySize; }
+
         void report() const;
         bool check() const;
 
@@ -77,6 +82,8 @@ namespace vsg
         MemorySlots::OptionalOffset reserve(VkDeviceSize size) { return _memorySlots.reserve(size, _memoryRequirements.alignment); }
         void release(VkDeviceSize offset, VkDeviceSize size) { _memorySlots.release(offset, size); }
         bool full() const { return _memorySlots.full(); }
+        VkDeviceSize maximumAvailableSpace() const { return _memorySlots.maximumAvailableSpace(); }
+        const MemorySlots& memorySlots() const { return _memorySlots; }
 
     protected:
         virtual ~DeviceMemory();

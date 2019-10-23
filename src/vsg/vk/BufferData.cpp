@@ -105,6 +105,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
 
     stagingMemory->unmap();
 
+#if 0
     CopyAndReleaseBufferDataCommand* previous = context.copyBufferDataCommands.empty() ? nullptr : context.copyBufferDataCommands.back().get();
     if (previous)
     {
@@ -119,7 +120,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
             return bufferDataList;
         }
     }
-
+#endif
     context.copyBufferDataCommands.emplace_back(new CopyAndReleaseBufferDataCommand(stagingBufferData, deviceBufferData));
 
     return bufferDataList;

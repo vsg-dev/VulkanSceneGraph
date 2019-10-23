@@ -56,6 +56,11 @@ namespace vsg
         using BufferPools = std::vector<ref_ptr<Buffer>>;
         BufferPools bufferPools;
 
+        VkDeviceSize computeMemoryTotalAvailble();
+        VkDeviceSize computeMemoryTotalReserved();
+        VkDeviceSize computeBufferTotalAvailble();
+        VkDeviceSize computeBufferTotalReserved();
+
         BufferData reserveBufferData(VkDeviceSize totalSize, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties);
 
         using DeviceMemoryOffset = std::pair<ref_ptr<DeviceMemory>, VkDeviceSize>;
@@ -122,9 +127,6 @@ namespace vsg
 
         // transfer data settings
         // used by BufferData.cpp, ImageData.cpp
-        using MemoryPools = std::vector<ref_ptr<DeviceMemory>>;
-        using BufferPools = std::vector<ref_ptr<Buffer>>;
-
         ref_ptr<Queue> graphicsQueue;
         ref_ptr<CommandPool> commandPool;
         ref_ptr<CommandBuffer> commandBuffer;

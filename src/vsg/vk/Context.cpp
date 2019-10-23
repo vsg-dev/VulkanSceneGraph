@@ -27,6 +27,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <chrono>
 #include <iostream>
 
+#define REPORT_STATS 0
+
 using namespace vsg;
 
 MemoryBufferPools::MemoryBufferPools(const std::string& in_name, Device* in_device, BufferPreferences preferences) :
@@ -36,12 +38,52 @@ MemoryBufferPools::MemoryBufferPools(const std::string& in_name, Device* in_devi
 {
 }
 
+VkDeviceSize MemoryBufferPools::computeMemoryTotalAvailble()
+{
+    VkDeviceSize totalAvailableSize = 0;
+    for(auto& deviceMemory : memoryPools)
+    {
+        totalAvailableSize += deviceMemory->memorySlots().totalAvailableSize();
+    }
+    return totalAvailableSize;
+}
+
+VkDeviceSize MemoryBufferPools::computeMemoryTotalReserved()
+{
+    VkDeviceSize totalReservedSize = 0;
+    for(auto& deviceMemory : memoryPools)
+    {
+        totalReservedSize += deviceMemory->memorySlots().totalReservedSize();
+    }
+    return totalReservedSize;
+}
+
+VkDeviceSize MemoryBufferPools::computeBufferTotalAvailble()
+{
+    VkDeviceSize totalAvailableSize = 0;
+    for(auto& buffer : bufferPools)
+    {
+        totalAvailableSize += buffer->memorySlots().totalAvailableSize();
+    }
+    return totalAvailableSize;
+}
+
+VkDeviceSize MemoryBufferPools::computeBufferTotalReserved()
+{
+    VkDeviceSize totalReservedSize = 0;
+    for(auto& buffer : bufferPools)
+    {
+        totalReservedSize += buffer->memorySlots().totalReservedSize();
+    }
+    return totalReservedSize;
+}
+
 BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties)
 {
     BufferData bufferData;
     for (auto& bufferFromPool : bufferPools)
     {
-        if (!bufferFromPool->full() && bufferFromPool->usage() == bufferUsageFlags)
+        if (bufferFromPool->usage() == bufferUsageFlags && bufferFromPool->maximumAvailableSpace() >= totalSize)
         {
             MemorySlots::OptionalOffset reservedBufferSlot = bufferFromPool->reserve(totalSize, alignment);
             if (reservedBufferSlot.first)
@@ -50,13 +92,34 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
                 bufferData._offset = reservedBufferSlot.second;
                 bufferData._range = totalSize;
 
-                // std::cout<<name<<" : MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") _offset = "<<bufferData._offset<<std::endl;
-
+#if REPORT_STATS
+                std::cout<<name<<" : MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") _offset = "<<bufferData._offset<<std::endl;
+#endif
                 return bufferData;
             }
         }
     }
-    // std::cout<<name<<" : Failed to space in existing buffers with  MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") bufferPools.size() = "<<bufferPools.size()<<" looking to allocated new Buffer."<<std::endl;
+
+#if REPORT_STATS
+    std::cout<<name<<" : Failed to find space in existing buffers with  MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") bufferPools.size() = "<<bufferPools.size()<<" looking to allocated new Buffer."<<std::endl;
+#endif
+
+#if REPORT_STATS
+    VkDeviceSize maxAvailableSize = 0;
+    VkDeviceSize totalAvailableSize = 0;
+    VkDeviceSize totalReservedSize = 0;
+    for(auto& buffer : bufferPools)
+    {
+        if (buffer->maximumAvailableSpace() > maxAvailableSize)
+        {
+            maxAvailableSize = buffer->maximumAvailableSpace();
+        }
+        totalAvailableSize += buffer->memorySlots().totalAvailableSize();
+        totalReservedSize += buffer->memorySlots().totalReservedSize();
+    }
+    std::cout<<name<<" : maxAvailableSize = " <<maxAvailableSize<<", totalAvailableSize = "<<totalAvailableSize<<", totalReservedSize = "<<totalReservedSize<<", totalSize = "<<totalSize<<", alignment = "<<alignment<<std::endl;
+#endif
+
 
     VkDeviceSize deviceSize = totalSize;
 
@@ -90,7 +153,7 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
 
     for (auto& memoryFromPool : memoryPools)
     {
-        if (!memoryFromPool->full() && memoryFromPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits)
+        if (memoryFromPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits && memoryFromPool->maximumAvailableSpace() >= deviceSize)
         {
             reservedMemorySlot = memoryFromPool->reserve(deviceSize);
             if (reservedMemorySlot.first)
@@ -149,7 +212,7 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
 
     for (auto& memoryPool : memoryPools)
     {
-        if (!memoryPool->full() && memoryPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits)
+        if (memoryPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits && memoryPool->maximumAvailableSpace() >= totalSize)
         {
             reservedSlot = memoryPool->reserve(totalSize);
             if (reservedSlot.first)
@@ -533,14 +596,12 @@ void Context::dispatch()
     submitInfo.pCommandBuffers = commandBuffer->data();
     if (semaphore)
     {
-        std::cout<<"void Context::dispatch() "<<this<<" semaphore = "<<*(semaphore->data())<<std::endl;
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = semaphore->data();
         submitInfo.pWaitDstStageMask = &waitDstStageMask;
     }
     else
     {
-        std::cout<<"void Context::dispatch() "<<this<<" no semaphore = "<<std::endl;
         submitInfo.signalSemaphoreCount = 0;
         submitInfo.pSignalSemaphores = nullptr;
     }
@@ -556,17 +617,13 @@ void Context::waitForCompletion()
 {
     if (!commandBuffer || !fence)
     {
-        if (semaphore) std::cout<<"void Context::waitForCompletion() "<<this<<" A semaphore = "<<*(semaphore->data())<<std::endl;
         return;
     }
 
     if (commands.empty() && copyBufferDataCommands.empty() && copyImageDataCommands.empty())
     {
-        if (semaphore) std::cout<<"void Context::waitForCompletion() "<<this<<" B semaphore = "<<*(semaphore->data())<<std::endl;
         return;
     }
-
-    if (semaphore) std::cout<<"void Context::waitForCompletion() C "<<this<<" semaphore = "<<*(semaphore->data())<<std::endl;
 
     // we must wait for the queue to empty before we can safely clean up the commandBuffer
 #if 1
@@ -574,11 +631,7 @@ void Context::waitForCompletion()
     if (timeout > 0)
     {
         VkResult result = fence->wait(timeout);
-        if (result == VK_SUCCESS)
-        {
-            std::cout<<"void Context::waitForCompletion() D "<<this<<" Fence has successedully signaled"<<std::endl;
-        }
-        else
+        if (result != VK_SUCCESS)
         {
             std::cout << "Context::waitForCompletion() "<<this<<" Fence failed to signal : " << result << std::endl;
             while ((result = fence->wait(timeout)) != VK_SUCCESS)
@@ -593,6 +646,10 @@ void Context::waitForCompletion()
     {
         graphicsQueue->waitIdle();
     }
+#endif
+
+#if REPORT_STATS
+    std::cout<<"Context::waitForCompletion() copyBufferDataCommands = "<<copyBufferDataCommands.size()<<", copyImageDataCommands = "<<copyImageDataCommands.size()<<", commands = "<<commands.size()<<std::endl;
 #endif
 
     copyBufferDataCommands.clear();
