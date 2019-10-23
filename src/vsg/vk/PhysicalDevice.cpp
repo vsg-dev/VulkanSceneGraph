@@ -75,7 +75,7 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags q
                 matchedQueues |= VK_QUEUE_COMPUTE_BIT;
             }*/
 
-            if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0 && (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) != 0)
+            if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0 && (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) != 0) //RAYTRACING HACK
             {
                 graphicsFamily = i;
                 computeFamily = i;
