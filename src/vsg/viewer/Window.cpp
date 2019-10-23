@@ -224,7 +224,7 @@ void Window::populateCommandBuffers(uint32_t index, ref_ptr<vsg::FrameStamp> fra
 
             for(auto& semaphore : frame.commandsCompletedFence->dependentSemaphores())
             {
-                std::cout<<"Release semaphore "<<*(semaphore->data())<<", "<<semaphore->numDependentSubmissions().load()<<std::endl;
+                //std::cout<<"Window::populateCommandBuffers(..) "<<*(semaphore->data())<<" "<<semaphore->numDependentSubmissions().load()<<std::endl;
                 semaphore->numDependentSubmissions().exchange(0);
             }
 

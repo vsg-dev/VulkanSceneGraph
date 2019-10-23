@@ -146,8 +146,8 @@ void PagedLODContainer::resize(uint32_t new_size)
 
     availableList.count += (new_size-original_size);
 
-    std::cout<<"PagedLODContainer::resize("<<new_size<<")"<<std::endl;
 #if PRINT_CONTAINER
+    std::cout<<"PagedLODContainer::resize("<<new_size<<")"<<std::endl;
     print(std::cout);
 #endif
 }

@@ -31,6 +31,12 @@ namespace vsg
 
     struct CulledPagedLODs: public Inherit<Object, CulledPagedLODs>
     {
+        CulledPagedLODs()
+        {
+            highresCulled.reserve(512);
+            newHighresRequired.reserve(8);
+        }
+
         void clear()
         {
             highresCulled.clear();
