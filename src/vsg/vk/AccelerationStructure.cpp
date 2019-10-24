@@ -20,7 +20,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-ref_ptr<Buffer> s_scratchBuffer; //HACK
+#define TRANSFER_BUFFERS 0
+
+ref_ptr<Buffer> s_scratchBuffer; //RAYTRACING HACK
+ref_ptr<DeviceMemory> s_scratchBufferMemory;
 
 class BuildAccelerationStructureCommand : public Inherit<Command, BuildAccelerationStructureCommand>
 {
@@ -76,8 +79,7 @@ void AccelerationGeometry::compile(Context& context)
     if (_arrays.empty()) return; // no data set
     if (_geometry.geometry.triangles.vertexData != VK_NULL_HANDLE) return; // already compiled
 
-    DataList dataList;
-    dataList.reserve(2);
+    DataList vertexDataList;
 
     uint32_t vertcount = static_cast<uint32_t>(_arrays[0]->valueCount());
     uint32_t strideSize = 0;
@@ -98,13 +100,21 @@ void AccelerationGeometry::compile(Context& context)
         }
     }
 
-    dataList.emplace_back(verts);
-    dataList.emplace_back(_indices);
+    vertexDataList.emplace_back(verts);
 
-    auto bufferData = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    DataList indexDataList;
+    indexDataList.emplace_back(_indices);
 
-    _vertexBuffer = bufferData[0];
-    _indexBuffer = bufferData[1];
+#if TRANSFER_BUFFERS
+    auto vertexBufferData = vsg::createBufferAndTransferData(context, vertexDataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    auto indexBufferData = vsg::createBufferAndTransferData(context, indexDataList, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+#else
+    auto vertexBufferData = vsg::createHostVisibleBuffer(context.device, vertexDataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    auto indexBufferData = vsg::createHostVisibleBuffer(context.device, indexDataList, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+#endif
+
+    _vertexBuffer = vertexBufferData[0];
+    _indexBuffer = indexBufferData[0];
 
     // create the VkGeometry
     _geometry.sType = VK_STRUCTURE_TYPE_GEOMETRY_NV;
@@ -251,8 +261,13 @@ void TopLevelAccelerationStructure::compile(Context& context)
 
     DataList dataList = {_instance};
 
+#if TRANSFER_BUFFERS
     auto instanceBufferData = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);
     _instanceBuffer = instanceBufferData[0]._buffer;
+#else
+    auto instanceBufferData = vsg::createHostVisibleBuffer(context.device, dataList, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);
+    _instanceBuffer = instanceBufferData[0]._buffer;
+#endif
 
     _accelerationStructureInfo.instanceCount = 1;
 
@@ -263,7 +278,10 @@ void TopLevelAccelerationStructure::compile(Context& context)
     // but in this instance we're just going to make one for this top level and it's referenced bottom level
 
     const VkDeviceSize scratchBufferSize = std::max(_instanceSource->requiredScratchSize(), requiredScratchSize());
-    s_scratchBuffer = Buffer::create(context.device, scratchBufferSize, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);
+    s_scratchBuffer = Buffer::create(context.device, scratchBufferSize, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE); // RAYTRACING HACK
+
+    s_scratchBufferMemory = vsg::DeviceMemory::create(context.device, s_scratchBuffer, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    s_scratchBuffer->bind(s_scratchBufferMemory, 0);
 
     context.commands.push_back(BuildAccelerationStructureCommand::create(context.device, &_accelerationStructureInfo, _accelerationStructure, _instanceBuffer));
 }

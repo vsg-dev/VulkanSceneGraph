@@ -66,7 +66,7 @@ void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Frameb
                                     _extent2D.width, _extent2D.height, 1);
 
     //  transition image layouts for copy
-    /*
+    
     ImageMemoryBarrier transitionSwapChainToWriteDest(
         0, VK_ACCESS_TRANSFER_WRITE_BIT,
         VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -107,14 +107,6 @@ void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Frameb
         _storageImage->getImage());
 
     transitionStorageImageToOriginal.cmdPiplineBarrier(*commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
-    */
-
-    ImageMemoryBarrier transitionSwapChainToOriginal(
-        0, 0,
-        VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-        framebuffer->getAttachment(0)->getImage());
-
-    transitionSwapChainToOriginal.cmdPiplineBarrier(*commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
 
     vkEndCommandBuffer(*commandBuffer);
 }
