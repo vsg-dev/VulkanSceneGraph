@@ -569,7 +569,15 @@ void Context::dispatch()
 
     //auto before_compile = std::chrono::steady_clock::now();
 
-    if (!fence) fence = vsg::Fence::create(device);
+
+    if (!fence)
+    {
+        fence = vsg::Fence::create(device);
+    }
+    else
+    {
+        fence->reset();
+    }
 
     getOrCreateCommandBuffer();
 
@@ -605,9 +613,6 @@ void Context::dispatch()
         submitInfo.signalSemaphoreCount = 0;
         submitInfo.pSignalSemaphores = nullptr;
     }
-
-
-    if (fence) fence->reset();
 
     graphicsQueue->submit(submitInfo, fence);
     //std::cout << "Context::dispatchCommands()  time " << std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - before_compile).count() << "ms" << std::endl;
