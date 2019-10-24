@@ -319,7 +319,7 @@ void DatabasePager::start()
 
                 while (ct->context.semaphore->numDependentSubmissions().load()>0)
                 {
-                    if (*(a)) return;
+                    if (!(*(a))) return;
                     std::this_thread::sleep_for(std::chrono::milliseconds(1));
                 }
 
