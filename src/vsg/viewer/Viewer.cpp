@@ -221,7 +221,6 @@ bool Viewer::submitNextFrame()
 {
     bool debugLayersEnabled = false;
 
-    bool hasDBSemaphore = false;
     for (auto& pair_pdo : _deviceMap)
     {
         PerDeviceObjects& pdo = pair_pdo.second;
@@ -256,7 +255,7 @@ bool Viewer::submitNextFrame()
                         {
                             // std::cout<<"    Viewer::submitNextFrame() waitSemaphore "<<*(semaphore->data())<<" "<<semaphore->numDependentSubmissions().load()<<std::endl;
                         }
-                        hasDBSemaphore = true;
+
                         waitSemaphores.emplace_back(*semaphore);
                         waitDstStageMasks.emplace_back(semaphore->pipelineStageFlags());
 
