@@ -23,6 +23,8 @@ set(SOURCES
 
     introspection/c_interface.cpp
 
+    maths/transform.cpp
+
     nodes/Commands.cpp
     nodes/Group.cpp
     nodes/Geometry.cpp

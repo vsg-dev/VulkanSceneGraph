@@ -37,17 +37,17 @@ namespace vsg
                   {0, 0, v, 0},
                   {0, 0, 0, v}} {}
 
-        constexpr t_mat3(value_type v0, value_type v1, value_type v2,
-                         value_type v3, value_type v4, value_type v5,
-                         value_type v6, value_type v7, value_type v8) :
-            value{{v0, v3, v6},
-                  {v1, v4, v7},
-                  {v2, v5, v8}} {}
+        constexpr t_mat3(value_type v0, value_type v1, value_type v2,   // column 0
+                         value_type v3, value_type v4, value_type v5,   // column 1
+                         value_type v6, value_type v7, value_type v8) : // column 2
+            value{{v0, v1, v2},
+                  {v3, v4, v5},
+                  {v6, v7, v8}} {}
 
         constexpr explicit t_mat3(value_type v[9]) :
-            value{{v[0], v[3], v[6]},
-                  {v[1], v[4], v[7]},
-                  {v[2], v[5], v[8]}} {}
+            value{{v[0], v[1], v[2]},
+                  {v[3], v[4], v[5]},
+                  {v[6], v[7], v[8]}} {}
 
         template<typename R>
         t_mat3(const t_mat3<R>& rhs)
@@ -97,9 +97,9 @@ namespace vsg
     template<typename T>
     t_mat3<T> operator*(t_mat3<T> const& lhs, t_mat3<T> const& rhs)
     {
-        return t_mat4<T>(dot(lhs, rhs, 0, 0), dot(lhs, rhs, 1, 0), dot(lhs, rhs, 2, 0),
-                         dot(lhs, rhs, 0, 1), dot(lhs, rhs, 1, 1), dot(lhs, rhs, 2, 1),
-                         dot(lhs, rhs, 0, 2), dot(lhs, rhs, 1, 2), dot(lhs, rhs, 2, 2));
+        return t_mat3<T>(dot(lhs, rhs, 0, 0), dot(lhs, rhs, 0, 1), dot(lhs, rhs, 0, 2),
+                         dot(lhs, rhs, 1, 0), dot(lhs, rhs, 1, 1), dot(lhs, rhs, 1, 2),
+                         dot(lhs, rhs, 2, 0), dot(lhs, rhs, 2, 1), dot(lhs, rhs, 2, 2));
     }
 
     template<typename T>
@@ -109,5 +109,4 @@ namespace vsg
                          (lhs[0][1] * rhs[0] + lhs[1][1] * rhs[1] + lhs[2][1] * rhs[2]),
                          (lhs[0][2] * rhs[0] + lhs[1][2] * rhs[1] + lhs[2][2] * rhs[2]));
     }
-
 } // namespace vsg
