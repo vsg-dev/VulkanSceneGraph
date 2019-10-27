@@ -110,7 +110,9 @@ void AccelerationGeometry::compile(Context& context)
     auto indexBufferData = vsg::createBufferAndTransferData(context, indexDataList, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
 #else
     auto vertexBufferData = vsg::createHostVisibleBuffer(context.device, vertexDataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    vsg::copyDataListToBuffers(vertexBufferData);
     auto indexBufferData = vsg::createHostVisibleBuffer(context.device, indexDataList, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    vsg::copyDataListToBuffers(indexBufferData);
 #endif
 
     _vertexBuffer = vertexBufferData[0];
@@ -266,6 +268,7 @@ void TopLevelAccelerationStructure::compile(Context& context)
     _instanceBuffer = instanceBufferData[0]._buffer;
 #else
     auto instanceBufferData = vsg::createHostVisibleBuffer(context.device, dataList, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);
+    vsg::copyDataListToBuffers(instanceBufferData);
     _instanceBuffer = instanceBufferData[0]._buffer;
 #endif
 
