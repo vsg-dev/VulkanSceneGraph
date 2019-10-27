@@ -128,8 +128,22 @@ namespace vsg
                vsg::translate(-eye.x, -eye.y, -eye.z);
     }
 
-    // matrix inversion
+    /// fast float matrix inversion that use assumes the matrix is composed of only scales, rotations and translations forming a 4x3 matrix.
+    extern mat4 inverse_4x3(const mat4& m);
+
+    /// fast double matrix inversion that use assumes the matrix is composed of only scales, rotations and translations forming a 4x3 matrix.
+    extern dmat4 inverse_4x3(const dmat4& m);
+
+    /// general purpose 4x4 float matrix inversion.
+    extern mat4 inverse_4x4(const mat4& m);
+
+    /// general purpose 4x4 float matrix inversion.
+    extern dmat4 inverse_4x4(const dmat4& m);
+
+    /// matrix float inversion with automic selection of inverse_4x3 when appropriate, otherwise uses inverse_4x4
     extern mat4 inverse(const mat4& m);
+
+    /// dobule matrix inversion with automic selection of inverse_4x3 when appropriate, otherwise uses inverse_4x4
     extern dmat4 inverse(const dmat4& m);
 
 } // namespace vsg

@@ -12,10 +12,74 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/maths/transform.h>
 
+#include <iostream>
+
 using namespace vsg;
 
 template<class T>
-T t_inverse(const T& m)
+typename T::value_type difference(const T& lhs, const T& rhs)
+{
+    typename T::value_type delta = 0.0;
+    for(std::size_t c=0; c<lhs.columns(); ++c)
+        {
+            for(std::size_t r=0; r<rhs.rows(); ++r)
+            {
+                delta += std::abs(lhs[c][r] - rhs[c][r]);
+            }
+        }
+    return delta;
+}
+
+template<class T>
+T t_inverse_4x3(const T& m)
+{
+    using value_type = typename T::value_type;
+
+    value_type A2323 = m[2][2];
+    value_type A1323 = m[2][1];
+    value_type A1223 = m[2][1] * m[3][2] - m[2][2] * m[3][1] ;
+    value_type A0323 = m[2][0];
+    value_type A0223 = m[2][0] * m[3][2] - m[2][2] * m[3][0] ;
+    value_type A0123 = m[2][0] * m[3][1] - m[2][1] * m[3][0] ;
+    value_type A2313 = m[1][2];
+    value_type A1313 = m[1][1];
+    value_type A1213 = m[1][1] * m[3][2] - m[1][2] * m[3][1] ;
+    value_type A1212 = m[1][1] * m[2][2] - m[1][2] * m[2][1] ;
+    value_type A0313 = m[1][0];
+    value_type A0213 = m[1][0] * m[3][2] - m[1][2] * m[3][0] ;
+    value_type A0212 = m[1][0] * m[2][2] - m[1][2] * m[2][0] ;
+    value_type A0113 = m[1][0] * m[3][1] - m[1][1] * m[3][0] ;
+    value_type A0112 = m[1][0] * m[2][1] - m[1][1] * m[2][0] ;
+
+    value_type det = m[0][0] * ( m[1][1] * A2323 - m[1][2] * A1323)
+                   - m[0][1] * ( m[1][0] * A2323 - m[1][2] * A0323)
+                   + m[0][2] * ( m[1][0] * A1323 - m[1][1] * A0323);
+
+    if (det == 0.0) return T(std::numeric_limits<value_type>::quiet_NaN());  // could use signaling_NaN()
+
+    det = 1.0 / det;
+
+    return T(
+        det *   ( m[1][1] * A2323 - m[1][2] * A1323), // 00
+        det * - ( m[0][1] * A2323 - m[0][2] * A1323), // 01
+        det *   ( m[0][1] * A2313 - m[0][2] * A1313 ), // 02
+        0.0, // 03
+        det * - ( m[1][0] * A2323 - m[1][2] * A0323), // 10
+        det *   ( m[0][0] * A2323 - m[0][2] * A0323 ), // 11
+        det * - ( m[0][0] * A2313 - m[0][2] * A0313), // 12
+        0.0, // 13
+        det *   ( m[1][0] * A1323 - m[1][1] * A0323), // 20
+        det * - ( m[0][0] * A1323 - m[0][1] * A0323), // 21
+        det *   ( m[0][0] * A1313 - m[0][1] * A0313), // 22
+        0.0, // 23
+        det * - ( m[1][0] * A1223 - m[1][1] * A0223 + m[1][2] * A0123 ), // 30
+        det *   ( m[0][0] * A1223 - m[0][1] * A0223 + m[0][2] * A0123 ), // 31
+        det * - ( m[0][0] * A1213 - m[0][1] * A0213 + m[0][2] * A0113 ), // 32
+        det *   ( m[0][0] * A1212 - m[0][1] * A0212 + m[0][2] * A0112)); // 33
+}
+
+template<class T>
+T t_inverse_4x4(const T& m)
 {
     using value_type = typename T::value_type;
 
@@ -43,7 +107,7 @@ T t_inverse(const T& m)
                    + m[0][2] * ( m[1][0] * A1323 - m[1][1] * A0323 + m[1][3] * A0123 )
                    - m[0][3] * ( m[1][0] * A1223 - m[1][1] * A0223 + m[1][2] * A0123 );
 
-    if (det == 0.0) return T();
+    if (det == 0.0) return T(std::numeric_limits<value_type>::quiet_NaN());  // could use signaling_NaN()
 
     det = 1.0 / det;
 
@@ -66,12 +130,46 @@ T t_inverse(const T& m)
         det *   ( m[0][0] * A1212 - m[0][1] * A0212 + m[0][2] * A0112)); // 33
 }
 
+mat4 vsg::inverse_4x3(const mat4& m)
+{
+    return t_inverse_4x3(m);
+}
+
+mat4 vsg::inverse_4x4(const mat4& m)
+{
+    return t_inverse_4x4(m);
+}
+
 mat4 vsg::inverse(const mat4& m)
 {
-    return t_inverse(m);
+    if (m[0][3] == 0.0f && m[1][3] == 0.0f && m[2][3] == 0.0f && m[3][3] == 1.0f)
+    {
+        return t_inverse_4x3(m);
+    }
+    else
+    {
+        return t_inverse_4x4(m);
+    }
+}
+
+dmat4 vsg::inverse_4x3(const dmat4& m)
+{
+    return t_inverse_4x3(m);
+}
+
+dmat4 vsg::inverse_4x4(const dmat4& m)
+{
+    return t_inverse_4x4(m);
 }
 
 dmat4 vsg::inverse(const dmat4& m)
 {
-    return t_inverse(m);
+    if (m[0][3] == 0.0 && m[1][3] == 0.0 && m[2][3] == 0.0 && m[3][3] == 1.0)
+    {
+        return t_inverse_4x3(m);
+    }
+    else
+    {
+        return t_inverse_4x4(m);
+    }
 }
