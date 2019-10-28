@@ -35,16 +35,16 @@ T t_inverse_4x3(const T& m)
 {
     using value_type = typename T::value_type;
 
+    value_type det = m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+
+    if (det == 0.0) return T(std::numeric_limits<value_type>::quiet_NaN()); // could use signaling_NaN()
+
     value_type A1223 = m[2][1] * m[3][2] - m[2][2] * m[3][1];
     value_type A0223 = m[2][0] * m[3][2] - m[2][2] * m[3][0];
     value_type A0123 = m[2][0] * m[3][1] - m[2][1] * m[3][0];
     value_type A1213 = m[1][1] * m[3][2] - m[1][2] * m[3][1];
     value_type A0213 = m[1][0] * m[3][2] - m[1][2] * m[3][0];
     value_type A0113 = m[1][0] * m[3][1] - m[1][1] * m[3][0];
-
-    value_type det = m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
-
-    if (det == 0.0) return T(std::numeric_limits<value_type>::quiet_NaN()); // could use signaling_NaN()
 
     value_type inv_det = 1.0 / det;
 
