@@ -62,7 +62,6 @@ namespace vsg
         }
 
     protected:
-
         using FilenameOption = std::pair<Path, ref_ptr<const Options>>;
         using ObjectCacheMap = std::map<FilenameOption, ObjectTimepoint>;
 

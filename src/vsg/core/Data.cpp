@@ -21,7 +21,7 @@ void Data::read(Input& input)
     Object::read(input);
     _format = static_cast<VkFormat>(input.readValue<std::int32_t>("Format"));
 
-    input.read("Layout",  _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth);
+    input.read("Layout", _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth);
 }
 
 void Data::write(Output& output) const

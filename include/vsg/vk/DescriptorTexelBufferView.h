@@ -34,7 +34,7 @@ namespace vsg
     };
     VSG_type_name(vsg::DescriptorTexelBufferView)
 
-    struct material
+        struct material
     {
         vec4 ambientColor;
         vec4 diffuseColor;
@@ -58,7 +58,7 @@ namespace vsg
         }
     };
 
-    template <>
+    template<>
     constexpr bool has_read_write<material>() { return true; }
 
     VSG_value(materialValue, material);
