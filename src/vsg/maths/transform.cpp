@@ -77,6 +77,12 @@ T t_inverse_4x4(const T& m)
 {
     using value_type = typename T::value_type;
 
+    value_type det = m[0][0] * (m[1][1] * A2323 - m[1][2] * A1323 + m[1][3] * A1223) - m[0][1] * (m[1][0] * A2323 - m[1][2] * A0323 + m[1][3] * A0223) + m[0][2] * (m[1][0] * A1323 - m[1][1] * A0323 + m[1][3] * A0123) - m[0][3] * (m[1][0] * A1223 - m[1][1] * A0223 + m[1][2] * A0123);
+
+    if (det == 0.0) return T(std::numeric_limits<value_type>::quiet_NaN()); // could use signaling_NaN()
+
+    double inv_det = 1.0 / det;
+
     value_type A2323 = m[2][2] * m[3][3] - m[2][3] * m[3][2];
     value_type A1323 = m[2][1] * m[3][3] - m[2][3] * m[3][1];
     value_type A1223 = m[2][1] * m[3][2] - m[2][2] * m[3][1];
@@ -95,12 +101,6 @@ T t_inverse_4x4(const T& m)
     value_type A0212 = m[1][0] * m[2][2] - m[1][2] * m[2][0];
     value_type A0113 = m[1][0] * m[3][1] - m[1][1] * m[3][0];
     value_type A0112 = m[1][0] * m[2][1] - m[1][1] * m[2][0];
-
-    value_type det = m[0][0] * (m[1][1] * A2323 - m[1][2] * A1323 + m[1][3] * A1223) - m[0][1] * (m[1][0] * A2323 - m[1][2] * A0323 + m[1][3] * A0223) + m[0][2] * (m[1][0] * A1323 - m[1][1] * A0323 + m[1][3] * A0123) - m[0][3] * (m[1][0] * A1223 - m[1][1] * A0223 + m[1][2] * A0123);
-
-    if (det == 0.0) return T(std::numeric_limits<value_type>::quiet_NaN()); // could use signaling_NaN()
-
-    double inv_det = 1.0 / det;
 
     return T(
         inv_det * (m[1][1] * A2323 - m[1][2] * A1323 + m[1][3] * A1223),  // 00
