@@ -54,7 +54,7 @@ void AsciiOutput::write(const vsg::Object* object)
     if (auto itr = objectIDMap.find(object); itr != objectIDMap.end())
     {
         // write out the objectID
-        _output << " id=" << itr->second <<"\n";
+        _output << " id=" << itr->second << "\n";
         return;
     }
 

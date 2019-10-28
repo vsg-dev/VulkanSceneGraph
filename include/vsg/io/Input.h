@@ -95,7 +95,7 @@ namespace vsg
         {
             if constexpr (has_read_write<T>())
             {
-                for(size_t i=0; i<num; ++i) value[i].read(*this);
+                for (size_t i = 0; i < num; ++i) value[i].read(*this);
             }
             else
             {

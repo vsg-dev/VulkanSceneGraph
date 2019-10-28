@@ -108,7 +108,6 @@ namespace vsg
                          0.0, 2.0 / (bottom - top), 0.0, -(bottom + top) / (bottom - top),
                          0.0, 0.0, 1.0 / (zNear - zFar), zNear / (zNear - zFar),
                          0.0, 0.0, 0.0, 1.0);
-
     }
 
     template<typename T>

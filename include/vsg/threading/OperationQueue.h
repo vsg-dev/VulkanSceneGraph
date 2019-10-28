@@ -115,12 +115,10 @@ namespace vsg
         ref_ptr<Operation> take_when_avilable();
 
     protected:
-
         std::mutex _mutex;
         std::condition_variable _cv;
         std::list<ref_ptr<Operation>> _queue;
         ref_ptr<Active> _active;
-
     };
     VSG_type_name(vsg::OperationQueue)
 

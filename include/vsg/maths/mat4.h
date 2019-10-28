@@ -40,14 +40,16 @@ namespace vsg
                   {0, 0, v, 0},
                   {0, 0, 0, v}} {}
 
-        constexpr t_mat4(value_type v0, value_type v1, value_type v2, value_type v3,        // column 0
-                         value_type v4, value_type v5, value_type v6, value_type v7,        // column 1
-                         value_type v8, value_type v9, value_type v10, value_type v11,      // column 2
-                         value_type v12, value_type v13, value_type v14, value_type v15) :  // column 3
+        constexpr t_mat4(value_type v0, value_type v1, value_type v2, value_type v3,   /* column 0 */
+                         value_type v4, value_type v5, value_type v6, value_type v7,   /* column 1 */
+                         value_type v8, value_type v9, value_type v10, value_type v11, /* column 2 */
+                         value_type v12, value_type v13, value_type v14, value_type v15) /* column 3 */ :
             value{{v0, v1, v2, v3},
                   {v4, v5, v6, v7},
                   {v8, v9, v10, v11},
-                  {v12, v13, v14, v15}} {}
+                  {v12, v13, v14, v15}}
+        {
+        }
 
         constexpr explicit t_mat4(value_type v[16]) :
             value{{v[0], v[1], v[2], v[3]},
