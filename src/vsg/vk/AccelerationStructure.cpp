@@ -82,8 +82,8 @@ void AccelerationGeometry::compile(Context& context)
     DataList vertexDataList;
 
     uint32_t vertcount = static_cast<uint32_t>(_arrays[0]->valueCount());
-    uint32_t strideSize = _arrays[0]->valueSize(); //0;
-    /*for (auto& a : _arrays)
+    uint32_t strideSize = 0;
+    for (auto& a : _arrays)
     {
         strideSize += static_cast<uint32_t>(a->valueSize());
     }
@@ -100,11 +100,10 @@ void AccelerationGeometry::compile(Context& context)
         }
     }
 
-    vertexDataList.emplace_back(verts);*/
-    vertexDataList.push_back(_arrays[0]);
+    vertexDataList.emplace_back(verts);
 
     DataList indexDataList;
-    indexDataList.push_back(_indices);
+    indexDataList.emplace_back(_indices);
 
 #if TRANSFER_BUFFERS
     auto vertexBufferData = vsg::createBufferAndTransferData(context, vertexDataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
