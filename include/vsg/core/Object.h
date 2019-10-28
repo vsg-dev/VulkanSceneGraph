@@ -31,7 +31,7 @@ namespace vsg
     class Input;
     class Output;
 
-    template <typename T>
+    template<typename T>
     constexpr bool has_read_write() { return false; }
 
     class VSG_DECLSPEC Object
@@ -108,7 +108,7 @@ namespace vsg
         Auxiliary* _auxiliary;
     };
 
-    template <>
+    template<>
     constexpr bool has_read_write<Object>() { return true; }
 
 } // namespace vsg
