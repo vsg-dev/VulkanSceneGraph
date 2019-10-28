@@ -39,20 +39,6 @@ T t_inverse_4x3(const T& m)
 
     if (det == 0.0) return T(std::numeric_limits<value_type>::quiet_NaN()); // could use signaling_NaN()
 
-    value_type inv_det = 1.0 / det;
-
-    value_type m00 = inv_det * (m[1][1] * m[2][2] - m[1][2] * m[2][1]);
-    value_type m01 = inv_det * (m[0][1] * m[2][2] + m[0][2] * m[2][1]);
-    value_type m02 = inv_det * (m[0][1] * m[1][2] - m[0][2] * m[1][1]);
-
-    value_type m10 = inv_det * (m[1][0] * m[2][2] + m[1][2] * m[2][0]);
-    value_type m11 = inv_det * (m[0][0] * m[2][2] - m[0][2] * m[2][0]);
-    value_type m12 = inv_det * (m[0][0] * m[1][2] + m[0][2] * m[1][0]);
-
-    value_type m20 = inv_det * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
-    value_type m21 = inv_det * (m[0][0] * m[2][1] + m[0][1] * m[2][0]);
-    value_type m22 = inv_det * (m[0][0] * m[1][1] - m[0][1] * m[1][0]);
-
     value_type A1223 = m[2][1] * m[3][2] - m[2][2] * m[3][1];
     value_type A0223 = m[2][0] * m[3][2] - m[2][2] * m[3][0];
     value_type A0123 = m[2][0] * m[3][1] - m[2][1] * m[3][0];
@@ -60,16 +46,25 @@ T t_inverse_4x3(const T& m)
     value_type A0213 = m[1][0] * m[3][2] - m[1][2] * m[3][0];
     value_type A0113 = m[1][0] * m[3][1] - m[1][1] * m[3][0];
 
-    value_type m30 = inv_det * (m[1][0] * A1223 + m[1][1] * A0223 - m[1][2] * A0123);
+    value_type inv_det = 1.0 / det;
+
+    value_type m00 = inv_det * (m[1][1] * m[2][2] - m[1][2] * m[2][1]);
+    value_type m01 = inv_det * (m[0][2] * m[2][1] - m[0][1] * m[2][2]);
+    value_type m02 = inv_det * (m[0][1] * m[1][2] - m[0][2] * m[1][1]);
+    value_type m10 = inv_det * (m[1][2] * m[2][0] - m[1][0] * m[2][2]);
+    value_type m11 = inv_det * (m[0][0] * m[2][2] - m[0][2] * m[2][0]);
+    value_type m12 = inv_det * (m[0][2] * m[1][0] - m[0][0] * m[1][2]);
+    value_type m20 = inv_det * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+    value_type m21 = inv_det * (m[0][1] * m[2][0] - m[0][0] * m[2][1]);
+    value_type m22 = inv_det * (m[0][0] * m[1][1] - m[0][1] * m[1][0]);
+    value_type m30 = inv_det * (m[1][1] * A0223 - m[1][2] * A0123 - m[1][0] * A1223);
     value_type m31 = inv_det * (m[0][0] * A1223 - m[0][1] * A0223 + m[0][2] * A0123);
-    value_type m32 = inv_det * (m[0][0] * A1213 + m[0][1] * A0213 - m[0][2] * A0113);
+    value_type m32 = inv_det * (m[0][1] * A0213 - m[0][2] * A0113 - m[0][0] * A1213);
 
-    value_type zero = 0.0;
-
-    return T(m00, m01, m02, zero, // column 0
-             m10, m11, m12, zero, // column 1
-             m20, m21, m22, zero, // column 2
-             m30, m31, m32, 1.0); // column 3
+    return T(m00, m01, m02, 0.0,   // column 0
+             m10, m11, m12, 0.0,   // column 1
+             m20, m21, m22, 0.0,   // column 2
+             m30, m31, m32, 1.0);  // column 3
 }
 
 template<class T>
