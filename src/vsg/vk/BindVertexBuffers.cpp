@@ -15,19 +15,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/traversals/CompileTraversal.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 BindVertexBuffers::~BindVertexBuffers()
 {
-    std::cout<<"BindVertexBuffers::~BindVertexBuffers()"<<std::endl;
     size_t numBufferEntries = std::min(_buffers.size(), _offsets.size());
     for(size_t i = 0; i<numBufferEntries; ++i)
     {
         if (_buffers[i])
         {
-            std::cout<<"BindVertexBuffers::~BindVertexBuffers() need to release "<<_buffers[i].get()<<" offset "<<_offsets[i]<<std::endl;
             _buffers[i]->release(_offsets[i], 0); // TODO
         }
     }
