@@ -137,10 +137,9 @@ void Trackball::rotate(double angle, const dvec3& axis)
 {
     dmat4 rotation = vsg::rotate(angle, axis);
     dmat4 lv = lookAt(_lookAt->eye, _lookAt->center, _lookAt->up);
-    dmat4 lvInverse = lookAtInverse(_lookAt->eye, _lookAt->center, _lookAt->up);
     dvec3 centerEyeSpace = (lv * _lookAt->center);
 
-    dmat4 matrix = lvInverse * translate(centerEyeSpace) * rotation * translate(-centerEyeSpace) * lv;
+    dmat4 matrix = inverse(lv) * translate(centerEyeSpace) * rotation * translate(-centerEyeSpace) * lv;
 
     _lookAt->up = normalize(matrix * (_lookAt->eye + _lookAt->up) - matrix * _lookAt->eye);
     _lookAt->center = matrix * _lookAt->center;
