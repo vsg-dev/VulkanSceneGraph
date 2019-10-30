@@ -104,6 +104,7 @@ set(SOURCES
     vk/PushConstants.cpp
     vk/Queue.cpp
     vk/RenderPass.cpp
+    vk/ResourceHints.cpp
     vk/Sampler.cpp
     vk/Semaphore.cpp
     vk/ShaderModule.cpp

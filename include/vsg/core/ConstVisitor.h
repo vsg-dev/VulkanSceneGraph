@@ -63,6 +63,7 @@ namespace vsg
     class MultisampleState;
     class DepthStencilState;
     class ColorBlendState;
+    class ResourceHints;
 
     // forward declare ui events classes
     class UIEvent;
@@ -198,6 +199,7 @@ namespace vsg
         virtual void apply(const MultisampleState&);
         virtual void apply(const DepthStencilState&);
         virtual void apply(const ColorBlendState&);
+        virtual void apply(const ResourceHints&);
 
         // ui events
         virtual void apply(const UIEvent&);

@@ -26,6 +26,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/Descriptor.h>
 #include <vsg/vk/GraphicsPipeline.h>
+#include <vsg/vk/ResourceHints.h>
 
 #include <set>
 
@@ -40,8 +41,11 @@ namespace vsg
 
         using ConstVisitor::apply;
 
+        bool checkForResourceHints(const Object& object);
+
         void apply(const Object& object) override;
-        void apply(const PagedLOD& plod) override;
+        void apply(const ResourceHints& resourceHints) override;
+        void apply(const Node& node) override;
         void apply(const StateGroup& stategroup) override;
         void apply(const StateCommand& stateCommand) override;
         void apply(const DescriptorSet& descriptorSet) override;

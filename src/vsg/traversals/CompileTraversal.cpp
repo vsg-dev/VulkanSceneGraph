@@ -40,31 +40,48 @@ void CollectDescriptorStats::apply(const Object& object)
     object.traverse(*this);
 }
 
-void CollectDescriptorStats::apply(const PagedLOD& plod)
+bool CollectDescriptorStats::checkForResourceHints(const Object& object)
 {
-#if 1
-    if (plod.getMaxSlot() > maxSlot) maxSlot = plod.getMaxSlot();
-
-    if (!plod.getDescriptorPoolSizes().empty() || plod.getNumDescriptorSets()>9)
+    const Object* rh_object = object.getObject("ResourceHints");
+    const ResourceHints* resourceHints = dynamic_cast<const ResourceHints*>(rh_object);
+    if (resourceHints)
     {
-        externalNumDescriptorSets += plod.getNumDescriptorSets();
+        apply(*resourceHints);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 
-        for(auto& [type, count] : plod.getDescriptorPoolSizes())
+}
+
+void CollectDescriptorStats::apply(const ResourceHints& resourceHints)
+{
+    if (resourceHints.getMaxSlot() > maxSlot) maxSlot = resourceHints.getMaxSlot();
+
+    if (!resourceHints.getDescriptorPoolSizes().empty() || resourceHints.getNumDescriptorSets()>9)
+    {
+        externalNumDescriptorSets += resourceHints.getNumDescriptorSets();
+
+        for(auto& [type, count] : resourceHints.getDescriptorPoolSizes())
         {
             descriptorTypeMap[type] += count;
         }
     }
-    else
-    {
-        plod.traverse(*this);
-    }
-#else
-    plod.traverse(*this);
-#endif
+}
+
+void CollectDescriptorStats::apply(const Node& node)
+{
+    if (checkForResourceHints(node)) return;
+
+    node.traverse(*this);
 }
 
 void CollectDescriptorStats::apply(const StateGroup& stategroup)
 {
+    if (checkForResourceHints(stategroup)) return;
+
     for (auto& command : stategroup.getStateCommands())
     {
         command->accept(*this);

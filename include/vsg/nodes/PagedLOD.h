@@ -85,18 +85,7 @@ namespace vsg
         Children& getChildren() { return _children; }
         const Children& getChildren() const { return _children; }
 
-        void setNumDescriptorSets(uint32_t count) { _numDescriptorSets = count; }
-        uint32_t getNumDescriptorSets() const { return _numDescriptorSets; }
-
-        void setMaxSlot(uint32_t slot) { _maxSlot = slot; }
-        uint32_t getMaxSlot() const { return _maxSlot; }
-
-        void setDescriptorPoolSizes(const DescriptorPoolSizes& dps) { _descriptorPoolSizes = dps; }
-        DescriptorPoolSizes& getDescriptorPoolSizes() { return _descriptorPoolSizes; }
-        const DescriptorPoolSizes& getDescriptorPoolSizes() const { return _descriptorPoolSizes; }
-
         bool highResActive(uint64_t frameCount) const { return (frameCount - frameHighResLastUsed.load())<=1; }
-
 
     protected:
         virtual ~PagedLOD();
@@ -127,12 +116,6 @@ namespace vsg
 
         ref_ptr<Node> pending;
         ref_ptr<Semaphore> semaphore;
-
-    protected:
-
-        uint32_t _maxSlot = 0;
-        uint32_t _numDescriptorSets = 0;
-        DescriptorPoolSizes _descriptorPoolSizes;
     };
     VSG_type_name(vsg::PagedLOD);
 

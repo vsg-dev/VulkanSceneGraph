@@ -35,6 +35,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorSet.h>
 #include <vsg/vk/GraphicsPipeline.h>
+#include <vsg/vk/ResourceHints.h>
 #include <vsg/vk/RenderPass.h>
 
 #include <vsg/ui/ApplicationEvent.h>
@@ -454,6 +455,10 @@ void ConstVisitor::apply(const DepthStencilState& value)
 void ConstVisitor::apply(const ColorBlendState& value)
 {
     apply(static_cast<const GraphicsPipelineState&>(value));
+}
+void ConstVisitor::apply(const ResourceHints& value)
+{
+    apply(static_cast<const Object&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

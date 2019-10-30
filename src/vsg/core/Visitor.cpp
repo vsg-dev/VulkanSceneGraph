@@ -455,6 +455,10 @@ void Visitor::apply(ColorBlendState& value)
 {
     apply(static_cast<GraphicsPipelineState&>(value));
 }
+void Visitor::apply(ResourceHints& value)
+{
+    apply(static_cast<Object&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

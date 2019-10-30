@@ -45,6 +45,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/PipelineLayout.h>
 #include <vsg/vk/Sampler.h>
 #include <vsg/vk/ShaderModule.h>
+#include <vsg/vk/ResourceHints.h>
 
 using namespace vsg;
 
@@ -204,6 +205,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::DescriptorImage);
     VSG_REGISTER_create(vsg::DescriptorBuffer);
     VSG_REGISTER_create(vsg::Sampler);
+    VSG_REGISTER_create(vsg::ResourceHints);
 }
 
 vsg::ref_ptr<vsg::Object> ObjectFactory::create(const std::string& className)
