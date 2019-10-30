@@ -13,8 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/BindIndexBuffer.h>
 #include <vsg/vk/CommandBuffer.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 BindIndexBuffer::BindIndexBuffer(Data* indices) :
@@ -31,10 +29,8 @@ BindIndexBuffer::BindIndexBuffer(const BufferData& bufferData) :
 
 BindIndexBuffer::~BindIndexBuffer()
 {
-    std::cout<<"BindIndexBuffer::~BindIndexBuffer() "<<std::endl;
     if (_bufferData._buffer)
     {
-        std::cout<<"BindIndexBuffer::~BindIndexBuffer() "<<_bufferData._buffer<<", offset "<<_bufferData._offset<<std::endl;
         _bufferData._buffer->release(_bufferData._offset, 0); // TODO, we don't locally have a size allocated
     }
 }

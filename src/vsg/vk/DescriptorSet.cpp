@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#define USE_MUTEX 1
+#define USE_MUTEX 0
 
 DescriptorSet::DescriptorSet()
 {

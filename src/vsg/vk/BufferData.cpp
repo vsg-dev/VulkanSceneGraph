@@ -14,8 +14,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/BufferData.h>
 #include <vsg/vk/CommandBuffer.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -105,7 +103,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
 
     stagingMemory->unmap();
 
-#if 0
+#if 0  // merging of ByfferDataCommands caused problems with later release of individual parts of the buffers copied, so removing this optimization
     CopyAndReleaseBufferDataCommand* previous = context.copyBufferDataCommands.empty() ? nullptr : context.copyBufferDataCommands.back().get();
     if (previous)
     {

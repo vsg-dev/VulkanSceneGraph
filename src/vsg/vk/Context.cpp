@@ -24,10 +24,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
 
-#include <chrono>
 #include <iostream>
 
 #define REPORT_STATS 0
+
+#if REPORT_STATS
+#include <chrono>
+#endif
 
 using namespace vsg;
 
@@ -38,7 +41,7 @@ MemoryBufferPools::MemoryBufferPools(const std::string& in_name, Device* in_devi
 {
 }
 
-VkDeviceSize MemoryBufferPools::computeMemoryTotalAvailble()
+VkDeviceSize MemoryBufferPools::computeMemoryTotalAvailble() const
 {
     VkDeviceSize totalAvailableSize = 0;
     for(auto& deviceMemory : memoryPools)
@@ -48,7 +51,7 @@ VkDeviceSize MemoryBufferPools::computeMemoryTotalAvailble()
     return totalAvailableSize;
 }
 
-VkDeviceSize MemoryBufferPools::computeMemoryTotalReserved()
+VkDeviceSize MemoryBufferPools::computeMemoryTotalReserved() const
 {
     VkDeviceSize totalReservedSize = 0;
     for(auto& deviceMemory : memoryPools)
@@ -58,7 +61,7 @@ VkDeviceSize MemoryBufferPools::computeMemoryTotalReserved()
     return totalReservedSize;
 }
 
-VkDeviceSize MemoryBufferPools::computeBufferTotalAvailble()
+VkDeviceSize MemoryBufferPools::computeBufferTotalAvailble() const
 {
     VkDeviceSize totalAvailableSize = 0;
     for(auto& buffer : bufferPools)
@@ -68,7 +71,7 @@ VkDeviceSize MemoryBufferPools::computeBufferTotalAvailble()
     return totalAvailableSize;
 }
 
-VkDeviceSize MemoryBufferPools::computeBufferTotalReserved()
+VkDeviceSize MemoryBufferPools::computeBufferTotalReserved() const
 {
     VkDeviceSize totalReservedSize = 0;
     for(auto& buffer : bufferPools)

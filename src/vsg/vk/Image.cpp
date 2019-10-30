@@ -12,8 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Image.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 Image::Image(VkImage image, Device* device, AllocationCallbacks* allocator) :

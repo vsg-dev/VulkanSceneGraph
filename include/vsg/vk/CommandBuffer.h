@@ -92,30 +92,5 @@ namespace vsg
     {
         dispatchCommandsToQueue(device, commandPool, nullptr, 0, queue, function);
     }
-#if 0
-    class VSG_DECLSPEC CommandBuffers : public Inherit<Object, CommandBuffers>
-    {
-    public:
-        using Buffers = std::vector<VkCommandBuffer>;
-
-        CommandBuffers(Device* device, CommandPool* commandPool, const Buffers& buffers);
-
-        using Result = vsg::Result<CommandBuffers, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, CommandPool* commandPool, size_t size);
-
-        std::size_t size() const { return _buffers.size(); }
-        const VkCommandBuffer* data() const { return _buffers.data(); }
-
-        const VkCommandBuffer& operator[](size_t i) const { return _buffers[i]; }
-        const VkCommandBuffer& at(size_t i) const { return _buffers[i]; }
-
-    protected:
-        virtual ~CommandBuffers();
-
-        ref_ptr<Device> _device;
-        ref_ptr<CommandPool> _commandPool;
-        Buffers _buffers;
-    };
-#endif
 
 } // namespace vsg
