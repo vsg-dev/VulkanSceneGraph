@@ -44,6 +44,15 @@ void DatabaseQueue::add(ref_ptr<PagedLOD> plod)
     _cv.notify_one();
 }
 
+void DatabaseQueue::add_then_reset(ref_ptr<PagedLOD>& plod)
+{
+    std::scoped_lock lock(_mutex);
+    _queue.emplace_back(plod);
+    _cv.notify_one();
+    plod = nullptr;
+}
+
+
 void DatabaseQueue::add(Nodes& nodes)
 {
     std::scoped_lock lock(_mutex);
@@ -205,7 +214,7 @@ void DatabasePager::start()
                     }
 
                     // move to the merge queue;
-                    compileQueue->add(plod);
+                    compileQueue->add_then_reset(plod);
                 }
                 else
                 {
@@ -444,7 +453,7 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
         }
         else
         {
-            std::cout<<"Attempted DatabasePager::reqquest("<<plod.get()<<") with pending comile but but plod.requestState() = "<<plod->requestStatus.load()<<" is not NoRequest"<<std::endl;
+            //std::cout<<"Attempted DatabasePager::reqquest("<<plod.get()<<") with pending comile but but plod.requestState() = "<<plod->requestStatus.load()<<" is not NoRequest"<<std::endl;
         }
     }
     else
@@ -591,17 +600,13 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
                 auto& element = elements[index];
                 index = element.next;
 
-#if 1
                 if (compare_exchange(element.plod->requestStatus, PagedLOD::NoRequest, PagedLOD::DeleteRequest))
-#else
-                if (plod->requestStatus.exchange(PagedLOD::DeleteRequest))
-#endif
                 {
                     // std::cout<<"    trimming "<<plod<<std::endl;
                     ref_ptr<PagedLOD> plod = element.plod;
                     plod->getChild(0).node = nullptr;
                     pagedLODContainer->remove(plod);
-                    _compileQueue->add(plod);
+                    _compileQueue->add_then_reset(plod);
                 }
             }
         }
@@ -642,11 +647,7 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
         //std::cout<<"DatabasePager::updateSceneGraph() nodes to merge : nodes.size() = "<<nodes.size()<<", "<<numActiveRequests.load()<<std::endl;
         for(auto& plod : nodes)
         {
-#if 0
-            plod->requestStatus.exchange(PagedLOD::Merging);
-#else
             if (compare_exchange(plod->requestStatus, PagedLOD::MergeRequest, PagedLOD::Merging))
-#endif
             {
 #if DO_TIMING
                 if (frameCount.load()>6)
