@@ -76,34 +76,17 @@ AccelerationGeometry::AccelerationGeometry(Allocator* allocator) :
 
 void AccelerationGeometry::compile(Context& context)
 {
-    if (_arrays.empty()) return; // no data set
+    if (!_verts) return; // no data set
     if (_geometry.geometry.triangles.vertexData != VK_NULL_HANDLE) return; // already compiled
 
+    uint32_t vertcount = static_cast<uint32_t>(_verts->valueCount());
+    uint32_t strideSize = _verts->valueSize();
+
     DataList vertexDataList;
-
-    uint32_t vertcount = static_cast<uint32_t>(_arrays[0]->valueCount());
-    uint32_t strideSize = 0;
-    for (auto& a : _arrays)
-    {
-        strideSize += static_cast<uint32_t>(a->valueSize());
-    }
-
-    auto verts = vsg::ubyteArray::create(vertcount * strideSize);
-
-    uint32_t writepos = 0;
-    for (uint32_t i = 0; i < vertcount; i++)
-    {
-        for (uint32_t a = 0; a < _arrays.size(); a++)
-        {
-            memcpy(verts->data() + writepos, (uint8_t*)_arrays[a]->dataPointer() + (i * _arrays[a]->valueSize()), _arrays[a]->valueSize());
-            writepos += static_cast<uint32_t>(_arrays[a]->valueSize());
-        }
-    }
-
-    vertexDataList.emplace_back(verts);
+    vertexDataList.push_back(_verts);
 
     DataList indexDataList;
-    indexDataList.emplace_back(_indices);
+    indexDataList.push_back(_indices);
 
 #if TRANSFER_BUFFERS
     auto vertexBufferData = vsg::createBufferAndTransferData(context, vertexDataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);

@@ -30,7 +30,7 @@ namespace vsg
 
         operator VkGeometryNV() const { return _geometry; }
 
-        DataList _arrays;
+        ref_ptr<Data> _verts;
         ref_ptr<Data> _indices;
 
         // compiled data
