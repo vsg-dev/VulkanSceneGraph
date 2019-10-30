@@ -12,16 +12,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/ref_ptr.h>
-
 #include <vsg/nodes/Node.h>
 
 #include <vsg/io/FileSystem.h>
 
-#include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Semaphore.h>
 
-#include <algorithm>
 #include <array>
 
 namespace vsg
