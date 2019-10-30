@@ -20,7 +20,7 @@ using namespace vsg;
 BindVertexBuffers::~BindVertexBuffers()
 {
     size_t numBufferEntries = std::min(_buffers.size(), _offsets.size());
-    for(size_t i = 0; i<numBufferEntries; ++i)
+    for (size_t i = 0; i < numBufferEntries; ++i)
     {
         if (_buffers[i])
         {

@@ -238,18 +238,18 @@ bool Viewer::submitNextFrame()
             window->frame(window->nextImageIndex()).checkCommandsCompletedFence = true;
 
             // copy semaphore's assigned to database pagers
-            for(auto& stage : window->stages())
+            for (auto& stage : window->stages())
             {
                 GraphicsStage* gs = dynamic_cast<GraphicsStage*>(stage.get());
                 DatabasePager* db = gs ? gs->databasePager.get() : nullptr;
                 if (db)
                 {
                     //std::cout<<"Viewer::submitNextFrame()"<<std::endl;
-                    for(auto& semaphore : db->getSemaphores())
+                    for (auto& semaphore : db->getSemaphores())
                     {
-                        if (semaphore->numDependentSubmissions().load()>1)
+                        if (semaphore->numDependentSubmissions().load() > 1)
                         {
-                            std::cout<<"    Warning: Viewer::submitNextFrame() waitSemaphore "<<*(semaphore->data())<<" "<<semaphore->numDependentSubmissions().load()<<std::endl;
+                            std::cout << "    Warning: Viewer::submitNextFrame() waitSemaphore " << *(semaphore->data()) << " " << semaphore->numDependentSubmissions().load() << std::endl;
                         }
                         else
                         {
@@ -334,7 +334,6 @@ bool Viewer::submitNextFrame()
 
     return true;
 }
-
 
 void Viewer::compile(BufferPreferences bufferPreferences)
 {

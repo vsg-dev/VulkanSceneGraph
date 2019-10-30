@@ -22,9 +22,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/BufferData.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/Context.h>
+#include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Fence.h>
-#include <vsg/vk/Descriptor.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/ResourceHints.h>
 
@@ -68,7 +68,6 @@ namespace vsg
         explicit CompileTraversal(Device* in_device, BufferPreferences bufferPreferences = {});
         CompileTraversal(const CompileTraversal& ct);
         ~CompileTraversal();
-
 
         void apply(Object& object) override;
         void apply(Command& command) override;

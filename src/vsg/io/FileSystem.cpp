@@ -81,7 +81,7 @@ bool vsg::fileExists(const Path& path)
 
 Path vsg::filePath(const Path& path)
 {
-   std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
+    std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
     if (slash != std::string::npos)
     {
         return path.substr(0, slash);
@@ -91,7 +91,6 @@ Path vsg::filePath(const Path& path)
         return Path();
     }
 }
-
 
 Path vsg::fileExtension(const Path& path)
 {
@@ -125,9 +124,12 @@ Path vsg::removeExtension(const Path& path)
 {
     std::string::size_type dot = path.find_last_of('.');
     std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
-    if (dot == std::string::npos || (slash != std::string::npos && dot < slash)) return path;
-    else if (dot > 1) return path.substr(0, dot);
-    else return Path();
+    if (dot == std::string::npos || (slash != std::string::npos && dot < slash))
+        return path;
+    else if (dot > 1)
+        return path.substr(0, dot);
+    else
+        return Path();
 }
 
 Path vsg::concatPaths(const Path& left, const Path& right)

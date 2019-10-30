@@ -103,7 +103,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
 
     stagingMemory->unmap();
 
-#if 0  // merging of ByfferDataCommands caused problems with later release of individual parts of the buffers copied, so removing this optimization
+#if 0 // merging of ByfferDataCommands caused problems with later release of individual parts of the buffers copied, so removing this optimization
     CopyAndReleaseBufferDataCommand* previous = context.copyBufferDataCommands.empty() ? nullptr : context.copyBufferDataCommands.back().get();
     if (previous)
     {

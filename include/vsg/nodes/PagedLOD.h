@@ -58,7 +58,10 @@ namespace vsg
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
-            for (auto& child : node._children) { if (child.node) child.node->accept(visitor); }
+            for (auto& child : node._children)
+            {
+                if (child.node) child.node->accept(visitor);
+            }
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
@@ -81,7 +84,7 @@ namespace vsg
         Children& getChildren() { return _children; }
         const Children& getChildren() const { return _children; }
 
-        bool highResActive(uint64_t frameCount) const { return (frameCount - frameHighResLastUsed.load())<=1; }
+        bool highResActive(uint64_t frameCount) const { return (frameCount - frameHighResLastUsed.load()) <= 1; }
 
     protected:
         virtual ~PagedLOD();
@@ -90,13 +93,12 @@ namespace vsg
         Children _children;
 
     public:
-
         mutable std::atomic_uint64_t frameHighResLastUsed = 0;
         mutable std::atomic_uint requestCount = 0;
 
         enum RequestStatus : unsigned int
         {
-            NoRequest  = 0,
+            NoRequest = 0,
             ReadRequest = 1,
             Reading = 2,
             CompileRequest = 3,
@@ -154,8 +156,6 @@ namespace vsg
         bool check(List& list);
 
         void print(std::ostream& out);
-
     };
-
 
 } // namespace vsg

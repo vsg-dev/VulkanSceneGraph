@@ -41,13 +41,12 @@ namespace vsg
         VkResult waitIdle();
 
     protected:
-
         Queue(VkQueue queue, uint32_t queueFamilyIndex, uint32_t queueIndex);
         virtual ~Queue();
 
         Queue() = delete;
         Queue(const Queue&) = delete;
-        Queue& operator = (const Queue&) = delete;
+        Queue& operator=(const Queue&) = delete;
 
         // allow only Device to create Queue to ensure that queues are shared
         friend class Device;

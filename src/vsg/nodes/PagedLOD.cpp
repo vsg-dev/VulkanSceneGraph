@@ -29,13 +29,13 @@ static std::atomic_uint s_numPagedLODS = 0;
 PagedLOD::PagedLOD(Allocator* allocator) :
     Inherit(allocator)
 {
-//    ++s_numPagedLODS;
+    //    ++s_numPagedLODS;
 }
 
 PagedLOD::~PagedLOD()
 {
-//    --s_numPagedLODS;
-//    std::cout<<"s_numPagedLODS = "<<s_numPagedLODS<<std::endl;
+    //    --s_numPagedLODS;
+    //    std::cout<<"s_numPagedLODS = "<<s_numPagedLODS<<std::endl;
 }
 
 void PagedLOD::read(Input& input)
@@ -56,7 +56,6 @@ void PagedLOD::read(Input& input)
             filename = concatPaths(path, filename);
         }
     }
-
 
     input.read("MinimumScreenHeightRatio", _children[1].minimumScreenHeightRatio);
     _children[1].node = input.readObject<Node>("Child");
@@ -92,8 +91,8 @@ PagedLODContainer::PagedLODContainer(uint32_t maxNumPagedLOD) :
 void PagedLODContainer::resize(uint32_t new_size)
 {
     // note first entry in elements is the null entry, so have to add/take away 1 when accounting for it.
-    uint32_t original_size = static_cast<uint32_t>(elements.size())-1;
-    elements.resize(new_size+1);
+    uint32_t original_size = static_cast<uint32_t>(elements.size()) - 1;
+    elements.resize(new_size + 1);
 
     uint32_t i = 1 + original_size;
     uint32_t previous = availableList.tail;
@@ -108,11 +107,11 @@ void PagedLODContainer::resize(uint32_t new_size)
         elements[availableList.tail].next = i;
     }
 
-    for(; i<new_size; ++i)
+    for (; i < new_size; ++i)
     {
         auto& element = elements[i];
         element.previous = previous;
-        element.next = i+1;
+        element.next = i + 1;
         element.list = &availableList;
         previous = i;
     }
@@ -124,17 +123,17 @@ void PagedLODContainer::resize(uint32_t new_size)
 
     availableList.tail = i;
 
-    availableList.count += (new_size-original_size);
+    availableList.count += (new_size - original_size);
 
 #if PRINT_CONTAINER
-    std::cout<<"PagedLODContainer::resize("<<new_size<<")"<<std::endl;
+    std::cout << "PagedLODContainer::resize(" << new_size << ")" << std::endl;
     print(std::cout);
 #endif
 }
 
 void PagedLODContainer::resize()
 {
-    uint32_t original_size = static_cast<uint32_t>(elements.size()-1);
+    uint32_t original_size = static_cast<uint32_t>(elements.size() - 1);
     uint32_t new_size = original_size * 2;
     resize(new_size);
 }
@@ -142,27 +141,29 @@ void PagedLODContainer::resize()
 void PagedLODContainer::print(std::ostream& fout)
 {
     uint32_t total_size = static_cast<uint32_t>(elements.size());
-    fout<<"    PagedLODContainer::print() elements.size() = "<<total_size<<std::endl;
-    fout<<"        availableList, "<<&availableList<<", head  = "<<availableList.head<<", tail = "<<availableList.tail<<" count = "<<availableList.count<<std::endl;
-    fout<<"        actoveList, "<<&activeList<<", head  = "<<activeList.head<<", tail = "<<activeList.tail<<" count = "<<activeList.count<<std::endl;
-    fout<<"        inactiveList = "<<&inactiveList<<", head  = "<<inactiveList.head<<", tail = "<<inactiveList.tail<<" count = "<<inactiveList.count<<std::endl;
+    fout << "    PagedLODContainer::print() elements.size() = " << total_size << std::endl;
+    fout << "        availableList, " << &availableList << ", head  = " << availableList.head << ", tail = " << availableList.tail << " count = " << availableList.count << std::endl;
+    fout << "        actoveList, " << &activeList << ", head  = " << activeList.head << ", tail = " << activeList.tail << " count = " << activeList.count << std::endl;
+    fout << "        inactiveList = " << &inactiveList << ", head  = " << inactiveList.head << ", tail = " << inactiveList.tail << " count = " << inactiveList.count << std::endl;
 
-    for(unsigned i=0; i < total_size; ++i)
+    for (unsigned i = 0; i < total_size; ++i)
     {
         auto& element = elements[i];
-        fout<<"         element["<<i<<"] plod = "<<element.plod.get()<<", previous ="<<element.previous<<", next = "<<element.next<<", list = ";
-        if (element.list) fout<<element.list->name;
-        else fout<<" unassigned";
-        fout<<std::endl;
+        fout << "         element[" << i << "] plod = " << element.plod.get() << ", previous =" << element.previous << ", next = " << element.next << ", list = ";
+        if (element.list)
+            fout << element.list->name;
+        else
+            fout << " unassigned";
+        fout << std::endl;
     }
 }
 
 void PagedLODContainer::_move(const PagedLOD* plod, List* targetList)
 {
-    if (plod->index==0)
+    if (plod->index == 0)
     {
 #if PRINT_CONTAINER
-        std::cout<<"plod not yet assigned, assigning to "<<targetList->name<<std::endl;
+        std::cout << "plod not yet assigned, assigning to " << targetList->name << std::endl;
 #endif
         // resize if there are no available empty elements.
         if (availableList.head == 0)
@@ -222,13 +223,13 @@ void PagedLODContainer::_move(const PagedLOD* plod, List* targetList)
     if (previousList == targetList)
     {
 #if PRINT_CONTAINER
-        std::cout<<"PagedLODContainer::move("<<plod<<") index = "<<plod->index<<", already in "<<targetList->name<<std::endl;
+        std::cout << "PagedLODContainer::move(" << plod << ") index = " << plod->index << ", already in " << targetList->name << std::endl;
 #endif
         return;
     }
 
 #if PRINT_CONTAINER
-    std::cout<<"PagedLODContainer::move("<<plod<<") index = "<<plod->index<<", moving from "<<previousList->name<<" to "<<targetList->name<<std::endl;
+    std::cout << "PagedLODContainer::move(" << plod << ") index = " << plod->index << ", moving from " << previousList->name << " to " << targetList->name << std::endl;
 #endif
 
     // remove from inactiveList
@@ -240,7 +241,7 @@ void PagedLODContainer::_move(const PagedLOD* plod, List* targetList)
     if (previousList->head == plod->index)
     {
 #if PRINT_CONTAINER
-        std::cout<<"   removing head from "<<previousList->name<<std::endl;
+        std::cout << "   removing head from " << previousList->name << std::endl;
 #endif
         previousList->head = element.next;
     }
@@ -248,7 +249,7 @@ void PagedLODContainer::_move(const PagedLOD* plod, List* targetList)
     if (previousList->tail == plod->index)
     {
 #if PRINT_CONTAINER
-        std::cout<<"   removing tail from "<<previousList->name<<std::endl;
+        std::cout << "   removing tail from " << previousList->name << std::endl;
 #endif
         previousList->tail = element.previous;
     }
@@ -261,7 +262,7 @@ void PagedLODContainer::_move(const PagedLOD* plod, List* targetList)
     if (targetList->head == 0)
     {
 #if PRINT_CONTAINER
-        std::cout<<"   setting "<<targetList->name<<".head to"<<plod->index<<std::endl;
+        std::cout << "   setting " << targetList->name << ".head to" << plod->index << std::endl;
 #endif
         targetList->head = plod->index;
     }
@@ -269,7 +270,7 @@ void PagedLODContainer::_move(const PagedLOD* plod, List* targetList)
     if (targetList->tail > 0)
     {
 #if PRINT_CONTAINER
-        std::cout<<"   moving "<<targetList->name<<".tail to "<<plod->index<<std::endl;
+        std::cout << "   moving " << targetList->name << ".tail to " << plod->index << std::endl;
 #endif
         elements[targetList->tail].next = plod->index;
     }
@@ -282,7 +283,7 @@ void PagedLODContainer::_move(const PagedLOD* plod, List* targetList)
 void PagedLODContainer::active(const PagedLOD* plod)
 {
 #if PRINT_CONTAINER
-    std::cout<<"Moving to activeList"<<plod<<", "<<plod->index<<std::endl;
+    std::cout << "Moving to activeList" << plod << ", " << plod->index << std::endl;
 #endif
     _move(plod, &activeList);
 
@@ -294,11 +295,10 @@ void PagedLODContainer::active(const PagedLOD* plod)
 #endif
 }
 
-
 void PagedLODContainer::inactive(const PagedLOD* plod)
 {
 #if PRINT_CONTAINER
-    std::cout<<"Moving to inactiveList"<<plod<<", "<<plod->index<<std::endl;
+    std::cout << "Moving to inactiveList" << plod << ", " << plod->index << std::endl;
 #endif
     _move(plod, &inactiveList);
 
@@ -313,12 +313,12 @@ void PagedLODContainer::inactive(const PagedLOD* plod)
 void PagedLODContainer::remove(PagedLOD* plod)
 {
 #if PRINT_CONTAINER
-    std::cout<<"Remove and make available to availableList"<<plod<<", "<<plod->index<<std::endl;
+    std::cout << "Remove and make available to availableList" << plod << ", " << plod->index << std::endl;
 #endif
 
-    if (plod->index==0)
+    if (plod->index == 0)
     {
-        std::cout<<"   plod not assigned so ignore"<<std::endl;
+        std::cout << "   plod not assigned so ignore" << std::endl;
         check();
         return;
     }
@@ -340,43 +340,43 @@ void PagedLODContainer::remove(PagedLOD* plod)
 
 bool PagedLODContainer::check(List& list)
 {
-    if (list.head==0)
+    if (list.head == 0)
     {
         // we have an empty list
-        if (list.tail==0)
+        if (list.tail == 0)
         {
-            if (list.count==0) return true;
-            std::cout<<"Warning: list "<<list.name<<" has a head==0 and tail==0 but lenght is "<<list.count<<std::endl;
+            if (list.count == 0) return true;
+            std::cout << "Warning: list " << list.name << " has a head==0 and tail==0 but lenght is " << list.count << std::endl;
             return false;
         }
 
-        std::cout<<"Warning: list "<<list.name<<" has a head==0, but tail is non zero"<<std::endl;
+        std::cout << "Warning: list " << list.name << " has a head==0, but tail is non zero" << std::endl;
         return false;
     }
 
     auto& head_element = elements[list.head];
-    if (head_element.previous!=0)
+    if (head_element.previous != 0)
     {
-        std::cout<<"Warning: list "<<list.name<<" has a head.previous that is non zero "<<head_element.previous<<std::endl;
+        std::cout << "Warning: list " << list.name << " has a head.previous that is non zero " << head_element.previous << std::endl;
         return false;
     }
 
     auto& tail_element = elements[list.tail];
-    if (tail_element.next!=0)
+    if (tail_element.next != 0)
     {
-        std::cout<<"Warning: list "<<list.name<<" has a tail.next that is non zero "<<tail_element.next<<std::endl;
+        std::cout << "Warning: list " << list.name << " has a tail.next that is non zero " << tail_element.next << std::endl;
         return false;
     }
 
     uint32_t count = 0;
-    for(uint32_t i = list.head; i>0 && count<elements.size();)
+    for (uint32_t i = list.head; i > 0 && count < elements.size();)
     {
         auto& element = elements[i];
-        if (element.previous==0)
+        if (element.previous == 0)
         {
             if (i != list.head)
             {
-                std::cout<<"Warning: list "<<list.name<<" non head element "<<i<<" has a previous==0"<<std::endl;
+                std::cout << "Warning: list " << list.name << " non head element " << i << " has a previous==0" << std::endl;
                 return false;
             }
         }
@@ -385,16 +385,16 @@ bool PagedLODContainer::check(List& list)
             auto& previous_element = elements[element.previous];
             if (previous_element.next != i)
             {
-                std::cout<<"Warning: list "<<list.name<<" element = "<<i<<", element.previous = "<<element.previous<<", does not match to previous.next = "<<previous_element.next<<std::endl;
+                std::cout << "Warning: list " << list.name << " element = " << i << ", element.previous = " << element.previous << ", does not match to previous.next = " << previous_element.next << std::endl;
                 return false;
             }
         }
 
-        if (element.next==0)
+        if (element.next == 0)
         {
             if (i != list.tail)
             {
-                std::cout<<"Warning: list "<<list.name<<" non tail element "<<i<<" has a next==0"<<std::endl;
+                std::cout << "Warning: list " << list.name << " non tail element " << i << " has a next==0" << std::endl;
                 return false;
             }
         }
@@ -403,7 +403,7 @@ bool PagedLODContainer::check(List& list)
             auto& next_element = elements[element.next];
             if (next_element.previous != i)
             {
-                std::cout<<"Warning: list "<<list.name<<" element = "<<i<<", element.next = "<<element.next<<", does not match to next.previous = "<<next_element.previous<<std::endl;
+                std::cout << "Warning: list " << list.name << " element = " << i << ", element.next = " << element.next << ", does not match to next.previous = " << next_element.previous << std::endl;
                 return false;
             }
         }
@@ -424,4 +424,3 @@ bool PagedLODContainer::check()
     bool result3 = check(inactiveList);
     return result1 && result2 && result3;
 }
-

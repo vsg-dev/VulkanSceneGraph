@@ -24,8 +24,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Fence.h>
-#include <vsg/vk/Semaphore.h>
 #include <vsg/vk/GraphicsPipeline.h>
+#include <vsg/vk/Semaphore.h>
 
 #include <vsg/vk/BufferData.h>
 #include <vsg/vk/ImageData.h>
@@ -144,7 +144,6 @@ namespace vsg
 
         ref_ptr<MemoryBufferPools> deviceMemoryBufferPools;
         ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;
-
     };
 
 } // namespace vsg

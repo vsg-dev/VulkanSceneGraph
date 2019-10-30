@@ -89,7 +89,7 @@ Device::Result Device::create(PhysicalDevice* physicalDevice, Names& layers, Nam
 }
 ref_ptr<Queue> Device::getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
 {
-    for(auto& queue : _queues)
+    for (auto& queue : _queues)
     {
         if (queue->queueFamilyIndex() == queueFamilyIndex && queue->queueIndex() == queueIndex) return queue;
     }

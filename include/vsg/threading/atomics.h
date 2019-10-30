@@ -17,33 +17,32 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-template<typename T>
-void exchange_if_lower(std::atomic<T>& reference, T t)
-{
-    T original_value = reference.load();
-    while(t < original_value && !reference.compare_exchange_weak(original_value, t)) {}
-};
+    template<typename T>
+    void exchange_if_lower(std::atomic<T>& reference, T t)
+    {
+        T original_value = reference.load();
+        while (t < original_value && !reference.compare_exchange_weak(original_value, t)) {}
+    };
 
-template<typename T>
-void exchange_if_greater(std::atomic<T>& reference, T t)
-{
-    T original_value = reference.load();
-    while(t > original_value && !reference.compare_exchange_weak(original_value, t)) {}
-};
+    template<typename T>
+    void exchange_if_greater(std::atomic<T>& reference, T t)
+    {
+        T original_value = reference.load();
+        while (t > original_value && !reference.compare_exchange_weak(original_value, t)) {}
+    };
 
-template<typename T>
-void exchange_multiply(std::atomic<T>& reference, T t)
-{
-    T original_value = reference.load();
-    while(!reference.compare_exchange_weak(original_value, original_value*t)) {}
-};
+    template<typename T>
+    void exchange_multiply(std::atomic<T>& reference, T t)
+    {
+        T original_value = reference.load();
+        while (!reference.compare_exchange_weak(original_value, original_value * t)) {}
+    };
 
-template<typename T>
-bool compare_exchange(std::atomic<T>& reference, T from, T to)
-{
-    T original_value = from;
-    return reference.compare_exchange_strong(original_value, to);
-};
-
+    template<typename T>
+    bool compare_exchange(std::atomic<T>& reference, T from, T to)
+    {
+        T original_value = from;
+        return reference.compare_exchange_strong(original_value, to);
+    };
 
 } // namespace vsg

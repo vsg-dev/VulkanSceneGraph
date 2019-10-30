@@ -14,8 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/GraphicsPipeline.h>
 
-#include <vsg/viewer/ViewMatrix.h>
 #include <vsg/viewer/ProjectionMatrix.h>
+#include <vsg/viewer/ViewMatrix.h>
 
 namespace vsg
 {

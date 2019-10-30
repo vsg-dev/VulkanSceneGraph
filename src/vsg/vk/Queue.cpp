@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Queue.h>
 #include <vsg/vk/Fence.h>
+#include <vsg/vk/Queue.h>
 
 using namespace vsg;
 
@@ -29,13 +29,13 @@ Queue::~Queue()
 VkResult Queue::submit(const std::vector<VkSubmitInfo>& submitInfos, Fence* fence)
 {
     std::lock_guard<std::mutex> guard(_mutex);
-    return vkQueueSubmit(_vkQueue, submitInfos.size(), submitInfos.data(), (fence==nullptr) ? VK_NULL_HANDLE : fence->fence());
+    return vkQueueSubmit(_vkQueue, submitInfos.size(), submitInfos.data(), (fence == nullptr) ? VK_NULL_HANDLE : fence->fence());
 }
 
 VkResult Queue::submit(const VkSubmitInfo& submitInfo, Fence* fence)
 {
     std::lock_guard<std::mutex> guard(_mutex);
-    return vkQueueSubmit(_vkQueue, 1, &submitInfo, (fence==nullptr) ? VK_NULL_HANDLE : fence->fence());
+    return vkQueueSubmit(_vkQueue, 1, &submitInfo, (fence == nullptr) ? VK_NULL_HANDLE : fence->fence());
 }
 
 VkResult Queue::present(const VkPresentInfoKHR& info)

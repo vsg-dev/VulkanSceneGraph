@@ -29,7 +29,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    struct CulledPagedLODs: public Inherit<Object, CulledPagedLODs>
+    struct CulledPagedLODs : public Inherit<Object, CulledPagedLODs>
     {
         CulledPagedLODs()
         {
@@ -96,7 +96,6 @@ namespace vsg
         virtual void request(ref_ptr<PagedLOD> plod);
 
         virtual void updateSceneGraph(FrameStamp* frameStamp);
-
 
         using Semaphores = std::set<ref_ptr<Semaphore>>;
         Semaphores& getSemaphores() { return _semaphores; }

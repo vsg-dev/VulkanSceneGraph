@@ -39,7 +39,6 @@ namespace vsg
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
-
     protected:
         virtual ~Fence();
 

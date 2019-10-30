@@ -29,7 +29,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #define REPORT_STATS 0
 
 #if REPORT_STATS
-#include <chrono>
+#    include <chrono>
 #endif
 
 using namespace vsg;
@@ -44,7 +44,7 @@ MemoryBufferPools::MemoryBufferPools(const std::string& in_name, Device* in_devi
 VkDeviceSize MemoryBufferPools::computeMemoryTotalAvailble() const
 {
     VkDeviceSize totalAvailableSize = 0;
-    for(auto& deviceMemory : memoryPools)
+    for (auto& deviceMemory : memoryPools)
     {
         totalAvailableSize += deviceMemory->memorySlots().totalAvailableSize();
     }
@@ -54,7 +54,7 @@ VkDeviceSize MemoryBufferPools::computeMemoryTotalAvailble() const
 VkDeviceSize MemoryBufferPools::computeMemoryTotalReserved() const
 {
     VkDeviceSize totalReservedSize = 0;
-    for(auto& deviceMemory : memoryPools)
+    for (auto& deviceMemory : memoryPools)
     {
         totalReservedSize += deviceMemory->memorySlots().totalReservedSize();
     }
@@ -64,7 +64,7 @@ VkDeviceSize MemoryBufferPools::computeMemoryTotalReserved() const
 VkDeviceSize MemoryBufferPools::computeBufferTotalAvailble() const
 {
     VkDeviceSize totalAvailableSize = 0;
-    for(auto& buffer : bufferPools)
+    for (auto& buffer : bufferPools)
     {
         totalAvailableSize += buffer->memorySlots().totalAvailableSize();
     }
@@ -74,7 +74,7 @@ VkDeviceSize MemoryBufferPools::computeBufferTotalAvailble() const
 VkDeviceSize MemoryBufferPools::computeBufferTotalReserved() const
 {
     VkDeviceSize totalReservedSize = 0;
-    for(auto& buffer : bufferPools)
+    for (auto& buffer : bufferPools)
     {
         totalReservedSize += buffer->memorySlots().totalReservedSize();
     }
@@ -96,7 +96,7 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
                 bufferData._range = totalSize;
 
 #if REPORT_STATS
-                std::cout<<name<<" : MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") _offset = "<<bufferData._offset<<std::endl;
+                std::cout << name << " : MemoryBufferPools::reserveBufferData(" << totalSize << ", " << alignment << ", " << bufferUsageFlags << ") _offset = " << bufferData._offset << std::endl;
 #endif
                 return bufferData;
             }
@@ -104,14 +104,14 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
     }
 
 #if REPORT_STATS
-    std::cout<<name<<" : Failed to find space in existing buffers with  MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") bufferPools.size() = "<<bufferPools.size()<<" looking to allocated new Buffer."<<std::endl;
+    std::cout << name << " : Failed to find space in existing buffers with  MemoryBufferPools::reserveBufferData(" << totalSize << ", " << alignment << ", " << bufferUsageFlags << ") bufferPools.size() = " << bufferPools.size() << " looking to allocated new Buffer." << std::endl;
 #endif
 
 #if REPORT_STATS
     VkDeviceSize maxAvailableSize = 0;
     VkDeviceSize totalAvailableSize = 0;
     VkDeviceSize totalReservedSize = 0;
-    for(auto& buffer : bufferPools)
+    for (auto& buffer : bufferPools)
     {
         if (buffer->maximumAvailableSpace() > maxAvailableSize)
         {
@@ -120,9 +120,8 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
         totalAvailableSize += buffer->memorySlots().totalAvailableSize();
         totalReservedSize += buffer->memorySlots().totalReservedSize();
     }
-    std::cout<<name<<" : maxAvailableSize = " <<maxAvailableSize<<", totalAvailableSize = "<<totalAvailableSize<<", totalReservedSize = "<<totalReservedSize<<", totalSize = "<<totalSize<<", alignment = "<<alignment<<std::endl;
+    std::cout << name << " : maxAvailableSize = " << maxAvailableSize << ", totalAvailableSize = " << totalAvailableSize << ", totalReservedSize = " << totalReservedSize << ", totalSize = " << totalSize << ", alignment = " << alignment << std::endl;
 #endif
-
 
     VkDeviceSize deviceSize = totalSize;
 
@@ -555,7 +554,6 @@ Context::~Context()
     waitForCompletion();
 }
 
-
 ref_ptr<CommandBuffer> Context::getOrCreateCommandBuffer()
 {
     if (!commandBuffer)
@@ -571,7 +569,6 @@ void Context::dispatch()
     if (commands.empty() && copyBufferDataCommands.empty() && copyImageDataCommands.empty()) return;
 
     //auto before_compile = std::chrono::steady_clock::now();
-
 
     if (!fence)
     {
@@ -641,14 +638,13 @@ void Context::waitForCompletion()
         VkResult result = fence->wait(timeout);
         if (result != VK_SUCCESS)
         {
-            std::cout << "Context::waitForCompletion() "<<this<<" Fence failed to signal : " << result << std::endl;
+            std::cout << "Context::waitForCompletion() " << this << " Fence failed to signal : " << result << std::endl;
             while ((result = fence->wait(timeout)) != VK_SUCCESS)
             {
-                std::cout << "Context::waitForCompletion() "<<this<<" Fence failed again, trying another wait : " << result << std::endl;
+                std::cout << "Context::waitForCompletion() " << this << " Fence failed again, trying another wait : " << result << std::endl;
             }
-            std::cout << "Context::waitForCompletion()  "<<this<<" Finally we have success. " << result << std::endl;
+            std::cout << "Context::waitForCompletion()  " << this << " Finally we have success. " << result << std::endl;
         }
-
     }
 #else
     {
@@ -657,7 +653,7 @@ void Context::waitForCompletion()
 #endif
 
 #if REPORT_STATS
-    std::cout<<"Context::waitForCompletion() copyBufferDataCommands = "<<copyBufferDataCommands.size()<<", copyImageDataCommands = "<<copyImageDataCommands.size()<<", commands = "<<commands.size()<<std::endl;
+    std::cout << "Context::waitForCompletion() copyBufferDataCommands = " << copyBufferDataCommands.size() << ", copyImageDataCommands = " << copyImageDataCommands.size() << ", commands = " << commands.size() << std::endl;
 #endif
 
     copyBufferDataCommands.clear();

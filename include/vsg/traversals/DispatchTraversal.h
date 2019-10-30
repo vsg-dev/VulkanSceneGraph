@@ -69,6 +69,5 @@ namespace vsg
 
     protected:
         ref_ptr<State> _state;
-
     };
 } // namespace vsg

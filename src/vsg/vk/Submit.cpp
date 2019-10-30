@@ -30,6 +30,4 @@ void Submit::submit(Queue& queue)
     submitInfo.pCommandBuffers = _commandBuffers->data();
 
     queue.submit(queue);
-
-
 }

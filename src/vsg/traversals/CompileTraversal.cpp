@@ -16,9 +16,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
+#include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
-#include <vsg/nodes/PagedLOD.h>
 
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
@@ -29,7 +29,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <iostream>
 
 using namespace vsg;
-
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -53,18 +52,17 @@ bool CollectDescriptorStats::checkForResourceHints(const Object& object)
     {
         return false;
     }
-
 }
 
 void CollectDescriptorStats::apply(const ResourceHints& resourceHints)
 {
     if (resourceHints.getMaxSlot() > maxSlot) maxSlot = resourceHints.getMaxSlot();
 
-    if (!resourceHints.getDescriptorPoolSizes().empty() || resourceHints.getNumDescriptorSets()>9)
+    if (!resourceHints.getDescriptorPoolSizes().empty() || resourceHints.getNumDescriptorSets() > 9)
     {
         externalNumDescriptorSets += resourceHints.getNumDescriptorSets();
 
-        for(auto& [type, count] : resourceHints.getDescriptorPoolSizes())
+        for (auto& [type, count] : resourceHints.getDescriptorPoolSizes())
         {
             descriptorTypeMap[type] += count;
         }

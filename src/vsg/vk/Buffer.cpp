@@ -31,7 +31,7 @@ Buffer::Buffer(VkBuffer buffer, VkDeviceSize size, VkBufferUsageFlags usage, VkS
 Buffer::~Buffer()
 {
 #if REPORT_STATS
-    std::cout<<"start of Buffer::~Buffer() "<<this<<std::endl;
+    std::cout << "start of Buffer::~Buffer() " << this << std::endl;
 #endif
 
     if (_buffer)
@@ -44,7 +44,7 @@ Buffer::~Buffer()
         _deviceMemory->release(_memoryOffset, _memorySlots.totalMemorySize());
     }
 #if REPORT_STATS
-    std::cout<<"end fo Buffer::~Buffer() "<<this<<std::endl;
+    std::cout << "end fo Buffer::~Buffer() " << this << std::endl;
 #endif
 }
 

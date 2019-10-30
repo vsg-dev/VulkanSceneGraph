@@ -18,17 +18,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
-#include <vsg/nodes/PagedLOD.h>
 
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
 
-#include <vsg/io/Options.h>
 #include <vsg/io/DatabasePager.h>
+#include <vsg/io/Options.h>
 
 #include <vsg/ui/ApplicationEvent.h>
 
@@ -121,7 +121,7 @@ void DispatchTraversal::apply(const PagedLOD& plod)
     // check if lod bounding sphere is in view frustum.
     if (!_state->intersect(sphere))
     {
-        if ((frameCount-plod.frameHighResLastUsed)>1 && culledPagedLODs)
+        if ((frameCount - plod.frameHighResLastUsed) > 1 && culledPagedLODs)
         {
             culledPagedLODs->highresCulled.emplace_back(&plod);
         }
@@ -144,7 +144,7 @@ void DispatchTraversal::apply(const PagedLOD& plod)
         if (child_visible)
         {
             auto previousHighResUsed = plod.frameHighResLastUsed.exchange(frameCount);
-            if (culledPagedLODs && ((frameCount-previousHighResUsed) > 1))
+            if (culledPagedLODs && ((frameCount - previousHighResUsed) > 1))
             {
                 culledPagedLODs->newHighresRequired.emplace_back(&plod);
             }
@@ -161,7 +161,7 @@ void DispatchTraversal::apply(const PagedLOD& plod)
                 exchange_if_greater(plod.priority, priority);
 
                 auto previousRequestCount = plod.requestCount.fetch_add(1);
-                if (previousRequestCount==0)
+                if (previousRequestCount == 0)
                 {
                     // we are first request so tell the databasePager about it
                     databasePager->request(ref_ptr<PagedLOD>(const_cast<PagedLOD*>(&plod)));
@@ -174,7 +174,7 @@ void DispatchTraversal::apply(const PagedLOD& plod)
         }
         else
         {
-            if (culledPagedLODs && ((frameCount-plod.frameHighResLastUsed)<=1))
+            if (culledPagedLODs && ((frameCount - plod.frameHighResLastUsed) <= 1))
             {
                 culledPagedLODs->highresCulled.emplace_back(&plod);
             }

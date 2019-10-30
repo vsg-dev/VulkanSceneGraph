@@ -40,7 +40,7 @@ VertexIndexDraw::VertexIndexDraw(Allocator* allocator) :
 
 VertexIndexDraw::~VertexIndexDraw()
 {
-    for(size_t i=0; i<_buffers.size(); ++i)
+    for (size_t i = 0; i < _buffers.size(); ++i)
     {
         if (_buffers[i])
         {

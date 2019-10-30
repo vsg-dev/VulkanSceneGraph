@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/viewer/Window.h>
 #include <vsg/ui/ApplicationEvent.h>
+#include <vsg/viewer/Window.h>
 
 #include <array>
 #include <chrono>
@@ -215,14 +215,14 @@ void Window::populateCommandBuffers(uint32_t index, ref_ptr<vsg::FrameStamp> fra
         {
             uint64_t timeout = 10000000000;
             VkResult result = VK_SUCCESS;
-            while ((result=frame.commandsCompletedFence->wait(timeout)) == VK_TIMEOUT)
+            while ((result = frame.commandsCompletedFence->wait(timeout)) == VK_TIMEOUT)
             {
-                std::cout << "populateCommandBuffers(" << index << ") frame.commandsCompletedFence->wait("<<timeout<<") failed with result = " <<result<< std::endl;
+                std::cout << "populateCommandBuffers(" << index << ") frame.commandsCompletedFence->wait(" << timeout << ") failed with result = " << result << std::endl;
                 //exit(1);
                 //throw "Window::populateCommandBuffers(uint32_t index, ref_ptr<vsg::FrameStamp> frameStamp) timeout";
             }
 
-            for(auto& semaphore : frame.commandsCompletedFence->dependentSemaphores())
+            for (auto& semaphore : frame.commandsCompletedFence->dependentSemaphores())
             {
                 //std::cout<<"Window::populateCommandBuffers(..) "<<*(semaphore->data())<<" "<<semaphore->numDependentSubmissions().load()<<std::endl;
                 semaphore->numDependentSubmissions().exchange(0);

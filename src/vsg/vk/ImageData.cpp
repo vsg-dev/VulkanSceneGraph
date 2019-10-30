@@ -62,11 +62,10 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
     // clamp the mipLevels so that its no larger than what the data dimensions support
     uint32_t maxDimension = std::max({data->width(), data->height(), data->depth()});
-    while((1u<<(mipLevels-1)) > maxDimension)
+    while ((1u << (mipLevels - 1)) > maxDimension)
     {
         --mipLevels;
     }
-
 
     //mipLevels = 1;  // disable mipmapping
 

@@ -97,8 +97,8 @@ namespace vsg
             _radiusEquator(rEquator),
             _radiusPolar(rPolar)
         {
-            double flattening = (_radiusEquator-_radiusPolar)/_radiusEquator;
-            _eccentricitySquared = 2*flattening - flattening*flattening;
+            double flattening = (_radiusEquator - _radiusPolar) / _radiusEquator;
+            _eccentricitySquared = 2 * flattening - flattening * flattening;
         }
 
         double radiusEquator() const { return _radiusEquator; }
@@ -114,21 +114,21 @@ namespace vsg
             // for details on maths see http://www.colorado.edu/geography/gcraft/notes/datum/gif/llhxyz.gif
             double sin_latitude = sin(latitude);
             double cos_latitude = cos(latitude);
-            double N = _radiusEquator / sqrt( 1.0 - _eccentricitySquared*sin_latitude*sin_latitude);
-            return dvec3((N+height)*cos_latitude*cos(longitude),
-                         (N+height)*cos_latitude*sin(longitude),
-                         (N*(1-_eccentricitySquared)+height)*sin_latitude);
+            double N = _radiusEquator / sqrt(1.0 - _eccentricitySquared * sin_latitude * sin_latitude);
+            return dvec3((N + height) * cos_latitude * cos(longitude),
+                         (N + height) * cos_latitude * sin(longitude),
+                         (N * (1 - _eccentricitySquared) + height) * sin_latitude);
         }
 
         // lattitude and longitude in radians
         dvec3 convertECEVToLatLongAltitude(const dvec3& ecef)
         {
             double latitude, longitude, height;
-            const double PI_2 = PI*0.5;
+            const double PI_2 = PI * 0.5;
 
             // handle polar and center-of-earth cases directly.
             if (ecef.x != 0.0)
-                longitude = atan2(ecef.y,ecef.x);
+                longitude = atan2(ecef.y, ecef.x);
             else
             {
                 if (ecef.y > 0.0)
@@ -159,21 +159,21 @@ namespace vsg
             }
 
             // http://www.colorado.edu/geography/gcraft/notes/datum/gif/xyzllh.gif
-            double p = sqrt(ecef.x*ecef.x + ecef.y*ecef.y);
-            double theta = atan2(ecef.z*_radiusEquator , (p*_radiusPolar));
-            double eDashSquared = (_radiusEquator*_radiusEquator - _radiusPolar*_radiusPolar)/
-                                (_radiusPolar*_radiusPolar);
+            double p = sqrt(ecef.x * ecef.x + ecef.y * ecef.y);
+            double theta = atan2(ecef.z * _radiusEquator, (p * _radiusPolar));
+            double eDashSquared = (_radiusEquator * _radiusEquator - _radiusPolar * _radiusPolar) /
+                                  (_radiusPolar * _radiusPolar);
 
             double sin_theta = sin(theta);
             double cos_theta = cos(theta);
 
-            latitude = atan( (ecef.z + eDashSquared*_radiusPolar*sin_theta*sin_theta*sin_theta) /
-                            (p - _eccentricitySquared*_radiusEquator*cos_theta*cos_theta*cos_theta) );
+            latitude = atan((ecef.z + eDashSquared * _radiusPolar * sin_theta * sin_theta * sin_theta) /
+                            (p - _eccentricitySquared * _radiusEquator * cos_theta * cos_theta * cos_theta));
 
             double sin_latitude = sin(latitude);
-            double N = _radiusEquator / sqrt( 1.0 - _eccentricitySquared*sin_latitude*sin_latitude);
+            double N = _radiusEquator / sqrt(1.0 - _eccentricitySquared * sin_latitude * sin_latitude);
 
-            height = p/cos(latitude) - N;
+            height = p / cos(latitude) - N;
             return dvec3(latitude, longitude, height);
         }
 
@@ -206,7 +206,12 @@ namespace vsg
         {
         }
 
-        void get(mat4& matrix) const override { dmat4 dm; get(dm); matrix = dm; }
+        void get(mat4& matrix) const override
+        {
+            dmat4 dm;
+            get(dm);
+            matrix = dm;
+        }
         void get(dmat4& matrix) const override
         {
             // std::cout<<"camera eye : "<<lookAt->eye<<", "<<ellipsoidModel->convertECEVToLatLongAltitude(lookAt->eye)<<std::endl;
@@ -214,12 +219,12 @@ namespace vsg
             vsg::dvec3 lv = vsg::normalize(lookAt->center - lookAt->eye);
             double R = ellipsoidModel->radiusEquator();
             double H = ellipsoidModel->convertECEVToLatLongAltitude(v).z;
-            double D = R+H;
-            double alpha = (D>R) ? std::acos(R / D) : 0.0;
-            double beta = std::acos(R/(R+horizonMountainHeight));
+            double D = R + H;
+            double alpha = (D > R) ? std::acos(R / D) : 0.0;
+            double beta = std::acos(R / (R + horizonMountainHeight));
             double theta = std::acos(-vsg::dot(lv, v) / (vsg::length(lv) * vsg::length(v)));
 
-            double l = R * ( std::tan(alpha) + std::tan(beta));
+            double l = R * (std::tan(alpha) + std::tan(beta));
 
             double farDistance = std::cos(theta + alpha - vsg::PI * 0.5) * l;
             double nearDistance = farDistance * nearFarRatio;
