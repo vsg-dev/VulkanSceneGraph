@@ -52,6 +52,8 @@ namespace vsg
         MemorySlots::OptionalOffset reserve(VkDeviceSize size, VkDeviceSize alignment) { return _memorySlots.reserve(size, alignment); }
         void release(VkDeviceSize offset, VkDeviceSize size) { _memorySlots.release(offset, size); }
         bool full() const { return _memorySlots.full(); }
+        VkDeviceSize maximumAvailableSpace() const { return _memorySlots.maximumAvailableSpace(); }
+        const MemorySlots& memorySlots() const { return _memorySlots; }
 
     protected:
         virtual ~Buffer();

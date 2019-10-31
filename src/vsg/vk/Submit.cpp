@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,32 +10,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Object.h>
+#include <vsg/vk/Submit.h>
 
-#include <functional>
-#include <map>
+using namespace vsg;
 
-namespace vsg
+Submit::Submit()
 {
+}
 
-    class VSG_DECLSPEC ObjectFactory : public vsg::Object
-    {
-    public:
-        ObjectFactory();
+Submit::~Submit()
+{
+}
 
-        virtual vsg::ref_ptr<vsg::Object> create(const std::string& className);
+void Submit::submit(Queue& queue)
+{
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = _commandBuffers.size();
+    submitInfo.pCommandBuffers = _commandBuffers->data();
 
-        using CreateFunction = std::function<vsg::ref_ptr<vsg::Object>()>;
-        using CreateMap = std::map<std::string, CreateFunction>;
-
-        CreateMap& getCreateMap() { return _createMap; }
-        const CreateMap& getCreateMap() const { return _createMap; }
-
-        /// return the ObjectFactory singleton instance
-        static ref_ptr<ObjectFactory>& instance();
-
-    protected:
-        CreateMap _createMap;
-    };
-
-} // namespace vsg
+    queue.submit(queue);
+}

@@ -30,9 +30,13 @@ namespace vsg
 
     extern VSG_DECLSPEC bool fileExists(const Path& path);
 
+    extern VSG_DECLSPEC Path filePath(const Path& path);
+
     extern VSG_DECLSPEC Path fileExtension(const Path& path);
 
     extern VSG_DECLSPEC Path simpleFilename(const Path& path);
+
+    extern VSG_DECLSPEC Path removeExtension(const Path& path);
 
     extern VSG_DECLSPEC Path concatPaths(const Path& left, const Path& right);
 

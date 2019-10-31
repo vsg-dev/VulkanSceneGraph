@@ -12,32 +12,37 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Object.h>
-
-#include <functional>
-#include <map>
+#include <vsg/vk/Device.h>
 
 namespace vsg
 {
-
-    class VSG_DECLSPEC ObjectFactory : public vsg::Object
+    class VSG_DECLSPEC Submission : public Inherit<Object, Submit>
     {
     public:
-        ObjectFactory();
+        Submission();
 
-        virtual vsg::ref_ptr<vsg::Object> create(const std::string& className);
+        using Semaphores = std::vector<ref_ptr<Semaphore>>;
+        using CommandBuffers = std::vector<ref_ptr<CommandBuffer>>;
 
-        using CreateFunction = std::function<vsg::ref_ptr<vsg::Object>()>;
-        using CreateMap = std::map<std::string, CreateFunction>;
+        struct SubmitInfo
+        {
+            Semaphores waitSemaphores;
+            CommandBuffers commandBuffers;
+            Semaphores signalSemaphores;
+        };
 
-        CreateMap& getCreateMap() { return _createMap; }
-        const CreateMap& getCreateMap() const { return _createMap; }
+        using SubmitInfos = std::vector<SubmitInfo>;
 
-        /// return the ObjectFactory singleton instance
-        static ref_ptr<ObjectFactory>& instance();
+        SubmitInfos& infos() { return _submitInfos; }
+        Fence* fence() { return _fence.get(); }
+
+        virtual void submit(Queue& queue);
 
     protected:
-        CreateMap _createMap;
+        virtual ~Submit();
+
+        SubmitInfo _submitInfos;
+        ref_ptr<Frame> _frame;
     };
 
 } // namespace vsg

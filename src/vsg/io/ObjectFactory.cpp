@@ -26,6 +26,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
@@ -42,15 +43,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Draw.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/PipelineLayout.h>
+#include <vsg/vk/ResourceHints.h>
 #include <vsg/vk/Sampler.h>
 #include <vsg/vk/ShaderModule.h>
-
-#include <iostream>
 
 using namespace vsg;
 
 #define VSG_REGISTER_new(ClassName) _createMap[#ClassName] = []() { return ref_ptr<Object>(new ClassName()); }
 #define VSG_REGISTER_create(ClassName) _createMap[#ClassName] = []() { return ClassName::create(); }
+
+// declare the ObjectFactory singleton as static to be initialized at start up.
+static ref_ptr<ObjectFactory> s_ObjectFactory(new ObjectFactory);
+
+ref_ptr<ObjectFactory>& ObjectFactory::instance()
+{
+    return s_ObjectFactory;
+}
 
 ObjectFactory::ObjectFactory()
 {
@@ -164,6 +172,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::CullGroup);
     VSG_REGISTER_create(vsg::CullNode);
     VSG_REGISTER_create(vsg::LOD);
+    VSG_REGISTER_create(vsg::PagedLOD);
     VSG_REGISTER_create(vsg::MatrixTransform);
     VSG_REGISTER_create(vsg::Geometry);
     VSG_REGISTER_create(vsg::VertexIndexDraw);
@@ -196,6 +205,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::DescriptorImage);
     VSG_REGISTER_create(vsg::DescriptorBuffer);
     VSG_REGISTER_create(vsg::Sampler);
+    VSG_REGISTER_create(vsg::ResourceHints);
 }
 
 vsg::ref_ptr<vsg::Object> ObjectFactory::create(const std::string& className)

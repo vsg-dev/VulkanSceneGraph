@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,32 +10,42 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Object.h>
+#include <vsg/vk/Fence.h>
+#include <vsg/vk/Queue.h>
 
-#include <functional>
-#include <map>
+using namespace vsg;
 
-namespace vsg
+Queue::Queue(VkQueue queue, uint32_t queueFamilyIndex, uint32_t queueIndex) :
+    _vkQueue(queue),
+    _queueFamilyIndex(queueFamilyIndex),
+    _queueIndex(queueIndex)
 {
+}
 
-    class VSG_DECLSPEC ObjectFactory : public vsg::Object
-    {
-    public:
-        ObjectFactory();
+Queue::~Queue()
+{
+}
 
-        virtual vsg::ref_ptr<vsg::Object> create(const std::string& className);
+VkResult Queue::submit(const std::vector<VkSubmitInfo>& submitInfos, Fence* fence)
+{
+    std::lock_guard<std::mutex> guard(_mutex);
+    return vkQueueSubmit(_vkQueue, submitInfos.size(), submitInfos.data(), (fence == nullptr) ? VK_NULL_HANDLE : fence->fence());
+}
 
-        using CreateFunction = std::function<vsg::ref_ptr<vsg::Object>()>;
-        using CreateMap = std::map<std::string, CreateFunction>;
+VkResult Queue::submit(const VkSubmitInfo& submitInfo, Fence* fence)
+{
+    std::lock_guard<std::mutex> guard(_mutex);
+    return vkQueueSubmit(_vkQueue, 1, &submitInfo, (fence == nullptr) ? VK_NULL_HANDLE : fence->fence());
+}
 
-        CreateMap& getCreateMap() { return _createMap; }
-        const CreateMap& getCreateMap() const { return _createMap; }
+VkResult Queue::present(const VkPresentInfoKHR& info)
+{
+    std::lock_guard<std::mutex> guard(_mutex);
+    return vkQueuePresentKHR(_vkQueue, &info);
+}
 
-        /// return the ObjectFactory singleton instance
-        static ref_ptr<ObjectFactory>& instance();
-
-    protected:
-        CreateMap _createMap;
-    };
-
-} // namespace vsg
+VkResult Queue::waitIdle()
+{
+    std::lock_guard<std::mutex> guard(_mutex);
+    return vkQueueWaitIdle(_vkQueue);
+}

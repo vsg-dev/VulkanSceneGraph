@@ -40,7 +40,11 @@ namespace vsg
 
         void release()
         {
-            if (_buffer && _range > 0) _buffer->release(_offset, _range);
+            if (_buffer)
+            {
+                _buffer->release(_offset, _range);
+            }
+
             _buffer = 0;
             _offset = 0;
             _range = 0;

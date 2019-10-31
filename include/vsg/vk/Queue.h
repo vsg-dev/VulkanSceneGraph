@@ -13,31 +13,48 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Object.h>
+#include <vulkan/vulkan.h>
 
-#include <functional>
-#include <map>
+#include <mutex>
+#include <vector>
 
 namespace vsg
 {
+    // forward declare
+    class Fence;
 
-    class VSG_DECLSPEC ObjectFactory : public vsg::Object
+    class VSG_DECLSPEC Queue : public Object
     {
     public:
-        ObjectFactory();
+        operator VkQueue() const { return _vkQueue; }
 
-        virtual vsg::ref_ptr<vsg::Object> create(const std::string& className);
+        VkQueue queue() const { return _vkQueue; }
+        uint32_t queueFamilyIndex() const { return _queueFamilyIndex; }
+        uint32_t queueIndex() const { return _queueIndex; }
 
-        using CreateFunction = std::function<vsg::ref_ptr<vsg::Object>()>;
-        using CreateMap = std::map<std::string, CreateFunction>;
+        VkResult submit(const std::vector<VkSubmitInfo>& submitInfos, Fence* fence = nullptr);
 
-        CreateMap& getCreateMap() { return _createMap; }
-        const CreateMap& getCreateMap() const { return _createMap; }
+        VkResult submit(const VkSubmitInfo& submitInfo, Fence* fence = nullptr);
 
-        /// return the ObjectFactory singleton instance
-        static ref_ptr<ObjectFactory>& instance();
+        VkResult present(const VkPresentInfoKHR& info);
+
+        VkResult waitIdle();
 
     protected:
-        CreateMap _createMap;
+        Queue(VkQueue queue, uint32_t queueFamilyIndex, uint32_t queueIndex);
+        virtual ~Queue();
+
+        Queue() = delete;
+        Queue(const Queue&) = delete;
+        Queue& operator=(const Queue&) = delete;
+
+        // allow only Device to create Queue to ensure that queues are shared
+        friend class Device;
+
+        VkQueue _vkQueue;
+        uint32_t _queueFamilyIndex;
+        uint32_t _queueIndex;
+        std::mutex _mutex;
     };
 
 } // namespace vsg

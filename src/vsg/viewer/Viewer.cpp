@@ -174,7 +174,7 @@ bool Viewer::aquireNextFrame()
             for (auto& pair_pdo : _deviceMap)
             {
                 PerDeviceObjects& pdo = pair_pdo.second;
-                vkQueueWaitIdle(pdo.presentQueue);
+                pdo.presentQueue->waitIdle();
             }
 
             //std::cout<<"window->acquireNextImage(), result==VK_ERROR_OUT_OF_DATE_KHR  rebuild swap chain : resized="<<window->resized()<<" numTries="<<numTries<<std::endl;
@@ -212,7 +212,7 @@ bool Viewer::populateNextFrame()
 {
     for (auto& window : _windows)
     {
-        window->populateCommandBuffers(window->nextImageIndex());
+        window->populateCommandBuffers(window->nextImageIndex(), _frameStamp);
     }
     return true;
 }
@@ -225,15 +225,48 @@ bool Viewer::submitNextFrame()
     {
         PerDeviceObjects& pdo = pair_pdo.second;
 
-        VkFence fence = VK_NULL_HANDLE;
+        ref_ptr<Fence> fence;
 
         std::vector<VkSemaphore> waitSemaphores;
+        std::vector<VkPipelineStageFlags> waitDstStageMasks;
         for (auto& window : pdo.windows)
         {
             waitSemaphores.push_back(*(window->frame(window->nextImageIndex()).imageAvailableSemaphore));
-            fence = *(window->frame(window->nextImageIndex()).commandsCompletedFence);
+            waitDstStageMasks.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+
+            fence = window->frame(window->nextImageIndex()).commandsCompletedFence;
             window->frame(window->nextImageIndex()).checkCommandsCompletedFence = true;
+
+            // copy semaphore's assigned to database pagers
+            for (auto& stage : window->stages())
+            {
+                GraphicsStage* gs = dynamic_cast<GraphicsStage*>(stage.get());
+                DatabasePager* db = gs ? gs->databasePager.get() : nullptr;
+                if (db)
+                {
+                    //std::cout<<"Viewer::submitNextFrame()"<<std::endl;
+                    for (auto& semaphore : db->getSemaphores())
+                    {
+                        if (semaphore->numDependentSubmissions().load() > 1)
+                        {
+                            std::cout << "    Warning: Viewer::submitNextFrame() waitSemaphore " << *(semaphore->data()) << " " << semaphore->numDependentSubmissions().load() << std::endl;
+                        }
+                        else
+                        {
+                            // std::cout<<"    Viewer::submitNextFrame() waitSemaphore "<<*(semaphore->data())<<" "<<semaphore->numDependentSubmissions().load()<<std::endl;
+                        }
+
+                        waitSemaphores.emplace_back(*semaphore);
+                        waitDstStageMasks.emplace_back(semaphore->pipelineStageFlags());
+
+                        semaphore->numDependentSubmissions().fetch_add(1);
+                        fence->dependentSemaphores().emplace_back(semaphore);
+                    }
+                }
+            }
         }
+
+        // if (!hasDBSemaphore) std::cout<<"Viewer::submitNextFrame() no DB wait semaphores required."<<std::endl;
 
         // fill in the imageIndices and commandBuffers associated with each window
         for (size_t i = 0; i < pdo.windows.size(); ++i)
@@ -250,7 +283,7 @@ bool Viewer::submitNextFrame()
 
         submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
         submitInfo.pWaitSemaphores = waitSemaphores.data();
-        submitInfo.pWaitDstStageMask = pdo.waitStages.data();
+        submitInfo.pWaitDstStageMask = waitDstStageMasks.data();
 
         submitInfo.commandBufferCount = static_cast<uint32_t>(pdo.commandBuffers.size());
         submitInfo.pCommandBuffers = pdo.commandBuffers.data();
@@ -258,7 +291,7 @@ bool Viewer::submitNextFrame()
         submitInfo.signalSemaphoreCount = static_cast<uint32_t>(pdo.signalSemaphores.size());
         submitInfo.pSignalSemaphores = pdo.signalSemaphores.data();
 
-        if (vkQueueSubmit(pdo.graphicsQueue, 1, &submitInfo, fence) != VK_SUCCESS)
+        if (pdo.graphicsQueue->submit(submitInfo, fence) != VK_SUCCESS)
         {
             std::cout << "Error: failed to submit draw command buffer." << std::endl;
             return false;
@@ -277,7 +310,7 @@ bool Viewer::submitNextFrame()
         presentInfo.pSwapchains = pdo.swapchains.data();
         presentInfo.pImageIndices = pdo.imageIndices.data();
 
-        vkQueuePresentKHR(pdo.presentQueue, &presentInfo);
+        pdo.presentQueue->present(presentInfo);
     }
 
     if (debugLayersEnabled)
@@ -287,7 +320,7 @@ bool Viewer::submitNextFrame()
         for (auto& pair_pdo : _deviceMap)
         {
             PerDeviceObjects& pdo = pair_pdo.second;
-            vkQueueWaitIdle(pdo.presentQueue);
+            pdo.presentQueue->waitIdle();
         }
 
         //std::cout << "Viewer::submitFrame() vkQueueWaitIdle() completed in " << std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - startTime).count() << "ms" << std::endl;
@@ -301,78 +334,6 @@ bool Viewer::submitNextFrame()
 
     return true;
 }
-
-class CollectDescriptorStats : public ConstVisitor
-{
-public:
-    using Descriptors = std::set<const Descriptor*>;
-    using DescriptorSets = std::set<const DescriptorSet*>;
-    using DescriptorTypeMap = std::map<VkDescriptorType, uint32_t>;
-
-    using ConstVisitor::apply;
-
-    void apply(const Object& object) override
-    {
-        object.traverse(*this);
-    }
-
-    void apply(const StateGroup& stategroup) override
-    {
-        for (auto& command : stategroup.getStateCommands())
-        {
-            command->accept(*this);
-        }
-
-        stategroup.traverse(*this);
-    }
-
-    void apply(const StateCommand& stateCommand) override
-    {
-        if (stateCommand.getSlot() > maxSlot) maxSlot = stateCommand.getSlot();
-
-        stateCommand.traverse(*this);
-    }
-    void apply(const DescriptorSet& descriptorSet) override
-    {
-        if (descriptorSets.count(&descriptorSet) == 0)
-        {
-            descriptorSets.insert(&descriptorSet);
-            for (auto& descriptor : descriptorSet.getDescriptors())
-            {
-                apply(*descriptor);
-            }
-        }
-    }
-
-    void apply(const Descriptor& descriptor)
-    {
-        if (descriptors.count(&descriptor) == 0)
-        {
-            descriptors.insert(&descriptor);
-        }
-        descriptorTypeMap[descriptor._descriptorType] += descriptor.getNumDescriptors();
-    }
-
-    uint32_t computeNumDescriptorSets() const
-    {
-        return static_cast<uint32_t>(descriptorSets.size());
-    }
-
-    DescriptorPoolSizes computeDescriptorPoolSizes() const
-    {
-        DescriptorPoolSizes poolSizes;
-        for (auto& [type, count] : descriptorTypeMap)
-        {
-            poolSizes.push_back(VkDescriptorPoolSize{type, count});
-        }
-        return poolSizes;
-    }
-
-    Descriptors descriptors;
-    DescriptorSets descriptorSets;
-    DescriptorTypeMap descriptorTypeMap;
-    uint32_t maxSlot = 0;
-};
 
 void Viewer::compile(BufferPreferences bufferPreferences)
 {
@@ -406,12 +367,12 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             std::cout << "    " << type << "\t\t" << count << std::endl;
         }
 #endif
-        vsg::CompileTraversal compile(device, bufferPreferences);
-        compile.context.commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
-        compile.context.renderPass = window->renderPass();
-        compile.context.graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());
+        ref_ptr<CompileTraversal> compile(new CompileTraversal(device, bufferPreferences));
+        compile->context.commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
+        compile->context.renderPass = window->renderPass();
+        compile->context.graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());
 
-        if (maxSets > 0) compile.context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
+        if (maxSets > 0) compile->context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
 
         for (auto& stage : window->stages())
         {
@@ -421,17 +382,24 @@ void Viewer::compile(BufferPreferences bufferPreferences)
                 gs->_maxSlot = collectStats.maxSlot;
 
                 if (gs->_camera->getViewportState())
-                    compile.context.viewport = gs->_camera->getViewportState();
+                    compile->context.viewport = gs->_camera->getViewportState();
                 else if (gs->_viewport)
-                    compile.context.viewport = gs->_viewport;
+                    compile->context.viewport = gs->_viewport;
                 else
-                    compile.context.viewport = vsg::ViewportState::create(window->extent2D());
+                    compile->context.viewport = vsg::ViewportState::create(window->extent2D());
 
                 // std::cout << "Compiling GraphicsStage " << compile.context.viewport << std::endl;
 
-                gs->_commandGraph->accept(compile);
+                gs->_commandGraph->accept(*compile);
 
-                compile.context.dispatchCommands();
+                compile->context.dispatch();
+                compile->context.waitForCompletion();
+
+                if (gs->databasePager)
+                {
+                    gs->databasePager->compileTraversal = compile;
+                    gs->databasePager->start();
+                }
             }
             else
             {

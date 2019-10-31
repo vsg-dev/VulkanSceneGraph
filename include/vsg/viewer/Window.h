@@ -162,7 +162,7 @@ namespace vsg
 
         bool debugLayersEnabled() const { return _traits->debugLayer; }
 
-        void populateCommandBuffers(uint32_t index);
+        void populateCommandBuffers(uint32_t index, ref_ptr<vsg::FrameStamp> frameStamp);
 
         struct Frame
         {

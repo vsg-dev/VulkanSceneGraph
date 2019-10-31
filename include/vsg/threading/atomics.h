@@ -12,32 +12,37 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Object.h>
-
-#include <functional>
-#include <map>
+#include <atomic>
 
 namespace vsg
 {
 
-    class VSG_DECLSPEC ObjectFactory : public vsg::Object
+    template<typename T>
+    void exchange_if_lower(std::atomic<T>& reference, T t)
     {
-    public:
-        ObjectFactory();
+        T original_value = reference.load();
+        while (t < original_value && !reference.compare_exchange_weak(original_value, t)) {}
+    };
 
-        virtual vsg::ref_ptr<vsg::Object> create(const std::string& className);
+    template<typename T>
+    void exchange_if_greater(std::atomic<T>& reference, T t)
+    {
+        T original_value = reference.load();
+        while (t > original_value && !reference.compare_exchange_weak(original_value, t)) {}
+    };
 
-        using CreateFunction = std::function<vsg::ref_ptr<vsg::Object>()>;
-        using CreateMap = std::map<std::string, CreateFunction>;
+    template<typename T>
+    void exchange_multiply(std::atomic<T>& reference, T t)
+    {
+        T original_value = reference.load();
+        while (!reference.compare_exchange_weak(original_value, original_value * t)) {}
+    };
 
-        CreateMap& getCreateMap() { return _createMap; }
-        const CreateMap& getCreateMap() const { return _createMap; }
-
-        /// return the ObjectFactory singleton instance
-        static ref_ptr<ObjectFactory>& instance();
-
-    protected:
-        CreateMap _createMap;
+    template<typename T>
+    bool compare_exchange(std::atomic<T>& reference, T from, T to)
+    {
+        T original_value = from;
+        return reference.compare_exchange_strong(original_value, to);
     };
 
 } // namespace vsg

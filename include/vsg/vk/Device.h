@@ -13,6 +13,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/PhysicalDevice.h>
+#include <vsg/vk/Queue.h>
+
+#include <list>
 
 namespace vsg
 {
@@ -32,7 +35,7 @@ namespace vsg
         AllocationCallbacks* getAllocationCallbacks() { return _allocator.get(); }
         const AllocationCallbacks* getAllocationCallbacks() const { return _allocator.get(); }
 
-        VkQueue getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex = 0);
+        ref_ptr<Queue> getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex = 0);
 
     protected:
         virtual ~Device();
@@ -40,6 +43,8 @@ namespace vsg
         VkDevice _device;
         vsg::ref_ptr<PhysicalDevice> _physicalDevice;
         vsg::ref_ptr<AllocationCallbacks> _allocator;
+
+        std::list<ref_ptr<Queue>> _queues;
     };
 
 } // namespace vsg

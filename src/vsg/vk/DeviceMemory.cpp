@@ -16,9 +16,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <cstring>
 
+#include <atomic>
 #include <iostream>
 
 using namespace vsg;
+
+#define DO_CHECK 0
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -28,6 +31,76 @@ MemorySlots::MemorySlots(VkDeviceSize availableMemorySize)
 {
     _availableMemory.insert(SizeOffset(availableMemorySize, 0));
     _offsetSizes.insert(OffsetSize(0, availableMemorySize));
+
+    _totalMemorySize = availableMemorySize;
+}
+
+VkDeviceSize MemorySlots::totalAvailableSize() const
+{
+    VkDeviceSize totalSize = 0;
+    for (const auto& sizeOffset : _availableMemory)
+    {
+        totalSize += sizeOffset.first;
+    }
+    return totalSize;
+}
+
+VkDeviceSize MemorySlots::totalReservedSize() const
+{
+    VkDeviceSize totalSize = 0;
+    for (const auto& sizeOffset : _reservedOffsetSizes)
+    {
+        totalSize += sizeOffset.second;
+    }
+    return totalSize;
+}
+
+bool MemorySlots::check() const
+{
+    if (_availableMemory.size() != _offsetSizes.size())
+    {
+        std::cout << "Warning: MemorySlots::check() _availableMemory.size() " << _availableMemory.size() << " != _offsetSizes.size() " << _offsetSizes.size() << std::endl;
+    }
+
+    VkDeviceSize availableSize = 0;
+    for (auto& offsetSize : _offsetSizes)
+    {
+        availableSize += offsetSize.second;
+    }
+
+    VkDeviceSize reservedSize = 0;
+    for (auto& offsetSize : _reservedOffsetSizes)
+    {
+        reservedSize += offsetSize.second;
+    }
+
+    VkDeviceSize computedSize = availableSize + reservedSize;
+    if (computedSize != _totalMemorySize)
+    {
+        std::cout << "Warning : MemorySlots::check() " << this << " failed, computeedSize (" << computedSize << ") != _totalMemorySize (" << _totalMemorySize << ")" << std::endl;
+
+        report();
+
+        throw "MemorySlots check failed";
+
+        return false;
+    }
+
+    return true;
+}
+
+void MemorySlots::report() const
+{
+    std::cout << "MemorySlots::report()" << std::endl;
+    for (auto& [offset, size] : _offsetSizes)
+    {
+        std::cout << "    available " << offset << ", " << size << std::endl;
+    }
+
+    for (auto& [offset, size] : _reservedOffsetSizes)
+    {
+        std::cout << "    reserved " << std::dec << offset << ", " << size << std::endl;
+    }
 }
 
 MemorySlots::OptionalOffset MemorySlots::reserve(VkDeviceSize size, VkDeviceSize alignment)
@@ -40,6 +113,7 @@ MemorySlots::OptionalOffset MemorySlots::reserve(VkDeviceSize size, VkDeviceSize
         SizeOffset slot(*itr);
         VkDeviceSize slotStart = slot.second;
         VkDeviceSize slotSize = slot.first;
+        VkDeviceSize slotEnd = slotStart + slotSize;
 
         VkDeviceSize alignedStart = ((slotStart + alignment - 1) / alignment) * alignment;
         VkDeviceSize alignedEnd = alignedStart + size;
@@ -61,33 +135,73 @@ MemorySlots::OptionalOffset MemorySlots::reserve(VkDeviceSize size, VkDeviceSize
             }
 
             // check if there is space at the end slot that isn't used completely, if so generate an available space for it.
-            if (alignedSize < slotSize)
+            if (alignedEnd < slotEnd)
             {
                 // insert new slot with new end and new size
-                VkDeviceSize postAlignedEndSize = slotSize - alignedSize;
+                VkDeviceSize postAlignedEndSize = slotEnd - alignedEnd;
                 _availableMemory.insert(SizeOffset(postAlignedEndSize, alignedEnd));
                 _offsetSizes.insert(OffsetSize(alignedEnd, postAlignedEndSize));
             }
+
+            _reservedOffsetSizes[alignedStart] = (alignedEnd - alignedStart);
+
+#if DO_CHECK
+            check();
+#endif
 
             return OptionalOffset(true, alignedStart);
         }
         else
         {
-            //            std::cout << "    Slot slotStart = " << slotStart << ", slotSize = " << slotSize << " not big enough once for request size = " << size << std::endl;
+            // std::cout << "    Slot slotStart = " << slotStart << ", slotSize = " << slotSize << " not big enough once for request size = " << size << std::endl;
             ++itr;
         }
     }
+
+    //std::cout<<"MemorySlots::reserve("<<std::dec<<size<<") with alingment "<<alignment<<" No slots available for this size, biggest available slot is : "<<_availableMemory.rbegin()->first<<std::endl;
+    //report();
 
     return OptionalOffset(false, 0);
 }
 
 void MemorySlots::release(VkDeviceSize offset, VkDeviceSize size)
 {
+    auto reserved_itr = _reservedOffsetSizes.find(offset);
+    if (reserved_itr == _reservedOffsetSizes.end())
+    {
+#if DO_CHECK
+        std::cout << "   MemorySlots::release() slot not found" << std::endl;
+#endif
+        return;
+    }
+    else
+    {
+#if DO_CHECK
+        if (reserved_itr->second != size)
+        {
+            std::cout << "    MemorySlots::release() slot found but sizes are inconsistent reserved_itr->second = " << std::dec << reserved_itr->second << ", size=" << size << std::endl;
+            if (size != 0) throw "MemorySlots::release() slot found but sizes are inconsistent reserved_itr->second";
+        }
+        else
+        {
+            std::cout << "    MemorySlots::release() slot found " << std::endl;
+        }
+#endif
+
+        size = reserved_itr->second;
+
+        _reservedOffsetSizes.erase(reserved_itr);
+    }
+
     if (_offsetSizes.empty())
     {
         // first empty space
         _availableMemory.insert(SizeOffset(size, offset));
         _offsetSizes.insert(OffsetSize(offset, size));
+
+#if DO_CHECK
+        check();
+#endif
         return;
     }
 
@@ -160,6 +274,12 @@ void MemorySlots::release(VkDeviceSize offset, VkDeviceSize size)
 
     _availableMemory.insert(SizeOffset(size, offset));
     _offsetSizes.insert(OffsetSize(offset, size));
+
+    //report();
+
+#if DO_CHECK
+    check();
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -179,6 +299,10 @@ DeviceMemory::~DeviceMemory()
 {
     if (_deviceMemory)
     {
+#if DO_CHECK
+        std::cout << "DeviceMemory::~DeviceMemory() vkFreeMemory(*_device, " << _deviceMemory << ", _allocator);" << std::endl;
+#endif
+
         vkFreeMemory(*_device, _deviceMemory, _allocator);
     }
 }
@@ -206,18 +330,18 @@ DeviceMemory::Result DeviceMemory::create(Device* device, const VkMemoryRequirem
     }
     uint32_t memoryTypeIndex = i;
 
-#if 0
+#if DO_CHECK
     if (properties & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
     {
         static VkDeviceSize s_TotalDeviceMemoryAllocated = 0;
         s_TotalDeviceMemoryAllocated += memRequirements.size;
-        std::cout<<"Device Local DeviceMemory::DeviceMemory() "<<memRequirements.size<<", "<<memRequirements.alignment<<", "<<memRequirements.memoryTypeBits<<",  s_TotalMemoryAllocated = "<<s_TotalDeviceMemoryAllocated<<std::endl;
+        std::cout << "Device Local DeviceMemory::DeviceMemory() " << std::dec << memRequirements.size << ", " << memRequirements.alignment << ", " << memRequirements.memoryTypeBits << ",  s_TotalMemoryAllocated = " << s_TotalDeviceMemoryAllocated << std::endl;
     }
     else
     {
         static VkDeviceSize s_TotalHostMemoryAllocated = 0;
         s_TotalHostMemoryAllocated += memRequirements.size;
-        std::cout<<"Staging DeviceMemory::DeviceMemory() "<<memRequirements.size<<", "<<memRequirements.alignment<<", "<<memRequirements.memoryTypeBits<<",  s_TotalMemoryAllocated = "<<s_TotalHostMemoryAllocated<<std::endl;
+        std::cout << "Staging DeviceMemory::DeviceMemory()  " << std::dec << memRequirements.size << ", " << memRequirements.alignment << ", " << memRequirements.memoryTypeBits << ",  s_TotalMemoryAllocated = " << s_TotalHostMemoryAllocated << std::endl;
     }
 #endif
 

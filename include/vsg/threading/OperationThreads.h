@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_DECLSPEC OperationThreads : public Inherit<Object, OperationQueue>
+    class VSG_DECLSPEC OperationThreads : public Inherit<Object, OperationThreads>
     {
     public:
         OperationThreads(uint32_t numThreads, ref_ptr<Active> in_active = {});
