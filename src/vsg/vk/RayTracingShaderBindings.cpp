@@ -119,7 +119,7 @@ void RayTracingShaderBindings::compile(Context& context, const VkPipeline& pipel
     const uint32_t shaderGroupHandleSize = _rayTracingProperties.shaderGroupHandleSize;
     const uint32_t sbtSize = shaderGroupHandleSize * numCreateInfos;
 
-    BufferData bindingTableBufferData = context.stagingMemoryBufferPools.reserveBufferData(sbtSize, 4, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV | VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+    BufferData bindingTableBufferData = context.stagingMemoryBufferPools->reserveBufferData(sbtSize, 4, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV | VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
     _bindingTableBuffer = ref_ptr<Buffer>(bindingTableBufferData._buffer);
     _bindingTableMemory = ref_ptr<DeviceMemory>(_bindingTableBuffer->getDeviceMemory());

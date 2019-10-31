@@ -15,6 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Extensions.h>
 #include <vsg/viewer/RayTracingStage.h>
 
+#include <vsg/ui/ApplicationEvent.h>
+
 #include <vsg/traversals/CompileTraversal.h>
 
 #include <array>
@@ -33,7 +35,7 @@ RayTracingStage::RayTracingStage(ref_ptr<Node> commandGraph, ref_ptr<RayTracingS
 {
 }
 
-void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor)
+void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent, const VkClearColorValue& clearColor, ref_ptr<FrameStamp> frameStamp)
 {
     Extensions* extensions = Extensions::Get(_shaderBindings->device(), true);
 

@@ -412,9 +412,9 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             {
                 rts->_maxSlot = collectStats.maxSlot;
 
-                rts->_commandGraph->accept(compile);
+                rts->_commandGraph->accept(*compile);
 
-                compile.context.dispatchCommands();
+                compile->context.dispatch();
             }
             else
             {
