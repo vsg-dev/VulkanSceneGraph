@@ -34,7 +34,7 @@ namespace vsg
     };
     VSG_type_name(vsg::DescriptorTexelBufferView)
 
-        struct material
+    struct material
     {
         vec4 ambientColor;
         vec4 diffuseColor;
