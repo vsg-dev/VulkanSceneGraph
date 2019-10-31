@@ -16,9 +16,9 @@ using namespace vsg;
 
 Framebuffer::Framebuffer(VkFramebuffer framebuffer, const std::vector<ref_ptr<ImageView>>& attachments, Device* device, AllocationCallbacks* allocator) :
     _framebuffer(framebuffer),
-    _attachments(attachments),
     _device(device),
-    _allocator(allocator)
+    _allocator(allocator),
+    _attachments(attachments)
 {
 }
 

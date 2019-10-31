@@ -61,9 +61,9 @@ namespace vsg
 
         operator VkAccelerationStructureNV() const { return _accelerationStructure; }
 
-        const uint64_t handle() const { return _handle; }
+        uint64_t handle() const { return _handle; }
 
-        const VkDeviceSize requiredScratchSize() const { return _requiredBuildScratchSize; }
+        VkDeviceSize requiredScratchSize() const { return _requiredBuildScratchSize; }
 
     protected:
         virtual ~AccelerationStructure();

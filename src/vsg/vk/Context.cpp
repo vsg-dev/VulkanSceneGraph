@@ -544,13 +544,13 @@ SetImageLayoutCommand::SetImageLayoutCommand(Image* image, VkAccessFlags srcAcce
 
 SetImageLayoutCommand::SetImageLayoutCommand(ImageData image) :
     Command(),
+    _image(image._imageView->getImage()),
     _srcAccessMask(0),
     _destAccessMask(VK_ACCESS_SHADER_READ_BIT),
     _oldLayout(VK_IMAGE_LAYOUT_UNDEFINED),
     _newLayout(image._imageLayout),
     _srcStage(VK_PIPELINE_STAGE_TRANSFER_BIT),
-    _destStage(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT),
-    _image(image._imageView->getImage())
+    _destStage(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT)
 {
 }
 
