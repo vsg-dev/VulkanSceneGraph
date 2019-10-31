@@ -22,6 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/Node.h>
+#include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
@@ -31,9 +32,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/ComputePipeline.h>
+#include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorSet.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/RenderPass.h>
+#include <vsg/vk/ResourceHints.h>
 
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/KeyEvent.h>
@@ -328,6 +331,10 @@ void ConstVisitor::apply(const LOD& value)
 {
     apply(static_cast<const Node&>(value));
 }
+void ConstVisitor::apply(const PagedLOD& value)
+{
+    apply(static_cast<const Node&>(value));
+}
 void ConstVisitor::apply(const StateGroup& value)
 {
     apply(static_cast<const Group&>(value));
@@ -382,6 +389,10 @@ void ConstVisitor::apply(const BindDescriptorSets& value)
     apply(static_cast<const StateCommand&>(value));
 }
 void ConstVisitor::apply(const DescriptorSet& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const Descriptor& value)
 {
     apply(static_cast<const Object&>(value));
 }
@@ -444,6 +455,10 @@ void ConstVisitor::apply(const DepthStencilState& value)
 void ConstVisitor::apply(const ColorBlendState& value)
 {
     apply(static_cast<const GraphicsPipelineState&>(value));
+}
+void ConstVisitor::apply(const ResourceHints& value)
+{
+    apply(static_cast<const Object&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

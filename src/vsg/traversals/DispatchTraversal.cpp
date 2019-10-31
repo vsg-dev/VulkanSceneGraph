@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 
@@ -26,21 +27,30 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
 
+#include <vsg/io/DatabasePager.h>
+#include <vsg/io/Options.h>
+
+#include <vsg/ui/ApplicationEvent.h>
+
 #include <vsg/maths/plane.h>
 
+#include <vsg/threading/atomics.h>
+
 using namespace vsg;
+
+#include <iostream>
 
 #define INLINE_TRAVERSE 1
 #define USE_FRUSTUM_ARRAY 1
 
-DispatchTraversal::DispatchTraversal(CommandBuffer* commandBuffer, uint32_t maxSlot) :
+DispatchTraversal::DispatchTraversal(CommandBuffer* commandBuffer, uint32_t maxSlot, ref_ptr<FrameStamp> fs) :
+    frameStamp(fs),
     _state(new State(commandBuffer, maxSlot))
 {
 }
 
 DispatchTraversal::~DispatchTraversal()
 {
-    delete _state;
 }
 
 void DispatchTraversal::setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
@@ -78,7 +88,7 @@ void DispatchTraversal::apply(const LOD& lod)
 {
     auto sphere = lod.getBound();
 
-    // check if lod bounding sphere is in vie frustum.
+    // check if lod bounding sphere is in view frustum.
     if (!_state->intersect(sphere))
     {
         return;
@@ -98,6 +108,90 @@ void DispatchTraversal::apply(const LOD& lod)
         {
             lodChild.child->accept(*this);
             return;
+        }
+    }
+}
+
+void DispatchTraversal::apply(const PagedLOD& plod)
+{
+    auto sphere = plod.getBound();
+
+    auto frameCount = frameStamp->frameCount;
+
+    // check if lod bounding sphere is in view frustum.
+    if (!_state->intersect(sphere))
+    {
+        if ((frameCount - plod.frameHighResLastUsed) > 1 && culledPagedLODs)
+        {
+            culledPagedLODs->highresCulled.emplace_back(&plod);
+        }
+
+        return;
+    }
+
+    const auto& proj = _state->projectionMatrixStack.top();
+    const auto& mv = _state->modelviewMatrixStack.top();
+    auto f = -proj[1][1];
+
+    auto distance = std::abs(mv[0][2] * sphere.x + mv[1][2] * sphere.y + mv[2][2] * sphere.z + mv[3][2]);
+    auto rf = sphere.r * f;
+
+    // check the high res child to see if it's visible
+    {
+        const auto& child = plod.getChild(0);
+        auto cutoff = child.minimumScreenHeightRatio * distance;
+        bool child_visible = rf > cutoff;
+        if (child_visible)
+        {
+            auto previousHighResUsed = plod.frameHighResLastUsed.exchange(frameCount);
+            if (culledPagedLODs && ((frameCount - previousHighResUsed) > 1))
+            {
+                culledPagedLODs->newHighresRequired.emplace_back(&plod);
+            }
+
+            if (child.node)
+            {
+                // high res visibile and avaialb so traverse it
+                child.node->accept(*this);
+                return;
+            }
+            else if (databasePager)
+            {
+                auto priority = rf / cutoff;
+                exchange_if_greater(plod.priority, priority);
+
+                auto previousRequestCount = plod.requestCount.fetch_add(1);
+                if (previousRequestCount == 0)
+                {
+                    // we are first request so tell the databasePager about it
+                    databasePager->request(ref_ptr<PagedLOD>(const_cast<PagedLOD*>(&plod)));
+                }
+                else
+                {
+                    //std::cout<<"repeat request "<<&plod<<", "<<plod.requestCount.load()<<std::endl;;
+                }
+            }
+        }
+        else
+        {
+            if (culledPagedLODs && ((frameCount - plod.frameHighResLastUsed) <= 1))
+            {
+                culledPagedLODs->highresCulled.emplace_back(&plod);
+            }
+        }
+    }
+
+    // check the low res child to see if it's visible
+    {
+        const auto& child = plod.getChild(1);
+        auto cutoff = child.minimumScreenHeightRatio * distance;
+        bool child_visible = rf > cutoff;
+        if (child_visible)
+        {
+            if (child.node)
+            {
+                child.node->accept(*this);
+            }
         }
     }
 }

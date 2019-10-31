@@ -61,6 +61,9 @@ namespace vsg
         // settings
         DataList _arrays;
         ref_ptr<Data> _indices;
+
+    protected:
+        virtual ~VertexIndexDraw();
     };
     VSG_type_name(vsg::VertexIndexDraw)
 

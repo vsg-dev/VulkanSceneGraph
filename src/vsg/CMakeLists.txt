@@ -34,12 +34,14 @@ set(SOURCES
     nodes/CullGroup.cpp
     nodes/CullNode.cpp
     nodes/LOD.cpp
+    nodes/PagedLOD.cpp
     nodes/MatrixTransform.cpp
     nodes/VertexIndexDraw.cpp
 
 
     io/FileSystem.cpp
     io/AsciiInput.cpp
+    io/DatabasePager.cpp
     io/AsciiOutput.cpp
     io/BinaryInput.cpp
     io/BinaryOutput.cpp
@@ -104,7 +106,9 @@ set(SOURCES
     vk/PushConstants.cpp
     vk/RayTracingPipeline.cpp
     vk/RayTracingShaderBindings.cpp
+    vk/Queue.cpp
     vk/RenderPass.cpp
+    vk/ResourceHints.cpp
     vk/Sampler.cpp
     vk/Semaphore.cpp
     vk/ShaderModule.cpp

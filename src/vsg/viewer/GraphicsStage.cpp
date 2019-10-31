@@ -16,6 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/traversals/CompileTraversal.h>
 
+#include <vsg/ui/ApplicationEvent.h>
+
 #include <array>
 #include <limits>
 
@@ -98,13 +100,13 @@ namespace vsg
 GraphicsStage::GraphicsStage(ref_ptr<Node> commandGraph, ref_ptr<Camera> camera) :
     _camera(camera),
     _commandGraph(commandGraph),
-    _projMatrix(new vsg::mat4Value),
-    _viewMatrix(new vsg::mat4Value),
+    _projMatrix(new vsg::dmat4Value),
+    _viewMatrix(new vsg::dmat4Value),
     _extent2D{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()}
 {
 }
 
-void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor)
+void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor, ref_ptr<FrameStamp> frameStamp)
 {
     // handle any changes in window size
     if (_extent2D.width == std::numeric_limits<uint32_t>::max())
@@ -170,8 +172,11 @@ void GraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuf
     }
 
     // set up the dispatching of the commands into the command buffer
-    DispatchTraversal dispatchTraversal(commandBuffer, _maxSlot);
+    DispatchTraversal dispatchTraversal(commandBuffer, _maxSlot, frameStamp);
     dispatchTraversal.setProjectionAndViewMatrix(_projMatrix->value(), _viewMatrix->value());
+
+    dispatchTraversal.databasePager = databasePager;
+    if (databasePager) dispatchTraversal.culledPagedLODs = databasePager->culledPagedLODs;
 
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;

@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/ui/ApplicationEvent.h>
 #include <vsg/viewer/Window.h>
 
 #include <array>
@@ -205,7 +206,7 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     _nextImageIndex = 0;
 }
 
-void Window::populateCommandBuffers(uint32_t index)
+void Window::populateCommandBuffers(uint32_t index, ref_ptr<vsg::FrameStamp> frameStamp)
 {
     Frame& frame = _frames[index];
 
@@ -213,10 +214,22 @@ void Window::populateCommandBuffers(uint32_t index)
     {
         if (frame.checkCommandsCompletedFence)
         {
-            while (frame.commandsCompletedFence->wait(1000000000) == VK_TIMEOUT)
+            uint64_t timeout = 10000000000;
+            VkResult result = VK_SUCCESS;
+            while ((result = frame.commandsCompletedFence->wait(timeout)) == VK_TIMEOUT)
             {
-                std::cout << "populateCommandBuffers(" << index << ") frame.commandsCompletedFence->wait(1000) failed with VK_TIMEOUT." << std::endl;
+                std::cout << "populateCommandBuffers(" << index << ") frame.commandsCompletedFence->wait(" << timeout << ") failed with result = " << result << std::endl;
+                //exit(1);
+                //throw "Window::populateCommandBuffers(uint32_t index, ref_ptr<vsg::FrameStamp> frameStamp) timeout";
             }
+
+            for (auto& semaphore : frame.commandsCompletedFence->dependentSemaphores())
+            {
+                //std::cout<<"Window::populateCommandBuffers(..) "<<*(semaphore->data())<<" "<<semaphore->numDependentSubmissions().load()<<std::endl;
+                semaphore->numDependentSubmissions().exchange(0);
+            }
+
+            frame.commandsCompletedFence->dependentSemaphores().clear();
         }
 
         frame.commandsCompletedFence->reset();
@@ -224,7 +237,7 @@ void Window::populateCommandBuffers(uint32_t index)
 
     for (auto& stage : _stages)
     {
-        stage->populateCommandBuffer(frame.commandBuffer, frame.framebuffer, _renderPass, _extent2D, _clearColor);
+        stage->populateCommandBuffer(frame.commandBuffer, frame.framebuffer, _renderPass, _extent2D, _clearColor, frameStamp);
     }
 }
 

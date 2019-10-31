@@ -34,8 +34,8 @@ namespace vsg
         struct PerDeviceObjects
         {
             Windows windows;
-            VkQueue graphicsQueue;
-            VkQueue presentQueue;
+            ref_ptr<Queue> graphicsQueue;
+            ref_ptr<Queue> presentQueue;
             ref_ptr<Semaphore> renderFinishedSemaphore;
 
             // cache data to used each frame
@@ -112,6 +112,8 @@ namespace vsg
         bool submitNextFrame();
 
         void compile(BufferPreferences bufferPreferences = {});
+
+        ref_ptr<CompileTraversal> _compileTraversal;
 
     protected:
         virtual ~Viewer();

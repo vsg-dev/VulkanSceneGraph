@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,32 +10,45 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Object.h>
+#include <vsg/vk/ResourceHints.h>
 
-#include <functional>
-#include <map>
+using namespace vsg;
 
-namespace vsg
+ResourceHints::ResourceHints(Allocator* allocator) :
+    Inherit(allocator)
 {
+}
 
-    class VSG_DECLSPEC ObjectFactory : public vsg::Object
+ResourceHints::~ResourceHints()
+{
+}
+
+void ResourceHints::read(Input& input)
+{
+    Object::read(input);
+
+    input.read("MaxSlot", _maxSlot);
+    input.read("NumDescriptorSets", _numDescriptorSets);
+
+    _descriptorPoolSizes.resize(input.readValue<uint32_t>("NumDescriptorPoolSize"));
+    for (auto& [type, count] : _descriptorPoolSizes)
     {
-    public:
-        ObjectFactory();
+        input.readValue<uint32_t>("type", type);
+        input.read("count", count);
+    }
+}
 
-        virtual vsg::ref_ptr<vsg::Object> create(const std::string& className);
+void ResourceHints::write(Output& output) const
+{
+    Object::write(output);
 
-        using CreateFunction = std::function<vsg::ref_ptr<vsg::Object>()>;
-        using CreateMap = std::map<std::string, CreateFunction>;
+    output.write("MaxSlot", _maxSlot);
+    output.write("NumDescriptorSets", _numDescriptorSets);
 
-        CreateMap& getCreateMap() { return _createMap; }
-        const CreateMap& getCreateMap() const { return _createMap; }
-
-        /// return the ObjectFactory singleton instance
-        static ref_ptr<ObjectFactory>& instance();
-
-    protected:
-        CreateMap _createMap;
-    };
-
-} // namespace vsg
+    output.writeValue<uint32_t>("NumDescriptorPoolSize", _descriptorPoolSizes.size());
+    for (auto& [type, count] : _descriptorPoolSizes)
+    {
+        output.writeValue<uint32_t>("type", type);
+        output.write("count", count);
+    }
+}

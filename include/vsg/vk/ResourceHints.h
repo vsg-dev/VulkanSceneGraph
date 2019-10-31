@@ -12,32 +12,36 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Object.h>
-
-#include <functional>
-#include <map>
+#include <vsg/vk/DescriptorPool.h>
 
 namespace vsg
 {
 
-    class VSG_DECLSPEC ObjectFactory : public vsg::Object
+    class VSG_DECLSPEC ResourceHints : public Inherit<Object, ResourceHints>
     {
     public:
-        ObjectFactory();
+        ResourceHints(Allocator* allocator = nullptr);
 
-        virtual vsg::ref_ptr<vsg::Object> create(const std::string& className);
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
-        using CreateFunction = std::function<vsg::ref_ptr<vsg::Object>()>;
-        using CreateMap = std::map<std::string, CreateFunction>;
+        void setNumDescriptorSets(uint32_t count) { _numDescriptorSets = count; }
+        uint32_t getNumDescriptorSets() const { return _numDescriptorSets; }
 
-        CreateMap& getCreateMap() { return _createMap; }
-        const CreateMap& getCreateMap() const { return _createMap; }
+        void setMaxSlot(uint32_t slot) { _maxSlot = slot; }
+        uint32_t getMaxSlot() const { return _maxSlot; }
 
-        /// return the ObjectFactory singleton instance
-        static ref_ptr<ObjectFactory>& instance();
+        void setDescriptorPoolSizes(const DescriptorPoolSizes& dps) { _descriptorPoolSizes = dps; }
+        DescriptorPoolSizes& getDescriptorPoolSizes() { return _descriptorPoolSizes; }
+        const DescriptorPoolSizes& getDescriptorPoolSizes() const { return _descriptorPoolSizes; }
 
     protected:
-        CreateMap _createMap;
+        virtual ~ResourceHints();
+
+        uint32_t _maxSlot = 0;
+        uint32_t _numDescriptorSets = 0;
+        DescriptorPoolSizes _descriptorPoolSizes;
     };
+    VSG_type_name(vsg::ResourceHints);
 
 } // namespace vsg
