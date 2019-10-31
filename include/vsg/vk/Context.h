@@ -106,6 +106,26 @@ namespace vsg
         virtual ~CopyAndReleaseImageDataCommand();
     };
 
+    class SetImageLayoutCommand : public Command
+    {
+    public:
+        SetImageLayoutCommand(Image* image, VkAccessFlags srcAccessMask, VkAccessFlags destAccessMask, VkImageLayout oldLayout, VkImageLayout newLayout, VkPipelineStageFlags srcStage, VkPipelineStageFlags destStage);
+        SetImageLayoutCommand(ImageData image);
+
+        void dispatch(CommandBuffer& commandBuffer) const override;
+
+        ref_ptr<Image> _image;
+        VkAccessFlags _srcAccessMask;
+        VkAccessFlags _destAccessMask;
+        VkImageLayout _oldLayout;
+        VkImageLayout _newLayout;
+        VkPipelineStageFlags _srcStage;
+        VkPipelineStageFlags _destStage;
+
+    protected:
+        virtual ~SetImageLayoutCommand() {}
+    };
+
     class Context
     {
     public:

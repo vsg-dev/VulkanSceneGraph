@@ -88,7 +88,7 @@ void Window::initaliseDevice()
     deviceExtensions.insert(deviceExtensions.end(), _traits->deviceExtensionNames.begin(), _traits->deviceExtensionNames.end());
 
     // set up device
-    vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(_instance, VK_QUEUE_GRAPHICS_BIT, _surface);
+    vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(_instance, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT, _surface); //RAYTRACING HACK
     if (!physicalDevice) throw Result("Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, validatedNames, deviceExtensions, _traits->allocator);
@@ -167,6 +167,7 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     for (size_t i = 0; i < imageViews.size(); ++i)
     {
         std::array<VkImageView, 2> attachments = {{*imageViews[i], *_depthImageView}};
+        std::vector<ref_ptr<ImageView>> attachmentsviews = {{imageViews[i], _depthImageView}};
 
         VkFramebufferCreateInfo framebufferInfo = {};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -178,7 +179,7 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
         framebufferInfo.layers = 1;
 
         ref_ptr<Semaphore> ias = vsg::Semaphore::create(_device);
-        ref_ptr<Framebuffer> fb = Framebuffer::create(_device, framebufferInfo);
+        ref_ptr<Framebuffer> fb = Framebuffer::create(_device, framebufferInfo, attachmentsviews);
         ref_ptr<CommandPool> cp = CommandPool::create(_device, _physicalDevice->getGraphicsFamily());
 #if 0
         ref_ptr<CommandBuffer> cb = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);

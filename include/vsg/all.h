@@ -83,12 +83,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/CloseHandler.h>
 #include <vsg/viewer/GraphicsStage.h>
+#include <vsg/viewer/RayTracingStage.h>
 #include <vsg/viewer/Trackball.h>
 #include <vsg/viewer/View.h>
 #include <vsg/viewer/Viewer.h>
 #include <vsg/viewer/Window.h>
 
 // Vulkan related header files
+#include <vsg/vk/AccelerationStructure.h>
 #include <vsg/vk/AllocationCallbacks.h>
 #include <vsg/vk/BindIndexBuffer.h>
 #include <vsg/vk/BindVertexBuffers.h>
@@ -123,6 +125,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/PhysicalDevice.h>
 #include <vsg/vk/PipelineLayout.h>
 #include <vsg/vk/PushConstants.h>
+#include <vsg/vk/RayTracingPipeline.h>
+#include <vsg/vk/RayTracingShaderBindings.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/Sampler.h>
 #include <vsg/vk/Semaphore.h>

@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Descriptor.h>
 
 #include <vsg/viewer/GraphicsStage.h>
+#include <vsg/viewer/RayTracingStage.h>
 #include <vsg/viewer/Viewer.h>
 
 #include <chrono>
@@ -62,7 +63,7 @@ void Viewer::addWindow(ref_ptr<Window> window)
     pdo.imageIndices.push_back(0);   // to be filled in by submitFrame()
     pdo.commandBuffers.push_back(0); // to be filled in by submitFrame()
     pdo.swapchains.push_back(*(window->swapchain()));
-    pdo.waitStages.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+    pdo.waitStages.push_back(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);//VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT); //RAYTRACING HACK
 }
 
 bool Viewer::active() const
@@ -119,7 +120,7 @@ void Viewer::reassignFrameCache()
             pdo.imageIndices.push_back(0);   // to be filled in by submitFrame()
             pdo.commandBuffers.push_back(0); // to be filled in by submitFrame()
             pdo.swapchains.push_back(*(window->swapchain()));
-            pdo.waitStages.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+            pdo.waitStages.push_back(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT); //VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT); //RAYTRACING HACK
         }
     }
 }
@@ -353,6 +354,11 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             {
                 gs->_commandGraph->accept(collectStats);
             }
+            RayTracingStage* rts = dynamic_cast<RayTracingStage*>(stage.get());
+            if (rts)
+            {
+                rts->_commandGraph->accept(collectStats);
+            }
         }
 
         uint32_t maxSets = collectStats.computeNumDescriptorSets();
@@ -377,6 +383,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
         for (auto& stage : window->stages())
         {
             GraphicsStage* gs = dynamic_cast<GraphicsStage*>(stage.get());
+            RayTracingStage* rts = dynamic_cast<RayTracingStage*>(stage.get());
             if (gs)
             {
                 gs->_maxSlot = collectStats.maxSlot;
@@ -400,6 +407,14 @@ void Viewer::compile(BufferPreferences bufferPreferences)
                     gs->databasePager->compileTraversal = compile;
                     gs->databasePager->start();
                 }
+            }
+            else if (rts)
+            {
+                rts->_maxSlot = collectStats.maxSlot;
+
+                rts->_commandGraph->accept(*compile);
+
+                compile->context.dispatch();
             }
             else
             {
