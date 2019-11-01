@@ -415,6 +415,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
                 rts->_commandGraph->accept(*compile);
 
                 compile->context.dispatch();
+                compile->context.waitForCompletion();
             }
             else
             {
