@@ -35,7 +35,7 @@ namespace vsg
     class State;
     class DatabasePager;
     class FrameStamp;
-    class CulledPagedLODs;
+    struct CulledPagedLODs;
 
     class VSG_DECLSPEC DispatchTraversal : public Object
     {
