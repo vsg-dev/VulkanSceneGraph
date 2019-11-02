@@ -105,7 +105,7 @@ namespace vsg
 
         void reassignFrameCache();
 
-        bool aquireNextFrame();
+        bool acquireNextFrame();
 
         bool populateNextFrame();
 
