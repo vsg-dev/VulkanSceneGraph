@@ -38,7 +38,7 @@ namespace vsg
             ref_ptr<Queue> presentQueue;
             ref_ptr<Semaphore> renderFinishedSemaphore;
 
-            // cache data to used each frame
+            // cache data to be used each frame
             std::vector<uint32_t> imageIndices;
             std::vector<VkSemaphore> signalSemaphores;
             std::vector<VkCommandBuffer> commandBuffers;
