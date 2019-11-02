@@ -1,6 +1,8 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2018 Robert Osfield
+Copyright(c) 2019 Thomas Hogarth
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -10,24 +12,31 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Submit.h>
+#include <vsg/core/Value.h>
+#include <vsg/vk/BufferData.h>
+#include <vsg/vk/Command.h>
+#include <vsg/vk/DeviceMemory.h>
+#include <vsg/vk/Descriptor.h>
+#include <vsg/maths/mat4.h>
 
-using namespace vsg;
-
-Submit::Submit()
+namespace vsg
 {
-}
+    class VSG_DECLSPEC AccelerationGeometry : public Inherit<Object, AccelerationGeometry>
+    {
+    public:
+        AccelerationGeometry(Allocator* allocator = nullptr);
 
-Submit::~Submit()
-{
-}
+        void compile(Context& context);
 
-void Submit::submit(Queue& queue)
-{
-    /*VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = _commandBuffers.size();
-    submitInfo.pCommandBuffers = _commandBuffers->data();
+        operator VkGeometryNV() const { return _geometry; }
 
-    queue.submit(queue);*/
-}
+        ref_ptr<Data> _verts;
+        ref_ptr<Data> _indices;
+
+        // compiled data
+        BufferData _vertexBuffer;
+        BufferData _indexBuffer;
+        VkGeometryNV _geometry;
+    };
+    using AccelerationGeometries = std::vector<ref_ptr<AccelerationGeometry>>;
+} // namespace vsg

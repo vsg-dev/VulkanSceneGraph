@@ -1,0 +1,66 @@
+/* <editor-fold desc="MIT License">
+
+Copyright(c) 2019 Thomas Hogarth
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+</editor-fold> */
+
+#include <algorithm>
+
+#include <vsg/raytracing/TopLevelAccelerationStructure.h>
+
+#include <vsg/vk/Context.h>
+#include <vsg/vk/Extensions.h>
+#include <vsg/vk/CommandBuffer.h>
+
+using namespace vsg;
+
+#define TRANSFER_BUFFERS 0
+
+TopLevelAccelerationStructure::TopLevelAccelerationStructure(Device* device, Allocator* allocator) :
+    Inherit(VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_NV, device, allocator)
+{
+}
+
+void TopLevelAccelerationStructure::compile(Context& context)
+{
+    if (!_instanceSource) return; // no data
+    if (_instance) return;        // already compiled
+
+    _instanceSource->compile(context);
+
+    _instance = VkGeometryInstanceValue::create();
+    for (unsigned int i = 0; i < 12; i++)
+        _instance->value().transform[i] = (float)_transform.data()[i];
+    _instance->value().instanceId = 0;
+    _instance->value().mask = 0xff;
+    _instance->value().instanceOffset = 0;
+    _instance->value().flags = VK_GEOMETRY_INSTANCE_TRIANGLE_CULL_DISABLE_BIT_NV;
+    _instance->value().accelerationStructureHandle = _instanceSource->handle();
+
+    DataList dataList = {_instance};
+
+#if TRANSFER_BUFFERS
+    auto instanceBufferData = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);
+    _instanceBuffer = instanceBufferData[0]._buffer;
+#else
+    auto instanceBufferData = vsg::createHostVisibleBuffer(context.device, dataList, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);
+    vsg::copyDataListToBuffers(instanceBufferData);
+    _instanceBuffer = instanceBufferData[0]._buffer;
+#endif
+
+    _accelerationStructureInfo.instanceCount = 1;
+
+    Inherit::compile(context);
+
+    context.buildAccelerationStructureCommands.push_back(BuildAccelerationStructureCommand::create(context.device, &_accelerationStructureInfo, _accelerationStructure, _instanceBuffer));
+}
+
+void TopLevelAccelerationStructure::dispatch(CommandBuffer& commandBuffer) const
+{
+}

@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2019 Thomas Hogarth
@@ -12,32 +10,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Stage.h>
-#include <vsg/vk/RayTracingShaderBindings.h>
+#include <vsg/raytracing/AccelerationStructureBuildTraversal.h>
 
-#include <vsg/viewer/Camera.h>
+using namespace vsg;
 
-namespace vsg
+AccelerationStructureBuildTraversal::AccelerationStructureBuildTraversal(Device* in_device)
 {
+}
 
-    class VSG_DECLSPEC RayTracingStage : public Inherit<Stage, RayTracingStage>
-    {
-    public:
-        RayTracingStage(ref_ptr<Node> commandGraph, ref_ptr<RayTracingShaderBindings> shaderBindings, ImageView* storageImage, const VkExtent2D& extents, ref_ptr<Camera> camera = ref_ptr<Camera>());
+AccelerationStructureBuildTraversal::~AccelerationStructureBuildTraversal()
+{
+}
 
-        ref_ptr<Camera> _camera;
-        ref_ptr<Node> _commandGraph;
-        ref_ptr<RayTracingShaderBindings> _shaderBindings;
-        vsg::ref_ptr<vsg::mat4Value> _projMatrix;
-        vsg::ref_ptr<vsg::mat4Value> _viewMatrix;
-        vsg::ref_ptr<ViewportState> _viewport;
-
-        ref_ptr<ImageView> _storageImage;
-
-        VkExtent2D _extent2D;
-        uint32_t _maxSlot = 2;
-
-        void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent, const VkClearColorValue& clearColor, ref_ptr<FrameStamp> frameStamp) override;
-    };
-
-} // namespace vsg
+void AccelerationStructureBuildTraversal::apply(Object& object)
+{
+    object.traverse(*this);
+}

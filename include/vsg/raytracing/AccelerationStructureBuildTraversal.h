@@ -1,6 +1,8 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2018 Robert Osfield
+Copyright(c) 2019 Thomas Hogarth
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -10,24 +12,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Submit.h>
 
-using namespace vsg;
+#include <vsg/core/Object.h>
+#include <vsg/core/Visitor.h>
+#include <vsg/raytracing/AccelerationStructure.h>
 
-Submit::Submit()
+namespace vsg
 {
-}
+    class VSG_DECLSPEC AccelerationStructureBuildTraversal : public Visitor
+    {
+    public:
+        AccelerationStructureBuildTraversal(Device* in_device);
+        ~AccelerationStructureBuildTraversal();
 
-Submit::~Submit()
-{
-}
-
-void Submit::submit(Queue& queue)
-{
-    /*VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = _commandBuffers.size();
-    submitInfo.pCommandBuffers = _commandBuffers->data();
-
-    queue.submit(queue);*/
-}
+        void apply(Object& object);
+    };
+} // namespace vsg

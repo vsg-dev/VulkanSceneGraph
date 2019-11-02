@@ -15,7 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Command.h>
 #include <vsg/vk/PipelineLayout.h>
 #include <vsg/vk/ShaderStage.h>
-#include <vsg/vk/RayTracingShaderBindings.h>
+#include <vsg/raytracing/RayTracingShaderBindings.h>
 
 namespace vsg
 {
