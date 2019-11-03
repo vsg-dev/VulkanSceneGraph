@@ -144,7 +144,7 @@ bool Viewer::advanceToNextFrame()
     // poll all the windows for events.
     pollEvents(true);
 
-    if (!aquireNextFrame()) return false;
+    if (!acquireNextFrame()) return false;
 
     // create FrameStamp for frame
     auto time = vsg::clock::now();
@@ -156,7 +156,7 @@ bool Viewer::advanceToNextFrame()
     return true;
 }
 
-bool Viewer::aquireNextFrame()
+bool Viewer::acquireNextFrame()
 {
     if (_close) return false;
 

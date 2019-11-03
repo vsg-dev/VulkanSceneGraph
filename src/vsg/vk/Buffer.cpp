@@ -44,7 +44,7 @@ Buffer::~Buffer()
         _deviceMemory->release(_memoryOffset, _memorySlots.totalMemorySize());
     }
 #if REPORT_STATS
-    std::cout << "end fo Buffer::~Buffer() " << this << std::endl;
+    std::cout << "end of Buffer::~Buffer() " << this << std::endl;
 #endif
 }
 

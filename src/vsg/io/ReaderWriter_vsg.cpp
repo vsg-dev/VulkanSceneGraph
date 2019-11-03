@@ -22,7 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-// use a static handle that is initialzaed once at start up to avoid multithreaded issues associated with calling std::locale::classic().
+// use a static handle that is initialized once at start up to avoid multi-threaded issues associated with calling std::locale::classic().
 auto s_class_locale = std::locale::classic();
 
 ReaderWriter_vsg::ReaderWriter_vsg()
