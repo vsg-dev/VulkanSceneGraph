@@ -27,6 +27,7 @@ AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeNV type,
 {
     _accelerationStructureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV;
     _accelerationStructureInfo.type = type;
+    _accelerationStructureInfo.flags = 0; // probably be useful to set this somehow
     _accelerationStructureInfo.instanceCount = 0;
     _accelerationStructureInfo.geometryCount = 0;
     _accelerationStructureInfo.pGeometries = nullptr;

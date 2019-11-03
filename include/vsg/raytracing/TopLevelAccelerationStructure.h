@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Value.h>
+#include <vsg/core/Array.h>
 #include <vsg/raytracing/AccelerationStructure.h>
 #include <vsg/raytracing/BottomLevelAccelerationStructure.h>
 
@@ -29,6 +30,35 @@ namespace vsg
         uint64_t accelerationStructureHandle; // handle to bottomlevel acceleration structure
     };
     VSG_value(VkGeometryInstanceValue, VkGeometryInstance);
+    VSG_array(VkGeometryInstanceArray, VkGeometryInstance);
+
+    // An instance of a bottom level acceleration structure referenc by a top level acceleration structure
+    class VSG_DECLSPEC GeometryInstance : public Inherit<Object, GeometryInstance>
+    {
+    public:
+        GeometryInstance();
+
+        operator VkGeometryInstance() const
+        {
+            VkGeometryInstance inst;
+            inst.instanceId = _id;
+            inst.mask = _mask;
+            inst.instanceOffset = _shaderOffset;
+            inst.flags = _flags;
+            inst.accelerationStructureHandle = _accelerationStructure->handle();
+            for (unsigned int i = 0; i < 12; i++)
+                inst.transform[i] = (float)_transform.data()[i];
+            return inst;
+        }
+
+        mat4 _transform;
+        uint32_t _id;
+        uint32_t _mask;
+        uint32_t _shaderOffset;
+        uint32_t _flags;
+        ref_ptr<BottomLevelAccelerationStructure> _accelerationStructure;
+    };
+    using GeometryInstances = std::vector<ref_ptr<GeometryInstance>>;
 
     class VSG_DECLSPEC TopLevelAccelerationStructure : public Inherit<AccelerationStructure, TopLevelAccelerationStructure>
     {
@@ -38,11 +68,10 @@ namespace vsg
         void compile(Context& context) override;
         void dispatch(CommandBuffer& commandBuffer) const override;
 
-        dmat4 _transform;
-        ref_ptr<BottomLevelAccelerationStructure> _instanceSource;
+        GeometryInstances _geometries;
 
         // compiled data
-        ref_ptr<VkGeometryInstanceValue> _instance;
+        ref_ptr<VkGeometryInstanceArray> _instances;
         ref_ptr<Buffer> _instanceBuffer;
     };
 } // namespace vsg

@@ -22,6 +22,15 @@ using namespace vsg;
 
 #define TRANSFER_BUFFERS 0
 
+GeometryInstance::GeometryInstance() :
+    Inherit(nullptr),
+    _id(0),
+    _mask(0xff),
+    _shaderOffset(0),
+    _flags(VK_GEOMETRY_INSTANCE_TRIANGLE_CULL_DISABLE_BIT_NV)
+{
+}
+
 TopLevelAccelerationStructure::TopLevelAccelerationStructure(Device* device, Allocator* allocator) :
     Inherit(VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_NV, device, allocator)
 {
@@ -29,21 +38,20 @@ TopLevelAccelerationStructure::TopLevelAccelerationStructure(Device* device, All
 
 void TopLevelAccelerationStructure::compile(Context& context)
 {
-    if (!_instanceSource) return; // no data
-    if (_instance) return;        // already compiled
+    if (_geometries.empty()) return; // no data
+    if (_instances) return;          // already compiled
 
-    _instanceSource->compile(context);
+    // allocate instances array to size of reference bottom level geoms list
+    _instances = VkGeometryInstanceArray::create(_geometries.size());
 
-    _instance = VkGeometryInstanceValue::create();
-    for (unsigned int i = 0; i < 12; i++)
-        _instance->value().transform[i] = (float)_transform.data()[i];
-    _instance->value().instanceId = 0;
-    _instance->value().mask = 0xff;
-    _instance->value().instanceOffset = 0;
-    _instance->value().flags = VK_GEOMETRY_INSTANCE_TRIANGLE_CULL_DISABLE_BIT_NV;
-    _instance->value().accelerationStructureHandle = _instanceSource->handle();
+    // compile the referenced bottom level acceleration structures and add geom instance to instances array
+    for (uint32_t i = 0; i < _geometries.size(); i++)
+    {
+        _geometries[i]->_accelerationStructure->compile(context);
+        _instances->set(i, *_geometries[i]);
+    }
 
-    DataList dataList = {_instance};
+    DataList dataList = { _instances };
 
 #if TRANSFER_BUFFERS
     auto instanceBufferData = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);
@@ -54,7 +62,7 @@ void TopLevelAccelerationStructure::compile(Context& context)
     _instanceBuffer = instanceBufferData[0]._buffer;
 #endif
 
-    _accelerationStructureInfo.instanceCount = 1;
+    _accelerationStructureInfo.instanceCount = static_cast<uint32_t>(_instances->valueCount());
 
     Inherit::compile(context);
 
