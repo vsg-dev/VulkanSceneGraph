@@ -14,15 +14,86 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-AccelerationStructureBuildTraversal::AccelerationStructureBuildTraversal(Device* in_device)
+AccelerationStructureBuildTraversal::AccelerationStructureBuildTraversal(Device* in_device) :
+    Visitor(),
+    _device(in_device)
 {
-}
-
-AccelerationStructureBuildTraversal::~AccelerationStructureBuildTraversal()
-{
+    _tlas = TopLevelAccelerationStructure::create(_device);
 }
 
 void AccelerationStructureBuildTraversal::apply(Object& object)
 {
     object.traverse(*this);
+}
+
+void AccelerationStructureBuildTraversal::apply(MatrixTransform& mt)
+{
+    _transformStack.pushAndPreMult(mt.getMatrix());
+
+    mt.traverse(*this);
+
+    _transformStack.pop();
+}
+
+void AccelerationStructureBuildTraversal::apply(vsg::Geometry& geometry)
+{
+    if (geometry._arrays.size() == 0) return;
+
+    // check cache
+    ref_ptr<BottomLevelAccelerationStructure> blas;
+    if (_geometryBlasMap.find(&geometry) != _geometryBlasMap.end())
+    {
+        blas = _geometryBlasMap[&geometry];
+    }
+    else
+    {
+        // create new blas and add to cache
+        blas = BottomLevelAccelerationStructure::create(_device);
+        ref_ptr<AccelerationGeometry> accelGeom = AccelerationGeometry::create();
+        accelGeom->_verts = geometry._arrays[0];
+        accelGeom->_indices = geometry._indices;
+        blas->_geometries.push_back(accelGeom);
+
+        _geometryBlasMap[&geometry] = blas;
+    }
+
+    // create a geometry instance for this geometry using the blas that represents it and the current transform matrix
+    createGeometryInstance(blas);
+}
+
+void AccelerationStructureBuildTraversal::apply(vsg::VertexIndexDraw& vid)
+{
+    if (vid._arrays.size() == 0) return;
+
+    // check cache
+    ref_ptr<BottomLevelAccelerationStructure> blas;
+    if (_vertexIndexDrawBlasMap.find(&vid) != _vertexIndexDrawBlasMap.end())
+    {
+        blas = _vertexIndexDrawBlasMap[&vid];
+    }
+    else
+    {
+        // create new blas and add to cache
+        blas = BottomLevelAccelerationStructure::create(_device);
+        ref_ptr<AccelerationGeometry> accelGeom = AccelerationGeometry::create();
+        accelGeom->_verts = vid._arrays[0];
+        accelGeom->_indices = vid._indices;
+        blas->_geometries.push_back(accelGeom);
+
+        _vertexIndexDrawBlasMap[&vid] = blas;
+    }
+
+    // create a geometry instance for this geometry using the blas that represents it and the current transform matrix
+    createGeometryInstance(blas);
+}
+
+void AccelerationStructureBuildTraversal::createGeometryInstance(BottomLevelAccelerationStructure* blas)
+{
+    ref_ptr<GeometryInstance> geominst = GeometryInstance::create();
+    geominst->_accelerationStructure = blas;
+    geominst->_id = static_cast<uint32_t>(_tlas->_geometryInstances.size());
+
+    geominst->_transform = _transformStack.top();
+
+    _tlas->_geometryInstances.push_back(geominst);
 }

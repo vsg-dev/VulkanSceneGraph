@@ -38,17 +38,17 @@ TopLevelAccelerationStructure::TopLevelAccelerationStructure(Device* device, All
 
 void TopLevelAccelerationStructure::compile(Context& context)
 {
-    if (_geometries.empty()) return; // no data
+    if (_geometryInstances.empty()) return; // no data
     if (_instances) return;          // already compiled
 
     // allocate instances array to size of reference bottom level geoms list
-    _instances = VkGeometryInstanceArray::create(_geometries.size());
+    _instances = VkGeometryInstanceArray::create(static_cast<uint32_t>(_geometryInstances.size()));
 
     // compile the referenced bottom level acceleration structures and add geom instance to instances array
-    for (uint32_t i = 0; i < _geometries.size(); i++)
+    for (uint32_t i = 0; i < _geometryInstances.size(); i++)
     {
-        _geometries[i]->_accelerationStructure->compile(context);
-        _instances->set(i, *_geometries[i]);
+        _geometryInstances[i]->_accelerationStructure->compile(context);
+        _instances->set(i, *_geometryInstances[i]);
     }
 
     DataList dataList = { _instances };

@@ -46,8 +46,22 @@ namespace vsg
             inst.instanceOffset = _shaderOffset;
             inst.flags = _flags;
             inst.accelerationStructureHandle = _accelerationStructure->handle();
-            for (unsigned int i = 0; i < 12; i++)
-                inst.transform[i] = (float)_transform.data()[i];
+
+            inst.transform[0] = _transform[0][0];
+            inst.transform[1] = _transform[1][0];
+            inst.transform[2] = _transform[2][0];
+            inst.transform[3] = _transform[3][0];
+
+            inst.transform[4] = _transform[0][1];
+            inst.transform[5] = _transform[1][1];
+            inst.transform[6] = _transform[2][1];
+            inst.transform[7] = _transform[3][1];
+
+            inst.transform[8] = _transform[0][2];
+            inst.transform[9] = _transform[1][2];
+            inst.transform[10] = _transform[2][2];
+            inst.transform[11] = _transform[3][2];
+
             return inst;
         }
 
@@ -68,7 +82,7 @@ namespace vsg
         void compile(Context& context) override;
         void dispatch(CommandBuffer& commandBuffer) const override;
 
-        GeometryInstances _geometries;
+        GeometryInstances _geometryInstances;
 
         // compiled data
         ref_ptr<VkGeometryInstanceArray> _instances;

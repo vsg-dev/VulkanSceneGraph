@@ -19,7 +19,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/DescriptorSet.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/PushConstants.h>
+#include <vsg/maths/plane.h>
 
+#include <array>
 #include <map>
 #include <stack>
 

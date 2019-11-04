@@ -12,19 +12,46 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/vk/State.h>
 
 #include <vsg/core/Object.h>
 #include <vsg/core/Visitor.h>
+
+#include <vsg/nodes/Geometry.h>
+#include <vsg/nodes/VertexIndexDraw.h>
+#include <vsg/nodes/MatrixTransform.h>
+
 #include <vsg/raytracing/AccelerationStructure.h>
+#include <vsg/raytracing/BottomLevelAccelerationStructure.h>
+#include <vsg/raytracing/TopLevelAccelerationStructure.h>
 
 namespace vsg
 {
+    //class MatrixStack;
+
     class VSG_DECLSPEC AccelerationStructureBuildTraversal : public Visitor
     {
     public:
         AccelerationStructureBuildTraversal(Device* in_device);
-        ~AccelerationStructureBuildTraversal();
 
         void apply(Object& object);
+        void apply(MatrixTransform& mt);
+        void apply(vsg::Geometry& geometry);
+        void apply(vsg::VertexIndexDraw& vid);
+
+        // the top level acceleration structure we are creating and adding geometry instances to as we find and create them
+        ref_ptr<TopLevelAccelerationStructure> _tlas;
+
+        ref_ptr<Device> _device;
+
+    protected:
+
+        void createGeometryInstance(BottomLevelAccelerationStructure* blas);
+
+        MatrixStack _transformStack;
+
+        // cache blas's created for various types of draw node
+        std::map<VertexIndexDraw*, ref_ptr<BottomLevelAccelerationStructure>> _vertexIndexDrawBlasMap;
+        std::map<Geometry*, ref_ptr<BottomLevelAccelerationStructure>> _geometryBlasMap;
     };
 } // namespace vsg
