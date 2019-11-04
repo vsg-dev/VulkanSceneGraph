@@ -134,7 +134,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/ShaderStage.h>
 #include <vsg/vk/Stage.h>
 #include <vsg/vk/State.h>
-#include <vsg/vk/Submit.h>
 #include <vsg/vk/Surface.h>
 #include <vsg/vk/Swapchain.h>
 
