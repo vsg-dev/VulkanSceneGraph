@@ -29,8 +29,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    struct CulledPagedLODs : public Inherit<Object, CulledPagedLODs>
+    class CulledPagedLODs : public Inherit<Object, CulledPagedLODs>
     {
+    public:
         CulledPagedLODs()
         {
             highresCulled.reserve(512);
@@ -59,7 +60,7 @@ namespace vsg
 
         void add(ref_ptr<PagedLOD> plod);
 
-        // add the plod reference to the queu then set the plod paramter to nullptr to ensure calling thread can't delete it
+        // add the plod reference to the queue then set the plod parameter to nullptr to ensure calling thread can't delete it
         void add_then_reset(ref_ptr<PagedLOD>& plod);
 
         void add(Nodes& nodes);

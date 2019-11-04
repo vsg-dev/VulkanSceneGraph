@@ -107,7 +107,7 @@ namespace vsg
         double radiusEquator() const { return _radiusEquator; }
         double radiusPolar() const { return _radiusPolar; }
 
-        // lattitude and longitude in radians
+        // latitude and longitude in radians
         dvec3 convertLatLongAltitudeToECEF(const dvec3& lla)
         {
             const double latitude = lla[0];
@@ -123,7 +123,7 @@ namespace vsg
                          (N * (1 - _eccentricitySquared) + height) * sin_latitude);
         }
 
-        // lattitude and longitude in radians
+        // latitude and longitude in radians
         dvec3 convertECEVToLatLongAltitude(const dvec3& ecef)
         {
             double latitude, longitude, height;

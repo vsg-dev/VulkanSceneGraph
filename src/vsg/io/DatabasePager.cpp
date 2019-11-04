@@ -78,7 +78,7 @@ ref_ptr<PagedLOD> DatabaseQueue::take_when_avilable()
     // if the threads we are associated with should no longer running go for a quick exit and return nothing.
     if (_queue.empty() || !(*_active))
     {
-        //std::cout<<"DatabaseQueue::take_when_avilable() C _identifier = "<<_identifier<<" emoty"<<std::endl;
+        //std::cout<<"DatabaseQueue::take_when_avilable() C _identifier = "<<_identifier<<" empty"<<std::endl;
         return {};
     }
 
@@ -188,7 +188,7 @@ void DatabasePager::start()
                 uint64_t frameDelta = databasePager.frameCount - plod->frameHighResLastUsed.load();
                 if (frameDelta > 1 || !compare_exchange(plod->requestStatus, PagedLOD::ReadRequest, PagedLOD::Reading))
                 {
-                    // std::cout<<"Expire read requrest"<<std::endl;
+                    // std::cout<<"Expire read request"<<std::endl;
                     databasePager.requestDiscarded(plod);
                     continue;
                 }
@@ -216,7 +216,7 @@ void DatabasePager::start()
                 }
             }
         }
-        //std::cout<<"Finsihed DatabaseThread read thread"<<std::endl;
+        //std::cout<<"Finished DatabaseThread read thread"<<std::endl;
     };
 
     for (int i = 0; i < numReadThreads; ++i)
@@ -281,7 +281,7 @@ void DatabasePager::start()
                 CompileTraversal* ct = compile_itr->get();
 
                 ++compile_itr;
-                // adveance the compile iterator to the next CompileTraversal in the list, wrap around if we get to the end
+                // advance the compile iterator to the next CompileTraversal in the list, wrap around if we get to the end
                 if (compile_itr == compileTraversals.end())
                 {
                     // std::cout<<"Wrapping around"<<std::endl;
@@ -293,7 +293,7 @@ void DatabasePager::start()
                 }
 
 #if REPORT_STATS
-                //std::cout<<"Compile Semaphore befoe wait Semaphore "<<*(ct->context.semaphore->data())<<" , count "<<ct->context.semaphore->numDependentSubmissions().load()<<std::endl;
+                //std::cout<<"Compile Semaphore before wait Semaphore "<<*(ct->context.semaphore->data())<<" , count "<<ct->context.semaphore->numDependentSubmissions().load()<<std::endl;
                 int64_t before_wait_memoryTotalAvailble = ct->context.stagingMemoryBufferPools->computeMemoryTotalAvailble();
                 int64_t before_wait_memoryTotalReserved = ct->context.stagingMemoryBufferPools->computeMemoryTotalReserved();
                 int64_t before_wait_bufferTotalAvailble = ct->context.stagingMemoryBufferPools->computeBufferTotalAvailble();
@@ -353,7 +353,7 @@ void DatabasePager::start()
                                 subgraph = plod->pending;
                             }
 
-                            // compiling subgarph
+                            // compiling subgraph
                             if (subgraph)
                             {
                                 subgraph->accept(*ct);
@@ -361,8 +361,8 @@ void DatabasePager::start()
                             }
                             else
                             {
-                                // need to reset the PLOD so that it's no longer part of the DatabasePager's queues and is ready to be compile when next reqested.
-                                std::cout << "Expire compile requrest " << plod->filename << std::endl;
+                                // need to reset the PLOD so that it's no longer part of the DatabasePager's queues and is ready to be compile when next requested.
+                                std::cout << "Expire compile request " << plod->filename << std::endl;
                                 databasePager.requestDiscarded(plod);
                             }
                         }
@@ -375,9 +375,9 @@ void DatabasePager::start()
                             }
 #endif
 #if REPORT_STATS
-                            std::cout << "Expire compile requrest" << std::endl;
+                            std::cout << "Expire compile request" << std::endl;
 #endif
-                            // need to reset the PLOD so that it's no longer part of the DatabasePager's queues and is ready to be compile when next reqested.
+                            // need to reset the PLOD so that it's no longer part of the DatabasePager's queues and is ready to be compile when next requested.
                             databasePager.requestDiscarded(plod);
                         }
                     }
@@ -396,7 +396,7 @@ void DatabasePager::start()
                 std::cout << "waitForComplete() B after_wait_memoryTotalAvailble = " << after_wait_memoryTotalAvailble << ", after_complile_traversal_memoryTotalAvailble = " << after_complile_traversal_memoryTotalAvailble << std::endl;
                 std::cout << "waitForComplete() B after_wait_memoryTotalReserved = " << after_wait_memoryTotalReserved << ", after_complile_traversal_memoryTotalReserved = " << after_complile_traversal_memoryTotalReserved << std::endl;
                 std::cout << "waitForComplete() B after_wait_bufferTotalAvailble = " << after_wait_bufferTotalAvailble << ", after_complile_traversal_bufferTotalAvailble = " << after_complile_traversal_bufferTotalAvailble << " delta = " << (after_complile_traversal_bufferTotalAvailble - after_wait_bufferTotalAvailble) << std::endl;
-                std::cout << "waitForComplete() B after_wait_bufferTotalReserved = " << after_wait_bufferTotalReserved << ", after_complile_traversal_bufferTotalReserved = " << after_complile_traversal_bufferTotalReserved << " dekta = " << (after_complile_traversal_bufferTotalReserved - after_wait_bufferTotalReserved) << std::endl;
+                std::cout << "waitForComplete() B after_wait_bufferTotalReserved = " << after_wait_bufferTotalReserved << ", after_complile_traversal_bufferTotalReserved = " << after_complile_traversal_bufferTotalReserved << " delta = " << (after_complile_traversal_bufferTotalReserved - after_wait_bufferTotalReserved) << std::endl;
 #endif
                 if (!nodesCompiled.empty())
                 {
@@ -416,7 +416,7 @@ void DatabasePager::start()
                 }
             }
         }
-        //std::cout<<"Finsihed DatabaseThread compile thread"<<std::endl;
+        //std::cout<<"Finished DatabaseThread compile thread"<<std::endl;
     };
 
     for (int i = 0; i < numCompileThreads; ++i)
@@ -438,26 +438,26 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
 
     if (hasPending)
     {
-        // std::cout<<"DatabasePager::reqquest("<<plod.get()<<") has pending subgraphs to transfer to compile "<<plod->filename<<", "<<plod->priority<<" plog="<<plod.get()<<std::endl;
+        // std::cout<<"DatabasePager::request("<<plod.get()<<") has pending subgraphs to transfer to compile "<<plod->filename<<", "<<plod->priority<<" plod="<<plod.get()<<std::endl;
         if (compare_exchange(plod->requestStatus, PagedLOD::NoRequest, PagedLOD::CompileRequest))
         {
             _compileQueue->add(plod);
         }
         else
         {
-            //std::cout<<"Attempted DatabasePager::reqquest("<<plod.get()<<") with pending comile but but plod.requestState() = "<<plod->requestStatus.load()<<" is not NoRequest"<<std::endl;
+            //std::cout<<"Attempted DatabasePager::request("<<plod.get()<<") with pending comile but but plod.requestState() = "<<plod->requestStatus.load()<<" is not NoRequest"<<std::endl;
         }
     }
     else
     {
         if (compare_exchange(plod->requestStatus, PagedLOD::NoRequest, PagedLOD::ReadRequest))
         {
-            // std::cout<<"DatabasePager::reqquest("<<plod.get()<<") adding to requeQueue "<<plod->filename<<", "<<plod->priority<<" plog="<<plod.get()<<std::endl;
+            // std::cout<<"DatabasePager::request("<<plod.get()<<") adding to requeQueue "<<plod->filename<<", "<<plod->priority<<" plod="<<plod.get()<<std::endl;
             _requestQueue->add(plod);
         }
         else
         {
-            //std::cout<<"Attempted DatabasePager::reqquest("<<plod.get()<<") but plod.requestState() = "<<plod->requestStatus.load()<<" is not NoRequest"<<std::endl;
+            //std::cout<<"Attempted DatabasePager::request("<<plod.get()<<") but plod.requestState() = "<<plod->requestStatus.load()<<" is not NoRequest"<<std::endl;
         }
     }
 }

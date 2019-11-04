@@ -39,7 +39,7 @@ namespace vsg
         /// this thread will consume and run operations in parallel with any threads associated with this OperationThreads.
         void run();
 
-        /// stop theads
+        /// stop threads
         void stop();
 
         using Threads = std::list<std::thread>;

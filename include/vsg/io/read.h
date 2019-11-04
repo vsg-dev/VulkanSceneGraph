@@ -19,13 +19,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /** convience method for reading objects from file.*/
+    /** convenience method for reading objects from file.*/
     extern VSG_DECLSPEC ref_ptr<Object> read(const Path& filename, ref_ptr<const Options> options = {});
 
-    /** convience method for reading objects from files.*/
+    /** convenience method for reading objects from files.*/
     extern VSG_DECLSPEC PathObjects read(const Paths& filenames, ref_ptr<const Options> options = {});
 
-    /** convience method for reading file with cast to specificed type.*/
+    /** convenience method for reading file with cast to specified type.*/
     template<class T>
     ref_ptr<T> read_cast(const Path& filename, ref_ptr<const Options> options = {})
     {

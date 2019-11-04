@@ -205,10 +205,10 @@ void MemorySlots::release(VkDeviceSize offset, VkDeviceSize size)
         return;
     }
 
-    // need to find adjacent blocks before and after to see if we can join them togeher options are:
+    // need to find adjacent blocks before and after to see if we can join them together options are:
     //    abutes to neither before or after
-    //    abutes to before, so replace before with new combined legnth
-    //    abutes to after, so remove after entry and insert new enty with combined length
+    //    abutes to before, so replace before with new combined length
+    //    abutes to after, so remove after entry and insert new entry with combined length
     //    abutes to both before and after, so replace before with newly combined length of all three, remove after entry
 
     auto slotAfter = _offsetSizes.upper_bound(offset);

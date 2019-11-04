@@ -151,7 +151,7 @@ void DispatchTraversal::apply(const PagedLOD& plod)
 
             if (child.node)
             {
-                // high res visibile and avaialb so traverse it
+                // high res visible and availably so traverse it
                 child.node->accept(*this);
                 return;
             }

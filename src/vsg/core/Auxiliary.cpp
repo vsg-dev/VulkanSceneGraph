@@ -93,7 +93,7 @@ bool Auxiliary::signalConnectedObjectToBeDeleted()
         return false;
     }
 
-    // disconnect this Auxuliary object from the ConnectedObject
+    // disconnect this Auxiliary object from the ConnectedObject
     _connectedObject = 0;
 
     // return true, the object should be deleted
