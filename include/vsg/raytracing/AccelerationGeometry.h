@@ -12,32 +12,31 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Stage.h>
-#include <vsg/vk/RayTracingShaderBindings.h>
-
-#include <vsg/viewer/Camera.h>
+#include <vsg/core/Value.h>
+#include <vsg/vk/BufferData.h>
+#include <vsg/vk/Command.h>
+#include <vsg/vk/DeviceMemory.h>
+#include <vsg/vk/Descriptor.h>
+#include <vsg/maths/mat4.h>
 
 namespace vsg
 {
-
-    class VSG_DECLSPEC RayTracingStage : public Inherit<Stage, RayTracingStage>
+    class VSG_DECLSPEC AccelerationGeometry : public Inherit<Object, AccelerationGeometry>
     {
     public:
-        RayTracingStage(ref_ptr<Node> commandGraph, ref_ptr<RayTracingShaderBindings> shaderBindings, ImageView* storageImage, const VkExtent2D& extents, ref_ptr<Camera> camera = ref_ptr<Camera>());
+        AccelerationGeometry(Allocator* allocator = nullptr);
 
-        ref_ptr<Camera> _camera;
-        ref_ptr<Node> _commandGraph;
-        ref_ptr<RayTracingShaderBindings> _shaderBindings;
-        vsg::ref_ptr<vsg::mat4Value> _projMatrix;
-        vsg::ref_ptr<vsg::mat4Value> _viewMatrix;
-        vsg::ref_ptr<ViewportState> _viewport;
+        void compile(Context& context);
 
-        ref_ptr<ImageView> _storageImage;
+        operator VkGeometryNV() const { return _geometry; }
 
-        VkExtent2D _extent2D;
-        uint32_t _maxSlot = 2;
+        ref_ptr<Data> _verts;
+        ref_ptr<Data> _indices;
 
-        void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent, const VkClearColorValue& clearColor, ref_ptr<FrameStamp> frameStamp) override;
+        // compiled data
+        BufferData _vertexBuffer;
+        BufferData _indexBuffer;
+        VkGeometryNV _geometry;
     };
-
+    using AccelerationGeometries = std::vector<ref_ptr<AccelerationGeometry>>;
 } // namespace vsg

@@ -83,14 +83,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/CloseHandler.h>
 #include <vsg/viewer/GraphicsStage.h>
-#include <vsg/viewer/RayTracingStage.h>
+#include <vsg/viewer/ProjectionMatrix.h>
 #include <vsg/viewer/Trackball.h>
 #include <vsg/viewer/View.h>
+#include <vsg/viewer/ViewMatrix.h>
 #include <vsg/viewer/Viewer.h>
 #include <vsg/viewer/Window.h>
 
 // Vulkan related header files
-#include <vsg/vk/AccelerationStructure.h>
 #include <vsg/vk/AllocationCallbacks.h>
 #include <vsg/vk/BindIndexBuffer.h>
 #include <vsg/vk/BindVertexBuffers.h>
@@ -125,15 +125,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/PhysicalDevice.h>
 #include <vsg/vk/PipelineLayout.h>
 #include <vsg/vk/PushConstants.h>
-#include <vsg/vk/RayTracingPipeline.h>
-#include <vsg/vk/RayTracingShaderBindings.h>
+#include <vsg/vk/Queue.h>
 #include <vsg/vk/RenderPass.h>
+#include <vsg/vk/ResourceHints.h>
 #include <vsg/vk/Sampler.h>
 #include <vsg/vk/Semaphore.h>
 #include <vsg/vk/ShaderModule.h>
 #include <vsg/vk/ShaderStage.h>
 #include <vsg/vk/Stage.h>
 #include <vsg/vk/State.h>
+#include <vsg/vk/Submit.h>
 #include <vsg/vk/Surface.h>
 #include <vsg/vk/Swapchain.h>
 
@@ -142,6 +143,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/AsciiOutput.h>
 #include <vsg/io/BinaryInput.h>
 #include <vsg/io/BinaryOutput.h>
+#include <vsg/io/DatabasePager.h>
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/ObjectCache.h>
@@ -159,3 +161,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 // Introspection header files
 #include <vsg/introspection/c_interface.h>
+
+// Raytracing header files
+#include <vsg/raytracing/AccelerationGeometry.h>
+#include <vsg/raytracing/AccelerationStructure.h>
+#include <vsg/raytracing/AccelerationStructureBuildTraversal.h>
+#include <vsg/raytracing/BottomLevelAccelerationStructure.h>
+#include <vsg/raytracing/DescriptorAccelerationStructure.h>
+#include <vsg/raytracing/RayTracingPipeline.h>
+#include <vsg/raytracing/RayTracingShaderBindings.h>
+#include <vsg/raytracing/RayTracingStage.h>
+#include <vsg/raytracing/TopLevelAccelerationStructure.h>

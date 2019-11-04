@@ -2,7 +2,7 @@
 
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2018 Robert Osfield
+Copyright(c) 2019 Thomas Hogarth
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -12,40 +12,32 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Device.h>
-#include <vsg/vk/Semaphore.h>
-#include <vsg/vk/Fence.h>
-#include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/Stage.h>
+#include <vsg/raytracing/RayTracingShaderBindings.h>
+
+#include <vsg/viewer/Camera.h>
 
 namespace vsg
 {
-    class VSG_DECLSPEC Submit : public Inherit<Object, Submit>
+
+    class VSG_DECLSPEC RayTracingStage : public Inherit<Stage, RayTracingStage>
     {
     public:
-        Submit();
+        RayTracingStage(ref_ptr<Node> commandGraph, ref_ptr<RayTracingShaderBindings> shaderBindings, ImageView* storageImage, const VkExtent2D& extents, ref_ptr<Camera> camera = ref_ptr<Camera>());
 
-        using Semaphores = std::vector<ref_ptr<Semaphore>>;
-        using CommandBuffers = std::vector<ref_ptr<CommandBuffer>>;
+        ref_ptr<Camera> _camera;
+        ref_ptr<Node> _commandGraph;
+        ref_ptr<RayTracingShaderBindings> _shaderBindings;
+        vsg::ref_ptr<vsg::mat4Value> _projMatrix;
+        vsg::ref_ptr<vsg::mat4Value> _viewMatrix;
+        vsg::ref_ptr<ViewportState> _viewport;
 
-        struct SubmitInfo
-        {
-            Semaphores waitSemaphores;
-            CommandBuffers commandBuffers;
-            Semaphores signalSemaphores;
-        };
+        ref_ptr<ImageView> _storageImage;
 
-        using SubmitInfos = std::vector<SubmitInfo>;
+        VkExtent2D _extent2D;
+        uint32_t _maxSlot = 2;
 
-        SubmitInfos& infos() { return _submitInfos; }
-        Fence* fence() { return _fence.get(); }
-
-        virtual void submit(Queue& queue);
-
-    protected:
-        virtual ~Submit();
-
-        SubmitInfos _submitInfos;
-        ref_ptr<Fence> _fence;
+        void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent, const VkClearColorValue& clearColor, ref_ptr<FrameStamp> frameStamp) override;
     };
 
 } // namespace vsg

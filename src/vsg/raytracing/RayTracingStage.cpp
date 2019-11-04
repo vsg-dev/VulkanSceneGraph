@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/StateGroup.h>
 
 #include <vsg/vk/Extensions.h>
-#include <vsg/viewer/RayTracingStage.h>
+#include <vsg/raytracing/RayTracingStage.h>
 
 #include <vsg/ui/ApplicationEvent.h>
 
