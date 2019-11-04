@@ -121,6 +121,7 @@ set(SOURCES
     vk/ShaderStage.cpp
     vk/Surface.cpp
     vk/Swapchain.cpp
+    vk/Submit.cpp
 )
 
 # add platform specific Window implementation
