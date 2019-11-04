@@ -346,7 +346,7 @@ bool PagedLODContainer::check(List& list)
         if (list.tail == 0)
         {
             if (list.count == 0) return true;
-            std::cout << "Warning: list " << list.name << " has a head==0 and tail==0 but lenght is " << list.count << std::endl;
+            std::cout << "Warning: list " << list.name << " has a head==0 and tail==0 but length is " << list.count << std::endl;
             return false;
         }
 
