@@ -14,11 +14,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Framebuffer::Framebuffer(VkFramebuffer framebuffer, const std::vector<ref_ptr<ImageView>>& attachments, Device* device, AllocationCallbacks* allocator) :
+Framebuffer::Framebuffer(VkFramebuffer framebuffer, Device* device, AllocationCallbacks* allocator) :
     _framebuffer(framebuffer),
     _device(device),
-    _allocator(allocator),
-    _attachments(attachments)
+    _allocator(allocator)
 {
 }
 
@@ -30,7 +29,7 @@ Framebuffer::~Framebuffer()
     }
 }
 
-Framebuffer::Result Framebuffer::create(Device* device, VkFramebufferCreateInfo& framebufferInfo, const std::vector<ref_ptr<ImageView>>& attachments, AllocationCallbacks* allocator)
+Framebuffer::Result Framebuffer::create(Device* device, VkFramebufferCreateInfo& framebufferInfo, AllocationCallbacks* allocator)
 {
     if (!device)
     {
@@ -41,7 +40,7 @@ Framebuffer::Result Framebuffer::create(Device* device, VkFramebufferCreateInfo&
     VkResult result = vkCreateFramebuffer(*device, &framebufferInfo, allocator, &framebuffer);
     if (result == VK_SUCCESS)
     {
-        return Result(new Framebuffer(framebuffer, attachments, device, allocator));
+        return Result(new Framebuffer(framebuffer, device, allocator));
     }
     else
     {

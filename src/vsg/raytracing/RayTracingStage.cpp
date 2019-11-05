@@ -35,7 +35,7 @@ RayTracingStage::RayTracingStage(ref_ptr<Node> commandGraph, ref_ptr<RayTracingS
 {
 }
 
-void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent, const VkClearColorValue& clearColor, ref_ptr<FrameStamp> frameStamp)
+void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, ImageView* imageView, const VkExtent2D& extent, const VkClearColorValue& clearColor, ref_ptr<FrameStamp> frameStamp)
 {
     Extensions* extensions = Extensions::Get(_shaderBindings->device(), true);
 
@@ -72,7 +72,7 @@ void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Frameb
     ImageMemoryBarrier transitionSwapChainToWriteDest(
         0, VK_ACCESS_TRANSFER_WRITE_BIT,
         VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-        framebuffer->getAttachment(0)->getImage());
+        imageView->getImage());
 
     transitionSwapChainToWriteDest.cmdPiplineBarrier(*commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
 
@@ -91,7 +91,7 @@ void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Frameb
     copyRegion.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
     copyRegion.dstOffset = {0, 0, 0};
     copyRegion.extent = {_extent2D.width, _extent2D.height, 1};
-    vkCmdCopyImage(*commandBuffer, *_storageImage->getImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, *framebuffer->getAttachment(0)->getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+    vkCmdCopyImage(*commandBuffer, *_storageImage->getImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, *imageView->getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
     
 
     // transition image layouts back
@@ -99,7 +99,7 @@ void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Frameb
     ImageMemoryBarrier transitionSwapChainToOriginal(
         VK_ACCESS_TRANSFER_WRITE_BIT, 0,
         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-        framebuffer->getAttachment(0)->getImage());
+        imageView->getImage());
 
     transitionSwapChainToOriginal.cmdPiplineBarrier(*commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
 

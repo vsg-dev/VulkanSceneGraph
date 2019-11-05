@@ -21,21 +21,15 @@ namespace vsg
     class VSG_DECLSPEC Framebuffer : public Inherit<Object, Framebuffer>
     {
     public:
-        Framebuffer(VkFramebuffer framebuffer, const std::vector<ref_ptr<ImageView>>& attachments, Device* device, AllocationCallbacks* allocator = nullptr);
+        Framebuffer(VkFramebuffer framebuffer, Device* device, AllocationCallbacks* allocator = nullptr);
 
         using Result = vsg::Result<Framebuffer, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, VkFramebufferCreateInfo& framebufferInfo, const std::vector<ref_ptr<ImageView>>& attachments, AllocationCallbacks* allocator = nullptr);
+        static Result create(Device* device, VkFramebufferCreateInfo& framebufferInfo, AllocationCallbacks* allocator = nullptr);
 
         operator VkFramebuffer() const { return _framebuffer; }
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
-
-        ImageView* getAttachment(uint32_t index)
-        { 
-            if (index >= _attachments.size()) return nullptr;
-            return _attachments[index];
-        }
 
     protected:
         virtual ~Framebuffer();
@@ -43,6 +37,5 @@ namespace vsg
         VkFramebuffer _framebuffer;
         ref_ptr<Device> _device;
         ref_ptr<AllocationCallbacks> _allocator;
-        std::vector<ref_ptr<ImageView>> _attachments;
     };
 } // namespace vsg

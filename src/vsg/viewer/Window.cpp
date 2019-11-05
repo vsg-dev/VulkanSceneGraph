@@ -167,7 +167,6 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     for (size_t i = 0; i < imageViews.size(); ++i)
     {
         std::array<VkImageView, 2> attachments = {{*imageViews[i], *_depthImageView}};
-        std::vector<ref_ptr<ImageView>> attachmentsviews = {{imageViews[i], _depthImageView}};
 
         VkFramebufferCreateInfo framebufferInfo = {};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -179,7 +178,7 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
         framebufferInfo.layers = 1;
 
         ref_ptr<Semaphore> ias = vsg::Semaphore::create(_device);
-        ref_ptr<Framebuffer> fb = Framebuffer::create(_device, framebufferInfo, attachmentsviews);
+        ref_ptr<Framebuffer> fb = Framebuffer::create(_device, framebufferInfo);
         ref_ptr<CommandPool> cp = CommandPool::create(_device, _physicalDevice->getGraphicsFamily());
 #if 0
         ref_ptr<CommandBuffer> cb = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
@@ -237,7 +236,7 @@ void Window::populateCommandBuffers(uint32_t index, ref_ptr<vsg::FrameStamp> fra
 
     for (auto& stage : _stages)
     {
-        stage->populateCommandBuffer(frame.commandBuffer, frame.framebuffer, _renderPass, _extent2D, _clearColor, frameStamp);
+        stage->populateCommandBuffer(frame.commandBuffer, frame.framebuffer, _renderPass, frame.imageView, _extent2D, _clearColor, frameStamp);
     }
 }
 
