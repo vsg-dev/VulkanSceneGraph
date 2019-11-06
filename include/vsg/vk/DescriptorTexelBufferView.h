@@ -58,7 +58,7 @@ namespace vsg
         }
     };
 
-    template <>
+    template<>
     constexpr bool has_read_write<material>() { return true; }
 
     VSG_value(materialValue, material);

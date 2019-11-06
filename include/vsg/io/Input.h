@@ -95,7 +95,7 @@ namespace vsg
         {
             if constexpr (has_read_write<T>())
             {
-                for(size_t i=0; i<num; ++i) value[i].read(*this);
+                for (size_t i = 0; i < num; ++i) value[i].read(*this);
             }
             else
             {
@@ -140,7 +140,7 @@ namespace vsg
             return value;
         }
 
-        /// write a value casting it specified type i.e. output.write<uint32_t>("Value", value);
+        /// read a value as a type, then cast it another type
         template<typename W, typename T>
         void readValue(const char* propertyName, T& value)
         {
@@ -155,6 +155,7 @@ namespace vsg
         ObjectIDMap objectIDMap;
         ref_ptr<ObjectFactory> objectFactory;
         ref_ptr<const Options> options;
+        Path filename;
 
     protected:
         virtual ~Input();

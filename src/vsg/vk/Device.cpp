@@ -87,10 +87,18 @@ Device::Result Device::create(PhysicalDevice* physicalDevice, Names& layers, Nam
         return Device::Result("Error: vsg::Device::create(...) failed to create logical device.", result);
     }
 }
-
-VkQueue Device::getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
+ref_ptr<Queue> Device::getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
 {
-    VkQueue queue;
-    vkGetDeviceQueue(_device, queueFamilyIndex, queueIndex, &queue);
+    for (auto& queue : _queues)
+    {
+        if (queue->queueFamilyIndex() == queueFamilyIndex && queue->queueIndex() == queueIndex) return queue;
+    }
+
+    VkQueue vk_queue;
+    vkGetDeviceQueue(_device, queueFamilyIndex, queueIndex, &vk_queue);
+
+    ref_ptr<Queue> queue(new Queue(vk_queue, queueFamilyIndex, queueIndex));
+    _queues.emplace_back(queue);
+
     return queue;
 }

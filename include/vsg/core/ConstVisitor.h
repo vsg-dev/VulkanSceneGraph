@@ -29,6 +29,7 @@ namespace vsg
     class Group;
     class QuadGroup;
     class LOD;
+    class PagedLOD;
     class StateGroup;
     class CullGroup;
     class CullNode;
@@ -43,6 +44,7 @@ namespace vsg
     class RenderPass;
     class BindDescriptorSet;
     class BindDescriptorSets;
+    class Descriptor;
     class DescriptorSet;
     class BindVertexBuffers;
     class BindIndexBuffer;
@@ -61,6 +63,7 @@ namespace vsg
     class MultisampleState;
     class DepthStencilState;
     class ColorBlendState;
+    class ResourceHints;
 
     // forward declare ui events classes
     class UIEvent;
@@ -164,6 +167,7 @@ namespace vsg
         virtual void apply(const Group&);
         virtual void apply(const QuadGroup&);
         virtual void apply(const LOD&);
+        virtual void apply(const PagedLOD&);
         virtual void apply(const StateGroup&);
         virtual void apply(const CullGroup&);
         virtual void apply(const CullNode&);
@@ -178,6 +182,7 @@ namespace vsg
         virtual void apply(const RenderPass&);
         virtual void apply(const BindDescriptorSet&);
         virtual void apply(const BindDescriptorSets&);
+        virtual void apply(const Descriptor&);
         virtual void apply(const DescriptorSet&);
         virtual void apply(const BindVertexBuffers&);
         virtual void apply(const BindIndexBuffer&);
@@ -194,6 +199,7 @@ namespace vsg
         virtual void apply(const MultisampleState&);
         virtual void apply(const DepthStencilState&);
         virtual void apply(const ColorBlendState&);
+        virtual void apply(const ResourceHints&);
 
         // ui events
         virtual void apply(const UIEvent&);

@@ -26,6 +26,13 @@ namespace vsg
 
         operator VkSemaphore() const { return _semaphore; }
 
+        VkPipelineStageFlags& pipelineStageFlags() { return _pipelineStageFlags; }
+        const VkPipelineStageFlags& pipelineStageFlags() const { return _pipelineStageFlags; }
+
+        std::atomic_uint& numDependentSubmissions() { return _numDependentSubmissions; }
+
+        const VkSemaphore* data() const { return &_semaphore; }
+
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
@@ -33,8 +40,12 @@ namespace vsg
         virtual ~Semaphore();
 
         VkSemaphore _semaphore;
+        VkPipelineStageFlags _pipelineStageFlags = 0;
+        std::atomic_uint _numDependentSubmissions = 0;
         ref_ptr<Device> _device;
         ref_ptr<AllocationCallbacks> _allocator;
     };
+
+    using Semaphores = std::vector<ref_ptr<Semaphore>>;
 
 } // namespace vsg

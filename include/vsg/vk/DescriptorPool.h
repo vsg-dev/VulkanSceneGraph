@@ -33,11 +33,14 @@ namespace vsg
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
+        std::mutex& getMutex() const { return _mutex; }
+
     protected:
         virtual ~DescriptorPool();
 
         VkDescriptorPool _descriptorPool;
         ref_ptr<Device> _device;
         ref_ptr<AllocationCallbacks> _allocator;
+        mutable std::mutex _mutex;
     };
 } // namespace vsg

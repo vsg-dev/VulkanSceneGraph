@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /** convience method for writing objects to file.*/
+    /** convenience method for writing objects to file.*/
     extern VSG_DECLSPEC bool write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options = {});
 
 } // namespace vsg

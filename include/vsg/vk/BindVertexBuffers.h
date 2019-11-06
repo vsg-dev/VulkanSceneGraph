@@ -60,7 +60,7 @@ namespace vsg
         void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:
-        virtual ~BindVertexBuffers() {}
+        virtual ~BindVertexBuffers();
 
         using Buffers = std::vector<ref_ptr<Buffer>>;
         using VkBuffers = std::vector<VkBuffer>;

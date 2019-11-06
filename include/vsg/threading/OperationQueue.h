@@ -16,11 +16,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <condition_variable>
 #include <list>
+#include <mutex>
 
 namespace vsg
 {
 
-    struct Active : public Object
+    struct Active : public Inherit<Object, Active>
     {
         Active() :
             active(true) {}
@@ -38,6 +39,11 @@ namespace vsg
     public:
         Latch(size_t num) :
             _count(num) {}
+
+        void count_up()
+        {
+            ++_count;
+        }
 
         void count_down()
         {
@@ -65,6 +71,8 @@ namespace vsg
             }
         }
 
+        std::atomic_size_t& count() { return _count; }
+
     protected:
         virtual ~Latch() {}
 
@@ -88,7 +96,7 @@ namespace vsg
 
         void add(ref_ptr<Operation> operation)
         {
-            std::unique_lock lock(_mutex);
+            std::scoped_lock lock(_mutex);
             _queue.emplace_back(operation);
             _cv.notify_one();
         }
@@ -97,7 +105,7 @@ namespace vsg
         void add(Iterator begin, Iterator end)
         {
             size_t numAdditions = 0;
-            std::unique_lock lock(_mutex);
+            std::scoped_lock lock(_mutex);
             for (auto itr = begin; itr != end; ++itr)
             {
                 _queue.emplace_back(*itr);
@@ -115,12 +123,10 @@ namespace vsg
         ref_ptr<Operation> take_when_avilable();
 
     protected:
-
         std::mutex _mutex;
         std::condition_variable _cv;
         std::list<ref_ptr<Operation>> _queue;
         ref_ptr<Active> _active;
-
     };
     VSG_type_name(vsg::OperationQueue)
 

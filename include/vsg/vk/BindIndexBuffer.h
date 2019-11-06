@@ -61,7 +61,7 @@ namespace vsg
         void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:
-        virtual ~BindIndexBuffer() {}
+        virtual ~BindIndexBuffer();
 
         BufferData _bufferData;
         VkIndexType _indexType;

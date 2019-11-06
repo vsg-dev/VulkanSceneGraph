@@ -22,14 +22,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+// use a static handle that is initialized once at start up to avoid multi-threaded issues associated with calling std::locale::classic().
+auto s_class_locale = std::locale::classic();
+
 ReaderWriter_vsg::ReaderWriter_vsg()
 {
-    _objectFactory = new vsg::ObjectFactory;
+    _objectFactory = ObjectFactory::instance();
 }
 
 ReaderWriter_vsg::FormatType ReaderWriter_vsg::readHeader(std::istream& fin) const
 {
-    fin.imbue(std::locale::classic());
+    fin.imbue(s_class_locale);
 
     // write header
     const char* match_token_ascii = "#vsga";
@@ -60,7 +63,7 @@ void ReaderWriter_vsg::writeHeader(std::ostream& fout, FormatType type) const
 {
     if (type == NOT_RECOGNIZED) return;
 
-    fout.imbue(std::locale::classic());
+    fout.imbue(s_class_locale);
     if (type == BINARY)
         fout << "#vsgb";
     else
@@ -74,19 +77,23 @@ vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(const vsg::Path& filename, ref_
     auto ext = vsg::fileExtension(filename);
     if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
     {
-        vsg::Path filenameToUse = findFile(filename, options);
+        vsg::Path filenameToUse = options ? findFile(filename, options) : filename;
         if (filenameToUse.empty()) return {};
 
         std::ifstream fin(filenameToUse, std::ios::in | std::ios::binary);
+        if (!fin) return {};
+
         FormatType type = readHeader(fin);
         if (type == BINARY)
         {
             vsg::BinaryInput input(fin, _objectFactory, options);
+            input.filename = filenameToUse;
             return input.readObject("Root");
         }
         else if (type == ASCII)
         {
             vsg::AsciiInput input(fin, _objectFactory, options);
+            input.filename = filenameToUse;
             return input.readObject("Root");
         }
     }

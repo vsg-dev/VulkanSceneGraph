@@ -24,6 +24,7 @@ namespace vsg
     class Group;
     class QuadGroup;
     class LOD;
+    class PagedLOD;
     class StateGroup;
     class CullGroup;
     class CullNode;
@@ -32,11 +33,14 @@ namespace vsg
     class Commands;
     class CommandBuffer;
     class State;
+    class DatabasePager;
+    class FrameStamp;
+    class CulledPagedLODs;
 
     class VSG_DECLSPEC DispatchTraversal : public Object
     {
     public:
-        explicit DispatchTraversal(CommandBuffer* commandBuffer = nullptr, uint32_t maxSlot = 2);
+        explicit DispatchTraversal(CommandBuffer* commandBuffer = nullptr, uint32_t maxSlot = 2, ref_ptr<FrameStamp> fs = {});
         ~DispatchTraversal();
 
         void setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix);
@@ -46,7 +50,8 @@ namespace vsg
         // scene graph nodes
         void apply(const Group& group);
         void apply(const QuadGroup& quadGrouo);
-        void apply(const LOD& load);
+        void apply(const LOD& lod);
+        void apply(const PagedLOD& pagedLOD);
         void apply(const CullGroup& cullGroup);
         void apply(const CullNode& cullNode);
 
@@ -56,7 +61,13 @@ namespace vsg
         void apply(const Commands& commands);
         void apply(const Command& command);
 
+        // used to handle loading of PagedLOD external children.
+        ref_ptr<DatabasePager> databasePager;
+        ref_ptr<CulledPagedLODs> culledPagedLODs;
+
+        ref_ptr<FrameStamp> frameStamp;
+
     protected:
-        State* _state;
+        ref_ptr<State> _state;
     };
 } // namespace vsg

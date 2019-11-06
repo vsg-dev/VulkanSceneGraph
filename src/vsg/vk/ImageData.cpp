@@ -37,8 +37,8 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
     VkDeviceSize imageTotalSize = data->dataSize();
 
-    VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->dataSize()));
-    BufferData stagingBufferData = context.stagingMemoryBufferPools.reserveBufferData(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
+    BufferData stagingBufferData = context.stagingMemoryBufferPools->reserveBufferData(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     stagingBufferData._data = const_cast<Data*>(data);
 
     //std::cout<<"stagingBufferData._buffer "<<stagingBufferData._buffer.get()<<", "<<stagingBufferData._offset<<", "<<stagingBufferData._range<<")"<<std::endl;
@@ -60,6 +60,13 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
         mipLevels = 1;
     }
 
+    // clamp the mipLevels so that its no larger than what the data dimensions support
+    uint32_t maxDimension = std::max({data->width(), data->height(), data->depth()});
+    while ((1u << (mipLevels - 1)) > maxDimension)
+    {
+        --mipLevels;
+    }
+
     //mipLevels = 1;  // disable mipmapping
 
     Data::Layout layout = data->getLayout();
@@ -78,7 +85,13 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
             if ((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT) == 0)
             {
-                std::cout << "vsg::transferImageData(..) failed : formatProperties.optimalTilingFeatures sampling not supported, disabling mipmap generation" << std::endl;
+                std::cout << "vsg::transferImageData(..) failed : formatProperties.optimalTilingFeatures VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT not supported, disabling mipmap generation." << std::endl;
+                mipLevels = 1;
+            }
+
+            if ((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) == 0)
+            {
+                std::cout << "vsg::transferImageData(..) failed : formatProperties.optimalTilingFeatures VK_FORMAT_FEATURE_BLIT_DST_BIT not supported, disabling mipmap generation." << std::endl;
                 mipLevels = 1;
             }
         }
@@ -134,7 +147,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(*device, *textureImage, &memRequirements);
 
-    auto [deviceMemory, offset] = context.deviceMemoryBufferPools.reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    auto [deviceMemory, offset] = context.deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     if (!deviceMemory)
     {
