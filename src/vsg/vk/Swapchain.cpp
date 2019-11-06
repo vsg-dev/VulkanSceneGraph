@@ -136,6 +136,10 @@ Swapchain::Swapchain(VkSwapchainKHR swapchain, Device* device, Surface* surface,
 
 Swapchain::~Swapchain()
 {
+    for (auto& imgview : _imageViews)
+    {
+        imgview->getImage()->releaseImage();
+    }
     _imageViews.clear();
 
     if (_swapchain)

@@ -31,6 +31,8 @@ namespace vsg
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
+        void releaseImage() { _image = VK_NULL_HANDLE; }
+
         VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
         {
             VkResult result = vkBindImageMemory(*_device, _image, *deviceMemory, memoryOffset);
