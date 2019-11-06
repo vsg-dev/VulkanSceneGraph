@@ -36,6 +36,14 @@ namespace vsg
         VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
     };
 
+    class SwapchainImage: public Inherit<Image, SwapchainImage>
+    {
+    public:
+        SwapchainImage(VkImage image, Device* device, AllocationCallbacks* allocator = nullptr);
+    protected:
+        virtual ~SwapchainImage();
+    };
+
     class VSG_DECLSPEC Swapchain : public Inherit<Object, Swapchain>
     {
     public:
