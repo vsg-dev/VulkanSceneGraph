@@ -33,6 +33,11 @@ RenderPass::~RenderPass()
 
 RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator)
 {
+    if (!device)
+    {
+        return Result("Error: vsg::RenderPass::create(...) failed to create RenderPass, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    }
+
     Attachments attachments;
 
     VkAttachmentDescription colorAttachment = {};
