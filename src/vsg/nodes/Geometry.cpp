@@ -38,6 +38,10 @@ Geometry::Geometry(Allocator* allocator) :
 {
 }
 
+Geometry::~Geometry()
+{
+}
+
 void Geometry::read(Input& input)
 {
     Node::read(input);

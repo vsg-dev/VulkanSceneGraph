@@ -47,7 +47,7 @@ void OperationThreads::run()
 
 void OperationThreads::stop()
 {
-    active->active = false;
+    active->active.exchange(false);
     for (auto& thread : threads)
     {
         thread.join();

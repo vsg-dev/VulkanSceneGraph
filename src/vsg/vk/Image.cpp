@@ -23,6 +23,11 @@ Image::Image(VkImage image, Device* device, AllocationCallbacks* allocator) :
 
 Image::~Image()
 {
+    if (_deviceMemory)
+    {
+        _deviceMemory->release(_memoryOffset, 0); // TODO, we don't locally have a size allocated
+    }
+
     if (_image)
     {
         vkDestroyImage(*_device, _image, _allocator);

@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/vk/Context.h>
+#include <vsg/traversals/CompileTraversal.h>
 
 #include <map>
 
@@ -34,11 +35,11 @@ namespace vsg
         struct PerDeviceObjects
         {
             Windows windows;
-            VkQueue graphicsQueue;
-            VkQueue presentQueue;
+            ref_ptr<Queue> graphicsQueue;
+            ref_ptr<Queue> presentQueue;
             ref_ptr<Semaphore> renderFinishedSemaphore;
 
-            // cache data to used each frame
+            // cache data to be used each frame
             std::vector<uint32_t> imageIndices;
             std::vector<VkSemaphore> signalSemaphores;
             std::vector<VkCommandBuffer> commandBuffers;
@@ -105,13 +106,15 @@ namespace vsg
 
         void reassignFrameCache();
 
-        bool aquireNextFrame();
+        bool acquireNextFrame();
 
         bool populateNextFrame();
 
         bool submitNextFrame(std::vector<VkSemaphore> externalWaits = {}, std::vector<VkPipelineStageFlags> externalWaitStages = {}, std::vector<VkSemaphore> externalSignals = {});
 
         void compile(BufferPreferences bufferPreferences = {});
+
+        ref_ptr<CompileTraversal> _compileTraversal;
 
     protected:
         virtual ~Viewer();

@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_DECLSPEC OperationThreads : public Inherit<Object, OperationQueue>
+    class VSG_DECLSPEC OperationThreads : public Inherit<Object, OperationThreads>
     {
     public:
         OperationThreads(uint32_t numThreads, ref_ptr<Active> in_active = {});
@@ -39,7 +39,7 @@ namespace vsg
         /// this thread will consume and run operations in parallel with any threads associated with this OperationThreads.
         void run();
 
-        /// stop theads
+        /// stop threads
         void stop();
 
         using Threads = std::list<std::thread>;

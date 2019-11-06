@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
+#include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 
@@ -29,8 +30,115 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+/////////////////////////////////////////////////////////////////////
+//
+// CollectDescriptorStats
+//
+void CollectDescriptorStats::apply(const Object& object)
+{
+    object.traverse(*this);
+}
+
+bool CollectDescriptorStats::checkForResourceHints(const Object& object)
+{
+    const Object* rh_object = object.getObject("ResourceHints");
+    const ResourceHints* resourceHints = dynamic_cast<const ResourceHints*>(rh_object);
+    if (resourceHints)
+    {
+        apply(*resourceHints);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void CollectDescriptorStats::apply(const ResourceHints& resourceHints)
+{
+    if (resourceHints.getMaxSlot() > maxSlot) maxSlot = resourceHints.getMaxSlot();
+
+    if (!resourceHints.getDescriptorPoolSizes().empty() || resourceHints.getNumDescriptorSets() > 9)
+    {
+        externalNumDescriptorSets += resourceHints.getNumDescriptorSets();
+
+        for (auto& [type, count] : resourceHints.getDescriptorPoolSizes())
+        {
+            descriptorTypeMap[type] += count;
+        }
+    }
+}
+
+void CollectDescriptorStats::apply(const Node& node)
+{
+    if (checkForResourceHints(node)) return;
+
+    node.traverse(*this);
+}
+
+void CollectDescriptorStats::apply(const StateGroup& stategroup)
+{
+    if (checkForResourceHints(stategroup)) return;
+
+    for (auto& command : stategroup.getStateCommands())
+    {
+        command->accept(*this);
+    }
+
+    stategroup.traverse(*this);
+}
+
+void CollectDescriptorStats::apply(const StateCommand& stateCommand)
+{
+    if (stateCommand.getSlot() > maxSlot) maxSlot = stateCommand.getSlot();
+
+    stateCommand.traverse(*this);
+}
+
+void CollectDescriptorStats::apply(const DescriptorSet& descriptorSet)
+{
+    if (descriptorSets.count(&descriptorSet) == 0)
+    {
+        descriptorSets.insert(&descriptorSet);
+
+        descriptorSet.traverse(*this);
+    }
+}
+
+void CollectDescriptorStats::apply(const Descriptor& descriptor)
+{
+    if (descriptors.count(&descriptor) == 0)
+    {
+        descriptors.insert(&descriptor);
+    }
+    descriptorTypeMap[descriptor._descriptorType] += descriptor.getNumDescriptors();
+}
+
+uint32_t CollectDescriptorStats::computeNumDescriptorSets() const
+{
+    return externalNumDescriptorSets + static_cast<uint32_t>(descriptorSets.size());
+}
+
+DescriptorPoolSizes CollectDescriptorStats::computeDescriptorPoolSizes() const
+{
+    DescriptorPoolSizes poolSizes;
+    for (auto& [type, count] : descriptorTypeMap)
+    {
+        poolSizes.push_back(VkDescriptorPoolSize{type, count});
+    }
+    return poolSizes;
+}
+
+/////////////////////////////////////////////////////////////////////
+//
+// CompielTraversal
+//
 CompileTraversal::CompileTraversal(Device* in_device, BufferPreferences bufferPreferences) :
     context(in_device, bufferPreferences)
+{
+}
+CompileTraversal::CompileTraversal(const CompileTraversal& ct) :
+    context(ct.context)
 {
 }
 

@@ -67,6 +67,10 @@ namespace vsg
         constexpr t_sphere(const t_vec3<R>& c, T rad) :
             value{static_cast<value_type>(c.x), static_cast<value_type>(c.y), static_cast<value_type>(c.z), rad} {}
 
+        template<typename R>
+        constexpr t_sphere(R sx, R sy, R sz, R sd) :
+            value{sx, sy, sz, sd} {}
+
         constexpr std::size_t size() const { return 4; }
 
         value_type& operator[](std::size_t i) { return value[i]; }

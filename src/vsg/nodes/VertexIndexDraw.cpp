@@ -38,6 +38,18 @@ VertexIndexDraw::VertexIndexDraw(Allocator* allocator) :
 {
 }
 
+VertexIndexDraw::~VertexIndexDraw()
+{
+    for (size_t i = 0; i < _buffers.size(); ++i)
+    {
+        if (_buffers[i])
+        {
+            _buffers[i]->release(_offsets[i], 0);
+        }
+    }
+    if (_bufferData._buffer) _bufferData._buffer->release(_bufferData._offset, _bufferData._range);
+}
+
 void VertexIndexDraw::read(Input& input)
 {
     Command::read(input);

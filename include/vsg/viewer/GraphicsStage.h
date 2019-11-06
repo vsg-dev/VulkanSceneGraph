@@ -14,6 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/viewer/Window.h>
 
+#include <vsg/io/DatabasePager.h>
+
 #include <vsg/viewer/Camera.h>
 
 namespace vsg
@@ -25,14 +27,16 @@ namespace vsg
 
         ref_ptr<Camera> _camera;
         ref_ptr<Node> _commandGraph;
-        vsg::ref_ptr<vsg::mat4Value> _projMatrix;
-        vsg::ref_ptr<vsg::mat4Value> _viewMatrix;
-        vsg::ref_ptr<ViewportState> _viewport;
+        ref_ptr<dmat4Value> _projMatrix;
+        ref_ptr<dmat4Value> _viewMatrix;
+        ref_ptr<ViewportState> _viewport;
+
+        ref_ptr<DatabasePager> databasePager;
 
         VkExtent2D _extent2D;
         uint32_t _maxSlot = 2;
 
-        void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor) override;
+        void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor, ref_ptr<FrameStamp> frameStamp) override;
     };
 
     class VSG_DECLSPEC OffscreenGraphicsStage : public Inherit<GraphicsStage, OffscreenGraphicsStage>
@@ -52,7 +56,7 @@ namespace vsg
         ref_ptr<RenderPass> _renderPass;
         ref_ptr<Semaphore> _semaphore;
 
-        void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor) override;
+        void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor, ref_ptr<FrameStamp> frameStamp) override;
     };
 
 } // namespace vsg

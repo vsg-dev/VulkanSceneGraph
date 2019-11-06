@@ -25,6 +25,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/GraphicsPipeline.h>
+#include <vsg/vk/Semaphore.h>
 
 #include <vsg/vk/BufferData.h>
 #include <vsg/vk/ImageData.h>
@@ -54,6 +55,11 @@ namespace vsg
 
         using BufferPools = std::vector<ref_ptr<Buffer>>;
         BufferPools bufferPools;
+
+        VkDeviceSize computeMemoryTotalAvailble() const;
+        VkDeviceSize computeMemoryTotalReserved() const;
+        VkDeviceSize computeBufferTotalAvailble() const;
+        VkDeviceSize computeBufferTotalReserved() const;
 
         BufferData reserveBufferData(VkDeviceSize totalSize, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties);
 
@@ -105,6 +111,10 @@ namespace vsg
     public:
         Context(Device* in_device, BufferPreferences bufferPreferences = {});
 
+        Context(const Context& context);
+
+        virtual ~Context();
+
         // used by BufferData.cpp, ComputePipeline.cpp, Descriptor.cpp, Descriptor.cpp, DescriptorSet.cpp, DescriptorSetLayout.cpp, GraphicsPipeline.cpp, ImageData.cpp, PipelineLayout.cpp, ShaderModule.cpp
         ref_ptr<Device> device;
 
@@ -117,25 +127,23 @@ namespace vsg
 
         // transfer data settings
         // used by BufferData.cpp, ImageData.cpp
-        using MemoryPools = std::vector<ref_ptr<DeviceMemory>>;
-        using BufferPools = std::vector<ref_ptr<Buffer>>;
-
-        VkQueue graphicsQueue = 0;
+        ref_ptr<Queue> graphicsQueue;
         ref_ptr<CommandPool> commandPool;
         ref_ptr<CommandBuffer> commandBuffer;
         ref_ptr<Fence> fence;
+        ref_ptr<Semaphore> semaphore;
 
         std::vector<ref_ptr<CopyAndReleaseBufferDataCommand>> copyBufferDataCommands;
         std::vector<ref_ptr<CopyAndReleaseImageDataCommand>> copyImageDataCommands;
         std::vector<ref_ptr<Command>> commands;
 
-        void dispatchCommands();
+        void dispatch();
+        void waitForCompletion();
 
         ref_ptr<CommandBuffer> getOrCreateCommandBuffer();
-        ref_ptr<Fence> getOrCreateFence();
 
-        MemoryBufferPools deviceMemoryBufferPools;
-        MemoryBufferPools stagingMemoryBufferPools;
+        ref_ptr<MemoryBufferPools> deviceMemoryBufferPools;
+        ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;
     };
 
 } // namespace vsg

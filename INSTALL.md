@@ -35,7 +35,7 @@ Command line instructions for default build of static library (.a/.lib) in sourc
     make -j 8
     make install
 
-Command line instructions for building shared library (.so/.lib + .dll) in out of source:
+Command line instructions for building shared library (.so/.lib + .dll) out of source:
 
     git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
     mkdir vsg-shared-build

@@ -51,7 +51,7 @@ namespace vsg
                 {
                     _output << ' ' << *value;
 
-                    if (numInRow == _maximumNumbersPerLine && num>1)
+                    if (numInRow == _maximumNumbersPerLine && num > 1)
                     {
                         numInRow = 0;
                         writeEndOfLine();
@@ -103,7 +103,7 @@ namespace vsg
                 {
                     _output << ' ' << static_cast<R>(*value);
 
-                    if (numInRow == _maximumNumbersPerLine && num>1)
+                    if (numInRow == _maximumNumbersPerLine && num > 1)
                     {
                         numInRow = 0;
                         writeEndOfLine();

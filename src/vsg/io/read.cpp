@@ -20,8 +20,7 @@ using namespace vsg;
 
 ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
 {
-    auto read_file = [&]() -> ref_ptr<Object>
-    {
+    auto read_file = [&]() -> ref_ptr<Object> {
         if (options && options->readerWriter)
         {
             auto object = options->readerWriter->read(filename, options);
@@ -94,7 +93,7 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
             ref_ptr<Latch> latch;
         };
 
-        // use latch to syncronize this thread with the file reading threads
+        // use latch to synchronize this thread with the file reading threads
         ref_ptr<Latch> latch(new Latch(filenames.size()));
 
         // add operations
@@ -106,7 +105,7 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
         // use this thread to read the files as well
         operationThreads->run();
 
-        // wait till all the read opeartions have completed
+        // wait till all the read operations have completed
         latch->wait();
     }
     else

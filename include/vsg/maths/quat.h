@@ -192,9 +192,9 @@ namespace vsg
         T one(1.0);
         T two(2.0);
 
-        return t_mat4<T>(one - two * (qyy + qzz), two * (qxy - qwz), two * (qxz + qwy), zero,
-                         two * (qxy + qwz), one - two * (qxx + qzz), two * (qyz - qwx), zero,
-                         two * (qxz - qwy), two * (qyz + qwx), one - two * (qxx + qyy), zero,
+        return t_mat4<T>(one - two * (qyy + qzz), two * (qxy + qwz), two * (qxz - qwy), zero,
+                         two * (qxy - qwz), one - two * (qxx + qzz), two * (qyz + qwx), zero,
+                         two * (qxz + qwy), two * (qyz - qwx), one - two * (qxx + qyy), zero,
                          zero, zero, zero, 1.0);
     }
 
