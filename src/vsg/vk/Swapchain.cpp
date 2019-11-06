@@ -137,7 +137,6 @@ SwapchainImage::SwapchainImage(VkImage image, Device* device, AllocationCallback
 
 SwapchainImage::~SwapchainImage()
 {
-    std::cout<<"SwapchainImage::~SwapchainImage() "<<_image<<std::endl;
     _deviceMemory = nullptr;
     _image = VK_NULL_HANDLE;
 }
