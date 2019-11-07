@@ -50,7 +50,7 @@ namespace vsg
         using DeviceMap = std::map<ref_ptr<Device>, PerDeviceObjects>;
 
         /// add Window to Viewer
-        void addWindow(ref_ptr<Window> window);
+        virtual void addWindow(ref_ptr<Window> window);
 
         Windows& windows() { return _windows; }
         const Windows& windows() const { return _windows; }
@@ -96,23 +96,23 @@ namespace vsg
         /// convinience method for advancing to the next frame.
         /// Check active status, return false if viewer no longer active.
         /// lf still active poll for pending events and place them in the Events list and advance to the next frame, update generate FrameStamp to signify the advancement to a new frame and return true.
-        bool advanceToNextFrame();
+        virtual bool advanceToNextFrame();
 
         /// poll for pending events and place them in the Events list and update generate FrameStamp to signify the advancement to a new frame.
-        void advance();
+        virtual void advance();
 
         /// pass the Events into the any register EventHandlers
-        void handleEvents();
+        virtual void handleEvents();
 
-        void reassignFrameCache();
+        virtual void reassignFrameCache();
 
-        bool acquireNextFrame();
+        virtual bool acquireNextFrame();
 
-        bool populateNextFrame();
+        virtual bool populateNextFrame();
 
-        bool submitNextFrame();
+        virtual bool submitNextFrame();
 
-        void compile(BufferPreferences bufferPreferences = {});
+        virtual void compile(BufferPreferences bufferPreferences = {});
 
         ref_ptr<CompileTraversal> _compileTraversal;
 
