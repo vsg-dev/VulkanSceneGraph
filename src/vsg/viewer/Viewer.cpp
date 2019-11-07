@@ -234,9 +234,9 @@ bool Viewer::submitNextFrame(std::vector<VkSemaphore> externalWaits, std::vector
         waitDstStageMasks.insert(waitDstStageMasks.end(), externalWaitStages.begin(), externalWaitStages.end());
         //waitDstStageMasks.insert(waitDstStageMasks.end(), pdo.waitStages.begin(), pdo.waitStages.end());
 
-        std::vector<VkSemaphore> signals;
-        signals.insert(signals.end(), externalSignals.begin(), externalSignals.end());
-        signals.insert(signals.end(), pdo.signalSemaphores.begin(), pdo.signalSemaphores.end());
+        std::vector<VkSemaphore> signalSemaphores;
+        signalSemaphores.insert(signalSemaphores.end(), externalSignals.begin(), externalSignals.end());
+        signalSemaphores.insert(signalSemaphores.end(), pdo.signalSemaphores.begin(), pdo.signalSemaphores.end());
 
         for (auto& window : pdo.windows)
         {
@@ -297,8 +297,8 @@ bool Viewer::submitNextFrame(std::vector<VkSemaphore> externalWaits, std::vector
         submitInfo.commandBufferCount = static_cast<uint32_t>(pdo.commandBuffers.size());
         submitInfo.pCommandBuffers = pdo.commandBuffers.data();
 
-        submitInfo.signalSemaphoreCount = static_cast<uint32_t>(signals.size());
-        submitInfo.pSignalSemaphores = signals.data();
+        submitInfo.signalSemaphoreCount = static_cast<uint32_t>(signalSemaphores.size());
+        submitInfo.pSignalSemaphores = signalSemaphores.data();
 
         if (pdo.graphicsQueue->submit(submitInfo, fence) != VK_SUCCESS)
         {
@@ -400,11 +400,11 @@ void Viewer::compile(BufferPreferences bufferPreferences)
                 OffscreenGraphicsStage* osgs = dynamic_cast<OffscreenGraphicsStage*>(gs);
                 if (osgs)
                 {
-                    compile.context.renderPass = osgs->_renderPass;
+                    compile->context.renderPass = osgs->_renderPass;
                 }
                 else
                 {
-                    compile.context.renderPass = window->renderPass();
+                    compile->context.renderPass = window->renderPass();
                 }
 
                 // std::cout << "Compiling GraphicsStage " << compile.context.viewport << std::endl;

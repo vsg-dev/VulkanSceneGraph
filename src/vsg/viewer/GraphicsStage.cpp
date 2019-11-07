@@ -361,7 +361,7 @@ OffscreenGraphicsStage::OffscreenGraphicsStage(Device* device, ref_ptr<Node> com
     _semaphore = vsg::Semaphore::create(device);
 }
 
-void OffscreenGraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor)
+void OffscreenGraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor, ref_ptr<FrameStamp> frameStamp)
 {
     if (!_viewport)
     {
@@ -399,7 +399,7 @@ void OffscreenGraphicsStage::populateCommandBuffer(CommandBuffer* commandBuffer,
     }
 
     // set up the dispatching of the commands into the command buffer
-    DispatchTraversal dispatchTraversal(commandBuffer, _maxSlot);
+    DispatchTraversal dispatchTraversal(commandBuffer, _maxSlot, frameStamp);
     dispatchTraversal.setProjectionAndViewMatrix(_projMatrix->value(), _viewMatrix->value());
 
     VkCommandBufferBeginInfo beginInfo = {};
