@@ -44,7 +44,6 @@ namespace vsg
             std::vector<VkSemaphore> signalSemaphores;
             std::vector<VkCommandBuffer> commandBuffers;
             std::vector<VkSwapchainKHR> swapchains;
-            std::vector<VkPipelineStageFlags> waitStages;
         };
 
         using DeviceMap = std::map<ref_ptr<Device>, PerDeviceObjects>;
