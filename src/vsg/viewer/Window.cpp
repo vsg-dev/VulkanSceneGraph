@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/viewer/Window.h>
+#include <vsg/vk/SubmitCommands.h>
 
 #include <array>
 #include <chrono>
@@ -190,7 +191,7 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
         _frames.push_back({ias, imageViews[i], fb, cp, cb, false, fence});
     }
 
-    dispatchCommandsToQueue(_device, _frames[0].commandPool, _device->getQueue(_physicalDevice->getGraphicsFamily()), [&](VkCommandBuffer commandBuffer) {
+    submitCommandsToQueue(_device, _frames[0].commandPool, _device->getQueue(_physicalDevice->getGraphicsFamily()), [&](VkCommandBuffer commandBuffer) {
         vsg::ImageMemoryBarrier depthImageMemoryBarrier(
             0, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
