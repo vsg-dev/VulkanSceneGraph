@@ -29,7 +29,6 @@ namespace vsg
     public:
         Viewer();
 
-        using Windows = std::vector<ref_ptr<Window>>;
         using Views = std::vector<ref_ptr<View>>;
 
         struct PerDeviceObjects

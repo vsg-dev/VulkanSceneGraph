@@ -216,4 +216,6 @@ namespace vsg
         Stages _stages;
     };
 
+    using Windows = std::vector<ref_ptr<Window>>;
+
 } // namespace vsg
