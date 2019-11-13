@@ -109,11 +109,6 @@ void Window::initaliseDevice()
 
 void Window::buildSwapchain(uint32_t width, uint32_t height)
 {
-    if (!_imageAvailableSemaphore)
-    {
-        _imageAvailableSemaphore = vsg::Semaphore::create(_device);
-    }
-
     if (_swapchain)
     {
         // make sure all operations on the device have stopped before we go deleting associated resources
