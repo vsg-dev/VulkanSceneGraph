@@ -63,7 +63,7 @@ void Viewer::addWindow(ref_ptr<Window> window)
     pdo.imageIndices.push_back(0);   // to be filled in by submitFrame()
     pdo.commandBuffers.push_back(0); // to be filled in by submitFrame()
     pdo.swapchains.push_back(*(window->swapchain()));
-    pdo.waitStages.push_back(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);//VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT); //RAYTRACING HACK
+    pdo.waitStages.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 }
 
 bool Viewer::active() const
@@ -120,7 +120,7 @@ void Viewer::reassignFrameCache()
             pdo.imageIndices.push_back(0);   // to be filled in by submitFrame()
             pdo.commandBuffers.push_back(0); // to be filled in by submitFrame()
             pdo.swapchains.push_back(*(window->swapchain()));
-            pdo.waitStages.push_back(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT); //VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT); //RAYTRACING HACK
+            pdo.waitStages.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
         }
     }
 }
