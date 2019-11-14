@@ -22,7 +22,7 @@ macro(BUILD_ALL_H)
     file(GLOB VIEWER_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/include include/vsg/viewer/*.h )
     file(GLOB IO_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/include include/vsg/io/*.h )
     file(GLOB VK_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/include include/vsg/vk/*.h )
-	file(GLOB RAYTRACING_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/include include/vsg/raytracing/*.h )
+    file(GLOB RAYTRACING_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/include include/vsg/raytracing/*.h )
 
     file(READ ${CMAKE_CURRENT_SOURCE_DIR}/build/header_license_preamble.txt ALL_H_CONTENTS)
     APPEND_INCLUDES(ALL_H_CONTENTS CORE_HEADERS "// Core header files\n")
@@ -36,7 +36,7 @@ macro(BUILD_ALL_H)
     APPEND_INCLUDES(ALL_H_CONTENTS IO_HEADERS "// Input/Output header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS UTILS_HEADERS "// Utility header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS INTROSPECTION_HEADERS "// Introspection header files\n")
-	APPEND_INCLUDES(ALL_H_CONTENTS RAYTRACING_HEADERS "// Raytracing header files\n")
+    APPEND_INCLUDES(ALL_H_CONTENTS RAYTRACING_HEADERS "// Raytracing header files\n")
 
     file(WRITE include/vsg/all.h ${ALL_H_CONTENTS})
 
