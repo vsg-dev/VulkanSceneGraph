@@ -126,6 +126,25 @@ VkPresentModeKHR vsg::selectSwapPresentMode(const SwapChainSupportDetails& detai
 **/
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// SwapchainImage
+//
+SwapchainImage::SwapchainImage(VkImage image, Device* device, AllocationCallbacks* allocator) :
+    Inherit(image, device, allocator)
+{
+}
+
+SwapchainImage::~SwapchainImage()
+{
+    _deviceMemory = nullptr;
+    _image = VK_NULL_HANDLE;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Swapchain
+//
 Swapchain::Swapchain(VkSwapchainKHR swapchain, Device* device, Surface* surface, AllocationCallbacks* allocator) :
     _device(device),
     _surface(surface),
@@ -224,7 +243,7 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
 
     for (std::size_t i = 0; i < images.size(); ++i)
     {
-        ref_ptr<ImageView> view = ImageView::create(device, new Image(images[i], device), VK_IMAGE_VIEW_TYPE_2D, surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT, allocator);
+        ref_ptr<ImageView> view = ImageView::create(device, new SwapchainImage(images[i], device), VK_IMAGE_VIEW_TYPE_2D, surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT, allocator);
         if (view) sw->getImageViews().push_back(view);
     }
 

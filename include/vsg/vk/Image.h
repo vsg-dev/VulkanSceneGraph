@@ -19,7 +19,7 @@ namespace vsg
     class VSG_DECLSPEC Image : public Inherit<Object, Image>
     {
     public:
-        Image(VkImage Image, Device* device, AllocationCallbacks* allocator = nullptr);
+        Image(VkImage image, Device* device, AllocationCallbacks* allocator = nullptr);
 
         using Result = vsg::Result<Image, VkResult, VK_SUCCESS>;
         static Result create(Device* device, const VkImageCreateInfo& createImageInfo, AllocationCallbacks* allocator = nullptr);
