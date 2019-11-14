@@ -210,12 +210,12 @@ namespace vsg
         ref_ptr<DeviceMemory> _depthImageMemory;
         ref_ptr<ImageView> _depthImageView;
 
-        ref_ptr<Semaphore> _imageAvailableSemaphore;
-
         Frames _frames;
         uint32_t _nextImageIndex;
 
         Stages _stages;
     };
+
+    using Windows = std::vector<ref_ptr<Window>>;
 
 } // namespace vsg

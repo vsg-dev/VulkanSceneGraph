@@ -66,8 +66,6 @@ namespace vsg
         ref_ptr<CulledPagedLODs> culledPagedLODs;
 
         ref_ptr<FrameStamp> frameStamp;
-
-    protected:
-        ref_ptr<State> _state;
+        ref_ptr<State> state;
     };
 } // namespace vsg

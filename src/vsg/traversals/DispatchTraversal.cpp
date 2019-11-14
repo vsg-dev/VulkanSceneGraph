@@ -45,7 +45,7 @@ using namespace vsg;
 
 DispatchTraversal::DispatchTraversal(CommandBuffer* commandBuffer, uint32_t maxSlot, ref_ptr<FrameStamp> fs) :
     frameStamp(fs),
-    _state(new State(commandBuffer, maxSlot))
+    state(new State(commandBuffer, maxSlot))
 {
 }
 
@@ -55,7 +55,7 @@ DispatchTraversal::~DispatchTraversal()
 
 void DispatchTraversal::setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
 {
-    _state->setProjectionAndViewMatrix(projMatrix, viewMatrix);
+    state->setProjectionAndViewMatrix(projMatrix, viewMatrix);
 }
 
 void DispatchTraversal::apply(const Object& object)
@@ -89,13 +89,13 @@ void DispatchTraversal::apply(const LOD& lod)
     auto sphere = lod.getBound();
 
     // check if lod bounding sphere is in view frustum.
-    if (!_state->intersect(sphere))
+    if (!state->intersect(sphere))
     {
         return;
     }
 
-    const auto& proj = _state->projectionMatrixStack.top();
-    const auto& mv = _state->modelviewMatrixStack.top();
+    const auto& proj = state->projectionMatrixStack.top();
+    const auto& mv = state->modelviewMatrixStack.top();
     auto f = -proj[1][1];
 
     auto distance = std::abs(mv[0][2] * sphere.x + mv[1][2] * sphere.y + mv[2][2] * sphere.z + mv[3][2]);
@@ -119,7 +119,7 @@ void DispatchTraversal::apply(const PagedLOD& plod)
     auto frameCount = frameStamp->frameCount;
 
     // check if lod bounding sphere is in view frustum.
-    if (!_state->intersect(sphere))
+    if (!state->intersect(sphere))
     {
         if ((frameCount - plod.frameHighResLastUsed) > 1 && culledPagedLODs)
         {
@@ -129,8 +129,8 @@ void DispatchTraversal::apply(const PagedLOD& plod)
         return;
     }
 
-    const auto& proj = _state->projectionMatrixStack.top();
-    const auto& mv = _state->modelviewMatrixStack.top();
+    const auto& proj = state->projectionMatrixStack.top();
+    const auto& mv = state->modelviewMatrixStack.top();
     auto f = -proj[1][1];
 
     auto distance = std::abs(mv[0][2] * sphere.x + mv[1][2] * sphere.y + mv[2][2] * sphere.z + mv[3][2]);
@@ -202,7 +202,7 @@ void DispatchTraversal::apply(const CullGroup& cullGroup)
     // no culling
     cullGroup.traverse(*this);
 #else
-    if (_state->intersect(cullGroup.getBound()))
+    if (state->intersect(cullGroup.getBound()))
     {
         //std::cout<<"Passed node"<<std::endl;
         cullGroup.traverse(*this);
@@ -220,7 +220,7 @@ void DispatchTraversal::apply(const CullNode& cullNode)
     // no culling
     cullNode.traverse(*this);
 #else
-    if (_state->intersect(cullNode.getBound()))
+    if (state->intersect(cullNode.getBound()))
     {
         //std::cout<<"Passed node"<<std::endl;
         cullNode.traverse(*this);
@@ -239,58 +239,58 @@ void DispatchTraversal::apply(const StateGroup& stateGroup)
     const StateGroup::StateCommands& stateCommands = stateGroup.getStateCommands();
     for (auto& command : stateCommands)
     {
-        _state->stateStacks[command->getSlot()].push(command);
+        state->stateStacks[command->getSlot()].push(command);
     }
-    _state->dirty = true;
+    state->dirty = true;
 
     stateGroup.traverse(*this);
 
     for (auto& command : stateCommands)
     {
-        _state->stateStacks[command->getSlot()].pop();
+        state->stateStacks[command->getSlot()].pop();
     }
-    _state->dirty = true;
+    state->dirty = true;
 }
 
 void DispatchTraversal::apply(const MatrixTransform& mt)
 {
     if (mt.getSubgraphRequiresLocalFrustum())
     {
-        _state->modelviewMatrixStack.pushAndPreMult(mt.getMatrix());
-        _state->pushFrustum();
-        _state->dirty = true;
+        state->modelviewMatrixStack.pushAndPreMult(mt.getMatrix());
+        state->pushFrustum();
+        state->dirty = true;
 
         mt.traverse(*this);
 
-        _state->modelviewMatrixStack.pop();
-        _state->popFrustum();
-        _state->dirty = true;
+        state->modelviewMatrixStack.pop();
+        state->popFrustum();
+        state->dirty = true;
     }
     else
     {
-        _state->modelviewMatrixStack.pushAndPreMult(mt.getMatrix());
-        _state->dirty = true;
+        state->modelviewMatrixStack.pushAndPreMult(mt.getMatrix());
+        state->dirty = true;
 
         mt.traverse(*this);
 
-        _state->modelviewMatrixStack.pop();
-        _state->dirty = true;
+        state->modelviewMatrixStack.pop();
+        state->dirty = true;
     }
 }
 
 // Vulkan nodes
 void DispatchTraversal::apply(const Commands& commands)
 {
-    _state->dispatch();
+    state->dispatch();
     for (auto& command : commands.getChildren())
     {
-        command->dispatch(*(_state->_commandBuffer));
+        command->dispatch(*(state->_commandBuffer));
     }
 }
 
 void DispatchTraversal::apply(const Command& command)
 {
     //    std::cout<<"Visiting Command "<<std::endl;
-    _state->dispatch();
-    command.dispatch(*(_state->_commandBuffer));
+    state->dispatch();
+    command.dispatch(*(state->_commandBuffer));
 }
