@@ -57,5 +57,4 @@ namespace vsg
 
     using CommandBuffers = std::vector<ref_ptr<CommandBuffer>>;
 
-
 } // namespace vsg

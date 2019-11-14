@@ -31,7 +31,7 @@ DescriptorImage::DescriptorImage() :
 DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> image, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
     Inherit(dstBinding, dstArrayElement, descriptorType)
 {
-    if (sampler || image) _samplerImages.emplace_back(SamplerImage {sampler, image, {}});
+    if (sampler || image) _samplerImages.emplace_back(SamplerImage{sampler, image, {}});
 }
 
 DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<ImageView> imageView, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
