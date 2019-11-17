@@ -30,7 +30,7 @@ MemoryBufferPools::MemoryBufferPools(const std::string& in_name, Device* in_devi
 {
 }
 
-VkDeviceSize MemoryBufferPools::computeMemoryTotalAvailble() const
+VkDeviceSize MemoryBufferPools::computeMemoryTotalAvailable() const
 {
     VkDeviceSize totalAvailableSize = 0;
     for (auto& deviceMemory : memoryPools)
@@ -50,7 +50,7 @@ VkDeviceSize MemoryBufferPools::computeMemoryTotalReserved() const
     return totalReservedSize;
 }
 
-VkDeviceSize MemoryBufferPools::computeBufferTotalAvailble() const
+VkDeviceSize MemoryBufferPools::computeBufferTotalAvailable() const
 {
     VkDeviceSize totalAvailableSize = 0;
     for (auto& buffer : bufferPools)

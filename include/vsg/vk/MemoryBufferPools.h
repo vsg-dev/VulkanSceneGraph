@@ -45,9 +45,9 @@ namespace vsg
         using BufferPools = std::vector<ref_ptr<Buffer>>;
         BufferPools bufferPools;
 
-        VkDeviceSize computeMemoryTotalAvailble() const;
+        VkDeviceSize computeMemoryTotalAvailable() const;
         VkDeviceSize computeMemoryTotalReserved() const;
-        VkDeviceSize computeBufferTotalAvailble() const;
+        VkDeviceSize computeBufferTotalAvailable() const;
         VkDeviceSize computeBufferTotalReserved() const;
 
         BufferData reserveBufferData(VkDeviceSize totalSize, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties);
