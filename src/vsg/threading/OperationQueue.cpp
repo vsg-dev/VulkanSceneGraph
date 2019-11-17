@@ -33,7 +33,7 @@ ref_ptr<Operation> OperationQueue::take()
     return operation;
 }
 
-ref_ptr<Operation> OperationQueue::take_when_avilable()
+ref_ptr<Operation> OperationQueue::take_when_available()
 {
     std::chrono::duration waitDuration = std::chrono::milliseconds(100);
 

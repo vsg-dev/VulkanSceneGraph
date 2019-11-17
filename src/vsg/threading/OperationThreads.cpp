@@ -24,7 +24,7 @@ OperationThreads::OperationThreads(uint32_t numThreads, ref_ptr<ActivityStatus> 
     auto run = [](ref_ptr<OperationQueue> q, ref_ptr<ActivityStatus> thread_status) {
         while (thread_status->active())
         {
-            ref_ptr<Operation> operation = q->take_when_avilable();
+            ref_ptr<Operation> operation = q->take_when_available();
             if (operation)
             {
                 operation->run();
