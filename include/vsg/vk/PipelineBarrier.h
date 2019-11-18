@@ -12,45 +12,45 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Command.h>
 #include <vsg/vk/Buffer.h>
+#include <vsg/vk/Command.h>
 
 namespace vsg
 {
 
     struct MemoryBarrier : public Inherit<Object, MemoryBarrier>
     {
-        ref_ptr<Object>    next;
-        VkAccessFlags      srcAccessMask = 0;
-        VkAccessFlags      dstAccessMask = 0;
+        ref_ptr<Object> next;
+        VkAccessFlags srcAccessMask = 0;
+        VkAccessFlags dstAccessMask = 0;
 
-        void assign(VkMemoryBarrier& info);
+        void assign(VkMemoryBarrier& info) const;
     };
 
     struct BufferMemoryBarrier : public Inherit<Object, BufferMemoryBarrier>
     {
-        ref_ptr<Object>    next;
-        VkAccessFlags      srcAccessMask = 0;
-        VkAccessFlags      dstAccessMask = 0;
-        uint32_t           srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED; // Queue::queueFamilyIndex() or VK_QUEUE_FAMILY_IGNORED
-        uint32_t           dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED; // Queue::queueFamilyIndex() or VK_QUEUE_FAMILY_IGNORED
-        ref_ptr<Buffer>    buffer;
-        VkDeviceSize       offset = 0;
-        VkDeviceSize       size = 0;
+        ref_ptr<Object> next;
+        VkAccessFlags srcAccessMask = 0;
+        VkAccessFlags dstAccessMask = 0;
+        uint32_t srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED; // Queue::queueFamilyIndex() or VK_QUEUE_FAMILY_IGNORED
+        uint32_t dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED; // Queue::queueFamilyIndex() or VK_QUEUE_FAMILY_IGNORED
+        ref_ptr<Buffer> buffer;
+        VkDeviceSize offset = 0;
+        VkDeviceSize size = 0;
 
-        void assign(VkBufferMemoryBarrier& info);
+        void assign(VkBufferMemoryBarrier& info) const;
     };
 
     struct ImageMemoryBarrier : public Inherit<Object, ImageMemoryBarrier>
     {
         ImageMemoryBarrier(VkAccessFlags in_srcAccessMask = 0,
-                           VkAccessFlags              in_dstAccessMask = 0,
-                           VkImageLayout              in_oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-                           VkImageLayout              in_newLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-                           uint32_t                   in_srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                           uint32_t                   in_dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                           ref_ptr<Image>             in_image = {},
-                           VkImageSubresourceRange    in_subresourceRange = {0, 0, 0, 0, 0}) :
+                           VkAccessFlags in_dstAccessMask = 0,
+                           VkImageLayout in_oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+                           VkImageLayout in_newLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+                           uint32_t in_srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                           uint32_t in_dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                           ref_ptr<Image> in_image = {},
+                           VkImageSubresourceRange in_subresourceRange = {0, 0, 0, 0, 0}) :
             srcAccessMask(in_srcAccessMask),
             dstAccessMask(in_dstAccessMask),
             oldLayout(in_oldLayout),
@@ -60,26 +60,29 @@ namespace vsg
             image(in_image),
             subresourceRange(in_subresourceRange) {}
 
-        VkAccessFlags              srcAccessMask = 0;
-        VkAccessFlags              dstAccessMask = 0;
-        VkImageLayout              oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        VkImageLayout              newLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        uint32_t                   srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        uint32_t                   dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        ref_ptr<Image>             image;
-        VkImageSubresourceRange    subresourceRange = {0, 0, 0, 0, 0};
+        ref_ptr<Object> next;
+        VkAccessFlags srcAccessMask = 0;
+        VkAccessFlags dstAccessMask = 0;
+        VkImageLayout oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        VkImageLayout newLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        uint32_t srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        uint32_t dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        ref_ptr<Image> image;
+        VkImageSubresourceRange subresourceRange = {0, 0, 0, 0, 0};
 
-        //ref_ptr<Object>            next;
 
-        void assign(VkImageMemoryBarrier& info);
+        void assign(VkImageMemoryBarrier& info) const;
     };
 
-    struct SampleLocationsInfo : public Inherit<Object, SampleLocationsInfo>
+    // TODO : need to implement a scheme for assign to ImageMemoryBarrier and creating/destryoung VkSampleLocationsInfoEXT
+    struct SampleLocations : public Inherit<Object, SampleLocations>
     {
-        ref_ptr<Object>                     next;
-        VkSampleCountFlagBits               sampleLocationsPerPixel = VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
-        VkExtent2D                          sampleLocationGridSize = {0, 0};
-        std::vector<vec2>                   sampleLocations;
+        ref_ptr<Object> next;
+        VkSampleCountFlagBits sampleLocationsPerPixel = VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
+        VkExtent2D sampleLocationGridSize = {0, 0};
+        std::vector<vec2> sampleLocations;
+
+        void apply(VkSampleLocationsInfoEXT& info) const;
     };
 
     class VSG_DECLSPEC PipelineBarrier : public Inherit<Command, PipelineBarrier>
@@ -106,13 +109,13 @@ namespace vsg
         using BufferMemoryBarriers = std::vector<ref_ptr<BufferMemoryBarrier>>;
         using ImageMemoryBarriers = std::vector<ref_ptr<ImageMemoryBarrier>>;
 
-        VkPipelineStageFlags    srcStageMask;
-        VkPipelineStageFlags    dstStageMask;
-        VkDependencyFlags       dependencyFlags;
+        VkPipelineStageFlags srcStageMask;
+        VkPipelineStageFlags dstStageMask;
+        VkDependencyFlags dependencyFlags;
 
-        MemoryBarriers          memoryBarriers;
-        BufferMemoryBarriers    bufferMemoryBarriers;
-        ImageMemoryBarriers     imageMemoryBarriers;
+        MemoryBarriers memoryBarriers;
+        BufferMemoryBarriers bufferMemoryBarriers;
+        ImageMemoryBarriers imageMemoryBarriers;
 
     protected:
         virtual ~PipelineBarrier();

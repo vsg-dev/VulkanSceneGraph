@@ -21,8 +21,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/RenderPass.h>
 #include <vsg/vk/PipelineBarrier.h>
+#include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
 
 #include <iostream>
@@ -535,7 +535,6 @@ void CopyAndReleaseImageDataCommand::dispatch(CommandBuffer& commandBuffer) cons
             0, postCopyImageBarrier);
 
         postPipelineBarrier->dispatch(commandBuffer);
-
     }
 }
 
