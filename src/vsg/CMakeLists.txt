@@ -101,6 +101,7 @@ set(SOURCES
     vk/MemoryManager.cpp
     vk/PhysicalDevice.cpp
     vk/PipelineLayout.cpp
+    vk/PipelineBarrier.cpp
     vk/PushConstants.cpp
     vk/Queue.cpp
     vk/RenderPass.cpp

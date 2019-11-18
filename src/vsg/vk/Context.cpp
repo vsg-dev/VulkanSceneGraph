@@ -22,6 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/RenderPass.h>
+#include <vsg/vk/PipelineBarrier.h>
 #include <vsg/vk/State.h>
 
 #include <iostream>
@@ -495,13 +496,19 @@ void CopyAndReleaseImageDataCommand::dispatch(CommandBuffer& commandBuffer) cons
     }
     else
     {
-        // no mip maps required so just copy image without any extra processing.
-        ImageMemoryBarrier preCopyImageMemoryBarrier(
+
+        auto preCopyImageMemoryBarrier = ImageMemoryBarrier::create(
             0, VK_ACCESS_TRANSFER_WRITE_BIT,
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            textureImage);
+            VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
+            textureImage,
+            VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 
-        preCopyImageMemoryBarrier.cmdPiplineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+        auto preCopyPipelineBarrier = PipelineBarrier::create(
+            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+            0, preCopyImageMemoryBarrier);
+
+        preCopyPipelineBarrier->dispatch(commandBuffer);
 
         VkBufferImageCopy region = {};
         region.bufferOffset = source._offset;
@@ -516,12 +523,19 @@ void CopyAndReleaseImageDataCommand::dispatch(CommandBuffer& commandBuffer) cons
 
         vkCmdCopyBufferToImage(commandBuffer, *imageStagingBuffer, *textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-        ImageMemoryBarrier postCopyImageMemoryBarrier(
+        auto postCopyImageBarrier = ImageMemoryBarrier::create(
             VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, targetImageLayout,
-            textureImage);
+            VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
+            textureImage,
+            VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 
-        postCopyImageMemoryBarrier.cmdPiplineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+        auto postPipelineBarrier = PipelineBarrier::create(
+            VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+            0, postCopyImageBarrier);
+
+        postPipelineBarrier->dispatch(commandBuffer);
+
     }
 }
 
