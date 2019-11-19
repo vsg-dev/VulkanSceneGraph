@@ -15,18 +15,62 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-void MemoryBarrier::assign(VkMemoryBarrier& info) const
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// ScratchBuffer
+//
+ScratchBuffer::ScratchBuffer(uint32_t size)
+{
+    buffer_begin = new uint8_t[size];
+    buffer_end = buffer_begin + size;
+    base_ptr = buffer_begin;
+    requiresDelete = true;
+}
+
+ScratchBuffer::ScratchBuffer(const ScratchBuffer& parent, uint32_t minimumSize)
+{
+    if ((parent.buffer_end - parent.buffer_begin) >= minimumSize)
+    {
+        buffer_begin = parent.buffer_begin;
+        buffer_end = parent.buffer_end;
+        base_ptr = buffer_begin;
+        requiresDelete = false;
+    }
+    else
+    {
+        buffer_begin = new uint8_t[minimumSize];
+        buffer_end = buffer_begin + minimumSize;
+        base_ptr = buffer_begin;
+        requiresDelete = true;
+    }
+}
+
+ScratchBuffer::~ScratchBuffer()
+{
+    if (requiresDelete) delete [] buffer_begin;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// MemoryBarrier
+//
+void MemoryBarrier::assign(VkMemoryBarrier& info, ScratchBuffer& scratchBuffer) const
 {
     info.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
-    info.pNext = nullptr;
+    info.pNext = next ? next->assign(scratchBuffer) : nullptr;
     info.srcAccessMask = srcAccessMask;
     info.dstAccessMask = dstAccessMask;
 }
 
-void BufferMemoryBarrier::assign(VkBufferMemoryBarrier& info) const
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// BufferMemoryBarrier
+//
+void BufferMemoryBarrier::assign(VkBufferMemoryBarrier& info, ScratchBuffer& scratchBuffer) const
 {
     info.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-    info.pNext = nullptr;
+    info.pNext = next ? next->assign(scratchBuffer) : nullptr;
     info.srcAccessMask = srcAccessMask;
     info.dstAccessMask = dstAccessMask;
     info.srcQueueFamilyIndex = srcQueueFamilyIndex; // Queue::queueFamilyIndex() or VK_QUEUE_FAMILY_IGNORED
@@ -36,10 +80,14 @@ void BufferMemoryBarrier::assign(VkBufferMemoryBarrier& info) const
     info.size = size;
 }
 
-void ImageMemoryBarrier::assign(VkImageMemoryBarrier& info) const
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// ImageMemoryBarrier
+//
+void ImageMemoryBarrier::assign(VkImageMemoryBarrier& info, ScratchBuffer& scratchBuffer) const
 {
     info.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    info.pNext = nullptr;
+    info.pNext = next ? next->assign(scratchBuffer) : nullptr;
     info.srcAccessMask = srcAccessMask;
     info.dstAccessMask = dstAccessMask;
     info.oldLayout = oldLayout;
@@ -50,16 +98,28 @@ void ImageMemoryBarrier::assign(VkImageMemoryBarrier& info) const
     info.subresourceRange = subresourceRange;
 }
 
-void SampleLocations::apply(VkSampleLocationsInfoEXT& info) const
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// SampleLocations
+//
+void* SampleLocations::assign(ScratchBuffer& scratchBuffer) const
 {
-    info.sType = VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT;
-    info.pNext = nullptr;
-    info.sampleLocationsPerPixel = sampleLocationsPerPixel;
-    info.sampleLocationGridSize = sampleLocationGridSize;
-    info.sampleLocationsCount = static_cast<uint32_t>(sampleLocations.size());
-    info.pSampleLocations = reinterpret_cast<const VkSampleLocationEXT*>(sampleLocations.data());
+    auto info = scratchBuffer.allocate<VkSampleLocationsInfoEXT>(1);
+
+    info->sType = VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT;
+    info->pNext = next ? next->assign(scratchBuffer) : nullptr;
+    info->sampleLocationsPerPixel = sampleLocationsPerPixel;
+    info->sampleLocationGridSize = sampleLocationGridSize;
+    info->sampleLocationsCount = static_cast<uint32_t>(sampleLocations.size());
+    info->pSampleLocations = reinterpret_cast<const VkSampleLocationEXT*>(sampleLocations.data());
+
+    return info;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// PipelineBarrier
+//
 PipelineBarrier::PipelineBarrier()
 {
 }
@@ -70,22 +130,28 @@ PipelineBarrier::~PipelineBarrier()
 
 void PipelineBarrier::dispatch(CommandBuffer& commandBuffer) const
 {
-    std::vector<VkMemoryBarrier> vk_memoryBarriers(memoryBarriers.size());
-    for (size_t i = 0; i < memoryBarriers.size(); ++i)
+    uint32_t total_size = 0;
+    for(auto& mb : memoryBarriers) total_size += mb->infoSize();
+    for(auto& bmb : bufferMemoryBarriers) total_size += bmb->infoSize();
+    for(auto& imb : imageMemoryBarriers) total_size += imb->infoSize();
+
+    ScratchBuffer scratchBuffer(total_size);
+
+    auto* vk_memoryBarriers = scratchBuffer.allocate<VkMemoryBarrier>(memoryBarriers.size());
+    for (size_t i=0; i < memoryBarriers.size(); ++i)
     {
-        memoryBarriers[i]->assign(vk_memoryBarriers[i]);
+        memoryBarriers[i]->assign(vk_memoryBarriers[i], scratchBuffer);
     }
 
-    std::vector<VkBufferMemoryBarrier> vk_bufferMemoryBarriers(bufferMemoryBarriers.size());
+    auto vk_bufferMemoryBarriers = scratchBuffer.allocate<VkBufferMemoryBarrier>(bufferMemoryBarriers.size());
     for (size_t i = 0; i < bufferMemoryBarriers.size(); ++i)
     {
-        bufferMemoryBarriers[i]->assign(vk_bufferMemoryBarriers[i]);
+        bufferMemoryBarriers[i]->assign(vk_bufferMemoryBarriers[i], scratchBuffer);
     }
-
-    std::vector<VkImageMemoryBarrier> vk_imageMemoryBarriers(imageMemoryBarriers.size());
+    auto vk_imageMemoryBarriers = scratchBuffer.allocate<VkImageMemoryBarrier>(imageMemoryBarriers.size());
     for (size_t i = 0; i < imageMemoryBarriers.size(); ++i)
     {
-        imageMemoryBarriers[i]->assign(vk_imageMemoryBarriers[i]);
+        imageMemoryBarriers[i]->assign(vk_imageMemoryBarriers[i], scratchBuffer);
     }
 
     vkCmdPipelineBarrier(
@@ -93,10 +159,10 @@ void PipelineBarrier::dispatch(CommandBuffer& commandBuffer) const
         srcStageMask,
         dstStageMask,
         dependencyFlags,
-        static_cast<uint32_t>(vk_memoryBarriers.size()),
-        vk_memoryBarriers.data(),
-        static_cast<uint32_t>(vk_bufferMemoryBarriers.size()),
-        vk_bufferMemoryBarriers.data(),
-        static_cast<uint32_t>(vk_imageMemoryBarriers.size()),
-        vk_imageMemoryBarriers.data());
+        memoryBarriers.size(),
+        vk_memoryBarriers,
+        bufferMemoryBarriers.size(),
+        vk_bufferMemoryBarriers,
+        imageMemoryBarriers.size(),
+        vk_imageMemoryBarriers);
 }

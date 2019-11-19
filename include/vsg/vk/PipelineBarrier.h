@@ -15,21 +15,55 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/Command.h>
 
+#include <iostream>
+
 namespace vsg
 {
 
+    struct ScratchBuffer
+    {
+        ScratchBuffer(uint32_t size);
+        ScratchBuffer(const ScratchBuffer& parent, uint32_t minimumSize);
+
+        ~ScratchBuffer();
+
+        template<typename T>
+        T* allocate(uint32_t count = 1)
+        {
+            if (count==0) return nullptr;
+
+            T* ptr = reinterpret_cast<T*>(base_ptr);
+            base_ptr += sizeof(T) * count;
+            return ptr;
+        }
+
+        uint8_t* buffer_begin = nullptr;
+        uint8_t* buffer_end = nullptr;
+        uint8_t* base_ptr = nullptr;
+        bool requiresDelete = false;
+    };
+
+    struct VulkanInfo : public Inherit<Object, VulkanInfo>
+    {
+        ref_ptr<VulkanInfo> next;
+
+        virtual uint32_t infoSize() const = 0;
+        virtual void* assign(ScratchBuffer& buffer) const = 0;
+    };
+
     struct MemoryBarrier : public Inherit<Object, MemoryBarrier>
     {
-        ref_ptr<Object> next;
+        ref_ptr<VulkanInfo> next;
         VkAccessFlags srcAccessMask = 0;
         VkAccessFlags dstAccessMask = 0;
 
-        void assign(VkMemoryBarrier& info) const;
+        uint32_t infoSize() const { return sizeof(VkMemoryBarrier) + (next ? next->infoSize() : 0); }
+        void assign(VkMemoryBarrier& info, ScratchBuffer& buffer) const;
     };
 
     struct BufferMemoryBarrier : public Inherit<Object, BufferMemoryBarrier>
     {
-        ref_ptr<Object> next;
+        ref_ptr<VulkanInfo> next;
         VkAccessFlags srcAccessMask = 0;
         VkAccessFlags dstAccessMask = 0;
         uint32_t srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED; // Queue::queueFamilyIndex() or VK_QUEUE_FAMILY_IGNORED
@@ -38,7 +72,8 @@ namespace vsg
         VkDeviceSize offset = 0;
         VkDeviceSize size = 0;
 
-        void assign(VkBufferMemoryBarrier& info) const;
+        uint32_t infoSize() const { return sizeof(VkBufferMemoryBarrier) + (next ? next->infoSize() : 0); }
+        void assign(VkBufferMemoryBarrier& info, ScratchBuffer& buffer) const;
     };
 
     struct ImageMemoryBarrier : public Inherit<Object, ImageMemoryBarrier>
@@ -60,7 +95,7 @@ namespace vsg
             image(in_image),
             subresourceRange(in_subresourceRange) {}
 
-        ref_ptr<Object> next;
+        ref_ptr<VulkanInfo> next;
         VkAccessFlags srcAccessMask = 0;
         VkAccessFlags dstAccessMask = 0;
         VkImageLayout oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -71,18 +106,19 @@ namespace vsg
         VkImageSubresourceRange subresourceRange = {0, 0, 0, 0, 0};
 
 
-        void assign(VkImageMemoryBarrier& info) const;
+        uint32_t infoSize() const { return sizeof(VkImageMemoryBarrier) + (next ? next->infoSize() : 0); }
+        void assign(VkImageMemoryBarrier& info, ScratchBuffer& buffer) const;
     };
 
-    // TODO : need to implement a scheme for assign to ImageMemoryBarrier and creating/destryoung VkSampleLocationsInfoEXT
-    struct SampleLocations : public Inherit<Object, SampleLocations>
+    struct SampleLocations : public Inherit<VulkanInfo, SampleLocations>
     {
-        ref_ptr<Object> next;
+        ref_ptr<VulkanInfo> next;
         VkSampleCountFlagBits sampleLocationsPerPixel = VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
         VkExtent2D sampleLocationGridSize = {0, 0};
         std::vector<vec2> sampleLocations;
 
-        void apply(VkSampleLocationsInfoEXT& info) const;
+        uint32_t infoSize() const override { return sizeof(VkSampleLocationsInfoEXT) + (next ? next->infoSize() : 0); ; }
+        void* assign(ScratchBuffer& buffer) const override;
     };
 
     class VSG_DECLSPEC PipelineBarrier : public Inherit<Command, PipelineBarrier>
@@ -121,5 +157,8 @@ namespace vsg
         virtual ~PipelineBarrier();
     };
     VSG_type_name(vsg::PipelineBarrier);
+
+
+
 
 } // namespace vsg
