@@ -52,38 +52,3 @@ Image::Result Image::create(Device* device, const VkImageCreateInfo& createImage
         return Result("Error: Failed to create vkImage.", result);
     }
 }
-
-ImageMemoryBarrier::ImageMemoryBarrier(VkAccessFlags in_srcAccessMask, VkAccessFlags in_destAccessMask,
-                                       VkImageLayout in_oldLayout, VkImageLayout in_newLayout,
-                                       Image* in_image) :
-    VkImageMemoryBarrier{},
-    _image(in_image)
-{
-    sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    oldLayout = in_oldLayout;
-    newLayout = in_newLayout;
-    srcAccessMask = in_srcAccessMask;
-    dstAccessMask = in_destAccessMask;
-    srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    image = *in_image;
-    subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    subresourceRange.baseMipLevel = 0;
-    subresourceRange.levelCount = 1;
-    subresourceRange.baseArrayLayer = 0;
-    subresourceRange.layerCount = 1;
-}
-
-ImageMemoryBarrier::~ImageMemoryBarrier()
-{
-}
-
-void ImageMemoryBarrier::cmdPiplineBarrier(VkCommandBuffer commandBuffer, VkPipelineStageFlags sourceStage, VkPipelineStageFlags destinationStage)
-{
-    vkCmdPipelineBarrier(commandBuffer,
-                         sourceStage, destinationStage,
-                         0,
-                         0, nullptr,
-                         0, nullptr,
-                         1, static_cast<VkImageMemoryBarrier*>(this));
-}
