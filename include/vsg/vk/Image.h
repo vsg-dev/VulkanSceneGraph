@@ -53,19 +53,4 @@ namespace vsg
         VkDeviceSize _memoryOffset;
     };
 
-    class VSG_DECLSPEC ImageMemoryBarrier : public Inherit<Object, ImageMemoryBarrier>, public VkImageMemoryBarrier
-    {
-    public:
-        ImageMemoryBarrier(VkAccessFlags in_srcAccessMask = 0, VkAccessFlags in_destAccessMask = 0,
-                           VkImageLayout in_oldLayout = VK_IMAGE_LAYOUT_UNDEFINED, VkImageLayout in_newLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-                           Image* in_image = nullptr);
-
-        void cmdPiplineBarrier(VkCommandBuffer commandBuffer, VkPipelineStageFlags sourceStage, VkPipelineStageFlags destinationStage);
-
-        virtual ~ImageMemoryBarrier();
-
-    protected:
-        ref_ptr<Image> _image;
-    };
-
 } // namespace vsg
