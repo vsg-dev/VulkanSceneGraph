@@ -47,9 +47,8 @@ ScratchBuffer::ScratchBuffer(const ScratchBuffer& parent, uint32_t minimumSize)
 
 ScratchBuffer::~ScratchBuffer()
 {
-    if (requiresDelete) delete [] buffer_begin;
+    if (requiresDelete) delete[] buffer_begin;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -131,14 +130,14 @@ PipelineBarrier::~PipelineBarrier()
 void PipelineBarrier::dispatch(CommandBuffer& commandBuffer) const
 {
     uint32_t total_size = 0;
-    for(auto& mb : memoryBarriers) total_size += mb->infoSize();
-    for(auto& bmb : bufferMemoryBarriers) total_size += bmb->infoSize();
-    for(auto& imb : imageMemoryBarriers) total_size += imb->infoSize();
+    for (auto& mb : memoryBarriers) total_size += mb->infoSize();
+    for (auto& bmb : bufferMemoryBarriers) total_size += bmb->infoSize();
+    for (auto& imb : imageMemoryBarriers) total_size += imb->infoSize();
 
     ScratchBuffer scratchBuffer(total_size);
 
     auto* vk_memoryBarriers = scratchBuffer.allocate<VkMemoryBarrier>(memoryBarriers.size());
-    for (size_t i=0; i < memoryBarriers.size(); ++i)
+    for (size_t i = 0; i < memoryBarriers.size(); ++i)
     {
         memoryBarriers[i]->assign(vk_memoryBarriers[i], scratchBuffer);
     }

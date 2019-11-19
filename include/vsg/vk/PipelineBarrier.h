@@ -30,7 +30,7 @@ namespace vsg
         template<typename T>
         T* allocate(uint32_t count = 1)
         {
-            if (count==0) return nullptr;
+            if (count == 0) return nullptr;
 
             T* ptr = reinterpret_cast<T*>(base_ptr);
             base_ptr += sizeof(T) * count;
@@ -105,7 +105,6 @@ namespace vsg
         ref_ptr<Image> image;
         VkImageSubresourceRange subresourceRange = {0, 0, 0, 0, 0};
 
-
         uint32_t infoSize() const { return sizeof(VkImageMemoryBarrier) + (next ? next->infoSize() : 0); }
         void assign(VkImageMemoryBarrier& info, ScratchBuffer& buffer) const;
     };
@@ -117,7 +116,7 @@ namespace vsg
         VkExtent2D sampleLocationGridSize = {0, 0};
         std::vector<vec2> sampleLocations;
 
-        uint32_t infoSize() const override { return sizeof(VkSampleLocationsInfoEXT) + (next ? next->infoSize() : 0); ; }
+        uint32_t infoSize() const override { return sizeof(VkSampleLocationsInfoEXT) + (next ? next->infoSize() : 0); }
         void* assign(ScratchBuffer& buffer) const override;
     };
 
@@ -157,8 +156,5 @@ namespace vsg
         virtual ~PipelineBarrier();
     };
     VSG_type_name(vsg::PipelineBarrier);
-
-
-
 
 } // namespace vsg
