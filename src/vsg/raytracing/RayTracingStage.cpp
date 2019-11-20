@@ -13,6 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/StateGroup.h>
 
 #include <vsg/vk/Extensions.h>
+#include <vsg/vk/PipelineBarrier.h>
+
 #include <vsg/raytracing/RayTracingStage.h>
 
 #include <vsg/ui/ApplicationEvent.h>
@@ -67,24 +69,37 @@ void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Frameb
                                     _shaderBindings->callableTableBuffer(), _shaderBindings->callableTableOffset(), _shaderBindings->callableTableStride(),
                                     _extent2D.width, _extent2D.height, 1);
 
+
     //  transition image layouts for copy
-    
-    ImageMemoryBarrier transitionSwapChainToWriteDest(
+    auto imb_transitionSwapChainToWriteDest = ImageMemoryBarrier::create(
         0, VK_ACCESS_TRANSFER_WRITE_BIT,
         VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-        imageView->getImage());
+        VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
+        ref_ptr<Image>(imageView->getImage()),
+        VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 
-    transitionSwapChainToWriteDest.cmdPiplineBarrier(*commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+    auto pb_transitionSwapChainToWriteDest = PipelineBarrier::create(
+            VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+            0, imb_transitionSwapChainToWriteDest);
 
-    ImageMemoryBarrier transitionStorageImageToReadSrc(
+    pb_transitionSwapChainToWriteDest->dispatch(*commandBuffer);
+
+
+    auto ibm_transitionStorageImageToReadSrc = vsg::ImageMemoryBarrier::create(
         0, VK_ACCESS_TRANSFER_READ_BIT,
         VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-        _storageImage->getImage());
+        VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
+        ref_ptr<Image>(_storageImage->getImage()),
+        VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 
-    transitionStorageImageToReadSrc.cmdPiplineBarrier(*commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+    auto pb_transitionStorageImageToReadSrc = PipelineBarrier::create(
+            VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+            0, ibm_transitionStorageImageToReadSrc);
+
+    pb_transitionStorageImageToReadSrc->dispatch(*commandBuffer);
+
 
     // copy storage image to swap chain
-    
     VkImageCopy copyRegion{};
     copyRegion.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
     copyRegion.srcOffset = {0, 0, 0};
@@ -92,23 +107,35 @@ void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Frameb
     copyRegion.dstOffset = {0, 0, 0};
     copyRegion.extent = {_extent2D.width, _extent2D.height, 1};
     vkCmdCopyImage(*commandBuffer, *_storageImage->getImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, *imageView->getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
-    
+
 
     // transition image layouts back
-
-    ImageMemoryBarrier transitionSwapChainToOriginal(
+    auto imb_transitionSwapChainToOriginal = ImageMemoryBarrier::create(
         VK_ACCESS_TRANSFER_WRITE_BIT, 0,
         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-        imageView->getImage());
+        VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
+        ref_ptr<Image>(imageView->getImage()),
+        VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 
-    transitionSwapChainToOriginal.cmdPiplineBarrier(*commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+    auto pb_transitionSwapChainToOriginal = PipelineBarrier::create(
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        0, imb_transitionSwapChainToOriginal);
 
-    ImageMemoryBarrier transitionStorageImageToOriginal(
+    pb_transitionSwapChainToOriginal->dispatch(*commandBuffer);
+
+    auto imb_transitionStorageImageToOriginal = ImageMemoryBarrier::create(
         VK_ACCESS_TRANSFER_READ_BIT, 0,
         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL,
-        _storageImage->getImage());
+        VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
+        ref_ptr<Image>(_storageImage->getImage()),
+        VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 
-    transitionStorageImageToOriginal.cmdPiplineBarrier(*commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+    auto pb_transitionStorageImageToOriginal = PipelineBarrier::create(
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        0, imb_transitionStorageImageToOriginal);
+
+    pb_transitionStorageImageToOriginal->dispatch(*commandBuffer);
+
 
     vkEndCommandBuffer(*commandBuffer);
 }

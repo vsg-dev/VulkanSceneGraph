@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/DescriptorImage.h>
+#include <vsg/vk/PipelineBarrier.h>
 
 #include <algorithm>
 #include <iostream>
@@ -189,7 +190,22 @@ void DescriptorImageView::compile(Context& context)
     for (size_t i = 0; i < _imageDataList.size(); ++i)
     {
         if (_imageDataList[i]._sampler) _imageDataList[i]._sampler->compile(context);
-        if (_imageDataList[i]._imageView) context.commands.emplace_back(new SetImageLayoutCommand(_imageDataList[i]));
+
+        if (_imageDataList[i]._imageView)
+        {
+            auto imb_transitionLayoutMemoryBarrier = ImageMemoryBarrier::create(
+                0, VK_ACCESS_SHADER_READ_BIT,
+                VK_IMAGE_LAYOUT_UNDEFINED, _imageDataList[i]._imageLayout,
+                VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
+                ref_ptr<Image>(_imageDataList[i]._imageView->getImage()),
+                VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
+
+            auto pb_transitionLayoutMemoryBarrier = PipelineBarrier::create(
+                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                0, imb_transitionLayoutMemoryBarrier);
+
+            context.commands.emplace_back(pb_transitionLayoutMemoryBarrier);
+        }
 
         const ImageData& data = _imageDataList[i];
         VkDescriptorImageInfo& info = _imageInfos[i];
