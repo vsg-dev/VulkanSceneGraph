@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CopyImage.h>
 
 #include <vsg/raytracing/RayTracingStage.h>
+#include <vsg/raytracing/TraceRays.h>
 
 #include <vsg/ui/ApplicationEvent.h>
 
@@ -40,7 +41,6 @@ RayTracingStage::RayTracingStage(ref_ptr<Node> commandGraph, ref_ptr<RayTracingS
 
 void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, ImageView* imageView, const VkExtent2D& extent, const VkClearColorValue& clearColor, ref_ptr<FrameStamp> frameStamp)
 {
-    Extensions* extensions = Extensions::Get(_shaderBindings->device(), true);
 
     // if required get projection and view matrices from the Camera
     if (_camera)
@@ -63,12 +63,24 @@ void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Frameb
     // traverse the command buffer to place the commands into the command buffer.
     _commandGraph->accept(dispatchTraversal);
 
-    extensions->vkCmdTraceRaysNV(*commandBuffer,
-                                    _shaderBindings->raygenTableBuffer(), _shaderBindings->raygeTableOffset(),
-                                    _shaderBindings->missTableBuffer(), _shaderBindings->missTableOffset(), _shaderBindings->missTableStride(),
-                                    _shaderBindings->hitTableBuffer(), _shaderBindings->hitTableOffset(), _shaderBindings->hitTableStride(),
-                                    _shaderBindings->callableTableBuffer(), _shaderBindings->callableTableOffset(), _shaderBindings->callableTableStride(),
-                                    _extent2D.width, _extent2D.height, 1);
+
+    auto traceRays = TraceRays::create();
+    traceRays->raygenShaderBindingTableBuffer = _shaderBindings->raygenTableBuffer();
+    traceRays->raygenShaderBindingOffset = _shaderBindings->raygeTableOffset();
+    traceRays->missShaderBindingTableBuffer = _shaderBindings->missTableBuffer();
+    traceRays->missShaderBindingOffset = _shaderBindings->missTableOffset();
+    traceRays->missShaderBindingStride = _shaderBindings->missTableStride();
+    traceRays->hitShaderBindingTableBuffer = _shaderBindings->hitTableBuffer();
+    traceRays->hitShaderBindingOffset = _shaderBindings->hitTableOffset();
+    traceRays->hitShaderBindingStride = _shaderBindings->hitTableStride();
+    traceRays->callableShaderBindingTableBuffer = _shaderBindings->callableTableBuffer();
+    traceRays->callableShaderBindingOffset = _shaderBindings->callableTableOffset();
+    traceRays->callableShaderBindingStride = _shaderBindings->callableTableStride();
+    traceRays->width = _extent2D.width;
+    traceRays->height = _extent2D.height;
+    traceRays->depth = 1;
+
+    traceRays->dispatch(*commandBuffer);
 
 
     //  transition image layouts for copy

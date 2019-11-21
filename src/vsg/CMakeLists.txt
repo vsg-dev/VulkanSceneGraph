@@ -79,6 +79,7 @@ set(SOURCES
     raytracing/RayTracingStage.cpp
     raytracing/RayTracingPipeline.cpp
     raytracing/RayTracingShaderBindings.cpp
+    raytracing/TraceRays.cpp
 
     vk/Buffer.cpp
     vk/BufferData.cpp
