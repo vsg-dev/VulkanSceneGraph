@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Extensions.h>
 #include <vsg/vk/PipelineBarrier.h>
+#include <vsg/vk/CopyImage.h>
 
 #include <vsg/raytracing/RayTracingStage.h>
 
@@ -99,14 +100,22 @@ void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Frameb
     pb_transitionStorageImageToReadSrc->dispatch(*commandBuffer);
 
 
-    // copy storage image to swap chain
+    // copy image
     VkImageCopy copyRegion{};
     copyRegion.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
     copyRegion.srcOffset = {0, 0, 0};
     copyRegion.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
     copyRegion.dstOffset = {0, 0, 0};
     copyRegion.extent = {_extent2D.width, _extent2D.height, 1};
-    vkCmdCopyImage(*commandBuffer, *_storageImage->getImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, *imageView->getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+
+    auto copyImage = CopyImage::create();
+    copyImage->srcImage = _storageImage->getImage();
+    copyImage->srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    copyImage->dstImage = imageView->getImage();
+    copyImage->dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    copyImage->regions.emplace_back(copyRegion);
+
+    copyImage->dispatch(*commandBuffer);
 
 
     // transition image layouts back

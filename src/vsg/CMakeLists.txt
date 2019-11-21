@@ -90,6 +90,7 @@ set(SOURCES
     vk/CommandPool.cpp
     vk/ComputePipeline.cpp
     vk/Context.cpp
+    vk/CopyImage.cpp
     vk/Descriptor.cpp
     vk/DescriptorBuffer.cpp
     vk/DescriptorImage.cpp
