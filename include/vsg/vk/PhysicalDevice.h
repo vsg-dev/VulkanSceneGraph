@@ -37,6 +37,7 @@ namespace vsg
         int getComputeFamily() const { return _computeFamily; }
 
         const VkPhysicalDeviceProperties& getProperties() const { return _properties; }
+        const VkPhysicalDeviceRayTracingPropertiesNV& getRayTracingProperties() const { return _rayTracingProperties; }
 
     protected:
         virtual ~PhysicalDevice();
@@ -47,6 +48,7 @@ namespace vsg
         int _computeFamily;
 
         VkPhysicalDeviceProperties _properties;
+        VkPhysicalDeviceRayTracingPropertiesNV _rayTracingProperties;
 
         vsg::ref_ptr<Instance> _instance;
         vsg::ref_ptr<Surface> _surface;

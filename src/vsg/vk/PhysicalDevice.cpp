@@ -12,6 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/PhysicalDevice.h>
 
+#include <iostream>
+
 using namespace vsg;
 
 PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int graphicsFamily, int presentFamily, int computeFamily, Surface* surface) :
@@ -23,6 +25,26 @@ PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int 
     _surface(surface)
 {
     vkGetPhysicalDeviceProperties(_device, &_properties);
+
+    // get ray tracing properies
+    _rayTracingProperties = {};
+    _rayTracingProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV;
+    _rayTracingProperties.pNext = nullptr;
+
+    // do we check for extension support?
+    VkPhysicalDeviceProperties2 deviceProps2;
+    deviceProps2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+    deviceProps2.pNext = &_rayTracingProperties;
+    vkGetPhysicalDeviceProperties2(_device, &deviceProps2);
+
+    std::cout<<"shaderGroupHandleSize "<<_rayTracingProperties.shaderGroupHandleSize<<std::endl;
+    std::cout<<"maxRecursionDepth "<<_rayTracingProperties.maxRecursionDepth<<std::endl;
+    std::cout<<"maxShaderGroupStride "<<_rayTracingProperties.maxShaderGroupStride<<std::endl;
+    std::cout<<"shaderGroupBaseAlignment "<<_rayTracingProperties.shaderGroupBaseAlignment<<std::endl;
+    std::cout<<"maxGeometryCount "<<_rayTracingProperties.maxGeometryCount<<std::endl;
+    std::cout<<"maxInstanceCount "<<_rayTracingProperties.maxInstanceCount<<std::endl;
+    std::cout<<"maxTriangleCount "<<_rayTracingProperties.maxTriangleCount<<std::endl;
+    std::cout<<"maxDescriptorSetAccelerationStructures "<<_rayTracingProperties.maxDescriptorSetAccelerationStructures<<std::endl;
 }
 
 PhysicalDevice::~PhysicalDevice()

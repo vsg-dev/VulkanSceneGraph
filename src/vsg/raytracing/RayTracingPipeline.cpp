@@ -75,7 +75,7 @@ void RayTracingPipeline::compile(Context& context)
             shaderStage->compile(context);
         }
 
-        _implementation = RayTracingPipeline::Implementation::create(context.device, _pipelineLayout, _shaderStages, _shaderBindings, _allocator);
+        _implementation = RayTracingPipeline::Implementation::create(context.device, this);
         _shaderBindings->compile(context, _implementation->_pipeline); // NEED TO COMPILE SHADER BINDINGS AFTER PIPELINE IS CREATED
     }
 }
@@ -94,8 +94,10 @@ RayTracingPipeline::Implementation::Implementation(VkPipeline pipeline, Device* 
 {
 }
 
-RayTracingPipeline::Implementation::Result RayTracingPipeline::Implementation::create(Device* device, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, RayTracingShaderBindings* shaderBindings, AllocationCallbacks* allocator)
+RayTracingPipeline::Implementation::Result RayTracingPipeline::Implementation::create(Device* device, RayTracingPipeline* rayTracingPipeline)
 {
+    auto pipelineLayout = rayTracingPipeline->getPipelineLayout();
+
     if (!device || !pipelineLayout)
     {
         return Result("Error: vsg::RayTracingPipeline::create(...) failed to create raytracing pipeline, inputs not defined.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
@@ -108,6 +110,8 @@ RayTracingPipeline::Implementation::Result RayTracingPipeline::Implementation::c
     pipelineInfo.layout = *pipelineLayout;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.pNext = nullptr;
+
+    auto shaderStages = rayTracingPipeline->getShaderStages();
 
     std::vector<VkSpecializationInfo> specializationInfos(shaderStages.size());
     std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfo(shaderStages.size());
@@ -133,17 +137,36 @@ RayTracingPipeline::Implementation::Result RayTracingPipeline::Implementation::c
     pipelineInfo.stageCount = static_cast<uint32_t>(shaderStageCreateInfo.size());
     pipelineInfo.pStages = shaderStageCreateInfo.data();
 
-    pipelineInfo.groupCount = static_cast<uint32_t>(shaderBindings->createInfos().size());
-    pipelineInfo.pGroups = shaderBindings->createInfos().data();
+#if 1
+    // assign the RayTracingShaderGroups
+    auto& rayTracingShaderGroups = rayTracingPipeline->getRayTracingShaderGroups();
+    std::vector<VkRayTracingShaderGroupCreateInfoNV> shaderGroups(rayTracingShaderGroups.size());
+    for(size_t i = 0; i < rayTracingShaderGroups.size(); ++i)
+    {
+        rayTracingShaderGroups[i]->applyTo(shaderGroups[i]);
+    }
 
-    pipelineInfo.maxRecursionDepth = 1;
+    pipelineInfo.groupCount = static_cast<uint32_t>(shaderGroups.size());
+    pipelineInfo.pGroups = shaderGroups.data();
+
+#endif
+    pipelineInfo.maxRecursionDepth = rayTracingPipeline->maxRecursionDepth();
+
+
+    // deprecated
+    auto shaderBindings = rayTracingPipeline->getShaderBindings();
+    if (shaderBindings)
+    {
+        pipelineInfo.groupCount = static_cast<uint32_t>(shaderBindings->createInfos().size());
+        pipelineInfo.pGroups = shaderBindings->createInfos().data();
+    }
 
 
     VkPipeline pipeline;
-    VkResult result = extensions->vkCreateRayTracingPipelinesNV(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &pipeline);
+    VkResult result = extensions->vkCreateRayTracingPipelinesNV(*device, VK_NULL_HANDLE, 1, &pipelineInfo, rayTracingPipeline->getAllocationCallbacks(), &pipeline);
     if (result == VK_SUCCESS)
     {
-        return Result(new Implementation(pipeline, device, pipelineLayout, shaderStages, shaderBindings, allocator));
+        return Result(new Implementation(pipeline, device, pipelineLayout, shaderStages, shaderBindings, rayTracingPipeline->getAllocationCallbacks()));
     }
     else
     {

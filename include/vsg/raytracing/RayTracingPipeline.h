@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/PipelineLayout.h>
 #include <vsg/vk/ShaderStage.h>
 #include <vsg/raytracing/RayTracingShaderBindings.h>
+#include <vsg/raytracing/RayTracingShaderGroup.h>
 
 namespace vsg
 {
@@ -32,8 +33,20 @@ namespace vsg
         PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
         const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
 
+        RayTracingShaderBindings* getShaderBindings() { return _shaderBindings; }
+        const RayTracingShaderBindings* getShaderBindings() const { return _shaderBindings; }
+
         ShaderStages& getShaderStages() { return _shaderStages; }
         const ShaderStages& getShaderStages() const { return _shaderStages; }
+
+        AllocationCallbacks* getAllocationCallbacks() { return _allocator; }
+        const AllocationCallbacks* getAllocationCallbacks() const { return _allocator; }
+
+        RayTracingShaderGroups& getRayTracingShaderGroups() { return _rayTracingShaderGroups; }
+        const RayTracingShaderGroups& getRayTracingShaderGroups() const { return _rayTracingShaderGroups; }
+
+        uint32_t& maxRecursionDepth() { return _maxRecursionDepth; }
+        const uint32_t& maxRecursionDepth() const { return _maxRecursionDepth; }
 
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
@@ -44,7 +57,7 @@ namespace vsg
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
             /** Create a GraphicsPipeline.*/
-            static Result create(Device* device, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, RayTracingShaderBindings* shaderBindings, AllocationCallbacks* allocator = nullptr);
+            static Result create(Device* device, RayTracingPipeline* rayTracingPipeline);
 
             VkPipeline _pipeline;
 
@@ -74,6 +87,9 @@ namespace vsg
         ref_ptr<Device> _device;
         ref_ptr<PipelineLayout> _pipelineLayout;
         ShaderStages _shaderStages;
+        RayTracingShaderGroups _rayTracingShaderGroups;
+        uint32_t _maxRecursionDepth = 1;
+
         ref_ptr<RayTracingShaderBindings> _shaderBindings;
         ref_ptr<AllocationCallbacks> _allocator;
 
