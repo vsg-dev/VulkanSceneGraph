@@ -13,11 +13,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Value.h>
+#include <vsg/maths/mat4.h>
 #include <vsg/vk/BufferData.h>
 #include <vsg/vk/Command.h>
-#include <vsg/vk/DeviceMemory.h>
 #include <vsg/vk/Descriptor.h>
-#include <vsg/maths/mat4.h>
+#include <vsg/vk/DeviceMemory.h>
 
 namespace vsg
 {

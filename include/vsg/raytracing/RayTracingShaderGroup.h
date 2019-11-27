@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/vk/BufferData.h>
 #include <vsg/vk/Command.h>
-#include <vsg/raytracing/RayTracingShaderBindings.h>
 
 namespace vsg
 {
@@ -33,12 +33,13 @@ namespace vsg
         uint32_t anyHitShader = VK_SHADER_UNUSED_NV;
         uint32_t intersectionShader = VK_SHADER_UNUSED_NV;
 
+        BufferData bufferData;
+
     protected:
         virtual ~RayTracingShaderGroup();
     };
     VSG_type_name(vsg::RayTracingShaderGroup);
 
     using RayTracingShaderGroups = std::vector<ref_ptr<RayTracingShaderGroup>>;
-
 
 } // namespace vsg

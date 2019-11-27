@@ -14,9 +14,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/raytracing/BottomLevelAccelerationStructure.h>
 
+#include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/Extensions.h>
-#include <vsg/vk/CommandBuffer.h>
 
 using namespace vsg;
 
@@ -27,7 +27,7 @@ BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(Device* devic
 
 void BottomLevelAccelerationStructure::compile(Context& context)
 {
-    if (_geometries.size() == 0) return; // no data
+    if (_geometries.size() == 0) return;                    // no data
     if (_vkGeometries.size() == _geometries.size()) return; // already compiled
 
     for (auto& geom : _geometries)

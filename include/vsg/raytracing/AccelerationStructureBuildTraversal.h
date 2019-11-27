@@ -18,8 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Visitor.h>
 
 #include <vsg/nodes/Geometry.h>
-#include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/VertexIndexDraw.h>
 
 #include <vsg/raytracing/AccelerationStructure.h>
 #include <vsg/raytracing/BottomLevelAccelerationStructure.h>
@@ -45,7 +45,6 @@ namespace vsg
         ref_ptr<Device> _device;
 
     protected:
-
         void createGeometryInstance(BottomLevelAccelerationStructure* blas);
 
         MatrixStack _transformStack;

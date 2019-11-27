@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Value.h>
 #include <vsg/core/Array.h>
+#include <vsg/core/Value.h>
 #include <vsg/raytracing/AccelerationStructure.h>
 #include <vsg/raytracing/BottomLevelAccelerationStructure.h>
 
@@ -22,11 +22,11 @@ namespace vsg
     // this structure is required to populate the top level structures instance buffer
     struct VkGeometryInstance
     {
-        float transform[12]; // transform matrix
-        uint32_t instanceId : 24; // id available in shader as gl_InstanceCustomIndexNV in shader
-        uint32_t mask : 8; // mask used with rayMask for culling
-        uint32_t instanceOffset : 24; // offset into shader binding table for shaders
-        uint32_t flags : 8; // VkGeometryInstanceFlagBitsNV 
+        float transform[12];                  // transform matrix
+        uint32_t instanceId : 24;             // id available in shader as gl_InstanceCustomIndexNV in shader
+        uint32_t mask : 8;                    // mask used with rayMask for culling
+        uint32_t instanceOffset : 24;         // offset into shader binding table for shaders
+        uint32_t flags : 8;                   // VkGeometryInstanceFlagBitsNV
         uint64_t accelerationStructureHandle; // handle to bottomlevel acceleration structure
     };
     VSG_value(VkGeometryInstanceValue, VkGeometryInstance);

@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/StateGroup.h>
 
+#include <vsg/vk/CopyImage.h>
 #include <vsg/vk/Extensions.h>
 #include <vsg/vk/PipelineBarrier.h>
-#include <vsg/vk/CopyImage.h>
 
 #include <vsg/raytracing/RayTracingStage.h>
 #include <vsg/raytracing/TraceRays.h>
@@ -28,10 +28,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-RayTracingStage::RayTracingStage(ref_ptr<Node> commandGraph, ref_ptr<RayTracingShaderBindings> shaderBindings, ImageView* storageImage, const VkExtent2D& extents, ref_ptr<Camera> camera) :
+RayTracingStage::RayTracingStage(ref_ptr<Node> commandGraph, ImageView* storageImage, const VkExtent2D& extents, ref_ptr<Camera> camera) :
     _camera(camera),
     _commandGraph(commandGraph),
-    _shaderBindings(shaderBindings),
     _projMatrix(new vsg::mat4Value),
     _viewMatrix(new vsg::mat4Value),
     _storageImage(storageImage),
@@ -63,26 +62,6 @@ void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Frameb
     // traverse the command buffer to place the commands into the command buffer.
     _commandGraph->accept(dispatchTraversal);
 
-
-    auto traceRays = TraceRays::create();
-    traceRays->raygenShaderBindingTableBuffer = _shaderBindings->raygenTableBuffer();
-    traceRays->raygenShaderBindingOffset = _shaderBindings->raygeTableOffset();
-    traceRays->missShaderBindingTableBuffer = _shaderBindings->missTableBuffer();
-    traceRays->missShaderBindingOffset = _shaderBindings->missTableOffset();
-    traceRays->missShaderBindingStride = _shaderBindings->missTableStride();
-    traceRays->hitShaderBindingTableBuffer = _shaderBindings->hitTableBuffer();
-    traceRays->hitShaderBindingOffset = _shaderBindings->hitTableOffset();
-    traceRays->hitShaderBindingStride = _shaderBindings->hitTableStride();
-    traceRays->callableShaderBindingTableBuffer = _shaderBindings->callableTableBuffer();
-    traceRays->callableShaderBindingOffset = _shaderBindings->callableTableOffset();
-    traceRays->callableShaderBindingStride = _shaderBindings->callableTableStride();
-    traceRays->width = _extent2D.width;
-    traceRays->height = _extent2D.height;
-    traceRays->depth = 1;
-
-    traceRays->dispatch(*commandBuffer);
-
-
     //  transition image layouts for copy
     auto imb_transitionSwapChainToWriteDest = ImageMemoryBarrier::create(
         0, VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -92,11 +71,10 @@ void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Frameb
         VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 
     auto pb_transitionSwapChainToWriteDest = PipelineBarrier::create(
-            VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-            0, imb_transitionSwapChainToWriteDest);
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        0, imb_transitionSwapChainToWriteDest);
 
     pb_transitionSwapChainToWriteDest->dispatch(*commandBuffer);
-
 
     auto ibm_transitionStorageImageToReadSrc = vsg::ImageMemoryBarrier::create(
         0, VK_ACCESS_TRANSFER_READ_BIT,
@@ -106,11 +84,10 @@ void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Frameb
         VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 
     auto pb_transitionStorageImageToReadSrc = PipelineBarrier::create(
-            VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-            0, ibm_transitionStorageImageToReadSrc);
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        0, ibm_transitionStorageImageToReadSrc);
 
     pb_transitionStorageImageToReadSrc->dispatch(*commandBuffer);
-
 
     // copy image
     VkImageCopy copyRegion{};
@@ -128,7 +105,6 @@ void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Frameb
     copyImage->regions.emplace_back(copyRegion);
 
     copyImage->dispatch(*commandBuffer);
-
 
     // transition image layouts back
     auto imb_transitionSwapChainToOriginal = ImageMemoryBarrier::create(
@@ -156,7 +132,6 @@ void RayTracingStage::populateCommandBuffer(CommandBuffer* commandBuffer, Frameb
         0, imb_transitionStorageImageToOriginal);
 
     pb_transitionStorageImageToOriginal->dispatch(*commandBuffer);
-
 
     vkEndCommandBuffer(*commandBuffer);
 }

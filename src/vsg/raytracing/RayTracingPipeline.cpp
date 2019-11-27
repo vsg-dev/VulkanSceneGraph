@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/raytracing/RayTracingPipeline.h>
 
+#include <vsg/traversals/CompileTraversal.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Extensions.h>
-#include <vsg/traversals/CompileTraversal.h>
 
 using namespace vsg;
 
@@ -26,10 +26,10 @@ RayTracingPipeline::RayTracingPipeline()
 {
 }
 
-RayTracingPipeline::RayTracingPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, RayTracingShaderBindings* shaderBindings, AllocationCallbacks* allocator) :
+RayTracingPipeline::RayTracingPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const RayTracingShaderGroups& shaderGroups, AllocationCallbacks* allocator) :
     _pipelineLayout(pipelineLayout),
     _shaderStages(shaderStages),
-    _shaderBindings(shaderBindings),
+    _rayTracingShaderGroups(shaderGroups),
     _allocator(allocator)
 {
 }
@@ -75,8 +75,7 @@ void RayTracingPipeline::compile(Context& context)
             shaderStage->compile(context);
         }
 
-        _implementation = RayTracingPipeline::Implementation::create(context.device, this);
-        _shaderBindings->compile(context, _implementation->_pipeline); // NEED TO COMPILE SHADER BINDINGS AFTER PIPELINE IS CREATED
+        _implementation = RayTracingPipeline::Implementation::create(context, this);
     }
 }
 
@@ -84,19 +83,21 @@ void RayTracingPipeline::compile(Context& context)
 //
 // RayTracingPipeline::Implementation
 //
-RayTracingPipeline::Implementation::Implementation(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, RayTracingShaderBindings* shaderBindings, AllocationCallbacks* allocator) :
+RayTracingPipeline::Implementation::Implementation(VkPipeline pipeline, Device* device, RayTracingPipeline* rayTracingPipeline, AllocationCallbacks* allocator) :
     _pipeline(pipeline),
     _device(device),
-    _pipelineLayout(pipelineLayout),
-    _shaderStages(shaderStages),
-    _shaderBindings(shaderBindings),
+    _pipelineLayout(rayTracingPipeline->getPipelineLayout()),
+    _shaderStages(rayTracingPipeline->getShaderStages()),
+    _shaderGroups(rayTracingPipeline->getRayTracingShaderGroups()),
     _allocator(allocator)
 {
 }
 
-RayTracingPipeline::Implementation::Result RayTracingPipeline::Implementation::create(Device* device, RayTracingPipeline* rayTracingPipeline)
+RayTracingPipeline::Implementation::Result RayTracingPipeline::Implementation::create(Context& context, RayTracingPipeline* rayTracingPipeline)
 {
     auto pipelineLayout = rayTracingPipeline->getPipelineLayout();
+
+    Device* device = context.device;
 
     if (!device || !pipelineLayout)
     {
@@ -137,11 +138,10 @@ RayTracingPipeline::Implementation::Result RayTracingPipeline::Implementation::c
     pipelineInfo.stageCount = static_cast<uint32_t>(shaderStageCreateInfo.size());
     pipelineInfo.pStages = shaderStageCreateInfo.data();
 
-#if 1
     // assign the RayTracingShaderGroups
     auto& rayTracingShaderGroups = rayTracingPipeline->getRayTracingShaderGroups();
     std::vector<VkRayTracingShaderGroupCreateInfoNV> shaderGroups(rayTracingShaderGroups.size());
-    for(size_t i = 0; i < rayTracingShaderGroups.size(); ++i)
+    for (size_t i = 0; i < rayTracingShaderGroups.size(); ++i)
     {
         rayTracingShaderGroups[i]->applyTo(shaderGroups[i]);
     }
@@ -149,24 +149,38 @@ RayTracingPipeline::Implementation::Result RayTracingPipeline::Implementation::c
     pipelineInfo.groupCount = static_cast<uint32_t>(shaderGroups.size());
     pipelineInfo.pGroups = shaderGroups.data();
 
-#endif
     pipelineInfo.maxRecursionDepth = rayTracingPipeline->maxRecursionDepth();
-
-
-    // deprecated
-    auto shaderBindings = rayTracingPipeline->getShaderBindings();
-    if (shaderBindings)
-    {
-        pipelineInfo.groupCount = static_cast<uint32_t>(shaderBindings->createInfos().size());
-        pipelineInfo.pGroups = shaderBindings->createInfos().data();
-    }
-
 
     VkPipeline pipeline;
     VkResult result = extensions->vkCreateRayTracingPipelinesNV(*device, VK_NULL_HANDLE, 1, &pipelineInfo, rayTracingPipeline->getAllocationCallbacks(), &pipeline);
     if (result == VK_SUCCESS)
     {
-        return Result(new Implementation(pipeline, device, pipelineLayout, shaderStages, shaderBindings, rayTracingPipeline->getAllocationCallbacks()));
+        auto& rayTracingProperties = device->getPhysicalDevice()->getRayTracingProperties();
+        const uint32_t shaderGroupHandleSize = rayTracingProperties.shaderGroupHandleSize;
+        const uint32_t sbtSize = shaderGroupHandleSize * pipelineInfo.groupCount;
+
+        BufferData bindingTableBufferData = context.stagingMemoryBufferPools->reserveBufferData(sbtSize, 4, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV | VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+        auto bindingTableBuffer = bindingTableBufferData._buffer;
+        auto bindingTableMemory = bindingTableBuffer->getDeviceMemory();
+
+        void* buffer_data;
+        bindingTableMemory->map(bindingTableBuffer->getMemoryOffset() + bindingTableBufferData._offset, bindingTableBufferData._range, 0, &buffer_data);
+
+        extensions->vkGetRayTracingShaderGroupHandlesNV(*device, pipeline, 0, rayTracingShaderGroups.size(), sbtSize, buffer_data);
+
+        bindingTableMemory->unmap();
+
+        VkDeviceSize offset = bindingTableBufferData._offset;
+
+        for (size_t i = 0; i < rayTracingShaderGroups.size(); ++i)
+        {
+            rayTracingShaderGroups[i]->bufferData._buffer = bindingTableBuffer;
+            rayTracingShaderGroups[i]->bufferData._offset = offset;
+
+            offset += shaderGroupHandleSize;
+        }
+
+        return Result(new Implementation(pipeline, device, rayTracingPipeline, rayTracingPipeline->getAllocationCallbacks()));
     }
     else
     {

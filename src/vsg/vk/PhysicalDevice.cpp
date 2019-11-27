@@ -37,14 +37,14 @@ PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int 
     deviceProps2.pNext = &_rayTracingProperties;
     vkGetPhysicalDeviceProperties2(_device, &deviceProps2);
 
-    std::cout<<"shaderGroupHandleSize "<<_rayTracingProperties.shaderGroupHandleSize<<std::endl;
-    std::cout<<"maxRecursionDepth "<<_rayTracingProperties.maxRecursionDepth<<std::endl;
-    std::cout<<"maxShaderGroupStride "<<_rayTracingProperties.maxShaderGroupStride<<std::endl;
-    std::cout<<"shaderGroupBaseAlignment "<<_rayTracingProperties.shaderGroupBaseAlignment<<std::endl;
-    std::cout<<"maxGeometryCount "<<_rayTracingProperties.maxGeometryCount<<std::endl;
-    std::cout<<"maxInstanceCount "<<_rayTracingProperties.maxInstanceCount<<std::endl;
-    std::cout<<"maxTriangleCount "<<_rayTracingProperties.maxTriangleCount<<std::endl;
-    std::cout<<"maxDescriptorSetAccelerationStructures "<<_rayTracingProperties.maxDescriptorSetAccelerationStructures<<std::endl;
+    std::cout << "shaderGroupHandleSize " << _rayTracingProperties.shaderGroupHandleSize << std::endl;
+    std::cout << "maxRecursionDepth " << _rayTracingProperties.maxRecursionDepth << std::endl;
+    std::cout << "maxShaderGroupStride " << _rayTracingProperties.maxShaderGroupStride << std::endl;
+    std::cout << "shaderGroupBaseAlignment " << _rayTracingProperties.shaderGroupBaseAlignment << std::endl;
+    std::cout << "maxGeometryCount " << _rayTracingProperties.maxGeometryCount << std::endl;
+    std::cout << "maxInstanceCount " << _rayTracingProperties.maxInstanceCount << std::endl;
+    std::cout << "maxTriangleCount " << _rayTracingProperties.maxTriangleCount << std::endl;
+    std::cout << "maxDescriptorSetAccelerationStructures " << _rayTracingProperties.maxDescriptorSetAccelerationStructures << std::endl;
 }
 
 PhysicalDevice::~PhysicalDevice()

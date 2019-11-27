@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Descriptor.h>
 #include <vsg/raytracing/AccelerationStructure.h>
+#include <vsg/vk/Descriptor.h>
 
 namespace vsg
 {
@@ -40,7 +40,7 @@ namespace vsg
         AccelerationStructures _accelerationStructures;
 
         // populated by compile()
-        std::vector <VkAccelerationStructureNV> _vkAccelerationStructures;
+        std::vector<VkAccelerationStructureNV> _vkAccelerationStructures;
         VkWriteDescriptorSetAccelerationStructureNV _descriptorAccelerationStructureInfo;
     };
     VSG_type_name(vsg::DescriptorAccelerationStructure)

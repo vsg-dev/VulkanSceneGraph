@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/CopyImage.h>
 #include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/CopyImage.h>
 
 #include <iostream>
 
@@ -31,5 +31,4 @@ void CopyImage::dispatch(CommandBuffer& commandBuffer) const
         dstImageLayout,
         static_cast<uint32_t>(regions.size()),
         regions.data());
-
 }

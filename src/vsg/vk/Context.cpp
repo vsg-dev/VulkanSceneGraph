@@ -21,10 +21,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/Extensions.h>
 #include <vsg/vk/PipelineBarrier.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
-#include <vsg/vk/Extensions.h>
 
 #include <iostream>
 
@@ -558,14 +558,14 @@ void BuildAccelerationStructureCommand::dispatch(CommandBuffer& commandBuffer) c
     Extensions* extensions = Extensions::Get(_device, true);
 
     extensions->vkCmdBuildAccelerationStructureNV(commandBuffer,
-                                                    _accelerationStructureInfo,
-                                                    _instanceBuffer.valid() ? *_instanceBuffer : (VkBuffer)VK_NULL_HANDLE,
-                                                    0,
-                                                    VK_FALSE,
-                                                    _accelerationStructure,
-                                                    VK_NULL_HANDLE,
-                                                    *_scratchBuffer,
-                                                    0);
+                                                  _accelerationStructureInfo,
+                                                  _instanceBuffer.valid() ? *_instanceBuffer : (VkBuffer)VK_NULL_HANDLE,
+                                                  0,
+                                                  VK_FALSE,
+                                                  _accelerationStructure,
+                                                  VK_NULL_HANDLE,
+                                                  *_scratchBuffer,
+                                                  0);
 
     VkMemoryBarrier memoryBarrier;
     memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;

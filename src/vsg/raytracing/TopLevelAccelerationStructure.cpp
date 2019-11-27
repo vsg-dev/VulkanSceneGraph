@@ -14,9 +14,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/raytracing/TopLevelAccelerationStructure.h>
 
+#include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/Extensions.h>
-#include <vsg/vk/CommandBuffer.h>
 
 using namespace vsg;
 
@@ -39,7 +39,7 @@ TopLevelAccelerationStructure::TopLevelAccelerationStructure(Device* device, All
 void TopLevelAccelerationStructure::compile(Context& context)
 {
     if (_geometryInstances.empty()) return; // no data
-    if (_instances) return;          // already compiled
+    if (_instances) return;                 // already compiled
 
     // allocate instances array to size of reference bottom level geoms list
     _instances = VkGeometryInstanceArray::create(static_cast<uint32_t>(_geometryInstances.size()));
@@ -51,7 +51,7 @@ void TopLevelAccelerationStructure::compile(Context& context)
         _instances->set(i, *_geometryInstances[i]);
     }
 
-    DataList dataList = { _instances };
+    DataList dataList = {_instances};
 
 #if TRANSFER_BUFFERS
     auto instanceBufferData = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);

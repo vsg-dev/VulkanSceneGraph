@@ -14,9 +14,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/raytracing/AccelerationGeometry.h>
 
+#include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/Extensions.h>
-#include <vsg/vk/CommandBuffer.h>
 
 #define TRANSFER_BUFFERS 0
 
@@ -30,7 +30,7 @@ AccelerationGeometry::AccelerationGeometry(Allocator* allocator) :
 
 void AccelerationGeometry::compile(Context& context)
 {
-    if (!_verts) return; // no data set
+    if (!_verts) return;                                                   // no data set
     if (_geometry.geometry.triangles.vertexData != VK_NULL_HANDLE) return; // already compiled
 
     uint32_t vertcount = static_cast<uint32_t>(_verts->valueCount());

@@ -14,8 +14,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Extensions.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 TraceRays::TraceRays()
@@ -24,41 +22,36 @@ TraceRays::TraceRays()
 
 void TraceRays::dispatch(CommandBuffer& commandBuffer) const
 {
-    Extensions* extensions = Extensions::Get(commandBuffer.getDevice(), true);
+    Device* device = commandBuffer.getDevice();
+    Extensions* extensions = Extensions::Get(device, true);
+    auto& rayTracingProperties = device->getPhysicalDevice()->getRayTracingProperties();
+    auto shaderGroupHandleSize = rayTracingProperties.shaderGroupHandleSize;
 
-#if 0
-    extensions->vkCmdTraceRaysNV(
-        commandBuffer,
-        *raygenShaderBindingTableBuffer,
-        raygenShaderBindingOffset,
-        *missShaderBindingTableBuffer,
-        missShaderBindingOffset,
-        missShaderBindingStride,
-        *hitShaderBindingTableBuffer,
-        hitShaderBindingOffset,
-        hitShaderBindingStride,
-        *callableShaderBindingTableBuffer,
-        callableShaderBindingOffset,
-        callableShaderBindingStride,
-        width,
-        height,
-        depth);
-#else
+    using BufferSize = std::pair<VkBuffer, VkDeviceSize>;
+    auto bufferAndOffset = [](auto& shaderGroup) {
+        if (shaderGroup && shaderGroup->bufferData._buffer) return BufferSize(VkBuffer(*(shaderGroup->bufferData._buffer)), shaderGroup->bufferData._offset);
+        return BufferSize(VK_NULL_HANDLE, 0);
+    };
+
+    auto [raygenShaderBindingTableBuffer, raygenShaderBindingOffset] = bufferAndOffset(raygen);
+    auto [missShaderBindingTableBuffer, missShaderBindingOffset] = bufferAndOffset(missShader);
+    auto [hitShaderBindingTableBuffer, hitShaderBindingOffset] = bufferAndOffset(hitShader);
+    auto [callableShaderBindingTableBuffer, callableShaderBindingOffset] = bufferAndOffset(callableShader);
+
     extensions->vkCmdTraceRaysNV(
         commandBuffer,
         raygenShaderBindingTableBuffer,
         raygenShaderBindingOffset,
         missShaderBindingTableBuffer,
         missShaderBindingOffset,
-        missShaderBindingStride,
+        shaderGroupHandleSize,
         hitShaderBindingTableBuffer,
         hitShaderBindingOffset,
-        hitShaderBindingStride,
+        shaderGroupHandleSize,
         callableShaderBindingTableBuffer,
         callableShaderBindingOffset,
-        callableShaderBindingStride,
+        shaderGroupHandleSize,
         width,
         height,
         depth);
-#endif
 }

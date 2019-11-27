@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/raytracing/RayTracingShaderGroup.h>
 #include <vsg/vk/Command.h>
-#include <vsg/vk/Buffer.h>
 
 namespace vsg
 {
@@ -21,28 +21,15 @@ namespace vsg
     class VSG_DECLSPEC TraceRays : public Inherit<Command, TraceRays>
     {
     public:
-
         TraceRays();
 
         void dispatch(CommandBuffer& commandBuffer) const override;
 
-#if 0
-        using BufferType = ref_ptr<Buffer>;
-#else
-        using BufferType = VkBuffer;
-#endif
+        ref_ptr<RayTracingShaderGroup> raygen;
+        ref_ptr<RayTracingShaderGroup> missShader;
+        ref_ptr<RayTracingShaderGroup> hitShader;
+        ref_ptr<RayTracingShaderGroup> callableShader;
 
-        BufferType raygenShaderBindingTableBuffer;
-        VkDeviceSize raygenShaderBindingOffset = 0;
-        BufferType missShaderBindingTableBuffer;
-        VkDeviceSize missShaderBindingOffset = 0;
-        VkDeviceSize missShaderBindingStride = 0;
-        BufferType hitShaderBindingTableBuffer;
-        VkDeviceSize hitShaderBindingOffset;
-        VkDeviceSize hitShaderBindingStride = 0;
-        BufferType callableShaderBindingTableBuffer;
-        VkDeviceSize callableShaderBindingOffset = 0;
-        VkDeviceSize callableShaderBindingStride = 0;
         uint32_t width = 0;
         uint32_t height = 0;
         uint32_t depth = 0;

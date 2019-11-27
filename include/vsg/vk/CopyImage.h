@@ -21,17 +21,16 @@ namespace vsg
     class VSG_DECLSPEC CopyImage : public Inherit<Command, CopyImage>
     {
     public:
-
         CopyImage();
 
         void dispatch(CommandBuffer& commandBuffer) const override;
 
         using Regions = std::vector<VkImageCopy>;
 
-        ref_ptr<Image>  srcImage;
-        VkImageLayout   srcImageLayout;
-        ref_ptr<Image>  dstImage;
-        VkImageLayout   dstImageLayout;
+        ref_ptr<Image> srcImage;
+        VkImageLayout srcImageLayout;
+        ref_ptr<Image> dstImage;
+        VkImageLayout dstImageLayout;
         Regions regions;
     };
 

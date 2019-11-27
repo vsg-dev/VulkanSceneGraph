@@ -23,8 +23,16 @@ namespace vsg
         virtual void get(mat4& matrix) const = 0;
         virtual void get(dmat4& matrix) const = 0;
 
-        virtual void get_inverse(mat4& matrix) const { get(matrix); matrix = inverse(matrix); }
-        virtual void get_inverse(dmat4& matrix) const { get(matrix); matrix = inverse(matrix); }
+        virtual void get_inverse(mat4& matrix) const
+        {
+            get(matrix);
+            matrix = inverse(matrix);
+        }
+        virtual void get_inverse(dmat4& matrix) const
+        {
+            get(matrix);
+            matrix = inverse(matrix);
+        }
     };
 
     class LookAt : public Inherit<ViewMatrix, LookAt>

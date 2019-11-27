@@ -34,7 +34,6 @@ void RayTracingShaderGroup::read(Input& input)
 void RayTracingShaderGroup::write(Output& output) const
 {
     Object::write(output);
-
 }
 
 void RayTracingShaderGroup::applyTo(VkRayTracingShaderGroupCreateInfoNV& shaderGroupInfo) const
@@ -47,4 +46,3 @@ void RayTracingShaderGroup::applyTo(VkRayTracingShaderGroupCreateInfoNV& shaderG
     shaderGroupInfo.anyHitShader = anyHitShader;
     shaderGroupInfo.intersectionShader = intersectionShader;
 }
-

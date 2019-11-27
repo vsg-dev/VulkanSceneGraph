@@ -87,7 +87,7 @@ namespace vsg
     };
     VSG_type_name(vsg::DatabaseQueue)
 
-    class DatabasePager : public Inherit<Object, DatabasePager>
+        class DatabasePager : public Inherit<Object, DatabasePager>
     {
     public:
         DatabasePager();

@@ -111,7 +111,7 @@ namespace vsg
     public:
         BuildAccelerationStructureCommand(Device* device, VkAccelerationStructureInfoNV* info, const VkAccelerationStructureNV& structure, Buffer* instanceBuffer, Allocator* allocator = nullptr);
 
-        void compile(Context& context) override {}
+        void compile(Context&) override {}
         void dispatch(CommandBuffer& commandBuffer) const override;
 
         ref_ptr<Device> _device;
