@@ -69,6 +69,8 @@ set(SOURCES
     viewer/Viewer.cpp
     viewer/Window.cpp
     viewer/Trackball.cpp
+    viewer/CommandGraph.cpp
+    viewer/RenderGraph.cpp
 
     vk/Buffer.cpp
     vk/BufferData.cpp

@@ -82,8 +82,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 // Viewer header files
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/CloseHandler.h>
+#include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/GraphicsStage.h>
 #include <vsg/viewer/ProjectionMatrix.h>
+#include <vsg/viewer/RenderGraph.h>
 #include <vsg/viewer/Trackball.h>
 #include <vsg/viewer/View.h>
 #include <vsg/viewer/ViewMatrix.h>
@@ -123,6 +125,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Instance.h>
 #include <vsg/vk/MemoryManager.h>
 #include <vsg/vk/PhysicalDevice.h>
+#include <vsg/vk/PipelineBarrier.h>
 #include <vsg/vk/PipelineLayout.h>
 #include <vsg/vk/PushConstants.h>
 #include <vsg/vk/Queue.h>
