@@ -69,6 +69,7 @@ set(SOURCES
     viewer/Viewer.cpp
     viewer/Window.cpp
     viewer/Trackball.cpp
+    viewer/CopyImageViewToWindow.cpp
 
     raytracing/AccelerationGeometry.cpp
     raytracing/AccelerationStructure.cpp
