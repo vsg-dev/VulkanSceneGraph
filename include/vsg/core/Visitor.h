@@ -85,6 +85,10 @@ namespace vsg
     class TerminateEvent;
     class FrameEvent;
 
+    // forward declare viewer classes
+    class CommandGraph;
+    class RenderGraph;
+
     // forward declare general classes
     class FrameStamp;
 
@@ -220,6 +224,10 @@ namespace vsg
         virtual void apply(TouchMoveEvent&);
         virtual void apply(TerminateEvent&);
         virtual void apply(FrameEvent&);
+
+        // viewer class
+        virtual void apply(CommandGraph&);
+        virtual void apply(RenderGraph&);
 
         // general classes
         virtual void apply(FrameStamp&);

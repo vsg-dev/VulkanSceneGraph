@@ -82,6 +82,11 @@ set(SOURCES
     raytracing/RayTracingShaderGroup.cpp
     raytracing/TraceRays.cpp
 
+    viewer/CommandGraph.cpp
+    viewer/RenderGraph.cpp
+    viewer/Presentation.cpp
+    viewer/RecordAndSubmitTask.cpp
+
     vk/Buffer.cpp
     vk/BufferData.cpp
     vk/BufferView.cpp

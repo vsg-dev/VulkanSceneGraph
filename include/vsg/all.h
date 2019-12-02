@@ -83,8 +83,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/CloseHandler.h>
 #include <vsg/viewer/CopyImageViewToWindow.h>
+#include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/GraphicsStage.h>
+#include <vsg/viewer/Presentation.h>
 #include <vsg/viewer/ProjectionMatrix.h>
+#include <vsg/viewer/RecordAndSubmitTask.h>
+#include <vsg/viewer/RenderGraph.h>
 #include <vsg/viewer/Trackball.h>
 #include <vsg/viewer/View.h>
 #include <vsg/viewer/ViewMatrix.h>
