@@ -22,11 +22,9 @@ namespace vsg
     class CopyImageViewToWindow : public Inherit<Command, CopyImageViewToWindow>
     {
     public:
-
         ref_ptr<ImageView> srcImageView;
         ref_ptr<Window> window;
         VkExtent2D _extent2D;
-
 
         CopyImageViewToWindow(ref_ptr<ImageView> in_srcImageView, ref_ptr<Window> in_window) :
             srcImageView(in_srcImageView),
@@ -37,6 +35,5 @@ namespace vsg
 
         void dispatch(CommandBuffer& commandBuffer) const override;
     };
-
 
 } // namespace vsg
