@@ -22,6 +22,20 @@ CommandGraph::CommandGraph(Device* device, int family) :
 {
 }
 
+CommandGraph::CommandGraph(Window* window)
+{
+    if (window)
+    {
+        _device = window->device();
+        _family = window->physicalDevice()->getGraphicsFamily();
+
+        for(size_t i = 0; i < window->numFrames(); ++i)
+        {
+            commandBuffers.emplace_back(window->commandBuffer(i));
+        }
+    }
+}
+
 void CommandGraph::accept(DispatchTraversal& dispatchTraversal) const
 {
     ref_ptr<CommandBuffer> commandBuffer;

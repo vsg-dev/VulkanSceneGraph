@@ -77,7 +77,6 @@ set(SOURCES
     raytracing/TopLevelAccelerationStructure.cpp
     raytracing/DescriptorAccelerationStructure.cpp
     raytracing/AccelerationStructureBuildTraversal.cpp
-    raytracing/RayTracingStage.cpp
     raytracing/RayTracingPipeline.cpp
     raytracing/RayTracingShaderGroup.cpp
     raytracing/TraceRays.cpp

@@ -68,7 +68,3 @@ void TopLevelAccelerationStructure::compile(Context& context)
 
     context.buildAccelerationStructureCommands.push_back(BuildAccelerationStructureCommand::create(context.device, &_accelerationStructureInfo, _accelerationStructure, _instanceBuffer));
 }
-
-void TopLevelAccelerationStructure::dispatch(CommandBuffer& commandBuffer) const
-{
-}

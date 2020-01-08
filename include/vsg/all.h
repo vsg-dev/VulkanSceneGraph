@@ -82,8 +82,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 // Viewer header files
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/CloseHandler.h>
-#include <vsg/viewer/CopyImageViewToWindow.h>
 #include <vsg/viewer/CommandGraph.h>
+#include <vsg/viewer/CopyImageViewToWindow.h>
 #include <vsg/viewer/GraphicsStage.h>
 #include <vsg/viewer/Presentation.h>
 #include <vsg/viewer/ProjectionMatrix.h>
@@ -177,6 +177,5 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/raytracing/DescriptorAccelerationStructure.h>
 #include <vsg/raytracing/RayTracingPipeline.h>
 #include <vsg/raytracing/RayTracingShaderGroup.h>
-#include <vsg/raytracing/RayTracingStage.h>
 #include <vsg/raytracing/TopLevelAccelerationStructure.h>
 #include <vsg/raytracing/TraceRays.h>

@@ -44,7 +44,3 @@ void BottomLevelAccelerationStructure::compile(Context& context)
 
     context.buildAccelerationStructureCommands.push_back(BuildAccelerationStructureCommand::create(context.device, &_accelerationStructureInfo, _accelerationStructure, nullptr));
 }
-
-void BottomLevelAccelerationStructure::dispatch(CommandBuffer& commandBuffer) const
-{
-}

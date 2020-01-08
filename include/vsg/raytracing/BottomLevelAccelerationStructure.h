@@ -23,7 +23,6 @@ namespace vsg
         BottomLevelAccelerationStructure(Device* device, Allocator* allocator = nullptr);
 
         void compile(Context& context) override;
-        void dispatch(CommandBuffer& commandBuffer) const override;
 
         AccelerationGeometries _geometries;
 

@@ -15,19 +15,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Value.h>
 #include <vsg/maths/mat4.h>
 #include <vsg/vk/BufferData.h>
-#include <vsg/vk/Command.h>
 #include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DeviceMemory.h>
 
 namespace vsg
 {
-    class VSG_DECLSPEC AccelerationStructure : public Inherit<Command, AccelerationStructure>
+    class VSG_DECLSPEC AccelerationStructure : public Inherit<Object, AccelerationStructure>
     {
     public:
         AccelerationStructure(VkAccelerationStructureTypeNV type, Device* device, Allocator* allocator = nullptr);
 
-        void compile(Context& context) override;
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        virtual void compile(Context& context);
 
         operator VkAccelerationStructureNV() const { return _accelerationStructure; }
 

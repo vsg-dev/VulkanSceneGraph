@@ -22,8 +22,8 @@ using namespace vsg;
 
 AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeNV type, Device* device, Allocator* allocator) :
     Inherit(allocator),
-    _device(device),
-    _requiredBuildScratchSize(0)
+    _requiredBuildScratchSize(0),
+    _device(device)
 {
     _accelerationStructureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV;
     _accelerationStructureInfo.type = type;
@@ -79,8 +79,4 @@ void AccelerationStructure::compile(Context& context)
     {
         // error
     }
-}
-
-void AccelerationStructure::dispatch(CommandBuffer& commandBuffer) const
-{
 }
