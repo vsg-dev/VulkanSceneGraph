@@ -32,8 +32,6 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     std::vector<VkCommandBuffer> vk_commandBuffers;
     std::vector<VkSemaphore> vk_signalSemaphores;
 
-    static int s_first_frame = 0;
-
     // aquire fence
     ref_ptr<Fence> fence;
     for (auto& window : windows)
