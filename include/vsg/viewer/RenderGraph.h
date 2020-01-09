@@ -12,18 +12,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-
 #include <vsg/nodes/Group.h>
 
-#include <vsg/viewer/Window.h>
 #include <vsg/viewer/Camera.h>
+#include <vsg/viewer/Window.h>
 
 namespace vsg
 {
     class RenderGraph : public Inherit<Group, RenderGraph>
     {
     public:
-
         RenderGraph();
 
         using Group::accept;

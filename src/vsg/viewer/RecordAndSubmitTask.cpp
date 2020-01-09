@@ -24,8 +24,8 @@ using namespace vsg;
 
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
-    std::cout<<"\n.....................................................\n";
-    std::cout<<"RecordAndSubmitTask::submit()"<<std::endl;
+    std::cout << "\n.....................................................\n";
+    std::cout << "RecordAndSubmitTask::submit()" << std::endl;
 
     std::vector<VkSemaphore> vk_waitSemaphores;
     std::vector<VkPipelineStageFlags> vk_waitStages;
@@ -47,7 +47,7 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     {
         if ((fence->dependentSemaphores().size() + fence->dependentCommandBuffers().size()) > 0)
         {
-            std::cout<<"    wait on fence = "<<fence.get()<<" "<<fence->dependentSemaphores().size()<<", "<<fence->dependentCommandBuffers().size()<<std::endl;
+            std::cout << "    wait on fence = " << fence.get() << " " << fence->dependentSemaphores().size() << ", " << fence->dependentCommandBuffers().size() << std::endl;
             uint64_t timeout = 10000000000;
             VkResult result = VK_SUCCESS;
             while ((result = fence->wait(timeout)) == VK_TIMEOUT)
@@ -63,7 +63,7 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 
         for (auto& commandBuffer : fence->dependentCommandBuffers())
         {
-            std::cout<<"RecordAndSubmitTask::submits(..) "<<commandBuffer.get()<<" "<<std::dec<<commandBuffer->numDependentSubmissions().load()<<std::endl;
+            std::cout << "RecordAndSubmitTask::submits(..) " << commandBuffer.get() << " " << std::dec << commandBuffer->numDependentSubmissions().load() << std::endl;
             commandBuffer->numDependentSubmissions().exchange(0);
         }
 
@@ -72,14 +72,14 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
         fence->reset();
     }
 
-    for(auto& semaphore : waitSemaphores)
+    for (auto& semaphore : waitSemaphores)
     {
         vk_waitSemaphores.emplace_back(*(semaphore));
         vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
     }
 
     // record the commands in the command buffer
-    for(auto& commandGraph : commandGraphs)
+    for (auto& commandGraph : commandGraphs)
     {
         // pass the inext to dispatchTraversal visitor?  Only for RenderGraph?
         DispatchTraversal dispatchTraversal(nullptr, commandGraph->_maxSlot, frameStamp);
@@ -117,12 +117,10 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
         }
     }
 
-
-    for(auto& semaphore : signalSemaphores)
+    for (auto& semaphore : signalSemaphores)
     {
         vk_signalSemaphores.emplace_back(*(semaphore));
     }
-
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -137,25 +135,24 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     submitInfo.signalSemaphoreCount = static_cast<uint32_t>(vk_signalSemaphores.size());
     submitInfo.pSignalSemaphores = vk_signalSemaphores.data();
 
-    std::cout<<"pdo.graphicsQueue->submit(..) fence = "<<fence.get()<<"\n";
-    std::cout<<"    submitInfo.waitSemaphoreCount = "<<submitInfo.waitSemaphoreCount<<"\n";
-    for(uint32_t i=0; i<submitInfo.waitSemaphoreCount; ++i)
+    std::cout << "pdo.graphicsQueue->submit(..) fence = " << fence.get() << "\n";
+    std::cout << "    submitInfo.waitSemaphoreCount = " << submitInfo.waitSemaphoreCount << "\n";
+    for (uint32_t i = 0; i < submitInfo.waitSemaphoreCount; ++i)
     {
-        std::cout<<"        submitInfo.pWaitSemaphores["<<i<<"] = "<<submitInfo.pWaitSemaphores[i]<<"\n";
-        std::cout<<"        submitInfo.pWaitDstStageMask["<<i<<"] = "<<submitInfo.pWaitDstStageMask[i]<<"\n";
+        std::cout << "        submitInfo.pWaitSemaphores[" << i << "] = " << submitInfo.pWaitSemaphores[i] << "\n";
+        std::cout << "        submitInfo.pWaitDstStageMask[" << i << "] = " << submitInfo.pWaitDstStageMask[i] << "\n";
     }
-    std::cout<<"    submitInfo.commandBufferCount = "<<submitInfo.commandBufferCount<<"\n";
-    for(uint32_t i=0; i<submitInfo.commandBufferCount; ++i)
+    std::cout << "    submitInfo.commandBufferCount = " << submitInfo.commandBufferCount << "\n";
+    for (uint32_t i = 0; i < submitInfo.commandBufferCount; ++i)
     {
-        std::cout<<"        submitInfo.pCommandBuffers["<<i<<"] = "<<submitInfo.pCommandBuffers[i]<<"\n";
+        std::cout << "        submitInfo.pCommandBuffers[" << i << "] = " << submitInfo.pCommandBuffers[i] << "\n";
     }
-    std::cout<<"    submitInfo.signalSemaphoreCount = "<<submitInfo.signalSemaphoreCount<<"\n";
-    for(uint32_t i=0; i<submitInfo.signalSemaphoreCount; ++i)
+    std::cout << "    submitInfo.signalSemaphoreCount = " << submitInfo.signalSemaphoreCount << "\n";
+    for (uint32_t i = 0; i < submitInfo.signalSemaphoreCount; ++i)
     {
-        std::cout<<"        submitInfo.pSignalSemaphores["<<i<<"] = "<<submitInfo.pSignalSemaphores[i]<<"\n";
+        std::cout << "        submitInfo.pSignalSemaphores[" << i << "] = " << submitInfo.pSignalSemaphores[i] << "\n";
     }
-    std::cout<<std::endl;
+    std::cout << std::endl;
 
     return queue->submit(submitInfo, fence);
 }
-

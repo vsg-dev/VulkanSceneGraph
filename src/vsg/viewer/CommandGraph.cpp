@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/viewer/CommandGraph.h>
 #include <vsg/traversals/DispatchTraversal.h>
+#include <vsg/viewer/CommandGraph.h>
 #include <vsg/vk/State.h>
 
 using namespace vsg;
@@ -29,7 +29,7 @@ CommandGraph::CommandGraph(Window* window)
         _device = window->device();
         _family = window->physicalDevice()->getGraphicsFamily();
 
-        for(size_t i = 0; i < window->numFrames(); ++i)
+        for (size_t i = 0; i < window->numFrames(); ++i)
         {
             commandBuffers.emplace_back(window->commandBuffer(i));
         }
@@ -39,9 +39,9 @@ CommandGraph::CommandGraph(Window* window)
 void CommandGraph::accept(DispatchTraversal& dispatchTraversal) const
 {
     ref_ptr<CommandBuffer> commandBuffer;
-    for(auto& cb : commandBuffers)
+    for (auto& cb : commandBuffers)
     {
-        if (cb->numDependentSubmissions()==0)
+        if (cb->numDependentSubmissions() == 0)
         {
             commandBuffer = cb;
         }
@@ -56,7 +56,6 @@ void CommandGraph::accept(DispatchTraversal& dispatchTraversal) const
     commandBuffer->numDependentSubmissions().fetch_add(1);
 
     dispatchTraversal.state->_commandBuffer = commandBuffer;
-
 
     // or select index when maps to a dormant CommandBuffer
     VkCommandBuffer vk_commandBuffer = *commandBuffer;
@@ -74,4 +73,3 @@ void CommandGraph::accept(DispatchTraversal& dispatchTraversal) const
 
     vkEndCommandBuffer(vk_commandBuffer);
 }
-

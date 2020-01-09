@@ -18,8 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/DatabasePager.h>
 
-#include <vsg/viewer/Window.h>
 #include <vsg/viewer/CommandGraph.h>
+#include <vsg/viewer/Window.h>
 
 namespace vsg
 {
@@ -28,14 +28,13 @@ namespace vsg
     class RecordAndSubmitTask : public Inherit<Object, RecordAndSubmitTask>
     {
     public:
-
         // Need to add FrameStamp?
         VkResult submit(ref_ptr<FrameStamp> frameStamp);
 
         using CommandGraphs = std::vector<ref_ptr<CommandGraph>>;
 
         Windows windows;
-        Semaphores waitSemaphores; //
+        Semaphores waitSemaphores;   //
         CommandGraphs commandGraphs; // assign in application setup
         Semaphores signalSemaphores; // connect to Presentation.waitSemaphores
 

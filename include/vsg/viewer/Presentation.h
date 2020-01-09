@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-
 #include <vsg/viewer/Window.h>
 
 namespace vsg
@@ -21,11 +20,10 @@ namespace vsg
     class Presentation : public Inherit<Object, Presentation>
     {
     public:
-
         VkResult present();
 
         Windows windows;
-        Semaphores waitSemaphores;  // taken from RecordAndSubmitTasks.signalSemaphores
+        Semaphores waitSemaphores; // taken from RecordAndSubmitTasks.signalSemaphores
 
         ref_ptr<Queue> queue; // assign in application for GraphicsQueue from device
     };

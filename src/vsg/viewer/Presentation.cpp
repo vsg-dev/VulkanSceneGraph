@@ -18,17 +18,17 @@ using namespace vsg;
 
 VkResult Presentation::present()
 {
-    std::cout<<"Presentation::present()"<<std::endl;
+    std::cout << "Presentation::present()" << std::endl;
 
     std::vector<VkSemaphore> vk_semaphores;
-    for(auto& semaphore : waitSemaphores)
+    for (auto& semaphore : waitSemaphores)
     {
         vk_semaphores.emplace_back(*(semaphore));
     }
 
     std::vector<VkSwapchainKHR> vk_swapchains;
     std::vector<uint32_t> indices;
-    for(auto& window : windows)
+    for (auto& window : windows)
     {
         //vk_semaphores.push_back(*(window->frame(window->nextImageIndex()).imageAvailableSemaphore));
         vk_swapchains.emplace_back(*(window->swapchain()));
@@ -43,25 +43,24 @@ VkResult Presentation::present()
     presentInfo.pSwapchains = vk_swapchains.data();
     presentInfo.pImageIndices = indices.data();
 
-    std::cout<<"pdo.presentInfo->present(..) \n";
-    std::cout<<"    presentInfo.waitSemaphoreCount = "<<presentInfo.waitSemaphoreCount<<"\n";
-    for(uint32_t i=0; i<presentInfo.waitSemaphoreCount; ++i)
+    std::cout << "pdo.presentInfo->present(..) \n";
+    std::cout << "    presentInfo.waitSemaphoreCount = " << presentInfo.waitSemaphoreCount << "\n";
+    for (uint32_t i = 0; i < presentInfo.waitSemaphoreCount; ++i)
     {
-        std::cout<<"        presentInfo.pWaitSemaphores["<<i<<"] = "<<presentInfo.pWaitSemaphores[i]<<"\n";
+        std::cout << "        presentInfo.pWaitSemaphores[" << i << "] = " << presentInfo.pWaitSemaphores[i] << "\n";
     }
-    std::cout<<"    presentInfo.commandBufferCount = "<<presentInfo.swapchainCount<<"\n";
-    for(uint32_t i=0; i<presentInfo.swapchainCount; ++i)
+    std::cout << "    presentInfo.commandBufferCount = " << presentInfo.swapchainCount << "\n";
+    for (uint32_t i = 0; i < presentInfo.swapchainCount; ++i)
     {
-        std::cout<<"        presentInfo.pSwapchains["<<i<<"] = "<<presentInfo.pSwapchains[i]<<"\n";
-        std::cout<<"        presentInfo.pImageIndices["<<i<<"] = "<<presentInfo.pImageIndices[i]<<"\n";
+        std::cout << "        presentInfo.pSwapchains[" << i << "] = " << presentInfo.pSwapchains[i] << "\n";
+        std::cout << "        presentInfo.pImageIndices[" << i << "] = " << presentInfo.pImageIndices[i] << "\n";
     }
-    std::cout<<std::endl;
+    std::cout << std::endl;
 
-    for(auto& window : windows)
+    for (auto& window : windows)
     {
         window->advanceNextImageIndex();
     }
 
     return queue->present(presentInfo);
 }
-

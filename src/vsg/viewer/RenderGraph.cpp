@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/viewer/RenderGraph.h>
 #include <vsg/traversals/DispatchTraversal.h>
+#include <vsg/viewer/RenderGraph.h>
 #include <vsg/vk/State.h>
 
 using namespace vsg;
@@ -48,5 +48,3 @@ void RenderGraph::accept(DispatchTraversal& dispatchTraversal) const
 
     vkCmdEndRenderPass(vk_commandBuffer);
 }
-
-
