@@ -31,8 +31,6 @@ namespace vsg
         // Need to add FrameStamp?
         VkResult submit(ref_ptr<FrameStamp> frameStamp);
 
-        using CommandGraphs = std::vector<ref_ptr<CommandGraph>>;
-
         Windows windows;
         Semaphores waitSemaphores;   //
         CommandGraphs commandGraphs; // assign in application setup

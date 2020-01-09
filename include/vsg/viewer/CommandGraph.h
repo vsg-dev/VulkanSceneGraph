@@ -34,4 +34,6 @@ namespace vsg
         uint32_t _maxSlot = 2;
         mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
     };
+
+    using CommandGraphs = std::vector<ref_ptr<CommandGraph>>;
 } // namespace vsg
