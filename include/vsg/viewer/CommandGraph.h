@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/Group.h>
 #include <vsg/viewer/Window.h>
+#include <vsg/viewer/Camera.h>
 #include <vsg/vk/CommandBuffer.h>
 
 namespace vsg
@@ -36,4 +37,8 @@ namespace vsg
     };
 
     using CommandGraphs = std::vector<ref_ptr<CommandGraph>>;
+
+    /// convience function that sets up RenderGraph inside CommandGraph to render the specified scene graph from the speified Camera view
+    ref_ptr<CommandGraph> createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph);
+
 } // namespace vsg

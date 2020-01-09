@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/traversals/DispatchTraversal.h>
 #include <vsg/viewer/CommandGraph.h>
+#include <vsg/viewer/RenderGraph.h>
 #include <vsg/vk/State.h>
 
 using namespace vsg;
@@ -72,4 +73,28 @@ void CommandGraph::accept(DispatchTraversal& dispatchTraversal) const
     traverse(dispatchTraversal);
 
     vkEndCommandBuffer(vk_commandBuffer);
+}
+
+
+ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph)
+{
+    auto commandGraph = CommandGraph::create(window);
+
+    // set up the render graph for viewport & scene
+    auto renderGraph = vsg::RenderGraph::create();
+    renderGraph->addChild(ref_ptr<Node>(scenegraph));
+
+    renderGraph->camera = camera;
+    renderGraph->window = window;
+
+    renderGraph->renderArea.offset = {0, 0};
+    renderGraph->renderArea.extent = window->extent2D();
+
+    renderGraph->clearValues.resize(2);
+    renderGraph->clearValues[0].color = window->clearColor();
+    renderGraph->clearValues[1].depthStencil = VkClearDepthStencilValue{1.0f, 0};
+
+    commandGraph->addChild(renderGraph);
+
+    return commandGraph;
 }
