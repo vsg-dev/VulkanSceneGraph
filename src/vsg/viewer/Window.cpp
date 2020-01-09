@@ -205,41 +205,6 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     _nextImageIndex = 0;
 }
 
-void Window::populateCommandBuffers(uint32_t index, ref_ptr<vsg::FrameStamp> frameStamp)
-{
-    Frame& frame = _frames[index];
-
-    if (frame.commandsCompletedFence)
-    {
-        if (frame.checkCommandsCompletedFence)
-        {
-            uint64_t timeout = 10000000000;
-            VkResult result = VK_SUCCESS;
-            while ((result = frame.commandsCompletedFence->wait(timeout)) == VK_TIMEOUT)
-            {
-                std::cout << "populateCommandBuffers(" << index << ") frame.commandsCompletedFence->wait(" << timeout << ") failed with result = " << result << std::endl;
-                //exit(1);
-                //throw "Window::populateCommandBuffers(uint32_t index, ref_ptr<vsg::FrameStamp> frameStamp) timeout";
-            }
-
-            for (auto& semaphore : frame.commandsCompletedFence->dependentSemaphores())
-            {
-                //std::cout<<"Window::populateCommandBuffers(..) "<<*(semaphore->data())<<" "<<semaphore->numDependentSubmissions().load()<<std::endl;
-                semaphore->numDependentSubmissions().exchange(0);
-            }
-
-            frame.commandsCompletedFence->dependentSemaphores().clear();
-        }
-
-        frame.commandsCompletedFence->reset();
-    }
-
-    for (auto& stage : _stages)
-    {
-        stage->populateCommandBuffer(frame.commandBuffer, frame.framebuffer, _renderPass, frame.imageView, _extent2D, _clearColor, frameStamp);
-    }
-}
-
 // just kept for backwards compatibility for now
 Window::Result Window::create(uint32_t width, uint32_t height, bool debugLayer, bool apiDumpLayer, vsg::Window* shareWindow, vsg::AllocationCallbacks* allocator)
 {

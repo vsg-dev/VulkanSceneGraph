@@ -178,13 +178,13 @@ void CompileTraversal::apply(Geometry& geometry)
 
 void CompileTraversal::apply(CommandGraph& commandGraph)
 {
-    std::cout << "CompileTraversal::applu(CommandGraph&)" << std::endl;
+    std::cout << "CompileTraversal::apply(CommandGraph&)" << std::endl;
 
     commandGraph.traverse(*this);
 }
 void CompileTraversal::apply(RenderGraph& renderGraph)
 {
-    std::cout << "CompileTraversal::applu(RenderGraph&)" << std::endl;
+    std::cout << "CompileTraversal::apply(RenderGraph&)" << std::endl;
     context.renderPass = renderGraph.window->renderPass();
 
     if (renderGraph.camera)
