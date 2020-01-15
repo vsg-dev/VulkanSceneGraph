@@ -84,7 +84,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/CloseHandler.h>
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/CopyImageViewToWindow.h>
-#include <vsg/viewer/GraphicsStage.h>
 #include <vsg/viewer/Presentation.h>
 #include <vsg/viewer/ProjectionMatrix.h>
 #include <vsg/viewer/RecordAndSubmitTask.h>
@@ -139,7 +138,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Semaphore.h>
 #include <vsg/vk/ShaderModule.h>
 #include <vsg/vk/ShaderStage.h>
-#include <vsg/vk/Stage.h>
 #include <vsg/vk/State.h>
 #include <vsg/vk/SubmitCommands.h>
 #include <vsg/vk/Surface.h>

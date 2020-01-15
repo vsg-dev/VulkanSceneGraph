@@ -64,12 +64,15 @@ set(SOURCES
     threading/OperationThreads.cpp
 
     viewer/Camera.cpp
-    viewer/GraphicsStage.cpp
     viewer/View.cpp
     viewer/Viewer.cpp
     viewer/Window.cpp
     viewer/Trackball.cpp
     viewer/CopyImageViewToWindow.cpp
+    viewer/CommandGraph.cpp
+    viewer/RenderGraph.cpp
+    viewer/Presentation.cpp
+    viewer/RecordAndSubmitTask.cpp
 
     raytracing/AccelerationGeometry.cpp
     raytracing/AccelerationStructure.cpp
@@ -80,11 +83,6 @@ set(SOURCES
     raytracing/RayTracingPipeline.cpp
     raytracing/RayTracingShaderGroup.cpp
     raytracing/TraceRays.cpp
-
-    viewer/CommandGraph.cpp
-    viewer/RenderGraph.cpp
-    viewer/Presentation.cpp
-    viewer/RecordAndSubmitTask.cpp
 
     vk/Buffer.cpp
     vk/BufferData.cpp
