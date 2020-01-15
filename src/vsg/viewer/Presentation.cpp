@@ -18,7 +18,9 @@ using namespace vsg;
 
 VkResult Presentation::present()
 {
+#if 0
     std::cout << "Presentation::present()" << std::endl;
+#endif
 
     std::vector<VkSemaphore> vk_semaphores;
     for (auto& semaphore : waitSemaphores)
@@ -43,6 +45,7 @@ VkResult Presentation::present()
     presentInfo.pSwapchains = vk_swapchains.data();
     presentInfo.pImageIndices = indices.data();
 
+#if 0
     std::cout << "pdo.presentInfo->present(..) \n";
     std::cout << "    presentInfo.waitSemaphoreCount = " << presentInfo.waitSemaphoreCount << "\n";
     for (uint32_t i = 0; i < presentInfo.waitSemaphoreCount; ++i)
@@ -56,6 +59,7 @@ VkResult Presentation::present()
         std::cout << "        presentInfo.pImageIndices[" << i << "] = " << presentInfo.pImageIndices[i] << "\n";
     }
     std::cout << std::endl;
+#endif
 
     for (auto& window : windows)
     {

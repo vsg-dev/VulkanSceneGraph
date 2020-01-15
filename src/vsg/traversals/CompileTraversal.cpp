@@ -28,9 +28,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/RenderGraph.h>
 
-#include <chrono>
-#include <iostream>
-
 using namespace vsg;
 
 /////////////////////////////////////////////////////////////////////
@@ -178,13 +175,10 @@ void CompileTraversal::apply(Geometry& geometry)
 
 void CompileTraversal::apply(CommandGraph& commandGraph)
 {
-    std::cout << "CompileTraversal::apply(CommandGraph&)" << std::endl;
-
     commandGraph.traverse(*this);
 }
 void CompileTraversal::apply(RenderGraph& renderGraph)
 {
-    std::cout << "CompileTraversal::apply(RenderGraph&)" << std::endl;
     context.renderPass = renderGraph.window->renderPass();
 
     if (renderGraph.camera)
