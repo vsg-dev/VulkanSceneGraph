@@ -16,12 +16,121 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+namespace vsg
+{
+    class UpdatePipeline : public vsg::Visitor
+    {
+    public:
+        Context context;
+
+        UpdatePipeline(Device* device) :
+            context(device) {}
+
+        void apply(vsg::BindGraphicsPipeline& bindPipeline)
+        {
+            GraphicsPipeline* graphicsPipeline = bindPipeline.getPipeline();
+            if (graphicsPipeline)
+            {
+                bool needToRegenerateGraphicsPipeline = false;
+                for (auto& pipelineState : graphicsPipeline->getPipelineStates())
+                {
+                    if (pipelineState == context.viewport)
+                    {
+                        needToRegenerateGraphicsPipeline = true;
+                        break;
+                    }
+                }
+
+                if (graphicsPipeline->getImplementation())
+                {
+                    for (auto& pipelineState : graphicsPipeline->getImplementation()->_pipelineStates)
+                    {
+                        if (pipelineState == context.viewport)
+                        {
+                            needToRegenerateGraphicsPipeline = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (needToRegenerateGraphicsPipeline)
+                {
+                    vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getPipelineLayout(), graphicsPipeline->getShaderStages(), graphicsPipeline->getPipelineStates());
+
+                    bindPipeline.release();
+
+                    bindPipeline.setPipeline(new_pipeline);
+
+                    bindPipeline.compile(context);
+                }
+            }
+        }
+
+        void apply(vsg::Object& object)
+        {
+            object.traverse(*this);
+        }
+
+        void apply(vsg::StateGroup& sg)
+        {
+            for (auto& command : sg.getStateCommands())
+            {
+                command->accept(*this);
+            }
+            sg.traverse(*this);
+        }
+    };
+}; // namespace vsg
+
 RenderGraph::RenderGraph()
 {
 }
 
 void RenderGraph::accept(DispatchTraversal& dispatchTraversal) const
 {
+    if (window)
+    {
+        auto extent = window->extent2D();
+
+        if (previous_extent.width == invalid_dimension || previous_extent.width == invalid_dimension)
+        {
+            previous_extent = extent;
+        }
+        else if (previous_extent.width != extent.width || previous_extent.height != extent.height)
+        {
+            // crude handling of window resizie...TODO, come up with a user controllable way to handle resize.
+
+            vsg::UpdatePipeline updatePipeline(window->device());
+
+            updatePipeline.context.commandPool = dispatchTraversal.state->_commandBuffer->getCommandPool();
+            updatePipeline.context.renderPass = window->renderPass();
+
+            if (camera)
+            {
+                ref_ptr<Perspective> perspective(dynamic_cast<Perspective*>(camera->getProjectionMatrix()));
+                if (perspective)
+                {
+                    perspective->aspectRatio = static_cast<double>(extent.width) / static_cast<double>(extent.height);
+                }
+
+                auto viewport = camera->getViewportState();
+                updatePipeline.context.viewport = viewport;
+
+                viewport->getViewport().width = static_cast<float>(extent.width);
+                viewport->getViewport().height = static_cast<float>(extent.height);
+                viewport->getScissor().extent = extent;
+
+                const_cast<RenderGraph*>(this)->renderArea.offset = VkOffset2D{0, 0}; // need to use offsets of viewport?
+                const_cast<RenderGraph*>(this)->renderArea.extent = extent;
+            }
+
+            const_cast<RenderGraph*>(this)->traverse(updatePipeline);
+
+            previous_extent = window->extent2D();
+
+        }
+    }
+
     if (camera)
     {
         dmat4 projMatrix, viewMatrix;
