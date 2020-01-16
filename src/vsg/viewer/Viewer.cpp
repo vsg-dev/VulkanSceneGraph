@@ -222,9 +222,9 @@ void Viewer::compile(BufferPreferences bufferPreferences)
     // find which devices are available
     using DeviceResourceMap = std::map<vsg::Device*, DeviceResources>;
     DeviceResourceMap deviceResourceMap;
-    for(auto& task : recordAndSubmitTasks)
+    for (auto& task : recordAndSubmitTasks)
     {
-        for(auto& commandGraph : task->commandGraphs)
+        for (auto& commandGraph : task->commandGraphs)
         {
             auto& deviceResources = deviceResourceMap[commandGraph->_device];
             commandGraph->accept(deviceResources.collectStats);
@@ -232,7 +232,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
     }
 
     // allocate DescriptorPool for each Device
-    for(auto& [device, deviceResource] : deviceResourceMap)
+    for (auto& [device, deviceResource] : deviceResourceMap)
     {
         auto physicalDevice = device->getPhysicalDevice();
 
@@ -246,13 +246,12 @@ void Viewer::compile(BufferPreferences bufferPreferences)
         deviceResource.compile->context.graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());
     }
 
-
     // create the Vulkan objects
-    for(auto& task: recordAndSubmitTasks)
+    for (auto& task : recordAndSubmitTasks)
     {
         std::set<Device*> devices;
 
-        for(auto& commandGraph : task->commandGraphs)
+        for (auto& commandGraph : task->commandGraphs)
         {
             if (commandGraph->_device) devices.insert(commandGraph->_device);
 
@@ -264,7 +263,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
         if (task->databasePager)
         {
             // crude hack for taking first device as the one for the DatabasePager to compile resourcces for.
-            for(auto& commandGraph : task->commandGraphs)
+            for (auto& commandGraph : task->commandGraphs)
             {
                 auto& deviceResource = deviceResourceMap[commandGraph->_device];
                 task->databasePager->compileTraversal = deviceResource.compile;
@@ -274,21 +273,21 @@ void Viewer::compile(BufferPreferences bufferPreferences)
     }
 
     // dispatch any transfer commands commands
-    for(auto& dp : deviceResourceMap)
+    for (auto& dp : deviceResourceMap)
     {
-        std::cout<<"Dispatching compile"<<std::endl;
+        std::cout << "Dispatching compile" << std::endl;
         dp.second.compile->context.dispatch();
     }
 
     // wait for the transfers to complete
-    for(auto& dp : deviceResourceMap)
+    for (auto& dp : deviceResourceMap)
     {
-        std::cout<<"Waiting for compile"<<std::endl;
+        std::cout << "Waiting for compile" << std::endl;
         dp.second.compile->context.waitForCompletion();
     }
 
     // start any DatabasePagers
-    for(auto& task: recordAndSubmitTasks)
+    for (auto& task : recordAndSubmitTasks)
     {
         if (task->databasePager)
         {
@@ -323,10 +322,9 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraph
     presentation->queue = device->getQueue(physicalDevice->getPresentFamily());
 }
 
-
 void Viewer::update()
 {
-    for(auto& task: recordAndSubmitTasks)
+    for (auto& task : recordAndSubmitTasks)
     {
         if (task->databasePager)
         {
@@ -337,7 +335,7 @@ void Viewer::update()
 
 void Viewer::recordAndSubmit()
 {
-    for(auto& recordAndSubmitTask : recordAndSubmitTasks)
+    for (auto& recordAndSubmitTask : recordAndSubmitTasks)
     {
         recordAndSubmitTask->submit(_frameStamp);
     }
@@ -347,5 +345,3 @@ void Viewer::present()
 {
     if (presentation) presentation->present();
 }
-
-

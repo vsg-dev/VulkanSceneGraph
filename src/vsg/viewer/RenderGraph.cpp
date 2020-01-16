@@ -127,7 +127,6 @@ void RenderGraph::accept(DispatchTraversal& dispatchTraversal) const
             const_cast<RenderGraph*>(this)->traverse(updatePipeline);
 
             previous_extent = window->extent2D();
-
         }
     }
 

@@ -75,7 +75,6 @@ void CommandGraph::accept(DispatchTraversal& dispatchTraversal) const
     vkEndCommandBuffer(vk_commandBuffer);
 }
 
-
 ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph)
 {
     auto commandGraph = CommandGraph::create(window);
