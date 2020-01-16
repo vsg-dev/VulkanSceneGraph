@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
     class VSG_DECLSPEC RayTracingShaderGroup : public Inherit<Object, RayTracingShaderGroup>
     {
     public:

@@ -21,6 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
     class VSG_DECLSPEC AccelerationGeometry : public Inherit<Object, AccelerationGeometry>
     {
     public:
@@ -38,5 +39,7 @@ namespace vsg
         BufferData _indexBuffer;
         VkGeometryNV _geometry;
     };
+
     using AccelerationGeometries = std::vector<ref_ptr<AccelerationGeometry>>;
+
 } // namespace vsg

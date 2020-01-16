@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
     // this structure is required to populate the top level structures instance buffer
     struct VkGeometryInstance
     {
@@ -87,4 +88,5 @@ namespace vsg
         ref_ptr<VkGeometryInstanceArray> _instances;
         ref_ptr<Buffer> _instanceBuffer;
     };
+
 } // namespace vsg

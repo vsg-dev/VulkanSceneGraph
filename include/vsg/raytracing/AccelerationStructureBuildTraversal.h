@@ -27,7 +27,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    //class MatrixStack;
 
     class VSG_DECLSPEC AccelerationStructureBuildTraversal : public Visitor
     {
@@ -53,4 +52,5 @@ namespace vsg
         std::map<VertexIndexDraw*, ref_ptr<BottomLevelAccelerationStructure>> _vertexIndexDrawBlasMap;
         std::map<Geometry*, ref_ptr<BottomLevelAccelerationStructure>> _geometryBlasMap;
     };
+
 } // namespace vsg
