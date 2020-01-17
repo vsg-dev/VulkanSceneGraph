@@ -652,7 +652,7 @@ void Context::dispatch()
     ref_ptr<DeviceMemory> scratchBufferMemory;
     if (scratchBufferSize > 0)
     {
-        scratchBuffer = Buffer::create(device, scratchBufferSize, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE); // RAYTRACING HACK
+        scratchBuffer = Buffer::create(device, scratchBufferSize, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);
 
         scratchBufferMemory = vsg::DeviceMemory::create(device, scratchBuffer, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         scratchBuffer->bind(scratchBufferMemory, 0);
