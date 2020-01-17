@@ -85,7 +85,8 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags q
         for (uint32_t i = 0; i < queueFamilyCount; ++i)
         {
             const auto& queueFamily = queueFamiles[i];
-            /*if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0)
+#if 1
+            if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0)
             {
                 graphicsFamily = i;
                 matchedQueues |= VK_QUEUE_GRAPHICS_BIT;
@@ -95,15 +96,15 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags q
             {
                 computeFamily = i;
                 matchedQueues |= VK_QUEUE_COMPUTE_BIT;
-            }*/
-
+            }
+#else
             if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0 && (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) != 0) //RAYTRACING HACK
             {
                 graphicsFamily = i;
                 computeFamily = i;
                 matchedQueues |= VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT;
             }
-
+#endif
             if (surface)
             {
                 VkBool32 presentSupported = false;
