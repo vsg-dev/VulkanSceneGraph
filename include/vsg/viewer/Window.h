@@ -71,6 +71,8 @@ namespace vsg
 
             SwapchainPreferences swapchainPreferences;
 
+            VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
+
             vsg::Names instanceExtensionNames;
             vsg::Names deviceExtensionNames;
 
