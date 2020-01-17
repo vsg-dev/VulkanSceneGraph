@@ -72,6 +72,7 @@ namespace vsg
             SwapchainPreferences swapchainPreferences;
 
             VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
+            VkPipelineStageFlagBits imageAvailableSemaphoreWaitFlag = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
             vsg::Names instanceExtensionNames;
             vsg::Names deviceExtensionNames;

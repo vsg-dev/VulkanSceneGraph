@@ -38,8 +38,10 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     ref_ptr<Fence> fence;
     for (auto& window : windows)
     {
-        vk_waitSemaphores.push_back(*(window->frame(window->nextImageIndex()).imageAvailableSemaphore));
-        vk_waitStages.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+        auto& semaphore = window->frame(window->nextImageIndex()).imageAvailableSemaphore;
+
+        vk_waitSemaphores.emplace_back(*semaphore);
+        vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
 
         fence = window->frame(window->nextImageIndex()).commandsCompletedFence;
     }

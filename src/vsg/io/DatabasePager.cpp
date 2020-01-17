@@ -242,8 +242,7 @@ void DatabasePager::start()
         // assign semaphores
         for (auto& ct : compileTraversals)
         {
-            ct->context.semaphore = Semaphore::create(ct->context.device);
-            ct->context.semaphore->pipelineStageFlags() = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            ct->context.semaphore = Semaphore::create(ct->context.device, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
         }
 
         auto compile_itr = compileTraversals.begin();
