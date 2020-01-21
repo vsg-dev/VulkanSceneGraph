@@ -21,6 +21,7 @@ namespace vsg
 {
 
     // this structure is required to populate the top level structures instance buffer
+    // https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/chap33.html#acceleration-structure
     struct VkGeometryInstance
     {
         float transform[12];                  // transform matrix
