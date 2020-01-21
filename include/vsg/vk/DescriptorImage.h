@@ -65,7 +65,7 @@ namespace vsg
         ImageDataList _imageDataList;
         std::vector<VkDescriptorImageInfo> _imageInfos;
     };
-    VSG_type_name(vsg::DescriptorImage)
+    VSG_type_name(vsg::DescriptorImage);
 
     class VSG_DECLSPEC DescriptorImageView : public Inherit<Descriptor, DescriptorImageView>
     {
@@ -93,6 +93,6 @@ namespace vsg
         // populated by compile()
         std::vector<VkDescriptorImageInfo> _imageInfos;
     };
-    VSG_type_name(vsg::DescriptorImageView)
+    VSG_type_name(vsg::DescriptorImageView);
 
 } // namespace vsg
