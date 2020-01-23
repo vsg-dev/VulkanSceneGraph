@@ -29,7 +29,7 @@ namespace vsg
     {
     public:
         // Need to add FrameStamp?
-        VkResult submit(ref_ptr<FrameStamp> frameStamp);
+        virtual VkResult submit(ref_ptr<FrameStamp> frameStamp = {});
 
         Windows windows;
         Semaphores waitSemaphores;   //

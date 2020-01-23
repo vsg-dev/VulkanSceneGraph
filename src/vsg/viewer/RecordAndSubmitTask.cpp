@@ -31,7 +31,6 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 
     std::vector<VkSemaphore> vk_waitSemaphores;
     std::vector<VkPipelineStageFlags> vk_waitStages;
-    std::vector<VkCommandBuffer> vk_commandBuffers;
     std::vector<VkSemaphore> vk_signalSemaphores;
 
     // aquire fence
@@ -86,20 +85,21 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
         vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
     }
 
-    // record the commands in the command buffer
+
+    // record the commands to the command buffers
+    CommandBuffers recordedCommandBuffers;
     for (auto& commandGraph : commandGraphs)
     {
-        // pass the inext to dispatchTraversal visitor?  Only for RenderGraph?
-        RecordTraversal dispatchTraversal(nullptr, commandGraph->_maxSlot, frameStamp);
+        commandGraph->record(recordedCommandBuffers, frameStamp, databasePager);
+    }
 
-        dispatchTraversal.databasePager = databasePager;
-        if (databasePager) dispatchTraversal.culledPagedLODs = databasePager->culledPagedLODs;
+    // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of depdendent CommandBuffers
+    std::vector<VkCommandBuffer> vk_commandBuffers;
+    for(auto& commandBuffer : recordedCommandBuffers)
+    {
+        vk_commandBuffers.push_back(*commandBuffer);
 
-        commandGraph->accept(dispatchTraversal);
-
-        vk_commandBuffers.push_back(*(dispatchTraversal.state->_commandBuffer));
-
-        fence->dependentCommandBuffers().emplace_back(dispatchTraversal.state->_commandBuffer);
+        fence->dependentCommandBuffers().emplace_back(commandBuffer);
     }
 
     fence->dependentSemaphores() = signalSemaphores;

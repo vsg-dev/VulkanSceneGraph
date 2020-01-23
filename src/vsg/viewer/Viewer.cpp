@@ -208,7 +208,6 @@ void Viewer::compile(BufferPreferences bufferPreferences)
 {
     if (recordAndSubmitTasks.empty())
     {
-        Viewer::compile(bufferPreferences);
         return;
     }
 

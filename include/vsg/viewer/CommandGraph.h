@@ -30,6 +30,8 @@ namespace vsg
 
         void accept(RecordTraversal& dispatchTraversal) const override;
 
+        virtual void record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
+
         ref_ptr<Device> _device;
         int _family = 0;
         uint32_t _maxSlot = 2;
