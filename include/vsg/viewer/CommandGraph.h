@@ -28,7 +28,7 @@ namespace vsg
 
         using Group::accept;
 
-        void accept(DispatchTraversal& dispatchTraversal) const override;
+        void accept(RecordTraversal& dispatchTraversal) const override;
 
         ref_ptr<Device> _device;
         int _family = 0;

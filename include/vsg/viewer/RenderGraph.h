@@ -26,7 +26,7 @@ namespace vsg
 
         using Group::accept;
 
-        void accept(DispatchTraversal& dispatchTraversal) const override;
+        void accept(RecordTraversal& dispatchTraversal) const override;
 
         ref_ptr<Camera> camera; // camera that the trackball controls
 

@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/ReaderWriter.h>
 
-#include <vsg/traversals/DispatchTraversal.h>
+#include <vsg/traversals/RecordTraversal.h>
 
 #include <vsg/nodes/VertexIndexDraw.h>
 

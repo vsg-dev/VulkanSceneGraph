@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/traversals/DispatchTraversal.h>
+#include <vsg/traversals/RecordTraversal.h>
 
 #include <vsg/nodes/Commands.h>
 #include <vsg/nodes/CullGroup.h>
@@ -43,28 +43,28 @@ using namespace vsg;
 #define INLINE_TRAVERSE 1
 #define USE_FRUSTUM_ARRAY 1
 
-DispatchTraversal::DispatchTraversal(CommandBuffer* commandBuffer, uint32_t maxSlot, ref_ptr<FrameStamp> fs) :
+RecordTraversal::RecordTraversal(CommandBuffer* commandBuffer, uint32_t maxSlot, ref_ptr<FrameStamp> fs) :
     frameStamp(fs),
     state(new State(commandBuffer, maxSlot))
 {
 }
 
-DispatchTraversal::~DispatchTraversal()
+RecordTraversal::~RecordTraversal()
 {
 }
 
-void DispatchTraversal::setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
+void RecordTraversal::setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
 {
     state->setProjectionAndViewMatrix(projMatrix, viewMatrix);
 }
 
-void DispatchTraversal::apply(const Object& object)
+void RecordTraversal::apply(const Object& object)
 {
     //    std::cout<<"Visiting object"<<std::endl;
     object.traverse(*this);
 }
 
-void DispatchTraversal::apply(const Group& group)
+void RecordTraversal::apply(const Group& group)
 {
 //    std::cout<<"Visiting Group "<<std::endl;
 #if INLINE_TRAVERSE
@@ -74,7 +74,7 @@ void DispatchTraversal::apply(const Group& group)
 #endif
 }
 
-void DispatchTraversal::apply(const QuadGroup& group)
+void RecordTraversal::apply(const QuadGroup& group)
 {
 //    std::cout<<"Visiting QuadGroup "<<std::endl;
 #if INLINE_TRAVERSE
@@ -84,7 +84,7 @@ void DispatchTraversal::apply(const QuadGroup& group)
 #endif
 }
 
-void DispatchTraversal::apply(const LOD& lod)
+void RecordTraversal::apply(const LOD& lod)
 {
     auto sphere = lod.getBound();
 
@@ -112,7 +112,7 @@ void DispatchTraversal::apply(const LOD& lod)
     }
 }
 
-void DispatchTraversal::apply(const PagedLOD& plod)
+void RecordTraversal::apply(const PagedLOD& plod)
 {
     auto sphere = plod.getBound();
 
@@ -196,7 +196,7 @@ void DispatchTraversal::apply(const PagedLOD& plod)
     }
 }
 
-void DispatchTraversal::apply(const CullGroup& cullGroup)
+void RecordTraversal::apply(const CullGroup& cullGroup)
 {
 #if 0
     // no culling
@@ -214,7 +214,7 @@ void DispatchTraversal::apply(const CullGroup& cullGroup)
 #endif
 }
 
-void DispatchTraversal::apply(const CullNode& cullNode)
+void RecordTraversal::apply(const CullNode& cullNode)
 {
 #if 0
     // no culling
@@ -232,7 +232,7 @@ void DispatchTraversal::apply(const CullNode& cullNode)
 #endif
 }
 
-void DispatchTraversal::apply(const StateGroup& stateGroup)
+void RecordTraversal::apply(const StateGroup& stateGroup)
 {
     //    std::cout<<"Visiting StateGroup "<<std::endl;
 
@@ -252,7 +252,7 @@ void DispatchTraversal::apply(const StateGroup& stateGroup)
     state->dirty = true;
 }
 
-void DispatchTraversal::apply(const MatrixTransform& mt)
+void RecordTraversal::apply(const MatrixTransform& mt)
 {
     if (mt.getSubgraphRequiresLocalFrustum())
     {
@@ -279,7 +279,7 @@ void DispatchTraversal::apply(const MatrixTransform& mt)
 }
 
 // Vulkan nodes
-void DispatchTraversal::apply(const Commands& commands)
+void RecordTraversal::apply(const Commands& commands)
 {
     state->dispatch();
     for (auto& command : commands.getChildren())
@@ -288,7 +288,7 @@ void DispatchTraversal::apply(const Commands& commands)
     }
 }
 
-void DispatchTraversal::apply(const Command& command)
+void RecordTraversal::apply(const Command& command)
 {
     //    std::cout<<"Visiting Command "<<std::endl;
     state->dispatch();

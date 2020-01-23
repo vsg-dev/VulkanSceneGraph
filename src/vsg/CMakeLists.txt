@@ -55,7 +55,7 @@ set(SOURCES
     io/read.cpp
     io/write.cpp
 
-    traversals/DispatchTraversal.cpp
+    traversals/RecordTraversal.cpp
     traversals/CullTraversal.cpp
     traversals/CompileTraversal.cpp
     traversals/ComputeBounds.cpp

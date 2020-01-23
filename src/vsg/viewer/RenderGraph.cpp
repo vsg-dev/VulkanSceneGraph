@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/traversals/DispatchTraversal.h>
+#include <vsg/traversals/RecordTraversal.h>
 #include <vsg/viewer/RenderGraph.h>
 #include <vsg/vk/State.h>
 
@@ -86,7 +86,7 @@ RenderGraph::RenderGraph()
 {
 }
 
-void RenderGraph::accept(DispatchTraversal& dispatchTraversal) const
+void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
 {
     if (window)
     {

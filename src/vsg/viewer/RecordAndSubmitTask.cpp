@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/viewer/RecordAndSubmitTask.h>
 
-#include <vsg/traversals/DispatchTraversal.h>
+#include <vsg/traversals/RecordTraversal.h>
 
 #include <vsg/vk/State.h>
 
@@ -90,7 +90,7 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     for (auto& commandGraph : commandGraphs)
     {
         // pass the inext to dispatchTraversal visitor?  Only for RenderGraph?
-        DispatchTraversal dispatchTraversal(nullptr, commandGraph->_maxSlot, frameStamp);
+        RecordTraversal dispatchTraversal(nullptr, commandGraph->_maxSlot, frameStamp);
 
         dispatchTraversal.databasePager = databasePager;
         if (databasePager) dispatchTraversal.culledPagedLODs = databasePager->culledPagedLODs;
