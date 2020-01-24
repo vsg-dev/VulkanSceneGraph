@@ -43,36 +43,36 @@ namespace vsg
         operator VkGeometryInstance() const
         {
             VkGeometryInstance inst;
-            inst.instanceId = _id;
-            inst.mask = _mask;
-            inst.instanceOffset = _shaderOffset;
-            inst.flags = _flags;
-            inst.accelerationStructureHandle = _accelerationStructure->handle();
+            inst.instanceId = id;
+            inst.mask = mask;
+            inst.instanceOffset = shaderOffset;
+            inst.flags = flags;
+            inst.accelerationStructureHandle = accelerationStructure->handle();
 
-            inst.transform[0] = _transform[0][0];
-            inst.transform[1] = _transform[1][0];
-            inst.transform[2] = _transform[2][0];
-            inst.transform[3] = _transform[3][0];
+            inst.transform[0] = transform[0][0];
+            inst.transform[1] = transform[1][0];
+            inst.transform[2] = transform[2][0];
+            inst.transform[3] = transform[3][0];
 
-            inst.transform[4] = _transform[0][1];
-            inst.transform[5] = _transform[1][1];
-            inst.transform[6] = _transform[2][1];
-            inst.transform[7] = _transform[3][1];
+            inst.transform[4] = transform[0][1];
+            inst.transform[5] = transform[1][1];
+            inst.transform[6] = transform[2][1];
+            inst.transform[7] = transform[3][1];
 
-            inst.transform[8] = _transform[0][2];
-            inst.transform[9] = _transform[1][2];
-            inst.transform[10] = _transform[2][2];
-            inst.transform[11] = _transform[3][2];
+            inst.transform[8] = transform[0][2];
+            inst.transform[9] = transform[1][2];
+            inst.transform[10] = transform[2][2];
+            inst.transform[11] = transform[3][2];
 
             return inst;
         }
 
-        mat4 _transform;
-        uint32_t _id;
-        uint32_t _mask;
-        uint32_t _shaderOffset;
-        uint32_t _flags;
-        ref_ptr<BottomLevelAccelerationStructure> _accelerationStructure;
+        mat4 transform;
+        uint32_t id;
+        uint32_t mask;
+        uint32_t shaderOffset;
+        uint32_t flags;
+        ref_ptr<BottomLevelAccelerationStructure> accelerationStructure;
     };
     using GeometryInstances = std::vector<ref_ptr<GeometryInstance>>;
 
@@ -83,8 +83,9 @@ namespace vsg
 
         void compile(Context& context) override;
 
-        GeometryInstances _geometryInstances;
+        GeometryInstances geometryInstances;
 
+    protected:
         // compiled data
         ref_ptr<VkGeometryInstanceArray> _instances;
         ref_ptr<Buffer> _instanceBuffer;

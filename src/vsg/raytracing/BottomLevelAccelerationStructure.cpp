@@ -27,17 +27,17 @@ BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(Device* devic
 
 void BottomLevelAccelerationStructure::compile(Context& context)
 {
-    if (_geometries.size() == 0) return;                    // no data
-    if (_vkGeometries.size() == _geometries.size()) return; // already compiled
+    if (geometries.size() == 0) return;                    // no data
+    if (_vkGeometries.size() == geometries.size()) return; // already compiled
 
-    for (auto& geom : _geometries)
+    for (auto& geom : geometries)
     {
         geom->compile(context);
         _vkGeometries.push_back(*geom);
     }
 
     // set the aditional acceleration structure info used in the base AccelerationStructure compile function
-    _accelerationStructureInfo.geometryCount = static_cast<uint32_t>(_geometries.size());
+    _accelerationStructureInfo.geometryCount = static_cast<uint32_t>(geometries.size());
     _accelerationStructureInfo.pGeometries = _vkGeometries.data();
 
     Inherit::compile(context);

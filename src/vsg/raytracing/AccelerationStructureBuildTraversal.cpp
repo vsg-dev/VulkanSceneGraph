@@ -18,7 +18,7 @@ AccelerationStructureBuildTraversal::AccelerationStructureBuildTraversal(Device*
     Visitor(),
     _device(in_device)
 {
-    _tlas = TopLevelAccelerationStructure::create(_device);
+    tlas = TopLevelAccelerationStructure::create(_device);
 }
 
 void AccelerationStructureBuildTraversal::apply(Object& object)
@@ -46,9 +46,9 @@ void AccelerationStructureBuildTraversal::apply(vsg::Geometry& geometry)
         // create new blas and add to cache
         blas = BottomLevelAccelerationStructure::create(_device);
         auto accelGeom = AccelerationGeometry::create();
-        accelGeom->_verts = geometry._arrays[0];
-        accelGeom->_indices = geometry._indices;
-        blas->_geometries.push_back(accelGeom);
+        accelGeom->verts = geometry._arrays[0];
+        accelGeom->indices = geometry._indices;
+        blas->geometries.push_back(accelGeom);
     }
 
     // create a geometry instance for this geometry using the blas that represents it and the current transform matrix
@@ -70,9 +70,9 @@ void AccelerationStructureBuildTraversal::apply(vsg::VertexIndexDraw& vid)
         // create new blas and add to cache
         blas = BottomLevelAccelerationStructure::create(_device);
         auto accelGeom = AccelerationGeometry::create();
-        accelGeom->_verts = vid._arrays[0];
-        accelGeom->_indices = vid._indices;
-        blas->_geometries.push_back(accelGeom);
+        accelGeom->verts = vid._arrays[0];
+        accelGeom->indices = vid._indices;
+        blas->geometries.push_back(accelGeom);
 
         _vertexIndexDrawBlasMap[&vid] = blas;
     }
@@ -84,10 +84,9 @@ void AccelerationStructureBuildTraversal::apply(vsg::VertexIndexDraw& vid)
 void AccelerationStructureBuildTraversal::createGeometryInstance(BottomLevelAccelerationStructure* blas)
 {
     auto geominst = GeometryInstance::create();
-    geominst->_accelerationStructure = blas;
-    geominst->_id = static_cast<uint32_t>(_tlas->_geometryInstances.size());
+    geominst->accelerationStructure = blas;
+    geominst->id = static_cast<uint32_t>(tlas->geometryInstances.size());
+    geominst->transform = _transformStack.top();
 
-    geominst->_transform = _transformStack.top();
-
-    _tlas->_geometryInstances.push_back(geominst);
+    tlas->geometryInstances.push_back(geominst);
 }

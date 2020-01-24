@@ -39,12 +39,12 @@ namespace vsg
         void apply(vsg::VertexIndexDraw& vid);
 
         // the top level acceleration structure we are creating and adding geometry instances to as we find and create them
-        ref_ptr<TopLevelAccelerationStructure> _tlas;
-
-        ref_ptr<Device> _device;
+        ref_ptr<TopLevelAccelerationStructure> tlas;
 
     protected:
         void createGeometryInstance(BottomLevelAccelerationStructure* blas);
+
+        ref_ptr<Device> _device;
 
         MatrixStack _transformStack;
 

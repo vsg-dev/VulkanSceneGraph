@@ -24,10 +24,10 @@ using namespace vsg;
 
 GeometryInstance::GeometryInstance() :
     Inherit(nullptr),
-    _id(0),
-    _mask(0xff),
-    _shaderOffset(0),
-    _flags(VK_GEOMETRY_INSTANCE_TRIANGLE_CULL_DISABLE_BIT_NV)
+    id(0),
+    mask(0xff),
+    shaderOffset(0),
+    flags(VK_GEOMETRY_INSTANCE_TRIANGLE_CULL_DISABLE_BIT_NV)
 {
 }
 
@@ -38,17 +38,17 @@ TopLevelAccelerationStructure::TopLevelAccelerationStructure(Device* device, All
 
 void TopLevelAccelerationStructure::compile(Context& context)
 {
-    if (_geometryInstances.empty()) return; // no data
+    if (geometryInstances.empty()) return; // no data
     if (_instances) return;                 // already compiled
 
     // allocate instances array to size of reference bottom level geoms list
-    _instances = VkGeometryInstanceArray::create(static_cast<uint32_t>(_geometryInstances.size()));
+    _instances = VkGeometryInstanceArray::create(static_cast<uint32_t>(geometryInstances.size()));
 
     // compile the referenced bottom level acceleration structures and add geom instance to instances array
-    for (uint32_t i = 0; i < _geometryInstances.size(); i++)
+    for (uint32_t i = 0; i < geometryInstances.size(); i++)
     {
-        _geometryInstances[i]->_accelerationStructure->compile(context);
-        _instances->set(i, *_geometryInstances[i]);
+        geometryInstances[i]->accelerationStructure->compile(context);
+        _instances->set(i, *geometryInstances[i]);
     }
 
     DataList dataList = {_instances};

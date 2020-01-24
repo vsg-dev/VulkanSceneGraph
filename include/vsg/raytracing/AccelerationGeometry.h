@@ -31,9 +31,10 @@ namespace vsg
 
         operator VkGeometryNV() const { return _geometry; }
 
-        ref_ptr<Data> _verts;
-        ref_ptr<Data> _indices;
+        ref_ptr<Data> verts;
+        ref_ptr<Data> indices;
 
+    protected:
         // compiled data
         BufferData _vertexBuffer;
         BufferData _indexBuffer;

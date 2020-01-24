@@ -25,8 +25,9 @@ namespace vsg
 
         void compile(Context& context) override;
 
-        AccelerationGeometries _geometries;
+        AccelerationGeometries geometries;
 
+    protected:
         // compiled data
         std::vector<VkGeometryNV> _vkGeometries;
     };

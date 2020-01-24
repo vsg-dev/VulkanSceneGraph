@@ -30,17 +30,17 @@ AccelerationGeometry::AccelerationGeometry(Allocator* allocator) :
 
 void AccelerationGeometry::compile(Context& context)
 {
-    if (!_verts) return;                                                   // no data set
+    if (!verts) return;                                                   // no data set
     if (_geometry.geometry.triangles.vertexData != VK_NULL_HANDLE) return; // already compiled
 
-    uint32_t vertcount = static_cast<uint32_t>(_verts->valueCount());
-    uint32_t strideSize = static_cast<uint32_t>(_verts->valueSize());
+    uint32_t vertcount = static_cast<uint32_t>(verts->valueCount());
+    uint32_t strideSize = static_cast<uint32_t>(verts->valueSize());
 
     DataList vertexDataList;
-    vertexDataList.push_back(_verts);
+    vertexDataList.push_back(verts);
 
     DataList indexDataList;
-    indexDataList.push_back(_indices);
+    indexDataList.push_back(indices);
 
 #if TRANSFER_BUFFERS
     auto vertexBufferData = vsg::createBufferAndTransferData(context, vertexDataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
@@ -66,8 +66,8 @@ void AccelerationGeometry::compile(Context& context)
     _geometry.geometry.triangles.vertexFormat = VK_FORMAT_R32G32B32_SFLOAT;
     _geometry.geometry.triangles.indexData = *_indexBuffer._buffer;
     _geometry.geometry.triangles.indexOffset = 0;
-    _geometry.geometry.triangles.indexCount = static_cast<uint32_t>(_indices->valueCount());
-    _geometry.geometry.triangles.indexType = _indices->valueSize() > 2 ? VK_INDEX_TYPE_UINT32 : VK_INDEX_TYPE_UINT16;
+    _geometry.geometry.triangles.indexCount = static_cast<uint32_t>(indices->valueCount());
+    _geometry.geometry.triangles.indexType = indices->valueSize() > 2 ? VK_INDEX_TYPE_UINT32 : VK_INDEX_TYPE_UINT16;
     _geometry.geometry.triangles.transformData = VK_NULL_HANDLE;
     _geometry.geometry.triangles.transformOffset = 0;
     _geometry.geometry.triangles.pNext = nullptr;
