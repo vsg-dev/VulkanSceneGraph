@@ -36,7 +36,7 @@ PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int 
     deviceProps2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
     deviceProps2.pNext = &_rayTracingProperties;
     vkGetPhysicalDeviceProperties2(_device, &deviceProps2);
-
+#if 0
     std::cout << "shaderGroupHandleSize " << _rayTracingProperties.shaderGroupHandleSize << std::endl;
     std::cout << "maxRecursionDepth " << _rayTracingProperties.maxRecursionDepth << std::endl;
     std::cout << "maxShaderGroupStride " << _rayTracingProperties.maxShaderGroupStride << std::endl;
@@ -45,6 +45,7 @@ PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int 
     std::cout << "maxInstanceCount " << _rayTracingProperties.maxInstanceCount << std::endl;
     std::cout << "maxTriangleCount " << _rayTracingProperties.maxTriangleCount << std::endl;
     std::cout << "maxDescriptorSetAccelerationStructures " << _rayTracingProperties.maxDescriptorSetAccelerationStructures << std::endl;
+#endif
 }
 
 PhysicalDevice::~PhysicalDevice()

@@ -274,14 +274,12 @@ void Viewer::compile(BufferPreferences bufferPreferences)
     // dispatch any transfer commands commands
     for (auto& dp : deviceResourceMap)
     {
-        std::cout << "Dispatching compile" << std::endl;
         dp.second.compile->context.dispatch();
     }
 
     // wait for the transfers to complete
     for (auto& dp : deviceResourceMap)
     {
-        std::cout << "Waiting for compile" << std::endl;
         dp.second.compile->context.waitForCompletion();
     }
 
