@@ -28,9 +28,9 @@ namespace vsg
 
         using Group::accept;
 
-        void accept(RecordTraversal& dispatchTraversal) const override;
-
         virtual void record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
+
+        ref_ptr<RecordTraversal> recordTraversal;
 
         ref_ptr<Device> _device;
         int _family = 0;

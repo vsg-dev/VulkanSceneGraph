@@ -39,8 +39,17 @@ CommandGraph::CommandGraph(Window* window)
     }
 }
 
-void CommandGraph::accept(RecordTraversal& recordTraversal) const
+void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
+    if (!recordTraversal)
+    {
+        recordTraversal = new RecordTraversal(nullptr, _maxSlot);
+    }
+
+    recordTraversal->frameStamp = frameStamp;
+    recordTraversal->databasePager = databasePager;
+    if (databasePager) recordTraversal->culledPagedLODs = databasePager->culledPagedLODs;
+
     ref_ptr<CommandBuffer> commandBuffer;
     for (auto& cb : commandBuffers)
     {
@@ -58,7 +67,7 @@ void CommandGraph::accept(RecordTraversal& recordTraversal) const
 
     commandBuffer->numDependentSubmissions().fetch_add(1);
 
-    recordTraversal.state->_commandBuffer = commandBuffer;
+    recordTraversal->state->_commandBuffer = commandBuffer;
 
     // or select index when maps to a dormant CommandBuffer
     VkCommandBuffer vk_commandBuffer = *commandBuffer;
@@ -71,22 +80,11 @@ void CommandGraph::accept(RecordTraversal& recordTraversal) const
 
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
-    // traverse the command graph
-    traverse(recordTraversal);
+        accept(*recordTraversal);
 
     vkEndCommandBuffer(vk_commandBuffer);
-}
 
-void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
-{
-    RecordTraversal recordTraversal(nullptr, _maxSlot, frameStamp);
-
-    recordTraversal.databasePager = databasePager;
-    if (databasePager) recordTraversal.culledPagedLODs = databasePager->culledPagedLODs;
-
-    accept(recordTraversal);
-
-    recordedCommandBuffers.push_back(recordTraversal.state->_commandBuffer);
+    recordedCommandBuffers.push_back(recordTraversal->state->_commandBuffer);
 }
 
 ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph)
