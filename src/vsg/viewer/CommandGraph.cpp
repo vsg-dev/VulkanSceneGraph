@@ -11,8 +11,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/DatabasePager.h>
-#include <vsg/ui/ApplicationEvent.h>
 #include <vsg/traversals/RecordTraversal.h>
+#include <vsg/ui/ApplicationEvent.h>
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/RenderGraph.h>
 #include <vsg/vk/State.h>
@@ -80,7 +80,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
-        accept(*recordTraversal);
+    accept(*recordTraversal);
 
     vkEndCommandBuffer(vk_commandBuffer);
 

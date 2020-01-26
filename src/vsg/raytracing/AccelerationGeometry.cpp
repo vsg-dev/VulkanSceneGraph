@@ -30,7 +30,7 @@ AccelerationGeometry::AccelerationGeometry(Allocator* allocator) :
 
 void AccelerationGeometry::compile(Context& context)
 {
-    if (!verts) return;                                                   // no data set
+    if (!verts) return;                                                    // no data set
     if (_geometry.geometry.triangles.vertexData != VK_NULL_HANDLE) return; // already compiled
 
     uint32_t vertcount = static_cast<uint32_t>(verts->valueCount());

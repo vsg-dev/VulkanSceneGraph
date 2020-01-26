@@ -85,7 +85,6 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
         vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
     }
 
-
     // record the commands to the command buffers
     CommandBuffers recordedCommandBuffers;
     for (auto& commandGraph : commandGraphs)
@@ -95,7 +94,7 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 
     // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of depdendent CommandBuffers
     std::vector<VkCommandBuffer> vk_commandBuffers;
-    for(auto& commandBuffer : recordedCommandBuffers)
+    for (auto& commandBuffer : recordedCommandBuffers)
     {
         vk_commandBuffers.push_back(*commandBuffer);
 

@@ -39,7 +39,7 @@ TopLevelAccelerationStructure::TopLevelAccelerationStructure(Device* device, All
 void TopLevelAccelerationStructure::compile(Context& context)
 {
     if (geometryInstances.empty()) return; // no data
-    if (_instances) return;                 // already compiled
+    if (_instances) return;                // already compiled
 
     // allocate instances array to size of reference bottom level geoms list
     _instances = VkGeometryInstanceArray::create(static_cast<uint32_t>(geometryInstances.size()));
