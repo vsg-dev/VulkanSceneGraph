@@ -37,7 +37,7 @@ void AccelerationStructureBuildTraversal::apply(MatrixTransform& mt)
 
 void AccelerationStructureBuildTraversal::apply(vsg::Geometry& geometry)
 {
-    if (geometry._arrays.size() == 0) return;
+    if (geometry.arrays.size() == 0) return;
 
     // check cache
     auto& blas = _geometryBlasMap[&geometry];
@@ -46,8 +46,8 @@ void AccelerationStructureBuildTraversal::apply(vsg::Geometry& geometry)
         // create new blas and add to cache
         blas = BottomLevelAccelerationStructure::create(_device);
         auto accelGeom = AccelerationGeometry::create();
-        accelGeom->verts = geometry._arrays[0];
-        accelGeom->indices = geometry._indices;
+        accelGeom->verts = geometry.arrays[0];
+        accelGeom->indices = geometry.indices;
         blas->geometries.push_back(accelGeom);
     }
 
@@ -57,7 +57,7 @@ void AccelerationStructureBuildTraversal::apply(vsg::Geometry& geometry)
 
 void AccelerationStructureBuildTraversal::apply(vsg::VertexIndexDraw& vid)
 {
-    if (vid._arrays.size() == 0) return;
+    if (vid.arrays.size() == 0) return;
 
     // check cache
     ref_ptr<BottomLevelAccelerationStructure> blas;
@@ -70,8 +70,8 @@ void AccelerationStructureBuildTraversal::apply(vsg::VertexIndexDraw& vid)
         // create new blas and add to cache
         blas = BottomLevelAccelerationStructure::create(_device);
         auto accelGeom = AccelerationGeometry::create();
-        accelGeom->verts = vid._arrays[0];
-        accelGeom->indices = vid._indices;
+        accelGeom->verts = vid.arrays[0];
+        accelGeom->indices = vid.indices;
         blas->geometries.push_back(accelGeom);
 
         _vertexIndexDrawBlasMap[&vid] = blas;

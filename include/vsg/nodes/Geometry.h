@@ -40,15 +40,15 @@ namespace vsg
         using DrawCommands = std::vector<ref_ptr<Command>>;
 
         // settings
-        DataList _arrays;
-        ref_ptr<Data> _indices;
-        DrawCommands _commands;
-
-        // compiled objects
-        DrawCommands _renderImplementation;
+        DataList arrays;
+        ref_ptr<Data> indices;
+        DrawCommands commands;
 
     protected:
         virtual ~Geometry();
+
+        // compiled objects
+        DrawCommands _renderImplementation;
     };
     VSG_type_name(vsg::Geometry)
 

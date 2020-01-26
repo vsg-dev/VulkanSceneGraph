@@ -34,6 +34,21 @@ namespace vsg
         void compile(Context& context) override;
         void dispatch(CommandBuffer& commandBuffer) const override;
 
+        // vkCmdDrawIndexed settings
+        // vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+        uint32_t indexCount = 0;
+        uint32_t instanceCount = 0;
+        uint32_t firstIndex = 0;
+        uint32_t vertexOffset = 0;
+        uint32_t firstInstance = 0;
+
+        // settings
+        DataList arrays;
+        ref_ptr<Data> indices;
+
+    protected:
+        virtual ~VertexIndexDraw();
+
         using Buffers = std::vector<ref_ptr<Buffer>>;
         using VkBuffers = std::vector<VkBuffer>;
         using Offsets = std::vector<VkDeviceSize>;
@@ -49,21 +64,6 @@ namespace vsg
         // vkCmdBindIndexBuffer(commandBuffer, *_bufferData._buffer, _bufferData._offset, _indexType);
         BufferData _bufferData;
         VkIndexType _indexType = VK_INDEX_TYPE_UINT16;
-
-        // vkCmdDrawIndexed settings
-        // vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
-        uint32_t indexCount = 0;
-        uint32_t instanceCount = 0;
-        uint32_t firstIndex = 0;
-        uint32_t vertexOffset = 0;
-        uint32_t firstInstance = 0;
-
-        // settings
-        DataList _arrays;
-        ref_ptr<Data> _indices;
-
-    protected:
-        virtual ~VertexIndexDraw();
     };
     VSG_type_name(vsg::VertexIndexDraw)
 

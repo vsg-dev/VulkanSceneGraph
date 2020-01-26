@@ -46,16 +46,16 @@ void Geometry::read(Input& input)
 {
     Node::read(input);
 
-    _arrays.resize(input.readValue<uint32_t>("NumArrays"));
-    for (auto& array : _arrays)
+    arrays.resize(input.readValue<uint32_t>("NumArrays"));
+    for (auto& array : arrays)
     {
         array = input.readObject<Data>("Array");
     }
 
-    _indices = input.readObject<Data>("Indices");
+    indices = input.readObject<Data>("Indices");
 
-    _commands.resize(input.readValue<uint32_t>("NumCommands"));
-    for (auto& command : _commands)
+    commands.resize(input.readValue<uint32_t>("NumCommands"));
+    for (auto& command : commands)
     {
         command = input.readObject<Command>("Command");
     }
@@ -65,16 +65,16 @@ void Geometry::write(Output& output) const
 {
     Node::write(output);
 
-    output.writeValue<uint32_t>("NumArrays", _arrays.size());
-    for (auto& array : _arrays)
+    output.writeValue<uint32_t>("NumArrays", arrays.size());
+    for (auto& array : arrays)
     {
         output.writeObject("Array", array.get());
     }
 
-    output.writeObject("Indices", _indices.get());
+    output.writeObject("Indices", indices.get());
 
-    output.writeValue<uint32_t>("NumCommands", _commands.size());
-    for (auto& command : _commands)
+    output.writeValue<uint32_t>("NumCommands", commands.size());
+    for (auto& command : commands)
     {
         output.writeObject("Command", command.get());
     }
@@ -88,17 +88,17 @@ void Geometry::compile(Context& context)
 
     bool failure = false;
 
-    if (_indices)
+    if (indices)
     {
         DataList dataList;
-        dataList.reserve(_arrays.size() + 1);
-        dataList.insert(dataList.end(), _arrays.begin(), _arrays.end());
-        dataList.emplace_back(_indices);
+        dataList.reserve(arrays.size() + 1);
+        dataList.insert(dataList.end(), arrays.begin(), arrays.end());
+        dataList.emplace_back(indices);
 
         auto bufferData = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
         if (!bufferData.empty())
         {
-            BufferDataList vertexBufferData(bufferData.begin(), bufferData.begin() + _arrays.size());
+            BufferDataList vertexBufferData(bufferData.begin(), bufferData.begin() + arrays.size());
             vsg::ref_ptr<vsg::BindVertexBuffers> bindVertexBuffers = vsg::BindVertexBuffers::create(0, vertexBufferData);
             if (bindVertexBuffers)
                 _renderImplementation.emplace_back(bindVertexBuffers);
@@ -116,7 +116,7 @@ void Geometry::compile(Context& context)
     }
     else
     {
-        auto vertexBufferData = vsg::createBufferAndTransferData(context, _arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+        auto vertexBufferData = vsg::createBufferAndTransferData(context, arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
         if (!vertexBufferData.empty())
         {
             vsg::ref_ptr<vsg::BindVertexBuffers> bindVertexBuffers = vsg::BindVertexBuffers::create(0, vertexBufferData);
@@ -137,7 +137,7 @@ void Geometry::compile(Context& context)
     }
 
     // add the commands in the _renderImplementation.
-    _renderImplementation.insert(_renderImplementation.end(), _commands.begin(), _commands.end());
+    _renderImplementation.insert(_renderImplementation.end(), commands.begin(), commands.end());
 }
 
 void Geometry::dispatch(CommandBuffer& commandBuffer) const
