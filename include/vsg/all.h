@@ -170,8 +170,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 // Raytracing header files
 #include <vsg/raytracing/AccelerationGeometry.h>
 #include <vsg/raytracing/AccelerationStructure.h>
-#include <vsg/raytracing/AccelerationStructureBuildTraversal.h>
 #include <vsg/raytracing/BottomLevelAccelerationStructure.h>
+#include <vsg/raytracing/BuildAccelerationStructureTraversal.h>
 #include <vsg/raytracing/DescriptorAccelerationStructure.h>
 #include <vsg/raytracing/RayTracingPipeline.h>
 #include <vsg/raytracing/RayTracingShaderGroup.h>

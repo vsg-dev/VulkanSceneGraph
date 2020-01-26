@@ -10,23 +10,23 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/raytracing/AccelerationStructureBuildTraversal.h>
+#include <vsg/raytracing/BuildAccelerationStructureTraversal.h>
 
 using namespace vsg;
 
-AccelerationStructureBuildTraversal::AccelerationStructureBuildTraversal(Device* in_device) :
+BuildAccelerationStructureTraversal::BuildAccelerationStructureTraversal(Device* in_device) :
     Visitor(),
     _device(in_device)
 {
     tlas = TopLevelAccelerationStructure::create(_device);
 }
 
-void AccelerationStructureBuildTraversal::apply(Object& object)
+void BuildAccelerationStructureTraversal::apply(Object& object)
 {
     object.traverse(*this);
 }
 
-void AccelerationStructureBuildTraversal::apply(MatrixTransform& mt)
+void BuildAccelerationStructureTraversal::apply(MatrixTransform& mt)
 {
     _transformStack.pushAndPreMult(mt.getMatrix());
 
@@ -35,7 +35,7 @@ void AccelerationStructureBuildTraversal::apply(MatrixTransform& mt)
     _transformStack.pop();
 }
 
-void AccelerationStructureBuildTraversal::apply(vsg::Geometry& geometry)
+void BuildAccelerationStructureTraversal::apply(vsg::Geometry& geometry)
 {
     if (geometry.arrays.size() == 0) return;
 
@@ -55,7 +55,7 @@ void AccelerationStructureBuildTraversal::apply(vsg::Geometry& geometry)
     createGeometryInstance(blas);
 }
 
-void AccelerationStructureBuildTraversal::apply(vsg::VertexIndexDraw& vid)
+void BuildAccelerationStructureTraversal::apply(vsg::VertexIndexDraw& vid)
 {
     if (vid.arrays.size() == 0) return;
 
@@ -81,7 +81,7 @@ void AccelerationStructureBuildTraversal::apply(vsg::VertexIndexDraw& vid)
     createGeometryInstance(blas);
 }
 
-void AccelerationStructureBuildTraversal::createGeometryInstance(BottomLevelAccelerationStructure* blas)
+void BuildAccelerationStructureTraversal::createGeometryInstance(BottomLevelAccelerationStructure* blas)
 {
     auto geominst = GeometryInstance::create();
     geominst->accelerationStructure = blas;

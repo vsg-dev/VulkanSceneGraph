@@ -77,11 +77,11 @@ set(SOURCES
     raytracing/AccelerationGeometry.cpp
     raytracing/AccelerationStructure.cpp
     raytracing/BottomLevelAccelerationStructure.cpp
-    raytracing/TopLevelAccelerationStructure.cpp
+    raytracing/BuildAccelerationStructureTraversal.cpp
     raytracing/DescriptorAccelerationStructure.cpp
-    raytracing/AccelerationStructureBuildTraversal.cpp
     raytracing/RayTracingPipeline.cpp
     raytracing/RayTracingShaderGroup.cpp
+    raytracing/TopLevelAccelerationStructure.cpp
     raytracing/TraceRays.cpp
 
     vk/Buffer.cpp
