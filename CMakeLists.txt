@@ -118,7 +118,7 @@ if (CPPCHECK)
     add_custom_target(cppcheck
         COMMAND ${CPPCHECK} -j ${CPU_CORES} --quiet --enable=style --language=c++ ${CPPCHECK_EXTRA_OPTIONS} ${CPPCHECK_SUPPRESION_LIST} ${PATH_TO_SOURCE}include/vsg/*/*.h ${PATH_TO_SOURCE}src/vsg/*/*.cpp -I ${PATH_TO_SOURCE}include/
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        COMMENT "Static code analsysi using cppcheck"
+        COMMENT "Static code analysis using cppcheck"
     )
 endif()
 
