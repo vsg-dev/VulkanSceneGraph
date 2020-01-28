@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/Extensions.h>
+#include <vsg/vk/BindIndexBuffer.h>
 
 #define TRANSFER_BUFFERS 0
 
@@ -67,7 +68,7 @@ void AccelerationGeometry::compile(Context& context)
     _geometry.geometry.triangles.indexData = *_indexBuffer._buffer;
     _geometry.geometry.triangles.indexOffset = 0;
     _geometry.geometry.triangles.indexCount = static_cast<uint32_t>(indices->valueCount());
-    _geometry.geometry.triangles.indexType = indices->valueSize() > 2 ? VK_INDEX_TYPE_UINT32 : VK_INDEX_TYPE_UINT16;
+    _geometry.geometry.triangles.indexType = computeIndexType(indices);
     _geometry.geometry.triangles.transformData = VK_NULL_HANDLE;
     _geometry.geometry.triangles.transformOffset = 0;
     _geometry.geometry.triangles.pNext = nullptr;
