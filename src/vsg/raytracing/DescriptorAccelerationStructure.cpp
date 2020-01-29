@@ -60,7 +60,7 @@ bool DescriptorAccelerationStructure::assignTo(VkWriteDescriptorSet& wds, VkDesc
 {
     Descriptor::assignTo(wds, descriptorSet);
 
-    wds.descriptorCount = static_cast<uint32_t>(_vkAccelerationStructures.size()); // is this correct??
+    wds.descriptorCount = static_cast<uint32_t>(_vkAccelerationStructures.size());
     wds.pNext = &_descriptorAccelerationStructureInfo;
 
     return true;
