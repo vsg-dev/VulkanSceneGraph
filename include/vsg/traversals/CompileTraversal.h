@@ -74,6 +74,8 @@ namespace vsg
         void apply(Commands& commands) override;
         void apply(StateGroup& stateGroup) override;
         void apply(Geometry& geometry) override;
+        void apply(CommandGraph& commandGraph) override;
+        void apply(RenderGraph& renderGraph) override;
 
         void compile(Object* object);
 

@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -13,18 +11,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/Framebuffer.h>
-#include <vsg/vk/RenderPass.h>
+#include <vsg/vk/CopyImage.h>
 
-namespace vsg
+#include <iostream>
+
+using namespace vsg;
+
+CopyImage::CopyImage()
 {
-    class Framebuffer;
-    class Renderpass;
-    class Stage : public Inherit<Object, Stage>
-    {
-    public:
-        Stage() {}
+}
 
-        virtual void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent, const VkClearColorValue& clearColor, ref_ptr<FrameStamp> frameStamp) = 0;
-    };
-} // namespace vsg
+void CopyImage::dispatch(CommandBuffer& commandBuffer) const
+{
+    vkCmdCopyImage(
+        commandBuffer,
+        *srcImage,
+        srcImageLayout,
+        *dstImage,
+        dstImageLayout,
+        static_cast<uint32_t>(regions.size()),
+        regions.data());
+}

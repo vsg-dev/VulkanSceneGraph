@@ -35,6 +35,8 @@ namespace vsg
         void setViewportState(ref_ptr<ViewportState> viewportState) { _viewportState = viewportState; }
         ViewportState* getViewportState() const { return _viewportState; }
 
+        VkRect2D getRenderArea() const { return _viewportState ? _viewportState->getScissor() : VkRect2D{}; }
+
     protected:
         ref_ptr<ProjectionMatrix> _projectionMatrix;
         ref_ptr<ViewMatrix> _viewMatrix;

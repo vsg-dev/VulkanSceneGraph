@@ -63,7 +63,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/traversals/ComputeBounds.h>
 #include <vsg/traversals/CullTraversal.h>
-#include <vsg/traversals/DispatchTraversal.h>
+#include <vsg/traversals/RecordTraversal.h>
 
 // Threading header files
 #include <vsg/threading/OperationQueue.h>
@@ -82,8 +82,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 // Viewer header files
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/CloseHandler.h>
-#include <vsg/viewer/GraphicsStage.h>
+#include <vsg/viewer/CommandGraph.h>
+#include <vsg/viewer/CopyImageViewToWindow.h>
+#include <vsg/viewer/Presentation.h>
 #include <vsg/viewer/ProjectionMatrix.h>
+#include <vsg/viewer/RecordAndSubmitTask.h>
+#include <vsg/viewer/RenderGraph.h>
 #include <vsg/viewer/Trackball.h>
 #include <vsg/viewer/View.h>
 #include <vsg/viewer/ViewMatrix.h>
@@ -102,6 +106,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/ComputePipeline.h>
 #include <vsg/vk/Context.h>
+#include <vsg/vk/CopyImage.h>
 #include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorBuffer.h>
 #include <vsg/vk/DescriptorImage.h>
@@ -123,6 +128,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Instance.h>
 #include <vsg/vk/MemoryManager.h>
 #include <vsg/vk/PhysicalDevice.h>
+#include <vsg/vk/PipelineBarrier.h>
 #include <vsg/vk/PipelineLayout.h>
 #include <vsg/vk/PushConstants.h>
 #include <vsg/vk/Queue.h>
@@ -132,7 +138,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Semaphore.h>
 #include <vsg/vk/ShaderModule.h>
 #include <vsg/vk/ShaderStage.h>
-#include <vsg/vk/Stage.h>
 #include <vsg/vk/State.h>
 #include <vsg/vk/SubmitCommands.h>
 #include <vsg/vk/Surface.h>
@@ -161,3 +166,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 // Introspection header files
 #include <vsg/introspection/c_interface.h>
+
+// Raytracing header files
+#include <vsg/raytracing/AccelerationGeometry.h>
+#include <vsg/raytracing/AccelerationStructure.h>
+#include <vsg/raytracing/BottomLevelAccelerationStructure.h>
+#include <vsg/raytracing/BuildAccelerationStructureTraversal.h>
+#include <vsg/raytracing/DescriptorAccelerationStructure.h>
+#include <vsg/raytracing/RayTracingPipeline.h>
+#include <vsg/raytracing/RayTracingShaderGroup.h>
+#include <vsg/raytracing/TopLevelAccelerationStructure.h>
+#include <vsg/raytracing/TraceRays.h>

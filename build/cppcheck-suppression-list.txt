@@ -12,6 +12,8 @@ syntaxError:*src/vsg/io/BinaryOutput.cpp
 syntaxError:*src/vsg/io/BinaryInput.cpp
 syntaxError:*src/vsg/io/ReaderWriter.cpp
 syntaxError:*src/vsg/io/FileSystem.cpp
+syntaxError:*include/vsg/io/Input.h
+syntaxError:*include/vsg/io/Output.h
 
 // suppress the warning about valid C++17 if (init; condition) usage
 syntaxError:*include/vsg/utils/CommandLine.h

@@ -21,6 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/Extensions.h>
 #include <vsg/vk/PipelineBarrier.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
@@ -540,12 +541,50 @@ void CopyAndReleaseImageDataCommand::dispatch(CommandBuffer& commandBuffer) cons
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
+// BuildAccelerationStructureCommand
+//
+
+BuildAccelerationStructureCommand::BuildAccelerationStructureCommand(Device* device, VkAccelerationStructureInfoNV* info, const VkAccelerationStructureNV& structure, Buffer* instanceBuffer, Allocator* allocator) :
+    Inherit(allocator),
+    _device(device),
+    _accelerationStructureInfo(info),
+    _accelerationStructure(structure),
+    _instanceBuffer(instanceBuffer)
+{
+}
+
+void BuildAccelerationStructureCommand::dispatch(CommandBuffer& commandBuffer) const
+{
+    Extensions* extensions = Extensions::Get(_device, true);
+
+    extensions->vkCmdBuildAccelerationStructureNV(commandBuffer,
+                                                  _accelerationStructureInfo,
+                                                  _instanceBuffer.valid() ? *_instanceBuffer : (VkBuffer)VK_NULL_HANDLE,
+                                                  0,
+                                                  VK_FALSE,
+                                                  _accelerationStructure,
+                                                  VK_NULL_HANDLE,
+                                                  *_scratchBuffer,
+                                                  0);
+
+    VkMemoryBarrier memoryBarrier;
+    memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+    memoryBarrier.pNext = nullptr;
+    memoryBarrier.srcAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_NV | VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_NV;
+    memoryBarrier.dstAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_NV | VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_NV;
+
+    vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_NV, VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_NV, 0, 1, &memoryBarrier, 0, 0, 0, 0);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
 // vsg::Context
 //
 Context::Context(Device* in_device, BufferPreferences bufferPreferences) :
     device(in_device),
     deviceMemoryBufferPools(MemoryBufferPools::create("Device_MemoryBufferPool", device, bufferPreferences)),
-    stagingMemoryBufferPools(MemoryBufferPools::create("Staging_MemoryBufferPool", device, bufferPreferences))
+    stagingMemoryBufferPools(MemoryBufferPools::create("Staging_MemoryBufferPool", device, bufferPreferences)),
+    scratchBufferSize(0)
 {
     //semaphore = vsg::Semaphore::create(device);
 }
@@ -558,7 +597,8 @@ Context::Context(const Context& context) :
     graphicsQueue(context.graphicsQueue),
     commandPool(context.commandPool),
     deviceMemoryBufferPools(context.deviceMemoryBufferPools),
-    stagingMemoryBufferPools(context.stagingMemoryBufferPools)
+    stagingMemoryBufferPools(context.stagingMemoryBufferPools),
+    scratchBufferSize(context.scratchBufferSize)
 {
 }
 
@@ -579,7 +619,7 @@ ref_ptr<CommandBuffer> Context::getOrCreateCommandBuffer()
 
 void Context::dispatch()
 {
-    if (commands.empty() && copyBufferDataCommands.empty() && copyImageDataCommands.empty()) return;
+    if (commands.empty() && copyBufferDataCommands.empty() && copyImageDataCommands.empty() && buildAccelerationStructureCommands.empty()) return;
 
     //auto before_compile = std::chrono::steady_clock::now();
 
@@ -605,6 +645,23 @@ void Context::dispatch()
         for (auto& command : copyBufferDataCommands) command->dispatch(*commandBuffer);
         for (auto& command : copyImageDataCommands) command->dispatch(*commandBuffer);
         for (auto& command : commands) command->dispatch(*commandBuffer);
+    }
+
+    // create scratch buffer and issue build acceleration sctructure commands
+    ref_ptr<Buffer> scratchBuffer;
+    ref_ptr<DeviceMemory> scratchBufferMemory;
+    if (scratchBufferSize > 0)
+    {
+        scratchBuffer = Buffer::create(device, scratchBufferSize, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);
+
+        scratchBufferMemory = vsg::DeviceMemory::create(device, scratchBuffer, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        scratchBuffer->bind(scratchBufferMemory, 0);
+
+        for (auto& command : buildAccelerationStructureCommands)
+        {
+            command->_scratchBuffer = scratchBuffer;
+            command->dispatch(*commandBuffer);
+        }
     }
 
     vkEndCommandBuffer(*commandBuffer);
@@ -638,7 +695,7 @@ void Context::waitForCompletion()
         return;
     }
 
-    if (commands.empty() && copyBufferDataCommands.empty() && copyImageDataCommands.empty())
+    if (commands.empty() && copyBufferDataCommands.empty() && copyImageDataCommands.empty() && buildAccelerationStructureCommands.empty())
     {
         return;
     }

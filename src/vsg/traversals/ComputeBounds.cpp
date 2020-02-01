@@ -57,9 +57,9 @@ void ComputeBounds::apply(const vsg::MatrixTransform& transform)
 
 void ComputeBounds::apply(const vsg::Geometry& geometry)
 {
-    if (!geometry._arrays.empty())
+    if (!geometry.arrays.empty())
     {
-        geometry._arrays[0]->accept(*this);
+        geometry.arrays[0]->accept(*this);
     }
 }
 
@@ -70,10 +70,10 @@ void ComputeBounds::apply(const vsg::Commands& commands)
 
 void ComputeBounds::apply(const vsg::VertexIndexDraw& vid)
 {
-    //std::cout<<"ComputeBounds::apply(const vsg::VertexIndexDraw& bvb) "<<vid._arrays.size()<<std::endl;
-    if (!vid._arrays.empty())
+    //std::cout<<"ComputeBounds::apply(const vsg::VertexIndexDraw& bvb) "<<vid.arrays.size()<<std::endl;
+    if (!vid.arrays.empty())
     {
-        vid._arrays[0]->accept(*this);
+        vid.arrays[0]->accept(*this);
     }
 }
 

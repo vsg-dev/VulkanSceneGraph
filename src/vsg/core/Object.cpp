@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Visitor.h>
 
 #include <vsg/traversals/CullTraversal.h>
-#include <vsg/traversals/DispatchTraversal.h>
+#include <vsg/traversals/RecordTraversal.h>
 
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
@@ -120,7 +120,7 @@ void Object::accept(ConstVisitor& visitor) const
     visitor.apply(*this);
 }
 
-void Object::accept(DispatchTraversal& visitor) const
+void Object::accept(RecordTraversal& visitor) const
 {
     visitor.apply(*this);
 }

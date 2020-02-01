@@ -25,7 +25,7 @@ namespace vsg
     class Auxiliary;
     class Visitor;
     class ConstVisitor;
-    class DispatchTraversal;
+    class RecordTraversal;
     class CullTraversal;
     class Allocator;
     class Input;
@@ -55,8 +55,8 @@ namespace vsg
         virtual void accept(ConstVisitor& visitor) const;
         virtual void traverse(ConstVisitor&) const {}
 
-        virtual void accept(DispatchTraversal& visitor) const;
-        virtual void traverse(DispatchTraversal&) const {}
+        virtual void accept(RecordTraversal& visitor) const;
+        virtual void traverse(RecordTraversal&) const {}
 
         virtual void accept(CullTraversal& visitor) const;
         virtual void traverse(CullTraversal&) const {}
