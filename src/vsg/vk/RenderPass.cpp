@@ -54,15 +54,13 @@ RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFo
     graph->addAttachmentDescription(colorAttachment);
     graph->addAttachmentDescription(depthAttachment);
 
-    vsg::ref_ptr<vsg::SubPass > classicpass(SubPass::create(graph));
+    vsg::ref_ptr<vsg::SubPass > classicpass(graph->createSubPass());
     classicpass->addColorAttachmentRef(colorAttachment, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
     classicpass->addDepthStencilAttachmentRef(depthAttachment, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
     classicpass->setBindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS);
 
-    graph->addSubPass(classicpass);
-
     vsg::ref_ptr<vsg::Dependency > classicdep(classicpass->createForwardDependency());
-    classicdep->setDstAccessMask(VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
+    classicdep->setDstAccessMask(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
 
     return create(device, graph, allocator);
 }
@@ -78,17 +76,17 @@ RenderPass::Result RenderPass::create(Device* device, PassGraph* graph, Allocati
 
     if(graph->getNumSubPasses()>0)
     {
-        if(graph->getNumDependencies() == 0) graph->getSubPass(0)->createForwardDependency();
         for(uint i=0; i<graph->getNumSubPasses(); ++i) subpasses.push_back(*graph->getSubPass(i));
         for(uint i=0; i<graph->getNumDependencies(); ++i) dependencies.push_back(*graph->getDependency(i));
     }
+
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount =  static_cast<uint32_t>(graph->getAttachmentDescriptions().size());
     renderPassInfo.pAttachments = graph->getAttachmentDescriptions().data();
-    renderPassInfo.subpassCount = subpasses.size();
+    renderPassInfo.subpassCount =  static_cast<uint32_t>(subpasses.size());
     renderPassInfo.pSubpasses = subpasses.data();
-    renderPassInfo.dependencyCount = dependencies.size();
+    renderPassInfo.dependencyCount =  static_cast<uint32_t>(dependencies.size());
     renderPassInfo.pDependencies = dependencies.data();
 
     VkRenderPass renderPass;

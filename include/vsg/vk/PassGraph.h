@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Device.h>
 
 namespace vsg
-{   
+{
     class SubPass;
     class Dependency;
     ///
@@ -60,7 +60,7 @@ namespace vsg
         void setDepthFormat(VkFormat d) { _depthFormat = d;  }
         void setColorFormat(VkFormat d) { _imageFormat = d;  }
 
-        inline void addSubPass(SubPass* v);
+        inline SubPass* createSubPass();
         inline void removeSubPass(SubPass* v);
 
         const SubPass* getSubPass(int i) const { return _subpasses[i]; }
@@ -86,6 +86,7 @@ namespace vsg
         AttachmentDescriptions & getAttachmentDescriptions() { return _attachments; }
 
     protected:
+        inline void addSubPass(SubPass* v);
         inline bool addInputAttachment(SubPass* sub, AttachmentDescription& ad, VkImageLayout l);
         inline bool addColorAttachment(SubPass* sub, AttachmentDescription& ad, VkImageLayout l);
         inline bool addDepthStencilAttachment(SubPass* sub, AttachmentDescription& ad, VkImageLayout l);
@@ -116,8 +117,6 @@ namespace vsg
             }
         };
 
-        ///constructor
-        SubPass(PassGraph * graph) : _graph(graph) {}
 
         void setBindPoint(VkPipelineBindPoint b = VK_PIPELINE_BIND_POINT_GRAPHICS)
         {
@@ -159,8 +158,8 @@ namespace vsg
         uint getNumInputAttachmentRefs() const { return _inputattachmentrefs.size(); }
 
         ///Dependencies management
-        inline Dependency * createForwardDependency();
-        inline Dependency * createBackwardDependency();
+        inline Dependency * createForwardDependency(SubPass * next = nullptr);
+        inline Dependency * createBackwardDependency(SubPass * prev = nullptr);
         inline void getForwardDependencies(Dependencies&);
         inline void getBackWardDependencies(Dependencies&);
 
@@ -177,6 +176,9 @@ namespace vsg
         }
 
     protected:
+
+        ///constructor
+        SubPass(PassGraph * graph) : _graph(graph) {}
         VkSubpassDescription _desc = {};
         std::vector<AttachmentReference> _inputattachmentrefs;
         std::vector<AttachmentReference> _colorattachmentrefs;
@@ -188,6 +190,7 @@ namespace vsg
 
     class VSG_DECLSPEC Dependency : public Inherit<Object, Dependency> {
     public:
+        friend class SubPass;
         Dependency(SubPass* src = nullptr, SubPass* dst = nullptr): _src(src), _dst(dst)
         {
             _desc.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -221,6 +224,7 @@ namespace vsg
             }
             return _desc;
         }
+    protected:
         ref_ptr<SubPass> _src,  _dst;
         VkSubpassDependency _desc = {};
     };
@@ -299,28 +303,29 @@ namespace vsg
         }
     }
 
-    Dependency * SubPass::createForwardDependency()
+    Dependency * SubPass::createForwardDependency(SubPass * next)
     {
         if(_graph)
         {
-            Dependency *dep = new Dependency(this, 0);
+            Dependency *dep = new Dependency(this, next);
             _graph->addDependency(dep);
             return dep;
         }
         return nullptr;
     }
 
-    Dependency * SubPass::createBackwardDependency()
+    Dependency * SubPass::createBackwardDependency(SubPass * prev)
     {
         if(_graph)
         {
-            Dependency *dep = new Dependency(0, this);
+            Dependency *dep = new Dependency(prev, this);
             _graph->addDependency(dep);
             return dep;
         }
         return nullptr;
     }
 
+    SubPass* PassGraph::createSubPass() { ref_ptr<SubPass> sub(new SubPass(this)); _subpasses.push_back((sub)); return sub; }
     int PassGraph::getSubPassIndex(SubPass* v) const
     {
         int cpt = 0;
