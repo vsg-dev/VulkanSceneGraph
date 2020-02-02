@@ -114,6 +114,7 @@ set(SOURCES
     vk/ImageView.cpp
     vk/Instance.cpp
     vk/MemoryManager.cpp
+    vk/NextSubPass.cpp
     vk/PassGraph.cpp
     vk/PhysicalDevice.cpp
     vk/PipelineLayout.cpp
