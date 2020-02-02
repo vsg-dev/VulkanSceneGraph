@@ -95,17 +95,21 @@ void Window::initaliseDevice()
 
     vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, validatedNames, deviceExtensions, _traits->allocator);
     if (!device) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan logical Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-
-    // set up renderpass with the imageFormat that the swap chain will use
-    vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*physicalDevice, *_surface);
-    VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
-    VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
-    vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, imageFormat.format, depthFormat, _traits->allocator);
-    if (!renderPass) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan RenderPass.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-
     _physicalDevice = physicalDevice;
     _device = device;
-    _renderPass = renderPass;
+    if(_traits->createRenderPassCB.valid())
+       _renderPass = _traits->createRenderPassCB->createRenderPass(*this, _traits);
+    else
+    {
+        // set up renderpass with the imageFormat that the swap chain will use
+        vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*physicalDevice, *_surface);
+        VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
+        VkFormat depthFormat =  VK_FORMAT_D24_UNORM_S8_UINT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
+        vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, imageFormat.format, depthFormat, _traits->allocator);
+        if (!renderPass) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan RenderPass.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        _renderPass = renderPass;
+    }
+
 }
 
 void Window::buildSwapchain(uint32_t width, uint32_t height)
