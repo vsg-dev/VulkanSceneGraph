@@ -172,6 +172,7 @@ namespace vsg
             _desc.pInputAttachments=_colorattachmentrefs.data();
             _desc.inputAttachmentCount=_inputattachmentrefs.size();
             _desc.pInputAttachments=_colorattachmentrefs.data();
+            _desc.pDepthStencilAttachment = &_pDepthStencilAttachment;
             return _desc;
         }
 
@@ -183,7 +184,7 @@ namespace vsg
         std::vector<AttachmentReference> _inputattachmentrefs;
         std::vector<AttachmentReference> _colorattachmentrefs;
         std::vector<AttachmentReference> _pResolveAttachments;
-        std::vector<AttachmentReference> _pDepthStencilAttachment;
+        AttachmentReference _pDepthStencilAttachment;
         std::vector<uint> _pPreserveAttachments;
         ref_ptr<PassGraph> _graph;
     };
@@ -267,7 +268,7 @@ namespace vsg
             addAttachmentDescription(ad);
         }
         else attachref.attachment = attindex;
-        sub->_pDepthStencilAttachment.push_back(attachref);
+        sub->_pDepthStencilAttachment = attachref;
         return true;
     }
 
