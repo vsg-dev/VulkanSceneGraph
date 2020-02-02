@@ -15,6 +15,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <iostream>
 
 using namespace vsg;
+#define VK_VERSION_MAJOR(version) ((uint32_t)(version) >> 22)
+#define VK_VERSION_MINOR(version) (((uint32_t)(version) >> 12) & 0x3ff)
+#define VK_VERSION_PATCH(version) ((uint32_t)(version) & 0xfff)
 
 PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int graphicsFamily, int presentFamily, int computeFamily, Surface* surface) :
     _device(device),
@@ -30,12 +33,17 @@ PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int 
     _rayTracingProperties = {};
     _rayTracingProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV;
     _rayTracingProperties.pNext = nullptr;
-
-    // do we check for extension support?
-    VkPhysicalDeviceProperties2 deviceProps2;
-    deviceProps2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
-    deviceProps2.pNext = &_rayTracingProperties;
-    vkGetPhysicalDeviceProperties2(_device, &deviceProps2);
+    
+    if( VK_VERSION_MINOR(_properties.apiVersion) > 1  ||
+       ( VK_VERSION_MINOR(_properties.apiVersion) == 1 && VK_VERSION_MINOR(_properties.apiVersion) >= 2 ))
+    {
+        // do we check for extension support?
+        VkPhysicalDeviceProperties2 deviceProps2;
+        deviceProps2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+        deviceProps2.pNext = &_rayTracingProperties;
+        vkGetPhysicalDeviceProperties2(_device, &deviceProps2);
+    }
+        
 #if 0
     std::cout << "shaderGroupHandleSize " << _rayTracingProperties.shaderGroupHandleSize << std::endl;
     std::cout << "maxRecursionDepth " << _rayTracingProperties.maxRecursionDepth << std::endl;
