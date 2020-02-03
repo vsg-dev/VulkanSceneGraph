@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,30 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Device.h>
+#include <vsg/vk/PassGraph.h>
 
-namespace vsg
-{
-    class PassGraph;
-    class VSG_DECLSPEC RenderPass : public Inherit<Object, RenderPass>
-    {
-    public:
-        RenderPass(VkRenderPass renderPass, Device* device, AllocationCallbacks* allocator = nullptr);
+#include <array>
 
-        using Result = vsg::Result<RenderPass, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator = nullptr);
-        static Result create(Device* device, PassGraph*  passgraph, AllocationCallbacks* allocator = nullptr);
-
-        operator VkRenderPass() const { return _renderPass; }
-
-        Device* getDevice() { return _device; }
-        const Device* getDevice() const { return _device; }
-    protected:
-        virtual ~RenderPass();
-
-        VkRenderPass _renderPass;
-        ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
-    };
-
-} // namespace vsg
+using namespace vsg;

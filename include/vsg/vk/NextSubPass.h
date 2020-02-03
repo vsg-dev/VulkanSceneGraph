@@ -12,30 +12,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Device.h>
+#include <vsg/nodes/StateGroup.h>
+#include <vsg/vk/Buffer.h>
+#include <vsg/vk/Command.h>
+#include <vsg/vk/Descriptor.h>
 
 namespace vsg
 {
-    class PassGraph;
-    class VSG_DECLSPEC RenderPass : public Inherit<Object, RenderPass>
+    class VSG_DECLSPEC NextSubPass : public Inherit<Command, NextSubPass>
     {
     public:
-        RenderPass(VkRenderPass renderPass, Device* device, AllocationCallbacks* allocator = nullptr);
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
-        using Result = vsg::Result<RenderPass, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator = nullptr);
-        static Result create(Device* device, PassGraph*  passgraph, AllocationCallbacks* allocator = nullptr);
+        void compile(Context& context) override;
 
-        operator VkRenderPass() const { return _renderPass; }
+        void dispatch(CommandBuffer& commandBuffer) const override;
 
-        Device* getDevice() { return _device; }
-        const Device* getDevice() const { return _device; }
     protected:
-        virtual ~RenderPass();
+        virtual ~NextSubPass();
 
-        VkRenderPass _renderPass;
-        ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
     };
+    VSG_type_name(vsg::NextSubPass);
 
 } // namespace vsg

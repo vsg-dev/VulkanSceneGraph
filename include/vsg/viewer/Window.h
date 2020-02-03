@@ -28,12 +28,20 @@ namespace vsg
     class VSG_DECLSPEC Window : public Inherit<Object, Window>
     {
     public:
+
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
+        class Traits;
+        class CreateRenderPassCallback :  public Inherit<Object, CreateRenderPassCallback>
+        {
+        public:
+            virtual vsg::ref_ptr<vsg::RenderPass> createRenderPass( vsg::Window& , vsg::Window::Traits *) = 0;
+        };
 
         class Traits : public Inherit<Object, Traits>
         {
         public:
+
             Traits() {}
             Traits(const Traits&) = delete;
             Traits& operator=(const Traits&) = delete;
@@ -84,6 +92,7 @@ namespace vsg
             std::any nativeHandle;
             void* nativeWindow;
 
+            ref_ptr<CreateRenderPassCallback> createRenderPassCB;
         protected:
             virtual ~Traits() {}
         };
