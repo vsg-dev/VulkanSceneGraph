@@ -16,13 +16,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int graphicsFamily, int presentFamily, int computeFamily, Surface* surface) :
+PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int graphicsFamily, int presentFamily, int computeFamily) :
     _device(device),
     _graphicsFamily(graphicsFamily),
     _presentFamily(presentFamily),
     _computeFamily(computeFamily),
-    _instance(instance),
-    _surface(surface)
+    _instance(instance)
 {
     vkGetPhysicalDeviceProperties(_device, &_properties);
 
@@ -119,7 +118,7 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags q
 
         if (((matchedQueues & queueFlags) == queueFlags) && (surface == nullptr || presentFamily >= 0))
         {
-            return Result(new PhysicalDevice(instance, device, graphicsFamily, presentFamily, computeFamily, surface));
+            return Result(new PhysicalDevice(instance, device, graphicsFamily, presentFamily, computeFamily));
         }
     }
 
