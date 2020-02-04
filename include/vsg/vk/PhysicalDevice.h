@@ -38,6 +38,36 @@ namespace vsg
         const VkPhysicalDeviceProperties& getProperties() const { return _properties; }
         const VkPhysicalDeviceRayTracingPropertiesNV& getRayTracingProperties() const { return _rayTracingProperties; }
 
+        template<typename FeatureStruct, VkStructureType type>
+        FeatureStruct getFeatures()
+        {
+            FeatureStruct features = {};
+            features.sType = type;
+
+            VkPhysicalDeviceFeatures2 features2 = {};
+            features2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+            features2.pNext = &features;
+
+            vkGetPhysicalDeviceFeatures2(_device, &features2);
+
+            return features;
+        }
+
+        template<typename PropertiesStruct, VkStructureType type>
+        PropertiesStruct getProperties()
+        {
+            PropertiesStruct properties = {};
+            properties.sType = type;
+
+            VkPhysicalDeviceProperties2 properties2 = {};
+            properties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+            properties2.pNext = &properties;
+
+            vkGetPhysicalDeviceProperties2(_device, &properties2);
+
+            return properties;
+        }
+
     protected:
         virtual ~PhysicalDevice();
 

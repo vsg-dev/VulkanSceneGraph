@@ -26,15 +26,8 @@ PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int 
     vkGetPhysicalDeviceProperties(_device, &_properties);
 
     // get ray tracing properies
-    _rayTracingProperties = {};
-    _rayTracingProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV;
-    _rayTracingProperties.pNext = nullptr;
+    _rayTracingProperties = getProperties<VkPhysicalDeviceRayTracingPropertiesNV, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV>();
 
-    // do we check for extension support?
-    VkPhysicalDeviceProperties2 deviceProps2;
-    deviceProps2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
-    deviceProps2.pNext = &_rayTracingProperties;
-    vkGetPhysicalDeviceProperties2(_device, &deviceProps2);
 #if 0
     std::cout << "shaderGroupHandleSize " << _rayTracingProperties.shaderGroupHandleSize << std::endl;
     std::cout << "maxRecursionDepth " << _rayTracingProperties.maxRecursionDepth << std::endl;
@@ -66,9 +59,6 @@ PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags q
 
     for (const auto& device : devices)
     {
-        VkPhysicalDeviceFeatures supportedFeatures;
-        vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
-
         // Checked the DeviceQueueFamilyProperties for support for graphics
         uint32_t queueFamilyCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
