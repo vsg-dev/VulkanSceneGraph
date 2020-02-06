@@ -13,27 +13,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/Surface.h>
+#include <vsg/core/observer_ptr.h>
 
 namespace vsg
 {
     class VSG_DECLSPEC PhysicalDevice : public Inherit<Object, PhysicalDevice>
     {
     public:
-        PhysicalDevice(Instance* instance, VkPhysicalDevice device, int graphicsFamily, int presentFamily, int computeFamily);
 
-        using Result = vsg::Result<PhysicalDevice, VkResult, VK_SUCCESS>;
-        static Result create(Instance* instance, VkQueueFlags queueFlags, Surface* surface = nullptr);
-
-        bool complete() const { return _device != VK_NULL_HANDLE && _graphicsFamily >= 0 && _presentFamily >= 0; }
-
-        const Instance* getInstance() const { return _instance.get(); }
+        observer_ptr<Instance> getInstance() { return _instance; }
 
         operator VkPhysicalDevice() const { return _device; }
         VkPhysicalDevice getPhysicalDevice() const { return _device; }
 
-        int getGraphicsFamily() const { return _graphicsFamily; }
-        int getPresentFamily() const { return _presentFamily; }
-        int getComputeFamily() const { return _computeFamily; }
+        /// return the queue family index of the queu that matches the specified queueFlags and presentaton on specified Surface when one is provided.  return -1 on failure to find a suitable queue family.
+        int getQueueFamily(VkQueueFlags queueFlags, Surface* surface = nullptr) const;
+
+        using QueueFamilyProperties = std::vector<VkQueueFamilyProperties>;
+        const QueueFamilyProperties& getQueueFamilyProperties() const { return _queueFamiles; }
 
         const VkPhysicalDeviceProperties& getProperties() const { return _properties; }
         const VkPhysicalDeviceRayTracingPropertiesNV& getRayTracingProperties() const { return _rayTracingProperties; }
@@ -69,17 +66,21 @@ namespace vsg
         }
 
     protected:
+
+        // use Instance::getDevice(..) to create PhysicalDevice
+        PhysicalDevice(Instance* instance, VkPhysicalDevice device);
+
         virtual ~PhysicalDevice();
 
+        friend class Instance;
+
         VkPhysicalDevice _device;
-        int _graphicsFamily;
-        int _presentFamily;
-        int _computeFamily;
 
         VkPhysicalDeviceProperties _properties;
         VkPhysicalDeviceRayTracingPropertiesNV _rayTracingProperties;
+        QueueFamilyProperties _queueFamiles;
 
-        vsg::ref_ptr<Instance> _instance;
+        vsg::observer_ptr<Instance> _instance;
     };
 
 } // namespace vsg

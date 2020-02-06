@@ -19,14 +19,25 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    struct QueueSetting
+    {
+        int queueFamilyIndex = -1;
+        std::vector<float> queuePiorities;
+    };
+
+    using QueueSettings = std::vector<QueueSetting>;
+
     class VSG_DECLSPEC Device : public Inherit<Object, Device>
     {
     public:
         Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallbacks* allocator = nullptr);
 
         using Result = vsg::Result<Device, VkResult, VK_SUCCESS>;
-        static Result create(PhysicalDevice* physicalDevice, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator = nullptr);
+        static Result create(PhysicalDevice* physicalDevice, QueueSettings& queueSettings, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator = nullptr);
 
+
+        const Instance* getInstance() const { return _instance.get(); }
         const PhysicalDevice* getPhysicalDevice() const { return _physicalDevice.get(); }
 
         operator VkDevice() const { return _device; }
@@ -41,8 +52,10 @@ namespace vsg
         virtual ~Device();
 
         VkDevice _device;
-        vsg::ref_ptr<PhysicalDevice> _physicalDevice;
-        vsg::ref_ptr<AllocationCallbacks> _allocator;
+
+        ref_ptr<Instance> _instance;
+        ref_ptr<PhysicalDevice> _physicalDevice;
+        ref_ptr<AllocationCallbacks> _allocator;
 
         std::list<ref_ptr<Queue>> _queues;
     };

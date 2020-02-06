@@ -30,7 +30,11 @@ CommandGraph::CommandGraph(Window* window)
     if (window)
     {
         _device = window->device();
-        _family = window->physicalDevice()->getGraphicsFamily();
+
+        VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
+        if (window->traits()) queueFlags = window->traits()->queueFlags;
+
+        _family = window->physicalDevice()->getQueueFamily(queueFlags, window->surface());
 
         for (size_t i = 0; i < window->numFrames(); ++i)
         {

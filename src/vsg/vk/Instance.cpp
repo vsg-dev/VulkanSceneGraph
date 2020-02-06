@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/Instance.h>
+#include <vsg/vk/PhysicalDevice.h>
 
 #include <iostream>
 #include <set>
@@ -31,7 +32,7 @@ Names vsg::validateInstancelayerNames(const Names& names)
     NameSet layerNames;
     for (const auto& layer : availableLayers)
     {
-        std::cout << "layer=" << layer.layerName << std::endl;
+        //std::cout << "layer=" << layer.layerName << std::endl;
         if (layer.layerName[0] != 0) layerNames.insert(layer.layerName);
     }
 
@@ -41,12 +42,12 @@ Names vsg::validateInstancelayerNames(const Names& names)
     {
         if (layerNames.count(requestedName) != 0)
         {
-            std::cout << "valid requested layer : " << requestedName << std::endl;
+            //std::cout << "valid requested layer : " << requestedName << std::endl;
             validatedNames.push_back(requestedName);
         }
         else
         {
-            std::cout << "Warning : requested invalid layer : " << requestedName << std::endl;
+            //std::cout << "Warning : requested invalid layer : " << requestedName << std::endl;
         }
     }
 
@@ -61,9 +62,10 @@ Instance::Instance(VkInstance instance, AllocationCallbacks* allocator) :
 
 Instance::~Instance()
 {
+    _physicalDevices.clear();
+
     if (_instance)
     {
-        //std::cout<<"Calling vkDestroyInstance"<<std::endl;
         vkDestroyInstance(_instance, _allocator);
     }
 }
@@ -110,11 +112,42 @@ Instance::Result Instance::create(Names& instanceExtensions, Names& layers, Allo
     VkResult result = vkCreateInstance(&createInfo, allocator, &instance);
     if (result == VK_SUCCESS)
     {
-        //std::cout << "Created VkInstance" << std::endl;
-        return Result(new Instance(instance, allocator));
+        ref_ptr<Instance> inst(new Instance(instance, allocator));
+
+        uint32_t deviceCount = 0;
+        vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+
+        std::vector<VkPhysicalDevice> devices(deviceCount);
+        vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+
+        auto& physicalDevices = inst->getPhysicalDevices();
+        for(auto device : devices)
+        {
+            physicalDevices.emplace_back(new PhysicalDevice(inst, device));
+        }
+
+        return Result(inst);
     }
     else
     {
         return Result("Error: vsg::Instance::create(...) failed to create VkInstance.", result);
     }
+}
+
+ref_ptr<PhysicalDevice> Instance::getPhysicalDevice(VkQueueFlags queueFlags, Surface* surface) const
+{
+    for(auto& device : _physicalDevices)
+    {
+        if (int family = device->getQueueFamily(queueFlags, surface); family>=0) return device;
+    }
+    return {};
+}
+
+std::pair<ref_ptr<PhysicalDevice>, int> Instance::getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface) const
+{
+    for(auto& device : _physicalDevices)
+    {
+        if (int family = device->getQueueFamily(queueFlags, surface); family>=0) return {device, family};
+    }
+    return {{}, -1};
 }

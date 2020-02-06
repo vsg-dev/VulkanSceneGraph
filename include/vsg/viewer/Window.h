@@ -104,7 +104,10 @@ namespace vsg
         virtual bool resized() const { return false; }
         virtual void resize() {}
 
-        const VkExtent2D& extent2D() { return _extent2D; }
+        Traits* traits() { return _traits.get(); }
+        const Traits* traits() const { return _traits.get(); }
+
+        const VkExtent2D& extent2D() const { return _extent2D; }
 
         VkClearColorValue& clearColor() { return _clearColor; }
         const VkClearColorValue& clearColor() const { return _clearColor; }
