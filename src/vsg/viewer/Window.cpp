@@ -90,7 +90,7 @@ void Window::initaliseDevice()
 
     // set up device
     auto [physicalDevice, queueFamily] = _instance->getPhysicalDeviceAndQueueFamily(_traits->queueFlags);
-    if (!physicalDevice || queueFamily<0) throw Result("Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    if (!physicalDevice || queueFamily < 0) throw Result("Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     vsg::QueueSettings queueSettings{vsg::QueueSetting{queueFamily, {1.0}}};
     vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->allocator);

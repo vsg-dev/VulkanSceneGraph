@@ -45,7 +45,7 @@ Device::Result Device::create(PhysicalDevice* physicalDevice, QueueSettings& que
     float queuePriority = 1.0f;
     for (auto& queueSetting : queueSettings)
     {
-        if (queueSetting.queueFamilyIndex<0) continue;
+        if (queueSetting.queueFamilyIndex < 0) continue;
 
         VkDeviceQueueCreateInfo queueCreateInfo = {};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;

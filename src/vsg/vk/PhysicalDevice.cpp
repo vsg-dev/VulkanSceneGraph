@@ -47,7 +47,7 @@ int PhysicalDevice::getQueueFamily(VkQueueFlags queueFlags) const
 {
     int bestFamily = -1;
 
-    for(int i = 0; i<static_cast<int>(_queueFamiles.size()); ++i)
+    for (int i = 0; i < static_cast<int>(_queueFamiles.size()); ++i)
     {
         const auto& queueFamily = _queueFamiles[i];
         if ((queueFamily.queueFlags & queueFlags) == queueFlags)
@@ -70,7 +70,7 @@ std::pair<int, int> PhysicalDevice::getQueueFamily(VkQueueFlags queueFlags, Surf
     int queueFamily = -1;
     int presentFamily = -1;
 
-    for(int i = 0; i<static_cast<int>(_queueFamiles.size()); ++i)
+    for (int i = 0; i < static_cast<int>(_queueFamiles.size()); ++i)
     {
         const auto& family = _queueFamiles[i];
 

@@ -36,7 +36,6 @@ namespace vsg
         using Result = vsg::Result<Device, VkResult, VK_SUCCESS>;
         static Result create(PhysicalDevice* physicalDevice, QueueSettings& queueSettings, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator = nullptr);
 
-
         const Instance* getInstance() const { return _instance.get(); }
         const PhysicalDevice* getPhysicalDevice() const { return _physicalDevice.get(); }
 

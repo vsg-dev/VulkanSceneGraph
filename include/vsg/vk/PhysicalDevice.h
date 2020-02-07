@@ -12,15 +12,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Surface.h>
 #include <vsg/core/observer_ptr.h>
+#include <vsg/vk/Surface.h>
 
 namespace vsg
 {
     class VSG_DECLSPEC PhysicalDevice : public Inherit<Object, PhysicalDevice>
     {
     public:
-
         observer_ptr<Instance> getInstance() { return _instance; }
 
         operator VkPhysicalDevice() const { return _device; }
@@ -66,7 +65,6 @@ namespace vsg
         }
 
     protected:
-
         // use Instance::getDevice(..) to create PhysicalDevice
         PhysicalDevice(Instance* instance, VkPhysicalDevice device);
 
