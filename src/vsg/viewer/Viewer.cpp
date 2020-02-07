@@ -47,9 +47,7 @@ void Viewer::addWindow(ref_ptr<Window> window)
     PhysicalDevice* physicalDevice = window->physicalDevice();
     if (_deviceMap.find(device) == _deviceMap.end())
     {
-
-        auto graphicsFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, window->surface()); // TODO : perhaps pass nuulptr instead of window->surface?
-        auto presentFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, window->surface()); // TODO : perhaps pass 0 instead of VK_QUEUE_GRAPHICS_BIT?
+        auto [graphicsFamily, presentFamily] = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, window->surface());
 
         // set up per device settings
         PerDeviceObjects& new_pdo = _deviceMap[device];
@@ -308,8 +306,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraph
     Device* device = window->device();
     PhysicalDevice* physicalDevice = window->physicalDevice();
 
-    auto graphicsFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, window->surface()); // TODO : perhaps pass nuulptr instead of window->surface?
-    auto presentFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, window->surface()); // TODO : perhaps pass 0 instead of VK_QUEUE_GRAPHICS_BIT?
+    auto [graphicsFamily, presentFamily] = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, window->surface());
 
     auto renderFinishedSemaphore = vsg::Semaphore::create(device);
 

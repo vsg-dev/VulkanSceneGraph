@@ -134,20 +134,38 @@ Instance::Result Instance::create(Names& instanceExtensions, Names& layers, Allo
     }
 }
 
-ref_ptr<PhysicalDevice> Instance::getPhysicalDevice(VkQueueFlags queueFlags, Surface* surface) const
+ref_ptr<PhysicalDevice> Instance::getPhysicalDevice(VkQueueFlags queueFlags) const
 {
     for(auto& device : _physicalDevices)
     {
-        if (int family = device->getQueueFamily(queueFlags, surface); family>=0) return device;
+        if (auto family = device->getQueueFamily(queueFlags); (family>=0)) return device;
     }
     return {};
 }
 
-std::pair<ref_ptr<PhysicalDevice>, int> Instance::getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface) const
+ref_ptr<PhysicalDevice> Instance::getPhysicalDevice(VkQueueFlags queueFlags, Surface* surface) const
 {
     for(auto& device : _physicalDevices)
     {
-        if (int family = device->getQueueFamily(queueFlags, surface); family>=0) return {device, family};
+        if (auto [graphicsFamily, presentFamily] = device->getQueueFamily(queueFlags, surface); (graphicsFamily>=0 && presentFamily>=0)) return device;
+    }
+    return {};
+}
+
+std::pair<ref_ptr<PhysicalDevice>, int> Instance::getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags) const
+{
+    for(auto& device : _physicalDevices)
+    {
+        if (auto family = device->getQueueFamily(queueFlags); family>=0) return {device, family};
     }
     return {{}, -1};
+}
+
+std::pair<ref_ptr<PhysicalDevice>, std::pair<int, int>> Instance::getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface) const
+{
+    for(auto& device : _physicalDevices)
+    {
+        if (auto [graphicsFamily, presentFamily] = device->getQueueFamily(queueFlags, surface); (graphicsFamily>=0 && presentFamily>=0)) return {device, {graphicsFamily, presentFamily}};
+    }
+    return {{}, {-1, -1}};
 }

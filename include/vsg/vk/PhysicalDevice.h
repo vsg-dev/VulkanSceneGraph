@@ -26,8 +26,8 @@ namespace vsg
         operator VkPhysicalDevice() const { return _device; }
         VkPhysicalDevice getPhysicalDevice() const { return _device; }
 
-        /// return the queue family index of the queu that matches the specified queueFlags and presentaton on specified Surface when one is provided.  return -1 on failure to find a suitable queue family.
-        int getQueueFamily(VkQueueFlags queueFlags, Surface* surface = nullptr) const;
+        int getQueueFamily(VkQueueFlags queueFlags) const;
+        std::pair<int, int> getQueueFamily(VkQueueFlags queueFlags, Surface* surface) const;
 
         using QueueFamilyProperties = std::vector<VkQueueFamilyProperties>;
         const QueueFamilyProperties& getQueueFamilyProperties() const { return _queueFamiles; }

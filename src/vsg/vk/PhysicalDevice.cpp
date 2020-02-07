@@ -43,7 +43,29 @@ PhysicalDevice::~PhysicalDevice()
 {
 }
 
-int PhysicalDevice::getQueueFamily(VkQueueFlags queueFlags, Surface* surface) const
+int PhysicalDevice::getQueueFamily(VkQueueFlags queueFlags) const
+{
+    int bestFamily = -1;
+
+    for(int i = 0; i<static_cast<int>(_queueFamiles.size()); ++i)
+    {
+        const auto& queueFamily = _queueFamiles[i];
+        if ((queueFamily.queueFlags & queueFlags) == queueFlags)
+        {
+            // check for perfect match
+            if (queueFamily.queueFlags == queueFlags)
+            {
+                return i;
+            }
+
+            bestFamily = i;
+        }
+    }
+
+    return bestFamily;
+}
+
+std::pair<int, int> PhysicalDevice::getQueueFamily(VkQueueFlags queueFlags, Surface* surface) const
 {
     int bestFamily = -1;
 
@@ -61,7 +83,7 @@ int PhysicalDevice::getQueueFamily(VkQueueFlags queueFlags, Surface* surface) co
                     // check for perfect match
                     if (queueFamily.queueFlags == queueFlags)
                     {
-                        return i;
+                        return {i, i};
                     }
 
                     bestFamily = i;
@@ -72,7 +94,7 @@ int PhysicalDevice::getQueueFamily(VkQueueFlags queueFlags, Surface* surface) co
                 // check for perfect match
                 if (queueFamily.queueFlags == queueFlags)
                 {
-                    return i;
+                    return {i, i};
                 }
 
                 bestFamily = i;
@@ -80,5 +102,5 @@ int PhysicalDevice::getQueueFamily(VkQueueFlags queueFlags, Surface* surface) co
         }
     }
 
-    return bestFamily;
+    return {bestFamily, bestFamily};
 }

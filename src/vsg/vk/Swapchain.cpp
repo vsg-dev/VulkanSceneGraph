@@ -203,9 +203,7 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = preferences.imageUsage;
 
-    auto graphicsFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, surface); // TODO : perhaps pass nuulptr instead of window->surface?
-    auto presentFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, surface); // TODO : perhaps pass 0 instead of VK_QUEUE_GRAPHICS_BIT?
-
+    auto [graphicsFamily, presentFamily] = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, surface);
     if (graphicsFamily != presentFamily)
     {
         uint32_t queueFamilyIndices[] = {uint32_t(graphicsFamily), uint32_t(presentFamily)};

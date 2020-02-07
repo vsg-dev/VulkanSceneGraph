@@ -158,7 +158,8 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
 
     _depthImageView = ImageView::create(_device, _depthImage, VK_IMAGE_VIEW_TYPE_2D, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
 
-    int grahicsQueueFamily =  _physicalDevice->getQueueFamily(_traits->queueFlags, _surface);
+    int graphicsFamily = -1;
+    std::tie(graphicsFamily, std::ignore) = _physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, _surface);
 
     // set up framebuffer and associated resources
     Swapchain::ImageViews& imageViews = _swapchain->getImageViews();
@@ -178,14 +179,14 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
 
         ref_ptr<Semaphore> ias = vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag);
         ref_ptr<Framebuffer> fb = Framebuffer::create(_device, framebufferInfo);
-        ref_ptr<CommandPool> cp = CommandPool::create(_device, grahicsQueueFamily);
+        ref_ptr<CommandPool> cp = CommandPool::create(_device, graphicsFamily);
         ref_ptr<CommandBuffer> cb = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
         ref_ptr<Fence> fence = Fence::create(_device);
 
         _frames.push_back({ias, imageViews[i], fb, cp, cb, false, fence});
     }
 
-    submitCommandsToQueue(_device, _frames[0].commandPool, _device->getQueue(grahicsQueueFamily), [&](CommandBuffer& commandBuffer) {
+    submitCommandsToQueue(_device, _frames[0].commandPool, _device->getQueue(graphicsFamily), [&](CommandBuffer& commandBuffer) {
         auto depthImageBarrier = ImageMemoryBarrier::create(
             0, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,

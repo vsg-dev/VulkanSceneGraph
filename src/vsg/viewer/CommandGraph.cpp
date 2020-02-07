@@ -34,7 +34,7 @@ CommandGraph::CommandGraph(Window* window)
         VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
         if (window->traits()) queueFlags = window->traits()->queueFlags;
 
-        _family = window->physicalDevice()->getQueueFamily(queueFlags, window->surface());
+        std::tie(_family, std::ignore) = window->physicalDevice()->getQueueFamily(queueFlags, window->surface());
 
         for (size_t i = 0; i < window->numFrames(); ++i)
         {
