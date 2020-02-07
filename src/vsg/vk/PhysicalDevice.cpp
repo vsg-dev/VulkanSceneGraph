@@ -67,40 +67,26 @@ int PhysicalDevice::getQueueFamily(VkQueueFlags queueFlags) const
 
 std::pair<int, int> PhysicalDevice::getQueueFamily(VkQueueFlags queueFlags, Surface* surface) const
 {
-    int bestFamily = -1;
+    int queueFamily = -1;
+    int presentFamily = -1;
 
     for(int i = 0; i<static_cast<int>(_queueFamiles.size()); ++i)
     {
-        const auto& queueFamily = _queueFamiles[i];
-        if ((queueFamily.queueFlags & queueFlags) == queueFlags)
+        const auto& family = _queueFamiles[i];
+
+        bool queueMatched = (family.queueFlags & queueFlags) == queueFlags;
+
+        VkBool32 presentSupported = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(_device, i, *surface, &presentSupported);
+
+        if (queueMatched && presentSupported)
         {
-            if (surface)
-            {
-                VkBool32 presentSupported = false;
-                vkGetPhysicalDeviceSurfaceSupportKHR(_device, i, *surface, &presentSupported);
-                if (presentSupported)
-                {
-                    // check for perfect match
-                    if (queueFamily.queueFlags == queueFlags)
-                    {
-                        return {i, i};
-                    }
-
-                    bestFamily = i;
-                }
-            }
-            else
-            {
-                // check for perfect match
-                if (queueFamily.queueFlags == queueFlags)
-                {
-                    return {i, i};
-                }
-
-                bestFamily = i;
-            }
+            return {i, i};
         }
+
+        if (queueMatched) queueFamily = i;
+        if (presentSupported) presentFamily = i;
     }
 
-    return {bestFamily, bestFamily};
+    return {queueFamily, presentFamily};
 }
