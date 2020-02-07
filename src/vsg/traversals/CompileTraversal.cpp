@@ -25,6 +25,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
 
+#include <vsg/viewer/ExecuteCommands.h>
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/RenderGraph.h>
 
@@ -113,6 +114,13 @@ void CollectDescriptorStats::apply(const Descriptor& descriptor)
     }
     descriptorTypeMap[descriptor._descriptorType] += descriptor.getNumDescriptors();
 }
+void CollectDescriptorStats::apply(const CommandGraph& object)
+{
+for(auto sec : object._secondaries)
+    sec->accept(*this);
+
+    object.traverse(*this);
+}
 
 uint32_t CollectDescriptorStats::computeNumDescriptorSets() const
 {
@@ -173,9 +181,49 @@ void CompileTraversal::apply(Geometry& geometry)
     geometry.traverse(*this);
 }
 
+class CollectSecondaryCommandGraph : public ConstVisitor
+{
+public:
+    vsg::CommandGraphs _secondaries;
+    void apply(const Command& cmd) override{
+        const vsg::ExecuteCommands *exec = dynamic_cast<const vsg::ExecuteCommands*>(&cmd);
+        if(exec)
+        {
+            for( auto g :exec->_cmdgraphs)
+            {
+                _secondaries.emplace_back(g);
+            }
+        }
+    }
+};
 void CompileTraversal::apply(CommandGraph& commandGraph)
 {
+    //TODO prune Secondaty ComamandGraphs if primary
+    if(commandGraph._commandbufferslevel == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+    {
+
+        context.renderPass = static_cast<RenderGraph*>(commandGraph.getChild(0))->window->renderPass();
+        context.viewport = static_cast<RenderGraph*>(commandGraph.getChild(0))->camera->getViewportState();
+
+
+        context.viewport->getViewport().width = static_cast<RenderGraph*>(commandGraph.getChild(0))->window->extent2D().width;
+        context.viewport->getViewport().height = static_cast<RenderGraph*>(commandGraph.getChild(0))->window->extent2D().height;
+
+        CollectSecondaryCommandGraph col;
+        commandGraph.accept(col);
+        for(auto g: commandGraph._secondaries)
+        {
+            this->apply(*g.get());//g->accept(*this);
+     /*  commandGraph->addS g->
+
+            g->setPrimaryCommandGraph(commandGraph);///set Primary in order t
+*/
+        }
+
+    }
     commandGraph.traverse(*this);
+
+
 }
 void CompileTraversal::apply(RenderGraph& renderGraph)
 {

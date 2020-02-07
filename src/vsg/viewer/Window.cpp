@@ -72,7 +72,69 @@ void Window::share(const Window& window)
     _device = window._device;
     _renderPass = window._renderPass;
 }
+// Framebuffer for offscreen rendering
+struct FrameBufferAttachment {
+    VkImage image;
+    VkDeviceMemory mem;
+    VkImageView view;
+    VkFormat format;
+};/*
+void createAttachment(
+    VkFormat format,
+    VkImageUsageFlagBits usage,
+    FrameBufferAttachment *attachment)
+{
+    VkImageAspectFlags aspectMask = 0;
+    VkImageLayout imageLayout;
 
+    attachment->format = format;
+
+    if (usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
+    {
+        aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    }
+    if (usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)
+    {
+        aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+        imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    }
+
+
+    VkImageCreateInfo image ;//= vks::initializers::imageCreateInfo();
+    image.imageType = VK_IMAGE_TYPE_2D;
+    image.format = format;
+    image.extent.width = offScreenFrameBuf.width;
+    image.extent.height = offScreenFrameBuf.height;
+    image.extent.depth = 1;
+    image.mipLevels = 1;
+    image.arrayLayers = 1;
+    image.samples = VK_SAMPLE_COUNT_1_BIT;
+    image.tiling = VK_IMAGE_TILING_OPTIMAL;
+    image.usage = usage | VK_IMAGE_USAGE_SAMPLED_BIT;
+
+    VkMemoryAllocateInfo memAlloc ;//= vks::initializers::imageCreateInfo();
+    VkMemoryRequirements memReqs;
+
+    (vkCreateImage(device, &image, nullptr, &attachment->image));
+    vkGetImageMemoryRequirements(device, attachment->image, &memReqs);
+    memAlloc.allocationSize = memReqs.size;
+    memAlloc.memoryTypeIndex = vulkanDevice->getMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    (vkAllocateMemory(device, &memAlloc, nullptr, &attachment->mem));
+    (vkBindImageMemory(device, attachment->image, attachment->mem, 0));
+
+    VkImageViewCreateInfo imageView ;//=; vks::initializers::imageViewCreateInfo();
+    imageView.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    imageView.format = format;
+    imageView.subresourceRange = {};
+    imageView.subresourceRange.aspectMask = aspectMask;
+    imageView.subresourceRange.baseMipLevel = 0;
+    imageView.subresourceRange.levelCount = 1;
+    imageView.subresourceRange.baseArrayLayer = 0;
+    imageView.subresourceRange.layerCount = 1;
+    imageView.image = attachment->image;
+    (vkCreateImageView(device, &imageView, nullptr, &attachment->view));
+}*/
 void Window::initaliseDevice()
 {
     vsg::Names requestedLayers;
@@ -81,6 +143,7 @@ void Window::initaliseDevice()
         requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
         if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
     }
+
 
     vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
 
@@ -97,13 +160,14 @@ void Window::initaliseDevice()
     if (!device) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan logical Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     _physicalDevice = physicalDevice;
     _device = device;
-    if(_traits->createRenderPassCB.valid())
+    if(_traits->createRenderPassCB)
        _renderPass = _traits->createRenderPassCB->createRenderPass(*this, _traits);
     else
     {
         // set up renderpass with the imageFormat that the swap chain will use
         vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*physicalDevice, *_surface);
         VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
+        //getImageViews     _imageDataList.emplace_back(vsg::transferImageData(context, samplerImage.data, samplerImage.sampler));
         VkFormat depthFormat =  VK_FORMAT_D24_UNORM_S8_UINT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
         vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, imageFormat.format, depthFormat, _traits->allocator);
         if (!renderPass) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan RenderPass.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
@@ -181,7 +245,7 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
         ref_ptr<Semaphore> ias = vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag);
         ref_ptr<Framebuffer> fb = Framebuffer::create(_device, framebufferInfo);
         ref_ptr<CommandPool> cp = CommandPool::create(_device, _physicalDevice->getGraphicsFamily());
-        ref_ptr<CommandBuffer> cb = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+        ref_ptr<CommandBuffer> cb = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
         ref_ptr<Fence> fence = Fence::create(_device);
 
         _frames.push_back({ias, imageViews[i], fb, cp, cb, false, fence});

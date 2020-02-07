@@ -25,7 +25,7 @@ namespace vsg
         using Result = vsg::Result<RenderPass, VkResult, VK_SUCCESS>;
         static Result create(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator = nullptr);
         static Result create(Device* device, PassGraph*  passgraph, AllocationCallbacks* allocator = nullptr);
-
+        ref_ptr<PassGraph> _passgraph;
         operator VkRenderPass() const { return _renderPass; }
 
         Device* getDevice() { return _device; }

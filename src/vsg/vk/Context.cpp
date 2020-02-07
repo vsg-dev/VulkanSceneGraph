@@ -24,6 +24,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Extensions.h>
 #include <vsg/vk/PipelineBarrier.h>
 #include <vsg/vk/RenderPass.h>
+#include <vsg/vk/PassGraph.h>
 #include <vsg/vk/State.h>
 
 #include <iostream>
@@ -611,7 +612,7 @@ ref_ptr<CommandBuffer> Context::getOrCreateCommandBuffer()
 {
     if (!commandBuffer)
     {
-        commandBuffer = vsg::CommandBuffer::create(device, commandPool, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+        commandBuffer = vsg::CommandBuffer::create(device, commandPool, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
     }
 
     return commandBuffer;
@@ -632,13 +633,38 @@ void Context::dispatch()
         fence->reset();
     }
 
+    /// generate secondaries buffer
+    ///  TODO mapping subpass -> commandbuffer for multithread?
+
+    std::vector<VkCommandBuffer> secondarycmdbuffers;
+    /*if(this->renderPass->_passgraph->getNumSubPasses() > 0)
+        for(int i = 0; i< this->renderPass->_passgraph->getNumSubPasses(); ++i){
+        _secondaries .emplace_back(
+                 vsg::CommandBuffer::create(device, commandPool, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_COMMAND_BUFFER_LEVEL_SECONDARY)
+                    );
+        secondarycmdbuffers.push_back(*_secondaries.back());
+        }*/
+
     getOrCreateCommandBuffer();
 
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = commandBuffer->flags();
 
+    VkCommandBufferInheritanceInfo inherit;
+    inherit.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+    inherit.renderPass = *renderPass;
+    inherit.framebuffer = VK_NULL_HANDLE;
+    inherit.occlusionQueryEnable = VK_FALSE;
+    inherit.queryFlags = 0; //VK_QUERY_CONTROL_PRECISE_BIT;
+    inherit.pipelineStatistics = 0;
+
+    inherit.pNext = nullptr;
+
+    beginInfo.pInheritanceInfo = &inherit;
+
     vkBeginCommandBuffer(*commandBuffer, &beginInfo);
+
 
     // issue commands of interest
     {
@@ -664,6 +690,11 @@ void Context::dispatch()
         }
     }
 
+  /*  if(this->renderPass->_passgraph->getNumSubPasses() > 0)
+    {
+        //issue subpasses
+        vkCmdExecuteCommands(*commandBuffer, secondarycmdbuffers.size(), secondarycmdbuffers.data());
+    }*/
     vkEndCommandBuffer(*commandBuffer);
 
     VkPipelineStageFlags waitDstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;

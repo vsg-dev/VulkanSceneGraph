@@ -25,17 +25,24 @@ PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int 
     _surface(surface)
 {
     vkGetPhysicalDeviceProperties(_device, &_properties);
-
+    uint32_t major, minor, patch;
+    ;
     // get ray tracing properies
     _rayTracingProperties = {};
     _rayTracingProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV;
     _rayTracingProperties.pNext = nullptr;
 
-    // do we check for extension support?
-    VkPhysicalDeviceProperties2 deviceProps2;
-    deviceProps2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
-    deviceProps2.pNext = &_rayTracingProperties;
-    vkGetPhysicalDeviceProperties2(_device, &deviceProps2);
+    std::cout<<VK_VERSION_MAJOR(_properties.apiVersion)<<std::endl;
+    std::cout<<VK_VERSION_MINOR(_properties.apiVersion)<<std::endl;
+    std::cout<<VK_VERSION_PATCH(_properties.apiVersion)<<std::endl;
+    if( _properties.apiVersion >= VK_MAKE_VERSION(1, 2, 0) )
+    {
+        // do we check for extension support?
+        VkPhysicalDeviceProperties2 deviceProps2;
+        deviceProps2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+        deviceProps2.pNext = &_rayTracingProperties;
+        vkGetPhysicalDeviceProperties2(_device, &deviceProps2);
+    }
 #if 0
     std::cout << "shaderGroupHandleSize " << _rayTracingProperties.shaderGroupHandleSize << std::endl;
     std::cout << "maxRecursionDepth " << _rayTracingProperties.maxRecursionDepth << std::endl;

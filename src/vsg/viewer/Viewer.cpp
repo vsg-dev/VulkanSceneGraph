@@ -236,10 +236,11 @@ void Viewer::compile(BufferPreferences bufferPreferences)
         auto physicalDevice = device->getPhysicalDevice();
 
         auto& collectStats = deviceResource.collectStats;
-        auto maxSets = collectStats.computeNumDescriptorSets();
-        const auto& descriptorPoolSizes = collectStats.computeDescriptorPoolSizes();
+        auto maxSets = std::max(1u,collectStats.computeNumDescriptorSets());
+        const auto& descriptorPoolSizes =collectStats.computeDescriptorPoolSizes();
 
         deviceResource.compile = new vsg::CompileTraversal(device, bufferPreferences);
+        if(!descriptorPoolSizes.empty())
         deviceResource.compile->context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
         deviceResource.compile->context.commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
         deviceResource.compile->context.graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());

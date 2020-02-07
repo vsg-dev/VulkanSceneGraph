@@ -29,11 +29,17 @@ void NextSubPass::read(Input& input)
 void NextSubPass::write(Output& output) const
 {
     Command::write(output);
+    // write indices data
+   // output.writeObject("Indices", _bufferData._data.get());
 }
 
 void NextSubPass::dispatch(CommandBuffer& commandBuffer) const
 {
-    vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE );
+    if(_contents==VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS)
+    {
+
+    }
+    vkCmdNextSubpass(commandBuffer, _contents);//VK_SUBPASS_CONTENTS_INLINE );
     //vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS );
 }
 

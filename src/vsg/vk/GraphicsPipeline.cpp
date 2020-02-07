@@ -25,10 +25,11 @@ GraphicsPipeline::GraphicsPipeline()
 {
 }
 
-GraphicsPipeline::GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator) :
+GraphicsPipeline::GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint subpass, AllocationCallbacks* allocator) :
     _pipelineLayout(pipelineLayout),
     _shaderStages(shaderStages),
     _pipelineStates(pipelineStates),
+    _subpass(subpass),
     _allocator(allocator)
 {
 }
@@ -94,7 +95,7 @@ void GraphicsPipeline::compile(Context& context)
         GraphicsPipelineStates full_pipelineStates = _pipelineStates;
         full_pipelineStates.emplace_back(context.viewport);
 
-        _implementation = GraphicsPipeline::Implementation::create(context.device, context.renderPass, _pipelineLayout, _shaderStages, full_pipelineStates, _allocator);
+        _implementation = GraphicsPipeline::Implementation::create(context.device, context.renderPass, _subpass, _pipelineLayout, _shaderStages, full_pipelineStates, _allocator);
     }
 }
 
@@ -102,18 +103,19 @@ void GraphicsPipeline::compile(Context& context)
 //
 // GraphicsPipeline::Implementation
 //
-GraphicsPipeline::Implementation::Implementation(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator) :
+GraphicsPipeline::Implementation::Implementation(VkPipeline pipeline, Device* device, RenderPass* renderPass, uint subpass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator) :
     _pipeline(pipeline),
     _device(device),
     _renderPass(renderPass),
     _pipelineLayout(pipelineLayout),
     _shaderStages(shaderStages),
     _pipelineStates(pipelineStates),
+    _subpass(subpass),
     _allocator(allocator)
 {
 }
 
-GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator)
+GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::create(Device* device, RenderPass* renderPass, uint subpass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator)
 {
     if (!device || !renderPass || !pipelineLayout)
     {
@@ -124,7 +126,7 @@ GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::creat
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.layout = *pipelineLayout;
     pipelineInfo.renderPass = *renderPass;
-    pipelineInfo.subpass = 0;
+    pipelineInfo.subpass = subpass;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.pNext = nullptr;
 
@@ -161,7 +163,7 @@ GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::creat
     VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &pipeline);
     if (result == VK_SUCCESS)
     {
-        return Result(new Implementation(pipeline, device, renderPass, pipelineLayout, shaderStages, pipelineStates, allocator));
+        return Result(new Implementation(pipeline, device, renderPass, subpass, pipelineLayout, shaderStages, pipelineStates, allocator));
     }
     else
     {

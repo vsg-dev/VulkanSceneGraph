@@ -22,6 +22,7 @@ namespace vsg
     class VSG_DECLSPEC NextSubPass : public Inherit<Command, NextSubPass>
     {
     public:
+        NextSubPass(VkSubpassContents v) : _contents(v){}
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -31,7 +32,7 @@ namespace vsg
 
     protected:
         virtual ~NextSubPass();
-
+        VkSubpassContents _contents;
     };
     VSG_type_name(vsg::NextSubPass);
 

@@ -20,6 +20,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    using CommandGraphs = std::vector<ref_ptr<CommandGraph> >;
+
     class CommandGraph : public Inherit<Group, CommandGraph>
     {
     public:
@@ -33,14 +35,18 @@ namespace vsg
         ref_ptr<RecordTraversal> recordTraversal;
 
         ref_ptr<Device> _device;
+        VkCommandBufferLevel _commandbufferslevel; uint _subpassindex; ref_ptr<Window> _window;
         int _family = 0;
         uint32_t _maxSlot = 2;
         mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
+
+        CommandGraphs _secondaries;
+        ref_ptr<CommandBuffer> lastrecorded;
+        ref_ptr<CommandBuffer> getNextCommandBuffer();
     };
 
-    using CommandGraphs = std::vector<ref_ptr<CommandGraph>>;
 
     /// convience function that sets up RenderGraph inside CommandGraph to render the specified scene graph from the speified Camera view
-    ref_ptr<CommandGraph> createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph);
+    ref_ptr<CommandGraph> createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkCommandBufferLevel cmdlevel= VK_COMMAND_BUFFER_LEVEL_PRIMARY, uint sub = 0);
 
 } // namespace vsg

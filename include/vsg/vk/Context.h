@@ -158,6 +158,7 @@ namespace vsg
         void waitForCompletion();
 
         ref_ptr<CommandBuffer> getOrCreateCommandBuffer();
+        CommandBuffers _secondaries;
 
         ref_ptr<MemoryBufferPools> deviceMemoryBufferPools;
         ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;
