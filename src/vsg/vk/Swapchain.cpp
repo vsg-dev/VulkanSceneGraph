@@ -123,7 +123,7 @@ VkPresentModeKHR vsg::selectSwapPresentMode(const SwapChainSupportDetails& detai
     VK_PRESENT_MODE_FIFO_RELAXED_KHR. This is for applications that generally render/present a new frame every refresh cycle, but are occasionally late. In this case (perhaps because of stuttering/latency concerns), they want the late image to be immediately displayed, even though that may mean some tearing.
 
     VK_PRESENT_MODE_MAILBOX_KHR. I'm guessing that this is for applications that generally render/present a new frame every refresh cycle, but are occasionally early. In this case, they want the new image to be displayed instead of the previously-queued-for-presentation image that has not yet been displayed.
-**/
+    **/
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -203,9 +203,10 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = preferences.imageUsage;
 
-    if (physicalDevice->getGraphicsFamily() != physicalDevice->getPresentFamily())
+    auto [graphicsFamily, presentFamily] = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, surface);
+    if (graphicsFamily != presentFamily)
     {
-        uint32_t queueFamilyIndices[] = {uint32_t(physicalDevice->getGraphicsFamily()), uint32_t(physicalDevice->getPresentFamily())};
+        uint32_t queueFamilyIndices[] = {uint32_t(graphicsFamily), uint32_t(presentFamily)};
         createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
         createInfo.queueFamilyIndexCount = 2;
         createInfo.pQueueFamilyIndices = queueFamilyIndices;

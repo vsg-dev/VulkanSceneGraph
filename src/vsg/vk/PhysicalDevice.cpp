@@ -12,19 +12,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/PhysicalDevice.h>
 
-#include <iostream>
-
 using namespace vsg;
 
-PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int graphicsFamily, int presentFamily, int computeFamily, Surface* surface) :
+PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device) :
     _device(device),
-    _graphicsFamily(graphicsFamily),
-    _presentFamily(presentFamily),
-    _computeFamily(computeFamily),
-    _instance(instance),
-    _surface(surface)
+    _instance(instance)
 {
     vkGetPhysicalDeviceProperties(_device, &_properties);
+
     uint32_t major, minor, patch;
     ;
     // get ray tracing properies
@@ -32,9 +27,6 @@ PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int 
     _rayTracingProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV;
     _rayTracingProperties.pNext = nullptr;
 
-    std::cout<<VK_VERSION_MAJOR(_properties.apiVersion)<<std::endl;
-    std::cout<<VK_VERSION_MINOR(_properties.apiVersion)<<std::endl;
-    std::cout<<VK_VERSION_PATCH(_properties.apiVersion)<<std::endl;
     if( _properties.apiVersion >= VK_MAKE_VERSION(1, 2, 0) )
     {
         // do we check for extension support?
@@ -43,6 +35,16 @@ PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device, int 
         deviceProps2.pNext = &_rayTracingProperties;
         vkGetPhysicalDeviceProperties2(_device, &deviceProps2);
     }
+/*
+
+    _rayTracingProperties = getProperties<VkPhysicalDeviceRayTracingPropertiesNV, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV>();
+*/
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(_device, &queueFamilyCount, nullptr);
+
+    _queueFamiles.resize(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(_device, &queueFamilyCount, _queueFamiles.data());
+
 #if 0
     std::cout << "shaderGroupHandleSize " << _rayTracingProperties.shaderGroupHandleSize << std::endl;
     std::cout << "maxRecursionDepth " << _rayTracingProperties.maxRecursionDepth << std::endl;
@@ -59,76 +61,50 @@ PhysicalDevice::~PhysicalDevice()
 {
 }
 
-PhysicalDevice::Result PhysicalDevice::create(Instance* instance, VkQueueFlags queueFlags, Surface* surface)
+int PhysicalDevice::getQueueFamily(VkQueueFlags queueFlags) const
 {
-    if (!instance)
+    int bestFamily = -1;
+
+    for (int i = 0; i < static_cast<int>(_queueFamiles.size()); ++i)
     {
-        return Result("Error: vsg::PhysicalDevice::create(...) failed to create physical device, undefined Instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
-    uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(*instance, &deviceCount, nullptr);
-
-    std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(*instance, &deviceCount, devices.data());
-
-    for (const auto& device : devices)
-    {
-        VkPhysicalDeviceFeatures supportedFeatures;
-        vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
-
-        // Checked the DeviceQueueFamilyProperties for support for graphics
-        uint32_t queueFamilyCount = 0;
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-
-        std::vector<VkQueueFamilyProperties> queueFamiles(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamiles.data());
-
-        int graphicsFamily = -1;
-        int presentFamily = -1;
-        int computeFamily = -1;
-
-        VkQueueFlags matchedQueues = 0;
-
-        for (uint32_t i = 0; i < queueFamilyCount; ++i)
+        const auto& queueFamily = _queueFamiles[i];
+        if ((queueFamily.queueFlags & queueFlags) == queueFlags)
         {
-            const auto& queueFamily = queueFamiles[i];
-#if 1
-            if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0)
+            // check for perfect match
+            if (queueFamily.queueFlags == queueFlags)
             {
-                graphicsFamily = i;
-                matchedQueues |= VK_QUEUE_GRAPHICS_BIT;
+                return i;
             }
 
-            if ((queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) != 0)
-            {
-                computeFamily = i;
-                matchedQueues |= VK_QUEUE_COMPUTE_BIT;
-            }
-#else
-            if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0 && (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) != 0) //RAYTRACING HACK
-            {
-                graphicsFamily = i;
-                computeFamily = i;
-                matchedQueues |= VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT;
-            }
-#endif
-            if (surface)
-            {
-                VkBool32 presentSupported = false;
-                vkGetPhysicalDeviceSurfaceSupportKHR(device, i, *surface, &presentSupported);
-                if (queueFamily.queueCount > 0 && presentSupported)
-                {
-                    presentFamily = i;
-                }
-            }
-        }
-
-        if (((matchedQueues & queueFlags) == queueFlags) && (surface == nullptr || presentFamily >= 0))
-        {
-            return Result(new PhysicalDevice(instance, device, graphicsFamily, presentFamily, computeFamily, surface));
+            bestFamily = i;
         }
     }
 
-    return Result("Error: vsg::Device::create(...) failed to create physical device.", VK_INCOMPLETE);
+    return bestFamily;
+}
+
+std::pair<int, int> PhysicalDevice::getQueueFamily(VkQueueFlags queueFlags, Surface* surface) const
+{
+    int queueFamily = -1;
+    int presentFamily = -1;
+
+    for (int i = 0; i < static_cast<int>(_queueFamiles.size()); ++i)
+    {
+        const auto& family = _queueFamiles[i];
+
+        bool queueMatched = (family.queueFlags & queueFlags) == queueFlags;
+
+        VkBool32 presentSupported = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(_device, i, *surface, &presentSupported);
+
+        if (queueMatched && presentSupported)
+        {
+            return {i, i};
+        }
+
+        if (queueMatched) queueFamily = i;
+        if (presentSupported) presentFamily = i;
+    }
+
+    return {queueFamily, presentFamily};
 }

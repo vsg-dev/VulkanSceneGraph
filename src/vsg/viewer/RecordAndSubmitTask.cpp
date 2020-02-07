@@ -10,10 +10,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/viewer/RecordAndSubmitTask.h>
 #include <vsg/traversals/RecordTraversal.h>
-#include <vsg/vk/State.h>
 #include <vsg/ui/ApplicationEvent.h>
+#include <vsg/viewer/RecordAndSubmitTask.h>
+#include <vsg/vk/State.h>
 
 using namespace vsg;
 

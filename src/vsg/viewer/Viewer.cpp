@@ -47,11 +47,13 @@ void Viewer::addWindow(ref_ptr<Window> window)
     PhysicalDevice* physicalDevice = window->physicalDevice();
     if (_deviceMap.find(device) == _deviceMap.end())
     {
+        auto [graphicsFamily, presentFamily] = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, window->surface());
+
         // set up per device settings
         PerDeviceObjects& new_pdo = _deviceMap[device];
         new_pdo.renderFinishedSemaphore = vsg::Semaphore::create(device);
-        new_pdo.graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());
-        new_pdo.presentQueue = device->getQueue(physicalDevice->getPresentFamily());
+        new_pdo.graphicsQueue = device->getQueue(graphicsFamily);
+        new_pdo.presentQueue = device->getQueue(presentFamily);
         new_pdo.signalSemaphores.push_back(*new_pdo.renderFinishedSemaphore);
     }
 
@@ -239,11 +241,13 @@ void Viewer::compile(BufferPreferences bufferPreferences)
         auto maxSets = std::max(1u,collectStats.computeNumDescriptorSets());
         const auto& descriptorPoolSizes =collectStats.computeDescriptorPoolSizes();
 
+        auto queueFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT); // TODO : could we just use transfer bit?
+
         deviceResource.compile = new vsg::CompileTraversal(device, bufferPreferences);
         if(!descriptorPoolSizes.empty())
         deviceResource.compile->context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
-        deviceResource.compile->context.commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
-        deviceResource.compile->context.graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());
+        deviceResource.compile->context.commandPool = vsg::CommandPool::create(device, queueFamily);
+        deviceResource.compile->context.graphicsQueue = device->getQueue(queueFamily);
     }
 
     // create the Vulkan objects
@@ -303,6 +307,8 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraph
     Device* device = window->device();
     PhysicalDevice* physicalDevice = window->physicalDevice();
 
+    auto [graphicsFamily, presentFamily] = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, window->surface());
+
     auto renderFinishedSemaphore = vsg::Semaphore::create(device);
 
     // set up Submission with CommandBuffer and signals
@@ -311,13 +317,13 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraph
     recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
     recordAndSubmitTask->databasePager = databasePager;
     recordAndSubmitTask->windows = _windows;
-    recordAndSubmitTask->queue = device->getQueue(physicalDevice->getGraphicsFamily());
+    recordAndSubmitTask->queue = device->getQueue(graphicsFamily);
     recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
 
     presentation = vsg::Presentation::create();
     presentation->waitSemaphores.emplace_back(renderFinishedSemaphore);
     presentation->windows = _windows;
-    presentation->queue = device->getQueue(physicalDevice->getPresentFamily());
+    presentation->queue = device->getQueue(presentFamily);
 }
 
 void Viewer::update()

@@ -21,6 +21,8 @@ Device::Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallba
     _physicalDevice(physicalDevice),
     _allocator(allocator)
 {
+    // PhysicalDevice only holds a observer_ptr<> to the Instance, so need to take a local reference to the instance to make sure it doesn't get deleted befire we are finsihed with it.
+    if (physicalDevice) _instance = physicalDevice->getInstance();
 }
 
 Device::~Device()
@@ -31,28 +33,35 @@ Device::~Device()
     }
 }
 
-Device::Result Device::create(PhysicalDevice* physicalDevice, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator)
+Device::Result Device::create(PhysicalDevice* physicalDevice, QueueSettings& queueSettings, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator)
 {
     if (!physicalDevice)
     {
         return Device::Result("Error: vsg::Device::create(...) failed to create logical device, undefined PhysicalDevice.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
-    std::set<int> uniqueQueueFamiles;
-    if (physicalDevice->getGraphicsFamily() >= 0) uniqueQueueFamiles.insert(physicalDevice->getGraphicsFamily());
-    if (physicalDevice->getComputeFamily() >= 0) uniqueQueueFamiles.insert(physicalDevice->getComputeFamily());
-    if (physicalDevice->getPresentFamily() >= 0) uniqueQueueFamiles.insert(physicalDevice->getPresentFamily());
-
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
     float queuePriority = 1.0f;
-    for (int queueFamily : uniqueQueueFamiles)
+    for (auto& queueSetting : queueSettings)
     {
+        if (queueSetting.queueFamilyIndex < 0) continue;
+
         VkDeviceQueueCreateInfo queueCreateInfo = {};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        queueCreateInfo.queueFamilyIndex = queueFamily;
-        queueCreateInfo.queueCount = 1;
-        queueCreateInfo.pQueuePriorities = &queuePriority;
+        queueCreateInfo.queueFamilyIndex = static_cast<uint32_t>(queueSetting.queueFamilyIndex);
+
+        if (!queueSetting.queuePiorities.empty())
+        {
+            queueCreateInfo.queueCount = static_cast<uint32_t>(queueSetting.queuePiorities.size());
+            queueCreateInfo.pQueuePriorities = queueSetting.queuePiorities.data();
+        }
+        else
+        {
+            queueCreateInfo.queueCount = 1;
+            queueCreateInfo.pQueuePriorities = &queuePriority;
+        }
+
         queueCreateInfo.pNext = nullptr;
         queueCreateInfos.push_back(queueCreateInfo);
     }

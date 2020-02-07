@@ -30,7 +30,11 @@ CommandGraph::CommandGraph(Window* window)
     if (window)
     {
         _device = window->device();
-        _family = window->physicalDevice()->getGraphicsFamily();
+
+        VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
+        if (window->traits()) queueFlags = window->traits()->queueFlags;
+
+        std::tie(_family, std::ignore) = window->physicalDevice()->getQueueFamily(queueFlags, window->surface());
 
         for (size_t i = 0; i < window->numFrames(); ++i)
         {
@@ -142,9 +146,10 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkCommandBufferLevel lev, uint sub)
 {
     ref_ptr<CommandGraph> commandGraph;
+     auto [graphicsFamily, presentFamily] = window->physicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, window->surface());
     if(lev == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
            commandGraph = CommandGraph::create(window);
-    else commandGraph = CommandGraph::create(window->device(), window->physicalDevice()->getGraphicsFamily());
+    else commandGraph = CommandGraph::create(window->device(), graphicsFamily);
     // set up the render graph for viewport & scene
     auto renderGraph = vsg::RenderGraph::create();
 
