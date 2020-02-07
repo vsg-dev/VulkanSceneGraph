@@ -12,6 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/viewer/Presentation.h>
+#include <vsg/viewer/RecordAndSubmitTask.h>
 #include <vsg/viewer/View.h>
 #include <vsg/viewer/Window.h>
 
@@ -104,13 +106,22 @@ namespace vsg
 
         virtual void reassignFrameCache();
 
+        virtual void compile(BufferPreferences bufferPreferences = {});
+
         virtual bool acquireNextFrame();
 
-        virtual bool populateNextFrame();
+        // new
+        using RecordAndSubmitTasks = std::vector<ref_ptr<RecordAndSubmitTask>>;
+        RecordAndSubmitTasks recordAndSubmitTasks;
+        ref_ptr<Presentation> presentation;
 
-        virtual bool submitNextFrame();
+        void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs, DatabasePager* databasePager = nullptr);
 
-        virtual void compile(BufferPreferences bufferPreferences = {});
+        virtual void update();
+
+        virtual void recordAndSubmit();
+
+        virtual void present();
 
         ref_ptr<CompileTraversal> _compileTraversal;
 

@@ -25,8 +25,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
 
-#include <chrono>
-#include <iostream>
+#include <vsg/viewer/CommandGraph.h>
+#include <vsg/viewer/RenderGraph.h>
 
 using namespace vsg;
 
@@ -171,4 +171,24 @@ void CompileTraversal::apply(Geometry& geometry)
 {
     geometry.compile(context);
     geometry.traverse(*this);
+}
+
+void CompileTraversal::apply(CommandGraph& commandGraph)
+{
+    commandGraph.traverse(*this);
+}
+void CompileTraversal::apply(RenderGraph& renderGraph)
+{
+    context.renderPass = renderGraph.window->renderPass();
+
+    if (renderGraph.camera)
+    {
+        context.viewport = renderGraph.camera->getViewportState();
+    }
+    else
+    {
+        context.viewport = vsg::ViewportState::create(renderGraph.window->extent2D());
+    }
+
+    renderGraph.traverse(*this);
 }

@@ -106,6 +106,23 @@ namespace vsg
         virtual ~CopyAndReleaseImageDataCommand();
     };
 
+    class BuildAccelerationStructureCommand : public Inherit<Command, BuildAccelerationStructureCommand>
+    {
+    public:
+        BuildAccelerationStructureCommand(Device* device, VkAccelerationStructureInfoNV* info, const VkAccelerationStructureNV& structure, Buffer* instanceBuffer, Allocator* allocator = nullptr);
+
+        void compile(Context&) override {}
+        void dispatch(CommandBuffer& commandBuffer) const override;
+
+        ref_ptr<Device> _device;
+        VkAccelerationStructureInfoNV* _accelerationStructureInfo;
+        VkAccelerationStructureNV _accelerationStructure;
+        ref_ptr<Buffer> _instanceBuffer;
+
+        // scratch buffer set after compile traversal before dispatch of build commands
+        ref_ptr<Buffer> _scratchBuffer;
+    };
+
     class Context
     {
     public:
@@ -144,6 +161,10 @@ namespace vsg
 
         ref_ptr<MemoryBufferPools> deviceMemoryBufferPools;
         ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;
+
+        // raytracing
+        VkDeviceSize scratchBufferSize;
+        std::vector<ref_ptr<BuildAccelerationStructureCommand>> buildAccelerationStructureCommands;
     };
 
 } // namespace vsg

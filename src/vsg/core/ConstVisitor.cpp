@@ -43,6 +43,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/TouchEvent.h>
 
+#include <vsg/viewer/CommandGraph.h>
+#include <vsg/viewer/RenderGraph.h>
+
 using namespace vsg;
 
 ConstVisitor::ConstVisitor()
@@ -536,6 +539,19 @@ void ConstVisitor::apply(const TerminateEvent& event)
 void ConstVisitor::apply(const FrameEvent& event)
 {
     apply(static_cast<const UIEvent&>(event));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Viewer classes
+//
+void ConstVisitor::apply(const CommandGraph& cg)
+{
+    apply(static_cast<const Group&>(cg));
+}
+void ConstVisitor::apply(const RenderGraph& rg)
+{
+    apply(static_cast<const Group&>(rg));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

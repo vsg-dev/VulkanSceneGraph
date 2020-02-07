@@ -23,6 +23,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    // forward declare
+    class PhysicalDevice;
+    class Surface;
+
     using Names = std::vector<const char*>;
 
     extern VSG_DECLSPEC Names validateInstancelayerNames(const Names& names);
@@ -41,10 +45,28 @@ namespace vsg
         AllocationCallbacks* getAllocationCallbacks() { return _allocator.get(); }
         const AllocationCallbacks* getAllocationCallbacks() const { return _allocator.get(); }
 
+        using PhysicalDevices = std::vector<ref_ptr<PhysicalDevice>>;
+        PhysicalDevices& getPhysicalDevices() { return _physicalDevices; }
+        const PhysicalDevices& getPhysicalDevices() const { return _physicalDevices; }
+
+        /// get a PhysicalDevice that supports the speciiced queueFlags, and presentation of spcified surface if one is provided.
+        ref_ptr<PhysicalDevice> getPhysicalDevice(VkQueueFlags queueFlags) const;
+
+        /// get a PhysicalDevice that supports the speciiced queueFlags, and presentation of spcified surface if one is provided.
+        ref_ptr<PhysicalDevice> getPhysicalDevice(VkQueueFlags queueFlags, Surface* surface) const;
+
+        /// get a PhysicalDevice and queue family index that supports the speciiced queueFlags, and presentation of spcified surface if one is provided.
+        std::pair<ref_ptr<PhysicalDevice>, int> getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags) const;
+
+        /// get a PhysicalDevice and queue family index that supports the speciiced queueFlags, and presentation of spcified surface if one is provided.
+        std::pair<ref_ptr<PhysicalDevice>, std::pair<int, int>> getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface) const;
+
     protected:
         virtual ~Instance();
 
         VkInstance _instance;
         ref_ptr<AllocationCallbacks> _allocator;
+
+        PhysicalDevices _physicalDevices;
     };
 } // namespace vsg
