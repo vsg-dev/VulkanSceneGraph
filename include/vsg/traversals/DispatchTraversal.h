@@ -37,11 +37,11 @@ namespace vsg
     class FrameStamp;
     class CulledPagedLODs;
 
-    class VSG_DECLSPEC RecordTraversal : public Object
+    class VSG_DECLSPEC DispatchTraversal : public Object
     {
     public:
-        explicit RecordTraversal(CommandBuffer* commandBuffer = nullptr, uint32_t maxSlot = 2, ref_ptr<FrameStamp> fs = {});
-        ~RecordTraversal();
+        explicit DispatchTraversal(CommandBuffer* commandBuffer = nullptr, uint32_t maxSlot = 2, ref_ptr<FrameStamp> fs = {});
+        ~DispatchTraversal();
 
         void setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix);
 

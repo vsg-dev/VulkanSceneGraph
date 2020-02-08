@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/DescriptorImage.h>
-#include <vsg/vk/PipelineBarrier.h>
 
 #include <algorithm>
 #include <iostream>
@@ -136,102 +135,4 @@ bool DescriptorImage::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descri
 uint32_t DescriptorImage::getNumDescriptors() const
 {
     return static_cast<uint32_t>(std::max(_imageDataList.size(), _samplerImages.size()));
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-//
-// DescriptorImageView
-//
-DescriptorImageView::DescriptorImageView() :
-    Inherit(0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
-{
-}
-
-DescriptorImageView::DescriptorImageView(ImageData imageData, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
-    Inherit(dstBinding, dstArrayElement, descriptorType)
-{
-    _imageDataList.push_back(imageData);
-}
-
-void DescriptorImageView::read(Input& input)
-{
-    _imageDataList.clear();
-    _imageInfos.clear();
-
-    Descriptor::read(input);
-
-    /*_samplerImageViews.resize(input.readValue<uint32_t>("NumImages"));
-    for (auto& samplerImage : _samplerImageViews)
-    {
-        samplerImage.first = input.readObject<Sampler>("Sampler");
-        //samplerImage.second = input.readObject<ImageView>("Image");
-    }*/
-}
-
-void DescriptorImageView::write(Output& output) const
-{
-    Descriptor::write(output);
-
-    /*output.writeValue<uint32_t>("NumImages", _samplerImageViews.size());
-    for (auto& samplerImage : _samplerImageViews)
-    {
-        output.writeObject("Sampler", samplerImage.first.get());
-        //output.writeObject("Image", samplerImage.second.get());
-    }*/
-}
-
-void DescriptorImageView::compile(Context& context)
-{
-    // check if we have already compiled the imageData.
-    if (_imageInfos.size() >= _imageDataList.size()) return;
-
-    // convert from VSG to Vk
-    _imageInfos.resize(_imageDataList.size());
-    for (size_t i = 0; i < _imageDataList.size(); ++i)
-    {
-        if (_imageDataList[i]._sampler) _imageDataList[i]._sampler->compile(context);
-
-        if (_imageDataList[i]._imageView)
-        {
-            auto imb_transitionLayoutMemoryBarrier = ImageMemoryBarrier::create(
-                0, VK_ACCESS_SHADER_READ_BIT,
-                VK_IMAGE_LAYOUT_UNDEFINED, _imageDataList[i]._imageLayout,
-                VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
-                ref_ptr<Image>(_imageDataList[i]._imageView->getImage()),
-                VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
-
-            auto pb_transitionLayoutMemoryBarrier = PipelineBarrier::create(
-                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                0, imb_transitionLayoutMemoryBarrier);
-
-            context.commands.emplace_back(pb_transitionLayoutMemoryBarrier);
-        }
-
-        const ImageData& data = _imageDataList[i];
-        VkDescriptorImageInfo& info = _imageInfos[i];
-        if (data._sampler)
-            info.sampler = *(data._sampler);
-        else
-            info.sampler = 0;
-
-        if (data._imageView)
-            info.imageView = *(data._imageView);
-        else
-            info.imageView = 0;
-
-        info.imageLayout = data._imageLayout;
-    }
-}
-
-bool DescriptorImageView::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
-{
-    Descriptor::assignTo(wds, descriptorSet);
-    wds.descriptorCount = static_cast<uint32_t>(_imageInfos.size());
-    wds.pImageInfo = _imageInfos.data();
-    return true;
-}
-
-uint32_t DescriptorImageView::getNumDescriptors() const
-{
-    return static_cast<uint32_t>(_imageDataList.size());
 }

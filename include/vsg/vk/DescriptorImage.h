@@ -65,34 +65,6 @@ namespace vsg
         ImageDataList _imageDataList;
         std::vector<VkDescriptorImageInfo> _imageInfos;
     };
-    VSG_type_name(vsg::DescriptorImage);
-
-    class VSG_DECLSPEC DescriptorImageView : public Inherit<Descriptor, DescriptorImageView>
-    {
-    public:
-        DescriptorImageView();
-
-        DescriptorImageView(ImageData imageData, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-
-        /** ImageDataList is automatically filled in by the DecriptorImage::compile() using the sampler and image data objects.*/
-        ImageDataList& getImageDataList() { return _imageDataList; }
-        const ImageDataList& getImageDataList() const { return _imageDataList; }
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        void compile(Context& context) override;
-
-        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
-
-        uint32_t getNumDescriptors() const override;
-
-    protected:
-        ImageDataList _imageDataList;
-
-        // populated by compile()
-        std::vector<VkDescriptorImageInfo> _imageInfos;
-    };
-    VSG_type_name(vsg::DescriptorImageView);
+    VSG_type_name(vsg::DescriptorImage)
 
 } // namespace vsg

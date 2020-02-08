@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/ReaderWriter.h>
 
-#include <vsg/traversals/RecordTraversal.h>
+#include <vsg/traversals/DispatchTraversal.h>
 
 #include <vsg/nodes/VertexIndexDraw.h>
 
@@ -54,13 +54,13 @@ void VertexIndexDraw::read(Input& input)
 {
     Command::read(input);
 
-    arrays.resize(input.readValue<uint32_t>("NumArrays"));
-    for (auto& array : arrays)
+    _arrays.resize(input.readValue<uint32_t>("NumArrays"));
+    for (auto& array : _arrays)
     {
         array = input.readObject<Data>("Array");
     }
 
-    indices = input.readObject<Data>("Indices");
+    _indices = input.readObject<Data>("Indices");
 
     // vkCmdDrawIndexed settings
     input.read("indexCount", indexCount);
@@ -74,13 +74,13 @@ void VertexIndexDraw::write(Output& output) const
 {
     Command::write(output);
 
-    output.writeValue<uint32_t>("NumArrays", arrays.size());
-    for (auto& array : arrays)
+    output.writeValue<uint32_t>("NumArrays", _arrays.size());
+    for (auto& array : _arrays)
     {
         output.writeObject("Array", array.get());
     }
 
-    output.writeObject("Indices", indices.get());
+    output.writeObject("Indices", _indices.get());
 
     // vkCmdDrawIndexed settings
     output.write("indexCount", indexCount);
@@ -94,14 +94,14 @@ void VertexIndexDraw::write(Output& output) const
 
 void VertexIndexDraw::compile(Context& context)
 {
-    if (arrays.size() == 0 || !indices)
+    if (_arrays.size() == 0 || !_indices)
     {
         // VertexIndexDraw does not contain required arrays and/or indices
         return;
     }
 
     // check to see if we've already been compiled
-    if (_buffers.size() == arrays.size()) return;
+    if (_buffers.size() == _arrays.size()) return;
 
     bool failure = false;
 
@@ -110,14 +110,14 @@ void VertexIndexDraw::compile(Context& context)
     _offsets.clear();
 
     DataList dataList;
-    dataList.reserve(arrays.size() + 1);
-    dataList.insert(dataList.end(), arrays.begin(), arrays.end());
-    dataList.emplace_back(indices);
+    dataList.reserve(_arrays.size() + 1);
+    dataList.insert(dataList.end(), _arrays.begin(), _arrays.end());
+    dataList.emplace_back(_indices);
 
     auto bufferDataList = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     if (!bufferDataList.empty())
     {
-        BufferDataList vertexBufferData(bufferDataList.begin(), bufferDataList.begin() + arrays.size());
+        BufferDataList vertexBufferData(bufferDataList.begin(), bufferDataList.begin() + _arrays.size());
 
         for (auto& bufferData : vertexBufferData)
         {
@@ -127,7 +127,7 @@ void VertexIndexDraw::compile(Context& context)
         }
 
         _bufferData = bufferDataList.back();
-        _indexType = computeIndexType(indices); // TODO need to check Index type
+        _indexType = computeIndexType(_indices); // TODO need to check Index type
     }
     else
     {

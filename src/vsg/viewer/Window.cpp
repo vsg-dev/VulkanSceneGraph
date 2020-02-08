@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <array>
 #include <chrono>
+#include <iostream>
 
 using namespace vsg;
 
@@ -89,11 +90,10 @@ void Window::initaliseDevice()
     deviceExtensions.insert(deviceExtensions.end(), _traits->deviceExtensionNames.begin(), _traits->deviceExtensionNames.end());
 
     // set up device
-    auto [physicalDevice, queueFamily] = _instance->getPhysicalDeviceAndQueueFamily(_traits->queueFlags);
-    if (!physicalDevice || queueFamily < 0) throw Result("Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(_instance, VK_QUEUE_GRAPHICS_BIT, _surface);
+    if (!physicalDevice) throw Result("Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
-    vsg::QueueSettings queueSettings{vsg::QueueSetting{queueFamily, {1.0}}};
-    vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->allocator);
+    vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, validatedNames, deviceExtensions, _traits->allocator);
     if (!device) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan logical Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     // set up renderpass with the imageFormat that the swap chain will use
@@ -158,9 +158,6 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
 
     _depthImageView = ImageView::create(_device, _depthImage, VK_IMAGE_VIEW_TYPE_2D, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
 
-    int graphicsFamily = -1;
-    std::tie(graphicsFamily, std::ignore) = _physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, _surface);
-
     // set up framebuffer and associated resources
     Swapchain::ImageViews& imageViews = _swapchain->getImageViews();
 
@@ -177,16 +174,20 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
         framebufferInfo.height = _extent2D.height;
         framebufferInfo.layers = 1;
 
-        ref_ptr<Semaphore> ias = vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag);
+        ref_ptr<Semaphore> ias = vsg::Semaphore::create(_device);
         ref_ptr<Framebuffer> fb = Framebuffer::create(_device, framebufferInfo);
-        ref_ptr<CommandPool> cp = CommandPool::create(_device, graphicsFamily);
+        ref_ptr<CommandPool> cp = CommandPool::create(_device, _physicalDevice->getGraphicsFamily());
+#if 0
+        ref_ptr<CommandBuffer> cb = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+#else
         ref_ptr<CommandBuffer> cb = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+#endif
         ref_ptr<Fence> fence = Fence::create(_device);
 
         _frames.push_back({ias, imageViews[i], fb, cp, cb, false, fence});
     }
 
-    submitCommandsToQueue(_device, _frames[0].commandPool, _device->getQueue(graphicsFamily), [&](CommandBuffer& commandBuffer) {
+    submitCommandsToQueue(_device, _frames[0].commandPool, _device->getQueue(_physicalDevice->getGraphicsFamily()), [&](CommandBuffer& commandBuffer) {
         auto depthImageBarrier = ImageMemoryBarrier::create(
             0, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
@@ -202,6 +203,41 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     });
 
     _nextImageIndex = 0;
+}
+
+void Window::populateCommandBuffers(uint32_t index, ref_ptr<vsg::FrameStamp> frameStamp)
+{
+    Frame& frame = _frames[index];
+
+    if (frame.commandsCompletedFence)
+    {
+        if (frame.checkCommandsCompletedFence)
+        {
+            uint64_t timeout = 10000000000;
+            VkResult result = VK_SUCCESS;
+            while ((result = frame.commandsCompletedFence->wait(timeout)) == VK_TIMEOUT)
+            {
+                std::cout << "populateCommandBuffers(" << index << ") frame.commandsCompletedFence->wait(" << timeout << ") failed with result = " << result << std::endl;
+                //exit(1);
+                //throw "Window::populateCommandBuffers(uint32_t index, ref_ptr<vsg::FrameStamp> frameStamp) timeout";
+            }
+
+            for (auto& semaphore : frame.commandsCompletedFence->dependentSemaphores())
+            {
+                //std::cout<<"Window::populateCommandBuffers(..) "<<*(semaphore->data())<<" "<<semaphore->numDependentSubmissions().load()<<std::endl;
+                semaphore->numDependentSubmissions().exchange(0);
+            }
+
+            frame.commandsCompletedFence->dependentSemaphores().clear();
+        }
+
+        frame.commandsCompletedFence->reset();
+    }
+
+    for (auto& stage : _stages)
+    {
+        stage->populateCommandBuffer(frame.commandBuffer, frame.framebuffer, _renderPass, _extent2D, _clearColor, frameStamp);
+    }
 }
 
 // just kept for backwards compatibility for now

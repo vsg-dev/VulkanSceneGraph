@@ -55,7 +55,7 @@ set(SOURCES
     io/read.cpp
     io/write.cpp
 
-    traversals/RecordTraversal.cpp
+    traversals/DispatchTraversal.cpp
     traversals/CullTraversal.cpp
     traversals/CompileTraversal.cpp
     traversals/ComputeBounds.cpp
@@ -64,25 +64,11 @@ set(SOURCES
     threading/OperationThreads.cpp
 
     viewer/Camera.cpp
+    viewer/GraphicsStage.cpp
     viewer/View.cpp
     viewer/Viewer.cpp
     viewer/Window.cpp
     viewer/Trackball.cpp
-    viewer/CopyImageViewToWindow.cpp
-    viewer/CommandGraph.cpp
-    viewer/RenderGraph.cpp
-    viewer/Presentation.cpp
-    viewer/RecordAndSubmitTask.cpp
-
-    raytracing/AccelerationGeometry.cpp
-    raytracing/AccelerationStructure.cpp
-    raytracing/BottomLevelAccelerationStructure.cpp
-    raytracing/BuildAccelerationStructureTraversal.cpp
-    raytracing/DescriptorAccelerationStructure.cpp
-    raytracing/RayTracingPipeline.cpp
-    raytracing/RayTracingShaderGroup.cpp
-    raytracing/TopLevelAccelerationStructure.cpp
-    raytracing/TraceRays.cpp
 
     vk/Buffer.cpp
     vk/BufferData.cpp
@@ -94,7 +80,6 @@ set(SOURCES
     vk/CommandPool.cpp
     vk/ComputePipeline.cpp
     vk/Context.cpp
-    vk/CopyImage.cpp
     vk/Descriptor.cpp
     vk/DescriptorBuffer.cpp
     vk/DescriptorImage.cpp

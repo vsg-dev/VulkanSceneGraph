@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/stream.h>
 
 #include <vsg/traversals/CullTraversal.h>
-#include <vsg/traversals/RecordTraversal.h>
+#include <vsg/traversals/DispatchTraversal.h>
 
 namespace vsg
 {
@@ -32,7 +32,7 @@ namespace vsg
 
         void accept(Visitor& visitor) override { visitor.apply(static_cast<Allocator&>(*this)); }
         void accept(ConstVisitor& visitor) const override { visitor.apply(static_cast<const Allocator&>(*this)); }
-        void accept(RecordTraversal& visitor) const override { visitor.apply(static_cast<const Allocator&>(*this)); }
+        void accept(DispatchTraversal& visitor) const override { visitor.apply(static_cast<const Allocator&>(*this)); }
         void accept(CullTraversal& visitor) const override { visitor.apply(static_cast<const Allocator&>(*this)); }
 
         virtual void* allocate(std::size_t n, const void* hint);

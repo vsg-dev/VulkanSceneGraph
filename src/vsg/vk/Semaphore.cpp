@@ -14,9 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Semaphore::Semaphore(VkSemaphore semaphore, VkPipelineStageFlags pipelineStageFlags, Device* device, AllocationCallbacks* allocator) :
+Semaphore::Semaphore(VkSemaphore semaphore, Device* device, AllocationCallbacks* allocator) :
     _semaphore(semaphore),
-    _pipelineStageFlags(pipelineStageFlags),
     _device(device),
     _allocator(allocator)
 {
@@ -30,7 +29,7 @@ Semaphore::~Semaphore()
     }
 }
 
-Semaphore::Result Semaphore::create(Device* device, VkPipelineStageFlags pipelineStageFlags, void* pNextCreateInfo, AllocationCallbacks* allocator)
+Semaphore::Result Semaphore::create(Device* device, void* pNextCreateInfo, AllocationCallbacks* allocator)
 {
     if (!device)
     {
@@ -45,7 +44,7 @@ Semaphore::Result Semaphore::create(Device* device, VkPipelineStageFlags pipelin
     VkResult result = vkCreateSemaphore(*device, &semaphoreInfo, allocator, &semaphore);
     if (result == VK_SUCCESS)
     {
-        return Result(new Semaphore(semaphore, pipelineStageFlags, device, allocator));
+        return Result(new Semaphore(semaphore, device, allocator));
     }
     else
     {

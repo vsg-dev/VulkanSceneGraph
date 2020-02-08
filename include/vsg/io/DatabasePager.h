@@ -85,7 +85,7 @@ namespace vsg
         Nodes _queue;
         ref_ptr<Active> _active;
     };
-    VSG_type_name(vsg::DatabaseQueue);
+    VSG_type_name(vsg::DatabaseQueue)
 
     class DatabasePager : public Inherit<Object, DatabasePager>
     {

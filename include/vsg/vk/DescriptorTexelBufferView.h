@@ -32,7 +32,7 @@ namespace vsg
         BufferViewList _texelBufferViewList;
         std::vector<VkBufferView> _texelBufferViews;
     };
-    VSG_type_name(vsg::DescriptorTexelBufferView);
+    VSG_type_name(vsg::DescriptorTexelBufferView)
 
     struct material
     {
@@ -92,6 +92,6 @@ namespace vsg
             output.writeValue<float>("shine", value().shine);
         }
     };
-    VSG_type_name(vsg::MaterialValue);
+    VSG_type_name(vsg::MaterialValue)
 
 } // namespace vsg

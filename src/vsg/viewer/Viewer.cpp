@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Descriptor.h>
 
+#include <vsg/viewer/GraphicsStage.h>
 #include <vsg/viewer/Viewer.h>
 
 #include <chrono>
@@ -47,13 +48,11 @@ void Viewer::addWindow(ref_ptr<Window> window)
     PhysicalDevice* physicalDevice = window->physicalDevice();
     if (_deviceMap.find(device) == _deviceMap.end())
     {
-        auto [graphicsFamily, presentFamily] = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, window->surface());
-
         // set up per device settings
         PerDeviceObjects& new_pdo = _deviceMap[device];
         new_pdo.renderFinishedSemaphore = vsg::Semaphore::create(device);
-        new_pdo.graphicsQueue = device->getQueue(graphicsFamily);
-        new_pdo.presentQueue = device->getQueue(presentFamily);
+        new_pdo.graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());
+        new_pdo.presentQueue = device->getQueue(physicalDevice->getPresentFamily());
         new_pdo.signalSemaphores.push_back(*new_pdo.renderFinishedSemaphore);
     }
 
@@ -206,145 +205,203 @@ void Viewer::handleEvents()
     }
 }
 
+bool Viewer::populateNextFrame()
+{
+    for (auto& window : _windows)
+    {
+        window->populateCommandBuffers(window->nextImageIndex(), _frameStamp);
+    }
+    return true;
+}
+
+bool Viewer::submitNextFrame()
+{
+    bool debugLayersEnabled = false;
+
+    for (auto& pair_pdo : _deviceMap)
+    {
+        PerDeviceObjects& pdo = pair_pdo.second;
+
+        ref_ptr<Fence> fence;
+
+        std::vector<VkSemaphore> waitSemaphores;
+        std::vector<VkPipelineStageFlags> waitDstStageMasks;
+        for (auto& window : pdo.windows)
+        {
+            waitSemaphores.push_back(*(window->frame(window->nextImageIndex()).imageAvailableSemaphore));
+            waitDstStageMasks.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+
+            fence = window->frame(window->nextImageIndex()).commandsCompletedFence;
+            window->frame(window->nextImageIndex()).checkCommandsCompletedFence = true;
+
+            // copy semaphore's assigned to database pagers
+            for (auto& stage : window->stages())
+            {
+                GraphicsStage* gs = dynamic_cast<GraphicsStage*>(stage.get());
+                DatabasePager* db = gs ? gs->databasePager.get() : nullptr;
+                if (db)
+                {
+                    //std::cout<<"Viewer::submitNextFrame()"<<std::endl;
+                    for (auto& semaphore : db->getSemaphores())
+                    {
+                        if (semaphore->numDependentSubmissions().load() > 1)
+                        {
+                            std::cout << "    Warning: Viewer::submitNextFrame() waitSemaphore " << *(semaphore->data()) << " " << semaphore->numDependentSubmissions().load() << std::endl;
+                        }
+                        else
+                        {
+                            // std::cout<<"    Viewer::submitNextFrame() waitSemaphore "<<*(semaphore->data())<<" "<<semaphore->numDependentSubmissions().load()<<std::endl;
+                        }
+
+                        waitSemaphores.emplace_back(*semaphore);
+                        waitDstStageMasks.emplace_back(semaphore->pipelineStageFlags());
+
+                        semaphore->numDependentSubmissions().fetch_add(1);
+                        fence->dependentSemaphores().emplace_back(semaphore);
+                    }
+                }
+            }
+        }
+
+        // if (!hasDBSemaphore) std::cout<<"Viewer::submitNextFrame() no DB wait semaphores required."<<std::endl;
+
+        // fill in the imageIndices and commandBuffers associated with each window
+        for (size_t i = 0; i < pdo.windows.size(); ++i)
+        {
+            Window* window = pdo.windows[i];
+            if (window->debugLayersEnabled()) debugLayersEnabled = true;
+            uint32_t imageIndex = window->nextImageIndex();
+            pdo.imageIndices[i] = imageIndex;
+            pdo.commandBuffers[i] = *(window->commandBuffer(imageIndex));
+        }
+
+        VkSubmitInfo submitInfo = {};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+        submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
+        submitInfo.pWaitSemaphores = waitSemaphores.data();
+        submitInfo.pWaitDstStageMask = waitDstStageMasks.data();
+
+        submitInfo.commandBufferCount = static_cast<uint32_t>(pdo.commandBuffers.size());
+        submitInfo.pCommandBuffers = pdo.commandBuffers.data();
+
+        submitInfo.signalSemaphoreCount = static_cast<uint32_t>(pdo.signalSemaphores.size());
+        submitInfo.pSignalSemaphores = pdo.signalSemaphores.data();
+
+        if (pdo.graphicsQueue->submit(submitInfo, fence) != VK_SUCCESS)
+        {
+            std::cout << "Error: failed to submit draw command buffer." << std::endl;
+            return false;
+        }
+    }
+
+    for (auto& pair_pdo : _deviceMap)
+    {
+        PerDeviceObjects& pdo = pair_pdo.second;
+
+        VkPresentInfoKHR presentInfo = {};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfo.waitSemaphoreCount = static_cast<uint32_t>(pdo.signalSemaphores.size());
+        presentInfo.pWaitSemaphores = pdo.signalSemaphores.data();
+        presentInfo.swapchainCount = static_cast<uint32_t>(pdo.swapchains.size());
+        presentInfo.pSwapchains = pdo.swapchains.data();
+        presentInfo.pImageIndices = pdo.imageIndices.data();
+
+        pdo.presentQueue->present(presentInfo);
+    }
+
+    if (debugLayersEnabled)
+    {
+        //auto startTime = std::chrono::steady_clock::now();
+
+        for (auto& pair_pdo : _deviceMap)
+        {
+            PerDeviceObjects& pdo = pair_pdo.second;
+            pdo.presentQueue->waitIdle();
+        }
+
+        //std::cout << "Viewer::submitFrame() vkQueueWaitIdle() completed in " << std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - startTime).count() << "ms" << std::endl;
+    }
+
+    // advance each window to the next frame
+    for (auto& window : _windows)
+    {
+        window->advanceNextImageIndex();
+    }
+
+    return true;
+}
+
 void Viewer::compile(BufferPreferences bufferPreferences)
 {
-    if (recordAndSubmitTasks.empty())
-    {
-        return;
-    }
 
-    struct DeviceResources
+    for (auto& window : _windows)
     {
-        vsg::CollectDescriptorStats collectStats;
-        vsg::ref_ptr<vsg::DescriptorPool> descriptorPool;
-        vsg::ref_ptr<vsg::CompileTraversal> compile;
-    };
+        // compile the Vulkan objects
+        // create high level Vulkan objects associated the main window
+        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice(window->physicalDevice());
+        vsg::ref_ptr<vsg::Device> device(window->device());
 
-    // find which devices are available
-    using DeviceResourceMap = std::map<vsg::Device*, DeviceResources>;
-    DeviceResourceMap deviceResourceMap;
-    for (auto& task : recordAndSubmitTasks)
-    {
-        for (auto& commandGraph : task->commandGraphs)
+        CollectDescriptorStats collectStats;
+        for (auto& stage : window->stages())
         {
-            auto& deviceResources = deviceResourceMap[commandGraph->_device];
-            commandGraph->accept(deviceResources.collectStats);
-        }
-    }
-
-    // allocate DescriptorPool for each Device
-    for (auto& [device, deviceResource] : deviceResourceMap)
-    {
-        auto physicalDevice = device->getPhysicalDevice();
-
-        auto& collectStats = deviceResource.collectStats;
-        auto maxSets = collectStats.computeNumDescriptorSets();
-        const auto& descriptorPoolSizes = collectStats.computeDescriptorPoolSizes();
-
-        auto queueFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT); // TODO : could we just use transfer bit?
-
-        deviceResource.compile = new vsg::CompileTraversal(device, bufferPreferences);
-        deviceResource.compile->context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
-        deviceResource.compile->context.commandPool = vsg::CommandPool::create(device, queueFamily);
-        deviceResource.compile->context.graphicsQueue = device->getQueue(queueFamily);
-    }
-
-    // create the Vulkan objects
-    for (auto& task : recordAndSubmitTasks)
-    {
-        std::set<Device*> devices;
-
-        for (auto& commandGraph : task->commandGraphs)
-        {
-            if (commandGraph->_device) devices.insert(commandGraph->_device);
-
-            auto& deviceResource = deviceResourceMap[commandGraph->_device];
-            commandGraph->_maxSlot = deviceResource.collectStats.maxSlot;
-            commandGraph->accept(*deviceResource.compile);
-        }
-
-        if (task->databasePager)
-        {
-            // crude hack for taking first device as the one for the DatabasePager to compile resourcces for.
-            for (auto& commandGraph : task->commandGraphs)
+            GraphicsStage* gs = dynamic_cast<GraphicsStage*>(stage.get());
+            if (gs)
             {
-                auto& deviceResource = deviceResourceMap[commandGraph->_device];
-                task->databasePager->compileTraversal = deviceResource.compile;
-                break;
+                gs->_commandGraph->accept(collectStats);
+            }
+        }
+
+        uint32_t maxSets = collectStats.computeNumDescriptorSets();
+        DescriptorPoolSizes descriptorPoolSizes = collectStats.computeDescriptorPoolSizes();
+
+#if 0
+        std::cout << "maxSlot = " << collectStats.maxSlot << std::endl;
+        std::cout << "maxSets = " << maxSets << std::endl;
+        std::cout << "    type\tcount" << std::endl;
+        for (auto& [type, count] : descriptorPoolSizes)
+        {
+            std::cout << "    " << type << "\t\t" << count << std::endl;
+        }
+#endif
+        ref_ptr<CompileTraversal> compile(new CompileTraversal(device, bufferPreferences));
+        compile->context.commandPool = vsg::CommandPool::create(device, physicalDevice->getGraphicsFamily());
+        compile->context.renderPass = window->renderPass();
+        compile->context.graphicsQueue = device->getQueue(physicalDevice->getGraphicsFamily());
+
+        if (maxSets > 0) compile->context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
+
+        for (auto& stage : window->stages())
+        {
+            GraphicsStage* gs = dynamic_cast<GraphicsStage*>(stage.get());
+            if (gs)
+            {
+                gs->_maxSlot = collectStats.maxSlot;
+
+                if (gs->_camera->getViewportState())
+                    compile->context.viewport = gs->_camera->getViewportState();
+                else if (gs->_viewport)
+                    compile->context.viewport = gs->_viewport;
+                else
+                    compile->context.viewport = vsg::ViewportState::create(window->extent2D());
+
+                // std::cout << "Compiling GraphicsStage " << compile.context.viewport << std::endl;
+
+                gs->_commandGraph->accept(*compile);
+
+                compile->context.dispatch();
+                compile->context.waitForCompletion();
+
+                if (gs->databasePager)
+                {
+                    gs->databasePager->compileTraversal = compile;
+                    gs->databasePager->start();
+                }
+            }
+            else
+            {
+                std::cout << "Warning : Viewer::compile() has not handled Stage : " << stage->className() << std::endl;
             }
         }
     }
-
-    // dispatch any transfer commands commands
-    for (auto& dp : deviceResourceMap)
-    {
-        dp.second.compile->context.dispatch();
-    }
-
-    // wait for the transfers to complete
-    for (auto& dp : deviceResourceMap)
-    {
-        dp.second.compile->context.waitForCompletion();
-    }
-
-    // start any DatabasePagers
-    for (auto& task : recordAndSubmitTasks)
-    {
-        if (task->databasePager)
-        {
-            task->databasePager->start();
-        }
-    }
-}
-
-void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs, DatabasePager* databasePager)
-{
-    if (_windows.empty()) return;
-
-    // TODO need to resolve what to do about graphic vs non graphic operations and mulitple windows
-    Window* window = _windows.front();
-    Device* device = window->device();
-    PhysicalDevice* physicalDevice = window->physicalDevice();
-
-    auto [graphicsFamily, presentFamily] = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, window->surface());
-
-    auto renderFinishedSemaphore = vsg::Semaphore::create(device);
-
-    // set up Submission with CommandBuffer and signals
-    auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create();
-    recordAndSubmitTask->commandGraphs = commandGraphs;
-    recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
-    recordAndSubmitTask->databasePager = databasePager;
-    recordAndSubmitTask->windows = _windows;
-    recordAndSubmitTask->queue = device->getQueue(graphicsFamily);
-    recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
-
-    presentation = vsg::Presentation::create();
-    presentation->waitSemaphores.emplace_back(renderFinishedSemaphore);
-    presentation->windows = _windows;
-    presentation->queue = device->getQueue(presentFamily);
-}
-
-void Viewer::update()
-{
-    for (auto& task : recordAndSubmitTasks)
-    {
-        if (task->databasePager)
-        {
-            task->databasePager->updateSceneGraph(_frameStamp);
-        }
-    }
-}
-
-void Viewer::recordAndSubmit()
-{
-    for (auto& recordAndSubmitTask : recordAndSubmitTasks)
-    {
-        recordAndSubmitTask->submit(_frameStamp);
-    }
-}
-
-void Viewer::present()
-{
-    if (presentation) presentation->present();
 }

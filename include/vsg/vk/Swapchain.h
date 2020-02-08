@@ -34,16 +34,6 @@ namespace vsg
         uint32_t imageCount = 3; // default to triple buffering
         VkSurfaceFormatKHR surfaceFormat = {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
         VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
-        VkImageUsageFlags imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    };
-
-    class SwapchainImage : public Inherit<Image, SwapchainImage>
-    {
-    public:
-        SwapchainImage(VkImage image, Device* device, AllocationCallbacks* allocator = nullptr);
-
-    protected:
-        virtual ~SwapchainImage();
     };
 
     class VSG_DECLSPEC Swapchain : public Inherit<Object, Swapchain>

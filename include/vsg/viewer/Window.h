@@ -21,6 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/DeviceMemory.h>
 #include <vsg/vk/Framebuffer.h>
 #include <vsg/vk/Semaphore.h>
+#include <vsg/vk/Stage.h>
 
 namespace vsg
 {
@@ -71,9 +72,6 @@ namespace vsg
 
             SwapchainPreferences swapchainPreferences;
 
-            VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
-            VkPipelineStageFlagBits imageAvailableSemaphoreWaitFlag = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-
             vsg::Names instanceExtensionNames;
             vsg::Names deviceExtensionNames;
 
@@ -104,10 +102,14 @@ namespace vsg
         virtual bool resized() const { return false; }
         virtual void resize() {}
 
-        Traits* traits() { return _traits.get(); }
-        const Traits* traits() const { return _traits.get(); }
+        using Stages = std::vector<ref_ptr<Stage>>;
 
-        const VkExtent2D& extent2D() const { return _extent2D; }
+        void addStage(ref_ptr<Stage> stage) { _stages.push_back(stage); }
+
+        Stages& stages() { return _stages; }
+        const Stages& stages() const { return _stages; }
+
+        const VkExtent2D& extent2D() { return _extent2D; }
 
         VkClearColorValue& clearColor() { return _clearColor; }
         const VkClearColorValue& clearColor() const { return _clearColor; }
@@ -160,6 +162,8 @@ namespace vsg
 
         bool debugLayersEnabled() const { return _traits->debugLayer; }
 
+        void populateCommandBuffers(uint32_t index, ref_ptr<vsg::FrameStamp> frameStamp);
+
         struct Frame
         {
             // do we need a imageAvailableSemaphore per Frame? Probably..
@@ -208,6 +212,8 @@ namespace vsg
 
         Frames _frames;
         uint32_t _nextImageIndex;
+
+        Stages _stages;
     };
 
     using Windows = std::vector<ref_ptr<Window>>;

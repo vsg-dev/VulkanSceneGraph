@@ -123,28 +123,9 @@ VkPresentModeKHR vsg::selectSwapPresentMode(const SwapChainSupportDetails& detai
     VK_PRESENT_MODE_FIFO_RELAXED_KHR. This is for applications that generally render/present a new frame every refresh cycle, but are occasionally late. In this case (perhaps because of stuttering/latency concerns), they want the late image to be immediately displayed, even though that may mean some tearing.
 
     VK_PRESENT_MODE_MAILBOX_KHR. I'm guessing that this is for applications that generally render/present a new frame every refresh cycle, but are occasionally early. In this case, they want the new image to be displayed instead of the previously-queued-for-presentation image that has not yet been displayed.
-    **/
+**/
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// SwapchainImage
-//
-SwapchainImage::SwapchainImage(VkImage image, Device* device, AllocationCallbacks* allocator) :
-    Inherit(image, device, allocator)
-{
-}
-
-SwapchainImage::~SwapchainImage()
-{
-    _deviceMemory = nullptr;
-    _image = VK_NULL_HANDLE;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// Swapchain
-//
 Swapchain::Swapchain(VkSwapchainKHR swapchain, Device* device, Surface* surface, AllocationCallbacks* allocator) :
     _device(device),
     _surface(surface),
@@ -201,12 +182,11 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
     createInfo.imageColorSpace = surfaceFormat.colorSpace;
     createInfo.imageExtent = extent;
     createInfo.imageArrayLayers = 1;
-    createInfo.imageUsage = preferences.imageUsage;
+    createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    auto [graphicsFamily, presentFamily] = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, surface);
-    if (graphicsFamily != presentFamily)
+    if (physicalDevice->getGraphicsFamily() != physicalDevice->getPresentFamily())
     {
-        uint32_t queueFamilyIndices[] = {uint32_t(graphicsFamily), uint32_t(presentFamily)};
+        uint32_t queueFamilyIndices[] = {uint32_t(physicalDevice->getGraphicsFamily()), uint32_t(physicalDevice->getPresentFamily())};
         createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
         createInfo.queueFamilyIndexCount = 2;
         createInfo.pQueueFamilyIndices = queueFamilyIndices;
@@ -244,7 +224,7 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
 
     for (std::size_t i = 0; i < images.size(); ++i)
     {
-        ref_ptr<ImageView> view = ImageView::create(device, new SwapchainImage(images[i], device), VK_IMAGE_VIEW_TYPE_2D, surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT, allocator);
+        ref_ptr<ImageView> view = ImageView::create(device, images[i], VK_IMAGE_VIEW_TYPE_2D, surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT, allocator);
         if (view) sw->getImageViews().push_back(view);
     }
 

@@ -12,20 +12,32 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/viewer/Window.h>
+#include <vsg/vk/Stage.h>
+
+#include <vsg/io/DatabasePager.h>
+
+#include <vsg/viewer/Camera.h>
 
 namespace vsg
 {
 
-    class Presentation : public Inherit<Object, Presentation>
+    class VSG_DECLSPEC GraphicsStage : public Inherit<Stage, GraphicsStage>
     {
     public:
-        VkResult present();
+        GraphicsStage(ref_ptr<Node> commandGraph, ref_ptr<Camera> camera = ref_ptr<Camera>());
 
-        Windows windows;
-        Semaphores waitSemaphores; // taken from RecordAndSubmitTasks.signalSemaphores
+        ref_ptr<Camera> _camera;
+        ref_ptr<Node> _commandGraph;
+        ref_ptr<dmat4Value> _projMatrix;
+        ref_ptr<dmat4Value> _viewMatrix;
+        ref_ptr<ViewportState> _viewport;
 
-        ref_ptr<Queue> queue; // assign in application for GraphicsQueue from device
+        ref_ptr<DatabasePager> databasePager;
+
+        VkExtent2D _extent2D;
+        uint32_t _maxSlot = 2;
+
+        void populateCommandBuffer(CommandBuffer* commandBuffer, Framebuffer* framebuffer, RenderPass* renderPass, const VkExtent2D& extent2D, const VkClearColorValue& clearColor, ref_ptr<FrameStamp> frameStamp) override;
     };
 
 } // namespace vsg

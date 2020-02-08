@@ -20,13 +20,12 @@ namespace vsg
 {
 
     /** Compute the VkIndexType from Data source's value size.*/
-    inline VkIndexType computeIndexType(const Data* indices)
+    inline VkIndexType computeIndexType(Data* indices)
     {
         if (indices)
         {
             switch (indices->valueSize())
             {
-            case (1): return VK_INDEX_TYPE_UINT8_EXT;
             case (2): return VK_INDEX_TYPE_UINT16;
             case (4): return VK_INDEX_TYPE_UINT32;
             default: break;
