@@ -19,8 +19,8 @@ PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device) :
     _instance(instance)
 {
     vkGetPhysicalDeviceProperties(_device, &_properties);
-
-    _rayTracingProperties = getProperties<VkPhysicalDeviceRayTracingPropertiesNV, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV>();
+    if( _properties.apiVersion >= VK_MAKE_VERSION(1, 2, 0) )
+        _rayTracingProperties = getProperties<VkPhysicalDeviceRayTracingPropertiesNV, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV>();
 
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(_device, &queueFamilyCount, nullptr);
