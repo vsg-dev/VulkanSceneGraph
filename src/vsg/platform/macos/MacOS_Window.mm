@@ -858,7 +858,7 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::Alloca
         // temporary hack to force vkGetPhysicalDeviceSurfaceSupportKHR to be called as the Vulkan
         // debug layer is complaining about vkGetPhysicalDeviceSurfaceSupportKHR not being called
         // for this _surface prior to swap chain creation
-        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(traits->shareWindow->instance(), VK_QUEUE_GRAPHICS_BIT, surface);
+        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = traits->shareWindow->instance()->getPhysicalDevice(VK_QUEUE_GRAPHICS_BIT, surface);
     }
     else
     {
