@@ -34,13 +34,14 @@ namespace vsg
         {
             AttachmentDescription()
             {
-                samples= VK_SAMPLE_COUNT_1_BIT;
+                flags = 0;
+                samples = VK_SAMPLE_COUNT_1_BIT;
                 loadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
                 storeOp  = VK_ATTACHMENT_STORE_OP_DONT_CARE;
                 stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
                 stencilStoreOp  = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-                initialLayout= VK_IMAGE_LAYOUT_UNDEFINED;
-                finalLayout= VK_IMAGE_LAYOUT_UNDEFINED;
+                initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                finalLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             }
             bool operator ==(const AttachmentDescription& other) const
             {
@@ -168,22 +169,35 @@ namespace vsg
         {
             _desc.colorAttachmentCount=_colorattachmentrefs.size();
             _desc.pColorAttachments=_colorattachmentrefs.data();
+
             _desc.inputAttachmentCount=_inputattachmentrefs.size();
-            _desc.pInputAttachments=_colorattachmentrefs.data();
-            _desc.inputAttachmentCount=_inputattachmentrefs.size();
-            _desc.pInputAttachments=_colorattachmentrefs.data();
-            _desc.pDepthStencilAttachment = &_pDepthStencilAttachment;
+            _desc.pInputAttachments=_inputattachmentrefs.data();
+
+            if(_resolveattachmentrefs.size() == _colorattachmentrefs.size())
+                _desc.pResolveAttachments = _resolveattachmentrefs.data();
+            else _desc.pResolveAttachments = VK_NULL_HANDLE;
+
+            _desc.preserveAttachmentCount= _pPreserveAttachments.size();
+            _desc.pPreserveAttachments = _pPreserveAttachments.data();
+
+            if(_pDepthStencilAttachment.attachment != ~(0u))
+                _desc.pDepthStencilAttachment = &_pDepthStencilAttachment;
+            else _desc.pDepthStencilAttachment = VK_NULL_HANDLE;
             return _desc;
         }
 
     protected:
 
         ///constructor
-        SubPass(PassGraph * graph) : _graph(graph) {}
+        SubPass(PassGraph * graph) : _graph(graph) {
+            _pDepthStencilAttachment.attachment = ~(0u);
+            _desc.flags=0;
+            _desc.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        }
         VkSubpassDescription _desc = {};
         std::vector<AttachmentReference> _inputattachmentrefs;
         std::vector<AttachmentReference> _colorattachmentrefs;
-        std::vector<AttachmentReference> _pResolveAttachments;
+        std::vector<AttachmentReference> _resolveattachmentrefs;
         AttachmentReference _pDepthStencilAttachment;
         std::vector<uint> _pPreserveAttachments;
         ref_ptr<PassGraph> _graph;
@@ -282,7 +296,7 @@ namespace vsg
             addAttachmentDescription(ad);
         }
         else attachref.attachment = attindex;
-        sub->_pResolveAttachments.push_back(attachref);
+        sub->_resolveattachmentrefs.push_back(attachref);
         return true;
     }
 
