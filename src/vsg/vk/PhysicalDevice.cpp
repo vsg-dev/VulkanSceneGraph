@@ -20,23 +20,11 @@ PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device) :
 {
     vkGetPhysicalDeviceProperties(_device, &_properties);
 
-    _rayTracingProperties = getProperties<VkPhysicalDeviceRayTracingPropertiesNV, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV>();
-
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(_device, &queueFamilyCount, nullptr);
 
     _queueFamiles.resize(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(_device, &queueFamilyCount, _queueFamiles.data());
-#if 0
-    std::cout << "shaderGroupHandleSize " << _rayTracingProperties.shaderGroupHandleSize << std::endl;
-    std::cout << "maxRecursionDepth " << _rayTracingProperties.maxRecursionDepth << std::endl;
-    std::cout << "maxShaderGroupStride " << _rayTracingProperties.maxShaderGroupStride << std::endl;
-    std::cout << "shaderGroupBaseAlignment " << _rayTracingProperties.shaderGroupBaseAlignment << std::endl;
-    std::cout << "maxGeometryCount " << _rayTracingProperties.maxGeometryCount << std::endl;
-    std::cout << "maxInstanceCount " << _rayTracingProperties.maxInstanceCount << std::endl;
-    std::cout << "maxTriangleCount " << _rayTracingProperties.maxTriangleCount << std::endl;
-    std::cout << "maxDescriptorSetAccelerationStructures " << _rayTracingProperties.maxDescriptorSetAccelerationStructures << std::endl;
-#endif
 }
 
 PhysicalDevice::~PhysicalDevice()

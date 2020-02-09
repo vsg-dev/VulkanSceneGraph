@@ -155,7 +155,7 @@ RayTracingPipeline::Implementation::Result RayTracingPipeline::Implementation::c
     VkResult result = extensions->vkCreateRayTracingPipelinesNV(*device, VK_NULL_HANDLE, 1, &pipelineInfo, rayTracingPipeline->getAllocationCallbacks(), &pipeline);
     if (result == VK_SUCCESS)
     {
-        auto& rayTracingProperties = device->getPhysicalDevice()->getRayTracingProperties();
+        auto rayTracingProperties = device->getPhysicalDevice()->getProperties<VkPhysicalDeviceRayTracingPropertiesNV, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV>();
         const uint32_t shaderGroupHandleSize = rayTracingProperties.shaderGroupHandleSize;
         const uint32_t sbtSize = shaderGroupHandleSize * pipelineInfo.groupCount;
 
