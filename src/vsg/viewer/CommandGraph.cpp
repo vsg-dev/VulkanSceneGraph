@@ -45,6 +45,21 @@ CommandGraph::CommandGraph(Window* window)
 
 void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
+    if (!windows.empty())
+    {
+        size_t numWindowsVisible = 0;
+        for(auto& window : windows)
+        {
+            if (window->visible()) ++numWindowsVisible;
+        }
+        if (numWindowsVisible == 0)
+        {
+            //std::cout<<"CommandGraph::record() No windows visible"<<std::endl;
+            return;
+        }
+    }
+
+
     if (!recordTraversal)
     {
         recordTraversal = new RecordTraversal(nullptr, _maxSlot);
@@ -94,6 +109,8 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph)
 {
     auto commandGraph = CommandGraph::create(window);
+
+    commandGraph->windows.emplace_back(window);
 
     // set up the render graph for viewport & scene
     auto renderGraph = vsg::RenderGraph::create();

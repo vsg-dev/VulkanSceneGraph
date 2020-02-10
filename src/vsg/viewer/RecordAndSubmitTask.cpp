@@ -15,9 +15,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/RecordAndSubmitTask.h>
 #include <vsg/vk/State.h>
 
-using namespace vsg;
-
 #include <iostream>
+
+using namespace vsg;
 
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
@@ -34,12 +34,15 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     ref_ptr<Fence> fence;
     for (auto& window : windows)
     {
-        auto& semaphore = window->frame(window->nextImageIndex()).imageAvailableSemaphore;
+        if (window->visible())
+        {
+            auto& semaphore = window->frame(window->nextImageIndex()).imageAvailableSemaphore;
 
-        vk_waitSemaphores.emplace_back(*semaphore);
-        vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
+            vk_waitSemaphores.emplace_back(*semaphore);
+            vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
 
-        fence = window->frame(window->nextImageIndex()).commandsCompletedFence;
+            fence = window->frame(window->nextImageIndex()).commandsCompletedFence;
+        }
     }
 
     // wait on fence and clear semaphores and command buffers
@@ -87,6 +90,13 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     for (auto& commandGraph : commandGraphs)
     {
         commandGraph->record(recordedCommandBuffers, frameStamp, databasePager);
+    }
+
+    if (recordedCommandBuffers.empty())
+    {
+        // nothing to do so return early
+        std::this_thread::sleep_for(std::chrono::milliseconds(16));  // sleep for 1/60th of a second
+        return VK_SUCCESS;
     }
 
     // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of depdendent CommandBuffers

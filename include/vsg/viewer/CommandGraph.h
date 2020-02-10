@@ -32,6 +32,9 @@ namespace vsg
 
         ref_ptr<RecordTraversal> recordTraversal;
 
+        // windows that are related to commands that this ComaandGraph will populate
+        Windows windows;
+
         ref_ptr<Device> _device;
         int _family = 0;
         uint32_t _maxSlot = 2;

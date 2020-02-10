@@ -99,6 +99,8 @@ namespace vsg
 
         virtual bool valid() const { return false; }
 
+        virtual bool visible() const { return valid(); }
+
         virtual bool pollEvents(Events& /*events*/) { return false; }
 
         virtual bool resized() const { return false; }
