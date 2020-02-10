@@ -127,6 +127,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/ImageView.h>
 #include <vsg/vk/Instance.h>
 #include <vsg/vk/MemoryManager.h>
+#include <vsg/vk/NextSubPass.h>
 #include <vsg/vk/PhysicalDevice.h>
 #include <vsg/vk/PipelineBarrier.h>
 #include <vsg/vk/PipelineLayout.h>
