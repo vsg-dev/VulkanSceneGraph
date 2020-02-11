@@ -112,7 +112,7 @@ namespace vsgWin32
         Win32_Window(const Win32_Window&) = delete;
         Win32_Window operator=(const Win32_Window&) = delete;
 
-        static Result create(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator = nullptr);
+        static Result create(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator = nullptr);
 
         bool valid() const override { return _window; }
 
@@ -130,7 +130,7 @@ namespace vsgWin32
     protected:
         virtual ~Win32_Window();
 
-        Win32_Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator = nullptr);
+        Win32_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator = nullptr);
 
         HWND _window;
 

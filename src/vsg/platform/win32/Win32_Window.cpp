@@ -22,7 +22,7 @@ using namespace vsgWin32;
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to a Win32_Window
-    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits)
+    Window::Result Window::create(vsg::ref_ptr<WindowTraits> traits)
     {
         return vsgWin32::Win32_Window::create(traits);
     }
@@ -319,7 +319,7 @@ KeyboardMap::KeyboardMap()
         };
 }
 
-Win32_Window::Result Win32_Window::create(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator)
+Win32_Window::Result Win32_Window::create(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator)
 {
     try
     {
@@ -332,7 +332,7 @@ Win32_Window::Result Win32_Window::create(vsg::ref_ptr<Window::Traits> traits, v
     }
 }
 
-Win32_Window::Win32_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator) :
+Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
     Window(traits, allocator),
     _window(nullptr)
 {
