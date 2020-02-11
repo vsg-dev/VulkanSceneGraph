@@ -20,6 +20,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    // forward declare
+    class WindowTraits;
+
     struct QueueSetting
     {
         int queueFamilyIndex = -1;
@@ -35,8 +38,12 @@ namespace vsg
 
         using Result = vsg::Result<Device, VkResult, VK_SUCCESS>;
         static Result create(PhysicalDevice* physicalDevice, QueueSettings& queueSettings, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator = nullptr);
+        static Result create(WindowTraits* traits);
 
+        Instance* getInstance() { return _instance.get(); }
         const Instance* getInstance() const { return _instance.get(); }
+
+        PhysicalDevice* getPhysicalDevice() { return _physicalDevice.get(); }
         const PhysicalDevice* getPhysicalDevice() const { return _physicalDevice.get(); }
 
         operator VkDevice() const { return _device; }

@@ -20,28 +20,35 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Window::Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator) :
+Window::Window(ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
     _traits(traits),
     _clearColor{{0.2f, 0.2f, 0.4f, 1.0f}},
     _nextImageIndex(0)
 {
-    // create the vkInstance
-    vsg::Names instanceExtensions = getInstanceExtensions();
-
-    instanceExtensions.insert(instanceExtensions.end(), traits->instanceExtensionNames.begin(), traits->instanceExtensionNames.end());
-
-    vsg::Names requestedLayers;
-    if (traits && traits->debugLayer)
+    if (_traits->device)
     {
-        instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-        requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
-        if (traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
+        _instance = _traits->device->getInstance();
     }
+    else
+    {
+        // create the vkInstance
+        vsg::Names instanceExtensions = getInstanceExtensions();
 
-    vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
+        instanceExtensions.insert(instanceExtensions.end(), traits->instanceExtensionNames.begin(), traits->instanceExtensionNames.end());
 
-    _instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
-    if (!_instance) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        vsg::Names requestedLayers;
+        if (traits && traits->debugLayer)
+        {
+            instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+            requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+            if (traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
+        }
+
+        vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
+
+        _instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
+        if (!_instance) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    }
 }
 
 Window::~Window()
@@ -74,38 +81,53 @@ void Window::share(const Window& window)
 
 void Window::initaliseDevice()
 {
-    vsg::Names requestedLayers;
-    if (_traits->debugLayer)
+    if (_traits->device)
     {
-        requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
-        if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
+        _device = _traits->device;
+        _physicalDevice = _device->getPhysicalDevice();
+    }
+    else
+    {
+        vsg::Names requestedLayers;
+        if (_traits->debugLayer)
+        {
+            requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+            if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
+        }
+
+        vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
+
+        vsg::Names deviceExtensions;
+        deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
+        deviceExtensions.insert(deviceExtensions.end(), _traits->deviceExtensionNames.begin(), _traits->deviceExtensionNames.end());
+
+        // set up device
+        auto [physicalDevice, queueFamily] = _instance->getPhysicalDeviceAndQueueFamily(_traits->queueFlags);
+        if (!physicalDevice || queueFamily < 0) throw Result("Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+
+        vsg::QueueSettings queueSettings{vsg::QueueSetting{queueFamily, {1.0}}};
+        vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->allocator);
+        if (!device) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan logical Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+
+        _physicalDevice = physicalDevice;
+        _device = device;
     }
 
-    vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
-
-    vsg::Names deviceExtensions;
-    deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-
-    deviceExtensions.insert(deviceExtensions.end(), _traits->deviceExtensionNames.begin(), _traits->deviceExtensionNames.end());
-
-    // set up device
-    auto [physicalDevice, queueFamily] = _instance->getPhysicalDeviceAndQueueFamily(_traits->queueFlags);
-    if (!physicalDevice || queueFamily < 0) throw Result("Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-
-    vsg::QueueSettings queueSettings{vsg::QueueSetting{queueFamily, {1.0}}};
-    vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->allocator);
-    if (!device) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan logical Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-
     // set up renderpass with the imageFormat that the swap chain will use
-    vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*physicalDevice, *_surface);
-    VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
-    VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
-    vsg::ref_ptr<vsg::RenderPass> renderPass = vsg::RenderPass::create(device, imageFormat.format, depthFormat, _traits->allocator);
-    if (!renderPass) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan RenderPass.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    if (_traits->renderPass)
+    {
+        _renderPass = _traits->renderPass;
+    }
+    else
+    {
+        vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
+        VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
+        VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
 
-    _physicalDevice = physicalDevice;
-    _device = device;
-    _renderPass = renderPass;
+        _renderPass = vsg::RenderPass::create(_device, imageFormat.format, depthFormat, _traits->allocator);
+        if (!_renderPass) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan RenderPass.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    }
 }
 
 void Window::buildSwapchain(uint32_t width, uint32_t height)
@@ -207,7 +229,7 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
 // just kept for backwards compatibility for now
 Window::Result Window::create(uint32_t width, uint32_t height, bool debugLayer, bool apiDumpLayer, vsg::Window* shareWindow, vsg::AllocationCallbacks* allocator)
 {
-    vsg::ref_ptr<Window::Traits> traits(new Window::Traits());
+    vsg::ref_ptr<WindowTraits> traits(new WindowTraits());
     traits->width = width;
     traits->height = height;
     traits->shareWindow = shareWindow;
@@ -218,7 +240,7 @@ Window::Result Window::create(uint32_t width, uint32_t height, bool debugLayer, 
 }
 
 // just kept for backwards compatibility for now
-Window::Result Window::create(vsg::ref_ptr<Traits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
+Window::Result Window::create(vsg::ref_ptr<WindowTraits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
 {
     traits->debugLayer = debugLayer;
     traits->apiDumpLayer = apiDumpLayer;

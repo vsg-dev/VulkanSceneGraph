@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,28 +10,30 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Device.h>
+#include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/NextSubPass.h>
 
-namespace vsg
+using namespace vsg;
+
+NextSubPass::~NextSubPass()
 {
-    class VSG_DECLSPEC Framebuffer : public Inherit<Object, Framebuffer>
-    {
-    public:
-        Framebuffer(VkFramebuffer framebuffer, Device* device, AllocationCallbacks* allocator = nullptr);
+}
 
-        using Result = vsg::Result<Framebuffer, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, VkFramebufferCreateInfo& framebufferInfo, AllocationCallbacks* allocator = nullptr);
+void NextSubPass::read(Input& input)
+{
+    Command::read(input);
 
-        operator VkFramebuffer() const { return _framebuffer; }
+    input.readValue<uint32_t>("contents", contents);
+}
 
-        Device* getDevice() { return _device; }
-        const Device* getDevice() const { return _device; }
+void NextSubPass::write(Output& output) const
+{
+    Command::write(output);
 
-    protected:
-        virtual ~Framebuffer();
+    output.writeValue<uint32_t>("contents", contents);
+}
 
-        VkFramebuffer _framebuffer;
-        ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
-    };
-} // namespace vsg
+void NextSubPass::dispatch(CommandBuffer& commandBuffer) const
+{
+    vkCmdNextSubpass(commandBuffer, contents);
+}

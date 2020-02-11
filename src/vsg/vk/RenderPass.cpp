@@ -79,7 +79,7 @@ RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFo
     subpass.pDepthStencilAttachment = &depthAttachmentRef;
     subpasses.push_back(subpass);
 
-    Dependancies dependancies;
+    Dependencies dependencies;
 
     VkSubpassDependency dependency = {};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -88,12 +88,12 @@ RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFo
     dependency.srcAccessMask = 0;
     dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    dependancies.push_back(dependency);
+    dependencies.push_back(dependency);
 
-    return create(device, attachments, subpasses, dependancies, allocator);
+    return create(device, attachments, subpasses, dependencies, allocator);
 }
 
-RenderPass::Result RenderPass::create(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependancies& dependancies, AllocationCallbacks* allocator)
+RenderPass::Result RenderPass::create(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependencies& dependencies, AllocationCallbacks* allocator)
 {
     if (!device)
     {
@@ -106,8 +106,8 @@ RenderPass::Result RenderPass::create(Device* device, const Attachments& attachm
     renderPassInfo.pAttachments = attachments.data();
     renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
     renderPassInfo.pSubpasses = subpasses.data();
-    renderPassInfo.dependencyCount = static_cast<uint32_t>(dependancies.size());
-    renderPassInfo.pDependencies = dependancies.data();
+    renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+    renderPassInfo.pDependencies = dependencies.data();
 
     VkRenderPass renderPass;
     VkResult result = vkCreateRenderPass(*device, &renderPassInfo, allocator, &renderPass);

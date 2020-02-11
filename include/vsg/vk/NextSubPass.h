@@ -12,35 +12,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Device.h>
+#include <vsg/nodes/StateGroup.h>
+#include <vsg/vk/Buffer.h>
+#include <vsg/vk/Command.h>
+#include <vsg/vk/Descriptor.h>
 
 namespace vsg
 {
-
-    class VSG_DECLSPEC RenderPass : public Inherit<Object, RenderPass>
+    class VSG_DECLSPEC NextSubPass : public Inherit<Command, NextSubPass>
     {
     public:
-        RenderPass(VkRenderPass renderPass, Device* device, AllocationCallbacks* allocator = nullptr);
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
-        using Attachments = std::vector<VkAttachmentDescription>;
-        using Subpasses = std::vector<VkSubpassDescription>; // need lists of VkAttachmentReference
-        using Dependencies = std::vector<VkSubpassDependency>;
+        void dispatch(CommandBuffer& commandBuffer) const override;
 
-        using Result = vsg::Result<RenderPass, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator = nullptr);
-        static Result create(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependencies& dependencies, AllocationCallbacks* allocator = nullptr);
-
-        operator VkRenderPass() const { return _renderPass; }
-
-        Device* getDevice() { return _device; }
-        const Device* getDevice() const { return _device; }
+        VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE; // VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS
 
     protected:
-        virtual ~RenderPass();
-
-        VkRenderPass _renderPass;
-        ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
+        virtual ~NextSubPass();
     };
+    VSG_type_name(vsg::NextSubPass);
 
 } // namespace vsg
