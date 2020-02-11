@@ -78,6 +78,8 @@ namespace vsg
             vsg::Names instanceExtensionNames;
             vsg::Names deviceExtensionNames;
 
+            ref_ptr<RenderPass> renderPass;
+
             Window* shareWindow = nullptr;
 
             AllocationCallbacks* allocator = nullptr;
