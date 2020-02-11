@@ -23,7 +23,7 @@ namespace vsg
         RenderPass(VkRenderPass renderPass, Device* device, AllocationCallbacks* allocator = nullptr);
 
         using Attachments = std::vector<VkAttachmentDescription>;
-        using Subpasses = std::vector<VkSubpassDescription>;
+        using Subpasses = std::vector<VkSubpassDescription>; // need lists of VkAttachmentReference
         using Dependancies = std::vector<VkSubpassDependency>;
 
         using Result = vsg::Result<RenderPass, VkResult, VK_SUCCESS>;
