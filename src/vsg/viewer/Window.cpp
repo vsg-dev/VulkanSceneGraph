@@ -128,7 +128,6 @@ void Window::initaliseDevice()
         _renderPass = vsg::RenderPass::create(_device, imageFormat.format, depthFormat, _traits->allocator);
         if (!_renderPass) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan RenderPass.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
-
 }
 
 void Window::buildSwapchain(uint32_t width, uint32_t height)

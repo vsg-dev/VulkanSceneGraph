@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Device.h>
 #include <vsg/viewer/Window.h>
+#include <vsg/vk/Device.h>
 
 #include <set>
 
@@ -129,7 +129,6 @@ Device::Result Device::create(WindowTraits* windowTraits)
     vsg::QueueSettings queueSettings{vsg::QueueSetting{queueFamily, {1.0}}};
     return vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, windowTraits->allocator);
 }
-
 
 ref_ptr<Queue> Device::getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
 {
