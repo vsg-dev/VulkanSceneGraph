@@ -263,12 +263,13 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbac
     Window(traits, allocator)
 {
     const char* displayName = 0;
-    int screenNum = traits->screenNum;
     bool fullscreen =  traits->fullscreen;
     uint32_t override_redirect = traits->overrideRedirect;
 
+
     // open connection
-    _connection = xcb_connect(displayName, &screenNum);
+    _connection = xcb_connect(displayName, NULL);
+
     if (xcb_connection_has_error(_connection))
     {
         // close connection
@@ -309,8 +310,21 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbac
     }
 
     // select the appropriate screen for the window
+    uint32_t screenCount = xcb_setup_roots_length (setup);
+    uint32_t screenNum = traits->screenNum;
+    if (screenNum >= screenCount)
+    {
+        std::cout<<"Warning: request screenNum ("<<screenNum<<") to high, only "<<screenCount<<" screens available  Selecting screen 0 as fallback."<<std::endl;
+        screenNum = 0;
+    }
+
     xcb_screen_iterator_t screen_iterator = xcb_setup_roots_iterator(setup);
-    for (; screenNum > 0; --screenNum) xcb_screen_next(&screen_iterator);
+
+    for(uint32_t i=0; i<screenNum; ++i)
+    {
+        xcb_screen_next(&screen_iterator);
+    }
+
     _screen = screen_iterator.data;
 
     // generate the widnow id
