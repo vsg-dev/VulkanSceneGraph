@@ -179,7 +179,7 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
 }
 void CompileTraversal::apply(RenderGraph& renderGraph)
 {
-    context.renderPass = renderGraph.window->renderPass();
+    context.renderPass = renderGraph.getRenderPass();
 
     if (renderGraph.camera)
     {
