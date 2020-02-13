@@ -266,15 +266,14 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbac
     uint32_t override_redirect = traits->overrideRedirect;
 
     // open connection
+    int screenNum = 0;
     if (traits->display.empty())
     {
-        _connection = xcb_connect(NULL, NULL);
+        _connection = xcb_connect(NULL, &screenNum);
     }
     else
     {
-        int screenNum = 0;
         _connection = xcb_connect(traits->display.c_str(), &screenNum);
-        traits->screenNum = screenNum;
     }
 
     if (xcb_connection_has_error(_connection))
@@ -317,8 +316,9 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbac
     }
 
     // select the appropriate screen for the window
-    uint32_t screenCount = xcb_setup_roots_length (setup);
-    uint32_t screenNum = traits->screenNum;
+    if (traits->screenNum >= 0) screenNum = traits->screenNum;
+
+    int screenCount = xcb_setup_roots_length (setup);
     if (screenNum >= screenCount)
     {
         std::cout<<"Warning: request screenNum ("<<screenNum<<") to high, only "<<screenCount<<" screens available  Selecting screen 0 as fallback."<<std::endl;
@@ -327,7 +327,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbac
 
     xcb_screen_iterator_t screen_iterator = xcb_setup_roots_iterator(setup);
 
-    for(uint32_t i=0; i<screenNum; ++i)
+    for(int i=0; i<screenNum; ++i)
     {
         xcb_screen_next(&screen_iterator);
     }
