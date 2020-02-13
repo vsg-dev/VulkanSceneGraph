@@ -262,20 +262,27 @@ vsg::Window::Result Xcb_Window::create(vsg::ref_ptr<WindowTraits> traits, vsg::A
 Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
     Window(traits, allocator)
 {
-    const char* displayName = 0;
     bool fullscreen =  traits->fullscreen;
     uint32_t override_redirect = traits->overrideRedirect;
 
-
     // open connection
-    _connection = xcb_connect(displayName, NULL);
+    if (traits->display.empty())
+    {
+        _connection = xcb_connect(NULL, NULL);
+    }
+    else
+    {
+        int screenNum = 0;
+        _connection = xcb_connect(traits->display.c_str(), &screenNum);
+        traits->screenNum = screenNum;
+    }
 
     if (xcb_connection_has_error(_connection))
     {
         // close connection
         xcb_disconnect(_connection);
-        //return Result("Failed to created Window, unable able to establish xcb connection.", VK_ERROR_INVALID_EXTERNAL_HANDLE);  TODO need to throw?
-        return;
+
+        throw Result("Failed to created Window, unable able to establish xcb connection.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     // TODO, should record Traits within Window? Should pass back selected screeenNum?

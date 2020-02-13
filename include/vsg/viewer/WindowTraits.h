@@ -46,6 +46,7 @@ namespace vsg
 
         bool fullscreen = false;
 
+        std::string display;
         uint32_t screenNum = 0;
 
         std::string windowClass = "vsg::Window";
