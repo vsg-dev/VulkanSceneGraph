@@ -48,6 +48,16 @@ Device::Result Device::create(PhysicalDevice* physicalDevice, QueueSettings& que
     {
         if (queueSetting.queueFamilyIndex < 0) continue;
 
+        // check to see if the queueFamilyIndex has already been referened or us unique
+        bool unique = true;
+        for(auto& existingInfo : queueCreateInfos)
+        {
+            if (existingInfo.queueFamilyIndex == static_cast<uint32_t>(queueSetting.queueFamilyIndex)) unique = false;
+        }
+
+        // Vylkan doesn't support non unique queueFamily so ignore this entry.
+        if (!unique) continue;
+
         VkDeviceQueueCreateInfo queueCreateInfo = {};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queueCreateInfo.queueFamilyIndex = static_cast<uint32_t>(queueSetting.queueFamilyIndex);
