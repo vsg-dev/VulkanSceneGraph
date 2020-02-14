@@ -26,8 +26,8 @@ namespace vsg
     {
     public:
         WindowTraits() {}
-        WindowTraits(const WindowTraits&) = delete;
-        WindowTraits& operator=(const WindowTraits&) = delete;
+        WindowTraits(const WindowTraits&) = default;
+        WindowTraits& operator=(const WindowTraits&) = default;
 
         WindowTraits(int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height) :
             x(in_x),

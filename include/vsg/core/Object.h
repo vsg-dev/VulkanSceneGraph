@@ -41,8 +41,8 @@ namespace vsg
 
         explicit Object(Allocator* allocator);
 
-        Object(const Object&) = delete;
-        Object& operator=(const Object&) = delete;
+        Object(const Object&);
+        Object& operator=(const Object&);
 
         //static ref_ptr<Object> create(Allocator* allocator=nullptr);
 
