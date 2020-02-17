@@ -356,7 +356,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
         }
         else
         {
-            // with don't have a presentFamily so this set of commandGraphs aren't associated with a widnow/
+            // with don't have a presentFamily so this set of commandGraphs aren't associated with a widnow
             // set up Submission with CommandBuffer and signals
             auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create();
             recordAndSubmitTask->commandGraphs = commandGraphs;
