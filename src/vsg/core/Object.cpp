@@ -38,7 +38,8 @@ Object::Object() :
 {
 }
 
-Object::Object(const Object& rhs) : Object()
+Object::Object(const Object& rhs) :
+    Object()
 {
     if (rhs._auxiliary && rhs._auxiliary->getConnectedObject() == &rhs)
     {
@@ -50,7 +51,7 @@ Object::Object(const Object& rhs) : Object()
 
 Object& Object::operator=(const Object& rhs)
 {
-    std::cout<<"Object& operator=(const Object&)"<<std::endl;
+    std::cout << "Object& operator=(const Object&)" << std::endl;
     if (&rhs == this) return *this;
 
     if (rhs._auxiliary && rhs._auxiliary->getConnectedObject() == &rhs)
@@ -62,7 +63,6 @@ Object& Object::operator=(const Object& rhs)
 
     return *this;
 }
-
 
 Object::Object(Allocator* allocator) :
     _referenceCount(0),
