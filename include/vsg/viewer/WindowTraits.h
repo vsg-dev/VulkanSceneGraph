@@ -47,7 +47,7 @@ namespace vsg
         bool fullscreen = false;
 
         std::string display; /// A non empty display string overrides any X11 DISPLAY env var that may have been set. ignored on non X11 systems
-        int screenNum = -1; /// negative screenNum value indicates system defaults should be assumed, a non zero value will set the screenNum, overriding any display or DISPLAY setting for this.
+        int screenNum = -1;  /// negative screenNum value indicates system defaults should be assumed, a non zero value will set the screenNum, overriding any display or DISPLAY setting for this.
 
         std::string windowClass = "vsg::Window";
         std::string windowTitle = "vsg window";
