@@ -50,7 +50,7 @@ Device::Result Device::create(PhysicalDevice* physicalDevice, QueueSettings& que
 
         // check to see if the queueFamilyIndex has already been referened or us unique
         bool unique = true;
-        for(auto& existingInfo : queueCreateInfos)
+        for (auto& existingInfo : queueCreateInfos)
         {
             if (existingInfo.queueFamilyIndex == static_cast<uint32_t>(queueSetting.queueFamilyIndex)) unique = false;
         }
