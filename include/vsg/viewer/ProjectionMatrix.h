@@ -98,6 +98,32 @@ namespace vsg
         double farDistance;
     };
 
+    class RelativeProjection : public Inherit<ProjectionMatrix, RelativeProjection>
+    {
+    public:
+
+        RelativeProjection(ref_ptr<ProjectionMatrix> pm, const dmat4& m) :
+            projectionMatrix(pm),
+            matrix(m)
+        {
+        }
+
+        void get(mat4& in_matrix) const override
+        {
+            projectionMatrix->get(in_matrix);
+            in_matrix = mat4(matrix) * in_matrix;
+        }
+
+        void get(dmat4& in_matrix) const override
+        {
+            projectionMatrix->get(in_matrix);
+            in_matrix = matrix * in_matrix;
+        }
+
+        ref_ptr<ProjectionMatrix> projectionMatrix;
+        dmat4 matrix;
+    };
+
     const double WGS_84_RADIUS_EQUATOR = 6378137.0;
     const double WGS_84_RADIUS_POLAR = 6356752.3142;
 
