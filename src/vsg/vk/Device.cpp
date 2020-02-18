@@ -12,10 +12,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/viewer/Window.h>
 #include <vsg/vk/Device.h>
+#include <vsg/core/Version.h>
 
 #include <set>
 
+#include <iostream>
+
 using namespace vsg;
+
+// thread safe container for managing the deviceID for each vsg;:Device
+static std::mutex s_DeviceCountMutex;
+static std::vector<Device*> s_ActiveDevices;
 
 Device::Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallbacks* allocator) :
     _device(device),
@@ -24,6 +31,28 @@ Device::Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallba
 {
     // PhysicalDevice only holds a observer_ptr<> to the Instance, so need to take a local reference to the instance to make sure it doesn't get deleted befire we are finsihed with it.
     if (physicalDevice) _instance = physicalDevice->getInstance();
+
+    std::lock_guard<std::mutex> guard(s_DeviceCountMutex);
+
+    for (deviceID = 0; deviceID < static_cast<uint32_t>(s_ActiveDevices.size()); ++deviceID)
+    {
+         if (s_ActiveDevices[deviceID] == nullptr)
+         {
+            s_ActiveDevices[deviceID] = this;
+            break;
+         }
+    }
+
+    if (deviceID >= static_cast<uint32_t>(s_ActiveDevices.size()))
+    {
+        s_ActiveDevices.push_back(this);
+    }
+
+    if (deviceID>=VSG_MAX_DEVICES)
+    {
+        // TODO throw an exception?
+        std::cout<<"Warning : number of vsg:Device allocated exceeds number supported "<<VSG_MAX_DEVICES<<std::endl;
+    }
 }
 
 Device::~Device()
@@ -32,6 +61,9 @@ Device::~Device()
     {
         vkDestroyDevice(_device, _allocator);
     }
+
+    std::lock_guard<std::mutex> guard(s_DeviceCountMutex);
+    s_ActiveDevices[deviceID] = nullptr;
 }
 
 Device::Result Device::create(PhysicalDevice* physicalDevice, QueueSettings& queueSettings, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator)
