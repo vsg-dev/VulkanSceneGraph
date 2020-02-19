@@ -98,7 +98,7 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
         }
         else if (previous_extent.width != extent.width || previous_extent.height != extent.height)
         {
-            // crude handling of window resizie...TODO, come up with a user controllable way to handle resize.
+            // crude handling of window resize...TODO, come up with a user controllable way to handle resize.
 
             vsg::UpdatePipeline updatePipeline(window->device());
 
