@@ -29,12 +29,6 @@ namespace vsg
 
         virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const = 0;
 
-        // compile the Vulkan object, context parameter used for Device
-        virtual void compile(Context& /*context*/) {}
-
-        // remove the local reference to the Vulkan implementation
-        virtual void release() {}
-
     protected:
         virtual ~GraphicsPipelineState() {}
     };

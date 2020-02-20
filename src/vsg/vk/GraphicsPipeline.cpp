@@ -86,11 +86,6 @@ void GraphicsPipeline::compile(Context& context)
             shaderStage->compile(context);
         }
 
-        for (auto& pipelineState : _pipelineStates)
-        {
-            pipelineState->compile(context);
-        }
-
         GraphicsPipelineStates full_pipelineStates = _pipelineStates;
         full_pipelineStates.emplace_back(context.viewport);
 
