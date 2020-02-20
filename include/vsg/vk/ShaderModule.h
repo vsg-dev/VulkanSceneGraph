@@ -97,10 +97,10 @@ namespace vsg
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
+        implementation_buffer<Implementation> _implementation;
+
         std::string _source;
         SPIRV _spirv;
-
-        implementation_buffer<Implementation> _implementation;
     };
     VSG_type_name(vsg::ShaderModule);
 

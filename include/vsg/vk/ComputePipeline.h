@@ -37,6 +37,7 @@ namespace vsg
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);
 
+        // remove the local reference to the Vulkan implementation
         void release(uint32_t deviceID) { _implementation[deviceID] = nullptr; }
         void release() { for(auto& imp : _implementation) imp = nullptr; }
 

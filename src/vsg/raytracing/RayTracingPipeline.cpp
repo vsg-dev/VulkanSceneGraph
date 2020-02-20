@@ -66,7 +66,7 @@ void RayTracingPipeline::write(Output& output) const
 
 void RayTracingPipeline::compile(Context& context)
 {
-    if (!_implementation)
+    if (!_implementation[context.deviceID])
     {
         _pipelineLayout->compile(context);
 
@@ -75,7 +75,7 @@ void RayTracingPipeline::compile(Context& context)
             shaderStage->compile(context);
         }
 
-        _implementation = RayTracingPipeline::Implementation::create(context, this);
+        _implementation[context.deviceID] = RayTracingPipeline::Implementation::create(context, this);
     }
 }
 
@@ -223,7 +223,7 @@ void BindRayTracingPipeline::write(Output& output) const
 
 void BindRayTracingPipeline::dispatch(CommandBuffer& commandBuffer) const
 {
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_NV, *_pipeline);
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_NV, _pipeline->vk(commandBuffer.deviceID));
     commandBuffer.setCurrentPipelineLayout(_pipeline->getPipelineLayout()->vk(commandBuffer.deviceID));
 }
 
