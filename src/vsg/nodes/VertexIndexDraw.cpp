@@ -90,8 +90,6 @@ void VertexIndexDraw::write(Output& output) const
     output.write("firstInstance", firstInstance);
 }
 
-#include <set>
-
 void VertexIndexDraw::compile(Context& context)
 {
     if (arrays.size() == 0 || !indices)
