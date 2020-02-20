@@ -581,6 +581,7 @@ void BuildAccelerationStructureCommand::dispatch(CommandBuffer& commandBuffer) c
 // vsg::Context
 //
 Context::Context(Device* in_device, BufferPreferences bufferPreferences) :
+    deviceID(in_device->deviceID),
     device(in_device),
     deviceMemoryBufferPools(MemoryBufferPools::create("Device_MemoryBufferPool", device, bufferPreferences)),
     stagingMemoryBufferPools(MemoryBufferPools::create("Staging_MemoryBufferPool", device, bufferPreferences)),
@@ -590,6 +591,7 @@ Context::Context(Device* in_device, BufferPreferences bufferPreferences) :
 }
 
 Context::Context(const Context& context) :
+    deviceID(context.deviceID),
     device(context.device),
     renderPass(context.renderPass),
     viewport(context.viewport),

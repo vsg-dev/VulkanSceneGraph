@@ -133,6 +133,7 @@ namespace vsg
         virtual ~Context();
 
         // used by BufferData.cpp, ComputePipeline.cpp, Descriptor.cpp, Descriptor.cpp, DescriptorSet.cpp, DescriptorSetLayout.cpp, GraphicsPipeline.cpp, ImageData.cpp, PipelineLayout.cpp, ShaderModule.cpp
+        const uint32_t deviceID = 0;
         ref_ptr<Device> device;
 
         // used by GraphicsPipeline.cpp
