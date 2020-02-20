@@ -108,7 +108,7 @@ RayTracingPipeline::Implementation::Result RayTracingPipeline::Implementation::c
 
     VkRayTracingPipelineCreateInfoNV pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_NV;
-    pipelineInfo.layout = *pipelineLayout;
+    pipelineInfo.layout = pipelineLayout->vk(context.deviceID);
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.pNext = nullptr;
 
@@ -224,7 +224,7 @@ void BindRayTracingPipeline::write(Output& output) const
 void BindRayTracingPipeline::dispatch(CommandBuffer& commandBuffer) const
 {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_NV, *_pipeline);
-    commandBuffer.setCurrentPipelineLayout(*(_pipeline->getPipelineLayout()));
+    commandBuffer.setCurrentPipelineLayout(_pipeline->getPipelineLayout()->vk(commandBuffer.deviceID));
 }
 
 void BindRayTracingPipeline::compile(Context& context)

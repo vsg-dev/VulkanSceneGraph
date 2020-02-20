@@ -202,7 +202,7 @@ void BindDescriptorSets::compile(Context& context)
     if (_vkPipelineLayout != 0 && _vkDescriptorSets.size() > 0) return;
 
     _pipelineLayout->compile(context);
-    _vkPipelineLayout = *(_pipelineLayout);
+    _vkPipelineLayout = _pipelineLayout->vk(context.deviceID);
 
     // no need to compile if already compiled
     if (_vkDescriptorSets.size() == _descriptorSets.size()) return;
@@ -264,7 +264,7 @@ void BindDescriptorSet::compile(Context& context)
     if (!_descriptorSet || !_pipelineLayout) return;
 
     _pipelineLayout->compile(context);
-    _vkPipelineLayout = *(_pipelineLayout);
+    _vkPipelineLayout = _pipelineLayout->vk(context.deviceID);
 
     _descriptorSet->compile(context);
     _vkDescriptorSet = *(_descriptorSet);

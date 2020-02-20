@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/DescriptorSetLayout.h>
+#include <vsg/vk/implementation_buffer.h>
 
 namespace vsg
 {
@@ -39,6 +40,16 @@ namespace vsg
         VkPipelineLayoutCreateFlags& getVkPipelineLayoutCreateFlags() { return _flags; }
         VkPipelineLayoutCreateFlags getVkPipelineLayoutCreateFlags() const { return _flags; }
 
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context);
+
+        void release(uint32_t deviceID) { _implementation[deviceID] = nullptr; }
+
+        VkPipelineLayout vk(uint32_t deviceID) const { return _implementation.vk(deviceID); }
+
+    protected:
+        virtual ~PipelineLayout();
+
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
         public:
@@ -48,7 +59,7 @@ namespace vsg
 
             static Result create(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags = 0, AllocationCallbacks* allocator = nullptr);
 
-            operator VkPipelineLayout() const { return _pipelineLayout; }
+            VkPipelineLayout vk() const { return _pipelineLayout; }
 
             Device* getDevice() { return _device; }
             const Device* getDevice() const { return _device; }
@@ -63,25 +74,12 @@ namespace vsg
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
-        // compile the Vulkan object, context parameter used for Device
-        void compile(Context& context);
-
-        // remove the local reference to the Vulkan implementation
-        void release() { _implementation = nullptr; }
-
-        operator VkPipelineLayout() const { return *_implementation; }
-
-        Implementation* implementation() { return _implementation; }
-        const Implementation* implementation() const { return _implementation; }
-
-    protected:
-        virtual ~PipelineLayout();
+        implementation_buffer<Implementation> _implementation;
 
         DescriptorSetLayouts _descriptorSetLayouts;
         PushConstantRanges _pushConstantRanges;
         VkPipelineLayoutCreateFlags _flags;
 
-        ref_ptr<Implementation> _implementation;
     };
     VSG_type_name(vsg::PipelineLayout);
 

@@ -41,18 +41,6 @@ namespace vsg
                     }
                 }
 
-                if (graphicsPipeline->getImplementation())
-                {
-                    for (auto& pipelineState : graphicsPipeline->getImplementation()->_pipelineStates)
-                    {
-                        if (pipelineState == context.viewport)
-                        {
-                            needToRegenerateGraphicsPipeline = true;
-                            break;
-                        }
-                    }
-                }
-
                 if (needToRegenerateGraphicsPipeline)
                 {
                     vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getPipelineLayout(), graphicsPipeline->getShaderStages(), graphicsPipeline->getPipelineStates());

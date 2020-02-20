@@ -61,6 +61,19 @@ namespace vsg
         GraphicsPipelineStates& getPipelineStates() { return _pipelineStates; }
         const GraphicsPipelineStates& getPipelineStates() const { return _pipelineStates; }
 
+
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context);
+
+        // remove the local reference to the Vulkan implementation
+        void release(uint32_t deviceID) { _implementation[deviceID] = nullptr; }
+        void release() { for(auto& imp : _implementation) imp = nullptr; }
+
+        VkPipeline vk(uint32_t deviceID) const { return _implementation.vk(deviceID); }
+
+    protected:
+        virtual ~GraphicsPipeline();
+
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
         public:
@@ -71,6 +84,8 @@ namespace vsg
 
             /** Create a GraphicsPipeline.*/
             static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
+
+            VkPipeline vk() const { return _pipeline; }
 
             VkPipeline _pipeline;
 
@@ -83,20 +98,7 @@ namespace vsg
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
-        // get the Vulkan GrphicsPipeline::Implementation
-        Implementation* getImplementation() { return _implementation; }
-        const Implementation* getImplementation() const { return _implementation; }
-
-        // compile the Vulkan object, context parameter used for Device
-        void compile(Context& context);
-
-        // remove the local reference to the Vulkan implementation
-        void release() { _implementation = nullptr; }
-
-        operator VkPipeline() const { return _implementation->_pipeline; }
-
-    protected:
-        virtual ~GraphicsPipeline();
+        implementation_buffer<Implementation> _implementation;
 
         ref_ptr<Device> _device;
         ref_ptr<RenderPass> _renderPass;
@@ -104,8 +106,6 @@ namespace vsg
         ShaderStages _shaderStages;
         GraphicsPipelineStates _pipelineStates;
         ref_ptr<AllocationCallbacks> _allocator;
-
-        ref_ptr<Implementation> _implementation;
     };
     VSG_type_name(vsg::GraphicsPipeline);
 
