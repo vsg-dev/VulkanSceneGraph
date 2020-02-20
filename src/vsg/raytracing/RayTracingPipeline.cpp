@@ -120,7 +120,7 @@ RayTracingPipeline::Implementation::Result RayTracingPipeline::Implementation::c
     {
         const ShaderStage* shaderStage = shaderStages[i];
         shaderStageCreateInfo[i].pNext = nullptr;
-        shaderStage->apply(shaderStageCreateInfo[i]);
+        shaderStage->apply(device->deviceID, shaderStageCreateInfo[i]);
         if (!shaderStage->getSpecializationMapEntries().empty() && shaderStage->getSpecializationData() != nullptr)
         {
             // assign a VkSpecializationInfo for this shaderStageCreateInfo

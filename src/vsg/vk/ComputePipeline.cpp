@@ -90,7 +90,7 @@ ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(
     VkSpecializationInfo specializationInfo = {};
     VkPipelineShaderStageCreateInfo stageInfo = {};
     stageInfo.pNext = nullptr;
-    shaderStage->apply(stageInfo);
+    shaderStage->apply(device->deviceID, stageInfo);
 
     if (!shaderStage->getSpecializationMapEntries().empty() && shaderStage->getSpecializationData() != nullptr)
     {

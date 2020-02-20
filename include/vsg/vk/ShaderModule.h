@@ -13,7 +13,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <fstream>
+
 #include <vsg/vk/Device.h>
+#include <vsg/vk/implementation_buffer.h>
 
 namespace vsg
 {
@@ -65,6 +67,18 @@ namespace vsg
         using Result = vsg::Result<ShaderModule, VkResult, VK_SUCCESS>;
         static Result read(const std::string& filename);
 
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context);
+
+        // remove the local reference to the Vulkan implementation
+        void release(uint32_t deviceID) { _implementation[deviceID] = nullptr; }
+        void release() { for(auto& imp : _implementation) imp = nullptr; }
+
+        VkShaderModule vk(uint32_t deviceID) const { return _implementation.vk(deviceID); }
+
+    protected:
+        virtual ~ShaderModule();
+
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
         public:
@@ -76,28 +90,17 @@ namespace vsg
             /** Create a ComputePipeline.*/
             static Result create(Device* device, ShaderModule* shader, AllocationCallbacks* allocator = nullptr);
 
-            operator VkShaderModule() const { return _shaderModule; }
+            VkShaderModule vk() const { return _shaderModule; }
 
             VkShaderModule _shaderModule;
             ref_ptr<Device> _device;
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
-        // compile the Vulkan object, context parameter used for Device
-        void compile(Context& context);
-
-        // remove the local reference to the Vulkan implementation
-        void release() { _implementation = nullptr; }
-
-        operator VkShaderModule() const { return _implementation->_shaderModule; }
-
-    protected:
-        virtual ~ShaderModule();
-
         std::string _source;
         SPIRV _spirv;
 
-        ref_ptr<Implementation> _implementation;
+        implementation_buffer<Implementation> _implementation;
     };
     VSG_type_name(vsg::ShaderModule);
 
