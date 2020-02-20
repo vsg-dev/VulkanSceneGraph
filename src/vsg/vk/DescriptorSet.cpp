@@ -69,7 +69,7 @@ void DescriptorSet::write(Output& output) const
 
 void DescriptorSet::compile(Context& context)
 {
-    if (!_implementation)
+    if (!_implementation[context.deviceID])
     {
         // make sure all the contributing objects are compiled
         for (auto& descriptorSetLayout : _descriptorSetLayouts) descriptorSetLayout->compile(context);
@@ -78,7 +78,7 @@ void DescriptorSet::compile(Context& context)
 #if USE_MUTEX
         std::lock_guard<std::mutex> lock(context.descriptorPool->getMutex());
 #endif
-        _implementation = DescriptorSet::Implementation::create(context.device, context.descriptorPool, _descriptorSetLayouts, _descriptors);
+        _implementation[context.deviceID] = DescriptorSet::Implementation::create(context.device, context.descriptorPool, _descriptorSetLayouts, _descriptors);
     }
 }
 
@@ -212,7 +212,7 @@ void BindDescriptorSets::compile(Context& context)
     {
         _descriptorSets[i]->compile(context);
 
-        _vkDescriptorSets[i] = *(_descriptorSets[i]);
+        _vkDescriptorSets[i] = _descriptorSets[i]->vk(context.deviceID);
     }
 }
 
@@ -267,5 +267,5 @@ void BindDescriptorSet::compile(Context& context)
     _vkPipelineLayout = _pipelineLayout->vk(context.deviceID);
 
     _descriptorSet->compile(context);
-    _vkDescriptorSet = *(_descriptorSet);
+    _vkDescriptorSet = _descriptorSet->vk(context.deviceID);
 }

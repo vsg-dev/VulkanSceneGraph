@@ -43,6 +43,18 @@ namespace vsg
         const DescriptorSetLayouts& getDescriptorSetLayouts() const { return _descriptorSetLayouts; }
         const Descriptors& getDescriptors() const { return _descriptors; }
 
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context);
+
+        // remove the local reference to the Vulkan implementation
+        void release(uint32_t deviceID) { _implementation[deviceID] = nullptr; }
+        void release() { for(auto& imp : _implementation) imp = nullptr; }
+
+        VkDescriptorSet vk(uint32_t deviceID) const { return _implementation.vk(deviceID); }
+
+    protected:
+        virtual ~DescriptorSet();
+
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
         public:
@@ -54,7 +66,7 @@ namespace vsg
 
             void assign(const Descriptors& descriptors);
 
-            operator VkDescriptorSet() const { return _descriptorSet; }
+            VkDescriptorSet vk() const { return _descriptorSet; }
 
         protected:
             virtual ~Implementation();
@@ -66,24 +78,10 @@ namespace vsg
             Descriptors _descriptors;
         };
 
-        // compile the Vulkan object, context parameter used for Device
-        void compile(Context& context);
-
-        // remove the local reference to the Vulkan implementation
-        void release() { _implementation = nullptr; }
-
-        operator VkDescriptorSet() const { return *_implementation; }
-
-        Implementation* implementation() { return _implementation; }
-        const Implementation* implementation() const { return _implementation; }
-
-    protected:
-        virtual ~DescriptorSet();
+        implementation_buffer<Implementation> _implementation;
 
         DescriptorSetLayouts _descriptorSetLayouts;
         Descriptors _descriptors;
-
-        ref_ptr<Implementation> _implementation;
     };
     VSG_type_name(vsg::DescriptorSet);
 
