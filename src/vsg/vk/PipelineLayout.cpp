@@ -119,7 +119,7 @@ PipelineLayout::Implementation::Result PipelineLayout::Implementation::create(De
     std::vector<VkDescriptorSetLayout> layouts;
     for (auto& dsl : descriptorSetLayouts)
     {
-        layouts.push_back(*dsl);
+        layouts.push_back(dsl->vk(device->deviceID));
     }
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo;

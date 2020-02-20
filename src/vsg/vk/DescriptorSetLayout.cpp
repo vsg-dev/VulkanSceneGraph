@@ -62,7 +62,7 @@ void DescriptorSetLayout::write(Output& output) const
 
 void DescriptorSetLayout::compile(Context& context)
 {
-    if (!_implementation) _implementation = DescriptorSetLayout::Implementation::create(context.device, _descriptorSetLayoutBindings);
+    if (!_implementation[context.deviceID]) _implementation[context.deviceID] = DescriptorSetLayout::Implementation::create(context.device, _descriptorSetLayoutBindings);
 }
 
 //////////////////////////////////////

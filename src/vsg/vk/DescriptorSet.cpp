@@ -112,7 +112,7 @@ DescriptorSet::Implementation::Result DescriptorSet::Implementation::create(Devi
     std::vector<VkDescriptorSetLayout> vkdescriptorSetLayouts;
     for (auto& descriptorSetLayout : descriptorSetLayouts)
     {
-        vkdescriptorSetLayouts.push_back(*descriptorSetLayout);
+        vkdescriptorSetLayouts.push_back(descriptorSetLayout->vk(device->deviceID));
     }
 
     VkDescriptorSetAllocateInfo descriptSetAllocateInfo = {};
