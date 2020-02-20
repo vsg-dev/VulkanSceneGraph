@@ -112,7 +112,7 @@ void DescriptorImage::compile(Context& context)
         const ImageData& data = _imageDataList[i];
         VkDescriptorImageInfo& info = _imageInfos[i];
         if (data._sampler)
-            info.sampler = *(data._sampler);
+            info.sampler = data._sampler->vk(context.deviceID);
         else
             info.sampler = 0;
 
@@ -210,7 +210,7 @@ void DescriptorImageView::compile(Context& context)
         const ImageData& data = _imageDataList[i];
         VkDescriptorImageInfo& info = _imageInfos[i];
         if (data._sampler)
-            info.sampler = *(data._sampler);
+            info.sampler = data._sampler->vk(context.deviceID);
         else
             info.sampler = 0;
 
