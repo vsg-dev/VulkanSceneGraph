@@ -58,13 +58,13 @@ namespace vsg
         // X11 hint of whether to ignore the Window managers redirection of window size/position
         bool overrideRedirect = false;
 
-        bool debugLayer = false;
-        bool apiDumpLayer = false;
-
         SwapchainPreferences swapchainPreferences;
 
         VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
         VkPipelineStageFlagBits imageAvailableSemaphoreWaitFlag = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+        bool debugLayer = false;
+        bool apiDumpLayer = false;
 
         vsg::Names instanceExtensionNames;
         vsg::Names deviceExtensionNames;
