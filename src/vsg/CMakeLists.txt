@@ -98,6 +98,7 @@ set(SOURCES
     vk/Descriptor.cpp
     vk/DescriptorBuffer.cpp
     vk/DescriptorImage.cpp
+    vk/DescriptorImageView.cpp
     vk/DescriptorTexelBufferView.cpp
     vk/DescriptorPool.cpp
     vk/DescriptorSet.cpp
