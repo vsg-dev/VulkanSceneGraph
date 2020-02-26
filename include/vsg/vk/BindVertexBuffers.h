@@ -75,7 +75,6 @@ namespace vsg
         }
 
         std::vector<VulkanData> _vulkanData;
-
     };
     VSG_type_name(vsg::BindVertexBuffers);
 
