@@ -45,7 +45,6 @@ namespace vsg
     protected:
         DataList _dataList;
         BufferDataList _bufferDataList;
-        std::vector<VkDescriptorBufferInfo> _bufferInfos;
     };
     VSG_type_name(vsg::DescriptorBuffer)
 
