@@ -10,9 +10,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Version.h>
 #include <vsg/viewer/Window.h>
 #include <vsg/vk/Device.h>
-#include <vsg/core/Version.h>
 
 #include <set>
 
@@ -36,11 +36,11 @@ Device::Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallba
 
     for (deviceID = 0; deviceID < static_cast<uint32_t>(s_ActiveDevices.size()); ++deviceID)
     {
-         if (s_ActiveDevices[deviceID] == nullptr)
-         {
+        if (s_ActiveDevices[deviceID] == nullptr)
+        {
             s_ActiveDevices[deviceID] = this;
             break;
-         }
+        }
     }
 
     if (deviceID >= static_cast<uint32_t>(s_ActiveDevices.size()))
@@ -48,10 +48,10 @@ Device::Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallba
         s_ActiveDevices.push_back(this);
     }
 
-    if (deviceID>=VSG_MAX_DEVICES)
+    if (deviceID >= VSG_MAX_DEVICES)
     {
         // TODO throw an exception?
-        std::cout<<"Warning : number of vsg:Device allocated exceeds number supported "<<VSG_MAX_DEVICES<<std::endl;
+        std::cout << "Warning : number of vsg:Device allocated exceeds number supported " << VSG_MAX_DEVICES << std::endl;
     }
 }
 

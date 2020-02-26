@@ -28,7 +28,7 @@ namespace vsg
     {
         ref_ptr<T> value;
 
-        ref_ptr<T>& operator [] (uint32_t) { return value; }
+        ref_ptr<T>& operator[](uint32_t) { return value; }
 
         auto vk(uint32_t) const { return value->vk(); }
 
@@ -47,7 +47,7 @@ namespace vsg
     {
         std::array<ref_ptr<T>, VSG_MAX_DEVICES> buffer;
 
-        ref_ptr<T>& operator [] (uint32_t deviceID) { return buffer[deviceID]; }
+        ref_ptr<T>& operator[](uint32_t deviceID) { return buffer[deviceID]; }
 
         auto vk(uint32_t deviceID) const { return buffer[deviceID]->vk(); }
 
@@ -65,9 +65,9 @@ namespace vsg
     {
         std::vector<ref_ptr<T>> buffer;
 
-        ref_ptr<T>& operator [] (uint32_t deviceID)
+        ref_ptr<T>& operator[](uint32_t deviceID)
         {
-            if (deviceID>=buffer.size()) buffer.resize(deviceID+1);
+            if (deviceID >= buffer.size()) buffer.resize(deviceID + 1);
             return buffer[deviceID];
         }
 
