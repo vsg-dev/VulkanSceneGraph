@@ -25,19 +25,13 @@ DescriptorImage::DescriptorImage() :
 DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> image, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
     Inherit(dstBinding, dstArrayElement, descriptorType)
 {
-    if (sampler || image) _samplerImages.emplace_back(SamplerImage{sampler, image, {}});
-}
-
-DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<ImageView> imageView, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
-    Inherit(dstBinding, dstArrayElement, descriptorType)
-{
-    if (sampler || imageView) _samplerImages.emplace_back(SamplerImage{sampler, {}, imageView});
+    if (sampler || image) _samplerImages.emplace_back(SamplerImage{sampler, image});
 }
 
 DescriptorImage::DescriptorImage(const SamplerImage& samplerImage, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
     Inherit(dstBinding, dstArrayElement, descriptorType)
 {
-    if (samplerImage.sampler || samplerImage.data || samplerImage.imageView) _samplerImages.emplace_back(samplerImage);
+    if (samplerImage.sampler || samplerImage.data ) _samplerImages.emplace_back(samplerImage);
 }
 
 DescriptorImage::DescriptorImage(const SamplerImages& samplerImages, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
@@ -84,16 +78,7 @@ void DescriptorImage::compile(Context& context)
         for (auto& samplerImage : _samplerImages)
         {
             samplerImage.sampler->compile(context);
-            if (samplerImage.imageView)
-            {
-                ImageData imagedata = ImageData(samplerImage.sampler, samplerImage.imageView);
-                imagedata._imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL; //no way to set this from an image view at the moment
-                _imageDataList.emplace_back(imagedata);
-            }
-            else
-            {
-                _imageDataList.emplace_back(vsg::transferImageData(context, samplerImage.data, samplerImage.sampler));
-            }
+            _imageDataList.emplace_back(vsg::transferImageData(context, samplerImage.data, samplerImage.sampler));
         }
     }
 }
