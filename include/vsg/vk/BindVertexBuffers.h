@@ -29,6 +29,7 @@ namespace vsg
             _firstBinding(firstBinding),
             _arrays(arrays) {}
 
+
         BindVertexBuffers(uint32_t firstBinding, const BufferDataList& bufferDataList) :
             _firstBinding(firstBinding)
         {
@@ -41,12 +42,7 @@ namespace vsg
         void setFirstBinding(uint32_t firstBinding) { _firstBinding = firstBinding; }
         uint32_t getFirstBinding() const { return _firstBinding; }
 
-        void add(ref_ptr<Buffer> buffer, VkDeviceSize offset)
-        {
-            _buffers.push_back(buffer);
-            _vkBuffers.push_back(*buffer);
-            _offsets.push_back(offset);
-        }
+        void add(ref_ptr<Buffer> buffer, VkDeviceSize offset);
 
         void setArrays(const DataList& arrays) { _arrays = arrays; }
         DataList& getArrays() { return _arrays; }
@@ -62,15 +58,24 @@ namespace vsg
     protected:
         virtual ~BindVertexBuffers();
 
-        using Buffers = std::vector<ref_ptr<Buffer>>;
-        using VkBuffers = std::vector<VkBuffer>;
-        using Offsets = std::vector<VkDeviceSize>;
-
         uint32_t _firstBinding;
-        Buffers _buffers;
-        VkBuffers _vkBuffers;
-        Offsets _offsets;
         DataList _arrays;
+
+        struct VulkanData
+        {
+            std::vector<ref_ptr<Buffer>> buffers;
+            std::vector<VkBuffer> vkBuffers;
+            std::vector<VkDeviceSize> offsets;
+        };
+
+        VulkanData& getVulkanData(uint32_t deviceID)
+        {
+            if (deviceID >= _vulkanData.size()) _vulkanData.resize(deviceID+1);
+            return _vulkanData[deviceID];
+        }
+
+        std::vector<VulkanData> _vulkanData;
+
     };
     VSG_type_name(vsg::BindVertexBuffers);
 

@@ -16,22 +16,37 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 BindIndexBuffer::BindIndexBuffer(Data* indices) :
-    _bufferData(nullptr, 0, 0, indices),
-    _indexType(computeIndexType(indices))
+    _indices(indices)
 {
 }
 
-BindIndexBuffer::BindIndexBuffer(const BufferData& bufferData) :
-    _bufferData(bufferData),
-    _indexType(computeIndexType(bufferData._data))
+BindIndexBuffer::BindIndexBuffer(const BufferData& bufferData)
 {
+    if (bufferData._buffer.valid())
+    {
+        _indices = bufferData._data;
+
+        auto& vkd = getVulkanData(bufferData._buffer->getDevice()->deviceID);
+        vkd.bufferData = bufferData;
+        vkd.indexType = computeIndexType(bufferData._data);
+    }
+}
+
+BindIndexBuffer::BindIndexBuffer(Buffer* buffer, VkDeviceSize offset, VkIndexType indexType)
+{
+    auto& vkd = getVulkanData(buffer->getDevice()->deviceID);
+    vkd.bufferData = BufferData(buffer, offset, 0),
+    vkd.indexType = indexType;
 }
 
 BindIndexBuffer::~BindIndexBuffer()
 {
-    if (_bufferData._buffer)
+    for(auto& vkd : _vulkanData)
     {
-        _bufferData._buffer->release(_bufferData._offset, 0); // TODO, we don't locally have a size allocated
+        if (vkd.bufferData._buffer)
+        {
+            vkd.bufferData._buffer->release(vkd.bufferData._offset, 0); // TODO, we don't locally have a size allocated
+        }
     }
 }
 
@@ -39,13 +54,11 @@ void BindIndexBuffer::read(Input& input)
 {
     Command::read(input);
 
-    // reset the Vulkan related objects
-    _bufferData._buffer = 0;
-    _bufferData._offset = 0;
-    _bufferData._range = 0;
+    // clear Vulkan objects
+    _vulkanData.clear();
 
     // read the key indices data
-    _bufferData._data = input.readObject<Data>("Indices");
+    _indices = input.readObject<Data>("Indices");
 }
 
 void BindIndexBuffer::write(Output& output) const
@@ -53,23 +66,29 @@ void BindIndexBuffer::write(Output& output) const
     Command::write(output);
 
     // write indices data
-    output.writeObject("Indices", _bufferData._data.get());
-}
-
-void BindIndexBuffer::dispatch(CommandBuffer& commandBuffer) const
-{
-    vkCmdBindIndexBuffer(commandBuffer, *_bufferData._buffer, _bufferData._offset, _indexType);
+    output.writeObject("Indices", _indices.get());
 }
 
 void BindIndexBuffer::compile(Context& context)
 {
-    // check if already compiled
-    if (_bufferData._buffer) return;
+    // nothing to compile
+    if (!_indices) return;
 
-    auto bufferDataList = vsg::createBufferAndTransferData(context, {_bufferData._data}, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+     auto& vkd = getVulkanData(context.deviceID);
+
+    // check if already compiled
+    if (vkd.bufferData._buffer) return;
+
+    auto bufferDataList = vsg::createBufferAndTransferData(context, {_indices}, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     if (!bufferDataList.empty())
     {
-        _bufferData = bufferDataList.back();
-        _indexType = computeIndexType(_bufferData._data);
+        vkd.bufferData = bufferDataList.back();
+        vkd.indexType = computeIndexType(_indices);
     }
+}
+
+void BindIndexBuffer::dispatch(CommandBuffer& commandBuffer) const
+{
+    auto& vkd =_vulkanData[commandBuffer.deviceID];
+    vkCmdBindIndexBuffer(commandBuffer, *vkd.bufferData._buffer, vkd.bufferData._offset, vkd.indexType);
 }

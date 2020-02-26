@@ -39,20 +39,19 @@ namespace vsg
     class VSG_DECLSPEC BindIndexBuffer : public Inherit<Command, BindIndexBuffer>
     {
     public:
-        BindIndexBuffer() :
-            _indexType(VK_INDEX_TYPE_MAX_ENUM) {}
+        BindIndexBuffer() {}
 
         BindIndexBuffer(Data* indices);
 
         BindIndexBuffer(const BufferData& bufferData);
 
-        BindIndexBuffer(Buffer* buffer, VkDeviceSize offset, VkIndexType indexType) :
-            _bufferData(buffer, offset, 0),
-            _indexType(indexType) {}
+        BindIndexBuffer(Buffer* buffer, VkDeviceSize offset, VkIndexType indexType);
 
-        void setIndices(ref_ptr<Data> indices) { _bufferData._data = indices; }
-        Data* getIndices() { return _bufferData._data; }
-        const Data* getIndices() const { return _bufferData._data; }
+        void setIndices(ref_ptr<Data> indices) { _indices = indices; }
+        Data* getIndices() { return _indices; }
+        const Data* getIndices() const { return _indices; }
+
+        void add(ref_ptr<Buffer> buffer, VkDeviceSize offset);
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -64,8 +63,21 @@ namespace vsg
     protected:
         virtual ~BindIndexBuffer();
 
-        BufferData _bufferData;
-        VkIndexType _indexType;
+        ref_ptr<Data> _indices;
+
+        struct VulkanData
+        {
+            BufferData bufferData;
+            VkIndexType indexType;
+        };
+
+        VulkanData& getVulkanData(uint32_t deviceID)
+        {
+            if (deviceID >= _vulkanData.size()) _vulkanData.resize(deviceID+1);
+            return _vulkanData[deviceID];
+        }
+
+        std::vector<VulkanData> _vulkanData;
     };
     VSG_type_name(vsg::BindIndexBuffer);
 
