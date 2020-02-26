@@ -63,34 +63,4 @@ namespace vsg
     VSG_value(materialValue, material);
     VSG_array(materialArray, material);
 
-    struct Material
-    {
-        vec4 ambientColor;
-        vec4 diffuseColor;
-        vec4 specularColor;
-        float shine;
-    };
-
-    class VSG_DECLSPEC MaterialValue : public Inherit<Value<Material>, MaterialValue>
-    {
-    public:
-        MaterialValue() {}
-
-        void read(Input& input) override
-        {
-            value().ambientColor = input.readValue<vec4>("ambientColor");
-            value().diffuseColor = input.readValue<vec4>("diffuseColor");
-            value().specularColor = input.readValue<vec4>("specularColor");
-            value().shine = input.readValue<float>("shine");
-        }
-        void write(Output& output) const override
-        {
-            output.writeValue<vec4>("ambientColor", value().ambientColor);
-            output.writeValue<vec4>("diffuseColor", value().diffuseColor);
-            output.writeValue<vec4>("specularColor", value().specularColor);
-            output.writeValue<float>("shine", value().shine);
-        }
-    };
-    VSG_type_name(vsg::MaterialValue);
-
 } // namespace vsg
