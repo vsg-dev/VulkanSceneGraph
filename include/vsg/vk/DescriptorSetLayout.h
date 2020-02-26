@@ -36,7 +36,10 @@ namespace vsg
 
         // remove the local reference to the Vulkan implementation
         void release(uint32_t deviceID) { _implementation[deviceID] = nullptr; }
-        void release() { for(auto& imp : _implementation) imp = nullptr; }
+        void release()
+        {
+            for (auto& imp : _implementation) imp = nullptr;
+        }
 
         VkDescriptorSetLayout vk(uint32_t deviceID) const { return _implementation.vk(deviceID); }
 

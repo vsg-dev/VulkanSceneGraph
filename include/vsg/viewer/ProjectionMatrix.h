@@ -101,7 +101,6 @@ namespace vsg
     class RelativeProjection : public Inherit<ProjectionMatrix, RelativeProjection>
     {
     public:
-
         RelativeProjection(ref_ptr<ProjectionMatrix> pm, const dmat4& m) :
             projectionMatrix(pm),
             matrix(m)

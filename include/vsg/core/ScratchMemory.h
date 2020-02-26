@@ -34,16 +34,15 @@ namespace vsg
 
         ~ScratchMemory()
         {
-            delete [] buffer;
+            delete[] buffer;
             if (next) delete next;
         }
 
         uint8_t* align(uint8_t* p) const
         {
             auto alignment = sizeof(p);
-            uint8_t* new_p = reinterpret_cast<uint8_t*>(((reinterpret_cast<size_t>(p) + alignment -1) / alignment) * alignment);
+            uint8_t* new_p = reinterpret_cast<uint8_t*>(((reinterpret_cast<size_t>(p) + alignment - 1) / alignment) * alignment);
             return new_p;
-
         }
 
         template<typename T>
@@ -51,12 +50,12 @@ namespace vsg
         {
             size_t allocate_size = sizeof(T) * num;
 
-            if ((ptr+allocate_size)<=(buffer+size))
+            if ((ptr + allocate_size) <= (buffer + size))
             {
                 T* allocated_ptr = reinterpret_cast<T*>(ptr);
 
                 // move the ptr to the alignment end
-                ptr = align( ptr + allocate_size );
+                ptr = align(ptr + allocate_size);
 
                 return allocated_ptr;
             }

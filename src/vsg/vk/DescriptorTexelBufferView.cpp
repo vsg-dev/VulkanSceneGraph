@@ -23,19 +23,18 @@ DescriptorTexelBufferView::DescriptorTexelBufferView(uint32_t dstBinding, uint32
     Inherit(dstBinding, dstArrayElement, descriptorType),
     _texelBufferViewList(texelBufferViews)
 {
-    _texelBufferViews.resize(_texelBufferViewList.size());
-    for (size_t i = 0; i < _texelBufferViewList.size(); ++i)
-    {
-        _texelBufferViews[i] = *(_texelBufferViewList[i]);
-    }
 }
 
-bool DescriptorTexelBufferView::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+void DescriptorTexelBufferView::assignTo(Context& context, VkWriteDescriptorSet& wds) const
 {
-    std::vector<VkBufferView> texelBufferViews(_texelBufferViewList.size());
+    Descriptor::assignTo(context, wds);
 
-    Descriptor::assignTo(wds, descriptorSet);
-    wds.descriptorCount = static_cast<uint32_t>(_texelBufferViews.size());
-    wds.pTexelBufferView = _texelBufferViews.data();
-    return true;
+    auto texelBufferViews = context.scratchMemory->allocate<VkBufferView>(_texelBufferViewList.size());
+    wds.descriptorCount = static_cast<uint32_t>(_texelBufferViewList.size());
+    wds.pTexelBufferView = texelBufferViews;
+
+    for (size_t i = 0; i < _texelBufferViewList.size(); ++i)
+    {
+        texelBufferViews[i] = *(_texelBufferViewList[i]);
+    }
 }

@@ -80,7 +80,6 @@ namespace vsg
     class RelativeView : public Inherit<ViewMatrix, RelativeView>
     {
     public:
-
         RelativeView(ref_ptr<ViewMatrix> vm, const dmat4& m) :
             viewMatrix(vm),
             matrix(m)

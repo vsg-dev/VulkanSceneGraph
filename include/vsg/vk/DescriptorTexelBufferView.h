@@ -24,13 +24,12 @@ namespace vsg
     public:
         DescriptorTexelBufferView(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferViewList& texelBufferViews);
 
-        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
+        void assignTo(Context& context, VkWriteDescriptorSet& wds) const override;
 
         uint32_t getNumDescriptors() const override { return static_cast<uint32_t>(_texelBufferViewList.size()); }
 
     protected:
         BufferViewList _texelBufferViewList;
-        std::vector<VkBufferView> _texelBufferViews;
     };
     VSG_type_name(vsg::DescriptorTexelBufferView);
 

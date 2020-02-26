@@ -48,7 +48,10 @@ namespace vsg
 
         // remove the local reference to the Vulkan implementation
         void release(uint32_t deviceID) { _implementation[deviceID] = nullptr; }
-        void release() { for(auto& imp : _implementation) imp = nullptr; }
+        void release()
+        {
+            for (auto& imp : _implementation) imp = nullptr;
+        }
 
         VkDescriptorSet vk(uint32_t deviceID) const { return _implementation.vk(deviceID); }
 
@@ -58,13 +61,13 @@ namespace vsg
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
         public:
-            Implementation(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors);
+            Implementation(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts);
 
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
-            static Result create(Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors);
+            static Result create(Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts);
 
-            void assign(const Descriptors& descriptors);
+            void assign(Context& context, const Descriptors& descriptors);
 
             VkDescriptorSet vk() const { return _descriptorSet; }
 

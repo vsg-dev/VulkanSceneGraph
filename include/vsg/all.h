@@ -26,6 +26,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Object.h>
 #include <vsg/core/Objects.h>
 #include <vsg/core/Result.h>
+#include <vsg/core/ScratchMemory.h>
 #include <vsg/core/Value.h>
 #include <vsg/core/Version.h>
 #include <vsg/core/Visitor.h>
@@ -144,6 +145,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/SubmitCommands.h>
 #include <vsg/vk/Surface.h>
 #include <vsg/vk/Swapchain.h>
+#include <vsg/vk/implementation_buffer.h>
 
 // Input/Output header files
 #include <vsg/io/AsciiInput.h>

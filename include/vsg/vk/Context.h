@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <memory>
 
 #include <vsg/core/Object.h>
+#include <vsg/core/ScratchMemory.h>
 
 #include <vsg/nodes/Group.h>
 
@@ -150,6 +151,7 @@ namespace vsg
         ref_ptr<CommandBuffer> commandBuffer;
         ref_ptr<Fence> fence;
         ref_ptr<Semaphore> semaphore;
+        ref_ptr<ScratchMemory> scratchMemory;
 
         std::vector<ref_ptr<CopyAndReleaseBufferDataCommand>> copyBufferDataCommands;
         std::vector<ref_ptr<CopyAndReleaseImageDataCommand>> copyImageDataCommands;

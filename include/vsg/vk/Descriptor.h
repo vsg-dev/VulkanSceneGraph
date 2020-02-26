@@ -39,7 +39,7 @@ namespace vsg
         // compile the Vulkan object, context parameter used for Device
         virtual void compile(Context& /*context*/) {}
 
-        virtual bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const;
+        virtual void assignTo(Context& context, VkWriteDescriptorSet& wds) const;
 
         virtual uint32_t getNumDescriptors() const { return 1; }
     };

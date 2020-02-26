@@ -78,17 +78,17 @@ void DescriptorSet::compile(Context& context)
 #if USE_MUTEX
         std::lock_guard<std::mutex> lock(context.descriptorPool->getMutex());
 #endif
-        _implementation[context.deviceID] = DescriptorSet::Implementation::create(context.device, context.descriptorPool, _descriptorSetLayouts, _descriptors);
+        _implementation[context.deviceID] = DescriptorSet::Implementation::create(context.device, context.descriptorPool, _descriptorSetLayouts);
+        _implementation[context.deviceID]->assign(context, _descriptors);
     }
 }
 
-DescriptorSet::Implementation::Implementation(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors) :
+DescriptorSet::Implementation::Implementation(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts) :
     _descriptorSet(descriptorSet),
     _device(device),
     _descriptorPool(descriptorPool),
     _descriptorSetLayouts(descriptorSetLayouts)
 {
-    assign(descriptors);
 }
 
 DescriptorSet::Implementation::~Implementation()
@@ -102,7 +102,7 @@ DescriptorSet::Implementation::~Implementation()
     }
 }
 
-DescriptorSet::Implementation::Result DescriptorSet::Implementation::create(Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors)
+DescriptorSet::Implementation::Result DescriptorSet::Implementation::create(Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts)
 {
     if (!device || !descriptorPool || descriptorSetLayouts.empty())
     {
@@ -125,7 +125,7 @@ DescriptorSet::Implementation::Result DescriptorSet::Implementation::create(Devi
     VkResult result = vkAllocateDescriptorSets(*device, &descriptSetAllocateInfo, &descriptorSet);
     if (result == VK_SUCCESS)
     {
-        return Result(new DescriptorSet::Implementation(descriptorSet, device, descriptorPool, descriptorSetLayouts, descriptors));
+        return Result(new DescriptorSet::Implementation(descriptorSet, device, descriptorPool, descriptorSetLayouts));
     }
     else
     {
@@ -133,21 +133,25 @@ DescriptorSet::Implementation::Result DescriptorSet::Implementation::create(Devi
     }
 }
 
-void DescriptorSet::Implementation::assign(const Descriptors& descriptors)
+void DescriptorSet::Implementation::assign(Context& context, const Descriptors& descriptors)
 {
     // should we doing anything about previous _descriptor that may have been assigned?
     _descriptors = descriptors;
 
     if (_descriptors.empty()) return;
 
-    uint32_t descritorCount = 0;
-    std::vector<VkWriteDescriptorSet> descriptorWrites(_descriptors.size());
+    VkWriteDescriptorSet* descriptorWrites = context.scratchMemory->allocate<VkWriteDescriptorSet>(_descriptors.size());
+
     for (size_t i = 0; i < _descriptors.size(); ++i)
     {
-        if (_descriptors[i]->assignTo(descriptorWrites[descritorCount], _descriptorSet)) ++descritorCount;
+        _descriptors[i]->assignTo(context, descriptorWrites[i]);
+        descriptorWrites[i].dstSet = _descriptorSet;
     }
 
-    vkUpdateDescriptorSets(*_device, descritorCount, descriptorWrites.data(), 0, nullptr);
+    vkUpdateDescriptorSets(*_device, _descriptors.size(), descriptorWrites, 0, nullptr);
+
+    // clean up scratch memory so it can be reused.
+    context.scratchMemory->release();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -79,7 +79,6 @@ namespace vsg
         DescriptorSetLayouts _descriptorSetLayouts;
         PushConstantRanges _pushConstantRanges;
         VkPipelineLayoutCreateFlags _flags;
-
     };
     VSG_type_name(vsg::PipelineLayout);
 

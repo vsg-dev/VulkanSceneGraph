@@ -36,7 +36,7 @@ namespace vsg
 
         void compile(Context& context) override;
 
-        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
+        void assignTo(Context& context, VkWriteDescriptorSet& wds) const override;
 
         uint32_t getNumDescriptors() const override;
 

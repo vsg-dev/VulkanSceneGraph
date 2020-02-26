@@ -588,6 +588,7 @@ Context::Context(Device* in_device, BufferPreferences bufferPreferences) :
     scratchBufferSize(0)
 {
     //semaphore = vsg::Semaphore::create(device);
+    scratchMemory = ScratchMemory::create(4096);
 }
 
 Context::Context(const Context& context) :
@@ -602,6 +603,7 @@ Context::Context(const Context& context) :
     stagingMemoryBufferPools(context.stagingMemoryBufferPools),
     scratchBufferSize(context.scratchBufferSize)
 {
+    scratchMemory = ScratchMemory::create(4096);
 }
 
 Context::~Context()

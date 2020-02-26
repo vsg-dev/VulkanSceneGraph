@@ -54,7 +54,7 @@ namespace vsg
 
         void compile(Context& context) override;
 
-        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
+        void assignTo(Context& context, VkWriteDescriptorSet& wds) const override;
 
         uint32_t getNumDescriptors() const override;
 
@@ -62,8 +62,8 @@ namespace vsg
         SamplerImages _samplerImages;
 
         // populated by compile()
+        // TODO : per Device?
         ImageDataList _imageDataList;
-        std::vector<VkDescriptorImageInfo> _imageInfos;
     };
     VSG_type_name(vsg::DescriptorImage);
 
@@ -83,15 +83,13 @@ namespace vsg
 
         void compile(Context& context) override;
 
-        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
+        void assignTo(Context& context, VkWriteDescriptorSet& wds) const override;
 
         uint32_t getNumDescriptors() const override;
 
     protected:
         ImageDataList _imageDataList;
-
-        // populated by compile()
-        std::vector<VkDescriptorImageInfo> _imageInfos;
+        bool _compiled;
     };
     VSG_type_name(vsg::DescriptorImageView);
 
