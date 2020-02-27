@@ -25,7 +25,6 @@ namespace vsg
 
     extern VSG_DECLSPEC bool isExtensionListSupported(const Names& extensionList);
 
-
     // TODO need to reorginize so that the Device "has a" extension strucuture and avoid the usage of static container
     class Extensions : public Object
     {

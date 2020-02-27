@@ -31,7 +31,6 @@ namespace vsg
             _firstBinding(firstBinding),
             _arrays(arrays) {}
 
-
         BindVertexBuffers(uint32_t firstBinding, const BufferDataList& bufferDataList) :
             _firstBinding(firstBinding)
         {

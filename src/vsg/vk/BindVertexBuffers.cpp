@@ -19,7 +19,7 @@ using namespace vsg;
 
 BindVertexBuffers::~BindVertexBuffers()
 {
-    for(auto& vkd : _vulkanData)
+    for (auto& vkd : _vulkanData)
     {
         size_t numBufferEntries = std::min(vkd.buffers.size(), vkd.offsets.size());
         for (size_t i = 0; i < numBufferEntries; ++i)
@@ -68,7 +68,6 @@ void BindVertexBuffers::write(Output& output) const
     }
 }
 
-
 void BindVertexBuffers::compile(Context& context)
 {
     // nothing to compile
@@ -94,6 +93,6 @@ void BindVertexBuffers::compile(Context& context)
 
 void BindVertexBuffers::dispatch(CommandBuffer& commandBuffer) const
 {
-    auto& vkd =_vulkanData[commandBuffer.deviceID];
+    auto& vkd = _vulkanData[commandBuffer.deviceID];
     vkCmdBindVertexBuffers(commandBuffer, _firstBinding, static_cast<uint32_t>(vkd.vkBuffers.size()), vkd.vkBuffers.data(), vkd.offsets.data());
 }

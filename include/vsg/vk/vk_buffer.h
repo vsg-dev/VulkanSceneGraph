@@ -51,7 +51,10 @@ namespace vsg
         T& operator[](uint32_t deviceID) { return buffer[deviceID]; }
         const T& operator[](uint32_t deviceID) const { return buffer[deviceID]; }
 
-        void clear() { for(auto& value : buffer) value = {}; }
+        void clear()
+        {
+            for (auto& value : buffer) value = {};
+        }
 
         auto begin() { return buffer.begin(); }
         auto begin() const { return buffer.begin(); }

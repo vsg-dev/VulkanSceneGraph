@@ -41,7 +41,7 @@ BindIndexBuffer::BindIndexBuffer(Buffer* buffer, VkDeviceSize offset, VkIndexTyp
 
 BindIndexBuffer::~BindIndexBuffer()
 {
-    for(auto& vkd : _vulkanData)
+    for (auto& vkd : _vulkanData)
     {
         if (vkd.bufferData._buffer)
         {
@@ -89,6 +89,6 @@ void BindIndexBuffer::compile(Context& context)
 
 void BindIndexBuffer::dispatch(CommandBuffer& commandBuffer) const
 {
-    auto& vkd =_vulkanData[commandBuffer.deviceID];
+    auto& vkd = _vulkanData[commandBuffer.deviceID];
     vkCmdBindIndexBuffer(commandBuffer, *vkd.bufferData._buffer, vkd.bufferData._offset, vkd.indexType);
 }
