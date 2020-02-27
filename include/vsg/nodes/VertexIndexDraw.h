@@ -42,28 +42,23 @@ namespace vsg
         uint32_t vertexOffset = 0;
         uint32_t firstInstance = 0;
 
-        // settings
+        uint32_t firstBinding = 0; // TODO need to decide whether this needs to be serialized/per device
         DataList arrays;
         ref_ptr<Data> indices;
 
     protected:
         virtual ~VertexIndexDraw();
 
-        using Buffers = std::vector<ref_ptr<Buffer>>;
-        using VkBuffers = std::vector<VkBuffer>;
-        using Offsets = std::vector<VkDeviceSize>;
+        struct VulkanData
+        {
+            std::vector<ref_ptr<Buffer>> buffers;
+            std::vector<VkBuffer> vkBuffers;
+            std::vector<VkDeviceSize> offsets;
+            BufferData bufferData;
+            VkIndexType indexType = VK_INDEX_TYPE_UINT16;
+        };
 
-        // vkCmdBindVertexBuffers settings
-        // vkCmdBindVertexBuffers(commandBuffer, _firstBinding, static_cast<uint32_t>(_vkBuffers.size()), _vkBuffers.data(), _offsets.data());
-        uint32_t _firstBinding = 0;
-        Buffers _buffers;
-        VkBuffers _vkBuffers;
-        Offsets _offsets;
-
-        // vkCmdBindIndexBuffer settings;
-        // vkCmdBindIndexBuffer(commandBuffer, *_bufferData._buffer, _bufferData._offset, _indexType);
-        BufferData _bufferData;
-        VkIndexType _indexType = VK_INDEX_TYPE_UINT16;
+        vk_buffer<VulkanData> _vulkanData;
     };
     VSG_type_name(vsg::VertexIndexDraw)
 
