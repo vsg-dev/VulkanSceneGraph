@@ -74,7 +74,7 @@ void BindVertexBuffers::compile(Context& context)
     // nothing to compile
     if (_arrays.empty()) return;
 
-     auto& vkd = _vulkanData[context.deviceID];
+    auto& vkd = _vulkanData[context.deviceID];
 
     // already compiled
     if (vkd.buffers.size() == _arrays.size()) return;

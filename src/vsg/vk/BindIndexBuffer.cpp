@@ -74,7 +74,7 @@ void BindIndexBuffer::compile(Context& context)
     // nothing to compile
     if (!_indices) return;
 
-     auto& vkd = _vulkanData[context.deviceID];
+    auto& vkd = _vulkanData[context.deviceID];
 
     // check if already compiled
     if (vkd.bufferData._buffer) return;
