@@ -26,7 +26,7 @@ BindIndexBuffer::BindIndexBuffer(const BufferData& bufferData)
     {
         _indices = bufferData._data;
 
-        auto& vkd = getVulkanData(bufferData._buffer->getDevice()->deviceID);
+        auto& vkd = _vulkanData[bufferData._buffer->getDevice()->deviceID];
         vkd.bufferData = bufferData;
         vkd.indexType = computeIndexType(bufferData._data);
     }
@@ -34,7 +34,7 @@ BindIndexBuffer::BindIndexBuffer(const BufferData& bufferData)
 
 BindIndexBuffer::BindIndexBuffer(Buffer* buffer, VkDeviceSize offset, VkIndexType indexType)
 {
-    auto& vkd = getVulkanData(buffer->getDevice()->deviceID);
+    auto& vkd = _vulkanData[buffer->getDevice()->deviceID];
     vkd.bufferData = BufferData(buffer, offset, 0),
     vkd.indexType = indexType;
 }
@@ -74,7 +74,7 @@ void BindIndexBuffer::compile(Context& context)
     // nothing to compile
     if (!_indices) return;
 
-     auto& vkd = getVulkanData(context.deviceID);
+     auto& vkd = _vulkanData[context.deviceID];
 
     // check if already compiled
     if (vkd.bufferData._buffer) return;

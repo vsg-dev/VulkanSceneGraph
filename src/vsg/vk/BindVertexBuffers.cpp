@@ -35,7 +35,7 @@ BindVertexBuffers::~BindVertexBuffers()
 void BindVertexBuffers::add(ref_ptr<Buffer> buffer, VkDeviceSize offset)
 {
     // assign to the appropriate compiledData for the buffer Device
-    auto& vkd = getVulkanData(buffer->getDevice()->deviceID);
+    auto& vkd = _vulkanData[buffer->getDevice()->deviceID];
 
     vkd.buffers.push_back(buffer);
     vkd.vkBuffers.push_back(*buffer);
@@ -74,7 +74,7 @@ void BindVertexBuffers::compile(Context& context)
     // nothing to compile
     if (_arrays.empty()) return;
 
-    auto& vkd = getVulkanData(context.deviceID);
+     auto& vkd = _vulkanData[context.deviceID];
 
     // already compiled
     if (vkd.buffers.size() == _arrays.size()) return;

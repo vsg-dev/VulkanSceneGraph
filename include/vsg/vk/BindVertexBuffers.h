@@ -17,6 +17,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Command.h>
 #include <vsg/vk/Descriptor.h>
 
+#include <vsg/vk/vk_buffer.h>
+
 namespace vsg
 {
     class VSG_DECLSPEC BindVertexBuffers : public Inherit<Command, BindVertexBuffers>
@@ -68,13 +70,7 @@ namespace vsg
             std::vector<VkDeviceSize> offsets;
         };
 
-        VulkanData& getVulkanData(uint32_t deviceID)
-        {
-            if (deviceID >= _vulkanData.size()) _vulkanData.resize(deviceID+1);
-            return _vulkanData[deviceID];
-        }
-
-        std::vector<VulkanData> _vulkanData;
+        vk_buffer<VulkanData> _vulkanData;
     };
     VSG_type_name(vsg::BindVertexBuffers);
 

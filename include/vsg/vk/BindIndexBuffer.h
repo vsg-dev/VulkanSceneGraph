@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/Descriptor.h>
+#include <vsg/vk/vk_buffer.h>
 
 namespace vsg
 {
@@ -71,13 +72,7 @@ namespace vsg
             VkIndexType indexType;
         };
 
-        VulkanData& getVulkanData(uint32_t deviceID)
-        {
-            if (deviceID >= _vulkanData.size()) _vulkanData.resize(deviceID+1);
-            return _vulkanData[deviceID];
-        }
-
-        std::vector<VulkanData> _vulkanData;
+        vk_buffer<VulkanData> _vulkanData;
     };
     VSG_type_name(vsg::BindIndexBuffer);
 
