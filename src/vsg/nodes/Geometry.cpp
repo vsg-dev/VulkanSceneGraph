@@ -82,9 +82,20 @@ void Geometry::write(Output& output) const
 
 void Geometry::compile(Context& context)
 {
-    if (!_renderImplementation.empty()) return;
+    if (arrays.empty() || commands.empty())
+    {
+        // Geometry does not contain required arrays or commands
+        return;
+    }
 
-    _renderImplementation.clear();
+    for (auto& command : commands)
+    {
+        command->compile(context);
+    }
+
+    auto& vkd = _vulkanData[context.deviceID];
+
+    vkd = {};
 
     bool failure = false;
 
@@ -95,21 +106,20 @@ void Geometry::compile(Context& context)
         dataList.insert(dataList.end(), arrays.begin(), arrays.end());
         dataList.emplace_back(indices);
 
-        auto bufferData = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-        if (!bufferData.empty())
+        auto bufferDataList = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+        if (!bufferDataList.empty())
         {
-            BufferDataList vertexBufferData(bufferData.begin(), bufferData.begin() + arrays.size());
-            vsg::ref_ptr<vsg::BindVertexBuffers> bindVertexBuffers = vsg::BindVertexBuffers::create(0, vertexBufferData);
-            if (bindVertexBuffers)
-                _renderImplementation.emplace_back(bindVertexBuffers);
-            else
-                failure = true;
+            BufferDataList vertexBufferData(bufferDataList.begin(), bufferDataList.begin() + arrays.size());
 
-            vsg::ref_ptr<vsg::BindIndexBuffer> bindIndexBuffer = vsg::BindIndexBuffer::create(bufferData.back());
-            if (bindIndexBuffer)
-                _renderImplementation.emplace_back(bindIndexBuffer);
-            else
-                failure = true;
+            for (auto& bufferData : vertexBufferData)
+            {
+                vkd.buffers.push_back(bufferData._buffer);
+                vkd.vkBuffers.push_back(*(bufferData._buffer));
+                vkd.offsets.push_back(bufferData._offset);
+            }
+
+            vkd.bufferData = bufferDataList.back();
+            vkd.indexType = computeIndexType(indices);
         }
         else
             failure = true;
@@ -119,11 +129,12 @@ void Geometry::compile(Context& context)
         auto vertexBufferData = vsg::createBufferAndTransferData(context, arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
         if (!vertexBufferData.empty())
         {
-            vsg::ref_ptr<vsg::BindVertexBuffers> bindVertexBuffers = vsg::BindVertexBuffers::create(0, vertexBufferData);
-            if (bindVertexBuffers)
-                _renderImplementation.emplace_back(bindVertexBuffers);
-            else
-                failure = true;
+            for (auto& bufferData : vertexBufferData)
+            {
+                vkd.buffers.push_back(bufferData._buffer);
+                vkd.vkBuffers.push_back(*(bufferData._buffer));
+                vkd.offsets.push_back(bufferData._offset);
+            }
         }
         else
             failure = true;
@@ -132,17 +143,26 @@ void Geometry::compile(Context& context)
     if (failure)
     {
         //std::cout<<"Failed to create required arrays/indices buffers on GPU."<<std::endl;
-        _renderImplementation.clear();
+        vkd = {};
         return;
     }
 
-    // add the commands in the _renderImplementation.
-    _renderImplementation.insert(_renderImplementation.end(), commands.begin(), commands.end());
 }
 
 void Geometry::dispatch(CommandBuffer& commandBuffer) const
 {
-    for (auto& command : _renderImplementation)
+    auto& vkd = _vulkanData[commandBuffer.deviceID];
+
+    VkCommandBuffer cmdBuffer{commandBuffer};
+
+    vkCmdBindVertexBuffers(cmdBuffer, firstBinding, static_cast<uint32_t>(vkd.vkBuffers.size()), vkd.vkBuffers.data(), vkd.offsets.data());
+
+    if (indices)
+    {
+        vkCmdBindIndexBuffer(cmdBuffer, *(vkd.bufferData._buffer), vkd.bufferData._offset, vkd.indexType);
+    }
+
+    for (auto& command : commands)
     {
         command->dispatch(commandBuffer);
     }
