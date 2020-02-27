@@ -131,10 +131,10 @@ namespace vsg
         uint32_t getFirstSet() { return _firstSet; }
         const DescriptorSets& getDescriptorSets() const { return _descriptorSets; }
 
-        void dispatch(CommandBuffer& commandBuffer) const override;
-
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context) override;
+
+        void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~BindDescriptorSets() {}
@@ -164,8 +164,6 @@ namespace vsg
             Inherit(1), // slot 1
             _bindPoint(bindPoint),
             _firstSet(firstSet),
-            _vkPipelineLayout(0),
-            _vkDescriptorSet(0),
             _pipelineLayout(pipelineLayout),
             _descriptorSet(descriptorSet)
         {
@@ -175,8 +173,6 @@ namespace vsg
             Inherit(1), // slot 1
             _bindPoint(bindPoint),
             _firstSet(0),
-            _vkPipelineLayout(0),
-            _vkDescriptorSet(0),
             _pipelineLayout(pipelineLayout),
             _descriptorSet(descriptorSet)
         {
@@ -200,10 +196,10 @@ namespace vsg
         uint32_t getFirstSet() { return _firstSet; }
         const DescriptorSet* getDescriptorSet() const { return _descriptorSet; }
 
-        void dispatch(CommandBuffer& commandBuffer) const override;
-
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context) override;
+
+        void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~BindDescriptorSet() {}
@@ -211,8 +207,14 @@ namespace vsg
         // TODO need to convert to supporting mgpu
         VkPipelineBindPoint _bindPoint;
         uint32_t _firstSet;
-        VkPipelineLayout _vkPipelineLayout;
-        VkDescriptorSet _vkDescriptorSet;
+
+        struct VulkanData
+        {
+            VkPipelineLayout _vkPipelineLayout = 0;
+            VkDescriptorSet _vkDescriptorSet;
+        };
+
+        vk_buffer<VulkanData> _vulkanData;
 
         // settings
         ref_ptr<PipelineLayout> _pipelineLayout;

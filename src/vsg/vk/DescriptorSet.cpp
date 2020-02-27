@@ -167,6 +167,8 @@ BindDescriptorSets::BindDescriptorSets() :
 
 void BindDescriptorSets::read(Input& input)
 {
+    _vulkanData.clear();
+
     Object::read(input);
 
     _pipelineLayout = input.readObject<PipelineLayout>("PipelineLayout");
@@ -225,14 +227,14 @@ void BindDescriptorSets::dispatch(CommandBuffer& commandBuffer) const
 //
 BindDescriptorSet::BindDescriptorSet() :
     _bindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
-    _firstSet(0),
-    _vkPipelineLayout(0),
-    _vkDescriptorSet(0)
+    _firstSet(0)
 {
 }
 
 void BindDescriptorSet::read(Input& input)
 {
+    _vulkanData.clear();
+
     StateCommand::read(input);
 
     _pipelineLayout = input.readObject<PipelineLayout>("PipelineLayout");
@@ -253,22 +255,23 @@ void BindDescriptorSet::write(Output& output) const
     output.writeObject("DescriptorSet", _descriptorSet.get());
 }
 
-void BindDescriptorSet::dispatch(CommandBuffer& commandBuffer) const
-{
-    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, _vkPipelineLayout, _firstSet, 1, &_vkDescriptorSet, 0, nullptr);
-}
-
 void BindDescriptorSet::compile(Context& context)
 {
-    // no need to compile if already compiled
-    if (_vkPipelineLayout != 0 && _vkDescriptorSet != 0) return;
+    auto& vkd = _vulkanData[context.deviceID];
 
-    // check if pipeline and descriptor set are assigned.
-    if (!_descriptorSet || !_pipelineLayout) return;
+    // no need to compile if already compiled
+    if (vkd._vkPipelineLayout != 0 && vkd._vkDescriptorSet != 0) return;
 
     _pipelineLayout->compile(context);
-    _vkPipelineLayout = _pipelineLayout->vk(context.deviceID);
-
     _descriptorSet->compile(context);
-    _vkDescriptorSet = _descriptorSet->vk(context.deviceID);
+
+    vkd._vkPipelineLayout = _pipelineLayout->vk(context.deviceID);
+    vkd._vkDescriptorSet = _descriptorSet->vk(context.deviceID);
+}
+
+void BindDescriptorSet::dispatch(CommandBuffer& commandBuffer) const
+{
+    auto& vkd = _vulkanData[commandBuffer.deviceID];
+
+    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, vkd._vkPipelineLayout, _firstSet, 1, &(vkd._vkDescriptorSet), 0, nullptr);
 }
