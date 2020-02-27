@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/Device.h>
-#include <vsg/vk/implementation_buffer.h>
+#include <vsg/vk/vk_buffer.h>
 
 namespace vsg
 {
@@ -41,7 +41,7 @@ namespace vsg
             for (auto& imp : _implementation) imp = nullptr;
         }
 
-        VkDescriptorSetLayout vk(uint32_t deviceID) const { return _implementation.vk(deviceID); }
+        VkDescriptorSetLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->vk(); }
 
     protected:
         virtual ~DescriptorSetLayout();
@@ -65,7 +65,7 @@ namespace vsg
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
-        implementation_buffer<Implementation> _implementation;
+        vk_buffer<ref_ptr<Implementation>> _implementation;
 
         DescriptorSetLayoutBindings _descriptorSetLayoutBindings;
     };

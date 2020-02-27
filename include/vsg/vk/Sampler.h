@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/Device.h>
-#include <vsg/vk/implementation_buffer.h>
+#include <vsg/vk/vk_buffer.h>
 
 namespace vsg
 {
@@ -32,7 +32,7 @@ namespace vsg
         VkSamplerCreateInfo& info() { return _samplerInfo; }
         const VkSamplerCreateInfo& info() const { return _samplerInfo; }
 
-        VkSampler vk(uint32_t deviceID) const { return _implementation.vk(deviceID); }
+        VkSampler vk(uint32_t deviceID) const { return _implementation[deviceID]->vk(); }
 
     protected:
         virtual ~Sampler();
@@ -56,7 +56,7 @@ namespace vsg
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
-        implementation_buffer<Implementation> _implementation;
+        vk_buffer<ref_ptr<Implementation>> _implementation;
 
         VkSamplerCreateInfo _samplerInfo;
     };

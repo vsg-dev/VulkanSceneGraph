@@ -15,7 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <fstream>
 
 #include <vsg/vk/Device.h>
-#include <vsg/vk/implementation_buffer.h>
+#include <vsg/vk/vk_buffer.h>
 
 namespace vsg
 {
@@ -74,10 +74,10 @@ namespace vsg
         void release(uint32_t deviceID) { _implementation[deviceID] = nullptr; }
         void release()
         {
-            for (auto& imp : _implementation) imp = nullptr;
+            _implementation.clear();
         }
 
-        VkShaderModule vk(uint32_t deviceID) const { return _implementation.vk(deviceID); }
+        VkShaderModule vk(uint32_t deviceID) const { return _implementation[deviceID]->vk(); }
 
     protected:
         virtual ~ShaderModule();
@@ -100,7 +100,7 @@ namespace vsg
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
-        implementation_buffer<Implementation> _implementation;
+        vk_buffer<ref_ptr<Implementation>> _implementation;
 
         std::string _source;
         SPIRV _spirv;

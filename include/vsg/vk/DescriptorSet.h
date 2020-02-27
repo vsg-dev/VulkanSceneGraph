@@ -47,13 +47,13 @@ namespace vsg
         void compile(Context& context);
 
         // remove the local reference to the Vulkan implementation
-        void release(uint32_t deviceID) { _implementation[deviceID] = nullptr; }
+        void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
         void release()
         {
-            for (auto& imp : _implementation) imp = nullptr;
+            _implementation.clear();
         }
 
-        VkDescriptorSet vk(uint32_t deviceID) const { return _implementation.vk(deviceID); }
+        VkDescriptorSet vk(uint32_t deviceID) const { return _implementation[deviceID]->vk(); }
 
     protected:
         virtual ~DescriptorSet();
@@ -81,7 +81,7 @@ namespace vsg
             Descriptors _descriptors;
         };
 
-        implementation_buffer<Implementation> _implementation;
+        vk_buffer<ref_ptr<Implementation>> _implementation;
 
         DescriptorSetLayouts _descriptorSetLayouts;
         Descriptors _descriptors;
@@ -143,6 +143,8 @@ namespace vsg
 
         using VkDescriptorSets = std::vector<VkDescriptorSet>;
 
+
+        // TODO need to convert to supporting mgpu
         VkPipelineBindPoint _bindPoint;
         uint32_t _firstSet;
         VkPipelineLayout _vkPipelineLayout;
@@ -207,6 +209,7 @@ namespace vsg
     protected:
         virtual ~BindDescriptorSet() {}
 
+        // TODO need to convert to supporting mgpu
         VkPipelineBindPoint _bindPoint;
         uint32_t _firstSet;
         VkPipelineLayout _vkPipelineLayout;

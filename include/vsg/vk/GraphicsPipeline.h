@@ -65,7 +65,7 @@ namespace vsg
             for (auto& imp : _implementation) imp = nullptr;
         }
 
-        VkPipeline vk(uint32_t deviceID) const { return _implementation.vk(deviceID); }
+        VkPipeline vk(uint32_t deviceID) const { return _implementation[deviceID]->vk(); }
 
     protected:
         virtual ~GraphicsPipeline();
@@ -94,7 +94,7 @@ namespace vsg
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
-        implementation_buffer<Implementation> _implementation;
+        vk_buffer<ref_ptr<Implementation>> _implementation;
 
         ref_ptr<Device> _device;
         ref_ptr<RenderPass> _renderPass;

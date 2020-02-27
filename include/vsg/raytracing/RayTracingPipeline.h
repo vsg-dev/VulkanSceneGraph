@@ -52,10 +52,10 @@ namespace vsg
         void release(uint32_t deviceID) { _implementation[deviceID] = nullptr; }
         void release()
         {
-            for (auto& imp : _implementation) imp = nullptr;
+            _implementation.clear();
         }
 
-        VkPipeline vk(uint32_t deviceID) const { return _implementation.vk(deviceID); }
+        VkPipeline vk(uint32_t deviceID) const { return _implementation[deviceID]->vk(); }
 
     protected:
         virtual ~RayTracingPipeline();
@@ -82,7 +82,7 @@ namespace vsg
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
-        implementation_buffer<Implementation> _implementation;
+        vk_buffer<ref_ptr<Implementation>> _implementation;
 
         ref_ptr<Device> _device;
         ref_ptr<PipelineLayout> _pipelineLayout;
