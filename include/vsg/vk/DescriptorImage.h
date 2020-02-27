@@ -43,10 +43,6 @@ namespace vsg
         SamplerImages& getSamplerImages() { return _samplerImages; }
         const SamplerImages& getSamplerImages() const { return _samplerImages; }
 
-        /** ImageDataList is automatically filled in by the DecriptorImage::compile() using the sampler and image data objects.*/
-        ImageDataList& getImageDataList() { return _imageDataList; }
-        const ImageDataList& getImageDataList() const { return _imageDataList; }
-
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -59,9 +55,12 @@ namespace vsg
     protected:
         SamplerImages _samplerImages;
 
-        // populated by compile()
-        // TODO : per Device?
-        ImageDataList _imageDataList;
+        struct VulkanData
+        {
+            ImageDataList imageDataList;
+        };
+
+        vk_buffer<VulkanData> _vulkanData;
     };
     VSG_type_name(vsg::DescriptorImage);
 

@@ -99,7 +99,6 @@ namespace vsg
             Inherit(1), // slot 1
             _bindPoint(bindPoint),
             _firstSet(firstSet),
-            _vkPipelineLayout(0),
             _pipelineLayout(pipelineLayout),
             _descriptorSets(descriptorSets)
         {
@@ -109,7 +108,6 @@ namespace vsg
             Inherit(1), // slot 1
             _bindPoint(bindPoint),
             _firstSet(0),
-            _vkPipelineLayout(0),
             _pipelineLayout(pipelineLayout),
             _descriptorSets(descriptorSets)
         {
@@ -141,16 +139,17 @@ namespace vsg
     protected:
         virtual ~BindDescriptorSets() {}
 
-        using VkDescriptorSets = std::vector<VkDescriptorSet>;
-
-
-        // TODO need to convert to supporting mgpu
         VkPipelineBindPoint _bindPoint;
         uint32_t _firstSet;
-        VkPipelineLayout _vkPipelineLayout;
-        VkDescriptorSets _vkDescriptorSets;
 
-        // settings
+        struct VulkanData
+        {
+            VkPipelineLayout _vkPipelineLayout = 0;
+            std::vector<VkDescriptorSet> _vkDescriptorSets;
+        };
+
+        vk_buffer<VulkanData> _vulkanData;
+
         ref_ptr<PipelineLayout> _pipelineLayout;
         DescriptorSets _descriptorSets;
     };

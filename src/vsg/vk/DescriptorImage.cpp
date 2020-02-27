@@ -42,7 +42,7 @@ DescriptorImage::DescriptorImage(const SamplerImages& samplerImages, uint32_t ds
 
 void DescriptorImage::read(Input& input)
 {
-    _imageDataList.clear();
+    _vulkanData.clear();
 
     Descriptor::read(input);
 
@@ -68,17 +68,21 @@ void DescriptorImage::write(Output& output) const
 
 void DescriptorImage::compile(Context& context)
 {
+    if (_samplerImages.empty()) return;
+
+    auto& vkd = _vulkanData[context.deviceID];
+
     // check if we have already compiled the imageData.
-    if (_imageDataList.size() == _samplerImages.size()) return;
+    if (vkd.imageDataList.size() == _samplerImages.size()) return;
 
     if (!_samplerImages.empty())
     {
-        _imageDataList.clear();
-        _imageDataList.reserve(_samplerImages.size());
+        vkd.imageDataList.clear();
+        vkd.imageDataList.reserve(_samplerImages.size());
         for (auto& samplerImage : _samplerImages)
         {
             samplerImage.sampler->compile(context);
-            _imageDataList.emplace_back(vsg::transferImageData(context, samplerImage.data, samplerImage.sampler));
+            vkd.imageDataList.emplace_back(vsg::transferImageData(context, samplerImage.data, samplerImage.sampler));
         }
     }
 }
@@ -87,13 +91,16 @@ void DescriptorImage::assignTo(Context& context, VkWriteDescriptorSet& wds) cons
 {
     Descriptor::assignTo(context, wds);
 
+    auto& vkd = _vulkanData[context.deviceID];
+
     // convert from VSG to Vk
-    auto pImageInfo = context.scratchMemory->allocate<VkDescriptorImageInfo>(_imageDataList.size());
-    wds.descriptorCount = static_cast<uint32_t>(_imageDataList.size());
+    auto pImageInfo = context.scratchMemory->allocate<VkDescriptorImageInfo>(vkd.imageDataList.size());
+    wds.descriptorCount = static_cast<uint32_t>(vkd.imageDataList.size());
     wds.pImageInfo = pImageInfo;
-    for (size_t i = 0; i < _imageDataList.size(); ++i)
+    for (size_t i = 0; i < vkd.imageDataList.size(); ++i)
     {
-        const ImageData& data = _imageDataList[i];
+        const ImageData& data = vkd.imageDataList[i];
+
         VkDescriptorImageInfo& info = pImageInfo[i];
         if (data._sampler)
             info.sampler = data._sampler->vk(context.deviceID);
@@ -111,5 +118,5 @@ void DescriptorImage::assignTo(Context& context, VkWriteDescriptorSet& wds) cons
 
 uint32_t DescriptorImage::getNumDescriptors() const
 {
-    return static_cast<uint32_t>(std::max(_imageDataList.size(), _samplerImages.size()));
+    return static_cast<uint32_t>(_samplerImages.size());
 }

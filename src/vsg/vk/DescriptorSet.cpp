@@ -161,8 +161,7 @@ void DescriptorSet::Implementation::assign(Context& context, const Descriptors& 
 BindDescriptorSets::BindDescriptorSets() :
     Inherit(1), // slot 1
     _bindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
-    _firstSet(0),
-    _vkPipelineLayout(0)
+    _firstSet(0)
 {
 }
 
@@ -196,28 +195,28 @@ void BindDescriptorSets::write(Output& output) const
     }
 }
 
-void BindDescriptorSets::dispatch(CommandBuffer& commandBuffer) const
-{
-    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, _vkPipelineLayout, _firstSet, static_cast<uint32_t>(_vkDescriptorSets.size()), _vkDescriptorSets.data(), 0, nullptr);
-}
-
 void BindDescriptorSets::compile(Context& context)
 {
-    if (_vkPipelineLayout != 0 && _vkDescriptorSets.size() > 0) return;
-
-    _pipelineLayout->compile(context);
-    _vkPipelineLayout = _pipelineLayout->vk(context.deviceID);
+    auto& vkd = _vulkanData[context.deviceID];
 
     // no need to compile if already compiled
-    if (_vkDescriptorSets.size() == _descriptorSets.size()) return;
+    if (vkd._vkPipelineLayout != 0 && vkd._vkDescriptorSets.size() == _descriptorSets.size()) return;
 
-    _vkDescriptorSets.resize(_descriptorSets.size());
+    _pipelineLayout->compile(context);
+    vkd._vkPipelineLayout = _pipelineLayout->vk(context.deviceID);
+
+    vkd._vkDescriptorSets.resize(_descriptorSets.size());
     for (size_t i = 0; i < _descriptorSets.size(); ++i)
     {
         _descriptorSets[i]->compile(context);
-
-        _vkDescriptorSets[i] = _descriptorSets[i]->vk(context.deviceID);
+        vkd._vkDescriptorSets[i] = _descriptorSets[i]->vk(context.deviceID);
     }
+}
+
+void BindDescriptorSets::dispatch(CommandBuffer& commandBuffer) const
+{
+    auto& vkd = _vulkanData[commandBuffer.deviceID];
+    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, vkd._vkPipelineLayout, _firstSet, static_cast<uint32_t>(vkd._vkDescriptorSets.size()), vkd._vkDescriptorSets.data(), 0, nullptr);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
