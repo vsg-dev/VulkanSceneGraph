@@ -146,7 +146,6 @@ void Geometry::compile(Context& context)
         vkd = {};
         return;
     }
-
 }
 
 void Geometry::dispatch(CommandBuffer& commandBuffer) const
