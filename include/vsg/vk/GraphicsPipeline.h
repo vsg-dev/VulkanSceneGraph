@@ -91,7 +91,6 @@ namespace vsg
 
         vk_buffer<ref_ptr<Implementation>> _implementation;
 
-        ref_ptr<Device> _device;
         ref_ptr<RenderPass> _renderPass;
         ref_ptr<PipelineLayout> _pipelineLayout;
         ShaderStages _shaderStages;
