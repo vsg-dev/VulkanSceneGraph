@@ -197,7 +197,6 @@ namespace vsg
     protected:
         virtual ~BindDescriptorSet() {}
 
-        // TODO need to convert to supporting mgpu
         VkPipelineBindPoint _bindPoint;
         uint32_t _firstSet;
 
