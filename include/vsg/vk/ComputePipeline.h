@@ -46,9 +46,8 @@ namespace vsg
     protected:
         virtual ~ComputePipeline();
 
-        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        struct Implementation : public Inherit<Object, Implementation>
         {
-        public:
             Implementation(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator);
             virtual ~Implementation();
 

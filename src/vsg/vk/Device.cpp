@@ -52,7 +52,6 @@ Device::Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallba
     // PhysicalDevice only holds a observer_ptr<> to the Instance, so need to take a local reference to the instance to make sure it doesn't get deleted befire we are finsihed with it.
     if (physicalDevice) _instance = physicalDevice->getInstance();
 
-
     if (deviceID >= VSG_MAX_DEVICES)
     {
         // TODO throw an exception?

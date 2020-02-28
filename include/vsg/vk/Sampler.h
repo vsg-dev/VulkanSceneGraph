@@ -40,9 +40,8 @@ namespace vsg
     protected:
         virtual ~Sampler();
 
-        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        struct Implementation : public Inherit<Object, Implementation>
         {
-        public:
             Implementation(VkSampler Sampler, Device* device, AllocationCallbacks* allocator = nullptr);
             virtual ~Implementation();
 

@@ -43,9 +43,8 @@ namespace vsg
     protected:
         virtual ~DescriptorSetLayout();
 
-        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        struct Implementation : public Inherit<Object, Implementation>
         {
-        public:
             Implementation(Device* device, VkDescriptorSetLayout DescriptorSetLayout, AllocationCallbacks* allocator = nullptr);
             virtual ~Implementation();
 

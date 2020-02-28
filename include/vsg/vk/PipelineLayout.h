@@ -51,9 +51,8 @@ namespace vsg
     protected:
         virtual ~PipelineLayout();
 
-        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        struct Implementation : public Inherit<Object, Implementation>
         {
-        public:
             Implementation(VkPipelineLayout pipelineLayout, const DescriptorSetLayouts& descrtorSetLayouts, Device* device, AllocationCallbacks* allocator = nullptr);
             virtual ~Implementation();
 

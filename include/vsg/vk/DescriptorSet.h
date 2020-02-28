@@ -55,9 +55,8 @@ namespace vsg
     protected:
         virtual ~DescriptorSet();
 
-        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        struct Implementation : public Inherit<Object, Implementation>
         {
-        public:
             Implementation(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts);
             virtual ~Implementation();
 

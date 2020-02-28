@@ -57,9 +57,8 @@ namespace vsg
     protected:
         virtual ~RayTracingPipeline();
 
-        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        struct Implementation : public Inherit<Object, Implementation>
         {
-        public:
             Implementation(VkPipeline pipeline, Device* device, RayTracingPipeline* rayTracingPipeline, AllocationCallbacks* allocator = nullptr);
             virtual ~Implementation();
 

@@ -79,9 +79,8 @@ namespace vsg
     protected:
         virtual ~ShaderModule();
 
-        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        struct Implementation : public Inherit<Object, Implementation>
         {
-        public:
             Implementation(VkShaderModule shaderModule, Device* device, AllocationCallbacks* allocator);
             virtual ~Implementation();
 
