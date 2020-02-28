@@ -29,6 +29,9 @@ namespace vsg
 
         void compile(Context& context);
 
+        void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
+        void release() { _implementation.clear(); }
+
         VkSamplerCreateInfo& info() { return _samplerInfo; }
         const VkSamplerCreateInfo& info() const { return _samplerInfo; }
 

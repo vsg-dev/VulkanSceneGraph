@@ -48,10 +48,7 @@ namespace vsg
 
         // remove the local reference to the Vulkan implementation
         void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
-        void release()
-        {
-            _implementation.clear();
-        }
+        void release() { _implementation.clear(); }
 
         VkDescriptorSet vk(uint32_t deviceID) const { return _implementation[deviceID]->_descriptorSet; }
 

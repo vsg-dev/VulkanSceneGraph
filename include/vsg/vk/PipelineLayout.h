@@ -43,7 +43,8 @@ namespace vsg
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);
 
-        void release(uint32_t deviceID) { _implementation[deviceID] = nullptr; }
+        void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
+        void release() { _implementation.clear(); }
 
         VkPipelineLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipelineLayout; }
 
