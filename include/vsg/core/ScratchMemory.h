@@ -35,7 +35,6 @@ namespace vsg
         ~ScratchMemory()
         {
             delete[] buffer;
-            if (next) delete next;
         }
 
         uint8_t* align(uint8_t* p) const
