@@ -77,7 +77,7 @@ namespace vsg
             _implementation.clear();
         }
 
-        VkShaderModule vk(uint32_t deviceID) const { return _implementation[deviceID]->vk(); }
+        VkShaderModule vk(uint32_t deviceID) const { return _implementation[deviceID]->_shaderModule; }
 
     protected:
         virtual ~ShaderModule();
@@ -92,8 +92,6 @@ namespace vsg
 
             /** Create a ComputePipeline.*/
             static Result create(Device* device, ShaderModule* shader, AllocationCallbacks* allocator = nullptr);
-
-            VkShaderModule vk() const { return _shaderModule; }
 
             VkShaderModule _shaderModule;
             ref_ptr<Device> _device;

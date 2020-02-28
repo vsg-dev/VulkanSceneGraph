@@ -65,7 +65,7 @@ namespace vsg
             for (auto& imp : _implementation) imp = nullptr;
         }
 
-        VkPipeline vk(uint32_t deviceID) const { return _implementation[deviceID]->vk(); }
+        VkPipeline vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipeline; }
 
     protected:
         virtual ~GraphicsPipeline();
@@ -80,8 +80,6 @@ namespace vsg
 
             /** Create a GraphicsPipeline.*/
             static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
-
-            VkPipeline vk() const { return _pipeline; }
 
             VkPipeline _pipeline;
 

@@ -55,7 +55,7 @@ namespace vsg
             _implementation.clear();
         }
 
-        VkPipeline vk(uint32_t deviceID) const { return _implementation[deviceID]->vk(); }
+        VkPipeline vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipeline; }
 
     protected:
         virtual ~RayTracingPipeline();
@@ -71,7 +71,6 @@ namespace vsg
             /** Create a GraphicsPipeline.*/
             static Result create(Context& context, RayTracingPipeline* rayTracingPipeline);
 
-            VkPipeline vk() const { return _pipeline; }
             VkPipeline _pipeline;
 
             // TODO need to convert to use Implementation versions of RenderPass and PipelineLayout

@@ -32,7 +32,7 @@ namespace vsg
         VkSamplerCreateInfo& info() { return _samplerInfo; }
         const VkSamplerCreateInfo& info() const { return _samplerInfo; }
 
-        VkSampler vk(uint32_t deviceID) const { return _implementation[deviceID]->vk(); }
+        VkSampler vk(uint32_t deviceID) const { return _implementation[deviceID]->_sampler; }
 
     protected:
         virtual ~Sampler();
@@ -41,15 +41,11 @@ namespace vsg
         {
         public:
             Implementation(VkSampler Sampler, Device* device, AllocationCallbacks* allocator = nullptr);
+            virtual ~Implementation();
 
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
             static Result create(Device* device, const VkSamplerCreateInfo& createSamplerInfo, AllocationCallbacks* allocator = nullptr);
-
-            VkSampler vk() const { return _sampler; }
-
-        protected:
-            virtual ~Implementation();
 
             VkSampler _sampler;
             ref_ptr<Device> _device;

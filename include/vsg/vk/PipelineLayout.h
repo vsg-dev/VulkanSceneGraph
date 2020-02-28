@@ -45,7 +45,7 @@ namespace vsg
 
         void release(uint32_t deviceID) { _implementation[deviceID] = nullptr; }
 
-        VkPipelineLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->vk(); }
+        VkPipelineLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipelineLayout; }
 
     protected:
         virtual ~PipelineLayout();
@@ -54,18 +54,11 @@ namespace vsg
         {
         public:
             Implementation(VkPipelineLayout pipelineLayout, const DescriptorSetLayouts& descrtorSetLayouts, Device* device, AllocationCallbacks* allocator = nullptr);
+            virtual ~Implementation();
 
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
             static Result create(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags = 0, AllocationCallbacks* allocator = nullptr);
-
-            VkPipelineLayout vk() const { return _pipelineLayout; }
-
-            Device* getDevice() { return _device; }
-            const Device* getDevice() const { return _device; }
-
-        protected:
-            virtual ~Implementation();
 
             VkPipelineLayout _pipelineLayout;
             DescriptorSetLayouts _descriptorSetLayouts;

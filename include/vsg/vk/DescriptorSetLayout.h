@@ -41,7 +41,7 @@ namespace vsg
             for (auto& imp : _implementation) imp = nullptr;
         }
 
-        VkDescriptorSetLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->vk(); }
+        VkDescriptorSetLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_descriptorSetLayout; }
 
     protected:
         virtual ~DescriptorSetLayout();
@@ -50,15 +50,11 @@ namespace vsg
         {
         public:
             Implementation(Device* device, VkDescriptorSetLayout DescriptorSetLayout, AllocationCallbacks* allocator = nullptr);
+            virtual ~Implementation();
 
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
             static Result create(Device* device, const DescriptorSetLayoutBindings& descriptorSetLayoutBindings, AllocationCallbacks* allocator = nullptr);
-
-            VkDescriptorSetLayout vk() const { return _descriptorSetLayout; }
-
-        protected:
-            virtual ~Implementation();
 
             ref_ptr<Device> _device;
             VkDescriptorSetLayout _descriptorSetLayout;

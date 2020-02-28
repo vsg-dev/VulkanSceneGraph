@@ -53,7 +53,7 @@ namespace vsg
             _implementation.clear();
         }
 
-        VkDescriptorSet vk(uint32_t deviceID) const { return _implementation[deviceID]->vk(); }
+        VkDescriptorSet vk(uint32_t deviceID) const { return _implementation[deviceID]->_descriptorSet; }
 
     protected:
         virtual ~DescriptorSet();
@@ -62,17 +62,13 @@ namespace vsg
         {
         public:
             Implementation(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts);
+            virtual ~Implementation();
 
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
             static Result create(Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts);
 
             void assign(Context& context, const Descriptors& descriptors);
-
-            VkDescriptorSet vk() const { return _descriptorSet; }
-
-        protected:
-            virtual ~Implementation();
 
             VkDescriptorSet _descriptorSet;
             ref_ptr<Device> _device;
