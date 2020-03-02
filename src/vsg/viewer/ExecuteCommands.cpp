@@ -154,7 +154,7 @@ void ExecuteCommands::dispatch(CommandBuffer& commandBuffer) const
     _commandbuffers.clear();
 
     for(auto r : _cmdgraphs)
-        _commandbuffers.emplace_back(*r->lastrecorded);
+        _commandbuffers.push_back(*r->lastrecorded);
 
     vkCmdExecuteCommands(commandBuffer, _commandbuffers.size(), _commandbuffers.data());
 }

@@ -185,6 +185,10 @@ class CollectSecondaryCommandGraph : public ConstVisitor
 {
 public:
     vsg::CommandGraphs _secondaries;
+    void apply(const Group& group) override
+    {
+        group.traverse(*this);
+    }
     void apply(const Command& cmd) override{
         const vsg::ExecuteCommands *exec = dynamic_cast<const vsg::ExecuteCommands*>(&cmd);
         if(exec)
@@ -210,7 +214,7 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
         context.viewport->getViewport().height = static_cast<RenderGraph*>(commandGraph.getChild(0))->window->extent2D().height;
 
         CollectSecondaryCommandGraph col;
-        commandGraph.accept(col);
+      //  commandGraph.accept(col);
         for(auto g: commandGraph._secondaries)
         {
             this->apply(*g.get());//g->accept(*this);

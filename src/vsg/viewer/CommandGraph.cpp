@@ -65,14 +65,29 @@ ref_ptr<CommandBuffer> CommandGraph::getNextCommandBuffer()
 
 void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
-    CommandBuffers secrec;
-    for(auto sec : _secondaries)
-        sec->record(secrec,frameStamp,databasePager);
-
     if (!recordTraversal)
     {
         recordTraversal = new RecordTraversal(nullptr, _maxSlot);
     }
+
+    CommandBuffers secrec;
+    for(auto sec : _secondaries)
+    {
+        dmat4 projMatrix, viewMatrix;
+        static_cast<RenderGraph*>(getChild(0))->camera->getProjectionMatrix()->get(projMatrix);
+        static_cast<RenderGraph*>(getChild(0))->camera->getViewMatrix()->get(viewMatrix);
+        if (! sec->recordTraversal)
+        {
+             sec->recordTraversal = new RecordTraversal(nullptr, _maxSlot);
+        } // sec->recordTraversal = recordTraversal;
+
+        sec->recordTraversal->setProjectionAndViewMatrix(projMatrix, viewMatrix);
+
+        sec->record(secrec,frameStamp,databasePager);
+    }
+    if(!_secondaries.empty())
+        //force primary not to update
+        recordTraversal->state->dirty = false;
 
     recordTraversal->frameStamp = frameStamp;
     recordTraversal->databasePager = databasePager;
@@ -132,7 +147,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     inherit.pNext = nullptr;
    if(_commandbufferslevel!=VK_COMMAND_BUFFER_LEVEL_PRIMARY)
     beginInfo.pInheritanceInfo = &inherit;
-
+vkResetCommandBuffer(vk_commandBuffer,0);
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
     accept(*recordTraversal);
