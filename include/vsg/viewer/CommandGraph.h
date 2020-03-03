@@ -42,7 +42,6 @@ namespace vsg
 
         CommandGraphs _secondaries;
         ref_ptr<CommandBuffer> lastrecorded;
-        ref_ptr<CommandBuffer> getNextCommandBuffer();
     };
 
 

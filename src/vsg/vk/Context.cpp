@@ -633,18 +633,6 @@ void Context::dispatch()
         fence->reset();
     }
 
-    /// generate secondaries buffer
-    ///  TODO mapping subpass -> commandbuffer for multithread?
-
-    std::vector<VkCommandBuffer> secondarycmdbuffers;
-    /*if(this->renderPass->_passgraph->getNumSubPasses() > 0)
-        for(int i = 0; i< this->renderPass->_passgraph->getNumSubPasses(); ++i){
-        _secondaries .emplace_back(
-                 vsg::CommandBuffer::create(device, commandPool, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_COMMAND_BUFFER_LEVEL_SECONDARY)
-                    );
-        secondarycmdbuffers.push_back(*_secondaries.back());
-        }*/
-
     getOrCreateCommandBuffer();
 
     VkCommandBufferBeginInfo beginInfo = {};
@@ -690,11 +678,6 @@ void Context::dispatch()
         }
     }
 
-  /*  if(this->renderPass->_passgraph->getNumSubPasses() > 0)
-    {
-        //issue subpasses
-        vkCmdExecuteCommands(*commandBuffer, secondarycmdbuffers.size(), secondarycmdbuffers.data());
-    }*/
     vkEndCommandBuffer(*commandBuffer);
 
     VkPipelineStageFlags waitDstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;

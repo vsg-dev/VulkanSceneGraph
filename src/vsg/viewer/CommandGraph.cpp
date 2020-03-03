@@ -43,26 +43,6 @@ CommandGraph::CommandGraph(Window* window)
     }
 }
 
-ref_ptr<CommandBuffer> CommandGraph::getNextCommandBuffer()
-{
-    ref_ptr<CommandBuffer> commandBuffer;
-
-    for (auto& cb : commandBuffers)
-    {
-        if (cb->numDependentSubmissions() == 0)
-        {
-            commandBuffer = cb;
-        }
-    }
-    if (!commandBuffer)
-    {
-        ref_ptr<CommandPool> cp = CommandPool::create(_device, _family);
-        commandBuffer = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT, _commandbufferslevel);
-        commandBuffers.push_back(commandBuffer);
-    }
-    return commandBuffer;
-}
-
 void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
     if (!recordTraversal)
@@ -79,7 +59,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
         if (! sec->recordTraversal)
         {
              sec->recordTraversal = new RecordTraversal(nullptr, _maxSlot);
-        } // sec->recordTraversal = recordTraversal;
+        }
 
         sec->recordTraversal->setProjectionAndViewMatrix(projMatrix, viewMatrix);
 
@@ -124,18 +104,6 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
                 VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT :
                 /*VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT|*/VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
 
-   /*  typedef struct VkCommandBufferInheritanceInfo inheritance;
-   inheritance.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO{
-        VkStructureType                  sType;
-        const void*                      pNext;
-        VkRenderPass                     renderPass;
-        uint32_t                         subpass;
-        VkFramebuffer                    framebuffer;
-        VkBool32                         occlusionQueryEnable;
-        VkQueryControlFlags              queryFlags;
-        VkQueryPipelineStatisticFlags    pipelineStatistics;
-    } VkCommandBufferInheritanceInfo;*/
-
     VkCommandBufferInheritanceInfo inherit;
     inherit.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
     inherit.renderPass = * _window->renderPass();
@@ -145,16 +113,15 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     inherit.queryFlags = 0; //VK_QUERY_CONTROL_PRECISE_BIT;
     inherit.pipelineStatistics = 0;
     inherit.pNext = nullptr;
-   if(_commandbufferslevel!=VK_COMMAND_BUFFER_LEVEL_PRIMARY)
-    beginInfo.pInheritanceInfo = &inherit;
-vkResetCommandBuffer(vk_commandBuffer,0);
+    if(_commandbufferslevel != VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+        beginInfo.pInheritanceInfo = &inherit;
+
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
     accept(*recordTraversal);
 
     vkEndCommandBuffer(vk_commandBuffer);
 
- //   _commandbufferslevel==VK_COMMAND_BUFFER_LEVEL_PRIMARY
     recordedCommandBuffers.push_back(recordTraversal->state->_commandBuffer);
 }
 

@@ -238,13 +238,12 @@ void Viewer::compile(BufferPreferences bufferPreferences)
         auto physicalDevice = device->getPhysicalDevice();
 
         auto& collectStats = deviceResource.collectStats;
-        auto maxSets = std::max(1u,collectStats.computeNumDescriptorSets());
-        const auto& descriptorPoolSizes =collectStats.computeDescriptorPoolSizes();
+        auto maxSets = collectStats.computeNumDescriptorSets();
+        const auto& descriptorPoolSizes = collectStats.computeDescriptorPoolSizes();
 
         auto queueFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT); // TODO : could we just use transfer bit?
 
         deviceResource.compile = new vsg::CompileTraversal(device, bufferPreferences);
-        if(!descriptorPoolSizes.empty())
         deviceResource.compile->context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
         deviceResource.compile->context.commandPool = vsg::CommandPool::create(device, queueFamily);
         deviceResource.compile->context.graphicsQueue = device->getQueue(queueFamily);

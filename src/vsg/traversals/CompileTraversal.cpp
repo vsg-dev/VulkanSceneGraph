@@ -202,29 +202,23 @@ public:
 };
 void CompileTraversal::apply(CommandGraph& commandGraph)
 {
-    //TODO prune Secondaty ComamandGraphs if primary
     if(commandGraph._commandbufferslevel == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
     {
-
         context.renderPass = static_cast<RenderGraph*>(commandGraph.getChild(0))->window->renderPass();
         context.viewport = static_cast<RenderGraph*>(commandGraph.getChild(0))->camera->getViewportState();
-
-
         context.viewport->getViewport().width = static_cast<RenderGraph*>(commandGraph.getChild(0))->window->extent2D().width;
         context.viewport->getViewport().height = static_cast<RenderGraph*>(commandGraph.getChild(0))->window->extent2D().height;
-
-        CollectSecondaryCommandGraph col;
-      //  commandGraph.accept(col);
-        for(auto g: commandGraph._secondaries)
-        {
-            this->apply(*g.get());//g->accept(*this);
-     /*  commandGraph->addS g->
-
-            g->setPrimaryCommandGraph(commandGraph);///set Primary in order t
-*/
-        }
-
     }
+
+    // prune Secondary CommandGraphs
+    CollectSecondaryCommandGraph col;
+    commandGraph.accept(col);
+    commandGraph._secondaries = col._secondaries;
+    for(auto sec : commandGraph._secondaries)
+    {
+        this->apply(*sec.get());
+    }
+
     commandGraph.traverse(*this);
 
 
