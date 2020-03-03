@@ -41,7 +41,7 @@ namespace vsg
     public:
         GraphicsPipeline();
 
-        GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
+        GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass = 0, AllocationCallbacks* allocator = nullptr);
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -54,6 +54,9 @@ namespace vsg
 
         GraphicsPipelineStates& getPipelineStates() { return _pipelineStates; }
         const GraphicsPipelineStates& getPipelineStates() const { return _pipelineStates; }
+
+        uint32_t& getSubpass() { return _subpass; }
+        uint32_t getSubpass() const { return _subpass; }
 
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);
@@ -75,7 +78,7 @@ namespace vsg
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
             /** Create a GraphicsPipeline.*/
-            static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
+            static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass, AllocationCallbacks* allocator = nullptr);
 
             VkPipeline _pipeline;
 
@@ -94,6 +97,7 @@ namespace vsg
         ref_ptr<PipelineLayout> _pipelineLayout;
         ShaderStages _shaderStages;
         GraphicsPipelineStates _pipelineStates;
+        uint32_t _subpass;
         ref_ptr<AllocationCallbacks> _allocator;
     };
     VSG_type_name(vsg::GraphicsPipeline);
