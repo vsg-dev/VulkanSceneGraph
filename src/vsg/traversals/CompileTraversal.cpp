@@ -114,14 +114,36 @@ void CollectDescriptorStats::apply(const Descriptor& descriptor)
     }
     descriptorTypeMap[descriptor._descriptorType] += descriptor.getNumDescriptors();
 }
-void CollectDescriptorStats::apply(const CommandGraph& object)
+
+class CollectSecondaryCommandGraph : public ConstVisitor
 {
-for(auto sec : object._secondaries)
-    sec->accept(*this);
+public:
+    vsg::CommandGraphs _secondaries;
+    void apply(const Group& group) override
+    {
+        group.traverse(*this);
+    }
+    void apply(const Command& cmd) override{
+        const vsg::ExecuteCommands *exec = dynamic_cast<const vsg::ExecuteCommands*>(&cmd);
+        if(exec)
+        {
+            for( auto g :exec->_cmdgraphs)
+            {
+                _secondaries.emplace_back(g);
+            }
+        }
+    }
+};
 
-    object.traverse(*this);
+void CollectDescriptorStats::apply(const CommandGraph& commandGraph)
+{
+    CollectSecondaryCommandGraph col;
+    commandGraph.accept(col);
+    for(auto sec : col._secondaries)
+        sec->accept(*this);
+
+    commandGraph.traverse(*this);
 }
-
 uint32_t CollectDescriptorStats::computeNumDescriptorSets() const
 {
     return externalNumDescriptorSets + static_cast<uint32_t>(descriptorSets.size());
@@ -181,25 +203,7 @@ void CompileTraversal::apply(Geometry& geometry)
     geometry.traverse(*this);
 }
 
-class CollectSecondaryCommandGraph : public ConstVisitor
-{
-public:
-    vsg::CommandGraphs _secondaries;
-    void apply(const Group& group) override
-    {
-        group.traverse(*this);
-    }
-    void apply(const Command& cmd) override{
-        const vsg::ExecuteCommands *exec = dynamic_cast<const vsg::ExecuteCommands*>(&cmd);
-        if(exec)
-        {
-            for( auto g :exec->_cmdgraphs)
-            {
-                _secondaries.emplace_back(g);
-            }
-        }
-    }
-};
+
 void CompileTraversal::apply(CommandGraph& commandGraph)
 {
     if(commandGraph._commandbufferslevel == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
@@ -215,14 +219,12 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
     commandGraph.accept(col);
     commandGraph._secondaries = col._secondaries;
     for(auto sec : commandGraph._secondaries)
-    {
-        this->apply(*sec.get());
-    }
+        sec->accept(*this);
 
     commandGraph.traverse(*this);
 
-
 }
+
 void CompileTraversal::apply(RenderGraph& renderGraph)
 {
     context.renderPass = renderGraph.window->renderPass();
