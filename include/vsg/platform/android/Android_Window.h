@@ -66,7 +66,7 @@ namespace vsgAndroid
         Android_Window operator = (const Android_Window&) = delete;
 
         using Result = vsg::Result<vsg::Window, VkResult, VK_SUCCESS>;
-        static Result create(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator=nullptr);
+        static Result create(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator=nullptr);
 
         virtual bool valid() const { return _window; }
 
@@ -81,7 +81,7 @@ namespace vsgAndroid
     protected:
         virtual ~Android_Window();
 
-        Android_Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator);
+        Android_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator);
 
         ANativeWindow* _window;
 

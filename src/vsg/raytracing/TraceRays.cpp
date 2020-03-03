@@ -24,7 +24,7 @@ void TraceRays::dispatch(CommandBuffer& commandBuffer) const
 {
     Device* device = commandBuffer.getDevice();
     Extensions* extensions = Extensions::Get(device, true);
-    auto& rayTracingProperties = device->getPhysicalDevice()->getRayTracingProperties();
+    auto rayTracingProperties = device->getPhysicalDevice()->getProperties<VkPhysicalDeviceRayTracingPropertiesNV, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV>();
     auto shaderGroupHandleSize = rayTracingProperties.shaderGroupHandleSize;
 
     using BufferSize = std::pair<VkBuffer, VkDeviceSize>;

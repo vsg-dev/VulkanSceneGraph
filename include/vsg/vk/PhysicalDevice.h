@@ -32,10 +32,9 @@ namespace vsg
         const QueueFamilyProperties& getQueueFamilyProperties() const { return _queueFamiles; }
 
         const VkPhysicalDeviceProperties& getProperties() const { return _properties; }
-        const VkPhysicalDeviceRayTracingPropertiesNV& getRayTracingProperties() const { return _rayTracingProperties; }
 
         template<typename FeatureStruct, VkStructureType type>
-        FeatureStruct getFeatures()
+        FeatureStruct getFeatures() const
         {
             FeatureStruct features = {};
             features.sType = type;
@@ -50,7 +49,7 @@ namespace vsg
         }
 
         template<typename PropertiesStruct, VkStructureType type>
-        PropertiesStruct getProperties()
+        PropertiesStruct getProperties() const
         {
             PropertiesStruct properties = {};
             properties.sType = type;
@@ -75,7 +74,6 @@ namespace vsg
         VkPhysicalDevice _device;
 
         VkPhysicalDeviceProperties _properties;
-        VkPhysicalDeviceRayTracingPropertiesNV _rayTracingProperties;
         QueueFamilyProperties _queueFamiles;
 
         vsg::observer_ptr<Instance> _instance;
