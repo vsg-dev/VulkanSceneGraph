@@ -40,7 +40,7 @@ namespace vsg
         using DrawCommands = std::vector<ref_ptr<Command>>;
 
         // settings
-        uint32_t firstBinding = 0; // TODO need to decide whether this needs to be serialized/per device
+        uint32_t firstBinding = 0;
         DataList arrays;
         ref_ptr<Data> indices;
         DrawCommands commands;

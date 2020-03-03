@@ -60,6 +60,7 @@ void VertexIndexDraw::read(Input& input)
 
     Command::read(input);
 
+    //input.read("firstBinding", firstBinding); // TODO need to enable
     arrays.resize(input.readValue<uint32_t>("NumArrays"));
     for (auto& array : arrays)
     {
@@ -80,6 +81,7 @@ void VertexIndexDraw::write(Output& output) const
 {
     Command::write(output);
 
+    //output.write("firstBinding", firstBinding); // TODO need to enable
     output.writeValue<uint32_t>("NumArrays", arrays.size());
     for (auto& array : arrays)
     {

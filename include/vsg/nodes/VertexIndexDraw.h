@@ -42,7 +42,7 @@ namespace vsg
         uint32_t vertexOffset = 0;
         uint32_t firstInstance = 0;
 
-        uint32_t firstBinding = 0; // TODO need to decide whether this needs to be serialized/per device
+        uint32_t firstBinding = 0;
         DataList arrays;
         ref_ptr<Data> indices;
 
