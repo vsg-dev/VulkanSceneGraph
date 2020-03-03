@@ -181,7 +181,7 @@ namespace vsg
             _desc.pPreserveAttachments = _pPreserveAttachments.data();
 
             if(_pDepthStencilAttachment.attachment != ~(0u))
-            _desc.pDepthStencilAttachment = &_pDepthStencilAttachment;
+                _desc.pDepthStencilAttachment = &_pDepthStencilAttachment;
             else _desc.pDepthStencilAttachment = VK_NULL_HANDLE;
             return _desc;
         }
