@@ -40,6 +40,9 @@ namespace vsg
             _argc(argc),
             _argv(argv) {}
 
+        int& argc() { return *_argc; }
+        char** argv() { return _argv; }
+
         char* operator[](int i) { return _argv[i]; }
 
         template<typename T>
