@@ -65,7 +65,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     if (!commandBuffer)
     {
         ref_ptr<CommandPool> cp = CommandPool::create(_device, _family);
-        commandBuffer = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+        commandBuffer = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
         commandBuffers.push_back(commandBuffer);
     }
 

@@ -611,7 +611,7 @@ ref_ptr<CommandBuffer> Context::getOrCreateCommandBuffer()
 {
     if (!commandBuffer)
     {
-        commandBuffer = vsg::CommandBuffer::create(device, commandPool, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+        commandBuffer = vsg::CommandBuffer::create(device, commandPool, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
     }
 
     return commandBuffer;

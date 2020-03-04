@@ -25,7 +25,7 @@ namespace vsg
         CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags flags);
 
         using Result = vsg::Result<CommandBuffer, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, CommandPool* commandPool, VkCommandBufferUsageFlags flags);
+        static Result create(Device* device, CommandPool* commandPool, VkCommandBufferUsageFlags flags, VkCommandBufferLevel level );
 
         VkCommandBufferUsageFlags flags() const { return _flags; }
 
