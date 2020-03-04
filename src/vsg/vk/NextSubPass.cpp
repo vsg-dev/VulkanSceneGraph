@@ -10,10 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/NextSubPass.h>
 #include <vsg/vk/CommandBuffer.h>
-
-#include <vsg/traversals/CompileTraversal.h>
+#include <vsg/vk/NextSubPass.h>
 
 using namespace vsg;
 
@@ -24,20 +22,18 @@ NextSubPass::~NextSubPass()
 void NextSubPass::read(Input& input)
 {
     Command::read(input);
+
+    input.readValue<uint32_t>("contents", contents);
 }
 
 void NextSubPass::write(Output& output) const
 {
     Command::write(output);
+
+    output.writeValue<uint32_t>("contents", contents);
 }
 
 void NextSubPass::dispatch(CommandBuffer& commandBuffer) const
 {
-    vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE );
-    //vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS );
-}
-
-void NextSubPass::compile(Context& context)
-{
-
+    vkCmdNextSubpass(commandBuffer, contents);
 }

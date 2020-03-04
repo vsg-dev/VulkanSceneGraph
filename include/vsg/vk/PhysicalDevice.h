@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/observer_ptr.h>
 #include <vsg/vk/Surface.h>
 
 namespace vsg
@@ -19,39 +20,63 @@ namespace vsg
     class VSG_DECLSPEC PhysicalDevice : public Inherit<Object, PhysicalDevice>
     {
     public:
-        PhysicalDevice(Instance* instance, VkPhysicalDevice device, int graphicsFamily, int presentFamily, int computeFamily, Surface* surface);
-
-        using Result = vsg::Result<PhysicalDevice, VkResult, VK_SUCCESS>;
-        static Result create(Instance* instance, VkQueueFlags queueFlags, Surface* surface = nullptr);
-
-        bool complete() const { return _device != VK_NULL_HANDLE && _graphicsFamily >= 0 && _presentFamily >= 0; }
-
-        const Instance* getInstance() const { return _instance.get(); }
-        const Surface* getSurface() const { return _surface.get(); }
+        observer_ptr<Instance> getInstance() { return _instance; }
 
         operator VkPhysicalDevice() const { return _device; }
         VkPhysicalDevice getPhysicalDevice() const { return _device; }
 
-        int getGraphicsFamily() const { return _graphicsFamily; }
-        int getPresentFamily() const { return _presentFamily; }
-        int getComputeFamily() const { return _computeFamily; }
+        int getQueueFamily(VkQueueFlags queueFlags) const;
+        std::pair<int, int> getQueueFamily(VkQueueFlags queueFlags, Surface* surface) const;
+
+        using QueueFamilyProperties = std::vector<VkQueueFamilyProperties>;
+        const QueueFamilyProperties& getQueueFamilyProperties() const { return _queueFamiles; }
 
         const VkPhysicalDeviceProperties& getProperties() const { return _properties; }
-        const VkPhysicalDeviceRayTracingPropertiesNV& getRayTracingProperties() const { return _rayTracingProperties; }
+
+        template<typename FeatureStruct, VkStructureType type>
+        FeatureStruct getFeatures() const
+        {
+            FeatureStruct features = {};
+            features.sType = type;
+
+            VkPhysicalDeviceFeatures2 features2 = {};
+            features2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+            features2.pNext = &features;
+
+            vkGetPhysicalDeviceFeatures2(_device, &features2);
+
+            return features;
+        }
+
+        template<typename PropertiesStruct, VkStructureType type>
+        PropertiesStruct getProperties() const
+        {
+            PropertiesStruct properties = {};
+            properties.sType = type;
+
+            VkPhysicalDeviceProperties2 properties2 = {};
+            properties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+            properties2.pNext = &properties;
+
+            vkGetPhysicalDeviceProperties2(_device, &properties2);
+
+            return properties;
+        }
 
     protected:
+        // use Instance::getDevice(..) to create PhysicalDevice
+        PhysicalDevice(Instance* instance, VkPhysicalDevice device);
+
         virtual ~PhysicalDevice();
 
+        friend class Instance;
+
         VkPhysicalDevice _device;
-        int _graphicsFamily;
-        int _presentFamily;
-        int _computeFamily;
 
         VkPhysicalDeviceProperties _properties;
-        VkPhysicalDeviceRayTracingPropertiesNV _rayTracingProperties;
+        QueueFamilyProperties _queueFamiles;
 
-        vsg::ref_ptr<Instance> _instance;
-        vsg::ref_ptr<Surface> _surface;
+        vsg::observer_ptr<Instance> _instance;
     };
 
 } // namespace vsg

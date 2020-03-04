@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/viewer/Window.h>
 #include <vsg/vk/Device.h>
 
 #include <set>
@@ -21,6 +22,8 @@ Device::Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallba
     _physicalDevice(physicalDevice),
     _allocator(allocator)
 {
+    // PhysicalDevice only holds a observer_ptr<> to the Instance, so need to take a local reference to the instance to make sure it doesn't get deleted befire we are finsihed with it.
+    if (physicalDevice) _instance = physicalDevice->getInstance();
 }
 
 Device::~Device()
@@ -31,28 +34,35 @@ Device::~Device()
     }
 }
 
-Device::Result Device::create(PhysicalDevice* physicalDevice, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator)
+Device::Result Device::create(PhysicalDevice* physicalDevice, QueueSettings& queueSettings, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator)
 {
     if (!physicalDevice)
     {
         return Device::Result("Error: vsg::Device::create(...) failed to create logical device, undefined PhysicalDevice.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
-    std::set<int> uniqueQueueFamiles;
-    if (physicalDevice->getGraphicsFamily() >= 0) uniqueQueueFamiles.insert(physicalDevice->getGraphicsFamily());
-    if (physicalDevice->getComputeFamily() >= 0) uniqueQueueFamiles.insert(physicalDevice->getComputeFamily());
-    if (physicalDevice->getPresentFamily() >= 0) uniqueQueueFamiles.insert(physicalDevice->getPresentFamily());
-
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
     float queuePriority = 1.0f;
-    for (int queueFamily : uniqueQueueFamiles)
+    for (auto& queueSetting : queueSettings)
     {
+        if (queueSetting.queueFamilyIndex < 0) continue;
+
         VkDeviceQueueCreateInfo queueCreateInfo = {};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        queueCreateInfo.queueFamilyIndex = queueFamily;
-        queueCreateInfo.queueCount = 1;
-        queueCreateInfo.pQueuePriorities = &queuePriority;
+        queueCreateInfo.queueFamilyIndex = static_cast<uint32_t>(queueSetting.queueFamilyIndex);
+
+        if (!queueSetting.queuePiorities.empty())
+        {
+            queueCreateInfo.queueCount = static_cast<uint32_t>(queueSetting.queuePiorities.size());
+            queueCreateInfo.pQueuePriorities = queueSetting.queuePiorities.data();
+        }
+        else
+        {
+            queueCreateInfo.queueCount = 1;
+            queueCreateInfo.pQueuePriorities = &queuePriority;
+        }
+
         queueCreateInfo.pNext = nullptr;
         queueCreateInfos.push_back(queueCreateInfo);
     }
@@ -86,6 +96,38 @@ Device::Result Device::create(PhysicalDevice* physicalDevice, Names& layers, Nam
     {
         return Device::Result("Error: vsg::Device::create(...) failed to create logical device.", result);
     }
+}
+
+Device::Result Device::create(WindowTraits* windowTraits)
+{
+    vsg::Names instanceExtensions = vsg::Window::getInstanceExtensions();
+
+    instanceExtensions.insert(instanceExtensions.end(), windowTraits->instanceExtensionNames.begin(), windowTraits->instanceExtensionNames.end());
+
+    vsg::Names requestedLayers;
+    if (windowTraits && windowTraits->debugLayer)
+    {
+        instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+        requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+        if (windowTraits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
+    }
+
+    vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
+
+    vsg::ref_ptr<vsg::Instance> instance(vsg::Instance::create(instanceExtensions, validatedNames, windowTraits->allocator));
+    if (!instance) return Device::Result("Error: vsg::Device::create(...) failed to create logical device.", VK_ERROR_INITIALIZATION_FAILED);
+
+    // set up device
+    auto [physicalDevice, queueFamily] = instance->getPhysicalDeviceAndQueueFamily(windowTraits->queueFlags);
+    if (!physicalDevice || queueFamily < 0) return Device::Result("Error: vsg::Device::create(...) failed to create logical device.", VK_ERROR_INITIALIZATION_FAILED);
+
+    vsg::Names deviceExtensions;
+    deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
+    deviceExtensions.insert(deviceExtensions.end(), windowTraits->deviceExtensionNames.begin(), windowTraits->deviceExtensionNames.end());
+
+    vsg::QueueSettings queueSettings{vsg::QueueSetting{queueFamily, {1.0}}};
+    return vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, windowTraits->allocator);
 }
 
 ref_ptr<Queue> Device::getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)

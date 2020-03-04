@@ -32,7 +32,7 @@ using namespace vsgAndroid;
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to an Android_Window
-    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits)
+    Window::Result Window::create(vsg::ref_ptr<WindowTraits> traits)
     {
         return vsgAndroid::Android_Window::create(traits, nullptr);
     }
@@ -328,7 +328,7 @@ KeyboardMap::KeyboardMap()
         };
 }
 
-vsg::Window::Result Android_Window::create(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator)
+vsg::Window::Result Android_Window::create(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator)
 {
     try
     {
@@ -341,7 +341,7 @@ vsg::Window::Result Android_Window::create(vsg::ref_ptr<Window::Traits> traits, 
     }
 }
 
-Android_Window::Android_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator) :
+Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
     Window(traits, allocator)
 {
     _keyboard = new KeyboardMap;

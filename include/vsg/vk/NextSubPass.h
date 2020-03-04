@@ -25,13 +25,12 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void compile(Context& context) override;
-
         void dispatch(CommandBuffer& commandBuffer) const override;
+
+        VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE; // VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS
 
     protected:
         virtual ~NextSubPass();
-
     };
     VSG_type_name(vsg::NextSubPass);
 

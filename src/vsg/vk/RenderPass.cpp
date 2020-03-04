@@ -86,7 +86,7 @@ RenderPass::Result RenderPass::create(Device* device, PassGraph* graph, Allocati
     renderPassInfo.pAttachments = graph->getAttachmentDescriptions().data();
     renderPassInfo.subpassCount =  static_cast<uint32_t>(subpasses.size());
     renderPassInfo.pSubpasses = subpasses.data();
-    renderPassInfo.dependencyCount =  static_cast<uint32_t>(dependencies.size());
+    renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
     renderPassInfo.pDependencies = dependencies.data();
 
     VkRenderPass renderPass;
