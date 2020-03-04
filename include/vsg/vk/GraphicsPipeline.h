@@ -47,7 +47,7 @@ namespace vsg
     public:
         GraphicsPipeline();
 
-        GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
+        GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint subpass = 0, AllocationCallbacks* allocator = nullptr);
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -61,22 +61,26 @@ namespace vsg
         GraphicsPipelineStates& getPipelineStates() { return _pipelineStates; }
         const GraphicsPipelineStates& getPipelineStates() const { return _pipelineStates; }
 
+        const uint& getSubPass() const { return _subpass; }
+        uint& getSubPass() { return _subpass; }
+
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
         public:
-            Implementation(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
+            Implementation(VkPipeline pipeline, Device* device, RenderPass* renderPass, uint subpass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
             virtual ~Implementation();
 
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
             /** Create a GraphicsPipeline.*/
-            static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
+            static Result create(Device* device, RenderPass* renderPass, uint subpass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
 
             VkPipeline _pipeline;
 
             // TODO need to convert to use Implementation versions of RenderPass and PipelineLayout
             ref_ptr<Device> _device;
             ref_ptr<RenderPass> _renderPass;
+            uint _subpass;
             ref_ptr<PipelineLayout> _pipelineLayout;
             ShaderStages _shaderStages;
             GraphicsPipelineStates _pipelineStates;
@@ -100,7 +104,9 @@ namespace vsg
 
         ref_ptr<Device> _device;
         ref_ptr<RenderPass> _renderPass;
+        uint _subpass;
         ref_ptr<PipelineLayout> _pipelineLayout;
+
         ShaderStages _shaderStages;
         GraphicsPipelineStates _pipelineStates;
         ref_ptr<AllocationCallbacks> _allocator;
