@@ -12,36 +12,44 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/Group.h>
-#include <vsg/viewer/Camera.h>
-#include <vsg/viewer/Window.h>
-#include <vsg/vk/CommandBuffer.h>
+//#include <vsg/nodes/StateGroup.h>
+#include <vsg/viewer/CommandGraph.h>
+#include <vsg/vk/Buffer.h>
+#include <vsg/vk/Descriptor.h>
+#include <vsg/vk/State.h>
 
 namespace vsg
 {
 
-    class CommandGraph : public Inherit<Group, CommandGraph>
+    /** Execute Secondary Command Buffers
+     * (in charge of blocking-sync- their filling?)
+    }*/
+
+    class VSG_DECLSPEC ExecuteCommands : public Inherit<Command, ExecuteCommands>
     {
     public:
-        CommandGraph(Device* device, int family);
-        CommandGraph(Window* window);
+        ExecuteCommands() {}
 
-        using Group::accept;
+        std::vector<ref_ptr<CommandBuffer> > records;
+        using Secondaries = std::vector< ref_ptr < CommandGraph > >;
+        Secondaries _cmdgraphs;
 
-        virtual void record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
+        mutable std::vector< VkCommandBuffer > _commandbuffers;
+        void addCommandGraph(ref_ptr<CommandGraph> d) { _cmdgraphs.emplace_back(d); }
 
-        ref_ptr<RecordTraversal> recordTraversal;
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
-        ref_ptr<Device> _device;
-        int _family = 0;
-        uint32_t _maxSlot = 2;
-        mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
-        ref_ptr<CommandBuffer> lastrecorded; // dirty need some sync between CommandGraph
+        void dispatch(CommandBuffer& commandBuffer) const override;
+
+
+    protected:
+        virtual ~ExecuteCommands();
+
+        BufferData _bufferData;
+        VkIndexType _indexType;
     };
-
-    using CommandGraphs = std::vector<ref_ptr<CommandGraph>>;
-
-    /// convience function that sets up RenderGraph inside CommandGraph to render the specified scene graph from the speified Camera view
-    ref_ptr<CommandGraph> createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph);
+    VSG_type_name(vsg::ExecuteCommands);
 
 } // namespace vsg
+

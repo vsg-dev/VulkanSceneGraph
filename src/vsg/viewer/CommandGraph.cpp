@@ -71,6 +71,8 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     commandBuffer->numDependentSubmissions().fetch_add(1);
 
+    lastrecorded = commandBuffer; // tell external which commandbuffer is filled :/
+
     recordTraversal->state->_commandBuffer = commandBuffer;
 
     // or select index when maps to a dormant CommandBuffer
