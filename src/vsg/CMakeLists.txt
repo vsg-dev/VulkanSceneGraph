@@ -64,7 +64,6 @@ set(SOURCES
     threading/OperationThreads.cpp
 
     viewer/Camera.cpp
-    viewer/View.cpp
     viewer/Viewer.cpp
     viewer/Window.cpp
     viewer/Trackball.cpp
