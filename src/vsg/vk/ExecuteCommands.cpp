@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,36 +10,40 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/Group.h>
-#include <vsg/viewer/Camera.h>
-#include <vsg/viewer/Window.h>
+#include <vsg/ui/ApplicationEvent.h>
+#include <vsg/io/DatabasePager.h>
+#include <vsg/viewer/ExecuteCommands.h>
 #include <vsg/vk/CommandBuffer.h>
 
-namespace vsg
+using namespace vsg;
+ExecuteCommands::~ExecuteCommands()
 {
+}
 
-    class CommandGraph : public Inherit<Group, CommandGraph>
-    {
-    public:
-        CommandGraph(Device* device, int family);
-        CommandGraph(Window* window);
+void ExecuteCommands::read(Input& input)
+{
+    Command::read(input);
 
-        using Group::accept;
+    // read secondary command graphs
+    //_cmdgraphs = input.readObject<CommandGraphs>("CommandGraphs");
+}
 
-        virtual void record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
+void ExecuteCommands::write(Output& output) const
+{
+    Command::write(output);
 
-        ref_ptr<RecordTraversal> recordTraversal;
+    // write secondary command graphs
+    // output.writeObject("CommandGraphs", _cmdgraphs);
+}
 
-        ref_ptr<Device> _device;
-        int _family = 0;
-        uint32_t _maxSlot = 2;
-        mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
-        ref_ptr<CommandBuffer> lastrecorded; // dirty need some sync between CommandGraph
-    };
 
-    using CommandGraphs = std::vector<ref_ptr<CommandGraph>>;
+void ExecuteCommands::dispatch(CommandBuffer& commandBuffer) const
+{
+    _commandbuffers.clear();
 
-    /// convience function that sets up RenderGraph inside CommandGraph to render the specified scene graph from the speified Camera view
-    ref_ptr<CommandGraph> createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph);
+    for(auto r : _cmdgraphs)
+        _commandbuffers.emplace_back(*r->lastrecorded);
 
-} // namespace vsg
+    vkCmdExecuteCommands(commandBuffer, _commandbuffers.size(), _commandbuffers.data());
+}
+
