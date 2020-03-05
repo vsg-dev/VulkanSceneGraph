@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/io/DatabasePager.h>
-#include <vsg/viewer/ExecuteCommands.h>
+#include <vsg/vk/ExecuteCommands.h>
 #include <vsg/vk/CommandBuffer.h>
 
 using namespace vsg;

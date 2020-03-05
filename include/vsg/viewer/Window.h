@@ -29,7 +29,6 @@ namespace vsg
     class VSG_DECLSPEC Window : public Inherit<Object, Window>
     {
     public:
-
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
 
