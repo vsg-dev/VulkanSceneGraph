@@ -50,6 +50,7 @@ namespace vsg
         void apply(const StateCommand& stateCommand) override;
         void apply(const DescriptorSet& descriptorSet) override;
         void apply(const Descriptor& descriptor) override;
+        void apply(const CommandGraph& descriptor) override;
 
         uint32_t computeNumDescriptorSets() const;
 

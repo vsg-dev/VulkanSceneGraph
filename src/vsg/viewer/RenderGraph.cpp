@@ -12,6 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/viewer/RenderGraph.h>
+#include <vsg/viewer/CommandGraph.h>
+#include <vsg/vk/ExecuteCommands.h>
 #include <vsg/vk/State.h>
 
 using namespace vsg;
@@ -26,6 +28,16 @@ namespace vsg
         UpdatePipeline(Device* device) :
             context(device) {}
 
+        void apply(vsg::Command& cmd){
+            const vsg::ExecuteCommands *exec = dynamic_cast<const vsg::ExecuteCommands*>(&cmd);
+            if(exec)
+            {
+                for( auto g :exec->_cmdgraphs)
+                {
+                    g->accept(*this);
+                }
+            }
+        }
         void apply(vsg::BindGraphicsPipeline& bindPipeline)
         {
             GraphicsPipeline* graphicsPipeline = bindPipeline.getPipeline();
@@ -55,7 +67,7 @@ namespace vsg
 
                 if (needToRegenerateGraphicsPipeline)
                 {
-                    vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getPipelineLayout(), graphicsPipeline->getShaderStages(), graphicsPipeline->getPipelineStates());
+                    vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getPipelineLayout(), graphicsPipeline->getShaderStages(), graphicsPipeline->getPipelineStates(), graphicsPipeline->getSubPass());
 
                     bindPipeline.release();
 
@@ -149,7 +161,7 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
-    vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);//VK_SUBPASS_CONTENTS_INLINE);
 
     // traverse the command buffer to place the commands into the command buffer.
     traverse(dispatchTraversal);

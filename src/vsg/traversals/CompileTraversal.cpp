@@ -25,6 +25,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
 
+#include <vsg/vk/ExecuteCommands.h>
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/RenderGraph.h>
 
@@ -114,6 +115,35 @@ void CollectDescriptorStats::apply(const Descriptor& descriptor)
     descriptorTypeMap[descriptor._descriptorType] += descriptor.getNumDescriptors();
 }
 
+class CollectSecondaryCommandGraph : public ConstVisitor
+{
+public:
+    vsg::CommandGraphs _secondaries;
+    void apply(const Group& group) override
+    {
+        group.traverse(*this);
+    }
+    void apply(const Command& cmd) override{
+        const vsg::ExecuteCommands *exec = dynamic_cast<const vsg::ExecuteCommands*>(&cmd);
+        if(exec)
+        {
+            for( auto g :exec->_cmdgraphs)
+            {
+                _secondaries.emplace_back(g);
+            }
+        }
+    }
+};
+
+void CollectDescriptorStats::apply(const CommandGraph& commandGraph)
+{
+    CollectSecondaryCommandGraph col;
+    commandGraph.accept(col);
+    for(auto sec : col._secondaries)
+        sec->accept(*this);
+
+    commandGraph.traverse(*this);
+}
 uint32_t CollectDescriptorStats::computeNumDescriptorSets() const
 {
     return externalNumDescriptorSets + static_cast<uint32_t>(descriptorSets.size());
@@ -173,10 +203,28 @@ void CompileTraversal::apply(Geometry& geometry)
     geometry.traverse(*this);
 }
 
+
 void CompileTraversal::apply(CommandGraph& commandGraph)
 {
+    if(commandGraph._commandbufferslevel == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+    {
+        context.renderPass = static_cast<RenderGraph*>(commandGraph.getChild(0))->window->renderPass();
+        context.viewport = static_cast<RenderGraph*>(commandGraph.getChild(0))->camera->getViewportState();
+        context.viewport->getViewport().width = static_cast<RenderGraph*>(commandGraph.getChild(0))->window->extent2D().width;
+        context.viewport->getViewport().height = static_cast<RenderGraph*>(commandGraph.getChild(0))->window->extent2D().height;
+    }
+
+    // prune Secondary CommandGraphs
+    CollectSecondaryCommandGraph col;
+    commandGraph.accept(col);
+    commandGraph._secondaries = col._secondaries;
+    for(auto sec : commandGraph._secondaries)
+        sec->accept(*this);
+
     commandGraph.traverse(*this);
+
 }
+
 void CompileTraversal::apply(RenderGraph& renderGraph)
 {
     context.renderPass = renderGraph.window->renderPass();
