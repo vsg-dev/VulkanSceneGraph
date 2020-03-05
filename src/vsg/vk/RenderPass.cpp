@@ -34,14 +34,16 @@ RenderPass::~RenderPass()
 
 RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator)
 {
-    if (!device)
+  if (!device)
     {
         return Result("Error: vsg::RenderPass::create(...) failed to create RenderPass, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
     ref_ptr<PassGraph> graph(PassGraph::create());
     //create  default render pass
     vsg::PassGraph::AttachmentDescription colorAttachment;
+
     colorAttachment.format = imageFormat;
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
     colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
     colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
@@ -100,5 +102,4 @@ RenderPass::Result RenderPass::create(Device* device, PassGraph* graph, Allocati
     {
         return Result("Error: vsg::RenderPass::create(...) Failed to create VkRenderPass.", result);
     }
-
 }
