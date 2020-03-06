@@ -79,13 +79,13 @@ void PipelineLayout::write(Output& output) const
 
 void PipelineLayout::compile(Context& context)
 {
-    if (!_implementation)
+    if (!_implementation[context.deviceID])
     {
         for (auto dsl : _descriptorSetLayouts)
         {
             dsl->compile(context);
         }
-        _implementation = PipelineLayout::Implementation::create(context.device, _descriptorSetLayouts, _pushConstantRanges, _flags);
+        _implementation[context.deviceID] = PipelineLayout::Implementation::create(context.device, _descriptorSetLayouts, _pushConstantRanges, _flags);
     }
 }
 
@@ -119,7 +119,7 @@ PipelineLayout::Implementation::Result PipelineLayout::Implementation::create(De
     std::vector<VkDescriptorSetLayout> layouts;
     for (auto& dsl : descriptorSetLayouts)
     {
-        layouts.push_back(*dsl);
+        layouts.push_back(dsl->vk(device->deviceID));
     }
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo;

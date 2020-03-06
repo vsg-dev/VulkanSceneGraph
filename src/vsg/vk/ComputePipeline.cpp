@@ -54,11 +54,11 @@ void ComputePipeline::write(Output& output) const
 
 void ComputePipeline::compile(Context& context)
 {
-    if (!_implementation)
+    if (!_implementation[context.deviceID])
     {
         _pipelineLayout->compile(context);
         _shaderStage->compile(context);
-        _implementation = ComputePipeline::Implementation::create(context.device, _pipelineLayout, _shaderStage, _allocator);
+        _implementation[context.deviceID] = ComputePipeline::Implementation::create(context.device, _pipelineLayout, _shaderStage, _allocator);
     }
 }
 
@@ -90,7 +90,7 @@ ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(
     VkSpecializationInfo specializationInfo = {};
     VkPipelineShaderStageCreateInfo stageInfo = {};
     stageInfo.pNext = nullptr;
-    shaderStage->apply(stageInfo);
+    shaderStage->apply(device->deviceID, stageInfo);
 
     if (!shaderStage->getSpecializationMapEntries().empty() && shaderStage->getSpecializationData() != nullptr)
     {
@@ -106,7 +106,7 @@ ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(
 
     VkComputePipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
-    pipelineInfo.layout = *pipelineLayout;
+    pipelineInfo.layout = pipelineLayout->vk(device->deviceID);
     pipelineInfo.stage = stageInfo;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.pNext = nullptr;
@@ -153,8 +153,8 @@ void BindComputePipeline::write(Output& output) const
 
 void BindComputePipeline::dispatch(CommandBuffer& commandBuffer) const
 {
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, *_pipeline);
-    commandBuffer.setCurrentPipelineLayout(*(_pipeline->getPipelineLayout()));
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, _pipeline->vk(commandBuffer.deviceID));
+    commandBuffer.setCurrentPipelineLayout(_pipeline->getPipelineLayout()->vk(commandBuffer.deviceID));
 }
 
 void BindComputePipeline::compile(Context& context)

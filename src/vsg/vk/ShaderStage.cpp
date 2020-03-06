@@ -102,11 +102,11 @@ void ShaderStage::write(Output& output) const
     output.writeObject("SpecializationData", _specializationData.get());
 }
 
-void ShaderStage::apply(VkPipelineShaderStageCreateInfo& stageInfo) const
+void ShaderStage::apply(uint32_t deviceID, VkPipelineShaderStageCreateInfo& stageInfo) const
 {
     stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     stageInfo.stage = _stage;
-    stageInfo.module = *_shaderModule;
+    stageInfo.module = _shaderModule->vk(deviceID);
     stageInfo.pName = _entryPointName.c_str();
 }
 

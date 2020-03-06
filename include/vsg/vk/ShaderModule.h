@@ -13,7 +13,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <fstream>
+
 #include <vsg/vk/Device.h>
+#include <vsg/vk/vk_buffer.h>
 
 namespace vsg
 {
@@ -65,9 +67,20 @@ namespace vsg
         using Result = vsg::Result<ShaderModule, VkResult, VK_SUCCESS>;
         static Result read(const std::string& filename);
 
-        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context);
+
+        // remove the local reference to the Vulkan implementation
+        void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
+        void release() { _implementation.clear(); }
+
+        VkShaderModule vk(uint32_t deviceID) const { return _implementation[deviceID]->_shaderModule; }
+
+    protected:
+        virtual ~ShaderModule();
+
+        struct Implementation : public Inherit<Object, Implementation>
         {
-        public:
             Implementation(VkShaderModule shaderModule, Device* device, AllocationCallbacks* allocator);
             virtual ~Implementation();
 
@@ -76,28 +89,15 @@ namespace vsg
             /** Create a ComputePipeline.*/
             static Result create(Device* device, ShaderModule* shader, AllocationCallbacks* allocator = nullptr);
 
-            operator VkShaderModule() const { return _shaderModule; }
-
             VkShaderModule _shaderModule;
             ref_ptr<Device> _device;
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
-        // compile the Vulkan object, context parameter used for Device
-        void compile(Context& context);
-
-        // remove the local reference to the Vulkan implementation
-        void release() { _implementation = nullptr; }
-
-        operator VkShaderModule() const { return _implementation->_shaderModule; }
-
-    protected:
-        virtual ~ShaderModule();
+        vk_buffer<ref_ptr<Implementation>> _implementation;
 
         std::string _source;
         SPIRV _spirv;
-
-        ref_ptr<Implementation> _implementation;
     };
     VSG_type_name(vsg::ShaderModule);
 

@@ -55,7 +55,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void apply(VkPipelineShaderStageCreateInfo& stageInfo) const;
+        void apply(uint32_t deviceID, VkPipelineShaderStageCreateInfo& stageInfo) const;
 
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);

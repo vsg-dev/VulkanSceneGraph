@@ -297,32 +297,74 @@ void Viewer::compile(BufferPreferences bufferPreferences)
     }
 }
 
-void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs, DatabasePager* databasePager)
+void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGraphs, DatabasePager* databasePager)
 {
-    if (_windows.empty()) return;
+    struct DeviceQueueFamily
+    {
+        Device* device = nullptr;
+        int queueFamily = -1;
+        int presentFamily = -1;
 
-    // TODO need to resolve what to do about graphic vs non graphic operations and mulitple windows
-    Window* window = _windows.front();
-    Device* device = window->device();
-    PhysicalDevice* physicalDevice = window->physicalDevice();
+        bool operator<(const DeviceQueueFamily& rhs) const
+        {
+            if (device < rhs.device) return true;
+            if (device > rhs.device) return false;
+            if (queueFamily < rhs.queueFamily) return true;
+            if (queueFamily > rhs.queueFamily) return false;
+            return presentFamily < rhs.presentFamily;
+        }
+    };
 
-    auto [graphicsFamily, presentFamily] = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, window->surface());
+    // place the input CommandGraphs into seperate groups associated with each device and queue family combination
+    std::map<DeviceQueueFamily, CommandGraphs> deviceCommandGraphsMap;
+    for (auto& commandGraph : in_commandGraphs)
+    {
+        deviceCommandGraphsMap[DeviceQueueFamily{commandGraph->_device.get(), commandGraph->_queueFamily, commandGraph->_presentFamily}].emplace_back(commandGraph);
+    }
 
-    auto renderFinishedSemaphore = vsg::Semaphore::create(device);
+    // create the required RecordAndSubmitTask and any Presentation objecst that are required for each set of CommandGraphs
+    for (auto& [deviceQueueFamily, commandGraphs] : deviceCommandGraphsMap)
+    {
+        auto device = deviceQueueFamily.device;
+        if (deviceQueueFamily.presentFamily >= 0)
+        {
+            // collate all the unique Windows associaged with these commandGraphs
+            std::set<Window*> uniqueWindows;
+            for (auto& commanGraph : commandGraphs)
+            {
+                uniqueWindows.insert(commanGraph->windows.begin(), commanGraph->windows.end());
+            }
 
-    // set up Submission with CommandBuffer and signals
-    auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create();
-    recordAndSubmitTask->commandGraphs = commandGraphs;
-    recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
-    recordAndSubmitTask->databasePager = databasePager;
-    recordAndSubmitTask->windows = _windows;
-    recordAndSubmitTask->queue = device->getQueue(graphicsFamily);
-    recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
+            Windows windows(uniqueWindows.begin(), uniqueWindows.end());
 
-    presentation = vsg::Presentation::create();
-    presentation->waitSemaphores.emplace_back(renderFinishedSemaphore);
-    presentation->windows = _windows;
-    presentation->queue = device->getQueue(presentFamily);
+            auto renderFinishedSemaphore = vsg::Semaphore::create(device);
+
+            // set up Submission with CommandBuffer and signals
+            auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create();
+            recordAndSubmitTask->commandGraphs = commandGraphs;
+            recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
+            recordAndSubmitTask->databasePager = databasePager;
+            recordAndSubmitTask->windows = windows;
+            recordAndSubmitTask->queue = device->getQueue(deviceQueueFamily.queueFamily);
+            recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
+
+            auto presentation = vsg::Presentation::create();
+            presentation->waitSemaphores.emplace_back(renderFinishedSemaphore);
+            presentation->windows = windows;
+            presentation->queue = device->getQueue(deviceQueueFamily.presentFamily);
+            presentations.emplace_back(presentation);
+        }
+        else
+        {
+            // with don't have a presentFamily so this set of commandGraphs aren't associated with a widnow
+            // set up Submission with CommandBuffer and signals
+            auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create();
+            recordAndSubmitTask->commandGraphs = commandGraphs;
+            recordAndSubmitTask->databasePager = databasePager;
+            recordAndSubmitTask->queue = device->getQueue(deviceQueueFamily.queueFamily);
+            recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
+        }
+    }
 }
 
 void Viewer::update()
@@ -346,5 +388,8 @@ void Viewer::recordAndSubmit()
 
 void Viewer::present()
 {
-    if (presentation) presentation->present();
+    for (auto& presentation : presentations)
+    {
+        presentation->present();
+    }
 }

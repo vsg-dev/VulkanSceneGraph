@@ -10,9 +10,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <algorithm>
-
 #include <vsg/raytracing/DescriptorAccelerationStructure.h>
+
+#include <vsg/vk/Context.h>
 
 using namespace vsg;
 
@@ -49,21 +49,21 @@ void DescriptorAccelerationStructure::compile(Context& context)
         accelstruct->compile(context);
         _vkAccelerationStructures.push_back(*accelstruct);
     }
-
-    _descriptorAccelerationStructureInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV;
-    _descriptorAccelerationStructureInfo.accelerationStructureCount = static_cast<uint32_t>(_vkAccelerationStructures.size());
-    _descriptorAccelerationStructureInfo.pAccelerationStructures = _vkAccelerationStructures.data();
-    _descriptorAccelerationStructureInfo.pNext = nullptr;
 }
 
-bool DescriptorAccelerationStructure::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+void DescriptorAccelerationStructure::assignTo(Context& context, VkWriteDescriptorSet& wds) const
 {
-    Descriptor::assignTo(wds, descriptorSet);
+    // TODO HERE
+    Descriptor::assignTo(context, wds);
+
+    auto descriptorAccelerationStructureInfo = context.scratchMemory->allocate<VkWriteDescriptorSetAccelerationStructureNV>(1);
+    descriptorAccelerationStructureInfo->sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV;
+    descriptorAccelerationStructureInfo->accelerationStructureCount = static_cast<uint32_t>(_vkAccelerationStructures.size());
+    descriptorAccelerationStructureInfo->pAccelerationStructures = _vkAccelerationStructures.data();
+    descriptorAccelerationStructureInfo->pNext = nullptr;
 
     wds.descriptorCount = static_cast<uint32_t>(_vkAccelerationStructures.size());
-    wds.pNext = &_descriptorAccelerationStructureInfo;
-
-    return true;
+    wds.pNext = descriptorAccelerationStructureInfo;
 }
 
 uint32_t DescriptorAccelerationStructure::getNumDescriptors() const

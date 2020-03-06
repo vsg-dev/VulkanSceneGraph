@@ -161,11 +161,14 @@ std::pair<ref_ptr<PhysicalDevice>, int> Instance::getPhysicalDeviceAndQueueFamil
     return {{}, -1};
 }
 
-std::pair<ref_ptr<PhysicalDevice>, std::pair<int, int>> Instance::getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface) const
+std::tuple<ref_ptr<PhysicalDevice>, int, int> Instance::getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface) const
 {
     for (auto& device : _physicalDevices)
     {
-        if (auto [graphicsFamily, presentFamily] = device->getQueueFamily(queueFlags, surface); (graphicsFamily >= 0 && presentFamily >= 0)) return {device, {graphicsFamily, presentFamily}};
+        if (auto [graphicsFamily, presentFamily] = device->getQueueFamily(queueFlags, surface); (graphicsFamily >= 0 && presentFamily >= 0))
+        {
+            return {device, graphicsFamily, presentFamily};
+        }
     }
-    return {{}, {-1, -1}};
+    return {{}, -1, -1};
 }

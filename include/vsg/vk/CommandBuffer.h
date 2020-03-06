@@ -35,6 +35,8 @@ namespace vsg
 
         std::atomic_uint& numDependentSubmissions() { return _numDependentSubmissions; }
 
+        const uint32_t deviceID;
+
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 

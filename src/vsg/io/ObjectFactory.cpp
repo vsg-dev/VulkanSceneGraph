@@ -93,7 +93,6 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::mat4Value);
     VSG_REGISTER_new(vsg::dmat4Value);
     VSG_REGISTER_new(vsg::materialValue);
-    VSG_REGISTER_new(vsg::MaterialValue);
 
     // arrays
     VSG_REGISTER_new(vsg::ubyteArray);

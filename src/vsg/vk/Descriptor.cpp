@@ -42,14 +42,11 @@ void Descriptor::write(Output& output) const
     output.write("DstArrayElement", _dstArrayElement);
 }
 
-bool Descriptor::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
+void Descriptor::assignTo(Context& /*context*/, VkWriteDescriptorSet& wds) const
 {
     wds = {};
     wds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    wds.dstSet = descriptorSet;
     wds.dstBinding = _dstBinding;
     wds.dstArrayElement = _dstArrayElement;
     wds.descriptorType = _descriptorType;
-
-    return false;
 }
