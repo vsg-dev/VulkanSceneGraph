@@ -147,7 +147,7 @@ namespace vsg
             const double longitude = lla[1];
             const double height = lla[2];
 
-            // for details on maths see http://www.colorado.edu/geography/gcraft/notes/datum/gif/llhxyz.gif
+            // for details on maths see https://en.wikipedia.org/wiki/ECEF
             double sin_latitude = sin(latitude);
             double cos_latitude = cos(latitude);
             double N = _radiusEquator / sqrt(1.0 - _eccentricitySquared * sin_latitude * sin_latitude);
