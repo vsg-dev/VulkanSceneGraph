@@ -40,6 +40,7 @@ namespace vsg
         using DrawCommands = std::vector<ref_ptr<Command>>;
 
         // settings
+        uint32_t firstBinding = 0;
         DataList arrays;
         ref_ptr<Data> indices;
         DrawCommands commands;
@@ -47,8 +48,16 @@ namespace vsg
     protected:
         virtual ~Geometry();
 
-        // compiled objects
-        DrawCommands _renderImplementation;
+        struct VulkanData
+        {
+            std::vector<ref_ptr<Buffer>> buffers;
+            std::vector<VkBuffer> vkBuffers;
+            std::vector<VkDeviceSize> offsets;
+            BufferData bufferData;
+            VkIndexType indexType = VK_INDEX_TYPE_UINT16;
+        };
+
+        vk_buffer<VulkanData> _vulkanData;
     };
     VSG_type_name(vsg::Geometry)
 

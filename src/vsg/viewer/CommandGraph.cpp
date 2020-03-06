@@ -21,7 +21,8 @@ using namespace vsg;
 
 CommandGraph::CommandGraph(Device* device, int family) :
     _device(device),
-    _family(family)
+    _queueFamily(family),
+    _presentFamily(-1)
 {
 }
 
@@ -29,12 +30,14 @@ CommandGraph::CommandGraph(Window* window)
 {
     if (window)
     {
+        windows.emplace_back(window);
+
         _device = window->device();
 
         VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
         if (window->traits()) queueFlags = window->traits()->queueFlags;
 
-        std::tie(_family, std::ignore) = window->physicalDevice()->getQueueFamily(queueFlags, window->surface());
+        std::tie(_queueFamily, _presentFamily) = window->physicalDevice()->getQueueFamily(queueFlags, window->surface());
 
         for (size_t i = 0; i < window->numFrames(); ++i)
         {
@@ -64,7 +67,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     }
     if (!commandBuffer)
     {
-        ref_ptr<CommandPool> cp = CommandPool::create(_device, _family);
+        ref_ptr<CommandPool> cp = CommandPool::create(_device, _queueFamily);
         commandBuffer = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
         commandBuffers.push_back(commandBuffer);
     }

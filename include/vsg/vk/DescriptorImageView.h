@@ -12,29 +12,36 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Data.h>
-#include <vsg/vk/Buffer.h>
-#include <vsg/vk/DeviceMemory.h>
+#include <vsg/vk/Descriptor.h>
+#include <vsg/vk/ImageData.h>
 
 namespace vsg
 {
-    class VSG_DECLSPEC MemoryManager : public Inherit<Object, MemoryManager>
+
+    class VSG_DECLSPEC DescriptorImageView : public Inherit<Descriptor, DescriptorImageView>
     {
     public:
-        MemoryManager(Device* device, AllocationCallbacks* allocator = nullptr);
+        DescriptorImageView();
 
-        Buffer* createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode);
+        DescriptorImageView(ImageData imageData, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-        DeviceMemory* createMemory(const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties);
+        /** ImageDataList is automatically filled in by the DecriptorImage::compile() using the sampler and image data objects.*/
+        ImageDataList& getImageDataList() { return _imageDataList; }
+        const ImageDataList& getImageDataList() const { return _imageDataList; }
 
-        Device* getDevice() { return _device; }
-        const Device* getDevice() const { return _device; }
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        void compile(Context& context) override;
+
+        void assignTo(Context& context, VkWriteDescriptorSet& wds) const override;
+
+        uint32_t getNumDescriptors() const override;
 
     protected:
-        virtual ~MemoryManager();
-
-        ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
+        ImageDataList _imageDataList;
+        bool _compiled;
     };
+    VSG_type_name(vsg::DescriptorImageView);
 
 } // namespace vsg

@@ -38,6 +38,32 @@ Object::Object() :
 {
 }
 
+Object::Object(const Object& rhs) :
+    Object()
+{
+    if (rhs._auxiliary && rhs._auxiliary->getConnectedObject() == &rhs)
+    {
+        // the rhs's rhs._auxiliary is uniquely attached to it, so we need to create our own and copy it's ObjectMap across
+        Auxiliary::ObjectMap& objectMap = getOrCreateUniqueAuxiliary()->getObjectMap();
+        objectMap = rhs._auxiliary->getObjectMap();
+    }
+}
+
+Object& Object::operator=(const Object& rhs)
+{
+    std::cout << "Object& operator=(const Object&)" << std::endl;
+    if (&rhs == this) return *this;
+
+    if (rhs._auxiliary && rhs._auxiliary->getConnectedObject() == &rhs)
+    {
+        // the rhs's rhs._auxiliary is uniquely attached to it, so we need to create our own and copy it's ObjectMap across
+        Auxiliary::ObjectMap& objectMap = getOrCreateUniqueAuxiliary()->getObjectMap();
+        objectMap = rhs._auxiliary->getObjectMap();
+    }
+
+    return *this;
+}
+
 Object::Object(Allocator* allocator) :
     _referenceCount(0),
     _auxiliary(nullptr)

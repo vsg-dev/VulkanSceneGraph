@@ -262,19 +262,26 @@ vsg::Window::Result Xcb_Window::create(vsg::ref_ptr<WindowTraits> traits, vsg::A
 Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
     Window(traits, allocator)
 {
-    const char* displayName = 0;
-    int screenNum = traits->screenNum;
     bool fullscreen =  traits->fullscreen;
     uint32_t override_redirect = traits->overrideRedirect;
 
     // open connection
-    _connection = xcb_connect(displayName, &screenNum);
+    int screenNum = 0;
+    if (traits->display.empty())
+    {
+        _connection = xcb_connect(NULL, &screenNum);
+    }
+    else
+    {
+        _connection = xcb_connect(traits->display.c_str(), &screenNum);
+    }
+
     if (xcb_connection_has_error(_connection))
     {
         // close connection
         xcb_disconnect(_connection);
-        //return Result("Failed to created Window, unable able to establish xcb connection.", VK_ERROR_INVALID_EXTERNAL_HANDLE);  TODO need to throw?
-        return;
+
+        throw Result("Failed to created Window, unable able to establish xcb connection.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     // TODO, should record Traits within Window? Should pass back selected screeenNum?
@@ -309,8 +316,22 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbac
     }
 
     // select the appropriate screen for the window
+    if (traits->screenNum >= 0) screenNum = traits->screenNum;
+
+    int screenCount = xcb_setup_roots_length (setup);
+    if (screenNum >= screenCount)
+    {
+        std::cout<<"Warning: request screenNum ("<<screenNum<<") to high, only "<<screenCount<<" screens available  Selecting screen 0 as fallback."<<std::endl;
+        screenNum = 0;
+    }
+
     xcb_screen_iterator_t screen_iterator = xcb_setup_roots_iterator(setup);
-    for (; screenNum > 0; --screenNum) xcb_screen_next(&screen_iterator);
+
+    for(int i=0; i<screenNum; ++i)
+    {
+        xcb_screen_next(&screen_iterator);
+    }
+
     _screen = screen_iterator.data;
 
     // generate the widnow id

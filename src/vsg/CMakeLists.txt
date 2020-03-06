@@ -97,6 +97,7 @@ set(SOURCES
     vk/Descriptor.cpp
     vk/DescriptorBuffer.cpp
     vk/DescriptorImage.cpp
+    vk/DescriptorImageView.cpp
     vk/DescriptorTexelBufferView.cpp
     vk/DescriptorPool.cpp
     vk/DescriptorSet.cpp
@@ -112,7 +113,6 @@ set(SOURCES
     vk/ImageData.cpp
     vk/ImageView.cpp
     vk/Instance.cpp
-    vk/MemoryManager.cpp
     vk/NextSubPass.cpp
     vk/PhysicalDevice.cpp
     vk/PipelineLayout.cpp

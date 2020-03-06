@@ -10,20 +10,53 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Version.h>
 #include <vsg/viewer/Window.h>
 #include <vsg/vk/Device.h>
 
 #include <set>
 
+#include <iostream>
+
 using namespace vsg;
 
+// thread safe container for managing the deviceID for each vsg;:Device
+static std::mutex s_DeviceCountMutex;
+static std::vector<bool> s_ActiveDevices;
+
+static uint32_t getUniqueDeviceID()
+{
+    std::lock_guard<std::mutex> guard(s_DeviceCountMutex);
+
+    uint32_t deviceID = 0;
+    for (deviceID = 0; deviceID < static_cast<uint32_t>(s_ActiveDevices.size()); ++deviceID)
+    {
+        if (!s_ActiveDevices[deviceID])
+        {
+            s_ActiveDevices[deviceID] = true;
+            return deviceID;
+        }
+    }
+
+    s_ActiveDevices.push_back(true);
+
+    return deviceID;
+}
+
 Device::Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallbacks* allocator) :
+    deviceID(getUniqueDeviceID()),
     _device(device),
     _physicalDevice(physicalDevice),
     _allocator(allocator)
 {
     // PhysicalDevice only holds a observer_ptr<> to the Instance, so need to take a local reference to the instance to make sure it doesn't get deleted befire we are finsihed with it.
     if (physicalDevice) _instance = physicalDevice->getInstance();
+
+    if (deviceID >= VSG_MAX_DEVICES)
+    {
+        // TODO throw an exception?
+        std::cout << "Warning : number of vsg:Device allocated exceeds number supported " << VSG_MAX_DEVICES << std::endl;
+    }
 }
 
 Device::~Device()
@@ -32,6 +65,9 @@ Device::~Device()
     {
         vkDestroyDevice(_device, _allocator);
     }
+
+    std::lock_guard<std::mutex> guard(s_DeviceCountMutex);
+    s_ActiveDevices[deviceID] = false;
 }
 
 Device::Result Device::create(PhysicalDevice* physicalDevice, QueueSettings& queueSettings, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator)
@@ -47,6 +83,16 @@ Device::Result Device::create(PhysicalDevice* physicalDevice, QueueSettings& que
     for (auto& queueSetting : queueSettings)
     {
         if (queueSetting.queueFamilyIndex < 0) continue;
+
+        // check to see if the queueFamilyIndex has already been referened or us unique
+        bool unique = true;
+        for (auto& existingInfo : queueCreateInfos)
+        {
+            if (existingInfo.queueFamilyIndex == static_cast<uint32_t>(queueSetting.queueFamilyIndex)) unique = false;
+        }
+
+        // Vylkan doesn't support non unique queueFamily so ignore this entry.
+        if (!unique) continue;
 
         VkDeviceQueueCreateInfo queueCreateInfo = {};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;

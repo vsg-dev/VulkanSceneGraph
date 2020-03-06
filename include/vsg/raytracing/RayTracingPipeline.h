@@ -45,9 +45,20 @@ namespace vsg
         uint32_t& maxRecursionDepth() { return _maxRecursionDepth; }
         const uint32_t& maxRecursionDepth() const { return _maxRecursionDepth; }
 
-        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context);
+
+        // remove the local reference to the Vulkan implementation
+        void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
+        void release() { _implementation.clear(); }
+
+        VkPipeline vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipeline; }
+
+    protected:
+        virtual ~RayTracingPipeline();
+
+        struct Implementation : public Inherit<Object, Implementation>
         {
-        public:
             Implementation(VkPipeline pipeline, Device* device, RayTracingPipeline* rayTracingPipeline, AllocationCallbacks* allocator = nullptr);
             virtual ~Implementation();
 
@@ -66,30 +77,14 @@ namespace vsg
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
-        // get the Vulkan GrphicsPipeline::Implementation
-        Implementation* getImplementation() { return _implementation; }
-        const Implementation* getImplementation() const { return _implementation; }
+        vk_buffer<ref_ptr<Implementation>> _implementation;
 
-        // compile the Vulkan object, context parameter used for Device
-        void compile(Context& context);
-
-        // remove the local reference to the Vulkan implementation
-        void release() { _implementation = nullptr; }
-
-        operator VkPipeline() const { return _implementation->_pipeline; }
-
-    protected:
-        virtual ~RayTracingPipeline();
-
-        ref_ptr<Device> _device;
         ref_ptr<PipelineLayout> _pipelineLayout;
         ShaderStages _shaderStages;
         RayTracingShaderGroups _rayTracingShaderGroups;
         uint32_t _maxRecursionDepth = 1;
 
         ref_ptr<AllocationCallbacks> _allocator;
-
-        ref_ptr<Implementation> _implementation;
     };
     VSG_type_name(vsg::RayTracingPipeline);
 

@@ -76,4 +76,30 @@ namespace vsg
         dvec3 center;
         dvec3 up;
     };
+
+    class RelativeView : public Inherit<ViewMatrix, RelativeView>
+    {
+    public:
+        RelativeView(ref_ptr<ViewMatrix> vm, const dmat4& m) :
+            viewMatrix(vm),
+            matrix(m)
+        {
+        }
+
+        void get(mat4& in_matrix) const override
+        {
+            viewMatrix->get(in_matrix);
+            in_matrix = mat4(matrix) * in_matrix;
+        }
+
+        void get(dmat4& in_matrix) const override
+        {
+            viewMatrix->get(in_matrix);
+            in_matrix = matrix * in_matrix;
+        }
+
+        ref_ptr<ViewMatrix> viewMatrix;
+        dmat4 matrix;
+    };
+
 } // namespace vsg

@@ -34,9 +34,20 @@ namespace vsg
         ShaderStage* getShaderStage() { return _shaderStage; }
         const ShaderStage* getShaderStage() const { return _shaderStage; }
 
-        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context);
+
+        // remove the local reference to the Vulkan implementation
+        void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
+        void release() { _implementation.clear(); }
+
+        VkPipeline vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipeline; }
+
+    protected:
+        virtual ~ComputePipeline();
+
+        struct Implementation : public Inherit<Object, Implementation>
         {
-        public:
             Implementation(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator);
             virtual ~Implementation();
 
@@ -53,22 +64,11 @@ namespace vsg
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
-        // compile the Vulkan object, context parameter used for Device
-        void compile(Context& context);
-
-        // remove the local reference to the Vulkan implementation
-        void release() { _implementation = nullptr; }
-
-        operator VkPipeline() const { return _implementation->_pipeline; }
-
-    protected:
-        virtual ~ComputePipeline();
+        vk_buffer<ref_ptr<Implementation>> _implementation;
 
         ref_ptr<PipelineLayout> _pipelineLayout;
         ref_ptr<ShaderStage> _shaderStage;
         ref_ptr<AllocationCallbacks> _allocator;
-
-        ref_ptr<Implementation> _implementation;
     };
 
     class VSG_DECLSPEC BindComputePipeline : public Inherit<StateCommand, BindComputePipeline>

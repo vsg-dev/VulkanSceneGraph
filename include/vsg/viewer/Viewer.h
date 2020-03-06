@@ -101,10 +101,13 @@ namespace vsg
 
         virtual bool acquireNextFrame();
 
-        // new
+        // Manage the work to do each frame uisng RecordAndSubmitTasks. thpse that need to present results to be wired up to respective Presentation object
         using RecordAndSubmitTasks = std::vector<ref_ptr<RecordAndSubmitTask>>;
         RecordAndSubmitTasks recordAndSubmitTasks;
-        ref_ptr<Presentation> presentation;
+
+        // Manage the presentation of rendering using Presentation objects
+        using Presentations = std::vector<ref_ptr<Presentation>>;
+        Presentations presentations;
 
         void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs, DatabasePager* databasePager = nullptr);
 

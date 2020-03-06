@@ -98,6 +98,31 @@ namespace vsg
         double farDistance;
     };
 
+    class RelativeProjection : public Inherit<ProjectionMatrix, RelativeProjection>
+    {
+    public:
+        RelativeProjection(ref_ptr<ProjectionMatrix> pm, const dmat4& m) :
+            projectionMatrix(pm),
+            matrix(m)
+        {
+        }
+
+        void get(mat4& in_matrix) const override
+        {
+            projectionMatrix->get(in_matrix);
+            in_matrix = mat4(matrix) * in_matrix;
+        }
+
+        void get(dmat4& in_matrix) const override
+        {
+            projectionMatrix->get(in_matrix);
+            in_matrix = matrix * in_matrix;
+        }
+
+        ref_ptr<ProjectionMatrix> projectionMatrix;
+        dmat4 matrix;
+    };
+
     const double WGS_84_RADIUS_EQUATOR = 6378137.0;
     const double WGS_84_RADIUS_POLAR = 6356752.3142;
 
@@ -116,13 +141,13 @@ namespace vsg
         double radiusPolar() const { return _radiusPolar; }
 
         // latitude and longitude in radians
-        dvec3 convertLatLongAltitudeToECEF(const dvec3& lla)
+        dvec3 convertLatLongHeightToECEF(const dvec3& lla) const
         {
             const double latitude = lla[0];
             const double longitude = lla[1];
             const double height = lla[2];
 
-            // for details on maths see http://www.colorado.edu/geography/gcraft/notes/datum/gif/llhxyz.gif
+            // for details on maths see https://en.wikipedia.org/wiki/ECEF
             double sin_latitude = sin(latitude);
             double cos_latitude = cos(latitude);
             double N = _radiusEquator / sqrt(1.0 - _eccentricitySquared * sin_latitude * sin_latitude);
@@ -131,8 +156,43 @@ namespace vsg
                          (N * (1 - _eccentricitySquared) + height) * sin_latitude);
         }
 
+        dmat4 computeLocalToWorldTransform(const dvec3& lla) const
+        {
+            dvec3 ecef = convertLatLongHeightToECEF(lla);
+
+            const double latitude = lla[0];
+            const double longitude = lla[1];
+
+            // Compute up, east and north vector
+            dvec3 up( cos(longitude)*cos(latitude), sin(longitude)*cos(latitude), sin(latitude));
+            dvec3 east(-sin(longitude), cos(longitude), 0.0);
+            dvec3 north = cross(up, east);
+
+            dmat4 localToWorld = vsg::translate(ecef);
+
+            // set matrix
+            localToWorld(0,0) = east[0];
+            localToWorld(0,1) = east[1];
+            localToWorld(0,2) = east[2];
+
+            localToWorld(1,0) = north[0];
+            localToWorld(1,1) = north[1];
+            localToWorld(1,2) = north[2];
+
+            localToWorld(2,0) = up[0];
+            localToWorld(2,1) = up[1];
+            localToWorld(2,2) = up[2];
+
+            return localToWorld;
+        }
+
+        dmat4 computeWorldToLocalTransform(const dvec3& lla) const
+        {
+            return vsg::inverse(computeLocalToWorldTransform(lla));
+        }
+
         // latitude and longitude in radians
-        dvec3 convertECEVToLatLongAltitude(const dvec3& ecef)
+        dvec3 convertECEFToLatLongHeight(const dvec3& ecef) const
         {
             double latitude, longitude, height;
             const double PI_2 = PI * 0.5;
@@ -225,11 +285,11 @@ namespace vsg
         }
         void get(dmat4& matrix) const override
         {
-            // std::cout<<"camera eye : "<<lookAt->eye<<", "<<ellipsoidModel->convertECEVToLatLongAltitude(lookAt->eye)<<std::endl;
+            // std::cout<<"camera eye : "<<lookAt->eye<<", "<<ellipsoidModel->convertECEVToLatLongHeight(lookAt->eye)<<std::endl;
             vsg::dvec3 v = lookAt->eye;
             vsg::dvec3 lv = vsg::normalize(lookAt->center - lookAt->eye);
             double R = ellipsoidModel->radiusEquator();
-            double H = ellipsoidModel->convertECEVToLatLongAltitude(v).z;
+            double H = ellipsoidModel->convertECEFToLatLongHeight(v).z;
             double D = R + H;
             double alpha = (D > R) ? std::acos(R / D) : 0.0;
             double beta = std::acos(R / (R + horizonMountainHeight));
