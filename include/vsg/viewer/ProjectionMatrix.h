@@ -164,24 +164,24 @@ namespace vsg
             const double longitude = lla[1];
 
             // Compute up, east and north vector
-            dvec3 up( cos(longitude)*cos(latitude), sin(longitude)*cos(latitude), sin(latitude));
+            dvec3 up(cos(longitude) * cos(latitude), sin(longitude) * cos(latitude), sin(latitude));
             dvec3 east(-sin(longitude), cos(longitude), 0.0);
             dvec3 north = cross(up, east);
 
             dmat4 localToWorld = vsg::translate(ecef);
 
             // set matrix
-            localToWorld(0,0) = east[0];
-            localToWorld(0,1) = east[1];
-            localToWorld(0,2) = east[2];
+            localToWorld(0, 0) = east[0];
+            localToWorld(0, 1) = east[1];
+            localToWorld(0, 2) = east[2];
 
-            localToWorld(1,0) = north[0];
-            localToWorld(1,1) = north[1];
-            localToWorld(1,2) = north[2];
+            localToWorld(1, 0) = north[0];
+            localToWorld(1, 1) = north[1];
+            localToWorld(1, 2) = north[2];
 
-            localToWorld(2,0) = up[0];
-            localToWorld(2,1) = up[1];
-            localToWorld(2,2) = up[2];
+            localToWorld(2, 0) = up[0];
+            localToWorld(2, 1) = up[1];
+            localToWorld(2, 2) = up[2];
 
             return localToWorld;
         }
