@@ -25,7 +25,7 @@ namespace vsg
 
         ref_ptr<ScratchMemory> next;
 
-        ScratchMemory(size_t bufferSize)
+        explicit ScratchMemory(size_t bufferSize)
         {
             size = bufferSize;
             buffer = new uint8_t[bufferSize];
