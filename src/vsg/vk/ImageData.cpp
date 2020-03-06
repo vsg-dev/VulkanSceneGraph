@@ -104,6 +104,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     std::cout << "data->width() = " << data->width() << std::endl;
     std::cout << "data->height() = " << data->height() << std::endl;
     std::cout << "data->depth() = " << data->depth() << std::endl;
+    std::cout << "data->getFormat() = " << data->getFormat() << std::endl;
     std::cout << "sampler->info().maxLod = " << sampler->info().maxLod << std::endl;
 
     std::cout << "Creating imageStagingBuffer and memory size = " << imageTotalSize << " mipLevels = "<<mipLevels<<std::endl;
