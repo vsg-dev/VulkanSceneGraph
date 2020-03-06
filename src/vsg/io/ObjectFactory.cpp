@@ -59,7 +59,6 @@ ref_ptr<ObjectFactory>& ObjectFactory::instance()
     return s_ObjectFactory;
 }
 
-
 ObjectFactory::ObjectFactory()
 {
     _createMap["nullptr"] = []() { return ref_ptr<Object>(); };
