@@ -141,7 +141,7 @@ namespace vsg
         double radiusPolar() const { return _radiusPolar; }
 
         // latitude and longitude in radians
-        dvec3 convertLatLongAltitudeToECEF(const dvec3& lla) const
+        dvec3 convertLatLongHeightToECEF(const dvec3& lla) const
         {
             const double latitude = lla[0];
             const double longitude = lla[1];
@@ -158,7 +158,7 @@ namespace vsg
 
         dmat4 computeLocalToWorldTransform(const dvec3& lla) const
         {
-            dvec3 ecef = convertLatLongAltitudeToECEF(lla);
+            dvec3 ecef = convertLatLongHeightToECEF(lla);
 
             const double latitude = lla[0];
             const double longitude = lla[1];
@@ -192,7 +192,7 @@ namespace vsg
         }
 
         // latitude and longitude in radians
-        dvec3 convertECEFToLatLongAltitude(const dvec3& ecef) const
+        dvec3 convertECEFToLatLongHeight(const dvec3& ecef) const
         {
             double latitude, longitude, height;
             const double PI_2 = PI * 0.5;
@@ -285,11 +285,11 @@ namespace vsg
         }
         void get(dmat4& matrix) const override
         {
-            // std::cout<<"camera eye : "<<lookAt->eye<<", "<<ellipsoidModel->convertECEVToLatLongAltitude(lookAt->eye)<<std::endl;
+            // std::cout<<"camera eye : "<<lookAt->eye<<", "<<ellipsoidModel->convertECEVToLatLongHeight(lookAt->eye)<<std::endl;
             vsg::dvec3 v = lookAt->eye;
             vsg::dvec3 lv = vsg::normalize(lookAt->center - lookAt->eye);
             double R = ellipsoidModel->radiusEquator();
-            double H = ellipsoidModel->convertECEFToLatLongAltitude(v).z;
+            double H = ellipsoidModel->convertECEFToLatLongHeight(v).z;
             double D = R + H;
             double alpha = (D > R) ? std::acos(R / D) : 0.0;
             double beta = std::acos(R / (R + horizonMountainHeight));
