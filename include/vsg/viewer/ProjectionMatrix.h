@@ -137,6 +137,16 @@ namespace vsg
             _eccentricitySquared = 2 * flattening - flattening * flattening;
         }
 
+        bool operator == (const EllipsoidModel& rhs) const
+        {
+            return _radiusEquator == rhs._radiusEquator && _radiusPolar == rhs._radiusPolar;
+        }
+
+        bool operator != (const EllipsoidModel& rhs) const
+        {
+            return _radiusEquator != rhs._radiusEquator || _radiusPolar != rhs._radiusPolar;
+        }
+
         double radiusEquator() const { return _radiusEquator; }
         double radiusPolar() const { return _radiusPolar; }
 
