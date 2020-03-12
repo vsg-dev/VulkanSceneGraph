@@ -50,8 +50,7 @@ namespace vsg
         ref_ptr<CommandBuffer> lastrecorded; // dirty need some sync between CommandGraph
     };
 
-
     /// convience function that sets up RenderGraph inside CommandGraph to render the specified scene graph from the speified Camera view
-    ref_ptr<CommandGraph> createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkCommandBufferLevel cmdlevel= VK_COMMAND_BUFFER_LEVEL_PRIMARY, uint sub = 0);
+    ref_ptr<CommandGraph> createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkCommandBufferLevel cmdlevel= VK_COMMAND_BUFFER_LEVEL_PRIMARY, uint sub = 0, VkSubpassContents content = VK_SUBPASS_CONTENTS_INLINE);
 
 } // namespace vsg

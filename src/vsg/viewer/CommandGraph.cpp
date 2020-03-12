@@ -109,7 +109,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     recordedCommandBuffers.push_back(recordTraversal->state->_commandBuffer);
 }
 
-ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkCommandBufferLevel lev, uint sub)
+ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkCommandBufferLevel lev, uint sub, VkSubpassContents content)
 {
     ref_ptr<CommandGraph> commandGraph;
     auto [graphicsFamily, presentFamily] = window->physicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, window->surface());
@@ -118,8 +118,9 @@ ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* cam
     {
         commandGraph = CommandGraph::create(window);
         auto renderGraph = vsg::RenderGraph::create();
-        renderGraph->addChild(ref_ptr<Node>(scenegraph));
 
+        renderGraph->addChild(ref_ptr<Node>(scenegraph));
+        renderGraph->content = content;
         renderGraph->camera = camera;
         renderGraph->window = window;
 
