@@ -73,7 +73,6 @@ namespace vsg
         struct Implementation : public Inherit<Object, Implementation>
         {
             Implementation(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
-
             virtual ~Implementation();
 
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
@@ -96,7 +95,6 @@ namespace vsg
 
         ref_ptr<RenderPass> _renderPass;
         ref_ptr<PipelineLayout> _pipelineLayout;
-
         ShaderStages _shaderStages;
         GraphicsPipelineStates _pipelineStates;
         uint32_t _subpass;

@@ -173,17 +173,8 @@ void CompileTraversal::apply(Geometry& geometry)
     geometry.traverse(*this);
 }
 
-
 void CompileTraversal::apply(CommandGraph& commandGraph)
 {
-    if(commandGraph._commandbufferslevel == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
-    {
-        context.renderPass = static_cast<RenderGraph*>(commandGraph.getChild(0))->window->renderPass();
-        context.viewport = static_cast<RenderGraph*>(commandGraph.getChild(0))->camera->getViewportState();
-        context.viewport->getViewport().width = static_cast<RenderGraph*>(commandGraph.getChild(0))->window->extent2D().width;
-        context.viewport->getViewport().height = static_cast<RenderGraph*>(commandGraph.getChild(0))->window->extent2D().height;
-    }
-
     commandGraph.traverse(*this);
 }
 

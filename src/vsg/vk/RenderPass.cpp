@@ -34,7 +34,7 @@ RenderPass::~RenderPass()
 
 RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator)
 {
-  if (!device)
+    if (!device)
     {
         return Result("Error: vsg::RenderPass::create(...) failed to create RenderPass, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
@@ -84,9 +84,9 @@ RenderPass::Result RenderPass::create(Device* device, PassGraph* graph, Allocati
 
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount =  static_cast<uint32_t>(graph->getAttachmentDescriptions().size());
+    renderPassInfo.attachmentCount = static_cast<uint32_t>(graph->getAttachmentDescriptions().size());
     renderPassInfo.pAttachments = graph->getAttachmentDescriptions().data();
-    renderPassInfo.subpassCount =  static_cast<uint32_t>(subpasses.size());
+    renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
     renderPassInfo.pSubpasses = subpasses.data();
     renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
     renderPassInfo.pDependencies = dependencies.data();

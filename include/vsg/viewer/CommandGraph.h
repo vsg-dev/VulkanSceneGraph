@@ -37,10 +37,8 @@ namespace vsg
         Windows windows;
 
         ref_ptr<Device> _device;
-
         int _queueFamily = -1;
         int _presentFamily = -1;
-
         uint32_t _maxSlot = 2;
 
         VkCommandBufferLevel _commandbufferslevel;
