@@ -22,7 +22,7 @@ namespace vsg
     class VSG_DECLSPEC CommandBuffer : public Inherit<Object, CommandBuffer>
     {
     public:
-        CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags flags);
+        CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags flags, VkCommandBufferLevel level);
 
         using Result = vsg::Result<CommandBuffer, VkResult, VK_SUCCESS>;
         static Result create(Device* device, CommandPool* commandPool, VkCommandBufferUsageFlags flags, VkCommandBufferLevel level );
@@ -44,6 +44,8 @@ namespace vsg
         void setCurrentPipelineLayout(VkPipelineLayout pipelineLayout) { _currentPipelineLayout = pipelineLayout; }
         VkPipelineLayout getCurrentPipelineLayout() const { return _currentPipelineLayout; }
 
+        VkCommandBufferLevel getCommandBufferLevel() { return _commandBufferLevel; }
+        VkCommandBufferLevel getCommandBufferLevel() const { return _commandBufferLevel; }
     protected:
         virtual ~CommandBuffer();
 
@@ -53,6 +55,7 @@ namespace vsg
         ref_ptr<Device> _device;
         ref_ptr<CommandPool> _commandPool;
         VkPipelineLayout _currentPipelineLayout;
+        VkCommandBufferLevel _commandBufferLevel;
     };
 
     using CommandBuffers = std::vector<ref_ptr<CommandBuffer>>;

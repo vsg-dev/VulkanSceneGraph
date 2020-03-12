@@ -14,12 +14,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CommandBuffer::CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags flags) :
+CommandBuffer::CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags flags, VkCommandBufferLevel level) :
     _commandBuffer(commandBuffer),
     _flags(flags),
     _device(device),
     _commandPool(commandPool),
-    _currentPipelineLayout(0)
+    _currentPipelineLayout(0),
+    _commandBufferLevel(level)
 {
 }
 
@@ -31,7 +32,7 @@ CommandBuffer::~CommandBuffer()
     }
 }
 
-CommandBuffer::Result CommandBuffer::create(Device* device, CommandPool* commandPool, VkCommandBufferUsageFlags flags , VkCommandBufferLevel level )
+CommandBuffer::Result CommandBuffer::create(Device* device, CommandPool* commandPool, VkCommandBufferUsageFlags flags, VkCommandBufferLevel level)
 {
     if (!device || !commandPool)
     {
@@ -48,7 +49,7 @@ CommandBuffer::Result CommandBuffer::create(Device* device, CommandPool* command
     VkResult result = vkAllocateCommandBuffers(*device, &allocateInfo, &buffer);
     if (result == VK_SUCCESS)
     {
-        return Result(new CommandBuffer(device, commandPool, buffer, flags));
+        return Result(new CommandBuffer(device, commandPool, buffer, flags, level));
     }
     else
     {
