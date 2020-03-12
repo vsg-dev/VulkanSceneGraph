@@ -145,6 +145,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Surface.h>
 #include <vsg/vk/Swapchain.h>
 #include <vsg/vk/vk_buffer.h>
+#include <vsg/vk/PassGraph.h>
+#include <vsg/vk/NextSubPass.h>
+#include <vsg/vk/ExecuteCommands.h>
 
 // Input/Output header files
 #include <vsg/io/AsciiInput.h>
