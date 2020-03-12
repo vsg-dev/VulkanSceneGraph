@@ -104,8 +104,10 @@ namespace vsg
             Data::write(output);
             output.writeValue<std::uint32_t>("Width", _width);
             output.writeValue<std::uint32_t>("Height", _height);
+
             output.writePropertyName("Data");
             output.write(valueCount(), _data);
+            output.writeEndOfLine();
         }
 
         std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? static_cast<std::size_t>(_width) * _height : computeValueCountIncludingMipmaps(_width, _height, 1, _layout.maxNumMipmaps); }

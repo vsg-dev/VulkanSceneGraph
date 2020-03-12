@@ -110,6 +110,7 @@ namespace vsg
         {
             Data::write(output);
             output.writeValue<std::uint32_t>("Size", _size);
+
             output.writePropertyName("Data");
             output.write(size(), _data);
             output.writeEndOfLine();
