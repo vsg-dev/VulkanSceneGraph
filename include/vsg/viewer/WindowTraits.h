@@ -26,8 +26,8 @@ namespace vsg
     {
     public:
         WindowTraits() {}
-        WindowTraits(const WindowTraits&) = delete;
-        WindowTraits& operator=(const WindowTraits&) = delete;
+        WindowTraits(const WindowTraits&) = default;
+        WindowTraits& operator=(const WindowTraits&) = default;
 
         WindowTraits(int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height) :
             x(in_x),
@@ -46,7 +46,8 @@ namespace vsg
 
         bool fullscreen = false;
 
-        uint32_t screenNum = 0;
+        std::string display; /// A non empty display string overrides any X11 DISPLAY env var that may have been set. ignored on non X11 systems
+        int screenNum = -1;  /// negative screenNum value indicates system defaults should be assumed, a non zero value will set the screenNum, overriding any display or DISPLAY setting for this.
 
         std::string windowClass = "vsg::Window";
         std::string windowTitle = "vsg window";
@@ -57,13 +58,13 @@ namespace vsg
         // X11 hint of whether to ignore the Window managers redirection of window size/position
         bool overrideRedirect = false;
 
-        bool debugLayer = false;
-        bool apiDumpLayer = false;
-
         SwapchainPreferences swapchainPreferences;
 
         VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
         VkPipelineStageFlagBits imageAvailableSemaphoreWaitFlag = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+        bool debugLayer = false;
+        bool apiDumpLayer = false;
 
         vsg::Names instanceExtensionNames;
         vsg::Names deviceExtensionNames;

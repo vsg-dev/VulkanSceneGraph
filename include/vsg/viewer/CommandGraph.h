@@ -34,14 +34,22 @@ namespace vsg
 
         ref_ptr<RecordTraversal> recordTraversal;
 
-        ref_ptr<Device> _device;
-        VkCommandBufferLevel _commandbufferslevel; uint _subpassindex; ref_ptr<Window> _window;
-        int _family = 0;
-        uint32_t _maxSlot = 2;
-        mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
+        Windows windows;
 
+        ref_ptr<Device> _device;
+
+        int _queueFamily = -1;
+        int _presentFamily = -1;
+
+        uint32_t _maxSlot = 2;
+
+        VkCommandBufferLevel _commandbufferslevel;
+        uint32_t _subpassindex;
+
+        ref_ptr<CommandGraph> _primary; // setup in Viewer::assignRecordAndSubmitTaskAndPresentation
+
+        mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
         ref_ptr<CommandBuffer> lastrecorded; // dirty need some sync between CommandGraph
-        ref_ptr<CommandGraph> _primary;
     };
 
 

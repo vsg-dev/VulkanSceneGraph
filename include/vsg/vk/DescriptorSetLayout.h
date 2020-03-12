@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/Device.h>
+#include <vsg/vk/vk_buffer.h>
 
 namespace vsg
 {
@@ -30,42 +31,35 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context);
+
+        // remove the local reference to the Vulkan implementation
+        void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
+        void release() { _implementation.clear(); }
+
+        VkDescriptorSetLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_descriptorSetLayout; }
+
+    protected:
+        virtual ~DescriptorSetLayout();
+
+        struct Implementation : public Inherit<Object, Implementation>
         {
-        public:
             Implementation(Device* device, VkDescriptorSetLayout DescriptorSetLayout, AllocationCallbacks* allocator = nullptr);
+            virtual ~Implementation();
 
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
             static Result create(Device* device, const DescriptorSetLayoutBindings& descriptorSetLayoutBindings, AllocationCallbacks* allocator = nullptr);
-
-            operator VkDescriptorSetLayout() const { return _descriptorSetLayout; }
-
-        protected:
-            virtual ~Implementation();
 
             ref_ptr<Device> _device;
             VkDescriptorSetLayout _descriptorSetLayout;
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
-        // compile the Vulkan object, context parameter used for Device
-        void compile(Context& context);
-
-        // remove the local reference to the Vulkan implementation
-        void release() { _implementation = nullptr; }
-
-        operator VkDescriptorSetLayout() const { return *_implementation; }
-
-        Implementation* implementation() { return _implementation; }
-        const Implementation* implementation() const { return _implementation; }
-
-    protected:
-        virtual ~DescriptorSetLayout();
+        vk_buffer<ref_ptr<Implementation>> _implementation;
 
         DescriptorSetLayoutBindings _descriptorSetLayoutBindings;
-
-        ref_ptr<Implementation> _implementation;
     };
     VSG_type_name(vsg::DescriptorSetLayout);
 

@@ -17,6 +17,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Command.h>
 #include <vsg/vk/Descriptor.h>
 
+#include <vsg/vk/vk_buffer.h>
+
 namespace vsg
 {
     class VSG_DECLSPEC BindVertexBuffers : public Inherit<Command, BindVertexBuffers>
@@ -41,12 +43,7 @@ namespace vsg
         void setFirstBinding(uint32_t firstBinding) { _firstBinding = firstBinding; }
         uint32_t getFirstBinding() const { return _firstBinding; }
 
-        void add(ref_ptr<Buffer> buffer, VkDeviceSize offset)
-        {
-            _buffers.push_back(buffer);
-            _vkBuffers.push_back(*buffer);
-            _offsets.push_back(offset);
-        }
+        void add(ref_ptr<Buffer> buffer, VkDeviceSize offset);
 
         void setArrays(const DataList& arrays) { _arrays = arrays; }
         DataList& getArrays() { return _arrays; }
@@ -62,15 +59,17 @@ namespace vsg
     protected:
         virtual ~BindVertexBuffers();
 
-        using Buffers = std::vector<ref_ptr<Buffer>>;
-        using VkBuffers = std::vector<VkBuffer>;
-        using Offsets = std::vector<VkDeviceSize>;
-
         uint32_t _firstBinding;
-        Buffers _buffers;
-        VkBuffers _vkBuffers;
-        Offsets _offsets;
         DataList _arrays;
+
+        struct VulkanData
+        {
+            std::vector<ref_ptr<Buffer>> buffers;
+            std::vector<VkBuffer> vkBuffers;
+            std::vector<VkDeviceSize> offsets;
+        };
+
+        vk_buffer<VulkanData> _vulkanData;
     };
     VSG_type_name(vsg::BindVertexBuffers);
 

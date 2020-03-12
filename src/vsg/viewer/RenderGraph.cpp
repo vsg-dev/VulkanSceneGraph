@@ -43,21 +43,9 @@ namespace vsg
                     }
                 }
 
-                if (graphicsPipeline->getImplementation())
-                {
-                    for (auto& pipelineState : graphicsPipeline->getImplementation()->_pipelineStates)
-                    {
-                        if (pipelineState == context.viewport)
-                        {
-                            needToRegenerateGraphicsPipeline = true;
-                            break;
-                        }
-                    }
-                }
-
                 if (needToRegenerateGraphicsPipeline)
                 {
-                    vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getPipelineLayout(), graphicsPipeline->getShaderStages(), graphicsPipeline->getPipelineStates(), graphicsPipeline->getSubPass());
+                    vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getPipelineLayout(), graphicsPipeline->getShaderStages(), graphicsPipeline->getPipelineStates(), graphicsPipeline->getSubpass());
 
                     bindPipeline.release();
 
@@ -100,7 +88,7 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
         }
         else if (previous_extent.width != extent.width || previous_extent.height != extent.height)
         {
-            // crude handling of window resizie...TODO, come up with a user controllable way to handle resize.
+            // crude handling of window resize...TODO, come up with a user controllable way to handle resize.
 
             vsg::UpdatePipeline updatePipeline(window->device());
 

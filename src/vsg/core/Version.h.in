@@ -23,6 +23,8 @@ extern "C"
     #define VSG_VERSION_STRING   "@VSG_VERSION_MAJOR@.@VSG_VERSION_MINOR@.@VSG_VERSION_PATCH@"
     #define VSG_SOVERSION_STRING "@VSG_SOVERSION@"
 
+    #define VSG_MAX_DEVICES @VSG_MAX_DEVICES@
+
     extern VSG_DECLSPEC const char* vsgGetVersion();
     extern VSG_DECLSPEC const char* vsgGetSOVersion();
 

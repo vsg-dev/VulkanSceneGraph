@@ -103,6 +103,30 @@ namespace vsg
     VSG_type_name(vsg::uivec4);
 
     template<typename T>
+    constexpr bool operator == (t_vec4<T> const& lhs, t_vec4<T> const& rhs)
+    {
+        return lhs[0] == rhs[0] && lhs[1] == rhs[1] && lhs[2] == rhs[2] && lhs[3] == rhs[3];
+    }
+
+    template<typename T>
+    constexpr bool operator != (t_vec4<T> const& lhs, t_vec4<T> const& rhs)
+    {
+        return lhs[0] == rhs[0] || lhs[1] != rhs[1] || lhs[2] != rhs[2] || lhs[3] != rhs[3];
+    }
+
+    template<typename T>
+    constexpr bool operator < (t_vec4<T> const& lhs, t_vec4<T> const& rhs)
+    {
+        if (lhs[0] < rhs[0]) return true;
+        if (lhs[0] > rhs[0]) return false;
+        if (lhs[1] < rhs[1]) return true;
+        if (lhs[1] > rhs[1]) return false;
+        if (lhs[2] < rhs[2]) return true;
+        if (lhs[2] > rhs[2]) return false;
+        return lhs[3] < rhs[3];
+    }
+
+    template<typename T>
     constexpr t_vec4<T> operator-(t_vec4<T> const& lhs, t_vec4<T> const& rhs)
     {
         return t_vec4<T>(lhs[0] - rhs[0], lhs[1] - rhs[1], lhs[2] - rhs[2], lhs[3] - rhs[3]);

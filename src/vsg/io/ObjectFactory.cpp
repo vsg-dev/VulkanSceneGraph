@@ -59,7 +59,6 @@ ref_ptr<ObjectFactory>& ObjectFactory::instance()
     return s_ObjectFactory;
 }
 
-
 ObjectFactory::ObjectFactory()
 {
     _createMap["nullptr"] = []() { return ref_ptr<Object>(); };
@@ -93,7 +92,6 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::mat4Value);
     VSG_REGISTER_new(vsg::dmat4Value);
     VSG_REGISTER_new(vsg::materialValue);
-    VSG_REGISTER_new(vsg::MaterialValue);
 
     // arrays
     VSG_REGISTER_new(vsg::ubyteArray);

@@ -581,15 +581,18 @@ void BuildAccelerationStructureCommand::dispatch(CommandBuffer& commandBuffer) c
 // vsg::Context
 //
 Context::Context(Device* in_device, BufferPreferences bufferPreferences) :
+    deviceID(in_device->deviceID),
     device(in_device),
     deviceMemoryBufferPools(MemoryBufferPools::create("Device_MemoryBufferPool", device, bufferPreferences)),
     stagingMemoryBufferPools(MemoryBufferPools::create("Staging_MemoryBufferPool", device, bufferPreferences)),
     scratchBufferSize(0)
 {
     //semaphore = vsg::Semaphore::create(device);
+    scratchMemory = ScratchMemory::create(4096);
 }
 
 Context::Context(const Context& context) :
+    deviceID(context.deviceID),
     device(context.device),
     renderPass(context.renderPass),
     viewport(context.viewport),
@@ -600,6 +603,7 @@ Context::Context(const Context& context) :
     stagingMemoryBufferPools(context.stagingMemoryBufferPools),
     scratchBufferSize(context.scratchBufferSize)
 {
+    scratchMemory = ScratchMemory::create(4096);
 }
 
 Context::~Context()

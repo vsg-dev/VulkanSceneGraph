@@ -59,7 +59,7 @@ namespace vsg
         std::pair<ref_ptr<PhysicalDevice>, int> getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags) const;
 
         /// get a PhysicalDevice and queue family index that supports the speciiced queueFlags, and presentation of spcified surface if one is provided.
-        std::pair<ref_ptr<PhysicalDevice>, std::pair<int, int>> getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface) const;
+        std::tuple<ref_ptr<PhysicalDevice>, int, int> getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface) const;
 
     protected:
         virtual ~Instance();

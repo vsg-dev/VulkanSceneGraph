@@ -29,12 +29,6 @@ namespace vsg
 
         virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const = 0;
 
-        // compile the Vulkan object, context parameter used for Device
-        virtual void compile(Context& /*context*/) {}
-
-        // remove the local reference to the Vulkan implementation
-        virtual void release() {}
-
     protected:
         virtual ~GraphicsPipelineState() {}
     };
@@ -47,7 +41,7 @@ namespace vsg
     public:
         GraphicsPipeline();
 
-        GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint subpass = 0, AllocationCallbacks* allocator = nullptr);
+        GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass = 0, AllocationCallbacks* allocator = nullptr);
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -61,57 +55,52 @@ namespace vsg
         GraphicsPipelineStates& getPipelineStates() { return _pipelineStates; }
         const GraphicsPipelineStates& getPipelineStates() const { return _pipelineStates; }
 
-        const uint& getSubPass() const { return _subpass; }
-        uint& getSubPass() { return _subpass; }
+        uint32_t& getSubpass() { return _subpass; }
+        uint32_t getSubpass() const { return _subpass; }
 
-        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context);
+
+        // remove the local reference to the Vulkan implementation
+        void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
+        void release() { _implementation.clear(); }
+
+        VkPipeline vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipeline; }
+
+    protected:
+        virtual ~GraphicsPipeline();
+
+        struct Implementation : public Inherit<Object, Implementation>
         {
-        public:
-            Implementation(VkPipeline pipeline, Device* device, RenderPass* renderPass, uint subpass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
+            Implementation(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
+
             virtual ~Implementation();
 
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
             /** Create a GraphicsPipeline.*/
-            static Result create(Device* device, RenderPass* renderPass, uint subpass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator = nullptr);
+            static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass, AllocationCallbacks* allocator = nullptr);
 
             VkPipeline _pipeline;
 
             // TODO need to convert to use Implementation versions of RenderPass and PipelineLayout
             ref_ptr<Device> _device;
             ref_ptr<RenderPass> _renderPass;
-            uint _subpass;
             ref_ptr<PipelineLayout> _pipelineLayout;
             ShaderStages _shaderStages;
             GraphicsPipelineStates _pipelineStates;
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
-        // get the Vulkan GrphicsPipeline::Implementation
-        Implementation* getImplementation() { return _implementation; }
-        const Implementation* getImplementation() const { return _implementation; }
+        vk_buffer<ref_ptr<Implementation>> _implementation;
 
-        // compile the Vulkan object, context parameter used for Device
-        void compile(Context& context);
-
-        // remove the local reference to the Vulkan implementation
-        void release() { _implementation = nullptr; }
-
-        operator VkPipeline() const { return _implementation->_pipeline; }
-
-    protected:
-        virtual ~GraphicsPipeline();
-
-        ref_ptr<Device> _device;
         ref_ptr<RenderPass> _renderPass;
-        uint _subpass;
         ref_ptr<PipelineLayout> _pipelineLayout;
 
         ShaderStages _shaderStages;
         GraphicsPipelineStates _pipelineStates;
+        uint32_t _subpass;
         ref_ptr<AllocationCallbacks> _allocator;
-
-        ref_ptr<Implementation> _implementation;
     };
     VSG_type_name(vsg::GraphicsPipeline);
 
