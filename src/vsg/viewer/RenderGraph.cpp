@@ -28,16 +28,6 @@ namespace vsg
         UpdatePipeline(Device* device) :
             context(device) {}
 
-        void apply(vsg::Command& cmd){
-            const vsg::ExecuteCommands *exec = dynamic_cast<const vsg::ExecuteCommands*>(&cmd);
-            if(exec)
-            {
-                for( auto g :exec->_cmdgraphs)
-                {
-                    g->accept(*this);
-                }
-            }
-        }
         void apply(vsg::BindGraphicsPipeline& bindPipeline)
         {
             GraphicsPipeline* graphicsPipeline = bindPipeline.getPipeline();

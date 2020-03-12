@@ -15,8 +15,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/StateGroup.h>
 
 #include <vsg/vk/Descriptor.h>
+#include <vsg/vk/ExecuteCommands.h>
 
 #include <vsg/viewer/Viewer.h>
+#include <vsg/viewer/RenderGraph.h>
 
 #include <chrono>
 #include <iostream>
@@ -206,12 +208,33 @@ void Viewer::handleEvents()
     }
 }
 
+class CollectSecondaryCommandGraph : public ConstVisitor
+{
+public:
+    vsg::CommandGraphs _secondaries;
+    void apply(const Group& group) override
+    {
+        group.traverse(*this);
+    }
+    void apply(const Command& cmd) override{
+        const vsg::ExecuteCommands *exec = dynamic_cast<const vsg::ExecuteCommands*>(&cmd);
+        if(exec)
+        {
+            for( auto g :exec->_cmdgraphs)
+            {
+                _secondaries.emplace_back(g);
+            }
+        }
+    }
+};
+
 void Viewer::compile(BufferPreferences bufferPreferences)
 {
     if (recordAndSubmitTasks.empty())
     {
         return;
     }
+
 
     struct DeviceResources
     {
@@ -260,6 +283,15 @@ void Viewer::compile(BufferPreferences bufferPreferences)
 
             auto& deviceResource = deviceResourceMap[commandGraph->_device];
             commandGraph->_maxSlot = deviceResource.collectStats.maxSlot;
+            if(commandGraph->_primary.valid())
+            {
+                deviceResource.compile->context.renderPass = static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->window->renderPass();
+                deviceResource.compile->context.viewport = static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->camera->getViewportState();
+                deviceResource.compile->context.viewport->getViewport().width = static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->window->extent2D().width;
+                deviceResource.compile->context.viewport->getViewport().height = static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->window->extent2D().height;
+
+            }
+
             commandGraph->accept(*deviceResource.compile);
         }
 
@@ -310,9 +342,21 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraph
 
     auto renderFinishedSemaphore = vsg::Semaphore::create(device);
 
+    CommandGraphs effectiveCommandGraphs;
+
+    // collect secondaries command graph
+    for( auto primary : commandGraphs )
+    {
+        CollectSecondaryCommandGraph collector;
+        primary->accept(collector);
+        for( auto sec : collector._secondaries ) sec->_primary = primary;
+        effectiveCommandGraphs.insert(std::end(effectiveCommandGraphs), std::begin(collector._secondaries), std::end(collector._secondaries));
+        effectiveCommandGraphs.emplace_back(primary);
+    }
+
     // set up Submission with CommandBuffer and signals
     auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create();
-    recordAndSubmitTask->commandGraphs = commandGraphs;
+    recordAndSubmitTask->commandGraphs = effectiveCommandGraphs;
     recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
     recordAndSubmitTask->databasePager = databasePager;
     recordAndSubmitTask->windows = _windows;

@@ -50,25 +50,6 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
         recordTraversal = new RecordTraversal(nullptr, _maxSlot);
     }
 
-    CommandBuffers secrec;
-    for(auto sec : _secondaries)
-    {
-        dmat4 projMatrix, viewMatrix;
-        static_cast<RenderGraph*>(getChild(0))->camera->getProjectionMatrix()->get(projMatrix);
-        static_cast<RenderGraph*>(getChild(0))->camera->getViewMatrix()->get(viewMatrix);
-        if (! sec->recordTraversal)
-        {
-             sec->recordTraversal = new RecordTraversal(nullptr, _maxSlot);
-        }
-
-        sec->recordTraversal->setProjectionAndViewMatrix(projMatrix, viewMatrix);
-
-        sec->record(secrec,frameStamp,databasePager);
-    }
-    if(!_secondaries.empty())
-        //force primary not to update
-        recordTraversal->state->dirty = false;
-
     recordTraversal->frameStamp = frameStamp;
     recordTraversal->databasePager = databasePager;
     if (databasePager) recordTraversal->culledPagedLODs = databasePager->culledPagedLODs;

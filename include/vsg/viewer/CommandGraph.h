@@ -41,7 +41,7 @@ namespace vsg
         mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
 
         ref_ptr<CommandBuffer> lastrecorded; // dirty need some sync between CommandGraph
-        CommandGraphs _secondaries;
+        ref_ptr<CommandGraph> _primary;
     };
 
 
