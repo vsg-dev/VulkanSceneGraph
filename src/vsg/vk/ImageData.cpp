@@ -116,8 +116,11 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     uint32_t depth = data->depth() * layout.blockDepth;
 
     // TODO, need to look at better user control of the VkImageType/VkImageViewType as automatic selection looks to be problematic when the dimensions are 1D but the shader is expecting 2D.
-    VkImageType imageType = depth > 1 ? VK_IMAGE_TYPE_3D : (height > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
-    VkImageViewType imageViewType = depth > 1 ? VK_IMAGE_VIEW_TYPE_3D : (height > 1 ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
+
+
+    auto dimensions = data->dimensions();
+    VkImageType imageType = dimensions>=3 ? VK_IMAGE_TYPE_3D : (dimensions == 2 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
+    VkImageViewType imageViewType = dimensions>=3 ? VK_IMAGE_VIEW_TYPE_3D : (dimensions == 2 ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
 
     VkImageCreateInfo imageCreateInfo = {};
     imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;

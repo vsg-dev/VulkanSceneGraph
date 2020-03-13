@@ -86,6 +86,8 @@ namespace vsg
 
         void* dataRelease() override { return nullptr; }
 
+        std::uint32_t dimensions() const override { return 0; }
+
         std::uint32_t width() const override { return 1; }
         std::uint32_t height() const override { return 1; }
         std::uint32_t depth() const override { return 1; }
