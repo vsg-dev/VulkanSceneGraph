@@ -46,7 +46,7 @@ void Geometry::read(Input& input)
 {
     Node::read(input);
 
-    //input.read("firstBinding", firstBinding); // TODO need to enable
+    input.read("firstBinding", firstBinding);
     arrays.resize(input.readValue<uint32_t>("NumArrays"));
     for (auto& array : arrays)
     {
@@ -66,7 +66,7 @@ void Geometry::write(Output& output) const
 {
     Node::write(output);
 
-    //output.write("firstBinding", firstBinding); // TODO need to enable
+    output.write("firstBinding", firstBinding);
     output.writeValue<uint32_t>("NumArrays", arrays.size());
     for (auto& array : arrays)
     {
