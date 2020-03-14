@@ -25,10 +25,11 @@ GraphicsPipeline::GraphicsPipeline()
 {
 }
 
-GraphicsPipeline::GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator) :
+GraphicsPipeline::GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass, AllocationCallbacks* allocator) :
     _pipelineLayout(pipelineLayout),
     _shaderStages(shaderStages),
     _pipelineStates(pipelineStates),
+    _subpass(subpass),
     _allocator(allocator)
 {
 }
@@ -54,6 +55,8 @@ void GraphicsPipeline::read(Input& input)
     {
         pipelineState = input.readObject<GraphicsPipelineState>("PipelineState");
     }
+
+    // input.read("subpass", _subpass); // TODO need to enable
 }
 
 void GraphicsPipeline::write(Output& output) const
@@ -73,11 +76,13 @@ void GraphicsPipeline::write(Output& output) const
     {
         output.writeObject("PipelineState", pipelineState.get());
     }
+
+    // output.write("subpass", _subpass); // TODO need to enable
 }
 
 void GraphicsPipeline::compile(Context& context)
 {
-    if (!_implementation)
+    if (!_implementation[context.deviceID])
     {
         _pipelineLayout->compile(context);
 
@@ -86,15 +91,10 @@ void GraphicsPipeline::compile(Context& context)
             shaderStage->compile(context);
         }
 
-        for (auto& pipelineState : _pipelineStates)
-        {
-            pipelineState->compile(context);
-        }
-
         GraphicsPipelineStates full_pipelineStates = _pipelineStates;
         full_pipelineStates.emplace_back(context.viewport);
 
-        _implementation = GraphicsPipeline::Implementation::create(context.device, context.renderPass, _pipelineLayout, _shaderStages, full_pipelineStates, _allocator);
+        _implementation[context.deviceID] = GraphicsPipeline::Implementation::create(context.device, context.renderPass, _pipelineLayout, _shaderStages, full_pipelineStates, _subpass, _allocator);
     }
 }
 
@@ -113,7 +113,7 @@ GraphicsPipeline::Implementation::Implementation(VkPipeline pipeline, Device* de
 {
 }
 
-GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator)
+GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass, AllocationCallbacks* allocator)
 {
     if (!device || !renderPass || !pipelineLayout)
     {
@@ -122,9 +122,9 @@ GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::creat
 
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineInfo.layout = *pipelineLayout;
+    pipelineInfo.layout = pipelineLayout->vk(device->deviceID);
     pipelineInfo.renderPass = *renderPass;
-    pipelineInfo.subpass = 0;
+    pipelineInfo.subpass = subpass;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.pNext = nullptr;
 
@@ -134,7 +134,7 @@ GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::creat
     {
         const ShaderStage* shaderStage = shaderStages[i];
         shaderStageCreateInfo[i].pNext = nullptr;
-        shaderStage->apply(shaderStageCreateInfo[i]);
+        shaderStage->apply(device->deviceID, shaderStageCreateInfo[i]);
         if (!shaderStage->getSpecializationMapEntries().empty() && shaderStage->getSpecializationData() != nullptr)
         {
             // assign a VkSpecializationInfo for this shaderStageCreateInfo
@@ -204,8 +204,8 @@ void BindGraphicsPipeline::write(Output& output) const
 
 void BindGraphicsPipeline::dispatch(CommandBuffer& commandBuffer) const
 {
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, *_pipeline);
-    commandBuffer.setCurrentPipelineLayout(*(_pipeline->getPipelineLayout()));
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline->vk(commandBuffer.deviceID));
+    commandBuffer.setCurrentPipelineLayout(_pipeline->getPipelineLayout()->vk(commandBuffer.deviceID));
 }
 
 void BindGraphicsPipeline::compile(Context& context)

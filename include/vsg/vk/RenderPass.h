@@ -16,25 +16,21 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-
+    class PassGraph;
     class VSG_DECLSPEC RenderPass : public Inherit<Object, RenderPass>
     {
     public:
         RenderPass(VkRenderPass renderPass, Device* device, AllocationCallbacks* allocator = nullptr);
 
-        using Attachments = std::vector<VkAttachmentDescription>;
-        using Subpasses = std::vector<VkSubpassDescription>;
-        using Dependancies = std::vector<VkSubpassDependency>;
-
         using Result = vsg::Result<RenderPass, VkResult, VK_SUCCESS>;
+
         static Result create(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator = nullptr);
-        static Result create(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependancies& dependancies, AllocationCallbacks* allocator = nullptr);
+        static Result create(Device* device, PassGraph*  passgraph, AllocationCallbacks* allocator = nullptr);
 
         operator VkRenderPass() const { return _renderPass; }
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
-
     protected:
         virtual ~RenderPass();
 

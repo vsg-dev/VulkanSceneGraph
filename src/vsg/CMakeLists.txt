@@ -64,7 +64,6 @@ set(SOURCES
     threading/OperationThreads.cpp
 
     viewer/Camera.cpp
-    viewer/View.cpp
     viewer/Viewer.cpp
     viewer/Window.cpp
     viewer/Trackball.cpp
@@ -98,6 +97,7 @@ set(SOURCES
     vk/Descriptor.cpp
     vk/DescriptorBuffer.cpp
     vk/DescriptorImage.cpp
+    vk/DescriptorImageView.cpp
     vk/DescriptorTexelBufferView.cpp
     vk/DescriptorPool.cpp
     vk/DescriptorSet.cpp
@@ -106,6 +106,7 @@ set(SOURCES
     vk/DeviceMemory.cpp
     vk/Draw.cpp
     vk/Extensions.cpp
+    vk/ExecuteCommands.cpp
     vk/Fence.cpp
     vk/Framebuffer.cpp
     vk/GraphicsPipeline.cpp
@@ -113,8 +114,8 @@ set(SOURCES
     vk/ImageData.cpp
     vk/ImageView.cpp
     vk/Instance.cpp
-    vk/MemoryManager.cpp
     vk/NextSubPass.cpp
+    vk/PassGraph.cpp
     vk/PhysicalDevice.cpp
     vk/PipelineLayout.cpp
     vk/PipelineBarrier.cpp

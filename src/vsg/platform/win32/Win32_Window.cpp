@@ -22,7 +22,7 @@ using namespace vsgWin32;
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to a Win32_Window
-    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits)
+    Window::Result Window::create(vsg::ref_ptr<WindowTraits> traits)
     {
         return vsgWin32::Win32_Window::create(traits);
     }
@@ -319,7 +319,7 @@ KeyboardMap::KeyboardMap()
         };
 }
 
-Win32_Window::Result Win32_Window::create(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator)
+Win32_Window::Result Win32_Window::create(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator)
 {
     try
     {
@@ -332,7 +332,7 @@ Win32_Window::Result Win32_Window::create(vsg::ref_ptr<Window::Traits> traits, v
     }
 }
 
-Win32_Window::Win32_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator) :
+Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
     Window(traits, allocator),
     _window(nullptr)
 {
@@ -373,13 +373,15 @@ Win32_Window::Win32_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationC
         displayDevices.push_back(displayDevice);
     }
 
-    if (traits->screenNum >= displayDevices.size()) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    // assume a trais->screenNum of < 0 will default to screen 0
+    int screenNum = traits->screenNum < 0 ? 0 : traits->screenNum;
+    if (screenNum >= displayDevices.size()) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     DEVMODE deviceMode;
     deviceMode.dmSize = sizeof(deviceMode);
     deviceMode.dmDriverExtra = 0;
 
-    if (!::EnumDisplaySettings(displayDevices[traits->screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    if (!::EnumDisplaySettings(displayDevices[screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
 
     // setup window rect and style
     int32_t screenx = 0;

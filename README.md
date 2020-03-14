@@ -8,7 +8,7 @@ The project aims to bring the performance of Vulkan to the wider developer commu
 This repository contains basic documentation, C++ headers and source and CMake build scripts to build the prototype libvsg library.  Additional support libraries and examples are provided in separate repositories, links to these are provided below.  The software currently builds under Linux, Windows, Android and macOS (using [MoltenVk](https://github.com/KhronosGroup/MoltenVK)). Support for iOS will be added in 2019.
 
 ## Public discussion list/forum
-We have created a [VulkanSceneGraph Developer Discussion Group](https://groups.google.com/forum/#!forum/vsg-users), if you want discuss the project, how to contribute etc. then please join the discussion group.
+The VulkanSceneGraph Discussion Group [vsg-users](https://groups.google.com/forum/#!forum/vsg-users) is the place for project news, discussions of latest developments and any questions you have on how to use the software in your applications. The discussion group can be read by anyone, to post to the group you'll need register.
 
 ## Useful links in codebase and to associated projects
 * Detailed build and install [instructions](INSTALL.md)

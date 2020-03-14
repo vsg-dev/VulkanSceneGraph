@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Object.h>
+#include <vsg/core/type_name.h>
 
 #include <functional>
 #include <map>
@@ -39,5 +40,18 @@ namespace vsg
     protected:
         CreateMap _createMap;
     };
+
+    // Helper tempalte class for registering the ability to create a Object of specified T on deamnd.
+    template<class T>
+    struct RegisterWithObjectFactoryProxy
+    {
+        RegisterWithObjectFactoryProxy()
+        {
+            ObjectFactory::instance()->getCreateMap()[type_name<T>()] = []() { return T::create(); };
+        }
+    };
+
+    // helper define for define the type_name() for a type, note must be placed in public scope.
+    #define EVSG_type_name(T) template<> constexpr const char* vsg::type_name<T>() noexcept { return #T; }
 
 } // namespace vsg

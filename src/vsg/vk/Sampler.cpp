@@ -87,9 +87,9 @@ void Sampler::write(Output& output) const
 
 void Sampler::compile(Context& context)
 {
-    if (_implementation) return;
+    if (_implementation[context.deviceID]) return;
 
-    _implementation = Implementation::create(context.device, _samplerInfo);
+    _implementation[context.deviceID] = Implementation::create(context.device, _samplerInfo);
 }
 
 Sampler::Implementation::Implementation(VkSampler sampler, Device* device, AllocationCallbacks* allocator) :

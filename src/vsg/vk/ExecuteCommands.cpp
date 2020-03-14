@@ -10,26 +10,40 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Export.h>
+#include <vsg/ui/ApplicationEvent.h>
+#include <vsg/io/DatabasePager.h>
+#include <vsg/vk/ExecuteCommands.h>
+#include <vsg/vk/CommandBuffer.h>
 
-extern "C"
+using namespace vsg;
+ExecuteCommands::~ExecuteCommands()
 {
-
-    #define VSG_VERSION_MAJOR    @VSG_VERSION_MAJOR@
-    #define VSG_VERSION_MINOR    @VSG_VERSION_MINOR@
-    #define VSG_VERSION_PATCH    @VSG_VERSION_PATCH@
-    #define VSG_SOVERSION        @VSG_SOVERSION@
-
-    #define VSG_VERSION_STRING   "@VSG_VERSION_MAJOR@.@VSG_VERSION_MINOR@.@VSG_VERSION_PATCH@"
-    #define VSG_SOVERSION_STRING "@VSG_SOVERSION@"
-
-    #define VSG_MAX_DEVICES @VSG_MAX_DEVICES@
-
-    extern VSG_DECLSPEC const char* vsgGetVersion();
-    extern VSG_DECLSPEC const char* vsgGetSOVersion();
-
-    /// return 0 if the linked VSG was built as static library (default), 1 if the linked VSG library was built as shared/dynamic library.
-    /// When building against a shared libraryTo ensure the correct selection of VSG_DECLSPEC (provided in vsg/core/Export.h) one must compile with the define VSG_SHARED_LIBRARY
-    extern VSG_DECLSPEC int vsgBuildAsSharedLibrary();
-
 }
+
+void ExecuteCommands::read(Input& input)
+{
+    Command::read(input);
+
+    // read secondary command graphs
+    //_cmdgraphs = input.readObject<CommandGraphs>("CommandGraphs");
+}
+
+void ExecuteCommands::write(Output& output) const
+{
+    Command::write(output);
+
+    // write secondary command graphs
+    // output.writeObject("CommandGraphs", _cmdgraphs);
+}
+
+
+void ExecuteCommands::dispatch(CommandBuffer& commandBuffer) const
+{
+    _commandbuffers.clear();
+
+    for(auto r : _cmdgraphs)
+        _commandbuffers.emplace_back(*r->lastrecorded);
+
+    vkCmdExecuteCommands(commandBuffer, _commandbuffers.size(), _commandbuffers.data());
+}
+

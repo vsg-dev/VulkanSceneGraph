@@ -52,11 +52,10 @@ using namespace vsg;
 #define VSG_REGISTER_new(ClassName) _createMap[#ClassName] = []() { return ref_ptr<Object>(new ClassName()); }
 #define VSG_REGISTER_create(ClassName) _createMap[#ClassName] = []() { return ClassName::create(); }
 
-// declare the ObjectFactory singleton as static to be initialized at start up.
-static ref_ptr<ObjectFactory> s_ObjectFactory(new ObjectFactory);
-
 ref_ptr<ObjectFactory>& ObjectFactory::instance()
 {
+    // declare the ObjectFactory singleton as static to be initialized on first invoation of the instance() method.  Note, this currently assumes that intialization won't be mult-threaded.
+    static ref_ptr<ObjectFactory> s_ObjectFactory(new ObjectFactory);
     return s_ObjectFactory;
 }
 
@@ -93,7 +92,6 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::mat4Value);
     VSG_REGISTER_new(vsg::dmat4Value);
     VSG_REGISTER_new(vsg::materialValue);
-    VSG_REGISTER_new(vsg::MaterialValue);
 
     // arrays
     VSG_REGISTER_new(vsg::ubyteArray);

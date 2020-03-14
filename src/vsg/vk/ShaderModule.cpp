@@ -80,7 +80,7 @@ void ShaderModule::write(Output& output) const
 
 void ShaderModule::compile(Context& context)
 {
-    if (!_implementation) _implementation = Implementation::create(context.device, this);
+    if (!_implementation[context.deviceID]) _implementation[context.deviceID] = Implementation::create(context.device, this);
 }
 
 ShaderModule::Implementation::Implementation(VkShaderModule shaderModule, Device* device, AllocationCallbacks* allocator) :

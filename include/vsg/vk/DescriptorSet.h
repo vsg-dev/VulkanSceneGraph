@@ -43,21 +43,28 @@ namespace vsg
         const DescriptorSetLayouts& getDescriptorSetLayouts() const { return _descriptorSetLayouts; }
         const Descriptors& getDescriptors() const { return _descriptors; }
 
-        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context);
+
+        // remove the local reference to the Vulkan implementation
+        void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
+        void release() { _implementation.clear(); }
+
+        VkDescriptorSet vk(uint32_t deviceID) const { return _implementation[deviceID]->_descriptorSet; }
+
+    protected:
+        virtual ~DescriptorSet();
+
+        struct Implementation : public Inherit<Object, Implementation>
         {
-        public:
-            Implementation(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors);
+            Implementation(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts);
+            virtual ~Implementation();
 
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
-            static Result create(Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors);
+            static Result create(Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts);
 
-            void assign(const Descriptors& descriptors);
-
-            operator VkDescriptorSet() const { return _descriptorSet; }
-
-        protected:
-            virtual ~Implementation();
+            void assign(Context& context, const Descriptors& descriptors);
 
             VkDescriptorSet _descriptorSet;
             ref_ptr<Device> _device;
@@ -66,24 +73,10 @@ namespace vsg
             Descriptors _descriptors;
         };
 
-        // compile the Vulkan object, context parameter used for Device
-        void compile(Context& context);
-
-        // remove the local reference to the Vulkan implementation
-        void release() { _implementation = nullptr; }
-
-        operator VkDescriptorSet() const { return *_implementation; }
-
-        Implementation* implementation() { return _implementation; }
-        const Implementation* implementation() const { return _implementation; }
-
-    protected:
-        virtual ~DescriptorSet();
+        vk_buffer<ref_ptr<Implementation>> _implementation;
 
         DescriptorSetLayouts _descriptorSetLayouts;
         Descriptors _descriptors;
-
-        ref_ptr<Implementation> _implementation;
     };
     VSG_type_name(vsg::DescriptorSet);
 
@@ -98,7 +91,6 @@ namespace vsg
             Inherit(1), // slot 1
             _bindPoint(bindPoint),
             _firstSet(firstSet),
-            _vkPipelineLayout(0),
             _pipelineLayout(pipelineLayout),
             _descriptorSets(descriptorSets)
         {
@@ -108,7 +100,6 @@ namespace vsg
             Inherit(1), // slot 1
             _bindPoint(bindPoint),
             _firstSet(0),
-            _vkPipelineLayout(0),
             _pipelineLayout(pipelineLayout),
             _descriptorSets(descriptorSets)
         {
@@ -132,22 +123,25 @@ namespace vsg
         uint32_t getFirstSet() { return _firstSet; }
         const DescriptorSets& getDescriptorSets() const { return _descriptorSets; }
 
-        void dispatch(CommandBuffer& commandBuffer) const override;
-
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context) override;
+
+        void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~BindDescriptorSets() {}
 
-        using VkDescriptorSets = std::vector<VkDescriptorSet>;
-
         VkPipelineBindPoint _bindPoint;
         uint32_t _firstSet;
-        VkPipelineLayout _vkPipelineLayout;
-        VkDescriptorSets _vkDescriptorSets;
 
-        // settings
+        struct VulkanData
+        {
+            VkPipelineLayout _vkPipelineLayout = 0;
+            std::vector<VkDescriptorSet> _vkDescriptorSets;
+        };
+
+        vk_buffer<VulkanData> _vulkanData;
+
         ref_ptr<PipelineLayout> _pipelineLayout;
         DescriptorSets _descriptorSets;
     };
@@ -162,8 +156,6 @@ namespace vsg
             Inherit(1), // slot 1
             _bindPoint(bindPoint),
             _firstSet(firstSet),
-            _vkPipelineLayout(0),
-            _vkDescriptorSet(0),
             _pipelineLayout(pipelineLayout),
             _descriptorSet(descriptorSet)
         {
@@ -173,8 +165,6 @@ namespace vsg
             Inherit(1), // slot 1
             _bindPoint(bindPoint),
             _firstSet(0),
-            _vkPipelineLayout(0),
-            _vkDescriptorSet(0),
             _pipelineLayout(pipelineLayout),
             _descriptorSet(descriptorSet)
         {
@@ -198,18 +188,24 @@ namespace vsg
         uint32_t getFirstSet() { return _firstSet; }
         const DescriptorSet* getDescriptorSet() const { return _descriptorSet; }
 
-        void dispatch(CommandBuffer& commandBuffer) const override;
-
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context) override;
+
+        void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~BindDescriptorSet() {}
 
         VkPipelineBindPoint _bindPoint;
         uint32_t _firstSet;
-        VkPipelineLayout _vkPipelineLayout;
-        VkDescriptorSet _vkDescriptorSet;
+
+        struct VulkanData
+        {
+            VkPipelineLayout _vkPipelineLayout = 0;
+            VkDescriptorSet _vkDescriptorSet;
+        };
+
+        vk_buffer<VulkanData> _vulkanData;
 
         // settings
         ref_ptr<PipelineLayout> _pipelineLayout;

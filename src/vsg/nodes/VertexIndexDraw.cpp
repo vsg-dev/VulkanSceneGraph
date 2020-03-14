@@ -40,20 +40,27 @@ VertexIndexDraw::VertexIndexDraw(Allocator* allocator) :
 
 VertexIndexDraw::~VertexIndexDraw()
 {
-    for (size_t i = 0; i < _buffers.size(); ++i)
+    for (auto& vkd : _vulkanData)
     {
-        if (_buffers[i])
+        size_t numBufferEntries = std::min(vkd.buffers.size(), vkd.offsets.size());
+        for (size_t i = 0; i < numBufferEntries; ++i)
         {
-            _buffers[i]->release(_offsets[i], 0);
+            if (vkd.buffers[i])
+            {
+                vkd.buffers[i]->release(vkd.offsets[i], 0); // TODO
+            }
         }
+        if (vkd.bufferData._buffer) vkd.bufferData._buffer->release(vkd.bufferData._offset, vkd.bufferData._range);
     }
-    if (_bufferData._buffer) _bufferData._buffer->release(_bufferData._offset, _bufferData._range);
 }
 
 void VertexIndexDraw::read(Input& input)
 {
+    _vulkanData.clear();
+
     Command::read(input);
 
+    //input.read("firstBinding", firstBinding); // TODO need to enable
     arrays.resize(input.readValue<uint32_t>("NumArrays"));
     for (auto& array : arrays)
     {
@@ -74,6 +81,7 @@ void VertexIndexDraw::write(Output& output) const
 {
     Command::write(output);
 
+    //output.write("firstBinding", firstBinding); // TODO need to enable
     output.writeValue<uint32_t>("NumArrays", arrays.size());
     for (auto& array : arrays)
     {
@@ -90,24 +98,22 @@ void VertexIndexDraw::write(Output& output) const
     output.write("firstInstance", firstInstance);
 }
 
-#include <set>
-
 void VertexIndexDraw::compile(Context& context)
 {
-    if (arrays.size() == 0 || !indices)
+    if (arrays.empty() || !indices)
     {
         // VertexIndexDraw does not contain required arrays and/or indices
         return;
     }
 
+    auto& vkd = _vulkanData[context.deviceID];
+
     // check to see if we've already been compiled
-    if (_buffers.size() == arrays.size()) return;
+    if (vkd.buffers.size() == arrays.size()) return;
 
     bool failure = false;
 
-    _buffers.clear();
-    _vkBuffers.clear();
-    _offsets.clear();
+    vkd = {};
 
     DataList dataList;
     dataList.reserve(arrays.size() + 1);
@@ -121,13 +127,13 @@ void VertexIndexDraw::compile(Context& context)
 
         for (auto& bufferData : vertexBufferData)
         {
-            _buffers.push_back(bufferData._buffer);
-            _vkBuffers.push_back(*(bufferData._buffer));
-            _offsets.push_back(bufferData._offset);
+            vkd.buffers.push_back(bufferData._buffer);
+            vkd.vkBuffers.push_back(*(bufferData._buffer));
+            vkd.offsets.push_back(bufferData._offset);
         }
 
-        _bufferData = bufferDataList.back();
-        _indexType = computeIndexType(indices); // TODO need to check Index type
+        vkd.bufferData = bufferDataList.back();
+        vkd.indexType = computeIndexType(indices);
     }
     else
     {
@@ -137,21 +143,20 @@ void VertexIndexDraw::compile(Context& context)
     if (failure)
     {
         //std::cout << "Failed to create required arrays/indices buffers on GPU." << std::endl;
-        _buffers.clear();
-        _vkBuffers.clear();
-        _offsets.clear();
-        _bufferData = BufferData();
+        vkd = {};
         return;
     }
 }
 
 void VertexIndexDraw::dispatch(CommandBuffer& commandBuffer) const
 {
+    auto& vkd = _vulkanData[commandBuffer.deviceID];
+
     VkCommandBuffer cmdBuffer{commandBuffer};
 
-    vkCmdBindVertexBuffers(cmdBuffer, _firstBinding, static_cast<uint32_t>(_vkBuffers.size()), _vkBuffers.data(), _offsets.data());
+    vkCmdBindVertexBuffers(cmdBuffer, firstBinding, static_cast<uint32_t>(vkd.vkBuffers.size()), vkd.vkBuffers.data(), vkd.offsets.data());
 
-    vkCmdBindIndexBuffer(cmdBuffer, *_bufferData._buffer, _bufferData._offset, _indexType);
+    vkCmdBindIndexBuffer(cmdBuffer, *(vkd.bufferData._buffer), vkd.bufferData._offset, vkd.indexType);
 
     vkCmdDrawIndexed(cmdBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }

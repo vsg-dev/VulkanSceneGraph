@@ -21,7 +21,8 @@ using namespace vsg;
 
 CommandGraph::CommandGraph(Device* device, int family) :
     _device(device),
-    _family(family)
+    _queueFamily(family),
+    _presentFamily(-1)
 {
 }
 
@@ -29,12 +30,14 @@ CommandGraph::CommandGraph(Window* window)
 {
     if (window)
     {
+        windows.emplace_back(window);
+
         _device = window->device();
 
         VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
         if (window->traits()) queueFlags = window->traits()->queueFlags;
 
-        std::tie(_family, std::ignore) = window->physicalDevice()->getQueueFamily(queueFlags, window->surface());
+        std::tie(_queueFamily, _presentFamily) = window->physicalDevice()->getQueueFamily(queueFlags, window->surface());
 
         for (size_t i = 0; i < window->numFrames(); ++i)
         {
@@ -64,11 +67,12 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     }
     if (!commandBuffer)
     {
-        ref_ptr<CommandPool> cp = CommandPool::create(_device, _family);
-        commandBuffer = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+        ref_ptr<CommandPool> cp = CommandPool::create(_device, _queueFamily);
+        commandBuffer = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT, _commandbufferslevel);
         commandBuffers.push_back(commandBuffer);
     }
 
+    lastrecorded = commandBuffer;
     commandBuffer->numDependentSubmissions().fetch_add(1);
 
     recordTraversal->state->_commandBuffer = commandBuffer;
@@ -80,7 +84,21 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+    beginInfo.flags = _commandbufferslevel==VK_COMMAND_BUFFER_LEVEL_PRIMARY?
+                VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT :
+                /*VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT|*/VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+
+    VkCommandBufferInheritanceInfo inherit;
+    inherit.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+    inherit.renderPass = * windows[0]->renderPass();
+    inherit.subpass = _subpassindex;
+    inherit.framebuffer = VK_NULL_HANDLE;
+    inherit.occlusionQueryEnable = VK_FALSE;
+    inherit.queryFlags = 0; //VK_QUERY_CONTROL_PRECISE_BIT;
+    inherit.pipelineStatistics = 0;
+    inherit.pNext = nullptr;
+    if(_commandbufferslevel != VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+        beginInfo.pInheritanceInfo = &inherit;
 
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
@@ -91,25 +109,39 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     recordedCommandBuffers.push_back(recordTraversal->state->_commandBuffer);
 }
 
-ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph)
+ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkCommandBufferLevel lev, uint sub, VkSubpassContents content)
 {
-    auto commandGraph = CommandGraph::create(window);
+    ref_ptr<CommandGraph> commandGraph;
+    auto [graphicsFamily, presentFamily] = window->physicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, window->surface());
 
-    // set up the render graph for viewport & scene
-    auto renderGraph = vsg::RenderGraph::create();
-    renderGraph->addChild(ref_ptr<Node>(scenegraph));
+    if(lev == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+    {
+        commandGraph = CommandGraph::create(window);
+        auto renderGraph = vsg::RenderGraph::create();
 
-    renderGraph->camera = camera;
-    renderGraph->window = window;
+        renderGraph->addChild(ref_ptr<Node>(scenegraph));
+        renderGraph->content = content;
+        renderGraph->camera = camera;
+        renderGraph->window = window;
 
-    renderGraph->renderArea.offset = {0, 0};
-    renderGraph->renderArea.extent = window->extent2D();
+        renderGraph->renderArea.offset = {0, 0};
+        renderGraph->renderArea.extent = window->extent2D();
 
-    renderGraph->clearValues.resize(2);
-    renderGraph->clearValues[0].color = window->clearColor();
-    renderGraph->clearValues[1].depthStencil = VkClearDepthStencilValue{1.0f, 0};
+        renderGraph->clearValues.resize(2);
+        renderGraph->clearValues[0].color = window->clearColor();
+        renderGraph->clearValues[1].depthStencil = VkClearDepthStencilValue{1.0f, 0};
 
-    commandGraph->addChild(renderGraph);
+        commandGraph->addChild(renderGraph);
+    }
+    else
+    {
+        commandGraph = CommandGraph::create(window->device(), graphicsFamily);
+        commandGraph->windows.emplace_back(window);
+        commandGraph->addChild(ref_ptr<Node>(scenegraph));
+    }
 
-    return commandGraph;
+    commandGraph->_commandbufferslevel = lev;
+    commandGraph->_subpassindex = sub;
+
+     return commandGraph;
 }

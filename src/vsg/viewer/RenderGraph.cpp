@@ -12,6 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/viewer/RenderGraph.h>
+#include <vsg/viewer/CommandGraph.h>
+#include <vsg/vk/ExecuteCommands.h>
 #include <vsg/vk/State.h>
 
 using namespace vsg;
@@ -41,21 +43,9 @@ namespace vsg
                     }
                 }
 
-                if (graphicsPipeline->getImplementation())
-                {
-                    for (auto& pipelineState : graphicsPipeline->getImplementation()->_pipelineStates)
-                    {
-                        if (pipelineState == context.viewport)
-                        {
-                            needToRegenerateGraphicsPipeline = true;
-                            break;
-                        }
-                    }
-                }
-
                 if (needToRegenerateGraphicsPipeline)
                 {
-                    vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getPipelineLayout(), graphicsPipeline->getShaderStages(), graphicsPipeline->getPipelineStates());
+                    vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getPipelineLayout(), graphicsPipeline->getShaderStages(), graphicsPipeline->getPipelineStates(), graphicsPipeline->getSubpass());
 
                     bindPipeline.release();
 
@@ -98,7 +88,7 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
         }
         else if (previous_extent.width != extent.width || previous_extent.height != extent.height)
         {
-            // crude handling of window resizie...TODO, come up with a user controllable way to handle resize.
+            // crude handling of window resize...TODO, come up with a user controllable way to handle resize.
 
             vsg::UpdatePipeline updatePipeline(window->device());
 
@@ -149,7 +139,7 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
-    vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, content);
 
     // traverse the command buffer to place the commands into the command buffer.
     traverse(dispatchTraversal);

@@ -49,7 +49,6 @@ DescriptorBuffer::DescriptorBuffer(const BufferDataList& bufferDataList, uint32_
 void DescriptorBuffer::read(Input& input)
 {
     _bufferDataList.clear();
-    _bufferInfos.clear();
 
     Descriptor::read(input);
 
@@ -74,8 +73,6 @@ void DescriptorBuffer::write(Output& output) const
 void DescriptorBuffer::compile(Context& context)
 {
     // check if already compiled
-    if ((_bufferInfos.size() >= _bufferDataList.size()) && (_bufferInfos.size() >= _dataList.size())) return;
-
     if (_bufferDataList.size() < _dataList.size())
     {
         VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
@@ -86,25 +83,25 @@ void DescriptorBuffer::compile(Context& context)
         _bufferDataList = vsg::createBufferAndTransferData(context, _dataList, bufferUsageFlags, VK_SHARING_MODE_EXCLUSIVE);
 #endif
     }
+}
+
+void DescriptorBuffer::assignTo(Context& context, VkWriteDescriptorSet& wds) const
+{
+    Descriptor::assignTo(context, wds);
+
+    auto pBufferInfo = context.scratchMemory->allocate<VkDescriptorBufferInfo>(_bufferDataList.size());
+    wds.descriptorCount = static_cast<uint32_t>(_bufferDataList.size());
+    wds.pBufferInfo = pBufferInfo;
 
     // convert from VSG to Vk
-    _bufferInfos.resize(_bufferDataList.size());
     for (size_t i = 0; i < _bufferDataList.size(); ++i)
     {
         const BufferData& data = _bufferDataList[i];
-        VkDescriptorBufferInfo& info = _bufferInfos[i];
+        VkDescriptorBufferInfo& info = pBufferInfo[i];
         info.buffer = *(data._buffer);
         info.offset = data._offset;
         info.range = data._range;
     }
-}
-
-bool DescriptorBuffer::assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const
-{
-    Descriptor::assignTo(wds, descriptorSet);
-    wds.descriptorCount = static_cast<uint32_t>(_bufferInfos.size());
-    wds.pBufferInfo = _bufferInfos.data();
-    return true;
 }
 
 uint32_t DescriptorBuffer::getNumDescriptors() const

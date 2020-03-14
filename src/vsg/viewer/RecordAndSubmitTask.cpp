@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/viewer/RecordAndSubmitTask.h>
+#include <vsg/viewer/RenderGraph.h>
 #include <vsg/vk/State.h>
 
 using namespace vsg;
@@ -84,8 +85,25 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 
     // record the commands to the command buffers
     CommandBuffers recordedCommandBuffers;
+    ref_ptr<CommandGraph> lastprimary;
     for (auto& commandGraph : commandGraphs)
     {
+        if (! commandGraph->recordTraversal)
+        {
+             commandGraph->recordTraversal = new RecordTraversal(nullptr, commandGraph->_maxSlot);
+        }
+        if(commandGraph->_primary.valid()) //ie VK_COMMAND_BUFFER_LEVEL_SECONDARY
+        {
+            dmat4 projMatrix, viewMatrix;
+            static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->camera->getProjectionMatrix()->get(projMatrix);
+            static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->camera->getViewMatrix()->get(viewMatrix);
+
+            commandGraph->recordTraversal->setProjectionAndViewMatrix(projMatrix, viewMatrix);
+            lastprimary = commandGraph->_primary;
+        }
+        if(lastprimary == commandGraph)
+            //force primary not to update
+            commandGraph->recordTraversal->state->dirty = false;
         commandGraph->record(recordedCommandBuffers, frameStamp, databasePager);
     }
 
@@ -93,7 +111,8 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     std::vector<VkCommandBuffer> vk_commandBuffers;
     for (auto& commandBuffer : recordedCommandBuffers)
     {
-        vk_commandBuffers.push_back(*commandBuffer);
+        if(commandBuffer->getCommandBufferLevel() == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+            vk_commandBuffers.push_back(*commandBuffer);
 
         fence->dependentCommandBuffers().emplace_back(commandBuffer);
     }

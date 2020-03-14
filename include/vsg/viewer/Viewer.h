@@ -14,7 +14,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/viewer/Presentation.h>
 #include <vsg/viewer/RecordAndSubmitTask.h>
-#include <vsg/viewer/View.h>
 #include <vsg/viewer/Window.h>
 
 #include <vsg/traversals/CompileTraversal.h>
@@ -30,8 +29,6 @@ namespace vsg
     {
     public:
         Viewer();
-
-        using Views = std::vector<ref_ptr<View>>;
 
         struct PerDeviceObjects
         {
@@ -54,12 +51,6 @@ namespace vsg
 
         Windows& windows() { return _windows; }
         const Windows& windows() const { return _windows; }
-
-        /// add View to Viewer
-        void addView(ref_ptr<View> view);
-
-        Views& getViews() { return _views; }
-        const Views& getViews() const { return _views; }
 
         clock::time_point& start_point() { return _start_point; }
         const clock::time_point& start_point() const { return _start_point; }
@@ -110,10 +101,13 @@ namespace vsg
 
         virtual bool acquireNextFrame();
 
-        // new
+        // Manage the work to do each frame uisng RecordAndSubmitTasks. thpse that need to present results to be wired up to respective Presentation object
         using RecordAndSubmitTasks = std::vector<ref_ptr<RecordAndSubmitTask>>;
         RecordAndSubmitTasks recordAndSubmitTasks;
-        ref_ptr<Presentation> presentation;
+
+        // Manage the presentation of rendering using Presentation objects
+        using Presentations = std::vector<ref_ptr<Presentation>>;
+        Presentations presentations;
 
         void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs, DatabasePager* databasePager = nullptr);
 
@@ -133,7 +127,6 @@ namespace vsg
         ref_ptr<FrameStamp> _frameStamp;
 
         Windows _windows;
-        Views _views;
 
         DeviceMap _deviceMap;
 

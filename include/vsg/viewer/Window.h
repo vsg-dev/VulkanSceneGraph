@@ -22,78 +22,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Framebuffer.h>
 #include <vsg/vk/Semaphore.h>
 
+#include <vsg/viewer/WindowTraits.h>
+
 namespace vsg
 {
-
     class VSG_DECLSPEC Window : public Inherit<Object, Window>
     {
     public:
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
 
-        class Traits : public Inherit<Object, Traits>
-        {
-        public:
-            Traits() {}
-            Traits(const Traits&) = delete;
-            Traits& operator=(const Traits&) = delete;
-
-            Traits(int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height) :
-                x(in_x),
-                y(in_y),
-                width(in_width),
-                height(in_height) {}
-
-            Traits(uint32_t in_width, uint32_t in_height) :
-                width(in_width),
-                height(in_height) {}
-
-            int32_t x = 0;
-            int32_t y = 0;
-            uint32_t width = 1280;
-            uint32_t height = 1024;
-
-            bool fullscreen = false;
-
-            uint32_t screenNum = 0;
-
-            std::string windowClass = "vsg::Window";
-            std::string windowTitle = "vsg window";
-
-            bool decoration = true;
-            bool hdpi = true;
-
-            // X11 hint of whether to ignore the Window managers redirection of window size/position
-            bool overrideRedirect = false;
-
-            bool debugLayer = false;
-            bool apiDumpLayer = false;
-
-            SwapchainPreferences swapchainPreferences;
-
-            VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
-            VkPipelineStageFlagBits imageAvailableSemaphoreWaitFlag = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-
-            vsg::Names instanceExtensionNames;
-            vsg::Names deviceExtensionNames;
-
-            Window* shareWindow = nullptr;
-
-            AllocationCallbacks* allocator = nullptr;
-
-            std::any nativeHandle;
-            void* nativeWindow;
-
-        protected:
-            virtual ~Traits() {}
-        };
-
         using Result = vsg::Result<Window, VkResult, VK_SUCCESS>;
-        static Result create(vsg::ref_ptr<Traits> traits);
+        static Result create(vsg::ref_ptr<WindowTraits> traits);
 
         // for backward compatibility
         static Result create(uint32_t width, uint32_t height, bool debugLayer = false, bool apiDumpLayer = false, vsg::Window* shareWindow = nullptr, vsg::AllocationCallbacks* allocator = nullptr);
-        static Result create(vsg::ref_ptr<Traits> traits, bool debugLayer, bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
+        static Result create(vsg::ref_ptr<WindowTraits> traits, bool debugLayer, bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
 
         static vsg::Names getInstanceExtensions();
 
@@ -104,8 +48,8 @@ namespace vsg
         virtual bool resized() const { return false; }
         virtual void resize() {}
 
-        Traits* traits() { return _traits.get(); }
-        const Traits* traits() const { return _traits.get(); }
+        WindowTraits* traits() { return _traits.get(); }
+        const WindowTraits* traits() const { return _traits.get(); }
 
         const VkExtent2D& extent2D() const { return _extent2D; }
 
@@ -182,7 +126,7 @@ namespace vsg
         Frames& frames() { return _frames; }
 
     protected:
-        Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator);
+        Window(ref_ptr<WindowTraits> traits, AllocationCallbacks* allocator);
 
         virtual ~Window();
 
@@ -191,7 +135,7 @@ namespace vsg
         void initaliseDevice();
         void buildSwapchain(uint32_t width, uint32_t height);
 
-        ref_ptr<Traits> _traits;
+        ref_ptr<WindowTraits> _traits;
 
         VkExtent2D _extent2D;
         VkClearColorValue _clearColor;

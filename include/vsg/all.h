@@ -26,6 +26,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Object.h>
 #include <vsg/core/Objects.h>
 #include <vsg/core/Result.h>
+#include <vsg/core/ScratchMemory.h>
 #include <vsg/core/Value.h>
 #include <vsg/core/Version.h>
 #include <vsg/core/Visitor.h>
@@ -89,10 +90,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/RecordAndSubmitTask.h>
 #include <vsg/viewer/RenderGraph.h>
 #include <vsg/viewer/Trackball.h>
-#include <vsg/viewer/View.h>
 #include <vsg/viewer/ViewMatrix.h>
 #include <vsg/viewer/Viewer.h>
 #include <vsg/viewer/Window.h>
+#include <vsg/viewer/WindowTraits.h>
 
 // Vulkan related header files
 #include <vsg/vk/AllocationCallbacks.h>
@@ -110,6 +111,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorBuffer.h>
 #include <vsg/vk/DescriptorImage.h>
+#include <vsg/vk/DescriptorImageView.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/DescriptorSet.h>
 #include <vsg/vk/DescriptorSetLayout.h>
@@ -126,7 +128,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/ImageData.h>
 #include <vsg/vk/ImageView.h>
 #include <vsg/vk/Instance.h>
-#include <vsg/vk/MemoryManager.h>
 #include <vsg/vk/NextSubPass.h>
 #include <vsg/vk/PhysicalDevice.h>
 #include <vsg/vk/PipelineBarrier.h>
@@ -143,6 +144,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/SubmitCommands.h>
 #include <vsg/vk/Surface.h>
 #include <vsg/vk/Swapchain.h>
+#include <vsg/vk/vk_buffer.h>
+#include <vsg/vk/PassGraph.h>
+#include <vsg/vk/NextSubPass.h>
+#include <vsg/vk/ExecuteCommands.h>
 
 // Input/Output header files
 #include <vsg/io/AsciiInput.h>

@@ -177,6 +177,7 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
 {
     commandGraph.traverse(*this);
 }
+
 void CompileTraversal::apply(RenderGraph& renderGraph)
 {
     context.renderPass = renderGraph.window->renderPass();

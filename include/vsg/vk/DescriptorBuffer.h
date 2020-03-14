@@ -36,7 +36,7 @@ namespace vsg
 
         void compile(Context& context) override;
 
-        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
+        void assignTo(Context& context, VkWriteDescriptorSet& wds) const override;
 
         uint32_t getNumDescriptors() const override;
 
@@ -45,7 +45,6 @@ namespace vsg
     protected:
         DataList _dataList;
         BufferDataList _bufferDataList;
-        std::vector<VkDescriptorBufferInfo> _bufferInfos;
     };
     VSG_type_name(vsg::DescriptorBuffer)
 

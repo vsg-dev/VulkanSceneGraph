@@ -104,6 +104,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     std::cout << "data->width() = " << data->width() << std::endl;
     std::cout << "data->height() = " << data->height() << std::endl;
     std::cout << "data->depth() = " << data->depth() << std::endl;
+    std::cout << "data->getFormat() = " << data->getFormat() << std::endl;
     std::cout << "sampler->info().maxLod = " << sampler->info().maxLod << std::endl;
 
     std::cout << "Creating imageStagingBuffer and memory size = " << imageTotalSize << " mipLevels = "<<mipLevels<<std::endl;
@@ -114,8 +115,9 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     uint32_t height = data->height() * layout.blockHeight;
     uint32_t depth = data->depth() * layout.blockDepth;
 
-    VkImageType imageType = depth > 1 ? VK_IMAGE_TYPE_3D : (width > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
-    VkImageViewType imageViewType = depth > 1 ? VK_IMAGE_VIEW_TYPE_3D : (width > 1 ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
+    // TODO, need to look at better user control of the VkImageType/VkImageViewType as automatic selection looks to be problematic when the dimensions are 1D but the shader is expecting 2D.
+    VkImageType imageType = depth > 1 ? VK_IMAGE_TYPE_3D : (height > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
+    VkImageViewType imageViewType = depth > 1 ? VK_IMAGE_VIEW_TYPE_3D : (height > 1 ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
 
     VkImageCreateInfo imageCreateInfo = {};
     imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;

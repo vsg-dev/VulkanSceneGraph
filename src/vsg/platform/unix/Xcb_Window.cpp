@@ -28,7 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to a Xcb_Window
-    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits)
+    Window::Result Window::create(vsg::ref_ptr<WindowTraits> traits)
     {
         return vsgXcb::Xcb_Window::create(traits);
     }
@@ -246,7 +246,7 @@ Xcb_Surface::Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, 
 //
 // Xcb_Window
 //
-vsg::Window::Result Xcb_Window::create(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator)
+vsg::Window::Result Xcb_Window::create(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator)
 {
     try
     {
@@ -259,22 +259,29 @@ vsg::Window::Result Xcb_Window::create(vsg::ref_ptr<Window::Traits> traits, vsg:
     }
 }
 
-Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator) :
+Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
     Window(traits, allocator)
 {
-    const char* displayName = 0;
-    int screenNum = traits->screenNum;
     bool fullscreen =  traits->fullscreen;
     uint32_t override_redirect = traits->overrideRedirect;
 
     // open connection
-    _connection = xcb_connect(displayName, &screenNum);
+    int screenNum = 0;
+    if (traits->display.empty())
+    {
+        _connection = xcb_connect(NULL, &screenNum);
+    }
+    else
+    {
+        _connection = xcb_connect(traits->display.c_str(), &screenNum);
+    }
+
     if (xcb_connection_has_error(_connection))
     {
         // close connection
         xcb_disconnect(_connection);
-        //return Result("Failed to created Window, unable able to establish xcb connection.", VK_ERROR_INVALID_EXTERNAL_HANDLE);  TODO need to throw?
-        return;
+
+        throw Result("Failed to created Window, unable able to establish xcb connection.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     // TODO, should record Traits within Window? Should pass back selected screeenNum?
@@ -309,8 +316,22 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallb
     }
 
     // select the appropriate screen for the window
+    if (traits->screenNum >= 0) screenNum = traits->screenNum;
+
+    int screenCount = xcb_setup_roots_length (setup);
+    if (screenNum >= screenCount)
+    {
+        std::cout<<"Warning: request screenNum ("<<screenNum<<") to high, only "<<screenCount<<" screens available  Selecting screen 0 as fallback."<<std::endl;
+        screenNum = 0;
+    }
+
     xcb_screen_iterator_t screen_iterator = xcb_setup_roots_iterator(setup);
-    for (; screenNum > 0; --screenNum) xcb_screen_next(&screen_iterator);
+
+    for(int i=0; i<screenNum; ++i)
+    {
+        xcb_screen_next(&screen_iterator);
+    }
+
     _screen = screen_iterator.data;
 
     // generate the widnow id

@@ -33,7 +33,7 @@ using namespace vsgMacOS;
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to a MacOS_Window
-    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits)
+    Window::Result Window::create(vsg::ref_ptr<WindowTraits> traits)
     {
         return vsgMacOS::MacOS_Window::create(traits, nullptr);
     }
@@ -119,16 +119,16 @@ namespace vsg
 @interface vsg_MacOS_NSWindowDelegate : NSObject <NSWindowDelegate>
 {
     vsgMacOS::MacOS_Window* window;
-    vsg::ref_ptr<vsg::Window::Traits> _traits;
+    vsg::ref_ptr<vsg::WindowTraits> _traits;
 }
 
-- (instancetype)initWithVsgWindow:(vsgMacOS::MacOS_Window*)initWindow andTraits:(vsg::ref_ptr<vsg::Window::Traits>)traits;
+- (instancetype)initWithVsgWindow:(vsgMacOS::MacOS_Window*)initWindow andTraits:(vsg::ref_ptr<vsg::WindowTraits>)traits;
 
 @end
 
 @implementation vsg_MacOS_NSWindowDelegate
 
-- (instancetype)initWithVsgWindow:(vsgMacOS::MacOS_Window*)initWindow andTraits:(vsg::ref_ptr<vsg::Window::Traits>)traits
+- (instancetype)initWithVsgWindow:(vsgMacOS::MacOS_Window*)initWindow andTraits:(vsg::ref_ptr<vsg::WindowTraits>)traits
 {
     self = [super init];
     if (self != nil)
@@ -767,7 +767,7 @@ bool KeyboardMap::getKeySymbol(NSEvent* anEvent, vsg::KeySymbol& keySymbol, vsg:
     return true;
 }
 
-vsg::Window::Result MacOS_Window::create(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator)
+vsg::Window::Result MacOS_Window::create(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator)
 {
     try
     {
@@ -781,7 +781,7 @@ vsg::Window::Result MacOS_Window::create(vsg::ref_ptr<vsg::Window::Traits> trait
     }
 }
 
-MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator) :
+MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
     Window(traits, allocator)
 {
     _keyboard = new KeyboardMap;

@@ -12,27 +12,44 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/Node.h>
-#include <vsg/viewer/Camera.h>
+//#include <vsg/nodes/StateGroup.h>
+#include <vsg/viewer/CommandGraph.h>
+#include <vsg/vk/Buffer.h>
+#include <vsg/vk/Descriptor.h>
+#include <vsg/vk/State.h>
 
 namespace vsg
 {
-    class View : public Inherit<Object, View>
+
+    /** Execute Secondary Command Buffers
+     * (in charge of blocking-sync- their filling?)
+    }*/
+
+    class VSG_DECLSPEC ExecuteCommands : public Inherit<Command, ExecuteCommands>
     {
     public:
-        View();
+        ExecuteCommands() {}
 
-        /// set the master Camera of the View
-        void setCamera(ref_ptr<Camera> camera);
-        Camera* getCamera() { return _camera; }
-        const Camera* getCamera() const { return _camera; }
+        std::vector<ref_ptr<CommandBuffer> > records;
+        using Secondaries = std::vector< ref_ptr < CommandGraph > >;
+        Secondaries _cmdgraphs;
 
-        void setScene(ref_ptr<Node> scene) { _scene = scene; }
-        Node* getScene() { return _scene; }
-        Node* getScene() const { return _scene; }
+        mutable std::vector< VkCommandBuffer > _commandbuffers;
+        void addCommandGraph(ref_ptr<CommandGraph> d) { _cmdgraphs.emplace_back(d); }
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        void dispatch(CommandBuffer& commandBuffer) const override;
+
 
     protected:
-        ref_ptr<Camera> _camera;
-        ref_ptr<Node> _scene;
+        virtual ~ExecuteCommands();
+
+        BufferData _bufferData;
+        VkIndexType _indexType;
     };
+    VSG_type_name(vsg::ExecuteCommands);
+
 } // namespace vsg
+
