@@ -63,6 +63,7 @@ void ShaderModule::read(Input& input)
     input.read("Source", _source);
 
     _spirv.resize(input.readValue<uint32_t>("SPIRVSize"));
+
     input.matchPropertyName("SPIRV");
     input.read(_spirv.size(), _spirv.data());
 }
@@ -74,8 +75,10 @@ void ShaderModule::write(Output& output) const
     output.write("Source", _source);
 
     output.writeValue<uint32_t>("SPIRVSize", _spirv.size());
+
     output.writePropertyName("SPIRV");
     output.write(_spirv.size(), _spirv.data());
+    output.writeEndOfLine();
 }
 
 void ShaderModule::compile(Context& context)

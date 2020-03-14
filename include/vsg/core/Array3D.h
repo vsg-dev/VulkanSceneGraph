@@ -111,8 +111,10 @@ namespace vsg
             output.writeValue<std::uint32_t>("Width", _width);
             output.writeValue<std::uint32_t>("Height", _height);
             output.writeValue<std::uint32_t>("Depth", _depth);
+
             output.writePropertyName("Data");
             output.write(valueCount(), _data);
+            output.writeEndOfLine();
         }
 
         std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? (static_cast<std::size_t>(_width) * _height * _depth) : computeValueCountIncludingMipmaps(_width, _height, _depth, _layout.maxNumMipmaps); }
@@ -160,6 +162,8 @@ namespace vsg
 
         void* dataPointer(std::size_t i) override { return _data + i; }
         const void* dataPointer(std::size_t i) const override { return _data + i; }
+
+        std::uint32_t dimensions() const override { return 3; }
 
         std::uint32_t width() const override { return _width; }
         std::uint32_t height() const override { return _height; }
