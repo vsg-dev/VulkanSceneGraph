@@ -15,6 +15,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+VkIndexType vsg::computeIndexType(const Data* indices)
+{
+    if (indices)
+    {
+        switch (indices->valueSize())
+        {
+        case (1): return static_cast<VkIndexType>(1000265000); // Value of VK_INDEX_TYPE_UINT8_EXT;
+        case (2): return VK_INDEX_TYPE_UINT16;
+        case (4): return VK_INDEX_TYPE_UINT32;
+        default: break;
+        }
+    }
+    // nothing valid assigned
+    return VK_INDEX_TYPE_MAX_ENUM;
+}
+
 BindIndexBuffer::BindIndexBuffer(Data* indices) :
     _indices(indices)
 {
