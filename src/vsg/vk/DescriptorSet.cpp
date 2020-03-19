@@ -23,8 +23,8 @@ DescriptorSet::DescriptorSet()
 {
 }
 
-DescriptorSet::DescriptorSet(const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors) :
-    _descriptorSetLayouts(descriptorSetLayouts),
+DescriptorSet::DescriptorSet(ref_ptr<DescriptorSetLayout> descriptorSetLayout, const Descriptors& descriptors) :
+    _descriptorSetLayout(descriptorSetLayout),
     _descriptors(descriptors)
 {
 }
@@ -37,11 +37,7 @@ void DescriptorSet::read(Input& input)
 {
     Object::read(input);
 
-    _descriptorSetLayouts.resize(input.readValue<uint32_t>("NumDescriptorSetLayouts"));
-    for (auto& descriptorSetLayout : _descriptorSetLayouts)
-    {
-        descriptorSetLayout = input.readObject<DescriptorSetLayout>("DescriptorSetLayout");
-    }
+    _descriptorSetLayout = input.readObject<DescriptorSetLayout>("DescriptorSetLayout");
 
     _descriptors.resize(input.readValue<uint32_t>("NumDescriptors"));
     for (auto& descriptor : _descriptors)
@@ -54,11 +50,7 @@ void DescriptorSet::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeValue<uint32_t>("NumDescriptorSetLayouts", _descriptorSetLayouts.size());
-    for (auto& descriptorSetLayout : _descriptorSetLayouts)
-    {
-        output.writeObject("DescriptorSetLayout", descriptorSetLayout.get());
-    }
+    output.writeObject("DescriptorSetLayout", _descriptorSetLayout.get());
 
     output.writeValue<uint32_t>("NumDescriptors", _descriptors.size());
     for (auto& descriptor : _descriptors)
@@ -72,22 +64,22 @@ void DescriptorSet::compile(Context& context)
     if (!_implementation[context.deviceID])
     {
         // make sure all the contributing objects are compiled
-        for (auto& descriptorSetLayout : _descriptorSetLayouts) descriptorSetLayout->compile(context);
+        if (_descriptorSetLayout) _descriptorSetLayout->compile(context);
         for (auto& descriptor : _descriptors) descriptor->compile(context);
 
 #if USE_MUTEX
         std::lock_guard<std::mutex> lock(context.descriptorPool->getMutex());
 #endif
-        _implementation[context.deviceID] = DescriptorSet::Implementation::create(context.device, context.descriptorPool, _descriptorSetLayouts);
+        _implementation[context.deviceID] = DescriptorSet::Implementation::create(context.device, context.descriptorPool, _descriptorSetLayout);
         _implementation[context.deviceID]->assign(context, _descriptors);
     }
 }
 
-DescriptorSet::Implementation::Implementation(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts) :
+DescriptorSet::Implementation::Implementation(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout) :
     _descriptorSet(descriptorSet),
     _device(device),
     _descriptorPool(descriptorPool),
-    _descriptorSetLayouts(descriptorSetLayouts)
+    _descriptorSetLayout(descriptorSetLayout)
 {
 }
 
@@ -102,30 +94,26 @@ DescriptorSet::Implementation::~Implementation()
     }
 }
 
-DescriptorSet::Implementation::Result DescriptorSet::Implementation::create(Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts)
+DescriptorSet::Implementation::Result DescriptorSet::Implementation::create(Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout)
 {
-    if (!device || !descriptorPool || descriptorSetLayouts.empty())
+    if (!device || !descriptorPool || !descriptorSetLayout)
     {
-        return Result("Error: vsg::DescriptorPool::create(...) failed to create DescriptorPool, undefined Device, DescriptorPool or DescriptorSetLayouts.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return Result("Error: vsg::DescriptorPool::create(...) failed to create DescriptorPool, undefined Device, DescriptorPool or DescriptorSetLayout.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
-    std::vector<VkDescriptorSetLayout> vkdescriptorSetLayouts;
-    for (auto& descriptorSetLayout : descriptorSetLayouts)
-    {
-        vkdescriptorSetLayouts.push_back(descriptorSetLayout->vk(device->deviceID));
-    }
+    VkDescriptorSetLayout vkdescriptorSetLayout = descriptorSetLayout->vk(device->deviceID);
 
     VkDescriptorSetAllocateInfo descriptSetAllocateInfo = {};
     descriptSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     descriptSetAllocateInfo.descriptorPool = *descriptorPool;
-    descriptSetAllocateInfo.descriptorSetCount = static_cast<uint32_t>(vkdescriptorSetLayouts.size());
-    descriptSetAllocateInfo.pSetLayouts = vkdescriptorSetLayouts.data();
+    descriptSetAllocateInfo.descriptorSetCount = 1;
+    descriptSetAllocateInfo.pSetLayouts = &vkdescriptorSetLayout;
 
     VkDescriptorSet descriptorSet;
     VkResult result = vkAllocateDescriptorSets(*device, &descriptSetAllocateInfo, &descriptorSet);
     if (result == VK_SUCCESS)
     {
-        return Result(new DescriptorSet::Implementation(descriptorSet, device, descriptorPool, descriptorSetLayouts));
+        return Result(new DescriptorSet::Implementation(descriptorSet, device, descriptorPool, descriptorSetLayout));
     }
     else
     {
