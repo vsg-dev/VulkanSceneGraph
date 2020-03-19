@@ -20,7 +20,7 @@ using namespace vsg;
 #define PRINT_CONTAINER 0
 #define CHECK_CONTAINER 0
 
-static std::atomic_uint s_numPagedLODS = 0;
+//static std::atomic_uint s_numPagedLODS = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
