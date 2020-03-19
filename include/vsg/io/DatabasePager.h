@@ -105,7 +105,7 @@ namespace vsg
 
         ref_ptr<CompileTraversal> compileTraversal;
 
-        std::atomic_uint numActiveRequests = 0;
+        std::atomic_uint numActiveRequests{0};
         std::atomic_uint64_t frameCount;
 
         ref_ptr<CulledPagedLODs> culledPagedLODs;

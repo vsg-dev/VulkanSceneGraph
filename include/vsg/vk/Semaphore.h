@@ -41,7 +41,7 @@ namespace vsg
 
         VkSemaphore _semaphore;
         VkPipelineStageFlags _pipelineStageFlags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-        std::atomic_uint _numDependentSubmissions = 0;
+        std::atomic_uint _numDependentSubmissions{0};
         ref_ptr<Device> _device;
         ref_ptr<AllocationCallbacks> _allocator;
     };

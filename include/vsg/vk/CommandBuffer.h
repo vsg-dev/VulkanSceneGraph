@@ -51,7 +51,7 @@ namespace vsg
 
         VkCommandBuffer _commandBuffer;
         VkCommandBufferUsageFlags _flags;
-        std::atomic_uint _numDependentSubmissions = 0;
+        std::atomic_uint _numDependentSubmissions{0};
         ref_ptr<Device> _device;
         ref_ptr<CommandPool> _commandPool;
         VkPipelineLayout _currentPipelineLayout;
