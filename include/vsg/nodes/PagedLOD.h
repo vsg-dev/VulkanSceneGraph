@@ -49,7 +49,7 @@ namespace vsg
         Path filename;
 
         // priority value assigned by cull/dispatch traversal as a guide to how important the external child is for loading.
-        mutable std::atomic<double> priority = 0.0;
+        mutable std::atomic<double> priority{0.0};
 
         // TODO need status of external file load
 
@@ -93,8 +93,8 @@ namespace vsg
         Children _children;
 
     public:
-        mutable std::atomic_uint64_t frameHighResLastUsed = 0;
-        mutable std::atomic_uint requestCount = 0;
+        mutable std::atomic_uint64_t frameHighResLastUsed{0};
+        mutable std::atomic_uint requestCount{0};
 
         enum RequestStatus : unsigned int
         {
@@ -109,7 +109,7 @@ namespace vsg
             Deleting = 8
         };
 
-        mutable std::atomic<RequestStatus> requestStatus = NoRequest;
+        mutable std::atomic<RequestStatus> requestStatus{NoRequest};
         mutable uint32_t index = 0;
 
         ref_ptr<Node> pending;
