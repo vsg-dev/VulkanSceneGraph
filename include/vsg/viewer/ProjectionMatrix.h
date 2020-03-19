@@ -137,12 +137,12 @@ namespace vsg
             _eccentricitySquared = 2 * flattening - flattening * flattening;
         }
 
-        bool operator == (const EllipsoidModel& rhs) const
+        bool operator==(const EllipsoidModel& rhs) const
         {
             return _radiusEquator == rhs._radiusEquator && _radiusPolar == rhs._radiusPolar;
         }
 
-        bool operator != (const EllipsoidModel& rhs) const
+        bool operator!=(const EllipsoidModel& rhs) const
         {
             return _radiusEquator != rhs._radiusEquator || _radiusPolar != rhs._radiusPolar;
         }

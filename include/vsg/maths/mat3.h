@@ -89,7 +89,7 @@ namespace vsg
     VSG_type_name(vsg::dmat3);
 
     template<typename T>
-    bool operator == (const t_mat3<T>& lhs, const t_mat3<T>& rhs)
+    bool operator==(const t_mat3<T>& lhs, const t_mat3<T>& rhs)
     {
         return lhs.value[0] == rhs.value[0] &&
                lhs.value[1] == rhs.value[1] &&
@@ -97,7 +97,7 @@ namespace vsg
     }
 
     template<typename T>
-    bool operator != (const t_mat3<T>& lhs, const t_mat3<T>& rhs)
+    bool operator!=(const t_mat3<T>& lhs, const t_mat3<T>& rhs)
     {
         return lhs.value[0] != rhs.value[0] ||
                lhs.value[1] != rhs.value[1] ||
