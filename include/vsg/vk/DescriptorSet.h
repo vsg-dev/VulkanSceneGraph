@@ -119,6 +119,7 @@ namespace vsg
         void write(Output& output) const override;
 
         VkPipelineBindPoint getBindPoint() { return _bindPoint; }
+        PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
         const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
         uint32_t getFirstSet() { return _firstSet; }
         const DescriptorSets& getDescriptorSets() const { return _descriptorSets; }
@@ -183,9 +184,11 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        VkPipelineBindPoint getBindPoint() { return _bindPoint; }
+        VkPipelineBindPoint getBindPoint() const { return _bindPoint; }
+        PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
         const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
-        uint32_t getFirstSet() { return _firstSet; }
+        uint32_t getFirstSet() const { return _firstSet; }
+        DescriptorSet* getDescriptorSet() { return _descriptorSet; }
         const DescriptorSet* getDescriptorSet() const { return _descriptorSet; }
 
         // compile the Vulkan object, context parameter used for Device
