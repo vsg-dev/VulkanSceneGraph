@@ -56,7 +56,7 @@ void GraphicsPipeline::read(Input& input)
         pipelineState = input.readObject<GraphicsPipelineState>("PipelineState");
     }
 
-    // input.read("subpass", _subpass); // TODO need to enable
+    input.read("subpass", _subpass);
 }
 
 void GraphicsPipeline::write(Output& output) const
@@ -77,7 +77,7 @@ void GraphicsPipeline::write(Output& output) const
         output.writeObject("PipelineState", pipelineState.get());
     }
 
-    // output.write("subpass", _subpass); // TODO need to enable
+    output.write("subpass", _subpass);
 }
 
 void GraphicsPipeline::compile(Context& context)
