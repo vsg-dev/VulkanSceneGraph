@@ -116,8 +116,8 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     uint32_t depth = data->depth() * layout.blockDepth;
 
     auto dimensions = data->dimensions();
-    VkImageType imageType = dimensions>=3 ? VK_IMAGE_TYPE_3D : (dimensions == 2 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
-    VkImageViewType imageViewType = dimensions>=3 ? VK_IMAGE_VIEW_TYPE_3D : (dimensions == 2 ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
+    VkImageType imageType = dimensions >= 3 ? VK_IMAGE_TYPE_3D : (dimensions == 2 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
+    VkImageViewType imageViewType = dimensions >= 3 ? VK_IMAGE_VIEW_TYPE_3D : (dimensions == 2 ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
 
     VkImageCreateInfo imageCreateInfo = {};
     imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;

@@ -270,7 +270,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
         deviceResource.compile->context.commandPool = vsg::CommandPool::create(device, queueFamily);
         deviceResource.compile->context.graphicsQueue = device->getQueue(queueFamily);
 
-        if (descriptorPoolSizes.size()>0) deviceResource.compile->context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
+        if (descriptorPoolSizes.size() > 0) deviceResource.compile->context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
     }
 
     // create the Vulkan objects

@@ -25,12 +25,12 @@ namespace vsg
     {
     public:
         DescriptorSet();
-        DescriptorSet(const DescriptorSetLayouts& descriptorSetLayouts, const Descriptors& descriptors);
+        DescriptorSet(ref_ptr<DescriptorSetLayout> descriptorSetLayout, const Descriptors& descriptors);
 
         template<class N, class V>
         static void t_traverse(N& ds, V& visitor)
         {
-            for (auto& dsl : ds._descriptorSetLayouts) dsl->accept(visitor);
+            if (ds._descriptorSetLayout) ds._descriptorSetLayout->accept(visitor);
             for (auto& descriptor : ds._descriptors) descriptor->accept(visitor);
         }
 
@@ -40,7 +40,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        const DescriptorSetLayouts& getDescriptorSetLayouts() const { return _descriptorSetLayouts; }
+        const DescriptorSetLayout* getDescriptorSetLayout() const { return _descriptorSetLayout; }
         const Descriptors& getDescriptors() const { return _descriptors; }
 
         // compile the Vulkan object, context parameter used for Device
@@ -57,25 +57,25 @@ namespace vsg
 
         struct Implementation : public Inherit<Object, Implementation>
         {
-            Implementation(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts);
+            Implementation(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout);
             virtual ~Implementation();
 
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
-            static Result create(Device* device, DescriptorPool* descriptorPool, const DescriptorSetLayouts& descriptorSetLayouts);
+            static Result create(Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout);
 
             void assign(Context& context, const Descriptors& descriptors);
 
             VkDescriptorSet _descriptorSet;
             ref_ptr<Device> _device;
             ref_ptr<DescriptorPool> _descriptorPool;
-            DescriptorSetLayouts _descriptorSetLayouts;
+            ref_ptr<DescriptorSetLayout> _descriptorSetLayout;
             Descriptors _descriptors;
         };
 
         vk_buffer<ref_ptr<Implementation>> _implementation;
 
-        DescriptorSetLayouts _descriptorSetLayouts;
+        ref_ptr<DescriptorSetLayout> _descriptorSetLayout;
         Descriptors _descriptors;
     };
     VSG_type_name(vsg::DescriptorSet);
@@ -119,6 +119,7 @@ namespace vsg
         void write(Output& output) const override;
 
         VkPipelineBindPoint getBindPoint() { return _bindPoint; }
+        PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
         const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
         uint32_t getFirstSet() { return _firstSet; }
         const DescriptorSets& getDescriptorSets() const { return _descriptorSets; }
@@ -183,9 +184,11 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        VkPipelineBindPoint getBindPoint() { return _bindPoint; }
+        VkPipelineBindPoint getBindPoint() const { return _bindPoint; }
+        PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
         const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
-        uint32_t getFirstSet() { return _firstSet; }
+        uint32_t getFirstSet() const { return _firstSet; }
+        DescriptorSet* getDescriptorSet() { return _descriptorSet; }
         const DescriptorSet* getDescriptorSet() const { return _descriptorSet; }
 
         // compile the Vulkan object, context parameter used for Device
