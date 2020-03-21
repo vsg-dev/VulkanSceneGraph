@@ -39,18 +39,18 @@ void ExecuteCommands::write(Output& output) const
 
 void ExecuteCommands::dispatch(CommandBuffer& commandBuffer) const
 {
-    _commandbuffers.clear();
+    _commandBuffers.clear();
 
-    for(auto r : _cmdgraphs)
+    for(auto cg : _cmdGraphs)
     {
-        r->waitProduction();
-        _commandbuffers.emplace_back(*r->lastrecorded);
+        cg->waitProduction();
+        _commandBuffers.emplace_back(*cg->lastRecorded);
     }
 
-    vkCmdExecuteCommands(commandBuffer, _commandbuffers.size(), _commandbuffers.data());
+    vkCmdExecuteCommands(commandBuffer, _commandBuffers.size(), _commandBuffers.data());
 
     //unlock producers
-    for(auto m = _muters.begin(); m != _muters.end(); ++m)
-        (*m)->unlock();
+    for(auto mit = _muters.begin(); mit != _muters.end(); ++mit)
+        (*mit)->unlock();
 }
 

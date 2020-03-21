@@ -217,11 +217,12 @@ public:
     {
         group.traverse(*this);
     }
-    void apply(const Command& cmd) override{
+    void apply(const Command& cmd) override
+    {
         const vsg::ExecuteCommands *exec = dynamic_cast<const vsg::ExecuteCommands*>(&cmd);
         if(exec)
         {
-            for( vsg::ExecuteCommands::Secondaries::const_iterator gm = exec->_cmdgraphs.begin(); gm != exec->_cmdgraphs.end(); ++gm)
+            for( vsg::ExecuteCommands::Secondaries::const_iterator gm = exec->_cmdGraphs.begin(); gm != exec->_cmdGraphs.end(); ++gm)
             {
                 secondaries.emplace_back(*gm);
                 execCommandMuters.emplace_back(std::move(exec->getCommandGraphMutex(*gm)));
@@ -385,7 +386,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
                 for( auto sec : collector.secondaries )
                 {
                     sec->_primary = primary;
-                    sec->_primarymuter = (*muterit++);
+                    sec->_primaryMuter = (*muterit++);
                 }
 
                 effectiveCommandGraphs.insert(std::end(effectiveCommandGraphs), std::begin(collector.secondaries), std::end(collector.secondaries));

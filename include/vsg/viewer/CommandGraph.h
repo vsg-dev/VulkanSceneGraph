@@ -32,7 +32,7 @@ namespace vsg
 
         virtual void record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
 
-        void waitProduction() { _secondarymutex.lock(); }
+        void waitProduction() { _secondaryMuter.lock(); }
         ref_ptr<RecordTraversal> recordTraversal;
 
         Windows windows;
@@ -42,16 +42,16 @@ namespace vsg
         int _presentFamily = -1;
         uint32_t _maxSlot = 2;
 
-        VkCommandBufferLevel _commandbufferslevel;
-        uint32_t _subpassindex;
+        VkCommandBufferLevel _commandBuffersLevel;
+        uint32_t _subpassIndex;
 
         mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
-        ref_ptr<CommandBuffer> lastrecorded; // dirty need some sync between CommandGraph
-        std::mutex _secondarymutex; //wait by ExecuteCommands to ensure prod sync
+        ref_ptr<CommandBuffer> lastRecorded; // dirty need some sync between CommandGraph
+        std::mutex _secondaryMuter; //wait by ExecuteCommands to ensure prod sync
 
         // setup in Viewer::assignRecordAndSubmitTaskAndPresentation
         ref_ptr<CommandGraph> _primary; // primary commandgraph
-        std::shared_ptr<std::mutex> _primarymuter = nullptr; //wait to ensure consumption by primary command buffer
+        std::shared_ptr<std::mutex> _primaryMuter = nullptr; //wait to ensure consumption by primary command buffer
 
     };
 

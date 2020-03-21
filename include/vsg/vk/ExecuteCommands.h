@@ -30,19 +30,20 @@ namespace vsg
 
         using Secondaries = std::vector< ref_ptr < CommandGraph > >;
 
-        Secondaries _cmdgraphs;
+        Secondaries _cmdGraphs;
         //TODO other accessors
-        void addCommandGraph(ref_ptr<CommandGraph> d) {
-            _cmdgraphs.emplace_back( d );
-            _commandbuffers.resize(_cmdgraphs.size());
+        void addCommandGraph(ref_ptr<CommandGraph> d)
+        {
+            _cmdGraphs.emplace_back( d );
+            _commandBuffers.resize(_cmdGraphs.size());
             _muters.emplace_back(new std::mutex);
         }
 
         std::mutex * getCommandGraphMutex(const CommandGraph* d) const
         {
-            Secondaries::const_iterator iter = std::find(_cmdgraphs.begin(), _cmdgraphs.end(), d);
-            size_t index = std::distance(_cmdgraphs.begin(), iter);
-            if(index == _cmdgraphs.size())
+            Secondaries::const_iterator iter = std::find(_cmdGraphs.begin(), _cmdGraphs.end(), d);
+            size_t index = std::distance(_cmdGraphs.begin(), iter);
+            if(index == _cmdGraphs.size())
                return nullptr;
             return _muters[index].get();
         }
@@ -53,7 +54,7 @@ namespace vsg
 
     protected:
         //cb and mutices to signal secondaries producers that previous produced have been consumed by vkCmdExecuteCommands
-        mutable std::vector< VkCommandBuffer > _commandbuffers;
+        mutable std::vector< VkCommandBuffer > _commandBuffers;
         std::vector< std::unique_ptr<std::mutex> > _muters;
         virtual ~ExecuteCommands();
 

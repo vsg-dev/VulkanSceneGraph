@@ -24,8 +24,7 @@ CommandGraph::CommandGraph(Device* device, int family) :
     _queueFamily(family),
     _presentFamily(-1)
 {
-    _secondarymutex.lock();
-    _primarymuter = nullptr;
+    _secondaryMuter.lock();
 }
 
 CommandGraph::CommandGraph(Window* window)
@@ -46,16 +45,15 @@ CommandGraph::CommandGraph(Window* window)
             commandBuffers.emplace_back(window->commandBuffer(i));
         }
     }
-    _secondarymutex.lock();
-    _primarymuter = nullptr;
+    _secondaryMuter.lock();
 }
 
 void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
     /// wait primary consumption if secondary
-    if(_primarymuter != nullptr)
+    if(_primaryMuter != nullptr)
     {
-        _primarymuter->lock();
+        _primaryMuter->lock();
     }
 
     if (!recordTraversal)
@@ -78,11 +76,11 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     if (!commandBuffer)
     {
         ref_ptr<CommandPool> cp = CommandPool::create(_device, _queueFamily);
-        commandBuffer = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT, _commandbufferslevel);
+        commandBuffer = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT, _commandBuffersLevel);
         commandBuffers.push_back(commandBuffer);
     }
 
-    lastrecorded = commandBuffer;
+    lastRecorded = commandBuffer;
     commandBuffer->numDependentSubmissions().fetch_add(1);
 
     recordTraversal->state->_commandBuffer = commandBuffer;
@@ -94,20 +92,20 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = _commandbufferslevel==VK_COMMAND_BUFFER_LEVEL_PRIMARY?
+    beginInfo.flags = _commandBuffersLevel==VK_COMMAND_BUFFER_LEVEL_PRIMARY?
                 VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT :
                 /*VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT|*/VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
 
     VkCommandBufferInheritanceInfo inherit;
     inherit.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
     inherit.renderPass = * windows[0]->renderPass();
-    inherit.subpass = _subpassindex;
+    inherit.subpass = _subpassIndex;
     inherit.framebuffer = VK_NULL_HANDLE;
     inherit.occlusionQueryEnable = VK_FALSE;
     inherit.queryFlags = 0; //VK_QUERY_CONTROL_PRECISE_BIT;
     inherit.pipelineStatistics = 0;
     inherit.pNext = nullptr;
-    if(_commandbufferslevel != VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+    if(_commandBuffersLevel != VK_COMMAND_BUFFER_LEVEL_PRIMARY)
         beginInfo.pInheritanceInfo = &inherit;
 
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
@@ -118,7 +116,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     recordedCommandBuffers.push_back(recordTraversal->state->_commandBuffer);
 
-    _secondarymutex.unlock();
+    _secondaryMuter.unlock();
 }
 
 ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkCommandBufferLevel lev, uint sub, VkSubpassContents content)
@@ -152,8 +150,8 @@ ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* cam
         commandGraph->addChild(ref_ptr<Node>(scenegraph));
     }
 
-    commandGraph->_commandbufferslevel = lev;
-    commandGraph->_subpassindex = sub;
+    commandGraph->_commandBuffersLevel = lev;
+    commandGraph->_subpassIndex = sub;
 
      return commandGraph;
 }
