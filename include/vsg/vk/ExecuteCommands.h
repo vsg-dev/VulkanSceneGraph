@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-//#include <vsg/nodes/StateGroup.h>
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/Descriptor.h>
@@ -20,7 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-
     /** Execute Secondary Command Buffers
      * (in charge of blocking-sync- their filling?)
     }*/
@@ -30,24 +28,35 @@ namespace vsg
     public:
         ExecuteCommands() {}
 
-        std::vector<ref_ptr<CommandBuffer> > records;
         using Secondaries = std::vector< ref_ptr < CommandGraph > >;
+
         Secondaries _cmdgraphs;
+        //TODO other accessors
+        void addCommandGraph(ref_ptr<CommandGraph> d) {
+            _cmdgraphs.emplace_back( d );
+            _commandbuffers.resize(_cmdgraphs.size());
+            _muters.emplace_back(new std::mutex);
+        }
 
-        mutable std::vector< VkCommandBuffer > _commandbuffers;
-        void addCommandGraph(ref_ptr<CommandGraph> d) { _cmdgraphs.emplace_back(d); }
-
+        std::mutex * getCommandGraphMutex(const CommandGraph* d) const
+        {
+            Secondaries::const_iterator iter = std::find(_cmdgraphs.begin(), _cmdgraphs.end(), d);
+            size_t index = std::distance(_cmdgraphs.begin(), iter);
+            if(index == _cmdgraphs.size())
+               return nullptr;
+            return _muters[index].get();
+        }
         void read(Input& input) override;
         void write(Output& output) const override;
 
         void dispatch(CommandBuffer& commandBuffer) const override;
 
-
     protected:
+        //cb and mutices to signal secondaries producers that previous produced have been consumed by vkCmdExecuteCommands
+        mutable std::vector< VkCommandBuffer > _commandbuffers;
+        std::vector< std::unique_ptr<std::mutex> > _muters;
         virtual ~ExecuteCommands();
 
-        BufferData _bufferData;
-        VkIndexType _indexType;
     };
     VSG_type_name(vsg::ExecuteCommands);
 

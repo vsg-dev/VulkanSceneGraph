@@ -42,8 +42,15 @@ void ExecuteCommands::dispatch(CommandBuffer& commandBuffer) const
     _commandbuffers.clear();
 
     for(auto r : _cmdgraphs)
+    {
+        r->waitProduction();
         _commandbuffers.emplace_back(*r->lastrecorded);
+    }
 
     vkCmdExecuteCommands(commandBuffer, _commandbuffers.size(), _commandbuffers.data());
+
+    //unlock producers
+    for(auto m = _muters.begin(); m != _muters.end(); ++m)
+        (*m)->unlock();
 }
 

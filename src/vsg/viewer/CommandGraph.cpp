@@ -24,6 +24,8 @@ CommandGraph::CommandGraph(Device* device, int family) :
     _queueFamily(family),
     _presentFamily(-1)
 {
+    _secondarymutex.lock();
+    _primarymuter = nullptr;
 }
 
 CommandGraph::CommandGraph(Window* window)
@@ -44,10 +46,18 @@ CommandGraph::CommandGraph(Window* window)
             commandBuffers.emplace_back(window->commandBuffer(i));
         }
     }
+    _secondarymutex.lock();
+    _primarymuter = nullptr;
 }
 
 void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
+    /// wait primary consumption if secondary
+    if(_primarymuter != nullptr)
+    {
+        _primarymuter->lock();
+    }
+
     if (!recordTraversal)
     {
         recordTraversal = new RecordTraversal(nullptr, _maxSlot);
@@ -107,6 +117,8 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     vkEndCommandBuffer(vk_commandBuffer);
 
     recordedCommandBuffers.push_back(recordTraversal->state->_commandBuffer);
+
+    _secondarymutex.unlock();
 }
 
 ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkCommandBufferLevel lev, uint sub, VkSubpassContents content)
