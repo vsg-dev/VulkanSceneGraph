@@ -22,7 +22,7 @@ namespace vsg
     class VSG_DECLSPEC OperationThreads : public Inherit<Object, OperationThreads>
     {
     public:
-        OperationThreads(uint32_t numThreads, ref_ptr<Active> in_active = {});
+        OperationThreads(uint32_t numThreads, bool waitavailability = true, ref_ptr<Active> in_active = {});
 
         void add(ref_ptr<Operation> operation)
         {

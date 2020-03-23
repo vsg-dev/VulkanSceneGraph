@@ -1,6 +1,7 @@
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
+Copyright(c) 2020 Julien Valentin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -16,7 +17,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/RenderGraph.h>
 #include <vsg/vk/State.h>
-
 using namespace vsg;
 
 CommandGraph::CommandGraph(Device* device, int family) :
@@ -50,17 +50,18 @@ CommandGraph::CommandGraph(Window* window)
 
 void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
-    /// wait primary consumption if secondary
-    if(_primaryMuter != nullptr)
-    {
-        _primaryMuter->lock();
-    }
+
 
     if (!recordTraversal)
     {
         recordTraversal = new RecordTraversal(nullptr, _maxSlot);
     }
-
+    if(recordTraversal->frameStamp == frameStamp) return;
+    /// wait primary consumption if secondary
+    if(_primaryMuter != nullptr)
+    {
+        _primaryMuter->lock();
+    }
     recordTraversal->frameStamp = frameStamp;
     recordTraversal->databasePager = databasePager;
     if (databasePager) recordTraversal->culledPagedLODs = databasePager->culledPagedLODs;
@@ -80,9 +81,8 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
         commandBuffers.push_back(commandBuffer);
     }
 
-    lastRecorded = commandBuffer;
     commandBuffer->numDependentSubmissions().fetch_add(1);
-
+    lastRecorded = commandBuffer;
     recordTraversal->state->_commandBuffer = commandBuffer;
 
     // or select index when maps to a dormant CommandBuffer

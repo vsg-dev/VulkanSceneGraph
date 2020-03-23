@@ -1,6 +1,7 @@
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
+Copyright(c) 2020 Julien Valentin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -15,10 +16,72 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/RecordAndSubmitTask.h>
 #include <vsg/viewer/RenderGraph.h>
 #include <vsg/vk/State.h>
+#include <iostream>
 
 using namespace vsg;
 
-#include <iostream>
+/// sync only primary all secondary already sync with it
+class PrimaryRecordedLatch : public Inherit<Object, PrimaryRecordedLatch>
+{
+public:
+    std::mutex CBsProtect;
+    CommandBuffers recordedCommandBuffers;
+
+    PrimaryRecordedLatch() {
+        _mutex.lock();
+    }
+
+    void reset()
+    {
+        if(_mutex.try_lock())
+            _mutex.lock();
+        recordedCommandBuffers.clear();
+    }
+
+    inline void unleash() { _mutex.unlock(); }
+    inline void wait() { _mutex.lock(); }
+
+protected:
+    virtual ~PrimaryRecordedLatch() {}
+    std::mutex _mutex;
+};
+
+struct RecordOperation : public Operation
+{
+    RecordOperation(CommandGraph* f, ref_ptr<FrameStamp>& fs, ref_ptr<DatabasePager>& obj, ref_ptr<PrimaryRecordedLatch> l) :
+        commandGraph(f),
+        frameStamp(fs),
+        databasePager(obj),
+        latch(l) {}
+
+    void run() override
+    {
+        if(recordedCommandBuffers.empty()){
+            commandGraph->record(recordedCommandBuffers, frameStamp, databasePager);
+            {
+                std::scoped_lock mute(latch->CBsProtect);
+                latch->recordedCommandBuffers.insert(std::end(latch->recordedCommandBuffers), std::begin(recordedCommandBuffers), std::end(recordedCommandBuffers));
+            }
+            //primary is enough as sync with secondary already done
+            if(commandGraph->_commandBuffersLevel == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+                latch->unleash();
+        }
+    }
+    ref_ptr<CommandGraph> commandGraph;
+    CommandBuffers recordedCommandBuffers;
+    ref_ptr<FrameStamp> frameStamp;
+    ref_ptr<DatabasePager> databasePager;
+    ref_ptr<PrimaryRecordedLatch> latch;
+};
+
+RecordAndSubmitTask::RecordAndSubmitTask()
+{
+    latch = new PrimaryRecordedLatch();
+}
+void RecordAndSubmitTask::setUpThreading()
+{
+    recordThreads = new OperationThreads(commandGraphs.size(), false);
+}
 
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
@@ -83,8 +146,10 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
         vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
     }
 
+    ref_ptr<PrimaryRecordedLatch> latch_(static_cast<PrimaryRecordedLatch*>(latch.get()));
+    latch_->reset();
+
     // record the commands to the command buffers
-    CommandBuffers recordedCommandBuffers;
     ref_ptr<CommandGraph> lastprimary;
     for (auto& commandGraph : commandGraphs)
     {
@@ -104,12 +169,23 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
         if(lastprimary == commandGraph)
             //force primary not to update
             commandGraph->recordTraversal->state->dirty = false;
-        commandGraph->record(recordedCommandBuffers, frameStamp, databasePager);
+        if(recordThreads.valid())
+            recordThreads->add(ref_ptr<Operation>(new RecordOperation(commandGraph, frameStamp, databasePager, latch_)));
+        else
+            commandGraph->record(latch_->recordedCommandBuffers, frameStamp, databasePager);
     }
 
+    if(recordThreads.valid())
+    {
+        // use this thread to read the files as well
+        recordThreads->run();
+
+        // wait till all the read operations have completed
+        latch_->wait();
+    }
     // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of depdendent CommandBuffers
     std::vector<VkCommandBuffer> vk_commandBuffers;
-    for (auto& commandBuffer : recordedCommandBuffers)
+    for (auto& commandBuffer : latch_->recordedCommandBuffers)
     {
         if(commandBuffer->getCommandBufferLevel() == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
             vk_commandBuffers.push_back(*commandBuffer);

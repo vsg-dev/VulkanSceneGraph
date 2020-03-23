@@ -14,12 +14,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-OperationThreads::OperationThreads(uint32_t numThreads, ref_ptr<Active> in_active) :
+OperationThreads::OperationThreads(uint32_t numThreads, bool waitavailability, ref_ptr<Active> in_active) :
     active(in_active)
 {
     if (!active) active = new Active;
     queue = new OperationQueue(active);
 
+    auto runwhenavailable = [](ref_ptr<OperationQueue> q, ref_ptr<Active> a) {
+        while (*(a))
+        {
+            ref_ptr<Operation> operation = q->take_when_avilable();
+            if (operation)
+            {
+                operation->run();
+            }
+        }
+    };
     auto run = [](ref_ptr<OperationQueue> q, ref_ptr<Active> a) {
         while (*(a))
         {
@@ -31,9 +41,15 @@ OperationThreads::OperationThreads(uint32_t numThreads, ref_ptr<Active> in_activ
         }
     };
 
-    for (size_t i = 0; i < numThreads; ++i)
+    if(waitavailability)
     {
-        threads.emplace_back(std::thread(run, std::ref(queue), std::ref(active)));
+        for (size_t i = 0; i < numThreads; ++i)
+            threads.emplace_back(std::thread(runwhenavailable, std::ref(queue), std::ref(active)));
+    }
+    else
+    {
+        for (size_t i = 0; i < numThreads; ++i)
+            threads.emplace_back(std::thread(run, std::ref(queue), std::ref(active)));
     }
 }
 
