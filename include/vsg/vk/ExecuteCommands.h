@@ -36,7 +36,7 @@ namespace vsg
         {
             _cmdGraphs.emplace_back( d );
             _commandBuffers.resize(_cmdGraphs.size());
-            _muters.emplace_back(new std::mutex);
+            _mutices.emplace_back(new std::mutex);
         }
 
         std::mutex * getCommandGraphMutex(const CommandGraph* d) const
@@ -45,7 +45,7 @@ namespace vsg
             size_t index = std::distance(_cmdGraphs.begin(), iter);
             if(index == _cmdGraphs.size())
                return nullptr;
-            return _muters[index].get();
+            return _mutices[index].get();
         }
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -55,7 +55,7 @@ namespace vsg
     protected:
         //cb and mutices to signal secondaries producers that previous produced have been consumed by vkCmdExecuteCommands
         mutable std::vector< VkCommandBuffer > _commandBuffers;
-        std::vector< std::unique_ptr<std::mutex> > _muters;
+        std::vector< std::unique_ptr<std::mutex> > _mutices;
         virtual ~ExecuteCommands();
 
     };

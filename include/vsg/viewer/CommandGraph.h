@@ -32,7 +32,7 @@ namespace vsg
 
         virtual void record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
 
-        void waitProduction() { _secondaryMuter.lock(); }
+        void waitProduction() { _secondaryMutex.lock(); }
         ref_ptr<RecordTraversal> recordTraversal;
 
         Windows windows;
@@ -47,11 +47,11 @@ namespace vsg
 
         mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
         ref_ptr<CommandBuffer> lastRecorded; // dirty need some sync between CommandGraph
-        std::mutex _secondaryMuter; //wait by ExecuteCommands to ensure prod sync
+        std::mutex _secondaryMutex; //wait by ExecuteCommands to ensure prod sync
 
         // setup in Viewer::assignRecordAndSubmitTaskAndPresentation
         ref_ptr<CommandGraph> _primary; // primary commandgraph
-        std::shared_ptr<std::mutex> _primaryMuter = nullptr; //wait to ensure consumption by primary command buffer
+        std::shared_ptr<std::mutex> _primaryMutex = nullptr; //wait to ensure consumption by primary command buffer
 
     };
 

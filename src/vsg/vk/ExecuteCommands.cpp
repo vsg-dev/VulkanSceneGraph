@@ -50,7 +50,7 @@ void ExecuteCommands::dispatch(CommandBuffer& commandBuffer) const
     vkCmdExecuteCommands(commandBuffer, _commandBuffers.size(), _commandBuffers.data());
 
     //unlock producers
-    for(auto mit = _muters.begin(); mit != _muters.end(); ++mit)
+    for(auto mit = _mutices.begin(); mit != _mutices.end(); ++mit)
         (*mit)->unlock();
 }
 

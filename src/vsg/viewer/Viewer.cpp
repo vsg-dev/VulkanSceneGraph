@@ -1,6 +1,7 @@
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
+Copyright(c) 2020 Julien Valentin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -212,11 +213,12 @@ class CollectSecondaryCommandGraph : public ConstVisitor
 {
 public:
     vsg::CommandGraphs secondaries;
-    std::vector<std::shared_ptr<std::mutex> > execCommandMuters;
+    std::vector<std::shared_ptr<std::mutex> > execCommandMutices;
     void apply(const Group& group) override
     {
         group.traverse(*this);
     }
+
     void apply(const Command& cmd) override
     {
         const vsg::ExecuteCommands *exec = dynamic_cast<const vsg::ExecuteCommands*>(&cmd);
@@ -225,7 +227,7 @@ public:
             for( vsg::ExecuteCommands::Secondaries::const_iterator gm = exec->_cmdGraphs.begin(); gm != exec->_cmdGraphs.end(); ++gm)
             {
                 secondaries.emplace_back(*gm);
-                execCommandMuters.emplace_back(std::move(exec->getCommandGraphMutex(*gm)));
+                execCommandMutices.emplace_back(std::move(exec->getCommandGraphMutex(*gm)));
             }
         }
     }
@@ -237,7 +239,6 @@ void Viewer::compile(BufferPreferences bufferPreferences)
     {
         return;
     }
-
 
     struct DeviceResources
     {
@@ -287,13 +288,13 @@ void Viewer::compile(BufferPreferences bufferPreferences)
 
             auto& deviceResource = deviceResourceMap[commandGraph->_device];
             commandGraph->_maxSlot = deviceResource.collectStats.maxSlot;
+
             if(commandGraph->_primary.valid())
             {
                 deviceResource.compile->context.renderPass = static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->window->renderPass();
                 deviceResource.compile->context.viewport = static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->camera->getViewportState();
                 deviceResource.compile->context.viewport->getViewport().width = static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->window->extent2D().width;
                 deviceResource.compile->context.viewport->getViewport().height = static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->window->extent2D().height;
-
             }
 
             commandGraph->accept(*deviceResource.compile);
@@ -375,32 +376,32 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
 
             auto renderFinishedSemaphore = vsg::Semaphore::create(device);
 
-            CommandGraphs effectiveCommandGraphs;
-
             // collect secondaries command graph
             for( auto primary : commandGraphs )
             {
+                // set up Submission with CommandBuffer and signals
+                auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create();
+                CommandGraphs effectiveCommandGraphs;
                 CollectSecondaryCommandGraph collector;
                 primary->accept(collector);
-                auto muterit = collector.execCommandMuters.begin();
+                auto mutexit = collector.execCommandMutices.begin();
                 for( auto sec : collector.secondaries )
                 {
                     sec->_primary = primary;
-                    sec->_primaryMuter = (*muterit++);
+                    sec->_primaryMutex = (*mutexit++);
                 }
 
                 effectiveCommandGraphs.insert(std::end(effectiveCommandGraphs), std::begin(collector.secondaries), std::end(collector.secondaries));
                 effectiveCommandGraphs.emplace_back(primary);
-            }
 
-            // set up Submission with CommandBuffer and signals
-            auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create();
-            recordAndSubmitTask->commandGraphs = effectiveCommandGraphs;
-            recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
-            recordAndSubmitTask->databasePager = databasePager;
-            recordAndSubmitTask->windows = windows;
-            recordAndSubmitTask->queue = device->getQueue(deviceQueueFamily.queueFamily);
-            recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
+                recordAndSubmitTask->commandGraphs = effectiveCommandGraphs;
+                recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
+                recordAndSubmitTask->databasePager = databasePager;
+                recordAndSubmitTask->windows = windows;
+                recordAndSubmitTask->queue = device->getQueue(deviceQueueFamily.queueFamily);
+                recordAndSubmitTask->setUpThreading();
+                recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
+            }
 
             auto presentation = vsg::Presentation::create();
             presentation->waitSemaphores.emplace_back(renderFinishedSemaphore);

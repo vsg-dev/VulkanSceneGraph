@@ -20,6 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/Window.h>
+#include <vsg/threading/OperationThreads.h>
 
 namespace vsg
 {
@@ -28,8 +29,10 @@ namespace vsg
     class RecordAndSubmitTask : public Inherit<Object, RecordAndSubmitTask>
     {
     public:
+        RecordAndSubmitTask();
         // Need to add FrameStamp?
         virtual VkResult submit(ref_ptr<FrameStamp> frameStamp = {});
+        void setUpThreading();
 
         Windows windows;
         Semaphores waitSemaphores;   //
@@ -38,6 +41,10 @@ namespace vsg
 
         ref_ptr<DatabasePager> databasePager;
         ref_ptr<Queue> queue; // assign in application for GraphicsQueue from device
+
+        //threading
+        ref_ptr<OperationThreads> recordThreads;
+        ref_ptr<Object> latch;
     };
 
 } // namespace vsg
