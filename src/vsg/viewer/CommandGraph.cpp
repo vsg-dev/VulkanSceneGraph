@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/RenderGraph.h>
 #include <vsg/vk/State.h>
+
 using namespace vsg;
 
 CommandGraph::CommandGraph(Device* device, int family) :
@@ -24,7 +25,7 @@ CommandGraph::CommandGraph(Device* device, int family) :
     _queueFamily(family),
     _presentFamily(-1)
 {
-    _secondaryMutex.lock();
+    _slaveCommandBufferMutex.lock();
 }
 
 CommandGraph::CommandGraph(Window* window)
@@ -45,22 +46,24 @@ CommandGraph::CommandGraph(Window* window)
             commandBuffers.emplace_back(window->commandBuffer(i));
         }
     }
-    _secondaryMutex.lock();
+    _slaveCommandBufferMutex.lock();
 }
 
 void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
-
-
     if (!recordTraversal)
     {
         recordTraversal = new RecordTraversal(nullptr, _maxSlot);
     }
-    if(recordTraversal->frameStamp == frameStamp) return;
+
+    //useless?
+    if(recordTraversal->frameStamp == frameStamp)
+        return;
+
     /// wait primary consumption if secondary
-    if(_primaryMutex != nullptr)
+    if(_masterCommandBufferMutex != nullptr)
     {
-        _primaryMutex->lock();
+        _masterCommandBufferMutex->lock();
     }
     recordTraversal->frameStamp = frameStamp;
     recordTraversal->databasePager = databasePager;
@@ -116,7 +119,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     recordedCommandBuffers.push_back(recordTraversal->state->_commandBuffer);
 
-    _secondaryMutex.unlock();
+    _slaveCommandBufferMutex.unlock();
 }
 
 ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkCommandBufferLevel lev, uint sub, VkSubpassContents content)

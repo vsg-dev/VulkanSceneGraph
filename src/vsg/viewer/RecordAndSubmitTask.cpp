@@ -157,14 +157,14 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
         {
              commandGraph->recordTraversal = new RecordTraversal(nullptr, commandGraph->_maxSlot);
         }
-        if(commandGraph->_primary.valid()) //ie VK_COMMAND_BUFFER_LEVEL_SECONDARY
+        if(commandGraph->_masterCommandGraph && commandGraph->_masterCommandGraph->_commandBuffersLevel == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
         {
             dmat4 projMatrix, viewMatrix;
-            static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->camera->getProjectionMatrix()->get(projMatrix);
-            static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->camera->getViewMatrix()->get(viewMatrix);
+            static_cast<RenderGraph*>(commandGraph->_masterCommandGraph->getChild(0))->camera->getProjectionMatrix()->get(projMatrix);
+            static_cast<RenderGraph*>(commandGraph->_masterCommandGraph->getChild(0))->camera->getViewMatrix()->get(viewMatrix);
 
             commandGraph->recordTraversal->setProjectionAndViewMatrix(projMatrix, viewMatrix);
-            lastprimary = commandGraph->_primary;
+            lastprimary = commandGraph->_masterCommandGraph;
         }
         if(lastprimary == commandGraph)
             //force primary not to update
