@@ -212,8 +212,9 @@ void Viewer::handleEvents()
 class CollectSecondaryCommandGraph : public ConstVisitor
 {
 public:
-    vsg::CommandGraphs secondaries;
-    std::vector<std::shared_ptr<std::mutex> > execCommandMutices;
+    using SecondaryGraph = std::pair<ref_ptr < CommandGraph >, std::shared_ptr<std::mutex> >;
+    std::vector< SecondaryGraph > secondaries;
+
     void apply(const Group& group) override
     {
         group.traverse(*this);
@@ -224,10 +225,9 @@ public:
         const vsg::ExecuteCommands *exec = dynamic_cast<const vsg::ExecuteCommands*>(&cmd);
         if(exec)
         {
-            for( vsg::ExecuteCommands::Secondaries::const_iterator gm = exec->_cmdGraphs.begin(); gm != exec->_cmdGraphs.end(); ++gm)
+            for (auto & secCM : exec->getSecondaryCommandGraphs())
             {
-                secondaries.emplace_back(*gm);
-                execCommandMutices.emplace_back(std::move(exec->getCommandGraphMutex(*gm)));
+                secondaries.emplace_back(SecondaryGraph(secCM.first, std::move(secCM.second.get())));
             }
         }
     }
@@ -334,18 +334,17 @@ void Viewer::compile(BufferPreferences bufferPreferences)
     }
 }
 
-void recursivCollectSlaveGraphs(CommandGraphs& collectedgraphs, ref_ptr<CommandGraph> & mastergraph)
+void recursivCollectSlaveGraphs(CommandGraphs& collectedgraphs, const ref_ptr<CommandGraph> & mastergraph)
 {
     CollectSecondaryCommandGraph collector;
     mastergraph->accept(collector);
-    auto mutexit = collector.execCommandMutices.begin();
     for( auto slavegraph : collector.secondaries )
     {
-        slavegraph->_masterCommandGraph = mastergraph;
-        slavegraph->_masterCommandBufferMutex = (*mutexit++);
-        recursivCollectSlaveGraphs(collectedgraphs, slavegraph);
+        slavegraph.first->_masterCommandGraph = mastergraph;
+        slavegraph.first->_masterCommandBufferMutex = slavegraph.second;
+        recursivCollectSlaveGraphs(collectedgraphs, slavegraph.first);
     }
-    collectedgraphs.insert(std::end(collectedgraphs), std::begin(collector.secondaries), std::end(collector.secondaries));
+    for( auto cg : collector.secondaries) collectedgraphs.emplace_back(cg.first);
 }
 
 void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGraphs, DatabasePager* databasePager)

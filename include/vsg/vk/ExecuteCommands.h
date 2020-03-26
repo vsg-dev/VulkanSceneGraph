@@ -28,35 +28,27 @@ namespace vsg
     public:
         ExecuteCommands() {}
 
-        using Secondaries = std::vector< ref_ptr < CommandGraph > >;
+        using SecondaryGraph = std::pair<ref_ptr < CommandGraph >, std::unique_ptr<std::mutex> >;
+        using Secondaries = std::vector< SecondaryGraph >;
 
-        //TODO go protected and make other accessors
-        Secondaries _cmdGraphs;
+        Secondaries & getSecondaryCommandGraphs() { return _cmdGraphs; }
+        const Secondaries & getSecondaryCommandGraphs() const { return _cmdGraphs; }
 
         void addCommandGraph(ref_ptr<CommandGraph> d)
         {
-            _cmdGraphs.emplace_back( d );
+            _cmdGraphs.emplace_back(SecondaryGraph(d, new std::mutex));
             _commandBuffers.resize(_cmdGraphs.size());
-            _mutices.emplace_back(new std::mutex);
         }
 
-        std::mutex * getCommandGraphMutex(const CommandGraph* d) const
-        {
-            Secondaries::const_iterator iter = std::find(_cmdGraphs.begin(), _cmdGraphs.end(), d);
-            size_t index = std::distance(_cmdGraphs.begin(), iter);
-            if(index == _cmdGraphs.size())
-               return nullptr;
-            return _mutices[index].get();
-        }
         void read(Input& input) override;
         void write(Output& output) const override;
 
         void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:
+        Secondaries _cmdGraphs;
         //cb and mutices to signal secondaries producers that previous produced have been consumed by vkCmdExecuteCommands
         mutable std::vector< VkCommandBuffer > _commandBuffers;
-        std::vector< std::unique_ptr<std::mutex> > _mutices;
         virtual ~ExecuteCommands();
 
     };

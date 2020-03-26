@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandBuffer.h>
 
 using namespace vsg;
+
 ExecuteCommands::~ExecuteCommands()
 {
 }
@@ -36,21 +37,20 @@ void ExecuteCommands::write(Output& output) const
     // output.writeObject("CommandGraphs", _cmdgraphs);
 }
 
-
 void ExecuteCommands::dispatch(CommandBuffer& commandBuffer) const
 {
     _commandBuffers.clear();
 
-    for(auto cg : _cmdGraphs)
+    for(auto & cg : _cmdGraphs)
     {
-        cg->waitProduction();
-        _commandBuffers.emplace_back(*cg->lastRecorded);
+        cg.first->waitProduction();
+        _commandBuffers.emplace_back(*cg.first->lastRecorded);
     }
 
     vkCmdExecuteCommands(commandBuffer, _commandBuffers.size(), _commandBuffers.data());
 
     //unlock producers
-    for(auto mit = _mutices.begin(); mit != _mutices.end(); ++mit)
-        (*mit)->unlock();
+    for(auto & cg : _cmdGraphs)
+        cg.second->unlock();
 }
 
