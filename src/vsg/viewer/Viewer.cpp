@@ -209,26 +209,24 @@ void Viewer::handleEvents()
     }
 }
 
-class CollectSecondaryCommandGraph : public ConstVisitor
+class CollectSecondaryCommandGraph : public Visitor
 {
 public:
     using SecondaryGraph = std::pair<ref_ptr < CommandGraph >, std::shared_ptr<std::mutex> >;
     std::vector< SecondaryGraph > secondaries;
 
-    void apply(const Group& group) override
+    std::vector<vsg::ref_ptr<ExecuteCommands> > execCommands;
+    void apply(Group& group) override
     {
         group.traverse(*this);
     }
 
-    void apply(const Command& cmd) override
+    void apply(Command& cmd) override
     {
-        const vsg::ExecuteCommands *exec = dynamic_cast<const vsg::ExecuteCommands*>(&cmd);
+        vsg::ExecuteCommands *exec = dynamic_cast<vsg::ExecuteCommands*>(&cmd);
         if(exec)
         {
-            for (auto & secCM : exec->getSecondaryCommandGraphs())
-            {
-                secondaries.emplace_back(SecondaryGraph(secCM.first, std::move(secCM.second.get())));
-            }
+            execCommands.emplace_back(exec);
         }
     }
 };
@@ -289,12 +287,13 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             auto& deviceResource = deviceResourceMap[commandGraph->_device];
             commandGraph->_maxSlot = deviceResource.collectStats.maxSlot;
 
-            if(commandGraph->_masterCommandGraph.valid() &&  commandGraph->_masterCommandGraph->_commandBuffersLevel == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+            ///WARNING secondaries must be at same depth in recursion
+            if(!commandGraph->_consumerCommandGraphs.empty() &&  commandGraph->_consumerCommandGraphs[0]->_commandBuffersLevel == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
             {
-                deviceResource.compile->context.renderPass = static_cast<RenderGraph*>(commandGraph->_masterCommandGraph->getChild(0))->window->renderPass();
-                deviceResource.compile->context.viewport = static_cast<RenderGraph*>(commandGraph->_masterCommandGraph->getChild(0))->camera->getViewportState();
-                deviceResource.compile->context.viewport->getViewport().width = static_cast<RenderGraph*>(commandGraph->_masterCommandGraph->getChild(0))->window->extent2D().width;
-                deviceResource.compile->context.viewport->getViewport().height = static_cast<RenderGraph*>(commandGraph->_masterCommandGraph->getChild(0))->window->extent2D().height;
+                deviceResource.compile->context.renderPass = static_cast<RenderGraph*>(commandGraph->_consumerCommandGraphs[0]->getChild(0))->window->renderPass();
+                deviceResource.compile->context.viewport = static_cast<RenderGraph*>(commandGraph->_consumerCommandGraphs[0]->getChild(0))->camera->getViewportState();
+                deviceResource.compile->context.viewport->getViewport().width = static_cast<RenderGraph*>(commandGraph->_consumerCommandGraphs[0]->getChild(0))->window->extent2D().width;
+                deviceResource.compile->context.viewport->getViewport().height = static_cast<RenderGraph*>(commandGraph->_consumerCommandGraphs[0]->getChild(0))->window->extent2D().height;
             }
 
             commandGraph->accept(*deviceResource.compile);
@@ -333,18 +332,31 @@ void Viewer::compile(BufferPreferences bufferPreferences)
         }
     }
 }
+;
 
-void recursivCollectSlaveGraphs(CommandGraphs& collectedgraphs, const ref_ptr<CommandGraph> & mastergraph)
+void recursivCollectProducerGraphs(std::set<ref_ptr<CommandGraph> >& collectedgraphs, const ref_ptr<CommandGraph> & consumergraph)
 {
     CollectSecondaryCommandGraph collector;
-    mastergraph->accept(collector);
-    for( auto slavegraph : collector.secondaries )
+    consumergraph->accept(collector);
+
+    for(auto& exec : collector.execCommands)
     {
-        slavegraph.first->_masterCommandGraph = mastergraph;
-        slavegraph.first->_masterCommandBufferMutex = slavegraph.second;
-        recursivCollectSlaveGraphs(collectedgraphs, slavegraph.first);
+        for(auto& secCM: exec->getSecondaryCommandGraphs())
+        {
+            secCM.commandGraph->_producerCommandBufferMutices.emplace_back(new std::mutex);
+            secCM.commandGraph->_producerCommandBufferMutices.back()->lock();
+
+            secCM.commandGraph->_consumerCommandGraphs.emplace_back(consumergraph);
+            secCM.commandGraph->_consumerCommandBufferMutices.emplace_back( std::move( secCM.consumptionMutex.get() ));
+
+            exec->_producerCommandBufferMutices.emplace_back(std::move( secCM.commandGraph->_producerCommandBufferMutices.back().get()));
+
+            recursivCollectProducerGraphs(collectedgraphs, secCM.commandGraph);
+
+            collectedgraphs.insert(secCM.commandGraph);
+        }
     }
-    for( auto cg : collector.secondaries) collectedgraphs.emplace_back(cg.first);
+
 }
 
 void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGraphs, DatabasePager* databasePager)
@@ -395,7 +407,11 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
                 // set up Submission with CommandBuffer and signals
                 auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create();
                 CommandGraphs effectiveCommandGraphs;
-                recursivCollectSlaveGraphs(effectiveCommandGraphs, primary);
+                {
+                    std::set<ref_ptr<CommandGraph> > uniqCommandGraphs;
+                    recursivCollectProducerGraphs(uniqCommandGraphs, primary);
+                    effectiveCommandGraphs .insert(std::end(effectiveCommandGraphs), std::begin(uniqCommandGraphs), std::end(uniqCommandGraphs));
+                }
                 effectiveCommandGraphs.emplace_back(primary);
 
                 recordAndSubmitTask->commandGraphs = effectiveCommandGraphs;

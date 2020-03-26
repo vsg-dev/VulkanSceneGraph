@@ -25,7 +25,6 @@ CommandGraph::CommandGraph(Device* device, int family) :
     _queueFamily(family),
     _presentFamily(-1)
 {
-    _slaveCommandBufferMutex.lock();
 }
 
 CommandGraph::CommandGraph(Window* window)
@@ -46,7 +45,6 @@ CommandGraph::CommandGraph(Window* window)
             commandBuffers.emplace_back(window->commandBuffer(i));
         }
     }
-    _slaveCommandBufferMutex.lock();
 }
 
 void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
@@ -60,11 +58,12 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     if(recordTraversal->frameStamp == frameStamp)
         return;
 
-    /// wait primary consumption if secondary
-    if(_masterCommandBufferMutex != nullptr)
+    /// wait consumers consumption
+    for(auto& consumerMutex : _consumerCommandBufferMutices)
     {
-        _masterCommandBufferMutex->lock();
+        consumerMutex->lock();
     }
+
     recordTraversal->frameStamp = frameStamp;
     recordTraversal->databasePager = databasePager;
     if (databasePager) recordTraversal->culledPagedLODs = databasePager->culledPagedLODs;
@@ -119,7 +118,8 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     recordedCommandBuffers.push_back(recordTraversal->state->_commandBuffer);
 
-    _slaveCommandBufferMutex.unlock();
+    for(auto & producerCommandBufferMutex : _producerCommandBufferMutices)
+        producerCommandBufferMutex->unlock();
 }
 
 ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkCommandBufferLevel lev, uint sub, VkSubpassContents content)

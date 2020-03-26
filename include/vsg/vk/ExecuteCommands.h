@@ -27,8 +27,14 @@ namespace vsg
     {
     public:
         ExecuteCommands() {}
+        struct SecondaryGraph
+        {
+            SecondaryGraph(ref_ptr < CommandGraph >& cg,std::mutex* m):
+                commandGraph(cg), consumptionMutex(m) {}
+            ref_ptr < CommandGraph > commandGraph;
+            std::unique_ptr<std::mutex> consumptionMutex;
+        };
 
-        using SecondaryGraph = std::pair<ref_ptr < CommandGraph >, std::unique_ptr<std::mutex> >;
         using Secondaries = std::vector< SecondaryGraph >;
 
         Secondaries & getSecondaryCommandGraphs() { return _cmdGraphs; }
@@ -44,6 +50,8 @@ namespace vsg
         void write(Output& output) const override;
 
         void dispatch(CommandBuffer& commandBuffer) const override;
+
+        std::vector<std::shared_ptr<std::mutex> > _producerCommandBufferMutices;
 
     protected:
         Secondaries _cmdGraphs;

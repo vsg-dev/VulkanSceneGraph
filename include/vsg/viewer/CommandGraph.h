@@ -3,6 +3,7 @@
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
+Copyright(c) 2020 Julien Valentin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -16,10 +17,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/Window.h>
 #include <vsg/vk/CommandBuffer.h>
+#include <condition_variable>
 
 namespace vsg
 {
-
     using CommandGraphs = std::vector<ref_ptr<CommandGraph> >;
 
     class CommandGraph : public Inherit<Group, CommandGraph>
@@ -31,8 +32,7 @@ namespace vsg
         using Group::accept;
 
         virtual void record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
-
-        void waitProduction() { _slaveCommandBufferMutex.lock(); }
+        
         ref_ptr<RecordTraversal> recordTraversal;
 
         Windows windows;
@@ -47,11 +47,11 @@ namespace vsg
 
         mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
         ref_ptr<CommandBuffer> lastRecorded;
-        std::mutex _slaveCommandBufferMutex; //wait by ExecuteCommands to ensure prod sync
 
         // setup in Viewer::assignRecordAndSubmitTaskAndPresentation
-        ref_ptr<CommandGraph> _masterCommandGraph; // commandgraph embedding this one
-        std::shared_ptr<std::mutex> _masterCommandBufferMutex = nullptr; //wait to ensure consumption by primary command buffer
+        std::vector<std::unique_ptr<std::mutex> > _producerCommandBufferMutices; // wait by ExecuteCommands to ensure prod sync (one for each consumer)
+        CommandGraphs _consumerCommandGraphs; // commandgraphs embedding this one
+        std::vector<std::shared_ptr<std::mutex> > _consumerCommandBufferMutices ; // wait consumption to unlock new production
 
     };
 
