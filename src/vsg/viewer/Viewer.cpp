@@ -341,7 +341,7 @@ void recursivCollectSlaveGraphs(CommandGraphs& collectedgraphs, const ref_ptr<Co
     for( auto slavegraph : collector.secondaries )
     {
         slavegraph.first->_masterCommandGraph = mastergraph;
-        slavegraph.first->_masterCommandBufferMutex = slavegraph.second;
+        slavegraph.first->_masterCommandBufferMutices.emplace_back(slavegraph.second);
         recursivCollectSlaveGraphs(collectedgraphs, slavegraph.first);
     }
     for( auto cg : collector.secondaries) collectedgraphs.emplace_back(cg.first);

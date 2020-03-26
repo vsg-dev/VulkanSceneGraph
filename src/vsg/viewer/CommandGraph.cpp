@@ -60,10 +60,10 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     if(recordTraversal->frameStamp == frameStamp)
         return;
 
-    /// wait primary consumption if secondary
-    if(_masterCommandBufferMutex != nullptr)
+    /// wait masters consumption
+    for(auto& masterMutex : _masterCommandBufferMutices)
     {
-        _masterCommandBufferMutex->lock();
+        masterMutex->lock();
     }
     recordTraversal->frameStamp = frameStamp;
     recordTraversal->databasePager = databasePager;
