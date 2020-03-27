@@ -114,25 +114,12 @@ RayTracingPipeline::Implementation::Result RayTracingPipeline::Implementation::c
 
     auto shaderStages = rayTracingPipeline->getShaderStages();
 
-    std::vector<VkSpecializationInfo> specializationInfos(shaderStages.size());
     std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfo(shaderStages.size());
     for (size_t i = 0; i < shaderStages.size(); ++i)
     {
         const ShaderStage* shaderStage = shaderStages[i];
         shaderStageCreateInfo[i].pNext = nullptr;
-        shaderStage->apply(device->deviceID, shaderStageCreateInfo[i]);
-        if (!shaderStage->getSpecializationMapEntries().empty() && shaderStage->getSpecializationData() != nullptr)
-        {
-            // assign a VkSpecializationInfo for this shaderStageCreateInfo
-            VkSpecializationInfo& specializationInfo = specializationInfos[i];
-            shaderStageCreateInfo[i].pSpecializationInfo = &specializationInfo;
-
-            // assign the values from the ShaderStage into the specializationInfo
-            specializationInfo.mapEntryCount = static_cast<uint32_t>(shaderStage->getSpecializationMapEntries().size());
-            specializationInfo.pMapEntries = shaderStage->getSpecializationMapEntries().data();
-            specializationInfo.dataSize = shaderStage->getSpecializationData()->dataSize();
-            specializationInfo.pData = shaderStage->getSpecializationData()->dataPointer();
-        }
+        shaderStage->apply(context, shaderStageCreateInfo[i]);
     }
 
     pipelineInfo.stageCount = static_cast<uint32_t>(shaderStageCreateInfo.size());

@@ -70,15 +70,13 @@ void ShaderStage::read(Input& input)
 
     _shaderModule = input.readObject<ShaderModule>("ShaderModule");
 
-    _specializationMapEntries.resize(input.readValue<uint32_t>("NumSpecializationMapEntries"));
-    for (auto& specializationMapEntry : _specializationMapEntries)
+    _specializationConstants.clear();
+    uint32_t numValues = input.readValue<uint32_t>("NumSpecializationConstants");
+    for(uint32_t i = 0; i < numValues; ++i)
     {
-        input.read("constantID", specializationMapEntry.constantID);
-        input.read("offset", specializationMapEntry.offset);
-        specializationMapEntry.size = input.readValue<uint32_t>("size");
+        uint32_t id = input.readValue<uint32_t>("constantID");
+        _specializationConstants[id] = input.readObject<Data>("data");
     }
-
-    _specializationData = input.readObject<Data>("SpecializationData");
 }
 
 void ShaderStage::write(Output& output) const
@@ -91,23 +89,48 @@ void ShaderStage::write(Output& output) const
 
     output.writeObject("ShaderModule", _shaderModule.get());
 
-    output.writeValue<uint32_t>("NumSpecializationMapEntries", _specializationMapEntries.size());
-    for (auto& specializationMapEntry : _specializationMapEntries)
+    output.writeValue<uint32_t>("NumSpecializationConstants", _specializationConstants.size());
+    for (auto& [id, data] : _specializationConstants)
     {
-        output.write("constantID", specializationMapEntry.constantID);
-        output.write("offset", specializationMapEntry.offset);
-        output.writeValue<uint32_t>("size", specializationMapEntry.size);
+        output.writeValue<uint32_t>("constantID", id);
+        output.writeObject("data", data);
     }
-
-    output.writeObject("SpecializationData", _specializationData.get());
 }
 
-void ShaderStage::apply(uint32_t deviceID, VkPipelineShaderStageCreateInfo& stageInfo) const
+void ShaderStage::apply(Context& context, VkPipelineShaderStageCreateInfo& stageInfo) const
 {
     stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     stageInfo.stage = _stage;
-    stageInfo.module = _shaderModule->vk(deviceID);
+    stageInfo.module = _shaderModule->vk(context.deviceID);
     stageInfo.pName = _entryPointName.c_str();
+
+    uint32_t packedDataSize = 0;
+    for(auto& id_data : _specializationConstants)
+    {
+        packedDataSize += static_cast<uint32_t>(id_data.second->dataSize());
+    }
+
+    // allocate temporary memoory to pack the specialization map and data into.
+    auto mapEntries = context.scratchMemory->allocate<VkSpecializationMapEntry>(_specializationConstants.size());
+    auto packedData = context.scratchMemory->allocate<uint8_t>(packedDataSize);
+    uint32_t offset = 0;
+    uint32_t i = 0;
+    for(auto& [id, data] : _specializationConstants)
+    {
+        mapEntries[i++] = VkSpecializationMapEntry{id, offset, data->dataSize()};
+        std::memcpy(packedData + offset, static_cast<uint8_t*>(data->dataPointer()), data->dataSize());
+        offset += data->dataSize();
+    }
+
+    auto specializationInfo = context.scratchMemory->allocate<VkSpecializationInfo>(1);
+
+    stageInfo.pSpecializationInfo = specializationInfo;
+
+    // assign the values from the ShaderStage into the specializationInfo
+    specializationInfo->mapEntryCount = static_cast<uint32_t>(_specializationConstants.size());
+    specializationInfo->pMapEntries = mapEntries;
+    specializationInfo->dataSize = packedDataSize;
+    specializationInfo->pData = packedData;
 }
 
 void ShaderStage::compile(Context& context)

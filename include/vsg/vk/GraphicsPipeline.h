@@ -78,7 +78,7 @@ namespace vsg
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
             /** Create a GraphicsPipeline.*/
-            static Result create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass, AllocationCallbacks* allocator = nullptr);
+            static Result create(Context& context, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass, AllocationCallbacks* allocator = nullptr);
 
             VkPipeline _pipeline;
 

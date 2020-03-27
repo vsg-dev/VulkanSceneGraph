@@ -58,7 +58,7 @@ void ComputePipeline::compile(Context& context)
     {
         _pipelineLayout->compile(context);
         _shaderStage->compile(context);
-        _implementation[context.deviceID] = ComputePipeline::Implementation::create(context.device, _pipelineLayout, _shaderStage, _allocator);
+        _implementation[context.deviceID] = ComputePipeline::Implementation::create(context, context.device, _pipelineLayout, _shaderStage, _allocator);
     }
 }
 
@@ -80,29 +80,16 @@ ComputePipeline::Implementation::~Implementation()
     vkDestroyPipeline(*_device, _pipeline, _allocator);
 }
 
-ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator)
+ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(Context& context, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator)
 {
     if (!device || !pipelineLayout || !shaderStage)
     {
         return Result("Error: vsg::ComputePipeline::create(...) failed to create compute pipeline, undefined device, pipelinLayout or shaderStage.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
-    VkSpecializationInfo specializationInfo = {};
     VkPipelineShaderStageCreateInfo stageInfo = {};
     stageInfo.pNext = nullptr;
-    shaderStage->apply(device->deviceID, stageInfo);
-
-    if (!shaderStage->getSpecializationMapEntries().empty() && shaderStage->getSpecializationData() != nullptr)
-    {
-        // assign a VkSpecializationInfo for this shaderStageCreateInfo
-        stageInfo.pSpecializationInfo = &specializationInfo;
-
-        // assign the values from the ShaderStage into the specializationInfo
-        specializationInfo.mapEntryCount = static_cast<uint32_t>(shaderStage->getSpecializationMapEntries().size());
-        specializationInfo.pMapEntries = shaderStage->getSpecializationMapEntries().data();
-        specializationInfo.dataSize = shaderStage->getSpecializationData()->dataSize();
-        specializationInfo.pData = shaderStage->getSpecializationData()->dataPointer();
-    }
+    shaderStage->apply(context, stageInfo);
 
     VkComputePipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;

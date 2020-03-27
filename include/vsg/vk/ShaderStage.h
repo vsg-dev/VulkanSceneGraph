@@ -39,15 +39,12 @@ namespace vsg
         void setEntryPointName(std::string& entryPointName) { _entryPointName = entryPointName; }
         const std::string& getEntryPointName() const { return _entryPointName; }
 
-        using SpecializationMapEntries = std::vector<VkSpecializationMapEntry>;
+        using SpecializationConstants = std::map<uint32_t, vsg::ref_ptr<vsg::Data>>;
 
-        void setSpecializationMapEntries(const SpecializationMapEntries& sme) { _specializationMapEntries = sme; }
-        SpecializationMapEntries& getSpecializationMapEntries() { return _specializationMapEntries; }
-        const SpecializationMapEntries& getSpecializationMapEntries() const { return _specializationMapEntries; }
+        void setSpecializationConstants(const SpecializationConstants& sc) { _specializationConstants = sc; }
+        SpecializationConstants& getSpecializationConstants() { return _specializationConstants; }
+        const SpecializationConstants& getSpecializationConstants() const { return _specializationConstants; }
 
-        void setSpecializationData(Data* data) { _specializationData = data; }
-        Data* getSpecializationData() { return _specializationData; }
-        const Data* getSpecializationData() const { return _specializationData; }
 
         using Result = vsg::Result<ShaderStage, VkResult, VK_SUCCESS>;
         static Result read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename);
@@ -55,7 +52,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void apply(uint32_t deviceID, VkPipelineShaderStageCreateInfo& stageInfo) const;
+        void apply(Context& context, VkPipelineShaderStageCreateInfo& stageInfo) const;
 
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);
@@ -64,8 +61,7 @@ namespace vsg
         VkShaderStageFlagBits _stage;
         std::string _entryPointName;
         ref_ptr<ShaderModule> _shaderModule;
-        SpecializationMapEntries _specializationMapEntries;
-        ref_ptr<Data> _specializationData;
+        SpecializationConstants _specializationConstants;
     };
     VSG_type_name(vsg::ShaderStage);
 

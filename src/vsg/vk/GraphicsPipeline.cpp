@@ -94,7 +94,7 @@ void GraphicsPipeline::compile(Context& context)
         GraphicsPipelineStates full_pipelineStates = _pipelineStates;
         full_pipelineStates.emplace_back(context.viewport);
 
-        _implementation[context.deviceID] = GraphicsPipeline::Implementation::create(context.device, context.renderPass, _pipelineLayout, _shaderStages, full_pipelineStates, _subpass, _allocator);
+        _implementation[context.deviceID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, _pipelineLayout, _shaderStages, full_pipelineStates, _subpass, _allocator);
     }
 }
 
@@ -113,7 +113,7 @@ GraphicsPipeline::Implementation::Implementation(VkPipeline pipeline, Device* de
 {
 }
 
-GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::create(Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass, AllocationCallbacks* allocator)
+GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::create(Context& context, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass, AllocationCallbacks* allocator)
 {
     if (!device || !renderPass || !pipelineLayout)
     {
@@ -128,25 +128,12 @@ GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::creat
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.pNext = nullptr;
 
-    std::vector<VkSpecializationInfo> specializationInfos(shaderStages.size());
     std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfo(shaderStages.size());
     for (size_t i = 0; i < shaderStages.size(); ++i)
     {
         const ShaderStage* shaderStage = shaderStages[i];
         shaderStageCreateInfo[i].pNext = nullptr;
-        shaderStage->apply(device->deviceID, shaderStageCreateInfo[i]);
-        if (!shaderStage->getSpecializationMapEntries().empty() && shaderStage->getSpecializationData() != nullptr)
-        {
-            // assign a VkSpecializationInfo for this shaderStageCreateInfo
-            VkSpecializationInfo& specializationInfo = specializationInfos[i];
-            shaderStageCreateInfo[i].pSpecializationInfo = &specializationInfo;
-
-            // assign the values from the ShaderStage into the specializationInfo
-            specializationInfo.mapEntryCount = static_cast<uint32_t>(shaderStage->getSpecializationMapEntries().size());
-            specializationInfo.pMapEntries = shaderStage->getSpecializationMapEntries().data();
-            specializationInfo.dataSize = shaderStage->getSpecializationData()->dataSize();
-            specializationInfo.pData = shaderStage->getSpecializationData()->dataPointer();
-        }
+        shaderStage->apply(context, shaderStageCreateInfo[i]);
     }
 
     pipelineInfo.stageCount = static_cast<uint32_t>(shaderStageCreateInfo.size());

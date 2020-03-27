@@ -54,7 +54,7 @@ namespace vsg
             using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
 
             /** Create a ComputePipeline.*/
-            static Result create(Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator = nullptr);
+            static Result create(Context& context, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator = nullptr);
 
             VkPipeline _pipeline;
 
@@ -70,6 +70,7 @@ namespace vsg
         ref_ptr<ShaderStage> _shaderStage;
         ref_ptr<AllocationCallbacks> _allocator;
     };
+    VSG_type_name(vsg::ComputePipeline);
 
     class VSG_DECLSPEC BindComputePipeline : public Inherit<StateCommand, BindComputePipeline>
     {
