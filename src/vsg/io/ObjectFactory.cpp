@@ -41,6 +41,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/DescriptorSetLayout.h>
 #include <vsg/vk/DescriptorTexelBufferView.h>
 #include <vsg/vk/Draw.h>
+#include <vsg/vk/Dispatch.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/PipelineLayout.h>
 #include <vsg/vk/ResourceHints.h>
@@ -194,6 +195,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::ColorBlendState);
     VSG_REGISTER_create(vsg::Draw);
     VSG_REGISTER_create(vsg::DrawIndexed);
+    VSG_REGISTER_create(vsg::Dispatch);
     VSG_REGISTER_create(vsg::BindDescriptorSets);
     VSG_REGISTER_create(vsg::BindDescriptorSet);
     VSG_REGISTER_create(vsg::BindVertexBuffers);

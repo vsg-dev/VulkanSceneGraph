@@ -105,6 +105,7 @@ set(SOURCES
     vk/Device.cpp
     vk/DeviceMemory.cpp
     vk/Draw.cpp
+    vk/Dispatch.cpp
     vk/Extensions.cpp
     vk/Fence.cpp
     vk/Framebuffer.cpp

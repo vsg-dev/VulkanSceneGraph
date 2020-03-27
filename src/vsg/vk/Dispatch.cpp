@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,35 +10,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Command.h>
-#include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/Dispatch.h>
 
-namespace vsg
+using namespace vsg;
+
+void Dispatch::read(Input& input)
 {
+    Command::read(input);
 
-    /** Wrapper for vkCmdDispatch, used for dispatching a Compute command.*/
-    class Dispatch : public Inherit<Command, Dispatch>
-    {
-    public:
-        Dispatch() {}
+    input.read("groupCountX", groupCountX);
+    input.read("groupCountY",groupCountY );
+    input.read("groupCountZ", groupCountZ);
+}
 
-        Dispatch(uint32_t in_groupCountX, uint32_t in_groupCountY, uint32_t in_groupCountZ) :
-            groupCountX(in_groupCountX),
-            groupCountY(in_groupCountY),
-            groupCountZ(in_groupCountZ) {}
+void Dispatch::write(Output& output) const
+{
+    Command::write(output);
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        void dispatch(CommandBuffer& commandBuffer) const override
-        {
-            vkCmdDispatch(commandBuffer, groupCountX, groupCountY, groupCountZ);
-        }
-
-        uint32_t groupCountX = 0;
-        uint32_t groupCountY = 0;
-        uint32_t groupCountZ = 0;
-    };
-    VSG_type_name(vsg::Dispatch);
-
-} // namespace vsg
+    output.write("groupCountX", groupCountX);
+    output.write("groupCountY", groupCountY);
+    output.write("groupCountZ", groupCountZ);
+}
