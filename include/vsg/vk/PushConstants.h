@@ -22,7 +22,12 @@ namespace vsg
     class VSG_DECLSPEC PushConstants : public Inherit<StateCommand, PushConstants>
     {
     public:
+        PushConstants();
+
         PushConstants(VkShaderStageFlags shaderFlags, uint32_t offset, Data* data);
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         Data* getData() noexcept { return _data; }
         const Data* getData() const noexcept { return _data; }

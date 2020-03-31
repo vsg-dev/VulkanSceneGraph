@@ -44,6 +44,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Dispatch.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/PipelineLayout.h>
+#include <vsg/vk/PushConstants.h>
 #include <vsg/vk/ResourceHints.h>
 #include <vsg/vk/Sampler.h>
 #include <vsg/vk/ShaderModule.h>
@@ -205,6 +206,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::DescriptorImage);
     VSG_REGISTER_create(vsg::DescriptorBuffer);
     VSG_REGISTER_create(vsg::Sampler);
+    VSG_REGISTER_create(vsg::PushConstants);
     VSG_REGISTER_create(vsg::ResourceHints);
 }
 
