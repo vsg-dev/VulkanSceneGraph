@@ -20,8 +20,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     /** Execute Secondary Command Buffers
-     * (in charge of sync with their filling)
-     */
+     * (in charge of blocking-sync- their filling?)
+    }*/
 
     class VSG_DECLSPEC ExecuteCommands : public Inherit<Command, ExecuteCommands>
     {
@@ -30,9 +30,8 @@ namespace vsg
 
         using Secondaries = std::vector< ref_ptr < CommandGraph > >;
 
-        //TODO go protected and make other accessors
         Secondaries _cmdGraphs;
-
+        //TODO other accessors
         void addCommandGraph(ref_ptr<CommandGraph> d)
         {
             _cmdGraphs.emplace_back( d );
