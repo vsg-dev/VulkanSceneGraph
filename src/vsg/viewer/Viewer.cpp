@@ -209,27 +209,20 @@ void Viewer::handleEvents()
     }
 }
 
-class CollectSecondaryCommandGraph : public ConstVisitor
+class CollectSecondaryCommandGraph : public Visitor
 {
 public:
-    vsg::CommandGraphs secondaries;
-    std::vector<std::shared_ptr<std::mutex> > execCommandMutices;
-    void apply(const Group& group) override
+    void apply(Group& group) override
     {
         group.traverse(*this);
     }
 
-    void apply(const Command& cmd) override
+    std::vector<vsg::ref_ptr<ExecuteCommands> > execCommands;
+    void apply(Command& cmd) override
     {
-        const vsg::ExecuteCommands *exec = dynamic_cast<const vsg::ExecuteCommands*>(&cmd);
+        vsg::ExecuteCommands *exec = dynamic_cast<vsg::ExecuteCommands*>(&cmd);
         if(exec)
-        {
-            for( vsg::ExecuteCommands::Secondaries::const_iterator gm = exec->_cmdGraphs.begin(); gm != exec->_cmdGraphs.end(); ++gm)
-            {
-                secondaries.emplace_back(*gm);
-                execCommandMutices.emplace_back(std::move(exec->getCommandGraphMutex(*gm)));
-            }
-        }
+            execCommands.emplace_back(exec);
     }
 };
 
@@ -288,15 +281,6 @@ void Viewer::compile(BufferPreferences bufferPreferences)
 
             auto& deviceResource = deviceResourceMap[commandGraph->_device];
             commandGraph->_maxSlot = deviceResource.collectStats.maxSlot;
-
-            if(commandGraph->_primary.valid())
-            {
-                deviceResource.compile->context.renderPass = static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->window->renderPass();
-                deviceResource.compile->context.viewport = static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->camera->getViewportState();
-                deviceResource.compile->context.viewport->getViewport().width = static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->window->extent2D().width;
-                deviceResource.compile->context.viewport->getViewport().height = static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->window->extent2D().height;
-            }
-
             commandGraph->accept(*deviceResource.compile);
         }
 
@@ -374,34 +358,50 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
 
             Windows windows(uniqueWindows.begin(), uniqueWindows.end());
 
-            auto renderFinishedSemaphore = vsg::Semaphore::create(device);
+            std::set< ref_ptr<CommandGraph> > uniqueSecondaryCommandGraphs;
+            CommandGraphs effectiveCommandGraphs;
 
+            // primaries at the beginning
+            for( auto primary : commandGraphs )
+                effectiveCommandGraphs.emplace_back(primary);
+
+            // set up Submission with CommandBuffer and signals
+            auto renderFinishedSemaphore = vsg::Semaphore::create(device);
             // collect secondaries command graph
             for( auto primary : commandGraphs )
             {
-                // set up Submission with CommandBuffer and signals
-                auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create();
-                CommandGraphs effectiveCommandGraphs;
                 CollectSecondaryCommandGraph collector;
                 primary->accept(collector);
-                auto mutexit = collector.execCommandMutices.begin();
-                for( auto sec : collector.secondaries )
+
+                for(auto& exec : collector.execCommands)
                 {
-                    sec->_primary = primary;
-                    sec->_primaryMutex = (*mutexit++);
+                    for(auto& secCM: exec->getSecondaryCommandGraphs())
+                    {
+                        secCM.commandGraph->_secondaryMutices.emplace_back(new std::mutex);
+                        std::shared_ptr<std::mutex> prodmut(secCM.commandGraph->_secondaryMutices.back().get());
+                        secCM.productionMutex = prodmut;
+                        secCM.productionMutex->lock();
+
+                        secCM.commandGraph->_primaries.emplace_back(primary);
+                        secCM.commandGraph->_primaryMutices.emplace_back(std::move(secCM.consumptionMutex.get()));
+
+                        uniqueSecondaryCommandGraphs.insert(secCM.commandGraph);
+                    }
                 }
-
-                effectiveCommandGraphs.insert(std::end(effectiveCommandGraphs), std::begin(collector.secondaries), std::end(collector.secondaries));
-                effectiveCommandGraphs.emplace_back(primary);
-
-                recordAndSubmitTask->commandGraphs = effectiveCommandGraphs;
-                recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
-                recordAndSubmitTask->databasePager = databasePager;
-                recordAndSubmitTask->windows = windows;
-                recordAndSubmitTask->queue = device->getQueue(deviceQueueFamily.queueFamily);
-                recordAndSubmitTask->setUpThreading();
-                recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
             }
+
+            for(auto& secondary : uniqueSecondaryCommandGraphs )
+                effectiveCommandGraphs.emplace_back(secondary);
+
+            auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create();
+            recordAndSubmitTask->setPrimaryCount(commandGraphs.size());
+            recordAndSubmitTask->commandGraphs = effectiveCommandGraphs;
+            recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
+            recordAndSubmitTask->databasePager = databasePager;
+            recordAndSubmitTask->windows = windows;
+            recordAndSubmitTask->queue = device->getQueue(deviceQueueFamily.queueFamily);
+            recordAndSubmitTask->setUpThreading();
+            recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
 
             auto presentation = vsg::Presentation::create();
             presentation->waitSemaphores.emplace_back(renderFinishedSemaphore);
@@ -414,6 +414,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             // with don't have a presentFamily so this set of commandGraphs aren't associated with a widnow
             // set up Submission with CommandBuffer and signals
             auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create();
+            recordAndSubmitTask->setPrimaryCount(commandGraphs.size());
             recordAndSubmitTask->commandGraphs = commandGraphs;
             recordAndSubmitTask->databasePager = databasePager;
             recordAndSubmitTask->queue = device->getQueue(deviceQueueFamily.queueFamily);

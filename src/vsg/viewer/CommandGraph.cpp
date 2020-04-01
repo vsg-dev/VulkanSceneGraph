@@ -24,7 +24,6 @@ CommandGraph::CommandGraph(Device* device, int family) :
     _queueFamily(family),
     _presentFamily(-1)
 {
-    _secondaryMutex.lock();
 }
 
 CommandGraph::CommandGraph(Window* window)
@@ -45,23 +44,26 @@ CommandGraph::CommandGraph(Window* window)
             commandBuffers.emplace_back(window->commandBuffer(i));
         }
     }
-    _secondaryMutex.lock();
 }
 
 void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
 
-
     if (!recordTraversal)
     {
         recordTraversal = new RecordTraversal(nullptr, _maxSlot);
     }
-    if(recordTraversal->frameStamp == frameStamp) return;
+
+    //useless?
+    if(recordTraversal->frameStamp == frameStamp)
+        return;
+
     /// wait primary consumption if secondary
-    if(_primaryMutex != nullptr)
+    for(auto& primMutex : _primaryMutices)
     {
-        _primaryMutex->lock();
+        primMutex->lock();
     }
+
     recordTraversal->frameStamp = frameStamp;
     recordTraversal->databasePager = databasePager;
     if (databasePager) recordTraversal->culledPagedLODs = databasePager->culledPagedLODs;
@@ -94,7 +96,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = _commandBuffersLevel==VK_COMMAND_BUFFER_LEVEL_PRIMARY?
                 VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT :
-                /*VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT|*/VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+               VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
 
     VkCommandBufferInheritanceInfo inherit;
     inherit.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
@@ -116,7 +118,8 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     recordedCommandBuffers.push_back(recordTraversal->state->_commandBuffer);
 
-    _secondaryMutex.unlock();
+    for(auto& secondaryMutex : _secondaryMutices)
+        secondaryMutex->unlock();
 }
 
 ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkCommandBufferLevel lev, uint sub, VkSubpassContents content)

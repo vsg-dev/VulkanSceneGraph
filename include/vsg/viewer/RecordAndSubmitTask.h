@@ -30,8 +30,10 @@ namespace vsg
     {
     public:
         RecordAndSubmitTask();
+
         // Need to add FrameStamp?
         virtual VkResult submit(ref_ptr<FrameStamp> frameStamp = {});
+        void setPrimaryCount(uint numPrimary);
         void setUpThreading();
 
         Windows windows;

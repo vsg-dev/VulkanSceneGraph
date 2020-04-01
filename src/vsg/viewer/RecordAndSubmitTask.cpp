@@ -21,29 +21,25 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 /// sync only primary all secondary already sync with it
-class PrimaryRecordedLatch : public Inherit<Object, PrimaryRecordedLatch>
+class PrimaryRecordedLatch : public Inherit<Latch, PrimaryRecordedLatch>
 {
 public:
-    std::mutex CBsProtect;
+    std::mutex commandBuffersProtect;
     CommandBuffers recordedCommandBuffers;
 
-    PrimaryRecordedLatch() {
-        _mutex.lock();
-    }
+    PrimaryRecordedLatch(size_t num) :
+                         Inherit(num), _origcount(num) {}
 
     void reset()
     {
-        if(_mutex.try_lock())
-            _mutex.lock();
+        _count = _origcount;
         recordedCommandBuffers.clear();
     }
 
-    inline void unleash() { _mutex.unlock(); }
-    inline void wait() { _mutex.lock(); }
+ protected:
+     virtual ~PrimaryRecordedLatch() {}
+     uint _origcount;
 
-protected:
-    virtual ~PrimaryRecordedLatch() {}
-    std::mutex _mutex;
 };
 
 struct RecordOperation : public Operation
@@ -59,12 +55,12 @@ struct RecordOperation : public Operation
         if(recordedCommandBuffers.empty()){
             commandGraph->record(recordedCommandBuffers, frameStamp, databasePager);
             {
-                std::scoped_lock mute(latch->CBsProtect);
+                std::scoped_lock mute(latch->commandBuffersProtect);
                 latch->recordedCommandBuffers.insert(std::end(latch->recordedCommandBuffers), std::begin(recordedCommandBuffers), std::end(recordedCommandBuffers));
             }
             //primary is enough as sync with secondary already done
             if(commandGraph->_commandBuffersLevel == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
-                latch->unleash();
+                latch->count_down();
         }
     }
     ref_ptr<CommandGraph> commandGraph;
@@ -76,10 +72,16 @@ struct RecordOperation : public Operation
 
 RecordAndSubmitTask::RecordAndSubmitTask()
 {
-    latch = new PrimaryRecordedLatch();
 }
+
+void RecordAndSubmitTask::setPrimaryCount(uint numPrimary)
+{
+    latch = new PrimaryRecordedLatch(numPrimary);
+}
+
 void RecordAndSubmitTask::setUpThreading()
 {
+
     recordThreads = new OperationThreads(commandGraphs.size());
 }
 
@@ -150,25 +152,28 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     latch_->reset();
 
     // record the commands to the command buffers
-    ref_ptr<CommandGraph> lastprimary;
     for (auto& commandGraph : commandGraphs)
     {
-        if (! commandGraph->recordTraversal)
+        if (!commandGraph->recordTraversal)
         {
              commandGraph->recordTraversal = new RecordTraversal(nullptr, commandGraph->_maxSlot);
         }
-        if(commandGraph->_primary.valid()) //ie VK_COMMAND_BUFFER_LEVEL_SECONDARY
+
+        if(!commandGraph->_primaries.empty()) //ie VK_COMMAND_BUFFER_LEVEL_SECONDARY
         {
             dmat4 projMatrix, viewMatrix;
-            static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->camera->getProjectionMatrix()->get(projMatrix);
-            static_cast<RenderGraph*>(commandGraph->_primary->getChild(0))->camera->getViewMatrix()->get(viewMatrix);
+            static_cast<RenderGraph*>(commandGraph->_primaries[0]->getChild(0))->camera->getProjectionMatrix()->get(projMatrix);
+            static_cast<RenderGraph*>(commandGraph->_primaries[0]->getChild(0))->camera->getViewMatrix()->get(viewMatrix);
 
             commandGraph->recordTraversal->setProjectionAndViewMatrix(projMatrix, viewMatrix);
-            lastprimary = commandGraph->_primary;
         }
-        if(lastprimary == commandGraph)
-            //force primary not to update
+        else if(commandGraph->_commandBuffersLevel == VK_COMMAND_BUFFER_LEVEL_PRIMARY &&
+            static_cast<RenderGraph*>(commandGraph->getChild(0))->content != VK_SUBPASS_CONTENTS_INLINE)
+        {
+            //force primary not to update automatic PushConstants
             commandGraph->recordTraversal->state->dirty = false;
+        }
+
         if(recordThreads.valid())
             recordThreads->add(ref_ptr<Operation>(new RecordOperation(commandGraph, frameStamp, databasePager, latch_)));
         else
