@@ -45,15 +45,15 @@ namespace vsg
             }
             bool operator ==(const AttachmentDescription& other) const
             {
-                return(flags==other.flags
-                       && format==other.format
-                       && samples==other.samples
-                       && loadOp==other.loadOp
-                       && storeOp==other.storeOp
-                       && stencilLoadOp==other.stencilLoadOp
-                       && stencilStoreOp==other.stencilStoreOp
-                       && initialLayout==other.initialLayout
-                       && finalLayout==other.finalLayout);
+                return(flags == other.flags
+                       && format == other.format
+                       && samples == other.samples
+                       && loadOp == other.loadOp
+                       && storeOp == other.storeOp
+                       && stencilLoadOp == other.stencilLoadOp
+                       && stencilStoreOp == other.stencilStoreOp
+                       && initialLayout == other.initialLayout
+                       && finalLayout == other.finalLayout);
             }
         };
         using AttachmentDescriptions = std::vector< AttachmentDescription >;
@@ -62,7 +62,7 @@ namespace vsg
         void setColorFormat(VkFormat d) { _imageFormat = d;  }
 
         inline SubPass* createSubPass();
-        inline void removeSubPass(SubPass* v);
+        inline void removeSubPass(SubPass* subpass);
 
         const SubPass* getSubPass(int i) const { return _subpasses[i]; }
         SubPass* getSubPass(int i) { return _subpasses[i]; }
@@ -87,11 +87,11 @@ namespace vsg
         AttachmentDescriptions & getAttachmentDescriptions() { return _attachments; }
 
     protected:
-        inline void addSubPass(SubPass* v);
-        inline bool addInputAttachment(SubPass* sub, AttachmentDescription& ad, VkImageLayout l);
-        inline bool addColorAttachment(SubPass* sub, AttachmentDescription& ad, VkImageLayout l);
-        inline bool addDepthStencilAttachment(SubPass* sub, AttachmentDescription& ad, VkImageLayout l);
-        inline bool addResolveAttachment(SubPass* sub, AttachmentDescription& ad, VkImageLayout l);
+        inline void addSubPass(SubPass* subpass);
+        inline bool addInputAttachment(SubPass* subpass, AttachmentDescription& ad, VkImageLayout imageLayout);
+        inline bool addColorAttachment(SubPass* subpass, AttachmentDescription& ad, VkImageLayout imageLayout);
+        inline bool addDepthStencilAttachment(SubPass* subpass, AttachmentDescription& ad, VkImageLayout imageLayout);
+        inline bool addResolveAttachment(SubPass* subpass, AttachmentDescription& ad, VkImageLayout imageLayout);
 
         AttachmentDescriptions _attachments;
         ref_ptr<Device> _device;
@@ -112,72 +112,79 @@ namespace vsg
         {
             AttachmentReference() { attachment = 0; layout = VK_IMAGE_LAYOUT_UNDEFINED; }
 
-            bool operator ==(const AttachmentReference& other) const
+            bool operator == (const AttachmentReference& other) const
             {
                 return(attachment == other.attachment && layout == other.layout);
             }
         };
 
 
-        void setBindPoint(VkPipelineBindPoint b = VK_PIPELINE_BIND_POINT_GRAPHICS)
+        void setBindPoint(VkPipelineBindPoint bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS)
         {
-            if(b == _desc.pipelineBindPoint) return;
-            _desc.pipelineBindPoint = b;
+            if(bindPoint == _desc.pipelineBindPoint) return;
+            _desc.pipelineBindPoint = bindPoint;
         }
 
-        inline const PassGraph * getPassGraph() const { return _graph; }
-        inline PassGraph * getPassGraph() { return _graph; }
+        inline const PassGraph* getPassGraph() const { return _graph; }
+        inline PassGraph* getPassGraph() { return _graph; }
 
-        bool addInputAttachmentRef(PassGraph::AttachmentDescription & ad, VkImageLayout l)
+        bool addInputAttachmentRef(PassGraph::AttachmentDescription& ad, VkImageLayout imageLayout)
         {
-            if(_graph) return _graph->addInputAttachment(this, ad, l);
+            if(_graph) return _graph->addInputAttachment(this, ad, imageLayout);
             return false;
         }
-        bool addDepthStencilAttachmentRef(PassGraph::AttachmentDescription & ad, VkImageLayout l)
+        bool addDepthStencilAttachmentRef(PassGraph::AttachmentDescription& ad, VkImageLayout imageLayout)
         {
-            if(_graph) return _graph->addDepthStencilAttachment(this, ad, l);
+            if(_graph) return _graph->addDepthStencilAttachment(this, ad, imageLayout);
             return false;
         }
-        bool addResolvAttachmentRef(PassGraph::AttachmentDescription & ad, VkImageLayout l)
+        bool addResolvAttachmentRef(PassGraph::AttachmentDescription& ad, VkImageLayout imageLayout)
         {
-            if(_graph) return _graph->addResolveAttachment(this, ad, l);
+            if(_graph) return _graph->addResolveAttachment(this, ad, imageLayout);
             return false;
         }
-        bool addColorAttachmentRef(PassGraph::AttachmentDescription & ad, VkImageLayout l)
+        bool addColorAttachmentRef(PassGraph::AttachmentDescription& ad, VkImageLayout imageLayout)
         {
-            if(_graph) return _graph->addColorAttachment(this, ad, l);
+            if(_graph) return _graph->addColorAttachment(this, ad, imageLayout);
             return false;
         }
-        inline void removeColorAttachmentRef(AttachmentReference &v)
+        inline void removeColorAttachmentRef(AttachmentReference& attachment)
         {
-            for (auto item =_colorattachmentrefs.begin(); item != _colorattachmentrefs.end(); ++item ) if(*item==v) { _colorattachmentrefs.erase(item); return; }
+            for (auto item =_colorattachmentrefs.begin(); item != _colorattachmentrefs.end(); ++item )
+            {
+                if(*item == attachment)
+                {
+                    _colorattachmentrefs.erase(item);
+                    return;
+                }
+            }
         }
 
-        const AttachmentReference& getColorAttachmentRef(int i) const { return _colorattachmentrefs[i]; }
-        AttachmentReference& getColorAttachmentRef(int i) { return _colorattachmentrefs[i]; }
+        const AttachmentReference& getColorAttachmentRef(int index) const { return _colorattachmentrefs[index]; }
+        AttachmentReference& getColorAttachmentRef(int index) { return _colorattachmentrefs[index]; }
         uint getNumColorAttachmentRefs() const { return _colorattachmentrefs.size(); }
         uint getNumInputAttachmentRefs() const { return _inputattachmentrefs.size(); }
 
-        ///Dependencies management
-        inline Dependency * createForwardDependency(SubPass * next = nullptr);
-        inline Dependency * createBackwardDependency(SubPass * prev = nullptr);
+        /// Dependencies management
+        inline Dependency* createForwardDependency(SubPass* next = nullptr);
+        inline Dependency* createBackwardDependency(SubPass* prev = nullptr);
         inline void getForwardDependencies(Dependencies&);
         inline void getBackWardDependencies(Dependencies&);
 
-        //validate Attachment Refs and return it
+        /// validate Attachment Refs and return it
         operator VkSubpassDescription ()
         {
-            _desc.colorAttachmentCount=_colorattachmentrefs.size();
-            _desc.pColorAttachments=_colorattachmentrefs.data();
+            _desc.colorAttachmentCount = _colorattachmentrefs.size();
+            _desc.pColorAttachments = _colorattachmentrefs.data();
 
-            _desc.inputAttachmentCount=_inputattachmentrefs.size();
-            _desc.pInputAttachments=_inputattachmentrefs.data();
+            _desc.inputAttachmentCount = _inputattachmentrefs.size();
+            _desc.pInputAttachments = _inputattachmentrefs.data();
 
             if(_resolveattachmentrefs.size() == _colorattachmentrefs.size())
                 _desc.pResolveAttachments = _resolveattachmentrefs.data();
             else _desc.pResolveAttachments = VK_NULL_HANDLE;
 
-            _desc.preserveAttachmentCount= _pPreserveAttachments.size();
+            _desc.preserveAttachmentCount = _pPreserveAttachments.size();
             _desc.pPreserveAttachments = _pPreserveAttachments.data();
 
             if(_pDepthStencilAttachment.attachment != ~(0u))
@@ -188,10 +195,10 @@ namespace vsg
 
     protected:
 
-        ///constructor
-        SubPass(PassGraph * graph) : _graph(graph) {
+        /// constructor
+        SubPass(PassGraph* graph) : _graph(graph) {
             _pDepthStencilAttachment.attachment = ~(0u);
-            _desc.flags=0;
+            _desc.flags = 0;
             _desc.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
         }
         VkSubpassDescription _desc = {};
@@ -216,11 +223,11 @@ namespace vsg
             _desc.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
             _desc.dependencyFlags = 0;
         }
-        inline void setDstAccessMask(VkAccessFlags d) { _desc.dstAccessMask = d; }
-        inline void setSrcAccessMask(VkAccessFlags d) { _desc.srcAccessMask = d; }
-        inline void setSrcStageMask(VkPipelineStageFlags d) { _desc.srcStageMask = d; }
-        inline void setDstStageMask(VkPipelineStageFlags d) { _desc.dstStageMask = d; }
-        inline void setDependencyFlags(VkDependencyFlags d) { _desc.dependencyFlags = d; }
+        inline void setDstAccessMask(VkAccessFlags flag) { _desc.dstAccessMask = flag; }
+        inline void setSrcAccessMask(VkAccessFlags flag) { _desc.srcAccessMask = flag; }
+        inline void setSrcStageMask(VkPipelineStageFlags flag) { _desc.srcStageMask = flag; }
+        inline void setDstStageMask(VkPipelineStageFlags flag) { _desc.dstStageMask = flag; }
+        inline void setDependencyFlags(VkDependencyFlags flag) { _desc.dependencyFlags = flag; }
 
         //validate Attachment Refs and return it
         operator VkSubpassDependency ()
@@ -244,10 +251,11 @@ namespace vsg
         VkSubpassDependency _desc = {};
     };
 
-    bool PassGraph::addInputAttachment(SubPass* sub, AttachmentDescription & ad, VkImageLayout l)
+    bool PassGraph::addInputAttachment(SubPass* sub, AttachmentDescription& ad, VkImageLayout imageLayout)
     {
+        int attindex;
         SubPass::AttachmentReference attachref;
-        attachref.layout=l; int attindex;
+        attachref.layout = imageLayout;
         if((attindex = getAttachmentIndex(ad)) < 0)
         {
             attachref.attachment = _attachments.size();
@@ -258,10 +266,11 @@ namespace vsg
         return true;
     }
 
-    bool PassGraph::addColorAttachment(SubPass* sub, AttachmentDescription & ad, VkImageLayout l)
+    bool PassGraph::addColorAttachment(SubPass* sub, AttachmentDescription & ad, VkImageLayout imageLayout)
     {
+        int attindex;
         SubPass::AttachmentReference attachref = {};
-        attachref.layout=l; int attindex;
+        attachref.layout = imageLayout;
         if((attindex = getAttachmentIndex(ad)) < 0)
         {
             attachref.attachment = _attachments.size();
@@ -272,10 +281,11 @@ namespace vsg
         return true;
     }
 
-    bool PassGraph::addDepthStencilAttachment(SubPass* sub, AttachmentDescription & ad, VkImageLayout l)
+    bool PassGraph::addDepthStencilAttachment(SubPass* sub, AttachmentDescription& ad, VkImageLayout imageLayout)
     {
+        int attindex;
         SubPass::AttachmentReference attachref = {};
-        attachref.layout=l; int attindex;
+        attachref.layout = imageLayout;
         if((attindex=getAttachmentIndex(ad)) < 0)
         {
             attachref.attachment = _attachments.size();
@@ -286,10 +296,11 @@ namespace vsg
         return true;
     }
 
-    bool PassGraph::addResolveAttachment(SubPass* sub, AttachmentDescription & ad, VkImageLayout l)
+    bool PassGraph::addResolveAttachment(SubPass* sub, AttachmentDescription& ad, VkImageLayout imageLayout)
     {
+        int attindex;
         SubPass::AttachmentReference attachref = {};
-        attachref.layout=l; int attindex;
+        attachref.layout = imageLayout;
         if((attindex=getAttachmentIndex(ad)) < 0)
         {
             attachref.attachment = _attachments.size();
@@ -304,7 +315,7 @@ namespace vsg
     {
         if(_graph)
         {
-            for(uint i=0; i<_graph->getNumDependencies(); ++i)
+            for(uint i = 0; i < _graph->getNumDependencies(); ++i)
                 if(_graph->getDependency(i)->_src == this) ret.push_back(ref_ptr<Dependency>(_graph->getDependency(i)));
         }
     }
@@ -318,29 +329,30 @@ namespace vsg
         }
     }
 
-    Dependency * SubPass::createForwardDependency(SubPass * next)
+    Dependency * SubPass::createForwardDependency(SubPass* next)
     {
         if(_graph)
         {
-            Dependency *dep = new Dependency(this, next);
+            Dependency* dep = new Dependency(this, next);
             _graph->addDependency(dep);
             return dep;
         }
         return nullptr;
     }
 
-    Dependency * SubPass::createBackwardDependency(SubPass * prev)
+    Dependency * SubPass::createBackwardDependency(SubPass* prev)
     {
         if(_graph)
         {
-            Dependency *dep = new Dependency(prev, this);
+            Dependency* dep = new Dependency(prev, this);
             _graph->addDependency(dep);
             return dep;
         }
         return nullptr;
     }
 
-    SubPass* PassGraph::createSubPass() { ref_ptr<SubPass> sub(new SubPass(this)); _subpasses.push_back((sub)); return sub; }
+    SubPass* PassGraph::createSubPass() { ref_ptr<SubPass> sub(new SubPass(this)); _subpasses.push_back(sub); return sub; }
+
     int PassGraph::getSubPassIndex(SubPass* v) const
     {
         int cpt = 0;
@@ -356,26 +368,26 @@ namespace vsg
     }
     void PassGraph::removeSubPass(SubPass* v)
     {
-        for (auto item =_subpasses.begin(); item != _subpasses.end(); ++item) if(*item==v)
+        for (auto item =_subpasses.begin(); item != _subpasses.end(); ++item) if(*item == v)
         {
                 _subpasses.erase(item);
-
+                return;
         }
     }
-    void  PassGraph::removeAttachmentDescription(AttachmentDescription &v)
+    void  PassGraph::removeAttachmentDescription(AttachmentDescription& v)
     {
-        for (auto item =_attachments.begin(); item != _attachments.end(); ++item ) if(*item==v) _attachments.erase(item);
+        for (auto item =_attachments.begin(); item != _attachments.end(); ++item ) if(*item == v) { _attachments.erase(item); return; }
     }
 
     void PassGraph::removeDependency(Dependency* v)
     {
-        for (auto item =_depends.begin(); item != _depends.end(); ++item) if(*item == v) { _depends.erase(item); return;}
+        for (auto item =_depends.begin(); item != _depends.end(); ++item) if(*item == v) { _depends.erase(item); return; }
     }
 
-    int PassGraph::getAttachmentIndex( AttachmentDescription&v) const
+    int PassGraph::getAttachmentIndex(AttachmentDescription& attachment) const
     {
-        uint cpt=0;
-        for (auto item =_attachments.begin(); item != _attachments.end(); ++item,++cpt) if(*item==v) return cpt;
+        uint cpt = 0;
+        for (auto item =_attachments.begin(); item != _attachments.end(); ++item, ++cpt) if(*item == attachment) return cpt;
         return -1;
     }
 } // namespace vsg

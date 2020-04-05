@@ -48,15 +48,10 @@ CommandGraph::CommandGraph(Window* window)
 
 void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
-
     if (!recordTraversal)
     {
         recordTraversal = new RecordTraversal(nullptr, _maxSlot);
     }
-
-    //useless?
-    if(recordTraversal->frameStamp == frameStamp)
-        return;
 
     /// wait primary consumption if secondary
     for(auto& primMutex : _primaryMutices)
@@ -94,9 +89,9 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = _commandBuffersLevel==VK_COMMAND_BUFFER_LEVEL_PRIMARY?
+    beginInfo.flags = _commandBuffersLevel == VK_COMMAND_BUFFER_LEVEL_PRIMARY?
                 VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT :
-               VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+                VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
 
     VkCommandBufferInheritanceInfo inherit;
     inherit.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
@@ -107,6 +102,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     inherit.queryFlags = 0; //VK_QUERY_CONTROL_PRECISE_BIT;
     inherit.pipelineStatistics = 0;
     inherit.pNext = nullptr;
+
     if(_commandBuffersLevel != VK_COMMAND_BUFFER_LEVEL_PRIMARY)
         beginInfo.pInheritanceInfo = &inherit;
 
@@ -156,5 +152,5 @@ ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* cam
     commandGraph->_commandBuffersLevel = lev;
     commandGraph->_subpassIndex = sub;
 
-     return commandGraph;
+    return commandGraph;
 }
