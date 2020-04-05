@@ -1,0 +1,97 @@
+name: CI
+on:
+  push:
+  pull_request:
+    branches:
+      - master
+env:
+  VulkanSDKVersion: 1.2.131.2
+jobs:
+  linux-build:
+    runs-on: ubuntu-latest
+    env:
+      BuildDocEnabled: ${{github.event_name == 'push' && github.ref == 'refs/heads/master'}}
+      VULKAN_SDK: $GITHUB_WORKSPACE/../$VulkanSDKVersion/x86_64
+    steps:
+    - uses: actions/checkout@v2
+    - name: Cache
+      id: cache
+      uses: actions/cache@v1.1.2
+      with:
+        path: ${{env.VULKAN_SDK}}
+        key: VulkanSdk${{env.VulkanSDKVersion}}ExtractedLinux
+    - name: Download & Extract Vulkan SDK
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: |
+        wget --no-cookies -O ../vulkansdk-linux-x86_64-${{env.VulkanSDKVersion}}.tar.gz https://sdk.lunarg.com/sdk/download/${{env.VulkanSDKVersion}}/linux/vulkansdk-linux-x86_64-${{env.VulkanSDKVersion}}.tar.gz?u=
+        tar -zxf ../vulkansdk-linux-x86_64-${{env.VulkanSDKVersion}}.tar.gz -C ../
+    - name: Install Doxygen
+      if: env.BuildDocEnabled == 'true'
+      run: sudo apt install doxygen graphviz
+    - name: CMake
+      run: |
+        cmake -D Vulkan_INCLUDE_DIR="${{env.VULKAN_SDK}}/include" \
+          -D Vulkan_LIBRARY="${{env.VULKAN_SDK}}/lib/libvulkan.so" .
+    - run: make -j 2 
+    - if: env.BuildDocEnabled == 'true'
+      run: make docs
+    - name: Publish doc
+      if: env.BuildDocEnabled == 'true'
+      uses: actions/upload-artifact@v1
+      with:
+        name: VSG Documentation
+        path: html
+
+  windows-build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set env
+      run: echo "::set-env name=VULKAN_SDK::C:\VulkanSDK\${{env.VulkanSDKVersion}}"
+    - name: Cache
+      id: cache
+      uses: actions/cache@v1.1.2
+      with:
+        path: ${{env.VULKAN_SDK}}
+        key: VulkanSdk${{env.VulkanSDKVersion}}WindowsExtracted2
+    - name: Download & Install Vulkan SDK
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: |
+        Invoke-WebRequest -Uri https://sdk.lunarg.com/sdk/download/${{env.VulkanSDKVersion}}/windows/VulkanSDK-${{env.VulkanSDKVersion}}-Installer.exe?u= -OutFile ../vulkan-sdk-${{env.VulkanSDKVersion}}.exe
+        $installer = Start-Process -FilePath ../vulkan-sdk-${{env.VulkanSDKVersion}}.exe -Wait -PassThru -ArgumentList @("/S");
+        $installer.WaitForExit();
+    - name: CMake
+      run: cmake . -G "Visual Studio 16 2019" -A x64
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.0
+    - name: MSBuild
+      run: MSBuild.exe ALL_BUILD.vcxproj -p:Configuration=Release
+
+  macos-build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set env
+      run: |
+        VULKAN_SDK=$GITHUB_WORKSPACE/../vulkansdk-macos-${{env.VulkanSDKVersion}}/macOS
+        echo ::set-env name=VULKAN_SDK::$VULKAN_SDK
+        echo ::set-env name=VK_LAYER_PATH::$VULKAN_SDK/etc/vulkan/explicit_layer.d
+        echo ::set-env name=VK_ICD_FILENAMES::$VULKAN_SDK/etc/vulkan/icd.d/MoltenVK_icd.json
+    - name: Cache
+      id: cache
+      uses: actions/cache@v1.1.2
+      with:
+        path: ${{env.VULKAN_SDK}}
+        key: VulkanSdk${{env.VulkanSDKVersion}}ExtractedMacos
+    - name: Download & Extract Vulkan SDK
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: |
+        wget --no-cookies -O ../vulkansdk-macos-${{env.VulkanSDKVersion}}.tar.gz https://sdk.lunarg.com/sdk/download/${{env.VulkanSDKVersion}}/mac/vulkansdk-macos-${{env.VulkanSDKVersion}}.tar.gz?u=
+        tar -zxf ../vulkansdk-macos-${{env.VulkanSDKVersion}}.tar.gz -C ../
+    - name: CMake
+      run: |
+        export DYLD_LIBRARY_PATH="$VULKAN_SDK/lib:$DYLD_LIBRARY_PATH"
+        export PATH="$VULKAN_SDK:$VULKAN_SDK/bin:$PATH"
+        cmake -D CMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/../vsg-$GITHUB_SHA" .
+    - name: Make
+      run: make -j 2
