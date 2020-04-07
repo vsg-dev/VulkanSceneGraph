@@ -33,7 +33,7 @@ using namespace vsgMacOS;
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to a MacOS_Window
-    Window::Result Window::create(vsg::ref_ptr<WindowTraits> traits)
+    Window::Result Window::create(vsg::ref_ptr<vsg::WindowTraits> traits)
     {
         return vsgMacOS::MacOS_Window::create(traits, nullptr);
     }

@@ -48,7 +48,7 @@ namespace vsgMacOS
         MacOS_Window operator = (const MacOS_Window&) = delete;
 
         using Result = vsg::Result<vsg::Window, VkResult, VK_SUCCESS>;
-        static Result create(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator=nullptr);
+        static Result create(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator=nullptr);
 
         virtual bool valid() const { return _window; }
 
