@@ -38,22 +38,22 @@ namespace vsg
         vec4 ambientColor;
         vec4 diffuseColor;
         vec4 specularColor;
-        float shine;
+        float shininess;
 
         void read(vsg::Input& input)
         {
-            ambientColor = input.readValue<vsg::vec4>("ambientColor");
-            diffuseColor = input.readValue<vsg::vec4>("diffuseColor");
-            specularColor = input.readValue<vsg::vec4>("specularColor");
-            shine = input.readValue<float>("shine");
+            input.read("ambientColor", ambientColor);
+            input.read("diffuseColor", diffuseColor);
+            input.read("specularColor", specularColor);
+            input.read("shininess", shininess);
         }
 
         void write(vsg::Output& output) const
         {
-            output.writeValue<vsg::vec4>("ambientColor", ambientColor);
-            output.writeValue<vsg::vec4>("diffuseColor", diffuseColor);
-            output.writeValue<vsg::vec4>("specularColor", specularColor);
-            output.writeValue<float>("shine", shine);
+            output.write("ambientColor", ambientColor);
+            output.write("diffuseColor", diffuseColor);
+            output.write("specularColor", specularColor);
+            output.write("shininess", shininess);
         }
     };
 
