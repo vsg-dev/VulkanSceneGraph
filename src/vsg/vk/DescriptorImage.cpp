@@ -49,8 +49,8 @@ void DescriptorImage::read(Input& input)
     _samplerImages.resize(input.readValue<uint32_t>("NumImages"));
     for (auto& samplerImage : _samplerImages)
     {
-        samplerImage.sampler = input.readObject<Sampler>("Sampler");
-        samplerImage.data = input.readObject<Data>("Image");
+        input.readObject("Sampler", samplerImage.sampler);
+        input.readObject("Image", samplerImage.data);
     }
 }
 

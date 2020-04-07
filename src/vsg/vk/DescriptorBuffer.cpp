@@ -55,7 +55,7 @@ void DescriptorBuffer::read(Input& input)
     _dataList.resize(input.readValue<uint32_t>("NumData"));
     for (auto& data : _dataList)
     {
-        data = input.readObject<Data>("Data");
+        input.readObject("Data", data);
     }
 }
 

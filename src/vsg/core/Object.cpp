@@ -165,7 +165,7 @@ void Object::read(Input& input)
         for (; numObjects > 0; --numObjects)
         {
             std::string key = input.readValue<std::string>("Key");
-            objectMap[key] = input.readObject("Object");
+            input.readObject("Object", objectMap[key]);
         }
     }
 }

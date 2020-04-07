@@ -42,18 +42,18 @@ void GraphicsPipeline::read(Input& input)
 {
     Object::read(input);
 
-    _pipelineLayout = input.readObject<PipelineLayout>("PipelineLayout");
+    input.readObject("PipelineLayout", _pipelineLayout);
 
     _shaderStages.resize(input.readValue<uint32_t>("NumShaderStages"));
     for (auto& shaderStage : _shaderStages)
     {
-        shaderStage = input.readObject<ShaderStage>("ShaderStage");
+        input.readObject("ShaderStage", shaderStage);
     }
 
     _pipelineStates.resize(input.readValue<uint32_t>("NumPipelineStates"));
     for (auto& pipelineState : _pipelineStates)
     {
-        pipelineState = input.readObject<GraphicsPipelineState>("PipelineState");
+        input.readObject("PipelineState", pipelineState);
     }
 
     input.read("subpass", _subpass);
@@ -179,7 +179,7 @@ void BindGraphicsPipeline::read(Input& input)
 {
     StateCommand::read(input);
 
-    _pipeline = input.readObject<GraphicsPipeline>("GraphicsPipeline");
+    input.readObject("GraphicsPipeline", _pipeline);
 }
 
 void BindGraphicsPipeline::write(Output& output) const

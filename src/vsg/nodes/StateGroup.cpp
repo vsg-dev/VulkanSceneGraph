@@ -33,7 +33,7 @@ void StateGroup::read(Input& input)
     _stateCommands.resize(input.readValue<uint32_t>("NumStateCommands"));
     for (auto& command : _stateCommands)
     {
-        command = input.readObject<StateCommand>("StateCommand");
+        input.readObject("StateCommand", command);
     }
 }
 

@@ -40,8 +40,8 @@ void ComputePipeline::read(Input& input)
 {
     Object::read(input);
 
-    _pipelineLayout = input.readObject<PipelineLayout>("PipelineLayout");
-    _shaderStage = input.readObject<ShaderStage>("ShaderStage");
+    input.readObject("PipelineLayout", _pipelineLayout);
+    input.readObject("ShaderStage", _shaderStage);
 }
 
 void ComputePipeline::write(Output& output) const
@@ -128,7 +128,7 @@ void BindComputePipeline::read(Input& input)
 {
     StateCommand::read(input);
 
-    _pipeline = input.readObject<ComputePipeline>("ComputePipeline");
+    input.readObject("ComputePipeline", _pipeline);
 }
 
 void BindComputePipeline::write(Output& output) const

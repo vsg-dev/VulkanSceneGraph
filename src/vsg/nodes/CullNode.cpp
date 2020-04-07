@@ -37,7 +37,7 @@ void CullNode::read(Input& input)
 
     input.read("Bound", _bound);
 
-    _child = input.readObject<Node>("Child");
+    input.readObject("Child", _child);
 }
 
 void CullNode::write(Output& output) const

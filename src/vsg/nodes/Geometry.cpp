@@ -50,15 +50,15 @@ void Geometry::read(Input& input)
     arrays.resize(input.readValue<uint32_t>("NumArrays"));
     for (auto& array : arrays)
     {
-        array = input.readObject<Data>("Array");
+        input.readObject("Array", array);
     }
 
-    indices = input.readObject<Data>("Indices");
+    input.readObject("Indices", indices);
 
     commands.resize(input.readValue<uint32_t>("NumCommands"));
     for (auto& command : commands)
     {
-        command = input.readObject<Command>("Command");
+        input.readObject("Command", command);
     }
 }
 

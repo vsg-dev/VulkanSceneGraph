@@ -38,9 +38,9 @@ void PushConstants::read(Input& input)
 {
     StateCommand::read(input);
 
-    _stageFlags = input.readValue<uint32_t>("stageFlags");
+    input.readValue<uint32_t>("stageFlags", _stageFlags);
     input.read("offset", _offset);
-    _data = input.readObject<Data>("data");
+    input.readObject("data", _data);
 }
 
 void PushConstants::write(Output& output) const

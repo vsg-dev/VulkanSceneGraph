@@ -37,12 +37,12 @@ void DescriptorSet::read(Input& input)
 {
     Object::read(input);
 
-    _descriptorSetLayout = input.readObject<DescriptorSetLayout>("DescriptorSetLayout");
+    input.readObject("DescriptorSetLayout", _descriptorSetLayout);
 
     _descriptors.resize(input.readValue<uint32_t>("NumDescriptors"));
     for (auto& descriptor : _descriptors)
     {
-        descriptor = input.readObject<Descriptor>("Descriptor");
+        input.readObject("Descriptor", descriptor);
     }
 }
 
@@ -159,14 +159,14 @@ void BindDescriptorSets::read(Input& input)
 
     Object::read(input);
 
-    _pipelineLayout = input.readObject<PipelineLayout>("PipelineLayout");
+    input.readObject("PipelineLayout", _pipelineLayout);
 
     input.read("firstSet", _firstSet);
 
     _descriptorSets.resize(input.readValue<uint32_t>("NumDescriptorSets"));
     for (auto& descriptorSet : _descriptorSets)
     {
-        descriptorSet = input.readObject<DescriptorSet>("DescriptorSets");
+        input.readObject("DescriptorSets", descriptorSet);
     }
 }
 
@@ -225,11 +225,11 @@ void BindDescriptorSet::read(Input& input)
 
     StateCommand::read(input);
 
-    _pipelineLayout = input.readObject<PipelineLayout>("PipelineLayout");
+    input.readObject("PipelineLayout", _pipelineLayout);
 
     input.read("firstSet", _firstSet);
 
-    _descriptorSet = input.readObject<DescriptorSet>("DescriptorSet");
+    input.readObject("DescriptorSet", _descriptorSet);
 }
 
 void BindDescriptorSet::write(Output& output) const

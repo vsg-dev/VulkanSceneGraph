@@ -39,7 +39,7 @@ void Objects::read(Input& input)
     _children.resize(input.readValue<uint32_t>("NumChildren"));
     for (auto& child : _children)
     {
-        child = input.readObject<Object>("Child");
+        input.readObject("Child", child);
     }
 }
 

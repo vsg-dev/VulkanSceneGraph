@@ -34,7 +34,7 @@ void LOD::read(Input& input)
     for (auto& lodChild : _children)
     {
         input.read("MinimumScreenHeightRatio", lodChild.minimumScreenHeightRatio);
-        lodChild.child = input.readObject<Node>("Child");
+        input.readObject("Child", lodChild.child);
     }
 }
 

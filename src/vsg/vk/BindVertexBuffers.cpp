@@ -53,7 +53,7 @@ void BindVertexBuffers::read(Input& input)
     _arrays.resize(input.readValue<uint32_t>("NumArrays"));
     for (auto& array : _arrays)
     {
-        array = input.readObject<Data>("Array");
+        input.readObject("Array", array);
     }
 }
 

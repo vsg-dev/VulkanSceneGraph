@@ -35,25 +35,11 @@ void DescriptorImageView::read(Input& input)
     _imageDataList.clear();
 
     Descriptor::read(input);
-
-    /*_samplerImageViews.resize(input.readValue<uint32_t>("NumImages"));
-    for (auto& samplerImage : _samplerImageViews)
-    {
-        samplerImage.first = input.readObject<Sampler>("Sampler");
-        //samplerImage.second = input.readObject<ImageView>("Image");
-    }*/
 }
 
 void DescriptorImageView::write(Output& output) const
 {
     Descriptor::write(output);
-
-    /*output.writeValue<uint32_t>("NumImages", _samplerImageViews.size());
-    for (auto& samplerImage : _samplerImageViews)
-    {
-        output.writeObject("Sampler", samplerImage.first.get());
-        //output.writeObject("Image", samplerImage.second.get());
-    }*/
 }
 
 void DescriptorImageView::compile(Context& context)

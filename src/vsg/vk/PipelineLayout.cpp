@@ -39,18 +39,18 @@ void PipelineLayout::read(Input& input)
 {
     Object::read(input);
 
-    _flags = static_cast<VkPipelineLayoutCreateFlags>(input.readValue<uint32_t>("Flags"));
+    input.readValue<uint32_t>("Flags", _flags);
 
     _descriptorSetLayouts.resize(input.readValue<uint32_t>("NumDescriptorSetLayouts"));
     for (auto& descriptorLayout : _descriptorSetLayouts)
     {
-        descriptorLayout = input.readObject<DescriptorSetLayout>("DescriptorSetLayout");
+        input.readObject("DescriptorSetLayout", descriptorLayout);
     }
 
     _pushConstantRanges.resize(input.readValue<uint32_t>("NumPushConstantRanges"));
     for (auto& pushConstantRange : _pushConstantRanges)
     {
-        pushConstantRange.stageFlags = static_cast<VkShaderStageFlags>(input.readValue<uint32_t>("stageFlags"));
+        input.readValue<uint32_t>("stageFlags", pushConstantRange.stageFlags);
         input.read("offset", pushConstantRange.offset);
         input.read("size", pushConstantRange.size);
     }

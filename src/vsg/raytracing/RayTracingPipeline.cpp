@@ -42,12 +42,12 @@ void RayTracingPipeline::read(Input& input)
 {
     Object::read(input);
 
-    _pipelineLayout = input.readObject<PipelineLayout>("PipelineLayout");
+    input.readObject("PipelineLayout", _pipelineLayout);
 
     _shaderStages.resize(input.readValue<uint32_t>("NumShaderStages"));
     for (auto& shaderStage : _shaderStages)
     {
-        shaderStage = input.readObject<ShaderStage>("ShaderStage");
+        input.readObject("ShaderStage", shaderStage);
     }
 }
 
@@ -198,7 +198,7 @@ void BindRayTracingPipeline::read(Input& input)
 {
     StateCommand::read(input);
 
-    _pipeline = input.readObject<RayTracingPipeline>("RayTracingPipeline");
+    input.readObject("RayTracingPipeline", _pipeline);
 }
 
 void BindRayTracingPipeline::write(Output& output) const

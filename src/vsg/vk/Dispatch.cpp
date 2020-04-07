@@ -19,7 +19,7 @@ void Dispatch::read(Input& input)
     Command::read(input);
 
     input.read("groupCountX", groupCountX);
-    input.read("groupCountY",groupCountY );
+    input.read("groupCountY", groupCountY);
     input.read("groupCountZ", groupCountZ);
 }
 

@@ -77,7 +77,7 @@ void BindIndexBuffer::read(Input& input)
     _vulkanData.clear();
 
     // read the key indices data
-    _indices = input.readObject<Data>("Indices");
+    input.readObject("Indices", _indices);
 }
 
 void BindIndexBuffer::write(Output& output) const

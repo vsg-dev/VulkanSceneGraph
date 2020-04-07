@@ -64,10 +64,10 @@ void VertexIndexDraw::read(Input& input)
     arrays.resize(input.readValue<uint32_t>("NumArrays"));
     for (auto& array : arrays)
     {
-        array = input.readObject<Data>("Array");
+        input.readObject("Array", array);
     }
 
-    indices = input.readObject<Data>("Indices");
+    input.readObject("Indices", indices);
 
     // vkCmdDrawIndexed settings
     input.read("indexCount", indexCount);

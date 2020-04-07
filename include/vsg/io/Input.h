@@ -131,6 +131,15 @@ namespace vsg
             return ref_ptr<T>(dynamic_cast<T*>(object.get()));
         }
 
+        // read object of a particular type
+        template<class T>
+        void readObject(const char* propertyName, ref_ptr<T>& arg)
+        {
+            if (!matchPropertyName(propertyName)) return;
+
+            arg = read().cast<T>();
+        }
+
         // read a value of particular type
         template<typename T>
         T readValue(const char* propertyName)
@@ -160,5 +169,13 @@ namespace vsg
     protected:
         virtual ~Input();
     };
+
+    template<>
+    inline void Input::readObject(const char* propertyName, ref_ptr<Object>& arg)
+    {
+        if (!matchPropertyName(propertyName)) return;
+
+        arg = read();
+    }
 
 } // namespace vsg

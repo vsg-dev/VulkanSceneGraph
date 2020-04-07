@@ -64,18 +64,18 @@ void ShaderStage::read(Input& input)
 {
     Object::read(input);
 
-    _stage = static_cast<VkShaderStageFlagBits>(input.readValue<int32_t>("Stage"));
+    input.readValue<int32_t>("Stage", _stage);
 
     input.read("EntryPoint", _entryPointName);
 
-    _shaderModule = input.readObject<ShaderModule>("ShaderModule");
+    input.readObject("ShaderModule", _shaderModule);
 
     _specializationConstants.clear();
     uint32_t numValues = input.readValue<uint32_t>("NumSpecializationConstants");
-    for(uint32_t i = 0; i < numValues; ++i)
+    for (uint32_t i = 0; i < numValues; ++i)
     {
         uint32_t id = input.readValue<uint32_t>("constantID");
-        _specializationConstants[id] = input.readObject<Data>("data");
+        input.readObject("data", _specializationConstants[id]);
     }
 }
 
@@ -105,7 +105,7 @@ void ShaderStage::apply(Context& context, VkPipelineShaderStageCreateInfo& stage
     stageInfo.pName = _entryPointName.c_str();
 
     uint32_t packedDataSize = 0;
-    for(auto& id_data : _specializationConstants)
+    for (auto& id_data : _specializationConstants)
     {
         packedDataSize += static_cast<uint32_t>(id_data.second->dataSize());
     }
@@ -115,7 +115,7 @@ void ShaderStage::apply(Context& context, VkPipelineShaderStageCreateInfo& stage
     auto packedData = context.scratchMemory->allocate<uint8_t>(packedDataSize);
     uint32_t offset = 0;
     uint32_t i = 0;
-    for(auto& [id, data] : _specializationConstants)
+    for (auto& [id, data] : _specializationConstants)
     {
         mapEntries[i++] = VkSpecializationMapEntry{id, offset, data->dataSize()};
         std::memcpy(packedData + offset, static_cast<uint8_t*>(data->dataPointer()), data->dataSize());

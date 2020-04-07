@@ -32,7 +32,7 @@ void QuadGroup::read(Input& input)
 
     for (auto& child : _children)
     {
-        child = input.readObject<Node>("Child");
+        input.readObject("Child", child);
     }
 }
 
