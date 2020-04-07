@@ -144,6 +144,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/SubmitCommands.h>
 #include <vsg/vk/Surface.h>
 #include <vsg/vk/Swapchain.h>
+#include <vsg/vk/material.h>
 #include <vsg/vk/vk_buffer.h>
 
 // Input/Output header files
