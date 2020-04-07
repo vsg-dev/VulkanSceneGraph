@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
     using BufferViewList = std::vector<ref_ptr<BufferView>>;
 
     class VSG_DECLSPEC DescriptorTexelBufferView : public Inherit<Descriptor, DescriptorTexelBufferView>
@@ -32,35 +33,5 @@ namespace vsg
         BufferViewList _texelBufferViewList;
     };
     VSG_type_name(vsg::DescriptorTexelBufferView);
-
-    struct material
-    {
-        vec4 ambientColor;
-        vec4 diffuseColor;
-        vec4 specularColor;
-        float shininess;
-
-        void read(vsg::Input& input)
-        {
-            input.read("ambientColor", ambientColor);
-            input.read("diffuseColor", diffuseColor);
-            input.read("specularColor", specularColor);
-            input.read("shininess", shininess);
-        }
-
-        void write(vsg::Output& output) const
-        {
-            output.write("ambientColor", ambientColor);
-            output.write("diffuseColor", diffuseColor);
-            output.write("specularColor", specularColor);
-            output.write("shininess", shininess);
-        }
-    };
-
-    template<>
-    constexpr bool has_read_write<material>() { return true; }
-
-    VSG_value(materialValue, material);
-    VSG_array(materialArray, material);
 
 } // namespace vsg
