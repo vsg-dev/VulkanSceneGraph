@@ -141,8 +141,23 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
     renderPassInfo.pClearValues = clearValues.data();
     vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, content);
 
-    // traverse the command buffer to place the commands into the command buffer.
-    traverse(dispatchTraversal);
+    if(dispatchTraversal.commandGraph->secondaries.empty())
+    {
+        // traverse the command buffer to place the commands into the command buffer.
+        traverse(dispatchTraversal);
+    }
+    else
+    {
+        _commandBuffers.resize(dispatchTraversal.commandGraph->secondaries.size());
+        _commandBuffers.clear();
+
+        for(auto& cg : dispatchTraversal.commandGraph->secondaries)
+        {
+            _commandBuffers.emplace_back(*cg->lastRecorded);
+        }
+
+        vkCmdExecuteCommands(vk_commandBuffer, _commandBuffers.size(), _commandBuffers.data());
+    }
 
     vkCmdEndRenderPass(vk_commandBuffer);
 }

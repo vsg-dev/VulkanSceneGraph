@@ -32,6 +32,7 @@ namespace vsg
     class Command;
     class Commands;
     class CommandBuffer;
+    class CommandGraph;
     class State;
     class DatabasePager;
     class FrameStamp;
@@ -67,5 +68,6 @@ namespace vsg
 
         ref_ptr<FrameStamp> frameStamp;
         ref_ptr<State> state;
+        ref_ptr<CommandGraph> commandGraph;
     };
 } // namespace vsg

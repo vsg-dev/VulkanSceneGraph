@@ -13,9 +13,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/nodes/Group.h>
-#include <vsg/viewer/Camera.h>
+#include <vsg/viewer/RenderGraph.h>
 #include <vsg/viewer/Window.h>
 #include <vsg/vk/CommandBuffer.h>
+#include <shared_mutex>
 
 namespace vsg
 {
@@ -40,18 +41,48 @@ namespace vsg
         int _presentFamily = -1;
         uint32_t _maxSlot = 2;
 
-        VkCommandBufferLevel _commandBuffersLevel;
         uint32_t _subpassIndex;
 
         mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
         ref_ptr<CommandBuffer> lastRecorded;
 
-        std::vector< std::unique_ptr<std::mutex> > _secondaryMutices;//one per waiting ExecuteCommands to ensure prod sync
+        CommandGraphs secondaries; // secondaries commandgraph
 
-        // setup in Viewer::assignRecordAndSubmitTaskAndPresentation
-        CommandGraphs _primaries; // primary commandgraph
-        std::vector< std::shared_ptr<std::mutex> > _primaryMutices; //wait to ensure consumption by primary command buffer
+        void addSecondaryCommandGraph(ref_ptr<CommandGraph> secCM)
+        {
+            secCM->_commandBuffersLevel = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
+            secCM->_primaries.emplace_back(this);
 
+            //consumption
+            secCM->_consumptionMutices.emplace_back(new std::mutex);
+            secCM->_consumptionMutices.back()->lock();
+
+            //production
+            secCM->_productionMutices.emplace_back(new std::mutex);
+
+            //shortcuts to avoid loop over secondaries
+            _consumptionMuticesPtrs.emplace_back(secCM->_consumptionMutices.back().get());
+            _productionMuticesPtrs.emplace_back(secCM->_productionMutices.back().get());
+
+            secondaries.emplace_back(secCM);
+        }
+
+        const Camera * getCamera() const
+        {
+            const CommandGraph * primary = (_commandBuffersLevel == VK_COMMAND_BUFFER_LEVEL_PRIMARY) ? this : _primaries[0];
+            return static_cast<const RenderGraph*>(primary->getChild(0))->camera;
+        }
+
+        VkCommandBufferLevel getCommandBuffersLevel() const { return _commandBuffersLevel; }
+
+    protected:
+        std::vector<CommandGraph*> _primaries; // weak ptr to primaries commandgraphs
+        VkCommandBufferLevel _commandBuffersLevel;
+        std::vector< std::unique_ptr<std::mutex> > _productionMutices; // lock to forbid consumption by primary command buffer
+        std::vector< std::unique_ptr<std::mutex> > _consumptionMutices; // unlock to allow secondaries production
+
+        std::vector< std::shared_ptr<std::mutex> > _productionMuticesPtrs; // shortcuts for primaries to avoid seeking
+        std::vector< std::shared_ptr<std::mutex> > _consumptionMuticesPtrs; // shortcuts for primaries to avoid seeking
     };
 
     /// convience function that sets up RenderGraph inside CommandGraph to render the specified scene graph from the speified Camera view

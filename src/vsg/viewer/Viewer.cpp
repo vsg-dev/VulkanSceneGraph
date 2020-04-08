@@ -209,23 +209,6 @@ void Viewer::handleEvents()
     }
 }
 
-class CollectSecondaryCommandGraph : public Visitor
-{
-public:
-    void apply(Group& group) override
-    {
-        group.traverse(*this);
-    }
-
-    std::vector<vsg::ref_ptr<ExecuteCommands> > execCommands;
-    void apply(Command& cmd) override
-    {
-        vsg::ExecuteCommands *exec = dynamic_cast<vsg::ExecuteCommands*>(&cmd);
-        if(exec)
-            execCommands.emplace_back(exec);
-    }
-};
-
 void Viewer::compile(BufferPreferences bufferPreferences)
 {
     if (recordAndSubmitTasks.empty())
@@ -370,24 +353,11 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             // collect secondaries command graph
             for( auto primary : commandGraphs )
             {
-                CollectSecondaryCommandGraph collector;
-                primary->accept(collector);
-
-                for(auto& exec : collector.execCommands)
+                for(auto& secCM: primary->secondaries)
                 {
-                    for(auto& secCM: exec->getSecondaryCommandGraphs())
-                    {
-                        secCM.commandGraph->_secondaryMutices.emplace_back(new std::mutex);
-                        std::shared_ptr<std::mutex> prodmut(secCM.commandGraph->_secondaryMutices.back().get());
-                        secCM.productionMutex = prodmut;
-                        secCM.productionMutex->lock();
-
-                        secCM.commandGraph->_primaries.emplace_back(primary);
-                        secCM.commandGraph->_primaryMutices.emplace_back(std::move(secCM.consumptionMutex.get()));
-
-                        uniqueSecondaryCommandGraphs.insert(secCM.commandGraph);
-                    }
+                    uniqueSecondaryCommandGraphs.insert(secCM);
                 }
+
             }
 
             for(auto& secondary : uniqueSecondaryCommandGraphs )

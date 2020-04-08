@@ -51,13 +51,16 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     if (!recordTraversal)
     {
         recordTraversal = new RecordTraversal(nullptr, _maxSlot);
+        recordTraversal->commandGraph = this;
     }
 
-    /// wait primary consumption if secondary
-    for(auto& primMutex : _primaryMutices)
-    {
-        primMutex->lock();
-    }
+    // lock secondaries mutex associated with this primary
+    for(auto& consumptionMutex : _consumptionMuticesPtrs)
+        consumptionMutex->lock();
+
+    // lock all primary mutices associated with this secondary
+    for(auto& prodMutex :  _productionMutices)
+        prodMutex->lock();
 
     recordTraversal->frameStamp = frameStamp;
     recordTraversal->databasePager = databasePager;
@@ -71,6 +74,8 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
             commandBuffer = cb;
         }
     }
+
+
     if (!commandBuffer)
     {
         ref_ptr<CommandPool> cp = CommandPool::create(_device, _queueFamily);
@@ -79,6 +84,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     }
 
     commandBuffer->numDependentSubmissions().fetch_add(1);
+
     lastRecorded = commandBuffer;
     recordTraversal->state->_commandBuffer = commandBuffer;
 
@@ -106,6 +112,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     if(_commandBuffersLevel != VK_COMMAND_BUFFER_LEVEL_PRIMARY)
         beginInfo.pInheritanceInfo = &inherit;
 
+
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
     accept(*recordTraversal);
@@ -114,8 +121,13 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     recordedCommandBuffers.push_back(recordTraversal->state->_commandBuffer);
 
-    for(auto& secondaryMutex : _secondaryMutices)
+    // unlock all primary mutices associated with this secodary
+    for(auto& secondaryMutex : _consumptionMutices )
         secondaryMutex->unlock();
+
+    // unlock secondaries production
+    for(auto& prodMutex : _productionMuticesPtrs)
+        prodMutex->unlock();
 }
 
 ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkCommandBufferLevel lev, uint sub, VkSubpassContents content)
@@ -149,7 +161,7 @@ ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* cam
         commandGraph->addChild(ref_ptr<Node>(scenegraph));
     }
 
-    commandGraph->_commandBuffersLevel = lev;
+    //commandGraph->_commandBuffersLevel = lev;
     commandGraph->_subpassIndex = sub;
 
     return commandGraph;

@@ -59,7 +59,7 @@ struct RecordOperation : public Operation
                 latch->recordedCommandBuffers.insert(std::end(latch->recordedCommandBuffers), std::begin(recordedCommandBuffers), std::end(recordedCommandBuffers));
             }
             //primary is enough as sync with secondary already done
-            if(commandGraph->_commandBuffersLevel == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+            if(commandGraph->getCommandBuffersLevel() == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
                 latch->count_down();
         }
     }
@@ -157,18 +157,19 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
         if (!commandGraph->recordTraversal)
         {
              commandGraph->recordTraversal = new RecordTraversal(nullptr, commandGraph->_maxSlot);
+             commandGraph->recordTraversal->commandGraph = commandGraph;
         }
 
-        if(!commandGraph->_primaries.empty()) //ie VK_COMMAND_BUFFER_LEVEL_SECONDARY
+        if(commandGraph->getCommandBuffersLevel() == VK_COMMAND_BUFFER_LEVEL_SECONDARY)
         {
             dmat4 projMatrix, viewMatrix;
-            static_cast<RenderGraph*>(commandGraph->_primaries[0]->getChild(0))->camera->getProjectionMatrix()->get(projMatrix);
-            static_cast<RenderGraph*>(commandGraph->_primaries[0]->getChild(0))->camera->getViewMatrix()->get(viewMatrix);
+            const Camera * camera = commandGraph->getCamera();
+            camera->getProjectionMatrix()->get(projMatrix);
+            camera->getViewMatrix()->get(viewMatrix);
 
             commandGraph->recordTraversal->setProjectionAndViewMatrix(projMatrix, viewMatrix);
         }
-        else if(commandGraph->_commandBuffersLevel == VK_COMMAND_BUFFER_LEVEL_PRIMARY &&
-            static_cast<RenderGraph*>(commandGraph->getChild(0))->content != VK_SUBPASS_CONTENTS_INLINE)
+        else if(!commandGraph->secondaries.empty())
         {
             //force primary not to update automatic PushConstants
             commandGraph->recordTraversal->state->dirty = false;
