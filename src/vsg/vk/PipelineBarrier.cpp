@@ -118,11 +118,11 @@ void PipelineBarrier::dispatch(CommandBuffer& commandBuffer) const
         srcStageMask,
         dstStageMask,
         dependencyFlags,
-        memoryBarriers.size(),
+        static_cast<uint32_t>(memoryBarriers.size()),
         vk_memoryBarriers,
-        bufferMemoryBarriers.size(),
+        static_cast<uint32_t>(bufferMemoryBarriers.size()),
         vk_bufferMemoryBarriers,
-        imageMemoryBarriers.size(),
+        static_cast<uint32_t>(imageMemoryBarriers.size()),
         vk_imageMemoryBarriers);
 
     scratchMemory.release();
