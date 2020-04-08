@@ -578,7 +578,7 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
         uint32_t total = pagedLODContainer->activeList.count + pagedLODContainer->inactiveList.count;
         if ((nodes.size() + total) > targetMaxNumPagedLODWithHighResSubgraphs)
         {
-            uint32_t numPagedLODHighRestSubgraphsToRemove = (nodes.size() + total) - targetMaxNumPagedLODWithHighResSubgraphs;
+            uint32_t numPagedLODHighRestSubgraphsToRemove = (static_cast<uint32_t>(nodes.size()) + total) - targetMaxNumPagedLODWithHighResSubgraphs;
             uint32_t targetNumInactive = (numPagedLODHighRestSubgraphsToRemove < pagedLODContainer->inactiveList.count) ? (pagedLODContainer->inactiveList.count - numPagedLODHighRestSubgraphsToRemove) : 0;
 
             // std::cout<<"Need to remove, inactive count = "<<pagedLODContainer->inactiveList.count <<", target = "<< targetNumInactive<<std::endl;
@@ -664,7 +664,7 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
                 plod->requestStatus.exchange(PagedLOD::NoRequest);
             }
         }
-        numActiveRequests -= nodes.size();
+        numActiveRequests -= static_cast<uint32_t>(nodes.size());
     }
     else
     {

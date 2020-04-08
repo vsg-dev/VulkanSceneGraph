@@ -29,7 +29,7 @@ Queue::~Queue()
 VkResult Queue::submit(const std::vector<VkSubmitInfo>& submitInfos, Fence* fence)
 {
     std::lock_guard<std::mutex> guard(_mutex);
-    return vkQueueSubmit(_vkQueue, submitInfos.size(), submitInfos.data(), (fence == nullptr) ? VK_NULL_HANDLE : fence->fence());
+    return vkQueueSubmit(_vkQueue, static_cast<uint32_t>(submitInfos.size()), submitInfos.data(), (fence == nullptr) ? VK_NULL_HANDLE : fence->fence());
 }
 
 VkResult Queue::submit(const VkSubmitInfo& submitInfo, Fence* fence)

@@ -153,7 +153,7 @@ RayTracingPipeline::Implementation::Result RayTracingPipeline::Implementation::c
         void* buffer_data;
         bindingTableMemory->map(bindingTableBuffer->getMemoryOffset() + bindingTableBufferData._offset, bindingTableBufferData._range, 0, &buffer_data);
 
-        extensions->vkGetRayTracingShaderGroupHandlesNV(*device, pipeline, 0, rayTracingShaderGroups.size(), sbtSize, buffer_data);
+        extensions->vkGetRayTracingShaderGroupHandlesNV(*device, pipeline, 0, static_cast<uint32_t>(rayTracingShaderGroups.size()), sbtSize, buffer_data);
 
         bindingTableMemory->unmap();
 

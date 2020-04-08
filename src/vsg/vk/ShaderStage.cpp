@@ -119,7 +119,7 @@ void ShaderStage::apply(Context& context, VkPipelineShaderStageCreateInfo& stage
     {
         mapEntries[i++] = VkSpecializationMapEntry{id, offset, data->dataSize()};
         std::memcpy(packedData + offset, static_cast<uint8_t*>(data->dataPointer()), data->dataSize());
-        offset += data->dataSize();
+        offset += static_cast<uint32_t>(data->dataSize());
     }
 
     auto specializationInfo = context.scratchMemory->allocate<VkSpecializationInfo>(1);

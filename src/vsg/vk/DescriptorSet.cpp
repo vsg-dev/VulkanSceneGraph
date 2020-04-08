@@ -136,7 +136,7 @@ void DescriptorSet::Implementation::assign(Context& context, const Descriptors& 
         descriptorWrites[i].dstSet = _descriptorSet;
     }
 
-    vkUpdateDescriptorSets(*_device, _descriptors.size(), descriptorWrites, 0, nullptr);
+    vkUpdateDescriptorSets(*_device, static_cast<uint32_t>(_descriptors.size()), descriptorWrites, 0, nullptr);
 
     // clean up scratch memory so it can be reused.
     context.scratchMemory->release();
