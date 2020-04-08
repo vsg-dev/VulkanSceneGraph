@@ -16,6 +16,7 @@ using namespace vsg;
 
 CommandBuffer::CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags flags) :
     deviceID(device->deviceID),
+    scratchMemory(ScratchMemory::create(4096)),
     _commandBuffer(commandBuffer),
     _flags(flags),
     _device(device),

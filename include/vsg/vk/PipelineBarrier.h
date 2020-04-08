@@ -12,44 +12,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/ScratchMemory.h>
+
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/Command.h>
 #include <vsg/vk/Image.h>
 
-#include <iostream>
-
 namespace vsg
 {
-
-    struct ScratchBuffer
-    {
-        ScratchBuffer(uint32_t size);
-        ScratchBuffer(const ScratchBuffer& parent, uint32_t minimumSize);
-
-        ~ScratchBuffer();
-
-        template<typename T>
-        T* allocate(uint32_t count = 1)
-        {
-            if (count == 0) return nullptr;
-
-            T* ptr = reinterpret_cast<T*>(base_ptr);
-            base_ptr += sizeof(T) * count;
-            return ptr;
-        }
-
-        uint8_t* buffer_begin = nullptr;
-        uint8_t* buffer_end = nullptr;
-        uint8_t* base_ptr = nullptr;
-        bool requiresDelete = false;
-    };
 
     struct VulkanInfo : public Inherit<Object, VulkanInfo>
     {
         ref_ptr<VulkanInfo> next;
 
-        virtual uint32_t infoSize() const = 0;
-        virtual void* assign(ScratchBuffer& buffer) const = 0;
+        virtual void* assign(ScratchMemory& buffer) const = 0;
     };
 
     struct MemoryBarrier : public Inherit<Object, MemoryBarrier>
@@ -58,8 +34,7 @@ namespace vsg
         VkAccessFlags srcAccessMask = 0;
         VkAccessFlags dstAccessMask = 0;
 
-        uint32_t infoSize() const { return sizeof(VkMemoryBarrier) + (next ? next->infoSize() : 0); }
-        void assign(VkMemoryBarrier& info, ScratchBuffer& buffer) const;
+        void assign(VkMemoryBarrier& info, ScratchMemory& scratchMemory) const;
     };
 
     struct BufferMemoryBarrier : public Inherit<Object, BufferMemoryBarrier>
@@ -73,8 +48,7 @@ namespace vsg
         VkDeviceSize offset = 0;
         VkDeviceSize size = 0;
 
-        uint32_t infoSize() const { return sizeof(VkBufferMemoryBarrier) + (next ? next->infoSize() : 0); }
-        void assign(VkBufferMemoryBarrier& info, ScratchBuffer& buffer) const;
+        void assign(VkBufferMemoryBarrier& info, ScratchMemory& scratchMemory) const;
     };
 
     struct ImageMemoryBarrier : public Inherit<Object, ImageMemoryBarrier>
@@ -106,8 +80,7 @@ namespace vsg
         ref_ptr<Image> image;
         VkImageSubresourceRange subresourceRange = {0, 0, 0, 0, 0};
 
-        uint32_t infoSize() const { return sizeof(VkImageMemoryBarrier) + (next ? next->infoSize() : 0); }
-        void assign(VkImageMemoryBarrier& info, ScratchBuffer& buffer) const;
+        void assign(VkImageMemoryBarrier& info, ScratchMemory& scratchMemory) const;
     };
 
     struct SampleLocations : public Inherit<VulkanInfo, SampleLocations>
@@ -117,8 +90,7 @@ namespace vsg
         VkExtent2D sampleLocationGridSize = {0, 0};
         std::vector<vec2> sampleLocations;
 
-        uint32_t infoSize() const override { return sizeof(VkSampleLocationsInfoEXT) + (next ? next->infoSize() : 0); }
-        void* assign(ScratchBuffer& buffer) const override;
+        void* assign(ScratchMemory& scratchMemory) const override;
     };
 
     class VSG_DECLSPEC PipelineBarrier : public Inherit<Command, PipelineBarrier>

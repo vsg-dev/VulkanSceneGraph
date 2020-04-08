@@ -17,47 +17,12 @@ using namespace vsg;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// ScratchBuffer
-//
-ScratchBuffer::ScratchBuffer(uint32_t size)
-{
-    buffer_begin = new uint8_t[size];
-    buffer_end = buffer_begin + size;
-    base_ptr = buffer_begin;
-    requiresDelete = true;
-}
-
-ScratchBuffer::ScratchBuffer(const ScratchBuffer& parent, uint32_t minimumSize)
-{
-    if ((parent.buffer_end - parent.buffer_begin) >= minimumSize)
-    {
-        buffer_begin = parent.buffer_begin;
-        buffer_end = parent.buffer_end;
-        base_ptr = buffer_begin;
-        requiresDelete = false;
-    }
-    else
-    {
-        buffer_begin = new uint8_t[minimumSize];
-        buffer_end = buffer_begin + minimumSize;
-        base_ptr = buffer_begin;
-        requiresDelete = true;
-    }
-}
-
-ScratchBuffer::~ScratchBuffer()
-{
-    if (requiresDelete) delete[] buffer_begin;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//
 // MemoryBarrier
 //
-void MemoryBarrier::assign(VkMemoryBarrier& info, ScratchBuffer& scratchBuffer) const
+void MemoryBarrier::assign(VkMemoryBarrier& info, ScratchMemory& scratchMemory) const
 {
     info.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
-    info.pNext = next ? next->assign(scratchBuffer) : nullptr;
+    info.pNext = next ? next->assign(scratchMemory) : nullptr;
     info.srcAccessMask = srcAccessMask;
     info.dstAccessMask = dstAccessMask;
 }
@@ -66,10 +31,10 @@ void MemoryBarrier::assign(VkMemoryBarrier& info, ScratchBuffer& scratchBuffer) 
 //
 // BufferMemoryBarrier
 //
-void BufferMemoryBarrier::assign(VkBufferMemoryBarrier& info, ScratchBuffer& scratchBuffer) const
+void BufferMemoryBarrier::assign(VkBufferMemoryBarrier& info, ScratchMemory& scratchMemory) const
 {
     info.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-    info.pNext = next ? next->assign(scratchBuffer) : nullptr;
+    info.pNext = next ? next->assign(scratchMemory) : nullptr;
     info.srcAccessMask = srcAccessMask;
     info.dstAccessMask = dstAccessMask;
     info.srcQueueFamilyIndex = srcQueueFamilyIndex; // Queue::queueFamilyIndex() or VK_QUEUE_FAMILY_IGNORED
@@ -83,10 +48,10 @@ void BufferMemoryBarrier::assign(VkBufferMemoryBarrier& info, ScratchBuffer& scr
 //
 // ImageMemoryBarrier
 //
-void ImageMemoryBarrier::assign(VkImageMemoryBarrier& info, ScratchBuffer& scratchBuffer) const
+void ImageMemoryBarrier::assign(VkImageMemoryBarrier& info, ScratchMemory& scratchMemory) const
 {
     info.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    info.pNext = next ? next->assign(scratchBuffer) : nullptr;
+    info.pNext = next ? next->assign(scratchMemory) : nullptr;
     info.srcAccessMask = srcAccessMask;
     info.dstAccessMask = dstAccessMask;
     info.oldLayout = oldLayout;
@@ -101,12 +66,12 @@ void ImageMemoryBarrier::assign(VkImageMemoryBarrier& info, ScratchBuffer& scrat
 //
 // SampleLocations
 //
-void* SampleLocations::assign(ScratchBuffer& scratchBuffer) const
+void* SampleLocations::assign(ScratchMemory& scratchMemory) const
 {
-    auto info = scratchBuffer.allocate<VkSampleLocationsInfoEXT>(1);
+    auto info = scratchMemory.allocate<VkSampleLocationsInfoEXT>(1);
 
     info->sType = VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT;
-    info->pNext = next ? next->assign(scratchBuffer) : nullptr;
+    info->pNext = next ? next->assign(scratchMemory) : nullptr;
     info->sampleLocationsPerPixel = sampleLocationsPerPixel;
     info->sampleLocationGridSize = sampleLocationGridSize;
     info->sampleLocationsCount = static_cast<uint32_t>(sampleLocations.size());
@@ -129,28 +94,23 @@ PipelineBarrier::~PipelineBarrier()
 
 void PipelineBarrier::dispatch(CommandBuffer& commandBuffer) const
 {
-    uint32_t total_size = 0;
-    for (auto& mb : memoryBarriers) total_size += mb->infoSize();
-    for (auto& bmb : bufferMemoryBarriers) total_size += bmb->infoSize();
-    for (auto& imb : imageMemoryBarriers) total_size += imb->infoSize();
+    auto& scratchMemory = *(commandBuffer.scratchMemory);
 
-    ScratchBuffer scratchBuffer(total_size);
-
-    auto* vk_memoryBarriers = scratchBuffer.allocate<VkMemoryBarrier>(memoryBarriers.size());
+    auto vk_memoryBarriers = scratchMemory.allocate<VkMemoryBarrier>(memoryBarriers.size());
     for (size_t i = 0; i < memoryBarriers.size(); ++i)
     {
-        memoryBarriers[i]->assign(vk_memoryBarriers[i], scratchBuffer);
+        memoryBarriers[i]->assign(vk_memoryBarriers[i], scratchMemory);
     }
 
-    auto vk_bufferMemoryBarriers = scratchBuffer.allocate<VkBufferMemoryBarrier>(bufferMemoryBarriers.size());
+    auto vk_bufferMemoryBarriers = scratchMemory.allocate<VkBufferMemoryBarrier>(bufferMemoryBarriers.size());
     for (size_t i = 0; i < bufferMemoryBarriers.size(); ++i)
     {
-        bufferMemoryBarriers[i]->assign(vk_bufferMemoryBarriers[i], scratchBuffer);
+        bufferMemoryBarriers[i]->assign(vk_bufferMemoryBarriers[i], scratchMemory);
     }
-    auto vk_imageMemoryBarriers = scratchBuffer.allocate<VkImageMemoryBarrier>(imageMemoryBarriers.size());
+    auto vk_imageMemoryBarriers = scratchMemory.allocate<VkImageMemoryBarrier>(imageMemoryBarriers.size());
     for (size_t i = 0; i < imageMemoryBarriers.size(); ++i)
     {
-        imageMemoryBarriers[i]->assign(vk_imageMemoryBarriers[i], scratchBuffer);
+        imageMemoryBarriers[i]->assign(vk_imageMemoryBarriers[i], scratchMemory);
     }
 
     vkCmdPipelineBarrier(
@@ -164,4 +124,6 @@ void PipelineBarrier::dispatch(CommandBuffer& commandBuffer) const
         vk_bufferMemoryBarriers,
         imageMemoryBarriers.size(),
         vk_imageMemoryBarriers);
+
+    scratchMemory.release();
 }
