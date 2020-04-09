@@ -39,7 +39,6 @@ namespace vsg
         // windopw extent at previous frame
         const uint32_t invalid_dimension = std::numeric_limits<uint32_t>::max();
         mutable VkExtent2D previous_extent = VkExtent2D{invalid_dimension, invalid_dimension};
-        VkSubpassContents content = VK_SUBPASS_CONTENTS_INLINE;
         mutable std::vector< VkCommandBuffer > _commandBuffers;
     };
 } // namespace vsg

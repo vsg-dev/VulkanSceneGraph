@@ -106,7 +106,6 @@ set(SOURCES
     vk/DeviceMemory.cpp
     vk/Draw.cpp
     vk/Extensions.cpp
-    vk/ExecuteCommands.cpp
     vk/Fence.cpp
     vk/Framebuffer.cpp
     vk/GraphicsPipeline.cpp
@@ -114,7 +113,6 @@ set(SOURCES
     vk/ImageData.cpp
     vk/ImageView.cpp
     vk/Instance.cpp
-    vk/NextSubPass.cpp
     vk/PassGraph.cpp
     vk/PhysicalDevice.cpp
     vk/PipelineLayout.cpp

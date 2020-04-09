@@ -141,7 +141,6 @@ ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* cam
         auto renderGraph = vsg::RenderGraph::create();
 
         renderGraph->addChild(ref_ptr<Node>(scenegraph));
-        renderGraph->content = content;
         renderGraph->camera = camera;
         renderGraph->window = window;
 
@@ -161,7 +160,6 @@ ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* cam
         commandGraph->addChild(ref_ptr<Node>(scenegraph));
     }
 
-    //commandGraph->_commandBuffersLevel = lev;
     commandGraph->_subpassIndex = sub;
 
     return commandGraph;

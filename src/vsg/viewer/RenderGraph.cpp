@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/viewer/RenderGraph.h>
 #include <vsg/viewer/CommandGraph.h>
-#include <vsg/vk/ExecuteCommands.h>
 #include <vsg/vk/State.h>
 
 using namespace vsg;
@@ -139,15 +138,16 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
-    vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, content);
 
     if(dispatchTraversal.commandGraph->secondaries.empty())
     {
+        vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         // traverse the command buffer to place the commands into the command buffer.
         traverse(dispatchTraversal);
     }
     else
     {
+        vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
         uint subpasscpt = 0, passCount = dispatchTraversal.commandGraph->secondaries.size();
         for(auto secCMs : dispatchTraversal.commandGraph->secondaries)
         {

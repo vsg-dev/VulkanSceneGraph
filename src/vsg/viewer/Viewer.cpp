@@ -16,7 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/StateGroup.h>
 
 #include <vsg/vk/Descriptor.h>
-#include <vsg/vk/ExecuteCommands.h>
 
 #include <vsg/viewer/Viewer.h>
 #include <vsg/viewer/RenderGraph.h>

@@ -79,7 +79,7 @@ namespace vsg
 
     protected:
         std::vector<CommandGraph*> _primaries; // weak ptr to primaries commandgraphs
-        VkCommandBufferLevel _commandBuffersLevel;
+        VkCommandBufferLevel _commandBuffersLevel = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         std::vector< std::unique_ptr<std::mutex> > _productionMutices; // lock to forbid consumption by primary command buffer
         std::vector< std::unique_ptr<std::mutex> > _consumptionMutices; // unlock to allow secondaries production
 
