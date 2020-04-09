@@ -46,7 +46,7 @@ int PhysicalDevice::getQueueFamily(VkQueueFlags queueFlags) const
                 return i;
             }
 
-            bestFamily = i;
+            if (bestFamily < 0) bestFamily = i;
         }
     }
 
