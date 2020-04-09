@@ -46,7 +46,7 @@ namespace vsg
         mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
         ref_ptr<CommandBuffer> lastRecorded;
 
-        CommandGraphs secondaries; // secondaries commandgraph
+        std::vector<CommandGraphs> secondaries; // secondaries commandgraph per subpass (primary)
 
         void addSecondaryCommandGraph(ref_ptr<CommandGraph> secCM)
         {
@@ -64,7 +64,9 @@ namespace vsg
             _consumptionMuticesPtrs.emplace_back(secCM->_consumptionMutices.back().get());
             _productionMuticesPtrs.emplace_back(secCM->_productionMutices.back().get());
 
-            secondaries.emplace_back(secCM);
+            if(secondaries.size() < secCM->_subpassIndex+1)
+                secondaries.resize(secCM->_subpassIndex+1);
+            secondaries[secCM->_subpassIndex].emplace_back(secCM);
         }
 
         const Camera * getCamera() const

@@ -148,15 +148,22 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
     }
     else
     {
-        _commandBuffers.resize(dispatchTraversal.commandGraph->secondaries.size());
-        _commandBuffers.clear();
-
-        for(auto& cg : dispatchTraversal.commandGraph->secondaries)
+        uint subpasscpt = 0, passCount = dispatchTraversal.commandGraph->secondaries.size();
+        for(auto secCMs : dispatchTraversal.commandGraph->secondaries)
         {
-            _commandBuffers.emplace_back(*cg->lastRecorded);
-        }
+            _commandBuffers.resize(secCMs.size());
+            _commandBuffers.clear();
 
-        vkCmdExecuteCommands(vk_commandBuffer, _commandBuffers.size(), _commandBuffers.data());
+            for(auto& cg : secCMs)
+            {
+                _commandBuffers.emplace_back(*cg->lastRecorded);
+            }
+
+            vkCmdExecuteCommands(vk_commandBuffer, _commandBuffers.size(), _commandBuffers.data());
+            if(++subpasscpt < passCount)
+                /// PROBLEM with extensibility vkCmdNextSubpass2
+                vkCmdNextSubpass(vk_commandBuffer, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+        }
     }
 
     vkCmdEndRenderPass(vk_commandBuffer);

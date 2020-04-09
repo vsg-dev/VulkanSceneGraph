@@ -353,11 +353,13 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             // collect secondaries command graph
             for( auto primary : commandGraphs )
             {
-                for(auto& secCM: primary->secondaries)
+                for(auto& secCMs: primary->secondaries)
                 {
-                    uniqueSecondaryCommandGraphs.insert(secCM);
+                    for(auto& secCM: secCMs)
+                    {
+                        uniqueSecondaryCommandGraphs.insert(secCM);
+                    }
                 }
-
             }
 
             for(auto& secondary : uniqueSecondaryCommandGraphs )
