@@ -19,26 +19,47 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <iostream>
 
 using namespace vsg;
-
 /// sync only primary all secondary already sync with it
-class PrimaryRecordedLatch : public Inherit<Latch, PrimaryRecordedLatch>
+class PrimaryRecordedLatch : public Inherit<Object, PrimaryRecordedLatch>
 {
 public:
     std::mutex commandBuffersProtect;
     CommandBuffers recordedCommandBuffers;
 
     PrimaryRecordedLatch(size_t num) :
-                         Inherit(num), _origcount(num) {}
+                         _count(num), _origcount(num) { _mutex.lock();}
 
     void reset()
     {
+        if(_mutex.try_lock())
+            _mutex.lock();
         _count = _origcount;
         recordedCommandBuffers.clear();
     }
+    void count_down()
+    {
+        if(_count > 0)
+            --_count;
+        if (is_ready())
+        {
+            _mutex.unlock();
+        }
+    }
+
+    bool is_ready() const
+    {
+        return (_count == 0);
+    }
+
+    void wait() { _mutex.lock(); }
+    std::atomic_size_t& count() { return _count; }
 
  protected:
      virtual ~PrimaryRecordedLatch() {}
+
+     std::atomic_size_t _count;
      uint _origcount;
+     std::mutex _mutex;
 
 };
 
