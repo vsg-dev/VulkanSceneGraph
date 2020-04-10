@@ -38,7 +38,15 @@ namespace vsg
     {
     public:
         Latch(size_t num) :
-            _count(num) {}
+            _count(num)
+        {
+            _mutex.lock();
+        }
+
+        virtual void reset(const int value)
+        {
+            _count = value;
+        }
 
         void count_up()
         {
@@ -47,11 +55,12 @@ namespace vsg
 
         void count_down()
         {
-            --_count;
-            if (is_ready())
+            if(_count > 0)
+                --_count;
+
+            if (_count == 0)
             {
-                std::unique_lock lock(_mutex);
-                _cv.notify_all();
+                _mutex.unlock();
             }
         }
 
@@ -60,25 +69,15 @@ namespace vsg
             return (_count == 0);
         }
 
-        void wait()
-        {
-            // use while loop to return immediate when latch already released
-            // and to handle cases where the condition variable releases spuriously.
-            while (_count != 0)
-            {
-                std::unique_lock lock(_mutex);
-                _cv.wait(lock);
-            }
-        }
+        void wait() { _mutex.lock(); }
 
-        std::atomic_size_t& count() { return _count; }
+        volatile std::atomic_size_t & count() { return _count; }
 
     protected:
         virtual ~Latch() {}
 
         std::atomic_size_t _count;
         std::mutex _mutex;
-        std::condition_variable _cv;
     };
 
     struct Operation : public Object
