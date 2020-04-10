@@ -52,6 +52,11 @@ endif()
 set(VSG_WARNING_FLAGS ${VSG_WARNING_FLAGS} CACHE STRING "Compiler flags to use." FORCE)
 add_compile_options(${VSG_WARNING_FLAGS})
 
+if (VULKAN_SDK)
+    message("Within VulkanSceneGraph cmake, setting VULKAN_SDK env var to " ${VULKAN_SDK})
+    set(ENV{VULKAN_SDK} ${VULKAN_SDK})
+endif()
+
 
 find_package(Vulkan)
 find_package(Threads)
