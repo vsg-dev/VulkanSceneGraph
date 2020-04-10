@@ -37,21 +37,41 @@ namespace vsg
     class Latch : public Inherit<Object, Latch>
     {
     public:
-        Latch(size_t num) :
-            _count(num) {}
+        Latch(int num) :
+            _count(num)
+        {
+            _mutex.lock();
+        }
+
+        virtual void reset(const int value)
+        {
+            std::scoped_lock lock(_incMutex);
+            _count = value;
+            if(_mutex.try_lock()) _mutex.lock();
+        }
 
         void count_up()
         {
-            ++_count;
+             std::scoped_lock lock(_incMutex);
+             _count++;
+        }
+
+        int atomicCompIncAndReturn(const int inc = 1, const int sig = 1)
+        {
+            std::scoped_lock lock(_incMutex);
+            int result = _count, temp = result + inc;
+            if( sig*(temp) > 0 )
+            {
+                result = temp;
+            }
+            return result;
         }
 
         void count_down()
         {
-            --_count;
-            if (is_ready())
+            if ( atomicCompIncAndReturn(-1, -1) )
             {
-                std::unique_lock lock(_mutex);
-                _cv.notify_all();
+                _mutex.unlock();
             }
         }
 
@@ -60,25 +80,15 @@ namespace vsg
             return (_count == 0);
         }
 
-        void wait()
-        {
-            // use while loop to return immediate when latch already released
-            // and to handle cases where the condition variable releases spuriously.
-            while (_count != 0)
-            {
-                std::unique_lock lock(_mutex);
-                _cv.wait(lock);
-            }
-        }
+        void wait() { _mutex.lock(); }
 
-        std::atomic_size_t& count() { return _count; }
+        volatile const int & count() { return _count; }
 
     protected:
         virtual ~Latch() {}
 
-        std::atomic_size_t _count;
-        std::mutex _mutex;
-        std::condition_variable _cv;
+        int _count;
+        std::mutex _mutex, _incMutex;
     };
 
     struct Operation : public Object
