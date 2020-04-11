@@ -195,7 +195,7 @@ void DatabasePager::start()
 
                 //std::cout<<"    reading "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
 
-                auto subgraph = vsg::read_cast<vsg::Node>(plod->filename);
+                auto subgraph = vsg::read_cast<vsg::Node>(plod->filename, plod->options);
 
                 // std::cout<<"    finished reading "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
 

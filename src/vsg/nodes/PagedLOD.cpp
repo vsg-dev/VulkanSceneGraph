@@ -59,6 +59,8 @@ void PagedLOD::read(Input& input)
 
     input.read("MinimumScreenHeightRatio", _children[1].minimumScreenHeightRatio);
     input.readObject("Child", _children[1].node);
+
+    options = input.options;
 }
 
 void PagedLOD::write(Output& output) const
