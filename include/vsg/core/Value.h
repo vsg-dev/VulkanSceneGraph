@@ -109,6 +109,8 @@ namespace vsg
         value_type& value() { return _value; }
         const value_type& value() const { return _value; }
 
+        void set(const value_type& value) { _value = value; }
+
     protected:
         virtual ~Value() {}
 
