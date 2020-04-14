@@ -31,16 +31,20 @@ namespace vsg
             GraphicsPipeline* graphicsPipeline = bindPipeline.getPipeline();
             if (graphicsPipeline)
             {
-                bool needToRegenerateGraphicsPipeline = false;
+                // TODO: Need to come up with a more general purpose way of matching Window viewports and GraphicsPipeline.
+                bool containsViewport = false;
+                bool containsContextWindowViewport = false;
+
                 for (auto& pipelineState : graphicsPipeline->getPipelineStates())
                 {
-                    if (pipelineState == context.viewport)
+                    if (auto viewport = pipelineState.cast<ViewportState>())
                     {
-                        needToRegenerateGraphicsPipeline = true;
-                        break;
+                        containsViewport = true;
+                        if (viewport == context.viewport) containsContextWindowViewport = true;
                     }
                 }
 
+                bool needToRegenerateGraphicsPipeline = containsContextWindowViewport || !containsViewport;
                 if (needToRegenerateGraphicsPipeline)
                 {
                     vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getPipelineLayout(), graphicsPipeline->getShaderStages(), graphicsPipeline->getPipelineStates());
