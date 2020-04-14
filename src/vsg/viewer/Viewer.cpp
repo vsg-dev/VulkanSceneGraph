@@ -381,6 +381,27 @@ void Viewer::update()
 
 void Viewer::recordAndSubmit()
 {
+    // TODO : seperate thread for each recordAndSubmitTasks?
+    //        use a thread pool or local threads specifically for Viewer?
+    //
+    //        how do we manage thread affinity?
+    //            we want threads to have affinity with specific cores
+    //            we want tasks/data to have affinity with specific cores
+    //            affinity favours a single or a thread pool with a specific affinity.
+    //            RecordAndSubmitTask to have user defined affinity
+    //            Operations with that call submit should use the RecordAndSubmitTask affinity
+    //            Operations with affinity to be run on threads/thread pools on specified affinity
+    //
+    //        Should RecordAndSubmitTask (RAS_Task) have it's own Thread pool?
+    //            pros: scales with numer of RAS_Tasks and encapsulates affinity issues
+    //            const: constrains threading to only work within The RAS_Task
+    //
+    //        Do we insert frame syncronization into threads? Or leave this to individual RAS_Tasks ?
+    //            Do we use a Latch to sync the RAS_Task sbumission with subsequent presentation, or just wait within recordAndSubmit?
+    //            Most straight forward would be to have barrier here in the Viewer::recordAndSubmit().
+    //            This would preclude the calling thread from getting on with work while the RAS_Task do their work in background threads
+    //            Start simple and then generalize?
+
     for (auto& recordAndSubmitTask : recordAndSubmitTasks)
     {
         recordAndSubmitTask->submit(_frameStamp);

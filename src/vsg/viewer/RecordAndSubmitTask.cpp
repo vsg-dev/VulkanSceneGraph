@@ -82,6 +82,9 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
         vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
     }
 
+    // TODO : separate thread per commandGraph?
+    //        shoould nested CommandGraph handle their own threads?
+    //
     // record the commands to the command buffers
     CommandBuffers recordedCommandBuffers;
     for (auto& commandGraph : commandGraphs)
