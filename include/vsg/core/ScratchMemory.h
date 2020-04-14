@@ -16,7 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <algorithm>
 
-
 namespace vsg
 {
     /** Lightweight allocator for temporary memory such as C structures allocated for Vulkan calls that don't require destruction.*/
