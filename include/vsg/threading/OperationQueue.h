@@ -47,8 +47,7 @@ namespace vsg
 
         void count_down()
         {
-            --_count;
-            if (is_ready())
+            if (_count.fetch_sub(1) <= 1)
             {
                 std::unique_lock lock(_mutex);
                 _cv.notify_all();
@@ -62,16 +61,14 @@ namespace vsg
 
         void wait()
         {
-            // use while loop to return immediate when latch already released
-            // and to handle cases where the condition variable releases spuriously.
-            while (_count != 0)
+            std::unique_lock lock(_mutex);
+            while (_count > 0)
             {
-                std::unique_lock lock(_mutex);
                 _cv.wait(lock);
             }
         }
 
-        std::atomic_size_t& count() { return _count; }
+        size_t count() const { return _count.load(); }
 
     protected:
         virtual ~Latch() {}
