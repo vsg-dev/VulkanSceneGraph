@@ -99,10 +99,13 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
 
             if (camera)
             {
-                ref_ptr<Perspective> perspective(dynamic_cast<Perspective*>(camera->getProjectionMatrix()));
-                if (perspective)
+                if (auto perspective = dynamic_cast<Perspective*>(camera->getProjectionMatrix()))
                 {
                     perspective->aspectRatio = static_cast<double>(extent.width) / static_cast<double>(extent.height);
+                }
+                else if (auto ep = dynamic_cast<EllipsoidPerspective*>(camera->getProjectionMatrix()))
+                {
+                    ep->aspectRatio = static_cast<double>(extent.width) / static_cast<double>(extent.height);
                 }
 
                 auto viewport = camera->getViewportState();
