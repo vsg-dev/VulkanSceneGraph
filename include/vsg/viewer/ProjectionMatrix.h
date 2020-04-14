@@ -301,9 +301,14 @@ namespace vsg
             double R = ellipsoidModel->radiusEquator();
             double H = ellipsoidModel->convertECEFToLatLongHeight(v).z;
             double D = R + H;
+
             double alpha = (D > R) ? std::acos(R / D) : 0.0;
-            double beta = std::acos(R / (R + horizonMountainHeight));
-            double theta = std::acos(-vsg::dot(lv, v) / (vsg::length(lv) * vsg::length(v)));
+
+            double beta_ratio = R / (R + horizonMountainHeight);
+            double beta = beta_ratio < 1.0 ? std::acos(beta_ratio) : 0.0;
+
+            double theta_ratio = -vsg::dot(lv, v) / (vsg::length(lv) * vsg::length(v));
+            double theta = theta_ratio < 1.0 ? std::acos(theta_ratio) : 0.0;
 
             double l = R * (std::tan(alpha) + std::tan(beta));
 
