@@ -381,10 +381,10 @@ void Viewer::update()
 
 void Viewer::recordAndSubmit()
 {
-    // TODO : seperate thread for each recordAndSubmitTasks?
-    //        use a thread pool or local threads specifically for Viewer?
+    // TODO : Seperate thread for each recordAndSubmitTasks?
+    //        Or use a thread pool or local threads specifically for Viewer?
     //
-    //        how do we manage thread affinity?
+    //        How do we manage thread affinity?
     //            we want threads to have affinity with specific cores
     //            we want tasks/data to have affinity with specific cores
     //            affinity favours a single or a thread pool with a specific affinity.
@@ -401,6 +401,26 @@ void Viewer::recordAndSubmit()
     //            Most straight forward would be to have barrier here in the Viewer::recordAndSubmit().
     //            This would preclude the calling thread from getting on with work while the RAS_Task do their work in background threads
     //            Start simple and then generalize?
+    //
+    //
+    //        Possible CommandGraph centric approach:
+    //            one thread per CommandGraph
+    //            each thread is assigned an affinity
+    //            require a start record traversal battier so that thread to sleep until new record traversal required
+    //            require record traversal finished barrier to signal completion
+    //            do we use an OperationThraads object per CommandGraph?
+    //            RecordOperation to asssign to OperationThreads?
+    //            Have a single Barrier that is shared between all the CommandGraph traversals that are happening and we need to wait for.
+    //            Use a Latch as a Barrier = each RecordOperation increments the Latch at start, and decrements the Latch on completion
+    //
+    //
+    //        If we have multiple recordAndSubmit tasks then we'll want to share Barrier's across them and sync after all have been traversed.
+    //        What about inter traversal/CommandGraph dependencies?
+    //        Nesting to enforce order?
+    //        Order managed in Submissions via VkSemaphore/VkEvent?
+    //
+    //        Need to create a set of multi-threading test cases to develop for:
+    //
 
     for (auto& recordAndSubmitTask : recordAndSubmitTasks)
     {
