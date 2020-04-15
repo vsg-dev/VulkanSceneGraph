@@ -12,11 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Inherit.h>
+#include <vsg/threading/Latch.h>
 
-#include <condition_variable>
 #include <list>
-#include <mutex>
 
 namespace vsg
 {
@@ -32,50 +30,6 @@ namespace vsg
 
     protected:
         virtual ~Active() {}
-    };
-
-    class Latch : public Inherit<Object, Latch>
-    {
-    public:
-        Latch(size_t num) :
-            _count(num) {}
-
-        void count_up()
-        {
-            ++_count;
-        }
-
-        void count_down()
-        {
-            if (_count.fetch_sub(1) <= 1)
-            {
-                std::unique_lock lock(_mutex);
-                _cv.notify_all();
-            }
-        }
-
-        bool is_ready() const
-        {
-            return (_count == 0);
-        }
-
-        void wait()
-        {
-            std::unique_lock lock(_mutex);
-            while (_count > 0)
-            {
-                _cv.wait(lock);
-            }
-        }
-
-        size_t count() const { return _count.load(); }
-
-    protected:
-        virtual ~Latch() {}
-
-        std::atomic_size_t _count;
-        std::mutex _mutex;
-        std::condition_variable _cv;
     };
 
     struct Operation : public Object
