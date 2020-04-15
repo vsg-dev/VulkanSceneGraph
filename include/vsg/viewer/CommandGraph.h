@@ -32,7 +32,7 @@ namespace vsg
 
         ref_ptr<RecordTraversal> recordTraversal;
 
-        Windows windows;
+        ref_ptr<Window> window;
 
         ref_ptr<Device> _device;
         int _queueFamily = -1;

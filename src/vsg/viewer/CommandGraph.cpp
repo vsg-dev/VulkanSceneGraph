@@ -26,11 +26,11 @@ CommandGraph::CommandGraph(Device* device, int family) :
 {
 }
 
-CommandGraph::CommandGraph(Window* window)
+CommandGraph::CommandGraph(Window* in_window)
 {
-    if (window)
+    if (in_window)
     {
-        windows.emplace_back(window);
+        window = in_window;
 
         _device = window->device();
 
