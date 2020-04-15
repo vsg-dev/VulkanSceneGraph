@@ -333,7 +333,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             std::set<Window*> uniqueWindows;
             for (auto& commanGraph : commandGraphs)
             {
-                uniqueWindows.insert(commanGraph->windows.begin(), commanGraph->windows.end());
+                uniqueWindows.insert(commanGraph->window);
             }
 
             Windows windows(uniqueWindows.begin(), uniqueWindows.end());
@@ -384,43 +384,47 @@ void Viewer::recordAndSubmit()
     // TODO : Seperate thread for each recordAndSubmitTasks?
     //        Or use a thread pool or local threads specifically for Viewer?
     //
-    //        How do we manage thread affinity?
-    //            we want threads to have affinity with specific cores
-    //            we want tasks/data to have affinity with specific cores
-    //            affinity favours a single or a thread pool with a specific affinity.
-    //            RecordAndSubmitTask to have user defined affinity
-    //            Operations with that call submit should use the RecordAndSubmitTask affinity
-    //            Operations with affinity to be run on threads/thread pools on specified affinity
+    //      How do we manage thread affinity?
+    //          we want threads to have affinity with specific cores
+    //          we want tasks/data to have affinity with specific cores
+    //          affinity favours a single or a thread pool with a specific affinity.
+    //          RecordAndSubmitTask to have user defined affinity
+    //          Operations with that call submit should use the RecordAndSubmitTask affinity
+    //          Operations with affinity to be run on threads/thread pools on specified affinity
     //
-    //        Should RecordAndSubmitTask (RAS_Task) have it's own Thread pool?
-    //            pros: scales with numer of RAS_Tasks and encapsulates affinity issues
-    //            const: constrains threading to only work within The RAS_Task
+    //      Should RecordAndSubmitTask (RAS_Task) have it's own Thread pool?
+    //          pros: scales with numer of RAS_Tasks and encapsulates affinity issues
+    //          const: constrains threading to only work within The RAS_Task
     //
-    //        Do we insert frame syncronization into threads? Or leave this to individual RAS_Tasks ?
-    //            Do we use a Latch to sync the RAS_Task sbumission with subsequent presentation, or just wait within recordAndSubmit?
-    //            Most straight forward would be to have barrier here in the Viewer::recordAndSubmit().
-    //            This would preclude the calling thread from getting on with work while the RAS_Task do their work in background threads
-    //            Start simple and then generalize?
-    //
-    //
-    //        Possible CommandGraph centric approach:
-    //            one thread per CommandGraph
-    //            each thread is assigned an affinity
-    //            require a start record traversal battier so that thread to sleep until new record traversal required
-    //            require record traversal finished barrier to signal completion
-    //            do we use an OperationThraads object per CommandGraph?
-    //            RecordOperation to asssign to OperationThreads?
-    //            Have a single Barrier that is shared between all the CommandGraph traversals that are happening and we need to wait for.
-    //            Use a Latch as a Barrier = each RecordOperation increments the Latch at start, and decrements the Latch on completion
+    //      Do we insert frame syncronization into threads? Or leave this to individual RAS_Tasks ?
+    //          Do we use a Latch to sync the RAS_Task sbumission with subsequent presentation, or just wait within recordAndSubmit?
+    //          Most straight forward would be to have barrier here in the Viewer::recordAndSubmit().
+    //          This would preclude the calling thread from getting on with work while the RAS_Task do their work in background threads
+    //          Start simple and then generalize?
     //
     //
-    //        If we have multiple recordAndSubmit tasks then we'll want to share Barrier's across them and sync after all have been traversed.
-    //        What about inter traversal/CommandGraph dependencies?
-    //        Nesting to enforce order?
-    //        Order managed in Submissions via VkSemaphore/VkEvent?
+    //      Possible CommandGraph centric approach:
+    //          one thread per CommandGraph
+    //          each thread is assigned an affinity
+    //          require a start record traversal battier so that thread to sleep until new record traversal required
+    //          require record traversal finished barrier to signal completion
+    //          do we use an OperationThraads object per CommandGraph?
+    //          RecordOperation to asssign to OperationThreads?
+    //          Have a single Barrier that is shared between all the CommandGraph traversals that are happening and we need to wait for.
+    //          Use a Latch as a Barrier = each RecordOperation increments the Latch at start, and decrements the Latch on completion
     //
-    //        Need to create a set of multi-threading test cases to develop for:
     //
+    //      If we have multiple recordAndSubmit tasks then we'll want to share Barrier's across them and sync after all have been traversed.
+    //      What about inter traversal/CommandGraph dependencies?
+    //      Nesting to enforce order?
+    //      Order managed in Submissions via VkSemaphore/VkEvent?
+    //
+    //      Need to create a set of multi-threading test cases to develop for:
+    //          Multi-gpu
+    //          Multi-pass
+    //          Mulit-window/viewport
+    //          Compute and Graphics
+    //          All of the above with DatabasePaging
 
     for (auto& recordAndSubmitTask : recordAndSubmitTasks)
     {
