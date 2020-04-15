@@ -30,7 +30,7 @@ namespace vsg
         {
             if (num == 0)
             {
-                if (_count != 0)
+                if (_count.exchange(0) != 0)
                     release();
             }
             else
