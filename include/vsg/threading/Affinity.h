@@ -32,8 +32,11 @@ namespace vsg
     };
 
 
+    /// Set the CPU affinity of specifiied std::thread
     extern VSG_DECLSPEC void setAffinity(std::thread& thread, const Affinity& affinity);
 
+    /// Set the CPU affinity of current thread
+    /// Note, under Linux the CPU affinity of thread is inherited by any threads that it creates
     extern VSG_DECLSPEC void setAffinity(const Affinity& affinity);
 
 }
