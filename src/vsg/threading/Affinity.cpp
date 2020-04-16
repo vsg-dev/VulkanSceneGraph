@@ -16,7 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <windows.h>
 #include <process.h>
-#include <sys/syscall.h>
 
 static void win32_setAffinity(HANDLE tid, const vsg::Affinity& affinity)
 {
@@ -58,6 +57,7 @@ void vsg::setAffinity(const Affinity& affinity)
 #else // assume pthreads
 
 #include <unistd.h>
+#include <sys/syscall.h>
 #include <pthread.h>
 
 static void pthread_setAffinity(pthread_t thread_native_handle, const vsg::Affinity& affinity)
