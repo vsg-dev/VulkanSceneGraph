@@ -381,43 +381,24 @@ void Viewer::update()
 
 void Viewer::recordAndSubmit()
 {
-    // TODO : Seperate thread for each recordAndSubmitTasks?
-    //        Or use a thread pool or local threads specifically for Viewer?
+    // TODO:Multi-threading approach notes:
     //
-    //      How do we manage thread affinity?
-    //          we want threads to have affinity with specific cores
-    //          we want tasks/data to have affinity with specific cores
-    //          affinity favours a single or a thread pool with a specific affinity.
-    //          RecordAndSubmitTask to have user defined affinity
-    //          Operations with that call submit should use the RecordAndSubmitTask affinity
-    //          Operations with affinity to be run on threads/thread pools on specified affinity
+    //   CommandGraph "has a" std::thread  (CG_Thread)
+    //   CommandGraph "has a" vsg::Affinity? Used when configuring the CG_Thread
     //
-    //      Should RecordAndSubmitTask (RAS_Task) have it's own Thread pool?
-    //          pros: scales with numer of RAS_Tasks and encapsulates affinity issues
-    //          const: constrains threading to only work within The RAS_Task
+    //   CG_Thread "has a" RecordTraversalStartBarrier (vsg::Latch?) could be shared?
+    //   CG Thread "has a RecordTraverasl to record command graph
+    //   CG_Thread "has a shared" ReordTraversalFinishiedBarrier
     //
-    //      Do we insert frame syncronization into threads? Or leave this to individual RAS_Tasks ?
-    //          Do we use a Latch to sync the RAS_Task sbumission with subsequent presentation, or just wait within recordAndSubmit?
-    //          Most straight forward would be to have barrier here in the Viewer::recordAndSubmit().
-    //          This would preclude the calling thread from getting on with work while the RAS_Task do their work in background threads
-    //          Start simple and then generalize?
+    //   RecordTraveraslBarrier is joined by N CG_Thread's and passed the commandbuffers to submit
+    //   One per RecordAndSubmitTask
+    //   Once all the associated CG_Threads have joined the RecordTraveraslBarrier it's released and the VkSubmit occurs
+    //   Then the RecordTraveraslBarrier joins a SubmitFinsihedBarrier
     //
+    //   SubmitFinsihedBarrier is joined by M RecordTraveraslBarrier's after they have submitted there work
+    //   Main thread can wait on SubmitFinsihedBarrier within recordAndSubmit or optionally by the application in it's main loop,
+    //   or at latest at the start of the recordAndSubmit().
     //
-    //      Possible CommandGraph centric approach:
-    //          one thread per CommandGraph
-    //          each thread is assigned an affinity
-    //          require a start record traversal battier so that thread to sleep until new record traversal required
-    //          require record traversal finished barrier to signal completion
-    //          do we use an OperationThraads object per CommandGraph?
-    //          RecordOperation to asssign to OperationThreads?
-    //          Have a single Barrier that is shared between all the CommandGraph traversals that are happening and we need to wait for.
-    //          Use a Latch as a Barrier = each RecordOperation increments the Latch at start, and decrements the Latch on completion
-    //
-    //
-    //      If we have multiple recordAndSubmit tasks then we'll want to share Barrier's across them and sync after all have been traversed.
-    //      What about inter traversal/CommandGraph dependencies?
-    //      Nesting to enforce order?
-    //      Order managed in Submissions via VkSemaphore/VkEvent?
     //
     //      Need to create a set of multi-threading test cases to develop for:
     //          Multi-gpu

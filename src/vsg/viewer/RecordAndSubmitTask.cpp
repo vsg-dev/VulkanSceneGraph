@@ -82,10 +82,6 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
         vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
     }
 
-    // TODO : separate thread per commandGraph?
-    //        shoould nested CommandGraph handle their own threads?
-    //        set up of recordedCommandBuffers needs to be done in a thread safe way.
-    //
     // record the commands to the command buffers
     CommandBuffers recordedCommandBuffers;
     for (auto& commandGraph : commandGraphs)
@@ -129,14 +125,6 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     {
         vk_signalSemaphores.emplace_back(*(semaphore));
     }
-
-    // TODO:
-    // must wait for all depedent CommandBuffers to complete before we can submit
-    // use a Latch set to the number of CommangGraph's being recorded and passed on to this numDependentSubmission
-    // need seperate record method?
-    // as soon as the command buffers are all recorded we want to do an immediate numDependentSubmission
-    // use a dedicated thread per RecordAndSubmitTask in?
-    // or use a submit operation triggered directly by Latch?
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
