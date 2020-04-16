@@ -60,6 +60,7 @@ set(SOURCES
     traversals/CompileTraversal.cpp
     traversals/ComputeBounds.cpp
 
+    threading/Affinity.cpp
     threading/OperationQueue.cpp
     threading/OperationThreads.cpp
 
