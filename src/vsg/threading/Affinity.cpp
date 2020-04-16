@@ -63,7 +63,7 @@ static void macos_setAffinity(pthread_t thread_native_handle, const vsg::Affinit
 {
     uint32_t numProcessors = std::thread::hardware_concurrency();
 
-    uint32_t cpuset = 0;
+    interger_t cpuset = 0;
     if (affinity)
     {
         for(auto cpu : affinity.cpus)
@@ -83,7 +83,7 @@ static void macos_setAffinity(pthread_t thread_native_handle, const vsg::Affinit
         }
     }
 
-    auto mach_thread = pthread_mach_thread_np(thread);
+    auto mach_thread = pthread_mach_thread_np(thread_native_handle);
     thread_affinity_policy_data_t policy = { cpuset };
     thread_policy_set(mach_thread, THREAD_AFFINITY_POLICY, (thread_policy_t)&policy, 1);
 }
