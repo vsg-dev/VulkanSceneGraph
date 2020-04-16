@@ -63,7 +63,7 @@ static void macos_setAffinity(pthread_t thread_native_handle, const vsg::Affinit
 {
     uint32_t numProcessors = std::thread::hardware_concurrency();
 
-    interger_t cpuset = 0;
+    integer_t cpuset = 0;
     if (affinity)
     {
         for(auto cpu : affinity.cpus)
