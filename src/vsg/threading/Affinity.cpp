@@ -56,6 +56,9 @@ void vsg::setAffinity(const Affinity& affinity)
 
 #else // assume pthreads
 
+#include <unistd.h>
+#include <pthread.h>
+
 static void pthread_setAffinity(pthread_t thread_native_handle, const vsg::Affinity& affinity)
 {
     uint32_t numProcessors = std::thread::hardware_concurrency();
