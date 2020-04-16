@@ -58,6 +58,7 @@ void vsg::setAffinity(const Affinity& affinity)
 
 #include <unistd.h>
 #include <sys/syscall.h>
+#include <sys/types.h>
 #include <pthread.h>
 
 static void pthread_setAffinity(pthread_t thread_native_handle, const vsg::Affinity& affinity)
