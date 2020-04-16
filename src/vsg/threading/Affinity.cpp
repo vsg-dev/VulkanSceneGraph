@@ -54,12 +54,51 @@ void vsg::setAffinity(const Affinity& affinity)
     win32_setAffinity(GetCurrentThread(), affinity);
 }
 
-#else // assume pthreads
+#elif defined(__APPLE__)
 
-#include <unistd.h>
-#include <sys/syscall.h>
-#include <sys/types.h>
 #include <pthread.h>
+#include <mach/mach.h>
+
+static void macos_setAffinity(pthread_t thread_native_handle, const vsg::Affinity& affinity)
+{
+    uint32_t numProcessors = std::thread::hardware_concurrency();
+
+    uint32_t cpuset = 0;
+    if (affinity)
+    {
+        for(auto cpu : affinity.cpus)
+        {
+            if (cpu < numProcessors)
+            {
+                cpuset |= (0x1 << cpu);
+            }
+        }
+    }
+    else
+    {
+        // set affinity to all CPU cores
+        for(uint32_t cpu=0; cpu < numProcessors; ++cpu)
+        {
+            cpuset |= (0x1 << cpu);
+        }
+    }
+
+    auto mach_thread = pthread_mach_thread_np(thread);
+    thread_affinity_policy_data_t policy = { cpuset };
+    thread_policy_set(mach_thread, THREAD_AFFINITY_POLICY, (thread_policy_t)&policy, 1);
+}
+
+void vsg::setAffinity(std::thread& thread, const Affinity& affinity)
+{
+    macos_setAffinity(thread.native_handle(), affinity);
+}
+
+void vsg::setAffinity(const Affinity& affinity)
+{
+    macos_setAffinity(pthread_self(), affinity);
+}
+
+#else // assume pthreads
 
 static void pthread_setAffinity(pthread_t thread_native_handle, const vsg::Affinity& affinity)
 {
