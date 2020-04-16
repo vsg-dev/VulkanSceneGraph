@@ -13,6 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/threading/Affinity.h>
 
 #ifdef _WIN32
+#include <process.h>
+
 static void win32_setAffinity(HANDLE tid, const vsg::Affinity& affinity)
 {
     uint32_t numProcessors = std::thread::hardware_concurrency();
