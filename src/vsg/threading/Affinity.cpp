@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <windows.h>
 #include <process.h>
+#include <sys/syscall.h>
 
 static void win32_setAffinity(HANDLE tid, const vsg::Affinity& affinity)
 {
