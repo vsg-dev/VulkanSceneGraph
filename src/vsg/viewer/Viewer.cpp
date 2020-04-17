@@ -396,7 +396,7 @@ public:
     {
         _wait = false;
 
-        std::unique_lock lock(_mutex);
+        std::scoped_lock lock(_mutex);
         _cv.notify_all();
     }
 
@@ -421,71 +421,162 @@ protected:
     std::condition_variable _cv;
 };
 
+class ValueBlock : public Inherit<Object, ValueBlock>
+{
+public:
+    using value_type = uint64_t;
+
+    ValueBlock() :
+        _value(std::numeric_limits<value_type>::max()) {}
+
+    ValueBlock(const ValueBlock&) = delete;
+    ValueBlock& operator = (const ValueBlock&) = delete;
+
+    void set(value_type value)
+    {
+        _value.exchange(value);
+
+        std::scoped_lock lock(_mutex);
+        _cv.notify_all();
+    }
+
+    value_type get() const { return _value.load(); }
+
+    value_type wait_for_change(value_type value)
+    {
+        std::unique_lock lock(_mutex);
+        while (_value == value)
+        {
+            _cv.wait(lock);
+        }
+        return _value.load();
+    }
+
+
+protected:
+    virtual ~ValueBlock() {}
+
+    std::atomic<value_type> _value;
+    std::mutex _mutex;
+    std::condition_variable _cv;
+};
+
+class Barrier : public Inherit<Object, Barrier>
+{
+public:
+    Barrier(int num) :
+        _num_threads(num) {}
+
+    Barrier(const Barrier&) = delete;
+    Barrier& operator = (const Barrier&) = delete;
+
+    void reset()
+    {
+        _count = _num_threads;
+    }
+
+    void arrive_and_wait()
+    {
+        if (_count.fetch_sub(1) <= 1)
+        {
+            std::scoped_lock lock(_mutex);
+            _cv.notify_all();
+
+            released();
+        }
+        else
+        {
+            wait();
+        }
+    }
+
+    void arrive_and_drop()
+    {
+        if (_count.fetch_sub(1) <= 1)
+        {
+            std::scoped_lock lock(_mutex);
+            _cv.notify_all();
+
+            released();
+        }
+    }
+
+    void wait()
+    {
+        std::unique_lock lock(_mutex);
+        while (_count > 0)
+        {
+            _cv.wait(lock);
+        }
+    }
+
+    bool is_ready() const
+    {
+        return _count==0;
+    }
+
+    virtual void released() {}
+
+protected:
+    virtual ~Barrier() {}
+
+    const int _num_threads;
+    std::atomic_int _count;
+    std::mutex _mutex;
+    std::condition_variable _cv;
+};
 
 void Viewer::setupThreading()
 {
-    struct RecordBarrier : public Inherit<Block, RecordBarrier>
+    struct RecordBlock : public Inherit<ValueBlock, RecordBlock>
     {
         ref_ptr<FrameStamp> frameStamp;
-    };
 
-    struct SubmissionsCompletedBarrier : public Inherit<Latch, SubmissionsCompletedBarrier>
-    {
-        SubmissionsCompletedBarrier(int num): Inherit(num) {}
+        using Inherit::set;
 
-        void release() override
+        void set(ref_ptr<FrameStamp> fs)
         {
-            std::cout<<"SubmissionsCompletedBarrier::release()"<<std::endl;
-
-            if (recordBarrier)
-            {
-                // reset to the recordBarrier to make sure the CommanGraph::run waits
-                recordBarrier->set();
-            }
-            Latch::release();
+            frameStamp = fs;
+            Inherit::set(fs->frameCount);
         }
-
-        ref_ptr<RecordBarrier> recordBarrier;
     };
 
-    struct SubmitBarrier : public Inherit<Latch, SubmitBarrier>
+    struct SubmitBarrier : public Inherit<Barrier, SubmitBarrier>
     {
         SubmitBarrier(int num) : Inherit(num) {}
         void submit(const CommandBuffers& rcb)
         {
+            std::cout<<"SubmitBarrier::submit() " <<this<<std::endl;
+
             {
                 std::scoped_lock lock(recordCommandBuffersMutex);
                 recordedCommandBuffers.insert(recordedCommandBuffers.end(), rcb.begin(), rcb.end());
             }
-            std::cout<<"SubmitBarrier::submit() " <<this<<std::endl;
 
-            count_down();
+            arrive_and_drop();
         }
 
-        void release() override
+        void released() override
         {
+            std::cout<<"SubmitBarrier::released() " <<this<<std::endl;
+
             std::scoped_lock lock(recordCommandBuffersMutex);
 
             // do submissions
-            std::cout<<"SubmitBarrier::release() " <<this<<std::endl;
 
-            submissionCompleteBarrier->count_down();
-
-            Latch::release();
+            submissionCompleteBarrier->arrive_and_drop();
         }
 
         std::mutex recordCommandBuffersMutex;
         CommandBuffers recordedCommandBuffers;
-        ref_ptr<SubmissionsCompletedBarrier> submissionCompleteBarrier;
+        ref_ptr<Barrier> submissionCompleteBarrier;
     };
 
-    ref_ptr<RecordBarrier> recordBarrier = RecordBarrier::create();
-    recordBarrier->frameStamp = _frameStamp;
+    ref_ptr<RecordBlock> recordBlock = RecordBlock::create();
 
     std::vector<ref_ptr<SubmitBarrier>> submitBarriers;
 
-    ref_ptr<SubmissionsCompletedBarrier> submissionsCompleteBarrier = SubmissionsCompletedBarrier::create(recordAndSubmitTasks.size());
-    submissionsCompleteBarrier->recordBarrier = recordBarrier;
+    ref_ptr<Barrier> submissionsCompleteBarrier = Barrier::create(recordAndSubmitTasks.size());
 
     for(auto& task : recordAndSubmitTasks)
     {
@@ -496,16 +587,18 @@ void Viewer::setupThreading()
 
         for(auto& commandGraph : task->commandGraphs)
         {
-            auto run = [](observer_ptr<CommandGraph> cg, ref_ptr<RecordBarrier> recordBarrier, ref_ptr<SubmitBarrier> submitBarrier, ref_ptr<DatabasePager> databasePager, ref_ptr<Active> active)
+            auto run = [](observer_ptr<CommandGraph> cg, ref_ptr<RecordBlock> recordBlock, ref_ptr<SubmitBarrier> submitBarrier, ref_ptr<DatabasePager> databasePager, ref_ptr<Active> active)
             {
+                auto value = std::numeric_limits<uint64_t>::max(); // recordBlock->get();
+
                 // wait for this frame to be signalled
                 while(*active)
                 {
-                    std::cout<<"In CommandGraph::thread:run(), before recordBarrier->wait()"<<std::endl;
+                    std::cout<<"In CommandGraph::thread:run(), before recordBlock->wait() value = "<<value<<std::endl;
 
-                    recordBarrier->wait();
+                    value = recordBlock->wait_for_change(value);
 
-                    std::cout<<"  after recordBarrier->wait()"<<std::endl;
+                    std::cout<<"  after recordBlock->wait() frame_value = "<<value<<std::endl;
 
                     // take a refernce to the command buffer to prevent it being deleted while we are traversing.
                     ref_ptr<CommandGraph> rcg = cg;
@@ -520,33 +613,34 @@ void Viewer::setupThreading()
                     // record the command buffer
                     CommandBuffers recordedCommandBuffers;
 #if 0
-                    rcg->record(recordedCommandBuffers, recordBarrier->frameStamp, databasePager);
+                    rcg->record(recordedCommandBuffers, recordBlock->frameStamp, databasePager);
 #endif
 
-                    std::cout<<"run()  "<<rcg.get()<<", frameCount = "<<recordBarrier->frameStamp->frameCount<<" "<<databasePager.get()<<std::endl;
+                    std::cout<<"run()  "<<rcg.get()<<", frameCount = "<<recordBlock->frameStamp->frameCount<<" "<<databasePager.get()<<std::endl;
 
                     // pass the result of this record traversal onto the submitBarrier
                     submitBarrier->submit(recordedCommandBuffers);
+
+                    std::cout<<"after submit"<<std::endl;
 
                     // wait till all the submissions have been released
                     submitBarrier->submissionCompleteBarrier->wait();
                 }
 
-                std::cout<<"Exciting thread"<<std::endl;
+                std::cout<<"Exiting thread"<<std::endl;
             };
 
 
 
-            // run(observer_ptr<CommandGraph>(commandGraph), recordBarrier, submitBarrier, task->databasePager, _active);
+            // run(observer_ptr<CommandGraph>(commandGraph), recordBlock, submitBarrier, task->databasePager, _active);
 
-//            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), std::ref(recordBarrier), std::ref(submitBarrier), std::ref(task->databasePager), std::ref(_active));
-            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), recordBarrier, submitBarrier, task->databasePager, _active);
+//            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), std::ref(recordBlock), std::ref(submitBarrier), std::ref(task->databasePager), std::ref(_active));
+            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), recordBlock, submitBarrier, task->databasePager, _active);
         }
     }
 
-    submissionsCompleteBarrier->set(recordAndSubmitTasks.size());
-    recordBarrier->frameStamp = new FrameStamp(vsg::clock::now(), 5);
-    recordBarrier->release();
+    submissionsCompleteBarrier->reset();
+    recordBlock->set(FrameStamp::create(vsg::clock::now(), 5));
 
     std::cout<<"before submissionsCompleteBarrier->wait()"<<std::endl;
 
@@ -554,24 +648,22 @@ void Viewer::setupThreading()
 
     std::cout<<"\nafter submissionsCompleteBarrier->wait()\n\n"<<std::endl;
 
-    submissionsCompleteBarrier->set(recordAndSubmitTasks.size());
-    recordBarrier->frameStamp = new FrameStamp(vsg::clock::now(), 6);
-    recordBarrier->release();
+    submissionsCompleteBarrier->reset();
+    recordBlock->set(FrameStamp::create(vsg::clock::now(), 6));
 
     submissionsCompleteBarrier->wait();
 
     std::cout<<"\nafter second submissionsCompleteBarrier->wait()\n\n"<<std::endl;
 
-    submissionsCompleteBarrier->set(recordAndSubmitTasks.size());
-    recordBarrier->frameStamp = new FrameStamp(vsg::clock::now(), 7);
-    recordBarrier->release();
+    submissionsCompleteBarrier->reset();
+    recordBlock->set(FrameStamp::create(vsg::clock::now(), 7));
 
     submissionsCompleteBarrier->wait();
 
     std::cout<<"\nafter third submissionsCompleteBarrier->wait()\n\n"<<std::endl;
 
     _active->set(false);
-    recordBarrier->release();
+    recordBlock->set(recordBlock->get()+1);
     for(auto& task : recordAndSubmitTasks)
     {
         for(auto& commandGraph : task->commandGraphs)
