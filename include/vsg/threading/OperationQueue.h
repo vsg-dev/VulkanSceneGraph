@@ -26,6 +26,8 @@ namespace vsg
 
         std::atomic_bool active;
 
+        void set(bool flag) { active = flag; }
+
         explicit operator bool() const noexcept { return active; }
 
     protected:

@@ -28,6 +28,7 @@ using namespace vsg;
 Viewer::Viewer()
 {
     _start_point = clock::now();
+    _active = vsg::Active::create();
 }
 
 Viewer::~Viewer()
@@ -63,6 +64,12 @@ void Viewer::addWindow(ref_ptr<Window> window)
     pdo.imageIndices.push_back(0);   // to be filled in by submitFrame()
     pdo.commandBuffers.push_back(0); // to be filled in by submitFrame()
     pdo.swapchains.push_back(*(window->swapchain()));
+}
+
+void Viewer::close()
+{
+    _close = true;
+    _active->set(false);
 }
 
 bool Viewer::active() const
@@ -364,6 +371,212 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             recordAndSubmitTask->databasePager = databasePager;
             recordAndSubmitTask->queue = device->getQueue(deviceQueueFamily.queueFamily);
             recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
+        }
+    }
+}
+
+#include <vsg/threading/Latch.h>
+
+
+class Block : public Inherit<Object, Block>
+{
+public:
+    Block() :
+        _wait(false) {}
+
+    Block(const Block&) = delete;
+    Block& operator = (const Block&) = delete;
+
+    void set()
+    {
+        _wait = true;
+    }
+
+    void release()
+    {
+        _wait = false;
+
+        std::unique_lock lock(_mutex);
+        _cv.notify_all();
+    }
+
+    void wait()
+    {
+        std::unique_lock lock(_mutex);
+        while (_wait)
+        {
+            _cv.wait(lock);
+        }
+    }
+
+    bool is_ready() const
+    {
+        return !_wait;
+    }
+protected:
+    virtual ~Block() {}
+
+    std::atomic_bool _wait;
+    std::mutex _mutex;
+    std::condition_variable _cv;
+};
+
+
+void Viewer::setupThreading()
+{
+    struct RecordBarrier : public Inherit<Block, RecordBarrier>
+    {
+        ref_ptr<FrameStamp> frameStamp;
+    };
+
+    struct SubmissionsCompletedBarrier : public Inherit<Latch, SubmissionsCompletedBarrier>
+    {
+        SubmissionsCompletedBarrier(int num): Inherit(num) {}
+
+        void release() override
+        {
+            std::cout<<"SubmissionsCompletedBarrier::release()"<<std::endl;
+
+            if (recordBarrier)
+            {
+                // reset to the recordBarrier to make sure the CommanGraph::run waits
+                recordBarrier->set();
+            }
+            Latch::release();
+        }
+
+        ref_ptr<RecordBarrier> recordBarrier;
+    };
+
+    struct SubmitBarrier : public Inherit<Latch, SubmitBarrier>
+    {
+        SubmitBarrier(int num) : Inherit(num) {}
+        void submit(const CommandBuffers& rcb)
+        {
+            {
+                std::scoped_lock lock(recordCommandBuffersMutex);
+                recordedCommandBuffers.insert(recordedCommandBuffers.end(), rcb.begin(), rcb.end());
+            }
+            std::cout<<"SubmitBarrier::submit() " <<this<<std::endl;
+
+            count_down();
+        }
+
+        void release() override
+        {
+            std::scoped_lock lock(recordCommandBuffersMutex);
+
+            // do submissions
+            std::cout<<"SubmitBarrier::release() " <<this<<std::endl;
+
+            submissionCompleteBarrier->count_down();
+
+            Latch::release();
+        }
+
+        std::mutex recordCommandBuffersMutex;
+        CommandBuffers recordedCommandBuffers;
+        ref_ptr<SubmissionsCompletedBarrier> submissionCompleteBarrier;
+    };
+
+    ref_ptr<RecordBarrier> recordBarrier = RecordBarrier::create();
+    recordBarrier->frameStamp = _frameStamp;
+
+    std::vector<ref_ptr<SubmitBarrier>> submitBarriers;
+
+    ref_ptr<SubmissionsCompletedBarrier> submissionsCompleteBarrier = SubmissionsCompletedBarrier::create(recordAndSubmitTasks.size());
+    submissionsCompleteBarrier->recordBarrier = recordBarrier;
+
+    for(auto& task : recordAndSubmitTasks)
+    {
+        ref_ptr<SubmitBarrier> submitBarrier = SubmitBarrier::create(task->commandGraphs.size());
+        submitBarriers.emplace_back(submitBarrier);
+
+        submitBarrier->submissionCompleteBarrier = submissionsCompleteBarrier;
+
+        for(auto& commandGraph : task->commandGraphs)
+        {
+            auto run = [](observer_ptr<CommandGraph> cg, ref_ptr<RecordBarrier> recordBarrier, ref_ptr<SubmitBarrier> submitBarrier, ref_ptr<DatabasePager> databasePager, ref_ptr<Active> active)
+            {
+                // wait for this frame to be signalled
+                while(*active)
+                {
+                    std::cout<<"In CommandGraph::thread:run(), before recordBarrier->wait()"<<std::endl;
+
+                    recordBarrier->wait();
+
+                    std::cout<<"  after recordBarrier->wait()"<<std::endl;
+
+                    // take a refernce to the command buffer to prevent it being deleted while we are traversing.
+                    ref_ptr<CommandGraph> rcg = cg;
+
+                    // need to check if still active
+                    if (!(*active) || !rcg)
+                    {
+                        std::cout<<"Exiting thread active = "<<active->active.load()<<", "<<rcg.get()<<std::endl;
+                        return;
+                    }
+
+                    // record the command buffer
+                    CommandBuffers recordedCommandBuffers;
+#if 0
+                    rcg->record(recordedCommandBuffers, recordBarrier->frameStamp, databasePager);
+#endif
+
+                    std::cout<<"run()  "<<rcg.get()<<", frameCount = "<<recordBarrier->frameStamp->frameCount<<" "<<databasePager.get()<<std::endl;
+
+                    // pass the result of this record traversal onto the submitBarrier
+                    submitBarrier->submit(recordedCommandBuffers);
+
+                    // wait till all the submissions have been released
+                    submitBarrier->submissionCompleteBarrier->wait();
+                }
+
+                std::cout<<"Exciting thread"<<std::endl;
+            };
+
+
+
+            // run(observer_ptr<CommandGraph>(commandGraph), recordBarrier, submitBarrier, task->databasePager, _active);
+
+//            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), std::ref(recordBarrier), std::ref(submitBarrier), std::ref(task->databasePager), std::ref(_active));
+            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), recordBarrier, submitBarrier, task->databasePager, _active);
+        }
+    }
+
+    submissionsCompleteBarrier->set(recordAndSubmitTasks.size());
+    recordBarrier->frameStamp = new FrameStamp(vsg::clock::now(), 5);
+    recordBarrier->release();
+
+    std::cout<<"before submissionsCompleteBarrier->wait()"<<std::endl;
+
+    submissionsCompleteBarrier->wait();
+
+    std::cout<<"\nafter submissionsCompleteBarrier->wait()\n\n"<<std::endl;
+
+    submissionsCompleteBarrier->set(recordAndSubmitTasks.size());
+    recordBarrier->frameStamp = new FrameStamp(vsg::clock::now(), 6);
+    recordBarrier->release();
+
+    submissionsCompleteBarrier->wait();
+
+    std::cout<<"\nafter second submissionsCompleteBarrier->wait()\n\n"<<std::endl;
+
+    submissionsCompleteBarrier->set(recordAndSubmitTasks.size());
+    recordBarrier->frameStamp = new FrameStamp(vsg::clock::now(), 7);
+    recordBarrier->release();
+
+    submissionsCompleteBarrier->wait();
+
+    std::cout<<"\nafter third submissionsCompleteBarrier->wait()\n\n"<<std::endl;
+
+    _active->set(false);
+    recordBarrier->release();
+    for(auto& task : recordAndSubmitTasks)
+    {
+        for(auto& commandGraph : task->commandGraphs)
+        {
+            commandGraph->thread.join();
         }
     }
 }

@@ -62,7 +62,7 @@ namespace vsg
         bool active() const;
 
         /// schedule closure of the viewer and associated windows, after a call to Viewer::close() the Viewer::active() method will return false
-        void close() { _close = true; }
+        void close();
 
         /// poll the events for all attached windows, return true if new events are available
         bool pollEvents(bool discardPreviousEvents = true);
@@ -111,6 +111,8 @@ namespace vsg
 
         void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs, DatabasePager* databasePager = nullptr);
 
+        void setupThreading();
+
         virtual void update();
 
         virtual void recordAndSubmit();
@@ -123,6 +125,7 @@ namespace vsg
         virtual ~Viewer();
 
         bool _close = false;
+        ref_ptr<Active> _active;
 
         ref_ptr<FrameStamp> _frameStamp;
 

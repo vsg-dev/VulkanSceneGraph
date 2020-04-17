@@ -17,6 +17,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/Window.h>
 #include <vsg/vk/CommandBuffer.h>
 
+#include <thread>
+
 namespace vsg
 {
 
@@ -39,6 +41,9 @@ namespace vsg
         int _presentFamily = -1;
         uint32_t _maxSlot = 2;
         mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
+
+        // each CommandGraph can utilize it's own thread for running the CommandGraph::record()
+        std::thread thread;
     };
 
     using CommandGraphs = std::vector<ref_ptr<CommandGraph>>;
