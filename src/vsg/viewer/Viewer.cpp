@@ -375,92 +375,48 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
     }
 }
 
-#include <vsg/threading/Latch.h>
-
-
-class Block : public Inherit<Object, Block>
+class FrameBlock : public Inherit<Object, FrameBlock>
 {
 public:
-    Block() :
-        _wait(false) {}
 
-    Block(const Block&) = delete;
-    Block& operator = (const Block&) = delete;
+    inline static const ref_ptr<FrameStamp> initial_value = {};
 
-    void set()
+    FrameBlock() : _value(initial_value) {}
+
+    FrameBlock(const FrameBlock&) = delete;
+    FrameBlock& operator = (const FrameBlock&) = delete;
+
+    void set(ref_ptr<FrameStamp> frameStamp)
     {
-        _wait = true;
-    }
-
-    void release()
-    {
-        _wait = false;
-
         std::scoped_lock lock(_mutex);
+        _value = frameStamp;
         _cv.notify_all();
     }
 
-    void wait()
+    ref_ptr<FrameStamp> get()
     {
-        std::unique_lock lock(_mutex);
-        while (_wait)
-        {
-            _cv.wait(lock);
-        }
-    }
-
-    bool is_ready() const
-    {
-        return !_wait;
-    }
-protected:
-    virtual ~Block() {}
-
-    std::atomic_bool _wait;
-    std::mutex _mutex;
-    std::condition_variable _cv;
-};
-
-class ValueBlock : public Inherit<Object, ValueBlock>
-{
-public:
-    using value_type = uint64_t;
-    const value_type initial_value = std::numeric_limits<value_type>::max();
-
-    ValueBlock() :
-        _value(initial_value) {}
-
-    ValueBlock(const ValueBlock&) = delete;
-    ValueBlock& operator = (const ValueBlock&) = delete;
-
-    void set(value_type value)
-    {
-        _value.exchange(value);
-
         std::scoped_lock lock(_mutex);
-        _cv.notify_all();
+        return _value;
     }
 
-    value_type get() const { return _value.load(); }
-
-    value_type wait_for_change(value_type value)
+    ref_ptr<FrameStamp> wait_for_change(ref_ptr<FrameStamp> value)
     {
         std::unique_lock lock(_mutex);
         while (_value == value)
         {
             _cv.wait(lock);
         }
-        return _value.load();
+        return _value;
     }
 
-
 protected:
-    virtual ~ValueBlock() {}
+    virtual ~FrameBlock() {}
 
-    std::atomic<value_type> _value;
     std::mutex _mutex;
     std::condition_variable _cv;
+    ref_ptr<FrameStamp> _value;
 };
+
 
 class Barrier : public Inherit<Object, Barrier>
 {
@@ -529,19 +485,6 @@ protected:
 
 void Viewer::setupThreading()
 {
-    struct RecordBlock : public Inherit<ValueBlock, RecordBlock>
-    {
-        ref_ptr<FrameStamp> frameStamp;
-
-        using Inherit::set;
-
-        void set(ref_ptr<FrameStamp> fs)
-        {
-            frameStamp = fs;
-            Inherit::set(fs->frameCount);
-        }
-    };
-
     struct SubmitBarrier : public Inherit<Barrier, SubmitBarrier>
     {
         SubmitBarrier(int num) : Inherit(num) {}
@@ -573,7 +516,7 @@ void Viewer::setupThreading()
         ref_ptr<Barrier> submissionCompleteBarrier;
     };
 
-    ref_ptr<RecordBlock> recordBlock = RecordBlock::create();
+    ref_ptr<FrameBlock> frameBlock = FrameBlock::create();
 
     std::vector<ref_ptr<SubmitBarrier>> submitBarriers;
 
@@ -588,18 +531,18 @@ void Viewer::setupThreading()
 
         for(auto& commandGraph : task->commandGraphs)
         {
-            auto run = [](observer_ptr<CommandGraph> cg, ref_ptr<RecordBlock> recordBlock, ref_ptr<SubmitBarrier> submitBarrier, ref_ptr<DatabasePager> databasePager, ref_ptr<Active> active)
+            auto run = [](observer_ptr<CommandGraph> cg, ref_ptr<FrameBlock> frameBlock, ref_ptr<SubmitBarrier> submitBarrier, ref_ptr<DatabasePager> databasePager, ref_ptr<Active> active)
             {
-                auto value = recordBlock->initial_value;
+                auto frameStamp = frameBlock->initial_value;
 
                 // wait for this frame to be signalled
                 while(*active)
                 {
-                    std::cout<<"In CommandGraph::thread:run(), before recordBlock->wait() value = "<<value<<std::endl;
+                    std::cout<<"In CommandGraph::thread:run(), before frameBlock->wait() value = "<<frameStamp.get()<<std::endl;
 
-                    value = recordBlock->wait_for_change(value);
+                    frameStamp = frameBlock->wait_for_change(frameStamp);
 
-                    std::cout<<"  after recordBlock->wait() frame_value = "<<value<<std::endl;
+                    std::cout<<"  after frameBlock->wait() frame_value = "<<frameStamp.get()<<std::endl;
 
                     // take a refernce to the command buffer to prevent it being deleted while we are traversing.
                     ref_ptr<CommandGraph> rcg = cg;
@@ -614,10 +557,10 @@ void Viewer::setupThreading()
                     // record the command buffer
                     CommandBuffers recordedCommandBuffers;
 #if 0
-                    rcg->record(recordedCommandBuffers, recordBlock->frameStamp, databasePager);
+                    rcg->record(recordedCommandBuffers, frameStamp, databasePager);
 #endif
 
-                    std::cout<<"run()  "<<rcg.get()<<", frameCount = "<<recordBlock->frameStamp->frameCount<<" "<<databasePager.get()<<std::endl;
+                    std::cout<<"run()  "<<rcg.get()<<", frameCount = "<<frameStamp.get()<<" "<<databasePager.get()<<std::endl;
 
                     // pass the result of this record traversal onto the submitBarrier
                     submitBarrier->submit(recordedCommandBuffers);
@@ -633,15 +576,15 @@ void Viewer::setupThreading()
 
 
 
-            // run(observer_ptr<CommandGraph>(commandGraph), recordBlock, submitBarrier, task->databasePager, _active);
+            // run(observer_ptr<CommandGraph>(commandGraph), frameBlock, submitBarrier, task->databasePager, _active);
 
-//            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), std::ref(recordBlock), std::ref(submitBarrier), std::ref(task->databasePager), std::ref(_active));
-            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), recordBlock, submitBarrier, task->databasePager, _active);
+//            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), std::ref(frameBlock), std::ref(submitBarrier), std::ref(task->databasePager), std::ref(_active));
+            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), frameBlock, submitBarrier, task->databasePager, _active);
         }
     }
 
     submissionsCompleteBarrier->reset();
-    recordBlock->set(FrameStamp::create(vsg::clock::now(), 5));
+    frameBlock->set(FrameStamp::create(vsg::clock::now(), 5));
 
     std::cout<<"before submissionsCompleteBarrier->wait()"<<std::endl;
 
@@ -650,21 +593,21 @@ void Viewer::setupThreading()
     std::cout<<"\nafter submissionsCompleteBarrier->wait()\n\n"<<std::endl;
 
     submissionsCompleteBarrier->reset();
-    recordBlock->set(FrameStamp::create(vsg::clock::now(), 6));
+    frameBlock->set(FrameStamp::create(vsg::clock::now(), 6));
 
     submissionsCompleteBarrier->wait();
 
     std::cout<<"\nafter second submissionsCompleteBarrier->wait()\n\n"<<std::endl;
 
     submissionsCompleteBarrier->reset();
-    recordBlock->set(FrameStamp::create(vsg::clock::now(), 7));
+    frameBlock->set(FrameStamp::create(vsg::clock::now(), 7));
 
     submissionsCompleteBarrier->wait();
 
     std::cout<<"\nafter third submissionsCompleteBarrier->wait()\n\n"<<std::endl;
 
     _active->set(false);
-    recordBlock->set(recordBlock->get()+1);
+    frameBlock->set({});
     for(auto& task : recordAndSubmitTasks)
     {
         for(auto& commandGraph : task->commandGraphs)
