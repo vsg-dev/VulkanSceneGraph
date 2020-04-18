@@ -381,7 +381,7 @@ public:
 
     inline static const ref_ptr<FrameStamp> initial_value = {};
 
-    FrameBlock() : _value(initial_value) {}
+    FrameBlock(ref_ptr<Active> active) : _value(initial_value), _active(active) {}
 
     FrameBlock(const FrameBlock&) = delete;
     FrameBlock& operator = (const FrameBlock&) = delete;
@@ -399,10 +399,18 @@ public:
         return _value;
     }
 
+    bool active() const { return bool(*_active); }
+
+    void wake()
+    {
+        std::scoped_lock lock(_mutex);
+        _cv.notify_all();
+    }
+
     ref_ptr<FrameStamp> wait_for_change(ref_ptr<FrameStamp> value)
     {
         std::unique_lock lock(_mutex);
-        while (_value == value)
+        while (_value == value && *_active)
         {
             _cv.wait(lock);
         }
@@ -415,6 +423,7 @@ protected:
     std::mutex _mutex;
     std::condition_variable _cv;
     ref_ptr<FrameStamp> _value;
+    ref_ptr<Active> _active;
 };
 
 
@@ -514,7 +523,7 @@ void Viewer::setupThreading()
         ref_ptr<Barrier> submissionCompleteBarrier;
     };
 
-    ref_ptr<FrameBlock> frameBlock = FrameBlock::create();
+    ref_ptr<FrameBlock> frameBlock = FrameBlock::create(_active);
 
     std::vector<ref_ptr<SubmitBarrier>> submitBarriers;
 
@@ -532,18 +541,13 @@ void Viewer::setupThreading()
 
         for(auto& commandGraph : task->commandGraphs)
         {
-            auto run = [](observer_ptr<CommandGraph> cg, ref_ptr<FrameBlock> frameBlock, ref_ptr<SubmitBarrier> submitBarrier, ref_ptr<DatabasePager> databasePager, ref_ptr<Active> active)
+            auto run = [](observer_ptr<CommandGraph> cg, ref_ptr<FrameBlock> frameBlock, ref_ptr<SubmitBarrier> submitBarrier, ref_ptr<DatabasePager> databasePager)
             {
                 auto frameStamp = frameBlock->initial_value;
 
                 // wait for this frame to be signalled
-                while(*active)
+                while((frameStamp = frameBlock->wait_for_change(frameStamp)) && frameBlock->active())
                 {
-                    frameStamp = frameBlock->wait_for_change(frameStamp);
-
-                    // need to check if still active
-                    if (!(*active) || !frameStamp) break;
-
                     // take a refernce to the command buffer to prevent it being deleted while we are traversing.
                     ref_ptr<CommandGraph> rcg = cg;
                     if (!rcg) break;
@@ -572,9 +576,8 @@ void Viewer::setupThreading()
 
             // run(observer_ptr<CommandGraph>(commandGraph), frameBlock, submitBarrier, task->databasePager, _active);
 
-//            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), std::ref(frameBlock), std::ref(submitBarrier), std::ref(task->databasePager), std::ref(_active));
-            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), frameBlock, submitBarrier, task->databasePager, _active);
-
+//            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), std::ref(frameBlock), std::ref(submitBarrier), std::ref(task->databasePager));
+            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), frameBlock, submitBarrier, task->databasePager);
 
             if (cpu_increment > 0)
             {
@@ -592,8 +595,9 @@ void Viewer::setupThreading()
     }
 
     // release the blocks to enable threads to exit cleanly
+    // need to manually wake up the threads waiting on this frameBlock so they check the _active value and exit cleanly.
     _active->set(false);
-    frameBlock->set({});
+    frameBlock->wake();
 
     for(auto& task : recordAndSubmitTasks)
     {
