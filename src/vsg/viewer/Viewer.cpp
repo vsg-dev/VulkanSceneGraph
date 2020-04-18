@@ -483,6 +483,8 @@ protected:
     std::condition_variable _cv;
 };
 
+#include <vsg/threading/Affinity.h>
+
 void Viewer::setupThreading()
 {
     struct SubmitBarrier : public Inherit<Barrier, SubmitBarrier>
@@ -490,8 +492,6 @@ void Viewer::setupThreading()
         SubmitBarrier(int num) : Inherit(num) {}
         void submit(const CommandBuffers& rcb)
         {
-            std::cout<<"SubmitBarrier::submit() " <<this<<std::endl;
-
             {
                 std::scoped_lock lock(recordCommandBuffersMutex);
                 recordedCommandBuffers.insert(recordedCommandBuffers.end(), rcb.begin(), rcb.end());
@@ -502,8 +502,6 @@ void Viewer::setupThreading()
 
         void released() override
         {
-            std::cout<<"SubmitBarrier::released() " <<this<<std::endl;
-
             std::scoped_lock lock(recordCommandBuffersMutex);
 
             // do submissions
@@ -522,6 +520,9 @@ void Viewer::setupThreading()
 
     ref_ptr<Barrier> submissionsCompleteBarrier = Barrier::create(recordAndSubmitTasks.size());
 
+    uint32_t cpu_num = 2;
+    uint32_t cpu_increment = 2;
+
     for(auto& task : recordAndSubmitTasks)
     {
         ref_ptr<SubmitBarrier> submitBarrier = SubmitBarrier::create(task->commandGraphs.size());
@@ -538,37 +539,30 @@ void Viewer::setupThreading()
                 // wait for this frame to be signalled
                 while(*active)
                 {
-                    std::cout<<"In CommandGraph::thread:run(), before frameBlock->wait() value = "<<frameStamp.get()<<std::endl;
-
                     frameStamp = frameBlock->wait_for_change(frameStamp);
 
-                    std::cout<<"  after frameBlock->wait() frame_value = "<<frameStamp.get()<<std::endl;
+                    // need to check if still active
+                    if (!(*active) || !frameStamp) break;
 
                     // take a refernce to the command buffer to prevent it being deleted while we are traversing.
                     ref_ptr<CommandGraph> rcg = cg;
-
-                    // need to check if still active
-                    if (!(*active) || !rcg)
-                    {
-                        std::cout<<"Exiting thread active = "<<active->active.load()<<", "<<rcg.get()<<std::endl;
-                        return;
-                    }
+                    if (!rcg) break;
 
                     // record the command buffer
                     CommandBuffers recordedCommandBuffers;
 #if 0
                     rcg->record(recordedCommandBuffers, frameStamp, databasePager);
+
 #endif
 
-                    std::cout<<"run()  "<<rcg.get()<<", frameCount = "<<frameStamp.get()<<" "<<databasePager.get()<<std::endl;
+                    auto count = frameStamp->frameCount;
+                    for(int i=0; i<10000; ++i) count = count*2 -3;
+
+                    //std::cout<<"run()  "<<rcg.get()<<", frameCount = "<<std::dec<<frameStamp->frameCount<<" "<<databasePager.get()<<std::endl;
 
                     // pass the result of this record traversal onto the submitBarrier
                     submitBarrier->submit(recordedCommandBuffers);
 
-                    std::cout<<"after submit"<<std::endl;
-
-                    // wait till all the submissions have been released
-                    submitBarrier->submissionCompleteBarrier->wait();
                 }
 
                 std::cout<<"Exiting thread"<<std::endl;
@@ -580,34 +574,27 @@ void Viewer::setupThreading()
 
 //            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), std::ref(frameBlock), std::ref(submitBarrier), std::ref(task->databasePager), std::ref(_active));
             commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), frameBlock, submitBarrier, task->databasePager, _active);
+
+
+            if (cpu_increment > 0)
+            {
+                setAffinity(commandGraph->thread, cpu_num);
+                cpu_num += cpu_increment;
+            }
         }
     }
 
-    submissionsCompleteBarrier->reset();
-    frameBlock->set(FrameStamp::create(vsg::clock::now(), 5));
+    for(uint64_t i = 0; i<100000; ++i)
+    {
+        submissionsCompleteBarrier->reset();
+        frameBlock->set(FrameStamp::create(vsg::clock::now(), i));
+        submissionsCompleteBarrier->wait();
+    }
 
-    std::cout<<"before submissionsCompleteBarrier->wait()"<<std::endl;
-
-    submissionsCompleteBarrier->wait();
-
-    std::cout<<"\nafter submissionsCompleteBarrier->wait()\n\n"<<std::endl;
-
-    submissionsCompleteBarrier->reset();
-    frameBlock->set(FrameStamp::create(vsg::clock::now(), 6));
-
-    submissionsCompleteBarrier->wait();
-
-    std::cout<<"\nafter second submissionsCompleteBarrier->wait()\n\n"<<std::endl;
-
-    submissionsCompleteBarrier->reset();
-    frameBlock->set(FrameStamp::create(vsg::clock::now(), 7));
-
-    submissionsCompleteBarrier->wait();
-
-    std::cout<<"\nafter third submissionsCompleteBarrier->wait()\n\n"<<std::endl;
-
+    // release the blocks to enable threads to exit cleanly
     _active->set(false);
     frameBlock->set({});
+
     for(auto& task : recordAndSubmitTasks)
     {
         for(auto& commandGraph : task->commandGraphs)
