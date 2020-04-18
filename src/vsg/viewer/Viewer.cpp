@@ -425,9 +425,10 @@ class ValueBlock : public Inherit<Object, ValueBlock>
 {
 public:
     using value_type = uint64_t;
+    const value_type initial_value = std::numeric_limits<value_type>::max();
 
     ValueBlock() :
-        _value(std::numeric_limits<value_type>::max()) {}
+        _value(initial_value) {}
 
     ValueBlock(const ValueBlock&) = delete;
     ValueBlock& operator = (const ValueBlock&) = delete;
@@ -589,7 +590,7 @@ void Viewer::setupThreading()
         {
             auto run = [](observer_ptr<CommandGraph> cg, ref_ptr<RecordBlock> recordBlock, ref_ptr<SubmitBarrier> submitBarrier, ref_ptr<DatabasePager> databasePager, ref_ptr<Active> active)
             {
-                auto value = std::numeric_limits<uint64_t>::max(); // recordBlock->get();
+                auto value = recordBlock->initial_value;
 
                 // wait for this frame to be signalled
                 while(*active)
