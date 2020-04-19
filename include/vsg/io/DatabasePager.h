@@ -56,8 +56,8 @@ namespace vsg
 
         using Nodes = std::list<ref_ptr<PagedLOD>>;
 
-        ActivityStatus* getActivityStatus() { return _status; }
-        const ActivityStatus* getActivityStatus() const { return _status; }
+        ActivityStatus* getStatus() { return _status; }
+        const ActivityStatus* getStatus() const { return _status; }
 
         void add(ref_ptr<PagedLOD> plod);
 
