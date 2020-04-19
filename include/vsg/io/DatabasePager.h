@@ -19,12 +19,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/PagedLOD.h>
 
-#include <vsg/threading/OperationQueue.h>
+#include <vsg/threading/ActivityStatus.h>
 
 #include <vsg/traversals/CompileTraversal.h>
 
 #include <list>
 #include <thread>
+#include <condition_variable>
 
 namespace vsg
 {
@@ -51,12 +52,12 @@ namespace vsg
     class VSG_DECLSPEC DatabaseQueue : public Inherit<Object, DatabaseQueue>
     {
     public:
-        DatabaseQueue(ref_ptr<Active> in_active);
+        DatabaseQueue(ref_ptr<ActivityStatus> status);
 
         using Nodes = std::list<ref_ptr<PagedLOD>>;
 
-        Active* getActive() { return _active; }
-        const Active* getActive() const { return _active; }
+        ActivityStatus* getActivityStatus() { return _status; }
+        const ActivityStatus* getActivityStatus() const { return _status; }
 
         void add(ref_ptr<PagedLOD> plod);
 
@@ -83,7 +84,7 @@ namespace vsg
         std::mutex _mutex;
         std::condition_variable _cv;
         Nodes _queue;
-        ref_ptr<Active> _active;
+        ref_ptr<ActivityStatus> _status;
     };
     VSG_type_name(vsg::DatabaseQueue);
 
@@ -121,7 +122,7 @@ namespace vsg
 
         void requestDiscarded(PagedLOD* plod);
 
-        ref_ptr<Active> _active;
+        ref_ptr<ActivityStatus> _status;
 
         ref_ptr<DatabaseQueue> _requestQueue;
         ref_ptr<DatabaseQueue> _compileQueue;

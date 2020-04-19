@@ -13,24 +13,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/threading/Latch.h>
+#include <vsg/threading/ActivityStatus.h>
 
 #include <list>
 
 namespace vsg
 {
-
-    struct Active : public Inherit<Object, Active>
-    {
-        Active() :
-            active(true) {}
-
-        std::atomic_bool active;
-
-        explicit operator bool() const noexcept { return active; }
-
-    protected:
-        virtual ~Active() {}
-    };
 
     struct Operation : public Object
     {
@@ -40,10 +28,10 @@ namespace vsg
     class VSG_DECLSPEC OperationQueue : public Inherit<Object, OperationQueue>
     {
     public:
-        OperationQueue(ref_ptr<Active> in_active);
+        OperationQueue(ref_ptr<ActivityStatus> status);
 
-        Active* getActive() { return _active; }
-        const Active* getActive() const { return _active; }
+        ActivityStatus* getStatus() { return _status; }
+        const ActivityStatus* getStatus() const { return _status; }
 
         void add(ref_ptr<Operation> operation)
         {
@@ -77,7 +65,7 @@ namespace vsg
         std::mutex _mutex;
         std::condition_variable _cv;
         std::list<ref_ptr<Operation>> _queue;
-        ref_ptr<Active> _active;
+        ref_ptr<ActivityStatus> _status;
     };
     VSG_type_name(vsg::OperationQueue)
 

@@ -14,8 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-OperationQueue::OperationQueue(ref_ptr<Active> in_active) :
-    _active(in_active)
+OperationQueue::OperationQueue(ref_ptr<ActivityStatus> status) :
+    _status(status)
 {
 }
 
@@ -39,14 +39,14 @@ ref_ptr<Operation> OperationQueue::take_when_avilable()
     std::unique_lock lock(_mutex);
 
     // wait to the conditional variable signals that an operation has been added
-    while (_queue.empty() && *_active)
+    while (_queue.empty() && _status->active())
     {
         //std::cout<<"Waiting on condition variable"<<std::endl;
         _cv.wait_for(lock, waitDuration);
     }
 
     // if the threads we are associated with should no longer running go for a quick exit and return nothing.
-    if (!*_active)
+    if (_status->cancel())
     {
         return {};
     }
