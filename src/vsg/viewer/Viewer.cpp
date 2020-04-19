@@ -28,12 +28,12 @@ using namespace vsg;
 Viewer::Viewer()
 {
     _start_point = clock::now();
-    _active = vsg::Active::create();
+    _status = vsg::ActivityStatus::create();
 }
 
 Viewer::~Viewer()
 {
-    // don't kill window while devices are still active
+    // don't kill window while devices are still _status
     for (auto& pair_pdo : _deviceMap)
     {
         vkDeviceWaitIdle(*pair_pdo.first);
@@ -69,7 +69,7 @@ void Viewer::addWindow(ref_ptr<Window> window)
 void Viewer::close()
 {
     _close = true;
-    _active->set(false);
+    _status->set(false);
 }
 
 bool Viewer::active() const
@@ -381,7 +381,7 @@ public:
 
     inline static const ref_ptr<FrameStamp> initial_value = {};
 
-    FrameBlock(ref_ptr<Active> active) : _value(initial_value), _active(active) {}
+    FrameBlock(ref_ptr<ActivityStatus> status) : _value(initial_value), _status(status) {}
 
     FrameBlock(const FrameBlock&) = delete;
     FrameBlock& operator = (const FrameBlock&) = delete;
@@ -399,7 +399,7 @@ public:
         return _value;
     }
 
-    bool active() const { return bool(*_active); }
+    bool active() const { return _status->active(); }
 
     void wake()
     {
@@ -410,7 +410,7 @@ public:
     ref_ptr<FrameStamp> wait_for_change(ref_ptr<FrameStamp> value)
     {
         std::unique_lock lock(_mutex);
-        while (_value == value && *_active)
+        while (_value == value && _status->active())
         {
             _cv.wait(lock);
         }
@@ -423,7 +423,7 @@ protected:
     std::mutex _mutex;
     std::condition_variable _cv;
     ref_ptr<FrameStamp> _value;
-    ref_ptr<Active> _active;
+    ref_ptr<ActivityStatus> _status;
 };
 
 
@@ -523,7 +523,7 @@ void Viewer::setupThreading()
         ref_ptr<Barrier> submissionCompleteBarrier;
     };
 
-    ref_ptr<FrameBlock> frameBlock = FrameBlock::create(_active);
+    ref_ptr<FrameBlock> frameBlock = FrameBlock::create(_status);
 
     std::vector<ref_ptr<SubmitBarrier>> submitBarriers;
 
@@ -574,7 +574,7 @@ void Viewer::setupThreading()
 
 
 
-            // run(observer_ptr<CommandGraph>(commandGraph), frameBlock, submitBarrier, task->databasePager, _active);
+            // run(observer_ptr<CommandGraph>(commandGraph), frameBlock, submitBarrier, task->databasePager, _status);
 
 //            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), std::ref(frameBlock), std::ref(submitBarrier), std::ref(task->databasePager));
             commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), frameBlock, submitBarrier, task->databasePager);
@@ -595,8 +595,8 @@ void Viewer::setupThreading()
     }
 
     // release the blocks to enable threads to exit cleanly
-    // need to manually wake up the threads waiting on this frameBlock so they check the _active value and exit cleanly.
-    _active->set(false);
+    // need to manually wake up the threads waiting on this frameBlock so they check the _status value and exit cleanly.
+    _status->set(false);
     frameBlock->wake();
 
     for(auto& task : recordAndSubmitTasks)

@@ -14,14 +14,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-OperationThreads::OperationThreads(uint32_t numThreads, ref_ptr<Active> in_active) :
-    active(in_active)
+OperationThreads::OperationThreads(uint32_t numThreads, ref_ptr<ActivityStatus> in_status) :
+    status(in_status)
 {
-    if (!active) active = new Active;
-    queue = new OperationQueue(active);
+    if (!status) status = ActivityStatus::create();
+    queue = new OperationQueue(status);
 
-    auto run = [](ref_ptr<OperationQueue> q, ref_ptr<Active> a) {
-        while (*(a))
+    auto run = [](ref_ptr<OperationQueue> q, ref_ptr<ActivityStatus> thread_status) {
+        while (thread_status->active())
         {
             ref_ptr<Operation> operation = q->take_when_avilable();
             if (operation)
@@ -33,7 +33,7 @@ OperationThreads::OperationThreads(uint32_t numThreads, ref_ptr<Active> in_activ
 
     for (size_t i = 0; i < numThreads; ++i)
     {
-        threads.emplace_back(std::thread(run, std::ref(queue), std::ref(active)));
+        threads.emplace_back(std::thread(run, std::ref(queue), std::ref(status)));
     }
 }
 
@@ -47,7 +47,7 @@ void OperationThreads::run()
 
 void OperationThreads::stop()
 {
-    active->active.exchange(false);
+    status->set(false);
     for (auto& thread : threads)
     {
         thread.join();

@@ -12,47 +12,31 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/threading/OperationQueue.h>
-
-#include <thread>
+#include <vsg/core/Object.h>
 
 namespace vsg
 {
 
-    class VSG_DECLSPEC OperationThreads : public Inherit<Object, OperationThreads>
+    /// Atomic management of whether threads watching this ActivityStatus object should be active or safely exit
+    class ActivityStatus : public Inherit<Object, ActivityStatus>
     {
     public:
-        OperationThreads(uint32_t numThreads, ref_ptr<ActivityStatus> in_status = {});
+        ActivityStatus(bool active = true) :
+            _active(active) {}
 
-        void add(ref_ptr<Operation> operation)
-        {
-            queue->add(operation);
-        }
+        void set(bool flag) noexcept { _active.exchange(flag); }
 
-        template<typename Iterator>
-        void add(Iterator begin, Iterator end)
-        {
-            queue->add(begin, end);
-        }
+        /// return true if the caller should continue with current activity or false if they should be cancelled
+        bool active() const noexcept { return _active; }
 
-        /// use this thread to run operations till the queue is empty as well
-        /// this thread will consume and run operations in parallel with any threads associated with this OperationThreads.
-        void run();
-
-        /// stop threads
-        void stop();
-
-        using Threads = std::list<std::thread>;
-        Threads threads;
-        ref_ptr<OperationQueue> queue;
-        ref_ptr<ActivityStatus> status;
+        /// return true if the caller should cancel current activity
+        bool cancel() const noexcept { return !_active; }
 
     protected:
-        virtual ~OperationThreads()
-        {
-            stop();
-        }
+        virtual ~ActivityStatus() {}
+
+        std::atomic_bool _active;
     };
-    VSG_type_name(vsg::OperationThreads)
+    VSG_type_name(vsg::ActivityStatus)
 
 } // namespace vsg

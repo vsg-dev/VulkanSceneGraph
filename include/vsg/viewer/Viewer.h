@@ -125,7 +125,7 @@ namespace vsg
         virtual ~Viewer();
 
         bool _close = false;
-        ref_ptr<Active> _active;
+        ref_ptr<ActivityStatus> _status;
 
         ref_ptr<FrameStamp> _frameStamp;
 
