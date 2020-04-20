@@ -100,12 +100,10 @@ namespace vsg
 
         struct Frame
         {
-            // do we need a imageAvailableSemaphore per Frame? Probably..
-            ref_ptr<Semaphore> imageAvailableSemaphore;
-
             ref_ptr<ImageView> imageView;
             ref_ptr<Framebuffer> framebuffer;
 
+            ref_ptr<Semaphore> imageAvailableSemaphore;
             ref_ptr<Fence> commandsCompletedFence;
         };
 

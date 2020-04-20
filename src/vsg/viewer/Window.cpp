@@ -203,7 +203,7 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
         ref_ptr<Framebuffer> fb = Framebuffer::create(_device, framebufferInfo);
         ref_ptr<Fence> fence = Fence::create(_device);
 
-        _frames.push_back({ias, imageViews[i], fb, fence});
+        _frames.push_back({imageViews[i], fb, ias, fence});
     }
 
     {
