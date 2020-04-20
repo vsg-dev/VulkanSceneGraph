@@ -407,14 +407,16 @@ public:
         _cv.notify_all();
     }
 
-    ref_ptr<FrameStamp> wait_for_change(ref_ptr<FrameStamp> value)
+    bool wait_for_change(ref_ptr<FrameStamp>& value)
     {
         std::unique_lock lock(_mutex);
         while (_value == value && _status->active())
         {
             _cv.wait(lock);
         }
-        return _value;
+
+        value = _value;
+        return _status->active();
     }
 
 protected:
@@ -492,37 +494,38 @@ protected:
     std::condition_variable _cv;
 };
 
+struct SubmitBarrier : public Inherit<Barrier, SubmitBarrier>
+{
+    SubmitBarrier(int num) : Inherit(num) {}
+    void submit(const CommandBuffers& rcb)
+    {
+        {
+            std::scoped_lock lock(recordCommandBuffersMutex);
+            recordedCommandBuffers.insert(recordedCommandBuffers.end(), rcb.begin(), rcb.end());
+        }
+
+        arrive_and_drop();
+    }
+
+    void released() override
+    {
+        std::scoped_lock lock(recordCommandBuffersMutex);
+
+        // do submissions
+
+        submissionCompleteBarrier->arrive_and_drop();
+    }
+
+    std::mutex recordCommandBuffersMutex;
+    CommandBuffers recordedCommandBuffers;
+    ref_ptr<Barrier> submissionCompleteBarrier;
+};
+
+
 #include <vsg/threading/Affinity.h>
 
 void Viewer::setupThreading()
 {
-    struct SubmitBarrier : public Inherit<Barrier, SubmitBarrier>
-    {
-        SubmitBarrier(int num) : Inherit(num) {}
-        void submit(const CommandBuffers& rcb)
-        {
-            {
-                std::scoped_lock lock(recordCommandBuffersMutex);
-                recordedCommandBuffers.insert(recordedCommandBuffers.end(), rcb.begin(), rcb.end());
-            }
-
-            arrive_and_drop();
-        }
-
-        void released() override
-        {
-            std::scoped_lock lock(recordCommandBuffersMutex);
-
-            // do submissions
-
-            submissionCompleteBarrier->arrive_and_drop();
-        }
-
-        std::mutex recordCommandBuffersMutex;
-        CommandBuffers recordedCommandBuffers;
-        ref_ptr<Barrier> submissionCompleteBarrier;
-    };
-
     ref_ptr<FrameBlock> frameBlock = FrameBlock::create(_status);
 
     std::vector<ref_ptr<SubmitBarrier>> submitBarriers;
@@ -541,12 +544,12 @@ void Viewer::setupThreading()
 
         for(auto& commandGraph : task->commandGraphs)
         {
-            auto run = [](observer_ptr<CommandGraph> cg, ref_ptr<FrameBlock> frameBlock, ref_ptr<SubmitBarrier> submitBarrier, ref_ptr<DatabasePager> databasePager)
+            auto run = [](observer_ptr<CommandGraph> cg, ref_ptr<FrameBlock> viewer_frameBlock, ref_ptr<SubmitBarrier> task_submitBarrier, ref_ptr<DatabasePager> /*databasePager*/)
             {
-                auto frameStamp = frameBlock->initial_value;
+                auto frameStamp = viewer_frameBlock->initial_value;
 
                 // wait for this frame to be signalled
-                while((frameStamp = frameBlock->wait_for_change(frameStamp)) && frameBlock->active())
+                while(viewer_frameBlock->wait_for_change(frameStamp))
                 {
                     // take a refernce to the command buffer to prevent it being deleted while we are traversing.
                     ref_ptr<CommandGraph> rcg = cg;
@@ -557,15 +560,15 @@ void Viewer::setupThreading()
 #if 0
                     rcg->record(recordedCommandBuffers, frameStamp, databasePager);
 
-#endif
-
+#else
                     auto count = frameStamp->frameCount;
-                    for(int i=0; i<10000; ++i) count = count*2 -3;
+                    for(int i=0; i<1000009; ++i) count = count*2 -3;
+#endif
 
                     //std::cout<<"run()  "<<rcg.get()<<", frameCount = "<<std::dec<<frameStamp->frameCount<<" "<<databasePager.get()<<std::endl;
 
                     // pass the result of this record traversal onto the submitBarrier
-                    submitBarrier->submit(recordedCommandBuffers);
+                    task_submitBarrier->submit(recordedCommandBuffers);
 
                 }
 
