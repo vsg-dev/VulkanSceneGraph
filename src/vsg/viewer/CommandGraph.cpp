@@ -41,7 +41,8 @@ CommandGraph::CommandGraph(Window* in_window)
 
         for (size_t i = 0; i < window->numFrames(); ++i)
         {
-            commandBuffers.emplace_back(window->commandBuffer(i));
+            ref_ptr<CommandPool> cp = CommandPool::create(_device, _queueFamily);
+            commandBuffers.emplace_back(CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT));
         }
     }
 }

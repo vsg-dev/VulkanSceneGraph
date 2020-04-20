@@ -82,12 +82,6 @@ namespace vsg
         Framebuffer* framebuffer(size_t i) { return _frames[i].framebuffer; }
         const Framebuffer* framebuffer(size_t i) const { return _frames[i].framebuffer; }
 
-        CommandPool* commandPool(size_t i) { return _frames[i].commandPool; }
-        const CommandPool* commandPool(size_t i) const { return _frames[i].commandPool; }
-
-        CommandBuffer* commandBuffer(size_t i) { return _frames[i].commandBuffer; }
-        const CommandBuffer* commandBuffer(size_t i) const { return _frames[i].commandBuffer; }
-
         VkResult acquireNextImage(uint64_t timeout, VkSemaphore samaphore, VkFence fence)
         {
             return vkAcquireNextImageKHR(*_device, *_swapchain, timeout, samaphore, fence, &_nextImageIndex);
@@ -112,11 +106,6 @@ namespace vsg
             ref_ptr<ImageView> imageView;
             ref_ptr<Framebuffer> framebuffer;
 
-            // should we have multiple commandPool and commandBuffer?
-            ref_ptr<CommandPool> commandPool;
-            ref_ptr<CommandBuffer> commandBuffer;
-
-            bool checkCommandsCompletedFence = false;
             ref_ptr<Fence> commandsCompletedFence;
         };
 
