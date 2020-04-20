@@ -26,19 +26,12 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     std::cout << "RecordAndSubmitTask::submit()" << std::endl;
 #endif
 
-    std::vector<VkSemaphore> vk_waitSemaphores;
-    std::vector<VkPipelineStageFlags> vk_waitStages;
-    std::vector<VkSemaphore> vk_signalSemaphores;
 
+// Part 1
     // aquire fence
     ref_ptr<Fence> fence;
     for (auto& window : windows)
     {
-        auto& semaphore = window->frame(window->nextImageIndex()).imageAvailableSemaphore;
-
-        vk_waitSemaphores.emplace_back(*semaphore);
-        vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
-
         fence = window->frame(window->nextImageIndex()).commandsCompletedFence;
     }
 
@@ -76,20 +69,38 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
         fence->reset();
     }
 
+//  Part 2
+    CommandBuffers recordedCommandBuffers;
+    // record the commands to the command buffers
+    for (auto& commandGraph : commandGraphs)
+    {
+        commandGraph->record(recordedCommandBuffers, frameStamp, databasePager);
+    }
+
+// Part 3
+    std::vector<VkSemaphore> vk_waitSemaphores;
+    std::vector<VkPipelineStageFlags> vk_waitStages;
+
+    // aquire fenced
+    //ref_ptr<Fence> fence;
+    for (auto& window : windows)
+    {
+        auto& semaphore = window->frame(window->nextImageIndex()).imageAvailableSemaphore;
+
+        vk_waitSemaphores.emplace_back(*semaphore);
+        vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
+
+        //fence = window->frame(window->nextImageIndex()).commandsCompletedFence;
+    }
+
     for (auto& semaphore : waitSemaphores)
     {
         vk_waitSemaphores.emplace_back(*(semaphore));
         vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
     }
 
-    // record the commands to the command buffers
-    CommandBuffers recordedCommandBuffers;
-    for (auto& commandGraph : commandGraphs)
-    {
-        commandGraph->record(recordedCommandBuffers, frameStamp, databasePager);
-    }
-
     // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of depdendent CommandBuffers
+    std::vector<VkSemaphore> vk_signalSemaphores;
     std::vector<VkCommandBuffer> vk_commandBuffers;
     for (auto& commandBuffer : recordedCommandBuffers)
     {
@@ -160,4 +171,5 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     std::cout << std::endl;
 #endif
     return queue->submit(submitInfo, fence);
+
 }
