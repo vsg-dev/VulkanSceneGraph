@@ -82,11 +82,6 @@ namespace vsg
         Framebuffer* framebuffer(size_t i) { return _frames[i].framebuffer; }
         const Framebuffer* framebuffer(size_t i) const { return _frames[i].framebuffer; }
 
-        VkResult acquireNextImage(uint64_t timeout, VkSemaphore samaphore, VkFence fence)
-        {
-            return vkAcquireNextImageKHR(*_device, *_swapchain, timeout, samaphore, fence, &_nextImageIndex);
-        }
-
         VkResult acquireNextImage(uint64_t timeout = std::numeric_limits<uint64_t>::max())
         {
             return vkAcquireNextImageKHR(*_device, *_swapchain, timeout, *(_frames[_nextImageIndex].imageAvailableSemaphore), VK_NULL_HANDLE, &_nextImageIndex);
@@ -102,9 +97,7 @@ namespace vsg
         {
             ref_ptr<ImageView> imageView;
             ref_ptr<Framebuffer> framebuffer;
-
             ref_ptr<Semaphore> imageAvailableSemaphore;
-            ref_ptr<Fence> commandsCompletedFence;
         };
 
         using Frames = std::vector<Frame>;

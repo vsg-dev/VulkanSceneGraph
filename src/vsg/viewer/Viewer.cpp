@@ -341,7 +341,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             auto renderFinishedSemaphore = vsg::Semaphore::create(device);
 
             // set up Submission with CommandBuffer and signals
-            auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create();
+            auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create(device);
             recordAndSubmitTask->commandGraphs = commandGraphs;
             recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
             recordAndSubmitTask->databasePager = databasePager;
@@ -359,7 +359,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
         {
             // with don't have a presentFamily so this set of commandGraphs aren't associated with a widnow
             // set up Submission with CommandBuffer and signals
-            auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create();
+            auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create(device);
             recordAndSubmitTask->commandGraphs = commandGraphs;
             recordAndSubmitTask->databasePager = databasePager;
             recordAndSubmitTask->queue = device->getQueue(deviceQueueFamily.queueFamily);
