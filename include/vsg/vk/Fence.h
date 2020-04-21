@@ -31,9 +31,8 @@ namespace vsg
 
         VkResult status() const { return vkGetFenceStatus(*_device, _vkFence); }
 
-        VkFence fence() const { return _vkFence; }
-
         operator VkFence() const { return _vkFence; }
+        VkFence vk() const { return _vkFence; }
 
         Semaphores& dependentSemaphores() { return _dependentSemaphores; }
         CommandBuffers& dependentCommandBuffers() { return _dependentCommandBuffers; }
