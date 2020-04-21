@@ -29,15 +29,14 @@ RecordAndSubmitTask::RecordAndSubmitTask(Device* device, uint32_t numBuffers)
 
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
-#if 0
-    std::cout << "\n.....................................................\n";
-    std::cout << "RecordAndSubmitTask::submit()" << std::endl;
-#endif
+    CommandBuffers recordedCommandBuffers;
+    if (VkResult result = start(); result != VK_SUCCESS) return result;
+    if (VkResult result = record(recordedCommandBuffers, frameStamp); result != VK_SUCCESS) return result;
+    return finish(recordedCommandBuffers);
+}
 
-    //
-    // Part 1
-    // Wait for the fence to be signalled
-    //
+VkResult RecordAndSubmitTask::start()
+{
     auto fence = fences[index];
     if (fence->hasDependencies())
     {
@@ -46,21 +45,21 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 
         fence->resetFenceAndDependencies();
     }
+    return VK_SUCCESS;
+}
 
-    //
-    // Part 2
-    // record the commands to the command buffers
-    //
-    CommandBuffers recordedCommandBuffers;
+VkResult RecordAndSubmitTask::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp)
+{
     for (auto& commandGraph : commandGraphs)
     {
         commandGraph->record(recordedCommandBuffers, frameStamp, databasePager);
     }
+    return VK_SUCCESS;
+}
 
-    //
-    // Part 3
-    // set up the SubmitInfo and submit it to the queue
-    //
+VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
+{
+    auto fence = fences[index];
 
     std::vector<VkCommandBuffer> vk_commandBuffers;
     std::vector<VkSemaphore> vk_waitSemaphores;
@@ -157,3 +156,4 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     return queue->submit(submitInfo, fence);
 
 }
+

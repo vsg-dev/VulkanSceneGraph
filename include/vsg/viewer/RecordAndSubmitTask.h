@@ -34,6 +34,10 @@ namespace vsg
         // Need to add FrameStamp?
         virtual VkResult submit(ref_ptr<FrameStamp> frameStamp = {});
 
+        virtual VkResult start();
+        virtual VkResult record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp);
+        virtual VkResult finish(CommandBuffers& recordedCommandBuffers);
+
         Windows windows;
         Semaphores waitSemaphores;
         CommandGraphs commandGraphs; // assign in application setup
