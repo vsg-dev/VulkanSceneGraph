@@ -44,6 +44,9 @@ namespace vsg
 
         // each CommandGraph can utilize it's own thread for running the CommandGraph::record()
         std::thread thread;
+
+    protected:
+        virtual ~CommandGraph();
     };
 
     using CommandGraphs = std::vector<ref_ptr<CommandGraph>>;
