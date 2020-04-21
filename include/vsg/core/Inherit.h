@@ -67,6 +67,13 @@ namespace vsg
             return ref_ptr<Subclass>(new Subclass(args...));
         }
 
+        template<typename... Args>
+        static ref_ptr<Subclass> create_if(bool flag, Args&&... args)
+        {
+            if (flag) return ref_ptr<Subclass>(new Subclass(args...));
+            return {};
+        }
+
         std::size_t sizeofObject() const noexcept override { return sizeof(Subclass); }
 
         void accept(Visitor& visitor) override { visitor.apply(static_cast<Subclass&>(*this)); }
