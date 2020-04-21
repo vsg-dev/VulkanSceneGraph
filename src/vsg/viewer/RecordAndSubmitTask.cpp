@@ -19,6 +19,14 @@ using namespace vsg;
 
 #include <iostream>
 
+RecordAndSubmitTask::RecordAndSubmitTask(Device* device, uint32_t numBuffers)
+{
+    for(uint32_t i=0; i<numBuffers; ++i)
+    {
+        fences.emplace_back(vsg::Fence::create(device));
+    }
+}
+
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
 #if 0
@@ -26,60 +34,14 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     std::cout << "RecordAndSubmitTask::submit()" << std::endl;
 #endif
 
-    std::vector<VkSemaphore> vk_waitSemaphores;
-    std::vector<VkPipelineStageFlags> vk_waitStages;
-    std::vector<VkSemaphore> vk_signalSemaphores;
+    auto fence = fences[index];
 
-    // aquire fence
-    ref_ptr<Fence> fence;
-    for (auto& window : windows)
+    if (fence->hasDependencies())
     {
-        auto& semaphore = window->frame(window->nextImageIndex()).imageAvailableSemaphore;
+        uint64_t timeout = std::numeric_limits<uint64_t>::max();
+        if (VkResult result; (result = fence->wait(timeout)) != VK_SUCCESS) return result;
 
-        vk_waitSemaphores.emplace_back(*semaphore);
-        vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
-
-        fence = window->frame(window->nextImageIndex()).commandsCompletedFence;
-    }
-
-    // wait on fence and clear semaphores and command buffers
-    if (fence)
-    {
-        if ((fence->dependentSemaphores().size() + fence->dependentCommandBuffers().size()) > 0)
-        {
-#if 0
-            std::cout << "    wait on fence = " << fence.get() << " " << fence->dependentSemaphores().size() << ", " << fence->dependentCommandBuffers().size() << std::endl;
-#endif
-            uint64_t timeout = 10000000000;
-            VkResult result = VK_SUCCESS;
-            while ((result = fence->wait(timeout)) == VK_TIMEOUT)
-            {
-                std::cout << "RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)) fence->wait(" << timeout << ") failed with result = " << result << std::endl;
-            }
-        }
-        for (auto& semaphore : fence->dependentSemaphores())
-        {
-            //std::cout<<"RecordAndSubmitTask::submits(..) "<<*(semaphore->data())<<" "<<semaphore->numDependentSubmissions().load()<<std::endl;
-            semaphore->numDependentSubmissions().exchange(0);
-        }
-
-        for (auto& commandBuffer : fence->dependentCommandBuffers())
-        {
-#if 0
-            std::cout << "RecordAndSubmitTask::submits(..) " << commandBuffer.get() << " " << std::dec << commandBuffer->numDependentSubmissions().load() << std::endl;
-#endif
-            commandBuffer->numDependentSubmissions().exchange(0);
-        }
-
-        fence->dependentSemaphores().clear();
-        fence->dependentCommandBuffers().clear();
-        fence->reset();
-    }
-
-    for (auto& semaphore : waitSemaphores)
-    {
-        vk_waitSemaphores.emplace_back(*(semaphore));
-        vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
+        fence->resetFenceAndDependencies();
     }
 
     // record the commands to the command buffers
@@ -99,6 +61,24 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     }
 
     fence->dependentSemaphores() = signalSemaphores;
+
+    std::vector<VkSemaphore> vk_waitSemaphores;
+    std::vector<VkPipelineStageFlags> vk_waitStages;
+    std::vector<VkSemaphore> vk_signalSemaphores;
+
+    for (auto& window : windows)
+    {
+        auto& semaphore = window->frame(window->nextImageIndex()).imageAvailableSemaphore;
+
+        vk_waitSemaphores.emplace_back(*semaphore);
+        vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
+    }
+
+    for (auto& semaphore : waitSemaphores)
+    {
+        vk_waitSemaphores.emplace_back(*(semaphore));
+        vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
+    }
 
     if (databasePager)
     {
@@ -159,5 +139,8 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     }
     std::cout << std::endl;
 #endif
+
+    index = (index + 1) % fences.size();
+
     return queue->submit(submitInfo, fence);
 }
