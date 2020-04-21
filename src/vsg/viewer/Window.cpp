@@ -201,27 +201,28 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
 
         ref_ptr<Semaphore> ias = vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag);
         ref_ptr<Framebuffer> fb = Framebuffer::create(_device, framebufferInfo);
-        ref_ptr<CommandPool> cp = CommandPool::create(_device, graphicsFamily);
-        ref_ptr<CommandBuffer> cb = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
-        ref_ptr<Fence> fence = Fence::create(_device);
 
-        _frames.push_back({ias, imageViews[i], fb, cp, cb, false, fence});
+        _frames.push_back({imageViews[i], fb, ias});
     }
 
-    submitCommandsToQueue(_device, _frames[0].commandPool, _device->getQueue(graphicsFamily), [&](CommandBuffer& commandBuffer) {
-        auto depthImageBarrier = ImageMemoryBarrier::create(
-            0, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-            VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-            VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
-            _depthImage,
-            VkImageSubresourceRange{VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, 0, 1, 0, 1});
+    {
+        // ensure image attachments are setup on GPU.
+        ref_ptr<CommandPool> commandPool = CommandPool::create(_device, graphicsFamily);
+        submitCommandsToQueue(_device, commandPool, _device->getQueue(graphicsFamily), [&](CommandBuffer& commandBuffer) {
+            auto depthImageBarrier = ImageMemoryBarrier::create(
+                0, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
+                _depthImage,
+                VkImageSubresourceRange{VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, 0, 1, 0, 1});
 
-        auto pipelineBarrier = PipelineBarrier::create(
-            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-            0, depthImageBarrier);
+            auto pipelineBarrier = PipelineBarrier::create(
+                VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+                0, depthImageBarrier);
 
-        pipelineBarrier->dispatch(commandBuffer);
-    });
+            pipelineBarrier->dispatch(commandBuffer);
+        });
+    }
 
     _nextImageIndex = 0;
 }

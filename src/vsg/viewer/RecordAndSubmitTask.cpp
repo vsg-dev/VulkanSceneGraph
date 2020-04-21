@@ -19,6 +19,14 @@ using namespace vsg;
 
 #include <iostream>
 
+RecordAndSubmitTask::RecordAndSubmitTask(Device* device, uint32_t numBuffers)
+{
+    for(uint32_t i=0; i<numBuffers; ++i)
+    {
+        fences.emplace_back(vsg::Fence::create(device));
+    }
+}
+
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
 #if 0
@@ -26,82 +34,40 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     std::cout << "RecordAndSubmitTask::submit()" << std::endl;
 #endif
 
-
-// Part 1
-    // aquire fence
-    ref_ptr<Fence> fence;
-    for (auto& window : windows)
+    //
+    // Part 1
+    // Wait for the fence to be signalled
+    //
+    auto fence = fences[index];
+    if (fence->hasDependencies())
     {
-        fence = window->frame(window->nextImageIndex()).commandsCompletedFence;
+        uint64_t timeout = std::numeric_limits<uint64_t>::max();
+        if (VkResult result; (result = fence->wait(timeout)) != VK_SUCCESS) return result;
+
+        fence->resetFenceAndDependencies();
     }
 
-    // wait on fence and clear semaphores and command buffers
-    if (fence)
-    {
-        if ((fence->dependentSemaphores().size() + fence->dependentCommandBuffers().size()) > 0)
-        {
-#if 0
-            std::cout << "    wait on fence = " << fence.get() << " " << fence->dependentSemaphores().size() << ", " << fence->dependentCommandBuffers().size() << std::endl;
-#endif
-            uint64_t timeout = 10000000000;
-            VkResult result = VK_SUCCESS;
-            while ((result = fence->wait(timeout)) == VK_TIMEOUT)
-            {
-                std::cout << "RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)) fence->wait(" << timeout << ") failed with result = " << result << std::endl;
-            }
-        }
-        for (auto& semaphore : fence->dependentSemaphores())
-        {
-            //std::cout<<"RecordAndSubmitTask::submits(..) "<<*(semaphore->data())<<" "<<semaphore->numDependentSubmissions().load()<<std::endl;
-            semaphore->numDependentSubmissions().exchange(0);
-        }
-
-        for (auto& commandBuffer : fence->dependentCommandBuffers())
-        {
-#if 0
-            std::cout << "RecordAndSubmitTask::submits(..) " << commandBuffer.get() << " " << std::dec << commandBuffer->numDependentSubmissions().load() << std::endl;
-#endif
-            commandBuffer->numDependentSubmissions().exchange(0);
-        }
-
-        fence->dependentSemaphores().clear();
-        fence->dependentCommandBuffers().clear();
-        fence->reset();
-    }
-
-//  Part 2
-    CommandBuffers recordedCommandBuffers;
+    //
+    // Part 2
     // record the commands to the command buffers
+    //
+    CommandBuffers recordedCommandBuffers;
     for (auto& commandGraph : commandGraphs)
     {
         commandGraph->record(recordedCommandBuffers, frameStamp, databasePager);
     }
 
-// Part 3
+    //
+    // Part 3
+    // set up the SubmitInfo and submit it to the queue
+    //
+
+    std::vector<VkCommandBuffer> vk_commandBuffers;
     std::vector<VkSemaphore> vk_waitSemaphores;
     std::vector<VkPipelineStageFlags> vk_waitStages;
-
-    // aquire fenced
-    //ref_ptr<Fence> fence;
-    for (auto& window : windows)
-    {
-        auto& semaphore = window->frame(window->nextImageIndex()).imageAvailableSemaphore;
-
-        vk_waitSemaphores.emplace_back(*semaphore);
-        vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
-
-        //fence = window->frame(window->nextImageIndex()).commandsCompletedFence;
-    }
-
-    for (auto& semaphore : waitSemaphores)
-    {
-        vk_waitSemaphores.emplace_back(*(semaphore));
-        vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
-    }
+    std::vector<VkSemaphore> vk_signalSemaphores;
 
     // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of depdendent CommandBuffers
-    std::vector<VkSemaphore> vk_signalSemaphores;
-    std::vector<VkCommandBuffer> vk_commandBuffers;
     for (auto& commandBuffer : recordedCommandBuffers)
     {
         vk_commandBuffers.push_back(*commandBuffer);
@@ -110,6 +76,21 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     }
 
     fence->dependentSemaphores() = signalSemaphores;
+
+
+    for (auto& window : windows)
+    {
+        auto& semaphore = window->frame(window->nextImageIndex()).imageAvailableSemaphore;
+
+        vk_waitSemaphores.emplace_back(*semaphore);
+        vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
+    }
+
+    for (auto& semaphore : waitSemaphores)
+    {
+        vk_waitSemaphores.emplace_back(*(semaphore));
+        vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
+    }
 
     if (databasePager)
     {
@@ -170,6 +151,9 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     }
     std::cout << std::endl;
 #endif
+
+    index = (index + 1) % fences.size();
+
     return queue->submit(submitInfo, fence);
 
 }

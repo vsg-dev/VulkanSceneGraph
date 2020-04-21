@@ -82,17 +82,6 @@ namespace vsg
         Framebuffer* framebuffer(size_t i) { return _frames[i].framebuffer; }
         const Framebuffer* framebuffer(size_t i) const { return _frames[i].framebuffer; }
 
-        CommandPool* commandPool(size_t i) { return _frames[i].commandPool; }
-        const CommandPool* commandPool(size_t i) const { return _frames[i].commandPool; }
-
-        CommandBuffer* commandBuffer(size_t i) { return _frames[i].commandBuffer; }
-        const CommandBuffer* commandBuffer(size_t i) const { return _frames[i].commandBuffer; }
-
-        VkResult acquireNextImage(uint64_t timeout, VkSemaphore samaphore, VkFence fence)
-        {
-            return vkAcquireNextImageKHR(*_device, *_swapchain, timeout, samaphore, fence, &_nextImageIndex);
-        }
-
         VkResult acquireNextImage(uint64_t timeout = std::numeric_limits<uint64_t>::max())
         {
             return vkAcquireNextImageKHR(*_device, *_swapchain, timeout, *(_frames[_nextImageIndex].imageAvailableSemaphore), VK_NULL_HANDLE, &_nextImageIndex);
@@ -106,18 +95,9 @@ namespace vsg
 
         struct Frame
         {
-            // do we need a imageAvailableSemaphore per Frame? Probably..
-            ref_ptr<Semaphore> imageAvailableSemaphore;
-
             ref_ptr<ImageView> imageView;
             ref_ptr<Framebuffer> framebuffer;
-
-            // should we have multiple commandPool and commandBuffer?
-            ref_ptr<CommandPool> commandPool;
-            ref_ptr<CommandBuffer> commandBuffer;
-
-            bool checkCommandsCompletedFence = false;
-            ref_ptr<Fence> commandsCompletedFence;
+            ref_ptr<Semaphore> imageAvailableSemaphore;
         };
 
         using Frames = std::vector<Frame>;
