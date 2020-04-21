@@ -36,36 +36,13 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 
     auto fence = fences[index];
 
-    // wait on fence and clear semaphores and command buffers
-    if ((fence->dependentSemaphores().size() + fence->dependentCommandBuffers().size()) > 0)
+    if (fence->hasDependencies())
     {
-#if 0
-        std::cout << "    wait on fence = " << fence.get() << " " << fence->dependentSemaphores().size() << ", " << fence->dependentCommandBuffers().size() << std::endl;
-#endif
-        uint64_t timeout = 10000000000;
-        VkResult result = VK_SUCCESS;
-        while ((result = fence->wait(timeout)) == VK_TIMEOUT)
-        {
-            std::cout << "RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)) fence->wait(" << timeout << ") failed with result = " << result << std::endl;
-        }
-    }
-    for (auto& semaphore : fence->dependentSemaphores())
-    {
-        //std::cout<<"RecordAndSubmitTask::submits(..) "<<*(semaphore->data())<<" "<<semaphore->numDependentSubmissions().load()<<std::endl;
-        semaphore->numDependentSubmissions().exchange(0);
-    }
+        uint64_t timeout = std::numeric_limits<uint64_t>::max();
+        if (VkResult result; (result = fence->wait(timeout)) != VK_SUCCESS) return result;
 
-    for (auto& commandBuffer : fence->dependentCommandBuffers())
-    {
-#if 0
-        std::cout << "RecordAndSubmitTask::submits(..) " << commandBuffer.get() << " " << std::dec << commandBuffer->numDependentSubmissions().load() << std::endl;
-#endif
-        commandBuffer->numDependentSubmissions().exchange(0);
+        fence->resetFenceAndDependencies();
     }
-
-    fence->dependentSemaphores().clear();
-    fence->dependentCommandBuffers().clear();
-    fence->reset();
 
     // record the commands to the command buffers
     CommandBuffers recordedCommandBuffers;

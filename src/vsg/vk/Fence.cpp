@@ -52,3 +52,21 @@ Fence::Result Fence::create(Device* device, VkFenceCreateFlags flags, Allocation
         return Result("Error: Failed to create Fence.", result);
     }
 }
+
+void Fence::resetFenceAndDependencies()
+{
+    for (auto& semaphore : _dependentSemaphores)
+    {
+        semaphore->numDependentSubmissions().exchange(0);
+    }
+
+    for (auto& commandBuffer : _dependentCommandBuffers)
+    {
+        commandBuffer->numDependentSubmissions().exchange(0);
+    }
+
+    _dependentSemaphores.clear();
+    _dependentCommandBuffers.clear();
+
+    reset();
+}

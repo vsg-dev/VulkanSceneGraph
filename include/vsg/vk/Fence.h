@@ -34,6 +34,10 @@ namespace vsg
         operator VkFence() const { return _vkFence; }
         VkFence vk() const { return _vkFence; }
 
+        bool hasDependencies() const { return (_dependentSemaphores.size() + _dependentCommandBuffers.size()) > 0; }
+
+        void resetFenceAndDependencies();
+
         Semaphores& dependentSemaphores() { return _dependentSemaphores; }
         CommandBuffers& dependentCommandBuffers() { return _dependentCommandBuffers; }
 
