@@ -33,6 +33,8 @@ Viewer::Viewer()
 
 Viewer::~Viewer()
 {
+    stopThreading();
+
     // don't kill window while devices are still _status
     for (auto& pair_pdo : _deviceMap)
     {
@@ -70,6 +72,8 @@ void Viewer::close()
 {
     _close = true;
     _status->set(false);
+
+    stopThreading();
 }
 
 bool Viewer::active() const
@@ -375,239 +379,56 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
     }
 }
 
-class FrameBlock : public Inherit<Object, FrameBlock>
-{
-public:
 
-    inline static const ref_ptr<FrameStamp> initial_value = {};
-
-    FrameBlock(ref_ptr<ActivityStatus> status) : _value(initial_value), _status(status) {}
-
-    FrameBlock(const FrameBlock&) = delete;
-    FrameBlock& operator = (const FrameBlock&) = delete;
-
-    void set(ref_ptr<FrameStamp> frameStamp)
-    {
-        std::scoped_lock lock(_mutex);
-        _value = frameStamp;
-        _cv.notify_all();
-    }
-
-    ref_ptr<FrameStamp> get()
-    {
-        std::scoped_lock lock(_mutex);
-        return _value;
-    }
-
-    bool active() const { return _status->active(); }
-
-    void wake()
-    {
-        std::scoped_lock lock(_mutex);
-        _cv.notify_all();
-    }
-
-    bool wait_for_change(ref_ptr<FrameStamp>& value)
-    {
-        std::unique_lock lock(_mutex);
-        while (_value == value && _status->active())
-        {
-            _cv.wait(lock);
-        }
-
-        value = _value;
-        return _status->active();
-    }
-
-protected:
-    virtual ~FrameBlock() {}
-
-    std::mutex _mutex;
-    std::condition_variable _cv;
-    ref_ptr<FrameStamp> _value;
-    ref_ptr<ActivityStatus> _status;
-};
-
-
-class Barrier : public Inherit<Object, Barrier>
-{
-public:
-    Barrier(int num) :
-        _num_threads(num) {}
-
-    Barrier(const Barrier&) = delete;
-    Barrier& operator = (const Barrier&) = delete;
-
-    void reset()
-    {
-        _count = _num_threads;
-    }
-
-    void arrive_and_wait()
-    {
-        if (_count.fetch_sub(1) <= 1)
-        {
-            std::scoped_lock lock(_mutex);
-            _cv.notify_all();
-
-            released();
-        }
-        else
-        {
-            wait();
-        }
-    }
-
-    void arrive_and_drop()
-    {
-        if (_count.fetch_sub(1) <= 1)
-        {
-            std::scoped_lock lock(_mutex);
-            _cv.notify_all();
-
-            released();
-        }
-    }
-
-    void wait()
-    {
-        std::unique_lock lock(_mutex);
-        while (_count > 0)
-        {
-            _cv.wait(lock);
-        }
-    }
-
-    bool is_ready() const
-    {
-        return _count==0;
-    }
-
-    virtual void released() {}
-
-protected:
-    virtual ~Barrier() {}
-
-    const int _num_threads;
-    std::atomic_int _count;
-    std::mutex _mutex;
-    std::condition_variable _cv;
-};
-
-struct SubmitBarrier : public Inherit<Barrier, SubmitBarrier>
-{
-    SubmitBarrier(int num) : Inherit(num) {}
-    void submit(const CommandBuffers& rcb)
-    {
-        {
-            std::scoped_lock lock(recordCommandBuffersMutex);
-            recordedCommandBuffers.insert(recordedCommandBuffers.end(), rcb.begin(), rcb.end());
-        }
-
-        arrive_and_drop();
-    }
-
-    void released() override
-    {
-        std::scoped_lock lock(recordCommandBuffersMutex);
-
-        // do submissions
-
-        submissionCompleteBarrier->arrive_and_drop();
-    }
-
-    std::mutex recordCommandBuffersMutex;
-    CommandBuffers recordedCommandBuffers;
-    ref_ptr<Barrier> submissionCompleteBarrier;
-};
-
-
-#include <vsg/threading/Affinity.h>
 
 void Viewer::setupThreading()
 {
-    ref_ptr<FrameBlock> frameBlock = FrameBlock::create(_status);
+    std::cout<<"Viewer::setupThreading()"<<std::endl;
 
-    std::vector<ref_ptr<SubmitBarrier>> submitBarriers;
+    _threading = true;
 
-    ref_ptr<Barrier> submissionsCompleteBarrier = Barrier::create(recordAndSubmitTasks.size());
-
-    uint32_t cpu_num = 2;
-    uint32_t cpu_increment = 2;
+    _frameBlock = FrameBlock::create(_status);
+    _submissionCompleted = Barrier::create(recordAndSubmitTasks.size());
 
     for(auto& task : recordAndSubmitTasks)
     {
-        ref_ptr<SubmitBarrier> submitBarrier = SubmitBarrier::create(task->commandGraphs.size());
-        submitBarriers.emplace_back(submitBarrier);
-
-        submitBarrier->submissionCompleteBarrier = submissionsCompleteBarrier;
-
-        for(auto& commandGraph : task->commandGraphs)
+        auto run = [](observer_ptr<RecordAndSubmitTask> viewer_task, ref_ptr<FrameBlock> viewer_frameBlock, ref_ptr<Barrier> submissionCompleted)
         {
-            auto run = [](observer_ptr<CommandGraph> cg, ref_ptr<FrameBlock> viewer_frameBlock, ref_ptr<SubmitBarrier> task_submitBarrier, ref_ptr<DatabasePager> /*databasePager*/)
+            auto frameStamp = viewer_frameBlock->initial_value;
+
+            // wait for this frame to be signalled
+            while(viewer_frameBlock->wait_for_change(frameStamp))
             {
-                auto frameStamp = viewer_frameBlock->initial_value;
+                // take a refernce to the command buffer to prevent it being deleted while we are traversing.
+                ref_ptr<RecordAndSubmitTask> ras_task = viewer_task;
+                if (!ras_task) break;
 
-                // wait for this frame to be signalled
-                while(viewer_frameBlock->wait_for_change(frameStamp))
-                {
-                    // take a refernce to the command buffer to prevent it being deleted while we are traversing.
-                    ref_ptr<CommandGraph> rcg = cg;
-                    if (!rcg) break;
+                ras_task->submit(frameStamp);
 
-                    // record the command buffer
-                    CommandBuffers recordedCommandBuffers;
-#if 0
-                    rcg->record(recordedCommandBuffers, frameStamp, databasePager);
-
-#else
-                    auto count = frameStamp->frameCount;
-                    for(int i=0; i<1000009; ++i) count = count*2 -3;
-#endif
-
-                    //std::cout<<"run()  "<<rcg.get()<<", frameCount = "<<std::dec<<frameStamp->frameCount<<" "<<databasePager.get()<<std::endl;
-
-                    // pass the result of this record traversal onto the submitBarrier
-                    task_submitBarrier->submit(recordedCommandBuffers);
-
-                }
-
-                std::cout<<"Exiting thread"<<std::endl;
-            };
-
-
-
-            // run(observer_ptr<CommandGraph>(commandGraph), frameBlock, submitBarrier, task->databasePager, _status);
-
-//            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), std::ref(frameBlock), std::ref(submitBarrier), std::ref(task->databasePager));
-            commandGraph->thread = std::thread(run, observer_ptr<CommandGraph>(commandGraph), frameBlock, submitBarrier, task->databasePager);
-
-            if (cpu_increment > 0)
-            {
-                setAffinity(commandGraph->thread, cpu_num);
-                cpu_num += cpu_increment;
+                submissionCompleted->arrive_and_drop();
             }
-        }
-    }
+        };
 
-    for(uint64_t i = 0; i<100000; ++i)
-    {
-        submissionsCompleteBarrier->reset();
-        frameBlock->set(FrameStamp::create(vsg::clock::now(), i));
-        submissionsCompleteBarrier->wait();
+        task->thread = std::thread(run, observer_ptr<RecordAndSubmitTask>(task), _frameBlock, _submissionCompleted);
     }
+}
+
+void Viewer::stopThreading()
+{
+    if (!_threading) return;
+    _threading = false;
+
+    std::cout<<"Viewer::stopThreading()"<<std::endl;
+
 
     // release the blocks to enable threads to exit cleanly
     // need to manually wake up the threads waiting on this frameBlock so they check the _status value and exit cleanly.
     _status->set(false);
-    frameBlock->wake();
+    _frameBlock->wake();
 
     for(auto& task : recordAndSubmitTasks)
     {
-        for(auto& commandGraph : task->commandGraphs)
-        {
-            commandGraph->thread.join();
-        }
+        task->thread.join();
     }
 }
 
@@ -650,9 +471,18 @@ void Viewer::recordAndSubmit()
     //          Compute and Graphics
     //          All of the above with DatabasePaging
 
-    for (auto& recordAndSubmitTask : recordAndSubmitTasks)
+    if (_threading)
     {
-        recordAndSubmitTask->submit(_frameStamp);
+        _submissionCompleted->reset();
+        _frameBlock->set(_frameStamp);
+        _submissionCompleted->wait();
+    }
+    else
+    {
+        for (auto& recordAndSubmitTask : recordAndSubmitTasks)
+        {
+            recordAndSubmitTask->submit(_frameStamp);
+        }
     }
 }
 

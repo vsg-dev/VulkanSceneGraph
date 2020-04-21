@@ -112,6 +112,7 @@ namespace vsg
         void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs, DatabasePager* databasePager = nullptr);
 
         void setupThreading();
+        void stopThreading();
 
         virtual void update();
 
@@ -136,6 +137,10 @@ namespace vsg
         clock::time_point _start_point;
         Events _events;
         EventHandlers _eventHandlers;
+
+        bool _threading = false;
+        ref_ptr<FrameBlock> _frameBlock;
+        ref_ptr<Barrier> _submissionCompleted;
     };
 
 } // namespace vsg
