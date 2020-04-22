@@ -37,7 +37,7 @@ namespace vsg
         struct LODChild
         {
             double minimumScreenHeightRatio = 0.0; // 0.0 is always visible
-            ref_ptr<Node> child;
+            ref_ptr<Node> child; // TODO : PagedLOD uses Child::node rather than LODChild::child, need to decide which to standarize to.
         };
 
         using Children = std::vector<LODChild>;
