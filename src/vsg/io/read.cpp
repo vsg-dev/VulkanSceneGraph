@@ -94,7 +94,7 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
         };
 
         // use latch to synchronize this thread with the file reading threads
-        ref_ptr<Latch> latch(new Latch(filenames.size()));
+        auto latch = Latch::create(static_cast<int>(filenames.size()));
 
         // add operations
         for (auto& [filename, object] : entries)
