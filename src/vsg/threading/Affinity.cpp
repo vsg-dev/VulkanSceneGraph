@@ -28,7 +28,7 @@ static void win32_setAffinity(HANDLE tid, const vsg::Affinity& affinity)
         {
             if (cpu < numProcessors)
             {
-                affinityMask |= (0x1 << cpu);
+                affinityMask |= (0x1LL << cpu);
             }
         }
     }
@@ -37,7 +37,7 @@ static void win32_setAffinity(HANDLE tid, const vsg::Affinity& affinity)
         // set affinity to all CPU cores
         for(uint32_t cpu=0; cpu < numProcessors; ++cpu)
         {
-            affinityMask |= (0x1 << cpu);
+            affinityMask |= (0x1LL << cpu);
         }
     }
 
