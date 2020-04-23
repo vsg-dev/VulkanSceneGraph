@@ -160,6 +160,12 @@ namespace vsg
     }
 
     template<typename T>
+    constexpr T length2(t_vec3<T> const& v)
+    {
+        return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+    }
+
+    template<typename T>
     constexpr t_vec3<T> normalize(t_vec3<T> const& v)
     {
         T inverse_len = static_cast<T>(1.0) / length(v);
