@@ -204,6 +204,8 @@ namespace vsg
         virtual void apply(DepthStencilState&);
         virtual void apply(ColorBlendState&);
         virtual void apply(ResourceHints&);
+        virtual void apply(Draw&);
+        virtual void apply(DrawIndexed&);
 
         // ui events
         virtual void apply(UIEvent&);
