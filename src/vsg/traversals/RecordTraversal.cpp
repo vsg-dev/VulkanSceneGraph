@@ -101,12 +101,12 @@ void RecordTraversal::apply(const LOD& lod)
     auto distance = std::abs(mv[0][2] * sphere.x + mv[1][2] * sphere.y + mv[2][2] * sphere.z + mv[3][2]);
     auto rf = sphere.r * f;
 
-    for (auto lodChild : lod.getChildren())
+    for (auto child : lod.getChildren())
     {
-        bool child_visible = rf > (lodChild.minimumScreenHeightRatio * distance);
+        bool child_visible = rf > (child.minimumScreenHeightRatio * distance);
         if (child_visible)
         {
-            lodChild.child->accept(*this);
+            child.node->accept(*this);
             return;
         }
     }
