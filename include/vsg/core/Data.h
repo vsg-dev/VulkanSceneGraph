@@ -96,4 +96,7 @@ namespace vsg
         VkFormat _format = VK_FORMAT_UNDEFINED;
         Layout _layout;
     };
+
+    using DataList = std::vector<ref_ptr<Data>>;
+
 } // namespace vsg
