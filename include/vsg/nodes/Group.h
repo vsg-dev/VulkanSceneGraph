@@ -27,6 +27,13 @@ namespace vsg
         Group(size_t numChildren = 0);
         Group(Allocator* allocator, size_t numChildren = 0);
 
+        template<typename Iterator>
+        Group(Iterator begin, Iterator end)
+        {
+            for(Iterator itr = begin; itr != end; ++itr) addChild(*itr);
+        }
+
+
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
