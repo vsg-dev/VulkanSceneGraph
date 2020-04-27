@@ -59,6 +59,8 @@ set(SOURCES
     traversals/CullTraversal.cpp
     traversals/CompileTraversal.cpp
     traversals/ComputeBounds.cpp
+    traversals/Intersector.cpp
+    traversals/LineSegmentIntersector.cpp
 
     threading/Affinity.cpp
     threading/OperationQueue.cpp
