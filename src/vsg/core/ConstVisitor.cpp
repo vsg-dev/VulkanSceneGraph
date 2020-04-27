@@ -322,7 +322,7 @@ void ConstVisitor::apply(const Node& value)
 }
 void ConstVisitor::apply(const Commands& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Node&>(value));
 }
 void ConstVisitor::apply(const Group& value)
 {

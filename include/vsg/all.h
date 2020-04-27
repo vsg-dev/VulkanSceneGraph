@@ -64,9 +64,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/traversals/ComputeBounds.h>
 #include <vsg/traversals/CullTraversal.h>
+#include <vsg/traversals/Intersector.h>
+#include <vsg/traversals/LineSegmentIntersector.h>
 #include <vsg/traversals/RecordTraversal.h>
 
 // Threading header files
+#include <vsg/threading/ActivityStatus.h>
 #include <vsg/threading/Affinity.h>
 #include <vsg/threading/Latch.h>
 #include <vsg/threading/OperationQueue.h>

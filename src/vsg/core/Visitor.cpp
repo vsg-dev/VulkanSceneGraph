@@ -321,7 +321,7 @@ void Visitor::apply(Node& value)
 }
 void Visitor::apply(Commands& value)
 {
-    apply(static_cast<Object&>(value));
+    apply(static_cast<Node&>(value));
 }
 void Visitor::apply(Group& value)
 {
