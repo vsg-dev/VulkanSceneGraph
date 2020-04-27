@@ -85,6 +85,12 @@ namespace vsg
         Object* getObject(const std::string& key);
         const Object* getObject(const std::string& key) const;
 
+        template<class T>
+        T* getObject(const std::string& key) { return dynamic_cast<T*>(getObject(key)); }
+
+        template<class T>
+        const T* getObject(const std::string& key) const{ return dynamic_cast<const T*>(getObject(key)); }
+
         // Auxiliary object access methods, the optional Auxiliary is used to store meta data and links to Allocator
         Auxiliary* getOrCreateUniqueAuxiliary();
         Auxiliary* getAuxiliary() { return _auxiliary; }
