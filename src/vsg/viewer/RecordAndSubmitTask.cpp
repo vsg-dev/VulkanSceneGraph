@@ -21,7 +21,7 @@ using namespace vsg;
 
 RecordAndSubmitTask::RecordAndSubmitTask(Device* device, uint32_t numBuffers)
 {
-    for(uint32_t i=0; i<numBuffers; ++i)
+    for (uint32_t i = 0; i < numBuffers; ++i)
     {
         fences.emplace_back(vsg::Fence::create(device));
     }

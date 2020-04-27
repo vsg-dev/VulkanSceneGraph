@@ -10,22 +10,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include "Intersector.h"
+#include <vsg/traversals/Intersector.h>
 
-#include <vsg/nodes/StateGroup.h>
+#include <vsg/maths/transform.h>
 #include <vsg/nodes/CullNode.h>
+#include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/PagedLOD.h>
-#include <vsg/nodes/Geometry.h>
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
-#include <vsg/vk/Draw.h>
-#include <vsg/vk/BindVertexBuffers.h>
 #include <vsg/vk/BindIndexBuffer.h>
+#include <vsg/vk/BindVertexBuffers.h>
+#include <vsg/vk/Draw.h>
 #include <vsg/vk/GraphicsPipeline.h>
-#include <vsg/maths/transform.h>
-
-#include <iostream>
 
 using namespace vsg;
 
@@ -33,7 +31,8 @@ struct PushPopNode
 {
     Intersector::NodePath& nodePath;
 
-    PushPopNode(Intersector::NodePath& np, const Node* node) : nodePath(np) { nodePath.push_back(node); }
+    PushPopNode(Intersector::NodePath& np, const Node* node) :
+        nodePath(np) { nodePath.push_back(node); }
     ~PushPopNode() { nodePath.pop_back(); }
 };
 
@@ -61,18 +60,19 @@ void Intersector::apply(const StateGroup& stategroup)
     {
         VkPrimitiveTopology topology;
 
-        FindGraphicsPipelineVisitor(VkPrimitiveTopology in_topology) : topology(in_topology) {}
+        FindGraphicsPipelineVisitor(VkPrimitiveTopology in_topology) :
+            topology(in_topology) {}
 
         void apply(const BindGraphicsPipeline& bpg) override
         {
-            for(auto& pipelineState : bpg.getPipeline()->getPipelineStates())
+            for (auto& pipelineState : bpg.getPipeline()->getPipelineStates())
             {
                 if (auto ias = pipelineState.cast<InputAssemblyState>(); ias) topology = ias->topology;
             }
         }
     } findGraphicsPipeline(previous_topology);
 
-    for(auto& state : stategroup.getStateCommands())
+    for (auto& state : stategroup.getStateCommands())
     {
         state->accept(findGraphicsPipeline);
     }
@@ -101,15 +101,13 @@ void Intersector::apply(const MatrixTransform& transform)
     popTransform();
 }
 
-
-
 void Intersector::apply(const LOD& lod)
 {
     PushPopNode ppn(_nodePath, &lod);
 
     if (intersects(lod.getBound()))
     {
-        for(auto& child : lod.getChildren())
+        for (auto& child : lod.getChildren())
         {
             if (child.node)
             {
@@ -126,7 +124,7 @@ void Intersector::apply(const PagedLOD& plod)
 
     if (intersects(plod.getBound()))
     {
-        for(auto& child : plod.getChildren())
+        for (auto& child : plod.getChildren())
         {
             if (child.node)
             {
@@ -156,7 +154,7 @@ void Intersector::apply(const VertexIndexDraw& vid)
         box bb;
         if (auto vertices = vid.arrays[0].cast<vec3Array>(); vertices)
         {
-            for(auto& vertex : *vertices) bb.add(vertex);
+            for (auto& vertex : *vertices) bb.add(vertex);
         }
 
         if (bb.valid())
@@ -188,12 +186,11 @@ void Intersector::apply(const Geometry& geometry)
     _arrays = geometry.arrays;
     _indices = geometry.indices;
 
-    for(auto& command : geometry.commands)
+    for (auto& command : geometry.commands)
     {
         command->accept(*this);
     }
 }
-
 
 void Intersector::apply(const BindVertexBuffers& bvb)
 {

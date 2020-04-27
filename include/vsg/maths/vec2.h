@@ -81,30 +81,30 @@ namespace vsg
             y = in_y;
         }
 
-        inline t_vec2& operator += (const t_vec2& rhs)
+        inline t_vec2& operator+=(const t_vec2& rhs)
         {
             value[0] += rhs.value[0];
             value[1] += rhs.value[1];
             return *this;
         }
 
-        inline t_vec2& operator -= (const t_vec2& rhs)
+        inline t_vec2& operator-=(const t_vec2& rhs)
         {
             value[0] -= rhs.value[0];
             value[1] -= rhs.value[1];
             return *this;
         }
 
-        inline t_vec2& operator *= (value_type rhs)
+        inline t_vec2& operator*=(value_type rhs)
         {
             value[0] *= rhs;
             value[1] *= rhs;
             return *this;
         }
 
-        inline t_vec2& operator /= (value_type rhs)
+        inline t_vec2& operator/=(value_type rhs)
         {
-            value_type div = 1.0/rhs;
+            value_type div = 1.0 / rhs;
             value[0] *= div;
             value[1] *= div;
             return *this;

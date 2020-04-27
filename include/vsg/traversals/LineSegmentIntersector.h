@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include "Intersector.h"
+#include <vsg/traversals/Intersector.h>
 
 #include <vsg/viewer/Camera.h>
 
@@ -22,6 +22,8 @@ namespace vsg
     class VSG_DECLSPEC LineSegmentIntersector : public Inherit<Intersector, LineSegmentIntersector>
     {
     public:
+        LineSegmentIntersector(const dvec3& s, const dvec3& e);
+        LineSegmentIntersector(const Camera& camera, int32_t x, int32_t y);
 
         struct Intersection
         {
@@ -33,16 +35,11 @@ namespace vsg
             NodePath nodePath;
 
             // return true if Intersection is valid
-            operator bool () const { return !nodePath.empty(); }
+            operator bool() const { return !nodePath.empty(); }
         };
 
         using Intersections = std::vector<Intersection>;
         Intersections intersections;
-
-
-        LineSegmentIntersector(const dvec3& s, const dvec3& e);
-        LineSegmentIntersector(const Camera& camera, int32_t x, int32_t y);
-
 
         void add(const dvec3& intersection, double ratio);
 
@@ -59,7 +56,6 @@ namespace vsg
         bool intersect(VkPrimitiveTopology topology, const vsg::DataList& arrays, vsg::ref_ptr<const vsg::Data> indices, uint32_t firstIndex, uint32_t indexCount) override;
 
     protected:
-
         struct LineSegment
         {
             dvec3 start;
@@ -67,8 +63,6 @@ namespace vsg
         };
 
         std::vector<LineSegment> _lineSegmentStack;
-
-
     };
 
-}
+} // namespace vsg

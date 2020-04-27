@@ -89,7 +89,7 @@ namespace vsg
             w = in_w;
         }
 
-        inline t_vec4& operator += (const t_vec4& rhs)
+        inline t_vec4& operator+=(const t_vec4& rhs)
         {
             value[0] += rhs.value[0];
             value[1] += rhs.value[1];
@@ -98,7 +98,7 @@ namespace vsg
             return *this;
         }
 
-        inline t_vec4& operator -= (const t_vec4& rhs)
+        inline t_vec4& operator-=(const t_vec4& rhs)
         {
             value[0] -= rhs.value[0];
             value[1] -= rhs.value[1];
@@ -107,7 +107,7 @@ namespace vsg
             return *this;
         }
 
-        inline t_vec4& operator *= (value_type rhs)
+        inline t_vec4& operator*=(value_type rhs)
         {
             value[0] *= rhs;
             value[1] *= rhs;
@@ -116,9 +116,9 @@ namespace vsg
             return *this;
         }
 
-        inline t_vec4& operator /= (value_type rhs)
+        inline t_vec4& operator/=(value_type rhs)
         {
-            value_type div = 1.0/rhs;
+            value_type div = 1.0 / rhs;
             value[0] *= div;
             value[1] *= div;
             value[2] *= div;

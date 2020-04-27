@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/threading/Latch.h>
 #include <vsg/threading/ActivityStatus.h>
+#include <vsg/threading/Latch.h>
 
 #include <list>
 

@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/ConstVisitor.h>
-#include <vsg/core/Inherit.h>
 #include <vsg/core/Data.h>
+#include <vsg/core/Inherit.h>
 #include <vsg/nodes/Node.h>
 
 #include <list>
@@ -22,11 +22,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-
     class VSG_DECLSPEC Intersector : public Inherit<ConstVisitor, Intersector>
     {
     public:
-
         using NodePath = std::vector<const Node*>;
 
         Intersector();
@@ -49,7 +47,6 @@ namespace vsg
         void apply(const Draw& draw) override;
         void apply(const DrawIndexed& drawIndexed) override;
 
-
         //
         // provide virtual functions for concrete Intersector implementations to provide handling of intersection with mesh geometries
         //
@@ -69,7 +66,6 @@ namespace vsg
         virtual bool intersect(VkPrimitiveTopology topology, const DataList& arrays, ref_ptr<const Data> indices, uint32_t firstIndex, uint32_t indexCount) = 0;
 
     protected:
-
         std::vector<dmat4> _matrixStack;
 
         std::vector<VkPrimitiveTopology> _topologyStack;
@@ -81,4 +77,4 @@ namespace vsg
         ref_ptr<const Data> _indices;
     };
 
-}
+} // namespace vsg

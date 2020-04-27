@@ -30,9 +30,8 @@ namespace vsg
         template<typename Iterator>
         Group(Iterator begin, Iterator end)
         {
-            for(Iterator itr = begin; itr != end; ++itr) addChild(*itr);
+            for (Iterator itr = begin; itr != end; ++itr) addChild(*itr);
         }
-
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
