@@ -34,11 +34,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/ComputePipeline.h>
 #include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorSet.h>
+#include <vsg/vk/Draw.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/ResourceHints.h>
 #include <vsg/vk/Swapchain.h>
-#include <vsg/vk/Draw.h>
 
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/KeyEvent.h>
