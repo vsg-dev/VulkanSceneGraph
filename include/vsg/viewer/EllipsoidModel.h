@@ -40,6 +40,9 @@ namespace vsg
         double radiusEquator() const { return _radiusEquator; }
         double radiusPolar() const { return _radiusPolar; }
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
         // latitude and longitude in radians
         dvec3 convertLatLongHeightToECEF(const dvec3& lla) const;
 
@@ -51,6 +54,9 @@ namespace vsg
         dvec3 convertECEFToLatLongHeight(const dvec3& ecef) const;
 
     protected:
+
+        void _computeEccentricitySquared();
+
         double _radiusEquator;
         double _radiusPolar;
         double _eccentricitySquared;

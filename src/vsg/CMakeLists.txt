@@ -67,6 +67,7 @@ set(SOURCES
     threading/OperationThreads.cpp
 
     viewer/Camera.cpp
+    viewer/EllipsoidModel.cpp
     viewer/Viewer.cpp
     viewer/Window.cpp
     viewer/Trackball.cpp

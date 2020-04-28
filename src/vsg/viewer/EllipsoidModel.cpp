@@ -19,9 +19,34 @@ EllipsoidModel::EllipsoidModel(double rEquator, double rPolar) :
     _radiusEquator(rEquator),
     _radiusPolar(rPolar)
 {
+    _computeEccentricitySquared();
+}
+
+void EllipsoidModel::_computeEccentricitySquared()
+{
     double flattening = (_radiusEquator - _radiusPolar) / _radiusEquator;
     _eccentricitySquared = 2 * flattening - flattening * flattening;
 }
+
+
+void EllipsoidModel::read(Input& input)
+{
+    Object::read(input);
+
+    input.read("radiusEquator", _radiusEquator);
+    input.read("radiusPolar", _radiusPolar);
+
+    _computeEccentricitySquared();
+}
+
+void EllipsoidModel::write(Output& output) const
+{
+    Object::write(output);
+
+    output.write("radiusEquator", _radiusEquator);
+    output.write("radiusPolar", _radiusPolar);
+}
+
 
 // latitude and longitude in radians
 dvec3 EllipsoidModel::convertLatLongHeightToECEF(const dvec3& lla) const
