@@ -50,6 +50,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/ShaderModule.h>
 #include <vsg/vk/material.h>
 
+#include <vsg/viewer/ProjectionMatrix.h>
+
 using namespace vsg;
 
 #define VSG_REGISTER_new(ClassName) _createMap[#ClassName] = []() { return ref_ptr<Object>(new ClassName()); }
@@ -209,6 +211,9 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::Sampler);
     VSG_REGISTER_create(vsg::PushConstants);
     VSG_REGISTER_create(vsg::ResourceHints);
+
+    // application
+    VSG_REGISTER_create(vsg::EllipsoidModel);
 }
 
 vsg::ref_ptr<vsg::Object> ObjectFactory::create(const std::string& className)

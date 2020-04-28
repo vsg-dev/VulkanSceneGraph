@@ -35,6 +35,7 @@ namespace vsg
             matrix = inverse(matrix);
         }
     };
+    VSG_type_name(vsg::ProjectionMatrix);
 
     class Perspective : public Inherit<ProjectionMatrix, Perspective>
     {
@@ -63,6 +64,7 @@ namespace vsg
         double nearDistance;
         double farDistance;
     };
+    VSG_type_name(vsg::Perspective);
 
     class Orthographic : public Inherit<ProjectionMatrix, Orthographic>
     {
@@ -97,6 +99,7 @@ namespace vsg
         double nearDistance;
         double farDistance;
     };
+    VSG_type_name(vsg::Orthographic);
 
     class RelativeProjection : public Inherit<ProjectionMatrix, RelativeProjection>
     {
@@ -122,6 +125,7 @@ namespace vsg
         ref_ptr<ProjectionMatrix> projectionMatrix;
         dmat4 matrix;
     };
+    VSG_type_name(vsg::RelativeProjection);
 
     const double WGS_84_RADIUS_EQUATOR = 6378137.0;
     const double WGS_84_RADIUS_POLAR = 6356752.3142;
@@ -263,6 +267,7 @@ namespace vsg
         double _radiusPolar;
         double _eccentricitySquared;
     };
+    VSG_type_name(vsg::EllipsoidModel);
 
     class EllipsoidPerspective : public Inherit<ProjectionMatrix, EllipsoidPerspective>
     {
@@ -327,4 +332,6 @@ namespace vsg
         double nearFarRatio;
         double horizonMountainHeight;
     };
+    VSG_type_name(vsg::EllipsoidPerspective);
+
 } // namespace vsg
