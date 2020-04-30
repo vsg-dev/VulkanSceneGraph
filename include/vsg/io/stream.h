@@ -16,6 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
+#include <vsg/core/type_name.h>
+#include <vsg/core/ref_ptr.h>
 
 #include <istream>
 #include <ostream>
@@ -88,6 +90,15 @@ namespace vsg
         input >> mat(0, 2) >> mat(1, 2) >> mat(2, 2) >> mat(3, 2);
         input >> mat(0, 3) >> mat(1, 3) >> mat(2, 3) >> mat(3, 3);
         return input;
+    }
+
+    // stream support for std::t_vec4
+    template<typename T>
+    std::ostream& operator<<(std::ostream& output, const vsg::ref_ptr<T>& ptr)
+    {
+        if (ptr) output << "ref_ptr<"<< vsg::type_name<T>() << ">(" << ptr->className()<<" "<<ptr.get()<<")";
+        else output << "ref_ptr<"<< vsg::type_name<T>() << ">(nullptr)";
+        return output;
     }
 
     // stream support for std::pair
