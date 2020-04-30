@@ -64,5 +64,6 @@ namespace vsg
 
         std::vector<LineSegment> _lineSegmentStack;
     };
+    VSG_type_name(vsg::LineSegmentIntersector);
 
 } // namespace vsg

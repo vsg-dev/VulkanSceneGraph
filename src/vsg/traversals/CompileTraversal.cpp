@@ -137,7 +137,9 @@ CompileTraversal::CompileTraversal(Device* in_device, BufferPreferences bufferPr
     context(in_device, bufferPreferences)
 {
 }
+
 CompileTraversal::CompileTraversal(const CompileTraversal& ct) :
+    Inherit(ct),
     context(ct.context)
 {
 }

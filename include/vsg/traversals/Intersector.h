@@ -76,5 +76,6 @@ namespace vsg
         DataList _arrays;
         ref_ptr<const Data> _indices;
     };
+    VSG_type_name(vsg::Intersector);
 
 } // namespace vsg
