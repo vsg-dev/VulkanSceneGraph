@@ -68,7 +68,7 @@ namespace vsg
             _depth(depth),
             _data(new value_type[static_cast<std::size_t>(width) * height * depth])
         {
-            for(auto& v : *this) v = value;
+            for (auto& v : *this) v = value;
         }
 
         template<typename... Args>

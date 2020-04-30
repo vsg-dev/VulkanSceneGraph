@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Inherit.h>
-#include <vsg/maths/vec3.h>
 #include <vsg/maths/mat4.h>
+#include <vsg/maths/vec3.h>
 
 namespace vsg
 {
@@ -54,7 +54,6 @@ namespace vsg
         dvec3 convertECEFToLatLongHeight(const dvec3& ecef) const;
 
     protected:
-
         void _computeEccentricitySquared();
 
         double _radiusEquator;

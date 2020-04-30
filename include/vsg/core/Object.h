@@ -105,7 +105,6 @@ namespace vsg
         /// remove meta object or value associated with key
         void removeObject(const std::string& key);
 
-
         // Auxiliary object access methods, the optional Auxiliary is used to store meta data and links to Allocator
         Auxiliary* getOrCreateUniqueAuxiliary();
         Auxiliary* getAuxiliary() { return _auxiliary; }

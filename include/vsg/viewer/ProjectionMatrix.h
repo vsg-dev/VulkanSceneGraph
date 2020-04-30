@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/viewer/ViewMatrix.h>
 #include <vsg/viewer/EllipsoidModel.h>
+#include <vsg/viewer/ViewMatrix.h>
 
 namespace vsg
 {
@@ -127,7 +127,6 @@ namespace vsg
         dmat4 matrix;
     };
     VSG_type_name(vsg::RelativeProjection);
-
 
     class EllipsoidPerspective : public Inherit<ProjectionMatrix, EllipsoidPerspective>
     {

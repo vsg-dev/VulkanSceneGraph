@@ -63,7 +63,7 @@ namespace vsg
             _height(height),
             _data(new value_type[static_cast<std::size_t>(width) * height])
         {
-            for(auto& v : *this) v = value;
+            for (auto& v : *this) v = value;
         }
 
         template<typename... Args>

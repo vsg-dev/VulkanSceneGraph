@@ -87,5 +87,4 @@ namespace vsg
     };
     VSG_type_name(vsg::CompileTraversal);
 
-
 } // namespace vsg

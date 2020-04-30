@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/viewer/EllipsoidModel.h>
 #include <vsg/maths/transform.h>
+#include <vsg/viewer/EllipsoidModel.h>
 
 using namespace vsg;
 
@@ -27,7 +27,6 @@ void EllipsoidModel::_computeEccentricitySquared()
     double flattening = (_radiusEquator - _radiusPolar) / _radiusEquator;
     _eccentricitySquared = 2 * flattening - flattening * flattening;
 }
-
 
 void EllipsoidModel::read(Input& input)
 {
@@ -47,7 +46,6 @@ void EllipsoidModel::write(Output& output) const
     output.write("radiusPolar", _radiusPolar);
 }
 
-
 // latitude and longitude in radians
 dvec3 EllipsoidModel::convertLatLongHeightToECEF(const dvec3& lla) const
 {
@@ -60,8 +58,8 @@ dvec3 EllipsoidModel::convertLatLongHeightToECEF(const dvec3& lla) const
     double cos_latitude = cos(latitude);
     double N = _radiusEquator / sqrt(1.0 - _eccentricitySquared * sin_latitude * sin_latitude);
     return dvec3((N + height) * cos_latitude * cos(longitude),
-                    (N + height) * cos_latitude * sin(longitude),
-                    (N * (1 - _eccentricitySquared) + height) * sin_latitude);
+                 (N + height) * cos_latitude * sin(longitude),
+                 (N * (1 - _eccentricitySquared) + height) * sin_latitude);
 }
 
 dmat4 EllipsoidModel::computeLocalToWorldTransform(const dvec3& lla) const
@@ -141,7 +139,7 @@ dvec3 EllipsoidModel::convertECEFToLatLongHeight(const dvec3& ecef) const
     double p = sqrt(ecef.x * ecef.x + ecef.y * ecef.y);
     double theta = atan2(ecef.z * _radiusEquator, (p * _radiusPolar));
     double eDashSquared = (_radiusEquator * _radiusEquator - _radiusPolar * _radiusPolar) /
-                            (_radiusPolar * _radiusPolar);
+                          (_radiusPolar * _radiusPolar);
 
     double sin_theta = sin(theta);
     double cos_theta = cos(theta);

@@ -66,7 +66,7 @@ namespace vsg
             _size(numElements),
             _data(new value_type[numElements])
         {
-            for(auto& v : *this) v = value;
+            for (auto& v : *this) v = value;
         }
 
         template<typename... Args>

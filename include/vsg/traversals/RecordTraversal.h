@@ -38,7 +38,6 @@ namespace vsg
     class FrameStamp;
     class CulledPagedLODs;
 
-
     class RecordTraversal;
     VSG_type_name(vsg::RecordTraversal);
 
