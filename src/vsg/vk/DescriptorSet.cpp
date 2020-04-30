@@ -98,7 +98,9 @@ DescriptorSet::Implementation::Result DescriptorSet::Implementation::create(Devi
 {
     if (!device || !descriptorPool || !descriptorSetLayout)
     {
-        return Result("Error: vsg::DescriptorPool::create(...) failed to create DescriptorPool, undefined Device, DescriptorPool or DescriptorSetLayout.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        if (!device) return Result("Error: vsg::DescriptorSet::create(...) failed to create DescriptorSet due to undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        if (!descriptorPool) return Result("Error: vsg::DescriptorSet::create(...) failed to create DescriptorSet due to undefined DescriptorPool.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        return Result("Error: vsg::DescriptorSet::create(...) failed to create DescriptorSet due to undefined descriptorSetLayout.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 
     VkDescriptorSetLayout vkdescriptorSetLayout = descriptorSetLayout->vk(device->deviceID);
