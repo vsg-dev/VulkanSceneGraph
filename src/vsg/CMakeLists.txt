@@ -95,6 +95,7 @@ set(SOURCES
     commands/Dispatch.cpp
     commands/PushConstants.cpp
     commands/Draw.cpp
+    commands/DrawIndexed.cpp
 
     vk/Buffer.cpp
     vk/BufferData.cpp

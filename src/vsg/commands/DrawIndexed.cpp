@@ -10,26 +10,28 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/Draw.h>
+#include <vsg/commands/DrawIndexed.h>
 
 using namespace vsg;
 
-void Draw::read(Input& input)
+void DrawIndexed::read(Input& input)
 {
     Command::read(input);
 
-    input.read("vertexCount", vertexCount);
+    input.read("indexCount", indexCount);
     input.read("instanceCount", instanceCount);
-    input.read("firstVertex", firstVertex);
+    input.read("firstIndex", firstIndex);
+    input.read("vertexOffset", vertexOffset);
     input.read("firstInstance", firstInstance);
 }
 
-void Draw::write(Output& output) const
+void DrawIndexed::write(Output& output) const
 {
     Command::write(output);
 
-    output.write("vertexCount", vertexCount);
+    output.write("indexCount", indexCount);
     output.write("instanceCount", instanceCount);
-    output.write("firstVertex", firstVertex);
+    output.write("firstIndex", firstIndex);
+    output.write("vertexOffset", vertexOffset);
     output.write("firstInstance", firstInstance);
 }

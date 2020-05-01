@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,26 +12,39 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/Draw.h>
+#include <vsg/vk/CommandBuffer.h>
 
-using namespace vsg;
+#include <vsg/commands/Command.h>
 
-void Draw::read(Input& input)
+namespace vsg
 {
-    Command::read(input);
 
-    input.read("vertexCount", vertexCount);
-    input.read("instanceCount", instanceCount);
-    input.read("firstVertex", firstVertex);
-    input.read("firstInstance", firstInstance);
-}
+    class DrawIndexed : public Inherit<Command, DrawIndexed>
+    {
+    public:
+        DrawIndexed() {}
 
-void Draw::write(Output& output) const
-{
-    Command::write(output);
+        DrawIndexed(uint32_t in_indexCount, uint32_t in_instanceCount, uint32_t in_firstIndex, int32_t in_vertexOffset, uint32_t in_firstInstance) :
+            indexCount(in_indexCount),
+            instanceCount(in_instanceCount),
+            firstIndex(in_firstIndex),
+            vertexOffset(in_vertexOffset),
+            firstInstance(in_firstInstance) {}
 
-    output.write("vertexCount", vertexCount);
-    output.write("instanceCount", instanceCount);
-    output.write("firstVertex", firstVertex);
-    output.write("firstInstance", firstInstance);
-}
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        void dispatch(CommandBuffer& commandBuffer) const override
+        {
+            vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+        }
+
+        uint32_t indexCount = 0;
+        uint32_t instanceCount = 0;
+        uint32_t firstIndex = 0;
+        uint32_t vertexOffset = 0;
+        uint32_t firstInstance = 0;
+    };
+    VSG_type_name(vsg::DrawIndexed);
+
+} // namespace vsg

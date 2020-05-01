@@ -45,32 +45,4 @@ namespace vsg
     };
     VSG_type_name(vsg::Draw);
 
-    class DrawIndexed : public Inherit<Command, DrawIndexed>
-    {
-    public:
-        DrawIndexed() {}
-
-        DrawIndexed(uint32_t in_indexCount, uint32_t in_instanceCount, uint32_t in_firstIndex, int32_t in_vertexOffset, uint32_t in_firstInstance) :
-            indexCount(in_indexCount),
-            instanceCount(in_instanceCount),
-            firstIndex(in_firstIndex),
-            vertexOffset(in_vertexOffset),
-            firstInstance(in_firstInstance) {}
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        void dispatch(CommandBuffer& commandBuffer) const override
-        {
-            vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
-        }
-
-        uint32_t indexCount = 0;
-        uint32_t instanceCount = 0;
-        uint32_t firstIndex = 0;
-        uint32_t vertexOffset = 0;
-        uint32_t firstInstance = 0;
-    };
-    VSG_type_name(vsg::DrawIndexed);
-
 } // namespace vsg
