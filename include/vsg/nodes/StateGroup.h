@@ -12,12 +12,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/commands/Command.h>
 #include <vsg/nodes/Group.h>
-#include <vsg/vk/Command.h>
+#include <vsg/traversals/CompileTraversal.h>
 #include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorSet.h>
-
-#include <vsg/traversals/CompileTraversal.h>
 
 #include <algorithm>
 

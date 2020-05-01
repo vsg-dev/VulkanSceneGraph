@@ -10,30 +10,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/NextSubPass.h>
+#include <vsg/commands/BindIndexBuffer.h>
 
 using namespace vsg;
 
-NextSubPass::~NextSubPass()
-{
-}
-
-void NextSubPass::read(Input& input)
+void StateCommand::read(Input& input)
 {
     Command::read(input);
 
-    input.readValue<uint32_t>("contents", contents);
+    input.read("Slot", _slot);
 }
 
-void NextSubPass::write(Output& output) const
+void StateCommand::write(Output& output) const
 {
     Command::write(output);
 
-    output.writeValue<uint32_t>("contents", contents);
-}
-
-void NextSubPass::dispatch(CommandBuffer& commandBuffer) const
-{
-    vkCmdNextSubpass(commandBuffer, contents);
+    output.write("Slot", _slot);
 }

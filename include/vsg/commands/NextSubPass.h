@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,20 +12,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/BindIndexBuffer.h>
+#include <vsg/commands/Command.h>
+#include <vsg/nodes/StateGroup.h>
+#include <vsg/vk/Buffer.h>
+#include <vsg/vk/Descriptor.h>
 
-using namespace vsg;
-
-void StateCommand::read(Input& input)
+namespace vsg
 {
-    Command::read(input);
+    class VSG_DECLSPEC NextSubPass : public Inherit<Command, NextSubPass>
+    {
+    public:
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
-    input.read("Slot", _slot);
-}
+        void dispatch(CommandBuffer& commandBuffer) const override;
 
-void StateCommand::write(Output& output) const
-{
-    Command::write(output);
+        VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE; // VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS
 
-    output.write("Slot", _slot);
-}
+    protected:
+        virtual ~NextSubPass();
+    };
+    VSG_type_name(vsg::NextSubPass);
+
+} // namespace vsg

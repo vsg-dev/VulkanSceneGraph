@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,35 +10,30 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Command.h>
+#include <vsg/commands/NextSubPass.h>
 #include <vsg/vk/CommandBuffer.h>
 
-namespace vsg
+using namespace vsg;
+
+NextSubPass::~NextSubPass()
 {
+}
 
-    /** Wrapper for vkCmdDispatch, used for dispatching a Compute command.*/
-    class Dispatch : public Inherit<Command, Dispatch>
-    {
-    public:
-        Dispatch() {}
+void NextSubPass::read(Input& input)
+{
+    Command::read(input);
 
-        Dispatch(uint32_t in_groupCountX, uint32_t in_groupCountY, uint32_t in_groupCountZ) :
-            groupCountX(in_groupCountX),
-            groupCountY(in_groupCountY),
-            groupCountZ(in_groupCountZ) {}
+    input.readValue<uint32_t>("contents", contents);
+}
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
+void NextSubPass::write(Output& output) const
+{
+    Command::write(output);
 
-        void dispatch(CommandBuffer& commandBuffer) const override
-        {
-            vkCmdDispatch(commandBuffer, groupCountX, groupCountY, groupCountZ);
-        }
+    output.writeValue<uint32_t>("contents", contents);
+}
 
-        uint32_t groupCountX = 0;
-        uint32_t groupCountY = 0;
-        uint32_t groupCountZ = 0;
-    };
-    VSG_type_name(vsg::Dispatch);
-
-} // namespace vsg
+void NextSubPass::dispatch(CommandBuffer& commandBuffer) const
+{
+    vkCmdNextSubpass(commandBuffer, contents);
+}

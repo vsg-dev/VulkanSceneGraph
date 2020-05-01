@@ -76,10 +76,10 @@ Low level Vulkan integration concern Vulkan objects that relate to data and comm
 
 Vulkan commands have a specific role in Vulkan so to encapsulate this the [vsg::Command](Commnd.h) pure virtual base class provides **virtual void dispatch(CommandBuffer&) const** is overridden in the subclasses to provide specific Vulkan command calls.
 
-* [include/vsg/vk/Command.h](Command.h) -
-* [include/vsg/vk/Draw.h](Draw.h) -
-* [include/vsg/vk/BindIndexBuffer.h](BindIndexBuffer.h) -
-* [include/vsg/vk/BindVertexBuffers.h](BindVertexBuffers.h) -
+* [include/vsg/coomands/Command.h](Command.h) -
+* [include/vsg/coomands/Draw.h](Draw.h) -
+* [include/vsg/coomands/BindIndexBuffer.h](BindIndexBuffer.h) -
+* [include/vsg/coomands/BindVertexBuffers.h](BindVertexBuffers.h) -
 
 ## Memory management classes
 

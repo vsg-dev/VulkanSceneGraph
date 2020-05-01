@@ -20,7 +20,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 
-#include <vsg/vk/Command.h>
+#include <vsg/commands/Command.h>
+
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>

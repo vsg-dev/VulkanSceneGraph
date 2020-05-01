@@ -60,6 +60,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 
+// Commands header files
+#include <vsg/commands/BindIndexBuffer.h>
+#include <vsg/commands/BindVertexBuffers.h>
+#include <vsg/commands/Command.h>
+#include <vsg/commands/CopyImage.h>
+#include <vsg/commands/Dispatch.h>
+#include <vsg/commands/Draw.h>
+#include <vsg/commands/NextSubPass.h>
+#include <vsg/commands/PipelineBarrier.h>
+#include <vsg/commands/PushConstants.h>
+
 // Traversal header files
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/traversals/ComputeBounds.h>
@@ -102,17 +113,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 // Vulkan related header files
 #include <vsg/vk/AllocationCallbacks.h>
-#include <vsg/vk/BindIndexBuffer.h>
-#include <vsg/vk/BindVertexBuffers.h>
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/BufferData.h>
 #include <vsg/vk/BufferView.h>
-#include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/ComputePipeline.h>
 #include <vsg/vk/Context.h>
-#include <vsg/vk/CopyImage.h>
 #include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorBuffer.h>
 #include <vsg/vk/DescriptorImage.h>
@@ -123,8 +130,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/DescriptorTexelBufferView.h>
 #include <vsg/vk/Device.h>
 #include <vsg/vk/DeviceMemory.h>
-#include <vsg/vk/Dispatch.h>
-#include <vsg/vk/Draw.h>
 #include <vsg/vk/Extensions.h>
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/Framebuffer.h>
@@ -133,11 +138,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/ImageData.h>
 #include <vsg/vk/ImageView.h>
 #include <vsg/vk/Instance.h>
-#include <vsg/vk/NextSubPass.h>
 #include <vsg/vk/PhysicalDevice.h>
-#include <vsg/vk/PipelineBarrier.h>
 #include <vsg/vk/PipelineLayout.h>
-#include <vsg/vk/PushConstants.h>
 #include <vsg/vk/Queue.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/ResourceHints.h>

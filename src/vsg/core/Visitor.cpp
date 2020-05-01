@@ -27,14 +27,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 
-#include <vsg/vk/BindIndexBuffer.h>
-#include <vsg/vk/BindVertexBuffers.h>
-#include <vsg/vk/Command.h>
+#include <vsg/commands/BindIndexBuffer.h>
+#include <vsg/commands/BindVertexBuffers.h>
+#include <vsg/commands/Command.h>
+#include <vsg/commands/Draw.h>
+
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/ComputePipeline.h>
 #include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorSet.h>
-#include <vsg/vk/Draw.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/Swapchain.h>

@@ -10,24 +10,48 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Dispatch.h>
+#include <vsg/commands/Draw.h>
 
 using namespace vsg;
 
-void Dispatch::read(Input& input)
+void Draw::read(Input& input)
 {
     Command::read(input);
 
-    input.read("groupCountX", groupCountX);
-    input.read("groupCountY", groupCountY);
-    input.read("groupCountZ", groupCountZ);
+    input.read("vertexCount", vertexCount);
+    input.read("instanceCount", instanceCount);
+    input.read("firstVertex", firstVertex);
+    input.read("firstInstance", firstInstance);
 }
 
-void Dispatch::write(Output& output) const
+void Draw::write(Output& output) const
 {
     Command::write(output);
 
-    output.write("groupCountX", groupCountX);
-    output.write("groupCountY", groupCountY);
-    output.write("groupCountZ", groupCountZ);
+    output.write("vertexCount", vertexCount);
+    output.write("instanceCount", instanceCount);
+    output.write("firstVertex", firstVertex);
+    output.write("firstInstance", firstInstance);
+}
+
+void DrawIndexed::read(Input& input)
+{
+    Command::read(input);
+
+    input.read("indexCount", indexCount);
+    input.read("instanceCount", instanceCount);
+    input.read("firstIndex", firstIndex);
+    input.read("vertexOffset", vertexOffset);
+    input.read("firstInstance", firstInstance);
+}
+
+void DrawIndexed::write(Output& output) const
+{
+    Command::write(output);
+
+    output.write("indexCount", indexCount);
+    output.write("instanceCount", instanceCount);
+    output.write("firstIndex", firstIndex);
+    output.write("vertexOffset", vertexOffset);
+    output.write("firstInstance", firstInstance);
 }

@@ -2,7 +2,7 @@
 
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2018 Robert Osfield
+Copyright(c) 2019 Thomas Hogarth
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -12,26 +12,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/StateGroup.h>
-#include <vsg/vk/Buffer.h>
-#include <vsg/vk/Command.h>
-#include <vsg/vk/Descriptor.h>
+#include <vsg/commands/Command.h>
+#include <vsg/vk/Image.h>
 
 namespace vsg
 {
-    class VSG_DECLSPEC NextSubPass : public Inherit<Command, NextSubPass>
+
+    class VSG_DECLSPEC CopyImage : public Inherit<Command, CopyImage>
     {
     public:
-        void read(Input& input) override;
-        void write(Output& output) const override;
+        CopyImage();
 
         void dispatch(CommandBuffer& commandBuffer) const override;
 
-        VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE; // VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS
+        using Regions = std::vector<VkImageCopy>;
 
-    protected:
-        virtual ~NextSubPass();
+        ref_ptr<Image> srcImage;
+        VkImageLayout srcImageLayout;
+        ref_ptr<Image> dstImage;
+        VkImageLayout dstImageLayout;
+        Regions regions;
     };
-    VSG_type_name(vsg::NextSubPass);
 
 } // namespace vsg

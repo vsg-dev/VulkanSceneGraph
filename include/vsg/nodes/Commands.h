@@ -14,8 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/ref_ptr.h>
 
+#include <vsg/commands/Command.h>
 #include <vsg/nodes/Node.h>
-#include <vsg/vk/Command.h>
 
 #include <vector>
 

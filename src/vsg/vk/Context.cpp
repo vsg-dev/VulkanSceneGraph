@@ -12,17 +12,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/traversals/CompileTraversal.h>
 
+#include <vsg/commands/PipelineBarrier.h>
 #include <vsg/nodes/Commands.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
-
-#include <vsg/vk/Command.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Extensions.h>
-#include <vsg/vk/PipelineBarrier.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
 

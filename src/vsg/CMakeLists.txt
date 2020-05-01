@@ -86,17 +86,23 @@ set(SOURCES
     raytracing/TopLevelAccelerationStructure.cpp
     raytracing/TraceRays.cpp
 
+    commands/BindIndexBuffer.cpp
+    commands/BindVertexBuffers.cpp
+    commands/Command.cpp
+    commands/CopyImage.cpp
+    commands/PipelineBarrier.cpp
+    commands/NextSubPass.cpp
+    commands/Dispatch.cpp
+    commands/PushConstants.cpp
+    commands/Draw.cpp
+
     vk/Buffer.cpp
     vk/BufferData.cpp
     vk/BufferView.cpp
-    vk/BindIndexBuffer.cpp
-    vk/BindVertexBuffers.cpp
-    vk/Command.cpp
     vk/CommandBuffer.cpp
     vk/CommandPool.cpp
     vk/ComputePipeline.cpp
     vk/Context.cpp
-    vk/CopyImage.cpp
     vk/Descriptor.cpp
     vk/DescriptorBuffer.cpp
     vk/DescriptorImage.cpp
@@ -107,8 +113,6 @@ set(SOURCES
     vk/DescriptorSetLayout.cpp
     vk/Device.cpp
     vk/DeviceMemory.cpp
-    vk/Draw.cpp
-    vk/Dispatch.cpp
     vk/Extensions.cpp
     vk/Fence.cpp
     vk/Framebuffer.cpp
@@ -117,11 +121,8 @@ set(SOURCES
     vk/ImageData.cpp
     vk/ImageView.cpp
     vk/Instance.cpp
-    vk/NextSubPass.cpp
     vk/PhysicalDevice.cpp
     vk/PipelineLayout.cpp
-    vk/PipelineBarrier.cpp
-    vk/PushConstants.cpp
     vk/Queue.cpp
     vk/RenderPass.cpp
     vk/ResourceHints.cpp

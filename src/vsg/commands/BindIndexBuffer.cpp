@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/BindIndexBuffer.h>
+#include <vsg/commands/BindIndexBuffer.h>
 #include <vsg/vk/CommandBuffer.h>
 
 using namespace vsg;
