@@ -56,7 +56,6 @@ set(SOURCES
     io/write.cpp
 
     traversals/RecordTraversal.cpp
-    traversals/CullTraversal.cpp
     traversals/CompileTraversal.cpp
     traversals/ComputeBounds.cpp
     traversals/Intersector.cpp
