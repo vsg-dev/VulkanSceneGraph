@@ -10,20 +10,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/traversals/Intersector.h>
-
+#include <vsg/commands/BindIndexBuffer.h>
+#include <vsg/commands/BindVertexBuffers.h>
+#include <vsg/commands/Draw.h>
+#include <vsg/commands/DrawIndexed.h>
 #include <vsg/maths/transform.h>
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/PagedLOD.h>
-#include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
-#include <vsg/vk/BindIndexBuffer.h>
-#include <vsg/vk/BindVertexBuffers.h>
-#include <vsg/vk/Draw.h>
-#include <vsg/vk/GraphicsPipeline.h>
+#include <vsg/state/GraphicsPipeline.h>
+#include <vsg/state/StateGroup.h>
+#include <vsg/traversals/Intersector.h>
 
 using namespace vsg;
 
