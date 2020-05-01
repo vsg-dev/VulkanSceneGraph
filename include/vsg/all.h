@@ -56,7 +56,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Node.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
-#include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 
 // Commands header files
@@ -88,6 +87,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/ShaderModule.h>
 #include <vsg/state/ShaderStage.h>
 #include <vsg/state/StateCommand.h>
+#include <vsg/state/StateGroup.h>
 #include <vsg/state/material.h>
 
 // Traversal header files

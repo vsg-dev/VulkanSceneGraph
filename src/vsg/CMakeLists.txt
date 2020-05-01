@@ -29,7 +29,6 @@ set(SOURCES
     nodes/Geometry.cpp
     nodes/Node.cpp
     nodes/QuadGroup.cpp
-    nodes/StateGroup.cpp
     nodes/CullGroup.cpp
     nodes/CullNode.cpp
     nodes/LOD.cpp
@@ -39,7 +38,6 @@ set(SOURCES
 
     commands/BindIndexBuffer.cpp
     commands/BindVertexBuffers.cpp
-    commands/Command.cpp
     commands/Commands.cpp
     commands/CopyImage.cpp
     commands/PipelineBarrier.cpp
@@ -49,7 +47,22 @@ set(SOURCES
     commands/Draw.cpp
     commands/DrawIndexed.cpp
 
+    state/ComputePipeline.cpp
+    state/DescriptorSet.cpp
+    state/GraphicsPipeline.cpp
+    state/Descriptor.cpp
+    state/DescriptorBuffer.cpp
+    state/DescriptorImage.cpp
+    state/DescriptorImageView.cpp
+    state/DescriptorTexelBufferView.cpp
+    state/DescriptorSetLayout.cpp
+    state/ShaderModule.cpp
+    state/ShaderStage.cpp
+    state/PipelineLayout.cpp
+    state/Sampler.cpp
+    state/ResourceHints.cpp
     state/StateCommand.cpp
+    state/StateGroup.cpp
 
     io/FileSystem.cpp
     io/AsciiInput.cpp
@@ -98,20 +111,6 @@ set(SOURCES
     raytracing/TopLevelAccelerationStructure.cpp
     raytracing/TraceRays.cpp
 
-    state/ComputePipeline.cpp
-    state/DescriptorSet.cpp
-    state/GraphicsPipeline.cpp
-    state/Descriptor.cpp
-    state/DescriptorBuffer.cpp
-    state/DescriptorImage.cpp
-    state/DescriptorImageView.cpp
-    state/DescriptorTexelBufferView.cpp
-    state/DescriptorSetLayout.cpp
-    state/ShaderModule.cpp
-    state/ShaderStage.cpp
-    state/PipelineLayout.cpp
-    state/Sampler.cpp
-    state/ResourceHints.cpp
 
     vk/Buffer.cpp
     vk/BufferData.cpp
