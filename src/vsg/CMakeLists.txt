@@ -110,6 +110,8 @@ set(SOURCES
     state/ShaderModule.cpp
     state/ShaderStage.cpp
     state/PipelineLayout.cpp
+    state/Sampler.cpp
+    state/ResourceHints.cpp
 
     vk/Buffer.cpp
     vk/BufferData.cpp
@@ -130,8 +132,6 @@ set(SOURCES
     vk/PhysicalDevice.cpp
     vk/Queue.cpp
     vk/RenderPass.cpp
-    vk/ResourceHints.cpp
-    vk/Sampler.cpp
     vk/Semaphore.cpp
     vk/Surface.cpp
     vk/Swapchain.cpp

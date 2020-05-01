@@ -83,6 +83,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/DescriptorTexelBufferView.h>
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/PipelineLayout.h>
+#include <vsg/state/ResourceHints.h>
+#include <vsg/state/Sampler.h>
 #include <vsg/state/ShaderModule.h>
 #include <vsg/state/ShaderStage.h>
 #include <vsg/state/StateCommand.h>
@@ -149,8 +151,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/PhysicalDevice.h>
 #include <vsg/vk/Queue.h>
 #include <vsg/vk/RenderPass.h>
-#include <vsg/vk/ResourceHints.h>
-#include <vsg/vk/Sampler.h>
 #include <vsg/vk/Semaphore.h>
 #include <vsg/vk/State.h>
 #include <vsg/vk/SubmitCommands.h>

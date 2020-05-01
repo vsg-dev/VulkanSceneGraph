@@ -10,46 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/ConstVisitor.h>
-#include <vsg/core/External.h>
-#include <vsg/core/Objects.h>
-
-#include <vsg/nodes/CullGroup.h>
-#include <vsg/nodes/CullNode.h>
-#include <vsg/nodes/Geometry.h>
-#include <vsg/nodes/Group.h>
-#include <vsg/nodes/LOD.h>
-#include <vsg/nodes/MatrixTransform.h>
-#include <vsg/nodes/Node.h>
-#include <vsg/nodes/PagedLOD.h>
-#include <vsg/nodes/QuadGroup.h>
-#include <vsg/nodes/StateGroup.h>
-#include <vsg/nodes/VertexIndexDraw.h>
-
-#include <vsg/commands/BindIndexBuffer.h>
-#include <vsg/commands/BindVertexBuffers.h>
-#include <vsg/commands/Command.h>
-#include <vsg/commands/Commands.h>
-#include <vsg/commands/Draw.h>
-#include <vsg/commands/DrawIndexed.h>
-
-#include <vsg/state/ComputePipeline.h>
-#include <vsg/state/Descriptor.h>
-#include <vsg/state/DescriptorSet.h>
-#include <vsg/state/GraphicsPipeline.h>
-
-#include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/RenderPass.h>
-#include <vsg/vk/ResourceHints.h>
-#include <vsg/vk/Swapchain.h>
-
-#include <vsg/ui/ApplicationEvent.h>
-#include <vsg/ui/KeyEvent.h>
-#include <vsg/ui/PointerEvent.h>
-#include <vsg/ui/TouchEvent.h>
-
-#include <vsg/viewer/CommandGraph.h>
-#include <vsg/viewer/RenderGraph.h>
+#include <vsg/all.h>
 
 using namespace vsg;
 
