@@ -379,25 +379,22 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
     }
 }
 
-
-
 void Viewer::setupThreading()
 {
-    std::cout<<"Viewer::setupThreading()"<<std::endl;
+    std::cout << "Viewer::setupThreading()" << std::endl;
 
     _threading = true;
 
     _frameBlock = FrameBlock::create(_status);
     _submissionCompleted = Barrier::create(recordAndSubmitTasks.size());
 
-    for(auto& task : recordAndSubmitTasks)
+    for (auto& task : recordAndSubmitTasks)
     {
-        auto run = [](observer_ptr<RecordAndSubmitTask> viewer_task, ref_ptr<FrameBlock> viewer_frameBlock, ref_ptr<Barrier> submissionCompleted)
-        {
+        auto run = [](observer_ptr<RecordAndSubmitTask> viewer_task, ref_ptr<FrameBlock> viewer_frameBlock, ref_ptr<Barrier> submissionCompleted) {
             auto frameStamp = viewer_frameBlock->initial_value;
 
             // wait for this frame to be signalled
-            while(viewer_frameBlock->wait_for_change(frameStamp))
+            while (viewer_frameBlock->wait_for_change(frameStamp))
             {
                 // take a refernce to the command buffer to prevent it being deleted while we are traversing.
                 ref_ptr<RecordAndSubmitTask> ras_task = viewer_task;
@@ -418,15 +415,14 @@ void Viewer::stopThreading()
     if (!_threading) return;
     _threading = false;
 
-    std::cout<<"Viewer::stopThreading()"<<std::endl;
-
+    std::cout << "Viewer::stopThreading()" << std::endl;
 
     // release the blocks to enable threads to exit cleanly
     // need to manually wake up the threads waiting on this frameBlock so they check the _status value and exit cleanly.
     _status->set(false);
     _frameBlock->wake();
 
-    for(auto& task : recordAndSubmitTasks)
+    for (auto& task : recordAndSubmitTasks)
     {
         task->thread.join();
     }

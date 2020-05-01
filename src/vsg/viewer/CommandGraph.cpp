@@ -51,7 +51,6 @@ CommandGraph::~CommandGraph()
 {
 }
 
-
 void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
     if (!recordTraversal)

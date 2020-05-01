@@ -27,13 +27,14 @@ namespace vsg
     class FrameBlock : public Inherit<Object, FrameBlock>
     {
     public:
-
         inline static const ref_ptr<FrameStamp> initial_value = {};
 
-        FrameBlock(ref_ptr<ActivityStatus> status) : _value(initial_value), _status(status) {}
+        FrameBlock(ref_ptr<ActivityStatus> status) :
+            _value(initial_value),
+            _status(status) {}
 
         FrameBlock(const FrameBlock&) = delete;
-        FrameBlock& operator = (const FrameBlock&) = delete;
+        FrameBlock& operator=(const FrameBlock&) = delete;
 
         void set(ref_ptr<FrameStamp> frameStamp)
         {
@@ -77,7 +78,6 @@ namespace vsg
         ref_ptr<ActivityStatus> _status;
     };
 
-
     class Barrier : public Inherit<Object, Barrier>
     {
     public:
@@ -85,7 +85,7 @@ namespace vsg
             _num_threads(num) {}
 
         Barrier(const Barrier&) = delete;
-        Barrier& operator = (const Barrier&) = delete;
+        Barrier& operator=(const Barrier&) = delete;
 
         void reset()
         {
@@ -129,7 +129,7 @@ namespace vsg
 
         bool is_ready() const
         {
-            return _count==0;
+            return _count == 0;
         }
 
         virtual void released() {}
@@ -145,7 +145,8 @@ namespace vsg
 
     struct SubmitBarrier : public Inherit<Barrier, SubmitBarrier>
     {
-        SubmitBarrier(int num) : Inherit(num) {}
+        SubmitBarrier(int num) :
+            Inherit(num) {}
         void submit(const CommandBuffers& rcb)
         {
             {

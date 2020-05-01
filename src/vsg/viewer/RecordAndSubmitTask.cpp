@@ -76,7 +76,6 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
 
     fence->dependentSemaphores() = signalSemaphores;
 
-
     for (auto& window : windows)
     {
         auto& semaphore = window->frame(window->nextImageIndex()).imageAvailableSemaphore;
@@ -154,6 +153,4 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
     index = (index + 1) % fences.size();
 
     return queue->submit(submitInfo, fence);
-
 }
-
