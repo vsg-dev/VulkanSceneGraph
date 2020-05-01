@@ -86,6 +86,39 @@ namespace vsg
             y = in_y;
             z = in_z;
         }
+
+        inline t_vec3& operator+=(const t_vec3& rhs)
+        {
+            value[0] += rhs.value[0];
+            value[1] += rhs.value[1];
+            value[2] += rhs.value[2];
+            return *this;
+        }
+
+        inline t_vec3& operator-=(const t_vec3& rhs)
+        {
+            value[0] -= rhs.value[0];
+            value[1] -= rhs.value[1];
+            value[2] -= rhs.value[2];
+            return *this;
+        }
+
+        inline t_vec3& operator*=(value_type rhs)
+        {
+            value[0] *= rhs;
+            value[1] *= rhs;
+            value[2] *= rhs;
+            return *this;
+        }
+
+        inline t_vec3& operator/=(value_type rhs)
+        {
+            value_type div = 1.0 / rhs;
+            value[0] *= div;
+            value[1] *= div;
+            value[2] *= div;
+            return *this;
+        }
     };
 
     using vec3 = t_vec3<float>;
@@ -157,6 +190,12 @@ namespace vsg
     constexpr T length(t_vec3<T> const& v)
     {
         return std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    }
+
+    template<typename T>
+    constexpr T length2(t_vec3<T> const& v)
+    {
+        return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
     }
 
     template<typename T>

@@ -24,13 +24,15 @@ namespace vsg
     {
         Affinity() {}
 
-        Affinity(uint32_t cpu, uint32_t num=1) { for(uint32_t i=0; i<num; ++i) cpus.insert(cpu+i); }
+        Affinity(uint32_t cpu, uint32_t num = 1)
+        {
+            for (uint32_t i = 0; i < num; ++i) cpus.insert(cpu + i);
+        }
 
         std::set<uint32_t> cpus;
 
-        operator bool () const { return !cpus.empty(); }
+        operator bool() const { return !cpus.empty(); }
     };
-
 
     /// Set the CPU affinity of specifiied std::thread
     extern VSG_DECLSPEC void setAffinity(std::thread& thread, const Affinity& affinity);
@@ -39,4 +41,4 @@ namespace vsg
     /// Note, under Linux the CPU affinity of thread is inherited by any threads that it creates
     extern VSG_DECLSPEC void setAffinity(const Affinity& affinity);
 
-}
+} // namespace vsg

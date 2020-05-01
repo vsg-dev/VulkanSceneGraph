@@ -174,8 +174,7 @@ namespace vsg
     class RecordAndSubmitTask : public Inherit<Object, RecordAndSubmitTask>
     {
     public:
-
-        RecordAndSubmitTask(Device* device, uint32_t numBuffers=3);
+        RecordAndSubmitTask(Device* device, uint32_t numBuffers = 3);
 
         // Need to add FrameStamp?
         virtual VkResult submit(ref_ptr<FrameStamp> frameStamp = {});

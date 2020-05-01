@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <memory>
 #include <vsg/core/Object.h>
+#include <vsg/core/type_name.h>
 #include <vsg/maths/mat4.h>
 
 namespace vsg
@@ -37,11 +38,17 @@ namespace vsg
     class FrameStamp;
     class CulledPagedLODs;
 
+    class RecordTraversal;
+    VSG_type_name(vsg::RecordTraversal);
+
     class VSG_DECLSPEC RecordTraversal : public Object
     {
     public:
         explicit RecordTraversal(CommandBuffer* commandBuffer = nullptr, uint32_t maxSlot = 2, ref_ptr<FrameStamp> fs = {});
         ~RecordTraversal();
+
+        std::size_t sizeofObject() const noexcept override { return sizeof(RecordTraversal); }
+        const char* className() const noexcept override { return type_name<RecordTraversal>(); }
 
         void setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix);
 
@@ -68,4 +75,5 @@ namespace vsg
         ref_ptr<FrameStamp> frameStamp;
         ref_ptr<State> state;
     };
+
 } // namespace vsg

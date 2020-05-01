@@ -13,12 +13,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/ConstVisitor.h>
+#include <vsg/core/Inherit.h>
 #include <vsg/maths/box.h>
 
 namespace vsg
 {
 
-    class VSG_DECLSPEC ComputeBounds : public ConstVisitor
+    class VSG_DECLSPEC ComputeBounds : public Inherit<ConstVisitor, ComputeBounds>
     {
     public:
         ComputeBounds();
@@ -37,5 +38,6 @@ namespace vsg
         void apply(const BindVertexBuffers& bvb);
         void apply(const vec3Array& vertices);
     };
+    VSG_type_name(vsg::ComputeBounds);
 
 } // namespace vsg

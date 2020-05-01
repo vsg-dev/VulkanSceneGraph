@@ -57,7 +57,6 @@ namespace vsg
     };
 
     using BufferDataList = std::vector<BufferData>;
-    using DataList = std::vector<ref_ptr<Data>>;
 
     BufferDataList createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 

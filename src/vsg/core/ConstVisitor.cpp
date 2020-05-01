@@ -34,6 +34,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/ComputePipeline.h>
 #include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorSet.h>
+#include <vsg/vk/Draw.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/ResourceHints.h>
@@ -321,7 +322,7 @@ void ConstVisitor::apply(const Node& value)
 }
 void ConstVisitor::apply(const Commands& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Node&>(value));
 }
 void ConstVisitor::apply(const Group& value)
 {
@@ -463,6 +464,14 @@ void ConstVisitor::apply(const ColorBlendState& value)
 void ConstVisitor::apply(const ResourceHints& value)
 {
     apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const Draw& value)
+{
+    apply(static_cast<const Command&>(value));
+}
+void ConstVisitor::apply(const DrawIndexed& value)
+{
+    apply(static_cast<const Command&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

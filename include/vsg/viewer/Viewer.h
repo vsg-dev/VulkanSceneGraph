@@ -120,8 +120,6 @@ namespace vsg
 
         virtual void present();
 
-        ref_ptr<CompileTraversal> _compileTraversal;
-
     protected:
         virtual ~Viewer();
 

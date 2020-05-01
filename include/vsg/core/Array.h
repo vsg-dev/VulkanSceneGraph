@@ -40,13 +40,16 @@ namespace vsg
         Array() :
             _size(0),
             _data(nullptr) {}
+
         Array(std::uint32_t numElements, value_type* data) :
             _size(numElements),
             _data(data) {}
+
         Array(std::uint32_t numElements, value_type* data, Layout layout) :
             Data(layout),
             _size(numElements),
             _data(data) {}
+
         explicit Array(std::initializer_list<value_type> l) :
             _size(static_cast<std::uint32_t>(l.size())),
             _data(new value_type[l.size()])
@@ -54,9 +57,17 @@ namespace vsg
             value_type* ptr = _data;
             for (value_type const& v : l) { (*ptr++) = v; }
         }
+
         explicit Array(std::uint32_t numElements) :
             _size(numElements),
             _data(new value_type[numElements]) {}
+
+        Array(std::uint32_t numElements, const value_type& value) :
+            _size(numElements),
+            _data(new value_type[numElements])
+        {
+            for (auto& v : *this) v = value;
+        }
 
         template<typename... Args>
         static ref_ptr<Array> create(Args... args)

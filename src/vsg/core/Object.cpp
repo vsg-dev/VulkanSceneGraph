@@ -206,6 +206,14 @@ const Object* Object::getObject(const std::string& key) const
     return _auxiliary->getObject(key);
 }
 
+void Object::removeObject(const std::string& key)
+{
+    if (_auxiliary)
+    {
+        _auxiliary->getObjectMap().erase(key);
+    }
+}
+
 void Object::setAuxiliary(Auxiliary* auxiliary)
 {
     if (_auxiliary)

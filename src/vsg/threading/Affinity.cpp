@@ -14,8 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #ifdef _WIN32
 
-#include <windows.h>
-#include <process.h>
+#    include <process.h>
+#    include <windows.h>
 
 static void win32_setAffinity(HANDLE tid, const vsg::Affinity& affinity)
 {
@@ -24,7 +24,7 @@ static void win32_setAffinity(HANDLE tid, const vsg::Affinity& affinity)
     DWORD_PTR affinityMask = 0x0;
     if (affinity)
     {
-        for(auto cpu : affinity.cpus)
+        for (auto cpu : affinity.cpus)
         {
             if (cpu < numProcessors)
             {
@@ -35,13 +35,13 @@ static void win32_setAffinity(HANDLE tid, const vsg::Affinity& affinity)
     else
     {
         // set affinity to all CPU cores
-        for(uint32_t cpu=0; cpu < numProcessors; ++cpu)
+        for (uint32_t cpu = 0; cpu < numProcessors; ++cpu)
         {
             affinityMask |= (0x1LL << cpu);
         }
     }
 
-    /*DWORD_PTR res =*/ SetThreadAffinityMask(tid, affinityMask);
+    /*DWORD_PTR res =*/SetThreadAffinityMask(tid, affinityMask);
 }
 
 void vsg::setAffinity(std::thread& thread, const Affinity& affinity)
@@ -56,8 +56,8 @@ void vsg::setAffinity(const Affinity& affinity)
 
 #elif defined(__APPLE__)
 
-#include <pthread.h>
-#include <mach/mach.h>
+#    include <mach/mach.h>
+#    include <pthread.h>
 
 static void macos_setAffinity(pthread_t thread_native_handle, const vsg::Affinity& affinity)
 {
@@ -66,7 +66,7 @@ static void macos_setAffinity(pthread_t thread_native_handle, const vsg::Affinit
     integer_t cpuset = 0;
     if (affinity)
     {
-        for(auto cpu : affinity.cpus)
+        for (auto cpu : affinity.cpus)
         {
             if (cpu < numProcessors)
             {
@@ -77,14 +77,14 @@ static void macos_setAffinity(pthread_t thread_native_handle, const vsg::Affinit
     else
     {
         // set affinity to all CPU cores
-        for(uint32_t cpu=0; cpu < numProcessors; ++cpu)
+        for (uint32_t cpu = 0; cpu < numProcessors; ++cpu)
         {
             cpuset |= (0x1 << cpu);
         }
     }
 
     auto mach_thread = pthread_mach_thread_np(thread_native_handle);
-    thread_affinity_policy_data_t policy = { cpuset };
+    thread_affinity_policy_data_t policy = {cpuset};
     thread_policy_set(mach_thread, THREAD_AFFINITY_POLICY, (thread_policy_t)&policy, 1);
 }
 
@@ -109,7 +109,7 @@ static void pthread_setAffinity(pthread_t thread_native_handle, const vsg::Affin
 
     if (affinity)
     {
-        for(auto cpu : affinity.cpus)
+        for (auto cpu : affinity.cpus)
         {
             if (cpu < numProcessors)
             {
@@ -120,13 +120,13 @@ static void pthread_setAffinity(pthread_t thread_native_handle, const vsg::Affin
     else
     {
         // set affinity to all CPU cores
-        for(uint32_t cpu=0; cpu < numProcessors; ++cpu)
+        for (uint32_t cpu = 0; cpu < numProcessors; ++cpu)
         {
             CPU_SET(cpu, &cpuset);
         }
     }
 
-    /*int rc =*/ pthread_setaffinity_np(thread_native_handle, sizeof(cpu_set_t), &cpuset);
+    /*int rc =*/pthread_setaffinity_np(thread_native_handle, sizeof(cpu_set_t), &cpuset);
 }
 
 void vsg::setAffinity(std::thread& thread, const Affinity& affinity)

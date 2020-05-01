@@ -59,12 +59,15 @@ set(SOURCES
     traversals/CullTraversal.cpp
     traversals/CompileTraversal.cpp
     traversals/ComputeBounds.cpp
+    traversals/Intersector.cpp
+    traversals/LineSegmentIntersector.cpp
 
     threading/Affinity.cpp
     threading/OperationQueue.cpp
     threading/OperationThreads.cpp
 
     viewer/Camera.cpp
+    viewer/EllipsoidModel.cpp
     viewer/Viewer.cpp
     viewer/Window.cpp
     viewer/Trackball.cpp

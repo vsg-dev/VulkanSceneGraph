@@ -34,6 +34,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/ComputePipeline.h>
 #include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorSet.h>
+#include <vsg/vk/Draw.h>
 #include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/Swapchain.h>
@@ -320,7 +321,7 @@ void Visitor::apply(Node& value)
 }
 void Visitor::apply(Commands& value)
 {
-    apply(static_cast<Object&>(value));
+    apply(static_cast<Node&>(value));
 }
 void Visitor::apply(Group& value)
 {
@@ -462,6 +463,14 @@ void Visitor::apply(ColorBlendState& value)
 void Visitor::apply(ResourceHints& value)
 {
     apply(static_cast<Object&>(value));
+}
+void Visitor::apply(Draw& value)
+{
+    apply(static_cast<Command&>(value));
+}
+void Visitor::apply(DrawIndexed& value)
+{
+    apply(static_cast<Command&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -41,19 +41,30 @@ namespace vsg
             _width(0),
             _height(0),
             _data(nullptr) {}
+
         Array2D(std::uint32_t width, std::uint32_t height, value_type* data) :
             _width(width),
             _height(height),
             _data(data) {}
+
         Array2D(std::uint32_t width, std::uint32_t height, value_type* data, Layout layout) :
             Data(layout),
             _width(width),
             _height(height),
             _data(data) {}
+
         Array2D(std::uint32_t width, std::uint32_t height) :
             _width(width),
             _height(height),
             _data(new value_type[static_cast<std::size_t>(width) * height]) {}
+
+        Array2D(std::uint32_t width, std::uint32_t height, const value_type& value) :
+            _width(width),
+            _height(height),
+            _data(new value_type[static_cast<std::size_t>(width) * height])
+        {
+            for (auto& v : *this) v = value;
+        }
 
         template<typename... Args>
         static ref_ptr<Array2D> create(Args... args)
