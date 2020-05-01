@@ -101,6 +101,15 @@ set(SOURCES
     state/ComputePipeline.cpp
     state/DescriptorSet.cpp
     state/GraphicsPipeline.cpp
+    state/Descriptor.cpp
+    state/DescriptorBuffer.cpp
+    state/DescriptorImage.cpp
+    state/DescriptorImageView.cpp
+    state/DescriptorTexelBufferView.cpp
+    state/DescriptorSetLayout.cpp
+    state/ShaderModule.cpp
+    state/ShaderStage.cpp
+    state/PipelineLayout.cpp
 
     vk/Buffer.cpp
     vk/BufferData.cpp
@@ -108,13 +117,7 @@ set(SOURCES
     vk/CommandBuffer.cpp
     vk/CommandPool.cpp
     vk/Context.cpp
-    vk/Descriptor.cpp
-    vk/DescriptorBuffer.cpp
-    vk/DescriptorImage.cpp
-    vk/DescriptorImageView.cpp
-    vk/DescriptorTexelBufferView.cpp
     vk/DescriptorPool.cpp
-    vk/DescriptorSetLayout.cpp
     vk/Device.cpp
     vk/DeviceMemory.cpp
     vk/Extensions.cpp
@@ -125,14 +128,11 @@ set(SOURCES
     vk/ImageView.cpp
     vk/Instance.cpp
     vk/PhysicalDevice.cpp
-    vk/PipelineLayout.cpp
     vk/Queue.cpp
     vk/RenderPass.cpp
     vk/ResourceHints.cpp
     vk/Sampler.cpp
     vk/Semaphore.cpp
-    vk/ShaderModule.cpp
-    vk/ShaderStage.cpp
     vk/Surface.cpp
     vk/Swapchain.cpp
 )

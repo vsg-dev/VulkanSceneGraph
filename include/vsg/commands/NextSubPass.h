@@ -14,8 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/Command.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/state/Descriptor.h>
 #include <vsg/vk/Buffer.h>
-#include <vsg/vk/Descriptor.h>
 
 namespace vsg
 {

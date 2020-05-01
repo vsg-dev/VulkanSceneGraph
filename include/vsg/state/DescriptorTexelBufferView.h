@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,31 +12,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/traversals/CompileTraversal.h>
-#include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/DescriptorTexelBufferView.h>
+#include <vsg/state/Descriptor.h>
+#include <vsg/vk/BufferView.h>
 
-#include <algorithm>
-#include <iostream>
-
-using namespace vsg;
-
-DescriptorTexelBufferView::DescriptorTexelBufferView(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferViewList& texelBufferViews) :
-    Inherit(dstBinding, dstArrayElement, descriptorType),
-    _texelBufferViewList(texelBufferViews)
+namespace vsg
 {
-}
 
-void DescriptorTexelBufferView::assignTo(Context& context, VkWriteDescriptorSet& wds) const
-{
-    Descriptor::assignTo(context, wds);
+    using BufferViewList = std::vector<ref_ptr<BufferView>>;
 
-    auto texelBufferViews = context.scratchMemory->allocate<VkBufferView>(_texelBufferViewList.size());
-    wds.descriptorCount = static_cast<uint32_t>(_texelBufferViewList.size());
-    wds.pTexelBufferView = texelBufferViews;
-
-    for (size_t i = 0; i < _texelBufferViewList.size(); ++i)
+    class VSG_DECLSPEC DescriptorTexelBufferView : public Inherit<Descriptor, DescriptorTexelBufferView>
     {
-        texelBufferViews[i] = *(_texelBufferViewList[i]);
-    }
-}
+    public:
+        DescriptorTexelBufferView(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferViewList& texelBufferViews);
+
+        void assignTo(Context& context, VkWriteDescriptorSet& wds) const override;
+
+        uint32_t getNumDescriptors() const override { return static_cast<uint32_t>(_texelBufferViewList.size()); }
+
+    protected:
+        BufferViewList _texelBufferViewList;
+    };
+    VSG_type_name(vsg::DescriptorTexelBufferView);
+
+} // namespace vsg

@@ -10,12 +10,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/state/DescriptorBuffer.h>
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/DescriptorBuffer.h>
-
-#include <algorithm>
-#include <iostream>
 
 using namespace vsg;
 

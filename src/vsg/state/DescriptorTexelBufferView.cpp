@@ -10,43 +10,28 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/state/DescriptorTexelBufferView.h>
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/Descriptor.h>
-
-#include <algorithm>
-#include <iostream>
 
 using namespace vsg;
 
-Descriptor::Descriptor(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
-    _dstBinding(dstBinding),
-    _dstArrayElement(dstArrayElement),
-    _descriptorType(descriptorType)
+DescriptorTexelBufferView::DescriptorTexelBufferView(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferViewList& texelBufferViews) :
+    Inherit(dstBinding, dstArrayElement, descriptorType),
+    _texelBufferViewList(texelBufferViews)
 {
 }
 
-void Descriptor::read(Input& input)
+void DescriptorTexelBufferView::assignTo(Context& context, VkWriteDescriptorSet& wds) const
 {
-    Object::read(input);
+    Descriptor::assignTo(context, wds);
 
-    input.read("DstBinding", _dstBinding);
-    input.read("DstArrayElement", _dstArrayElement);
-}
+    auto texelBufferViews = context.scratchMemory->allocate<VkBufferView>(_texelBufferViewList.size());
+    wds.descriptorCount = static_cast<uint32_t>(_texelBufferViewList.size());
+    wds.pTexelBufferView = texelBufferViews;
 
-void Descriptor::write(Output& output) const
-{
-    Object::write(output);
-
-    output.write("DstBinding", _dstBinding);
-    output.write("DstArrayElement", _dstArrayElement);
-}
-
-void Descriptor::assignTo(Context& /*context*/, VkWriteDescriptorSet& wds) const
-{
-    wds = {};
-    wds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    wds.dstBinding = _dstBinding;
-    wds.dstArrayElement = _dstArrayElement;
-    wds.descriptorType = _descriptorType;
+    for (size_t i = 0; i < _texelBufferViewList.size(); ++i)
+    {
+        texelBufferViews[i] = *(_texelBufferViewList[i]);
+    }
 }

@@ -12,12 +12,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/Command.h>
-
-#include <vsg/vk/Descriptor.h>
+#include <vsg/state/Descriptor.h>
+#include <vsg/state/DescriptorSetLayout.h>
+#include <vsg/state/PipelineLayout.h>
+#include <vsg/state/StateCommand.h>
 #include <vsg/vk/DescriptorPool.h>
-#include <vsg/vk/DescriptorSetLayout.h>
-#include <vsg/vk/PipelineLayout.h>
 
 namespace vsg
 {

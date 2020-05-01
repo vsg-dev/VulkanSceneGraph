@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/DescriptorSetLayout.h>
+#include <vsg/state/DescriptorSetLayout.h>
 #include <vsg/vk/vk_buffer.h>
 
 namespace vsg

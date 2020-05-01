@@ -74,9 +74,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 // State header files
 #include <vsg/state/ComputePipeline.h>
+#include <vsg/state/Descriptor.h>
+#include <vsg/state/DescriptorBuffer.h>
+#include <vsg/state/DescriptorImage.h>
+#include <vsg/state/DescriptorImageView.h>
 #include <vsg/state/DescriptorSet.h>
+#include <vsg/state/DescriptorSetLayout.h>
+#include <vsg/state/DescriptorTexelBufferView.h>
 #include <vsg/state/GraphicsPipeline.h>
+#include <vsg/state/PipelineLayout.h>
+#include <vsg/state/ShaderModule.h>
+#include <vsg/state/ShaderStage.h>
 #include <vsg/state/StateCommand.h>
+#include <vsg/state/material.h>
 
 // Traversal header files
 #include <vsg/traversals/CompileTraversal.h>
@@ -126,13 +136,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/Context.h>
-#include <vsg/vk/Descriptor.h>
-#include <vsg/vk/DescriptorBuffer.h>
-#include <vsg/vk/DescriptorImage.h>
-#include <vsg/vk/DescriptorImageView.h>
 #include <vsg/vk/DescriptorPool.h>
-#include <vsg/vk/DescriptorSetLayout.h>
-#include <vsg/vk/DescriptorTexelBufferView.h>
 #include <vsg/vk/Device.h>
 #include <vsg/vk/DeviceMemory.h>
 #include <vsg/vk/Extensions.h>
@@ -143,19 +147,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/ImageView.h>
 #include <vsg/vk/Instance.h>
 #include <vsg/vk/PhysicalDevice.h>
-#include <vsg/vk/PipelineLayout.h>
 #include <vsg/vk/Queue.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/ResourceHints.h>
 #include <vsg/vk/Sampler.h>
 #include <vsg/vk/Semaphore.h>
-#include <vsg/vk/ShaderModule.h>
-#include <vsg/vk/ShaderStage.h>
 #include <vsg/vk/State.h>
 #include <vsg/vk/SubmitCommands.h>
 #include <vsg/vk/Surface.h>
 #include <vsg/vk/Swapchain.h>
-#include <vsg/vk/material.h>
 #include <vsg/vk/vk_buffer.h>
 
 // Input/Output header files

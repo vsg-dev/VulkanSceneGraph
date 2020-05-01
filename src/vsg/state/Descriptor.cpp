@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,26 +10,40 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/BufferView.h>
-#include <vsg/vk/Descriptor.h>
+#include <vsg/state/Descriptor.h>
+#include <vsg/traversals/CompileTraversal.h>
+#include <vsg/vk/CommandBuffer.h>
 
-namespace vsg
+using namespace vsg;
+
+Descriptor::Descriptor(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
+    _dstBinding(dstBinding),
+    _dstArrayElement(dstArrayElement),
+    _descriptorType(descriptorType)
 {
+}
 
-    using BufferViewList = std::vector<ref_ptr<BufferView>>;
+void Descriptor::read(Input& input)
+{
+    Object::read(input);
 
-    class VSG_DECLSPEC DescriptorTexelBufferView : public Inherit<Descriptor, DescriptorTexelBufferView>
-    {
-    public:
-        DescriptorTexelBufferView(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferViewList& texelBufferViews);
+    input.read("DstBinding", _dstBinding);
+    input.read("DstArrayElement", _dstArrayElement);
+}
 
-        void assignTo(Context& context, VkWriteDescriptorSet& wds) const override;
+void Descriptor::write(Output& output) const
+{
+    Object::write(output);
 
-        uint32_t getNumDescriptors() const override { return static_cast<uint32_t>(_texelBufferViewList.size()); }
+    output.write("DstBinding", _dstBinding);
+    output.write("DstArrayElement", _dstArrayElement);
+}
 
-    protected:
-        BufferViewList _texelBufferViewList;
-    };
-    VSG_type_name(vsg::DescriptorTexelBufferView);
-
-} // namespace vsg
+void Descriptor::assignTo(Context& /*context*/, VkWriteDescriptorSet& wds) const
+{
+    wds = {};
+    wds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    wds.dstBinding = _dstBinding;
+    wds.dstArrayElement = _dstArrayElement;
+    wds.descriptorType = _descriptorType;
+}

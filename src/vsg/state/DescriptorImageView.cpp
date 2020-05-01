@@ -11,9 +11,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/PipelineBarrier.h>
+#include <vsg/state/DescriptorImageView.h>
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/DescriptorImageView.h>
 
 using namespace vsg;
 
