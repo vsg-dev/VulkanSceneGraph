@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/traversals/RecordTraversal.h>
 
-#include <vsg/nodes/Commands.h>
 #include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/Group.h>
@@ -23,6 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/StateGroup.h>
 
 #include <vsg/commands/Command.h>
+#include <vsg/commands/Commands.h>
 
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/RenderPass.h>

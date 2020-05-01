@@ -47,7 +47,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec4.h>
 
 // Node header files
-#include <vsg/nodes/Commands.h>
 #include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/Geometry.h>
@@ -64,6 +63,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/BindIndexBuffer.h>
 #include <vsg/commands/BindVertexBuffers.h>
 #include <vsg/commands/Command.h>
+#include <vsg/commands/Commands.h>
 #include <vsg/commands/CopyImage.h>
 #include <vsg/commands/Dispatch.h>
 #include <vsg/commands/Draw.h>

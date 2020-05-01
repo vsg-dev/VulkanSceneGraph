@@ -25,7 +25,6 @@ set(SOURCES
 
     maths/transform.cpp
 
-    nodes/Commands.cpp
     nodes/Group.cpp
     nodes/Geometry.cpp
     nodes/Node.cpp
@@ -38,6 +37,17 @@ set(SOURCES
     nodes/MatrixTransform.cpp
     nodes/VertexIndexDraw.cpp
 
+    commands/BindIndexBuffer.cpp
+    commands/BindVertexBuffers.cpp
+    commands/Command.cpp
+    commands/Commands.cpp
+    commands/CopyImage.cpp
+    commands/PipelineBarrier.cpp
+    commands/NextSubPass.cpp
+    commands/Dispatch.cpp
+    commands/PushConstants.cpp
+    commands/Draw.cpp
+    commands/DrawIndexed.cpp
 
     io/FileSystem.cpp
     io/AsciiInput.cpp
@@ -85,17 +95,6 @@ set(SOURCES
     raytracing/RayTracingShaderGroup.cpp
     raytracing/TopLevelAccelerationStructure.cpp
     raytracing/TraceRays.cpp
-
-    commands/BindIndexBuffer.cpp
-    commands/BindVertexBuffers.cpp
-    commands/Command.cpp
-    commands/CopyImage.cpp
-    commands/PipelineBarrier.cpp
-    commands/NextSubPass.cpp
-    commands/Dispatch.cpp
-    commands/PushConstants.cpp
-    commands/Draw.cpp
-    commands/DrawIndexed.cpp
 
     vk/Buffer.cpp
     vk/BufferData.cpp

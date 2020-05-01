@@ -11,13 +11,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/BindVertexBuffers.h>
-#include <vsg/nodes/Commands.h>
+#include <vsg/commands/Commands.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/traversals/ComputeBounds.h>
-
-#include <iostream>
 
 using namespace vsg;
 
@@ -70,7 +68,6 @@ void ComputeBounds::apply(const vsg::Commands& commands)
 
 void ComputeBounds::apply(const vsg::VertexIndexDraw& vid)
 {
-    //std::cout<<"ComputeBounds::apply(const vsg::VertexIndexDraw& bvb) "<<vid.arrays.size()<<std::endl;
     if (!vid.arrays.empty())
     {
         vid.arrays[0]->accept(*this);
@@ -79,7 +76,6 @@ void ComputeBounds::apply(const vsg::VertexIndexDraw& vid)
 
 void ComputeBounds::apply(const vsg::BindVertexBuffers& bvb)
 {
-    //std::cout<<"ComputeBounds::apply(const vsg::BindVertexBuffers& bvb) "<<bvb.getArrays().size()<<std::endl;
     if (!bvb.getArrays().empty())
     {
         bvb.getArrays()[0]->accept(*this);
