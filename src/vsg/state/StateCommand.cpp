@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,25 +10,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vulkan/vulkan.h>
+#include <vsg/commands/BindIndexBuffer.h>
 
-#include <vsg/nodes/Node.h>
+using namespace vsg;
 
-namespace vsg
+void StateCommand::read(Input& input)
 {
-    class CommandBuffer;
-    class Context;
+    Command::read(input);
 
-    class Command : public Inherit<Node, Command>
-    {
-    public:
-        Command(Allocator* allocator = nullptr) :
-            Inherit(allocator) {}
+    input.read("Slot", _slot);
+}
 
-        virtual void compile(Context& /*context*/) {}
+void StateCommand::write(Output& output) const
+{
+    Command::write(output);
 
-        virtual void dispatch(CommandBuffer& commandBuffer) const = 0;
-    };
-    VSG_type_name(vsg::Command);
-
-} // namespace vsg
+    output.write("Slot", _slot);
+}

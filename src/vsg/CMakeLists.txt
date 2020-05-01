@@ -49,6 +49,8 @@ set(SOURCES
     commands/Draw.cpp
     commands/DrawIndexed.cpp
 
+    state/StateCommand.cpp
+
     io/FileSystem.cpp
     io/AsciiInput.cpp
     io/DatabasePager.cpp

@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/Command.h>
+#include <vsg/state/StateCommand.h>
 
 #include <vsg/vk/PipelineLayout.h>
 #include <vsg/vk/RenderPass.h>
