@@ -98,12 +98,15 @@ set(SOURCES
     raytracing/TopLevelAccelerationStructure.cpp
     raytracing/TraceRays.cpp
 
+    state/ComputePipeline.cpp
+    state/DescriptorSet.cpp
+    state/GraphicsPipeline.cpp
+
     vk/Buffer.cpp
     vk/BufferData.cpp
     vk/BufferView.cpp
     vk/CommandBuffer.cpp
     vk/CommandPool.cpp
-    vk/ComputePipeline.cpp
     vk/Context.cpp
     vk/Descriptor.cpp
     vk/DescriptorBuffer.cpp
@@ -111,14 +114,12 @@ set(SOURCES
     vk/DescriptorImageView.cpp
     vk/DescriptorTexelBufferView.cpp
     vk/DescriptorPool.cpp
-    vk/DescriptorSet.cpp
     vk/DescriptorSetLayout.cpp
     vk/Device.cpp
     vk/DeviceMemory.cpp
     vk/Extensions.cpp
     vk/Fence.cpp
     vk/Framebuffer.cpp
-    vk/GraphicsPipeline.cpp
     vk/Image.cpp
     vk/ImageData.cpp
     vk/ImageView.cpp

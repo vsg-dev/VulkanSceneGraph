@@ -73,6 +73,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/PushConstants.h>
 
 // State header files
+#include <vsg/state/ComputePipeline.h>
+#include <vsg/state/DescriptorSet.h>
+#include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/StateCommand.h>
 
 // Traversal header files
@@ -122,14 +125,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/BufferView.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/CommandPool.h>
-#include <vsg/vk/ComputePipeline.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorBuffer.h>
 #include <vsg/vk/DescriptorImage.h>
 #include <vsg/vk/DescriptorImageView.h>
 #include <vsg/vk/DescriptorPool.h>
-#include <vsg/vk/DescriptorSet.h>
 #include <vsg/vk/DescriptorSetLayout.h>
 #include <vsg/vk/DescriptorTexelBufferView.h>
 #include <vsg/vk/Device.h>
@@ -137,7 +138,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Extensions.h>
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/Framebuffer.h>
-#include <vsg/vk/GraphicsPipeline.h>
 #include <vsg/vk/Image.h>
 #include <vsg/vk/ImageData.h>
 #include <vsg/vk/ImageView.h>
