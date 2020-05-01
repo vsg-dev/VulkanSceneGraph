@@ -26,7 +26,6 @@ namespace vsg
     class Visitor;
     class ConstVisitor;
     class RecordTraversal;
-    class CullTraversal;
     class Allocator;
     class Input;
     class Output;
@@ -57,9 +56,6 @@ namespace vsg
 
         virtual void accept(RecordTraversal& visitor) const;
         virtual void traverse(RecordTraversal&) const {}
-
-        virtual void accept(CullTraversal& visitor) const;
-        virtual void traverse(CullTraversal&) const {}
 
         virtual void read(Input& input);
         virtual void write(Output& output) const;

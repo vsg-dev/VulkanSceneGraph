@@ -63,7 +63,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 // Traversal header files
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/traversals/ComputeBounds.h>
-#include <vsg/traversals/CullTraversal.h>
 #include <vsg/traversals/Intersector.h>
 #include <vsg/traversals/LineSegmentIntersector.h>
 #include <vsg/traversals/RecordTraversal.h>
@@ -90,6 +89,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/CloseHandler.h>
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/CopyImageViewToWindow.h>
+#include <vsg/viewer/EllipsoidModel.h>
 #include <vsg/viewer/Presentation.h>
 #include <vsg/viewer/ProjectionMatrix.h>
 #include <vsg/viewer/RecordAndSubmitTask.h>
