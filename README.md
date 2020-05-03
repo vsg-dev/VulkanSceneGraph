@@ -55,7 +55,7 @@ It's still very early days for the project so we don't have many projects that u
 * [vsgXchange](https://github.com/vsg-dev/vsgXchange) utility library that adds suport for reading/writing files from 3rd party source.  Includes GLSL shader compilation to SPIR-V.  When osg2vsg is available Enables loading of any model or image format loadable by the OpenSceneGraph.  Provide vsgconv utility for converting different file types - mdoels, images, shaders to VSG native formats. The vsgviewer and MyFrstVsgApplication examples also automatically add support for reading files from vsgXchagne when they area built with vsgXchange avaulable.
 * [vsgUnity](https://github.com/vsg-dev/vsgXchange) is a plugin for the Unity Editor allowing you create export models directly into native VSG format.
 
-Three examples within the vsgExamples project that may be of particular interest are ports of Vulkan tutorials to the VSG API.  In each case the VSG version requires less than 1/5th the amount of code to achieve the same functionality.
+Two examples within the vsgExamples project that may be of particular interest are ports of Vulkan tutorials to the VSG API.  In each case the VSG version requires less than 1/5th the amount of code to achieve the same functionality.
 
 * [Vulkan Tutorial](https://vulkan-tutorial.com/) ported as [vsgExamples/Desktop/vsgdraw](https://github.com/vsg-dev/vsgExamples/blob/master/Desktop/vsgdraw/)
 * [vulkan_minimal_compute](https://github.com/Erkaman/vulkan_minimal_compute) tutorial ported to VSG [vsgExamples/Desktop/vsgcompute](https://github.com/vsg-dev/vsgExamples/blob/master/Desktop/vsgcompute/)
