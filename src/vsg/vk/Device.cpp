@@ -146,9 +146,7 @@ Device::Result Device::create(PhysicalDevice* physicalDevice, QueueSettings& que
 
 Device::Result Device::create(WindowTraits* windowTraits)
 {
-    vsg::Names instanceExtensions = vsg::Window::getInstanceExtensions();
-
-    instanceExtensions.insert(instanceExtensions.end(), windowTraits->instanceExtensionNames.begin(), windowTraits->instanceExtensionNames.end());
+    vsg::Names instanceExtensions = windowTraits->instanceExtensionNames;
 
     vsg::Names requestedLayers;
     if (windowTraits && windowTraits->debugLayer)

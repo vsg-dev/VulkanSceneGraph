@@ -37,20 +37,6 @@ namespace vsg
         return vsgAndroid::Android_Window::create(traits, nullptr);
     }
 
-    vsg::Names Window::getInstanceExtensions()
-    {
-        // check the extensions are avaliable first
-        Names requiredExtensions = {"VK_KHR_surface", "VK_KHR_android_surface"};
-
-        if (!vsg::isExtensionListSupported(requiredExtensions))
-        {
-            std::cout << "Error: vsg::getInstanceExtensions(...) unable to create window, VK_KHR_surface or VK_KHR_android_surface not supported." << std::endl;
-            return Names();
-        }
-
-        return requiredExtensions;
-    }
-
 } // namespace vsg
 
 namespace vsgAndroid
@@ -332,6 +318,9 @@ vsg::Window::Result Android_Window::create(vsg::ref_ptr<WindowTraits> traits, vs
 {
     try
     {
+        traits->instanceExtensionNames.emplace_back("VK_KHR_surface");
+        traits->instanceExtensionNames.emplace_back("VK_KHR_android_surface");
+
         ref_ptr<Window> window(new Android_Window(traits, allocator));
         return Result(window);
     }

@@ -32,7 +32,7 @@ Window::Window(ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator
     else
     {
         // create the vkInstance
-        vsg::Names instanceExtensions = getInstanceExtensions();
+        vsg::Names instanceExtensions = traits->instanceExtensionNames;
 
         instanceExtensions.insert(instanceExtensions.end(), traits->instanceExtensionNames.begin(), traits->instanceExtensionNames.end());
 
