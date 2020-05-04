@@ -34,8 +34,6 @@ Window::Window(ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator
         // create the vkInstance
         vsg::Names instanceExtensions = traits->instanceExtensionNames;
 
-        instanceExtensions.insert(instanceExtensions.end(), traits->instanceExtensionNames.begin(), traits->instanceExtensionNames.end());
-
         vsg::Names requestedLayers;
         if (traits && traits->debugLayer)
         {
