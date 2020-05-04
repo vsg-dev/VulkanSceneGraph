@@ -224,25 +224,3 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
 
     _nextImageIndex = 0;
 }
-
-// just kept for backwards compatibility for now
-Window::Result Window::create(uint32_t width, uint32_t height, bool debugLayer, bool apiDumpLayer, vsg::Window* shareWindow, vsg::AllocationCallbacks* allocator)
-{
-    vsg::ref_ptr<WindowTraits> traits(new WindowTraits());
-    traits->width = width;
-    traits->height = height;
-    traits->shareWindow = shareWindow;
-    traits->debugLayer = debugLayer;
-    traits->apiDumpLayer = apiDumpLayer;
-    traits->allocator = allocator;
-    return create(traits);
-}
-
-// just kept for backwards compatibility for now
-Window::Result Window::create(vsg::ref_ptr<WindowTraits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
-{
-    traits->debugLayer = debugLayer;
-    traits->apiDumpLayer = apiDumpLayer;
-    traits->allocator = allocator;
-    return create(traits);
-}

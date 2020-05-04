@@ -35,10 +35,6 @@ namespace vsg
         using Result = vsg::Result<Window, VkResult, VK_SUCCESS>;
         static Result create(vsg::ref_ptr<WindowTraits> traits);
 
-        // for backward compatibility
-        static Result create(uint32_t width, uint32_t height, bool debugLayer = false, bool apiDumpLayer = false, vsg::Window* shareWindow = nullptr, vsg::AllocationCallbacks* allocator = nullptr);
-        static Result create(vsg::ref_ptr<WindowTraits> traits, bool debugLayer, bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
-
         virtual bool valid() const { return false; }
 
         virtual bool pollEvents(Events& /*events*/) { return false; }
