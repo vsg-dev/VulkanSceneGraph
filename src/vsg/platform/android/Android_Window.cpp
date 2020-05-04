@@ -328,7 +328,7 @@ vsg::Window::Result Android_Window::create(vsg::ref_ptr<WindowTraits> traits, vs
 }
 
 Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
-    Window(assignSurfaceExtension(traits, "VK_KHR_android_surface"), allocator)
+    Inherit(assignSurfaceExtension(traits, "VK_KHR_android_surface"), allocator)
 {
     _keyboard = new KeyboardMap;
 

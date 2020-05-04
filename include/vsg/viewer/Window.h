@@ -127,6 +127,7 @@ namespace vsg
         Frames _frames;
         uint32_t _nextImageIndex;
     };
+    VSG_type_name(vsg::Window);
 
     using Windows = std::vector<ref_ptr<Window>>;
 

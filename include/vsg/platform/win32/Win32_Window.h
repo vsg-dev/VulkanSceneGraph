@@ -105,7 +105,7 @@ namespace vsgWin32
         return buttonMsg == WM_LBUTTONDOWN ? 1 : (buttonMsg == WM_RBUTTONDOWN ? 2 : buttonMsg == WM_MBUTTONDOWN ? 3 : (buttonMsg == WM_XBUTTONDOWN ? 4 : 0)); // need to determine x1, x2
     }
 
-    class Win32_Window : public vsg::Window
+    class Win32_Window : public vsg::Inherit<vsg::Window, Win32_Window>
     {
     public:
         Win32_Window() = delete;
@@ -139,3 +139,5 @@ namespace vsgWin32
     };
 
 } // namespace vsgWin32
+
+EVSG_type_name(vsgXcb::Win32_Window);

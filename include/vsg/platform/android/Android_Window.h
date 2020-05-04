@@ -57,7 +57,7 @@ namespace vsgAndroid
     };
 
 
-    class Android_Window : public vsg::Window
+    class Android_Window : public vsg::Inherit<vsg::Window, Android_Window>
     {
     public:
 
@@ -93,4 +93,6 @@ namespace vsgAndroid
     };
 
 } // namespace vsg
+
+EVSG_type_name(vsgXcb::Android_Window);
 

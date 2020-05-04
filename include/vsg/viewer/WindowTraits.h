@@ -82,6 +82,7 @@ namespace vsg
     protected:
         virtual ~WindowTraits() {}
     };
+    VSG_type_name(vsg::WindowTraits);
 
     /// convinience function used by Window implementations to set the required instanceExtensionNames
     inline ref_ptr<WindowTraits> assignSurfaceExtension(ref_ptr<WindowTraits> traits, const char* name)

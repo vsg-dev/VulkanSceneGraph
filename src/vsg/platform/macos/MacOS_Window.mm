@@ -763,7 +763,7 @@ vsg::Window::Result MacOS_Window::create(vsg::ref_ptr<vsg::WindowTraits> traits,
 }
 
 MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
-    Window(assignSurfaceExtension(traits, "VK_MVK_macos_surface"), allocator)
+    Inherit(assignSurfaceExtension(traits, "VK_MVK_macos_surface"), allocator)
 {
     _keyboard = new KeyboardMap;
 

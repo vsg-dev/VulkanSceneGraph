@@ -246,7 +246,7 @@ vsg::Window::Result Xcb_Window::create(vsg::ref_ptr<WindowTraits> traits, vsg::A
 }
 
 Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
-    Window(assignSurfaceExtension(traits, VK_KHR_XCB_SURFACE_EXTENSION_NAME), allocator)
+    Inherit(assignSurfaceExtension(traits, VK_KHR_XCB_SURFACE_EXTENSION_NAME), allocator)
 {
     bool fullscreen =  traits->fullscreen;
     uint32_t override_redirect = traits->overrideRedirect;
