@@ -22,6 +22,12 @@ namespace vsg
     extern std::ostream& notice_stream();
     extern std::ostream& error_stream();
 
+    struct VulkanException
+    {
+        std::string message;
+        int result = 0;
+    };
+
     template<class T, typename R, R validValue>
     class Result
     {

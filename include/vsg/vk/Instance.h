@@ -34,10 +34,8 @@ namespace vsg
     class VSG_DECLSPEC Instance : public Inherit<Object, Instance>
     {
     public:
-        Instance(VkInstance instance, AllocationCallbacks* allocator = nullptr);
 
-        using Result = vsg::Result<Instance, VkResult, VK_SUCCESS>;
-        static Result create(Names& instanceExtensions, Names& layers, AllocationCallbacks* allocator = nullptr);
+        Instance(const Names& instanceExtensions, const Names& layers, AllocationCallbacks* allocator = nullptr);
 
         operator VkInstance() const { return _instance; }
         VkInstance getInstance() const { return _instance; }
