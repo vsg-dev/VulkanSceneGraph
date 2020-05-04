@@ -40,7 +40,7 @@ namespace vsgMacOS
     };
 
 
-    class MacOS_Window : public vsg::Window
+    class MacOS_Window : public vsg::Inherit<vsg::Window, MacOS_Window>
     {
     public:
         MacOS_Window() = delete;
@@ -89,5 +89,6 @@ namespace vsgMacOS
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 
-} // namespace vsg
+} // namespace vsgMacOS
 
+EVSG_type_name(vsgMacOS::MacOS_Window);

@@ -51,9 +51,4 @@ namespace vsg
         }
     };
 
-// helper define for define the type_name() for a type, note must be placed in public scope.
-#define EVSG_type_name(T) \
-    template<>            \
-    constexpr const char* vsg::type_name<T>() noexcept { return #T; }
-
 } // namespace vsg

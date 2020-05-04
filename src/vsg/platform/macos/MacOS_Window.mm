@@ -38,25 +38,6 @@ namespace vsg
         return vsgMacOS::MacOS_Window::create(traits, nullptr);
     }
 
-    vsg::Names Window::getInstanceExtensions()
-    {
-        ExtensionProperties exts = vsg::getExtensionProperties();
-        for(auto ext : exts)
-        {
-            std::cout << "vsg extension: " << ext.extensionName << std::endl;
-        }
-        // check the extensions are avaliable first
-        Names requiredExtensions = {"VK_KHR_surface", "VK_MVK_macos_surface"};
-
-        if (!vsg::isExtensionListSupported(requiredExtensions))
-        {
-            std::cout << "Error: vsg::getInstanceExtensions(...) unable to create window, VK_KHR_surface or VK_MVK_macos_surface not supported." << std::endl;
-            return Names();
-        }
-
-        return requiredExtensions;
-    }
-
 } // namespace vsg
 
 
@@ -782,7 +763,7 @@ vsg::Window::Result MacOS_Window::create(vsg::ref_ptr<vsg::WindowTraits> traits,
 }
 
 MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
-    Window(traits, allocator)
+    Inherit(assignSurfaceExtension(traits, "VK_MVK_macos_surface"), allocator)
 {
     _keyboard = new KeyboardMap;
 

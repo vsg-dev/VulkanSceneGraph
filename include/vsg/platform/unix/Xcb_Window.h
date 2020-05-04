@@ -48,7 +48,7 @@ namespace vsgXcb
         Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, xcb_window_t window, vsg::AllocationCallbacks* allocator = nullptr);
     };
 
-    class Xcb_Window : public vsg::Window
+    class Xcb_Window : public vsg::Inherit<vsg::Window, Xcb_Window>
     {
     public:
 
@@ -85,6 +85,6 @@ namespace vsgXcb
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 
+} // namespace vsgXcb
 
-}
-
+EVSG_type_name(vsgXcb::Xcb_Window);

@@ -32,20 +32,6 @@ namespace vsg
     {
         return vsgXcb::Xcb_Window::create(traits);
     }
-
-    vsg::Names Window::getInstanceExtensions()
-    {
-        // check the extensions are avaliable first
-        Names requiredExtensions = {VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_XCB_SURFACE_EXTENSION_NAME};
-
-        if (!vsg::isExtensionListSupported(requiredExtensions))
-        {
-            std::cout << "Error: vsg::getInstanceExtensions(...) unable to create window, VK_KHR_SURFACE_EXTENSION_NAME or VK_KHR_XCB_SURFACE_EXTENSION_NAME not supported." << std::endl;
-            return Names();
-        }
-
-        return requiredExtensions;
-    }
 } // namespace vsg
 
 namespace vsgXcb
@@ -260,7 +246,7 @@ vsg::Window::Result Xcb_Window::create(vsg::ref_ptr<WindowTraits> traits, vsg::A
 }
 
 Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
-    Window(traits, allocator)
+    Inherit(assignSurfaceExtension(traits, VK_KHR_XCB_SURFACE_EXTENSION_NAME), allocator)
 {
     bool fullscreen =  traits->fullscreen;
     uint32_t override_redirect = traits->overrideRedirect;

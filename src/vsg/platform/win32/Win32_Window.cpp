@@ -27,20 +27,6 @@ namespace vsg
         return vsgWin32::Win32_Window::create(traits);
     }
 
-    vsg::Names Window::getInstanceExtensions()
-    {
-        // check the extensions are available first
-        Names requiredExtensions = { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME };
-
-        if (!vsg::isExtensionListSupported(requiredExtensions))
-        {
-            std::cout << "Error: vsg::getInstanceExtensions(...) unable to create window, VK_KHR_surface or VK_KHR_win32_surface not supported." << std::endl;
-            return Names();
-        }
-
-        return requiredExtensions;
-    }
-
 } // namespace vsg
 
 namespace vsgWin32
@@ -333,7 +319,7 @@ Win32_Window::Result Win32_Window::create(vsg::ref_ptr<WindowTraits> traits, vsg
 }
 
 Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
-    Window(traits, allocator),
+    Inherit(assignSurfaceExtension(traits, VK_KHR_WIN32_SURFACE_EXTENSION_NAME), allocator),
     _window(nullptr)
 {
     _keyboard = new KeyboardMap;

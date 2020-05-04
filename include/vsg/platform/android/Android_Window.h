@@ -57,7 +57,7 @@ namespace vsgAndroid
     };
 
 
-    class Android_Window : public vsg::Window
+    class Android_Window : public vsg::Inherit<vsg::Window, Android_Window>
     {
     public:
 
@@ -92,5 +92,6 @@ namespace vsgAndroid
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 
-} // namespace vsg
+} // namespace vsgAndroid
 
+EVSG_type_name(vsgAndroid::Android_Window);
