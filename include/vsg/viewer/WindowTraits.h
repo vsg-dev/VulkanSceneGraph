@@ -83,4 +83,12 @@ namespace vsg
         virtual ~WindowTraits() {}
     };
 
+    /// convinience function used by Window implementations to set the required instanceExtensionNames
+    inline ref_ptr<WindowTraits> assignSurfaceExtension(ref_ptr<WindowTraits> traits, const char* name)
+    {
+        traits->instanceExtensionNames.push_back("VK_KHR_surface");
+        traits->instanceExtensionNames.push_back(name);
+        return traits;
+    }
+
 } // namespace vsg

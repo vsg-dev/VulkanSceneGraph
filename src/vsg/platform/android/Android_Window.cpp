@@ -318,9 +318,6 @@ vsg::Window::Result Android_Window::create(vsg::ref_ptr<WindowTraits> traits, vs
 {
     try
     {
-        traits->instanceExtensionNames.emplace_back("VK_KHR_surface");
-        traits->instanceExtensionNames.emplace_back("VK_KHR_android_surface");
-
         ref_ptr<Window> window(new Android_Window(traits, allocator));
         return Result(window);
     }
@@ -331,7 +328,7 @@ vsg::Window::Result Android_Window::create(vsg::ref_ptr<WindowTraits> traits, vs
 }
 
 Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
-    Window(traits, allocator)
+    Window(assignSurfaceExtension(traits, "VK_KHR_android_surface"), allocator)
 {
     _keyboard = new KeyboardMap;
 

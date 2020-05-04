@@ -309,9 +309,6 @@ Win32_Window::Result Win32_Window::create(vsg::ref_ptr<WindowTraits> traits, vsg
 {
     try
     {
-        traits->instanceExtensionNames.emplace_back(VK_KHR_SURFACE_EXTENSION_NAME);
-        traits->instanceExtensionNames.emplace_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
-
         ref_ptr<Window> window(new Win32_Window(traits, allocator));
         return Result(window);
     }
@@ -322,7 +319,7 @@ Win32_Window::Result Win32_Window::create(vsg::ref_ptr<WindowTraits> traits, vsg
 }
 
 Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
-    Window(traits, allocator),
+    Window(assignSurfaceExtension(traits, VK_KHR_WIN32_SURFACE_EXTENSION_NAME), allocator),
     _window(nullptr)
 {
     _keyboard = new KeyboardMap;
