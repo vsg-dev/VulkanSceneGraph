@@ -140,4 +140,4 @@ namespace vsgWin32
 
 } // namespace vsgWin32
 
-EVSG_type_name(vsgXcb::Win32_Window);
+EVSG_type_name(vsgWin32::Win32_Window);

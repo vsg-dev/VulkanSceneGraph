@@ -92,7 +92,6 @@ namespace vsgAndroid
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 
-} // namespace vsg
+} // namespace vsgAndroid
 
-EVSG_type_name(vsgXcb::Android_Window);
-
+EVSG_type_name(vsgAndroid::Android_Window);

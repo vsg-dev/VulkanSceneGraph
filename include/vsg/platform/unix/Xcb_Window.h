@@ -85,6 +85,6 @@ namespace vsgXcb
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 
-} // namespace vsg
+} // namespace vsgXcb
 
 EVSG_type_name(vsgXcb::Xcb_Window);

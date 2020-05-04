@@ -89,6 +89,6 @@ namespace vsgMacOS
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 
-} // namespace vsg
+} // namespace vsgMacOS
 
-EVSG_type_name(vsgXcb::MacOS_Window);
+EVSG_type_name(vsgMacOS::MacOS_Window);
