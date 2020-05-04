@@ -19,6 +19,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    #define RESULT_REFACTOR 1
+
     extern std::ostream& notice_stream();
     extern std::ostream& error_stream();
 
