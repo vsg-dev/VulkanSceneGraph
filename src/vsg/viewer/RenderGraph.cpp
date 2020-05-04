@@ -140,8 +140,22 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
 
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = *(window->renderPass());
-    renderPassInfo.framebuffer = *(window->framebuffer(window->nextImageIndex()));
+    if (renderPass)
+    {
+        renderPassInfo.renderPass = *renderPass;
+    }
+    else if (window)
+    {
+        renderPassInfo.renderPass = *(window->renderPass());
+    }
+    if (framebuffer)
+    {
+        renderPassInfo.framebuffer = *framebuffer;
+    }
+    else if (window)
+    {
+        renderPassInfo.framebuffer = *(window->framebuffer(window->nextImageIndex()));
+    }
     renderPassInfo.renderArea = renderArea;
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
