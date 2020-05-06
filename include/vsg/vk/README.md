@@ -5,7 +5,7 @@ The **include/vsg/vk** header directory contains the Vulkan C application level 
 The Vulkan integration wrappers follow the convention **VkName -> vsg::Name** with the wrapper class found in the header **include/vsg/vk/Name.h**. For example **VkInstance** is wrapped by the class vsg::Instance which is located in header [include/vsg/vk/Instance.h](Instance.h).
 
 ## Vulkan object creation and validity
-The Vulkan integration classes are all created use a ```vsg::Result<vsg::VulkanClass>  vsg::VulkanClass::create(..)``` method that only returns a valid vsg::VulkanClass via the Result object if the associated Vulkan object has been successfully created, on failure a VK_* error is returned via the Result object. The associated Vulkan object is also only destroyed by the vsg::VulkanClass destructor.  The combination of the VulkanClass::create and destructor behaviour ensures that the associated Vulkan object is valid for the whole lifetime of VulkanClass object.
+The Vulkan integration wrappers create their associated Vulkan objects in their respective constructors and destroy these Vulkan object their destructors.  The combination of the VulkanClass::create and destructor behaviour ensures that the associated Vulkan object is valid for the whole lifetime of wrapper object.
 
 ## Memory management
 The Vulkan integration classes add support automatic lifetime management to ensure that Vukan objects can not be deleted while they are still be used, and finally automatic clean up was once the references are removed.
