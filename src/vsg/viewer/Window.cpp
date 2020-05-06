@@ -118,8 +118,7 @@ void Window::initaliseDevice()
         VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
         VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
 
-        _renderPass = vsg::RenderPass::create(_device, imageFormat.format, depthFormat, _traits->allocator);
-        if (!_renderPass) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan RenderPass.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        _renderPass = vsg::createRenderPass(_device, imageFormat.format, depthFormat, _traits->allocator);
     }
 }
 
