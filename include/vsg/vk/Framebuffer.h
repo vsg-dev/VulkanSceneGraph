@@ -16,13 +16,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
     class VSG_DECLSPEC Framebuffer : public Inherit<Object, Framebuffer>
     {
     public:
-        Framebuffer(VkFramebuffer framebuffer, Device* device, AllocationCallbacks* allocator = nullptr);
-
-        using Result = vsg::Result<Framebuffer, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, VkFramebufferCreateInfo& framebufferInfo, AllocationCallbacks* allocator = nullptr);
+        Framebuffer(Device* device, const VkFramebufferCreateInfo& framebufferInfo, AllocationCallbacks* allocator = nullptr);
 
         operator VkFramebuffer() const { return _framebuffer; }
 
@@ -36,4 +34,6 @@ namespace vsg
         ref_ptr<Device> _device;
         ref_ptr<AllocationCallbacks> _allocator;
     };
+    VSG_type_name(vsg::Framebuffer);
+
 } // namespace vsg
