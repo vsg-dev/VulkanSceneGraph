@@ -24,13 +24,6 @@ namespace vsg
     extern std::ostream& notice_stream();
     extern std::ostream& error_stream();
 
-    struct Exception
-    {
-        std::string message;
-        int result = 0;
-    };
-
-
 #if RESULT_REFACTOR < 2
     template<class T, typename R, R validValue>
     class Result
