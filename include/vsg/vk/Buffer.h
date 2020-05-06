@@ -19,10 +19,7 @@ namespace vsg
     class VSG_DECLSPEC Buffer : public Inherit<Object, Buffer>
     {
     public:
-        Buffer(VkBuffer Buffer, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode, Device* device, AllocationCallbacks* allocator = nullptr);
-
-        using Result = vsg::Result<Buffer, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode, AllocationCallbacks* allocator = nullptr);
+        Buffer(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode, AllocationCallbacks* allocator = nullptr);
 
         VkBufferUsageFlags usage() const { return _usage; }
         VkSharingMode shaderMode() const { return _sharingMode; }
