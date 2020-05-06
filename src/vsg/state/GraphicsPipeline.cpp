@@ -101,8 +101,7 @@ void GraphicsPipeline::compile(Context& context)
 //
 // GraphicsPipeline::Implementation
 //
-GraphicsPipeline::Implementation::Implementation(VkPipeline pipeline, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, AllocationCallbacks* allocator) :
-    _pipeline(pipeline),
+GraphicsPipeline::Implementation::Implementation(Context& context, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass, AllocationCallbacks* allocator) :
     _device(device),
     _renderPass(renderPass),
     _pipelineLayout(pipelineLayout),
@@ -110,15 +109,6 @@ GraphicsPipeline::Implementation::Implementation(VkPipeline pipeline, Device* de
     _pipelineStates(pipelineStates),
     _allocator(allocator)
 {
-}
-
-GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::create(Context& context, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass, AllocationCallbacks* allocator)
-{
-    if (!device || !renderPass || !pipelineLayout)
-    {
-        return Result("Error: vsg::GraphicsPipeline::create(...) failed to create graphics pipeline, inputs not defined.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.layout = pipelineLayout->vk(device->deviceID);
@@ -143,15 +133,9 @@ GraphicsPipeline::Implementation::Result GraphicsPipeline::Implementation::creat
         pipelineState->apply(pipelineInfo);
     }
 
-    VkPipeline pipeline;
-    VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &pipeline);
-    if (result == VK_SUCCESS)
+    if (VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &_pipeline); result != VK_SUCCESS)
     {
-        return Result(new Implementation(pipeline, device, renderPass, pipelineLayout, shaderStages, pipelineStates, allocator));
-    }
-    else
-    {
-        return Result("Error: vsg::Pipeline::createGraphics(...) failed to create VkPipeline.", result);
+        throw Exception{"Error: vsg::Pipeline::createGraphics(...) failed to create VkPipeline.", result};
     }
 }
 
