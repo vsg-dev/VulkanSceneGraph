@@ -29,6 +29,8 @@ namespace vsg
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
+        VkMemoryRequirements getMemoryRequirements() const;
+
         VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
         {
             VkResult result = vkBindImageMemory(*_device, _image, *deviceMemory, memoryOffset);

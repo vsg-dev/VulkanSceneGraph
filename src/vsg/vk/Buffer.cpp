@@ -72,3 +72,11 @@ Buffer::Result Buffer::create(Device* device, VkDeviceSize size, VkBufferUsageFl
         return Result("Error: Failed to create vkBuffer.", result);
     }
 }
+
+VkMemoryRequirements Buffer::getMemoryRequirements() const
+{
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(*_device, _buffer, &memRequirements);
+    return memRequirements;
+}
+

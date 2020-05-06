@@ -44,3 +44,9 @@ Image::~Image()
     }
 }
 
+VkMemoryRequirements Image::getMemoryRequirements() const
+{
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(*_device, _image, &memRequirements);
+    return memRequirements;
+}
