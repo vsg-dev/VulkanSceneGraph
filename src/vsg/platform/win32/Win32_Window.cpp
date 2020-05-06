@@ -406,7 +406,7 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCal
                                windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
                                NULL, NULL, ::GetModuleHandle(NULL), NULL);
 
-    if (_window == nullptr) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, CreateWindowEx did not return a valid window handle.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    if (_window == nullptr) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, CreateWindowEx did not return a valid window handle.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
     // set window handle user data pointer to hold ref to this so we can retrieve in WindowsProc
     SetWindowLongPtr(_window, GWLP_USERDATA, (LONG_PTR)this);
