@@ -74,12 +74,23 @@ void DescriptorSet::compile(Context& context)
     }
 }
 
-DescriptorSet::Implementation::Implementation(VkDescriptorSet descriptorSet, Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout) :
-    _descriptorSet(descriptorSet),
+DescriptorSet::Implementation::Implementation(Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout) :
     _device(device),
     _descriptorPool(descriptorPool),
     _descriptorSetLayout(descriptorSetLayout)
 {
+    VkDescriptorSetLayout vkdescriptorSetLayout = descriptorSetLayout->vk(device->deviceID);
+
+    VkDescriptorSetAllocateInfo descriptSetAllocateInfo = {};
+    descriptSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    descriptSetAllocateInfo.descriptorPool = *descriptorPool;
+    descriptSetAllocateInfo.descriptorSetCount = 1;
+    descriptSetAllocateInfo.pSetLayouts = &vkdescriptorSetLayout;
+
+    if (VkResult result = vkAllocateDescriptorSets(*device, &descriptSetAllocateInfo, &_descriptorSet); result != VK_SUCCESS)
+    {
+        throw Exception{"Error: Failed to create DescriptorSet.", result};
+    }
 }
 
 DescriptorSet::Implementation::~Implementation()
@@ -90,35 +101,6 @@ DescriptorSet::Implementation::~Implementation()
         std::lock_guard<std::mutex> lock(_descriptorPool->getMutex());
 #endif
         vkFreeDescriptorSets(*_device, *_descriptorPool, 1, &_descriptorSet);
-    }
-}
-
-DescriptorSet::Implementation::Result DescriptorSet::Implementation::create(Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout)
-{
-    if (!device || !descriptorPool || !descriptorSetLayout)
-    {
-        if (!device) return Result("Error: vsg::DescriptorSet::create(...) failed to create DescriptorSet due to undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-        if (!descriptorPool) return Result("Error: vsg::DescriptorSet::create(...) failed to create DescriptorSet due to undefined DescriptorPool.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-        return Result("Error: vsg::DescriptorSet::create(...) failed to create DescriptorSet due to undefined descriptorSetLayout.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
-    VkDescriptorSetLayout vkdescriptorSetLayout = descriptorSetLayout->vk(device->deviceID);
-
-    VkDescriptorSetAllocateInfo descriptSetAllocateInfo = {};
-    descriptSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    descriptSetAllocateInfo.descriptorPool = *descriptorPool;
-    descriptSetAllocateInfo.descriptorSetCount = 1;
-    descriptSetAllocateInfo.pSetLayouts = &vkdescriptorSetLayout;
-
-    VkDescriptorSet descriptorSet;
-    VkResult result = vkAllocateDescriptorSets(*device, &descriptSetAllocateInfo, &descriptorSet);
-    if (result == VK_SUCCESS)
-    {
-        return Result(new DescriptorSet::Implementation(descriptorSet, device, descriptorPool, descriptorSetLayout));
-    }
-    else
-    {
-        return Result("Error: Failed to create DescriptorSet.", result);
     }
 }
 

@@ -93,29 +93,11 @@ void PipelineLayout::compile(Context& context)
 //
 // PipelineLayout::Implementation
 //
-PipelineLayout::Implementation::Implementation(VkPipelineLayout pipelineLayout, const DescriptorSetLayouts& descriptorSetLayouts, Device* device, AllocationCallbacks* allocator) :
-    _pipelineLayout(pipelineLayout),
+PipelineLayout::Implementation::Implementation(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags, AllocationCallbacks* allocator) :
     _descriptorSetLayouts(descriptorSetLayouts),
     _device(device),
     _allocator(allocator)
 {
-}
-
-PipelineLayout::Implementation::~Implementation()
-{
-    if (_pipelineLayout)
-    {
-        vkDestroyPipelineLayout(*_device, _pipelineLayout, _allocator);
-    }
-}
-
-PipelineLayout::Implementation::Result PipelineLayout::Implementation::create(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags, AllocationCallbacks* allocator)
-{
-    if (!device)
-    {
-        return Result("Error: vsg::PipelineLayout::create(...) failed to create PipelineLayout, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
     std::vector<VkDescriptorSetLayout> layouts;
     for (auto& dsl : descriptorSetLayouts)
     {
@@ -131,14 +113,16 @@ PipelineLayout::Implementation::Result PipelineLayout::Implementation::create(De
     pipelineLayoutInfo.pPushConstantRanges = pushConstantRanges.data();
     pipelineLayoutInfo.pNext = nullptr;
 
-    VkPipelineLayout pipelineLayout;
-    VkResult result = vkCreatePipelineLayout(*device, &pipelineLayoutInfo, allocator, &pipelineLayout);
-    if (result == VK_SUCCESS)
+    if (VkResult result = vkCreatePipelineLayout(*device, &pipelineLayoutInfo, allocator, &_pipelineLayout); result != VK_SUCCESS)
     {
-        return Result(new PipelineLayout::Implementation(pipelineLayout, descriptorSetLayouts, device, allocator));
+        throw Exception{"Error: Failed to create PipelineLayout.", result};
     }
-    else
+}
+
+PipelineLayout::Implementation::~Implementation()
+{
+    if (_pipelineLayout)
     {
-        return Result("Error: Failed to create PipelineLayout.", result);
+        vkDestroyPipelineLayout(*_device, _pipelineLayout, _allocator);
     }
 }

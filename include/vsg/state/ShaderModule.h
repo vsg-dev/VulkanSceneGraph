@@ -81,13 +81,9 @@ namespace vsg
 
         struct Implementation : public Inherit<Object, Implementation>
         {
-            Implementation(VkShaderModule shaderModule, Device* device, AllocationCallbacks* allocator);
+            Implementation(Device* device, ShaderModule* shader, AllocationCallbacks* allocator = nullptr);
+
             virtual ~Implementation();
-
-            using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
-
-            /** Create a ComputePipeline.*/
-            static Result create(Device* device, ShaderModule* shader, AllocationCallbacks* allocator = nullptr);
 
             VkShaderModule _shaderModule;
             ref_ptr<Device> _device;
