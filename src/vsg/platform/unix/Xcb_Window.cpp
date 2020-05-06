@@ -441,7 +441,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbac
     // sleep to give the window manage time to do any repositing and resizing
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    // build the swap chain, reuse the reize() for this
+    // build the swap chain, reuse the resize() for this
     resize();
 }
 
