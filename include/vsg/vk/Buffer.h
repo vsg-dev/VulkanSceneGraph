@@ -69,4 +69,6 @@ namespace vsg
 
         MemorySlots _memorySlots;
     };
+    VSG_type_name(vsg::Buffer);
+
 } // namespace vsg

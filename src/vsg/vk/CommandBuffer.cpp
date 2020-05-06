@@ -14,15 +14,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CommandBuffer::CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags flags) :
+CommandBuffer::CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBufferUsageFlags flags) :
     deviceID(device->deviceID),
     scratchMemory(ScratchMemory::create(4096)),
-    _commandBuffer(commandBuffer),
     _flags(flags),
     _device(device),
     _commandPool(commandPool),
     _currentPipelineLayout(0)
 {
+    VkCommandBufferAllocateInfo allocateInfo = {};
+    allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocateInfo.commandPool = *commandPool;
+    allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocateInfo.commandBufferCount = 1;
+
+    if (VkResult result = vkAllocateCommandBuffers(*device, &allocateInfo, &_commandBuffer); result != VK_SUCCESS)
+    {
+        throw Exception{"Error: Failed to create command buffers.", result};
+    }
 }
 
 CommandBuffer::~CommandBuffer()
@@ -30,30 +39,5 @@ CommandBuffer::~CommandBuffer()
     if (_commandBuffer)
     {
         vkFreeCommandBuffers((*_device), (*_commandPool), 1, &_commandBuffer);
-    }
-}
-
-CommandBuffer::Result CommandBuffer::create(Device* device, CommandPool* commandPool, VkCommandBufferUsageFlags flags)
-{
-    if (!device || !commandPool)
-    {
-        return Result("Error: vsg::CommandBuffer::create(...) failed to create command buffers, undefined Device or CommandPool.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
-    VkCommandBufferAllocateInfo allocateInfo = {};
-    allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocateInfo.commandPool = *commandPool;
-    allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocateInfo.commandBufferCount = 1;
-
-    VkCommandBuffer buffer;
-    VkResult result = vkAllocateCommandBuffers(*device, &allocateInfo, &buffer);
-    if (result == VK_SUCCESS)
-    {
-        return Result(new CommandBuffer(device, commandPool, buffer, flags));
-    }
-    else
-    {
-        return Result("Error: Failed to create command buffers.", result);
     }
 }
