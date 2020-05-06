@@ -47,17 +47,9 @@ ShaderStage::ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPo
 {
 }
 
-ShaderStage::Result ShaderStage::read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename)
+ref_ptr<ShaderStage> ShaderStage::read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename)
 {
-    ref_ptr<ShaderModule> shaderModule = ShaderModule::read(filename);
-    if (shaderModule)
-    {
-        return Result(new ShaderStage(stage, entryPointName, shaderModule));
-    }
-    else
-    {
-        return ShaderStage::Result("Error: vsg::ShaderModule::read(..) failed to read shader file.", VK_INCOMPLETE);
-    }
+    return ShaderStage::create(stage, entryPointName, ShaderModule::read(filename));
 }
 
 void ShaderStage::read(Input& input)

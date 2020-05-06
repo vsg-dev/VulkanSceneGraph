@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/state/ShaderModule.h>
 #include <vsg/traversals/CompileTraversal.h>
+#include <vsg/core/Exception.h>
 
 using namespace vsg;
 
@@ -43,16 +44,16 @@ ShaderModule::~ShaderModule()
 {
 }
 
-ShaderModule::Result ShaderModule::read(const std::string& filename)
+ref_ptr<ShaderModule> ShaderModule::read(const std::string& filename)
 {
     SPIRV buffer;
     if (readFile(buffer, filename))
     {
-        return Result(new ShaderModule(buffer));
+        return ShaderModule::create(buffer);
     }
     else
     {
-        return ShaderModule::Result("Error: vsg::ShaderModule::read(..) failed to read shader file.", VK_INCOMPLETE);
+        throw Exception{"Error: vsg::ShaderModule::read(..) failed to read shader file.", VK_INCOMPLETE};
     }
 }
 

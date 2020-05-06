@@ -64,8 +64,7 @@ namespace vsg
         SPIRV& spirv() { return _spirv; }
         const SPIRV& spirv() const { return _spirv; }
 
-        using Result = vsg::Result<ShaderModule, VkResult, VK_SUCCESS>;
-        static Result read(const std::string& filename);
+        static ref_ptr<ShaderModule> read(const std::string& filename);
 
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);

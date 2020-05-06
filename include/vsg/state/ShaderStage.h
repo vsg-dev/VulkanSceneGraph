@@ -44,8 +44,7 @@ namespace vsg
         SpecializationConstants& getSpecializationConstants() { return _specializationConstants; }
         const SpecializationConstants& getSpecializationConstants() const { return _specializationConstants; }
 
-        using Result = vsg::Result<ShaderStage, VkResult, VK_SUCCESS>;
-        static Result read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename);
+        static ref_ptr<ShaderStage> read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename);
 
         void read(Input& input) override;
         void write(Output& output) const override;
