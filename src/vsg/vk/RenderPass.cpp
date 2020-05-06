@@ -16,11 +16,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-RenderPass::RenderPass(VkRenderPass renderPass, Device* device, AllocationCallbacks* allocator) :
-    _renderPass(renderPass),
+RenderPass::RenderPass(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependencies& dependencies, AllocationCallbacks* allocator) :
     _device(device),
     _allocator(allocator)
 {
+    VkRenderPassCreateInfo renderPassInfo = {};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+    renderPassInfo.pAttachments = attachments.data();
+    renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
+    renderPassInfo.pSubpasses = subpasses.data();
+    renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+    renderPassInfo.pDependencies = dependencies.data();
+
+    VkResult result = vkCreateRenderPass(*device, &renderPassInfo, allocator, &_renderPass);
+    if (result != VK_SUCCESS)
+    {
+        throw Exception{"Error: vsg::RenderPass::create(...) Failed to create VkRenderPass.", result};
+    }
 }
 
 RenderPass::~RenderPass()
@@ -31,14 +44,9 @@ RenderPass::~RenderPass()
     }
 }
 
-RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator)
+ref_ptr<RenderPass> vsg::createRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator)
 {
-    if (!device)
-    {
-        return Result("Error: vsg::RenderPass::create(...) failed to create RenderPass, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
-    Attachments attachments;
+    RenderPass::Attachments attachments;
 
     VkAttachmentDescription colorAttachment = {};
     colorAttachment.format = imageFormat;
@@ -70,7 +78,7 @@ RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFo
     depthAttachmentRef.attachment = 1;
     depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-    Subpasses subpasses;
+    RenderPass::Subpasses subpasses;
 
     VkSubpassDescription subpass = {};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -79,7 +87,7 @@ RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFo
     subpass.pDepthStencilAttachment = &depthAttachmentRef;
     subpasses.push_back(subpass);
 
-    Dependencies dependencies;
+    RenderPass::Dependencies dependencies;
 
     VkSubpassDependency dependency = {};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -90,34 +98,5 @@ RenderPass::Result RenderPass::create(Device* device, VkFormat imageFormat, VkFo
     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     dependencies.push_back(dependency);
 
-    return create(device, attachments, subpasses, dependencies, allocator);
-}
-
-RenderPass::Result RenderPass::create(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependencies& dependencies, AllocationCallbacks* allocator)
-{
-    if (!device)
-    {
-        return Result("Error: vsg::RenderPass::create(...) failed to create RenderPass, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
-    VkRenderPassCreateInfo renderPassInfo = {};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-    renderPassInfo.pAttachments = attachments.data();
-    renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
-    renderPassInfo.pSubpasses = subpasses.data();
-    renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
-    renderPassInfo.pDependencies = dependencies.data();
-
-    VkRenderPass renderPass;
-    VkResult result = vkCreateRenderPass(*device, &renderPassInfo, allocator, &renderPass);
-
-    if (result == VK_SUCCESS)
-    {
-        return Result(new RenderPass(renderPass, device, allocator));
-    }
-    else
-    {
-        return Result("Error: vsg::RenderPass::create(...) Failed to create VkRenderPass.", result);
-    }
+    return RenderPass::create(device, attachments, subpasses, dependencies, allocator);
 }
