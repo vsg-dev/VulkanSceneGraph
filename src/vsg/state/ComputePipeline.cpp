@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/state/ComputePipeline.h>
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/vk/CommandBuffer.h>
@@ -65,27 +66,12 @@ void ComputePipeline::compile(Context& context)
 //
 // ComputePipeline::Implementation
 //
-ComputePipeline::Implementation::Implementation(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator) :
-    _pipeline(pipeline),
+ComputePipeline::Implementation::Implementation(Context& context, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator) :
     _device(device),
     _pipelineLayout(pipelineLayout),
     _shaderStage(shaderStage),
     _allocator(allocator)
 {
-}
-
-ComputePipeline::Implementation::~Implementation()
-{
-    vkDestroyPipeline(*_device, _pipeline, _allocator);
-}
-
-ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(Context& context, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator)
-{
-    if (!device || !pipelineLayout || !shaderStage)
-    {
-        return Result("Error: vsg::ComputePipeline::create(...) failed to create compute pipeline, undefined device, pipelinLayout or shaderStage.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
     VkPipelineShaderStageCreateInfo stageInfo = {};
     stageInfo.pNext = nullptr;
     shaderStage->apply(context, stageInfo);
@@ -97,16 +83,15 @@ ComputePipeline::Implementation::Result ComputePipeline::Implementation::create(
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.pNext = nullptr;
 
-    VkPipeline pipeline;
-    VkResult result = vkCreateComputePipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &pipeline);
-    if (result == VK_SUCCESS)
+    if (VkResult result = vkCreateComputePipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &_pipeline); result != VK_SUCCESS)
     {
-        return Result(new ComputePipeline::Implementation(pipeline, device, pipelineLayout, shaderStage, allocator));
+        throw Exception{"Error: vsg::Pipeline::createCompute(...) failed to create VkPipeline.", result};
     }
-    else
-    {
-        return Result("Error: vsg::Pipeline::createCompute(...) failed to create VkPipeline.", result);
-    }
+}
+
+ComputePipeline::Implementation::~Implementation()
+{
+    vkDestroyPipeline(*_device, _pipeline, _allocator);
 }
 
 ////////////////////////////////////////////////////////////////////////

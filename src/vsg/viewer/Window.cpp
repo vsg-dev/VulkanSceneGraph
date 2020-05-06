@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/PipelineBarrier.h>
+#include <vsg/core/Exception.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/viewer/Window.h>
 #include <vsg/vk/SubmitCommands.h>
@@ -43,9 +44,7 @@ Window::Window(ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator
         }
 
         vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
-
         _instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
-        if (!_instance) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 }
 
@@ -102,14 +101,11 @@ void Window::initaliseDevice()
 
         // set up device
         auto [physicalDevice, queueFamily, presentFamily] = _instance->getPhysicalDeviceAndQueueFamily(_traits->queueFlags, _surface);
-        if (!physicalDevice || queueFamily < 0 || presentFamily < 0) throw Result("Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        if (!physicalDevice || queueFamily < 0 || presentFamily < 0) throw Exception{"Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
         vsg::QueueSettings queueSettings{vsg::QueueSetting{queueFamily, {1.0}}, vsg::QueueSetting{presentFamily, {1.0}}};
-        vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->allocator);
-        if (!device) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan logical Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-
+        _device = vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->allocator);
         _physicalDevice = physicalDevice;
-        _device = device;
     }
 
     // set up renderpass with the imageFormat that the swap chain will use
@@ -123,8 +119,7 @@ void Window::initaliseDevice()
         VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
         VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
 
-        _renderPass = vsg::RenderPass::create(_device, imageFormat.format, depthFormat, _traits->allocator);
-        if (!_renderPass) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan RenderPass.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        _renderPass = vsg::createRenderPass(_device, imageFormat.format, depthFormat, _traits->allocator);
     }
 }
 
@@ -172,7 +167,8 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     depthImageCreateInfo.pNext = nullptr;
 
     _depthImage = Image::create(_device, depthImageCreateInfo);
-    _depthImageMemory = DeviceMemory::create(_device, _depthImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    _depthImageMemory = DeviceMemory::create(_device, _depthImage->getMemoryRequirements(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     vkBindImageMemory(*_device, *_depthImage, *_depthImageMemory, 0);
 

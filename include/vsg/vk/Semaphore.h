@@ -19,10 +19,7 @@ namespace vsg
     class VSG_DECLSPEC Semaphore : public Inherit<Object, Semaphore>
     {
     public:
-        Semaphore(VkSemaphore Semaphore, VkPipelineStageFlags pipelineStageFlags, Device* device, AllocationCallbacks* allocator = nullptr);
-
-        using Result = vsg::Result<Semaphore, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, VkPipelineStageFlags pipelineStageFlags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, void* pNextCreateInfo = nullptr, AllocationCallbacks* allocator = nullptr);
+        Semaphore(Device* device, VkPipelineStageFlags pipelineStageFlags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, void* pNextCreateInfo = nullptr, AllocationCallbacks* allocator = nullptr);
 
         operator VkSemaphore() const { return _semaphore; }
         VkSemaphore vk() const { return _semaphore; }

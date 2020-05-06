@@ -33,7 +33,7 @@ namespace vsg
         ref_ptr<Window> window;
         VkRect2D renderArea; // viewport dimensions
 
-        ref_ptr<RenderPass> renderPass; // If not set, use window's.
+        ref_ptr<RenderPass> renderPass;   // If not set, use window's.
         ref_ptr<Framebuffer> framebuffer; // If not set, use window's.
 
         RenderPass* getRenderPass()

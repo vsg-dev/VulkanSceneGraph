@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/state/DescriptorSetLayout.h>
 #include <vsg/traversals/CompileTraversal.h>
 
@@ -69,11 +70,20 @@ void DescriptorSetLayout::compile(Context& context)
 //
 // DescriptorSetLayout::Implementation
 //
-DescriptorSetLayout::Implementation::Implementation(Device* device, VkDescriptorSetLayout descriptorSetLayout, AllocationCallbacks* allocator) :
+DescriptorSetLayout::Implementation::Implementation(Device* device, const DescriptorSetLayoutBindings& descriptorSetLayoutBindings, AllocationCallbacks* allocator) :
     _device(device),
-    _descriptorSetLayout(descriptorSetLayout),
     _allocator(allocator)
 {
+    VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetLayoutBindings.size());
+    layoutInfo.pBindings = descriptorSetLayoutBindings.data();
+    layoutInfo.pNext = nullptr;
+
+    if (VkResult result = vkCreateDescriptorSetLayout(*device, &layoutInfo, allocator, &_descriptorSetLayout); result != VK_SUCCESS)
+    {
+        throw Exception{"Error: Failed to create DescriptorSetLayout.", result};
+    }
 }
 
 DescriptorSetLayout::Implementation::~Implementation()
@@ -81,30 +91,5 @@ DescriptorSetLayout::Implementation::~Implementation()
     if (_descriptorSetLayout)
     {
         vkDestroyDescriptorSetLayout(*_device, _descriptorSetLayout, _allocator);
-    }
-}
-
-DescriptorSetLayout::Implementation::Result DescriptorSetLayout::Implementation::create(Device* device, const DescriptorSetLayoutBindings& descriptorSetLayoutBindings, AllocationCallbacks* allocator)
-{
-    if (!device)
-    {
-        return Result("Error: vsg::DescriptorSetLayout::create(...) failed to create DescriptorSetLayout, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
-    VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetLayoutBindings.size());
-    layoutInfo.pBindings = descriptorSetLayoutBindings.data();
-    layoutInfo.pNext = nullptr;
-
-    VkDescriptorSetLayout descriptorSetLayout;
-    VkResult result = vkCreateDescriptorSetLayout(*device, &layoutInfo, allocator, &descriptorSetLayout);
-    if (result == VK_SUCCESS)
-    {
-        return Result(new Implementation(device, descriptorSetLayout, allocator));
-    }
-    else
-    {
-        return Result("Error: Failed to create DescriptorSetLayout.", result);
     }
 }

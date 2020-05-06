@@ -48,13 +48,8 @@ namespace vsg
 
         struct Implementation : public Inherit<Object, Implementation>
         {
-            Implementation(VkPipeline pipeline, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator);
+            Implementation(Context& context, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator = nullptr);
             virtual ~Implementation();
-
-            using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
-
-            /** Create a ComputePipeline.*/
-            static Result create(Context& context, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator = nullptr);
 
             VkPipeline _pipeline;
 

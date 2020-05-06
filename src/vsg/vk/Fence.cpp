@@ -10,15 +10,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/vk/Fence.h>
 
 using namespace vsg;
 
-Fence::Fence(VkFence fence, Device* device, AllocationCallbacks* allocator) :
-    _vkFence(fence),
+Fence::Fence(Device* device, VkFenceCreateFlags flags, AllocationCallbacks* allocator) :
     _device(device),
     _allocator(allocator)
 {
+    VkFenceCreateInfo createFenceInfo = {};
+    createFenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    createFenceInfo.flags = flags;
+    createFenceInfo.pNext = nullptr;
+
+    if (VkResult result = vkCreateFence(*device, &createFenceInfo, allocator, &_vkFence); result != VK_SUCCESS)
+    {
+        throw Exception{"Error: Failed to create Fence.", result};
+    }
 }
 
 Fence::~Fence()
@@ -26,30 +35,6 @@ Fence::~Fence()
     if (_vkFence)
     {
         vkDestroyFence(*_device, _vkFence, _allocator);
-    }
-}
-
-Fence::Result Fence::create(Device* device, VkFenceCreateFlags flags, AllocationCallbacks* allocator)
-{
-    if (!device)
-    {
-        return Result("Error: vsg::Fence::create(...) failed to create Fence, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
-    VkFenceCreateInfo createFenceInfo = {};
-    createFenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    createFenceInfo.flags = flags;
-    createFenceInfo.pNext = nullptr;
-
-    VkFence fence;
-    VkResult result = vkCreateFence(*device, &createFenceInfo, allocator, &fence);
-    if (result == VK_SUCCESS)
-    {
-        return Result(new Fence(fence, device, allocator));
-    }
-    else
-    {
-        return Result("Error: Failed to create Fence.", result);
     }
 }
 

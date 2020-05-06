@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/state/ShaderModule.h>
 #include <vsg/traversals/CompileTraversal.h>
 
@@ -43,16 +44,16 @@ ShaderModule::~ShaderModule()
 {
 }
 
-ShaderModule::Result ShaderModule::read(const std::string& filename)
+ref_ptr<ShaderModule> ShaderModule::read(const std::string& filename)
 {
     SPIRV buffer;
     if (readFile(buffer, filename))
     {
-        return Result(new ShaderModule(buffer));
+        return ShaderModule::create(buffer);
     }
     else
     {
-        return ShaderModule::Result("Error: vsg::ShaderModule::read(..) failed to read shader file.", VK_INCOMPLETE);
+        throw Exception{"Error: vsg::ShaderModule::read(..) failed to read shader file.", VK_INCOMPLETE};
     }
 }
 
@@ -86,44 +87,23 @@ void ShaderModule::compile(Context& context)
     if (!_implementation[context.deviceID]) _implementation[context.deviceID] = Implementation::create(context.device, this);
 }
 
-ShaderModule::Implementation::Implementation(VkShaderModule shaderModule, Device* device, AllocationCallbacks* allocator) :
-    _shaderModule(shaderModule),
+ShaderModule::Implementation::Implementation(Device* device, ShaderModule* shaderModule, AllocationCallbacks* allocator) :
     _device(device),
     _allocator(allocator)
 {
-}
-
-ShaderModule::Implementation::~Implementation()
-{
-    vkDestroyShaderModule(*_device, _shaderModule, _allocator);
-}
-
-ShaderModule::Implementation::Result ShaderModule::Implementation::create(Device* device, ShaderModule* shaderModule, AllocationCallbacks* allocator)
-{
-    if (!device || !shaderModule)
-    {
-        return Result("Error: vsg::ShaderModule::create(...) failed, requires valid logical device and Shader.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
-    if (shaderModule->spirv().empty())
-    {
-        return Result("Error: vsg::ShaderModule::create(...) failed. requires Shader with valid spirv contents.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
     VkShaderModuleCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.codeSize = shaderModule->spirv().size() * sizeof(ShaderModule::SPIRV::value_type);
     createInfo.pCode = shaderModule->spirv().data();
     createInfo.pNext = nullptr;
 
-    VkShaderModule sm;
-    VkResult result = vkCreateShaderModule(*device, &createInfo, allocator, &sm);
-    if (result == VK_SUCCESS)
+    if (VkResult result = vkCreateShaderModule(*device, &createInfo, allocator, &_shaderModule); result != VK_SUCCESS)
     {
-        return Result(new ShaderModule::Implementation(sm, device, allocator));
+        throw Exception{"Error: vsg::ShaderModule::create(...) failed to create shader module.", result};
     }
-    else
-    {
-        return Result("Error: vsg::ShaderModule::create(...) failed to create shader module.", result);
-    }
+}
+
+ShaderModule::Implementation::~Implementation()
+{
+    vkDestroyShaderModule(*_device, _shaderModule, _allocator);
 }

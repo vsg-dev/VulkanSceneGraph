@@ -59,13 +59,8 @@ namespace vsg
 
         struct Implementation : public Inherit<Object, Implementation>
         {
-            Implementation(VkPipeline pipeline, Device* device, RayTracingPipeline* rayTracingPipeline, AllocationCallbacks* allocator = nullptr);
+            Implementation(Context& context, RayTracingPipeline* rayTracingPipeline);
             virtual ~Implementation();
-
-            using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
-
-            /** Create a GraphicsPipeline.*/
-            static Result create(Context& context, RayTracingPipeline* rayTracingPipeline);
 
             VkPipeline _pipeline;
 

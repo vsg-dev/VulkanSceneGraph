@@ -53,12 +53,9 @@ namespace vsg
 
         struct Implementation : public Inherit<Object, Implementation>
         {
-            Implementation(VkPipelineLayout pipelineLayout, const DescriptorSetLayouts& descrtorSetLayouts, Device* device, AllocationCallbacks* allocator = nullptr);
+            Implementation(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags = 0, AllocationCallbacks* allocator = nullptr);
+
             virtual ~Implementation();
-
-            using Result = vsg::Result<Implementation, VkResult, VK_SUCCESS>;
-
-            static Result create(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags = 0, AllocationCallbacks* allocator = nullptr);
 
             VkPipelineLayout _pipelineLayout;
             DescriptorSetLayouts _descriptorSetLayouts;

@@ -52,11 +52,10 @@ namespace vsgXcb
     {
     public:
 
+        Xcb_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator = nullptr);
         Xcb_Window() = delete;
         Xcb_Window(const Xcb_Window&) = delete;
         Xcb_Window& operator = (const Xcb_Window&) = delete;
-
-        static Result create(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator=nullptr);
 
         bool valid() const override;
 
@@ -67,7 +66,6 @@ namespace vsgXcb
         void resize() override;
 
     protected:
-        Xcb_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator);
 
         ~Xcb_Window();
 

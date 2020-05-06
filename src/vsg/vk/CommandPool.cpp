@@ -10,32 +10,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/vk/CommandPool.h>
 
 using namespace vsg;
 
-CommandPool::CommandPool(VkCommandPool commandPool, Device* device, AllocationCallbacks* allocator) :
-    _commandPool(commandPool),
+CommandPool::CommandPool(Device* device, uint32_t queueFamilyIndex, AllocationCallbacks* allocator) :
     _device(device),
     _allocator(allocator)
 {
-}
-
-CommandPool::~CommandPool()
-{
-    if (_commandPool)
-    {
-        vkDestroyCommandPool(*_device, _commandPool, _allocator);
-    }
-}
-
-CommandPool::Result CommandPool::create(Device* device, uint32_t queueFamilyIndex, AllocationCallbacks* allocator)
-{
-    if (!device)
-    {
-        return CommandPool::Result("Error: vsg::CommandPool::create(...) failed to create command pool, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
     VkCommandPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.queueFamilyIndex = queueFamilyIndex;
@@ -44,14 +27,16 @@ CommandPool::Result CommandPool::create(Device* device, uint32_t queueFamilyInde
     //poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
     poolInfo.pNext = nullptr;
 
-    VkCommandPool commandPool;
-    VkResult result = vkCreateCommandPool(*device, &poolInfo, allocator, &commandPool);
-    if (result == VK_SUCCESS)
+    if (VkResult result = vkCreateCommandPool(*device, &poolInfo, allocator, &_commandPool); result != VK_SUCCESS)
     {
-        return Result(new CommandPool(commandPool, device, allocator));
+        throw Exception{"Error: Failed to create command pool.", result};
     }
-    else
+}
+
+CommandPool::~CommandPool()
+{
+    if (_commandPool)
     {
-        return Result("Error: Failed to create command pool.", result);
+        vkDestroyCommandPool(*_device, _commandPool, _allocator);
     }
 }

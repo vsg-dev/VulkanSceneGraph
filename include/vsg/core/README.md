@@ -24,7 +24,6 @@ The **include/vsg/core** header directory contains the base classes, smart point
 
 ## C++ template helper classes
 * [include/vsg/core/Inherit.h](Inherit.h) - Curiously Recurring Template Pattern used to implement standardized visitor, traversal and memory allocation methods
-* [include/vsg/core/Result.h](Result.h) - template class used by Object creation methods for returning of object ownership on success and errors if they occur.
 
 ## General build support headers 
 * [include/vsg/core/Export.h](Export.h) - provides Windows __declspec() macros abstraction

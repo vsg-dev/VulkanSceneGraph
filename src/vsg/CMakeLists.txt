@@ -17,7 +17,6 @@ set(SOURCES
     core/External.cpp
     core/Object.cpp
     core/Objects.cpp
-    core/Result.cpp
     core/Visitor.cpp
     core/Version.cpp
 

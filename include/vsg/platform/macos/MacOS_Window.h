@@ -43,12 +43,11 @@ namespace vsgMacOS
     class MacOS_Window : public vsg::Inherit<vsg::Window, MacOS_Window>
     {
     public:
+
+        MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator = nullptr);
         MacOS_Window() = delete;
         MacOS_Window(const MacOS_Window&) = delete;
         MacOS_Window operator = (const MacOS_Window&) = delete;
-
-        using Result = vsg::Result<vsg::Window, VkResult, VK_SUCCESS>;
-        static Result create(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator=nullptr);
 
         virtual bool valid() const { return _window; }
 
@@ -75,8 +74,6 @@ namespace vsgMacOS
 
     protected:
         virtual ~MacOS_Window();
-
-        MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator);
 
         vsg_MacOS_NSWindow* _window;
         vsg_MacOS_NSView* _view;

@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,16 +12,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Result.h>
+#include <string>
 
-#include <iostream>
-
-std::ostream& vsg::notice_stream()
+namespace vsg
 {
-    return std::cout;
-}
+    struct Exception
+    {
+        std::string message;
+        int result = 0;
+    };
 
-std::ostream& vsg::error_stream()
-{
-    return std::cerr;
-}
+} // namespace vsg

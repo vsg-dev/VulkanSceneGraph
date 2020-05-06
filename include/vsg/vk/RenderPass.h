@@ -20,15 +20,11 @@ namespace vsg
     class VSG_DECLSPEC RenderPass : public Inherit<Object, RenderPass>
     {
     public:
-        RenderPass(VkRenderPass renderPass, Device* device, AllocationCallbacks* allocator = nullptr);
-
         using Attachments = std::vector<VkAttachmentDescription>;
         using Subpasses = std::vector<VkSubpassDescription>; // need lists of VkAttachmentReference
         using Dependencies = std::vector<VkSubpassDependency>;
 
-        using Result = vsg::Result<RenderPass, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator = nullptr);
-        static Result create(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependencies& dependencies, AllocationCallbacks* allocator = nullptr);
+        RenderPass(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependencies& dependencies, AllocationCallbacks* allocator = nullptr);
 
         operator VkRenderPass() const { return _renderPass; }
 
@@ -42,5 +38,8 @@ namespace vsg
         ref_ptr<Device> _device;
         ref_ptr<AllocationCallbacks> _allocator;
     };
+    VSG_type_name(vsg::RenderPass);
+
+    extern ref_ptr<RenderPass> createRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator = nullptr);
 
 } // namespace vsg

@@ -10,13 +10,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/core/Version.h>
 #include <vsg/viewer/Window.h>
 #include <vsg/vk/Device.h>
 
-#include <set>
-
 #include <iostream>
+#include <set>
 
 using namespace vsg;
 
@@ -43,38 +43,22 @@ static uint32_t getUniqueDeviceID()
     return deviceID;
 }
 
-Device::Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallbacks* allocator) :
-    deviceID(getUniqueDeviceID()),
-    _device(device),
-    _physicalDevice(physicalDevice),
-    _allocator(allocator)
+static void releaseDeiviceID(uint32_t deviceID)
 {
-    // PhysicalDevice only holds a observer_ptr<> to the Instance, so need to take a local reference to the instance to make sure it doesn't get deleted befire we are finsihed with it.
-    if (physicalDevice) _instance = physicalDevice->getInstance();
-
-    if (deviceID >= VSG_MAX_DEVICES)
-    {
-        // TODO throw an exception?
-        std::cout << "Warning : number of vsg:Device allocated exceeds number supported " << VSG_MAX_DEVICES << std::endl;
-    }
-}
-
-Device::~Device()
-{
-    if (_device)
-    {
-        vkDestroyDevice(_device, _allocator);
-    }
-
     std::lock_guard<std::mutex> guard(s_DeviceCountMutex);
     s_ActiveDevices[deviceID] = false;
 }
 
-Device::Result Device::create(PhysicalDevice* physicalDevice, QueueSettings& queueSettings, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator)
+Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, const Names& layers, const Names& deviceExtensions, AllocationCallbacks* allocator) :
+    deviceID(getUniqueDeviceID()),
+    _instance(physicalDevice->getInstance()),
+    _physicalDevice(physicalDevice),
+    _allocator(allocator)
 {
-    if (!physicalDevice)
+    if (deviceID >= VSG_MAX_DEVICES)
     {
-        return Device::Result("Error: vsg::Device::create(...) failed to create logical device, undefined PhysicalDevice.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        releaseDeiviceID(deviceID);
+        throw Exception{"Warning : number of vsg:Device allocated exceeds number supported ", VSG_MAX_DEVICES};
     }
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -132,19 +116,25 @@ Device::Result Device::create(PhysicalDevice* physicalDevice, QueueSettings& que
 
     createInfo.pNext = nullptr;
 
-    VkDevice device;
-    VkResult result = vkCreateDevice(*physicalDevice, &createInfo, allocator, &device);
-    if (result == VK_SUCCESS)
+    VkResult result = vkCreateDevice(*physicalDevice, &createInfo, allocator, &_device);
+    if (result != VK_SUCCESS)
     {
-        return Result(new Device(device, physicalDevice, allocator));
-    }
-    else
-    {
-        return Device::Result("Error: vsg::Device::create(...) failed to create logical device.", result);
+        releaseDeiviceID(deviceID);
+        throw Exception{"Error: vsg::Device::create(...) failed to create logical device.", result};
     }
 }
 
-Device::Result Device::create(WindowTraits* windowTraits)
+Device::~Device()
+{
+    if (_device)
+    {
+        vkDestroyDevice(_device, _allocator);
+    }
+
+    releaseDeiviceID(deviceID);
+}
+
+ref_ptr<Device> vsg::createDevice(WindowTraits* windowTraits)
 {
     vsg::Names instanceExtensions = windowTraits->instanceExtensionNames;
 
@@ -158,12 +148,11 @@ Device::Result Device::create(WindowTraits* windowTraits)
 
     vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
 
-    vsg::ref_ptr<vsg::Instance> instance(vsg::Instance::create(instanceExtensions, validatedNames, windowTraits->allocator));
-    if (!instance) return Device::Result("Error: vsg::Device::create(...) failed to create logical device.", VK_ERROR_INITIALIZATION_FAILED);
+    auto instance = vsg::Instance::create(instanceExtensions, validatedNames, windowTraits->allocator);
 
     // set up device
     auto [physicalDevice, queueFamily] = instance->getPhysicalDeviceAndQueueFamily(windowTraits->queueFlags);
-    if (!physicalDevice || queueFamily < 0) return Device::Result("Error: vsg::Device::create(...) failed to create logical device.", VK_ERROR_INITIALIZATION_FAILED);
+    if (!physicalDevice || queueFamily < 0) throw Exception{"Error: vsg::Device::create(...) failed to create logical device.", VK_ERROR_INITIALIZATION_FAILED};
 
     vsg::Names deviceExtensions;
     deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
