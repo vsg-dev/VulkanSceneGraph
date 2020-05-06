@@ -96,7 +96,7 @@ Instance::Instance(const Names& instanceExtensions, const Names& layers, Allocat
     }
     else
     {
-        throw VulkanException{"Error: vsg::Instance::create(...) failed to create VkInstance.", result};
+        throw Exception{"Error: vsg::Instance::create(...) failed to create VkInstance.", result};
     }
 }
 
