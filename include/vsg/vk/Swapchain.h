@@ -50,7 +50,6 @@ namespace vsg
     class VSG_DECLSPEC Swapchain : public Inherit<Object, Swapchain>
     {
     public:
-
         Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences, AllocationCallbacks* allocator = nullptr);
 
         operator VkSwapchainKHR() const { return _swapchain; }
@@ -76,6 +75,5 @@ namespace vsg
         vsg::ref_ptr<AllocationCallbacks> _allocator;
     };
     VSG_type_name(vsg::Swapchain);
-
 
 } // namespace vsg

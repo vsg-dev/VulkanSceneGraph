@@ -10,13 +10,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Version.h>
 #include <vsg/core/Exception.h>
+#include <vsg/core/Version.h>
 #include <vsg/viewer/Window.h>
 #include <vsg/vk/Device.h>
 
-#include <set>
 #include <iostream>
+#include <set>
 
 using namespace vsg;
 

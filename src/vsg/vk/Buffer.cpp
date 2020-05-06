@@ -64,4 +64,3 @@ VkMemoryRequirements Buffer::getMemoryRequirements() const
     vkGetBufferMemoryRequirements(*_device, _buffer, &memRequirements);
     return memRequirements;
 }
-

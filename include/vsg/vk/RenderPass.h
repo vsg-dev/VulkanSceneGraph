@@ -20,7 +20,6 @@ namespace vsg
     class VSG_DECLSPEC RenderPass : public Inherit<Object, RenderPass>
     {
     public:
-
         using Attachments = std::vector<VkAttachmentDescription>;
         using Subpasses = std::vector<VkSubpassDescription>; // need lists of VkAttachmentReference
         using Dependencies = std::vector<VkSubpassDependency>;
