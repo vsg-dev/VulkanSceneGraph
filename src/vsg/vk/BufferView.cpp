@@ -14,20 +14,32 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+#if RESULT_REFACTOR
+BufferView::BufferView(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range, AllocationCallbacks* allocator) :
+    _device(device),
+    _buffer(buffer),
+    _allocator(allocator)
+{
+    VkBufferViewCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO;
+    createInfo.buffer = *buffer;
+    createInfo.format = format;
+    createInfo.offset = offset;
+    createInfo.range = range;
+    createInfo.pNext = nullptr;
+
+    if (VkResult result = vkCreateBufferView(*(buffer->getDevice()), &createInfo, allocator, &_bufferView); result != VK_SUCCESS)
+    {
+        throw Exception{"Error: Failed to create BufferView.", result};
+    }
+}
+#else
 BufferView::BufferView(VkBufferView bufferView, Device* device, Buffer* buffer, AllocationCallbacks* allocator) :
     _bufferView(bufferView),
     _device(device),
     _buffer(buffer),
     _allocator(allocator)
 {
-}
-
-BufferView::~BufferView()
-{
-    if (_bufferView)
-    {
-        vkDestroyBufferView(*_device, _bufferView, _allocator);
-    }
 }
 
 BufferView::Result BufferView::create(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range, AllocationCallbacks* allocator)
@@ -54,5 +66,14 @@ BufferView::Result BufferView::create(Buffer* buffer, VkFormat format, VkDeviceS
     else
     {
         return Result("Error: Failed to create BufferView.", result);
+    }
+}
+#endif
+
+BufferView::~BufferView()
+{
+    if (_bufferView)
+    {
+        vkDestroyBufferView(*_device, _bufferView, _allocator);
     }
 }
