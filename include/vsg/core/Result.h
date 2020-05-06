@@ -31,6 +31,7 @@ namespace vsg
     };
 
 
+#if RESULT_REFACTOR < 2
     template<class T, typename R, R validValue>
     class Result
     {
@@ -111,5 +112,6 @@ namespace vsg
         std::string _message;
         ref_ptr<T> _ptr;
     };
+#endif
 
 } // namespace vsg
