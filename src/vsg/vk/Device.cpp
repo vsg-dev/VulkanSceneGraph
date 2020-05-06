@@ -52,12 +52,6 @@ static void releaseDeiviceID(uint32_t deviceID)
 Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, const Names& layers, const Names& deviceExtensions, AllocationCallbacks* allocator) :
     deviceID(getUniqueDeviceID())
 {
-    if (!physicalDevice)
-    {
-        releaseDeiviceID(deviceID);
-        throw Exception{"Error: vsg::Device::create(...) failed to create logical device, undefined PhysicalDevice.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
-    }
-
     if (deviceID >= VSG_MAX_DEVICES)
     {
         releaseDeiviceID(deviceID);

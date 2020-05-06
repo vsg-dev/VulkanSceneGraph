@@ -147,11 +147,6 @@ SwapchainImage::~SwapchainImage()
 //
 Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences, AllocationCallbacks* allocator)
 {
-    if (!physicalDevice || !device || !surface)
-    {
-        throw Exception{"Error: vsg::Swapchain::create(...) failed to create swapchain, undefined inputs.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
-    }
-
     SwapChainSupportDetails details = querySwapChainSupport(*physicalDevice, *surface);
 
     VkSurfaceFormatKHR surfaceFormat = selectSwapSurfaceFormat(details, preferences.surfaceFormat);
