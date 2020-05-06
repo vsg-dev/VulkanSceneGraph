@@ -20,9 +20,7 @@ namespace vsg
     {
     public:
         Image(VkImage image, Device* device, AllocationCallbacks* allocator = nullptr);
-
-        using Result = vsg::Result<Image, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, const VkImageCreateInfo& createImageInfo, AllocationCallbacks* allocator = nullptr);
+        Image(Device* device, const VkImageCreateInfo& createImageInfo, AllocationCallbacks* allocator = nullptr);
 
         VkImage image() const { return _image; }
 
@@ -52,5 +50,6 @@ namespace vsg
         ref_ptr<DeviceMemory> _deviceMemory;
         VkDeviceSize _memoryOffset;
     };
+    VSG_type_name(vsg::Image);
 
 } // namespace vsg

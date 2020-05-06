@@ -21,6 +21,16 @@ Image::Image(VkImage image, Device* device, AllocationCallbacks* allocator) :
 {
 }
 
+Image::Image(Device* device, const VkImageCreateInfo& createImageInfo, AllocationCallbacks* allocator) :
+    _device(device),
+    _allocator(allocator)
+{
+    if (VkResult result = vkCreateImage(*device, &createImageInfo, allocator, &_image); result != VK_SUCCESS)
+    {
+        throw Exception{"Error: Failed to create vkImage.", result};
+    }
+}
+
 Image::~Image()
 {
     if (_deviceMemory)
@@ -34,21 +44,3 @@ Image::~Image()
     }
 }
 
-Image::Result Image::create(Device* device, const VkImageCreateInfo& createImageInfo, AllocationCallbacks* allocator)
-{
-    if (!device)
-    {
-        return Result("Error: vsg::Image::create(...) failed to create vkImage, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
-    VkImage image;
-    VkResult result = vkCreateImage(*device, &createImageInfo, allocator, &image);
-    if (result == VK_SUCCESS)
-    {
-        return Result(new Image(image, device, allocator));
-    }
-    else
-    {
-        return Result("Error: Failed to create vkImage.", result);
-    }
-}
