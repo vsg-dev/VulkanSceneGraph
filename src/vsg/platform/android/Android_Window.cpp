@@ -32,9 +32,9 @@ using namespace vsgAndroid;
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to an Android_Window
-    Window::Result Window::create(vsg::ref_ptr<WindowTraits> traits)
+    ref_ptr<Window> Window::create(vsg::ref_ptr<WindowTraits> traits)
     {
-        return vsgAndroid::Android_Window::create(traits, nullptr);
+        return vsgAndroid::Android_Window::create(traits);
     }
 
 } // namespace vsg
@@ -314,35 +314,17 @@ KeyboardMap::KeyboardMap()
         };
 }
 
-vsg::Window::Result Android_Window::create(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator)
-{
-    try
-    {
-        ref_ptr<Window> window(new Android_Window(traits, allocator));
-        return Result(window);
-    }
-    catch (vsg::Window::Result result)
-    {
-        return result;
-    }
-}
-
 Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
     Inherit(assignSurfaceExtension(traits, "VK_KHR_android_surface"), allocator)
 {
     _keyboard = new KeyboardMap;
-
-    /*if(!traits->nativeHandle.has_value())
-    {
-        return Result("Error: vsg::Android_Window::create(...) failed to create Window, Android requires a NativeWindow passed via traits->nativeHandle.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }*/
 
     //ANativeWindow* nativeWindow = *std::any_cast<ANativeWindow*>(&traits->nativeHandle);
     ANativeWindow* nativeWindow = static_cast<ANativeWindow*>(traits->nativeWindow);
 
     if (nativeWindow == nullptr)
     {
-        throw Result("Error: vsg::Android_Window::create(...) failed to create Window, traits->nativeHandle is not a valid ANativeWindow.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        throw Exception{"Error: vsg::Android_Window::Android_Window(...) failed to create Window, traits->nativeHandle is not a valid ANativeWindow.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
     }
 
     _window = nativeWindow;
@@ -356,9 +338,7 @@ Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits, vsg::Allocatio
     if (traits->shareWindow)
     {
         // create Android surface for the ANativeWindow
-        vsg::ref_ptr<vsg::Surface> surface(new vsgAndroid::AndroidSurface(traits->shareWindow->instance(), nativeWindow, allocator));
-        
-        _surface = surface;
+        _surface = new vsgAndroid::AndroidSurface(traits->shareWindow->instance(), nativeWindow, allocator);
 
         // share the _instance, _physicalDevice and _device;
         window->share(*traits->shareWindow);
@@ -366,14 +346,12 @@ Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits, vsg::Allocatio
         // temporary hack to force vkGetPhysicalDeviceSurfaceSupportKHR to be called as the Vulkan
         // debug layer is complaining about vkGetPhysicalDeviceSurfaceSupportKHR not being called
         // for this _surface prior to swap chain creation
-        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(traits->shareWindow->instance(), VK_QUEUE_GRAPHICS_BIT, surface);
+        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(traits->shareWindow->instance(), VK_QUEUE_GRAPHICS_BIT, _surface);
     }
     else
     {
         // create surface using passed ANativeWindow
-        vsg::ref_ptr<vsg::Surface> surface(new vsgAndroid::AndroidSurface(_instance, _window, allocator));
-        if (!surface) throw Result("Error: vsg::Android_Window::create(...) failed to create Window, unable to create AndroidSurface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-        _surface = surface;
+        _surface = new vsgAndroid::AndroidSurface(_instance, _window, allocator);
 
         // set up device
         initaliseDevice();

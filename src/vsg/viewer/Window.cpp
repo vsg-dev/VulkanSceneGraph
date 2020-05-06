@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/viewer/Window.h>
@@ -100,7 +101,7 @@ void Window::initaliseDevice()
 
         // set up device
         auto [physicalDevice, queueFamily, presentFamily] = _instance->getPhysicalDeviceAndQueueFamily(_traits->queueFlags, _surface);
-        if (!physicalDevice || queueFamily < 0 || presentFamily < 0) throw Result("Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        if (!physicalDevice || queueFamily < 0 || presentFamily < 0) throw Exception{"Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
         vsg::QueueSettings queueSettings{vsg::QueueSetting{queueFamily, {1.0}}, vsg::QueueSetting{presentFamily, {1.0}}};
         _device = vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->allocator);

@@ -32,8 +32,7 @@ namespace vsg
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
 
-        using Result = vsg::Result<Window, VkResult, VK_SUCCESS>;
-        static Result create(vsg::ref_ptr<WindowTraits> traits);
+        static ref_ptr<Window> create(vsg::ref_ptr<WindowTraits> traits);
 
         virtual bool valid() const { return false; }
 

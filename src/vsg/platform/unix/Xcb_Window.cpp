@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 
+#include <vsg/core/Exception.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/vk/Extensions.h>
@@ -28,7 +29,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to a Xcb_Window
-    Window::Result Window::create(vsg::ref_ptr<WindowTraits> traits)
+    ref_ptr<Window> Window::create(vsg::ref_ptr<WindowTraits> traits)
     {
         return vsgXcb::Xcb_Window::create(traits);
     }
@@ -232,19 +233,6 @@ Xcb_Surface::Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, 
 //
 // Xcb_Window
 //
-vsg::Window::Result Xcb_Window::create(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator)
-{
-    try
-    {
-        ref_ptr<Window> window(new Xcb_Window(traits,  allocator));
-        return Result(window);
-    }
-    catch (vsg::Window::Result result)
-    {
-        return result;
-    }
-}
-
 Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
     Inherit(assignSurfaceExtension(traits, VK_KHR_XCB_SURFACE_EXTENSION_NAME), allocator)
 {
@@ -267,7 +255,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbac
         // close connection
         xcb_disconnect(_connection);
 
-        throw Result("Failed to created Window, unable able to establish xcb connection.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        throw Exception{"Failed to created Window, unable able to establish xcb connection.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
     }
 
     // TODO, should record Traits within Window? Should pass back selected screeenNum?
@@ -411,26 +399,14 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbac
     }
     xcb_map_window(_connection, _window);
 
-#if 0
-    // reconfigure the window position and size.
-    const uint32_t values[] = { 100, 200, 300, 400 };
-    xcb_configure_window (_connection, _window, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
-    xcb_flush(_connection);
-#endif
-
-    //xcb_flush(_connection);
-
     if (traits->shareWindow)
     {
-        throw Result("Error: vsg::Xcb_Window::create(...) Sharing of Windows not Not supported yet.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        throw Exception{"Error: vsg::Xcb_Window::Xcb_Window(...) Sharing of Windows not Not supported yet.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
     }
     else
     {
         // use Xcb to create surface
-        vsg::ref_ptr<vsg::Surface> surface(new Xcb_Surface(_instance, _connection, _window, _traits->allocator));
-        if (!surface) throw Result("Error: vsg::Xcb_Window::create(...) failed to create Window, unable to create Xcb_Surface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-
-        _surface = surface;
+        _surface = new Xcb_Surface(_instance, _connection, _window, _traits->allocator);
 
         // set up device
         initaliseDevice();
