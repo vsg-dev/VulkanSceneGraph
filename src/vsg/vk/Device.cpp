@@ -50,7 +50,10 @@ static void releaseDeiviceID(uint32_t deviceID)
 }
 
 Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, const Names& layers, const Names& deviceExtensions, AllocationCallbacks* allocator) :
-    deviceID(getUniqueDeviceID())
+    deviceID(getUniqueDeviceID()),
+    _instance(physicalDevice->getInstance()),
+    _physicalDevice(physicalDevice),
+    _allocator(allocator)
 {
     if (deviceID >= VSG_MAX_DEVICES)
     {
@@ -113,17 +116,8 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
 
     createInfo.pNext = nullptr;
 
-    VkDevice device;
-    VkResult result = vkCreateDevice(*physicalDevice, &createInfo, allocator, &device);
-    if (result == VK_SUCCESS)
-    {
-        // PhysicalDevice only holds a observer_ptr<> to the Instance, so need to take a local reference to the instance to make sure it doesn't get deleted befire we are finsihed with it.
-        _device = device;
-        _physicalDevice = physicalDevice;
-        _instance = physicalDevice->getInstance();
-        _allocator = allocator;
-    }
-    else
+    VkResult result = vkCreateDevice(*physicalDevice, &createInfo, allocator, &_device);
+    if (result != VK_SUCCESS)
     {
         releaseDeiviceID(deviceID);
         throw Exception{"Error: vsg::Device::create(...) failed to create logical device.", result};
