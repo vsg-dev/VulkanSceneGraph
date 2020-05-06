@@ -45,14 +45,13 @@ namespace vsg
     protected:
         virtual ~SwapchainImage();
     };
+    VSG_type_name(vsg::SwapchainImage);
 
     class VSG_DECLSPEC Swapchain : public Inherit<Object, Swapchain>
     {
     public:
-        Swapchain(VkSwapchainKHR swapchain, Device* device, Surface* surface, AllocationCallbacks* allocator = nullptr);
 
-        using Result = vsg::Result<Swapchain, VkResult, VK_SUCCESS>;
-        static Result create(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences, AllocationCallbacks* allocator = nullptr);
+        Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences, AllocationCallbacks* allocator = nullptr);
 
         operator VkSwapchainKHR() const { return _swapchain; }
 
@@ -76,4 +75,7 @@ namespace vsg
 
         vsg::ref_ptr<AllocationCallbacks> _allocator;
     };
+    VSG_type_name(vsg::Swapchain);
+
+
 } // namespace vsg
