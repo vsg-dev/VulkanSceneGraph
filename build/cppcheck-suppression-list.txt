@@ -20,3 +20,4 @@ syntaxError:*include/vsg/utils/CommandLine.h
 
 // suppress warnings about never used variables that are used in .cpp's
 unusedStructMember:include/vsg/core/Data.h
+unusedStructMember:include/vsg/core/Exception.h
