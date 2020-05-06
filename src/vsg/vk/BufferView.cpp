@@ -14,9 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#if RESULT_REFACTOR
 BufferView::BufferView(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range, AllocationCallbacks* allocator) :
-    _device(device),
+    _device(buffer->getDevice()),
     _buffer(buffer),
     _allocator(allocator)
 {
@@ -33,42 +32,6 @@ BufferView::BufferView(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkD
         throw Exception{"Error: Failed to create BufferView.", result};
     }
 }
-#else
-BufferView::BufferView(VkBufferView bufferView, Device* device, Buffer* buffer, AllocationCallbacks* allocator) :
-    _bufferView(bufferView),
-    _device(device),
-    _buffer(buffer),
-    _allocator(allocator)
-{
-}
-
-BufferView::Result BufferView::create(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range, AllocationCallbacks* allocator)
-{
-    if (!buffer)
-    {
-        return Result("Error: vsg::BufferView::create(...) failed to create BufferView, buffer not defined.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
-    VkBufferViewCreateInfo createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO;
-    createInfo.buffer = *buffer;
-    createInfo.format = format;
-    createInfo.offset = offset;
-    createInfo.range = range;
-    createInfo.pNext = nullptr;
-
-    VkBufferView bufferView;
-    VkResult result = vkCreateBufferView(*(buffer->getDevice()), &createInfo, allocator, &bufferView);
-    if (result == VK_SUCCESS)
-    {
-        return Result(new BufferView(bufferView, buffer->getDevice(), buffer, allocator));
-    }
-    else
-    {
-        return Result("Error: Failed to create BufferView.", result);
-    }
-}
-#endif
 
 BufferView::~BufferView()
 {

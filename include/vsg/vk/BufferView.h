@@ -19,15 +19,7 @@ namespace vsg
     class VSG_DECLSPEC BufferView : public Inherit<Object, BufferView>
     {
     public:
-#if RESULT_REFACTOR
         BufferView(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range, AllocationCallbacks* allocator = nullptr);
-#else
-        BufferView(VkBufferView bufferView, Device* device, Buffer* buffer = nullptr, AllocationCallbacks* allocator = nullptr);
-
-        using Result = vsg::Result<BufferView, VkResult, VK_SUCCESS>;
-
-        static Result create(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range, AllocationCallbacks* allocator = nullptr);
-#endif
 
         operator VkBufferView() const { return _bufferView; }
 
