@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/vk/Instance.h>
 #include <vsg/vk/PhysicalDevice.h>
 
