@@ -67,4 +67,6 @@ namespace vsg
 
         PhysicalDevices _physicalDevices;
     };
+    VSG_type_name(vsg::Instance);
+
 } // namespace vsg
