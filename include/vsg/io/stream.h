@@ -119,7 +119,7 @@ namespace vsg
     }
 
     template<typename... Args>
-    std::string make_string(Args const&... args)
+    std::string make_string(const Args&... args)
     {
         std::ostringstream stream;
         (stream << ... << args);

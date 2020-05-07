@@ -55,7 +55,7 @@ namespace vsg
             _data(new value_type[l.size()])
         {
             value_type* ptr = _data;
-            for (value_type const& v : l) { (*ptr++) = v; }
+            for (const value_type& v : l) { (*ptr++) = v; }
         }
 
         explicit Array(std::uint32_t numElements) :

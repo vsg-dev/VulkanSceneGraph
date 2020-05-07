@@ -293,7 +293,7 @@ namespace vsg
         }
 
         template<typename T>
-        bool intersect(t_sphere<T> const& s)
+        bool intersect(const t_sphere<T>& s)
         {
             return vsg::intersect(_frustumStack.top(), s);
         }
