@@ -30,7 +30,6 @@ namespace vsg
         void traverse(Visitor& visitor) override { _child->accept(visitor); }
         void traverse(ConstVisitor& visitor) const override { _child->accept(visitor); }
         void traverse(RecordTraversal& visitor) const override { _child->accept(visitor); }
-        void traverse(CullTraversal& visitor) const override { _child->accept(visitor); }
 
         void read(Input& input) override;
         void write(Output& output) const override;

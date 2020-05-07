@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/vk/Instance.h>
 #include <vsg/vk/PhysicalDevice.h>
 
@@ -54,40 +55,8 @@ Names vsg::validateInstancelayerNames(const Names& names)
     return validatedNames;
 }
 
-Instance::Instance(VkInstance instance, AllocationCallbacks* allocator) :
-    _instance(instance),
-    _allocator(allocator)
+Instance::Instance(const Names& instanceExtensions, const Names& layers, AllocationCallbacks* allocator)
 {
-}
-
-Instance::~Instance()
-{
-    _physicalDevices.clear();
-
-    if (_instance)
-    {
-        vkDestroyInstance(_instance, _allocator);
-    }
-}
-
-Instance::Result Instance::create(Names& instanceExtensions, Names& layers, AllocationCallbacks* allocator)
-{
-#if 0
-    std::cout << "Instance::create()" << std::endl;
-    std::cout << "instanceExtensions : " << std::endl;
-    for (auto& name : instanceExtensions)
-    {
-        std::cout << "    " << name << std::endl;
-    }
-
-    std::cout << "layers : " << std::endl;
-    for (auto& name : layers)
-    {
-        std::cout << "    " << name << std::endl;
-    }
-    std::cout << "allocator : " << allocator << std::endl;
-#endif
-
     // application info
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -112,7 +81,8 @@ Instance::Result Instance::create(Names& instanceExtensions, Names& layers, Allo
     VkResult result = vkCreateInstance(&createInfo, allocator, &instance);
     if (result == VK_SUCCESS)
     {
-        ref_ptr<Instance> inst(new Instance(instance, allocator));
+        _instance = instance;
+        _allocator = allocator;
 
         uint32_t deviceCount = 0;
         vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
@@ -120,17 +90,24 @@ Instance::Result Instance::create(Names& instanceExtensions, Names& layers, Allo
         std::vector<VkPhysicalDevice> devices(deviceCount);
         vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-        auto& physicalDevices = inst->getPhysicalDevices();
         for (auto device : devices)
         {
-            physicalDevices.emplace_back(new PhysicalDevice(inst, device));
+            _physicalDevices.emplace_back(new PhysicalDevice(this, device));
         }
-
-        return Result(inst);
     }
     else
     {
-        return Result("Error: vsg::Instance::create(...) failed to create VkInstance.", result);
+        throw Exception{"Error: vsg::Instance::create(...) failed to create VkInstance.", result};
+    }
+}
+
+Instance::~Instance()
+{
+    _physicalDevices.clear();
+
+    if (_instance)
+    {
+        vkDestroyInstance(_instance, _allocator);
     }
 }
 
@@ -161,11 +138,14 @@ std::pair<ref_ptr<PhysicalDevice>, int> Instance::getPhysicalDeviceAndQueueFamil
     return {{}, -1};
 }
 
-std::pair<ref_ptr<PhysicalDevice>, std::pair<int, int>> Instance::getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface) const
+std::tuple<ref_ptr<PhysicalDevice>, int, int> Instance::getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface) const
 {
     for (auto& device : _physicalDevices)
     {
-        if (auto [graphicsFamily, presentFamily] = device->getQueueFamily(queueFlags, surface); (graphicsFamily >= 0 && presentFamily >= 0)) return {device, {graphicsFamily, presentFamily}};
+        if (auto [graphicsFamily, presentFamily] = device->getQueueFamily(queueFlags, surface); (graphicsFamily >= 0 && presentFamily >= 0))
+        {
+            return {device, graphicsFamily, presentFamily};
+        }
     }
-    return {{}, {-1, -1}};
+    return {{}, -1, -1};
 }

@@ -80,6 +80,8 @@ namespace vsg
 
         virtual void* dataRelease() = 0;
 
+        virtual std::uint32_t dimensions() const = 0;
+
         virtual std::uint32_t width() const = 0;
         virtual std::uint32_t height() const = 0;
         virtual std::uint32_t depth() const = 0;
@@ -94,4 +96,7 @@ namespace vsg
         VkFormat _format = VK_FORMAT_UNDEFINED;
         Layout _layout;
     };
+
+    using DataList = std::vector<ref_ptr<Data>>;
+
 } // namespace vsg

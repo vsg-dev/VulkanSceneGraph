@@ -16,12 +16,12 @@ using namespace vsg;
 
 void CompositeReaderWriter::add(ref_ptr<ReaderWriter> reader)
 {
-    _readerWriters.emplace_back(reader);
+    readerWriters.emplace_back(reader);
 }
 
 vsg::ref_ptr<vsg::Object> CompositeReaderWriter::read(const vsg::Path& filename, ref_ptr<const Options> options) const
 {
-    for (auto& reader : _readerWriters)
+    for (auto& reader : readerWriters)
     {
         if (auto object = reader->read(filename, options); object.valid()) return object;
     }
@@ -30,7 +30,7 @@ vsg::ref_ptr<vsg::Object> CompositeReaderWriter::read(const vsg::Path& filename,
 
 bool CompositeReaderWriter::write(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const
 {
-    for (auto& writer : _readerWriters)
+    for (auto& writer : readerWriters)
     {
         if (writer->write(object, filename, options)) return true;
     }

@@ -23,35 +23,34 @@ namespace vsg
 {
 
     /** Level of Detail Node,
-     *  Children should be ordered with the highest resolution LODChild first, thought to lowest resolution LOD child last.
-     *  The LODChild struct stores the visibleHeightRatio and child that it's associated with.
+     *  Children should be ordered with the highest resolution Child first, thought to lowest resolution LOD child last.
+     *  The Child struct stores the visibleHeightRatio and child that it's associated with.
      *  During culling tHe visibleHeightRatio is used as a ratio of screen height that Bound sphere occupies on screen needs to be at least in order for the associated child to be traversed.
      *  Once on child passes this test no more children are checked, so that no more than on child will ever being traversed in a cull or dispatch traversal.
-     *  If no LODChild pass the visible height test then none of the LOD's children will be visible.
+     *  If no Child pass the visible height test then none of the LOD's children will be visible.
      *  During the cull or dispatch traversals the Bound sphere is also checked against the view frustum so that LOD's also enable view frustum culling for subgraphs so there is no need for a separate CullNode/CullGroup to decorate it. */
     class VSG_DECLSPEC LOD : public Inherit<Node, LOD>
     {
     public:
         LOD(Allocator* allocator = nullptr);
 
-        struct LODChild
+        struct Child
         {
             double minimumScreenHeightRatio = 0.0; // 0.0 is always visible
-            ref_ptr<Node> child;
+            ref_ptr<Node> node;
         };
 
-        using Children = std::vector<LODChild>;
+        using Children = std::vector<Child>;
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
-            for (auto& lodChild : node._children) lodChild.child->accept(visitor);
+            for (auto& child : node._children) child.node->accept(visitor);
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
-        void traverse(CullTraversal& visitor) const override { t_traverse(*this, visitor); }
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -59,11 +58,11 @@ namespace vsg
         void setBound(const dsphere& bound) { _bound = bound; }
         inline const dsphere& getBound() const { return _bound; }
 
-        void setChild(std::size_t pos, const LODChild& lodChild) { _children[pos] = lodChild; }
-        LODChild& getChild(std::size_t pos) { return _children[pos]; }
-        const LODChild& getChild(std::size_t pos) const { return _children[pos]; }
+        void setChild(std::size_t pos, const Child& lodChild) { _children[pos] = lodChild; }
+        Child& getChild(std::size_t pos) { return _children[pos]; }
+        const Child& getChild(std::size_t pos) const { return _children[pos]; }
 
-        void addChild(const LODChild& lodChild) { _children.emplace_back(lodChild); }
+        void addChild(const Child& lodChild) { _children.emplace_back(lodChild); }
 
         std::size_t getNumChildren() const { return _children.size(); }
 

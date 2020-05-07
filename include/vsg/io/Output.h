@@ -130,7 +130,7 @@ namespace vsg
         using ObjectID = uint32_t;
         using ObjectIDMap = std::unordered_map<const vsg::Object*, ObjectID>;
 
-        ObjectID objectID = 0;
+        ObjectID objectID = 1;
         ObjectIDMap objectIDMap;
         ref_ptr<const Options> options;
 

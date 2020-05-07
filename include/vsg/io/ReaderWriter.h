@@ -55,6 +55,7 @@ namespace vsg
     {
     public:
         using ReaderWriters = std::vector<vsg::ref_ptr<ReaderWriter>>;
+        ReaderWriters readerWriters;
 
         void add(ref_ptr<ReaderWriter> reader);
 
@@ -63,7 +64,6 @@ namespace vsg
         bool write(const vsg::Object* object, const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options = {}) const override;
 
     protected:
-        ReaderWriters _readerWriters;
     };
     VSG_type_name(vsg::CompositeReaderWriter);
 

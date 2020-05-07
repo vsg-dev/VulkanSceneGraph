@@ -86,6 +86,39 @@ namespace vsg
             y = in_y;
             z = in_z;
         }
+
+        inline t_vec3& operator+=(const t_vec3& rhs)
+        {
+            value[0] += rhs.value[0];
+            value[1] += rhs.value[1];
+            value[2] += rhs.value[2];
+            return *this;
+        }
+
+        inline t_vec3& operator-=(const t_vec3& rhs)
+        {
+            value[0] -= rhs.value[0];
+            value[1] -= rhs.value[1];
+            value[2] -= rhs.value[2];
+            return *this;
+        }
+
+        inline t_vec3& operator*=(value_type rhs)
+        {
+            value[0] *= rhs;
+            value[1] *= rhs;
+            value[2] *= rhs;
+            return *this;
+        }
+
+        inline t_vec3& operator/=(value_type rhs)
+        {
+            value_type div = 1.0 / rhs;
+            value[0] *= div;
+            value[1] *= div;
+            value[2] *= div;
+            return *this;
+        }
     };
 
     using vec3 = t_vec3<float>;
@@ -101,57 +134,85 @@ namespace vsg
     VSG_type_name(vsg::uivec3);
 
     template<typename T>
-    constexpr t_vec3<T> operator-(t_vec3<T> const& lhs, t_vec3<T> const& rhs)
+    constexpr bool operator==(const t_vec3<T>& lhs, const t_vec3<T>& rhs)
+    {
+        return lhs[0] == rhs[0] && lhs[1] == rhs[1] && lhs[2] == rhs[2];
+    }
+
+    template<typename T>
+    constexpr bool operator!=(const t_vec3<T>& lhs, const t_vec3<T>& rhs)
+    {
+        return lhs[0] == rhs[0] || lhs[1] != rhs[1] || lhs[2] != rhs[2];
+    }
+
+    template<typename T>
+    constexpr bool operator<(const t_vec3<T>& lhs, const t_vec3<T>& rhs)
+    {
+        if (lhs[0] < rhs[0]) return true;
+        if (lhs[0] > rhs[0]) return false;
+        if (lhs[1] < rhs[1]) return true;
+        if (lhs[1] > rhs[1]) return false;
+        return lhs[2] < rhs[2];
+    }
+
+    template<typename T>
+    constexpr t_vec3<T> operator-(const t_vec3<T>& lhs, const t_vec3<T>& rhs)
     {
         return t_vec3<T>(lhs[0] - rhs[0], lhs[1] - rhs[1], lhs[2] - rhs[2]);
     }
 
     template<typename T>
-    constexpr t_vec3<T> operator-(t_vec3<T> const& v)
+    constexpr t_vec3<T> operator-(const t_vec3<T>& v)
     {
         return t_vec3<T>(-v[0], -v[1], -v[2]);
     }
 
     template<typename T>
-    constexpr t_vec3<T> operator+(t_vec3<T> const& lhs, t_vec3<T> const& rhs)
+    constexpr t_vec3<T> operator+(const t_vec3<T>& lhs, const t_vec3<T>& rhs)
     {
         return t_vec3<T>(lhs[0] + rhs[0], lhs[1] + rhs[1], lhs[2] + rhs[2]);
     }
 
     template<typename T>
-    constexpr t_vec3<T> operator*(t_vec3<T> const& lhs, T rhs)
+    constexpr t_vec3<T> operator*(const t_vec3<T>& lhs, T rhs)
     {
         return t_vec3<T>(lhs[0] * rhs, lhs[1] * rhs, lhs[2] * rhs);
     }
 
     template<typename T>
-    constexpr t_vec3<T> operator/(t_vec3<T> const& lhs, T rhs)
+    constexpr t_vec3<T> operator/(const t_vec3<T>& lhs, T rhs)
     {
         T inv = static_cast<T>(1.0) / rhs;
         return t_vec3<T>(lhs[0] * inv, lhs[1] * inv, lhs[2] * inv);
     }
 
     template<typename T>
-    constexpr T length(t_vec3<T> const& v)
+    constexpr T length(const t_vec3<T>& v)
     {
         return std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
     }
 
     template<typename T>
-    constexpr t_vec3<T> normalize(t_vec3<T> const& v)
+    constexpr T length2(const t_vec3<T>& v)
+    {
+        return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+    }
+
+    template<typename T>
+    constexpr t_vec3<T> normalize(const t_vec3<T>& v)
     {
         T inverse_len = static_cast<T>(1.0) / length(v);
         return t_vec3<T>(v[0] * inverse_len, v[1] * inverse_len, v[2] * inverse_len);
     }
 
     template<typename T>
-    constexpr T dot(t_vec3<T> const& lhs, t_vec3<T> const& rhs)
+    constexpr T dot(const t_vec3<T>& lhs, const t_vec3<T>& rhs)
     {
         return lhs[0] * rhs[0] + lhs[1] * rhs[1] + lhs[2] * rhs[2];
     }
 
     template<typename T>
-    constexpr t_vec3<T> cross(t_vec3<T> const& lhs, t_vec3<T> const& rhs)
+    constexpr t_vec3<T> cross(const t_vec3<T>& lhs, const t_vec3<T>& rhs)
     {
         return t_vec3<T>(lhs[1] * rhs[2] - rhs[1] * lhs[2],
                          lhs[2] * rhs[0] - rhs[2] * lhs[0],

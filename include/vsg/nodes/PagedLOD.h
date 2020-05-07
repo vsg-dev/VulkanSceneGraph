@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Node.h>
 
 #include <vsg/io/FileSystem.h>
+#include <vsg/io/Options.h>
 
 #include <vsg/vk/Semaphore.h>
 
@@ -49,7 +50,7 @@ namespace vsg
         Path filename;
 
         // priority value assigned by cull/dispatch traversal as a guide to how important the external child is for loading.
-        mutable std::atomic<double> priority = 0.0;
+        mutable std::atomic<double> priority{0.0};
 
         // TODO need status of external file load
 
@@ -67,7 +68,6 @@ namespace vsg
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
-        void traverse(CullTraversal& visitor) const override { t_traverse(*this, visitor); }
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -93,8 +93,10 @@ namespace vsg
         Children _children;
 
     public:
-        mutable std::atomic_uint64_t frameHighResLastUsed = 0;
-        mutable std::atomic_uint requestCount = 0;
+        ref_ptr<const Options> options;
+
+        mutable std::atomic_uint64_t frameHighResLastUsed{0};
+        mutable std::atomic_uint requestCount{0};
 
         enum RequestStatus : unsigned int
         {
@@ -109,7 +111,7 @@ namespace vsg
             Deleting = 8
         };
 
-        mutable std::atomic<RequestStatus> requestStatus = NoRequest;
+        mutable std::atomic<RequestStatus> requestStatus{NoRequest};
         mutable uint32_t index = 0;
 
         ref_ptr<Node> pending;

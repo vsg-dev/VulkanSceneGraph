@@ -10,40 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/External.h>
-#include <vsg/core/Objects.h>
-#include <vsg/core/Visitor.h>
-
-#include <vsg/nodes/Commands.h>
-#include <vsg/nodes/CullGroup.h>
-#include <vsg/nodes/CullNode.h>
-#include <vsg/nodes/Geometry.h>
-#include <vsg/nodes/Group.h>
-#include <vsg/nodes/LOD.h>
-#include <vsg/nodes/MatrixTransform.h>
-#include <vsg/nodes/Node.h>
-#include <vsg/nodes/PagedLOD.h>
-#include <vsg/nodes/QuadGroup.h>
-#include <vsg/nodes/StateGroup.h>
-#include <vsg/nodes/VertexIndexDraw.h>
-
-#include <vsg/vk/BindIndexBuffer.h>
-#include <vsg/vk/BindVertexBuffers.h>
-#include <vsg/vk/Command.h>
-#include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/ComputePipeline.h>
-#include <vsg/vk/Descriptor.h>
-#include <vsg/vk/DescriptorSet.h>
-#include <vsg/vk/GraphicsPipeline.h>
-#include <vsg/vk/RenderPass.h>
-
-#include <vsg/ui/ApplicationEvent.h>
-#include <vsg/ui/KeyEvent.h>
-#include <vsg/ui/PointerEvent.h>
-#include <vsg/ui/TouchEvent.h>
-
-#include <vsg/viewer/CommandGraph.h>
-#include <vsg/viewer/RenderGraph.h>
+#include <vsg/all.h>
 
 using namespace vsg;
 
@@ -319,7 +286,7 @@ void Visitor::apply(Node& value)
 }
 void Visitor::apply(Commands& value)
 {
-    apply(static_cast<Object&>(value));
+    apply(static_cast<Node&>(value));
 }
 void Visitor::apply(Group& value)
 {
@@ -461,6 +428,14 @@ void Visitor::apply(ColorBlendState& value)
 void Visitor::apply(ResourceHints& value)
 {
     apply(static_cast<Object&>(value));
+}
+void Visitor::apply(Draw& value)
+{
+    apply(static_cast<Command&>(value));
+}
+void Visitor::apply(DrawIndexed& value)
+{
+    apply(static_cast<Command&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -27,6 +27,12 @@ namespace vsg
         Group(size_t numChildren = 0);
         Group(Allocator* allocator, size_t numChildren = 0);
 
+        template<typename Iterator>
+        Group(Iterator begin, Iterator end)
+        {
+            for (Iterator itr = begin; itr != end; ++itr) addChild(*itr);
+        }
+
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
@@ -36,7 +42,6 @@ namespace vsg
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
-        void traverse(CullTraversal& visitor) const override { t_traverse(*this, visitor); }
 
         void read(Input& input) override;
         void write(Output& output) const override;

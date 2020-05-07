@@ -10,9 +10,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/traversals/RecordTraversal.h>
-
-#include <vsg/nodes/Commands.h>
+#include <vsg/commands/Command.h>
+#include <vsg/commands/Commands.h>
+#include <vsg/io/DatabasePager.h>
+#include <vsg/io/Options.h>
+#include <vsg/maths/plane.h>
 #include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/Group.h>
@@ -20,21 +22,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
-#include <vsg/nodes/StateGroup.h>
-
-#include <vsg/vk/Command.h>
+#include <vsg/state/StateGroup.h>
+#include <vsg/threading/atomics.h>
+#include <vsg/traversals/RecordTraversal.h>
+#include <vsg/ui/ApplicationEvent.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
-
-#include <vsg/io/DatabasePager.h>
-#include <vsg/io/Options.h>
-
-#include <vsg/ui/ApplicationEvent.h>
-
-#include <vsg/maths/plane.h>
-
-#include <vsg/threading/atomics.h>
 
 using namespace vsg;
 
@@ -101,12 +95,12 @@ void RecordTraversal::apply(const LOD& lod)
     auto distance = std::abs(mv[0][2] * sphere.x + mv[1][2] * sphere.y + mv[2][2] * sphere.z + mv[3][2]);
     auto rf = sphere.r * f;
 
-    for (auto lodChild : lod.getChildren())
+    for (auto child : lod.getChildren())
     {
-        bool child_visible = rf > (lodChild.minimumScreenHeightRatio * distance);
+        bool child_visible = rf > (child.minimumScreenHeightRatio * distance);
         if (child_visible)
         {
-            lodChild.child->accept(*this);
+            child.node->accept(*this);
             return;
         }
     }

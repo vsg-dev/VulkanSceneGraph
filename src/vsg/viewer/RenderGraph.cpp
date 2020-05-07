@@ -10,8 +10,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/state/StateGroup.h>
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/viewer/RenderGraph.h>
+#include <vsg/vk/Context.h>
 #include <vsg/vk/State.h>
 
 using namespace vsg;
@@ -31,28 +33,20 @@ namespace vsg
             GraphicsPipeline* graphicsPipeline = bindPipeline.getPipeline();
             if (graphicsPipeline)
             {
-                bool needToRegenerateGraphicsPipeline = false;
+                // TODO: Need to come up with a more general purpose way of matching Window viewports and GraphicsPipeline.
+                bool containsViewport = false;
+                bool containsContextWindowViewport = false;
+
                 for (auto& pipelineState : graphicsPipeline->getPipelineStates())
                 {
-                    if (pipelineState == context.viewport)
+                    if (auto viewport = pipelineState.cast<ViewportState>())
                     {
-                        needToRegenerateGraphicsPipeline = true;
-                        break;
+                        containsViewport = true;
+                        if (viewport == context.viewport) containsContextWindowViewport = true;
                     }
                 }
 
-                if (graphicsPipeline->getImplementation())
-                {
-                    for (auto& pipelineState : graphicsPipeline->getImplementation()->_pipelineStates)
-                    {
-                        if (pipelineState == context.viewport)
-                        {
-                            needToRegenerateGraphicsPipeline = true;
-                            break;
-                        }
-                    }
-                }
-
+                bool needToRegenerateGraphicsPipeline = containsContextWindowViewport || !containsViewport;
                 if (needToRegenerateGraphicsPipeline)
                 {
                     vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getPipelineLayout(), graphicsPipeline->getShaderStages(), graphicsPipeline->getPipelineStates());
@@ -98,7 +92,7 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
         }
         else if (previous_extent.width != extent.width || previous_extent.height != extent.height)
         {
-            // crude handling of window resizie...TODO, come up with a user controllable way to handle resize.
+            // crude handling of window resize...TODO, come up with a user controllable way to handle resize.
 
             vsg::UpdatePipeline updatePipeline(window->device());
 
@@ -107,10 +101,13 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
 
             if (camera)
             {
-                ref_ptr<Perspective> perspective(dynamic_cast<Perspective*>(camera->getProjectionMatrix()));
-                if (perspective)
+                if (auto perspective = dynamic_cast<Perspective*>(camera->getProjectionMatrix()))
                 {
                     perspective->aspectRatio = static_cast<double>(extent.width) / static_cast<double>(extent.height);
+                }
+                else if (auto ep = dynamic_cast<EllipsoidPerspective*>(camera->getProjectionMatrix()))
+                {
+                    ep->aspectRatio = static_cast<double>(extent.width) / static_cast<double>(extent.height);
                 }
 
                 auto viewport = camera->getViewportState();
@@ -143,8 +140,22 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
 
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = *(window->renderPass());
-    renderPassInfo.framebuffer = *(window->framebuffer(window->nextImageIndex()));
+    if (renderPass)
+    {
+        renderPassInfo.renderPass = *renderPass;
+    }
+    else if (window)
+    {
+        renderPassInfo.renderPass = *(window->renderPass());
+    }
+    if (framebuffer)
+    {
+        renderPassInfo.framebuffer = *framebuffer;
+    }
+    else if (window)
+    {
+        renderPassInfo.framebuffer = *(window->framebuffer(window->nextImageIndex()));
+    }
     renderPassInfo.renderArea = renderArea;
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());

@@ -39,7 +39,7 @@ void Group::read(Input& input)
     _children.resize(input.readValue<uint32_t>("NumChildren"));
     for (auto& child : _children)
     {
-        child = input.readObject<Node>("Child");
+        input.readObject("Child", child);
     }
 }
 

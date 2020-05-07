@@ -12,9 +12,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/ScratchMemory.h>
+#include <vsg/state/ComputePipeline.h>
+#include <vsg/state/GraphicsPipeline.h>
 #include <vsg/vk/CommandPool.h>
-#include <vsg/vk/ComputePipeline.h>
-#include <vsg/vk/GraphicsPipeline.h>
 
 namespace vsg
 {
@@ -22,10 +23,7 @@ namespace vsg
     class VSG_DECLSPEC CommandBuffer : public Inherit<Object, CommandBuffer>
     {
     public:
-        CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags flags);
-
-        using Result = vsg::Result<CommandBuffer, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, CommandPool* commandPool, VkCommandBufferUsageFlags flags);
+        CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBufferUsageFlags flags);
 
         VkCommandBufferUsageFlags flags() const { return _flags; }
 
@@ -34,6 +32,8 @@ namespace vsg
         operator VkCommandBuffer() const { return _commandBuffer; }
 
         std::atomic_uint& numDependentSubmissions() { return _numDependentSubmissions; }
+
+        const uint32_t deviceID;
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
@@ -44,16 +44,19 @@ namespace vsg
         void setCurrentPipelineLayout(VkPipelineLayout pipelineLayout) { _currentPipelineLayout = pipelineLayout; }
         VkPipelineLayout getCurrentPipelineLayout() const { return _currentPipelineLayout; }
 
+        ref_ptr<ScratchMemory> scratchMemory;
+
     protected:
         virtual ~CommandBuffer();
 
         VkCommandBuffer _commandBuffer;
         VkCommandBufferUsageFlags _flags;
-        std::atomic_uint _numDependentSubmissions = 0;
+        std::atomic_uint _numDependentSubmissions{0};
         ref_ptr<Device> _device;
         ref_ptr<CommandPool> _commandPool;
         VkPipelineLayout _currentPipelineLayout;
     };
+    VSG_type_name(vsg::CommandBuffer);
 
     using CommandBuffers = std::vector<ref_ptr<CommandBuffer>>;
 

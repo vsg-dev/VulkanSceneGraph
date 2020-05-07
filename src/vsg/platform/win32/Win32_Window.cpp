@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/platform/win32/Win32_Window.h>
 
+#include <vsg/core/Exception.h>
 #include <vsg/vk/Extensions.h>
 
 #include <iostream>
@@ -22,23 +23,9 @@ using namespace vsgWin32;
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to a Win32_Window
-    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits)
+    ref_ptr<Window> Window::create(vsg::ref_ptr<WindowTraits> traits)
     {
         return vsgWin32::Win32_Window::create(traits);
-    }
-
-    vsg::Names Window::getInstanceExtensions()
-    {
-        // check the extensions are available first
-        Names requiredExtensions = { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME };
-
-        if (!vsg::isExtensionListSupported(requiredExtensions))
-        {
-            std::cout << "Error: vsg::getInstanceExtensions(...) unable to create window, VK_KHR_surface or VK_KHR_win32_surface not supported." << std::endl;
-            return Names();
-        }
-
-        return requiredExtensions;
     }
 
 } // namespace vsg
@@ -319,21 +306,8 @@ KeyboardMap::KeyboardMap()
         };
 }
 
-Win32_Window::Result Win32_Window::create(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator)
-{
-    try
-    {
-        ref_ptr<Window> window(new Win32_Window(traits, allocator));
-        return Result(window);
-    }
-    catch (vsg::Window::Result result)
-    {
-        return result;
-    }
-}
-
-Win32_Window::Win32_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator) :
-    Window(traits, allocator),
+Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
+    Inherit(assignSurfaceExtension(traits, VK_KHR_WIN32_SURFACE_EXTENSION_NAME), allocator),
     _window(nullptr)
 {
     _keyboard = new KeyboardMap;
@@ -356,7 +330,7 @@ Win32_Window::Win32_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationC
     if (::RegisterClassEx(&wc) == 0)
     {
         auto lastError = ::GetLastError();
-        if (lastError != ERROR_CLASS_ALREADY_EXISTS) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, could not register window class.", VK_ERROR_INITIALIZATION_FAILED);
+        if (lastError != ERROR_CLASS_ALREADY_EXISTS) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, could not register window class.", VK_ERROR_INITIALIZATION_FAILED};
     }
 
     // fetch screen display information
@@ -373,13 +347,15 @@ Win32_Window::Win32_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationC
         displayDevices.push_back(displayDevice);
     }
 
-    if (traits->screenNum >= displayDevices.size()) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    // assume a trais->screenNum of < 0 will default to screen 0
+    int screenNum = traits->screenNum < 0 ? 0 : traits->screenNum;
+    if (screenNum >= displayDevices.size()) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
     DEVMODE deviceMode;
     deviceMode.dmSize = sizeof(deviceMode);
     deviceMode.dmDriverExtra = 0;
 
-    if (!::EnumDisplaySettings(displayDevices[traits->screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    if (!::EnumDisplaySettings(displayDevices[screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
     // setup window rect and style
     int32_t screenx = 0;
@@ -410,7 +386,7 @@ Win32_Window::Win32_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationC
                 WS_EX_LTRREADING;
 
             // if decorated call adjust to account for borders etc
-            if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, AdjustWindowRectEx failed.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+            if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, AdjustWindowRectEx failed.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
         }
     }
@@ -430,7 +406,7 @@ Win32_Window::Win32_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationC
                                windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
                                NULL, NULL, ::GetModuleHandle(NULL), NULL);
 
-    if (_window == nullptr) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, CreateWindowEx did not return a valid window handle.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+    if (_window == nullptr) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, CreateWindowEx did not return a valid window handle.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
     // set window handle user data pointer to hold ref to this so we can retrieve in WindowsProc
     SetWindowLongPtr(_window, GWLP_USERDATA, (LONG_PTR)this);
@@ -453,20 +429,17 @@ Win32_Window::Win32_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationC
         window->share(*traits->shareWindow);
 
         // create surface
-        vsg::ref_ptr<vsg::Surface> surface(new vsgWin32::Win32Surface(traits->shareWindow->instance(), _window, allocator));
-        _surface = surface;
+        _surface = new vsgWin32::Win32Surface(traits->shareWindow->instance(), _window, allocator);
 
         // temporary hack to force vkGetPhysicalDeviceSurfaceSupportKHR to be called as the Vulkan
         // debug layer is complaining about vkGetPhysicalDeviceSurfaceSupportKHR not being called
         // for this _surface prior to swap chain creation
-        auto result = traits->shareWindow->instance()->getPhysicalDeviceAndQueueFamily(VK_QUEUE_GRAPHICS_BIT, surface);
+        auto result = traits->shareWindow->instance()->getPhysicalDeviceAndQueueFamily(VK_QUEUE_GRAPHICS_BIT, _surface);
     }
     else
     {
         // create win32 surface
-        vsg::ref_ptr<vsg::Surface> surface(new vsgWin32::Win32Surface(_instance, _window, allocator));
-        if (!surface) throw Result("Error: vsg::Win32_Window::create(...) failed to create Window, unable to create Win32Surface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-        _surface = surface;
+        _surface = new vsgWin32::Win32Surface(_instance, _window, allocator);
 
         // set up device
         initaliseDevice();

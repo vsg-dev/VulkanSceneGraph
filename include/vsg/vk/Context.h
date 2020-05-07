@@ -16,19 +16,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <memory>
 
 #include <vsg/core/Object.h>
-
+#include <vsg/core/ScratchMemory.h>
 #include <vsg/nodes/Group.h>
-
+#include <vsg/state/GraphicsPipeline.h>
 #include <vsg/vk/BufferData.h>
-#include <vsg/vk/Command.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Fence.h>
-#include <vsg/vk/GraphicsPipeline.h>
+#include <vsg/vk/ImageData.h>
 #include <vsg/vk/Semaphore.h>
 
-#include <vsg/vk/BufferData.h>
-#include <vsg/vk/ImageData.h>
+#include <vsg/commands/Command.h>
 
 namespace vsg
 {
@@ -133,6 +131,7 @@ namespace vsg
         virtual ~Context();
 
         // used by BufferData.cpp, ComputePipeline.cpp, Descriptor.cpp, Descriptor.cpp, DescriptorSet.cpp, DescriptorSetLayout.cpp, GraphicsPipeline.cpp, ImageData.cpp, PipelineLayout.cpp, ShaderModule.cpp
+        const uint32_t deviceID = 0;
         ref_ptr<Device> device;
 
         // used by GraphicsPipeline.cpp
@@ -149,6 +148,7 @@ namespace vsg
         ref_ptr<CommandBuffer> commandBuffer;
         ref_ptr<Fence> fence;
         ref_ptr<Semaphore> semaphore;
+        ref_ptr<ScratchMemory> scratchMemory;
 
         std::vector<ref_ptr<CopyAndReleaseBufferDataCommand>> copyBufferDataCommands;
         std::vector<ref_ptr<CopyAndReleaseImageDataCommand>> copyImageDataCommands;

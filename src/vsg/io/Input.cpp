@@ -19,6 +19,7 @@ Input::Input(ref_ptr<ObjectFactory> in_objectFactory, ref_ptr<const Options> in_
     objectFactory(in_objectFactory),
     options(in_options)
 {
+    objectIDMap[0] = nullptr;
 }
 
 Input::~Input()

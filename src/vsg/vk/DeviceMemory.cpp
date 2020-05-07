@@ -10,13 +10,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/DeviceMemory.h>
 #include <vsg/vk/Image.h>
 
-#include <cstring>
-
 #include <atomic>
+#include <cstring>
 #include <iostream>
 
 using namespace vsg;
@@ -286,34 +286,12 @@ void MemorySlots::release(VkDeviceSize offset, VkDeviceSize size)
 //
 // DeviceMemory
 //
-DeviceMemory::DeviceMemory(VkDeviceMemory deviceMemory, const VkMemoryRequirements& memRequirements, Device* device, AllocationCallbacks* allocator) :
-    _deviceMemory(deviceMemory),
+DeviceMemory::DeviceMemory(Device* device, const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, void* pNextAllocInfo, AllocationCallbacks* allocator) :
     _memoryRequirements(memRequirements),
     _device(device),
     _allocator(allocator),
     _memorySlots(memRequirements.size)
 {
-}
-
-DeviceMemory::~DeviceMemory()
-{
-    if (_deviceMemory)
-    {
-#if DO_CHECK
-        std::cout << "DeviceMemory::~DeviceMemory() vkFreeMemory(*_device, " << _deviceMemory << ", _allocator);" << std::endl;
-#endif
-
-        vkFreeMemory(*_device, _deviceMemory, _allocator);
-    }
-}
-
-DeviceMemory::Result DeviceMemory::create(Device* device, const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, void* pNextAllocInfo, AllocationCallbacks* allocator)
-{
-    if (!device)
-    {
-        return DeviceMemory::Result("Error: vsg::DeviceMemory::create(...) failed to create DeviceMemory, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
     uint32_t typeFilter = memRequirements.memoryTypeBits;
 
     // find the memory type to use
@@ -326,7 +304,7 @@ DeviceMemory::Result DeviceMemory::create(Device* device, const VkMemoryRequirem
     }
     if (i >= memProperties.memoryTypeCount)
     {
-        return DeviceMemory::Result("Error: vsg::DeviceMemory::create(...) failed to create DeviceMemory, not usage memory type found.", VK_ERROR_FORMAT_NOT_SUPPORTED);
+        throw Exception{"Error: vsg::DeviceMemory::create(...) failed to create DeviceMemory, not usage memory type found.", VK_ERROR_FORMAT_NOT_SUPPORTED};
     }
     uint32_t memoryTypeIndex = i;
 
@@ -351,32 +329,22 @@ DeviceMemory::Result DeviceMemory::create(Device* device, const VkMemoryRequirem
     allocateInfo.memoryTypeIndex = memoryTypeIndex;
     allocateInfo.pNext = pNextAllocInfo;
 
-    VkDeviceMemory deviceMemory;
-    VkResult result = vkAllocateMemory(*device, &allocateInfo, allocator, &deviceMemory);
-    if (result == VK_SUCCESS)
+    if (VkResult result = vkAllocateMemory(*device, &allocateInfo, allocator, &_deviceMemory); result != VK_SUCCESS)
     {
-        return Result(new DeviceMemory(deviceMemory, memRequirements, device, allocator));
-    }
-    else
-    {
-        return Result("Error: Failed to create DeviceMemory.", result);
+        throw Exception{"Error: Failed to create DeviceMemory.", result};
     }
 }
 
-DeviceMemory::Result DeviceMemory::create(Device* device, Buffer* buffer, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator)
+DeviceMemory::~DeviceMemory()
 {
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(*device, *buffer, &memRequirements);
+    if (_deviceMemory)
+    {
+#if DO_CHECK
+        std::cout << "DeviceMemory::~DeviceMemory() vkFreeMemory(*_device, " << _deviceMemory << ", _allocator);" << std::endl;
+#endif
 
-    return vsg::DeviceMemory::create(device, memRequirements, properties, nullptr, allocator);
-}
-
-DeviceMemory::Result DeviceMemory::create(Device* device, Image* image, VkMemoryPropertyFlags properties, AllocationCallbacks* allocator)
-{
-    VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(*device, *image, &memRequirements);
-
-    return vsg::DeviceMemory::create(device, memRequirements, properties, nullptr, allocator);
+        vkFreeMemory(*_device, _deviceMemory, _allocator);
+    }
 }
 
 VkResult DeviceMemory::map(VkDeviceSize offset, VkDeviceSize size, VkMemoryMapFlags flags, void** ppData)

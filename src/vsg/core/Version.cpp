@@ -25,7 +25,7 @@ extern "C"
         return VSG_SOVERSION_STRING;
     }
 
-    int vsgBuildAsSharedLibrary()
+    int vsgBuiltAsSharedLibrary()
     {
 #ifdef vsg_EXPORTS
         return 1;

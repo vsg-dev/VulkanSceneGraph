@@ -12,8 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/GraphicsPipeline.h>
-
+#include <vsg/state/GraphicsPipeline.h>
 #include <vsg/viewer/ProjectionMatrix.h>
 #include <vsg/viewer/ViewMatrix.h>
 
@@ -24,7 +23,7 @@ namespace vsg
     public:
         Camera();
 
-        Camera(ref_ptr<ProjectionMatrix> projectionMatrix, ref_ptr<ViewMatrix> viewMatrix, ref_ptr<ViewportState> viewportState);
+        Camera(ref_ptr<ProjectionMatrix> projectionMatrix, ref_ptr<ViewMatrix> viewMatrix, ref_ptr<ViewportState> viewportState = {});
 
         void setProjectionMatrix(ref_ptr<ProjectionMatrix> projectionMatrix) { _projectionMatrix = projectionMatrix; }
         ProjectionMatrix* getProjectionMatrix() const { return _projectionMatrix; }

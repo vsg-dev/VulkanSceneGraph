@@ -10,34 +10,55 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
+#include <vsg/core/Version.h>
+#include <vsg/viewer/Window.h>
 #include <vsg/vk/Device.h>
 
+#include <iostream>
 #include <set>
 
 using namespace vsg;
 
-Device::Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallbacks* allocator) :
-    _device(device),
+// thread safe container for managing the deviceID for each vsg;:Device
+static std::mutex s_DeviceCountMutex;
+static std::vector<bool> s_ActiveDevices;
+
+static uint32_t getUniqueDeviceID()
+{
+    std::lock_guard<std::mutex> guard(s_DeviceCountMutex);
+
+    uint32_t deviceID = 0;
+    for (deviceID = 0; deviceID < static_cast<uint32_t>(s_ActiveDevices.size()); ++deviceID)
+    {
+        if (!s_ActiveDevices[deviceID])
+        {
+            s_ActiveDevices[deviceID] = true;
+            return deviceID;
+        }
+    }
+
+    s_ActiveDevices.push_back(true);
+
+    return deviceID;
+}
+
+static void releaseDeiviceID(uint32_t deviceID)
+{
+    std::lock_guard<std::mutex> guard(s_DeviceCountMutex);
+    s_ActiveDevices[deviceID] = false;
+}
+
+Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, const Names& layers, const Names& deviceExtensions, AllocationCallbacks* allocator) :
+    deviceID(getUniqueDeviceID()),
+    _instance(physicalDevice->getInstance()),
     _physicalDevice(physicalDevice),
     _allocator(allocator)
 {
-    // PhysicalDevice only holds a observer_ptr<> to the Instance, so need to take a local reference to the instance to make sure it doesn't get deleted befire we are finsihed with it.
-    if (physicalDevice) _instance = physicalDevice->getInstance();
-}
-
-Device::~Device()
-{
-    if (_device)
+    if (deviceID >= VSG_MAX_DEVICES)
     {
-        vkDestroyDevice(_device, _allocator);
-    }
-}
-
-Device::Result Device::create(PhysicalDevice* physicalDevice, QueueSettings& queueSettings, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator)
-{
-    if (!physicalDevice)
-    {
-        return Device::Result("Error: vsg::Device::create(...) failed to create logical device, undefined PhysicalDevice.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        releaseDeiviceID(deviceID);
+        throw Exception{"Warning : number of vsg:Device allocated exceeds number supported ", VSG_MAX_DEVICES};
     }
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -46,6 +67,16 @@ Device::Result Device::create(PhysicalDevice* physicalDevice, QueueSettings& que
     for (auto& queueSetting : queueSettings)
     {
         if (queueSetting.queueFamilyIndex < 0) continue;
+
+        // check to see if the queueFamilyIndex has already been referened or us unique
+        bool unique = true;
+        for (auto& existingInfo : queueCreateInfos)
+        {
+            if (existingInfo.queueFamilyIndex == static_cast<uint32_t>(queueSetting.queueFamilyIndex)) unique = false;
+        }
+
+        // Vylkan doesn't support non unique queueFamily so ignore this entry.
+        if (!unique) continue;
 
         VkDeviceQueueCreateInfo queueCreateInfo = {};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -85,16 +116,51 @@ Device::Result Device::create(PhysicalDevice* physicalDevice, QueueSettings& que
 
     createInfo.pNext = nullptr;
 
-    VkDevice device;
-    VkResult result = vkCreateDevice(*physicalDevice, &createInfo, allocator, &device);
-    if (result == VK_SUCCESS)
+    VkResult result = vkCreateDevice(*physicalDevice, &createInfo, allocator, &_device);
+    if (result != VK_SUCCESS)
     {
-        return Result(new Device(device, physicalDevice, allocator));
+        releaseDeiviceID(deviceID);
+        throw Exception{"Error: vsg::Device::create(...) failed to create logical device.", result};
     }
-    else
+}
+
+Device::~Device()
+{
+    if (_device)
     {
-        return Device::Result("Error: vsg::Device::create(...) failed to create logical device.", result);
+        vkDestroyDevice(_device, _allocator);
     }
+
+    releaseDeiviceID(deviceID);
+}
+
+ref_ptr<Device> vsg::createDevice(WindowTraits* windowTraits)
+{
+    vsg::Names instanceExtensions = windowTraits->instanceExtensionNames;
+
+    vsg::Names requestedLayers;
+    if (windowTraits && windowTraits->debugLayer)
+    {
+        instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+        requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+        if (windowTraits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
+    }
+
+    vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
+
+    auto instance = vsg::Instance::create(instanceExtensions, validatedNames, windowTraits->allocator);
+
+    // set up device
+    auto [physicalDevice, queueFamily] = instance->getPhysicalDeviceAndQueueFamily(windowTraits->queueFlags);
+    if (!physicalDevice || queueFamily < 0) throw Exception{"Error: vsg::Device::create(...) failed to create logical device.", VK_ERROR_INITIALIZATION_FAILED};
+
+    vsg::Names deviceExtensions;
+    deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
+    deviceExtensions.insert(deviceExtensions.end(), windowTraits->deviceExtensionNames.begin(), windowTraits->deviceExtensionNames.end());
+
+    vsg::QueueSettings queueSettings{vsg::QueueSetting{queueFamily, {1.0}}};
+    return vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, windowTraits->allocator);
 }
 
 ref_ptr<Queue> Device::getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)

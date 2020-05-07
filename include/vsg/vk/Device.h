@@ -20,6 +20,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    // forward declare
+    class WindowTraits;
+
     struct QueueSetting
     {
         int queueFamilyIndex = -1;
@@ -31,16 +34,18 @@ namespace vsg
     class VSG_DECLSPEC Device : public Inherit<Object, Device>
     {
     public:
-        Device(VkDevice device, PhysicalDevice* physicalDevice, AllocationCallbacks* allocator = nullptr);
+        Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, const Names& layers, const Names& deviceExtensions, AllocationCallbacks* allocator = nullptr);
 
-        using Result = vsg::Result<Device, VkResult, VK_SUCCESS>;
-        static Result create(PhysicalDevice* physicalDevice, QueueSettings& queueSettings, Names& layers, Names& deviceExtensions, AllocationCallbacks* allocator = nullptr);
-
+        Instance* getInstance() { return _instance.get(); }
         const Instance* getInstance() const { return _instance.get(); }
+
+        PhysicalDevice* getPhysicalDevice() { return _physicalDevice.get(); }
         const PhysicalDevice* getPhysicalDevice() const { return _physicalDevice.get(); }
 
         operator VkDevice() const { return _device; }
         VkDevice getDevice() const { return _device; }
+
+        const uint32_t deviceID = 0;
 
         AllocationCallbacks* getAllocationCallbacks() { return _allocator.get(); }
         const AllocationCallbacks* getAllocationCallbacks() const { return _allocator.get(); }
@@ -58,5 +63,8 @@ namespace vsg
 
         std::list<ref_ptr<Queue>> _queues;
     };
+    VSG_type_name(vsg::Device);
+
+    extern VSG_DECLSPEC ref_ptr<Device> createDevice(WindowTraits* traits);
 
 } // namespace vsg

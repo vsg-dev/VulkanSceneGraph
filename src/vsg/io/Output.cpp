@@ -18,6 +18,7 @@ using namespace vsg;
 Output::Output(ref_ptr<const Options> in_options) :
     options(in_options)
 {
+    objectIDMap[nullptr] = 0;
 }
 
 Output::~Output()

@@ -57,16 +57,14 @@ namespace vsgAndroid
     };
 
 
-    class Android_Window : public vsg::Window
+    class Android_Window : public vsg::Inherit<vsg::Window, Android_Window>
     {
     public:
 
+        Android_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator = nullptr);
         Android_Window() = delete;
         Android_Window(const Android_Window&) = delete;
         Android_Window operator = (const Android_Window&) = delete;
-
-        using Result = vsg::Result<vsg::Window, VkResult, VK_SUCCESS>;
-        static Result create(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator=nullptr);
 
         virtual bool valid() const { return _window; }
 
@@ -81,8 +79,6 @@ namespace vsgAndroid
     protected:
         virtual ~Android_Window();
 
-        Android_Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator);
-
         ANativeWindow* _window;
 
         int64_t _first_android_timestamp = 0;
@@ -92,5 +88,6 @@ namespace vsgAndroid
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 
-} // namespace vsg
+} // namespace vsgAndroid
 
+EVSG_type_name(vsgAndroid::Android_Window);

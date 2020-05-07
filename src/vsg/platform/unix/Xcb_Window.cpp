@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 
+#include <vsg/core/Exception.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/vk/Extensions.h>
@@ -28,23 +29,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to a Xcb_Window
-    Window::Result Window::create(vsg::ref_ptr<Window::Traits> traits)
+    ref_ptr<Window> Window::create(vsg::ref_ptr<WindowTraits> traits)
     {
         return vsgXcb::Xcb_Window::create(traits);
-    }
-
-    vsg::Names Window::getInstanceExtensions()
-    {
-        // check the extensions are avaliable first
-        Names requiredExtensions = {VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_XCB_SURFACE_EXTENSION_NAME};
-
-        if (!vsg::isExtensionListSupported(requiredExtensions))
-        {
-            std::cout << "Error: vsg::getInstanceExtensions(...) unable to create window, VK_KHR_SURFACE_EXTENSION_NAME or VK_KHR_XCB_SURFACE_EXTENSION_NAME not supported." << std::endl;
-            return Names();
-        }
-
-        return requiredExtensions;
     }
 } // namespace vsg
 
@@ -89,7 +76,7 @@ namespace vsgXcb
             return hints;
         }
 
-        static MotifHints window(bool resize=true, bool move=true, bool close=true)
+        static MotifHints window(bool resize=true, bool move=true, bool close=true, bool minimize=true)
         {
             MotifHints hints;
             hints.flags = FLAGS_DECORATIONS | FLAGS_FUNCTIONS;
@@ -97,10 +84,10 @@ namespace vsgXcb
             if (resize) hints.functions |= FUNC_RESIZE;
             if (move) hints.functions |= FUNC_MOVE;
             if (close) hints.functions |= FUNC_CLOSE;
+            if (minimize) hints.functions |= FUNC_MINIMUMSIZE;
             hints.decorations = DECOR_ALL;
             return hints;
         }
-
 
         uint32_t flags{};
         uint32_t functions{};
@@ -246,35 +233,29 @@ Xcb_Surface::Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, 
 //
 // Xcb_Window
 //
-vsg::Window::Result Xcb_Window::create(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator)
+Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
+    Inherit(assignSurfaceExtension(traits, VK_KHR_XCB_SURFACE_EXTENSION_NAME), allocator)
 {
-    try
-    {
-        ref_ptr<Window> window(new Xcb_Window(traits,  allocator));
-        return Result(window);
-    }
-    catch (vsg::Window::Result result)
-    {
-        return result;
-    }
-}
-
-Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallbacks* allocator) :
-    Window(traits, allocator)
-{
-    const char* displayName = 0;
-    int screenNum = traits->screenNum;
     bool fullscreen =  traits->fullscreen;
     uint32_t override_redirect = traits->overrideRedirect;
 
     // open connection
-    _connection = xcb_connect(displayName, &screenNum);
+    int screenNum = 0;
+    if (traits->display.empty())
+    {
+        _connection = xcb_connect(NULL, &screenNum);
+    }
+    else
+    {
+        _connection = xcb_connect(traits->display.c_str(), &screenNum);
+    }
+
     if (xcb_connection_has_error(_connection))
     {
         // close connection
         xcb_disconnect(_connection);
-        //return Result("Failed to created Window, unable able to establish xcb connection.", VK_ERROR_INVALID_EXTERNAL_HANDLE);  TODO need to throw?
-        return;
+
+        throw Exception{"Failed to created Window, unable able to establish xcb connection.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
     }
 
     // TODO, should record Traits within Window? Should pass back selected screeenNum?
@@ -309,8 +290,22 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallb
     }
 
     // select the appropriate screen for the window
+    if (traits->screenNum >= 0) screenNum = traits->screenNum;
+
+    int screenCount = xcb_setup_roots_length (setup);
+    if (screenNum >= screenCount)
+    {
+        std::cout<<"Warning: request screenNum ("<<screenNum<<") to high, only "<<screenCount<<" screens available  Selecting screen 0 as fallback."<<std::endl;
+        screenNum = 0;
+    }
+
     xcb_screen_iterator_t screen_iterator = xcb_setup_roots_iterator(setup);
-    for (; screenNum > 0; --screenNum) xcb_screen_next(&screen_iterator);
+
+    for(int i=0; i<screenNum; ++i)
+    {
+        xcb_screen_next(&screen_iterator);
+    }
+
     _screen = screen_iterator.data;
 
     // generate the widnow id
@@ -405,26 +400,14 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallb
     xcb_map_window(_connection, _window);
     _windowMapped = true;
 
-#if 0
-    // reconfigure the window position and size.
-    const uint32_t values[] = { 100, 200, 300, 400 };
-    xcb_configure_window (_connection, _window, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
-    xcb_flush(_connection);
-#endif
-
-    //xcb_flush(_connection);
-
     if (traits->shareWindow)
     {
-        throw Result("Error: vsg::Xcb_Window::create(...) Sharing of Windows not Not supported yet.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        throw Exception{"Error: vsg::Xcb_Window::Xcb_Window(...) Sharing of Windows not Not supported yet.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
     }
     else
     {
         // use Xcb to create surface
-        vsg::ref_ptr<vsg::Surface> surface(new Xcb_Surface(_instance, _connection, _window, _traits->allocator));
-        if (!surface) throw Result("Error: vsg::Xcb_Window::create(...) failed to create Window, unable to create Xcb_Surface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-
-        _surface = surface;
+        _surface = new Xcb_Surface(_instance, _connection, _window, _traits->allocator);
 
         // set up device
         initaliseDevice();
@@ -435,7 +418,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<Window::Traits> traits, vsg::AllocationCallb
     // sleep to give the window manage time to do any repositing and resizing
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    // build the swap chain, reuse the reize() for this
+    // build the swap chain, reuse the resize() for this
     resize();
 }
 

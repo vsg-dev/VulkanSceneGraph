@@ -28,16 +28,22 @@ namespace vsg
     class RecordAndSubmitTask : public Inherit<Object, RecordAndSubmitTask>
     {
     public:
+        RecordAndSubmitTask(Device* device, uint32_t numBuffers = 3);
+
         // Need to add FrameStamp?
         virtual VkResult submit(ref_ptr<FrameStamp> frameStamp = {});
 
         Windows windows;
-        Semaphores waitSemaphores;   //
+        Semaphores waitSemaphores;
         CommandGraphs commandGraphs; // assign in application setup
         Semaphores signalSemaphores; // connect to Presentation.waitSemaphores
 
-        ref_ptr<DatabasePager> databasePager;
+        uint32_t index = 0; // current fence/buffer set to use, cycled through automatically in submit call.
+        std::vector<ref_ptr<Fence>> fences;
+
         ref_ptr<Queue> queue; // assign in application for GraphicsQueue from device
+
+        ref_ptr<DatabasePager> databasePager;
     };
 
 } // namespace vsg

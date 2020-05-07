@@ -18,7 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/ref_ptr.h>
 #include <vsg/core/type_name.h>
 
-#include <vsg/traversals/CullTraversal.h>
 #include <vsg/traversals/RecordTraversal.h>
 
 namespace vsg
@@ -67,12 +66,18 @@ namespace vsg
             return ref_ptr<Subclass>(new Subclass(args...));
         }
 
+        template<typename... Args>
+        static ref_ptr<Subclass> create_if(bool flag, Args&&... args)
+        {
+            if (flag) return ref_ptr<Subclass>(new Subclass(args...));
+            return {};
+        }
+
         std::size_t sizeofObject() const noexcept override { return sizeof(Subclass); }
 
         void accept(Visitor& visitor) override { visitor.apply(static_cast<Subclass&>(*this)); }
         void accept(ConstVisitor& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
         void accept(RecordTraversal& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
-        void accept(CullTraversal& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
 
         const char* className() const noexcept override { return type_name<Subclass>(); }
     };

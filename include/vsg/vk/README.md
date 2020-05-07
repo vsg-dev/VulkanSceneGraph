@@ -1,11 +1,11 @@
 # include/vsg/vk headers
-The **include/vsg/vk** header directory contains the Vulkan C API integration classes.
+The **include/vsg/vk** header directory contains the Vulkan C application level integration classes.
 
 ## Naming convention
 The Vulkan integration wrappers follow the convention **VkName -> vsg::Name** with the wrapper class found in the header **include/vsg/vk/Name.h**. For example **VkInstance** is wrapped by the class vsg::Instance which is located in header [include/vsg/vk/Instance.h](Instance.h).
 
 ## Vulkan object creation and validity
-The Vulkan integration classes are all created use a ```vsg::Result<vsg::VulkanClass>  vsg::VulkanClass::create(..)``` method that only returns a valid vsg::VulkanClass via the Result object if the associated Vulkan object has been successfully created, on failure a VK_* error is returned via the Result object. The associated Vulkan object is also only destroyed by the vsg::VulkanClass destructor.  The combination of the VulkanClass::create and destructor behaviour ensures that the associated Vulkan object is valid for the whole lifetime of VulkanClass object.
+The Vulkan integration wrappers create their associated Vulkan objects in their respective constructors and destroy these Vulkan object their destructors.  The combination of the VulkanClass::create and destructor behaviour ensures that the associated Vulkan object is valid for the whole lifetime of wrapper object.
 
 ## Memory management
 The Vulkan integration classes add support automatic lifetime management to ensure that Vukan objects can not be deleted while they are still be used, and finally automatic clean up was once the references are removed.
@@ -49,39 +49,4 @@ High level Vulkan integration concerns Vulkan objects that are created at the Ap
 * [include/vsg/vk/Fence.h](Fence.h) -
 * [include/vsg/vk/Framebuffer.h](Framebuffer.h) -
 * [include/vsg/vk/State.h](State.h) -
-
-## Low level Vulkan integration classes
-
-Low level Vulkan integration concern Vulkan objects that relate to data and commands defined in Scene Graphs and Command Graphs.
-
-* [include/vsg/vk/BufferData.h](BufferData.h) -
-* [include/vsg/vk/Buffer.h](Buffer.h) -
-* [include/vsg/vk/Buffer.h](Buffer.h) -
-* [include/vsg/vk/Descriptor.h](Descriptor.h) -
-* [include/vsg/vk/DescriptorPool.h](DescriptorPool.h) -
-* [include/vsg/vk/DescriptorSet.h](DescriptorSet.h) -
-* [include/vsg/vk/DescriptorSetLayout.h](DescriptorSetLayout.h) -
-* [include/vsg/vk/DeviceMemory.h](DeviceMemory.h) -
-* [include/vsg/vk/Image.h](Image.h) -
-* [include/vsg/vk/ImageView.h](ImageView.h) -
-* [include/vsg/vk/Pipeline.h](Pipeline.h) -
-* [include/vsg/vk/PipelineLayout.h](PipelineLayout.h) -
-* [include/vsg/vk/GraphicsPipeline.h](GraphicsPipeline.h) -
-* [include/vsg/vk/ComputePipeline.h](ComputePipeline.h) -
-* [include/vsg/vk/PushConstants.h](PushConstants.h) -
-* [include/vsg/vk/Sampler.h](Sampler.h) -
-* [include/vsg/vk/ShaderModule.h](ShaderModule.h) -
-
-## Vulkan command integration classes
-
-Vulkan commands have a specific role in Vulkan so to encapsulate this the [vsg::Command](Commnd.h) pure virtual base class provides **virtual void dispatch(CommandBuffer&) const** is overridden in the subclasses to provide specific Vulkan command calls.
-
-* [include/vsg/vk/Command.h](Command.h) -
-* [include/vsg/vk/Draw.h](Draw.h) -
-* [include/vsg/vk/BindIndexBuffer.h](BindIndexBuffer.h) -
-* [include/vsg/vk/BindVertexBuffers.h](BindVertexBuffers.h) -
-
-## Memory management classes
-
 * [include/vsg/vk/AllocationCallbacks.h](AllocationCallbacks.h) -
-* [include/vsg/vk/MemoryManager.h](MemoryManager.h) -

@@ -21,8 +21,6 @@ namespace vsg
     public:
         Node(Allocator* allocator = nullptr);
 
-        const char* className() const noexcept override { return "vsg::Node"; }
-
     protected:
         virtual ~Node();
     };

@@ -16,18 +16,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
     class VSG_DECLSPEC ImageView : public Inherit<Object, ImageView>
     {
     public:
-        ImageView(VkImageView imageView, Device* device, Image* image = nullptr, AllocationCallbacks* allocator = nullptr);
-
-        using Result = vsg::Result<ImageView, VkResult, VK_SUCCESS>;
-
-        static Result create(Device* device, const VkImageViewCreateInfo& createInfo, AllocationCallbacks* allocator = nullptr);
-
-        static Result create(Device* device, VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator = nullptr);
-
-        static Result create(Device* device, Image* image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator = nullptr);
+        ImageView(Device* device, const VkImageViewCreateInfo& createInfo, AllocationCallbacks* allocator = nullptr);
+        ImageView(Device* device, VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator = nullptr);
+        ImageView(Device* device, Image* image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator = nullptr);
 
         operator VkImageView() const { return _imageView; }
 
@@ -46,4 +41,6 @@ namespace vsg
         ref_ptr<Image> _image;
         ref_ptr<AllocationCallbacks> _allocator;
     };
+    VSG_type_name(vsg::ImageView);
+
 } // namespace vsg

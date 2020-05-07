@@ -20,7 +20,7 @@ using namespace vsg;
 #define PRINT_CONTAINER 0
 #define CHECK_CONTAINER 0
 
-static std::atomic_uint s_numPagedLODS = 0;
+//static std::atomic_uint s_numPagedLODS{0};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -58,7 +58,9 @@ void PagedLOD::read(Input& input)
     }
 
     input.read("MinimumScreenHeightRatio", _children[1].minimumScreenHeightRatio);
-    _children[1].node = input.readObject<Node>("Child");
+    input.readObject("Child", _children[1].node);
+
+    options = input.options;
 }
 
 void PagedLOD::write(Output& output) const

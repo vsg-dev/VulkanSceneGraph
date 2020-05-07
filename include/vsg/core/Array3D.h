@@ -42,22 +42,34 @@ namespace vsg
             _height(0),
             _depth(0),
             _data(nullptr) {}
+
         Array3D(std::uint32_t width, std::uint32_t height, std::uint32_t depth, value_type* data) :
             _width(width),
             _height(height),
             _depth(depth),
             _data(data) {}
+
         Array3D(std::uint32_t width, std::uint32_t height, std::uint32_t depth, value_type* data, Layout layout) :
             Data(layout),
             _width(width),
             _height(height),
             _depth(depth),
             _data(data) {}
+
         Array3D(std::uint32_t width, std::uint32_t height, std::uint32_t depth) :
             _width(width),
             _height(height),
             _depth(depth),
             _data(new value_type[static_cast<std::size_t>(width) * height * depth]) {}
+
+        Array3D(std::uint32_t width, std::uint32_t height, std::uint32_t depth, const value_type& value) :
+            _width(width),
+            _height(height),
+            _depth(depth),
+            _data(new value_type[static_cast<std::size_t>(width) * height * depth])
+        {
+            for (auto& v : *this) v = value;
+        }
 
         template<typename... Args>
         static ref_ptr<Array3D> create(Args... args)
@@ -111,8 +123,10 @@ namespace vsg
             output.writeValue<std::uint32_t>("Width", _width);
             output.writeValue<std::uint32_t>("Height", _height);
             output.writeValue<std::uint32_t>("Depth", _depth);
+
             output.writePropertyName("Data");
             output.write(valueCount(), _data);
+            output.writeEndOfLine();
         }
 
         std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? (static_cast<std::size_t>(_width) * _height * _depth) : computeValueCountIncludingMipmaps(_width, _height, _depth, _layout.maxNumMipmaps); }
@@ -160,6 +174,8 @@ namespace vsg
 
         void* dataPointer(std::size_t i) override { return _data + i; }
         const void* dataPointer(std::size_t i) const override { return _data + i; }
+
+        std::uint32_t dimensions() const override { return 3; }
 
         std::uint32_t width() const override { return _width; }
         std::uint32_t height() const override { return _height; }

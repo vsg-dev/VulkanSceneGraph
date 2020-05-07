@@ -15,7 +15,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Object.h>
 #include <vsg/core/Visitor.h>
 
-#include <vsg/traversals/CullTraversal.h>
 #include <vsg/traversals/RecordTraversal.h>
 
 #include <vsg/io/Input.h>
@@ -36,6 +35,32 @@ Object::Object() :
     _referenceCount(0),
     _auxiliary(nullptr)
 {
+}
+
+Object::Object(const Object& rhs) :
+    Object()
+{
+    if (rhs._auxiliary && rhs._auxiliary->getConnectedObject() == &rhs)
+    {
+        // the rhs's rhs._auxiliary is uniquely attached to it, so we need to create our own and copy it's ObjectMap across
+        Auxiliary::ObjectMap& objectMap = getOrCreateUniqueAuxiliary()->getObjectMap();
+        objectMap = rhs._auxiliary->getObjectMap();
+    }
+}
+
+Object& Object::operator=(const Object& rhs)
+{
+    std::cout << "Object& operator=(const Object&)" << std::endl;
+    if (&rhs == this) return *this;
+
+    if (rhs._auxiliary && rhs._auxiliary->getConnectedObject() == &rhs)
+    {
+        // the rhs's rhs._auxiliary is uniquely attached to it, so we need to create our own and copy it's ObjectMap across
+        Auxiliary::ObjectMap& objectMap = getOrCreateUniqueAuxiliary()->getObjectMap();
+        objectMap = rhs._auxiliary->getObjectMap();
+    }
+
+    return *this;
 }
 
 Object::Object(Allocator* allocator) :
@@ -125,11 +150,6 @@ void Object::accept(RecordTraversal& visitor) const
     visitor.apply(*this);
 }
 
-void Object::accept(CullTraversal& visitor) const
-{
-    visitor.apply(*this);
-}
-
 void Object::read(Input& input)
 {
     auto numObjects = input.readValue<uint32_t>("NumUserObjects");
@@ -139,7 +159,7 @@ void Object::read(Input& input)
         for (; numObjects > 0; --numObjects)
         {
             std::string key = input.readValue<std::string>("Key");
-            objectMap[key] = input.readObject("Object");
+            input.readObject("Object", objectMap[key]);
         }
     }
 }
@@ -178,6 +198,14 @@ const Object* Object::getObject(const std::string& key) const
 {
     if (!_auxiliary) return nullptr;
     return _auxiliary->getObject(key);
+}
+
+void Object::removeObject(const std::string& key)
+{
+    if (_auxiliary)
+    {
+        _auxiliary->getObjectMap().erase(key);
+    }
 }
 
 void Object::setAuxiliary(Auxiliary* auxiliary)

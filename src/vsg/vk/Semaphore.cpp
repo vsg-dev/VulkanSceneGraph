@@ -10,16 +10,25 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/vk/Semaphore.h>
 
 using namespace vsg;
 
-Semaphore::Semaphore(VkSemaphore semaphore, VkPipelineStageFlags pipelineStageFlags, Device* device, AllocationCallbacks* allocator) :
-    _semaphore(semaphore),
+Semaphore::Semaphore(Device* device, VkPipelineStageFlags pipelineStageFlags, void* pNextCreateInfo, AllocationCallbacks* allocator) :
     _pipelineStageFlags(pipelineStageFlags),
     _device(device),
     _allocator(allocator)
 {
+    VkSemaphoreCreateInfo semaphoreInfo = {};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    semaphoreInfo.pNext = pNextCreateInfo;
+
+    VkResult result = vkCreateSemaphore(*device, &semaphoreInfo, allocator, &_semaphore);
+    if (result != VK_SUCCESS)
+    {
+        throw Exception{"Error: Failed to create semaphore.", result};
+    }
 }
 
 Semaphore::~Semaphore()
@@ -27,28 +36,5 @@ Semaphore::~Semaphore()
     if (_semaphore)
     {
         vkDestroySemaphore(*_device, _semaphore, _allocator);
-    }
-}
-
-Semaphore::Result Semaphore::create(Device* device, VkPipelineStageFlags pipelineStageFlags, void* pNextCreateInfo, AllocationCallbacks* allocator)
-{
-    if (!device)
-    {
-        return Result("Error: vsg::Semaphore::create(...) failed to create command pool, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
-    VkSemaphoreCreateInfo semaphoreInfo = {};
-    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    semaphoreInfo.pNext = pNextCreateInfo;
-
-    VkSemaphore semaphore;
-    VkResult result = vkCreateSemaphore(*device, &semaphoreInfo, allocator, &semaphore);
-    if (result == VK_SUCCESS)
-    {
-        return Result(new Semaphore(semaphore, pipelineStageFlags, device, allocator));
-    }
-    else
-    {
-        return Result("Error: Failed to create semaphore.", result);
     }
 }

@@ -21,44 +21,38 @@ using namespace vsg;
 
 CommandGraph::CommandGraph(Device* device, int family) :
     _device(device),
-    _family(family)
+    _queueFamily(family),
+    _presentFamily(-1)
 {
 }
 
-CommandGraph::CommandGraph(Window* window)
+CommandGraph::CommandGraph(Window* in_window)
 {
-    if (window)
+    if (in_window)
     {
+        window = in_window;
+
         _device = window->device();
 
         VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
         if (window->traits()) queueFlags = window->traits()->queueFlags;
 
-        std::tie(_family, std::ignore) = window->physicalDevice()->getQueueFamily(queueFlags, window->surface());
+        std::tie(_queueFamily, _presentFamily) = window->physicalDevice()->getQueueFamily(queueFlags, window->surface());
 
         for (size_t i = 0; i < window->numFrames(); ++i)
         {
-            commandBuffers.emplace_back(window->commandBuffer(i));
+            ref_ptr<CommandPool> cp = CommandPool::create(_device, _queueFamily);
+            commandBuffers.emplace_back(CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT));
         }
     }
 }
 
 void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
-    if (!windows.empty())
+    if (window && !window->visible())
     {
-        size_t numWindowsVisible = 0;
-        for(auto& window : windows)
-        {
-            if (window->visible()) ++numWindowsVisible;
-        }
-        if (numWindowsVisible == 0)
-        {
-            //std::cout<<"CommandGraph::record() No windows visible"<<std::endl;
-            return;
-        }
+        return;
     }
-
 
     if (!recordTraversal)
     {
@@ -79,7 +73,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     }
     if (!commandBuffer)
     {
-        ref_ptr<CommandPool> cp = CommandPool::create(_device, _family);
+        ref_ptr<CommandPool> cp = CommandPool::create(_device, _queueFamily);
         commandBuffer = CommandBuffer::create(_device, cp, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
         commandBuffers.push_back(commandBuffer);
     }
@@ -109,8 +103,6 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph)
 {
     auto commandGraph = CommandGraph::create(window);
-
-    commandGraph->windows.emplace_back(window);
 
     // set up the render graph for viewport & scene
     auto renderGraph = vsg::RenderGraph::create();

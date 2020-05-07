@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/CopyImage.h>
-#include <vsg/vk/PipelineBarrier.h>
+#include <vsg/commands/CopyImage.h>
+#include <vsg/commands/PipelineBarrier.h>
 
 #include <vsg/viewer/CopyImageViewToWindow.h>
 

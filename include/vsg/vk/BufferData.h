@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/Buffer.h>
-#include <vsg/vk/Command.h>
 
 #include <cstring>
 
@@ -57,7 +56,6 @@ namespace vsg
     };
 
     using BufferDataList = std::vector<BufferData>;
-    using DataList = std::vector<ref_ptr<Data>>;
 
     BufferDataList createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 

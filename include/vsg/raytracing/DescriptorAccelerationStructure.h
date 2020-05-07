@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/raytracing/AccelerationStructure.h>
-#include <vsg/vk/Descriptor.h>
+#include <vsg/state/Descriptor.h>
 
 namespace vsg
 {
@@ -33,7 +33,7 @@ namespace vsg
 
         void compile(Context& context) override;
 
-        bool assignTo(VkWriteDescriptorSet& wds, VkDescriptorSet descriptorSet) const override;
+        void assignTo(Context& context, VkWriteDescriptorSet& wds) const override;
 
         uint32_t getNumDescriptors() const override;
 
@@ -42,7 +42,6 @@ namespace vsg
 
         // populated by compile()
         std::vector<VkAccelerationStructureNV> _vkAccelerationStructures;
-        VkWriteDescriptorSetAccelerationStructureNV _descriptorAccelerationStructureInfo;
     };
     VSG_type_name(vsg::DescriptorAccelerationStructure)
 

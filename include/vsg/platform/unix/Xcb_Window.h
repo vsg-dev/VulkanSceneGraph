@@ -48,15 +48,14 @@ namespace vsgXcb
         Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, xcb_window_t window, vsg::AllocationCallbacks* allocator = nullptr);
     };
 
-    class Xcb_Window : public vsg::Window
+    class Xcb_Window : public vsg::Inherit<vsg::Window, Xcb_Window>
     {
     public:
 
+        Xcb_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator = nullptr);
         Xcb_Window() = delete;
         Xcb_Window(const Xcb_Window&) = delete;
         Xcb_Window& operator = (const Xcb_Window&) = delete;
-
-        static Result create(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator=nullptr);
 
         bool valid() const override;
 
@@ -69,7 +68,6 @@ namespace vsgXcb
         void resize() override;
 
     protected:
-        Xcb_Window(vsg::ref_ptr<vsg::Window::Traits> traits, vsg::AllocationCallbacks* allocator);
 
         ~Xcb_Window();
 
@@ -88,6 +86,6 @@ namespace vsgXcb
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 
+} // namespace vsgXcb
 
-}
-
+EVSG_type_name(vsgXcb::Xcb_Window);
