@@ -59,6 +59,8 @@ namespace vsgXcb
 
         bool valid() const override;
 
+        bool visible() const override;
+
         bool pollEvents(vsg::Events& events) override;
 
         bool resized() const override;
@@ -76,6 +78,7 @@ namespace vsgXcb
         xcb_atom_t _wmDeleteWindow{};
 
         bool _windowResized = false;
+        bool _windowMapped = false;
 
         xcb_timestamp_t _first_xcb_timestamp = 0;
         vsg::clock::time_point _first_xcb_time_point;

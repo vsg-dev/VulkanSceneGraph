@@ -76,7 +76,7 @@ namespace vsgXcb
             return hints;
         }
 
-        static MotifHints window(bool resize=true, bool move=true, bool close=true)
+        static MotifHints window(bool resize=true, bool move=true, bool close=true, bool minimize=true)
         {
             MotifHints hints;
             hints.flags = FLAGS_DECORATIONS | FLAGS_FUNCTIONS;
@@ -84,10 +84,10 @@ namespace vsgXcb
             if (resize) hints.functions |= FUNC_RESIZE;
             if (move) hints.functions |= FUNC_MOVE;
             if (close) hints.functions |= FUNC_CLOSE;
+            if (minimize) hints.functions |= FUNC_MINIMUMSIZE;
             hints.decorations = DECOR_ALL;
             return hints;
         }
-
 
         uint32_t flags{};
         uint32_t functions{};
@@ -398,6 +398,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbac
         }
     }
     xcb_map_window(_connection, _window);
+    _windowMapped = true;
 
     if (traits->shareWindow)
     {
@@ -440,6 +441,11 @@ bool Xcb_Window::valid() const
     return _window != 0;
 }
 
+bool Xcb_Window::visible() const
+{
+    return _window!=0 && _windowMapped;
+}
+
 bool Xcb_Window::pollEvents(Events& events)
 {
     unsigned numEventsBefore = events.size();
@@ -460,11 +466,13 @@ bool Xcb_Window::pollEvents(Events& events)
         case(XCB_UNMAP_NOTIFY):
         {
             //std::cout<<"xcb_unmap_notify_event_t"<<std::endl;
+            _windowMapped = false;
             break;
         }
         case(XCB_MAP_NOTIFY):
         {
             //std::cout<<"xcb_map_notify_event_t"<<std::endl;
+            _windowMapped = true;
             break;
         }
         case (XCB_MAPPING_NOTIFY):

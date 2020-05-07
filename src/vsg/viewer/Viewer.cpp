@@ -159,6 +159,8 @@ bool Viewer::acquireNextFrame()
     VkResult result = VK_SUCCESS;
     for (auto& window : _windows)
     {
+        if (!window->visible()) continue;
+
         unsigned int numTries = 0;
         unsigned int maximumTries = 10;
         while (((result = window->acquireNextImage()) == VK_ERROR_OUT_OF_DATE_KHR) && (numTries < maximumTries))
