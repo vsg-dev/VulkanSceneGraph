@@ -71,7 +71,7 @@ namespace vsg
         constexpr std::size_t rows() const { return 4; }
 
         column_type& operator[](std::size_t c) { return value[c]; }
-        column_type const& operator[](std::size_t c) const { return value[c]; }
+        const column_type& operator[](std::size_t c) const { return value[c]; }
 
         value_type& operator()(std::size_t c, std::size_t r) { return value[c][r]; }
         value_type operator()(std::size_t c, std::size_t r) const { return value[c][r]; }
@@ -124,7 +124,7 @@ namespace vsg
     }
 
     template<typename T>
-    t_mat4<T> operator*(t_mat4<T> const& lhs, t_mat4<T> const& rhs)
+    t_mat4<T> operator*(const t_mat4<T>& lhs, const t_mat4<T>& rhs)
     {
         return t_mat4<T>(dot(lhs, rhs, 0, 0), dot(lhs, rhs, 0, 1), dot(lhs, rhs, 0, 2), dot(lhs, rhs, 0, 3),
                          dot(lhs, rhs, 1, 0), dot(lhs, rhs, 1, 1), dot(lhs, rhs, 1, 2), dot(lhs, rhs, 1, 3),
@@ -133,7 +133,7 @@ namespace vsg
     }
 
     template<typename T>
-    t_vec4<T> operator*(t_mat4<T> const& lhs, t_vec4<T> const& rhs)
+    t_vec4<T> operator*(const t_mat4<T>& lhs, const t_vec4<T>& rhs)
     {
         return t_vec4<T>(lhs[0][0] * rhs[0] + lhs[1][0] * rhs[1] + lhs[2][0] * rhs[2] + lhs[3][0] * rhs[3],
                          lhs[0][1] * rhs[0] + lhs[1][1] * rhs[1] + lhs[2][1] * rhs[2] + lhs[3][1] * rhs[3],
@@ -142,7 +142,7 @@ namespace vsg
     }
 
     template<typename T, typename R>
-    t_plane<R> operator*(t_mat4<T> const& lhs, t_plane<R> const& rhs)
+    t_plane<R> operator*(const t_mat4<T>& lhs, const t_plane<R>& rhs)
     {
         t_plane<R> transformed(lhs[0][0] * rhs[0] + lhs[1][0] * rhs[1] + lhs[2][0] * rhs[2] + lhs[3][0] * rhs[3],
                                lhs[0][1] * rhs[0] + lhs[1][1] * rhs[1] + lhs[2][1] * rhs[2] + lhs[3][1] * rhs[3],
@@ -153,7 +153,7 @@ namespace vsg
     }
 
     template<typename T>
-    t_vec4<T> operator*(t_vec4<T> const& lhs, t_mat4<T> const& rhs)
+    t_vec4<T> operator*(const t_vec4<T>& lhs, const t_mat4<T>& rhs)
     {
         return t_vec4<T>(lhs[0] * rhs[0][0] + lhs[1] * rhs[0][1] + lhs[2] * rhs[0][2] + lhs[3] * rhs[0][3],
                          lhs[0] * rhs[1][0] + lhs[1] * rhs[1][1] + lhs[2] * rhs[1][2] + lhs[3] * rhs[1][3],
@@ -162,7 +162,7 @@ namespace vsg
     }
 
     template<typename T, typename R>
-    t_plane<T> operator*(t_plane<T> const& lhs, t_mat4<R> const& rhs)
+    t_plane<T> operator*(const t_plane<T>& lhs, const t_mat4<R>& rhs)
     {
         t_plane<T> transformed(lhs[0] * rhs[0][0] + lhs[1] * rhs[0][1] + lhs[2] * rhs[0][2] + lhs[3] * rhs[0][3],
                                lhs[0] * rhs[1][0] + lhs[1] * rhs[1][1] + lhs[2] * rhs[1][2] + lhs[3] * rhs[1][3],
@@ -173,7 +173,7 @@ namespace vsg
     }
 
     template<typename T>
-    t_vec3<T> operator*(t_mat4<T> const& lhs, t_vec3<T> const& rhs)
+    t_vec3<T> operator*(const t_mat4<T>& lhs, const t_vec3<T>& rhs)
     {
         T inv = static_cast<T>(1.0) / (lhs[0][3] * rhs[0] + lhs[1][3] * rhs[1] + lhs[2][3] * rhs[2] + lhs[3][3]);
         return t_vec3<T>((lhs[0][0] * rhs[0] + lhs[1][0] * rhs[1] + lhs[2][0] * rhs[2] + lhs[3][0]) * inv,
@@ -182,7 +182,7 @@ namespace vsg
     }
 
     template<typename T>
-    t_vec3<T> operator*(t_vec3<T> const& lhs, t_mat4<T> const& rhs)
+    t_vec3<T> operator*(const t_vec3<T>& lhs, const t_mat4<T>& rhs)
     {
         T inv = static_cast<T>(1.0) / (lhs[0] * rhs[3][0] + lhs[1] * rhs[3][1] + lhs[2] * rhs[3][2] + rhs[3][3]);
         return t_vec3<T>(lhs[0] * rhs[0][0] + lhs[1] * rhs[0][1] + lhs[2] * rhs[0][2] + rhs[0][3] * inv,
