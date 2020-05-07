@@ -1,4 +1,4 @@
-<img src=docs/images/VSGlogo.svg>
+<img src=https://raw.githubusercontent.com/vsg-dev/VulkanSceneGraph/master/docs/images/VSGlogo.svg>
 
 | [View as Website](https://vsg-dev.github.io/VulkanSceneGraph/) |  [View as GitHub repository](https://github.com/vsg-dev/VulkanSceneGraph) |
 
