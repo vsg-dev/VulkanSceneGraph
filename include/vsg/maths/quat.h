@@ -84,63 +84,63 @@ namespace vsg
     VSG_type_name(vsg::dquat);
 
     template<typename T>
-    constexpr t_quat<T> operator-(t_quat<T> const& lhs, t_quat<T> const& rhs)
+    constexpr t_quat<T> operator-(const t_quat<T>& lhs, const t_quat<T>& rhs)
     {
         return t_quat<T>(lhs[0] - rhs[0], lhs[1] - rhs[1], lhs[2] - rhs[2], lhs[3] - rhs[3]);
     }
 
     template<typename T>
-    constexpr t_quat<T> conjugate(t_quat<T> const& v)
+    constexpr t_quat<T> conjugate(const t_quat<T>& v)
     {
         return t_quat<T>(-v[0], -v[1], -v[2], -v[3]);
     }
 
     template<typename T>
-    constexpr t_quat<T> operator-(t_quat<T> const& v)
+    constexpr t_quat<T> operator-(const t_quat<T>& v)
     {
         return conjugate(v);
     }
 
     template<typename T>
-    constexpr t_quat<T> operator+(t_quat<T> const& lhs, t_quat<T> const& rhs)
+    constexpr t_quat<T> operator+(const t_quat<T>& lhs, const t_quat<T>& rhs)
     {
         return t_quat<T>(lhs[0] + rhs[0], lhs[1] + rhs[1], lhs[2] + rhs[2], lhs[3] + rhs[3]);
     }
 
     template<typename T>
-    constexpr t_quat<T> operator*(t_quat<T> const& lhs, T rhs)
+    constexpr t_quat<T> operator*(const t_quat<T>& lhs, T rhs)
     {
         return t_quat<T>(lhs[0] * rhs, lhs[1] * rhs, lhs[2] * rhs, lhs[3] * rhs);
     }
 
     template<typename T>
-    constexpr t_quat<T> operator/(t_quat<T> const& lhs, T rhs)
+    constexpr t_quat<T> operator/(const t_quat<T>& lhs, T rhs)
     {
         T inv = static_cast<T>(1.0) / rhs;
         return t_quat<T>(lhs[0] * inv, lhs[1] * inv, lhs[2] * inv, lhs[3] * inv);
     }
 
     template<typename T>
-    constexpr T length(t_quat<T> const& v)
+    constexpr T length(const t_quat<T>& v)
     {
         return std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2] + v[3] * v[3]);
     }
 
     template<typename T>
-    constexpr t_quat<T> normalize(t_quat<T> const& v)
+    constexpr t_quat<T> normalize(const t_quat<T>& v)
     {
         T inverse_len = static_cast<T>(1.0) / length(v);
         return t_quat<T>(v[0] * inverse_len, v[1] * inverse_len, v[2] * inverse_len, v[3] * inverse_len);
     }
 
     template<typename T>
-    constexpr T dot(t_quat<T> const& lhs, t_quat<T> const& rhs)
+    constexpr T dot(const t_quat<T>& lhs, const t_quat<T>& rhs)
     {
         return lhs[0] * rhs[0] + lhs[1] * rhs[1] + lhs[2] * rhs[2] + lhs[3] * rhs[3];
     }
 
     template<typename T>
-    constexpr t_quat<T> inverse(t_quat<T> const& v)
+    constexpr t_quat<T> inverse(const t_quat<T>& v)
     {
         t_quat<T> c = conj(v);
         T inverse_len = static_cast<T>(1.0) / length(v);
@@ -148,7 +148,7 @@ namespace vsg
     }
 
     template<typename T>
-    constexpr t_quat<T> mix(t_quat<T> const& from, t_quat<T> to, T r)
+    constexpr t_quat<T> mix(const t_quat<T>& from, t_quat<T> to, T r)
     {
         T epsilon = std::numeric_limits<T>::epsilon();
         T one(1.0);
@@ -176,7 +176,7 @@ namespace vsg
     }
 
     template<typename T>
-    constexpr t_mat4<T> mat4_cast(t_quat<T> const& q)
+    constexpr t_mat4<T> mat4_cast(const t_quat<T>& q)
     {
         T qxx(q.x * q.x);
         T qyy(q.y * q.y);

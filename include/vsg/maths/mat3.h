@@ -64,7 +64,7 @@ namespace vsg
         constexpr std::size_t rows() const { return 3; }
 
         column_type& operator[](std::size_t c) { return value[c]; }
-        column_type const& operator[](std::size_t c) const { return value[c]; }
+        const column_type& operator[](std::size_t c) const { return value[c]; }
 
         value_type& operator()(std::size_t c, std::size_t r) { return value[c][r]; }
         value_type operator()(std::size_t c, std::size_t r) const { return value[c][r]; }
@@ -113,7 +113,7 @@ namespace vsg
     }
 
     template<typename T>
-    t_mat3<T> operator*(t_mat3<T> const& lhs, t_mat3<T> const& rhs)
+    t_mat3<T> operator*(const t_mat3<T>& lhs, const t_mat3<T>& rhs)
     {
         return t_mat3<T>(dot(lhs, rhs, 0, 0), dot(lhs, rhs, 0, 1), dot(lhs, rhs, 0, 2),
                          dot(lhs, rhs, 1, 0), dot(lhs, rhs, 1, 1), dot(lhs, rhs, 1, 2),
@@ -121,7 +121,7 @@ namespace vsg
     }
 
     template<typename T>
-    t_vec3<T> operator*(t_mat3<T> const& lhs, t_vec3<T> const& rhs)
+    t_vec3<T> operator*(const t_mat3<T>& lhs, const t_vec3<T>& rhs)
     {
         return t_vec3<T>((lhs[0][0] * rhs[0] + lhs[1][0] * rhs[1] + lhs[2][0] * rhs[2]),
                          (lhs[0][1] * rhs[0] + lhs[1][1] * rhs[1] + lhs[2][1] * rhs[2]),
