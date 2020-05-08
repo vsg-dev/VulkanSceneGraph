@@ -421,12 +421,10 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCal
     uint32_t finalWidth = clientRect.right - clientRect.left;
     uint32_t finalHeight = clientRect.bottom - clientRect.top;
 
-    vsg::ref_ptr<Win32_Window> window;
-
     if (traits->shareWindow)
     {
         // share the _instance, _physicalDevice and _device;
-        window->share(*traits->shareWindow);
+        share(*traits->shareWindow);
 
         // create surface
         _surface = new vsgWin32::Win32Surface(traits->shareWindow->instance(), _window, allocator);
