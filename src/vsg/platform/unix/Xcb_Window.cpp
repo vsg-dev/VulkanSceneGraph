@@ -19,8 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <xcb/xproto.h>
 
-#include <vulkan/vulkan_xcb.h>
-
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -233,8 +231,8 @@ Xcb_Surface::Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, 
 //
 // Xcb_Window
 //
-Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
-    Inherit(assignSurfaceExtension(traits, VK_KHR_XCB_SURFACE_EXTENSION_NAME), allocator)
+Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
+    Inherit(traits)
 {
     bool fullscreen =  traits->fullscreen;
     uint32_t override_redirect = traits->overrideRedirect;
@@ -402,15 +400,8 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbac
 
     if (traits->shareWindow)
     {
-        throw Exception{"Error: vsg::Xcb_Window::Xcb_Window(...) Sharing of Windows not Not supported yet.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
-    }
-    else
-    {
-        // use Xcb to create surface
-        _surface = new Xcb_Surface(_instance, _connection, _window, _traits->allocator);
-
-        // set up device
-        initaliseDevice();
+        // share the _instance, _physicalDevice and _device;
+        share(*traits->shareWindow);
     }
 
     xcb_flush(_connection);
@@ -418,8 +409,14 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbac
     // sleep to give the window manage time to do any repositing and resizing
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    // build the swap chain, reuse the resize() for this
-    resize();
+    // get the dimensions of the final window.
+    xcb_get_geometry_reply_t* geometry_reply = xcb_get_geometry_reply(_connection, xcb_get_geometry(_connection, _window), nullptr);
+    if (geometry_reply)
+    {
+        _extent2D.width = geometry_reply->width;
+        _extent2D.height = geometry_reply->height;
+        free(geometry_reply);
+    }
 }
 
 Xcb_Window::~Xcb_Window()
@@ -434,6 +431,13 @@ Xcb_Window::~Xcb_Window()
         xcb_flush(_connection);
         xcb_disconnect(_connection);
     }
+}
+
+void Xcb_Window::_initSurface()
+{
+    if (!_instance) _initInstance();
+
+    _surface = new Xcb_Surface(_instance, _connection, _window, _traits->allocator);
 }
 
 bool Xcb_Window::valid() const
@@ -632,12 +636,13 @@ bool Xcb_Window::resized() const
 
 void Xcb_Window::resize()
 {
-    if (!_surface) return;
-
     xcb_get_geometry_reply_t* geometry_reply = xcb_get_geometry_reply(_connection, xcb_get_geometry(_connection, _window), nullptr);
     if (geometry_reply)
     {
-        buildSwapchain(geometry_reply->width, geometry_reply->height);
+        _extent2D.width = geometry_reply->width;
+        _extent2D.height = geometry_reply->height;
+
+        buildSwapchain();
 
         free(geometry_reply);
     }

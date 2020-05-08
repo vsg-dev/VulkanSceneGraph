@@ -30,36 +30,26 @@ Viewer::Viewer()
 Viewer::~Viewer()
 {
     // don't kill window while devices are still active
-    for (auto& pair_pdo : _deviceMap)
+    deviceWaitIdle();
+}
+
+void Viewer::deviceWaitIdle() const
+{
+    std::set<VkDevice> devices;
+    for (auto& window : _windows)
     {
-        vkDeviceWaitIdle(*pair_pdo.first);
+        if (window->getDevice()) devices.insert(*(window->getDevice()));
+    }
+
+    for(auto& device : devices)
+    {
+        vkDeviceWaitIdle(device);
     }
 }
 
 void Viewer::addWindow(ref_ptr<Window> window)
 {
     _windows.push_back(window);
-
-    ref_ptr<Device> device(window->device());
-    PhysicalDevice* physicalDevice = window->physicalDevice();
-    if (_deviceMap.find(device) == _deviceMap.end())
-    {
-        auto [graphicsFamily, presentFamily] = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, window->surface());
-
-        // set up per device settings
-        PerDeviceObjects& new_pdo = _deviceMap[device];
-        new_pdo.renderFinishedSemaphore = vsg::Semaphore::create(device);
-        new_pdo.graphicsQueue = device->getQueue(graphicsFamily);
-        new_pdo.presentQueue = device->getQueue(presentFamily);
-        new_pdo.signalSemaphores.push_back(*new_pdo.renderFinishedSemaphore);
-    }
-
-    // add per window details to pdo
-    PerDeviceObjects& pdo = _deviceMap[device];
-    pdo.windows.push_back(window);
-    pdo.imageIndices.push_back(0);   // to be filled in by submitFrame()
-    pdo.commandBuffers.push_back(0); // to be filled in by submitFrame()
-    pdo.swapchains.push_back(*(window->swapchain()));
 }
 
 bool Viewer::active() const
@@ -76,10 +66,7 @@ bool Viewer::active() const
     if (!viewerIsActive)
     {
         // don't exit mainloop while the any devices are still active
-        for (auto& pair_pdo : _deviceMap)
-        {
-            vkDeviceWaitIdle(*pair_pdo.first);
-        }
+        deviceWaitIdle();
         return false;
     }
     else
@@ -99,24 +86,6 @@ bool Viewer::pollEvents(bool discardPreviousEvents)
     }
 
     return result;
-}
-
-void Viewer::reassignFrameCache()
-{
-    for (auto& pair_pdo : _deviceMap)
-    {
-        PerDeviceObjects& pdo = pair_pdo.second;
-        pdo.imageIndices.clear();
-        pdo.commandBuffers.clear();
-        pdo.swapchains.clear();
-
-        for (auto window : pdo.windows)
-        {
-            pdo.imageIndices.push_back(0);   // to be filled in by submitFrame()
-            pdo.commandBuffers.push_back(0); // to be filled in by submitFrame()
-            pdo.swapchains.push_back(*(window->swapchain()));
-        }
-    }
 }
 
 void Viewer::advance()
@@ -168,10 +137,9 @@ bool Viewer::acquireNextFrame()
             ++numTries;
 
             // wait till queue are empty before we resize.
-            for (auto& pair_pdo : _deviceMap)
+            for(auto& presentation : presentations)
             {
-                PerDeviceObjects& pdo = pair_pdo.second;
-                pdo.presentQueue->waitIdle();
+                presentation->queue->waitIdle();
             }
 
             //std::cout<<"window->acquireNextImage(), result==VK_ERROR_OUT_OF_DATE_KHR  rebuild swap chain : resized="<<window->resized()<<" numTries="<<numTries<<std::endl;
@@ -187,8 +155,7 @@ bool Viewer::acquireNextFrame()
 
     if (needToReassingFrameCache)
     {
-        // reassign frame cache
-        reassignFrameCache();
+        // TODO need check whether we need to do anyting here?
     }
 
     return result == VK_SUCCESS;

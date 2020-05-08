@@ -16,6 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/KeyEvent.h>
 
 #include <xcb/xcb.h>
+#include <vulkan/vulkan_xcb.h>
+
 
 #include <iostream>
 
@@ -52,10 +54,12 @@ namespace vsgXcb
     {
     public:
 
-        Xcb_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator = nullptr);
+        Xcb_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
         Xcb_Window() = delete;
         Xcb_Window(const Xcb_Window&) = delete;
         Xcb_Window& operator = (const Xcb_Window&) = delete;
+
+        const char* instanceExtensionSurfaceName() const override { return VK_KHR_XCB_SURFACE_EXTENSION_NAME; }
 
         bool valid() const override;
 
@@ -67,9 +71,12 @@ namespace vsgXcb
 
         void resize() override;
 
+
     protected:
 
         ~Xcb_Window();
+
+        void _initSurface() override;
 
         xcb_connection_t* _connection = nullptr;
         xcb_screen_t* _screen = nullptr;
