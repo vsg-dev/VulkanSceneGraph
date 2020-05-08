@@ -124,38 +124,28 @@ bool Viewer::acquireNextFrame()
 {
     if (_close) return false;
 
-    bool needToReassingFrameCache = false;
     VkResult result = VK_SUCCESS;
+
     for (auto& window : _windows)
     {
         if (!window->visible()) continue;
 
-        unsigned int numTries = 0;
-        unsigned int maximumTries = 10;
-        while (((result = window->acquireNextImage()) == VK_ERROR_OUT_OF_DATE_KHR) && (numTries < maximumTries))
+        while((result = window->acquireNextImage()) != VK_SUCCESS)
         {
-            ++numTries;
-
-            // wait till queue are empty before we resize.
-            for(auto& presentation : presentations)
+            if (result == VK_ERROR_SURFACE_LOST_KHR ||
+                result == VK_ERROR_DEVICE_LOST ||
+                result == VK_ERROR_OUT_OF_DATE_KHR ||
+                result == VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT)
             {
-                presentation->queue->waitIdle();
+                // force a rebuild of the Swapchain by calling Window::resize();
+                window->resize();
             }
-
-            //std::cout<<"window->acquireNextImage(), result==VK_ERROR_OUT_OF_DATE_KHR  rebuild swap chain : resized="<<window->resized()<<" numTries="<<numTries<<std::endl;
-
-            // resize to rebuild all the internal Vulkan objects associated with the window.
-            window->resize();
-
-            needToReassingFrameCache = true;
+            else
+            {
+                std::cout<<"Warning : window->acquireNextImage() VkResult = "<<result<<std::endl;
+                break;
+            }
         }
-
-        if (result != VK_SUCCESS) break;
-    }
-
-    if (needToReassingFrameCache)
-    {
-        // TODO need check whether we need to do anyting here?
     }
 
     return result == VK_SUCCESS;
