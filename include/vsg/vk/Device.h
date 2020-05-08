@@ -65,6 +65,4 @@ namespace vsg
     };
     VSG_type_name(vsg::Device);
 
-    extern VSG_DECLSPEC ref_ptr<Device> createDevice(WindowTraits* traits);
-
 } // namespace vsg
