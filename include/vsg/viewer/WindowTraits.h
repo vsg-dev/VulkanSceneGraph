@@ -14,7 +14,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <any>
 
-#include <vsg/vk/RenderPass.h>
 #include <vsg/vk/Swapchain.h>
 
 namespace vsg
@@ -70,7 +69,6 @@ namespace vsg
         vsg::Names deviceExtensionNames;
 
         ref_ptr<Device> device;
-        ref_ptr<RenderPass> renderPass;
 
         Window* shareWindow = nullptr;
 

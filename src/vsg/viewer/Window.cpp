@@ -128,18 +128,11 @@ void Window::_initRenderPass()
 {
     if (!_device) _initDevice();
 
-    if (_traits->renderPass)
-    {
-        _renderPass = _traits->renderPass;
-    }
-    else
-    {
-        vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
-        VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
-        VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
+    vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
+    VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
+    VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
 
-        _renderPass = vsg::createRenderPass(_device, imageFormat.format, depthFormat, _traits->allocator);
-    }
+    _renderPass = vsg::createRenderPass(_device, imageFormat.format, depthFormat, _traits->allocator);
 }
 
 void Window::_initSwapchain()
