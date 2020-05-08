@@ -890,10 +890,10 @@ void MacOS_Window::resize()
     auto devicePixelScale = _traits->hdpi ? [_window backingScaleFactor] : 1.0f;
     //[_metalLayer setContentsScale:devicePixelScale];
 
-    uint32_t width = contentRect.size.width * devicePixelScale;
-    uint32_t height = contentRect.size.height * devicePixelScale;
+    _extent2D.width = contentRect.size.width * devicePixelScale;
+    _extent2D.height = contentRect.size.height * devicePixelScale;
 
-    buildSwapchain(width, height);
+    buildSwapchain();
 }
 
 bool MacOS_Window::handleNSEvent(NSEvent* anEvent)

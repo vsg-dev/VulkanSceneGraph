@@ -68,13 +68,13 @@ namespace vsgAndroid
 
         const char* instanceExtensionSurfaceName() const override { return "VK_KHR_android_surface"; }
 
-        virtual bool valid() const { return _window; }
+        bool valid() const override { return _window; }
 
-        virtual bool pollEvents(vsg::Events& events);
+        bool pollEvents(vsg::Events& events) override;
 
-        virtual bool resized() const;
+        bool resized() const override;
 
-        virtual void resize();
+        void resize() override;
 
         bool handleAndroidInputEvent(AInputEvent* anEvent);
 

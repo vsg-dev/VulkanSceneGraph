@@ -389,12 +389,12 @@ bool Android_Window::resized() const
 
 void Android_Window::resize()
 {
-    auto width = ANativeWindow_getWidth(_window);
-    auto height = ANativeWindow_getHeight(_window);
+    _extent2D.width = ANativeWindow_getWidth(_window);
+    _extent2D.height = ANativeWindow_getHeight(_window);
 
     LOG("resize event = wh: %d, %d", width, height);
 
-    buildSwapchain(width, height);
+    buildSwapchain();
 }
 
 bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)

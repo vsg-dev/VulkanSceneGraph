@@ -458,7 +458,7 @@ void Win32_Window::_initSurface()
 {
     if (!_instance) _initInstance();
 
-    _surface = new vsgWin32::Win32Surface(_instance, _window, _traits->allocator)
+    _surface = new vsgWin32::Win32Surface(_instance, _window, _traits->allocator);
 }
 
 bool Win32_Window::pollEvents(vsg::Events& events)
@@ -508,10 +508,10 @@ void Win32_Window::resize()
     RECT windowRect;
     GetClientRect(_window, &windowRect);
 
-    int width = windowRect.right - windowRect.left;
-    int height = windowRect.bottom - windowRect.top;
+    _extent2D.width = windowRect.right - windowRect.left;
+    _extent2D.height = windowRect.bottom - windowRect.top;
 
-    buildSwapchain(width, height);
+    buildSwapchain();
 }
 
 LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam)
