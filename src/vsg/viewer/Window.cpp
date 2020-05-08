@@ -163,6 +163,9 @@ void Window::buildSwapchain()
     // is width and height even required here as the surface appear to control it.
     _swapchain = Swapchain::create(_physicalDevice, _device, _surface, _extent2D.width, _extent2D.height, _traits->swapchainPreferences);
 
+    // pass back the extents used by the swap chain.
+    _extent2D = _swapchain->getExtent();
+
     // create depth buffer
     //VkFormat depthFormat = VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT
     VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT;
