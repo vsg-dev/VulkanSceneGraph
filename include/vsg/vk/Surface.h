@@ -34,4 +34,6 @@ namespace vsg
         ref_ptr<Instance> _instance;
         ref_ptr<AllocationCallbacks> _allocator;
     };
+    VSG_type_name(vsg::Surface);
+
 } // namespace vsg
