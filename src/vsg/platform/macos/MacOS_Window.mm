@@ -819,8 +819,8 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
         share(*traits->shareWindow);
     }
 
-    _extent2D.width = finalWidth;
-    _extent2D.height = finalHeight;
+    _extent2D.width = finalwidth;
+    _extent2D.height = finalheight;
 
     _first_macos_timestamp = [[NSProcessInfo processInfo] systemUptime];
     _first_macos_time_point = vsg::clock::now();
