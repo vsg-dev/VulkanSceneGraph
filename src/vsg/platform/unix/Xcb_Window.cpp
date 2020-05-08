@@ -641,10 +641,9 @@ void Xcb_Window::resize()
     {
         _extent2D.width = geometry_reply->width;
         _extent2D.height = geometry_reply->height;
+        free(geometry_reply);
 
         buildSwapchain();
-
-        free(geometry_reply);
     }
     _windowResized = false;
 }
