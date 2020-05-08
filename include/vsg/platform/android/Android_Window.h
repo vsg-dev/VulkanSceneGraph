@@ -61,10 +61,12 @@ namespace vsgAndroid
     {
     public:
 
-        Android_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator = nullptr);
+        Android_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
         Android_Window() = delete;
         Android_Window(const Android_Window&) = delete;
         Android_Window operator = (const Android_Window&) = delete;
+
+        const char* instanceExtensionSurfaceName() const override { return "VK_KHR_android_surface"; }
 
         virtual bool valid() const { return _window; }
 
@@ -78,6 +80,8 @@ namespace vsgAndroid
 
     protected:
         virtual ~Android_Window();
+
+        void _initSurface() override;
 
         ANativeWindow* _window;
 

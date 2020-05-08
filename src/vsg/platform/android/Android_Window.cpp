@@ -315,8 +315,8 @@ KeyboardMap::KeyboardMap()
         };
 }
 
-Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
-    Inherit(assignSurfaceExtension(traits, "VK_KHR_android_surface"), allocator)
+Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits) :
+    Inherit(traits)
 {
     _keyboard = new KeyboardMap;
 
@@ -338,27 +338,12 @@ Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits, vsg::Allocatio
 
     if (traits->shareWindow)
     {
-        // create Android surface for the ANativeWindow
-        _surface = new vsgAndroid::AndroidSurface(traits->shareWindow->instance(), nativeWindow, allocator);
-
         // share the _instance, _physicalDevice and _device;
         window->share(*traits->shareWindow);
-
-        // temporary hack to force vkGetPhysicalDeviceSurfaceSupportKHR to be called as the Vulkan
-        // debug layer is complaining about vkGetPhysicalDeviceSurfaceSupportKHR not being called
-        // for this _surface prior to swap chain creation
-        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(traits->shareWindow->instance(), VK_QUEUE_GRAPHICS_BIT, _surface);
-    }
-    else
-    {
-        // create surface using passed ANativeWindow
-        _surface = new vsgAndroid::AndroidSurface(_instance, _window, allocator);
-
-        // set up device
-        initaliseDevice();
     }
 
-    buildSwapchain(finalWidth, finalHeight);
+    _extent2D.width = finalWidth;
+    _extent2D.height = finalHeight;
 
     _first_android_timestamp = now_ms();
     _first_android_time_point = vsg::clock::now();
@@ -372,6 +357,13 @@ Android_Window::~Android_Window()
     {
         std::cout << "Calling DestroyWindow(_window);" << std::endl;
     }
+}
+
+void Android_Window::_initSurface()
+{
+    if (!_instance) _initInstance();
+
+    _surface = new vsgAndroid::AndroidSurface(_instance, _window, _traits->allocator);
 }
 
 bool Android_Window::pollEvents(vsg::Events& events)

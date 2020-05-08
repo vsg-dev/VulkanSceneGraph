@@ -749,8 +749,8 @@ bool KeyboardMap::getKeySymbol(NSEvent* anEvent, vsg::KeySymbol& keySymbol, vsg:
     return true;
 }
 
-MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
-    Inherit(assignSurfaceExtension(traits, "VK_MVK_macos_surface"), allocator)
+MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
+    Inherit(traits)
 {
     _keyboard = new KeyboardMap;
 
@@ -815,27 +815,12 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::Allocati
 
     if (traits->shareWindow)
     {
-        // create MacOS surface for the NSView
-        _surface = new vsgMacOS::MacOSSurface(traits->shareWindow->instance(), _view, allocator);
-
         // share the _instance, _physicalDevice and _device;
         share(*traits->shareWindow);
-
-        // temporary hack to force vkGetPhysicalDeviceSurfaceSupportKHR to be called as the Vulkan
-        // debug layer is complaining about vkGetPhysicalDeviceSurfaceSupportKHR not being called
-        // for this _surface prior to swap chain creation
-        auto result = traits->shareWindow->instance()->getPhysicalDeviceAndQueueFamily(VK_QUEUE_GRAPHICS_BIT, _surface);
-    }
-    else
-    {
-        // create surface using passed NSView with CAMetalLayer
-        _surface = new vsgMacOS::MacOSSurface(_instance, _view, allocator);
-
-        // initalise device now the surface has been created
-        initaliseDevice();
     }
 
-    buildSwapchain(finalwidth, finalheight);
+    _extent2D.width = finalWidth;
+    _extent2D.height = finalHeight;
 
     _first_macos_timestamp = [[NSProcessInfo processInfo] systemUptime];
     _first_macos_time_point = vsg::clock::now();
@@ -853,6 +838,13 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::Allocati
 MacOS_Window::~MacOS_Window()
 {
     clear();
+}
+
+void MacOS_Window::_initSurface()
+{
+    if (!_instance) _initInstance();
+
+    _surface = new vsgMacOS::MacOSSurface(_instance, _view, _traits->allocator);
 }
 
 bool MacOS_Window::pollEvents(vsg::Events& events)

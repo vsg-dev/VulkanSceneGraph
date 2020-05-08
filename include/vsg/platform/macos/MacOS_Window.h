@@ -44,10 +44,12 @@ namespace vsgMacOS
     {
     public:
 
-        MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator = nullptr);
+        MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
         MacOS_Window() = delete;
         MacOS_Window(const MacOS_Window&) = delete;
         MacOS_Window operator = (const MacOS_Window&) = delete;
+
+        const char* instanceExtensionSurfaceName() const override { return "VK_MVK_macos_surface"; }
 
         virtual bool valid() const { return _window; }
 
@@ -74,6 +76,8 @@ namespace vsgMacOS
 
     protected:
         virtual ~MacOS_Window();
+
+        void _initSurface() override;
 
         vsg_MacOS_NSWindow* _window;
         vsg_MacOS_NSView* _view;

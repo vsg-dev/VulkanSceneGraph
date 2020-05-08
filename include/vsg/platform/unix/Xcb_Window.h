@@ -18,9 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <xcb/xcb.h>
 #include <vulkan/vulkan_xcb.h>
 
-
-#include <iostream>
-
 namespace vsgXcb
 {
 
