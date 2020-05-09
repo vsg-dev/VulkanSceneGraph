@@ -82,50 +82,49 @@ RenderGraph::RenderGraph()
 
 void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
 {
-    if (window)
+    auto [frameBuffer, renderPass, clearValues] = frameAssembly->getFrameRender();
+    auto extent = frameAssembly->getExtent2D();
+
+    if (previous_extent.width == invalid_dimension || previous_extent.width == invalid_dimension)
     {
-        auto extent = window->extent2D();
+        previous_extent = extent;
+    }
+    else if (previous_extent.width != extent.width || previous_extent.height != extent.height)
+    {
+        // crude handling of window resize...TODO, come up with a user controllable way to handle resize.
 
-        if (previous_extent.width == invalid_dimension || previous_extent.width == invalid_dimension)
+        vsg::UpdatePipeline updatePipeline(frameAssembly->getDevice());
+
+        updatePipeline.context.commandPool = dispatchTraversal.state->_commandBuffer->getCommandPool();
+        updatePipeline.context.renderPass = renderPass;
+
+        if (camera)
         {
-            previous_extent = extent;
-        }
-        else if (previous_extent.width != extent.width || previous_extent.height != extent.height)
-        {
-            // crude handling of window resize...TODO, come up with a user controllable way to handle resize.
-
-            vsg::UpdatePipeline updatePipeline(window->getDevice());
-
-            updatePipeline.context.commandPool = dispatchTraversal.state->_commandBuffer->getCommandPool();
-            updatePipeline.context.renderPass = window->getRenderPass();
-
-            if (camera)
+            if (auto perspective = dynamic_cast<Perspective*>(camera->getProjectionMatrix()))
             {
-                if (auto perspective = dynamic_cast<Perspective*>(camera->getProjectionMatrix()))
-                {
-                    perspective->aspectRatio = static_cast<double>(extent.width) / static_cast<double>(extent.height);
-                }
-                else if (auto ep = dynamic_cast<EllipsoidPerspective*>(camera->getProjectionMatrix()))
-                {
-                    ep->aspectRatio = static_cast<double>(extent.width) / static_cast<double>(extent.height);
-                }
-
-                auto viewport = camera->getViewportState();
-                updatePipeline.context.viewport = viewport;
-
-                viewport->getViewport().width = static_cast<float>(extent.width);
-                viewport->getViewport().height = static_cast<float>(extent.height);
-                viewport->getScissor().extent = extent;
-
-                const_cast<RenderGraph*>(this)->renderArea.offset = VkOffset2D{0, 0}; // need to use offsets of viewport?
-                const_cast<RenderGraph*>(this)->renderArea.extent = extent;
+                perspective->aspectRatio = static_cast<double>(extent.width) / static_cast<double>(extent.height);
+            }
+            else if (auto ep = dynamic_cast<EllipsoidPerspective*>(camera->getProjectionMatrix()))
+            {
+                ep->aspectRatio = static_cast<double>(extent.width) / static_cast<double>(extent.height);
             }
 
-            const_cast<RenderGraph*>(this)->traverse(updatePipeline);
+            auto viewport = camera->getViewportState();
+            updatePipeline.context.viewport = viewport;
 
-            previous_extent = window->extent2D();
+            viewport->getViewport().width = static_cast<float>(extent.width);
+            viewport->getViewport().height = static_cast<float>(extent.height);
+            viewport->getScissor().extent = extent;
+
+            const_cast<RenderGraph*>(this)->renderArea.offset = VkOffset2D{0, 0}; // need to use offsets of viewport?
+            const_cast<RenderGraph*>(this)->renderArea.extent = extent;
         }
+
+        const_cast<RenderGraph*>(this)->traverse(updatePipeline);
+
+        previous_extent = frameAssembly->getExtent2D();
     }
+
 
     if (camera)
     {
@@ -140,22 +139,8 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
 
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    if (renderPass)
-    {
-        renderPassInfo.renderPass = *renderPass;
-    }
-    else if (window)
-    {
-        renderPassInfo.renderPass = *(window->getRenderPass());
-    }
-    if (framebuffer)
-    {
-        renderPassInfo.framebuffer = *framebuffer;
-    }
-    else if (window)
-    {
-        renderPassInfo.framebuffer = *(window->framebuffer(window->nextImageIndex()));
-    }
+    renderPassInfo.renderPass = *renderPass;
+    renderPassInfo.framebuffer = *frameBuffer;
     renderPassInfo.renderArea = renderArea;
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -175,14 +160,10 @@ ref_ptr<RenderGraph> vsg::createRenderGraphForView(Window* window, Camera* camer
     renderGraph->addChild(ref_ptr<Node>(scenegraph));
 
     renderGraph->camera = camera;
-    renderGraph->window = window;
+    renderGraph->frameAssembly = window;
 
     renderGraph->renderArea.offset = {0, 0};
     renderGraph->renderArea.extent = window->extent2D();
-
-    renderGraph->clearValues.resize(2);
-    renderGraph->clearValues[0].color = window->clearColor();
-    renderGraph->clearValues[1].depthStencil = VkClearDepthStencilValue{1.0f, 0};
 
     return renderGraph;
 }

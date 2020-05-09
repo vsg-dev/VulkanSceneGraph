@@ -239,3 +239,22 @@ void Window::buildSwapchain()
 
     _nextImageIndex = 0;
 }
+
+FrameAssembly::FrameRender Window::getFrameRender()
+{
+    if (!_renderPass)
+    {
+        _initRenderPass();
+    }
+    return FrameRender(_frames[nextImageIndex()].framebuffer, _renderPass);
+}
+
+ref_ptr<Device> Window::getDevice() const
+{
+    return _device;
+}
+
+const VkExtent2D& Window::getExtent2D() const
+{
+    return _extent2D;
+}

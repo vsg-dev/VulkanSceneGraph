@@ -197,7 +197,7 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
     }
     else
     {
-        context.viewport = vsg::ViewportState::create(renderGraph.window->extent2D());
+        context.viewport = vsg::ViewportState::create(renderGraph.frameAssembly->getExtent2D());
     }
 
     renderGraph.traverse(*this);

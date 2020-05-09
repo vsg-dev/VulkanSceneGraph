@@ -99,6 +99,7 @@ set(SOURCES
     viewer/RenderGraph.cpp
     viewer/Presentation.cpp
     viewer/RecordAndSubmitTask.cpp
+    viewer/SingleFrameAssembly.cpp
 
     raytracing/AccelerationGeometry.cpp
     raytracing/AccelerationStructure.cpp

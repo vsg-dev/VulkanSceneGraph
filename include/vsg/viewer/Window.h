@@ -23,10 +23,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Semaphore.h>
 
 #include <vsg/viewer/WindowTraits.h>
+#include <vsg/viewer/FrameAssembly.h>
 
 namespace vsg
 {
-    class VSG_DECLSPEC Window : public Inherit<Object, Window>
+    class VSG_DECLSPEC Window : public Inherit<FrameAssembly, Window>
     {
     public:
         Window(const Window&) = delete;
@@ -127,6 +128,10 @@ namespace vsg
 
         Frame& frame(uint32_t i) { return _frames[i]; }
         Frames& frames() { return _frames; }
+
+        FrameAssembly::FrameRender getFrameRender() override;
+        ref_ptr<Device> getDevice() const override;
+        const VkExtent2D& getExtent2D() const override;
 
     protected:
         Window(ref_ptr<WindowTraits> traits);
