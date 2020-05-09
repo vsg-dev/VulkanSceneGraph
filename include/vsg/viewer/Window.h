@@ -32,16 +32,13 @@ namespace vsg
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
 
-        using Result = vsg::Result<Window, VkResult, VK_SUCCESS>;
-        static Result create(vsg::ref_ptr<WindowTraits> traits);
+        static ref_ptr<Window> create(vsg::ref_ptr<WindowTraits> traits);
 
-        // for backward compatibility
-        static Result create(uint32_t width, uint32_t height, bool debugLayer = false, bool apiDumpLayer = false, vsg::Window* shareWindow = nullptr, vsg::AllocationCallbacks* allocator = nullptr);
-        static Result create(vsg::ref_ptr<WindowTraits> traits, bool debugLayer, bool apiDumpLayer = false, vsg::AllocationCallbacks* allocator = nullptr);
-
-        static vsg::Names getInstanceExtensions();
+        virtual const char* instanceExtensionSurfaceName() const = 0;
 
         virtual bool valid() const { return false; }
+
+        virtual bool visible() const { return valid(); }
 
         virtual bool pollEvents(Events& /*events*/) { return false; }
 
@@ -56,23 +53,48 @@ namespace vsg
         VkClearColorValue& clearColor() { return _clearColor; }
         const VkClearColorValue& clearColor() const { return _clearColor; }
 
-        Instance* instance() { return _instance; }
-        const Instance* instance() const { return _instance; }
+        Instance* getInstance() { return _instance; }
+        Instance* getOrCreateInstance()
+        {
+            if (!_instance) _initInstance();
+            return _instance;
+        }
 
-        PhysicalDevice* physicalDevice() { return _physicalDevice; }
-        const PhysicalDevice* physicalDevice() const { return _physicalDevice; }
+        Surface* getSurface() { return _surface; }
+        Surface* getOrCreateSurface()
+        {
+            if (!_surface) _initSurface();
+            return _surface;
+        }
 
-        Device* device() { return _device; }
-        const Device* device() const { return _device; }
+        Device* getDevice() { return _device; }
+        Device* getOrCreateDevice()
+        {
+            if (!_device) _initDevice();
+            return _device;
+        }
 
-        Surface* surface() { return _surface; }
-        const Surface* surface() const { return _surface; }
+        PhysicalDevice* getPhysicalDevice() { return _physicalDevice; }
+        PhysicalDevice* getOrCreatePhysicalDevice()
+        {
+            if (!_physicalDevice) _initDevice();
+            return _physicalDevice;
+        }
 
-        RenderPass* renderPass() { return _renderPass; }
-        const RenderPass* renderPass() const { return _renderPass; }
+        void setRenderPass(RenderPass* renderPass) { _renderPass = renderPass; }
+        RenderPass* getRenderPass() { return _renderPass; }
+        RenderPass* getOrCreateRenderPass()
+        {
+            if (!_renderPass) _initRenderPass();
+            return _renderPass;
+        }
 
-        Swapchain* swapchain() { return _swapchain; }
-        const Swapchain* swapchain() const { return _swapchain; }
+        Swapchain* getSwapchain() { return _swapchain; }
+        Swapchain* getOrCreateSwapchain()
+        {
+            if (!_swapchain) _initSwapchain();
+            return _swapchain;
+        }
 
         size_t numFrames() const { return _frames.size(); }
 
@@ -84,6 +106,7 @@ namespace vsg
 
         VkResult acquireNextImage(uint64_t timeout = std::numeric_limits<uint64_t>::max())
         {
+            if (!_swapchain) _initSwapchain();
             return vkAcquireNextImageKHR(*_device, *_swapchain, timeout, *(_frames[_nextImageIndex].imageAvailableSemaphore), VK_NULL_HANDLE, &_nextImageIndex);
         }
 
@@ -106,14 +129,19 @@ namespace vsg
         Frames& frames() { return _frames; }
 
     protected:
-        Window(ref_ptr<WindowTraits> traits, AllocationCallbacks* allocator);
+        Window(ref_ptr<WindowTraits> traits);
 
         virtual ~Window();
 
+        virtual void _initSurface() = 0;
+        void _initInstance();
+        void _initDevice();
+        void _initRenderPass();
+        void _initSwapchain();
+
         virtual void clear();
         void share(const Window& window);
-        void initaliseDevice();
-        void buildSwapchain(uint32_t width, uint32_t height);
+        void buildSwapchain();
 
         ref_ptr<WindowTraits> _traits;
 
@@ -133,6 +161,7 @@ namespace vsg
         Frames _frames;
         uint32_t _nextImageIndex;
     };
+    VSG_type_name(vsg::Window);
 
     using Windows = std::vector<ref_ptr<Window>>;
 

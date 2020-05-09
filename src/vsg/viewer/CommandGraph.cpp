@@ -32,12 +32,12 @@ CommandGraph::CommandGraph(Window* in_window)
     {
         window = in_window;
 
-        _device = window->device();
+        _device = window->getOrCreateDevice();
 
         VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
         if (window->traits()) queueFlags = window->traits()->queueFlags;
 
-        std::tie(_queueFamily, _presentFamily) = window->physicalDevice()->getQueueFamily(queueFlags, window->surface());
+        std::tie(_queueFamily, _presentFamily) = _device->getPhysicalDevice()->getQueueFamily(queueFlags, window->getOrCreateSurface());
 
         for (size_t i = 0; i < window->numFrames(); ++i)
         {
@@ -53,6 +53,11 @@ CommandGraph::~CommandGraph()
 
 void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
+    if (window && !window->visible())
+    {
+        return;
+    }
+
     if (!recordTraversal)
     {
         recordTraversal = new RecordTraversal(nullptr, _maxSlot);

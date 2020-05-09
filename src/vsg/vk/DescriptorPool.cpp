@@ -10,37 +10,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/vk/DescriptorPool.h>
 
 using namespace vsg;
 
-DescriptorPool::DescriptorPool(VkDescriptorPool descriptorPool, Device* device, AllocationCallbacks* allocator) :
-    _descriptorPool(descriptorPool),
+DescriptorPool::DescriptorPool(Device* device, uint32_t maxSets, const DescriptorPoolSizes& descriptorPoolSizes, AllocationCallbacks* allocator) :
     _device(device),
     _allocator(allocator)
 {
-}
-
-DescriptorPool::~DescriptorPool()
-{
-    if (_descriptorPool)
-    {
-        vkDestroyDescriptorPool(*_device, _descriptorPool, _allocator);
-    }
-}
-
-DescriptorPool::Result DescriptorPool::create(Device* device, uint32_t maxSets, const DescriptorPoolSizes& descriptorPoolSizes, AllocationCallbacks* allocator)
-{
-    if (!device)
-    {
-        return Result("Error: vsg::DescriptorPool::create(...) failed to create DescriptorPool, undefined Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
-    if (descriptorPoolSizes.empty())
-    {
-        return Result("Error: vsg::DescriptorPool::create(...) failed to create DescriptorPool, descriptorPoolSizes.empty().", VK_ERROR_INITIALIZATION_FAILED);
-    }
-
     VkDescriptorPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = static_cast<uint32_t>(descriptorPoolSizes.size());
@@ -49,14 +27,16 @@ DescriptorPool::Result DescriptorPool::create(Device* device, uint32_t maxSets, 
     poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT; // will we need VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT later?
     poolInfo.pNext = nullptr;
 
-    VkDescriptorPool descriptorPool;
-    VkResult result = vkCreateDescriptorPool(*device, &poolInfo, allocator, &descriptorPool);
-    if (result == VK_SUCCESS)
+    if (VkResult result = vkCreateDescriptorPool(*device, &poolInfo, allocator, &_descriptorPool); result != VK_SUCCESS)
     {
-        return Result(new DescriptorPool(descriptorPool, device, allocator));
+        throw Exception{"Error: Failed to create DescriptorPool.", result};
     }
-    else
+}
+
+DescriptorPool::~DescriptorPool()
+{
+    if (_descriptorPool)
     {
-        return Result("Error: Failed to create DescriptorPool.", result);
+        vkDestroyDescriptorPool(*_device, _descriptorPool, _allocator);
     }
 }

@@ -16,8 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/KeyEvent.h>
 
 #include <xcb/xcb.h>
-
-#include <iostream>
+#include <vulkan/vulkan_xcb.h>
 
 namespace vsgXcb
 {
@@ -48,17 +47,20 @@ namespace vsgXcb
         Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, xcb_window_t window, vsg::AllocationCallbacks* allocator = nullptr);
     };
 
-    class Xcb_Window : public vsg::Window
+    class Xcb_Window : public vsg::Inherit<vsg::Window, Xcb_Window>
     {
     public:
 
+        Xcb_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
         Xcb_Window() = delete;
         Xcb_Window(const Xcb_Window&) = delete;
         Xcb_Window& operator = (const Xcb_Window&) = delete;
 
-        static Result create(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator=nullptr);
+        const char* instanceExtensionSurfaceName() const override { return VK_KHR_XCB_SURFACE_EXTENSION_NAME; }
 
         bool valid() const override;
+
+        bool visible() const override;
 
         bool pollEvents(vsg::Events& events) override;
 
@@ -66,10 +68,12 @@ namespace vsgXcb
 
         void resize() override;
 
+
     protected:
-        Xcb_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator);
 
         ~Xcb_Window();
+
+        void _initSurface() override;
 
         xcb_connection_t* _connection = nullptr;
         xcb_screen_t* _screen = nullptr;
@@ -78,6 +82,7 @@ namespace vsgXcb
         xcb_atom_t _wmDeleteWindow{};
 
         bool _windowResized = false;
+        bool _windowMapped = false;
 
         xcb_timestamp_t _first_xcb_timestamp = 0;
         vsg::clock::time_point _first_xcb_time_point;
@@ -85,6 +90,6 @@ namespace vsgXcb
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 
+} // namespace vsgXcb
 
-}
-
+EVSG_type_name(vsgXcb::Xcb_Window);

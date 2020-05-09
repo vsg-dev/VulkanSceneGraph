@@ -33,8 +33,17 @@ VkResult Presentation::present()
     for (auto& window : windows)
     {
         //vk_semaphores.push_back(*(window->frame(window->nextImageIndex()).imageAvailableSemaphore));
-        vk_swapchains.emplace_back(*(window->swapchain()));
-        indices.emplace_back(window->nextImageIndex());
+        if (window->visible())
+        {
+            vk_swapchains.emplace_back(*(window->getOrCreateSwapchain()));
+            indices.emplace_back(window->nextImageIndex());
+        }
+    }
+
+    if (vk_swapchains.empty())
+    {
+        // nothing to present so return early
+        return VK_SUCCESS;
     }
 
     VkPresentInfoKHR presentInfo = {};
@@ -63,7 +72,10 @@ VkResult Presentation::present()
 
     for (auto& window : windows)
     {
-        window->advanceNextImageIndex();
+        if (window->visible())
+        {
+            window->advanceNextImageIndex();
+        }
     }
 
     return queue->present(presentInfo);

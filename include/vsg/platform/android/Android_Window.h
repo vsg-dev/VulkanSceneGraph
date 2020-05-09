@@ -57,31 +57,31 @@ namespace vsgAndroid
     };
 
 
-    class Android_Window : public vsg::Window
+    class Android_Window : public vsg::Inherit<vsg::Window, Android_Window>
     {
     public:
 
+        Android_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
         Android_Window() = delete;
         Android_Window(const Android_Window&) = delete;
         Android_Window operator = (const Android_Window&) = delete;
 
-        using Result = vsg::Result<vsg::Window, VkResult, VK_SUCCESS>;
-        static Result create(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator=nullptr);
+        const char* instanceExtensionSurfaceName() const override { return "VK_KHR_android_surface"; }
 
-        virtual bool valid() const { return _window; }
+        bool valid() const override { return _window; }
 
-        virtual bool pollEvents(vsg::Events& events);
+        bool pollEvents(vsg::Events& events) override;
 
-        virtual bool resized() const;
+        bool resized() const override;
 
-        virtual void resize();
+        void resize() override;
 
         bool handleAndroidInputEvent(AInputEvent* anEvent);
 
     protected:
         virtual ~Android_Window();
 
-        Android_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator);
+        void _initSurface() override;
 
         ANativeWindow* _window;
 
@@ -92,5 +92,6 @@ namespace vsgAndroid
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 
-} // namespace vsg
+} // namespace vsgAndroid
 
+EVSG_type_name(vsgAndroid::Android_Window);

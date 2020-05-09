@@ -20,10 +20,7 @@ namespace vsg
     class VSG_DECLSPEC Fence : public Inherit<Object, Fence>
     {
     public:
-        Fence(VkFence Fence, Device* device, AllocationCallbacks* allocator = nullptr);
-
-        using Result = vsg::Result<Fence, VkResult, VK_SUCCESS>;
-        static Result create(Device* device, VkFenceCreateFlags flags = 0, AllocationCallbacks* allocator = nullptr);
+        Fence(Device* device, VkFenceCreateFlags flags = 0, AllocationCallbacks* allocator = nullptr);
 
         VkResult wait(uint64_t timeout) const { return vkWaitForFences(*_device, 1, &_vkFence, VK_TRUE, timeout); }
 
@@ -54,5 +51,6 @@ namespace vsg
         ref_ptr<Device> _device;
         ref_ptr<AllocationCallbacks> _allocator;
     };
+    VSG_type_name(vsg::Fence);
 
 } // namespace vsg

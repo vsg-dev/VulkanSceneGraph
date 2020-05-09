@@ -12,22 +12,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <deque>
-#include <memory>
-
 #include <vsg/core/Object.h>
-
 #include <vsg/nodes/Group.h>
-
+#include <vsg/state/Descriptor.h>
+#include <vsg/state/ResourceHints.h>
+#include <vsg/viewer/Window.h>
 #include <vsg/vk/BufferData.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/Context.h>
-#include <vsg/vk/Descriptor.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Fence.h>
-#include <vsg/vk/GraphicsPipeline.h>
-#include <vsg/vk/ResourceHints.h>
 
+#include <map>
 #include <set>
 
 namespace vsg
@@ -67,6 +63,7 @@ namespace vsg
     {
     public:
         explicit CompileTraversal(Device* in_device, BufferPreferences bufferPreferences = {});
+        explicit CompileTraversal(Window* window, BufferPreferences bufferPreferences = {});
         CompileTraversal(const CompileTraversal& ct);
         ~CompileTraversal();
 

@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/platform/macos/MacOS_Window.h>
 
+#include <vsg/core/Exception.h>
 #include <vsg/core/observer_ptr.h>
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
@@ -33,28 +34,9 @@ using namespace vsgMacOS;
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to a MacOS_Window
-    Window::Result Window::create(vsg::ref_ptr<vsg::WindowTraits> traits)
+    ref_ptr<Window> Window::create(vsg::ref_ptr<vsg::WindowTraits> traits)
     {
-        return vsgMacOS::MacOS_Window::create(traits, nullptr);
-    }
-
-    vsg::Names Window::getInstanceExtensions()
-    {
-        ExtensionProperties exts = vsg::getExtensionProperties();
-        for(auto ext : exts)
-        {
-            std::cout << "vsg extension: " << ext.extensionName << std::endl;
-        }
-        // check the extensions are avaliable first
-        Names requiredExtensions = {"VK_KHR_surface", "VK_MVK_macos_surface"};
-
-        if (!vsg::isExtensionListSupported(requiredExtensions))
-        {
-            std::cout << "Error: vsg::getInstanceExtensions(...) unable to create window, VK_KHR_surface or VK_MVK_macos_surface not supported." << std::endl;
-            return Names();
-        }
-
-        return requiredExtensions;
+        return vsgMacOS::MacOS_Window::create(traits);
     }
 
 } // namespace vsg
@@ -767,22 +749,8 @@ bool KeyboardMap::getKeySymbol(NSEvent* anEvent, vsg::KeySymbol& keySymbol, vsg:
     return true;
 }
 
-vsg::Window::Result MacOS_Window::create(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator)
-{
-    try
-    {
-        ref_ptr<Window> window(new MacOS_Window(traits, allocator));
-        return Result(window);
-    }
-    catch (vsg::Window::Result result)
-    {
-        std::cout << "Error creating window: " << result.message() << std::endl;
-        return result;
-    }
-}
-
-MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
-    Window(traits, allocator)
+MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
+    Inherit(traits)
 {
     _keyboard = new KeyboardMap;
 
@@ -809,7 +777,7 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::Allocati
     _metalLayer = [[CAMetalLayer alloc] init];
     if (!_metalLayer)
     {
-        throw Result("Error: vsg::MacOS_Window::create(...) failed to create Window, unable to create Metal layer for view.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        throw Exception{"Error: vsg::MacOS_Window::MacOS_Window(...) failed to create Window, unable to create Metal layer for view.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
     }
 
     // create window
@@ -847,31 +815,12 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::Allocati
 
     if (traits->shareWindow)
     {
-        // create MacOS surface for the NSView
-        vsg::ref_ptr<vsg::Surface> surface(new vsgMacOS::MacOSSurface(traits->shareWindow->instance(), _view, allocator));
-
-        _surface = surface;
-
         // share the _instance, _physicalDevice and _device;
         share(*traits->shareWindow);
-
-        // temporary hack to force vkGetPhysicalDeviceSurfaceSupportKHR to be called as the Vulkan
-        // debug layer is complaining about vkGetPhysicalDeviceSurfaceSupportKHR not being called
-        // for this _surface prior to swap chain creation
-        auto result = traits->shareWindow->instance()->getPhysicalDeviceAndQueueFamily(VK_QUEUE_GRAPHICS_BIT, surface);
-    }
-    else
-    {
-        // create surface using passed NSView with CAMetalLayer
-        vsg::ref_ptr<vsg::Surface> surface(new vsgMacOS::MacOSSurface(_instance, _view, allocator));
-        if (!surface) throw Result("Error: vsg::MacOS_Window::create(...) failed to create Window, unable to create MacOSSurface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-        _surface = surface;
-
-        // initalise device now the surface has been created
-        initaliseDevice();
     }
 
-    buildSwapchain(finalwidth, finalheight);
+    _extent2D.width = finalwidth;
+    _extent2D.height = finalheight;
 
     _first_macos_timestamp = [[NSProcessInfo processInfo] systemUptime];
     _first_macos_time_point = vsg::clock::now();
@@ -889,6 +838,13 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::Allocati
 MacOS_Window::~MacOS_Window()
 {
     clear();
+}
+
+void MacOS_Window::_initSurface()
+{
+    if (!_instance) _initInstance();
+
+    _surface = new vsgMacOS::MacOSSurface(_instance, _view, _traits->allocator);
 }
 
 bool MacOS_Window::pollEvents(vsg::Events& events)
@@ -934,10 +890,10 @@ void MacOS_Window::resize()
     auto devicePixelScale = _traits->hdpi ? [_window backingScaleFactor] : 1.0f;
     //[_metalLayer setContentsScale:devicePixelScale];
 
-    uint32_t width = contentRect.size.width * devicePixelScale;
-    uint32_t height = contentRect.size.height * devicePixelScale;
+    _extent2D.width = contentRect.size.width * devicePixelScale;
+    _extent2D.height = contentRect.size.height * devicePixelScale;
 
-    buildSwapchain(width, height);
+    buildSwapchain();
 }
 
 bool MacOS_Window::handleNSEvent(NSEvent* anEvent)

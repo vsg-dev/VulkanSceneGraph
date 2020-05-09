@@ -15,9 +15,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/RecordAndSubmitTask.h>
 #include <vsg/vk/State.h>
 
-using namespace vsg;
-
 #include <iostream>
+
+using namespace vsg;
 
 RecordAndSubmitTask::RecordAndSubmitTask(Device* device, uint32_t numBuffers)
 {
@@ -61,6 +61,14 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
 {
     auto fence = fences[index];
 
+    if (recordedCommandBuffers.empty())
+    {
+        // nothing to do so return early
+        std::this_thread::sleep_for(std::chrono::milliseconds(16)); // sleep for 1/60th of a second
+        return VK_SUCCESS;
+    }
+
+    // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of depdendent CommandBuffers
     std::vector<VkCommandBuffer> vk_commandBuffers;
     std::vector<VkSemaphore> vk_waitSemaphores;
     std::vector<VkPipelineStageFlags> vk_waitStages;

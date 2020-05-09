@@ -10,47 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/ObjectFactory.h>
-
-#include <vsg/core/Array.h>
-#include <vsg/core/Array2D.h>
-#include <vsg/core/Array3D.h>
-#include <vsg/core/External.h>
-#include <vsg/core/Objects.h>
-#include <vsg/core/Value.h>
-
-#include <vsg/nodes/Commands.h>
-#include <vsg/nodes/CullGroup.h>
-#include <vsg/nodes/CullNode.h>
-#include <vsg/nodes/Geometry.h>
-#include <vsg/nodes/Group.h>
-#include <vsg/nodes/LOD.h>
-#include <vsg/nodes/MatrixTransform.h>
-#include <vsg/nodes/PagedLOD.h>
-#include <vsg/nodes/QuadGroup.h>
-#include <vsg/nodes/StateGroup.h>
-#include <vsg/nodes/VertexIndexDraw.h>
-
-#include <vsg/vk/BindIndexBuffer.h>
-#include <vsg/vk/BindVertexBuffers.h>
-#include <vsg/vk/ComputePipeline.h>
-#include <vsg/vk/Descriptor.h>
-#include <vsg/vk/DescriptorBuffer.h>
-#include <vsg/vk/DescriptorImage.h>
-#include <vsg/vk/DescriptorSet.h>
-#include <vsg/vk/DescriptorSetLayout.h>
-#include <vsg/vk/DescriptorTexelBufferView.h>
-#include <vsg/vk/Dispatch.h>
-#include <vsg/vk/Draw.h>
-#include <vsg/vk/GraphicsPipeline.h>
-#include <vsg/vk/PipelineLayout.h>
-#include <vsg/vk/PushConstants.h>
-#include <vsg/vk/ResourceHints.h>
-#include <vsg/vk/Sampler.h>
-#include <vsg/vk/ShaderModule.h>
-#include <vsg/vk/material.h>
-
-#include <vsg/viewer/ProjectionMatrix.h>
+#include <vsg/all.h>
 
 using namespace vsg;
 

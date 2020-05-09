@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <android/looper.h>
 #include <android/native_activity.h>
 
+#include <vsg/core/Exception.h>
 #include <vsg/core/observer_ptr.h>
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/TouchEvent.h>
@@ -32,23 +33,9 @@ using namespace vsgAndroid;
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to an Android_Window
-    Window::Result Window::create(vsg::ref_ptr<WindowTraits> traits)
+    ref_ptr<Window> Window::create(vsg::ref_ptr<WindowTraits> traits)
     {
-        return vsgAndroid::Android_Window::create(traits, nullptr);
-    }
-
-    vsg::Names Window::getInstanceExtensions()
-    {
-        // check the extensions are avaliable first
-        Names requiredExtensions = {"VK_KHR_surface", "VK_KHR_android_surface"};
-
-        if (!vsg::isExtensionListSupported(requiredExtensions))
-        {
-            std::cout << "Error: vsg::getInstanceExtensions(...) unable to create window, VK_KHR_surface or VK_KHR_android_surface not supported." << std::endl;
-            return Names();
-        }
-
-        return requiredExtensions;
+        return vsgAndroid::Android_Window::create(traits);
     }
 
 } // namespace vsg
@@ -328,35 +315,17 @@ KeyboardMap::KeyboardMap()
         };
 }
 
-vsg::Window::Result Android_Window::create(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator)
-{
-    try
-    {
-        ref_ptr<Window> window(new Android_Window(traits, allocator));
-        return Result(window);
-    }
-    catch (vsg::Window::Result result)
-    {
-        return result;
-    }
-}
-
-Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
-    Window(traits, allocator)
+Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits) :
+    Inherit(traits)
 {
     _keyboard = new KeyboardMap;
-
-    /*if(!traits->nativeHandle.has_value())
-    {
-        return Result("Error: vsg::Android_Window::create(...) failed to create Window, Android requires a NativeWindow passed via traits->nativeHandle.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }*/
 
     //ANativeWindow* nativeWindow = *std::any_cast<ANativeWindow*>(&traits->nativeHandle);
     ANativeWindow* nativeWindow = static_cast<ANativeWindow*>(traits->nativeWindow);
 
     if (nativeWindow == nullptr)
     {
-        throw Result("Error: vsg::Android_Window::create(...) failed to create Window, traits->nativeHandle is not a valid ANativeWindow.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        throw Exception{"Error: vsg::Android_Window::Android_Window(...) failed to create Window, traits->nativeHandle is not a valid ANativeWindow.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
     }
 
     _window = nativeWindow;
@@ -369,31 +338,12 @@ Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits, vsg::Allocatio
 
     if (traits->shareWindow)
     {
-        // create Android surface for the ANativeWindow
-        vsg::ref_ptr<vsg::Surface> surface(new vsgAndroid::AndroidSurface(traits->shareWindow->instance(), nativeWindow, allocator));
-        
-        _surface = surface;
-
         // share the _instance, _physicalDevice and _device;
         window->share(*traits->shareWindow);
-
-        // temporary hack to force vkGetPhysicalDeviceSurfaceSupportKHR to be called as the Vulkan
-        // debug layer is complaining about vkGetPhysicalDeviceSurfaceSupportKHR not being called
-        // for this _surface prior to swap chain creation
-        vsg::ref_ptr<vsg::PhysicalDevice> physicalDevice = vsg::PhysicalDevice::create(traits->shareWindow->instance(), VK_QUEUE_GRAPHICS_BIT, surface);
-    }
-    else
-    {
-        // create surface using passed ANativeWindow
-        vsg::ref_ptr<vsg::Surface> surface(new vsgAndroid::AndroidSurface(_instance, _window, allocator));
-        if (!surface) throw Result("Error: vsg::Android_Window::create(...) failed to create Window, unable to create AndroidSurface.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-        _surface = surface;
-
-        // set up device
-        initaliseDevice();
     }
 
-    buildSwapchain(finalWidth, finalHeight);
+    _extent2D.width = finalWidth;
+    _extent2D.height = finalHeight;
 
     _first_android_timestamp = now_ms();
     _first_android_time_point = vsg::clock::now();
@@ -407,6 +357,13 @@ Android_Window::~Android_Window()
     {
         std::cout << "Calling DestroyWindow(_window);" << std::endl;
     }
+}
+
+void Android_Window::_initSurface()
+{
+    if (!_instance) _initInstance();
+
+    _surface = new vsgAndroid::AndroidSurface(_instance, _window, _traits->allocator);
 }
 
 bool Android_Window::pollEvents(vsg::Events& events)
@@ -432,12 +389,12 @@ bool Android_Window::resized() const
 
 void Android_Window::resize()
 {
-    auto width = ANativeWindow_getWidth(_window);
-    auto height = ANativeWindow_getHeight(_window);
+    _extent2D.width = ANativeWindow_getWidth(_window);
+    _extent2D.height = ANativeWindow_getHeight(_window);
 
     LOG("resize event = wh: %d, %d", width, height);
 
-    buildSwapchain(width, height);
+    buildSwapchain();
 }
 
 bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)

@@ -10,8 +10,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/state/StateGroup.h>
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/viewer/RenderGraph.h>
+#include <vsg/vk/Context.h>
 #include <vsg/vk/State.h>
 
 using namespace vsg;
@@ -92,10 +94,10 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
         {
             // crude handling of window resize...TODO, come up with a user controllable way to handle resize.
 
-            vsg::UpdatePipeline updatePipeline(window->device());
+            vsg::UpdatePipeline updatePipeline(window->getDevice());
 
             updatePipeline.context.commandPool = dispatchTraversal.state->_commandBuffer->getCommandPool();
-            updatePipeline.context.renderPass = window->renderPass();
+            updatePipeline.context.renderPass = window->getRenderPass();
 
             if (camera)
             {
@@ -138,8 +140,22 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
 
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = *(window->renderPass());
-    renderPassInfo.framebuffer = *(window->framebuffer(window->nextImageIndex()));
+    if (renderPass)
+    {
+        renderPassInfo.renderPass = *renderPass;
+    }
+    else if (window)
+    {
+        renderPassInfo.renderPass = *(window->getRenderPass());
+    }
+    if (framebuffer)
+    {
+        renderPassInfo.framebuffer = *framebuffer;
+    }
+    else if (window)
+    {
+        renderPassInfo.framebuffer = *(window->framebuffer(window->nextImageIndex()));
+    }
     renderPassInfo.renderArea = renderArea;
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());

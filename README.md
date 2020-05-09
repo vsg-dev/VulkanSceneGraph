@@ -1,7 +1,6 @@
-| [View as Website](https://vsg-dev.github.io/VulkanSceneGraph/) |  [View as GitHub repository](https://github.com/vsg-dev/VulkanSceneGraph) |
+![VulkanSceneGraph](https://raw.githubusercontent.com/vsg-dev/VulkanSceneGraph/master/docs/images/VSGlogo.png)
 
-
-VulkanSceneGraph/VkSceneGraph (VSG), currently under development, is a modern, cross platform, high performance scene graph library built upon [Vulkan](https://www.khronos.org/vulkan/) graphics/compute API. The software is written in [C++17](https://en.wikipedia.org/wiki/C%2B%2B17), and follows the [CppCoreGuidlines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) and [FOSS Best Practices](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md).  The source code is published under the [MIT License](LICENSE.md).
+VulkanSceneGraph (VSG), is a modern, cross platform, high performance scene graph library built upon [Vulkan](https://www.khronos.org/vulkan/) graphics/compute API. The software is written in [C++17](https://en.wikipedia.org/wiki/C%2B%2B17), and follows the [CppCoreGuidlines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) and [FOSS Best Practices](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md).  The source code is published under the [MIT License](LICENSE.md).
 
 The project aims to bring the performance of Vulkan to the wider developer community by providing a modern, high quality software library that is easy to use and focused on making the development of high performance graphics and compute applications a productive and fun experience.
 
@@ -55,7 +54,7 @@ It's still very early days for the project so we don't have many projects that u
 * [vsgXchange](https://github.com/vsg-dev/vsgXchange) utility library that adds suport for reading/writing files from 3rd party source.  Includes GLSL shader compilation to SPIR-V.  When osg2vsg is available Enables loading of any model or image format loadable by the OpenSceneGraph.  Provide vsgconv utility for converting different file types - mdoels, images, shaders to VSG native formats. The vsgviewer and MyFrstVsgApplication examples also automatically add support for reading files from vsgXchagne when they area built with vsgXchange avaulable.
 * [vsgUnity](https://github.com/vsg-dev/vsgXchange) is a plugin for the Unity Editor allowing you create export models directly into native VSG format.
 
-Three examples within the vsgExamples project that may be of particular interest are ports of Vulkan tutorials to the VSG API.  In each case the VSG version requires less than 1/5th the amount of code to achieve the same functionality.
+Two examples within the vsgExamples project that may be of particular interest are ports of Vulkan tutorials to the VSG API.  In each case the VSG version requires less than 1/5th the amount of code to achieve the same functionality.
 
 * [Vulkan Tutorial](https://vulkan-tutorial.com/) ported as [vsgExamples/Desktop/vsgdraw](https://github.com/vsg-dev/vsgExamples/blob/master/Desktop/vsgdraw/)
 * [vulkan_minimal_compute](https://github.com/Erkaman/vulkan_minimal_compute) tutorial ported to VSG [vsgExamples/Desktop/vsgcompute](https://github.com/vsg-dev/vsgExamples/blob/master/Desktop/vsgcompute/)

@@ -12,9 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <algorithm>
 
+#include <vsg/commands/BindIndexBuffer.h>
 #include <vsg/raytracing/AccelerationGeometry.h>
-
-#include <vsg/vk/BindIndexBuffer.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/Extensions.h>

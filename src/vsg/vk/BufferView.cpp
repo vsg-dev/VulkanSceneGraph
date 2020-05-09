@@ -10,33 +10,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/vk/BufferView.h>
 
 using namespace vsg;
 
-BufferView::BufferView(VkBufferView bufferView, Device* device, Buffer* buffer, AllocationCallbacks* allocator) :
-    _bufferView(bufferView),
-    _device(device),
+BufferView::BufferView(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range, AllocationCallbacks* allocator) :
+    _device(buffer->getDevice()),
     _buffer(buffer),
     _allocator(allocator)
 {
-}
-
-BufferView::~BufferView()
-{
-    if (_bufferView)
-    {
-        vkDestroyBufferView(*_device, _bufferView, _allocator);
-    }
-}
-
-BufferView::Result BufferView::create(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range, AllocationCallbacks* allocator)
-{
-    if (!buffer)
-    {
-        return Result("Error: vsg::BufferView::create(...) failed to create BufferView, buffer not defined.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
     VkBufferViewCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO;
     createInfo.buffer = *buffer;
@@ -45,14 +28,16 @@ BufferView::Result BufferView::create(Buffer* buffer, VkFormat format, VkDeviceS
     createInfo.range = range;
     createInfo.pNext = nullptr;
 
-    VkBufferView bufferView;
-    VkResult result = vkCreateBufferView(*(buffer->getDevice()), &createInfo, allocator, &bufferView);
-    if (result == VK_SUCCESS)
+    if (VkResult result = vkCreateBufferView(*(buffer->getDevice()), &createInfo, allocator, &_bufferView); result != VK_SUCCESS)
     {
-        return Result(new BufferView(bufferView, buffer->getDevice(), buffer, allocator));
+        throw Exception{"Error: Failed to create BufferView.", result};
     }
-    else
+}
+
+BufferView::~BufferView()
+{
+    if (_bufferView)
     {
-        return Result("Error: Failed to create BufferView.", result);
+        vkDestroyBufferView(*_device, _bufferView, _allocator);
     }
 }

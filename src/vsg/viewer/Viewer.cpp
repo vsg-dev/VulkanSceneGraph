@@ -10,12 +10,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/state/Descriptor.h>
+#include <vsg/state/StateGroup.h>
 #include <vsg/traversals/CompileTraversal.h>
-
-#include <vsg/nodes/StateGroup.h>
-
-#include <vsg/vk/Descriptor.h>
-
 #include <vsg/viewer/Viewer.h>
 
 #include <chrono>
@@ -35,37 +32,27 @@ Viewer::~Viewer()
 {
     stopThreading();
 
-    // don't kill window while devices are still _status
-    for (auto& pair_pdo : _deviceMap)
+    // don't destroy viewer while devices are still active
+    deviceWaitIdle();
+}
+
+void Viewer::deviceWaitIdle() const
+{
+    std::set<VkDevice> devices;
+    for (auto& window : _windows)
     {
-        vkDeviceWaitIdle(*pair_pdo.first);
+        if (window->getDevice()) devices.insert(*(window->getDevice()));
+    }
+
+    for (auto& device : devices)
+    {
+        vkDeviceWaitIdle(device);
     }
 }
 
 void Viewer::addWindow(ref_ptr<Window> window)
 {
     _windows.push_back(window);
-
-    ref_ptr<Device> device(window->device());
-    PhysicalDevice* physicalDevice = window->physicalDevice();
-    if (_deviceMap.find(device) == _deviceMap.end())
-    {
-        auto [graphicsFamily, presentFamily] = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, window->surface());
-
-        // set up per device settings
-        PerDeviceObjects& new_pdo = _deviceMap[device];
-        new_pdo.renderFinishedSemaphore = vsg::Semaphore::create(device);
-        new_pdo.graphicsQueue = device->getQueue(graphicsFamily);
-        new_pdo.presentQueue = device->getQueue(presentFamily);
-        new_pdo.signalSemaphores.push_back(*new_pdo.renderFinishedSemaphore);
-    }
-
-    // add per window details to pdo
-    PerDeviceObjects& pdo = _deviceMap[device];
-    pdo.windows.push_back(window);
-    pdo.imageIndices.push_back(0);   // to be filled in by submitFrame()
-    pdo.commandBuffers.push_back(0); // to be filled in by submitFrame()
-    pdo.swapchains.push_back(*(window->swapchain()));
 }
 
 void Viewer::close()
@@ -90,10 +77,7 @@ bool Viewer::active() const
     if (!viewerIsActive)
     {
         // don't exit mainloop while the any devices are still active
-        for (auto& pair_pdo : _deviceMap)
-        {
-            vkDeviceWaitIdle(*pair_pdo.first);
-        }
+        deviceWaitIdle();
         return false;
     }
     else
@@ -113,24 +97,6 @@ bool Viewer::pollEvents(bool discardPreviousEvents)
     }
 
     return result;
-}
-
-void Viewer::reassignFrameCache()
-{
-    for (auto& pair_pdo : _deviceMap)
-    {
-        PerDeviceObjects& pdo = pair_pdo.second;
-        pdo.imageIndices.clear();
-        pdo.commandBuffers.clear();
-        pdo.swapchains.clear();
-
-        for (auto window : pdo.windows)
-        {
-            pdo.imageIndices.push_back(0);   // to be filled in by submitFrame()
-            pdo.commandBuffers.push_back(0); // to be filled in by submitFrame()
-            pdo.swapchains.push_back(*(window->swapchain()));
-        }
-    }
 }
 
 void Viewer::advance()
@@ -169,38 +135,28 @@ bool Viewer::acquireNextFrame()
 {
     if (_close) return false;
 
-    bool needToReassingFrameCache = false;
     VkResult result = VK_SUCCESS;
+
     for (auto& window : _windows)
     {
-        unsigned int numTries = 0;
-        unsigned int maximumTries = 10;
-        while (((result = window->acquireNextImage()) == VK_ERROR_OUT_OF_DATE_KHR) && (numTries < maximumTries))
+        if (!window->visible()) continue;
+
+        while ((result = window->acquireNextImage()) != VK_SUCCESS)
         {
-            ++numTries;
-
-            // wait till queue are empty before we resize.
-            for (auto& pair_pdo : _deviceMap)
+            if (result == VK_ERROR_SURFACE_LOST_KHR ||
+                result == VK_ERROR_DEVICE_LOST ||
+                result == VK_ERROR_OUT_OF_DATE_KHR ||
+                result == VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT)
             {
-                PerDeviceObjects& pdo = pair_pdo.second;
-                pdo.presentQueue->waitIdle();
+                // force a rebuild of the Swapchain by calling Window::resize();
+                window->resize();
             }
-
-            //std::cout<<"window->acquireNextImage(), result==VK_ERROR_OUT_OF_DATE_KHR  rebuild swap chain : resized="<<window->resized()<<" numTries="<<numTries<<std::endl;
-
-            // resize to rebuild all the internal Vulkan objects associated with the window.
-            window->resize();
-
-            needToReassingFrameCache = true;
+            else
+            {
+                std::cout << "Warning : window->acquireNextImage() VkResult = " << result << std::endl;
+                break;
+            }
         }
-
-        if (result != VK_SUCCESS) break;
-    }
-
-    if (needToReassingFrameCache)
-    {
-        // reassign frame cache
-        reassignFrameCache();
     }
 
     return result == VK_SUCCESS;

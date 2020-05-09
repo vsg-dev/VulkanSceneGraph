@@ -10,9 +10,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/commands/PipelineBarrier.h>
+#include <vsg/core/Exception.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/viewer/Window.h>
-#include <vsg/vk/PipelineBarrier.h>
 #include <vsg/vk/SubmitCommands.h>
 
 #include <array>
@@ -20,35 +21,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Window::Window(ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
+Window::Window(ref_ptr<WindowTraits> traits) :
     _traits(traits),
     _clearColor{{0.2f, 0.2f, 0.4f, 1.0f}},
     _nextImageIndex(0)
 {
-    if (_traits->device)
-    {
-        _instance = _traits->device->getInstance();
-    }
-    else
-    {
-        // create the vkInstance
-        vsg::Names instanceExtensions = getInstanceExtensions();
-
-        instanceExtensions.insert(instanceExtensions.end(), traits->instanceExtensionNames.begin(), traits->instanceExtensionNames.end());
-
-        vsg::Names requestedLayers;
-        if (traits && traits->debugLayer)
-        {
-            instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-            requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
-            if (traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
-        }
-
-        vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
-
-        _instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
-        if (!_instance) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan instance.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
 }
 
 Window::~Window()
@@ -79,8 +56,42 @@ void Window::share(const Window& window)
     _renderPass = window._renderPass;
 }
 
-void Window::initaliseDevice()
+void Window::_initInstance()
 {
+    if (_traits->device)
+    {
+        _instance = _traits->device->getInstance();
+    }
+    else
+    {
+        // create the vkInstance
+        vsg::Names instanceExtensions = _traits->instanceExtensionNames;
+
+        instanceExtensions.push_back("VK_KHR_surface");
+        instanceExtensions.push_back(instanceExtensionSurfaceName());
+
+        vsg::Names requestedLayers;
+        if (_traits->debugLayer)
+        {
+            instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+            requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+            if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
+        }
+
+        // TODO need to decide whether we need to have a Window::_allocator or traits member.
+        vsg::AllocationCallbacks* allocator = nullptr;
+
+        vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
+        _instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
+    }
+}
+
+void Window::_initDevice()
+{
+    if (!_instance) _initInstance();
+    if (!_surface) _initSurface();
+
+    // Device
     if (_traits->device)
     {
         _device = _traits->device;
@@ -104,33 +115,34 @@ void Window::initaliseDevice()
 
         // set up device
         auto [physicalDevice, queueFamily, presentFamily] = _instance->getPhysicalDeviceAndQueueFamily(_traits->queueFlags, _surface);
-        if (!physicalDevice || queueFamily < 0 || presentFamily < 0) throw Result("Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
+        if (!physicalDevice || queueFamily < 0 || presentFamily < 0) throw Exception{"Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
         vsg::QueueSettings queueSettings{vsg::QueueSetting{queueFamily, {1.0}}, vsg::QueueSetting{presentFamily, {1.0}}};
-        vsg::ref_ptr<vsg::Device> device = vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->allocator);
-        if (!device) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan logical Device.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-
+        _device = vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->allocator);
         _physicalDevice = physicalDevice;
-        _device = device;
-    }
-
-    // set up renderpass with the imageFormat that the swap chain will use
-    if (_traits->renderPass)
-    {
-        _renderPass = _traits->renderPass;
-    }
-    else
-    {
-        vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
-        VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
-        VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
-
-        _renderPass = vsg::RenderPass::create(_device, imageFormat.format, depthFormat, _traits->allocator);
-        if (!_renderPass) throw Result("Error: vsg::Window::create(...) failed to create Window, unable to create Vulkan RenderPass.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
     }
 }
 
-void Window::buildSwapchain(uint32_t width, uint32_t height)
+void Window::_initRenderPass()
+{
+    if (!_device) _initDevice();
+
+    vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
+    VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
+    VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
+
+    _renderPass = vsg::createRenderPass(_device, imageFormat.format, depthFormat, _traits->allocator);
+}
+
+void Window::_initSwapchain()
+{
+    if (!_device) _initDevice();
+    if (!_renderPass) _initRenderPass();
+
+    buildSwapchain();
+}
+
+void Window::buildSwapchain()
 {
     if (_swapchain)
     {
@@ -148,8 +160,7 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     }
 
     // is width and height even required here as the surface appear to control it.
-
-    _swapchain = Swapchain::create(_physicalDevice, _device, _surface, width, height, _traits->swapchainPreferences);
+    _swapchain = Swapchain::create(_physicalDevice, _device, _surface, _extent2D.width, _extent2D.height, _traits->swapchainPreferences);
 
     // pass back the extents used by the swap chain.
     _extent2D = _swapchain->getExtent();
@@ -174,7 +185,8 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     depthImageCreateInfo.pNext = nullptr;
 
     _depthImage = Image::create(_device, depthImageCreateInfo);
-    _depthImageMemory = DeviceMemory::create(_device, _depthImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    _depthImageMemory = DeviceMemory::create(_device, _depthImage->getMemoryRequirements(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     vkBindImageMemory(*_device, *_depthImage, *_depthImageMemory, 0);
 
@@ -225,26 +237,4 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     }
 
     _nextImageIndex = 0;
-}
-
-// just kept for backwards compatibility for now
-Window::Result Window::create(uint32_t width, uint32_t height, bool debugLayer, bool apiDumpLayer, vsg::Window* shareWindow, vsg::AllocationCallbacks* allocator)
-{
-    vsg::ref_ptr<WindowTraits> traits(new WindowTraits());
-    traits->width = width;
-    traits->height = height;
-    traits->shareWindow = shareWindow;
-    traits->debugLayer = debugLayer;
-    traits->apiDumpLayer = apiDumpLayer;
-    traits->allocator = allocator;
-    return create(traits);
-}
-
-// just kept for backwards compatibility for now
-Window::Result Window::create(vsg::ref_ptr<WindowTraits> traits, bool debugLayer, bool apiDumpLayer, vsg::AllocationCallbacks* allocator)
-{
-    traits->debugLayer = debugLayer;
-    traits->apiDumpLayer = apiDumpLayer;
-    traits->allocator = allocator;
-    return create(traits);
 }

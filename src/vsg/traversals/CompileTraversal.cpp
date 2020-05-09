@@ -12,21 +12,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/traversals/CompileTraversal.h>
 
-#include <vsg/nodes/Commands.h>
+#include <vsg/commands/Command.h>
+#include <vsg/commands/Commands.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
-#include <vsg/nodes/StateGroup.h>
-
-#include <vsg/vk/Command.h>
+#include <vsg/state/StateGroup.h>
+#include <vsg/viewer/CommandGraph.h>
+#include <vsg/viewer/RenderGraph.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
-
-#include <vsg/viewer/CommandGraph.h>
-#include <vsg/viewer/RenderGraph.h>
 
 using namespace vsg;
 
@@ -138,6 +136,16 @@ CompileTraversal::CompileTraversal(Device* in_device, BufferPreferences bufferPr
 {
 }
 
+CompileTraversal::CompileTraversal(Window* window, BufferPreferences bufferPreferences) :
+    context(window->getOrCreateDevice(), bufferPreferences)
+{
+    auto device = window->getDevice();
+    auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
+    context.renderPass = window->getOrCreateRenderPass();
+    context.commandPool = vsg::CommandPool::create(device, queueFamily);
+    context.graphicsQueue = device->getQueue(queueFamily);
+}
+
 CompileTraversal::CompileTraversal(const CompileTraversal& ct) :
     Inherit(ct),
     context(ct.context)
@@ -181,7 +189,7 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
 }
 void CompileTraversal::apply(RenderGraph& renderGraph)
 {
-    context.renderPass = renderGraph.window->renderPass();
+    context.renderPass = renderGraph.getRenderPass();
 
     if (renderGraph.camera)
     {

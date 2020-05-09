@@ -12,14 +12,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/commands/PushConstants.h>
 #include <vsg/maths/plane.h>
-#include <vsg/vk/BindIndexBuffer.h>
-#include <vsg/vk/BindVertexBuffers.h>
+#include <vsg/state/ComputePipeline.h>
+#include <vsg/state/DescriptorSet.h>
+#include <vsg/state/GraphicsPipeline.h>
 #include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/ComputePipeline.h>
-#include <vsg/vk/DescriptorSet.h>
-#include <vsg/vk/GraphicsPipeline.h>
-#include <vsg/vk/PushConstants.h>
 
 #include <array>
 #include <map>
@@ -295,7 +293,7 @@ namespace vsg
         }
 
         template<typename T>
-        bool intersect(t_sphere<T> const& s)
+        bool intersect(const t_sphere<T>& s)
         {
             return vsg::intersect(_frustumStack.top(), s);
         }

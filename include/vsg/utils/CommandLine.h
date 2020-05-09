@@ -46,19 +46,19 @@ namespace vsg
         char* operator[](int i) { return _argv[i]; }
 
         template<typename T>
-        bool read(int& i, T& value)
+        bool read(int& i, T& v)
         {
             const int num_args = *_argc;
             if (i >= num_args) return false;
 
             if constexpr (std::is_same_v<T, std::string>)
             {
-                value = _argv[i++];
+                v = _argv[i++];
                 return true;
             }
             else
             {
-                std::size_t num_elements = type_num_elements(value);
+                std::size_t num_elements = type_num_elements(v);
 
                 _istr.clear();
                 if (num_elements == 1)
@@ -77,7 +77,7 @@ namespace vsg
 
                     _istr.str(str);
                 }
-                _istr >> value;
+                _istr >> v;
 
                 return (!_istr.fail());
             }
@@ -145,17 +145,17 @@ namespace vsg
         template<typename T, typename... Args>
         T value(T defaultValue, const std::string& match, Args&... args)
         {
-            T value{defaultValue};
-            read(match, args..., value);
-            return value;
+            T v{defaultValue};
+            read(match, args..., v);
+            return v;
         }
 
         template<typename T, typename... Args>
         T value(T defaultValue, std::initializer_list<std::string> matches, Args&... args)
         {
-            T value{defaultValue};
-            read(matches, args..., value);
-            return value;
+            T v{defaultValue};
+            read(matches, args..., v);
+            return v;
         }
 
         using Messages = std::vector<std::string>;

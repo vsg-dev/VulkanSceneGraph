@@ -111,7 +111,7 @@ namespace vsg
     }
 
     template<typename T>
-    constexpr t_mat4<T> lookAt(t_vec3<T> const& eye, t_vec3<T> const& center, t_vec3<T> const& up)
+    constexpr t_mat4<T> lookAt(const t_vec3<T>& eye, const t_vec3<T>& center, const t_vec3<T>& up)
     {
         using vec_type = t_vec3<T>;
 

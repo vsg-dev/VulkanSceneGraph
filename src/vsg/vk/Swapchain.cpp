@@ -10,11 +10,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
+#include <vsg/viewer/Window.h>
 #include <vsg/vk/Device.h>
 #include <vsg/vk/Surface.h>
 #include <vsg/vk/Swapchain.h>
-
-#include <vsg/viewer/Window.h>
 
 #include <algorithm>
 #include <iostream>
@@ -145,32 +145,8 @@ SwapchainImage::~SwapchainImage()
 //
 // Swapchain
 //
-Swapchain::Swapchain(VkSwapchainKHR swapchain, Device* device, Surface* surface, AllocationCallbacks* allocator) :
-    _device(device),
-    _surface(surface),
-    _swapchain(swapchain),
-    _allocator(allocator)
+Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences, AllocationCallbacks* allocator)
 {
-}
-
-Swapchain::~Swapchain()
-{
-    _imageViews.clear();
-
-    if (_swapchain)
-    {
-        //std::cout << "Calling vkDestroySwapchainKHR(..)" << std::endl;
-        vkDestroySwapchainKHR(*_device, _swapchain, _allocator);
-    }
-}
-
-Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences, AllocationCallbacks* allocator)
-{
-    if (!physicalDevice || !device || !surface)
-    {
-        return Swapchain::Result("Error: vsg::Swapchain::create(...) failed to create swapchain, undefined inputs.", VK_ERROR_INVALID_EXTERNAL_HANDLE);
-    }
-
     SwapChainSupportDetails details = querySwapChainSupport(*physicalDevice, *surface);
 
     VkSurfaceFormatKHR surfaceFormat = selectSwapSurfaceFormat(details, preferences.surfaceFormat);
@@ -229,13 +205,17 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
     VkResult result = vkCreateSwapchainKHR(*device, &createInfo, allocator, &swapchain);
     if (result != VK_SUCCESS)
     {
-        return Result("Error: Failed to create swap chain.", result);
+        throw Exception{"Error: Failed to create swap chain.", result};
     }
 
-    ref_ptr<Swapchain> sw(new Swapchain(swapchain, device, surface));
+    // assign data to this Swapchain object
+    _device = device;
+    _surface = surface;
+    _swapchain = swapchain;
+    _allocator = allocator;
 
-    sw->_format = surfaceFormat.format;
-    sw->_extent = extent;
+    _format = surfaceFormat.format;
+    _extent = extent;
 
     // create the ImageViews
     vkGetSwapchainImagesKHR(*device, swapchain, &imageCount, nullptr);
@@ -245,8 +225,17 @@ Swapchain::Result Swapchain::create(PhysicalDevice* physicalDevice, Device* devi
     for (std::size_t i = 0; i < images.size(); ++i)
     {
         ref_ptr<ImageView> view = ImageView::create(device, new SwapchainImage(images[i], device), VK_IMAGE_VIEW_TYPE_2D, surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT, allocator);
-        if (view) sw->getImageViews().push_back(view);
+        if (view) getImageViews().push_back(view);
     }
+}
 
-    return Result(sw);
+Swapchain::~Swapchain()
+{
+    _imageViews.clear();
+
+    if (_swapchain)
+    {
+        //std::cout << "Calling vkDestroySwapchainKHR(..)" << std::endl;
+        vkDestroySwapchainKHR(*_device, _swapchain, _allocator);
+    }
 }
