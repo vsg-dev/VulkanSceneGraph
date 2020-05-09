@@ -61,23 +61,27 @@ namespace vsgAndroid
     {
     public:
 
-        Android_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator = nullptr);
+        Android_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
         Android_Window() = delete;
         Android_Window(const Android_Window&) = delete;
         Android_Window operator = (const Android_Window&) = delete;
 
-        virtual bool valid() const { return _window; }
+        const char* instanceExtensionSurfaceName() const override { return "VK_KHR_android_surface"; }
 
-        virtual bool pollEvents(vsg::Events& events);
+        bool valid() const override { return _window; }
 
-        virtual bool resized() const;
+        bool pollEvents(vsg::Events& events) override;
 
-        virtual void resize();
+        bool resized() const override;
+
+        void resize() override;
 
         bool handleAndroidInputEvent(AInputEvent* anEvent);
 
     protected:
         virtual ~Android_Window();
+
+        void _initSurface() override;
 
         ANativeWindow* _window;
 

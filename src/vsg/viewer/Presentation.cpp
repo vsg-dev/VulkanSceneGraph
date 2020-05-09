@@ -35,7 +35,7 @@ VkResult Presentation::present()
         //vk_semaphores.push_back(*(window->frame(window->nextImageIndex()).imageAvailableSemaphore));
         if (window->visible())
         {
-            vk_swapchains.emplace_back(*(window->swapchain()));
+            vk_swapchains.emplace_back(*(window->getOrCreateSwapchain()));
             indices.emplace_back(window->nextImageIndex());
         }
     }

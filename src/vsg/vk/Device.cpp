@@ -134,35 +134,6 @@ Device::~Device()
     releaseDeiviceID(deviceID);
 }
 
-ref_ptr<Device> vsg::createDevice(WindowTraits* windowTraits)
-{
-    vsg::Names instanceExtensions = windowTraits->instanceExtensionNames;
-
-    vsg::Names requestedLayers;
-    if (windowTraits && windowTraits->debugLayer)
-    {
-        instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-        requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
-        if (windowTraits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
-    }
-
-    vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
-
-    auto instance = vsg::Instance::create(instanceExtensions, validatedNames, windowTraits->allocator);
-
-    // set up device
-    auto [physicalDevice, queueFamily] = instance->getPhysicalDeviceAndQueueFamily(windowTraits->queueFlags);
-    if (!physicalDevice || queueFamily < 0) throw Exception{"Error: vsg::Device::create(...) failed to create logical device.", VK_ERROR_INITIALIZATION_FAILED};
-
-    vsg::Names deviceExtensions;
-    deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-
-    deviceExtensions.insert(deviceExtensions.end(), windowTraits->deviceExtensionNames.begin(), windowTraits->deviceExtensionNames.end());
-
-    vsg::QueueSettings queueSettings{vsg::QueueSetting{queueFamily, {1.0}}};
-    return vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, windowTraits->allocator);
-}
-
 ref_ptr<Queue> Device::getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
 {
     for (auto& queue : _queues)

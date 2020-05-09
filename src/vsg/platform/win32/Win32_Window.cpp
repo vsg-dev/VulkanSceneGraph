@@ -306,8 +306,8 @@ KeyboardMap::KeyboardMap()
         };
 }
 
-Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
-    Inherit(assignSurfaceExtension(traits, VK_KHR_WIN32_SURFACE_EXTENSION_NAME), allocator),
+Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
+    Inherit(traits),
     _window(nullptr)
 {
     _keyboard = new KeyboardMap;
@@ -421,31 +421,14 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits, vsg::AllocationCal
     uint32_t finalWidth = clientRect.right - clientRect.left;
     uint32_t finalHeight = clientRect.bottom - clientRect.top;
 
-    vsg::ref_ptr<Win32_Window> window;
-
     if (traits->shareWindow)
     {
         // share the _instance, _physicalDevice and _device;
-        window->share(*traits->shareWindow);
-
-        // create surface
-        _surface = new vsgWin32::Win32Surface(traits->shareWindow->instance(), _window, allocator);
-
-        // temporary hack to force vkGetPhysicalDeviceSurfaceSupportKHR to be called as the Vulkan
-        // debug layer is complaining about vkGetPhysicalDeviceSurfaceSupportKHR not being called
-        // for this _surface prior to swap chain creation
-        auto result = traits->shareWindow->instance()->getPhysicalDeviceAndQueueFamily(VK_QUEUE_GRAPHICS_BIT, _surface);
-    }
-    else
-    {
-        // create win32 surface
-        _surface = new vsgWin32::Win32Surface(_instance, _window, allocator);
-
-        // set up device
-        initaliseDevice();
+        share(*traits->shareWindow);
     }
 
-    buildSwapchain(finalWidth, finalHeight);
+    _extent2D.width = finalWidth;
+    _extent2D.height = finalHeight;
 
     ShowWindow(_window, SW_SHOW);
     SetForegroundWindow(_window);
@@ -469,6 +452,13 @@ Win32_Window::~Win32_Window()
         // when should we unregister??
         ::UnregisterClass(className, ::GetModuleHandle(NULL));
     }
+}
+
+void Win32_Window::_initSurface()
+{
+    if (!_instance) _initInstance();
+
+    _surface = new vsgWin32::Win32Surface(_instance, _window, _traits->allocator);
 }
 
 bool Win32_Window::pollEvents(vsg::Events& events)
@@ -518,10 +508,10 @@ void Win32_Window::resize()
     RECT windowRect;
     GetClientRect(_window, &windowRect);
 
-    int width = windowRect.right - windowRect.left;
-    int height = windowRect.bottom - windowRect.top;
+    _extent2D.width = windowRect.right - windowRect.left;
+    _extent2D.height = windowRect.bottom - windowRect.top;
 
-    buildSwapchain(width, height);
+    buildSwapchain();
 }
 
 LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam)

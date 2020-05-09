@@ -30,22 +30,6 @@ namespace vsg
     public:
         Viewer();
 
-        struct PerDeviceObjects
-        {
-            Windows windows;
-            ref_ptr<Queue> graphicsQueue;
-            ref_ptr<Queue> presentQueue;
-            ref_ptr<Semaphore> renderFinishedSemaphore;
-
-            // cache data to be used each frame
-            std::vector<uint32_t> imageIndices;
-            std::vector<VkSemaphore> signalSemaphores;
-            std::vector<VkCommandBuffer> commandBuffers;
-            std::vector<VkSwapchainKHR> swapchains;
-        };
-
-        using DeviceMap = std::map<ref_ptr<Device>, PerDeviceObjects>;
-
         /// add Window to Viewer
         virtual void addWindow(ref_ptr<Window> window);
 
@@ -95,8 +79,6 @@ namespace vsg
         /// pass the Events into the any register EventHandlers
         virtual void handleEvents();
 
-        virtual void reassignFrameCache();
-
         virtual void compile(BufferPreferences bufferPreferences = {});
 
         virtual bool acquireNextFrame();
@@ -117,6 +99,9 @@ namespace vsg
 
         virtual void present();
 
+        /// Call vkDeviceWaitIdle on all the devices associated with this Viewer
+        void deviceWaitIdle() const;
+
     protected:
         virtual ~Viewer();
 
@@ -125,8 +110,6 @@ namespace vsg
         ref_ptr<FrameStamp> _frameStamp;
 
         Windows _windows;
-
-        DeviceMap _deviceMap;
 
         clock::time_point _start_point;
         Events _events;

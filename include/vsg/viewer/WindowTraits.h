@@ -14,7 +14,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <any>
 
-#include <vsg/vk/RenderPass.h>
 #include <vsg/vk/Swapchain.h>
 
 namespace vsg
@@ -70,7 +69,6 @@ namespace vsg
         vsg::Names deviceExtensionNames;
 
         ref_ptr<Device> device;
-        ref_ptr<RenderPass> renderPass;
 
         Window* shareWindow = nullptr;
 
@@ -83,13 +81,5 @@ namespace vsg
         virtual ~WindowTraits() {}
     };
     VSG_type_name(vsg::WindowTraits);
-
-    /// convinience function used by Window implementations to set the required instanceExtensionNames
-    inline ref_ptr<WindowTraits> assignSurfaceExtension(ref_ptr<WindowTraits> traits, const char* name)
-    {
-        traits->instanceExtensionNames.push_back("VK_KHR_surface");
-        traits->instanceExtensionNames.push_back(name);
-        return traits;
-    }
 
 } // namespace vsg

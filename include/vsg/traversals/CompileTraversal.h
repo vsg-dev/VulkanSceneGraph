@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Group.h>
 #include <vsg/state/Descriptor.h>
 #include <vsg/state/ResourceHints.h>
+#include <vsg/viewer/Window.h>
 #include <vsg/vk/BufferData.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/Context.h>
@@ -62,6 +63,7 @@ namespace vsg
     {
     public:
         explicit CompileTraversal(Device* in_device, BufferPreferences bufferPreferences = {});
+        explicit CompileTraversal(Window* window, BufferPreferences bufferPreferences = {});
         CompileTraversal(const CompileTraversal& ct);
         ~CompileTraversal();
 

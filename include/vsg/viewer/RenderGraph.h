@@ -44,7 +44,7 @@ namespace vsg
             }
             else
             {
-                return window->renderPass();
+                return window->getOrCreateRenderPass();
             }
         }
         using ClearValues = std::vector<VkClearValue>;

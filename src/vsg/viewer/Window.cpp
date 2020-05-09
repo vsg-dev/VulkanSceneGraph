@@ -21,31 +21,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Window::Window(ref_ptr<WindowTraits> traits, vsg::AllocationCallbacks* allocator) :
+Window::Window(ref_ptr<WindowTraits> traits) :
     _traits(traits),
     _clearColor{{0.2f, 0.2f, 0.4f, 1.0f}},
     _nextImageIndex(0)
 {
-    if (_traits->device)
-    {
-        _instance = _traits->device->getInstance();
-    }
-    else
-    {
-        // create the vkInstance
-        vsg::Names instanceExtensions = traits->instanceExtensionNames;
-
-        vsg::Names requestedLayers;
-        if (traits && traits->debugLayer)
-        {
-            instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-            requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
-            if (traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
-        }
-
-        vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
-        _instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
-    }
 }
 
 Window::~Window()
@@ -76,8 +56,42 @@ void Window::share(const Window& window)
     _renderPass = window._renderPass;
 }
 
-void Window::initaliseDevice()
+void Window::_initInstance()
 {
+    if (_traits->device)
+    {
+        _instance = _traits->device->getInstance();
+    }
+    else
+    {
+        // create the vkInstance
+        vsg::Names instanceExtensions = _traits->instanceExtensionNames;
+
+        instanceExtensions.push_back("VK_KHR_surface");
+        instanceExtensions.push_back(instanceExtensionSurfaceName());
+
+        vsg::Names requestedLayers;
+        if (_traits->debugLayer)
+        {
+            instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+            requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+            if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
+        }
+
+        // TODO need to decide whether we need to have a Window::_allocator or traits member.
+        vsg::AllocationCallbacks* allocator = nullptr;
+
+        vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
+        _instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
+    }
+}
+
+void Window::_initDevice()
+{
+    if (!_instance) _initInstance();
+    if (!_surface) _initSurface();
+
+    // Device
     if (_traits->device)
     {
         _device = _traits->device;
@@ -107,23 +121,28 @@ void Window::initaliseDevice()
         _device = vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->allocator);
         _physicalDevice = physicalDevice;
     }
-
-    // set up renderpass with the imageFormat that the swap chain will use
-    if (_traits->renderPass)
-    {
-        _renderPass = _traits->renderPass;
-    }
-    else
-    {
-        vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
-        VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
-        VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
-
-        _renderPass = vsg::createRenderPass(_device, imageFormat.format, depthFormat, _traits->allocator);
-    }
 }
 
-void Window::buildSwapchain(uint32_t width, uint32_t height)
+void Window::_initRenderPass()
+{
+    if (!_device) _initDevice();
+
+    vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
+    VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
+    VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
+
+    _renderPass = vsg::createRenderPass(_device, imageFormat.format, depthFormat, _traits->allocator);
+}
+
+void Window::_initSwapchain()
+{
+    if (!_device) _initDevice();
+    if (!_renderPass) _initRenderPass();
+
+    buildSwapchain();
+}
+
+void Window::buildSwapchain()
 {
     if (_swapchain)
     {
@@ -141,8 +160,7 @@ void Window::buildSwapchain(uint32_t width, uint32_t height)
     }
 
     // is width and height even required here as the surface appear to control it.
-
-    _swapchain = Swapchain::create(_physicalDevice, _device, _surface, width, height, _traits->swapchainPreferences);
+    _swapchain = Swapchain::create(_physicalDevice, _device, _surface, _extent2D.width, _extent2D.height, _traits->swapchainPreferences);
 
     // pass back the extents used by the swap chain.
     _extent2D = _swapchain->getExtent();

@@ -94,10 +94,10 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
         {
             // crude handling of window resize...TODO, come up with a user controllable way to handle resize.
 
-            vsg::UpdatePipeline updatePipeline(window->device());
+            vsg::UpdatePipeline updatePipeline(window->getDevice());
 
             updatePipeline.context.commandPool = dispatchTraversal.state->_commandBuffer->getCommandPool();
-            updatePipeline.context.renderPass = window->renderPass();
+            updatePipeline.context.renderPass = window->getRenderPass();
 
             if (camera)
             {
@@ -146,7 +146,7 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
     }
     else if (window)
     {
-        renderPassInfo.renderPass = *(window->renderPass());
+        renderPassInfo.renderPass = *(window->getRenderPass());
     }
     if (framebuffer)
     {

@@ -25,8 +25,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <windows.h>
 #include <windowsx.h>
 
-#include <iostream>
-
 namespace vsgWin32
 {
     class KeyboardMap : public vsg::Object
@@ -109,10 +107,12 @@ namespace vsgWin32
     {
     public:
 
-        Win32_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator = nullptr);
+        Win32_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
         Win32_Window() = delete;
         Win32_Window(const Win32_Window&) = delete;
         Win32_Window operator=(const Win32_Window&) = delete;
+
+        const char* instanceExtensionSurfaceName() const override { return VK_KHR_WIN32_SURFACE_EXTENSION_NAME; }
 
         bool valid() const override { return _window; }
 
@@ -129,6 +129,8 @@ namespace vsgWin32
 
     protected:
         virtual ~Win32_Window();
+
+        void _initSurface() override;
 
         HWND _window;
 

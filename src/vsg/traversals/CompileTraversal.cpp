@@ -136,6 +136,16 @@ CompileTraversal::CompileTraversal(Device* in_device, BufferPreferences bufferPr
 {
 }
 
+CompileTraversal::CompileTraversal(Window* window, BufferPreferences bufferPreferences) :
+    context(window->getOrCreateDevice(), bufferPreferences)
+{
+    auto device = window->getDevice();
+    auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
+    context.renderPass = window->getOrCreateRenderPass();
+    context.commandPool = vsg::CommandPool::create(device, queueFamily);
+    context.graphicsQueue = device->getQueue(queueFamily);
+}
+
 CompileTraversal::CompileTraversal(const CompileTraversal& ct) :
     Inherit(ct),
     context(ct.context)

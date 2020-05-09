@@ -44,18 +44,20 @@ namespace vsgMacOS
     {
     public:
 
-        MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits, vsg::AllocationCallbacks* allocator = nullptr);
+        MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
         MacOS_Window() = delete;
         MacOS_Window(const MacOS_Window&) = delete;
         MacOS_Window operator = (const MacOS_Window&) = delete;
 
-        virtual bool valid() const { return _window; }
+        const char* instanceExtensionSurfaceName() const override { return "VK_MVK_macos_surface"; }
 
-        virtual bool pollEvents(vsg::Events& events);
+        bool valid() const override { return _window; }
 
-        virtual bool resized() const;
+        bool pollEvents(vsg::Events& events) override;
 
-        virtual void resize();
+        bool resized() const override;
+
+        void resize() override;
 
         bool handleNSEvent(NSEvent* anEvent);
 
@@ -74,6 +76,8 @@ namespace vsgMacOS
 
     protected:
         virtual ~MacOS_Window();
+
+        void _initSurface() override;
 
         vsg_MacOS_NSWindow* _window;
         vsg_MacOS_NSView* _view;
