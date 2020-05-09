@@ -54,7 +54,7 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     if (recordedCommandBuffers.empty())
     {
         // nothing to do so return early
-        std::this_thread::sleep_for(std::chrono::milliseconds(16));  // sleep for 1/60th of a second
+        std::this_thread::sleep_for(std::chrono::milliseconds(16)); // sleep for 1/60th of a second
         return VK_SUCCESS;
     }
 

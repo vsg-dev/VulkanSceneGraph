@@ -30,7 +30,6 @@ namespace vsg
     public:
         Viewer();
 
-
         /// add Window to Viewer
         virtual void addWindow(ref_ptr<Window> window);
 

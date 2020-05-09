@@ -41,7 +41,7 @@ void Viewer::deviceWaitIdle() const
         if (window->getDevice()) devices.insert(*(window->getDevice()));
     }
 
-    for(auto& device : devices)
+    for (auto& device : devices)
     {
         vkDeviceWaitIdle(device);
     }
@@ -130,7 +130,7 @@ bool Viewer::acquireNextFrame()
     {
         if (!window->visible()) continue;
 
-        while((result = window->acquireNextImage()) != VK_SUCCESS)
+        while ((result = window->acquireNextImage()) != VK_SUCCESS)
         {
             if (result == VK_ERROR_SURFACE_LOST_KHR ||
                 result == VK_ERROR_DEVICE_LOST ||
@@ -142,7 +142,7 @@ bool Viewer::acquireNextFrame()
             }
             else
             {
-                std::cout<<"Warning : window->acquireNextImage() VkResult = "<<result<<std::endl;
+                std::cout << "Warning : window->acquireNextImage() VkResult = " << result << std::endl;
                 break;
             }
         }

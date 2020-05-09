@@ -54,23 +54,47 @@ namespace vsg
         const VkClearColorValue& clearColor() const { return _clearColor; }
 
         Instance* getInstance() { return _instance; }
-        Instance* getOrCreateInstance() { if (!_instance) _initInstance(); return _instance; }
+        Instance* getOrCreateInstance()
+        {
+            if (!_instance) _initInstance();
+            return _instance;
+        }
 
         Surface* getSurface() { return _surface; }
-        Surface* getOrCreateSurface() { if (!_surface) _initSurface(); return _surface; }
+        Surface* getOrCreateSurface()
+        {
+            if (!_surface) _initSurface();
+            return _surface;
+        }
 
         Device* getDevice() { return _device; }
-        Device* getOrCreateDevice() { if (!_device) _initDevice(); return _device; }
+        Device* getOrCreateDevice()
+        {
+            if (!_device) _initDevice();
+            return _device;
+        }
 
         PhysicalDevice* getPhysicalDevice() { return _physicalDevice; }
-        PhysicalDevice* getOrCreatePhysicalDevice() { if (!_physicalDevice) _initDevice(); return _physicalDevice; }
+        PhysicalDevice* getOrCreatePhysicalDevice()
+        {
+            if (!_physicalDevice) _initDevice();
+            return _physicalDevice;
+        }
 
         void setRenderPass(RenderPass* renderPass) { _renderPass = renderPass; }
         RenderPass* getRenderPass() { return _renderPass; }
-        RenderPass* getOrCreateRenderPass() { if (!_renderPass) _initRenderPass(); return _renderPass; }
+        RenderPass* getOrCreateRenderPass()
+        {
+            if (!_renderPass) _initRenderPass();
+            return _renderPass;
+        }
 
         Swapchain* getSwapchain() { return _swapchain; }
-        Swapchain* getOrCreateSwapchain() { if (!_swapchain) _initSwapchain(); return _swapchain; }
+        Swapchain* getOrCreateSwapchain()
+        {
+            if (!_swapchain) _initSwapchain();
+            return _swapchain;
+        }
 
         size_t numFrames() const { return _frames.size(); }
 
