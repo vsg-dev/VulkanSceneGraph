@@ -96,10 +96,7 @@ namespace vsg
         {
             if (_count.fetch_sub(1) <= 1)
             {
-                std::scoped_lock lock(_mutex);
-                _cv.notify_all();
-
-                released();
+                release();
             }
             else
             {
@@ -111,10 +108,7 @@ namespace vsg
         {
             if (_count.fetch_sub(1) <= 1)
             {
-                std::scoped_lock lock(_mutex);
-                _cv.notify_all();
-
-                released();
+                release();
             }
         }
 
@@ -132,7 +126,11 @@ namespace vsg
             return _count == 0;
         }
 
-        virtual void released() {}
+        virtual void release()
+        {
+            std::scoped_lock lock(_mutex);
+            _cv.notify_all();
+        }
 
     protected:
         virtual ~Barrier() {}
@@ -147,6 +145,7 @@ namespace vsg
     {
         SubmitBarrier(int num) :
             Inherit(num) {}
+
         void submit(const CommandBuffers& rcb)
         {
             {
@@ -157,13 +156,17 @@ namespace vsg
             arrive_and_drop();
         }
 
-        void released() override
+        void release() override
         {
-            std::scoped_lock lock(recordCommandBuffersMutex);
+            {
+                std::scoped_lock lock(recordCommandBuffersMutex);
 
-            // do submissions
+                // do submissions
 
-            submissionCompleteBarrier->arrive_and_drop();
+                submissionCompleteBarrier->arrive_and_drop();
+            }
+
+            Barrier::release();
         }
 
         std::mutex recordCommandBuffersMutex;
