@@ -18,7 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <array>
 #include <chrono>
-#include <iostream>
 
 using namespace vsg;
 
