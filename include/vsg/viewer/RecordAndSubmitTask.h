@@ -92,6 +92,7 @@ namespace vsg
             _count = _num_threads;
         }
 
+        /// decrement the Barrier count, if count goes to zero call Barier::release() to release all waiting threads, otherwsie wait on the barrier.
         void arrive_and_wait()
         {
             if (_count.fetch_sub(1) <= 1)
@@ -104,6 +105,22 @@ namespace vsg
             }
         }
 
+        /// decrement the Barrier count, if thread is one to reduce the count to return immediately and return true, otherwise wait on barrier and when it's released return false.
+        /// If true is reqturn it is the callers responsibility to call Battier::release() to release all waiting thrads.
+        bool arrive_and_wait_or_manual_release()
+        {
+            if (_count.fetch_sub(1) <= 1)
+            {
+                return true;
+            }
+            else
+            {
+                wait();
+                return false;
+            }
+        }
+
+        /// decrement the Barrier count and return immediately, and if it goes to zero calls Barrier::release() to release all waiting threads
         void arrive_and_drop()
         {
             if (_count.fetch_sub(1) <= 1)
@@ -112,6 +129,7 @@ namespace vsg
             }
         }
 
+        /// wait on barrier till it's count goes to zero.
         void wait()
         {
             std::unique_lock lock(_mutex);
@@ -126,6 +144,7 @@ namespace vsg
             return _count == 0;
         }
 
+        /// release all waiting threads.
         virtual void release()
         {
             std::scoped_lock lock(_mutex);
@@ -139,39 +158,6 @@ namespace vsg
         std::atomic_int _count;
         std::mutex _mutex;
         std::condition_variable _cv;
-    };
-
-    struct SubmitBarrier : public Inherit<Barrier, SubmitBarrier>
-    {
-        SubmitBarrier(int num) :
-            Inherit(num) {}
-
-        void submit(const CommandBuffers& rcb)
-        {
-            {
-                std::scoped_lock lock(recordCommandBuffersMutex);
-                recordedCommandBuffers.insert(recordedCommandBuffers.end(), rcb.begin(), rcb.end());
-            }
-
-            arrive_and_drop();
-        }
-
-        void release() override
-        {
-            {
-                std::scoped_lock lock(recordCommandBuffersMutex);
-
-                // do submissions
-
-                submissionCompleteBarrier->arrive_and_drop();
-            }
-
-            Barrier::release();
-        }
-
-        std::mutex recordCommandBuffersMutex;
-        CommandBuffers recordedCommandBuffers;
-        ref_ptr<Barrier> submissionCompleteBarrier;
     };
 
     // RecordAndSubmitTask
@@ -198,8 +184,7 @@ namespace vsg
         ref_ptr<Queue> queue; // assign in application for GraphicsQueue from device
 
         ref_ptr<DatabasePager> databasePager;
-
-        std::thread thread;
     };
+    VSG_type_name(vsg::RecordAndSubmitTask);
 
 } // namespace vsg

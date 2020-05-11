@@ -335,34 +335,127 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
     }
 }
 
-void Viewer::setupThreading()
+void Viewer::setupThreading(ThreadingModel threadingModel)
 {
-    std::cout << "Viewer::setupThreading()" << std::endl;
+    std::cout << "Viewer::setupThreading() " <<threadingModel<<std::endl;
 
-    _threading = true;
-
-    _frameBlock = FrameBlock::create(_status);
-    _submissionCompleted = Barrier::create(recordAndSubmitTasks.size());
-
-    for (auto& task : recordAndSubmitTasks)
+    if (threadingModel == SINGLE_THREADED)
     {
-        auto run = [](observer_ptr<RecordAndSubmitTask> viewer_task, ref_ptr<FrameBlock> viewer_frameBlock, ref_ptr<Barrier> submissionCompleted) {
-            auto frameStamp = viewer_frameBlock->initial_value;
+        if (_threading) stopThreading();
+        return;
+    }
 
-            // wait for this frame to be signalled
-            while (viewer_frameBlock->wait_for_change(frameStamp))
+    // clear any previous threading.
+    for(auto& thread : threads)
+    {
+        if (thread.joinable()) thread.join();
+    }
+    threads.clear();
+
+
+    if (threadingModel == THREAD_PER_RAS_TASK)
+    {
+        std::cout<<"Setting up threading per Task"<<std::endl;
+
+        _threading = true;
+
+        _frameBlock = FrameBlock::create(_status);
+        _submissionCompleted = Barrier::create(recordAndSubmitTasks.size());
+
+        for (auto& task : recordAndSubmitTasks)
+        {
+            auto run = [](observer_ptr<RecordAndSubmitTask> viewer_task, ref_ptr<FrameBlock> viewer_frameBlock, ref_ptr<Barrier> submissionCompleted) {
+                auto frameStamp = viewer_frameBlock->initial_value;
+
+                // wait for this frame to be signalled
+                while (viewer_frameBlock->wait_for_change(frameStamp))
+                {
+                    // take a refernce to the command buffer to prevent it being deleted while we are traversing.
+                    ref_ptr<RecordAndSubmitTask> ras_task = viewer_task;
+                    if (!ras_task) break;
+
+                    ras_task->submit(frameStamp);
+
+                    submissionCompleted->arrive_and_drop();
+                }
+            };
+
+            threads.push_back(std::thread(run, observer_ptr<RecordAndSubmitTask>(task), _frameBlock, _submissionCompleted));
+        }
+    }
+    else
+    {
+        _threading = true;
+
+        _frameBlock = FrameBlock::create(_status);
+
+        _submissionCompleted = Barrier::create(recordAndSubmitTasks.size());
+
+        for (auto& task : recordAndSubmitTasks)
+        {
+            struct SharedData : public Inherit<Object, SharedData>
             {
-                // take a refernce to the command buffer to prevent it being deleted while we are traversing.
-                ref_ptr<RecordAndSubmitTask> ras_task = viewer_task;
-                if (!ras_task) break;
+                SharedData(ref_ptr<RecordAndSubmitTask> in_task, ref_ptr<FrameBlock> in_frameBlock, ref_ptr<Barrier> in_submissionCompleted, uint32_t numThreads) :
+                    task(in_task),
+                    frameBlock(in_frameBlock),
+                    submissionCompletedBarrier(in_submissionCompleted)
+                {
+                    recordStartBarrier = Barrier::create(numThreads);
+                    recordCompletedBarrier = Barrier::create(numThreads);
+                }
 
-                ras_task->submit(frameStamp);
+                // shared betwween all threads
+                ref_ptr<RecordAndSubmitTask> task;
+                ref_ptr<FrameBlock> frameBlock;
+                ref_ptr<Barrier> submissionCompletedBarrier;
 
-                submissionCompleted->arrive_and_drop();
+                // shared between threads associated with each task
+                std::mutex recordCommandBuffersMutex;
+                CommandBuffers recordedCommandBuffers;
+
+                ref_ptr<Barrier> recordStartBarrier;
+                ref_ptr<Barrier> recordCompletedBarrier;
+            };
+
+            ref_ptr<SharedData> sharedData = SharedData::create(task, _frameBlock, _submissionCompleted, task->commandGraphs.size());
+
+            for(auto& cg : task->commandGraphs)
+            {
+
+                auto run = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph) {
+
+                    auto frameStamp = data->frameBlock->initial_value;
+
+                    // wait for this frame to be signalled
+                    while (data->frameBlock->wait_for_change(frameStamp))
+                    {
+                        if (data->recordStartBarrier->arrive_and_wait_or_manual_release())
+                        {
+                            data->task->start();
+                            data->recordStartBarrier->release();
+                        }
+
+                        CommandBuffers localRecordedCommandBuffers;
+                        commandGraph->record(localRecordedCommandBuffers, frameStamp, data->task->databasePager);
+
+                        {
+                            std::scoped_lock lock(data->recordCommandBuffersMutex);
+                            data->recordedCommandBuffers.insert(data->recordedCommandBuffers.end(), localRecordedCommandBuffers.begin(), localRecordedCommandBuffers.end());
+                        }
+
+                        if (data->recordCompletedBarrier->arrive_and_wait_or_manual_release())
+                        {
+                            data->task->finish(data->recordedCommandBuffers);
+                            data->recordedCommandBuffers.clear();
+                            data->submissionCompletedBarrier->arrive_and_drop();
+                            data->recordCompletedBarrier->release();
+                        }
+                    }
+                };
+
+                threads.push_back(std::thread(run, sharedData, cg));
             }
-        };
-
-        task->thread = std::thread(run, observer_ptr<RecordAndSubmitTask>(task), _frameBlock, _submissionCompleted);
+        }
     }
 }
 
@@ -378,10 +471,23 @@ void Viewer::stopThreading()
     _status->set(false);
     _frameBlock->wake();
 
+#if 1
+    for(auto& thread : threads)
+    {
+        if (thread.joinable()) thread.join();
+    }
+    threads.clear();
+#else
     for (auto& task : recordAndSubmitTasks)
     {
-        task->thread.join();
+        if (task->thread.joinable()) task->thread.join();
+
+        for(auto& commandGraph : task->commandGraphs)
+        {
+            if (commandGraph->thread.joinable()) commandGraph->thread.join();
+        }
     }
+#endif
 }
 
 void Viewer::update()

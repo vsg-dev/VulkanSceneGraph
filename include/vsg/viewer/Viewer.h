@@ -91,9 +91,18 @@ namespace vsg
         using Presentations = std::vector<ref_ptr<Presentation>>;
         Presentations presentations;
 
+        std::list<std::thread> threads;
+
         void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs, DatabasePager* databasePager = nullptr);
 
-        void setupThreading();
+        enum ThreadingModel
+        {
+            SINGLE_THREADED,
+            THREAD_PER_RAS_TASK,
+            THREAD_PER_COMMAND_GRAPH
+        };
+
+        void setupThreading(ThreadingModel threadingModel = THREAD_PER_RAS_TASK);
         void stopThreading();
 
         virtual void update();
@@ -122,6 +131,8 @@ namespace vsg
         bool _threading = false;
         ref_ptr<FrameBlock> _frameBlock;
         ref_ptr<Barrier> _submissionCompleted;
+
     };
+    VSG_type_name(vsg::Viewer);
 
 } // namespace vsg
