@@ -48,6 +48,7 @@ namespace vsg
     protected:
         virtual ~CommandGraph();
     };
+    VSG_type_name(vsg::CommandGraph);
 
     using CommandGraphs = std::vector<ref_ptr<CommandGraph>>;
 
