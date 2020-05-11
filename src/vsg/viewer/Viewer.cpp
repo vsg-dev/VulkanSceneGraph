@@ -385,6 +385,8 @@ void Viewer::setupThreading(ThreadingModel threadingModel)
     }
     else
     {
+        std::cout<<"Setting up threading per CommandGraph"<<std::endl;
+
         _threading = true;
 
         _frameBlock = FrameBlock::create(_status);
@@ -471,23 +473,11 @@ void Viewer::stopThreading()
     _status->set(false);
     _frameBlock->wake();
 
-#if 1
     for(auto& thread : threads)
     {
         if (thread.joinable()) thread.join();
     }
     threads.clear();
-#else
-    for (auto& task : recordAndSubmitTasks)
-    {
-        if (task->thread.joinable()) task->thread.join();
-
-        for(auto& commandGraph : task->commandGraphs)
-        {
-            if (commandGraph->thread.joinable()) commandGraph->thread.join();
-        }
-    }
-#endif
 }
 
 void Viewer::update()
@@ -503,32 +493,6 @@ void Viewer::update()
 
 void Viewer::recordAndSubmit()
 {
-    // TODO:Multi-threading approach notes:
-    //
-    //   CommandGraph "has a" std::thread  (CG_Thread)
-    //   CommandGraph "has a" vsg::Affinity? Used when configuring the CG_Thread
-    //
-    //   CG_Thread "has a" RecordTraversalStartBarrier (vsg::Latch?) could be shared?
-    //   CG Thread "has a RecordTraverasl to record command graph
-    //   CG_Thread "has a shared" ReordTraversalFinishiedBarrier
-    //
-    //   RecordTraveraslBarrier is joined by N CG_Thread's and passed the commandbuffers to submit
-    //   One per RecordAndSubmitTask
-    //   Once all the associated CG_Threads have joined the RecordTraveraslBarrier it's released and the VkSubmit occurs
-    //   Then the RecordTraveraslBarrier joins a SubmitFinsihedBarrier
-    //
-    //   SubmitFinsihedBarrier is joined by M RecordTraveraslBarrier's after they have submitted there work
-    //   Main thread can wait on SubmitFinsihedBarrier within recordAndSubmit or optionally by the application in it's main loop,
-    //   or at latest at the start of the recordAndSubmit().
-    //
-    //
-    //      Need to create a set of multi-threading test cases to develop for:
-    //          Multi-gpu
-    //          Multi-pass
-    //          Mulit-window/viewport
-    //          Compute and Graphics
-    //          All of the above with DatabasePaging
-
     if (_threading)
     {
         _submissionCompleted->reset();

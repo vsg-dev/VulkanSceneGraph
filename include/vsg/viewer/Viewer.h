@@ -90,8 +90,6 @@ namespace vsg
         using Presentations = std::vector<ref_ptr<Presentation>>;
         Presentations presentations;
 
-        std::list<std::thread> threads;
-
         void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs, DatabasePager* databasePager = nullptr);
 
         enum ThreadingModel
@@ -100,6 +98,8 @@ namespace vsg
             THREAD_PER_RAS_TASK,
             THREAD_PER_COMMAND_GRAPH
         };
+
+        std::list<std::thread> threads;
 
         void setupThreading(ThreadingModel threadingModel = THREAD_PER_RAS_TASK);
         void stopThreading();
