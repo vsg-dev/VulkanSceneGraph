@@ -21,7 +21,8 @@ namespace vsg
     {
     public:
         Barrier(int num) :
-            _num_threads(num) {}
+            _num_threads(num),
+            _count(num) {}
 
         Barrier(const Barrier&) = delete;
         Barrier& operator=(const Barrier&) = delete;

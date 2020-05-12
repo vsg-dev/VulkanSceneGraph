@@ -434,6 +434,7 @@ void Viewer::setupThreading(ThreadingModel threadingModel)
                         if (data->recordStartBarrier->arrive_and_wait_or_manual_release())
                         {
                             data->task->start();
+                            data->recordCompletedBarrier->reset();
                             data->recordStartBarrier->release();
                         }
 
@@ -450,6 +451,7 @@ void Viewer::setupThreading(ThreadingModel threadingModel)
                             data->task->finish(data->recordedCommandBuffers);
                             data->recordedCommandBuffers.clear();
                             data->submissionCompletedBarrier->arrive_and_drop();
+                            data->recordStartBarrier->reset();
                             data->recordCompletedBarrier->release();
                         }
                     }
