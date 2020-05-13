@@ -23,6 +23,7 @@ using namespace vsg;
 
 Window::Window(ref_ptr<WindowTraits> traits) :
     _traits(traits),
+    _extent2D{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()},
     _clearColor{{0.2f, 0.2f, 0.4f, 1.0f}},
     _nextImageIndex(0)
 {
