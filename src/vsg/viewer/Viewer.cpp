@@ -339,18 +339,9 @@ void Viewer::setupThreading(ThreadingModel threadingModel)
 {
     std::cout << "Viewer::setupThreading(" <<threadingModel<<") "<<std::endl;
 
-    if (threadingModel == SINGLE_THREADED)
-    {
-        if (_threading) stopThreading();
-        return;
-    }
+    stopThreading();
 
-    // clear any previous threading.
-    for(auto& thread : threads)
-    {
-        if (thread.joinable()) thread.join();
-    }
-    threads.clear();
+    if (threadingModel == SINGLE_THREADED) return;
 
     if (threadingModel == THREAD_PER_RAS_TASK)
     {
@@ -384,14 +375,8 @@ void Viewer::setupThreading(ThreadingModel threadingModel)
 
         _threading = true;
 
-        int numThreadsToWaitFor = 1;
-        for (auto& task : recordAndSubmitTasks)
-        {
-            numThreadsToWaitFor += task->commandGraphs.size();
-        }
-
         _frameBlock = FrameBlock::create(_status);
-        _submissionCompleted = Barrier::create(numThreadsToWaitFor);
+        _submissionCompleted = Barrier::create(1+recordAndSubmitTasks.size());
 
         for (auto& task : recordAndSubmitTasks)
         {
@@ -434,9 +419,10 @@ void Viewer::setupThreading(ThreadingModel threadingModel)
                 // wait for this frame to be signalled
                 while (data->frameBlock->wait_for_change(frameStamp))
                 {
+                    // primary thread starts the task
                     data->task->start();
 
-                    data->recordStartBarrier->arrive_and_wait(); // T2 1132
+                    data->recordStartBarrier->arrive_and_wait();
 
                     CommandBuffers localRecordedCommandBuffers;
                     commandGraph->record(localRecordedCommandBuffers, frameStamp, data->task->databasePager);
@@ -445,6 +431,7 @@ void Viewer::setupThreading(ThreadingModel threadingModel)
 
                     data->recordCompletedBarrier->arrive_and_wait();
 
+                    // primary thread finishes the task, submiting all the command buffers recorded by the primary and all secndary threads to it's qeuee
                     data->task->finish(data->recordedCommandBuffers);
                     data->recordedCommandBuffers.clear();
 
@@ -467,8 +454,6 @@ void Viewer::setupThreading(ThreadingModel threadingModel)
                     data->add(localRecordedCommandBuffers);
 
                     data->recordCompletedBarrier->arrive_and_wait();
-
-                    data->submissionCompletedBarrier->arrive_and_wait(); // T3 1131
                 }
             };
 
