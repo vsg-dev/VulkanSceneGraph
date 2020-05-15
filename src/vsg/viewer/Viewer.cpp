@@ -341,15 +341,32 @@ void Viewer::setupThreading()
 
     stopThreading();
 
+    // check how valid tasks and command graphs there are.
+    uint32_t numValidTasks = 0;
+    uint32_t numCommandGraphs = 0;
+    for (auto& task : recordAndSubmitTasks)
+    {
+        if (task->commandGraphs.size()>=1) ++numValidTasks;
+        numCommandGraphs += task->commandGraphs.size();
+    }
+
+    // check if there is any point in setting up threading
+    if (numCommandGraphs<=1)
+    {
+        return;
+    }
+
     _threading = true;
 
     _frameBlock = FrameBlock::create(_status);
-    _submissionCompleted = Barrier::create(1+recordAndSubmitTasks.size());
+    _submissionCompleted = Barrier::create(1+numValidTasks);
 
+    // set up required threads for each task
     for (auto& task : recordAndSubmitTasks)
     {
         if (task->commandGraphs.size()==1)
         {
+            // task only contains a single CommandGraph so keep thread simple
             auto run = [](ref_ptr<RecordAndSubmitTask> viewer_task, ref_ptr<FrameBlock> viewer_frameBlock, ref_ptr<Barrier> submissionCompleted) {
                 auto frameStamp = viewer_frameBlock->initial_value;
 
@@ -364,8 +381,9 @@ void Viewer::setupThreading()
 
             threads.push_back(std::thread(run, task, _frameBlock, _submissionCompleted));
         }
-        else
+        else if (task->commandGraphs.size()>=1)
         {
+            // we have multiple CommandGraphs in a single Task so set up a thread per CommandGraph
             struct SharedData : public Inherit<Object, SharedData>
             {
                 SharedData(ref_ptr<RecordAndSubmitTask> in_task, ref_ptr<FrameBlock> in_frameBlock, ref_ptr<Barrier> in_submissionCompleted, uint32_t numThreads) :
