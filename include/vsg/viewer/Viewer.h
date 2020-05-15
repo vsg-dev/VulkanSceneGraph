@@ -12,12 +12,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/threading/Barrier.h>
+#include <vsg/threading/FrameBlock.h>
+#include <vsg/traversals/CompileTraversal.h>
 #include <vsg/viewer/Presentation.h>
 #include <vsg/viewer/RecordAndSubmitTask.h>
 #include <vsg/viewer/Window.h>
-#include <vsg/traversals/CompileTraversal.h>
-#include <vsg/threading/FrameBlock.h>
-#include <vsg/threading/Barrier.h>
 
 #include <map>
 
@@ -91,7 +91,7 @@ namespace vsg
         Presentations presentations;
 
         void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs, DatabasePager* databasePager = nullptr);
-;
+        ;
 
         std::list<std::thread> threads;
 
@@ -124,7 +124,6 @@ namespace vsg
         bool _threading = false;
         ref_ptr<FrameBlock> _frameBlock;
         ref_ptr<Barrier> _submissionCompleted;
-
     };
     VSG_type_name(vsg::Viewer);
 

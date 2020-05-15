@@ -39,7 +39,7 @@ namespace vsg
             else
             {
                 auto my_phase = _phase;
-                _cv.wait(lock, [this, my_phase] () { return this->_phase != my_phase; });
+                _cv.wait(lock, [this, my_phase]() { return this->_phase != my_phase; });
             }
         }
 

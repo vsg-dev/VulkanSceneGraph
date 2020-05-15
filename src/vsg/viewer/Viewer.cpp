@@ -337,7 +337,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
 
 void Viewer::setupThreading()
 {
-    std::cout << "Viewer::setupThreading() "<<std::endl;
+    std::cout << "Viewer::setupThreading() " << std::endl;
 
     stopThreading();
 
@@ -346,12 +346,12 @@ void Viewer::setupThreading()
     uint32_t numCommandGraphs = 0;
     for (auto& task : recordAndSubmitTasks)
     {
-        if (task->commandGraphs.size()>=1) ++numValidTasks;
+        if (task->commandGraphs.size() >= 1) ++numValidTasks;
         numCommandGraphs += task->commandGraphs.size();
     }
 
     // check if there is any point in setting up threading
-    if (numCommandGraphs<=1)
+    if (numCommandGraphs <= 1)
     {
         return;
     }
@@ -359,12 +359,12 @@ void Viewer::setupThreading()
     _threading = true;
 
     _frameBlock = FrameBlock::create(_status);
-    _submissionCompleted = Barrier::create(1+numValidTasks);
+    _submissionCompleted = Barrier::create(1 + numValidTasks);
 
     // set up required threads for each task
     for (auto& task : recordAndSubmitTasks)
     {
-        if (task->commandGraphs.size()==1)
+        if (task->commandGraphs.size() == 1)
         {
             // task only contains a single CommandGraph so keep thread simple
             auto run = [](ref_ptr<RecordAndSubmitTask> viewer_task, ref_ptr<FrameBlock> viewer_frameBlock, ref_ptr<Barrier> submissionCompleted) {
@@ -381,7 +381,7 @@ void Viewer::setupThreading()
 
             threads.push_back(std::thread(run, task, _frameBlock, _submissionCompleted));
         }
-        else if (task->commandGraphs.size()>=1)
+        else if (task->commandGraphs.size() >= 1)
         {
             // we have multiple CommandGraphs in a single Task so set up a thread per CommandGraph
             struct SharedData : public Inherit<Object, SharedData>
@@ -417,7 +417,6 @@ void Viewer::setupThreading()
             ref_ptr<SharedData> sharedData = SharedData::create(task, _frameBlock, _submissionCompleted, task->commandGraphs.size());
 
             auto run_primary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph) {
-
                 auto frameStamp = data->frameBlock->initial_value;
 
                 // wait for this frame to be signalled
@@ -444,7 +443,6 @@ void Viewer::setupThreading()
             };
 
             auto run_secondary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph) {
-
                 auto frameStamp = data->frameBlock->initial_value;
 
                 // wait for this frame to be signalled
@@ -461,10 +459,12 @@ void Viewer::setupThreading()
                 }
             };
 
-            for(uint32_t i=0; i < task->commandGraphs.size(); ++i)
+            for (uint32_t i = 0; i < task->commandGraphs.size(); ++i)
             {
-                if (i==0) threads.push_back(std::thread(run_primary, sharedData, task->commandGraphs[i]));
-                else threads.push_back(std::thread(run_secondary, sharedData, task->commandGraphs[i]));
+                if (i == 0)
+                    threads.push_back(std::thread(run_primary, sharedData, task->commandGraphs[i]));
+                else
+                    threads.push_back(std::thread(run_secondary, sharedData, task->commandGraphs[i]));
             }
         }
     }
@@ -482,7 +482,7 @@ void Viewer::stopThreading()
     _status->set(false);
     _frameBlock->wake();
 
-    for(auto& thread : threads)
+    for (auto& thread : threads)
     {
         if (thread.joinable()) thread.join();
     }
@@ -508,7 +508,7 @@ void Viewer::recordAndSubmit()
     // follows is a workaround for an odd "Possible data race during write of size 1" warning that valigrind tool=helgrind reports
     // on the first call to vkBeginCommandBuffer despite them being done on independent command buffers.  This coudl well be a driver bug or a false position.
     // if you want to quiet this warning then change the #if above to #if 0 as render the first three frames single threaded avoids the warning.
-    if (_threading && _frameStamp->frameCount>2)
+    if (_threading && _frameStamp->frameCount > 2)
 #endif
     {
         _frameBlock->set(_frameStamp);
