@@ -335,24 +335,20 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
     }
 }
 
-void Viewer::setupThreading(ThreadingModel threadingModel)
+void Viewer::setupThreading()
 {
-    std::cout << "Viewer::setupThreading(" <<threadingModel<<") "<<std::endl;
+    std::cout << "Viewer::setupThreading() "<<std::endl;
 
     stopThreading();
 
-    if (threadingModel == SINGLE_THREADED) return;
+    _threading = true;
 
-    if (threadingModel == THREAD_PER_RAS_TASK)
+    _frameBlock = FrameBlock::create(_status);
+    _submissionCompleted = Barrier::create(1+recordAndSubmitTasks.size());
+
+    for (auto& task : recordAndSubmitTasks)
     {
-        std::cout<<"    Setting up threading per Task"<<std::endl;
-
-        _threading = true;
-
-        _frameBlock = FrameBlock::create(_status);
-        _submissionCompleted = Barrier::create(1+recordAndSubmitTasks.size());
-
-        for (auto& task : recordAndSubmitTasks)
+        if (task->commandGraphs.size()==1)
         {
             auto run = [](ref_ptr<RecordAndSubmitTask> viewer_task, ref_ptr<FrameBlock> viewer_frameBlock, ref_ptr<Barrier> submissionCompleted) {
                 auto frameStamp = viewer_frameBlock->initial_value;
@@ -368,17 +364,7 @@ void Viewer::setupThreading(ThreadingModel threadingModel)
 
             threads.push_back(std::thread(run, task, _frameBlock, _submissionCompleted));
         }
-    }
-    else if (threadingModel == THREAD_PER_COMMAND_GRAPH)
-    {
-        std::cout<<"    Setting up threading per CommandGraph"<<std::endl;
-
-        _threading = true;
-
-        _frameBlock = FrameBlock::create(_status);
-        _submissionCompleted = Barrier::create(1+recordAndSubmitTasks.size());
-
-        for (auto& task : recordAndSubmitTasks)
+        else
         {
             struct SharedData : public Inherit<Object, SharedData>
             {

@@ -91,17 +91,11 @@ namespace vsg
         Presentations presentations;
 
         void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs, DatabasePager* databasePager = nullptr);
-
-        enum ThreadingModel
-        {
-            SINGLE_THREADED,
-            THREAD_PER_RAS_TASK,
-            THREAD_PER_COMMAND_GRAPH
-        };
+;
 
         std::list<std::thread> threads;
 
-        void setupThreading(ThreadingModel threadingModel = THREAD_PER_RAS_TASK);
+        void setupThreading();
         void stopThreading();
 
         virtual void update();
