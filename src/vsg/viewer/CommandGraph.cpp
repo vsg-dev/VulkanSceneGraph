@@ -47,6 +47,10 @@ CommandGraph::CommandGraph(Window* in_window)
     }
 }
 
+CommandGraph::~CommandGraph()
+{
+}
+
 void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
     if (window && !window->visible())
@@ -104,21 +108,7 @@ ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* cam
 {
     auto commandGraph = CommandGraph::create(window);
 
-    // set up the render graph for viewport & scene
-    auto renderGraph = vsg::RenderGraph::create();
-    renderGraph->addChild(ref_ptr<Node>(scenegraph));
-
-    renderGraph->camera = camera;
-    renderGraph->window = window;
-
-    renderGraph->renderArea.offset = {0, 0};
-    renderGraph->renderArea.extent = window->extent2D();
-
-    renderGraph->clearValues.resize(2);
-    renderGraph->clearValues[0].color = window->clearColor();
-    renderGraph->clearValues[1].depthStencil = VkClearDepthStencilValue{1.0f, 0};
-
-    commandGraph->addChild(renderGraph);
+    commandGraph->addChild(createRenderGraphForView(window, camera, scenegraph));
 
     return commandGraph;
 }

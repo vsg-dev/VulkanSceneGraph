@@ -12,13 +12,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/threading/Barrier.h>
+#include <vsg/threading/FrameBlock.h>
+#include <vsg/traversals/CompileTraversal.h>
 #include <vsg/viewer/Presentation.h>
 #include <vsg/viewer/RecordAndSubmitTask.h>
 #include <vsg/viewer/Window.h>
-
-#include <vsg/traversals/CompileTraversal.h>
-#include <vsg/ui/ApplicationEvent.h>
-#include <vsg/vk/Context.h>
 
 #include <map>
 
@@ -46,7 +45,7 @@ namespace vsg
         bool active() const;
 
         /// schedule closure of the viewer and associated windows, after a call to Viewer::close() the Viewer::active() method will return false
-        void close() { _close = true; }
+        void close();
 
         /// poll the events for all attached windows, return true if new events are available
         bool pollEvents(bool discardPreviousEvents = true);
@@ -92,6 +91,12 @@ namespace vsg
         Presentations presentations;
 
         void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs, DatabasePager* databasePager = nullptr);
+        ;
+
+        std::list<std::thread> threads;
+
+        void setupThreading();
+        void stopThreading();
 
         virtual void update();
 
@@ -106,6 +111,7 @@ namespace vsg
         virtual ~Viewer();
 
         bool _close = false;
+        ref_ptr<ActivityStatus> _status;
 
         ref_ptr<FrameStamp> _frameStamp;
 
@@ -114,6 +120,11 @@ namespace vsg
         clock::time_point _start_point;
         Events _events;
         EventHandlers _eventHandlers;
+
+        bool _threading = false;
+        ref_ptr<FrameBlock> _frameBlock;
+        ref_ptr<Barrier> _submissionCompleted;
     };
+    VSG_type_name(vsg::Viewer);
 
 } // namespace vsg

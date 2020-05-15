@@ -27,5 +27,6 @@ namespace vsg
 
         ref_ptr<Queue> queue; // assign in application for GraphicsQueue from device
     };
+    VSG_type_name(vsg::Presentation);
 
 } // namespace vsg

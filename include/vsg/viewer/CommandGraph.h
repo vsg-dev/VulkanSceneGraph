@@ -39,7 +39,11 @@ namespace vsg
         int _presentFamily = -1;
         uint32_t _maxSlot = 2;
         mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
+
+    protected:
+        virtual ~CommandGraph();
     };
+    VSG_type_name(vsg::CommandGraph);
 
     using CommandGraphs = std::vector<ref_ptr<CommandGraph>>;
 

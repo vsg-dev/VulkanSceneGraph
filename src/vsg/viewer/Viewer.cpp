@@ -25,11 +25,14 @@ using namespace vsg;
 Viewer::Viewer()
 {
     _start_point = clock::now();
+    _status = vsg::ActivityStatus::create();
 }
 
 Viewer::~Viewer()
 {
-    // don't kill window while devices are still active
+    stopThreading();
+
+    // don't destroy viewer while devices are still active
     deviceWaitIdle();
 }
 
@@ -50,6 +53,14 @@ void Viewer::deviceWaitIdle() const
 void Viewer::addWindow(ref_ptr<Window> window)
 {
     _windows.push_back(window);
+}
+
+void Viewer::close()
+{
+    _close = true;
+    _status->set(false);
+
+    stopThreading();
 }
 
 bool Viewer::active() const
@@ -324,6 +335,160 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
     }
 }
 
+void Viewer::setupThreading()
+{
+    std::cout << "Viewer::setupThreading() " << std::endl;
+
+    stopThreading();
+
+    // check how valid tasks and command graphs there are.
+    uint32_t numValidTasks = 0;
+    uint32_t numCommandGraphs = 0;
+    for (auto& task : recordAndSubmitTasks)
+    {
+        if (task->commandGraphs.size() >= 1) ++numValidTasks;
+        numCommandGraphs += task->commandGraphs.size();
+    }
+
+    // check if there is any point in setting up threading
+    if (numCommandGraphs <= 1)
+    {
+        return;
+    }
+
+    _threading = true;
+
+    _frameBlock = FrameBlock::create(_status);
+    _submissionCompleted = Barrier::create(1 + numValidTasks);
+
+    // set up required threads for each task
+    for (auto& task : recordAndSubmitTasks)
+    {
+        if (task->commandGraphs.size() == 1)
+        {
+            // task only contains a single CommandGraph so keep thread simple
+            auto run = [](ref_ptr<RecordAndSubmitTask> viewer_task, ref_ptr<FrameBlock> viewer_frameBlock, ref_ptr<Barrier> submissionCompleted) {
+                auto frameStamp = viewer_frameBlock->initial_value;
+
+                // wait for this frame to be signalled
+                while (viewer_frameBlock->wait_for_change(frameStamp))
+                {
+                    viewer_task->submit(frameStamp);
+
+                    submissionCompleted->arrive_and_drop();
+                }
+            };
+
+            threads.push_back(std::thread(run, task, _frameBlock, _submissionCompleted));
+        }
+        else if (task->commandGraphs.size() >= 1)
+        {
+            // we have multiple CommandGraphs in a single Task so set up a thread per CommandGraph
+            struct SharedData : public Inherit<Object, SharedData>
+            {
+                SharedData(ref_ptr<RecordAndSubmitTask> in_task, ref_ptr<FrameBlock> in_frameBlock, ref_ptr<Barrier> in_submissionCompleted, uint32_t numThreads) :
+                    task(in_task),
+                    frameBlock(in_frameBlock),
+                    submissionCompletedBarrier(in_submissionCompleted)
+                {
+                    recordStartBarrier = Barrier::create(numThreads);
+                    recordCompletedBarrier = Barrier::create(numThreads);
+                }
+
+                void add(CommandBuffers& commandBuffers)
+                {
+                    std::scoped_lock lock(recordCommandBuffersMutex);
+                    recordedCommandBuffers.insert(recordedCommandBuffers.end(), commandBuffers.begin(), commandBuffers.end());
+                }
+
+                // shared betwween all threads
+                ref_ptr<RecordAndSubmitTask> task;
+                ref_ptr<FrameBlock> frameBlock;
+                ref_ptr<Barrier> submissionCompletedBarrier;
+
+                // shared between threads associated with each task
+                std::mutex recordCommandBuffersMutex;
+                CommandBuffers recordedCommandBuffers;
+
+                ref_ptr<Barrier> recordStartBarrier;
+                ref_ptr<Barrier> recordCompletedBarrier;
+            };
+
+            ref_ptr<SharedData> sharedData = SharedData::create(task, _frameBlock, _submissionCompleted, task->commandGraphs.size());
+
+            auto run_primary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph) {
+                auto frameStamp = data->frameBlock->initial_value;
+
+                // wait for this frame to be signalled
+                while (data->frameBlock->wait_for_change(frameStamp))
+                {
+                    // primary thread starts the task
+                    data->task->start();
+
+                    data->recordStartBarrier->arrive_and_wait();
+
+                    CommandBuffers localRecordedCommandBuffers;
+                    commandGraph->record(localRecordedCommandBuffers, frameStamp, data->task->databasePager);
+
+                    data->add(localRecordedCommandBuffers);
+
+                    data->recordCompletedBarrier->arrive_and_wait();
+
+                    // primary thread finishes the task, submiting all the command buffers recorded by the primary and all secndary threads to it's qeuee
+                    data->task->finish(data->recordedCommandBuffers);
+                    data->recordedCommandBuffers.clear();
+
+                    data->submissionCompletedBarrier->arrive_and_wait();
+                }
+            };
+
+            auto run_secondary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph) {
+                auto frameStamp = data->frameBlock->initial_value;
+
+                // wait for this frame to be signalled
+                while (data->frameBlock->wait_for_change(frameStamp))
+                {
+                    data->recordStartBarrier->arrive_and_wait();
+
+                    CommandBuffers localRecordedCommandBuffers;
+                    commandGraph->record(localRecordedCommandBuffers, frameStamp, data->task->databasePager);
+
+                    data->add(localRecordedCommandBuffers);
+
+                    data->recordCompletedBarrier->arrive_and_wait();
+                }
+            };
+
+            for (uint32_t i = 0; i < task->commandGraphs.size(); ++i)
+            {
+                if (i == 0)
+                    threads.push_back(std::thread(run_primary, sharedData, task->commandGraphs[i]));
+                else
+                    threads.push_back(std::thread(run_secondary, sharedData, task->commandGraphs[i]));
+            }
+        }
+    }
+}
+
+void Viewer::stopThreading()
+{
+    if (!_threading) return;
+    _threading = false;
+
+    std::cout << "Viewer::stopThreading()" << std::endl;
+
+    // release the blocks to enable threads to exit cleanly
+    // need to manually wake up the threads waiting on this frameBlock so they check the _status value and exit cleanly.
+    _status->set(false);
+    _frameBlock->wake();
+
+    for (auto& thread : threads)
+    {
+        if (thread.joinable()) thread.join();
+    }
+    threads.clear();
+}
+
 void Viewer::update()
 {
     for (auto& task : recordAndSubmitTasks)
@@ -337,35 +502,24 @@ void Viewer::update()
 
 void Viewer::recordAndSubmit()
 {
-    // TODO:Multi-threading approach notes:
-    //
-    //   CommandGraph "has a" std::thread  (CG_Thread)
-    //   CommandGraph "has a" vsg::Affinity? Used when configuring the CG_Thread
-    //
-    //   CG_Thread "has a" RecordTraversalStartBarrier (vsg::Latch?) could be shared?
-    //   CG Thread "has a RecordTraverasl to record command graph
-    //   CG_Thread "has a shared" ReordTraversalFinishiedBarrier
-    //
-    //   RecordTraveraslBarrier is joined by N CG_Thread's and passed the commandbuffers to submit
-    //   One per RecordAndSubmitTask
-    //   Once all the associated CG_Threads have joined the RecordTraveraslBarrier it's released and the VkSubmit occurs
-    //   Then the RecordTraveraslBarrier joins a SubmitFinsihedBarrier
-    //
-    //   SubmitFinsihedBarrier is joined by M RecordTraveraslBarrier's after they have submitted there work
-    //   Main thread can wait on SubmitFinsihedBarrier within recordAndSubmit or optionally by the application in it's main loop,
-    //   or at latest at the start of the recordAndSubmit().
-    //
-    //
-    //      Need to create a set of multi-threading test cases to develop for:
-    //          Multi-gpu
-    //          Multi-pass
-    //          Mulit-window/viewport
-    //          Compute and Graphics
-    //          All of the above with DatabasePaging
-
-    for (auto& recordAndSubmitTask : recordAndSubmitTasks)
+#if 1
+    if (_threading)
+#else
+    // follows is a workaround for an odd "Possible data race during write of size 1" warning that valigrind tool=helgrind reports
+    // on the first call to vkBeginCommandBuffer despite them being done on independent command buffers.  This coudl well be a driver bug or a false position.
+    // if you want to quiet this warning then change the #if above to #if 0 as render the first three frames single threaded avoids the warning.
+    if (_threading && _frameStamp->frameCount > 2)
+#endif
     {
-        recordAndSubmitTask->submit(_frameStamp);
+        _frameBlock->set(_frameStamp);
+        _submissionCompleted->arrive_and_wait();
+    }
+    else
+    {
+        for (auto& recordAndSubmitTask : recordAndSubmitTasks)
+        {
+            recordAndSubmitTask->submit(_frameStamp);
+        }
     }
 }
 

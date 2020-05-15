@@ -167,3 +167,22 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
 
     vkCmdEndRenderPass(vk_commandBuffer);
 }
+
+ref_ptr<RenderGraph> vsg::createRenderGraphForView(Window* window, Camera* camera, Node* scenegraph)
+{
+    // set up the render graph for viewport & scene
+    auto renderGraph = vsg::RenderGraph::create();
+    renderGraph->addChild(ref_ptr<Node>(scenegraph));
+
+    renderGraph->camera = camera;
+    renderGraph->window = window;
+
+    renderGraph->renderArea.offset = {0, 0};
+    renderGraph->renderArea.extent = window->extent2D();
+
+    renderGraph->clearValues.resize(2);
+    renderGraph->clearValues[0].color = window->clearColor();
+    renderGraph->clearValues[1].depthStencil = VkClearDepthStencilValue{1.0f, 0};
+
+    return renderGraph;
+}

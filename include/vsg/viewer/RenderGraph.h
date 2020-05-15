@@ -54,4 +54,8 @@ namespace vsg
         const uint32_t invalid_dimension = std::numeric_limits<uint32_t>::max();
         mutable VkExtent2D previous_extent = VkExtent2D{invalid_dimension, invalid_dimension};
     };
+
+    /// convience function that sets up RenderGraph to render the specified scene graph from the speified Camera view
+    ref_ptr<RenderGraph> createRenderGraphForView(Window* window, Camera* camera, Node* scenegraph);
+
 } // namespace vsg

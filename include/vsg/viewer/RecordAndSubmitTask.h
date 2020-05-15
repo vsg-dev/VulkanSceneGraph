@@ -30,8 +30,11 @@ namespace vsg
     public:
         RecordAndSubmitTask(Device* device, uint32_t numBuffers = 3);
 
-        // Need to add FrameStamp?
         virtual VkResult submit(ref_ptr<FrameStamp> frameStamp = {});
+
+        virtual VkResult start();
+        virtual VkResult record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp);
+        virtual VkResult finish(CommandBuffers& recordedCommandBuffers);
 
         Windows windows;
         Semaphores waitSemaphores;
@@ -45,5 +48,6 @@ namespace vsg
 
         ref_ptr<DatabasePager> databasePager;
     };
+    VSG_type_name(vsg::RecordAndSubmitTask);
 
 } // namespace vsg
