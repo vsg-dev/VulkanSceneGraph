@@ -20,82 +20,53 @@ namespace vsg
     class Barrier : public Inherit<Object, Barrier>
     {
     public:
-        Barrier(int num) :
-            _num_threads(num),
-            _count(num) {}
+        Barrier(uint32_t num_thread) :
+            _num_threads(num_thread),
+            _num_arrived(0),
+            _phase(0) {}
 
         Barrier(const Barrier&) = delete;
         Barrier& operator=(const Barrier&) = delete;
 
-        void reset()
-        {
-            _count = _num_threads;
-        }
-
-        /// decrement the Barrier count, if count goes to zero call Barier::release() to release all waiting threads, otherwsie wait on the barrier.
+        /// increment the arrived count and release the barrier if count matches number of threads to arrive otherwise waiting for the arrived count to match the number if threads to arrive
         void arrive_and_wait()
         {
-            if (_count.fetch_sub(1) <= 1)
+            std::unique_lock lock(_mutex);
+            if (++_num_arrived == _num_threads)
             {
-                release();
+                _release();
             }
             else
             {
-                wait();
+                auto my_phase = _phase;
+                _cv.wait(lock, [this, my_phase] () { return this->_phase != my_phase; });
             }
         }
 
-        /// decrement the Barrier count, if thread is one to reduce the count to return immediately and return true, otherwise wait on barrier and when it's released return false.
-        /// If true is reqturn it is the callers responsibility to call Battier::release() to release all waiting thrads.
-        bool arrive_and_wait_or_manual_release()
-        {
-            if (_count.fetch_sub(1) <= 1)
-            {
-                return true;
-            }
-            else
-            {
-                wait();
-                return false;
-            }
-        }
-
-        /// decrement the Barrier count and return immediately, and if it goes to zero calls Barrier::release() to release all waiting threads
+        /// increment the arrived count and release the barrier if count matches number of threads to arrive, return immediately without waiting for release condition
         void arrive_and_drop()
         {
-            if (_count.fetch_sub(1) <= 1)
-            {
-                release();
-            }
-        }
-
-        /// wait on barrier till it's count goes to zero.
-        void wait()
-        {
             std::unique_lock lock(_mutex);
-            while (_count > 0)
+            if (++_num_arrived == _num_threads)
             {
-                _cv.wait(lock);
+                _release();
             }
-        }
-
-        bool is_ready() const
-        {
-            return _count == 0;
-        }
-
-        /// release all waiting threads.
-        virtual void release()
-        {
-            std::scoped_lock lock(_mutex);
-            _cv.notify_all();
         }
 
     protected:
         virtual ~Barrier() {}
 
-        const int _num_threads;
-        std::atomic_int _count;
+        void _release()
+        {
+            _num_arrived = 0;
+            ++_phase;
+            _cv.notify_all();
+        }
+
+        const uint32_t _num_threads;
+        uint32_t _num_arrived;
+        uint32_t _phase;
+
         std::mutex _mutex;
         std::condition_variable _cv;
     };
