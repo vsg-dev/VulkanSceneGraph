@@ -337,7 +337,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
 
 void Viewer::setupThreading(ThreadingModel threadingModel)
 {
-    std::cout << "Viewer::setupThreading() " <<threadingModel<<std::endl;
+    std::cout << "Viewer::setupThreading(" <<threadingModel<<") "<<std::endl;
 
     if (threadingModel == SINGLE_THREADED)
     {
@@ -352,46 +352,46 @@ void Viewer::setupThreading(ThreadingModel threadingModel)
     }
     threads.clear();
 
-
     if (threadingModel == THREAD_PER_RAS_TASK)
     {
-        std::cout<<"Setting up threading per Task"<<std::endl;
+        std::cout<<"    Setting up threading per Task"<<std::endl;
 
         _threading = true;
 
         _frameBlock = FrameBlock::create(_status);
-        _submissionCompleted = Barrier::create(recordAndSubmitTasks.size());
+        _submissionCompleted = Barrier::create(1+recordAndSubmitTasks.size());
 
         for (auto& task : recordAndSubmitTasks)
         {
-            auto run = [](observer_ptr<RecordAndSubmitTask> viewer_task, ref_ptr<FrameBlock> viewer_frameBlock, ref_ptr<Barrier> submissionCompleted) {
+            auto run = [](ref_ptr<RecordAndSubmitTask> viewer_task, ref_ptr<FrameBlock> viewer_frameBlock, ref_ptr<Barrier> submissionCompleted) {
                 auto frameStamp = viewer_frameBlock->initial_value;
 
                 // wait for this frame to be signalled
                 while (viewer_frameBlock->wait_for_change(frameStamp))
                 {
-                    // take a refernce to the command buffer to prevent it being deleted while we are traversing.
-                    ref_ptr<RecordAndSubmitTask> ras_task = viewer_task;
-                    if (!ras_task) break;
-
-                    ras_task->submit(frameStamp);
+                    viewer_task->submit(frameStamp);
 
                     submissionCompleted->arrive_and_drop();
                 }
             };
 
-            threads.push_back(std::thread(run, observer_ptr<RecordAndSubmitTask>(task), _frameBlock, _submissionCompleted));
+            threads.push_back(std::thread(run, task, _frameBlock, _submissionCompleted));
         }
     }
-    else
+    else if (threadingModel == THREAD_PER_COMMAND_GRAPH)
     {
-        std::cout<<"Setting up threading per CommandGraph"<<std::endl;
+        std::cout<<"    Setting up threading per CommandGraph"<<std::endl;
 
         _threading = true;
 
-        _frameBlock = FrameBlock::create(_status);
+        int numThreadsToWaitFor = 1;
+        for (auto& task : recordAndSubmitTasks)
+        {
+            numThreadsToWaitFor += task->commandGraphs.size();
+        }
 
-        _submissionCompleted = Barrier::create(recordAndSubmitTasks.size());
+        _frameBlock = FrameBlock::create(_status);
+        _submissionCompleted = Barrier::create(numThreadsToWaitFor);
 
         for (auto& task : recordAndSubmitTasks)
         {
@@ -404,6 +404,12 @@ void Viewer::setupThreading(ThreadingModel threadingModel)
                 {
                     recordStartBarrier = Barrier::create(numThreads);
                     recordCompletedBarrier = Barrier::create(numThreads);
+                }
+
+                void add(CommandBuffers& commandBuffers)
+                {
+                    std::scoped_lock lock(recordCommandBuffersMutex);
+                    recordedCommandBuffers.insert(recordedCommandBuffers.end(), commandBuffers.begin(), commandBuffers.end());
                 }
 
                 // shared betwween all threads
@@ -421,43 +427,55 @@ void Viewer::setupThreading(ThreadingModel threadingModel)
 
             ref_ptr<SharedData> sharedData = SharedData::create(task, _frameBlock, _submissionCompleted, task->commandGraphs.size());
 
-            for(auto& cg : task->commandGraphs)
+            auto run_primary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph) {
+
+                auto frameStamp = data->frameBlock->initial_value;
+
+                // wait for this frame to be signalled
+                while (data->frameBlock->wait_for_change(frameStamp))
+                {
+                    data->task->start();
+
+                    data->recordStartBarrier->arrive_and_wait(); // T2 1132
+
+                    CommandBuffers localRecordedCommandBuffers;
+                    commandGraph->record(localRecordedCommandBuffers, frameStamp, data->task->databasePager);
+
+                    data->add(localRecordedCommandBuffers);
+
+                    data->recordCompletedBarrier->arrive_and_wait();
+
+                    data->task->finish(data->recordedCommandBuffers);
+                    data->recordedCommandBuffers.clear();
+
+                    data->submissionCompletedBarrier->arrive_and_wait();
+                }
+            };
+
+            auto run_secondary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph) {
+
+                auto frameStamp = data->frameBlock->initial_value;
+
+                // wait for this frame to be signalled
+                while (data->frameBlock->wait_for_change(frameStamp))
+                {
+                    data->recordStartBarrier->arrive_and_wait();
+
+                    CommandBuffers localRecordedCommandBuffers;
+                    commandGraph->record(localRecordedCommandBuffers, frameStamp, data->task->databasePager);
+
+                    data->add(localRecordedCommandBuffers);
+
+                    data->recordCompletedBarrier->arrive_and_wait();
+
+                    data->submissionCompletedBarrier->arrive_and_wait(); // T3 1131
+                }
+            };
+
+            for(uint32_t i=0; i < task->commandGraphs.size(); ++i)
             {
-
-                auto run = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph) {
-
-                    auto frameStamp = data->frameBlock->initial_value;
-
-                    // wait for this frame to be signalled
-                    while (data->frameBlock->wait_for_change(frameStamp))
-                    {
-                        if (data->recordStartBarrier->arrive_and_wait_or_manual_release())
-                        {
-                            data->task->start();
-                            data->recordCompletedBarrier->reset();
-                            data->recordStartBarrier->release();
-                        }
-
-                        CommandBuffers localRecordedCommandBuffers;
-                        commandGraph->record(localRecordedCommandBuffers, frameStamp, data->task->databasePager);
-
-                        {
-                            std::scoped_lock lock(data->recordCommandBuffersMutex);
-                            data->recordedCommandBuffers.insert(data->recordedCommandBuffers.end(), localRecordedCommandBuffers.begin(), localRecordedCommandBuffers.end());
-                        }
-
-                        if (data->recordCompletedBarrier->arrive_and_wait_or_manual_release())
-                        {
-                            data->task->finish(data->recordedCommandBuffers);
-                            data->recordedCommandBuffers.clear();
-                            data->submissionCompletedBarrier->arrive_and_drop();
-                            data->recordStartBarrier->reset();
-                            data->recordCompletedBarrier->release();
-                        }
-                    }
-                };
-
-                threads.push_back(std::thread(run, sharedData, cg));
+                if (i==0) threads.push_back(std::thread(run_primary, sharedData, task->commandGraphs[i]));
+                else threads.push_back(std::thread(run_secondary, sharedData, task->commandGraphs[i]));
             }
         }
     }
@@ -497,9 +515,8 @@ void Viewer::recordAndSubmit()
 {
     if (_threading)
     {
-        _submissionCompleted->reset();
         _frameBlock->set(_frameStamp);
-        _submissionCompleted->wait();
+        _submissionCompleted->arrive_and_wait();
     }
     else
     {
