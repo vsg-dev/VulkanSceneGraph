@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Exception.h>
 #include <vsg/vk/ImageView.h>
+#include <vsg/vk/Context.h>
 
 using namespace vsg;
 
@@ -76,4 +77,50 @@ ImageView::~ImageView()
     {
         vkDestroyImageView(*_device, _imageView, _allocator);
     }
+}
+
+ref_ptr<ImageView> vsg::createImageView(vsg::Context& context, const VkImageCreateInfo& imageCreateInfo,
+                                               VkImageAspectFlags aspectFlags, VkImageLayout targetImageLayout)
+{
+    vsg::Device* device = context.device;
+
+    vsg::ref_ptr<vsg::Image> image;
+
+    image = vsg::Image::create(device, imageCreateInfo);
+
+    // get memory requirements
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(*device, *image, &memRequirements);
+
+    // allocate memory with out export memory info extension
+    auto[deviceMemory, offset] = context.deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    if (!deviceMemory)
+    {
+        throw Exception{"Error: Failed allocate memory for image.", 0};
+    }
+
+    image->bind(deviceMemory, offset);
+
+    return vsg::ImageView::create(device, image, VK_IMAGE_VIEW_TYPE_2D, imageCreateInfo.format, aspectFlags);
+}
+
+ref_ptr<ImageView> vsg::createImageView(Device* device, const VkImageCreateInfo& imageCreateInfo,
+                                               VkImageAspectFlags aspectFlags, VkImageLayout targetImageLayout)
+{
+    vsg::ref_ptr<vsg::Image> image;
+
+    image = vsg::Image::create(device, imageCreateInfo);
+
+    // allocate memory with out export memory info extension
+    auto deviceMemory = DeviceMemory::create(device, image->getMemoryRequirements(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    if (!deviceMemory)
+    {
+        throw Exception{"Error: Failed allocate memory for image.", 0};
+    }
+
+    image->bind(deviceMemory, 0);
+
+    return vsg::ImageView::create(device, image, VK_IMAGE_VIEW_TYPE_2D, imageCreateInfo.format, aspectFlags);
 }

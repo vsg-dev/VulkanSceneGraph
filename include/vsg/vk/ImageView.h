@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    class Context;
 
     class VSG_DECLSPEC ImageView : public Inherit<Object, ImageView>
     {
@@ -42,5 +43,10 @@ namespace vsg
         ref_ptr<AllocationCallbacks> _allocator;
     };
     VSG_type_name(vsg::ImageView);
+
+    extern ref_ptr<ImageView> createImageView(Context& context, const VkImageCreateInfo& imageCreateInfo,
+                                              VkImageAspectFlags aspectFlags, VkImageLayout targetImageLayout);
+    extern ref_ptr<ImageView> createImageView(Device* device, const VkImageCreateInfo& imageCreateInfo,
+                                              VkImageAspectFlags aspectFlags, VkImageLayout targetImageLayout);
 
 } // namespace vsg
