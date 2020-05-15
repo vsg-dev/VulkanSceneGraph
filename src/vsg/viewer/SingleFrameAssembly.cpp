@@ -11,12 +11,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/viewer/SingleFrameAssembly.h>
+#include <vsg/vk/Context.h>
 
 using namespace vsg;
 
 FrameAssembly::FrameRender SingleFrameAssembly::getFrameRender()
 {
-    return FrameRender(_frameBuffer, _renderPass);
+    return FrameRender(_frameBuffer, _renderPass, _clearValues);
 }
 
 ref_ptr<Device> SingleFrameAssembly::getDevice() const

@@ -36,11 +36,10 @@ namespace vsg
 
         RenderPass* getRenderPass()
         {
-            auto [frameBuffer, renderPass] = frameAssembly->getFrameRender();
+            auto [frameBuffer, renderPass, clearValues] = frameAssembly->getFrameRender();
             return renderPass.get();
         }
         using ClearValues = std::vector<VkClearValue>;
-        ClearValues clearValues; // initialize window colour and depth/stencil
 
         // windopw extent at previous frame
         const uint32_t invalid_dimension = std::numeric_limits<uint32_t>::max();

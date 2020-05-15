@@ -31,7 +31,8 @@ namespace vsg
             ref_ptr<ImageView> imageView;
         };
         using AttachmentImageViews = std::vector<AttachmentImageView>;
-        using FrameRender = std::pair<ref_ptr<Framebuffer>, ref_ptr<RenderPass>>;
+        using ClearValues = std::vector<VkClearValue>;
+        using FrameRender = std::tuple<ref_ptr<Framebuffer>, ref_ptr<RenderPass>, const ClearValues&>;
         // Not clear yet what arguments getFrameRender should pass.
         virtual FrameRender getFrameRender() = 0;
         virtual ref_ptr<Device> getDevice() const = 0;

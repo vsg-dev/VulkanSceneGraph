@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <array>
 #include <chrono>
+#include <cmath>
 
 using namespace vsg;
 
@@ -124,15 +125,60 @@ void Window::_initDevice()
     }
 }
 
+VkSampleCountFlagBits Window::getFramebufferSamples()
+{
+    if (_framebufferSamples.has_value())
+    {
+        return *_framebufferSamples;
+    }
+    if (_traits->samples == VK_SAMPLE_COUNT_1_BIT)
+    {
+        _framebufferSamples = VK_SAMPLE_COUNT_1_BIT;
+        return *_framebufferSamples;
+    }
+    if (!_physicalDevice)
+    {
+        _initDevice();
+    }
+    VkSampleCountFlags deviceColorSamples = _physicalDevice->getProperties().limits.framebufferColorSampleCounts;
+    VkSampleCountFlags deviceDepthSamples = _physicalDevice->getProperties().limits.framebufferDepthSampleCounts;
+    unsigned satisfied = deviceColorSamples & deviceDepthSamples & _traits->samples;
+    if (satisfied != 0)
+    {
+        unsigned highest = 1 << static_cast<unsigned>(floor(log2(satisfied)));
+        _framebufferSamples = static_cast<VkSampleCountFlagBits>(highest);
+    }
+    else
+    {
+        _framebufferSamples = VK_SAMPLE_COUNT_1_BIT;
+    }
+    return *_framebufferSamples;
+}
+
 void Window::_initRenderPass()
 {
     if (!_device) _initDevice();
 
     vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
-    VkSurfaceFormatKHR imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
+    _imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
     VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
-
-    _renderPass = vsg::createRenderPass(_device, imageFormat.format, depthFormat, _traits->allocator);
+    VkClearValue clearColor;
+    clearColor.color = _clearColor;
+    if (getFramebufferSamples() == VK_SAMPLE_COUNT_1_BIT)
+    {
+        _renderPass = vsg::createRenderPass(_device, _imageFormat.format, depthFormat, _traits->allocator);
+        _clearValues.push_back(clearColor);
+    }
+    else
+    {
+        _renderPass = vsg::createMultisampledRenderPass(_device, _imageFormat.format, depthFormat, getFramebufferSamples(),
+                                                        _traits->allocator);
+        _clearValues.push_back(clearColor);
+        _clearValues.push_back(clearColor);
+    }
+    VkClearValue depthClear;
+    depthClear.depthStencil = VkClearDepthStencilValue{1.0f, 0};
+    _clearValues.push_back(depthClear);
 }
 
 void Window::_initSwapchain()
@@ -156,6 +202,7 @@ void Window::buildSwapchain()
         _depthImageView = 0;
         _depthImage = 0;
         _depthImageMemory = 0;
+        _multisampleImage = 0;
 
         _swapchain = 0;
     }
@@ -165,7 +212,33 @@ void Window::buildSwapchain()
 
     // pass back the extents used by the swap chain.
     _extent2D = _swapchain->getExtent();
+    bool multisampling = getFramebufferSamples() != VK_SAMPLE_COUNT_1_BIT;
 
+    if (multisampling)
+    {
+        VkImageCreateInfo colorImageCreateInfo = {};
+        colorImageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        colorImageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+        colorImageCreateInfo.format = _imageFormat.format;
+        colorImageCreateInfo.extent.width = _extent2D.width;
+        colorImageCreateInfo.extent.height = _extent2D.height;
+        colorImageCreateInfo.extent.depth = 1;
+        colorImageCreateInfo.mipLevels = 1;
+        colorImageCreateInfo.arrayLayers = 1;
+        colorImageCreateInfo.samples = getFramebufferSamples();
+        colorImageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+        colorImageCreateInfo.usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        colorImageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        colorImageCreateInfo.flags = 0;
+        colorImageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        colorImageCreateInfo.queueFamilyIndexCount = 0;
+        colorImageCreateInfo.pNext = nullptr;
+        _multisampleImage = Image::create(_device, colorImageCreateInfo);
+        auto colorMemory = DeviceMemory::create(_device, _multisampleImage->getMemoryRequirements(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        _multisampleImage->bind(colorMemory, 0);
+        _multisampleImageView = ImageView::create(_device, _multisampleImage, VK_IMAGE_VIEW_TYPE_2D,
+                                                  _imageFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
+    }
     // create depth buffer
     //VkFormat depthFormat = VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT
     VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT;
@@ -181,7 +254,7 @@ void Window::buildSwapchain()
     depthImageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     depthImageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     depthImageCreateInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    depthImageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    depthImageCreateInfo.samples = getFramebufferSamples();
     depthImageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     depthImageCreateInfo.pNext = nullptr;
 
@@ -201,11 +274,17 @@ void Window::buildSwapchain()
 
     for (size_t i = 0; i < imageViews.size(); ++i)
     {
-        std::array<VkImageView, 2> attachments = {{*imageViews[i], *_depthImageView}};
+        std::vector<VkImageView> attachments;
 
         VkFramebufferCreateInfo framebufferInfo = {};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferInfo.renderPass = *_renderPass;
+        if (multisampling)
+        {
+            attachments.push_back(*_multisampleImageView);
+        }
+        attachments.push_back(*imageViews[i]);
+        attachments.push_back(*_depthImageView);
         framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
         framebufferInfo.pAttachments = attachments.data();
         framebufferInfo.width = _extent2D.width;
@@ -215,7 +294,7 @@ void Window::buildSwapchain()
         ref_ptr<Semaphore> ias = vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag);
         ref_ptr<Framebuffer> fb = Framebuffer::create(_device, framebufferInfo);
 
-        _frames.push_back({imageViews[i], fb, ias});
+        _frames.push_back({multisampling ? _multisampleImageView : imageViews[i], fb, ias});
     }
 
     {
@@ -232,8 +311,20 @@ void Window::buildSwapchain()
             auto pipelineBarrier = PipelineBarrier::create(
                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
                 0, depthImageBarrier);
-
             pipelineBarrier->dispatch(commandBuffer);
+            if (multisampling)
+            {
+                auto msImageBarrier = ImageMemoryBarrier::create(
+                    0, VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                    VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                    VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
+                    _multisampleImage,
+                    VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
+                auto msPipelineBarrier = PipelineBarrier::create(
+                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                    0, msImageBarrier);
+                msPipelineBarrier->dispatch(commandBuffer);
+            }
         });
     }
 
@@ -242,11 +333,11 @@ void Window::buildSwapchain()
 
 FrameAssembly::FrameRender Window::getFrameRender()
 {
-    if (!_renderPass)
+    if (_frames.empty())
     {
-        _initRenderPass();
+        _initSwapchain();
     }
-    return FrameRender(_frames[nextImageIndex()].framebuffer, _renderPass);
+    return FrameRender(_frames[nextImageIndex()].framebuffer, _renderPass, _clearValues);
 }
 
 ref_ptr<Device> Window::getDevice() const

@@ -20,8 +20,10 @@ namespace vsg
     {
     public:
         SingleFrameAssembly(ref_ptr<Framebuffer> frameBuffer, ref_ptr<RenderPass> renderPass,
+                            const ClearValues clearValues,
                             const VkExtent2D& extent2D = VkExtent2D{})
             : _frameBuffer(std::move(frameBuffer)), _renderPass(std::move(renderPass)),
+              _clearValues(clearValues),
               _extent2D(extent2D)
         {
         }
@@ -35,6 +37,7 @@ namespace vsg
     protected:
         ref_ptr<Framebuffer> _frameBuffer;
         ref_ptr<RenderPass> _renderPass;
+        ClearValues _clearValues;
         VkExtent2D _extent2D;
     };
 }
