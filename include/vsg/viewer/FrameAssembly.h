@@ -12,41 +12,31 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/Group.h>
+#include <vsg/vk/ImageView.h>
+#include <vsg/vk/RenderPass.h>
+#include <vsg/vk/Framebuffer.h>
 
-#include <vsg/viewer/Camera.h>
-#include <vsg/viewer/Window.h>
-#include <vsg/viewer/FrameAssembly.h>
+#include <utility>
 
 namespace vsg
 {
-    class RenderGraph : public Inherit<Group, RenderGraph>
+    class VSG_DECLSPEC FrameAssembly : public Inherit<Object, FrameAssembly>
     {
     public:
-        RenderGraph();
-
-        using Group::accept;
-
-        void accept(RecordTraversal& dispatchTraversal) const override;
-
-        ref_ptr<Camera> camera; // camera that the trackball controls
-
-        ref_ptr<FrameAssembly> frameAssembly;
-        VkRect2D renderArea; // viewport dimensions
-
-        RenderPass* getRenderPass()
+        FrameAssembly()
         {
-            auto [frameBuffer, renderPass, clearValues] = frameAssembly->getFrameRender();
-            return renderPass.get();
         }
+        struct AttachmentImageView
+        {
+            ref_ptr<ImageView> imageView;
+        };
+        using AttachmentImageViews = std::vector<AttachmentImageView>;
         using ClearValues = std::vector<VkClearValue>;
-
-        // windopw extent at previous frame
-        const uint32_t invalid_dimension = std::numeric_limits<uint32_t>::max();
-        mutable VkExtent2D previous_extent = VkExtent2D{invalid_dimension, invalid_dimension};
+        using FrameRender = std::tuple<ref_ptr<Framebuffer>, ref_ptr<RenderPass>, const ClearValues&>;
+        // Not clear yet what arguments getFrameRender should pass.
+        virtual FrameRender getFrameRender() = 0;
+        virtual ref_ptr<Device> getDevice() const = 0;
+        virtual const VkExtent2D& getExtent2D() const = 0;
+    protected:
     };
-
-    /// convience function that sets up RenderGraph to render the specified scene graph from the speified Camera view
-    ref_ptr<RenderGraph> createRenderGraphForView(Window* window, Camera* camera, Node* scenegraph);
-
-} // namespace vsg
+}

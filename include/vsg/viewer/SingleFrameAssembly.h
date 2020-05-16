@@ -12,41 +12,32 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/Group.h>
-
-#include <vsg/viewer/Camera.h>
-#include <vsg/viewer/Window.h>
 #include <vsg/viewer/FrameAssembly.h>
 
 namespace vsg
 {
-    class RenderGraph : public Inherit<Group, RenderGraph>
+    class VSG_DECLSPEC SingleFrameAssembly : public Inherit<FrameAssembly, SingleFrameAssembly>
     {
     public:
-        RenderGraph();
-
-        using Group::accept;
-
-        void accept(RecordTraversal& dispatchTraversal) const override;
-
-        ref_ptr<Camera> camera; // camera that the trackball controls
-
-        ref_ptr<FrameAssembly> frameAssembly;
-        VkRect2D renderArea; // viewport dimensions
-
-        RenderPass* getRenderPass()
+        SingleFrameAssembly(ref_ptr<Framebuffer> frameBuffer, ref_ptr<RenderPass> renderPass,
+                            const ClearValues clearValues,
+                            const VkExtent2D& extent2D = VkExtent2D{})
+            : _frameBuffer(std::move(frameBuffer)), _renderPass(std::move(renderPass)),
+              _clearValues(clearValues),
+              _extent2D(extent2D)
         {
-            auto [frameBuffer, renderPass, clearValues] = frameAssembly->getFrameRender();
-            return renderPass.get();
         }
-        using ClearValues = std::vector<VkClearValue>;
-
-        // windopw extent at previous frame
-        const uint32_t invalid_dimension = std::numeric_limits<uint32_t>::max();
-        mutable VkExtent2D previous_extent = VkExtent2D{invalid_dimension, invalid_dimension};
+        FrameRender getFrameRender() override;
+        ref_ptr<Device> getDevice() const override;
+        const VkExtent2D& getExtent2D() const override;
+        void setExtent2D(VkExtent2D extent2D)
+        {
+            _extent2D = std::move(extent2D);
+        }
+    protected:
+        ref_ptr<Framebuffer> _frameBuffer;
+        ref_ptr<RenderPass> _renderPass;
+        ClearValues _clearValues;
+        VkExtent2D _extent2D;
     };
-
-    /// convience function that sets up RenderGraph to render the specified scene graph from the speified Camera view
-    ref_ptr<RenderGraph> createRenderGraphForView(Window* window, Camera* camera, Node* scenegraph);
-
-} // namespace vsg
+}

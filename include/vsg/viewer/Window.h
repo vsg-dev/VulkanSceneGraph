@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <any>
+#include <optional>
 
 #include <vsg/ui/UIEvent.h>
 
@@ -23,10 +24,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Semaphore.h>
 
 #include <vsg/viewer/WindowTraits.h>
+#include <vsg/viewer/FrameAssembly.h>
 
 namespace vsg
 {
-    class VSG_DECLSPEC Window : public Inherit<Object, Window>
+    class VSG_DECLSPEC Window : public Inherit<FrameAssembly, Window>
     {
     public:
         Window(const Window&) = delete;
@@ -128,6 +130,12 @@ namespace vsg
         Frame& frame(uint32_t i) { return _frames[i]; }
         Frames& frames() { return _frames; }
 
+        FrameAssembly::FrameRender getFrameRender() override;
+        ref_ptr<Device> getDevice() const override;
+        const VkExtent2D& getExtent2D() const override;
+
+        VkSampleCountFlagBits getFramebufferSamples();
+
     protected:
         Window(ref_ptr<WindowTraits> traits);
 
@@ -147,6 +155,8 @@ namespace vsg
 
         VkExtent2D _extent2D;
         VkClearColorValue _clearColor;
+        FrameAssembly::ClearValues _clearValues;
+        VkSurfaceFormatKHR _imageFormat;
 
         ref_ptr<Instance> _instance;
         ref_ptr<PhysicalDevice> _physicalDevice;
@@ -157,6 +167,9 @@ namespace vsg
         ref_ptr<Image> _depthImage;
         ref_ptr<DeviceMemory> _depthImageMemory;
         ref_ptr<ImageView> _depthImageView;
+        std::optional<VkSampleCountFlagBits> _framebufferSamples;
+        ref_ptr<Image> _multisampleImage;
+        ref_ptr<ImageView> _multisampleImageView;
 
         Frames _frames;
         uint32_t _nextImageIndex;

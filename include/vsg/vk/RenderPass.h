@@ -41,5 +41,7 @@ namespace vsg
     VSG_type_name(vsg::RenderPass);
 
     extern ref_ptr<RenderPass> createRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator = nullptr);
+    extern ref_ptr<RenderPass> createMultisampledRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat,
+                                                            VkSampleCountFlagBits samples, AllocationCallbacks* allocator = nullptr);
 
 } // namespace vsg
