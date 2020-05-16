@@ -56,6 +56,7 @@ namespace vsg
             value{} {}
         constexpr t_vec3(const t_vec3& v) :
             value{v.x, v.y, v.z} {}
+        constexpr t_vec3& operator=(const t_vec3&) = default;
         constexpr t_vec3(value_type in_x, value_type in_y, value_type in_z) :
             value{in_x, in_y, in_z} {}
 
