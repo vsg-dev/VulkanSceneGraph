@@ -136,7 +136,7 @@ namespace vsg
 
         // used by GraphicsPipeline.cpp
         ref_ptr<RenderPass> renderPass;
-        ref_ptr<ViewportState> viewport;
+        GraphicsPipelineStates graphicsPipelineStates;
 
         // DescriptorSet.cpp
         ref_ptr<DescriptorPool> descriptorPool;
