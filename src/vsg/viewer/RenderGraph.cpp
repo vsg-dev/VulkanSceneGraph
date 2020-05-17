@@ -80,7 +80,7 @@ RenderGraph::RenderGraph()
 {
 }
 
-void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
+void RenderGraph::accept(RecordTraversal& recordTraversal) const
 {
     auto [frameBuffer, renderPass, clearValues] = frameAssembly->getFrameRender();
     auto extent = frameAssembly->getExtent2D();
@@ -95,7 +95,7 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
 
         vsg::UpdatePipeline updatePipeline(frameAssembly->getDevice());
 
-        updatePipeline.context.commandPool = dispatchTraversal.state->_commandBuffer->getCommandPool();
+        updatePipeline.context.commandPool = recordTraversal.state->_commandBuffer->getCommandPool();
         updatePipeline.context.renderPass = renderPass;
 
         if (camera)
@@ -132,10 +132,10 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
         camera->getProjectionMatrix()->get(projMatrix);
         camera->getViewMatrix()->get(viewMatrix);
 
-        dispatchTraversal.setProjectionAndViewMatrix(projMatrix, viewMatrix);
+        recordTraversal.setProjectionAndViewMatrix(projMatrix, viewMatrix);
     }
 
-    VkCommandBuffer vk_commandBuffer = *(dispatchTraversal.state->_commandBuffer);
+    VkCommandBuffer vk_commandBuffer = *(recordTraversal.state->_commandBuffer);
 
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -148,7 +148,7 @@ void RenderGraph::accept(RecordTraversal& dispatchTraversal) const
     vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
     // traverse the command buffer to place the commands into the command buffer.
-    traverse(dispatchTraversal);
+    traverse(recordTraversal);
 
     vkCmdEndRenderPass(vk_commandBuffer);
 }
