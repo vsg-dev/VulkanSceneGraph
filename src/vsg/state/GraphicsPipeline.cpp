@@ -91,8 +91,8 @@ void GraphicsPipeline::compile(Context& context)
             shaderStage->compile(context);
         }
 
-        GraphicsPipelineStates full_pipelineStates = _pipelineStates;
-        full_pipelineStates.emplace_back(context.viewport);
+        GraphicsPipelineStates full_pipelineStates = context.graphicsPipelineStates;
+        full_pipelineStates.insert(full_pipelineStates.end(), _pipelineStates.begin(), _pipelineStates.end());
 
         _implementation[context.deviceID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, _pipelineLayout, _shaderStages, full_pipelineStates, _subpass, _allocator);
     }

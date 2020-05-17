@@ -191,14 +191,20 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
 {
     context.renderPass = renderGraph.getRenderPass();
 
+    // save previous states to be restored after traversal
+    auto previousPipelineStates = context.graphicsPipelineStates;
+
     if (renderGraph.camera)
     {
-        context.viewport = renderGraph.camera->getViewportState();
+        context.graphicsPipelineStates.emplace_back( renderGraph.camera->getViewportState() );
     }
     else
     {
-        context.viewport = vsg::ViewportState::create(renderGraph.window->extent2D());
+        context.graphicsPipelineStates.push_back( ViewportState::create(renderGraph.window->extent2D()) );
     }
 
     renderGraph.traverse(*this);
+
+    // restore previous values
+    context.graphicsPipelineStates = previousPipelineStates;
 }

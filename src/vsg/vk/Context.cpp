@@ -593,7 +593,7 @@ Context::Context(const Context& context) :
     deviceID(context.deviceID),
     device(context.device),
     renderPass(context.renderPass),
-    viewport(context.viewport),
+    graphicsPipelineStates(context.graphicsPipelineStates),
     descriptorPool(context.descriptorPool),
     graphicsQueue(context.graphicsQueue),
     commandPool(context.commandPool),
