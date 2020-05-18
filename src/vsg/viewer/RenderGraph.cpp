@@ -20,6 +20,7 @@ using namespace vsg;
 
 namespace vsg
 {
+    // XXX still needed?
     class UpdatePipeline : public vsg::Visitor
     {
     public:
@@ -78,7 +79,7 @@ RenderGraph::RenderGraph()
 
 void RenderGraph::accept(RecordTraversal& recordTraversal) const
 {
-    auto [frameBuffer, renderPass, clearValues] = frameAssembly->getFrameRender();
+    FrameAssembly::FrameRender frameRender = frameAssembly->getFrameRender();
     auto extent = frameAssembly->getExtent2D();
 
     if (previous_extent.width == invalid_dimension || previous_extent.width == invalid_dimension)
@@ -92,7 +93,8 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
         vsg::UpdatePipeline updatePipeline(frameAssembly->getDevice());
 
         updatePipeline.context.commandPool = recordTraversal.state->_commandBuffer->getCommandPool();
-        updatePipeline.context.renderPass = renderPass;
+        updatePipeline.context.renderPass = frameRender.renderPass;
+        updatePipeline.context.overridePipelineStates.emplace_back(MultisampleState::create(frameRender.sampleBits));
 
         if (camera)
         {
@@ -104,9 +106,8 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
             {
                 ep->aspectRatio = static_cast<double>(extent.width) / static_cast<double>(extent.height);
             }
-
             auto viewport = camera->getViewportState();
-            updatePipeline.context.graphicsPipelineStates.emplace_back(viewport);
+            updatePipeline.context.defaultPipelineStates.emplace_back(viewport);
 
             viewport->getViewport().width = static_cast<float>(extent.width);
             viewport->getViewport().height = static_cast<float>(extent.height);
@@ -135,12 +136,12 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
 
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = *renderPass;
-    renderPassInfo.framebuffer = *frameBuffer;
+    renderPassInfo.renderPass = *frameRender.renderPass;
+    renderPassInfo.framebuffer = *frameRender.framebuffer;
     renderPassInfo.renderArea = renderArea;
 
-    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-    renderPassInfo.pClearValues = clearValues.data();
+    renderPassInfo.clearValueCount = static_cast<uint32_t>(frameRender.clearValues.size());
+    renderPassInfo.pClearValues = frameRender.clearValues.data();
     vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
     // traverse the command buffer to place the commands into the command buffer.

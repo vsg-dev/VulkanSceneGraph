@@ -337,7 +337,7 @@ FrameAssembly::FrameRender Window::getFrameRender()
     {
         _initSwapchain();
     }
-    return FrameRender(_frames[nextImageIndex()].framebuffer, _renderPass, _clearValues);
+    return FrameRender{_frames[nextImageIndex()].framebuffer, _renderPass, _clearValues, getFramebufferSamples()};
 }
 
 ref_ptr<Device> Window::getDevice() const

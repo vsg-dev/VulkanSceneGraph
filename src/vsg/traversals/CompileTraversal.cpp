@@ -192,19 +192,24 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
     context.renderPass = renderGraph.getRenderPass();
 
     // save previous states to be restored after traversal
-    auto previousPipelineStates = context.graphicsPipelineStates;
+    auto previousDefaultPipelineStates = context.defaultPipelineStates;
+    auto previousOverridePipelineStates = context.overridePipelineStates;
 
     if (renderGraph.camera)
     {
-        context.graphicsPipelineStates.emplace_back( renderGraph.camera->getViewportState() );
+        context.defaultPipelineStates.emplace_back( renderGraph.camera->getViewportState() );
     }
     else
     {
-        context.graphicsPipelineStates.push_back( vsg::ViewportState::create(renderGraph.frameAssembly->getExtent2D()) );
+        context.defaultPipelineStates.push_back( vsg::ViewportState::create(renderGraph.frameAssembly->getExtent2D()) );
     }
 
+    FrameAssembly::FrameRender framerender = renderGraph.frameAssembly->getFrameRender();
+    ref_ptr<MultisampleState> defaultMsState = MultisampleState::create(framerender.sampleBits);
+    context.overridePipelineStates.push_back(defaultMsState);
     renderGraph.traverse(*this);
 
     // restore previous values
-    context.graphicsPipelineStates = previousPipelineStates;
+    context.defaultPipelineStates = previousDefaultPipelineStates;
+    context.overridePipelineStates = previousOverridePipelineStates;
 }

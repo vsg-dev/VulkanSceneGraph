@@ -21,7 +21,8 @@ namespace vsg
     public:
         SingleFrameAssembly(ref_ptr<Framebuffer> frameBuffer, ref_ptr<RenderPass> renderPass,
                             const ClearValues clearValues,
-                            const VkExtent2D& extent2D = VkExtent2D{})
+                            const VkExtent2D& extent2D = VkExtent2D{},
+                            VkSampleCountFlagBits sampleBits = VK_SAMPLE_COUNT_1_BIT)
             : _frameBuffer(std::move(frameBuffer)), _renderPass(std::move(renderPass)),
               _clearValues(clearValues),
               _extent2D(extent2D)
@@ -39,5 +40,6 @@ namespace vsg
         ref_ptr<RenderPass> _renderPass;
         ClearValues _clearValues;
         VkExtent2D _extent2D;
+        VkSampleCountFlagBits _sampleBits;
     };
 }
