@@ -136,7 +136,7 @@ CompileTraversal::CompileTraversal(Device* in_device, BufferPreferences bufferPr
 {
 }
 
-CompileTraversal::CompileTraversal(Window* window, BufferPreferences bufferPreferences) :
+CompileTraversal::CompileTraversal(Window* window, ViewportState* viewport, BufferPreferences bufferPreferences) :
     context(window->getOrCreateDevice(), bufferPreferences)
 {
     auto device = window->getDevice();
@@ -144,6 +144,8 @@ CompileTraversal::CompileTraversal(Window* window, BufferPreferences bufferPrefe
     context.renderPass = window->getOrCreateRenderPass();
     context.commandPool = vsg::CommandPool::create(device, queueFamily);
     context.graphicsQueue = device->getQueue(queueFamily);
+
+    context.viewport = viewport;
 }
 
 CompileTraversal::CompileTraversal(const CompileTraversal& ct) :
