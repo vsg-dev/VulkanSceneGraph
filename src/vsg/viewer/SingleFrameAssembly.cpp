@@ -17,7 +17,7 @@ using namespace vsg;
 
 FrameAssembly::FrameRender SingleFrameAssembly::getFrameRender()
 {
-    return FrameRender(_frameBuffer, _renderPass, _clearValues);
+    return FrameRender{_frameBuffer, _renderPass, _clearValues, _sampleBits};
 }
 
 ref_ptr<Device> SingleFrameAssembly::getDevice() const

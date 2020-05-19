@@ -91,10 +91,7 @@ void GraphicsPipeline::compile(Context& context)
             shaderStage->compile(context);
         }
 
-        GraphicsPipelineStates full_pipelineStates = context.graphicsPipelineStates;
-        full_pipelineStates.insert(full_pipelineStates.end(), _pipelineStates.begin(), _pipelineStates.end());
-
-        _implementation[context.deviceID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, _pipelineLayout, _shaderStages, full_pipelineStates, _subpass, _allocator);
+        _implementation[context.deviceID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, _pipelineLayout, _shaderStages, _pipelineStates, _subpass, _allocator);
     }
 }
 
@@ -107,9 +104,12 @@ GraphicsPipeline::Implementation::Implementation(Context& context, Device* devic
     _renderPass(renderPass),
     _pipelineLayout(pipelineLayout),
     _shaderStages(shaderStages),
-    _pipelineStates(pipelineStates),
+    _pipelineStates(context.defaultPipelineStates),
     _allocator(allocator)
 {
+    _pipelineStates.insert(_pipelineStates.end(), pipelineStates.begin(), pipelineStates.end());
+    _pipelineStates.insert(_pipelineStates.end(), context.overridePipelineStates.begin(),
+                           context.overridePipelineStates.end());
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.layout = pipelineLayout->vk(device->deviceID);
@@ -129,7 +129,7 @@ GraphicsPipeline::Implementation::Implementation(Context& context, Device* devic
     pipelineInfo.stageCount = static_cast<uint32_t>(shaderStageCreateInfo.size());
     pipelineInfo.pStages = shaderStageCreateInfo.data();
 
-    for (auto pipelineState : pipelineStates)
+    for (auto pipelineState : _pipelineStates)
     {
         pipelineState->apply(pipelineInfo);
     }
@@ -398,13 +398,18 @@ void RasterizationState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
 //
 // MultisampleState
 //
-MultisampleState::MultisampleState() :
+MultisampleState::MultisampleState(VkSampleCountFlagBits rasterizationSamples_) :
     VkPipelineMultisampleStateCreateInfo{}
 {
     sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     sampleShadingEnable = VK_FALSE;
-    rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    rasterizationSamples = rasterizationSamples_;
     pNext = nullptr;
+}
+
+MultisampleState::MultisampleState()
+    : MultisampleState(VK_SAMPLE_COUNT_1_BIT)
+{
 }
 
 MultisampleState::~MultisampleState()

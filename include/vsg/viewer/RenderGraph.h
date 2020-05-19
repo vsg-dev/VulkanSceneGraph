@@ -36,8 +36,8 @@ namespace vsg
 
         RenderPass* getRenderPass()
         {
-            auto [frameBuffer, renderPass, clearValues] = frameAssembly->getFrameRender();
-            return renderPass.get();
+            FrameAssembly::FrameRender frameRender = frameAssembly->getFrameRender();
+            return frameRender.renderPass.get();
         }
         using ClearValues = std::vector<VkClearValue>;
 

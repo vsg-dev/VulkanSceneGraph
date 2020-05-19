@@ -211,6 +211,7 @@ namespace vsg
     {
     public:
         MultisampleState();
+        MultisampleState(VkSampleCountFlagBits rasterizationSamples);
 
         VkStructureType getType() const override { return sType; }
 

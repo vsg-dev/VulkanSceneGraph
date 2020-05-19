@@ -16,8 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/Framebuffer.h>
 
-#include <utility>
-
 namespace vsg
 {
     class VSG_DECLSPEC FrameAssembly : public Inherit<Object, FrameAssembly>
@@ -32,7 +30,13 @@ namespace vsg
         };
         using AttachmentImageViews = std::vector<AttachmentImageView>;
         using ClearValues = std::vector<VkClearValue>;
-        using FrameRender = std::tuple<ref_ptr<Framebuffer>, ref_ptr<RenderPass>, const ClearValues&>;
+        struct FrameRender
+        {
+            ref_ptr<Framebuffer> framebuffer;
+            ref_ptr<RenderPass> renderPass;
+            const ClearValues& clearValues;
+            VkSampleCountFlagBits sampleBits;
+        };
         // Not clear yet what arguments getFrameRender should pass.
         virtual FrameRender getFrameRender() = 0;
         virtual ref_ptr<Device> getDevice() const = 0;
