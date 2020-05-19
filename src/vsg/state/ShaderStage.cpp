@@ -96,33 +96,40 @@ void ShaderStage::apply(Context& context, VkPipelineShaderStageCreateInfo& stage
     stageInfo.module = _shaderModule->vk(context.deviceID);
     stageInfo.pName = _entryPointName.c_str();
 
-    uint32_t packedDataSize = 0;
-    for (auto& id_data : _specializationConstants)
+    if (_specializationConstants.empty())
     {
-        packedDataSize += static_cast<uint32_t>(id_data.second->dataSize());
+        stageInfo.pSpecializationInfo = nullptr;
     }
-
-    // allocate temporary memoory to pack the specialization map and data into.
-    auto mapEntries = context.scratchMemory->allocate<VkSpecializationMapEntry>(_specializationConstants.size());
-    auto packedData = context.scratchMemory->allocate<uint8_t>(packedDataSize);
-    uint32_t offset = 0;
-    uint32_t i = 0;
-    for (auto& [id, data] : _specializationConstants)
+    else
     {
-        mapEntries[i++] = VkSpecializationMapEntry{id, offset, data->dataSize()};
-        std::memcpy(packedData + offset, static_cast<uint8_t*>(data->dataPointer()), data->dataSize());
-        offset += static_cast<uint32_t>(data->dataSize());
+        uint32_t packedDataSize = 0;
+        for (auto& id_data : _specializationConstants)
+        {
+            packedDataSize += static_cast<uint32_t>(id_data.second->dataSize());
+        }
+
+        // allocate temporary memoory to pack the specialization map and data into.
+        auto mapEntries = context.scratchMemory->allocate<VkSpecializationMapEntry>(_specializationConstants.size());
+        auto packedData = context.scratchMemory->allocate<uint8_t>(packedDataSize);
+        uint32_t offset = 0;
+        uint32_t i = 0;
+        for (auto& [id, data] : _specializationConstants)
+        {
+            mapEntries[i++] = VkSpecializationMapEntry{id, offset, data->dataSize()};
+            std::memcpy(packedData + offset, static_cast<uint8_t*>(data->dataPointer()), data->dataSize());
+            offset += static_cast<uint32_t>(data->dataSize());
+        }
+
+        auto specializationInfo = context.scratchMemory->allocate<VkSpecializationInfo>(1);
+
+        stageInfo.pSpecializationInfo = specializationInfo;
+
+        // assign the values from the ShaderStage into the specializationInfo
+        specializationInfo->mapEntryCount = static_cast<uint32_t>(_specializationConstants.size());
+        specializationInfo->pMapEntries = mapEntries;
+        specializationInfo->dataSize = packedDataSize;
+        specializationInfo->pData = packedData;
     }
-
-    auto specializationInfo = context.scratchMemory->allocate<VkSpecializationInfo>(1);
-
-    stageInfo.pSpecializationInfo = specializationInfo;
-
-    // assign the values from the ShaderStage into the specializationInfo
-    specializationInfo->mapEntryCount = static_cast<uint32_t>(_specializationConstants.size());
-    specializationInfo->pMapEntries = mapEntries;
-    specializationInfo->dataSize = packedDataSize;
-    specializationInfo->pData = packedData;
 }
 
 void ShaderStage::compile(Context& context)
