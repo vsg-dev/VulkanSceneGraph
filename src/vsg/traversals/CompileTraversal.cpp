@@ -145,7 +145,9 @@ CompileTraversal::CompileTraversal(Window* window, ViewportState* viewport, Buff
     context.commandPool = vsg::CommandPool::create(device, queueFamily);
     context.graphicsQueue = device->getQueue(queueFamily);
 
-    context.viewport = viewport;
+    if (viewport) context.defaultPipelineStates.emplace_back(viewport);
+
+    if (window->getFrameRender().sampleBits > 1) context.overridePipelineStates.emplace_back(vsg::MultisampleState::create(window->getFrameRender().sampleBits));
 }
 
 CompileTraversal::CompileTraversal(const CompileTraversal& ct) :
