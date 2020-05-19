@@ -136,9 +136,11 @@ namespace vsg
 
         // used by GraphicsPipeline.cpp
         ref_ptr<RenderPass> renderPass;
+
         // pipeline states that are usually not set in a scene, e.g.,
         // the viewport state, but might be set for some uses
         GraphicsPipelineStates defaultPipelineStates;
+
         // pipeline states that must be set to avoid Vulkan errors
         // e.g., MultisampleState.
         // XXX MultisampleState is complicated because the sample
