@@ -63,7 +63,7 @@ namespace vsg
     {
     public:
         explicit CompileTraversal(Device* in_device, BufferPreferences bufferPreferences = {});
-        explicit CompileTraversal(Window* window, BufferPreferences bufferPreferences = {});
+        explicit CompileTraversal(Window* window, ViewportState* viewport = nullptr, BufferPreferences bufferPreferences = {});
         CompileTraversal(const CompileTraversal& ct);
         ~CompileTraversal();
 
