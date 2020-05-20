@@ -25,7 +25,8 @@ namespace vsg
                             VkSampleCountFlagBits sampleBits = VK_SAMPLE_COUNT_1_BIT)
             : _frameBuffer(std::move(frameBuffer)), _renderPass(std::move(renderPass)),
               _clearValues(clearValues),
-              _extent2D(extent2D)
+              _extent2D(extent2D),
+              _sampleBits(sampleBits)
         {
         }
         FrameRender getFrameRender() override;
