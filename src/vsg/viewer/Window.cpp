@@ -25,6 +25,7 @@ Window::Window(ref_ptr<WindowTraits> traits) :
     _traits(traits),
     _extent2D{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()},
     _clearColor{{0.2f, 0.2f, 0.4f, 1.0f}},
+    _framebufferSamples(VK_SAMPLE_COUNT_1_BIT),
     _nextImageIndex(0)
 {
 }
@@ -121,6 +122,27 @@ void Window::_initDevice()
         vsg::QueueSettings queueSettings{vsg::QueueSetting{queueFamily, {1.0}}, vsg::QueueSetting{presentFamily, {1.0}}};
         _device = vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->allocator);
         _physicalDevice = physicalDevice;
+    }
+
+    // compute the sample bits to use
+    if (_traits->samples != VK_SAMPLE_COUNT_1_BIT)
+    {
+        VkSampleCountFlags deviceColorSamples = _physicalDevice->getProperties().limits.framebufferColorSampleCounts;
+        VkSampleCountFlags deviceDepthSamples = _physicalDevice->getProperties().limits.framebufferDepthSampleCounts;
+        unsigned satisfied = deviceColorSamples & deviceDepthSamples & _traits->samples;
+        if (satisfied != 0)
+        {
+            unsigned highest = 1 << static_cast<unsigned>(floor(log2(satisfied)));
+            _framebufferSamples = static_cast<VkSampleCountFlagBits>(highest);
+        }
+        else
+        {
+            _framebufferSamples = VK_SAMPLE_COUNT_1_BIT;
+        }
+    }
+    else
+    {
+        _framebufferSamples = VK_SAMPLE_COUNT_1_BIT;
     }
 }
 

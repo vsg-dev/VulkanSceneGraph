@@ -53,6 +53,8 @@ namespace vsg
         VkClearColorValue& clearColor() { return _clearColor; }
         const VkClearColorValue& clearColor() const { return _clearColor; }
 
+        VkSampleCountFlagBits framebufferSamples() const { return _framebufferSamples; }
+
         Instance* getInstance() { return _instance; }
         Instance* getOrCreateInstance()
         {
@@ -147,6 +149,8 @@ namespace vsg
 
         VkExtent2D _extent2D;
         VkClearColorValue _clearColor;
+
+        VkSampleCountFlagBits _framebufferSamples;
 
         ref_ptr<Instance> _instance;
         ref_ptr<PhysicalDevice> _physicalDevice;
