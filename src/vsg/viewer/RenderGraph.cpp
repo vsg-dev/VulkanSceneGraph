@@ -33,20 +33,16 @@ namespace vsg
             GraphicsPipeline* graphicsPipeline = bindPipeline.getPipeline();
             if (graphicsPipeline)
             {
-                // TODO: Need to come up with a more general purpose way of matching Window viewports and GraphicsPipeline.
                 bool containsViewport = false;
-                bool containsContextWindowViewport = false;
-
                 for (auto& pipelineState : graphicsPipeline->getPipelineStates())
                 {
                     if (auto viewport = pipelineState.cast<ViewportState>())
                     {
                         containsViewport = true;
-                        if (viewport == context.viewport) containsContextWindowViewport = true;
                     }
                 }
 
-                bool needToRegenerateGraphicsPipeline = containsContextWindowViewport || !containsViewport;
+                bool needToRegenerateGraphicsPipeline = !containsViewport;
                 if (needToRegenerateGraphicsPipeline)
                 {
                     vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getPipelineLayout(), graphicsPipeline->getShaderStages(), graphicsPipeline->getPipelineStates());
@@ -111,7 +107,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
                 }
 
                 auto viewport = camera->getViewportState();
-                updatePipeline.context.viewport = viewport;
+                updatePipeline.context.defaultPipelineStates.emplace_back(viewport);
 
                 viewport->getViewport().width = static_cast<float>(extent.width);
                 viewport->getViewport().height = static_cast<float>(extent.height);

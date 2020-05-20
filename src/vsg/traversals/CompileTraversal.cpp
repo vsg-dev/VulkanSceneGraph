@@ -145,7 +145,7 @@ CompileTraversal::CompileTraversal(Window* window, ViewportState* viewport, Buff
     context.commandPool = vsg::CommandPool::create(device, queueFamily);
     context.graphicsQueue = device->getQueue(queueFamily);
 
-    context.viewport = viewport;
+    if (viewport) context.defaultPipelineStates.emplace_back(viewport);
 }
 
 CompileTraversal::CompileTraversal(const CompileTraversal& ct) :
@@ -193,14 +193,22 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
 {
     context.renderPass = renderGraph.getRenderPass();
 
+    // save previous states to be restored after traversal
+    auto previousDefaultPipelineStates = context.defaultPipelineStates;
+    auto previousOverridePipelineStates = context.overridePipelineStates;
+
     if (renderGraph.camera)
     {
-        context.viewport = renderGraph.camera->getViewportState();
+        context.defaultPipelineStates.emplace_back( renderGraph.camera->getViewportState() );
     }
     else
     {
-        context.viewport = vsg::ViewportState::create(renderGraph.window->extent2D());
+        context.defaultPipelineStates.push_back( vsg::ViewportState::create(renderGraph.window->extent2D()) );
     }
 
     renderGraph.traverse(*this);
+
+    // restore previous values
+    context.defaultPipelineStates = previousDefaultPipelineStates;
+    context.overridePipelineStates = previousOverridePipelineStates;
 }

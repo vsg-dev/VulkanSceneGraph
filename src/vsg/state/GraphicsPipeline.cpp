@@ -91,10 +91,13 @@ void GraphicsPipeline::compile(Context& context)
             shaderStage->compile(context);
         }
 
-        GraphicsPipelineStates full_pipelineStates = _pipelineStates;
-        full_pipelineStates.emplace_back(context.viewport);
+        GraphicsPipelineStates combined_pipelineStates = context.defaultPipelineStates;
+        combined_pipelineStates.insert(combined_pipelineStates.end(), _pipelineStates.begin(), _pipelineStates.end());
+        combined_pipelineStates.insert(combined_pipelineStates.end(), context.overridePipelineStates.begin(), context.overridePipelineStates.end());
 
-        _implementation[context.deviceID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, _pipelineLayout, _shaderStages, full_pipelineStates, _subpass, _allocator);
+        // TODO : current buffering of GraphicsPipeline::Implementation assumes a single VkPipelie for each Device, but could potentially vary with Device, RenerPass, combined_PipelinStates
+        // so will need to have some form of contextID/renderID that wraps all these variables up and indexes the buffer using it instead of deviceID.
+        _implementation[context.deviceID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, _pipelineLayout, _shaderStages, combined_pipelineStates, _subpass, _allocator);
     }
 }
 
@@ -129,7 +132,7 @@ GraphicsPipeline::Implementation::Implementation(Context& context, Device* devic
     pipelineInfo.stageCount = static_cast<uint32_t>(shaderStageCreateInfo.size());
     pipelineInfo.pStages = shaderStageCreateInfo.data();
 
-    for (auto pipelineState : pipelineStates)
+    for (auto pipelineState : _pipelineStates)
     {
         pipelineState->apply(pipelineInfo);
     }
@@ -398,12 +401,12 @@ void RasterizationState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
 //
 // MultisampleState
 //
-MultisampleState::MultisampleState() :
+MultisampleState::MultisampleState(VkSampleCountFlagBits samples) :
     VkPipelineMultisampleStateCreateInfo{}
 {
     sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     sampleShadingEnable = VK_FALSE;
-    rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    rasterizationSamples = samples;
     pNext = nullptr;
 }
 
