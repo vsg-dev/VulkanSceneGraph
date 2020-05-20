@@ -79,8 +79,7 @@ ImageView::~ImageView()
     }
 }
 
-ref_ptr<ImageView> vsg::createImageView(vsg::Context& context, const VkImageCreateInfo& imageCreateInfo,
-                                               VkImageAspectFlags aspectFlags, VkImageLayout targetImageLayout)
+ref_ptr<ImageView> vsg::createImageView(vsg::Context& context, const VkImageCreateInfo& imageCreateInfo, VkImageAspectFlags aspectFlags)
 {
     vsg::Device* device = context.device;
 
@@ -105,8 +104,7 @@ ref_ptr<ImageView> vsg::createImageView(vsg::Context& context, const VkImageCrea
     return vsg::ImageView::create(device, image, VK_IMAGE_VIEW_TYPE_2D, imageCreateInfo.format, aspectFlags);
 }
 
-ref_ptr<ImageView> vsg::createImageView(Device* device, const VkImageCreateInfo& imageCreateInfo,
-                                               VkImageAspectFlags aspectFlags, VkImageLayout targetImageLayout)
+ref_ptr<ImageView> vsg::createImageView(Device* device, const VkImageCreateInfo& imageCreateInfo, VkImageAspectFlags aspectFlags)
 {
     vsg::ref_ptr<vsg::Image> image;
 
