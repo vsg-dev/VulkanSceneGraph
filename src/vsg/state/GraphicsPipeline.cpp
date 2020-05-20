@@ -401,18 +401,13 @@ void RasterizationState::apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const
 //
 // MultisampleState
 //
-MultisampleState::MultisampleState(VkSampleCountFlagBits rasterizationSamples_) :
+MultisampleState::MultisampleState(VkSampleCountFlagBits samples) :
     VkPipelineMultisampleStateCreateInfo{}
 {
     sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     sampleShadingEnable = VK_FALSE;
-    rasterizationSamples = rasterizationSamples_;
+    rasterizationSamples = samples;
     pNext = nullptr;
-}
-
-MultisampleState::MultisampleState()
-    : MultisampleState(VK_SAMPLE_COUNT_1_BIT)
-{
 }
 
 MultisampleState::~MultisampleState()
