@@ -190,6 +190,7 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
 {
     commandGraph.traverse(*this);
 }
+
 void CompileTraversal::apply(RenderGraph& renderGraph)
 {
     context.renderPass = renderGraph.getRenderPass();
@@ -207,9 +208,9 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
         context.defaultPipelineStates.push_back( vsg::ViewportState::create(renderGraph.window->extent2D()) );
     }
 
-    if (renderGraph.window)
+    if (context.renderPass && context.renderPass->maxSamples() != VK_SAMPLE_COUNT_1_BIT)
     {
-        ref_ptr<MultisampleState> defaultMsState = MultisampleState::create(renderGraph.window->framebufferSamples());
+        ref_ptr<MultisampleState> defaultMsState = MultisampleState::create(context.renderPass->maxSamples());
         context.overridePipelineStates.push_back(defaultMsState);
     }
 
