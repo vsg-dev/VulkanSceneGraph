@@ -129,10 +129,10 @@ void Window::_initDevice()
     {
         VkSampleCountFlags deviceColorSamples = _physicalDevice->getProperties().limits.framebufferColorSampleCounts;
         VkSampleCountFlags deviceDepthSamples = _physicalDevice->getProperties().limits.framebufferDepthSampleCounts;
-        unsigned satisfied = deviceColorSamples & deviceDepthSamples & _traits->samples;
+        VkSampleCountFlags satisfied = deviceColorSamples & deviceDepthSamples & _traits->samples;
         if (satisfied != 0)
         {
-            unsigned highest = 1 << static_cast<unsigned>(floor(log2(satisfied)));
+            uint32_t highest = 1 << static_cast<uint32_t>(floor(log2(satisfied)));
             _framebufferSamples = static_cast<VkSampleCountFlagBits>(highest);
         }
         else
