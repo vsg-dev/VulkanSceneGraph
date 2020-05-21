@@ -149,6 +149,8 @@ namespace vsg
 
         VkExtent2D _extent2D;
         VkClearColorValue _clearColor;
+        VkSurfaceFormatKHR _imageFormat;
+        VkFormat _depthFormat;
 
         VkSampleCountFlagBits _framebufferSamples;
 
@@ -161,6 +163,10 @@ namespace vsg
         ref_ptr<Image> _depthImage;
         ref_ptr<DeviceMemory> _depthImageMemory;
         ref_ptr<ImageView> _depthImageView;
+
+        // only required when multisampling is required
+        ref_ptr<Image> _multisampleImage;
+        ref_ptr<ImageView> _multisampleImageView;
 
         Frames _frames;
         uint32_t _nextImageIndex;
