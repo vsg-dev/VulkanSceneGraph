@@ -164,7 +164,7 @@ namespace vsg
         ref_ptr<DeviceMemory> _depthImageMemory;
         ref_ptr<ImageView> _depthImageView;
 
-        // only required when multisampling is required
+        // only used when multisampling is required
         ref_ptr<Image> _multisampleImage;
         ref_ptr<ImageView> _multisampleImageView;
 
