@@ -176,9 +176,19 @@ ref_ptr<RenderGraph> vsg::createRenderGraphForView(Window* window, Camera* camer
     renderGraph->renderArea.offset = {0, 0};
     renderGraph->renderArea.extent = window->extent2D();
 
-    renderGraph->clearValues.resize(2);
-    renderGraph->clearValues[0].color = window->clearColor();
-    renderGraph->clearValues[1].depthStencil = VkClearDepthStencilValue{1.0f, 0};
+    if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT)
+    {
+        renderGraph->clearValues.resize(3);
+        renderGraph->clearValues[0].color = window->clearColor();
+        renderGraph->clearValues[1].color = window->clearColor();
+        renderGraph->clearValues[2].depthStencil = VkClearDepthStencilValue{1.0f, 0};
+    }
+    else
+    {
+        renderGraph->clearValues.resize(2);
+        renderGraph->clearValues[0].color = window->clearColor();
+        renderGraph->clearValues[1].depthStencil = VkClearDepthStencilValue{1.0f, 0};
+    }
 
     return renderGraph;
 }

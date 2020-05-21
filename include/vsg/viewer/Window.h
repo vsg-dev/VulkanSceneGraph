@@ -53,6 +53,8 @@ namespace vsg
         VkClearColorValue& clearColor() { return _clearColor; }
         const VkClearColorValue& clearColor() const { return _clearColor; }
 
+        VkSampleCountFlagBits framebufferSamples() const { return _framebufferSamples; }
+
         Instance* getInstance() { return _instance; }
         Instance* getOrCreateInstance()
         {
@@ -147,6 +149,10 @@ namespace vsg
 
         VkExtent2D _extent2D;
         VkClearColorValue _clearColor;
+        VkSurfaceFormatKHR _imageFormat;
+        VkFormat _depthFormat;
+
+        VkSampleCountFlagBits _framebufferSamples;
 
         ref_ptr<Instance> _instance;
         ref_ptr<PhysicalDevice> _physicalDevice;
@@ -157,6 +163,10 @@ namespace vsg
         ref_ptr<Image> _depthImage;
         ref_ptr<DeviceMemory> _depthImageMemory;
         ref_ptr<ImageView> _depthImageView;
+
+        // only used when multisampling is required
+        ref_ptr<Image> _multisampleImage;
+        ref_ptr<ImageView> _multisampleImageView;
 
         Frames _frames;
         uint32_t _nextImageIndex;
