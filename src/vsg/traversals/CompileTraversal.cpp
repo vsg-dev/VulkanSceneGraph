@@ -146,6 +146,7 @@ CompileTraversal::CompileTraversal(Window* window, ViewportState* viewport, Buff
     context.graphicsQueue = device->getQueue(queueFamily);
 
     if (viewport) context.defaultPipelineStates.emplace_back(viewport);
+    if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT) context.overridePipelineStates.emplace_back(vsg::MultisampleState::create(window->framebufferSamples()));
 }
 
 CompileTraversal::CompileTraversal(const CompileTraversal& ct) :
@@ -204,6 +205,12 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
     else
     {
         context.defaultPipelineStates.push_back( vsg::ViewportState::create(renderGraph.window->extent2D()) );
+    }
+
+    if (renderGraph.window)
+    {
+        ref_ptr<MultisampleState> defaultMsState = MultisampleState::create(renderGraph.window->framebufferSamples());
+        context.overridePipelineStates.push_back(defaultMsState);
     }
 
     renderGraph.traverse(*this);

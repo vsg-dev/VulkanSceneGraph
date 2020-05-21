@@ -146,8 +146,6 @@ void Window::_initDevice()
     }
 }
 
-#include <iostream>
-
 void Window::_initRenderPass()
 {
     if (!_device) _initDevice();
@@ -303,8 +301,6 @@ void Window::buildSwapchain()
 
             if (multisampling)
             {
-                std::cout<<"Setting up Multisample barrier"<<std::endl;
-
                 auto msImageBarrier = ImageMemoryBarrier::create(
                     0, VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
                     VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
