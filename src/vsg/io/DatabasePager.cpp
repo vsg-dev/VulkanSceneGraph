@@ -61,9 +61,9 @@ void DatabaseQueue::add(Nodes& nodes)
     _cv.notify_one();
 }
 
-ref_ptr<PagedLOD> DatabaseQueue::take_when_avilable()
+ref_ptr<PagedLOD> DatabaseQueue::take_when_available()
 {
-    //std::cout<<"DatabaseQueue::take_when_avilable() A _identifier = "<<_identifier<<" size = "<<_queue.size()<<std::endl;
+    //std::cout<<"DatabaseQueue::take_when_available() A _identifier = "<<_identifier<<" size = "<<_queue.size()<<std::endl;
 
     std::chrono::duration waitDuration = std::chrono::milliseconds(100);
     std::unique_lock lock(_mutex);
@@ -78,11 +78,11 @@ ref_ptr<PagedLOD> DatabaseQueue::take_when_avilable()
     // if the threads we are associated with should no longer running go for a quick exit and return nothing.
     if (_queue.empty() || _status->cancel())
     {
-        //std::cout<<"DatabaseQueue::take_when_avilable() C _identifier = "<<_identifier<<" empty"<<std::endl;
+        //std::cout<<"DatabaseQueue::take_when_available() C _identifier = "<<_identifier<<" empty"<<std::endl;
         return {};
     }
 
-    //std::cout<<"DatabaseQueue::take_when_avilable() D _identifier = "<<_identifier<<" "<<_queue.size()<<std::endl;
+    //std::cout<<"DatabaseQueue::take_when_available() D _identifier = "<<_identifier<<" "<<_queue.size()<<std::endl;
 
 #if 1
 
@@ -182,7 +182,7 @@ void DatabasePager::start()
 
         while (status->active())
         {
-            auto plod = requestQueue->take_when_avilable();
+            auto plod = requestQueue->take_when_available();
             if (plod)
             {
                 uint64_t frameDelta = databasePager.frameCount - plod->frameHighResLastUsed.load();
