@@ -66,7 +66,7 @@ namespace vsg
 
         void add(Nodes& nodes);
 
-        ref_ptr<PagedLOD> take_when_avilable();
+        ref_ptr<PagedLOD> take_when_available();
 
         Nodes take_all_when_available();
 
