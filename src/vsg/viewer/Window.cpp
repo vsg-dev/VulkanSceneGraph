@@ -124,6 +124,11 @@ void Window::_initDevice()
         _physicalDevice = physicalDevice;
     }
 
+    vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
+
+    _imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
+    _depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
+
     // compute the sample bits to use
     if (_traits->samples != VK_SAMPLE_COUNT_1_BIT)
     {
@@ -149,11 +154,6 @@ void Window::_initDevice()
 void Window::_initRenderPass()
 {
     if (!_device) _initDevice();
-
-    vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
-
-    _imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
-    _depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
 
     if (_framebufferSamples == VK_SAMPLE_COUNT_1_BIT)
     {
