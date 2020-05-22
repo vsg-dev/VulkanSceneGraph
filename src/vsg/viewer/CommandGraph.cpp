@@ -19,31 +19,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CommandGraph::CommandGraph(Device* device, int family) :
-    _device(device),
-    _queueFamily(family),
-    _presentFamily(-1)
+CommandGraph::CommandGraph(Device* in_device, int family) :
+    device(in_device),
+    queueFamily(family),
+    presentFamily(-1)
 {
 }
 
-CommandGraph::CommandGraph(Window* in_window)
+CommandGraph::CommandGraph(Window* in_window) :
+    window(in_window),
+    device(in_window->getOrCreateDevice())
 {
-    if (in_window)
+    VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
+    if (window->traits()) queueFlags = window->traits()->queueFlags;
+
+    std::tie(queueFamily, presentFamily) = device->getPhysicalDevice()->getQueueFamily(queueFlags, window->getOrCreateSurface());
+
+    for (size_t i = 0; i < window->numFrames(); ++i)
     {
-        window = in_window;
-
-        _device = window->getOrCreateDevice();
-
-        VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
-        if (window->traits()) queueFlags = window->traits()->queueFlags;
-
-        std::tie(_queueFamily, _presentFamily) = _device->getPhysicalDevice()->getQueueFamily(queueFlags, window->getOrCreateSurface());
-
-        for (size_t i = 0; i < window->numFrames(); ++i)
-        {
-            ref_ptr<CommandPool> cp = CommandPool::create(_device, _queueFamily);
-            commandBuffers.emplace_back(CommandBuffer::create(_device, cp, level));
-        }
+        ref_ptr<CommandPool> cp = CommandPool::create(device, queueFamily);
+        commandBuffers.emplace_back(CommandBuffer::create(device, cp, level));
     }
 }
 
@@ -60,7 +55,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     if (!recordTraversal)
     {
-        recordTraversal = new RecordTraversal(nullptr, _maxSlot);
+        recordTraversal = new RecordTraversal(nullptr, maxSlot);
     }
 
     recordTraversal->frameStamp = frameStamp;
@@ -77,8 +72,8 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     }
     if (!commandBuffer)
     {
-        ref_ptr<CommandPool> cp = CommandPool::create(_device, _queueFamily);
-        commandBuffer = CommandBuffer::create(_device, cp, level);
+        ref_ptr<CommandPool> cp = CommandPool::create(device, queueFamily);
+        commandBuffer = CommandBuffer::create(device, cp, level);
         commandBuffers.push_back(commandBuffer);
     }
 

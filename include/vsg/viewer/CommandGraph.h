@@ -23,8 +23,17 @@ namespace vsg
     class CommandGraph : public Inherit<Group, CommandGraph>
     {
     public:
-        CommandGraph(Device* device, int family);
-        CommandGraph(Window* window);
+        CommandGraph(Device* in_device, int family);
+        CommandGraph(Window* in_window);
+
+        // settings, configure at construction time
+        ref_ptr<Window> window;
+        ref_ptr<Device> device;
+
+        int queueFamily = -1;
+        int presentFamily = -1;
+        uint32_t maxSlot = 2;
+
 
         VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         uint32_t subpass = 0;
@@ -32,7 +41,6 @@ namespace vsg
         VkQueryControlFlags queryFlags = 0;
         VkQueryPipelineStatisticFlags pipelineStatistics = 0;
 
-        ref_ptr<Window> window;
 
         using Group::accept;
 
@@ -40,11 +48,6 @@ namespace vsg
 
         ref_ptr<RecordTraversal> recordTraversal;
 
-        ref_ptr<Device> _device;
-
-        int _queueFamily = -1;
-        int _presentFamily = -1;
-        uint32_t _maxSlot = 2;
         mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
 
     protected:
