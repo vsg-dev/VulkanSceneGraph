@@ -200,11 +200,11 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
 
     if (renderGraph.camera)
     {
-        context.defaultPipelineStates.emplace_back( renderGraph.camera->getViewportState() );
+        context.defaultPipelineStates.emplace_back(renderGraph.camera->getViewportState());
     }
     else
     {
-        context.defaultPipelineStates.push_back( vsg::ViewportState::create(renderGraph.window->extent2D()) );
+        context.defaultPipelineStates.push_back(vsg::ViewportState::create(renderGraph.window->extent2D()));
     }
 
     if (renderGraph.window)

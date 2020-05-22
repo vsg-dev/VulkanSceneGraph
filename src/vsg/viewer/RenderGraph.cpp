@@ -117,7 +117,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
                 const_cast<RenderGraph*>(this)->renderArea.extent = extent;
             }
 
-            if (window->framebufferSamples() !=VK_SAMPLE_COUNT_1_BIT) updatePipeline.context.overridePipelineStates.emplace_back(vsg::MultisampleState::create(window->framebufferSamples()));
+            if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT) updatePipeline.context.overridePipelineStates.emplace_back(vsg::MultisampleState::create(window->framebufferSamples()));
 
             const_cast<RenderGraph*>(this)->traverse(updatePipeline);
 

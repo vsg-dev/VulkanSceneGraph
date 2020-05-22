@@ -11,8 +11,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Exception.h>
-#include <vsg/vk/ImageView.h>
 #include <vsg/vk/Context.h>
+#include <vsg/vk/ImageView.h>
 
 using namespace vsg;
 
@@ -92,7 +92,7 @@ ref_ptr<ImageView> vsg::createImageView(vsg::Context& context, const VkImageCrea
     vkGetImageMemoryRequirements(*device, *image, &memRequirements);
 
     // allocate memory with out export memory info extension
-    auto[deviceMemory, offset] = context.deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    auto [deviceMemory, offset] = context.deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     if (!deviceMemory)
     {
