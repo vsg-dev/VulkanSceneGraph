@@ -49,6 +49,7 @@ namespace vsg
         }
         using ClearValues = std::vector<VkClearValue>;
         ClearValues clearValues; // initialize window colour and depth/stencil
+        VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;
 
         // windopw extent at previous frame
         const uint32_t invalid_dimension = std::numeric_limits<uint32_t>::max();

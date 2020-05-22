@@ -158,7 +158,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
-    vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, contents);
 
     // traverse the command buffer to place the commands into the command buffer.
     traverse(recordTraversal);
