@@ -15,10 +15,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CommandBuffer::CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBufferUsageFlags flags) :
+CommandBuffer::CommandBuffer(Device* device, CommandPool* commandPool) :
     deviceID(device->deviceID),
     scratchMemory(ScratchMemory::create(4096)),
-    _flags(flags),
     _device(device),
     _commandPool(commandPool),
     _currentPipelineLayout(0)

@@ -23,9 +23,7 @@ namespace vsg
     class VSG_DECLSPEC CommandBuffer : public Inherit<Object, CommandBuffer>
     {
     public:
-        CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBufferUsageFlags flags);
-
-        VkCommandBufferUsageFlags flags() const { return _flags; }
+        CommandBuffer(Device* device, CommandPool* commandPool);
 
         const VkCommandBuffer* data() const { return &_commandBuffer; }
 
@@ -50,7 +48,6 @@ namespace vsg
         virtual ~CommandBuffer();
 
         VkCommandBuffer _commandBuffer;
-        VkCommandBufferUsageFlags _flags;
         std::atomic_uint _numDependentSubmissions{0};
         ref_ptr<Device> _device;
         ref_ptr<CommandPool> _commandPool;
