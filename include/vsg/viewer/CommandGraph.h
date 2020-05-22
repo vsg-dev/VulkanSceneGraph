@@ -26,15 +26,22 @@ namespace vsg
         CommandGraph(Device* device, int family);
         CommandGraph(Window* window);
 
+        VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        uint32_t subpass = 0;
+        VkBool32 occlusionQueryEnable = VK_FALSE;
+        VkQueryControlFlags queryFlags = 0;
+        VkQueryPipelineStatisticFlags pipelineStatistics = 0;
+
+        ref_ptr<Window> window;
+
         using Group::accept;
 
         virtual void record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
 
         ref_ptr<RecordTraversal> recordTraversal;
 
-        ref_ptr<Window> window;
-
         ref_ptr<Device> _device;
+
         int _queueFamily = -1;
         int _presentFamily = -1;
         uint32_t _maxSlot = 2;

@@ -42,7 +42,7 @@ CommandGraph::CommandGraph(Window* in_window)
         for (size_t i = 0; i < window->numFrames(); ++i)
         {
             ref_ptr<CommandPool> cp = CommandPool::create(_device, _queueFamily);
-            commandBuffers.emplace_back(CommandBuffer::create(_device, cp));
+            commandBuffers.emplace_back(CommandBuffer::create(_device, cp, level));
         }
     }
 }
@@ -78,7 +78,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     if (!commandBuffer)
     {
         ref_ptr<CommandPool> cp = CommandPool::create(_device, _queueFamily);
-        commandBuffer = CommandBuffer::create(_device, cp);
+        commandBuffer = CommandBuffer::create(_device, cp, level);
         commandBuffers.push_back(commandBuffer);
     }
 
@@ -94,6 +94,25 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+
+    if (level == VK_COMMAND_BUFFER_LEVEL_SECONDARY)
+    {
+        VkCommandBufferInheritanceInfo inheritanceInfo;
+        inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+        inheritanceInfo.pNext = nullptr;
+        inheritanceInfo.occlusionQueryEnable = occlusionQueryEnable;
+        inheritanceInfo.queryFlags = queryFlags;
+        inheritanceInfo.pipelineStatistics = pipelineStatistics;
+
+        if (window)
+        {
+            inheritanceInfo.renderPass = *(window->getRenderPass());
+            inheritanceInfo.subpass = subpass;
+            inheritanceInfo.framebuffer = *(window->framebuffer(window->nextImageIndex()));
+        }
+
+        beginInfo.pInheritanceInfo = &inheritanceInfo;
+    }
 
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
