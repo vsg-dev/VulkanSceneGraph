@@ -57,6 +57,6 @@ namespace vsg
     };
 
     /// convience function that sets up RenderGraph to render the specified scene graph from the speified Camera view
-    ref_ptr<RenderGraph> createRenderGraphForView(Window* window, Camera* camera, Node* scenegraph);
+    ref_ptr<RenderGraph> createRenderGraphForView(Window* window, Camera* camera, Node* scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
 
 } // namespace vsg

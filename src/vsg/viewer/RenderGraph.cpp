@@ -166,7 +166,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     vkCmdEndRenderPass(vk_commandBuffer);
 }
 
-ref_ptr<RenderGraph> vsg::createRenderGraphForView(Window* window, Camera* camera, Node* scenegraph)
+ref_ptr<RenderGraph> vsg::createRenderGraphForView(Window* window, Camera* camera, Node* scenegraph, VkSubpassContents contents)
 {
     // set up the render graph for viewport & scene
     auto renderGraph = vsg::RenderGraph::create();
@@ -174,6 +174,7 @@ ref_ptr<RenderGraph> vsg::createRenderGraphForView(Window* window, Camera* camer
 
     renderGraph->camera = camera;
     renderGraph->window = window;
+    renderGraph->contents = contents;
 
     renderGraph->renderArea.offset = {0, 0};
     renderGraph->renderArea.extent = window->extent2D();

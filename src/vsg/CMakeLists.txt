@@ -95,6 +95,7 @@ set(SOURCES
     viewer/Window.cpp
     viewer/Trackball.cpp
     viewer/CopyImageViewToWindow.cpp
+    viewer/ExecuteCommands.cpp
     viewer/CommandGraph.cpp
     viewer/RenderGraph.cpp
     viewer/Presentation.cpp

@@ -21,7 +21,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    VSG_type_name(vsg::Commands);
 
     class VSG_DECLSPEC Commands : public Inherit<Command, Commands>
     {
@@ -70,5 +69,6 @@ namespace vsg
 
         Children _children;
     };
+    VSG_type_name(vsg::Commands);
 
 } // namespace vsg

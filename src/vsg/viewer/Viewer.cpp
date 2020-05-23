@@ -293,6 +293,20 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
     // create the required RecordAndSubmitTask and any Presentation objecst that are required for each set of CommandGraphs
     for (auto& [deviceQueueFamily, commandGraphs] : deviceCommandGraphsMap)
     {
+        // make sure the secondary CommandGraphs appear first in the commandGraphs list so they are filled in first
+        CommandGraphs primary_commandGraphs;
+        CommandGraphs secondary_commandGraphs;
+        for(auto& commandGraph : commandGraphs)
+        {
+            if (commandGraph->level==VK_COMMAND_BUFFER_LEVEL_PRIMARY) primary_commandGraphs.emplace_back(commandGraph);
+            else secondary_commandGraphs.emplace_back(commandGraph);
+        }
+        if (!secondary_commandGraphs.empty())
+        {
+            commandGraphs = secondary_commandGraphs;
+            commandGraphs.insert(commandGraphs.end(), primary_commandGraphs.begin(), primary_commandGraphs.end());
+        }
+
         auto device = deviceQueueFamily.device;
         if (deviceQueueFamily.presentFamily >= 0)
         {

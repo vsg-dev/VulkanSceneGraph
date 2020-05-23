@@ -81,6 +81,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     recordTraversal->state->_commandBuffer = commandBuffer;
 
+
     // or select index when maps to a dormant CommandBuffer
     VkCommandBuffer vk_commandBuffer = *commandBuffer;
 
@@ -88,10 +89,10 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-
     if (level == VK_COMMAND_BUFFER_LEVEL_SECONDARY)
     {
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT | VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+
         VkCommandBufferInheritanceInfo inheritanceInfo;
         inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
         inheritanceInfo.pNext = nullptr;
@@ -103,26 +104,60 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
         {
             inheritanceInfo.renderPass = *(window->getRenderPass());
             inheritanceInfo.subpass = subpass;
-            inheritanceInfo.framebuffer = *(window->framebuffer(window->nextImageIndex()));
+            //inheritanceInfo.framebuffer = *(window->framebuffer(window->nextImageIndex()));
+            inheritanceInfo.framebuffer = VK_NULL_HANDLE;
         }
 
         beginInfo.pInheritanceInfo = &inheritanceInfo;
     }
+    else
+    {
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+        beginInfo.pInheritanceInfo = nullptr;
+    }
+
 
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
+
+    if (camera)
+    {
+        dmat4 projMatrix, viewMatrix;
+        camera->getProjectionMatrix()->get(projMatrix);
+        camera->getViewMatrix()->get(viewMatrix);
+
+        recordTraversal->setProjectionAndViewMatrix(projMatrix, viewMatrix);
+    }
 
     accept(*recordTraversal);
 
     vkEndCommandBuffer(vk_commandBuffer);
 
-    recordedCommandBuffers.push_back(recordTraversal->state->_commandBuffer);
+    lastRecordedCommandBuffer = commandBuffer;
+
+    if (level == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+    {
+        recordedCommandBuffers.push_back(recordTraversal->state->_commandBuffer);
+    }
 }
 
-ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph)
+ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkSubpassContents contents)
 {
     auto commandGraph = CommandGraph::create(window);
 
-    commandGraph->addChild(createRenderGraphForView(window, camera, scenegraph));
+    commandGraph->addChild(createRenderGraphForView(window, camera, scenegraph, contents));
+
+    return commandGraph;
+}
+
+ref_ptr<CommandGraph> vsg::createSecondaryCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, uint32_t subpass)
+{
+    auto commandGraph = CommandGraph::create(window);
+
+    commandGraph->camera = camera;
+    commandGraph->level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
+    commandGraph->subpass = subpass;
+
+    commandGraph->addChild(ref_ptr<Node>(scenegraph));
 
     return commandGraph;
 }

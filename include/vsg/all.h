@@ -100,6 +100,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 // Threading header files
 #include <vsg/threading/ActivityStatus.h>
 #include <vsg/threading/Affinity.h>
+#include <vsg/threading/Barrier.h>
+#include <vsg/threading/FrameBlock.h>
 #include <vsg/threading/Latch.h>
 #include <vsg/threading/OperationQueue.h>
 #include <vsg/threading/OperationThreads.h>
@@ -120,6 +122,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/CopyImageViewToWindow.h>
 #include <vsg/viewer/EllipsoidModel.h>
+#include <vsg/viewer/ExecuteCommands.h>
 #include <vsg/viewer/Presentation.h>
 #include <vsg/viewer/ProjectionMatrix.h>
 #include <vsg/viewer/RecordAndSubmitTask.h>

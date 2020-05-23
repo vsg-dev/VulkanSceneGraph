@@ -29,6 +29,7 @@ namespace vsg
         // settings, configure at construction time
         ref_ptr<Window> window;
         ref_ptr<Device> device;
+        ref_ptr<Camera> camera;
 
         int queueFamily = -1;
         int presentFamily = -1;
@@ -50,6 +51,8 @@ namespace vsg
 
         mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
 
+        ref_ptr<CommandBuffer> lastRecordedCommandBuffer;
+
     protected:
         virtual ~CommandGraph();
     };
@@ -57,7 +60,11 @@ namespace vsg
 
     using CommandGraphs = std::vector<ref_ptr<CommandGraph>>;
 
-    /// convience function that sets up RenderGraph inside CommandGraph to render the specified scene graph from the speified Camera view
-    ref_ptr<CommandGraph> createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph);
+    /// convience function that sets up RenderGraph inside primary CommandGraph to render the specified scene graph from the speified Camera view
+    ref_ptr<CommandGraph> createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
+
+    /// convience function that sets up secondaryCommandGraph to render the specified scene graph from the speified Camera view
+    ref_ptr<CommandGraph> createSecondaryCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, uint32_t subpass);
+
 
 } // namespace vsg

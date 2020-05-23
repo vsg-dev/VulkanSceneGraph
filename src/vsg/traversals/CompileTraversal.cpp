@@ -188,8 +188,34 @@ void CompileTraversal::apply(Geometry& geometry)
 
 void CompileTraversal::apply(CommandGraph& commandGraph)
 {
-    commandGraph.traverse(*this);
+    if (commandGraph.window)
+    {
+        context.renderPass = commandGraph.window->getOrCreateRenderPass();
+
+        context.defaultPipelineStates.push_back(vsg::ViewportState::create(commandGraph.window->extent2D()));
+
+        if (commandGraph.window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT)
+        {
+            ref_ptr<MultisampleState> defaultMsState = MultisampleState::create(commandGraph.window->framebufferSamples());
+            context.overridePipelineStates.push_back(defaultMsState);
+        }
+
+        // save previous states to be restored after traversal
+        auto previousDefaultPipelineStates = context.defaultPipelineStates;
+        auto previousOverridePipelineStates = context.overridePipelineStates;
+
+        commandGraph.traverse(*this);
+
+        // restore previous values
+        context.defaultPipelineStates = previousDefaultPipelineStates;
+        context.overridePipelineStates = previousOverridePipelineStates;
+    }
+    else
+    {
+        commandGraph.traverse(*this);
+    }
 }
+
 void CompileTraversal::apply(RenderGraph& renderGraph)
 {
     context.renderPass = renderGraph.getRenderPass();
@@ -207,7 +233,7 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
         context.defaultPipelineStates.push_back(vsg::ViewportState::create(renderGraph.window->extent2D()));
     }
 
-    if (renderGraph.window)
+    if (renderGraph.window && renderGraph.window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT)
     {
         ref_ptr<MultisampleState> defaultMsState = MultisampleState::create(renderGraph.window->framebufferSamples());
         context.overridePipelineStates.push_back(defaultMsState);
