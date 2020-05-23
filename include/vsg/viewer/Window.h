@@ -136,13 +136,14 @@ namespace vsg
         virtual ~Window();
 
         virtual void _initSurface() = 0;
+        void _initFormats();
         void _initInstance();
         void _initDevice();
         void _initRenderPass();
         void _initSwapchain();
 
         virtual void clear();
-        void share(const Window& window);
+        void share(Window& window);
         void buildSwapchain();
 
         ref_ptr<WindowTraits> _traits;
