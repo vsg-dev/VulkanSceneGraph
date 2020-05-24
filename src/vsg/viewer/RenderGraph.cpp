@@ -76,6 +76,18 @@ RenderGraph::RenderGraph()
 {
 }
 
+RenderPass* RenderGraph::getRenderPass()
+{
+    if (renderPass)
+    {
+        return renderPass;
+    }
+    else
+    {
+        return window->getOrCreateRenderPass();
+    }
+}
+
 void RenderGraph::accept(RecordTraversal& recordTraversal) const
 {
     if (window)

@@ -36,17 +36,8 @@ namespace vsg
         ref_ptr<RenderPass> renderPass;   // If not set, use window's.
         ref_ptr<Framebuffer> framebuffer; // If not set, use window's.
 
-        RenderPass* getRenderPass()
-        {
-            if (renderPass)
-            {
-                return renderPass;
-            }
-            else
-            {
-                return window->getOrCreateRenderPass();
-            }
-        }
+        RenderPass* getRenderPass();
+
         using ClearValues = std::vector<VkClearValue>;
         ClearValues clearValues; // initialize window colour and depth/stencil
         VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;

@@ -39,7 +39,7 @@ CommandGraph::CommandGraph(Window* in_window) :
     for (size_t i = 0; i < window->numFrames(); ++i)
     {
         ref_ptr<CommandPool> cp = CommandPool::create(device, queueFamily);
-        commandBuffers.emplace_back(CommandBuffer::create(device, cp, level));
+        _commandBuffers.emplace_back(CommandBuffer::create(device, cp, level));
     }
 }
 
@@ -80,7 +80,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     if (databasePager) recordTraversal->culledPagedLODs = databasePager->culledPagedLODs;
 
     ref_ptr<CommandBuffer> commandBuffer;
-    for (auto& cb : commandBuffers)
+    for (auto& cb : _commandBuffers)
     {
         if (cb->numDependentSubmissions() == 0)
         {
@@ -91,7 +91,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     {
         ref_ptr<CommandPool> cp = CommandPool::create(device, queueFamily);
         commandBuffer = CommandBuffer::create(device, cp, level);
-        commandBuffers.push_back(commandBuffer);
+        _commandBuffers.push_back(commandBuffer);
     }
 
     commandBuffer->numDependentSubmissions().fetch_add(1);

@@ -44,21 +44,19 @@ namespace vsg
         VkQueryControlFlags queryFlags = 0;
         VkQueryPipelineStatisticFlags pipelineStatistics = 0;
 
-        using Group::accept;
-
-        virtual void record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
-
         ref_ptr<RecordTraversal> recordTraversal;
 
-        mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
-
         void reset();
+
+        virtual void record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
 
     protected:
         virtual ~CommandGraph();
 
         void _connect(ExecuteCommands* executeCommand);
         void _disconnect(ExecuteCommands* executeCommand);
+
+        CommandBuffers _commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
 
         std::vector<ExecuteCommands*> _executeCommands;
 
