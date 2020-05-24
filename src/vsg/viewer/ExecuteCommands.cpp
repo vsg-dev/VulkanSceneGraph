@@ -20,7 +20,7 @@ ExecuteCommands::ExecuteCommands()
 
 ExecuteCommands::~ExecuteCommands()
 {
-    // disconnect all the Commandgraph
+    // disconnect all the CommandGraphs
     for(auto& commandGraph : _commandGraphs)
     {
         commandGraph->_disconnect(this);
@@ -45,6 +45,7 @@ void ExecuteCommands::reset()
 
 void ExecuteCommands::completed(ref_ptr<CommandBuffer> commandBuffer)
 {
+    if (commandBuffer)
     {
         std::scoped_lock lock(_mutex);
         _commandBuffers.emplace_back(commandBuffer);

@@ -516,9 +516,7 @@ void Viewer::update()
 
 void Viewer::recordAndSubmit()
 {
-//    std::cout<<"\nViewer::recordAndSubmit()"<<std::endl;
-
-    // reset any connected ExecuteCommands
+    // reset connected ExecuteCommands
     for (auto& recordAndSubmitTask : recordAndSubmitTasks)
     {
         for (auto& commandGraph : recordAndSubmitTask->commandGraphs)
