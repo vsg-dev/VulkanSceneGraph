@@ -85,6 +85,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
         if (cb->numDependentSubmissions() == 0)
         {
             commandBuffer = cb;
+            break;
         }
     }
     if (!commandBuffer)
