@@ -21,7 +21,7 @@ ExecuteCommands::ExecuteCommands()
 ExecuteCommands::~ExecuteCommands()
 {
     // disconnect all the CommandGraphs
-    for(auto& commandGraph : _commandGraphs)
+    for (auto& commandGraph : _commandGraphs)
     {
         commandGraph->_disconnect(this);
     }
@@ -37,8 +37,10 @@ void ExecuteCommands::reset()
 {
     std::scoped_lock lock(_mutex);
 
-    if (!_latch) _latch = vsg::Latch::create(_commandGraphs.size());
-    else _latch->set(_commandGraphs.size());
+    if (!_latch)
+        _latch = vsg::Latch::create(_commandGraphs.size());
+    else
+        _latch->set(_commandGraphs.size());
 
     _commandBuffers.clear();
 }
@@ -54,7 +56,6 @@ void ExecuteCommands::completed(ref_ptr<CommandBuffer> commandBuffer)
     _latch->count_down();
 }
 
-
 void ExecuteCommands::dispatch(CommandBuffer& commandBuffer) const
 {
     _latch->wait();
@@ -64,7 +65,7 @@ void ExecuteCommands::dispatch(CommandBuffer& commandBuffer) const
     {
         std::vector<VkCommandBuffer> vk_commandBuffers;
 
-        for(auto& cb : _commandBuffers)
+        for (auto& cb : _commandBuffers)
         {
             vk_commandBuffers.push_back(*cb);
         }

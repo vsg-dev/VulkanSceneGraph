@@ -14,8 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/viewer/CommandGraph.h>
-#include <vsg/viewer/RenderGraph.h>
 #include <vsg/viewer/ExecuteCommands.h>
+#include <vsg/viewer/RenderGraph.h>
 #include <vsg/vk/State.h>
 
 using namespace vsg;
@@ -49,9 +49,8 @@ CommandGraph::~CommandGraph()
 
 void CommandGraph::reset()
 {
-    for(auto& ec : _executeCommands) ec->reset();
+    for (auto& ec : _executeCommands) ec->reset();
 }
-
 
 void CommandGraph::_connect(ExecuteCommands* ec)
 {
@@ -99,7 +98,6 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     recordTraversal->state->_commandBuffer = commandBuffer;
 
-
     // or select index when maps to a dormant CommandBuffer
     VkCommandBuffer vk_commandBuffer = *commandBuffer;
 
@@ -134,7 +132,6 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
         beginInfo.pInheritanceInfo = nullptr;
     }
 
-
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
     if (camera)
@@ -157,7 +154,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     else
     {
         // pass oon this command buffer to conencted ExecuteCommands nodes
-        for(auto& ec : _executeCommands)
+        for (auto& ec : _executeCommands)
         {
             ec->completed(commandBuffer);
         }

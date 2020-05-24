@@ -38,13 +38,11 @@ namespace vsg
         int presentFamily = -1;
         uint32_t maxSlot = 2;
 
-
         VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         uint32_t subpass = 0;
         VkBool32 occlusionQueryEnable = VK_FALSE;
         VkQueryControlFlags queryFlags = 0;
         VkQueryPipelineStatisticFlags pipelineStatistics = 0;
-
 
         using Group::accept;
 
@@ -75,6 +73,5 @@ namespace vsg
 
     /// convience function that sets up secondaryCommandGraph to render the specified scene graph from the speified Camera view
     ref_ptr<CommandGraph> createSecondaryCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, uint32_t subpass);
-
 
 } // namespace vsg

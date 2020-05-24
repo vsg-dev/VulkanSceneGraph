@@ -93,7 +93,7 @@ void Window::_initInstance()
 
 void Window::_initFormats()
 {
-   vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
+    vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
 
     _imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
     _depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
@@ -157,7 +157,7 @@ void Window::_initDevice()
     }
 
     _initFormats();
- }
+}
 
 void Window::_initRenderPass()
 {

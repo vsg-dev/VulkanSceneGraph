@@ -296,10 +296,12 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
         // make sure the secondary CommandGraphs appear first in the commandGraphs list so they are filled in first
         CommandGraphs primary_commandGraphs;
         CommandGraphs secondary_commandGraphs;
-        for(auto& commandGraph : commandGraphs)
+        for (auto& commandGraph : commandGraphs)
         {
-            if (commandGraph->level==VK_COMMAND_BUFFER_LEVEL_PRIMARY) primary_commandGraphs.emplace_back(commandGraph);
-            else secondary_commandGraphs.emplace_back(commandGraph);
+            if (commandGraph->level == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+                primary_commandGraphs.emplace_back(commandGraph);
+            else
+                secondary_commandGraphs.emplace_back(commandGraph);
         }
         if (!secondary_commandGraphs.empty())
         {

@@ -40,9 +40,7 @@ namespace vsg
 
         mutable std::mutex _mutex;
         CommandBuffers _commandBuffers;
-
     };
     VSG_type_name(vsg::ExecuteCommands);
-
 
 } // namespace vsg
