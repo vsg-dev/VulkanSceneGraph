@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/threading/Latch.h>
 #include <vsg/viewer/CommandGraph.h>
 
 namespace vsg
@@ -22,14 +23,23 @@ namespace vsg
     public:
         ExecuteCommands();
 
-        void addCommandGraph(ref_ptr<CommandGraph> commandGraph) { commandGraphs.emplace_back(commandGraph); }
+        void connect(ref_ptr<CommandGraph> commandGraph);
 
-        CommandGraphs commandGraphs;
+        void reset();
+
+        void completed(ref_ptr<CommandBuffer> commandBuffer);
 
         void dispatch(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~ExecuteCommands();
+
+        CommandGraphs _commandGraphs;
+
+        ref_ptr<Latch> _latch;
+
+        mutable std::mutex _mutex;
+        CommandBuffers _commandBuffers;
 
     };
     VSG_type_name(vsg::ExecuteCommands);

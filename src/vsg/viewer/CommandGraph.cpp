@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/RenderGraph.h>
+#include <vsg/viewer/ExecuteCommands.h>
 #include <vsg/vk/State.h>
 
 using namespace vsg;
@@ -44,6 +45,23 @@ CommandGraph::CommandGraph(Window* in_window) :
 
 CommandGraph::~CommandGraph()
 {
+}
+
+void CommandGraph::reset()
+{
+    for(auto& ec : _executeCommands) ec->reset();
+}
+
+
+void CommandGraph::_connect(ExecuteCommands* ec)
+{
+    _executeCommands.emplace_back(ec);
+}
+
+void CommandGraph::_disconnect(ExecuteCommands* ec)
+{
+    auto itr = std::find(_executeCommands.begin(), _executeCommands.end(), ec);
+    if (itr != _executeCommands.end()) _executeCommands.erase(itr);
 }
 
 void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
@@ -132,11 +150,17 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     vkEndCommandBuffer(vk_commandBuffer);
 
-    lastRecordedCommandBuffer = commandBuffer;
-
     if (level == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
     {
         recordedCommandBuffers.push_back(recordTraversal->state->_commandBuffer);
+    }
+    else
+    {
+        // pass oon this command buffer to conencted ExecuteCommands nodes
+        for(auto& ec : _executeCommands)
+        {
+            ec->completed(commandBuffer);
+        }
     }
 }
 

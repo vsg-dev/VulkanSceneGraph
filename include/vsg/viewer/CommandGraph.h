@@ -20,6 +20,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    // forward declare
+    class ExecuteCommands;
+
     class CommandGraph : public Inherit<Group, CommandGraph>
     {
     public:
@@ -51,10 +54,17 @@ namespace vsg
 
         mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
 
-        ref_ptr<CommandBuffer> lastRecordedCommandBuffer;
+        void reset();
 
     protected:
         virtual ~CommandGraph();
+
+        void _connect(ExecuteCommands* executeCommand);
+        void _disconnect(ExecuteCommands* executeCommand);
+
+        std::vector<ExecuteCommands*> _executeCommands;
+
+        friend ExecuteCommands;
     };
     VSG_type_name(vsg::CommandGraph);
 

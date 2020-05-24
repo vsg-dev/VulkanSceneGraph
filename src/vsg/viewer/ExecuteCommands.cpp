@@ -20,20 +20,54 @@ ExecuteCommands::ExecuteCommands()
 
 ExecuteCommands::~ExecuteCommands()
 {
+    // disconnect all the Commandgraph
+    for(auto& commandGraph : _commandGraphs)
+    {
+        commandGraph->_disconnect(this);
+    }
 }
+
+void ExecuteCommands::connect(ref_ptr<CommandGraph> commandGraph)
+{
+    _commandGraphs.emplace_back(commandGraph);
+    commandGraph->_connect(this);
+}
+
+void ExecuteCommands::reset()
+{
+    std::scoped_lock lock(_mutex);
+
+    if (!_latch) _latch = vsg::Latch::create(_commandGraphs.size());
+    else _latch->set(_commandGraphs.size());
+
+    _commandBuffers.clear();
+}
+
+void ExecuteCommands::completed(ref_ptr<CommandBuffer> commandBuffer)
+{
+    {
+        std::scoped_lock lock(_mutex);
+        _commandBuffers.emplace_back(commandBuffer);
+    }
+
+    _latch->count_down();
+}
+
 
 void ExecuteCommands::dispatch(CommandBuffer& commandBuffer) const
 {
-    // need to have a latch
+    _latch->wait();
 
-    std::vector<VkCommandBuffer> commandBuffers;
-    for(auto& commandGraph : commandGraphs)
+    std::scoped_lock lock(_mutex);
+    if (!_commandBuffers.empty())
     {
-        if (commandGraph->lastRecordedCommandBuffer) commandBuffers.emplace_back(*commandGraph->lastRecordedCommandBuffer);
-    }
+        std::vector<VkCommandBuffer> vk_commandBuffers;
 
-    if (!commandBuffers.empty())
-    {
-        vkCmdExecuteCommands(commandBuffer, commandBuffers.size(), commandBuffers.data());
+        for(auto& cb : _commandBuffers)
+        {
+            vk_commandBuffers.push_back(*cb);
+        }
+
+        vkCmdExecuteCommands(commandBuffer, vk_commandBuffers.size(), vk_commandBuffers.data());
     }
 }
