@@ -198,7 +198,7 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
     auto previousDefaultPipelineStates = context.defaultPipelineStates;
     auto previousOverridePipelineStates = context.overridePipelineStates;
 
-    if (renderGraph.camera)
+    if (renderGraph.camera && renderGraph.camera->getViewportState())
     {
         context.defaultPipelineStates.emplace_back( renderGraph.camera->getViewportState() );
     }
