@@ -90,6 +90,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     }
     if (!commandBuffer)
     {
+
         ref_ptr<CommandPool> cp = CommandPool::create(device, queueFamily);
         commandBuffer = CommandBuffer::create(device, cp, level);
         _commandBuffers.push_back(commandBuffer);
@@ -105,12 +106,12 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     // need to set up the command
     // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
     VkCommandBufferBeginInfo beginInfo = {};
+    VkCommandBufferInheritanceInfo inheritanceInfo;
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     if (level == VK_COMMAND_BUFFER_LEVEL_SECONDARY)
     {
         beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT | VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 
-        VkCommandBufferInheritanceInfo inheritanceInfo;
         inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
         inheritanceInfo.pNext = nullptr;
         inheritanceInfo.occlusionQueryEnable = occlusionQueryEnable;
@@ -148,11 +149,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     vkEndCommandBuffer(vk_commandBuffer);
 
-    if (level == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
-    {
-        recordedCommandBuffers.push_back(recordTraversal->state->_commandBuffer);
-    }
-    else
+    if (level == VK_COMMAND_BUFFER_LEVEL_SECONDARY)
     {
         // pass oon this command buffer to conencted ExecuteCommands nodes
         for (auto& ec : _executeCommands)
@@ -160,6 +157,8 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
             ec->completed(commandBuffer);
         }
     }
+
+    recordedCommandBuffers.push_back(commandBuffer);
 }
 
 ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkSubpassContents contents)

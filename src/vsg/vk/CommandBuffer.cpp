@@ -18,6 +18,7 @@ using namespace vsg;
 CommandBuffer::CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBufferLevel level) :
     deviceID(device->deviceID),
     scratchMemory(ScratchMemory::create(4096)),
+    _level(level),
     _device(device),
     _commandPool(commandPool),
     _currentPipelineLayout(0)

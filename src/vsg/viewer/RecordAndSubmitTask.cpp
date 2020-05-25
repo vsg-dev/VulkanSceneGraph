@@ -77,7 +77,7 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
     // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of depdendent CommandBuffers
     for (auto& commandBuffer : recordedCommandBuffers)
     {
-        vk_commandBuffers.push_back(*commandBuffer);
+        if (commandBuffer->level()==VK_COMMAND_BUFFER_LEVEL_PRIMARY) vk_commandBuffers.push_back(*commandBuffer);
 
         fence->dependentCommandBuffers().emplace_back(commandBuffer);
     }

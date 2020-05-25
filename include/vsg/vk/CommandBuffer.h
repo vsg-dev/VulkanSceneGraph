@@ -33,6 +33,8 @@ namespace vsg
 
         const uint32_t deviceID;
 
+        VkCommandBufferLevel level() const {return _level; }
+
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
@@ -48,6 +50,8 @@ namespace vsg
         virtual ~CommandBuffer();
 
         VkCommandBuffer _commandBuffer;
+        VkCommandBufferLevel _level;
+
         std::atomic_uint _numDependentSubmissions{0};
         ref_ptr<Device> _device;
         ref_ptr<CommandPool> _commandPool;
