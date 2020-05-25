@@ -191,5 +191,5 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
     dependency2.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
     dependencies.push_back(dependency2);
 
-    return RenderPass::create(device, attachments, subpasses, dependencies, allocator);    
+    return RenderPass::create(device, attachments, subpasses, dependencies, allocator);
 }

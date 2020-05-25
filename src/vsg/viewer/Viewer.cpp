@@ -194,7 +194,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
     {
         for (auto& commandGraph : task->commandGraphs)
         {
-            auto& deviceResources = deviceResourceMap[commandGraph->_device];
+            auto& deviceResources = deviceResourceMap[commandGraph->device];
             commandGraph->accept(deviceResources.collectStats);
         }
     }
@@ -224,10 +224,10 @@ void Viewer::compile(BufferPreferences bufferPreferences)
 
         for (auto& commandGraph : task->commandGraphs)
         {
-            if (commandGraph->_device) devices.insert(commandGraph->_device);
+            if (commandGraph->device) devices.insert(commandGraph->device);
 
-            auto& deviceResource = deviceResourceMap[commandGraph->_device];
-            commandGraph->_maxSlot = deviceResource.collectStats.maxSlot;
+            auto& deviceResource = deviceResourceMap[commandGraph->device];
+            commandGraph->maxSlot = deviceResource.collectStats.maxSlot;
             commandGraph->accept(*deviceResource.compile);
         }
 
@@ -236,7 +236,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             // crude hack for taking first device as the one for the DatabasePager to compile resourcces for.
             for (auto& commandGraph : task->commandGraphs)
             {
-                auto& deviceResource = deviceResourceMap[commandGraph->_device];
+                auto& deviceResource = deviceResourceMap[commandGraph->device];
                 task->databasePager->compileTraversal = deviceResource.compile;
                 break;
             }
@@ -287,12 +287,28 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
     std::map<DeviceQueueFamily, CommandGraphs> deviceCommandGraphsMap;
     for (auto& commandGraph : in_commandGraphs)
     {
-        deviceCommandGraphsMap[DeviceQueueFamily{commandGraph->_device.get(), commandGraph->_queueFamily, commandGraph->_presentFamily}].emplace_back(commandGraph);
+        deviceCommandGraphsMap[DeviceQueueFamily{commandGraph->device.get(), commandGraph->queueFamily, commandGraph->presentFamily}].emplace_back(commandGraph);
     }
 
     // create the required RecordAndSubmitTask and any Presentation objecst that are required for each set of CommandGraphs
     for (auto& [deviceQueueFamily, commandGraphs] : deviceCommandGraphsMap)
     {
+        // make sure the secondary CommandGraphs appear first in the commandGraphs list so they are filled in first
+        CommandGraphs primary_commandGraphs;
+        CommandGraphs secondary_commandGraphs;
+        for (auto& commandGraph : commandGraphs)
+        {
+            if (commandGraph->level == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+                primary_commandGraphs.emplace_back(commandGraph);
+            else
+                secondary_commandGraphs.emplace_back(commandGraph);
+        }
+        if (!secondary_commandGraphs.empty())
+        {
+            commandGraphs = secondary_commandGraphs;
+            commandGraphs.insert(commandGraphs.end(), primary_commandGraphs.begin(), primary_commandGraphs.end());
+        }
+
         auto device = deviceQueueFamily.device;
         if (deviceQueueFamily.presentFamily >= 0)
         {
@@ -502,6 +518,15 @@ void Viewer::update()
 
 void Viewer::recordAndSubmit()
 {
+    // reset connected ExecuteCommands
+    for (auto& recordAndSubmitTask : recordAndSubmitTasks)
+    {
+        for (auto& commandGraph : recordAndSubmitTask->commandGraphs)
+        {
+            commandGraph->reset();
+        }
+    }
+
 #if 1
     if (_threading)
 #else

@@ -36,19 +36,11 @@ namespace vsg
         ref_ptr<RenderPass> renderPass;   // If not set, use window's.
         ref_ptr<Framebuffer> framebuffer; // If not set, use window's.
 
-        RenderPass* getRenderPass()
-        {
-            if (renderPass)
-            {
-                return renderPass;
-            }
-            else
-            {
-                return window->getOrCreateRenderPass();
-            }
-        }
+        RenderPass* getRenderPass();
+
         using ClearValues = std::vector<VkClearValue>;
         ClearValues clearValues; // initialize window colour and depth/stencil
+        VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;
 
         // windopw extent at previous frame
         const uint32_t invalid_dimension = std::numeric_limits<uint32_t>::max();
@@ -56,6 +48,6 @@ namespace vsg
     };
 
     /// convience function that sets up RenderGraph to render the specified scene graph from the speified Camera view
-    ref_ptr<RenderGraph> createRenderGraphForView(Window* window, Camera* camera, Node* scenegraph);
+    ref_ptr<RenderGraph> createRenderGraphForView(Window* window, Camera* camera, Node* scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
 
 } // namespace vsg

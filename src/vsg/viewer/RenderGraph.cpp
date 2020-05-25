@@ -76,6 +76,18 @@ RenderGraph::RenderGraph()
 {
 }
 
+RenderPass* RenderGraph::getRenderPass()
+{
+    if (renderPass)
+    {
+        return renderPass;
+    }
+    else
+    {
+        return window->getOrCreateRenderPass();
+    }
+}
+
 void RenderGraph::accept(RecordTraversal& recordTraversal) const
 {
     if (window)
@@ -117,7 +129,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
                 const_cast<RenderGraph*>(this)->renderArea.extent = extent;
             }
 
-            if (window->framebufferSamples() !=VK_SAMPLE_COUNT_1_BIT) updatePipeline.context.overridePipelineStates.emplace_back(vsg::MultisampleState::create(window->framebufferSamples()));
+            if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT) updatePipeline.context.overridePipelineStates.emplace_back(vsg::MultisampleState::create(window->framebufferSamples()));
 
             const_cast<RenderGraph*>(this)->traverse(updatePipeline);
 
@@ -158,7 +170,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
-    vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, contents);
 
     // traverse the command buffer to place the commands into the command buffer.
     traverse(recordTraversal);
@@ -166,7 +178,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     vkCmdEndRenderPass(vk_commandBuffer);
 }
 
-ref_ptr<RenderGraph> vsg::createRenderGraphForView(Window* window, Camera* camera, Node* scenegraph)
+ref_ptr<RenderGraph> vsg::createRenderGraphForView(Window* window, Camera* camera, Node* scenegraph, VkSubpassContents contents)
 {
     // set up the render graph for viewport & scene
     auto renderGraph = vsg::RenderGraph::create();
@@ -174,6 +186,7 @@ ref_ptr<RenderGraph> vsg::createRenderGraphForView(Window* window, Camera* camer
 
     renderGraph->camera = camera;
     renderGraph->window = window;
+    renderGraph->contents = contents;
 
     renderGraph->renderArea.offset = {0, 0};
     renderGraph->renderArea.extent = window->extent2D();

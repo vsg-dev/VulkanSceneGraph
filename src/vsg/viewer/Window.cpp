@@ -50,12 +50,15 @@ void Window::clear()
     _physicalDevice = 0;
 }
 
-void Window::share(const Window& window)
+void Window::share(Window& window)
 {
-    _instance = window._instance;
-    _physicalDevice = window._physicalDevice;
-    _device = window._device;
-    _renderPass = window._renderPass;
+    _instance = window.getOrCreateInstance();
+    _physicalDevice = window.getOrCreatePhysicalDevice();
+    _device = window.getOrCreateDevice();
+    _renderPass = window.getOrCreateRenderPass();
+
+    _initSurface();
+    _initFormats();
 }
 
 void Window::_initInstance()
@@ -85,6 +88,35 @@ void Window::_initInstance()
 
         vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
         _instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
+    }
+}
+
+void Window::_initFormats()
+{
+    vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
+
+    _imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
+    _depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
+
+    // compute the sample bits to use
+    if (_traits->samples != VK_SAMPLE_COUNT_1_BIT)
+    {
+        VkSampleCountFlags deviceColorSamples = _physicalDevice->getProperties().limits.framebufferColorSampleCounts;
+        VkSampleCountFlags deviceDepthSamples = _physicalDevice->getProperties().limits.framebufferDepthSampleCounts;
+        VkSampleCountFlags satisfied = deviceColorSamples & deviceDepthSamples & _traits->samples;
+        if (satisfied != 0)
+        {
+            uint32_t highest = 1 << static_cast<uint32_t>(floor(log2(satisfied)));
+            _framebufferSamples = static_cast<VkSampleCountFlagBits>(highest);
+        }
+        else
+        {
+            _framebufferSamples = VK_SAMPLE_COUNT_1_BIT;
+        }
+    }
+    else
+    {
+        _framebufferSamples = VK_SAMPLE_COUNT_1_BIT;
     }
 }
 
@@ -124,31 +156,7 @@ void Window::_initDevice()
         _physicalDevice = physicalDevice;
     }
 
-    vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
-
-    _imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
-    _depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
-
-    // compute the sample bits to use
-    if (_traits->samples != VK_SAMPLE_COUNT_1_BIT)
-    {
-        VkSampleCountFlags deviceColorSamples = _physicalDevice->getProperties().limits.framebufferColorSampleCounts;
-        VkSampleCountFlags deviceDepthSamples = _physicalDevice->getProperties().limits.framebufferDepthSampleCounts;
-        VkSampleCountFlags satisfied = deviceColorSamples & deviceDepthSamples & _traits->samples;
-        if (satisfied != 0)
-        {
-            uint32_t highest = 1 << static_cast<uint32_t>(floor(log2(satisfied)));
-            _framebufferSamples = static_cast<VkSampleCountFlagBits>(highest);
-        }
-        else
-        {
-            _framebufferSamples = VK_SAMPLE_COUNT_1_BIT;
-        }
-    }
-    else
-    {
-        _framebufferSamples = VK_SAMPLE_COUNT_1_BIT;
-    }
+    _initFormats();
 }
 
 void Window::_initRenderPass()

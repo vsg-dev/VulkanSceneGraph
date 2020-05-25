@@ -20,34 +20,56 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    // forward declare
+    class ExecuteCommands;
+
     class CommandGraph : public Inherit<Group, CommandGraph>
     {
     public:
-        CommandGraph(Device* device, int family);
-        CommandGraph(Window* window);
+        CommandGraph(Device* in_device, int family);
+        CommandGraph(Window* in_window);
 
-        using Group::accept;
+        // settings, configure at construction time
+        ref_ptr<Window> window;
+        ref_ptr<Device> device;
+        ref_ptr<Camera> camera;
 
-        virtual void record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
+        int queueFamily = -1;
+        int presentFamily = -1;
+        uint32_t maxSlot = 2;
+
+        VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        uint32_t subpass = 0;
+        VkBool32 occlusionQueryEnable = VK_FALSE;
+        VkQueryControlFlags queryFlags = 0;
+        VkQueryPipelineStatisticFlags pipelineStatistics = 0;
 
         ref_ptr<RecordTraversal> recordTraversal;
 
-        ref_ptr<Window> window;
+        void reset();
 
-        ref_ptr<Device> _device;
-        int _queueFamily = -1;
-        int _presentFamily = -1;
-        uint32_t _maxSlot = 2;
-        mutable CommandBuffers commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
+        virtual void record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
 
     protected:
         virtual ~CommandGraph();
+
+        void _connect(ExecuteCommands* executeCommand);
+        void _disconnect(ExecuteCommands* executeCommand);
+
+        CommandBuffers _commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
+
+        std::vector<ExecuteCommands*> _executeCommands;
+
+        friend ExecuteCommands;
     };
     VSG_type_name(vsg::CommandGraph);
 
     using CommandGraphs = std::vector<ref_ptr<CommandGraph>>;
 
-    /// convience function that sets up RenderGraph inside CommandGraph to render the specified scene graph from the speified Camera view
-    ref_ptr<CommandGraph> createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph);
+    /// convience function that sets up RenderGraph inside primary CommandGraph to render the specified scene graph from the speified Camera view
+    ref_ptr<CommandGraph> createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
+
+    /// convience function that sets up secondaryCommandGraph to render the specified scene graph from the speified Camera view
+    ref_ptr<CommandGraph> createSecondaryCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, uint32_t subpass);
 
 } // namespace vsg
