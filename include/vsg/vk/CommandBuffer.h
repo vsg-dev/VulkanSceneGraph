@@ -33,7 +33,7 @@ namespace vsg
 
         const uint32_t deviceID;
 
-        VkCommandBufferLevel level() const {return _level; }
+        VkCommandBufferLevel level() const { return _level; }
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
