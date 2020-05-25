@@ -55,6 +55,8 @@ namespace vsg
         constexpr t_plane(const t_plane& pl) :
             value{pl[0], pl[1], pl[2], pl[3]} {}
 
+        constexpr t_plane& operator=(const t_plane&) = default;
+
         constexpr explicit t_plane(const t_vec4<T>& v) :
             value{v[0], v[1], v[2], v[3]} {}
 
