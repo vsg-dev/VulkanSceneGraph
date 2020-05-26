@@ -35,6 +35,9 @@ namespace vsg
             get(matrix);
             matrix = inverse(matrix);
         }
+        virtual void changeExtent(const VkExtent2D& /*prevExtent*/, const VkExtent2D& /*newExtent*/)
+        {
+        }
     };
     VSG_type_name(vsg::ProjectionMatrix);
 
@@ -59,7 +62,10 @@ namespace vsg
 
         void get(mat4& matrix) const override { matrix = perspective(radians(fieldOfViewY), aspectRatio, nearDistance, farDistance); }
         void get(dmat4& matrix) const override { matrix = perspective(radians(fieldOfViewY), aspectRatio, nearDistance, farDistance); }
-
+        void changeExtent(const VkExtent2D&, const VkExtent2D& newExtent) override
+        {
+            aspectRatio = static_cast<double>(newExtent.width) / static_cast<double>(newExtent.height);
+        }
         double fieldOfViewY;
         double aspectRatio;
         double nearDistance;
@@ -92,7 +98,16 @@ namespace vsg
 
         void get(mat4& matrix) const override { matrix = orthographic(left, right, bottom, top, nearDistance, farDistance); }
         void get(dmat4& matrix) const override { matrix = orthographic(left, right, bottom, top, nearDistance, farDistance); }
-
+        void changeExtent(const VkExtent2D& prevExtent, const VkExtent2D& newExtent) override
+        {
+            double oldRatio
+                = static_cast<double>(prevExtent.width) / static_cast<double>(prevExtent.height);
+            double newRatio
+                = static_cast<double>(newExtent.width) / static_cast<double>(newExtent.height);
+            left *= newRatio / oldRatio;
+            right *= newRatio / oldRatio;
+        }
+        
         double left;
         double right;
         double bottom;
@@ -123,6 +138,14 @@ namespace vsg
             in_matrix = matrix * in_matrix;
         }
 
+        void changeExtent(const VkExtent2D& prevExtent, const VkExtent2D& newExtent) override
+        {
+            double oldRatio
+                = static_cast<double>(prevExtent.width) / static_cast<double>(prevExtent.height);
+            double newRatio
+                = static_cast<double>(newExtent.width) / static_cast<double>(newExtent.height);
+            matrix = scale(oldRatio / newRatio, 1.0, 1.0) * matrix;
+        }
         ref_ptr<ProjectionMatrix> projectionMatrix;
         dmat4 matrix;
     };
@@ -181,6 +204,11 @@ namespace vsg
             //std::cout<<"H = "<<H<<", l = "<<l<<", theta = "<<vsg::degrees(theta)<<", fd = "<<farDistance<<std::endl;
 
             matrix = perspective(radians(fieldOfViewY), aspectRatio, nearDistance, farDistance);
+        }
+
+        void changeExtent(const VkExtent2D&, const VkExtent2D& newExtent) override
+        {
+            aspectRatio = static_cast<double>(newExtent.width) / static_cast<double>(newExtent.height);
         }
 
         ref_ptr<LookAt> lookAt;
