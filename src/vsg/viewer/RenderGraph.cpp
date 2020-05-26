@@ -109,14 +109,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
 
             if (camera)
             {
-                if (auto perspective = dynamic_cast<Perspective*>(camera->getProjectionMatrix()))
-                {
-                    perspective->aspectRatio = static_cast<double>(extent.width) / static_cast<double>(extent.height);
-                }
-                else if (auto ep = dynamic_cast<EllipsoidPerspective*>(camera->getProjectionMatrix()))
-                {
-                    ep->aspectRatio = static_cast<double>(extent.width) / static_cast<double>(extent.height);
-                }
+                camera->getProjectionMatrix()->changeExtent(previous_extent, extent);
 
                 auto viewport = camera->getViewportState();
                 updatePipeline.context.defaultPipelineStates.emplace_back(viewport);
