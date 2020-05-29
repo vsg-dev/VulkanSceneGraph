@@ -38,20 +38,44 @@ using namespace vsg;
 #define USE_FRUSTUM_ARRAY 1
 
 RecordTraversal::RecordTraversal(CommandBuffer* commandBuffer, uint32_t maxSlot, ref_ptr<FrameStamp> fs) :
-    frameStamp(fs),
+    _frameStamp(fs),
     _state(new State(commandBuffer, maxSlot))
 {
-    _state->ref();
+    if (_frameStamp) _frameStamp->ref();
+    if (_state)_state->ref();
 }
 
 RecordTraversal::~RecordTraversal()
 {
-    _state->unref();
+    if (_culledPagedLODs) _culledPagedLODs->unref();
+    if (_databasePager) _databasePager->unref();
+    if (_state) _state->unref();
+    if (_frameStamp) _frameStamp->unref();
 }
 
-State* RecordTraversal::state()
+void RecordTraversal::setFrameStamp(FrameStamp* fs)
 {
-    return _state;
+    if (fs == _frameStamp) return;
+
+    if (_frameStamp) _frameStamp->unref();
+
+    _frameStamp = fs;
+
+    if (_frameStamp) _frameStamp->ref();
+}
+
+void RecordTraversal::setDatabasePager(DatabasePager* dp)
+{
+    if (dp == _databasePager) return;
+
+    if (_databasePager) _databasePager->unref();
+    if (_culledPagedLODs) _culledPagedLODs->unref();
+
+    _databasePager = dp;
+    _culledPagedLODs = dp ? _databasePager->culledPagedLODs.get() : nullptr;
+
+    if (_databasePager) _databasePager->ref();
+    if (_culledPagedLODs) _culledPagedLODs->ref();
 }
 
 void RecordTraversal::setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
@@ -118,14 +142,14 @@ void RecordTraversal::apply(const PagedLOD& plod)
 {
     auto sphere = plod.getBound();
 
-    auto frameCount = frameStamp->frameCount;
+    auto frameCount = _frameStamp->frameCount;
 
     // check if lod bounding sphere is in view frustum.
     if (!_state->intersect(sphere))
     {
-        if ((frameCount - plod.frameHighResLastUsed) > 1 && culledPagedLODs)
+        if ((frameCount - plod.frameHighResLastUsed) > 1 && _culledPagedLODs)
         {
-            culledPagedLODs->highresCulled.emplace_back(&plod);
+            _culledPagedLODs->highresCulled.emplace_back(&plod);
         }
 
         return;
@@ -146,9 +170,9 @@ void RecordTraversal::apply(const PagedLOD& plod)
         if (child_visible)
         {
             auto previousHighResUsed = plod.frameHighResLastUsed.exchange(frameCount);
-            if (culledPagedLODs && ((frameCount - previousHighResUsed) > 1))
+            if (_culledPagedLODs && ((frameCount - previousHighResUsed) > 1))
             {
-                culledPagedLODs->newHighresRequired.emplace_back(&plod);
+                _culledPagedLODs->newHighresRequired.emplace_back(&plod);
             }
 
             if (child.node)
@@ -157,7 +181,7 @@ void RecordTraversal::apply(const PagedLOD& plod)
                 child.node->accept(*this);
                 return;
             }
-            else if (databasePager)
+            else if (_databasePager)
             {
                 auto priority = rf / cutoff;
                 exchange_if_greater(plod.priority, priority);
@@ -166,7 +190,7 @@ void RecordTraversal::apply(const PagedLOD& plod)
                 if (previousRequestCount == 0)
                 {
                     // we are first request so tell the databasePager about it
-                    databasePager->request(ref_ptr<PagedLOD>(const_cast<PagedLOD*>(&plod)));
+                    _databasePager->request(ref_ptr<PagedLOD>(const_cast<PagedLOD*>(&plod)));
                 }
                 else
                 {
@@ -176,9 +200,9 @@ void RecordTraversal::apply(const PagedLOD& plod)
         }
         else
         {
-            if (culledPagedLODs && ((frameCount - plod.frameHighResLastUsed) <= 1))
+            if (_culledPagedLODs && ((frameCount - plod.frameHighResLastUsed) <= 1))
             {
-                culledPagedLODs->highresCulled.emplace_back(&plod);
+                _culledPagedLODs->highresCulled.emplace_back(&plod);
             }
         }
     }

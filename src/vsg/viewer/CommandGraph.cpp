@@ -75,9 +75,8 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
         recordTraversal = new RecordTraversal(nullptr, maxSlot);
     }
 
-    recordTraversal->frameStamp = frameStamp;
-    recordTraversal->databasePager = databasePager;
-    if (databasePager) recordTraversal->culledPagedLODs = databasePager->culledPagedLODs;
+    recordTraversal->setFrameStamp(frameStamp);
+    recordTraversal->setDatabasePager(databasePager);
 
     ref_ptr<CommandBuffer> commandBuffer;
     for (auto& cb : _commandBuffers)
@@ -98,7 +97,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     commandBuffer->numDependentSubmissions().fetch_add(1);
 
-    recordTraversal->state()->_commandBuffer = commandBuffer;
+    recordTraversal->getState()->_commandBuffer = commandBuffer;
 
     // or select index when maps to a dormant CommandBuffer
     VkCommandBuffer vk_commandBuffer = *commandBuffer;

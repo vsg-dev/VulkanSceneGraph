@@ -50,7 +50,13 @@ namespace vsg
         std::size_t sizeofObject() const noexcept override { return sizeof(RecordTraversal); }
         const char* className() const noexcept override { return type_name<RecordTraversal>(); }
 
-        State* state();
+        State* getState() { return _state; }
+
+        void setFrameStamp(FrameStamp* fs);
+        FrameStamp* getFrameStamp() { return _frameStamp; }
+
+        void setDatabasePager(DatabasePager* dp);
+        DatabasePager* getDatabasePager() { return _databasePager; }
 
         void setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix);
 
@@ -70,14 +76,15 @@ namespace vsg
         void apply(const Commands& commands);
         void apply(const Command& command);
 
-        // used to handle loading of PagedLOD external children.
-        ref_ptr<DatabasePager> databasePager;
-        ref_ptr<CulledPagedLODs> culledPagedLODs;
 
-        ref_ptr<FrameStamp> frameStamp;
 
     private:
-        State* _state;
+        FrameStamp* _frameStamp = nullptr;
+        State* _state = nullptr;
+
+        // used to handle loading of PagedLOD external children.
+        DatabasePager* _databasePager = nullptr;
+        CulledPagedLODs* _culledPagedLODs = nullptr;
     };
 
 } // namespace vsg
