@@ -104,7 +104,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
 
             vsg::UpdatePipeline updatePipeline(window->getDevice());
 
-            updatePipeline.context.commandPool = recordTraversal.state->_commandBuffer->getCommandPool();
+            updatePipeline.context.commandPool = recordTraversal.state()->_commandBuffer->getCommandPool();
             updatePipeline.context.renderPass = window->getRenderPass();
 
             if (camera)
@@ -139,7 +139,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
         recordTraversal.setProjectionAndViewMatrix(projMatrix, viewMatrix);
     }
 
-    VkCommandBuffer vk_commandBuffer = *(recordTraversal.state->_commandBuffer);
+    VkCommandBuffer vk_commandBuffer = *(recordTraversal.state()->_commandBuffer);
 
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

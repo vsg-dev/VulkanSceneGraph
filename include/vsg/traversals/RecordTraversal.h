@@ -50,6 +50,8 @@ namespace vsg
         std::size_t sizeofObject() const noexcept override { return sizeof(RecordTraversal); }
         const char* className() const noexcept override { return type_name<RecordTraversal>(); }
 
+        State* state();
+
         void setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix);
 
         void apply(const Object& object);
@@ -73,7 +75,9 @@ namespace vsg
         ref_ptr<CulledPagedLODs> culledPagedLODs;
 
         ref_ptr<FrameStamp> frameStamp;
-        ref_ptr<State> state;
+
+    private:
+        ref_ptr<State> _state;
     };
 
 } // namespace vsg

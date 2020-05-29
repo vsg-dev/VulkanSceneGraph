@@ -98,7 +98,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     commandBuffer->numDependentSubmissions().fetch_add(1);
 
-    recordTraversal->state->_commandBuffer = commandBuffer;
+    recordTraversal->state()->_commandBuffer = commandBuffer;
 
     // or select index when maps to a dormant CommandBuffer
     VkCommandBuffer vk_commandBuffer = *commandBuffer;
