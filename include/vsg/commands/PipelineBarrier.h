@@ -27,7 +27,7 @@ namespace vsg
         virtual void* assign(ScratchMemory& buffer) const = 0;
     };
 
-    struct MemoryBarrier : public Inherit<Object, MemoryBarrier>
+    struct VSG_DECLSPEC MemoryBarrier : public Inherit<Object, MemoryBarrier>
     {
         ref_ptr<VulkanInfo> next;
         VkAccessFlags srcAccessMask = 0;
@@ -36,7 +36,7 @@ namespace vsg
         void assign(VkMemoryBarrier& info, ScratchMemory& scratchMemory) const;
     };
 
-    struct BufferMemoryBarrier : public Inherit<Object, BufferMemoryBarrier>
+    struct VSG_DECLSPEC BufferMemoryBarrier : public Inherit<Object, BufferMemoryBarrier>
     {
         ref_ptr<VulkanInfo> next;
         VkAccessFlags srcAccessMask = 0;
@@ -50,7 +50,7 @@ namespace vsg
         void assign(VkBufferMemoryBarrier& info, ScratchMemory& scratchMemory) const;
     };
 
-    struct ImageMemoryBarrier : public Inherit<Object, ImageMemoryBarrier>
+    struct VSG_DECLSPEC ImageMemoryBarrier : public Inherit<Object, ImageMemoryBarrier>
     {
         ImageMemoryBarrier(VkAccessFlags in_srcAccessMask = 0,
                            VkAccessFlags in_dstAccessMask = 0,
@@ -82,7 +82,7 @@ namespace vsg
         void assign(VkImageMemoryBarrier& info, ScratchMemory& scratchMemory) const;
     };
 
-    struct SampleLocations : public Inherit<VulkanInfo, SampleLocations>
+    struct VSG_DECLSPEC SampleLocations : public Inherit<VulkanInfo, SampleLocations>
     {
         ref_ptr<VulkanInfo> next;
         VkSampleCountFlagBits sampleLocationsPerPixel = VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
