@@ -43,7 +43,7 @@ namespace vsg
     class VSG_DECLSPEC RecordTraversal : public Object
     {
     public:
-        explicit RecordTraversal(CommandBuffer* commandBuffer = nullptr, uint32_t maxSlot = 2, ref_ptr<FrameStamp> fs = {});
+        explicit RecordTraversal(CommandBuffer* commandBuffer = nullptr, uint32_t maxSlot = 2, FrameStamp* fs = nullptr);
         ~RecordTraversal();
 
         std::size_t sizeofObject() const noexcept override { return sizeof(RecordTraversal); }
