@@ -24,6 +24,9 @@ namespace vsg
     public:
         OperationThreads(uint32_t numThreads, ref_ptr<ActivityStatus> in_status = {});
 
+        OperationThreads(const OperationThreads&) = delete;
+        OperationThreads& operator=(const OperationThreads& rhs) = delete;
+
         void add(ref_ptr<Operation> operation)
         {
             queue->add(operation);

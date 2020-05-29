@@ -33,7 +33,7 @@ OperationThreads::OperationThreads(uint32_t numThreads, ref_ptr<ActivityStatus> 
 
     for (size_t i = 0; i < numThreads; ++i)
     {
-        threads.emplace_back(std::thread(run, std::ref(queue), std::ref(status)));
+        threads.emplace_back(run, std::ref(queue), std::ref(status));
     }
 }
 

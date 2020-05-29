@@ -93,6 +93,9 @@ namespace vsg
     public:
         DatabasePager();
 
+        DatabasePager(const DatabasePager&) = delete;
+        DatabasePager& operator=(const DatabasePager& rhs) = delete;
+
         virtual void start();
 
         virtual void request(ref_ptr<PagedLOD> plod);
