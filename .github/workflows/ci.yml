@@ -90,7 +90,7 @@ jobs:
     - name: MSBuild
       run: MSBuild.exe ALL_BUILD.vcxproj -p:Configuration=Release
 
-    macos-build:
+  macos-build:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
