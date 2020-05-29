@@ -221,7 +221,7 @@ void DatabasePager::start()
 
     for (int i = 0; i < numReadThreads; ++i)
     {
-        _readThreads.emplace_back(std::thread(read, std::ref(_requestQueue), std::ref(_compileQueue), std::ref(_status), std::ref(*this)));
+        _readThreads.emplace_back(read, std::ref(_requestQueue), std::ref(_compileQueue), std::ref(_status), std::ref(*this));
     }
 
     //
@@ -420,7 +420,7 @@ void DatabasePager::start()
 
     for (int i = 0; i < numCompileThreads; ++i)
     {
-        _compileThreads.emplace_back(std::thread(compile, std::ref(_compileQueue), std::ref(_toMergeQueue), std::ref(compileTraversal), std::ref(_status), std::ref(*this)));
+        _compileThreads.emplace_back(compile, std::ref(_compileQueue), std::ref(_toMergeQueue), std::ref(compileTraversal), std::ref(_status), std::ref(*this));
     }
 }
 
