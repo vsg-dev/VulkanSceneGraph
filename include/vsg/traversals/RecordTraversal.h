@@ -77,7 +77,7 @@ namespace vsg
         ref_ptr<FrameStamp> frameStamp;
 
     private:
-        ref_ptr<State> _state;
+        State* _state;
     };
 
 } // namespace vsg
