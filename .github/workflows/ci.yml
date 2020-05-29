@@ -65,7 +65,32 @@ jobs:
     - name: MSBuild
       run: MSBuild.exe ALL_BUILD.vcxproj -p:Configuration=Release
 
-  macos-build:
+  windows-dll-build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set env
+      run: echo "::set-env name=VULKAN_SDK::C:\VulkanSDK\${{env.VulkanSDKVersion}}"
+    - name: Cache
+      id: cache
+      uses: actions/cache@v1.1.2
+      with:
+        path: ${{env.VULKAN_SDK}}
+        key: VulkanSdk${{env.VulkanSDKVersion}}WindowsExtracted2
+    - name: Download & Install Vulkan SDK
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: |
+        Invoke-WebRequest -Uri https://sdk.lunarg.com/sdk/download/${{env.VulkanSDKVersion}}/windows/VulkanSDK-${{env.VulkanSDKVersion}}-Installer.exe?u= -OutFile ../vulkan-sdk-${{env.VulkanSDKVersion}}.exe
+        $installer = Start-Process -FilePath ../vulkan-sdk-${{env.VulkanSDKVersion}}.exe -Wait -PassThru -ArgumentList @("/S");
+        $installer.WaitForExit();
+    - name: CMake
+      run: cmake . -G "Visual Studio 16 2019" -A x64 -DBUILD_SHARED_LIBS=ON
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.0
+    - name: MSBuild
+      run: MSBuild.exe ALL_BUILD.vcxproj -p:Configuration=Release
+
+    macos-build:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
