@@ -395,7 +395,7 @@ void Viewer::setupThreading()
                 }
             };
 
-            threads.emplace_back(std::thread(run, task, _frameBlock, _submissionCompleted));
+            threads.emplace_back(run, task, _frameBlock, _submissionCompleted);
         }
         else if (task->commandGraphs.size() >= 1)
         {
@@ -478,9 +478,9 @@ void Viewer::setupThreading()
             for (uint32_t i = 0; i < task->commandGraphs.size(); ++i)
             {
                 if (i == 0)
-                    threads.emplace_back(std::thread(run_primary, sharedData, task->commandGraphs[i]));
+                    threads.emplace_back(run_primary, sharedData, task->commandGraphs[i]);
                 else
-                    threads.emplace_back(std::thread(run_secondary, sharedData, task->commandGraphs[i]));
+                    threads.emplace_back(run_secondary, sharedData, task->commandGraphs[i]);
             }
         }
     }
