@@ -25,7 +25,7 @@ namespace vsg
         OperationThreads(uint32_t numThreads, ref_ptr<ActivityStatus> in_status = {});
 
         OperationThreads(const OperationThreads&) = delete;
-        Options& operator=(const Options& rhs) = delete;
+        OperationThreads& operator=(const OperationThreads& rhs) = delete;
 
         void add(ref_ptr<Operation> operation)
         {

@@ -29,6 +29,9 @@ namespace vsg
     public:
         Viewer();
 
+        Viewer(const Viewer&) = delete;
+        Viewer& operator=(const Viewer& rhs) = delete;
+
         /// add Window to Viewer
         virtual void addWindow(ref_ptr<Window> window);
 
