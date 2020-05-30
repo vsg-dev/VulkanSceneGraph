@@ -1,5 +1,4 @@
-#ifndef VSG_EXPORT_H
-#define VSG_EXPORT_H
+#pragma once
 
 /* <editor-fold desc="MIT License">
 
@@ -23,6 +22,4 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    endif
 #else
 #    define VSG_DECLSPEC
-#endif
-
 #endif
