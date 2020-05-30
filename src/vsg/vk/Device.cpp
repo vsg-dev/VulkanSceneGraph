@@ -26,7 +26,7 @@ static std::vector<bool> s_ActiveDevices;
 
 static uint32_t getUniqueDeviceID()
 {
-    std::lock_guard<std::mutex> guard(s_DeviceCountMutex);
+    std::scoped_lock<std::mutex> guard(s_DeviceCountMutex);
 
     uint32_t deviceID = 0;
     for (deviceID = 0; deviceID < static_cast<uint32_t>(s_ActiveDevices.size()); ++deviceID)
@@ -45,7 +45,7 @@ static uint32_t getUniqueDeviceID()
 
 static void releaseDeiviceID(uint32_t deviceID)
 {
-    std::lock_guard<std::mutex> guard(s_DeviceCountMutex);
+    std::scoped_lock<std::mutex> guard(s_DeviceCountMutex);
     s_ActiveDevices[deviceID] = false;
 }
 

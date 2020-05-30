@@ -96,7 +96,7 @@ namespace vsg
         {
             if (!_auxiliary) return ref_ptr<R>();
 
-            std::lock_guard<std::mutex> guard(_auxiliary->getMutex());
+            std::scoped_lock<std::mutex> guard(_auxiliary->getMutex());
             if (_auxiliary->getConnectedObject() != nullptr)
                 return ref_ptr<R>(_ptr);
             else

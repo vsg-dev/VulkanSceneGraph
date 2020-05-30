@@ -43,7 +43,7 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
     {
         auto& ot = options->objectCache->getObjectTimepoint(filename, options);
 
-        std::lock_guard<std::mutex> guard(ot.mutex);
+        std::scoped_lock<std::mutex> guard(ot.mutex);
         if (ot.object) return ot.object;
 
         ot.object = read_file();

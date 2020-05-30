@@ -68,7 +68,7 @@ void DescriptorSet::compile(Context& context)
         for (auto& descriptor : _descriptors) descriptor->compile(context);
 
 #if USE_MUTEX
-        std::lock_guard<std::mutex> lock(context.descriptorPool->getMutex());
+        std::scoped_lock<std::mutex> lock(context.descriptorPool->getMutex());
 #endif
         _implementation[context.deviceID] = DescriptorSet::Implementation::create(context.device, context.descriptorPool, _descriptorSetLayout);
         _implementation[context.deviceID]->assign(context, _descriptors);
@@ -99,7 +99,7 @@ DescriptorSet::Implementation::~Implementation()
     if (_descriptorSet)
     {
 #if USE_MUTEX
-        std::lock_guard<std::mutex> lock(_descriptorPool->getMutex());
+        std::scoped_lock<std::mutex> lock(_descriptorPool->getMutex());
 #endif
         vkFreeDescriptorSets(*_device, *_descriptorPool, 1, &_descriptorSet);
     }
