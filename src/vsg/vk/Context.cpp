@@ -704,26 +704,20 @@ void Context::waitForCompletion()
     }
 
     // we must wait for the queue to empty before we can safely clean up the commandBuffer
-#if 1
     uint64_t timeout = 1000000000;
     if (timeout > 0)
     {
-        VkResult result = fence->wait(timeout);
+        VkResult result;
+        while( (result = fence->wait(timeout)) == VK_TIMEOUT)
+        {
+            std::cout << "Context::waitForCompletion() " << this << " fence->wait() timed out, trying again." << std::endl;
+        }
+
         if (result != VK_SUCCESS)
         {
-            std::cout << "Context::waitForCompletion() " << this << " Fence failed to signal : " << result << std::endl;
-            while ((result = fence->wait(timeout)) != VK_SUCCESS)
-            {
-                std::cout << "Context::waitForCompletion() " << this << " Fence failed again, trying another wait : " << result << std::endl;
-            }
-            std::cout << "Context::waitForCompletion()  " << this << " Finally we have success. " << result << std::endl;
+            std::cout << "Context::waitForCompletion()  " << this << " fence->wait() failed with error. VkResult = " << result << std::endl;
         }
     }
-#else
-    {
-        graphicsQueue->waitIdle();
-    }
-#endif
 
 #if REPORT_STATS
     std::cout << "Context::waitForCompletion() copyBufferDataCommands = " << copyBufferDataCommands.size() << ", copyImageDataCommands = " << copyImageDataCommands.size() << ", commands = " << commands.size() << std::endl;
