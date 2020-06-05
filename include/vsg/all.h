@@ -61,6 +61,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 // Commands header files
 #include <vsg/commands/BindIndexBuffer.h>
 #include <vsg/commands/BindVertexBuffers.h>
+#include <vsg/commands/BlitImage.h>
 #include <vsg/commands/Command.h>
 #include <vsg/commands/Commands.h>
 #include <vsg/commands/CopyImage.h>

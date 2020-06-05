@@ -38,6 +38,7 @@ set(SOURCES
     commands/BindIndexBuffer.cpp
     commands/BindVertexBuffers.cpp
     commands/Commands.cpp
+    commands/BlitImage.cpp
     commands/CopyImage.cpp
     commands/PipelineBarrier.cpp
     commands/NextSubPass.cpp
