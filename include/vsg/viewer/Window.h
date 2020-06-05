@@ -53,6 +53,10 @@ namespace vsg
         VkClearColorValue& clearColor() { return _clearColor; }
         const VkClearColorValue& clearColor() const { return _clearColor; }
 
+        VkSurfaceFormatKHR surfaceFormat() const { return _imageFormat; }
+
+        VkFormat depthFormat() const { return _depthFormat; }
+
         VkSampleCountFlagBits framebufferSamples() const { return _framebufferSamples; }
 
         Instance* getInstance() { return _instance; }
