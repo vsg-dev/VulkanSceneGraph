@@ -40,6 +40,7 @@ set(SOURCES
     commands/Commands.cpp
     commands/BlitImage.cpp
     commands/CopyImage.cpp
+    commands/CopyImageToBuffer.cpp
     commands/PipelineBarrier.cpp
     commands/NextSubPass.cpp
     commands/Dispatch.cpp
