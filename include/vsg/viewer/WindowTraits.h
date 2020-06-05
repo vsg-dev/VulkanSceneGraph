@@ -58,6 +58,7 @@ namespace vsg
         bool overrideRedirect = false;
 
         SwapchainPreferences swapchainPreferences;
+        VkImageUsageFlags depthImageUsage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 
         VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
         VkPipelineStageFlagBits imageAvailableSemaphoreWaitFlag = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
