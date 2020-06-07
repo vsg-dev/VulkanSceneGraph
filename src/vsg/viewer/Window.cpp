@@ -247,7 +247,7 @@ void Window::buildSwapchain()
     depthImageCreateInfo.format = _depthFormat;
     depthImageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     depthImageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    depthImageCreateInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    depthImageCreateInfo.usage = _traits->depthImageUsage;
     depthImageCreateInfo.samples = _framebufferSamples;
     depthImageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     depthImageCreateInfo.pNext = nullptr;

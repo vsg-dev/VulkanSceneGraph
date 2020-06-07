@@ -1,8 +1,6 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2019 Thomas Hogarth
+Copyright(c) 2020 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -12,28 +10,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/Command.h>
-#include <vsg/vk/Image.h>
+#include <vsg/commands/BlitImage.h>
+#include <vsg/vk/CommandBuffer.h>
 
-namespace vsg
+using namespace vsg;
+
+BlitImage::BlitImage()
 {
+}
 
-    /// Encapsulation of vkCmdCopyImage functionality
-    class VSG_DECLSPEC CopyImage : public Inherit<Command, CopyImage>
-    {
-    public:
-        CopyImage();
-
-        void dispatch(CommandBuffer& commandBuffer) const override;
-
-        using Regions = std::vector<VkImageCopy>;
-
-        ref_ptr<Image> srcImage;
-        VkImageLayout srcImageLayout;
-        ref_ptr<Image> dstImage;
-        VkImageLayout dstImageLayout;
-        Regions regions;
-    };
-    VSG_type_name(vsg::CopyImage);
-
-} // namespace vsg
+void BlitImage::dispatch(CommandBuffer& commandBuffer) const
+{
+    vkCmdBlitImage(
+        commandBuffer,
+        *srcImage,
+        srcImageLayout,
+        *dstImage,
+        dstImageLayout,
+        static_cast<uint32_t>(regions.size()),
+        regions.data(),
+        filter);
+}

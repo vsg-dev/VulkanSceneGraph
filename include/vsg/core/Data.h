@@ -30,7 +30,8 @@ namespace vsg
     class VSG_DECLSPEC Data : public Object
     {
     public:
-        /* Layout used for configuring use of mipmaps and block compressed data.
+
+        /* Layout used for configuring use of mipmaps and block compressed data and origin.
          * Default of no mipmapping and {1,1,1} is uncompressed.
          * A single block (Block64/Block128) is stored as a single value with the Data object. */
         struct Layout
@@ -39,6 +40,7 @@ namespace vsg
             uint8_t blockWidth = 1;
             uint8_t blockHeight = 1;
             uint8_t blockDepth = 1;
+            uint8_t origin = 0; /// Hint for setting up texture coordinates, bit 0 x/width axis, bit 1 y/height axis, bit 2 z/depth axis. Vulkan origin for images is top left, which is denoted as 0 here.
         };
 
         Data() {}

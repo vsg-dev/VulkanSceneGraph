@@ -102,6 +102,20 @@ namespace vsg
             return _swapchain;
         }
 
+        Image* getDepthImage() { return _depthImage; }
+        Image* getOrCreateDepthImage()
+        {
+            if (!_depthImage) _initSwapchain();
+            return _depthImage;
+        }
+
+        ImageView* getDepthImageView() { return _depthImageView; }
+        ImageView* getOrCreateDepthImageView()
+        {
+            if (!_depthImageView) _initSwapchain();
+            return _depthImageView;
+        }
+
         size_t numFrames() const { return _frames.size(); }
 
         ImageView* imageView(size_t i) { return _frames[i].imageView; }
