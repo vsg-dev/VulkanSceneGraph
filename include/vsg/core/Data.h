@@ -27,6 +27,12 @@ namespace vsg
     /** 128 bit block of compressed texel data.*/
     using block128 = uint8_t[16];
 
+    enum Origin : uint8_t
+    {
+        TOP_LEFT = 0,
+        BOTTOM_LEFT = 2
+    };
+
     class VSG_DECLSPEC Data : public Object
     {
     public:
@@ -40,7 +46,7 @@ namespace vsg
             uint8_t blockWidth = 1;
             uint8_t blockHeight = 1;
             uint8_t blockDepth = 1;
-            uint8_t origin = 0; /// Hint for setting up texture coordinates, bit 0 x/width axis, bit 1 y/height axis, bit 2 z/depth axis. Vulkan origin for images is top left, which is denoted as 0 here.
+            uint8_t origin = TOP_LEFT; /// Hint for setting up texture coordinates, bit 0 x/width axis, bit 1 y/height axis, bit 2 z/depth axis. Vulkan origin for images is top left, which is denoted as 0 here.
         };
 
         Data() {}
