@@ -305,7 +305,7 @@ void Window::buildSwapchain()
             auto pipelineBarrier = PipelineBarrier::create(
                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
                 0, depthImageBarrier);
-            pipelineBarrier->dispatch(commandBuffer);
+            pipelineBarrier->record(commandBuffer);
 
             if (multisampling)
             {
@@ -318,7 +318,7 @@ void Window::buildSwapchain()
                 auto msPipelineBarrier = PipelineBarrier::create(
                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                     0, msImageBarrier);
-                msPipelineBarrier->dispatch(commandBuffer);
+                msPipelineBarrier->record(commandBuffer);
             }
         });
     }

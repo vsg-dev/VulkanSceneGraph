@@ -92,7 +92,7 @@ PipelineBarrier::~PipelineBarrier()
 {
 }
 
-void PipelineBarrier::dispatch(CommandBuffer& commandBuffer) const
+void PipelineBarrier::record(CommandBuffer& commandBuffer) const
 {
     auto& scratchMemory = *(commandBuffer.scratchMemory);
 

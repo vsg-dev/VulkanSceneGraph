@@ -25,7 +25,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
         VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;
 

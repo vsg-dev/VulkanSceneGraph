@@ -19,7 +19,7 @@ BlitImage::BlitImage()
 {
 }
 
-void BlitImage::dispatch(CommandBuffer& commandBuffer) const
+void BlitImage::record(CommandBuffer& commandBuffer) const
 {
     vkCmdBlitImage(
         commandBuffer,

@@ -106,7 +106,7 @@ namespace vsg
             add(barrier);
         }
 
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
         void add(ref_ptr<MemoryBarrier> mb) { memoryBarriers.emplace_back(mb); }
         void add(ref_ptr<BufferMemoryBarrier> bmb) { bufferMemoryBarriers.emplace_back(bmb); }

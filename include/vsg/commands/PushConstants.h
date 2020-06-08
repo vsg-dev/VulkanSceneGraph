@@ -32,7 +32,7 @@ namespace vsg
         Data* getData() noexcept { return _data; }
         const Data* getData() const noexcept { return _data; }
 
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~PushConstants();

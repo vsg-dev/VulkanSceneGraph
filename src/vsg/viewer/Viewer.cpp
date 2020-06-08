@@ -243,10 +243,10 @@ void Viewer::compile(BufferPreferences bufferPreferences)
         }
     }
 
-    // dispatch any transfer commands commands
+    // record any transfer commands commands
     for (auto& dp : deviceResourceMap)
     {
-        dp.second.compile->context.dispatch();
+        dp.second.compile->context.record();
     }
 
     // wait for the transfers to complete

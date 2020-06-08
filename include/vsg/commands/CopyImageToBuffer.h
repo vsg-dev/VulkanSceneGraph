@@ -25,7 +25,7 @@ namespace vsg
     public:
         CopyImageToBuffer();
 
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
         using Regions = std::vector<VkBufferImageCopy>;
 

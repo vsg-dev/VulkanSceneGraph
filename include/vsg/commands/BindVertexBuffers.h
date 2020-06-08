@@ -52,7 +52,7 @@ namespace vsg
 
         void compile(Context& context) override;
 
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~BindVertexBuffers();

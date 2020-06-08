@@ -187,7 +187,7 @@ void BindDescriptorSets::compile(Context& context)
     }
 }
 
-void BindDescriptorSets::dispatch(CommandBuffer& commandBuffer) const
+void BindDescriptorSets::record(CommandBuffer& commandBuffer) const
 {
     auto& vkd = _vulkanData[commandBuffer.deviceID];
     vkCmdBindDescriptorSets(commandBuffer, _bindPoint, vkd._vkPipelineLayout, _firstSet, static_cast<uint32_t>(vkd._vkDescriptorSets.size()), vkd._vkDescriptorSets.data(), 0, nullptr);
@@ -241,7 +241,7 @@ void BindDescriptorSet::compile(Context& context)
     vkd._vkDescriptorSet = _descriptorSet->vk(context.deviceID);
 }
 
-void BindDescriptorSet::dispatch(CommandBuffer& commandBuffer) const
+void BindDescriptorSet::record(CommandBuffer& commandBuffer) const
 {
     auto& vkd = _vulkanData[commandBuffer.deviceID];
 

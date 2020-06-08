@@ -273,9 +273,9 @@ CopyAndReleaseBufferDataCommand::~CopyAndReleaseBufferDataCommand()
     source.release();
 }
 
-void CopyAndReleaseBufferDataCommand::dispatch(CommandBuffer& commandBuffer) const
+void CopyAndReleaseBufferDataCommand::record(CommandBuffer& commandBuffer) const
 {
-    //std::cout<<"CopyAndReleaseBufferDataCommand::dispatch(CommandBuffer& commandBuffer) source._offset = "<<source._offset<<", "<<destination._offset<<std::endl;
+    //std::cout<<"CopyAndReleaseBufferDataCommand::record(CommandBuffer& commandBuffer) source._offset = "<<source._offset<<", "<<destination._offset<<std::endl;
     VkBufferCopy copyRegion = {};
     copyRegion.srcOffset = source._offset;
     copyRegion.dstOffset = destination._offset;
@@ -292,7 +292,7 @@ CopyAndReleaseImageDataCommand::~CopyAndReleaseImageDataCommand()
     source.release();
 }
 
-void CopyAndReleaseImageDataCommand::dispatch(CommandBuffer& commandBuffer) const
+void CopyAndReleaseImageDataCommand::record(CommandBuffer& commandBuffer) const
 {
     ref_ptr<Buffer> imageStagingBuffer(source._buffer);
     ref_ptr<Data> data(source._data);
@@ -507,7 +507,7 @@ void CopyAndReleaseImageDataCommand::dispatch(CommandBuffer& commandBuffer) cons
             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
             0, preCopyImageMemoryBarrier);
 
-        preCopyPipelineBarrier->dispatch(commandBuffer);
+        preCopyPipelineBarrier->record(commandBuffer);
 
         VkBufferImageCopy region = {};
         region.bufferOffset = source._offset;
@@ -533,7 +533,7 @@ void CopyAndReleaseImageDataCommand::dispatch(CommandBuffer& commandBuffer) cons
             VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
             0, postCopyImageBarrier);
 
-        postPipelineBarrier->dispatch(commandBuffer);
+        postPipelineBarrier->record(commandBuffer);
     }
 }
 
@@ -551,7 +551,7 @@ BuildAccelerationStructureCommand::BuildAccelerationStructureCommand(Device* dev
 {
 }
 
-void BuildAccelerationStructureCommand::dispatch(CommandBuffer& commandBuffer) const
+void BuildAccelerationStructureCommand::record(CommandBuffer& commandBuffer) const
 {
     Extensions* extensions = Extensions::Get(_device, true);
 
@@ -620,7 +620,7 @@ ref_ptr<CommandBuffer> Context::getOrCreateCommandBuffer()
     return commandBuffer;
 }
 
-void Context::dispatch()
+void Context::record()
 {
     if (commands.empty() && copyBufferDataCommands.empty() && copyImageDataCommands.empty() && buildAccelerationStructureCommands.empty()) return;
 
@@ -645,9 +645,9 @@ void Context::dispatch()
 
     // issue commands of interest
     {
-        for (auto& command : copyBufferDataCommands) command->dispatch(*commandBuffer);
-        for (auto& command : copyImageDataCommands) command->dispatch(*commandBuffer);
-        for (auto& command : commands) command->dispatch(*commandBuffer);
+        for (auto& command : copyBufferDataCommands) command->record(*commandBuffer);
+        for (auto& command : copyImageDataCommands) command->record(*commandBuffer);
+        for (auto& command : commands) command->record(*commandBuffer);
     }
 
     // create scratch buffer and issue build acceleration sctructure commands
@@ -663,7 +663,7 @@ void Context::dispatch()
         for (auto& command : buildAccelerationStructureCommands)
         {
             command->_scratchBuffer = scratchBuffer;
-            command->dispatch(*commandBuffer);
+            command->record(*commandBuffer);
         }
     }
 
@@ -688,7 +688,7 @@ void Context::dispatch()
     }
 
     graphicsQueue->submit(submitInfo, fence);
-    //std::cout << "Context::dispatchCommands()  time " << std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - before_compile).count() << "ms" << std::endl;
+    //std::cout << "Context::recordCommands()  time " << std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - before_compile).count() << "ms" << std::endl;
 }
 
 void Context::waitForCompletion()

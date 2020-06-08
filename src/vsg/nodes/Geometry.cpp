@@ -141,7 +141,7 @@ void Geometry::compile(Context& context)
     }
 }
 
-void Geometry::dispatch(CommandBuffer& commandBuffer) const
+void Geometry::record(CommandBuffer& commandBuffer) const
 {
     auto& vkd = _vulkanData[commandBuffer.deviceID];
 
@@ -156,6 +156,6 @@ void Geometry::dispatch(CommandBuffer& commandBuffer) const
 
     for (auto& command : commands)
     {
-        command->dispatch(commandBuffer);
+        command->record(commandBuffer);
     }
 }

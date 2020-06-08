@@ -29,7 +29,7 @@ namespace vsg
         void write(Output& output) const override;
 
         void compile(Context& context) override;
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
         // vkCmdDrawIndexed settings
         // vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
