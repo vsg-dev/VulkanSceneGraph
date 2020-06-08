@@ -19,6 +19,8 @@ using namespace vsg;
 
 void CopyImageViewToWindow::record(CommandBuffer& commandBuffer) const
 {
+    // TODO: replace this implementation with a list of commands rather than present create commands, record commands, delete commands
+
     auto imageView = window->imageView(window->nextImageIndex());
 
     //  transition image layouts for copy
