@@ -30,7 +30,7 @@ namespace vsg
         void write(Output& output) const override;
 
         void compile(Context& context) override;
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
         using DrawCommands = std::vector<ref_ptr<Command>>;
 

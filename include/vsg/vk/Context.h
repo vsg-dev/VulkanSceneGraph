@@ -80,7 +80,7 @@ namespace vsg
         BufferData source;
         BufferData destination;
 
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~CopyAndReleaseBufferDataCommand();
@@ -94,7 +94,7 @@ namespace vsg
             destination(dest),
             mipLevels(numMipMapLevels) {}
 
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
         BufferData source;
         ImageData destination;
@@ -110,14 +110,14 @@ namespace vsg
         BuildAccelerationStructureCommand(Device* device, VkAccelerationStructureInfoNV* info, const VkAccelerationStructureNV& structure, Buffer* instanceBuffer, Allocator* allocator = nullptr);
 
         void compile(Context&) override {}
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
         ref_ptr<Device> _device;
         VkAccelerationStructureInfoNV* _accelerationStructureInfo;
         VkAccelerationStructureNV _accelerationStructure;
         ref_ptr<Buffer> _instanceBuffer;
 
-        // scratch buffer set after compile traversal before dispatch of build commands
+        // scratch buffer set after compile traversal before record of build commands
         ref_ptr<Buffer> _scratchBuffer;
     };
 
@@ -165,7 +165,7 @@ namespace vsg
         std::vector<ref_ptr<CopyAndReleaseImageDataCommand>> copyImageDataCommands;
         std::vector<ref_ptr<Command>> commands;
 
-        void dispatch();
+        void record();
         void waitForCompletion();
 
         ref_ptr<CommandBuffer> getOrCreateCommandBuffer();

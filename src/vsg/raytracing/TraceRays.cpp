@@ -20,7 +20,7 @@ TraceRays::TraceRays()
 {
 }
 
-void TraceRays::dispatch(CommandBuffer& commandBuffer) const
+void TraceRays::record(CommandBuffer& commandBuffer) const
 {
     Device* device = commandBuffer.getDevice();
     Extensions* extensions = Extensions::Get(device, true);

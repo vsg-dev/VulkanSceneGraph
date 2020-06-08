@@ -56,7 +56,7 @@ void ExecuteCommands::completed(ref_ptr<CommandBuffer> commandBuffer)
     _latch->count_down();
 }
 
-void ExecuteCommands::dispatch(CommandBuffer& commandBuffer) const
+void ExecuteCommands::record(CommandBuffer& commandBuffer) const
 {
     _latch->wait();
 

@@ -31,9 +31,9 @@ namespace vsg
      *  Children should be ordered with the highest resolution PagedLODChild first, thought to lowest resolution PagedLOD child last.
      *  The PagedLODChild struct stores the visibleHeightRatio and child that it's associated with.
      *  During culling tHe visibleHeightRatio is used as a ratio of screen height that Bound sphere occupies on screen needs to be at least in order for the associated child to be traversed.
-     *  Once on child passes this test no more children are checked, so that no more than on child will ever being traversed in a cull or dispatch traversal.
+     *  Once on child passes this test no more children are checked, so that no more than on child will ever being traversed in a record traversal.
      *  If no PagedLODChild pass the visible height test then none of the PagedLOD's children will be visible.
-     *  During the cull or dispatch traversals the Bound sphere is also checked against the view frustum so that PagedLOD's also enable view frustum culling for subgraphs so there is no need for a separate CullNode/CullGroup to decorate it. */
+     *  During the record traversals the Bound sphere is also checked against the view frustum so that PagedLOD's also enable view frustum culling for subgraphs so there is no need for a separate CullNode/CullGroup to decorate it. */
     class VSG_DECLSPEC PagedLOD : public Inherit<Node, PagedLOD>
     {
     public:
@@ -49,7 +49,7 @@ namespace vsg
         // external file to load when child 0 is null.
         Path filename;
 
-        // priority value assigned by cull/dispatch traversal as a guide to how important the external child is for loading.
+        // priority value assigned by record traversal as a guide to how important the external child is for loading.
         mutable std::atomic<double> priority{0.0};
 
         // TODO need status of external file load

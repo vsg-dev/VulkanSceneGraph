@@ -399,7 +399,7 @@ void DatabasePager::start()
 #endif
                 if (!nodesCompiled.empty())
                 {
-                    ct->context.dispatch();
+                    ct->context.record();
 
                     for (auto& plod : nodesCompiled)
                     {

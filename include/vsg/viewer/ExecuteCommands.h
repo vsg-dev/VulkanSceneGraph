@@ -34,7 +34,7 @@ namespace vsg
         void completed(ref_ptr<CommandBuffer> commandBuffer);
 
         /// call vkCmdExecuteCommands with all the CommandBuffer that have been recorded with this ExecuteCommands
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~ExecuteCommands();

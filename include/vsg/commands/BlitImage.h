@@ -24,7 +24,7 @@ namespace vsg
     public:
         BlitImage();
 
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
         using Regions = std::vector<VkImageBlit>;
 

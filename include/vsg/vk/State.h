@@ -55,11 +55,11 @@ namespace vsg
         T& top() { return stack.top(); }
         const T& top() const { return stack.top(); }
 
-        inline void dispatch(CommandBuffer& commandBuffer)
+        inline void record(CommandBuffer& commandBuffer)
         {
             if (dirty)
             {
-                stack.top()->dispatch(commandBuffer);
+                stack.top()->record(commandBuffer);
                 dirty = false;
             }
         }
@@ -149,7 +149,7 @@ namespace vsg
             dirty = true;
         }
 
-        inline void dispatch(CommandBuffer& commandBuffer)
+        inline void record(CommandBuffer& commandBuffer)
         {
             if (dirty)
             {
@@ -247,17 +247,17 @@ namespace vsg
             pushFrustum();
         }
 
-        inline void dispatch()
+        inline void record()
         {
             if (dirty)
             {
                 for (auto& stateStack : stateStacks)
                 {
-                    stateStack.dispatch(*_commandBuffer);
+                    stateStack.record(*_commandBuffer);
                 }
 
-                projectionMatrixStack.dispatch(*_commandBuffer);
-                modelviewMatrixStack.dispatch(*_commandBuffer);
+                projectionMatrixStack.record(*_commandBuffer);
+                modelviewMatrixStack.record(*_commandBuffer);
 
                 dirty = false;
             }

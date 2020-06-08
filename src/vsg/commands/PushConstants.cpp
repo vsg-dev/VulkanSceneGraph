@@ -52,7 +52,7 @@ void PushConstants::write(Output& output) const
     output.writeObject("data", _data.get());
 }
 
-void PushConstants::dispatch(CommandBuffer& commandBuffer) const
+void PushConstants::record(CommandBuffer& commandBuffer) const
 {
     vkCmdPushConstants(commandBuffer, commandBuffer.getCurrentPipelineLayout(), _stageFlags, _offset, static_cast<uint32_t>(_data->dataSize()), _data->dataPointer());
 }

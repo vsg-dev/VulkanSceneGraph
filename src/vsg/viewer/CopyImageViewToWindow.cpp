@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-void CopyImageViewToWindow::dispatch(CommandBuffer& commandBuffer) const
+void CopyImageViewToWindow::record(CommandBuffer& commandBuffer) const
 {
     auto imageView = window->imageView(window->nextImageIndex());
 
@@ -33,7 +33,7 @@ void CopyImageViewToWindow::dispatch(CommandBuffer& commandBuffer) const
         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
         0, imb_transitionSwapChainToWriteDest);
 
-    pb_transitionSwapChainToWriteDest->dispatch(commandBuffer);
+    pb_transitionSwapChainToWriteDest->record(commandBuffer);
 
     auto ibm_transitionStorageImageToReadSrc = vsg::ImageMemoryBarrier::create(
         0, VK_ACCESS_TRANSFER_READ_BIT,
@@ -46,7 +46,7 @@ void CopyImageViewToWindow::dispatch(CommandBuffer& commandBuffer) const
         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
         0, ibm_transitionStorageImageToReadSrc);
 
-    pb_transitionStorageImageToReadSrc->dispatch(commandBuffer);
+    pb_transitionStorageImageToReadSrc->record(commandBuffer);
 
     // copy image
     VkImageCopy copyRegion{};
@@ -63,7 +63,7 @@ void CopyImageViewToWindow::dispatch(CommandBuffer& commandBuffer) const
     copyImage->dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     copyImage->regions.emplace_back(copyRegion);
 
-    copyImage->dispatch(commandBuffer);
+    copyImage->record(commandBuffer);
 
     // transition image layouts back
     auto imb_transitionSwapChainToOriginal = ImageMemoryBarrier::create(
@@ -77,7 +77,7 @@ void CopyImageViewToWindow::dispatch(CommandBuffer& commandBuffer) const
         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
         0, imb_transitionSwapChainToOriginal);
 
-    pb_transitionSwapChainToOriginal->dispatch(commandBuffer);
+    pb_transitionSwapChainToOriginal->record(commandBuffer);
 
     auto imb_transitionStorageImageToOriginal = ImageMemoryBarrier::create(
         VK_ACCESS_TRANSFER_READ_BIT, 0,
@@ -90,5 +90,5 @@ void CopyImageViewToWindow::dispatch(CommandBuffer& commandBuffer) const
         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
         0, imb_transitionStorageImageToOriginal);
 
-    pb_transitionStorageImageToOriginal->dispatch(commandBuffer);
+    pb_transitionStorageImageToOriginal->record(commandBuffer);
 }

@@ -62,7 +62,7 @@ namespace vsg
         const Children& getChildren() const noexcept { return _children; }
 
         void compile(Context& context) override;
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~Commands();

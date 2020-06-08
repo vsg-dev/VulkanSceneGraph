@@ -307,16 +307,16 @@ void RecordTraversal::apply(const MatrixTransform& mt)
 // Vulkan nodes
 void RecordTraversal::apply(const Commands& commands)
 {
-    _state->dispatch();
+    _state->record();
     for (auto& command : commands.getChildren())
     {
-        command->dispatch(*(_state->_commandBuffer));
+        command->record(*(_state->_commandBuffer));
     }
 }
 
 void RecordTraversal::apply(const Command& command)
 {
     //    std::cout<<"Visiting Command "<<std::endl;
-    _state->dispatch();
-    command.dispatch(*(_state->_commandBuffer));
+    _state->record();
+    command.record(*(_state->_commandBuffer));
 }
