@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Object.h>
+#include <vsg/core/type_name.h>
 
 #include <vulkan/vulkan.h>
 
@@ -104,6 +105,7 @@ namespace vsg
         VkFormat _format = VK_FORMAT_UNDEFINED;
         Layout _layout;
     };
+    VSG_type_name(vsg::Data);
 
     using DataList = std::vector<ref_ptr<Data>>;
 
