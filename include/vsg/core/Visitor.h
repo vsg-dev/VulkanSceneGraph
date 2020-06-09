@@ -78,6 +78,7 @@ namespace vsg
     class ButtonPressEvent;
     class ButtonReleaseEvent;
     class MoveEvent;
+    class WheelEvent;
     class TouchEvent;
     class TouchDownEvent;
     class TouchUpEvent;
@@ -220,6 +221,7 @@ namespace vsg
         virtual void apply(ButtonPressEvent&);
         virtual void apply(ButtonReleaseEvent&);
         virtual void apply(MoveEvent&);
+        virtual void apply(WheelEvent&);
         virtual void apply(TouchEvent&);
         virtual void apply(TouchDownEvent&);
         virtual void apply(TouchUpEvent&);

@@ -568,8 +568,8 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         uint32_t mx = GET_X_LPARAM(lParam);
         uint32_t my = GET_Y_LPARAM(lParam);
 
-        uint32_t button = msg == WM_LBUTTONDOWN ? 1 : (msg == WM_RBUTTONDOWN ? 2 : msg == WM_MBUTTONDOWN ? 3 : (msg == WM_XBUTTONDOWN ? 4 : 0)); // need to determine x1, x2
-        _bufferedEvents.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, mx, my, getButtonMask(wParam), getButtonEventDetail(msg)));
+        uint32_t button = msg == WM_LBUTTONUP ? 1 : (msg == WM_RBUTTONUP ? 2 : msg == WM_MBUTTONUP ? 3 : (msg == WM_XBUTTONUP ? 4 : 0)); // need to determine x1, x2
+        _bufferedEvents.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, mx, my, getButtonMask(wParam), button));
 
         //::ReleaseCapture(); // should only release once all mouse buttons are released ??
         break;
@@ -582,7 +582,14 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     }
     break;
     case WM_MOUSEWHEEL:
+    {
+        short fwKey = LOWORD(wParam);
+        short zDelta = HIWORD(wParam);
+        short mx = GET_X_LPARAM(lParam);
+        short my = GET_Y_LPARAM(lParam);
+        _bufferedEvents.emplace_back(new vsg::WheelEvent(this, event_time, mx, my, getButtonMask(wParam), zDelta));
         break;
+    }
     case WM_MOVE:
     case WM_SIZE:
     {

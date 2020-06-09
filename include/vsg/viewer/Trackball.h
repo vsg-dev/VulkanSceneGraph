@@ -37,6 +37,7 @@ namespace vsg
         void apply(ButtonReleaseEvent& buttonRelease) override;
         void apply(MoveEvent& moveEvent) override;
         void apply(FrameEvent& frame) override;
+        void apply(WheelEvent& WheelEvent) override;
 
         void rotate(double angle, const dvec3& axis);
         void zoom(double ratio);

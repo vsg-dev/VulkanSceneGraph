@@ -490,6 +490,10 @@ void Visitor::apply(MoveEvent& event)
 {
     apply(static_cast<PointerEvent&>(event));
 }
+void Visitor::apply(WheelEvent& event)
+{
+    apply(static_cast<PointerEvent&>(event));
+}
 void Visitor::apply(TouchEvent& event)
 {
     apply(static_cast<WindowEvent&>(event));

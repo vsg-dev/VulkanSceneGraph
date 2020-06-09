@@ -133,6 +133,14 @@ void Trackball::apply(FrameEvent& /*frame*/)
     //    std::cout<<"Frame "<<frame.frameStamp->frameCount<<std::endl;
 }
 
+void Trackball::apply(WheelEvent& wheelEvent)
+{
+    double ratio = 0.0;
+    ratio = wheelEvent.delta / 120 * 0.1;
+    zoom(ratio);
+    //    std::cout<<"Frame "<<frame.frameStamp->frameCount<<std::endl;
+}
+
 void Trackball::rotate(double angle, const dvec3& axis)
 {
     dmat4 rotation = vsg::rotate(angle, axis);
