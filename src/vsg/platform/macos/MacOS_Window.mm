@@ -994,7 +994,7 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
         // scrollWheel events
         case NSEventTypeScrollWheel:
         {
-            _bufferedEvents.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vec3([[anEvent deltaX], [anEvent deltaY], [anEvent deltaZ])));
+            _bufferedEvents.emplace_back(new vsg::ScrollWheelEvent(this, getEventTime([anEvent timestamp]), vec3([[anEvent deltaX], [anEvent deltaY], [anEvent deltaZ])));
             return true;
         }
 
