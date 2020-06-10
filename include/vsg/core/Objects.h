@@ -19,7 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    VSG_type_name(vsg::Objects);
 
     class VSG_DECLSPEC Objects : public Inherit<Object, Objects>
     {
@@ -66,5 +65,6 @@ namespace vsg
 
         Children _children;
     };
+    VSG_type_name(vsg::Objects);
 
 } // namespace vsg

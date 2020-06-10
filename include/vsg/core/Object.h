@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Export.h>
 #include <vsg/core/ref_ptr.h>
+#include <vsg/core/type_name.h>
 
 namespace vsg
 {
@@ -29,9 +30,12 @@ namespace vsg
     class Allocator;
     class Input;
     class Output;
+    class Object;
 
     template<typename T>
     constexpr bool has_read_write() { return false; }
+
+    VSG_type_name(vsg::Object);
 
     class VSG_DECLSPEC Object
     {
@@ -46,7 +50,7 @@ namespace vsg
         //static ref_ptr<Object> create(Allocator* allocator=nullptr);
 
         virtual std::size_t sizeofObject() const noexcept { return sizeof(Object); }
-        virtual const char* className() const noexcept { return "vsg::Object"; }
+        virtual const char* className() const noexcept { return type_name<Object>(); }
 
         virtual void accept(Visitor& visitor);
         virtual void traverse(Visitor&) {}
@@ -123,6 +127,7 @@ namespace vsg
 
         Auxiliary* _auxiliary;
     };
+
 
     template<>
     constexpr bool has_read_write<Object>() { return true; }
