@@ -581,7 +581,10 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     }
     break;
     case WM_MOUSEWHEEL:
+    {
+        _bufferedEvents.emplace_back(new vsg::ScrollWheelEvent(this, event_time, GET_WHEEL_DELTA_WPARAM(wParam)<0 ? vec3(0.0f, -1.0f, 0.0f) : vec3(0.0f, 1.0f, 0.0f)));
         break;
+    }
     case WM_MOVE:
     case WM_SIZE:
     {
