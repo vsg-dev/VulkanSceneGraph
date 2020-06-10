@@ -135,10 +135,16 @@ void Trackball::apply(FrameEvent& /*frame*/)
 
 void Trackball::apply(WheelEvent& wheelEvent)
 {
-    double ratio = 0.0;
-    ratio = wheelEvent.delta / 120 * 0.1;
+    double ratio = 0.1;
+   
+    if( wheelEvent.mask & ButtonMask::BUTTON_MASK_4)
+        ratio *= 1.0;
+    else if( wheelEvent.mask & ButtonMask::BUTTON_MASK_5)
+        ratio *= -1.0;
+    else
+        ratio *= 0.0;
+
     zoom(ratio);
-    //    std::cout<<"Frame "<<frame.frameStamp->frameCount<<std::endl;
 }
 
 void Trackball::rotate(double angle, const dvec3& axis)

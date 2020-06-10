@@ -77,11 +77,8 @@ namespace vsg
     class WheelEvent : public Inherit<PointerEvent, WheelEvent>
     {
     public:
-        WheelEvent(Window* in_window, time_point in_time, int32_t in_x, int32_t in_y, ButtonMask in_buttonMask, short in_delta) :
-            Inherit(in_window, in_time, in_x, in_y, in_buttonMask),
-            delta(in_delta) {}
-        
-        short delta;// multiple of WHEEL_DELTA (120)
+        WheelEvent(Window* in_window, time_point in_time, int32_t in_x, int32_t in_y, ButtonMask in_buttonMask) :
+            Inherit(in_window, in_time, in_x, in_y, in_buttonMask){}
     };
 
 } // namespace vsg

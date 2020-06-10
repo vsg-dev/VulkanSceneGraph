@@ -583,11 +583,12 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     break;
     case WM_MOUSEWHEEL:
     {
-        short fwKey = LOWORD(wParam);
-        short zDelta = HIWORD(wParam);
-        short mx = GET_X_LPARAM(lParam);
-        short my = GET_Y_LPARAM(lParam);
-        _bufferedEvents.emplace_back(new vsg::WheelEvent(this, event_time, mx, my, getButtonMask(wParam), zDelta));
+        uint16_t fwKey    = GET_KEYSTATE_WPARAM(wParam);
+        int16_t zDelta    = GET_WHEEL_DELTA_WPARAM(wParam);
+        int32_t mx        = GET_X_LPARAM(lParam);
+        int32_t my        = GET_Y_LPARAM(lParam);
+        ButtonMask buttonMask = zDelta > 0? ButtonMask::BUTTON_MASK_4 : ButtonMask::BUTTON_MASK_5;
+        _bufferedEvents.emplace_back(new vsg::WheelEvent(this, event_time, mx, my, buttonMask));
         break;
     }
     case WM_MOVE:
