@@ -600,11 +600,11 @@ bool Xcb_Window::pollEvents(Events& events)
             // X11/Xvb treat scroll wheel up/down as button 4 and 5 so handle these as such
             if (button_press->detail==4)
             {
-                events.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0, 1.0, 0.0)));
+                events.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0f, 1.0f, 0.0f)));
             }
             else if (button_press->detail==5)
             {
-                events.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0, -1.0, 0.0)));
+                events.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0f, -1.0f, 0.0f)));
             }
             else
             {
