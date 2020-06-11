@@ -80,15 +80,6 @@ void Trackball::apply(ButtonPressEvent& buttonPress)
 {
     prev_ndc = ndc(buttonPress);
     prev_tbc = tbc(buttonPress);
-
-    if (buttonPress.button == 4)
-    {
-        zoom(-0.1);
-    }
-    else if (buttonPress.button == 5)
-    {
-        zoom(0.1);
-    }
 }
 
 void Trackball::apply(ButtonReleaseEvent& buttonRelease)
@@ -126,6 +117,11 @@ void Trackball::apply(MoveEvent& moveEvent)
 
     prev_ndc = new_ndc;
     prev_tbc = new_tbc;
+}
+
+void Trackball::apply(ScrollWheelEvent& scrollWheel)
+{
+    zoom(scrollWheel.delta.y * 0.1);
 }
 
 void Trackball::apply(FrameEvent& /*frame*/)

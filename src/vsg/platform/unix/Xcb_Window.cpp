@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/PointerEvent.h>
+#include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/vk/Extensions.h>
 #include <vsg/platform/unix/Xcb_Window.h>
 
@@ -595,7 +596,20 @@ bool Xcb_Window::pollEvents(Events& events)
             auto button_press = reinterpret_cast<const xcb_button_press_event_t*>(event);
 
             vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_press->time - _first_xcb_timestamp);
-            events.emplace_back(new vsg::ButtonPressEvent(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(button_press->state), button_press->detail));
+
+            // X11/Xvb treat scroll wheel up/down as button 4 and 5 so handle these as such
+            if (button_press->detail==4)
+            {
+                events.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0f, 1.0f, 0.0f)));
+            }
+            else if (button_press->detail==5)
+            {
+                events.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0f, -1.0f, 0.0f)));
+            }
+            else
+            {
+                events.emplace_back(new vsg::ButtonPressEvent(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(button_press->state), button_press->detail));
+            }
 
             break;
         }
@@ -603,8 +617,12 @@ bool Xcb_Window::pollEvents(Events& events)
         {
             auto button_release = reinterpret_cast<const xcb_button_release_event_t*>(event);
 
-            vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_release->time - _first_xcb_timestamp);
-            events.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(button_release->state), button_release->detail));
+            // ignore button 4 and 5 as X11/Xcb use them as up/down scroll wheel events
+            if (button_release->detail !=4 && button_release->detail !=5)
+            {
+                vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_release->time - _first_xcb_timestamp);
+                events.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(button_release->state), button_release->detail));
+            }
 
             break;
         }

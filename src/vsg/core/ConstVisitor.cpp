@@ -506,6 +506,10 @@ void ConstVisitor::apply(const TouchMoveEvent& event)
 {
     apply(static_cast<const TouchEvent&>(event));
 }
+void ConstVisitor::apply(const ScrollWheelEvent& event)
+{
+    apply(static_cast<const WindowEvent&>(event));
+}
 void ConstVisitor::apply(const TerminateEvent& event)
 {
     apply(static_cast<const UIEvent&>(event));

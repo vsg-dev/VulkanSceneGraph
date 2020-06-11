@@ -506,6 +506,10 @@ void Visitor::apply(TouchMoveEvent& event)
 {
     apply(static_cast<TouchEvent&>(event));
 }
+void Visitor::apply(ScrollWheelEvent& event)
+{
+    apply(static_cast<WindowEvent&>(event));
+}
 void Visitor::apply(TerminateEvent& event)
 {
     apply(static_cast<UIEvent&>(event));

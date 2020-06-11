@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/TouchEvent.h>
+#include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/vk/Extensions.h>
 
 #include <iostream>
@@ -347,6 +348,7 @@ namespace vsg
 
 - (void)scrollWheel:(NSEvent *)event
 {
+    window->handleNSEvent(event);
 }
 
 - (void)updateTrackingAreas
@@ -989,6 +991,13 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
 
             return true;
         }
+        // scrollWheel events
+        case NSEventTypeScrollWheel:
+        {
+            _bufferedEvents.emplace_back(new vsg::ScrollWheelEvent(this, getEventTime([anEvent timestamp]), vsg::vec3([anEvent deltaX], [anEvent deltaY], [anEvent deltaZ])));
+            return true;
+        }
+
         default: break;
     }
     return false;
