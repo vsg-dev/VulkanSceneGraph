@@ -65,8 +65,8 @@ void LoadPagedLOD::apply(Node& node)
 
 void LoadPagedLOD::apply(CullNode& node)
 {
-    // check if lod bounding sphere is in view frustum.
-    if (!intersect(_frustumStack.top(), lod.getBound())) return;
+    // check if cullNode bounding sphere is in view frustum.
+    if (!intersect(_frustumStack.top(), node.getBound())) return;
 
     //std::cout<<"apply(CullNode& node) : Need to do cull test of boudung spehre"<<std::endl;
     node.traverse(*this);
