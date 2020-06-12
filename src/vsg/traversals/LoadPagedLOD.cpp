@@ -10,12 +10,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/traversals/LoadPagedLOD.h>
-#include <vsg/nodes/CullNode.h>
-#include <vsg/nodes/MatrixTransform.h>
-#include <vsg/nodes/LOD.h>
-#include <vsg/nodes/PagedLOD.h>
 #include <vsg/io/read.h>
+#include <vsg/nodes/CullNode.h>
+#include <vsg/nodes/LOD.h>
+#include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/PagedLOD.h>
+#include <vsg/traversals/LoadPagedLOD.h>
 
 using namespace vsg;
 
@@ -52,10 +52,10 @@ LoadPagedLOD::LoadPagedLOD(ref_ptr<Camera> in_camera, int in_loadLevels) :
 void LoadPagedLOD::pushFrustum()
 {
     const auto mv = modelviewMatrixStack.top();
-    _frustumStack.push(Polytope{{ _frustumProjected[0] * mv,
-                                    _frustumProjected[1] * mv,
-                                    _frustumProjected[2] * mv,
-                                    _frustumProjected[3] * mv }});
+    _frustumStack.push(Polytope{{_frustumProjected[0] * mv,
+                                 _frustumProjected[1] * mv,
+                                 _frustumProjected[2] * mv,
+                                 _frustumProjected[3] * mv}});
 }
 
 void LoadPagedLOD::apply(Node& node)
@@ -122,7 +122,7 @@ void LoadPagedLOD::apply(PagedLOD& plod)
         {
             if (!child.node)
             {
-                child.node = read_cast<Node>(plod.filename) ;
+                child.node = read_cast<Node>(plod.filename);
                 ++numTiles;
             }
 

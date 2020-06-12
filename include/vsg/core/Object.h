@@ -128,7 +128,6 @@ namespace vsg
         Auxiliary* _auxiliary;
     };
 
-
     template<>
     constexpr bool has_read_write<Object>() { return true; }
 

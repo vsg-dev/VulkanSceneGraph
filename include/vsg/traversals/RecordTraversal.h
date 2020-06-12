@@ -75,8 +75,6 @@ namespace vsg
         void apply(const Commands& commands);
         void apply(const Command& command);
 
-
-
     private:
         FrameStamp* _frameStamp = nullptr;
         State* _state = nullptr;

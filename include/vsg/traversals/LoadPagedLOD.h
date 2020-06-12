@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/viewer/Camera.h>
 #include <vsg/core/Visitor.h>
 #include <vsg/maths/transform.h>
+#include <vsg/viewer/Camera.h>
 
 #include <stack>
 
@@ -38,7 +38,6 @@ namespace vsg
         unsigned int numTiles = 0;
 
     protected:
-
         using Plane = dplane;
         using Polytope = std::array<Plane, 4>;
         using MatrixStack = std::stack<dmat4>;
@@ -63,8 +62,7 @@ namespace vsg
         }
 
         void pushFrustum();
-
-    } ;
+    };
     VSG_type_name(vsg::LoadPagedLOD);
 
 } // namespace vsg

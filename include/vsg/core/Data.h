@@ -37,7 +37,6 @@ namespace vsg
     class VSG_DECLSPEC Data : public Object
     {
     public:
-
         /* Layout used for configuring use of mipmaps and block compressed data and origin.
          * Default of no mipmapping and {1,1,1} is uncompressed.
          * A single block (Block64/Block128) is stored as a single value with the Data object. */
