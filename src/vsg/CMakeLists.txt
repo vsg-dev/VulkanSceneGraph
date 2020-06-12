@@ -86,6 +86,7 @@ set(SOURCES
     traversals/ComputeBounds.cpp
     traversals/Intersector.cpp
     traversals/LineSegmentIntersector.cpp
+    traversals/LoadPagedLOD.cpp
 
     threading/Affinity.cpp
     threading/OperationQueue.cpp

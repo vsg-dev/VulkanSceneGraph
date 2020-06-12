@@ -97,6 +97,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/ComputeBounds.h>
 #include <vsg/traversals/Intersector.h>
 #include <vsg/traversals/LineSegmentIntersector.h>
+#include <vsg/traversals/LoadPagedLOD.h>
 #include <vsg/traversals/RecordTraversal.h>
 
 // Threading header files

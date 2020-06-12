@@ -42,7 +42,7 @@ RecordTraversal::RecordTraversal(CommandBuffer* commandBuffer, uint32_t maxSlot,
     _state(new State(commandBuffer, maxSlot))
 {
     if (_frameStamp) _frameStamp->ref();
-    if (_state)_state->ref();
+    if (_state) _state->ref();
 }
 
 RecordTraversal::~RecordTraversal()
@@ -82,7 +82,6 @@ void RecordTraversal::setProjectionAndViewMatrix(const dmat4& projMatrix, const 
 {
     _state->setProjectionAndViewMatrix(projMatrix, viewMatrix);
 }
-
 
 void RecordTraversal::apply(const Object& object)
 {

@@ -708,7 +708,7 @@ void Context::waitForCompletion()
     if (timeout > 0)
     {
         VkResult result;
-        while( (result = fence->wait(timeout)) == VK_TIMEOUT)
+        while ((result = fence->wait(timeout)) == VK_TIMEOUT)
         {
             std::cout << "Context::waitForCompletion() " << this << " fence->wait() timed out, trying again." << std::endl;
         }
