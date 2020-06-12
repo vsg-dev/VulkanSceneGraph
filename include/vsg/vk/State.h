@@ -117,13 +117,13 @@ namespace vsg
             dirty = true;
         }
 
-        inline void pushAndPosMult(const Matrix& matrix)
+        inline void pushAndPostMult(const Matrix& matrix)
         {
             matrixStack.emplace(matrixStack.top() * matrix);
             dirty = true;
         }
 
-        inline void pushAndPosMult(const AlternativeMatrix& matrix)
+        inline void pushAndPostMult(const AlternativeMatrix& matrix)
         {
             matrixStack.emplace(matrixStack.top() * Matrix(matrix));
             dirty = true;
@@ -131,13 +131,13 @@ namespace vsg
 
         inline void pushAndPreMult(const Matrix& matrix)
         {
-            matrixStack.emplace(matrixStack.top() * matrix);
+            matrixStack.emplace(matrix * matrixStack.top());
             dirty = true;
         }
 
         inline void pushAndPreMult(const AlternativeMatrix& matrix)
         {
-            matrixStack.emplace(matrixStack.top() * Matrix(matrix));
+            matrixStack.emplace(Matrix(matrix) * matrixStack.top());
             dirty = true;
         }
 

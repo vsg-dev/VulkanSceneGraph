@@ -282,7 +282,7 @@ void RecordTraversal::apply(const MatrixTransform& mt)
 {
     if (mt.getSubgraphRequiresLocalFrustum())
     {
-        _state->modelviewMatrixStack.pushAndPreMult(mt.getMatrix());
+        _state->modelviewMatrixStack.pushAndPostMult(mt.getMatrix());
         _state->pushFrustum();
         _state->dirty = true;
 
@@ -294,7 +294,7 @@ void RecordTraversal::apply(const MatrixTransform& mt)
     }
     else
     {
-        _state->modelviewMatrixStack.pushAndPreMult(mt.getMatrix());
+        _state->modelviewMatrixStack.pushAndPostMult(mt.getMatrix());
         _state->dirty = true;
 
         mt.traverse(*this);
