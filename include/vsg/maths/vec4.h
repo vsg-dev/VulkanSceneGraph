@@ -149,7 +149,7 @@ namespace vsg
     template<typename T>
     constexpr bool operator!=(const t_vec4<T>& lhs, const t_vec4<T>& rhs)
     {
-        return lhs[0] == rhs[0] || lhs[1] != rhs[1] || lhs[2] != rhs[2] || lhs[3] != rhs[3];
+        return lhs[0] != rhs[0] || lhs[1] != rhs[1] || lhs[2] != rhs[2] || lhs[3] != rhs[3];
     }
 
     template<typename T>
