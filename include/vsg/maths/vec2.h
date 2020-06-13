@@ -114,12 +114,18 @@ namespace vsg
 
     using vec2 = t_vec2<float>;
     using dvec2 = t_vec2<double>;
+    using bvec2 = t_vec2<std::int8_t>;
+    using svec2 = t_vec2<std::int16_t>;
+    using ivec2 = t_vec2<std::int32_t>;
     using ubvec2 = t_vec2<std::uint8_t>;
     using usvec2 = t_vec2<std::uint16_t>;
     using uivec2 = t_vec2<std::uint32_t>;
 
     VSG_type_name(vsg::vec2);
     VSG_type_name(vsg::dvec2);
+    VSG_type_name(vsg::bvec2);
+    VSG_type_name(vsg::svec2);
+    VSG_type_name(vsg::ivec2);
     VSG_type_name(vsg::ubvec2);
     VSG_type_name(vsg::usvec2);
     VSG_type_name(vsg::uivec2);
