@@ -216,13 +216,25 @@ namespace vsg
     VSG_array(dvec3Array, dvec3);
     VSG_array(dvec4Array, dvec4);
 
+    VSG_array(bvec2Array, bvec2);
+    VSG_array(bvec3Array, bvec3);
+    VSG_array(bvec4Array, bvec4);
+
     VSG_array(ubvec2Array, ubvec2);
     VSG_array(ubvec3Array, ubvec3);
     VSG_array(ubvec4Array, ubvec4);
 
+    VSG_array(svec2Array, svec2);
+    VSG_array(svec3Array, svec3);
+    VSG_array(svec4Array, svec4);
+
     VSG_array(usvec2Array, usvec2);
     VSG_array(usvec3Array, usvec3);
     VSG_array(usvec4Array, usvec4);
+
+    VSG_array(ivec2Array, ivec2);
+    VSG_array(ivec3Array, ivec3);
+    VSG_array(ivec4Array, ivec4);
 
     VSG_array(uivec2Array, uivec2);
     VSG_array(uivec3Array, uivec3);
