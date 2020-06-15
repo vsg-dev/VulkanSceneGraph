@@ -112,13 +112,13 @@ namespace vsg
     public:
         PipelineBarrier();
 
-        template<class T>
-        PipelineBarrier(VkPipelineStageFlags in_srcStageMask, VkPipelineStageFlags in_destStageMask, VkDependencyFlags in_dependencyFlags, T barrier) :
+        template<typename... Args>
+        PipelineBarrier(VkPipelineStageFlags in_srcStageMask, VkPipelineStageFlags in_destStageMask, VkDependencyFlags in_dependencyFlags, Args&&... args) :
             srcStageMask(in_srcStageMask),
             dstStageMask(in_destStageMask),
             dependencyFlags(in_dependencyFlags)
         {
-            add(barrier);
+            (add(args),  ...);
         }
 
         void record(CommandBuffer& commandBuffer) const override;
