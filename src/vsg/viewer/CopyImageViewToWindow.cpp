@@ -31,12 +31,6 @@ void CopyImageViewToWindow::record(CommandBuffer& commandBuffer) const
         ref_ptr<Image>(imageView->getImage()),
         VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 
-    auto pb_transitionSwapChainToWriteDest = PipelineBarrier::create(
-        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-        0, imb_transitionSwapChainToWriteDest);
-
-    pb_transitionSwapChainToWriteDest->record(commandBuffer);
-
     auto ibm_transitionStorageImageToReadSrc = vsg::ImageMemoryBarrier::create(
         0, VK_ACCESS_TRANSFER_READ_BIT,
         VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -46,7 +40,9 @@ void CopyImageViewToWindow::record(CommandBuffer& commandBuffer) const
 
     auto pb_transitionStorageImageToReadSrc = PipelineBarrier::create(
         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-        0, ibm_transitionStorageImageToReadSrc);
+        0,
+        imb_transitionSwapChainToWriteDest,
+        ibm_transitionStorageImageToReadSrc);
 
     pb_transitionStorageImageToReadSrc->record(commandBuffer);
 
@@ -75,12 +71,6 @@ void CopyImageViewToWindow::record(CommandBuffer& commandBuffer) const
         ref_ptr<Image>(imageView->getImage()),
         VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 
-    auto pb_transitionSwapChainToOriginal = PipelineBarrier::create(
-        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-        0, imb_transitionSwapChainToOriginal);
-
-    pb_transitionSwapChainToOriginal->record(commandBuffer);
-
     auto imb_transitionStorageImageToOriginal = ImageMemoryBarrier::create(
         VK_ACCESS_TRANSFER_READ_BIT, 0,
         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL,
@@ -90,7 +80,9 @@ void CopyImageViewToWindow::record(CommandBuffer& commandBuffer) const
 
     auto pb_transitionStorageImageToOriginal = PipelineBarrier::create(
         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-        0, imb_transitionStorageImageToOriginal);
+        0,
+        imb_transitionSwapChainToOriginal,
+        imb_transitionStorageImageToOriginal);
 
     pb_transitionStorageImageToOriginal->record(commandBuffer);
 }
