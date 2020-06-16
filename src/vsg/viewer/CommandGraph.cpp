@@ -89,10 +89,13 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     }
     if (!commandBuffer)
     {
-
         ref_ptr<CommandPool> cp = CommandPool::create(device, queueFamily);
         commandBuffer = CommandBuffer::create(device, cp, level);
         _commandBuffers.push_back(commandBuffer);
+    }
+    else
+    {
+        commandBuffer->getCommandPool()->reset();
     }
 
     commandBuffer->numDependentSubmissions().fetch_add(1);

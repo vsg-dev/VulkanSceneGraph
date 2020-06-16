@@ -23,6 +23,8 @@ namespace vsg
 
         operator VkCommandPool() const { return _commandPool; }
 
+        void reset(VkCommandPoolResetFlags flags = VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT) const { vkResetCommandPool(*_device, _commandPool, flags); }
+
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
