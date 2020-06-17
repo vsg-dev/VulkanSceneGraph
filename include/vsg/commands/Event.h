@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Encapusulation of VkEvent
     class VSG_DECLSPEC Event : public Inherit<Object, Event>
     {
     public:
@@ -25,13 +26,13 @@ namespace vsg
         operator VkEvent() const { return _event; }
         VkEvent vk() const { return _event; }
 
-        /// vkSetEvent
+        /// set the state of the vkEvent to signaled
         void set();
 
-        /// vkResetEvent
+        /// set the state of the vkEvent to unsignaled.
         void reset();
 
-        // vkGetEventStatus
+        /// get the status of the vkEvent, return VK_EVENT_SET for a signalled event, VK_EVENT_RESET for unsignaled.
         VkResult status();
 
     protected:
