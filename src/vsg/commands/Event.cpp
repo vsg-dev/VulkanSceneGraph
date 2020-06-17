@@ -49,6 +49,11 @@ void Event::reset()
     vkResetEvent(*_device, _event);
 }
 
+VkResult Event::status()
+{
+    return vkGetEventStatus(*_device, _event);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // SetEvent

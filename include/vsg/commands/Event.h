@@ -31,6 +31,9 @@ namespace vsg
         /// vkResetEvent
         void reset();
 
+        // vkGetEventStatus
+        VkResult status();
+
     protected:
         virtual ~Event();
 
