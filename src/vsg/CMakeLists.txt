@@ -42,6 +42,7 @@ set(SOURCES
     commands/CopyImage.cpp
     commands/CopyImageToBuffer.cpp
     commands/PipelineBarrier.cpp
+    commands/Event.cpp
     commands/NextSubPass.cpp
     commands/Dispatch.cpp
     commands/PushConstants.cpp
