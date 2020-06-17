@@ -849,7 +849,7 @@ void MacOS_Window::_initSurface()
     _surface = new vsgMacOS::MacOSSurface(_instance, _view, _traits->allocator);
 }
 
-bool MacOS_Window::pollEvents(vsg::Events& events)
+bool MacOS_Window::pollEvents(vsg::UIEvents& events)
 {
     for (;;)
     {
