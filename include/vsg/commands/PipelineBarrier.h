@@ -35,6 +35,8 @@ namespace vsg
 
         void assign(VkMemoryBarrier& info, ScratchMemory& scratchMemory) const;
     };
+    VSG_type_name(vsg::MemoryBarrier);
+    using MemoryBarriers = std::vector<ref_ptr<MemoryBarrier>>;
 
     struct VSG_DECLSPEC BufferMemoryBarrier : public Inherit<Object, BufferMemoryBarrier>
     {
@@ -64,6 +66,8 @@ namespace vsg
 
         void assign(VkBufferMemoryBarrier& info, ScratchMemory& scratchMemory) const;
     };
+    VSG_type_name(vsg::BufferMemoryBarrier);
+    using BufferMemoryBarriers = std::vector<ref_ptr<BufferMemoryBarrier>>;
 
     struct VSG_DECLSPEC ImageMemoryBarrier : public Inherit<Object, ImageMemoryBarrier>
     {
@@ -96,7 +100,11 @@ namespace vsg
 
         void assign(VkImageMemoryBarrier& info, ScratchMemory& scratchMemory) const;
     };
+    VSG_type_name(vsg::ImageMemoryBarrier);
+    using ImageMemoryBarriers = std::vector<ref_ptr<ImageMemoryBarrier>>;
 
+
+    // TODO decide where SampleLocations belongs, possibly RenderPass?
     struct VSG_DECLSPEC SampleLocations : public Inherit<VulkanInfo, SampleLocations>
     {
         ref_ptr<VulkanInfo> next;
@@ -126,10 +134,6 @@ namespace vsg
         void add(ref_ptr<MemoryBarrier> mb) { memoryBarriers.emplace_back(mb); }
         void add(ref_ptr<BufferMemoryBarrier> bmb) { bufferMemoryBarriers.emplace_back(bmb); }
         void add(ref_ptr<ImageMemoryBarrier> imb) { imageMemoryBarriers.emplace_back(imb); }
-
-        using MemoryBarriers = std::vector<ref_ptr<MemoryBarrier>>;
-        using BufferMemoryBarriers = std::vector<ref_ptr<BufferMemoryBarrier>>;
-        using ImageMemoryBarriers = std::vector<ref_ptr<ImageMemoryBarrier>>;
 
         VkPipelineStageFlags srcStageMask;
         VkPipelineStageFlags dstStageMask;
