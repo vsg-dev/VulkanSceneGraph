@@ -53,7 +53,7 @@ namespace vsgMacOS
 
         bool valid() const override { return _window; }
 
-        bool pollEvents(vsg::Events& events) override;
+        bool pollEvents(vsg::UIEvents& events) override;
 
         bool resized() const override;
 
@@ -86,7 +86,7 @@ namespace vsgMacOS
         double _first_macos_timestamp = 0;
         vsg::clock::time_point _first_macos_time_point;
 
-        vsg::Events _bufferedEvents;
+        vsg::UIEvents _bufferedEvents;
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 

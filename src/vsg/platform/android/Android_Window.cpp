@@ -366,7 +366,7 @@ void Android_Window::_initSurface()
     _surface = new vsgAndroid::AndroidSurface(_instance, _window, _traits->allocator);
 }
 
-bool Android_Window::pollEvents(vsg::Events& events)
+bool Android_Window::pollEvents(vsg::UIEvents& events)
 {
     if (_bufferedEvents.size() > 0)
     {

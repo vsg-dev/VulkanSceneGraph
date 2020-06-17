@@ -461,7 +461,7 @@ void Win32_Window::_initSurface()
     _surface = new vsgWin32::Win32Surface(_instance, _window, _traits->allocator);
 }
 
-bool Win32_Window::pollEvents(vsg::Events& events)
+bool Win32_Window::pollEvents(vsg::UIEvents& events)
 {
     vsg::clock::time_point event_time = vsg::clock::now();
 

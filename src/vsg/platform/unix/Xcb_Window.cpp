@@ -451,7 +451,7 @@ bool Xcb_Window::visible() const
     return _window!=0 && _windowMapped;
 }
 
-bool Xcb_Window::pollEvents(Events& events)
+bool Xcb_Window::pollEvents(UIEvents& events)
 {
     unsigned numEventsBefore = events.size();
     xcb_generic_event_t* event;
