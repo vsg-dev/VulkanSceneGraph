@@ -101,6 +101,7 @@ namespace vsg
         virtual void apply(const Object&);
         virtual void apply(const Objects&);
         virtual void apply(const External&);
+        virtual void apply(const Data&);
 
         // Values
         virtual void apply(const stringValue&);

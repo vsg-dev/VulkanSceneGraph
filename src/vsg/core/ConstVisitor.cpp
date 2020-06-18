@@ -32,33 +32,38 @@ void ConstVisitor::apply(const External& value)
     apply(static_cast<const Object&>(value));
 }
 
+void ConstVisitor::apply(const Data& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Values
 //
 void ConstVisitor::apply(const stringValue& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const boolValue& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const intValue& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const uintValue& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const floatValue& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const doubleValue& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -67,135 +72,135 @@ void ConstVisitor::apply(const doubleValue& value)
 //
 void ConstVisitor::apply(const ubyteArray& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ushortArray& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const uintArray& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const floatArray& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const doubleArray& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const vec2Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const vec3Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const vec4Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const dvec2Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const dvec3Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const dvec4Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const bvec2Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const bvec3Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const bvec4Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const svec2Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const svec3Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const svec4Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ivec2Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ivec3Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ivec4Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ubvec2Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ubvec3Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ubvec4Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const usvec2Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const usvec3Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const usvec4Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const uivec2Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const uivec3Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const uivec4Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const mat4Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const dmat4Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const block64Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const block128Array& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -204,127 +209,127 @@ void ConstVisitor::apply(const block128Array& value)
 //
 void ConstVisitor::apply(const ubyteArray2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ushortArray2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const uintArray2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const floatArray2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const doubleArray2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const vec2Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const vec3Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const vec4Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const dvec2Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const dvec3Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const dvec4Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const bvec2Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const bvec3Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const bvec4Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const svec2Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const svec3Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const svec4Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ivec2Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ivec3Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ivec4Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ubvec2Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ubvec3Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ubvec4Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const usvec2Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const usvec3Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const usvec4Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const uivec2Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const uivec3Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const uivec4Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const block64Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const block128Array2D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -333,67 +338,67 @@ void ConstVisitor::apply(const block128Array2D& value)
 //
 void ConstVisitor::apply(const ubyteArray3D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ushortArray3D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const uintArray3D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const floatArray3D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const doubleArray3D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const vec2Array3D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const vec3Array3D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const vec4Array3D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const dvec2Array3D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const dvec3Array3D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const dvec4Array3D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ubvec2Array3D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ubvec3Array3D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const ubvec4Array3D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const block64Array3D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 void ConstVisitor::apply(const block128Array3D& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const Data&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
