@@ -78,9 +78,9 @@ RenderGraph::RenderGraph()
 
 RenderPass* RenderGraph::getRenderPass()
 {
-    if (renderPass)
+    if (framebuffer)
     {
-        return renderPass;
+        return framebuffer->getRenderPass();
     }
     else
     {
@@ -143,22 +143,18 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
 
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    if (renderPass)
-    {
-        renderPassInfo.renderPass = *renderPass;
-    }
-    else if (window)
-    {
-        renderPassInfo.renderPass = *(window->getRenderPass());
-    }
+
     if (framebuffer)
     {
-        renderPassInfo.framebuffer = *framebuffer;
+        renderPassInfo.renderPass = *(framebuffer->getRenderPass());
+        renderPassInfo.framebuffer = *(framebuffer);
     }
-    else if (window)
+    else
     {
+        renderPassInfo.renderPass = *(window->getRenderPass());
         renderPassInfo.framebuffer = *(window->framebuffer(window->nextImageIndex()));
     }
+
     renderPassInfo.renderArea = renderArea;
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());

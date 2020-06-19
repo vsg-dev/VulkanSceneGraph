@@ -19,7 +19,10 @@ using namespace vsg;
 Framebuffer::Framebuffer(ref_ptr<RenderPass> renderPass, const ImageViews& attachments, uint32_t width, uint32_t height, uint32_t layers) :
     _device(renderPass->getDevice()),
     _renderPass(renderPass),
-    _attachments(attachments)
+    _attachments(attachments),
+    _width(width),
+    _height(height),
+    _layers(layers)
 {
 
     std::vector<VkImageView> vk_attachments;
