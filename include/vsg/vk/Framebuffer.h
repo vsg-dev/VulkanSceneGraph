@@ -12,7 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Device.h>
+#include <vsg/vk/ImageView.h>
+#include <vsg/vk/RenderPass.h>
 
 namespace vsg
 {
@@ -20,7 +21,7 @@ namespace vsg
     class VSG_DECLSPEC Framebuffer : public Inherit<Object, Framebuffer>
     {
     public:
-        Framebuffer(Device* device, const VkFramebufferCreateInfo& framebufferInfo, AllocationCallbacks* allocator = nullptr);
+        Framebuffer(ref_ptr<RenderPass> renderPass, const ImageViews& attachments, uint32_t width, uint32_t height, uint32_t layers);
 
         operator VkFramebuffer() const { return _framebuffer; }
 
@@ -32,7 +33,9 @@ namespace vsg
 
         VkFramebuffer _framebuffer;
         ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
+
+        ref_ptr<RenderPass> _renderPass;
+        ImageViews _attachments;
     };
     VSG_type_name(vsg::Framebuffer);
 

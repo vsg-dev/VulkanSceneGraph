@@ -264,29 +264,21 @@ void Window::buildSwapchain()
     std::tie(graphicsFamily, std::ignore) = _physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, _surface);
 
     // set up framebuffer and associated resources
-    Swapchain::ImageViews& imageViews = _swapchain->getImageViews();
+    auto& imageViews = _swapchain->getImageViews();
 
     for (size_t i = 0; i < imageViews.size(); ++i)
     {
-        std::vector<VkImageView> attachments;
-
-        VkFramebufferCreateInfo framebufferInfo = {};
-        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = *_renderPass;
+        vsg::ImageViews attachments;
         if (multisampling)
         {
-            attachments.push_back(*_multisampleImageView);
+            attachments.push_back(_multisampleImageView);
         }
-        attachments.push_back(*imageViews[i]);
-        attachments.push_back(*_depthImageView);
-        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-        framebufferInfo.pAttachments = attachments.data();
-        framebufferInfo.width = _extent2D.width;
-        framebufferInfo.height = _extent2D.height;
-        framebufferInfo.layers = 1;
+        attachments.push_back(imageViews[i]);
+        attachments.push_back(_depthImageView);
+
+        ref_ptr<Framebuffer> fb = Framebuffer::create(_renderPass, attachments, _extent2D.width, _extent2D.height, 1);
 
         ref_ptr<Semaphore> ias = vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag);
-        ref_ptr<Framebuffer> fb = Framebuffer::create(_device, framebufferInfo);
 
         _frames.push_back({multisampling ? _multisampleImageView : imageViews[i], fb, ias});
     }

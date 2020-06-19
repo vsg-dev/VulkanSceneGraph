@@ -29,6 +29,12 @@ namespace vsg
 
     struct VSG_DECLSPEC MemoryBarrier : public Inherit<Object, MemoryBarrier>
     {
+        MemoryBarrier(VkAccessFlags in_srcAccessMask = 0,
+                      VkAccessFlags in_dstAccessMask = 0) :
+            srcAccessMask(in_srcAccessMask),
+            dstAccessMask(in_dstAccessMask) {}
+
+
         ref_ptr<VulkanInfo> next;
         VkAccessFlags srcAccessMask = 0;
         VkAccessFlags dstAccessMask = 0;
