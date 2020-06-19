@@ -124,7 +124,7 @@ namespace vsg
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context) override;
 
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~BindDescriptorSets() {}
@@ -191,7 +191,7 @@ namespace vsg
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context) override;
 
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~BindDescriptorSet() {}

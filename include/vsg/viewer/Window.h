@@ -40,7 +40,7 @@ namespace vsg
 
         virtual bool visible() const { return valid(); }
 
-        virtual bool pollEvents(Events& /*events*/) { return false; }
+        virtual bool pollEvents(UIEvents& /*events*/) { return false; }
 
         virtual bool resized() const { return false; }
         virtual void resize() {}
@@ -52,6 +52,10 @@ namespace vsg
 
         VkClearColorValue& clearColor() { return _clearColor; }
         const VkClearColorValue& clearColor() const { return _clearColor; }
+
+        VkSurfaceFormatKHR surfaceFormat() const { return _imageFormat; }
+
+        VkFormat depthFormat() const { return _depthFormat; }
 
         VkSampleCountFlagBits framebufferSamples() const { return _framebufferSamples; }
 
@@ -98,6 +102,20 @@ namespace vsg
             return _swapchain;
         }
 
+        Image* getDepthImage() { return _depthImage; }
+        Image* getOrCreateDepthImage()
+        {
+            if (!_depthImage) _initSwapchain();
+            return _depthImage;
+        }
+
+        ImageView* getDepthImageView() { return _depthImageView; }
+        ImageView* getOrCreateDepthImageView()
+        {
+            if (!_depthImageView) _initSwapchain();
+            return _depthImageView;
+        }
+
         size_t numFrames() const { return _frames.size(); }
 
         ImageView* imageView(size_t i) { return _frames[i].imageView; }
@@ -136,13 +154,14 @@ namespace vsg
         virtual ~Window();
 
         virtual void _initSurface() = 0;
+        void _initFormats();
         void _initInstance();
         void _initDevice();
         void _initRenderPass();
         void _initSwapchain();
 
         virtual void clear();
-        void share(const Window& window);
+        void share(Window& window);
         void buildSwapchain();
 
         ref_ptr<WindowTraits> _traits;

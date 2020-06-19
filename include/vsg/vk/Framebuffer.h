@@ -12,7 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Device.h>
+#include <vsg/vk/ImageView.h>
+#include <vsg/vk/RenderPass.h>
 
 namespace vsg
 {
@@ -20,19 +21,36 @@ namespace vsg
     class VSG_DECLSPEC Framebuffer : public Inherit<Object, Framebuffer>
     {
     public:
-        Framebuffer(Device* device, const VkFramebufferCreateInfo& framebufferInfo, AllocationCallbacks* allocator = nullptr);
+        Framebuffer(ref_ptr<RenderPass> renderPass, const ImageViews& attachments, uint32_t width, uint32_t height, uint32_t layers);
 
         operator VkFramebuffer() const { return _framebuffer; }
+        VkFramebuffer vk() const { return _framebuffer; }
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
+
+        RenderPass* getRenderPass() { return _renderPass; }
+        const RenderPass* getRenderPass() const { return _renderPass; }
+
+        ImageViews& getAttachments() { return _attachments; }
+        const ImageViews& getAttachments() const { return _attachments; }
+
+        uint32_t width() const { return _width; }
+        uint32_t height() const { return _height; }
+        uint32_t layers() const { return _layers; }
 
     protected:
         virtual ~Framebuffer();
 
         VkFramebuffer _framebuffer;
         ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
+
+        ref_ptr<RenderPass> _renderPass;
+        ImageViews _attachments;
+
+        const uint32_t _width;
+        const uint32_t _height;
+        const uint32_t _layers;
     };
     VSG_type_name(vsg::Framebuffer);
 

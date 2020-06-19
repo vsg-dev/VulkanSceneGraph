@@ -15,10 +15,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CommandBuffer::CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBufferUsageFlags flags) :
+CommandBuffer::CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBufferLevel level) :
     deviceID(device->deviceID),
     scratchMemory(ScratchMemory::create(4096)),
-    _flags(flags),
+    _level(level),
     _device(device),
     _commandPool(commandPool),
     _currentPipelineLayout(0)
@@ -26,7 +26,7 @@ CommandBuffer::CommandBuffer(Device* device, CommandPool* commandPool, VkCommand
     VkCommandBufferAllocateInfo allocateInfo = {};
     allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocateInfo.commandPool = *commandPool;
-    allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocateInfo.level = level;
     allocateInfo.commandBufferCount = 1;
 
     if (VkResult result = vkAllocateCommandBuffers(*device, &allocateInfo, &_commandBuffer); result != VK_SUCCESS)

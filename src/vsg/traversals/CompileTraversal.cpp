@@ -188,7 +188,32 @@ void CompileTraversal::apply(Geometry& geometry)
 
 void CompileTraversal::apply(CommandGraph& commandGraph)
 {
-    commandGraph.traverse(*this);
+    if (commandGraph.window)
+    {
+        context.renderPass = commandGraph.window->getOrCreateRenderPass();
+
+        context.defaultPipelineStates.push_back(vsg::ViewportState::create(commandGraph.window->extent2D()));
+
+        if (commandGraph.window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT)
+        {
+            ref_ptr<MultisampleState> defaultMsState = MultisampleState::create(commandGraph.window->framebufferSamples());
+            context.overridePipelineStates.push_back(defaultMsState);
+        }
+
+        // save previous states to be restored after traversal
+        auto previousDefaultPipelineStates = context.defaultPipelineStates;
+        auto previousOverridePipelineStates = context.overridePipelineStates;
+
+        commandGraph.traverse(*this);
+
+        // restore previous values
+        context.defaultPipelineStates = previousDefaultPipelineStates;
+        context.overridePipelineStates = previousOverridePipelineStates;
+    }
+    else
+    {
+        commandGraph.traverse(*this);
+    }
 }
 
 void CompileTraversal::apply(RenderGraph& renderGraph)
@@ -199,13 +224,13 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
     auto previousDefaultPipelineStates = context.defaultPipelineStates;
     auto previousOverridePipelineStates = context.overridePipelineStates;
 
-    if (renderGraph.camera)
+    if (renderGraph.camera && renderGraph.camera->getViewportState())
     {
-        context.defaultPipelineStates.emplace_back( renderGraph.camera->getViewportState() );
+        context.defaultPipelineStates.emplace_back(renderGraph.camera->getViewportState());
     }
     else
     {
-        context.defaultPipelineStates.push_back( vsg::ViewportState::create(renderGraph.window->extent2D()) );
+        context.defaultPipelineStates.push_back(vsg::ViewportState::create(renderGraph.window->extent2D()));
     }
 
     if (context.renderPass && context.renderPass->maxSamples() != VK_SAMPLE_COUNT_1_BIT)

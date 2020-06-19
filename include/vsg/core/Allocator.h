@@ -24,7 +24,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class Allocator : public Object
+    class VSG_DECLSPEC Allocator : public Object
     {
     public:
         std::size_t sizeofObject() const noexcept override { return sizeof(Allocator); }

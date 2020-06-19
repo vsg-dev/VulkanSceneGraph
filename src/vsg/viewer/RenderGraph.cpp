@@ -76,6 +76,18 @@ RenderGraph::RenderGraph()
 {
 }
 
+RenderPass* RenderGraph::getRenderPass()
+{
+    if (framebuffer)
+    {
+        return framebuffer->getRenderPass();
+    }
+    else
+    {
+        return window->getOrCreateRenderPass();
+    }
+}
+
 void RenderGraph::accept(RecordTraversal& recordTraversal) const
 {
     if (window)
@@ -92,19 +104,12 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
 
             vsg::UpdatePipeline updatePipeline(window->getDevice());
 
-            updatePipeline.context.commandPool = recordTraversal.state->_commandBuffer->getCommandPool();
+            updatePipeline.context.commandPool = recordTraversal.getState()->_commandBuffer->getCommandPool();
             updatePipeline.context.renderPass = window->getRenderPass();
 
             if (camera)
             {
-                if (auto perspective = dynamic_cast<Perspective*>(camera->getProjectionMatrix()))
-                {
-                    perspective->aspectRatio = static_cast<double>(extent.width) / static_cast<double>(extent.height);
-                }
-                else if (auto ep = dynamic_cast<EllipsoidPerspective*>(camera->getProjectionMatrix()))
-                {
-                    ep->aspectRatio = static_cast<double>(extent.width) / static_cast<double>(extent.height);
-                }
+                camera->getProjectionMatrix()->changeExtent(previous_extent, extent);
 
                 auto viewport = camera->getViewportState();
                 updatePipeline.context.defaultPipelineStates.emplace_back(viewport);
@@ -117,7 +122,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
                 const_cast<RenderGraph*>(this)->renderArea.extent = extent;
             }
 
-            if (window->framebufferSamples() !=VK_SAMPLE_COUNT_1_BIT) updatePipeline.context.overridePipelineStates.emplace_back(vsg::MultisampleState::create(window->framebufferSamples()));
+            if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT) updatePipeline.context.overridePipelineStates.emplace_back(vsg::MultisampleState::create(window->framebufferSamples()));
 
             const_cast<RenderGraph*>(this)->traverse(updatePipeline);
 
@@ -134,31 +139,27 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
         recordTraversal.setProjectionAndViewMatrix(projMatrix, viewMatrix);
     }
 
-    VkCommandBuffer vk_commandBuffer = *(recordTraversal.state->_commandBuffer);
+    VkCommandBuffer vk_commandBuffer = *(recordTraversal.getState()->_commandBuffer);
 
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    if (renderPass)
-    {
-        renderPassInfo.renderPass = *renderPass;
-    }
-    else if (window)
-    {
-        renderPassInfo.renderPass = *(window->getRenderPass());
-    }
+
     if (framebuffer)
     {
-        renderPassInfo.framebuffer = *framebuffer;
+        renderPassInfo.renderPass = *(framebuffer->getRenderPass());
+        renderPassInfo.framebuffer = *(framebuffer);
     }
-    else if (window)
+    else
     {
+        renderPassInfo.renderPass = *(window->getRenderPass());
         renderPassInfo.framebuffer = *(window->framebuffer(window->nextImageIndex()));
     }
+
     renderPassInfo.renderArea = renderArea;
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
-    vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, contents);
 
     // traverse the command buffer to place the commands into the command buffer.
     traverse(recordTraversal);
@@ -166,7 +167,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     vkCmdEndRenderPass(vk_commandBuffer);
 }
 
-ref_ptr<RenderGraph> vsg::createRenderGraphForView(Window* window, Camera* camera, Node* scenegraph)
+ref_ptr<RenderGraph> vsg::createRenderGraphForView(Window* window, Camera* camera, Node* scenegraph, VkSubpassContents contents)
 {
     // set up the render graph for viewport & scene
     auto renderGraph = vsg::RenderGraph::create();
@@ -174,6 +175,7 @@ ref_ptr<RenderGraph> vsg::createRenderGraphForView(Window* window, Camera* camer
 
     renderGraph->camera = camera;
     renderGraph->window = window;
+    renderGraph->contents = contents;
 
     renderGraph->renderArea.offset = {0, 0};
     renderGraph->renderArea.extent = window->extent2D();

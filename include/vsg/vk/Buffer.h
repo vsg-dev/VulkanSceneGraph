@@ -23,7 +23,10 @@ namespace vsg
 
         VkBufferUsageFlags usage() const { return _usage; }
         VkSharingMode shaderMode() const { return _sharingMode; }
+
         VkBuffer buffer() const { return _buffer; }
+
+        operator VkBuffer() const { return _buffer; }
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
@@ -43,8 +46,6 @@ namespace vsg
             }
             return result;
         }
-
-        operator VkBuffer() const { return _buffer; }
 
         VkMemoryRequirements getMemoryRequirements() const;
 

@@ -28,24 +28,24 @@ Queue::~Queue()
 
 VkResult Queue::submit(const std::vector<VkSubmitInfo>& submitInfos, Fence* fence)
 {
-    std::lock_guard<std::mutex> guard(_mutex);
+    std::scoped_lock<std::mutex> guard(_mutex);
     return vkQueueSubmit(_vkQueue, static_cast<uint32_t>(submitInfos.size()), submitInfos.data(), fence ? fence->vk() : VK_NULL_HANDLE);
 }
 
 VkResult Queue::submit(const VkSubmitInfo& submitInfo, Fence* fence)
 {
-    std::lock_guard<std::mutex> guard(_mutex);
+    std::scoped_lock<std::mutex> guard(_mutex);
     return vkQueueSubmit(_vkQueue, 1, &submitInfo, fence ? fence->vk() : VK_NULL_HANDLE);
 }
 
 VkResult Queue::present(const VkPresentInfoKHR& info)
 {
-    std::lock_guard<std::mutex> guard(_mutex);
+    std::scoped_lock<std::mutex> guard(_mutex);
     return vkQueuePresentKHR(_vkQueue, &info);
 }
 
 VkResult Queue::waitIdle()
 {
-    std::lock_guard<std::mutex> guard(_mutex);
+    std::scoped_lock<std::mutex> guard(_mutex);
     return vkQueueWaitIdle(_vkQueue);
 }

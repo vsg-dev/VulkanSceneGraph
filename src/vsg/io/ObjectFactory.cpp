@@ -157,8 +157,6 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::MultisampleState);
     VSG_REGISTER_create(vsg::DepthStencilState);
     VSG_REGISTER_create(vsg::ColorBlendState);
-    VSG_REGISTER_create(vsg::Draw);
-    VSG_REGISTER_create(vsg::DrawIndexed);
     VSG_REGISTER_create(vsg::Dispatch);
     VSG_REGISTER_create(vsg::BindDescriptorSets);
     VSG_REGISTER_create(vsg::BindDescriptorSet);
@@ -171,6 +169,12 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::Sampler);
     VSG_REGISTER_create(vsg::PushConstants);
     VSG_REGISTER_create(vsg::ResourceHints);
+
+    // commands
+    VSG_REGISTER_create(vsg::Draw);
+    VSG_REGISTER_create(vsg::DrawIndexed);
+    VSG_REGISTER_create(vsg::CopyImage);
+    VSG_REGISTER_create(vsg::BlitImage);
 
     // application
     VSG_REGISTER_create(vsg::EllipsoidModel);

@@ -56,6 +56,7 @@ namespace vsg
             value{} {}
         constexpr t_vec4(const t_vec4& v) :
             value{v.x, v.y, v.z, v.w} {}
+        constexpr t_vec4& operator=(const t_vec4&) = default;
         constexpr t_vec4(value_type in_x, value_type in_y, value_type in_z, value_type in_w) :
             value{in_x, in_y, in_z, in_w} {}
 
@@ -129,12 +130,18 @@ namespace vsg
 
     using vec4 = t_vec4<float>;
     using dvec4 = t_vec4<double>;
+    using bvec4 = t_vec4<std::int8_t>;
+    using svec4 = t_vec4<std::int16_t>;
+    using ivec4 = t_vec4<std::int32_t>;
     using ubvec4 = t_vec4<std::uint8_t>;
     using usvec4 = t_vec4<std::uint16_t>;
     using uivec4 = t_vec4<std::uint32_t>;
 
     VSG_type_name(vsg::vec4);
     VSG_type_name(vsg::dvec4);
+    VSG_type_name(vsg::bvec4);
+    VSG_type_name(vsg::svec4);
+    VSG_type_name(vsg::ivec4);
     VSG_type_name(vsg::ubvec4);
     VSG_type_name(vsg::usvec4);
     VSG_type_name(vsg::uivec4);
@@ -148,7 +155,7 @@ namespace vsg
     template<typename T>
     constexpr bool operator!=(const t_vec4<T>& lhs, const t_vec4<T>& rhs)
     {
-        return lhs[0] == rhs[0] || lhs[1] != rhs[1] || lhs[2] != rhs[2] || lhs[3] != rhs[3];
+        return lhs[0] != rhs[0] || lhs[1] != rhs[1] || lhs[2] != rhs[2] || lhs[3] != rhs[3];
     }
 
     template<typename T>

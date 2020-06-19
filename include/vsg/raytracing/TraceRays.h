@@ -23,7 +23,7 @@ namespace vsg
     public:
         TraceRays();
 
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
         ref_ptr<RayTracingShaderGroup> raygen;
         ref_ptr<RayTracingShaderGroup> missShader;

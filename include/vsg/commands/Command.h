@@ -29,7 +29,7 @@ namespace vsg
 
         virtual void compile(Context& /*context*/) {}
 
-        virtual void dispatch(CommandBuffer& commandBuffer) const = 0;
+        virtual void record(CommandBuffer& commandBuffer) const = 0;
     };
     VSG_type_name(vsg::Command);
 

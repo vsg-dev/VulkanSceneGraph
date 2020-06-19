@@ -62,7 +62,7 @@ namespace vsgXcb
 
         bool visible() const override;
 
-        bool pollEvents(vsg::Events& events) override;
+        bool pollEvents(vsg::UIEvents& events) override;
 
         bool resized() const override;
 

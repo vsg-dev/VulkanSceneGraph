@@ -82,6 +82,7 @@ namespace vsg
     class TouchDownEvent;
     class TouchUpEvent;
     class TouchMoveEvent;
+    class ScrollWheelEvent;
     class TerminateEvent;
     class FrameEvent;
 
@@ -100,6 +101,7 @@ namespace vsg
         virtual void apply(Object&);
         virtual void apply(Objects&);
         virtual void apply(External&);
+        virtual void apply(Data&);
 
         // Values
         virtual void apply(stringValue&);
@@ -121,9 +123,24 @@ namespace vsg
         virtual void apply(dvec2Array&);
         virtual void apply(dvec3Array&);
         virtual void apply(dvec4Array&);
+        virtual void apply(bvec2Array&);
+        virtual void apply(bvec3Array&);
+        virtual void apply(bvec4Array&);
+        virtual void apply(svec2Array&);
+        virtual void apply(svec3Array&);
+        virtual void apply(svec4Array&);
+        virtual void apply(ivec2Array&);
+        virtual void apply(ivec3Array&);
+        virtual void apply(ivec4Array&);
         virtual void apply(ubvec2Array&);
         virtual void apply(ubvec3Array&);
         virtual void apply(ubvec4Array&);
+        virtual void apply(usvec2Array&);
+        virtual void apply(usvec3Array&);
+        virtual void apply(usvec4Array&);
+        virtual void apply(uivec2Array&);
+        virtual void apply(uivec3Array&);
+        virtual void apply(uivec4Array&);
         virtual void apply(mat4Array&);
         virtual void apply(dmat4Array&);
         virtual void apply(block64Array&);
@@ -141,9 +158,24 @@ namespace vsg
         virtual void apply(dvec2Array2D&);
         virtual void apply(dvec3Array2D&);
         virtual void apply(dvec4Array2D&);
+        virtual void apply(bvec2Array2D&);
+        virtual void apply(bvec3Array2D&);
+        virtual void apply(bvec4Array2D&);
+        virtual void apply(svec2Array2D&);
+        virtual void apply(svec3Array2D&);
+        virtual void apply(svec4Array2D&);
+        virtual void apply(ivec2Array2D&);
+        virtual void apply(ivec3Array2D&);
+        virtual void apply(ivec4Array2D&);
         virtual void apply(ubvec2Array2D&);
         virtual void apply(ubvec3Array2D&);
         virtual void apply(ubvec4Array2D&);
+        virtual void apply(usvec2Array2D&);
+        virtual void apply(usvec3Array2D&);
+        virtual void apply(usvec4Array2D&);
+        virtual void apply(uivec2Array2D&);
+        virtual void apply(uivec3Array2D&);
+        virtual void apply(uivec4Array2D&);
         virtual void apply(block64Array2D&);
         virtual void apply(block128Array2D&);
 
@@ -224,6 +256,7 @@ namespace vsg
         virtual void apply(TouchDownEvent&);
         virtual void apply(TouchUpEvent&);
         virtual void apply(TouchMoveEvent&);
+        virtual void apply(ScrollWheelEvent&);
         virtual void apply(TerminateEvent&);
         virtual void apply(FrameEvent&);
 

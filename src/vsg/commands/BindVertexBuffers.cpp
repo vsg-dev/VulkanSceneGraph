@@ -90,7 +90,7 @@ void BindVertexBuffers::compile(Context& context)
     }
 }
 
-void BindVertexBuffers::dispatch(CommandBuffer& commandBuffer) const
+void BindVertexBuffers::record(CommandBuffer& commandBuffer) const
 {
     auto& vkd = _vulkanData[commandBuffer.deviceID];
     vkCmdBindVertexBuffers(commandBuffer, _firstBinding, static_cast<uint32_t>(vkd.vkBuffers.size()), vkd.vkBuffers.data(), vkd.offsets.data());

@@ -33,6 +33,6 @@ namespace vsg
         time_point time;
     };
 
-    using Events = std::list<ref_ptr<UIEvent>>;
+    using UIEvents = std::list<ref_ptr<UIEvent>>;
     using EventHandlers = std::list<vsg::ref_ptr<vsg::Visitor>>;
 } // namespace vsg

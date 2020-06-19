@@ -33,7 +33,7 @@ void NextSubPass::write(Output& output) const
     output.writeValue<uint32_t>("contents", contents);
 }
 
-void NextSubPass::dispatch(CommandBuffer& commandBuffer) const
+void NextSubPass::record(CommandBuffer& commandBuffer) const
 {
     vkCmdNextSubpass(commandBuffer, contents);
 }

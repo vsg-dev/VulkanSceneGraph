@@ -14,12 +14,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
+#include <vsg/ui/ScrollWheelEvent.h>
 
 #include <iostream>
 
 namespace vsg
 {
-    struct PrintEvents : public vsg::Visitor
+    struct PrintEvents : public Inherit<vsg::Visitor, PrintEvents>
     {
         vsg::clock::time_point start_point;
 
@@ -29,6 +30,11 @@ namespace vsg
         void apply(vsg::UIEvent& event)
         {
             std::cout << "event : " << event.className() << ", " << std::chrono::duration<double>(event.time - start_point).count() << std::endl;
+        }
+
+        void apply(vsg::FrameEvent& event)
+        {
+            std::cout << "Frame event : " << event.className() << ", " << std::chrono::duration<double>(event.time - start_point).count() << std::endl;
         }
 
         void apply(vsg::ExposeWindowEvent& event)
@@ -64,6 +70,11 @@ namespace vsg
         void apply(vsg::MoveEvent& move)
         {
             std::cout << "MoveEvent : " << move.className() << ", " << std::chrono::duration<double>(move.time - start_point).count() << ", " << move.x << ", " << move.y << ", " << move.mask << std::endl;
+        }
+
+        void apply(vsg::ScrollWheelEvent& scrollWheel)
+        {
+            std::cout << "scrollWheel : " << scrollWheel.className() << ", " << std::chrono::duration<double>(scrollWheel.time - start_point).count() << ", " << scrollWheel.delta << std::endl;
         }
     };
 } // namespace vsg

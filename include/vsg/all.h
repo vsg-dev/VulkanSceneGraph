@@ -61,12 +61,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 // Commands header files
 #include <vsg/commands/BindIndexBuffer.h>
 #include <vsg/commands/BindVertexBuffers.h>
+#include <vsg/commands/BlitImage.h>
 #include <vsg/commands/Command.h>
 #include <vsg/commands/Commands.h>
 #include <vsg/commands/CopyImage.h>
+#include <vsg/commands/CopyImageToBuffer.h>
 #include <vsg/commands/Dispatch.h>
 #include <vsg/commands/Draw.h>
 #include <vsg/commands/DrawIndexed.h>
+#include <vsg/commands/Event.h>
 #include <vsg/commands/NextSubPass.h>
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/commands/PushConstants.h>
@@ -95,11 +98,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/ComputeBounds.h>
 #include <vsg/traversals/Intersector.h>
 #include <vsg/traversals/LineSegmentIntersector.h>
+#include <vsg/traversals/LoadPagedLOD.h>
 #include <vsg/traversals/RecordTraversal.h>
 
 // Threading header files
 #include <vsg/threading/ActivityStatus.h>
 #include <vsg/threading/Affinity.h>
+#include <vsg/threading/Barrier.h>
+#include <vsg/threading/FrameBlock.h>
 #include <vsg/threading/Latch.h>
 #include <vsg/threading/OperationQueue.h>
 #include <vsg/threading/OperationThreads.h>
@@ -110,6 +116,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/PrintEvents.h>
+#include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/ui/TouchEvent.h>
 #include <vsg/ui/UIEvent.h>
 #include <vsg/ui/WindowEvent.h>
@@ -120,6 +127,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/CopyImageViewToWindow.h>
 #include <vsg/viewer/EllipsoidModel.h>
+#include <vsg/viewer/ExecuteCommands.h>
 #include <vsg/viewer/Presentation.h>
 #include <vsg/viewer/ProjectionMatrix.h>
 #include <vsg/viewer/RecordAndSubmitTask.h>

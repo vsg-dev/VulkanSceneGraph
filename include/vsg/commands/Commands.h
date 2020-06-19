@@ -21,7 +21,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    VSG_type_name(vsg::Commands);
 
     class VSG_DECLSPEC Commands : public Inherit<Command, Commands>
     {
@@ -63,12 +62,13 @@ namespace vsg
         const Children& getChildren() const noexcept { return _children; }
 
         void compile(Context& context) override;
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~Commands();
 
         Children _children;
     };
+    VSG_type_name(vsg::Commands);
 
 } // namespace vsg

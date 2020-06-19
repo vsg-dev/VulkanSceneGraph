@@ -116,7 +116,7 @@ namespace vsgWin32
 
         bool valid() const override { return _window; }
 
-        bool pollEvents(vsg::Events& events) override;
+        bool pollEvents(vsg::UIEvents& events) override;
 
         bool resized() const override;
 
@@ -134,7 +134,7 @@ namespace vsgWin32
 
         HWND _window;
 
-        vsg::Events _bufferedEvents;
+        vsg::UIEvents _bufferedEvents;
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 

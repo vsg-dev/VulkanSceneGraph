@@ -95,7 +95,7 @@ namespace vsg
         RayTracingPipeline* getPipeline() { return _pipeline; }
         const RayTracingPipeline* getPipeline() const { return _pipeline; }
 
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
 
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context) override;

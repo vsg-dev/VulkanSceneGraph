@@ -62,10 +62,10 @@ void Commands::compile(Context& context)
     }
 }
 
-void Commands::dispatch(CommandBuffer& commandBuffer) const
+void Commands::record(CommandBuffer& commandBuffer) const
 {
     for (auto& command : _children)
     {
-        command->dispatch(commandBuffer);
+        command->record(commandBuffer);
     }
 }

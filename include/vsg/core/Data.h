@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Object.h>
+#include <vsg/core/type_name.h>
 
 #include <vulkan/vulkan.h>
 
@@ -27,10 +28,16 @@ namespace vsg
     /** 128 bit block of compressed texel data.*/
     using block128 = uint8_t[16];
 
+    enum Origin : uint8_t
+    {
+        TOP_LEFT = 0,
+        BOTTOM_LEFT = 2
+    };
+
     class VSG_DECLSPEC Data : public Object
     {
     public:
-        /* Layout used for configuring use of mipmaps and block compressed data.
+        /* Layout used for configuring use of mipmaps and block compressed data and origin.
          * Default of no mipmapping and {1,1,1} is uncompressed.
          * A single block (Block64/Block128) is stored as a single value with the Data object. */
         struct Layout
@@ -39,6 +46,7 @@ namespace vsg
             uint8_t blockWidth = 1;
             uint8_t blockHeight = 1;
             uint8_t blockDepth = 1;
+            uint8_t origin = TOP_LEFT; /// Hint for setting up texture coordinates, bit 0 x/width axis, bit 1 y/height axis, bit 2 z/depth axis. Vulkan origin for images is top left, which is denoted as 0 here.
         };
 
         Data() {}
@@ -96,6 +104,7 @@ namespace vsg
         VkFormat _format = VK_FORMAT_UNDEFINED;
         Layout _layout;
     };
+    VSG_type_name(vsg::Data);
 
     using DataList = std::vector<ref_ptr<Data>>;
 

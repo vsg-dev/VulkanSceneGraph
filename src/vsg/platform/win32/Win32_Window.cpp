@@ -11,8 +11,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/platform/win32/Win32_Window.h>
-
 #include <vsg/core/Exception.h>
+#include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/vk/Extensions.h>
 
 #include <iostream>
@@ -461,7 +461,7 @@ void Win32_Window::_initSurface()
     _surface = new vsgWin32::Win32Surface(_instance, _window, _traits->allocator);
 }
 
-bool Win32_Window::pollEvents(vsg::Events& events)
+bool Win32_Window::pollEvents(vsg::UIEvents& events)
 {
     vsg::clock::time_point event_time = vsg::clock::now();
 
@@ -568,7 +568,6 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         uint32_t mx = GET_X_LPARAM(lParam);
         uint32_t my = GET_Y_LPARAM(lParam);
 
-        uint32_t button = msg == WM_LBUTTONDOWN ? 1 : (msg == WM_RBUTTONDOWN ? 2 : msg == WM_MBUTTONDOWN ? 3 : (msg == WM_XBUTTONDOWN ? 4 : 0)); // need to determine x1, x2
         _bufferedEvents.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, mx, my, getButtonMask(wParam), getButtonEventDetail(msg)));
 
         //::ReleaseCapture(); // should only release once all mouse buttons are released ??
@@ -582,7 +581,10 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     }
     break;
     case WM_MOUSEWHEEL:
+    {
+        _bufferedEvents.emplace_back(new vsg::ScrollWheelEvent(this, event_time, GET_WHEEL_DELTA_WPARAM(wParam)<0 ? vec3(0.0f, -1.0f, 0.0f) : vec3(0.0f, 1.0f, 0.0f)));
         break;
+    }
     case WM_MOVE:
     case WM_SIZE:
     {

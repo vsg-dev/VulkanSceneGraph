@@ -122,7 +122,7 @@ void BindComputePipeline::write(Output& output) const
     output.writeObject("ComputePipeline", _pipeline.get());
 }
 
-void BindComputePipeline::dispatch(CommandBuffer& commandBuffer) const
+void BindComputePipeline::record(CommandBuffer& commandBuffer) const
 {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, _pipeline->vk(commandBuffer.deviceID));
     commandBuffer.setCurrentPipelineLayout(_pipeline->getPipelineLayout()->vk(commandBuffer.deviceID));

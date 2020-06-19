@@ -56,6 +56,7 @@ namespace vsg
             value{} {}
         constexpr t_vec3(const t_vec3& v) :
             value{v.x, v.y, v.z} {}
+        constexpr t_vec3& operator=(const t_vec3&) = default;
         constexpr t_vec3(value_type in_x, value_type in_y, value_type in_z) :
             value{in_x, in_y, in_z} {}
 
@@ -123,12 +124,18 @@ namespace vsg
 
     using vec3 = t_vec3<float>;
     using dvec3 = t_vec3<double>;
+    using bvec3 = t_vec3<std::int8_t>;
+    using svec3 = t_vec3<std::int16_t>;
+    using ivec3 = t_vec3<std::int32_t>;
     using ubvec3 = t_vec3<std::uint8_t>;
     using usvec3 = t_vec3<std::uint16_t>;
     using uivec3 = t_vec3<std::uint32_t>;
 
     VSG_type_name(vsg::vec3);
     VSG_type_name(vsg::dvec3);
+    VSG_type_name(vsg::bvec3);
+    VSG_type_name(vsg::svec3);
+    VSG_type_name(vsg::ivec3);
     VSG_type_name(vsg::ubvec3);
     VSG_type_name(vsg::usvec3);
     VSG_type_name(vsg::uivec3);
@@ -142,7 +149,7 @@ namespace vsg
     template<typename T>
     constexpr bool operator!=(const t_vec3<T>& lhs, const t_vec3<T>& rhs)
     {
-        return lhs[0] == rhs[0] || lhs[1] != rhs[1] || lhs[2] != rhs[2];
+        return lhs[0] != rhs[0] || lhs[1] != rhs[1] || lhs[2] != rhs[2];
     }
 
     template<typename T>

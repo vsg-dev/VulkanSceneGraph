@@ -19,7 +19,7 @@ CopyImage::CopyImage()
 {
 }
 
-void CopyImage::dispatch(CommandBuffer& commandBuffer) const
+void CopyImage::record(CommandBuffer& commandBuffer) const
 {
     vkCmdCopyImage(
         commandBuffer,

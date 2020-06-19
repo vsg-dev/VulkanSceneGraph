@@ -38,8 +38,11 @@ set(SOURCES
     commands/BindIndexBuffer.cpp
     commands/BindVertexBuffers.cpp
     commands/Commands.cpp
+    commands/BlitImage.cpp
     commands/CopyImage.cpp
+    commands/CopyImageToBuffer.cpp
     commands/PipelineBarrier.cpp
+    commands/Event.cpp
     commands/NextSubPass.cpp
     commands/Dispatch.cpp
     commands/PushConstants.cpp
@@ -84,6 +87,7 @@ set(SOURCES
     traversals/ComputeBounds.cpp
     traversals/Intersector.cpp
     traversals/LineSegmentIntersector.cpp
+    traversals/LoadPagedLOD.cpp
 
     threading/Affinity.cpp
     threading/OperationQueue.cpp
@@ -95,6 +99,7 @@ set(SOURCES
     viewer/Window.cpp
     viewer/Trackball.cpp
     viewer/CopyImageViewToWindow.cpp
+    viewer/ExecuteCommands.cpp
     viewer/CommandGraph.cpp
     viewer/RenderGraph.cpp
     viewer/Presentation.cpp

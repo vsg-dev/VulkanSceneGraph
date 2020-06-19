@@ -139,7 +139,7 @@ void VertexIndexDraw::compile(Context& context)
     }
 }
 
-void VertexIndexDraw::dispatch(CommandBuffer& commandBuffer) const
+void VertexIndexDraw::record(CommandBuffer& commandBuffer) const
 {
     auto& vkd = _vulkanData[commandBuffer.deviceID];
 

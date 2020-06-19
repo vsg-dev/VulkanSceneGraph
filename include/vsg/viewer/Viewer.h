@@ -29,6 +29,9 @@ namespace vsg
     public:
         Viewer();
 
+        Viewer(const Viewer&) = delete;
+        Viewer& operator=(const Viewer& rhs) = delete;
+
         /// add Window to Viewer
         virtual void addWindow(ref_ptr<Window> window);
 
@@ -51,10 +54,10 @@ namespace vsg
         bool pollEvents(bool discardPreviousEvents = true);
 
         /// get the current set of Events that are filled in by prior calls to pollEvents
-        Events& getEvents() { return _events; }
+        UIEvents& getEvents() { return _events; }
 
         /// get the const current set of Events that are filled in by prior calls to pollEvents
-        const Events& getEvents() const { return _events; }
+        const UIEvents& getEvents() const { return _events; }
 
         /// add event handler
         void addEventHandler(ref_ptr<Visitor> eventHandler) { _eventHandlers.emplace_back(eventHandler); }
@@ -118,7 +121,7 @@ namespace vsg
         Windows _windows;
 
         clock::time_point _start_point;
-        Events _events;
+        UIEvents _events;
         EventHandlers _eventHandlers;
 
         bool _threading = false;

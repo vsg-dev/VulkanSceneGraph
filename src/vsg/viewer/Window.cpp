@@ -50,12 +50,15 @@ void Window::clear()
     _physicalDevice = 0;
 }
 
-void Window::share(const Window& window)
+void Window::share(Window& window)
 {
-    _instance = window._instance;
-    _physicalDevice = window._physicalDevice;
-    _device = window._device;
-    _renderPass = window._renderPass;
+    _instance = window.getOrCreateInstance();
+    _physicalDevice = window.getOrCreatePhysicalDevice();
+    _device = window.getOrCreateDevice();
+    _renderPass = window.getOrCreateRenderPass();
+
+    _initSurface();
+    _initFormats();
 }
 
 void Window::_initInstance()
@@ -85,6 +88,35 @@ void Window::_initInstance()
 
         vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
         _instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
+    }
+}
+
+void Window::_initFormats()
+{
+    vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
+
+    _imageFormat = vsg::selectSwapSurfaceFormat(supportDetails, _traits->swapchainPreferences.surfaceFormat);
+    _depthFormat = _traits->depthFormat;
+
+    // compute the sample bits to use
+    if (_traits->samples != VK_SAMPLE_COUNT_1_BIT)
+    {
+        VkSampleCountFlags deviceColorSamples = _physicalDevice->getProperties().limits.framebufferColorSampleCounts;
+        VkSampleCountFlags deviceDepthSamples = _physicalDevice->getProperties().limits.framebufferDepthSampleCounts;
+        VkSampleCountFlags satisfied = deviceColorSamples & deviceDepthSamples & _traits->samples;
+        if (satisfied != 0)
+        {
+            uint32_t highest = 1 << static_cast<uint32_t>(floor(log2(satisfied)));
+            _framebufferSamples = static_cast<VkSampleCountFlagBits>(highest);
+        }
+        else
+        {
+            _framebufferSamples = VK_SAMPLE_COUNT_1_BIT;
+        }
+    }
+    else
+    {
+        _framebufferSamples = VK_SAMPLE_COUNT_1_BIT;
     }
 }
 
@@ -124,36 +156,12 @@ void Window::_initDevice()
         _physicalDevice = physicalDevice;
     }
 
-    // compute the sample bits to use
-    if (_traits->samples != VK_SAMPLE_COUNT_1_BIT)
-    {
-        VkSampleCountFlags deviceColorSamples = _physicalDevice->getProperties().limits.framebufferColorSampleCounts;
-        VkSampleCountFlags deviceDepthSamples = _physicalDevice->getProperties().limits.framebufferDepthSampleCounts;
-        VkSampleCountFlags satisfied = deviceColorSamples & deviceDepthSamples & _traits->samples;
-        if (satisfied != 0)
-        {
-            uint32_t highest = 1 << static_cast<uint32_t>(floor(log2(satisfied)));
-            _framebufferSamples = static_cast<VkSampleCountFlagBits>(highest);
-        }
-        else
-        {
-            _framebufferSamples = VK_SAMPLE_COUNT_1_BIT;
-        }
-    }
-    else
-    {
-        _framebufferSamples = VK_SAMPLE_COUNT_1_BIT;
-    }
+    _initFormats();
 }
 
 void Window::_initRenderPass()
 {
     if (!_device) _initDevice();
-
-    vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
-
-    _imageFormat = vsg::selectSwapSurfaceFormat(supportDetails);
-    _depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
 
     if (_framebufferSamples == VK_SAMPLE_COUNT_1_BIT)
     {
@@ -239,7 +247,7 @@ void Window::buildSwapchain()
     depthImageCreateInfo.format = _depthFormat;
     depthImageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     depthImageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    depthImageCreateInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    depthImageCreateInfo.usage = _traits->depthImageUsage;
     depthImageCreateInfo.samples = _framebufferSamples;
     depthImageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     depthImageCreateInfo.pNext = nullptr;
@@ -256,29 +264,21 @@ void Window::buildSwapchain()
     std::tie(graphicsFamily, std::ignore) = _physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, _surface);
 
     // set up framebuffer and associated resources
-    Swapchain::ImageViews& imageViews = _swapchain->getImageViews();
+    auto& imageViews = _swapchain->getImageViews();
 
     for (size_t i = 0; i < imageViews.size(); ++i)
     {
-        std::vector<VkImageView> attachments;
-
-        VkFramebufferCreateInfo framebufferInfo = {};
-        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = *_renderPass;
+        vsg::ImageViews attachments;
         if (multisampling)
         {
-            attachments.push_back(*_multisampleImageView);
+            attachments.push_back(_multisampleImageView);
         }
-        attachments.push_back(*imageViews[i]);
-        attachments.push_back(*_depthImageView);
-        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-        framebufferInfo.pAttachments = attachments.data();
-        framebufferInfo.width = _extent2D.width;
-        framebufferInfo.height = _extent2D.height;
-        framebufferInfo.layers = 1;
+        attachments.push_back(imageViews[i]);
+        attachments.push_back(_depthImageView);
+
+        ref_ptr<Framebuffer> fb = Framebuffer::create(_renderPass, attachments, _extent2D.width, _extent2D.height, 1);
 
         ref_ptr<Semaphore> ias = vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag);
-        ref_ptr<Framebuffer> fb = Framebuffer::create(_device, framebufferInfo);
 
         _frames.push_back({multisampling ? _multisampleImageView : imageViews[i], fb, ias});
     }
@@ -297,7 +297,7 @@ void Window::buildSwapchain()
             auto pipelineBarrier = PipelineBarrier::create(
                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
                 0, depthImageBarrier);
-            pipelineBarrier->dispatch(commandBuffer);
+            pipelineBarrier->record(commandBuffer);
 
             if (multisampling)
             {
@@ -310,7 +310,7 @@ void Window::buildSwapchain()
                 auto msPipelineBarrier = PipelineBarrier::create(
                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                     0, msImageBarrier);
-                msPipelineBarrier->dispatch(commandBuffer);
+                msPipelineBarrier->record(commandBuffer);
             }
         });
     }

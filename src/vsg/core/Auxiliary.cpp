@@ -85,7 +85,7 @@ void Auxiliary::unref_nodelete() const
 
 bool Auxiliary::signalConnectedObjectToBeDeleted()
 {
-    std::lock_guard<std::mutex> guard(_mutex);
+    std::scoped_lock<std::mutex> guard(_mutex);
 
     if (_connectedObject && _connectedObject->referenceCount() > 0)
     {
@@ -102,7 +102,7 @@ bool Auxiliary::signalConnectedObjectToBeDeleted()
 
 void Auxiliary::resetConnectedObject()
 {
-    std::lock_guard<std::mutex> guard(_mutex);
+    std::scoped_lock<std::mutex> guard(_mutex);
 
     _connectedObject = 0;
 }

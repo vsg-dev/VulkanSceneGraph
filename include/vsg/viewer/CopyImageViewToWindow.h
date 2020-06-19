@@ -33,7 +33,7 @@ namespace vsg
             _extent2D = window->extent2D();
         }
 
-        void dispatch(CommandBuffer& commandBuffer) const override;
+        void record(CommandBuffer& commandBuffer) const override;
     };
 
 } // namespace vsg

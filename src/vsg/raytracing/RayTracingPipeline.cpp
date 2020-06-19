@@ -195,7 +195,7 @@ void BindRayTracingPipeline::write(Output& output) const
     output.writeObject("RayTracingPipeline", _pipeline.get());
 }
 
-void BindRayTracingPipeline::dispatch(CommandBuffer& commandBuffer) const
+void BindRayTracingPipeline::record(CommandBuffer& commandBuffer) const
 {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_NV, _pipeline->vk(commandBuffer.deviceID));
     commandBuffer.setCurrentPipelineLayout(_pipeline->getPipelineLayout()->vk(commandBuffer.deviceID));

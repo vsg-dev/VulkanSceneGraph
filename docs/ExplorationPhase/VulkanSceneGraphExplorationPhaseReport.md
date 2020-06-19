@@ -33,7 +33,7 @@ The VulkanPlayground is meant as a throwaway prototyping repository rather than 
 
 Now that the Exploration Phase is completed the work on VulkanPlayground has fed into the Prototype Phase, with the repository being broken up into three component repositories that are publicly available and public under the MIT License:
 
-* [VulkanSceneGraphPrototype](https://github.com/vsg-dev/VulkanSceneGraphPrototype) the core scene graph
+* [VulkanSceneGraph](https://github.com/vsg-dev/VulkanSceneGraph) the core scene graph
 * [osg2vsg](https://github.com/vsg-dev/osg2vsg) helper library to read/writes images using the OSG
 * [vsgFramework](https://github.com/vsg-dev/vsgFramework) experiment with building applications and libraries
 

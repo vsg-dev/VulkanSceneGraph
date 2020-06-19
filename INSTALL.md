@@ -29,18 +29,18 @@ The above dependency versions are known to work so they've been set as the curre
 
 Command line instructions for default build of static library (.a/.lib) in source:
 
-    git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
-    cd VulkanSceneGraphPrototype
+    git clone https://github.com/vsg-dev/VulkanSceneGraph.git
+    cd VulkanSceneGraph
     cmake .
     make -j 8
     make install
 
 Command line instructions for building shared library (.so/.lib + .dll) out of source:
 
-    git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
+    git clone https://github.com/vsg-dev/VulkanSceneGraph.git
     mkdir vsg-shared-build
     cd vsg-shared-build
-    cmake ../VulkanSceneGraphPrototype -DBUILD_SHARED_LIBS=ON
+    cmake ../VulkanSceneGraph -DBUILD_SHARED_LIBS=ON
     make -j 8
     make install
 
@@ -50,8 +50,8 @@ Command line instructions for building shared library (.so/.lib + .dll) out of s
 
 Command line instructions for default build of static library (.lib) in source:
 
-    git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
-    cd VulkanSceneGraphPrototype
+    git clone https://github.com/vsg-dev/VulkanSceneGraph.git
+    cd VulkanSceneGraph
     cmake . -G "Visual Studio 15 2017 Win64"
 
 After running cmake open the generated VSG.sln file and build the All target. Once built you can run the install target. If you are using the default cmake install path (in Program Files folder), ensure you have started Visual Studio as administrator otherwise the install will fail.
@@ -84,8 +84,8 @@ More detailed Android platform instructions can be found [below](#detailed-instr
 
 Command line instructions for default build of static library (.lib) in source:
 
-    git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
-    cd VulkanSceneGraphPrototype
+    git clone https://github.com/vsg-dev/VulkanSceneGraph.git
+    cd VulkanSceneGraph
     cmake . -G "Xcode"
 
 After running cmake open the generated VSG.xcodeproj file and build the All target. Once built you can run the install target. Please note that for release builds you currently need to use the Archive option in xcode. This will rebuild every time so you can just select the install target and run Archive which will also build the All target.
@@ -173,8 +173,8 @@ From there download and install the Vulkan SDK (1.1 or later) and the Vulkan run
 
 So now we have the Vulkan SDK installed and findable by CMake so we can go ahead and build VSG. Below are simple instructions for downloading the VSG source code, generating a Visual Studio project using CMake and finally building and installing VSG onto your system.
 
-    git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
-    cd VulkanSceneGraphPrototype
+    git clone https://github.com/vsg-dev/VulkanSceneGraph.git
+    cd VulkanSceneGraph
     cmake . -G "Visual Studio 15 2017 Win64"
 
 After running CMake open the generated VSG.sln file and build the All target. Once built you can run the install target. If you are using the default CMake install path (in Program Files folder), ensure you have started Visual Studio as administrator otherwise the install will fail.
@@ -204,8 +204,8 @@ Take note of the 'Android SDK Location' as you'll need it when running CMake to 
 
 So now we have the Android NDK installed lets go ahead and fetch the VSG source then use CMake to generate the make files.
 
-	git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
-	cd VulkanSceneGraphPrototype
+	git clone https://github.com/vsg-dev/VulkanSceneGraph.git
+	cd VulkanSceneGraph
 	cmake ./ \
 	-DCMAKE_BUILD_TYPE="Debug" \
 	-DCMAKE_SYSTEM_NAME="Android" \
@@ -245,8 +245,8 @@ At this point MoltenVK application should be able to run on your machine, as a q
 
 So now we're ready to build VSG. With the SDK installed this is very similar to other platforms. You can simple run the following commands to clone the source and use CMake to generate and Xcode project.
 
-	git clone https://github.com/vsg-dev/VulkanSceneGraphPrototype.git
-	cd VulkanSceneGraphPrototype
+	git clone https://github.com/vsg-dev/VulkanSceneGraph.git
+	cd VulkanSceneGraph
 	cmake . -G "Xcode"
 	
 Once CMake has finished you can open the generated Xcode project and build the 'install' target. This will build VSG and install the headers and generated library onto your machine.

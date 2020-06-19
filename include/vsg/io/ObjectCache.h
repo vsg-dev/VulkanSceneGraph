@@ -57,7 +57,7 @@ namespace vsg
 
         inline ObjectTimepoint& getObjectTimepoint(const Path& filename, ref_ptr<const Options> options = {})
         {
-            std::lock_guard<std::mutex> guard(_mutex);
+            std::scoped_lock<std::mutex> guard(_mutex);
             return _objectCacheMap[FilenameOption(filename, options)];
         }
 

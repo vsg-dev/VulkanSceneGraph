@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <memory>
 #include <vsg/core/Object.h>
 #include <vsg/core/type_name.h>
 #include <vsg/maths/mat4.h>
@@ -44,11 +43,19 @@ namespace vsg
     class VSG_DECLSPEC RecordTraversal : public Object
     {
     public:
-        explicit RecordTraversal(CommandBuffer* commandBuffer = nullptr, uint32_t maxSlot = 2, ref_ptr<FrameStamp> fs = {});
+        explicit RecordTraversal(CommandBuffer* commandBuffer = nullptr, uint32_t maxSlot = 2, FrameStamp* fs = nullptr);
         ~RecordTraversal();
 
         std::size_t sizeofObject() const noexcept override { return sizeof(RecordTraversal); }
         const char* className() const noexcept override { return type_name<RecordTraversal>(); }
+
+        State* getState() { return _state; }
+
+        void setFrameStamp(FrameStamp* fs);
+        FrameStamp* getFrameStamp() { return _frameStamp; }
+
+        void setDatabasePager(DatabasePager* dp);
+        DatabasePager* getDatabasePager() { return _databasePager; }
 
         void setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix);
 
@@ -68,12 +75,13 @@ namespace vsg
         void apply(const Commands& commands);
         void apply(const Command& command);
 
-        // used to handle loading of PagedLOD external children.
-        ref_ptr<DatabasePager> databasePager;
-        ref_ptr<CulledPagedLODs> culledPagedLODs;
+    private:
+        FrameStamp* _frameStamp = nullptr;
+        State* _state = nullptr;
 
-        ref_ptr<FrameStamp> frameStamp;
-        ref_ptr<State> state;
+        // used to handle loading of PagedLOD external children.
+        DatabasePager* _databasePager = nullptr;
+        CulledPagedLODs* _culledPagedLODs = nullptr;
     };
 
 } // namespace vsg
