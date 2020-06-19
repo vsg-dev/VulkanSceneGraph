@@ -21,6 +21,12 @@ RenderPass::RenderPass(Device* device, const Attachments& attachments, const Sub
     _device(device),
     _allocator(allocator)
 {
+    _maxSamples = VK_SAMPLE_COUNT_1_BIT;
+    for(auto& attachment : attachments)
+    {
+        if (attachment.samples > _maxSamples) _maxSamples = attachment.samples;
+    }
+
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
