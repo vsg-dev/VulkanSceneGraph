@@ -76,7 +76,7 @@ void Window::_initInstance()
         instanceExtensions.push_back(instanceExtensionSurfaceName());
 
         vsg::Names requestedLayers;
-        if (_traits->debugLayer)
+        if (_traits->debugLayer || _traits->apiDumpLayer)
         {
             instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
             requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
