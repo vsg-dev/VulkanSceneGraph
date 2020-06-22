@@ -55,3 +55,13 @@ void Fence::resetFenceAndDependencies()
 
     reset();
 }
+
+VkResult Fence::wait(uint64_t timeout) const
+{
+    return vkWaitForFences(*_device, 1, &_vkFence, VK_TRUE, timeout);
+}
+
+VkResult Fence::reset() const
+{
+    return vkResetFences(*_device, 1, &_vkFence);
+}
