@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/ImageView.h>
 #include <vsg/vk/Surface.h>
+#include <vsg/vk/Fence.h>
 
 namespace vsg
 {
@@ -60,6 +61,9 @@ namespace vsg
 
         ImageViews& getImageViews() { return _imageViews; }
         const ImageViews& getImageViews() const { return _imageViews; }
+
+        /// call vkAcquireNextImageKHR
+        VkResult aquireNextImage(uint64_t timeout, ref_ptr<Semaphore> semaphore, ref_ptr<Fence> fence, uint32_t& imageIndex);
 
     protected:
         virtual ~Swapchain();

@@ -239,3 +239,10 @@ Swapchain::~Swapchain()
         vkDestroySwapchainKHR(*_device, _swapchain, _allocator);
     }
 }
+
+VkResult Swapchain::aquireNextImage(uint64_t timeout, ref_ptr<Semaphore> semaphore, ref_ptr<Fence> fence, uint32_t& imageIndex)
+{
+    VkSemaphore vk_semaphore = semaphore ? semaphore->vk() : VK_NULL_HANDLE;
+    VkFence vk_fence = fence ? fence->vk() : VK_NULL_HANDLE;
+    return vkAcquireNextImageKHR(*_device, _swapchain, timeout, vk_semaphore, vk_fence, &imageIndex);
+}
