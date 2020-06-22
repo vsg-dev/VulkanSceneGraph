@@ -63,7 +63,7 @@ namespace vsg
         const ImageViews& getImageViews() const { return _imageViews; }
 
         /// call vkAcquireNextImageKHR
-        VkResult aquireNextImage(uint64_t timeout, ref_ptr<Semaphore> semaphore, ref_ptr<Fence> fence, uint32_t& imageIndex);
+        VkResult acquireNextImage(uint64_t timeout, ref_ptr<Semaphore> semaphore, ref_ptr<Fence> fence, uint32_t& imageIndex);
 
     protected:
         virtual ~Swapchain();

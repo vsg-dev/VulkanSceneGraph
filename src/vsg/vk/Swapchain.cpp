@@ -240,7 +240,7 @@ Swapchain::~Swapchain()
     }
 }
 
-VkResult Swapchain::aquireNextImage(uint64_t timeout, ref_ptr<Semaphore> semaphore, ref_ptr<Fence> fence, uint32_t& imageIndex)
+VkResult Swapchain::acquireNextImage(uint64_t timeout, ref_ptr<Semaphore> semaphore, ref_ptr<Fence> fence, uint32_t& imageIndex)
 {
     VkSemaphore vk_semaphore = semaphore ? semaphore->vk() : VK_NULL_HANDLE;
     VkFence vk_fence = fence ? fence->vk() : VK_NULL_HANDLE;
