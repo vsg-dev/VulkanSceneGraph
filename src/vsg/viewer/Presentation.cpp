@@ -32,8 +32,8 @@ VkResult Presentation::present()
     std::vector<uint32_t> indices;
     for (auto& window : windows)
     {
-        //vk_semaphores.push_back(*(window->frame(window->nextImageIndex()).imageAvailableSemaphore));
-        if (window->visible())
+        //vk_semaphores.push_back(*(window->frame(window->imageIndex()).imageAvailableSemaphore));
+        if (window->visible() && window->nextImageIndex() < window->numFrames())
         {
             vk_swapchains.emplace_back(*(window->getOrCreateSwapchain()));
             indices.emplace_back(window->nextImageIndex());
@@ -69,14 +69,6 @@ VkResult Presentation::present()
     }
     std::cout << std::endl;
 #endif
-
-    for (auto& window : windows)
-    {
-        if (window->visible())
-        {
-            window->advanceNextImageIndex();
-        }
-    }
 
     return queue->present(presentInfo);
 }

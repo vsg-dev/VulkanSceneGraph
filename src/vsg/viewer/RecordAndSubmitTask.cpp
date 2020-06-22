@@ -86,6 +86,8 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
 
     for (auto& window : windows)
     {
+        if (window->nextImageIndex() >= window->numFrames()) continue;
+
         auto& semaphore = window->frame(window->nextImageIndex()).imageAvailableSemaphore;
 
         vk_waitSemaphores.emplace_back(*semaphore);

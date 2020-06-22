@@ -266,6 +266,8 @@ void Window::buildSwapchain()
     // set up framebuffer and associated resources
     auto& imageViews = _swapchain->getImageViews();
 
+    _availableSemaphore = vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag);
+
     for (size_t i = 0; i < imageViews.size(); ++i)
     {
         vsg::ImageViews attachments;
@@ -315,5 +317,30 @@ void Window::buildSwapchain()
         });
     }
 
-    _nextImageIndex = 0;
+    _nextImageIndex = numFrames();
+    _previousImageIndex = numFrames();
+}
+
+VkResult Window::acquireNextImage(uint64_t timeout)
+{
+    if (!_swapchain) _initSwapchain();
+
+    if (!_availableSemaphore) _availableSemaphore = vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag);
+
+    uint32_t imageIndex;
+    VkResult result = _swapchain->acquireNextImage(timeout, _availableSemaphore, {}, imageIndex);
+
+    if (result == VK_SUCCESS)
+    {
+        // the aquired image's semaphore must be available now so make it the new _availableSemaphore and set it's enty to the one to use of the next frame by swapping ref_ptr<>'s
+        _previousImageIndex = _nextImageIndex;
+        _nextImageIndex = imageIndex;
+        _availableSemaphore.swap(_frames[_nextImageIndex].imageAvailableSemaphore);
+    }
+    else
+    {
+        _nextImageIndex = numFrames();
+    }
+
+    return result;
 }
