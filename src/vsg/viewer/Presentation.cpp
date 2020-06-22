@@ -32,7 +32,6 @@ VkResult Presentation::present()
     std::vector<uint32_t> indices;
     for (auto& window : windows)
     {
-        //vk_semaphores.push_back(*(window->frame(window->imageIndex()).imageAvailableSemaphore));
         if (window->visible() && window->nextImageIndex() < window->numFrames())
         {
             vk_swapchains.emplace_back(*(window->getOrCreateSwapchain()));
