@@ -123,7 +123,26 @@ bool Viewer::advanceToNextFrame()
 
     // create FrameStamp for frame
     auto time = vsg::clock::now();
-    _frameStamp = _frameStamp ? new vsg::FrameStamp(time, _frameStamp->frameCount + 1) : new vsg::FrameStamp(time, 0);
+    if (!_frameStamp)
+    {
+        // first frame, initialze to frame count and indices to 0
+        _frameStamp = new vsg::FrameStamp(time, 0);
+
+        for(auto& task : recordAndSubmitTasks)
+        {
+            task->index = 0;
+        }
+    }
+    else
+    {
+        // after forst frame so increment frame count and indices
+        _frameStamp = new vsg::FrameStamp(time, _frameStamp->frameCount + 1);
+
+        for(auto& task : recordAndSubmitTasks)
+        {
+            task->index = (task->index+1) % task->fences.size();
+        }
+    }
 
     // create an event for the new frame.
     _events.emplace_back(new FrameEvent(_frameStamp));

@@ -160,7 +160,5 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
     std::cout << std::endl;
 #endif
 
-    index = (index + 1) % fences.size();
-
     return queue->submit(submitInfo, fence);
 }
