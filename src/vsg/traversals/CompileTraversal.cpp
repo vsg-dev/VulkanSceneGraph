@@ -69,21 +69,41 @@ void CollectDescriptorStats::apply(const ResourceHints& resourceHints)
 
 void CollectDescriptorStats::apply(const Node& node)
 {
-    if (checkForResourceHints(node)) return;
+    bool hasResourceHints = checkForResourceHints(node);
+    if (hasResourceHints) ++_numResourceHintsAbove;
 
     node.traverse(*this);
+
+    if (hasResourceHints) --_numResourceHintsAbove;
 }
 
 void CollectDescriptorStats::apply(const StateGroup& stategroup)
 {
-    if (checkForResourceHints(stategroup)) return;
+    bool hasResourceHints = checkForResourceHints(stategroup);
+    if (hasResourceHints) ++_numResourceHintsAbove;
 
-    for (auto& command : stategroup.getStateCommands())
+    if (_numResourceHintsAbove==0)
     {
-        command->accept(*this);
+        for (auto& command : stategroup.getStateCommands())
+        {
+            command->accept(*this);
+        }
     }
 
     stategroup.traverse(*this);
+
+    if (hasResourceHints) --_numResourceHintsAbove;
+}
+
+void CollectDescriptorStats::apply(const PagedLOD& plod)
+{
+    bool hasResourceHints = checkForResourceHints(plod);
+    if (hasResourceHints) ++_numResourceHintsAbove;
+
+    containsPagedLOD = true;
+    plod.traverse(*this);
+
+    if (hasResourceHints) --_numResourceHintsAbove;
 }
 
 void CollectDescriptorStats::apply(const StateCommand& stateCommand)

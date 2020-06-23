@@ -180,6 +180,9 @@ void Viewer::compile(BufferPreferences bufferPreferences)
         return;
     }
 
+    bool containsPagedLOD = false;
+    ref_ptr<DatabasePager> databasePager;
+
     struct DeviceResources
     {
         vsg::CollectDescriptorStats collectStats;
@@ -197,11 +200,15 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             auto& deviceResources = deviceResourceMap[commandGraph->device];
             commandGraph->accept(deviceResources.collectStats);
         }
+
+        if (task->databasePager && !databasePager) databasePager = task->databasePager;
     }
 
     // allocate DescriptorPool for each Device
     for (auto& [device, deviceResource] : deviceResourceMap)
     {
+        if (deviceResource.collectStats.containsPagedLOD) containsPagedLOD = true;
+
         auto physicalDevice = device->getPhysicalDevice();
 
         auto& collectStats = deviceResource.collectStats;
@@ -217,10 +224,14 @@ void Viewer::compile(BufferPreferences bufferPreferences)
         if (descriptorPoolSizes.size() > 0) deviceResource.compile->context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
     }
 
+    if (containsPagedLOD && !databasePager) databasePager = DatabasePager::create();
+
     // create the Vulkan objects
     for (auto& task : recordAndSubmitTasks)
     {
         std::set<Device*> devices;
+
+        bool task_containsPagedLOD = false;
 
         for (auto& commandGraph : task->commandGraphs)
         {
@@ -229,6 +240,13 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             auto& deviceResource = deviceResourceMap[commandGraph->device];
             commandGraph->maxSlot = deviceResource.collectStats.maxSlot;
             commandGraph->accept(*deviceResource.compile);
+
+            if (deviceResource.collectStats.containsPagedLOD) task_containsPagedLOD = true;
+        }
+
+        if (task_containsPagedLOD)
+        {
+            if (!task->databasePager) task->databasePager = databasePager;
         }
 
         if (task->databasePager)
@@ -265,7 +283,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
     }
 }
 
-void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGraphs, DatabasePager* databasePager)
+void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGraphs)
 {
     struct DeviceQueueFamily
     {
@@ -329,7 +347,6 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create(device, numBuffers);
             recordAndSubmitTask->commandGraphs = commandGraphs;
             recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
-            recordAndSubmitTask->databasePager = databasePager;
             recordAndSubmitTask->windows = windows;
             recordAndSubmitTask->queue = device->getQueue(deviceQueueFamily.queueFamily);
             recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
@@ -346,7 +363,6 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             // set up Submission with CommandBuffer and signals
             auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create(device, numBuffers);
             recordAndSubmitTask->commandGraphs = commandGraphs;
-            recordAndSubmitTask->databasePager = databasePager;
             recordAndSubmitTask->queue = device->getQueue(deviceQueueFamily.queueFamily);
             recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
         }
