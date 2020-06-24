@@ -248,9 +248,14 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
     {
         context.defaultPipelineStates.emplace_back(renderGraph.camera->getViewportState());
     }
-    else
+    else if (renderGraph.window)
     {
         context.defaultPipelineStates.push_back(vsg::ViewportState::create(renderGraph.window->extent2D()));
+    }
+    else if (renderGraph.framebuffer)
+    {
+        VkExtent2D extent{renderGraph.framebuffer->width(), renderGraph.framebuffer->height()};
+        context.defaultPipelineStates.push_back(vsg::ViewportState::create(extent));
     }
 
     if (context.renderPass && context.renderPass->maxSamples() != VK_SAMPLE_COUNT_1_BIT)
