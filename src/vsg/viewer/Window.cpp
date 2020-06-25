@@ -79,7 +79,8 @@ void Window::_initInstance()
         if (_traits->debugLayer || _traits->apiDumpLayer)
         {
             instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-            requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+            requestedLayers.push_back("VK_LAYER_KHRONOS_validation"); // new validation layer name
+            requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation"); // old validation layer name
             if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
         }
 
