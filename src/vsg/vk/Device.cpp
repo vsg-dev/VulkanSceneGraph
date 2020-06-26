@@ -134,6 +134,11 @@ Device::~Device()
     releaseDeiviceID(deviceID);
 }
 
+uint32_t Device::maxNumDevices()
+{
+    return VSG_MAX_DEVICES;
+}
+
 ref_ptr<Queue> Device::getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
 {
     for (auto& queue : _queues)
