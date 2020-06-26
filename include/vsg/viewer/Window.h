@@ -125,13 +125,9 @@ namespace vsg
         /// call vkAquireNextImageKHR to find the next imageIndex of the swapchain images/framebuffers
         VkResult acquireNextImage(uint64_t timeout = std::numeric_limits<uint64_t>::max());
 
-        /// return the index of the last aquired image and the next one to be rendered.
-        /// return values < numFrames() are valid, >= numFrame() are invalid.
-        uint32_t nextImageIndex() const { return _nextImageIndex; }
+        /// get the image index for specified relative frame index, a 0 value is the current frame being rendered, 1 is the previous frame, 2 is the previous frame that.
+        size_t imageIndex(size_t relativeFrameIndex = 0) const { return relativeFrameIndex < _indices.size() ? _indices[relativeFrameIndex] : _indices.size(); }
 
-        /// return the index of the previous aquired image
-        /// return values < numFrames() are valid, >= numFrame() are invalid.
-        uint32_t previousImageIndex() const { return _previousImageIndex; }
 
         bool debugLayersEnabled() const { return _traits->debugLayer; }
 
@@ -189,8 +185,8 @@ namespace vsg
         ref_ptr<Semaphore> _availableSemaphore;
 
         Frames _frames;
-        uint32_t _previousImageIndex;
-        uint32_t _nextImageIndex;
+        std::vector<size_t> _indices;
+
     };
     VSG_type_name(vsg::Window);
 

@@ -29,6 +29,11 @@ namespace vsg
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
+        DeviceMemory* getDeviceMemory() { return _deviceMemory; }
+        const DeviceMemory* getDeviceMemory() const { return _deviceMemory; }
+
+        VkDeviceSize getMemoryOffset() const { return _memoryOffset; }
+
         VkMemoryRequirements getMemoryRequirements() const;
 
         VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)

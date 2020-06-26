@@ -32,10 +32,11 @@ VkResult Presentation::present()
     std::vector<uint32_t> indices;
     for (auto& window : windows)
     {
-        if (window->visible() && window->nextImageIndex() < window->numFrames())
+        size_t imageIndex = window->imageIndex();
+        if (window->visible() && imageIndex < window->numFrames())
         {
             vk_swapchains.emplace_back(*(window->getOrCreateSwapchain()));
-            indices.emplace_back(window->nextImageIndex());
+            indices.emplace_back(static_cast<uint32_t>(imageIndex));
         }
     }
 

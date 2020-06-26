@@ -25,8 +25,7 @@ Window::Window(ref_ptr<WindowTraits> traits) :
     _traits(traits),
     _extent2D{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()},
     _clearColor{{0.2f, 0.2f, 0.4f, 1.0f}},
-    _framebufferSamples(VK_SAMPLE_COUNT_1_BIT),
-    _nextImageIndex(0)
+    _framebufferSamples(VK_SAMPLE_COUNT_1_BIT)
 {
 }
 
@@ -191,6 +190,7 @@ void Window::buildSwapchain()
 
         // clean up previous swap chain before we begin creating a new one.
         _frames.clear();
+        _indices.clear();
 
         _depthImageView = 0;
         _depthImage = 0;
@@ -269,6 +269,7 @@ void Window::buildSwapchain()
 
     _availableSemaphore = vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag);
 
+    size_t initial_indexValue = imageViews.size();
     for (size_t i = 0; i < imageViews.size(); ++i)
     {
         vsg::ImageViews attachments;
@@ -284,6 +285,7 @@ void Window::buildSwapchain()
         ref_ptr<Semaphore> ias = vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag);
 
         _frames.push_back({multisampling ? _multisampleImageView : imageViews[i], fb, ias});
+        _indices.push_back(initial_indexValue);
     }
 
     {
@@ -317,9 +319,6 @@ void Window::buildSwapchain()
             }
         });
     }
-
-    _nextImageIndex = numFrames();
-    _previousImageIndex = numFrames();
 }
 
 VkResult Window::acquireNextImage(uint64_t timeout)
@@ -334,13 +333,20 @@ VkResult Window::acquireNextImage(uint64_t timeout)
     if (result == VK_SUCCESS)
     {
         // the aquired image's semaphore must be available now so make it the new _availableSemaphore and set it's enty to the one to use of the next frame by swapping ref_ptr<>'s
-        _previousImageIndex = _nextImageIndex;
-        _nextImageIndex = imageIndex;
-        _availableSemaphore.swap(_frames[_nextImageIndex].imageAvailableSemaphore);
+        _availableSemaphore.swap(_frames[imageIndex].imageAvailableSemaphore);
+
+        // shift up previous frame indices
+        for(size_t i=1; i<_indices.size(); ++i)
+        {
+            _indices[i] = _indices[i-1];
+        }
+
+        // update head of _indices to the new frames imageIndex
+        _indices[0] = imageIndex;
     }
     else
     {
-        _nextImageIndex = numFrames();
+        // TODO: Need to think about what should happen on failure
     }
 
     return result;

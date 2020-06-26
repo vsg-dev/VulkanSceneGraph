@@ -130,7 +130,7 @@ bool Viewer::advanceToNextFrame()
 
         for(auto& task : recordAndSubmitTasks)
         {
-            task->index = 0;
+            task->advance();
         }
     }
     else
@@ -140,7 +140,7 @@ bool Viewer::advanceToNextFrame()
 
         for(auto& task : recordAndSubmitTasks)
         {
-            task->index = (task->index+1) % task->fences.size();
+            task->advance();
         }
     }
 
