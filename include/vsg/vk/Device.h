@@ -45,6 +45,8 @@ namespace vsg
         operator VkDevice() const { return _device; }
         VkDevice getDevice() const { return _device; }
 
+        static uint32_t maxNumDevices();
+
         const uint32_t deviceID = 0;
 
         AllocationCallbacks* getAllocationCallbacks() { return _allocator.get(); }
