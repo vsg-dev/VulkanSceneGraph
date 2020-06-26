@@ -41,12 +41,24 @@ namespace vsg
         CommandGraphs commandGraphs; // assign in application setup
         Semaphores signalSemaphores; // connect to Presentation.waitSemaphores
 
-        uint32_t index = 0; // current fence/buffer set to use, cycled through automatically in submit call.
-        std::vector<ref_ptr<Fence>> fences;
+        /// advance the currentFrameIndex
+        void advance();
+
+        /// return the fence index value for relativeFrameIndex where 0 is current frame, 1 is prevous frame etc.
+        size_t index(size_t relativeFrameIndex = 0) const { return relativeFrameIndex < _indices.size() ? _indices[relativeFrameIndex] : _indices.size(); }
+
+        /// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) return the previous frame's Fence etc.
+        Fence* fence(size_t relativeFrameIndex = 0) { size_t i = index(relativeFrameIndex); return i < _fences.size() ? _fences[i].get() : nullptr; }
 
         ref_ptr<Queue> queue; // assign in application for GraphicsQueue from device
 
         ref_ptr<DatabasePager> databasePager;
+
+    protected:
+        size_t _currentFrameIndex;
+        std::vector<size_t> _indices;
+        std::vector<ref_ptr<Fence>> _fences;
+
     };
     VSG_type_name(vsg::RecordAndSubmitTask);
 

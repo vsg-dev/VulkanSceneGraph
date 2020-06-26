@@ -12,8 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <any>
-
 #include <vsg/ui/UIEvent.h>
 
 #include <vsg/vk/CommandBuffer.h>
@@ -124,15 +122,12 @@ namespace vsg
         Framebuffer* framebuffer(size_t i) { return _frames[i].framebuffer; }
         const Framebuffer* framebuffer(size_t i) const { return _frames[i].framebuffer; }
 
-        VkResult acquireNextImage(uint64_t timeout = std::numeric_limits<uint64_t>::max())
-        {
-            if (!_swapchain) _initSwapchain();
-            return vkAcquireNextImageKHR(*_device, *_swapchain, timeout, *(_frames[_nextImageIndex].imageAvailableSemaphore), VK_NULL_HANDLE, &_nextImageIndex);
-        }
+        /// call vkAquireNextImageKHR to find the next imageIndex of the swapchain images/framebuffers
+        VkResult acquireNextImage(uint64_t timeout = std::numeric_limits<uint64_t>::max());
 
-        uint32_t nextImageIndex() const { return _nextImageIndex; }
+        /// get the image index for specified relative frame index, a 0 value is the current frame being rendered, 1 is the previous frame, 2 is the previous frame that.
+        size_t imageIndex(size_t relativeFrameIndex = 0) const { return relativeFrameIndex < _indices.size() ? _indices[relativeFrameIndex] : _indices.size(); }
 
-        void advanceNextImageIndex() { _nextImageIndex = (_nextImageIndex + 1) % _frames.size(); }
 
         bool debugLayersEnabled() const { return _traits->debugLayer; }
 
@@ -187,8 +182,11 @@ namespace vsg
         ref_ptr<Image> _multisampleImage;
         ref_ptr<ImageView> _multisampleImageView;
 
+        ref_ptr<Semaphore> _availableSemaphore;
+
         Frames _frames;
-        uint32_t _nextImageIndex;
+        std::vector<size_t> _indices;
+
     };
     VSG_type_name(vsg::Window);
 

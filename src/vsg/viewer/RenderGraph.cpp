@@ -130,16 +130,6 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
         }
     }
 
-    if (camera)
-    {
-        dmat4 projMatrix, viewMatrix;
-        camera->getProjectionMatrix()->get(projMatrix);
-        camera->getViewMatrix()->get(viewMatrix);
-
-        recordTraversal.setProjectionAndViewMatrix(projMatrix, viewMatrix);
-    }
-
-    VkCommandBuffer vk_commandBuffer = *(recordTraversal.getState()->_commandBuffer);
 
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -151,15 +141,29 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     }
     else
     {
+        size_t imageIndex = window->imageIndex();
+        if (imageIndex >= window->numFrames()) return;
+
         renderPassInfo.renderPass = *(window->getRenderPass());
-        renderPassInfo.framebuffer = *(window->framebuffer(window->nextImageIndex()));
+        renderPassInfo.framebuffer = *(window->framebuffer(imageIndex));
     }
 
     renderPassInfo.renderArea = renderArea;
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
+
+    VkCommandBuffer vk_commandBuffer = *(recordTraversal.getState()->_commandBuffer);
     vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, contents);
+
+    if (camera)
+    {
+        dmat4 projMatrix, viewMatrix;
+        camera->getProjectionMatrix()->get(projMatrix);
+        camera->getViewMatrix()->get(viewMatrix);
+
+        recordTraversal.setProjectionAndViewMatrix(projMatrix, viewMatrix);
+    }
 
     // traverse the command buffer to place the commands into the command buffer.
     traverse(recordTraversal);

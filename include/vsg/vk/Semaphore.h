@@ -43,7 +43,9 @@ namespace vsg
         ref_ptr<Device> _device;
         ref_ptr<AllocationCallbacks> _allocator;
     };
+    VSG_type_name(vsg::Semaphore);
 
     using Semaphores = std::vector<ref_ptr<Semaphore>>;
+
 
 } // namespace vsg

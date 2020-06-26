@@ -21,7 +21,11 @@ void CopyImageViewToWindow::record(CommandBuffer& commandBuffer) const
 {
     // TODO: replace this implementation with a list of commands rather than present create commands, record commands, delete commands
 
-    auto imageView = window->imageView(window->nextImageIndex());
+    // do nothing if the nextImageIndex() is invalid.
+    size_t imageIndex = window->imageIndex();
+    if (imageIndex >= window->numFrames()) return;
+
+    auto imageView = window->imageView(imageIndex);
 
     //  transition image layouts for copy
     auto imb_transitionSwapChainToWriteDest = ImageMemoryBarrier::create(

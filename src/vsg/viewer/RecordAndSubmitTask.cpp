@@ -21,11 +21,37 @@ using namespace vsg;
 
 RecordAndSubmitTask::RecordAndSubmitTask(Device* device, uint32_t numBuffers)
 {
+    _currentFrameIndex = numBuffers; // numBuffers is used to signify unset value
     for (uint32_t i = 0; i < numBuffers; ++i)
     {
-        fences.emplace_back(vsg::Fence::create(device));
+        _fences.emplace_back(vsg::Fence::create(device));
+        _indices.emplace_back(numBuffers); // numBuffers is used to signify unset value
     }
 }
+
+void RecordAndSubmitTask::advance()
+{
+    if (_currentFrameIndex >= _indices.size())
+    {
+        // first frame so set to 0
+        _currentFrameIndex = 0;
+    }
+    else
+    {
+        ++_currentFrameIndex;
+        if (_currentFrameIndex > _indices.size()-1) _currentFrameIndex = 0;
+
+        // shift the index for previous frames
+        for(size_t i=1; i<_indices.size(); ++i)
+        {
+            _indices[i] = _indices[i-1];
+        }
+    }
+
+    // ass the index for the current frame
+    _indices[0] = _currentFrameIndex;
+}
+
 
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
@@ -37,13 +63,13 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 
 VkResult RecordAndSubmitTask::start()
 {
-    auto fence = fences[index];
-    if (fence->hasDependencies())
+    auto current_fence = fence();
+    if (current_fence->hasDependencies())
     {
         uint64_t timeout = std::numeric_limits<uint64_t>::max();
-        if (VkResult result; (result = fence->wait(timeout)) != VK_SUCCESS) return result;
+        if (VkResult result; (result = current_fence->wait(timeout)) != VK_SUCCESS) return result;
 
-        fence->resetFenceAndDependencies();
+        current_fence->resetFenceAndDependencies();
     }
     return VK_SUCCESS;
 }
@@ -59,7 +85,7 @@ VkResult RecordAndSubmitTask::record(CommandBuffers& recordedCommandBuffers, ref
 
 VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
 {
-    auto fence = fences[index];
+    auto current_fence = fence();
 
     if (recordedCommandBuffers.empty())
     {
@@ -79,14 +105,17 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
     {
         if (commandBuffer->level() == VK_COMMAND_BUFFER_LEVEL_PRIMARY) vk_commandBuffers.push_back(*commandBuffer);
 
-        fence->dependentCommandBuffers().emplace_back(commandBuffer);
+        current_fence->dependentCommandBuffers().emplace_back(commandBuffer);
     }
 
-    fence->dependentSemaphores() = signalSemaphores;
+    current_fence->dependentSemaphores() = signalSemaphores;
 
     for (auto& window : windows)
     {
-        auto& semaphore = window->frame(window->nextImageIndex()).imageAvailableSemaphore;
+        size_t imageIndex = window->imageIndex();
+        if (imageIndex >= window->numFrames()) continue;
+
+        auto& semaphore = window->frame(imageIndex).imageAvailableSemaphore;
 
         vk_waitSemaphores.emplace_back(*semaphore);
         vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
@@ -115,7 +144,7 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
             vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
 
             semaphore->numDependentSubmissions().fetch_add(1);
-            fence->dependentSemaphores().emplace_back(semaphore);
+            current_fence->dependentSemaphores().emplace_back(semaphore);
         }
     }
 
@@ -138,7 +167,7 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
     submitInfo.pSignalSemaphores = vk_signalSemaphores.data();
 
 #if 0
-    std::cout << "pdo.graphicsQueue->submit(..) fence = " << fence.get() << "\n";
+    std::cout << "pdo.graphicsQueue->submit(..) current_fence = " << current_fence << "\n";
     std::cout << "    submitInfo.waitSemaphoreCount = " << submitInfo.waitSemaphoreCount << "\n";
     for (uint32_t i = 0; i < submitInfo.waitSemaphoreCount; ++i)
     {
@@ -158,7 +187,5 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
     std::cout << std::endl;
 #endif
 
-    index = (index + 1) % fences.size();
-
-    return queue->submit(submitInfo, fence);
+    return queue->submit(submitInfo, current_fence);
 }

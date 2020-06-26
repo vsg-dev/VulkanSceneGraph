@@ -93,8 +93,7 @@ namespace vsg
         using Presentations = std::vector<ref_ptr<Presentation>>;
         Presentations presentations;
 
-        void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs, DatabasePager* databasePager = nullptr);
-        ;
+        void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs);
 
         std::list<std::thread> threads;
 
