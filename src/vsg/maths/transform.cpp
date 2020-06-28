@@ -12,10 +12,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/maths/transform.h>
 
-#include <iostream>
-
 using namespace vsg;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// inverse
+//
 template<class T>
 typename T::value_type difference(const T& lhs, const T& rhs)
 {
@@ -158,4 +160,72 @@ dmat4 vsg::inverse(const dmat4& m)
     {
         return t_inverse_4x4(m);
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// computeFrustumBound
+//
+template<typename T>
+t_sphere<T> t_computeFrustumBound(const t_mat4<T>& m)
+{
+    using vec_type = t_vec3<T>;
+    using value_type = T;
+    auto inv_m = inverse(m);
+
+    auto update_radius2 = [&](value_type& r, const vec_type& center, const vec_type& corner) -> void
+    {
+        auto new_r = length2(corner - center);
+        if (new_r > r) r = new_r;
+    };
+
+    // compute the a2 the radius squared of the near plane relative to the near planes mid point
+    vec_type near_center = inv_m * vec_type(0.0, 0.0, -1.0);
+    value_type a2 = length2(inv_m * vec_type(-1.0, -1.0, -1.0) - near_center);
+    update_radius2(a2, near_center, inv_m * vec_type(1.0, -1.0, -1.0));
+    update_radius2(a2, near_center, inv_m * vec_type(1.0, 1.0, -1.0));
+    update_radius2(a2, near_center, inv_m * vec_type(-1.0, 1.0, -1.0));
+
+    // compute the b2 the radius squared of the far plane relative to the far planes mid point
+    vec_type far_center = inv_m * vec_type(0.0, 0.0, 1.0);
+    value_type b2 = length2(inv_m * vec_type(-1.0, -1.0, 1.0) - far_center);
+    update_radius2(b2, far_center, inv_m * vec_type(1.0, -1.0, 1.0));
+    update_radius2(b2, far_center, inv_m * vec_type(1.0, 1.0, 1.0));
+    update_radius2(b2, far_center, inv_m * vec_type(-1.0, 1.0, 1.0));
+
+    // compute the position along the center line of the frustum that minimizes the radius to the near/far corners of the frustum
+    value_type c2 = length2(far_center - near_center);
+    value_type c = sqrt(c2);
+    value_type d = (b2 + c2 - a2) / (static_cast<value_type>(2.0) * c);
+
+    // compute radius
+    value_type radius;
+    if (d>c) // d beyond far plane
+    {
+        d = c;
+        radius = sqrt(b2);
+    }
+    else if (d<0.0) // d in front of near plane
+    {
+        d = 0.0;
+        radius = sqrt(a2);
+    }
+    else // d between near and far planes
+    {
+        radius = sqrt(a2 + d*d);
+    }
+
+    auto center = near_center + (far_center - near_center) * (d/c);
+
+    return t_sphere<T>(center,radius);
+}
+
+sphere vsg::computeFrustumBound(const mat4& m)
+{
+    return t_computeFrustumBound<float>(m);
+}
+
+dsphere vsg::computeFrustumBound(const dmat4& m)
+{
+    return t_computeFrustumBound<double>(m);
 }
