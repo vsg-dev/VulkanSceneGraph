@@ -17,12 +17,30 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    using AttachmentDescription = VkAttachmentDescription;
+
+    using AttachmentReference = VkAttachmentReference;
+
+    struct SubpassDescription
+    {
+        VkSubpassDescriptionFlags flags = 0;
+        VkPipelineBindPoint pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        std::vector<AttachmentReference> inputAttachments;
+        std::vector<AttachmentReference> colorAttachments;
+        std::vector<AttachmentReference> resolveAttachments;
+        std::vector<AttachmentReference> depthStencilAttachments;
+        std::vector<uint32_t> preserveAttachments;
+    };
+
+    using SubpassDependency = VkSubpassDependency;
+
     class VSG_DECLSPEC RenderPass : public Inherit<Object, RenderPass>
     {
     public:
-        using Attachments = std::vector<VkAttachmentDescription>;
-        using Subpasses = std::vector<VkSubpassDescription>; // need lists of VkAttachmentReference
-        using Dependencies = std::vector<VkSubpassDependency>;
+
+        using Attachments = std::vector<AttachmentDescription>;
+        using Subpasses = std::vector<SubpassDescription>;
+        using Dependencies = std::vector<SubpassDependency>;
 
         RenderPass(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependencies& dependencies, AllocationCallbacks* allocator = nullptr);
 
@@ -45,6 +63,9 @@ namespace vsg
         ref_ptr<AllocationCallbacks> _allocator;
     };
     VSG_type_name(vsg::RenderPass);
+
+    extern AttachmentDescription defaultColorAttachment(VkFormat imageFormat);
+    extern AttachmentDescription defaultDepthAttachment(VkFormat depthFormat);
 
     extern ref_ptr<RenderPass> createRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator = nullptr);
     extern ref_ptr<RenderPass> createMultisampledRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat,

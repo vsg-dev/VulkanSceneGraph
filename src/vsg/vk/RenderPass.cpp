@@ -27,12 +27,30 @@ RenderPass::RenderPass(Device* device, const Attachments& attachments, const Sub
         if (attachment.samples > _maxSamples) _maxSamples = attachment.samples;
     }
 
+    std::vector<VkSubpassDescription> vk_subpasses(subpasses.size());
+    for(size_t i=0; i<subpasses.size(); ++i)
+    {
+        const SubpassDescription& src = subpasses[i];
+        VkSubpassDescription& dst = vk_subpasses[i];
+        dst.flags = src.flags;
+        dst.pipelineBindPoint = src.pipelineBindPoint;
+        dst.inputAttachmentCount = static_cast<uint32_t>(src.inputAttachments.size());
+        dst.pInputAttachments = src.inputAttachments.empty() ? nullptr : src.inputAttachments.data();
+        dst.colorAttachmentCount = static_cast<uint32_t>(src.colorAttachments.size());
+        dst.pColorAttachments = src.colorAttachments.empty() ? nullptr : src.colorAttachments.data();
+        dst.pResolveAttachments = src.depthStencilAttachments.empty() ? nullptr : src.resolveAttachments.data();
+        dst.pDepthStencilAttachment = (src.depthStencilAttachments.empty()) ? nullptr : src.depthStencilAttachments.data();
+        dst.preserveAttachmentCount = static_cast<uint32_t>(src.preserveAttachments.size());
+        dst.pPreserveAttachments = src.preserveAttachments.empty() ? nullptr : src.preserveAttachments.data();
+    }
+
+
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
     renderPassInfo.pAttachments = attachments.data();
-    renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
-    renderPassInfo.pSubpasses = subpasses.data();
+    renderPassInfo.subpassCount = static_cast<uint32_t>(vk_subpasses.size());
+    renderPassInfo.pSubpasses = vk_subpasses.data();
     renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
     renderPassInfo.pDependencies = dependencies.data();
 
@@ -51,10 +69,9 @@ RenderPass::~RenderPass()
     }
 }
 
-ref_ptr<RenderPass> vsg::createRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator)
-{
-    RenderPass::Attachments attachments;
 
+AttachmentDescription vsg::defaultColorAttachment(VkFormat imageFormat)
+{
     VkAttachmentDescription colorAttachment = {};
     colorAttachment.format = imageFormat;
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -64,8 +81,12 @@ ref_ptr<RenderPass> vsg::createRenderPass(Device* device, VkFormat imageFormat, 
     colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-    attachments.push_back(colorAttachment);
 
+    return colorAttachment;
+}
+
+AttachmentDescription vsg::defaultDepthAttachment(VkFormat depthFormat)
+{
     VkAttachmentDescription depthAttachment = {};
     depthAttachment.format = depthFormat;
     depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -75,7 +96,16 @@ ref_ptr<RenderPass> vsg::createRenderPass(Device* device, VkFormat imageFormat, 
     depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-    attachments.push_back(depthAttachment);
+
+    return depthAttachment;
+}
+
+ref_ptr<RenderPass> vsg::createRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator)
+{
+    RenderPass::Attachments attachments{
+        defaultColorAttachment(imageFormat),
+        defaultDepthAttachment(depthFormat)
+    };
 
     VkAttachmentReference colorAttachmentRef = {};
     colorAttachmentRef.attachment = 0;
@@ -85,16 +115,12 @@ ref_ptr<RenderPass> vsg::createRenderPass(Device* device, VkFormat imageFormat, 
     depthAttachmentRef.attachment = 1;
     depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-    RenderPass::Subpasses subpasses;
-
-    VkSubpassDescription subpass = {};
+    SubpassDescription subpass = {};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorAttachmentRef;
-    subpass.pDepthStencilAttachment = &depthAttachmentRef;
-    subpasses.push_back(subpass);
+    subpass.colorAttachments.emplace_back(colorAttachmentRef);
+    subpass.depthStencilAttachments.emplace_back(depthAttachmentRef);
 
-    RenderPass::Dependencies dependencies;
+    RenderPass::Subpasses subpasses{subpass};
 
     VkSubpassDependency dependency = {};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -103,7 +129,8 @@ ref_ptr<RenderPass> vsg::createRenderPass(Device* device, VkFormat imageFormat, 
     dependency.srcAccessMask = 0;
     dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    dependencies.push_back(dependency);
+
+    RenderPass::Dependencies dependencies{dependency};
 
     return RenderPass::create(device, attachments, subpasses, dependencies, allocator);
 }
@@ -115,7 +142,6 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
     {
         return createRenderPass(device, imageFormat, depthFormat, allocator);
     }
-    RenderPass::Attachments attachments;
 
     // First attachment is multisampled target.
     VkAttachmentDescription colorAttachment = {};
@@ -127,7 +153,6 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
     colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    attachments.push_back(colorAttachment);
 
     // Second attachment is the resolved image which will be presented.
     VkAttachmentDescription resolveAttachment = {};
@@ -139,7 +164,6 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
     resolveAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     resolveAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     resolveAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-    attachments.push_back(resolveAttachment);
 
     // Multisampled depth attachment. It won't be resolved.
     VkAttachmentDescription depthAttachment = {};
@@ -151,7 +175,9 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
     depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-    attachments.push_back(depthAttachment);
+
+    RenderPass::Attachments attachments{colorAttachment, resolveAttachment, depthAttachment};
+
 
     VkAttachmentReference colorAttachmentRef = {};
     colorAttachmentRef.attachment = 0;
@@ -165,17 +191,13 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
     depthAttachmentRef.attachment = 2;
     depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-    RenderPass::Subpasses subpasses;
-
-    VkSubpassDescription subpass = {};
+    SubpassDescription subpass;
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorAttachmentRef;
-    subpass.pResolveAttachments = &resolveAttachmentRef;
-    subpass.pDepthStencilAttachment = &depthAttachmentRef;
-    subpasses.push_back(subpass);
+    subpass.colorAttachments.emplace_back(colorAttachmentRef);
+    subpass.resolveAttachments.emplace_back(resolveAttachmentRef);
+    subpass.depthStencilAttachments.emplace_back(depthAttachmentRef);
 
-    RenderPass::Dependencies dependencies;
+    RenderPass::Subpasses subpasses{subpass};
 
     VkSubpassDependency dependency = {};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -185,7 +207,6 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
     dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-    dependencies.push_back(dependency);
 
     VkSubpassDependency dependency2 = {};
     dependency2.srcSubpass = 0;
@@ -195,7 +216,8 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
     dependency2.dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
     dependency2.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
     dependency2.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-    dependencies.push_back(dependency2);
+
+    RenderPass::Dependencies dependencies{dependency, dependency2};
 
     return RenderPass::create(device, attachments, subpasses, dependencies, allocator);
 }
