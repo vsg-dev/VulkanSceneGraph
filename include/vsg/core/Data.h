@@ -37,11 +37,12 @@ namespace vsg
     class VSG_DECLSPEC Data : public Object
     {
     public:
-        /* Layout used for configuring use of mipmaps and block compressed data and origin.
+        /* Layout used for specifying the format of the data, use of mipmaps, block compressed data and origin.
          * Default of no mipmapping and {1,1,1} is uncompressed.
          * A single block (Block64/Block128) is stored as a single value with the Data object. */
         struct Layout
         {
+            VkFormat format = VK_FORMAT_UNDEFINED;
             uint8_t maxNumMipmaps = 0;
             uint8_t blockWidth = 1;
             uint8_t blockHeight = 1;
@@ -51,14 +52,7 @@ namespace vsg
 
         Data() {}
 
-        explicit Data(VkFormat format) :
-            _format(format) {}
-
         explicit Data(Layout layout) :
-            _layout(layout) {}
-
-        Data(VkFormat format, Layout layout) :
-            _format(format),
             _layout(layout) {}
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Data); }
@@ -66,11 +60,14 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void setFormat(VkFormat format) { _format = format; }
-        VkFormat getFormat() const { return _format; }
+        void setFormat(VkFormat format) { _layout.format = format; }
+        VkFormat getFormat() const { return _layout.format; }
 
         /** Set Layout */
         void setLayout(Layout layout) { _layout = layout; }
+
+        /** Get the Layout.*/
+        Layout& getLayout() { return _layout; }
 
         /** Get the Layout.*/
         Layout getLayout() const { return _layout; }
@@ -101,7 +98,6 @@ namespace vsg
     protected:
         virtual ~Data() {}
 
-        VkFormat _format = VK_FORMAT_UNDEFINED;
         Layout _layout;
     };
     VSG_type_name(vsg::Data);

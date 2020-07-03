@@ -19,16 +19,18 @@ using namespace vsg;
 void Data::read(Input& input)
 {
     Object::read(input);
-    _format = static_cast<VkFormat>(input.readValue<std::int32_t>("Format"));
 
+    // TODO need to move format read/write into Layout
+    _layout.format = static_cast<VkFormat>(input.readValue<std::int32_t>("Format"));
     input.read("Layout", _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin);
 }
 
 void Data::write(Output& output) const
 {
     Object::write(output);
-    output.writeValue<std::int32_t>("Format", _format);
 
+    // TODO need to move format read/write into Layout
+    output.writeValue<std::int32_t>("Format", _layout.format);
     output.write("Layout", _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin);
 }
 
