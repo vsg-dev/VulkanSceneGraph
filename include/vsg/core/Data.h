@@ -60,11 +60,19 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
+        /// Deprecated. TODO : need to remove
         void setFormat(VkFormat format) { _layout.format = format; }
+
+        /// Deprecated. TODO : : need to remove
         VkFormat getFormat() const { return _layout.format; }
 
         /** Set Layout */
-        void setLayout(Layout layout) { _layout = layout; }
+        void setLayout(Layout layout)
+        {
+            VkFormat previousFormat = _layout.format; // temporary hack to keep applications that call setFormat(..) before setLayout(..) working
+            _layout = layout;
+            if (_layout.format == 0 && previousFormat != 0) _layout.format = previousFormat; // temporary hack to keep existing applications working
+        }
 
         /** Get the Layout.*/
         Layout& getLayout() { return _layout; }
