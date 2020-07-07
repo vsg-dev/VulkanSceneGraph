@@ -42,23 +42,20 @@ namespace vsg
             _height(0),
             _data(nullptr) {}
 
-        Array2D(std::uint32_t width, std::uint32_t height, value_type* data) :
+        Array2D(std::uint32_t width, std::uint32_t height, Layout layout = {}) :
+            Data(layout),
             _width(width),
             _height(height),
-            _data(data) {}
+            _data(new value_type[static_cast<std::size_t>(width) * height]) {}
 
-        Array2D(std::uint32_t width, std::uint32_t height, value_type* data, Layout layout) :
+        Array2D(std::uint32_t width, std::uint32_t height, value_type* data, Layout layout = {}) :
             Data(layout),
             _width(width),
             _height(height),
             _data(data) {}
 
-        Array2D(std::uint32_t width, std::uint32_t height) :
-            _width(width),
-            _height(height),
-            _data(new value_type[static_cast<std::size_t>(width) * height]) {}
-
-        Array2D(std::uint32_t width, std::uint32_t height, const value_type& value) :
+        Array2D(std::uint32_t width, std::uint32_t height, const value_type& value, Layout layout = {}) :
+            Data(layout),
             _width(width),
             _height(height),
             _data(new value_type[static_cast<std::size_t>(width) * height])

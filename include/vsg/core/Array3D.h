@@ -43,26 +43,22 @@ namespace vsg
             _depth(0),
             _data(nullptr) {}
 
-        Array3D(std::uint32_t width, std::uint32_t height, std::uint32_t depth, value_type* data) :
+        Array3D(std::uint32_t width, std::uint32_t height, std::uint32_t depth, Layout layout = {}) :
+            Data(layout),
             _width(width),
             _height(height),
             _depth(depth),
-            _data(data) {}
+            _data(new value_type[static_cast<std::size_t>(width) * height * depth]) {}
 
-        Array3D(std::uint32_t width, std::uint32_t height, std::uint32_t depth, value_type* data, Layout layout) :
+        Array3D(std::uint32_t width, std::uint32_t height, std::uint32_t depth, value_type* data, Layout layout = {}) :
             Data(layout),
             _width(width),
             _height(height),
             _depth(depth),
             _data(data) {}
 
-        Array3D(std::uint32_t width, std::uint32_t height, std::uint32_t depth) :
-            _width(width),
-            _height(height),
-            _depth(depth),
-            _data(new value_type[static_cast<std::size_t>(width) * height * depth]) {}
-
-        Array3D(std::uint32_t width, std::uint32_t height, std::uint32_t depth, const value_type& value) :
+        Array3D(std::uint32_t width, std::uint32_t height, std::uint32_t depth, const value_type& value, Layout layout = {}) :
+            Data(layout),
             _width(width),
             _height(height),
             _depth(depth),
@@ -152,6 +148,7 @@ namespace vsg
             _depth = depth;
             _data = data;
         }
+
 
         // release the data so that ownership can be passed on, the local data pointer and size is set to 0 and destruction of Array will no result in the data being deleted.
         void* dataRelease() override

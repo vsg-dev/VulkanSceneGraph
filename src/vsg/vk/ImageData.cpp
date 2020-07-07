@@ -81,7 +81,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
         else
         {
             VkFormatProperties formatProperties;
-            vkGetPhysicalDeviceFormatProperties(*(device->getPhysicalDevice()), data->getFormat(), &formatProperties);
+            vkGetPhysicalDeviceFormatProperties(*(device->getPhysicalDevice()), layout.format, &formatProperties);
 
             if ((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT) == 0)
             {
@@ -104,7 +104,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     std::cout << "data->width() = " << data->width() << std::endl;
     std::cout << "data->height() = " << data->height() << std::endl;
     std::cout << "data->depth() = " << data->depth() << std::endl;
-    std::cout << "data->getFormat() = " << data->getFormat() << std::endl;
+    std::cout << "data->getLayout().format = " << data->getLayout().format << std::endl;
     std::cout << "sampler->info().maxLod = " << sampler->info().maxLod << std::endl;
 
     std::cout << "Creating imageStagingBuffer and memory size = " << imageTotalSize << " mipLevels = "<<mipLevels<<std::endl;
@@ -127,7 +127,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     imageCreateInfo.extent.depth = depth;
     imageCreateInfo.mipLevels = mipLevels;
     imageCreateInfo.arrayLayers = 1;
-    imageCreateInfo.format = data->getFormat();
+    imageCreateInfo.format = layout.format;
     imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
@@ -163,7 +163,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     createInfo.image = *textureImage;
     createInfo.viewType = imageViewType;
-    createInfo.format = data->getFormat();
+    createInfo.format = layout.format;
     createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     createInfo.subresourceRange.baseMipLevel = 0;
     createInfo.subresourceRange.levelCount = mipLevels;
