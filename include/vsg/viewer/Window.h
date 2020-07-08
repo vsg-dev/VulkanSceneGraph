@@ -51,9 +51,17 @@ namespace vsg
         VkClearColorValue& clearColor() { return _clearColor; }
         const VkClearColorValue& clearColor() const { return _clearColor; }
 
-        VkSurfaceFormatKHR surfaceFormat() const { return _imageFormat; }
+        VkSurfaceFormatKHR surfaceFormat()
+        {
+            if (!_device) _initDevice();
+            return _imageFormat;
+        }
 
-        VkFormat depthFormat() const { return _depthFormat; }
+        VkFormat depthFormat()
+        {
+            if (!_device) _initDevice();
+            return _depthFormat;
+        }
 
         VkSampleCountFlagBits framebufferSamples() const { return _framebufferSamples; }
 
