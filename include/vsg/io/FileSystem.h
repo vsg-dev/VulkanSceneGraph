@@ -50,6 +50,7 @@ namespace vsg
 
     extern VSG_DECLSPEC Path findFile(const Path& filename, const Options* options);
 
+    /// make a directory, return true if path already exists or full path has been created successfully, return false on failure.
     extern VSG_DECLSPEC bool makeDirectory(const Path& path);
 
 } // namespace vsg

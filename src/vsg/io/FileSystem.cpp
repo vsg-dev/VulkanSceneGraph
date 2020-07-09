@@ -208,14 +208,16 @@ bool vsg::makeDirectory(const Path& path)
         if (int status = _mkdir( directory_to_create.c_str()); status != 0)
         {
             std::cerr<<"   _mkdir("<<directory_to_create<<") failed. status = "<<status<<std::endl;
+            return false;
         }
 #else
         if (int status = mkdir( directory_to_create.c_str(), 0755 ); status != 0)
         {
             std::cerr<<"   mkdir("<<directory_to_create<<") failed. status = "<<status<<std::endl;
+            return false;
         }
 #endif
     }
 
-    return directoriesToCreate.empty();
+    return true;
 }
