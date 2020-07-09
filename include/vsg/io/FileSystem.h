@@ -40,8 +40,17 @@ namespace vsg
 
     extern VSG_DECLSPEC Path concatPaths(const Path& left, const Path& right);
 
+    template<typename... Args>
+    Path concatPaths(const Path& left, Args... args)
+    {
+        return concatPaths(left, concatPaths(args...));
+    }
+
     extern VSG_DECLSPEC Path findFile(const Path& filename, const Paths& paths);
 
     extern VSG_DECLSPEC Path findFile(const Path& filename, const Options* options);
+
+    /// make a directory, return true if path already exists or full path has been created successfully, return false on failure.
+    extern VSG_DECLSPEC bool makeDirectory(const Path& path);
 
 } // namespace vsg
