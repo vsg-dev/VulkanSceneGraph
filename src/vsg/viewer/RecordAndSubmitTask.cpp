@@ -112,7 +112,7 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
 
     for (auto& window : windows)
     {
-        size_t imageIndex = window->imageIndex();
+        auto imageIndex = window->imageIndex();
         if (imageIndex >= window->numFrames()) continue;
 
         auto& semaphore = window->frame(imageIndex).imageAvailableSemaphore;

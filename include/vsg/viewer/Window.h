@@ -148,7 +148,7 @@ namespace vsg
 
         using Frames = std::vector<Frame>;
 
-        Frame& frame(uint32_t i) { return _frames[i]; }
+        Frame& frame(size_t i) { return _frames[i]; }
         Frames& frames() { return _frames; }
 
     protected:
