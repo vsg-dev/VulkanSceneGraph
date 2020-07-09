@@ -396,7 +396,7 @@ void Viewer::setupThreading()
 
     // check how valid tasks and command graphs there are.
     uint32_t numValidTasks = 0;
-    uint32_t numCommandGraphs = 0;
+    size_t numCommandGraphs = 0;
     for (auto& task : recordAndSubmitTasks)
     {
         if (task->commandGraphs.size() >= 1) ++numValidTasks;
@@ -467,7 +467,7 @@ void Viewer::setupThreading()
                 ref_ptr<Barrier> recordCompletedBarrier;
             };
 
-            ref_ptr<SharedData> sharedData = SharedData::create(task, _frameBlock, _submissionCompleted, task->commandGraphs.size());
+            ref_ptr<SharedData> sharedData = SharedData::create(task, _frameBlock, _submissionCompleted, static_cast<uint32_t>(task->commandGraphs.size()));
 
             auto run_primary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph) {
                 auto frameStamp = data->frameBlock->initial_value;

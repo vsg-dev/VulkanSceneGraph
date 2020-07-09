@@ -38,9 +38,9 @@ void ExecuteCommands::reset()
     std::scoped_lock lock(_mutex);
 
     if (!_latch)
-        _latch = vsg::Latch::create(_commandGraphs.size());
+        _latch = vsg::Latch::create(static_cast<int>(_commandGraphs.size()));
     else
-        _latch->set(_commandGraphs.size());
+        _latch->set(static_cast<int>(_commandGraphs.size()));
 
     _commandBuffers.clear();
 }
@@ -70,6 +70,6 @@ void ExecuteCommands::record(CommandBuffer& commandBuffer) const
             vk_commandBuffers.push_back(*cb);
         }
 
-        vkCmdExecuteCommands(commandBuffer, vk_commandBuffers.size(), vk_commandBuffers.data());
+        vkCmdExecuteCommands(commandBuffer, static_cast<uint32_t>(vk_commandBuffers.size()), vk_commandBuffers.data());
     }
 }
