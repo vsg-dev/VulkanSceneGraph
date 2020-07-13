@@ -30,18 +30,7 @@ void ComputeBounds::apply(const vsg::Node& node)
 
 void ComputeBounds::apply(const vsg::Group& group)
 {
-    if (auto transform = dynamic_cast<const vsg::MatrixTransform*>(&group); transform != nullptr)
-    {
-        apply(*transform);
-    }
-    else if (auto geometry = dynamic_cast<const vsg::Geometry*>(&group); geometry != nullptr)
-    {
-        apply(*geometry);
-    }
-    else
-    {
-        group.traverse(*this);
-    }
+    group.traverse(*this);
 }
 
 void ComputeBounds::apply(const vsg::MatrixTransform& transform)
