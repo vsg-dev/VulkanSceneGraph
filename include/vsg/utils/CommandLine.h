@@ -33,17 +33,20 @@ namespace vsg
     template<typename T, typename R>
     constexpr std::size_t type_num_elements(const std::pair<T, R>&) noexcept { return 2; }
 
+    // forward declare
+    class Options;
+
     class CommandLine
     {
     public:
-        CommandLine(int* argc, char** argv) :
-            _argc(argc),
-            _argv(argv) {}
+        CommandLine(int* argc, char** argv);
 
         int& argc() { return *_argc; }
         char** argv() { return _argv; }
 
         char* operator[](int i) { return _argv[i]; }
+
+        bool read(Options* options);
 
         template<typename T>
         bool read(int& i, T& v)

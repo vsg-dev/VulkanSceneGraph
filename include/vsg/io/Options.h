@@ -23,6 +23,7 @@ namespace vsg
     class ObjectCache;
     class ReaderWriter;
     class OperationThreads;
+    class CommandLine;
 
     class Options : public Inherit<Object, Options>
     {
@@ -30,6 +31,9 @@ namespace vsg
         Options();
         Options(const Options& options);
         Options& operator=(const Options& rhs) = delete;
+
+        /// read command line options, assign values to this options object to later use wiht reading/writing files
+        virtual bool readOptions(CommandLine& arguments);
 
         //ref_ptr<FileCache> fileCache;
         ref_ptr<ObjectCache> objectCache;

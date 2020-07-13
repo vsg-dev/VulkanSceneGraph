@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/ReaderWriter.h>
+#include <vsg/utils/CommandLine.h>
 
 using namespace vsg;
 
@@ -35,4 +36,14 @@ bool CompositeReaderWriter::write(const vsg::Object* object, const vsg::Path& fi
         if (writer->write(object, filename, options)) return true;
     }
     return false;
+}
+
+bool CompositeReaderWriter::readOptions(vsg::Options& options, vsg::CommandLine& arguments) const
+{
+    bool result = false;
+    for (auto& rw : readerWriters)
+    {
+        if (rw->readOptions(options, arguments)) result = true;
+    }
+    return result;
 }

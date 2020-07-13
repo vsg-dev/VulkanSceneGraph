@@ -138,6 +138,8 @@ set(SOURCES
     vk/Semaphore.cpp
     vk/Surface.cpp
     vk/Swapchain.cpp
+
+    utils/CommandLine.cpp
 )
 
 # add platform specific Window implementation

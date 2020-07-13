@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/io/ReaderWriter.h>
 #include <vsg/threading/OperationThreads.h>
+#include <vsg/utils/CommandLine.h>
 
 using namespace vsg;
 
@@ -32,4 +33,10 @@ Options::Options(const Options& options) :
 
 Options::~Options()
 {
+}
+
+bool Options::readOptions(CommandLine& arguments)
+{
+    if (readerWriter) return readerWriter->readOptions(*this, arguments);
+    else return false;
 }
