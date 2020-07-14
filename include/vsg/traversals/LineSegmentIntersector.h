@@ -19,11 +19,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    struct IndexRatio
+    {
+        uint32_t index;
+        double ratio;
+    };
+
+    using IndexRatios = std::vector<IndexRatio>;
+
     class VSG_DECLSPEC LineSegmentIntersector : public Inherit<Intersector, LineSegmentIntersector>
     {
     public:
         LineSegmentIntersector(const dvec3& s, const dvec3& e);
         LineSegmentIntersector(const Camera& camera, int32_t x, int32_t y);
+
 
         struct Intersection
         {
@@ -33,6 +42,8 @@ namespace vsg
 
             dmat4 localToWord;
             NodePath nodePath;
+            DataList arrays;
+            IndexRatios indexRatios;
 
             // return true if Intersection is valid
             operator bool() const { return !nodePath.empty(); }
@@ -41,7 +52,7 @@ namespace vsg
         using Intersections = std::vector<Intersection>;
         Intersections intersections;
 
-        void add(const dvec3& intersection, double ratio);
+        void add(const dvec3& intersection, double ratio, const DataList& arrays, const IndexRatios& indexRatios);
 
         void pushTransform(const dmat4& m) override;
         void popTransform() override;
@@ -50,10 +61,10 @@ namespace vsg
         bool intersects(const dsphere& bs) override;
 
         /// check for intersections with primitives associated with VkDrawDraw command
-        bool intersect(VkPrimitiveTopology topology, const vsg::DataList& arrays, uint32_t firstVertex, uint32_t vertexCount) override;
+        bool intersect(VkPrimitiveTopology topology, const DataList& arrays, uint32_t firstVertex, uint32_t vertexCount) override;
 
         /// check for intersections with primitives associated with VkDrawDrawIndex command
-        bool intersect(VkPrimitiveTopology topology, const vsg::DataList& arrays, vsg::ref_ptr<const vsg::Data> indices, uint32_t firstIndex, uint32_t indexCount) override;
+        bool intersect(VkPrimitiveTopology topology, const DataList& arrays, ref_ptr<const Data> indices, uint32_t firstIndex, uint32_t indexCount) override;
 
     protected:
         struct LineSegment

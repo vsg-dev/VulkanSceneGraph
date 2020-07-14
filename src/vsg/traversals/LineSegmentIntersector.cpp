@@ -32,10 +32,15 @@ struct TriangleIntersector
     vec_type _d_invZ;
 
     LineSegmentIntersector& intersector;
+    DataList arrays;
+    ref_ptr<const vec3Array> vertices;
 
-    TriangleIntersector(LineSegmentIntersector& in_intersector, const dvec3& in_start, const dvec3& in_end) :
-        intersector(in_intersector)
+    TriangleIntersector(LineSegmentIntersector& in_intersector, const dvec3& in_start, const dvec3& in_end, const DataList& in_arrays) :
+        intersector(in_intersector),
+        arrays(in_arrays)
     {
+        if (!arrays.empty()) vertices = arrays[0].cast<const vec3Array>();
+
         start = in_start;
         end = in_end;
 
@@ -50,8 +55,12 @@ struct TriangleIntersector
     }
 
     /// intersect with a single triangle
-    bool intersect(const vec3& v0, const vec3& v1, const vec3& v2)
+    bool intersect(uint32_t i0, uint32_t i1, uint32_t i2)
     {
+        const vec3& v0 = vertices->at(i0);
+        const vec3& v1 = vertices->at(i1);
+        const vec3& v2 = vertices->at(i2);
+
         vec_type T = vec_type(start) - vec_type(v0);
         vec_type E2 = vec_type(v2) - vec_type(v0);
         vec_type E1 = vec_type(v1) - vec_type(v0);
@@ -117,7 +126,7 @@ struct TriangleIntersector
         // TODO : handle hit
 
         dvec3 intersection = dvec3(dvec3(v0) * double(r0) + dvec3(v1) * double(r1) + dvec3(v2) * double(r2));
-        intersector.add(intersection, double(r));
+        intersector.add(intersection, double(r), arrays, {{i0, r0}, {i1, r1}, {i2, r2}});
 
         return true;
     }
@@ -152,16 +161,16 @@ LineSegmentIntersector::LineSegmentIntersector(const Camera& camera, int32_t x, 
     _lineSegmentStack.push_back(LineSegment{world_near, world_far});
 }
 
-void LineSegmentIntersector::add(const dvec3& intersection, double ratio)
+void LineSegmentIntersector::add(const dvec3& intersection, double ratio, const DataList& arrays, const IndexRatios& indexRatios)
 {
     if (_matrixStack.empty())
     {
-        intersections.emplace_back(Intersection{intersection, intersection, ratio, {}, _nodePath});
+        intersections.emplace_back(Intersection{intersection, intersection, ratio, {}, _nodePath, arrays, indexRatios});
     }
     else
     {
         auto& localToWorld = _matrixStack.back();
-        intersections.emplace_back(Intersection{intersection, localToWorld * intersection, ratio, localToWorld, _nodePath});
+        intersections.emplace_back(Intersection{intersection, localToWorld * intersection, ratio, localToWorld, _nodePath, arrays, indexRatios});
     }
 }
 
@@ -219,27 +228,19 @@ bool LineSegmentIntersector::intersects(const dsphere& bs)
 bool LineSegmentIntersector::intersect(VkPrimitiveTopology topology, const vsg::DataList& arrays, uint32_t firstVertex, uint32_t vertexCount)
 {
     if (arrays.empty() || vertexCount == 0) return false;
+    if (topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST) return false;
 
-    auto vertices = arrays[0].cast<const vec3Array>();
+    auto& ls = _lineSegmentStack.back();
 
-    if (!vertices) return false;
+    TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, arrays);
+    if (!triIntsector.vertices) return false;
 
     size_t previous_size = intersections.size();
-
     uint32_t endVertex = firstVertex + vertexCount;
-    switch (topology)
+
+    for (uint32_t i = firstVertex; i < endVertex; i += 3)
     {
-    case (VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST):
-    {
-        auto& ls = _lineSegmentStack.back();
-        TriangleIntersector<double> triIntsector(*this, ls.start, ls.end);
-        for (uint32_t i = firstVertex; i < endVertex; i += 3)
-        {
-            triIntsector.intersect(vertices->at(i), vertices->at(i + 1), vertices->at(i + 2));
-        }
-        break;
-    }
-    default: break; // TODO: NOT supported
+        triIntsector.intersect(i, i + 1, i + 2);
     }
 
     return intersections.size() != previous_size;
@@ -248,28 +249,29 @@ bool LineSegmentIntersector::intersect(VkPrimitiveTopology topology, const vsg::
 bool LineSegmentIntersector::intersect(VkPrimitiveTopology topology, const vsg::DataList& arrays, vsg::ref_ptr<const vsg::Data> indices, uint32_t firstIndex, uint32_t indexCount)
 {
     if (arrays.empty() || !indices || indexCount == 0) return false;
+    if (topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST) return false;
 
-    auto vertices = arrays[0].cast<const vec3Array>();
-    auto us_indices = indices.cast<const ushortArray>();
+    auto& ls = _lineSegmentStack.back();
 
-    if (!vertices || !us_indices) return false;
+    TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, arrays);
+    if (!triIntsector.vertices) return false;
 
     size_t previous_size = intersections.size();
-
     uint32_t endIndex = firstIndex + indexCount;
-    switch (topology)
+
+    if (auto us_indices = indices.cast<const ushortArray>(); us_indices)
     {
-    case (VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST):
-    {
-        auto& ls = _lineSegmentStack.back();
-        TriangleIntersector<double> triIntsector(*this, ls.start, ls.end);
         for (uint32_t i = firstIndex; i < endIndex; i += 3)
         {
-            triIntsector.intersect(vertices->at(us_indices->at(i)), vertices->at(us_indices->at(i + 1)), vertices->at(us_indices->at(i + 2)));
+            triIntsector.intersect(us_indices->at(i), us_indices->at(i + 1), us_indices->at(i + 2));
         }
-        break;
     }
-    default: break; // TODO: NOT supported
+    else if (auto ui_indices = indices.cast<const uintArray>(); ui_indices)
+    {
+        for (uint32_t i = firstIndex; i < endIndex; i += 3)
+        {
+            triIntsector.intersect(ui_indices->at(i), ui_indices->at(i + 1), ui_indices->at(i + 2));
+        }
     }
 
     return intersections.size() != previous_size;
