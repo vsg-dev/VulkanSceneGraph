@@ -39,7 +39,7 @@ struct TriangleIntersector
         intersector(in_intersector),
         arrays(in_arrays)
     {
-        if (!arrays.empty()) vertices = arrays[0].cast<const vec3Array>();
+        if (!arrays.empty()) vertices = arrays[0].template cast<const vec3Array>();
 
         start = in_start;
         end = in_end;
