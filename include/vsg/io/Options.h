@@ -29,7 +29,9 @@ namespace vsg
     {
     public:
         Options();
+        Options(ref_ptr<ReaderWriter> rw);
         Options(const Options& options);
+
         Options& operator=(const Options& rhs) = delete;
 
         /// read command line options, assign values to this options object to later use wiht reading/writing files
@@ -38,9 +40,7 @@ namespace vsg
         //ref_ptr<FileCache> fileCache;
         ref_ptr<ObjectCache> objectCache;
         ref_ptr<ReaderWriter> readerWriter;
-
         ref_ptr<OperationThreads> operationThreads;
-
         Paths paths;
 
     protected:

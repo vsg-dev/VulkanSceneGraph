@@ -22,6 +22,11 @@ Options::Options()
 {
 }
 
+Options::Options(ref_ptr<ReaderWriter> rw) :
+    readerWriter(rw)
+{
+}
+
 Options::Options(const Options& options) :
     Inherit(),
     //    fileCache(options.fileCache),
