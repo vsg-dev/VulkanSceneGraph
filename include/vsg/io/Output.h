@@ -30,7 +30,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class Output
+    class VSG_DECLSPEC Output
     {
     public:
         Output(ref_ptr<const Options> in_options = {});
@@ -128,7 +128,7 @@ namespace vsg
         }
 
         using ObjectID = uint32_t;
-        using ObjectIDMap = std::unordered_map<const vsg::Object*, ObjectID>;
+        using ObjectIDMap = std::unordered_map<const Object*, ObjectID>;
 
         ObjectID objectID = 1;
         ObjectIDMap objectIDMap;

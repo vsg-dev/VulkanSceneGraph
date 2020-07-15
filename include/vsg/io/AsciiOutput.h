@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_DECLSPEC AsciiOutput : public vsg::Output
+    class VSG_DECLSPEC AsciiOutput : public Output
     {
     public:
         AsciiOutput(std::ostream& output, ref_ptr<const Options> in_options = {});
@@ -142,7 +142,7 @@ namespace vsg
         void write(size_t num, const std::string* value) override;
 
         /// write object
-        void write(const vsg::Object* object) override;
+        void write(const Object* object) override;
 
     protected:
         std::ostream& _output;

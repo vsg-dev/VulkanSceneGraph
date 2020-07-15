@@ -23,7 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_DECLSPEC AsciiInput : public vsg::Input
+    class VSG_DECLSPEC AsciiInput : public Input
     {
     public:
         using ObjectID = uint32_t;
@@ -91,7 +91,7 @@ namespace vsg
         void read(size_t num, std::string* value) override;
 
         // read object
-        vsg::ref_ptr<vsg::Object> read() override;
+        ref_ptr<Object> read() override;
 
     protected:
         std::istream& _input;

@@ -34,7 +34,7 @@ namespace vsg
     // forward declare
     class Options;
 
-    class Input
+    class VSG_DECLSPEC Input
     {
     public:
         Input(ref_ptr<ObjectFactory> in_objectFactory, ref_ptr<const Options> in_options = {});
