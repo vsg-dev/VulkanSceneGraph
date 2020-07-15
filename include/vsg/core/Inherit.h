@@ -26,7 +26,7 @@ namespace vsg
     // Use the Curiously Recurring Template Pattern
     // to provide the classes versions of accept(..) and sizeofObject()
     template<class ParentClass, class Subclass>
-    class Inherit : public ParentClass
+    class VSG_DECLSPEC Inherit : public ParentClass
     {
     public:
         template<typename... Args>
