@@ -21,6 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Semaphore.h>
 
 #include <vsg/viewer/WindowTraits.h>
+#include <vsg/core/ref_ptr.h>
 
 namespace vsg
 {

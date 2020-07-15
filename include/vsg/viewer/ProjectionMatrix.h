@@ -19,7 +19,7 @@ namespace vsg
 {
 
     // Base class for projection matrices
-    class ProjectionMatrix : public Inherit<Object, ProjectionMatrix>
+    class VSG_DECLSPEC ProjectionMatrix : public Inherit<Object, ProjectionMatrix>
     {
     public:
         virtual void get(mat4& matrix) const = 0;

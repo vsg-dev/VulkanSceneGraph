@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/mat3.h>
 #include <vsg/maths/mat4.h>
 #include <vsg/maths/vec3.h>
+#include <vsg/core/Export.h>
 
 #include <cmath>
 
@@ -128,27 +129,27 @@ namespace vsg
     }
 
     /// fast float matrix inversion that use assumes the matrix is composed of only scales, rotations and translations forming a 4x3 matrix.
-    extern mat4 inverse_4x3(const mat4& m);
+    extern VSG_DECLSPEC mat4 inverse_4x3(const mat4& m);
 
     /// fast double matrix inversion that use assumes the matrix is composed of only scales, rotations and translations forming a 4x3 matrix.
-    extern dmat4 inverse_4x3(const dmat4& m);
+    extern VSG_DECLSPEC dmat4 inverse_4x3(const dmat4& m);
 
     /// general purpose 4x4 float matrix inversion.
-    extern mat4 inverse_4x4(const mat4& m);
+    extern VSG_DECLSPEC mat4 inverse_4x4(const mat4& m);
 
     /// general purpose 4x4 float matrix inversion.
-    extern dmat4 inverse_4x4(const dmat4& m);
+    extern VSG_DECLSPEC dmat4 inverse_4x4(const dmat4& m);
 
     /// matrix float inversion with automatic selection of inverse_4x3 when appropriate, otherwise uses inverse_4x4
-    extern mat4 inverse(const mat4& m);
+    extern VSG_DECLSPEC mat4 inverse(const mat4& m);
 
     /// double matrix inversion with automatic selection of inverse_4x3 when appropriate, otherwise uses inverse_4x4
-    extern dmat4 inverse(const dmat4& m);
+    extern VSG_DECLSPEC dmat4 inverse(const dmat4& m);
 
     /// compute the bounding sphere that encploses a frustum defined by specified float ModelViewMatrixProjection
-    extern sphere computeFrustumBound(const mat4& m);
+    extern VSG_DECLSPEC sphere computeFrustumBound(const mat4& m);
 
     /// compute the bounding sphere that encploses a frustum defined by specified double ModelViewMatrixProjection
-    extern dsphere computeFrustumBound(const dmat4& m);
+    extern VSG_DECLSPEC dsphere computeFrustumBound(const dmat4& m);
 
 } // namespace vsg
