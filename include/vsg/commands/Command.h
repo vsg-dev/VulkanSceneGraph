@@ -21,7 +21,7 @@ namespace vsg
     class CommandBuffer;
     class Context;
 
-    class Command : public Inherit<Node, Command>
+    class VSG_DECLSPEC Command : public Inherit<Node, Command>
     {
     public:
         Command(Allocator* allocator = nullptr) :
