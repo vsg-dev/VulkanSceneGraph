@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/Window.h>
 #include <vsg/vk/CommandBuffer.h>
+#include <vsg/core/Export.h>
 
 namespace vsg
 {
@@ -23,7 +24,7 @@ namespace vsg
     // forward declare
     class ExecuteCommands;
 
-    class CommandGraph : public Inherit<Group, CommandGraph>
+    class VSG_DECLSPEC CommandGraph : public Inherit<Group, CommandGraph>
     {
     public:
         CommandGraph(Device* in_device, int family);
@@ -67,9 +68,9 @@ namespace vsg
     using CommandGraphs = std::vector<ref_ptr<CommandGraph>>;
 
     /// convience function that sets up RenderGraph inside primary CommandGraph to render the specified scene graph from the speified Camera view
-    ref_ptr<CommandGraph> createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
+    extern VSG_DECLSPEC ref_ptr<CommandGraph> createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
 
     /// convience function that sets up secondaryCommandGraph to render the specified scene graph from the speified Camera view
-    ref_ptr<CommandGraph> createSecondaryCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, uint32_t subpass);
+    extern VSG_DECLSPEC ref_ptr<CommandGraph> createSecondaryCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, uint32_t subpass);
 
 } // namespace vsg

@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class Camera : public Inherit<Object, Camera>
+    class VSG_DECLSPEC Camera : public Inherit<Object, Camera>
     {
     public:
         Camera();
