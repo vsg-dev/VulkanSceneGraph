@@ -12,11 +12,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Export.h>
+
 namespace vsg
 {
 
     template<class T>
-    class ref_ptr
+    class VSG_DECLSPEC ref_ptr
     {
     public:
         ref_ptr() :
