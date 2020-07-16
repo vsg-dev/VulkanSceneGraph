@@ -60,9 +60,11 @@ namespace vsg
         constexpr t_vec4(value_type in_x, value_type in_y, value_type in_z, value_type in_w) :
             value{in_x, in_y, in_z, in_w} {}
 
+
         template<typename R>
         constexpr explicit t_vec4(const t_vec4<R>& v) :
-            value{v[0], v[1], v[2], v[3]} {}
+            value{static_cast<T>(v.x), static_cast<T>(v.y), static_cast<T>(v.z), static_cast<T>(v.w)} {}
+
 
         constexpr std::size_t size() const { return 4; }
 

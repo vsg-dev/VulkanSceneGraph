@@ -60,6 +60,10 @@ namespace vsg
         constexpr t_vec2(value_type in_x, value_type in_y) :
             value{in_x, in_y} {}
 
+        template<typename R>
+        constexpr explicit t_vec2(const t_vec2<R>& v) :
+            value{static_cast<T>(v.x), static_cast<T>(v.y)} {}
+
         constexpr std::size_t size() const { return 2; }
 
         value_type& operator[](std::size_t i) { return value[i]; }
