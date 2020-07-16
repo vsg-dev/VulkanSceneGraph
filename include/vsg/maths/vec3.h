@@ -62,7 +62,7 @@ namespace vsg
 
         template<typename R>
         constexpr explicit t_vec3(const t_vec3<R>& v) :
-            value{v.x, v.y, v.z} {}
+            value{static_cast<T>(v.x), static_cast<T>(v.y), static_cast<T>(v.z)} {}
 
         constexpr std::size_t size() const { return 3; }
 
