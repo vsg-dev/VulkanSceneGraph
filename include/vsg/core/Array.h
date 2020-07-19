@@ -167,13 +167,13 @@ namespace vsg
         void clear()
         {
             _size = 0;
-            if (_data) { delete[] _data; }
+            _delete();
             _data = nullptr;
         }
 
         void assign(std::uint32_t numElements, value_type* data, Layout layout = Layout())
         {
-            if (!_storage && _data != nullptr) delete[] _data;
+            _delete();
 
             _layout = layout;
             _data = data;
@@ -184,7 +184,7 @@ namespace vsg
 
         void assign(ref_ptr<Data> storage, std::uint32_t numElements, uint32_t offset, uint32_t stride, Layout layout = Layout())
         {
-            if (!_storage && _data != nullptr) delete[] _data;
+            _delete();
 
             _storage = storage;
             _stride = stride;
@@ -202,12 +202,20 @@ namespace vsg
         }
 
         // release the data so that ownership can be passed on, the local data pointer and size is set to 0 and destruction of Array will no result in the data being deleted.
+        // when the data is stored in a sperate vsg::Data object then return nullptr and do not attempt to release data.
         void* dataRelease() override
         {
-            void* tmp = _data;
-            _data = nullptr;
-            _size = 0;
-            return tmp;
+            if (!_storage)
+            {
+                void* tmp = _data;
+                _data = nullptr;
+                _size = 0;
+                return tmp;
+            }
+            else
+            {
+                return nullptr;
+            }
         }
 
         std::size_t valueSize() const override { return sizeof(value_type); }
@@ -222,6 +230,7 @@ namespace vsg
         const void* dataPointer(std::size_t i) const override { return data(i); }
 
         std::uint32_t dimensions() const override { return 1; }
+        std::uint32_t stride() const override { return _stride; }
 
         std::uint32_t width() const override { return _size; }
         std::uint32_t height() const override { return 1; }
@@ -254,6 +263,11 @@ namespace vsg
 
     protected:
         virtual ~Array()
+        {
+            _delete();
+        }
+
+        void _delete()
         {
             if (!_storage && _data) delete[] _data;
         }
