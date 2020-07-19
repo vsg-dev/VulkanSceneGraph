@@ -125,6 +125,7 @@ namespace vsg
                 }
 
                 _size = width_size;
+                _stride = sizeof(value_type);
 
                 input.read(new_total_size, _data);
             }
