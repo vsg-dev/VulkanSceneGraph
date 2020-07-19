@@ -167,7 +167,7 @@ namespace vsg
             _layout = layout;
             if (_storage && _storage->dataPointer())
             {
-                _data = static_cast<value_type*>(_storage->dataPointer() + offset);
+                _data = reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_storage->dataPointer()) + offset);
                 _width = width;
                 _height = height;
             }
