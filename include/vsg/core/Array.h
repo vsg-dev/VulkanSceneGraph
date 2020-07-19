@@ -29,24 +29,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    template<typename T, typename P>
-    struct stride_iterator
-    {
-        using value_type = T;
-
-        value_type* ptr;
-        uint32_t stride; // stride in bytes
-
-        inline void advance() { ptr = reinterpret_cast<value_type*>(reinterpret_cast<P*>(ptr) + stride); }
-
-        stride_iterator& operator++() { advance(); return *this; }
-        stride_iterator operator++(int) { stride_iterator reval(*this); advance(); return *this; }
-        bool operator==(stride_iterator rhs) const { return ptr == rhs.ptr; }
-        bool operator!=(stride_iterator rhs) const { return ptr != rhs.ptr; }
-
-        value_type& operator*() { return *reinterpret_cast<value_type*>(ptr); }
-        value_type* operator->() { return reinterpret_cast<value_type*>(ptr); }
-    };
 
     template<typename T>
     class Array : public Data
@@ -54,8 +36,8 @@ namespace vsg
     public:
         using value_type = T;
 
-        using iterator = stride_iterator<value_type, uint8_t>;
-        using const_iterator = stride_iterator<const value_type, const uint8_t>;
+        using iterator = stride_iterator<value_type>;
+        using const_iterator = stride_iterator<const value_type>;
 
         Array() :
             _data(nullptr),
@@ -235,8 +217,6 @@ namespace vsg
         std::uint32_t width() const override { return _size; }
         std::uint32_t height() const override { return 1; }
         std::uint32_t depth() const override { return 1; }
-
-        bool continigous() const { return sizeof(value_type) == _stride; }
 
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }

@@ -34,6 +34,28 @@ namespace vsg
         BOTTOM_LEFT = 2
     };
 
+    template<typename T>
+    struct stride_iterator
+    {
+        using value_type = T;
+
+        value_type* ptr;
+        uint32_t stride; // stride in bytes
+
+        inline void advance() {
+            if constexpr (std::is_const<value_type>::value) ptr = reinterpret_cast<value_type*>(reinterpret_cast<const uint8_t*>(ptr) + stride);
+            else ptr = reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(ptr) + stride);
+        }
+
+        stride_iterator& operator++() { advance(); return *this; }
+        stride_iterator operator++(int) { stride_iterator reval(*this); advance(); return *this; }
+        bool operator==(stride_iterator rhs) const { return ptr == rhs.ptr; }
+        bool operator!=(stride_iterator rhs) const { return ptr != rhs.ptr; }
+
+        value_type& operator*() { return *reinterpret_cast<value_type*>(ptr); }
+        value_type* operator->() { return reinterpret_cast<value_type*>(ptr); }
+    };
+
     class VSG_DECLSPEC Data : public Object
     {
     public:
@@ -99,6 +121,8 @@ namespace vsg
         virtual std::uint32_t width() const = 0;
         virtual std::uint32_t height() const = 0;
         virtual std::uint32_t depth() const = 0;
+
+        bool contigous() const { return valueSize() == stride(); }
 
         using MipmapOffsets = std::vector<std::size_t>;
         MipmapOffsets computeMipmapOffsets() const;
