@@ -33,13 +33,14 @@ namespace vsg
     struct stride_iterator
     {
         using value_type = T;
-        using ptr_type = P;
 
-        ptr_type* ptr;
-        uint32_t stride;
+        value_type* ptr;
+        uint32_t stride; // stride in bytes
 
-        stride_iterator& operator++() { ptr += stride; return *this; }
-        stride_iterator operator++(int) { stride_iterator reval(*this); ptr += stride; return *this; }
+        inline void advance() { ptr = reinterpret_cast<value_type*>(reinterpret_cast<P*>(ptr) + stride); }
+
+        stride_iterator& operator++() { advance(); return *this; }
+        stride_iterator operator++(int) { stride_iterator reval(*this); advance(); return *this; }
         bool operator==(stride_iterator rhs) const { return ptr == rhs.ptr; }
         bool operator!=(stride_iterator rhs) const { return ptr != rhs.ptr; }
 
@@ -245,11 +246,11 @@ namespace vsg
 
         void set(std::size_t i, const value_type& v) { *data(i) = v; }
 
-        iterator begin() { return iterator{reinterpret_cast<uint8_t*>(_data), _stride}; }
-        const_iterator begin() const { return const_iterator{reinterpret_cast<const uint8_t*>(_data), _stride}; }
+        iterator begin() { return iterator{_data, _stride}; }
+        const_iterator begin() const { return const_iterator{_data, _stride}; }
 
-        iterator end() { return iterator{reinterpret_cast<uint8_t*>(data(_size)), _stride}; }
-        const_iterator end() const { return const_iterator{reinterpret_cast<const uint8_t*>(data(_size)), _stride}; }
+        iterator end() { return iterator{data(_size), _stride}; }
+        const_iterator end() const { return const_iterator{data(_size), _stride}; }
 
     protected:
         virtual ~Array()
