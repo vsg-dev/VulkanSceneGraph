@@ -202,7 +202,7 @@ namespace vsg
         std::size_t valueSize() const override { return sizeof(value_type); }
         std::size_t valueCount() const override { return size(); }
 
-        std::size_t dataSize() const override { return size() * sizeof(value_type); }
+        std::size_t dataSize() const override { return size() * _stride; }
 
         void* dataPointer() override { return data(); }
         const void* dataPointer() const override { return data(); }
@@ -258,8 +258,8 @@ namespace vsg
         ref_ptr<Data> _storage;
     };
 
-    VSG_array(ubyteArray, std::uint8_t);
-    VSG_array(ushortArray, std::uint16_t);
+    VSG_array(ubyteArray, uint8_t);
+    VSG_array(ushortArray, uint16_t);
     VSG_array(uintArray, uint32_t);
     VSG_array(floatArray, float);
     VSG_array(doubleArray, double);
