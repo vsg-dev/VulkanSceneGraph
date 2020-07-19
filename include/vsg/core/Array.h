@@ -35,7 +35,6 @@ namespace vsg
     {
     public:
         using value_type = T;
-
         using iterator = stride_iterator<value_type>;
         using const_iterator = stride_iterator<const value_type>;
 
@@ -44,19 +43,19 @@ namespace vsg
             _stride(0),
             _size(0) {}
 
-        explicit Array(std::uint32_t numElements, Layout layout = {}) :
+        explicit Array(uint32_t numElements, Layout layout = {}) :
             Data(layout),
             _data(new value_type[numElements]),
             _stride(sizeof(value_type)),
             _size(numElements) {}
 
-        Array(std::uint32_t numElements, value_type* data, Layout layout = {}) :
+        Array(uint32_t numElements, value_type* data, Layout layout = {}) :
             Data(layout),
             _data(data),
             _stride(sizeof(value_type)),
             _size(numElements) {}
 
-        Array(std::uint32_t numElements, const value_type& value, Layout layout = {}) :
+        Array(uint32_t numElements, const value_type& value, Layout layout = {}) :
             Data(layout),
             _data(new value_type[numElements]),
             _stride(sizeof(value_type)),
@@ -65,19 +64,19 @@ namespace vsg
             for (auto& v : *this) v = value;
         }
 
-        Array(ref_ptr<Data> data, std::uint32_t numElements, uint32_t offset, uint32_t stride, Layout layout = Layout()):
+        Array(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t numElements, Layout layout = Layout()):
             Data(),
             _data(nullptr),
             _stride(0),
             _size(0)
         {
-            assign(data, numElements, offset, stride, layout);
+            assign(data, offset, stride, numElements, layout);
         }
 
         explicit Array(std::initializer_list<value_type> l) :
             _data(new value_type[l.size()]),
             _stride(sizeof(value_type)),
-            _size(static_cast<std::uint32_t>(l.size()))
+            _size(static_cast<uint32_t>(l.size()))
         {
             value_type* ptr = _data;
             for (const value_type& v : l) { (*ptr++) = v; }
@@ -107,7 +106,7 @@ namespace vsg
             std::size_t original_total_size = size();
 
             Data::read(input);
-            std::uint32_t width_size = input.readValue<std::uint32_t>("Size");
+            uint32_t width_size = input.readValue<uint32_t>("Size");
             std::size_t new_total_size = computeValueCountIncludingMipmaps(width_size, 1, 1, _layout.maxNumMipmaps);
 
             if (input.matchPropertyName("Data"))
@@ -134,7 +133,7 @@ namespace vsg
         void write(Output& output) const override
         {
             Data::write(output);
-            output.writeValue<std::uint32_t>("Size", _size);
+            output.writeValue<uint32_t>("Size", _size);
 
             output.writePropertyName("Data");
             output.write(size(), _data);
@@ -153,7 +152,7 @@ namespace vsg
             _data = nullptr;
         }
 
-        void assign(std::uint32_t numElements, value_type* data, Layout layout = Layout())
+        void assign(uint32_t numElements, value_type* data, Layout layout = Layout())
         {
             _delete();
 
@@ -164,7 +163,7 @@ namespace vsg
             _storage = nullptr;
         }
 
-        void assign(ref_ptr<Data> storage, std::uint32_t numElements, uint32_t offset, uint32_t stride, Layout layout = Layout())
+        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t numElements, Layout layout = Layout())
         {
             _delete();
 
@@ -173,7 +172,7 @@ namespace vsg
             _layout = layout;
             if (_storage && _storage->dataPointer())
             {
-                _data = static_cast<value_type*>(_storage->dataPointer()) + offset;
+                _data = static_cast<value_type*>(_storage->dataPointer() + offset);
                 _size = numElements;
             }
             else
@@ -211,21 +210,18 @@ namespace vsg
         void* dataPointer(std::size_t i) override { return data(i); }
         const void* dataPointer(std::size_t i) const override { return data(i); }
 
-        std::uint32_t dimensions() const override { return 1; }
-        std::uint32_t stride() const override { return _stride; }
+        uint32_t dimensions() const override { return 1; }
+        uint32_t stride() const override { return _stride; }
 
-        std::uint32_t width() const override { return _size; }
-        std::uint32_t height() const override { return 1; }
-        std::uint32_t depth() const override { return 1; }
+        uint32_t width() const override { return _size; }
+        uint32_t height() const override { return 1; }
+        uint32_t depth() const override { return 1; }
 
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
         inline value_type* data(std::size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i*_stride); }
         inline const value_type* data(std::size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i*_stride); }
-
-        Data* storage() { return _storage; }
-        const Data* storage() const { return _storage; }
 
         value_type& operator[](std::size_t i) { return *data(i); }
         const value_type& operator[](std::size_t i) const  { return *data(i); }
@@ -234,6 +230,9 @@ namespace vsg
         const value_type& at(std::size_t i) const { return *data(i); }
 
         void set(std::size_t i, const value_type& v) { *data(i) = v; }
+
+        Data* storage() { return _storage; }
+        const Data* storage() const { return _storage; }
 
         iterator begin() { return iterator{_data, _stride}; }
         const_iterator begin() const { return const_iterator{_data, _stride}; }
@@ -254,14 +253,14 @@ namespace vsg
 
     private:
         value_type* _data;
-        std::uint32_t _stride;
-        std::uint32_t _size;
+        uint32_t _stride;
+        uint32_t _size;
         ref_ptr<Data> _storage;
     };
 
     VSG_array(ubyteArray, std::uint8_t);
     VSG_array(ushortArray, std::uint16_t);
-    VSG_array(uintArray, std::uint32_t);
+    VSG_array(uintArray, uint32_t);
     VSG_array(floatArray, float);
     VSG_array(doubleArray, double);
 
