@@ -34,37 +34,51 @@ namespace vsg
     {
     public:
         using value_type = T;
-        using iterator = value_type*;
-        using const_iterator = const value_type*;
+        using iterator = stride_iterator<value_type>;
+        using const_iterator = stride_iterator<const value_type>;
 
         Array3D() :
+            _data(nullptr),
             _width(0),
             _height(0),
-            _depth(0),
-            _data(nullptr) {}
+            _depth(0) {}
 
         Array3D(uint32_t width, uint32_t height, uint32_t depth, Layout layout = {}) :
             Data(layout),
+            _data(new value_type[width * height * depth]),
+            _stride(sizeof(value_type)),
             _width(width),
             _height(height),
-            _depth(depth),
-            _data(new value_type[static_cast<std::size_t>(width) * height * depth]) {}
+            _depth(depth) {}
 
         Array3D(uint32_t width, uint32_t height, uint32_t depth, value_type* data, Layout layout = {}) :
             Data(layout),
+            _data(data),
+            _stride(sizeof(value_type)),
             _width(width),
             _height(height),
-            _depth(depth),
-            _data(data) {}
+            _depth(depth) {}
 
         Array3D(uint32_t width, uint32_t height, uint32_t depth, const value_type& value, Layout layout = {}) :
             Data(layout),
+            _data(new value_type[width * height * depth]),
+            _stride(sizeof(value_type)),
             _width(width),
             _height(height),
-            _depth(depth),
-            _data(new value_type[static_cast<std::size_t>(width) * height * depth])
+            _depth(depth)
         {
             for (auto& v : *this) v = value;
+        }
+
+        Array3D(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Layout layout = Layout()):
+            Data(),
+            _data(nullptr),
+            _stride(0),
+            _width(0),
+            _height(0),
+            _depth(0)
+        {
+            assign(data, offset, stride, width, height, depth, layout);
         }
 
         template<typename... Args>
@@ -96,7 +110,7 @@ namespace vsg
                 {
                     if (original_size != new_size) // if existing data is a different size delete old, and create new
                     {
-                        delete[] _data;
+                        _delete();
                         _data = new value_type[new_size];
                     }
                 }
@@ -105,9 +119,11 @@ namespace vsg
                     _data = new value_type[new_size];
                 }
 
+                _stride = sizeof(value_type);
                 _width = width;
                 _height = height;
                 _depth = depth;
+                _storage = nullptr;
 
                 input.read(new_size, _data);
             }
@@ -131,34 +147,68 @@ namespace vsg
 
         void clear()
         {
+            _delete();
+
             _width = 0;
             _height = 0;
             _depth = 0;
-            if (_data) { delete[] _data; }
             _data = nullptr;
+            _storage = nullptr;
         }
 
         void assign(uint32_t width, uint32_t height, uint32_t depth, value_type* data, Layout layout = Layout())
         {
-            if (_data) delete[] _data;
+            _delete();
 
             _layout = layout;
+            _stride = sizeof(value_type);
             _width = width;
             _height = height;
             _depth = depth;
             _data = data;
+            _storage = nullptr;
+        }
+
+        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Layout layout = Layout())
+        {
+            _delete();
+
+            _storage = storage;
+            _stride = stride;
+            _layout = layout;
+            if (_storage && _storage->dataPointer())
+            {
+                _data = reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_storage->dataPointer()) + offset);
+                _width = width;
+                _height = height;
+                _depth = depth;
+            }
+            else
+            {
+                _data = nullptr;
+                _width = 0;
+                _height = 0;
+                _depth = 0;
+            }
         }
 
 
         // release the data so that ownership can be passed on, the local data pointer and size is set to 0 and destruction of Array will no result in the data being deleted.
         void* dataRelease() override
         {
-            void* tmp = _data;
-            _data = nullptr;
-            _width = 0;
-            _height = 0;
-            _depth = 0;
-            return tmp;
+            if (!_storage)
+            {
+                void* tmp = _data;
+                _data = nullptr;
+                _width = 0;
+                _height = 0;
+                _depth = 0;
+                return tmp;
+            }
+            else
+            {
+                return nullptr;
+            }
         }
 
         std::size_t valueSize() const override { return sizeof(value_type); }
@@ -181,40 +231,53 @@ namespace vsg
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
-        std::size_t index(uint32_t i, uint32_t j, uint32_t k) const noexcept { return static_cast<std::size_t>(k) * _width * _height + static_cast<std::size_t>(j) * _width + i; }
+        inline value_type* data(std::size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i * _stride); }
+        inline const value_type* data(std::size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i * _stride); }
 
-        value_type& operator[](std::size_t i) { return _data[i]; }
-        const value_type& operator[](std::size_t i) const { return _data[i]; }
+        std::size_t index(uint32_t i, uint32_t j, uint32_t k) const noexcept { return static_cast<std::size_t>(k * _width * _height + j * _width + i); }
 
-        value_type& at(std::size_t i) { return _data[i]; }
-        const value_type& at(std::size_t i) const { return _data[i]; }
+        value_type& operator[](std::size_t i) { return *data(i); }
+        const value_type& operator[](std::size_t i) const  { return *data(i); }
 
-        value_type& operator()(uint32_t i, uint32_t j, uint32_t k) { return _data[index(i, j, k)]; }
-        const value_type& operator()(uint32_t i, uint32_t j, uint32_t k) const { return _data[index(i, j, k)]; }
+        value_type& at(std::size_t i) { return *data(i); }
+        const value_type& at(std::size_t i) const { return *data(i); }
 
-        value_type& at(uint32_t i, uint32_t j, uint32_t k) { return _data[index(i, j, k)]; }
-        const value_type& at(uint32_t i, uint32_t j, uint32_t k) const { return _data[index(i, j, k)]; }
+        value_type& operator()(uint32_t i, uint32_t j, uint32_t k) { return *data(index(i, j, k)); }
+        const value_type& operator()(uint32_t i, uint32_t j, uint32_t k) const { return *data(index(i, j, k)); }
 
-        void set(std::size_t i, const value_type& v) { _data[i] = v; }
-        void set(uint32_t i, uint32_t j, uint32_t k, const value_type& v) { _data[index(i, j, k)] = v; }
+        value_type& at(uint32_t i, uint32_t j, uint32_t k) { return *data(index(i, j, k)); }
+        const value_type& at(uint32_t i, uint32_t j, uint32_t k) const { return *data(index(i, j, k)); }
 
-        iterator begin() { return _data; }
-        const_iterator begin() const { return _data; }
+        void set(std::size_t i, const value_type& v) { data(i) = v; }
+        void set(uint32_t i, uint32_t j, uint32_t k, const value_type& v) { *data(index(i, j, k)) = v; }
 
-        iterator end() { return _data + size(); }
-        const_iterator end() const { return _data + size(); }
+        Data* storage() { return _storage; }
+        const Data* storage() const { return _storage; }
+
+        iterator begin() { return iterator{_data, _stride}; }
+        const_iterator begin() const { return const_iterator{_data, _stride}; }
+
+        iterator end() { return iterator{data(_width* _height * _depth), _stride}; }
+        const_iterator end() const { return const_iterator{data(_width * _height * _depth), _stride}; }
 
     protected:
         virtual ~Array3D()
         {
-            if (_data) delete[] _data;
+            _delete();
+        }
+
+        void _delete()
+        {
+            if (!_storage && _data) delete[] _data;
         }
 
     private:
+        value_type* _data;
+        uint32_t _stride;
         uint32_t _width;
         uint32_t _height;
         uint32_t _depth;
-        value_type* _data;
+        ref_ptr<Data> _storage;
     };
 
     VSG_array3D(ubyteArray3D, std::uint8_t);
