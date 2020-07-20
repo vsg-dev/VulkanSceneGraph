@@ -98,9 +98,11 @@ namespace vsg
         /** Set Layout */
         void setLayout(Layout layout)
         {
-            VkFormat previousFormat = _layout.format; // temporary hack to keep applications that call setFormat(..) before setLayout(..) working
+            VkFormat previous_format = _layout.format; // temporary hack to keep applications that call setFormat(..) before setLayout(..) working
+            uint32_t previous_stride = _layout.stride;
             _layout = layout;
-            if (_layout.format == 0 && previousFormat != 0) _layout.format = previousFormat; // temporary hack to keep existing applications working
+            if (_layout.format == 0 && previous_format != 0) _layout.format = previous_format; // temporary hack to keep existing applications working
+            if (_layout.stride == 0 && previous_stride != 0) _layout.stride = previous_stride; // make sure the layout as a valid stride.
         }
 
         /** Get the Layout.*/
@@ -129,6 +131,8 @@ namespace vsg
         virtual std::uint32_t depth() const = 0;
 
         bool contigous() const { return valueSize() == _layout.stride; }
+
+        uint32_t stride() const { return _layout.stride ? _layout.stride : valueSize(); }
 
         using MipmapOffsets = std::vector<std::size_t>;
         MipmapOffsets computeMipmapOffsets() const;
