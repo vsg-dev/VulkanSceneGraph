@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Auxiliary.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
+#include <vsg/io/Options.h>
 
 #if 1
 #    include <iostream>

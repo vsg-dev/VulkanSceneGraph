@@ -23,6 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Extensions.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
+#include <vsg/io/Options.h>
 
 #include <iostream>
 

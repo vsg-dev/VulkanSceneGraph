@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/ImageData.h>
+#include <vsg/io/Options.h>
 
 #include <algorithm>
 #include <iostream>

@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/viewer/Window.h>
 #include <vsg/vk/SubmitCommands.h>
+#include <vsg/io/Options.h>
 
 #include <array>
 #include <chrono>

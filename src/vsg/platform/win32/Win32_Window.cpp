@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/vk/Extensions.h>
+#include <vsg/io/Options.h>
 
 #include <iostream>
 
@@ -32,7 +33,7 @@ namespace vsg
 
 namespace vsgWin32
 {
-    class Win32Surface : public vsg::Surface
+    class VSG_DECLSPEC Win32Surface : public vsg::Surface
     {
     public:
         Win32Surface(vsg::Instance* instance, HWND window, vsg::AllocationCallbacks* allocator = nullptr) :

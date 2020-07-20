@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/DeviceMemory.h>
 #include <vsg/vk/Image.h>
+#include <vsg/io/Options.h>
 
 #include <atomic>
 #include <cstring>
