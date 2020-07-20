@@ -214,13 +214,13 @@ namespace vsg
         std::size_t valueSize() const override { return sizeof(value_type); }
         std::size_t valueCount() const override { return size(); }
 
-        std::size_t dataSize() const override { return size() * sizeof(value_type); }
+        std::size_t dataSize() const override { return size() * _stride; }
 
         void* dataPointer() override { return _data; }
         const void* dataPointer() const override { return _data; }
 
-        void* dataPointer(std::size_t i) override { return _data + i; }
-        const void* dataPointer(std::size_t i) const override { return _data + i; }
+        void* dataPointer(std::size_t i) override { return data(i); }
+        const void* dataPointer(std::size_t i) const override { return data(i); }
 
         uint32_t dimensions() const override { return 3; }
 

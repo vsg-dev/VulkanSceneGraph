@@ -206,8 +206,8 @@ namespace vsg
         void* dataPointer() override { return _data; }
         const void* dataPointer() const override { return _data; }
 
-        void* dataPointer(std::size_t i) override { return _data + i; }
-        const void* dataPointer(std::size_t i) const override { return _data + i; }
+        void* dataPointer(std::size_t i) override { return data(i); }
+        const void* dataPointer(std::size_t i) const override { return data(i); }
 
         uint32_t dimensions() const override { return 2; }
         uint32_t stride() const override { return _stride; }
