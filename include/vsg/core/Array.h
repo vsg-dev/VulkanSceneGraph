@@ -73,8 +73,20 @@ namespace vsg
             _size(static_cast<uint32_t>(l.size()))
         {
             _layout.stride = sizeof(value_type);
-            value_type* ptr = _data;
-            for (const value_type& v : l) { (*ptr++) = v; }
+
+            iterator itr = begin();
+            for (const value_type& v : l) { (*itr++) = v; }
+        }
+
+
+        explicit Array(ref_ptr<Data> data, uint32_t offset, uint32_t stride, std::initializer_list<value_type> l) :
+            _data(nullptr),
+            _size(0)
+        {
+            assign(data, offset, stride, l.size());
+
+            iterator itr = begin();
+            for (const value_type& v : l) { (*itr++) = v; }
         }
 
         template<typename... Args>
@@ -86,6 +98,11 @@ namespace vsg
         static ref_ptr<Array> create(std::initializer_list<value_type> l)
         {
             return ref_ptr<Array>(new Array(l));
+        }
+
+        static ref_ptr<Array> create(ref_ptr<Data> data, uint32_t offset, uint32_t stride, std::initializer_list<value_type> l)
+        {
+            return ref_ptr<Array>(new Array(data, offset, stride, l));
         }
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Array); }
