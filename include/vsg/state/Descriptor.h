@@ -23,7 +23,7 @@ namespace vsg
 
     using DescriptorBufferInfos = std::vector<VkDescriptorBufferInfo>;
 
-    class Descriptor : public Inherit<Object, Descriptor>
+    class VSG_DECLSPEC Descriptor : public Inherit<Object, Descriptor>
     {
     public:
         Descriptor(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType);

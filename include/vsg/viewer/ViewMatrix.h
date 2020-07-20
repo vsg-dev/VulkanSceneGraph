@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class ViewMatrix : public Inherit<Object, ViewMatrix>
+    class VSG_DECLSPEC ViewMatrix : public Inherit<Object, ViewMatrix>
     {
     public:
         virtual void get(mat4& matrix) const = 0;

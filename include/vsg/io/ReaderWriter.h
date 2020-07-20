@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class ReaderWriter : public Inherit<Object, ReaderWriter>
+    class VSG_DECLSPEC ReaderWriter : public Inherit<Object, ReaderWriter>
     {
     public:
         using vsg::Object::read;
