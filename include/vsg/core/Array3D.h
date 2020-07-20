@@ -43,21 +43,21 @@ namespace vsg
             _depth(0),
             _data(nullptr) {}
 
-        Array3D(std::uint32_t width, std::uint32_t height, std::uint32_t depth, Layout layout = {}) :
+        Array3D(uint32_t width, uint32_t height, uint32_t depth, Layout layout = {}) :
             Data(layout),
             _width(width),
             _height(height),
             _depth(depth),
             _data(new value_type[static_cast<std::size_t>(width) * height * depth]) {}
 
-        Array3D(std::uint32_t width, std::uint32_t height, std::uint32_t depth, value_type* data, Layout layout = {}) :
+        Array3D(uint32_t width, uint32_t height, uint32_t depth, value_type* data, Layout layout = {}) :
             Data(layout),
             _width(width),
             _height(height),
             _depth(depth),
             _data(data) {}
 
-        Array3D(std::uint32_t width, std::uint32_t height, std::uint32_t depth, const value_type& value, Layout layout = {}) :
+        Array3D(uint32_t width, uint32_t height, uint32_t depth, const value_type& value, Layout layout = {}) :
             Data(layout),
             _width(width),
             _height(height),
@@ -86,9 +86,9 @@ namespace vsg
             std::size_t original_size = size();
 
             Data::read(input);
-            std::uint32_t width = input.readValue<std::uint32_t>("Width");
-            std::uint32_t height = input.readValue<std::uint32_t>("Height");
-            std::uint32_t depth = input.readValue<std::uint32_t>("Depth");
+            uint32_t width = input.readValue<uint32_t>("Width");
+            uint32_t height = input.readValue<uint32_t>("Height");
+            uint32_t depth = input.readValue<uint32_t>("Depth");
             std::size_t new_size = computeValueCountIncludingMipmaps(width, height, depth, _layout.maxNumMipmaps);
             if (input.matchPropertyName("Data"))
             {
@@ -116,9 +116,9 @@ namespace vsg
         void write(Output& output) const override
         {
             Data::write(output);
-            output.writeValue<std::uint32_t>("Width", _width);
-            output.writeValue<std::uint32_t>("Height", _height);
-            output.writeValue<std::uint32_t>("Depth", _depth);
+            output.writeValue<uint32_t>("Width", _width);
+            output.writeValue<uint32_t>("Height", _height);
+            output.writeValue<uint32_t>("Depth", _depth);
 
             output.writePropertyName("Data");
             output.write(valueCount(), _data);
@@ -138,7 +138,7 @@ namespace vsg
             _data = nullptr;
         }
 
-        void assign(std::uint32_t width, std::uint32_t height, std::uint32_t depth, value_type* data, Layout layout = Layout())
+        void assign(uint32_t width, uint32_t height, uint32_t depth, value_type* data, Layout layout = Layout())
         {
             if (_data) delete[] _data;
 
@@ -172,16 +172,16 @@ namespace vsg
         void* dataPointer(std::size_t i) override { return _data + i; }
         const void* dataPointer(std::size_t i) const override { return _data + i; }
 
-        std::uint32_t dimensions() const override { return 3; }
+        uint32_t dimensions() const override { return 3; }
 
-        std::uint32_t width() const override { return _width; }
-        std::uint32_t height() const override { return _height; }
-        std::uint32_t depth() const override { return _depth; }
+        uint32_t width() const override { return _width; }
+        uint32_t height() const override { return _height; }
+        uint32_t depth() const override { return _depth; }
 
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
-        std::size_t index(std::uint32_t i, std::uint32_t j, std::uint32_t k) const noexcept { return static_cast<std::size_t>(k) * _width * _height + static_cast<std::size_t>(j) * _width + i; }
+        std::size_t index(uint32_t i, uint32_t j, uint32_t k) const noexcept { return static_cast<std::size_t>(k) * _width * _height + static_cast<std::size_t>(j) * _width + i; }
 
         value_type& operator[](std::size_t i) { return _data[i]; }
         const value_type& operator[](std::size_t i) const { return _data[i]; }
@@ -189,14 +189,14 @@ namespace vsg
         value_type& at(std::size_t i) { return _data[i]; }
         const value_type& at(std::size_t i) const { return _data[i]; }
 
-        value_type& operator()(std::uint32_t i, std::uint32_t j, std::uint32_t k) { return _data[index(i, j, k)]; }
-        const value_type& operator()(std::uint32_t i, std::uint32_t j, std::uint32_t k) const { return _data[index(i, j, k)]; }
+        value_type& operator()(uint32_t i, uint32_t j, uint32_t k) { return _data[index(i, j, k)]; }
+        const value_type& operator()(uint32_t i, uint32_t j, uint32_t k) const { return _data[index(i, j, k)]; }
 
-        value_type& at(std::uint32_t i, std::uint32_t j, std::uint32_t k) { return _data[index(i, j, k)]; }
-        const value_type& at(std::uint32_t i, std::uint32_t j, std::uint32_t k) const { return _data[index(i, j, k)]; }
+        value_type& at(uint32_t i, uint32_t j, uint32_t k) { return _data[index(i, j, k)]; }
+        const value_type& at(uint32_t i, uint32_t j, uint32_t k) const { return _data[index(i, j, k)]; }
 
         void set(std::size_t i, const value_type& v) { _data[i] = v; }
-        void set(std::uint32_t i, std::uint32_t j, std::uint32_t k, const value_type& v) { _data[index(i, j, k)] = v; }
+        void set(uint32_t i, uint32_t j, uint32_t k, const value_type& v) { _data[index(i, j, k)] = v; }
 
         iterator begin() { return _data; }
         const_iterator begin() const { return _data; }
@@ -211,15 +211,15 @@ namespace vsg
         }
 
     private:
-        std::uint32_t _width;
-        std::uint32_t _height;
-        std::uint32_t _depth;
+        uint32_t _width;
+        uint32_t _height;
+        uint32_t _depth;
         value_type* _data;
     };
 
     VSG_array3D(ubyteArray3D, std::uint8_t);
     VSG_array3D(ushortArray3D, std::uint16_t);
-    VSG_array3D(uintArray3D, std::uint32_t);
+    VSG_array3D(uintArray3D, uint32_t);
     VSG_array3D(floatArray3D, float);
     VSG_array3D(doubleArray3D, double);
 
