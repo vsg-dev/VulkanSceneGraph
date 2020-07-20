@@ -145,12 +145,13 @@ namespace vsg
 
         bool empty() const { return _size == 0; }
 
-        // should Array be fixed size?
         void clear()
         {
-            _size = 0;
             _delete();
+
+            _size = 0;
             _data = nullptr;
+            _storage = nullptr;
         }
 
         void assign(uint32_t numElements, value_type* data, Layout layout = Layout())

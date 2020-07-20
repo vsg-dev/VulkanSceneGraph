@@ -143,8 +143,8 @@ namespace vsg
 
             _width = 0;
             _height = 0;
-
             _data = nullptr;
+            _storage = nullptr;
         }
 
         void assign(uint32_t width, uint32_t height, value_type* data, Layout layout = Layout())
