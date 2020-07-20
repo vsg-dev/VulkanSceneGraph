@@ -39,28 +39,24 @@ namespace vsg
 
         Array2D() :
             _data(nullptr),
-            _stride(0),
             _width(0),
             _height(0) {}
 
         Array2D(uint32_t width, uint32_t height, Layout layout = {}) :
-            Data(layout),
+            Data(layout, sizeof(value_type)),
             _data(new value_type[width * height]),
-            _stride(sizeof(value_type)),
             _width(width),
             _height(height) {}
 
         Array2D(uint32_t width, uint32_t height, value_type* data, Layout layout = {}) :
-            Data(layout),
+            Data(layout, sizeof(value_type)),
             _data(data),
-            _stride(sizeof(value_type)),
             _width(width),
             _height(height) {}
 
         Array2D(uint32_t width, uint32_t height, const value_type& value, Layout layout = {}) :
-            Data(layout),
+            Data(layout, sizeof(value_type)),
             _data(new value_type[width * height]),
-            _stride(sizeof(value_type)),
             _width(width),
             _height(height)
         {
@@ -70,7 +66,6 @@ namespace vsg
         Array2D(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, Layout layout = Layout()):
             Data(),
             _data(nullptr),
-            _stride(0),
             _width(0),
             _height(0)
         {
@@ -114,7 +109,7 @@ namespace vsg
                     _data = new value_type[new_size];
                 }
 
-                _stride = sizeof(value_type);
+                _layout.stride = sizeof(value_type);
                 _width = width;
                 _height = height;
                 _storage = nullptr;
@@ -153,7 +148,7 @@ namespace vsg
             _delete();
 
             _layout = layout;
-            _stride = sizeof(value_type);
+            _layout.stride = sizeof(value_type);
             _width = width;
             _height = height;
             _data = data;
@@ -165,8 +160,8 @@ namespace vsg
             _delete();
 
             _storage = storage;
-            _stride = stride;
             _layout = layout;
+            _layout.stride = stride;
             if (_storage && _storage->dataPointer())
             {
                 _data = reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_storage->dataPointer()) + offset);
@@ -201,7 +196,7 @@ namespace vsg
         std::size_t valueSize() const override { return sizeof(value_type); }
         std::size_t valueCount() const override { return size(); }
 
-        std::size_t dataSize() const override { return size() * _stride; }
+        std::size_t dataSize() const override { return size() * _layout.stride; }
 
         void* dataPointer() override { return _data; }
         const void* dataPointer() const override { return _data; }
@@ -210,7 +205,6 @@ namespace vsg
         const void* dataPointer(std::size_t i) const override { return data(i); }
 
         uint32_t dimensions() const override { return 2; }
-        uint32_t stride() const override { return _stride; }
         uint32_t width() const override { return _width; }
         uint32_t height() const override { return _height; }
         uint32_t depth() const override { return 1; }
@@ -218,8 +212,8 @@ namespace vsg
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
-        inline value_type* data(std::size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i * _stride); }
-        inline const value_type* data(std::size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i * _stride); }
+        inline value_type* data(std::size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i * _layout.stride); }
+        inline const value_type* data(std::size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i * _layout.stride); }
 
         std::size_t index(uint32_t i, uint32_t j) const noexcept { return static_cast<std::size_t>(j) * _width + i; }
 
@@ -241,11 +235,11 @@ namespace vsg
         Data* storage() { return _storage; }
         const Data* storage() const { return _storage; }
 
-        iterator begin() { return iterator{_data, _stride}; }
-        const_iterator begin() const { return const_iterator{_data, _stride}; }
+        iterator begin() { return iterator{_data, _layout.stride}; }
+        const_iterator begin() const { return const_iterator{_data, _layout.stride}; }
 
-        iterator end() { return iterator{data(_width* _height), _stride}; }
-        const_iterator end() const { return const_iterator{data(_width * _height), _stride}; }
+        iterator end() { return iterator{data(_width* _height), _layout.stride}; }
+        const_iterator end() const { return const_iterator{data(_width * _height), _layout.stride}; }
 
     protected:
         virtual ~Array2D()
@@ -260,7 +254,6 @@ namespace vsg
 
     private:
         value_type* _data;
-        uint32_t _stride;
         uint32_t _width;
         uint32_t _height;
         ref_ptr<Data> _storage;

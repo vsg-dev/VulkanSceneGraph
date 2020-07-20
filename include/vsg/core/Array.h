@@ -40,25 +40,21 @@ namespace vsg
 
         Array() :
             _data(nullptr),
-            _stride(0),
             _size(0) {}
 
         explicit Array(uint32_t numElements, Layout layout = {}) :
-            Data(layout),
+            Data(layout, sizeof(value_type)),
             _data(new value_type[numElements]),
-            _stride(sizeof(value_type)),
             _size(numElements) {}
 
         Array(uint32_t numElements, value_type* data, Layout layout = {}) :
-            Data(layout),
+            Data(layout, sizeof(value_type)),
             _data(data),
-            _stride(sizeof(value_type)),
             _size(numElements) {}
 
         Array(uint32_t numElements, const value_type& value, Layout layout = {}) :
-            Data(layout),
+            Data(layout, sizeof(value_type)),
             _data(new value_type[numElements]),
-            _stride(sizeof(value_type)),
             _size(numElements)
         {
             for (auto& v : *this) v = value;
@@ -67,7 +63,6 @@ namespace vsg
         Array(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t numElements, Layout layout = Layout()):
             Data(),
             _data(nullptr),
-            _stride(0),
             _size(0)
         {
             assign(data, offset, stride, numElements, layout);
@@ -75,9 +70,9 @@ namespace vsg
 
         explicit Array(std::initializer_list<value_type> l) :
             _data(new value_type[l.size()]),
-            _stride(sizeof(value_type)),
             _size(static_cast<uint32_t>(l.size()))
         {
+            _layout.stride = sizeof(value_type);
             value_type* ptr = _data;
             for (const value_type& v : l) { (*ptr++) = v; }
         }
@@ -124,7 +119,7 @@ namespace vsg
                     _data = new value_type[new_total_size];
                 }
 
-                _stride = sizeof(value_type);
+                _layout.stride = sizeof(value_type);
                 _size = width_size;
                 _storage = nullptr;
 
@@ -160,7 +155,7 @@ namespace vsg
             _delete();
 
             _layout = layout;
-            _stride = sizeof(value_type);
+            _layout.stride = sizeof(value_type);
             _size = numElements;
             _data = data;
             _storage = nullptr;
@@ -171,8 +166,8 @@ namespace vsg
             _delete();
 
             _storage = storage;
-            _stride = stride;
             _layout = layout;
+            _layout.stride = stride;
             if (_storage && _storage->dataPointer())
             {
                 _data = reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_storage->dataPointer()) + offset);
@@ -205,7 +200,7 @@ namespace vsg
         std::size_t valueSize() const override { return sizeof(value_type); }
         std::size_t valueCount() const override { return size(); }
 
-        std::size_t dataSize() const override { return size() * _stride; }
+        std::size_t dataSize() const override { return size() * _layout.stride; }
 
         void* dataPointer() override { return _data; }
         const void* dataPointer() const override { return _data; }
@@ -214,7 +209,6 @@ namespace vsg
         const void* dataPointer(std::size_t i) const override { return data(i); }
 
         uint32_t dimensions() const override { return 1; }
-        uint32_t stride() const override { return _stride; }
 
         uint32_t width() const override { return _size; }
         uint32_t height() const override { return 1; }
@@ -223,8 +217,8 @@ namespace vsg
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
-        inline value_type* data(std::size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i*_stride); }
-        inline const value_type* data(std::size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i*_stride); }
+        inline value_type* data(std::size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i*_layout.stride); }
+        inline const value_type* data(std::size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i*_layout.stride); }
 
         value_type& operator[](std::size_t i) { return *data(i); }
         const value_type& operator[](std::size_t i) const  { return *data(i); }
@@ -237,11 +231,11 @@ namespace vsg
         Data* storage() { return _storage; }
         const Data* storage() const { return _storage; }
 
-        iterator begin() { return iterator{_data, _stride}; }
-        const_iterator begin() const { return const_iterator{_data, _stride}; }
+        iterator begin() { return iterator{_data, _layout.stride}; }
+        const_iterator begin() const { return const_iterator{_data, _layout.stride}; }
 
-        iterator end() { return iterator{data(_size), _stride}; }
-        const_iterator end() const { return const_iterator{data(_size), _stride}; }
+        iterator end() { return iterator{data(_size), _layout.stride}; }
+        const_iterator end() const { return const_iterator{data(_size), _layout.stride}; }
 
     protected:
         virtual ~Array()
@@ -256,7 +250,6 @@ namespace vsg
 
     private:
         value_type* _data;
-        uint32_t _stride;
         uint32_t _size;
         ref_ptr<Data> _storage;
     };

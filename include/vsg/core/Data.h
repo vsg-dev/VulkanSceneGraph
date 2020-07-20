@@ -65,6 +65,7 @@ namespace vsg
         struct Layout
         {
             VkFormat format = VK_FORMAT_UNDEFINED;
+            uint32_t stride = 0;
             uint8_t maxNumMipmaps = 0;
             uint8_t blockWidth = 1;
             uint8_t blockHeight = 1;
@@ -76,6 +77,12 @@ namespace vsg
 
         explicit Data(Layout layout) :
             _layout(layout) {}
+
+        Data(Layout layout, uint32_t min_stride) :
+            _layout(layout)
+        {
+            if (_layout.stride < min_stride) _layout.stride = min_stride;
+        }
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Data); }
 
@@ -116,13 +123,12 @@ namespace vsg
         virtual void* dataRelease() = 0;
 
         virtual std::uint32_t dimensions() const = 0;
-        virtual std::uint32_t stride() const { return valueSize(); }
 
         virtual std::uint32_t width() const = 0;
         virtual std::uint32_t height() const = 0;
         virtual std::uint32_t depth() const = 0;
 
-        bool contigous() const { return valueSize() == stride(); }
+        bool contigous() const { return valueSize() == _layout.stride; }
 
         using MipmapOffsets = std::vector<std::size_t>;
         MipmapOffsets computeMipmapOffsets() const;
