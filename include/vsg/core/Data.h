@@ -48,7 +48,8 @@ namespace vsg
         }
 
         stride_iterator& operator++() { advance(); return *this; }
-        stride_iterator operator++(int) { stride_iterator reval(*this); advance(); return *this; }
+        stride_iterator operator++(int) { stride_iterator reval(*this); advance(); return reval; }
+
         bool operator==(stride_iterator rhs) const { return ptr == rhs.ptr; }
         bool operator!=(stride_iterator rhs) const { return ptr != rhs.ptr; }
 
