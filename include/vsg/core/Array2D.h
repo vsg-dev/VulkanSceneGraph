@@ -114,9 +114,10 @@ namespace vsg
                     _data = new value_type[new_size];
                 }
 
+                _stride = sizeof(value_type);
                 _width = width;
                 _height = height;
-                _stride = sizeof(value_type);
+                _storage = nullptr;
 
                 input.read(new_size, _data);
             }
@@ -152,6 +153,7 @@ namespace vsg
             _delete();
 
             _layout = layout;
+            _stride = sizeof(value_type);
             _width = width;
             _height = height;
             _data = data;

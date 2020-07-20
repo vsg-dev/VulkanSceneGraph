@@ -124,8 +124,9 @@ namespace vsg
                     _data = new value_type[new_total_size];
                 }
 
-                _size = width_size;
                 _stride = sizeof(value_type);
+                _size = width_size;
+                _storage = nullptr;
 
                 input.read(new_total_size, _data);
             }
@@ -159,9 +160,9 @@ namespace vsg
             _delete();
 
             _layout = layout;
-            _data = data;
             _stride = sizeof(value_type);
             _size = numElements;
+            _data = data;
             _storage = nullptr;
         }
 
