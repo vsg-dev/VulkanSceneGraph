@@ -48,6 +48,7 @@ namespace vsg
         };
 
         AttributeDetails vertexAttribute;
+        ref_ptr<vsg::vec3Array> proxy_vertexArray;
     };
     VSG_type_name(vsg::ComputeBounds);
 

@@ -121,9 +121,12 @@ void ComputeBounds::apply(uint32_t firstBinding, const DataList& arrays)
         }
         else if (vertexAttribute.stride > 0)
         {
+            if (!proxy_vertexArray) proxy_vertexArray = vsg::vec3Array::create();
+
             uint32_t numVertices = array->dataSize() / vertexAttribute.stride;
-            auto proxy_array = vsg::vec3Array::create(array, vertexAttribute.offset, vertexAttribute.stride, numVertices, array->getLayout());
-            proxy_array->accept(*this);
+            proxy_vertexArray->assign(array, vertexAttribute.offset, vertexAttribute.stride, numVertices, array->getLayout());
+
+            proxy_vertexArray->accept(*this);
         }
     }
 }
