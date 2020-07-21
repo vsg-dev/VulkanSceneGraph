@@ -30,13 +30,24 @@ namespace vsg
         MatrixStack matrixStack;
 
         void apply(const Node& node);
-        void apply(const Group& group);
-        void apply(const Commands& commands);
+        void apply(const StateGroup& stategroup);
         void apply(const MatrixTransform& transform);
         void apply(const Geometry& geometry);
         void apply(const VertexIndexDraw& vid);
         void apply(const BindVertexBuffers& bvb);
+
+        void apply(uint32_t firstBinding, const DataList& arrays);
         void apply(const vec3Array& vertices);
+
+        struct AttributeDetails
+        {
+            uint32_t binding = 0;
+            uint32_t offset = 0;
+            uint32_t stride = 0;
+            VkFormat format = {};
+        };
+
+        AttributeDetails vertexAttribute;
     };
     VSG_type_name(vsg::ComputeBounds);
 

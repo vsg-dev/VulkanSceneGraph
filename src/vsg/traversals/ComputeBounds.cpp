@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/BindVertexBuffers.h>
 #include <vsg/commands/Commands.h>
 #include <vsg/nodes/Geometry.h>
+#include <vsg/state/StateGroup.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/traversals/ComputeBounds.h>
@@ -28,9 +29,61 @@ void ComputeBounds::apply(const vsg::Node& node)
     node.traverse(*this);
 }
 
-void ComputeBounds::apply(const vsg::Group& group)
+void ComputeBounds::apply(const StateGroup& stategroup)
 {
-    group.traverse(*this);
+   struct FindGraphicsPipelineVisitor : public ConstVisitor
+    {
+        ComputeBounds::AttributeDetails vertexAttribute;
+        uint32_t vertex_attribute_location = 0;
+
+        FindGraphicsPipelineVisitor()  {}
+
+        void apply(const BindGraphicsPipeline& bpg) override
+        {
+            for (auto& pipelineState : bpg.getPipeline()->getPipelineStates())
+            {
+                if (auto vas = pipelineState.cast<VertexInputState>(); vas)
+                {
+                    for(auto& attribute : vas->getAttributes())
+                    {
+                        if (attribute.location==vertex_attribute_location)
+                        {
+                            for(auto& binding : vas->geBindings())
+                            {
+                                if (attribute.binding == binding.binding)
+                                {
+                                    vertexAttribute.binding = attribute.binding;
+                                    vertexAttribute.offset = attribute.offset;
+                                    vertexAttribute.stride = binding.stride;
+                                    vertexAttribute.format = attribute.format;
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } findGraphicsPipeline;
+
+    for (auto& state : stategroup.getStateCommands())
+    {
+        state->accept(findGraphicsPipeline);
+    }
+
+    if (findGraphicsPipeline.vertexAttribute.stride != 0)
+    {
+        AttributeDetails previous_vertexAttribute = vertexAttribute;
+
+        vertexAttribute = findGraphicsPipeline.vertexAttribute;
+        stategroup.traverse(*this);
+
+        vertexAttribute = previous_vertexAttribute;
+    }
+    else
+    {
+        stategroup.traverse(*this);
+    }
 }
 
 void ComputeBounds::apply(const vsg::MatrixTransform& transform)
@@ -44,30 +97,34 @@ void ComputeBounds::apply(const vsg::MatrixTransform& transform)
 
 void ComputeBounds::apply(const vsg::Geometry& geometry)
 {
-    if (!geometry.arrays.empty())
-    {
-        geometry.arrays[0]->accept(*this);
-    }
-}
-
-void ComputeBounds::apply(const vsg::Commands& commands)
-{
-    commands.traverse(*this);
+    apply(geometry.firstBinding, geometry.arrays);
 }
 
 void ComputeBounds::apply(const vsg::VertexIndexDraw& vid)
 {
-    if (!vid.arrays.empty())
-    {
-        vid.arrays[0]->accept(*this);
-    }
+    apply(vid.firstBinding, vid.arrays);
 }
 
 void ComputeBounds::apply(const vsg::BindVertexBuffers& bvb)
 {
-    if (!bvb.getArrays().empty())
+    apply(bvb.getFirstBinding(), bvb.getArrays());
+}
+
+void ComputeBounds::apply(uint32_t firstBinding, const DataList& arrays)
+{
+    if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()) && (vertexAttribute.format==VK_FORMAT_R32G32B32_SFLOAT))
     {
-        bvb.getArrays()[0]->accept(*this);
+        auto array = arrays[vertexAttribute.binding-firstBinding];
+        if (array->is_same<vec3Array>())
+        {
+            array->accept(*this);
+        }
+        else if (vertexAttribute.stride > 0)
+        {
+            uint32_t numVertices = array->dataSize() / vertexAttribute.stride;
+            auto proxy_array = vsg::vec3Array::create(array, vertexAttribute.offset, vertexAttribute.stride, numVertices, array->getLayout());
+            proxy_array->accept(*this);
+        }
     }
 }
 
