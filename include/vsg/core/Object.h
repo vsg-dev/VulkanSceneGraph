@@ -52,6 +52,16 @@ namespace vsg
         virtual std::size_t sizeofObject() const noexcept { return sizeof(Object); }
         virtual const char* className() const noexcept { return type_name<Object>(); }
 
+        /// return the std::type_info of this Object
+        virtual const std::type_info& type_info() const noexcept { return typeid(Object); }
+
+        /// return true if this Object is the same type as template type.
+        template<typename T>
+        bool is_same() const noexcept { return type_info() == typeid(T); }
+
+        /// return true if this Object is the same type as specified object.
+        bool is_same(Object* object) const noexcept { return object && (type_info() == object->type_info()); }
+
         virtual void accept(Visitor& visitor);
         virtual void traverse(Visitor&) {}
 

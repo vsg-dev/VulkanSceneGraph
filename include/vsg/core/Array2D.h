@@ -79,12 +79,12 @@ namespace vsg
         }
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Array2D); }
+        const char* className() const noexcept override { return type_name<Array2D>(); }
+        const std::type_info& type_info() const noexcept override { return typeid(*this); }
 
         // implementation provided by Visitor.h
         void accept(Visitor& visitor) override;
         void accept(ConstVisitor& visitor) const override;
-
-        const char* className() const noexcept override { return type_name<Array2D>(); }
 
         void read(Input& input) override
         {
