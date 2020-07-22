@@ -32,15 +32,14 @@ struct TriangleIntersector
     vec_type _d_invZ;
 
     LineSegmentIntersector& intersector;
-    DataList arrays;
     ref_ptr<const vec3Array> vertices;
+    DataList arrays;
 
-    TriangleIntersector(LineSegmentIntersector& in_intersector, const dvec3& in_start, const dvec3& in_end, const DataList& in_arrays) :
+    TriangleIntersector(LineSegmentIntersector& in_intersector, const dvec3& in_start, const dvec3& in_end, ref_ptr<const vec3Array> in_vertices, const DataList& in_arrays) :
         intersector(in_intersector),
+        vertices(in_vertices),
         arrays(in_arrays)
     {
-        if (!arrays.empty()) vertices = arrays[0].template cast<const vec3Array>();
-
         start = in_start;
         end = in_end;
 
@@ -231,8 +230,10 @@ bool LineSegmentIntersector::intersect(VkPrimitiveTopology topology, const vsg::
     if (topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST) return false;
 
     auto& ls = _lineSegmentStack.back();
+    auto vertices = arrays[0].template cast<const vec3Array>();
+    if (!vertices) return false;
 
-    TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, arrays);
+    TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, vertices, arrays);
     if (!triIntsector.vertices) return false;
 
     size_t previous_size = intersections.size();
@@ -252,8 +253,10 @@ bool LineSegmentIntersector::intersect(VkPrimitiveTopology topology, const vsg::
     if (topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST) return false;
 
     auto& ls = _lineSegmentStack.back();
+    auto vertices = arrays[0].template cast<const vec3Array>();
+    if (!vertices) return false;
 
-    TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, arrays);
+    TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, vertices, arrays);
     if (!triIntsector.vertices) return false;
 
     size_t previous_size = intersections.size();
