@@ -12,12 +12,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/BindVertexBuffers.h>
 #include <vsg/commands/Commands.h>
+#include <vsg/io/Options.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/traversals/ComputeBounds.h>
-#include <vsg/io/Options.h>
-
 
 using namespace vsg;
 
