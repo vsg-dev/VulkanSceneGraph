@@ -173,8 +173,7 @@ t_sphere<T> t_computeFrustumBound(const t_mat4<T>& m)
     using value_type = T;
     auto inv_m = inverse(m);
 
-    auto update_radius2 = [&](value_type& r, const vec_type& center, const vec_type& corner) -> void
-    {
+    auto update_radius2 = [&](value_type& r, const vec_type& center, const vec_type& corner) -> void {
         auto new_r = length2(corner - center);
         if (new_r > r) r = new_r;
     };
@@ -200,24 +199,24 @@ t_sphere<T> t_computeFrustumBound(const t_mat4<T>& m)
 
     // compute radius
     value_type radius;
-    if (d>c) // d beyond far plane
+    if (d > c) // d beyond far plane
     {
         d = c;
         radius = sqrt(b2);
     }
-    else if (d<0.0) // d in front of near plane
+    else if (d < 0.0) // d in front of near plane
     {
         d = 0.0;
         radius = sqrt(a2);
     }
     else // d between near and far planes
     {
-        radius = sqrt(a2 + d*d);
+        radius = sqrt(a2 + d * d);
     }
 
-    auto center = near_center + (far_center - near_center) * (d/c);
+    auto center = near_center + (far_center - near_center) * (d / c);
 
-    return t_sphere<T>(center,radius);
+    return t_sphere<T>(center, radius);
 }
 
 sphere vsg::computeFrustumBound(const mat4& m)

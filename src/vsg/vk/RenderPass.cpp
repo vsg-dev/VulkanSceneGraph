@@ -22,13 +22,13 @@ RenderPass::RenderPass(Device* device, const Attachments& attachments, const Sub
     _allocator(allocator)
 {
     _maxSamples = VK_SAMPLE_COUNT_1_BIT;
-    for(auto& attachment : attachments)
+    for (auto& attachment : attachments)
     {
         if (attachment.samples > _maxSamples) _maxSamples = attachment.samples;
     }
 
     std::vector<VkSubpassDescription> vk_subpasses(subpasses.size());
-    for(size_t i=0; i<subpasses.size(); ++i)
+    for (size_t i = 0; i < subpasses.size(); ++i)
     {
         const SubpassDescription& src = subpasses[i];
         VkSubpassDescription& dst = vk_subpasses[i];
@@ -43,7 +43,6 @@ RenderPass::RenderPass(Device* device, const Attachments& attachments, const Sub
         dst.preserveAttachmentCount = static_cast<uint32_t>(src.preserveAttachments.size());
         dst.pPreserveAttachments = src.preserveAttachments.empty() ? nullptr : src.preserveAttachments.data();
     }
-
 
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -68,7 +67,6 @@ RenderPass::~RenderPass()
         vkDestroyRenderPass(*_device, _renderPass, _allocator);
     }
 }
-
 
 AttachmentDescription vsg::defaultColorAttachment(VkFormat imageFormat)
 {
@@ -104,8 +102,7 @@ ref_ptr<RenderPass> vsg::createRenderPass(Device* device, VkFormat imageFormat, 
 {
     RenderPass::Attachments attachments{
         defaultColorAttachment(imageFormat),
-        defaultDepthAttachment(depthFormat)
-    };
+        defaultDepthAttachment(depthFormat)};
 
     VkAttachmentReference colorAttachmentRef = {};
     colorAttachmentRef.attachment = 0;
@@ -177,7 +174,6 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
     depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     RenderPass::Attachments attachments{colorAttachment, resolveAttachment, depthAttachment};
-
 
     VkAttachmentReference colorAttachmentRef = {};
     colorAttachmentRef.attachment = 0;

@@ -47,5 +47,4 @@ namespace vsg
 
     using Semaphores = std::vector<ref_ptr<Semaphore>>;
 
-
 } // namespace vsg

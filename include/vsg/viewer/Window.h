@@ -136,7 +136,6 @@ namespace vsg
         /// get the image index for specified relative frame index, a 0 value is the current frame being rendered, 1 is the previous frame, 2 is the previous frame that.
         size_t imageIndex(size_t relativeFrameIndex = 0) const { return relativeFrameIndex < _indices.size() ? _indices[relativeFrameIndex] : _indices.size(); }
 
-
         bool debugLayersEnabled() const { return _traits->debugLayer; }
 
         struct Frame
@@ -194,7 +193,6 @@ namespace vsg
 
         Frames _frames;
         std::vector<size_t> _indices;
-
     };
     VSG_type_name(vsg::Window);
 

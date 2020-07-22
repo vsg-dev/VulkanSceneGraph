@@ -42,6 +42,8 @@ Options::~Options()
 
 bool Options::readOptions(CommandLine& arguments)
 {
-    if (readerWriter) return readerWriter->readOptions(*this, arguments);
-    else return false;
+    if (readerWriter)
+        return readerWriter->readOptions(*this, arguments);
+    else
+        return false;
 }

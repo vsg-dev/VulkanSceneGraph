@@ -77,7 +77,7 @@ void SetEvent::record(CommandBuffer& commandBuffer) const
 //
 // ReetEvent
 //
-ResetEvent::ResetEvent(ref_ptr<Event> in_event, VkPipelineStageFlags in_stageMask):
+ResetEvent::ResetEvent(ref_ptr<Event> in_event, VkPipelineStageFlags in_stageMask) :
     event(in_event),
     stageMask(in_stageMask)
 {
@@ -96,7 +96,7 @@ void ResetEvent::record(CommandBuffer& commandBuffer) const
 //
 // WaitEvents
 //
-WaitEvents::WaitEvents():
+WaitEvents::WaitEvents() :
     srcStageMask(0),
     dstStageMask(0)
 {

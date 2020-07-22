@@ -78,7 +78,7 @@ void Window::_initInstance()
         if (_traits->debugLayer || _traits->apiDumpLayer)
         {
             instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-            requestedLayers.push_back("VK_LAYER_KHRONOS_validation"); // new validation layer name
+            requestedLayers.push_back("VK_LAYER_KHRONOS_validation");         // new validation layer name
             requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation"); // old validation layer name
             if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
         }
@@ -336,9 +336,9 @@ VkResult Window::acquireNextImage(uint64_t timeout)
         _availableSemaphore.swap(_frames[imageIndex].imageAvailableSemaphore);
 
         // shift up previous frame indices
-        for(size_t i=1; i<_indices.size(); ++i)
+        for (size_t i = 1; i < _indices.size(); ++i)
         {
-            _indices[i] = _indices[i-1];
+            _indices[i] = _indices[i - 1];
         }
 
         // update head of _indices to the new frames imageIndex

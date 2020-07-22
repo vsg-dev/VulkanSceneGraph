@@ -82,7 +82,7 @@ void CollectDescriptorStats::apply(const StateGroup& stategroup)
     bool hasResourceHints = checkForResourceHints(stategroup);
     if (hasResourceHints) ++_numResourceHintsAbove;
 
-    if (_numResourceHintsAbove==0)
+    if (_numResourceHintsAbove == 0)
     {
         for (auto& command : stategroup.getStateCommands())
         {

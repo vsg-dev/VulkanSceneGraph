@@ -15,7 +15,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-
 Framebuffer::Framebuffer(ref_ptr<RenderPass> renderPass, const ImageViews& attachments, uint32_t width, uint32_t height, uint32_t layers) :
     _device(renderPass->getDevice()),
     _renderPass(renderPass),
@@ -26,11 +25,10 @@ Framebuffer::Framebuffer(ref_ptr<RenderPass> renderPass, const ImageViews& attac
 {
 
     std::vector<VkImageView> vk_attachments;
-    for(auto& attachment : attachments)
+    for (auto& attachment : attachments)
     {
         vk_attachments.push_back(*attachment);
     }
-
 
     VkFramebufferCreateInfo framebufferInfo = {};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;

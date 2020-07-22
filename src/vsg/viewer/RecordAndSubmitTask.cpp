@@ -39,19 +39,18 @@ void RecordAndSubmitTask::advance()
     else
     {
         ++_currentFrameIndex;
-        if (_currentFrameIndex > _indices.size()-1) _currentFrameIndex = 0;
+        if (_currentFrameIndex > _indices.size() - 1) _currentFrameIndex = 0;
 
         // shift the index for previous frames
-        for(size_t i=1; i<_indices.size(); ++i)
+        for (size_t i = 1; i < _indices.size(); ++i)
         {
-            _indices[i] = _indices[i-1];
+            _indices[i] = _indices[i - 1];
         }
     }
 
     // ass the index for the current frame
     _indices[0] = _currentFrameIndex;
 }
-
 
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
