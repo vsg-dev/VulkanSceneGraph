@@ -68,6 +68,7 @@ namespace vsg
 
         /// read the command line arguments for any options apprpriate for this ReaderWriter
         bool readOptions(vsg::Options& options, vsg::CommandLine& arguments) const override;
+
     protected:
     };
     VSG_type_name(vsg::CompositeReaderWriter);

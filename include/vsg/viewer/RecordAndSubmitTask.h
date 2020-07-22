@@ -48,7 +48,11 @@ namespace vsg
         size_t index(size_t relativeFrameIndex = 0) const { return relativeFrameIndex < _indices.size() ? _indices[relativeFrameIndex] : _indices.size(); }
 
         /// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) return the previous frame's Fence etc.
-        Fence* fence(size_t relativeFrameIndex = 0) { size_t i = index(relativeFrameIndex); return i < _fences.size() ? _fences[i].get() : nullptr; }
+        Fence* fence(size_t relativeFrameIndex = 0)
+        {
+            size_t i = index(relativeFrameIndex);
+            return i < _fences.size() ? _fences[i].get() : nullptr;
+        }
 
         ref_ptr<Queue> queue; // assign in application for GraphicsQueue from device
 
@@ -58,7 +62,6 @@ namespace vsg
         size_t _currentFrameIndex;
         std::vector<size_t> _indices;
         std::vector<ref_ptr<Fence>> _fences;
-
     };
     VSG_type_name(vsg::RecordAndSubmitTask);
 

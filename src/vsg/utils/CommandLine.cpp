@@ -25,7 +25,3 @@ bool CommandLine::read(Options* options)
 {
     return (options) ? options->readOptions(*this) : false;
 }
-
-
-
-

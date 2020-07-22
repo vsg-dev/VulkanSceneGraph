@@ -33,7 +33,6 @@ namespace vsg
         LineSegmentIntersector(const dvec3& s, const dvec3& e);
         LineSegmentIntersector(const Camera& camera, int32_t x, int32_t y);
 
-
         struct Intersection
         {
             dvec3 localIntersection;

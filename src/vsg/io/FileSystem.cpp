@@ -15,11 +15,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #if defined(WIN32) && !defined(__CYGWIN__)
 #    include <cstdlib>
-#    include <io.h>
 #    include <direct.h>
+#    include <io.h>
 #else
-#    include <unistd.h>
 #    include <sys/stat.h>
+#    include <unistd.h>
 #endif
 
 #include <iostream>
@@ -183,7 +183,6 @@ Path vsg::findFile(const Path& filename, const Options* options)
     }
 }
 
-
 bool vsg::makeDirectory(const Path& path)
 {
     std::vector<vsg::Path> directoriesToCreate;
@@ -194,26 +193,26 @@ bool vsg::makeDirectory(const Path& path)
         trimmed_path = vsg::filePath(trimmed_path);
     }
 
-    for(auto itr = directoriesToCreate.rbegin(); itr != directoriesToCreate.rend(); ++itr)
+    for (auto itr = directoriesToCreate.rbegin(); itr != directoriesToCreate.rend(); ++itr)
     {
         vsg::Path directory_to_create = *itr;
 
-        if (directory_to_create.size()==2 && directory_to_create[1]==':')
+        if (directory_to_create.size() == 2 && directory_to_create[1] == ':')
         {
             // ignore a C: style drive prefixes
             continue;
         }
 
 #if defined(WIN32) && !defined(__CYGWIN__)
-        if (int status = _mkdir( directory_to_create.c_str()); status != 0)
+        if (int status = _mkdir(directory_to_create.c_str()); status != 0)
         {
-            std::cerr<<"   _mkdir("<<directory_to_create<<") failed. status = "<<status<<std::endl;
+            std::cerr << "   _mkdir(" << directory_to_create << ") failed. status = " << status << std::endl;
             return false;
         }
 #else
-        if (int status = mkdir( directory_to_create.c_str(), 0755 ); status != 0)
+        if (int status = mkdir(directory_to_create.c_str(), 0755); status != 0)
         {
-            std::cerr<<"   mkdir("<<directory_to_create<<") failed. status = "<<status<<std::endl;
+            std::cerr << "   mkdir(" << directory_to_create << ") failed. status = " << status << std::endl;
             return false;
         }
 #endif

@@ -130,7 +130,6 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
         }
     }
 
-
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 

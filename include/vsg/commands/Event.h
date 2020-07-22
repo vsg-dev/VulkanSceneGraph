@@ -45,7 +45,6 @@ namespace vsg
 
     using Events = std::vector<ref_ptr<Event>>;
 
-
     /// Commnand class encapsulating vkCmdSetEvent
     class VSG_DECLSPEC SetEvent : public Inherit<Command, SetEvent>
     {
@@ -62,7 +61,6 @@ namespace vsg
     };
     VSG_type_name(vsg::SetEvent);
 
-
     /// Commnand class encapsulating vkCmdReetEvent
     class VSG_DECLSPEC ResetEvent : public Inherit<Command, ResetEvent>
     {
@@ -78,7 +76,6 @@ namespace vsg
         virtual ~ResetEvent();
     };
     VSG_type_name(vsg::ResetEvent);
-
 
     /// Commnand class encapsulating vkCmdWaitEvents
     class VSG_DECLSPEC WaitEvents : public Inherit<Command, WaitEvents>

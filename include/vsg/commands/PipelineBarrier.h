@@ -34,7 +34,6 @@ namespace vsg
             srcAccessMask(in_srcAccessMask),
             dstAccessMask(in_dstAccessMask) {}
 
-
         ref_ptr<VulkanInfo> next;
         VkAccessFlags srcAccessMask = 0;
         VkAccessFlags dstAccessMask = 0;
@@ -108,7 +107,6 @@ namespace vsg
     };
     VSG_type_name(vsg::ImageMemoryBarrier);
     using ImageMemoryBarriers = std::vector<ref_ptr<ImageMemoryBarrier>>;
-
 
     // TODO decide where SampleLocations belongs, possibly RenderPass?
     struct VSG_DECLSPEC SampleLocations : public Inherit<VulkanInfo, SampleLocations>

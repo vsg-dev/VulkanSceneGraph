@@ -23,7 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 #if VK_HEADER_VERSION < 106
-    #define VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT VkResult(-1000255000)
+#    define VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT VkResult(-1000255000)
 #endif
 
 Viewer::Viewer()
@@ -132,7 +132,7 @@ bool Viewer::advanceToNextFrame()
         // first frame, initialze to frame count and indices to 0
         _frameStamp = new vsg::FrameStamp(time, 0);
 
-        for(auto& task : recordAndSubmitTasks)
+        for (auto& task : recordAndSubmitTasks)
         {
             task->advance();
         }
@@ -142,7 +142,7 @@ bool Viewer::advanceToNextFrame()
         // after forst frame so increment frame count and indices
         _frameStamp = new vsg::FrameStamp(time, _frameStamp->frameCount + 1);
 
-        for(auto& task : recordAndSubmitTasks)
+        for (auto& task : recordAndSubmitTasks)
         {
             task->advance();
         }
