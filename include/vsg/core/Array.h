@@ -60,7 +60,7 @@ namespace vsg
             for (auto& v : *this) v = value;
         }
 
-        Array(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t numElements, Layout layout = Layout()):
+        Array(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t numElements, Layout layout = Layout()) :
             Data(),
             _data(nullptr),
             _size(0)
@@ -77,7 +77,6 @@ namespace vsg
             iterator itr = begin();
             for (const value_type& v : l) { (*itr++) = v; }
         }
-
 
         explicit Array(ref_ptr<Data> data, uint32_t offset, uint32_t stride, std::initializer_list<value_type> l) :
             _data(nullptr),
@@ -112,7 +111,6 @@ namespace vsg
         // implementation provided by Visitor.h
         void accept(Visitor& visitor) override;
         void accept(ConstVisitor& visitor) const override;
-
 
         void read(Input& input) override
         {
@@ -235,11 +233,11 @@ namespace vsg
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
-        inline value_type* data(std::size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i*_layout.stride); }
-        inline const value_type* data(std::size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i*_layout.stride); }
+        inline value_type* data(std::size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i * _layout.stride); }
+        inline const value_type* data(std::size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i * _layout.stride); }
 
         value_type& operator[](std::size_t i) { return *data(i); }
-        const value_type& operator[](std::size_t i) const  { return *data(i); }
+        const value_type& operator[](std::size_t i) const { return *data(i); }
 
         value_type& at(std::size_t i) { return *data(i); }
         const value_type& at(std::size_t i) const { return *data(i); }

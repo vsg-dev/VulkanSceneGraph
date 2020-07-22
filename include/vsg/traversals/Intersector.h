@@ -85,7 +85,6 @@ namespace vsg
         std::vector<VkPrimitiveTopology> _topologyStack;
         VkPrimitiveTopology topology() const { return _topologyStack.back(); }
 
-
         NodePath _nodePath;
         ref_ptr<const vec3Array> _vertices;
 

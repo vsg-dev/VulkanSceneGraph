@@ -69,14 +69,15 @@ void Intersector::apply(const StateGroup& stategroup)
         {
             for (auto& pipelineState : bpg.getPipeline()->getPipelineStates())
             {
-                if (auto ias = pipelineState.cast<InputAssemblyState>(); ias) topology = ias->topology;
+                if (auto ias = pipelineState.cast<InputAssemblyState>(); ias)
+                    topology = ias->topology;
                 else if (auto vas = pipelineState.cast<VertexInputState>(); vas)
                 {
-                    for(auto& attribute : vas->getAttributes())
+                    for (auto& attribute : vas->getAttributes())
                     {
-                        if (attribute.location==vertex_attribute_location)
+                        if (attribute.location == vertex_attribute_location)
                         {
-                            for(auto& binding : vas->geBindings())
+                            for (auto& binding : vas->geBindings())
                             {
                                 if (attribute.binding == binding.binding)
                                 {
@@ -238,12 +239,12 @@ void Intersector::apply(const BindIndexBuffer& bib)
 
 void Intersector::apply(uint32_t firstBinding, const DataList& arrays)
 {
-    if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()) && (vertexAttribute.format==VK_FORMAT_R32G32B32_SFLOAT))
+    if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()) && (vertexAttribute.format == VK_FORMAT_R32G32B32_SFLOAT))
     {
-        auto array = arrays[vertexAttribute.binding-firstBinding];
+        auto array = arrays[vertexAttribute.binding - firstBinding];
         if (array->is_same<vec3Array>())
         {
-            _vertices= array.cast<vec3Array>();
+            _vertices = array.cast<vec3Array>();
         }
         else if (vertexAttribute.stride > 0)
         {
@@ -252,12 +253,12 @@ void Intersector::apply(uint32_t firstBinding, const DataList& arrays)
             uint32_t numVertices = array->dataSize() / vertexAttribute.stride;
             proxy_vertexArray->assign(array, vertexAttribute.offset, vertexAttribute.stride, numVertices, array->getLayout());
 
-            _vertices= proxy_vertexArray;
+            _vertices = proxy_vertexArray;
         }
     }
     else
     {
-        _vertices= nullptr;
+        _vertices = nullptr;
     }
 
     _arrays = arrays;

@@ -42,13 +42,25 @@ namespace vsg
         value_type* ptr;
         uint32_t stride; // stride in bytes
 
-        inline void advance() {
-            if constexpr (std::is_const<value_type>::value) ptr = reinterpret_cast<value_type*>(reinterpret_cast<const uint8_t*>(ptr) + stride);
-            else ptr = reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(ptr) + stride);
+        inline void advance()
+        {
+            if constexpr (std::is_const<value_type>::value)
+                ptr = reinterpret_cast<value_type*>(reinterpret_cast<const uint8_t*>(ptr) + stride);
+            else
+                ptr = reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(ptr) + stride);
         }
 
-        stride_iterator& operator++() { advance(); return *this; }
-        stride_iterator operator++(int) { stride_iterator reval(*this); advance(); return reval; }
+        stride_iterator& operator++()
+        {
+            advance();
+            return *this;
+        }
+        stride_iterator operator++(int)
+        {
+            stride_iterator reval(*this);
+            advance();
+            return reval;
+        }
 
         bool operator==(stride_iterator rhs) const { return ptr == rhs.ptr; }
         bool operator!=(stride_iterator rhs) const { return ptr != rhs.ptr; }

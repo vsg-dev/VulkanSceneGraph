@@ -67,7 +67,7 @@ namespace vsg
             for (auto& v : *this) v = value;
         }
 
-        Array3D(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Layout layout = Layout()):
+        Array3D(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Layout layout = Layout()) :
             Data(),
             _data(nullptr),
             _width(0),
@@ -90,7 +90,6 @@ namespace vsg
         // implementation provided by Visitor.h
         void accept(Visitor& visitor) override;
         void accept(ConstVisitor& visitor) const override;
-
 
         void read(Input& input) override
         {
@@ -233,7 +232,7 @@ namespace vsg
         std::size_t index(uint32_t i, uint32_t j, uint32_t k) const noexcept { return static_cast<std::size_t>(k * _width * _height + j * _width + i); }
 
         value_type& operator[](std::size_t i) { return *data(i); }
-        const value_type& operator[](std::size_t i) const  { return *data(i); }
+        const value_type& operator[](std::size_t i) const { return *data(i); }
 
         value_type& at(std::size_t i) { return *data(i); }
         const value_type& at(std::size_t i) const { return *data(i); }
@@ -253,7 +252,7 @@ namespace vsg
         iterator begin() { return iterator{_data, _layout.stride}; }
         const_iterator begin() const { return const_iterator{_data, _layout.stride}; }
 
-        iterator end() { return iterator{data(_width* _height * _depth), _layout.stride}; }
+        iterator end() { return iterator{data(_width * _height * _depth), _layout.stride}; }
         const_iterator end() const { return const_iterator{data(_width * _height * _depth), _layout.stride}; }
 
     protected:

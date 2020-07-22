@@ -13,9 +13,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/BindVertexBuffers.h>
 #include <vsg/commands/Commands.h>
 #include <vsg/nodes/Geometry.h>
-#include <vsg/state/StateGroup.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/VertexIndexDraw.h>
+#include <vsg/state/StateGroup.h>
 #include <vsg/traversals/ComputeBounds.h>
 
 using namespace vsg;
@@ -31,12 +31,12 @@ void ComputeBounds::apply(const vsg::Node& node)
 
 void ComputeBounds::apply(const StateGroup& stategroup)
 {
-   struct FindGraphicsPipelineVisitor : public ConstVisitor
+    struct FindGraphicsPipelineVisitor : public ConstVisitor
     {
         ComputeBounds::AttributeDetails vertexAttribute;
         uint32_t vertex_attribute_location = 0;
 
-        FindGraphicsPipelineVisitor()  {}
+        FindGraphicsPipelineVisitor() {}
 
         void apply(const BindGraphicsPipeline& bpg) override
         {
@@ -44,11 +44,11 @@ void ComputeBounds::apply(const StateGroup& stategroup)
             {
                 if (auto vas = pipelineState.cast<VertexInputState>(); vas)
                 {
-                    for(auto& attribute : vas->getAttributes())
+                    for (auto& attribute : vas->getAttributes())
                     {
-                        if (attribute.location==vertex_attribute_location)
+                        if (attribute.location == vertex_attribute_location)
                         {
-                            for(auto& binding : vas->geBindings())
+                            for (auto& binding : vas->geBindings())
                             {
                                 if (attribute.binding == binding.binding)
                                 {
@@ -112,9 +112,9 @@ void ComputeBounds::apply(const vsg::BindVertexBuffers& bvb)
 
 void ComputeBounds::apply(uint32_t firstBinding, const DataList& arrays)
 {
-    if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()) && (vertexAttribute.format==VK_FORMAT_R32G32B32_SFLOAT))
+    if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()) && (vertexAttribute.format == VK_FORMAT_R32G32B32_SFLOAT))
     {
-        auto array = arrays[vertexAttribute.binding-firstBinding];
+        auto array = arrays[vertexAttribute.binding - firstBinding];
         if (array->is_same<vec3Array>())
         {
             array->accept(*this);
