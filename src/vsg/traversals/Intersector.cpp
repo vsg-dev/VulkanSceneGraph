@@ -59,6 +59,8 @@ void Intersector::apply(const StateGroup& stategroup)
     struct FindGraphicsPipelineVisitor : public ConstVisitor
     {
         VkPrimitiveTopology topology;
+        Intersector::AttributeDetails vertexAttribute;
+        uint32_t vertex_attribute_location = 0;
 
         FindGraphicsPipelineVisitor(VkPrimitiveTopology in_topology) :
             topology(in_topology) {}
@@ -68,6 +70,26 @@ void Intersector::apply(const StateGroup& stategroup)
             for (auto& pipelineState : bpg.getPipeline()->getPipelineStates())
             {
                 if (auto ias = pipelineState.cast<InputAssemblyState>(); ias) topology = ias->topology;
+                else if (auto vas = pipelineState.cast<VertexInputState>(); vas)
+                {
+                    for(auto& attribute : vas->getAttributes())
+                    {
+                        if (attribute.location==vertex_attribute_location)
+                        {
+                            for(auto& binding : vas->geBindings())
+                            {
+                                if (attribute.binding == binding.binding)
+                                {
+                                    vertexAttribute.binding = attribute.binding;
+                                    vertexAttribute.offset = attribute.offset;
+                                    vertexAttribute.stride = binding.stride;
+                                    vertexAttribute.format = attribute.format;
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     } findGraphicsPipeline(previous_topology);
@@ -82,7 +104,19 @@ void Intersector::apply(const StateGroup& stategroup)
         _topologyStack.push_back(findGraphicsPipeline.topology);
     }
 
-    stategroup.traverse(*this);
+    if (findGraphicsPipeline.vertexAttribute.stride != 0)
+    {
+        AttributeDetails previous_vertexAttribute = vertexAttribute;
+
+        vertexAttribute = findGraphicsPipeline.vertexAttribute;
+        stategroup.traverse(*this);
+
+        vertexAttribute = previous_vertexAttribute;
+    }
+    else
+    {
+        stategroup.traverse(*this);
+    }
 
     if (findGraphicsPipeline.topology != previous_topology)
     {
@@ -144,7 +178,8 @@ void Intersector::apply(const CullNode& cn)
 
 void Intersector::apply(const VertexIndexDraw& vid)
 {
-    if (vid.arrays.empty()) return;
+    apply(vid.firstBinding, vid.arrays);
+    if (!_vertices) return;
 
     PushPopNode ppn(_nodePath, &vid);
 
@@ -152,10 +187,7 @@ void Intersector::apply(const VertexIndexDraw& vid)
     if (!vid.getValue("bound", bound))
     {
         box bb;
-        if (auto vertices = vid.arrays[0].cast<vec3Array>(); vertices)
-        {
-            for (auto& vertex : *vertices) bb.add(vertex);
-        }
+        for (auto& vertex : *_vertices) bb.add(vertex);
 
         if (bb.valid())
         {
@@ -175,15 +207,17 @@ void Intersector::apply(const VertexIndexDraw& vid)
 
     if (intersects(bound))
     {
-        intersect(topology(), vid.arrays, vid.indices, vid.firstIndex, vid.indexCount);
+        intersect(topology(), _vertices, vid.indices, vid.firstIndex, vid.indexCount);
     }
 }
 
 void Intersector::apply(const Geometry& geometry)
 {
+    apply(geometry.firstBinding, geometry.arrays);
+    if (!_vertices) return;
+
     PushPopNode ppn(_nodePath, &geometry);
 
-    _arrays = geometry.arrays;
     _indices = geometry.indices;
 
     for (auto& command : geometry.commands)
@@ -194,7 +228,7 @@ void Intersector::apply(const Geometry& geometry)
 
 void Intersector::apply(const BindVertexBuffers& bvb)
 {
-    _arrays = bvb.getArrays();
+    apply(bvb.getFirstBinding(), bvb.getArrays());
 }
 
 void Intersector::apply(const BindIndexBuffer& bib)
@@ -202,16 +236,47 @@ void Intersector::apply(const BindIndexBuffer& bib)
     _indices = bib.getIndices();
 }
 
+void Intersector::apply(uint32_t firstBinding, const DataList& arrays)
+{
+    if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()) && (vertexAttribute.format==VK_FORMAT_R32G32B32_SFLOAT))
+    {
+        auto array = arrays[vertexAttribute.binding-firstBinding];
+        if (array->is_same<vec3Array>())
+        {
+            _vertices= array.cast<vec3Array>();
+        }
+        else if (vertexAttribute.stride > 0)
+        {
+            if (!proxy_vertexArray) proxy_vertexArray = vsg::vec3Array::create();
+
+            uint32_t numVertices = array->dataSize() / vertexAttribute.stride;
+            proxy_vertexArray->assign(array, vertexAttribute.offset, vertexAttribute.stride, numVertices, array->getLayout());
+
+            _vertices= proxy_vertexArray;
+        }
+    }
+    else
+    {
+        _vertices= nullptr;
+    }
+
+    _arrays = arrays;
+}
+
 void Intersector::apply(const Draw& draw)
 {
+    if (!_vertices) return;
+
     PushPopNode ppn(_nodePath, &draw);
 
-    intersect(topology(), _arrays, draw.firstVertex, draw.vertexCount);
+    intersect(topology(), _vertices, draw.firstVertex, draw.vertexCount);
 }
 
 void Intersector::apply(const DrawIndexed& drawIndexed)
 {
+    if (!_vertices) return;
+
     PushPopNode ppn(_nodePath, &drawIndexed);
 
-    intersect(topology(), _arrays, _indices, drawIndexed.firstIndex, drawIndexed.indexCount);
+    intersect(topology(), _vertices, _indices, drawIndexed.firstIndex, drawIndexed.indexCount);
 }

@@ -33,12 +33,10 @@ struct TriangleIntersector
 
     LineSegmentIntersector& intersector;
     ref_ptr<const vec3Array> vertices;
-    DataList arrays;
 
-    TriangleIntersector(LineSegmentIntersector& in_intersector, const dvec3& in_start, const dvec3& in_end, ref_ptr<const vec3Array> in_vertices, const DataList& in_arrays) :
+    TriangleIntersector(LineSegmentIntersector& in_intersector, const dvec3& in_start, const dvec3& in_end, ref_ptr<const vec3Array> in_vertices) :
         intersector(in_intersector),
-        vertices(in_vertices),
-        arrays(in_arrays)
+        vertices(in_vertices)
     {
         start = in_start;
         end = in_end;
@@ -125,7 +123,7 @@ struct TriangleIntersector
         // TODO : handle hit
 
         dvec3 intersection = dvec3(dvec3(v0) * double(r0) + dvec3(v1) * double(r1) + dvec3(v2) * double(r2));
-        intersector.add(intersection, double(r), arrays, {{i0, r0}, {i1, r1}, {i2, r2}});
+        intersector.add(intersection, double(r), {{i0, r0}, {i1, r1}, {i2, r2}});
 
         return true;
     }
@@ -160,16 +158,16 @@ LineSegmentIntersector::LineSegmentIntersector(const Camera& camera, int32_t x, 
     _lineSegmentStack.push_back(LineSegment{world_near, world_far});
 }
 
-void LineSegmentIntersector::add(const dvec3& intersection, double ratio, const DataList& arrays, const IndexRatios& indexRatios)
+void LineSegmentIntersector::add(const dvec3& intersection, double ratio, const IndexRatios& indexRatios)
 {
     if (_matrixStack.empty())
     {
-        intersections.emplace_back(Intersection{intersection, intersection, ratio, {}, _nodePath, arrays, indexRatios});
+        intersections.emplace_back(Intersection{intersection, intersection, ratio, {}, _nodePath, _arrays, indexRatios});
     }
     else
     {
         auto& localToWorld = _matrixStack.back();
-        intersections.emplace_back(Intersection{intersection, localToWorld * intersection, ratio, localToWorld, _nodePath, arrays, indexRatios});
+        intersections.emplace_back(Intersection{intersection, localToWorld * intersection, ratio, localToWorld, _nodePath, _arrays, indexRatios});
     }
 }
 
@@ -224,16 +222,14 @@ bool LineSegmentIntersector::intersects(const dsphere& bs)
     return true;
 }
 
-bool LineSegmentIntersector::intersect(VkPrimitiveTopology topology, const vsg::DataList& arrays, uint32_t firstVertex, uint32_t vertexCount)
+bool LineSegmentIntersector::intersect(VkPrimitiveTopology topology, ref_ptr<const vec3Array> vertices, uint32_t firstVertex, uint32_t vertexCount)
 {
-    if (arrays.empty() || vertexCount == 0) return false;
+    if (!vertices || vertexCount == 0) return false;
     if (topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST) return false;
 
     auto& ls = _lineSegmentStack.back();
-    auto vertices = arrays[0].template cast<const vec3Array>();
-    if (!vertices) return false;
 
-    TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, vertices, arrays);
+    TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, vertices);
     if (!triIntsector.vertices) return false;
 
     size_t previous_size = intersections.size();
@@ -247,16 +243,14 @@ bool LineSegmentIntersector::intersect(VkPrimitiveTopology topology, const vsg::
     return intersections.size() != previous_size;
 }
 
-bool LineSegmentIntersector::intersect(VkPrimitiveTopology topology, const vsg::DataList& arrays, vsg::ref_ptr<const vsg::Data> indices, uint32_t firstIndex, uint32_t indexCount)
+bool LineSegmentIntersector::intersect(VkPrimitiveTopology topology, ref_ptr<const vec3Array> vertices, vsg::ref_ptr<const vsg::Data> indices, uint32_t firstIndex, uint32_t indexCount)
 {
-    if (arrays.empty() || !indices || indexCount == 0) return false;
+    if (!vertices || !indices || indexCount == 0) return false;
     if (topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST) return false;
 
     auto& ls = _lineSegmentStack.back();
-    auto vertices = arrays[0].template cast<const vec3Array>();
-    if (!vertices) return false;
 
-    TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, vertices, arrays);
+    TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, vertices);
     if (!triIntsector.vertices) return false;
 
     size_t previous_size = intersections.size();
