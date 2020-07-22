@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class StateCommand : public Inherit<Command, StateCommand>
+    class VSG_DECLSPEC StateCommand : public Inherit<Command, StateCommand>
     {
     public:
         StateCommand(uint32_t slot = 0, Allocator* allocator = nullptr) :

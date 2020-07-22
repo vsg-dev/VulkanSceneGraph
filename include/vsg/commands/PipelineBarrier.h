@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    struct VulkanInfo : public Inherit<Object, VulkanInfo>
+    struct VSG_DECLSPEC VulkanInfo : public Inherit<Object, VulkanInfo>
     {
         ref_ptr<VulkanInfo> next;
 
