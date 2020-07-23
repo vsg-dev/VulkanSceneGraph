@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class RenderGraph : public Inherit<Group, RenderGraph>
+    class VSG_DECLSPEC RenderGraph : public Inherit<Group, RenderGraph>
     {
     public:
         RenderGraph();

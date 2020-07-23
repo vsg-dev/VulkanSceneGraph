@@ -37,7 +37,7 @@ namespace vsg
         VkDeviceSize minimumImageDeviceMemorySize = 16 * 1024 * 1024;
     };
 
-    class MemoryBufferPools : public Inherit<Object, MemoryBufferPools>
+    class VSG_DECLSPEC MemoryBufferPools : public Inherit<Object, MemoryBufferPools>
     {
     public:
         MemoryBufferPools(const std::string& name, Device* in_device, BufferPreferences preferences);

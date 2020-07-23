@@ -22,7 +22,7 @@ namespace vsg
     class Context;
     class CommandBuffer;
 
-    class BufferData
+    class VSG_DECLSPEC BufferData
     {
     public:
         BufferData() = default;

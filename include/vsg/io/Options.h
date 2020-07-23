@@ -25,7 +25,7 @@ namespace vsg
     class OperationThreads;
     class CommandLine;
 
-    class Options : public Inherit<Object, Options>
+    class VSG_DECLSPEC Options : public Inherit<Object, Options>
     {
     public:
         Options();
