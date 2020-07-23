@@ -242,11 +242,8 @@ void Intersector::apply(uint32_t firstBinding, const DataList& arrays)
     if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()) && (vertexAttribute.format == VK_FORMAT_R32G32B32_SFLOAT))
     {
         auto array = arrays[vertexAttribute.binding - firstBinding];
-        if (array->is_same<vec3Array>())
-        {
-            _vertices = array.cast<vec3Array>();
-        }
-        else if (vertexAttribute.stride > 0)
+        _vertices = array.cast<vec3Array>();
+        if (!_vertices && vertexAttribute.stride > 0)
         {
             if (!proxy_vertexArray) proxy_vertexArray = vsg::vec3Array::create();
 

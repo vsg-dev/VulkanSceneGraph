@@ -54,13 +54,13 @@ namespace vsg
 
         /// return the std::type_info of this Object
         virtual const std::type_info& type_info() const noexcept { return typeid(Object); }
+        virtual bool is_compatible(const std::type_info& type) const noexcept { return typeid(Object) == type; }
 
-        /// return true if this Object is the same type as template type.
-        template<typename T>
-        bool is_same() const noexcept { return type_info() == typeid(T); }
+        template<class T>
+        T* cast() { return is_compatible(typeid(T)) ? static_cast<T*>(this) : nullptr; }
 
-        /// return true if this Object is the same type as specified object.
-        bool is_same(Object* object) const noexcept { return object && (type_info() == object->type_info()); }
+        template<class T>
+        const T* cast() const { return is_compatible(typeid(T)) ? static_cast<const T*>(this) : nullptr; }
 
         virtual void accept(Visitor& visitor);
         virtual void traverse(Visitor&) {}
@@ -137,6 +137,18 @@ namespace vsg
 
         Auxiliary* _auxiliary;
     };
+
+    template<class T, class R>
+    T* cast(const ref_ptr<R>& object)
+    {
+        return object ? object->template cast<T>() : nullptr;
+    }
+
+    template<class T, class R>
+    T* cast(R* object)
+    {
+        return object ? object->template cast<T>() : nullptr;
+    }
 
     template<>
     constexpr bool has_read_write<Object>() { return true; }

@@ -115,9 +115,10 @@ void ComputeBounds::apply(uint32_t firstBinding, const DataList& arrays)
     if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()) && (vertexAttribute.format == VK_FORMAT_R32G32B32_SFLOAT))
     {
         auto array = arrays[vertexAttribute.binding - firstBinding];
-        if (array->is_same<vec3Array>())
+        auto vertices = array.cast<vec3Array>();
+        if (vertices)
         {
-            array->accept(*this);
+            apply(*vertices);
         }
         else if (vertexAttribute.stride > 0)
         {

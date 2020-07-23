@@ -98,6 +98,7 @@ namespace vsg
         }
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Data); }
+        bool is_compatible(const std::type_info& type) const noexcept override { return typeid(Data) == type ? true : Object::is_compatible(type); }
 
         void read(Input& input) override;
         void write(Output& output) const override;
