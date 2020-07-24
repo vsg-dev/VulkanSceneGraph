@@ -50,6 +50,8 @@ public:
 
     void apply(uint32_t firstBinding, const DataList& in_arrays);
 
+    void apply(const vsg::vec3Array& array) override;
+    void apply(const vsg::Data& array) override;
 };
 
 }

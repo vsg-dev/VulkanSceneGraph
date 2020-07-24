@@ -72,22 +72,32 @@ void ArrayState::apply(const vsg::BindIndexBuffer& bib)
 
 void ArrayState::apply(uint32_t firstBinding, const vsg::DataList& in_arrays)
 {
-    arrays = in_arrays;
+    if (arrays.size() < (in_arrays.size() + firstBinding)) arrays.resize(in_arrays.size() + firstBinding);
+    std::copy(in_arrays.begin(), in_arrays.end(), arrays.begin() + firstBinding);
 
-    if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()) && (vertexAttribute.format == VK_FORMAT_R32G32B32_SFLOAT))
+    // if the required verteAttribute is wuthin the new arrays apply the appropriate array to set up the vertices array
+    if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()))
     {
-        auto array = arrays[vertexAttribute.binding - firstBinding];
-        vertices = vsg::cast<vsg::vec3Array>(array.get());
+        arrays[vertexAttribute.binding]->accept(*this);
+    }
+}
 
-        if (!vertices && vertexAttribute.stride > 0)
-        {
-            if (!proxy_vertices) proxy_vertices = vsg::vec3Array::create();
+void ArrayState::apply(const vsg::vec3Array& array)
+{
+    vertices = &array;
+}
 
-            uint32_t numVertices = static_cast<uint32_t>(array->dataSize()) / vertexAttribute.stride;
-            proxy_vertices->assign(array, vertexAttribute.offset, vertexAttribute.stride, numVertices, array->getLayout());
+void ArrayState::apply(const vsg::Data& array)
+{
+    // array hasn't been matched to vec3Array so fallback to using a proxy array to adapt it
+    if (vertexAttribute.stride > 0 && (vertexAttribute.format == VK_FORMAT_R32G32B32_SFLOAT))
+    {
+        if (!proxy_vertices) proxy_vertices = vsg::vec3Array::create();
 
-            vertices = proxy_vertices;
-        }
+        uint32_t numVertices = static_cast<uint32_t>(arrays[vertexAttribute.binding]->dataSize()) / vertexAttribute.stride;
+        proxy_vertices->assign(arrays[vertexAttribute.binding], vertexAttribute.offset, vertexAttribute.stride, numVertices, array.getLayout());
+
+        vertices = proxy_vertices;
     }
     else
     {
