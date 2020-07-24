@@ -83,7 +83,7 @@ void ArrayState::apply(uint32_t firstBinding, const vsg::DataList& in_arrays)
         {
             if (!proxy_vertices) proxy_vertices = vsg::vec3Array::create();
 
-            uint32_t numVertices = array->dataSize() / vertexAttribute.stride;
+            uint32_t numVertices = static_cast<uint32_t>(array->dataSize()) / vertexAttribute.stride;
             proxy_vertices->assign(array, vertexAttribute.offset, vertexAttribute.stride, numVertices, array->getLayout());
 
             vertices = proxy_vertices;
