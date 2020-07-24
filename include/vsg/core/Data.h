@@ -146,7 +146,7 @@ namespace vsg
 
         bool contigous() const { return valueSize() == _layout.stride; }
 
-        uint32_t stride() const { return _layout.stride ? _layout.stride : valueSize(); }
+        uint32_t stride() const { return _layout.stride ? _layout.stride : static_cast<uint32_t>(valueSize()); }
 
         using MipmapOffsets = std::vector<std::size_t>;
         MipmapOffsets computeMipmapOffsets() const;
