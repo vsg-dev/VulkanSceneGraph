@@ -65,11 +65,6 @@ void ArrayState::apply(const vsg::BindVertexBuffers& bvb)
     apply(bvb.getFirstBinding(), bvb.getArrays());
 }
 
-void ArrayState::apply(const vsg::BindIndexBuffer& bib)
-{
-    indices = bib.getIndices();
-}
-
 void ArrayState::apply(uint32_t firstBinding, const vsg::DataList& in_arrays)
 {
     if (arrays.size() < (in_arrays.size() + firstBinding)) arrays.resize(in_arrays.size() + firstBinding);

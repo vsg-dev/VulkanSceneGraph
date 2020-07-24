@@ -223,14 +223,14 @@ bool LineSegmentIntersector::intersects(const dsphere& bs)
     return true;
 }
 
-bool LineSegmentIntersector::intersect(VkPrimitiveTopology topology, ref_ptr<const vec3Array> vertices, uint32_t firstVertex, uint32_t vertexCount)
+bool LineSegmentIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertexCount)
 {
-    if (!vertices || vertexCount == 0) return false;
-    if (topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST) return false;
+    auto& arrayState = arrayStateStack.back();
+    if (!arrayState.vertices || arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || vertexCount==0) return false;
 
     auto& ls = _lineSegmentStack.back();
 
-    TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, vertices);
+    TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, arrayState.vertices);
     if (!triIntsector.vertices) return false;
 
     size_t previous_size = intersections.size();
@@ -244,33 +244,34 @@ bool LineSegmentIntersector::intersect(VkPrimitiveTopology topology, ref_ptr<con
     return intersections.size() != previous_size;
 }
 
-bool LineSegmentIntersector::intersect(VkPrimitiveTopology topology, ref_ptr<const vec3Array> vertices, vsg::ref_ptr<const vsg::Data> indices, uint32_t firstIndex, uint32_t indexCount)
+bool LineSegmentIntersector::intersectDrawIndexed(uint32_t firstIndex, uint32_t indexCount)
 {
-    if (!vertices || !indices || indexCount == 0) return false;
-    if (topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST) return false;
+    auto& arrayState = arrayStateStack.back();
+    if (!arrayState.vertices || arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || indexCount==0) return false;
 
     auto& ls = _lineSegmentStack.back();
 
-    TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, vertices);
+    TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, arrayState.vertices);
     if (!triIntsector.vertices) return false;
 
     size_t previous_size = intersections.size();
     uint32_t endIndex = firstIndex + indexCount;
 
-    if (auto us_indices = indices.cast<const ushortArray>(); us_indices)
+    if (ushort_indices)
     {
         for (uint32_t i = firstIndex; i < endIndex; i += 3)
         {
-            triIntsector.intersect(us_indices->at(i), us_indices->at(i + 1), us_indices->at(i + 2));
+            triIntsector.intersect(ushort_indices->at(i), ushort_indices->at(i + 1), ushort_indices->at(i + 2));
         }
     }
-    else if (auto ui_indices = indices.cast<const uintArray>(); ui_indices)
+    else if (uint_indices)
     {
         for (uint32_t i = firstIndex; i < endIndex; i += 3)
         {
-            triIntsector.intersect(ui_indices->at(i), ui_indices->at(i + 1), ui_indices->at(i + 2));
+            triIntsector.intersect(uint_indices->at(i), uint_indices->at(i + 1), uint_indices->at(i + 2));
         }
     }
 
     return intersections.size() != previous_size;
+
 }

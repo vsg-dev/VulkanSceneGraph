@@ -38,15 +38,12 @@ public:
     ref_ptr<const vec3Array> vertices;
     ref_ptr<vec3Array> proxy_vertices;
 
-    ref_ptr<const Data> indices;
-
     DataList arrays;
 
     void apply(const BindGraphicsPipeline& bpg) override;
     void apply(const Geometry& geometry) override;
     void apply(const VertexIndexDraw& vid) override;
     void apply(const BindVertexBuffers& bvb) override;
-    void apply(const BindIndexBuffer& bib) override;
 
     void apply(uint32_t firstBinding, const DataList& in_arrays);
 

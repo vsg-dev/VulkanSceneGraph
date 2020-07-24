@@ -37,7 +37,6 @@ namespace vsg
         void apply(const Geometry& geometry) override;
         void apply(const VertexIndexDraw& vid) override;
         void apply(const BindVertexBuffers& bvb) override;
-        void apply(const vsg::BindIndexBuffer& bib) override;
         void apply(const StateCommand& statecommand) override;
 
         void apply(uint32_t firstBinding, const DataList& arrays);

@@ -48,6 +48,10 @@ namespace vsg
 
         void apply(uint32_t firstBinding, const DataList& arrays);
 
+        void apply(const vsg::uintArray& array) override;
+        void apply(const vsg::ushortArray& array) override;
+
+
         //
         // provide virtual functions for concrete Intersector implementations to provide handling of intersection with mesh geometries
         //
@@ -60,15 +64,18 @@ namespace vsg
         /// check for intersection instersects with sphere
         virtual bool intersects(const dsphere& sphere) = 0;
 
-        /// check for intersections with primitives associated with VkDrawDraw command
-        virtual bool intersect(VkPrimitiveTopology topology, ref_ptr<const vec3Array> vertices, uint32_t firstVertex, uint32_t vertexCount) = 0;
+        /// intersect with a vkCmdDraw primitive
+        virtual bool intersectDraw(uint32_t /*firstVertex*/, uint32_t /*vertexCount*/) = 0;
 
-        /// check for intersections with primitives associated with VkDrawDrawIndex command
-        virtual bool intersect(VkPrimitiveTopology topology, ref_ptr<const vec3Array> vertices, ref_ptr<const Data> indices, uint32_t firstIndex, uint32_t indexCount) = 0;
+        /// intersect with a vkCmdDrawIndexed primitive
+        virtual bool intersectDrawIndexed(uint32_t /*firstIndex*/, uint32_t /*indexCount*/) = 0;
 
     protected:
         std::vector<dmat4> _matrixStack;
         ArrayStateStack arrayStateStack;
+
+        ref_ptr<const ushortArray> ushort_indices;
+        ref_ptr<const uintArray> uint_indices;
 
         NodePath _nodePath;
     };

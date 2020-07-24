@@ -125,6 +125,8 @@ void Intersector::apply(const VertexIndexDraw& vid)
     arrayState.apply(vid);
     if (!arrayState.vertices) return;
 
+    if (vid.indices) vid.indices->accept(*this);
+
     PushPopNode ppn(_nodePath, &vid);
 
     sphere bound;
@@ -151,7 +153,7 @@ void Intersector::apply(const VertexIndexDraw& vid)
 
     if (intersects(bound))
     {
-        intersect(arrayState.topology, arrayState.vertices, arrayState.indices, vid.firstIndex, vid.indexCount);
+        intersectDrawIndexed(vid.firstIndex, vid.indexCount);
     }
 }
 
@@ -160,6 +162,8 @@ void Intersector::apply(const Geometry& geometry)
     auto& arrayState = arrayStateStack.back();
     arrayState.apply(geometry);
     if (!arrayState.vertices) return;
+
+    if (geometry.indices) geometry.indices->accept(*this);
 
     PushPopNode ppn(_nodePath, &geometry);
 
@@ -176,25 +180,31 @@ void Intersector::apply(const BindVertexBuffers& bvb)
 
 void Intersector::apply(const BindIndexBuffer& bib)
 {
-    arrayStateStack.back().apply(bib);
+    bib.getIndices()->accept(*this);
+}
+
+void Intersector::apply(const vsg::ushortArray& array)
+{
+    ushort_indices = &array;
+    uint_indices = nullptr;
+}
+
+void Intersector::apply(const vsg::uintArray& array)
+{
+    ushort_indices = nullptr;
+    uint_indices = &array;
 }
 
 void Intersector::apply(const Draw& draw)
 {
-    auto& arrayState = arrayStateStack.back();
-    if (!arrayState.vertices) return;
-
     PushPopNode ppn(_nodePath, &draw);
 
-    intersect(arrayState.topology, arrayState.vertices, draw.firstVertex, draw.vertexCount);
+    intersectDraw(draw.firstVertex, draw.vertexCount);
 }
 
 void Intersector::apply(const DrawIndexed& drawIndexed)
 {
-    auto& arrayState = arrayStateStack.back();
-    if (!arrayState.vertices) return;
-
     PushPopNode ppn(_nodePath, &drawIndexed);
 
-    intersect(arrayState.topology, arrayState.vertices, arrayState.indices, drawIndexed.firstIndex, drawIndexed.indexCount);
+    intersectDrawIndexed(drawIndexed.firstIndex, drawIndexed.indexCount);
 }

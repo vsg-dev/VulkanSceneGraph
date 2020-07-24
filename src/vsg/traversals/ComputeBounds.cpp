@@ -78,11 +78,6 @@ void ComputeBounds::apply(const vsg::BindVertexBuffers& bvb)
     if (arrayState.vertices) apply(*arrayState.vertices);
 }
 
-void ComputeBounds::apply(const vsg::BindIndexBuffer& bib)
-{
-    arrayStateStack.back().apply(bib);
-}
-
 void ComputeBounds::apply(const vsg::StateCommand& statecommand)
 {
     statecommand.accept(arrayStateStack.back());
