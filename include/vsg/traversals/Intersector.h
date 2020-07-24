@@ -12,10 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/ConstVisitor.h>
-#include <vsg/core/Data.h>
-#include <vsg/core/Inherit.h>
 #include <vsg/nodes/Node.h>
+#include <vsg/traversals/ArrayState.h>
 
 #include <list>
 
@@ -26,6 +24,7 @@ namespace vsg
     {
     public:
         using NodePath = std::vector<const Node*>;
+        using ArrayStateStack = std::vector<ArrayState>;
 
         Intersector();
 
@@ -67,29 +66,11 @@ namespace vsg
         /// check for intersections with primitives associated with VkDrawDrawIndex command
         virtual bool intersect(VkPrimitiveTopology topology, ref_ptr<const vec3Array> vertices, ref_ptr<const Data> indices, uint32_t firstIndex, uint32_t indexCount) = 0;
 
-        // temporary approach for tracking vertex attribute configuration.
-        struct AttributeDetails
-        {
-            uint32_t binding = 0;
-            uint32_t offset = 0;
-            uint32_t stride = 0;
-            VkFormat format = {};
-        };
-
-        AttributeDetails vertexAttribute;
-        ref_ptr<vsg::vec3Array> proxy_vertexArray;
-
     protected:
         std::vector<dmat4> _matrixStack;
-
-        std::vector<VkPrimitiveTopology> _topologyStack;
-        VkPrimitiveTopology topology() const { return _topologyStack.back(); }
+        ArrayStateStack arrayStateStack;
 
         NodePath _nodePath;
-        ref_ptr<const vec3Array> _vertices;
-
-        DataList _arrays;
-        ref_ptr<const Data> _indices;
     };
     VSG_type_name(vsg::Intersector);
 

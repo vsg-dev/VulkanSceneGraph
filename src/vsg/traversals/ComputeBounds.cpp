@@ -23,6 +23,8 @@ using namespace vsg;
 
 ComputeBounds::ComputeBounds()
 {
+    arrayStateStack.reserve(4);
+    arrayStateStack.emplace_back(ArrayState());
 }
 
 void ComputeBounds::apply(const vsg::Node& node)
@@ -32,59 +34,18 @@ void ComputeBounds::apply(const vsg::Node& node)
 
 void ComputeBounds::apply(const StateGroup& stategroup)
 {
-    struct FindGraphicsPipelineVisitor : public ConstVisitor
+    ArrayState arrayState(arrayStateStack.back());
+
+    for(auto& statecommand : stategroup.getStateCommands())
     {
-        ComputeBounds::AttributeDetails vertexAttribute;
-        uint32_t vertex_attribute_location = 0;
-
-        FindGraphicsPipelineVisitor() {}
-
-        void apply(const BindGraphicsPipeline& bpg) override
-        {
-            for (auto& pipelineState : bpg.getPipeline()->getPipelineStates())
-            {
-                if (auto vas = pipelineState.cast<VertexInputState>(); vas)
-                {
-                    for (auto& attribute : vas->getAttributes())
-                    {
-                        if (attribute.location == vertex_attribute_location)
-                        {
-                            for (auto& binding : vas->geBindings())
-                            {
-                                if (attribute.binding == binding.binding)
-                                {
-                                    vertexAttribute.binding = attribute.binding;
-                                    vertexAttribute.offset = attribute.offset;
-                                    vertexAttribute.stride = binding.stride;
-                                    vertexAttribute.format = attribute.format;
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    } findGraphicsPipeline;
-
-    for (auto& state : stategroup.getStateCommands())
-    {
-        state->accept(findGraphicsPipeline);
+        statecommand->accept(arrayState);
     }
 
-    if (findGraphicsPipeline.vertexAttribute.stride != 0)
-    {
-        AttributeDetails previous_vertexAttribute = vertexAttribute;
+    arrayStateStack.emplace_back(arrayState);
 
-        vertexAttribute = findGraphicsPipeline.vertexAttribute;
-        stategroup.traverse(*this);
+    stategroup.traverse(*this);
 
-        vertexAttribute = previous_vertexAttribute;
-    }
-    else
-    {
-        stategroup.traverse(*this);
-    }
+    arrayStateStack.pop_back();
 }
 
 void ComputeBounds::apply(const vsg::MatrixTransform& transform)
@@ -98,39 +59,33 @@ void ComputeBounds::apply(const vsg::MatrixTransform& transform)
 
 void ComputeBounds::apply(const vsg::Geometry& geometry)
 {
-    apply(geometry.firstBinding, geometry.arrays);
+    auto& arrayState = arrayStateStack.back();
+    arrayState.apply(geometry);
+    if (arrayState.vertices) apply(*arrayState.vertices);
 }
 
 void ComputeBounds::apply(const vsg::VertexIndexDraw& vid)
 {
-    apply(vid.firstBinding, vid.arrays);
+    auto& arrayState = arrayStateStack.back();
+    arrayState.apply(vid);
+    if (arrayState.vertices) apply(*arrayState.vertices);
 }
 
 void ComputeBounds::apply(const vsg::BindVertexBuffers& bvb)
 {
-    apply(bvb.getFirstBinding(), bvb.getArrays());
+    auto& arrayState = arrayStateStack.back();
+    arrayState.apply(bvb);
+    if (arrayState.vertices) apply(*arrayState.vertices);
 }
 
-void ComputeBounds::apply(uint32_t firstBinding, const DataList& arrays)
+void ComputeBounds::apply(const vsg::BindIndexBuffer& bib)
 {
-    if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()) && (vertexAttribute.format == VK_FORMAT_R32G32B32_SFLOAT))
-    {
-        auto array = arrays[vertexAttribute.binding - firstBinding];
-        auto vertices = array.cast<vec3Array>();
-        if (vertices)
-        {
-            apply(*vertices);
-        }
-        else if (vertexAttribute.stride > 0)
-        {
-            if (!proxy_vertexArray) proxy_vertexArray = vsg::vec3Array::create();
+    arrayStateStack.back().apply(bib);
+}
 
-            uint32_t numVertices = array->dataSize() / vertexAttribute.stride;
-            proxy_vertexArray->assign(array, vertexAttribute.offset, vertexAttribute.stride, numVertices, array->getLayout());
-
-            proxy_vertexArray->accept(*this);
-        }
-    }
+void ComputeBounds::apply(const vsg::StateCommand& statecommand)
+{
+    statecommand.accept(arrayStateStack.back());
 }
 
 void ComputeBounds::apply(const vsg::vec3Array& vertices)

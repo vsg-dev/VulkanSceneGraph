@@ -38,7 +38,8 @@ struct PushPopNode
 
 Intersector::Intersector()
 {
-    _topologyStack.push_back(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    arrayStateStack.reserve(4);
+    arrayStateStack.emplace_back(ArrayState());
 }
 
 void Intersector::apply(const Node& node)
@@ -52,77 +53,18 @@ void Intersector::apply(const StateGroup& stategroup)
 {
     PushPopNode ppn(_nodePath, &stategroup);
 
-    // currently just tracking InputArrayState::topology
-    // TODO : review if we need to track and handle more parameters and handle vertex shaders computing vertex positions other than just using vertex and project and modelview matrix.
-    auto previous_topology = topology();
+    ArrayState arrayState(arrayStateStack.back());
 
-    struct FindGraphicsPipelineVisitor : public ConstVisitor
+    for(auto& statecommand : stategroup.getStateCommands())
     {
-        VkPrimitiveTopology topology;
-        Intersector::AttributeDetails vertexAttribute;
-        uint32_t vertex_attribute_location = 0;
-
-        FindGraphicsPipelineVisitor(VkPrimitiveTopology in_topology) :
-            topology(in_topology) {}
-
-        void apply(const BindGraphicsPipeline& bpg) override
-        {
-            for (auto& pipelineState : bpg.getPipeline()->getPipelineStates())
-            {
-                if (auto ias = pipelineState.cast<InputAssemblyState>(); ias)
-                    topology = ias->topology;
-                else if (auto vas = pipelineState.cast<VertexInputState>(); vas)
-                {
-                    for (auto& attribute : vas->getAttributes())
-                    {
-                        if (attribute.location == vertex_attribute_location)
-                        {
-                            for (auto& binding : vas->geBindings())
-                            {
-                                if (attribute.binding == binding.binding)
-                                {
-                                    vertexAttribute.binding = attribute.binding;
-                                    vertexAttribute.offset = attribute.offset;
-                                    vertexAttribute.stride = binding.stride;
-                                    vertexAttribute.format = attribute.format;
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    } findGraphicsPipeline(previous_topology);
-
-    for (auto& state : stategroup.getStateCommands())
-    {
-        state->accept(findGraphicsPipeline);
+        statecommand->accept(arrayState);
     }
 
-    if (findGraphicsPipeline.topology != previous_topology)
-    {
-        _topologyStack.push_back(findGraphicsPipeline.topology);
-    }
+    arrayStateStack.emplace_back(arrayState);
 
-    if (findGraphicsPipeline.vertexAttribute.stride != 0)
-    {
-        AttributeDetails previous_vertexAttribute = vertexAttribute;
+    stategroup.traverse(*this);
 
-        vertexAttribute = findGraphicsPipeline.vertexAttribute;
-        stategroup.traverse(*this);
-
-        vertexAttribute = previous_vertexAttribute;
-    }
-    else
-    {
-        stategroup.traverse(*this);
-    }
-
-    if (findGraphicsPipeline.topology != previous_topology)
-    {
-        _topologyStack.pop_back();
-    }
+    arrayStateStack.pop_back();
 }
 
 void Intersector::apply(const MatrixTransform& transform)
@@ -179,8 +121,9 @@ void Intersector::apply(const CullNode& cn)
 
 void Intersector::apply(const VertexIndexDraw& vid)
 {
-    apply(vid.firstBinding, vid.arrays);
-    if (!_vertices) return;
+    auto& arrayState = arrayStateStack.back();
+    arrayState.apply(vid);
+    if (!arrayState.vertices) return;
 
     PushPopNode ppn(_nodePath, &vid);
 
@@ -188,7 +131,7 @@ void Intersector::apply(const VertexIndexDraw& vid)
     if (!vid.getValue("bound", bound))
     {
         box bb;
-        for (auto& vertex : *_vertices) bb.add(vertex);
+        for (auto& vertex : *arrayState.vertices) bb.add(vertex);
 
         if (bb.valid())
         {
@@ -208,18 +151,17 @@ void Intersector::apply(const VertexIndexDraw& vid)
 
     if (intersects(bound))
     {
-        intersect(topology(), _vertices, vid.indices, vid.firstIndex, vid.indexCount);
+        intersect(arrayState.topology, arrayState.vertices, arrayState.indices, vid.firstIndex, vid.indexCount);
     }
 }
 
 void Intersector::apply(const Geometry& geometry)
 {
-    apply(geometry.firstBinding, geometry.arrays);
-    if (!_vertices) return;
+    auto& arrayState = arrayStateStack.back();
+    arrayState.apply(geometry);
+    if (!arrayState.vertices) return;
 
     PushPopNode ppn(_nodePath, &geometry);
-
-    _indices = geometry.indices;
 
     for (auto& command : geometry.commands)
     {
@@ -229,52 +171,30 @@ void Intersector::apply(const Geometry& geometry)
 
 void Intersector::apply(const BindVertexBuffers& bvb)
 {
-    apply(bvb.getFirstBinding(), bvb.getArrays());
+    arrayStateStack.back().apply(bvb);
 }
 
 void Intersector::apply(const BindIndexBuffer& bib)
 {
-    _indices = bib.getIndices();
-}
-
-void Intersector::apply(uint32_t firstBinding, const DataList& arrays)
-{
-    if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()) && (vertexAttribute.format == VK_FORMAT_R32G32B32_SFLOAT))
-    {
-        auto array = arrays[vertexAttribute.binding - firstBinding];
-        _vertices = array.cast<vec3Array>();
-        if (!_vertices && vertexAttribute.stride > 0)
-        {
-            if (!proxy_vertexArray) proxy_vertexArray = vsg::vec3Array::create();
-
-            uint32_t numVertices = array->dataSize() / vertexAttribute.stride;
-            proxy_vertexArray->assign(array, vertexAttribute.offset, vertexAttribute.stride, numVertices, array->getLayout());
-
-            _vertices = proxy_vertexArray;
-        }
-    }
-    else
-    {
-        _vertices = nullptr;
-    }
-
-    _arrays = arrays;
+    arrayStateStack.back().apply(bib);
 }
 
 void Intersector::apply(const Draw& draw)
 {
-    if (!_vertices) return;
+    auto& arrayState = arrayStateStack.back();
+    if (!arrayState.vertices) return;
 
     PushPopNode ppn(_nodePath, &draw);
 
-    intersect(topology(), _vertices, draw.firstVertex, draw.vertexCount);
+    intersect(arrayState.topology, arrayState.vertices, draw.firstVertex, draw.vertexCount);
 }
 
 void Intersector::apply(const DrawIndexed& drawIndexed)
 {
-    if (!_vertices) return;
+    auto& arrayState = arrayStateStack.back();
+    if (!arrayState.vertices) return;
 
     PushPopNode ppn(_nodePath, &drawIndexed);
 
-    intersect(topology(), _vertices, _indices, drawIndexed.firstIndex, drawIndexed.indexCount);
+    intersect(arrayState.topology, arrayState.vertices, arrayState.indices, drawIndexed.firstIndex, drawIndexed.indexCount);
 }
