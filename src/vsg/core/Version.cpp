@@ -15,12 +15,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 extern "C"
 {
 
-    const char* vsgGetVersion()
+    VsgVersion vsgGetVersion()
+    {
+        VsgVersion version;
+        version.major = VSG_VERSION_MAJOR;
+        version.minor = VSG_VERSION_MINOR;
+        version.patch = VSG_VERSION_PATCH;
+        version.soversion = VSG_SOVERSION;
+        return version;
+    }
+
+    const char* vsgGetVersionString()
     {
         return VSG_VERSION_STRING;
     }
 
-    const char* vsgGetSOVersion()
+    const char* vsgGetSOVersionString()
     {
         return VSG_SOVERSION_STRING;
     }
