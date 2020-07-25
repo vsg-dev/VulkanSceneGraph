@@ -69,7 +69,7 @@ void ReaderWriter_vsg::writeHeader(std::ostream& fout, FormatType type) const
     else
         fout << "#vsga";
 
-    fout << " " << vsgGetVersion() << "\n";
+    fout << " " << vsgGetVersionString() << "\n";
 }
 
 vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(const vsg::Path& filename, ref_ptr<const Options> options) const
