@@ -16,12 +16,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/VertexIndexDraw.h>
+#include <vsg/state/StateGroup.h>
 #include <vsg/traversals/ComputeBounds.h>
 
 using namespace vsg;
 
 ComputeBounds::ComputeBounds()
 {
+    arrayStateStack.reserve(4);
+    arrayStateStack.emplace_back(ArrayState());
 }
 
 void ComputeBounds::apply(const vsg::Node& node)
@@ -29,9 +32,20 @@ void ComputeBounds::apply(const vsg::Node& node)
     node.traverse(*this);
 }
 
-void ComputeBounds::apply(const vsg::Group& group)
+void ComputeBounds::apply(const StateGroup& stategroup)
 {
-    group.traverse(*this);
+    ArrayState arrayState(arrayStateStack.back());
+
+    for(auto& statecommand : stategroup.getStateCommands())
+    {
+        statecommand->accept(arrayState);
+    }
+
+    arrayStateStack.emplace_back(arrayState);
+
+    stategroup.traverse(*this);
+
+    arrayStateStack.pop_back();
 }
 
 void ComputeBounds::apply(const vsg::MatrixTransform& transform)
@@ -45,31 +59,28 @@ void ComputeBounds::apply(const vsg::MatrixTransform& transform)
 
 void ComputeBounds::apply(const vsg::Geometry& geometry)
 {
-    if (!geometry.arrays.empty())
-    {
-        geometry.arrays[0]->accept(*this);
-    }
-}
-
-void ComputeBounds::apply(const vsg::Commands& commands)
-{
-    commands.traverse(*this);
+    auto& arrayState = arrayStateStack.back();
+    arrayState.apply(geometry);
+    if (arrayState.vertices) apply(*arrayState.vertices);
 }
 
 void ComputeBounds::apply(const vsg::VertexIndexDraw& vid)
 {
-    if (!vid.arrays.empty())
-    {
-        vid.arrays[0]->accept(*this);
-    }
+    auto& arrayState = arrayStateStack.back();
+    arrayState.apply(vid);
+    if (arrayState.vertices) apply(*arrayState.vertices);
 }
 
 void ComputeBounds::apply(const vsg::BindVertexBuffers& bvb)
 {
-    if (!bvb.getArrays().empty())
-    {
-        bvb.getArrays()[0]->accept(*this);
-    }
+    auto& arrayState = arrayStateStack.back();
+    arrayState.apply(bvb);
+    if (arrayState.vertices) apply(*arrayState.vertices);
+}
+
+void ComputeBounds::apply(const vsg::StateCommand& statecommand)
+{
+    statecommand.accept(arrayStateStack.back());
 }
 
 void ComputeBounds::apply(const vsg::vec3Array& vertices)

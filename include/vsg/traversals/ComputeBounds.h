@@ -12,9 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/ConstVisitor.h>
-#include <vsg/core/Inherit.h>
 #include <vsg/maths/box.h>
+#include <vsg/traversals/ArrayState.h>
 
 namespace vsg
 {
@@ -26,17 +25,23 @@ namespace vsg
 
         dbox bounds;
 
+        using ArrayStateStack = std::vector<ArrayState>;
+        ArrayStateStack arrayStateStack;
+
         using MatrixStack = std::vector<mat4>;
         MatrixStack matrixStack;
 
-        void apply(const Node& node);
-        void apply(const Group& group);
-        void apply(const Commands& commands);
-        void apply(const MatrixTransform& transform);
-        void apply(const Geometry& geometry);
-        void apply(const VertexIndexDraw& vid);
-        void apply(const BindVertexBuffers& bvb);
+        void apply(const Node& node) override;
+        void apply(const StateGroup& stategroup) override;
+        void apply(const MatrixTransform& transform) override;
+        void apply(const Geometry& geometry) override;
+        void apply(const VertexIndexDraw& vid) override;
+        void apply(const BindVertexBuffers& bvb) override;
+        void apply(const StateCommand& statecommand) override;
+
+        void apply(uint32_t firstBinding, const DataList& arrays);
         void apply(const vec3Array& vertices);
+
     };
     VSG_type_name(vsg::ComputeBounds);
 

@@ -12,10 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/ConstVisitor.h>
-#include <vsg/core/Data.h>
-#include <vsg/core/Inherit.h>
 #include <vsg/nodes/Node.h>
+#include <vsg/traversals/ArrayState.h>
 
 #include <list>
 
@@ -26,6 +24,7 @@ namespace vsg
     {
     public:
         using NodePath = std::vector<const Node*>;
+        using ArrayStateStack = std::vector<ArrayState>;
 
         Intersector();
 
@@ -47,6 +46,12 @@ namespace vsg
         void apply(const Draw& draw) override;
         void apply(const DrawIndexed& drawIndexed) override;
 
+        void apply(uint32_t firstBinding, const DataList& arrays);
+
+        void apply(const vsg::ushortArray& array) override;
+        void apply(const vsg::uintArray& array) override;
+
+
         //
         // provide virtual functions for concrete Intersector implementations to provide handling of intersection with mesh geometries
         //
@@ -59,22 +64,20 @@ namespace vsg
         /// check for intersection instersects with sphere
         virtual bool intersects(const dsphere& sphere) = 0;
 
-        /// check for intersections with primitives associated with VkDrawDraw command
-        virtual bool intersect(VkPrimitiveTopology topology, const DataList& arrays, uint32_t firstVertex, uint32_t vertexCount) = 0;
+        /// intersect with a vkCmdDraw primitive
+        virtual bool intersectDraw(uint32_t firstVertex, uint32_t vertexCount) = 0;
 
-        /// check for intersections with primitives associated with VkDrawDrawIndex command
-        virtual bool intersect(VkPrimitiveTopology topology, const DataList& arrays, ref_ptr<const Data> indices, uint32_t firstIndex, uint32_t indexCount) = 0;
+        /// intersect with a vkCmdDrawIndexed primitive
+        virtual bool intersectDrawIndexed(uint32_t firstIndex, uint32_t indexCount) = 0;
 
     protected:
         std::vector<dmat4> _matrixStack;
+        ArrayStateStack arrayStateStack;
 
-        std::vector<VkPrimitiveTopology> _topologyStack;
-        VkPrimitiveTopology topology() const { return _topologyStack.back(); }
+        ref_ptr<const ushortArray> ushort_indices;
+        ref_ptr<const uintArray> uint_indices;
 
         NodePath _nodePath;
-
-        DataList _arrays;
-        ref_ptr<const Data> _indices;
     };
     VSG_type_name(vsg::Intersector);
 

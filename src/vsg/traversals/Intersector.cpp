@@ -38,7 +38,8 @@ struct PushPopNode
 
 Intersector::Intersector()
 {
-    _topologyStack.push_back(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    arrayStateStack.reserve(4);
+    arrayStateStack.emplace_back(ArrayState());
 }
 
 void Intersector::apply(const Node& node)
@@ -52,42 +53,18 @@ void Intersector::apply(const StateGroup& stategroup)
 {
     PushPopNode ppn(_nodePath, &stategroup);
 
-    // currently just tracking InputArrayState::topology
-    // TODO : review if we need to track and handle more parameters and handle vertex shaders computing vertex positions other than just using vertex and project and modelview matrix.
-    auto previous_topology = topology();
+    ArrayState arrayState(arrayStateStack.back());
 
-    struct FindGraphicsPipelineVisitor : public ConstVisitor
+    for(auto& statecommand : stategroup.getStateCommands())
     {
-        VkPrimitiveTopology topology;
-
-        FindGraphicsPipelineVisitor(VkPrimitiveTopology in_topology) :
-            topology(in_topology) {}
-
-        void apply(const BindGraphicsPipeline& bpg) override
-        {
-            for (auto& pipelineState : bpg.getPipeline()->getPipelineStates())
-            {
-                if (auto ias = pipelineState.cast<InputAssemblyState>(); ias) topology = ias->topology;
-            }
-        }
-    } findGraphicsPipeline(previous_topology);
-
-    for (auto& state : stategroup.getStateCommands())
-    {
-        state->accept(findGraphicsPipeline);
+        statecommand->accept(arrayState);
     }
 
-    if (findGraphicsPipeline.topology != previous_topology)
-    {
-        _topologyStack.push_back(findGraphicsPipeline.topology);
-    }
+    arrayStateStack.emplace_back(arrayState);
 
     stategroup.traverse(*this);
 
-    if (findGraphicsPipeline.topology != previous_topology)
-    {
-        _topologyStack.pop_back();
-    }
+    arrayStateStack.pop_back();
 }
 
 void Intersector::apply(const MatrixTransform& transform)
@@ -144,7 +121,11 @@ void Intersector::apply(const CullNode& cn)
 
 void Intersector::apply(const VertexIndexDraw& vid)
 {
-    if (vid.arrays.empty()) return;
+    auto& arrayState = arrayStateStack.back();
+    arrayState.apply(vid);
+    if (!arrayState.vertices) return;
+
+    if (vid.indices) vid.indices->accept(*this);
 
     PushPopNode ppn(_nodePath, &vid);
 
@@ -152,10 +133,7 @@ void Intersector::apply(const VertexIndexDraw& vid)
     if (!vid.getValue("bound", bound))
     {
         box bb;
-        if (auto vertices = vid.arrays[0].cast<vec3Array>(); vertices)
-        {
-            for (auto& vertex : *vertices) bb.add(vertex);
-        }
+        for (auto& vertex : *arrayState.vertices) bb.add(vertex);
 
         if (bb.valid())
         {
@@ -175,16 +153,19 @@ void Intersector::apply(const VertexIndexDraw& vid)
 
     if (intersects(bound))
     {
-        intersect(topology(), vid.arrays, vid.indices, vid.firstIndex, vid.indexCount);
+        intersectDrawIndexed(vid.firstIndex, vid.indexCount);
     }
 }
 
 void Intersector::apply(const Geometry& geometry)
 {
-    PushPopNode ppn(_nodePath, &geometry);
+    auto& arrayState = arrayStateStack.back();
+    arrayState.apply(geometry);
+    if (!arrayState.vertices) return;
 
-    _arrays = geometry.arrays;
-    _indices = geometry.indices;
+    if (geometry.indices) geometry.indices->accept(*this);
+
+    PushPopNode ppn(_nodePath, &geometry);
 
     for (auto& command : geometry.commands)
     {
@@ -194,24 +175,36 @@ void Intersector::apply(const Geometry& geometry)
 
 void Intersector::apply(const BindVertexBuffers& bvb)
 {
-    _arrays = bvb.getArrays();
+    arrayStateStack.back().apply(bvb);
 }
 
 void Intersector::apply(const BindIndexBuffer& bib)
 {
-    _indices = bib.getIndices();
+    bib.getIndices()->accept(*this);
+}
+
+void Intersector::apply(const vsg::ushortArray& array)
+{
+    ushort_indices = &array;
+    uint_indices = nullptr;
+}
+
+void Intersector::apply(const vsg::uintArray& array)
+{
+    ushort_indices = nullptr;
+    uint_indices = &array;
 }
 
 void Intersector::apply(const Draw& draw)
 {
     PushPopNode ppn(_nodePath, &draw);
 
-    intersect(topology(), _arrays, draw.firstVertex, draw.vertexCount);
+    intersectDraw(draw.firstVertex, draw.vertexCount);
 }
 
 void Intersector::apply(const DrawIndexed& drawIndexed)
 {
     PushPopNode ppn(_nodePath, &drawIndexed);
 
-    intersect(topology(), _arrays, _indices, drawIndexed.firstIndex, drawIndexed.indexCount);
+    intersectDrawIndexed(drawIndexed.firstIndex, drawIndexed.indexCount);
 }

@@ -82,6 +82,7 @@ set(SOURCES
     io/read.cpp
     io/write.cpp
 
+    traversals/ArrayState.cpp
     traversals/RecordTraversal.cpp
     traversals/CompileTraversal.cpp
     traversals/ComputeBounds.cpp

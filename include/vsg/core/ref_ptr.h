@@ -133,7 +133,7 @@ namespace vsg
         }
 
         template<class R>
-        ref_ptr<R> cast() const { return ref_ptr<R>(dynamic_cast<R*>(_ptr)); }
+        ref_ptr<R> cast() const { return ref_ptr<R>(_ptr ? _ptr->template cast<R>() : nullptr); }
 
     protected:
         template<class R>

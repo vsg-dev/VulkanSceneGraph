@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Data.h>
 #include <vsg/core/Object.h>
+#include <vsg/core/Version.h>
 
 #include <vsg/maths/box.h>
 #include <vsg/maths/mat4.h>
@@ -165,6 +166,11 @@ namespace vsg
         ref_ptr<ObjectFactory> objectFactory;
         ref_ptr<const Options> options;
         Path filename;
+
+        VsgVersion version;
+
+        virtual bool version_less(uint32_t major, uint32_t minor, uint32_t patch, uint32_t soversion=0) const ;
+        virtual bool version_greater_equal(uint32_t major, uint32_t minor, uint32_t patch, uint32_t soversion=0) const ;
 
     protected:
         virtual ~Input();

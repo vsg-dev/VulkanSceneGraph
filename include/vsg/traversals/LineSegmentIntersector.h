@@ -51,7 +51,7 @@ namespace vsg
         using Intersections = std::vector<Intersection>;
         Intersections intersections;
 
-        void add(const dvec3& intersection, double ratio, const DataList& arrays, const IndexRatios& indexRatios);
+        void add(const dvec3& intersection, double ratio, const IndexRatios& indexRatios);
 
         void pushTransform(const dmat4& m) override;
         void popTransform() override;
@@ -59,11 +59,8 @@ namespace vsg
         /// check for intersection instersects with sphere
         bool intersects(const dsphere& bs) override;
 
-        /// check for intersections with primitives associated with VkDrawDraw command
-        bool intersect(VkPrimitiveTopology topology, const DataList& arrays, uint32_t firstVertex, uint32_t vertexCount) override;
-
-        /// check for intersections with primitives associated with VkDrawDrawIndex command
-        bool intersect(VkPrimitiveTopology topology, const DataList& arrays, ref_ptr<const Data> indices, uint32_t firstIndex, uint32_t indexCount) override;
+        bool intersectDraw(uint32_t firstVertex, uint32_t vertexCount) override;
+        bool intersectDrawIndexed(uint32_t firstIndex, uint32_t indexCount) override;
 
     protected:
         struct LineSegment
