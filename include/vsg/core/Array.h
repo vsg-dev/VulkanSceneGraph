@@ -132,10 +132,11 @@ namespace vsg
                 }
             }
 
-            std::size_t new_total_size = computeValueCountIncludingMipmaps(width_size, 1, 1, _layout.maxNumMipmaps);
 
             if (input.matchPropertyName("Data"))
             {
+                std::size_t new_total_size = computeValueCountIncludingMipmaps(width_size, 1, 1, _layout.maxNumMipmaps);
+
                 if (_data) // if data already may be able to reuse it
                 {
                     if (original_total_size != new_total_size) // if existing data is a different size delete old, and create new
@@ -160,6 +161,7 @@ namespace vsg
         void write(Output& output) const override
         {
             Data::write(output);
+
             output.writeValue<uint32_t>("Size", _size);
 
             if (output.version_greater_equal(0,0,1))
