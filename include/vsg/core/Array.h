@@ -118,7 +118,20 @@ namespace vsg
             std::size_t original_total_size = size();
 
             Data::read(input);
+
             uint32_t width_size = input.readValue<uint32_t>("Size");
+
+            if (input.version_greater_equal(0,0,1))
+            {
+                auto storage = input.readObject<Data>("Storage");
+                if (storage)
+                {
+                    uint32_t offset = input.readValue<uint32_t>("Offset");
+                    assign(storage, offset, _layout.stride, width_size, _layout);
+                    return;
+                }
+            }
+
             std::size_t new_total_size = computeValueCountIncludingMipmaps(width_size, 1, 1, _layout.maxNumMipmaps);
 
             if (input.matchPropertyName("Data"))
@@ -148,6 +161,17 @@ namespace vsg
         {
             Data::write(output);
             output.writeValue<uint32_t>("Size", _size);
+
+            if (output.version_greater_equal(0,0,1))
+            {
+                output.writeObject("Storage", _storage);
+                if (_storage)
+                {
+                    auto offset = (reinterpret_cast<uintptr_t>(_data) - reinterpret_cast<uintptr_t>(_storage->dataPointer()));
+                    output.writeValue<uint32_t>("Offset", offset);
+                    return;
+                }
+            }
 
             output.writePropertyName("Data");
             output.write(size(), _data);

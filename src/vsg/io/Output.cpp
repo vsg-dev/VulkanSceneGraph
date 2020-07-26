@@ -24,3 +24,13 @@ Output::Output(ref_ptr<const Options> in_options) :
 Output::~Output()
 {
 }
+
+bool Output::version_less(uint32_t major, uint32_t minor, uint32_t patch, uint32_t soversion) const
+{
+    return version < VsgVersion{major, minor, patch, soversion};
+}
+
+bool Output::version_greater_equal(uint32_t major, uint32_t minor, uint32_t patch, uint32_t soversion) const
+{
+    return !version_less(major, minor, patch, soversion);
+}

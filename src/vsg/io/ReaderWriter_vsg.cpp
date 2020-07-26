@@ -25,16 +25,34 @@ using namespace vsg;
 // use a static handle that is initialized once at start up to avoid multi-threaded issues associated with calling std::locale::classic().
 auto s_class_locale = std::locale::classic();
 
+static VsgVersion parseVersion(std::string version_string)
+{
+    VsgVersion version{0, 0, 0, 0};
+
+    for(auto& c : version_string)
+    {
+        if (c=='.') c = ' ';
+    }
+
+    std::stringstream str(version_string);
+
+    str >> version.major;
+    str >> version.minor;
+    str >> version.patch;
+    str >> version.soversion;
+
+    return version;
+}
+
 ReaderWriter_vsg::ReaderWriter_vsg()
 {
     _objectFactory = ObjectFactory::instance();
 }
 
-ReaderWriter_vsg::FormatType ReaderWriter_vsg::readHeader(std::istream& fin) const
+ReaderWriter_vsg::FormatInfo ReaderWriter_vsg::readHeader(std::istream& fin) const
 {
     fin.imbue(s_class_locale);
 
-    // write header
     const char* match_token_ascii = "#vsga";
     const char* match_token_binary = "#vsgb";
     char read_token[5];
@@ -49,27 +67,29 @@ ReaderWriter_vsg::FormatType ReaderWriter_vsg::readHeader(std::istream& fin) con
     if (type == NOT_RECOGNIZED)
     {
         std::cout << "Header token not matched" << std::endl;
-        return type;
+        return FormatInfo(NOT_RECOGNIZED, VsgVersion{0, 0, 0, 0});
     }
 
-    char read_line[1024];
-    fin.getline(read_line, sizeof(read_line) - 1);
-    //std::cout << "First line [" << read_line << "]" << std::endl;
+    std::string version_string;
+    std::getline(fin, version_string);
 
-    return type;
+    auto version = parseVersion(version_string);
+
+    return FormatInfo(type, version);
 }
 
-void ReaderWriter_vsg::writeHeader(std::ostream& fout, FormatType type) const
+void ReaderWriter_vsg::writeHeader(std::ostream& fout, const FormatInfo& formatInfo) const
 {
-    if (type == NOT_RECOGNIZED) return;
+    if (formatInfo.first == NOT_RECOGNIZED) return;
 
     fout.imbue(s_class_locale);
-    if (type == BINARY)
+    if (formatInfo.first == BINARY)
         fout << "#vsgb";
     else
         fout << "#vsga";
 
-    fout << " " << vsgGetVersionString() << "\n";
+    auto version = formatInfo.second;
+    fout << " " << version.major <<"."<<version.minor << "." << version.patch<<"\n";
 }
 
 vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(const vsg::Path& filename, ref_ptr<const Options> options) const
@@ -83,17 +103,19 @@ vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(const vsg::Path& filename, ref_
         std::ifstream fin(filenameToUse, std::ios::in | std::ios::binary);
         if (!fin) return {};
 
-        FormatType type = readHeader(fin);
+        auto [type, version] = readHeader(fin);
         if (type == BINARY)
         {
             vsg::BinaryInput input(fin, _objectFactory, options);
             input.filename = filenameToUse;
+            input.version = version;
             return input.readObject("Root");
         }
         else if (type == ASCII)
         {
             vsg::AsciiInput input(fin, _objectFactory, options);
             input.filename = filenameToUse;
+            input.version = version;
             return input.readObject("Root");
         }
     }
@@ -104,15 +126,17 @@ vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(const vsg::Path& filename, ref_
 
 vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(std::istream& fin, vsg::ref_ptr<const vsg::Options> options) const
 {
-    FormatType type = readHeader(fin);
+    auto [type, version] = readHeader(fin);
     if (type == BINARY)
     {
         vsg::BinaryInput input(fin, _objectFactory, options);
+        input.version = version;
         return input.readObject("Root");
     }
     else if (type == ASCII)
     {
         vsg::AsciiInput input(fin, _objectFactory, options);
+        input.version = version;
         return input.readObject("Root");
     }
 
@@ -121,22 +145,35 @@ vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(std::istream& fin, vsg::ref_ptr
 
 bool ReaderWriter_vsg::write(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const
 {
+    auto version = vsgGetVersion();
+
+    if (options)
+    {
+        std::string version_string;
+        if (options->getValue("version", version_string))
+        {
+            version = parseVersion(version_string);
+        }
+    }
+
     auto ext = vsg::fileExtension(filename);
     if (ext == "vsgb")
     {
         std::ofstream fout(filename, std::ios::out | std::ios::binary);
-        writeHeader(fout, BINARY);
+        writeHeader(fout, FormatInfo{BINARY, version});
 
         vsg::BinaryOutput output(fout, options);
+        output.version = version;
         output.writeObject("Root", object);
         return true;
     }
     else if (ext == "vsga" || ext == "vsgt")
     {
         std::ofstream fout(filename);
-        writeHeader(fout, ASCII);
+        writeHeader(fout, FormatInfo{ASCII, version});
 
         vsg::AsciiOutput output(fout, options);
+        output.version = version;
         output.writeObject("Root", object);
         return true;
     }
@@ -148,6 +185,17 @@ bool ReaderWriter_vsg::write(const vsg::Object* object, const vsg::Path& filenam
 
 bool ReaderWriter_vsg::write(const vsg::Object* object, std::ostream& fout, ref_ptr<const Options> options) const
 {
+    auto version = vsgGetVersion();
+
+    if (options)
+    {
+        std::string version_string;
+        if (options->getValue("version", version_string))
+        {
+            version = parseVersion(version_string);
+        }
+    }
+
 #if 0
     if (fout.openmode() & std::ios_base::openmode::binary)
     {
@@ -155,6 +203,7 @@ bool ReaderWriter_vsg::write(const vsg::Object* object, std::ostream& fout, ref_
         writeHeader(fout, BINARY);
 
         vsg::BinaryOutput output(fout, options);
+        output.version = version;
         output.writeObject("Root", object);
         return true;
     }
@@ -162,9 +211,10 @@ bool ReaderWriter_vsg::write(const vsg::Object* object, std::ostream& fout, ref_
 #endif
     {
         std::cout << "Ascii outputstream" << std::endl;
-        writeHeader(fout, ASCII);
+        writeHeader(fout, FormatInfo(ASCII, version));
 
         vsg::AsciiOutput output(fout, options);
+        output.version = version;
         output.writeObject("Root", object);
         return true;
     }

@@ -17,11 +17,22 @@ using namespace vsg;
 
 Input::Input(ref_ptr<ObjectFactory> in_objectFactory, ref_ptr<const Options> in_options) :
     objectFactory(in_objectFactory),
-    options(in_options)
+    options(in_options),
+    version{vsgGetVersion()}
 {
     objectIDMap[0] = nullptr;
 }
 
 Input::~Input()
 {
+}
+
+bool Input::version_less(uint32_t major, uint32_t minor, uint32_t patch, uint32_t soversion) const
+{
+    return version < VsgVersion{major, minor, patch, soversion};
+}
+
+bool Input::version_greater_equal(uint32_t major, uint32_t minor, uint32_t patch, uint32_t soversion) const
+{
+    return !version_less(major, minor, patch, soversion);
 }

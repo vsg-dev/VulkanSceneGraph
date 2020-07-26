@@ -38,8 +38,10 @@ namespace vsg
             NOT_RECOGNIZED
         };
 
-        FormatType readHeader(std::istream& fin) const;
-        void writeHeader(std::ostream& fout, FormatType type) const;
+        using FormatInfo = std::pair<FormatType, VsgVersion>;
+
+        FormatInfo readHeader(std::istream& fin) const;
+        void writeHeader(std::ostream& fout, const FormatInfo& formatInfo) const;
 
     protected:
         ref_ptr<ObjectFactory> _objectFactory;

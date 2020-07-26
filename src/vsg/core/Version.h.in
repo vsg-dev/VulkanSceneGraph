@@ -48,3 +48,19 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
+
+#ifdef __cplusplus
+namespace vsg
+{
+    inline bool operator < (const VsgVersion& lhs, const VsgVersion& rhs)
+    {
+        if (lhs.major < rhs.major) return true;
+        if (lhs.major > rhs.major) return false;
+        if (lhs.minor < rhs.minor) return true;
+        if (lhs.minor > rhs.minor) return false;
+        if (lhs.patch < rhs.patch) return true;
+        if (lhs.patch > rhs.patch) return false;
+        return lhs.soversion < rhs.soversion;
+    }
+}
+#endif
