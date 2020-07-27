@@ -52,6 +52,7 @@ set(SOURCES
     state/ComputePipeline.cpp
     state/DescriptorSet.cpp
     state/GraphicsPipeline.cpp
+    state/GraphicsPipelineStates.cpp
     state/Descriptor.cpp
     state/DescriptorBuffer.cpp
     state/DescriptorImage.cpp
