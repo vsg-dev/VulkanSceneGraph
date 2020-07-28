@@ -27,11 +27,11 @@ namespace vsg
     public:
         BufferData() = default;
 
-        BufferData(Buffer* buffer, VkDeviceSize offset, VkDeviceSize range, Data* data = nullptr) :
-            _buffer(buffer),
-            _offset(offset),
-            _range(range),
-            _data(data) {}
+        BufferData(Buffer* in_buffer, VkDeviceSize in_offset, VkDeviceSize in_range, Data* in_data = nullptr) :
+            buffer(in_buffer),
+            offset(in_offset),
+            range(in_range),
+            data(in_data) {}
 
         BufferData(const BufferData&) = default;
 
@@ -39,20 +39,20 @@ namespace vsg
 
         void release()
         {
-            if (_buffer)
+            if (buffer)
             {
-                _buffer->release(_offset, _range);
+                buffer->release(offset, range);
             }
 
-            _buffer = 0;
-            _offset = 0;
-            _range = 0;
+            buffer = 0;
+            offset = 0;
+            range = 0;
         }
 
-        ref_ptr<Buffer> _buffer;
-        VkDeviceSize _offset = 0;
-        VkDeviceSize _range = 0;
-        ref_ptr<Data> _data;
+        ref_ptr<Buffer> buffer;
+        VkDeviceSize offset = 0;
+        VkDeviceSize range = 0;
+        ref_ptr<Data> data;
     };
 
     using BufferDataList = std::vector<BufferData>;

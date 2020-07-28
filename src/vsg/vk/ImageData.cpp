@@ -40,11 +40,11 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
     VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
     BufferData stagingBufferData = context.stagingMemoryBufferPools->reserveBufferData(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    stagingBufferData._data = const_cast<Data*>(data);
+    stagingBufferData.data = const_cast<Data*>(data);
 
-    //std::cout<<"stagingBufferData._buffer "<<stagingBufferData._buffer.get()<<", "<<stagingBufferData._offset<<", "<<stagingBufferData._range<<")"<<std::endl;
+    //std::cout<<"stagingBufferData.buffer "<<stagingBufferData.buffer.get()<<", "<<stagingBufferData.offset<<", "<<stagingBufferData.range<<")"<<std::endl;
 
-    ref_ptr<Buffer> imageStagingBuffer(stagingBufferData._buffer);
+    ref_ptr<Buffer> imageStagingBuffer(stagingBufferData.buffer);
     ref_ptr<DeviceMemory> imageStagingMemory(imageStagingBuffer->getDeviceMemory());
 
     if (!imageStagingMemory)
@@ -53,7 +53,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     }
 
     // copy image data to staging memory
-    imageStagingMemory->copy(imageStagingBuffer->getMemoryOffset() + stagingBufferData._offset, imageTotalSize, data->dataPointer());
+    imageStagingMemory->copy(imageStagingBuffer->getMemoryOffset() + stagingBufferData.offset, imageTotalSize, data->dataPointer());
 
     uint32_t mipLevels = sampler != nullptr ? static_cast<uint32_t>(ceil(sampler->info().maxLod)) : 1;
     if (mipLevels == 0)

@@ -63,26 +63,26 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
         offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
     }
 
-    totalSize = bufferDataList.back()._offset + bufferDataList.back()._range;
+    totalSize = bufferDataList.back().offset + bufferDataList.back().range;
 
     VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage;
 
     BufferData deviceBufferData = context.deviceMemoryBufferPools->reserveBufferData(totalSize, alignment, bufferUsageFlags, sharingMode, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    //std::cout<<"deviceBufferData._buffer "<<deviceBufferData._buffer.get()<<", "<<deviceBufferData._offset<<", "<<deviceBufferData._range<<")"<<std::endl;
+    //std::cout<<"deviceBufferData.buffer "<<deviceBufferData.buffer.get()<<", "<<deviceBufferData.offset<<", "<<deviceBufferData.range<<")"<<std::endl;
 
     // assign the buffer to the bufferData entries
     for (auto& bufferData : bufferDataList)
     {
-        bufferData._buffer = deviceBufferData._buffer;
-        bufferData._offset += deviceBufferData._offset;
+        bufferData.buffer = deviceBufferData.buffer;
+        bufferData.offset += deviceBufferData.offset;
     }
 
     BufferData stagingBufferData = context.stagingMemoryBufferPools->reserveBufferData(totalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-    //std::cout<<"stagingBufferData._buffer "<<stagingBufferData._buffer.get()<<", "<<stagingBufferData._offset<<", "<<stagingBufferData._range<<")"<<std::endl;
+    //std::cout<<"stagingBufferData.buffer "<<stagingBufferData.buffer.get()<<", "<<stagingBufferData.offset<<", "<<stagingBufferData.range<<")"<<std::endl;
 
-    ref_ptr<Buffer> stagingBuffer(stagingBufferData._buffer);
+    ref_ptr<Buffer> stagingBuffer(stagingBufferData.buffer);
     ref_ptr<DeviceMemory> stagingMemory(stagingBuffer->getDeviceMemory());
 
     if (!stagingMemory)
@@ -91,15 +91,15 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
     }
 
     void* buffer_data;
-    stagingMemory->map(stagingBuffer->getMemoryOffset() + stagingBufferData._offset, stagingBufferData._range, 0, &buffer_data);
+    stagingMemory->map(stagingBuffer->getMemoryOffset() + stagingBufferData.offset, stagingBufferData.range, 0, &buffer_data);
     char* ptr = reinterpret_cast<char*>(buffer_data);
 
-    //std::cout<<"    buffer_data " <<buffer_data<<", stagingBufferData._offset="<<stagingBufferData._offset<<", "<<totalSize<< std::endl;
+    //std::cout<<"    buffer_data " <<buffer_data<<", stagingBufferData.offset="<<stagingBufferData.offset<<", "<<totalSize<< std::endl;
 
     for (size_t i = 0; i < dataList.size(); ++i)
     {
         const Data* data = dataList[i];
-        std::memcpy(ptr + bufferDataList[i]._offset - deviceBufferData._offset, data->dataPointer(), data->dataSize());
+        std::memcpy(ptr + bufferDataList[i].offset - deviceBufferData.offset, data->dataPointer(), data->dataSize());
     }
 
     stagingMemory->unmap();
@@ -108,14 +108,14 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
     CopyAndReleaseBufferDataCommand* previous = context.copyBufferDataCommands.empty() ? nullptr : context.copyBufferDataCommands.back().get();
     if (previous)
     {
-        bool sourceMatched = (previous->source._buffer == stagingBufferData._buffer) && ((previous->source._offset + previous->source._range) == stagingBufferData._offset);
-        bool destinationMatched = (previous->destination._buffer == deviceBufferData._buffer) && ((previous->destination._offset + previous->destination._range) == deviceBufferData._offset);
+        bool sourceMatched = (previous->source._buffer == stagingBufferData.buffer) && ((previous->source.offset + previous->source.range) == stagingBufferData.offset);
+        bool destinationMatched = (previous->destination._buffer == deviceBufferData.buffer) && ((previous->destination.offset + previous->destination.range) == deviceBufferData.offset);
 
         if (sourceMatched && destinationMatched)
         {
             //std::cout<<"Source matched = "<<sourceMatched<<" destinationMatched = "<<destinationMatched<<std::endl;
-            previous->source._range += stagingBufferData._range;
-            previous->destination._range += stagingBufferData._range;
+            previous->source.range += stagingBufferData.range;
+            previous->destination.range += stagingBufferData.range;
             return bufferDataList;
         }
     }
@@ -148,7 +148,7 @@ BufferDataList vsg::createHostVisibleBuffer(Device* device, const DataList& data
         offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
     }
 
-    totalSize = bufferDataList.back()._offset + bufferDataList.back()._range;
+    totalSize = bufferDataList.back().offset + bufferDataList.back().range;
 
     ref_ptr<Buffer> buffer = vsg::Buffer::create(device, totalSize, usage, sharingMode);
     ref_ptr<DeviceMemory> memory = vsg::DeviceMemory::create(device, buffer->getMemoryRequirements(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
@@ -156,7 +156,7 @@ BufferDataList vsg::createHostVisibleBuffer(Device* device, const DataList& data
 
     for (auto& bufferData : bufferDataList)
     {
-        bufferData._buffer = buffer;
+        bufferData.buffer = buffer;
     }
 
     return bufferDataList;
@@ -166,13 +166,13 @@ void vsg::copyDataListToBuffers(BufferDataList& bufferDataList)
 {
     for (auto& bufferData : bufferDataList)
     {
-        DeviceMemory* dm = bufferData._buffer->getDeviceMemory();
+        DeviceMemory* dm = bufferData.buffer->getDeviceMemory();
 
         void* buffer_data;
-        dm->map(bufferData._offset, bufferData._range, 0, &buffer_data);
+        dm->map(bufferData.offset, bufferData.range, 0, &buffer_data);
 
         char* ptr = reinterpret_cast<char*>(buffer_data);
-        std::memcpy(ptr, bufferData._data->dataPointer(), bufferData._data->dataSize());
+        std::memcpy(ptr, bufferData.data->dataPointer(), bufferData.data->dataSize());
 
         dm->unmap();
     }

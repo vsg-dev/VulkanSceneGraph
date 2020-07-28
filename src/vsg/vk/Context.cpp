@@ -92,12 +92,12 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
             MemorySlots::OptionalOffset reservedBufferSlot = bufferFromPool->reserve(totalSize, alignment);
             if (reservedBufferSlot.first)
             {
-                bufferData._buffer = bufferFromPool;
-                bufferData._offset = reservedBufferSlot.second;
-                bufferData._range = totalSize;
+                bufferData.buffer = bufferFromPool;
+                bufferData.offset = reservedBufferSlot.second;
+                bufferData.range = totalSize;
 
 #if REPORT_STATS
-                std::cout << name << " : MemoryBufferPools::reserveBufferData(" << totalSize << ", " << alignment << ", " << bufferUsageFlags << ") _offset = " << bufferData._offset << std::endl;
+                std::cout << name << " : MemoryBufferPools::reserveBufferData(" << totalSize << ", " << alignment << ", " << bufferUsageFlags << ") _offset = " << bufferData.offset << std::endl;
 #endif
                 return bufferData;
             }
@@ -132,24 +132,24 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
         deviceSize = minumumBufferSize;
     }
 
-    bufferData._buffer = vsg::Buffer::create(device, deviceSize, bufferUsageFlags, sharingMode);
+    bufferData.buffer = vsg::Buffer::create(device, deviceSize, bufferUsageFlags, sharingMode);
 
-    MemorySlots::OptionalOffset reservedBufferSlot = bufferData._buffer->reserve(totalSize, alignment);
-    bufferData._offset = reservedBufferSlot.second;
-    bufferData._range = totalSize;
+    MemorySlots::OptionalOffset reservedBufferSlot = bufferData.buffer->reserve(totalSize, alignment);
+    bufferData.offset = reservedBufferSlot.second;
+    bufferData.range = totalSize;
 
-    // std::cout<<name<<" : Created new Buffer "<<bufferData._buffer.get()<<" totalSize "<<totalSize<<" deviceSize = "<<deviceSize<<std::endl;
+    // std::cout<<name<<" : Created new Buffer "<<bufferData.buffer.get()<<" totalSize "<<totalSize<<" deviceSize = "<<deviceSize<<std::endl;
 
-    if (!bufferData._buffer->full())
+    if (!bufferData.buffer->full())
     {
         // std::cout<<name<<"  inserting new Buffer into Context.bufferPools"<<std::endl;
-        bufferPools.push_back(bufferData._buffer);
+        bufferPools.push_back(bufferData.buffer);
     }
 
-    // std::cout<<name<<" : bufferData._offset = "<<bufferData._offset<<std::endl;
+    // std::cout<<name<<" : bufferData.offset = "<<bufferData.offset<<std::endl;
 
     VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(*device, *bufferData._buffer, &memRequirements);
+    vkGetBufferMemoryRequirements(*device, *bufferData.buffer, &memRequirements);
 
     ref_ptr<DeviceMemory> deviceMemory;
     MemorySlots::OptionalOffset reservedMemorySlot(false, 0);
@@ -201,7 +201,7 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
     }
 
     // std::cout<<name<<" : Allocated new buffer, MemoryBufferPools::reserveBufferData("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") "<<std::endl;
-    bufferData._buffer->bind(deviceMemory, reservedMemorySlot.second);
+    bufferData.buffer->bind(deviceMemory, reservedMemorySlot.second);
 
     return bufferData;
 }
@@ -276,12 +276,12 @@ CopyAndReleaseBufferDataCommand::~CopyAndReleaseBufferDataCommand()
 
 void CopyAndReleaseBufferDataCommand::record(CommandBuffer& commandBuffer) const
 {
-    //std::cout<<"CopyAndReleaseBufferDataCommand::record(CommandBuffer& commandBuffer) source._offset = "<<source._offset<<", "<<destination._offset<<std::endl;
+    //std::cout<<"CopyAndReleaseBufferDataCommand::record(CommandBuffer& commandBuffer) source.offset = "<<source.offset<<", "<<destination.offset<<std::endl;
     VkBufferCopy copyRegion = {};
-    copyRegion.srcOffset = source._offset;
-    copyRegion.dstOffset = destination._offset;
-    copyRegion.size = source._range;
-    vkCmdCopyBuffer(commandBuffer, *source._buffer, *destination._buffer, 1, &copyRegion);
+    copyRegion.srcOffset = source.offset;
+    copyRegion.dstOffset = destination.offset;
+    copyRegion.size = source.range;
+    vkCmdCopyBuffer(commandBuffer, *source.buffer, *destination.buffer, 1, &copyRegion);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -295,8 +295,8 @@ CopyAndReleaseImageDataCommand::~CopyAndReleaseImageDataCommand()
 
 void CopyAndReleaseImageDataCommand::record(CommandBuffer& commandBuffer) const
 {
-    ref_ptr<Buffer> imageStagingBuffer(source._buffer);
-    ref_ptr<Data> data(source._data);
+    ref_ptr<Buffer> imageStagingBuffer(source.buffer);
+    ref_ptr<Data> data(source.data);
     ref_ptr<Image> textureImage(destination.imageView->getImage());
     ref_ptr<Sampler> sampler(destination.sampler);
     VkImageLayout targetImageLayout = destination.imageLayout;
@@ -343,7 +343,7 @@ void CopyAndReleaseImageDataCommand::record(CommandBuffer& commandBuffer) const
         {
             // std::cout<<"   level = "<<mipLevel<<", mipWidth = "<<mipWidth<<", mipHeight = "<<mipHeight<<std::endl;
             VkBufferImageCopy region = {};
-            region.bufferOffset = source._offset + mipmapOffsets[mipLevel] * valueSize;
+            region.bufferOffset = source.offset + mipmapOffsets[mipLevel] * valueSize;
             region.bufferRowLength = 0;
             region.bufferImageHeight = 0;
             region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -406,7 +406,7 @@ void CopyAndReleaseImageDataCommand::record(CommandBuffer& commandBuffer) const
                              1, &preCopyBarrier);
 
         VkBufferImageCopy region = {};
-        region.bufferOffset = source._offset;
+        region.bufferOffset = source.offset;
         region.bufferRowLength = 0;
         region.bufferImageHeight = 0;
         region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -511,7 +511,7 @@ void CopyAndReleaseImageDataCommand::record(CommandBuffer& commandBuffer) const
         preCopyPipelineBarrier->record(commandBuffer);
 
         VkBufferImageCopy region = {};
-        region.bufferOffset = source._offset;
+        region.bufferOffset = source.offset;
         region.bufferRowLength = 0;
         region.bufferImageHeight = 0;
         region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
