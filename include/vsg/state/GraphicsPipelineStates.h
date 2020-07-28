@@ -172,7 +172,6 @@ namespace vsg
     public:
         DepthStencilState();
 
-        // TODO need to add missing values to IO.
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -181,8 +180,8 @@ namespace vsg
         VkCompareOp                               depthCompareOp = VK_COMPARE_OP_LESS;
         VkBool32                                  depthBoundsTestEnable = VK_FALSE;
         VkBool32                                  stencilTestEnable = VK_FALSE;
-        VkStencilOpState                          front = {}; // TODO pick sensible defaults
-        VkStencilOpState                          back = {}; // TODO pick sensible defaults
+        VkStencilOpState                          front = {};
+        VkStencilOpState                          back = {};
         float                                     minDepthBounds = 0.0f;
         float                                     maxDepthBounds = 1.0f;
 
@@ -206,15 +205,10 @@ namespace vsg
 
         VkBool32                                      logicOpEnable = VK_FALSE;
         VkLogicOp                                     logicOp = VK_LOGIC_OP_COPY;
-        ColorBlendAttachments                         attachments; // TODO should we make the initialzation public?
+        ColorBlendAttachments                         attachments;
         float                                         blendConstants[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
-
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
-
-        // TODO do we need these access methods now?
-        const ColorBlendAttachments& getColorBlendAttachments() const { return _colorBlendAttachments; }
-        void setColorBlendAttachments(const ColorBlendAttachments& colorBlendAttachments) { _colorBlendAttachments = colorBlendAttachments; }
 
     protected:
         virtual ~ColorBlendState();

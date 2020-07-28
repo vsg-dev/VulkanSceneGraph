@@ -295,11 +295,33 @@ void DepthStencilState::read(Input& input)
 {
     Object::read(input);
 
-    depthTestEnable = static_cast<VkBool32>(input.readValue<uint32_t>("depthTestEnable"));
-    depthWriteEnable = static_cast<VkBool32>(input.readValue<uint32_t>("depthWriteEnable"));
-    depthCompareOp = static_cast<VkCompareOp>(input.readValue<uint32_t>("depthCompareOp"));
-    depthBoundsTestEnable = static_cast<VkBool32>(input.readValue<uint32_t>("depthBoundsTestEnable"));
-    stencilTestEnable = static_cast<VkBool32>(input.readValue<uint32_t>("stencilTestEnable"));
+    input.readValue<uint32_t>("depthTestEnable", depthTestEnable);
+    input.readValue<uint32_t>("depthWriteEnable", depthWriteEnable);
+    input.readValue<uint32_t>("depthCompareOp", depthCompareOp);
+    input.readValue<uint32_t>("depthBoundsTestEnable", depthBoundsTestEnable);
+    input.readValue<uint32_t>("stencilTestEnable", stencilTestEnable);
+
+    if (input.version_greater_equal(0,0,2))
+    {
+        input.readValue<uint32_t>("front.failOp", front.failOp);
+        input.readValue<uint32_t>("front.passOp", front.passOp);
+        input.readValue<uint32_t>("front.depthFailOp", front.depthFailOp);
+        input.readValue<uint32_t>("front.compareOp", front.compareOp);
+        input.read("front.compareMask", front.compareMask);
+        input.read("front.writeMask", front.writeMask);
+        input.read("front.reference", front.reference);
+
+        input.readValue<uint32_t>("back.failOp", back.failOp);
+        input.readValue<uint32_t>("back.passOp", back.passOp);
+        input.readValue<uint32_t>("back.depthFailOp", back.depthFailOp);
+        input.readValue<uint32_t>("back.compareOp", back.compareOp);
+        input.read("back.compareMask", back.compareMask);
+        input.read("back.writeMask", back.writeMask);
+        input.read("back.reference", back.reference);
+
+        input.read("minDepthBounds", minDepthBounds);
+        input.read("maxDepthBounds", maxDepthBounds);
+    }
 }
 
 void DepthStencilState::write(Output& output) const
@@ -311,6 +333,28 @@ void DepthStencilState::write(Output& output) const
     output.writeValue<uint32_t>("depthCompareOp", depthCompareOp);
     output.writeValue<uint32_t>("depthBoundsTestEnable", depthBoundsTestEnable);
     output.writeValue<uint32_t>("stencilTestEnable", stencilTestEnable);
+
+    if (output.version_greater_equal(0,0,2))
+    {
+        output.writeValue<uint32_t>("front.failOp", front.failOp);
+        output.writeValue<uint32_t>("front.passOp", front.passOp);
+        output.writeValue<uint32_t>("front.depthFailOp", front.depthFailOp);
+        output.writeValue<uint32_t>("front.compareOp", front.compareOp);
+        output.write("front.compareMask", front.compareMask);
+        output.write("front.writeMask", front.writeMask);
+        output.write("front.reference", front.reference);
+
+        output.writeValue<uint32_t>("back.failOp", back.failOp);
+        output.writeValue<uint32_t>("back.passOp", back.passOp);
+        output.writeValue<uint32_t>("back.depthFailOp", back.depthFailOp);
+        output.writeValue<uint32_t>("back.compareOp", back.compareOp);
+        output.write("back.compareMask", back.compareMask);
+        output.write("back.writeMask", back.writeMask);
+        output.write("back.reference", back.reference);
+
+        output.write("minDepthBounds", minDepthBounds);
+        output.write("maxDepthBounds", maxDepthBounds);
+    }
 }
 
 void DepthStencilState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const
@@ -340,20 +384,22 @@ void DepthStencilState::apply(Context& context, VkGraphicsPipelineCreateInfo& pi
 //
 ColorBlendState::ColorBlendState()
 {
-    VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-    colorBlendAttachment.blendEnable = VK_FALSE;
-    colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
-                                          VK_COLOR_COMPONENT_G_BIT |
-                                          VK_COLOR_COMPONENT_B_BIT |
-                                          VK_COLOR_COMPONENT_A_BIT;
-
+    VkPipelineColorBlendAttachmentState colorBlendAttachment = {
+        VK_FALSE, // blendEnable
+        VK_BLEND_FACTOR_ZERO, // srcColorBlendFactor
+        VK_BLEND_FACTOR_ZERO, // dstColorBlendFactor
+        VK_BLEND_OP_ADD, // colorBlendOp
+        VK_BLEND_FACTOR_ZERO, // srcAlphaBlendFactor
+        VK_BLEND_FACTOR_ZERO, // dstAlphaBlendFactor
+        VK_BLEND_OP_ADD, // alphaBlendOp
+        VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT // colorWriteMask
+    };
     attachments.push_back(colorBlendAttachment);
 }
 
 ColorBlendState::ColorBlendState(const ColorBlendAttachments& colorBlendAttachments) :
-    ColorBlendState()
+    attachments(colorBlendAttachments)
 {
-    setColorBlendAttachments(colorBlendAttachments);
 }
 
 ColorBlendState::~ColorBlendState()
