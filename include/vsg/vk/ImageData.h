@@ -22,33 +22,33 @@ namespace vsg
     {
     public:
         ImageData() :
-            _imageLayout(VK_IMAGE_LAYOUT_UNDEFINED) {}
+            imageLayout(VK_IMAGE_LAYOUT_UNDEFINED) {}
 
         ImageData(const ImageData& id) :
-            _sampler(id._sampler),
-            _imageView(id._imageView),
-            _imageLayout(id._imageLayout) {}
+            sampler(id.sampler),
+            imageView(id.imageView),
+            imageLayout(id.imageLayout) {}
 
-        ImageData(Sampler* sampler, ImageView* imageView, VkImageLayout imageLayout = VK_IMAGE_LAYOUT_UNDEFINED) :
-            _sampler(sampler),
-            _imageView(imageView),
-            _imageLayout(imageLayout) {}
+        ImageData(Sampler* in_sampler, ImageView* in_imageView, VkImageLayout in_imageLayout = VK_IMAGE_LAYOUT_UNDEFINED) :
+            sampler(in_sampler),
+            imageView(in_imageView),
+            imageLayout(in_imageLayout) {}
 
         ImageData& operator=(const ImageData& rhs)
         {
-            _sampler = rhs._sampler;
-            _imageView = rhs._imageView;
-            _imageLayout = rhs._imageLayout;
+            sampler = rhs.sampler;
+            imageView = rhs.imageView;
+            imageLayout = rhs.imageLayout;
             return *this;
         }
 
-        explicit operator bool() const { return _sampler.valid() && _imageView.valid(); }
+        explicit operator bool() const { return sampler.valid() && imageView.valid(); }
 
-        bool valid() const { return _sampler.valid() && _imageView.valid(); }
+        bool valid() const { return sampler.valid() && imageView.valid(); }
 
-        ref_ptr<Sampler> _sampler;
-        ref_ptr<ImageView> _imageView;
-        VkImageLayout _imageLayout;
+        ref_ptr<Sampler> sampler;
+        ref_ptr<ImageView> imageView;
+        VkImageLayout imageLayout;
     };
 
     /// transfer Data to graphics memory, returning ImageData configuration.

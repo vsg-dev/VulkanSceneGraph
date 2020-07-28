@@ -297,9 +297,9 @@ void CopyAndReleaseImageDataCommand::record(CommandBuffer& commandBuffer) const
 {
     ref_ptr<Buffer> imageStagingBuffer(source._buffer);
     ref_ptr<Data> data(source._data);
-    ref_ptr<Image> textureImage(destination._imageView->getImage());
-    ref_ptr<Sampler> sampler(destination._sampler);
-    VkImageLayout targetImageLayout = destination._imageLayout;
+    ref_ptr<Image> textureImage(destination.imageView->getImage());
+    ref_ptr<Sampler> sampler(destination.sampler);
+    VkImageLayout targetImageLayout = destination.imageLayout;
 
     Data::Layout layout = data->getLayout();
     auto mipmapOffsets = data->computeMipmapOffsets();
