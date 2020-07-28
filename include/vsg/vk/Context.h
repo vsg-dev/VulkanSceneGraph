@@ -70,7 +70,7 @@ namespace vsg
         CopyQueue bufferDataToCopy;
     };
 
-    class CopyAndReleaseBufferDataCommand : public Command
+    class CopyAndReleaseBufferDataCommand : public Inherit<Command, CopyAndReleaseBufferDataCommand>
     {
     public:
         CopyAndReleaseBufferDataCommand(BufferData src, BufferData dest) :
@@ -86,7 +86,7 @@ namespace vsg
         virtual ~CopyAndReleaseBufferDataCommand();
     };
 
-    class CopyAndReleaseImageDataCommand : public Command
+    class CopyAndReleaseImageDataCommand : public Inherit<Command, CopyAndReleaseImageDataCommand>
     {
     public:
         CopyAndReleaseImageDataCommand(BufferData src, ImageData dest, uint32_t numMipMapLevels) :
