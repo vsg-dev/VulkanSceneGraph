@@ -43,6 +43,9 @@ namespace vsg
         SamplerImages& getSamplerImages() { return _samplerImages; }
         const SamplerImages& getSamplerImages() const { return _samplerImages; }
 
+        // get the Vulkan related objects, populated by compile traversal
+        ImageDataList& getImageList(uint32_t deviceID) { return _vulkanData[deviceID].imageDataList; }
+
         void read(Input& input) override;
         void write(Output& output) const override;
 
