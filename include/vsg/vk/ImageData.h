@@ -44,15 +44,18 @@ namespace vsg
 
         explicit operator bool() const { return sampler.valid() && imageView.valid(); }
 
-        bool valid() const { return sampler.valid() && imageView.valid(); }
-
         ref_ptr<Sampler> sampler;
         ref_ptr<ImageView> imageView;
         VkImageLayout imageLayout;
     };
 
+    extern VSG_DECLSPEC BufferData copyDataToStagingBuffer(Context& context, const Data* data);
+    extern VSG_DECLSPEC uint32_t computeNumMipMapLevels(const Data* data, const Sampler* sampler);
+    extern VSG_DECLSPEC ImageData createImageData(Context& context, const Data* data, Sampler* sampler, VkImageLayout targetImageLayout, uint32_t mipLevels);
+
     /// transfer Data to graphics memory, returning ImageData configuration.
-    extern VSG_DECLSPEC vsg::ImageData transferImageData(Context& context, const Data* data, Sampler* sampler = nullptr, VkImageLayout targetImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    extern VSG_DECLSPEC ImageData transferImageData(Context& context, const Data* data, Sampler* sampler = nullptr, VkImageLayout targetImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
 
     using ImageDataList = std::vector<ImageData>;
 
