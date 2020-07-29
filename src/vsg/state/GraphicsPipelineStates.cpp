@@ -101,7 +101,7 @@ InputAssemblyState::InputAssemblyState()
 {
 }
 
-InputAssemblyState::InputAssemblyState(VkPrimitiveTopology primitiveTopology, VkBool32 primitiveRestart):
+InputAssemblyState::InputAssemblyState(VkPrimitiveTopology primitiveTopology, VkBool32 primitiveRestart) :
     topology(primitiveTopology),
     primitiveRestartEnable(primitiveRestart)
 {
@@ -135,11 +135,10 @@ void InputAssemblyState::apply(Context& context, VkGraphicsPipelineCreateInfo& p
     inputAssemblyState->pNext = nullptr;
     inputAssemblyState->flags = 0;
     inputAssemblyState->topology = topology;
-    inputAssemblyState->primitiveRestartEnable =  primitiveRestartEnable;
+    inputAssemblyState->primitiveRestartEnable = primitiveRestartEnable;
 
     pipelineInfo.pInputAssemblyState = inputAssemblyState;
 }
-
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -301,7 +300,7 @@ void DepthStencilState::read(Input& input)
     input.readValue<uint32_t>("depthBoundsTestEnable", depthBoundsTestEnable);
     input.readValue<uint32_t>("stencilTestEnable", stencilTestEnable);
 
-    if (input.version_greater_equal(0,0,2))
+    if (input.version_greater_equal(0, 0, 2))
     {
         input.readValue<uint32_t>("front.failOp", front.failOp);
         input.readValue<uint32_t>("front.passOp", front.passOp);
@@ -334,7 +333,7 @@ void DepthStencilState::write(Output& output) const
     output.writeValue<uint32_t>("depthBoundsTestEnable", depthBoundsTestEnable);
     output.writeValue<uint32_t>("stencilTestEnable", stencilTestEnable);
 
-    if (output.version_greater_equal(0,0,2))
+    if (output.version_greater_equal(0, 0, 2))
     {
         output.writeValue<uint32_t>("front.failOp", front.failOp);
         output.writeValue<uint32_t>("front.passOp", front.passOp);
@@ -385,13 +384,13 @@ void DepthStencilState::apply(Context& context, VkGraphicsPipelineCreateInfo& pi
 ColorBlendState::ColorBlendState()
 {
     VkPipelineColorBlendAttachmentState colorBlendAttachment = {
-        VK_FALSE, // blendEnable
-        VK_BLEND_FACTOR_ZERO, // srcColorBlendFactor
-        VK_BLEND_FACTOR_ZERO, // dstColorBlendFactor
-        VK_BLEND_OP_ADD, // colorBlendOp
-        VK_BLEND_FACTOR_ZERO, // srcAlphaBlendFactor
-        VK_BLEND_FACTOR_ZERO, // dstAlphaBlendFactor
-        VK_BLEND_OP_ADD, // alphaBlendOp
+        VK_FALSE,                                                                                                 // blendEnable
+        VK_BLEND_FACTOR_ZERO,                                                                                     // srcColorBlendFactor
+        VK_BLEND_FACTOR_ZERO,                                                                                     // dstColorBlendFactor
+        VK_BLEND_OP_ADD,                                                                                          // colorBlendOp
+        VK_BLEND_FACTOR_ZERO,                                                                                     // srcAlphaBlendFactor
+        VK_BLEND_FACTOR_ZERO,                                                                                     // dstAlphaBlendFactor
+        VK_BLEND_OP_ADD,                                                                                          // alphaBlendOp
         VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT // colorWriteMask
     };
     attachments.push_back(colorBlendAttachment);

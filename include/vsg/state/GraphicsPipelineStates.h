@@ -95,7 +95,6 @@ namespace vsg
     VSG_type_name(vsg::TessellationState);
 #endif
 
-
     class VSG_DECLSPEC ViewportState : public Inherit<GraphicsPipelineState, ViewportState>
     {
     public:
@@ -128,16 +127,16 @@ namespace vsg
 
         // TODO need to add IO.
 
-        VkBool32                                   depthClampEnable = VK_FALSE;
-        VkBool32                                   rasterizerDiscardEnable = VK_FALSE;
-        VkPolygonMode                              polygonMode = VK_POLYGON_MODE_FILL;
-        VkCullModeFlags                            cullMode = VK_CULL_MODE_BACK_BIT;;
-        VkFrontFace                                frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-        VkBool32                                   depthBiasEnable = VK_FALSE;
-        float                                      depthBiasConstantFactor = 1.0f;
-        float                                      depthBiasClamp = 0.0f;
-        float                                      depthBiasSlopeFactor = 1.0f;
-        float                                      lineWidth = 1.0f;
+        VkBool32 depthClampEnable = VK_FALSE;
+        VkBool32 rasterizerDiscardEnable = VK_FALSE;
+        VkPolygonMode polygonMode = VK_POLYGON_MODE_FILL;
+        VkCullModeFlags cullMode = VK_CULL_MODE_BACK_BIT;
+        VkFrontFace frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+        VkBool32 depthBiasEnable = VK_FALSE;
+        float depthBiasConstantFactor = 1.0f;
+        float depthBiasClamp = 0.0f;
+        float depthBiasSlopeFactor = 1.0f;
+        float lineWidth = 1.0f;
 
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
@@ -153,12 +152,12 @@ namespace vsg
 
         // TODO need to add IO.
 
-        VkSampleCountFlagBits                    rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-        VkBool32                                 sampleShadingEnable = VK_FALSE;
-        float                                    minSampleShading = 0.0f;
-        std::vector<VkSampleMask>                sampleMasks;
-        VkBool32                                 alphaToCoverageEnable = VK_FALSE;
-        VkBool32                                 alphaToOneEnable = VK_FALSE;
+        VkSampleCountFlagBits rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+        VkBool32 sampleShadingEnable = VK_FALSE;
+        float minSampleShading = 0.0f;
+        std::vector<VkSampleMask> sampleMasks;
+        VkBool32 alphaToCoverageEnable = VK_FALSE;
+        VkBool32 alphaToOneEnable = VK_FALSE;
 
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
@@ -175,15 +174,15 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        VkBool32                                  depthTestEnable = VK_TRUE;
-        VkBool32                                  depthWriteEnable = VK_TRUE;
-        VkCompareOp                               depthCompareOp = VK_COMPARE_OP_LESS;
-        VkBool32                                  depthBoundsTestEnable = VK_FALSE;
-        VkBool32                                  stencilTestEnable = VK_FALSE;
-        VkStencilOpState                          front = {};
-        VkStencilOpState                          back = {};
-        float                                     minDepthBounds = 0.0f;
-        float                                     maxDepthBounds = 1.0f;
+        VkBool32 depthTestEnable = VK_TRUE;
+        VkBool32 depthWriteEnable = VK_TRUE;
+        VkCompareOp depthCompareOp = VK_COMPARE_OP_LESS;
+        VkBool32 depthBoundsTestEnable = VK_FALSE;
+        VkBool32 stencilTestEnable = VK_FALSE;
+        VkStencilOpState front = {};
+        VkStencilOpState back = {};
+        float minDepthBounds = 0.0f;
+        float maxDepthBounds = 1.0f;
 
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
@@ -203,10 +202,10 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        VkBool32                                      logicOpEnable = VK_FALSE;
-        VkLogicOp                                     logicOp = VK_LOGIC_OP_COPY;
-        ColorBlendAttachments                         attachments;
-        float                                         blendConstants[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+        VkBool32 logicOpEnable = VK_FALSE;
+        VkLogicOp logicOp = VK_LOGIC_OP_COPY;
+        ColorBlendAttachments attachments;
+        float blendConstants[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
