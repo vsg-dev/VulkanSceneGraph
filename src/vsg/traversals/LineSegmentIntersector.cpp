@@ -226,7 +226,7 @@ bool LineSegmentIntersector::intersects(const dsphere& bs)
 bool LineSegmentIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertexCount)
 {
     auto& arrayState = arrayStateStack.back();
-    if (!arrayState.vertices || arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || vertexCount==0) return false;
+    if (!arrayState.vertices || arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || vertexCount == 0) return false;
 
     auto& ls = _lineSegmentStack.back();
 
@@ -247,7 +247,7 @@ bool LineSegmentIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertex
 bool LineSegmentIntersector::intersectDrawIndexed(uint32_t firstIndex, uint32_t indexCount)
 {
     auto& arrayState = arrayStateStack.back();
-    if (!arrayState.vertices || arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || indexCount==0) return false;
+    if (!arrayState.vertices || arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || indexCount == 0) return false;
 
     auto& ls = _lineSegmentStack.back();
 
@@ -273,5 +273,4 @@ bool LineSegmentIntersector::intersectDrawIndexed(uint32_t firstIndex, uint32_t 
     }
 
     return intersections.size() != previous_size;
-
 }

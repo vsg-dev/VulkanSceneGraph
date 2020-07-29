@@ -101,7 +101,7 @@ namespace vsg
             uint32_t height = input.readValue<uint32_t>("Height");
             uint32_t depth = input.readValue<uint32_t>("Depth");
 
-            if (input.version_greater_equal(0,0,1))
+            if (input.version_greater_equal(0, 0, 1))
             {
                 auto storage = input.readObject<Data>("Storage");
                 if (storage)
@@ -146,7 +146,7 @@ namespace vsg
             output.writeValue<uint32_t>("Height", _height);
             output.writeValue<uint32_t>("Depth", _depth);
 
-            if (output.version_greater_equal(0,0,1))
+            if (output.version_greater_equal(0, 0, 1))
             {
                 output.writeObject("Storage", _storage);
                 if (_storage)

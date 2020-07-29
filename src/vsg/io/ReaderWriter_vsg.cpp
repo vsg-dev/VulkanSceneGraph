@@ -29,9 +29,9 @@ static VsgVersion parseVersion(std::string version_string)
 {
     VsgVersion version{0, 0, 0, 0};
 
-    for(auto& c : version_string)
+    for (auto& c : version_string)
     {
-        if (c=='.') c = ' ';
+        if (c == '.') c = ' ';
     }
 
     std::stringstream str(version_string);
@@ -89,7 +89,7 @@ void ReaderWriter_vsg::writeHeader(std::ostream& fout, const FormatInfo& formatI
         fout << "#vsga";
 
     auto version = formatInfo.second;
-    fout << " " << version.major <<"."<<version.minor << "." << version.patch<<"\n";
+    fout << " " << version.major << "." << version.minor << "." << version.patch << "\n";
 }
 
 vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(const vsg::Path& filename, ref_ptr<const Options> options) const
