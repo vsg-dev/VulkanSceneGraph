@@ -41,7 +41,6 @@ namespace vsg
 
         void apply(uint32_t firstBinding, const DataList& arrays);
         void apply(const vec3Array& vertices);
-
     };
     VSG_type_name(vsg::ComputeBounds);
 

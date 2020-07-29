@@ -121,7 +121,7 @@ namespace vsg
 
             uint32_t width_size = input.readValue<uint32_t>("Size");
 
-            if (input.version_greater_equal(0,0,1))
+            if (input.version_greater_equal(0, 0, 1))
             {
                 auto storage = input.readObject<Data>("Storage");
                 if (storage)
@@ -131,7 +131,6 @@ namespace vsg
                     return;
                 }
             }
-
 
             if (input.matchPropertyName("Data"))
             {
@@ -164,7 +163,7 @@ namespace vsg
 
             output.writeValue<uint32_t>("Size", _size);
 
-            if (output.version_greater_equal(0,0,1))
+            if (output.version_greater_equal(0, 0, 1))
             {
                 output.writeObject("Storage", _storage);
                 if (_storage)

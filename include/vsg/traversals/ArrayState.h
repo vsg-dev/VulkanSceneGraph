@@ -13,42 +13,41 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/ConstVisitor.h>
-#include <vsg/core/Inherit.h>
 #include <vsg/core/Data.h>
+#include <vsg/core/Inherit.h>
 
 namespace vsg
 {
 
-class VSG_DECLSPEC ArrayState : public Inherit<ConstVisitor, ArrayState>
-{
-public:
-
-    struct AttributeDetails
+    class VSG_DECLSPEC ArrayState : public Inherit<ConstVisitor, ArrayState>
     {
-        uint32_t binding = 0;
-        uint32_t offset = 0;
-        uint32_t stride = 0;
-        VkFormat format = {};
+    public:
+        struct AttributeDetails
+        {
+            uint32_t binding = 0;
+            uint32_t offset = 0;
+            uint32_t stride = 0;
+            VkFormat format = {};
+        };
+
+        VkPrimitiveTopology topology;
+        uint32_t vertex_attribute_location = 0;
+        AttributeDetails vertexAttribute;
+
+        ref_ptr<const vec3Array> vertices;
+        ref_ptr<vec3Array> proxy_vertices;
+
+        DataList arrays;
+
+        void apply(const BindGraphicsPipeline& bpg) override;
+        void apply(const Geometry& geometry) override;
+        void apply(const VertexIndexDraw& vid) override;
+        void apply(const BindVertexBuffers& bvb) override;
+
+        void apply(uint32_t firstBinding, const DataList& in_arrays);
+
+        void apply(const vsg::vec3Array& array) override;
+        void apply(const vsg::Data& array) override;
     };
 
-    VkPrimitiveTopology topology;
-    uint32_t vertex_attribute_location = 0;
-    AttributeDetails vertexAttribute;
-
-    ref_ptr<const vec3Array> vertices;
-    ref_ptr<vec3Array> proxy_vertices;
-
-    DataList arrays;
-
-    void apply(const BindGraphicsPipeline& bpg) override;
-    void apply(const Geometry& geometry) override;
-    void apply(const VertexIndexDraw& vid) override;
-    void apply(const BindVertexBuffers& bvb) override;
-
-    void apply(uint32_t firstBinding, const DataList& in_arrays);
-
-    void apply(const vsg::vec3Array& array) override;
-    void apply(const vsg::Data& array) override;
-};
-
-}
+} // namespace vsg
