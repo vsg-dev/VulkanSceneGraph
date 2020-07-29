@@ -41,6 +41,8 @@ set(SOURCES
     commands/BlitImage.cpp
     commands/CopyImage.cpp
     commands/CopyImageToBuffer.cpp
+    commands/CopyAndReleaseBufferDataCommand.cpp
+    commands/CopyAndReleaseImageDataCommand.cpp
     commands/PipelineBarrier.cpp
     commands/Event.cpp
     commands/NextSubPass.cpp
@@ -133,6 +135,7 @@ set(SOURCES
     vk/ImageData.cpp
     vk/ImageView.cpp
     vk/Instance.cpp
+    vk/MemoryBufferPools.cpp
     vk/PhysicalDevice.cpp
     vk/Queue.cpp
     vk/RenderPass.cpp
