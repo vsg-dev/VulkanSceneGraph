@@ -34,19 +34,30 @@ namespace vsg
     class VSG_DECLSPEC CopyAndReleaseImageDataCommand : public Inherit<Command, CopyAndReleaseImageDataCommand>
     {
     public:
-        CopyAndReleaseImageDataCommand(BufferData src, ImageData dest, uint32_t numMipMapLevels) :
-            source(src),
-            destination(dest),
-            mipLevels(numMipMapLevels) {}
+
+        CopyAndReleaseImageDataCommand()  {}
+        CopyAndReleaseImageDataCommand(BufferData src, ImageData dest);
+        CopyAndReleaseImageDataCommand(BufferData src, ImageData dest, uint32_t numMipMapLevels);
+
+        void add(BufferData src, ImageData dest);
+        void add(BufferData src, ImageData dest, uint32_t numMipMapLevels);
 
         void record(CommandBuffer& commandBuffer) const override;
 
-        BufferData source;
-        ImageData destination;
-        uint32_t mipLevels = 1;
-
     protected:
         virtual ~CopyAndReleaseImageDataCommand();
+
+        struct CopyData
+        {
+            BufferData source;
+            ImageData destination;
+            uint32_t mipLevels = 1;
+
+            void record(CommandBuffer& commandBuffer) const;
+        };
+
+        mutable std::vector<CopyData> pending;
+        mutable std::vector<CopyData> completed;
     };
 
 } // namespace vsg

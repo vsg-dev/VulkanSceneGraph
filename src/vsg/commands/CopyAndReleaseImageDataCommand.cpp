@@ -16,12 +16,34 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CopyAndReleaseImageDataCommand::~CopyAndReleaseImageDataCommand()
+CopyAndReleaseImageDataCommand::CopyAndReleaseImageDataCommand(BufferData src, ImageData dest)
 {
-    source.release();
+   add(src, dest);
 }
 
-void CopyAndReleaseImageDataCommand::record(CommandBuffer& commandBuffer) const
+CopyAndReleaseImageDataCommand::CopyAndReleaseImageDataCommand(BufferData src, ImageData dest, uint32_t numMipMapLevels)
+{
+   add(src, dest, numMipMapLevels);
+}
+
+
+CopyAndReleaseImageDataCommand::~CopyAndReleaseImageDataCommand()
+{
+    for(auto& copyData : completed) copyData.source.release();
+    for(auto& copyData : pending) copyData.source.release();
+}
+
+void CopyAndReleaseImageDataCommand::add(BufferData src, ImageData dest)
+{
+    pending.push_back(CopyData{src, dest, vsg::computeNumMipMapLevels(src.data, dest.sampler)});
+}
+
+void CopyAndReleaseImageDataCommand::add(BufferData src, ImageData dest, uint32_t numMipMapLevels)
+{
+    pending.push_back(CopyData{src, dest, numMipMapLevels});
+}
+
+void CopyAndReleaseImageDataCommand::CopyData::record(CommandBuffer& commandBuffer) const
 {
     ref_ptr<Buffer> imageStagingBuffer(source.buffer);
     ref_ptr<Data> data(source.data);
@@ -264,4 +286,17 @@ void CopyAndReleaseImageDataCommand::record(CommandBuffer& commandBuffer) const
 
         postPipelineBarrier->record(commandBuffer);
     }
+}
+
+void CopyAndReleaseImageDataCommand::record(CommandBuffer& commandBuffer) const
+{
+    for(auto& copyData : completed) copyData.source.release();
+    completed.clear();
+
+    for(auto& copyData : pending)
+    {
+        copyData.record(commandBuffer);
+    }
+
+    pending.swap(completed);
 }
