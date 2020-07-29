@@ -623,7 +623,7 @@ ref_ptr<CommandBuffer> Context::getOrCreateCommandBuffer()
 
 void Context::record()
 {
-    if (commands.empty() && copyBufferDataCommands.empty() && copyImageDataCommands.empty() && buildAccelerationStructureCommands.empty()) return;
+    if (commands.empty() && buildAccelerationStructureCommands.empty()) return;
 
     //auto before_compile = std::chrono::steady_clock::now();
 
@@ -646,8 +646,6 @@ void Context::record()
 
     // issue commands of interest
     {
-        for (auto& command : copyBufferDataCommands) command->record(*commandBuffer);
-        for (auto& command : copyImageDataCommands) command->record(*commandBuffer);
         for (auto& command : commands) command->record(*commandBuffer);
     }
 
@@ -699,7 +697,7 @@ void Context::waitForCompletion()
         return;
     }
 
-    if (commands.empty() && copyBufferDataCommands.empty() && copyImageDataCommands.empty() && buildAccelerationStructureCommands.empty())
+    if (commands.empty() && buildAccelerationStructureCommands.empty())
     {
         return;
     }
@@ -724,7 +722,5 @@ void Context::waitForCompletion()
     std::cout << "Context::waitForCompletion() copyBufferDataCommands = " << copyBufferDataCommands.size() << ", copyImageDataCommands = " << copyImageDataCommands.size() << ", commands = " << commands.size() << std::endl;
 #endif
 
-    copyBufferDataCommands.clear();
-    copyImageDataCommands.clear();
     commands.clear();
 }

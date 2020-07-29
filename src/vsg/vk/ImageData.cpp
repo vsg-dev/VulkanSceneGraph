@@ -206,7 +206,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     auto imageData = createImageData(context, data, sampler, targetImageLayout, mipLevels);
     if (!imageData) return imageData;
 
-    context.copyImageDataCommands.emplace_back(new CopyAndReleaseImageDataCommand(stagingBufferData, imageData, mipLevels));
+    context.commands.emplace_back(new CopyAndReleaseImageDataCommand(stagingBufferData, imageData, mipLevels));
 
     return imageData;
 }

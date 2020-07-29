@@ -161,8 +161,6 @@ namespace vsg
         ref_ptr<Semaphore> semaphore;
         ref_ptr<ScratchMemory> scratchMemory;
 
-        std::vector<ref_ptr<CopyAndReleaseBufferDataCommand>> copyBufferDataCommands;
-        std::vector<ref_ptr<CopyAndReleaseImageDataCommand>> copyImageDataCommands;
         std::vector<ref_ptr<Command>> commands;
 
         void record();

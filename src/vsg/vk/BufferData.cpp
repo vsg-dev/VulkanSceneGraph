@@ -120,7 +120,7 @@ BufferDataList vsg::createBufferAndTransferData(Context& context, const DataList
         }
     }
 #endif
-    context.copyBufferDataCommands.emplace_back(new CopyAndReleaseBufferDataCommand(stagingBufferData, deviceBufferData));
+    context.commands.emplace_back(new CopyAndReleaseBufferDataCommand(stagingBufferData, deviceBufferData));
 
     return bufferDataList;
 }
