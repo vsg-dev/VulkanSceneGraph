@@ -18,19 +18,18 @@ using namespace vsg;
 
 CopyAndReleaseImageDataCommand::CopyAndReleaseImageDataCommand(BufferData src, ImageData dest)
 {
-   add(src, dest);
+    add(src, dest);
 }
 
 CopyAndReleaseImageDataCommand::CopyAndReleaseImageDataCommand(BufferData src, ImageData dest, uint32_t numMipMapLevels)
 {
-   add(src, dest, numMipMapLevels);
+    add(src, dest, numMipMapLevels);
 }
-
 
 CopyAndReleaseImageDataCommand::~CopyAndReleaseImageDataCommand()
 {
-    for(auto& copyData : completed) copyData.source.release();
-    for(auto& copyData : pending) copyData.source.release();
+    for (auto& copyData : completed) copyData.source.release();
+    for (auto& copyData : pending) copyData.source.release();
 }
 
 void CopyAndReleaseImageDataCommand::add(BufferData src, ImageData dest)
@@ -290,10 +289,10 @@ void CopyAndReleaseImageDataCommand::CopyData::record(CommandBuffer& commandBuff
 
 void CopyAndReleaseImageDataCommand::record(CommandBuffer& commandBuffer) const
 {
-    for(auto& copyData : completed) copyData.source.release();
+    for (auto& copyData : completed) copyData.source.release();
     completed.clear();
 
-    for(auto& copyData : pending)
+    for (auto& copyData : pending)
     {
         copyData.record(commandBuffer);
     }

@@ -187,7 +187,6 @@ ImageData vsg::createImageData(Context& context, const Data* data, Sampler* samp
     return imageData;
 }
 
-
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // vsg::transferImageData
