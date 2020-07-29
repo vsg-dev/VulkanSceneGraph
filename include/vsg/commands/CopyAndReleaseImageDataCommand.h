@@ -31,7 +31,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class CopyAndReleaseImageDataCommand : public Inherit<Command, CopyAndReleaseImageDataCommand>
+    class VSG_DECLSPEC CopyAndReleaseImageDataCommand : public Inherit<Command, CopyAndReleaseImageDataCommand>
     {
     public:
         CopyAndReleaseImageDataCommand(BufferData src, ImageData dest, uint32_t numMipMapLevels) :

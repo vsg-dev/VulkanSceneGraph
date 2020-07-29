@@ -31,7 +31,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class CopyAndReleaseBufferDataCommand : public Inherit<Command, CopyAndReleaseBufferDataCommand>
+    class VSG_DECLSPEC CopyAndReleaseBufferDataCommand : public Inherit<Command, CopyAndReleaseBufferDataCommand>
     {
     public:
         CopyAndReleaseBufferDataCommand(BufferData src, BufferData dest) :
