@@ -30,41 +30,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-
-    class CopyAndReleaseBufferDataCommand : public Inherit<Command, CopyAndReleaseBufferDataCommand>
-    {
-    public:
-        CopyAndReleaseBufferDataCommand(BufferData src, BufferData dest) :
-            source(src),
-            destination(dest) {}
-
-        BufferData source;
-        BufferData destination;
-
-        void record(CommandBuffer& commandBuffer) const override;
-
-    protected:
-        virtual ~CopyAndReleaseBufferDataCommand();
-    };
-
-    class CopyAndReleaseImageDataCommand : public Inherit<Command, CopyAndReleaseImageDataCommand>
-    {
-    public:
-        CopyAndReleaseImageDataCommand(BufferData src, ImageData dest, uint32_t numMipMapLevels) :
-            source(src),
-            destination(dest),
-            mipLevels(numMipMapLevels) {}
-
-        void record(CommandBuffer& commandBuffer) const override;
-
-        BufferData source;
-        ImageData destination;
-        uint32_t mipLevels = 1;
-
-    protected:
-        virtual ~CopyAndReleaseImageDataCommand();
-    };
-
     class BuildAccelerationStructureCommand : public Inherit<Command, BuildAccelerationStructureCommand>
     {
     public:
