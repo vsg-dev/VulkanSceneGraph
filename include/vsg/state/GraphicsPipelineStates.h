@@ -49,10 +49,6 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        // TODO do we need these access methods now?
-        const Bindings& geBindings() { return vertexBindingDescriptions; }
-        const Attributes& getAttributes() const { return vertexAttributeDescriptions; }
-
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:

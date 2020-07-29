@@ -30,11 +30,11 @@ void ArrayState::apply(const vsg::BindGraphicsPipeline& bpg)
         }
         else if (auto vas = pipelineState.cast<vsg::VertexInputState>(); vas)
         {
-            for (auto& attribute : vas->getAttributes())
+            for (auto& attribute : vas->vertexAttributeDescriptions)
             {
                 if (attribute.location == vertex_attribute_location)
                 {
-                    for (auto& binding : vas->geBindings())
+                    for (auto& binding : vas->vertexBindingDescriptions)
                     {
                         if (attribute.binding == binding.binding)
                         {
