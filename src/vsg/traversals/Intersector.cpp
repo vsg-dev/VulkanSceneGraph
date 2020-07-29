@@ -55,7 +55,7 @@ void Intersector::apply(const StateGroup& stategroup)
 
     ArrayState arrayState(arrayStateStack.back());
 
-    for(auto& statecommand : stategroup.getStateCommands())
+    for (auto& statecommand : stategroup.getStateCommands())
     {
         statecommand->accept(arrayState);
     }

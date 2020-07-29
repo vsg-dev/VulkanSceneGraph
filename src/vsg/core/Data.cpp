@@ -21,7 +21,7 @@ void Data::read(Input& input)
 {
     Object::read(input);
 
-    if (input.version_greater_equal(0,0,1))
+    if (input.version_greater_equal(0, 0, 1))
     {
         uint32_t format = 0;
         input.read("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin);
@@ -38,7 +38,7 @@ void Data::write(Output& output) const
 {
     Object::write(output);
 
-    if (output.version_greater_equal(0,0,1))
+    if (output.version_greater_equal(0, 0, 1))
     {
         uint32_t format = _layout.format;
         output.write("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin);
