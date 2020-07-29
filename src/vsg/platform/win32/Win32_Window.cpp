@@ -434,6 +434,9 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
     ShowWindow(_window, SW_SHOW);
     SetForegroundWindow(_window);
     SetFocus(_window);
+
+    traits->systemConnection = wc.hInstance;
+    traits->nativeWindow = _window;
 }
 
 Win32_Window::~Win32_Window()

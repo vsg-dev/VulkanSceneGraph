@@ -81,8 +81,8 @@ namespace vsg
 
         AllocationCallbacks* allocator = nullptr;
 
-        std::any nativeHandle;
-        void* nativeWindow = nullptr;
+        std::any nativeWindow;
+        std::any systemConnection;
 
     protected:
         virtual ~WindowTraits() {}
