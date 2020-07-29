@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/commands/CopyAndReleaseImageDataCommand.h>
 #include <vsg/io/Options.h>
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/vk/Buffer.h>
@@ -23,38 +24,39 @@ using namespace vsg;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
-// vsg::transferImageData
+// vsg::copyDataToStagingBuffer
 //
-ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sampler, VkImageLayout targetImageLayout)
+BufferData vsg::copyDataToStagingBuffer(Context& context, const Data* data)
 {
-    // std::cout<<"\nvsg::transferImageData()"<<std::endl;
-
-    if (!data)
-    {
-        return ImageData(sampler, nullptr, targetImageLayout);
-    }
-
-    Device* device = context.device;
+    if (!data) return {};
 
     VkDeviceSize imageTotalSize = data->dataSize();
 
     VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
     BufferData stagingBufferData = context.stagingMemoryBufferPools->reserveBufferData(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    stagingBufferData._data = const_cast<Data*>(data);
+    stagingBufferData.data = const_cast<Data*>(data);
 
-    //std::cout<<"stagingBufferData._buffer "<<stagingBufferData._buffer.get()<<", "<<stagingBufferData._offset<<", "<<stagingBufferData._range<<")"<<std::endl;
+    // std::cout<<"stagingBufferData.buffer "<<stagingBufferData.buffer.get()<<", "<<stagingBufferData.offset<<", "<<stagingBufferData.range<<")"<<std::endl;
 
-    ref_ptr<Buffer> imageStagingBuffer(stagingBufferData._buffer);
+    ref_ptr<Buffer> imageStagingBuffer(stagingBufferData.buffer);
     ref_ptr<DeviceMemory> imageStagingMemory(imageStagingBuffer->getDeviceMemory());
 
-    if (!imageStagingMemory)
-    {
-        return ImageData();
-    }
+    if (!imageStagingMemory) return {};
 
-    // copy image data to staging memory
-    imageStagingMemory->copy(imageStagingBuffer->getMemoryOffset() + stagingBufferData._offset, imageTotalSize, data->dataPointer());
+    // copy data to staging memory
+    imageStagingMemory->copy(imageStagingBuffer->getMemoryOffset() + stagingBufferData.offset, imageTotalSize, data->dataPointer());
 
+    // std::cout << "Creating imageStagingBuffer and memory size = " << imageTotalSize<<std::endl;
+
+    return stagingBufferData;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// vsg::computeNumMipMapLevels
+//
+uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
+{
     uint32_t mipLevels = sampler != nullptr ? static_cast<uint32_t>(ceil(sampler->info().maxLod)) : 1;
     if (mipLevels == 0)
     {
@@ -70,8 +72,18 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
 
     //mipLevels = 1;  // disable mipmapping
 
+    return mipLevels;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// vsg::createImageData
+//
+ImageData vsg::createImageData(Context& context, const Data* data, Sampler* sampler, VkImageLayout targetImageLayout, uint32_t mipLevels)
+{
     Data::Layout layout = data->getLayout();
     auto mipmapOffsets = data->computeMipmapOffsets();
+    Device* device = context.device;
 
     if (mipLevels > 1)
     {
@@ -108,7 +120,6 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     std::cout << "data->getLayout().format = " << data->getLayout().format << std::endl;
     std::cout << "sampler->info().maxLod = " << sampler->info().maxLod << std::endl;
 
-    std::cout << "Creating imageStagingBuffer and memory size = " << imageTotalSize << " mipLevels = "<<mipLevels<<std::endl;
 #endif
 
     // take the block dimensions into account for image size to allow for any block compressed image formats where the data dimensions is based in number of blocks so needs to be multiple to get final pixel count
@@ -142,10 +153,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     }
 
     ref_ptr<Image> textureImage = Image::create(device, imageCreateInfo);
-    if (!textureImage)
-    {
-        return ImageData();
-    }
+    if (!textureImage) return {};
 
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(*device, *textureImage, &memRequirements);
@@ -155,7 +163,7 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     if (!deviceMemory)
     {
         std::cout << "Warning: vsg::transferImageData() Failed allocate memory to reserve slot" << std::endl;
-        return ImageData();
+        return {};
     }
 
     textureImage->bind(deviceMemory, offset);
@@ -176,8 +184,30 @@ ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sa
     if (textureImageView) textureImageView->setImage(textureImage);
 
     ImageData imageData(sampler, textureImageView, targetImageLayout);
+    return imageData;
+}
 
-    context.copyImageDataCommands.emplace_back(new CopyAndReleaseImageDataCommand(stagingBufferData, imageData, mipLevels));
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// vsg::transferImageData
+//
+ImageData vsg::transferImageData(Context& context, const Data* data, Sampler* sampler, VkImageLayout targetImageLayout)
+{
+    // std::cout<<"\nvsg::transferImageData()"<<std::endl;
+    if (!data) return {};
+
+    // copy data to staging buffer
+    auto stagingBufferData = copyDataToStagingBuffer(context, data);
+    if (!stagingBufferData) return {};
+
+    auto mipLevels = computeNumMipMapLevels(data, sampler);
+
+    // create vkImage and vkImageView
+    auto imageData = createImageData(context, data, sampler, targetImageLayout, mipLevels);
+    if (!imageData) return imageData;
+
+    context.commands.emplace_back(new CopyAndReleaseImageDataCommand(stagingBufferData, imageData, mipLevels));
 
     return imageData;
 }

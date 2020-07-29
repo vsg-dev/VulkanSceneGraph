@@ -85,9 +85,9 @@ void BindVertexBuffers::compile(Context& context)
     auto bufferDataList = vsg::createBufferAndTransferData(context, _arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     for (auto& bufferData : bufferDataList)
     {
-        vkd.buffers.push_back(bufferData._buffer);
-        vkd.vkBuffers.push_back(*(bufferData._buffer));
-        vkd.offsets.push_back(bufferData._offset);
+        vkd.buffers.push_back(bufferData.buffer);
+        vkd.vkBuffers.push_back(*(bufferData.buffer));
+        vkd.offsets.push_back(bufferData.offset);
     }
 }
 

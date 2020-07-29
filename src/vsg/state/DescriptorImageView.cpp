@@ -53,15 +53,15 @@ void DescriptorImageView::compile(Context& context)
     // transfer any data that is required
     for (size_t i = 0; i < _imageDataList.size(); ++i)
     {
-        if (_imageDataList[i]._sampler) _imageDataList[i]._sampler->compile(context);
+        if (_imageDataList[i].sampler) _imageDataList[i].sampler->compile(context);
 
-        if (_imageDataList[i]._imageView)
+        if (_imageDataList[i].imageView)
         {
             auto imb_transitionLayoutMemoryBarrier = ImageMemoryBarrier::create(
                 0, VK_ACCESS_SHADER_READ_BIT,
-                VK_IMAGE_LAYOUT_UNDEFINED, _imageDataList[i]._imageLayout,
+                VK_IMAGE_LAYOUT_UNDEFINED, _imageDataList[i].imageLayout,
                 VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
-                ref_ptr<Image>(_imageDataList[i]._imageView->getImage()),
+                ref_ptr<Image>(_imageDataList[i].imageView->getImage()),
                 VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 
             auto pb_transitionLayoutMemoryBarrier = PipelineBarrier::create(
@@ -86,17 +86,17 @@ void DescriptorImageView::assignTo(Context& context, VkWriteDescriptorSet& wds) 
     {
         const ImageData& data = _imageDataList[i];
         VkDescriptorImageInfo& info = pImageInfo[i];
-        if (data._sampler)
-            info.sampler = data._sampler->vk(context.deviceID);
+        if (data.sampler)
+            info.sampler = data.sampler->vk(context.deviceID);
         else
             info.sampler = 0;
 
-        if (data._imageView)
-            info.imageView = *(data._imageView);
+        if (data.imageView)
+            info.imageView = *(data.imageView);
         else
             info.imageView = 0;
 
-        info.imageLayout = data._imageLayout;
+        info.imageLayout = data.imageLayout;
     }
 }
 

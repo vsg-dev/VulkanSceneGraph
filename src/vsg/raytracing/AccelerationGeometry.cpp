@@ -60,12 +60,12 @@ void AccelerationGeometry::compile(Context& context)
     _geometry.sType = VK_STRUCTURE_TYPE_GEOMETRY_NV;
     _geometry.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_NV;
     _geometry.geometry.triangles.sType = VK_STRUCTURE_TYPE_GEOMETRY_TRIANGLES_NV;
-    _geometry.geometry.triangles.vertexData = *_vertexBuffer._buffer;
+    _geometry.geometry.triangles.vertexData = *_vertexBuffer.buffer;
     _geometry.geometry.triangles.vertexOffset = 0;
     _geometry.geometry.triangles.vertexCount = vertcount;
     _geometry.geometry.triangles.vertexStride = strideSize;
     _geometry.geometry.triangles.vertexFormat = VK_FORMAT_R32G32B32_SFLOAT;
-    _geometry.geometry.triangles.indexData = *_indexBuffer._buffer;
+    _geometry.geometry.triangles.indexData = *_indexBuffer.buffer;
     _geometry.geometry.triangles.indexOffset = 0;
     _geometry.geometry.triangles.indexCount = static_cast<uint32_t>(indices->valueCount());
     _geometry.geometry.triangles.indexType = computeIndexType(indices);

@@ -41,7 +41,7 @@ VertexIndexDraw::~VertexIndexDraw()
                 vkd.buffers[i]->release(vkd.offsets[i], 0); // TODO
             }
         }
-        if (vkd.bufferData._buffer) vkd.bufferData._buffer->release(vkd.bufferData._offset, vkd.bufferData._range);
+        if (vkd.bufferData.buffer) vkd.bufferData.buffer->release(vkd.bufferData.offset, vkd.bufferData.range);
     }
 }
 
@@ -118,9 +118,9 @@ void VertexIndexDraw::compile(Context& context)
 
         for (auto& bufferData : vertexBufferData)
         {
-            vkd.buffers.push_back(bufferData._buffer);
-            vkd.vkBuffers.push_back(*(bufferData._buffer));
-            vkd.offsets.push_back(bufferData._offset);
+            vkd.buffers.push_back(bufferData.buffer);
+            vkd.vkBuffers.push_back(*(bufferData.buffer));
+            vkd.offsets.push_back(bufferData.offset);
         }
 
         vkd.bufferData = bufferDataList.back();
@@ -147,7 +147,7 @@ void VertexIndexDraw::record(CommandBuffer& commandBuffer) const
 
     vkCmdBindVertexBuffers(cmdBuffer, firstBinding, static_cast<uint32_t>(vkd.vkBuffers.size()), vkd.vkBuffers.data(), vkd.offsets.data());
 
-    vkCmdBindIndexBuffer(cmdBuffer, *(vkd.bufferData._buffer), vkd.bufferData._offset, vkd.indexType);
+    vkCmdBindIndexBuffer(cmdBuffer, *(vkd.bufferData.buffer), vkd.bufferData.offset, vkd.indexType);
 
     vkCmdDrawIndexed(cmdBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }
