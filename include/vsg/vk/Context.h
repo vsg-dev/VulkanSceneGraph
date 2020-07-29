@@ -24,51 +24,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/ImageData.h>
-#include <vsg/vk/Semaphore.h>
+#include <vsg/vk/MemoryBufferPools.h>
 
 #include <vsg/commands/Command.h>
 
 namespace vsg
 {
-    struct BufferPreferences
-    {
-        VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
-        VkDeviceSize minimumBufferDeviceMemorySize = 16 * 1024 * 1024;
-        VkDeviceSize minimumImageDeviceMemorySize = 16 * 1024 * 1024;
-    };
-
-    class VSG_DECLSPEC MemoryBufferPools : public Inherit<Object, MemoryBufferPools>
-    {
-    public:
-        MemoryBufferPools(const std::string& name, Device* in_device, BufferPreferences preferences);
-
-        std::string name;
-        ref_ptr<Device> device;
-        BufferPreferences bufferPreferences;
-
-        // transfer data settings
-        // used by BufferData.cpp, ImageData.cpp
-        using MemoryPools = std::vector<ref_ptr<DeviceMemory>>;
-        MemoryPools memoryPools;
-
-        using BufferPools = std::vector<ref_ptr<Buffer>>;
-        BufferPools bufferPools;
-
-        VkDeviceSize computeMemoryTotalAvailble() const;
-        VkDeviceSize computeMemoryTotalReserved() const;
-        VkDeviceSize computeBufferTotalAvailble() const;
-        VkDeviceSize computeBufferTotalReserved() const;
-
-        BufferData reserveBufferData(VkDeviceSize totalSize, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties);
-
-        using DeviceMemoryOffset = std::pair<ref_ptr<DeviceMemory>, VkDeviceSize>;
-        DeviceMemoryOffset reserveMemory(VkMemoryRequirements memRequirements, VkMemoryPropertyFlags memoryProperties, void* pNextAllocInfo = nullptr);
-
-        using CopyPair = std::pair<BufferData, BufferData>;
-        using CopyQueue = std::deque<CopyPair>;
-
-        CopyQueue bufferDataToCopy;
-    };
 
     class CopyAndReleaseBufferDataCommand : public Inherit<Command, CopyAndReleaseBufferDataCommand>
     {

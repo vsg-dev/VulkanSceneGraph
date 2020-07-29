@@ -133,6 +133,7 @@ set(SOURCES
     vk/ImageData.cpp
     vk/ImageView.cpp
     vk/Instance.cpp
+    vk/MemoryBufferPools.cpp
     vk/PhysicalDevice.cpp
     vk/Queue.cpp
     vk/RenderPass.cpp
