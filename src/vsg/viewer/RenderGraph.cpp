@@ -112,12 +112,9 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
             {
                 camera->getProjectionMatrix()->changeExtent(previous_extent, extent);
 
-                auto viewport = camera->getViewportState();
-                updatePipeline.context.defaultPipelineStates.emplace_back(viewport);
-
-                viewport->getViewport().width = static_cast<float>(extent.width);
-                viewport->getViewport().height = static_cast<float>(extent.height);
-                viewport->getScissor().extent = extent;
+                auto viewportState = camera->getViewportState();
+                viewportState->set(extent);
+                updatePipeline.context.defaultPipelineStates.emplace_back(viewportState);
 
                 const_cast<RenderGraph*>(this)->renderArea.offset = VkOffset2D{0, 0}; // need to use offsets of viewport?
                 const_cast<RenderGraph*>(this)->renderArea.extent = extent;

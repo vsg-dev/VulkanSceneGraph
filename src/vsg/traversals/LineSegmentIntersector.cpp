@@ -137,10 +137,13 @@ LineSegmentIntersector::LineSegmentIntersector(const dvec3& s, const dvec3& e)
 
 LineSegmentIntersector::LineSegmentIntersector(const Camera& camera, int32_t x, int32_t y)
 {
-    auto viewportState = camera.getViewportState();
-    VkViewport viewport = viewportState->getViewport();
+    auto viewport = camera.getViewport();
 
-    vsg::vec2 ndc((static_cast<float>(x) - viewport.x) / viewport.width, (static_cast<float>(y) - viewport.y) / viewport.height);
+    vsg::vec2 ndc(0.0f, 0.0f);
+    if ((viewport.width > 0) && (viewport.height > 0))
+    {
+        ndc.set((static_cast<float>(x) - viewport.x) / viewport.width, (static_cast<float>(y) - viewport.y) / viewport.height);
+    }
 
     vsg::dvec3 ndc_near(ndc.x * 2.0 - 1.0, ndc.y * 2.0 - 1.0, viewport.minDepth * 2.0 - 1.0);
     vsg::dvec3 ndc_far(ndc.x * 2.0 - 1.0, ndc.y * 2.0 - 1.0, viewport.maxDepth * 2.0 - 1.0);

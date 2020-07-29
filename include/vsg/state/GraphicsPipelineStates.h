@@ -95,6 +95,8 @@ namespace vsg
     {
     public:
         ViewportState();
+
+        /// Create ViewportState containing a single Viewport and Scissor pair with specified extent
         ViewportState(const VkExtent2D& extent);
 
         // TODO need to add IO.
@@ -105,8 +107,13 @@ namespace vsg
         Viewports viewports;
         Scissors scissors;
 
-        // TODO do we need these access methods now?
+        /// set to a single Viewport and Scissor pair with specified extent
+        void set(const VkExtent2D& extent);
+
+        /// get or create the first Viewport
         VkViewport& getViewport();
+
+        /// get or create the first Scissor
         VkRect2D& getScissor();
 
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;

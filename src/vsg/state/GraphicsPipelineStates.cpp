@@ -150,23 +150,29 @@ ViewportState::ViewportState()
 
 ViewportState::ViewportState(const VkExtent2D& extent)
 {
-    VkViewport viewport;
+    set(extent);
+}
+
+ViewportState::~ViewportState()
+{
+}
+
+void ViewportState::set(const VkExtent2D& extent)
+{
+    viewports.resize(1);
+    scissors.resize(1);
+
+    VkViewport& viewport = viewports[0];
     viewport.x = 0.0f;
     viewport.y = 0.0f;
     viewport.width = static_cast<float>(extent.width);
     viewport.height = static_cast<float>(extent.height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
-    viewports.push_back(viewport);
 
-    VkRect2D scissor;
+    VkRect2D& scissor = scissors[0];
     scissor.offset = {0, 0};
     scissor.extent = extent;
-    scissors.push_back(scissor);
-}
-
-ViewportState::~ViewportState()
-{
 }
 
 void ViewportState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const
