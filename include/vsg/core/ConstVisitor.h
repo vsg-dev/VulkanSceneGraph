@@ -54,15 +54,17 @@ namespace vsg
     class ComputePipeline;
     class Draw;
     class DrawIndexed;
-    class GraphicsPipelineState;
     class ShaderStage;
+    class GraphicsPipelineState;
     class VertexInputState;
     class InputAssemblyState;
+    class TessellationState;
     class ViewportState;
     class RasterizationState;
     class MultisampleState;
     class DepthStencilState;
     class ColorBlendState;
+    class DynamicState;
     class ResourceHints;
 
     // forward declare ui events classes
@@ -230,11 +232,13 @@ namespace vsg
         virtual void apply(const ShaderStage&);
         virtual void apply(const VertexInputState&);
         virtual void apply(const InputAssemblyState&);
+        virtual void apply(const TessellationState&);
         virtual void apply(const ViewportState&);
         virtual void apply(const RasterizationState&);
         virtual void apply(const MultisampleState&);
         virtual void apply(const DepthStencilState&);
         virtual void apply(const ColorBlendState&);
+        virtual void apply(const DynamicState&);
         virtual void apply(const ResourceHints&);
         virtual void apply(const Draw&);
         virtual void apply(const DrawIndexed&);

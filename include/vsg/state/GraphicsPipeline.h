@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/state/GraphicsPipelineStates.h>
 #include <vsg/state/PipelineLayout.h>
 #include <vsg/state/ShaderStage.h>
 #include <vsg/state/StateCommand.h>
@@ -19,22 +20,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-
-    class VSG_DECLSPEC GraphicsPipelineState : public Inherit<Object, GraphicsPipelineState>
-    {
-    public:
-        GraphicsPipelineState() {}
-
-        virtual VkStructureType getType() const = 0;
-
-        virtual void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const = 0;
-
-    protected:
-        virtual ~GraphicsPipelineState() {}
-    };
-    VSG_type_name(vsg::GraphicsPipelineState);
-
-    using GraphicsPipelineStates = std::vector<ref_ptr<GraphicsPipelineState>>;
 
     class VSG_DECLSPEC GraphicsPipeline : public Inherit<Object, GraphicsPipeline>
     {
@@ -80,10 +65,6 @@ namespace vsg
 
             // TODO need to convert to use Implementation versions of RenderPass and PipelineLayout
             ref_ptr<Device> _device;
-            ref_ptr<RenderPass> _renderPass;
-            ref_ptr<PipelineLayout> _pipelineLayout;
-            ShaderStages _shaderStages;
-            GraphicsPipelineStates _pipelineStates;
             ref_ptr<AllocationCallbacks> _allocator;
         };
 
@@ -123,150 +104,5 @@ namespace vsg
         ref_ptr<GraphicsPipeline> _pipeline;
     };
     VSG_type_name(vsg::BindGraphicsPipeline);
-
-    class VSG_DECLSPEC VertexInputState : public Inherit<GraphicsPipelineState, VertexInputState>, public VkPipelineVertexInputStateCreateInfo
-    {
-    public:
-        using Bindings = std::vector<VkVertexInputBindingDescription>;
-        using Attributes = std::vector<VkVertexInputAttributeDescription>;
-
-        VertexInputState();
-        VertexInputState(const Bindings& bindings, const Attributes& attributes);
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        VkStructureType getType() const override { return sType; }
-
-        const Bindings& geBindings() { return _bindings; }
-
-        const Attributes& getAttributes() const { return _attributes; }
-
-        void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
-
-    protected:
-        virtual ~VertexInputState();
-
-        void _assign();
-
-        Bindings _bindings;
-        Attributes _attributes;
-    };
-    VSG_type_name(vsg::VertexInputState);
-
-    class VSG_DECLSPEC InputAssemblyState : public Inherit<GraphicsPipelineState, InputAssemblyState>, public VkPipelineInputAssemblyStateCreateInfo
-    {
-    public:
-        InputAssemblyState();
-        InputAssemblyState(VkPrimitiveTopology primitiveTopology, bool enablePrimitiveRestart = false);
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        VkStructureType getType() const override { return sType; }
-
-        void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
-
-    protected:
-        virtual ~InputAssemblyState();
-    };
-    VSG_type_name(vsg::InputAssemblyState);
-
-    class VSG_DECLSPEC ViewportState : public Inherit<GraphicsPipelineState, ViewportState>, public VkPipelineViewportStateCreateInfo
-    {
-    public:
-        ViewportState();
-        ViewportState(const VkExtent2D& extent);
-
-        VkStructureType getType() const override { return sType; }
-
-        VkViewport& getViewport() { return _viewport; }
-        VkRect2D& getScissor() { return _scissor; }
-
-        void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
-
-    protected:
-        virtual ~ViewportState();
-
-        VkViewport _viewport;
-        VkRect2D _scissor;
-    };
-    VSG_type_name(vsg::ViewportState);
-
-    class VSG_DECLSPEC RasterizationState : public Inherit<GraphicsPipelineState, RasterizationState>, public VkPipelineRasterizationStateCreateInfo
-    {
-    public:
-        RasterizationState();
-
-        VkStructureType getType() const override { return sType; }
-
-        void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
-
-    protected:
-        virtual ~RasterizationState();
-    };
-    VSG_type_name(vsg::RasterizationState);
-
-    class VSG_DECLSPEC MultisampleState : public Inherit<GraphicsPipelineState, MultisampleState>, public VkPipelineMultisampleStateCreateInfo
-    {
-    public:
-        MultisampleState(VkSampleCountFlagBits rasterizationSamples = VK_SAMPLE_COUNT_1_BIT);
-
-        VkStructureType getType() const override { return sType; }
-
-        void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
-
-    protected:
-        virtual ~MultisampleState();
-    };
-    VSG_type_name(vsg::MultisampleState);
-
-    class VSG_DECLSPEC DepthStencilState : public Inherit<GraphicsPipelineState, DepthStencilState>, public VkPipelineDepthStencilStateCreateInfo
-    {
-    public:
-        DepthStencilState();
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        VkStructureType getType() const override { return sType; }
-
-        void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
-
-    protected:
-        virtual ~DepthStencilState();
-    };
-    VSG_type_name(vsg::DepthStencilState);
-
-    class VSG_DECLSPEC ColorBlendState : public Inherit<GraphicsPipelineState, ColorBlendState>, public VkPipelineColorBlendStateCreateInfo
-    {
-    public:
-        using ColorBlendAttachments = std::vector<VkPipelineColorBlendAttachmentState>;
-
-        ColorBlendState();
-        ColorBlendState(const ColorBlendAttachments& colorBlendAttachments);
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        VkStructureType getType() const override { return sType; }
-
-        void apply(VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
-
-        const ColorBlendAttachments& getColorBlendAttachments() const { return _colorBlendAttachments; }
-        void setColorBlendAttachments(const ColorBlendAttachments& colorBlendAttachments)
-        {
-            _colorBlendAttachments = colorBlendAttachments;
-            update();
-        }
-
-        void update();
-
-    protected:
-        virtual ~ColorBlendState();
-
-        ColorBlendAttachments _colorBlendAttachments;
-    };
-    VSG_type_name(vsg::ColorBlendState);
 
 } // namespace vsg

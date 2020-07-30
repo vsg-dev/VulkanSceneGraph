@@ -530,6 +530,10 @@ void ConstVisitor::apply(const InputAssemblyState& value)
 {
     apply(static_cast<const GraphicsPipelineState&>(value));
 }
+void ConstVisitor::apply(const TessellationState& value)
+{
+    apply(static_cast<const GraphicsPipelineState&>(value));
+}
 void ConstVisitor::apply(const ViewportState& value)
 {
     apply(static_cast<const GraphicsPipelineState&>(value));
@@ -547,6 +551,10 @@ void ConstVisitor::apply(const DepthStencilState& value)
     apply(static_cast<const GraphicsPipelineState&>(value));
 }
 void ConstVisitor::apply(const ColorBlendState& value)
+{
+    apply(static_cast<const GraphicsPipelineState&>(value));
+}
+void ConstVisitor::apply(const DynamicState& value)
 {
     apply(static_cast<const GraphicsPipelineState&>(value));
 }

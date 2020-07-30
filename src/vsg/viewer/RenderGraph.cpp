@@ -34,16 +34,21 @@ namespace vsg
             GraphicsPipeline* graphicsPipeline = bindPipeline.getPipeline();
             if (graphicsPipeline)
             {
-                bool containsViewport = false;
-                for (auto& pipelineState : graphicsPipeline->getPipelineStates())
+                struct ContainsViewport : public ConstVisitor
                 {
-                    if (auto viewport = pipelineState.cast<ViewportState>())
+                    bool foundViewport = false;
+                    void apply(const ViewportState&) override { foundViewport = true; }
+                    bool operator()(const GraphicsPipeline& gp)
                     {
-                        containsViewport = true;
+                        for (auto& pipelineState : gp.getPipelineStates())
+                        {
+                            pipelineState->accept(*this);
+                        }
+                        return foundViewport;
                     }
-                }
+                } containsViewport;
 
-                bool needToRegenerateGraphicsPipeline = !containsViewport;
+                bool needToRegenerateGraphicsPipeline = !containsViewport(*graphicsPipeline);
                 if (needToRegenerateGraphicsPipeline)
                 {
                     vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getPipelineLayout(), graphicsPipeline->getShaderStages(), graphicsPipeline->getPipelineStates());
@@ -112,12 +117,9 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
             {
                 camera->getProjectionMatrix()->changeExtent(previous_extent, extent);
 
-                auto viewport = camera->getViewportState();
-                updatePipeline.context.defaultPipelineStates.emplace_back(viewport);
-
-                viewport->getViewport().width = static_cast<float>(extent.width);
-                viewport->getViewport().height = static_cast<float>(extent.height);
-                viewport->getScissor().extent = extent;
+                auto viewportState = camera->getViewportState();
+                viewportState->set(extent);
+                updatePipeline.context.defaultPipelineStates.emplace_back(viewportState);
 
                 const_cast<RenderGraph*>(this)->renderArea.offset = VkOffset2D{0, 0}; // need to use offsets of viewport?
                 const_cast<RenderGraph*>(this)->renderArea.extent = extent;

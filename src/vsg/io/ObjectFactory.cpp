@@ -150,6 +150,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::ShaderModule);
     VSG_REGISTER_create(vsg::VertexInputState);
     VSG_REGISTER_create(vsg::InputAssemblyState);
+    VSG_REGISTER_create(vsg::TessellationState);
     VSG_REGISTER_create(vsg::RasterizationState);
     VSG_REGISTER_create(vsg::MultisampleState);
     VSG_REGISTER_create(vsg::ColorBlendState);
@@ -157,6 +158,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::MultisampleState);
     VSG_REGISTER_create(vsg::DepthStencilState);
     VSG_REGISTER_create(vsg::ColorBlendState);
+    VSG_REGISTER_create(vsg::DynamicState);
     VSG_REGISTER_create(vsg::Dispatch);
     VSG_REGISTER_create(vsg::BindDescriptorSets);
     VSG_REGISTER_create(vsg::BindDescriptorSet);
