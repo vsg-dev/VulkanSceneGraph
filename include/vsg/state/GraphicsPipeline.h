@@ -81,10 +81,6 @@ namespace vsg
 
             // TODO need to convert to use Implementation versions of RenderPass and PipelineLayout
             ref_ptr<Device> _device;
-            ref_ptr<RenderPass> _renderPass;
-            ref_ptr<PipelineLayout> _pipelineLayout;
-            ShaderStages _shaderStages;
-            GraphicsPipelineStates _pipelineStates;
             ref_ptr<AllocationCallbacks> _allocator;
         };
 

@@ -108,10 +108,6 @@ void GraphicsPipeline::compile(Context& context)
 //
 GraphicsPipeline::Implementation::Implementation(Context& context, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass, AllocationCallbacks* allocator) :
     _device(device),
-    _renderPass(renderPass),
-    _pipelineLayout(pipelineLayout),
-    _shaderStages(shaderStages),
-    _pipelineStates(pipelineStates),
     _allocator(allocator)
 {
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
@@ -134,7 +130,7 @@ GraphicsPipeline::Implementation::Implementation(Context& context, Device* devic
     pipelineInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
     pipelineInfo.pStages = shaderStageCreateInfo;
 
-    for (auto pipelineState : _pipelineStates)
+    for (auto pipelineState : pipelineStates)
     {
         pipelineState->apply(context, pipelineInfo);
     }
