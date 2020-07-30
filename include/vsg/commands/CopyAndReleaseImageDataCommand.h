@@ -34,8 +34,7 @@ namespace vsg
     class VSG_DECLSPEC CopyAndReleaseImageDataCommand : public Inherit<Command, CopyAndReleaseImageDataCommand>
     {
     public:
-
-        CopyAndReleaseImageDataCommand()  {}
+        CopyAndReleaseImageDataCommand() {}
         CopyAndReleaseImageDataCommand(BufferData src, ImageData dest);
         CopyAndReleaseImageDataCommand(BufferData src, ImageData dest, uint32_t numMipMapLevels);
 

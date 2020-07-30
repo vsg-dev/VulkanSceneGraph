@@ -49,7 +49,7 @@ namespace vsg
             range = 0;
         }
 
-        explicit operator bool() const { return buffer.valid() && data.valid() && range!=0; }
+        explicit operator bool() const { return buffer.valid() && data.valid() && range != 0; }
 
         ref_ptr<Buffer> buffer;
         VkDeviceSize offset = 0;
