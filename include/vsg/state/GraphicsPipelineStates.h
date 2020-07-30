@@ -62,11 +62,11 @@ namespace vsg
         InputAssemblyState();
         InputAssemblyState(VkPrimitiveTopology primitiveTopology, VkBool32 primitiveRestart = VK_FALSE);
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
         VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         VkBool32 primitiveRestartEnable = VK_FALSE;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
@@ -75,21 +75,23 @@ namespace vsg
     };
     VSG_type_name(vsg::InputAssemblyState);
 
-#if 0
-    // TODO complete
-    class VSG_DECLSPEC TessellationState : public Inherit<GraphicsPipelineState, TessellationState>, public VkPipelineTessellationStateCreateInfo
+    class VSG_DECLSPEC TessellationState : public Inherit<GraphicsPipelineState, TessellationState>
     {
     public:
-        TessellationState();
+        TessellationState(uint32_t in_patchControlPoints = 1);
 
-        VkPipelineTessellationStateCreateFlags    flags; // reserved for future use.
-        uint32_t                                  patchControlPoints;
+        // patchControlPoints must be greater than zero and less than or equal to VkPhysicalDeviceLimits::maxTessellationPatchSize
+        uint32_t patchControlPoints = 1;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
         virtual ~TessellationState();
     };
     VSG_type_name(vsg::TessellationState);
-#endif
 
     class VSG_DECLSPEC ViewportState : public Inherit<GraphicsPipelineState, ViewportState>
     {
@@ -97,7 +99,7 @@ namespace vsg
         ViewportState();
 
         /// Create ViewportState containing a single Viewport and Scissor pair with specified extent
-        ViewportState(const VkExtent2D& extent);
+        explicit ViewportState(const VkExtent2D& extent);
 
         // TODO need to add IO.
 
@@ -174,9 +176,6 @@ namespace vsg
     public:
         DepthStencilState();
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
         VkBool32 depthTestEnable = VK_TRUE;
         VkBool32 depthWriteEnable = VK_TRUE;
         VkCompareOp depthCompareOp = VK_COMPARE_OP_LESS;
@@ -186,6 +185,9 @@ namespace vsg
         VkStencilOpState back = {};
         float minDepthBounds = 0.0f;
         float maxDepthBounds = 1.0f;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
@@ -202,13 +204,13 @@ namespace vsg
         ColorBlendState();
         ColorBlendState(const ColorBlendAttachments& colorBlendAttachments);
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
         VkBool32 logicOpEnable = VK_FALSE;
         VkLogicOp logicOp = VK_LOGIC_OP_COPY;
         ColorBlendAttachments attachments;
         float blendConstants[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
@@ -219,21 +221,29 @@ namespace vsg
     };
     VSG_type_name(vsg::ColorBlendState);
 
-#if 0
     class VSG_DECLSPEC DynamicState : public Inherit<GraphicsPipelineState, DynamicState>
     {
     public:
+        using DynamicStates = std::vector<VkDynamicState>;
+
+        DynamicState();
+
+        DynamicState(const DynamicStates& states) :
+            dynamicStates(states) {}
+
+        template<typename ...Args>
+        DynamicState(Args... args) :
+            dynamicStates({args...}) {}
+
+        DynamicStates dynamicStates;
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        using DynamicStates = std::vector<VkDynamicState>;
-
-        VkPipelineDynamicStateCreateFlags flags;
-        DynamicStates dynamicStates;
-
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
+    protected:
+        virtual ~DynamicState();
     };
-#endif
+    VSG_type_name(vsg::DynamicState);
 
 } // namespace vsg

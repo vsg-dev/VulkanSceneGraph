@@ -530,6 +530,10 @@ void Visitor::apply(InputAssemblyState& value)
 {
     apply(static_cast<GraphicsPipelineState&>(value));
 }
+void Visitor::apply(TessellationState& value)
+{
+    apply(static_cast<GraphicsPipelineState&>(value));
+}
 void Visitor::apply(ViewportState& value)
 {
     apply(static_cast<GraphicsPipelineState&>(value));
@@ -547,6 +551,10 @@ void Visitor::apply(DepthStencilState& value)
     apply(static_cast<GraphicsPipelineState&>(value));
 }
 void Visitor::apply(ColorBlendState& value)
+{
+    apply(static_cast<GraphicsPipelineState&>(value));
+}
+void Visitor::apply(DynamicState& value)
 {
     apply(static_cast<GraphicsPipelineState&>(value));
 }

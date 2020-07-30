@@ -142,6 +142,46 @@ void InputAssemblyState::apply(Context& context, VkGraphicsPipelineCreateInfo& p
 
 ////////////////////////////////////////////////////////////////////////
 //
+// TessellationState
+//
+TessellationState::TessellationState(uint32_t in_patchControlPoints) :
+    patchControlPoints(in_patchControlPoints)
+{
+}
+
+TessellationState::~TessellationState()
+{
+}
+
+void TessellationState::read(Input& input)
+{
+    Object::read(input);
+
+    input.read("patchControlPoints", patchControlPoints);
+}
+
+void TessellationState::write(Output& output) const
+{
+    Object::write(output);
+
+    output.write("patchControlPoints", patchControlPoints);
+}
+
+void TessellationState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const
+{
+
+    auto tessellationState = context.scratchMemory->allocate<VkPipelineTessellationStateCreateInfo>();
+
+    tessellationState->sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
+    tessellationState->pNext = nullptr;
+    tessellationState->flags = 0;
+    tessellationState->patchControlPoints = patchControlPoints;
+
+    pipelineInfo.pTessellationState = tessellationState;
+}
+
+////////////////////////////////////////////////////////////////////////
+//
 // ViewportState
 //
 ViewportState::ViewportState()
@@ -482,4 +522,50 @@ void ColorBlendState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipe
     colorBlendState->blendConstants[3] = blendConstants[3];
 
     pipelineInfo.pColorBlendState = colorBlendState;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// DynamicState
+//
+DynamicState::DynamicState()
+{
+}
+
+DynamicState::~DynamicState()
+{
+}
+
+void DynamicState::read(Input& input)
+{
+    Object::read(input);
+
+    dynamicStates.resize(input.readValue<uint32_t>("NumDynamicStates"));
+    for (auto& dynamicState : dynamicStates)
+    {
+        input.readValue<uint32_t>("value", dynamicState);
+    }
+}
+
+void DynamicState::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeValue<uint32_t>("NumDynamicStates", dynamicStates.size());
+    for (auto& dynamicState : dynamicStates)
+    {
+        output.writeValue<uint32_t>("value", dynamicState);
+    }
+}
+
+void DynamicState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const
+{
+    auto dynamicState = context.scratchMemory->allocate<VkPipelineDynamicStateCreateInfo>();
+
+    dynamicState->sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    dynamicState->pNext = nullptr;
+    dynamicState->flags = 0;
+
+    pipelineInfo.pDynamicState = dynamicState;
 }

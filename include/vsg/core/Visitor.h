@@ -58,11 +58,13 @@ namespace vsg
     class GraphicsPipelineState;
     class VertexInputState;
     class InputAssemblyState;
+    class TessellationState;
     class ViewportState;
     class RasterizationState;
     class MultisampleState;
     class DepthStencilState;
     class ColorBlendState;
+    class DynamicState;
     class ResourceHints;
 
     // forward declare ui events classes
@@ -230,11 +232,13 @@ namespace vsg
         virtual void apply(ShaderStage&);
         virtual void apply(VertexInputState&);
         virtual void apply(InputAssemblyState&);
+        virtual void apply(TessellationState&);
         virtual void apply(ViewportState&);
         virtual void apply(RasterizationState&);
         virtual void apply(MultisampleState&);
         virtual void apply(DepthStencilState&);
         virtual void apply(ColorBlendState&);
+        virtual void apply(DynamicState&);
         virtual void apply(ResourceHints&);
         virtual void apply(Draw&);
         virtual void apply(DrawIndexed&);

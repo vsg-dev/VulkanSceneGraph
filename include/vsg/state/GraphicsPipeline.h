@@ -31,22 +31,6 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-#if 0
-        ShaderStages stages;
-        ref_ptr<VertexInputState> vertexInputState;
-        ref_ptr<InputAssemblyState> inputAssemblyState;
-        //ref_ptr<TessellationState> tessellationState;
-        ref_ptr<ViewportState> viewportState;
-        ref_ptr<RasterizationState> rasterizationState;
-        ref_ptr<MultisampleState> multisampleState;
-        ref_ptr<DepthStencilState> depthStencilState;
-        ref_ptr<ColorBlendState> colorBlendState;
-        //ref_ptr<DynamicStateCreateInfo> dynamicState;
-        ref_ptr<PipelineLayout> layout;
-        ref_ptr<RenderPass> renderPass;
-        uint32_t subpass;
-#endif
-
         PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
         const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
 
