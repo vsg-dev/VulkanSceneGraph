@@ -589,11 +589,17 @@ void ColorBlendState::read(Input& input)
         colorBlendAttachment.colorWriteMask = static_cast<VkColorComponentFlags>(input.readValue<uint32_t>("colorWriteMask"));
     }
 
-    // TODO : replace with vec4 IO
-    input.read("blendConstants0", blendConstants[0]);
-    input.read("blendConstants1", blendConstants[1]);
-    input.read("blendConstants2", blendConstants[2]);
-    input.read("blendConstants3", blendConstants[3]);
+    if (input.version_greater_equal(0, 0, 2))
+    {
+        input.read("blendConstants", blendConstants[0], blendConstants[1], blendConstants[2], blendConstants[3]);
+    }
+    else
+    {
+        input.read("blendConstants0", blendConstants[0]);
+        input.read("blendConstants1", blendConstants[1]);
+        input.read("blendConstants2", blendConstants[2]);
+        input.read("blendConstants3", blendConstants[3]);
+    }
 }
 
 void ColorBlendState::write(Output& output) const
@@ -616,10 +622,17 @@ void ColorBlendState::write(Output& output) const
         output.writeValue<uint32_t>("colorWriteMask", colorBlendAttachment.colorWriteMask);
     }
 
-    output.write("blendConstants0", blendConstants[0]);
-    output.write("blendConstants1", blendConstants[1]);
-    output.write("blendConstants2", blendConstants[2]);
-    output.write("blendConstants3", blendConstants[3]);
+    if (output.version_greater_equal(0, 0, 2))
+    {
+        output.write("blendConstants", blendConstants[0], blendConstants[1], blendConstants[2], blendConstants[3]);
+    }
+    else
+    {
+        output.write("blendConstants0", blendConstants[0]);
+        output.write("blendConstants1", blendConstants[1]);
+        output.write("blendConstants2", blendConstants[2]);
+        output.write("blendConstants3", blendConstants[3]);
+    }
 }
 
 void ColorBlendState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const
