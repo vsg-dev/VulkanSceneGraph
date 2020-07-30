@@ -24,30 +24,32 @@ void ArrayState::apply(const vsg::BindGraphicsPipeline& bpg)
 {
     for (auto& pipelineState : bpg.getPipeline()->getPipelineStates())
     {
-        if (auto ias = pipelineState.cast<vsg::InputAssemblyState>(); ias)
+        pipelineState->accept(*this);
+    }
+}
+void ArrayState::apply(const VertexInputState& vas)
+{
+    for (auto& attribute : vas.vertexAttributeDescriptions)
+    {
+        if (attribute.location == vertex_attribute_location)
         {
-            topology = ias->topology;
-        }
-        else if (auto vas = pipelineState.cast<vsg::VertexInputState>(); vas)
-        {
-            for (auto& attribute : vas->vertexAttributeDescriptions)
+            for (auto& binding : vas.vertexBindingDescriptions)
             {
-                if (attribute.location == vertex_attribute_location)
+                if (attribute.binding == binding.binding)
                 {
-                    for (auto& binding : vas->vertexBindingDescriptions)
-                    {
-                        if (attribute.binding == binding.binding)
-                        {
-                            vertexAttribute.binding = attribute.binding;
-                            vertexAttribute.offset = attribute.offset;
-                            vertexAttribute.stride = binding.stride;
-                            vertexAttribute.format = attribute.format;
-                        }
-                    }
+                    vertexAttribute.binding = attribute.binding;
+                    vertexAttribute.offset = attribute.offset;
+                    vertexAttribute.stride = binding.stride;
+                    vertexAttribute.format = attribute.format;
                 }
             }
         }
     }
+}
+
+void ArrayState::apply(const InputAssemblyState& ias)
+{
+    topology = ias.topology;
 }
 
 void ArrayState::apply(const vsg::Geometry& geometry)

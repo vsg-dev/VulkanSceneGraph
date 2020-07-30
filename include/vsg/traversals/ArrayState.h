@@ -40,6 +40,9 @@ namespace vsg
         DataList arrays;
 
         void apply(const BindGraphicsPipeline& bpg) override;
+        void apply(const VertexInputState& vas) override;
+        void apply(const InputAssemblyState& ias) override;
+
         void apply(const Geometry& geometry) override;
         void apply(const VertexIndexDraw& vid) override;
         void apply(const BindVertexBuffers& bvb) override;
