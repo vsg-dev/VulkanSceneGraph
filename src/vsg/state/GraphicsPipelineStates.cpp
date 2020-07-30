@@ -215,6 +215,56 @@ void ViewportState::set(const VkExtent2D& extent)
     scissor.extent = extent;
 }
 
+void ViewportState::read(Input& input)
+{
+    Object::read(input);
+
+    viewports.resize(input.readValue<uint32_t>("NumViewports"));
+    for (auto& viewport : viewports)
+    {
+        input.read("x", viewport.x);
+        input.read("y", viewport.y);
+        input.read("width", viewport.width);
+        input.read("height", viewport.height);
+        input.read("minDepth", viewport.minDepth);
+        input.read("maxDepth", viewport.maxDepth);
+    }
+
+    scissors.resize(input.readValue<uint32_t>("NumScissors"));
+    for (auto& scissor : scissors)
+    {
+        input.read("x", scissor.offset.x);
+        input.read("y", scissor.offset.y);
+        input.read("wdith", scissor.extent.width);
+        input.read("height", scissor.extent.height);
+    }
+}
+
+void ViewportState::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeValue<uint32_t>("NumViewports", viewports.size());
+    for (auto& viewport : viewports)
+    {
+        output.write("x", viewport.x);
+        output.write("y", viewport.y);
+        output.write("width", viewport.width);
+        output.write("height", viewport.height);
+        output.write("minDepth", viewport.minDepth);
+        output.write("maxDepth", viewport.maxDepth);
+    }
+
+    output.writeValue<uint32_t>("NumScissors", scissors.size());
+    for (auto& scissor : scissors)
+    {
+        output.write("x", scissor.offset.x);
+        output.write("y", scissor.offset.y);
+        output.write("wdith", scissor.extent.width);
+        output.write("height", scissor.extent.height);
+    }
+}
+
 void ViewportState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const
 {
     auto viewportState = context.scratchMemory->allocate<VkPipelineViewportStateCreateInfo>();
@@ -271,6 +321,38 @@ RasterizationState::~RasterizationState()
 {
 }
 
+void RasterizationState::read(Input& input)
+{
+    Object::read(input);
+
+    input.readValue<uint32_t>("depthClampEnable", depthClampEnable);
+    input.readValue<uint32_t>("rasterizerDiscardEnable", rasterizerDiscardEnable);
+    input.readValue<uint32_t>("polygonMode", polygonMode);
+    input.readValue<uint32_t>("cullMode", cullMode);
+    input.readValue<uint32_t>("frontFace", frontFace);
+    input.readValue<uint32_t>("depthBiasEnable", depthBiasEnable);
+    input.readValue<uint32_t>("depthBiasConstantFactor", depthBiasConstantFactor);
+    input.read("depthBiasClamp", depthBiasClamp);
+    input.read("depthBiasSlopeFactor", depthBiasSlopeFactor);
+    input.read("lineWidth", lineWidth);
+}
+
+void RasterizationState::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeValue<uint32_t>("depthClampEnable", depthClampEnable);
+    output.writeValue<uint32_t>("rasterizerDiscardEnable", rasterizerDiscardEnable);
+    output.writeValue<uint32_t>("polygonMode", polygonMode);
+    output.writeValue<uint32_t>("cullMode", cullMode);
+    output.writeValue<uint32_t>("frontFace", frontFace);
+    output.writeValue<uint32_t>("depthBiasEnable", depthBiasEnable);
+    output.writeValue<uint32_t>("depthBiasConstantFactor", depthBiasConstantFactor);
+    output.write("depthBiasClamp", depthBiasClamp);
+    output.write("depthBiasSlopeFactor", depthBiasSlopeFactor);
+    output.write("lineWidth", lineWidth);
+}
+
 void RasterizationState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const
 {
     auto rasteratizationState = context.scratchMemory->allocate<VkPipelineRasterizationStateCreateInfo>();
@@ -304,6 +386,42 @@ MultisampleState::MultisampleState(VkSampleCountFlagBits samples)
 
 MultisampleState::~MultisampleState()
 {
+}
+
+void MultisampleState::read(Input& input)
+{
+    Object::read(input);
+
+    input.readValue<uint32_t>("rasterizationSamples", rasterizationSamples);
+    input.readValue<uint32_t>("sampleShadingEnable", sampleShadingEnable);
+    input.read("minSampleShading", minSampleShading);
+
+    sampleMasks.resize(input.readValue<uint32_t>("NumSampleMask"));
+    for (auto& mask : sampleMasks)
+    {
+        input.readValue<uint32_t>("value", mask);
+    }
+
+    input.readValue<uint32_t>("alphaToCoverageEnable", alphaToCoverageEnable);
+    input.readValue<uint32_t>("alphaToOneEnable", alphaToOneEnable);
+}
+
+void MultisampleState::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeValue<uint32_t>("rasterizationSamples", rasterizationSamples);
+    output.writeValue<uint32_t>("sampleShadingEnable", sampleShadingEnable);
+    output.write("minSampleShading", minSampleShading);
+
+    output.writeValue<uint32_t>("NumSampleMask", sampleMasks.size());
+    for (auto& mask : sampleMasks)
+    {
+        output.writeValue<uint32_t>("value", mask);
+    }
+
+    output.writeValue<uint32_t>("alphaToCoverageEnable", alphaToCoverageEnable);
+    output.writeValue<uint32_t>("alphaToOneEnable", alphaToOneEnable);
 }
 
 void MultisampleState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const

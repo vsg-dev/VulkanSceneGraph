@@ -48,7 +48,6 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
@@ -67,7 +66,6 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
@@ -101,8 +99,6 @@ namespace vsg
         /// Create ViewportState containing a single Viewport and Scissor pair with specified extent
         explicit ViewportState(const VkExtent2D& extent);
 
-        // TODO need to add IO.
-
         using Viewports = std::vector<VkViewport>;
         using Scissors = std::vector<VkRect2D>;
 
@@ -118,6 +114,8 @@ namespace vsg
         /// get or create the first Scissor
         VkRect2D& getScissor();
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
@@ -130,8 +128,6 @@ namespace vsg
     public:
         RasterizationState();
 
-        // TODO need to add IO.
-
         VkBool32 depthClampEnable = VK_FALSE;
         VkBool32 rasterizerDiscardEnable = VK_FALSE;
         VkPolygonMode polygonMode = VK_POLYGON_MODE_FILL;
@@ -143,6 +139,8 @@ namespace vsg
         float depthBiasSlopeFactor = 1.0f;
         float lineWidth = 1.0f;
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
@@ -155,8 +153,6 @@ namespace vsg
     public:
         MultisampleState(VkSampleCountFlagBits rasterizationSamples = VK_SAMPLE_COUNT_1_BIT);
 
-        // TODO need to add IO.
-
         VkSampleCountFlagBits rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
         VkBool32 sampleShadingEnable = VK_FALSE;
         float minSampleShading = 0.0f;
@@ -164,6 +160,8 @@ namespace vsg
         VkBool32 alphaToCoverageEnable = VK_FALSE;
         VkBool32 alphaToOneEnable = VK_FALSE;
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
@@ -188,7 +186,6 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
@@ -211,7 +208,6 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
@@ -239,8 +235,8 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
+
     protected:
         virtual ~DynamicState();
     };
