@@ -34,16 +34,21 @@ namespace vsg
             GraphicsPipeline* graphicsPipeline = bindPipeline.getPipeline();
             if (graphicsPipeline)
             {
-                bool containsViewport = false;
-                for (auto& pipelineState : graphicsPipeline->getPipelineStates())
+                struct ContainsViewport : public ConstVisitor
                 {
-                    if (auto viewport = pipelineState.cast<ViewportState>())
+                    bool foundViewport = false;
+                    void apply(const ViewportState&) override { foundViewport = true;}
+                    bool operator() (const GraphicsPipeline& gp)
                     {
-                        containsViewport = true;
+                        for (auto& pipelineState : gp.getPipelineStates())
+                        {
+                            pipelineState->accept(*this);
+                        }
+                        return foundViewport;
                     }
-                }
+                } containsViewport;
 
-                bool needToRegenerateGraphicsPipeline = !containsViewport;
+                bool needToRegenerateGraphicsPipeline = !containsViewport(*graphicsPipeline);
                 if (needToRegenerateGraphicsPipeline)
                 {
                     vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getPipelineLayout(), graphicsPipeline->getShaderStages(), graphicsPipeline->getPipelineStates());
