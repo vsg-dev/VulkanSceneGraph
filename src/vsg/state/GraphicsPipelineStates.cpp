@@ -273,9 +273,9 @@ void ViewportState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipeli
     viewportState->pNext = nullptr;
     viewportState->flags = 0;
 
-    viewportState->viewportCount = viewports.size();
+    viewportState->viewportCount = static_cast<uint32_t>(viewports.size());
     viewportState->pViewports = viewports.data();
-    viewportState->scissorCount = scissors.size();
+    viewportState->scissorCount = static_cast<uint32_t>(scissors.size());
     viewportState->pScissors = scissors.data();
 
     pipelineInfo.pViewportState = viewportState;
