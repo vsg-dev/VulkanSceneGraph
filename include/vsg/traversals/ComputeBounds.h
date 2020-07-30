@@ -40,7 +40,7 @@ namespace vsg
         void apply(const StateCommand& statecommand) override;
 
         void apply(uint32_t firstBinding, const DataList& arrays);
-        void apply(const vec3Array& vertices);
+        void apply(const vec3Array& vertices) override;
     };
     VSG_type_name(vsg::ComputeBounds);
 
