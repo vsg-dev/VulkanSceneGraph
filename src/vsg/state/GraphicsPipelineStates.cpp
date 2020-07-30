@@ -642,7 +642,6 @@ void ColorBlendState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipe
     pipelineInfo.pColorBlendState = colorBlendState;
 }
 
-
 ////////////////////////////////////////////////////////////////////////
 //
 // DynamicState

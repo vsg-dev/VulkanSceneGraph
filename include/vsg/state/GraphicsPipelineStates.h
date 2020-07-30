@@ -227,7 +227,7 @@ namespace vsg
         DynamicState(const DynamicStates& states) :
             dynamicStates(states) {}
 
-        template<typename ...Args>
+        template<typename... Args>
         DynamicState(Args... args) :
             dynamicStates({args...}) {}
 
