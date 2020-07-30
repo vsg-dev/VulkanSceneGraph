@@ -43,7 +43,7 @@ void VertexInputState::read(Input& input)
     {
         input.read("binding", binding.binding);
         input.read("stride", binding.stride);
-        binding.inputRate = static_cast<VkVertexInputRate>(input.readValue<uint32_t>("inputRate"));
+        input.readValue<uint32_t>("inputRate", binding.inputRate);
     }
 
     vertexAttributeDescriptions.resize(input.readValue<uint32_t>("NumAttributes"));
@@ -51,7 +51,7 @@ void VertexInputState::read(Input& input)
     {
         input.read("location", attribute.location);
         input.read("binding", attribute.binding);
-        attribute.format = static_cast<VkFormat>(input.readValue<uint32_t>("format"));
+        input.readValue<uint32_t>("format", attribute.format);
         input.read("offset", attribute.offset);
     }
 }
@@ -579,14 +579,14 @@ void ColorBlendState::read(Input& input)
     attachments.resize(input.readValue<uint32_t>("NumColorBlendAttachments"));
     for (auto& colorBlendAttachment : attachments)
     {
-        colorBlendAttachment.blendEnable = static_cast<VkBool32>(input.readValue<uint32_t>("blendEnable"));
-        colorBlendAttachment.srcColorBlendFactor = static_cast<VkBlendFactor>(input.readValue<uint32_t>("srcColorBlendFactor"));
-        colorBlendAttachment.dstColorBlendFactor = static_cast<VkBlendFactor>(input.readValue<uint32_t>("dstColorBlendFactor"));
-        colorBlendAttachment.colorBlendOp = static_cast<VkBlendOp>(input.readValue<uint32_t>("colorBlendOp"));
-        colorBlendAttachment.srcAlphaBlendFactor = static_cast<VkBlendFactor>(input.readValue<uint32_t>("srcAlphaBlendFactor"));
-        colorBlendAttachment.dstAlphaBlendFactor = static_cast<VkBlendFactor>(input.readValue<uint32_t>("dstAlphaBlendFactor"));
-        colorBlendAttachment.alphaBlendOp = static_cast<VkBlendOp>(input.readValue<uint32_t>("alphaBlendOp"));
-        colorBlendAttachment.colorWriteMask = static_cast<VkColorComponentFlags>(input.readValue<uint32_t>("colorWriteMask"));
+        input.readValue<uint32_t>("blendEnable", colorBlendAttachment.blendEnable);
+        input.readValue<uint32_t>("srcColorBlendFactor", colorBlendAttachment.srcColorBlendFactor);
+        input.readValue<uint32_t>("dstColorBlendFactor", colorBlendAttachment.dstColorBlendFactor);
+        input.readValue<uint32_t>("colorBlendOp", colorBlendAttachment.colorBlendOp);
+        input.readValue<uint32_t>("srcAlphaBlendFactor", colorBlendAttachment.srcAlphaBlendFactor);
+        input.readValue<uint32_t>("dstAlphaBlendFactor", colorBlendAttachment.dstAlphaBlendFactor);
+        input.readValue<uint32_t>("alphaBlendOp", colorBlendAttachment.alphaBlendOp);
+        input.readValue<uint32_t>("colorWriteMask", colorBlendAttachment.colorWriteMask);
     }
 
     if (input.version_greater_equal(0, 0, 2))
