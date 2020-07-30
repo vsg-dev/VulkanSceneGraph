@@ -37,8 +37,8 @@ namespace vsg
                 struct ContainsViewport : public ConstVisitor
                 {
                     bool foundViewport = false;
-                    void apply(const ViewportState&) override { foundViewport = true;}
-                    bool operator() (const GraphicsPipeline& gp)
+                    void apply(const ViewportState&) override { foundViewport = true; }
+                    bool operator()(const GraphicsPipeline& gp)
                     {
                         for (auto& pipelineState : gp.getPipelineStates())
                         {
