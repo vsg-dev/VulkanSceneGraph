@@ -20,11 +20,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Buffer::Buffer(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode, AllocationCallbacks* allocator) :
+Buffer::Buffer(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode) :
     _usage(usage),
     _sharingMode(sharingMode),
     _device(device),
-    _allocator(allocator),
     _memorySlots(size)
 {
     VkBufferCreateInfo bufferInfo = {};
@@ -33,7 +32,7 @@ Buffer::Buffer(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSh
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = sharingMode;
 
-    if (VkResult result = vkCreateBuffer(*device, &bufferInfo, allocator, &_buffer); result != VK_SUCCESS)
+    if (VkResult result = vkCreateBuffer(*device, &bufferInfo, _device->getAllocator(), &_buffer); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create vkBuffer.", result};
     }
@@ -47,7 +46,7 @@ Buffer::~Buffer()
 
     if (_buffer)
     {
-        vkDestroyBuffer(*_device, _buffer, _allocator);
+        vkDestroyBuffer(*_device, _buffer, _device->getAllocator());
     }
 
     if (_deviceMemory)

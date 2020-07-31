@@ -19,7 +19,7 @@ namespace vsg
     class VSG_DECLSPEC Buffer : public Inherit<Object, Buffer>
     {
     public:
-        Buffer(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode, AllocationCallbacks* allocator = nullptr);
+        Buffer(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 
         VkBufferUsageFlags usage() const { return _usage; }
         VkSharingMode shaderMode() const { return _sharingMode; }
@@ -63,7 +63,6 @@ namespace vsg
         VkSharingMode _sharingMode;
 
         ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
 
         ref_ptr<DeviceMemory> _deviceMemory;
         VkDeviceSize _memoryOffset;

@@ -19,7 +19,7 @@ namespace vsg
     class VSG_DECLSPEC CommandPool : public Inherit<Object, CommandPool>
     {
     public:
-        CommandPool(Device* device, uint32_t queueFamilyIndex, AllocationCallbacks* allocator = nullptr);
+        CommandPool(Device* device, uint32_t queueFamilyIndex);
 
         operator VkCommandPool() const { return _commandPool; }
 
@@ -33,7 +33,6 @@ namespace vsg
 
         VkCommandPool _commandPool;
         ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
     };
     VSG_type_name(vsg::CommandPool);
 
