@@ -26,7 +26,7 @@ namespace vsg
     public:
         GraphicsPipeline();
 
-        GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass = 0, AllocationCallbacks* allocator = nullptr);
+        GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass = 0);
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -57,7 +57,7 @@ namespace vsg
 
         struct Implementation : public Inherit<Object, Implementation>
         {
-            Implementation(Context& context, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass, AllocationCallbacks* allocator = nullptr);
+            Implementation(Context& context, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass);
 
             virtual ~Implementation();
 
@@ -65,7 +65,6 @@ namespace vsg
 
             // TODO need to convert to use Implementation versions of RenderPass and PipelineLayout
             ref_ptr<Device> _device;
-            ref_ptr<AllocationCallbacks> _allocator;
         };
 
         vk_buffer<ref_ptr<Implementation>> _implementation;
@@ -75,7 +74,6 @@ namespace vsg
         ShaderStages _shaderStages;
         GraphicsPipelineStates _pipelineStates;
         uint32_t _subpass;
-        ref_ptr<AllocationCallbacks> _allocator;
     };
     VSG_type_name(vsg::GraphicsPipeline);
 

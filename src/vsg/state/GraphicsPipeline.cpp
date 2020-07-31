@@ -26,12 +26,11 @@ GraphicsPipeline::GraphicsPipeline()
 {
 }
 
-GraphicsPipeline::GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass, AllocationCallbacks* allocator) :
+GraphicsPipeline::GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass) :
     _pipelineLayout(pipelineLayout),
     _shaderStages(shaderStages),
     _pipelineStates(pipelineStates),
-    _subpass(subpass),
-    _allocator(allocator)
+    _subpass(subpass)
 {
 }
 
@@ -98,7 +97,7 @@ void GraphicsPipeline::compile(Context& context)
 
         // TODO : current buffering of GraphicsPipeline::Implementation assumes a single VkPipelie for each Device, but could potentially vary with Device, RenerPass, combined_PipelinStates
         // so will need to have some form of contextID/renderID that wraps all these variables up and indexes the buffer using it instead of deviceID.
-        _implementation[context.deviceID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, _pipelineLayout, _shaderStages, combined_pipelineStates, _subpass, _allocator);
+        _implementation[context.deviceID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, _pipelineLayout, _shaderStages, combined_pipelineStates, _subpass);
     }
 }
 
@@ -106,9 +105,8 @@ void GraphicsPipeline::compile(Context& context)
 //
 // GraphicsPipeline::Implementation
 //
-GraphicsPipeline::Implementation::Implementation(Context& context, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass, AllocationCallbacks* allocator) :
-    _device(device),
-    _allocator(allocator)
+GraphicsPipeline::Implementation::Implementation(Context& context, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass) :
+    _device(device)
 {
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -135,7 +133,7 @@ GraphicsPipeline::Implementation::Implementation(Context& context, Device* devic
         pipelineState->apply(context, pipelineInfo);
     }
 
-    VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &_pipeline);
+    VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, _device->getAllocator(), &_pipeline);
 
     context.scratchMemory->release();
 
@@ -147,7 +145,7 @@ GraphicsPipeline::Implementation::Implementation(Context& context, Device* devic
 
 GraphicsPipeline::Implementation::~Implementation()
 {
-    vkDestroyPipeline(*_device, _pipeline, _allocator);
+    vkDestroyPipeline(*_device, _pipeline, _device->getAllocator());
 }
 
 ////////////////////////////////////////////////////////////////////////

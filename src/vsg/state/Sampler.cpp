@@ -94,11 +94,10 @@ void Sampler::compile(Context& context)
     _implementation[context.deviceID] = Implementation::create(context.device, _samplerInfo);
 }
 
-Sampler::Implementation::Implementation(Device* device, const VkSamplerCreateInfo& createSamplerInfo, AllocationCallbacks* allocator) :
-    _device(device),
-    _allocator(allocator)
+Sampler::Implementation::Implementation(Device* device, const VkSamplerCreateInfo& createSamplerInfo) :
+    _device(device)
 {
-    if (VkResult result = vkCreateSampler(*device, &createSamplerInfo, allocator, &_sampler); result != VK_SUCCESS)
+    if (VkResult result = vkCreateSampler(*device, &createSamplerInfo, device->getAllocator(), &_sampler); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create vkSampler.", result};
     }
@@ -108,6 +107,6 @@ Sampler::Implementation::~Implementation()
 {
     if (_sampler)
     {
-        vkDestroySampler(*_device, _sampler, _allocator);
+        vkDestroySampler(*_device, _sampler, _device->getAllocator());
     }
 }

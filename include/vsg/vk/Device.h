@@ -49,8 +49,8 @@ namespace vsg
 
         const uint32_t deviceID = 0;
 
-        AllocationCallbacks* getAllocationCallbacks() { return _allocator.get(); }
-        const AllocationCallbacks* getAllocationCallbacks() const { return _allocator.get(); }
+        AllocationCallbacks* getAllocator() { return _allocator.get(); }
+        const AllocationCallbacks* getAllocator() const { return _allocator.get(); }
 
         ref_ptr<Queue> getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex = 0);
 
