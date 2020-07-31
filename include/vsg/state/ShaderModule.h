@@ -47,22 +47,19 @@ namespace vsg
     class VSG_DECLSPEC ShaderModule : public Inherit<Object, ShaderModule>
     {
     public:
-        using Source = std::string;
         using SPIRV = std::vector<uint32_t>;
 
         ShaderModule();
-        ShaderModule(const Source& spirv);
-        ShaderModule(const SPIRV& spirv);
-        ShaderModule(const Source& source, const SPIRV& spirv);
+        ShaderModule(const std::string& in_source);
+        ShaderModule(const SPIRV& in_code);
+        ShaderModule(const std::string& source, const SPIRV& in_code);
+
+        std::string source;
+        SPIRV code;
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        std::string& source() { return _source; }
-        const std::string& source() const { return _source; }
-
-        SPIRV& spirv() { return _spirv; }
-        const SPIRV& spirv() const { return _spirv; }
 
         static ref_ptr<ShaderModule> read(const std::string& filename);
 
@@ -89,9 +86,6 @@ namespace vsg
         };
 
         vk_buffer<ref_ptr<Implementation>> _implementation;
-
-        std::string _source;
-        SPIRV _spirv;
     };
     VSG_type_name(vsg::ShaderModule);
 

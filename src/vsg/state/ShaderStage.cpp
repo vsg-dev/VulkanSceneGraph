@@ -27,7 +27,7 @@ ShaderStage::ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPo
 {
 }
 
-ShaderStage::ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const ShaderModule::Source& source) :
+ShaderStage::ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& source) :
     _stage(stage),
     _entryPointName(entryPointName),
     _shaderModule(ShaderModule::create(source))
@@ -41,7 +41,7 @@ ShaderStage::ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPo
 {
 }
 
-ShaderStage::ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const ShaderModule::Source& source, const ShaderModule::SPIRV& spirv) :
+ShaderStage::ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& source, const ShaderModule::SPIRV& spirv) :
     _stage(stage),
     _entryPointName(entryPointName),
     _shaderModule(ShaderModule::create(source, spirv))
