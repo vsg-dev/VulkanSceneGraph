@@ -53,7 +53,7 @@ namespace vsg
 
         struct Implementation : public Inherit<Object, Implementation>
         {
-            Implementation(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags = 0, AllocationCallbacks* allocator = nullptr);
+            Implementation(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags = 0);
 
             virtual ~Implementation();
 
@@ -61,7 +61,6 @@ namespace vsg
             DescriptorSetLayouts _descriptorSetLayouts;
 
             ref_ptr<Device> _device;
-            ref_ptr<AllocationCallbacks> _allocator;
         };
 
         vk_buffer<ref_ptr<Implementation>> _implementation;

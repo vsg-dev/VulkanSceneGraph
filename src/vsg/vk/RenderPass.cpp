@@ -18,9 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-RenderPass::RenderPass(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependencies& dependencies, AllocationCallbacks* allocator) :
-    _device(device),
-    _allocator(allocator)
+RenderPass::RenderPass(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependencies& dependencies) :
+    _device(device)
 {
     _maxSamples = VK_SAMPLE_COUNT_1_BIT;
     for (auto& attachment : attachments)
@@ -54,7 +53,7 @@ RenderPass::RenderPass(Device* device, const Attachments& attachments, const Sub
     renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
     renderPassInfo.pDependencies = dependencies.data();
 
-    VkResult result = vkCreateRenderPass(*device, &renderPassInfo, allocator, &_renderPass);
+    VkResult result = vkCreateRenderPass(*device, &renderPassInfo, _device->getAllocationCallbacks(), &_renderPass);
     if (result != VK_SUCCESS)
     {
         throw Exception{"Error: vsg::RenderPass::create(...) Failed to create VkRenderPass.", result};
@@ -65,7 +64,7 @@ RenderPass::~RenderPass()
 {
     if (_renderPass)
     {
-        vkDestroyRenderPass(*_device, _renderPass, _allocator);
+        vkDestroyRenderPass(*_device, _renderPass, _device->getAllocationCallbacks());
     }
 }
 
@@ -99,7 +98,7 @@ AttachmentDescription vsg::defaultDepthAttachment(VkFormat depthFormat)
     return depthAttachment;
 }
 
-ref_ptr<RenderPass> vsg::createRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator)
+ref_ptr<RenderPass> vsg::createRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat)
 {
     RenderPass::Attachments attachments{
         defaultColorAttachment(imageFormat),
@@ -130,15 +129,14 @@ ref_ptr<RenderPass> vsg::createRenderPass(Device* device, VkFormat imageFormat, 
 
     RenderPass::Dependencies dependencies{dependency};
 
-    return RenderPass::create(device, attachments, subpasses, dependencies, allocator);
+    return RenderPass::create(device, attachments, subpasses, dependencies);
 }
 
-ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat,
-                                                      VkSampleCountFlagBits samples, AllocationCallbacks* allocator)
+ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat, VkSampleCountFlagBits samples)
 {
     if (samples == VK_SAMPLE_COUNT_1_BIT)
     {
-        return createRenderPass(device, imageFormat, depthFormat, allocator);
+        return createRenderPass(device, imageFormat, depthFormat);
     }
 
     // First attachment is multisampled target.
@@ -216,5 +214,5 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
 
     RenderPass::Dependencies dependencies{dependency, dependency2};
 
-    return RenderPass::create(device, attachments, subpasses, dependencies, allocator);
+    return RenderPass::create(device, attachments, subpasses, dependencies);
 }

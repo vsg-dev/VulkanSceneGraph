@@ -42,13 +42,12 @@ namespace vsg
 
         struct Implementation : public Inherit<Object, Implementation>
         {
-            Implementation(Device* device, const VkSamplerCreateInfo& createSamplerInfo, AllocationCallbacks* allocator = nullptr);
+            Implementation(Device* device, const VkSamplerCreateInfo& createSamplerInfo);
 
             virtual ~Implementation();
 
             VkSampler _sampler;
             ref_ptr<Device> _device;
-            ref_ptr<AllocationCallbacks> _allocator;
         };
 
         vk_buffer<ref_ptr<Implementation>> _implementation;

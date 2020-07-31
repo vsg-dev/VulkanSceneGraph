@@ -17,19 +17,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-ImageView::ImageView(Device* device, const VkImageViewCreateInfo& createInfo, AllocationCallbacks* allocator) :
-    _device(device),
-    _allocator(allocator)
+ImageView::ImageView(Device* device, const VkImageViewCreateInfo& createInfo) :
+    _device(device)
 {
-    if (VkResult result = vkCreateImageView(*device, &createInfo, allocator, &_imageView); result != VK_SUCCESS)
+    if (VkResult result = vkCreateImageView(*device, &createInfo, _device->getAllocationCallbacks(), &_imageView); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create ImageView.", result};
     }
 }
 
-ImageView::ImageView(Device* device, VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator) :
-    _device(device),
-    _allocator(allocator)
+ImageView::ImageView(Device* device, VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags) :
+    _device(device)
 {
     VkImageViewCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -43,16 +41,15 @@ ImageView::ImageView(Device* device, VkImage image, VkImageViewType type, VkForm
     createInfo.subresourceRange.layerCount = 1;
     createInfo.pNext = nullptr;
 
-    if (VkResult result = vkCreateImageView(*device, &createInfo, allocator, &_imageView); result != VK_SUCCESS)
+    if (VkResult result = vkCreateImageView(*device, &createInfo, _device->getAllocationCallbacks(), &_imageView); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create ImageView.", result};
     }
 }
 
-ImageView::ImageView(Device* device, Image* image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator) :
+ImageView::ImageView(Device* device, Image* image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags) :
     _device(device),
-    _image(image),
-    _allocator(allocator)
+    _image(image)
 {
     VkImageViewCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -66,7 +63,7 @@ ImageView::ImageView(Device* device, Image* image, VkImageViewType type, VkForma
     createInfo.subresourceRange.layerCount = 1;
     createInfo.pNext = nullptr;
 
-    if (VkResult result = vkCreateImageView(*device, &createInfo, allocator, &_imageView); result != VK_SUCCESS)
+    if (VkResult result = vkCreateImageView(*device, &createInfo, _device->getAllocationCallbacks(), &_imageView); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create ImageView.", result};
     }
@@ -76,7 +73,7 @@ ImageView::~ImageView()
 {
     if (_imageView)
     {
-        vkDestroyImageView(*_device, _imageView, _allocator);
+        vkDestroyImageView(*_device, _imageView, _device->getAllocationCallbacks());
     }
 }
 

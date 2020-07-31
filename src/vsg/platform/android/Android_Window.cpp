@@ -45,8 +45,8 @@ namespace vsgAndroid
     class AndroidSurface : public vsg::Surface
     {
     public:
-        AndroidSurface(vsg::Instance* instance, ANativeWindow* window, vsg::AllocationCallbacks* allocator = nullptr) :
-            vsg::Surface(VK_NULL_HANDLE, instance, allocator)
+        AndroidSurface(vsg::Instance* instance, ANativeWindow* window) :
+            vsg::Surface(VK_NULL_HANDLE, instance)
         {
             VkAndroidSurfaceCreateInfoKHR surfaceCreateInfo{};
             surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
@@ -54,7 +54,7 @@ namespace vsgAndroid
             surfaceCreateInfo.flags = 0;
             surfaceCreateInfo.window = window;
 
-            auto result = vkCreateAndroidSurfaceKHR(*instance, &surfaceCreateInfo, nullptr, &_surface);
+            auto result = vkCreateAndroidSurfaceKHR(*instance, &surfaceCreateInfo, _instance->getAllocationCallbacks(), &_surface);
         }
     };
 
@@ -363,7 +363,7 @@ void Android_Window::_initSurface()
 {
     if (!_instance) _initInstance();
 
-    _surface = new vsgAndroid::AndroidSurface(_instance, _window, _traits->allocator);
+    _surface = new vsgAndroid::AndroidSurface(_instance, _window);
 }
 
 bool Android_Window::pollEvents(vsg::UIEvents& events)

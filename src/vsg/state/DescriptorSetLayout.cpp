@@ -71,9 +71,8 @@ void DescriptorSetLayout::compile(Context& context)
 //
 // DescriptorSetLayout::Implementation
 //
-DescriptorSetLayout::Implementation::Implementation(Device* device, const DescriptorSetLayoutBindings& descriptorSetLayoutBindings, AllocationCallbacks* allocator) :
-    _device(device),
-    _allocator(allocator)
+DescriptorSetLayout::Implementation::Implementation(Device* device, const DescriptorSetLayoutBindings& descriptorSetLayoutBindings) :
+    _device(device)
 {
     VkDescriptorSetLayoutCreateInfo layoutInfo = {};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -81,7 +80,7 @@ DescriptorSetLayout::Implementation::Implementation(Device* device, const Descri
     layoutInfo.pBindings = descriptorSetLayoutBindings.data();
     layoutInfo.pNext = nullptr;
 
-    if (VkResult result = vkCreateDescriptorSetLayout(*device, &layoutInfo, allocator, &_descriptorSetLayout); result != VK_SUCCESS)
+    if (VkResult result = vkCreateDescriptorSetLayout(*device, &layoutInfo, _device->getAllocationCallbacks(), &_descriptorSetLayout); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create DescriptorSetLayout.", result};
     }
@@ -91,6 +90,6 @@ DescriptorSetLayout::Implementation::~Implementation()
 {
     if (_descriptorSetLayout)
     {
-        vkDestroyDescriptorSetLayout(*_device, _descriptorSetLayout, _allocator);
+        vkDestroyDescriptorSetLayout(*_device, _descriptorSetLayout, _device->getAllocationCallbacks());
     }
 }

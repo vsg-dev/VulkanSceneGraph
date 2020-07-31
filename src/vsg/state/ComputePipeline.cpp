@@ -26,10 +26,9 @@ ComputePipeline::ComputePipeline()
 {
 }
 
-ComputePipeline::ComputePipeline(PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator) :
+ComputePipeline::ComputePipeline(PipelineLayout* pipelineLayout, ShaderStage* shaderStage) :
     _pipelineLayout(pipelineLayout),
-    _shaderStage(shaderStage),
-    _allocator(allocator)
+    _shaderStage(shaderStage)
 {
 }
 
@@ -59,7 +58,7 @@ void ComputePipeline::compile(Context& context)
     {
         _pipelineLayout->compile(context);
         _shaderStage->compile(context);
-        _implementation[context.deviceID] = ComputePipeline::Implementation::create(context, context.device, _pipelineLayout, _shaderStage, _allocator);
+        _implementation[context.deviceID] = ComputePipeline::Implementation::create(context, context.device, _pipelineLayout, _shaderStage);
     }
 }
 
@@ -67,11 +66,10 @@ void ComputePipeline::compile(Context& context)
 //
 // ComputePipeline::Implementation
 //
-ComputePipeline::Implementation::Implementation(Context& context, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator) :
+ComputePipeline::Implementation::Implementation(Context& context, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage) :
     _device(device),
     _pipelineLayout(pipelineLayout),
-    _shaderStage(shaderStage),
-    _allocator(allocator)
+    _shaderStage(shaderStage)
 {
     VkPipelineShaderStageCreateInfo stageInfo = {};
     stageInfo.pNext = nullptr;
@@ -84,7 +82,7 @@ ComputePipeline::Implementation::Implementation(Context& context, Device* device
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.pNext = nullptr;
 
-    if (VkResult result = vkCreateComputePipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, allocator, &_pipeline); result != VK_SUCCESS)
+    if (VkResult result = vkCreateComputePipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, _device->getAllocationCallbacks(), &_pipeline); result != VK_SUCCESS)
     {
         throw Exception{"Error: vsg::Pipeline::createCompute(...) failed to create VkPipeline.", result};
     }
@@ -92,7 +90,7 @@ ComputePipeline::Implementation::Implementation(Context& context, Device* device
 
 ComputePipeline::Implementation::~Implementation()
 {
-    vkDestroyPipeline(*_device, _pipeline, _allocator);
+    vkDestroyPipeline(*_device, _pipeline, _device->getAllocationCallbacks());
 }
 
 ////////////////////////////////////////////////////////////////////////

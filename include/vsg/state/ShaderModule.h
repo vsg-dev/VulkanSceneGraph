@@ -80,13 +80,12 @@ namespace vsg
 
         struct Implementation : public Inherit<Object, Implementation>
         {
-            Implementation(Device* device, ShaderModule* shader, AllocationCallbacks* allocator = nullptr);
+            Implementation(Device* device, ShaderModule* shader);
 
             virtual ~Implementation();
 
             VkShaderModule _shaderModule;
             ref_ptr<Device> _device;
-            ref_ptr<AllocationCallbacks> _allocator;
         };
 
         vk_buffer<ref_ptr<Implementation>> _implementation;

@@ -16,10 +16,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-BufferView::BufferView(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range, AllocationCallbacks* allocator) :
+BufferView::BufferView(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range) :
     _device(buffer->getDevice()),
-    _buffer(buffer),
-    _allocator(allocator)
+    _buffer(buffer)
 {
     VkBufferViewCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO;
@@ -29,7 +28,7 @@ BufferView::BufferView(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkD
     createInfo.range = range;
     createInfo.pNext = nullptr;
 
-    if (VkResult result = vkCreateBufferView(*(buffer->getDevice()), &createInfo, allocator, &_bufferView); result != VK_SUCCESS)
+    if (VkResult result = vkCreateBufferView(*(buffer->getDevice()), &createInfo, _device->getAllocationCallbacks(), &_bufferView); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create BufferView.", result};
     }
@@ -39,6 +38,6 @@ BufferView::~BufferView()
 {
     if (_bufferView)
     {
-        vkDestroyBufferView(*_device, _bufferView, _allocator);
+        vkDestroyBufferView(*_device, _bufferView, _device->getAllocationCallbacks());
     }
 }

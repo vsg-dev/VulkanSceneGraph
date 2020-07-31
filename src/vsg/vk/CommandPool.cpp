@@ -16,9 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CommandPool::CommandPool(Device* device, uint32_t queueFamilyIndex, AllocationCallbacks* allocator) :
-    _device(device),
-    _allocator(allocator)
+CommandPool::CommandPool(Device* device, uint32_t queueFamilyIndex) :
+    _device(device)
 {
     VkCommandPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -28,7 +27,7 @@ CommandPool::CommandPool(Device* device, uint32_t queueFamilyIndex, AllocationCa
     //poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
     poolInfo.pNext = nullptr;
 
-    if (VkResult result = vkCreateCommandPool(*device, &poolInfo, allocator, &_commandPool); result != VK_SUCCESS)
+    if (VkResult result = vkCreateCommandPool(*device, &poolInfo, _device->getAllocationCallbacks(), &_commandPool); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create command pool.", result};
     }
@@ -38,6 +37,6 @@ CommandPool::~CommandPool()
 {
     if (_commandPool)
     {
-        vkDestroyCommandPool(*_device, _commandPool, _allocator);
+        vkDestroyCommandPool(*_device, _commandPool, _device->getAllocationCallbacks());
     }
 }

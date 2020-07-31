@@ -41,7 +41,7 @@ namespace vsg
         using Subpasses = std::vector<SubpassDescription>;
         using Dependencies = std::vector<SubpassDependency>;
 
-        RenderPass(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependencies& dependencies, AllocationCallbacks* allocator = nullptr);
+        RenderPass(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependencies& dependencies);
 
         operator VkRenderPass() const { return _renderPass; }
 
@@ -59,15 +59,14 @@ namespace vsg
         VkSampleCountFlagBits _maxSamples;
 
         ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
     };
     VSG_type_name(vsg::RenderPass);
 
     extern VSG_DECLSPEC AttachmentDescription defaultColorAttachment(VkFormat imageFormat);
     extern VSG_DECLSPEC AttachmentDescription defaultDepthAttachment(VkFormat depthFormat);
 
-    extern VSG_DECLSPEC ref_ptr<RenderPass> createRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat, AllocationCallbacks* allocator = nullptr);
+    extern VSG_DECLSPEC ref_ptr<RenderPass> createRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat);
     extern VSG_DECLSPEC ref_ptr<RenderPass> createMultisampledRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat,
-                                                                         VkSampleCountFlagBits samples, AllocationCallbacks* allocator = nullptr);
+                                                                         VkSampleCountFlagBits samples);
 
 } // namespace vsg

@@ -23,7 +23,7 @@ namespace vsg
     {
     public:
         ComputePipeline();
-        ComputePipeline(PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator = nullptr);
+        ComputePipeline(PipelineLayout* pipelineLayout, ShaderStage* shaderStage);
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -48,7 +48,7 @@ namespace vsg
 
         struct Implementation : public Inherit<Object, Implementation>
         {
-            Implementation(Context& context, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage, AllocationCallbacks* allocator = nullptr);
+            Implementation(Context& context, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage);
             virtual ~Implementation();
 
             VkPipeline _pipeline;
@@ -56,14 +56,12 @@ namespace vsg
             ref_ptr<Device> _device;
             ref_ptr<PipelineLayout> _pipelineLayout;
             ref_ptr<ShaderStage> _shaderStage;
-            ref_ptr<AllocationCallbacks> _allocator;
         };
 
         vk_buffer<ref_ptr<Implementation>> _implementation;
 
         ref_ptr<PipelineLayout> _pipelineLayout;
         ref_ptr<ShaderStage> _shaderStage;
-        ref_ptr<AllocationCallbacks> _allocator;
     };
     VSG_type_name(vsg::ComputePipeline);
 

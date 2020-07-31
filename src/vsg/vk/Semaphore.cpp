@@ -16,16 +16,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Semaphore::Semaphore(Device* device, VkPipelineStageFlags pipelineStageFlags, void* pNextCreateInfo, AllocationCallbacks* allocator) :
+Semaphore::Semaphore(Device* device, VkPipelineStageFlags pipelineStageFlags, void* pNextCreateInfo) :
     _pipelineStageFlags(pipelineStageFlags),
-    _device(device),
-    _allocator(allocator)
+    _device(device)
 {
     VkSemaphoreCreateInfo semaphoreInfo = {};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
     semaphoreInfo.pNext = pNextCreateInfo;
 
-    VkResult result = vkCreateSemaphore(*device, &semaphoreInfo, allocator, &_semaphore);
+    VkResult result = vkCreateSemaphore(*device, &semaphoreInfo, _device->getAllocationCallbacks(), &_semaphore);
     if (result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create semaphore.", result};
@@ -36,6 +35,6 @@ Semaphore::~Semaphore()
 {
     if (_semaphore)
     {
-        vkDestroySemaphore(*_device, _semaphore, _allocator);
+        vkDestroySemaphore(*_device, _semaphore, _device->getAllocationCallbacks());
     }
 }

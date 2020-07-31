@@ -19,7 +19,7 @@ namespace vsg
     class VSG_DECLSPEC BufferView : public Inherit<Object, BufferView>
     {
     public:
-        BufferView(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range, AllocationCallbacks* allocator = nullptr);
+        BufferView(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range);
 
         operator VkBufferView() const { return _bufferView; }
 
@@ -35,6 +35,5 @@ namespace vsg
         VkBufferView _bufferView;
         ref_ptr<Device> _device;
         ref_ptr<Buffer> _buffer;
-        ref_ptr<AllocationCallbacks> _allocator;
     };
 } // namespace vsg

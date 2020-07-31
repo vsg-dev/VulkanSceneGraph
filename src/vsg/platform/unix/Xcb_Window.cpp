@@ -217,15 +217,15 @@ void KeyboardMap::add(uint16_t keycode, std::initializer_list<std::pair<uint16_t
 //
 // Xcb_Surface
 //
-Xcb_Surface::Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, xcb_window_t window, vsg::AllocationCallbacks* allocator) :
-    vsg::Surface(VK_NULL_HANDLE, instance, allocator)
+Xcb_Surface::Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, xcb_window_t window) :
+    vsg::Surface(VK_NULL_HANDLE, instance)
 {
     VkXcbSurfaceCreateInfoKHR surfaceCreateInfo{};
     surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
     surfaceCreateInfo.connection = connection;
     surfaceCreateInfo.window = window;
 
-    /*VkResult result =*/vkCreateXcbSurfaceKHR(*instance, &surfaceCreateInfo, nullptr, &_surface);
+    /*VkResult result =*/vkCreateXcbSurfaceKHR(*instance, &surfaceCreateInfo, _instance->getAllocationCallbacks(), &_surface);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -441,7 +441,7 @@ void Xcb_Window::_initSurface()
 {
     if (!_instance) _initInstance();
 
-    _surface = new Xcb_Surface(_instance, _connection, _window, _traits->allocator);
+    _surface = new Xcb_Surface(_instance, _connection, _window);
 }
 
 bool Xcb_Window::valid() const

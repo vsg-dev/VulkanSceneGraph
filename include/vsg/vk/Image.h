@@ -19,8 +19,8 @@ namespace vsg
     class VSG_DECLSPEC Image : public Inherit<Object, Image>
     {
     public:
-        Image(VkImage image, Device* device, AllocationCallbacks* allocator = nullptr);
-        Image(Device* device, const VkImageCreateInfo& createImageInfo, AllocationCallbacks* allocator = nullptr);
+        Image(VkImage image, Device* device);
+        Image(Device* device, const VkImageCreateInfo& createImageInfo);
 
         VkImage image() const { return _image; }
 
@@ -52,7 +52,6 @@ namespace vsg
 
         VkImage _image;
         ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
 
         ref_ptr<DeviceMemory> _deviceMemory;
         VkDeviceSize _memoryOffset;

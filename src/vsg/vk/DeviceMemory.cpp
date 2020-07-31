@@ -287,10 +287,9 @@ void MemorySlots::release(VkDeviceSize offset, VkDeviceSize size)
 //
 // DeviceMemory
 //
-DeviceMemory::DeviceMemory(Device* device, const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, void* pNextAllocInfo, AllocationCallbacks* allocator) :
+DeviceMemory::DeviceMemory(Device* device, const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, void* pNextAllocInfo) :
     _memoryRequirements(memRequirements),
     _device(device),
-    _allocator(allocator),
     _memorySlots(memRequirements.size)
 {
     uint32_t typeFilter = memRequirements.memoryTypeBits;
@@ -330,7 +329,7 @@ DeviceMemory::DeviceMemory(Device* device, const VkMemoryRequirements& memRequir
     allocateInfo.memoryTypeIndex = memoryTypeIndex;
     allocateInfo.pNext = pNextAllocInfo;
 
-    if (VkResult result = vkAllocateMemory(*device, &allocateInfo, allocator, &_deviceMemory); result != VK_SUCCESS)
+    if (VkResult result = vkAllocateMemory(*device, &allocateInfo, _device->getAllocationCallbacks(), &_deviceMemory); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create DeviceMemory.", result};
     }
@@ -344,7 +343,7 @@ DeviceMemory::~DeviceMemory()
         std::cout << "DeviceMemory::~DeviceMemory() vkFreeMemory(*_device, " << _deviceMemory << ", _allocator);" << std::endl;
 #endif
 
-        vkFreeMemory(*_device, _deviceMemory, _allocator);
+        vkFreeMemory(*_device, _deviceMemory, _device->getAllocationCallbacks());
     }
 }
 

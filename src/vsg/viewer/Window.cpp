@@ -84,11 +84,8 @@ void Window::_initInstance()
             if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
         }
 
-        // TODO need to decide whether we need to have a Window::_allocator or traits member.
-        vsg::AllocationCallbacks* allocator = nullptr;
-
         vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
-        _instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
+        _instance = vsg::Instance::create(instanceExtensions, validatedNames);
     }
 }
 
@@ -153,7 +150,7 @@ void Window::_initDevice()
         if (!physicalDevice || queueFamily < 0 || presentFamily < 0) throw Exception{"Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
         vsg::QueueSettings queueSettings{vsg::QueueSetting{queueFamily, {1.0}}, vsg::QueueSetting{presentFamily, {1.0}}};
-        _device = vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->allocator);
+        _device = vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, _instance->getAllocationCallbacks());
         _physicalDevice = physicalDevice;
     }
 
@@ -166,11 +163,11 @@ void Window::_initRenderPass()
 
     if (_framebufferSamples == VK_SAMPLE_COUNT_1_BIT)
     {
-        _renderPass = vsg::createRenderPass(_device, _imageFormat.format, _depthFormat, _traits->allocator);
+        _renderPass = vsg::createRenderPass(_device, _imageFormat.format, _depthFormat);
     }
     else
     {
-        _renderPass = vsg::createMultisampledRenderPass(_device, _imageFormat.format, _depthFormat, _framebufferSamples, _traits->allocator);
+        _renderPass = vsg::createMultisampledRenderPass(_device, _imageFormat.format, _depthFormat, _framebufferSamples);
     }
 }
 

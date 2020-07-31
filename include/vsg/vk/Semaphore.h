@@ -19,7 +19,7 @@ namespace vsg
     class VSG_DECLSPEC Semaphore : public Inherit<Object, Semaphore>
     {
     public:
-        Semaphore(Device* device, VkPipelineStageFlags pipelineStageFlags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, void* pNextCreateInfo = nullptr, AllocationCallbacks* allocator = nullptr);
+        Semaphore(Device* device, VkPipelineStageFlags pipelineStageFlags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, void* pNextCreateInfo = nullptr);
 
         operator VkSemaphore() const { return _semaphore; }
         VkSemaphore vk() const { return _semaphore; }
@@ -41,7 +41,6 @@ namespace vsg
         VkPipelineStageFlags _pipelineStageFlags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
         std::atomic_uint _numDependentSubmissions{0};
         ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
     };
     VSG_type_name(vsg::Semaphore);
 

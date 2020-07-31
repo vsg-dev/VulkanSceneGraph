@@ -36,8 +36,8 @@ namespace vsgWin32
     class VSG_DECLSPEC Win32Surface : public vsg::Surface
     {
     public:
-        Win32Surface(vsg::Instance* instance, HWND window, vsg::AllocationCallbacks* allocator = nullptr) :
-            vsg::Surface(VK_NULL_HANDLE, instance, allocator)
+        Win32Surface(vsg::Instance* instance, HWND window) :
+            vsg::Surface(VK_NULL_HANDLE, instance)
         {
             VkWin32SurfaceCreateInfoKHR surfaceCreateInfo{};
             surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
@@ -45,7 +45,7 @@ namespace vsgWin32
             surfaceCreateInfo.hwnd = window;
             surfaceCreateInfo.pNext = nullptr;
 
-            auto result = vkCreateWin32SurfaceKHR(*instance, &surfaceCreateInfo, nullptr, &_surface);
+            auto result = vkCreateWin32SurfaceKHR(*instance, &surfaceCreateInfo, _instance->getAllocationCallbacks(), &_surface);
         }
     };
 
@@ -462,7 +462,7 @@ void Win32_Window::_initSurface()
 {
     if (!_instance) _initInstance();
 
-    _surface = new vsgWin32::Win32Surface(_instance, _window, _traits->allocator);
+    _surface = new vsgWin32::Win32Surface(_instance, _window);
 }
 
 bool Win32_Window::pollEvents(vsg::UIEvents& events)

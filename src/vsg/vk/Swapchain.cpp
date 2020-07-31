@@ -131,8 +131,8 @@ VkPresentModeKHR vsg::selectSwapPresentMode(const SwapChainSupportDetails& detai
 //
 // SwapchainImage
 //
-SwapchainImage::SwapchainImage(VkImage image, Device* device, AllocationCallbacks* allocator) :
-    Inherit(image, device, allocator)
+SwapchainImage::SwapchainImage(VkImage image, Device* device) :
+    Inherit(image, device)
 {
 }
 
@@ -146,7 +146,8 @@ SwapchainImage::~SwapchainImage()
 //
 // Swapchain
 //
-Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences, AllocationCallbacks* allocator)
+Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences):
+    _device(device)
 {
     SwapChainSupportDetails details = querySwapChainSupport(*physicalDevice, *surface);
 
@@ -203,17 +204,15 @@ Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* su
     createInfo.pNext = nullptr;
 
     VkSwapchainKHR swapchain;
-    VkResult result = vkCreateSwapchainKHR(*device, &createInfo, allocator, &swapchain);
+    VkResult result = vkCreateSwapchainKHR(*device, &createInfo, _device->getAllocationCallbacks(), &swapchain);
     if (result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create swap chain.", result};
     }
 
     // assign data to this Swapchain object
-    _device = device;
     _surface = surface;
     _swapchain = swapchain;
-    _allocator = allocator;
 
     _format = surfaceFormat.format;
     _extent = extent;
@@ -225,7 +224,7 @@ Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* su
 
     for (std::size_t i = 0; i < images.size(); ++i)
     {
-        ref_ptr<ImageView> view = ImageView::create(device, new SwapchainImage(images[i], device), VK_IMAGE_VIEW_TYPE_2D, surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT, allocator);
+        ref_ptr<ImageView> view = ImageView::create(device, new SwapchainImage(images[i], device), VK_IMAGE_VIEW_TYPE_2D, surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
         if (view) getImageViews().push_back(view);
     }
 }
@@ -237,7 +236,7 @@ Swapchain::~Swapchain()
     if (_swapchain)
     {
         //std::cout << "Calling vkDestroySwapchainKHR(..)" << std::endl;
-        vkDestroySwapchainKHR(*_device, _swapchain, _allocator);
+        vkDestroySwapchainKHR(*_device, _swapchain, _device->getAllocationCallbacks());
     }
 }
 
