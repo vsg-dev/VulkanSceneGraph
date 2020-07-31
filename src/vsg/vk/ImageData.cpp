@@ -57,7 +57,7 @@ BufferData vsg::copyDataToStagingBuffer(Context& context, const Data* data)
 //
 uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
 {
-    uint32_t mipLevels = sampler != nullptr ? static_cast<uint32_t>(ceil(sampler->info().maxLod)) : 1;
+    uint32_t mipLevels = sampler != nullptr ? static_cast<uint32_t>(ceil(sampler->maxLod)) : 1;
     if (mipLevels == 0)
     {
         mipLevels = 1;
