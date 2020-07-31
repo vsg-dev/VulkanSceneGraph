@@ -27,7 +27,7 @@ CommandPool::CommandPool(Device* device, uint32_t queueFamilyIndex) :
     //poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
     poolInfo.pNext = nullptr;
 
-    if (VkResult result = vkCreateCommandPool(*device, &poolInfo, _device->getAllocator(), &_commandPool); result != VK_SUCCESS)
+    if (VkResult result = vkCreateCommandPool(*device, &poolInfo, _device->getAllocationCallbacks(), &_commandPool); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create command pool.", result};
     }
@@ -37,6 +37,6 @@ CommandPool::~CommandPool()
 {
     if (_commandPool)
     {
-        vkDestroyCommandPool(*_device, _commandPool, _device->getAllocator());
+        vkDestroyCommandPool(*_device, _commandPool, _device->getAllocationCallbacks());
     }
 }

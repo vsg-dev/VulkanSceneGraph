@@ -97,7 +97,7 @@ ShaderModule::Implementation::Implementation(Device* device, ShaderModule* shade
     createInfo.pCode = shaderModule->spirv().data();
     createInfo.pNext = nullptr;
 
-    if (VkResult result = vkCreateShaderModule(*device, &createInfo, _device->getAllocator(), &_shaderModule); result != VK_SUCCESS)
+    if (VkResult result = vkCreateShaderModule(*device, &createInfo, _device->getAllocationCallbacks(), &_shaderModule); result != VK_SUCCESS)
     {
         throw Exception{"Error: vsg::ShaderModule::create(...) failed to create shader module.", result};
     }
@@ -105,5 +105,5 @@ ShaderModule::Implementation::Implementation(Device* device, ShaderModule* shade
 
 ShaderModule::Implementation::~Implementation()
 {
-    vkDestroyShaderModule(*_device, _shaderModule, _device->getAllocator());
+    vkDestroyShaderModule(*_device, _shaderModule, _device->getAllocationCallbacks());
 }

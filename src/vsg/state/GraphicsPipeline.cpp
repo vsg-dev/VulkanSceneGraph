@@ -133,7 +133,7 @@ GraphicsPipeline::Implementation::Implementation(Context& context, Device* devic
         pipelineState->apply(context, pipelineInfo);
     }
 
-    VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, _device->getAllocator(), &_pipeline);
+    VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, _device->getAllocationCallbacks(), &_pipeline);
 
     context.scratchMemory->release();
 
@@ -145,7 +145,7 @@ GraphicsPipeline::Implementation::Implementation(Context& context, Device* devic
 
 GraphicsPipeline::Implementation::~Implementation()
 {
-    vkDestroyPipeline(*_device, _pipeline, _device->getAllocator());
+    vkDestroyPipeline(*_device, _pipeline, _device->getAllocationCallbacks());
 }
 
 ////////////////////////////////////////////////////////////////////////

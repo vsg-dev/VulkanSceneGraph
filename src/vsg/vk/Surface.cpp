@@ -26,6 +26,6 @@ Surface::~Surface()
 {
     if (_surface)
     {
-        vkDestroySurfaceKHR(*_instance, _surface, _instance->getAllocator());
+        vkDestroySurfaceKHR(*_instance, _surface, _instance->getAllocationCallbacks());
     }
 }

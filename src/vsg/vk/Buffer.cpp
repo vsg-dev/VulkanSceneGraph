@@ -32,7 +32,7 @@ Buffer::Buffer(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSh
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = sharingMode;
 
-    if (VkResult result = vkCreateBuffer(*device, &bufferInfo, _device->getAllocator(), &_buffer); result != VK_SUCCESS)
+    if (VkResult result = vkCreateBuffer(*device, &bufferInfo, _device->getAllocationCallbacks(), &_buffer); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create vkBuffer.", result};
     }
@@ -46,7 +46,7 @@ Buffer::~Buffer()
 
     if (_buffer)
     {
-        vkDestroyBuffer(*_device, _buffer, _device->getAllocator());
+        vkDestroyBuffer(*_device, _buffer, _device->getAllocationCallbacks());
     }
 
     if (_deviceMemory)

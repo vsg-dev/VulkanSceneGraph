@@ -395,7 +395,7 @@ namespace vsgMacOS
             surfaceCreateInfo.flags = 0;
             surfaceCreateInfo.pView = window;
 
-            /*auto result = */ vkCreateMacOSSurfaceMVK(*instance, &surfaceCreateInfo, _instance->getAllocator(), &_surface);
+            /*auto result = */ vkCreateMacOSSurfaceMVK(*instance, &surfaceCreateInfo, _instance->getAllocationCallbacks(), &_surface);
         }
     };
 

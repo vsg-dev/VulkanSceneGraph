@@ -25,7 +25,7 @@ Image::Image(VkImage image, Device* device) :
 Image::Image(Device* device, const VkImageCreateInfo& createImageInfo) :
     _device(device)
 {
-    if (VkResult result = vkCreateImage(*device, &createImageInfo, _device->getAllocator(), &_image); result != VK_SUCCESS)
+    if (VkResult result = vkCreateImage(*device, &createImageInfo, _device->getAllocationCallbacks(), &_image); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create vkImage.", result};
     }
@@ -40,7 +40,7 @@ Image::~Image()
 
     if (_image)
     {
-        vkDestroyImage(*_device, _image, _device->getAllocator());
+        vkDestroyImage(*_device, _image, _device->getAllocationCallbacks());
     }
 }
 

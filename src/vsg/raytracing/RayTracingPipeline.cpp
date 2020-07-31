@@ -127,7 +127,7 @@ RayTracingPipeline::Implementation::Implementation(Context& context, RayTracingP
 
     pipelineInfo.maxRecursionDepth = rayTracingPipeline->maxRecursionDepth();
 
-    VkResult result = extensions->vkCreateRayTracingPipelinesNV(*_device, VK_NULL_HANDLE, 1, &pipelineInfo, _device->getAllocator(), &_pipeline);
+    VkResult result = extensions->vkCreateRayTracingPipelinesNV(*_device, VK_NULL_HANDLE, 1, &pipelineInfo, _device->getAllocationCallbacks(), &_pipeline);
     if (result == VK_SUCCESS)
     {
         auto rayTracingProperties = _device->getPhysicalDevice()->getProperties<VkPhysicalDeviceRayTracingPropertiesNV, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV>();
@@ -163,7 +163,7 @@ RayTracingPipeline::Implementation::Implementation(Context& context, RayTracingP
 
 RayTracingPipeline::Implementation::~Implementation()
 {
-    vkDestroyPipeline(*_device, _pipeline, _device->getAllocator());
+    vkDestroyPipeline(*_device, _pipeline, _device->getAllocationCallbacks());
 }
 
 ////////////////////////////////////////////////////////////////////////

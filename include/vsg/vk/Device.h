@@ -42,6 +42,9 @@ namespace vsg
         PhysicalDevice* getPhysicalDevice() { return _physicalDevice.get(); }
         const PhysicalDevice* getPhysicalDevice() const { return _physicalDevice.get(); }
 
+        AllocationCallbacks* getAllocationCallbacks() { return _allocator.get(); }
+        const AllocationCallbacks* getAllocationCallbacks() const { return _allocator.get(); }
+
         operator VkDevice() const { return _device; }
         VkDevice getDevice() const { return _device; }
 
@@ -49,8 +52,6 @@ namespace vsg
 
         const uint32_t deviceID = 0;
 
-        AllocationCallbacks* getAllocator() { return _allocator.get(); }
-        const AllocationCallbacks* getAllocator() const { return _allocator.get(); }
 
         ref_ptr<Queue> getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex = 0);
 

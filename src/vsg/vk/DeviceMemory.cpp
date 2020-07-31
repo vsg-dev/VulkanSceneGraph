@@ -329,7 +329,7 @@ DeviceMemory::DeviceMemory(Device* device, const VkMemoryRequirements& memRequir
     allocateInfo.memoryTypeIndex = memoryTypeIndex;
     allocateInfo.pNext = pNextAllocInfo;
 
-    if (VkResult result = vkAllocateMemory(*device, &allocateInfo, _device->getAllocator(), &_deviceMemory); result != VK_SUCCESS)
+    if (VkResult result = vkAllocateMemory(*device, &allocateInfo, _device->getAllocationCallbacks(), &_deviceMemory); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create DeviceMemory.", result};
     }
@@ -343,7 +343,7 @@ DeviceMemory::~DeviceMemory()
         std::cout << "DeviceMemory::~DeviceMemory() vkFreeMemory(*_device, " << _deviceMemory << ", _allocator);" << std::endl;
 #endif
 
-        vkFreeMemory(*_device, _deviceMemory, _device->getAllocator());
+        vkFreeMemory(*_device, _deviceMemory, _device->getAllocationCallbacks());
     }
 }
 

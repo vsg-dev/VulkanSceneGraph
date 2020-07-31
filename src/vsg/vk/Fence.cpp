@@ -24,7 +24,7 @@ Fence::Fence(Device* device, VkFenceCreateFlags flags) :
     createFenceInfo.flags = flags;
     createFenceInfo.pNext = nullptr;
 
-    if (VkResult result = vkCreateFence(*device, &createFenceInfo, _device->getAllocator(), &_vkFence); result != VK_SUCCESS)
+    if (VkResult result = vkCreateFence(*device, &createFenceInfo, _device->getAllocationCallbacks(), &_vkFence); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create Fence.", result};
     }
@@ -34,7 +34,7 @@ Fence::~Fence()
 {
     if (_vkFence)
     {
-        vkDestroyFence(*_device, _vkFence, _device->getAllocator());
+        vkDestroyFence(*_device, _vkFence, _device->getAllocationCallbacks());
     }
 }
 

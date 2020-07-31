@@ -37,8 +37,8 @@ namespace vsg
         operator VkInstance() const { return _instance; }
         VkInstance getInstance() const { return _instance; }
 
-        AllocationCallbacks* getAllocator() { return _allocator.get(); }
-        const AllocationCallbacks* getAllocator() const { return _allocator.get(); }
+        AllocationCallbacks* getAllocationCallbacks() { return _allocator.get(); }
+        const AllocationCallbacks* getAllocationCallbacks() const { return _allocator.get(); }
 
         using PhysicalDevices = std::vector<ref_ptr<PhysicalDevice>>;
         PhysicalDevices& getPhysicalDevices() { return _physicalDevices; }

@@ -20,7 +20,7 @@ using namespace vsg;
 ImageView::ImageView(Device* device, const VkImageViewCreateInfo& createInfo) :
     _device(device)
 {
-    if (VkResult result = vkCreateImageView(*device, &createInfo, _device->getAllocator(), &_imageView); result != VK_SUCCESS)
+    if (VkResult result = vkCreateImageView(*device, &createInfo, _device->getAllocationCallbacks(), &_imageView); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create ImageView.", result};
     }
@@ -41,7 +41,7 @@ ImageView::ImageView(Device* device, VkImage image, VkImageViewType type, VkForm
     createInfo.subresourceRange.layerCount = 1;
     createInfo.pNext = nullptr;
 
-    if (VkResult result = vkCreateImageView(*device, &createInfo, _device->getAllocator(), &_imageView); result != VK_SUCCESS)
+    if (VkResult result = vkCreateImageView(*device, &createInfo, _device->getAllocationCallbacks(), &_imageView); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create ImageView.", result};
     }
@@ -63,7 +63,7 @@ ImageView::ImageView(Device* device, Image* image, VkImageViewType type, VkForma
     createInfo.subresourceRange.layerCount = 1;
     createInfo.pNext = nullptr;
 
-    if (VkResult result = vkCreateImageView(*device, &createInfo, _device->getAllocator(), &_imageView); result != VK_SUCCESS)
+    if (VkResult result = vkCreateImageView(*device, &createInfo, _device->getAllocationCallbacks(), &_imageView); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create ImageView.", result};
     }
@@ -73,7 +73,7 @@ ImageView::~ImageView()
 {
     if (_imageView)
     {
-        vkDestroyImageView(*_device, _imageView, _device->getAllocator());
+        vkDestroyImageView(*_device, _imageView, _device->getAllocationCallbacks());
     }
 }
 

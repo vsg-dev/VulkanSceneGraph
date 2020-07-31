@@ -28,7 +28,7 @@ BufferView::BufferView(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkD
     createInfo.range = range;
     createInfo.pNext = nullptr;
 
-    if (VkResult result = vkCreateBufferView(*(buffer->getDevice()), &createInfo, _device->getAllocator(), &_bufferView); result != VK_SUCCESS)
+    if (VkResult result = vkCreateBufferView(*(buffer->getDevice()), &createInfo, _device->getAllocationCallbacks(), &_bufferView); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create BufferView.", result};
     }
@@ -38,6 +38,6 @@ BufferView::~BufferView()
 {
     if (_bufferView)
     {
-        vkDestroyBufferView(*_device, _bufferView, _device->getAllocator());
+        vkDestroyBufferView(*_device, _bufferView, _device->getAllocationCallbacks());
     }
 }

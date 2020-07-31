@@ -53,7 +53,7 @@ RenderPass::RenderPass(Device* device, const Attachments& attachments, const Sub
     renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
     renderPassInfo.pDependencies = dependencies.data();
 
-    VkResult result = vkCreateRenderPass(*device, &renderPassInfo, _device->getAllocator(), &_renderPass);
+    VkResult result = vkCreateRenderPass(*device, &renderPassInfo, _device->getAllocationCallbacks(), &_renderPass);
     if (result != VK_SUCCESS)
     {
         throw Exception{"Error: vsg::RenderPass::create(...) Failed to create VkRenderPass.", result};
@@ -64,7 +64,7 @@ RenderPass::~RenderPass()
 {
     if (_renderPass)
     {
-        vkDestroyRenderPass(*_device, _renderPass, _device->getAllocator());
+        vkDestroyRenderPass(*_device, _renderPass, _device->getAllocationCallbacks());
     }
 }
 

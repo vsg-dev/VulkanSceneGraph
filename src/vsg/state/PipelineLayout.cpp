@@ -114,7 +114,7 @@ PipelineLayout::Implementation::Implementation(Device* device, const DescriptorS
     pipelineLayoutInfo.pPushConstantRanges = pushConstantRanges.data();
     pipelineLayoutInfo.pNext = nullptr;
 
-    if (VkResult result = vkCreatePipelineLayout(*device, &pipelineLayoutInfo, _device->getAllocator(), &_pipelineLayout); result != VK_SUCCESS)
+    if (VkResult result = vkCreatePipelineLayout(*device, &pipelineLayoutInfo, _device->getAllocationCallbacks(), &_pipelineLayout); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create PipelineLayout.", result};
     }
@@ -124,6 +124,6 @@ PipelineLayout::Implementation::~Implementation()
 {
     if (_pipelineLayout)
     {
-        vkDestroyPipelineLayout(*_device, _pipelineLayout, _device->getAllocator());
+        vkDestroyPipelineLayout(*_device, _pipelineLayout, _device->getAllocationCallbacks());
     }
 }

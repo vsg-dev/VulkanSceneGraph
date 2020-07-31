@@ -27,7 +27,7 @@ DescriptorPool::DescriptorPool(Device* device, uint32_t maxSets, const Descripto
     poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT; // will we need VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT later?
     poolInfo.pNext = nullptr;
 
-    if (VkResult result = vkCreateDescriptorPool(*device, &poolInfo, _device->getAllocator(), &_descriptorPool); result != VK_SUCCESS)
+    if (VkResult result = vkCreateDescriptorPool(*device, &poolInfo, _device->getAllocationCallbacks(), &_descriptorPool); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create DescriptorPool.", result};
     }
@@ -37,6 +37,6 @@ DescriptorPool::~DescriptorPool()
 {
     if (_descriptorPool)
     {
-        vkDestroyDescriptorPool(*_device, _descriptorPool, _device->getAllocator());
+        vkDestroyDescriptorPool(*_device, _descriptorPool, _device->getAllocationCallbacks());
     }
 }

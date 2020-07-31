@@ -24,7 +24,7 @@ Semaphore::Semaphore(Device* device, VkPipelineStageFlags pipelineStageFlags, vo
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
     semaphoreInfo.pNext = pNextCreateInfo;
 
-    VkResult result = vkCreateSemaphore(*device, &semaphoreInfo, _device->getAllocator(), &_semaphore);
+    VkResult result = vkCreateSemaphore(*device, &semaphoreInfo, _device->getAllocationCallbacks(), &_semaphore);
     if (result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create semaphore.", result};
@@ -35,6 +35,6 @@ Semaphore::~Semaphore()
 {
     if (_semaphore)
     {
-        vkDestroySemaphore(*_device, _semaphore, _device->getAllocator());
+        vkDestroySemaphore(*_device, _semaphore, _device->getAllocationCallbacks());
     }
 }

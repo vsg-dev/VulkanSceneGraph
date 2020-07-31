@@ -82,7 +82,7 @@ ComputePipeline::Implementation::Implementation(Context& context, Device* device
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.pNext = nullptr;
 
-    if (VkResult result = vkCreateComputePipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, _device->getAllocator(), &_pipeline); result != VK_SUCCESS)
+    if (VkResult result = vkCreateComputePipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, _device->getAllocationCallbacks(), &_pipeline); result != VK_SUCCESS)
     {
         throw Exception{"Error: vsg::Pipeline::createCompute(...) failed to create VkPipeline.", result};
     }
@@ -90,7 +90,7 @@ ComputePipeline::Implementation::Implementation(Context& context, Device* device
 
 ComputePipeline::Implementation::~Implementation()
 {
-    vkDestroyPipeline(*_device, _pipeline, _device->getAllocator());
+    vkDestroyPipeline(*_device, _pipeline, _device->getAllocationCallbacks());
 }
 
 ////////////////////////////////////////////////////////////////////////

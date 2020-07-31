@@ -45,7 +45,7 @@ namespace vsgWin32
             surfaceCreateInfo.hwnd = window;
             surfaceCreateInfo.pNext = nullptr;
 
-            auto result = vkCreateWin32SurfaceKHR(*instance, &surfaceCreateInfo, _instance->getAllocator(), &_surface);
+            auto result = vkCreateWin32SurfaceKHR(*instance, &surfaceCreateInfo, _instance->getAllocationCallbacks(), &_surface);
         }
     };
 

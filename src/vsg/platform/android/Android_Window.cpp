@@ -54,7 +54,7 @@ namespace vsgAndroid
             surfaceCreateInfo.flags = 0;
             surfaceCreateInfo.window = window;
 
-            auto result = vkCreateAndroidSurfaceKHR(*instance, &surfaceCreateInfo, _instance->getAllocator(), &_surface);
+            auto result = vkCreateAndroidSurfaceKHR(*instance, &surfaceCreateInfo, _instance->getAllocationCallbacks(), &_surface);
         }
     };
 
