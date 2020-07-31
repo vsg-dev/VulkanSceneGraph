@@ -225,7 +225,7 @@ Xcb_Surface::Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, 
     surfaceCreateInfo.connection = connection;
     surfaceCreateInfo.window = window;
 
-    /*VkResult result =*/vkCreateXcbSurfaceKHR(*instance, &surfaceCreateInfo, nullptr, &_surface);
+    /*VkResult result =*/vkCreateXcbSurfaceKHR(*instance, &surfaceCreateInfo, _instance->getAllocator(), &_surface);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

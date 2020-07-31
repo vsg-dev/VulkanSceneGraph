@@ -386,8 +386,8 @@ namespace vsgMacOS
     class MacOSSurface : public vsg::Surface
     {
     public:
-        MacOSSurface(vsg::Instance* instance, NSView* window, vsg::AllocationCallbacks* allocator = nullptr) :
-            vsg::Surface(VK_NULL_HANDLE, instance, allocator)
+        MacOSSurface(vsg::Instance* instance, NSView* window) :
+            vsg::Surface(VK_NULL_HANDLE, instance)
         {
             VkMacOSSurfaceCreateInfoMVK surfaceCreateInfo{};
             surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
@@ -395,7 +395,7 @@ namespace vsgMacOS
             surfaceCreateInfo.flags = 0;
             surfaceCreateInfo.pView = window;
 
-            /*auto result = */ vkCreateMacOSSurfaceMVK(*instance, &surfaceCreateInfo, nullptr, &_surface);
+            /*auto result = */ vkCreateMacOSSurfaceMVK(*instance, &surfaceCreateInfo, _instance->getAllocator(), &_surface);
         }
     };
 
