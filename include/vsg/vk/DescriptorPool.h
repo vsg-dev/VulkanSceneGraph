@@ -22,7 +22,7 @@ namespace vsg
     class VSG_DECLSPEC DescriptorPool : public Inherit<Object, DescriptorPool>
     {
     public:
-        DescriptorPool(Device* device, uint32_t maxSets, const DescriptorPoolSizes& descriptorPoolSizes, AllocationCallbacks* allocator = nullptr);
+        DescriptorPool(Device* device, uint32_t maxSets, const DescriptorPoolSizes& descriptorPoolSizes);
 
         operator const VkDescriptorPool&() const { return _descriptorPool; }
 
@@ -36,7 +36,6 @@ namespace vsg
 
         VkDescriptorPool _descriptorPool;
         ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
         mutable std::mutex _mutex;
     };
     VSG_type_name(vsg::DescriptorPool);

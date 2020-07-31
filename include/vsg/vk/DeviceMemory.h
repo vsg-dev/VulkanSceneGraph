@@ -60,7 +60,7 @@ namespace vsg
     class VSG_DECLSPEC DeviceMemory : public Inherit<Object, DeviceMemory>
     {
     public:
-        DeviceMemory(Device* device, const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, void* pNextAllocInfo = nullptr, AllocationCallbacks* allocator = nullptr);
+        DeviceMemory(Device* device, const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, void* pNextAllocInfo = nullptr);
 
         void copy(VkDeviceSize offset, VkDeviceSize size, const void* src_data);
         void copy(VkDeviceSize offset, const Data* data);
@@ -85,7 +85,6 @@ namespace vsg
         VkDeviceMemory _deviceMemory;
         VkMemoryRequirements _memoryRequirements;
         ref_ptr<Device> _device;
-        ref_ptr<AllocationCallbacks> _allocator;
 
         MemorySlots _memorySlots;
     };

@@ -21,9 +21,9 @@ namespace vsg
     class VSG_DECLSPEC ImageView : public Inherit<Object, ImageView>
     {
     public:
-        ImageView(Device* device, const VkImageViewCreateInfo& createInfo, AllocationCallbacks* allocator = nullptr);
-        ImageView(Device* device, VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator = nullptr);
-        ImageView(Device* device, Image* image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags, AllocationCallbacks* allocator = nullptr);
+        ImageView(Device* device, const VkImageViewCreateInfo& createInfo);
+        ImageView(Device* device, VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags);
+        ImageView(Device* device, Image* image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags);
 
         operator VkImageView() const { return _imageView; }
 
@@ -40,7 +40,6 @@ namespace vsg
         VkImageView _imageView;
         ref_ptr<Device> _device;
         ref_ptr<Image> _image;
-        ref_ptr<AllocationCallbacks> _allocator;
     };
     VSG_type_name(vsg::ImageView);
 

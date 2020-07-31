@@ -56,14 +56,12 @@ namespace vsg
             ref_ptr<Device> _device;
             ref_ptr<PipelineLayout> _pipelineLayout;
             ref_ptr<ShaderStage> _shaderStage;
-            ref_ptr<AllocationCallbacks> _allocator;
         };
 
         vk_buffer<ref_ptr<Implementation>> _implementation;
 
         ref_ptr<PipelineLayout> _pipelineLayout;
         ref_ptr<ShaderStage> _shaderStage;
-        ref_ptr<AllocationCallbacks> _allocator;
     };
     VSG_type_name(vsg::ComputePipeline);
 

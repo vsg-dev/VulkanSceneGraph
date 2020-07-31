@@ -20,7 +20,7 @@ namespace vsg
     class VSG_DECLSPEC Surface : public Inherit<Object, Surface>
     {
     public:
-        Surface(VkSurfaceKHR surface, Instance* instance, AllocationCallbacks* allocator = nullptr);
+        Surface(VkSurfaceKHR surface, Instance* instance);
 
         operator VkSurfaceKHR() const { return _surface; }
 
@@ -32,7 +32,6 @@ namespace vsg
 
         VkSurfaceKHR _surface;
         ref_ptr<Instance> _instance;
-        ref_ptr<AllocationCallbacks> _allocator;
     };
     VSG_type_name(vsg::Surface);
 

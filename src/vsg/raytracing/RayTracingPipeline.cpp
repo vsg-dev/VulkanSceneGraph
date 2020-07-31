@@ -28,11 +28,10 @@ RayTracingPipeline::RayTracingPipeline()
 {
 }
 
-RayTracingPipeline::RayTracingPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const RayTracingShaderGroups& shaderGroups, AllocationCallbacks* allocator) :
+RayTracingPipeline::RayTracingPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const RayTracingShaderGroups& shaderGroups) :
     _pipelineLayout(pipelineLayout),
     _shaderStages(shaderStages),
-    _rayTracingShaderGroups(shaderGroups),
-    _allocator(allocator)
+    _rayTracingShaderGroups(shaderGroups)
 {
 }
 
@@ -89,8 +88,7 @@ RayTracingPipeline::Implementation::Implementation(Context& context, RayTracingP
     _device(context.device),
     _pipelineLayout(rayTracingPipeline->getPipelineLayout()),
     _shaderStages(rayTracingPipeline->getShaderStages()),
-    _shaderGroups(rayTracingPipeline->getRayTracingShaderGroups()),
-    _allocator(rayTracingPipeline->getAllocationCallbacks())
+    _shaderGroups(rayTracingPipeline->getRayTracingShaderGroups())
 {
 
     auto pipelineLayout = rayTracingPipeline->getPipelineLayout();
@@ -129,7 +127,7 @@ RayTracingPipeline::Implementation::Implementation(Context& context, RayTracingP
 
     pipelineInfo.maxRecursionDepth = rayTracingPipeline->maxRecursionDepth();
 
-    VkResult result = extensions->vkCreateRayTracingPipelinesNV(*_device, VK_NULL_HANDLE, 1, &pipelineInfo, rayTracingPipeline->getAllocationCallbacks(), &_pipeline);
+    VkResult result = extensions->vkCreateRayTracingPipelinesNV(*_device, VK_NULL_HANDLE, 1, &pipelineInfo, _device->getAllocator(), &_pipeline);
     if (result == VK_SUCCESS)
     {
         auto rayTracingProperties = _device->getPhysicalDevice()->getProperties<VkPhysicalDeviceRayTracingPropertiesNV, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV>();
@@ -165,7 +163,7 @@ RayTracingPipeline::Implementation::Implementation(Context& context, RayTracingP
 
 RayTracingPipeline::Implementation::~Implementation()
 {
-    vkDestroyPipeline(*_device, _pipeline, _allocator);
+    vkDestroyPipeline(*_device, _pipeline, _device->getAllocator());
 }
 
 ////////////////////////////////////////////////////////////////////////

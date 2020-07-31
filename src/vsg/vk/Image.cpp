@@ -16,18 +16,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Image::Image(VkImage image, Device* device, AllocationCallbacks* allocator) :
+Image::Image(VkImage image, Device* device) :
     _image(image),
-    _device(device),
-    _allocator(allocator)
+    _device(device)
 {
 }
 
-Image::Image(Device* device, const VkImageCreateInfo& createImageInfo, AllocationCallbacks* allocator) :
-    _device(device),
-    _allocator(allocator)
+Image::Image(Device* device, const VkImageCreateInfo& createImageInfo) :
+    _device(device)
 {
-    if (VkResult result = vkCreateImage(*device, &createImageInfo, allocator, &_image); result != VK_SUCCESS)
+    if (VkResult result = vkCreateImage(*device, &createImageInfo, _device->getAllocator(), &_image); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create vkImage.", result};
     }
@@ -42,7 +40,7 @@ Image::~Image()
 
     if (_image)
     {
-        vkDestroyImage(*_device, _image, _allocator);
+        vkDestroyImage(*_device, _image, _device->getAllocator());
     }
 }
 

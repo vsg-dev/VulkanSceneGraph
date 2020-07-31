@@ -41,7 +41,7 @@ namespace vsg
     class SwapchainImage : public Inherit<Image, SwapchainImage>
     {
     public:
-        SwapchainImage(VkImage image, Device* device, AllocationCallbacks* allocator = nullptr);
+        SwapchainImage(VkImage image, Device* device);
 
     protected:
         virtual ~SwapchainImage();
@@ -51,7 +51,7 @@ namespace vsg
     class VSG_DECLSPEC Swapchain : public Inherit<Object, Swapchain>
     {
     public:
-        Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences, AllocationCallbacks* allocator = nullptr);
+        Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences);
 
         operator VkSwapchainKHR() const { return _swapchain; }
 
@@ -74,8 +74,6 @@ namespace vsg
         VkFormat _format;
         VkExtent2D _extent;
         ImageViews _imageViews;
-
-        vsg::ref_ptr<AllocationCallbacks> _allocator;
     };
     VSG_type_name(vsg::Swapchain);
 

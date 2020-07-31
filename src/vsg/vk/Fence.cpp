@@ -16,16 +16,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Fence::Fence(Device* device, VkFenceCreateFlags flags, AllocationCallbacks* allocator) :
-    _device(device),
-    _allocator(allocator)
+Fence::Fence(Device* device, VkFenceCreateFlags flags) :
+    _device(device)
 {
     VkFenceCreateInfo createFenceInfo = {};
     createFenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     createFenceInfo.flags = flags;
     createFenceInfo.pNext = nullptr;
 
-    if (VkResult result = vkCreateFence(*device, &createFenceInfo, allocator, &_vkFence); result != VK_SUCCESS)
+    if (VkResult result = vkCreateFence(*device, &createFenceInfo, _device->getAllocator(), &_vkFence); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create Fence.", result};
     }
@@ -35,7 +34,7 @@ Fence::~Fence()
 {
     if (_vkFence)
     {
-        vkDestroyFence(*_device, _vkFence, _allocator);
+        vkDestroyFence(*_device, _vkFence, _device->getAllocator());
     }
 }
 

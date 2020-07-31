@@ -44,7 +44,7 @@ namespace vsgXcb
     class Xcb_Surface : public vsg::Surface
     {
     public:
-        Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, xcb_window_t window, vsg::AllocationCallbacks* allocator = nullptr);
+        Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, xcb_window_t window);
     };
 
     class Xcb_Window : public vsg::Inherit<vsg::Window, Xcb_Window>
