@@ -462,7 +462,7 @@ void Win32_Window::_initSurface()
 {
     if (!_instance) _initInstance();
 
-    _surface = new vsgWin32::Win32Surface(_instance, _window, _traits->allocator);
+    _surface = new vsgWin32::Win32Surface(_instance, _window);
 }
 
 bool Win32_Window::pollEvents(vsg::UIEvents& events)

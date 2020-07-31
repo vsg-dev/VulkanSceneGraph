@@ -79,8 +79,6 @@ namespace vsg
 
         Window* shareWindow = nullptr;
 
-        ref_ptr<AllocationCallbacks> allocator;
-
         std::any nativeWindow;
         std::any systemConnection;
 

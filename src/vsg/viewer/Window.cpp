@@ -84,10 +84,8 @@ void Window::_initInstance()
             if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
         }
 
-        vsg::AllocationCallbacks* allocator = _traits->allocator;
-
         vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
-        _instance = vsg::Instance::create(instanceExtensions, validatedNames, allocator);
+        _instance = vsg::Instance::create(instanceExtensions, validatedNames);
     }
 }
 
@@ -152,7 +150,7 @@ void Window::_initDevice()
         if (!physicalDevice || queueFamily < 0 || presentFamily < 0) throw Exception{"Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
         vsg::QueueSettings queueSettings{vsg::QueueSetting{queueFamily, {1.0}}, vsg::QueueSetting{presentFamily, {1.0}}};
-        _device = vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->allocator);
+        _device = vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, _instance->getAllocator());
         _physicalDevice = physicalDevice;
     }
 

@@ -846,7 +846,7 @@ void MacOS_Window::_initSurface()
 {
     if (!_instance) _initInstance();
 
-    _surface = new vsgMacOS::MacOSSurface(_instance, _view, _traits->allocator);
+    _surface = new vsgMacOS::MacOSSurface(_instance, _view);
 }
 
 bool MacOS_Window::pollEvents(vsg::UIEvents& events)
