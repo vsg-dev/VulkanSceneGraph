@@ -129,7 +129,7 @@ void CollectDescriptorStats::apply(const Descriptor& descriptor)
     {
         descriptors.insert(&descriptor);
     }
-    descriptorTypeMap[descriptor._descriptorType] += descriptor.getNumDescriptors();
+    descriptorTypeMap[descriptor.descriptorType] += descriptor.getNumDescriptors();
 }
 
 uint32_t CollectDescriptorStats::computeNumDescriptorSets() const

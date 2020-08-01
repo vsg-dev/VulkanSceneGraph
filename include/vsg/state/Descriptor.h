@@ -26,14 +26,13 @@ namespace vsg
     class VSG_DECLSPEC Descriptor : public Inherit<Object, Descriptor>
     {
     public:
-        Descriptor(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType);
+        Descriptor(uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType);
 
-        uint32_t _dstBinding;
-        uint32_t _dstArrayElement;
-        VkDescriptorType _descriptorType;
+        uint32_t dstBinding;
+        uint32_t dstArrayElement;
+        VkDescriptorType descriptorType;
 
         void read(Input& input) override;
-
         void write(Output& output) const override;
 
         // compile the Vulkan object, context parameter used for Device
