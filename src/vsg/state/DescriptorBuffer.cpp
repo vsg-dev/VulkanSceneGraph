@@ -26,20 +26,20 @@ DescriptorBuffer::DescriptorBuffer() :
 {
 }
 
-DescriptorBuffer::DescriptorBuffer(ref_ptr<Data> data, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
-    Inherit(dstBinding, dstArrayElement, descriptorType)
+DescriptorBuffer::DescriptorBuffer(ref_ptr<Data> data, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
 {
     if (data) _dataList.emplace_back(data);
 }
 
-DescriptorBuffer::DescriptorBuffer(const DataList& dataList, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
-    Inherit(dstBinding, dstArrayElement, descriptorType),
+DescriptorBuffer::DescriptorBuffer(const DataList& dataList, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType),
     _dataList(dataList)
 {
 }
 
-DescriptorBuffer::DescriptorBuffer(const BufferDataList& bufferDataList, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
-    Inherit(dstBinding, dstArrayElement, descriptorType),
+DescriptorBuffer::DescriptorBuffer(const BufferDataList& bufferDataList, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType),
     _bufferDataList(bufferDataList)
 {
 }

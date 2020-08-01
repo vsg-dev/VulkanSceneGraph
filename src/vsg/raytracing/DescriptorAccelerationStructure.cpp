@@ -22,8 +22,8 @@ DescriptorAccelerationStructure::DescriptorAccelerationStructure() :
 {
 }
 
-DescriptorAccelerationStructure::DescriptorAccelerationStructure(const AccelerationStructures& accelerationStructures, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
-    Inherit(dstBinding, dstArrayElement, descriptorType),
+DescriptorAccelerationStructure::DescriptorAccelerationStructure(const AccelerationStructures& accelerationStructures, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType),
     _accelerationStructures(accelerationStructures)
 {
 }

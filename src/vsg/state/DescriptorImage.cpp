@@ -22,20 +22,20 @@ DescriptorImage::DescriptorImage() :
 {
 }
 
-DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> image, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
-    Inherit(dstBinding, dstArrayElement, descriptorType)
+DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> image, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
 {
     if (sampler || image) _samplerImages.emplace_back(SamplerImage{sampler, image});
 }
 
-DescriptorImage::DescriptorImage(const SamplerImage& samplerImage, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
-    Inherit(dstBinding, dstArrayElement, descriptorType)
+DescriptorImage::DescriptorImage(const SamplerImage& samplerImage, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
 {
     if (samplerImage.sampler || samplerImage.data) _samplerImages.emplace_back(samplerImage);
 }
 
-DescriptorImage::DescriptorImage(const SamplerImages& samplerImages, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
-    Inherit(dstBinding, dstArrayElement, descriptorType),
+DescriptorImage::DescriptorImage(const SamplerImages& samplerImages, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType),
     _samplerImages(samplerImages)
 {
 }
