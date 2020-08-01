@@ -28,6 +28,8 @@ namespace vsg
         DescriptorSetLayout();
         DescriptorSetLayout(const DescriptorSetLayoutBindings& descriptorSetLayoutBindings);
 
+        DescriptorSetLayoutBindings bindings;
+
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -54,8 +56,6 @@ namespace vsg
         };
 
         vk_buffer<ref_ptr<Implementation>> _implementation;
-
-        DescriptorSetLayoutBindings _descriptorSetLayoutBindings;
     };
     VSG_type_name(vsg::DescriptorSetLayout);
 
