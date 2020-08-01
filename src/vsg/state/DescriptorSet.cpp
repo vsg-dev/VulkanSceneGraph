@@ -24,9 +24,9 @@ DescriptorSet::DescriptorSet()
 {
 }
 
-DescriptorSet::DescriptorSet(ref_ptr<DescriptorSetLayout> descriptorSetLayout, const Descriptors& descriptors) :
-    _descriptorSetLayout(descriptorSetLayout),
-    _descriptors(descriptors)
+DescriptorSet::DescriptorSet(ref_ptr<DescriptorSetLayout> in_descriptorSetLayout, const Descriptors& in_descriptors) :
+    setLayout(in_descriptorSetLayout),
+    descriptors(in_descriptors)
 {
 }
 
@@ -38,10 +38,10 @@ void DescriptorSet::read(Input& input)
 {
     Object::read(input);
 
-    input.readObject("DescriptorSetLayout", _descriptorSetLayout);
+    input.readObject("DescriptorSetLayout", setLayout);
 
-    _descriptors.resize(input.readValue<uint32_t>("NumDescriptors"));
-    for (auto& descriptor : _descriptors)
+    descriptors.resize(input.readValue<uint32_t>("NumDescriptors"));
+    for (auto& descriptor : descriptors)
     {
         input.readObject("Descriptor", descriptor);
     }
@@ -51,10 +51,10 @@ void DescriptorSet::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeObject("DescriptorSetLayout", _descriptorSetLayout.get());
+    output.writeObject("DescriptorSetLayout", setLayout.get());
 
-    output.writeValue<uint32_t>("NumDescriptors", _descriptors.size());
-    for (auto& descriptor : _descriptors)
+    output.writeValue<uint32_t>("NumDescriptors", descriptors.size());
+    for (auto& descriptor : descriptors)
     {
         output.writeObject("Descriptor", descriptor.get());
     }
@@ -65,14 +65,14 @@ void DescriptorSet::compile(Context& context)
     if (!_implementation[context.deviceID])
     {
         // make sure all the contributing objects are compiled
-        if (_descriptorSetLayout) _descriptorSetLayout->compile(context);
-        for (auto& descriptor : _descriptors) descriptor->compile(context);
+        if (setLayout) setLayout->compile(context);
+        for (auto& descriptor : descriptors) descriptor->compile(context);
 
 #if USE_MUTEX
         std::scoped_lock<std::mutex> lock(context.descriptorPool->getMutex());
 #endif
-        _implementation[context.deviceID] = DescriptorSet::Implementation::create(context.device, context.descriptorPool, _descriptorSetLayout);
-        _implementation[context.deviceID]->assign(context, _descriptors);
+        _implementation[context.deviceID] = DescriptorSet::Implementation::create(context.device, context.descriptorPool, setLayout);
+        _implementation[context.deviceID]->assign(context, descriptors);
     }
 }
 
@@ -117,11 +117,11 @@ void DescriptorSet::Implementation::assign(Context& context, const Descriptors& 
 
     for (size_t i = 0; i < _descriptors.size(); ++i)
     {
-        _descriptors[i]->assignTo(context, descriptorWrites[i]);
+        descriptors[i]->assignTo(context, descriptorWrites[i]);
         descriptorWrites[i].dstSet = _descriptorSet;
     }
 
-    vkUpdateDescriptorSets(*_device, static_cast<uint32_t>(_descriptors.size()), descriptorWrites, 0, nullptr);
+    vkUpdateDescriptorSets(*_device, static_cast<uint32_t>(descriptors.size()), descriptorWrites, 0, nullptr);
 
     // clean up scratch memory so it can be reused.
     context.scratchMemory->release();

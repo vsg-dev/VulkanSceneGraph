@@ -25,13 +25,16 @@ namespace vsg
     {
     public:
         DescriptorSet();
-        DescriptorSet(ref_ptr<DescriptorSetLayout> descriptorSetLayout, const Descriptors& descriptors);
+        DescriptorSet(ref_ptr<DescriptorSetLayout> in_descriptorSetLayout, const Descriptors& in_descriptors);
+
+        ref_ptr<DescriptorSetLayout> setLayout;
+        Descriptors descriptors;
 
         template<class N, class V>
         static void t_traverse(N& ds, V& visitor)
         {
-            if (ds._descriptorSetLayout) ds._descriptorSetLayout->accept(visitor);
-            for (auto& descriptor : ds._descriptors) descriptor->accept(visitor);
+            if (ds.setLayout) ds.setLayout->accept(visitor);
+            for (auto& descriptor : ds.descriptors) descriptor->accept(visitor);
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
@@ -39,9 +42,6 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        const DescriptorSetLayout* getDescriptorSetLayout() const { return _descriptorSetLayout; }
-        const Descriptors& getDescriptors() const { return _descriptors; }
 
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);
@@ -71,9 +71,6 @@ namespace vsg
         };
 
         vk_buffer<ref_ptr<Implementation>> _implementation;
-
-        ref_ptr<DescriptorSetLayout> _descriptorSetLayout;
-        Descriptors _descriptors;
     };
     VSG_type_name(vsg::DescriptorSet);
 
