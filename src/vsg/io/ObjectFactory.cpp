@@ -19,7 +19,7 @@ using namespace vsg;
 
 ref_ptr<ObjectFactory>& ObjectFactory::instance()
 {
-    // declare the ObjectFactory singleton as static to be initialized on first invoation of the instance() method.  Note, this currently assumes that intialization won't be mult-threaded.
+    // declare the ObjectFactory singleton as static to be initialized on first invocation of the instance() method.  Note, this currently assumes that intialization won't be mult-threaded.
     static ref_ptr<ObjectFactory> s_ObjectFactory(new ObjectFactory);
     return s_ObjectFactory;
 }

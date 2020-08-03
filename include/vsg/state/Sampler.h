@@ -57,7 +57,6 @@ namespace vsg
         struct Implementation : public Inherit<Object, Implementation>
         {
             Implementation(Device* device, const VkSamplerCreateInfo& createSamplerInfo);
-
             virtual ~Implementation();
 
             VkSampler _sampler;

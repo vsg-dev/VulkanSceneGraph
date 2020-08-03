@@ -17,6 +17,21 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+#if 0
+    struct ImageData // per contextID
+    {
+        ref_ptr<Sampler> sampler;
+        ref_ptr<ImageView> imageView;
+        VkImageLayout imageLayout;
+    };
+
+    VkDescriptorImageInfo {
+        VkSampler        sampler;
+        VkImageView      imageView;
+        VkImageLayout    imageLayout;
+    }
+    const VkDescriptorImageInfo*     pImageInfo;
+#endif
 
     struct SamplerImage
     {
