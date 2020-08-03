@@ -30,7 +30,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class BuildAccelerationStructureCommand : public Inherit<Command, BuildAccelerationStructureCommand>
+    class VSG_DECLSPEC BuildAccelerationStructureCommand : public Inherit<Command, BuildAccelerationStructureCommand>
     {
     public:
         BuildAccelerationStructureCommand(Device* device, VkAccelerationStructureInfoNV* info, const VkAccelerationStructureNV& structure, Buffer* instanceBuffer, Allocator* allocator = nullptr);
@@ -47,7 +47,7 @@ namespace vsg
         ref_ptr<Buffer> _scratchBuffer;
     };
 
-    class Context
+    class VSG_DECLSPEC Context
     {
     public:
         Context(Device* in_device, BufferPreferences bufferPreferences = {});
