@@ -14,7 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/state/Sampler.h>
 #include <vsg/vk/BufferData.h>
-#include <vsg/vk/ImageView.h>
+#include <vsg/state/ImageView.h>
 
 namespace vsg
 {

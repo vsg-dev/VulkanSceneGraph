@@ -86,6 +86,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/DescriptorSetLayout.h>
 #include <vsg/state/DescriptorTexelBufferView.h>
 #include <vsg/state/GraphicsPipeline.h>
+#include <vsg/state/GraphicsPipelineStates.h>
+#include <vsg/state/Image.h>
+#include <vsg/state/ImageView.h>
 #include <vsg/state/PipelineLayout.h>
 #include <vsg/state/ResourceHints.h>
 #include <vsg/state/Sampler.h>
@@ -155,9 +158,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Extensions.h>
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/Framebuffer.h>
-#include <vsg/vk/Image.h>
 #include <vsg/vk/ImageData.h>
-#include <vsg/vk/ImageView.h>
 #include <vsg/vk/Instance.h>
 #include <vsg/vk/MemoryBufferPools.h>
 #include <vsg/vk/PhysicalDevice.h>
