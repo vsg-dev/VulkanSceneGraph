@@ -53,7 +53,7 @@ ImageView::ImageView(Device* device, Image* image, VkImageViewType type, VkForma
 {
     VkImageViewCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    createInfo.image = *image;
+    createInfo.image = image->vk(device->deviceID);
     createInfo.viewType = type; // read from image?
     createInfo.format = format; // read from image?
     createInfo.subresourceRange.aspectMask = aspectFlags;
@@ -86,8 +86,7 @@ ref_ptr<ImageView> vsg::createImageView(vsg::Context& context, const VkImageCrea
     image = vsg::Image::create(device, imageCreateInfo);
 
     // get memory requirements
-    VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(*device, *image, &memRequirements);
+    VkMemoryRequirements memRequirements = image->getMemoryRequirements(device->deviceID);
 
     // allocate memory with out export memory info extension
     auto [deviceMemory, offset] = context.deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
@@ -109,7 +108,7 @@ ref_ptr<ImageView> vsg::createImageView(Device* device, const VkImageCreateInfo&
     image = vsg::Image::create(device, imageCreateInfo);
 
     // allocate memory with out export memory info extension
-    auto deviceMemory = DeviceMemory::create(device, image->getMemoryRequirements(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    auto deviceMemory = DeviceMemory::create(device, image->getMemoryRequirements(device->deviceID), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     if (!deviceMemory)
     {

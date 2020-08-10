@@ -16,16 +16,32 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Image::Image(VkImage image, Device* device) :
-    _image(image),
-    _device(device)
+Image::VulkanData::~VulkanData()
 {
+    if (deviceMemory)
+    {
+        deviceMemory->release(memoryOffset, 0); // TODO, we don't locally have a size allocated
+    }
+
+    if (image)
+    {
+        vkDestroyImage(*device, image, device->getAllocationCallbacks());
+    }
 }
 
-Image::Image(Device* device, const VkImageCreateInfo& createImageInfo) :
-    _device(device)
+Image::Image(VkImage image, Device* device)
 {
-    if (VkResult result = vkCreateImage(*device, &createImageInfo, _device->getAllocationCallbacks(), &_image); result != VK_SUCCESS)
+    VulkanData& vd = _vulkanData[device->deviceID];
+    vd.image = image;
+    vd.device = device;
+}
+
+Image::Image(Device* device, const VkImageCreateInfo& createImageInfo)
+{
+    VulkanData& vd = _vulkanData[device->deviceID];
+    vd.device = device;
+
+    if (VkResult result = vkCreateImage(*device, &createImageInfo, device->getAllocationCallbacks(), &vd.image); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create vkImage.", result};
     }
@@ -33,20 +49,26 @@ Image::Image(Device* device, const VkImageCreateInfo& createImageInfo) :
 
 Image::~Image()
 {
-    if (_deviceMemory)
-    {
-        _deviceMemory->release(_memoryOffset, 0); // TODO, we don't locally have a size allocated
-    }
-
-    if (_image)
-    {
-        vkDestroyImage(*_device, _image, _device->getAllocationCallbacks());
-    }
 }
 
-VkMemoryRequirements Image::getMemoryRequirements() const
+VkResult Image::bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
 {
+    VulkanData& vd = _vulkanData[deviceMemory->getDevice()->deviceID];
+
+    VkResult result = vkBindImageMemory(*vd.device, vd.image, *deviceMemory, memoryOffset);
+    if (result == VK_SUCCESS)
+    {
+        vd.deviceMemory = deviceMemory;
+        vd.memoryOffset = memoryOffset;
+    }
+    return result;
+}
+
+VkMemoryRequirements Image::getMemoryRequirements(uint32_t deviceID) const
+{
+    const VulkanData& vd = _vulkanData[deviceID];
+
     VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(*_device, _image, &memRequirements);
+    vkGetImageMemoryRequirements(*vd.device, vd.image, &memRequirements);
     return memRequirements;
 }

@@ -155,8 +155,7 @@ ImageData vsg::createImageData(Context& context, const Data* data, Sampler* samp
     ref_ptr<Image> textureImage = Image::create(device, imageCreateInfo);
     if (!textureImage) return {};
 
-    VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(*device, *textureImage, &memRequirements);
+    VkMemoryRequirements memRequirements = textureImage->getMemoryRequirements(device->deviceID);
 
     auto [deviceMemory, offset] = context.deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
@@ -170,7 +169,7 @@ ImageData vsg::createImageData(Context& context, const Data* data, Sampler* samp
 
     VkImageViewCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    createInfo.image = *textureImage;
+    createInfo.image = textureImage->vk(device->deviceID);
     createInfo.viewType = imageViewType;
     createInfo.format = layout.format;
     createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;

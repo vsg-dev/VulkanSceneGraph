@@ -138,8 +138,11 @@ SwapchainImage::SwapchainImage(VkImage image, Device* device) :
 
 SwapchainImage::~SwapchainImage()
 {
-    _deviceMemory = nullptr;
-    _image = VK_NULL_HANDLE;
+    for(auto& vd : _vulkanData)
+    {
+        vd.deviceMemory = nullptr;
+        vd.image = VK_NULL_HANDLE;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

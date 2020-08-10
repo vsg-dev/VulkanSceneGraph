@@ -24,9 +24,9 @@ void CopyImage::record(CommandBuffer& commandBuffer) const
 {
     vkCmdCopyImage(
         commandBuffer,
-        *srcImage,
+        srcImage->vk(commandBuffer.deviceID),
         srcImageLayout,
-        *dstImage,
+        dstImage->vk(commandBuffer.deviceID),
         dstImageLayout,
         static_cast<uint32_t>(regions.size()),
         regions.data());

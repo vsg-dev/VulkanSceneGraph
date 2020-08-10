@@ -13,48 +13,42 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/DeviceMemory.h>
+#include <vsg/vk/vk_buffer.h>
 
 namespace vsg
 {
     class VSG_DECLSPEC Image : public Inherit<Object, Image>
     {
     public:
+
         Image(VkImage image, Device* device);
         Image(Device* device, const VkImageCreateInfo& createImageInfo);
 
-        VkImage image() const { return _image; }
+        VkImage vk(uint32_t deviceID) const { return _vulkanData[deviceID].image; }
 
-        operator VkImage() const { return _image; }
+        DeviceMemory* getDeviceMemory(uint32_t deviceID) { return _vulkanData[deviceID].deviceMemory; }
+        const DeviceMemory* getDeviceMemory(uint32_t deviceID) const { return _vulkanData[deviceID].deviceMemory; }
 
-        Device* getDevice() { return _device; }
-        const Device* getDevice() const { return _device; }
+        VkDeviceSize getMemoryOffset(uint32_t deviceID) const { return _vulkanData[deviceID].memoryOffset; }
 
-        DeviceMemory* getDeviceMemory() { return _deviceMemory; }
-        const DeviceMemory* getDeviceMemory() const { return _deviceMemory; }
+        VkMemoryRequirements getMemoryRequirements(uint32_t deviceID) const;
 
-        VkDeviceSize getMemoryOffset() const { return _memoryOffset; }
-
-        VkMemoryRequirements getMemoryRequirements() const;
-
-        VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
-        {
-            VkResult result = vkBindImageMemory(*_device, _image, *deviceMemory, memoryOffset);
-            if (result == VK_SUCCESS)
-            {
-                _deviceMemory = deviceMemory;
-                _memoryOffset = memoryOffset;
-            }
-            return result;
-        }
+        VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset);
 
     protected:
         virtual ~Image();
 
-        VkImage _image;
-        ref_ptr<Device> _device;
+        struct VulkanData
+        {
+            VkImage image = {};
+            ref_ptr<DeviceMemory> deviceMemory;
+            VkDeviceSize memoryOffset = {};
+            ref_ptr<Device> device;
 
-        ref_ptr<DeviceMemory> _deviceMemory;
-        VkDeviceSize _memoryOffset;
+            ~VulkanData();
+        };
+
+        vk_buffer<VulkanData> _vulkanData;
     };
     VSG_type_name(vsg::Image);
 
