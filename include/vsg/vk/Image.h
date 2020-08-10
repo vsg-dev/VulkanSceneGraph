@@ -40,12 +40,12 @@ namespace vsg
 
         struct VulkanData
         {
-            VkImage image = {};
+            VkImage image = VK_NULL_HANDLE;
             ref_ptr<DeviceMemory> deviceMemory;
-            VkDeviceSize memoryOffset = {};
+            VkDeviceSize memoryOffset = 0;
             ref_ptr<Device> device;
 
-            ~VulkanData();
+            void release();
         };
 
         vk_buffer<VulkanData> _vulkanData;

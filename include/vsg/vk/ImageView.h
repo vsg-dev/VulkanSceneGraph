@@ -25,10 +25,7 @@ namespace vsg
         ImageView(Device* device, VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags);
         ImageView(Device* device, Image* image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags);
 
-        operator VkImageView() const { return _imageView; }
-
-        Device* getDevice() { return _device; }
-        const Device* getDevice() const { return _device; }
+        VkImageView vk(uint32_t deviceID) const { return _vulkanData[deviceID].imageView; }
 
         void setImage(Image* image) { _image = image; }
         Image* getImage() { return _image; }
@@ -37,9 +34,18 @@ namespace vsg
     protected:
         virtual ~ImageView();
 
-        VkImageView _imageView;
-        ref_ptr<Device> _device;
+        struct VulkanData
+        {
+            VkImageView imageView = VK_NULL_HANDLE;
+            ref_ptr<Device> device;
+
+            ~VulkanData() { release(); }
+            void release();
+        };
+
         ref_ptr<Image> _image;
+        vk_buffer<VulkanData> _vulkanData;
+
     };
     VSG_type_name(vsg::ImageView);
 

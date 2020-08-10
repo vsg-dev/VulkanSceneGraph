@@ -16,16 +16,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Image::VulkanData::~VulkanData()
+void Image::VulkanData::release()
 {
-    if (deviceMemory)
-    {
-        deviceMemory->release(memoryOffset, 0); // TODO, we don't locally have a size allocated
-    }
-
     if (image)
     {
         vkDestroyImage(*device, image, device->getAllocationCallbacks());
+        image = VK_NULL_HANDLE;
+    }
+
+    if (deviceMemory)
+    {
+        deviceMemory->release(memoryOffset, 0); // TODO, we don't locally have a size allocated
+        deviceMemory = {};
     }
 }
 
@@ -49,6 +51,7 @@ Image::Image(Device* device, const VkImageCreateInfo& createImageInfo)
 
 Image::~Image()
 {
+    for(auto& vd : _vulkanData) vd.release();
 }
 
 VkResult Image::bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
