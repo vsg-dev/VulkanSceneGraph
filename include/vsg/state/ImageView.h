@@ -21,15 +21,35 @@ namespace vsg
     class VSG_DECLSPEC ImageView : public Inherit<Object, ImageView>
     {
     public:
+
+        struct CreateInfo : public Inherit<Object, CreateInfo>
+        {
+            CreateInfo(ref_ptr<Image> in_image);
+
+            VkImageViewCreateFlags     flags = 0;
+            ref_ptr<Image>             image;
+            VkImageViewType            viewType = VK_IMAGE_VIEW_TYPE_3D;
+            VkFormat                   format = VK_FORMAT_UNDEFINED;
+            VkComponentMapping         components;
+            VkImageSubresourceRange    subresourceRange;
+
+            virtual void apply(Context& context, VkImageViewCreateInfo& info);
+        };
+
+        ImageView(ref_ptr<CreateInfo> in_createInfo);
         ImageView(Device* device, const VkImageViewCreateInfo& createInfo);
         ImageView(Device* device, VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags);
         ImageView(Device* device, Image* image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags);
+
+        ref_ptr<CreateInfo> createInfo;
 
         VkImageView vk(uint32_t deviceID) const { return _vulkanData[deviceID].imageView; }
 
         void setImage(Image* image) { _image = image; }
         Image* getImage() { return _image; }
         const Image* getImage() const { return _image; }
+
+        void compile(Context& context);
 
     protected:
         virtual ~ImageView();

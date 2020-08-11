@@ -131,6 +131,7 @@ VkPresentModeKHR vsg::selectSwapPresentMode(const SwapChainSupportDetails& detai
 //
 // SwapchainImage
 //
+
 SwapchainImage::SwapchainImage(VkImage image, Device* device) :
     Inherit(image, device)
 {

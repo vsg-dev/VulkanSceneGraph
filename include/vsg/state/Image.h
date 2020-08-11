@@ -17,12 +17,38 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    class Context;
+
     class VSG_DECLSPEC Image : public Inherit<Object, Image>
     {
     public:
 
+        struct CreateInfo : public Inherit<Object, CreateInfo>
+        {
+            CreateInfo(ref_ptr<Data> in_data);
+
+            ref_ptr<Data>            data;
+            VkImageCreateFlags       flags = 0;
+            VkImageType              imageType = VK_IMAGE_TYPE_2D;
+            VkFormat                 format = VK_FORMAT_UNDEFINED;
+            VkExtent3D               extent = {0, 0, 0};
+            uint32_t                 mipLevels = 0;
+            uint32_t                 arrayLayers = 0;
+            VkSampleCountFlagBits    samples = VK_SAMPLE_COUNT_1_BIT;
+            VkImageTiling            tiling = VK_IMAGE_TILING_OPTIMAL;
+            VkImageUsageFlags        usage = 0;
+            VkSharingMode            sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            std::vector<uint32_t>    queueFamilyIndices;
+            VkImageLayout            initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+            virtual void apply(Context& context, VkImageCreateInfo& info);
+        };
+
+        Image(ref_ptr<CreateInfo> in_createInfo);
         Image(VkImage image, Device* device);
         Image(Device* device, const VkImageCreateInfo& createImageInfo);
+
+        ref_ptr<CreateInfo> createInfo;
 
         VkImage vk(uint32_t deviceID) const { return _vulkanData[deviceID].image; }
 
@@ -34,6 +60,8 @@ namespace vsg
         VkMemoryRequirements getMemoryRequirements(uint32_t deviceID) const;
 
         VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset);
+
+        void compile(Context& context);
 
     protected:
         virtual ~Image();

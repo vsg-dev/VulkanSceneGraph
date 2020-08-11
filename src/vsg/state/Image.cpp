@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/Image.h>
+#include <vsg/vk/Context.h>
 
 using namespace vsg;
 
@@ -31,6 +32,48 @@ void Image::VulkanData::release()
     }
 }
 
+Image::CreateInfo::CreateInfo(ref_ptr<Data> in_data) :
+    data(in_data)
+{
+    if (data)
+    {
+        auto layout = data->getLayout();
+        auto mipmapOffsets = data->computeMipmapOffsets();
+        auto dimensions = data->dimensions();
+
+        imageType = dimensions >= 3 ? VK_IMAGE_TYPE_3D : (dimensions == 2 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
+        format = layout.format;
+        extent = VkExtent3D{data->width(), data->height(), data->depth()};
+        mipLevels = static_cast<uint32_t>(mipmapOffsets.size());
+        arrayLayers = 1;
+    }
+}
+
+
+void Image::CreateInfo::apply(Context& context, VkImageCreateInfo& info)
+{
+    info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    info.pNext = nullptr;
+    info.flags = flags;
+    info.imageType = imageType;
+    info.format = format;
+    info.extent = extent;
+    info.mipLevels = mipLevels;
+    info.arrayLayers = arrayLayers;
+    info.samples = samples;
+    info.tiling = tiling;
+    info.usage = usage;
+    info.sharingMode = sharingMode;
+    info.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilyIndices.size()); // TODO - from Context?
+    info.pQueueFamilyIndices = queueFamilyIndices.data(); // TODO - from Context?
+    info.initialLayout = initialLayout;
+}
+
+Image::Image(ref_ptr<CreateInfo> in_createInfo) :
+    createInfo(in_createInfo)
+{
+}
+
 Image::Image(VkImage image, Device* device)
 {
     VulkanData& vd = _vulkanData[device->deviceID];
@@ -38,12 +81,12 @@ Image::Image(VkImage image, Device* device)
     vd.device = device;
 }
 
-Image::Image(Device* device, const VkImageCreateInfo& createImageInfo)
+Image::Image(Device* device, const VkImageCreateInfo& info)
 {
     VulkanData& vd = _vulkanData[device->deviceID];
     vd.device = device;
 
-    if (VkResult result = vkCreateImage(*device, &createImageInfo, device->getAllocationCallbacks(), &vd.image); result != VK_SUCCESS)
+    if (VkResult result = vkCreateImage(*device, &info, device->getAllocationCallbacks(), &vd.image); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create vkImage.", result};
     }
@@ -74,4 +117,24 @@ VkMemoryRequirements Image::getMemoryRequirements(uint32_t deviceID) const
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(*vd.device, vd.image, &memRequirements);
     return memRequirements;
+}
+
+void Image::compile(Context& context)
+{
+    if (!createInfo) return;
+
+    auto& vd = _vulkanData[context.deviceID];
+    if (vd.image != VK_NULL_HANDLE) return;
+
+    VkImageCreateInfo info = {};
+    createInfo->apply(context, info);
+
+    vd.device = context.device;
+
+    if (VkResult result = vkCreateImage(*vd.device, &info, vd.device->getAllocationCallbacks(), &vd.image); result != VK_SUCCESS)
+    {
+        throw Exception{"Error: Failed to create vkImage.", result};
+    }
+
+    // TODO, if we have Data then transfer?
 }
