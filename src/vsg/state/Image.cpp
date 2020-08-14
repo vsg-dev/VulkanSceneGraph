@@ -41,9 +41,13 @@ Image::CreateInfo::CreateInfo(ref_ptr<Data> in_data) :
         auto mipmapOffsets = data->computeMipmapOffsets();
         auto dimensions = data->dimensions();
 
+        uint32_t width = data->width() * layout.blockWidth;
+        uint32_t height = data->height() * layout.blockHeight;
+        uint32_t depth = data->depth() * layout.blockDepth;
+
         imageType = dimensions >= 3 ? VK_IMAGE_TYPE_3D : (dimensions == 2 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
         format = layout.format;
-        extent = VkExtent3D{data->width(), data->height(), data->depth()};
+        extent = VkExtent3D{width, height, depth};
         mipLevels = static_cast<uint32_t>(mipmapOffsets.size());
         arrayLayers = 1;
     }
