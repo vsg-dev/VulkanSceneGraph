@@ -16,7 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-
     class VSG_DECLSPEC Image : public Inherit<Object, Image>
     {
     public:
@@ -26,22 +25,6 @@ namespace vsg
         VkImage image() const { return _image; }
 
         operator VkImage() const { return _image; }
-
-        struct Settings
-        {
-            VkImageCreateFlags       flags;
-            VkImageType              imageType;
-            VkFormat                 format;
-            VkExtent3D               extent;
-            uint32_t                 mipLevels;
-            uint32_t                 arrayLayers;
-            VkSampleCountFlagBits    samples;
-            VkImageTiling            tiling;
-            VkImageUsageFlags        usage;
-            VkSharingMode            sharingMode;
-            std::vector<uint32_t>    queueFamilyIndices;
-            VkImageLayout            initialLayout;
-        };
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
@@ -63,9 +46,6 @@ namespace vsg
             }
             return result;
         }
-
-        VkImage vk(uint32_t /*deviceID*/) const { return _image; }
-
 
     protected:
         virtual ~Image();

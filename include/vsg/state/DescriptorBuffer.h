@@ -17,23 +17,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-#if 0
-    struct BufferData
-    {
-        ref_ptr<Buffer> buffer;
-        VkDeviceSize offset = 0;
-        VkDeviceSize range = 0;
-        ref_ptr<Data> data;
-    };
-
-    VkDescriptorBufferInfo {
-        VkBuffer        buffer;
-        VkDeviceSize    offset;
-        VkDeviceSize    range;
-    }
-    const VkDescriptorBufferInfo*    pBufferInfo;
-#endif
-
     class VSG_DECLSPEC DescriptorBuffer : public Inherit<Descriptor, DescriptorBuffer>
     {
     public:

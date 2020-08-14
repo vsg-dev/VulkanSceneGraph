@@ -13,59 +13,33 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/Image.h>
-#include <vsg/vk/vk_buffer.h>
 
 namespace vsg
 {
     class Context;
 
-
     class VSG_DECLSPEC ImageView : public Inherit<Object, ImageView>
     {
     public:
         ImageView(Device* device, const VkImageViewCreateInfo& createInfo);
-        ImageView(Device* device, Image* image, VkImageViewType type, VkFormat in_format, VkImageAspectFlags aspectFlags);
+        ImageView(Device* device, VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags);
+        ImageView(Device* device, Image* image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags);
 
-        struct Settings
-        {
-            VkImageViewCreateFlags     flags;
-            ref_ptr<Image>             image; // per context.
-            VkImageViewType            viewType;
-            VkFormat                   format;
-            VkComponentMapping         components; // component swizzel for r g b a
-            VkImageSubresourceRange    subresourceRange;
-        };
+        operator VkImageView() const { return _imageView; }
 
-#if 1
-        void setImage(Image* in_image) { image = in_image; }
-        Image* getImage() { return image; }
-        const Image* getImage() const { return image; }
-#endif
+        Device* getDevice() { return _device; }
+        const Device* getDevice() const { return _device; }
 
-#if 0
-         void compile(Context& context);
-#endif
-
-        void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
-        void release() { _implementation.clear(); }
-
-        VkImageView vk(uint32_t deviceID) const { return _implementation[deviceID]->imageView; }
-        operator VkImageView() const { return _implementation[0]->imageView; }
+        void setImage(Image* image) { _image = image; }
+        Image* getImage() { return _image; }
+        const Image* getImage() const { return _image; }
 
     protected:
         virtual ~ImageView();
 
-        struct Implementation : public Object
-        {
-            Implementation(Device* in_device, const VkImageViewCreateInfo& createInfo);
-            virtual ~Implementation();
-
-            VkImageView imageView;
-            ref_ptr<Device> device;
-        };
-
-        vk_buffer<ref_ptr<Implementation>> _implementation;
-        ref_ptr<Image> image;
+        VkImageView _imageView;
+        ref_ptr<Device> _device;
+        ref_ptr<Image> _image;
     };
     VSG_type_name(vsg::ImageView);
 

@@ -25,15 +25,6 @@ namespace vsg
 
         DescriptorImageView(ImageData imageData, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-#if 0
-        VkDescriptorImageInfo {
-            VkSampler        sampler;
-            VkImageView      imageView;
-            VkImageLayout    imageLayout;
-        }
-        const VkDescriptorImageInfo*     pImageInfo;
-#endif
-
         /** ImageDataList is automatically filled in by the DecriptorImage::compile() using the sampler and image data objects.*/
         ImageDataList& getImageDataList() { return _imageDataList; }
         const ImageDataList& getImageDataList() const { return _imageDataList; }
