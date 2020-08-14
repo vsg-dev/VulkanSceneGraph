@@ -34,6 +34,20 @@ DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> data, u
     }
 }
 
+DescriptorImage::DescriptorImage(const SamplerImages& samplerImages, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
+    Inherit(dstBinding, dstArrayElement, descriptorType)
+{
+    for(auto& si : samplerImages)
+    {
+        if (si.sampler && si.data)
+        {
+            auto image = Image::create(Image::CreateInfo::create(si.data));
+            auto imageView = ImageView::create(ImageView::CreateInfo::create(image));
+            _imageDataList.emplace_back(ImageData{si.sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+        }
+    }
+}
+
 DescriptorImage::DescriptorImage(const ImageData& imageData, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
     Inherit(dstBinding, dstArrayElement, descriptorType)
 {

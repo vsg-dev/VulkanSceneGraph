@@ -17,6 +17,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    struct SamplerImage
+    {
+        ref_ptr<Sampler> sampler;
+        ref_ptr<Data> data;
+    };
+    using SamplerImages = std::vector<SamplerImage>;
 
     class VSG_DECLSPEC DescriptorImage : public Inherit<Descriptor, DescriptorImage>
     {
@@ -28,6 +34,8 @@ namespace vsg
         template<class T>
         DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<T> image, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) :
             DescriptorImage(sampler, ref_ptr<Data>(image), dstBinding, dstArrayElement, descriptorType) {}
+
+        DescriptorImage(const SamplerImages& samplerImages, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
         DescriptorImage(const ImageData& imageData, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
