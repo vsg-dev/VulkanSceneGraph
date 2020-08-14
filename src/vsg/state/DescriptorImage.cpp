@@ -18,6 +18,49 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// vsg::computeNumMipMapLevels
+//
+uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
+{
+    uint32_t mipLevels = sampler != nullptr ? static_cast<uint32_t>(ceil(sampler->info().maxLod)) : 1;
+    if (mipLevels == 0)
+    {
+        mipLevels = 1;
+    }
+
+    // clamp the mipLevels so that its no larger than what the data dimensions support
+    uint32_t maxDimension = std::max({data->width(), data->height(), data->depth()});
+    while ((1u << (mipLevels - 1)) > maxDimension)
+    {
+        --mipLevels;
+    }
+
+    //mipLevels = 1;  // disable mipmapping
+
+    return mipLevels;
+}
+
+void ImageData::computeNumMipMapLevels()
+{
+    if (imageView && imageView->getImage())
+    {
+        auto info = imageView->getImage()->createInfo;
+        auto mipLevels = vsg::computeNumMipMapLevels(info->data, sampler);
+        imageView->getImage()->createInfo->mipLevels = mipLevels;
+        imageView->createInfo->subresourceRange.levelCount = mipLevels;
+
+        const auto& mipmapOffsets = info->data->computeMipmapOffsets();
+        bool generatMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
+        if (generatMipmaps) info->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// DescriptorImage
+//
 DescriptorImage::DescriptorImage() :
     Inherit(0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
 {

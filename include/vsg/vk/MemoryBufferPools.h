@@ -17,7 +17,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Object.h>
 #include <vsg/vk/BufferData.h>
-#include <vsg/vk/ImageData.h>
 
 namespace vsg
 {
@@ -38,7 +37,6 @@ namespace vsg
         BufferPreferences bufferPreferences;
 
         // transfer data settings
-        // used by BufferData.cpp, ImageData.cpp
         using MemoryPools = std::vector<ref_ptr<DeviceMemory>>;
         MemoryPools memoryPools;
 

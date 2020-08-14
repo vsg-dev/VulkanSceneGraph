@@ -134,7 +134,6 @@ set(SOURCES
     vk/Extensions.cpp
     vk/Fence.cpp
     vk/Framebuffer.cpp
-    vk/ImageData.cpp
     vk/Instance.cpp
     vk/MemoryBufferPools.cpp
     vk/PhysicalDevice.cpp
