@@ -28,7 +28,7 @@ void ImageView::VulkanData::release()
     }
 }
 
-ImageView::CreateInfo::CreateInfo(ref_ptr<Image> in_image) :
+ImageView::CreateInfo::CreateInfo(ref_ptr<Image> in_image, VkImageAspectFlags aspectFlags) :
     image(in_image)
 {
     if (image && image->createInfo)
@@ -38,7 +38,7 @@ ImageView::CreateInfo::CreateInfo(ref_ptr<Image> in_image) :
 
         viewType = (imageType==VK_IMAGE_TYPE_3D) ? VK_IMAGE_VIEW_TYPE_3D : ((imageType==VK_IMAGE_TYPE_2D) ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
         format = imageCreateInfo->format;
-        subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT; // TODO need a more sensible setting?
+        subresourceRange.aspectMask = aspectFlags;
         subresourceRange.baseMipLevel = 0;
         subresourceRange.levelCount = imageCreateInfo->mipLevels;
         subresourceRange.baseArrayLayer = 0;
@@ -46,12 +46,11 @@ ImageView::CreateInfo::CreateInfo(ref_ptr<Image> in_image) :
     }
 }
 
-void ImageView::CreateInfo::apply(Context& context, VkImageViewCreateInfo& info)
+void ImageView::CreateInfo::apply(VkImageViewCreateInfo& info)
 {
     info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     info.pNext = nullptr;
     info.flags = flags;
-    info.image = image ? image->vk(context.deviceID) : VK_NULL_HANDLE;
     info.viewType = viewType;
     info.format = format;
     info.components = components;
@@ -61,65 +60,30 @@ void ImageView::CreateInfo::apply(Context& context, VkImageViewCreateInfo& info)
 ImageView::ImageView(ref_ptr<CreateInfo> in_createInfo) :
     createInfo(in_createInfo)
 {
-}
-
-ImageView::ImageView(Device* device, const VkImageViewCreateInfo& info)
-{
-    VulkanData& vd = _vulkanData[device->deviceID];
-    vd.device = device;
-
-    if (VkResult result = vkCreateImageView(*device, &info, device->getAllocationCallbacks(), &vd.imageView); result != VK_SUCCESS)
+    if (createInfo && createInfo->image)
     {
-        throw Exception{"Error: Failed to create ImageView.", result};
+        _image = createInfo->image;
+    }
+}
+ImageView::ImageView(Device* device, ref_ptr<CreateInfo> in_createInfo) :
+    ImageView(in_createInfo)
+{
+    if (in_createInfo)
+    {
+        VkImageViewCreateInfo info = {};
+        createInfo->apply(info);
+        if (createInfo->image) info.image = in_createInfo->image->vk(device->deviceID);
+
+        VulkanData& vd = _vulkanData[device->deviceID];
+        vd.device = device;
+
+        if (VkResult result = vkCreateImageView(*device, &info, device->getAllocationCallbacks(), &vd.imageView); result != VK_SUCCESS)
+        {
+            throw Exception{"Error: Failed to create ImageView.", result};
+        }
     }
 }
 
-ImageView::ImageView(Device* device, VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags)
-{
-    VkImageViewCreateInfo info = {};
-    info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    info.image = image;
-    info.viewType = type;
-    info.format = format;
-    info.subresourceRange.aspectMask = aspectFlags;
-    info.subresourceRange.baseMipLevel = 0;
-    info.subresourceRange.levelCount = 1;
-    info.subresourceRange.baseArrayLayer = 0;
-    info.subresourceRange.layerCount = 1;
-    info.pNext = nullptr;
-
-    VulkanData& vd = _vulkanData[device->deviceID];
-    vd.device = device;
-
-    if (VkResult result = vkCreateImageView(*device, &info, device->getAllocationCallbacks(), &vd.imageView); result != VK_SUCCESS)
-    {
-        throw Exception{"Error: Failed to create ImageView.", result};
-    }
-}
-
-ImageView::ImageView(Device* device, Image* image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags) :
-    _image(image)
-{
-    VkImageViewCreateInfo info = {};
-    info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    info.image = image->vk(device->deviceID);
-    info.viewType = type; // read from image?
-    info.format = format; // read from image?
-    info.subresourceRange.aspectMask = aspectFlags;
-    info.subresourceRange.baseMipLevel = 0;
-    info.subresourceRange.levelCount = 1;
-    info.subresourceRange.baseArrayLayer = 0;
-    info.subresourceRange.layerCount = 1;
-    info.pNext = nullptr;
-
-    VulkanData& vd = _vulkanData[device->deviceID];
-    vd.device = device;
-
-    if (VkResult result = vkCreateImageView(*device, &info, device->getAllocationCallbacks(), &vd.imageView); result != VK_SUCCESS)
-    {
-        throw Exception{"Error: Failed to create ImageView.", result};
-    }
-}
 
 ImageView::~ImageView()
 {
@@ -134,7 +98,13 @@ void ImageView::compile(Context& context)
     if (vd.imageView != VK_NULL_HANDLE) return;
 
     VkImageViewCreateInfo info = {};
-    createInfo->apply(context, info);
+    createInfo->apply(info);
+
+    if (createInfo->image)
+    {
+        createInfo->image->compile(context);
+        info.image = createInfo->image->vk(context.deviceID);
+    }
 
     vd.device = context.device;
 
@@ -144,13 +114,11 @@ void ImageView::compile(Context& context)
     }
 }
 
-ref_ptr<ImageView> vsg::createImageView(vsg::Context& context, const VkImageCreateInfo& imageCreateInfo, VkImageAspectFlags aspectFlags)
+ref_ptr<ImageView> vsg::createImageView(vsg::Context& context, ref_ptr<Image::CreateInfo> imageCreateInfo, VkImageAspectFlags aspectFlags)
 {
     vsg::Device* device = context.device;
 
-    vsg::ref_ptr<vsg::Image> image;
-
-    image = vsg::Image::create(device, imageCreateInfo);
+    auto image = vsg::Image::create(device, imageCreateInfo);
 
     // get memory requirements
     VkMemoryRequirements memRequirements = image->getMemoryRequirements(device->deviceID);
@@ -165,14 +133,14 @@ ref_ptr<ImageView> vsg::createImageView(vsg::Context& context, const VkImageCrea
 
     image->bind(deviceMemory, offset);
 
-    return vsg::ImageView::create(device, image, VK_IMAGE_VIEW_TYPE_2D, imageCreateInfo.format, aspectFlags);
+    auto imageViewCreateInfo = vsg::ImageView::CreateInfo::create(image, aspectFlags);
+
+    return vsg::ImageView::create(device, imageViewCreateInfo);
 }
 
-ref_ptr<ImageView> vsg::createImageView(Device* device, const VkImageCreateInfo& imageCreateInfo, VkImageAspectFlags aspectFlags)
+ref_ptr<ImageView> vsg::createImageView(Device* device, ref_ptr<Image::CreateInfo> imageCreateInfo, VkImageAspectFlags aspectFlags)
 {
-    vsg::ref_ptr<vsg::Image> image;
-
-    image = vsg::Image::create(device, imageCreateInfo);
+    auto image = vsg::Image::create(device, imageCreateInfo);
 
     // allocate memory with out export memory info extension
     auto deviceMemory = DeviceMemory::create(device, image->getMemoryRequirements(device->deviceID), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
@@ -184,5 +152,6 @@ ref_ptr<ImageView> vsg::createImageView(Device* device, const VkImageCreateInfo&
 
     image->bind(deviceMemory, 0);
 
-    return vsg::ImageView::create(device, image, VK_IMAGE_VIEW_TYPE_2D, imageCreateInfo.format, aspectFlags);
+    auto imageViewCreateInfo = vsg::ImageView::CreateInfo::create(image, aspectFlags);
+    return vsg::ImageView::create(device, imageViewCreateInfo);
 }

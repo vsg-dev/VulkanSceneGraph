@@ -50,7 +50,7 @@ Image::CreateInfo::CreateInfo(ref_ptr<Data> in_data) :
 }
 
 
-void Image::CreateInfo::apply(Context& context, VkImageCreateInfo& info)
+void Image::CreateInfo::apply(VkImageCreateInfo& info)
 {
     info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     info.pNext = nullptr;
@@ -64,8 +64,8 @@ void Image::CreateInfo::apply(Context& context, VkImageCreateInfo& info)
     info.tiling = tiling;
     info.usage = usage;
     info.sharingMode = sharingMode;
-    info.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilyIndices.size()); // TODO - from Context?
-    info.pQueueFamilyIndices = queueFamilyIndices.data(); // TODO - from Context?
+    info.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilyIndices.size());
+    info.pQueueFamilyIndices = queueFamilyIndices.data();
     info.initialLayout = initialLayout;
 }
 
@@ -74,22 +74,30 @@ Image::Image(ref_ptr<CreateInfo> in_createInfo) :
 {
 }
 
+Image::Image(Device* device, ref_ptr<CreateInfo> in_createInfo) :
+    createInfo(in_createInfo)
+{
+    if (in_createInfo)
+    {
+
+        VulkanData& vd = _vulkanData[device->deviceID];
+        vd.device = device;
+
+        VkImageCreateInfo info = {};
+        createInfo->apply(info);
+
+        if (VkResult result = vkCreateImage(*device, &info, device->getAllocationCallbacks(), &vd.image); result != VK_SUCCESS)
+        {
+            throw Exception{"Error: Failed to create vkImage.", result};
+        }
+    }
+}
+
 Image::Image(VkImage image, Device* device)
 {
     VulkanData& vd = _vulkanData[device->deviceID];
     vd.image = image;
     vd.device = device;
-}
-
-Image::Image(Device* device, const VkImageCreateInfo& info)
-{
-    VulkanData& vd = _vulkanData[device->deviceID];
-    vd.device = device;
-
-    if (VkResult result = vkCreateImage(*device, &info, device->getAllocationCallbacks(), &vd.image); result != VK_SUCCESS)
-    {
-        throw Exception{"Error: Failed to create vkImage.", result};
-    }
 }
 
 Image::~Image()
@@ -127,7 +135,9 @@ void Image::compile(Context& context)
     if (vd.image != VK_NULL_HANDLE) return;
 
     VkImageCreateInfo info = {};
-    createInfo->apply(context, info);
+    createInfo->apply(info);
+
+    info.usage |= VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
     vd.device = context.device;
 
@@ -136,5 +146,15 @@ void Image::compile(Context& context)
         throw Exception{"Error: Failed to create vkImage.", result};
     }
 
-    // TODO, if we have Data then transfer?
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(*vd.device, vd.image, &memRequirements);
+
+    auto [deviceMemory, offset] = context.deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    if (!deviceMemory)
+    {
+        throw Exception{"Error: allocate memory to reserve slot.", VK_ERROR_OUT_OF_DEVICE_MEMORY};
+    }
+
+    bind(deviceMemory, offset);
 }

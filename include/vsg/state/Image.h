@@ -25,7 +25,7 @@ namespace vsg
 
         struct CreateInfo : public Inherit<Object, CreateInfo>
         {
-            CreateInfo(ref_ptr<Data> in_data);
+            CreateInfo(ref_ptr<Data> in_data = {});
 
             ref_ptr<Data>            data;
             VkImageCreateFlags       flags = 0;
@@ -41,12 +41,17 @@ namespace vsg
             std::vector<uint32_t>    queueFamilyIndices;
             VkImageLayout            initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-            virtual void apply(Context& context, VkImageCreateInfo& info);
+            virtual void apply(VkImageCreateInfo& info);
         };
 
-        Image(ref_ptr<CreateInfo> in_createInfo);
+        /// create a vsg::Image with optional CreateInfo, delay VkUmage creation to compile
+        Image(ref_ptr<CreateInfo> in_createInfo = {});
+
+        /// create a vsg::Image and created VkImage for specified device, CreateInfo options
+        Image(Device* device, ref_ptr<CreateInfo> in_createInfo);
+
+        /// create a vsg::Image wrapper for specified VkImage
         Image(VkImage image, Device* device);
-        Image(Device* device, const VkImageCreateInfo& createImageInfo);
 
         ref_ptr<CreateInfo> createInfo;
 

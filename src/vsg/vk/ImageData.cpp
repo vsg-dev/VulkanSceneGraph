@@ -75,6 +75,22 @@ uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
     return mipLevels;
 }
 
+void ImageData::computeNumMipMapLevels()
+{
+    if (imageView && imageView->getImage())
+    {
+        auto info = imageView->getImage()->createInfo;
+        auto mipLevels = vsg::computeNumMipMapLevels(info->data, sampler);
+        imageView->getImage()->createInfo->mipLevels = mipLevels;
+        imageView->createInfo->subresourceRange.levelCount = mipLevels;
+
+        const auto& mipmapOffsets = info->data->computeMipmapOffsets();
+        bool generatMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
+        if (generatMipmaps) info->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    }
+}
+
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // vsg::createImageData
@@ -129,27 +145,24 @@ ImageData vsg::createImageData(Context& context, const Data* data, Sampler* samp
 
     auto dimensions = data->dimensions();
     VkImageType imageType = dimensions >= 3 ? VK_IMAGE_TYPE_3D : (dimensions == 2 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
-    VkImageViewType imageViewType = dimensions >= 3 ? VK_IMAGE_VIEW_TYPE_3D : (dimensions == 2 ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
 
-    VkImageCreateInfo imageCreateInfo = {};
-    imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    imageCreateInfo.imageType = imageType;
-    imageCreateInfo.extent.width = width;
-    imageCreateInfo.extent.height = height;
-    imageCreateInfo.extent.depth = depth;
-    imageCreateInfo.mipLevels = mipLevels;
-    imageCreateInfo.arrayLayers = 1;
-    imageCreateInfo.format = layout.format;
-    imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-    imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-    imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-    imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    imageCreateInfo.pNext = nullptr;
 
+    auto imageCreateInfo = vsg::Image::CreateInfo::create();
+    imageCreateInfo->imageType = imageType;
+    imageCreateInfo->extent.width = width;
+    imageCreateInfo->extent.height = height;
+    imageCreateInfo->extent.depth = depth;
+    imageCreateInfo->mipLevels = mipLevels;
+    imageCreateInfo->arrayLayers = 1;
+    imageCreateInfo->format = layout.format;
+    imageCreateInfo->tiling = VK_IMAGE_TILING_OPTIMAL;
+    imageCreateInfo->initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    imageCreateInfo->usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    imageCreateInfo->samples = VK_SAMPLE_COUNT_1_BIT;
+    imageCreateInfo->sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     if (generatMipmaps)
     {
-        imageCreateInfo.usage = imageCreateInfo.usage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        imageCreateInfo->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
 
     ref_ptr<Image> textureImage = Image::create(device, imageCreateInfo);
@@ -167,20 +180,8 @@ ImageData vsg::createImageData(Context& context, const Data* data, Sampler* samp
 
     textureImage->bind(deviceMemory, offset);
 
-    VkImageViewCreateInfo createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    createInfo.image = textureImage->vk(device->deviceID);
-    createInfo.viewType = imageViewType;
-    createInfo.format = layout.format;
-    createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    createInfo.subresourceRange.baseMipLevel = 0;
-    createInfo.subresourceRange.levelCount = mipLevels;
-    createInfo.subresourceRange.baseArrayLayer = 0;
-    createInfo.subresourceRange.layerCount = 1;
-    createInfo.pNext = nullptr;
-
+    auto createInfo = ImageView::CreateInfo::create(textureImage, VK_IMAGE_ASPECT_COLOR_BIT);
     ref_ptr<ImageView> textureImageView = ImageView::create(device, createInfo);
-    if (textureImageView) textureImageView->setImage(textureImage);
 
     ImageData imageData(sampler, textureImageView, targetImageLayout);
     return imageData;

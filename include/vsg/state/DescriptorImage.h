@@ -18,13 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    struct SamplerImage
-    {
-        ref_ptr<Sampler> sampler;
-        ref_ptr<Data> data;
-    };
-    using SamplerImages = std::vector<SamplerImage>;
-
     class VSG_DECLSPEC DescriptorImage : public Inherit<Descriptor, DescriptorImage>
     {
     public:
@@ -36,15 +29,12 @@ namespace vsg
         DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<T> image, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) :
             DescriptorImage(sampler, ref_ptr<Data>(image), dstBinding, dstArrayElement, descriptorType) {}
 
-        DescriptorImage(const SamplerImage& samplerImage, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+        DescriptorImage(const ImageData& imageData, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-        DescriptorImage(const SamplerImages& samplerImages, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+        DescriptorImage(const ImageDataList& imageDataList, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-        SamplerImages& getSamplerImages() { return _samplerImages; }
-        const SamplerImages& getSamplerImages() const { return _samplerImages; }
-
-        // get the Vulkan related objects, populated by compile traversal
-        ImageDataList& getImageList(uint32_t deviceID) { return _vulkanData[deviceID].imageDataList; }
+        ImageDataList& getImageDataList() { return _imageDataList; }
+        const ImageDataList& getImageDataList() const { return _imageDataList; }
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -56,14 +46,7 @@ namespace vsg
         uint32_t getNumDescriptors() const override;
 
     protected:
-        SamplerImages _samplerImages;
-
-        struct VulkanData
-        {
-            ImageDataList imageDataList;
-        };
-
-        vk_buffer<VulkanData> _vulkanData;
+        ImageDataList _imageDataList;
     };
     VSG_type_name(vsg::DescriptorImage);
 

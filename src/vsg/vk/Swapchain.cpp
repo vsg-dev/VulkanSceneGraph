@@ -228,8 +228,16 @@ Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* su
 
     for (std::size_t i = 0; i < images.size(); ++i)
     {
-        ref_ptr<ImageView> view = ImageView::create(device, new SwapchainImage(images[i], device), VK_IMAGE_VIEW_TYPE_2D, surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
-        if (view) getImageViews().push_back(view);
+        auto info = ImageView::CreateInfo::create(SwapchainImage::create(images[i], device));
+        info->viewType = VK_IMAGE_VIEW_TYPE_2D;
+        info->format = surfaceFormat.format;
+        info->subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        info->subresourceRange.baseMipLevel = 0;
+        info->subresourceRange.levelCount = 1;
+        info->subresourceRange.baseArrayLayer = 0;
+        info->subresourceRange.layerCount = 1;
+
+        _imageViews.push_back(ImageView::create(device, info));
     }
 }
 

@@ -47,7 +47,6 @@ void CopyAndReleaseImageDataCommand::CopyData::record(CommandBuffer& commandBuff
     ref_ptr<Buffer> imageStagingBuffer(source.buffer);
     ref_ptr<Data> data(source.data);
     ref_ptr<Image> textureImage(destination.imageView->getImage());
-    ref_ptr<Sampler> sampler(destination.sampler);
     VkImageLayout targetImageLayout = destination.imageLayout;
 
     Data::Layout layout = data->getLayout();

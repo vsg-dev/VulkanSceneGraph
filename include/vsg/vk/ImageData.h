@@ -44,6 +44,8 @@ namespace vsg
 
         explicit operator bool() const { return sampler.valid() && imageView.valid(); }
 
+        void computeNumMipMapLevels();
+
         ref_ptr<Sampler> sampler;
         ref_ptr<ImageView> imageView;
         VkImageLayout imageLayout;

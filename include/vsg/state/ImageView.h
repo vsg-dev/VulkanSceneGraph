@@ -24,22 +24,20 @@ namespace vsg
 
         struct CreateInfo : public Inherit<Object, CreateInfo>
         {
-            CreateInfo(ref_ptr<Image> in_image);
+            CreateInfo(ref_ptr<Image> in_image = {}, VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
 
             VkImageViewCreateFlags     flags = 0;
             ref_ptr<Image>             image;
             VkImageViewType            viewType = VK_IMAGE_VIEW_TYPE_3D;
             VkFormat                   format = VK_FORMAT_UNDEFINED;
-            VkComponentMapping         components;
+            VkComponentMapping         components = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY};
             VkImageSubresourceRange    subresourceRange;
 
-            virtual void apply(Context& context, VkImageViewCreateInfo& info);
+            virtual void apply(VkImageViewCreateInfo& info);
         };
 
         ImageView(ref_ptr<CreateInfo> in_createInfo);
-        ImageView(Device* device, const VkImageViewCreateInfo& createInfo);
-        ImageView(Device* device, VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags);
-        ImageView(Device* device, Image* image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags);
+        ImageView(Device* device, ref_ptr<CreateInfo> in_createInfo);
 
         ref_ptr<CreateInfo> createInfo;
 
@@ -72,9 +70,9 @@ namespace vsg
     using ImageViews = std::vector<ref_ptr<ImageView>>;
 
     /// convinience function that create an ImageView and allocates device memory and an Image for it. For device memory allocattion the Context's DeviceMemoryPools are utilized.
-    extern VSG_DECLSPEC ref_ptr<ImageView> createImageView(Context& context, const VkImageCreateInfo& imageCreateInfo, VkImageAspectFlags aspectFlags);
+    extern VSG_DECLSPEC ref_ptr<ImageView> createImageView(Context& context, ref_ptr<Image::CreateInfo> imageCreateInfo, VkImageAspectFlags aspectFlags);
 
     /// convinience function that create an ImageView and allocates device memory and an Image for it.
-    extern VSG_DECLSPEC ref_ptr<ImageView> createImageView(Device* device, const VkImageCreateInfo& imageCreateInfo, VkImageAspectFlags aspectFlags);
+    extern VSG_DECLSPEC ref_ptr<ImageView> createImageView(Device* device, ref_ptr<Image::CreateInfo> imageCreateInfo, VkImageAspectFlags aspectFlags);
 
 } // namespace vsg

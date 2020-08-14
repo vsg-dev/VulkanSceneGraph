@@ -211,47 +211,44 @@ void Window::buildSwapchain()
     bool multisampling = _framebufferSamples != VK_SAMPLE_COUNT_1_BIT;
     if (multisampling)
     {
-        VkImageCreateInfo colorImageCreateInfo = {};
-        colorImageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-        colorImageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
-        colorImageCreateInfo.format = _imageFormat.format;
-        colorImageCreateInfo.extent.width = _extent2D.width;
-        colorImageCreateInfo.extent.height = _extent2D.height;
-        colorImageCreateInfo.extent.depth = 1;
-        colorImageCreateInfo.mipLevels = 1;
-        colorImageCreateInfo.arrayLayers = 1;
-        colorImageCreateInfo.samples = _framebufferSamples;
-        colorImageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-        colorImageCreateInfo.usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-        colorImageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorImageCreateInfo.flags = 0;
-        colorImageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        colorImageCreateInfo.queueFamilyIndexCount = 0;
-        colorImageCreateInfo.pNext = nullptr;
+        auto colorImageCreateInfo = Image::CreateInfo::create();
+        colorImageCreateInfo->imageType = VK_IMAGE_TYPE_2D;
+        colorImageCreateInfo->format = _imageFormat.format;
+        colorImageCreateInfo->extent.width = _extent2D.width;
+        colorImageCreateInfo->extent.height = _extent2D.height;
+        colorImageCreateInfo->extent.depth = 1;
+        colorImageCreateInfo->mipLevels = 1;
+        colorImageCreateInfo->arrayLayers = 1;
+        colorImageCreateInfo->samples = _framebufferSamples;
+        colorImageCreateInfo->tiling = VK_IMAGE_TILING_OPTIMAL;
+        colorImageCreateInfo->usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        colorImageCreateInfo->initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        colorImageCreateInfo->flags = 0;
+        colorImageCreateInfo->sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
         _multisampleImage = Image::create(_device, colorImageCreateInfo);
 
         auto colorMemory = DeviceMemory::create(_device, _multisampleImage->getMemoryRequirements(deviceID), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         _multisampleImage->bind(colorMemory, 0);
 
-        _multisampleImageView = ImageView::create(_device, _multisampleImage, VK_IMAGE_VIEW_TYPE_2D, _imageFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
+        auto colorImageViewCreateInfo = ImageView::CreateInfo::create(_multisampleImage, VK_IMAGE_ASPECT_COLOR_BIT);
+        _multisampleImageView = ImageView::create(_device, colorImageViewCreateInfo);
     }
 
     // create depth buffer
-    VkImageCreateInfo depthImageCreateInfo = {};
-    depthImageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    depthImageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
-    depthImageCreateInfo.extent.width = _extent2D.width;
-    depthImageCreateInfo.extent.height = _extent2D.height;
-    depthImageCreateInfo.extent.depth = 1;
-    depthImageCreateInfo.mipLevels = 1;
-    depthImageCreateInfo.arrayLayers = 1;
-    depthImageCreateInfo.format = _depthFormat;
-    depthImageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-    depthImageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    depthImageCreateInfo.usage = _traits->depthImageUsage;
-    depthImageCreateInfo.samples = _framebufferSamples;
-    depthImageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    depthImageCreateInfo.pNext = nullptr;
+    auto depthImageCreateInfo = Image::CreateInfo::create();
+    depthImageCreateInfo->imageType = VK_IMAGE_TYPE_2D;
+    depthImageCreateInfo->extent.width = _extent2D.width;
+    depthImageCreateInfo->extent.height = _extent2D.height;
+    depthImageCreateInfo->extent.depth = 1;
+    depthImageCreateInfo->mipLevels = 1;
+    depthImageCreateInfo->arrayLayers = 1;
+    depthImageCreateInfo->format = _depthFormat;
+    depthImageCreateInfo->tiling = VK_IMAGE_TILING_OPTIMAL;
+    depthImageCreateInfo->initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depthImageCreateInfo->usage = _traits->depthImageUsage;
+    depthImageCreateInfo->samples = _framebufferSamples;
+    depthImageCreateInfo->sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     _depthImage = Image::create(_device, depthImageCreateInfo);
 
@@ -259,7 +256,9 @@ void Window::buildSwapchain()
 
     _depthImage->bind(_depthImageMemory, 0);
 
-    _depthImageView = ImageView::create(_device, _depthImage, VK_IMAGE_VIEW_TYPE_2D, _depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+    auto depthImageViewCreateInfo = ImageView::CreateInfo::create(_depthImage, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+    _depthImageView = ImageView::create(_device, depthImageViewCreateInfo);
+
 
     int graphicsFamily = -1;
     std::tie(graphicsFamily, std::ignore) = _physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, _surface);
