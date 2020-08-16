@@ -24,6 +24,7 @@ namespace vsg
     public:
         Sampler();
 
+        /// VkSamplerCreateInfo settings
         VkSamplerCreateFlags    flags = 0;
         VkFilter                magFilter = VK_FILTER_LINEAR;
         VkFilter                minFilter = VK_FILTER_LINEAR;
@@ -41,6 +42,9 @@ namespace vsg
         VkBorderColor           borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
         VkBool32                unnormalizedCoordinates = VK_FALSE;
 
+        // Vulkan VkSampler handle
+        VkSampler vk(uint32_t deviceID) const { return _implementation[deviceID]->_sampler; }
+
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -48,8 +52,6 @@ namespace vsg
 
         void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
         void release() { _implementation.clear(); }
-
-        VkSampler vk(uint32_t deviceID) const { return _implementation[deviceID]->_sampler; }
 
     protected:
         virtual ~Sampler();

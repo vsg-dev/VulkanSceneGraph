@@ -28,9 +28,13 @@ namespace vsg
         PipelineLayout();
         PipelineLayout(const DescriptorSetLayouts& in_setLayouts, const PushConstantRanges& in_pushConstantRanges, VkPipelineLayoutCreateFlags in_flags = 0);
 
+        /// VkPipelineLayoutCreateInfo settings
         VkPipelineLayoutCreateFlags flags = 0;
         DescriptorSetLayouts setLayouts;
         PushConstantRanges pushConstantRanges;
+
+        /// Vulkan VkPipelineLayout handle
+        VkPipelineLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipelineLayout; }
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -39,8 +43,6 @@ namespace vsg
 
         void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
         void release() { _implementation.clear(); }
-
-        VkPipelineLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipelineLayout; }
 
     protected:
         virtual ~PipelineLayout();

@@ -54,12 +54,15 @@ namespace vsg
         ShaderModule(const SPIRV& in_code);
         ShaderModule(const std::string& source, const SPIRV& in_code);
 
+        /// VkShaderModuleCreateInfo settings
         std::string source;
         SPIRV code;
 
+        /// Vulkan VkShaderModule handle
+        VkShaderModule vk(uint32_t deviceID) const { return _implementation[deviceID]->_shaderModule; }
+
         void read(Input& input) override;
         void write(Output& output) const override;
-
 
         static ref_ptr<ShaderModule> read(const std::string& filename);
 
@@ -70,7 +73,6 @@ namespace vsg
         void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
         void release() { _implementation.clear(); }
 
-        VkShaderModule vk(uint32_t deviceID) const { return _implementation[deviceID]->_shaderModule; }
 
     protected:
         virtual ~ShaderModule();

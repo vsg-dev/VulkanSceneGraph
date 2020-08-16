@@ -25,7 +25,8 @@ namespace vsg
     public:
         DescriptorTexelBufferView(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferViewList& texelBufferViews);
 
-        const VkBufferView* pTexelBufferView;
+        // TODO : need to convert BufferView as with per Device buffering
+        // BufferViewList texelBufferViews;
 
         void assignTo(Context& context, VkWriteDescriptorSet& wds) const override;
 
