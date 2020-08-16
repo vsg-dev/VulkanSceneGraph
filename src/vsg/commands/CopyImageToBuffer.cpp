@@ -24,7 +24,7 @@ void CopyImageToBuffer::record(CommandBuffer& commandBuffer) const
 {
     vkCmdCopyImageToBuffer(
         commandBuffer,
-        *srcImage,
+        srcImage->vk(commandBuffer.deviceID),
         srcImageLayout,
         *dstBuffer,
         static_cast<uint32_t>(regions.size()),

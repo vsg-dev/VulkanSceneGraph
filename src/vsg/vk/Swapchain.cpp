@@ -131,6 +131,7 @@ VkPresentModeKHR vsg::selectSwapPresentMode(const SwapChainSupportDetails& detai
 //
 // SwapchainImage
 //
+
 SwapchainImage::SwapchainImage(VkImage image, Device* device) :
     Inherit(image, device)
 {
@@ -138,8 +139,11 @@ SwapchainImage::SwapchainImage(VkImage image, Device* device) :
 
 SwapchainImage::~SwapchainImage()
 {
-    _deviceMemory = nullptr;
-    _image = VK_NULL_HANDLE;
+    for(auto& vd : _vulkanData)
+    {
+        vd.deviceMemory = nullptr;
+        vd.image = VK_NULL_HANDLE;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -224,8 +228,17 @@ Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* su
 
     for (std::size_t i = 0; i < images.size(); ++i)
     {
-        ref_ptr<ImageView> view = ImageView::create(device, new SwapchainImage(images[i], device), VK_IMAGE_VIEW_TYPE_2D, surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
-        if (view) getImageViews().push_back(view);
+        auto imageView = ImageView::create(SwapchainImage::create(images[i], device));
+        imageView->viewType = VK_IMAGE_VIEW_TYPE_2D;
+        imageView->format = surfaceFormat.format;
+        imageView->subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        imageView->subresourceRange.baseMipLevel = 0;
+        imageView->subresourceRange.levelCount = 1;
+        imageView->subresourceRange.baseArrayLayer = 0;
+        imageView->subresourceRange.layerCount = 1;
+        imageView->compile(device);
+
+        _imageViews.push_back(imageView);
     }
 }
 

@@ -59,10 +59,12 @@ namespace vsg
 
     using BufferDataList = std::vector<BufferData>;
 
-    BufferDataList createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
+    extern VSG_DECLSPEC BufferData copyDataToStagingBuffer(Context& context, const Data* data);
 
-    BufferDataList createHostVisibleBuffer(Device* device, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
+    extern VSG_DECLSPEC BufferDataList createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 
-    void copyDataListToBuffers(BufferDataList& bufferDataList);
+    extern VSG_DECLSPEC BufferDataList createHostVisibleBuffer(Device* device, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
+
+    extern VSG_DECLSPEC void copyDataListToBuffers(BufferDataList& bufferDataList);
 
 } // namespace vsg

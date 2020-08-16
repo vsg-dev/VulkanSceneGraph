@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/commands/CopyAndReleaseImageDataCommand.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/traversals/CompileTraversal.h>
@@ -17,40 +18,118 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// vsg::computeNumMipMapLevels
+//
+uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
+{
+    uint32_t mipLevels = sampler != nullptr ? static_cast<uint32_t>(ceil(sampler->maxLod)) : 1;
+    if (mipLevels == 0)
+    {
+        mipLevels = 1;
+    }
+
+    // clamp the mipLevels so that its no larger than what the data dimensions support
+    uint32_t maxDimension = std::max({data->width(), data->height(), data->depth()});
+    while ((1u << (mipLevels - 1)) > maxDimension)
+    {
+        --mipLevels;
+    }
+
+    //mipLevels = 1;  // disable mipmapping
+
+    return mipLevels;
+}
+
+void ImageData::computeNumMipMapLevels()
+{
+    if (imageView && imageView->image && imageView->image->data)
+    {
+        auto image = imageView->image;
+        auto mipLevels = vsg::computeNumMipMapLevels(image->data, sampler);
+        image->mipLevels = mipLevels;
+        imageView->subresourceRange.levelCount = mipLevels;
+
+        const auto& mipmapOffsets = image->data->computeMipmapOffsets();
+        bool generatMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
+        if (generatMipmaps) image->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// DescriptorImage
+//
 DescriptorImage::DescriptorImage() :
     Inherit(0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
 {
 }
 
-DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> image, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> data, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
 {
-    if (sampler || image) _samplerImages.emplace_back(SamplerImage{sampler, image});
+    if (sampler && data)
+    {
+        auto image = Image::create(data);
+        auto imageView = ImageView::create(image);
+        _imageDataList.emplace_back(ImageData{sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+    }
 }
 
-DescriptorImage::DescriptorImage(const SamplerImage& samplerImage, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+DescriptorImage::DescriptorImage(const SamplerImage& si, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
 {
-    if (samplerImage.sampler || samplerImage.data) _samplerImages.emplace_back(samplerImage);
+    if (si.sampler && si.data)
+    {
+        auto image = Image::create(si.data);
+        auto imageView = ImageView::create(image);
+        _imageDataList.emplace_back(ImageData{si.sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+    }
 }
 
 DescriptorImage::DescriptorImage(const SamplerImages& samplerImages, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
+{
+    for(auto& si : samplerImages)
+    {
+        if (si.sampler && si.data)
+        {
+            auto image = Image::create(si.data);
+            auto imageView = ImageView::create(image);
+            _imageDataList.emplace_back(ImageData{si.sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+        }
+    }
+}
+
+DescriptorImage::DescriptorImage(const ImageData& imageData, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
+{
+    _imageDataList.push_back(imageData);
+}
+
+DescriptorImage::DescriptorImage(const ImageDataList& imageDataList, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType),
-    _samplerImages(samplerImages)
+    _imageDataList(imageDataList)
 {
 }
 
 void DescriptorImage::read(Input& input)
 {
-    _vulkanData.clear();
-
     Descriptor::read(input);
 
-    _samplerImages.resize(input.readValue<uint32_t>("NumImages"));
-    for (auto& samplerImage : _samplerImages)
+    // TODO old version
+
+    _imageDataList.resize(input.readValue<uint32_t>("NumImages"));
+    for (auto& imageData : _imageDataList)
     {
-        input.readObject("Sampler", samplerImage.sampler);
-        input.readObject("Image", samplerImage.data);
+        ref_ptr<Data> data;
+        input.readObject("Sampler", imageData.sampler);
+        input.readObject("Image", data);
+
+        auto image = Image::create(data);
+        imageData.imageView = ImageView::create(image);
+        imageData.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     }
 }
 
@@ -58,31 +137,51 @@ void DescriptorImage::write(Output& output) const
 {
     Descriptor::write(output);
 
-    output.writeValue<uint32_t>("NumImages", _samplerImages.size());
-    for (auto& samplerImage : _samplerImages)
+    // TODO old version
+
+    output.writeValue<uint32_t>("NumImages", _imageDataList.size());
+    for (auto& imageData : _imageDataList)
     {
-        output.writeObject("Sampler", samplerImage.sampler.get());
-        output.writeObject("Image", samplerImage.data.get());
+        output.writeObject("Sampler", imageData.sampler.get());
+
+        ref_ptr<Data> data;
+        if (imageData.imageView && imageData.imageView->image) data = imageData.imageView->image->data;
+
+        output.writeObject("Image", data.get());
     }
 }
 
 void DescriptorImage::compile(Context& context)
 {
-    if (_samplerImages.empty()) return;
+    if (_imageDataList.empty()) return;
 
-    auto& vkd = _vulkanData[context.deviceID];
-
-    // check if we have already compiled the imageData.
-    if (vkd.imageDataList.size() == _samplerImages.size()) return;
-
-    if (!_samplerImages.empty())
+    for(auto& imageData : _imageDataList)
     {
-        vkd.imageDataList.clear();
-        vkd.imageDataList.reserve(_samplerImages.size());
-        for (auto& samplerImage : _samplerImages)
+        if (imageData.sampler) imageData.sampler->compile(context);
+        if (imageData.imageView)
         {
-            samplerImage.sampler->compile(context);
-            vkd.imageDataList.emplace_back(vsg::transferImageData(context, samplerImage.data, samplerImage.sampler));
+            auto imageView = imageData.imageView;
+            if (imageView->image && imageView->image->data)
+            {
+                imageData.computeNumMipMapLevels();
+
+                auto image = imageView->image;
+
+                imageView->compile(context);
+
+                if (image && image->data)
+                {
+                    auto stagingBufferData = copyDataToStagingBuffer(context, image->data);
+                    if (stagingBufferData)
+                    {
+                        context.commands.emplace_back(new CopyAndReleaseImageDataCommand(stagingBufferData, imageData, image->mipLevels));
+                    }
+                }
+            }
+            else
+            {
+                imageView->compile(context);
+            }
         }
     }
 }
@@ -91,15 +190,13 @@ void DescriptorImage::assignTo(Context& context, VkWriteDescriptorSet& wds) cons
 {
     Descriptor::assignTo(context, wds);
 
-    auto& vkd = _vulkanData[context.deviceID];
-
     // convert from VSG to Vk
-    auto pImageInfo = context.scratchMemory->allocate<VkDescriptorImageInfo>(vkd.imageDataList.size());
-    wds.descriptorCount = static_cast<uint32_t>(vkd.imageDataList.size());
+    auto pImageInfo = context.scratchMemory->allocate<VkDescriptorImageInfo>(_imageDataList.size());
+    wds.descriptorCount = static_cast<uint32_t>(_imageDataList.size());
     wds.pImageInfo = pImageInfo;
-    for (size_t i = 0; i < vkd.imageDataList.size(); ++i)
+    for (size_t i = 0; i < _imageDataList.size(); ++i)
     {
-        const ImageData& data = vkd.imageDataList[i];
+        const ImageData& data = _imageDataList[i];
 
         VkDescriptorImageInfo& info = pImageInfo[i];
         if (data.sampler)
@@ -108,7 +205,7 @@ void DescriptorImage::assignTo(Context& context, VkWriteDescriptorSet& wds) cons
             info.sampler = 0;
 
         if (data.imageView)
-            info.imageView = *(data.imageView);
+            info.imageView = data.imageView->vk(context.deviceID);
         else
             info.imageView = 0;
 
@@ -118,5 +215,5 @@ void DescriptorImage::assignTo(Context& context, VkWriteDescriptorSet& wds) cons
 
 uint32_t DescriptorImage::getNumDescriptors() const
 {
-    return static_cast<uint32_t>(_samplerImages.size());
+    return static_cast<uint32_t>(_imageDataList.size());
 }

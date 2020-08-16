@@ -51,6 +51,7 @@ void BufferMemoryBarrier::assign(VkBufferMemoryBarrier& info, ScratchMemory& scr
 //
 void ImageMemoryBarrier::assign(VkImageMemoryBarrier& info, ScratchMemory& scratchMemory) const
 {
+    uint32_t deviceID = 0;
     info.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     info.pNext = next ? next->assign(scratchMemory) : nullptr;
     info.srcAccessMask = srcAccessMask;
@@ -59,7 +60,7 @@ void ImageMemoryBarrier::assign(VkImageMemoryBarrier& info, ScratchMemory& scrat
     info.newLayout = newLayout;
     info.srcQueueFamilyIndex = srcQueueFamilyIndex; // Queue::queueFamilyIndex() or VK_QUEUE_FAMILY_IGNORED
     info.dstQueueFamilyIndex = dstQueueFamilyIndex; // Queue::queueFamilyIndex() or VK_QUEUE_FAMILY_IGNORED
-    info.image = image.valid() ? VkImage(*image) : VK_NULL_HANDLE;
+    info.image = image.valid() ? image->vk(deviceID) : VK_NULL_HANDLE;
     info.subresourceRange = subresourceRange;
 }
 

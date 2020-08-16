@@ -68,6 +68,8 @@ set(SOURCES
     state/ResourceHints.cpp
     state/StateCommand.cpp
     state/StateGroup.cpp
+    state/Image.cpp
+    state/ImageView.cpp
 
     io/FileSystem.cpp
     io/AsciiInput.cpp
@@ -132,9 +134,6 @@ set(SOURCES
     vk/Extensions.cpp
     vk/Fence.cpp
     vk/Framebuffer.cpp
-    vk/Image.cpp
-    vk/ImageData.cpp
-    vk/ImageView.cpp
     vk/Instance.cpp
     vk/MemoryBufferPools.cpp
     vk/PhysicalDevice.cpp

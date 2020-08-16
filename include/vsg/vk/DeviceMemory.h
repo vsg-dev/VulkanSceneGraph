@@ -79,6 +79,9 @@ namespace vsg
         VkDeviceSize maximumAvailableSpace() const { return _memorySlots.maximumAvailableSpace(); }
         const MemorySlots& memorySlots() const { return _memorySlots; }
 
+        Device* getDevice() { return _device; }
+        const Device* getDevice() const { return _device; }
+
     protected:
         virtual ~DeviceMemory();
 
