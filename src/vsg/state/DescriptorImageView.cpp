@@ -61,7 +61,7 @@ void DescriptorImageView::compile(Context& context)
                 0, VK_ACCESS_SHADER_READ_BIT,
                 VK_IMAGE_LAYOUT_UNDEFINED, _imageDataList[i].imageLayout,
                 VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
-                ref_ptr<Image>(_imageDataList[i].imageView->getImage()),
+                _imageDataList[i].imageView->image,
                 VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 
             auto pb_transitionLayoutMemoryBarrier = PipelineBarrier::create(

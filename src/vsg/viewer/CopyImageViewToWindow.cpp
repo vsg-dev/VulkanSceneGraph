@@ -33,14 +33,14 @@ void CopyImageViewToWindow::record(CommandBuffer& commandBuffer) const
         0, VK_ACCESS_TRANSFER_WRITE_BIT,
         VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
         VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
-        ref_ptr<Image>(imageView->getImage()),
+        imageView->image,
         VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 
     auto ibm_transitionStorageImageToReadSrc = vsg::ImageMemoryBarrier::create(
         0, VK_ACCESS_TRANSFER_READ_BIT,
         VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
         VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
-        ref_ptr<Image>(srcImageView->getImage()),
+        srcImageView->image,
         VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 
     auto pb_transitionStorageImageToReadSrc = PipelineBarrier::create(
@@ -60,9 +60,9 @@ void CopyImageViewToWindow::record(CommandBuffer& commandBuffer) const
     copyRegion.extent = {_extent2D.width, _extent2D.height, 1};
 
     auto copyImage = CopyImage::create();
-    copyImage->srcImage = srcImageView->getImage();
+    copyImage->srcImage = srcImageView->image;
     copyImage->srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-    copyImage->dstImage = imageView->getImage();
+    copyImage->dstImage = imageView->image;
     copyImage->dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     copyImage->regions.emplace_back(copyRegion);
 
@@ -73,14 +73,14 @@ void CopyImageViewToWindow::record(CommandBuffer& commandBuffer) const
         VK_ACCESS_TRANSFER_WRITE_BIT, 0,
         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
         VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
-        ref_ptr<Image>(imageView->getImage()),
+        imageView->image,
         VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 
     auto imb_transitionStorageImageToOriginal = ImageMemoryBarrier::create(
         VK_ACCESS_TRANSFER_READ_BIT, 0,
         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL,
         VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
-        ref_ptr<Image>(srcImageView->getImage()),
+        srcImageView->image,
         VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 
     auto pb_transitionStorageImageToOriginal = PipelineBarrier::create(

@@ -35,10 +35,6 @@ namespace vsg
         /// Vulkan VkImageView handle
         VkImageView vk(uint32_t deviceID) const { return _vulkanData[deviceID].imageView; }
 
-        void setImage(Image* in_image) { image = in_image; }
-        Image* getImage() { return image; }
-        const Image* getImage() const { return image; }
-
         virtual void compile(Device* device);
         virtual void compile(Context& context);
 
