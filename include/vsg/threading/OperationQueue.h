@@ -59,7 +59,7 @@ namespace vsg
 
         ref_ptr<Operation> take();
 
-        ref_ptr<Operation> take_when_avilable();
+        ref_ptr<Operation> take_when_available();
 
     protected:
         std::mutex _mutex;
