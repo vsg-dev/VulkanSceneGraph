@@ -25,8 +25,9 @@ namespace vsg
     {
     public:
         DescriptorSet();
-        DescriptorSet(ref_ptr<DescriptorSetLayout> in_descriptorSetLayout, const Descriptors& in_descriptors);
+        DescriptorSet(ref_ptr<DescriptorSetLayout> indescriptorSetLayout, const Descriptors& in_descriptors);
 
+        /// VkDescriptorSetAllocateInfo settings
         ref_ptr<DescriptorSetLayout> setLayout;
         Descriptors descriptors;
 
@@ -81,29 +82,35 @@ namespace vsg
     public:
         BindDescriptorSets();
 
-        BindDescriptorSets(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, uint32_t firstSet, const DescriptorSets& descriptorSets) :
+        BindDescriptorSets(VkPipelineBindPoint in_bindPoint, PipelineLayout* in_layout, uint32_t in_firstSet, const DescriptorSets& in_descriptorSets) :
             Inherit(1), // slot 1
-            _bindPoint(bindPoint),
-            _firstSet(firstSet),
-            _pipelineLayout(pipelineLayout),
-            _descriptorSets(descriptorSets)
+            pipelineBindPoint(in_bindPoint),
+            layout(in_layout),
+            firstSet(in_firstSet),
+            descriptorSets(in_descriptorSets)
         {
         }
 
-        BindDescriptorSets(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, const DescriptorSets& descriptorSets) :
+        BindDescriptorSets(VkPipelineBindPoint in_bindPoint, PipelineLayout* in_layout, const DescriptorSets& in_descriptorSets) :
             Inherit(1), // slot 1
-            _bindPoint(bindPoint),
-            _firstSet(0),
-            _pipelineLayout(pipelineLayout),
-            _descriptorSets(descriptorSets)
+            pipelineBindPoint(in_bindPoint),
+            layout(in_layout),
+            firstSet(0),
+            descriptorSets(in_descriptorSets)
         {
         }
+
+        /// vkCmdBindDescriptorSets settings
+        VkPipelineBindPoint pipelineBindPoint;
+        ref_ptr<PipelineLayout> layout;
+        uint32_t firstSet;
+        DescriptorSets descriptorSets;
 
         template<class N, class V>
         static void t_traverse(N& bds, V& visitor)
         {
-            if (bds._pipelineLayout) bds._pipelineLayout->accept(visitor);
-            for (auto& ds : bds._descriptorSets) ds->accept(visitor);
+            if (bds.layout) bds.layout->accept(visitor);
+            for (auto& ds : bds.descriptorSets) ds->accept(visitor);
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
@@ -112,11 +119,11 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        VkPipelineBindPoint getBindPoint() { return _bindPoint; }
-        PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
-        const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
-        uint32_t getFirstSet() { return _firstSet; }
-        const DescriptorSets& getDescriptorSets() const { return _descriptorSets; }
+        VkPipelineBindPoint getBindPoint() { return pipelineBindPoint; }
+        PipelineLayout* getPipelineLayout() { return layout; }
+        const PipelineLayout* getPipelineLayout() const { return layout; }
+        uint32_t getFirstSet() { return firstSet; }
+        const DescriptorSets& getDescriptorSets() const { return descriptorSets; }
 
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context) override;
@@ -126,9 +133,6 @@ namespace vsg
     protected:
         virtual ~BindDescriptorSets() {}
 
-        VkPipelineBindPoint _bindPoint;
-        uint32_t _firstSet;
-
         struct VulkanData
         {
             VkPipelineLayout _vkPipelineLayout = 0;
@@ -137,8 +141,6 @@ namespace vsg
 
         vk_buffer<VulkanData> _vulkanData;
 
-        ref_ptr<PipelineLayout> _pipelineLayout;
-        DescriptorSets _descriptorSets;
     };
     VSG_type_name(vsg::BindDescriptorSets);
 
@@ -147,29 +149,34 @@ namespace vsg
     public:
         BindDescriptorSet();
 
-        BindDescriptorSet(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, uint32_t firstSet, DescriptorSet* descriptorSet) :
+        BindDescriptorSet(VkPipelineBindPoint in_bindPoint, PipelineLayout* in_pipelineLayout, uint32_t in_firstSet, DescriptorSet* in_descriptorSet) :
             Inherit(1), // slot 1
-            _bindPoint(bindPoint),
-            _firstSet(firstSet),
-            _pipelineLayout(pipelineLayout),
-            _descriptorSet(descriptorSet)
+            pipelineBindPoint(in_bindPoint),
+            layout(in_pipelineLayout),
+            firstSet(in_firstSet),
+            descriptorSet(in_descriptorSet)
         {
         }
 
-        BindDescriptorSet(VkPipelineBindPoint bindPoint, PipelineLayout* pipelineLayout, DescriptorSet* descriptorSet) :
+        BindDescriptorSet(VkPipelineBindPoint in_bindPoint, PipelineLayout* in_pipelineLayout, DescriptorSet* in_descriptorSet) :
             Inherit(1), // slot 1
-            _bindPoint(bindPoint),
-            _firstSet(0),
-            _pipelineLayout(pipelineLayout),
-            _descriptorSet(descriptorSet)
+            pipelineBindPoint(in_bindPoint),
+            layout(in_pipelineLayout),
+            firstSet(0),
+            descriptorSet(in_descriptorSet)
         {
         }
+
+        VkPipelineBindPoint pipelineBindPoint;
+        ref_ptr<PipelineLayout> layout;
+        uint32_t firstSet;
+        ref_ptr<DescriptorSet> descriptorSet;
 
         template<class N, class V>
         static void t_traverse(N& bds, V& visitor)
         {
-            if (bds._pipelineLayout) bds._pipelineLayout->accept(visitor);
-            if (bds._descriptorSet) bds._descriptorSet->accept(visitor);
+            if (bds.layout) bds.layout->accept(visitor);
+            if (bds.descriptorSet) bds.descriptorSet->accept(visitor);
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
@@ -178,12 +185,12 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        VkPipelineBindPoint getBindPoint() const { return _bindPoint; }
-        PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
-        const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
-        uint32_t getFirstSet() const { return _firstSet; }
-        DescriptorSet* getDescriptorSet() { return _descriptorSet; }
-        const DescriptorSet* getDescriptorSet() const { return _descriptorSet; }
+        VkPipelineBindPoint getBindPoint() const { return pipelineBindPoint; }
+        PipelineLayout* getPipelineLayout() { return layout; }
+        const PipelineLayout* getPipelineLayout() const { return layout; }
+        uint32_t getFirstSet() const { return firstSet; }
+        DescriptorSet* getDescriptorSet() { return descriptorSet; }
+        const DescriptorSet* getDescriptorSet() const { return descriptorSet; }
 
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context) override;
@@ -193,9 +200,6 @@ namespace vsg
     protected:
         virtual ~BindDescriptorSet() {}
 
-        VkPipelineBindPoint _bindPoint;
-        uint32_t _firstSet;
-
         struct VulkanData
         {
             VkPipelineLayout _vkPipelineLayout = 0;
@@ -204,9 +208,6 @@ namespace vsg
 
         vk_buffer<VulkanData> _vulkanData;
 
-        // settings
-        ref_ptr<PipelineLayout> _pipelineLayout;
-        ref_ptr<DescriptorSet> _descriptorSet;
     };
     VSG_type_name(vsg::BindDescriptorSet);
 
