@@ -13,13 +13,30 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/io/Options.h>
 #include <vsg/vk/BufferView.h>
+#include <vsg/vk/Context.h>
 
 using namespace vsg;
 
-BufferView::BufferView(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range) :
-    _device(buffer->getDevice()),
-    _buffer(buffer)
+void BufferView::VulkanData::release()
 {
+    if (bufferView)
+    {
+        vkDestroyBufferView(*device, bufferView, device->getAllocationCallbacks());
+        bufferView = VK_NULL_HANDLE;
+        device = {};
+    }
+}
+
+BufferView::~BufferView()
+{
+    for(auto& vd : _vulkanData) vd.release();
+}
+
+void BufferView::compile(Device* device)
+{
+    auto& vd = _vulkanData[device->deviceID];
+    if (vd.bufferView != VK_NULL_HANDLE) return;
+
     VkBufferViewCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO;
     createInfo.buffer = *buffer;
@@ -28,16 +45,15 @@ BufferView::BufferView(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkD
     createInfo.range = range;
     createInfo.pNext = nullptr;
 
-    if (VkResult result = vkCreateBufferView(*(buffer->getDevice()), &createInfo, _device->getAllocationCallbacks(), &_bufferView); result != VK_SUCCESS)
+    vd.device = device;
+
+    if (VkResult result = vkCreateBufferView(*device, &createInfo, device->getAllocationCallbacks(), &vd.bufferView); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create BufferView.", result};
     }
 }
 
-BufferView::~BufferView()
+void BufferView::compile(Context& context)
 {
-    if (_bufferView)
-    {
-        vkDestroyBufferView(*_device, _bufferView, _device->getAllocationCallbacks());
-    }
+    compile(context.device);
 }

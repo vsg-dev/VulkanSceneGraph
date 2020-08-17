@@ -19,20 +19,30 @@ using namespace vsg;
 
 DescriptorTexelBufferView::DescriptorTexelBufferView(uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType, const BufferViewList& in_texelBufferViews) :
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType),
-    _texelBufferViewList(in_texelBufferViews)
+    texelBufferViews(in_texelBufferViews)
 {
+}
+
+void DescriptorTexelBufferView::compile(Context& context)
+{
+    if (texelBufferViews.empty()) return;
+
+    for(auto& bufferView : texelBufferViews)
+    {
+        bufferView->compile(context);
+    }
 }
 
 void DescriptorTexelBufferView::assignTo(Context& context, VkWriteDescriptorSet& wds) const
 {
     Descriptor::assignTo(context, wds);
 
-    auto texelBufferViews = context.scratchMemory->allocate<VkBufferView>(_texelBufferViewList.size());
-    wds.descriptorCount = static_cast<uint32_t>(_texelBufferViewList.size());
-    wds.pTexelBufferView = texelBufferViews;
+    auto vk_texelBufferViews = context.scratchMemory->allocate<VkBufferView>(texelBufferViews.size());
+    wds.descriptorCount = static_cast<uint32_t>(texelBufferViews.size());
+    wds.pTexelBufferView = vk_texelBufferViews;
 
-    for (size_t i = 0; i < _texelBufferViewList.size(); ++i)
+    for (size_t i = 0; i < texelBufferViews.size(); ++i)
     {
-        texelBufferViews[i] = *(_texelBufferViewList[i]);
+        vk_texelBufferViews[i] = texelBufferViews[i]->vk(context.deviceID);
     }
 }
