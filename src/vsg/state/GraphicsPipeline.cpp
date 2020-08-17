@@ -25,12 +25,11 @@ using namespace vsg;
 GraphicsPipeline::GraphicsPipeline()
 {
 }
-
-GraphicsPipeline::GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass) :
-    _pipelineLayout(pipelineLayout),
-    _shaderStages(shaderStages),
-    _pipelineStates(pipelineStates),
-    _subpass(subpass)
+GraphicsPipeline::GraphicsPipeline(PipelineLayout* in_pipelineLayout, const ShaderStages& in_shaderStages, const GraphicsPipelineStates& in_pipelineStates, uint32_t in_subpass) :
+    stages(in_shaderStages),
+    pipelineStates(in_pipelineStates),
+    layout(in_pipelineLayout),
+    subpass(in_subpass)
 {
 }
 
@@ -42,62 +41,62 @@ void GraphicsPipeline::read(Input& input)
 {
     Object::read(input);
 
-    input.readObject("PipelineLayout", _pipelineLayout);
+    input.readObject("PipelineLayout", layout);
 
-    _shaderStages.resize(input.readValue<uint32_t>("NumShaderStages"));
-    for (auto& shaderStage : _shaderStages)
+    stages.resize(input.readValue<uint32_t>("NumShaderStages"));
+    for (auto& shaderStage : stages)
     {
         input.readObject("ShaderStage", shaderStage);
     }
 
-    _pipelineStates.resize(input.readValue<uint32_t>("NumPipelineStates"));
-    for (auto& pipelineState : _pipelineStates)
+    pipelineStates.resize(input.readValue<uint32_t>("NumPipelineStates"));
+    for (auto& pipelineState : pipelineStates)
     {
         input.readObject("PipelineState", pipelineState);
     }
 
-    input.read("subpass", _subpass);
+    input.read("subpass", subpass);
 }
 
 void GraphicsPipeline::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeObject("PipelineLayout", _pipelineLayout.get());
+    output.writeObject("PipelineLayout", layout.get());
 
-    output.writeValue<uint32_t>("NumShaderStages", _shaderStages.size());
-    for (auto& shaderStage : _shaderStages)
+    output.writeValue<uint32_t>("NumShaderStages", stages.size());
+    for (auto& shaderStage : stages)
     {
         output.writeObject("ShaderStage", shaderStage.get());
     }
 
-    output.writeValue<uint32_t>("NumPipelineStates", _pipelineStates.size());
-    for (auto& pipelineState : _pipelineStates)
+    output.writeValue<uint32_t>("NumPipelineStates", pipelineStates.size());
+    for (auto& pipelineState : pipelineStates)
     {
         output.writeObject("PipelineState", pipelineState.get());
     }
 
-    output.write("subpass", _subpass);
+    output.write("subpass", subpass);
 }
 
 void GraphicsPipeline::compile(Context& context)
 {
     if (!_implementation[context.deviceID])
     {
-        _pipelineLayout->compile(context);
+        layout->compile(context);
 
-        for (auto& shaderStage : _shaderStages)
+        for (auto& shaderStage : stages)
         {
             shaderStage->compile(context);
         }
 
         GraphicsPipelineStates combined_pipelineStates = context.defaultPipelineStates;
-        combined_pipelineStates.insert(combined_pipelineStates.end(), _pipelineStates.begin(), _pipelineStates.end());
+        combined_pipelineStates.insert(combined_pipelineStates.end(), pipelineStates.begin(), pipelineStates.end());
         combined_pipelineStates.insert(combined_pipelineStates.end(), context.overridePipelineStates.begin(), context.overridePipelineStates.end());
 
         // TODO : current buffering of GraphicsPipeline::Implementation assumes a single VkPipelie for each Device, but could potentially vary with Device, RenerPass, combined_PipelinStates
         // so will need to have some form of contextID/renderID that wraps all these variables up and indexes the buffer using it instead of deviceID.
-        _implementation[context.deviceID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, _pipelineLayout, _shaderStages, combined_pipelineStates, _subpass);
+        _implementation[context.deviceID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, layout, stages, combined_pipelineStates, subpass);
     }
 }
 
@@ -152,9 +151,9 @@ GraphicsPipeline::Implementation::~Implementation()
 //
 // BindGraphicsPipeline
 //
-BindGraphicsPipeline::BindGraphicsPipeline(GraphicsPipeline* pipeline) :
+BindGraphicsPipeline::BindGraphicsPipeline(GraphicsPipeline* in_pipeline) :
     Inherit(0), // slot 0
-    _pipeline(pipeline)
+    pipeline(in_pipeline)
 {
 }
 
@@ -166,28 +165,28 @@ void BindGraphicsPipeline::read(Input& input)
 {
     StateCommand::read(input);
 
-    input.readObject("GraphicsPipeline", _pipeline);
+    input.readObject("GraphicsPipeline", pipeline);
 }
 
 void BindGraphicsPipeline::write(Output& output) const
 {
     StateCommand::write(output);
 
-    output.writeObject("GraphicsPipeline", _pipeline.get());
+    output.writeObject("GraphicsPipeline", pipeline.get());
 }
 
 void BindGraphicsPipeline::record(CommandBuffer& commandBuffer) const
 {
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline->vk(commandBuffer.deviceID));
-    commandBuffer.setCurrentPipelineLayout(_pipeline->getPipelineLayout()->vk(commandBuffer.deviceID));
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->vk(commandBuffer.deviceID));
+    commandBuffer.setCurrentPipelineLayout(pipeline->getPipelineLayout()->vk(commandBuffer.deviceID));
 }
 
 void BindGraphicsPipeline::compile(Context& context)
 {
-    if (_pipeline) _pipeline->compile(context);
+    if (pipeline) pipeline->compile(context);
 }
 
 void BindGraphicsPipeline::release()
 {
-    if (_pipeline) _pipeline->release();
+    if (pipeline) pipeline->release();
 }
