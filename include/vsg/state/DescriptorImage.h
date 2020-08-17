@@ -18,23 +18,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_DECLSPEC ImageData
+    /// Settings that map to VkDescriptorImageInfo
+    class VSG_DECLSPEC ImageInfo
     {
     public:
-        ImageData() :
+        ImageInfo() :
             imageLayout(VK_IMAGE_LAYOUT_UNDEFINED) {}
 
-        ImageData(const ImageData& id) :
+        ImageInfo(const ImageInfo& id) :
             sampler(id.sampler),
             imageView(id.imageView),
             imageLayout(id.imageLayout) {}
 
-        ImageData(Sampler* in_sampler, ImageView* in_imageView, VkImageLayout in_imageLayout = VK_IMAGE_LAYOUT_UNDEFINED) :
+        ImageInfo(Sampler* in_sampler, ImageView* in_imageView, VkImageLayout in_imageLayout = VK_IMAGE_LAYOUT_UNDEFINED) :
             sampler(in_sampler),
             imageView(in_imageView),
             imageLayout(in_imageLayout) {}
 
-        ImageData& operator=(const ImageData& rhs)
+        ImageInfo& operator=(const ImageInfo& rhs)
         {
             sampler = rhs.sampler;
             imageView = rhs.imageView;
@@ -50,17 +51,19 @@ namespace vsg
         ref_ptr<ImageView> imageView;
         VkImageLayout imageLayout;
     };
-    using ImageDataList = std::vector<ImageData>;
+    using ImageInfoList = std::vector<ImageInfo>;
+
+    using ImageData = ImageInfo;
 
     extern VSG_DECLSPEC uint32_t computeNumMipMapLevels(const Data* data, const Sampler* sampler);
 
-    /// decpreacted
+    /// decpreacted, use ImageInfo instead
     struct SamplerImage
     {
         ref_ptr<Sampler> sampler;
         ref_ptr<Data> data;
     };
-    /// decpreacted
+    /// decpreacted, use ImageInfoList instead
     using SamplerImages = std::vector<SamplerImage>;
 
     class VSG_DECLSPEC DescriptorImage : public Inherit<Descriptor, DescriptorImage>
@@ -74,16 +77,16 @@ namespace vsg
         DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<T> image, uint32_t in_dstBinding = 0, uint32_t in_dstArrayElement = 0, VkDescriptorType in_descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) :
             DescriptorImage(sampler, ref_ptr<Data>(image), in_dstBinding, in_dstArrayElement, in_descriptorType) {}
 
-        /// decpreacted
+        DescriptorImage(const ImageInfo& imageData, uint32_t in_dstBinding = 0, uint32_t in_dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+        DescriptorImage(const ImageInfoList& in_imageInfoList, uint32_t in_dstBinding = 0, uint32_t in_dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+
+        /// SamplerImage decpreacted, replace with ImageInfo usage
         DescriptorImage(const SamplerImage& si, uint32_t in_dstBinding = 0, uint32_t in_dstArrayElement = 0, VkDescriptorType in_descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
         DescriptorImage(const SamplerImages& samplerImages, uint32_t in_dstBinding = 0, uint32_t in_dstArrayElement = 0, VkDescriptorType in_descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-        DescriptorImage(const ImageData& imageData, uint32_t in_dstBinding = 0, uint32_t in_dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-        DescriptorImage(const ImageDataList& imageDataList, uint32_t in_dstBinding = 0, uint32_t in_dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-
-        ImageDataList& getImageDataList() { return _imageDataList; }
-        const ImageDataList& getImageDataList() const { return _imageDataList; }
+        /// VkWriteDescriptorSet.pImageInfo settings
+        ImageInfoList imageInfoList;
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -95,7 +98,6 @@ namespace vsg
         uint32_t getNumDescriptors() const override;
 
     protected:
-        ImageDataList _imageDataList;
     };
     VSG_type_name(vsg::DescriptorImage);
 

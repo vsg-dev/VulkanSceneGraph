@@ -73,8 +73,20 @@ DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> data, u
     {
         auto image = Image::create(data);
         auto imageView = ImageView::create(image);
-        _imageDataList.emplace_back(ImageData{sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+        imageInfoList.emplace_back(ImageData{sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
     }
+}
+
+DescriptorImage::DescriptorImage(const ImageInfo& imageInfo, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
+{
+    imageInfoList.push_back(imageInfo);
+}
+
+DescriptorImage::DescriptorImage(const ImageInfoList& in_imageDataList, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType),
+    imageInfoList(in_imageDataList)
+{
 }
 
 DescriptorImage::DescriptorImage(const SamplerImage& si, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
@@ -84,7 +96,7 @@ DescriptorImage::DescriptorImage(const SamplerImage& si, uint32_t in_dstBinding,
     {
         auto image = Image::create(si.data);
         auto imageView = ImageView::create(image);
-        _imageDataList.emplace_back(ImageData{si.sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+        imageInfoList.emplace_back(ImageData{si.sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
     }
 }
 
@@ -97,21 +109,9 @@ DescriptorImage::DescriptorImage(const SamplerImages& samplerImages, uint32_t in
         {
             auto image = Image::create(si.data);
             auto imageView = ImageView::create(image);
-            _imageDataList.emplace_back(ImageData{si.sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+            imageInfoList.emplace_back(ImageData{si.sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
         }
     }
-}
-
-DescriptorImage::DescriptorImage(const ImageData& imageData, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
-    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
-{
-    _imageDataList.push_back(imageData);
-}
-
-DescriptorImage::DescriptorImage(const ImageDataList& imageDataList, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
-    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType),
-    _imageDataList(imageDataList)
-{
 }
 
 void DescriptorImage::read(Input& input)
@@ -120,8 +120,8 @@ void DescriptorImage::read(Input& input)
 
     // TODO old version
 
-    _imageDataList.resize(input.readValue<uint32_t>("NumImages"));
-    for (auto& imageData : _imageDataList)
+    imageInfoList.resize(input.readValue<uint32_t>("NumImages"));
+    for (auto& imageData : imageInfoList)
     {
         ref_ptr<Data> data;
         input.readObject("Sampler", imageData.sampler);
@@ -139,8 +139,8 @@ void DescriptorImage::write(Output& output) const
 
     // TODO old version
 
-    output.writeValue<uint32_t>("NumImages", _imageDataList.size());
-    for (auto& imageData : _imageDataList)
+    output.writeValue<uint32_t>("NumImages", imageInfoList.size());
+    for (auto& imageData : imageInfoList)
     {
         output.writeObject("Sampler", imageData.sampler.get());
 
@@ -153,9 +153,9 @@ void DescriptorImage::write(Output& output) const
 
 void DescriptorImage::compile(Context& context)
 {
-    if (_imageDataList.empty()) return;
+    if (imageInfoList.empty()) return;
 
-    for(auto& imageData : _imageDataList)
+    for(auto& imageData : imageInfoList)
     {
         if (imageData.sampler) imageData.sampler->compile(context);
         if (imageData.imageView)
@@ -191,12 +191,12 @@ void DescriptorImage::assignTo(Context& context, VkWriteDescriptorSet& wds) cons
     Descriptor::assignTo(context, wds);
 
     // convert from VSG to Vk
-    auto pImageInfo = context.scratchMemory->allocate<VkDescriptorImageInfo>(_imageDataList.size());
-    wds.descriptorCount = static_cast<uint32_t>(_imageDataList.size());
+    auto pImageInfo = context.scratchMemory->allocate<VkDescriptorImageInfo>(imageInfoList.size());
+    wds.descriptorCount = static_cast<uint32_t>(imageInfoList.size());
     wds.pImageInfo = pImageInfo;
-    for (size_t i = 0; i < _imageDataList.size(); ++i)
+    for (size_t i = 0; i < imageInfoList.size(); ++i)
     {
-        const ImageData& data = _imageDataList[i];
+        const ImageData& data = imageInfoList[i];
 
         VkDescriptorImageInfo& info = pImageInfo[i];
         if (data.sampler)
@@ -215,5 +215,5 @@ void DescriptorImage::assignTo(Context& context, VkWriteDescriptorSet& wds) cons
 
 uint32_t DescriptorImage::getNumDescriptors() const
 {
-    return static_cast<uint32_t>(_imageDataList.size());
+    return static_cast<uint32_t>(imageInfoList.size());
 }

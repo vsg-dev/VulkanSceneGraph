@@ -59,7 +59,6 @@ set(SOURCES
     state/Descriptor.cpp
     state/DescriptorBuffer.cpp
     state/DescriptorImage.cpp
-    state/DescriptorImageView.cpp
     state/DescriptorTexelBufferView.cpp
     state/DescriptorSetLayout.cpp
     state/ShaderModule.cpp

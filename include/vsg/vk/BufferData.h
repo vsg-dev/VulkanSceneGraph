@@ -22,6 +22,7 @@ namespace vsg
     class Context;
     class CommandBuffer;
 
+    /// Settings that map to VkDescriptorBufferInfo
     class VSG_DECLSPEC BufferData
     {
     public:
