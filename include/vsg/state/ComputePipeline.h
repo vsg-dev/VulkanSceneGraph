@@ -28,12 +28,16 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
-        const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
+        ref_ptr<PipelineLayout> layout;
+        ref_ptr<ShaderStage> stage;
 
-        ShaderStage* getShaderStage() { return _shaderStage; }
-        const ShaderStage* getShaderStage() const { return _shaderStage; }
+#ifdef DEPRECATED_API
+        PipelineLayout* getPipelineLayout() { return layout; }
+        const PipelineLayout* getPipelineLayout() const { return layout; }
 
+        ShaderStage* getShaderStage() { return stage; }
+        const ShaderStage* getShaderStage() const { return stage; }
+#endif
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);
 
@@ -52,16 +56,11 @@ namespace vsg
             virtual ~Implementation();
 
             VkPipeline _pipeline;
-
             ref_ptr<Device> _device;
-            ref_ptr<PipelineLayout> _pipelineLayout;
-            ref_ptr<ShaderStage> _shaderStage;
         };
 
         vk_buffer<ref_ptr<Implementation>> _implementation;
 
-        ref_ptr<PipelineLayout> _pipelineLayout;
-        ref_ptr<ShaderStage> _shaderStage;
     };
     VSG_type_name(vsg::ComputePipeline);
 
@@ -73,10 +72,13 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void setPipeline(ComputePipeline* pipeline) { _pipeline = pipeline; }
-        ComputePipeline* getPipeline() { return _pipeline; }
-        const ComputePipeline* getPipeline() const { return _pipeline; }
+        ref_ptr<ComputePipeline> pipeline;
 
+#ifdef DEPRECATED_API
+        void setPipeline(ComputePipeline* in_pipeline) { pipeline = in_pipeline; }
+        ComputePipeline* getPipeline() { return pipeline; }
+        const ComputePipeline* getPipeline() const { return pipeline; }
+#endif
         void record(CommandBuffer& commandBuffer) const override;
 
         // compile the Vulkan object, context parameter used for Device
@@ -85,7 +87,6 @@ namespace vsg
     public:
         virtual ~BindComputePipeline();
 
-        ref_ptr<ComputePipeline> _pipeline;
     };
     VSG_type_name(vsg::BindComputePipeline);
 
