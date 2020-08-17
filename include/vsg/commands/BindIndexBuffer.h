@@ -39,8 +39,6 @@ namespace vsg
         Data* getIndices() { return _indices; }
         const Data* getIndices() const { return _indices; }
 
-        void add(ref_ptr<Buffer> buffer, VkDeviceSize offset);
-
         void read(Input& input) override;
         void write(Output& output) const override;
 
