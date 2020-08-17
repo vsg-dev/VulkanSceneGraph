@@ -77,6 +77,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/PushConstants.h>
 
 // State header files
+#include <vsg/state/BufferView.h>
 #include <vsg/state/ComputePipeline.h>
 #include <vsg/state/Descriptor.h>
 #include <vsg/state/DescriptorBuffer.h>
@@ -148,7 +149,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/AllocationCallbacks.h>
 #include <vsg/vk/Buffer.h>
 #include <vsg/vk/BufferData.h>
-#include <vsg/vk/BufferView.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/Context.h>

@@ -51,6 +51,7 @@ set(SOURCES
     commands/Draw.cpp
     commands/DrawIndexed.cpp
 
+    state/BufferView.cpp
     state/ComputePipeline.cpp
     state/DescriptorSet.cpp
     state/GraphicsPipeline.cpp
@@ -124,7 +125,6 @@ set(SOURCES
 
     vk/Buffer.cpp
     vk/BufferData.cpp
-    vk/BufferView.cpp
     vk/CommandBuffer.cpp
     vk/CommandPool.cpp
     vk/Context.cpp

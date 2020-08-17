@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/state/Descriptor.h>
-#include <vsg/vk/BufferView.h>
+#include <vsg/state/BufferView.h>
 
 namespace vsg
 {
@@ -23,6 +23,7 @@ namespace vsg
     public:
         DescriptorTexelBufferView(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferViewList& in_texelBufferViews);
 
+        /// VkWriteDescriptorSet.pTexelBufferViews settings
         BufferViewList texelBufferViews;
 
         void compile(Context& context) override;
