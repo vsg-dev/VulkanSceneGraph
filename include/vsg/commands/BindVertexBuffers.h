@@ -30,19 +30,8 @@ namespace vsg
             _firstBinding(firstBinding),
             _arrays(arrays) {}
 
-        BindVertexBuffers(uint32_t firstBinding, const BufferDataList& bufferDataList) :
-            _firstBinding(firstBinding)
-        {
-            for (auto& bufferData : bufferDataList)
-            {
-                add(bufferData.buffer, bufferData.offset);
-            }
-        }
-
         void setFirstBinding(uint32_t firstBinding) { _firstBinding = firstBinding; }
         uint32_t getFirstBinding() const { return _firstBinding; }
-
-        void add(ref_ptr<Buffer> buffer, VkDeviceSize offset);
 
         void setArrays(const DataList& arrays) { _arrays = arrays; }
         DataList& getArrays() { return _arrays; }

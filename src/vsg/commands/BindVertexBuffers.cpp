@@ -32,16 +32,6 @@ BindVertexBuffers::~BindVertexBuffers()
     }
 }
 
-void BindVertexBuffers::add(ref_ptr<Buffer> buffer, VkDeviceSize offset)
-{
-    // assign to the appropriate compiledData for the buffer Device
-    auto& vkd = _vulkanData[buffer->getDevice()->deviceID];
-
-    vkd.buffers.push_back(buffer);
-    vkd.vkBuffers.push_back(*buffer);
-    vkd.offsets.push_back(offset);
-}
-
 void BindVertexBuffers::read(Input& input)
 {
     Command::read(input);

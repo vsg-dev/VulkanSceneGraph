@@ -41,25 +41,6 @@ BindIndexBuffer::BindIndexBuffer(Data* indices) :
 {
 }
 
-BindIndexBuffer::BindIndexBuffer(const BufferData& bufferData)
-{
-    if (bufferData.buffer.valid())
-    {
-        _indices = bufferData.data;
-
-        auto& vkd = _vulkanData[bufferData.buffer->getDevice()->deviceID];
-        vkd.bufferData = bufferData;
-        vkd.indexType = computeIndexType(bufferData.data);
-    }
-}
-
-BindIndexBuffer::BindIndexBuffer(Buffer* buffer, VkDeviceSize offset, VkIndexType indexType)
-{
-    auto& vkd = _vulkanData[buffer->getDevice()->deviceID];
-    vkd.bufferData = BufferData(buffer, offset, 0),
-    vkd.indexType = indexType;
-}
-
 BindIndexBuffer::~BindIndexBuffer()
 {
     for (auto& vkd : _vulkanData)

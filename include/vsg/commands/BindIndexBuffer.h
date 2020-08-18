@@ -31,10 +31,6 @@ namespace vsg
 
         BindIndexBuffer(Data* indices);
 
-        BindIndexBuffer(const BufferData& bufferData);
-
-        BindIndexBuffer(Buffer* buffer, VkDeviceSize offset, VkIndexType indexType);
-
         void setIndices(ref_ptr<Data> indices) { _indices = indices; }
         Data* getIndices() { return _indices; }
         const Data* getIndices() const { return _indices; }
