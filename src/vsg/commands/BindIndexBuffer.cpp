@@ -92,5 +92,5 @@ void BindIndexBuffer::compile(Context& context)
 void BindIndexBuffer::record(CommandBuffer& commandBuffer) const
 {
     auto& vkd = _vulkanData[commandBuffer.deviceID];
-    vkCmdBindIndexBuffer(commandBuffer, *vkd.bufferData.buffer, vkd.bufferData.offset, vkd.indexType);
+    vkCmdBindIndexBuffer(commandBuffer, vkd.bufferData.buffer->vk(commandBuffer.deviceID), vkd.bufferData.offset, vkd.indexType);
 }

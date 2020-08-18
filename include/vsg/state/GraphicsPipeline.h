@@ -38,6 +38,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
+#ifdef DEPRECATED_API
         PipelineLayout* getPipelineLayout() { return layout; }
         const PipelineLayout* getPipelineLayout() const { return layout; }
 
@@ -49,7 +50,7 @@ namespace vsg
 
         uint32_t& getSubpass() { return subpass; }
         uint32_t getSubpass() const { return subpass; }
-
+#endif
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);
 
@@ -91,10 +92,11 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
+#ifdef DEPRECATED_API
         void setPipeline(GraphicsPipeline* in_pipeline) { pipeline = in_pipeline; }
         GraphicsPipeline* getPipeline() { return pipeline; }
         const GraphicsPipeline* getPipeline() const { return pipeline; }
-
+#endif
         void record(CommandBuffer& commandBuffer) const override;
 
         // compile the Vulkan object, context parameter used for Device

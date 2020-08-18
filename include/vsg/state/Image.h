@@ -68,6 +68,7 @@ namespace vsg
             VkImage image = VK_NULL_HANDLE;
             ref_ptr<DeviceMemory> deviceMemory;
             VkDeviceSize memoryOffset = 0;
+            VkDeviceSize size = 0;
             ref_ptr<Device> device;
 
             void release();

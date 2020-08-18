@@ -27,7 +27,7 @@ void Image::VulkanData::release()
 
     if (deviceMemory)
     {
-        deviceMemory->release(memoryOffset, 0); // TODO, we don't locally have a size allocated
+        deviceMemory->release(memoryOffset, size);
         deviceMemory = {};
     }
 }

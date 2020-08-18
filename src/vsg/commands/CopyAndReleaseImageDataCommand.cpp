@@ -103,7 +103,7 @@ void CopyAndReleaseImageDataCommand::CopyData::record(CommandBuffer& commandBuff
             region.imageOffset = {0, 0, 0};
             region.imageExtent = {mipWidth, mipHeight, mipDepth};
 
-            vkCmdCopyBufferToImage(commandBuffer, *imageStagingBuffer, vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+            vkCmdCopyBufferToImage(commandBuffer, imageStagingBuffer->vk(commandBuffer.deviceID), vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
             if (mipWidth > 1) mipWidth /= 2;
             if (mipHeight > 1) mipHeight /= 2;
@@ -166,7 +166,7 @@ void CopyAndReleaseImageDataCommand::CopyData::record(CommandBuffer& commandBuff
         region.imageOffset = {0, 0, 0};
         region.imageExtent = {width, height, depth};
 
-        vkCmdCopyBufferToImage(commandBuffer, *imageStagingBuffer, vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+        vkCmdCopyBufferToImage(commandBuffer, imageStagingBuffer->vk(commandBuffer.deviceID), vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
         VkImageMemoryBarrier barrier = {};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -271,7 +271,7 @@ void CopyAndReleaseImageDataCommand::CopyData::record(CommandBuffer& commandBuff
         region.imageOffset = {0, 0, 0};
         region.imageExtent = {width, height, depth};
 
-        vkCmdCopyBufferToImage(commandBuffer, *imageStagingBuffer, vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+        vkCmdCopyBufferToImage(commandBuffer, imageStagingBuffer->vk(commandBuffer.deviceID), vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
         auto postCopyImageBarrier = ImageMemoryBarrier::create(
             VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,

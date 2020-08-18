@@ -96,7 +96,7 @@ void DescriptorBuffer::assignTo(Context& context, VkWriteDescriptorSet& wds) con
     {
         const BufferData& data = _bufferDataList[i];
         VkDescriptorBufferInfo& info = pBufferInfo[i];
-        info.buffer = *(data.buffer);
+        info.buffer = data.buffer->vk(context.deviceID);
         info.offset = data.offset;
         info.range = data.range;
     }

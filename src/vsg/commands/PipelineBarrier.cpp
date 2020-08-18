@@ -34,13 +34,14 @@ void MemoryBarrier::assign(VkMemoryBarrier& info, ScratchMemory& scratchMemory) 
 //
 void BufferMemoryBarrier::assign(VkBufferMemoryBarrier& info, ScratchMemory& scratchMemory) const
 {
+    uint32_t deviceID = 0; // TODO
     info.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
     info.pNext = next ? next->assign(scratchMemory) : nullptr;
     info.srcAccessMask = srcAccessMask;
     info.dstAccessMask = dstAccessMask;
     info.srcQueueFamilyIndex = srcQueueFamilyIndex; // Queue::queueFamilyIndex() or VK_QUEUE_FAMILY_IGNORED
     info.dstQueueFamilyIndex = dstQueueFamilyIndex; // Queue::queueFamilyIndex() or VK_QUEUE_FAMILY_IGNORED
-    info.buffer = buffer.valid() ? VkBuffer(*buffer) : VK_NULL_HANDLE;
+    info.buffer = buffer.valid() ? buffer->vk(deviceID) : VK_NULL_HANDLE;
     info.offset = offset;
     info.size = size;
 }
@@ -51,7 +52,7 @@ void BufferMemoryBarrier::assign(VkBufferMemoryBarrier& info, ScratchMemory& scr
 //
 void ImageMemoryBarrier::assign(VkImageMemoryBarrier& info, ScratchMemory& scratchMemory) const
 {
-    uint32_t deviceID = 0;
+    uint32_t deviceID = 0; // TODO
     info.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     info.pNext = next ? next->assign(scratchMemory) : nullptr;
     info.srcAccessMask = srcAccessMask;

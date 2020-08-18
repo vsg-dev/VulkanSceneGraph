@@ -27,5 +27,5 @@ void CopyAndReleaseBufferDataCommand::record(CommandBuffer& commandBuffer) const
     copyRegion.srcOffset = source.offset;
     copyRegion.dstOffset = destination.offset;
     copyRegion.size = source.range;
-    vkCmdCopyBuffer(commandBuffer, *source.buffer, *destination.buffer, 1, &copyRegion);
+    vkCmdCopyBuffer(commandBuffer, source.buffer->vk(commandBuffer.deviceID), destination.buffer->vk(commandBuffer.deviceID), 1, &copyRegion);
 }

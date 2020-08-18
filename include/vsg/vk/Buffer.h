@@ -13,41 +13,28 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/DeviceMemory.h>
+#include <vsg/vk/vk_buffer.h>
 
 namespace vsg
 {
+    // forward declare
+    class Context;
+
     class VSG_DECLSPEC Buffer : public Inherit<Object, Buffer>
     {
     public:
         Buffer(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 
+
+        /// Vulkan VkImage handle
+        VkBuffer vk(uint32_t deviceID) const { return _vulkanData[deviceID].buffer; }
+
+
         VkBufferUsageFlags usage() const { return _usage; }
         VkSharingMode shaderMode() const { return _sharingMode; }
 
-        VkBuffer buffer() const { return _buffer; }
 
-        operator VkBuffer() const { return _buffer; }
-
-        Device* getDevice() { return _device; }
-        const Device* getDevice() const { return _device; }
-
-        DeviceMemory* getDeviceMemory() { return _deviceMemory; }
-        const DeviceMemory* getDeviceMemory() const { return _deviceMemory; }
-
-        VkDeviceSize getMemoryOffset() const { return _memoryOffset; }
-
-        VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
-        {
-            VkResult result = vkBindBufferMemory(*_device, _buffer, *deviceMemory, memoryOffset);
-            if (result == VK_SUCCESS)
-            {
-                _deviceMemory = deviceMemory;
-                _memoryOffset = memoryOffset;
-            }
-            return result;
-        }
-
-        VkMemoryRequirements getMemoryRequirements() const;
+        VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset);
 
         MemorySlots::OptionalOffset reserve(VkDeviceSize size, VkDeviceSize alignment) { return _memorySlots.reserve(size, alignment); }
         void release(VkDeviceSize offset, VkDeviceSize size) { _memorySlots.release(offset, size); }
@@ -55,18 +42,31 @@ namespace vsg
         VkDeviceSize maximumAvailableSpace() const { return _memorySlots.maximumAvailableSpace(); }
         const MemorySlots& memorySlots() const { return _memorySlots; }
 
+        VkMemoryRequirements getMemoryRequirements(uint32_t deviceID) const;
+
+        DeviceMemory* getDeviceMemory(uint32_t deviceID) { return _vulkanData[deviceID].deviceMemory; }
+        const DeviceMemory* getDeviceMemory(uint32_t deviceID) const { return _vulkanData[deviceID].deviceMemory; }
+
+        VkDeviceSize getMemoryOffset(uint32_t deviceID) const { return _vulkanData[deviceID].memoryOffset; }
+
     protected:
         virtual ~Buffer();
 
-        VkBuffer _buffer;
+        struct VulkanData
+        {
+            VkBuffer buffer = VK_NULL_HANDLE;
+            ref_ptr<DeviceMemory> deviceMemory;
+            VkDeviceSize memoryOffset = 0;
+            VkDeviceSize size = 0;
+            ref_ptr<Device> device;
+
+            void release();
+        };
+
+        vk_buffer<VulkanData> _vulkanData;
+
         VkBufferUsageFlags _usage;
         VkSharingMode _sharingMode;
-
-        ref_ptr<Device> _device;
-
-        ref_ptr<DeviceMemory> _deviceMemory;
-        VkDeviceSize _memoryOffset;
-
         MemorySlots _memorySlots;
     };
     VSG_type_name(vsg::Buffer);

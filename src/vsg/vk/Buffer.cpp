@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/io/Options.h>
 #include <vsg/vk/Buffer.h>
+#include <vsg/vk/Context.h>
 
 #include <iostream>
 
@@ -20,23 +21,42 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+void Buffer::VulkanData::release()
+{
+    if (buffer)
+    {
+        vkDestroyBuffer(*device, buffer, device->getAllocationCallbacks());
+    }
+
+    if (deviceMemory)
+    {
+        //deviceMemory->release(memoryOffset, memorySlots.totalMemorySize());
+        deviceMemory->release(memoryOffset, size);
+    }
+}
+
 Buffer::Buffer(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode) :
     _usage(usage),
     _sharingMode(sharingMode),
-    _device(device),
     _memorySlots(size)
 {
+    VulkanData& vd = _vulkanData[device->deviceID];
+
+    vd.device = device;
+    vd.size = size;
+
     VkBufferCreateInfo bufferInfo = {};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferInfo.size = size;
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = sharingMode;
 
-    if (VkResult result = vkCreateBuffer(*device, &bufferInfo, _device->getAllocationCallbacks(), &_buffer); result != VK_SUCCESS)
+    if (VkResult result = vkCreateBuffer(*device, &bufferInfo, device->getAllocationCallbacks(), &vd.buffer); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create vkBuffer.", result};
     }
 }
+
 
 Buffer::~Buffer()
 {
@@ -44,23 +64,32 @@ Buffer::~Buffer()
     std::cout << "start of Buffer::~Buffer() " << this << std::endl;
 #endif
 
-    if (_buffer)
-    {
-        vkDestroyBuffer(*_device, _buffer, _device->getAllocationCallbacks());
-    }
+    for(auto& vd : _vulkanData) vd.release();
 
-    if (_deviceMemory)
-    {
-        _deviceMemory->release(_memoryOffset, _memorySlots.totalMemorySize());
-    }
 #if REPORT_STATS
     std::cout << "end of Buffer::~Buffer() " << this << std::endl;
 #endif
 }
 
-VkMemoryRequirements Buffer::getMemoryRequirements() const
+VkMemoryRequirements Buffer::getMemoryRequirements(uint32_t deviceID) const
 {
+    const VulkanData& vd = _vulkanData[deviceID];
+
     VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(*_device, _buffer, &memRequirements);
+    vkGetBufferMemoryRequirements(*vd.device, vd.buffer, &memRequirements);
     return memRequirements;
+}
+
+VkResult Buffer::bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
+{
+    VulkanData& vd = _vulkanData[deviceMemory->getDevice()->deviceID];
+
+    VkResult result = vkBindBufferMemory(*vd.device, vd.buffer, *deviceMemory, memoryOffset);
+    if (result == VK_SUCCESS)
+    {
+        vd.deviceMemory = deviceMemory;
+        vd.memoryOffset = memoryOffset;
+        vd.size = maximumAvailableSpace();
+    }
+    return result;
 }

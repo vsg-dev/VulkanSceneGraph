@@ -76,7 +76,7 @@ void BindVertexBuffers::compile(Context& context)
     for (auto& bufferData : bufferDataList)
     {
         vkd.buffers.push_back(bufferData.buffer);
-        vkd.vkBuffers.push_back(*(bufferData.buffer));
+        vkd.vkBuffers.push_back(bufferData.buffer->vk(context.deviceID));
         vkd.offsets.push_back(bufferData.offset);
     }
 }

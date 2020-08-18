@@ -26,7 +26,7 @@ void CopyImageToBuffer::record(CommandBuffer& commandBuffer) const
         commandBuffer,
         srcImage->vk(commandBuffer.deviceID),
         srcImageLayout,
-        *dstBuffer,
+        dstBuffer->vk(commandBuffer.deviceID),
         static_cast<uint32_t>(regions.size()),
         regions.data());
 }

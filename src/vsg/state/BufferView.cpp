@@ -39,7 +39,7 @@ void BufferView::compile(Device* device)
 
     VkBufferViewCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO;
-    createInfo.buffer = *buffer;
+    createInfo.buffer = buffer->vk(device->deviceID);
     createInfo.format = format;
     createInfo.offset = offset;
     createInfo.range = range;

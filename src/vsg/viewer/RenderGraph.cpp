@@ -31,7 +31,7 @@ namespace vsg
 
         void apply(vsg::BindGraphicsPipeline& bindPipeline)
         {
-            GraphicsPipeline* graphicsPipeline = bindPipeline.getPipeline();
+            GraphicsPipeline* graphicsPipeline = bindPipeline.pipeline;
             if (graphicsPipeline)
             {
                 struct ContainsViewport : public ConstVisitor
@@ -40,7 +40,7 @@ namespace vsg
                     void apply(const ViewportState&) override { foundViewport = true; }
                     bool operator()(const GraphicsPipeline& gp)
                     {
-                        for (auto& pipelineState : gp.getPipelineStates())
+                        for (auto& pipelineState : gp.pipelineStates)
                         {
                             pipelineState->accept(*this);
                         }
@@ -51,11 +51,11 @@ namespace vsg
                 bool needToRegenerateGraphicsPipeline = !containsViewport(*graphicsPipeline);
                 if (needToRegenerateGraphicsPipeline)
                 {
-                    vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->getPipelineLayout(), graphicsPipeline->getShaderStages(), graphicsPipeline->getPipelineStates());
+                    vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->layout, graphicsPipeline->stages, graphicsPipeline->pipelineStates);
 
                     bindPipeline.release();
 
-                    bindPipeline.setPipeline(new_pipeline);
+                    bindPipeline.pipeline = new_pipeline;
 
                     bindPipeline.compile(context);
                 }

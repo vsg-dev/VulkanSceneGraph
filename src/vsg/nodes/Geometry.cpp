@@ -107,7 +107,7 @@ void Geometry::compile(Context& context)
             for (auto& bufferData : vertexBufferData)
             {
                 vkd.buffers.push_back(bufferData.buffer);
-                vkd.vkBuffers.push_back(*(bufferData.buffer));
+                vkd.vkBuffers.push_back(bufferData.buffer->vk(context.deviceID));
                 vkd.offsets.push_back(bufferData.offset);
             }
 
@@ -125,7 +125,7 @@ void Geometry::compile(Context& context)
             for (auto& bufferData : vertexBufferData)
             {
                 vkd.buffers.push_back(bufferData.buffer);
-                vkd.vkBuffers.push_back(*(bufferData.buffer));
+                vkd.vkBuffers.push_back(bufferData.buffer->vk(context.deviceID));
                 vkd.offsets.push_back(bufferData.offset);
             }
         }
@@ -151,7 +151,7 @@ void Geometry::record(CommandBuffer& commandBuffer) const
 
     if (indices)
     {
-        vkCmdBindIndexBuffer(cmdBuffer, *(vkd.bufferData.buffer), vkd.bufferData.offset, vkd.indexType);
+        vkCmdBindIndexBuffer(cmdBuffer, vkd.bufferData.buffer->vk(commandBuffer.deviceID), vkd.bufferData.offset, vkd.indexType);
     }
 
     for (auto& command : commands)

@@ -119,7 +119,7 @@ void VertexIndexDraw::compile(Context& context)
         for (auto& bufferData : vertexBufferData)
         {
             vkd.buffers.push_back(bufferData.buffer);
-            vkd.vkBuffers.push_back(*(bufferData.buffer));
+            vkd.vkBuffers.push_back(bufferData.buffer->vk(context.deviceID));
             vkd.offsets.push_back(bufferData.offset);
         }
 
@@ -147,7 +147,7 @@ void VertexIndexDraw::record(CommandBuffer& commandBuffer) const
 
     vkCmdBindVertexBuffers(cmdBuffer, firstBinding, static_cast<uint32_t>(vkd.vkBuffers.size()), vkd.vkBuffers.data(), vkd.offsets.data());
 
-    vkCmdBindIndexBuffer(cmdBuffer, *(vkd.bufferData.buffer), vkd.bufferData.offset, vkd.indexType);
+    vkCmdBindIndexBuffer(cmdBuffer, vkd.bufferData.buffer->vk(commandBuffer.deviceID), vkd.bufferData.offset, vkd.indexType);
 
     vkCmdDrawIndexed(cmdBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }

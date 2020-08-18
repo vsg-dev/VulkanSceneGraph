@@ -22,7 +22,7 @@ using namespace vsg;
 
 void ArrayState::apply(const vsg::BindGraphicsPipeline& bpg)
 {
-    for (auto& pipelineState : bpg.getPipeline()->getPipelineStates())
+    for (auto& pipelineState : bpg.pipeline->pipelineStates)
     {
         pipelineState->accept(*this);
     }

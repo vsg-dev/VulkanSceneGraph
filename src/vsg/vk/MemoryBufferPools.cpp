@@ -136,8 +136,11 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
 
     // std::cout<<name<<" : bufferData.offset = "<<bufferData.offset<<std::endl;
 
+    // TODO need to find proper value for deviceID
+    uint32_t deviceID = 0;
+
     VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(*device, *bufferData.buffer, &memRequirements);
+    vkGetBufferMemoryRequirements(*device, bufferData.buffer->vk(deviceID), &memRequirements);
 
     ref_ptr<DeviceMemory> deviceMemory;
     MemorySlots::OptionalOffset reservedMemorySlot(false, 0);

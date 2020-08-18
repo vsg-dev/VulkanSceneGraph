@@ -136,10 +136,10 @@ RayTracingPipeline::Implementation::Implementation(Context& context, RayTracingP
 
         BufferData bindingTableBufferData = context.stagingMemoryBufferPools->reserveBufferData(sbtSize, 4, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV | VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
         auto bindingTableBuffer = bindingTableBufferData.buffer;
-        auto bindingTableMemory = bindingTableBuffer->getDeviceMemory();
+        auto bindingTableMemory = bindingTableBuffer->getDeviceMemory(context.deviceID);
 
         void* buffer_data;
-        bindingTableMemory->map(bindingTableBuffer->getMemoryOffset() + bindingTableBufferData.offset, bindingTableBufferData.range, 0, &buffer_data);
+        bindingTableMemory->map(bindingTableBuffer->getMemoryOffset(context.deviceID) + bindingTableBufferData.offset, bindingTableBufferData.range, 0, &buffer_data);
 
         extensions->vkGetRayTracingShaderGroupHandlesNV(*_device, _pipeline, 0, static_cast<uint32_t>(rayTracingShaderGroups.size()), sbtSize, buffer_data);
 
