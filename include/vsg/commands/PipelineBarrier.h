@@ -24,7 +24,7 @@ namespace vsg
     {
         ref_ptr<VulkanInfo> next;
 
-        virtual void* assign(ScratchMemory& buffer) const = 0;
+        virtual void* assign(CommandBuffer& commandBuffer) const = 0;
     };
 
     struct VSG_DECLSPEC MemoryBarrier : public Inherit<Object, MemoryBarrier>
@@ -38,7 +38,7 @@ namespace vsg
         VkAccessFlags srcAccessMask = 0;
         VkAccessFlags dstAccessMask = 0;
 
-        void assign(VkMemoryBarrier& info, ScratchMemory& scratchMemory) const;
+        void assign(CommandBuffer& commandBuffer, VkMemoryBarrier& info) const;
     };
     VSG_type_name(vsg::MemoryBarrier);
     using MemoryBarriers = std::vector<ref_ptr<MemoryBarrier>>;
@@ -69,7 +69,7 @@ namespace vsg
         VkDeviceSize offset = 0;
         VkDeviceSize size = 0;
 
-        void assign(VkBufferMemoryBarrier& info, ScratchMemory& scratchMemory) const;
+        void assign(CommandBuffer& commandBuffer, VkBufferMemoryBarrier& info) const;
     };
     VSG_type_name(vsg::BufferMemoryBarrier);
     using BufferMemoryBarriers = std::vector<ref_ptr<BufferMemoryBarrier>>;
@@ -103,7 +103,7 @@ namespace vsg
         ref_ptr<Image> image;
         VkImageSubresourceRange subresourceRange = {0, 0, 0, 0, 0};
 
-        void assign(VkImageMemoryBarrier& info, ScratchMemory& scratchMemory) const;
+        void assign(CommandBuffer& commandBuffer, VkImageMemoryBarrier& info) const;
     };
     VSG_type_name(vsg::ImageMemoryBarrier);
     using ImageMemoryBarriers = std::vector<ref_ptr<ImageMemoryBarrier>>;
@@ -116,7 +116,7 @@ namespace vsg
         VkExtent2D sampleLocationGridSize = {0, 0};
         std::vector<vec2> sampleLocations;
 
-        void* assign(ScratchMemory& scratchMemory) const override;
+        void* assign(CommandBuffer& commandBuffer) const override;
     };
 
     class VSG_DECLSPEC PipelineBarrier : public Inherit<Command, PipelineBarrier>
