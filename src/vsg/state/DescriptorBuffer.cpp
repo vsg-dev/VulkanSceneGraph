@@ -29,57 +29,118 @@ DescriptorBuffer::DescriptorBuffer() :
 DescriptorBuffer::DescriptorBuffer(ref_ptr<Data> data, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
 {
-    if (data) _dataList.emplace_back(data);
+    if (data)
+    {
+        bufferInfoList.emplace_back(nullptr, 0, 0, data);
+    }
 }
 
 DescriptorBuffer::DescriptorBuffer(const DataList& dataList, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
-    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType),
-    _dataList(dataList)
+    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
 {
+    bufferInfoList.reserve(dataList.size());
+    for(auto& data : dataList)
+    {
+        bufferInfoList.emplace_back(nullptr, 0, 0, data);
+    }
 }
 
 DescriptorBuffer::DescriptorBuffer(const BufferDataList& bufferDataList, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType),
-    _bufferDataList(bufferDataList)
+    bufferInfoList(bufferDataList)
 {
+}
+
+DescriptorBuffer::~DescriptorBuffer()
+{
+    for(auto& bufferInfo : bufferInfoList)
+    {
+        bufferInfo.release();
+    }
 }
 
 void DescriptorBuffer::read(Input& input)
 {
-    _bufferDataList.clear();
+    for(auto& bufferInfo : bufferInfoList)
+    {
+        bufferInfo.release();
+    }
 
     Descriptor::read(input);
 
-    _dataList.resize(input.readValue<uint32_t>("NumData"));
-    for (auto& data : _dataList)
+    bufferInfoList.resize(input.readValue<uint32_t>("NumData"));
+    for (auto& bufferInfo : bufferInfoList)
     {
-        input.readObject("Data", data);
+        bufferInfo.buffer = nullptr;
+        bufferInfo.offset = 0;
+        bufferInfo.range = 0;
+        input.readObject("Data", bufferInfo.data);
     }
+
 }
 
 void DescriptorBuffer::write(Output& output) const
 {
     Descriptor::write(output);
 
-    output.writeValue<uint32_t>("NumData", _dataList.size());
-    for (auto& data : _dataList)
+    output.writeValue<uint32_t>("NumData", bufferInfoList.size());
+    for (auto& bufferInfo : bufferInfoList)
     {
-        output.writeObject("Data", data.get());
+        output.writeObject("Data", bufferInfo.data.get());
     }
 }
 
+
 void DescriptorBuffer::compile(Context& context)
 {
-    // check if already compiled
-    if (_bufferDataList.size() < _dataList.size())
+    VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+
+    bool requiresAssingmentOfBuffers = false;
+    for(auto& bufferInfo : bufferInfoList)
     {
-        VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-#if 1
-        _bufferDataList = vsg::createHostVisibleBuffer(context.device, _dataList, bufferUsageFlags, VK_SHARING_MODE_EXCLUSIVE);
-        vsg::copyDataListToBuffers(_bufferDataList);
-#else
-        _bufferDataList = vsg::createBufferAndTransferData(context, _dataList, bufferUsageFlags, VK_SHARING_MODE_EXCLUSIVE);
-#endif
+        if (bufferInfo.buffer == nullptr) requiresAssingmentOfBuffers = true;
+    }
+
+    if (requiresAssingmentOfBuffers)
+    {
+        VkDeviceSize alignment = 4;
+        if (bufferUsageFlags == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) alignment = context.device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
+
+        VkDeviceSize totalSize = 0;
+        VkDeviceSize offset = 0;
+
+        for (auto& bufferInfo : bufferInfoList)
+        {
+            if (bufferInfo.data)
+            {
+                bufferInfo.offset = offset;
+                bufferInfo.range = bufferInfo.data->dataSize();
+
+                totalSize = offset + bufferInfo.range;
+                offset = (alignment == 1 || (totalSize % alignment) == 0) ? totalSize : ((totalSize / alignment) + 1) * alignment;
+            }
+        }
+
+        auto buffer = vsg::Buffer::create(totalSize, bufferUsageFlags, VK_SHARING_MODE_EXCLUSIVE);
+
+        for(auto& bufferInfo : bufferInfoList)
+        {
+            if (!bufferInfo.buffer) bufferInfo.buffer = buffer;
+        }
+    }
+
+    bool needToCopyDataToBuffer = false;
+    for (auto& bufferInfo : bufferInfoList)
+    {
+        if (bufferInfo.buffer->compile(context.device)) needToCopyDataToBuffer = true;
+    }
+
+    if (needToCopyDataToBuffer)
+    {
+        for (auto& bufferInfo : bufferInfoList)
+        {
+            bufferInfo.copyDataToBuffer(context.deviceID);
+        }
     }
 }
 
@@ -87,14 +148,14 @@ void DescriptorBuffer::assignTo(Context& context, VkWriteDescriptorSet& wds) con
 {
     Descriptor::assignTo(context, wds);
 
-    auto pBufferInfo = context.scratchMemory->allocate<VkDescriptorBufferInfo>(_bufferDataList.size());
-    wds.descriptorCount = static_cast<uint32_t>(_bufferDataList.size());
+    auto pBufferInfo = context.scratchMemory->allocate<VkDescriptorBufferInfo>(bufferInfoList.size());
+    wds.descriptorCount = static_cast<uint32_t>(bufferInfoList.size());
     wds.pBufferInfo = pBufferInfo;
 
     // convert from VSG to Vk
-    for (size_t i = 0; i < _bufferDataList.size(); ++i)
+    for (size_t i = 0; i < bufferInfoList.size(); ++i)
     {
-        const BufferData& data = _bufferDataList[i];
+        auto& data = bufferInfoList[i];
         VkDescriptorBufferInfo& info = pBufferInfo[i];
         info.buffer = data.buffer->vk(context.deviceID);
         info.offset = data.offset;
@@ -104,10 +165,13 @@ void DescriptorBuffer::assignTo(Context& context, VkWriteDescriptorSet& wds) con
 
 uint32_t DescriptorBuffer::getNumDescriptors() const
 {
-    return static_cast<uint32_t>(std::max(_bufferDataList.size(), _dataList.size()));
+    return bufferInfoList.size();
 }
 
 void DescriptorBuffer::copyDataListToBuffers()
 {
-    vsg::copyDataListToBuffers(_bufferDataList);
+    for (auto& bufferInfo : bufferInfoList)
+    {
+        bufferInfo.copyDataToBuffer();
+    }
 }

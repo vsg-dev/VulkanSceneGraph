@@ -59,7 +59,7 @@ void TopLevelAccelerationStructure::compile(Context& context)
     _instanceBuffer = instanceBufferData[0].buffer;
 #else
     auto instanceBufferData = vsg::createHostVisibleBuffer(context.device, dataList, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);
-    vsg::copyDataListToBuffers(instanceBufferData);
+    vsg::copyDataListToBuffers(context.device, instanceBufferData);
     _instanceBuffer = instanceBufferData[0].buffer;
 #endif
 

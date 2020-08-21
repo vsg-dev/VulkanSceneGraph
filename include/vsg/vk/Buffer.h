@@ -23,23 +23,27 @@ namespace vsg
     class VSG_DECLSPEC Buffer : public Inherit<Object, Buffer>
     {
     public:
-        Buffer(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode);
+        Buffer(VkDeviceSize in_size, VkBufferUsageFlags in_usage, VkSharingMode in_sharingMode);
+        Buffer(Device* device, VkDeviceSize in_size, VkBufferUsageFlags in_usage, VkSharingMode in_sharingMode);
+
+        // VkBufferCreateInfo settings
+        VkBufferCreateFlags    flags = 0;
+        VkDeviceSize           size;
+        VkBufferUsageFlags     usage;
+        VkSharingMode          sharingMode;
 
 
         /// Vulkan VkImage handle
         VkBuffer vk(uint32_t deviceID) const { return _vulkanData[deviceID].buffer; }
 
-
-        VkBufferUsageFlags usage() const { return _usage; }
-        VkSharingMode shaderMode() const { return _sharingMode; }
-
+        /// return the number of VulkanData entries.
+        uint32_t sizeVulkanData() const { return _vulkanData.size(); }
 
         VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset);
 
-        MemorySlots::OptionalOffset reserve(VkDeviceSize size, VkDeviceSize alignment) { return _memorySlots.reserve(size, alignment); }
-        void release(VkDeviceSize offset, VkDeviceSize size) { _memorySlots.release(offset, size); }
+        MemorySlots::OptionalOffset reserve(VkDeviceSize in_size, VkDeviceSize alignment) { return _memorySlots.reserve(in_size, alignment); }
+        void release(VkDeviceSize offset, VkDeviceSize in_size) { _memorySlots.release(offset, in_size); }
         bool full() const { return _memorySlots.full(); }
-        VkDeviceSize maximumAvailableSpace() const { return _memorySlots.maximumAvailableSpace(); }
         const MemorySlots& memorySlots() const { return _memorySlots; }
 
         VkMemoryRequirements getMemoryRequirements(uint32_t deviceID) const;
@@ -48,6 +52,9 @@ namespace vsg
         const DeviceMemory* getDeviceMemory(uint32_t deviceID) const { return _vulkanData[deviceID].deviceMemory; }
 
         VkDeviceSize getMemoryOffset(uint32_t deviceID) const { return _vulkanData[deviceID].memoryOffset; }
+
+        virtual bool compile(Device* device);
+        virtual bool compile(Context& context);
 
     protected:
         virtual ~Buffer();

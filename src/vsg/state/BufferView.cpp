@@ -27,6 +27,17 @@ void BufferView::VulkanData::release()
     }
 }
 
+BufferView::BufferView(Buffer* in_buffer, VkFormat in_format, VkDeviceSize in_offset, VkDeviceSize in_range) :
+    buffer(in_buffer),
+    format(in_format),
+    offset(in_offset),
+    range(in_range)
+{
+    // TODO need to put memoory slot in place
+}
+
+
+
 BufferView::~BufferView()
 {
     for(auto& vd : _vulkanData) vd.release();
@@ -55,5 +66,7 @@ void BufferView::compile(Device* device)
 
 void BufferView::compile(Context& context)
 {
+    buffer->compile(context);
+
     compile(context.device);
 }

@@ -42,7 +42,7 @@ namespace vsg
 
         struct VulkanData
         {
-            VkBufferView bufferView;
+            VkBufferView bufferView = VK_NULL_HANDLE;
             ref_ptr<Device> device;
 
             ~VulkanData() { release(); }

@@ -75,7 +75,7 @@ BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDevice
     BufferData bufferData;
     for (auto& bufferFromPool : bufferPools)
     {
-        if (bufferFromPool->usage() == bufferUsageFlags && bufferFromPool->maximumAvailableSpace() >= totalSize)
+        if (bufferFromPool->usage == bufferUsageFlags && bufferFromPool->size >= totalSize)
         {
             MemorySlots::OptionalOffset reservedBufferSlot = bufferFromPool->reserve(totalSize, alignment);
             if (reservedBufferSlot.first)

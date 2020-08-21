@@ -116,6 +116,9 @@ DescriptorImage::DescriptorImage(const SamplerImages& samplerImages, uint32_t in
 
 void DescriptorImage::read(Input& input)
 {
+    // TODO need to release on imageInfoList.
+
+
     Descriptor::read(input);
 
     // TODO old version

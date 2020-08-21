@@ -35,26 +35,24 @@ void Buffer::VulkanData::release()
     }
 }
 
-Buffer::Buffer(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode) :
-    _usage(usage),
-    _sharingMode(sharingMode),
-    _memorySlots(size)
+Buffer::Buffer(VkDeviceSize in_size, VkBufferUsageFlags in_usage, VkSharingMode in_sharingMode) :
+    flags(0),
+    size(in_size),
+    usage(in_usage),
+    sharingMode(in_sharingMode),
+    _memorySlots(in_size)
 {
-    VulkanData& vd = _vulkanData[device->deviceID];
+}
 
-    vd.device = device;
-    vd.size = size;
 
-    VkBufferCreateInfo bufferInfo = {};
-    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferInfo.size = size;
-    bufferInfo.usage = usage;
-    bufferInfo.sharingMode = sharingMode;
-
-    if (VkResult result = vkCreateBuffer(*device, &bufferInfo, device->getAllocationCallbacks(), &vd.buffer); result != VK_SUCCESS)
-    {
-        throw Exception{"Error: Failed to create vkBuffer.", result};
-    }
+Buffer::Buffer(Device* device, VkDeviceSize in_size, VkBufferUsageFlags in_usage, VkSharingMode in_sharingMode) :
+    flags(0),
+    size(in_size),
+    usage(in_usage),
+    sharingMode(in_sharingMode),
+    _memorySlots(in_size)
+{
+    compile(device);
 }
 
 
@@ -74,6 +72,7 @@ Buffer::~Buffer()
 VkMemoryRequirements Buffer::getMemoryRequirements(uint32_t deviceID) const
 {
     const VulkanData& vd = _vulkanData[deviceID];
+    if (!vd.buffer) return {};
 
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(*vd.device, vd.buffer, &memRequirements);
@@ -89,7 +88,44 @@ VkResult Buffer::bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
     {
         vd.deviceMemory = deviceMemory;
         vd.memoryOffset = memoryOffset;
-        vd.size = maximumAvailableSpace();
+        vd.size = size;
     }
     return result;
+}
+
+bool Buffer::compile(Device* device)
+{
+    VulkanData& vd = _vulkanData[device->deviceID];
+    if (vd.buffer)
+    {
+        return false;
+    }
+
+    vd.device = device;
+    vd.size = size;
+
+    VkBufferCreateInfo bufferInfo = {};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.flags = flags;
+    bufferInfo.size = size;
+    bufferInfo.usage = usage;
+    bufferInfo.sharingMode = sharingMode;
+
+    if (VkResult result = vkCreateBuffer(*device, &bufferInfo, device->getAllocationCallbacks(), &vd.buffer); result != VK_SUCCESS)
+    {
+        throw Exception{"Error: Failed to create vkBuffer.", result};
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(*vd.device, vd.buffer, &memRequirements);
+
+    ref_ptr<DeviceMemory> memory = vsg::DeviceMemory::create(device, memRequirements, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    bind(memory, 0);
+
+    return true;
+}
+
+bool Buffer::compile(Context& context)
+{
+    return compile(context.device);
 }

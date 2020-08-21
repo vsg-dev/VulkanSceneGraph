@@ -28,10 +28,8 @@ namespace vsg
 
         DescriptorBuffer(const BufferDataList& bufferDataList, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 
-        // TODO : replace separate BufferDataList/DataList
-
-        DataList& getDataList() { return _dataList; }
-        const DataList& getDataList() const { return _dataList; }
+        /// VkWriteDescriptorSet.pBufferInfo settings
+        BufferDataList bufferInfoList;
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -45,8 +43,7 @@ namespace vsg
         void copyDataListToBuffers();
 
     protected:
-        DataList _dataList;
-        BufferDataList _bufferDataList;
+        virtual ~DescriptorBuffer();
     };
     VSG_type_name(vsg::DescriptorBuffer)
 

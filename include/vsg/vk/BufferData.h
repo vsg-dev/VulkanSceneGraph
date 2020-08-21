@@ -50,6 +50,12 @@ namespace vsg
             range = 0;
         }
 
+        /// copy data to the VkBuffer(s) for all Devices associated with vsg::Buffer
+        void copyDataToBuffer();
+
+        /// copy data to the VkBuffer associated with the a specified Device
+        void copyDataToBuffer(uint32_t deviceID);
+
         explicit operator bool() const { return buffer.valid() && data.valid() && range != 0; }
 
         ref_ptr<Buffer> buffer;
@@ -66,6 +72,6 @@ namespace vsg
 
     extern VSG_DECLSPEC BufferDataList createHostVisibleBuffer(Device* device, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 
-    extern VSG_DECLSPEC void copyDataListToBuffers(BufferDataList& bufferDataList);
+    extern VSG_DECLSPEC void copyDataListToBuffers(Device* device, BufferDataList& bufferDataList);
 
 } // namespace vsg

@@ -43,6 +43,7 @@ void DescriptorTexelBufferView::assignTo(Context& context, VkWriteDescriptorSet&
 
     for (size_t i = 0; i < texelBufferViews.size(); ++i)
     {
+        texelBufferViews[i]->compile(context);
         vk_texelBufferViews[i] = texelBufferViews[i]->vk(context.deviceID);
     }
 }

@@ -20,6 +20,39 @@ using namespace vsg;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
+// vsg::BufferData
+//
+void BufferData::copyDataToBuffer()
+{
+    if (!buffer) return;
+
+    for(uint32_t deviceID=0; deviceID<buffer->sizeVulkanData(); ++deviceID)
+    {
+        copyDataToBuffer(deviceID);
+    }
+}
+
+void BufferData::copyDataToBuffer(uint32_t deviceID)
+{
+    if (!buffer) return;
+
+    DeviceMemory* dm = buffer->getDeviceMemory(deviceID);
+    if (dm)
+    {
+
+        void* buffer_data;
+        dm->map(offset, range, 0, &buffer_data);
+
+        char* ptr = reinterpret_cast<char*>(buffer_data);
+        std::memcpy(ptr, data->dataPointer(), data->dataSize());
+
+        dm->unmap();
+    }
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
 // vsg::copyDataToStagingBuffer
 //
 BufferData vsg::copyDataToStagingBuffer(Context& context, const Data* data)
@@ -192,18 +225,10 @@ BufferDataList vsg::createHostVisibleBuffer(Device* device, const DataList& data
     return bufferDataList;
 }
 
-void vsg::copyDataListToBuffers(BufferDataList& bufferDataList)
+void vsg::copyDataListToBuffers(Device* device, BufferDataList& bufferDataList)
 {
     for (auto& bufferData : bufferDataList)
     {
-        DeviceMemory* dm = bufferData.buffer->getDeviceMemory(0); // TODO need come up with a mapping for deviceID
-
-        void* buffer_data;
-        dm->map(bufferData.offset, bufferData.range, 0, &buffer_data);
-
-        char* ptr = reinterpret_cast<char*>(buffer_data);
-        std::memcpy(ptr, bufferData.data->dataPointer(), bufferData.data->dataSize());
-
-        dm->unmap();
+        bufferData.copyDataToBuffer(device->deviceID);
     }
 }
