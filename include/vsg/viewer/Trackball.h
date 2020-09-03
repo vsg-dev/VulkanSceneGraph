@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class Trackball : public Inherit<Visitor, Trackball>
+    class VSG_DECLSPEC Trackball : public Inherit<Visitor, Trackball>
     {
     public:
         Trackball(ref_ptr<Camera> camera);
