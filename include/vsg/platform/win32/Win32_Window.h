@@ -93,14 +93,14 @@ namespace vsgWin32
 
     vsg::ButtonMask getButtonMask(WPARAM wParam)
     {
-        auto mask = (wParam & MK_LBUTTON ? vsg::ButtonMask::BUTTON_MASK_1 : 0) | (wParam & MK_RBUTTON ? vsg::ButtonMask::BUTTON_MASK_2 : 0) | (wParam & MK_MBUTTON ? vsg::ButtonMask::BUTTON_MASK_3 : 0) |
+        auto mask = (wParam & MK_LBUTTON ? vsg::ButtonMask::BUTTON_MASK_1 : 0) | (wParam & MK_MBUTTON ? vsg::ButtonMask::BUTTON_MASK_2 : 0) | (wParam & MK_RBUTTON ? vsg::ButtonMask::BUTTON_MASK_3 : 0) |
                     (wParam & MK_XBUTTON1 ? vsg::ButtonMask::BUTTON_MASK_4 : 0) | (wParam & MK_XBUTTON2 ? vsg::ButtonMask::BUTTON_MASK_5 : 0);
         return (vsg::ButtonMask)mask;
     }
 
     int getButtonEventDetail(UINT buttonMsg)
     {
-        return buttonMsg == WM_LBUTTONDOWN ? 1 : (buttonMsg == WM_RBUTTONDOWN ? 2 : buttonMsg == WM_MBUTTONDOWN ? 3 : (buttonMsg == WM_XBUTTONDOWN ? 4 : 0)); // need to determine x1, x2
+        return buttonMsg == WM_LBUTTONDOWN ? 1 : (buttonMsg == WM_MBUTTONDOWN ? 2 : buttonMsg == WM_RBUTTONDOWN ? 3 : (buttonMsg == WM_XBUTTONDOWN ? 4 : 0)); // need to determine x1, x2
     }
 
     class Win32_Window : public vsg::Inherit<vsg::Window, Win32_Window>
