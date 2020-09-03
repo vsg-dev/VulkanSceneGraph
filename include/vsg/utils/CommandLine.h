@@ -36,7 +36,7 @@ namespace vsg
     // forward declare
     class Options;
 
-    class CommandLine
+    class VSG_DECLSPEC CommandLine
     {
     public:
         CommandLine(int* argc, char** argv);
