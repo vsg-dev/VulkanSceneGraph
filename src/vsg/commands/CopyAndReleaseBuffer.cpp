@@ -10,19 +10,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/CopyAndReleaseBufferDataCommand.h>
+#include <vsg/commands/CopyAndReleaseBuffer.h>
 #include <vsg/io/Options.h>
 
 using namespace vsg;
 
-CopyAndReleaseBufferInfoCommand::~CopyAndReleaseBufferInfoCommand()
+CopyAndReleaseBuffer::~CopyAndReleaseBuffer()
 {
     source.release();
 }
 
-void CopyAndReleaseBufferInfoCommand::record(CommandBuffer& commandBuffer) const
+void CopyAndReleaseBuffer::record(CommandBuffer& commandBuffer) const
 {
-    //std::cout<<"CopyAndReleaseBufferInfoCommand::record(CommandBuffer& commandBuffer) source.offset = "<<source.offset<<", "<<destination.offset<<std::endl;
+    //std::cout<<"CopyAndReleaseBuffer::record(CommandBuffer& commandBuffer) source.offset = "<<source.offset<<", "<<destination.offset<<std::endl;
     VkBufferCopy copyRegion = {};
     copyRegion.srcOffset = source.offset;
     copyRegion.dstOffset = destination.offset;

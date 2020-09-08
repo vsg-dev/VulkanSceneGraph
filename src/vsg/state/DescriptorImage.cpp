@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/CopyAndReleaseImageDataCommand.h>
+#include <vsg/commands/CopyAndReleaseImage.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/traversals/CompileTraversal.h>
@@ -177,7 +177,7 @@ void DescriptorImage::compile(Context& context)
                     auto stagingBufferData = copyDataToStagingBuffer(context, image->data);
                     if (stagingBufferData)
                     {
-                        context.commands.emplace_back(new CopyAndReleaseImageInfoCommand(stagingBufferData, imageData, image->mipLevels));
+                        context.commands.emplace_back(new CopyAndReleaseImage(stagingBufferData, imageData, image->mipLevels));
                     }
                 }
             }

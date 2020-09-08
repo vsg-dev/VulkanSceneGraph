@@ -64,8 +64,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/BlitImage.h>
 #include <vsg/commands/Command.h>
 #include <vsg/commands/Commands.h>
-#include <vsg/commands/CopyAndReleaseBufferDataCommand.h>
-#include <vsg/commands/CopyAndReleaseImageDataCommand.h>
+#include <vsg/commands/CopyAndReleaseBuffer.h>
+#include <vsg/commands/CopyAndReleaseImage.h>
 #include <vsg/commands/CopyImage.h>
 #include <vsg/commands/CopyImageToBuffer.h>
 #include <vsg/commands/Dispatch.h>

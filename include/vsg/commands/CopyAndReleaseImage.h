@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/ScratchMemory.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/state/GraphicsPipeline.h>
+#include <vsg/state/DescriptorImage.h>
 #include <vsg/state/BufferInfo.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/DescriptorPool.h>
@@ -30,20 +31,32 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_DECLSPEC CopyAndReleaseBufferInfoCommand : public Inherit<Command, CopyAndReleaseBufferInfoCommand>
+    class VSG_DECLSPEC CopyAndReleaseImage : public Inherit<Command, CopyAndReleaseImage>
     {
     public:
-        CopyAndReleaseBufferInfoCommand(BufferInfo src, BufferInfo dest) :
-            source(src),
-            destination(dest) {}
+        CopyAndReleaseImage() {}
+        CopyAndReleaseImage(BufferInfo src, ImageInfo dest);
+        CopyAndReleaseImage(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels);
 
-        BufferInfo source;
-        BufferInfo destination;
+        void add(BufferInfo src, ImageInfo dest);
+        void add(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels);
 
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
-        virtual ~CopyAndReleaseBufferInfoCommand();
+        virtual ~CopyAndReleaseImage();
+
+        struct CopyData
+        {
+            BufferInfo source;
+            ImageInfo destination;
+            uint32_t mipLevels = 1;
+
+            void record(CommandBuffer& commandBuffer) const;
+        };
+
+        mutable std::vector<CopyData> pending;
+        mutable std::vector<CopyData> completed;
     };
 
 } // namespace vsg

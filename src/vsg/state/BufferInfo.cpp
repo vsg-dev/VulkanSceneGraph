@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/CopyAndReleaseBufferDataCommand.h>
+#include <vsg/commands/CopyAndReleaseBuffer.h>
 #include <vsg/io/Options.h>
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/state/BufferInfo.h>
@@ -183,7 +183,7 @@ BufferInfoList vsg::createBufferAndTransferData(Context& context, const DataList
         }
     }
 #endif
-    context.commands.emplace_back(new CopyAndReleaseBufferInfoCommand(stagingBufferInfo, deviceBufferInfo));
+    context.commands.emplace_back(CopyAndReleaseBuffer::create(stagingBufferInfo, deviceBufferInfo));
 
     return bufferInfoList;
 }

@@ -10,39 +10,39 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/CopyAndReleaseImageDataCommand.h>
+#include <vsg/commands/CopyAndReleaseImage.h>
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/io/Options.h>
 
 using namespace vsg;
 
-CopyAndReleaseImageInfoCommand::CopyAndReleaseImageInfoCommand(BufferInfo src, ImageInfo dest)
+CopyAndReleaseImage::CopyAndReleaseImage(BufferInfo src, ImageInfo dest)
 {
     add(src, dest);
 }
 
-CopyAndReleaseImageInfoCommand::CopyAndReleaseImageInfoCommand(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels)
+CopyAndReleaseImage::CopyAndReleaseImage(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels)
 {
     add(src, dest, numMipMapLevels);
 }
 
-CopyAndReleaseImageInfoCommand::~CopyAndReleaseImageInfoCommand()
+CopyAndReleaseImage::~CopyAndReleaseImage()
 {
     for (auto& copyData : completed) copyData.source.release();
     for (auto& copyData : pending) copyData.source.release();
 }
 
-void CopyAndReleaseImageInfoCommand::add(BufferInfo src, ImageInfo dest)
+void CopyAndReleaseImage::add(BufferInfo src, ImageInfo dest)
 {
     pending.push_back(CopyData{src, dest, vsg::computeNumMipMapLevels(src.data, dest.sampler)});
 }
 
-void CopyAndReleaseImageInfoCommand::add(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels)
+void CopyAndReleaseImage::add(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels)
 {
     pending.push_back(CopyData{src, dest, numMipMapLevels});
 }
 
-void CopyAndReleaseImageInfoCommand::CopyData::record(CommandBuffer& commandBuffer) const
+void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 {
     ref_ptr<Buffer> imageStagingBuffer(source.buffer);
     ref_ptr<Data> data(source.data);
@@ -288,7 +288,7 @@ void CopyAndReleaseImageInfoCommand::CopyData::record(CommandBuffer& commandBuff
     }
 }
 
-void CopyAndReleaseImageInfoCommand::record(CommandBuffer& commandBuffer) const
+void CopyAndReleaseImage::record(CommandBuffer& commandBuffer) const
 {
     for (auto& copyData : completed) copyData.source.release();
     completed.clear();
