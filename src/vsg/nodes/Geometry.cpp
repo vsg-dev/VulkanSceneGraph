@@ -99,19 +99,19 @@ void Geometry::compile(Context& context)
         dataList.insert(dataList.end(), arrays.begin(), arrays.end());
         dataList.emplace_back(indices);
 
-        auto bufferDataList = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-        if (!bufferDataList.empty())
+        auto bufferInfoList = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+        if (!bufferInfoList.empty())
         {
-            BufferDataList vertexBufferData(bufferDataList.begin(), bufferDataList.begin() + arrays.size());
+            BufferInfoList vertexBufferInfo(bufferInfoList.begin(), bufferInfoList.begin() + arrays.size());
 
-            for (auto& bufferData : vertexBufferData)
+            for (auto& bufferInfo : vertexBufferInfo)
             {
-                vkd.buffers.push_back(bufferData.buffer);
-                vkd.vkBuffers.push_back(bufferData.buffer->vk(context.deviceID));
-                vkd.offsets.push_back(bufferData.offset);
+                vkd.buffers.push_back(bufferInfo.buffer);
+                vkd.vkBuffers.push_back(bufferInfo.buffer->vk(context.deviceID));
+                vkd.offsets.push_back(bufferInfo.offset);
             }
 
-            vkd.bufferData = bufferDataList.back();
+            vkd.bufferInfo = bufferInfoList.back();
             vkd.indexType = computeIndexType(indices);
         }
         else
@@ -119,14 +119,14 @@ void Geometry::compile(Context& context)
     }
     else
     {
-        auto vertexBufferData = vsg::createBufferAndTransferData(context, arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-        if (!vertexBufferData.empty())
+        auto vertexBufferInfo = vsg::createBufferAndTransferData(context, arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+        if (!vertexBufferInfo.empty())
         {
-            for (auto& bufferData : vertexBufferData)
+            for (auto& bufferInfo : vertexBufferInfo)
             {
-                vkd.buffers.push_back(bufferData.buffer);
-                vkd.vkBuffers.push_back(bufferData.buffer->vk(context.deviceID));
-                vkd.offsets.push_back(bufferData.offset);
+                vkd.buffers.push_back(bufferInfo.buffer);
+                vkd.vkBuffers.push_back(bufferInfo.buffer->vk(context.deviceID));
+                vkd.offsets.push_back(bufferInfo.offset);
             }
         }
         else
@@ -151,7 +151,7 @@ void Geometry::record(CommandBuffer& commandBuffer) const
 
     if (indices)
     {
-        vkCmdBindIndexBuffer(cmdBuffer, vkd.bufferData.buffer->vk(commandBuffer.deviceID), vkd.bufferData.offset, vkd.indexType);
+        vkCmdBindIndexBuffer(cmdBuffer, vkd.bufferInfo.buffer->vk(commandBuffer.deviceID), vkd.bufferInfo.offset, vkd.indexType);
     }
 
     for (auto& command : commands)
