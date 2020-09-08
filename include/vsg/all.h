@@ -89,6 +89,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/GraphicsPipelineStates.h>
 #include <vsg/state/Image.h>
+#include <vsg/state/ImageInfo.h>
 #include <vsg/state/ImageView.h>
 #include <vsg/state/PipelineLayout.h>
 #include <vsg/state/ResourceHints.h>

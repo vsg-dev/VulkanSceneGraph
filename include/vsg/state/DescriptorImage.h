@@ -13,48 +13,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/state/Descriptor.h>
-#include <vsg/state/Sampler.h>
-#include <vsg/state/ImageView.h>
+#include <vsg/state/ImageInfo.h>
 
 namespace vsg
 {
-    /// Settings that map to VkDescriptorImageInfo
-    class VSG_DECLSPEC ImageInfo
-    {
-    public:
-        ImageInfo() :
-            imageLayout(VK_IMAGE_LAYOUT_UNDEFINED) {}
-
-        ImageInfo(const ImageInfo& id) :
-            sampler(id.sampler),
-            imageView(id.imageView),
-            imageLayout(id.imageLayout) {}
-
-        ImageInfo(Sampler* in_sampler, ImageView* in_imageView, VkImageLayout in_imageLayout = VK_IMAGE_LAYOUT_UNDEFINED) :
-            sampler(in_sampler),
-            imageView(in_imageView),
-            imageLayout(in_imageLayout) {}
-
-        ImageInfo& operator=(const ImageInfo& rhs)
-        {
-            sampler = rhs.sampler;
-            imageView = rhs.imageView;
-            imageLayout = rhs.imageLayout;
-            return *this;
-        }
-
-        explicit operator bool() const { return sampler.valid() && imageView.valid(); }
-
-        void computeNumMipMapLevels();
-
-        ref_ptr<Sampler> sampler;
-        ref_ptr<ImageView> imageView;
-        VkImageLayout imageLayout;
-    };
-    using ImageInfoList = std::vector<ImageInfo>;
-
-    using ImageData = ImageInfo;
-
     extern VSG_DECLSPEC uint32_t computeNumMipMapLevels(const Data* data, const Sampler* sampler);
 
     /// deprecated, use ImageInfo instead
