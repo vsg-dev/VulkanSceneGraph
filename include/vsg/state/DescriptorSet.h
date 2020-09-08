@@ -119,13 +119,6 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-#ifdef DEPRECATED_API
-        VkPipelineBindPoint getBindPoint() { return pipelineBindPoint; }
-        PipelineLayout* getPipelineLayout() { return layout; }
-        const PipelineLayout* getPipelineLayout() const { return layout; }
-        uint32_t getFirstSet() { return firstSet; }
-        const DescriptorSets& getDescriptorSets() const { return descriptorSets; }
-#endif
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context) override;
 
@@ -168,6 +161,7 @@ namespace vsg
         {
         }
 
+        // vkCmdBindDescriptorSets settings
         VkPipelineBindPoint pipelineBindPoint;
         ref_ptr<PipelineLayout> layout;
         uint32_t firstSet;
@@ -186,14 +180,6 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-#ifdef DEPRECATED_API
-        VkPipelineBindPoint getBindPoint() const { return pipelineBindPoint; }
-        PipelineLayout* getPipelineLayout() { return layout; }
-        const PipelineLayout* getPipelineLayout() const { return layout; }
-        uint32_t getFirstSet() const { return firstSet; }
-        DescriptorSet* getDescriptorSet() { return descriptorSet; }
-        const DescriptorSet* getDescriptorSet() const { return descriptorSet; }
-#endif
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context) override;
 

@@ -28,16 +28,10 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
+        /// VkComputePipelineCreateInfo settings
         ref_ptr<PipelineLayout> layout;
         ref_ptr<ShaderStage> stage;
 
-#ifdef DEPRECATED_API
-        PipelineLayout* getPipelineLayout() { return layout; }
-        const PipelineLayout* getPipelineLayout() const { return layout; }
-
-        ShaderStage* getShaderStage() { return stage; }
-        const ShaderStage* getShaderStage() const { return stage; }
-#endif
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);
 
@@ -72,13 +66,9 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
+        /// pipeline to pass in the vkCmdBindPipeline call;
         ref_ptr<ComputePipeline> pipeline;
 
-#ifdef DEPRECATED_API
-        void setPipeline(ComputePipeline* in_pipeline) { pipeline = in_pipeline; }
-        ComputePipeline* getPipeline() { return pipeline; }
-        const ComputePipeline* getPipeline() const { return pipeline; }
-#endif
         void record(CommandBuffer& commandBuffer) const override;
 
         // compile the Vulkan object, context parameter used for Device

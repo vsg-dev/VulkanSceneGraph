@@ -31,7 +31,7 @@ namespace vsg
         /// VkDescriptorSetLayoutCreateInfo settings
         DescriptorSetLayoutBindings bindings;
 
-        /// Vykjan VkDescriptorSetLayout handle
+        /// Vulkan VkDescriptorSetLayout handle
         VkDescriptorSetLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_descriptorSetLayout; }
 
         void read(Input& input) override;
