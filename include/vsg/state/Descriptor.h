@@ -26,6 +26,7 @@ namespace vsg
     public:
         Descriptor(uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType);
 
+        /// Common VkWriteDescriptorSet settings
         uint32_t dstBinding;
         uint32_t dstArrayElement;
         VkDescriptorType descriptorType;
