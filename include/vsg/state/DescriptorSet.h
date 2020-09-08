@@ -83,7 +83,7 @@ namespace vsg
         BindDescriptorSets();
 
         BindDescriptorSets(VkPipelineBindPoint in_bindPoint, PipelineLayout* in_layout, uint32_t in_firstSet, const DescriptorSets& in_descriptorSets) :
-            Inherit(1+firstSet),
+            Inherit(1+in_firstSet),
             pipelineBindPoint(in_bindPoint),
             layout(in_layout),
             firstSet(in_firstSet),
@@ -151,7 +151,7 @@ namespace vsg
         BindDescriptorSet();
 
         BindDescriptorSet(VkPipelineBindPoint in_bindPoint, PipelineLayout* in_pipelineLayout, uint32_t in_firstSet, DescriptorSet* in_descriptorSet) :
-            Inherit(1+firstSet),
+            Inherit(1+in_firstSet),
             pipelineBindPoint(in_bindPoint),
             layout(in_pipelineLayout),
             firstSet(in_firstSet),
