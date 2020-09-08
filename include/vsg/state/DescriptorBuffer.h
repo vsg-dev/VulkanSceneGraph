@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/state/Descriptor.h>
-#include <vsg/vk/BufferData.h>
+#include <vsg/state/BufferInfo.h>
 
 namespace vsg
 {
@@ -26,10 +26,10 @@ namespace vsg
 
         DescriptorBuffer(const DataList& dataList, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 
-        DescriptorBuffer(const BufferDataList& bufferDataList, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+        DescriptorBuffer(const BufferInfoList& bufferDataList, uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 
         /// VkWriteDescriptorSet.pBufferInfo settings
-        BufferDataList bufferInfoList;
+        BufferInfoList bufferInfoList;
 
         void read(Input& input) override;
         void write(Output& output) const override;

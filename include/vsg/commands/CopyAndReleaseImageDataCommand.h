@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Group.h>
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/DescriptorImage.h>
-#include <vsg/vk/BufferData.h>
+#include <vsg/state/BufferInfo.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Fence.h>

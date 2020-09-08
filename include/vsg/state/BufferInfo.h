@@ -23,20 +23,20 @@ namespace vsg
     class CommandBuffer;
 
     /// Settings that map to VkDescriptorBufferInfo
-    class VSG_DECLSPEC BufferData
+    class VSG_DECLSPEC BufferInfo
     {
     public:
-        BufferData() = default;
+        BufferInfo() = default;
 
-        BufferData(Buffer* in_buffer, VkDeviceSize in_offset, VkDeviceSize in_range, Data* in_data = nullptr) :
+        BufferInfo(Buffer* in_buffer, VkDeviceSize in_offset, VkDeviceSize in_range, Data* in_data = nullptr) :
             buffer(in_buffer),
             offset(in_offset),
             range(in_range),
             data(in_data) {}
 
-        BufferData(const BufferData&) = default;
+        BufferInfo(const BufferInfo&) = default;
 
-        BufferData& operator=(const BufferData&) = default;
+        BufferInfo& operator=(const BufferInfo&) = default;
 
         void release()
         {
@@ -64,14 +64,19 @@ namespace vsg
         ref_ptr<Data> data;
     };
 
-    using BufferDataList = std::vector<BufferData>;
+    using BufferInfoList = std::vector<BufferInfo>;
 
-    extern VSG_DECLSPEC BufferData copyDataToStagingBuffer(Context& context, const Data* data);
+    // depcreated name for class
+    using BufferData = BufferInfo;
+    using BufferDataList = BufferInfoList;
 
-    extern VSG_DECLSPEC BufferDataList createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 
-    extern VSG_DECLSPEC BufferDataList createHostVisibleBuffer(Device* device, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
+    extern VSG_DECLSPEC BufferInfo copyDataToStagingBuffer(Context& context, const Data* data);
 
-    extern VSG_DECLSPEC void copyDataListToBuffers(Device* device, BufferDataList& bufferDataList);
+    extern VSG_DECLSPEC BufferInfoList createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
+
+    extern VSG_DECLSPEC BufferInfoList createHostVisibleBuffer(Device* device, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
+
+    extern VSG_DECLSPEC void copyDataListToBuffers(Device* device, BufferInfoList& bufferInfoList);
 
 } // namespace vsg

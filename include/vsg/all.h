@@ -78,6 +78,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 // State header files
 #include <vsg/state/Buffer.h>
+#include <vsg/state/BufferInfo.h>
 #include <vsg/state/BufferView.h>
 #include <vsg/state/ComputePipeline.h>
 #include <vsg/state/Descriptor.h>
@@ -148,7 +149,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 // Vulkan related header files
 #include <vsg/vk/AllocationCallbacks.h>
-#include <vsg/vk/BufferData.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/Context.h>

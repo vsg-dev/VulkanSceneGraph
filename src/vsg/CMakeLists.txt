@@ -52,6 +52,7 @@ set(SOURCES
     commands/DrawIndexed.cpp
 
     state/Buffer.cpp
+    state/BufferInfo.cpp
     state/BufferView.cpp
     state/ComputePipeline.cpp
     state/DescriptorSet.cpp
@@ -123,7 +124,6 @@ set(SOURCES
     raytracing/TraceRays.cpp
 
 
-    vk/BufferData.cpp
     vk/CommandBuffer.cpp
     vk/CommandPool.cpp
     vk/Context.cpp
