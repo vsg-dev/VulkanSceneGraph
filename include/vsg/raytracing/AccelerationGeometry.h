@@ -36,8 +36,8 @@ namespace vsg
 
     protected:
         // compiled data
-        BufferData _vertexBuffer;
-        BufferData _indexBuffer;
+        BufferInfo _vertexBuffer;
+        BufferInfo _indexBuffer;
         VkGeometryNV _geometry;
     };
 

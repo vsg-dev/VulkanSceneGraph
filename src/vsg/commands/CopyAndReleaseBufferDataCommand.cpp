@@ -15,14 +15,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CopyAndReleaseBufferDataCommand::~CopyAndReleaseBufferDataCommand()
+CopyAndReleaseBufferInfoCommand::~CopyAndReleaseBufferInfoCommand()
 {
     source.release();
 }
 
-void CopyAndReleaseBufferDataCommand::record(CommandBuffer& commandBuffer) const
+void CopyAndReleaseBufferInfoCommand::record(CommandBuffer& commandBuffer) const
 {
-    //std::cout<<"CopyAndReleaseBufferDataCommand::record(CommandBuffer& commandBuffer) source.offset = "<<source.offset<<", "<<destination.offset<<std::endl;
+    //std::cout<<"CopyAndReleaseBufferInfoCommand::record(CommandBuffer& commandBuffer) source.offset = "<<source.offset<<", "<<destination.offset<<std::endl;
     VkBufferCopy copyRegion = {};
     copyRegion.srcOffset = source.offset;
     copyRegion.dstOffset = destination.offset;

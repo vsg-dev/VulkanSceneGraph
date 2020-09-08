@@ -34,7 +34,7 @@ namespace vsg
         uint32_t anyHitShader = VK_SHADER_UNUSED_NV;
         uint32_t intersectionShader = VK_SHADER_UNUSED_NV;
 
-        BufferData bufferData;
+        BufferInfo bufferInfo;
 
     protected:
         virtual ~RayTracingShaderGroup();

@@ -44,17 +44,17 @@ void AccelerationGeometry::compile(Context& context)
     indexDataList.push_back(indices);
 
 #if TRANSFER_BUFFERS
-    auto vertexBufferData = vsg::createBufferAndTransferData(context, vertexDataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    auto indexBufferData = vsg::createBufferAndTransferData(context, indexDataList, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    auto vertexBufferInfo = vsg::createBufferAndTransferData(context, vertexDataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    auto indexBufferInfo = vsg::createBufferAndTransferData(context, indexDataList, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
 #else
-    auto vertexBufferData = vsg::createHostVisibleBuffer(context.device, vertexDataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    vsg::copyDataListToBuffers(context.device, vertexBufferData);
-    auto indexBufferData = vsg::createHostVisibleBuffer(context.device, indexDataList, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    vsg::copyDataListToBuffers(context.device, indexBufferData);
+    auto vertexBufferInfo = vsg::createHostVisibleBuffer(context.device, vertexDataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    vsg::copyDataListToBuffers(context.device, vertexBufferInfo);
+    auto indexBufferInfo = vsg::createHostVisibleBuffer(context.device, indexDataList, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    vsg::copyDataListToBuffers(context.device, indexBufferInfo);
 #endif
 
-    _vertexBuffer = vertexBufferData[0];
-    _indexBuffer = indexBufferData[0];
+    _vertexBuffer = vertexBufferInfo[0];
+    _indexBuffer = indexBufferInfo[0];
 
     // create the VkGeometry
     _geometry.sType = VK_STRUCTURE_TYPE_GEOMETRY_NV;

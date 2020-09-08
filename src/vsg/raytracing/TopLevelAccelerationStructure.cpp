@@ -55,12 +55,12 @@ void TopLevelAccelerationStructure::compile(Context& context)
     DataList dataList = {_instances};
 
 #if TRANSFER_BUFFERS
-    auto instanceBufferData = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);
+    auto instanceBufferInfo = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);
     _instanceBuffer = instanceBufferData[0].buffer;
 #else
-    auto instanceBufferData = vsg::createHostVisibleBuffer(context.device, dataList, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);
-    vsg::copyDataListToBuffers(context.device, instanceBufferData);
-    _instanceBuffer = instanceBufferData[0].buffer;
+    auto instanceBufferInfo = vsg::createHostVisibleBuffer(context.device, dataList, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);
+    vsg::copyDataListToBuffers(context.device, instanceBufferInfo);
+    _instanceBuffer = instanceBufferInfo[0].buffer;
 #endif
 
     _accelerationStructureInfo.instanceCount = static_cast<uint32_t>(_instances->valueCount());

@@ -30,7 +30,7 @@ void TraceRays::record(CommandBuffer& commandBuffer) const
 
     using BufferSize = std::pair<VkBuffer, VkDeviceSize>;
     auto bufferAndOffset = [&commandBuffer](auto& shaderGroup) {
-        if (shaderGroup && shaderGroup->bufferData.buffer) return BufferSize(shaderGroup->bufferData.buffer->vk(commandBuffer.deviceID), shaderGroup->bufferData.offset);
+        if (shaderGroup && shaderGroup->bufferInfo.buffer) return BufferSize(shaderGroup->bufferInfo.buffer->vk(commandBuffer.deviceID), shaderGroup->bufferInfo.offset);
         return BufferSize(VK_NULL_HANDLE, 0);
     };
 

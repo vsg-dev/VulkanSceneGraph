@@ -31,25 +31,25 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_DECLSPEC CopyAndReleaseImageDataCommand : public Inherit<Command, CopyAndReleaseImageDataCommand>
+    class VSG_DECLSPEC CopyAndReleaseImageInfoCommand : public Inherit<Command, CopyAndReleaseImageInfoCommand>
     {
     public:
-        CopyAndReleaseImageDataCommand() {}
-        CopyAndReleaseImageDataCommand(BufferData src, ImageData dest);
-        CopyAndReleaseImageDataCommand(BufferData src, ImageData dest, uint32_t numMipMapLevels);
+        CopyAndReleaseImageInfoCommand() {}
+        CopyAndReleaseImageInfoCommand(BufferInfo src, ImageInfo dest);
+        CopyAndReleaseImageInfoCommand(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels);
 
-        void add(BufferData src, ImageData dest);
-        void add(BufferData src, ImageData dest, uint32_t numMipMapLevels);
+        void add(BufferInfo src, ImageInfo dest);
+        void add(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels);
 
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
-        virtual ~CopyAndReleaseImageDataCommand();
+        virtual ~CopyAndReleaseImageInfoCommand();
 
         struct CopyData
         {
-            BufferData source;
-            ImageData destination;
+            BufferInfo source;
+            ImageInfo destination;
             uint32_t mipLevels = 1;
 
             void record(CommandBuffer& commandBuffer) const;

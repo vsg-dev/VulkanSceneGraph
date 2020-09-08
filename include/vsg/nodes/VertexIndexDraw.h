@@ -51,7 +51,7 @@ namespace vsg
             std::vector<ref_ptr<Buffer>> buffers;
             std::vector<VkBuffer> vkBuffers;
             std::vector<VkDeviceSize> offsets;
-            BufferData bufferData;
+            BufferInfo bufferData;
             VkIndexType indexType = VK_INDEX_TYPE_UINT16;
         };
 

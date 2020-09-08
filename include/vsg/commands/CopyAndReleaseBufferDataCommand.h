@@ -30,20 +30,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_DECLSPEC CopyAndReleaseBufferDataCommand : public Inherit<Command, CopyAndReleaseBufferDataCommand>
+    class VSG_DECLSPEC CopyAndReleaseBufferInfoCommand : public Inherit<Command, CopyAndReleaseBufferInfoCommand>
     {
     public:
-        CopyAndReleaseBufferDataCommand(BufferData src, BufferData dest) :
+        CopyAndReleaseBufferInfoCommand(BufferInfo src, BufferInfo dest) :
             source(src),
             destination(dest) {}
 
-        BufferData source;
-        BufferData destination;
+        BufferInfo source;
+        BufferInfo destination;
 
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
-        virtual ~CopyAndReleaseBufferDataCommand();
+        virtual ~CopyAndReleaseBufferInfoCommand();
     };
 
 } // namespace vsg

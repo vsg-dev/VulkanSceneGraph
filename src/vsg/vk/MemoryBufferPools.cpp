@@ -70,7 +70,7 @@ VkDeviceSize MemoryBufferPools::computeBufferTotalReserved() const
     return totalReservedSize;
 }
 
-BufferData MemoryBufferPools::reserveBufferData(VkDeviceSize totalSize, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties)
+BufferData MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties)
 {
     BufferData bufferData;
     for (auto& bufferFromPool : bufferPools)

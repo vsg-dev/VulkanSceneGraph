@@ -49,7 +49,7 @@ namespace vsg
 
         struct VulkanData
         {
-            BufferData bufferData;
+            BufferInfo bufferInfo;
             VkIndexType indexType;
         };
 

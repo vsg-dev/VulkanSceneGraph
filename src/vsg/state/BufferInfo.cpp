@@ -55,29 +55,29 @@ void BufferInfo::copyDataToBuffer(uint32_t deviceID)
 //
 // vsg::copyDataToStagingBuffer
 //
-BufferData vsg::copyDataToStagingBuffer(Context& context, const Data* data)
+BufferInfo vsg::copyDataToStagingBuffer(Context& context, const Data* data)
 {
     if (!data) return {};
 
     VkDeviceSize imageTotalSize = data->dataSize();
 
     VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
-    BufferData stagingBufferData = context.stagingMemoryBufferPools->reserveBufferData(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    stagingBufferData.data = const_cast<Data*>(data);
+    BufferInfo stagingBufferInfo = context.stagingMemoryBufferPools->reserveBuffer(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    stagingBufferInfo.data = const_cast<Data*>(data);
 
-    // std::cout<<"stagingBufferData.buffer "<<stagingBufferData.buffer.get()<<", "<<stagingBufferData.offset<<", "<<stagingBufferData.range<<")"<<std::endl;
+    // std::cout<<"stagingBufferInfo.buffer "<<stagingBufferInfo.buffer.get()<<", "<<stagingBufferInfo.offset<<", "<<stagingBufferInfo.range<<")"<<std::endl;
 
-    ref_ptr<Buffer> imageStagingBuffer(stagingBufferData.buffer);
+    ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo.buffer);
     ref_ptr<DeviceMemory> imageStagingMemory(imageStagingBuffer->getDeviceMemory(context.deviceID));
 
     if (!imageStagingMemory) return {};
 
     // copy data to staging memory
-    imageStagingMemory->copy(imageStagingBuffer->getMemoryOffset(context.deviceID) + stagingBufferData.offset, imageTotalSize, data->dataPointer());
+    imageStagingMemory->copy(imageStagingBuffer->getMemoryOffset(context.deviceID) + stagingBufferInfo.offset, imageTotalSize, data->dataPointer());
 
     // std::cout << "Creating imageStagingBuffer and memory size = " << imageTotalSize<<std::endl;
 
-    return stagingBufferData;
+    return stagingBufferInfo;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -121,7 +121,7 @@ BufferInfoList vsg::createBufferAndTransferData(Context& context, const DataList
     bufferInfoList.reserve(dataList.size());
     for (auto& data : dataList)
     {
-        bufferInfoList.push_back(BufferData(0, offset, data->dataSize(), data));
+        bufferInfoList.push_back(BufferInfo(0, offset, data->dataSize(), data));
         VkDeviceSize endOfEntry = offset + data->dataSize();
         offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
     }
@@ -130,22 +130,22 @@ BufferInfoList vsg::createBufferAndTransferData(Context& context, const DataList
 
     VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage;
 
-    BufferData deviceBufferData = context.deviceMemoryBufferPools->reserveBufferData(totalSize, alignment, bufferUsageFlags, sharingMode, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    BufferInfo deviceBufferInfo = context.deviceMemoryBufferPools->reserveBuffer(totalSize, alignment, bufferUsageFlags, sharingMode, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    //std::cout<<"deviceBufferData.buffer "<<deviceBufferData.buffer.get()<<", "<<deviceBufferData.offset<<", "<<deviceBufferData.range<<")"<<std::endl;
+    //std::cout<<"deviceBufferInfo.buffer "<<deviceBufferInfo.buffer.get()<<", "<<deviceBufferInfo.offset<<", "<<deviceBufferInfo.range<<")"<<std::endl;
 
     // assign the buffer to the bufferData entries
     for (auto& bufferData : bufferInfoList)
     {
-        bufferData.buffer = deviceBufferData.buffer;
-        bufferData.offset += deviceBufferData.offset;
+        bufferData.buffer = deviceBufferInfo.buffer;
+        bufferData.offset += deviceBufferInfo.offset;
     }
 
-    BufferData stagingBufferData = context.stagingMemoryBufferPools->reserveBufferData(totalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    BufferInfo stagingBufferInfo = context.stagingMemoryBufferPools->reserveBuffer(totalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-    //std::cout<<"stagingBufferData.buffer "<<stagingBufferData.buffer.get()<<", "<<stagingBufferData.offset<<", "<<stagingBufferData.range<<")"<<std::endl;
+    //std::cout<<"stagingBufferInfo.buffer "<<stagingBufferInfo.buffer.get()<<", "<<stagingBufferInfo.offset<<", "<<stagingBufferInfo.range<<")"<<std::endl;
 
-    ref_ptr<Buffer> stagingBuffer(stagingBufferData.buffer);
+    ref_ptr<Buffer> stagingBuffer(stagingBufferInfo.buffer);
     ref_ptr<DeviceMemory> stagingMemory(stagingBuffer->getDeviceMemory(context.deviceID));
 
     if (!stagingMemory)
@@ -154,36 +154,36 @@ BufferInfoList vsg::createBufferAndTransferData(Context& context, const DataList
     }
 
     void* buffer_data;
-    stagingMemory->map(stagingBuffer->getMemoryOffset(context.deviceID) + stagingBufferData.offset, stagingBufferData.range, 0, &buffer_data);
+    stagingMemory->map(stagingBuffer->getMemoryOffset(context.deviceID) + stagingBufferInfo.offset, stagingBufferInfo.range, 0, &buffer_data);
     char* ptr = reinterpret_cast<char*>(buffer_data);
 
-    //std::cout<<"    buffer_data " <<buffer_data<<", stagingBufferData.offset="<<stagingBufferData.offset<<", "<<totalSize<< std::endl;
+    //std::cout<<"    buffer_data " <<buffer_data<<", stagingBufferInfo.offset="<<stagingBufferInfo.offset<<", "<<totalSize<< std::endl;
 
     for (size_t i = 0; i < dataList.size(); ++i)
     {
         const Data* data = dataList[i];
-        std::memcpy(ptr + bufferInfoList[i].offset - deviceBufferData.offset, data->dataPointer(), data->dataSize());
+        std::memcpy(ptr + bufferInfoList[i].offset - deviceBufferInfo.offset, data->dataPointer(), data->dataSize());
     }
 
     stagingMemory->unmap();
 
 #if 0 // merging of ByfferDataCommands caused problems with later release of individual parts of the buffers copied, so removing this optimization
-    CopyAndReleaseBufferDataCommand* previous = context.copyBufferDataCommands.empty() ? nullptr : context.copyBufferDataCommands.back().get();
+    CopyAndReleaseBufferInfoCommand* previous = context.copyBufferInfoCommands.empty() ? nullptr : context.copyBufferInfoCommands.back().get();
     if (previous)
     {
-        bool sourceMatched = (previous->source._buffer == stagingBufferData.buffer) && ((previous->source.offset + previous->source.range) == stagingBufferData.offset);
-        bool destinationMatched = (previous->destination._buffer == deviceBufferData.buffer) && ((previous->destination.offset + previous->destination.range) == deviceBufferData.offset);
+        bool sourceMatched = (previous->source._buffer == stagingBufferInfo.buffer) && ((previous->source.offset + previous->source.range) == stagingBufferInfo.offset);
+        bool destinationMatched = (previous->destination._buffer == deviceBufferInfo.buffer) && ((previous->destination.offset + previous->destination.range) == deviceBufferInfo.offset);
 
         if (sourceMatched && destinationMatched)
         {
             //std::cout<<"Source matched = "<<sourceMatched<<" destinationMatched = "<<destinationMatched<<std::endl;
-            previous->source.range += stagingBufferData.range;
-            previous->destination.range += stagingBufferData.range;
+            previous->source.range += stagingBufferInfo.range;
+            previous->destination.range += stagingBufferInfo.range;
             return bufferInfoList;
         }
     }
 #endif
-    context.commands.emplace_back(new CopyAndReleaseBufferDataCommand(stagingBufferData, deviceBufferData));
+    context.commands.emplace_back(new CopyAndReleaseBufferInfoCommand(stagingBufferInfo, deviceBufferInfo));
 
     return bufferInfoList;
 }
@@ -206,7 +206,7 @@ BufferInfoList vsg::createHostVisibleBuffer(Device* device, const DataList& data
     bufferInfoList.reserve(dataList.size());
     for (auto& data : dataList)
     {
-        bufferInfoList.push_back(BufferData(0, offset, data->dataSize(), data));
+        bufferInfoList.push_back(BufferInfo(0, offset, data->dataSize(), data));
         VkDeviceSize endOfEntry = offset + data->dataSize();
         offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
     }

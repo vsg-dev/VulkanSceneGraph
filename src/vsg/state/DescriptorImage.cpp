@@ -42,7 +42,7 @@ uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
     return mipLevels;
 }
 
-void ImageData::computeNumMipMapLevels()
+void ImageInfo::computeNumMipMapLevels()
 {
     if (imageView && imageView->image && imageView->image->data)
     {
@@ -73,7 +73,7 @@ DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> data, u
     {
         auto image = Image::create(data);
         auto imageView = ImageView::create(image);
-        imageInfoList.emplace_back(ImageData{sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+        imageInfoList.emplace_back(ImageInfo{sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
     }
 }
 
@@ -96,7 +96,7 @@ DescriptorImage::DescriptorImage(const SamplerImage& si, uint32_t in_dstBinding,
     {
         auto image = Image::create(si.data);
         auto imageView = ImageView::create(image);
-        imageInfoList.emplace_back(ImageData{si.sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+        imageInfoList.emplace_back(ImageInfo{si.sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
     }
 }
 
@@ -109,7 +109,7 @@ DescriptorImage::DescriptorImage(const SamplerImages& samplerImages, uint32_t in
         {
             auto image = Image::create(si.data);
             auto imageView = ImageView::create(image);
-            imageInfoList.emplace_back(ImageData{si.sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+            imageInfoList.emplace_back(ImageInfo{si.sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
         }
     }
 }
@@ -177,7 +177,7 @@ void DescriptorImage::compile(Context& context)
                     auto stagingBufferData = copyDataToStagingBuffer(context, image->data);
                     if (stagingBufferData)
                     {
-                        context.commands.emplace_back(new CopyAndReleaseImageDataCommand(stagingBufferData, imageData, image->mipLevels));
+                        context.commands.emplace_back(new CopyAndReleaseImageInfoCommand(stagingBufferData, imageData, image->mipLevels));
                     }
                 }
             }
@@ -199,7 +199,7 @@ void DescriptorImage::assignTo(Context& context, VkWriteDescriptorSet& wds) cons
     wds.pImageInfo = pImageInfo;
     for (size_t i = 0; i < imageInfoList.size(); ++i)
     {
-        const ImageData& data = imageInfoList[i];
+        const ImageInfo& data = imageInfoList[i];
 
         VkDescriptorImageInfo& info = pImageInfo[i];
         if (data.sampler)
