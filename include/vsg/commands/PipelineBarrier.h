@@ -14,7 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/Command.h>
 #include <vsg/core/ScratchMemory.h>
-#include <vsg/vk/Buffer.h>
+#include <vsg/state/Buffer.h>
 #include <vsg/state/Image.h>
 
 namespace vsg
