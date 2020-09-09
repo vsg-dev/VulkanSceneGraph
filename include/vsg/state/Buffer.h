@@ -27,11 +27,10 @@ namespace vsg
         Buffer(Device* device, VkDeviceSize in_size, VkBufferUsageFlags in_usage, VkSharingMode in_sharingMode);
 
         // VkBufferCreateInfo settings
-        VkBufferCreateFlags    flags = 0;
-        VkDeviceSize           size;
-        VkBufferUsageFlags     usage;
-        VkSharingMode          sharingMode;
-
+        VkBufferCreateFlags flags = 0;
+        VkDeviceSize size;
+        VkBufferUsageFlags usage;
+        VkSharingMode sharingMode;
 
         /// Vulkan VkImage handle
         VkBuffer vk(uint32_t deviceID) const { return _vulkanData[deviceID].buffer; }

@@ -36,11 +36,9 @@ BufferView::BufferView(Buffer* in_buffer, VkFormat in_format, VkDeviceSize in_of
     // TODO need to put memoory slot in place
 }
 
-
-
 BufferView::~BufferView()
 {
-    for(auto& vd : _vulkanData) vd.release();
+    for (auto& vd : _vulkanData) vd.release();
 }
 
 void BufferView::compile(Device* device)

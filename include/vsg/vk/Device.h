@@ -52,7 +52,6 @@ namespace vsg
 
         const uint32_t deviceID = 0;
 
-
         ref_ptr<Queue> getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex = 0);
 
     protected:

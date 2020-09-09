@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/CopyAndReleaseBuffer.h>
 #include <vsg/io/Options.h>
-#include <vsg/traversals/CompileTraversal.h>
 #include <vsg/state/BufferInfo.h>
+#include <vsg/traversals/CompileTraversal.h>
 #include <vsg/vk/CommandBuffer.h>
 
 using namespace vsg;
@@ -26,7 +26,7 @@ void BufferInfo::copyDataToBuffer()
 {
     if (!buffer) return;
 
-    for(uint32_t deviceID=0; deviceID<buffer->sizeVulkanData(); ++deviceID)
+    for (uint32_t deviceID = 0; deviceID < buffer->sizeVulkanData(); ++deviceID)
     {
         copyDataToBuffer(deviceID);
     }
@@ -49,7 +49,6 @@ void BufferInfo::copyDataToBuffer(uint32_t deviceID)
         dm->unmap();
     }
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //

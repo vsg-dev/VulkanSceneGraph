@@ -46,7 +46,6 @@ namespace vsg
         DescriptorImage(const SamplerImage& si, uint32_t in_dstBinding = 0, uint32_t in_dstArrayElement = 0, VkDescriptorType in_descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
         DescriptorImage(const SamplerImages& samplerImages, uint32_t in_dstBinding = 0, uint32_t in_dstArrayElement = 0, VkDescriptorType in_descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-
         /// VkWriteDescriptorSet.pImageInfo settings
         ImageInfoList imageInfoList;
 

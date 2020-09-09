@@ -44,7 +44,6 @@ Buffer::Buffer(VkDeviceSize in_size, VkBufferUsageFlags in_usage, VkSharingMode 
 {
 }
 
-
 Buffer::Buffer(Device* device, VkDeviceSize in_size, VkBufferUsageFlags in_usage, VkSharingMode in_sharingMode) :
     flags(0),
     size(in_size),
@@ -55,14 +54,13 @@ Buffer::Buffer(Device* device, VkDeviceSize in_size, VkBufferUsageFlags in_usage
     compile(device);
 }
 
-
 Buffer::~Buffer()
 {
 #if REPORT_STATS
     std::cout << "start of Buffer::~Buffer() " << this << std::endl;
 #endif
 
-    for(auto& vd : _vulkanData) vd.release();
+    for (auto& vd : _vulkanData) vd.release();
 
 #if REPORT_STATS
     std::cout << "end of Buffer::~Buffer() " << this << std::endl;

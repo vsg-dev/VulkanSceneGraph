@@ -23,7 +23,6 @@ namespace vsg
     class VSG_DECLSPEC Image : public Inherit<Object, Image>
     {
     public:
-
         /// create a vsg::Image with optional CreateInfo, delay VkUmage creation to compile
         Image(ref_ptr<Data> in_data = {});
 
@@ -31,19 +30,19 @@ namespace vsg
         Image(VkImage image, Device* device);
 
         /// VkImageCreateInfo settings
-        ref_ptr<Data>            data;
-        VkImageCreateFlags       flags = 0;
-        VkImageType              imageType = VK_IMAGE_TYPE_2D;
-        VkFormat                 format = VK_FORMAT_UNDEFINED;
-        VkExtent3D               extent = {0, 0, 0};
-        uint32_t                 mipLevels = 0;
-        uint32_t                 arrayLayers = 0;
-        VkSampleCountFlagBits    samples = VK_SAMPLE_COUNT_1_BIT;
-        VkImageTiling            tiling = VK_IMAGE_TILING_OPTIMAL;
-        VkImageUsageFlags        usage = 0;
-        VkSharingMode            sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        std::vector<uint32_t>    queueFamilyIndices;
-        VkImageLayout            initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        ref_ptr<Data> data;
+        VkImageCreateFlags flags = 0;
+        VkImageType imageType = VK_IMAGE_TYPE_2D;
+        VkFormat format = VK_FORMAT_UNDEFINED;
+        VkExtent3D extent = {0, 0, 0};
+        uint32_t mipLevels = 0;
+        uint32_t arrayLayers = 0;
+        VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT;
+        VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
+        VkImageUsageFlags usage = 0;
+        VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        std::vector<uint32_t> queueFamilyIndices;
+        VkImageLayout initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
         /// Vulkan VkImage handle
         VkImage vk(uint32_t deviceID) const { return _vulkanData[deviceID].image; }

@@ -25,22 +25,22 @@ namespace vsg
         Sampler();
 
         /// VkSamplerCreateInfo settings
-        VkSamplerCreateFlags    flags = 0;
-        VkFilter                magFilter = VK_FILTER_LINEAR;
-        VkFilter                minFilter = VK_FILTER_LINEAR;
-        VkSamplerMipmapMode     mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        VkSamplerAddressMode    addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        VkSamplerAddressMode    addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        VkSamplerAddressMode    addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        float                   mipLodBias = 0.0f;
-        VkBool32                anisotropyEnable = VK_TRUE; // requires Logical device to have deviceFeatures.samplerAnisotropy = VK_TRUE; set when creating the vsg::Device
-        float                   maxAnisotropy = 16.0f;
-        VkBool32                compareEnable = VK_FALSE;
-        VkCompareOp             compareOp = VK_COMPARE_OP_NEVER;
-        float                   minLod = 0.0f;
-        float                   maxLod = 16.0f;
-        VkBorderColor           borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-        VkBool32                unnormalizedCoordinates = VK_FALSE;
+        VkSamplerCreateFlags flags = 0;
+        VkFilter magFilter = VK_FILTER_LINEAR;
+        VkFilter minFilter = VK_FILTER_LINEAR;
+        VkSamplerMipmapMode mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        VkSamplerAddressMode addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        VkSamplerAddressMode addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        VkSamplerAddressMode addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        float mipLodBias = 0.0f;
+        VkBool32 anisotropyEnable = VK_TRUE; // requires Logical device to have deviceFeatures.samplerAnisotropy = VK_TRUE; set when creating the vsg::Device
+        float maxAnisotropy = 16.0f;
+        VkBool32 compareEnable = VK_FALSE;
+        VkCompareOp compareOp = VK_COMPARE_OP_NEVER;
+        float minLod = 0.0f;
+        float maxLod = 16.0f;
+        VkBorderColor borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+        VkBool32 unnormalizedCoordinates = VK_FALSE;
 
         // Vulkan VkSampler handle
         VkSampler vk(uint32_t deviceID) const { return _implementation[deviceID]->_sampler; }

@@ -63,7 +63,6 @@ namespace vsg
         };
 
         vk_buffer<ref_ptr<Implementation>> _implementation;
-
     };
     VSG_type_name(vsg::GraphicsPipeline);
 
@@ -88,7 +87,6 @@ namespace vsg
 
     public:
         virtual ~BindGraphicsPipeline();
-
     };
     VSG_type_name(vsg::BindGraphicsPipeline);
 

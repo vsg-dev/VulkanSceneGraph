@@ -27,7 +27,7 @@ void DescriptorTexelBufferView::compile(Context& context)
 {
     if (texelBufferViews.empty()) return;
 
-    for(auto& bufferView : texelBufferViews)
+    for (auto& bufferView : texelBufferViews)
     {
         bufferView->compile(context);
     }

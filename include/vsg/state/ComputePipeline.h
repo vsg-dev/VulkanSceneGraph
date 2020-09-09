@@ -54,7 +54,6 @@ namespace vsg
         };
 
         vk_buffer<ref_ptr<Implementation>> _implementation;
-
     };
     VSG_type_name(vsg::ComputePipeline);
 
@@ -76,7 +75,6 @@ namespace vsg
 
     public:
         virtual ~BindComputePipeline();
-
     };
     VSG_type_name(vsg::BindComputePipeline);
 

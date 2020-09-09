@@ -103,7 +103,7 @@ DescriptorImage::DescriptorImage(const SamplerImage& si, uint32_t in_dstBinding,
 DescriptorImage::DescriptorImage(const SamplerImages& samplerImages, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
 {
-    for(auto& si : samplerImages)
+    for (auto& si : samplerImages)
     {
         if (si.sampler && si.data)
         {
@@ -117,7 +117,6 @@ DescriptorImage::DescriptorImage(const SamplerImages& samplerImages, uint32_t in
 void DescriptorImage::read(Input& input)
 {
     // TODO need to release on imageInfoList.
-
 
     Descriptor::read(input);
 
@@ -158,7 +157,7 @@ void DescriptorImage::compile(Context& context)
 {
     if (imageInfoList.empty()) return;
 
-    for(auto& imageData : imageInfoList)
+    for (auto& imageData : imageInfoList)
     {
         if (imageData.sampler) imageData.sampler->compile(context);
         if (imageData.imageView)

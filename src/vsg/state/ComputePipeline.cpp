@@ -116,7 +116,7 @@ void BindComputePipeline::write(Output& output) const
 {
     StateCommand::write(output);
 
-    output.writeObject("ComputePipeline",pipeline.get());
+    output.writeObject("ComputePipeline", pipeline.get());
 }
 
 void BindComputePipeline::record(CommandBuffer& commandBuffer) const

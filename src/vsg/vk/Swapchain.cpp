@@ -139,7 +139,7 @@ SwapchainImage::SwapchainImage(VkImage image, Device* device) :
 
 SwapchainImage::~SwapchainImage()
 {
-    for(auto& vd : _vulkanData)
+    for (auto& vd : _vulkanData)
     {
         vd.deviceMemory = nullptr;
         vd.image = VK_NULL_HANDLE;
@@ -150,7 +150,7 @@ SwapchainImage::~SwapchainImage()
 //
 // Swapchain
 //
-Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences):
+Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences) :
     _device(device)
 {
     SwapChainSupportDetails details = querySwapChainSupport(*physicalDevice, *surface);

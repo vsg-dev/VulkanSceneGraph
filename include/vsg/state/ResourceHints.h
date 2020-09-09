@@ -31,7 +31,6 @@ namespace vsg
 
     protected:
         virtual ~ResourceHints();
-
     };
     VSG_type_name(vsg::ResourceHints);
 

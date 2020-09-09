@@ -21,16 +21,15 @@ namespace vsg
     class VSG_DECLSPEC ImageView : public Inherit<Object, ImageView>
     {
     public:
-
         ImageView(ref_ptr<Image> in_image = {}, VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
 
         /// VkImageViewCreateInfo settings
-        VkImageViewCreateFlags     flags = 0;
-        ref_ptr<Image>             image;
-        VkImageViewType            viewType = VK_IMAGE_VIEW_TYPE_3D;
-        VkFormat                   format = VK_FORMAT_UNDEFINED;
-        VkComponentMapping         components = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY};
-        VkImageSubresourceRange    subresourceRange;
+        VkImageViewCreateFlags flags = 0;
+        ref_ptr<Image> image;
+        VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_3D;
+        VkFormat format = VK_FORMAT_UNDEFINED;
+        VkComponentMapping components = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY};
+        VkImageSubresourceRange subresourceRange;
 
         /// Vulkan VkImageView handle
         VkImageView vk(uint32_t deviceID) const { return _vulkanData[deviceID].imageView; }
@@ -51,7 +50,6 @@ namespace vsg
         };
 
         vk_buffer<VulkanData> _vulkanData;
-
     };
     VSG_type_name(vsg::ImageView);
 

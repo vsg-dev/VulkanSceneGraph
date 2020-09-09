@@ -73,7 +73,6 @@ namespace vsg
         void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
         void release() { _implementation.clear(); }
 
-
     protected:
         virtual ~ShaderModule();
 

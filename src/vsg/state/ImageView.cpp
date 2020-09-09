@@ -14,7 +14,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/state/ImageView.h>
 #include <vsg/vk/Context.h>
-#include <vsg/vk/Context.h>
 
 using namespace vsg;
 
@@ -28,14 +27,13 @@ void ImageView::VulkanData::release()
     }
 }
 
-
 ImageView::ImageView(ref_ptr<Image> in_image, VkImageAspectFlags aspectFlags) :
     image(in_image)
 {
     if (image)
     {
         auto imageType = image->imageType;
-        viewType = (imageType==VK_IMAGE_TYPE_3D) ? VK_IMAGE_VIEW_TYPE_3D : ((imageType==VK_IMAGE_TYPE_2D) ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
+        viewType = (imageType == VK_IMAGE_TYPE_3D) ? VK_IMAGE_VIEW_TYPE_3D : ((imageType == VK_IMAGE_TYPE_2D) ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
         format = image->format;
         subresourceRange.aspectMask = aspectFlags;
         subresourceRange.baseMipLevel = 0;
@@ -47,9 +45,8 @@ ImageView::ImageView(ref_ptr<Image> in_image, VkImageAspectFlags aspectFlags) :
 
 ImageView::~ImageView()
 {
-    for(auto& vd : _vulkanData) vd.release();
+    for (auto& vd : _vulkanData) vd.release();
 }
-
 
 void ImageView::compile(Device* device)
 {
@@ -102,7 +99,6 @@ void ImageView::compile(Context& context)
 
         info.image = image->vk(vd.device->deviceID);
     }
-
 
     if (VkResult result = vkCreateImageView(*vd.device, &info, vd.device->getAllocationCallbacks(), &vd.imageView); result != VK_SUCCESS)
     {

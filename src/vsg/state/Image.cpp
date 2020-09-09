@@ -62,7 +62,7 @@ Image::Image(VkImage image, Device* device)
 
 Image::~Image()
 {
-    for(auto& vd : _vulkanData) vd.release();
+    for (auto& vd : _vulkanData) vd.release();
 }
 
 VkResult Image::bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)

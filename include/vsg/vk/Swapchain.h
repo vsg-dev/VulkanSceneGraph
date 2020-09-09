@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Fence.h>
 #include <vsg/state/ImageView.h>
+#include <vsg/vk/Fence.h>
 #include <vsg/vk/Surface.h>
 
 namespace vsg

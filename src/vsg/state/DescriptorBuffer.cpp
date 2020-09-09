@@ -39,7 +39,7 @@ DescriptorBuffer::DescriptorBuffer(const DataList& dataList, uint32_t in_dstBind
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
 {
     bufferInfoList.reserve(dataList.size());
-    for(auto& data : dataList)
+    for (auto& data : dataList)
     {
         bufferInfoList.emplace_back(nullptr, 0, 0, data);
     }
@@ -53,7 +53,7 @@ DescriptorBuffer::DescriptorBuffer(const BufferInfoList& in_bufferInfoList, uint
 
 DescriptorBuffer::~DescriptorBuffer()
 {
-    for(auto& bufferInfo : bufferInfoList)
+    for (auto& bufferInfo : bufferInfoList)
     {
         bufferInfo.release();
     }
@@ -61,7 +61,7 @@ DescriptorBuffer::~DescriptorBuffer()
 
 void DescriptorBuffer::read(Input& input)
 {
-    for(auto& bufferInfo : bufferInfoList)
+    for (auto& bufferInfo : bufferInfoList)
     {
         bufferInfo.release();
     }
@@ -76,7 +76,6 @@ void DescriptorBuffer::read(Input& input)
         bufferInfo.range = 0;
         input.readObject("Data", bufferInfo.data);
     }
-
 }
 
 void DescriptorBuffer::write(Output& output) const
@@ -90,13 +89,12 @@ void DescriptorBuffer::write(Output& output) const
     }
 }
 
-
 void DescriptorBuffer::compile(Context& context)
 {
     VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 
     bool requiresAssingmentOfBuffers = false;
-    for(auto& bufferInfo : bufferInfoList)
+    for (auto& bufferInfo : bufferInfoList)
     {
         if (bufferInfo.buffer == nullptr) requiresAssingmentOfBuffers = true;
     }
@@ -123,7 +121,7 @@ void DescriptorBuffer::compile(Context& context)
 
         auto buffer = vsg::Buffer::create(totalSize, bufferUsageFlags, VK_SHARING_MODE_EXCLUSIVE);
 
-        for(auto& bufferInfo : bufferInfoList)
+        for (auto& bufferInfo : bufferInfoList)
         {
             if (!bufferInfo.buffer) bufferInfo.buffer = buffer;
         }
