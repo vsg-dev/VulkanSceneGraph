@@ -52,7 +52,4 @@ namespace vsg
     };
     using ImageInfoList = std::vector<ImageInfo>;
 
-    // depcreated name for class
-    using ImageData = ImageInfo;
-
 } // namespace vsg
