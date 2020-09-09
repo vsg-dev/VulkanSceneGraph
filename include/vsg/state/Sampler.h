@@ -33,8 +33,8 @@ namespace vsg
         VkSamplerAddressMode addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         VkSamplerAddressMode addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         float mipLodBias = 0.0f;
-        VkBool32 anisotropyEnable = VK_TRUE; // requires Logical device to have deviceFeatures.samplerAnisotropy = VK_TRUE; set when creating the vsg::Device
-        float maxAnisotropy = 16.0f;
+        VkBool32 anisotropyEnable = VK_FALSE;
+        float maxAnisotropy = 0.0f;
         VkBool32 compareEnable = VK_FALSE;
         VkCompareOp compareOp = VK_COMPARE_OP_NEVER;
         float minLod = 0.0f;
