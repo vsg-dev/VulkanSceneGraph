@@ -66,11 +66,6 @@ namespace vsg
 
     using BufferInfoList = std::vector<BufferInfo>;
 
-    // depcreated name for class
-    using BufferData = BufferInfo;
-    using BufferDataList = BufferInfoList;
-
-
     extern VSG_DECLSPEC BufferInfo copyDataToStagingBuffer(Context& context, const Data* data);
 
     extern VSG_DECLSPEC BufferInfoList createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);

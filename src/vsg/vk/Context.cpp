@@ -27,12 +27,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <iostream>
 
-#define REPORT_STATS 0
-
-#if REPORT_STATS
-#    include <chrono>
-#endif
-
 using namespace vsg;
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -184,7 +178,6 @@ void Context::record()
     }
 
     graphicsQueue->submit(submitInfo, fence);
-    //std::cout << "Context::recordCommands()  time " << std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - before_compile).count() << "ms" << std::endl;
 }
 
 void Context::waitForCompletion()
@@ -214,10 +207,6 @@ void Context::waitForCompletion()
             std::cout << "Context::waitForCompletion()  " << this << " fence->wait() failed with error. VkResult = " << result << std::endl;
         }
     }
-
-#if REPORT_STATS
-    std::cout << "Context::waitForCompletion() copyBufferDataCommands = " << copyBufferDataCommands.size() << ", copyImageDataCommands = " << copyImageDataCommands.size() << ", commands = " << commands.size() << std::endl;
-#endif
 
     commands.clear();
 }

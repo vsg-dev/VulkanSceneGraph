@@ -45,9 +45,9 @@ DescriptorBuffer::DescriptorBuffer(const DataList& dataList, uint32_t in_dstBind
     }
 }
 
-DescriptorBuffer::DescriptorBuffer(const BufferDataList& bufferDataList, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+DescriptorBuffer::DescriptorBuffer(const BufferInfoList& in_bufferInfoList, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType),
-    bufferInfoList(bufferDataList)
+    bufferInfoList(in_bufferInfoList)
 {
 }
 
