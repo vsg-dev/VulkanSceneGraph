@@ -26,7 +26,7 @@ namespace vsg
         /// VkImageViewCreateInfo settings
         VkImageViewCreateFlags flags = 0;
         ref_ptr<Image> image;
-        VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_3D;
+        VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D;
         VkFormat format = VK_FORMAT_UNDEFINED;
         VkComponentMapping components = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY};
         VkImageSubresourceRange subresourceRange;
