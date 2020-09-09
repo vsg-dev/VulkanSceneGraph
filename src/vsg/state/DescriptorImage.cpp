@@ -83,9 +83,9 @@ DescriptorImage::DescriptorImage(const ImageInfo& imageInfo, uint32_t in_dstBind
     imageInfoList.push_back(imageInfo);
 }
 
-DescriptorImage::DescriptorImage(const ImageInfoList& in_imageDataList, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+DescriptorImage::DescriptorImage(const ImageInfoList& in_imageInfoList, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType),
-    imageInfoList(in_imageDataList)
+    imageInfoList(in_imageInfoList)
 {
 }
 
