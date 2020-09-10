@@ -12,28 +12,46 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Buffer.h>
+#include <vsg/state/Buffer.h>
+#include <vsg/vk/vk_buffer.h>
 
 namespace vsg
 {
+    // forward declare
+    class Context;
+
     class VSG_DECLSPEC BufferView : public Inherit<Object, BufferView>
     {
     public:
         BufferView(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range);
 
-        operator VkBufferView() const { return _bufferView; }
+        // VkBufferViewCreateInfo settings
+        ref_ptr<Buffer> buffer;
+        VkFormat format = VK_FORMAT_UNDEFINED;
+        VkDeviceSize offset = 0;
+        VkDeviceSize range = 0;
 
-        Device* getDevice() { return _device; }
-        const Device* getDevice() const { return _device; }
+        /// Vulkan VkImage handle
+        VkBufferView vk(uint32_t deviceID) const { return _vulkanData[deviceID].bufferView; }
 
-        Buffer* getBuffer() { return _buffer; }
-        const Buffer* getBuffer() const { return _buffer; }
+        virtual void compile(Device* device);
+        virtual void compile(Context& context);
 
     protected:
         virtual ~BufferView();
 
-        VkBufferView _bufferView;
-        ref_ptr<Device> _device;
-        ref_ptr<Buffer> _buffer;
+        struct VulkanData
+        {
+            VkBufferView bufferView = VK_NULL_HANDLE;
+            ref_ptr<Device> device;
+
+            ~VulkanData() { release(); }
+            void release();
+        };
+
+        vk_buffer<VulkanData> _vulkanData;
     };
+
+    using BufferViewList = std::vector<ref_ptr<BufferView>>;
+
 } // namespace vsg

@@ -120,19 +120,19 @@ void WaitEvents::record(CommandBuffer& commandBuffer) const
     auto vk_memoryBarriers = scratchMemory.allocate<VkMemoryBarrier>(memoryBarriers.size());
     for (size_t i = 0; i < memoryBarriers.size(); ++i)
     {
-        memoryBarriers[i]->assign(vk_memoryBarriers[i], scratchMemory);
+        memoryBarriers[i]->assign(commandBuffer, vk_memoryBarriers[i]);
     }
 
     auto vk_bufferMemoryBarriers = scratchMemory.allocate<VkBufferMemoryBarrier>(bufferMemoryBarriers.size());
     for (size_t i = 0; i < bufferMemoryBarriers.size(); ++i)
     {
-        bufferMemoryBarriers[i]->assign(vk_bufferMemoryBarriers[i], scratchMemory);
+        bufferMemoryBarriers[i]->assign(commandBuffer, vk_bufferMemoryBarriers[i]);
     }
 
     auto vk_imageMemoryBarriers = scratchMemory.allocate<VkImageMemoryBarrier>(imageMemoryBarriers.size());
     for (size_t i = 0; i < imageMemoryBarriers.size(); ++i)
     {
-        imageMemoryBarriers[i]->assign(vk_imageMemoryBarriers[i], scratchMemory);
+        imageMemoryBarriers[i]->assign(commandBuffer, vk_imageMemoryBarriers[i]);
     }
 
     vkCmdWaitEvents(

@@ -27,12 +27,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <iostream>
 
-#define REPORT_STATS 0
-
-#if REPORT_STATS
-#    include <chrono>
-#endif
-
 using namespace vsg;
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -55,12 +49,12 @@ void BuildAccelerationStructureCommand::record(CommandBuffer& commandBuffer) con
 
     extensions->vkCmdBuildAccelerationStructureNV(commandBuffer,
                                                   _accelerationStructureInfo,
-                                                  _instanceBuffer.valid() ? *_instanceBuffer : (VkBuffer)VK_NULL_HANDLE,
+                                                  _instanceBuffer.valid() ? _instanceBuffer->vk(commandBuffer.deviceID) : (VkBuffer)VK_NULL_HANDLE,
                                                   0,
                                                   VK_FALSE,
                                                   _accelerationStructure,
                                                   VK_NULL_HANDLE,
-                                                  *_scratchBuffer,
+                                                  _scratchBuffer->vk(commandBuffer.deviceID),
                                                   0);
 
     VkMemoryBarrier memoryBarrier;
@@ -153,7 +147,7 @@ void Context::record()
     {
         scratchBuffer = Buffer::create(device, scratchBufferSize, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);
 
-        scratchBufferMemory = vsg::DeviceMemory::create(device, scratchBuffer->getMemoryRequirements(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        scratchBufferMemory = vsg::DeviceMemory::create(device, scratchBuffer->getMemoryRequirements(deviceID), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         scratchBuffer->bind(scratchBufferMemory, 0);
 
         for (auto& command : buildAccelerationStructureCommands)
@@ -184,7 +178,6 @@ void Context::record()
     }
 
     graphicsQueue->submit(submitInfo, fence);
-    //std::cout << "Context::recordCommands()  time " << std::chrono::duration<double, std::chrono::milliseconds::period>(std::chrono::steady_clock::now() - before_compile).count() << "ms" << std::endl;
 }
 
 void Context::waitForCompletion()
@@ -214,10 +207,6 @@ void Context::waitForCompletion()
             std::cout << "Context::waitForCompletion()  " << this << " fence->wait() failed with error. VkResult = " << result << std::endl;
         }
     }
-
-#if REPORT_STATS
-    std::cout << "Context::waitForCompletion() copyBufferDataCommands = " << copyBufferDataCommands.size() << ", copyImageDataCommands = " << copyImageDataCommands.size() << ", commands = " << commands.size() << std::endl;
-#endif
 
     commands.clear();
 }

@@ -27,8 +27,8 @@ ComputePipeline::ComputePipeline()
 }
 
 ComputePipeline::ComputePipeline(PipelineLayout* pipelineLayout, ShaderStage* shaderStage) :
-    _pipelineLayout(pipelineLayout),
-    _shaderStage(shaderStage)
+    layout(pipelineLayout),
+    stage(shaderStage)
 {
 }
 
@@ -40,25 +40,25 @@ void ComputePipeline::read(Input& input)
 {
     Object::read(input);
 
-    input.readObject("PipelineLayout", _pipelineLayout);
-    input.readObject("ShaderStage", _shaderStage);
+    input.readObject("PipelineLayout", layout);
+    input.readObject("ShaderStage", stage);
 }
 
 void ComputePipeline::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeObject("PipelineLayout", _pipelineLayout.get());
-    output.writeObject("ShaderStage", _shaderStage.get());
+    output.writeObject("PipelineLayout", layout.get());
+    output.writeObject("ShaderStage", stage.get());
 }
 
 void ComputePipeline::compile(Context& context)
 {
     if (!_implementation[context.deviceID])
     {
-        _pipelineLayout->compile(context);
-        _shaderStage->compile(context);
-        _implementation[context.deviceID] = ComputePipeline::Implementation::create(context, context.device, _pipelineLayout, _shaderStage);
+        layout->compile(context);
+        stage->compile(context);
+        _implementation[context.deviceID] = ComputePipeline::Implementation::create(context, context.device, layout, stage);
     }
 }
 
@@ -67,9 +67,7 @@ void ComputePipeline::compile(Context& context)
 // ComputePipeline::Implementation
 //
 ComputePipeline::Implementation::Implementation(Context& context, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage) :
-    _device(device),
-    _pipelineLayout(pipelineLayout),
-    _shaderStage(shaderStage)
+    _device(device)
 {
     VkPipelineShaderStageCreateInfo stageInfo = {};
     stageInfo.pNext = nullptr;
@@ -97,9 +95,9 @@ ComputePipeline::Implementation::~Implementation()
 //
 // BindComputePipeline
 //
-BindComputePipeline::BindComputePipeline(ComputePipeline* pipeline) :
+BindComputePipeline::BindComputePipeline(ComputePipeline* in_pipeline) :
     Inherit(0), // slot 0
-    _pipeline(pipeline)
+    pipeline(in_pipeline)
 {
 }
 
@@ -111,23 +109,23 @@ void BindComputePipeline::read(Input& input)
 {
     StateCommand::read(input);
 
-    input.readObject("ComputePipeline", _pipeline);
+    input.readObject("ComputePipeline", pipeline);
 }
 
 void BindComputePipeline::write(Output& output) const
 {
     StateCommand::write(output);
 
-    output.writeObject("ComputePipeline", _pipeline.get());
+    output.writeObject("ComputePipeline", pipeline.get());
 }
 
 void BindComputePipeline::record(CommandBuffer& commandBuffer) const
 {
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, _pipeline->vk(commandBuffer.deviceID));
-    commandBuffer.setCurrentPipelineLayout(_pipeline->getPipelineLayout()->vk(commandBuffer.deviceID));
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->vk(commandBuffer.deviceID));
+    commandBuffer.setCurrentPipelineLayout(pipeline->layout->vk(commandBuffer.deviceID));
 }
 
 void BindComputePipeline::compile(Context& context)
 {
-    if (_pipeline) _pipeline->compile(context);
+    if (pipeline) pipeline->compile(context);
 }

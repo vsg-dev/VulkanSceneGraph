@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,22 +12,38 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/CopyAndReleaseBufferDataCommand.h>
-#include <vsg/io/Options.h>
+#include <deque>
+#include <memory>
 
-using namespace vsg;
+#include <vsg/core/Object.h>
+#include <vsg/core/ScratchMemory.h>
+#include <vsg/nodes/Group.h>
+#include <vsg/state/BufferInfo.h>
+#include <vsg/state/GraphicsPipeline.h>
+#include <vsg/vk/CommandPool.h>
+#include <vsg/vk/DescriptorPool.h>
+#include <vsg/vk/Fence.h>
+#include <vsg/vk/MemoryBufferPools.h>
 
-CopyAndReleaseBufferDataCommand::~CopyAndReleaseBufferDataCommand()
+#include <vsg/commands/Command.h>
+
+namespace vsg
 {
-    source.release();
-}
 
-void CopyAndReleaseBufferDataCommand::record(CommandBuffer& commandBuffer) const
-{
-    //std::cout<<"CopyAndReleaseBufferDataCommand::record(CommandBuffer& commandBuffer) source.offset = "<<source.offset<<", "<<destination.offset<<std::endl;
-    VkBufferCopy copyRegion = {};
-    copyRegion.srcOffset = source.offset;
-    copyRegion.dstOffset = destination.offset;
-    copyRegion.size = source.range;
-    vkCmdCopyBuffer(commandBuffer, *source.buffer, *destination.buffer, 1, &copyRegion);
-}
+    class VSG_DECLSPEC CopyAndReleaseBuffer : public Inherit<Command, CopyAndReleaseBuffer>
+    {
+    public:
+        CopyAndReleaseBuffer(BufferInfo src, BufferInfo dest) :
+            source(src),
+            destination(dest) {}
+
+        BufferInfo source;
+        BufferInfo destination;
+
+        void record(CommandBuffer& commandBuffer) const override;
+
+    protected:
+        virtual ~CopyAndReleaseBuffer();
+    };
+
+} // namespace vsg

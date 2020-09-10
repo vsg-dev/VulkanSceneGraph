@@ -14,8 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/Command.h>
 #include <vsg/nodes/Node.h>
+#include <vsg/state/BufferInfo.h>
 #include <vsg/traversals/CompileTraversal.h>
-#include <vsg/vk/BufferData.h>
 
 namespace vsg
 {
@@ -51,7 +51,7 @@ namespace vsg
             std::vector<ref_ptr<Buffer>> buffers;
             std::vector<VkBuffer> vkBuffers;
             std::vector<VkDeviceSize> offsets;
-            BufferData bufferData;
+            BufferInfo bufferInfo;
             VkIndexType indexType = VK_INDEX_TYPE_UINT16;
         };
 

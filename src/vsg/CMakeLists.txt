@@ -41,8 +41,8 @@ set(SOURCES
     commands/BlitImage.cpp
     commands/CopyImage.cpp
     commands/CopyImageToBuffer.cpp
-    commands/CopyAndReleaseBufferDataCommand.cpp
-    commands/CopyAndReleaseImageDataCommand.cpp
+    commands/CopyAndReleaseBuffer.cpp
+    commands/CopyAndReleaseImage.cpp
     commands/PipelineBarrier.cpp
     commands/Event.cpp
     commands/NextSubPass.cpp
@@ -51,6 +51,9 @@ set(SOURCES
     commands/Draw.cpp
     commands/DrawIndexed.cpp
 
+    state/Buffer.cpp
+    state/BufferInfo.cpp
+    state/BufferView.cpp
     state/ComputePipeline.cpp
     state/DescriptorSet.cpp
     state/GraphicsPipeline.cpp
@@ -58,7 +61,6 @@ set(SOURCES
     state/Descriptor.cpp
     state/DescriptorBuffer.cpp
     state/DescriptorImage.cpp
-    state/DescriptorImageView.cpp
     state/DescriptorTexelBufferView.cpp
     state/DescriptorSetLayout.cpp
     state/ShaderModule.cpp
@@ -68,6 +70,8 @@ set(SOURCES
     state/ResourceHints.cpp
     state/StateCommand.cpp
     state/StateGroup.cpp
+    state/Image.cpp
+    state/ImageView.cpp
 
     io/FileSystem.cpp
     io/AsciiInput.cpp
@@ -120,9 +124,6 @@ set(SOURCES
     raytracing/TraceRays.cpp
 
 
-    vk/Buffer.cpp
-    vk/BufferData.cpp
-    vk/BufferView.cpp
     vk/CommandBuffer.cpp
     vk/CommandPool.cpp
     vk/Context.cpp
@@ -132,9 +133,6 @@ set(SOURCES
     vk/Extensions.cpp
     vk/Fence.cpp
     vk/Framebuffer.cpp
-    vk/Image.cpp
-    vk/ImageData.cpp
-    vk/ImageView.cpp
     vk/Instance.cpp
     vk/MemoryBufferPools.cpp
     vk/PhysicalDevice.cpp

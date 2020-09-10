@@ -14,8 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Value.h>
 #include <vsg/maths/mat4.h>
+#include <vsg/state/BufferInfo.h>
 #include <vsg/state/Descriptor.h>
-#include <vsg/vk/BufferData.h>
 #include <vsg/vk/DeviceMemory.h>
 
 namespace vsg

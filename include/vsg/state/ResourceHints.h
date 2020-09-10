@@ -22,25 +22,15 @@ namespace vsg
     public:
         ResourceHints(Allocator* allocator = nullptr);
 
+        uint32_t maxSlot = 0;
+        uint32_t numDescriptorSets = 0;
+        DescriptorPoolSizes descriptorPoolSizes;
+
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void setNumDescriptorSets(uint32_t count) { _numDescriptorSets = count; }
-        uint32_t getNumDescriptorSets() const { return _numDescriptorSets; }
-
-        void setMaxSlot(uint32_t slot) { _maxSlot = slot; }
-        uint32_t getMaxSlot() const { return _maxSlot; }
-
-        void setDescriptorPoolSizes(const DescriptorPoolSizes& dps) { _descriptorPoolSizes = dps; }
-        DescriptorPoolSizes& getDescriptorPoolSizes() { return _descriptorPoolSizes; }
-        const DescriptorPoolSizes& getDescriptorPoolSizes() const { return _descriptorPoolSizes; }
-
     protected:
         virtual ~ResourceHints();
-
-        uint32_t _maxSlot = 0;
-        uint32_t _numDescriptorSets = 0;
-        DescriptorPoolSizes _descriptorPoolSizes;
     };
     VSG_type_name(vsg::ResourceHints);
 

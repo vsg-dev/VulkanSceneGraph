@@ -12,9 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/BufferData.h>
-#include <vsg/vk/BufferView.h>
-#include <vsg/vk/ImageData.h>
+#include <vsg/core/Inherit.h>
 
 namespace vsg
 {
@@ -26,14 +24,14 @@ namespace vsg
     class VSG_DECLSPEC Descriptor : public Inherit<Object, Descriptor>
     {
     public:
-        Descriptor(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType);
+        Descriptor(uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType);
 
-        uint32_t _dstBinding;
-        uint32_t _dstArrayElement;
-        VkDescriptorType _descriptorType;
+        /// Common VkWriteDescriptorSet settings
+        uint32_t dstBinding;
+        uint32_t dstArrayElement;
+        VkDescriptorType descriptorType;
 
         void read(Input& input) override;
-
         void write(Output& output) const override;
 
         // compile the Vulkan object, context parameter used for Device

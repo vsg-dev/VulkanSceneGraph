@@ -24,25 +24,18 @@ namespace vsg
     public:
         ShaderStage();
         ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, ref_ptr<ShaderModule> shaderModule);
-        ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const ShaderModule::Source& source);
+        ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& source);
         ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const ShaderModule::SPIRV& spirv);
-        ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const ShaderModule::Source& source, const ShaderModule::SPIRV& spirv);
-
-        void setShaderModule(ShaderModule* shaderModule) { _shaderModule = shaderModule; }
-        ShaderModule* getShaderModule() { return _shaderModule; }
-        const ShaderModule* getShaderModule() const { return _shaderModule; }
-
-        void setShaderStageFlagBits(VkShaderStageFlagBits flags) { _stage = flags; }
-        VkShaderStageFlagBits getShaderStageFlagBits() const { return _stage; }
-
-        void setEntryPointName(std::string& entryPointName) { _entryPointName = entryPointName; }
-        const std::string& getEntryPointName() const { return _entryPointName; }
+        ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& source, const ShaderModule::SPIRV& spirv);
 
         using SpecializationConstants = std::map<uint32_t, vsg::ref_ptr<vsg::Data>>;
 
-        void setSpecializationConstants(const SpecializationConstants& sc) { _specializationConstants = sc; }
-        SpecializationConstants& getSpecializationConstants() { return _specializationConstants; }
-        const SpecializationConstants& getSpecializationConstants() const { return _specializationConstants; }
+        /// Vualkn VkPipelineShaderStageCreateInfo settings
+        VkPipelineShaderStageCreateFlags flags = 0;
+        VkShaderStageFlagBits stage = {};
+        ref_ptr<ShaderModule> module;
+        std::string entryPointName;
+        SpecializationConstants specializationConstants;
 
         static ref_ptr<ShaderStage> read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename);
 
@@ -55,10 +48,7 @@ namespace vsg
         void compile(Context& context);
 
     protected:
-        VkShaderStageFlagBits _stage;
-        std::string _entryPointName;
-        ref_ptr<ShaderModule> _shaderModule;
-        SpecializationConstants _specializationConstants;
+        virtual ~ShaderStage();
     };
     VSG_type_name(vsg::ShaderStage);
 

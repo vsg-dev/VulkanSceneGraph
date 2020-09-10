@@ -22,14 +22,14 @@ using namespace vsg;
 // PipelineLayout
 //
 PipelineLayout::PipelineLayout() :
-    _flags(0)
+    flags(0)
 {
 }
 
-PipelineLayout::PipelineLayout(const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags) :
-    _descriptorSetLayouts(descriptorSetLayouts),
-    _pushConstantRanges(pushConstantRanges),
-    _flags(flags)
+PipelineLayout::PipelineLayout(const DescriptorSetLayouts& in_setLayouts, const PushConstantRanges& in_pushConstantRanges, VkPipelineLayoutCreateFlags in_flags) :
+    flags(in_flags),
+    setLayouts(in_setLayouts),
+    pushConstantRanges(in_pushConstantRanges)
 {
 }
 
@@ -41,16 +41,16 @@ void PipelineLayout::read(Input& input)
 {
     Object::read(input);
 
-    input.readValue<uint32_t>("Flags", _flags);
+    input.readValue<uint32_t>("Flags", flags);
 
-    _descriptorSetLayouts.resize(input.readValue<uint32_t>("NumDescriptorSetLayouts"));
-    for (auto& descriptorLayout : _descriptorSetLayouts)
+    setLayouts.resize(input.readValue<uint32_t>("NumDescriptorSetLayouts"));
+    for (auto& descriptorLayout : setLayouts)
     {
         input.readObject("DescriptorSetLayout", descriptorLayout);
     }
 
-    _pushConstantRanges.resize(input.readValue<uint32_t>("NumPushConstantRanges"));
-    for (auto& pushConstantRange : _pushConstantRanges)
+    pushConstantRanges.resize(input.readValue<uint32_t>("NumPushConstantRanges"));
+    for (auto& pushConstantRange : pushConstantRanges)
     {
         input.readValue<uint32_t>("stageFlags", pushConstantRange.stageFlags);
         input.read("offset", pushConstantRange.offset);
@@ -62,16 +62,16 @@ void PipelineLayout::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeValue<uint32_t>("Flags", _flags);
+    output.writeValue<uint32_t>("Flags", flags);
 
-    output.writeValue<uint32_t>("NumDescriptorSetLayouts", _descriptorSetLayouts.size());
-    for (auto& descriptorLayout : _descriptorSetLayouts)
+    output.writeValue<uint32_t>("NumDescriptorSetLayouts", setLayouts.size());
+    for (auto& descriptorLayout : setLayouts)
     {
         output.writeObject("DescriptorSetLayout", descriptorLayout);
     }
 
-    output.writeValue<uint32_t>("NumPushConstantRanges", _pushConstantRanges.size());
-    for (auto& pushConstantRange : _pushConstantRanges)
+    output.writeValue<uint32_t>("NumPushConstantRanges", pushConstantRanges.size());
+    for (auto& pushConstantRange : pushConstantRanges)
     {
         output.writeValue<uint32_t>("stageFlags", pushConstantRange.stageFlags);
         output.write("offset", pushConstantRange.offset);
@@ -83,11 +83,11 @@ void PipelineLayout::compile(Context& context)
 {
     if (!_implementation[context.deviceID])
     {
-        for (auto dsl : _descriptorSetLayouts)
+        for (auto dsl : setLayouts)
         {
             dsl->compile(context);
         }
-        _implementation[context.deviceID] = PipelineLayout::Implementation::create(context.device, _descriptorSetLayouts, _pushConstantRanges, _flags);
+        _implementation[context.deviceID] = PipelineLayout::Implementation::create(context.device, setLayouts, pushConstantRanges, flags);
     }
 }
 
@@ -96,7 +96,6 @@ void PipelineLayout::compile(Context& context)
 // PipelineLayout::Implementation
 //
 PipelineLayout::Implementation::Implementation(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags) :
-    _descriptorSetLayouts(descriptorSetLayouts),
     _device(device)
 {
     std::vector<VkDescriptorSetLayout> layouts;

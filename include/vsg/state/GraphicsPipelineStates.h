@@ -43,6 +43,7 @@ namespace vsg
         VertexInputState();
         VertexInputState(const Bindings& bindings, const Attributes& attributes);
 
+        /// VkPipelineVertexInputStateCreateInfo settings
         Bindings vertexBindingDescriptions;
         Attributes vertexAttributeDescriptions;
 
@@ -61,6 +62,7 @@ namespace vsg
         InputAssemblyState();
         InputAssemblyState(VkPrimitiveTopology primitiveTopology, VkBool32 primitiveRestart = VK_FALSE);
 
+        /// VkPipelineInputAssemblyStateCreateInfo settings
         VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         VkBool32 primitiveRestartEnable = VK_FALSE;
 
@@ -78,7 +80,8 @@ namespace vsg
     public:
         TessellationState(uint32_t in_patchControlPoints = 1);
 
-        // patchControlPoints must be greater than zero and less than or equal to VkPhysicalDeviceLimits::maxTessellationPatchSize
+        /// VkPipelineTessellationStateCreateInfo settings
+        /// patchControlPoints must be greater than zero and less than or equal to VkPhysicalDeviceLimits::maxTessellationPatchSize
         uint32_t patchControlPoints = 1;
 
         void read(Input& input) override;
@@ -102,6 +105,7 @@ namespace vsg
         using Viewports = std::vector<VkViewport>;
         using Scissors = std::vector<VkRect2D>;
 
+        /// VkPipelineViewportStateCreateInfo settings
         Viewports viewports;
         Scissors scissors;
 
@@ -128,6 +132,7 @@ namespace vsg
     public:
         RasterizationState();
 
+        /// VkPipelineRasterizationStateCreateInfo settings
         VkBool32 depthClampEnable = VK_FALSE;
         VkBool32 rasterizerDiscardEnable = VK_FALSE;
         VkPolygonMode polygonMode = VK_POLYGON_MODE_FILL;
@@ -153,6 +158,7 @@ namespace vsg
     public:
         MultisampleState(VkSampleCountFlagBits rasterizationSamples = VK_SAMPLE_COUNT_1_BIT);
 
+        /// VkPipelineMultisampleStateCreateInfo settings
         VkSampleCountFlagBits rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
         VkBool32 sampleShadingEnable = VK_FALSE;
         float minSampleShading = 0.0f;
@@ -174,6 +180,7 @@ namespace vsg
     public:
         DepthStencilState();
 
+        /// VkPipelineDepthStencilStateCreateInfo settings
         VkBool32 depthTestEnable = VK_TRUE;
         VkBool32 depthWriteEnable = VK_TRUE;
         VkCompareOp depthCompareOp = VK_COMPARE_OP_LESS;
@@ -201,6 +208,7 @@ namespace vsg
         ColorBlendState();
         ColorBlendState(const ColorBlendAttachments& colorBlendAttachments);
 
+        /// VkPipelineColorBlendStateCreateInfo settings
         VkBool32 logicOpEnable = VK_FALSE;
         VkLogicOp logicOp = VK_LOGIC_OP_COPY;
         ColorBlendAttachments attachments;
@@ -231,6 +239,7 @@ namespace vsg
         DynamicState(Args... args) :
             dynamicStates({args...}) {}
 
+        /// VkPipelineDynamicStateCreateInfo settings
         DynamicStates dynamicStates;
 
         void read(Input& input) override;

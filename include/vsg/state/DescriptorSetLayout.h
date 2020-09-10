@@ -28,6 +28,12 @@ namespace vsg
         DescriptorSetLayout();
         DescriptorSetLayout(const DescriptorSetLayoutBindings& descriptorSetLayoutBindings);
 
+        /// VkDescriptorSetLayoutCreateInfo settings
+        DescriptorSetLayoutBindings bindings;
+
+        /// Vulkan VkDescriptorSetLayout handle
+        VkDescriptorSetLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_descriptorSetLayout; }
+
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -37,8 +43,6 @@ namespace vsg
         // remove the local reference to the Vulkan implementation
         void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
         void release() { _implementation.clear(); }
-
-        VkDescriptorSetLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_descriptorSetLayout; }
 
     protected:
         virtual ~DescriptorSetLayout();
@@ -54,8 +58,6 @@ namespace vsg
         };
 
         vk_buffer<ref_ptr<Implementation>> _implementation;
-
-        DescriptorSetLayoutBindings _descriptorSetLayoutBindings;
     };
     VSG_type_name(vsg::DescriptorSetLayout);
 

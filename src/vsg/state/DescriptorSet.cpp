@@ -24,9 +24,9 @@ DescriptorSet::DescriptorSet()
 {
 }
 
-DescriptorSet::DescriptorSet(ref_ptr<DescriptorSetLayout> descriptorSetLayout, const Descriptors& descriptors) :
-    _descriptorSetLayout(descriptorSetLayout),
-    _descriptors(descriptors)
+DescriptorSet::DescriptorSet(ref_ptr<DescriptorSetLayout> in_descriptorSetLayout, const Descriptors& in_descriptors) :
+    setLayout(in_descriptorSetLayout),
+    descriptors(in_descriptors)
 {
 }
 
@@ -38,10 +38,10 @@ void DescriptorSet::read(Input& input)
 {
     Object::read(input);
 
-    input.readObject("DescriptorSetLayout", _descriptorSetLayout);
+    input.readObject("DescriptorSetLayout", setLayout);
 
-    _descriptors.resize(input.readValue<uint32_t>("NumDescriptors"));
-    for (auto& descriptor : _descriptors)
+    descriptors.resize(input.readValue<uint32_t>("NumDescriptors"));
+    for (auto& descriptor : descriptors)
     {
         input.readObject("Descriptor", descriptor);
     }
@@ -51,10 +51,10 @@ void DescriptorSet::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeObject("DescriptorSetLayout", _descriptorSetLayout.get());
+    output.writeObject("DescriptorSetLayout", setLayout.get());
 
-    output.writeValue<uint32_t>("NumDescriptors", _descriptors.size());
-    for (auto& descriptor : _descriptors)
+    output.writeValue<uint32_t>("NumDescriptors", descriptors.size());
+    for (auto& descriptor : descriptors)
     {
         output.writeObject("Descriptor", descriptor.get());
     }
@@ -65,14 +65,14 @@ void DescriptorSet::compile(Context& context)
     if (!_implementation[context.deviceID])
     {
         // make sure all the contributing objects are compiled
-        if (_descriptorSetLayout) _descriptorSetLayout->compile(context);
-        for (auto& descriptor : _descriptors) descriptor->compile(context);
+        if (setLayout) setLayout->compile(context);
+        for (auto& descriptor : descriptors) descriptor->compile(context);
 
 #if USE_MUTEX
         std::scoped_lock<std::mutex> lock(context.descriptorPool->getMutex());
 #endif
-        _implementation[context.deviceID] = DescriptorSet::Implementation::create(context.device, context.descriptorPool, _descriptorSetLayout);
-        _implementation[context.deviceID]->assign(context, _descriptors);
+        _implementation[context.deviceID] = DescriptorSet::Implementation::create(context.device, context.descriptorPool, setLayout);
+        _implementation[context.deviceID]->assign(context, descriptors);
     }
 }
 
@@ -117,11 +117,11 @@ void DescriptorSet::Implementation::assign(Context& context, const Descriptors& 
 
     for (size_t i = 0; i < _descriptors.size(); ++i)
     {
-        _descriptors[i]->assignTo(context, descriptorWrites[i]);
+        descriptors[i]->assignTo(context, descriptorWrites[i]);
         descriptorWrites[i].dstSet = _descriptorSet;
     }
 
-    vkUpdateDescriptorSets(*_device, static_cast<uint32_t>(_descriptors.size()), descriptorWrites, 0, nullptr);
+    vkUpdateDescriptorSets(*_device, static_cast<uint32_t>(descriptors.size()), descriptorWrites, 0, nullptr);
 
     // clean up scratch memory so it can be reused.
     context.scratchMemory->release();
@@ -133,8 +133,8 @@ void DescriptorSet::Implementation::assign(Context& context, const Descriptors& 
 //
 BindDescriptorSets::BindDescriptorSets() :
     Inherit(1), // slot 1
-    _bindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
-    _firstSet(0)
+    pipelineBindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
+    firstSet(0)
 {
 }
 
@@ -144,12 +144,12 @@ void BindDescriptorSets::read(Input& input)
 
     Object::read(input);
 
-    input.readObject("PipelineLayout", _pipelineLayout);
+    input.readObject("PipelineLayout", layout);
 
-    input.read("firstSet", _firstSet);
+    input.read("firstSet", firstSet);
 
-    _descriptorSets.resize(input.readValue<uint32_t>("NumDescriptorSets"));
-    for (auto& descriptorSet : _descriptorSets)
+    descriptorSets.resize(input.readValue<uint32_t>("NumDescriptorSets"));
+    for (auto& descriptorSet : descriptorSets)
     {
         input.readObject("DescriptorSets", descriptorSet);
     }
@@ -159,12 +159,12 @@ void BindDescriptorSets::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeObject("PipelineLayout", _pipelineLayout.get());
+    output.writeObject("PipelineLayout", layout.get());
 
-    output.write("firstSet", _firstSet);
+    output.write("firstSet", firstSet);
 
-    output.writeValue<uint32_t>("NumDescriptorSets", _descriptorSets.size());
-    for (auto& descriptorSet : _descriptorSets)
+    output.writeValue<uint32_t>("NumDescriptorSets", descriptorSets.size());
+    for (auto& descriptorSet : descriptorSets)
     {
         output.writeObject("DescriptorSets", descriptorSet.get());
     }
@@ -175,23 +175,23 @@ void BindDescriptorSets::compile(Context& context)
     auto& vkd = _vulkanData[context.deviceID];
 
     // no need to compile if already compiled
-    if (vkd._vkPipelineLayout != 0 && vkd._vkDescriptorSets.size() == _descriptorSets.size()) return;
+    if (vkd._vkPipelineLayout != 0 && vkd._vkDescriptorSets.size() == descriptorSets.size()) return;
 
-    _pipelineLayout->compile(context);
-    vkd._vkPipelineLayout = _pipelineLayout->vk(context.deviceID);
+    layout->compile(context);
+    vkd._vkPipelineLayout = layout->vk(context.deviceID);
 
-    vkd._vkDescriptorSets.resize(_descriptorSets.size());
-    for (size_t i = 0; i < _descriptorSets.size(); ++i)
+    vkd._vkDescriptorSets.resize(descriptorSets.size());
+    for (size_t i = 0; i < descriptorSets.size(); ++i)
     {
-        _descriptorSets[i]->compile(context);
-        vkd._vkDescriptorSets[i] = _descriptorSets[i]->vk(context.deviceID);
+        descriptorSets[i]->compile(context);
+        vkd._vkDescriptorSets[i] = descriptorSets[i]->vk(context.deviceID);
     }
 }
 
 void BindDescriptorSets::record(CommandBuffer& commandBuffer) const
 {
     auto& vkd = _vulkanData[commandBuffer.deviceID];
-    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, vkd._vkPipelineLayout, _firstSet, static_cast<uint32_t>(vkd._vkDescriptorSets.size()), vkd._vkDescriptorSets.data(), 0, nullptr);
+    vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, vkd._vkPipelineLayout, firstSet, static_cast<uint32_t>(vkd._vkDescriptorSets.size()), vkd._vkDescriptorSets.data(), 0, nullptr);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -199,8 +199,8 @@ void BindDescriptorSets::record(CommandBuffer& commandBuffer) const
 // BindDescriptorSet
 //
 BindDescriptorSet::BindDescriptorSet() :
-    _bindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
-    _firstSet(0)
+    pipelineBindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
+    firstSet(0)
 {
 }
 
@@ -210,22 +210,22 @@ void BindDescriptorSet::read(Input& input)
 
     StateCommand::read(input);
 
-    input.readObject("PipelineLayout", _pipelineLayout);
+    input.readObject("PipelineLayout", layout);
 
-    input.read("firstSet", _firstSet);
+    input.read("firstSet", firstSet);
 
-    input.readObject("DescriptorSet", _descriptorSet);
+    input.readObject("DescriptorSet", descriptorSet);
 }
 
 void BindDescriptorSet::write(Output& output) const
 {
     StateCommand::write(output);
 
-    output.writeObject("PipelineLayout", _pipelineLayout.get());
+    output.writeObject("PipelineLayout", layout.get());
 
-    output.write("firstSet", _firstSet);
+    output.write("firstSet", firstSet);
 
-    output.writeObject("DescriptorSet", _descriptorSet.get());
+    output.writeObject("DescriptorSet", descriptorSet.get());
 }
 
 void BindDescriptorSet::compile(Context& context)
@@ -235,16 +235,16 @@ void BindDescriptorSet::compile(Context& context)
     // no need to compile if already compiled
     if (vkd._vkPipelineLayout != 0 && vkd._vkDescriptorSet != 0) return;
 
-    _pipelineLayout->compile(context);
-    _descriptorSet->compile(context);
+    layout->compile(context);
+    descriptorSet->compile(context);
 
-    vkd._vkPipelineLayout = _pipelineLayout->vk(context.deviceID);
-    vkd._vkDescriptorSet = _descriptorSet->vk(context.deviceID);
+    vkd._vkPipelineLayout = layout->vk(context.deviceID);
+    vkd._vkDescriptorSet = descriptorSet->vk(context.deviceID);
 }
 
 void BindDescriptorSet::record(CommandBuffer& commandBuffer) const
 {
     auto& vkd = _vulkanData[commandBuffer.deviceID];
 
-    vkCmdBindDescriptorSets(commandBuffer, _bindPoint, vkd._vkPipelineLayout, _firstSet, 1, &(vkd._vkDescriptorSet), 0, nullptr);
+    vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, vkd._vkPipelineLayout, firstSet, 1, &(vkd._vkDescriptorSet), 0, nullptr);
 }

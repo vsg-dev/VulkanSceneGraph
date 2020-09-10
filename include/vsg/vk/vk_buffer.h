@@ -31,6 +31,8 @@ namespace vsg
         T& operator[](uint32_t) { return value; }
         const T& operator[](uint32_t) const { return value; }
 
+        uint32_t size() const { return 1; }
+
         void clear() { value = {}; }
 
         auto begin() { return &value; }
@@ -50,6 +52,8 @@ namespace vsg
 
         T& operator[](uint32_t deviceID) { return buffer[deviceID]; }
         const T& operator[](uint32_t deviceID) const { return buffer[deviceID]; }
+
+        uint32_t size() const { return VSG_MAX_DEVICES; }
 
         void clear()
         {
@@ -81,6 +85,8 @@ namespace vsg
         {
             return buffer[deviceID];
         }
+
+        uint32_t size() const { return static_cast<uint32_t>(buffer.size()); }
 
         void clear() { buffer.clear(); }
 

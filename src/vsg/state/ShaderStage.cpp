@@ -20,55 +20,57 @@ ShaderStage::ShaderStage()
 {
 }
 
-ShaderStage::ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, ref_ptr<ShaderModule> shaderModule) :
-    _stage(stage),
-    _entryPointName(entryPointName),
-    _shaderModule(shaderModule)
+ShaderStage::ShaderStage(VkShaderStageFlagBits in_stage, const std::string& in_entryPointName, ref_ptr<ShaderModule> shaderModule) :
+    stage(in_stage),
+    module(shaderModule),
+    entryPointName(in_entryPointName)
 {
 }
 
-ShaderStage::ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const ShaderModule::Source& source) :
-    _stage(stage),
-    _entryPointName(entryPointName),
-    _shaderModule(ShaderModule::create(source))
+ShaderStage::ShaderStage(VkShaderStageFlagBits in_stage, const std::string& in_entryPointName, const std::string& source) :
+    stage(in_stage),
+    module(ShaderModule::create(source)),
+    entryPointName(in_entryPointName)
 {
 }
 
-ShaderStage::ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const ShaderModule::SPIRV& spirv) :
-    _stage(stage),
-    _entryPointName(entryPointName),
-    _shaderModule(ShaderModule::create(spirv))
+ShaderStage::ShaderStage(VkShaderStageFlagBits in_stage, const std::string& in_entryPointName, const ShaderModule::SPIRV& code) :
+    stage(in_stage),
+    module(ShaderModule::create(code)),
+    entryPointName(in_entryPointName)
 {
 }
 
-ShaderStage::ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const ShaderModule::Source& source, const ShaderModule::SPIRV& spirv) :
-    _stage(stage),
-    _entryPointName(entryPointName),
-    _shaderModule(ShaderModule::create(source, spirv))
+ShaderStage::ShaderStage(VkShaderStageFlagBits in_stage, const std::string& in_entryPointName, const std::string& source, const ShaderModule::SPIRV& code) :
+    stage(in_stage),
+    module(ShaderModule::create(source, code)),
+    entryPointName(in_entryPointName)
 {
 }
 
-ref_ptr<ShaderStage> ShaderStage::read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename)
+ShaderStage::~ShaderStage()
 {
-    return ShaderStage::create(stage, entryPointName, ShaderModule::read(filename));
+}
+
+ref_ptr<ShaderStage> ShaderStage::read(VkShaderStageFlagBits in_stage, const std::string& in_entryPointName, const std::string& filename)
+{
+    return ShaderStage::create(in_stage, in_entryPointName, ShaderModule::read(filename));
 }
 
 void ShaderStage::read(Input& input)
 {
     Object::read(input);
 
-    input.readValue<int32_t>("Stage", _stage);
+    input.readValue<int32_t>("Stage", stage);
+    input.read("EntryPoint", entryPointName);
+    input.readObject("ShaderModule", module);
 
-    input.read("EntryPoint", _entryPointName);
-
-    input.readObject("ShaderModule", _shaderModule);
-
-    _specializationConstants.clear();
+    specializationConstants.clear();
     uint32_t numValues = input.readValue<uint32_t>("NumSpecializationConstants");
     for (uint32_t i = 0; i < numValues; ++i)
     {
         uint32_t id = input.readValue<uint32_t>("constantID");
-        input.readObject("data", _specializationConstants[id]);
+        input.readObject("data", specializationConstants[id]);
     }
 }
 
@@ -76,14 +78,12 @@ void ShaderStage::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeValue<int32_t>("Stage", _stage);
+    output.writeValue<int32_t>("Stage", stage);
+    output.write("EntryPoint", entryPointName);
+    output.writeObject("ShaderModule", module);
 
-    output.write("EntryPoint", _entryPointName);
-
-    output.writeObject("ShaderModule", _shaderModule.get());
-
-    output.writeValue<uint32_t>("NumSpecializationConstants", _specializationConstants.size());
-    for (auto& [id, data] : _specializationConstants)
+    output.writeValue<uint32_t>("NumSpecializationConstants", specializationConstants.size());
+    for (auto& [id, data] : specializationConstants)
     {
         output.writeValue<uint32_t>("constantID", id);
         output.writeObject("data", data);
@@ -93,28 +93,28 @@ void ShaderStage::write(Output& output) const
 void ShaderStage::apply(Context& context, VkPipelineShaderStageCreateInfo& stageInfo) const
 {
     stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    stageInfo.stage = _stage;
-    stageInfo.module = _shaderModule->vk(context.deviceID);
-    stageInfo.pName = _entryPointName.c_str();
+    stageInfo.stage = stage;
+    stageInfo.module = module->vk(context.deviceID);
+    stageInfo.pName = entryPointName.c_str();
 
-    if (_specializationConstants.empty())
+    if (specializationConstants.empty())
     {
         stageInfo.pSpecializationInfo = nullptr;
     }
     else
     {
         uint32_t packedDataSize = 0;
-        for (auto& id_data : _specializationConstants)
+        for (auto& id_data : specializationConstants)
         {
             packedDataSize += static_cast<uint32_t>(id_data.second->dataSize());
         }
 
         // allocate temporary memoory to pack the specialization map and data into.
-        auto mapEntries = context.scratchMemory->allocate<VkSpecializationMapEntry>(_specializationConstants.size());
+        auto mapEntries = context.scratchMemory->allocate<VkSpecializationMapEntry>(specializationConstants.size());
         auto packedData = context.scratchMemory->allocate<uint8_t>(packedDataSize);
         uint32_t offset = 0;
         uint32_t i = 0;
-        for (auto& [id, data] : _specializationConstants)
+        for (auto& [id, data] : specializationConstants)
         {
             mapEntries[i++] = VkSpecializationMapEntry{id, offset, data->dataSize()};
             std::memcpy(packedData + offset, static_cast<uint8_t*>(data->dataPointer()), data->dataSize());
@@ -126,7 +126,7 @@ void ShaderStage::apply(Context& context, VkPipelineShaderStageCreateInfo& stage
         stageInfo.pSpecializationInfo = specializationInfo;
 
         // assign the values from the ShaderStage into the specializationInfo
-        specializationInfo->mapEntryCount = static_cast<uint32_t>(_specializationConstants.size());
+        specializationInfo->mapEntryCount = static_cast<uint32_t>(specializationConstants.size());
         specializationInfo->pMapEntries = mapEntries;
         specializationInfo->dataSize = packedDataSize;
         specializationInfo->pData = packedData;
@@ -135,5 +135,5 @@ void ShaderStage::apply(Context& context, VkPipelineShaderStageCreateInfo& stage
 
 void ShaderStage::compile(Context& context)
 {
-    if (_shaderModule) _shaderModule->compile(context);
+    if (module) module->compile(context);
 }

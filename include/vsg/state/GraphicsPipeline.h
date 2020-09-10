@@ -28,20 +28,15 @@ namespace vsg
 
         GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass = 0);
 
+        /// VkGraphicsPipelineCreateInfo settings
+        ShaderStages stages;
+        GraphicsPipelineStates pipelineStates;
+        ref_ptr<PipelineLayout> layout;
+        ref_ptr<RenderPass> renderPass;
+        uint32_t subpass;
+
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
-        const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
-
-        ShaderStages& getShaderStages() { return _shaderStages; }
-        const ShaderStages& getShaderStages() const { return _shaderStages; }
-
-        GraphicsPipelineStates& getPipelineStates() { return _pipelineStates; }
-        const GraphicsPipelineStates& getPipelineStates() const { return _pipelineStates; }
-
-        uint32_t& getSubpass() { return _subpass; }
-        uint32_t getSubpass() const { return _subpass; }
 
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);
@@ -68,26 +63,20 @@ namespace vsg
         };
 
         vk_buffer<ref_ptr<Implementation>> _implementation;
-
-        ref_ptr<RenderPass> _renderPass;
-        ref_ptr<PipelineLayout> _pipelineLayout;
-        ShaderStages _shaderStages;
-        GraphicsPipelineStates _pipelineStates;
-        uint32_t _subpass;
     };
     VSG_type_name(vsg::GraphicsPipeline);
 
+    /// Encapsulation for vkCmdBindPipeline
     class VSG_DECLSPEC BindGraphicsPipeline : public Inherit<StateCommand, BindGraphicsPipeline>
     {
     public:
-        BindGraphicsPipeline(GraphicsPipeline* pipeline = nullptr);
+        BindGraphicsPipeline(GraphicsPipeline* in_pipeline = nullptr);
+
+        /// pipeline to pass in the vkCmdBindPipeline call;
+        ref_ptr<GraphicsPipeline> pipeline;
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        void setPipeline(GraphicsPipeline* pipeline) { _pipeline = pipeline; }
-        GraphicsPipeline* getPipeline() { return _pipeline; }
-        const GraphicsPipeline* getPipeline() const { return _pipeline; }
 
         void record(CommandBuffer& commandBuffer) const override;
 
@@ -98,8 +87,6 @@ namespace vsg
 
     public:
         virtual ~BindGraphicsPipeline();
-
-        ref_ptr<GraphicsPipeline> _pipeline;
     };
     VSG_type_name(vsg::BindGraphicsPipeline);
 

@@ -17,10 +17,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Descriptor::Descriptor(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType) :
-    _dstBinding(dstBinding),
-    _dstArrayElement(dstArrayElement),
-    _descriptorType(descriptorType)
+Descriptor::Descriptor(uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+    dstBinding(in_dstBinding),
+    dstArrayElement(in_dstArrayElement),
+    descriptorType(in_descriptorType)
 {
 }
 
@@ -28,23 +28,23 @@ void Descriptor::read(Input& input)
 {
     Object::read(input);
 
-    input.read("DstBinding", _dstBinding);
-    input.read("DstArrayElement", _dstArrayElement);
+    input.read("DstBinding", dstBinding);
+    input.read("DstArrayElement", dstArrayElement);
 }
 
 void Descriptor::write(Output& output) const
 {
     Object::write(output);
 
-    output.write("DstBinding", _dstBinding);
-    output.write("DstArrayElement", _dstArrayElement);
+    output.write("DstBinding", dstBinding);
+    output.write("DstArrayElement", dstArrayElement);
 }
 
 void Descriptor::assignTo(Context& /*context*/, VkWriteDescriptorSet& wds) const
 {
     wds = {};
     wds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    wds.dstBinding = _dstBinding;
-    wds.dstArrayElement = _dstArrayElement;
-    wds.descriptorType = _descriptorType;
+    wds.dstBinding = dstBinding;
+    wds.dstArrayElement = dstArrayElement;
+    wds.descriptorType = descriptorType;
 }

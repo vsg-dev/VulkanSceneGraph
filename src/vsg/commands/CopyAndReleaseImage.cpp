@@ -10,44 +10,43 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/CopyAndReleaseImageDataCommand.h>
+#include <vsg/commands/CopyAndReleaseImage.h>
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/io/Options.h>
 
 using namespace vsg;
 
-CopyAndReleaseImageDataCommand::CopyAndReleaseImageDataCommand(BufferData src, ImageData dest)
+CopyAndReleaseImage::CopyAndReleaseImage(BufferInfo src, ImageInfo dest)
 {
     add(src, dest);
 }
 
-CopyAndReleaseImageDataCommand::CopyAndReleaseImageDataCommand(BufferData src, ImageData dest, uint32_t numMipMapLevels)
+CopyAndReleaseImage::CopyAndReleaseImage(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels)
 {
     add(src, dest, numMipMapLevels);
 }
 
-CopyAndReleaseImageDataCommand::~CopyAndReleaseImageDataCommand()
+CopyAndReleaseImage::~CopyAndReleaseImage()
 {
     for (auto& copyData : completed) copyData.source.release();
     for (auto& copyData : pending) copyData.source.release();
 }
 
-void CopyAndReleaseImageDataCommand::add(BufferData src, ImageData dest)
+void CopyAndReleaseImage::add(BufferInfo src, ImageInfo dest)
 {
     pending.push_back(CopyData{src, dest, vsg::computeNumMipMapLevels(src.data, dest.sampler)});
 }
 
-void CopyAndReleaseImageDataCommand::add(BufferData src, ImageData dest, uint32_t numMipMapLevels)
+void CopyAndReleaseImage::add(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels)
 {
     pending.push_back(CopyData{src, dest, numMipMapLevels});
 }
 
-void CopyAndReleaseImageDataCommand::CopyData::record(CommandBuffer& commandBuffer) const
+void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 {
     ref_ptr<Buffer> imageStagingBuffer(source.buffer);
     ref_ptr<Data> data(source.data);
-    ref_ptr<Image> textureImage(destination.imageView->getImage());
-    ref_ptr<Sampler> sampler(destination.sampler);
+    ref_ptr<Image> textureImage(destination.imageView->image);
     VkImageLayout targetImageLayout = destination.imageLayout;
 
     Data::Layout layout = data->getLayout();
@@ -60,6 +59,8 @@ void CopyAndReleaseImageDataCommand::CopyData::record(CommandBuffer& commandBuff
     uint32_t height = data->height() * layout.blockHeight;
     uint32_t depth = data->depth() * layout.blockDepth;
 
+    auto vk_textureImage = textureImage->vk(commandBuffer.deviceID);
+
     // transfer the data.
     if (useDataMipmaps)
     {
@@ -71,7 +72,7 @@ void CopyAndReleaseImageDataCommand::CopyData::record(CommandBuffer& commandBuff
         preCopyBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         preCopyBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         preCopyBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        preCopyBarrier.image = *textureImage;
+        preCopyBarrier.image = vk_textureImage;
         preCopyBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         preCopyBarrier.subresourceRange.baseArrayLayer = 0;
         preCopyBarrier.subresourceRange.layerCount = 1;
@@ -102,7 +103,7 @@ void CopyAndReleaseImageDataCommand::CopyData::record(CommandBuffer& commandBuff
             region.imageOffset = {0, 0, 0};
             region.imageExtent = {mipWidth, mipHeight, mipDepth};
 
-            vkCmdCopyBufferToImage(commandBuffer, *imageStagingBuffer, *textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+            vkCmdCopyBufferToImage(commandBuffer, imageStagingBuffer->vk(commandBuffer.deviceID), vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
             if (mipWidth > 1) mipWidth /= 2;
             if (mipHeight > 1) mipHeight /= 2;
@@ -117,7 +118,7 @@ void CopyAndReleaseImageDataCommand::CopyData::record(CommandBuffer& commandBuff
         postCopyBarrier.newLayout = targetImageLayout;
         postCopyBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         postCopyBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        postCopyBarrier.image = *textureImage;
+        postCopyBarrier.image = vk_textureImage;
         postCopyBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         postCopyBarrier.subresourceRange.baseArrayLayer = 0;
         postCopyBarrier.subresourceRange.layerCount = 1;
@@ -141,7 +142,7 @@ void CopyAndReleaseImageDataCommand::CopyData::record(CommandBuffer& commandBuff
         preCopyBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         preCopyBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         preCopyBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        preCopyBarrier.image = *textureImage;
+        preCopyBarrier.image = vk_textureImage;
         preCopyBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         preCopyBarrier.subresourceRange.baseArrayLayer = 0;
         preCopyBarrier.subresourceRange.layerCount = 1;
@@ -165,11 +166,11 @@ void CopyAndReleaseImageDataCommand::CopyData::record(CommandBuffer& commandBuff
         region.imageOffset = {0, 0, 0};
         region.imageExtent = {width, height, depth};
 
-        vkCmdCopyBufferToImage(commandBuffer, *imageStagingBuffer, *textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+        vkCmdCopyBufferToImage(commandBuffer, imageStagingBuffer->vk(commandBuffer.deviceID), vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
         VkImageMemoryBarrier barrier = {};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        barrier.image = *textureImage;
+        barrier.image = vk_textureImage;
         barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -210,8 +211,8 @@ void CopyAndReleaseImageDataCommand::CopyData::record(CommandBuffer& commandBuff
             blit.dstSubresource.layerCount = 1;
 
             vkCmdBlitImage(commandBuffer,
-                           *textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                           *textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                           vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                            1, &blit,
                            VK_FILTER_LINEAR);
 
@@ -270,7 +271,7 @@ void CopyAndReleaseImageDataCommand::CopyData::record(CommandBuffer& commandBuff
         region.imageOffset = {0, 0, 0};
         region.imageExtent = {width, height, depth};
 
-        vkCmdCopyBufferToImage(commandBuffer, *imageStagingBuffer, *textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+        vkCmdCopyBufferToImage(commandBuffer, imageStagingBuffer->vk(commandBuffer.deviceID), vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
         auto postCopyImageBarrier = ImageMemoryBarrier::create(
             VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
@@ -287,7 +288,7 @@ void CopyAndReleaseImageDataCommand::CopyData::record(CommandBuffer& commandBuff
     }
 }
 
-void CopyAndReleaseImageDataCommand::record(CommandBuffer& commandBuffer) const
+void CopyAndReleaseImage::record(CommandBuffer& commandBuffer) const
 {
     for (auto& copyData : completed) copyData.source.release();
     completed.clear();

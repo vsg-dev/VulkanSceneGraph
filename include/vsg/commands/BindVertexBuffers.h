@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/Command.h>
+#include <vsg/state/Buffer.h>
 #include <vsg/state/Descriptor.h>
-#include <vsg/vk/Buffer.h>
 #include <vsg/vk/vk_buffer.h>
 
 namespace vsg
@@ -29,19 +29,8 @@ namespace vsg
             _firstBinding(firstBinding),
             _arrays(arrays) {}
 
-        BindVertexBuffers(uint32_t firstBinding, const BufferDataList& bufferDataList) :
-            _firstBinding(firstBinding)
-        {
-            for (auto& bufferData : bufferDataList)
-            {
-                add(bufferData.buffer, bufferData.offset);
-            }
-        }
-
         void setFirstBinding(uint32_t firstBinding) { _firstBinding = firstBinding; }
         uint32_t getFirstBinding() const { return _firstBinding; }
-
-        void add(ref_ptr<Buffer> buffer, VkDeviceSize offset);
 
         void setArrays(const DataList& arrays) { _arrays = arrays; }
         DataList& getArrays() { return _arrays; }

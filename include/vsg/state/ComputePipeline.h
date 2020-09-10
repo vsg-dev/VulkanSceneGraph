@@ -28,11 +28,9 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        PipelineLayout* getPipelineLayout() { return _pipelineLayout; }
-        const PipelineLayout* getPipelineLayout() const { return _pipelineLayout; }
-
-        ShaderStage* getShaderStage() { return _shaderStage; }
-        const ShaderStage* getShaderStage() const { return _shaderStage; }
+        /// VkComputePipelineCreateInfo settings
+        ref_ptr<PipelineLayout> layout;
+        ref_ptr<ShaderStage> stage;
 
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);
@@ -52,16 +50,10 @@ namespace vsg
             virtual ~Implementation();
 
             VkPipeline _pipeline;
-
             ref_ptr<Device> _device;
-            ref_ptr<PipelineLayout> _pipelineLayout;
-            ref_ptr<ShaderStage> _shaderStage;
         };
 
         vk_buffer<ref_ptr<Implementation>> _implementation;
-
-        ref_ptr<PipelineLayout> _pipelineLayout;
-        ref_ptr<ShaderStage> _shaderStage;
     };
     VSG_type_name(vsg::ComputePipeline);
 
@@ -73,9 +65,8 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void setPipeline(ComputePipeline* pipeline) { _pipeline = pipeline; }
-        ComputePipeline* getPipeline() { return _pipeline; }
-        const ComputePipeline* getPipeline() const { return _pipeline; }
+        /// pipeline to pass in the vkCmdBindPipeline call;
+        ref_ptr<ComputePipeline> pipeline;
 
         void record(CommandBuffer& commandBuffer) const override;
 
@@ -84,8 +75,6 @@ namespace vsg
 
     public:
         virtual ~BindComputePipeline();
-
-        ref_ptr<ComputePipeline> _pipeline;
     };
     VSG_type_name(vsg::BindComputePipeline);
 

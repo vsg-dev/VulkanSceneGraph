@@ -12,36 +12,44 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/state/Descriptor.h>
-#include <vsg/vk/ImageData.h>
+#include <vsg/state/ImageView.h>
+#include <vsg/state/Sampler.h>
 
 namespace vsg
 {
-
-    class VSG_DECLSPEC DescriptorImageView : public Inherit<Descriptor, DescriptorImageView>
+    /// Settings that map to VkDescriptorImageInfo
+    class VSG_DECLSPEC ImageInfo
     {
     public:
-        DescriptorImageView();
+        ImageInfo() :
+            imageLayout(VK_IMAGE_LAYOUT_UNDEFINED) {}
 
-        DescriptorImageView(ImageData imageData, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+        ImageInfo(const ImageInfo& id) :
+            sampler(id.sampler),
+            imageView(id.imageView),
+            imageLayout(id.imageLayout) {}
 
-        /** ImageDataList is automatically filled in by the DecriptorImage::compile() using the sampler and image data objects.*/
-        ImageDataList& getImageDataList() { return _imageDataList; }
-        const ImageDataList& getImageDataList() const { return _imageDataList; }
+        ImageInfo(Sampler* in_sampler, ImageView* in_imageView, VkImageLayout in_imageLayout = VK_IMAGE_LAYOUT_UNDEFINED) :
+            sampler(in_sampler),
+            imageView(in_imageView),
+            imageLayout(in_imageLayout) {}
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
+        ImageInfo& operator=(const ImageInfo& rhs)
+        {
+            sampler = rhs.sampler;
+            imageView = rhs.imageView;
+            imageLayout = rhs.imageLayout;
+            return *this;
+        }
 
-        void compile(Context& context) override;
+        explicit operator bool() const { return sampler.valid() && imageView.valid(); }
 
-        void assignTo(Context& context, VkWriteDescriptorSet& wds) const override;
+        void computeNumMipMapLevels();
 
-        uint32_t getNumDescriptors() const override;
-
-    protected:
-        ImageDataList _imageDataList;
-        bool _compiled;
+        ref_ptr<Sampler> sampler;
+        ref_ptr<ImageView> imageView;
+        VkImageLayout imageLayout;
     };
-    VSG_type_name(vsg::DescriptorImageView);
+    using ImageInfoList = std::vector<ImageInfo>;
 
 } // namespace vsg

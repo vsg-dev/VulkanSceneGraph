@@ -19,28 +19,6 @@ using namespace vsg;
 
 Sampler::Sampler()
 {
-    // set default sampler info
-    _samplerInfo = {};
-    _samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    _samplerInfo.pNext = nullptr;
-    _samplerInfo.flags = 0;
-    _samplerInfo.minFilter = VK_FILTER_LINEAR;
-    _samplerInfo.magFilter = VK_FILTER_LINEAR;
-    _samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    _samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    _samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-#if 1
-    // requires Logical device to have deviceFeatures.samplerAnisotropy = VK_TRUE; set when creating the vsg::Device
-    _samplerInfo.anisotropyEnable = VK_TRUE;
-    _samplerInfo.maxAnisotropy = 16;
-#else
-    _samplerInfo.anisotropyEnable = VK_FALSE;
-    _samplerInfo.maxAnisotropy = 1;
-#endif
-    _samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-    _samplerInfo.unnormalizedCoordinates = VK_FALSE;
-    _samplerInfo.compareEnable = VK_FALSE;
-    _samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 }
 
 Sampler::~Sampler()
@@ -49,49 +27,70 @@ Sampler::~Sampler()
 
 void Sampler::read(Input& input)
 {
-    input.readValue<uint32_t>("flags", _samplerInfo.flags);
-    input.readValue<uint32_t>("minFilter", _samplerInfo.minFilter);
-    input.readValue<uint32_t>("magFilter", _samplerInfo.magFilter);
-    input.readValue<uint32_t>("mipmapMode", _samplerInfo.mipmapMode);
-    input.readValue<uint32_t>("addressModeU", _samplerInfo.addressModeU);
-    input.readValue<uint32_t>("addressModeV", _samplerInfo.addressModeV);
-    input.readValue<uint32_t>("addressModeW", _samplerInfo.addressModeW);
-    input.read("mipLodBias", _samplerInfo.mipLodBias);
-    input.readValue<uint32_t>("anisotropyEnable", _samplerInfo.anisotropyEnable);
-    input.read("maxAnisotropy", _samplerInfo.maxAnisotropy);
-    input.readValue<uint32_t>("compareEnable", _samplerInfo.compareEnable);
-    input.readValue<uint32_t>("compareOp", _samplerInfo.compareOp);
-    input.read("minLod", _samplerInfo.minLod);
-    input.read("maxLod", _samplerInfo.maxLod);
-    input.readValue<uint32_t>("borderColor", _samplerInfo.borderColor);
-    input.readValue<uint32_t>("unnormalizedCoordinates", _samplerInfo.unnormalizedCoordinates);
+    input.readValue<uint32_t>("flags", flags);
+    input.readValue<uint32_t>("minFilter", minFilter);
+    input.readValue<uint32_t>("magFilter", magFilter);
+    input.readValue<uint32_t>("mipmapMode", mipmapMode);
+    input.readValue<uint32_t>("addressModeU", addressModeU);
+    input.readValue<uint32_t>("addressModeV", addressModeV);
+    input.readValue<uint32_t>("addressModeW", addressModeW);
+    input.read("mipLodBias", mipLodBias);
+    input.readValue<uint32_t>("anisotropyEnable", anisotropyEnable);
+    input.read("maxAnisotropy", maxAnisotropy);
+    input.readValue<uint32_t>("compareEnable", compareEnable);
+    input.readValue<uint32_t>("compareOp", compareOp);
+    input.read("minLod", minLod);
+    input.read("maxLod", maxLod);
+    input.readValue<uint32_t>("borderColor", borderColor);
+    input.readValue<uint32_t>("unnormalizedCoordinates", unnormalizedCoordinates);
 }
 
 void Sampler::write(Output& output) const
 {
-    output.writeValue<uint32_t>("flags", _samplerInfo.flags);
-    output.writeValue<uint32_t>("minFilter", _samplerInfo.minFilter);
-    output.writeValue<uint32_t>("magFilter", _samplerInfo.magFilter);
-    output.writeValue<uint32_t>("mipmapMode", _samplerInfo.mipmapMode);
-    output.writeValue<uint32_t>("addressModeU", _samplerInfo.addressModeU);
-    output.writeValue<uint32_t>("addressModeV", _samplerInfo.addressModeV);
-    output.writeValue<uint32_t>("addressModeW", _samplerInfo.addressModeW);
-    output.write("mipLodBias", _samplerInfo.mipLodBias);
-    output.writeValue<uint32_t>("anisotropyEnable", _samplerInfo.anisotropyEnable);
-    output.write("maxAnisotropy", _samplerInfo.maxAnisotropy);
-    output.writeValue<uint32_t>("compareEnable", _samplerInfo.compareEnable);
-    output.writeValue<uint32_t>("compareOp", _samplerInfo.compareOp);
-    output.write("minLod", _samplerInfo.minLod);
-    output.write("maxLod", _samplerInfo.maxLod);
-    output.writeValue<uint32_t>("borderColor", _samplerInfo.borderColor);
-    output.writeValue<uint32_t>("unnormalizedCoordinates", _samplerInfo.unnormalizedCoordinates);
+    output.writeValue<uint32_t>("flags", flags);
+    output.writeValue<uint32_t>("minFilter", minFilter);
+    output.writeValue<uint32_t>("magFilter", magFilter);
+    output.writeValue<uint32_t>("mipmapMode", mipmapMode);
+    output.writeValue<uint32_t>("addressModeU", addressModeU);
+    output.writeValue<uint32_t>("addressModeV", addressModeV);
+    output.writeValue<uint32_t>("addressModeW", addressModeW);
+    output.write("mipLodBias", mipLodBias);
+    output.writeValue<uint32_t>("anisotropyEnable", anisotropyEnable);
+    output.write("maxAnisotropy", maxAnisotropy);
+    output.writeValue<uint32_t>("compareEnable", compareEnable);
+    output.writeValue<uint32_t>("compareOp", compareOp);
+    output.write("minLod", minLod);
+    output.write("maxLod", maxLod);
+    output.writeValue<uint32_t>("borderColor", borderColor);
+    output.writeValue<uint32_t>("unnormalizedCoordinates", unnormalizedCoordinates);
 }
 
 void Sampler::compile(Context& context)
 {
     if (_implementation[context.deviceID]) return;
 
-    _implementation[context.deviceID] = Implementation::create(context.device, _samplerInfo);
+    auto samplerInfo = context.scratchMemory->allocate<VkSamplerCreateInfo>();
+
+    samplerInfo->sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerInfo->pNext = nullptr;
+    samplerInfo->flags = flags;
+    samplerInfo->magFilter = magFilter;
+    samplerInfo->minFilter = minFilter;
+    samplerInfo->mipmapMode = mipmapMode;
+    samplerInfo->addressModeU = addressModeU;
+    samplerInfo->addressModeV = addressModeV;
+    samplerInfo->addressModeW = addressModeW;
+    samplerInfo->mipLodBias = mipLodBias;
+    samplerInfo->anisotropyEnable = anisotropyEnable;
+    samplerInfo->maxAnisotropy = maxAnisotropy;
+    samplerInfo->compareEnable = compareEnable;
+    samplerInfo->compareOp = compareOp;
+    samplerInfo->minLod = minLod;
+    samplerInfo->maxLod = maxLod;
+    samplerInfo->borderColor = borderColor;
+    samplerInfo->unnormalizedCoordinates = unnormalizedCoordinates;
+
+    _implementation[context.deviceID] = Implementation::create(context.device, *samplerInfo);
 }
 
 Sampler::Implementation::Implementation(Device* device, const VkSamplerCreateInfo& createSamplerInfo) :

@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/Command.h>
+#include <vsg/state/BufferInfo.h>
 #include <vsg/state/Descriptor.h>
-#include <vsg/vk/Buffer.h>
 #include <vsg/vk/vk_buffer.h>
 
 namespace vsg
@@ -30,15 +30,9 @@ namespace vsg
 
         BindIndexBuffer(Data* indices);
 
-        BindIndexBuffer(const BufferData& bufferData);
-
-        BindIndexBuffer(Buffer* buffer, VkDeviceSize offset, VkIndexType indexType);
-
         void setIndices(ref_ptr<Data> indices) { _indices = indices; }
         Data* getIndices() { return _indices; }
         const Data* getIndices() const { return _indices; }
-
-        void add(ref_ptr<Buffer> buffer, VkDeviceSize offset);
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -54,7 +48,7 @@ namespace vsg
 
         struct VulkanData
         {
-            BufferData bufferData;
+            BufferInfo bufferInfo;
             VkIndexType indexType;
         };
 

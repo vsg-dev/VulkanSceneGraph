@@ -18,12 +18,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Object.h>
 #include <vsg/core/ScratchMemory.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/state/BufferInfo.h>
 #include <vsg/state/GraphicsPipeline.h>
-#include <vsg/vk/BufferData.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Fence.h>
-#include <vsg/vk/ImageData.h>
 #include <vsg/vk/MemoryBufferPools.h>
 
 #include <vsg/commands/Command.h>
@@ -56,7 +55,6 @@ namespace vsg
 
         virtual ~Context();
 
-        // used by BufferData.cpp, ComputePipeline.cpp, Descriptor.cpp, Descriptor.cpp, DescriptorSet.cpp, DescriptorSetLayout.cpp, GraphicsPipeline.cpp, ImageData.cpp, PipelineLayout.cpp, ShaderModule.cpp
         const uint32_t deviceID = 0;
         ref_ptr<Device> device;
 
@@ -79,7 +77,6 @@ namespace vsg
         ref_ptr<DescriptorPool> descriptorPool;
 
         // transfer data settings
-        // used by BufferData.cpp, ImageData.cpp
         ref_ptr<Queue> graphicsQueue;
         ref_ptr<CommandPool> commandPool;
         ref_ptr<CommandBuffer> commandBuffer;

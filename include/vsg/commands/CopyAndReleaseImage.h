@@ -18,12 +18,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Object.h>
 #include <vsg/core/ScratchMemory.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/state/BufferInfo.h>
+#include <vsg/state/DescriptorImage.h>
 #include <vsg/state/GraphicsPipeline.h>
-#include <vsg/vk/BufferData.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Fence.h>
-#include <vsg/vk/ImageData.h>
 #include <vsg/vk/MemoryBufferPools.h>
 
 #include <vsg/commands/Command.h>
@@ -31,20 +31,32 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_DECLSPEC CopyAndReleaseBufferDataCommand : public Inherit<Command, CopyAndReleaseBufferDataCommand>
+    class VSG_DECLSPEC CopyAndReleaseImage : public Inherit<Command, CopyAndReleaseImage>
     {
     public:
-        CopyAndReleaseBufferDataCommand(BufferData src, BufferData dest) :
-            source(src),
-            destination(dest) {}
+        CopyAndReleaseImage() {}
+        CopyAndReleaseImage(BufferInfo src, ImageInfo dest);
+        CopyAndReleaseImage(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels);
 
-        BufferData source;
-        BufferData destination;
+        void add(BufferInfo src, ImageInfo dest);
+        void add(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels);
 
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
-        virtual ~CopyAndReleaseBufferDataCommand();
+        virtual ~CopyAndReleaseImage();
+
+        struct CopyData
+        {
+            BufferInfo source;
+            ImageInfo destination;
+            uint32_t mipLevels = 1;
+
+            void record(CommandBuffer& commandBuffer) const;
+        };
+
+        mutable std::vector<CopyData> pending;
+        mutable std::vector<CopyData> completed;
     };
 
 } // namespace vsg

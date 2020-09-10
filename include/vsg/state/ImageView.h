@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Image.h>
+#include <vsg/state/Image.h>
 
 namespace vsg
 {
@@ -21,34 +21,44 @@ namespace vsg
     class VSG_DECLSPEC ImageView : public Inherit<Object, ImageView>
     {
     public:
-        ImageView(Device* device, const VkImageViewCreateInfo& createInfo);
-        ImageView(Device* device, VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags);
-        ImageView(Device* device, Image* image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspectFlags);
+        ImageView(ref_ptr<Image> in_image = {}, VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
 
-        operator VkImageView() const { return _imageView; }
+        /// VkImageViewCreateInfo settings
+        VkImageViewCreateFlags flags = 0;
+        ref_ptr<Image> image;
+        VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D;
+        VkFormat format = VK_FORMAT_UNDEFINED;
+        VkComponentMapping components = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY};
+        VkImageSubresourceRange subresourceRange;
 
-        Device* getDevice() { return _device; }
-        const Device* getDevice() const { return _device; }
+        /// Vulkan VkImageView handle
+        VkImageView vk(uint32_t deviceID) const { return _vulkanData[deviceID].imageView; }
 
-        void setImage(Image* image) { _image = image; }
-        Image* getImage() { return _image; }
-        const Image* getImage() const { return _image; }
+        virtual void compile(Device* device);
+        virtual void compile(Context& context);
 
     protected:
         virtual ~ImageView();
 
-        VkImageView _imageView;
-        ref_ptr<Device> _device;
-        ref_ptr<Image> _image;
+        struct VulkanData
+        {
+            VkImageView imageView = VK_NULL_HANDLE;
+            ref_ptr<Device> device;
+
+            ~VulkanData() { release(); }
+            void release();
+        };
+
+        vk_buffer<VulkanData> _vulkanData;
     };
     VSG_type_name(vsg::ImageView);
 
     using ImageViews = std::vector<ref_ptr<ImageView>>;
 
     /// convinience function that create an ImageView and allocates device memory and an Image for it. For device memory allocattion the Context's DeviceMemoryPools are utilized.
-    extern VSG_DECLSPEC ref_ptr<ImageView> createImageView(Context& context, const VkImageCreateInfo& imageCreateInfo, VkImageAspectFlags aspectFlags);
+    extern VSG_DECLSPEC ref_ptr<ImageView> createImageView(Context& context, ref_ptr<Image> image, VkImageAspectFlags aspectFlags);
 
     /// convinience function that create an ImageView and allocates device memory and an Image for it.
-    extern VSG_DECLSPEC ref_ptr<ImageView> createImageView(Device* device, const VkImageCreateInfo& imageCreateInfo, VkImageAspectFlags aspectFlags);
+    extern VSG_DECLSPEC ref_ptr<ImageView> createImageView(Device* device, ref_ptr<Image> image, VkImageAspectFlags aspectFlags);
 
 } // namespace vsg

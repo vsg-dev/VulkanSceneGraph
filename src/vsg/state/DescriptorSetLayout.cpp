@@ -26,7 +26,7 @@ DescriptorSetLayout::DescriptorSetLayout()
 }
 
 DescriptorSetLayout::DescriptorSetLayout(const DescriptorSetLayoutBindings& descriptorSetLayoutBindings) :
-    _descriptorSetLayoutBindings(descriptorSetLayoutBindings)
+    bindings(descriptorSetLayoutBindings)
 {
 }
 
@@ -38,8 +38,8 @@ void DescriptorSetLayout::read(Input& input)
 {
     Object::read(input);
 
-    _descriptorSetLayoutBindings.resize(input.readValue<uint32_t>("NumDescriptorSetLayoutBindings"));
-    for (auto& dslb : _descriptorSetLayoutBindings)
+    bindings.resize(input.readValue<uint32_t>("NumDescriptorSetLayoutBindings"));
+    for (auto& dslb : bindings)
     {
         input.read("binding", dslb.binding);
         dslb.descriptorType = static_cast<VkDescriptorType>(input.readValue<uint32_t>("descriptorType"));
@@ -52,8 +52,8 @@ void DescriptorSetLayout::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeValue<uint32_t>("NumDescriptorSetLayoutBindings", _descriptorSetLayoutBindings.size());
-    for (auto& dslb : _descriptorSetLayoutBindings)
+    output.writeValue<uint32_t>("NumDescriptorSetLayoutBindings", bindings.size());
+    for (auto& dslb : bindings)
     {
         output.write("binding", dslb.binding);
         output.writeValue<uint32_t>("descriptorType", dslb.descriptorType);
@@ -64,7 +64,7 @@ void DescriptorSetLayout::write(Output& output) const
 
 void DescriptorSetLayout::compile(Context& context)
 {
-    if (!_implementation[context.deviceID]) _implementation[context.deviceID] = DescriptorSetLayout::Implementation::create(context.device, _descriptorSetLayoutBindings);
+    if (!_implementation[context.deviceID]) _implementation[context.deviceID] = DescriptorSetLayout::Implementation::create(context.device, bindings);
 }
 
 //////////////////////////////////////

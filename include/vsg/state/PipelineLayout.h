@@ -26,27 +26,23 @@ namespace vsg
     {
     public:
         PipelineLayout();
-        PipelineLayout(const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags = 0);
+        PipelineLayout(const DescriptorSetLayouts& in_setLayouts, const PushConstantRanges& in_pushConstantRanges, VkPipelineLayoutCreateFlags in_flags = 0);
+
+        /// VkPipelineLayoutCreateInfo settings
+        VkPipelineLayoutCreateFlags flags = 0;
+        DescriptorSetLayouts setLayouts;
+        PushConstantRanges pushConstantRanges;
+
+        /// Vulkan VkPipelineLayout handle
+        VkPipelineLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipelineLayout; }
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        DescriptorSetLayouts& getDescriptorSetLayouts() { return _descriptorSetLayouts; }
-        const DescriptorSetLayouts& getDescriptorSetLayouts() const { return _descriptorSetLayouts; }
-
-        PushConstantRanges& getPushConstantRange() { return _pushConstantRanges; }
-        const PushConstantRanges& getPushConstantRange() const { return _pushConstantRanges; }
-
-        VkPipelineLayoutCreateFlags& getVkPipelineLayoutCreateFlags() { return _flags; }
-        VkPipelineLayoutCreateFlags getVkPipelineLayoutCreateFlags() const { return _flags; }
-
-        // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);
 
         void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
         void release() { _implementation.clear(); }
-
-        VkPipelineLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipelineLayout; }
 
     protected:
         virtual ~PipelineLayout();
@@ -58,16 +54,11 @@ namespace vsg
             virtual ~Implementation();
 
             VkPipelineLayout _pipelineLayout;
-            DescriptorSetLayouts _descriptorSetLayouts;
 
             ref_ptr<Device> _device;
         };
 
         vk_buffer<ref_ptr<Implementation>> _implementation;
-
-        DescriptorSetLayouts _descriptorSetLayouts;
-        PushConstantRanges _pushConstantRanges;
-        VkPipelineLayoutCreateFlags _flags;
     };
     VSG_type_name(vsg::PipelineLayout);
 

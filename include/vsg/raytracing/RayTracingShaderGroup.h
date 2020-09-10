@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/Command.h>
-#include <vsg/vk/BufferData.h>
+#include <vsg/state/BufferInfo.h>
 
 namespace vsg
 {
@@ -34,7 +34,7 @@ namespace vsg
         uint32_t anyHitShader = VK_SHADER_UNUSED_NV;
         uint32_t intersectionShader = VK_SHADER_UNUSED_NV;
 
-        BufferData bufferData;
+        BufferInfo bufferInfo;
 
     protected:
         virtual ~RayTracingShaderGroup();

@@ -12,25 +12,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/state/BufferView.h>
 #include <vsg/state/Descriptor.h>
-#include <vsg/vk/BufferView.h>
 
 namespace vsg
 {
 
-    using BufferViewList = std::vector<ref_ptr<BufferView>>;
-
     class VSG_DECLSPEC DescriptorTexelBufferView : public Inherit<Descriptor, DescriptorTexelBufferView>
     {
     public:
-        DescriptorTexelBufferView(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferViewList& texelBufferViews);
+        DescriptorTexelBufferView(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferViewList& in_texelBufferViews);
+
+        /// VkWriteDescriptorSet.pTexelBufferViews settings
+        BufferViewList texelBufferViews;
+
+        void compile(Context& context) override;
 
         void assignTo(Context& context, VkWriteDescriptorSet& wds) const override;
 
-        uint32_t getNumDescriptors() const override { return static_cast<uint32_t>(_texelBufferViewList.size()); }
+        uint32_t getNumDescriptors() const override { return static_cast<uint32_t>(texelBufferViews.size()); }
 
     protected:
-        BufferViewList _texelBufferViewList;
     };
     VSG_type_name(vsg::DescriptorTexelBufferView);
 

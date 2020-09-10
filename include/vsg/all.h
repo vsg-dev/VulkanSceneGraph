@@ -64,8 +64,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/BlitImage.h>
 #include <vsg/commands/Command.h>
 #include <vsg/commands/Commands.h>
-#include <vsg/commands/CopyAndReleaseBufferDataCommand.h>
-#include <vsg/commands/CopyAndReleaseImageDataCommand.h>
+#include <vsg/commands/CopyAndReleaseBuffer.h>
+#include <vsg/commands/CopyAndReleaseImage.h>
 #include <vsg/commands/CopyImage.h>
 #include <vsg/commands/CopyImageToBuffer.h>
 #include <vsg/commands/Dispatch.h>
@@ -77,15 +77,21 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/PushConstants.h>
 
 // State header files
+#include <vsg/state/Buffer.h>
+#include <vsg/state/BufferInfo.h>
+#include <vsg/state/BufferView.h>
 #include <vsg/state/ComputePipeline.h>
 #include <vsg/state/Descriptor.h>
 #include <vsg/state/DescriptorBuffer.h>
 #include <vsg/state/DescriptorImage.h>
-#include <vsg/state/DescriptorImageView.h>
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/state/DescriptorSetLayout.h>
 #include <vsg/state/DescriptorTexelBufferView.h>
 #include <vsg/state/GraphicsPipeline.h>
+#include <vsg/state/GraphicsPipelineStates.h>
+#include <vsg/state/Image.h>
+#include <vsg/state/ImageInfo.h>
+#include <vsg/state/ImageView.h>
 #include <vsg/state/PipelineLayout.h>
 #include <vsg/state/ResourceHints.h>
 #include <vsg/state/Sampler.h>
@@ -143,9 +149,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 // Vulkan related header files
 #include <vsg/vk/AllocationCallbacks.h>
-#include <vsg/vk/Buffer.h>
-#include <vsg/vk/BufferData.h>
-#include <vsg/vk/BufferView.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/Context.h>
@@ -155,9 +158,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Extensions.h>
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/Framebuffer.h>
-#include <vsg/vk/Image.h>
-#include <vsg/vk/ImageData.h>
-#include <vsg/vk/ImageView.h>
 #include <vsg/vk/Instance.h>
 #include <vsg/vk/MemoryBufferPools.h>
 #include <vsg/vk/PhysicalDevice.h>

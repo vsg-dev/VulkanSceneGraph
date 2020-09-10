@@ -54,13 +54,13 @@ bool CollectDescriptorStats::checkForResourceHints(const Object& object)
 
 void CollectDescriptorStats::apply(const ResourceHints& resourceHints)
 {
-    if (resourceHints.getMaxSlot() > maxSlot) maxSlot = resourceHints.getMaxSlot();
+    if (resourceHints.maxSlot > maxSlot) maxSlot = resourceHints.maxSlot;
 
-    if (!resourceHints.getDescriptorPoolSizes().empty() || resourceHints.getNumDescriptorSets() > 9)
+    if (!resourceHints.descriptorPoolSizes.empty() || resourceHints.numDescriptorSets > 9)
     {
-        externalNumDescriptorSets += resourceHints.getNumDescriptorSets();
+        externalNumDescriptorSets += resourceHints.numDescriptorSets;
 
-        for (auto& [type, count] : resourceHints.getDescriptorPoolSizes())
+        for (auto& [type, count] : resourceHints.descriptorPoolSizes)
         {
             descriptorTypeMap[type] += count;
         }
@@ -129,7 +129,7 @@ void CollectDescriptorStats::apply(const Descriptor& descriptor)
     {
         descriptors.insert(&descriptor);
     }
-    descriptorTypeMap[descriptor._descriptorType] += descriptor.getNumDescriptors();
+    descriptorTypeMap[descriptor.descriptorType] += descriptor.getNumDescriptors();
 }
 
 uint32_t CollectDescriptorStats::computeNumDescriptorSets() const

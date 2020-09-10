@@ -24,11 +24,12 @@ Framebuffer::Framebuffer(ref_ptr<RenderPass> renderPass, const ImageViews& attac
     _height(height),
     _layers(layers)
 {
+    auto deviceID = renderPass->getDevice()->deviceID;
 
     std::vector<VkImageView> vk_attachments;
     for (auto& attachment : attachments)
     {
-        vk_attachments.push_back(*attachment);
+        vk_attachments.push_back(attachment->vk(deviceID));
     }
 
     VkFramebufferCreateInfo framebufferInfo = {};

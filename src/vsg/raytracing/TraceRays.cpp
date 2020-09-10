@@ -29,8 +29,8 @@ void TraceRays::record(CommandBuffer& commandBuffer) const
     auto shaderGroupHandleSize = rayTracingProperties.shaderGroupHandleSize;
 
     using BufferSize = std::pair<VkBuffer, VkDeviceSize>;
-    auto bufferAndOffset = [](auto& shaderGroup) {
-        if (shaderGroup && shaderGroup->bufferData.buffer) return BufferSize(VkBuffer(*(shaderGroup->bufferData.buffer)), shaderGroup->bufferData.offset);
+    auto bufferAndOffset = [&commandBuffer](auto& shaderGroup) {
+        if (shaderGroup && shaderGroup->bufferInfo.buffer) return BufferSize(shaderGroup->bufferInfo.buffer->vk(commandBuffer.deviceID), shaderGroup->bufferInfo.offset);
         return BufferSize(VK_NULL_HANDLE, 0);
     };
 

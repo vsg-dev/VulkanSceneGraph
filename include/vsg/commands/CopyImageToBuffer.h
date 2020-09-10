@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/Command.h>
-#include <vsg/vk/Buffer.h>
-#include <vsg/vk/Image.h>
+#include <vsg/state/Buffer.h>
+#include <vsg/state/Image.h>
 
 namespace vsg
 {

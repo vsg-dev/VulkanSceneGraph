@@ -10,43 +10,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Exception.h>
+#include <vsg/commands/CopyAndReleaseBuffer.h>
 #include <vsg/io/Options.h>
-#include <vsg/vk/Image.h>
 
 using namespace vsg;
 
-Image::Image(VkImage image, Device* device) :
-    _image(image),
-    _device(device)
+CopyAndReleaseBuffer::~CopyAndReleaseBuffer()
 {
+    source.release();
 }
 
-Image::Image(Device* device, const VkImageCreateInfo& createImageInfo) :
-    _device(device)
+void CopyAndReleaseBuffer::record(CommandBuffer& commandBuffer) const
 {
-    if (VkResult result = vkCreateImage(*device, &createImageInfo, _device->getAllocationCallbacks(), &_image); result != VK_SUCCESS)
-    {
-        throw Exception{"Error: Failed to create vkImage.", result};
-    }
-}
-
-Image::~Image()
-{
-    if (_deviceMemory)
-    {
-        _deviceMemory->release(_memoryOffset, 0); // TODO, we don't locally have a size allocated
-    }
-
-    if (_image)
-    {
-        vkDestroyImage(*_device, _image, _device->getAllocationCallbacks());
-    }
-}
-
-VkMemoryRequirements Image::getMemoryRequirements() const
-{
-    VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(*_device, _image, &memRequirements);
-    return memRequirements;
+    //std::cout<<"CopyAndReleaseBuffer::record(CommandBuffer& commandBuffer) source.offset = "<<source.offset<<", "<<destination.offset<<std::endl;
+    VkBufferCopy copyRegion = {};
+    copyRegion.srcOffset = source.offset;
+    copyRegion.dstOffset = destination.offset;
+    copyRegion.size = source.range;
+    vkCmdCopyBuffer(commandBuffer, source.buffer->vk(commandBuffer.deviceID), destination.buffer->vk(commandBuffer.deviceID), 1, &copyRegion);
 }

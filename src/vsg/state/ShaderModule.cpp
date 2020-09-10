@@ -25,19 +25,19 @@ ShaderModule::ShaderModule()
 {
 }
 
-ShaderModule::ShaderModule(const Source& source) :
-    _source(source)
+ShaderModule::ShaderModule(const std::string& in_source) :
+    source(in_source)
 {
 }
 
-ShaderModule::ShaderModule(const SPIRV& spirv) :
-    _spirv(spirv)
+ShaderModule::ShaderModule(const SPIRV& in_code) :
+    code(in_code)
 {
 }
 
-ShaderModule::ShaderModule(const Source& source, const SPIRV& spirv) :
-    _source(source),
-    _spirv(spirv)
+ShaderModule::ShaderModule(const std::string& in_source, const SPIRV& in_code) :
+    source(in_source),
+    code(in_code)
 {
 }
 
@@ -62,24 +62,25 @@ void ShaderModule::read(Input& input)
 {
     Object::read(input);
 
-    input.read("Source", _source);
+    // TODO review IO
+    input.read("Source", source);
 
-    _spirv.resize(input.readValue<uint32_t>("SPIRVSize"));
+    code.resize(input.readValue<uint32_t>("SPIRVSize"));
 
     input.matchPropertyName("SPIRV");
-    input.read(_spirv.size(), _spirv.data());
+    input.read(code.size(), code.data());
 }
 
 void ShaderModule::write(Output& output) const
 {
     Object::write(output);
 
-    output.write("Source", _source);
+    output.write("Source", source);
 
-    output.writeValue<uint32_t>("SPIRVSize", _spirv.size());
+    output.writeValue<uint32_t>("SPIRVSize", code.size());
 
     output.writePropertyName("SPIRV");
-    output.write(_spirv.size(), _spirv.data());
+    output.write(code.size(), code.data());
     output.writeEndOfLine();
 }
 
@@ -93,8 +94,8 @@ ShaderModule::Implementation::Implementation(Device* device, ShaderModule* shade
 {
     VkShaderModuleCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.codeSize = shaderModule->spirv().size() * sizeof(ShaderModule::SPIRV::value_type);
-    createInfo.pCode = shaderModule->spirv().data();
+    createInfo.codeSize = shaderModule->code.size() * sizeof(ShaderModule::SPIRV::value_type);
+    createInfo.pCode = shaderModule->code.data();
     createInfo.pNext = nullptr;
 
     if (VkResult result = vkCreateShaderModule(*device, &createInfo, _device->getAllocationCallbacks(), &_shaderModule); result != VK_SUCCESS)
