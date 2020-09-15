@@ -163,7 +163,7 @@ void DescriptorBuffer::assignTo(Context& context, VkWriteDescriptorSet& wds) con
 
 uint32_t DescriptorBuffer::getNumDescriptors() const
 {
-    return bufferInfoList.size();
+    return static_cast<uint32_t>(bufferInfoList.size());
 }
 
 void DescriptorBuffer::copyDataListToBuffers()
