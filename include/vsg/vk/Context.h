@@ -24,6 +24,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/MemoryBufferPools.h>
+#include <vsg/vk/ShaderCompiler.h>
 
 #include <vsg/commands/Command.h>
 
@@ -73,8 +74,11 @@ namespace vsg
         // the scene graph .
         GraphicsPipelineStates overridePipelineStates;
 
-        // DescriptorSet.cpp
+        // DescriptorPool
         ref_ptr<DescriptorPool> descriptorPool;
+
+        // ShaderCompiler
+        ref_ptr<ShaderCompiler> shaderCompiler;
 
         // transfer data settings
         ref_ptr<Queue> graphicsQueue;

@@ -127,6 +127,7 @@ set(SOURCES
     vk/CommandBuffer.cpp
     vk/CommandPool.cpp
     vk/Context.cpp
+    vk/ShaderCompiler.cpp
     vk/DescriptorPool.cpp
     vk/Device.cpp
     vk/DeviceMemory.cpp
@@ -147,11 +148,32 @@ set(SOURCES
 
 # add platform specific Window implementation
 
+
+
+
 # set up library dependencies
 set(LIBRARIES PUBLIC
-    Vulkan::Vulkan
-    Threads::Threads
+        Vulkan::Vulkan
+        Threads::Threads
 )
+
+if (glslang_FOUND)
+    set(LIBRARIES ${LIBRARIES} PUBLIC ${glslang_LIBRARIES})
+
+    set(EXTRA_DEFINES ${EXTRA_DEFINES} HAS_GLSLANG)
+
+    # check whehther glslang/build_info.h exists
+    if (EXISTS ${glslang_INCLUDE_DIR}/glslang/build_info.h)
+        set(EXTRA_DEFINES ${EXTRA_DEFINES} GLSLANG_HAS_BUILD_INFO_H)
+    endif()
+
+    install(
+        FILES vsg_glslangConfig.cmake
+        DESTINATION lib/cmake/vsg_glslang
+    )
+
+endif()
+
 
 if (ANDROID)
     set(HEADERS ${HEADERS} ${CMAKE_SOURCE_DIR}/include/vsg/platform/android/Android_Window.h)
@@ -234,6 +256,7 @@ set_property(TARGET vsg PROPERTY SOVERSION ${VSG_SOVERSION})
 set_property(TARGET vsg PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET vsg PROPERTY CXX_STANDARD 17)
 
+target_compile_definitions(vsg PRIVATE ${EXTRA_DEFINES})
 target_include_directories(vsg PUBLIC $<BUILD_INTERFACE:${VSG_SOURCE_DIR}/include> $<BUILD_INTERFACE:${VSG_BINARY_DIR}/include>)
 
 

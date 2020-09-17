@@ -66,6 +66,8 @@ endif()
 find_package(Vulkan)
 find_package(Threads)
 
+find_package(vsg_glslang REQUIRED CONFIG PATHS ${VSG_SOURCE_DIR}/src/vsg)
+
 if (ANDROID)
     find_library(AndroidLib android)
     if(CMAKE_SYSTEM_VERSION GREATER 24)
