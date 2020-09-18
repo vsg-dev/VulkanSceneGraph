@@ -136,7 +136,7 @@ const TBuiltInResource DefaultTBuiltInResource = {
     /* .maxMeshViewCountNV = */ 4,
 
 #ifdef GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT
-    /* .maxDualSourceDrawBuffersEXT =*/  1,
+     .maxDualSourceDrawBuffersEXT =  1,
 #endif
 
     /* .limits = */ {
