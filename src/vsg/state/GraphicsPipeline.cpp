@@ -79,8 +79,6 @@ void GraphicsPipeline::write(Output& output) const
     output.write("subpass", subpass);
 }
 
-#include <iostream>
-
 void GraphicsPipeline::compile(Context& context)
 {
     if (!_implementation[context.deviceID])
@@ -104,7 +102,6 @@ void GraphicsPipeline::compile(Context& context)
             if (shaderCompiler)
             {
                 shaderCompiler->compile(stages); // may need to map defines and paths in some fashion
-                std::cout<<"Compiled shaders"<<std::endl;
             }
         }
 

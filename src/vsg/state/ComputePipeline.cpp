@@ -64,10 +64,7 @@ void ComputePipeline::compile(Context& context)
             auto shaderCompiler = context.getOrCreateShaderCompiler();
             if (shaderCompiler)
             {
-                ShaderStages stages;
-                stages.emplace_back(stage);
-
-                shaderCompiler->compile(stages); // may need to map defines and paths in some fashion
+                shaderCompiler->compile(stage); // may need to map defines and paths in some fashion
             }
         }
 

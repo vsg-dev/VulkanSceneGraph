@@ -12,6 +12,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/Options.h>
 #include <vsg/vk/ShaderCompiler.h>
+#include <vsg/state/StateGroup.h>
+#include <vsg/state/GraphicsPipeline.h>
+#include <vsg/state/ComputePipeline.h>
+#include <vsg/raytracing/RayTracingPipeline.h>
 
 #ifdef HAS_GLSLANG
 #include <glslang/Public/ShaderLang.h>
@@ -51,8 +55,8 @@ std::string debugFormatShaderSource(const std::string& source)
 }
 
 
-ShaderCompiler::ShaderCompiler(vsg::Allocator* allocator):
-    Inherit(allocator)
+ShaderCompiler::ShaderCompiler():
+    Inherit()
 {
 #ifdef HAS_GLSLANG
     glslang::InitializeProcess();
@@ -67,9 +71,9 @@ ShaderCompiler::~ShaderCompiler()
 }
 
 #ifdef HAS_GLSLANG
-bool ShaderCompiler::compile(vsg::ShaderStages& shaders, const std::vector<std::string>& defines, const vsg::Paths& paths)
+bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::string>& defines, const Paths& paths)
 {
-    auto getFriendlyNameForShader = [](const vsg::ref_ptr<vsg::ShaderStage>& vsg_shader)
+    auto getFriendlyNameForShader = [](const ref_ptr<ShaderStage>& vsg_shader)
     {
         switch (vsg_shader->stage)
         {
@@ -94,7 +98,7 @@ bool ShaderCompiler::compile(vsg::ShaderStages& shaders, const std::vector<std::
         return "";
     };
 
-    using StageShaderMap = std::map<EShLanguage, vsg::ref_ptr<vsg::ShaderStage>>;
+    using StageShaderMap = std::map<EShLanguage, ref_ptr<ShaderStage>>;
     using TShaders = std::list<std::unique_ptr<glslang::TShader>>;
     TShaders tshaders;
 
@@ -196,7 +200,7 @@ bool ShaderCompiler::compile(vsg::ShaderStages& shaders, const std::vector<std::
         auto vsg_shader = stageShaderMap[(EShLanguage)eshl_stage];
         if (vsg_shader && program->getIntermediate((EShLanguage)eshl_stage))
         {
-            vsg::ShaderModule::SPIRV spirv;
+            ShaderModule::SPIRV spirv;
             std::string warningsErrors;
             spv::SpvBuildLogger logger;
             glslang::SpvOptions spvOptions;
@@ -207,12 +211,20 @@ bool ShaderCompiler::compile(vsg::ShaderStages& shaders, const std::vector<std::
     return true;
 }
 #else
-bool ShaderCompiler::compile(vsg::ShaderStages&, const std::vector<std::string>&, const vsg::Paths&)
+bool ShaderCompiler::compile(ShaderStages&, const std::vector<std::string>&, const Paths&)
 {
     std::cout<<"ShaderCompile::compile(..) not supported,"<<std::endl;
     return false;
 }
 #endif
+
+bool ShaderCompiler::compile(ref_ptr<ShaderStage> shaderStage, const std::vector<std::string>& defines, const Paths& paths)
+{
+    ShaderStages stages;
+    stages.emplace_back(shaderStage);
+
+    return compile(stages, defines, paths);
+}
 
 std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, const std::vector<std::string>& defines)
 {
@@ -339,7 +351,7 @@ std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, c
     return headerstream.str() + sourcestream.str();
 }
 
-std::string ShaderCompiler::insertIncludes(const std::string& source, const vsg::Paths& paths)
+std::string ShaderCompiler::insertIncludes(const std::string& source, const Paths& paths)
 {
     std::string code = source;
     std::string startOfIncludeMarker("// Start of include code : ");
@@ -449,9 +461,9 @@ std::string ShaderCompiler::insertIncludes(const std::string& source, const vsg:
     return code;
 }
 
-std::string ShaderCompiler::readShaderSource(const vsg::Path& filename, const vsg::Paths& paths)
+std::string ShaderCompiler::readShaderSource(const Path& filename, const Paths& paths)
 {
-    vsg::Path foundFile = vsg::findFile(filename, paths);
+    Path foundFile = findFile(filename, paths);
     if (foundFile.empty()) return std::string();
 
     std::ifstream fin(foundFile);
@@ -468,3 +480,81 @@ std::string ShaderCompiler::readShaderSource(const vsg::Path& filename, const vs
     return source;
 }
 
+void ShaderCompiler::apply(Node& node)
+{
+     node.traverse(*this);
+}
+
+void ShaderCompiler::apply(StateGroup& stategroup)
+{
+    for(auto& stateCommands : stategroup.getStateCommands())
+    {
+        stateCommands->accept(*this);
+    }
+
+    stategroup.traverse(*this);
+}
+
+void ShaderCompiler::apply(BindGraphicsPipeline& bgp)
+{
+    auto pipeline = bgp.pipeline;
+    if (!pipeline) return;
+
+    // compile shaders if required
+    bool requiresShaderCompiler = false;
+    for (auto& shaderStage : pipeline->stages)
+    {
+        if (shaderStage->module)
+        {
+            if (shaderStage->module->code.empty() && !(shaderStage->module->source.empty()))
+            {
+                requiresShaderCompiler = true;
+            }
+        }
+    }
+
+    if (requiresShaderCompiler)
+    {
+        compile(pipeline->stages); // may need to map defines and paths in some fashion
+    }
+}
+
+void ShaderCompiler::apply(BindComputePipeline& bcp)
+{
+    auto pipeline = bcp.pipeline;
+    if (!pipeline) return;
+
+    auto stage = pipeline->stage;
+
+    // compile shaders if required
+    bool requiresShaderCompiler = stage && stage->module && stage->module->code.empty() && !(stage->module->source.empty());
+
+    if (requiresShaderCompiler)
+    {
+        compile(stage); // may need to map defines and paths in some fashion
+    }
+}
+
+void ShaderCompiler::apply(BindRayTracingPipeline& brtp)
+{
+    auto pipeline = brtp.getPipeline();
+    if (!pipeline) return;
+
+    // compile shaders if required
+    bool requiresShaderCompiler = false;
+    for (auto& shaderStage : pipeline->getShaderStages())
+    {
+        if (shaderStage->module)
+        {
+            if (shaderStage->module->code.empty() && !(shaderStage->module->source.empty()))
+            {
+                requiresShaderCompiler = true;
+            }
+        }
+    }
+
+    if (requiresShaderCompiler)
+    {
+        compile(pipeline->getShaderStages()); // may need to map defines and paths in some fashion
+    }
+}
