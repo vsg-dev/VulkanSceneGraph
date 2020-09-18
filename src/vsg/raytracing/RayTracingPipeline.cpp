@@ -88,7 +88,6 @@ void RayTracingPipeline::compile(Context& context)
             if (shaderCompiler)
             {
                 shaderCompiler->compile(_shaderStages); // may need to map defines and paths in some fashion
-                std::cout<<"Compiled shaders"<<std::endl;
             }
         }
 
