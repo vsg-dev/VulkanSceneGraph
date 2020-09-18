@@ -506,11 +506,19 @@ void ConstVisitor::apply(const BindGraphicsPipeline& value)
 {
     apply(static_cast<const StateCommand&>(value));
 }
+void ConstVisitor::apply(const BindRayTracingPipeline& value)
+{
+    apply(static_cast<const StateCommand&>(value));
+}
 void ConstVisitor::apply(const GraphicsPipeline& value)
 {
     apply(static_cast<const Object&>(value));
 }
 void ConstVisitor::apply(const ComputePipeline& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const RayTracingPipeline& value)
 {
     apply(static_cast<const Object&>(value));
 }

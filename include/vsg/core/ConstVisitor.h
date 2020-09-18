@@ -50,8 +50,10 @@ namespace vsg
     class BindIndexBuffer;
     class BindComputePipeline;
     class BindGraphicsPipeline;
+    class BindRayTracingPipeline;
     class GraphicsPipeline;
     class ComputePipeline;
+    class RayTracingPipeline;
     class Draw;
     class DrawIndexed;
     class ShaderStage;
@@ -226,8 +228,10 @@ namespace vsg
         virtual void apply(const BindIndexBuffer&);
         virtual void apply(const BindComputePipeline&);
         virtual void apply(const BindGraphicsPipeline&);
+        virtual void apply(const BindRayTracingPipeline&);
         virtual void apply(const GraphicsPipeline&);
         virtual void apply(const ComputePipeline&);
+        virtual void apply(const RayTracingPipeline&);
         virtual void apply(const GraphicsPipelineState&);
         virtual void apply(const ShaderStage&);
         virtual void apply(const VertexInputState&);
