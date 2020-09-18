@@ -69,6 +69,29 @@ void RayTracingPipeline::compile(Context& context)
 {
     if (!_implementation[context.deviceID])
     {
+        // compile shaders if required
+        bool requiresShaderCompiler = false;
+        for (auto& shaderStage : _shaderStages)
+        {
+            if (shaderStage->module)
+            {
+                if (shaderStage->module->code.empty() && !(shaderStage->module->source.empty()))
+                {
+                    requiresShaderCompiler = true;
+                }
+            }
+        }
+
+        if (requiresShaderCompiler)
+        {
+            auto shaderCompiler = context.getOrCreateShaderCompiler();
+            if (shaderCompiler)
+            {
+                shaderCompiler->compile(_shaderStages); // may need to map defines and paths in some fashion
+                std::cout<<"Compiled shaders"<<std::endl;
+            }
+        }
+
         _pipelineLayout->compile(context);
 
         for (auto& shaderStage : _shaderStages)

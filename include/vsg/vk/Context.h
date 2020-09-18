@@ -59,6 +59,11 @@ namespace vsg
         const uint32_t deviceID = 0;
         ref_ptr<Device> device;
 
+        // get exisitng ShaderCompile or create a new one when GLSLang is supported
+        ShaderCompiler* getOrCreateShaderCompiler();
+
+        ref_ptr<CommandBuffer> getOrCreateCommandBuffer();
+
         // used by GraphicsPipeline.cpp
         ref_ptr<RenderPass> renderPass;
 
@@ -92,8 +97,6 @@ namespace vsg
 
         void record();
         void waitForCompletion();
-
-        ref_ptr<CommandBuffer> getOrCreateCommandBuffer();
 
         ref_ptr<MemoryBufferPools> deviceMemoryBufferPools;
         ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;

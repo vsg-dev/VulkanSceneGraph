@@ -56,6 +56,21 @@ void ComputePipeline::compile(Context& context)
 {
     if (!_implementation[context.deviceID])
     {
+        // compile shaders if required
+        bool requiresShaderCompiler = stage && stage->module && stage->module->code.empty() && !(stage->module->source.empty());
+
+        if (requiresShaderCompiler)
+        {
+            auto shaderCompiler = context.getOrCreateShaderCompiler();
+            if (shaderCompiler)
+            {
+                ShaderStages stages;
+                stages.emplace_back(stage);
+
+                shaderCompiler->compile(stages); // may need to map defines and paths in some fashion
+            }
+        }
+
         layout->compile(context);
         stage->compile(context);
         _implementation[context.deviceID] = ComputePipeline::Implementation::create(context, context.device, layout, stage);

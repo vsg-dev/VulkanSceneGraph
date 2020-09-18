@@ -79,10 +79,36 @@ void GraphicsPipeline::write(Output& output) const
     output.write("subpass", subpass);
 }
 
+#include <iostream>
+
 void GraphicsPipeline::compile(Context& context)
 {
     if (!_implementation[context.deviceID])
     {
+        // compile shaders if required
+        bool requiresShaderCompiler = false;
+        for (auto& shaderStage : stages)
+        {
+            if (shaderStage->module)
+            {
+                if (shaderStage->module->code.empty() && !(shaderStage->module->source.empty()))
+                {
+                    requiresShaderCompiler = true;
+                }
+            }
+        }
+
+        if (requiresShaderCompiler)
+        {
+            auto shaderCompiler = context.getOrCreateShaderCompiler();
+            if (shaderCompiler)
+            {
+                shaderCompiler->compile(stages); // may need to map defines and paths in some fashion
+                std::cout<<"Compiled shaders"<<std::endl;
+            }
+        }
+
+        // compile Vulkan objects
         layout->compile(context);
 
         for (auto& shaderStage : stages)
