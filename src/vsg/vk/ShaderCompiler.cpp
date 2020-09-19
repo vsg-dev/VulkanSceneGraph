@@ -40,30 +40,25 @@ using namespace vsg;
 
 
 
+#ifdef HAS_GLSLANG
 static std::atomic_uint s_intialized = 0;
 
-static bool s_initializeProcess()
+static void s_initializeProcess()
 {
-#ifdef HAS_GLSLANG
     if (s_intialized.fetch_add(1)==0)
     {
         glslang::InitializeProcess();
     }
-    return true;
-#else
-    return false;
-#endif
 }
 
 static void s_finalizeProcess()
 {
-#ifdef HAS_GLSLANG
     if (s_intialized.fetch_sub(1)==1)
     {
         glslang::FinalizeProcess();
     }
-#endif
 }
+#endif
 
 std::string debugFormatShaderSource(const std::string& source)
 {
@@ -88,7 +83,9 @@ ShaderCompiler::ShaderCompiler():
 
 ShaderCompiler::~ShaderCompiler()
 {
+#ifdef HAS_GLSLANG
     s_finalizeProcess();
+#endif
 }
 
 #ifdef HAS_GLSLANG
@@ -97,8 +94,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
     // need to balance the inits.
     if (!_initialized)
     {
-        if (!s_initializeProcess()) return false;
-
+        s_initializeProcess();
         _initialized = true;
     }
 
