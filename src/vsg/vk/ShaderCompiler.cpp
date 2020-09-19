@@ -39,6 +39,32 @@ using namespace vsg;
 #define INFO_OUTPUT std::cout
 
 
+
+static std::atomic_uint s_intialized = 0;
+
+static bool s_initializeProcess()
+{
+#ifdef HAS_GLSLANG
+    if (s_intialized.fetch_add(1)==0)
+    {
+        glslang::InitializeProcess();
+    }
+    return true;
+#else
+    return false;
+#endif
+}
+
+static void s_finalizeProcess()
+{
+#ifdef HAS_GLSLANG
+    if (s_intialized.fetch_sub(1)==1)
+    {
+        glslang::FinalizeProcess();
+    }
+#endif
+}
+
 std::string debugFormatShaderSource(const std::string& source)
 {
     std::istringstream iss(source);
@@ -58,21 +84,24 @@ std::string debugFormatShaderSource(const std::string& source)
 ShaderCompiler::ShaderCompiler():
     Inherit()
 {
-#ifdef HAS_GLSLANG
-    glslang::InitializeProcess();
-#endif
 }
 
 ShaderCompiler::~ShaderCompiler()
 {
-#ifdef HAS_GLSLANG
-    glslang::FinalizeProcess();
-#endif
+    s_finalizeProcess();
 }
 
 #ifdef HAS_GLSLANG
 bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::string>& defines, const Paths& paths)
 {
+    // need to balance the inits.
+    if (!_initialized)
+    {
+        if (!s_initializeProcess()) return false;
+
+        _initialized = true;
+    }
+
     auto getFriendlyNameForShader = [](const ref_ptr<ShaderStage>& vsg_shader)
     {
         switch (vsg_shader->stage)

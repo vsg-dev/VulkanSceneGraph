@@ -25,5 +25,8 @@ namespace vsg
         void apply(BindComputePipeline& bgp) override;
         void apply(BindRayTracingPipeline& bgp) override;
 
+    protected:
+        bool _initialized = false;
+
     };
 }
