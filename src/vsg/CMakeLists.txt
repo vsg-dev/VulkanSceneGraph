@@ -186,7 +186,6 @@ if (glslang_FOUND)
         FILES vsg_glslangConfig.cmake
         DESTINATION lib/cmake/vsg_glslang
     )
-
 endif()
 
 
@@ -293,6 +292,12 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/vsg DESTINATION include)
 if (NOT(${CMAKE_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR}))
     install(DIRECTORY ${CMAKE_BINARY_DIR}/include/vsg DESTINATION include)
 endif()
+
+if (glslang_FOUND)
+    set(FIND_DEPENDENCY_GLSLANG "find_dependency(vsg_glslang)")
+endif()
+
+configure_file("${CMAKE_SOURCE_DIR}/src/vsg/vsgConfig.cmake.in" "${CMAKE_BINARY_DIR}/src/vsg/vsgConfig.cmake" @ONLY)
 
 # [==[
 install(EXPORT vsgTargets
