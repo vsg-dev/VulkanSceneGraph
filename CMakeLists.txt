@@ -66,7 +66,9 @@ endif()
 find_package(Vulkan)
 find_package(Threads)
 
-find_package(vsg_glslang REQUIRED CONFIG PATHS ${VSG_SOURCE_DIR}/src/vsg)
+if (NOT DEFINED glslang_FOUND)
+    find_package(vsg_glslang REQUIRED CONFIG PATHS ${VSG_SOURCE_DIR}/src/vsg)
+endif()
 
 if (ANDROID)
     find_library(AndroidLib android)
