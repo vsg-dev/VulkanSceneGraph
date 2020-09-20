@@ -11,6 +11,7 @@ CMakeDoxygenDefaults.cmake
 Doxyfile.docs
 docs/ExplorationPhase/3rdPartyResources.md.backup
 src/vsg/vsgConfigVersion.cmake
+src/vsg/vsgConfig.cmake
 
 html
 
