@@ -112,7 +112,6 @@ ref_ptr<CommandBuffer> Context::getOrCreateCommandBuffer()
     return commandBuffer;
 }
 
-
 ShaderCompiler* Context::getOrCreateShaderCompiler()
 {
     if (shaderCompiler) return shaderCompiler;

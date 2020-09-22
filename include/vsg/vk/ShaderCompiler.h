@@ -27,6 +27,5 @@ namespace vsg
 
     protected:
         bool _initialized = false;
-
     };
-}
+} // namespace vsg
