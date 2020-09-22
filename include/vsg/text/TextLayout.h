@@ -33,10 +33,14 @@ namespace vsg
     public:
         virtual void layout(const std::string& text, const Font& font, TextQuads& texQuads) = 0;
     };
+    VSG_type_name(vsg::TextLayout);
 
     class VSG_DECLSPEC LeftAlignment : public Inherit<TextLayout, LeftAlignment>
     {
     public:
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         vec3 position = vec3(0.0f, 0.0f, 0.0f);
         vec3 horizontal = vec3(1.0f, 0.0f, 0.0f);
@@ -45,4 +49,6 @@ namespace vsg
 
         void layout(const std::string& text, const Font& font, TextQuads& texQuads) override;
     };
+    VSG_type_name(vsg::LeftAlignment);
+
 }

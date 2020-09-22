@@ -22,6 +22,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+void Text::read(Input& input)
+{
+    Node::read(input);
+
+    input.readObject("font", font);
+    input.readObject("layout", layout);
+    input.read("text", text);
+
+    setup();
+}
+
+void Text::write(Output& output) const
+{
+    Node::write(output);
+
+    output.writeObject("font", font);
+    output.writeObject("layout", layout);
+    output.write("text", text);
+}
+
 Text::RenderingState::RenderingState(Font* font)
 {
     auto textureData = font->atlas;
@@ -128,8 +148,8 @@ void Text::setup()
 
     _stategroup = scenegraph;
 
-    scenegraph->add(_sharedRenderingState->bindGraphicsPipeline);
-    scenegraph->add(_sharedRenderingState->bindDescriptorSet);
+    if (_sharedRenderingState->bindGraphicsPipeline) scenegraph->add(_sharedRenderingState->bindGraphicsPipeline);
+    if (_sharedRenderingState->bindDescriptorSet) scenegraph->add(_sharedRenderingState->bindDescriptorSet);
 
     uint32_t num_quads = static_cast<uint32_t>(quads.size());
     uint32_t num_vertices = num_quads * 4;

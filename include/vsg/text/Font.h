@@ -25,6 +25,9 @@ namespace vsg
 
         Font();
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
         struct GlyphData
         {
             uint16_t character;
@@ -32,14 +35,13 @@ namespace vsg
             vec2 size; // normalised size of the glyph
             vec2 offset; // normalised offset
             float xadvance; // normalised xadvance
-            float lookupOffset; // offset into lookup texture
         };
         using GlyphMap = std::map<uint16_t, GlyphData>;
 
-        ref_ptr<Data> atlas;
-        GlyphMap glyphs;
         float fontHeight;
         float normalisedLineHeight;
+        ref_ptr<Data> atlas;
+        GlyphMap glyphs;
         ref_ptr<Options> options;
 
         /// different text impplementations may wish to share implementation details such as shaders etc.
@@ -59,4 +61,7 @@ namespace vsg
             return required_data;
         }
     };
+    VSG_type_name(vsg::Font);
+
+
 }

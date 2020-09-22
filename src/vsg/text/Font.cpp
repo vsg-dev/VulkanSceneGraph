@@ -19,3 +19,46 @@ using namespace vsg;
 Font::Font()
 {
 }
+
+void Font::read(Input& input)
+{
+    Object::read(input);
+
+    input.read("fontHeight", fontHeight);
+    input.read("normalisedLineHeight", normalisedLineHeight);
+    input.readObject("atlas", atlas);
+
+    glyphs.clear();
+
+    uint32_t numGlyphs = input.readValue<uint32_t>("numGlyphs");
+    for(uint32_t i = 0; i < numGlyphs; ++i)
+    {
+        GlyphData glyph;
+        input.read("character", glyph.character);
+        input.read("uvrect", glyph.uvrect);
+        input.read("size", glyph.size);
+        input.read("offset", glyph.offset);
+        input.read("xadvance", glyph.xadvance);
+        glyphs[glyph.character] = glyph;
+    }
+}
+
+void Font::write(Output& output) const
+{
+    Object::write(output);
+
+    output.write("fontHeight", fontHeight);
+    output.write("normalisedLineHeight", normalisedLineHeight);
+    output.writeObject("atlas", atlas);
+
+    output.writeValue<uint32_t>("numGlyphs", glyphs.size());
+    for(auto itr = glyphs.begin(); itr != glyphs.end(); ++itr)
+    {
+        const GlyphData& glyph = itr->second;
+        output.write("character", glyph.character);
+        output.write("uvrect", glyph.uvrect);
+        output.write("size", glyph.size);
+        output.write("offset", glyph.offset);
+        output.write("xadvance", glyph.xadvance);
+    }
+}

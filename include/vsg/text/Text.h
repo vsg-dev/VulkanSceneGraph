@@ -34,6 +34,9 @@ namespace vsg
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
         /// settings
         ref_ptr<Font> font;
         ref_ptr<TextLayout> layout;
@@ -56,5 +59,6 @@ namespace vsg
         ref_ptr<RenderingState> _sharedRenderingState;
         ref_ptr<StateGroup> _stategroup;
     };
+    VSG_type_name(vsg::Text);
 
 }

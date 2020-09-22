@@ -16,6 +16,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+void LeftAlignment::read(Input& input)
+{
+    TextLayout::read(input);
+
+    input.read("position", position);
+    input.read("horizontal", horizontal);
+    input.read("vertical", vertical);
+    input.read("color", color);
+}
+
+void LeftAlignment::write(Output& output) const
+{
+    TextLayout::write(output);
+
+    output.write("position", position);
+    output.write("horizontal", horizontal);
+    output.write("vertical", vertical);
+    output.write("color", color);
+}
+
 void LeftAlignment::layout(const std::string& text, const Font& font, TextQuads& quads)
 {
     quads.clear();
