@@ -195,6 +195,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 // Introspection header files
 #include <vsg/introspection/c_interface.h>
 
+// Text header files
+#include <vsg/text/Font.h>
+#include <vsg/text/Text.h>
+#include <vsg/text/TextLayout.h>
+
 // Raytracing header files
 #include <vsg/raytracing/AccelerationGeometry.h>
 #include <vsg/raytracing/AccelerationStructure.h>
