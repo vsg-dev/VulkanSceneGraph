@@ -89,6 +89,10 @@ set(SOURCES
     io/read.cpp
     io/write.cpp
 
+    text/Text.cpp
+    text/TextLayout.cpp
+    text/Font.cpp
+
     traversals/ArrayState.cpp
     traversals/RecordTraversal.cpp
     traversals/CompileTraversal.cpp
