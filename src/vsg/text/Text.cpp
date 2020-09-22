@@ -131,11 +131,12 @@ void Text::setup()
     scenegraph->add(_sharedRenderingState->bindGraphicsPipeline);
     scenegraph->add(_sharedRenderingState->bindDescriptorSet);
 
-    uint32_t num_vertices = quads.size() * 4;
+    uint32_t num_quads = static_cast<uint32_t>(quads.size());
+    uint32_t num_vertices = num_quads * 4;
     auto vertices = vsg::vec3Array::create(num_vertices);
     auto colors = vsg::vec4Array::create(num_vertices);
     auto texcoords = vsg::vec2Array::create(num_vertices);
-    auto indices = vsg::ushortArray::create(quads.size() * 6);
+    auto indices = vsg::ushortArray::create(num_quads * 6);
 
     uint32_t i = 0;
     uint32_t vi = 0;
@@ -174,7 +175,7 @@ void Text::setup()
     auto drawCommands = vsg::Commands::create();
     drawCommands->addChild(vsg::BindVertexBuffers::create(0, vsg::DataList{vertices, colors, texcoords}));
     drawCommands->addChild(vsg::BindIndexBuffer::create(indices));
-    drawCommands->addChild(vsg::DrawIndexed::create(indices->size(), 1, 0, 0, 0));
+    drawCommands->addChild(vsg::DrawIndexed::create(static_cast<uint32_t>(indices->size()), 1, 0, 0, 0));
 
     scenegraph->addChild(drawCommands);
 }
