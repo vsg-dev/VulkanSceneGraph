@@ -18,6 +18,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/text/Text.h>
 
+#include "shaders/text_vert.cpp"
+#include "shaders/text_frag.cpp"
+
 #include <iostream>
 
 using namespace vsg;
@@ -48,7 +51,10 @@ Text::RenderingState::RenderingState(Font* font)
 
     // load shaders
     auto vertexShader = read_cast<ShaderStage>("shaders/text.vert", font->options);
+    if (!vertexShader) vertexShader = text_vert(); // fallback to shaders/text_vert.cppp
+
     auto fragmentShader = read_cast<ShaderStage>("shaders/text.frag", font->options);
+    if (!fragmentShader) fragmentShader = text_frag(); // fallback to shaders/text_frag.cppp
 
     if (!vertexShader || !fragmentShader)
     {
