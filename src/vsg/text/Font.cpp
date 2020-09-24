@@ -33,13 +33,19 @@ void Font::read(Input& input)
     uint32_t numGlyphs = input.readValue<uint32_t>("numGlyphs");
     for(uint32_t i = 0; i < numGlyphs; ++i)
     {
-        GlyphData glyph;
-        input.read("character", glyph.character);
+        uint16_t charcode;
+        input.read("charcode", charcode);
+
+        GlyphMetrics& glyph = glyphs[charcode];
         input.read("uvrect", glyph.uvrect);
-        input.read("size", glyph.size);
-        input.read("offset", glyph.offset);
-        input.read("xadvance", glyph.xadvance);
-        glyphs[glyph.character] = glyph;
+        input.read("width", glyph.width);
+        input.read("height", glyph.height);
+        input.read("horiBearingX", glyph.horiBearingX);
+        input.read("horiBearingY", glyph.horiBearingY);
+        input.read("horiAdvance", glyph.horiAdvance);
+        input.read("vertBearingX", glyph.vertBearingX);
+        input.read("vertBearingY", glyph.vertBearingY);
+        input.read("vertAdvance", glyph.vertAdvance);
     }
 }
 
@@ -54,11 +60,16 @@ void Font::write(Output& output) const
     output.writeValue<uint32_t>("numGlyphs", glyphs.size());
     for(auto itr = glyphs.begin(); itr != glyphs.end(); ++itr)
     {
-        const GlyphData& glyph = itr->second;
-        output.write("character", glyph.character);
+        const GlyphMetrics& glyph = itr->second;
+        output.write("charcode", glyph.charcode);
         output.write("uvrect", glyph.uvrect);
-        output.write("size", glyph.size);
-        output.write("offset", glyph.offset);
-        output.write("xadvance", glyph.xadvance);
+        output.write("width", glyph.width);
+        output.write("height", glyph.height);
+        output.write("horiBearingX", glyph.horiBearingX);
+        output.write("horiBearingY", glyph.horiBearingY);
+        output.write("horiAdvance", glyph.horiAdvance);
+        output.write("vertBearingX", glyph.vertBearingX);
+        output.write("vertBearingY", glyph.vertBearingY);
+        output.write("vertAdvance", glyph.vertAdvance);
     }
 }

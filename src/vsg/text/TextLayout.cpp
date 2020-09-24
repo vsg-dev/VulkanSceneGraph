@@ -59,7 +59,7 @@ void LeftAlignment::layout(const std::string& text, const Font& font, TextQuads&
             if (auto itr = font.glyphs.find(charcode); itr != font.glyphs.end())
             {
                 const auto& glyph = itr->second;
-                pen_position += horizontal * glyph.xadvance;
+                pen_position += horizontal * glyph.horiAdvance;
             }
             else
             {
@@ -77,13 +77,12 @@ void LeftAlignment::layout(const std::string& text, const Font& font, TextQuads&
             const auto& glyph = itr->second;
             const auto& uvrect = glyph.uvrect;
 
-            vec3 local_origin = pen_position + horizontal * glyph.offset.x + vertical * glyph.offset.y;
-            const auto& size = glyph.size;
+            vec3 local_origin = pen_position + horizontal * glyph.horiBearingX + vertical * glyph.horiBearingY;
 
             quad.vertices[0] = local_origin;
-            quad.vertices[1] = local_origin + horizontal * size.x;
-            quad.vertices[2] = local_origin + horizontal * size.x + vertical * size.y;
-            quad.vertices[3] = local_origin + vertical * size.y;
+            quad.vertices[1] = local_origin + horizontal * glyph.width;
+            quad.vertices[2] = local_origin + horizontal * glyph.width + vertical * glyph.height;
+            quad.vertices[3] = local_origin + vertical * glyph.height;
 
             quad.colors[0] = color;
             quad.colors[1] = color;
@@ -99,7 +98,7 @@ void LeftAlignment::layout(const std::string& text, const Font& font, TextQuads&
 
             quads.push_back(quad);
 
-            pen_position += horizontal * glyph.xadvance;
+            pen_position += horizontal * glyph.horiAdvance;
         }
     }
 }

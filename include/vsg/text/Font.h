@@ -28,15 +28,22 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        struct GlyphData
+        /// naming and meaning taken from FT_Glyph_Metrics, with dimensions normalized to fontHeight
+        struct GlyphMetrics
         {
-            uint16_t character;
+            uint16_t charcode;
             vec4 uvrect; // min x/y, max x/y
-            vec2 size; // normalised size of the glyph
-            vec2 offset; // normalised offset
-            float xadvance; // normalised xadvance
+
+            float width;
+            float height;
+            float horiBearingX;
+            float horiBearingY;
+            float horiAdvance;
+            float vertBearingX;
+            float vertBearingY;
+            float vertAdvance;
         };
-        using GlyphMap = std::map<uint16_t, GlyphData>;
+        using GlyphMap = std::map<uint16_t, GlyphMetrics>;
 
         float fontHeight;
         float normalisedLineHeight;
