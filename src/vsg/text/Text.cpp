@@ -129,8 +129,14 @@ Text::RenderingState::RenderingState(Font* font)
     auto graphicsPipeline = GraphicsPipeline::create(pipelineLayout, ShaderStages{vertexShader, fragmentShader}, pipelineStates);
     bindGraphicsPipeline = BindGraphicsPipeline::create(graphicsPipeline);
 
+    auto sampler = Sampler::create();
+    sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    sampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    sampler->borderColor = VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
+
     // create texture image and associated DescriptorSets and binding
-    auto texture = DescriptorImage::create(Sampler::create(), textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    auto texture = DescriptorImage::create(sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
     auto descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{texture});
 
     bindDescriptorSet = BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, descriptorSet);

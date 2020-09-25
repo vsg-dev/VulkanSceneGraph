@@ -45,9 +45,7 @@ namespace vsg
         /// create the rendering backend
         virtual void setup();
 
-    protected:
-
-        // implementation details
+        /// rendering state used to set up grahics pipeline and descriptor sets, assigned to Font to allow it be be shared
         struct RenderingState : public Inherit<Object, RenderingState>
         {
             RenderingState(Font* font);
@@ -55,6 +53,8 @@ namespace vsg
             ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
             ref_ptr<BindDescriptorSet> bindDescriptorSet;
         };
+
+    protected:
 
         ref_ptr<RenderingState> _sharedRenderingState;
         ref_ptr<StateGroup> _stategroup;
