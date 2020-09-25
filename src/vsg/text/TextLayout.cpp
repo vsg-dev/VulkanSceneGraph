@@ -77,7 +77,7 @@ void LeftAlignment::layout(const std::string& text, const Font& font, TextQuads&
             const auto& glyph = itr->second;
             const auto& uvrect = glyph.uvrect;
 
-            vec3 local_origin = pen_position + horizontal * glyph.horiBearingX + vertical * glyph.horiBearingY;
+            vec3 local_origin = pen_position + horizontal * glyph.horiBearingX + vertical * glyph.horiBearingY - vertical * glyph.height;
 
             quad.vertices[0] = local_origin;
             quad.vertices[1] = local_origin + horizontal * glyph.width;
@@ -90,9 +90,9 @@ void LeftAlignment::layout(const std::string& text, const Font& font, TextQuads&
             quad.colors[3] = color;
 
             quad.texcoords[0].set(uvrect[0], uvrect[1]);
-            quad.texcoords[1].set(uvrect[0]+uvrect[2], uvrect[1]);
-            quad.texcoords[2].set(uvrect[0]+uvrect[2], uvrect[1]+uvrect[3]);
-            quad.texcoords[3].set(uvrect[0], uvrect[1]+uvrect[3]);
+            quad.texcoords[1].set(uvrect[2], uvrect[1]);
+            quad.texcoords[2].set(uvrect[2], uvrect[3]);
+            quad.texcoords[3].set(uvrect[0], uvrect[3]);
 
             quad.normal = normal;
 
