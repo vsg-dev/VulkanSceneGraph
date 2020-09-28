@@ -84,14 +84,14 @@ Text::RenderingState::RenderingState(Font* font)
     {
         VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}, // vertex data
         VkVertexInputBindingDescription{1, sizeof(vec4), VK_VERTEX_INPUT_RATE_VERTEX}, // colour data
-        VkVertexInputBindingDescription{2, sizeof(vec2), VK_VERTEX_INPUT_RATE_VERTEX}  // tex coord data
+        VkVertexInputBindingDescription{2, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}  // tex coord data
     };
 
     VertexInputState::Attributes vertexAttributeDescriptions
     {
         VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0}, // vertex data
         VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32A32_SFLOAT, 0}, // colour data
-        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0},    // tex coord data
+        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32B32_SFLOAT, 0},    // tex coord data
     };
 
     // alpha blending
@@ -134,6 +134,15 @@ Text::RenderingState::RenderingState(Font* font)
     sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
     sampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
     sampler->borderColor = VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
+#if 1
+    sampler->anisotropyEnable = VK_TRUE;
+    sampler->maxAnisotropy = 16.0f;
+#endif
+#if 1
+    sampler->magFilter = VK_FILTER_LINEAR;
+    sampler->minFilter = VK_FILTER_LINEAR;
+    sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+#endif
 
     // create texture image and associated DescriptorSets and binding
     auto texture = DescriptorImage::create(sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
@@ -167,14 +176,18 @@ void Text::setup()
     uint32_t num_vertices = num_quads * 4;
     auto vertices = vsg::vec3Array::create(num_vertices);
     auto colors = vsg::vec4Array::create(num_vertices);
-    auto texcoords = vsg::vec2Array::create(num_vertices);
+    auto texcoords = vsg::vec3Array::create(num_vertices);
     auto indices = vsg::ushortArray::create(num_quads * 6);
 
     uint32_t i = 0;
     uint32_t vi = 0;
 
+    float leadingEdgeGradient = 0.1;
+
     for(auto& quad : quads)
     {
+        float leadingEdgeTilt = length(quad.vertices[0]-quad.vertices[1]) * leadingEdgeGradient;
+
         vertices->set(vi, quad.vertices[0]);
         vertices->set(vi+1, quad.vertices[1]);
         vertices->set(vi+2, quad.vertices[2]);
@@ -185,10 +198,10 @@ void Text::setup()
         colors->set(vi+2, quad.colors[2]);
         colors->set(vi+3, quad.colors[3]);
 
-        texcoords->set(vi, quad.texcoords[0]);
-        texcoords->set(vi+1, quad.texcoords[1]);
-        texcoords->set(vi+2, quad.texcoords[2]);
-        texcoords->set(vi+3, quad.texcoords[3]);
+        texcoords->set(vi, vec3(quad.texcoords[0].x, quad.texcoords[0].y, leadingEdgeTilt));
+        texcoords->set(vi+1, vec3(quad.texcoords[1].x, quad.texcoords[1].y, 0.0f));
+        texcoords->set(vi+2, vec3(quad.texcoords[2].x, quad.texcoords[2].y, 0.0f));
+        texcoords->set(vi+3, vec3(quad.texcoords[3].x, quad.texcoords[3].y, leadingEdgeTilt));
 
         indices->set(i, vi);
         indices->set(i+1, vi+1);
