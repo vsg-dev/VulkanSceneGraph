@@ -31,7 +31,7 @@ void Text::read(Input& input)
 
     input.readObject("font", font);
     input.readObject("layout", layout);
-    input.read("text", text);
+    input.readObject("text", text);
 
     setup();
 }
@@ -42,7 +42,7 @@ void Text::write(Output& output) const
 
     output.writeObject("font", font);
     output.writeObject("layout", layout);
-    output.write("text", text);
+    output.writeObject("text", text);
 }
 
 Text::RenderingState::RenderingState(Font* font)
@@ -177,7 +177,7 @@ void Text::setup()
     auto vertices = vsg::vec3Array::create(num_vertices);
     auto colors = vsg::vec4Array::create(num_vertices);
     auto texcoords = vsg::vec3Array::create(num_vertices);
-    auto indices = vsg::ushortArray::create(num_quads * 6);
+
 
     uint32_t i = 0;
     uint32_t vi = 0;
@@ -203,15 +203,48 @@ void Text::setup()
         texcoords->set(vi+2, vec3(quad.texcoords[2].x, quad.texcoords[2].y, 0.0f));
         texcoords->set(vi+3, vec3(quad.texcoords[3].x, quad.texcoords[3].y, leadingEdgeTilt));
 
-        indices->set(i, vi);
-        indices->set(i+1, vi+1);
-        indices->set(i+2, vi+2);
-        indices->set(i+3, vi+2);
-        indices->set(i+4, vi+3);
-        indices->set(i+5, vi);
-
         vi += 4;
         i += 6;
+    }
+
+    ref_ptr<vsg::Data> indices;
+    if (num_vertices > 65536) // check if requires uint or ushort indices
+    {
+        auto ui_indices = vsg::uintArray::create(num_quads * 6);
+        indices = ui_indices;
+
+        auto itr = ui_indices->begin();
+        vi = 0;
+        for(i = 0; i<num_quads; ++i)
+        {
+            (*itr++) = vi;
+            (*itr++) = vi+1;
+            (*itr++) = vi+2;
+            (*itr++) = vi+2;
+            (*itr++) = vi+3;
+            (*itr++) = vi;
+
+            vi += 4;
+        }
+    }
+    else
+    {
+        auto us_indices = vsg::ushortArray::create(num_quads * 6);
+        indices = us_indices;
+
+        auto itr = us_indices->begin();
+        vi = 0;
+        for(i = 0; i<num_quads; ++i)
+        {
+            (*itr++) = vi;
+            (*itr++) = vi+1;
+            (*itr++) = vi+2;
+            (*itr++) = vi+2;
+            (*itr++) = vi+3;
+            (*itr++) = vi;
+
+            vi += 4;
+        }
     }
 
     DataList arrays;
@@ -220,7 +253,7 @@ void Text::setup()
     auto drawCommands = vsg::Commands::create();
     drawCommands->addChild(vsg::BindVertexBuffers::create(0, vsg::DataList{vertices, colors, texcoords}));
     drawCommands->addChild(vsg::BindIndexBuffer::create(indices));
-    drawCommands->addChild(vsg::DrawIndexed::create(static_cast<uint32_t>(indices->size()), 1, 0, 0, 0));
+    drawCommands->addChild(vsg::DrawIndexed::create(static_cast<uint32_t>(indices->valueCount()), 1, 0, 0, 0));
 
     scenegraph->addChild(drawCommands);
 }

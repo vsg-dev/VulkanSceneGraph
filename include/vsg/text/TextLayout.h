@@ -31,7 +31,7 @@ namespace vsg
     class VSG_DECLSPEC TextLayout : public Inherit<Object, TextLayout>
     {
     public:
-        virtual void layout(const std::string& text, const Font& font, TextQuads& texQuads) = 0;
+        virtual void layout(const Data* text, const Font& font, TextQuads& texQuads) = 0;
     };
     VSG_type_name(vsg::TextLayout);
 
@@ -47,7 +47,7 @@ namespace vsg
         vec3 vertical = vec3(0.0f, 1.0f, 0.0f);
         vec4 color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-        void layout(const std::string& text, const Font& font, TextQuads& texQuads) override;
+        void layout(const Data* text, const Font& font, TextQuads& texQuads) override;
     };
     VSG_type_name(vsg::LeftAlignment);
 

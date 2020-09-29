@@ -40,7 +40,7 @@ namespace vsg
         /// settings
         ref_ptr<Font> font;
         ref_ptr<TextLayout> layout;
-        std::string text;
+        ref_ptr<Data> text;
 
         /// create the rendering backend
         virtual void setup();

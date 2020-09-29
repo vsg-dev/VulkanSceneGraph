@@ -16,6 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+
+
 void LeftAlignment::read(Input& input)
 {
     TextLayout::read(input);
@@ -36,69 +38,127 @@ void LeftAlignment::write(Output& output) const
     output.write("color", color);
 }
 
-void LeftAlignment::layout(const std::string& text, const Font& font, TextQuads& quads)
+void LeftAlignment::layout(const Data* text, const Font& font, TextQuads& quads)
 {
     quads.clear();
-    quads.reserve(text.size());
 
-    vec3 row_position = position;
-    vec3 pen_position = row_position;
-    vec3 normal = normalize(cross(horizontal, vertical));
-    for(auto& character : text)
+    struct Convert : public ConstVisitor
     {
-        if (character == '\n')
+        const LeftAlignment& layout;
+        const Font& font;
+        TextQuads& textQuads;
+
+        vec3 row_position;
+        vec3 pen_position;
+        vec3 normal;
+
+        Convert(const LeftAlignment& in_layout, const Font& in_font, TextQuads& in_textQuads) :
+            layout(in_layout),
+            font(in_font),
+            textQuads(in_textQuads)
         {
-            // newline
-            row_position -= vertical;
+            row_position = layout.position;
             pen_position = row_position;
+            normal = normalize(cross(layout.horizontal, layout.vertical));
         }
-        else if (character == ' ')
+
+        void apply(const stringValue& text) override
         {
-            // space
-            uint16_t charcode(character);
-            if (auto itr = font.glyphs.find(charcode); itr != font.glyphs.end())
+            reserve(text.value().size());
+            for(auto& c : text.value())
             {
-                const auto& glyph = itr->second;
-                pen_position += horizontal * glyph.horiAdvance;
+                character(uint8_t(c));
+            }
+        }
+        void apply(const ubyteArray& text) override
+        {
+            reserve(text.size());
+            for(auto& c : text)
+            {
+                character(c);
+            }
+        }
+        void apply(const ushortArray& text) override
+        {
+            reserve(text.size());
+            for(auto& c : text)
+            {
+                character(c);
+            }
+        }
+        void apply(const uintArray& text) override
+        {
+            reserve(text.size());
+            for(auto& c : text)
+            {
+                character(c);
+            }
+        }
+
+        void reserve(size_t size)
+        {
+            textQuads.reserve(size);
+        }
+
+        void character(uint32_t charcode)
+        {
+            if (charcode == '\n')
+            {
+                // newline
+                row_position -= layout.vertical;
+                pen_position = row_position;
+            }
+            else if (charcode == ' ')
+            {
+                // space
+                if (auto itr = font.glyphs.find(charcode); itr != font.glyphs.end())
+                {
+                    const auto& glyph = itr->second;
+                    pen_position += layout.horizontal * glyph.horiAdvance;
+                }
+                else
+                {
+                    pen_position += layout.horizontal;
+                }
             }
             else
             {
-                pen_position += horizontal;
+                TextQuad quad;
+
+                auto itr = font.glyphs.find(charcode);
+                if (itr == font.glyphs.end()) return;
+
+                const auto& glyph = itr->second;
+                const auto& uvrect = glyph.uvrect;
+
+                vec3 local_origin = pen_position + layout.horizontal * glyph.horiBearingX + layout.vertical * glyph.horiBearingY - layout.vertical * glyph.height;
+
+                quad.vertices[0] = local_origin;
+                quad.vertices[1] = local_origin + layout.horizontal * glyph.width;
+                quad.vertices[2] = local_origin + layout.horizontal * glyph.width + layout.vertical * glyph.height;
+                quad.vertices[3] = local_origin + layout.vertical * glyph.height;
+
+                quad.colors[0] = layout.color;
+                quad.colors[1] = layout.color;
+                quad.colors[2] = layout.color;
+                quad.colors[3] = layout.color;
+
+                quad.texcoords[0].set(uvrect[0], uvrect[1]);
+                quad.texcoords[1].set(uvrect[2], uvrect[1]);
+                quad.texcoords[2].set(uvrect[2], uvrect[3]);
+                quad.texcoords[3].set(uvrect[0], uvrect[3]);
+
+                quad.normal = normal;
+
+                textQuads.push_back(quad);
+
+                pen_position += layout.horizontal * glyph.horiAdvance;
             }
         }
-        else
-        {
-            TextQuad quad;
 
-            uint16_t charcode(character);
-            auto itr = font.glyphs.find(charcode);
-            if (itr == font.glyphs.end()) continue;
+    };
 
-            const auto& glyph = itr->second;
-            const auto& uvrect = glyph.uvrect;
+    Convert converter(*this, font, quads);
 
-            vec3 local_origin = pen_position + horizontal * glyph.horiBearingX + vertical * glyph.horiBearingY - vertical * glyph.height;
-
-            quad.vertices[0] = local_origin;
-            quad.vertices[1] = local_origin + horizontal * glyph.width;
-            quad.vertices[2] = local_origin + horizontal * glyph.width + vertical * glyph.height;
-            quad.vertices[3] = local_origin + vertical * glyph.height;
-
-            quad.colors[0] = color;
-            quad.colors[1] = color;
-            quad.colors[2] = color;
-            quad.colors[3] = color;
-
-            quad.texcoords[0].set(uvrect[0], uvrect[1]);
-            quad.texcoords[1].set(uvrect[2], uvrect[1]);
-            quad.texcoords[2].set(uvrect[2], uvrect[3]);
-            quad.texcoords[3].set(uvrect[0], uvrect[3]);
-
-            quad.normal = normal;
-
-            quads.push_back(quad);
-
-            pen_position += horizontal * glyph.horiAdvance;
-        }
-    }
+    text->accept(converter);
 }
