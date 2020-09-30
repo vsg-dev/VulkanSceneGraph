@@ -31,7 +31,7 @@ void Font::read(Input& input)
     glyphs.clear();
 
     uint32_t numGlyphs = input.readValue<uint32_t>("numGlyphs");
-    for(uint32_t i = 0; i < numGlyphs; ++i)
+    for (uint32_t i = 0; i < numGlyphs; ++i)
     {
         uint16_t charcode;
         input.read("charcode", charcode);
@@ -58,7 +58,7 @@ void Font::write(Output& output) const
     output.writeObject("atlas", atlas);
 
     output.writeValue<uint32_t>("numGlyphs", glyphs.size());
-    for(auto itr = glyphs.begin(); itr != glyphs.end(); ++itr)
+    for (auto itr = glyphs.begin(); itr != glyphs.end(); ++itr)
     {
         const GlyphMetrics& glyph = itr->second;
         output.write("charcode", glyph.charcode);

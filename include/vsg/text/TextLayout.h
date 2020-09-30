@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Inherit.h>
 #include <vsg/core/Array.h>
+#include <vsg/core/Inherit.h>
 #include <vsg/text/Font.h>
 
 namespace vsg
@@ -38,7 +38,6 @@ namespace vsg
     class VSG_DECLSPEC LeftAlignment : public Inherit<TextLayout, LeftAlignment>
     {
     public:
-
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -51,4 +50,4 @@ namespace vsg
     };
     VSG_type_name(vsg::LeftAlignment);
 
-}
+} // namespace vsg

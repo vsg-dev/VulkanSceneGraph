@@ -14,15 +14,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Data.h>
 #include <vsg/io/Options.h>
-#include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/DescriptorSet.h>
+#include <vsg/state/GraphicsPipeline.h>
 
 namespace vsg
 {
     class VSG_DECLSPEC Font : public Inherit<Object, Font>
     {
     public:
-
         Font();
 
         void read(Input& input) override;
@@ -58,7 +57,7 @@ namespace vsg
         template<class T>
         ref_ptr<T> getShared()
         {
-            for(auto& shared : sharedData)
+            for (auto& shared : sharedData)
             {
                 auto required_data = shared.cast<T>();
                 if (required_data) return required_data;
@@ -70,5 +69,4 @@ namespace vsg
     };
     VSG_type_name(vsg::Font);
 
-
-}
+} // namespace vsg

@@ -16,8 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-
-
 void LeftAlignment::read(Input& input)
 {
     TextLayout::read(input);
@@ -65,7 +63,7 @@ void LeftAlignment::layout(const Data* text, const Font& font, TextQuads& quads)
         void apply(const stringValue& text) override
         {
             reserve(text.value().size());
-            for(auto& c : text.value())
+            for (auto& c : text.value())
             {
                 character(uint8_t(c));
             }
@@ -73,7 +71,7 @@ void LeftAlignment::layout(const Data* text, const Font& font, TextQuads& quads)
         void apply(const ubyteArray& text) override
         {
             reserve(text.size());
-            for(auto& c : text)
+            for (auto& c : text)
             {
                 character(c);
             }
@@ -81,7 +79,7 @@ void LeftAlignment::layout(const Data* text, const Font& font, TextQuads& quads)
         void apply(const ushortArray& text) override
         {
             reserve(text.size());
-            for(auto& c : text)
+            for (auto& c : text)
             {
                 character(c);
             }
@@ -89,7 +87,7 @@ void LeftAlignment::layout(const Data* text, const Font& font, TextQuads& quads)
         void apply(const uintArray& text) override
         {
             reserve(text.size());
-            for(auto& c : text)
+            for (auto& c : text)
             {
                 character(c);
             }
@@ -155,7 +153,6 @@ void LeftAlignment::layout(const Data* text, const Font& font, TextQuads& quads)
                 pen_position += layout.horizontal * glyph.horiAdvance;
             }
         }
-
     };
 
     Convert converter(*this, font, quads);

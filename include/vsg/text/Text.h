@@ -23,7 +23,6 @@ namespace vsg
     class VSG_DECLSPEC Text : public Inherit<Node, Text>
     {
     public:
-
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
@@ -55,10 +54,9 @@ namespace vsg
         };
 
     protected:
-
         ref_ptr<RenderingState> _sharedRenderingState;
         ref_ptr<StateGroup> _stategroup;
     };
     VSG_type_name(vsg::Text);
 
-}
+} // namespace vsg
