@@ -37,6 +37,8 @@ void Font::read(Input& input)
         input.read("charcode", charcode);
 
         GlyphMetrics& glyph = glyphs[charcode];
+        glyph.charcode = charcode;
+
         input.read("uvrect", glyph.uvrect);
         input.read("width", glyph.width);
         input.read("height", glyph.height);
@@ -62,6 +64,7 @@ void Font::write(Output& output) const
     {
         const GlyphMetrics& glyph = itr->second;
         output.write("charcode", glyph.charcode);
+
         output.write("uvrect", glyph.uvrect);
         output.write("width", glyph.width);
         output.write("height", glyph.height);
