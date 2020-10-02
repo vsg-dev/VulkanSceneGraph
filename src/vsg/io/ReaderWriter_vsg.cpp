@@ -210,7 +210,6 @@ bool ReaderWriter_vsg::write(const vsg::Object* object, std::ostream& fout, ref_
     else
 #endif
     {
-        std::cout << "Ascii outputstream" << std::endl;
         writeHeader(fout, FormatInfo(ASCII, version));
 
         vsg::AsciiOutput output(fout, options);
