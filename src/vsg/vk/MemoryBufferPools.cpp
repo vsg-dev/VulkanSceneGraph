@@ -120,7 +120,7 @@ BufferInfo MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkDeviceSize
         deviceSize = minumumBufferSize;
     }
 
-    bufferInfo.buffer = vsg::Buffer::create(device, deviceSize, bufferUsageFlags, sharingMode);
+    bufferInfo.buffer = Buffer::create(device, deviceSize, bufferUsageFlags, sharingMode);
 
     MemorySlots::OptionalOffset reservedBufferSlot = bufferInfo.buffer->reserve(totalSize, alignment);
     bufferInfo.offset = reservedBufferSlot.second;

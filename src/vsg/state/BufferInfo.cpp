@@ -212,9 +212,7 @@ BufferInfoList vsg::createHostVisibleBuffer(Device* device, const DataList& data
 
     totalSize = bufferInfoList.back().offset + bufferInfoList.back().range;
 
-    ref_ptr<Buffer> buffer = vsg::Buffer::create(device, totalSize, usage, sharingMode);
-    ref_ptr<DeviceMemory> memory = vsg::DeviceMemory::create(device, buffer->getMemoryRequirements(device->deviceID), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    buffer->bind(memory, 0);
+    ref_ptr<Buffer> buffer = vsg::createBufferAndMemory(device, totalSize, usage, sharingMode, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     for (auto& bufferData : bufferInfoList)
     {
