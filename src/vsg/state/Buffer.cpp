@@ -44,12 +44,10 @@ Buffer::Buffer(VkDeviceSize in_size, VkBufferUsageFlags in_usage, VkSharingMode 
 {
 }
 
+
+
 Buffer::Buffer(Device* device, VkDeviceSize in_size, VkBufferUsageFlags in_usage, VkSharingMode in_sharingMode) :
-    flags(0),
-    size(in_size),
-    usage(in_usage),
-    sharingMode(in_sharingMode),
-    _memorySlots(in_size)
+    Buffer(in_size, in_usage, in_sharingMode)
 {
     compile(device);
 }
@@ -88,6 +86,7 @@ VkResult Buffer::bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
         vd.memoryOffset = memoryOffset;
         vd.size = size;
     }
+
     return result;
 }
 
@@ -114,16 +113,22 @@ bool Buffer::compile(Device* device)
         throw Exception{"Error: Failed to create vkBuffer.", result};
     }
 
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(*vd.device, vd.buffer, &memRequirements);
-
-    ref_ptr<DeviceMemory> memory = vsg::DeviceMemory::create(device, memRequirements, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    bind(memory, 0);
-
     return true;
 }
 
 bool Buffer::compile(Context& context)
 {
     return compile(context.device);
+}
+
+ref_ptr<Buffer> vsg::createBufferAndMemory(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties)
+{
+    auto buffer = vsg::Buffer::create(size, usage, sharingMode);
+    buffer->compile(device);
+
+    auto memRequirements = buffer->getMemoryRequirements(device->deviceID);
+    auto memory = vsg::DeviceMemory::create(device, memRequirements, memoryProperties);
+
+    buffer->bind(memory, 0);
+    return buffer;
 }
