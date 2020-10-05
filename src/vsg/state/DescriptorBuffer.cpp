@@ -119,7 +119,8 @@ void DescriptorBuffer::compile(Context& context)
             }
         }
 
-        auto buffer = vsg::Buffer::create(totalSize, bufferUsageFlags, VK_SHARING_MODE_EXCLUSIVE);
+        //auto buffer = vsg::Buffer::create(totalSize, bufferUsageFlags, VK_SHARING_MODE_EXCLUSIVE);
+        auto buffer = vsg::createBufferAndMemory(context.device, totalSize, bufferUsageFlags, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
         for (auto& bufferInfo : bufferInfoList)
         {
