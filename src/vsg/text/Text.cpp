@@ -179,6 +179,7 @@ void Text::setup()
     for (auto& quad : quads)
     {
         float leadingEdgeTilt = length(quad.vertices[0] - quad.vertices[1]) * leadingEdgeGradient;
+        float topEdgeTilt = leadingEdgeTilt;
 
         vertices->set(vi, quad.vertices[0]);
         vertices->set(vi + 1, quad.vertices[1]);
@@ -192,8 +193,8 @@ void Text::setup()
 
         texcoords->set(vi, vec3(quad.texcoords[0].x, quad.texcoords[0].y, leadingEdgeTilt));
         texcoords->set(vi + 1, vec3(quad.texcoords[1].x, quad.texcoords[1].y, 0.0f));
-        texcoords->set(vi + 2, vec3(quad.texcoords[2].x, quad.texcoords[2].y, 0.0f));
-        texcoords->set(vi + 3, vec3(quad.texcoords[3].x, quad.texcoords[3].y, leadingEdgeTilt));
+        texcoords->set(vi + 2, vec3(quad.texcoords[2].x, quad.texcoords[2].y, topEdgeTilt));
+        texcoords->set(vi + 3, vec3(quad.texcoords[3].x, quad.texcoords[3].y, leadingEdgeTilt + topEdgeTilt));
 
         vi += 4;
         i += 6;
