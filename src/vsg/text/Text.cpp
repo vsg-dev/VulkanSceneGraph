@@ -46,13 +46,31 @@ void Text::write(Output& output) const
     output.writeObject("text", text);
 }
 
+Text::TextureAtlas::TextureAtlas(Font* font)
+{
+    auto sampler = Sampler::create();
+    sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    sampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    sampler->borderColor = VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
+#if 1
+    sampler->anisotropyEnable = VK_TRUE;
+    sampler->maxAnisotropy = 16.0f;
+#endif
+#if 1
+    sampler->magFilter = VK_FILTER_LINEAR;
+    sampler->minFilter = VK_FILTER_LINEAR;
+    sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+#endif
+
+    descriptor = DescriptorImage::create(sampler, font->atlas, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+}
+
 Text::RenderingState::RenderingState(Font* font, bool in_singleColor, bool in_singleOutlineColor, bool in_singleOutlineWidth) :
     singleColor(in_singleColor),
     singleOutlineColor(in_singleOutlineColor),
     singleOutlineWidth(in_singleOutlineWidth)
 {
-    auto textureData = font->atlas;
-
     // load shaders
     auto vertexShader = read_cast<ShaderStage>("shaders/text.vert", font->options);
     if (!vertexShader) vertexShader = text_vert(); // fallback to shaders/text_vert.cppp
@@ -131,25 +149,10 @@ Text::RenderingState::RenderingState(Font* font, bool in_singleColor, bool in_si
     auto graphicsPipeline = GraphicsPipeline::create(pipelineLayout, ShaderStages{vertexShader, fragmentShader}, pipelineStates);
     bindGraphicsPipeline = BindGraphicsPipeline::create(graphicsPipeline);
 
-    auto sampler = Sampler::create();
-    sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
-    sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
-    sampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
-    sampler->borderColor = VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
-#if 1
-    sampler->anisotropyEnable = VK_TRUE;
-    sampler->maxAnisotropy = 16.0f;
-#endif
-#if 1
-    sampler->magFilter = VK_FILTER_LINEAR;
-    sampler->minFilter = VK_FILTER_LINEAR;
-    sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-#endif
 
     // create texture image and associated DescriptorSets and binding
-    auto texture = DescriptorImage::create(sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-    auto descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{texture});
-
+    auto textureAtlas = font->getShared<TextureAtlas>();
+    auto descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{textureAtlas->descriptor});
     bindDescriptorSet = BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, descriptorSet);
 }
 

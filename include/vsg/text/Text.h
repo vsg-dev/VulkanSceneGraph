@@ -44,6 +44,14 @@ namespace vsg
         /// create the rendering backend
         virtual void setup();
 
+        /// Wraooer for Font::textureAtlas data.
+        struct TextureAtlas : public Inherit<Object, TextureAtlas>
+        {
+            TextureAtlas(Font* font);
+            bool match() const { return true; }
+            ref_ptr<DescriptorImage> descriptor;
+        };
+
         /// rendering state used to set up grahics pipeline and descriptor sets, assigned to Font to allow it be be shared
         struct RenderingState : public Inherit<Object, RenderingState>
         {
