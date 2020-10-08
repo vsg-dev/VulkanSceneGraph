@@ -54,15 +54,15 @@ namespace vsg
         std::vector<ref_ptr<Object>> sharedData;
 
         /// get or create a Technique instance that matches the specified type
-        template<class T>
-        ref_ptr<T> getShared()
+        template<class T, typename... Args>
+        ref_ptr<T> getShared(Args&&... args)
         {
             for (auto& shared : sharedData)
             {
                 auto required_data = shared.cast<T>();
-                if (required_data) return required_data;
+                if (required_data && required_data->match(args...)) return required_data;
             }
-            auto required_data = T::create(this);
+            auto required_data = T::create(this, args...);
             sharedData.emplace_back(required_data);
             return required_data;
         }

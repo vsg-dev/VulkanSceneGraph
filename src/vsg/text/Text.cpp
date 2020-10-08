@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/read.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/text/Text.h>
+#include <vsg/io/write.h>
 
 #include "shaders/text_frag.cpp"
 #include "shaders/text_vert.cpp"
@@ -45,7 +46,10 @@ void Text::write(Output& output) const
     output.writeObject("text", text);
 }
 
-Text::RenderingState::RenderingState(Font* font)
+Text::RenderingState::RenderingState(Font* font, bool in_singleColor, bool in_singleOutlineColor, bool in_singleOutlineWidth) :
+    singleColor(in_singleColor),
+    singleOutlineColor(in_singleOutlineColor),
+    singleOutlineWidth(in_singleOutlineWidth)
 {
     auto textureData = font->atlas;
 
@@ -80,9 +84,9 @@ Text::RenderingState::RenderingState(Font* font)
 
     VertexInputState::Bindings vertexBindingsDescriptions{
         VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}, // vertex data
-        VkVertexInputBindingDescription{1, sizeof(vec4), VK_VERTEX_INPUT_RATE_VERTEX}, // colour data
-        VkVertexInputBindingDescription{2, sizeof(vec4), VK_VERTEX_INPUT_RATE_VERTEX}, // outline colour data
-        VkVertexInputBindingDescription{3, sizeof(float), VK_VERTEX_INPUT_RATE_VERTEX}, // outline width data
+        VkVertexInputBindingDescription{1, sizeof(vec4), singleColor ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX}, // colour data
+        VkVertexInputBindingDescription{2, sizeof(vec4), singleOutlineColor ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX}, // outline colour data
+        VkVertexInputBindingDescription{3, sizeof(float), singleOutlineWidth ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX}, // outline width data
         VkVertexInputBindingDescription{4, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}  // tex coord data
     };
 
@@ -174,13 +178,8 @@ void Text::setup()
         }
     }
 
-    std::cout<<"singleColor = "<<singleColor<<std::endl;
-    std::cout<<"singleOutlineColor = "<<singleOutlineColor<<std::endl;
-    std::cout<<"singleOutlineWidth = "<<singleOutlineWidth<<std::endl;
-
     // set up state related objects if they haven't lready been assigned
-    if (!_sharedRenderingState) _sharedRenderingState = font->getShared<RenderingState>();  // TODO need to pass in the singleColor, singleOutlineColor and singleOutlineWidth settings
-
+    if (!_sharedRenderingState) _sharedRenderingState = font->getShared<RenderingState>(singleColor, singleOutlineColor, singleOutlineWidth);
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     auto scenegraph = StateGroup::create();
@@ -189,11 +188,6 @@ void Text::setup()
 
     if (_sharedRenderingState->bindGraphicsPipeline) scenegraph->add(_sharedRenderingState->bindGraphicsPipeline);
     if (_sharedRenderingState->bindDescriptorSet) scenegraph->add(_sharedRenderingState->bindDescriptorSet);
-
-    // hardwire to just per vertex binding.
-    singleColor = false;
-    singleOutlineColor = false;
-    singleOutlineWidth = false;
 
     uint32_t num_quads = static_cast<uint32_t>(quads.size());
     uint32_t num_vertices = num_quads * 4;

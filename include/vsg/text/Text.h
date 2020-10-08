@@ -47,7 +47,16 @@ namespace vsg
         /// rendering state used to set up grahics pipeline and descriptor sets, assigned to Font to allow it be be shared
         struct RenderingState : public Inherit<Object, RenderingState>
         {
-            RenderingState(Font* font);
+            RenderingState(Font* font, bool in_singleColor, bool in_singleOutlineColor, bool in_singleOutlineWidth);
+
+            bool match(bool in_singleColor, bool in_singleOutlineColor, bool in_singleOutlineWidth) const
+            {
+                return (in_singleColor == singleColor) && (in_singleOutlineColor == singleOutlineColor) && (in_singleOutlineWidth == singleOutlineWidth);
+            }
+
+            bool singleColor = true;
+            bool singleOutlineColor = true;
+            bool singleOutlineWidth = true;
 
             ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
             ref_ptr<BindDescriptorSet> bindDescriptorSet;
