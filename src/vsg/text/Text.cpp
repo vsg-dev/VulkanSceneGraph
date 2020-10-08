@@ -81,13 +81,17 @@ Text::RenderingState::RenderingState(Font* font)
     VertexInputState::Bindings vertexBindingsDescriptions{
         VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}, // vertex data
         VkVertexInputBindingDescription{1, sizeof(vec4), VK_VERTEX_INPUT_RATE_VERTEX}, // colour data
-        VkVertexInputBindingDescription{2, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}  // tex coord data
+        VkVertexInputBindingDescription{2, sizeof(vec4), VK_VERTEX_INPUT_RATE_VERTEX}, // outline colour data
+        VkVertexInputBindingDescription{3, sizeof(float), VK_VERTEX_INPUT_RATE_VERTEX}, // outline width data
+        VkVertexInputBindingDescription{4, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}  // tex coord data
     };
 
     VertexInputState::Attributes vertexAttributeDescriptions{
         VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0},    // vertex data
         VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32A32_SFLOAT, 0}, // colour data
-        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32B32_SFLOAT, 0},    // tex coord data
+        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32B32A32_SFLOAT, 0}, // outline colour data
+        VkVertexInputAttributeDescription{3, 3, VK_FORMAT_R32_SFLOAT, 0}, // outline width data
+        VkVertexInputAttributeDescription{4, 4, VK_FORMAT_R32G32B32_SFLOAT, 0},    // tex coord data
     };
 
     // alpha blending
@@ -147,9 +151,6 @@ Text::RenderingState::RenderingState(Font* font)
 
 void Text::setup()
 {
-    // set up state related objects if they haven't lready been assigned
-    if (!_sharedRenderingState) _sharedRenderingState = font->getShared<RenderingState>();
-
     if (!layout) layout = LeftAlignment::create();
 
     TextQuads quads;
@@ -157,24 +158,63 @@ void Text::setup()
 
     if (quads.empty()) return;
 
+    vec4 color = quads.front().colors[0];
+    vec4 outlineColor = quads.front().outlineColors[0];
+    float outlineWidth = quads.front().outlineWidths[0];
+    bool singleColor = true;
+    bool singleOutlineColor = true;
+    bool singleOutlineWidth = true;
+    for (auto& quad : quads)
+    {
+        for(int i = 0; i < 4; ++i)
+        {
+            if (quad.colors[i] != color) singleColor = false;
+            if (quad.outlineColors[i] != outlineColor) singleOutlineColor = false;
+            if (quad.outlineWidths[i] != outlineWidth) singleOutlineWidth = false;
+        }
+    }
+
+    std::cout<<"singleColor = "<<singleColor<<std::endl;
+    std::cout<<"singleOutlineColor = "<<singleOutlineColor<<std::endl;
+    std::cout<<"singleOutlineWidth = "<<singleOutlineWidth<<std::endl;
+
+    // set up state related objects if they haven't lready been assigned
+    if (!_sharedRenderingState) _sharedRenderingState = font->getShared<RenderingState>();  // TODO need to pass in the singleColor, singleOutlineColor and singleOutlineWidth settings
+
+
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
-    auto scenegraph = vsg::StateGroup::create();
+    auto scenegraph = StateGroup::create();
 
     _stategroup = scenegraph;
 
     if (_sharedRenderingState->bindGraphicsPipeline) scenegraph->add(_sharedRenderingState->bindGraphicsPipeline);
     if (_sharedRenderingState->bindDescriptorSet) scenegraph->add(_sharedRenderingState->bindDescriptorSet);
 
+    // hardwire to just per vertex binding.
+    singleColor = false;
+    singleOutlineColor = false;
+    singleOutlineWidth = false;
+
     uint32_t num_quads = static_cast<uint32_t>(quads.size());
     uint32_t num_vertices = num_quads * 4;
-    auto vertices = vsg::vec3Array::create(num_vertices);
-    auto colors = vsg::vec4Array::create(num_vertices);
-    auto texcoords = vsg::vec3Array::create(num_vertices);
+    uint32_t num_colors = singleColor ? 1 : num_vertices;
+    uint32_t num_outlineColors = singleOutlineColor ? 1 : num_vertices;
+    uint32_t num_outlineWidths = singleOutlineWidth ? 1 : num_vertices;
+
+    auto vertices = vec3Array::create(num_vertices);
+    auto colors = vec4Array::create(num_colors);
+    auto outlineColors = vec4Array::create(num_outlineColors);
+    auto outlineWidths = floatArray::create(num_outlineWidths);
+    auto texcoords = vec3Array::create(num_vertices);
 
     uint32_t i = 0;
     uint32_t vi = 0;
 
     float leadingEdgeGradient = 0.1;
+
+    if (singleColor) colors->set(0, color);
+    if (singleOutlineColor) outlineColors->set(0, outlineColor);
+    if (singleOutlineWidth) outlineWidths->set(0, outlineWidth);
 
     for (auto& quad : quads)
     {
@@ -186,10 +226,29 @@ void Text::setup()
         vertices->set(vi + 2, quad.vertices[2]);
         vertices->set(vi + 3, quad.vertices[3]);
 
-        colors->set(vi, quad.colors[0]);
-        colors->set(vi + 1, quad.colors[1]);
-        colors->set(vi + 2, quad.colors[2]);
-        colors->set(vi + 3, quad.colors[3]);
+        if (!singleColor)
+        {
+            colors->set(vi, quad.colors[0]);
+            colors->set(vi + 1, quad.colors[1]);
+            colors->set(vi + 2, quad.colors[2]);
+            colors->set(vi + 3, quad.colors[3]);
+        }
+
+        if (!singleOutlineColor)
+        {
+            outlineColors->set(vi, quad.outlineColors[0]);
+            outlineColors->set(vi + 1, quad.outlineColors[1]);
+            outlineColors->set(vi + 2, quad.outlineColors[2]);
+            outlineColors->set(vi + 3, quad.outlineColors[3]);
+        }
+
+        if (!singleOutlineWidth)
+        {
+            outlineWidths->set(vi, quad.outlineWidths[0]);
+            outlineWidths->set(vi + 1, quad.outlineWidths[1]);
+            outlineWidths->set(vi + 2, quad.outlineWidths[2]);
+            outlineWidths->set(vi + 3, quad.outlineWidths[3]);
+        }
 
         texcoords->set(vi, vec3(quad.texcoords[0].x, quad.texcoords[0].y, leadingEdgeTilt));
         texcoords->set(vi + 1, vec3(quad.texcoords[1].x, quad.texcoords[1].y, 0.0f));
@@ -200,10 +259,10 @@ void Text::setup()
         i += 6;
     }
 
-    ref_ptr<vsg::Data> indices;
+    ref_ptr<Data> indices;
     if (num_vertices > 65536) // check if requires uint or ushort indices
     {
-        auto ui_indices = vsg::uintArray::create(num_quads * 6);
+        auto ui_indices = uintArray::create(num_quads * 6);
         indices = ui_indices;
 
         auto itr = ui_indices->begin();
@@ -222,7 +281,7 @@ void Text::setup()
     }
     else
     {
-        auto us_indices = vsg::ushortArray::create(num_quads * 6);
+        auto us_indices = ushortArray::create(num_quads * 6);
         indices = us_indices;
 
         auto itr = us_indices->begin();
@@ -243,10 +302,10 @@ void Text::setup()
     DataList arrays;
 
     // setup geometry
-    auto drawCommands = vsg::Commands::create();
-    drawCommands->addChild(vsg::BindVertexBuffers::create(0, vsg::DataList{vertices, colors, texcoords}));
-    drawCommands->addChild(vsg::BindIndexBuffer::create(indices));
-    drawCommands->addChild(vsg::DrawIndexed::create(static_cast<uint32_t>(indices->valueCount()), 1, 0, 0, 0));
+    auto drawCommands = Commands::create();
+    drawCommands->addChild(BindVertexBuffers::create(0, DataList{vertices, colors, outlineColors, outlineWidths, texcoords}));
+    drawCommands->addChild(BindIndexBuffer::create(indices));
+    drawCommands->addChild(DrawIndexed::create(static_cast<uint32_t>(indices->valueCount()), 1, 0, 0, 0));
 
     scenegraph->addChild(drawCommands);
 }

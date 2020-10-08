@@ -24,6 +24,8 @@ void LeftAlignment::read(Input& input)
     input.read("horizontal", horizontal);
     input.read("vertical", vertical);
     input.read("color", color);
+    input.read("outlineColor", outlineColor);
+    input.read("outlineWidth", outlineWidth);
 }
 
 void LeftAlignment::write(Output& output) const
@@ -34,6 +36,8 @@ void LeftAlignment::write(Output& output) const
     output.write("horizontal", horizontal);
     output.write("vertical", vertical);
     output.write("color", color);
+    output.write("outlineColor", outlineColor);
+    output.write("outlineWidth", outlineWidth);
 }
 
 void LeftAlignment::layout(const Data* text, const Font& font, TextQuads& quads)
@@ -145,6 +149,16 @@ void LeftAlignment::layout(const Data* text, const Font& font, TextQuads& quads)
                 quad.texcoords[1].set(uvrect[2], uvrect[1]);
                 quad.texcoords[2].set(uvrect[2], uvrect[3]);
                 quad.texcoords[3].set(uvrect[0], uvrect[3]);
+
+                quad.outlineColors[0] = layout.outlineColor;
+                quad.outlineColors[1] = layout.outlineColor;
+                quad.outlineColors[2] = layout.outlineColor;
+                quad.outlineColors[3] = layout.outlineColor;
+
+                quad.outlineWidths[0] = layout.outlineWidth;
+                quad.outlineWidths[1] = layout.outlineWidth;
+                quad.outlineWidths[2] = layout.outlineWidth;
+                quad.outlineWidths[3] = layout.outlineWidth;
 
                 quad.normal = normal;
 

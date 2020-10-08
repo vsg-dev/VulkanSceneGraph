@@ -23,6 +23,8 @@ namespace vsg
         vec3 vertices[4];
         vec2 texcoords[4];
         vec4 colors[4];
+        vec4 outlineColors[4];
+        float outlineWidths[4];
         vec3 normal;
     };
 
@@ -45,6 +47,8 @@ namespace vsg
         vec3 horizontal = vec3(1.0f, 0.0f, 0.0f);
         vec3 vertical = vec3(0.0f, 1.0f, 0.0f);
         vec4 color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        vec4 outlineColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        float outlineWidth = 0.0f;
 
         void layout(const Data* text, const Font& font, TextQuads& texQuads) override;
     };
