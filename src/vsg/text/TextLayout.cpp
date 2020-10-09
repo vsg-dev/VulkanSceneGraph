@@ -12,8 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/text/TextLayout.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 void LeftAlignment::read(Input& input)

@@ -45,7 +45,7 @@ namespace vsg
         virtual void setup();
 
         /// Wraooer for Font::textureAtlas data.
-        struct TextureAtlas : public Inherit<Object, TextureAtlas>
+        struct VSG_DECLSPEC TextureAtlas : public Inherit<Object, TextureAtlas>
         {
             TextureAtlas(Font* font);
             bool match() const { return true; }
@@ -53,7 +53,7 @@ namespace vsg
         };
 
         /// rendering state used to set up grahics pipeline and descriptor sets, assigned to Font to allow it be be shared
-        struct RenderingState : public Inherit<Object, RenderingState>
+        struct VSG_DECLSPEC RenderingState : public Inherit<Object, RenderingState>
         {
             RenderingState(Font* font, bool in_singleColor, bool in_singleOutlineColor, bool in_singleOutlineWidth);
 
