@@ -198,7 +198,7 @@ void Text::setup()
     uint32_t i = 0;
     uint32_t vi = 0;
 
-    float leadingEdgeGradient = 0.1;
+    float leadingEdgeGradient = 0.1f;
 
     if (singleColor) colors->set(0, color);
     if (singleOutlineColor) outlineColors->set(0, outlineColor);
