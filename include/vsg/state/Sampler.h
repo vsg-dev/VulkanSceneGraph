@@ -38,7 +38,7 @@ namespace vsg
         VkBool32 compareEnable = VK_FALSE;
         VkCompareOp compareOp = VK_COMPARE_OP_NEVER;
         float minLod = 0.0f;
-        float maxLod = 16.0f;
+        float maxLod = 0.0f;
         VkBorderColor borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
         VkBool32 unnormalizedCoordinates = VK_FALSE;
 
