@@ -22,6 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <array>
 #include <map>
 #include <stack>
+#include <iostream>
 
 namespace vsg
 {
@@ -153,6 +154,12 @@ namespace vsg
         {
             if (dirty)
             {
+                // don't attempt to push matrices if no pipeline is current
+                if (commandBuffer.getCurrentPipelineLayout()==0)
+                {
+                    return;
+                }
+
 #if USE_DOUBLE_MATRIX_STACK
                 // make sure matrix is a float matrix.
                 mat4 newmatrix(matrixStack.top());
