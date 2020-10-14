@@ -238,10 +238,10 @@ void Text::setup()
             outlineWidths->set(vi + 3, quad.outlineWidths[3]);
         }
 
-        texcoords->set(vi, vec3(quad.texcoords[0].x, quad.texcoords[0].y, leadingEdgeTilt));
-        texcoords->set(vi + 1, vec3(quad.texcoords[1].x, quad.texcoords[1].y, 0.0f));
-        texcoords->set(vi + 2, vec3(quad.texcoords[2].x, quad.texcoords[2].y, topEdgeTilt));
-        texcoords->set(vi + 3, vec3(quad.texcoords[3].x, quad.texcoords[3].y, leadingEdgeTilt + topEdgeTilt));
+        texcoords->set(vi, vec3(quad.texcoords[0].x, quad.texcoords[0].y, leadingEdgeTilt + topEdgeTilt));
+        texcoords->set(vi + 1, vec3(quad.texcoords[1].x, quad.texcoords[1].y, topEdgeTilt));
+        texcoords->set(vi + 2, vec3(quad.texcoords[2].x, quad.texcoords[2].y, 0.0f));
+        texcoords->set(vi + 3, vec3(quad.texcoords[3].x, quad.texcoords[3].y, leadingEdgeTilt));
 
         vi += 4;
         i += 6;
