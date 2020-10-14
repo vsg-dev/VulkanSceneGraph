@@ -60,6 +60,8 @@ Text::TextureAtlas::TextureAtlas(Font* font)
     sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 #endif
 
+    sampler->maxLod = 12.0;
+
     descriptor = DescriptorImage::create(sampler, font->atlas, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 }
 
