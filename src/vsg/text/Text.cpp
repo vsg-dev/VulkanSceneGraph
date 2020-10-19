@@ -54,7 +54,11 @@ Text::TextureAtlas::TextureAtlas(Font* font)
     sampler->anisotropyEnable = VK_TRUE;
     sampler->maxAnisotropy = 16.0f;
 #endif
-#if 1
+#if 0
+    sampler->magFilter = VK_FILTER_NEAREST;
+    sampler->minFilter = VK_FILTER_LINEAR;
+    sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+#else
     sampler->magFilter = VK_FILTER_LINEAR;
     sampler->minFilter = VK_FILTER_LINEAR;
     sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
