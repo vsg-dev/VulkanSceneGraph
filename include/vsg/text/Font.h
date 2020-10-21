@@ -44,8 +44,10 @@ namespace vsg
         };
         using GlyphMap = std::map<uint16_t, GlyphMetrics>;
 
-        float fontHeight;
-        float normalisedLineHeight;
+        float ascender = 1.0f; // maximum ascent below the baseline
+        float descender = 0.0f; // maximum descent below the baseline
+        float height = 1.0f; // vertical distance between two consecutive baselines
+
         ref_ptr<Data> atlas;
         GlyphMap glyphs;
         ref_ptr<Options> options;

@@ -22,8 +22,10 @@ void Font::read(Input& input)
 {
     Object::read(input);
 
-    input.read("fontHeight", fontHeight);
-    input.read("normalisedLineHeight", normalisedLineHeight);
+    input.read("ascender", ascender);
+    input.read("descender", descender);
+    input.read("height", height);
+
     input.readObject("atlas", atlas);
 
     glyphs.clear();
@@ -53,8 +55,10 @@ void Font::write(Output& output) const
 {
     Object::write(output);
 
-    output.write("fontHeight", fontHeight);
-    output.write("normalisedLineHeight", normalisedLineHeight);
+    output.write("ascender", ascender);
+    output.write("descender", descender);
+    output.write("height", height);
+
     output.writeObject("atlas", atlas);
 
     output.writeValue<uint32_t>("numGlyphs", glyphs.size());
