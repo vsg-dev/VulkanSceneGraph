@@ -70,11 +70,23 @@ void ConstVisitor::apply(const doubleValue& value)
 //
 // Arrays
 //
+void ConstVisitor::apply(const byteArray& value)
+{
+    apply(static_cast<const Data&>(value));
+}
 void ConstVisitor::apply(const ubyteArray& value)
 {
     apply(static_cast<const Data&>(value));
 }
+void ConstVisitor::apply(const shortArray& value)
+{
+    apply(static_cast<const Data&>(value));
+}
 void ConstVisitor::apply(const ushortArray& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const intArray& value)
 {
     apply(static_cast<const Data&>(value));
 }

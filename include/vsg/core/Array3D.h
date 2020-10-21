@@ -300,8 +300,11 @@ namespace vsg
         ref_ptr<Data> _storage;
     };
 
+    VSG_array3D(byteArray3D, int8_t);
     VSG_array3D(ubyteArray3D, uint8_t);
+    VSG_array3D(shortArray3D, int16_t);
     VSG_array3D(ushortArray3D, uint16_t);
+    VSG_array3D(intArray3D, int32_t);
     VSG_array3D(uintArray3D, uint32_t);
     VSG_array3D(floatArray3D, float);
     VSG_array3D(doubleArray3D, double);

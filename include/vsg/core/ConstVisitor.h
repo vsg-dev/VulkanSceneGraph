@@ -116,8 +116,11 @@ namespace vsg
         virtual void apply(const doubleValue&);
 
         // Arrays
+        virtual void apply(const byteArray&);
         virtual void apply(const ubyteArray&);
+        virtual void apply(const shortArray&);
         virtual void apply(const ushortArray&);
+        virtual void apply(const intArray&);
         virtual void apply(const uintArray&);
         virtual void apply(const floatArray&);
         virtual void apply(const doubleArray&);

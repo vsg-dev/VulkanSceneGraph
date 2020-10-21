@@ -286,8 +286,11 @@ namespace vsg
         ref_ptr<Data> _storage;
     };
 
+    VSG_array2D(byteArray2D, int8_t);
     VSG_array2D(ubyteArray2D, uint8_t);
+    VSG_array2D(shortArray2D, int16_t);
     VSG_array2D(ushortArray2D, uint16_t);
+    VSG_array2D(intArray2D, int32_t);
     VSG_array2D(uintArray2D, uint32_t);
     VSG_array2D(floatArray2D, float);
     VSG_array2D(doubleArray2D, double);

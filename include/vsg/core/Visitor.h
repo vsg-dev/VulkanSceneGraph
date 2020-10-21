@@ -116,8 +116,11 @@ namespace vsg
         virtual void apply(doubleValue&);
 
         // Arrays
+        virtual void apply(byteArray&);
         virtual void apply(ubyteArray&);
+        virtual void apply(shortArray&);
         virtual void apply(ushortArray&);
+        virtual void apply(intArray&);
         virtual void apply(uintArray&);
         virtual void apply(floatArray&);
         virtual void apply(doubleArray&);
