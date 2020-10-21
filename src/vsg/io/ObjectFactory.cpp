@@ -59,8 +59,11 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::materialValue);
 
     // arrays
+    VSG_REGISTER_new(vsg::byteArray);
     VSG_REGISTER_new(vsg::ubyteArray);
+    VSG_REGISTER_new(vsg::shortArray);
     VSG_REGISTER_new(vsg::ushortArray);
+    VSG_REGISTER_new(vsg::intArray);
     VSG_REGISTER_new(vsg::uintArray);
     VSG_REGISTER_new(vsg::floatArray);
     VSG_REGISTER_new(vsg::doubleArray);
@@ -86,8 +89,11 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::materialArray);
 
     // array2Ds
+    VSG_REGISTER_new(vsg::byteArray2D);
     VSG_REGISTER_new(vsg::ubyteArray2D);
+    VSG_REGISTER_new(vsg::shortArray2D);
     VSG_REGISTER_new(vsg::ushortArray2D);
+    VSG_REGISTER_new(vsg::intArray2D);
     VSG_REGISTER_new(vsg::uintArray2D);
     VSG_REGISTER_new(vsg::floatArray2D);
     VSG_REGISTER_new(vsg::doubleArray2D);
@@ -109,8 +115,11 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::block128Array2D);
 
     // array3Ds
+    VSG_REGISTER_new(vsg::byteArray3D);
     VSG_REGISTER_new(vsg::ubyteArray3D);
+    VSG_REGISTER_new(vsg::shortArray3D);
     VSG_REGISTER_new(vsg::ushortArray3D);
+    VSG_REGISTER_new(vsg::intArray3D);
     VSG_REGISTER_new(vsg::uintArray3D);
     VSG_REGISTER_new(vsg::floatArray3D);
     VSG_REGISTER_new(vsg::doubleArray3D);
