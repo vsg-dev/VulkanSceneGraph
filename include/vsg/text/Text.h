@@ -26,7 +26,7 @@ namespace vsg
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
-            if (node._stategroup) node._stategroup->accept(visitor);
+            if (node.renderingBackend) node.renderingBackend->stategroup->accept(visitor);
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
@@ -41,8 +41,9 @@ namespace vsg
         ref_ptr<TextLayout> layout;
         ref_ptr<Data> text;
 
-        /// create the rendering backend
-        virtual void setup();
+        /// create the rendering backend.
+        /// minimumAllocation provides a hint for the minimum number of glyphs to allocate space for.
+        virtual void setup(uint32_t minimumAllocation = 0);
 
         /// Wraooer for Font::textureAtlas data.
         struct VSG_DECLSPEC TextureAtlas : public Inherit<Object, TextureAtlas>
@@ -70,9 +71,26 @@ namespace vsg
             ref_ptr<BindDescriptorSet> bindDescriptorSet;
         };
 
+        /// rendering backend container holds all the scene graph elements required to render the text, filled in by Text::setup().
+        struct RenderingBackend : public Inherit<Object, RenderingBackend>
+        {
+            ref_ptr<vec3Array> vertices;
+            ref_ptr<vec4Array> colors;
+            ref_ptr<vec4Array> outlineColors;
+            ref_ptr<floatArray> outlineWidths;
+            ref_ptr<vec3Array> texcoords;
+            ref_ptr<Data> indices;
+            ref_ptr<DrawIndexed> drawIndexed;
+
+            ref_ptr<BindVertexBuffers> bindVertexBuffers;
+            ref_ptr<BindIndexBuffer> bindIndexBuffer;
+            ref_ptr<RenderingState> sharedRenderingState;
+            ref_ptr<StateGroup> stategroup;
+        };
+
+        ref_ptr<RenderingBackend> renderingBackend;
+
     protected:
-        ref_ptr<RenderingState> _sharedRenderingState;
-        ref_ptr<StateGroup> _stategroup;
     };
     VSG_type_name(vsg::Text);
 

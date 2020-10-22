@@ -153,14 +153,21 @@ Text::RenderingState::RenderingState(Font* font, bool in_singleColor, bool in_si
     bindDescriptorSet = BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, descriptorSet);
 }
 
-void Text::setup()
+#include <iostream>
+
+void Text::setup(uint32_t minimumAllocation)
 {
     if (!layout) layout = LeftAlignment::create();
 
     TextQuads quads;
     layout->layout(text, *font, quads);
 
-    if (quads.empty()) return;
+    if (!renderingBackend)
+    {
+        if (quads.empty()) return;
+
+        renderingBackend = RenderingBackend::create();
+    }
 
     vec4 color = quads.front().colors[0];
     vec4 outlineColor = quads.front().outlineColors[0];
@@ -178,28 +185,27 @@ void Text::setup()
         }
     }
 
-    // set up state related objects if they haven't lready been assigned
-    if (!_sharedRenderingState) _sharedRenderingState = font->getShared<RenderingState>(singleColor, singleOutlineColor, singleOutlineWidth);
 
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
-    auto scenegraph = StateGroup::create();
-
-    _stategroup = scenegraph;
-
-    if (_sharedRenderingState->bindGraphicsPipeline) scenegraph->add(_sharedRenderingState->bindGraphicsPipeline);
-    if (_sharedRenderingState->bindDescriptorSet) scenegraph->add(_sharedRenderingState->bindDescriptorSet);
-
-    uint32_t num_quads = static_cast<uint32_t>(quads.size());
+    uint32_t num_quads = std::max(static_cast<uint32_t>(quads.size()), minimumAllocation);
     uint32_t num_vertices = num_quads * 4;
     uint32_t num_colors = singleColor ? 1 : num_vertices;
     uint32_t num_outlineColors = singleOutlineColor ? 1 : num_vertices;
     uint32_t num_outlineWidths = singleOutlineWidth ? 1 : num_vertices;
 
-    auto vertices = vec3Array::create(num_vertices);
-    auto colors = vec4Array::create(num_colors);
-    auto outlineColors = vec4Array::create(num_outlineColors);
-    auto outlineWidths = floatArray::create(num_outlineWidths);
-    auto texcoords = vec3Array::create(num_vertices);
+
+    auto& vertices = renderingBackend->vertices;
+    auto& colors = renderingBackend->colors;
+    auto& outlineColors = renderingBackend->outlineColors;
+    auto& outlineWidths = renderingBackend->outlineWidths;
+    auto& texcoords = renderingBackend->texcoords;
+    auto& drawIndexed = renderingBackend->drawIndexed;
+
+    if (!vertices || num_vertices > vertices->size()) vertices = vec3Array::create(num_vertices);
+    if (!colors || num_colors > colors->size()) colors = vec4Array::create(num_colors);
+    if (!outlineColors || num_outlineColors > outlineColors->size()) outlineColors = vec4Array::create(num_outlineColors);
+    if (!outlineWidths || num_outlineWidths > outlineWidths->size()) outlineWidths = floatArray::create(num_outlineWidths);
+    if (!texcoords || num_vertices > texcoords->size()) texcoords = vec3Array::create(num_vertices);
+
 
     uint32_t i = 0;
     uint32_t vi = 0;
@@ -253,53 +259,83 @@ void Text::setup()
         i += 6;
     }
 
-    ref_ptr<Data> indices;
-    if (num_vertices > 65536) // check if requires uint or ushort indices
+    uint32_t num_indices = num_quads * 6;
+    auto& indices = renderingBackend->indices;
+    if (!indices || num_indices > indices->valueCount())
     {
-        auto ui_indices = uintArray::create(num_quads * 6);
-        indices = ui_indices;
-
-        auto itr = ui_indices->begin();
-        vi = 0;
-        for (i = 0; i < num_quads; ++i)
+        if (num_vertices > 65536) // check if requires uint or ushort indices
         {
-            (*itr++) = vi;
-            (*itr++) = vi + 1;
-            (*itr++) = vi + 2;
-            (*itr++) = vi + 2;
-            (*itr++) = vi + 3;
-            (*itr++) = vi;
+            auto ui_indices = uintArray::create(num_indices);
+            indices = ui_indices;
 
-            vi += 4;
+            auto itr = ui_indices->begin();
+            vi = 0;
+            for (i = 0; i < num_quads; ++i)
+            {
+                (*itr++) = vi;
+                (*itr++) = vi + 1;
+                (*itr++) = vi + 2;
+                (*itr++) = vi + 2;
+                (*itr++) = vi + 3;
+                (*itr++) = vi;
+
+                vi += 4;
+            }
         }
+        else
+        {
+            auto us_indices = ushortArray::create(num_indices);
+            indices = us_indices;
+
+            auto itr = us_indices->begin();
+            vi = 0;
+            for (i = 0; i < num_quads; ++i)
+            {
+                (*itr++) = vi;
+                (*itr++) = vi + 1;
+                (*itr++) = vi + 2;
+                (*itr++) = vi + 2;
+                (*itr++) = vi + 3;
+                (*itr++) = vi;
+
+                vi += 4;
+            }
+        }
+    }
+
+    if (!drawIndexed) drawIndexed = DrawIndexed::create(quads.size() * 6, 1, 0, 0, 0);
+    else drawIndexed->indexCount = quads.size() * 6;
+
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
+    auto& scenegraph = renderingBackend->stategroup;
+    auto& bindVertexBuffers = renderingBackend->bindVertexBuffers;
+    auto& bindIndexBuffer = renderingBackend->bindIndexBuffer;
+    if (!scenegraph)
+    {
+        scenegraph = StateGroup::create();
+
+        // set up state related objects if they haven't lready been assigned
+        auto& sharedRenderingState = renderingBackend->sharedRenderingState;
+        if (!sharedRenderingState) renderingBackend->sharedRenderingState = font->getShared<RenderingState>(singleColor, singleOutlineColor, singleOutlineWidth);
+
+        if (sharedRenderingState->bindGraphicsPipeline) scenegraph->add(sharedRenderingState->bindGraphicsPipeline);
+        if (sharedRenderingState->bindDescriptorSet) scenegraph->add(sharedRenderingState->bindDescriptorSet);
+
+        bindVertexBuffers = BindVertexBuffers::create(0, DataList{vertices, colors, outlineColors, outlineWidths, texcoords});
+        bindIndexBuffer = BindIndexBuffer::create(indices);
+
+        // setup geometry
+        auto drawCommands = Commands::create();
+        drawCommands->addChild(bindVertexBuffers);
+        drawCommands->addChild(bindIndexBuffer);
+        drawCommands->addChild(drawIndexed);
+
+        scenegraph->addChild(drawCommands);
     }
     else
     {
-        auto us_indices = ushortArray::create(num_quads * 6);
-        indices = us_indices;
-
-        auto itr = us_indices->begin();
-        vi = 0;
-        for (i = 0; i < num_quads; ++i)
-        {
-            (*itr++) = vi;
-            (*itr++) = vi + 1;
-            (*itr++) = vi + 2;
-            (*itr++) = vi + 2;
-            (*itr++) = vi + 3;
-            (*itr++) = vi;
-
-            vi += 4;
-        }
+        std::cout<<"TODO : Text::setup(), need to copy buffers"<<std::endl;
+        // bindVertexBuffers->copyDataToBuffers();
+        // bindIndexBuffer->copyDataToBuffers();
     }
-
-    DataList arrays;
-
-    // setup geometry
-    auto drawCommands = Commands::create();
-    drawCommands->addChild(BindVertexBuffers::create(0, DataList{vertices, colors, outlineColors, outlineWidths, texcoords}));
-    drawCommands->addChild(BindIndexBuffer::create(indices));
-    drawCommands->addChild(DrawIndexed::create(static_cast<uint32_t>(indices->valueCount()), 1, 0, 0, 0));
-
-    scenegraph->addChild(drawCommands);
 }
