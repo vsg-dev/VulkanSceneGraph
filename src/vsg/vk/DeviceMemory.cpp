@@ -287,6 +287,7 @@ void MemorySlots::release(VkDeviceSize offset, VkDeviceSize size)
 //
 DeviceMemory::DeviceMemory(Device* device, const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, void* pNextAllocInfo) :
     _memoryRequirements(memRequirements),
+    _properties(properties),
     _device(device),
     _memorySlots(memRequirements.size)
 {

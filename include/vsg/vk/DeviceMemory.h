@@ -71,7 +71,8 @@ namespace vsg
 
         operator VkDeviceMemory() const { return _deviceMemory; }
 
-        const VkMemoryRequirements& getMemoryRequirements() { return _memoryRequirements; }
+        const VkMemoryRequirements& getMemoryRequirements() const { return _memoryRequirements; }
+        const VkMemoryPropertyFlags& getMemoryPropertyFlags() const { return _properties; }
 
         MemorySlots::OptionalOffset reserve(VkDeviceSize size) { return _memorySlots.reserve(size, _memoryRequirements.alignment); }
         void release(VkDeviceSize offset, VkDeviceSize size) { _memorySlots.release(offset, size); }
@@ -87,6 +88,7 @@ namespace vsg
 
         VkDeviceMemory _deviceMemory;
         VkMemoryRequirements _memoryRequirements;
+        VkMemoryPropertyFlags _properties;
         ref_ptr<Device> _device;
 
         MemorySlots _memorySlots;
