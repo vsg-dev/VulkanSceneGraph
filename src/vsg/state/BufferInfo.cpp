@@ -16,6 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/vk/CommandBuffer.h>
 
+#include <iostream>
+
 using namespace vsg;
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -39,9 +41,24 @@ void BufferInfo::copyDataToBuffer(uint32_t deviceID)
     DeviceMemory* dm = buffer->getDeviceMemory(deviceID);
     if (dm)
     {
+        if ((dm->getMemoryPropertyFlags() & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)==0)
+        {
+            std::cout<<"Warning: BufferInfo::copyDataToBuffer() cannot copy data. DeviceMemory does not support direct memory mapping."<<std::endl;
+
+            // 1. allocate staging buffer
+            // 2. copy to staging buffer
+            // 3. transfer from staging buffer to device local buffer - use CopyAndReleaseBuffer
+
+            return;
+        }
 
         void* buffer_data;
-        dm->map(offset, range, 0, &buffer_data);
+        VkResult result = dm->map(offset, range, 0, &buffer_data);
+        if (result != 0)
+        {
+            std::cout<<"Warning: BufferInfo::copyDataToBuffer() cannot copy data. VkMapMemory(..) failed with result = "<<result<<std::endl;
+            return;
+        }
 
         char* ptr = reinterpret_cast<char*>(buffer_data);
         std::memcpy(ptr, data->dataPointer(), data->dataSize());
