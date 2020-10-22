@@ -15,17 +15,42 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CopyAndReleaseBuffer::~CopyAndReleaseBuffer()
+CopyAndReleaseBuffer::CopyAndReleaseBuffer(BufferInfo src, BufferInfo dest)
 {
-    source.release();
+    add(src, dest);
 }
 
-void CopyAndReleaseBuffer::record(CommandBuffer& commandBuffer) const
+CopyAndReleaseBuffer::~CopyAndReleaseBuffer()
 {
-    //std::cout<<"CopyAndReleaseBuffer::record(CommandBuffer& commandBuffer) source.offset = "<<source.offset<<", "<<destination.offset<<std::endl;
+   for (auto& copyData : completed) copyData.source.release();
+   for (auto& copyData : pending) copyData.source.release();
+}
+
+void CopyAndReleaseBuffer::add(BufferInfo src, BufferInfo dest)
+{
+    pending.push_back(CopyData{src, dest});
+}
+
+void CopyAndReleaseBuffer::CopyData::record(CommandBuffer& commandBuffer) const
+{
+    //std::cout<<"CopyAndReleaseBuffer::CopyData::record(CommandBuffer& commandBuffer) source.offset = "<<source.offset<<", "<<destination.offset<<std::endl;
     VkBufferCopy copyRegion = {};
     copyRegion.srcOffset = source.offset;
     copyRegion.dstOffset = destination.offset;
     copyRegion.size = source.range;
     vkCmdCopyBuffer(commandBuffer, source.buffer->vk(commandBuffer.deviceID), destination.buffer->vk(commandBuffer.deviceID), 1, &copyRegion);
+}
+
+void CopyAndReleaseBuffer::record(CommandBuffer& commandBuffer) const
+{
+    for (auto& copyData : completed) copyData.source.release();
+
+    completed.clear();
+
+    for (auto& copyData : pending)
+    {
+        copyData.record(commandBuffer);
+    }
+
+    pending.swap(completed);
 }
