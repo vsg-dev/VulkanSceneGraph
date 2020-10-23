@@ -41,8 +41,15 @@ namespace vsg
         CommandPool* getCommandPool() { return _commandPool; }
         const CommandPool* getCommandPool() const { return _commandPool; }
 
-        void setCurrentPipelineLayout(VkPipelineLayout pipelineLayout) { _currentPipelineLayout = pipelineLayout; }
+        void setCurrentPipelineLayout(const PipelineLayout* pipelineLayout)
+        {
+            _currentPipelineLayout = pipelineLayout->vk(deviceID);
+            if (pipelineLayout->pushConstantRanges.empty()) _currentPushConstantStageFlags = 0;
+            else _currentPushConstantStageFlags = pipelineLayout->pushConstantRanges.front().stageFlags;
+        }
+
         VkPipelineLayout getCurrentPipelineLayout() const { return _currentPipelineLayout; }
+        VkShaderStageFlags getCurrentPushConstantStageFlags() const { return _currentPushConstantStageFlags; }
 
         ref_ptr<ScratchMemory> scratchMemory;
 
@@ -56,6 +63,7 @@ namespace vsg
         ref_ptr<Device> _device;
         ref_ptr<CommandPool> _commandPool;
         VkPipelineLayout _currentPipelineLayout;
+        VkShaderStageFlags _currentPushConstantStageFlags;
     };
     VSG_type_name(vsg::CommandBuffer);
 

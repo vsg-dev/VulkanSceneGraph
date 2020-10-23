@@ -201,7 +201,7 @@ void BindGraphicsPipeline::write(Output& output) const
 void BindGraphicsPipeline::record(CommandBuffer& commandBuffer) const
 {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->vk(commandBuffer.deviceID));
-    commandBuffer.setCurrentPipelineLayout(pipeline->layout->vk(commandBuffer.deviceID));
+    commandBuffer.setCurrentPipelineLayout(pipeline->layout);
 }
 
 void BindGraphicsPipeline::compile(Context& context)

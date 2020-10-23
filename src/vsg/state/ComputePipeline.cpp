@@ -134,7 +134,7 @@ void BindComputePipeline::write(Output& output) const
 void BindComputePipeline::record(CommandBuffer& commandBuffer) const
 {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->vk(commandBuffer.deviceID));
-    commandBuffer.setCurrentPipelineLayout(pipeline->layout->vk(commandBuffer.deviceID));
+    commandBuffer.setCurrentPipelineLayout(pipeline->layout);
 }
 
 void BindComputePipeline::compile(Context& context)

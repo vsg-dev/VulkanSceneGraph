@@ -89,7 +89,6 @@ namespace vsg
         using AlternativeMatrix = t_mat4<alternative_type>;
 
         std::stack<Matrix> matrixStack;
-        VkShaderStageFlags stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
         uint32_t offset = 0;
         bool dirty = false;
 
@@ -154,8 +153,11 @@ namespace vsg
         {
             if (dirty)
             {
-                // don't attempt to push matrices if no pipeline is current
-                if (commandBuffer.getCurrentPipelineLayout()==0)
+                auto pipeline = commandBuffer.getCurrentPipelineLayout();
+                auto stageFlags = commandBuffer.getCurrentPushConstantStageFlags();
+
+                // don't attempt to push matrices if no pipeline is current or no stages are enabled for push constants
+                if (pipeline==0 || stageFlags==0)
                 {
                     return;
                 }
@@ -163,10 +165,10 @@ namespace vsg
 #if USE_DOUBLE_MATRIX_STACK
                 // make sure matrix is a float matrix.
                 mat4 newmatrix(matrixStack.top());
-                vkCmdPushConstants(commandBuffer, commandBuffer.getCurrentPipelineLayout(), stageFlags, offset, sizeof(newmatrix), newmatrix.data());
+                vkCmdPushConstants(commandBuffer, pipeline, stageFlags, offset, sizeof(newmatrix), newmatrix.data());
 #else
 
-                vkCmdPushConstants(commandBuffer, commandBuffer.getCurrentPipelineLayout(), stageFlags, offset, sizeof(Matrix), matrixStack.top().data());
+                vkCmdPushConstants(commandBuffer, pipeline, stageFlags, offset, sizeof(Matrix), matrixStack.top().data());
 #endif
                 dirty = false;
             }
