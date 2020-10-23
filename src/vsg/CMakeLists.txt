@@ -313,6 +313,6 @@ install(EXPORT vsgTargets
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file("${CMAKE_BINARY_DIR}/src/vsg/vsgConfigVersion.cmake" COMPATIBILITY SameMajorVersion)
 
-install(FILES "vsgConfig.cmake" "${CMAKE_BINARY_DIR}/src/vsg/vsgConfigVersion.cmake" DESTINATION lib/cmake/vsg)
+install(FILES "${CMAKE_BINARY_DIR}/src/vsg/vsgConfig.cmake" "${CMAKE_BINARY_DIR}/src/vsg/vsgConfigVersion.cmake" DESTINATION lib/cmake/vsg)
 
 # ]==]
