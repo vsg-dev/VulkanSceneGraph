@@ -44,8 +44,10 @@ namespace vsg
         void setCurrentPipelineLayout(const PipelineLayout* pipelineLayout)
         {
             _currentPipelineLayout = pipelineLayout->vk(deviceID);
-            if (pipelineLayout->pushConstantRanges.empty()) _currentPushConstantStageFlags = 0;
-            else _currentPushConstantStageFlags = pipelineLayout->pushConstantRanges.front().stageFlags;
+            if (pipelineLayout->pushConstantRanges.empty())
+                _currentPushConstantStageFlags = 0;
+            else
+                _currentPushConstantStageFlags = pipelineLayout->pushConstantRanges.front().stageFlags;
         }
 
         VkPipelineLayout getCurrentPipelineLayout() const { return _currentPipelineLayout; }

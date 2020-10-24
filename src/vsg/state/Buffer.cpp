@@ -44,8 +44,6 @@ Buffer::Buffer(VkDeviceSize in_size, VkBufferUsageFlags in_usage, VkSharingMode 
 {
 }
 
-
-
 Buffer::Buffer(Device* device, VkDeviceSize in_size, VkBufferUsageFlags in_usage, VkSharingMode in_sharingMode) :
     Buffer(in_size, in_usage, in_sharingMode)
 {

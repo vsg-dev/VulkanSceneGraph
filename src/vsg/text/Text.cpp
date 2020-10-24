@@ -98,18 +98,18 @@ Text::RenderingState::RenderingState(Font* font, bool in_singleColor, bool in_si
     };
 
     VertexInputState::Bindings vertexBindingsDescriptions{
-        VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}, // vertex data
-        VkVertexInputBindingDescription{1, sizeof(vec4), singleColor ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX}, // colour data
-        VkVertexInputBindingDescription{2, sizeof(vec4), singleOutlineColor ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX}, // outline colour data
+        VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX},                                                       // vertex data
+        VkVertexInputBindingDescription{1, sizeof(vec4), singleColor ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX},         // colour data
+        VkVertexInputBindingDescription{2, sizeof(vec4), singleOutlineColor ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX},  // outline colour data
         VkVertexInputBindingDescription{3, sizeof(float), singleOutlineWidth ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX}, // outline width data
-        VkVertexInputBindingDescription{4, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}  // tex coord data
+        VkVertexInputBindingDescription{4, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}                                                        // tex coord data
     };
 
     VertexInputState::Attributes vertexAttributeDescriptions{
         VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0},    // vertex data
         VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32A32_SFLOAT, 0}, // colour data
         VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32B32A32_SFLOAT, 0}, // outline colour data
-        VkVertexInputAttributeDescription{3, 3, VK_FORMAT_R32_SFLOAT, 0}, // outline width data
+        VkVertexInputAttributeDescription{3, 3, VK_FORMAT_R32_SFLOAT, 0},          // outline width data
         VkVertexInputAttributeDescription{4, 4, VK_FORMAT_R32G32B32_SFLOAT, 0},    // tex coord data
     };
 
@@ -146,7 +146,6 @@ Text::RenderingState::RenderingState(Font* font, bool in_singleColor, bool in_si
     auto graphicsPipeline = GraphicsPipeline::create(pipelineLayout, ShaderStages{vertexShader, fragmentShader}, pipelineStates);
     bindGraphicsPipeline = BindGraphicsPipeline::create(graphicsPipeline);
 
-
     // create texture image and associated DescriptorSets and binding
     auto textureAtlas = font->getShared<TextureAtlas>();
     auto descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{textureAtlas->descriptor});
@@ -177,7 +176,7 @@ void Text::setup(uint32_t minimumAllocation)
     bool singleOutlineWidth = true;
     for (auto& quad : quads)
     {
-        for(int i = 0; i < 4; ++i)
+        for (int i = 0; i < 4; ++i)
         {
             if (quad.colors[i] != color) singleColor = false;
             if (quad.outlineColors[i] != outlineColor) singleOutlineColor = false;
@@ -185,13 +184,11 @@ void Text::setup(uint32_t minimumAllocation)
         }
     }
 
-
     uint32_t num_quads = std::max(static_cast<uint32_t>(quads.size()), minimumAllocation);
     uint32_t num_vertices = num_quads * 4;
     uint32_t num_colors = singleColor ? 1 : num_vertices;
     uint32_t num_outlineColors = singleOutlineColor ? 1 : num_vertices;
     uint32_t num_outlineWidths = singleOutlineWidth ? 1 : num_vertices;
-
 
     auto& vertices = renderingBackend->vertices;
     auto& colors = renderingBackend->colors;
@@ -205,7 +202,6 @@ void Text::setup(uint32_t minimumAllocation)
     if (!outlineColors || num_outlineColors > outlineColors->size()) outlineColors = vec4Array::create(num_outlineColors);
     if (!outlineWidths || num_outlineWidths > outlineWidths->size()) outlineWidths = floatArray::create(num_outlineWidths);
     if (!texcoords || num_vertices > texcoords->size()) texcoords = vec3Array::create(num_vertices);
-
 
     uint32_t i = 0;
     uint32_t vi = 0;
@@ -303,8 +299,10 @@ void Text::setup(uint32_t minimumAllocation)
         }
     }
 
-    if (!drawIndexed) drawIndexed = DrawIndexed::create(quads.size() * 6, 1, 0, 0, 0);
-    else drawIndexed->indexCount = quads.size() * 6;
+    if (!drawIndexed)
+        drawIndexed = DrawIndexed::create(quads.size() * 6, 1, 0, 0, 0);
+    else
+        drawIndexed->indexCount = quads.size() * 6;
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     auto& scenegraph = renderingBackend->stategroup;
@@ -334,7 +332,7 @@ void Text::setup(uint32_t minimumAllocation)
     }
     else
     {
-        std::cout<<"TODO : Text::setup(), need to copy buffers"<<std::endl;
+        std::cout << "TODO : Text::setup(), need to copy buffers" << std::endl;
         // bindVertexBuffers->copyDataToBuffers();
         // bindIndexBuffer->copyDataToBuffers();
     }

@@ -179,8 +179,10 @@ Path vsg::findFile(const Path& filename, const Options* options)
 
         if (auto path = findFile(filename, options->paths); !path.empty()) return path;
 
-        if (options->checkFilenameHint == Options::CHECK_ORIGINAL_FILENAME_EXISTS_LAST && fileExists(filename)) return filename;
-        else return {};
+        if (options->checkFilenameHint == Options::CHECK_ORIGINAL_FILENAME_EXISTS_LAST && fileExists(filename))
+            return filename;
+        else
+            return {};
     }
     else
     {

@@ -22,8 +22,8 @@ CopyAndReleaseBuffer::CopyAndReleaseBuffer(BufferInfo src, BufferInfo dest)
 
 CopyAndReleaseBuffer::~CopyAndReleaseBuffer()
 {
-   for (auto& copyData : completed) copyData.source.release();
-   for (auto& copyData : pending) copyData.source.release();
+    for (auto& copyData : completed) copyData.source.release();
+    for (auto& copyData : pending) copyData.source.release();
 }
 
 void CopyAndReleaseBuffer::add(BufferInfo src, BufferInfo dest)

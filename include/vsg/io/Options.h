@@ -46,8 +46,8 @@ namespace vsg
         enum FindFileHint
         {
             CHECK_ORIGINAL_FILENAME_EXISTS_FIRST, /// check the filename exists with it's original path after failing to find it in the Options::path list.
-            CHECK_ORIGINAL_FILENAME_EXISTS_LAST, /// check the filename exists with it's original path after failing to find it in the Options::path list.
-            ONLY_CHECK_PATHS /// only check the filename exists in the Options::paths
+            CHECK_ORIGINAL_FILENAME_EXISTS_LAST,  /// check the filename exists with it's original path after failing to find it in the Options::path list.
+            ONLY_CHECK_PATHS                      /// only check the filename exists in the Options::paths
         };
         FindFileHint checkFilenameHint = CHECK_ORIGINAL_FILENAME_EXISTS_FIRST;
 

@@ -20,9 +20,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandBuffer.h>
 
 #include <array>
+#include <iostream>
 #include <map>
 #include <stack>
-#include <iostream>
 
 namespace vsg
 {
@@ -157,7 +157,7 @@ namespace vsg
                 auto stageFlags = commandBuffer.getCurrentPushConstantStageFlags();
 
                 // don't attempt to push matrices if no pipeline is current or no stages are enabled for push constants
-                if (pipeline==0 || stageFlags==0)
+                if (pipeline == 0 || stageFlags == 0)
                 {
                     return;
                 }
