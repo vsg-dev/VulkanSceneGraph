@@ -24,19 +24,34 @@ namespace vsg
     class WindowTraits : public Inherit<Object, WindowTraits>
     {
     public:
-        WindowTraits() {}
         WindowTraits(const WindowTraits&) = default;
         WindowTraits& operator=(const WindowTraits&) = default;
+
+        WindowTraits()
+        {
+            defaults();
+        }
 
         WindowTraits(int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height) :
             x(in_x),
             y(in_y),
             width(in_width),
-            height(in_height) {}
+            height(in_height)
+        {
+            defaults();
+        }
 
         WindowTraits(uint32_t in_width, uint32_t in_height) :
             width(in_width),
-            height(in_height) {}
+            height(in_height)
+        {
+            defaults();
+        }
+
+        void defaults()
+        {
+            deviceFeatures.samplerAnisotropy = VK_TRUE;
+        }
 
         int32_t x = 0;
         int32_t y = 0;
@@ -69,6 +84,7 @@ namespace vsg
 
         vsg::Names instanceExtensionNames;
         vsg::Names deviceExtensionNames;
+        VkPhysicalDeviceFeatures deviceFeatures = {};
 
         // Multisampling
         // A bitmask of sample counts. The window's framebuffer will

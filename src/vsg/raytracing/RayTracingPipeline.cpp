@@ -69,6 +69,28 @@ void RayTracingPipeline::compile(Context& context)
 {
     if (!_implementation[context.deviceID])
     {
+        // compile shaders if required
+        bool requiresShaderCompiler = false;
+        for (auto& shaderStage : _shaderStages)
+        {
+            if (shaderStage->module)
+            {
+                if (shaderStage->module->code.empty() && !(shaderStage->module->source.empty()))
+                {
+                    requiresShaderCompiler = true;
+                }
+            }
+        }
+
+        if (requiresShaderCompiler)
+        {
+            auto shaderCompiler = context.getOrCreateShaderCompiler();
+            if (shaderCompiler)
+            {
+                shaderCompiler->compile(_shaderStages); // may need to map defines and paths in some fashion
+            }
+        }
+
         _pipelineLayout->compile(context);
 
         for (auto& shaderStage : _shaderStages)
@@ -197,7 +219,7 @@ void BindRayTracingPipeline::write(Output& output) const
 void BindRayTracingPipeline::record(CommandBuffer& commandBuffer) const
 {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_NV, _pipeline->vk(commandBuffer.deviceID));
-    commandBuffer.setCurrentPipelineLayout(_pipeline->getPipelineLayout()->vk(commandBuffer.deviceID));
+    commandBuffer.setCurrentPipelineLayout(_pipeline->getPipelineLayout());
 }
 
 void BindRayTracingPipeline::compile(Context& context)

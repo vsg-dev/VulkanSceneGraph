@@ -22,7 +22,8 @@ CommandBuffer::CommandBuffer(Device* device, CommandPool* commandPool, VkCommand
     _level(level),
     _device(device),
     _commandPool(commandPool),
-    _currentPipelineLayout(VK_NULL_HANDLE)
+    _currentPipelineLayout(VK_NULL_HANDLE),
+    _currentPushConstantStageFlags(0)
 {
     VkCommandBufferAllocateInfo allocateInfo = {};
     allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;

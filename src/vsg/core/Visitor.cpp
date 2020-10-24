@@ -70,11 +70,23 @@ void Visitor::apply(doubleValue& value)
 //
 // Arrays
 //
+void Visitor::apply(byteArray& value)
+{
+    apply(static_cast<Data&>(value));
+}
 void Visitor::apply(ubyteArray& value)
 {
     apply(static_cast<Data&>(value));
 }
+void Visitor::apply(shortArray& value)
+{
+    apply(static_cast<Data&>(value));
+}
 void Visitor::apply(ushortArray& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(intArray& value)
 {
     apply(static_cast<Data&>(value));
 }
@@ -506,11 +518,19 @@ void Visitor::apply(BindGraphicsPipeline& value)
 {
     apply(static_cast<StateCommand&>(value));
 }
+void Visitor::apply(BindRayTracingPipeline& value)
+{
+    apply(static_cast<StateCommand&>(value));
+}
 void Visitor::apply(GraphicsPipeline& value)
 {
     apply(static_cast<Object&>(value));
 }
 void Visitor::apply(ComputePipeline& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(RayTracingPipeline& value)
 {
     apply(static_cast<Object&>(value));
 }

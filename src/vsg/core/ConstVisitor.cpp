@@ -70,11 +70,23 @@ void ConstVisitor::apply(const doubleValue& value)
 //
 // Arrays
 //
+void ConstVisitor::apply(const byteArray& value)
+{
+    apply(static_cast<const Data&>(value));
+}
 void ConstVisitor::apply(const ubyteArray& value)
 {
     apply(static_cast<const Data&>(value));
 }
+void ConstVisitor::apply(const shortArray& value)
+{
+    apply(static_cast<const Data&>(value));
+}
 void ConstVisitor::apply(const ushortArray& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const intArray& value)
 {
     apply(static_cast<const Data&>(value));
 }
@@ -506,11 +518,19 @@ void ConstVisitor::apply(const BindGraphicsPipeline& value)
 {
     apply(static_cast<const StateCommand&>(value));
 }
+void ConstVisitor::apply(const BindRayTracingPipeline& value)
+{
+    apply(static_cast<const StateCommand&>(value));
+}
 void ConstVisitor::apply(const GraphicsPipeline& value)
 {
     apply(static_cast<const Object&>(value));
 }
 void ConstVisitor::apply(const ComputePipeline& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const RayTracingPipeline& value)
 {
     apply(static_cast<const Object&>(value));
 }

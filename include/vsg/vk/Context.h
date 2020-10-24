@@ -24,6 +24,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/MemoryBufferPools.h>
+#include <vsg/vk/ShaderCompiler.h>
 
 #include <vsg/commands/Command.h>
 
@@ -58,6 +59,11 @@ namespace vsg
         const uint32_t deviceID = 0;
         ref_ptr<Device> device;
 
+        // get exisitng ShaderCompile or create a new one when GLSLang is supported
+        ShaderCompiler* getOrCreateShaderCompiler();
+
+        ref_ptr<CommandBuffer> getOrCreateCommandBuffer();
+
         // used by GraphicsPipeline.cpp
         ref_ptr<RenderPass> renderPass;
 
@@ -73,8 +79,11 @@ namespace vsg
         // the scene graph .
         GraphicsPipelineStates overridePipelineStates;
 
-        // DescriptorSet.cpp
+        // DescriptorPool
         ref_ptr<DescriptorPool> descriptorPool;
+
+        // ShaderCompiler
+        ref_ptr<ShaderCompiler> shaderCompiler;
 
         // transfer data settings
         ref_ptr<Queue> graphicsQueue;
@@ -88,8 +97,6 @@ namespace vsg
 
         void record();
         void waitForCompletion();
-
-        ref_ptr<CommandBuffer> getOrCreateCommandBuffer();
 
         ref_ptr<MemoryBufferPools> deviceMemoryBufferPools;
         ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;

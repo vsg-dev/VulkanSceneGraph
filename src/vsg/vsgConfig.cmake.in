@@ -2,6 +2,7 @@ include(CMakeFindDependencyMacro)
 
 find_dependency(Vulkan)
 find_dependency(Threads)
+@FIND_DEPENDENCY_GLSLANG@
 
 if (ANDROID)
     # TODO

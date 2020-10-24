@@ -28,7 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class CollectDescriptorStats : public Inherit<ConstVisitor, CollectDescriptorStats>
+    class VSG_DECLSPEC CollectDescriptorStats : public Inherit<ConstVisitor, CollectDescriptorStats>
     {
     public:
         using Descriptors = std::set<const Descriptor*>;

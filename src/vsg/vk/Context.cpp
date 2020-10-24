@@ -112,6 +112,17 @@ ref_ptr<CommandBuffer> Context::getOrCreateCommandBuffer()
     return commandBuffer;
 }
 
+ShaderCompiler* Context::getOrCreateShaderCompiler()
+{
+    if (shaderCompiler) return shaderCompiler;
+
+#ifdef HAS_GLSLANG
+    shaderCompiler = new ShaderCompiler;
+#endif
+
+    return shaderCompiler;
+}
+
 void Context::record()
 {
     if (commands.empty() && buildAccelerationStructureCommands.empty()) return;

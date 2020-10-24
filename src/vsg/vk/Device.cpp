@@ -50,7 +50,7 @@ static void releaseDeiviceID(uint32_t deviceID)
     s_ActiveDevices[deviceID] = false;
 }
 
-Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, const Names& layers, const Names& deviceExtensions, AllocationCallbacks* allocator) :
+Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, const Names& layers, const Names& deviceExtensions, const VkPhysicalDeviceFeatures& deviceFeatures, AllocationCallbacks* allocator) :
     deviceID(getUniqueDeviceID()),
     _instance(physicalDevice->getInstance()),
     _physicalDevice(physicalDevice),
@@ -97,9 +97,6 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
         queueCreateInfo.pNext = nullptr;
         queueCreateInfos.push_back(queueCreateInfo);
     }
-
-    VkPhysicalDeviceFeatures deviceFeatures = {};
-    deviceFeatures.samplerAnisotropy = VK_TRUE;
 
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;

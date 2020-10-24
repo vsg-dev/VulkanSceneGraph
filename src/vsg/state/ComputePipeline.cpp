@@ -56,6 +56,18 @@ void ComputePipeline::compile(Context& context)
 {
     if (!_implementation[context.deviceID])
     {
+        // compile shaders if required
+        bool requiresShaderCompiler = stage && stage->module && stage->module->code.empty() && !(stage->module->source.empty());
+
+        if (requiresShaderCompiler)
+        {
+            auto shaderCompiler = context.getOrCreateShaderCompiler();
+            if (shaderCompiler)
+            {
+                shaderCompiler->compile(stage); // may need to map defines and paths in some fashion
+            }
+        }
+
         layout->compile(context);
         stage->compile(context);
         _implementation[context.deviceID] = ComputePipeline::Implementation::create(context, context.device, layout, stage);
@@ -122,7 +134,7 @@ void BindComputePipeline::write(Output& output) const
 void BindComputePipeline::record(CommandBuffer& commandBuffer) const
 {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->vk(commandBuffer.deviceID));
-    commandBuffer.setCurrentPipelineLayout(pipeline->layout->vk(commandBuffer.deviceID));
+    commandBuffer.setCurrentPipelineLayout(pipeline->layout);
 }
 
 void BindComputePipeline::compile(Context& context)

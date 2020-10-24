@@ -164,6 +164,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Queue.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/Semaphore.h>
+#include <vsg/vk/ShaderCompiler.h>
 #include <vsg/vk/State.h>
 #include <vsg/vk/SubmitCommands.h>
 #include <vsg/vk/Surface.h>
@@ -193,6 +194,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 // Introspection header files
 #include <vsg/introspection/c_interface.h>
+
+// Text header files
+#include <vsg/text/Font.h>
+#include <vsg/text/Text.h>
+#include <vsg/text/TextLayout.h>
 
 // Raytracing header files
 #include <vsg/raytracing/AccelerationGeometry.h>

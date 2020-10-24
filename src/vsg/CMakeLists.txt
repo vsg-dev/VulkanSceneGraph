@@ -89,6 +89,10 @@ set(SOURCES
     io/read.cpp
     io/write.cpp
 
+    text/Text.cpp
+    text/TextLayout.cpp
+    text/Font.cpp
+
     traversals/ArrayState.cpp
     traversals/RecordTraversal.cpp
     traversals/CompileTraversal.cpp
@@ -127,6 +131,7 @@ set(SOURCES
     vk/CommandBuffer.cpp
     vk/CommandPool.cpp
     vk/Context.cpp
+    vk/ShaderCompiler.cpp
     vk/DescriptorPool.cpp
     vk/Device.cpp
     vk/DeviceMemory.cpp
@@ -147,11 +152,46 @@ set(SOURCES
 
 # add platform specific Window implementation
 
+
+
+
 # set up library dependencies
 set(LIBRARIES PUBLIC
-    Vulkan::Vulkan
-    Threads::Threads
+        Vulkan::Vulkan
+        Threads::Threads
 )
+
+if (glslang_FOUND)
+    set(LIBRARIES ${LIBRARIES} PUBLIC ${glslang_LIBRARIES})
+
+    set(EXTRA_DEFINES ${EXTRA_DEFINES} HAS_GLSLANG)
+
+    include(CheckCXXSourceRuns)
+
+    set(CMAKE_REQUIRED_LIBRARIES ${glslang_LIBRARY})
+    set(CMAKE_REQUIRED_INCLUDES ${glslang_INCLUDE_DIR})
+
+    check_cxx_source_runs("
+        #include <glslang/Include/ResourceLimits.h>
+        int main()
+        {
+            TBuiltInResource resource;
+            resource.maxDualSourceDrawBuffersEXT = 0;
+            return 0;
+        }
+    " GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT)
+
+    # check whehther glslang/build_info.h exists
+    if (GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT)
+        set(EXTRA_DEFINES ${EXTRA_DEFINES} "GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT")
+    endif()
+
+    install(
+        FILES vsg_glslangConfig.cmake
+        DESTINATION lib/cmake/vsg_glslang
+    )
+endif()
+
 
 if (ANDROID)
     set(HEADERS ${HEADERS} ${CMAKE_SOURCE_DIR}/include/vsg/platform/android/Android_Window.h)
@@ -234,6 +274,7 @@ set_property(TARGET vsg PROPERTY SOVERSION ${VSG_SOVERSION})
 set_property(TARGET vsg PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET vsg PROPERTY CXX_STANDARD 17)
 
+target_compile_definitions(vsg PRIVATE ${EXTRA_DEFINES})
 target_include_directories(vsg PUBLIC $<BUILD_INTERFACE:${VSG_SOURCE_DIR}/include> $<BUILD_INTERFACE:${VSG_BINARY_DIR}/include>)
 
 
@@ -256,6 +297,12 @@ if (NOT(${CMAKE_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR}))
     install(DIRECTORY ${CMAKE_BINARY_DIR}/include/vsg DESTINATION include)
 endif()
 
+if (glslang_FOUND)
+    set(FIND_DEPENDENCY_GLSLANG "find_dependency(vsg_glslang)")
+endif()
+
+configure_file("${CMAKE_SOURCE_DIR}/src/vsg/vsgConfig.cmake.in" "${CMAKE_BINARY_DIR}/src/vsg/vsgConfig.cmake" @ONLY)
+
 # [==[
 install(EXPORT vsgTargets
     FILE vsgTargets.cmake
@@ -266,6 +313,6 @@ install(EXPORT vsgTargets
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file("${CMAKE_BINARY_DIR}/src/vsg/vsgConfigVersion.cmake" COMPATIBILITY SameMajorVersion)
 
-install(FILES "vsgConfig.cmake" "${CMAKE_BINARY_DIR}/src/vsg/vsgConfigVersion.cmake" DESTINATION lib/cmake/vsg)
+install(FILES "${CMAKE_BINARY_DIR}/src/vsg/vsgConfig.cmake" "${CMAKE_BINARY_DIR}/src/vsg/vsgConfigVersion.cmake" DESTINATION lib/cmake/vsg)
 
 # ]==]

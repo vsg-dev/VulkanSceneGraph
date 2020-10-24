@@ -83,6 +83,29 @@ void GraphicsPipeline::compile(Context& context)
 {
     if (!_implementation[context.deviceID])
     {
+        // compile shaders if required
+        bool requiresShaderCompiler = false;
+        for (auto& shaderStage : stages)
+        {
+            if (shaderStage->module)
+            {
+                if (shaderStage->module->code.empty() && !(shaderStage->module->source.empty()))
+                {
+                    requiresShaderCompiler = true;
+                }
+            }
+        }
+
+        if (requiresShaderCompiler)
+        {
+            auto shaderCompiler = context.getOrCreateShaderCompiler();
+            if (shaderCompiler)
+            {
+                shaderCompiler->compile(stages); // may need to map defines and paths in some fashion
+            }
+        }
+
+        // compile Vulkan objects
         layout->compile(context);
 
         for (auto& shaderStage : stages)
@@ -178,7 +201,7 @@ void BindGraphicsPipeline::write(Output& output) const
 void BindGraphicsPipeline::record(CommandBuffer& commandBuffer) const
 {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->vk(commandBuffer.deviceID));
-    commandBuffer.setCurrentPipelineLayout(pipeline->layout->vk(commandBuffer.deviceID));
+    commandBuffer.setCurrentPipelineLayout(pipeline->layout);
 }
 
 void BindGraphicsPipeline::compile(Context& context)

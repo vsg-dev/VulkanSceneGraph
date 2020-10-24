@@ -33,17 +33,26 @@ namespace vsg
     class VSG_DECLSPEC CopyAndReleaseBuffer : public Inherit<Command, CopyAndReleaseBuffer>
     {
     public:
-        CopyAndReleaseBuffer(BufferInfo src, BufferInfo dest) :
-            source(src),
-            destination(dest) {}
+        CopyAndReleaseBuffer() {}
+        CopyAndReleaseBuffer(BufferInfo src, BufferInfo dest);
 
-        BufferInfo source;
-        BufferInfo destination;
+        void add(BufferInfo src, BufferInfo dest);
 
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~CopyAndReleaseBuffer();
+
+        struct CopyData
+        {
+            BufferInfo source;
+            BufferInfo destination;
+
+            void record(CommandBuffer& commandBuffer) const;
+        };
+
+        mutable std::vector<CopyData> pending;
+        mutable std::vector<CopyData> completed;
     };
 
 } // namespace vsg

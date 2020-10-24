@@ -133,7 +133,7 @@ Path vsg::removeExtension(const Path& path)
     else if (dot > 1)
         return path.substr(0, dot);
     else
-        return Path();
+        return {};
 }
 
 Path vsg::concatPaths(const Path& left, const Path& right)
@@ -168,14 +168,21 @@ Path vsg::findFile(const Path& filename, const Paths& paths)
             return fullpath;
         }
     }
-    return Path();
+    return {};
 }
 
 Path vsg::findFile(const Path& filename, const Options* options)
 {
     if (options && !options->paths.empty())
     {
-        return findFile(filename, options->paths);
+        if (options->checkFilenameHint == Options::CHECK_ORIGINAL_FILENAME_EXISTS_FIRST && fileExists(filename)) return filename;
+
+        if (auto path = findFile(filename, options->paths); !path.empty()) return path;
+
+        if (options->checkFilenameHint == Options::CHECK_ORIGINAL_FILENAME_EXISTS_LAST && fileExists(filename))
+            return filename;
+        else
+            return {};
     }
     else
     {

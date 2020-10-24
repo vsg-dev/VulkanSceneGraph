@@ -135,5 +135,8 @@ void ShaderStage::apply(Context& context, VkPipelineShaderStageCreateInfo& stage
 
 void ShaderStage::compile(Context& context)
 {
-    if (module) module->compile(context);
+    if (module)
+    {
+        module->compile(context);
+    }
 }
