@@ -42,4 +42,6 @@ namespace vsg
         ref_ptr<ViewMatrix> _viewMatrix;
         ref_ptr<ViewportState> _viewportState;
     };
+    VSG_type_name(vsg::Camera);
+
 } // namespace vsg
