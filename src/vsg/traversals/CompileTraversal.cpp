@@ -22,6 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/StateGroup.h>
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/RenderGraph.h>
+#include <vsg/viewer/View.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
@@ -244,11 +245,7 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
     auto previousDefaultPipelineStates = context.defaultPipelineStates;
     auto previousOverridePipelineStates = context.overridePipelineStates;
 
-    if (renderGraph.camera && renderGraph.camera->getViewportState())
-    {
-        context.defaultPipelineStates.emplace_back(renderGraph.camera->getViewportState());
-    }
-    else if (renderGraph.window)
+    if (renderGraph.window)
     {
         context.defaultPipelineStates.push_back(vsg::ViewportState::create(renderGraph.window->extent2D()));
     }
@@ -269,4 +266,20 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
     // restore previous values
     context.defaultPipelineStates = previousDefaultPipelineStates;
     context.overridePipelineStates = previousOverridePipelineStates;
+}
+
+void CompileTraversal::apply(View& view)
+{
+    if (view.camera && view.camera->getViewportState())
+    {
+        context.defaultPipelineStates.emplace_back(view.camera->getViewportState());
+
+        view.traverse(*this);
+
+        context.defaultPipelineStates.pop_back();
+    }
+    else
+    {
+        view.traverse(*this);
+    }
 }

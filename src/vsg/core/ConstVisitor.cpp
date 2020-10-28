@@ -676,6 +676,10 @@ void ConstVisitor::apply(const FrameEvent& event)
 //
 // Viewer classes
 //
+void ConstVisitor::apply(const Camera& camera)
+{
+    apply(static_cast<const Object&>(camera));
+}
 void ConstVisitor::apply(const CommandGraph& cg)
 {
     apply(static_cast<const Group&>(cg));
@@ -683,6 +687,14 @@ void ConstVisitor::apply(const CommandGraph& cg)
 void ConstVisitor::apply(const RenderGraph& rg)
 {
     apply(static_cast<const Group&>(rg));
+}
+void ConstVisitor::apply(const View& view)
+{
+    apply(static_cast<const Group&>(view));
+}
+void ConstVisitor::apply(const Viewer& viewer)
+{
+    apply(static_cast<const Object&>(viewer));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

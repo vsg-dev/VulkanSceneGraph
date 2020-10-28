@@ -19,33 +19,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_DECLSPEC RenderGraph : public Inherit<Group, RenderGraph>
+    class VSG_DECLSPEC View : public Inherit<Group, View>
     {
     public:
-        RenderGraph();
+        View();
+
+        View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph = {});
 
         using Group::accept;
 
         void accept(RecordTraversal& recordTraversal) const override;
 
-        /// either window or framebuffer must be assigned. If framebuffer is set then it takes precidence, if not sense the appropriate window's framebuffer is used.
-        ref_ptr<Framebuffer> framebuffer;
-        ref_ptr<Window> window;
+        ref_ptr<Camera> camera;
 
-        RenderPass* getRenderPass();
-
-        VkRect2D renderArea; // viewport dimensions
-
-        using ClearValues = std::vector<VkClearValue>;
-        ClearValues clearValues; // initialize window colour and depth/stencil
-        VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;
-
-        // windopw extent at previous frame
-        const uint32_t invalid_dimension = std::numeric_limits<uint32_t>::max();
-        mutable VkExtent2D previous_extent = VkExtent2D{invalid_dimension, invalid_dimension};
     };
-
-    /// convience function that sets up RenderGraph to render the specified scene graph from the speified Camera view
-    extern VSG_DECLSPEC ref_ptr<RenderGraph> createRenderGraphForView(Window* window, Camera* camera, Node* scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
 
 } // namespace vsg

@@ -91,8 +91,11 @@ namespace vsg
     class FrameEvent;
 
     // forward declare viewer classes
+    class Camera;
     class CommandGraph;
     class RenderGraph;
+    class View;
+    class Viewer;
 
     // forward declare general classes
     class FrameStamp;
@@ -271,9 +274,12 @@ namespace vsg
         virtual void apply(TerminateEvent&);
         virtual void apply(FrameEvent&);
 
-        // viewer class
+        // viewer
+        virtual void apply(Camera&);
         virtual void apply(CommandGraph&);
         virtual void apply(RenderGraph&);
+        virtual void apply(View&);
+        virtual void apply(Viewer&);
 
         // general classes
         virtual void apply(FrameStamp&);
