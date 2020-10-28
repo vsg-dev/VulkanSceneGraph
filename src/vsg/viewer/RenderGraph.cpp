@@ -11,8 +11,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
-#include <vsg/commands/ClearAttachments.h>
-#include <vsg/state/StateGroup.h>
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/viewer/RenderGraph.h>
 #include <vsg/viewer/View.h>
@@ -22,155 +20,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <iostream>
 
 using namespace vsg;
-
-#define NEW_CODE 1
-
-namespace vsg
-{
-    class WindowResizeHandler : public vsg::Visitor
-    {
-    public:
-        Context context;
-        VkRect2D renderArea;
-        VkExtent2D previous_extent;
-        VkExtent2D new_extent;
-        std::set<Object*> visited;
-
-        WindowResizeHandler(Device* device) :
-            context(device) {}
-
-        template<typename T, typename R>
-        T scale_parameter(T original, R extentOriginal, R extentNew)
-        {
-            if (original == static_cast<T>(extentOriginal)) return static_cast<T>(extentNew);
-            return static_cast<T>(static_cast<float>(original) * static_cast<float>(extentNew) / static_cast<float>(extentOriginal)+0.5f);
-        }
-
-        void scale_rect(VkRect2D& rect)
-        {
-            int32_t edge_x = rect.offset.x + static_cast<int32_t>(rect.extent.width);
-            int32_t edge_y = rect.offset.y + static_cast<int32_t>(rect.extent.height);
-
-            rect.offset.x = scale_parameter(rect.offset.x, previous_extent.width, new_extent.width);
-            rect.offset.y = scale_parameter(rect.offset.y, previous_extent.height, new_extent.height);
-            rect.extent.width = static_cast<uint32_t>(scale_parameter(edge_x, previous_extent.width, new_extent.width) - rect.offset.x);
-            rect.extent.height = static_cast<uint32_t>(scale_parameter(edge_y, previous_extent.height, new_extent.height) - rect.offset.y);
-        }
-
-        bool visit(Object* object)
-        {
-            if (visited.count(object) != 0) return false;
-            visited.insert(object);
-            return true;
-        }
-
-        void apply(vsg::BindGraphicsPipeline& bindPipeline) override
-        {
-            GraphicsPipeline* graphicsPipeline = bindPipeline.pipeline;
-
-            if (!visit(graphicsPipeline)) return;
-
-            if (graphicsPipeline)
-            {
-                struct ContainsViewport : public ConstVisitor
-                {
-                    bool foundViewport = false;
-                    void apply(const ViewportState&) override { foundViewport = true; }
-                    bool operator()(const GraphicsPipeline& gp)
-                    {
-                        for (auto& pipelineState : gp.pipelineStates)
-                        {
-                            pipelineState->accept(*this);
-                        }
-                        return foundViewport;
-                    }
-                } containsViewport;
-
-                bool needToRegenerateGraphicsPipeline = !containsViewport(*graphicsPipeline);
-                if (needToRegenerateGraphicsPipeline)
-                {
-                    vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->layout, graphicsPipeline->stages, graphicsPipeline->pipelineStates);
-
-                    bindPipeline.release();
-
-                    bindPipeline.pipeline = new_pipeline;
-
-                    bindPipeline.compile(context);
-                }
-            }
-        }
-
-        void apply(vsg::Object& object) override
-        {
-            object.traverse(*this);
-        }
-
-        void apply(vsg::StateGroup& sg) override
-        {
-            if (!visit(&sg)) return;
-
-            for (auto& command : sg.getStateCommands())
-            {
-                command->accept(*this);
-            }
-            sg.traverse(*this);
-        }
-
-        void apply(ClearAttachments& clearAttachments) override
-        {
-            if (!visit(&clearAttachments)) return;
-
-            for(auto& clearRect : clearAttachments.rects)
-            {
-                auto& rect = clearRect.rect;
-                scale_rect(rect);
-            }
-        }
-
-        void apply(vsg::View& view) override
-        {
-            if (!visit(&view)) return;
-
-            if (!view.camera)
-            {
-                view.traverse(*this);
-                return;
-            }
-
-            view.camera->getProjectionMatrix()->changeExtent(previous_extent, new_extent);
-
-            auto viewportState = view.camera->getViewportState();
-
-            size_t num_viewports = std::min(viewportState->viewports.size(), viewportState->scissors.size());
-            for(size_t i = 0; i<num_viewports; ++i)
-            {
-                auto& viewport = viewportState->viewports[i];
-                auto& scissor = viewportState->scissors[i];
-
-                bool renderAreaMatches = (renderArea.offset.x == scissor.offset.x) && (renderArea.offset.y == scissor.offset.y) &&
-                                         (renderArea.extent.width == scissor.extent.width) && (renderArea.extent.height == scissor.extent.height);
-
-                scale_rect(scissor);
-
-                viewport.x = static_cast<float>(scissor.offset.x);
-                viewport.y = static_cast<float>(scissor.offset.y);
-                viewport.width = static_cast<float>(scissor.extent.width);
-                viewport.height = static_cast<float>(scissor.extent.height);
-
-                if (renderAreaMatches)
-                {
-                    renderArea = scissor;
-                }
-            }
-
-            context.defaultPipelineStates.emplace_back(viewportState);
-
-            view.traverse(*this);
-
-            context.defaultPipelineStates.pop_back();
-        }
-    };
-}; // namespace vsg
 
 RenderGraph::RenderGraph()
 {
@@ -194,30 +43,31 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     {
         auto extent = window->extent2D();
 
-        if (previous_extent.width == invalid_dimension || previous_extent.width == invalid_dimension)
+        if (previous_extent.width == invalid_dimension || previous_extent.width == invalid_dimension || !windowResizeHandler)
         {
             previous_extent = extent;
         }
         else if (previous_extent.width != extent.width || previous_extent.height != extent.height)
         {
-            // crude handling of window resize...TODO, come up with a user controllable way to handle resize.
+            auto this_renderGraph = const_cast<RenderGraph*>(this);
 
-            vsg::WindowResizeHandler resizeHandler(window->getDevice());
+            auto& resizeHandler = *(this_renderGraph->windowResizeHandler);
 
-            resizeHandler.context.commandPool = recordTraversal.getState()->_commandBuffer->getCommandPool();
-            resizeHandler.context.renderPass = window->getRenderPass();
+            if (!resizeHandler.context) resizeHandler.context = vsg::Context::create(window->getDevice());
+
+            resizeHandler.context->commandPool = recordTraversal.getState()->_commandBuffer->getCommandPool();
+            resizeHandler.context->renderPass = window->getRenderPass();
             resizeHandler.renderArea = renderArea;
             resizeHandler.previous_extent = previous_extent;
             resizeHandler.new_extent = extent;
+            resizeHandler.visited.clear();
 
-            if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT) resizeHandler.context.overridePipelineStates.emplace_back(vsg::MultisampleState::create(window->framebufferSamples()));
+            if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT) resizeHandler.context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(window->framebufferSamples()));
 
-            const_cast<RenderGraph*>(this)->traverse(resizeHandler);
+            this_renderGraph->traverse(resizeHandler);
 
+            this_renderGraph->renderArea = resizeHandler.renderArea;
             previous_extent = extent;
-            const_cast<RenderGraph*>(this)->renderArea = resizeHandler.renderArea;
-
-            previous_extent = window->extent2D();
         }
     }
 
@@ -266,6 +116,8 @@ ref_ptr<RenderGraph> vsg::createRenderGraphForView(ref_ptr<Window> window, ref_p
 
     renderGraph->window = window;
     renderGraph->contents = contents;
+
+    renderGraph->windowResizeHandler = WindowResizeHandler::create();
 
     if (camera)
     {

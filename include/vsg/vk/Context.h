@@ -46,10 +46,13 @@ namespace vsg
         // scratch buffer set after compile traversal before record of build commands
         ref_ptr<Buffer> _scratchBuffer;
     };
+    VSG_type_name(vsg::BuildAccelerationStructureCommand);
 
-    class VSG_DECLSPEC Context
+    class VSG_DECLSPEC Context : public Inherit<Object, Context>
     {
     public:
+        Context();
+
         Context(Device* in_device, BufferPreferences bufferPreferences = {});
 
         Context(const Context& context);
@@ -105,5 +108,6 @@ namespace vsg
         VkDeviceSize scratchBufferSize;
         std::vector<ref_ptr<BuildAccelerationStructureCommand>> buildAccelerationStructureCommands;
     };
+    VSG_type_name(vsg::Context);
 
 } // namespace vsg

@@ -117,6 +117,7 @@ set(SOURCES
     viewer/RenderGraph.cpp
     viewer/Presentation.cpp
     viewer/RecordAndSubmitTask.cpp
+    viewer/WindowResizeHandler.cpp
     viewer/View.cpp
 
     raytracing/AccelerationGeometry.cpp

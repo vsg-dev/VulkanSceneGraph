@@ -16,9 +16,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/Window.h>
+#include <vsg/viewer/WindowResizeHandler.h>
 
 namespace vsg
 {
+
     class VSG_DECLSPEC RenderGraph : public Inherit<Group, RenderGraph>
     {
     public:
@@ -40,10 +42,13 @@ namespace vsg
         ClearValues clearValues; // initialize window colour and depth/stencil
         VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;
 
+        ref_ptr<WindowResizeHandler> windowResizeHandler;
+
         // windopw extent at previous frame
         const uint32_t invalid_dimension = std::numeric_limits<uint32_t>::max();
         mutable VkExtent2D previous_extent = VkExtent2D{invalid_dimension, invalid_dimension};
     };
+    VSG_type_name(vsg::RenderGraph);
 
     /// convience function that sets up RenderGraph to render the specified scene graph from the speified Camera view
     extern VSG_DECLSPEC ref_ptr<RenderGraph> createRenderGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);

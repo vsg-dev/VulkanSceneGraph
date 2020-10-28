@@ -82,6 +82,7 @@ Context::Context(Device* in_device, BufferPreferences bufferPreferences) :
 }
 
 Context::Context(const Context& context) :
+    Inherit(context),
     deviceID(context.deviceID),
     device(context.device),
     renderPass(context.renderPass),
