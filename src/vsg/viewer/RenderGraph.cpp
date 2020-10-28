@@ -25,6 +25,28 @@ RenderGraph::RenderGraph()
 {
 }
 
+RenderGraph::RenderGraph(ref_ptr<Window> in_window) :
+    window(in_window)
+{
+    renderArea.offset = {0, 0};
+    renderArea.extent = window->extent2D();
+
+    if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT)
+    {
+        clearValues.resize(3);
+        clearValues[0].color = window->clearColor();
+        clearValues[1].color = window->clearColor();
+        clearValues[2].depthStencil = VkClearDepthStencilValue{1.0f, 0};
+    }
+    else
+    {
+        clearValues.resize(2);
+        clearValues[0].color = window->clearColor();
+        clearValues[1].depthStencil = VkClearDepthStencilValue{1.0f, 0};
+    }
+ }
+
+
 RenderPass* RenderGraph::getRenderPass()
 {
     if (framebuffer)
@@ -110,11 +132,10 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
 ref_ptr<RenderGraph> vsg::createRenderGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents)
 {
     // set up the render graph for viewport & scene
-    auto renderGraph = vsg::RenderGraph::create();
+    auto renderGraph = vsg::RenderGraph::create(window);
 
     renderGraph->addChild(View::create(ref_ptr<Camera>(camera), ref_ptr<Node>(scenegraph)));
 
-    renderGraph->window = window;
     renderGraph->contents = contents;
 
     renderGraph->windowResizeHandler = WindowResizeHandler::create();
@@ -122,25 +143,6 @@ ref_ptr<RenderGraph> vsg::createRenderGraphForView(ref_ptr<Window> window, ref_p
     if (camera)
     {
         renderGraph->renderArea = camera->getRenderArea();
-    }
-    else
-    {
-        renderGraph->renderArea.offset = {0, 0};
-        renderGraph->renderArea.extent = window->extent2D();
-    }
-
-    if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT)
-    {
-        renderGraph->clearValues.resize(3);
-        renderGraph->clearValues[0].color = window->clearColor();
-        renderGraph->clearValues[1].color = window->clearColor();
-        renderGraph->clearValues[2].depthStencil = VkClearDepthStencilValue{1.0f, 0};
-    }
-    else
-    {
-        renderGraph->clearValues.resize(2);
-        renderGraph->clearValues[0].color = window->clearColor();
-        renderGraph->clearValues[1].depthStencil = VkClearDepthStencilValue{1.0f, 0};
     }
 
     return renderGraph;

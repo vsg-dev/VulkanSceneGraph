@@ -26,6 +26,9 @@ namespace vsg
     public:
         RenderGraph();
 
+        /// Construct RenderGraph assigning window and setting up clearValues with the appropriate settings for the Window's attachments and color.
+        RenderGraph(ref_ptr<Window> in_window);
+
         using Group::accept;
 
         /// execute vkCmdBeginRenderPass and then traverse the RenderGraph subgraph
@@ -48,15 +51,18 @@ namespace vsg
         /// Subpass contents settting passed to vkCmdBeginRenderPass
         VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;
 
+        /// Callback used to automatically update viewports, sciessor, renderAraa and clears when the window is resized.
+        /// By default is null so no resize handling is done.
         ref_ptr<WindowResizeHandler> windowResizeHandler;
 
-        // windopw extent at previous frame
+        /// windopw extent at previous frame, used to track window resizes
         const uint32_t invalid_dimension = std::numeric_limits<uint32_t>::max();
         mutable VkExtent2D previous_extent = VkExtent2D{invalid_dimension, invalid_dimension};
     };
     VSG_type_name(vsg::RenderGraph);
 
-    /// convience function that sets up RenderGraph to render the specified scene graph from the speified Camera view
+    /// Convience function that sets up RenderGraph and associated View to render the specified scene graph from the speified camera view.
+    /// Assigns the WindowResizeHandler to povide basic widnow resize handling.
     extern VSG_DECLSPEC ref_ptr<RenderGraph> createRenderGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
 
 } // namespace vsg
