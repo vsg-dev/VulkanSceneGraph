@@ -43,6 +43,7 @@ set(SOURCES
     commands/CopyImageToBuffer.cpp
     commands/CopyAndReleaseBuffer.cpp
     commands/CopyAndReleaseImage.cpp
+    commands/ClearAttachments.cpp
     commands/PipelineBarrier.cpp
     commands/Event.cpp
     commands/NextSubPass.cpp
