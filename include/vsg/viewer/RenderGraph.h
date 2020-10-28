@@ -28,18 +28,24 @@ namespace vsg
 
         using Group::accept;
 
+        /// execute vkCmdBeginRenderPass and then traverse the RenderGraph subgraph
         void accept(RecordTraversal& recordTraversal) const override;
 
         /// either window or framebuffer must be assigned. If framebuffer is set then it takes precidence, if not sense the appropriate window's framebuffer is used.
         ref_ptr<Framebuffer> framebuffer;
         ref_ptr<Window> window;
 
+        /// RenderPass tp use passed to the vkCmdBeginRenderPass, either obtained from which of the framebuffer or window are active
         RenderPass* getRenderPass();
 
-        VkRect2D renderArea; // viewport dimensions
+        /// ReandingArea settings for VkRenderPassBeginInfo.renderArea passed to the vkCmdBeginRenderPass, usually maps the ViewportState's scissor
+        VkRect2D renderArea;
 
+        /// Buffer clearing stttings for vkRrenderPassInfo.clearValueCount & vkRenderPassInfo.pClearValues passed to the vkCmdBeginRenderPass
         using ClearValues = std::vector<VkClearValue>;
         ClearValues clearValues; // initialize window colour and depth/stencil
+
+        /// Subpass contents settting passed to vkCmdBeginRenderPass
         VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;
 
         ref_ptr<WindowResizeHandler> windowResizeHandler;
