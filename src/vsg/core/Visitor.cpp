@@ -590,6 +590,10 @@ void Visitor::apply(DrawIndexed& value)
 {
     apply(static_cast<Command&>(value));
 }
+void Visitor::apply(ClearAttachments& value)
+{
+    apply(static_cast<Command&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

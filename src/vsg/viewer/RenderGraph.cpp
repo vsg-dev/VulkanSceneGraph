@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
+#include <vsg/commands/ClearAttachments.h>
 #include <vsg/state/StateGroup.h>
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/viewer/RenderGraph.h>
@@ -26,13 +27,6 @@ using namespace vsg;
 
 namespace vsg
 {
-    template<typename T, typename R>
-    T scale_parameter(T original, R extentOriginal, R extentNew)
-    {
-        if (original == static_cast<T>(extentOriginal)) return static_cast<T>(extentNew);
-        return static_cast<T>(static_cast<float>(original) * static_cast<float>(extentNew) / static_cast<float>(extentOriginal)+0.5f);
-    }
-
     class WindowResizeHandler : public vsg::Visitor
     {
     public:
@@ -45,6 +39,23 @@ namespace vsg
         WindowResizeHandler(Device* device) :
             context(device) {}
 
+        template<typename T, typename R>
+        T scale_parameter(T original, R extentOriginal, R extentNew)
+        {
+            if (original == static_cast<T>(extentOriginal)) return static_cast<T>(extentNew);
+            return static_cast<T>(static_cast<float>(original) * static_cast<float>(extentNew) / static_cast<float>(extentOriginal)+0.5f);
+        }
+
+        void scale_rect(VkRect2D& rect)
+        {
+            int32_t edge_x = rect.offset.x + static_cast<int32_t>(rect.extent.width);
+            int32_t edge_y = rect.offset.y + static_cast<int32_t>(rect.extent.height);
+
+            rect.offset.x = scale_parameter(rect.offset.x, previous_extent.width, new_extent.width);
+            rect.offset.y = scale_parameter(rect.offset.y, previous_extent.height, new_extent.height);
+            rect.extent.width = static_cast<uint32_t>(scale_parameter(edge_x, previous_extent.width, new_extent.width) - rect.offset.x);
+            rect.extent.height = static_cast<uint32_t>(scale_parameter(edge_y, previous_extent.height, new_extent.height) - rect.offset.y);
+        }
 
         bool visit(Object* object)
         {
@@ -53,7 +64,7 @@ namespace vsg
             return true;
         }
 
-        void apply(vsg::BindGraphicsPipeline& bindPipeline)
+        void apply(vsg::BindGraphicsPipeline& bindPipeline) override
         {
             GraphicsPipeline* graphicsPipeline = bindPipeline.pipeline;
 
@@ -89,12 +100,12 @@ namespace vsg
             }
         }
 
-        void apply(vsg::Object& object)
+        void apply(vsg::Object& object) override
         {
             object.traverse(*this);
         }
 
-        void apply(vsg::StateGroup& sg)
+        void apply(vsg::StateGroup& sg) override
         {
             if (!visit(&sg)) return;
 
@@ -105,7 +116,18 @@ namespace vsg
             sg.traverse(*this);
         }
 
-        void apply(vsg::View& view)
+        void apply(ClearAttachments& clearAttachments) override
+        {
+            if (!visit(&clearAttachments)) return;
+
+            for(auto& clearRect : clearAttachments.rects)
+            {
+                auto& rect = clearRect.rect;
+                scale_rect(rect);
+            }
+        }
+
+        void apply(vsg::View& view) override
         {
             if (!visit(&view)) return;
 
@@ -128,13 +150,7 @@ namespace vsg
                 bool renderAreaMatches = (renderArea.offset.x == scissor.offset.x) && (renderArea.offset.y == scissor.offset.y) &&
                                          (renderArea.extent.width == scissor.extent.width) && (renderArea.extent.height == scissor.extent.height);
 
-                int32_t edge_x = scissor.offset.x + static_cast<int32_t>(scissor.extent.width);
-                int32_t edge_y = scissor.offset.y + static_cast<int32_t>(scissor.extent.height);
-
-                scissor.offset.x = scale_parameter(scissor.offset.x, previous_extent.width, new_extent.width);
-                scissor.offset.y = scale_parameter(scissor.offset.y, previous_extent.height, new_extent.height);
-                scissor.extent.width = static_cast<uint32_t>(scale_parameter(edge_x, previous_extent.width, new_extent.width) - scissor.offset.x);
-                scissor.extent.height = static_cast<uint32_t>(scale_parameter(edge_y, previous_extent.height, new_extent.height) - scissor.offset.y);
+                scale_rect(scissor);
 
                 viewport.x = static_cast<float>(scissor.offset.x);
                 viewport.y = static_cast<float>(scissor.offset.y);

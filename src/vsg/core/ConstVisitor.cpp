@@ -590,6 +590,10 @@ void ConstVisitor::apply(const DrawIndexed& value)
 {
     apply(static_cast<const Command&>(value));
 }
+void ConstVisitor::apply(const ClearAttachments& value)
+{
+    apply(static_cast<const Command&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

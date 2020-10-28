@@ -68,6 +68,7 @@ namespace vsg
     class ColorBlendState;
     class DynamicState;
     class ResourceHints;
+    class ClearAttachments;
 
     // forward declare ui events classes
     class UIEvent;
@@ -252,6 +253,7 @@ namespace vsg
         virtual void apply(const ResourceHints&);
         virtual void apply(const Draw&);
         virtual void apply(const DrawIndexed&);
+        virtual void apply(const ClearAttachments&);
 
         // ui events
         virtual void apply(const UIEvent&);
