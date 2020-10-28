@@ -163,7 +163,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     recordedCommandBuffers.push_back(commandBuffer);
 }
 
-ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, VkSubpassContents contents)
+ref_ptr<CommandGraph> vsg::createCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents)
 {
     auto commandGraph = CommandGraph::create(window);
 
@@ -172,7 +172,7 @@ ref_ptr<CommandGraph> vsg::createCommandGraphForView(Window* window, Camera* cam
     return commandGraph;
 }
 
-ref_ptr<CommandGraph> vsg::createSecondaryCommandGraphForView(Window* window, Camera* camera, Node* scenegraph, uint32_t subpass)
+ref_ptr<CommandGraph> vsg::createSecondaryCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, uint32_t subpass)
 {
     auto commandGraph = CommandGraph::create(window);
 
