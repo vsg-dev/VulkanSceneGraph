@@ -43,6 +43,7 @@ set(SOURCES
     commands/CopyImageToBuffer.cpp
     commands/CopyAndReleaseBuffer.cpp
     commands/CopyAndReleaseImage.cpp
+    commands/ClearAttachments.cpp
     commands/PipelineBarrier.cpp
     commands/Event.cpp
     commands/NextSubPass.cpp
@@ -116,6 +117,8 @@ set(SOURCES
     viewer/RenderGraph.cpp
     viewer/Presentation.cpp
     viewer/RecordAndSubmitTask.cpp
+    viewer/WindowResizeHandler.cpp
+    viewer/View.cpp
 
     raytracing/AccelerationGeometry.cpp
     raytracing/AccelerationStructure.cpp

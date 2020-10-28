@@ -16,40 +16,53 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/Window.h>
+#include <vsg/viewer/WindowResizeHandler.h>
 
 namespace vsg
 {
+
     class VSG_DECLSPEC RenderGraph : public Inherit<Group, RenderGraph>
     {
     public:
         RenderGraph();
 
+        /// Construct RenderGraph assigning window and setting up clearValues with the appropriate settings for the Window's attachments and color.
+        RenderGraph(ref_ptr<Window> in_window);
+
         using Group::accept;
 
+        /// execute vkCmdBeginRenderPass and then traverse the RenderGraph subgraph
         void accept(RecordTraversal& recordTraversal) const override;
-
-        ref_ptr<Camera> camera; // camera that the trackball controls
 
         /// either window or framebuffer must be assigned. If framebuffer is set then it takes precidence, if not sense the appropriate window's framebuffer is used.
         ref_ptr<Framebuffer> framebuffer;
         ref_ptr<Window> window;
 
-        VkRect2D renderArea; // viewport dimensions
-
-        //ref_ptr<RenderPass> renderPass;   // If not set, use window's.
-
+        /// RenderPass tp use passed to the vkCmdBeginRenderPass, either obtained from which of the framebuffer or window are active
         RenderPass* getRenderPass();
 
+        /// ReandingArea settings for VkRenderPassBeginInfo.renderArea passed to the vkCmdBeginRenderPass, usually maps the ViewportState's scissor
+        VkRect2D renderArea;
+
+        /// Buffer clearing stttings for vkRrenderPassInfo.clearValueCount & vkRenderPassInfo.pClearValues passed to the vkCmdBeginRenderPass
         using ClearValues = std::vector<VkClearValue>;
         ClearValues clearValues; // initialize window colour and depth/stencil
+
+        /// Subpass contents settting passed to vkCmdBeginRenderPass
         VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;
 
-        // windopw extent at previous frame
+        /// Callback used to automatically update viewports, sciessor, renderAraa and clears when the window is resized.
+        /// By default is null so no resize handling is done.
+        ref_ptr<WindowResizeHandler> windowResizeHandler;
+
+        /// windopw extent at previous frame, used to track window resizes
         const uint32_t invalid_dimension = std::numeric_limits<uint32_t>::max();
         mutable VkExtent2D previous_extent = VkExtent2D{invalid_dimension, invalid_dimension};
     };
+    VSG_type_name(vsg::RenderGraph);
 
-    /// convience function that sets up RenderGraph to render the specified scene graph from the speified Camera view
-    extern VSG_DECLSPEC ref_ptr<RenderGraph> createRenderGraphForView(Window* window, Camera* camera, Node* scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
+    /// Convience function that sets up RenderGraph and associated View to render the specified scene graph from the speified camera view.
+    /// Assigns the WindowResizeHandler to povide basic widnow resize handling.
+    extern VSG_DECLSPEC ref_ptr<RenderGraph> createRenderGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
 
 } // namespace vsg

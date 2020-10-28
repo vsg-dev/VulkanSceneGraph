@@ -68,6 +68,7 @@ namespace vsg
     class ColorBlendState;
     class DynamicState;
     class ResourceHints;
+    class ClearAttachments;
 
     // forward declare ui events classes
     class UIEvent;
@@ -91,8 +92,11 @@ namespace vsg
     class FrameEvent;
 
     // forward declare viewer classes
+    class Camera;
     class CommandGraph;
     class RenderGraph;
+    class View;
+    class Viewer;
 
     // forward declare general classes
     class FrameStamp;
@@ -249,6 +253,7 @@ namespace vsg
         virtual void apply(const ResourceHints&);
         virtual void apply(const Draw&);
         virtual void apply(const DrawIndexed&);
+        virtual void apply(const ClearAttachments&);
 
         // ui events
         virtual void apply(const UIEvent&);
@@ -271,9 +276,12 @@ namespace vsg
         virtual void apply(const TerminateEvent&);
         virtual void apply(const FrameEvent&);
 
-        // viewer class
+        // viewer
+        virtual void apply(const Camera&);
         virtual void apply(const CommandGraph&);
         virtual void apply(const RenderGraph&);
+        virtual void apply(const View&);
+        virtual void apply(const Viewer&);
 
         // general classes
         virtual void apply(const FrameStamp&);

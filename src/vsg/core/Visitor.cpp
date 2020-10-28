@@ -590,6 +590,10 @@ void Visitor::apply(DrawIndexed& value)
 {
     apply(static_cast<Command&>(value));
 }
+void Visitor::apply(ClearAttachments& value)
+{
+    apply(static_cast<Command&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -676,6 +680,10 @@ void Visitor::apply(FrameEvent& event)
 //
 // Viewer classes
 //
+void Visitor::apply(Camera& camera)
+{
+    apply(static_cast<Object&>(camera));
+}
 void Visitor::apply(CommandGraph& cg)
 {
     apply(static_cast<Group&>(cg));
@@ -683,6 +691,14 @@ void Visitor::apply(CommandGraph& cg)
 void Visitor::apply(RenderGraph& rg)
 {
     apply(static_cast<Group&>(rg));
+}
+void Visitor::apply(View& view)
+{
+    apply(static_cast<Group&>(view));
+}
+void Visitor::apply(Viewer& viewer)
+{
+    apply(static_cast<Object&>(viewer));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

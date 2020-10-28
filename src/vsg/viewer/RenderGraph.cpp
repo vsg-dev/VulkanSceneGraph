@@ -11,76 +11,41 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
-#include <vsg/state/StateGroup.h>
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/viewer/RenderGraph.h>
+#include <vsg/viewer/View.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/State.h>
 
+#include <iostream>
+
 using namespace vsg;
-
-namespace vsg
-{
-    class UpdatePipeline : public vsg::Visitor
-    {
-    public:
-        Context context;
-
-        UpdatePipeline(Device* device) :
-            context(device) {}
-
-        void apply(vsg::BindGraphicsPipeline& bindPipeline)
-        {
-            GraphicsPipeline* graphicsPipeline = bindPipeline.pipeline;
-            if (graphicsPipeline)
-            {
-                struct ContainsViewport : public ConstVisitor
-                {
-                    bool foundViewport = false;
-                    void apply(const ViewportState&) override { foundViewport = true; }
-                    bool operator()(const GraphicsPipeline& gp)
-                    {
-                        for (auto& pipelineState : gp.pipelineStates)
-                        {
-                            pipelineState->accept(*this);
-                        }
-                        return foundViewport;
-                    }
-                } containsViewport;
-
-                bool needToRegenerateGraphicsPipeline = !containsViewport(*graphicsPipeline);
-                if (needToRegenerateGraphicsPipeline)
-                {
-                    vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->layout, graphicsPipeline->stages, graphicsPipeline->pipelineStates);
-
-                    bindPipeline.release();
-
-                    bindPipeline.pipeline = new_pipeline;
-
-                    bindPipeline.compile(context);
-                }
-            }
-        }
-
-        void apply(vsg::Object& object)
-        {
-            object.traverse(*this);
-        }
-
-        void apply(vsg::StateGroup& sg)
-        {
-            for (auto& command : sg.getStateCommands())
-            {
-                command->accept(*this);
-            }
-            sg.traverse(*this);
-        }
-    };
-}; // namespace vsg
 
 RenderGraph::RenderGraph()
 {
 }
+
+RenderGraph::RenderGraph(ref_ptr<Window> in_window) :
+    window(in_window)
+{
+    renderArea.offset = {0, 0};
+    renderArea.extent = window->extent2D();
+
+    if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT)
+    {
+        clearValues.resize(3);
+        clearValues[0].color = window->clearColor();
+        clearValues[1].color = window->clearColor();
+        clearValues[2].depthStencil = VkClearDepthStencilValue{1.0f, 0};
+    }
+    else
+    {
+        clearValues.resize(2);
+        clearValues[0].color = window->clearColor();
+        clearValues[1].depthStencil = VkClearDepthStencilValue{1.0f, 0};
+    }
+ }
+
 
 RenderPass* RenderGraph::getRenderPass()
 {
@@ -100,36 +65,31 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     {
         auto extent = window->extent2D();
 
-        if (previous_extent.width == invalid_dimension || previous_extent.width == invalid_dimension)
+        if (previous_extent.width == invalid_dimension || previous_extent.width == invalid_dimension || !windowResizeHandler)
         {
             previous_extent = extent;
         }
         else if (previous_extent.width != extent.width || previous_extent.height != extent.height)
         {
-            // crude handling of window resize...TODO, come up with a user controllable way to handle resize.
+            auto this_renderGraph = const_cast<RenderGraph*>(this);
 
-            vsg::UpdatePipeline updatePipeline(window->getDevice());
+            auto& resizeHandler = *(this_renderGraph->windowResizeHandler);
 
-            updatePipeline.context.commandPool = recordTraversal.getState()->_commandBuffer->getCommandPool();
-            updatePipeline.context.renderPass = window->getRenderPass();
+            if (!resizeHandler.context) resizeHandler.context = vsg::Context::create(window->getDevice());
 
-            if (camera)
-            {
-                camera->getProjectionMatrix()->changeExtent(previous_extent, extent);
+            resizeHandler.context->commandPool = recordTraversal.getState()->_commandBuffer->getCommandPool();
+            resizeHandler.context->renderPass = window->getRenderPass();
+            resizeHandler.renderArea = renderArea;
+            resizeHandler.previous_extent = previous_extent;
+            resizeHandler.new_extent = extent;
+            resizeHandler.visited.clear();
 
-                auto viewportState = camera->getViewportState();
-                viewportState->set(extent);
-                updatePipeline.context.defaultPipelineStates.emplace_back(viewportState);
+            if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT) resizeHandler.context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(window->framebufferSamples()));
 
-                const_cast<RenderGraph*>(this)->renderArea.offset = VkOffset2D{0, 0}; // need to use offsets of viewport?
-                const_cast<RenderGraph*>(this)->renderArea.extent = extent;
-            }
+            this_renderGraph->traverse(resizeHandler);
 
-            if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT) updatePipeline.context.overridePipelineStates.emplace_back(vsg::MultisampleState::create(window->framebufferSamples()));
-
-            const_cast<RenderGraph*>(this)->traverse(updatePipeline);
-
-            previous_extent = window->extent2D();
+            this_renderGraph->renderArea = resizeHandler.renderArea;
+            previous_extent = extent;
         }
     }
 
@@ -152,20 +112,16 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
 
     renderPassInfo.renderArea = renderArea;
 
+#if 0
+    std::cout<<"RenaderGraph() "<<this<<" renderArea.offset.x = "<<renderArea.offset.x<<", renderArea.offset.y = "<<renderArea.offset.y
+                <<", renderArea.extent.width = "<<renderArea.extent.width<<", renderArea.extent.height = "<<renderArea.extent.height<<std::endl;
+#endif
+
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
 
     VkCommandBuffer vk_commandBuffer = *(recordTraversal.getState()->_commandBuffer);
     vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, contents);
-
-    if (camera)
-    {
-        dmat4 projMatrix, viewMatrix;
-        camera->getProjectionMatrix()->get(projMatrix);
-        camera->getViewMatrix()->get(viewMatrix);
-
-        recordTraversal.setProjectionAndViewMatrix(projMatrix, viewMatrix);
-    }
 
     // traverse the command buffer to place the commands into the command buffer.
     traverse(recordTraversal);
@@ -173,31 +129,20 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     vkCmdEndRenderPass(vk_commandBuffer);
 }
 
-ref_ptr<RenderGraph> vsg::createRenderGraphForView(Window* window, Camera* camera, Node* scenegraph, VkSubpassContents contents)
+ref_ptr<RenderGraph> vsg::createRenderGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents)
 {
     // set up the render graph for viewport & scene
-    auto renderGraph = vsg::RenderGraph::create();
-    renderGraph->addChild(ref_ptr<Node>(scenegraph));
+    auto renderGraph = vsg::RenderGraph::create(window);
 
-    renderGraph->camera = camera;
-    renderGraph->window = window;
+    renderGraph->addChild(View::create(ref_ptr<Camera>(camera), ref_ptr<Node>(scenegraph)));
+
     renderGraph->contents = contents;
 
-    renderGraph->renderArea.offset = {0, 0};
-    renderGraph->renderArea.extent = window->extent2D();
+    renderGraph->windowResizeHandler = WindowResizeHandler::create();
 
-    if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT)
+    if (camera)
     {
-        renderGraph->clearValues.resize(3);
-        renderGraph->clearValues[0].color = window->clearColor();
-        renderGraph->clearValues[1].color = window->clearColor();
-        renderGraph->clearValues[2].depthStencil = VkClearDepthStencilValue{1.0f, 0};
-    }
-    else
-    {
-        renderGraph->clearValues.resize(2);
-        renderGraph->clearValues[0].color = window->clearColor();
-        renderGraph->clearValues[1].depthStencil = VkClearDepthStencilValue{1.0f, 0};
+        renderGraph->renderArea = camera->getRenderArea();
     }
 
     return renderGraph;
