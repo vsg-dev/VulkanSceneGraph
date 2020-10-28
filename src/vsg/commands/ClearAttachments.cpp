@@ -29,7 +29,6 @@ ClearAttachments::ClearAttachments(const Attachments& in_attachments, const Rect
 void ClearAttachments::record(CommandBuffer& commandBuffer) const
 {
     vkCmdClearAttachments(commandBuffer,
-                        static_cast<uint32_t>(attachments.size()), attachments.data(),
-                        static_cast<uint32_t>(rects.size()), rects.data());
+                          static_cast<uint32_t>(attachments.size()), attachments.data(),
+                          static_cast<uint32_t>(rects.size()), rects.data());
 }
-

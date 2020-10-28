@@ -21,7 +21,6 @@ namespace vsg
     class VSG_DECLSPEC ClearAttachments : public Inherit<Command, ClearAttachments>
     {
     public:
-
         using Attachments = std::vector<VkClearAttachment>;
         using Rects = std::vector<VkClearRect>;
 

@@ -31,7 +31,6 @@ namespace vsg
         void accept(RecordTraversal& recordTraversal) const override;
 
         ref_ptr<Camera> camera;
-
     };
 
 } // namespace vsg

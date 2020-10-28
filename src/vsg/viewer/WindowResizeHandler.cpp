@@ -10,11 +10,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
 #include <vsg/commands/ClearAttachments.h>
-#include <vsg/viewer/WindowResizeHandler.h>
-#include <vsg/viewer/View.h>
+#include <vsg/io/Options.h>
 #include <vsg/state/StateGroup.h>
+#include <vsg/viewer/View.h>
+#include <vsg/viewer/WindowResizeHandler.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/State.h>
 
@@ -100,7 +100,7 @@ void WindowResizeHandler::apply(ClearAttachments& clearAttachments)
 {
     if (!visit(&clearAttachments)) return;
 
-    for(auto& clearRect : clearAttachments.rects)
+    for (auto& clearRect : clearAttachments.rects)
     {
         auto& rect = clearRect.rect;
         scale_rect(rect);
@@ -122,13 +122,13 @@ void WindowResizeHandler::apply(vsg::View& view)
     auto viewportState = view.camera->getViewportState();
 
     size_t num_viewports = std::min(viewportState->viewports.size(), viewportState->scissors.size());
-    for(size_t i = 0; i<num_viewports; ++i)
+    for (size_t i = 0; i < num_viewports; ++i)
     {
         auto& viewport = viewportState->viewports[i];
         auto& scissor = viewportState->scissors[i];
 
         bool renderAreaMatches = (renderArea.offset.x == scissor.offset.x) && (renderArea.offset.y == scissor.offset.y) &&
-                                    (renderArea.extent.width == scissor.extent.width) && (renderArea.extent.height == scissor.extent.height);
+                                 (renderArea.extent.width == scissor.extent.width) && (renderArea.extent.height == scissor.extent.height);
 
         scale_rect(scissor);
 
