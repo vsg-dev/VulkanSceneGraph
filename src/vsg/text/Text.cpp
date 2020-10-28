@@ -300,9 +300,9 @@ void Text::setup(uint32_t minimumAllocation)
     }
 
     if (!drawIndexed)
-        drawIndexed = DrawIndexed::create(quads.size() * 6, 1, 0, 0, 0);
+        drawIndexed = DrawIndexed::create(static_cast<uint32_t>(quads.size() * 6), 1, 0, 0, 0);
     else
-        drawIndexed->indexCount = quads.size() * 6;
+        drawIndexed->indexCount = static_cast<uint32_t>(quads.size() * 6);
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     auto& scenegraph = renderingBackend->stategroup;
