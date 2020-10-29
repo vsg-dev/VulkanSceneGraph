@@ -35,7 +35,6 @@ using namespace vsg;
 #include <iostream>
 
 #define INLINE_TRAVERSE 0
-#define USE_FRUSTUM_ARRAY 1
 
 RecordTraversal::RecordTraversal(CommandBuffer* commandBuffer, uint32_t maxSlot, FrameStamp* fs) :
     _frameStamp(fs),
