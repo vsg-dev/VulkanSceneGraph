@@ -34,6 +34,7 @@ namespace vsg
         using Descriptors = std::set<const Descriptor*>;
         using DescriptorSets = std::set<const DescriptorSet*>;
         using DescriptorTypeMap = std::map<VkDescriptorType, uint32_t>;
+        using Views = std::set<const View*>;
 
         using ConstVisitor::apply;
 
@@ -47,6 +48,7 @@ namespace vsg
         void apply(const DescriptorSet& descriptorSet) override;
         void apply(const Descriptor& descriptor) override;
         void apply(const PagedLOD& plod) override;
+        void apply(const View& view) override;
 
         uint32_t computeNumDescriptorSets() const;
 
@@ -55,6 +57,8 @@ namespace vsg
         Descriptors descriptors;
         DescriptorSets descriptorSets;
         DescriptorTypeMap descriptorTypeMap;
+        Views views;
+
         uint32_t maxSlot = 0;
         uint32_t externalNumDescriptorSets = 0;
         bool containsPagedLOD = false;

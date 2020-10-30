@@ -40,8 +40,7 @@ void CollectDescriptorStats::apply(const Object& object)
 
 bool CollectDescriptorStats::checkForResourceHints(const Object& object)
 {
-    const Object* rh_object = object.getObject("ResourceHints");
-    const ResourceHints* resourceHints = dynamic_cast<const ResourceHints*>(rh_object);
+    auto resourceHints = object.getObject<ResourceHints>("ResourceHints");
     if (resourceHints)
     {
         apply(*resourceHints);
@@ -131,6 +130,13 @@ void CollectDescriptorStats::apply(const Descriptor& descriptor)
         descriptors.insert(&descriptor);
     }
     descriptorTypeMap[descriptor.descriptorType] += descriptor.getNumDescriptors();
+}
+
+void CollectDescriptorStats::apply(const View& view)
+{
+    views.insert(&view);
+
+    view.traverse(*this);
 }
 
 uint32_t CollectDescriptorStats::computeNumDescriptorSets() const
@@ -270,6 +276,8 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
 
 void CompileTraversal::apply(View& view)
 {
+    context.viewID = view.viewID;
+
     if (view.camera && view.camera->getViewportState())
     {
         context.defaultPipelineStates.emplace_back(view.camera->getViewportState());

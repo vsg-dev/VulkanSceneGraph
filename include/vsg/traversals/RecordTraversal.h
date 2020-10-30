@@ -36,6 +36,7 @@ namespace vsg
     class DatabasePager;
     class FrameStamp;
     class CulledPagedLODs;
+    class View;
 
     class RecordTraversal;
     VSG_type_name(vsg::RecordTraversal);
@@ -74,6 +75,9 @@ namespace vsg
         void apply(const StateGroup& object);
         void apply(const Commands& commands);
         void apply(const Command& command);
+
+        // Viewer level nodes
+        void apply(const View& view);
 
     private:
         FrameStamp* _frameStamp = nullptr;

@@ -25,6 +25,7 @@ using namespace vsg;
 GraphicsPipeline::GraphicsPipeline()
 {
 }
+
 GraphicsPipeline::GraphicsPipeline(PipelineLayout* in_pipelineLayout, const ShaderStages& in_shaderStages, const GraphicsPipelineStates& in_pipelineStates, uint32_t in_subpass) :
     stages(in_shaderStages),
     pipelineStates(in_pipelineStates),
@@ -81,7 +82,13 @@ void GraphicsPipeline::write(Output& output) const
 
 void GraphicsPipeline::compile(Context& context)
 {
-    if (!_implementation[context.deviceID])
+    uint32_t viewID = context.viewID;
+    if (static_cast<uint32_t>(_implementation.size()) < (viewID+1))
+    {
+        _implementation.resize(viewID+1);
+    }
+
+    if (!_implementation[viewID])
     {
         // compile shaders if required
         bool requiresShaderCompiler = false;
@@ -117,9 +124,7 @@ void GraphicsPipeline::compile(Context& context)
         combined_pipelineStates.insert(combined_pipelineStates.end(), pipelineStates.begin(), pipelineStates.end());
         combined_pipelineStates.insert(combined_pipelineStates.end(), context.overridePipelineStates.begin(), context.overridePipelineStates.end());
 
-        // TODO : current buffering of GraphicsPipeline::Implementation assumes a single VkPipelie for each Device, but could potentially vary with Device, RenerPass, combined_PipelinStates
-        // so will need to have some form of contextID/renderID that wraps all these variables up and indexes the buffer using it instead of deviceID.
-        _implementation[context.deviceID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, layout, stages, combined_pipelineStates, subpass);
+        _implementation[viewID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, layout, stages, combined_pipelineStates, subpass);
     }
 }
 
@@ -200,7 +205,7 @@ void BindGraphicsPipeline::write(Output& output) const
 
 void BindGraphicsPipeline::record(CommandBuffer& commandBuffer) const
 {
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->vk(commandBuffer.deviceID));
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->vk(commandBuffer.viewID));
     commandBuffer.setCurrentPipelineLayout(pipeline->layout);
 }
 

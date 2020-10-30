@@ -32,6 +32,7 @@ namespace vsg
         std::atomic_uint& numDependentSubmissions() { return _numDependentSubmissions; }
 
         const uint32_t deviceID;
+        uint32_t viewID = 0;
 
         VkCommandBufferLevel level() const { return _level; }
 

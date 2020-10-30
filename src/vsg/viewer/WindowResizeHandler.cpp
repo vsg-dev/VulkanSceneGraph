@@ -69,13 +69,8 @@ void WindowResizeHandler::apply(vsg::BindGraphicsPipeline& bindPipeline)
         bool needToRegenerateGraphicsPipeline = !containsViewport(*graphicsPipeline);
         if (needToRegenerateGraphicsPipeline)
         {
-            vsg::ref_ptr<vsg::GraphicsPipeline> new_pipeline = vsg::GraphicsPipeline::create(graphicsPipeline->layout, graphicsPipeline->stages, graphicsPipeline->pipelineStates);
-
-            bindPipeline.release();
-
-            bindPipeline.pipeline = new_pipeline;
-
-            bindPipeline.compile(*context);
+            graphicsPipeline->release(context->viewID);
+            graphicsPipeline->compile(*context);
         }
     }
 }
@@ -110,6 +105,8 @@ void WindowResizeHandler::apply(ClearAttachments& clearAttachments)
 void WindowResizeHandler::apply(vsg::View& view)
 {
     if (!visit(&view)) return;
+
+    context->viewID = view.viewID;
 
     if (!view.camera)
     {
