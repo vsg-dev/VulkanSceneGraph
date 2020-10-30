@@ -62,7 +62,7 @@ namespace vsg
             ref_ptr<Device> _device;
         };
 
-        vk_buffer<ref_ptr<Implementation>> _implementation;
+        std::vector<ref_ptr<Implementation>> _implementation;
     };
     VSG_type_name(vsg::GraphicsPipeline);
 

@@ -23,13 +23,28 @@ using namespace vsg;
 
 RenderGraph::RenderGraph()
 {
+    windowResizeHandler = WindowResizeHandler::create();
 }
 
-RenderGraph::RenderGraph(ref_ptr<Window> in_window) :
+RenderGraph::RenderGraph(ref_ptr<Window> in_window, ref_ptr<View> in_view) :
     window(in_window)
 {
-    renderArea.offset = {0, 0};
-    renderArea.extent = window->extent2D();
+    windowResizeHandler = WindowResizeHandler::create();
+
+    if (in_view)
+    {
+        addChild(in_view);
+    }
+
+    if (in_view && in_view->camera)
+    {
+        renderArea = in_view->camera->getRenderArea();
+    }
+    else
+    {
+        renderArea.offset = {0, 0};
+        renderArea.extent = window->extent2D();
+    }
 
     if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT)
     {
@@ -132,18 +147,9 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
 ref_ptr<RenderGraph> vsg::createRenderGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents)
 {
     // set up the render graph for viewport & scene
-    auto renderGraph = vsg::RenderGraph::create(window);
-
-    renderGraph->addChild(View::create(ref_ptr<Camera>(camera), ref_ptr<Node>(scenegraph)));
+    auto renderGraph = vsg::RenderGraph::create(window, View::create(camera, scenegraph));
 
     renderGraph->contents = contents;
-
-    renderGraph->windowResizeHandler = WindowResizeHandler::create();
-
-    if (camera)
-    {
-        renderGraph->renderArea = camera->getRenderArea();
-    }
 
     return renderGraph;
 }

@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/Descriptor.h>
 #include <vsg/state/StateGroup.h>
 #include <vsg/traversals/CompileTraversal.h>
+#include <vsg/viewer/View.h>
 #include <vsg/viewer/Viewer.h>
 
 #include <chrono>
@@ -213,7 +214,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
         vsg::ref_ptr<vsg::CompileTraversal> compile;
     };
 
-    // find which devices are available
+    // find which devices are available and the resources required for then,
     using DeviceResourceMap = std::map<vsg::Device*, DeviceResources>;
     DeviceResourceMap deviceResourceMap;
     for (auto& task : recordAndSubmitTasks)
@@ -224,19 +225,24 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             commandGraph->accept(deviceResources.collectStats);
         }
 
+
         if (task->databasePager && !databasePager) databasePager = task->databasePager;
     }
 
+
     // allocate DescriptorPool for each Device
+    CollectDescriptorStats::Views views;
     for (auto& [device, deviceResource] : deviceResourceMap)
     {
+        views.insert(deviceResource.collectStats.views.begin(), deviceResource.collectStats.views.end());
+
         if (deviceResource.collectStats.containsPagedLOD) containsPagedLOD = true;
 
         auto physicalDevice = device->getPhysicalDevice();
 
         auto& collectStats = deviceResource.collectStats;
         auto maxSets = collectStats.computeNumDescriptorSets();
-        const auto& descriptorPoolSizes = collectStats.computeDescriptorPoolSizes();
+        auto descriptorPoolSizes = collectStats.computeDescriptorPoolSizes();
 
         auto queueFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT); // TODO : could we just use transfer bit?
 
@@ -245,6 +251,14 @@ void Viewer::compile(BufferPreferences bufferPreferences)
         deviceResource.compile->context.graphicsQueue = device->getQueue(queueFamily);
 
         if (descriptorPoolSizes.size() > 0) deviceResource.compile->context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
+    }
+
+    // assign the viewID's to each View
+    uint32_t viewID = 0;
+    for(auto& const_view : views)
+    {
+        auto view = const_cast<View*>(const_view);
+        view->viewID = viewID++;
     }
 
     if (containsPagedLOD && !databasePager) databasePager = DatabasePager::create();

@@ -62,6 +62,8 @@ namespace vsg
         const uint32_t deviceID = 0;
         ref_ptr<Device> device;
 
+        uint32_t viewID = 0;
+
         // get exisitng ShaderCompile or create a new one when GLSLang is supported
         ShaderCompiler* getOrCreateShaderCompiler();
 

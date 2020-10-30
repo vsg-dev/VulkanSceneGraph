@@ -28,21 +28,3 @@ View::View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph)
     if (in_scenegraph) addChild(in_scenegraph);
 }
 
-void View::accept(RecordTraversal& recordTraversal) const
-{
-    if (camera)
-    {
-        dmat4 projMatrix, viewMatrix;
-        camera->getProjectionMatrix()->get(projMatrix);
-        camera->getViewMatrix()->get(viewMatrix);
-
-        // TODO push/pop project and view matrices
-        recordTraversal.setProjectionAndViewMatrix(projMatrix, viewMatrix);
-
-        traverse(recordTraversal);
-    }
-    else
-    {
-        traverse(recordTraversal);
-    }
-}

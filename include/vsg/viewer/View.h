@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    /// View class is Group class that pairs a Camera that defines the view with a subgraph that defines the scene that is being viewed/rendered
     class VSG_DECLSPEC View : public Inherit<Group, View>
     {
     public:
@@ -26,11 +27,11 @@ namespace vsg
 
         View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph = {});
 
-        using Group::accept;
-
-        void accept(RecordTraversal& recordTraversal) const override;
-
+        /// camera controls the viewport state and projection and view matrices
         ref_ptr<Camera> camera;
+
+        /// viewID is automatically assinged by Viewer::compile()
+        uint32_t viewID = 0;
     };
 
 } // namespace vsg
