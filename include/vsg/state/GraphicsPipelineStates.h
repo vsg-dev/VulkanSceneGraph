@@ -99,8 +99,11 @@ namespace vsg
     public:
         ViewportState();
 
-        /// Create ViewportState containing a single Viewport and Scissor pair with specified extent
+        /// Create ViewportState containing a single Viewport and Scissor pair with specified extent located at origin (x, y = {0,0}). Typically used for convinience when rendering to a whole window.
         explicit ViewportState(const VkExtent2D& extent);
+
+        /// Create ViewportState containing a single Viewport and Scissor pair with specified position and extent
+        ViewportState(int32_t x, int32_t y, uint32_t width, uint32_t height);
 
         using Viewports = std::vector<VkViewport>;
         using Scissors = std::vector<VkRect2D>;
@@ -110,7 +113,7 @@ namespace vsg
         Scissors scissors;
 
         /// set to a single Viewport and Scissor pair with specified extent
-        void set(const VkExtent2D& extent);
+        void set(int32_t x, int32_t y, uint32_t width, uint32_t height);
 
         /// get or create the first Viewport
         VkViewport& getViewport();

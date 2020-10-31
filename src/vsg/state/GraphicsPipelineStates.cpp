@@ -190,29 +190,34 @@ ViewportState::ViewportState()
 
 ViewportState::ViewportState(const VkExtent2D& extent)
 {
-    set(extent);
+    set(0, 0, extent.width, extent.height);
+}
+
+ViewportState::ViewportState(int32_t x, int32_t y, uint32_t width, uint32_t height)
+{
+    set(x, y, width, height);
 }
 
 ViewportState::~ViewportState()
 {
 }
 
-void ViewportState::set(const VkExtent2D& extent)
+void ViewportState::set(int32_t x, int32_t y, uint32_t width, uint32_t height)
 {
     viewports.resize(1);
     scissors.resize(1);
 
     VkViewport& viewport = viewports[0];
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = static_cast<float>(extent.width);
-    viewport.height = static_cast<float>(extent.height);
+    viewport.x = static_cast<float>(x);
+    viewport.y = static_cast<float>(y);
+    viewport.width = static_cast<float>(width);
+    viewport.height = static_cast<float>(height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     VkRect2D& scissor = scissors[0];
-    scissor.offset = {0, 0};
-    scissor.extent = extent;
+    scissor.offset = VkOffset2D{x, y};
+    scissor.extent = VkExtent2D{width, height};
 }
 
 void ViewportState::read(Input& input)
