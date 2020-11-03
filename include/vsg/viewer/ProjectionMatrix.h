@@ -202,9 +202,12 @@ namespace vsg
             matrix = perspective(radians(fieldOfViewY), aspectRatio, nearDistance, farDistance);
         }
 
-        void changeExtent(const VkExtent2D&, const VkExtent2D& newExtent) override
+        void changeExtent(const VkExtent2D& prevExtent, const VkExtent2D& newExtent) override
         {
-            aspectRatio = static_cast<double>(newExtent.width) / static_cast<double>(newExtent.height);
+            double oldRatio = static_cast<double>(prevExtent.width) / static_cast<double>(prevExtent.height);
+            double newRatio = static_cast<double>(newExtent.width) / static_cast<double>(newExtent.height);
+
+            aspectRatio *= (newRatio / oldRatio);
         }
 
         ref_ptr<LookAt> lookAt;
