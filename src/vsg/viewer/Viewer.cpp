@@ -210,7 +210,6 @@ void Viewer::compile(BufferPreferences bufferPreferences)
     struct DeviceResources
     {
         vsg::CollectDescriptorStats collectStats;
-        vsg::ref_ptr<vsg::DescriptorPool> descriptorPool;
         vsg::ref_ptr<vsg::CompileTraversal> compile;
     };
 
