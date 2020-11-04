@@ -183,7 +183,9 @@ ObjectFactory::ObjectFactory()
 
     // commands
     VSG_REGISTER_create(vsg::Draw);
+    VSG_REGISTER_create(vsg::DrawIndirect);
     VSG_REGISTER_create(vsg::DrawIndexed);
+    VSG_REGISTER_create(vsg::DrawIndexedIndirect);
     VSG_REGISTER_create(vsg::CopyImage);
     VSG_REGISTER_create(vsg::BlitImage);
 

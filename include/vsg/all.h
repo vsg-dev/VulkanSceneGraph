@@ -72,6 +72,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/Dispatch.h>
 #include <vsg/commands/Draw.h>
 #include <vsg/commands/DrawIndexed.h>
+#include <vsg/commands/DrawIndexedIndirect.h>
+#include <vsg/commands/DrawIndirect.h>
 #include <vsg/commands/Event.h>
 #include <vsg/commands/NextSubPass.h>
 #include <vsg/commands/PipelineBarrier.h>
