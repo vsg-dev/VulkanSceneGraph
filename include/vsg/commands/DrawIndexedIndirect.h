@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/CommandBuffer.h>
-#include <vsg/state/Buffer.h>
+#include <vsg/state/BufferInfo.h>
 #include <vsg/commands/Command.h>
 
 namespace vsg
@@ -24,22 +24,23 @@ namespace vsg
     public:
         DrawIndexedIndirect() {}
 
+        DrawIndexedIndirect(ref_ptr<Data> data, uint32_t in_drawCount, uint32_t in_stride) :
+            bufferInfo(data),
+            drawCount(in_drawCount),
+            stride(in_stride) {}
+
         DrawIndexedIndirect(ref_ptr<Buffer> in_buffer, VkDeviceSize in_offset, uint32_t in_drawCount, uint32_t in_stride) :
-            buffer(in_buffer),
-            offset(in_offset),
+            bufferInfo(in_buffer, in_offset, in_drawCount * in_stride),
             drawCount(in_drawCount),
             stride(in_stride) {}
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void record(CommandBuffer& commandBuffer) const override
-        {
-            vkCmdDrawIndexedIndirect(commandBuffer, buffer->vk(commandBuffer.deviceID), offset, drawCount, stride);
-        }
+        void compile(Context& context) override;
+        void record(CommandBuffer& commandBuffer) const override;
 
-        ref_ptr<Buffer> buffer;
-        VkDeviceSize offset = 0;
+        BufferInfo bufferInfo;
         uint32_t drawCount = 0;
         uint32_t stride = 0;
     };

@@ -19,8 +19,14 @@ void DrawIndexedIndirect::read(Input& input)
 {
     Command::read(input);
 
-    input.read("buffer", buffer);
-    input.readValue<uint32_t>("offset", offset);
+    input.read("data", bufferInfo.data);
+    if (bufferInfo.data)
+    {
+        input.read("buffer", bufferInfo.buffer);
+        input.readValue<uint32_t>("offset", bufferInfo.offset);
+        input.readValue<uint32_t>("range", bufferInfo.range);
+    }
+
     input.read("drawCount", drawCount);
     input.read("stride", stride);
 }
@@ -29,8 +35,31 @@ void DrawIndexedIndirect::write(Output& output) const
 {
     Command::write(output);
 
-    output.write("buffer", buffer);
-    output.writeValue<uint32_t>("offset", offset);
+    output.write("data", bufferInfo.data);
+    if (!bufferInfo.data)
+    {
+        output.write("buffer", bufferInfo.buffer);
+        output.writeValue<uint32_t>("offset", bufferInfo.offset);
+        output.writeValue<uint32_t>("range", bufferInfo.range);
+    }
+
     output.write("drawCount", drawCount);
     output.write("stride", stride);
+}
+
+void DrawIndexedIndirect::compile(Context& context)
+{
+    if (!bufferInfo.buffer && bufferInfo.data)
+    {
+        auto bufferInfoList = vsg::createBufferAndTransferData(context, {bufferInfo.data}, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+        if (!bufferInfoList.empty())
+        {
+            bufferInfo = bufferInfoList.back();
+        }
+    }
+}
+
+void DrawIndexedIndirect::record(CommandBuffer& commandBuffer) const
+{
+    vkCmdDrawIndexedIndirect(commandBuffer, bufferInfo.buffer->vk(commandBuffer.deviceID), bufferInfo.offset, drawCount, stride);
 }
