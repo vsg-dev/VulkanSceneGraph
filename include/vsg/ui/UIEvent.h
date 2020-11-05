@@ -31,6 +31,8 @@ namespace vsg
             time(in_time) {}
 
         time_point time;
+
+        bool handled = false;
     };
 
     using UIEvents = std::list<ref_ptr<UIEvent>>;
