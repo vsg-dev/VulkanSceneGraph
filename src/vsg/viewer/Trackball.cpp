@@ -73,7 +73,7 @@ dvec3 Trackball::tbc(PointerEvent& event)
 
 void Trackball::apply(KeyPressEvent& keyPress)
 {
-    if (keyPress.handled || !_lastPointerEventWiithinRenderArea) return;
+    if (keyPress.handled || !_lastPointerEventWithinRenderArea) return;
 
     if (keyPress.keyBase == _homeKey)
     {
@@ -104,7 +104,7 @@ void Trackball::apply(ButtonPressEvent& buttonPress)
     if (buttonPress.handled) return;
 
     _hasFocus = withinRenderArea(buttonPress.x, buttonPress.y);
-    _lastPointerEventWiithinRenderArea = _hasFocus;
+    _lastPointerEventWithinRenderArea = _hasFocus;
 
     if (_hasFocus) buttonPress.handled = true;
 }
@@ -114,13 +114,13 @@ void Trackball::apply(ButtonReleaseEvent& buttonRelease)
     prev_ndc = ndc(buttonRelease);
     prev_tbc = tbc(buttonRelease);
 
-    _lastPointerEventWiithinRenderArea = withinRenderArea(buttonRelease.x, buttonRelease.y);
+    _lastPointerEventWithinRenderArea = withinRenderArea(buttonRelease.x, buttonRelease.y);
     _hasFocus = false;
 }
 
 void Trackball::apply(MoveEvent& moveEvent)
 {
-    _lastPointerEventWiithinRenderArea = withinRenderArea(moveEvent.x, moveEvent.y);
+    _lastPointerEventWithinRenderArea = withinRenderArea(moveEvent.x, moveEvent.y);
 
     if (moveEvent.handled || !_hasFocus) return;
 

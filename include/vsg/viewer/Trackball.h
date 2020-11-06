@@ -52,7 +52,7 @@ namespace vsg
         ref_ptr<LookAt> _homeLookAt;
 
         bool _hasFocus = false;
-        bool _lastPointerEventWiithinRenderArea = false;
+        bool _lastPointerEventWithinRenderArea = false;
 
         KeySymbol _homeKey = KEY_Space;
         double _direction;
