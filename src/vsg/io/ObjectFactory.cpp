@@ -87,6 +87,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::block64Array);
     VSG_REGISTER_new(vsg::block128Array);
     VSG_REGISTER_new(vsg::materialArray);
+    VSG_REGISTER_new(vsg::DrawIndirectCommandArray);
 
     // array2Ds
     VSG_REGISTER_new(vsg::byteArray2D);

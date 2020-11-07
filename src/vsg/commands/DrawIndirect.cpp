@@ -19,8 +19,8 @@ void DrawIndirect::read(Input& input)
 {
     Command::read(input);
 
-    input.read("data", bufferInfo.data);
-    if (bufferInfo.data)
+    input.readObject("data", bufferInfo.data);
+    if (!bufferInfo.data)
     {
         input.read("buffer", bufferInfo.buffer);
         input.readValue<uint32_t>("offset", bufferInfo.offset);
@@ -35,7 +35,7 @@ void DrawIndirect::write(Output& output) const
 {
     Command::write(output);
 
-    output.write("data", bufferInfo.data);
+    output.writeObject("data", bufferInfo.data);
     if (!bufferInfo.data)
     {
         output.write("buffer", bufferInfo.buffer);
