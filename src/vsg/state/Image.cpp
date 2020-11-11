@@ -109,7 +109,9 @@ void Image::compile(Device* device)
     info.pQueueFamilyIndices = queueFamilyIndices.data();
     info.initialLayout = initialLayout;
 
-    info.usage |= (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT); // TODO need to review this setting.
+    if (appendUsageFlagsWithSampledAndTransferDstBits) {
+        info.usage |= (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT); // TODO need to review this setting.
+    }
 
     vd.device = device;
 

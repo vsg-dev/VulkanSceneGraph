@@ -222,6 +222,7 @@ void Window::buildSwapchain()
         _multisampleImage->samples = _framebufferSamples;
         _multisampleImage->tiling = VK_IMAGE_TILING_OPTIMAL;
         _multisampleImage->usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        _multisampleImage->appendUsageFlagsWithSampledAndTransferDstBits = false;
         _multisampleImage->initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         _multisampleImage->flags = 0;
         _multisampleImage->sharingMode = VK_SHARING_MODE_EXCLUSIVE;

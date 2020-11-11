@@ -40,6 +40,7 @@ namespace vsg
         VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT;
         VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
         VkImageUsageFlags usage = 0;
+        bool appendUsageFlagsWithSampledAndTransferDstBits = true;
         VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         std::vector<uint32_t> queueFamilyIndices;
         VkImageLayout initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
