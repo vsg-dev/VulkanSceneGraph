@@ -72,6 +72,8 @@ DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> data, u
     if (sampler && data)
     {
         auto image = Image::create(data);
+        image->usage |= (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+
         auto imageView = ImageView::create(image);
         imageInfoList.emplace_back(ImageInfo{sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
     }
@@ -95,6 +97,8 @@ DescriptorImage::DescriptorImage(const SamplerImage& si, uint32_t in_dstBinding,
     if (si.sampler && si.data)
     {
         auto image = Image::create(si.data);
+        image->usage |= (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+
         auto imageView = ImageView::create(image);
         imageInfoList.emplace_back(ImageInfo{si.sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
     }
@@ -108,6 +112,8 @@ DescriptorImage::DescriptorImage(const SamplerImages& samplerImages, uint32_t in
         if (si.sampler && si.data)
         {
             auto image = Image::create(si.data);
+            image->usage |= (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+
             auto imageView = ImageView::create(image);
             imageInfoList.emplace_back(ImageInfo{si.sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
         }
@@ -130,6 +136,9 @@ void DescriptorImage::read(Input& input)
         input.readObject("Image", data);
 
         auto image = Image::create(data);
+        if (imageData.sampler) image->usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
+        image->usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+
         imageData.imageView = ImageView::create(image);
         imageData.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     }
