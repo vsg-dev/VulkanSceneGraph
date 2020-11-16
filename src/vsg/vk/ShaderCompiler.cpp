@@ -29,6 +29,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <iomanip>
 #include <iostream>
 
+
+#define HAS_NV_RAYTRACNG (VK_HEADER_VERSION>=92)
+
 using namespace vsg;
 
 #if 1
@@ -105,7 +108,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         case (VK_SHADER_STAGE_GEOMETRY_BIT): return "Geometry Shader";
         case (VK_SHADER_STAGE_FRAGMENT_BIT): return "Fragment Shader";
         case (VK_SHADER_STAGE_COMPUTE_BIT): return "Compute Shader";
-#    ifdef VK_SHADER_STAGE_RAYGEN_BIT_NV
+#    ifdef HAS_NV_RAYTRACNG
         case (VK_SHADER_STAGE_RAYGEN_BIT_NV): return "RayGen Shader";
         case (VK_SHADER_STAGE_ANY_HIT_BIT_NV): return "Any Hit Shader";
         case (VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV): return "Closest Hit Shader";
@@ -140,20 +143,24 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         case (VK_SHADER_STAGE_GEOMETRY_BIT): envStage = EShLangGeometry; break;
         case (VK_SHADER_STAGE_FRAGMENT_BIT): envStage = EShLangFragment; break;
         case (VK_SHADER_STAGE_COMPUTE_BIT): envStage = EShLangCompute; break;
-#    ifdef VK_SHADER_STAGE_RAYGEN_BIT_NV
+#    ifdef HAS_NV_RAYTRACNG
         case (VK_SHADER_STAGE_RAYGEN_BIT_NV): envStage = EShLangRayGenNV; break;
         case (VK_SHADER_STAGE_ANY_HIT_BIT_NV): envStage = EShLangAnyHitNV; break;
         case (VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV): envStage = EShLangClosestHitNV; break;
         case (VK_SHADER_STAGE_MISS_BIT_NV): envStage = EShLangMissNV; break;
         case (VK_SHADER_STAGE_INTERSECTION_BIT_NV): envStage = EShLangIntersectNV; break;
         case (VK_SHADER_STAGE_CALLABLE_BIT_NV): envStage = EShLangCallableNV; break;
-        case (VK_SHADER_STAGE_TASK_BIT_NV): envStage = EShLangTaskNV; ;
+        case (VK_SHADER_STAGE_TASK_BIT_NV): envStage = EShLangTaskNV; break;
         case (VK_SHADER_STAGE_MESH_BIT_NV): envStage = EShLangMeshNV; break;
 #    endif
         default: break;
         }
 
-        if (envStage == EShLangCount) return false;
+        if (envStage == EShLangCount)
+        {
+            INFO_OUTPUT<<" Warning ShaderCompiler::compile() unsupported stage : " <<vsg_shader->stage<<std::endl;
+            return false;
+        }
 
         glslang::TShader* shader(new glslang::TShader(envStage));
         tshaders.emplace_back(shader);
