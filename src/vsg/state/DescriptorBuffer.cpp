@@ -15,6 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/vk/CommandBuffer.h>
 
+#include <iostream>
+
 using namespace vsg;
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -119,8 +121,7 @@ void DescriptorBuffer::compile(Context& context)
             }
         }
 
-        //auto buffer = vsg::Buffer::create(totalSize, bufferUsageFlags, VK_SHARING_MODE_EXCLUSIVE);
-        auto buffer = vsg::createBufferAndMemory(context.device, totalSize, bufferUsageFlags, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        auto buffer = vsg::Buffer::create(totalSize, bufferUsageFlags, VK_SHARING_MODE_EXCLUSIVE);
 
         for (auto& bufferInfo : bufferInfoList)
         {
@@ -131,7 +132,17 @@ void DescriptorBuffer::compile(Context& context)
     bool needToCopyDataToBuffer = false;
     for (auto& bufferInfo : bufferInfoList)
     {
-        if (bufferInfo.buffer->compile(context.device)) needToCopyDataToBuffer = true;
+        if (bufferInfo.buffer->compile(context.device))
+        {
+            if (bufferInfo.buffer->getDeviceMemory(context.deviceID)==nullptr)
+            {
+                auto memRequirements = bufferInfo.buffer->getMemoryRequirements(context.deviceID);
+                auto memory = vsg::DeviceMemory::create(context.device, memRequirements, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                bufferInfo.buffer->bind(memory, 0);
+            }
+
+            needToCopyDataToBuffer = true;
+        }
     }
 
     if (needToCopyDataToBuffer)
