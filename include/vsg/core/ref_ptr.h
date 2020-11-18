@@ -109,6 +109,8 @@ namespace vsg
         // potentially dangerous automatic type conversion, could cause dangling pointer if ref_ptr<> assigned to C pointer, if ref_ptr<> destruction cause an object delete.
         operator T*() const noexcept { return _ptr; }
 
+        void operator[](int) const = delete;
+
         T& operator*() const noexcept { return *_ptr; }
 
         T* operator->() const noexcept { return _ptr; }
