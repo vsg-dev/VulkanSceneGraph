@@ -188,6 +188,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::BlitImage);
 
     // text
+    VSG_REGISTER_create(vsg::GlyphMetricsArray);
     VSG_REGISTER_create(vsg::Font);
     VSG_REGISTER_create(vsg::Text);
     VSG_REGISTER_create(vsg::LeftAlignment);

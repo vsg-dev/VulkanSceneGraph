@@ -111,9 +111,9 @@ void LeftAlignment::layout(const Data* text, const Font& font, TextQuads& quads)
             else if (charcode == ' ')
             {
                 // space
-                if (auto itr = font.glyphs.find(charcode); itr != font.glyphs.end())
+                if (auto glyph_index = font.glyphIndexForCharcode(charcode))
                 {
-                    const auto& glyph = itr->second;
+                    const auto& glyph = (*font.glyphMetrics)[glyph_index];
                     pen_position += layout.horizontal * glyph.horiAdvance;
                 }
                 else
@@ -123,15 +123,15 @@ void LeftAlignment::layout(const Data* text, const Font& font, TextQuads& quads)
             }
             else
             {
-                TextQuad quad;
+                auto glyph_index = font.glyphIndexForCharcode(charcode);
+                if (glyph_index==0) return;
 
-                auto itr = font.glyphs.find(charcode);
-                if (itr == font.glyphs.end()) return;
-
-                const auto& glyph = itr->second;
+                const auto& glyph = (*font.glyphMetrics)[glyph_index];
                 const auto& uvrect = glyph.uvrect;
 
                 vec3 local_origin = pen_position + layout.horizontal * glyph.horiBearingX + layout.vertical * glyph.horiBearingY - layout.vertical * glyph.height;
+
+                TextQuad quad;
 
                 quad.vertices[0] = local_origin;
                 quad.vertices[1] = local_origin + layout.horizontal * glyph.width;

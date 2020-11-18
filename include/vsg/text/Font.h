@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/state/GraphicsPipeline.h>
+#include <vsg/text/GlyphMetrics.h>
 
 namespace vsg
 {
@@ -27,30 +28,21 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        /// naming and meaning taken from FT_Glyph_Metrics, with dimensions normalized to fontHeight
-        struct GlyphMetrics
-        {
-            uint16_t charcode;
-            vec4 uvrect; // min x/y, max x/y
-
-            float width;
-            float height;
-            float horiBearingX;
-            float horiBearingY;
-            float horiAdvance;
-            float vertBearingX;
-            float vertBearingY;
-            float vertAdvance;
-        };
-        using GlyphMap = std::map<uint16_t, GlyphMetrics>;
-
         float ascender = 1.0f;  // maximum ascent below the baseline
         float descender = 0.0f; // maximum descent below the baseline
         float height = 1.0f;    // vertical distance between two consecutive baselines
 
         ref_ptr<Data> atlas;
-        GlyphMap glyphs;
+        ref_ptr<GlyphMetricsArray> glyphMetrics;
+        ref_ptr<uintArray> charmap;
         ref_ptr<Options> options;
+
+        /// get the index into the glyphMetrics array for the glyph assoicated with specififed charcode
+        uint32_t glyphIndexForCharcode(uint32_t charcode) const
+        {
+            if (charmap && charcode < charmap->size()) return charmap->at(charcode);
+            return 0;
+        }
 
         /// different text impplementations may wish to share implementation details such as shaders etc.
         std::mutex sharedDataMutex;

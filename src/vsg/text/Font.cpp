@@ -26,29 +26,9 @@ void Font::read(Input& input)
     input.read("descender", descender);
     input.read("height", height);
 
+    input.readObject("charmap", charmap);
+    input.readObject("glyphMetrics", glyphMetrics);
     input.readObject("atlas", atlas);
-
-    glyphs.clear();
-
-    uint32_t numGlyphs = input.readValue<uint32_t>("numGlyphs");
-    for (uint32_t i = 0; i < numGlyphs; ++i)
-    {
-        uint16_t charcode;
-        input.read("charcode", charcode);
-
-        GlyphMetrics& glyph = glyphs[charcode];
-        glyph.charcode = charcode;
-
-        input.read("uvrect", glyph.uvrect);
-        input.read("width", glyph.width);
-        input.read("height", glyph.height);
-        input.read("horiBearingX", glyph.horiBearingX);
-        input.read("horiBearingY", glyph.horiBearingY);
-        input.read("horiAdvance", glyph.horiAdvance);
-        input.read("vertBearingX", glyph.vertBearingX);
-        input.read("vertBearingY", glyph.vertBearingY);
-        input.read("vertAdvance", glyph.vertAdvance);
-    }
 }
 
 void Font::write(Output& output) const
@@ -59,22 +39,7 @@ void Font::write(Output& output) const
     output.write("descender", descender);
     output.write("height", height);
 
+    output.writeObject("charmap", charmap);
+    output.writeObject("glyphMetrics", glyphMetrics);
     output.writeObject("atlas", atlas);
-
-    output.writeValue<uint32_t>("numGlyphs", glyphs.size());
-    for (auto itr = glyphs.begin(); itr != glyphs.end(); ++itr)
-    {
-        const GlyphMetrics& glyph = itr->second;
-        output.write("charcode", glyph.charcode);
-
-        output.write("uvrect", glyph.uvrect);
-        output.write("width", glyph.width);
-        output.write("height", glyph.height);
-        output.write("horiBearingX", glyph.horiBearingX);
-        output.write("horiBearingY", glyph.horiBearingY);
-        output.write("horiAdvance", glyph.horiAdvance);
-        output.write("vertBearingX", glyph.vertBearingX);
-        output.write("vertBearingY", glyph.vertBearingY);
-        output.write("vertAdvance", glyph.vertAdvance);
-    }
 }
