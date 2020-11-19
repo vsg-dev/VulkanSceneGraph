@@ -19,9 +19,7 @@ namespace vsg
     /// naming and meaning taken from FT_Glyph_Metrics, with dimensions normalized to fontHeight
     struct GlyphMetrics
     {
-        uint16_t charcode;
         vec4 uvrect; // min x/y, max x/y
-
         float width;
         float height;
         float horiBearingX;
@@ -33,7 +31,6 @@ namespace vsg
 
         void read(vsg::Input& input)
         {
-            input.read("charcode", charcode);
             input.read("uvrect", uvrect);
             input.read("width", width);
             input.read("height", height);
@@ -47,8 +44,6 @@ namespace vsg
 
         void write(vsg::Output& output) const
         {
-            output.write("charcode", charcode);
-
             output.write("uvrect", uvrect);
             output.write("width", width);
             output.write("height", height);
