@@ -45,12 +45,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set env
-      run: echo "::set-env name=VULKAN_SDK::C:\VulkanSDK\${{env.VulkanSDKVersion}}"
+      id: env
+      run: echo "::set-output name=VULKAN_SDK::C:\VulkanSDK\${{env.VulkanSDKVersion}}"
     - name: Cache
       id: cache
       uses: actions/cache@v1.1.2
       with:
-        path: ${{env.VULKAN_SDK}}
+        path: ${{steps.env.outputs.VULKAN_SDK}}
         key: VulkanSdk${{env.VulkanSDKVersion}}WindowsExtracted2
     - name: Download & Install Vulkan SDK
       if: steps.cache.outputs.cache-hit != 'true'
@@ -60,8 +61,10 @@ jobs:
         $installer.WaitForExit();
     - name: CMake
       run: cmake . -G "Visual Studio 16 2019" -A x64
+      env:
+        VULKAN_SDK: ${{steps.env.outputs.VULKAN_SDK}}
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.0
+      uses: microsoft/setup-msbuild@v1.0.2
     - name: MSBuild
       run: MSBuild.exe ALL_BUILD.vcxproj -p:Configuration=Release
 
@@ -70,12 +73,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set env
-      run: echo "::set-env name=VULKAN_SDK::C:\VulkanSDK\${{env.VulkanSDKVersion}}"
+      id: env
+      run: echo "::set-output name=VULKAN_SDK::C:\VulkanSDK\${{env.VulkanSDKVersion}}"
     - name: Cache
       id: cache
       uses: actions/cache@v1.1.2
       with:
-        path: ${{env.VULKAN_SDK}}
+        path: ${{steps.env.outputs.VULKAN_SDK}}
         key: VulkanSdk${{env.VulkanSDKVersion}}WindowsExtracted2
     - name: Download & Install Vulkan SDK
       if: steps.cache.outputs.cache-hit != 'true'
@@ -85,8 +89,10 @@ jobs:
         $installer.WaitForExit();
     - name: CMake
       run: cmake . -G "Visual Studio 16 2019" -A x64 -DBUILD_SHARED_LIBS=ON
+      env:
+        VULKAN_SDK: ${{steps.env.outputs.VULKAN_SDK}}
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.0
+      uses: microsoft/setup-msbuild@v1.0.2
     - name: MSBuild
       run: MSBuild.exe ALL_BUILD.vcxproj -p:Configuration=Release
 
@@ -95,16 +101,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set env
+      id: env
       run: |
         VULKAN_SDK=$GITHUB_WORKSPACE/../vulkansdk-macos-${{env.VulkanSDKVersion}}/macOS
-        echo ::set-env name=VULKAN_SDK::$VULKAN_SDK
-        echo ::set-env name=VK_LAYER_PATH::$VULKAN_SDK/etc/vulkan/explicit_layer.d
-        echo ::set-env name=VK_ICD_FILENAMES::$VULKAN_SDK/etc/vulkan/icd.d/MoltenVK_icd.json
+        echo ::set-output name=VULKAN_SDK::$VULKAN_SDK
+        echo "VK_LAYER_PATH=$VULKAN_SDK/etc/vulkan/explicit_layer.d" >> $GITHUB_ENV
+        echo "VK_ICD_FILENAMES=$VULKAN_SDK/etc/vulkan/icd.d/MoltenVK_icd.json" >> $GITHUB_ENV
     - name: Cache
       id: cache
       uses: actions/cache@v1.1.2
       with:
-        path: ${{env.VULKAN_SDK}}
+        path: ${{steps.env.outputs.VULKAN_SDK}}
         key: VulkanSdk${{env.VulkanSDKVersion}}ExtractedMacos
     - name: Download & Extract Vulkan SDK
       if: steps.cache.outputs.cache-hit != 'true'
@@ -116,5 +123,8 @@ jobs:
         export DYLD_LIBRARY_PATH="$VULKAN_SDK/lib:$DYLD_LIBRARY_PATH"
         export PATH="$VULKAN_SDK:$VULKAN_SDK/bin:$PATH"
         cmake -D CMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/../vsg-$GITHUB_SHA" .
+      env:
+        VULKAN_SDK: ${{steps.env.outputs.VULKAN_SDK}}
+
     - name: Make
       run: make -j 2
