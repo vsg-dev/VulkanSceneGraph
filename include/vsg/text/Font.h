@@ -14,8 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Data.h>
 #include <vsg/io/Options.h>
+#include <vsg/state/DescriptorImage.h>
 #include <vsg/state/DescriptorSet.h>
-#include <vsg/state/GraphicsPipeline.h>
 #include <vsg/text/GlyphMetrics.h>
 
 namespace vsg
@@ -43,6 +43,16 @@ namespace vsg
             if (charmap && charcode < charmap->size()) return charmap->at(charcode);
             return 0;
         }
+
+        /// Wraooer for Font GPU state.
+        struct VSG_DECLSPEC FontState : public Inherit<Object, FontState>
+        {
+            FontState(Font* font);
+            bool match() const { return true; }
+
+            ref_ptr<DescriptorImage> textureAtlas;
+            ref_ptr<DescriptorImage> glyphMetrics;
+        };
 
         /// different text impplementations may wish to share implementation details such as shaders etc.
         std::mutex sharedDataMutex;

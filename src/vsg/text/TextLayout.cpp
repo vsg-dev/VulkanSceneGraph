@@ -124,7 +124,7 @@ void LeftAlignment::layout(const Data* text, const Font& font, TextQuads& quads)
             else
             {
                 auto glyph_index = font.glyphIndexForCharcode(charcode);
-                if (glyph_index==0) return;
+                if (glyph_index == 0) return;
 
                 const auto& glyph = (*font.glyphMetrics)[glyph_index];
                 const auto& uvrect = glyph.uvrect;

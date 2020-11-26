@@ -29,8 +29,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <iomanip>
 #include <iostream>
 
-
-#define HAS_NV_RAYTRACNG (VK_HEADER_VERSION>=92)
+#define HAS_NV_RAYTRACNG (VK_HEADER_VERSION >= 92)
 
 using namespace vsg;
 
@@ -158,7 +157,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
 
         if (envStage == EShLangCount)
         {
-            INFO_OUTPUT<<" Warning ShaderCompiler::compile() unsupported stage : " <<vsg_shader->stage<<std::endl;
+            INFO_OUTPUT << " Warning ShaderCompiler::compile() unsupported stage : " << vsg_shader->stage << std::endl;
             return false;
         }
 

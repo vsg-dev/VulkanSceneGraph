@@ -19,15 +19,15 @@ namespace vsg
     /// naming and meaning taken from FT_Glyph_Metrics, with dimensions normalized to fontHeight
     struct GlyphMetrics
     {
-        vec4 uvrect; // min x/y, max x/y
-        float width;
-        float height;
-        float horiBearingX;
-        float horiBearingY;
-        float horiAdvance;
-        float vertBearingX;
-        float vertBearingY;
-        float vertAdvance;
+        float width;        // dimensions.x
+        float height;       // dimensions.y
+        float horiAdvance;  // dimensions[2]
+        float vertAdvance;  // dimensions[3]
+        float horiBearingX; // bearings[0]
+        float horiBearingY; // bearings[1]
+        float vertBearingX; // bearings[2]
+        float vertBearingY; // bearings[3]
+        vec4 uvrect;        // min x/y, max x/y
 
         void read(vsg::Input& input)
         {

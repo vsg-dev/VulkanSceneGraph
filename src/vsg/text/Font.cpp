@@ -43,3 +43,33 @@ void Font::write(Output& output) const
     output.writeObject("glyphMetrics", glyphMetrics);
     output.writeObject("atlas", atlas);
 }
+
+Font::FontState::FontState(Font* font)
+{
+    {
+        auto sampler = Sampler::create();
+        sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+        sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+        sampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+        sampler->borderColor = VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
+        sampler->anisotropyEnable = VK_TRUE;
+        sampler->maxAnisotropy = 16.0f;
+        sampler->magFilter = VK_FILTER_LINEAR;
+        sampler->minFilter = VK_FILTER_LINEAR;
+        sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        sampler->maxLod = 12.0;
+
+        textureAtlas = DescriptorImage::create(sampler, font->atlas, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    }
+
+    {
+        auto sampler = Sampler::create();
+        sampler->magFilter = VK_FILTER_NEAREST;
+        sampler->minFilter = VK_FILTER_NEAREST;
+        sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+        sampler->unnormalizedCoordinates = VK_TRUE;
+
+        auto glyphMetricsProxy = vec4Array2D::create(font->glyphMetrics, 0, sizeof(GlyphMetrics), sizeof(GlyphMetrics) / sizeof(vec4), font->glyphMetrics->valueCount(), Data::Layout{VK_FORMAT_R32G32B32A32_SFLOAT});
+        glyphMetrics = DescriptorImage::create(sampler, glyphMetricsProxy, 1, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    }
+}
