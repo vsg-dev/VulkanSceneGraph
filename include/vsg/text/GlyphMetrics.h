@@ -19,8 +19,8 @@ namespace vsg
     /// naming and meaning taken from FT_Glyph_Metrics, with dimensions normalized to fontHeight
     struct GlyphMetrics
     {
-        float width;        // dimensions.x
-        float height;       // dimensions.y
+        float width;        // dimensions[0]
+        float height;       // dimensions[1]
         float horiAdvance;  // dimensions[2]
         float vertAdvance;  // dimensions[3]
         float horiBearingX; // bearings[0]
