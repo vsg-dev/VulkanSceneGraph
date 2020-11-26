@@ -26,29 +26,9 @@ void Font::read(Input& input)
     input.read("descender", descender);
     input.read("height", height);
 
+    input.readObject("charmap", charmap);
+    input.readObject("glyphMetrics", glyphMetrics);
     input.readObject("atlas", atlas);
-
-    glyphs.clear();
-
-    uint32_t numGlyphs = input.readValue<uint32_t>("numGlyphs");
-    for (uint32_t i = 0; i < numGlyphs; ++i)
-    {
-        uint16_t charcode;
-        input.read("charcode", charcode);
-
-        GlyphMetrics& glyph = glyphs[charcode];
-        glyph.charcode = charcode;
-
-        input.read("uvrect", glyph.uvrect);
-        input.read("width", glyph.width);
-        input.read("height", glyph.height);
-        input.read("horiBearingX", glyph.horiBearingX);
-        input.read("horiBearingY", glyph.horiBearingY);
-        input.read("horiAdvance", glyph.horiAdvance);
-        input.read("vertBearingX", glyph.vertBearingX);
-        input.read("vertBearingY", glyph.vertBearingY);
-        input.read("vertAdvance", glyph.vertAdvance);
-    }
 }
 
 void Font::write(Output& output) const
@@ -59,22 +39,41 @@ void Font::write(Output& output) const
     output.write("descender", descender);
     output.write("height", height);
 
+    output.writeObject("charmap", charmap);
+    output.writeObject("glyphMetrics", glyphMetrics);
     output.writeObject("atlas", atlas);
+}
 
-    output.writeValue<uint32_t>("numGlyphs", glyphs.size());
-    for (auto itr = glyphs.begin(); itr != glyphs.end(); ++itr)
+Font::FontState::FontState(Font* font)
+{
     {
-        const GlyphMetrics& glyph = itr->second;
-        output.write("charcode", glyph.charcode);
+        auto sampler = Sampler::create();
+        sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+        sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+        sampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+        sampler->borderColor = VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
+        sampler->anisotropyEnable = VK_TRUE;
+        sampler->maxAnisotropy = 16.0f;
+        sampler->magFilter = VK_FILTER_LINEAR;
+        sampler->minFilter = VK_FILTER_LINEAR;
+        sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        sampler->maxLod = 12.0;
 
-        output.write("uvrect", glyph.uvrect);
-        output.write("width", glyph.width);
-        output.write("height", glyph.height);
-        output.write("horiBearingX", glyph.horiBearingX);
-        output.write("horiBearingY", glyph.horiBearingY);
-        output.write("horiAdvance", glyph.horiAdvance);
-        output.write("vertBearingX", glyph.vertBearingX);
-        output.write("vertBearingY", glyph.vertBearingY);
-        output.write("vertAdvance", glyph.vertAdvance);
+        textureAtlas = DescriptorImage::create(sampler, font->atlas, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    }
+
+    {
+        auto sampler = Sampler::create();
+        sampler->magFilter = VK_FILTER_NEAREST;
+        sampler->minFilter = VK_FILTER_NEAREST;
+        sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+        sampler->unnormalizedCoordinates = VK_TRUE;
+
+        uint32_t stride = static_cast<uint32_t>(sizeof(GlyphMetrics));
+        uint32_t numVec4PerGlyph = static_cast<uint32_t>(sizeof(GlyphMetrics) / sizeof(vec4));
+        uint32_t numGlyphs = static_cast<uint32_t>(font->glyphMetrics->valueCount());
+
+        auto glyphMetricsProxy = vec4Array2D::create(font->glyphMetrics, 0, stride, numVec4PerGlyph, numGlyphs, Data::Layout{VK_FORMAT_R32G32B32A32_SFLOAT});
+        glyphMetrics = DescriptorImage::create(sampler, glyphMetricsProxy, 1, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
     }
 }

@@ -25,7 +25,7 @@ namespace vsg
     {
     public:
         DescriptorSet();
-        DescriptorSet(ref_ptr<DescriptorSetLayout> indescriptorSetLayout, const Descriptors& in_descriptors);
+        DescriptorSet(ref_ptr<DescriptorSetLayout> in_descriptorSetLayout, const Descriptors& in_descriptors);
 
         /// VkDescriptorSetAllocateInfo settings
         ref_ptr<DescriptorSetLayout> setLayout;

@@ -134,7 +134,7 @@ void DescriptorBuffer::compile(Context& context)
     {
         if (bufferInfo.buffer->compile(context.device))
         {
-            if (bufferInfo.buffer->getDeviceMemory(context.deviceID)==nullptr)
+            if (bufferInfo.buffer->getDeviceMemory(context.deviceID) == nullptr)
             {
                 auto memRequirements = bufferInfo.buffer->getMemoryRequirements(context.deviceID);
                 auto memory = vsg::DeviceMemory::create(context.device, memRequirements, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);

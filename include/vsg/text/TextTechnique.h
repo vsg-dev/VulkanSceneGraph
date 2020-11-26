@@ -20,34 +20,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_DECLSPEC Text : public Inherit<Node, Text>
+    // forward declare Text
+    class Text;
+
+    // base class for implementation of rendering backend for Text
+    class VSG_DECLSPEC TextTechnique : public Inherit<Object, TextTechnique>
     {
     public:
-        template<class N, class V>
-        static void t_traverse(N& node, V& visitor)
-        {
-            if (node.technique) node.technique->accept(visitor);
-        }
-
-        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
-        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
-        void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        /// settings
-        ref_ptr<Font> font;
-        ref_ptr<TextTechnique> technique;
-        ref_ptr<TextLayout> layout;
-        ref_ptr<Data> text;
-
-        /// create the rendering backend.
-        /// minimumAllocation provides a hint for the minimum number of glyphs to allocate space for.
-        virtual void setup(uint32_t minimumAllocation = 0);
-
-    protected:
+        virtual void setup(Text* text, uint32_t minimumAllocation = 0) = 0;
     };
-    VSG_type_name(vsg::Text);
+    VSG_type_name(vsg::TextTechnique);
 
 } // namespace vsg

@@ -188,9 +188,12 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::BlitImage);
 
     // text
+    VSG_REGISTER_create(vsg::GlyphMetricsArray);
     VSG_REGISTER_create(vsg::Font);
     VSG_REGISTER_create(vsg::Text);
     VSG_REGISTER_create(vsg::LeftAlignment);
+    VSG_REGISTER_create(vsg::CpuLayoutTechnique);
+    VSG_REGISTER_create(vsg::GpuLayoutTechnique);
 
     // application
     VSG_REGISTER_create(vsg::EllipsoidModel);
