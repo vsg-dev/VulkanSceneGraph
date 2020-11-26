@@ -69,7 +69,11 @@ Font::FontState::FontState(Font* font)
         sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
         sampler->unnormalizedCoordinates = VK_TRUE;
 
-        auto glyphMetricsProxy = vec4Array2D::create(font->glyphMetrics, 0, sizeof(GlyphMetrics), sizeof(GlyphMetrics) / sizeof(vec4), font->glyphMetrics->valueCount(), Data::Layout{VK_FORMAT_R32G32B32A32_SFLOAT});
+        uint32_t stride = static_cast<uint32_t>(sizeof(GlyphMetrics));
+        uint32_t numVec4PerGlyph = static_cast<uint32_t>(sizeof(GlyphMetrics) / sizeof(vec4));
+        uint32_t numGlyphs = static_cast<uint32_t>(font->glyphMetrics->valueCount());
+
+        auto glyphMetricsProxy = vec4Array2D::create(font->glyphMetrics, 0, stride, numVec4PerGlyph, numGlyphs, Data::Layout{VK_FORMAT_R32G32B32A32_SFLOAT});
         glyphMetrics = DescriptorImage::create(sampler, glyphMetricsProxy, 1, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
     }
 }

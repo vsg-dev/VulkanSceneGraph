@@ -135,21 +135,21 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         Font& font;
         ref_ptr<uintArray>& textArray;
         bool& updated;
-        size_t minimumSize = 0;
-        size_t size = 0;
+        uint32_t minimumSize = 0;
+        uint32_t size = 0;
 
-        ConvertString(Font& in_font, ref_ptr<uintArray>& in_textArray, bool& in_updated, size_t in_minimumSize) :
+        ConvertString(Font& in_font, ref_ptr<uintArray>& in_textArray, bool& in_updated, uint32_t in_minimumSize) :
             font(in_font),
             textArray(in_textArray),
             updated(in_updated),
             minimumSize(in_minimumSize) {}
 
-        void allocate(size_t allocationSize)
+        void allocate(uint32_t allocationSize)
         {
             size = allocationSize;
 
             if (allocationSize < minimumSize) allocationSize = minimumSize;
-            if (!textArray || allocationSize > textArray->valueCount())
+            if (!textArray || allocationSize > static_cast<uint32_t>(textArray->valueCount()))
             {
                 updated = true;
                 textArray = uintArray::create(allocationSize);
@@ -201,7 +201,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     ConvertString convert(*(text->font), textArray, textArrayUpdated, minimumAllocation);
     text->text->accept(convert);
 
-    size_t num_quads = convert.size;
+    uint32_t num_quads = convert.size;
 
     // TODO need to reallocate DescriptorBuffer if textArray changes size?
     if (!textDescriptor) textDescriptor = DescriptorBuffer::create(textArray, 1, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
@@ -222,15 +222,13 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
 
     if (!layoutDescriptor) layoutDescriptor = DescriptorBuffer::create(layoutValue, 0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 
-    size_t num_vertices = 4;
-
-    if (!vertices || num_vertices > vertices->size())
+    if (!vertices)
     {
-        vertices = vec3Array::create(num_vertices);
+        vertices = vec3Array::create(4);
 
         float leadingEdgeGradient = 0.1f;
 
-        vertices->set(0, vec3(0.0f, 1.0f, 2.0 * leadingEdgeGradient));
+        vertices->set(0, vec3(0.0f, 1.0f, 2.0f * leadingEdgeGradient));
         vertices->set(1, vec3(0.0f, 0.0f, leadingEdgeGradient));
         vertices->set(2, vec3(1.0f, 1.0f, leadingEdgeGradient));
         vertices->set(3, vec3(1.0f, 0.0f, 0.0f));
