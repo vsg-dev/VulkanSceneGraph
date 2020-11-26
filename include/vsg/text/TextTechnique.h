@@ -24,10 +24,11 @@ namespace vsg
     class Text;
 
     // base class for implementation of rendering backend for Text
-    class TextTechnique : public Inherit<Object, TextTechnique>
+    class VSG_DECLSPEC TextTechnique : public Inherit<Object, TextTechnique>
     {
     public:
         virtual void setup(Text* text, uint32_t minimumAllocation = 0) = 0;
     };
+    VSG_type_name(vsg::TextTechnique);
 
 } // namespace vsg
