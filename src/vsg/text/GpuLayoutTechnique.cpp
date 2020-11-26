@@ -158,7 +158,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
 
         void apply(const stringValue& text) override
         {
-            allocate(text.value().size());
+            allocate(static_cast<uint32_t>(text.value().size()));
 
             auto itr = textArray->begin();
             for (auto& c : text.value())
@@ -168,7 +168,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         }
         void apply(const ubyteArray& text) override
         {
-            allocate(text.valueCount());
+            allocate(static_cast<uint32_t>(text.valueCount()));
 
             auto itr = textArray->begin();
             for (auto& c : text)
@@ -178,7 +178,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         }
         void apply(const ushortArray& text) override
         {
-            allocate(text.valueCount());
+            allocate(static_cast<uint32_t>(text.valueCount()));
 
             auto itr = textArray->begin();
             for (auto& c : text)
@@ -188,7 +188,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         }
         void apply(const uintArray& text) override
         {
-            allocate(text.valueCount());
+            allocate(static_cast<uint32_t>(text.valueCount()));
 
             auto itr = textArray->begin();
             for (auto& c : text)
