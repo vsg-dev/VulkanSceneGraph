@@ -32,18 +32,26 @@ namespace vsg
             defaults();
         }
 
-        WindowTraits(int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height) :
-            x(in_x),
-            y(in_y),
-            width(in_width),
-            height(in_height)
+        explicit WindowTraits(const std::string& title) :
+            windowTitle(title)
         {
             defaults();
         }
 
-        WindowTraits(uint32_t in_width, uint32_t in_height) :
+        WindowTraits(int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height, const std::string& title = "vsg window") :
+            x(in_x),
+            y(in_y),
             width(in_width),
-            height(in_height)
+            height(in_height),
+            windowTitle(title)
+        {
+            defaults();
+        }
+
+        WindowTraits(uint32_t in_width, uint32_t in_height, const std::string& title =  "vsg window") :
+            width(in_width),
+            height(in_height),
+            windowTitle(title)
         {
             defaults();
         }
