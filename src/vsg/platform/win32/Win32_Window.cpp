@@ -560,7 +560,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         uint32_t mx = GET_X_LPARAM(lParam);
         uint32_t my = GET_Y_LPARAM(lParam);
 
-        _bufferedEvents.emplace_back(new vsg::ButtonPressEvent(this, event_time, mx, my, getButtonMask(wParam), getButtonEventDetail(msg)));
+        _bufferedEvents.emplace_back(new vsg::ButtonPressEvent(this, event_time, mx, my, getButtonMask(wParam), getButtonDownEventDetail(msg)));
 
         //::SetCapture(_window);
     }
@@ -572,7 +572,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         uint32_t mx = GET_X_LPARAM(lParam);
         uint32_t my = GET_Y_LPARAM(lParam);
 
-        _bufferedEvents.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, mx, my, getButtonMask(wParam), getButtonEventDetail(msg)));
+        _bufferedEvents.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, mx, my, getButtonMask(wParam), getButtonUpEventDetail(msg)));
 
         //::ReleaseCapture(); // should only release once all mouse buttons are released ??
         break;

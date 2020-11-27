@@ -98,10 +98,16 @@ namespace vsgWin32
         return (vsg::ButtonMask)mask;
     }
 
-    int getButtonEventDetail(UINT buttonMsg)
+    int getButtonDownEventDetail(UINT buttonMsg) const
     {
         return buttonMsg == WM_LBUTTONDOWN ? 1 : (buttonMsg == WM_MBUTTONDOWN ? 2 : buttonMsg == WM_RBUTTONDOWN ? 3 : (buttonMsg == WM_XBUTTONDOWN ? 4 : 0)); // need to determine x1, x2
     }
+
+    int getButtonUpEventDetail(UINT buttonMsg) const
+    {
+        return buttonMsg == WM_LBUTTONUP ? 1 : (buttonMsg == WM_MBUTTONUP ? 2 : buttonMsg == WM_RBUTTONUP ? 3 : (buttonMsg == WM_XBUTTONUP ? 4 : 0));
+    }
+
 
     class Win32_Window : public vsg::Inherit<vsg::Window, Win32_Window>
     {
