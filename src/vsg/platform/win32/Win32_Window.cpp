@@ -434,6 +434,7 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
     ShowWindow(_window, SW_SHOW);
     SetForegroundWindow(_window);
     SetFocus(_window);
+    _windowMapped = true;
 
     traits->systemConnection = wc.hInstance;
     traits->nativeWindow = _window;
@@ -463,6 +464,11 @@ void Win32_Window::_initSurface()
     if (!_instance) _initInstance();
 
     _surface = new vsgWin32::Win32Surface(_instance, _window);
+}
+
+bool Win32_Window::visible() const
+{
+    return _window!=0 && _windowMapped;
 }
 
 bool Win32_Window::pollEvents(vsg::UIEvents& events)
@@ -541,6 +547,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         _bufferedEvents.emplace_back(new vsg::ExposeWindowEvent(this, event_time, winx, winy, winw, winh));
         break;
     case WM_DESTROY:
+        _windowMapped = false;
         break;
     case WM_PAINT:
         ValidateRect(_window, NULL);
@@ -590,9 +597,24 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         break;
     }
     case WM_MOVE:
-    case WM_SIZE:
     {
         _bufferedEvents.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, winx, winy, winw, winh));
+        break;
+    }
+    case WM_SIZE:
+    {
+        if (wParam == SIZE_MINIMIZED)
+        {
+            _windowMapped = false;
+        }
+        else if (wParam == SIZE_RESTORED)
+        {
+            _windowMapped = true;
+        }
+        else
+        {
+            _bufferedEvents.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, winx, winy, winw, winh));
+        }
         break;
     }
     case WM_EXITSIZEMOVE:
