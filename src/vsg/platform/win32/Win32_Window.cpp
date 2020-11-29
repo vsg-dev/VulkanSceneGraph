@@ -603,16 +603,13 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     }
     case WM_SIZE:
     {
-        if (wParam == SIZE_MINIMIZED)
+        if (wParam == SIZE_MINIMIZED || wParam == SIZE_MAXHIDE || winw==0 || winh==0)
         {
             _windowMapped = false;
         }
-        else if (wParam == SIZE_RESTORED)
-        {
-            _windowMapped = true;
-        }
         else
         {
+            _windowMapped = true;
             _bufferedEvents.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, winx, winy, winw, winh));
         }
         break;
