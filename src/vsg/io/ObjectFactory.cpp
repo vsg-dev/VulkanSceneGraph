@@ -87,6 +87,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::block64Array);
     VSG_REGISTER_new(vsg::block128Array);
     VSG_REGISTER_new(vsg::materialArray);
+    VSG_REGISTER_new(vsg::DrawIndirectCommandArray);
 
     // array2Ds
     VSG_REGISTER_new(vsg::byteArray2D);
@@ -183,7 +184,9 @@ ObjectFactory::ObjectFactory()
 
     // commands
     VSG_REGISTER_create(vsg::Draw);
+    VSG_REGISTER_create(vsg::DrawIndirect);
     VSG_REGISTER_create(vsg::DrawIndexed);
+    VSG_REGISTER_create(vsg::DrawIndexedIndirect);
     VSG_REGISTER_create(vsg::CopyImage);
     VSG_REGISTER_create(vsg::BlitImage);
 

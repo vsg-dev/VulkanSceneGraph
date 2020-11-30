@@ -50,7 +50,9 @@ set(SOURCES
     commands/Dispatch.cpp
     commands/PushConstants.cpp
     commands/Draw.cpp
+    commands/DrawIndirect.cpp
     commands/DrawIndexed.cpp
+    commands/DrawIndexedIndirect.cpp
 
     state/Buffer.cpp
     state/BufferInfo.cpp

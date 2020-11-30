@@ -28,6 +28,9 @@ namespace vsg
     public:
         BufferInfo() = default;
 
+        BufferInfo(Data* in_data) :
+            data(in_data) {}
+
         BufferInfo(Buffer* in_buffer, VkDeviceSize in_offset, VkDeviceSize in_range, Data* in_data = nullptr) :
             buffer(in_buffer),
             offset(in_offset),
