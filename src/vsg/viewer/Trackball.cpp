@@ -33,7 +33,7 @@ Trackball::Trackball(ref_ptr<Camera> camera) :
 
 bool Trackball::withinRenderArea(int32_t x, int32_t y) const
 {
-    auto& renderArea = _camera->getRenderArea();
+    auto renderArea = _camera->getRenderArea();
 
     return (x >= renderArea.offset.x && x < static_cast<int32_t>(renderArea.offset.x + renderArea.extent.width)) &&
            (y >= renderArea.offset.y && y < static_cast<int32_t>(renderArea.offset.y + renderArea.extent.height));
@@ -42,13 +42,12 @@ bool Trackball::withinRenderArea(int32_t x, int32_t y) const
 /// compute non dimensional window coordinate (-1,1) from event coords
 dvec2 Trackball::ndc(PointerEvent& event)
 {
-    auto& renderArea = _camera->getRenderArea();
+    auto renderArea = _camera->getRenderArea();
 
     dvec2 v(
         (renderArea.extent.width > 0) ? static_cast<double>(event.x - renderArea.offset.x) / static_cast<double>(renderArea.extent.width) * 2.0 - 1.0 : 0.0,
         (renderArea.extent.height > 0) ? static_cast<double>(event.y - renderArea.offset.y) / static_cast<double>(renderArea.extent.height) * 2.0 - 1.0 : 0.0);
 
-    //std::cout<<"ndc = "<<v<<std::endl;
     return v;
 }
 
