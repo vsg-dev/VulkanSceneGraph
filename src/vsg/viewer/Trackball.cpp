@@ -31,10 +31,23 @@ Trackball::Trackball(ref_ptr<Camera> camera) :
     _homeLookAt = new LookAt(_lookAt->eye, _lookAt->center, _lookAt->up);
 }
 
+bool Trackball::withinRenderArea(int32_t x, int32_t y) const
+{
+    auto& renderArea = _camera->getRenderArea();
+
+    return (x >= renderArea.offset.x && x < static_cast<int32_t>(renderArea.offset.x + renderArea.extent.width)) &&
+           (y >= renderArea.offset.y && y < static_cast<int32_t>(renderArea.offset.y + renderArea.extent.height));
+}
+
 /// compute non dimensional window coordinate (-1,1) from event coords
 dvec2 Trackball::ndc(PointerEvent& event)
 {
-    dvec2 v = dvec2((static_cast<double>(event.x) / window_width) * 2.0 - 1.0, (static_cast<double>(event.y) / window_height) * 2.0 - 1.0);
+    auto& renderArea = _camera->getRenderArea();
+
+    dvec2 v(
+        (renderArea.extent.width > 0) ? static_cast<double>(event.x - renderArea.offset.x) / static_cast<double>(renderArea.extent.width) * 2.0 - 1.0 : 0.0,
+        (renderArea.extent.height > 0) ? static_cast<double>(event.y - renderArea.offset.y) / static_cast<double>(renderArea.extent.height) * 2.0 - 1.0 : 0.0);
+
     //std::cout<<"ndc = "<<v<<std::endl;
     return v;
 }
@@ -58,8 +71,12 @@ dvec3 Trackball::tbc(PointerEvent& event)
 
 void Trackball::apply(KeyPressEvent& keyPress)
 {
+    if (keyPress.handled || !_lastPointerEventWithinRenderArea) return;
+
     if (keyPress.keyBase == _homeKey)
     {
+        keyPress.handled = true;
+
         LookAt* lookAt = dynamic_cast<LookAt*>(_camera->getViewMatrix());
         if (lookAt && _homeLookAt)
         {
@@ -81,21 +98,37 @@ void Trackball::apply(ButtonPressEvent& buttonPress)
 {
     prev_ndc = ndc(buttonPress);
     prev_tbc = tbc(buttonPress);
+
+    if (buttonPress.handled) return;
+
+    _hasFocus = withinRenderArea(buttonPress.x, buttonPress.y);
+    _lastPointerEventWithinRenderArea = _hasFocus;
+
+    if (_hasFocus) buttonPress.handled = true;
 }
 
 void Trackball::apply(ButtonReleaseEvent& buttonRelease)
 {
     prev_ndc = ndc(buttonRelease);
     prev_tbc = tbc(buttonRelease);
+
+    _lastPointerEventWithinRenderArea = withinRenderArea(buttonRelease.x, buttonRelease.y);
+    _hasFocus = false;
 }
 
 void Trackball::apply(MoveEvent& moveEvent)
 {
+    _lastPointerEventWithinRenderArea = withinRenderArea(moveEvent.x, moveEvent.y);
+
+    if (moveEvent.handled || !_hasFocus) return;
+
     dvec2 new_ndc = ndc(moveEvent);
     dvec3 new_tbc = tbc(moveEvent);
 
     if (moveEvent.mask & BUTTON_MASK_1)
     {
+        moveEvent.handled = true;
+
         dvec3 xp = cross(normalize(new_tbc), normalize(prev_tbc));
         double xp_len = length(xp);
         if (xp_len > 0.0)
@@ -107,11 +140,15 @@ void Trackball::apply(MoveEvent& moveEvent)
     }
     else if (moveEvent.mask & BUTTON_MASK_2)
     {
+        moveEvent.handled = true;
+
         dvec2 delta = new_ndc - prev_ndc;
         pan(delta);
     }
     else if (moveEvent.mask & BUTTON_MASK_3)
     {
+        moveEvent.handled = true;
+
         dvec2 delta = new_ndc - prev_ndc;
         zoom(delta.y);
     }
@@ -122,6 +159,10 @@ void Trackball::apply(MoveEvent& moveEvent)
 
 void Trackball::apply(ScrollWheelEvent& scrollWheel)
 {
+    if (scrollWheel.handled) return;
+
+    scrollWheel.handled = true;
+
     zoom(scrollWheel.delta.y * 0.1);
 }
 

@@ -27,4 +27,3 @@ View::View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph)
     camera = in_camera;
     if (in_scenegraph) addChild(in_scenegraph);
 }
-

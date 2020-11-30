@@ -13,9 +13,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/nodes/Node.h>
-#include <vsg/state/StateGroup.h>
 #include <vsg/text/Font.h>
 #include <vsg/text/TextLayout.h>
+#include <vsg/text/TextTechnique.h>
 
 namespace vsg
 {
@@ -26,7 +26,7 @@ namespace vsg
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
-            if (node.renderingBackend) node.renderingBackend->stategroup->accept(visitor);
+            if (node.technique) node.technique->accept(visitor);
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
@@ -38,57 +38,13 @@ namespace vsg
 
         /// settings
         ref_ptr<Font> font;
+        ref_ptr<TextTechnique> technique;
         ref_ptr<TextLayout> layout;
         ref_ptr<Data> text;
 
         /// create the rendering backend.
         /// minimumAllocation provides a hint for the minimum number of glyphs to allocate space for.
         virtual void setup(uint32_t minimumAllocation = 0);
-
-        /// Wraooer for Font::textureAtlas data.
-        struct VSG_DECLSPEC TextureAtlas : public Inherit<Object, TextureAtlas>
-        {
-            TextureAtlas(Font* font);
-            bool match() const { return true; }
-            ref_ptr<DescriptorImage> descriptor;
-        };
-
-        /// rendering state used to set up grahics pipeline and descriptor sets, assigned to Font to allow it be be shared
-        struct VSG_DECLSPEC RenderingState : public Inherit<Object, RenderingState>
-        {
-            RenderingState(Font* font, bool in_singleColor, bool in_singleOutlineColor, bool in_singleOutlineWidth);
-
-            bool match(bool in_singleColor, bool in_singleOutlineColor, bool in_singleOutlineWidth) const
-            {
-                return (in_singleColor == singleColor) && (in_singleOutlineColor == singleOutlineColor) && (in_singleOutlineWidth == singleOutlineWidth);
-            }
-
-            bool singleColor = true;
-            bool singleOutlineColor = true;
-            bool singleOutlineWidth = true;
-
-            ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
-            ref_ptr<BindDescriptorSet> bindDescriptorSet;
-        };
-
-        /// rendering backend container holds all the scene graph elements required to render the text, filled in by Text::setup().
-        struct RenderingBackend : public Inherit<Object, RenderingBackend>
-        {
-            ref_ptr<vec3Array> vertices;
-            ref_ptr<vec4Array> colors;
-            ref_ptr<vec4Array> outlineColors;
-            ref_ptr<floatArray> outlineWidths;
-            ref_ptr<vec3Array> texcoords;
-            ref_ptr<Data> indices;
-            ref_ptr<DrawIndexed> drawIndexed;
-
-            ref_ptr<BindVertexBuffers> bindVertexBuffers;
-            ref_ptr<BindIndexBuffer> bindIndexBuffer;
-            ref_ptr<RenderingState> sharedRenderingState;
-            ref_ptr<StateGroup> stategroup;
-        };
-
-        ref_ptr<RenderingBackend> renderingBackend;
 
     protected:
     };

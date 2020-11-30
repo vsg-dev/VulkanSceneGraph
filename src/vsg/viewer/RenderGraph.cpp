@@ -59,8 +59,7 @@ RenderGraph::RenderGraph(ref_ptr<Window> in_window, ref_ptr<View> in_view) :
         clearValues[0].color = window->clearColor();
         clearValues[1].depthStencil = VkClearDepthStencilValue{1.0f, 0};
     }
- }
-
+}
 
 RenderPass* RenderGraph::getRenderPass()
 {
