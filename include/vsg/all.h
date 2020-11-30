@@ -202,9 +202,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/introspection/c_interface.h>
 
 // Text header files
+#include <vsg/text/CpuLayoutTechnique.h>
 #include <vsg/text/Font.h>
+#include <vsg/text/GlyphMetrics.h>
+#include <vsg/text/GpuLayoutTechnique.h>
 #include <vsg/text/Text.h>
 #include <vsg/text/TextLayout.h>
+#include <vsg/text/TextTechnique.h>
 
 // Raytracing header files
 #include <vsg/raytracing/AccelerationGeometry.h>

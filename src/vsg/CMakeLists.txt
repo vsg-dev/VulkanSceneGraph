@@ -94,6 +94,8 @@ set(SOURCES
 
     text/Text.cpp
     text/TextLayout.cpp
+    text/GpuLayoutTechnique.cpp
+    text/CpuLayoutTechnique.cpp
     text/Font.cpp
 
     traversals/ArrayState.cpp

@@ -109,8 +109,6 @@ void Image::compile(Device* device)
     info.pQueueFamilyIndices = queueFamilyIndices.data();
     info.initialLayout = initialLayout;
 
-    info.usage |= (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT); // TODO need to review this setting.
-
     vd.device = device;
 
     if (VkResult result = vkCreateImage(*vd.device, &info, vd.device->getAllocationCallbacks(), &vd.image); result != VK_SUCCESS)

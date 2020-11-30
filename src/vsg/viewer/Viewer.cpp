@@ -224,10 +224,8 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             commandGraph->accept(deviceResources.collectStats);
         }
 
-
         if (task->databasePager && !databasePager) databasePager = task->databasePager;
     }
-
 
     // allocate DescriptorPool for each Device
     CollectDescriptorStats::Views views;
@@ -254,7 +252,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
 
     // assign the viewID's to each View
     uint32_t viewID = 0;
-    for(auto& const_view : views)
+    for (auto& const_view : views)
     {
         auto view = const_cast<View*>(const_view);
         view->viewID = viewID++;

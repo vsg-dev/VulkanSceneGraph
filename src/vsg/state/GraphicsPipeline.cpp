@@ -83,9 +83,9 @@ void GraphicsPipeline::write(Output& output) const
 void GraphicsPipeline::compile(Context& context)
 {
     uint32_t viewID = context.viewID;
-    if (static_cast<uint32_t>(_implementation.size()) < (viewID+1))
+    if (static_cast<uint32_t>(_implementation.size()) < (viewID + 1))
     {
-        _implementation.resize(viewID+1);
+        _implementation.resize(viewID + 1);
     }
 
     if (!_implementation[viewID])

@@ -983,7 +983,7 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
                 }
                 case NSEventTypeKeyUp:
                 {
-                    _bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, getEventTime([anEvent timestamp]), keySymbol, modifiedKeySymbol, keyModifier));
+                    _bufferedEvents.emplace_back(new vsg::KeyReleaseEvent(this, getEventTime([anEvent timestamp]), keySymbol, modifiedKeySymbol, keyModifier));
                     break;
                 }
                 default: break;

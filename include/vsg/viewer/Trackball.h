@@ -44,10 +44,15 @@ namespace vsg
         void zoom(double ratio);
         void pan(dvec2& delta);
 
+        bool withinRenderArea(int32_t x, int32_t y) const;
+
     protected:
         ref_ptr<Camera> _camera;
         ref_ptr<LookAt> _lookAt;
         ref_ptr<LookAt> _homeLookAt;
+
+        bool _hasFocus = false;
+        bool _lastPointerEventWithinRenderArea = false;
 
         KeySymbol _homeKey = KEY_Space;
         double _direction;

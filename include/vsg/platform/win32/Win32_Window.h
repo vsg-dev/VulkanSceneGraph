@@ -98,10 +98,16 @@ namespace vsgWin32
         return (vsg::ButtonMask)mask;
     }
 
-    int getButtonEventDetail(UINT buttonMsg)
+    int getButtonDownEventDetail(UINT buttonMsg)
     {
         return buttonMsg == WM_LBUTTONDOWN ? 1 : (buttonMsg == WM_MBUTTONDOWN ? 2 : buttonMsg == WM_RBUTTONDOWN ? 3 : (buttonMsg == WM_XBUTTONDOWN ? 4 : 0)); // need to determine x1, x2
     }
+
+    int getButtonUpEventDetail(UINT buttonMsg)
+    {
+        return buttonMsg == WM_LBUTTONUP ? 1 : (buttonMsg == WM_MBUTTONUP ? 2 : buttonMsg == WM_RBUTTONUP ? 3 : (buttonMsg == WM_XBUTTONUP ? 4 : 0));
+    }
+
 
     class Win32_Window : public vsg::Inherit<vsg::Window, Win32_Window>
     {
@@ -115,6 +121,8 @@ namespace vsgWin32
         const char* instanceExtensionSurfaceName() const override { return VK_KHR_WIN32_SURFACE_EXTENSION_NAME; }
 
         bool valid() const override { return _window; }
+
+        bool visible() const override;
 
         bool pollEvents(vsg::UIEvents& events) override;
 
@@ -133,6 +141,7 @@ namespace vsgWin32
         void _initSurface() override;
 
         HWND _window;
+        bool _windowMapped = false;
 
         vsg::UIEvents _bufferedEvents;
         vsg::ref_ptr<KeyboardMap> _keyboard;

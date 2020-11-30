@@ -31,7 +31,7 @@ namespace vsg
         using MatrixStack = std::vector<mat4>;
         MatrixStack matrixStack;
 
-        void apply(const Node& node) override;
+        void apply(const Object& node) override;
         void apply(const StateGroup& stategroup) override;
         void apply(const MatrixTransform& transform) override;
         void apply(const Geometry& geometry) override;

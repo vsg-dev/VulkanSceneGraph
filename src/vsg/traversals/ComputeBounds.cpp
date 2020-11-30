@@ -27,9 +27,9 @@ ComputeBounds::ComputeBounds()
     arrayStateStack.emplace_back(ArrayState());
 }
 
-void ComputeBounds::apply(const vsg::Node& node)
+void ComputeBounds::apply(const vsg::Object& object)
 {
-    node.traverse(*this);
+    object.traverse(*this);
 }
 
 void ComputeBounds::apply(const StateGroup& stategroup)
