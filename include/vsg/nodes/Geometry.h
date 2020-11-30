@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class Geometry : public Inherit<Command, Geometry>
+    class VSG_DECLSPEC Geometry : public Inherit<Command, Geometry>
     {
     public:
         Geometry(Allocator* allocator = nullptr);

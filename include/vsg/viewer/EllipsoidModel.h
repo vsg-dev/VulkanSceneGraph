@@ -22,7 +22,7 @@ namespace vsg
     const double WGS_84_RADIUS_EQUATOR = 6378137.0;
     const double WGS_84_RADIUS_POLAR = 6356752.3142;
 
-    class EllipsoidModel : public Inherit<Object, EllipsoidModel>
+    class VSG_DECLSPEC EllipsoidModel : public Inherit<Object, EllipsoidModel>
     {
     public:
         EllipsoidModel(double rEquator = WGS_84_RADIUS_EQUATOR, double rPolar = WGS_84_RADIUS_POLAR);
