@@ -191,7 +191,7 @@ if (glslang_FOUND)
         " GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT)
     endif()
 
-    # check whehther glslang/build_info.h exists
+    # check whether glslang/build_info.h exists
     if (GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT)
         set(EXTRA_DEFINES ${EXTRA_DEFINES} "GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT")
     endif()
