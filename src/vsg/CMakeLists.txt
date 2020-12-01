@@ -178,15 +178,18 @@ if (glslang_FOUND)
     set(CMAKE_REQUIRED_LIBRARIES ${glslang_LIBRARY})
     set(CMAKE_REQUIRED_INCLUDES ${glslang_INCLUDE_DIR})
 
-    check_cxx_source_runs("
-        #include <glslang/Include/ResourceLimits.h>
-        int main()
-        {
-            TBuiltInResource resource;
-            resource.maxDualSourceDrawBuffersEXT = 0;
-            return 0;
-        }
-    " GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT)
+    if (NOT GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT)
+        check_cxx_source_runs("
+            #include <glslang/Include/ResourceLimits.h>
+
+            int main()
+            {
+                TBuiltInResource resource;
+                resource.maxDualSourceDrawBuffersEXT = 0;
+                return 0;
+            }
+        " GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT)
+    endif()
 
     # check whehther glslang/build_info.h exists
     if (GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT)
