@@ -46,7 +46,7 @@ void Text::write(Output& output) const
 
 void Text::setup(uint32_t minimumAllocation)
 {
-    if (!layout) layout = LeftAlignment::create();
+    if (!layout) layout = StandardLayout::create();
     if (!technique) technique = CpuLayoutTechnique::create();
 
     technique->setup(this, minimumAllocation);

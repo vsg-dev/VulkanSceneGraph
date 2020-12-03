@@ -37,12 +37,30 @@ namespace vsg
     };
     VSG_type_name(vsg::TextLayout);
 
-    class VSG_DECLSPEC LeftAlignment : public Inherit<TextLayout, LeftAlignment>
+    class VSG_DECLSPEC StandardLayout : public Inherit<TextLayout, StandardLayout>
     {
     public:
         void read(Input& input) override;
         void write(Output& output) const override;
 
+        enum Alignment
+        {
+            BASELINE_ALIGNMENT,
+            LEFT_ALIGNMENT,
+            CENTER_ALIGNMENT,
+            RIGHT_ALIGNMENT
+        };
+
+        enum GlyphLayout
+        {
+            LEFT_TO_RIGHT_LAYOUT,
+            RIGHT_TO_LEFT_LAYOUT,
+            VERTICAL_LAYOUT
+        };
+
+        Alignment horizontalAlignment = LEFT_ALIGNMENT;
+        Alignment verticalAlignment = BASELINE_ALIGNMENT;
+        GlyphLayout glyphLayout = LEFT_TO_RIGHT_LAYOUT;
         vec3 position = vec3(0.0f, 0.0f, 0.0f);
         vec3 horizontal = vec3(1.0f, 0.0f, 0.0f);
         vec3 vertical = vec3(0.0f, 1.0f, 0.0f);
@@ -52,6 +70,6 @@ namespace vsg
 
         void layout(const Data* text, const Font& font, TextQuads& texQuads) override;
     };
-    VSG_type_name(vsg::LeftAlignment);
+    VSG_type_name(vsg::StandardLayout);
 
 } // namespace vsg
