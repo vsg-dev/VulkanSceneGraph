@@ -13,27 +13,46 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Array.h>
-#include <vsg/text/Font.h>
+#include <vsg/text/TextLayout.h>
 
 namespace vsg
 {
-    struct TextQuad
-    {
-        vec3 vertices[4];
-        vec2 texcoords[4];
-        vec4 colors[4];
-        vec4 outlineColors[4];
-        float outlineWidths[4];
-        vec3 normal;
-    };
 
-    using TextQuads = std::vector<TextQuad>;
-
-    class VSG_DECLSPEC TextLayout : public Inherit<Object, TextLayout>
+    class VSG_DECLSPEC StandardLayout : public Inherit<TextLayout, StandardLayout>
     {
     public:
-        virtual void layout(const Data* text, const Font& font, TextQuads& texQuads) = 0;
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        enum Alignment
+        {
+            BASELINE_ALIGNMENT,
+            LEFT_ALIGNMENT,
+            TOP_ALIGNMENT = LEFT_ALIGNMENT,
+            CENTER_ALIGNMENT,
+            RIGHT_ALIGNMENT,
+            BOTTOM_ALIGNMENT = RIGHT_ALIGNMENT
+        };
+
+        enum GlyphLayout
+        {
+            LEFT_TO_RIGHT_LAYOUT,
+            RIGHT_TO_LEFT_LAYOUT,
+            VERTICAL_LAYOUT
+        };
+
+        Alignment horizontalAlignment = BASELINE_ALIGNMENT;
+        Alignment verticalAlignment = BASELINE_ALIGNMENT;
+        GlyphLayout glyphLayout = LEFT_TO_RIGHT_LAYOUT;
+        vec3 position = vec3(0.0f, 0.0f, 0.0f);
+        vec3 horizontal = vec3(1.0f, 0.0f, 0.0f);
+        vec3 vertical = vec3(0.0f, 1.0f, 0.0f);
+        vec4 color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        vec4 outlineColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        float outlineWidth = 0.0f;
+
+        void layout(const Data* text, const Font& font, TextQuads& texQuads) override;
     };
-    VSG_type_name(vsg::TextLayout);
+    VSG_type_name(vsg::StandardLayout);
 
 } // namespace vsg
