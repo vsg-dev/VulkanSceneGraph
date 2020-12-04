@@ -112,7 +112,6 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
 
         void translate(TextQuads::iterator itr, TextQuads::iterator end, const vec3& offset)
         {
-            std::cout<<"transalte("<<offset<<")"<<std::endl;
             for(; itr != end; ++itr)
             {
                 TextQuad& quad = *itr;
@@ -123,10 +122,8 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
             }
         }
 
-
         void align_row()
         {
-            std::cout<<"align_row() "<<this<<" "<<start_of_row<<" "<<textQuads.size()<<std::endl;
             if (start_of_row >= textQuads.size()) return;
 
             if (layout.glyphLayout == VERTICAL_LAYOUT)
@@ -190,6 +187,42 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
         void finalize()
         {
             align_row();
+
+            vec3 offset(0.0f, 0.0f, 0.0f);
+
+            if (layout.horizontalAlignment != BASELINE_ALIGNMENT || layout.verticalAlignment != BASELINE_ALIGNMENT)
+            {
+                float left = textQuads[start_of_row].vertices[0].x;
+                float right = textQuads[start_of_row].vertices[1].x;
+                float bottom = textQuads[start_of_row].vertices[0].y;
+                float top = textQuads[start_of_row].vertices[3].y;
+                for(size_t i=0; i<textQuads.size(); ++i)
+                {
+                    if (textQuads[i].vertices[0].x < left) left = textQuads[i].vertices[0].x;
+                    if (textQuads[i].vertices[1].x > right) right = textQuads[i].vertices[1].x;
+                    if (textQuads[i].vertices[0].y < bottom) bottom = textQuads[i].vertices[0].y;
+                    if (textQuads[i].vertices[3].y > top) top = textQuads[i].vertices[3].y;
+                }
+
+                switch(layout.horizontalAlignment)
+                {
+                    case(BASELINE_ALIGNMENT): offset.x = 0.0f; break;
+                    case(LEFT_ALIGNMENT): offset.x = -left; break;
+                    case(CENTER_ALIGNMENT): offset.x = -(right+left)*0.5f; break;
+                    case(RIGHT_ALIGNMENT): offset.x = -right; break;
+                }
+
+                switch(layout.verticalAlignment)
+                {
+                    case(BASELINE_ALIGNMENT): offset.y = 0.0f; break;
+                    case(TOP_ALIGNMENT): offset.y = -top; break;
+                    case(CENTER_ALIGNMENT): offset.y = -(bottom+top)*0.5f; break;
+                    case(BOTTOM_ALIGNMENT): offset.y = -bottom; break;
+                }
+            }
+
+            if (offset.x != 0.0f || offset.y != 0.0f) translate(textQuads.begin(), textQuads.end(), offset);
+
 
             for(auto& quad : textQuads)
             {
