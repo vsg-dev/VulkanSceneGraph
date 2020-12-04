@@ -129,6 +129,12 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
             std::cout<<"align_row() "<<this<<" "<<start_of_row<<" "<<textQuads.size()<<std::endl;
             if (start_of_row >= textQuads.size()) return;
 
+            if (layout.glyphLayout == VERTICAL_LAYOUT)
+            {
+                if (layout.verticalAlignment==StandardLayout::BASELINE_ALIGNMENT) return;
+            }
+            else if (layout.horizontalAlignment==StandardLayout::BASELINE_ALIGNMENT) return;
+
             switch(layout.glyphLayout)
             {
                 case(LEFT_TO_RIGHT_LAYOUT):
@@ -141,8 +147,17 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
                         if (textQuads[i].vertices[0].x < left) left = textQuads[i].vertices[0].x;
                         if (textQuads[i].vertices[1].x > right) right = textQuads[i].vertices[1].x;
                     }
-                    float center = (right+left)*0.5f;
-                    vec3 offset(-(center-left), 0.0f, 0.0f);
+
+                    float target = left;
+                    switch(layout.horizontalAlignment)
+                    {
+                        case(BASELINE_ALIGNMENT):
+                        case(LEFT_ALIGNMENT): target = left; break;
+                        case(CENTER_ALIGNMENT): target = (right+left)*0.5f; break;
+                        case(RIGHT_ALIGNMENT): target = right; break;
+                    }
+
+                    vec3 offset(-(target-left), 0.0f, 0.0f);
                     translate(textQuads.begin()+start_of_row, textQuads.end(), offset);
                     break;
                 }
@@ -155,8 +170,16 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
                         if (textQuads[i].vertices[0].y < bottom) bottom = textQuads[i].vertices[0].y;
                         if (textQuads[i].vertices[3].y > top) top = textQuads[i].vertices[3].y;
                     }
-                    float center = (top+bottom)*0.5f;
-                    vec3 offset(0.0f, -(center-top), 0.0f);
+                    float target = top;
+                    switch(layout.verticalAlignment)
+                    {
+                        case(BASELINE_ALIGNMENT):
+                        case(TOP_ALIGNMENT): target = top; break;
+                        case(CENTER_ALIGNMENT): target = (top+bottom)*0.5f; break;
+                        case(BOTTOM_ALIGNMENT): target = bottom; break;
+                    }
+
+                    vec3 offset(0.0f, -(target-top), 0.0f);
                     translate(textQuads.begin()+start_of_row, textQuads.end(), offset);
                     break;
                 }

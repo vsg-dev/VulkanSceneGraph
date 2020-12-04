@@ -47,8 +47,10 @@ namespace vsg
         {
             BASELINE_ALIGNMENT,
             LEFT_ALIGNMENT,
+            TOP_ALIGNMENT = LEFT_ALIGNMENT,
             CENTER_ALIGNMENT,
-            RIGHT_ALIGNMENT
+            RIGHT_ALIGNMENT,
+            BOTTOM_ALIGNMENT = RIGHT_ALIGNMENT
         };
 
         enum GlyphLayout
@@ -58,7 +60,7 @@ namespace vsg
             VERTICAL_LAYOUT
         };
 
-        Alignment horizontalAlignment = LEFT_ALIGNMENT;
+        Alignment horizontalAlignment = BASELINE_ALIGNMENT;
         Alignment verticalAlignment = BASELINE_ALIGNMENT;
         GlyphLayout glyphLayout = LEFT_TO_RIGHT_LAYOUT;
         vec3 position = vec3(0.0f, 0.0f, 0.0f);
