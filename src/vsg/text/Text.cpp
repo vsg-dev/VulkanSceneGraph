@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/text/CpuLayoutTechnique.h>
 #include <vsg/text/GpuLayoutTechnique.h>
+#include <vsg/text/StandardLayout.h>
 #include <vsg/text/Text.h>
 
 #include <iostream>
@@ -46,7 +47,7 @@ void Text::write(Output& output) const
 
 void Text::setup(uint32_t minimumAllocation)
 {
-    if (!layout) layout = LeftAlignment::create();
+    if (!layout) layout = StandardLayout::create();
     if (!technique) technique = CpuLayoutTechnique::create();
 
     technique->setup(this, minimumAllocation);

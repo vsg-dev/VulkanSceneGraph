@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/write.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/text/GpuLayoutTechnique.h>
+#include <vsg/text/StandardLayout.h>
 #include <vsg/text/Text.h>
 
 #include <iostream>
@@ -210,14 +211,14 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     if (!layoutValue) layoutValue = TextLayoutValue::create();
 
     auto& layoutStruct = layoutValue->value();
-    if (auto leftAlignment = layout.cast<LeftAlignment>(); leftAlignment)
+    if (auto standardLayout = layout.cast<StandardLayout>(); standardLayout)
     {
-        assignValue(layoutStruct.position, leftAlignment->position, textLayoutUpdated);
-        assignValue(layoutStruct.horizontal, leftAlignment->horizontal, textLayoutUpdated);
-        assignValue(layoutStruct.vertical, leftAlignment->vertical, textLayoutUpdated);
-        assignValue(layoutStruct.color, leftAlignment->color, textLayoutUpdated);
-        assignValue(layoutStruct.outlineColor, leftAlignment->outlineColor, textLayoutUpdated);
-        assignValue(layoutStruct.outlineWidth, leftAlignment->outlineWidth, textLayoutUpdated);
+        assignValue(layoutStruct.position, standardLayout->position, textLayoutUpdated);
+        assignValue(layoutStruct.horizontal, standardLayout->horizontal, textLayoutUpdated);
+        assignValue(layoutStruct.vertical, standardLayout->vertical, textLayoutUpdated);
+        assignValue(layoutStruct.color, standardLayout->color, textLayoutUpdated);
+        assignValue(layoutStruct.outlineColor, standardLayout->outlineColor, textLayoutUpdated);
+        assignValue(layoutStruct.outlineWidth, standardLayout->outlineWidth, textLayoutUpdated);
     }
 
     if (!layoutDescriptor) layoutDescriptor = DescriptorBuffer::create(layoutValue, 0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);

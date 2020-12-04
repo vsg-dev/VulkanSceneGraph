@@ -48,7 +48,7 @@ namespace vsg
             defaults();
         }
 
-        WindowTraits(uint32_t in_width, uint32_t in_height, const std::string& title =  "vsg window") :
+        WindowTraits(uint32_t in_width, uint32_t in_height, const std::string& title = "vsg window") :
             width(in_width),
             height(in_height),
             windowTitle(title)

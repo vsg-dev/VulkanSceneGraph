@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Array.h>
-#include <vsg/core/Inherit.h>
 #include <vsg/text/Font.h>
 
 namespace vsg
@@ -36,22 +35,5 @@ namespace vsg
         virtual void layout(const Data* text, const Font& font, TextQuads& texQuads) = 0;
     };
     VSG_type_name(vsg::TextLayout);
-
-    class VSG_DECLSPEC LeftAlignment : public Inherit<TextLayout, LeftAlignment>
-    {
-    public:
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        vec3 position = vec3(0.0f, 0.0f, 0.0f);
-        vec3 horizontal = vec3(1.0f, 0.0f, 0.0f);
-        vec3 vertical = vec3(0.0f, 1.0f, 0.0f);
-        vec4 color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-        vec4 outlineColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
-        float outlineWidth = 0.0f;
-
-        void layout(const Data* text, const Font& font, TextQuads& texQuads) override;
-    };
-    VSG_type_name(vsg::LeftAlignment);
 
 } // namespace vsg

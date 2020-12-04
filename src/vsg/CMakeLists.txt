@@ -92,11 +92,11 @@ set(SOURCES
     io/read.cpp
     io/write.cpp
 
-    text/Text.cpp
-    text/TextLayout.cpp
-    text/GpuLayoutTechnique.cpp
     text/CpuLayoutTechnique.cpp
+    text/GpuLayoutTechnique.cpp
     text/Font.cpp
+    text/StandardLayout.cpp
+    text/Text.cpp
 
     traversals/ArrayState.cpp
     traversals/RecordTraversal.cpp

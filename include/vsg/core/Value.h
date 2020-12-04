@@ -62,7 +62,6 @@ namespace vsg
         void accept(Visitor& visitor) override;
         void accept(ConstVisitor& visitor) const override;
 
-
         void read(Input& input) override
         {
             Data::read(input);
