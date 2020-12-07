@@ -56,6 +56,8 @@ AsciiInput::OptionalObjectID AsciiInput::objectID()
 
 void AsciiInput::_read(std::string& value)
 {
+    value.clear();
+
     char c;
     _input >> c;
     if (_input.good())
