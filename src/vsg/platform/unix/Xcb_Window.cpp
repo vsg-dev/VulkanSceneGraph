@@ -611,7 +611,9 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             }
             else
             {
-                events.emplace_back(new vsg::ButtonPressEvent(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(button_press->state), button_press->detail));
+                uint32_t pressedButtoMask = 1 << (7+button_press->detail);
+                uint32_t newButtonMask = uint32_t(button_press->state) | pressedButtoMask;
+                events.emplace_back(new vsg::ButtonPressEvent(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(newButtonMask), button_press->detail));
             }
 
             break;
@@ -624,7 +626,9 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             if (button_release->detail !=4 && button_release->detail !=5)
             {
                 vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_release->time - _first_xcb_timestamp);
-                events.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(button_release->state), button_release->detail));
+                uint32_t releasedButtoMask = 1 << (7+button_release->detail);
+                uint32_t newButtonMask = uint32_t(button_release->state) & ~releasedButtoMask;
+                events.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(newButtonMask), button_release->detail));
             }
 
             break;
