@@ -36,7 +36,7 @@ RenderGraph::RenderGraph(ref_ptr<Window> in_window, ref_ptr<View> in_view) :
         addChild(in_view);
     }
 
-    if (in_view && in_view->camera)
+    if (in_view && in_view->camera && in_view->camera->getViewportState())
     {
         renderArea = in_view->camera->getRenderArea();
     }
