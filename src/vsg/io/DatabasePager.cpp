@@ -399,12 +399,13 @@ void DatabasePager::start()
 #endif
                 if (!nodesCompiled.empty())
                 {
-                    ct->context.record();
-
-                    for (auto& plod : nodesCompiled)
+                    if (ct->context.record())
                     {
-                        plod->semaphore = ct->context.semaphore;
-                        plod->requestStatus.exchange(PagedLOD::MergeRequest);
+                        for (auto& plod : nodesCompiled)
+                        {
+                            plod->semaphore = ct->context.semaphore;
+                            plod->requestStatus.exchange(PagedLOD::MergeRequest);
+                        }
                     }
 
                     toMergeQueue->add(nodesCompiled);

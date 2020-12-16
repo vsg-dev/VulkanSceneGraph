@@ -124,9 +124,9 @@ ShaderCompiler* Context::getOrCreateShaderCompiler()
     return shaderCompiler;
 }
 
-void Context::record()
+bool Context::record()
 {
-    if (commands.empty() && buildAccelerationStructureCommands.empty()) return;
+    if (commands.empty() && buildAccelerationStructureCommands.empty()) return false;
 
     //auto before_compile = std::chrono::steady_clock::now();
 
@@ -187,6 +187,8 @@ void Context::record()
     }
 
     graphicsQueue->submit(submitInfo, fence);
+
+    return true;
 }
 
 void Context::waitForCompletion()
