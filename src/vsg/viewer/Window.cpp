@@ -256,7 +256,7 @@ void Window::buildSwapchain()
 
     _depthImage->bind(_depthImageMemory, 0);
 
-    _depthImageView = ImageView::create(_depthImage, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+    _depthImageView = ImageView::create(_depthImage);
     _depthImageView->compile(_device);
 
     int graphicsFamily = -1;
@@ -295,7 +295,7 @@ void Window::buildSwapchain()
                 VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                 VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
                 _depthImage,
-                VkImageSubresourceRange{VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, 0, 1, 0, 1});
+                _depthImageView->subresourceRange);
 
             auto pipelineBarrier = PipelineBarrier::create(
                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
