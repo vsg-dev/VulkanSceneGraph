@@ -17,6 +17,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+#include <iostream>
+
+VkImageAspectFlags vsg::computeAspectFlagsForFormat(VkFormat format)
+{
+    if (format==VK_FORMAT_D16_UNORM_S8_UINT || format==VK_FORMAT_D24_UNORM_S8_UINT || format==VK_FORMAT_D32_SFLOAT_S8_UINT)
+    {
+        return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+    }
+    else if (format==VK_FORMAT_D16_UNORM || format==VK_FORMAT_D32_SFLOAT || format==VK_FORMAT_X8_D24_UNORM_PACK32)
+    {
+        return VK_IMAGE_ASPECT_DEPTH_BIT;
+    }
+    else
+    {
+        return VK_IMAGE_ASPECT_COLOR_BIT;
+    }
+}
+
 void ImageView::VulkanData::release()
 {
     if (imageView)
@@ -24,6 +42,22 @@ void ImageView::VulkanData::release()
         vkDestroyImageView(*device, imageView, device->getAllocationCallbacks());
         imageView = VK_NULL_HANDLE;
         device = {};
+    }
+}
+
+ImageView::ImageView(ref_ptr<Image> in_image) :
+    image(in_image)
+{
+    if (image)
+    {
+        auto imageType = image->imageType;
+        viewType = (imageType == VK_IMAGE_TYPE_3D) ? VK_IMAGE_VIEW_TYPE_3D : ((imageType == VK_IMAGE_TYPE_2D) ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
+        format = image->format;
+        subresourceRange.aspectMask = computeAspectFlagsForFormat(image->format);
+        subresourceRange.baseMipLevel = 0;
+        subresourceRange.levelCount = image->mipLevels;
+        subresourceRange.baseArrayLayer = 0;
+        subresourceRange.layerCount = image->arrayLayers;
     }
 }
 

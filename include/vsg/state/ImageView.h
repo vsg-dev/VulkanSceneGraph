@@ -18,10 +18,13 @@ namespace vsg
 {
     class Context;
 
+    extern VSG_DECLSPEC VkImageAspectFlags computeAspectFlagsForFormat(VkFormat format);
+
     class VSG_DECLSPEC ImageView : public Inherit<Object, ImageView>
     {
     public:
-        ImageView(ref_ptr<Image> in_image = {}, VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
+        ImageView(ref_ptr<Image> in_image = {});
+        ImageView(ref_ptr<Image> in_image, VkImageAspectFlags aspectFlags);
 
         /// VkImageViewCreateInfo settings
         VkImageViewCreateFlags flags = 0;
