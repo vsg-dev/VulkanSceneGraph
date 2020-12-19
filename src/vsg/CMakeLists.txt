@@ -253,7 +253,7 @@ if(MSVC)
         target_compile_options(vsg PRIVATE "/MP")
     endif()
 
-    option(DISABLE_CHECKED_ITERATORS "Turning on this option will disable checked iterators in debug mode for visual studio. All imported projects must adhere to this requirement")
+    option(DISABLE_CHECKED_ITERATORS "Turning on this option will disable checked iterators in debug mode for visual studio. All imported projects must adhere to this requirement" OFF)
 
     if(DISABLE_CHECKED_ITERATORS)
         target_compile_definitions(vsg PUBLIC "_ITERATOR_DEBUG_LEVEL=0")
