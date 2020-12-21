@@ -19,7 +19,7 @@ namespace vsg
     class VSG_DECLSPEC CommandPool : public Inherit<Object, CommandPool>
     {
     public:
-        CommandPool(Device* device, uint32_t queueFamilyIndex);
+        CommandPool(Device* device, uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags = 0);
 
         operator VkCommandPool() const { return _commandPool; }
 

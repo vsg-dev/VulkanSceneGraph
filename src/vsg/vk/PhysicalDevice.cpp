@@ -19,6 +19,8 @@ PhysicalDevice::PhysicalDevice(Instance* instance, VkPhysicalDevice device) :
     _device(device),
     _instance(instance)
 {
+    vkGetPhysicalDeviceFeatures(_device, &_features);
+
     vkGetPhysicalDeviceProperties(_device, &_properties);
 
     uint32_t queueFamilyCount = 0;

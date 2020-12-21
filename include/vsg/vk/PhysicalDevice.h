@@ -31,6 +31,7 @@ namespace vsg
         using QueueFamilyProperties = std::vector<VkQueueFamilyProperties>;
         const QueueFamilyProperties& getQueueFamilyProperties() const { return _queueFamiles; }
 
+        const VkPhysicalDeviceFeatures& getFeatures() const { return _features; }
         const VkPhysicalDeviceProperties& getProperties() const { return _properties; }
 
         template<typename FeatureStruct, VkStructureType type>
@@ -73,6 +74,7 @@ namespace vsg
 
         VkPhysicalDevice _device;
 
+        VkPhysicalDeviceFeatures _features;
         VkPhysicalDeviceProperties _properties;
         QueueFamilyProperties _queueFamiles;
 

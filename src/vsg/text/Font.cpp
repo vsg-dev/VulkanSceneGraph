@@ -67,6 +67,9 @@ Font::FontState::FontState(Font* font)
         sampler->magFilter = VK_FILTER_NEAREST;
         sampler->minFilter = VK_FILTER_NEAREST;
         sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+        sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        sampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         sampler->unnormalizedCoordinates = VK_TRUE;
 
         uint32_t stride = static_cast<uint32_t>(sizeof(GlyphMetrics));
