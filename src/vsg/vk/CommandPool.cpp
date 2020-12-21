@@ -16,15 +16,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CommandPool::CommandPool(Device* device, uint32_t queueFamilyIndex) :
+CommandPool::CommandPool(Device* device, uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags) :
     _device(device)
 {
     VkCommandPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.queueFamilyIndex = queueFamilyIndex;
-    //poolInfo.flags = 0;
-    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-    //poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+    poolInfo.flags = flags;
     poolInfo.pNext = nullptr;
 
     if (VkResult result = vkCreateCommandPool(*device, &poolInfo, _device->getAllocationCallbacks(), &_commandPool); result != VK_SUCCESS)
