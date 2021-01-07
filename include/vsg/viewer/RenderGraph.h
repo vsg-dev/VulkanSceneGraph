@@ -51,7 +51,7 @@ namespace vsg
         /// Subpass contents settting passed to vkCmdBeginRenderPass
         VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;
 
-        /// Callback used to automatically update viewports, sciessor, renderAraa and clears when the window is resized.
+        /// Callback used to automatically update viewports, scissor, renderAraa and clears when the window is resized.
         /// By default is null so no resize handling is done.
         ref_ptr<WindowResizeHandler> windowResizeHandler;
 
