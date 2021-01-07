@@ -34,6 +34,7 @@ namespace vsgXcb
         void add(uint16_t keycode, std::initializer_list<std::pair<uint16_t, vsg::KeySymbol> > combinations);
 
         vsg::KeySymbol getKeySymbol(uint16_t keycode, uint16_t modifier);
+        vsg::KeyModifier getKeyModifier(vsg::KeySymbol keySym, uint16_t modifier, bool pressed);
 
     protected:
         KeycodeMap _keycodeMap;
