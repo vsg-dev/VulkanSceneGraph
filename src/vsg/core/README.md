@@ -5,7 +5,6 @@
 * [External.cpp](External.cpp) 
 * [Object.cpp](Object.cpp) 
 * [Objects.cpp](Objects.cpp) 
-* [README.md](README.md) 
 * [Version.cpp](Version.cpp) 
 * [Version.h.in](Version.h.in) 
 * [Visitor.cpp](Visitor.cpp) 
