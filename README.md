@@ -14,7 +14,7 @@ The VulkanSceneGraph Discussion Group [vsg-users](https://groups.google.com/foru
 * Headers - the public interface : [include/vsg/](include/vsg)
 * Source - the implementation : [src/vsg/](src/vsg)
 * Tests & Examples - companion repository : [https://github.com/vsg-dev/vsgExamples](https://github.com/vsg-dev/vsgExamples)
-* 3rd party image and model loedrs - companion repository : [https://github.com/vsg-dev/vsgXchange](https://github.com/vsg-dev/vsgXchange)
+* 3rd party image and model loaders - companion repository : [https://github.com/vsg-dev/vsgXchange](https://github.com/vsg-dev/vsgXchange)
 * ImGui integration - companion repository : [https://github.com/vsg-dev/ImGui](https://github.com/vsg-dev/ImGui)
 * Software development [Road Map](ROADMAP.md)
 * Design : [Principles and Philosophy](docs/Design/DesignPrinciplesAndPhilosophy.md),  [High Level Decisions](docs/Design/HighLevelDesignDecisions.md)
