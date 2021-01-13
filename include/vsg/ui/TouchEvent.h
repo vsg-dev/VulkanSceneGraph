@@ -23,6 +23,8 @@ namespace vsg
     class TouchEvent : public Inherit<WindowEvent, TouchEvent>
     {
     public:
+        TouchEvent() {}
+
         TouchEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, uint32_t in_id) :
             Inherit(in_window, in_time),
             x(in_x),
@@ -32,12 +34,17 @@ namespace vsg
         uint32_t x;
         uint32_t y;
         uint32_t id;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
 
     VSG_type_name(vsg::TouchDownEvent);
     class TouchDownEvent : public Inherit<TouchEvent, TouchDownEvent>
     {
     public:
+        TouchDownEvent() {}
+
         TouchDownEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, uint32_t in_id) :
             Inherit(in_window, in_time, in_x, in_y, in_id) {}
     };
@@ -46,6 +53,8 @@ namespace vsg
     class TouchUpEvent : public Inherit<TouchEvent, TouchUpEvent>
     {
     public:
+        TouchUpEvent() {}
+
         TouchUpEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, uint32_t in_id) :
             Inherit(in_window, in_time, in_x, in_y, in_id) {}
     };
@@ -54,6 +63,8 @@ namespace vsg
     class TouchMoveEvent : public Inherit<TouchEvent, TouchMoveEvent>
     {
     public:
+        TouchMoveEvent() {}
+
         TouchMoveEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, uint32_t in_id) :
             Inherit(in_window, in_time, in_x, in_y, in_id) {}
     };

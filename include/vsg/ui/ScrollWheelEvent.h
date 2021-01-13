@@ -19,6 +19,8 @@ namespace vsg
     class ScrollWheelEvent : public Inherit<WindowEvent, ScrollWheelEvent>
     {
     public:
+        ScrollWheelEvent() {}
+
         ScrollWheelEvent(Window* in_window, time_point in_time, const vec3& in_delta) :
             Inherit(in_window, in_time),
             delta(in_delta) {}
@@ -27,6 +29,9 @@ namespace vsg
         /// scroll up delta.y > 0.0, scroll down delta.y < 0.0
         /// scroll out delta.z > 0.0, scroll in delta.z < 0.0
         vec3 delta;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
     VSG_type_name(vsg::ScrollWheelEvent);
 

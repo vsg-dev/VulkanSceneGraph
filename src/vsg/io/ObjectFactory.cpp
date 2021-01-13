@@ -198,6 +198,28 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::CpuLayoutTechnique);
     VSG_REGISTER_create(vsg::GpuLayoutTechnique);
 
+    // ui
+    VSG_REGISTER_create(vsg::UIEvent);
+    VSG_REGISTER_create(vsg::TerminateEvent);
+    VSG_REGISTER_create(vsg::FrameStamp);
+    VSG_REGISTER_create(vsg::FrameEvent);
+    VSG_REGISTER_create(vsg::PointerEvent);
+    VSG_REGISTER_create(vsg::ButtonPressEvent);
+    VSG_REGISTER_create(vsg::ButtonReleaseEvent);
+    VSG_REGISTER_create(vsg::MoveEvent);
+    VSG_REGISTER_create(vsg::TouchEvent);
+    VSG_REGISTER_create(vsg::TouchDownEvent);
+    VSG_REGISTER_create(vsg::TouchUpEvent);
+    VSG_REGISTER_create(vsg::TouchMoveEvent);
+    VSG_REGISTER_create(vsg::ScrollWheelEvent);
+    VSG_REGISTER_create(vsg::WindowEvent);
+    VSG_REGISTER_create(vsg::ExposeWindowEvent);
+    VSG_REGISTER_create(vsg::ConfigureWindowEvent);
+    VSG_REGISTER_create(vsg::CloseWindowEvent);
+    VSG_REGISTER_create(vsg::KeyEvent);
+    VSG_REGISTER_create(vsg::KeyPressEvent);
+    VSG_REGISTER_create(vsg::KeyReleaseEvent);
+
     // application
     VSG_REGISTER_create(vsg::EllipsoidModel);
 }
