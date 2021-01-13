@@ -20,7 +20,7 @@ namespace vsg
 {
 
     VSG_type_name(vsg::TouchEvent);
-    class TouchEvent : public Inherit<WindowEvent, TouchEvent>
+    class VSG_DECLSPEC TouchEvent : public Inherit<WindowEvent, TouchEvent>
     {
     public:
         TouchEvent() {}

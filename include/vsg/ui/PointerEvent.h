@@ -29,7 +29,7 @@ namespace vsg
     };
 
     VSG_type_name(vsg::PointerEvent);
-    class PointerEvent : public Inherit<WindowEvent, PointerEvent>
+    class VSG_DECLSPEC PointerEvent : public Inherit<WindowEvent, PointerEvent>
     {
     public:
         PointerEvent() {}
@@ -49,7 +49,7 @@ namespace vsg
     };
 
     VSG_type_name(vsg::ButtonPressEvent);
-    class ButtonPressEvent : public Inherit<PointerEvent, ButtonPressEvent>
+    class VSG_DECLSPEC ButtonPressEvent : public Inherit<PointerEvent, ButtonPressEvent>
     {
     public:
         ButtonPressEvent() {}
@@ -65,7 +65,7 @@ namespace vsg
     };
 
     VSG_type_name(vsg::ButtonReleaseEvent);
-    class ButtonReleaseEvent : public Inherit<PointerEvent, ButtonReleaseEvent>
+    class VSG_DECLSPEC ButtonReleaseEvent : public Inherit<PointerEvent, ButtonReleaseEvent>
     {
     public:
         ButtonReleaseEvent() {}

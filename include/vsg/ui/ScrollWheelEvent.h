@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class ScrollWheelEvent : public Inherit<WindowEvent, ScrollWheelEvent>
+    class VSG_DECLSPEC ScrollWheelEvent : public Inherit<WindowEvent, ScrollWheelEvent>
     {
     public:
         ScrollWheelEvent() {}

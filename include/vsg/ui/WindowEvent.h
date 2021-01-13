@@ -20,7 +20,7 @@ namespace vsg
 {
 
     VSG_type_name(vsg::WindowEvent);
-    class WindowEvent : public Inherit<UIEvent, WindowEvent>
+    class VSG_DECLSPEC WindowEvent : public Inherit<UIEvent, WindowEvent>
     {
     public:
         WindowEvent() {}
@@ -36,7 +36,7 @@ namespace vsg
     };
 
     VSG_type_name(vsg::ExposeWindowEvent);
-    class ExposeWindowEvent : public Inherit<WindowEvent, ExposeWindowEvent>
+    class VSG_DECLSPEC ExposeWindowEvent : public Inherit<WindowEvent, ExposeWindowEvent>
     {
     public:
         ExposeWindowEvent() {}
@@ -58,7 +58,7 @@ namespace vsg
     };
 
     VSG_type_name(vsg::ConfigureWindowEvent);
-    class ConfigureWindowEvent : public Inherit<WindowEvent, ConfigureWindowEvent>
+    class VSG_DECLSPEC ConfigureWindowEvent : public Inherit<WindowEvent, ConfigureWindowEvent>
     {
     public:
         ConfigureWindowEvent() {}

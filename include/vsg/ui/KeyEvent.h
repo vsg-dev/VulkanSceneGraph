@@ -274,7 +274,7 @@ namespace vsg
     };
 
     VSG_type_name(vsg::KeyEvent);
-    class KeyEvent : public Inherit<WindowEvent, KeyEvent>
+    class VSG_DECLSPEC KeyEvent : public Inherit<WindowEvent, KeyEvent>
     {
     public:
         KeyEvent() {}

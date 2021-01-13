@@ -30,7 +30,7 @@ namespace vsg
     };
 
     VSG_type_name(vsg::FrameStamp);
-    class FrameStamp : public Inherit<Object, FrameStamp>
+    class VSG_DECLSPEC FrameStamp : public Inherit<Object, FrameStamp>
     {
     public:
         FrameStamp() {}
@@ -47,7 +47,7 @@ namespace vsg
      };
 
     VSG_type_name(vsg::FrameEvent);
-    class FrameEvent : public Inherit<UIEvent, FrameEvent>
+    class VSG_DECLSPEC FrameEvent : public Inherit<UIEvent, FrameEvent>
     {
     public:
         FrameEvent() {}
