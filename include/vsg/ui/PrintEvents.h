@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class PrintEvents : public Inherit<vsg::Visitor, PrintEvents>
+    class VSG_DECLSPEC PrintEvents : public Inherit<vsg::Visitor, PrintEvents>
     {
     public:
         PrintEvents(vsg::clock::time_point in_start_point);

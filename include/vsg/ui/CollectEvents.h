@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class CollectEvents : public vsg::Inherit<vsg::Visitor, CollectEvents>
+    class VSG_DECLSPEC CollectEvents : public vsg::Inherit<vsg::Visitor, CollectEvents>
     {
     public:
         std::list<vsg::ref_ptr<vsg::UIEvent>> events;

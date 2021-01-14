@@ -22,7 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class RecordEvents : public vsg::Inherit<vsg::Visitor, RecordEvents>
+    class VSG_DECLSPEC RecordEvents : public vsg::Inherit<vsg::Visitor, RecordEvents>
     {
     public:
         vsg::ref_ptr<vsg::Objects> events = vsg::Objects::create();

@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class PlayEvents : public vsg::Inherit<vsg::Visitor, PlayEvents>
+    class VSG_DECLSPEC PlayEvents : public vsg::Inherit<vsg::Visitor, PlayEvents>
     {
     public:
         PlayEvents(vsg::ref_ptr<vsg::Object> object, vsg::clock::time_point::duration delta);

@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class ShiftEventTime : public vsg::Inherit<vsg::Visitor, ShiftEventTime>
+    class VSG_DECLSPEC ShiftEventTime : public vsg::Inherit<vsg::Visitor, ShiftEventTime>
     {
     public:
         ShiftEventTime(vsg::clock::time_point::duration in_delta);
