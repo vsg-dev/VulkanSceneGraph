@@ -11,10 +11,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
-#include <vsg/ui/PrintEvents.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
+#include <vsg/ui/PrintEvents.h>
 #include <vsg/ui/ScrollWheelEvent.h>
 
 #include <iostream>
