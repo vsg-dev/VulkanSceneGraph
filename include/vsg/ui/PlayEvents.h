@@ -12,27 +12,35 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Visitor.h>
-#include <vsg/ui/UIEvent.h>
+#include <vsg/ui/KeyEvent.h>
+#include <vsg/ui/PointerEvent.h>
+#include <vsg/ui/ScrollWheelEvent.h>
 
 namespace vsg
 {
-    class PrintEvents : public Inherit<vsg::Visitor, PrintEvents>
+
+    class PlayEvents : public vsg::Inherit<vsg::Visitor, PlayEvents>
     {
     public:
-        PrintEvents(vsg::clock::time_point in_start_point);
+        PlayEvents(vsg::ref_ptr<vsg::Object> object, vsg::clock::time_point::duration delta);
 
-        vsg::clock::time_point start_point;
+        using Events = std::list<vsg::ref_ptr<vsg::UIEvent>>;
+        Events events;
+        Events::iterator events_itr;
+        bool frameEnd = false;
+
+        // cache of events to dispatch for current frame.
+        Events frameEvents;
+
+        bool dispatchFrameEvents(vsg::UIEvents& viewer_events);
 
         void apply(vsg::UIEvent& event) override;
+
         void apply(vsg::FrameEvent& event) override;
+
+        void apply(vsg::ConfigureWindowEvent& event) override;
+
         void apply(vsg::ExposeWindowEvent& event) override;
-        void apply(vsg::CloseWindowEvent& event) override;
-        void apply(vsg::KeyReleaseEvent& keyRelease) override;
-        void apply(vsg::KeyPressEvent& keyPress) override;
-        void apply(vsg::ButtonPressEvent& buttonPress) override;
-        void apply(vsg::ButtonReleaseEvent& buttonRelease) override;
-        void apply(vsg::MoveEvent& move) override;
-        void apply(vsg::ScrollWheelEvent& scrollWheel) override;
     };
+
 } // namespace vsg
