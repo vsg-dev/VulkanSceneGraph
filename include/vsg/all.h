@@ -126,10 +126,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 // User Interface abstraction header files
 #include <vsg/ui/ApplicationEvent.h>
+#include <vsg/ui/CollectEvents.h>
 #include <vsg/ui/KeyEvent.h>
+#include <vsg/ui/PlayEvents.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/PrintEvents.h>
+#include <vsg/ui/RecordEvents.h>
 #include <vsg/ui/ScrollWheelEvent.h>
+#include <vsg/ui/ShiftEventTime.h>
 #include <vsg/ui/TouchEvent.h>
 #include <vsg/ui/UIEvent.h>
 #include <vsg/ui/WindowEvent.h>

@@ -23,31 +23,43 @@ namespace vsg
     class TerminateEvent : public Inherit<UIEvent, TerminateEvent>
     {
     public:
+        TerminateEvent() {}
+
         TerminateEvent(time_point in_time) :
             Inherit(in_time) {}
     };
 
     VSG_type_name(vsg::FrameStamp);
-    class FrameStamp : public Inherit<Object, FrameStamp>
+    class VSG_DECLSPEC FrameStamp : public Inherit<Object, FrameStamp>
     {
     public:
+        FrameStamp() {}
+
         FrameStamp(time_point in_time, uint64_t in_frameCount) :
             time(in_time),
             frameCount(in_frameCount) {}
 
-        time_point time;
-        uint64_t frameCount;
+        time_point time = {};
+        uint64_t frameCount = 0;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
 
     VSG_type_name(vsg::FrameEvent);
-    class FrameEvent : public Inherit<UIEvent, FrameEvent>
+    class VSG_DECLSPEC FrameEvent : public Inherit<UIEvent, FrameEvent>
     {
     public:
+        FrameEvent() {}
+
         FrameEvent(ref_ptr<FrameStamp> fs) :
             Inherit(fs->time),
             frameStamp(fs) {}
 
         ref_ptr<FrameStamp> frameStamp;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
 
 } // namespace vsg

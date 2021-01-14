@@ -20,20 +20,27 @@ namespace vsg
 {
 
     VSG_type_name(vsg::WindowEvent);
-    class WindowEvent : public Inherit<UIEvent, WindowEvent>
+    class VSG_DECLSPEC WindowEvent : public Inherit<UIEvent, WindowEvent>
     {
     public:
+        WindowEvent() {}
+
         WindowEvent(Window* in_window, time_point in_time) :
             Inherit(in_time),
             window(in_window) {}
 
         observer_ptr<Window> window;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
 
     VSG_type_name(vsg::ExposeWindowEvent);
-    class ExposeWindowEvent : public Inherit<WindowEvent, ExposeWindowEvent>
+    class VSG_DECLSPEC ExposeWindowEvent : public Inherit<WindowEvent, ExposeWindowEvent>
     {
     public:
+        ExposeWindowEvent() {}
+
         ExposeWindowEvent(Window* in_window, time_point in_time, int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height) :
             Inherit(in_window, in_time),
             x(in_x),
@@ -45,12 +52,17 @@ namespace vsg
         int32_t y = 0;
         uint32_t width = 0;
         uint32_t height = 0;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
 
     VSG_type_name(vsg::ConfigureWindowEvent);
-    class ConfigureWindowEvent : public Inherit<WindowEvent, ConfigureWindowEvent>
+    class VSG_DECLSPEC ConfigureWindowEvent : public Inherit<WindowEvent, ConfigureWindowEvent>
     {
     public:
+        ConfigureWindowEvent() {}
+
         ConfigureWindowEvent(Window* in_window, time_point in_time, int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height) :
             Inherit(in_window, in_time),
             x(in_x),
@@ -62,12 +74,17 @@ namespace vsg
         int32_t y = 0;
         uint32_t width = 0;
         uint32_t height = 0;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
 
     VSG_type_name(vsg::CloseWindowEvent);
     class CloseWindowEvent : public Inherit<WindowEvent, CloseWindowEvent>
     {
     public:
+        CloseWindowEvent() {}
+
         CloseWindowEvent(Window* in_window, time_point in_time) :
             Inherit(in_window, in_time) {}
     };

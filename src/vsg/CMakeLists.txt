@@ -134,6 +134,18 @@ set(SOURCES
     raytracing/TopLevelAccelerationStructure.cpp
     raytracing/TraceRays.cpp
 
+    ui/UIEvent.cpp
+    ui/ApplicationEvent.cpp
+    ui/KeyEvent.cpp
+    ui/TouchEvent.cpp
+    ui/PointerEvent.cpp
+    ui/ScrollWheelEvent.cpp
+    ui/WindowEvent.cpp
+    ui/RecordEvents.cpp
+    ui/CollectEvents.cpp
+    ui/ShiftEventTime.cpp
+    ui/PlayEvents.cpp
+    ui/PrintEvents.cpp
 
     vk/CommandBuffer.cpp
     vk/CommandPool.cpp

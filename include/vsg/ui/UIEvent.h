@@ -24,15 +24,19 @@ namespace vsg
     using time_point = clock::time_point;
 
     VSG_type_name(vsg::UIEvent);
-    class UIEvent : public Inherit<Object, UIEvent>
+    class VSG_DECLSPEC UIEvent : public Inherit<Object, UIEvent>
     {
     public:
+        UIEvent() {}
+
         UIEvent(time_point in_time) :
             time(in_time) {}
 
-        time_point time;
-
+        time_point time = {};
         bool handled = false;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
 
     using UIEvents = std::list<ref_ptr<UIEvent>>;

@@ -12,27 +12,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Visitor.h>
-#include <vsg/ui/UIEvent.h>
+#include <vsg/core/Objects.h>
+#include <vsg/ui/KeyEvent.h>
+#include <vsg/ui/PointerEvent.h>
+#include <vsg/ui/ScrollWheelEvent.h>
+
+#include <iostream>
 
 namespace vsg
 {
-    class VSG_DECLSPEC PrintEvents : public Inherit<vsg::Visitor, PrintEvents>
+
+    class VSG_DECLSPEC RecordEvents : public vsg::Inherit<vsg::Visitor, RecordEvents>
     {
     public:
-        PrintEvents(vsg::clock::time_point in_start_point);
-
-        vsg::clock::time_point start_point;
+        vsg::ref_ptr<vsg::Objects> events = vsg::Objects::create();
 
         void apply(vsg::UIEvent& event) override;
-        void apply(vsg::FrameEvent& event) override;
-        void apply(vsg::ExposeWindowEvent& event) override;
-        void apply(vsg::CloseWindowEvent& event) override;
-        void apply(vsg::KeyReleaseEvent& keyRelease) override;
-        void apply(vsg::KeyPressEvent& keyPress) override;
-        void apply(vsg::ButtonPressEvent& buttonPress) override;
-        void apply(vsg::ButtonReleaseEvent& buttonRelease) override;
-        void apply(vsg::MoveEvent& move) override;
-        void apply(vsg::ScrollWheelEvent& scrollWheel) override;
     };
+
 } // namespace vsg

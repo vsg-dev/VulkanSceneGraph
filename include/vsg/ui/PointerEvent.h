@@ -29,46 +29,63 @@ namespace vsg
     };
 
     VSG_type_name(vsg::PointerEvent);
-    class PointerEvent : public Inherit<WindowEvent, PointerEvent>
+    class VSG_DECLSPEC PointerEvent : public Inherit<WindowEvent, PointerEvent>
     {
     public:
+        PointerEvent() {}
+
         PointerEvent(Window* in_window, time_point in_time, int32_t in_x, int32_t in_y, ButtonMask in_buttonMask) :
             Inherit(in_window, in_time),
             x(in_x),
             y(in_y),
             mask(in_buttonMask) {}
 
-        int32_t x;
-        int32_t y;
-        ButtonMask mask;
+        int32_t x = 0;
+        int32_t y = 0;
+        ButtonMask mask = {};
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
 
     VSG_type_name(vsg::ButtonPressEvent);
-    class ButtonPressEvent : public Inherit<PointerEvent, ButtonPressEvent>
+    class VSG_DECLSPEC ButtonPressEvent : public Inherit<PointerEvent, ButtonPressEvent>
     {
     public:
+        ButtonPressEvent() {}
+
         ButtonPressEvent(Window* in_window, time_point in_time, int32_t in_x, int32_t in_y, ButtonMask in_buttonMask, uint32_t in_button) :
             Inherit(in_window, in_time, in_x, in_y, in_buttonMask),
             button(in_button) {}
 
-        uint32_t button;
+        uint32_t button = 0;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
 
     VSG_type_name(vsg::ButtonReleaseEvent);
-    class ButtonReleaseEvent : public Inherit<PointerEvent, ButtonReleaseEvent>
+    class VSG_DECLSPEC ButtonReleaseEvent : public Inherit<PointerEvent, ButtonReleaseEvent>
     {
     public:
+        ButtonReleaseEvent() {}
+
         ButtonReleaseEvent(Window* in_window, time_point in_time, int32_t in_x, int32_t in_y, ButtonMask in_buttonMask, uint32_t in_button) :
             Inherit(in_window, in_time, in_x, in_y, in_buttonMask),
             button(in_button) {}
 
         uint32_t button;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
 
     VSG_type_name(vsg::MoveEvent);
     class MoveEvent : public Inherit<PointerEvent, MoveEvent>
     {
     public:
+        MoveEvent() {}
+
         MoveEvent(Window* in_window, time_point in_time, int32_t in_x, int32_t in_y, ButtonMask in_buttonMask) :
             Inherit(in_window, in_time, in_x, in_y, in_buttonMask) {}
     };
