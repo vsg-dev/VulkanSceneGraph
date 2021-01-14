@@ -70,20 +70,22 @@ bool PlayEvents::dispatchFrameEvents(vsg::UIEvents& viewer_events)
 
 void PlayEvents::apply(vsg::UIEvent& event)
 {
+    if (resetHandled) event.handled = false;
+
     frameEvents.push_back(vsg::ref_ptr<vsg::UIEvent>(&event));
 }
 
-void PlayEvents::apply(vsg::FrameEvent& event)
+void PlayEvents::apply(vsg::FrameEvent& /*event*/)
 {
     frameEnd = true;
 }
 
-void PlayEvents::apply(vsg::ConfigureWindowEvent& event)
+void PlayEvents::apply(vsg::ConfigureWindowEvent& /*event*/)
 {
     // ignore, long term should we be sending events to the Window?
 }
 
-void PlayEvents::apply(vsg::ExposeWindowEvent& event)
+void PlayEvents::apply(vsg::ExposeWindowEvent& /*event*/)
 {
     // ignore for now, long term should we be sending events to the Window?
 }

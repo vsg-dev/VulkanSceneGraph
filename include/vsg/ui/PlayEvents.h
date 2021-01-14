@@ -24,6 +24,8 @@ namespace vsg
     public:
         PlayEvents(vsg::ref_ptr<vsg::Object> object, vsg::clock::time_point::duration delta);
 
+        bool resetHandled = true;
+
         using Events = std::list<vsg::ref_ptr<vsg::UIEvent>>;
         Events events;
         Events::iterator events_itr;
