@@ -22,14 +22,21 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 PrintEvents::PrintEvents(clock::time_point in_start_point) :
+    output(std::cout),
+    start_point(in_start_point)
+{
+}
+
+PrintEvents::PrintEvents(std::ostream& out, clock::time_point in_start_point) :
+    output(out),
     start_point(in_start_point)
 {
 }
 
 std::ostream& PrintEvents::print(UIEvent& event)
 {
-    std::cout << event.className() << ", " << std::chrono::duration<double, std::chrono::milliseconds::period>(event.time - start_point).count()<<"ms";
-    return std::cout;
+    output << event.className() << ", " << std::chrono::duration<double, std::chrono::milliseconds::period>(event.time - start_point).count()<<"ms";
+    return output;
 }
 
 void PrintEvents::apply(Object& object)

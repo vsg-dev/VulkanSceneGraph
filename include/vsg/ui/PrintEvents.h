@@ -21,10 +21,12 @@ namespace vsg
     {
     public:
         PrintEvents(clock::time_point in_start_point);
+        PrintEvents(std::ostream& out, clock::time_point in_start_point);
 
+        std::ostream& output;
         clock::time_point start_point;
 
-        std::ostream& print(UIEvent& event);
+        virtual std::ostream& print(UIEvent& event);
 
         void apply(Object& object) override;
         void apply(UIEvent& event) override;
