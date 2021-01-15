@@ -17,22 +17,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_DECLSPEC PrintEvents : public Inherit<vsg::Visitor, PrintEvents>
+    class VSG_DECLSPEC PrintEvents : public Inherit<Visitor, PrintEvents>
     {
     public:
-        PrintEvents(vsg::clock::time_point in_start_point);
+        PrintEvents(clock::time_point in_start_point);
+        PrintEvents(std::ostream& out, clock::time_point in_start_point);
 
-        vsg::clock::time_point start_point;
+        std::ostream& output;
+        clock::time_point start_point;
 
-        void apply(vsg::UIEvent& event) override;
-        void apply(vsg::FrameEvent& event) override;
-        void apply(vsg::ExposeWindowEvent& event) override;
-        void apply(vsg::CloseWindowEvent& event) override;
-        void apply(vsg::KeyReleaseEvent& keyRelease) override;
-        void apply(vsg::KeyPressEvent& keyPress) override;
-        void apply(vsg::ButtonPressEvent& buttonPress) override;
-        void apply(vsg::ButtonReleaseEvent& buttonRelease) override;
-        void apply(vsg::MoveEvent& move) override;
-        void apply(vsg::ScrollWheelEvent& scrollWheel) override;
+        virtual std::ostream& print(UIEvent& event);
+
+        void apply(Object& object) override;
+        void apply(UIEvent& event) override;
+        void apply(FrameEvent& event) override;
+        void apply(ExposeWindowEvent& event) override;
+        void apply(CloseWindowEvent& event) override;
+        void apply(KeyReleaseEvent& keyRelease) override;
+        void apply(KeyPressEvent& keyPress) override;
+        void apply(ButtonPressEvent& buttonPress) override;
+        void apply(ButtonReleaseEvent& buttonRelease) override;
+        void apply(MoveEvent& move) override;
+        void apply(ScrollWheelEvent& scrollWheel) override;
     };
 } // namespace vsg
