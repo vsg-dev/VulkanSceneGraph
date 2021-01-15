@@ -57,6 +57,6 @@ It's still very early days for the project so we don't have many projects that u
 
 Two examples within the vsgExamples project that may be of particular interest are ports of Vulkan tutorials to the VSG API.  In each case the VSG version requires less than 1/5th the amount of code to achieve the same functionality.
 
-* [Vulkan Tutorial](https://vulkan-tutorial.com/) ported as [vsgExamples/Desktop/vsgdraw](https://github.com/vsg-dev/vsgExamples/blob/master/Desktop/vsgdraw/)
-* [vulkan_minimal_compute](https://github.com/Erkaman/vulkan_minimal_compute) tutorial ported to VSG [vsgExamples/Desktop/vsgcompute](https://github.com/vsg-dev/vsgExamples/blob/master/Desktop/vsgcompute/)
+* [Vulkan Tutorial](https://vulkan-tutorial.com/) ported as [vsgExamples/commands/vsgdraw](https://github.com/vsg-dev/vsgExamples/blob/master/examples/commands/vsgdraw/)
+* [vulkan_minimal_compute](https://github.com/Erkaman/vulkan_minimal_compute) tutorial ported to VSG [vsgExamples/vk/vsgcompute](https://github.com/vsg-dev/vsgExamples/blob/master/examples/vk/vsgcompute/)
 
