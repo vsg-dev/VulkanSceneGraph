@@ -35,7 +35,7 @@ PrintEvents::PrintEvents(std::ostream& out, clock::time_point in_start_point) :
 
 std::ostream& PrintEvents::print(UIEvent& event)
 {
-    output << event.className() << ", " << std::chrono::duration<double, std::chrono::milliseconds::period>(event.time - start_point).count()<<"ms";
+    output << event.className() << ", " << std::chrono::duration<double, std::chrono::milliseconds::period>(event.time - start_point).count() << "ms";
     return output;
 }
 
