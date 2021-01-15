@@ -21,57 +21,68 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-PrintEvents::PrintEvents(vsg::clock::time_point in_start_point) :
+PrintEvents::PrintEvents(clock::time_point in_start_point) :
     start_point(in_start_point)
 {
 }
 
-void PrintEvents::apply(vsg::UIEvent& event)
+std::ostream& PrintEvents::print(UIEvent& event)
 {
-    std::cout << "event : " << event.className() << ", " << std::chrono::duration<double>(event.time - start_point).count() << std::endl;
+    std::cout << event.className() << ", " << std::chrono::duration<double, std::chrono::milliseconds::period>(event.time - start_point).count();
+    return std::cout;
 }
 
-void PrintEvents::apply(vsg::FrameEvent& event)
+void PrintEvents::apply(Object& object)
 {
-    std::cout << "Frame event : " << event.className() << ", " << std::chrono::duration<double>(event.time - start_point).count() << std::endl;
+    object.traverse(*this);
 }
 
-void PrintEvents::apply(vsg::ExposeWindowEvent& event)
+void PrintEvents::apply(UIEvent& event)
 {
-    std::cout << "Expose window : " << event.className() << ", " << std::chrono::duration<double>(event.time - start_point).count() << " " << event.x << ", " << event.y << ", " << event.width << ", " << event.height << std::endl;
+    print(event) << std::endl;
 }
 
-void PrintEvents::apply(vsg::CloseWindowEvent& event)
+void PrintEvents::apply(FrameEvent& event)
 {
-    std::cout << "Close window : " << event.className() << ", " << std::chrono::duration<double>(event.time - start_point).count() << std::endl;
+    print(event) << " : franeCount = " << event.frameStamp->frameCount << std::endl;
 }
 
-void PrintEvents::apply(vsg::KeyReleaseEvent& keyRelease)
+void PrintEvents::apply(ExposeWindowEvent& event)
 {
-    std::cout << "KeyReleaeEvent : " << keyRelease.className() << ", " << std::chrono::duration<double>(keyRelease.time - start_point).count() << ", " << keyRelease.keyBase << std::endl;
+    print(event) << " : x = " << event.x << ", y = " << event.y << ", width = " << event.width << ", height = " << event.height << std::endl;
 }
 
-void PrintEvents::apply(vsg::KeyPressEvent& keyPress)
+void PrintEvents::apply(CloseWindowEvent& event)
 {
-    std::cout << "KeyPressEvent : " << keyPress.className() << ", " << std::chrono::duration<double>(keyPress.time - start_point).count() << ", " << keyPress.keyBase << ", " << keyPress.keyModified << std::endl;
+    print(event) << std::endl;
 }
 
-void PrintEvents::apply(vsg::ButtonPressEvent& buttonPress)
+void PrintEvents::apply(KeyReleaseEvent& keyRelease)
 {
-    std::cout << "ButtonPress : " << buttonPress.className() << ", " << std::chrono::duration<double>(buttonPress.time - start_point).count() << ", " << buttonPress.x << ", " << buttonPress.y << ", " << buttonPress.mask << ", " << buttonPress.button << std::endl;
+    print(keyRelease) << " : keyBase = " << keyRelease.keyBase << ", keyModified = " << keyRelease.keyModified << std::endl;
 }
 
-void PrintEvents::apply(vsg::ButtonReleaseEvent& buttonRelease)
+void PrintEvents::apply(KeyPressEvent& keyPress)
 {
-    std::cout << "ButtonRelease : " << buttonRelease.className() << ", " << std::chrono::duration<double>(buttonRelease.time - start_point).count() << ", " << buttonRelease.x << ", " << buttonRelease.y << ", " << buttonRelease.mask << ", " << buttonRelease.button << std::endl;
+    print(keyPress) << " : keyBase = " << keyPress.keyBase << ", keyModified = " << keyPress.keyModified << std::endl;
 }
 
-void PrintEvents::apply(vsg::MoveEvent& move)
+void PrintEvents::apply(ButtonPressEvent& buttonPress)
 {
-    std::cout << "MoveEvent : " << move.className() << ", " << std::chrono::duration<double>(move.time - start_point).count() << ", " << move.x << ", " << move.y << ", " << move.mask << std::endl;
+    print(buttonPress) << " : x = " << buttonPress.x << ", y = " << buttonPress.y << ", mask =" << buttonPress.mask << ", button =" << buttonPress.button << std::endl;
 }
 
-void PrintEvents::apply(vsg::ScrollWheelEvent& scrollWheel)
+void PrintEvents::apply(ButtonReleaseEvent& buttonRelease)
 {
-    std::cout << "scrollWheel : " << scrollWheel.className() << ", " << std::chrono::duration<double>(scrollWheel.time - start_point).count() << ", " << scrollWheel.delta << std::endl;
+    print(buttonRelease) << " : x = " << buttonRelease.x << ", y = " << buttonRelease.y << ", mask = " << buttonRelease.mask << ", button = " << buttonRelease.button << std::endl;
+}
+
+void PrintEvents::apply(MoveEvent& move)
+{
+    print(move) << " : x = " << move.x << ", y =" << move.y << ", mask = " << move.mask << std::endl;
+}
+
+void PrintEvents::apply(ScrollWheelEvent& scrollWheel)
+{
+    print(scrollWheel) << " : delta " << scrollWheel.delta << std::endl;
 }
