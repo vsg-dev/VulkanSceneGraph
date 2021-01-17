@@ -169,7 +169,7 @@ CompileTraversal::CompileTraversal(Window* window, ViewportState* viewport, Buff
     auto device = window->getDevice();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
     context.renderPass = window->getOrCreateRenderPass();
-    context.commandPool = vsg::CommandPool::create(device, queueFamily);
+    context.commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
     context.graphicsQueue = device->getQueue(queueFamily);
 
     if (viewport) context.defaultPipelineStates.emplace_back(viewport);
