@@ -126,3 +126,18 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
 
     return entries;
 }
+
+ref_ptr<Object> vsg::read(std::istream& fin, ref_ptr<const Options> options)
+{
+    auto read_file = [&]() -> ref_ptr<Object> {
+        if (options && options->readerWriter)
+        {
+            auto object = options->readerWriter->read(fin, options);
+            if (object) return object;
+        }
+
+        return {};
+    };
+
+    return read_file();
+}
