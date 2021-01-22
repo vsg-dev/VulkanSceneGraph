@@ -53,6 +53,8 @@ namespace vsg
 
         Paths paths;
 
+        std::string extensionHint;
+
     protected:
         virtual ~Options();
     };
