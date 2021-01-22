@@ -126,6 +126,17 @@ vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(const vsg::Path& filename, ref_
 
 vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(std::istream& fin, vsg::ref_ptr<const vsg::Options> options) const
 {
+    if (options)
+    {
+        if (!options->extensionHint.empty())
+        {
+            if (options->extensionHint != "vsgb" && options->extensionHint != "vsgt")
+            {
+                return {};
+            }
+        }
+    }
+
     auto [type, version] = readHeader(fin);
     if (type == BINARY)
     {
@@ -186,9 +197,22 @@ bool ReaderWriter_vsg::write(const vsg::Object* object, const vsg::Path& filenam
 bool ReaderWriter_vsg::write(const vsg::Object* object, std::ostream& fout, ref_ptr<const Options> options) const
 {
     auto version = vsgGetVersion();
+    bool asciiFormat = true;
 
     if (options)
     {
+        if (!options->extensionHint.empty())
+        {
+            if (options->extensionHint == "vsgb")
+            {
+                asciiFormat = false;
+            }
+            else if (options->extensionHint != "vsgt")
+            {
+                return false;
+            }
+        }
+
         std::string version_string;
         if (options->getValue("version", version_string))
         {
@@ -196,23 +220,20 @@ bool ReaderWriter_vsg::write(const vsg::Object* object, std::ostream& fout, ref_
         }
     }
 
-#if 0
-    if (fout.openmode() & std::ios_base::openmode::binary)
+    if (asciiFormat)
     {
-        std::cout<<"Binary outputstream"<<std::endl;
-        writeHeader(fout, BINARY);
+        writeHeader(fout, FormatInfo(ASCII, version));
 
-        vsg::BinaryOutput output(fout, options);
+        vsg::AsciiOutput output(fout, options);
         output.version = version;
         output.writeObject("Root", object);
         return true;
     }
     else
-#endif
     {
-        writeHeader(fout, FormatInfo(ASCII, version));
+        writeHeader(fout, FormatInfo(BINARY, version));
 
-        vsg::AsciiOutput output(fout, options);
+        vsg::BinaryOutput output(fout, options);
         output.version = version;
         output.writeObject("Root", object);
         return true;
