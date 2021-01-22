@@ -348,7 +348,7 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
         displayDevices.push_back(displayDevice);
     }
 
-    // assume a trais->screenNum of < 0 will default to screen 0
+    // assume a traits->screenNum of < 0 will default to screen 0
     int screenNum = traits->screenNum < 0 ? 0 : traits->screenNum;
     if (screenNum >= displayDevices.size()) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 

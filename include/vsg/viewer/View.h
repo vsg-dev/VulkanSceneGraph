@@ -30,7 +30,7 @@ namespace vsg
         /// camera controls the viewport state and projection and view matrices
         ref_ptr<Camera> camera;
 
-        /// viewID is automatically assinged by Viewer::compile()
+        /// viewID is automatically assigned by Viewer::compile()
         uint32_t viewID = 0;
     };
 

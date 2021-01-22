@@ -34,7 +34,7 @@ namespace vsg
     VSG_value(VkGeometryInstanceValue, VkGeometryInstance);
     VSG_array(VkGeometryInstanceArray, VkGeometryInstance);
 
-    // An instance of a bottom level acceleration structure referenc by a top level acceleration structure
+    // An instance of a bottom level acceleration structure reference by a top level acceleration structure
     class VSG_DECLSPEC GeometryInstance : public Inherit<Object, GeometryInstance>
     {
     public:

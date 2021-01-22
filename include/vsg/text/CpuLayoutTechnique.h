@@ -38,7 +38,7 @@ namespace vsg
 
         void setup(Text* text, uint32_t minimumAllocation = 0) override;
 
-        /// rendering state used to set up grahics pipeline and descriptor sets, assigned to Font to allow it be be shared
+        /// rendering state used to set up graphics pipeline and descriptor sets, assigned to Font to allow it be shared
         struct VSG_DECLSPEC RenderingState : public Inherit<Object, RenderingState>
         {
             RenderingState(Font* font, bool in_singleColor, bool in_singleOutlineColor, bool in_singleOutlineWidth);

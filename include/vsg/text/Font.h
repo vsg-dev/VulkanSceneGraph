@@ -37,14 +37,14 @@ namespace vsg
         ref_ptr<uintArray> charmap;
         ref_ptr<Options> options;
 
-        /// get the index into the glyphMetrics array for the glyph assoicated with specififed charcode
+        /// get the index into the glyphMetrics array for the glyph associated with specified charcode
         uint32_t glyphIndexForCharcode(uint32_t charcode) const
         {
             if (charmap && charcode < charmap->size()) return charmap->at(charcode);
             return 0;
         }
 
-        /// Wraooer for Font GPU state.
+        /// Wrapper for Font GPU state.
         struct VSG_DECLSPEC FontState : public Inherit<Object, FontState>
         {
             FontState(Font* font);
@@ -54,7 +54,7 @@ namespace vsg
             ref_ptr<DescriptorImage> glyphMetrics;
         };
 
-        /// different text impplementations may wish to share implementation details such as shaders etc.
+        /// different text implementations may wish to share implementation details such as shaders etc.
         std::mutex sharedDataMutex;
         std::vector<ref_ptr<Object>> sharedData;
 

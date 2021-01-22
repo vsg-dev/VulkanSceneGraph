@@ -34,7 +34,7 @@ namespace vsg
         operator bool() const { return !cpus.empty(); }
     };
 
-    /// Set the CPU affinity of specifiied std::thread
+    /// Set the CPU affinity of specified std::thread
     extern VSG_DECLSPEC void setAffinity(std::thread& thread, const Affinity& affinity);
 
     /// Set the CPU affinity of current thread

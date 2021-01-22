@@ -117,7 +117,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         case (VK_SHADER_STAGE_TASK_BIT_NV): return "Task Shader";
         case (VK_SHADER_STAGE_MESH_BIT_NV): return "Mesh Shader";
 #    endif
-        default: return "Unkown Shader Type";
+        default: return "Unknown Shader Type";
         }
         return "";
     };
@@ -187,7 +187,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         }
         else
         {
-            // print error infomation
+            // print error information
             INFO_OUTPUT << std::endl
                         << "----  " << getFriendlyNameForShader(vsg_shader) << "  ----" << std::endl
                         << std::endl;
@@ -285,7 +285,7 @@ std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, c
         }
     };
 
-    // sanitise line by triming leading and trailing characters
+    // sanitize line by trimming leading and trailing characters
     auto sanitise = [&trimLeading, &trimTrailing](std::string& str) {
         trimLeading(str);
         trimTrailing(str);
@@ -412,7 +412,7 @@ std::string ShaderCompiler::insertIncludes(const std::string& source, const Path
             pos = code.find_first_not_of(" \t", pos + 7);
             if (pos == std::string::npos) break;
 
-            // check for include part of #pragma imclude usage
+            // check for include part of #pragma include usage
             if (code.compare(pos, 7, "include") != 0)
             {
                 pos = end_of_line;

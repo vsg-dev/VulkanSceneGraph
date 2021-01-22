@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    /// Equivilant to VkDrawIndirectCommand that adds read/write support
+    /// Equivalent to VkDrawIndirectCommand that adds read/write support
     struct DrawIndirectCommand
     {
         uint32_t vertexCount;

@@ -211,7 +211,7 @@ namespace vsg
     }
 
     /// cross product of a vec2 can be thought of cross product of vec3's with the z value of 0.0/vec3's in the xy plane.
-    /// The retuned value is the length of the resulting vec3 cross product, and can be treated as the signed area of the parallelogram, negative if rhs is clockwise from lhs when looking down on xy plane.
+    /// The returned value is the length of the resulting vec3 cross product, and can be treated as the signed area of the parallelogram, negative if rhs is clockwise from lhs when looking down on xy plane.
     template<typename T>
     constexpr T cross(const t_vec2<T>& lhs, const t_vec2<T>& rhs)
     {

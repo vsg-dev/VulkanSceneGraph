@@ -72,7 +72,7 @@ void ArrayState::apply(uint32_t firstBinding, const vsg::DataList& in_arrays)
     if (arrays.size() < (in_arrays.size() + firstBinding)) arrays.resize(in_arrays.size() + firstBinding);
     std::copy(in_arrays.begin(), in_arrays.end(), arrays.begin() + firstBinding);
 
-    // if the required verteAttribute is wuthin the new arrays apply the appropriate array to set up the vertices array
+    // if the required vertexAttribute is within the new arrays apply the appropriate array to set up the vertices array
     if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()))
     {
         arrays[vertexAttribute.binding]->accept(*this);

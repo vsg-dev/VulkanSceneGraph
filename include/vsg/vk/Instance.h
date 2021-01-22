@@ -44,16 +44,16 @@ namespace vsg
         PhysicalDevices& getPhysicalDevices() { return _physicalDevices; }
         const PhysicalDevices& getPhysicalDevices() const { return _physicalDevices; }
 
-        /// get a PhysicalDevice that supports the speciiced queueFlags, and presentation of spcified surface if one is provided.
+        /// get a PhysicalDevice that supports the specified queueFlags, and presentation of specified surface if one is provided.
         ref_ptr<PhysicalDevice> getPhysicalDevice(VkQueueFlags queueFlags) const;
 
-        /// get a PhysicalDevice that supports the speciiced queueFlags, and presentation of spcified surface if one is provided.
+        /// get a PhysicalDevice that supports the specified queueFlags, and presentation of specified surface if one is provided.
         ref_ptr<PhysicalDevice> getPhysicalDevice(VkQueueFlags queueFlags, Surface* surface) const;
 
-        /// get a PhysicalDevice and queue family index that supports the speciiced queueFlags, and presentation of spcified surface if one is provided.
+        /// get a PhysicalDevice and queue family index that supports the specified queueFlags, and presentation of specified surface if one is provided.
         std::pair<ref_ptr<PhysicalDevice>, int> getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags) const;
 
-        /// get a PhysicalDevice and queue family index that supports the speciiced queueFlags, and presentation of spcified surface if one is provided.
+        /// get a PhysicalDevice and queue family index that supports the specified queueFlags, and presentation of specified surface if one is provided.
         std::tuple<ref_ptr<PhysicalDevice>, int, int> getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface) const;
 
     protected:
