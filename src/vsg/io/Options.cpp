@@ -32,7 +32,8 @@ Options::Options(const Options& options) :
     //    fileCache(options.fileCache),
     objectCache(options.objectCache),
     readerWriter(options.readerWriter),
-    operationThreads(options.operationThreads)
+    operationThreads(options.operationThreads),
+    extensionHint(options.extensionHint)
 {
 }
 

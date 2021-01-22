@@ -29,6 +29,15 @@ vsg::ref_ptr<vsg::Object> CompositeReaderWriter::read(const vsg::Path& filename,
     return vsg::ref_ptr<vsg::Object>();
 }
 
+vsg::ref_ptr<vsg::Object> CompositeReaderWriter::read(std::istream& fin, ref_ptr<const Options> options) const
+{
+    for (auto& reader : readerWriters)
+    {
+        if (auto object = reader->read(fin, options); object.valid()) return object;
+    }
+    return vsg::ref_ptr<vsg::Object>();
+}
+
 bool CompositeReaderWriter::write(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const
 {
     for (auto& writer : readerWriters)
