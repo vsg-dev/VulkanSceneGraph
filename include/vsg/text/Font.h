@@ -51,7 +51,7 @@ namespace vsg
             bool match() const { return true; }
 
             ref_ptr<DescriptorImage> textureAtlas;
-            ref_ptr<DescriptorImage> glyphMetrics;
+            ref_ptr<DescriptorImage> glyphMetricsImage;
         };
 
         /// different text implementations may wish to share implementation details such as shaders etc.
