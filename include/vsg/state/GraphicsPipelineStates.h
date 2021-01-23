@@ -99,7 +99,7 @@ namespace vsg
     public:
         ViewportState();
 
-        /// Create ViewportState containing a single Viewport and Scissor pair with specified extent located at origin (x, y = {0,0}). Typically used for convinience when rendering to a whole window.
+        /// Create ViewportState containing a single Viewport and Scissor pair with specified extent located at origin (x, y = {0,0}). Typically used for convenience when rendering to a whole window.
         explicit ViewportState(const VkExtent2D& extent);
 
         /// Create ViewportState containing a single Viewport and Scissor pair with specified position and extent

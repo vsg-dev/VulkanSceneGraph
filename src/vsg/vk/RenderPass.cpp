@@ -119,7 +119,7 @@ ref_ptr<RenderPass> vsg::createRenderPass(Device* device, VkFormat imageFormat, 
 
     RenderPass::Subpasses subpasses{subpass};
 
-    // image layout transiton
+    // image layout transition
     VkSubpassDependency colorDependency = {};
     colorDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     colorDependency.dstSubpass = 0;

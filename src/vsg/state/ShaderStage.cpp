@@ -109,7 +109,7 @@ void ShaderStage::apply(Context& context, VkPipelineShaderStageCreateInfo& stage
             packedDataSize += static_cast<uint32_t>(id_data.second->dataSize());
         }
 
-        // allocate temporary memoory to pack the specialization map and data into.
+        // allocate temporary memory to pack the specialization map and data into.
         auto mapEntries = context.scratchMemory->allocate<VkSpecializationMapEntry>(specializationConstants.size());
         auto packedData = context.scratchMemory->allocate<uint8_t>(packedDataSize);
         uint32_t offset = 0;

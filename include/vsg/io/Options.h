@@ -34,7 +34,7 @@ namespace vsg
 
         Options& operator=(const Options& rhs) = delete;
 
-        /// read command line options, assign values to this options object to later use wiht reading/writing files
+        /// read command line options, assign values to this options object to later use with reading/writing files
         virtual bool readOptions(CommandLine& arguments);
 
         //ref_ptr<FileCache> fileCache;

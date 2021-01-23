@@ -64,7 +64,7 @@ GpuLayoutTechnique::GpuLayoutState::GpuLayoutState(Font* font)
     textArrayDescriptorSetLayout = DescriptorSetLayout::create(textArrayDescriptorBindings);
 
     PushConstantRanges pushConstantRanges{
-        {VK_SHADER_STAGE_VERTEX_BIT, 0, 128} // projection view, and model matrices, actual push constant calls autoaatically provided by the VSG's DispatchTraversal
+        {VK_SHADER_STAGE_VERTEX_BIT, 0, 128} // projection view, and model matrices, actual push constant calls automatically provided by the VSG's DispatchTraversal
     };
 
     VertexInputState::Bindings vertexBindingsDescriptions{
@@ -207,7 +207,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     // TODO need to reallocate DescriptorBuffer if textArray changes size?
     if (!textDescriptor) textDescriptor = DescriptorBuffer::create(textArray, 1, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 
-    // set up the layout data in a form digestable by the GPU.
+    // set up the layout data in a form digestible by the GPU.
     if (!layoutValue) layoutValue = TextLayoutValue::create();
 
     auto& layoutStruct = layoutValue->value();
@@ -245,7 +245,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     {
         scenegraph = StateGroup::create();
 
-        // set up state related objects if they haven't lready been assigned
+        // set up state related objects if they haven't already been assigned
         if (!sharedRenderingState) sharedRenderingState = text->font->getShared<GpuLayoutState>();
         if (sharedRenderingState->bindGraphicsPipeline) scenegraph->add(sharedRenderingState->bindGraphicsPipeline);
         if (sharedRenderingState->bindDescriptorSet) scenegraph->add(sharedRenderingState->bindDescriptorSet);

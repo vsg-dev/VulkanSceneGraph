@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Encapsulation of vkCmdExecuteCommands with thread safe integration with secondary CommandGraph that provide the secndary CommandBuffer
+    /// Encapsulation of vkCmdExecuteCommands with thread safe integration with secondary CommandGraph that provide the secondary CommandBuffer
     class VSG_DECLSPEC ExecuteCommands : public Inherit<Command, ExecuteCommands>
     {
     public:

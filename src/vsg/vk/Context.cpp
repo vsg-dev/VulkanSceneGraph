@@ -152,7 +152,7 @@ bool Context::record()
         for (auto& command : commands) command->record(*commandBuffer);
     }
 
-    // create scratch buffer and issue build acceleration sctructure commands
+    // create scratch buffer and issue build acceleration structure commands
     ref_ptr<Buffer> scratchBuffer;
     ref_ptr<DeviceMemory> scratchBufferMemory;
     if (scratchBufferSize > 0)

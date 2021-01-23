@@ -60,7 +60,7 @@ namespace vsg
 
         virtual void popTransform() = 0;
 
-        /// check for intersection instersects with sphere
+        /// check for intersection intersects with sphere
         virtual bool intersects(const dsphere& sphere) = 0;
 
         /// intersect with a vkCmdDraw primitive

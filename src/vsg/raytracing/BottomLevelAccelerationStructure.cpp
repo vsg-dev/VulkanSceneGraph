@@ -37,7 +37,7 @@ void BottomLevelAccelerationStructure::compile(Context& context)
         _vkGeometries.push_back(*geom);
     }
 
-    // set the aditional acceleration structure info used in the base AccelerationStructure compile function
+    // set the additional acceleration structure info used in the base AccelerationStructure compile function
     _accelerationStructureInfo.geometryCount = static_cast<uint32_t>(geometries.size());
     _accelerationStructureInfo.pGeometries = _vkGeometries.data();
 

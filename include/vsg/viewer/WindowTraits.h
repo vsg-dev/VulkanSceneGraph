@@ -96,7 +96,7 @@ namespace vsg
 
         // Multisampling
         // A bitmask of sample counts. The window's framebuffer will
-        // be configured with the maxium requested value that is
+        // be configured with the maximum requested value that is
         // supported by the device.
         VkSampleCountFlags samples = VK_SAMPLE_COUNT_1_BIT;
         ref_ptr<Device> device;

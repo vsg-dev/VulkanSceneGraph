@@ -33,7 +33,7 @@ BufferView::BufferView(Buffer* in_buffer, VkFormat in_format, VkDeviceSize in_of
     offset(in_offset),
     range(in_range)
 {
-    // TODO need to put memoory slot in place
+    // TODO need to put memory slot in place
 }
 
 BufferView::~BufferView()

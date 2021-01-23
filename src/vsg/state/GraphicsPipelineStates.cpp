@@ -242,7 +242,7 @@ void ViewportState::read(Input& input)
         {
             input.read("x", scissor.offset.x);
             input.read("y", scissor.offset.y);
-            input.read("wdith", scissor.extent.width);
+            input.read("width", scissor.extent.width);
             input.read("height", scissor.extent.height);
         }
     }
@@ -270,7 +270,7 @@ void ViewportState::write(Output& output) const
         {
             output.write("x", scissor.offset.x);
             output.write("y", scissor.offset.y);
-            output.write("wdith", scissor.extent.width);
+            output.write("width", scissor.extent.width);
             output.write("height", scissor.extent.height);
         }
     }

@@ -36,10 +36,10 @@ namespace vsg
     template<> constexpr const char* type_name<float>() noexcept { return "float"; }
     template<> constexpr const char* type_name<double>() noexcept { return "double"; }
 
-    // helper define for defining the type_name() for a type within the vsg namespcae.
+    // helper define for defining the type_name() for a type within the vsg namespace.
     #define VSG_type_name(T) template<> constexpr const char* type_name<T>() noexcept { return #T; }
 
-    // helper define for defining the type_name() for a type in a namesapce other than vsg, note must be placed in global namespace.
+    // helper define for defining the type_name() for a type in a namespace other than vsg, note must be placed in global namespace.
     #define EVSG_type_name(T) template<> constexpr const char* vsg::type_name<T>() noexcept { return #T; }
 
     // clang-format on

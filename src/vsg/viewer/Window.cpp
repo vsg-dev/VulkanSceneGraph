@@ -330,7 +330,7 @@ VkResult Window::acquireNextImage(uint64_t timeout)
 
     if (result == VK_SUCCESS)
     {
-        // the aquired image's semaphore must be available now so make it the new _availableSemaphore and set it's enty to the one to use of the next frame by swapping ref_ptr<>'s
+        // the acquired image's semaphore must be available now so make it the new _availableSemaphore and set it's entry to the one to use of the next frame by swapping ref_ptr<>'s
         _availableSemaphore.swap(_frames[imageIndex].imageAvailableSemaphore);
 
         // shift up previous frame indices

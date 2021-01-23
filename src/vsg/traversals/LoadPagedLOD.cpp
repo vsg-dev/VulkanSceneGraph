@@ -68,13 +68,13 @@ void LoadPagedLOD::apply(CullNode& node)
     // check if cullNode bounding sphere is in view frustum.
     if (!intersect(_frustumStack.top(), node.getBound())) return;
 
-    //std::cout<<"apply(CullNode& node) : Need to do cull test of boudung spehre"<<std::endl;
+    //std::cout<<"apply(CullNode& node) : Need to do cull test of bounding sphere"<<std::endl;
     node.traverse(*this);
 }
 
 void LoadPagedLOD::apply(MatrixTransform& transform)
 {
-    //std::cout<<"apply(MatrixTransform& transform) Need to do trasnform modelview matrix"<<std::endl;
+    //std::cout<<"apply(MatrixTransform& transform) Need to do transform modelview matrix"<<std::endl;
 
     modelviewMatrixStack.emplace(modelviewMatrixStack.top() * transform.getMatrix());
 
