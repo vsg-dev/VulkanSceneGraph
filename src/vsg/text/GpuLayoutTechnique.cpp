@@ -111,7 +111,7 @@ GpuLayoutTechnique::GpuLayoutState::GpuLayoutState(Font* font)
 
     // create texture image and associated DescriptorSets and binding
     auto fontState = font->getShared<Font::FontState>();
-    auto descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{fontState->textureAtlas, fontState->glyphMetrics});
+    auto descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{fontState->textureAtlas, fontState->glyphMetricsImage});
 
     bindDescriptorSet = BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, descriptorSet);
 }
@@ -153,7 +153,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
             if (!textArray || allocationSize > static_cast<uint32_t>(textArray->valueCount()))
             {
                 updated = true;
-                textArray = uintArray::create(allocationSize);
+                textArray = uintArray::create(allocationSize, 0u);
             }
         }
 
