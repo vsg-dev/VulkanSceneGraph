@@ -104,6 +104,13 @@ Path vsg::fileExtension(const Path& path)
     return path.substr(dot + 1);
 }
 
+Path vsg::lowerCaseFileExtension(const Path& path)
+{
+    Path ext = fileExtension(path);
+    for(auto& c : ext) c = std::tolower(c);
+    return ext;
+}
+
 Path vsg::simpleFilename(const Path& path)
 {
     std::string::size_type dot = path.find_last_of('.');
