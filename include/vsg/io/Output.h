@@ -71,12 +71,21 @@ namespace vsg
         void write(size_t num, const dvec2* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const dvec3* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const dvec4* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const bvec2* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const bvec3* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const bvec4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const ubvec2* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const ubvec3* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const ubvec4* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const svec2* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const svec3* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const svec4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const usvec2* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const usvec3* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const usvec4* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const ivec2* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const ivec3* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const ivec4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const uivec2* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const uivec3* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const uivec4* value) { write(num * value->size(), value->data()); }

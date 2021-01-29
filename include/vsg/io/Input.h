@@ -72,12 +72,21 @@ namespace vsg
         void read(size_t num, dvec2* value) { read(num * value->size(), value->data()); }
         void read(size_t num, dvec3* value) { read(num * value->size(), value->data()); }
         void read(size_t num, dvec4* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, bvec2* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, bvec3* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, bvec4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, ubvec2* value) { read(num * value->size(), value->data()); }
         void read(size_t num, ubvec3* value) { read(num * value->size(), value->data()); }
         void read(size_t num, ubvec4* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, svec2* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, svec3* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, svec4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, usvec2* value) { read(num * value->size(), value->data()); }
         void read(size_t num, usvec3* value) { read(num * value->size(), value->data()); }
         void read(size_t num, usvec4* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, ivec2* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, ivec3* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, ivec4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, uivec2* value) { read(num * value->size(), value->data()); }
         void read(size_t num, uivec3* value) { read(num * value->size(), value->data()); }
         void read(size_t num, uivec4* value) { read(num * value->size(), value->data()); }
