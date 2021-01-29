@@ -26,8 +26,9 @@ namespace vsg
     constexpr const char* type_name(const T&) noexcept { return type_name<T>(); }
 
     template<> constexpr const char* type_name<std::string>() noexcept { return "string"; }
-    template<> constexpr const char* type_name<bool>() noexcept { return "char"; }
+    template<> constexpr const char* type_name<bool>() noexcept { return "bool"; }
     template<> constexpr const char* type_name<char>() noexcept { return "char"; }
+    template<> constexpr const char* type_name<int8_t>() noexcept { return "int8_t"; }
     template<> constexpr const char* type_name<unsigned char>() noexcept { return "uchar"; }
     template<> constexpr const char* type_name<short>() noexcept { return "short"; }
     template<> constexpr const char* type_name<unsigned short>() noexcept { return "ushort"; }
