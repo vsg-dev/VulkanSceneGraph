@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/CopyAndReleaseImage.h>
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/io/Options.h>
-#include <iostream>
 
 using namespace vsg;
 
@@ -60,18 +59,26 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
     uint32_t width = data->width() * layout.blockWidth;
     uint32_t height = data->height() * layout.blockHeight;
     uint32_t depth = data->depth() * layout.blockDepth;
+    const uint32_t numFaces = isCubemap ? 6u : 1u;
+    size_t offset = 0u;
+    const auto valueSize = double(data->valueSize()) / double(layout.blockWidth * layout.blockHeight * layout.blockDepth);
 
     auto vk_textureImage = textureImage->vk(commandBuffer.deviceID);
 
-    std::cout << __func__ << ": Image size = " << data->dataSize() << ", miplevels = " << mipLevels << std::endl;
+    VkFormatProperties props;
+    const auto physicalDevice = commandBuffer.getDevice()->getPhysicalDevice()->getPhysicalDevice();
+    vkGetPhysicalDeviceFormatProperties(physicalDevice, layout.format, &props);
+    const bool isBlitPossible = (props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) > 0;
+
+    if (!isBlitPossible && generatMipmaps)
+    {
+        generatMipmaps = false;
+        //std::cerr << "Can not create mipmap chain for format: " << layout.format << std::endl;
+    }
 
     // transfer the data.
     if (useDataMipmaps)
     {
-        std::cout << "* Using mipmaps" << std::endl;
-
-        const auto numFaces = isCubemap ? 6u : 1u;
-
         VkImageMemoryBarrier preCopyBarrier = {};
         preCopyBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
         preCopyBarrier.srcAccessMask = 0;
@@ -93,25 +100,20 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
                              0, nullptr,
                              1, &preCopyBarrier);
 
-        //std::vector<VkBufferImageCopy> regions(mipLevels * numFaces);
+        std::vector<VkBufferImageCopy> regions(mipLevels * numFaces);
 
-        auto valueSize = data->valueSize();
-        size_t offset = 0u;
-
-        uint32_t mipWidth = data->width();
-        uint32_t mipHeight = data->height();
-        uint32_t mipDepth = isCubemap ? 1 : data->depth();
+        uint32_t mipWidth = width / layout.blockWidth;
+        uint32_t mipHeight = height / layout.blockHeight;
+        uint32_t mipDepth = isCubemap ? 1 : depth / layout.blockDepth;
 
         for (uint32_t mipLevel = 0; mipLevel < mipLevels; ++mipLevel)
         {
 			// std::cout<<"   level = "<<mipLevel<<", mipWidth = "<<mipWidth<<", mipHeight = "<<mipHeight<<std::endl;
-            const auto faceSize = mipWidth * mipHeight * mipDepth * valueSize;
+            const size_t faceSize = static_cast<size_t>(mipWidth * mipHeight * mipDepth * valueSize);
 
             for (uint32_t face = 0; face < numFaces; ++face)
             {
-                std::cout << "- Face " << face << ", Level " << mipLevel << ", face size: " << faceSize << ", offset = " << offset << std::endl;
-                //auto& region = regions[mipLevel * numFaces + face];
-                VkBufferImageCopy region{};
+                auto& region = regions[mipLevel * numFaces + face];
                 region.bufferOffset = source.offset + offset;
                 region.bufferRowLength = 0;
                 region.bufferImageHeight = 0;
@@ -120,9 +122,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
                 region.imageSubresource.baseArrayLayer = face;
                 region.imageSubresource.layerCount = 1;
                 region.imageOffset = {0, 0, 0};
-                region.imageExtent = {mipWidth, mipHeight, mipDepth};
-
-                vkCmdCopyBufferToImage(commandBuffer, imageStagingBuffer->vk(commandBuffer.deviceID), vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+                region.imageExtent = {mipWidth, mipHeight, isCubemap ? 1 : mipDepth};
 
                 offset += faceSize;
             }           
@@ -132,7 +132,8 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
             if (mipDepth > 1) mipDepth /= 2;
         }
 
-        //vkCmdCopyBufferToImage(commandBuffer, imageStagingBuffer->vk(commandBuffer.deviceID), vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, regions.size(), regions.data());
+        vkCmdCopyBufferToImage(commandBuffer, imageStagingBuffer->vk(commandBuffer.deviceID), vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                               static_cast<uint32_t>(regions.size()), regions.data());
 
         VkImageMemoryBarrier postCopyBarrier = {};
         postCopyBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -157,14 +158,6 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
     }
     else if (generatMipmaps)
     {
-        std::cout << "* Generating mipmaps" << std::endl;
-
-        const auto numFaces = isCubemap ? 6u : 1u;
-        auto valueSize = data->valueSize();
-        size_t offset = 0;
-
-        std::cout << __func__ << ": Generating " << mipLevels << " mipmaps." << std::endl;
-
         // generate mipmaps using Vulkan
         VkImageMemoryBarrier preCopyBarrier = {};
         preCopyBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -200,7 +193,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
             region.imageOffset = {0, 0, 0};
             region.imageExtent = {width, height, isCubemap ? 1 : depth};
 
-            offset += width * height * (isCubemap ? 1 : depth) * valueSize;
+            offset += static_cast<size_t>(width * height * (isCubemap ? 1 : depth) * valueSize);
 
             vkCmdCopyBufferToImage(commandBuffer, imageStagingBuffer->vk(commandBuffer.deviceID), vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
         }
@@ -255,7 +248,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
             vkCmdBlitImage(commandBuffer,
                            vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                            vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                           blits.size(), blits.data(),
+                           static_cast<uint32_t>(blits.size()), blits.data(),
                            VK_FILTER_LINEAR);
 
             barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
@@ -288,9 +281,6 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
     }
     else
     {
-        std::cout << "* No mipmaps" << std::endl;
-
-        const auto numFaces = isCubemap ? 6u : 1u;
 
         auto preCopyImageMemoryBarrier = ImageMemoryBarrier::create(
             0, VK_ACCESS_TRANSFER_WRITE_BIT,
