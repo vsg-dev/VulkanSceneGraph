@@ -415,6 +415,75 @@ void Visitor::apply(block128Array3D& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// ArrayCubes
+//
+void Visitor::apply(ubyteArrayCube& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(ushortArrayCube& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(uintArrayCube& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(floatArrayCube& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(doubleArrayCube& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(vec2ArrayCube& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(vec3ArrayCube& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(vec4ArrayCube& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(dvec2ArrayCube& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(dvec3ArrayCube& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(dvec4ArrayCube& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(ubvec2ArrayCube& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(ubvec3ArrayCube& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(ubvec4ArrayCube& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(block64ArrayCube& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(block128ArrayCube& value)
+{
+    apply(static_cast<Data&>(value));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // Nodes
 //
 void Visitor::apply(Node& value)

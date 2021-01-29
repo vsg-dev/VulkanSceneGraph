@@ -136,6 +136,27 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::block64Array3D);
     VSG_REGISTER_new(vsg::block128Array3D);
 
+    // arrayCubes
+    VSG_REGISTER_new(vsg::byteArrayCube);
+    VSG_REGISTER_new(vsg::ubyteArrayCube);
+    VSG_REGISTER_new(vsg::shortArrayCube);
+    VSG_REGISTER_new(vsg::ushortArrayCube);
+    VSG_REGISTER_new(vsg::intArrayCube);
+    VSG_REGISTER_new(vsg::uintArrayCube);
+    VSG_REGISTER_new(vsg::floatArrayCube);
+    VSG_REGISTER_new(vsg::doubleArrayCube);
+    VSG_REGISTER_new(vsg::vec2ArrayCube);
+    VSG_REGISTER_new(vsg::vec3ArrayCube);
+    VSG_REGISTER_new(vsg::vec4ArrayCube);
+    VSG_REGISTER_new(vsg::dvec2ArrayCube);
+    VSG_REGISTER_new(vsg::dvec3ArrayCube);
+    VSG_REGISTER_new(vsg::dvec4ArrayCube);
+    VSG_REGISTER_new(vsg::ubvec2ArrayCube);
+    VSG_REGISTER_new(vsg::ubvec3ArrayCube);
+    VSG_REGISTER_new(vsg::ubvec4ArrayCube);
+    VSG_REGISTER_new(vsg::block64ArrayCube);
+    VSG_REGISTER_new(vsg::block128ArrayCube);
+
     // nodes
     VSG_REGISTER_create(vsg::Node);
     VSG_REGISTER_create(vsg::Commands);

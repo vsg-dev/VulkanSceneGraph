@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Array.h>
 #include <vsg/core/Array2D.h>
 #include <vsg/core/Array3D.h>
+#include <vsg/core/ArrayCube.h>
 #include <vsg/core/Value.h>
 
 namespace vsg
@@ -208,6 +209,24 @@ namespace vsg
         virtual void apply(block64Array3D&);
         virtual void apply(block128Array3D&);
 
+        // ArrayCubes
+        virtual void apply(ubyteArrayCube&);
+        virtual void apply(ushortArrayCube&);
+        virtual void apply(uintArrayCube&);
+        virtual void apply(floatArrayCube&);
+        virtual void apply(doubleArrayCube&);
+        virtual void apply(vec2ArrayCube&);
+        virtual void apply(vec3ArrayCube&);
+        virtual void apply(vec4ArrayCube&);
+        virtual void apply(dvec2ArrayCube&);
+        virtual void apply(dvec3ArrayCube&);
+        virtual void apply(dvec4ArrayCube&);
+        virtual void apply(ubvec2ArrayCube&);
+        virtual void apply(ubvec3ArrayCube&);
+        virtual void apply(ubvec4ArrayCube&);
+        virtual void apply(block64ArrayCube&);
+        virtual void apply(block128ArrayCube&);
+
         // Nodes
         virtual void apply(Node&);
         virtual void apply(Commands&);
@@ -302,5 +321,9 @@ namespace vsg
     // provide Array3D<>::accept() implementation
     template<typename T>
     void Array3D<T>::accept(Visitor& visitor) { visitor.apply(*this); }
+    
+    // provide ArrayCube<>::accept() implementation
+    template<typename T>
+    void ArrayCube<T>::accept(Visitor& visitor) { visitor.apply(*this); }
 
 } // namespace vsg
