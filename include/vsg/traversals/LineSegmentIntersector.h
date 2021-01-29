@@ -56,7 +56,7 @@ namespace vsg
         void pushTransform(const dmat4& m) override;
         void popTransform() override;
 
-        /// check for intersection instersects with sphere
+        /// check for intersection intersects with sphere
         bool intersects(const dsphere& bs) override;
 
         bool intersectDraw(uint32_t firstVertex, uint32_t vertexCount) override;

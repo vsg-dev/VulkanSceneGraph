@@ -153,7 +153,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     if (level == VK_COMMAND_BUFFER_LEVEL_SECONDARY)
     {
-        // pass oon this command buffer to conencted ExecuteCommands nodes
+        // pass on this command buffer to connected ExecuteCommands nodes
         for (auto& ec : _executeCommands)
         {
             ec->completed(commandBuffer);

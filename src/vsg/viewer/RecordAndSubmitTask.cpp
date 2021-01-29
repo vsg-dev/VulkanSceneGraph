@@ -93,13 +93,13 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
         return VK_SUCCESS;
     }
 
-    // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of depdendent CommandBuffers
+    // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of dependent CommandBuffers
     std::vector<VkCommandBuffer> vk_commandBuffers;
     std::vector<VkSemaphore> vk_waitSemaphores;
     std::vector<VkPipelineStageFlags> vk_waitStages;
     std::vector<VkSemaphore> vk_signalSemaphores;
 
-    // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of depdendent CommandBuffers
+    // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of dependent CommandBuffers
     for (auto& commandBuffer : recordedCommandBuffers)
     {
         if (commandBuffer->level() == VK_COMMAND_BUFFER_LEVEL_PRIMARY) vk_commandBuffers.push_back(*commandBuffer);

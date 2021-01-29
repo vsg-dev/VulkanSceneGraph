@@ -64,7 +64,7 @@ namespace vsg
 
         uint32_t viewID = 0;
 
-        // get exisitng ShaderCompile or create a new one when GLSLang is supported
+        // get existing ShaderCompile or create a new one when GLSLang is supported
         ShaderCompiler* getOrCreateShaderCompiler();
 
         ref_ptr<CommandBuffer> getOrCreateCommandBuffer();

@@ -140,7 +140,7 @@ void Intersector::apply(const VertexIndexDraw& vid)
             bound.center = (bb.min + bb.max) * 0.5f;
             bound.radius = length(bb.max - bb.min) * 0.5f;
 
-            // hacky but better to reuse results.  Perhaps use a std::map<> to avoid a breaking const, or make the vistitor non const?
+            // hacky but better to reuse results.  Perhaps use a std::map<> to avoid a breaking const, or make the visitor non const?
             const_cast<VertexIndexDraw&>(vid).setValue("bound", bound);
         }
 

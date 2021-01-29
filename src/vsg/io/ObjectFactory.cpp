@@ -19,7 +19,7 @@ using namespace vsg;
 
 ref_ptr<ObjectFactory>& ObjectFactory::instance()
 {
-    // declare the ObjectFactory singleton as static to be initialized on first invoation of the instance() method.  Note, this currently assumes that intialization won't be mult-threaded.
+    // declare the ObjectFactory singleton as static to be initialized on first invocation of the instance() method.  Note, this currently assumes that initialization won't be mult-threaded.
     static ref_ptr<ObjectFactory> s_ObjectFactory(new ObjectFactory);
     return s_ObjectFactory;
 }
@@ -73,12 +73,21 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::dvec2Array);
     VSG_REGISTER_new(vsg::dvec3Array);
     VSG_REGISTER_new(vsg::dvec4Array);
+    VSG_REGISTER_new(vsg::bvec2Array);
+    VSG_REGISTER_new(vsg::bvec3Array);
+    VSG_REGISTER_new(vsg::bvec4Array);
     VSG_REGISTER_new(vsg::ubvec2Array);
     VSG_REGISTER_new(vsg::ubvec3Array);
     VSG_REGISTER_new(vsg::ubvec4Array);
+    VSG_REGISTER_new(vsg::svec2Array);
+    VSG_REGISTER_new(vsg::svec3Array);
+    VSG_REGISTER_new(vsg::svec4Array);
     VSG_REGISTER_new(vsg::usvec2Array);
     VSG_REGISTER_new(vsg::usvec3Array);
     VSG_REGISTER_new(vsg::usvec4Array);
+    VSG_REGISTER_new(vsg::ivec2Array);
+    VSG_REGISTER_new(vsg::ivec3Array);
+    VSG_REGISTER_new(vsg::ivec4Array);
     VSG_REGISTER_new(vsg::uivec2Array);
     VSG_REGISTER_new(vsg::uivec3Array);
     VSG_REGISTER_new(vsg::uivec4Array);
@@ -104,11 +113,21 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::dvec2Array2D);
     VSG_REGISTER_new(vsg::dvec3Array2D);
     VSG_REGISTER_new(vsg::dvec4Array2D);
+    VSG_REGISTER_new(vsg::bvec2Array2D);
+    VSG_REGISTER_new(vsg::bvec3Array2D);
+    VSG_REGISTER_new(vsg::bvec4Array2D);
     VSG_REGISTER_new(vsg::ubvec2Array2D);
     VSG_REGISTER_new(vsg::ubvec3Array2D);
     VSG_REGISTER_new(vsg::ubvec4Array2D);
+    VSG_REGISTER_new(vsg::svec2Array2D);
+    VSG_REGISTER_new(vsg::svec3Array2D);
+    VSG_REGISTER_new(vsg::svec4Array2D);
+    VSG_REGISTER_new(vsg::usvec2Array2D);
     VSG_REGISTER_new(vsg::usvec3Array2D);
     VSG_REGISTER_new(vsg::usvec4Array2D);
+    VSG_REGISTER_new(vsg::ivec2Array2D);
+    VSG_REGISTER_new(vsg::ivec3Array2D);
+    VSG_REGISTER_new(vsg::ivec4Array2D);
     VSG_REGISTER_new(vsg::uivec2Array2D);
     VSG_REGISTER_new(vsg::uivec3Array2D);
     VSG_REGISTER_new(vsg::uivec4Array2D);

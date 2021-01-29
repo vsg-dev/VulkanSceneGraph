@@ -146,10 +146,10 @@ namespace vsg
     /// double matrix inversion with automatic selection of inverse_4x3 when appropriate, otherwise uses inverse_4x4
     extern VSG_DECLSPEC dmat4 inverse(const dmat4& m);
 
-    /// compute the bounding sphere that encploses a frustum defined by specified float ModelViewMatrixProjection
+    /// compute the bounding sphere that encloses a frustum defined by specified float ModelViewMatrixProjection
     extern VSG_DECLSPEC sphere computeFrustumBound(const mat4& m);
 
-    /// compute the bounding sphere that encploses a frustum defined by specified double ModelViewMatrixProjection
+    /// compute the bounding sphere that encloses a frustum defined by specified double ModelViewMatrixProjection
     extern VSG_DECLSPEC dsphere computeFrustumBound(const dmat4& m);
 
 } // namespace vsg

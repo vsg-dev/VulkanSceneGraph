@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     //** Traverse the scene graph loading any PLOD that are required for a camera view.*/
-    class LoadPagedLOD : public vsg::Visitor
+    class VSG_DECLSPEC LoadPagedLOD : public vsg::Visitor
     {
     public:
         LoadPagedLOD(ref_ptr<Camera> in_camera, int in_loadLevels = 30);

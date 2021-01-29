@@ -44,7 +44,7 @@ namespace vsg
         /// advance the currentFrameIndex
         void advance();
 
-        /// return the fence index value for relativeFrameIndex where 0 is current frame, 1 is prevous frame etc.
+        /// return the fence index value for relativeFrameIndex where 0 is current frame, 1 is previous frame etc.
         size_t index(size_t relativeFrameIndex = 0) const { return relativeFrameIndex < _indices.size() ? _indices[relativeFrameIndex] : _indices.size(); }
 
         /// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) return the previous frame's Fence etc.

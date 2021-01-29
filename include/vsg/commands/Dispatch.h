@@ -19,7 +19,7 @@ namespace vsg
 {
 
     /** Wrapper for vkCmdDispatch, used for dispatching a Compute command.*/
-    class Dispatch : public Inherit<Command, Dispatch>
+    class VSG_DECLSPEC Dispatch : public Inherit<Command, Dispatch>
     {
     public:
         Dispatch() {}

@@ -33,6 +33,7 @@ namespace vsg
     extern VSG_DECLSPEC Path filePath(const Path& path);
 
     extern VSG_DECLSPEC Path fileExtension(const Path& path);
+    extern VSG_DECLSPEC Path lowerCaseFileExtension(const Path& path);
 
     extern VSG_DECLSPEC Path simpleFilename(const Path& path);
 

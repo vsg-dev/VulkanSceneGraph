@@ -23,8 +23,13 @@ namespace vsg
     class Latch : public Inherit<Object, Latch>
     {
     public:
-        Latch(int num) :
+
+
+        explicit Latch(int num) :
             _count(num) {}
+
+        explicit Latch(size_t num) :
+            Latch(static_cast<int>(num)) {}
 
         void set(int num)
         {

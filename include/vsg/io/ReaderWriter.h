@@ -49,7 +49,7 @@ namespace vsg
         virtual bool write(const vsg::Object* /*object*/, const vsg::Path& /*filename*/, vsg::ref_ptr<const vsg::Options> = {}) const { return false; }
         virtual bool write(const vsg::Object* /*object*/, std::ostream& /*fout*/, vsg::ref_ptr<const vsg::Options> = {}) const { return false; }
 
-        /// read the command line arguments for any options apprpriate for this ReaderWriter
+        /// read the command line arguments for any options appropriate for this ReaderWriter
         virtual bool readOptions(Options&, CommandLine&) const { return false; }
     };
     VSG_type_name(vsg::ReaderWriter);
@@ -68,7 +68,7 @@ namespace vsg
 
         bool write(const vsg::Object* object, const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options = {}) const override;
 
-        /// read the command line arguments for any options apprpriate for this ReaderWriter
+        /// read the command line arguments for any options appropriate for this ReaderWriter
         bool readOptions(vsg::Options& options, vsg::CommandLine& arguments) const override;
 
     protected:

@@ -46,7 +46,7 @@ namespace vsg
         operator VkRenderPass() const { return _renderPass; }
 
         /// return the maximum VkAttachmentDescription.samples value of the assigned attachments.
-        /// Used for be deciding if multisampling is requied and the value to use when setting up the GraphicsPipeline's vsg::MultisampleState
+        /// Used for be deciding if multisampling is required and the value to use when setting up the GraphicsPipeline's vsg::MultisampleState
         VkSampleCountFlagBits maxSamples() const { return _maxSamples; }
 
         Device* getDevice() { return _device; }

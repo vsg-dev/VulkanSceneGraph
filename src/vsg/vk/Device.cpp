@@ -69,14 +69,14 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
     {
         if (queueSetting.queueFamilyIndex < 0) continue;
 
-        // check to see if the queueFamilyIndex has already been referened or us unique
+        // check to see if the queueFamilyIndex has already been referenced or us unique
         bool unique = true;
         for (auto& existingInfo : queueCreateInfos)
         {
             if (existingInfo.queueFamilyIndex == static_cast<uint32_t>(queueSetting.queueFamilyIndex)) unique = false;
         }
 
-        // Vylkan doesn't support non unique queueFamily so ignore this entry.
+        // Vulkan doesn't support non unique queueFamily so ignore this entry.
         if (!unique) continue;
 
         VkDeviceQueueCreateInfo queueCreateInfo = {};

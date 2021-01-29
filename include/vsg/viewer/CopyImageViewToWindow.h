@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class CopyImageViewToWindow : public Inherit<Command, CopyImageViewToWindow>
+    class VSG_DECLSPEC CopyImageViewToWindow : public Inherit<Command, CopyImageViewToWindow>
     {
     public:
         ref_ptr<ImageView> srcImageView;
