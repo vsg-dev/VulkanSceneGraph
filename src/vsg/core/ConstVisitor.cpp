@@ -415,6 +415,75 @@ void ConstVisitor::apply(const block128Array3D& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// ArrayCubes
+//
+void ConstVisitor::apply(const ubyteArrayCube& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const ushortArrayCube& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const uintArrayCube& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const floatArrayCube& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const doubleArrayCube& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const vec2ArrayCube& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const vec3ArrayCube& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const vec4ArrayCube& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const dvec2ArrayCube& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const dvec3ArrayCube& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const dvec4ArrayCube& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const ubvec2ArrayCube& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const ubvec3ArrayCube& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const ubvec4ArrayCube& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const block64ArrayCube& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const block128ArrayCube& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // Nodes
 //
 void ConstVisitor::apply(const Node& value)
