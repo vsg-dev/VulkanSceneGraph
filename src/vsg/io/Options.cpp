@@ -24,7 +24,7 @@ Options::Options()
 
 Options::Options(ref_ptr<ReaderWriter> rw)
 {
-    if (rw) readerWriters.push_back(rw);
+    add(rw);
 }
 
 Options::Options(const Options& options) :
@@ -39,6 +39,11 @@ Options::Options(const Options& options) :
 
 Options::~Options()
 {
+}
+
+void Options::add(ref_ptr<ReaderWriter> rw)
+{
+    if (rw) readerWriters.push_back(rw);
 }
 
 bool Options::readOptions(CommandLine& arguments)

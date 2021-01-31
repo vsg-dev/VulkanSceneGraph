@@ -37,6 +37,8 @@ namespace vsg
         /// read command line options, assign values to this options object to later use with reading/writing files
         virtual bool readOptions(CommandLine& arguments);
 
+        void add(ref_ptr<ReaderWriter> rw);
+
         //ref_ptr<FileCache> fileCache;
         ref_ptr<ObjectCache> objectCache;
         std::vector<ref_ptr<ReaderWriter>> readerWriters;
