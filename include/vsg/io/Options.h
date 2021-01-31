@@ -25,11 +25,14 @@ namespace vsg
     class OperationThreads;
     class CommandLine;
 
+    using ReaderWriters = std::vector<ref_ptr<ReaderWriter>>;
+
     class VSG_DECLSPEC Options : public Inherit<Object, Options>
     {
     public:
         Options();
         Options(ref_ptr<ReaderWriter> rw);
+        Options(const ReaderWriters& rws);
         Options(const Options& options);
 
         Options& operator=(const Options& rhs) = delete;
@@ -37,11 +40,13 @@ namespace vsg
         /// read command line options, assign values to this options object to later use with reading/writing files
         virtual bool readOptions(CommandLine& arguments);
 
-        void add(ref_ptr<ReaderWriter> rw);
+        void add(ref_ptr<ReaderWriter> rw = {});
+
+        void add(const ReaderWriters& rws);
 
         //ref_ptr<FileCache> fileCache;
         ref_ptr<ObjectCache> objectCache;
-        std::vector<ref_ptr<ReaderWriter>> readerWriters;
+        ReaderWriters readerWriters;
         ref_ptr<OperationThreads> operationThreads;
 
         /// Hint to use when searching for Paths with vsg::findFile(filename, options);

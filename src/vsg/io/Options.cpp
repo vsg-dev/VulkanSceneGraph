@@ -27,6 +27,11 @@ Options::Options(ref_ptr<ReaderWriter> rw)
     add(rw);
 }
 
+Options::Options(const ReaderWriters& rws)
+{
+    add(rws);
+}
+
 Options::Options(const Options& options) :
     Inherit(),
     //    fileCache(options.fileCache),
@@ -44,6 +49,11 @@ Options::~Options()
 void Options::add(ref_ptr<ReaderWriter> rw)
 {
     if (rw) readerWriters.push_back(rw);
+}
+
+void Options::add(const ReaderWriters& rws)
+{
+    for(auto& rw : rws) add(rw);
 }
 
 bool Options::readOptions(CommandLine& arguments)
