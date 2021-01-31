@@ -39,7 +39,7 @@ namespace vsg
 
         //ref_ptr<FileCache> fileCache;
         ref_ptr<ObjectCache> objectCache;
-        ref_ptr<ReaderWriter> readerWriter;
+        std::vector<ref_ptr<ReaderWriter>> readerWriters;
         ref_ptr<OperationThreads> operationThreads;
 
         /// Hint to use when searching for Paths with vsg::findFile(filename, options);

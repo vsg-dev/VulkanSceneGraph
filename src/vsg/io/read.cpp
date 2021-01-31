@@ -21,10 +21,13 @@ using namespace vsg;
 ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
 {
     auto read_file = [&]() -> ref_ptr<Object> {
-        if (options && options->readerWriter)
+        if (options && !options->readerWriters.empty())
         {
-            auto object = options->readerWriter->read(filename, options);
-            if (object) return object;
+            for(auto& readerWriter : options->readerWriters)
+            {
+                auto object = readerWriter->read(filename, options);
+                if (object) return object;
+            }
         }
 
         auto ext = vsg::fileExtension(filename);
@@ -130,10 +133,13 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
 ref_ptr<Object> vsg::read(std::istream& fin, ref_ptr<const Options> options)
 {
     auto read_file = [&]() -> ref_ptr<Object> {
-        if (options && options->readerWriter)
+        if (options && !options->readerWriters.empty())
         {
-            auto object = options->readerWriter->read(fin, options);
-            if (object) return object;
+            for(auto& readerWriter : options->readerWriters)
+            {
+                auto object = readerWriter->read(fin, options);
+                if (object) return object;
+            }
         }
 
         return {};
