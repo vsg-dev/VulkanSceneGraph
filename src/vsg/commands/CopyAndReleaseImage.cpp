@@ -54,7 +54,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 
     bool useDataMipmaps = (mipLevels > 1) && (mipmapOffsets.size() > 1);
     bool generatMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
-    bool isCubemap = destination.imageView->viewType == VK_IMAGE_VIEW_TYPE_CUBE;
+    bool isCubemap = data->depth() == 6 && destination.imageView->viewType == VK_IMAGE_VIEW_TYPE_CUBE;
 
     uint32_t width = data->width() * layout.blockWidth;
     uint32_t height = data->height() * layout.blockHeight;
