@@ -36,7 +36,7 @@ namespace vsg
         template<typename... Args>
         Options(Args&&... args)
         {
-            add( (args , ... ) );
+            (add(args) , ...);
         }
 
         Options& operator=(const Options& rhs) = delete;
