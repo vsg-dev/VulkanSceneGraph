@@ -58,10 +58,13 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 
     uint32_t width = data->width() * layout.blockWidth;
     uint32_t height = data->height() * layout.blockHeight;
-    uint32_t depth = data->depth() * layout.blockDepth;
+    uint32_t depth = isCubemap ? 1 : data->depth() * layout.blockDepth;
+    uint32_t faceWidth = data->width();
+    uint32_t faceHeight = data->height();
+    uint32_t faceDepth = isCubemap ? 1 : data->depth();
     const uint32_t numFaces = isCubemap ? 6u : 1u;
     size_t offset = 0u;
-    const auto valueSize = double(data->valueSize()) / double(layout.blockWidth * layout.blockHeight * layout.blockDepth);
+    const auto valueSize = data->valueSize();
 
     auto vk_textureImage = textureImage->vk(commandBuffer.deviceID);
 
@@ -102,14 +105,14 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 
         std::vector<VkBufferImageCopy> regions(mipLevels * numFaces);
 
-        uint32_t mipWidth = width / layout.blockWidth;
-        uint32_t mipHeight = height / layout.blockHeight;
-        uint32_t mipDepth = isCubemap ? 1 : depth / layout.blockDepth;
+        uint32_t mipWidth = width;
+        uint32_t mipHeight = height;
+        uint32_t mipDepth = depth;
 
         for (uint32_t mipLevel = 0; mipLevel < mipLevels; ++mipLevel)
         {
 			// std::cout<<"   level = "<<mipLevel<<", mipWidth = "<<mipWidth<<", mipHeight = "<<mipHeight<<std::endl;
-            const size_t faceSize = static_cast<size_t>(mipWidth * mipHeight * mipDepth * valueSize);
+            const size_t faceSize = static_cast<size_t>(faceWidth * faceHeight * faceDepth * valueSize);
 
             for (uint32_t face = 0; face < numFaces; ++face)
             {
@@ -122,7 +125,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
                 region.imageSubresource.baseArrayLayer = face;
                 region.imageSubresource.layerCount = 1;
                 region.imageOffset = {0, 0, 0};
-                region.imageExtent = {mipWidth, mipHeight, isCubemap ? 1 : mipDepth};
+                region.imageExtent = {mipWidth, mipHeight, mipDepth};
 
                 offset += faceSize;
             }           
@@ -130,6 +133,9 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
             if (mipWidth > 1) mipWidth /= 2;
             if (mipHeight > 1) mipHeight /= 2;
             if (mipDepth > 1) mipDepth /= 2;
+            if (faceWidth > 1) faceWidth /= 2;
+            if (faceHeight > 1) faceHeight /= 2;
+            if (faceDepth > 1) faceDepth /= 2;
         }
 
         vkCmdCopyBufferToImage(commandBuffer, imageStagingBuffer->vk(commandBuffer.deviceID), vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -191,9 +197,9 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
             region.imageSubresource.baseArrayLayer = face;
             region.imageSubresource.layerCount = numFaces;
             region.imageOffset = {0, 0, 0};
-            region.imageExtent = {width, height, isCubemap ? 1 : depth};
+            region.imageExtent = {width, height, depth};
 
-            offset += static_cast<size_t>(width * height * (isCubemap ? 1 : depth) * valueSize);
+            offset += static_cast<size_t>(faceWidth * faceHeight * faceDepth * valueSize);
 
             vkCmdCopyBufferToImage(commandBuffer, imageStagingBuffer->vk(commandBuffer.deviceID), vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
         }
@@ -238,7 +244,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
                 blit.srcSubresource.baseArrayLayer = face;
                 blit.srcSubresource.layerCount = numFaces;
                 blit.dstOffsets[0] = {0, 0, 0};
-                blit.dstOffsets[1] = {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, mipDepth > 1 && !isCubemap ? mipDepth / 2 : 1};
+                blit.dstOffsets[1] = {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, mipDepth > 1 ? mipDepth / 2 : 1};
                 blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                 blit.dstSubresource.mipLevel = i;
                 blit.dstSubresource.baseArrayLayer = face;
