@@ -24,9 +24,13 @@ bool vsg::write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Opti
         // don't write the file if it's already contained in the ObjectCache
         if (options->objectCache && options->objectCache->contains(filename, options)) return true;
 
-        if (options->readerWriter)
+        if (!options->readerWriters.empty())
         {
-            fileWritten = options->readerWriter->write(object, filename, options);
+            for(auto& readerWriter : options->readerWriters)
+            {
+                fileWritten = readerWriter->write(object, filename, options);
+                if (fileWritten) break;
+            }
         }
     }
 

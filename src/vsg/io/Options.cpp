@@ -22,16 +22,11 @@ Options::Options()
 {
 }
 
-Options::Options(ref_ptr<ReaderWriter> rw) :
-    readerWriter(rw)
-{
-}
-
 Options::Options(const Options& options) :
     Inherit(),
     //    fileCache(options.fileCache),
     objectCache(options.objectCache),
-    readerWriter(options.readerWriter),
+    readerWriters(options.readerWriters),
     operationThreads(options.operationThreads),
     extensionHint(options.extensionHint)
 {
@@ -41,10 +36,22 @@ Options::~Options()
 {
 }
 
+void Options::add(ref_ptr<ReaderWriter> rw)
+{
+    if (rw) readerWriters.push_back(rw);
+}
+
+void Options::add(const ReaderWriters& rws)
+{
+    for(auto& rw : rws) add(rw);
+}
+
 bool Options::readOptions(CommandLine& arguments)
 {
-    if (readerWriter)
-        return readerWriter->readOptions(*this, arguments);
-    else
-        return false;
+    bool read = false;
+    for(auto& readerWriter : readerWriters)
+    {
+        if (readerWriter->readOptions(*this, arguments)) read = true;
+    }
+    return read;
 }
