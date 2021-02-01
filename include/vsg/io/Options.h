@@ -31,9 +31,13 @@ namespace vsg
     {
     public:
         Options();
-        Options(ref_ptr<ReaderWriter> rw);
-        Options(const ReaderWriters& rws);
         Options(const Options& options);
+
+        template<typename... Args>
+        Options(Args&&... args)
+        {
+            add( (args , ... ) );
+        }
 
         Options& operator=(const Options& rhs) = delete;
 
@@ -41,7 +45,6 @@ namespace vsg
         virtual bool readOptions(CommandLine& arguments);
 
         void add(ref_ptr<ReaderWriter> rw = {});
-
         void add(const ReaderWriters& rws);
 
         //ref_ptr<FileCache> fileCache;
