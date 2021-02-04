@@ -28,6 +28,8 @@ Options::Options(const Options& options) :
     objectCache(options.objectCache),
     readerWriters(options.readerWriters),
     operationThreads(options.operationThreads),
+    checkFilenameHint(options.checkFilenameHint),
+    paths(options.paths),
     extensionHint(options.extensionHint)
 {
 }
