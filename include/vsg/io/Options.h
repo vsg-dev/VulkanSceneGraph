@@ -25,12 +25,19 @@ namespace vsg
     class OperationThreads;
     class CommandLine;
 
+    using ReaderWriters = std::vector<ref_ptr<ReaderWriter>>;
+
     class VSG_DECLSPEC Options : public Inherit<Object, Options>
     {
     public:
         Options();
-        Options(ref_ptr<ReaderWriter> rw);
         Options(const Options& options);
+
+        template<typename... Args>
+        Options(Args&&... args)
+        {
+            (add(args) , ...);
+        }
 
         Options& operator=(const Options& rhs) = delete;
 
@@ -41,7 +48,7 @@ namespace vsg
 
         //ref_ptr<FileCache> fileCache;
         ref_ptr<ObjectCache> objectCache;
-        ref_ptr<ReaderWriter> readerWriter;
+        ReaderWriters readerWriters;
         ref_ptr<OperationThreads> operationThreads;
 
         /// Hint to use when searching for Paths with vsg::findFile(filename, options);
