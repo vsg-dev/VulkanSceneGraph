@@ -45,6 +45,7 @@ namespace vsg
         virtual bool readOptions(CommandLine& arguments);
 
         void add(ref_ptr<ReaderWriter> rw = {});
+        void add(const ReaderWriters& rws);
 
         //ref_ptr<FileCache> fileCache;
         ref_ptr<ObjectCache> objectCache;

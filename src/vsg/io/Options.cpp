@@ -55,26 +55,3 @@ bool Options::readOptions(CommandLine& arguments)
     }
     return read;
 }
-
-void Options::add(ref_ptr<ReaderWriter> rw)
-{
-    if (readerWriter)
-    {
-        readerWriter = rw;
-    }
-    else
-    {
-        auto compositeRW = readerWriter.cast<CompositeReaderWriter>();
-        if (compositeRW)
-        {
-            compositeRW->add(rw);
-        }
-        else
-        {
-            compositeRW = vsg::CompositeReaderWriter::create();
-            compositeRW->add(readerWriter);
-            compositeRW->add(rw);
-            readerWriter = compositeRW;
-        }
-    }
-}
