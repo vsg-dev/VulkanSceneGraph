@@ -31,10 +31,10 @@ namespace vsg
     {
     public:
         Options();
-        Options(const Options& options);
+        explicit Options(const Options& options);
 
         template<typename... Args>
-        Options(Args&&... args)
+        explicit Options(Args... args)
         {
             (add(args) , ...);
         }
