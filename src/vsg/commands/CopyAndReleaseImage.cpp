@@ -301,7 +301,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 
         preCopyPipelineBarrier->record(commandBuffer);
 
-        const auto faceSize = data->dataSize() / numFaces;
+        const size_t faceSize = static_cast<size_t>(faceWidth * faceHeight * faceDepth * valueSize);
         std::vector<VkBufferImageCopy> regions(numFaces);
 
         for (auto face = 0u; face < numFaces; face++)
@@ -315,7 +315,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
             region.imageSubresource.baseArrayLayer = face;
             region.imageSubresource.layerCount = 1;
             region.imageOffset = {0, 0, 0};
-            region.imageExtent = {width, height, 1};
+            region.imageExtent = {width, height, depth};
         }
 
         vkCmdCopyBufferToImage(commandBuffer, imageStagingBuffer->vk(commandBuffer.deviceID), vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
