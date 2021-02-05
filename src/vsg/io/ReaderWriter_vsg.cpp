@@ -97,7 +97,7 @@ vsg::ref_ptr<vsg::Object> ReaderWriter_vsg::read(const vsg::Path& filename, ref_
     auto ext = vsg::fileExtension(filename);
     if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
     {
-        vsg::Path filenameToUse = options ? findFile(filename, options) : filename;
+        vsg::Path filenameToUse = findFile(filename, options);
         if (filenameToUse.empty()) return {};
 
         std::ifstream fin(filenameToUse, std::ios::in | std::ios::binary);
