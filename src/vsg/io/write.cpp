@@ -26,7 +26,7 @@ bool vsg::write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Opti
 
         if (!options->readerWriters.empty())
         {
-            for(auto& readerWriter : options->readerWriters)
+            for (auto& readerWriter : options->readerWriters)
             {
                 fileWritten = readerWriter->write(object, filename, options);
                 if (fileWritten) break;

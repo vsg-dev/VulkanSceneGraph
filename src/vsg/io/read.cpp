@@ -23,7 +23,7 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
     auto read_file = [&]() -> ref_ptr<Object> {
         if (options && !options->readerWriters.empty())
         {
-            for(auto& readerWriter : options->readerWriters)
+            for (auto& readerWriter : options->readerWriters)
             {
                 auto object = readerWriter->read(filename, options);
                 if (object) return object;
@@ -135,7 +135,7 @@ ref_ptr<Object> vsg::read(std::istream& fin, ref_ptr<const Options> options)
     auto read_file = [&]() -> ref_ptr<Object> {
         if (options && !options->readerWriters.empty())
         {
-            for(auto& readerWriter : options->readerWriters)
+            for (auto& readerWriter : options->readerWriters)
             {
                 auto object = readerWriter->read(fin, options);
                 if (object) return object;

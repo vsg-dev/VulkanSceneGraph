@@ -45,13 +45,13 @@ void Options::add(ref_ptr<ReaderWriter> rw)
 
 void Options::add(const ReaderWriters& rws)
 {
-    for(auto& rw : rws) add(rw);
+    for (auto& rw : rws) add(rw);
 }
 
 bool Options::readOptions(CommandLine& arguments)
 {
     bool read = false;
-    for(auto& readerWriter : readerWriters)
+    for (auto& readerWriter : readerWriters)
     {
         if (readerWriter->readOptions(*this, arguments)) read = true;
     }

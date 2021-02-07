@@ -109,7 +109,7 @@ namespace vsg
 
         inline t_vec2& operator/=(value_type rhs)
         {
-            value_type div = static_cast<value_type>(1.0)/ rhs;
+            value_type div = static_cast<value_type>(1.0) / rhs;
             value[0] *= div;
             value[1] *= div;
             return *this;

@@ -107,7 +107,7 @@ Path vsg::fileExtension(const Path& path)
 Path vsg::lowerCaseFileExtension(const Path& path)
 {
     Path ext = fileExtension(path);
-    for(auto& c : ext) c = std::tolower(c);
+    for (auto& c : ext) c = std::tolower(c);
     return ext;
 }
 

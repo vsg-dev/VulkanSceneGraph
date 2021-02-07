@@ -23,8 +23,6 @@ namespace vsg
     class Latch : public Inherit<Object, Latch>
     {
     public:
-
-
         explicit Latch(int num) :
             _count(num) {}
 
