@@ -182,7 +182,7 @@ namespace vsg
             vsg::dvec3 v = lookAt->eye;
             vsg::dvec3 lv = vsg::normalize(lookAt->center - lookAt->eye);
             double R = ellipsoidModel->radiusEquator();
-            double H = ellipsoidModel->convertECEFToLatLongHeight(v).z;
+            double H = ellipsoidModel->convertECEFToLatLongAltitude(v).z;
             double D = R + H;
 
             double alpha = (D > R) ? std::acos(R / D) : 0.0;

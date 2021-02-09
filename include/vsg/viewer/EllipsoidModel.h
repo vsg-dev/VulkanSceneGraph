@@ -43,15 +43,17 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        // latitude and longitude in radians
-        dvec3 convertLatLongHeightToECEF(const dvec3& lla) const;
+        /// latitude and longitude in degrees, altitude in metres, ECEF coords in metres.
+        dvec3 convertLatLongAltitudeToECEF(const dvec3& lla) const;
 
+        /// latitude and longitude in degrees, altitude in metres, ECEF coords in metres.
+        dvec3 convertECEFToLatLongAltitude(const dvec3& ecef) const;
+
+        /// latitude and longitude in degrees, altitude in metres
         dmat4 computeLocalToWorldTransform(const dvec3& lla) const;
 
+        /// latitude and longitude in degrees, altitude in metres
         dmat4 computeWorldToLocalTransform(const dvec3& lla) const;
-
-        // latitude and longitude in radians
-        dvec3 convertECEFToLatLongHeight(const dvec3& ecef) const;
 
     protected:
         void _computeEccentricitySquared();
