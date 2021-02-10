@@ -48,8 +48,16 @@ ImageView::ImageView(ref_ptr<Image> in_image) :
 {
     if (image)
     {
-        auto imageType = image->imageType;
-        viewType = (imageType == VK_IMAGE_TYPE_3D) ? VK_IMAGE_VIEW_TYPE_3D : ((imageType == VK_IMAGE_TYPE_2D) ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
+        if (image->data && image->data->getLayout().imageViewType>=0)
+        {
+            viewType = static_cast<VkImageViewType>(image->data->getLayout().imageViewType);
+        }
+        else
+        {
+            auto imageType = image->imageType;
+            viewType = (imageType == VK_IMAGE_TYPE_3D) ? VK_IMAGE_VIEW_TYPE_3D : ((imageType == VK_IMAGE_TYPE_2D) ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
+        }
+
         format = image->format;
         subresourceRange.aspectMask = computeAspectFlagsForFormat(image->format);
         subresourceRange.baseMipLevel = 0;
@@ -64,8 +72,16 @@ ImageView::ImageView(ref_ptr<Image> in_image, VkImageAspectFlags aspectFlags) :
 {
     if (image)
     {
-        auto imageType = image->imageType;
-        viewType = (imageType == VK_IMAGE_TYPE_3D) ? VK_IMAGE_VIEW_TYPE_3D : ((imageType == VK_IMAGE_TYPE_2D) ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
+        if (image->data && image->data->getLayout().imageViewType>=0)
+        {
+            viewType = static_cast<VkImageViewType>(image->data->getLayout().imageViewType);
+        }
+        else
+        {
+            auto imageType = image->imageType;
+            viewType = (imageType == VK_IMAGE_TYPE_3D) ? VK_IMAGE_VIEW_TYPE_3D : ((imageType == VK_IMAGE_TYPE_2D) ? VK_IMAGE_VIEW_TYPE_2D : VK_IMAGE_VIEW_TYPE_1D);
+        }
+
         format = image->format;
         subresourceRange.aspectMask = aspectFlags;
         subresourceRange.baseMipLevel = 0;
