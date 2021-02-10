@@ -54,15 +54,40 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 
     bool useDataMipmaps = (mipLevels > 1) && (mipmapOffsets.size() > 1);
     bool generatMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
-    bool isCubemap = data->depth() == 6 && destination.imageView->viewType == VK_IMAGE_VIEW_TYPE_CUBE;
 
-    uint32_t width = data->width() * layout.blockWidth;
-    uint32_t height = data->height() * layout.blockHeight;
-    uint32_t depth = isCubemap ? 1 : data->depth() * layout.blockDepth;
     uint32_t faceWidth = data->width();
     uint32_t faceHeight = data->height();
-    uint32_t faceDepth = isCubemap ? 1 : data->depth();
-    const uint32_t numFaces = isCubemap ? 6u : 1u;
+    uint32_t faceDepth = data->depth();
+    uint32_t arrayLayers = 1;
+
+    //switch(data->getLayout().imageViewType)
+    switch(destination.imageView->viewType)
+    {
+        case(VK_IMAGE_VIEW_TYPE_CUBE) :
+            arrayLayers = faceDepth;
+            faceDepth = 1;
+            break;
+        case(VK_IMAGE_VIEW_TYPE_1D_ARRAY) :
+            arrayLayers = faceHeight * faceDepth;
+            faceHeight = 1;
+            faceDepth = 1;
+            break;
+        case(VK_IMAGE_VIEW_TYPE_2D_ARRAY) :
+            arrayLayers = faceDepth;
+            faceDepth = 1;
+            break;
+        case(VK_IMAGE_VIEW_TYPE_CUBE_ARRAY) :
+            arrayLayers = faceDepth;
+            faceDepth = 1;
+            break;
+        default :
+            break;
+    }
+
+    uint32_t width = faceWidth * layout.blockWidth;
+    uint32_t height = faceHeight * layout.blockHeight;
+    uint32_t depth = faceDepth * layout.blockDepth;
+
     size_t offset = 0u;
     const auto valueSize = data->valueSize();
 
@@ -93,7 +118,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
         preCopyBarrier.image = vk_textureImage;
         preCopyBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         preCopyBarrier.subresourceRange.baseArrayLayer = 0;
-        preCopyBarrier.subresourceRange.layerCount = numFaces;
+        preCopyBarrier.subresourceRange.layerCount = arrayLayers;
         preCopyBarrier.subresourceRange.levelCount = mipLevels;
         preCopyBarrier.subresourceRange.baseMipLevel = 0;
 
@@ -103,7 +128,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
                              0, nullptr,
                              1, &preCopyBarrier);
 
-        std::vector<VkBufferImageCopy> regions(mipLevels * numFaces);
+        std::vector<VkBufferImageCopy> regions(mipLevels * arrayLayers);
 
         uint32_t mipWidth = width;
         uint32_t mipHeight = height;
@@ -114,9 +139,9 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
             // std::cout<<"   level = "<<mipLevel<<", mipWidth = "<<mipWidth<<", mipHeight = "<<mipHeight<<std::endl;
             const size_t faceSize = static_cast<size_t>(faceWidth * faceHeight * faceDepth * valueSize);
 
-            for (uint32_t face = 0; face < numFaces; ++face)
+            for (uint32_t face = 0; face < arrayLayers; ++face)
             {
-                auto& region = regions[mipLevel * numFaces + face];
+                auto& region = regions[mipLevel * arrayLayers + face];
                 region.bufferOffset = source.offset + offset;
                 region.bufferRowLength = 0;
                 region.bufferImageHeight = 0;
@@ -152,7 +177,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
         postCopyBarrier.image = vk_textureImage;
         postCopyBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         postCopyBarrier.subresourceRange.baseArrayLayer = 0;
-        postCopyBarrier.subresourceRange.layerCount = numFaces;
+        postCopyBarrier.subresourceRange.layerCount = arrayLayers;
         postCopyBarrier.subresourceRange.levelCount = mipLevels;
         postCopyBarrier.subresourceRange.baseMipLevel = 0;
 
@@ -176,7 +201,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
         preCopyBarrier.image = vk_textureImage;
         preCopyBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         preCopyBarrier.subresourceRange.baseArrayLayer = 0;
-        preCopyBarrier.subresourceRange.layerCount = numFaces;
+        preCopyBarrier.subresourceRange.layerCount = arrayLayers;
         preCopyBarrier.subresourceRange.levelCount = mipLevels;
         preCopyBarrier.subresourceRange.baseMipLevel = 0;
 
@@ -186,7 +211,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
                              0, nullptr,
                              1, &preCopyBarrier);
 
-        for (auto face = 0u; face < numFaces; ++face)
+        for (auto face = 0u; face < arrayLayers; ++face)
         {
             VkBufferImageCopy region = {};
             region.bufferOffset = source.offset + offset;
@@ -195,7 +220,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
             region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
             region.imageSubresource.mipLevel = 0;
             region.imageSubresource.baseArrayLayer = face;
-            region.imageSubresource.layerCount = numFaces;
+            region.imageSubresource.layerCount = arrayLayers;
             region.imageOffset = {0, 0, 0};
             region.imageExtent = {width, height, depth};
 
@@ -211,7 +236,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
         barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         barrier.subresourceRange.baseArrayLayer = 0;
-        barrier.subresourceRange.layerCount = numFaces;
+        barrier.subresourceRange.layerCount = arrayLayers;
         barrier.subresourceRange.levelCount = 1;
 
         int32_t mipWidth = width;
@@ -232,9 +257,9 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
                                  0, nullptr,
                                  1, &barrier);
 
-            std::vector<VkImageBlit> blits(numFaces);
+            std::vector<VkImageBlit> blits(arrayLayers);
 
-            for (auto face = 0u; face < numFaces; ++face)
+            for (auto face = 0u; face < arrayLayers; ++face)
             {
                 auto& blit = blits[face];
                 blit.srcOffsets[0] = {0, 0, 0};
@@ -242,13 +267,13 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
                 blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                 blit.srcSubresource.mipLevel = i - 1;
                 blit.srcSubresource.baseArrayLayer = face;
-                blit.srcSubresource.layerCount = numFaces;
+                blit.srcSubresource.layerCount = arrayLayers;
                 blit.dstOffsets[0] = {0, 0, 0};
                 blit.dstOffsets[1] = {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, mipDepth > 1 ? mipDepth / 2 : 1};
                 blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                 blit.dstSubresource.mipLevel = i;
                 blit.dstSubresource.baseArrayLayer = face;
-                blit.dstSubresource.layerCount = numFaces;
+                blit.dstSubresource.layerCount = arrayLayers;
             }
 
             vkCmdBlitImage(commandBuffer,
@@ -293,7 +318,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
             textureImage,
-            VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, numFaces});
+            VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, arrayLayers});
 
         auto preCopyPipelineBarrier = PipelineBarrier::create(
             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -302,9 +327,9 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
         preCopyPipelineBarrier->record(commandBuffer);
 
         const size_t faceSize = static_cast<size_t>(faceWidth * faceHeight * faceDepth * valueSize);
-        std::vector<VkBufferImageCopy> regions(numFaces);
+        std::vector<VkBufferImageCopy> regions(arrayLayers);
 
-        for (auto face = 0u; face < numFaces; face++)
+        for (auto face = 0u; face < arrayLayers; face++)
         {
             auto& region = regions[face];
             region.bufferOffset = source.offset + face * faceSize;
@@ -326,7 +351,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, targetImageLayout,
             VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
             textureImage,
-            VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, numFaces});
+            VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, arrayLayers});
 
         auto postPipelineBarrier = PipelineBarrier::create(
             VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
