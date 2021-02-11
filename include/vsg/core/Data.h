@@ -38,6 +38,10 @@ namespace vsg
     struct stride_iterator
     {
         using value_type = T;
+        using iterator_category = std::forward_iterator_tag;
+        using difference_type = std::ptrdiff_t;
+        using pointer = T*;
+        using reference = T&;
 
         value_type* ptr;
         uint32_t stride; // stride in bytes
