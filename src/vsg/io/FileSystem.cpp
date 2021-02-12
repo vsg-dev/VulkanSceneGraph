@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    include <cstdlib>
 #    include <direct.h>
 #    include <io.h>
+#    include <cctype>
 #else
 #    include <sys/stat.h>
 #    include <unistd.h>
