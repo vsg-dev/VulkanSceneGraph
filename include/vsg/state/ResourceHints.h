@@ -22,6 +22,8 @@ namespace vsg
     public:
         ResourceHints(Allocator* allocator = nullptr);
 
+        bool empty() const noexcept { return maxSlot == 0 && numDescriptorSets == 0 && descriptorPoolSizes.empty(); }
+
         uint32_t maxSlot = 0;
         uint32_t numDescriptorSets = 0;
         DescriptorPoolSizes descriptorPoolSizes;
