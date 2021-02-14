@@ -56,7 +56,7 @@ void CollectDescriptorStats::apply(const ResourceHints& resourceHints)
 {
     if (resourceHints.maxSlot > maxSlot) maxSlot = resourceHints.maxSlot;
 
-    if (!resourceHints.descriptorPoolSizes.empty() || resourceHints.numDescriptorSets > 9)
+    if (!resourceHints.descriptorPoolSizes.empty() || resourceHints.numDescriptorSets > 0)
     {
         externalNumDescriptorSets += resourceHints.numDescriptorSets;
 
