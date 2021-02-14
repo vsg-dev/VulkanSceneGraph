@@ -28,7 +28,7 @@ namespace vsg
         using ArrayStateStack = std::vector<ArrayState>;
         ArrayStateStack arrayStateStack;
 
-        using MatrixStack = std::vector<mat4>;
+        using MatrixStack = std::vector<dmat4>;
         MatrixStack matrixStack;
 
         void apply(const Object& node) override;

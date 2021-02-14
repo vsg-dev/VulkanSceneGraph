@@ -50,7 +50,8 @@ void ComputeBounds::apply(const StateGroup& stategroup)
 
 void ComputeBounds::apply(const vsg::MatrixTransform& transform)
 {
-    matrixStack.push_back(transform.getMatrix());
+    if (matrixStack.empty()) matrixStack.push_back(transform.getMatrix());
+    else matrixStack.push_back(matrixStack.back() * transform.getMatrix());
 
     transform.traverse(*this);
 
@@ -92,6 +93,6 @@ void ComputeBounds::apply(const vsg::vec3Array& vertices)
     else
     {
         auto matrix = matrixStack.back();
-        for (auto vertex : vertices) bounds.add(matrix * vertex);
+        for (auto vertex : vertices) bounds.add(matrix * dvec3(vertex));
     }
 }
