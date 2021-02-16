@@ -96,6 +96,7 @@ namespace vsg
         /// create a RecordAndSubmitTask configured to manage specificied commandGraphs and assign it to the viewer.
         void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs);
 
+        ref_ptr<ActivityStatus> status;
         std::list<std::thread> threads;
 
         void setupThreading();
@@ -114,7 +115,6 @@ namespace vsg
         virtual ~Viewer();
 
         bool _close = false;
-        ref_ptr<ActivityStatus> _status;
 
         ref_ptr<FrameStamp> _frameStamp;
 

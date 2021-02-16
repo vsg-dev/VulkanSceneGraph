@@ -30,7 +30,7 @@ using namespace vsg;
 Viewer::Viewer()
 {
     _start_point = clock::now();
-    _status = vsg::ActivityStatus::create();
+    status = vsg::ActivityStatus::create();
 }
 
 Viewer::~Viewer()
@@ -63,7 +63,7 @@ void Viewer::addWindow(ref_ptr<Window> window)
 void Viewer::close()
 {
     _close = true;
-    _status->set(false);
+    status->set(false);
 
     stopThreading();
 }
@@ -426,7 +426,7 @@ void Viewer::setupThreading()
 
     _threading = true;
 
-    _frameBlock = FrameBlock::create(_status);
+    _frameBlock = FrameBlock::create(status);
     _submissionCompleted = Barrier::create(1 + numValidTasks);
 
     // set up required threads for each task
@@ -546,8 +546,8 @@ void Viewer::stopThreading()
     std::cout << "Viewer::stopThreading()" << std::endl;
 
     // release the blocks to enable threads to exit cleanly
-    // need to manually wake up the threads waiting on this frameBlock so they check the _status value and exit cleanly.
-    _status->set(false);
+    // need to manually wake up the threads waiting on this frameBlock so they check the status value and exit cleanly.
+    status->set(false);
     _frameBlock->wake();
 
     for (auto& thread : threads)
