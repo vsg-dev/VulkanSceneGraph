@@ -19,7 +19,7 @@ OperationThreads::OperationThreads(uint32_t numThreads, ref_ptr<ActivityStatus> 
     status(in_status)
 {
     if (!status) status = ActivityStatus::create();
-    queue = new OperationQueue(status);
+    queue = OperationQueue::create(status);
 
     auto run = [](ref_ptr<OperationQueue> q, ref_ptr<ActivityStatus> thread_status) {
         while (thread_status->active())
@@ -34,8 +34,13 @@ OperationThreads::OperationThreads(uint32_t numThreads, ref_ptr<ActivityStatus> 
 
     for (size_t i = 0; i < numThreads; ++i)
     {
-        threads.emplace_back(run, std::ref(queue), std::ref(status));
+        threads.emplace_back(run, queue, status);
     }
+}
+
+OperationThreads::~OperationThreads()
+{
+    stop();
 }
 
 void OperationThreads::run()
@@ -49,9 +54,11 @@ void OperationThreads::run()
 void OperationThreads::stop()
 {
     status->set(false);
+
     for (auto& thread : threads)
     {
         thread.join();
     }
+
     threads.clear();
 }
