@@ -1,4 +1,4 @@
-#include <vsg/io/ReaderWriter_vsg.h>
+#include <vsg/io/VSG.h>
 static auto text_vert = []() {std::istringstream str(
 R"(#vsga 0.0.2
 Root id=1 vsg::ShaderStage
@@ -87,6 +87,6 @@ void main() {
   NumSpecializationConstants 0
 }
 )");
-vsg::ReaderWriter_vsg io;
+vsg::VSG io;
 return io.read_cast<vsg::ShaderStage>(str);
 };

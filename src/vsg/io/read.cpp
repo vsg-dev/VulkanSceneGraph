@@ -11,7 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/ObjectCache.h>
-#include <vsg/io/ReaderWriter_vsg.h>
+#include <vsg/io/VSG.h>
 #include <vsg/io/read.h>
 
 #include <vsg/threading/OperationThreads.h>
@@ -33,7 +33,7 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
         auto ext = vsg::fileExtension(filename);
         if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
         {
-            ReaderWriter_vsg rw;
+            VSG rw;
             return rw.read(filename, options);
         }
         else
