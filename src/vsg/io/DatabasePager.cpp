@@ -92,7 +92,7 @@ ref_ptr<PagedLOD> DatabaseQueue::take_when_available()
 
     for (; itr != _queue.end(); ++itr)
     {
-        if ((*highest_itr)->priority > (*itr)->priority) highest_itr = itr;
+        if ((*itr)->priority > (*highest_itr)->priority) highest_itr = itr;
     }
 
     ref_ptr<PagedLOD> plod = *highest_itr;
