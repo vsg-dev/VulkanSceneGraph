@@ -406,9 +406,16 @@ void DatabasePager::start()
                             plod->semaphore = ct->context.semaphore;
                             plod->requestStatus.exchange(PagedLOD::MergeRequest);
                         }
+                        toMergeQueue->add(nodesCompiled);
                     }
-
-                    toMergeQueue->add(nodesCompiled);
+                    else
+                    {
+                        ct->context.semaphore->numDependentSubmissions().exchange(0);
+                        for (auto& plod : nodesCompiled)
+                        {
+                            databasePager.requestDiscarded(plod);
+                        }
+                    }
                 }
                 else
                 {
