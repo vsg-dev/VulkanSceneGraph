@@ -28,6 +28,8 @@ namespace vsg
         bool write(const vsg::Object* object, const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> ooptions = {}) const override;
         bool write(const vsg::Object* object, std::ostream& fout, vsg::ref_ptr<const vsg::Options> options = {}) const override;
 
+        bool getFeatures(Features& features) const override;
+
         ObjectFactory* getObjectFactory() { return _objectFactory; }
         const ObjectFactory* getObjectFactory() const { return _objectFactory; }
 

@@ -38,11 +38,29 @@ vsg::ref_ptr<vsg::Object> CompositeReaderWriter::read(std::istream& fin, ref_ptr
     return vsg::ref_ptr<vsg::Object>();
 }
 
+vsg::ref_ptr<vsg::Object> CompositeReaderWriter::read(uint8_t* ptr, size_t size, vsg::ref_ptr<const vsg::Options> options) const
+{
+    for (auto& reader : readerWriters)
+    {
+        if (auto object = reader->read(ptr, size, options); object.valid()) return object;
+    }
+    return vsg::ref_ptr<vsg::Object>();
+}
+
 bool CompositeReaderWriter::write(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const
 {
     for (auto& writer : readerWriters)
     {
         if (writer->write(object, filename, options)) return true;
+    }
+    return false;
+}
+
+bool CompositeReaderWriter::write(const vsg::Object* object, std::ostream& fout, vsg::ref_ptr<const vsg::Options> options) const
+{
+    for (auto& writer : readerWriters)
+    {
+        if (writer->write(object, fout, options)) return true;
     }
     return false;
 }
@@ -53,6 +71,16 @@ bool CompositeReaderWriter::readOptions(vsg::Options& options, vsg::CommandLine&
     for (auto& rw : readerWriters)
     {
         if (rw->readOptions(options, arguments)) result = true;
+    }
+    return result;
+}
+
+bool CompositeReaderWriter::getFeatures(Features& features) const
+{
+    bool result = false;
+    for (auto& rw : readerWriters)
+    {
+        if (rw->getFeatures(features)) result = true;
     }
     return result;
 }
