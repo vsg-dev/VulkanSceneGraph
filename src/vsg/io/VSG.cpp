@@ -275,7 +275,7 @@ bool VSG::write(const vsg::Object* object, std::ostream& fout, ref_ptr<const Opt
 
 bool VSG::getFeatures(Features& features) const
 {
-    features.extensionFeatureMap["vsgb"] = static_cast<FeatureMask>(READ_FILENAME | READ_ISTREAM | WRITE_FILENAME | WRITE_OSTREAM);
-    features.extensionFeatureMap["vsgt"] = static_cast<FeatureMask>(READ_FILENAME | READ_ISTREAM | WRITE_FILENAME | WRITE_OSTREAM);
+    features.extensionFeatureMap["vsgb"] = static_cast<FeatureMask>(READ_FILENAME | READ_ISTREAM | READ_MEMORY | WRITE_FILENAME | WRITE_OSTREAM);
+    features.extensionFeatureMap["vsgt"] = static_cast<FeatureMask>(READ_FILENAME | READ_ISTREAM | READ_MEMORY | WRITE_FILENAME | WRITE_OSTREAM);
     return true;
 }
