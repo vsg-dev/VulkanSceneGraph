@@ -38,7 +38,7 @@ vsg::ref_ptr<vsg::Object> CompositeReaderWriter::read(std::istream& fin, ref_ptr
     return vsg::ref_ptr<vsg::Object>();
 }
 
-vsg::ref_ptr<vsg::Object> CompositeReaderWriter::read(uint8_t* ptr, size_t size, vsg::ref_ptr<const vsg::Options> options) const
+vsg::ref_ptr<vsg::Object> CompositeReaderWriter::read(const uint8_t* ptr, size_t size, vsg::ref_ptr<const vsg::Options> options) const
 {
     for (auto& reader : readerWriters)
     {

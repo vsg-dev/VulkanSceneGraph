@@ -151,7 +151,40 @@ vsg::ref_ptr<vsg::Object> VSG::read(std::istream& fin, vsg::ref_ptr<const vsg::O
         return input.readObject("Root");
     }
 
-    return vsg::ref_ptr<vsg::Object>();
+    return {};
+}
+
+vsg::ref_ptr<vsg::Object> VSG::read(const uint8_t* ptr, size_t size, vsg::ref_ptr<const vsg::Options> options) const
+{
+    if (options)
+    {
+        if (!options->extensionHint.empty())
+        {
+            if (options->extensionHint != "vsgb" && options->extensionHint != "vsgt")
+            {
+                return {};
+            }
+        }
+    }
+
+    std::string str(reinterpret_cast<const char*>(ptr), size);
+    std::istringstream stream(str);
+
+    auto [type, version] = readHeader(stream);
+    if (type == BINARY)
+    {
+        vsg::BinaryInput input(stream, _objectFactory, options);
+        input.version = version;
+        return input.readObject("Root");
+    }
+    else if (type == ASCII)
+    {
+        vsg::AsciiInput input(stream, _objectFactory, options);
+        input.version = version;
+        return input.readObject("Root");
+    }
+
+    return {};
 }
 
 bool VSG::write(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const

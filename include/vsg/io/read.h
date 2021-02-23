@@ -29,6 +29,9 @@ namespace vsg
     /** convenience method for reading objects from stream.*/
     extern VSG_DECLSPEC ref_ptr<Object> read(std::istream& fin, ref_ptr<const Options> options = {});
 
+    /** convenience method for reading objects from memory.*/
+    extern VSG_DECLSPEC ref_ptr<Object> read(const uint8_t* ptr, size_t size, ref_ptr<const Options> options = {});
+
     /** convenience method for reading file with cast to specified type.*/
     template<class T>
     ref_ptr<T> read_cast(const Path& filename, ref_ptr<const Options> options = {})
@@ -42,6 +45,14 @@ namespace vsg
     ref_ptr<T> read_cast(std::istream& fin, ref_ptr<const Options> options = {})
     {
         auto object = read(fin, options);
+        return vsg::ref_ptr<T>(dynamic_cast<T*>(object.get()));
+    }
+
+    /** convenience method for reading memory with cast to specified type.*/
+    template<class T>
+    ref_ptr<T> read_cast(const uint8_t* ptr, size_t size, ref_ptr<const Options> options = {})
+    {
+        auto object = read(ptr, size, options);
         return vsg::ref_ptr<T>(dynamic_cast<T*>(object.get()));
     }
 
