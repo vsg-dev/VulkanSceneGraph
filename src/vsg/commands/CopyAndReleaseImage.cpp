@@ -61,27 +61,27 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
     uint32_t arrayLayers = 1;
 
     //switch(data->getLayout().imageViewType)
-    switch(destination.imageView->viewType)
+    switch (destination.imageView->viewType)
     {
-        case(VK_IMAGE_VIEW_TYPE_CUBE) :
-            arrayLayers = faceDepth;
-            faceDepth = 1;
-            break;
-        case(VK_IMAGE_VIEW_TYPE_1D_ARRAY) :
-            arrayLayers = faceHeight * faceDepth;
-            faceHeight = 1;
-            faceDepth = 1;
-            break;
-        case(VK_IMAGE_VIEW_TYPE_2D_ARRAY) :
-            arrayLayers = faceDepth;
-            faceDepth = 1;
-            break;
-        case(VK_IMAGE_VIEW_TYPE_CUBE_ARRAY) :
-            arrayLayers = faceDepth;
-            faceDepth = 1;
-            break;
-        default :
-            break;
+    case (VK_IMAGE_VIEW_TYPE_CUBE):
+        arrayLayers = faceDepth;
+        faceDepth = 1;
+        break;
+    case (VK_IMAGE_VIEW_TYPE_1D_ARRAY):
+        arrayLayers = faceHeight * faceDepth;
+        faceHeight = 1;
+        faceDepth = 1;
+        break;
+    case (VK_IMAGE_VIEW_TYPE_2D_ARRAY):
+        arrayLayers = faceDepth;
+        faceDepth = 1;
+        break;
+    case (VK_IMAGE_VIEW_TYPE_CUBE_ARRAY):
+        arrayLayers = faceDepth;
+        faceDepth = 1;
+        break;
+    default:
+        break;
     }
 
     uint32_t width = faceWidth * layout.blockWidth;

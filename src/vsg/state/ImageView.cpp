@@ -48,7 +48,7 @@ ImageView::ImageView(ref_ptr<Image> in_image) :
 {
     if (image)
     {
-        if (image->data && image->data->getLayout().imageViewType>=0)
+        if (image->data && image->data->getLayout().imageViewType >= 0)
         {
             viewType = static_cast<VkImageViewType>(image->data->getLayout().imageViewType);
         }
@@ -72,7 +72,7 @@ ImageView::ImageView(ref_ptr<Image> in_image, VkImageAspectFlags aspectFlags) :
 {
     if (image)
     {
-        if (image->data && image->data->getLayout().imageViewType>=0)
+        if (image->data && image->data->getLayout().imageViewType >= 0)
         {
             viewType = static_cast<VkImageViewType>(image->data->getLayout().imageViewType);
         }

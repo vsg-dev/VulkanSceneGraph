@@ -55,11 +55,11 @@ namespace vsg
 
         enum FeatureMask
         {
-            READ_FILENAME = (1<<0),
-            READ_ISTREAM = (1<<1),
-            READ_MEMORY = (1<<2),
-            WRITE_FILENAME = (1<<3),
-            WRITE_OSTREAM = (1<<4)
+            READ_FILENAME = (1 << 0),
+            READ_ISTREAM = (1 << 1),
+            READ_MEMORY = (1 << 2),
+            WRITE_FILENAME = (1 << 3),
+            WRITE_OSTREAM = (1 << 4)
         };
 
         struct Features
@@ -69,7 +69,6 @@ namespace vsg
 
         /// get the Features supported by this ReaderWriter
         virtual bool getFeatures(Features&) const { return false; }
-
     };
     VSG_type_name(vsg::ReaderWriter);
 
