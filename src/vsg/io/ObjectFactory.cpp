@@ -247,7 +247,6 @@ ObjectFactory::~ObjectFactory()
 {
 }
 
-
 vsg::ref_ptr<vsg::Object> ObjectFactory::create(const std::string& className)
 {
     if (auto itr = _createMap.find(className); itr != _createMap.end())
