@@ -88,7 +88,7 @@ set(SOURCES
     io/Options.cpp
     io/ObjectFactory.cpp
     io/ReaderWriter.cpp
-    io/ReaderWriter_vsg.cpp
+    io/VSG.cpp
     io/read.cpp
     io/write.cpp
 

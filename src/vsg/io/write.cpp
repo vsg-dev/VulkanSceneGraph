@@ -11,7 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/ObjectCache.h>
-#include <vsg/io/ReaderWriter_vsg.h>
+#include <vsg/io/VSG.h>
 #include <vsg/io/write.h>
 
 using namespace vsg;
@@ -36,11 +36,11 @@ bool vsg::write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Opti
 
     if (!fileWritten)
     {
-        // fallback to using native ReaderWriter_vsg if extension is compatible
+        // fallback to using native VSG if extension is compatible
         auto ext = vsg::fileExtension(filename);
         if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
         {
-            ReaderWriter_vsg rw;
+            VSG rw;
             fileWritten = rw.write(object, filename, options);
         }
     }

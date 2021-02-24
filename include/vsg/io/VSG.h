@@ -17,16 +17,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_DECLSPEC ReaderWriter_vsg : public Inherit<ReaderWriter, ReaderWriter_vsg>
+    class VSG_DECLSPEC VSG : public Inherit<ReaderWriter, VSG>
     {
     public:
-        ReaderWriter_vsg();
+        VSG();
 
         vsg::ref_ptr<vsg::Object> read(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options = {}) const override;
         vsg::ref_ptr<vsg::Object> read(std::istream& fin, vsg::ref_ptr<const vsg::Options> options = {}) const override;
+        vsg::ref_ptr<vsg::Object> read(const uint8_t* ptr, size_t size, vsg::ref_ptr<const vsg::Options> = {}) const override;
 
         bool write(const vsg::Object* object, const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> ooptions = {}) const override;
         bool write(const vsg::Object* object, std::ostream& fout, vsg::ref_ptr<const vsg::Options> options = {}) const override;
+
+        bool getFeatures(Features& features) const override;
 
         ObjectFactory* getObjectFactory() { return _objectFactory; }
         const ObjectFactory* getObjectFactory() const { return _objectFactory; }
@@ -46,6 +49,6 @@ namespace vsg
     protected:
         ref_ptr<ObjectFactory> _objectFactory;
     };
-    VSG_type_name(vsg::ReaderWriter_vsg);
+    VSG_type_name(vsg::VSG);
 
 } // namespace vsg

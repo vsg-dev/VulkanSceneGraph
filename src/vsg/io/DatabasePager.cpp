@@ -86,7 +86,7 @@ ref_ptr<PagedLOD> DatabaseQueue::take_when_available()
 
 #if 1
 
-    // find the OagedLOD with the highest priority;
+    // find the PagedLOD with the highest priority;
     auto itr = _queue.begin();
     auto highest_itr = itr++;
 
