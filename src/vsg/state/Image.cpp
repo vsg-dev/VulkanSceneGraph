@@ -93,6 +93,11 @@ Image::Image(ref_ptr<Data> in_data) :
         format = layout.format;
         mipLevels = static_cast<uint32_t>(mipmapOffsets.size());
         extent = VkExtent3D{width, height, depth};
+
+        // remap RGB to RGBA
+        if (format>=VK_FORMAT_R8G8B8_UNORM && format<=VK_FORMAT_B8G8R8_SRGB) format = static_cast<VkFormat>(format+14);
+        else if (format >= VK_FORMAT_R16G16B16_UNORM && format <= VK_FORMAT_R16G16B16_SFLOAT) format = static_cast<VkFormat>(format + 7);
+        else if (format >= VK_FORMAT_R32G32B32_UINT && format <= VK_FORMAT_R32G32B32_SFLOAT) format = static_cast<VkFormat>(format + 3);
     }
 }
 
