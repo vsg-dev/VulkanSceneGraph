@@ -121,7 +121,7 @@ void ImageView::compile(Device* device)
 
     if (VkResult result = vkCreateImageView(*vd.device, &info, vd.device->getAllocationCallbacks(), &vd.imageView); result != VK_SUCCESS)
     {
-        throw Exception{"Error: Failed to create vkImage.", result};
+        throw Exception{"Error: Failed to create vkImageImage.", result};
     }
 }
 
@@ -150,7 +150,7 @@ void ImageView::compile(Context& context)
 
     if (VkResult result = vkCreateImageView(*vd.device, &info, vd.device->getAllocationCallbacks(), &vd.imageView); result != VK_SUCCESS)
     {
-        throw Exception{"Error: Failed to create vkImage.", result};
+        throw Exception{"Error: Failed to create vkImageImage.", result};
     }
 }
 
