@@ -64,6 +64,7 @@ namespace vsg
         Paths paths;
 
         std::string extensionHint;
+        bool mapRGBtoRGBAHint = true;
 
     protected:
         virtual ~Options();

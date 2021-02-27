@@ -49,6 +49,8 @@ namespace vsg
         template<typename T>
         T* allocate(size_t num = 1)
         {
+            if (num==0) return nullptr;
+
             size_t allocate_size = sizeof(T) * num;
 
             if ((ptr + allocate_size) <= (buffer + size))
