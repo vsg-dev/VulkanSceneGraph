@@ -121,10 +121,10 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
     preCopyBarrier.subresourceRange.baseMipLevel = 0;
 
     vkCmdPipelineBarrier(commandBuffer,
-                            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
-                            0, nullptr,
-                            0, nullptr,
-                            1, &preCopyBarrier);
+                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+                         0, nullptr,
+                         0, nullptr,
+                         1, &preCopyBarrier);
 
     std::vector<VkBufferImageCopy> regions;
 
@@ -187,7 +187,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
     }
 
     vkCmdCopyBufferToImage(commandBuffer, imageStagingBuffer->vk(commandBuffer.deviceID), vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                            static_cast<uint32_t>(regions.size()), regions.data());
+                           static_cast<uint32_t>(regions.size()), regions.data());
 
     if (generatMipmaps)
     {
@@ -214,10 +214,10 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
             barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 
             vkCmdPipelineBarrier(commandBuffer,
-                                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
-                                0, nullptr,
-                                0, nullptr,
-                                1, &barrier);
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+                                 0, nullptr,
+                                 0, nullptr,
+                                 1, &barrier);
 
             std::vector<VkImageBlit> blits(arrayLayers);
 
@@ -239,10 +239,10 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
             }
 
             vkCmdBlitImage(commandBuffer,
-                        vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                        vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                        static_cast<uint32_t>(blits.size()), blits.data(),
-                        VK_FILTER_LINEAR);
+                           vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                           vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           static_cast<uint32_t>(blits.size()), blits.data(),
+                           VK_FILTER_LINEAR);
 
             barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
             barrier.newLayout = targetImageLayout;
@@ -250,10 +250,10 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
             barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
             vkCmdPipelineBarrier(commandBuffer,
-                                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
-                                0, nullptr,
-                                0, nullptr,
-                                1, &barrier);
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+                                 0, nullptr,
+                                 0, nullptr,
+                                 1, &barrier);
 
             if (mipWidth > 1) mipWidth /= 2;
             if (mipHeight > 1) mipHeight /= 2;
@@ -290,10 +290,10 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
         postCopyBarrier.subresourceRange.baseMipLevel = 0;
 
         vkCmdPipelineBarrier(commandBuffer,
-                                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
-                                0, nullptr,
-                                0, nullptr,
-                                1, &postCopyBarrier);
+                             VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+                             0, nullptr,
+                             0, nullptr,
+                             1, &postCopyBarrier);
     }
 }
 
