@@ -93,15 +93,17 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 
     auto vk_textureImage = textureImage->vk(commandBuffer.deviceID);
 
-    VkFormatProperties props;
-    const auto physicalDevice = commandBuffer.getDevice()->getPhysicalDevice()->getPhysicalDevice();
-    vkGetPhysicalDeviceFormatProperties(physicalDevice, layout.format, &props);
-    const bool isBlitPossible = (props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) > 0;
-
-    if (!isBlitPossible && generatMipmaps)
+    if (generatMipmaps)
     {
-        generatMipmaps = false;
-        //std::cerr << "Can not create mipmap chain for format: " << layout.format << std::endl;
+        VkFormatProperties props;
+        vkGetPhysicalDeviceFormatProperties(*(commandBuffer.getDevice()->getPhysicalDevice()), layout.format, &props);
+        const bool isBlitPossible = (props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) > 0;
+
+        if (!isBlitPossible)
+        {
+            generatMipmaps = false;
+            //std::cerr << "Can not create mipmap chain for format: " << layout.format << std::endl;
+        }
     }
 
     // transfer the data.
@@ -130,7 +132,6 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 
     if (useDataMipmaps)
     {
-
         regions.resize(mipLevels * arrayLayers);
 
         uint32_t mipWidth = width;
