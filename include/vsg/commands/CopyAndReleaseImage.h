@@ -38,7 +38,7 @@ namespace vsg
         CopyAndReleaseImage(BufferInfo src, ImageInfo dest);
         CopyAndReleaseImage(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels);
 
-        struct CopyData
+        struct VSG_DECLSPEC CopyData
         {
             CopyData() {}
             CopyData(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels = 1);

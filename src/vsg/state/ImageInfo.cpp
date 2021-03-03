@@ -13,6 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/state/ImageInfo.h>
 
+#include <algorithm>
+
 using namespace vsg;
 
 uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
