@@ -32,14 +32,32 @@ CopyAndReleaseImage::~CopyAndReleaseImage()
     for (auto& copyData : pending) copyData.source.release();
 }
 
+
+CopyAndReleaseImage::CopyData::CopyData(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels)
+{
+    source = src;
+    destination = dest;
+
+    mipLevels = numMipMapLevels;
+
+    if (source.data)
+    {
+        layout = source.data->getLayout();
+        width = source.data->width();
+        height = source.data->height();
+        depth = source.data->depth();
+        mipmapOffsets = source.data->computeMipmapOffsets();
+    }
+}
+
 void CopyAndReleaseImage::add(BufferInfo src, ImageInfo dest)
 {
-    pending.push_back(CopyData{src, dest, vsg::computeNumMipMapLevels(src.data, dest.sampler)});
+    pending.push_back(CopyData(src, dest, vsg::computeNumMipMapLevels(src.data, dest.sampler)));
 }
 
 void CopyAndReleaseImage::add(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels)
 {
-    pending.push_back(CopyData{src, dest, numMipMapLevels});
+    pending.push_back(CopyData(src, dest, numMipMapLevels));
 }
 
 void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
@@ -49,18 +67,12 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
     ref_ptr<Image> textureImage(destination.imageView->image);
     VkImageLayout targetImageLayout = destination.imageLayout;
 
-    Data::Layout layout = data->getLayout();
-    auto mipmapOffsets = data->computeMipmapOffsets();
-
-    bool useDataMipmaps = (mipLevels > 1) && (mipmapOffsets.size() > 1);
-    bool generatMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
-
-    uint32_t faceWidth = data->width();
-    uint32_t faceHeight = data->height();
-    uint32_t faceDepth = data->depth();
+    uint32_t faceWidth = width;
+    uint32_t faceHeight = height;
+    uint32_t faceDepth = depth;
     uint32_t arrayLayers = 1;
 
-    //switch(data->getLayout().imageViewType)
+    //switch(layout.imageViewType)
     switch (destination.imageView->viewType)
     {
     case (VK_IMAGE_VIEW_TYPE_CUBE):
@@ -84,12 +96,15 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
         break;
     }
 
-    uint32_t width = faceWidth * layout.blockWidth;
-    uint32_t height = faceHeight * layout.blockHeight;
-    uint32_t depth = faceDepth * layout.blockDepth;
+    uint32_t destWidth = faceWidth * layout.blockWidth;
+    uint32_t destHeight = faceHeight * layout.blockHeight;
+    uint32_t destDepth = faceDepth * layout.blockDepth;
 
     size_t offset = 0u;
-    const auto valueSize = data->valueSize();
+    const auto valueSize = layout.stride; // data->valueSize();
+
+    bool useDataMipmaps = (mipLevels > 1) && (mipmapOffsets.size() > 1);
+    bool generatMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
 
     auto vk_textureImage = textureImage->vk(commandBuffer.deviceID);
 
@@ -134,9 +149,9 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
     {
         regions.resize(mipLevels * arrayLayers);
 
-        uint32_t mipWidth = width;
-        uint32_t mipHeight = height;
-        uint32_t mipDepth = depth;
+        uint32_t mipWidth = destWidth;
+        uint32_t mipHeight = destHeight;
+        uint32_t mipDepth = destDepth;
 
         for (uint32_t mipLevel = 0; mipLevel < mipLevels; ++mipLevel)
         {
@@ -183,7 +198,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
             region.imageSubresource.baseArrayLayer = face;
             region.imageSubresource.layerCount = 1;
             region.imageOffset = {0, 0, 0};
-            region.imageExtent = {width, height, depth};
+            region.imageExtent = {destWidth, destHeight, destDepth};
         }
     }
 
@@ -202,9 +217,9 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
         barrier.subresourceRange.layerCount = arrayLayers;
         barrier.subresourceRange.levelCount = 1;
 
-        int32_t mipWidth = width;
-        int32_t mipHeight = height;
-        int32_t mipDepth = depth;
+        int32_t mipWidth = destWidth;
+        int32_t mipHeight = destHeight;
+        int32_t mipDepth = destDepth;
 
         for (uint32_t i = 1; i < mipLevels; ++i)
         {

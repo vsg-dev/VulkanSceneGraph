@@ -38,6 +38,26 @@ namespace vsg
         CopyAndReleaseImage(BufferInfo src, ImageInfo dest);
         CopyAndReleaseImage(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels);
 
+        struct CopyData
+        {
+            CopyData() {}
+            CopyData(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels = 1);
+
+            BufferInfo source;
+            ImageInfo destination;
+
+            uint32_t mipLevels = 1;
+
+            Data::Layout layout;
+            uint32_t width = 0;
+            uint32_t height = 0;
+            uint32_t depth = 0;
+            Data::MipmapOffsets mipmapOffsets;
+
+            void record(CommandBuffer& commandBuffer) const;
+        };
+
+        void add(const CopyData& cd) { pending.push_back(cd); }
         void add(BufferInfo src, ImageInfo dest);
         void add(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels);
 
@@ -46,14 +66,6 @@ namespace vsg
     protected:
         virtual ~CopyAndReleaseImage();
 
-        struct CopyData
-        {
-            BufferInfo source;
-            ImageInfo destination;
-            uint32_t mipLevels = 1;
-
-            void record(CommandBuffer& commandBuffer) const;
-        };
 
         mutable std::vector<CopyData> pending;
         mutable std::vector<CopyData> completed;
