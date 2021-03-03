@@ -74,6 +74,7 @@ set(SOURCES
     state/StateCommand.cpp
     state/StateGroup.cpp
     state/Image.cpp
+    state/ImageInfo.cpp
     state/ImageView.cpp
 
     io/FileSystem.cpp
