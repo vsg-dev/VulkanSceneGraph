@@ -315,8 +315,10 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 
 void CopyAndReleaseImage::record(CommandBuffer& commandBuffer) const
 {
-    for (auto& copyData : completed) copyData.source.release();
-    completed.clear();
+    for (auto& copyData : readyToClear) copyData.source.release();
+    readyToClear.clear();
+
+    readyToClear.swap(completed);
 
     for (auto& copyData : pending)
     {

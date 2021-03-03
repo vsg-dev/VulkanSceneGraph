@@ -66,9 +66,9 @@ namespace vsg
     protected:
         virtual ~CopyAndReleaseImage();
 
-
         mutable std::vector<CopyData> pending;
         mutable std::vector<CopyData> completed;
+        mutable std::vector<CopyData> readyToClear;
     };
 
 } // namespace vsg
