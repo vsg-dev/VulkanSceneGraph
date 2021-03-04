@@ -16,6 +16,100 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+struct FormatTraits
+{
+    int size = 0;
+    int numBitsPerComponent = 0;
+    int numComponents = 0;
+    bool packed = false;
+    int blockWidth = 1;
+    int blockHeight = 1;
+    int blockDepth = 1;
+    union
+    {
+        uint8_t uint8_default;
+        int8_t int8_default;
+        uint16_t uint16_default;
+        int16_t int16_default;
+        uint32_t uint32_default;
+        int32_t int32_default;
+        float float_default;
+        uint64_t uint64_default;
+        int64_t int64_default;
+        double double_default;
+    };
+};
+
+static FormatTraits computeFormatTraits(VkFormat format, bool default_one = true)
+{
+    FormatTraits traits;
+
+    if (VK_FORMAT_R8_UNORM <= format && format <= VK_FORMAT_B8G8R8A8_SRGB)
+    {
+        traits.numBitsPerComponent = 8;
+
+        if (format <= VK_FORMAT_R8_SRGB) traits.numComponents = 1;
+        else if (format <= VK_FORMAT_R8G8_SRGB) traits.numComponents = 2;
+        else if (format <= VK_FORMAT_B8G8R8_SRGB) traits.numComponents = 3;
+        else traits.numComponents = 4;
+
+        switch((format - VK_FORMAT_R8_UNORM)%7)
+        {
+            case 0 :
+            case 2 :
+            case 4 :
+            case 6 : traits.uint8_default = default_one ? std::numeric_limits<uint8_t>::max() : 0; break;
+            default : traits.int8_default = default_one ? std::numeric_limits<int8_t>::max() : 0; break;
+        }
+
+        traits.size = traits.numComponents;
+    }
+    else if (VK_FORMAT_R16_UNORM <= format && format <= VK_FORMAT_R16G16B16A16_SFLOAT)
+    {
+        traits.numBitsPerComponent = 16;
+        traits.numComponents = 1 + (format - VK_FORMAT_R16_UNORM)/7;
+        traits.size = 2 * traits.numComponents;
+
+        switch((format - VK_FORMAT_R16_UNORM)%7)
+        {
+            case 0 :
+            case 2 :
+            case 4 :
+            case 6 : traits.uint16_default = default_one ? std::numeric_limits<uint16_t>::max() : 0; break;
+            default : traits.int16_default = default_one ? std::numeric_limits<int16_t>::max() : 0; break;
+        }
+    }
+    else if (VK_FORMAT_R32_UINT <= format && format <= VK_FORMAT_R32G32B32A32_SFLOAT)
+    {
+        traits.numBitsPerComponent = 32;
+        traits.numComponents = 1 + (format - VK_FORMAT_R32_UINT)/3;
+        traits.size = 4 * traits.numComponents;
+
+        switch((format - VK_FORMAT_R32_UINT)%3)
+        {
+            case 0 : traits.uint32_default = default_one ? std::numeric_limits<uint32_t>::max() : 0; break;
+            case 1 : traits.int32_default = default_one ? std::numeric_limits<int32_t>::max() : 0; break;
+            case 2 : traits.float_default = default_one ? 1.0f : 0.0f; break;
+        }
+    }
+    else if (VK_FORMAT_R64_UINT <= format && format <= VK_FORMAT_R64G64B64A64_SFLOAT)
+    {
+        traits.numBitsPerComponent = 64;
+        traits.numComponents = 1 + (format - VK_FORMAT_R64_UINT)/3;
+        traits.size = 8 * traits.numComponents;
+
+        switch((format - VK_FORMAT_R64_UINT)%3)
+        {
+            case 0 : traits.uint64_default = default_one ? std::numeric_limits<uint64_t>::max() : 0; break;
+            case 1 : traits.int64_default = default_one ? std::numeric_limits<int64_t>::max() : 0; break;
+            case 2 : traits.float_default = default_one ? 1.0 : 0.0; break;
+        }
+    }
+
+    return traits;
+}
+
+
 CopyAndReleaseImage::CopyAndReleaseImage(BufferInfo src, ImageInfo dest)
 {
     add(src, dest);
@@ -58,6 +152,147 @@ void CopyAndReleaseImage::add(BufferInfo src, ImageInfo dest)
 void CopyAndReleaseImage::add(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels)
 {
     pending.push_back(CopyData(src, dest, numMipMapLevels));
+}
+
+void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest)
+{
+    if (!data) return;
+    if (!stagingMemoryBufferPools) return;
+
+    VkFormat sourceFormat = data->getLayout().format;
+    VkFormat targetFormat = dest.imageView->format;
+
+    bool formatsCompatible = true;
+    if (sourceFormat != targetFormat)
+    {
+        auto sourceTraits = computeFormatTraits(sourceFormat);
+        auto targetTraits = computeFormatTraits(targetFormat);
+
+        // assume data is compatible if sizes are consistent.
+        formatsCompatible = sourceTraits.size == targetTraits.size;
+    }
+
+    VkMemoryPropertyFlags memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+    if (formatsCompatible)
+    {
+        VkDeviceSize imageTotalSize = data->dataSize();
+        VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
+
+        BufferInfo stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
+        stagingBufferInfo.data = data;
+
+        // std::cout<<"stagingBufferInfo.buffer "<<stagingBufferInfo.buffer.get()<<", "<<stagingBufferInfo.offset<<", "<<stagingBufferInfo.range<<")"<<std::endl;
+
+        auto deviceID = stagingMemoryBufferPools->device->deviceID;
+        ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo.buffer);
+        ref_ptr<DeviceMemory> imageStagingMemory(imageStagingBuffer->getDeviceMemory(deviceID));
+
+        if (!imageStagingMemory) return;
+
+        // copy data to staging memory
+        imageStagingMemory->copy(imageStagingBuffer->getMemoryOffset(deviceID) + stagingBufferInfo.offset, imageTotalSize, data->dataPointer());
+
+        add(stagingBufferInfo, dest);
+    }
+    else
+    {
+        auto sourceTraits = computeFormatTraits(sourceFormat);
+        auto targetTraits = computeFormatTraits(targetFormat);
+
+        VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
+        VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(targetTraits.size));
+
+        BufferInfo stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
+
+        // std::cout<<"stagingBufferInfo.buffer "<<stagingBufferInfo.buffer.get()<<", "<<stagingBufferInfo.offset<<", "<<stagingBufferInfo.range<<")"<<std::endl;
+
+        auto deviceID = stagingMemoryBufferPools->device->deviceID;
+        ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo.buffer);
+        ref_ptr<DeviceMemory> imageStagingMemory(imageStagingBuffer->getDeviceMemory(deviceID));
+
+        if (!imageStagingMemory) return;
+
+        vsg::CopyAndReleaseImage::CopyData cd(stagingBufferInfo, dest, 1);
+        cd.width = data->width();
+        cd.height = data->height();
+        cd.depth = data->depth();
+        cd.layout.format = targetFormat;
+        cd.layout.stride = targetTraits.size;
+
+        // set up a vec4 worth of default values for the type
+        uint8_t default_ptr[32];
+        switch(targetTraits.numBitsPerComponent)
+        {
+            case(8) :
+            {
+                uint8_t* ptr = default_ptr;
+                (*ptr++) = targetTraits.uint8_default;
+                (*ptr++) = targetTraits.uint8_default;
+                (*ptr++) = targetTraits.uint8_default;
+                (*ptr++) = targetTraits.uint8_default;
+                break;
+            }
+            case(16) :
+            {
+                uint16_t* ptr = reinterpret_cast<uint16_t*>(default_ptr);
+                (*ptr++) = targetTraits.uint16_default;
+                (*ptr++) = targetTraits.uint16_default;
+                (*ptr++) = targetTraits.uint16_default;
+                (*ptr++) = targetTraits.uint16_default;
+                break;
+            }
+            case(32) :
+            {
+                uint32_t* ptr = reinterpret_cast<uint32_t*>(default_ptr);
+                (*ptr++) = targetTraits.uint32_default;
+                (*ptr++) = targetTraits.uint32_default;
+                (*ptr++) = targetTraits.uint32_default;
+                (*ptr++) = targetTraits.uint32_default;
+                break;
+            }
+            case(64) :
+            {
+                uint64_t* ptr = reinterpret_cast<uint64_t*>(default_ptr);
+                (*ptr++) = targetTraits.uint64_default;
+                (*ptr++) = targetTraits.uint64_default;
+                (*ptr++) = targetTraits.uint64_default;
+                (*ptr++) = targetTraits.uint64_default;
+                break;
+            }
+        }
+
+        uint32_t bytesFromSource = sourceTraits.size;
+        uint32_t bytesToTarget = targetTraits.size;
+
+        // copy data
+        using value_type = uint8_t;
+        const value_type* src_ptr = reinterpret_cast<const value_type*>(data->dataPointer());
+
+        void* buffer_data;
+        imageStagingMemory->map(imageStagingBuffer->getMemoryOffset(deviceID) + stagingBufferInfo.offset, imageTotalSize, 0, &buffer_data);
+        value_type* dest_ptr = reinterpret_cast<value_type*>(buffer_data);
+
+        size_t valueCount = data->valueCount();
+        for(size_t i = 0; i< valueCount; ++i)
+        {
+            uint32_t s = 0;
+            for(; s < bytesFromSource; ++s)
+            {
+                (*dest_ptr++) = *(src_ptr++);
+            }
+
+            value_type* src_default = default_ptr;
+            for(; s < bytesToTarget; ++s)
+            {
+                (*dest_ptr++) = *(src_default++);
+            }
+        }
+
+        imageStagingMemory->unmap();
+
+        add(cd);
+    }
 }
 
 void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const

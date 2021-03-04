@@ -61,6 +61,12 @@ namespace vsg
         void add(BufferInfo src, ImageInfo dest);
         void add(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels);
 
+        /// MemoryBufferPools used for allocation staging buffer used by the copy(ref_ptr<Data>, ImageInfo) method.  Users should assign a MemoryBufferPools with appropriate settings.
+        ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;
+
+        /// copy data into a staging buffer and then use copy command to transfer this to the GPU image specified by ImageInfo
+        void copy(ref_ptr<Data> data, ImageInfo dest);
+
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
