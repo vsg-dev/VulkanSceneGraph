@@ -18,45 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-/////////////////////////////////////////////////////////////////////////////////////////
-//
-// vsg::computeNumMipMapLevels
-//
-uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
-{
-    uint32_t mipLevels = sampler != nullptr ? static_cast<uint32_t>(ceil(sampler->maxLod)) : 1;
-    if (mipLevels == 0)
-    {
-        mipLevels = 1;
-    }
-
-    // clamp the mipLevels so that its no larger than what the data dimensions support
-    uint32_t maxDimension = std::max({data->width(), data->height(), data->depth()});
-    while ((1u << (mipLevels - 1)) > maxDimension)
-    {
-        --mipLevels;
-    }
-
-    //mipLevels = 1;  // disable mipmapping
-
-    return mipLevels;
-}
-
-void ImageInfo::computeNumMipMapLevels()
-{
-    if (imageView && imageView->image && imageView->image->data)
-    {
-        auto image = imageView->image;
-        auto mipLevels = vsg::computeNumMipMapLevels(image->data, sampler);
-        image->mipLevels = mipLevels;
-        imageView->subresourceRange.levelCount = mipLevels;
-
-        const auto& mipmapOffsets = image->data->computeMipmapOffsets();
-        bool generatMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
-        if (generatMipmaps) image->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // DescriptorImage
@@ -182,11 +143,7 @@ void DescriptorImage::compile(Context& context)
 
                 if (image && image->data)
                 {
-                    auto stagingBufferInfo = copyDataToStagingBuffer(context, image->data);
-                    if (stagingBufferInfo)
-                    {
-                        context.commands.emplace_back(CopyAndReleaseImage::create(stagingBufferInfo, imageData, image->mipLevels));
-                    }
+                    context.copy(image->data, imageData, image->mipLevels);
                 }
             }
             else

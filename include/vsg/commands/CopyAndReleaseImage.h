@@ -34,29 +34,48 @@ namespace vsg
     class VSG_DECLSPEC CopyAndReleaseImage : public Inherit<Command, CopyAndReleaseImage>
     {
     public:
-        CopyAndReleaseImage() {}
-        CopyAndReleaseImage(BufferInfo src, ImageInfo dest);
-        CopyAndReleaseImage(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels);
+        CopyAndReleaseImage(ref_ptr<MemoryBufferPools> optional_stagingMemoryBufferPools = {});
 
+        struct VSG_DECLSPEC CopyData
+        {
+            CopyData() {}
+            CopyData(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels = 1);
+
+            BufferInfo source;
+            ImageInfo destination;
+
+            uint32_t mipLevels = 1;
+
+            Data::Layout layout;
+            uint32_t width = 0;
+            uint32_t height = 0;
+            uint32_t depth = 0;
+            Data::MipmapOffsets mipmapOffsets;
+
+            void record(CommandBuffer& commandBuffer) const;
+        };
+
+        void add(const CopyData& cd) { pending.push_back(cd); }
         void add(BufferInfo src, ImageInfo dest);
         void add(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels);
+
+        /// MemoryBufferPools used for allocation staging buffer used by the copy(ref_ptr<Data>, ImageInfo) method.  Users should assign a MemoryBufferPools with appropriate settings.
+        ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;
+
+        /// copy data into a staging buffer and then use copy command to transfer this to the GPU image specified by ImageInfo
+        void copy(ref_ptr<Data> data, ImageInfo dest);
+        void copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels);
 
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~CopyAndReleaseImage();
 
-        struct CopyData
-        {
-            BufferInfo source;
-            ImageInfo destination;
-            uint32_t mipLevels = 1;
-
-            void record(CommandBuffer& commandBuffer) const;
-        };
+        void _copyDirectly(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels);
 
         mutable std::vector<CopyData> pending;
         mutable std::vector<CopyData> completed;
+        mutable std::vector<CopyData> readyToClear;
     };
 
 } // namespace vsg
