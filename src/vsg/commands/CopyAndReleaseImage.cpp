@@ -27,22 +27,22 @@ struct FormatTraits
     int blockWidth = 1;
     int blockHeight = 1;
     int blockDepth = 1;
-    union
+    uint8_t defaultValue[32];
+
+    template<typename T>
+    void assign4(T value)
     {
-        uint8_t uint8_default;
-        int8_t int8_default;
-        uint16_t uint16_default;
-        int16_t int16_default;
-        uint32_t uint32_default;
-        int32_t int32_default;
-        float float_default;
-        uint64_t uint64_default;
-        int64_t int64_default;
-        double double_default;
-    };
+        T* ptr = reinterpret_cast<T*>(defaultValue);
+        (*ptr++) = value;
+        (*ptr++) = value;
+        (*ptr++) = value;
+        (*ptr++) = value;
+    }
+
+    static FormatTraits get(VkFormat format, bool default_one = true);
 };
 
-static FormatTraits computeFormatTraits(VkFormat format, bool default_one = true)
+FormatTraits FormatTraits::get(VkFormat format, bool default_one)
 {
     FormatTraits traits;
 
@@ -64,8 +64,8 @@ static FormatTraits computeFormatTraits(VkFormat format, bool default_one = true
         case 0:
         case 2:
         case 4:
-        case 6: traits.uint8_default = default_one ? std::numeric_limits<uint8_t>::max() : 0; break;
-        default: traits.int8_default = default_one ? std::numeric_limits<int8_t>::max() : 0; break;
+        case 6: traits.assign4<uint8_t>(default_one ? std::numeric_limits<uint8_t>::max() : 0); break;
+        default: traits.assign4<int8_t>(default_one ? std::numeric_limits<int8_t>::max() : 0); break;
         }
 
         traits.size = traits.numComponents;
@@ -81,8 +81,8 @@ static FormatTraits computeFormatTraits(VkFormat format, bool default_one = true
         case 0:
         case 2:
         case 4:
-        case 6: traits.uint16_default = default_one ? std::numeric_limits<uint16_t>::max() : 0; break;
-        default: traits.int16_default = default_one ? std::numeric_limits<int16_t>::max() : 0; break;
+        case 6: traits.assign4<uint16_t>(default_one ? std::numeric_limits<uint16_t>::max() : 0); break;
+        default:traits.assign4<int16_t>(default_one ? std::numeric_limits<int16_t>::max() : 0); break;
         }
     }
     else if (VK_FORMAT_R32_UINT <= format && format <= VK_FORMAT_R32G32B32A32_SFLOAT)
@@ -93,9 +93,9 @@ static FormatTraits computeFormatTraits(VkFormat format, bool default_one = true
 
         switch ((format - VK_FORMAT_R32_UINT) % 3)
         {
-        case 0: traits.uint32_default = default_one ? std::numeric_limits<uint32_t>::max() : 0; break;
-        case 1: traits.int32_default = default_one ? std::numeric_limits<int32_t>::max() : 0; break;
-        case 2: traits.float_default = default_one ? 1.0f : 0.0f; break;
+        case 0: traits.assign4<uint32_t>(default_one ? std::numeric_limits<uint32_t>::max() : 0); break;
+        case 1: traits.assign4<int32_t>(default_one ? std::numeric_limits<int32_t>::max() : 0); break;
+        case 2: traits.assign4<float>(default_one ? 1.0f : 0.0f); break;
         }
     }
     else if (VK_FORMAT_R64_UINT <= format && format <= VK_FORMAT_R64G64B64A64_SFLOAT)
@@ -106,9 +106,9 @@ static FormatTraits computeFormatTraits(VkFormat format, bool default_one = true
 
         switch ((format - VK_FORMAT_R64_UINT) % 3)
         {
-        case 0: traits.uint64_default = default_one ? std::numeric_limits<uint64_t>::max() : 0; break;
-        case 1: traits.int64_default = default_one ? std::numeric_limits<int64_t>::max() : 0; break;
-        case 2: traits.float_default = default_one ? 1.0 : 0.0; break;
+        case 0: traits.assign4<uint64_t>(default_one ? std::numeric_limits<uint64_t>::max() : 0); break;
+        case 1: traits.assign4<int64_t>(default_one ? std::numeric_limits<int64_t>::max() : 0); break;
+        case 2: traits.assign4<double>(default_one ? 1.0 : 0.0); break;
         }
     }
 
@@ -174,8 +174,8 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numM
     bool formatsCompatible = true;
     if (sourceFormat != targetFormat)
     {
-        auto sourceTraits = computeFormatTraits(sourceFormat);
-        auto targetTraits = computeFormatTraits(targetFormat);
+        auto sourceTraits = FormatTraits::get(sourceFormat);
+        auto targetTraits = FormatTraits::get(targetFormat);
 
         // assume data is compatible if sizes are consistent.
         formatsCompatible = sourceTraits.size == targetTraits.size;
@@ -210,8 +210,8 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numM
     {
         // std::cout<<"Adapting"<<std::endl;
 
-        auto sourceTraits = computeFormatTraits(sourceFormat);
-        auto targetTraits = computeFormatTraits(targetFormat);
+        auto sourceTraits = FormatTraits::get(sourceFormat);
+        auto targetTraits = FormatTraits::get(targetFormat);
 
         VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
         VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(targetTraits.size));
@@ -234,47 +234,7 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numM
         cd.layout.stride = targetTraits.size;
 
         // set up a vec4 worth of default values for the type
-        uint8_t default_ptr[32];
-        switch (targetTraits.numBitsPerComponent)
-        {
-        case (8):
-        {
-            uint8_t* ptr = default_ptr;
-            (*ptr++) = targetTraits.uint8_default;
-            (*ptr++) = targetTraits.uint8_default;
-            (*ptr++) = targetTraits.uint8_default;
-            (*ptr++) = targetTraits.uint8_default;
-            break;
-        }
-        case (16):
-        {
-            uint16_t* ptr = reinterpret_cast<uint16_t*>(default_ptr);
-            (*ptr++) = targetTraits.uint16_default;
-            (*ptr++) = targetTraits.uint16_default;
-            (*ptr++) = targetTraits.uint16_default;
-            (*ptr++) = targetTraits.uint16_default;
-            break;
-        }
-        case (32):
-        {
-            uint32_t* ptr = reinterpret_cast<uint32_t*>(default_ptr);
-            (*ptr++) = targetTraits.uint32_default;
-            (*ptr++) = targetTraits.uint32_default;
-            (*ptr++) = targetTraits.uint32_default;
-            (*ptr++) = targetTraits.uint32_default;
-            break;
-        }
-        case (64):
-        {
-            uint64_t* ptr = reinterpret_cast<uint64_t*>(default_ptr);
-            (*ptr++) = targetTraits.uint64_default;
-            (*ptr++) = targetTraits.uint64_default;
-            (*ptr++) = targetTraits.uint64_default;
-            (*ptr++) = targetTraits.uint64_default;
-            break;
-        }
-        }
-
+        const uint8_t* default_ptr = targetTraits.defaultValue;
         uint32_t bytesFromSource = sourceTraits.size;
         uint32_t bytesToTarget = targetTraits.size;
 
@@ -295,7 +255,7 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numM
                 (*dest_ptr++) = *(src_ptr++);
             }
 
-            value_type* src_default = default_ptr;
+            const value_type* src_default = default_ptr;
             for (; s < bytesToTarget; ++s)
             {
                 (*dest_ptr++) = *(src_default++);
