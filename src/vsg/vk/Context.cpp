@@ -124,6 +124,30 @@ ShaderCompiler* Context::getOrCreateShaderCompiler()
     return shaderCompiler;
 }
 
+void Context::copy(ref_ptr<Data> data, ImageInfo dest)
+{
+    if (!copyImageCmd)
+    {
+        copyImageCmd = CopyAndReleaseImage::create();
+        copyImageCmd->stagingMemoryBufferPools = stagingMemoryBufferPools;
+        commands.push_back(copyImageCmd);
+    }
+
+    copyImageCmd->copy(data, dest);
+}
+
+void Context::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels)
+{
+    if (!copyImageCmd)
+    {
+        copyImageCmd = CopyAndReleaseImage::create();
+        copyImageCmd->stagingMemoryBufferPools = stagingMemoryBufferPools;
+        commands.push_back(copyImageCmd);
+    }
+
+    copyImageCmd->copy(data, dest, numMipMapLevels);
+}
+
 bool Context::record()
 {
     if (commands.empty() && buildAccelerationStructureCommands.empty()) return false;
@@ -220,4 +244,5 @@ void Context::waitForCompletion()
     }
 
     commands.clear();
+    copyImageCmd = nullptr;
 }

@@ -143,11 +143,7 @@ void DescriptorImage::compile(Context& context)
 
                 if (image && image->data)
                 {
-                    auto stagingBufferInfo = copyDataToStagingBuffer(context, image->data);
-                    if (stagingBufferInfo)
-                    {
-                        context.commands.emplace_back(CopyAndReleaseImage::create(stagingBufferInfo, imageData, image->mipLevels));
-                    }
+                    context.copy(image->data, imageData, image->mipLevels);
                 }
             }
             else

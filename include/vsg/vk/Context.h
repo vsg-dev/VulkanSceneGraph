@@ -27,6 +27,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/ShaderCompiler.h>
 
 #include <vsg/commands/Command.h>
+#include <vsg/commands/CopyAndReleaseImage.h>
 
 namespace vsg
 {
@@ -99,6 +100,11 @@ namespace vsg
         ref_ptr<ScratchMemory> scratchMemory;
 
         std::vector<ref_ptr<Command>> commands;
+
+        ref_ptr<CopyAndReleaseImage> copyImageCmd;
+
+        void copy(ref_ptr<Data> data, ImageInfo dest);
+        void copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels);
 
         /// return true if there are commands that have been submitted
         bool record();
