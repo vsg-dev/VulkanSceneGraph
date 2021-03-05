@@ -14,6 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/io/Options.h>
 
+// #include <iostream>
+
 using namespace vsg;
 
 struct FormatTraits
@@ -156,6 +158,11 @@ void CopyAndReleaseImage::add(BufferInfo src, ImageInfo dest, uint32_t numMipMap
 
 void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest)
 {
+    copy(data, dest, vsg::computeNumMipMapLevels(data, dest.sampler));
+}
+
+void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels)
+{
     if (!data) return;
     if (!stagingMemoryBufferPools) return;
 
@@ -176,6 +183,8 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest)
 
     if (formatsCompatible)
     {
+        // std::cout<<"Compatible"<<std::endl;
+
         VkDeviceSize imageTotalSize = data->dataSize();
         VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
 
@@ -197,6 +206,8 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest)
     }
     else
     {
+        // std::cout<<"Adapting"<<std::endl;
+
         auto sourceTraits = computeFormatTraits(sourceFormat);
         auto targetTraits = computeFormatTraits(targetFormat);
 
@@ -213,7 +224,7 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest)
 
         if (!imageStagingMemory) return;
 
-        vsg::CopyAndReleaseImage::CopyData cd(stagingBufferInfo, dest, 1);
+        vsg::CopyAndReleaseImage::CopyData cd(stagingBufferInfo, dest, numMipMapLevels);
         cd.width = data->width();
         cd.height = data->height();
         cd.depth = data->depth();

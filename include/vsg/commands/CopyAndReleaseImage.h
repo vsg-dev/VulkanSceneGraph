@@ -66,6 +66,7 @@ namespace vsg
 
         /// copy data into a staging buffer and then use copy command to transfer this to the GPU image specified by ImageInfo
         void copy(ref_ptr<Data> data, ImageInfo dest);
+        void copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels);
 
         void record(CommandBuffer& commandBuffer) const override;
 
