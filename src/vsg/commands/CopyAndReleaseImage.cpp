@@ -14,7 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/io/Options.h>
 
-// #include <iostream>
+#include <iostream>
 
 using namespace vsg;
 
@@ -171,47 +171,26 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numM
     VkFormat sourceFormat = data->getLayout().format;
     VkFormat targetFormat = dest.imageView->format;
 
-    bool formatsCompatible = true;
-    if (sourceFormat != targetFormat)
+    if (sourceFormat == targetFormat)
     {
-        auto sourceTraits = FormatTraits::get(sourceFormat);
-        auto targetTraits = FormatTraits::get(targetFormat);
-
-        // assume data is compatible if sizes are consistent.
-        formatsCompatible = sourceTraits.size == targetTraits.size;
+        _copyDirectly(data, dest, numMipMapLevels);
+        return;
     }
 
-    VkMemoryPropertyFlags memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    auto sourceTraits = FormatTraits::get(sourceFormat);
+    auto targetTraits = FormatTraits::get(targetFormat);
 
+    // assume data is compatible if sizes are consistent.
+    bool formatsCompatible = sourceTraits.size == targetTraits.size;
     if (formatsCompatible)
     {
-        // std::cout<<"Compatible"<<std::endl;
-
-        VkDeviceSize imageTotalSize = data->dataSize();
-        VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
-
-        BufferInfo stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
-        stagingBufferInfo.data = data;
-
-        // std::cout<<"stagingBufferInfo.buffer "<<stagingBufferInfo.buffer.get()<<", "<<stagingBufferInfo.offset<<", "<<stagingBufferInfo.range<<")"<<std::endl;
-
-        auto deviceID = stagingMemoryBufferPools->device->deviceID;
-        ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo.buffer);
-        ref_ptr<DeviceMemory> imageStagingMemory(imageStagingBuffer->getDeviceMemory(deviceID));
-
-        if (!imageStagingMemory) return;
-
-        // copy data to staging memory
-        imageStagingMemory->copy(imageStagingBuffer->getMemoryOffset(deviceID) + stagingBufferInfo.offset, imageTotalSize, data->dataPointer());
-
-        add(stagingBufferInfo, dest);
+        _copyDirectly(data, dest, numMipMapLevels);
     }
     else
     {
         // std::cout<<"Adapting"<<std::endl;
 
-        auto sourceTraits = FormatTraits::get(sourceFormat);
-        auto targetTraits = FormatTraits::get(targetFormat);
+        VkMemoryPropertyFlags memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
         VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
         VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(targetTraits.size));
@@ -266,6 +245,30 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numM
 
         add(cd);
     }
+}
+
+void CopyAndReleaseImage::_copyDirectly(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels)
+{
+    // std::cout<<"CopyAndReleaseImage::_copyDirectly()"<<std::endl;
+    VkDeviceSize imageTotalSize = data->dataSize();
+    VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
+
+    VkMemoryPropertyFlags memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    BufferInfo stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
+    stagingBufferInfo.data = data;
+
+    // std::cout<<"stagingBufferInfo.buffer "<<stagingBufferInfo.buffer.get()<<", "<<stagingBufferInfo.offset<<", "<<stagingBufferInfo.range<<")"<<std::endl;
+
+    auto deviceID = stagingMemoryBufferPools->device->deviceID;
+    ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo.buffer);
+    ref_ptr<DeviceMemory> imageStagingMemory(imageStagingBuffer->getDeviceMemory(deviceID));
+
+    if (!imageStagingMemory) return;
+
+    // copy data to staging memory
+    imageStagingMemory->copy(imageStagingBuffer->getMemoryOffset(deviceID) + stagingBufferInfo.offset, imageTotalSize, data->dataPointer());
+
+    add(stagingBufferInfo, dest, numMipMapLevels);
 }
 
 void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const

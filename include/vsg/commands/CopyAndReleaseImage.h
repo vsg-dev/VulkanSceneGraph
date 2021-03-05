@@ -73,6 +73,8 @@ namespace vsg
     protected:
         virtual ~CopyAndReleaseImage();
 
+        void _copyDirectly(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels);
+
         mutable std::vector<CopyData> pending;
         mutable std::vector<CopyData> completed;
         mutable std::vector<CopyData> readyToClear;
