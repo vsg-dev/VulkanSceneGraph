@@ -115,6 +115,11 @@ FormatTraits FormatTraits::get(VkFormat format, bool default_one)
     return traits;
 }
 
+CopyAndReleaseImage::CopyAndReleaseImage(ref_ptr<MemoryBufferPools> optional_stagingMemoryBufferPools) :
+    stagingMemoryBufferPools(optional_stagingMemoryBufferPools)
+{
+}
+
 CopyAndReleaseImage::~CopyAndReleaseImage()
 {
     for (auto& copyData : completed) copyData.source.release();

@@ -128,8 +128,7 @@ void Context::copy(ref_ptr<Data> data, ImageInfo dest)
 {
     if (!copyImageCmd)
     {
-        copyImageCmd = CopyAndReleaseImage::create();
-        copyImageCmd->stagingMemoryBufferPools = stagingMemoryBufferPools;
+        copyImageCmd = CopyAndReleaseImage::create(stagingMemoryBufferPools);
         commands.push_back(copyImageCmd);
     }
 
@@ -140,8 +139,7 @@ void Context::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels)
 {
     if (!copyImageCmd)
     {
-        copyImageCmd = CopyAndReleaseImage::create();
-        copyImageCmd->stagingMemoryBufferPools = stagingMemoryBufferPools;
+        copyImageCmd = CopyAndReleaseImage::create(stagingMemoryBufferPools);
         commands.push_back(copyImageCmd);
     }
 
