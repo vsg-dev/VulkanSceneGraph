@@ -115,16 +115,6 @@ FormatTraits FormatTraits::get(VkFormat format, bool default_one)
     return traits;
 }
 
-CopyAndReleaseImage::CopyAndReleaseImage(BufferInfo src, ImageInfo dest)
-{
-    add(src, dest);
-}
-
-CopyAndReleaseImage::CopyAndReleaseImage(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels)
-{
-    add(src, dest, numMipMapLevels);
-}
-
 CopyAndReleaseImage::~CopyAndReleaseImage()
 {
     for (auto& copyData : completed) copyData.source.release();
