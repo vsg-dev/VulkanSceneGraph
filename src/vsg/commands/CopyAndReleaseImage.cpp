@@ -50,18 +50,22 @@ static FormatTraits computeFormatTraits(VkFormat format, bool default_one = true
     {
         traits.numBitsPerComponent = 8;
 
-        if (format <= VK_FORMAT_R8_SRGB) traits.numComponents = 1;
-        else if (format <= VK_FORMAT_R8G8_SRGB) traits.numComponents = 2;
-        else if (format <= VK_FORMAT_B8G8R8_SRGB) traits.numComponents = 3;
-        else traits.numComponents = 4;
+        if (format <= VK_FORMAT_R8_SRGB)
+            traits.numComponents = 1;
+        else if (format <= VK_FORMAT_R8G8_SRGB)
+            traits.numComponents = 2;
+        else if (format <= VK_FORMAT_B8G8R8_SRGB)
+            traits.numComponents = 3;
+        else
+            traits.numComponents = 4;
 
-        switch((format - VK_FORMAT_R8_UNORM)%7)
+        switch ((format - VK_FORMAT_R8_UNORM) % 7)
         {
-            case 0 :
-            case 2 :
-            case 4 :
-            case 6 : traits.uint8_default = default_one ? std::numeric_limits<uint8_t>::max() : 0; break;
-            default : traits.int8_default = default_one ? std::numeric_limits<int8_t>::max() : 0; break;
+        case 0:
+        case 2:
+        case 4:
+        case 6: traits.uint8_default = default_one ? std::numeric_limits<uint8_t>::max() : 0; break;
+        default: traits.int8_default = default_one ? std::numeric_limits<int8_t>::max() : 0; break;
         }
 
         traits.size = traits.numComponents;
@@ -69,48 +73,47 @@ static FormatTraits computeFormatTraits(VkFormat format, bool default_one = true
     else if (VK_FORMAT_R16_UNORM <= format && format <= VK_FORMAT_R16G16B16A16_SFLOAT)
     {
         traits.numBitsPerComponent = 16;
-        traits.numComponents = 1 + (format - VK_FORMAT_R16_UNORM)/7;
+        traits.numComponents = 1 + (format - VK_FORMAT_R16_UNORM) / 7;
         traits.size = 2 * traits.numComponents;
 
-        switch((format - VK_FORMAT_R16_UNORM)%7)
+        switch ((format - VK_FORMAT_R16_UNORM) % 7)
         {
-            case 0 :
-            case 2 :
-            case 4 :
-            case 6 : traits.uint16_default = default_one ? std::numeric_limits<uint16_t>::max() : 0; break;
-            default : traits.int16_default = default_one ? std::numeric_limits<int16_t>::max() : 0; break;
+        case 0:
+        case 2:
+        case 4:
+        case 6: traits.uint16_default = default_one ? std::numeric_limits<uint16_t>::max() : 0; break;
+        default: traits.int16_default = default_one ? std::numeric_limits<int16_t>::max() : 0; break;
         }
     }
     else if (VK_FORMAT_R32_UINT <= format && format <= VK_FORMAT_R32G32B32A32_SFLOAT)
     {
         traits.numBitsPerComponent = 32;
-        traits.numComponents = 1 + (format - VK_FORMAT_R32_UINT)/3;
+        traits.numComponents = 1 + (format - VK_FORMAT_R32_UINT) / 3;
         traits.size = 4 * traits.numComponents;
 
-        switch((format - VK_FORMAT_R32_UINT)%3)
+        switch ((format - VK_FORMAT_R32_UINT) % 3)
         {
-            case 0 : traits.uint32_default = default_one ? std::numeric_limits<uint32_t>::max() : 0; break;
-            case 1 : traits.int32_default = default_one ? std::numeric_limits<int32_t>::max() : 0; break;
-            case 2 : traits.float_default = default_one ? 1.0f : 0.0f; break;
+        case 0: traits.uint32_default = default_one ? std::numeric_limits<uint32_t>::max() : 0; break;
+        case 1: traits.int32_default = default_one ? std::numeric_limits<int32_t>::max() : 0; break;
+        case 2: traits.float_default = default_one ? 1.0f : 0.0f; break;
         }
     }
     else if (VK_FORMAT_R64_UINT <= format && format <= VK_FORMAT_R64G64B64A64_SFLOAT)
     {
         traits.numBitsPerComponent = 64;
-        traits.numComponents = 1 + (format - VK_FORMAT_R64_UINT)/3;
+        traits.numComponents = 1 + (format - VK_FORMAT_R64_UINT) / 3;
         traits.size = 8 * traits.numComponents;
 
-        switch((format - VK_FORMAT_R64_UINT)%3)
+        switch ((format - VK_FORMAT_R64_UINT) % 3)
         {
-            case 0 : traits.uint64_default = default_one ? std::numeric_limits<uint64_t>::max() : 0; break;
-            case 1 : traits.int64_default = default_one ? std::numeric_limits<int64_t>::max() : 0; break;
-            case 2 : traits.float_default = default_one ? 1.0 : 0.0; break;
+        case 0: traits.uint64_default = default_one ? std::numeric_limits<uint64_t>::max() : 0; break;
+        case 1: traits.int64_default = default_one ? std::numeric_limits<int64_t>::max() : 0; break;
+        case 2: traits.float_default = default_one ? 1.0 : 0.0; break;
         }
     }
 
     return traits;
 }
-
 
 CopyAndReleaseImage::CopyAndReleaseImage(BufferInfo src, ImageInfo dest)
 {
@@ -127,7 +130,6 @@ CopyAndReleaseImage::~CopyAndReleaseImage()
     for (auto& copyData : completed) copyData.source.release();
     for (auto& copyData : pending) copyData.source.release();
 }
-
 
 CopyAndReleaseImage::CopyData::CopyData(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels)
 {
@@ -233,44 +235,44 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numM
 
         // set up a vec4 worth of default values for the type
         uint8_t default_ptr[32];
-        switch(targetTraits.numBitsPerComponent)
+        switch (targetTraits.numBitsPerComponent)
         {
-            case(8) :
-            {
-                uint8_t* ptr = default_ptr;
-                (*ptr++) = targetTraits.uint8_default;
-                (*ptr++) = targetTraits.uint8_default;
-                (*ptr++) = targetTraits.uint8_default;
-                (*ptr++) = targetTraits.uint8_default;
-                break;
-            }
-            case(16) :
-            {
-                uint16_t* ptr = reinterpret_cast<uint16_t*>(default_ptr);
-                (*ptr++) = targetTraits.uint16_default;
-                (*ptr++) = targetTraits.uint16_default;
-                (*ptr++) = targetTraits.uint16_default;
-                (*ptr++) = targetTraits.uint16_default;
-                break;
-            }
-            case(32) :
-            {
-                uint32_t* ptr = reinterpret_cast<uint32_t*>(default_ptr);
-                (*ptr++) = targetTraits.uint32_default;
-                (*ptr++) = targetTraits.uint32_default;
-                (*ptr++) = targetTraits.uint32_default;
-                (*ptr++) = targetTraits.uint32_default;
-                break;
-            }
-            case(64) :
-            {
-                uint64_t* ptr = reinterpret_cast<uint64_t*>(default_ptr);
-                (*ptr++) = targetTraits.uint64_default;
-                (*ptr++) = targetTraits.uint64_default;
-                (*ptr++) = targetTraits.uint64_default;
-                (*ptr++) = targetTraits.uint64_default;
-                break;
-            }
+        case (8):
+        {
+            uint8_t* ptr = default_ptr;
+            (*ptr++) = targetTraits.uint8_default;
+            (*ptr++) = targetTraits.uint8_default;
+            (*ptr++) = targetTraits.uint8_default;
+            (*ptr++) = targetTraits.uint8_default;
+            break;
+        }
+        case (16):
+        {
+            uint16_t* ptr = reinterpret_cast<uint16_t*>(default_ptr);
+            (*ptr++) = targetTraits.uint16_default;
+            (*ptr++) = targetTraits.uint16_default;
+            (*ptr++) = targetTraits.uint16_default;
+            (*ptr++) = targetTraits.uint16_default;
+            break;
+        }
+        case (32):
+        {
+            uint32_t* ptr = reinterpret_cast<uint32_t*>(default_ptr);
+            (*ptr++) = targetTraits.uint32_default;
+            (*ptr++) = targetTraits.uint32_default;
+            (*ptr++) = targetTraits.uint32_default;
+            (*ptr++) = targetTraits.uint32_default;
+            break;
+        }
+        case (64):
+        {
+            uint64_t* ptr = reinterpret_cast<uint64_t*>(default_ptr);
+            (*ptr++) = targetTraits.uint64_default;
+            (*ptr++) = targetTraits.uint64_default;
+            (*ptr++) = targetTraits.uint64_default;
+            (*ptr++) = targetTraits.uint64_default;
+            break;
+        }
         }
 
         uint32_t bytesFromSource = sourceTraits.size;
@@ -285,16 +287,16 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numM
         value_type* dest_ptr = reinterpret_cast<value_type*>(buffer_data);
 
         size_t valueCount = data->valueCount();
-        for(size_t i = 0; i< valueCount; ++i)
+        for (size_t i = 0; i < valueCount; ++i)
         {
             uint32_t s = 0;
-            for(; s < bytesFromSource; ++s)
+            for (; s < bytesFromSource; ++s)
             {
                 (*dest_ptr++) = *(src_ptr++);
             }
 
             value_type* src_default = default_ptr;
-            for(; s < bytesToTarget; ++s)
+            for (; s < bytesToTarget; ++s)
             {
                 (*dest_ptr++) = *(src_default++);
             }
