@@ -82,7 +82,7 @@ FormatTraits FormatTraits::get(VkFormat format, bool default_one)
         case 2:
         case 4:
         case 6: traits.assign4<uint16_t>(default_one ? std::numeric_limits<uint16_t>::max() : 0); break;
-        default:traits.assign4<int16_t>(default_one ? std::numeric_limits<int16_t>::max() : 0); break;
+        default: traits.assign4<int16_t>(default_one ? std::numeric_limits<int16_t>::max() : 0); break;
         }
     }
     else if (VK_FORMAT_R32_UINT <= format && format <= VK_FORMAT_R32G32B32A32_SFLOAT)
