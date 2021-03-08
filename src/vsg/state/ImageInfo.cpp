@@ -42,12 +42,26 @@ void ImageInfo::computeNumMipMapLevels()
     if (imageView && imageView->image && imageView->image->data)
     {
         auto image = imageView->image;
-        auto mipLevels = vsg::computeNumMipMapLevels(image->data, sampler);
-        image->mipLevels = mipLevels;
-        imageView->subresourceRange.levelCount = mipLevels;
+        auto data = image->data;
+        auto mipLevels = vsg::computeNumMipMapLevels(data, sampler);
 
         const auto& mipmapOffsets = image->data->computeMipmapOffsets();
         bool generatMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
+
+        if (generatMipmaps)
+        {
+            // check that the data isn't compressed.
+            auto layout = data->getLayout();
+            if (layout.blockWidth > 1 || layout.blockHeight > 1 || layout.blockDepth > 1)
+            {
+                sampler->maxLod = 0.0f;
+                mipLevels = 1;
+            }
+        }
+
+        image->mipLevels = mipLevels;
+        imageView->subresourceRange.levelCount = mipLevels;
+
         if (generatMipmaps) image->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
 }

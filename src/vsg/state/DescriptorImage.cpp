@@ -129,14 +129,14 @@ void DescriptorImage::compile(Context& context)
 
     for (auto& imageData : imageInfoList)
     {
+        imageData.computeNumMipMapLevels();
+
         if (imageData.sampler) imageData.sampler->compile(context);
         if (imageData.imageView)
         {
             auto imageView = imageData.imageView;
             if (imageView->image && imageView->image->data)
             {
-                imageData.computeNumMipMapLevels();
-
                 auto image = imageView->image;
 
                 imageView->compile(context);
