@@ -64,6 +64,7 @@ namespace vsg
 
         struct Features
         {
+            std::map<std::string, FeatureMask> protocolFeatureMap;
             std::map<std::string, FeatureMask> extensionFeatureMap;
         };
 
