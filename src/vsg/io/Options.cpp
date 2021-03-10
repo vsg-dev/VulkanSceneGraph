@@ -24,13 +24,14 @@ Options::Options()
 
 Options::Options(const Options& options) :
     Inherit(),
-    //    fileCache(options.fileCache),
     objectCache(options.objectCache),
     readerWriters(options.readerWriters),
     operationThreads(options.operationThreads),
     checkFilenameHint(options.checkFilenameHint),
     paths(options.paths),
-    extensionHint(options.extensionHint)
+    fileCache(options.fileCache),
+    extensionHint(options.extensionHint),
+    mapRGBtoRGBAHint(options.mapRGBtoRGBAHint)
 {
 }
 
@@ -55,5 +56,8 @@ bool Options::readOptions(CommandLine& arguments)
     {
         if (readerWriter->readOptions(*this, arguments)) read = true;
     }
+
+    if (arguments.read("--file-cache", fileCache)) read = true;
+
     return read;
 }

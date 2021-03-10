@@ -47,7 +47,6 @@ namespace vsg
         void add(ref_ptr<ReaderWriter> rw = {});
         void add(const ReaderWriters& rws);
 
-        //ref_ptr<FileCache> fileCache;
         ref_ptr<ObjectCache> objectCache;
         ReaderWriters readerWriters;
         ref_ptr<OperationThreads> operationThreads;
@@ -55,13 +54,14 @@ namespace vsg
         /// Hint to use when searching for Paths with vsg::findFile(filename, options);
         enum FindFileHint
         {
-            CHECK_ORIGINAL_FILENAME_EXISTS_FIRST, /// check the filename exists with it's original path after failing to find it in the Options::path list.
-            CHECK_ORIGINAL_FILENAME_EXISTS_LAST,  /// check the filename exists with it's original path after failing to find it in the Options::path list.
+            CHECK_ORIGINAL_FILENAME_EXISTS_FIRST, /// check the filename exists with it's original path before trying to find it in Options::paths.
+            CHECK_ORIGINAL_FILENAME_EXISTS_LAST,  /// check the filename exists with it's original path after failing to find it in Options::paths.
             ONLY_CHECK_PATHS                      /// only check the filename exists in the Options::paths
         };
         FindFileHint checkFilenameHint = CHECK_ORIGINAL_FILENAME_EXISTS_FIRST;
 
         Paths paths;
+        Path fileCache;
 
         std::string extensionHint;
         bool mapRGBtoRGBAHint = true;
