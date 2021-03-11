@@ -42,23 +42,39 @@ const char delimiterForeign = WINDOWS_PATH_SEPARATOR;
 const char envPathDelimiter = ':';
 #endif
 
+std::string vsg::getEnv(const char* env_var)
+{
+#if defined(WIN32) && !defined(__CYGWIN__)
+    char env_value[4096];
+    std::size_t len;
+    if (auto error = getenv_s(&len, env_value, sizeof(env_value) - 1, env_var); error != 0 || len == 0)
+    {
+        return {};
+    }
+#else
+    const char* env_value = getenv(env_var);
+    if (env_value == nullptr) return {};
+#endif
+    return std::string(env_value);
+}
+
 Paths vsg::getEnvPaths(const char* env_var)
 {
-    Paths filepaths;
-    if (!env_var) return filepaths;
+    if (!env_var) return {};
 
 #if defined(WIN32) && !defined(__CYGWIN__)
     char env_value[4096];
     std::size_t len;
     if (auto error = getenv_s(&len, env_value, sizeof(env_value) - 1, env_var); error != 0 || len == 0)
     {
-        return filepaths;
+        return {};
     }
 #else
     const char* env_value = getenv(env_var);
-    if (env_value == nullptr) return filepaths;
+    if (env_value == nullptr) return {};
 #endif
 
+    Paths filepaths;
     std::string paths(env_value);
 
     std::string::size_type start = 0;

@@ -26,6 +26,7 @@ namespace vsg
     using Paths = std::vector<Path>;
     using PathObjects = std::map<Path, ref_ptr<Object>>;
 
+    extern VSG_DECLSPEC std::string getEnv(const char* env_var);
     extern VSG_DECLSPEC Paths getEnvPaths(const char* env_var);
 
     extern VSG_DECLSPEC bool fileExists(const Path& path);
