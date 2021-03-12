@@ -66,7 +66,7 @@ VSG::FormatInfo VSG::readHeader(std::istream& fin) const
 
     if (type == NOT_RECOGNIZED)
     {
-        std::cout << "Header token not matched" << std::endl;
+        std::cout << "Header token not matched [" <<read_token<<"]"<< std::endl;
         return FormatInfo(NOT_RECOGNIZED, VsgVersion{0, 0, 0, 0});
     }
 
