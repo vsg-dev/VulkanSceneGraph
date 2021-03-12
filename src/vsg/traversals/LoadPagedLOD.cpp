@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/read.h>
 #include <vsg/io/FileSystem.h>
+#include <vsg/io/read.h>
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/MatrixTransform.h>
@@ -131,8 +131,10 @@ void LoadPagedLOD::apply(PagedLOD& plod)
             Path localPath = filePath(plod.filename);
             if (!localPath.empty())
             {
-                if (_pathStack.empty())  _pathStack.push_back(localPath);
-                else _pathStack.push_back(concatPaths(_pathStack.back(), localPath));
+                if (_pathStack.empty())
+                    _pathStack.push_back(localPath);
+                else
+                    _pathStack.push_back(concatPaths(_pathStack.back(), localPath));
             }
 
             if (!child.node)
