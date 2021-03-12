@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/read.h>
+#include <vsg/io/FileSystem.h>
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/MatrixTransform.h>
@@ -123,14 +124,30 @@ void LoadPagedLOD::apply(PagedLOD& plod)
         bool child_visible = rf > child.minimumScreenHeightRatio * distance;
         if (child_visible)
         {
+            ++level;
+
+            Path filename = _pathStack.empty() ? plod.filename : concatPaths(_pathStack.back(), plod.filename);
+
+            Path localPath = filePath(plod.filename);
+            if (!localPath.empty())
+            {
+                if (_pathStack.empty())  _pathStack.push_back(localPath);
+                else _pathStack.push_back(concatPaths(_pathStack.back(), localPath));
+            }
+
             if (!child.node)
             {
-                child.node = read_cast<Node>(plod.filename);
+                child.node = read_cast<Node>(filename, options);
                 ++numTiles;
             }
 
-            ++level;
             if (child.node) child.node->accept(*this);
+
+            if (!localPath.empty())
+            {
+                _pathStack.pop_back();
+            }
+
             --level;
         }
     }

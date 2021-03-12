@@ -36,6 +36,7 @@ namespace vsg
         int loadLevels = 0;
         int level = 0;
         unsigned int numTiles = 0;
+        ref_ptr<Options> options;
 
     protected:
         using Plane = dplane;
@@ -49,6 +50,7 @@ namespace vsg
         Polytope _frustumUnit;
         Polytope _frustumProjected;
         PolytopeStack _frustumStack;
+        Paths _pathStack;
 
         inline std::pair<double, double> computeDistanceAndRF(dsphere& bs) const
         {
