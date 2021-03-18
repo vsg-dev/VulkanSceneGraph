@@ -33,14 +33,26 @@ The VulkanSceneGraph Discussion Group [vsg-users](https://groups.google.com/foru
 
 The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against older versions.  If you find success with older versions let us know and we can update the version info.
 
+Download VulkanSDK from [LuarG](https://vulkan.lunarg.com/sdk/home), unpack into local directory and set VUKAN_SDK environemt variable to the include/lib directory within it. For Linux it would tyically be along the lines of:
+
+    export VULKAN_SDK_VERSION=1.2.162.1
+    export VULKAN_SDK=${PWD}/VulkanSDK/${VULKAN_SDK_VERSION}/x86_64
+
+    mkdir VulkanSDK
+    wget https://sdk.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/linux/vulkansdk-linux-x86_64-${VULKAN_SDK_VERSION}.tar.gz -O VulkanSDK/vulkansdk-linux-x86_64-${VULKAN_SDK_VERSION}.tar.gz
+    tar zxf VulkanSDK/vulkansdk-linux-x86_64-${VULKAN_SDK_VERSION}.tar.gz -C VulkanSDK/
+
+Once you've downloaded and unpacked the VulkanSDK you'll want to put VULKAN_SDK into your user environemt variable setup so that CMake's find_package(Vulkan) can find the VulkanSDK's location.
+
 ### Command line build instructions:
+
 To build and install the static libvsg library (.a/.lib) in source:
 
     git clone https://github.com/vsg-dev/VulkanSceneGraph.git
     cd VulkanSceneGraph
     cmake .
     make -j 8
-    make install
+    sudo make install
 
 Full details on how to build of the VSG (Unix/Windows/Android/macOS) can be found in the [INSTALL.md](INSTALL.md) file.
 
