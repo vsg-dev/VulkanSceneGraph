@@ -33,7 +33,7 @@ The VulkanSceneGraph Discussion Group [vsg-users](https://groups.google.com/foru
 
 The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against older versions.  If you find success with older versions let us know and we can update the version info.
 
-Download VulkanSDK from [LuarG](https://vulkan.lunarg.com/sdk/home), unpack into local directory and set VUKAN_SDK environemt variable to the include/lib directory within it. For Linux it would tyically be along the lines of:
+Download VulkanSDK from [LunarG](https://vulkan.lunarg.com/sdk/home), unpack into local directory and set VUKAN_SDK environemt variable to the include/lib directory within it. For Linux it would tyically be along the lines of:
 
     export VULKAN_SDK_VERSION=1.2.162.1
     export VULKAN_SDK=${PWD}/VulkanSDK/${VULKAN_SDK_VERSION}/x86_64
