@@ -650,20 +650,23 @@ bool Xcb_Window::pollEvents(UIEvents& events)
 
             vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_press->time - _first_xcb_timestamp);
 
-            // X11/Xvb treat scroll wheel up/down as button 4 and 5 so handle these as such
-            if (button_press->detail==4)
+            if (button_press->same_screen)
             {
-                events.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0f, 1.0f, 0.0f)));
-            }
-            else if (button_press->detail==5)
-            {
-                events.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0f, -1.0f, 0.0f)));
-            }
-            else
-            {
-                uint32_t pressedButtoMask = 1 << (7+button_press->detail);
-                uint32_t newButtonMask = uint32_t(button_press->state) | pressedButtoMask;
-                events.emplace_back(new vsg::ButtonPressEvent(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(newButtonMask), button_press->detail));
+                // X11/Xvb treat scroll wheel up/down as button 4 and 5 so handle these as such
+                if (button_press->detail==4)
+                {
+                    events.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0f, 1.0f, 0.0f)));
+                }
+                else if (button_press->detail==5)
+                {
+                    events.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0f, -1.0f, 0.0f)));
+                }
+                else
+                {
+                    uint32_t pressedButtoMask = 1 << (7+button_press->detail);
+                    uint32_t newButtonMask = uint32_t(button_press->state) | pressedButtoMask;
+                    events.emplace_back(new vsg::ButtonPressEvent(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(newButtonMask), button_press->detail));
+                }
             }
 
             break;
@@ -673,7 +676,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             auto button_release = reinterpret_cast<const xcb_button_release_event_t*>(event);
 
             // ignore button 4 and 5 as X11/Xcb use them as up/down scroll wheel events
-            if (button_release->detail !=4 && button_release->detail !=5)
+            if (button_release->same_screen && button_release->detail !=4 && button_release->detail !=5)
             {
                 vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_release->time - _first_xcb_timestamp);
                 uint32_t releasedButtoMask = 1 << (7+button_release->detail);
@@ -686,9 +689,11 @@ bool Xcb_Window::pollEvents(UIEvents& events)
         case (XCB_MOTION_NOTIFY):
         {
             auto motion_notify = reinterpret_cast<const xcb_motion_notify_event_t*>(event);
-
-            vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(motion_notify->time - _first_xcb_timestamp);
-            events.emplace_back(new vsg::MoveEvent(this, event_time, motion_notify->event_x, motion_notify->event_y, vsg::ButtonMask(motion_notify->state)));
+            if (motion_notify->same_screen)
+            {
+                vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(motion_notify->time - _first_xcb_timestamp);
+                events.emplace_back(new vsg::MoveEvent(this, event_time, motion_notify->event_x, motion_notify->event_y, vsg::ButtonMask(motion_notify->state)));
+            }
 
             break;
         }
