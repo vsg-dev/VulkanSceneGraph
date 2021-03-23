@@ -114,7 +114,8 @@ namespace vsg
 
         ref_ptr<CulledPagedLODs> culledPagedLODs;
 
-        uint32_t targetMaxNumPagedLODWithHighResSubgraphs = 10000;
+        /// for systems for smaller GPU memory limits you may need to reduce the targetMaxNumPagedLODWithHighResSubgraphs to keep memory usage within available limits.
+        uint32_t targetMaxNumPagedLODWithHighResSubgraphs = 1500;
 
         std::mutex pendingPagedLODMutex;
 
