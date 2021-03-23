@@ -17,8 +17,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Trackball::Trackball(ref_ptr<Camera> camera) :
-    _camera(camera)
+Trackball::Trackball(ref_ptr<Camera> camera, ref_ptr<EllipsoidModel> ellipsoidModel) :
+    _camera(camera),
+    _ellipsoidModel(ellipsoidModel)
 {
     _lookAt = dynamic_cast<LookAt*>(_camera->getViewMatrix());
 
@@ -28,8 +29,42 @@ Trackball::Trackball(ref_ptr<Camera> camera) :
         _lookAt = new LookAt;
     }
 
-    _homeLookAt = new LookAt(_lookAt->eye, _lookAt->center, _lookAt->up);
+    clampToGlobe();
+
+    homeLookAt = new LookAt(_lookAt->eye, _lookAt->center, _lookAt->up);
 }
+
+void Trackball::clampToGlobe()
+{
+//    std::cout<<"Trackball::clampToGlobe()"<<std::endl;
+
+    if (!_ellipsoidModel) return;
+
+    // get the location of the current lookAt center
+    auto location_center = _ellipsoidModel->convertECEFToLatLongAltitude(_lookAt->center);
+    auto location_eye = _ellipsoidModel->convertECEFToLatLongAltitude(_lookAt->eye);
+
+    double ratio = location_eye.z / (location_eye.z - location_center.z);
+    auto location = _ellipsoidModel->convertECEFToLatLongAltitude(_lookAt->center * ratio + _lookAt->eye * (1.0 - ratio));
+
+    // clamp to the globe
+    location.z = 0.0;
+
+    // compute clamped position back in ECEF
+    auto ecef = _ellipsoidModel->convertLatLongAltitudeToECEF(location);
+
+    // apply the new clamped position to the LookAt.
+    _lookAt->center = ecef;
+
+    double minimum_altitude = 1.0;
+    if (location_eye.z < minimum_altitude)
+    {
+        location_eye.z = minimum_altitude;
+        _lookAt->eye = _ellipsoidModel->convertLatLongAltitudeToECEF(location_eye);
+        _thrown = false;
+    }
+}
+
 
 bool Trackball::withinRenderArea(int32_t x, int32_t y) const
 {
@@ -44,10 +79,10 @@ dvec2 Trackball::ndc(PointerEvent& event)
 {
     auto renderArea = _camera->getRenderArea();
 
+    double aspectRatio = static_cast<double>(renderArea.extent.width) / static_cast<double>(renderArea.extent.height);
     dvec2 v(
-        (renderArea.extent.width > 0) ? static_cast<double>(event.x - renderArea.offset.x) / static_cast<double>(renderArea.extent.width) * 2.0 - 1.0 : 0.0,
+        (renderArea.extent.width > 0) ? (static_cast<double>(event.x - renderArea.offset.x) / static_cast<double>(renderArea.extent.width) * 2.0 - 1.0) * aspectRatio : 0.0,
         (renderArea.extent.height > 0) ? static_cast<double>(event.y - renderArea.offset.y) / static_cast<double>(renderArea.extent.height) * 2.0 - 1.0 : 0.0);
-
     return v;
 }
 
@@ -72,47 +107,43 @@ void Trackball::apply(KeyPressEvent& keyPress)
 {
     if (keyPress.handled || !_lastPointerEventWithinRenderArea) return;
 
-    if (keyPress.keyBase == _homeKey)
+    if (keyPress.keyBase == homeKey)
     {
         keyPress.handled = true;
 
-        LookAt* lookAt = dynamic_cast<LookAt*>(_camera->getViewMatrix());
-        if (lookAt && _homeLookAt)
-        {
-            lookAt->eye = _homeLookAt->eye;
-            lookAt->center = _homeLookAt->center;
-            lookAt->up = _homeLookAt->up;
-        }
+        home();
     }
-}
-
-void Trackball::apply(ConfigureWindowEvent& configureWindow)
-{
-    window_width = static_cast<double>(configureWindow.width);
-    window_height = static_cast<double>(configureWindow.height);
-    // std::cout<<"Trackball::apply(ConfigureWindowEvent& "<<configureWindow.x<<", "<<configureWindow.y<<", "<<window_width<<", "<<window_height<<")"<<std::endl;
 }
 
 void Trackball::apply(ButtonPressEvent& buttonPress)
 {
-    prev_ndc = ndc(buttonPress);
-    prev_tbc = tbc(buttonPress);
-
     if (buttonPress.handled) return;
 
     _hasFocus = withinRenderArea(buttonPress.x, buttonPress.y);
     _lastPointerEventWithinRenderArea = _hasFocus;
 
+    if (buttonPress.mask & BUTTON_MASK_1) _updateMode = ROTATE;
+    else if (buttonPress.mask & BUTTON_MASK_2) _updateMode = PAN;
+    else if (buttonPress.mask & BUTTON_MASK_3) _updateMode = ZOOM;
+    else _updateMode = INACTIVE;
+
     if (_hasFocus) buttonPress.handled = true;
+
+    _zoomPreviousRatio = 0.0;
+    _pan.set(0.0, 0.0);
+    _rotateAngle = 0.0;
+
+    _previousPointerEvent = &buttonPress;
 }
 
 void Trackball::apply(ButtonReleaseEvent& buttonRelease)
 {
-    prev_ndc = ndc(buttonRelease);
-    prev_tbc = tbc(buttonRelease);
+    _thrown = _previousPointerEvent && (buttonRelease.time == _previousPointerEvent->time);
 
     _lastPointerEventWithinRenderArea = withinRenderArea(buttonRelease.x, buttonRelease.y);
     _hasFocus = false;
+
+    _previousPointerEvent = &buttonRelease;
 }
 
 void Trackball::apply(MoveEvent& moveEvent)
@@ -124,36 +155,79 @@ void Trackball::apply(MoveEvent& moveEvent)
     dvec2 new_ndc = ndc(moveEvent);
     dvec3 new_tbc = tbc(moveEvent);
 
-    if (moveEvent.mask & BUTTON_MASK_1)
+    if (!_previousPointerEvent) _previousPointerEvent = &moveEvent;
+
+    dvec2 prev_ndc = ndc(*_previousPointerEvent);
+    dvec3 prev_tbc = tbc(*_previousPointerEvent);
+
+#if 1
+    dvec2 control_ndc = new_ndc;
+    dvec3 control_tbc = new_tbc;
+#else
+    dvec2 control_ndc = (new_ndc + prev_ndc)*0.5;
+    dvec3 control_tbc = (new_tbc + prev_tbc)*0.5;
+#endif
+
+    double dt = std::chrono::duration<double, std::chrono::seconds::period>(moveEvent.time-_previousPointerEvent->time).count();
+    _previousDelta = dt;
+
+    double scale = 1.0;
+    if (_previousTime > _previousPointerEvent->time) scale = std::chrono::duration<double, std::chrono::seconds::period>(moveEvent.time-_previousTime).count()/dt;
+
+//    scale *= 2.0;
+
+    _previousTime = moveEvent.time;
+
+    if (moveEvent.mask & rotateButtonMask)
     {
+        _updateMode = ROTATE;
+
         moveEvent.handled = true;
 
-        dvec3 xp = cross(normalize(new_tbc), normalize(prev_tbc));
+        dvec3 xp = cross(normalize(control_tbc), normalize(prev_tbc));
         double xp_len = length(xp);
         if (xp_len > 0.0)
         {
-            dvec3 axis = xp / xp_len;
-            double angle = asin(xp_len);
-            rotate(angle, axis);
+            _rotateAngle = asin(xp_len);
+            _rotateAxis = xp / xp_len;
+
+            rotate(_rotateAngle * scale, _rotateAxis);
+        }
+        else
+        {
+            _rotateAngle = 0.0;
         }
     }
-    else if (moveEvent.mask & BUTTON_MASK_2)
+    else if (moveEvent.mask & panButtonMask)
     {
+        _updateMode = PAN;
+
         moveEvent.handled = true;
 
-        dvec2 delta = new_ndc - prev_ndc;
-        pan(delta);
+        dvec2 delta = control_ndc - prev_ndc;
+
+        _pan = delta;
+
+        pan(delta * scale);
     }
-    else if (moveEvent.mask & BUTTON_MASK_3)
+    else if (moveEvent.mask & zoomButtonMask)
     {
+        _updateMode = ZOOM;
+
         moveEvent.handled = true;
 
-        dvec2 delta = new_ndc - prev_ndc;
-        zoom(delta.y);
+        dvec2 delta = control_ndc - prev_ndc;
+
+        if (delta.y != 0.0)
+        {
+            _zoomPreviousRatio = zoomScale * 2.0 * delta.y;
+            zoom(_zoomPreviousRatio * scale);
+        }
     }
 
-    prev_ndc = new_ndc;
-    prev_tbc = new_tbc;
+    _thrown = false;
+
+    _previousPointerEvent = &moveEvent;
 }
 
 void Trackball::apply(ScrollWheelEvent& scrollWheel)
@@ -165,9 +239,42 @@ void Trackball::apply(ScrollWheelEvent& scrollWheel)
     zoom(scrollWheel.delta.y * 0.1);
 }
 
-void Trackball::apply(FrameEvent& /*frame*/)
+void Trackball::apply(FrameEvent& frame)
 {
-    //    std::cout<<"Frame "<<frame.frameStamp->frameCount<<std::endl;
+    if (_thrown)
+    {
+        double scale = _previousDelta > 0.0 ? std::chrono::duration<double, std::chrono::seconds::period>(frame.time-_previousTime).count()/_previousDelta : 0.0;
+        switch(_updateMode)
+        {
+            case(ROTATE):
+                rotate( _rotateAngle * scale, _rotateAxis);
+                break;
+            case(PAN):
+                pan(_pan * scale);
+                break;
+            case(ZOOM):
+                zoom(_zoomPreviousRatio * scale);
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    _previousTime = frame.time;
+}
+
+void Trackball::home()
+{
+    LookAt* lookAt = dynamic_cast<LookAt*>(_camera->getViewMatrix());
+    if (lookAt && homeLookAt)
+    {
+        lookAt->eye = homeLookAt->eye;
+        lookAt->center = homeLookAt->center;
+        lookAt->up = homeLookAt->up;
+    }
+
+    _thrown = false;
 }
 
 void Trackball::rotate(double angle, const dvec3& axis)
@@ -181,22 +288,60 @@ void Trackball::rotate(double angle, const dvec3& axis)
     _lookAt->up = normalize(matrix * (_lookAt->eye + _lookAt->up) - matrix * _lookAt->eye);
     _lookAt->center = matrix * _lookAt->center;
     _lookAt->eye = matrix * _lookAt->eye;
+
+    clampToGlobe();
 }
 
 void Trackball::zoom(double ratio)
 {
     dvec3 lookVector = _lookAt->center - _lookAt->eye;
     _lookAt->eye = _lookAt->eye + lookVector * ratio;
+
+    clampToGlobe();
 }
 
-void Trackball::pan(dvec2& delta)
+void Trackball::pan(const dvec2& delta)
 {
     dvec3 lookVector = _lookAt->center - _lookAt->eye;
     dvec3 lookNormal = normalize(lookVector);
-    dvec3 sideNormal = cross(_lookAt->up, lookNormal);
-    double distance = length(lookVector);
-    dvec3 translation = sideNormal * (delta.x * distance) + _lookAt->up * (delta.y * distance);
+    dvec3 upNormal = _lookAt->up;
+    dvec3 sideNormal = cross(lookNormal, upNormal);
 
-    _lookAt->eye = _lookAt->eye + translation;
-    _lookAt->center = _lookAt->center + translation;
+    double distance = length(lookVector);
+    distance *= 0.3; // TODO use Camera project matrix to guide how much to scale
+
+    if (_ellipsoidModel)
+    {
+
+        dvec3 globeNormal = normalize(_lookAt->center);
+
+        double scale = distance;
+        dvec3 m = upNormal * (-scale*delta.y) + sideNormal * (scale * delta.x);
+        dvec3 v = m + lookNormal * dot(m, globeNormal);
+        double angle = length(v)/_ellipsoidModel->radiusEquator();
+
+        if (angle != 0.0)
+        {
+            dvec3 n = normalize(_lookAt->center + v);
+            dvec3 axis = normalize(cross(globeNormal, n));
+
+            dmat4 matrix = vsg::rotate(-angle , axis);
+
+            _lookAt->up = normalize(matrix * (_lookAt->eye + _lookAt->up) - matrix * _lookAt->eye);
+            _lookAt->center = matrix * _lookAt->center;
+            _lookAt->eye = matrix * _lookAt->eye;
+
+            clampToGlobe();
+        }
+
+
+    }
+    else
+    {
+        dvec3 translation = sideNormal * (-delta.x * distance) + upNormal * (delta.y * distance);
+
+        _lookAt->eye = _lookAt->eye + translation;
+        _lookAt->center = _lookAt->center + translation;
+    }
+
 }

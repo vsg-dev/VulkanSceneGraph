@@ -18,13 +18,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/viewer/Camera.h>
+#include <vsg/viewer/EllipsoidModel.h>
 
 namespace vsg
 {
     class VSG_DECLSPEC Trackball : public Inherit<Visitor, Trackball>
     {
     public:
-        Trackball(ref_ptr<Camera> camera);
+        Trackball(ref_ptr<Camera> camera, ref_ptr<EllipsoidModel> ellipsoidModel = {});
 
         /// compute non dimensional window coordinate (-1,1) from event coords
         dvec2 ndc(PointerEvent& event);
@@ -33,34 +34,62 @@ namespace vsg
         dvec3 tbc(PointerEvent& event);
 
         void apply(KeyPressEvent& keyPress) override;
-        void apply(ConfigureWindowEvent& exposeWindow) override;
         void apply(ButtonPressEvent& buttonPress) override;
         void apply(ButtonReleaseEvent& buttonRelease) override;
         void apply(MoveEvent& moveEvent) override;
         void apply(ScrollWheelEvent& scrollWheel) override;
         void apply(FrameEvent& frame) override;
 
-        void rotate(double angle, const dvec3& axis);
-        void zoom(double ratio);
-        void pan(dvec2& delta);
+        virtual void home();
+        virtual void rotate(double angle, const dvec3& axis);
+        virtual void zoom(double ratio);
+        virtual void pan(const dvec2& delta);
 
         bool withinRenderArea(int32_t x, int32_t y) const;
+
+        void clampToGlobe();
+
+        /// Key that returns the view to hone
+        KeySymbol homeKey = KEY_Space;
+        ref_ptr<LookAt> homeLookAt;
+
+        /// Button mask value used to enable panning of the view, defaults to left mouse button
+        ButtonMask rotateButtonMask = BUTTON_MASK_1;
+
+        /// Button mask value used to enable panning of the view, defaults to middle mouse button
+        ButtonMask panButtonMask = BUTTON_MASK_2;
+
+        /// Button mask value used to enable zooming of the view, defaults to right mouse button
+        ButtonMask zoomButtonMask = BUTTON_MASK_3;
+
+        /// Scale for control how rapidly the view zooms in/out. Positive value zooms in when mouse moved downwards
+        double zoomScale = 1.0;
 
     protected:
         ref_ptr<Camera> _camera;
         ref_ptr<LookAt> _lookAt;
-        ref_ptr<LookAt> _homeLookAt;
+        ref_ptr<EllipsoidModel> _ellipsoidModel;
 
         bool _hasFocus = false;
         bool _lastPointerEventWithinRenderArea = false;
 
-        KeySymbol _homeKey = KEY_Space;
-        double _direction;
+        enum UpdateMode
+        {
+            INACTIVE = 0,
+            ROTATE,
+            PAN,
+            ZOOM
+        };
+        UpdateMode _updateMode = INACTIVE;
+        double _zoomPreviousRatio = 0.0;
+        dvec2 _pan;
+        double _rotateAngle = 0.0;
+        dvec3 _rotateAxis;
 
-        double window_width = 800.0;
-        double window_height = 600.0;
-        dvec2 prev_ndc;
-        dvec3 prev_tbc;
+        time_point _previousTime;
+        ref_ptr<PointerEvent> _previousPointerEvent;
+        double _previousDelta = 0.0;
+        bool _thrown = false;
     };
 
 } // namespace vsg
