@@ -45,6 +45,14 @@ namespace vsg
         {
         }
 
+        LookAt(const LookAt& lookAt) :
+            Inherit(lookAt),
+            eye(lookAt.eye),
+            center(lookAt.center),
+            up(lookAt.up)
+        {
+        }
+
         LookAt(const dvec3& in_eye, const dvec3& in_center, const dvec3& in_up) :
             eye(in_eye),
             center(in_center),

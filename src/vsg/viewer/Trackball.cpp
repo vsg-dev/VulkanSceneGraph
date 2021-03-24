@@ -31,7 +31,7 @@ Trackball::Trackball(ref_ptr<Camera> camera, ref_ptr<EllipsoidModel> ellipsoidMo
 
     clampToGlobe();
 
-    homeLookAt = new LookAt(_lookAt->eye, _lookAt->center, _lookAt->up);
+    homeLookAt = LookAt::create(*_lookAt);
 }
 
 void Trackball::clampToGlobe()
