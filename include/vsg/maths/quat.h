@@ -160,7 +160,7 @@ namespace vsg
             to = -to;
         }
 
-        if ((1.0 - cosomega) > epsilon)
+        if ((one - cosomega) > epsilon)
         {
             T omega = acos(cosomega);
             T sinomega = sin(omega);
