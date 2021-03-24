@@ -219,6 +219,17 @@ namespace vsg
         T inverse_len = static_cast<T>(1.0) / length(v);
         return t_vec4<T>(v[0] * inverse_len, v[1] * inverse_len, v[2] * inverse_len, v[3] * inverse_len);
     }
+
+    template<typename T>
+    constexpr t_vec4<T> mix(const t_vec4<T>& start, const t_vec4<T>& end, T r)
+    {
+        T one_minus_r = 1 - r;
+        return t_vec4<T>(start[0] * one_minus_r + end[0] * r,
+                         start[1] * one_minus_r + end[1] * r,
+                         start[2] * one_minus_r + end[2] * r,
+                         start[3] * one_minus_r + end[3] * r);
+    }
+
 } // namespace vsg
 
 #if defined(__clang__)

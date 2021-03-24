@@ -218,6 +218,14 @@ namespace vsg
         return (lhs[0] * rhs[1] - rhs[0] * lhs[1]);
     }
 
+    template<typename T>
+    constexpr t_vec2<T> mix(const t_vec2<T>& start, const t_vec2<T>& end, T r)
+    {
+        T one_minus_r = 1 - r;
+        return t_vec2<T>(start[0] * one_minus_r + end[0] * r,
+                         start[1] * one_minus_r + end[1] * r);
+    }
+
 } // namespace vsg
 
 #if defined(__clang__)
