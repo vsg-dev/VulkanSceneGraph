@@ -52,6 +52,13 @@ namespace vsg
     }
 
     template<typename T>
+    T mix(T start, T end, T r)
+    {
+        T one_minus_r = 1.0 - r;
+        return start * one_minus_r + end * r;
+    }
+
+    template<typename T>
     t_mat4<T> rotate(T angle_radians, T x, T y, T z)
     {
         const T c = std::cos(angle_radians);
