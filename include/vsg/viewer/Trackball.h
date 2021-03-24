@@ -40,7 +40,6 @@ namespace vsg
         void apply(ScrollWheelEvent& scrollWheel) override;
         void apply(FrameEvent& frame) override;
 
-        virtual void home();
         virtual void rotate(double angle, const dvec3& axis);
         virtual void zoom(double ratio);
         virtual void pan(const dvec2& delta);
@@ -49,9 +48,25 @@ namespace vsg
 
         void clampToGlobe();
 
-        /// Key that returns the view to hone
-        KeySymbol homeKey = KEY_Space;
-        ref_ptr<LookAt> homeLookAt;
+        /// add Key to Viewpoint binding using a LookAt to define the viewpoint
+        void addKeyViewpoint(KeySymbol key, ref_ptr<LookAt> lookAt, double duration = 1.0);
+
+        /// add Key to Viewpoint binding using a latitutude, longitude and altitude to define the viewpoint. Requires an EllipsoidModel to be assigned when constructing the Trackball
+        void addKeyViewpoint(KeySymbol key, double latitude, double longitude, double altitude, double duration = 1.0);
+
+        /// set the LookAt viewport to the specified lookAt, animating the movments from the current lookAt to the new one.
+        /// A value of 0.0 instantly moves the lookAt to the new value.
+        void setViewpoint(ref_ptr<LookAt> lookAt, double duration = 1.0);
+
+        struct Viewpoint
+        {
+            ref_ptr<LookAt> lookAt;
+            double duration = 0.0;
+        };
+
+        /// container that maps key symbol bindings with the Viewpoint that should move the LookAt to when pressed.
+        std::map<KeySymbol, Viewpoint> keyViewpoitMap;
+
 
         /// Button mask value used to enable panning of the view, defaults to left mouse button
         ButtonMask rotateButtonMask = BUTTON_MASK_1;
@@ -90,6 +105,11 @@ namespace vsg
         ref_ptr<PointerEvent> _previousPointerEvent;
         double _previousDelta = 0.0;
         bool _thrown = false;
+
+        time_point _startTime;
+        ref_ptr<LookAt> _startLookAt;
+        ref_ptr<LookAt> _endLookAt;
+        double _animationDuration = 0.0;
     };
 
 } // namespace vsg

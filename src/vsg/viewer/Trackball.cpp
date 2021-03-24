@@ -31,7 +31,7 @@ Trackball::Trackball(ref_ptr<Camera> camera, ref_ptr<EllipsoidModel> ellipsoidMo
 
     clampToGlobe();
 
-    homeLookAt = LookAt::create(*_lookAt);
+    addKeyViewpoint(KEY_Space, LookAt::create(*_lookAt), 1.0);
 }
 
 void Trackball::clampToGlobe()
@@ -107,11 +107,13 @@ void Trackball::apply(KeyPressEvent& keyPress)
 {
     if (keyPress.handled || !_lastPointerEventWithinRenderArea) return;
 
-    if (keyPress.keyBase == homeKey)
+    if (auto itr = keyViewpoitMap.find(keyPress.keyBase); itr != keyViewpoitMap.end())
     {
-        keyPress.handled = true;
+        _previousTime = keyPress.time;
 
-        home();
+        setViewpoint(itr->second.lookAt, itr->second.duration);
+
+        keyPress.handled = true;
     }
 }
 
@@ -241,7 +243,107 @@ void Trackball::apply(ScrollWheelEvent& scrollWheel)
 
 void Trackball::apply(FrameEvent& frame)
 {
-    if (_thrown)
+    if (_endLookAt)
+    {
+        double timeSinceOfAnimation = std::chrono::duration<double, std::chrono::seconds::period>(frame.time - _startTime).count();
+        if (timeSinceOfAnimation < _animationDuration)
+        {
+            double r = smoothstep(0.0, 1.0, timeSinceOfAnimation / _animationDuration);
+
+            if (_ellipsoidModel)
+            {
+                auto interpolate = [](const dvec3& start, const dvec3& end, double r) -> dvec3
+                {
+                    if (r >= 1.0) return end;
+
+                    double length_start = length(start);
+                    double length_end = length(end);
+                    double acos_ratio = dot(start, end) / (length_start * length_end);
+                    double angle = acos_ratio >= 1.0 ? 0.0 : (acos_ratio <= -1.0 ? vsg::PI : acos(acos_ratio));
+                    auto cross_start_end = cross(start, end);
+                    auto length_cross = length(cross_start_end);
+                    if (angle != 0.0 && length_cross != 0.0)
+                    {
+                        cross_start_end /= length_cross;
+                        auto rotation = vsg::rotate(angle * r, cross_start_end);
+                        dvec3 new_dir =  normalize(rotation * start);
+                        return new_dir * mix(length_start, length_end, r);
+                    }
+                    else
+                    {
+                        return mix(start, end, r);
+                    }
+                };
+
+                auto interpolate_arc = [](const dvec3& start, const dvec3& end, double r, double arc_height = 0.0) -> dvec3
+                {
+                    if (r >= 1.0) return end;
+
+                    double length_start = length(start);
+                    double length_end = length(end);
+                    double acos_ratio = dot(start, end) / (length_start * length_end);
+                    double angle = acos_ratio >= 1.0 ? 0.0 : (acos_ratio <= -1.0 ? vsg::PI : acos(acos_ratio));
+                    auto cross_start_end = cross(start, end);
+                    auto length_cross = length(cross_start_end);
+                    if (angle != 0.0 && length_cross != 0.0)
+                    {
+                        cross_start_end /= length_cross;
+                        auto rotation = vsg::rotate(angle * r, cross_start_end);
+                        dvec3 new_dir =  normalize(rotation * start);
+                        double target_length = mix(length_start, length_end, r) + (r-r*r)*arc_height*4.0;
+                        return new_dir * target_length;
+                    }
+                    else
+                    {
+                        return mix(start, end, r);
+                    }
+                };
+
+                double length_center_start = length(_startLookAt->center);
+                double length_center_end = length(_endLookAt->center);
+                double length_center_mid = (length_center_start + length_center_end)*0.5;
+                double distance_between = length(_startLookAt->center - _endLookAt->center);
+
+                double transition_length = length_center_mid + distance_between;
+
+                double length_eye_start = length(_startLookAt->eye);
+                double length_eye_end = length(_endLookAt->eye);
+                double length_eye_mid = (length_eye_start + length_eye_end)*0.5;
+
+                double arc_height = (transition_length > length_eye_mid) ? (transition_length - length_eye_mid) : 0.0;
+
+                _lookAt->eye = interpolate_arc(_startLookAt->eye, _endLookAt->eye, r, arc_height);
+                _lookAt->center = interpolate(_startLookAt->center,_endLookAt->center, r);
+                _lookAt->up = interpolate(_startLookAt->up, _endLookAt->up, r);
+            }
+            else
+            {
+                _lookAt->eye = mix(_startLookAt->eye, _endLookAt->eye, r);
+                _lookAt->center = mix(_startLookAt->center,_endLookAt->center, r);
+
+                double angle = acos(dot(_startLookAt->up, _endLookAt->up) / (length(_startLookAt->up) * length(_endLookAt->up)));
+                if (angle != 0.0)
+                {
+                    auto rotation = vsg::rotate(angle * r, normalize(cross(_startLookAt->up, _endLookAt->up)));
+                    _lookAt->up = rotation * _startLookAt->up;
+                }
+                else
+                {
+                    _lookAt->up = _endLookAt->up;
+                }
+            }
+        }
+        else
+        {
+            _lookAt->eye = _endLookAt->eye;
+            _lookAt->center = _endLookAt->center;
+            _lookAt->up = _endLookAt->up;
+
+            _endLookAt = nullptr;
+            _animationDuration = 0.0;
+        }
+    }
+    else if (_thrown)
     {
         double scale = _previousDelta > 0.0 ? std::chrono::duration<double, std::chrono::seconds::period>(frame.time-_previousTime).count()/_previousDelta : 0.0;
         switch(_updateMode)
@@ -262,19 +364,6 @@ void Trackball::apply(FrameEvent& frame)
     }
 
     _previousTime = frame.time;
-}
-
-void Trackball::home()
-{
-    LookAt* lookAt = dynamic_cast<LookAt*>(_camera->getViewMatrix());
-    if (lookAt && homeLookAt)
-    {
-        lookAt->eye = homeLookAt->eye;
-        lookAt->center = homeLookAt->center;
-        lookAt->up = homeLookAt->up;
-    }
-
-    _thrown = false;
 }
 
 void Trackball::rotate(double angle, const dvec3& axis)
@@ -344,4 +433,50 @@ void Trackball::pan(const dvec2& delta)
         _lookAt->center = _lookAt->center + translation;
     }
 
+}
+
+void Trackball::addKeyViewpoint(KeySymbol key, ref_ptr<LookAt> lookAt, double duration)
+{
+    keyViewpoitMap[key].lookAt = lookAt;
+    keyViewpoitMap[key].duration = duration;
+}
+
+void Trackball::addKeyViewpoint(KeySymbol key, double latitude, double longitude, double altitude, double duration)
+{
+    if (!_ellipsoidModel) return;
+
+    auto lookAt = LookAt::create();
+    lookAt->eye = _ellipsoidModel->convertLatLongAltitudeToECEF(dvec3(latitude, longitude, altitude));
+    lookAt->center = _ellipsoidModel->convertLatLongAltitudeToECEF(dvec3(latitude, longitude, 0.0));
+    lookAt->up = normalize(cross(_lookAt->center, dvec3(-_lookAt->center.y, _lookAt->center.x, 0.0)));
+
+    keyViewpoitMap[key].lookAt = lookAt;
+    keyViewpoitMap[key].duration = duration;
+}
+
+void Trackball::setViewpoint(ref_ptr<LookAt> lookAt, double duration)
+{
+    if (!lookAt) return;
+
+    _thrown = false;
+
+    if (duration==0.0)
+    {
+        _lookAt->eye = lookAt->eye;
+        _lookAt->center = lookAt->center;
+        _lookAt->up = lookAt->up;
+
+        _startLookAt = nullptr;
+        _endLookAt = nullptr;
+        _animationDuration = 0.0;
+
+        clampToGlobe();
+    }
+    else
+    {
+        _startTime = _previousTime;
+        _startLookAt = vsg::LookAt::create(*_lookAt);
+        _endLookAt = lookAt;
+        _animationDuration = duration;
+    }
 }
