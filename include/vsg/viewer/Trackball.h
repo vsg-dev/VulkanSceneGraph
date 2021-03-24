@@ -18,13 +18,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/viewer/Camera.h>
+#include <vsg/viewer/EllipsoidModel.h>
 
 namespace vsg
 {
     class VSG_DECLSPEC Trackball : public Inherit<Visitor, Trackball>
     {
     public:
-        Trackball(ref_ptr<Camera> camera);
+        Trackball(ref_ptr<Camera> camera, ref_ptr<EllipsoidModel> ellipsoidModel = {});
 
         /// compute non dimensional window coordinate (-1,1) from event coords
         dvec2 ndc(PointerEvent& event);
@@ -33,34 +34,82 @@ namespace vsg
         dvec3 tbc(PointerEvent& event);
 
         void apply(KeyPressEvent& keyPress) override;
-        void apply(ConfigureWindowEvent& exposeWindow) override;
         void apply(ButtonPressEvent& buttonPress) override;
         void apply(ButtonReleaseEvent& buttonRelease) override;
         void apply(MoveEvent& moveEvent) override;
         void apply(ScrollWheelEvent& scrollWheel) override;
         void apply(FrameEvent& frame) override;
 
-        void rotate(double angle, const dvec3& axis);
-        void zoom(double ratio);
-        void pan(dvec2& delta);
+        virtual void rotate(double angle, const dvec3& axis);
+        virtual void zoom(double ratio);
+        virtual void pan(const dvec2& delta);
 
         bool withinRenderArea(int32_t x, int32_t y) const;
+
+        void clampToGlobe();
+
+        /// add Key to Viewpoint binding using a LookAt to define the viewpoint
+        void addKeyViewpoint(KeySymbol key, ref_ptr<LookAt> lookAt, double duration = 1.0);
+
+        /// add Key to Viewpoint binding using a latitutude, longitude and altitude to define the viewpoint. Requires an EllipsoidModel to be assigned when constructing the Trackball
+        void addKeyViewpoint(KeySymbol key, double latitude, double longitude, double altitude, double duration = 1.0);
+
+        /// set the LookAt viewport to the specified lookAt, animating the movments from the current lookAt to the new one.
+        /// A value of 0.0 instantly moves the lookAt to the new value.
+        void setViewpoint(ref_ptr<LookAt> lookAt, double duration = 1.0);
+
+        struct Viewpoint
+        {
+            ref_ptr<LookAt> lookAt;
+            double duration = 0.0;
+        };
+
+        /// container that maps key symbol bindings with the Viewpoint that should move the LookAt to when pressed.
+        std::map<KeySymbol, Viewpoint> keyViewpoitMap;
+
+
+        /// Button mask value used to enable panning of the view, defaults to left mouse button
+        ButtonMask rotateButtonMask = BUTTON_MASK_1;
+
+        /// Button mask value used to enable panning of the view, defaults to middle mouse button
+        ButtonMask panButtonMask = BUTTON_MASK_2;
+
+        /// Button mask value used to enable zooming of the view, defaults to right mouse button
+        ButtonMask zoomButtonMask = BUTTON_MASK_3;
+
+        /// Scale for control how rapidly the view zooms in/out. Positive value zooms in when mouse moved downwards
+        double zoomScale = 1.0;
 
     protected:
         ref_ptr<Camera> _camera;
         ref_ptr<LookAt> _lookAt;
-        ref_ptr<LookAt> _homeLookAt;
+        ref_ptr<EllipsoidModel> _ellipsoidModel;
 
         bool _hasFocus = false;
         bool _lastPointerEventWithinRenderArea = false;
 
-        KeySymbol _homeKey = KEY_Space;
-        double _direction;
+        enum UpdateMode
+        {
+            INACTIVE = 0,
+            ROTATE,
+            PAN,
+            ZOOM
+        };
+        UpdateMode _updateMode = INACTIVE;
+        double _zoomPreviousRatio = 0.0;
+        dvec2 _pan;
+        double _rotateAngle = 0.0;
+        dvec3 _rotateAxis;
 
-        double window_width = 800.0;
-        double window_height = 600.0;
-        dvec2 prev_ndc;
-        dvec3 prev_tbc;
+        time_point _previousTime;
+        ref_ptr<PointerEvent> _previousPointerEvent;
+        double _previousDelta = 0.0;
+        bool _thrown = false;
+
+        time_point _startTime;
+        ref_ptr<LookAt> _startLookAt;
+        ref_ptr<LookAt> _endLookAt;
+        double _animationDuration = 0.0;
     };
 
 } // namespace vsg
