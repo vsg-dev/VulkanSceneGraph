@@ -36,18 +36,22 @@ namespace vsg
     template<typename T>
     T smoothstep(T edge0, T edge1, T x)
     {
-        if (x<=edge0) return edge0;
-        else if (x>=edge1) return edge1;
-        double r = (x-edge0)/(edge1-edge0);
-        return edge0 + (r * r * (3.0 - 2.0 * r)) * (edge1-edge0);
+        if (x <= edge0)
+            return edge0;
+        else if (x >= edge1)
+            return edge1;
+        double r = (x - edge0) / (edge1 - edge0);
+        return edge0 + (r * r * (3.0 - 2.0 * r)) * (edge1 - edge0);
     }
 
     /// Hermite interoplation between 0.0 and 1.0
     template<typename T>
     T smoothstep(T r)
     {
-        if (r<=0.0) return 0.0;
-        else if (r>=1.0) return 1.0;
+        if (r <= 0.0)
+            return 0.0;
+        else if (r >= 1.0)
+            return 1.0;
         return r * r * (3.0 - 2.0 * r);
     }
 

@@ -36,7 +36,7 @@ Trackball::Trackball(ref_ptr<Camera> camera, ref_ptr<EllipsoidModel> ellipsoidMo
 
 void Trackball::clampToGlobe()
 {
-//    std::cout<<"Trackball::clampToGlobe()"<<std::endl;
+    //    std::cout<<"Trackball::clampToGlobe()"<<std::endl;
 
     if (!_ellipsoidModel) return;
 
@@ -64,7 +64,6 @@ void Trackball::clampToGlobe()
         _thrown = false;
     }
 }
-
 
 bool Trackball::withinRenderArea(int32_t x, int32_t y) const
 {
@@ -124,10 +123,14 @@ void Trackball::apply(ButtonPressEvent& buttonPress)
     _hasFocus = withinRenderArea(buttonPress.x, buttonPress.y);
     _lastPointerEventWithinRenderArea = _hasFocus;
 
-    if (buttonPress.mask & BUTTON_MASK_1) _updateMode = ROTATE;
-    else if (buttonPress.mask & BUTTON_MASK_2) _updateMode = PAN;
-    else if (buttonPress.mask & BUTTON_MASK_3) _updateMode = ZOOM;
-    else _updateMode = INACTIVE;
+    if (buttonPress.mask & BUTTON_MASK_1)
+        _updateMode = ROTATE;
+    else if (buttonPress.mask & BUTTON_MASK_2)
+        _updateMode = PAN;
+    else if (buttonPress.mask & BUTTON_MASK_3)
+        _updateMode = ZOOM;
+    else
+        _updateMode = INACTIVE;
 
     if (_hasFocus) buttonPress.handled = true;
 
@@ -166,17 +169,17 @@ void Trackball::apply(MoveEvent& moveEvent)
     dvec2 control_ndc = new_ndc;
     dvec3 control_tbc = new_tbc;
 #else
-    dvec2 control_ndc = (new_ndc + prev_ndc)*0.5;
-    dvec3 control_tbc = (new_tbc + prev_tbc)*0.5;
+    dvec2 control_ndc = (new_ndc + prev_ndc) * 0.5;
+    dvec3 control_tbc = (new_tbc + prev_tbc) * 0.5;
 #endif
 
-    double dt = std::chrono::duration<double, std::chrono::seconds::period>(moveEvent.time-_previousPointerEvent->time).count();
+    double dt = std::chrono::duration<double, std::chrono::seconds::period>(moveEvent.time - _previousPointerEvent->time).count();
     _previousDelta = dt;
 
     double scale = 1.0;
-    if (_previousTime > _previousPointerEvent->time) scale = std::chrono::duration<double, std::chrono::seconds::period>(moveEvent.time-_previousTime).count()/dt;
+    if (_previousTime > _previousPointerEvent->time) scale = std::chrono::duration<double, std::chrono::seconds::period>(moveEvent.time - _previousTime).count() / dt;
 
-//    scale *= 2.0;
+    //    scale *= 2.0;
 
     _previousTime = moveEvent.time;
 
@@ -252,8 +255,7 @@ void Trackball::apply(FrameEvent& frame)
 
             if (_ellipsoidModel)
             {
-                auto interpolate = [](const dvec3& start, const dvec3& end, double r) -> dvec3
-                {
+                auto interpolate = [](const dvec3& start, const dvec3& end, double r) -> dvec3 {
                     if (r >= 1.0) return end;
 
                     double length_start = length(start);
@@ -266,7 +268,7 @@ void Trackball::apply(FrameEvent& frame)
                     {
                         cross_start_end /= length_cross;
                         auto rotation = vsg::rotate(angle * r, cross_start_end);
-                        dvec3 new_dir =  normalize(rotation * start);
+                        dvec3 new_dir = normalize(rotation * start);
                         return new_dir * mix(length_start, length_end, r);
                     }
                     else
@@ -275,8 +277,7 @@ void Trackball::apply(FrameEvent& frame)
                     }
                 };
 
-                auto interpolate_arc = [](const dvec3& start, const dvec3& end, double r, double arc_height = 0.0) -> dvec3
-                {
+                auto interpolate_arc = [](const dvec3& start, const dvec3& end, double r, double arc_height = 0.0) -> dvec3 {
                     if (r >= 1.0) return end;
 
                     double length_start = length(start);
@@ -289,8 +290,8 @@ void Trackball::apply(FrameEvent& frame)
                     {
                         cross_start_end /= length_cross;
                         auto rotation = vsg::rotate(angle * r, cross_start_end);
-                        dvec3 new_dir =  normalize(rotation * start);
-                        double target_length = mix(length_start, length_end, r) + (r-r*r)*arc_height*4.0;
+                        dvec3 new_dir = normalize(rotation * start);
+                        double target_length = mix(length_start, length_end, r) + (r - r * r) * arc_height * 4.0;
                         return new_dir * target_length;
                     }
                     else
@@ -301,25 +302,25 @@ void Trackball::apply(FrameEvent& frame)
 
                 double length_center_start = length(_startLookAt->center);
                 double length_center_end = length(_endLookAt->center);
-                double length_center_mid = (length_center_start + length_center_end)*0.5;
+                double length_center_mid = (length_center_start + length_center_end) * 0.5;
                 double distance_between = length(_startLookAt->center - _endLookAt->center);
 
                 double transition_length = length_center_mid + distance_between;
 
                 double length_eye_start = length(_startLookAt->eye);
                 double length_eye_end = length(_endLookAt->eye);
-                double length_eye_mid = (length_eye_start + length_eye_end)*0.5;
+                double length_eye_mid = (length_eye_start + length_eye_end) * 0.5;
 
                 double arc_height = (transition_length > length_eye_mid) ? (transition_length - length_eye_mid) : 0.0;
 
                 _lookAt->eye = interpolate_arc(_startLookAt->eye, _endLookAt->eye, r, arc_height);
-                _lookAt->center = interpolate(_startLookAt->center,_endLookAt->center, r);
+                _lookAt->center = interpolate(_startLookAt->center, _endLookAt->center, r);
                 _lookAt->up = interpolate(_startLookAt->up, _endLookAt->up, r);
             }
             else
             {
                 _lookAt->eye = mix(_startLookAt->eye, _endLookAt->eye, r);
-                _lookAt->center = mix(_startLookAt->center,_endLookAt->center, r);
+                _lookAt->center = mix(_startLookAt->center, _endLookAt->center, r);
 
                 double angle = acos(dot(_startLookAt->up, _endLookAt->up) / (length(_startLookAt->up) * length(_endLookAt->up)));
                 if (angle != 0.0)
@@ -345,22 +346,21 @@ void Trackball::apply(FrameEvent& frame)
     }
     else if (_thrown)
     {
-        double scale = _previousDelta > 0.0 ? std::chrono::duration<double, std::chrono::seconds::period>(frame.time-_previousTime).count()/_previousDelta : 0.0;
-        switch(_updateMode)
+        double scale = _previousDelta > 0.0 ? std::chrono::duration<double, std::chrono::seconds::period>(frame.time - _previousTime).count() / _previousDelta : 0.0;
+        switch (_updateMode)
         {
-            case(ROTATE):
-                rotate( _rotateAngle * scale, _rotateAxis);
-                break;
-            case(PAN):
-                pan(_pan * scale);
-                break;
-            case(ZOOM):
-                zoom(_zoomPreviousRatio * scale);
-                break;
-            default:
-                break;
+        case (ROTATE):
+            rotate(_rotateAngle * scale, _rotateAxis);
+            break;
+        case (PAN):
+            pan(_pan * scale);
+            break;
+        case (ZOOM):
+            zoom(_zoomPreviousRatio * scale);
+            break;
+        default:
+            break;
         }
-
     }
 
     _previousTime = frame.time;
@@ -405,16 +405,16 @@ void Trackball::pan(const dvec2& delta)
         dvec3 globeNormal = normalize(_lookAt->center);
 
         double scale = distance;
-        dvec3 m = upNormal * (-scale*delta.y) + sideNormal * (scale * delta.x);
+        dvec3 m = upNormal * (-scale * delta.y) + sideNormal * (scale * delta.x);
         dvec3 v = m + lookNormal * dot(m, globeNormal);
-        double angle = length(v)/_ellipsoidModel->radiusEquator();
+        double angle = length(v) / _ellipsoidModel->radiusEquator();
 
         if (angle != 0.0)
         {
             dvec3 n = normalize(_lookAt->center + v);
             dvec3 axis = normalize(cross(globeNormal, n));
 
-            dmat4 matrix = vsg::rotate(-angle , axis);
+            dmat4 matrix = vsg::rotate(-angle, axis);
 
             _lookAt->up = normalize(matrix * (_lookAt->eye + _lookAt->up) - matrix * _lookAt->eye);
             _lookAt->center = matrix * _lookAt->center;
@@ -422,8 +422,6 @@ void Trackball::pan(const dvec2& delta)
 
             clampToGlobe();
         }
-
-
     }
     else
     {
@@ -432,7 +430,6 @@ void Trackball::pan(const dvec2& delta)
         _lookAt->eye = _lookAt->eye + translation;
         _lookAt->center = _lookAt->center + translation;
     }
-
 }
 
 void Trackball::addKeyViewpoint(KeySymbol key, ref_ptr<LookAt> lookAt, double duration)
@@ -460,7 +457,7 @@ void Trackball::setViewpoint(ref_ptr<LookAt> lookAt, double duration)
 
     _thrown = false;
 
-    if (duration==0.0)
+    if (duration == 0.0)
     {
         _lookAt->eye = lookAt->eye;
         _lookAt->center = lookAt->center;

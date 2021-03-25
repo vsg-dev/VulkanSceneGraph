@@ -67,7 +67,6 @@ namespace vsg
         /// container that maps key symbol bindings with the Viewpoint that should move the LookAt to when pressed.
         std::map<KeySymbol, Viewpoint> keyViewpoitMap;
 
-
         /// Button mask value used to enable panning of the view, defaults to left mouse button
         ButtonMask rotateButtonMask = BUTTON_MASK_1;
 
