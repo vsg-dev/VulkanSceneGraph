@@ -255,8 +255,8 @@ void Trackball::apply(FrameEvent& frame)
 
             if (_ellipsoidModel)
             {
-                auto interpolate = [](const dvec3& start, const dvec3& end, double r) -> dvec3 {
-                    if (r >= 1.0) return end;
+                auto interpolate = [](const dvec3& start, const dvec3& end, double ratio) -> dvec3 {
+                    if (ratio >= 1.0) return end;
 
                     double length_start = length(start);
                     double length_end = length(end);
@@ -267,18 +267,18 @@ void Trackball::apply(FrameEvent& frame)
                     if (angle != 0.0 && length_cross != 0.0)
                     {
                         cross_start_end /= length_cross;
-                        auto rotation = vsg::rotate(angle * r, cross_start_end);
+                        auto rotation = vsg::rotate(angle * ratio, cross_start_end);
                         dvec3 new_dir = normalize(rotation * start);
-                        return new_dir * mix(length_start, length_end, r);
+                        return new_dir * mix(length_start, length_end, ratio);
                     }
                     else
                     {
-                        return mix(start, end, r);
+                        return mix(start, end, ratio);
                     }
                 };
 
-                auto interpolate_arc = [](const dvec3& start, const dvec3& end, double r, double arc_height = 0.0) -> dvec3 {
-                    if (r >= 1.0) return end;
+                auto interpolate_arc = [](const dvec3& start, const dvec3& end, double ratio, double arc_height = 0.0) -> dvec3 {
+                    if (ratio >= 1.0) return end;
 
                     double length_start = length(start);
                     double length_end = length(end);
@@ -289,14 +289,14 @@ void Trackball::apply(FrameEvent& frame)
                     if (angle != 0.0 && length_cross != 0.0)
                     {
                         cross_start_end /= length_cross;
-                        auto rotation = vsg::rotate(angle * r, cross_start_end);
+                        auto rotation = vsg::rotate(angle * ratio, cross_start_end);
                         dvec3 new_dir = normalize(rotation * start);
-                        double target_length = mix(length_start, length_end, r) + (r - r * r) * arc_height * 4.0;
+                        double target_length = mix(length_start, length_end, ratio) + (ratio - ratio * ratio) * arc_height * 4.0;
                         return new_dir * target_length;
                     }
                     else
                     {
-                        return mix(start, end, r);
+                        return mix(start, end, ratio);
                     }
                 };
 
