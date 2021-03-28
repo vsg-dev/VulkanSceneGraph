@@ -143,7 +143,7 @@ void Trackball::apply(ButtonPressEvent& buttonPress)
 
 void Trackball::apply(ButtonReleaseEvent& buttonRelease)
 {
-    _thrown = _previousPointerEvent && (buttonRelease.time == _previousPointerEvent->time);
+    if (supportsThrow) _thrown = _previousPointerEvent && (buttonRelease.time == _previousPointerEvent->time);
 
     _lastPointerEventWithinRenderArea = withinRenderArea(buttonRelease.x, buttonRelease.y);
     _hasFocus = false;
@@ -401,7 +401,6 @@ void Trackball::pan(const dvec2& delta)
 
     if (_ellipsoidModel)
     {
-
         dvec3 globeNormal = normalize(_lookAt->center);
 
         double scale = distance;

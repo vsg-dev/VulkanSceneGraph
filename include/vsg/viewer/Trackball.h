@@ -79,6 +79,9 @@ namespace vsg
         /// Scale for control how rapidly the view zooms in/out. Positive value zooms in when mouse moved downwards
         double zoomScale = 1.0;
 
+        /// Toggle on/off whether the view should continue moving when the mouse buttons are released while the mouse is in motion.
+        bool supportsThrow = true;
+
     protected:
         ref_ptr<Camera> _camera;
         ref_ptr<LookAt> _lookAt;

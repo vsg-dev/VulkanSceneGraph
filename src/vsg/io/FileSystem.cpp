@@ -22,6 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #else
 #    include <sys/stat.h>
 #    include <unistd.h>
+#    include <errno.h>
 #endif
 
 #include <iostream>
@@ -238,13 +239,21 @@ bool vsg::makeDirectory(const Path& path)
 #if defined(WIN32) && !defined(__CYGWIN__)
         if (int status = _mkdir(directory_to_create.c_str()); status != 0)
         {
-            std::cerr << "   _mkdir(" << directory_to_create << ") failed. status = " << status << std::endl;
+            if (errno!=EEXIST)
+            {
+                // quietly ignore a mkdir on a file that already exists as this can happen safely during a filling in a filecache.
+                std::cerr << "_mkdir(" << directory_to_create << ") failed. errno = " << errno << std::endl;
+            }
             return false;
         }
 #else
         if (int status = mkdir(directory_to_create.c_str(), 0755); status != 0)
         {
-            std::cerr << "   mkdir(" << directory_to_create << ") failed. status = " << status << std::endl;
+            if (errno!=EEXIST)
+            {
+                // quietly ignore a mkdir on a file that already exists as this can happen safely during a filling in a filecache.
+                std::cerr << "mkdir(" << directory_to_create << ") failed. errno = " << errno << std::endl;
+            }
             return false;
         }
 #endif
