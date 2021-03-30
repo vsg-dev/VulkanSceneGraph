@@ -444,7 +444,7 @@ void Trackball::addKeyViewpoint(KeySymbol key, double latitude, double longitude
     auto lookAt = LookAt::create();
     lookAt->eye = _ellipsoidModel->convertLatLongAltitudeToECEF(dvec3(latitude, longitude, altitude));
     lookAt->center = _ellipsoidModel->convertLatLongAltitudeToECEF(dvec3(latitude, longitude, 0.0));
-    lookAt->up = normalize(cross(_lookAt->center, dvec3(-_lookAt->center.y, _lookAt->center.x, 0.0)));
+    lookAt->up = normalize(cross(lookAt->center, dvec3(-lookAt->center.y, lookAt->center.x, 0.0)));
 
     keyViewpoitMap[key].lookAt = lookAt;
     keyViewpoitMap[key].duration = duration;
