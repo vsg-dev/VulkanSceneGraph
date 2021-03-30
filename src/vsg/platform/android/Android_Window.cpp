@@ -320,8 +320,7 @@ Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits) :
 {
     _keyboard = new KeyboardMap;
 
-    //ANativeWindow* nativeWindow = *std::any_cast<ANativeWindow*>(&traits->nativeHandle);
-    ANativeWindow* nativeWindow = static_cast<ANativeWindow*>(traits->nativeWindow);
+    ANativeWindow* nativeWindow = std::any_cast<ANativeWindow*>(traits->nativeWindow);
 
     if (nativeWindow == nullptr)
     {
@@ -392,7 +391,7 @@ void Android_Window::resize()
     _extent2D.width = ANativeWindow_getWidth(_window);
     _extent2D.height = ANativeWindow_getHeight(_window);
 
-    LOG("resize event = wh: %d, %d", width, height);
+    LOG("resize event = wh: %d, %d", _extent2D.width, _extent2D.height);
 
     buildSwapchain();
 }
