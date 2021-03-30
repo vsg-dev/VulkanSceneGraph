@@ -177,8 +177,7 @@ void Trackball::apply(MoveEvent& moveEvent)
     _previousDelta = dt;
 
     double scale = 1.0;
-    if (_previousTime > _previousPointerEvent->time) scale = std::chrono::duration<double, std::chrono::seconds::period>(moveEvent.time - _previousTime).count() / dt;
-
+    //if (_previousTime > _previousPointerEvent->time) scale = std::chrono::duration<double, std::chrono::seconds::period>(moveEvent.time - _previousTime).count() / dt;
     //    scale *= 2.0;
 
     _previousTime = moveEvent.time;
