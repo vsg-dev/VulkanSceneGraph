@@ -396,7 +396,7 @@ void Trackball::pan(const dvec2& delta)
     dvec3 sideNormal = cross(lookNormal, upNormal);
 
     double distance = length(lookVector);
-    distance *= 0.3; // TODO use Camera project matrix to guide how much to scale
+    distance *= 0.25; // TODO use Camera project matrix to guide how much to scale
 
     if (_ellipsoidModel)
     {
@@ -405,7 +405,8 @@ void Trackball::pan(const dvec2& delta)
         double scale = distance;
         dvec3 m = upNormal * (-scale * delta.y) + sideNormal * (scale * delta.x);
         dvec3 v = m + lookNormal * dot(m, globeNormal);
-        double angle = length(v) / _ellipsoidModel->radiusEquator();
+
+        double angle = (length(delta) * distance) / _ellipsoidModel->radiusEquator();
 
         if (angle != 0.0)
         {
