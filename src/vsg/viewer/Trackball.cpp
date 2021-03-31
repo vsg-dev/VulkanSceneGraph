@@ -400,18 +400,15 @@ void Trackball::pan(const dvec2& delta)
 
     if (_ellipsoidModel)
     {
-        dvec3 globeNormal = normalize(_lookAt->center);
-
         double scale = distance;
-        dvec3 m = upNormal * (-scale * delta.y) + sideNormal * (scale * delta.x);
-        dvec3 v = m + lookNormal * dot(m, globeNormal);
-
-        double angle = (length(delta) * distance) / _ellipsoidModel->radiusEquator();
+        double angle = (length(delta) * scale) / _ellipsoidModel->radiusEquator();
 
         if (angle != 0.0)
         {
-            dvec3 n = normalize(_lookAt->center + v);
-            dvec3 axis = normalize(cross(globeNormal, n));
+            dvec3 globeNormal = normalize(_lookAt->center);
+            dvec3 m = upNormal * (-delta.y) + sideNormal * (delta.x); // compute the position relative to the center in the eye plane
+            dvec3 v = m + lookNormal * dot(m, globeNormal); // componsate for any tile relative to the globenormal
+            dvec3 axis = normalize(cross(globeNormal, v)); // compute the axis of ratation to map the mouse pan
 
             dmat4 matrix = vsg::rotate(-angle, axis);
 
