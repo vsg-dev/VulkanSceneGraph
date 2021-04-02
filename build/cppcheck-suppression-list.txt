@@ -17,7 +17,7 @@ syntaxError:*include/vsg/io/Output.h
 
 // suppress the warning about valid C++17 if (init; condition) usage
 syntaxError:*include/vsg/utils/CommandLine.h
-syntaxError:*include/vsg/core/Data.h:47
+syntaxError:*include/vsg/core/Data.h:51
 
 // suppress warnings about never used variables that are used in .cpp's
 unusedStructMember:include/vsg/core/Data.h
