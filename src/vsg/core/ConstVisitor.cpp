@@ -603,6 +603,10 @@ void ConstVisitor::apply(const DrawMeshTasks& dmt)
 {
     apply(static_cast<const Command&>(dmt));
 }
+void ConstVisitor::apply(const DrawMeshTasksIndirect& dmti)
+{
+    apply(static_cast<const Command&>(dmti));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

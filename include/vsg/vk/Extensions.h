@@ -46,6 +46,7 @@ namespace vsg
 
         // VK_NV_mesh_shader
         PFN_vkCmdDrawMeshTasksNV vkCmdDrawMeshTasksNV = nullptr;
+        PFN_vkCmdDrawMeshTasksIndirectNV vkCmdDrawMeshTasksIndirectNV = nullptr;
     };
 
 } // namespace vsg

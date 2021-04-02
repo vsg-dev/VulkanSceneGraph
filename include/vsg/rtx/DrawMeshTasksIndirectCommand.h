@@ -2,7 +2,7 @@
 
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2019 Robert Osfield
+Copyright(c) 2018 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -13,25 +13,33 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/Command.h>
+#include <vsg/state/BufferInfo.h>
+#include <vsg/vk/CommandBuffer.h>
 
 namespace vsg
 {
-
-    class VSG_DECLSPEC DrawMeshTasks : public Inherit<Command, DrawMeshTasks>
+    /// Equivalent to VkDrawMeshTasksIndirectCommandNV that adds read/write support
+    struct DrawMeshTasksIndirectCommand
     {
-    public:
-        DrawMeshTasks();
+        uint32_t taskCount;
+        uint32_t firstTask;
 
-        DrawMeshTasks(uint32_t in_taskCount, uint32_t in_firstTask);
+        void read(vsg::Input& input)
+        {
+            input.read("taskCount", taskCount);
+            input.read("firstTask", firstTask);
+        }
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        void record(CommandBuffer& commandBuffer) const override;
-
-        uint32_t taskCount = 0;
-        uint32_t firstTask = 0;
+        void write(vsg::Output& output) const
+        {
+            output.write("taskCount", taskCount);
+            output.write("firstTask", firstTask);
+        }
     };
-    VSG_type_name(vsg::DrawMeshTasks);
+
+    template<>
+    constexpr bool has_read_write<DrawMeshTasksIndirectCommand>() { return true; }
+
+    VSG_array(DrawMeshTasksIndirectCommandArray, DrawMeshTasksIndirectCommand);
 
 } // namespace vsg

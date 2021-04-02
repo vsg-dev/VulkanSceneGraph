@@ -72,6 +72,7 @@ namespace vsg
 
     // forward declare rtx classes
     class DrawMeshTasks;
+    class DrawMeshTasksIndirect;
 
     // forward declare ui events classes
     class UIEvent;
@@ -260,6 +261,7 @@ namespace vsg
 
         // rtx classes
         virtual void apply(DrawMeshTasks&);
+        virtual void apply(DrawMeshTasksIndirect&);
 
         // ui events
         virtual void apply(UIEvent&);

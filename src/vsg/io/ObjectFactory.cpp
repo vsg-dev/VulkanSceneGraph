@@ -241,6 +241,8 @@ ObjectFactory::ObjectFactory()
 
     // rtx
     VSG_REGISTER_create(vsg::DrawMeshTasks);
+    VSG_REGISTER_create(vsg::DrawMeshTasksIndirect);
+    VSG_REGISTER_create(vsg::DrawMeshTasksIndirectCommandArray);
 
     // application
     VSG_REGISTER_create(vsg::EllipsoidModel);

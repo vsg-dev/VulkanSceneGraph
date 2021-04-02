@@ -603,6 +603,10 @@ void Visitor::apply(DrawMeshTasks& dmt)
 {
     apply(static_cast<Command&>(dmt));
 }
+void Visitor::apply(DrawMeshTasksIndirect& dmti)
+{
+    apply(static_cast<Command&>(dmti));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

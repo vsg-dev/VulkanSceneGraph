@@ -13,25 +13,36 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/Command.h>
+#include <vsg/state/BufferInfo.h>
 
 namespace vsg
 {
 
-    class VSG_DECLSPEC DrawMeshTasks : public Inherit<Command, DrawMeshTasks>
+    class VSG_DECLSPEC DrawMeshTasksIndirect : public Inherit<Command, DrawMeshTasksIndirect>
     {
     public:
-        DrawMeshTasks();
+        DrawMeshTasksIndirect();
 
-        DrawMeshTasks(uint32_t in_taskCount, uint32_t in_firstTask);
+        DrawMeshTasksIndirect(ref_ptr<Data> data, uint32_t in_drawCount, uint32_t in_stride) :
+            bufferInfo(data),
+            drawCount(in_drawCount),
+            stride(in_stride) {}
+
+        DrawMeshTasksIndirect(ref_ptr<Buffer> in_buffer, VkDeviceSize in_offset, uint32_t in_drawCount, uint32_t in_stride) :
+            bufferInfo(in_buffer, in_offset, in_drawCount * in_stride),
+            drawCount(in_drawCount),
+            stride(in_stride) {}
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
+        void compile(Context& context) override;
         void record(CommandBuffer& commandBuffer) const override;
 
-        uint32_t taskCount = 0;
-        uint32_t firstTask = 0;
+        BufferInfo bufferInfo;
+        uint32_t drawCount = 0;
+        uint32_t stride = 0;
     };
-    VSG_type_name(vsg::DrawMeshTasks);
+    VSG_type_name(vsg::DrawMeshTasksIndirect);
 
 } // namespace vsg
