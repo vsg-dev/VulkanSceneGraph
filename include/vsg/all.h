@@ -216,13 +216,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/text/TextLayout.h>
 #include <vsg/text/TextTechnique.h>
 
-// Raytracing header files
-#include <vsg/raytracing/AccelerationGeometry.h>
-#include <vsg/raytracing/AccelerationStructure.h>
-#include <vsg/raytracing/BottomLevelAccelerationStructure.h>
-#include <vsg/raytracing/BuildAccelerationStructureTraversal.h>
-#include <vsg/raytracing/DescriptorAccelerationStructure.h>
-#include <vsg/raytracing/RayTracingPipeline.h>
-#include <vsg/raytracing/RayTracingShaderGroup.h>
-#include <vsg/raytracing/TopLevelAccelerationStructure.h>
-#include <vsg/raytracing/TraceRays.h>
+// RTX mesh and ray tracing header files
+#include <vsg/rtx/AccelerationGeometry.h>
+#include <vsg/rtx/AccelerationStructure.h>
+#include <vsg/rtx/BottomLevelAccelerationStructure.h>
+#include <vsg/rtx/BuildAccelerationStructureTraversal.h>
+#include <vsg/rtx/DescriptorAccelerationStructure.h>
+#include <vsg/rtx/RayTracingPipeline.h>
+#include <vsg/rtx/RayTracingShaderGroup.h>
+#include <vsg/rtx/TopLevelAccelerationStructure.h>
+#include <vsg/rtx/TraceRays.h>
