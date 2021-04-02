@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/PhysicalDevice.h>
+#include <vsg/vk/DeviceFeatures.h>
 #include <vsg/vk/Queue.h>
 
 #include <list>
@@ -34,7 +34,7 @@ namespace vsg
     class VSG_DECLSPEC Device : public Inherit<Object, Device>
     {
     public:
-        Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, const Names& layers, const Names& deviceExtensions, const VkPhysicalDeviceFeatures& deviceFeatures = {}, AllocationCallbacks* allocator = nullptr);
+        Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, const Names& layers, const Names& deviceExtensions, const DeviceFeatures* deviceFeatures = nullptr, AllocationCallbacks* allocator = nullptr);
 
         Instance* getInstance() { return _instance.get(); }
         const Instance* getInstance() const { return _instance.get(); }
