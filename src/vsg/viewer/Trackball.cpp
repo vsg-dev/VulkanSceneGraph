@@ -407,8 +407,8 @@ void Trackball::pan(const dvec2& delta)
         {
             dvec3 globeNormal = normalize(_lookAt->center);
             dvec3 m = upNormal * (-delta.y) + sideNormal * (delta.x); // compute the position relative to the center in the eye plane
-            dvec3 v = m + lookNormal * dot(m, globeNormal); // componsate for any tile relative to the globenormal
-            dvec3 axis = normalize(cross(globeNormal, v)); // compute the axis of ratation to map the mouse pan
+            dvec3 v = m + lookNormal * dot(m, globeNormal);           // componsate for any tile relative to the globenormal
+            dvec3 axis = normalize(cross(globeNormal, v));            // compute the axis of ratation to map the mouse pan
 
             dmat4 matrix = vsg::rotate(-angle, axis);
 

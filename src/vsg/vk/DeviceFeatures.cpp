@@ -41,7 +41,7 @@ VkPhysicalDeviceFeatures& DeviceFeatures::get()
 
 void DeviceFeatures::clear()
 {
-    for(auto& feature : _features)
+    for (auto& feature : _features)
     {
         delete feature.second;
     }
@@ -55,7 +55,7 @@ void* DeviceFeatures::data() const
 
     // chain the Feature pNext pointers together
     FeatureHeader* previous = nullptr;
-    for(auto itr = _features.rbegin(); itr != _features.rend(); ++itr)
+    for (auto itr = _features.rbegin(); itr != _features.rend(); ++itr)
     {
         itr->second->pNext = previous;
         previous = itr->second;

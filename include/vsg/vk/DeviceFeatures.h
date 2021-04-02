@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/PhysicalDevice.h>
 #include <map>
+#include <vsg/vk/PhysicalDevice.h>
 
 namespace vsg
 {
@@ -23,11 +23,10 @@ namespace vsg
     class VSG_DECLSPEC DeviceFeatures : public Inherit<Object, DeviceFeatures>
     {
     public:
-
         DeviceFeatures();
 
         DeviceFeatures(const DeviceFeatures&) = delete;
-        DeviceFeatures& operator = (const DeviceFeatures&) = delete;
+        DeviceFeatures& operator=(const DeviceFeatures&) = delete;
 
         /// get the standard VkPhysicalDeviceFeatures structure.
         /// usage exaple :
@@ -72,7 +71,6 @@ namespace vsg
         };
 
         std::map<VkStructureType, FeatureHeader*> _features;
-
     };
     VSG_type_name(vsg::DeviceFeatures);
 

@@ -20,9 +20,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 //	 cctype is needed for tolower()
 #    include <cctype>
 #else
+#    include <errno.h>
 #    include <sys/stat.h>
 #    include <unistd.h>
-#    include <errno.h>
 #endif
 
 #include <iostream>
@@ -239,7 +239,7 @@ bool vsg::makeDirectory(const Path& path)
 #if defined(WIN32) && !defined(__CYGWIN__)
         if (int status = _mkdir(directory_to_create.c_str()); status != 0)
         {
-            if (errno!=EEXIST)
+            if (errno != EEXIST)
             {
                 // quietly ignore a mkdir on a file that already exists as this can happen safely during a filling in a filecache.
                 std::cerr << "_mkdir(" << directory_to_create << ") failed. errno = " << errno << std::endl;
@@ -249,7 +249,7 @@ bool vsg::makeDirectory(const Path& path)
 #else
         if (int status = mkdir(directory_to_create.c_str(), 0755); status != 0)
         {
-            if (errno!=EEXIST)
+            if (errno != EEXIST)
             {
                 // quietly ignore a mkdir on a file that already exists as this can happen safely during a filling in a filecache.
                 std::cerr << "mkdir(" << directory_to_create << ") failed. errno = " << errno << std::endl;
