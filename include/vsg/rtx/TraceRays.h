@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/Command.h>
-#include <vsg/raytracing/RayTracingShaderGroup.h>
+#include <vsg/rtx/RayTracingShaderGroup.h>
 
 namespace vsg
 {
