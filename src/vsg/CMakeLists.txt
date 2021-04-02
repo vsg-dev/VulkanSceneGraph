@@ -134,6 +134,7 @@ set(SOURCES
     rtx/RayTracingShaderGroup.cpp
     rtx/TopLevelAccelerationStructure.cpp
     rtx/TraceRays.cpp
+    rtx/DrawMeshTasks.cpp
 
     ui/UIEvent.cpp
     ui/ApplicationEvent.cpp

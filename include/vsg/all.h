@@ -222,6 +222,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/rtx/BottomLevelAccelerationStructure.h>
 #include <vsg/rtx/BuildAccelerationStructureTraversal.h>
 #include <vsg/rtx/DescriptorAccelerationStructure.h>
+#include <vsg/rtx/DrawMeshTasks.h>
 #include <vsg/rtx/RayTracingPipeline.h>
 #include <vsg/rtx/RayTracingShaderGroup.h>
 #include <vsg/rtx/TopLevelAccelerationStructure.h>
