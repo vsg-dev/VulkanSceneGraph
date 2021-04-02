@@ -58,7 +58,12 @@ namespace vsg
 
         void defaults()
         {
-            deviceFeatures.samplerAnisotropy = VK_TRUE;
+            // vsg::DeviceFeatures use instance extension
+            instanceExtensionNames.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+
+            // provide anisotropic filtering as standard.
+            if (!deviceFeatures) deviceFeatures = vsg::DeviceFeatures::create();
+            deviceFeatures->get().samplerAnisotropy = VK_TRUE;
         }
 
         int32_t x = 0;
@@ -92,7 +97,7 @@ namespace vsg
 
         vsg::Names instanceExtensionNames;
         vsg::Names deviceExtensionNames;
-        VkPhysicalDeviceFeatures deviceFeatures = {};
+        ref_ptr<DeviceFeatures> deviceFeatures;
 
         // Multisampling
         // A bitmask of sample counts. The window's framebuffer will

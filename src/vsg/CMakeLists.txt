@@ -154,6 +154,7 @@ set(SOURCES
     vk/ShaderCompiler.cpp
     vk/DescriptorPool.cpp
     vk/Device.cpp
+    vk/DeviceFeatures.cpp
     vk/DeviceMemory.cpp
     vk/Extensions.cpp
     vk/Fence.cpp
