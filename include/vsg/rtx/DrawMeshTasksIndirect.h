@@ -24,12 +24,12 @@ namespace vsg
         DrawMeshTasksIndirect();
 
         DrawMeshTasksIndirect(ref_ptr<Data> data, uint32_t in_drawCount, uint32_t in_stride) :
-            bufferInfo(data),
+            buffer(data),
             drawCount(in_drawCount),
             stride(in_stride) {}
 
         DrawMeshTasksIndirect(ref_ptr<Buffer> in_buffer, VkDeviceSize in_offset, uint32_t in_drawCount, uint32_t in_stride) :
-            bufferInfo(in_buffer, in_offset, in_drawCount * in_stride),
+            buffer(in_buffer, in_offset, in_drawCount * in_stride),
             drawCount(in_drawCount),
             stride(in_stride) {}
 
@@ -39,7 +39,7 @@ namespace vsg
         void compile(Context& context) override;
         void record(CommandBuffer& commandBuffer) const override;
 
-        BufferInfo bufferInfo;
+        BufferInfo buffer;
         uint32_t drawCount = 0;
         uint32_t stride = 0;
     };
