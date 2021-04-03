@@ -87,6 +87,6 @@ Extensions::Extensions(Device* device)
 
     // VK_NV_mesh_shader
     vkCmdDrawMeshTasksNV = reinterpret_cast<PFN_vkCmdDrawMeshTasksNV>(vkGetDeviceProcAddr(*device, "vkCmdDrawMeshTasksNV"));
-    vkCmdDrawMeshTasksIndirectNV = reinterpret_cast<PFN_vkCmdDrawMeshTasksIndirectNV >(vkGetDeviceProcAddr(*device,"vkCmdDrawMeshTasksIndirectNV"));
-    vkCmdDrawMeshTasksIndirectCountNV = reinterpret_cast<PFN_vkCmdDrawMeshTasksIndirectCountNV >(vkGetDeviceProcAddr(*device,"vkCmdDrawMeshTasksIndirectCountNV"));
+    vkCmdDrawMeshTasksIndirectNV = reinterpret_cast<PFN_vkCmdDrawMeshTasksIndirectNV>(vkGetDeviceProcAddr(*device, "vkCmdDrawMeshTasksIndirectNV"));
+    vkCmdDrawMeshTasksIndirectCountNV = reinterpret_cast<PFN_vkCmdDrawMeshTasksIndirectCountNV>(vkGetDeviceProcAddr(*device, "vkCmdDrawMeshTasksIndirectCountNV"));
 }
