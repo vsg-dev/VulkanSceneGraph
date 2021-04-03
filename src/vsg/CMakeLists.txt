@@ -136,6 +136,7 @@ set(SOURCES
     rtx/TraceRays.cpp
     rtx/DrawMeshTasks.cpp
     rtx/DrawMeshTasksIndirect.cpp
+    rtx/DrawMeshTasksIndirectCount.cpp
 
     ui/UIEvent.cpp
     ui/ApplicationEvent.cpp
