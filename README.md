@@ -2,25 +2,59 @@
 
 VulkanSceneGraph (VSG), is a modern, cross platform, high performance scene graph library built upon [Vulkan](https://www.khronos.org/vulkan/) graphics/compute API. The software is written in [C++17](https://en.wikipedia.org/wiki/C%2B%2B17), and follows the [CppCoreGuidlines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) and [FOSS Best Practices](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md).  The source code is published under the [MIT License](LICENSE.md).
 
-The project aims to bring the performance of Vulkan to the wider developer community by providing a modern, high quality software library that is easy to use and focused on making the development of high performance graphics and compute applications a productive and fun experience.
+The project aims to bring the performance of Vulkan to the wider developer community by providing a modern, high quality software library that is easy to use and focused on making the development of high performance graphics and compute applications a productive and fun experience.  Sharing the same lead author as the OpenSceneGraph, all the lessons about software quality, performance and the needs of appplication developers are applied to VulkanSceneGraph to provide a distillation of what a next gen scene graph needs to be.
 
 This repository contains basic documentation, C++ headers and source and CMake build scripts to build the prototype libvsg library.  Additional support libraries and examples are provided in separate repositories, links to these are provided below.  The software currently builds under Linux, Windows, Android and macOS (using [MoltenVk](https://github.com/KhronosGroup/MoltenVK)).
 
-## Public discussion list/forum
-The VulkanSceneGraph Discussion Group [vsg-users](https://groups.google.com/forum/#!forum/vsg-users) is the place for project news, discussions of latest developments and any questions you have on how to use the software in your applications. The discussion group can be read by anyone, to post to the group you'll need register.
+## Features
+The VulkanSceneGraph project is comprised of the main VulkanSceneGraph library (provided by this repo) and a collection of optional libraries, each in their own dedicated repositories hosted alongside each other on [https://github.com/vsg-dev](https://github.com/vsg-dev), that provide additional features and example programs and templates for your own VulkanSceneGraph projects.
 
-## Useful links in codebase and to associated projects
+### Features provided by the core VulkanSceneGraph library are:
+
+* Robust, thread safe memory managment with high performance smart pointers that are smaller and faster than std equivilants.
+* GLSL style maths class - no need for 3rd party libs like GLM.
+* Coherent Object model with easy to use and extend serilization, including native binary and ascii file support for all scene graph objects.
+* C++ classes that encapsulate Vulkan Graphics and Compute C API in robust and convinient form, with robust resource managemnt, including serialization support. Complexities and verbose setup usually associated with Vulkan are all delt with for you so you can concentrate on your compute and graphics tasks.
+* Vulkan RTX extensions for ray tracing and mesh shading.
+* Class design focused on performance of scene graph operations by minimizing CPU bottlenecks: optimizing data density, layout, cache coherency and minimizing branching leading to better utilization of modern CPU and memory architectures. Traversals through to IO opertaions can be up to 10 times faster than the OpenSceneGraph.
+* Optimized scene graph performance has been essential for making the most of the performance that Vulkan itself provides over OpenGL/DirectX, benchmarks on large databases show 3 to 20 X peformance improvements over OpenSceneGraph/OpenGL.
+* Multithreading support at the viewer level, file loading and database paging.
+* Flexible Viewer architercture built around Vulkan command recording and queue submission.
+* Native windowing and event support under Windows, Linux, Android and macOS.
+* Support for double matries in Camera and Transform class providing support for large database coordinates system such as whole earth/GIS rendering whilst minimizing precision issues.
+* Modern CMake build system that provides config installation alongside binaries making it easier to find and use all the apporpriate build options for using the VulkanSceneGraph in your own projects.
+* Minimal and complete approach to design - the whole VulkanSceneGraph interface and implementation, providing all the above functionality, takes just 40,000 lines of code, compared to over 58 thousand for GLM headers, or vulkan.hpp (C++ wrapper for Vulkan) at over 94 thousand lines of code.  The VulkanScneGraph replaces both and provides much more functionality besides.
+
+### Features provided by companion projects:
+* [vsgXchange](https://github.com/vsg-dev/vsgXchange) - reading and writing of 3rd party image and 3d models and http support.
+* [vsgGIS](https://github.com/vsg-dev/vsgGIS) - integration with GDAL to adding support for Geospatial imagery/DEMs and coordinate transforms
+* [vsgImGui](https://github.com/vsg-dev/vsgImGui) - ImGui integration enabling UI in graphics window.
+* [vsgUnity](https://github.com/vsg-dev/vsgUnity) - Plugin for Unity that provides export to VulkanSceneGraph binary format.
+* [vsgExamples](https://github.com/vsg-dev/vsgExamples) Tests & Examples
+* [MyFirstVsgApplication](https://github.com/vsg-dev/MyFirstVsgApplication) simple standalone VSG application that can be used as a template for your own applications.
+
+## Useful links in codebase
 * Detailed build and install [instructions](INSTALL.md)
 * Headers - the public interface : [include/vsg/](include/vsg)
 * Source - the implementation : [src/vsg/](src/vsg)
-* Tests & Examples - companion repository : [https://github.com/vsg-dev/vsgExamples](https://github.com/vsg-dev/vsgExamples)
-* 3rd party image and model loaders - companion repository : [https://github.com/vsg-dev/vsgXchange](https://github.com/vsg-dev/vsgXchange)
-* ImGui integration - companion repository : [https://github.com/vsg-dev/vsgImGui](https://github.com/vsg-dev/vsgImGui)
 * Software development [Road Map](ROADMAP.md)
 * Design : [Principles and Philosophy](docs/Design/DesignPrinciplesAndPhilosophy.md),  [High Level Decisions](docs/Design/HighLevelDesignDecisions.md)
 * Community resources :  [Code of Conduct](docs/CODE_OF_CONDUCT.md), [Contributing guide](docs/CONTRIBUTING.md)
 * Exploration Phase Materials (*completed*): [Areas of Interest](docs/ExplorationPhase/AreasOfInterest.md), [3rd Party Resources](docs/ExplorationPhase/3rdPartyResources.md) and [Exploration Phase Report](docs/ExplorationPhase/VulkanSceneGraphExplorationPhaseReport.md)
 * Prototype Phase Materials (*completed*): [Workplan](docs/PrototypePhase/Workplan.md) and [Prototype Phase Report](docs/PrototypePhase/PrototypePhaseReport.md)
+
+
+## Public discussion list/forum
+The VulkanSceneGraph Discussion Group [vsg-users](https://groups.google.com/forum/#!forum/vsg-users) is the place for project news, discussions of latest developments and any questions you have on how to use the software in your applications. The discussion group can be read by anyone, to post to the group you'll need register.
+
+## Professional Support
+Project lead, [Robert Osfield](mailto:robert.osfield@gmal.com), provides OpenSceneGraph and VulkanSceneGraph related services, these provide a services to companies as well provide the income stream that supports the open source development work and public support on both projects.  Services provided:
+
+* Open source development - funding of development of new features specific to your project needs.
+* Closed source bespoke development - development of propritary libraries through to directly working on your applications.
+* Confidential support via dedicated email discussion lists/IM/video conferencing for your team.
+* Consulting.
+* Training.
 
 ---
 
@@ -55,20 +89,3 @@ To build and install the static libvsg library (.a/.lib) in source:
     sudo make install
 
 Full details on how to build of the VSG (Unix/Windows/Android/macOS) can be found in the [INSTALL.md](INSTALL.md) file.
-
----
-
-## Examples of the VSG in use
-
-It's still very early days for the project so we don't have many projects that use to the VSG to reference, for our own testing purposes we have two project which may serve as an illustration of how to compile against the VSG and how to use parts of it's API.  These projects are:
-
-* [MyFirstVsgApplication](https://github.com/vsg-dev/MyFirstVsgApplication) simple standalone VSG application that can be used as a template for your own applications.
-* [vsgExamples](https://github.com/vsg-dev/vsgExamples) set of example programs that we are using to test out VSG functionality and illustrates usage.
-* [vsgXchange](https://github.com/vsg-dev/vsgXchange) utility library that adds suport for reading/writing files from 3rd party source.  Includes GLSL shader compilation to SPIR-V.  When OpenSceneGraph is available support for all model or image formats supported by the OpenSceneGraph are available.  Provides vsgconv utility for converting different file types - mdoels, images, shaders to VSG native formats. The vsgviewer and MyFrstVsgApplication examples also automatically add support for reading files from vsgXchange when they area built with vsgXchange avaulable.
-* [vsgUnity](https://github.com/vsg-dev/vsgXchange) is a plugin for the Unity Editor allowing you create export models directly into native VSG format.
-
-Two examples within the vsgExamples project that may be of particular interest are ports of Vulkan tutorials to the VSG API.  In each case the VSG version requires less than 1/5th the amount of code to achieve the same functionality.
-
-* [Vulkan Tutorial](https://vulkan-tutorial.com/) ported as [vsgExamples/commands/vsgdraw](https://github.com/vsg-dev/vsgExamples/blob/master/examples/commands/vsgdraw/)
-* [vulkan_minimal_compute](https://github.com/Erkaman/vulkan_minimal_compute) tutorial ported to VSG [vsgExamples/vk/vsgcompute](https://github.com/vsg-dev/vsgExamples/blob/master/examples/vk/vsgcompute/)
-
