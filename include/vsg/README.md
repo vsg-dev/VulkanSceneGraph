@@ -22,7 +22,7 @@ The headers that provide the library classes and definitions are organized in su
 ## Scene graphs nodes
 * [include/vsg/nodes](nodes/) - Scene graph node classes
 * [include/vsg/text](text/) - Scene graph node classes that provide high quality Text support
-* [include/vsg/raytracing](raytracing/) - Raytracing related scene graph classes
+* [include/vsg/rtx](rtx/) - RTX Raytracing and mesh shader related scene graph classes
 
 ## Application level
 * [include/vsg/traversals](traversals/) - Graph traversals

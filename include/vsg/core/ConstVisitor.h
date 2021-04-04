@@ -70,6 +70,11 @@ namespace vsg
     class ResourceHints;
     class ClearAttachments;
 
+    // forward declare rtx classes
+    class DrawMeshTasks;
+    class DrawMeshTasksIndirect;
+    class DrawMeshTasksIndirectCount;
+
     // forward declare ui events classes
     class UIEvent;
     class WindowEvent;
@@ -254,6 +259,11 @@ namespace vsg
         virtual void apply(const Draw&);
         virtual void apply(const DrawIndexed&);
         virtual void apply(const ClearAttachments&);
+
+        // rtx classes
+        virtual void apply(const DrawMeshTasks&);
+        virtual void apply(const DrawMeshTasksIndirect&);
+        virtual void apply(const DrawMeshTasksIndirectCount&);
 
         // ui events
         virtual void apply(const UIEvent&);

@@ -1,6 +1,8 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2019 Thomas Hogarth
+Copyright(c) 2019 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -10,40 +12,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
-#include <vsg/raytracing/RayTracingShaderGroup.h>
+#include <vsg/commands/Command.h>
 
-using namespace vsg;
-
-////////////////////////////////////////////////////////////////////////
-//
-// RayTracingShaderGroup
-//
-RayTracingShaderGroup::RayTracingShaderGroup()
+namespace vsg
 {
-}
 
-RayTracingShaderGroup::~RayTracingShaderGroup()
-{
-}
+    class VSG_DECLSPEC DrawMeshTasks : public Inherit<Command, DrawMeshTasks>
+    {
+    public:
+        DrawMeshTasks();
 
-void RayTracingShaderGroup::read(Input& input)
-{
-    Object::read(input);
-}
+        DrawMeshTasks(uint32_t in_taskCount, uint32_t in_firstTask);
 
-void RayTracingShaderGroup::write(Output& output) const
-{
-    Object::write(output);
-}
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
-void RayTracingShaderGroup::applyTo(VkRayTracingShaderGroupCreateInfoNV& shaderGroupInfo) const
-{
-    shaderGroupInfo.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
-    shaderGroupInfo.pNext = nullptr;
-    shaderGroupInfo.type = type;
-    shaderGroupInfo.generalShader = generalShader;
-    shaderGroupInfo.closestHitShader = closestHitShader;
-    shaderGroupInfo.anyHitShader = anyHitShader;
-    shaderGroupInfo.intersectionShader = intersectionShader;
-}
+        void record(CommandBuffer& commandBuffer) const override;
+
+        uint32_t taskCount = 0;
+        uint32_t firstTask = 0;
+    };
+    VSG_type_name(vsg::DrawMeshTasks);
+
+} // namespace vsg

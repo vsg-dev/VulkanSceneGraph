@@ -2,7 +2,7 @@
 
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2019 Thomas Hogarth
+Copyright(c) 2019 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -12,24 +12,34 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/raytracing/AccelerationGeometry.h>
-#include <vsg/raytracing/AccelerationStructure.h>
+#include <vsg/commands/Command.h>
+#include <vsg/state/BufferInfo.h>
 
 namespace vsg
 {
 
-    class VSG_DECLSPEC BottomLevelAccelerationStructure : public Inherit<AccelerationStructure, BottomLevelAccelerationStructure>
+    class VSG_DECLSPEC DrawMeshTasksIndirectCount : public Inherit<Command, DrawMeshTasksIndirectCount>
     {
     public:
-        BottomLevelAccelerationStructure(Device* device, Allocator* allocator = nullptr);
+        DrawMeshTasksIndirectCount();
+
+        DrawMeshTasksIndirectCount(ref_ptr<Data> in_bufferData, ref_ptr<Data> in_countBufferData, uint32_t in_maxDrawCount, uint32_t in_stride) :
+            buffer(in_bufferData),
+            countBuffer(in_countBufferData),
+            maxDrawCount(in_maxDrawCount),
+            stride(in_stride) {}
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         void compile(Context& context) override;
+        void record(CommandBuffer& commandBuffer) const override;
 
-        AccelerationGeometries geometries;
-
-    protected:
-        // compiled data
-        std::vector<VkGeometryNV> _vkGeometries;
+        BufferInfo buffer;
+        BufferInfo countBuffer;
+        uint32_t maxDrawCount = 0;
+        uint32_t stride = 0;
     };
+    VSG_type_name(vsg::DrawMeshTasksIndirectCount);
 
 } // namespace vsg

@@ -34,15 +34,20 @@ namespace vsg
         Extensions(Device* device);
 
         // VK_NV_ray_tracing
-        PFN_vkCreateAccelerationStructureNV vkCreateAccelerationStructureNV;
-        PFN_vkDestroyAccelerationStructureNV vkDestroyAccelerationStructureNV;
-        PFN_vkBindAccelerationStructureMemoryNV vkBindAccelerationStructureMemoryNV;
-        PFN_vkGetAccelerationStructureHandleNV vkGetAccelerationStructureHandleNV;
-        PFN_vkGetAccelerationStructureMemoryRequirementsNV vkGetAccelerationStructureMemoryRequirementsNV;
-        PFN_vkCmdBuildAccelerationStructureNV vkCmdBuildAccelerationStructureNV;
-        PFN_vkCreateRayTracingPipelinesNV vkCreateRayTracingPipelinesNV;
-        PFN_vkGetRayTracingShaderGroupHandlesNV vkGetRayTracingShaderGroupHandlesNV;
-        PFN_vkCmdTraceRaysNV vkCmdTraceRaysNV;
+        PFN_vkCreateAccelerationStructureNV vkCreateAccelerationStructureNV = nullptr;
+        PFN_vkDestroyAccelerationStructureNV vkDestroyAccelerationStructureNV = nullptr;
+        PFN_vkBindAccelerationStructureMemoryNV vkBindAccelerationStructureMemoryNV = nullptr;
+        PFN_vkGetAccelerationStructureHandleNV vkGetAccelerationStructureHandleNV = nullptr;
+        PFN_vkGetAccelerationStructureMemoryRequirementsNV vkGetAccelerationStructureMemoryRequirementsNV = nullptr;
+        PFN_vkCmdBuildAccelerationStructureNV vkCmdBuildAccelerationStructureNV = nullptr;
+        PFN_vkCreateRayTracingPipelinesNV vkCreateRayTracingPipelinesNV = nullptr;
+        PFN_vkGetRayTracingShaderGroupHandlesNV vkGetRayTracingShaderGroupHandlesNV = nullptr;
+        PFN_vkCmdTraceRaysNV vkCmdTraceRaysNV = nullptr;
+
+        // VK_NV_mesh_shader
+        PFN_vkCmdDrawMeshTasksNV vkCmdDrawMeshTasksNV = nullptr;
+        PFN_vkCmdDrawMeshTasksIndirectNV vkCmdDrawMeshTasksIndirectNV = nullptr;
+        PFN_vkCmdDrawMeshTasksIndirectCountNV vkCmdDrawMeshTasksIndirectCountNV = nullptr;
     };
 
 } // namespace vsg

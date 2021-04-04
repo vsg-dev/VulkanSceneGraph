@@ -2,7 +2,7 @@
 
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2019 Robert Osfield
+Copyright(c) 2019 Thomas Hogarth
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -12,27 +12,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/Command.h>
-#include <vsg/raytracing/RayTracingShaderGroup.h>
+#include <vsg/rtx/AccelerationGeometry.h>
+#include <vsg/rtx/AccelerationStructure.h>
 
 namespace vsg
 {
 
-    class VSG_DECLSPEC TraceRays : public Inherit<Command, TraceRays>
+    class VSG_DECLSPEC BottomLevelAccelerationStructure : public Inherit<AccelerationStructure, BottomLevelAccelerationStructure>
     {
     public:
-        TraceRays();
+        BottomLevelAccelerationStructure(Device* device, Allocator* allocator = nullptr);
 
-        void record(CommandBuffer& commandBuffer) const override;
+        void compile(Context& context) override;
 
-        ref_ptr<RayTracingShaderGroup> raygen;
-        ref_ptr<RayTracingShaderGroup> missShader;
-        ref_ptr<RayTracingShaderGroup> hitShader;
-        ref_ptr<RayTracingShaderGroup> callableShader;
+        AccelerationGeometries geometries;
 
-        uint32_t width = 0;
-        uint32_t height = 0;
-        uint32_t depth = 0;
+    protected:
+        // compiled data
+        std::vector<VkGeometryNV> _vkGeometries;
     };
 
 } // namespace vsg

@@ -239,6 +239,11 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::KeyPressEvent);
     VSG_REGISTER_create(vsg::KeyReleaseEvent);
 
+    // rtx
+    VSG_REGISTER_create(vsg::DrawMeshTasks);
+    VSG_REGISTER_create(vsg::DrawMeshTasksIndirect);
+    VSG_REGISTER_create(vsg::DrawMeshTasksIndirectCommandArray);
+
     // application
     VSG_REGISTER_create(vsg::EllipsoidModel);
 }

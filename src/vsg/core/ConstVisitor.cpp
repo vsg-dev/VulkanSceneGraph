@@ -597,6 +597,23 @@ void ConstVisitor::apply(const ClearAttachments& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// RTX
+//
+void ConstVisitor::apply(const DrawMeshTasks& dmt)
+{
+    apply(static_cast<const Command&>(dmt));
+}
+void ConstVisitor::apply(const DrawMeshTasksIndirect& dmti)
+{
+    apply(static_cast<const Command&>(dmti));
+}
+void ConstVisitor::apply(const DrawMeshTasksIndirectCount& dmtic)
+{
+    apply(static_cast<const Command&>(dmtic));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // UI Events
 //
 void ConstVisitor::apply(const UIEvent& event)

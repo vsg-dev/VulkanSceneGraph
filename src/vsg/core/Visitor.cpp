@@ -597,6 +597,23 @@ void Visitor::apply(ClearAttachments& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// RTX
+//
+void Visitor::apply(DrawMeshTasks& dmt)
+{
+    apply(static_cast<Command&>(dmt));
+}
+void Visitor::apply(DrawMeshTasksIndirect& dmti)
+{
+    apply(static_cast<Command&>(dmti));
+}
+void Visitor::apply(DrawMeshTasksIndirectCount& dmtic)
+{
+    apply(static_cast<Command&>(dmtic));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // UI Events
 //
 void Visitor::apply(UIEvent& event)
