@@ -114,7 +114,7 @@ namespace vsg
         ref_ptr<MemoryBufferPools> deviceMemoryBufferPools;
         ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;
 
-        // raytracing
+        // RTX ray tracing
         VkDeviceSize scratchBufferSize;
         std::vector<ref_ptr<BuildAccelerationStructureCommand>> buildAccelerationStructureCommands;
     };

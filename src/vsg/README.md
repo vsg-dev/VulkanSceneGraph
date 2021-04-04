@@ -13,7 +13,7 @@ The implementations provided by the src/vsg directories mirror the structure of 
 * [src/vsg/vk](vk) - classes that provide wrappers to high level Vulkan objects, providing robust resource management and convinient C++ style setup.
 * [src/vsg/state](state) - scene graph level classes that provude wrappers Vulkan object with setting Vulkan state such as Pipelines, Unfirorms and Textures.
 * [src/vsg/commands](commands) - scene graph level classes that proviide wrappers to vkCmd* Vulkan API calls.
-* [src/vsg/raytracing](raytracing) - scene graph level classes that provide wrappes to Vulkan ray tracing extensions.
+* [src/vsg/rtx](rtx) - scene graph level classes that provide wrappes to Vulkan RTX ray tracing and mesh shader extensions.
 
 ## Scene graphs nodes
 * [src/vsg/nodes](nodes) - scene graph node classes that provide the internal structure to the scene graph.
