@@ -29,7 +29,7 @@ The VulkanSceneGraph project is comprised of the main VulkanSceneGraph library (
 * [vsgXchange](https://github.com/vsg-dev/vsgXchange) - reading and writing of 3rd party image and 3d models and http support.
 * [vsgGIS](https://github.com/vsg-dev/vsgGIS) - integration with GDAL to adding support for Geospatial imagery/DEMs and coordinate transforms
 * [vsgImGui](https://github.com/vsg-dev/vsgImGui) - ImGui integration enabling UI in graphics window.
-* [vsgUnity](https://github.com/vsg-dev/vsgUnity) - Plugin for Unity that provides export to VulkanSceneGraph binary format.
+* [vsgUnity](https://github.com/vsg-dev/vsgUnity) - Plugin for Unity that provides export to native VulkanSceneGraph binary/ascii format.
 * [vsgExamples](https://github.com/vsg-dev/vsgExamples) Tests & Examples
 * [MyFirstVsgApplication](https://github.com/vsg-dev/MyFirstVsgApplication) simple standalone VSG application that can be used as a template for your own applications.
 
