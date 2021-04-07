@@ -40,9 +40,9 @@ Using the prototyping work as a guide implement the final scene graph library wi
 * Support for RTX Mesh shaders and ray tracing.
 
 #### Pending/Underway tasks:
-* Support for Khronos ray tracing.
 * Positional state support to enable easier support of lighting, shadows, texture projection.
 * Scene graph level multi-bin support with bin sorting.
+* Support for Khronos ray tracing.
 * Support for integration with OpenGL/OSG applications via [EXT\_external\_object](https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_external_objects.txt) & [VK\_KHR\_external\_memory](https://www.khronos.org/registry/vulkan/specs/1.1-extensions/man/html/VK_KHR_external_memory.html#versions-1.1-promotions)
 * Port to iOS
 
