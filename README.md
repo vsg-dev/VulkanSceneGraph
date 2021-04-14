@@ -26,11 +26,12 @@ The VulkanSceneGraph project is comprised of the main VulkanSceneGraph library (
 * Minimal and complete approach to design - the whole VulkanSceneGraph interface and implementation, providing all the above functionality, takes 42 thousand lines of code, compared to over 58 thousand for GLM headers, or vulkan.hpp (C++ wrapper for Vulkan) at over 94 thousand lines of code.  The VulkanScneGraph replaces both and provides much more functionality besides.
 
 ### Features provided by companion projects:
-* [vsgXchange](https://github.com/vsg-dev/vsgXchange) - reading and writing of 3rd party image and 3d models and http support.
-* [vsgGIS](https://github.com/vsg-dev/vsgGIS) - integration with GDAL to adding support for Geospatial imagery/DEMs and coordinate transforms
-* [vsgImGui](https://github.com/vsg-dev/vsgImGui) - ImGui integration enabling UI in graphics window.
-* [vsgUnity](https://github.com/vsg-dev/vsgUnity) - Plugin for Unity that provides export to native VulkanSceneGraph binary/ascii format.
-* [vsgExamples](https://github.com/vsg-dev/vsgExamples) Tests & Examples
+* [vsgXchange](https://github.com/vsg-dev/vsgXchange) reading and writing of 3rd party image and 3d models and http support.
+* [vsgGIS](https://github.com/vsg-dev/vsgGIS) integration with GDAL to adding support for Geospatial imagery/DEMs and coordinate transforms
+* [vsgImGui](https://github.com/vsg-dev/vsgImGui) ImGui integration enabling UI in graphics window.
+* [vsgUnity](https://github.com/vsg-dev/vsgUnity) plugin for Unity that provides export to native VulkanSceneGraph binary/ascii format.
+* [vsgExamples](https://github.com/vsg-dev/vsgExamples) tests & examples
+* [vsgQtViewer](https://github.com/anormann1974/vsgQtViewer) - example of Qt windowing integrarion with VulkanSceneGraph
 * [MyFirstVsgApplication](https://github.com/vsg-dev/MyFirstVsgApplication) simple standalone VSG application that can be used as a template for your own applications.
 
 ## Useful links in codebase
