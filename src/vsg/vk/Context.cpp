@@ -149,9 +149,13 @@ void Context::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels)
 
 void Context::copy(BufferInfo src, BufferInfo dest)
 {
-    auto copyAndReleaseBuffer = CopyAndReleaseBuffer::create();
-    copyAndReleaseBuffer->add(src, dest);
-    commands.emplace_back(copyAndReleaseBuffer);
+    if (!copyBufferCmd)
+    {
+        copyBufferCmd = CopyAndReleaseBuffer::create();
+        commands.emplace_back(copyBufferCmd);
+    }
+
+    copyBufferCmd->add(src, dest);
 }
 
 bool Context::record()
@@ -251,4 +255,5 @@ void Context::waitForCompletion()
 
     commands.clear();
     copyImageCmd = nullptr;
+    copyBufferCmd = nullptr;
 }
