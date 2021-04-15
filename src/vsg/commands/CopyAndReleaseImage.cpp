@@ -183,7 +183,7 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numM
     }
     else
     {
-        // std::cout<<"Adapting"<<std::endl;
+        //std::cout<<"Adapting"<<std::endl;
 
         VkMemoryPropertyFlags memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 

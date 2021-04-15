@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/CompileTraversal.h>
 
 #include <vsg/commands/Commands.h>
+#include <vsg/commands/CopyAndReleaseBuffer.h>
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/io/Options.h>
 #include <vsg/nodes/Geometry.h>
@@ -144,6 +145,13 @@ void Context::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels)
     }
 
     copyImageCmd->copy(data, dest, numMipMapLevels);
+}
+
+void Context::copy(BufferInfo src, BufferInfo dest)
+{
+    auto copyAndReleaseBuffer = CopyAndReleaseBuffer::create();
+    copyAndReleaseBuffer->add(src, dest);
+    commands.emplace_back(copyAndReleaseBuffer);
 }
 
 bool Context::record()

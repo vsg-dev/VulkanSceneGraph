@@ -199,7 +199,8 @@ BufferInfoList vsg::createBufferAndTransferData(Context& context, const DataList
         }
     }
 #endif
-    context.commands.emplace_back(CopyAndReleaseBuffer::create(stagingBufferInfo, deviceBufferInfo));
+
+    context.copy(stagingBufferInfo, deviceBufferInfo);
 
     return bufferInfoList;
 }

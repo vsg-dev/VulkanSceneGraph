@@ -15,15 +15,40 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CopyAndReleaseBuffer::CopyAndReleaseBuffer(BufferInfo src, BufferInfo dest)
+CopyAndReleaseBuffer::CopyAndReleaseBuffer(ref_ptr<MemoryBufferPools> optional_stagingMemoryBufferPools) :
+    stagingMemoryBufferPools(optional_stagingMemoryBufferPools)
 {
-    add(src, dest);
 }
 
 CopyAndReleaseBuffer::~CopyAndReleaseBuffer()
 {
     for (auto& copyData : completed) copyData.source.release();
     for (auto& copyData : pending) copyData.source.release();
+}
+
+void CopyAndReleaseBuffer::copy(ref_ptr<Data> data, BufferInfo dest)
+{
+    VkDeviceSize datalSize = data->dataSize();
+    VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
+
+    //std::cout<<"CopyAndReleaseImage::copyDirectly() datalSize = "<<datalSize<<std::endl;
+
+    VkMemoryPropertyFlags memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    BufferInfo stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(datalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
+    stagingBufferInfo.data = data;
+
+    // std::cout<<"stagingBufferInfo.buffer "<<stagingBufferInfo.buffer.get()<<", "<<stagingBufferInfo.offset<<", "<<stagingBufferInfo.range<<")"<<std::endl;
+
+    auto deviceID = stagingMemoryBufferPools->device->deviceID;
+    ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo.buffer);
+    ref_ptr<DeviceMemory> stagingMemory(imageStagingBuffer->getDeviceMemory(deviceID));
+
+    if (!stagingMemory) return;
+
+    // copy data to staging memory
+    stagingMemory->copy(imageStagingBuffer->getMemoryOffset(deviceID) + stagingBufferInfo.offset, datalSize, data->dataPointer());
+
+    add(stagingBufferInfo, dest);
 }
 
 void CopyAndReleaseBuffer::add(BufferInfo src, BufferInfo dest)

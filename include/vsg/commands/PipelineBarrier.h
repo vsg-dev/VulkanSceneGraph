@@ -95,7 +95,7 @@ namespace vsg
 
         ref_ptr<VulkanInfo> next;
         VkAccessFlags srcAccessMask = 0;
-        VkAccessFlags dstAccessMask = 0;
+        VkAccessFlags dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
         VkImageLayout oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         VkImageLayout newLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         uint32_t srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
