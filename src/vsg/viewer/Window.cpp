@@ -61,6 +61,96 @@ void Window::share(Window& window)
     _initFormats();
 }
 
+VkSurfaceFormatKHR Window::surfaceFormat()
+{
+    if (!_device) _initDevice();
+    return _imageFormat;
+}
+
+VkFormat Window::depthFormat()
+{
+    if (!_device) _initDevice();
+    return _depthFormat;
+}
+
+void Window::setInstance(ref_ptr<Instance> instance)
+{
+    _instance = instance;
+}
+
+Instance* Window::getOrCreateInstance()
+{
+    if (!_instance) _initInstance();
+    return _instance;
+}
+
+void Window::setSurface(ref_ptr<Surface> surface)
+{
+    _surface = surface;
+}
+
+Surface* Window::getOrCreateSurface()
+{
+    if (!_surface) _initSurface();
+    return _surface;
+}
+
+void Window::setPhysicalDevice(ref_ptr<PhysicalDevice> physicalDevice)
+{
+    _physicalDevice = physicalDevice;
+}
+
+PhysicalDevice* Window::getOrCreatePhysicalDevice()
+{
+    if (!_physicalDevice) _initDevice();
+    return _physicalDevice;
+}
+
+void Window::setDevice(ref_ptr<Device> device)
+{
+    _device = device;
+    if (_device)
+    {
+        _physicalDevice = _device->getPhysicalDevice();
+        _initFormats();
+    }
+}
+
+Device* Window::getOrCreateDevice()
+{
+    if (!_device) _initDevice();
+    return _device;
+}
+
+void Window::setRenderPass(ref_ptr<RenderPass> renderPass)
+{
+    _renderPass = renderPass;
+}
+
+RenderPass* Window::getOrCreateRenderPass()
+{
+    if (!_renderPass) _initRenderPass();
+    return _renderPass;
+}
+
+Swapchain* Window::getOrCreateSwapchain()
+{
+    if (!_swapchain) _initSwapchain();
+    return _swapchain;
+}
+
+Image* Window::getOrCreateDepthImage()
+{
+    if (!_depthImage) _initSwapchain();
+    return _depthImage;
+}
+
+ImageView* Window::getOrCreateDepthImageView()
+{
+    if (!_depthImageView) _initSwapchain();
+    return _depthImageView;
+}
+
 void Window::_initInstance()
 {
     if (_traits->device)

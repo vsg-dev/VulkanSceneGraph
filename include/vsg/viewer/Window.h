@@ -52,88 +52,40 @@ namespace vsg
         VkClearColorValue& clearColor() { return _clearColor; }
         const VkClearColorValue& clearColor() const { return _clearColor; }
 
-        VkSurfaceFormatKHR surfaceFormat()
-        {
-            if (!_device) _initDevice();
-            return _imageFormat;
-        }
+        VkSurfaceFormatKHR surfaceFormat();
 
-        VkFormat depthFormat()
-        {
-            if (!_device) _initDevice();
-            return _depthFormat;
-        }
+        VkFormat depthFormat();
 
         VkSampleCountFlagBits framebufferSamples() const { return _framebufferSamples; }
 
-        void setInstance(ref_ptr<Instance> instance) { _instance = instance; }
+        void setInstance(ref_ptr<Instance> instance);
         Instance* getInstance() { return _instance; }
-        Instance* getOrCreateInstance()
-        {
-            if (!_instance) _initInstance();
-            return _instance;
-        }
+        Instance* getOrCreateInstance();
 
-        void setSurface(ref_ptr<Surface> surface) { _surface = surface; }
+        void setSurface(ref_ptr<Surface> surface);
         Surface* getSurface() { return _surface; }
-        Surface* getOrCreateSurface()
-        {
-            if (!_surface) _initSurface();
-            return _surface;
-        }
+        Surface* getOrCreateSurface();
 
-        void setPhysicalDevice(ref_ptr<PhysicalDevice> physicalDevice) { _physicalDevice = physicalDevice; }
+        void setPhysicalDevice(ref_ptr<PhysicalDevice> physicalDevice);
         PhysicalDevice* getPhysicalDevice() { return _physicalDevice; }
-        PhysicalDevice* getOrCreatePhysicalDevice()
-        {
-            if (!_physicalDevice) _initDevice();
-            return _physicalDevice;
-        }
+        PhysicalDevice* getOrCreatePhysicalDevice();
 
-        void setDevice(ref_ptr<Device> device)
-        {
-            _device = device;
-            if (_device)
-            {
-                _physicalDevice = _device->getPhysicalDevice();
-                _initFormats();
-            }
-        }
+        void setDevice(ref_ptr<Device> device);
         Device* getDevice() { return _device; }
-        Device* getOrCreateDevice()
-        {
-            if (!_device) _initDevice();
-            return _device;
-        }
+        Device* getOrCreateDevice();
 
-        void setRenderPass(ref_ptr<RenderPass> renderPass) { _renderPass = renderPass; }
+        void setRenderPass(ref_ptr<RenderPass> renderPass);
         RenderPass* getRenderPass() { return _renderPass; }
-        RenderPass* getOrCreateRenderPass()
-        {
-            if (!_renderPass) _initRenderPass();
-            return _renderPass;
-        }
+        RenderPass* getOrCreateRenderPass();
 
         Swapchain* getSwapchain() { return _swapchain; }
-        Swapchain* getOrCreateSwapchain()
-        {
-            if (!_swapchain) _initSwapchain();
-            return _swapchain;
-        }
+        Swapchain* getOrCreateSwapchain();
 
         Image* getDepthImage() { return _depthImage; }
-        Image* getOrCreateDepthImage()
-        {
-            if (!_depthImage) _initSwapchain();
-            return _depthImage;
-        }
+        Image* getOrCreateDepthImage();
 
         ImageView* getDepthImageView() { return _depthImageView; }
-        ImageView* getOrCreateDepthImageView()
-        {
-            if (!_depthImageView) _initSwapchain();
-            return _depthImageView;
-        }
+        ImageView* getOrCreateDepthImageView();
 
         size_t numFrames() const { return _frames.size(); }
 
