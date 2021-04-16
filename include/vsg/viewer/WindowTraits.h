@@ -109,7 +109,6 @@ namespace vsg
         // be configured with the maximum requested value that is
         // supported by the device.
         VkSampleCountFlags samples = VK_SAMPLE_COUNT_1_BIT;
-        ref_ptr<Device> device;
 
         Window* shareWindow = nullptr;
 

@@ -153,30 +153,23 @@ ImageView* Window::getOrCreateDepthImageView()
 
 void Window::_initInstance()
 {
-    if (_traits->device)
+    // create the vkInstance
+    vsg::Names instanceExtensions = _traits->instanceExtensionNames;
+
+    instanceExtensions.push_back("VK_KHR_surface");
+    instanceExtensions.push_back(instanceExtensionSurfaceName());
+
+    vsg::Names requestedLayers;
+    if (_traits->debugLayer || _traits->apiDumpLayer)
     {
-        _instance = _traits->device->getInstance();
+        instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+        requestedLayers.push_back("VK_LAYER_KHRONOS_validation");         // new validation layer name
+        requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation"); // old validation layer name
+        if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
     }
-    else
-    {
-        // create the vkInstance
-        vsg::Names instanceExtensions = _traits->instanceExtensionNames;
 
-        instanceExtensions.push_back("VK_KHR_surface");
-        instanceExtensions.push_back(instanceExtensionSurfaceName());
-
-        vsg::Names requestedLayers;
-        if (_traits->debugLayer || _traits->apiDumpLayer)
-        {
-            instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-            requestedLayers.push_back("VK_LAYER_KHRONOS_validation");         // new validation layer name
-            requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation"); // old validation layer name
-            if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
-        }
-
-        vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
-        _instance = vsg::Instance::create(instanceExtensions, validatedNames);
-    }
+    vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
+    _instance = vsg::Instance::create(instanceExtensions, validatedNames);
 }
 
 void Window::_initFormats()
@@ -213,40 +206,32 @@ void Window::_initDevice()
     if (!_instance) _initInstance();
     if (!_surface) _initSurface();
 
-    // Device
-    if (_traits->device)
+    // if required set up physical device
+    if (!_physicalDevice)
     {
-        _device = _traits->device;
-        _physicalDevice = _device->getPhysicalDevice();
+        _physicalDevice = _instance->getPhysicalDevice(_traits->queueFlags, _surface, _traits->deviceTypePreferences);
+        if (!_physicalDevice) throw Exception{"Error: vsg::Window::create(...) failed to create Window,  no suitable Vulkan PhysicalDevice available.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
     }
-    else
+
+    // set up logical device
+    vsg::Names requestedLayers;
+    if (_traits->debugLayer)
     {
-        // set up device
-        if (!_physicalDevice)
-        {
-            _physicalDevice = _instance->getPhysicalDevice(_traits->queueFlags, _surface, _traits->deviceTypePreferences);
-            if (!_physicalDevice) throw Exception{"Error: vsg::Window::create(...) failed to create Window,  no suitable Vulkan PhysicalDevice available.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
-        }
-
-        vsg::Names requestedLayers;
-        if (_traits->debugLayer)
-        {
-            requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
-            if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
-        }
-
-        vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
-
-        vsg::Names deviceExtensions;
-        deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-        deviceExtensions.insert(deviceExtensions.end(), _traits->deviceExtensionNames.begin(), _traits->deviceExtensionNames.end());
-
-        auto [graphicsFamily, presentFamily] = _physicalDevice->getQueueFamily(_traits->queueFlags, _surface);
-        if (graphicsFamily < 0 || presentFamily < 0) throw Exception{"Error: vsg::Window::create(...) failed to create Window, no suitable Vulkan Device available.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
-
-        vsg::QueueSettings queueSettings{vsg::QueueSetting{graphicsFamily, {1.0}}, vsg::QueueSetting{presentFamily, {1.0}}};
-        _device = vsg::Device::create(_physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->deviceFeatures, _instance->getAllocationCallbacks());
+        requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+        if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
     }
+
+    vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
+
+    vsg::Names deviceExtensions;
+    deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+    deviceExtensions.insert(deviceExtensions.end(), _traits->deviceExtensionNames.begin(), _traits->deviceExtensionNames.end());
+
+    auto [graphicsFamily, presentFamily] = _physicalDevice->getQueueFamily(_traits->queueFlags, _surface);
+    if (graphicsFamily < 0 || presentFamily < 0) throw Exception{"Error: vsg::Window::create(...) failed to create Window, no suitable Vulkan Device available.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+
+    vsg::QueueSettings queueSettings{vsg::QueueSetting{graphicsFamily, {1.0}}, vsg::QueueSetting{presentFamily, {1.0}}};
+    _device = vsg::Device::create(_physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->deviceFeatures, _instance->getAllocationCallbacks());
 
     _initFormats();
 }
