@@ -142,11 +142,10 @@ void Window::_initDevice()
 
         vsg::Names deviceExtensions;
         deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-
         deviceExtensions.insert(deviceExtensions.end(), _traits->deviceExtensionNames.begin(), _traits->deviceExtensionNames.end());
 
         // set up device
-        auto [physicalDevice, queueFamily, presentFamily] = _instance->getPhysicalDeviceAndQueueFamily(_traits->queueFlags, _surface);
+        auto [physicalDevice, queueFamily, presentFamily] = _instance->getPhysicalDeviceAndQueueFamily(_traits->queueFlags, _surface, _traits->deviceTypePreferences);
         if (!physicalDevice || queueFamily < 0 || presentFamily < 0) throw Exception{"Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
         vsg::QueueSettings queueSettings{vsg::QueueSetting{queueFamily, {1.0}}, vsg::QueueSetting{presentFamily, {1.0}}};

@@ -64,6 +64,9 @@ namespace vsg
             // provide anisotropic filtering as standard.
             if (!deviceFeatures) deviceFeatures = vsg::DeviceFeatures::create();
             deviceFeatures->get().samplerAnisotropy = VK_TRUE;
+
+            // prefer discrete gpu over integrated gpu over virtual gpu
+            deviceTypePreferences = { VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU, VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU, VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU };
         }
 
         int32_t x = 0;
@@ -95,8 +98,10 @@ namespace vsg
         bool debugLayer = false;
         bool apiDumpLayer = false;
 
+        // device preferences
         vsg::Names instanceExtensionNames;
         vsg::Names deviceExtensionNames;
+        vsg::PhysicalDeviceTypes deviceTypePreferences;
         ref_ptr<DeviceFeatures> deviceFeatures;
 
         // Multisampling

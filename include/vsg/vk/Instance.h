@@ -26,6 +26,7 @@ namespace vsg
     class Surface;
 
     using Names = std::vector<const char*>;
+    using PhysicalDeviceTypes = std::vector<VkPhysicalDeviceType>;
 
     extern VSG_DECLSPEC Names validateInstancelayerNames(const Names& names);
 
@@ -45,16 +46,16 @@ namespace vsg
         const PhysicalDevices& getPhysicalDevices() const { return _physicalDevices; }
 
         /// get a PhysicalDevice that supports the specified queueFlags, and presentation of specified surface if one is provided.
-        ref_ptr<PhysicalDevice> getPhysicalDevice(VkQueueFlags queueFlags) const;
+        ref_ptr<PhysicalDevice> getPhysicalDevice(VkQueueFlags queueFlags, const PhysicalDeviceTypes& deviceTypePreferences = {}) const;
 
         /// get a PhysicalDevice that supports the specified queueFlags, and presentation of specified surface if one is provided.
-        ref_ptr<PhysicalDevice> getPhysicalDevice(VkQueueFlags queueFlags, Surface* surface) const;
+        ref_ptr<PhysicalDevice> getPhysicalDevice(VkQueueFlags queueFlags, Surface* surface, const PhysicalDeviceTypes& deviceTypePreferences = {}) const;
 
         /// get a PhysicalDevice and queue family index that supports the specified queueFlags, and presentation of specified surface if one is provided.
-        std::pair<ref_ptr<PhysicalDevice>, int> getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags) const;
+        std::pair<ref_ptr<PhysicalDevice>, int> getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, const PhysicalDeviceTypes& deviceTypePreferences = {}) const;
 
         /// get a PhysicalDevice and queue family index that supports the specified queueFlags, and presentation of specified surface if one is provided.
-        std::tuple<ref_ptr<PhysicalDevice>, int, int> getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface) const;
+        std::tuple<ref_ptr<PhysicalDevice>, int, int> getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface, const PhysicalDeviceTypes& deviceTypePreferences = {}) const;
 
     protected:
         virtual ~Instance();

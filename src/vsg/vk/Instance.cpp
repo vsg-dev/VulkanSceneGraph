@@ -15,7 +15,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Instance.h>
 #include <vsg/vk/PhysicalDevice.h>
 
-#include <iostream>
 #include <set>
 
 using namespace vsg;
@@ -61,7 +60,7 @@ Instance::Instance(const Names& instanceExtensions, const Names& layers, Allocat
     // application info
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "Test";
+    appInfo.pApplicationName = "VulkanSceneGraph application";
     appInfo.pEngineName = "VulkanSceneGraph";
     appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 0);
     appInfo.apiVersion = VK_API_VERSION_1_0;
@@ -112,40 +111,60 @@ Instance::~Instance()
     }
 }
 
-ref_ptr<PhysicalDevice> Instance::getPhysicalDevice(VkQueueFlags queueFlags) const
+ref_ptr<PhysicalDevice> Instance::getPhysicalDevice(VkQueueFlags queueFlags, const PhysicalDeviceTypes& deviceTypePreferences) const
 {
-    for (auto& device : _physicalDevices)
+    for(size_t i = 0; i <= deviceTypePreferences.size(); ++i)
     {
-        if (auto family = device->getQueueFamily(queueFlags); (family >= 0)) return device;
+        for (auto& device : _physicalDevices)
+        {
+            if (i < deviceTypePreferences.size() && device->getProperties().deviceType != deviceTypePreferences[i]) continue;
+
+            if (auto family = device->getQueueFamily(queueFlags); (family >= 0)) return device;
+        }
     }
     return {};
 }
 
-ref_ptr<PhysicalDevice> Instance::getPhysicalDevice(VkQueueFlags queueFlags, Surface* surface) const
+ref_ptr<PhysicalDevice> Instance::getPhysicalDevice(VkQueueFlags queueFlags, Surface* surface, const PhysicalDeviceTypes& deviceTypePreferences) const
 {
-    for (auto& device : _physicalDevices)
+    for(size_t i = 0; i <= deviceTypePreferences.size(); ++i)
     {
-        if (auto [graphicsFamily, presentFamily] = device->getQueueFamily(queueFlags, surface); (graphicsFamily >= 0 && presentFamily >= 0)) return device;
+        for (auto& device : _physicalDevices)
+        {
+            if (i < deviceTypePreferences.size() && device->getProperties().deviceType != deviceTypePreferences[i]) continue;
+
+            if (auto [graphicsFamily, presentFamily] = device->getQueueFamily(queueFlags, surface); (graphicsFamily >= 0 && presentFamily >= 0)) return device;
+        }
     }
     return {};
 }
 
-std::pair<ref_ptr<PhysicalDevice>, int> Instance::getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags) const
+std::pair<ref_ptr<PhysicalDevice>, int> Instance::getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, const PhysicalDeviceTypes& deviceTypePreferences) const
 {
-    for (auto& device : _physicalDevices)
+    for(size_t i = 0; i <= deviceTypePreferences.size(); ++i)
     {
-        if (auto family = device->getQueueFamily(queueFlags); family >= 0) return {device, family};
+        for (auto& device : _physicalDevices)
+        {
+            if (i < deviceTypePreferences.size() && device->getProperties().deviceType != deviceTypePreferences[i]) continue;
+
+            if (auto family = device->getQueueFamily(queueFlags); family >= 0) return {device, family};
+        }
     }
     return {{}, -1};
 }
 
-std::tuple<ref_ptr<PhysicalDevice>, int, int> Instance::getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface) const
+std::tuple<ref_ptr<PhysicalDevice>, int, int> Instance::getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface, const PhysicalDeviceTypes& deviceTypePreferences) const
 {
-    for (auto& device : _physicalDevices)
+    for(size_t i = 0; i <= deviceTypePreferences.size(); ++i)
     {
-        if (auto [graphicsFamily, presentFamily] = device->getQueueFamily(queueFlags, surface); (graphicsFamily >= 0 && presentFamily >= 0))
+        for (auto& device : _physicalDevices)
         {
-            return {device, graphicsFamily, presentFamily};
+            if (i < deviceTypePreferences.size() && device->getProperties().deviceType != deviceTypePreferences[i]) continue;
+
+            if (auto [graphicsFamily, presentFamily] = device->getQueueFamily(queueFlags, surface); (graphicsFamily >= 0 && presentFamily >= 0))
+            {
+                return {device, graphicsFamily, presentFamily};
+            }
         }
     }
     return {{}, -1, -1};
