@@ -80,5 +80,6 @@ namespace vsg
 
         vsg::observer_ptr<Instance> _instance;
     };
+    VSG_type_name(vsg::PhysicalDevice);
 
 } // namespace vsg
