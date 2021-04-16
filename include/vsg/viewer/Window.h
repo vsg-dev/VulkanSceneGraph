@@ -66,6 +66,7 @@ namespace vsg
 
         VkSampleCountFlagBits framebufferSamples() const { return _framebufferSamples; }
 
+        void setInstance(ref_ptr<Instance> instance) { _instance = instance; }
         Instance* getInstance() { return _instance; }
         Instance* getOrCreateInstance()
         {
@@ -73,6 +74,7 @@ namespace vsg
             return _instance;
         }
 
+        void setSurface(ref_ptr<Surface> surface) { _surface = surface; }
         Surface* getSurface() { return _surface; }
         Surface* getOrCreateSurface()
         {
@@ -80,13 +82,7 @@ namespace vsg
             return _surface;
         }
 
-        Device* getDevice() { return _device; }
-        Device* getOrCreateDevice()
-        {
-            if (!_device) _initDevice();
-            return _device;
-        }
-
+        void setPhysicalDevice(ref_ptr<PhysicalDevice> physicalDevice) { _physicalDevice = physicalDevice; }
         PhysicalDevice* getPhysicalDevice() { return _physicalDevice; }
         PhysicalDevice* getOrCreatePhysicalDevice()
         {
@@ -94,7 +90,23 @@ namespace vsg
             return _physicalDevice;
         }
 
-        void setRenderPass(RenderPass* renderPass) { _renderPass = renderPass; }
+        void setDevice(ref_ptr<Device> device)
+        {
+            _device = device;
+            if (_device)
+            {
+                _physicalDevice = _device->getPhysicalDevice();
+                _initFormats();
+            }
+        }
+        Device* getDevice() { return _device; }
+        Device* getOrCreateDevice()
+        {
+            if (!_device) _initDevice();
+            return _device;
+        }
+
+        void setRenderPass(ref_ptr<RenderPass> renderPass) { _renderPass = renderPass; }
         RenderPass* getRenderPass() { return _renderPass; }
         RenderPass* getOrCreateRenderPass()
         {
