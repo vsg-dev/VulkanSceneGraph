@@ -148,20 +148,21 @@ if (CLANGFORMAT)
     )
 endif()
 
-option(VSG_MAINTAINER "Enable VulkanSceneGraph maintainer build methods, such as making git branches and tags." OFF)
-if (VSG_MAINTAINER)
-
-    SET(VSG_BRANCH VulkanSceneGraph-${VSG_VERSION_MAJOR}.${VSG_VERSION_MINOR})
+option(MAINTAINER "Enable maintainer build methods, such as making git branches and tags." OFF)
+if (MAINTAINER)
 
     #
     # Provide target for tagging a release
     #
+    SET(BASE_NAME VulkanSceneGraph)
+    SET(VSG_BRANCH ${BASE_NAME}-${VSG_VERSION_MAJOR}.${VSG_VERSION_MINOR})
+
     SET(GITCOMMAND git)
 
     IF   (VSG_RELEASE_CANDIDATE EQUAL 0)
-        SET(RELEASE_NAME VulkanSceneGraph-${VSG_VERSION})
+        SET(RELEASE_NAME ${BASE_NAME}-${VSG_VERSION})
     ELSE()
-        SET(RELEASE_NAME VulkanSceneGraph-${VSG_VERSION}-rc${VSG_RELEASE_CANDIDATE})
+        SET(RELEASE_NAME ${BASE_NAME}-${VSG_VERSION}-rc${VSG_RELEASE_CANDIDATE})
     ENDIF()
 
     SET(RELEASE_MESSAGE "Release ${RELEASE_NAME}")
