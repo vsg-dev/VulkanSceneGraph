@@ -168,6 +168,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::MatrixTransform);
     VSG_REGISTER_create(vsg::Geometry);
     VSG_REGISTER_create(vsg::VertexIndexDraw);
+    VSG_REGISTER_create(vsg::DepthSorted);
 
     // vulkan objects
     VSG_REGISTER_create(vsg::BindGraphicsPipeline);

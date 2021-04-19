@@ -22,6 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
+#include <vsg/nodes/DepthSorted.h>
 #include <vsg/state/StateGroup.h>
 #include <vsg/threading/atomics.h>
 #include <vsg/traversals/RecordTraversal.h>
@@ -255,6 +256,20 @@ void RecordTraversal::apply(const CullNode& cullNode)
         //std::cout<<"Culling node"<<std::endl;
     }
 #endif
+}
+
+void RecordTraversal::apply(const DepthSorted& depthSorted)
+{
+    const auto& mv = _state->modelviewMatrixStack.top();
+    auto& center = depthSorted.center;
+    auto distance = std::abs(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]);
+
+    std::cout<<"RecordTraversal::apply("<<&depthSorted<<") bin = "<<depthSorted.bin<<", center = "<<depthSorted.center<<", distance = "<<distance<<std::endl;
+
+    depthSorted.child->accept(*this);
+
+    // TODO:
+    // bin(depthSorted.bin)->add(distance, depthSorted.child);
 }
 
 void RecordTraversal::apply(const StateGroup& stateGroup)

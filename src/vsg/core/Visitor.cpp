@@ -465,6 +465,10 @@ void Visitor::apply(VertexIndexDraw& value)
 {
     apply(static_cast<Command&>(value));
 }
+void Visitor::apply(DepthSorted& value)
+{
+    apply(static_cast<Node&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

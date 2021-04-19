@@ -34,6 +34,7 @@ set(SOURCES
     nodes/PagedLOD.cpp
     nodes/MatrixTransform.cpp
     nodes/VertexIndexDraw.cpp
+    nodes/DepthSorted.cpp
 
     commands/BindIndexBuffer.cpp
     commands/BindVertexBuffers.cpp
