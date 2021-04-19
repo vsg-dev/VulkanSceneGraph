@@ -28,7 +28,6 @@ namespace vsg
     class StateGroup;
     class CullGroup;
     class CullNode;
-    class DepthSorted;
     class MatrixTransform;
     class Command;
     class Commands;
@@ -70,7 +69,6 @@ namespace vsg
         void apply(const PagedLOD& pagedLOD);
         void apply(const CullGroup& cullGroup);
         void apply(const CullNode& cullNode);
-        void apply(const DepthSorted& depthSorted);
 
         // Vulkan nodes
         void apply(const MatrixTransform& mt);
