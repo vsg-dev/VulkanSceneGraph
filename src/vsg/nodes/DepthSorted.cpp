@@ -21,9 +21,9 @@ DepthSorted::DepthSorted(Allocator* allocator) :
 {
 }
 
-DepthSorted::DepthSorted(int32_t in_bin, const dvec3& in_center, ref_ptr<Node> in_child, Allocator* allocator) :
+DepthSorted::DepthSorted(uint32_t in_binNumber, const dvec3& in_center, ref_ptr<Node> in_child, Allocator* allocator) :
     Inherit(allocator),
-    bin(in_bin),
+    binNumber(in_binNumber),
     center(in_center),
     child(in_child)
 {
@@ -37,7 +37,7 @@ void DepthSorted::read(Input& input)
 {
     Node::read(input);
 
-    input.read("bin", bin);
+    input.read("binNumber", binNumber);
     input.read("center", center);
     input.readObject("child", child);
 }
@@ -46,7 +46,7 @@ void DepthSorted::write(Output& output) const
 {
     Node::write(output);
 
-    output.write("bin", bin);
+    output.write("binNumber", binNumber);
     output.write("center", center);
     output.writeObject("child", child.get());
 }

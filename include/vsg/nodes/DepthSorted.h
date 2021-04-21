@@ -23,7 +23,7 @@ namespace vsg
     public:
         DepthSorted(Allocator* allocator = nullptr);
 
-        DepthSorted(int32_t in_bin, const dvec3& in_center, ref_ptr<Node> in_child, Allocator* allocator = nullptr);
+        DepthSorted(uint32_t in_binNumber, const dvec3& in_center, ref_ptr<Node> in_child, Allocator* allocator = nullptr);
 
         void traverse(Visitor& visitor) override { child->accept(visitor); }
         void traverse(ConstVisitor& visitor) const override { child->accept(visitor); }
@@ -32,7 +32,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        int32_t bin;
+        uint32_t binNumber;
         dvec3 center;
         ref_ptr<Node> child;
 
