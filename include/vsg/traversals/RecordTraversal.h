@@ -16,6 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/type_name.h>
 #include <vsg/maths/mat4.h>
 
+#include <vector>
+
 namespace vsg
 {
 
@@ -38,15 +40,17 @@ namespace vsg
     class FrameStamp;
     class CulledPagedLODs;
     class View;
+    class Bin;
 
-    class RecordTraversal;
     VSG_type_name(vsg::RecordTraversal);
 
     class VSG_DECLSPEC RecordTraversal : public Object
     {
     public:
         explicit RecordTraversal(CommandBuffer* commandBuffer = nullptr, uint32_t maxSlot = 2, FrameStamp* fs = nullptr);
-        ~RecordTraversal();
+
+        RecordTraversal(const RecordTraversal&) = delete;
+        RecordTraversal& operator=(const RecordTraversal& rhs) = delete;
 
         std::size_t sizeofObject() const noexcept override { return sizeof(RecordTraversal); }
         const char* className() const noexcept override { return type_name<RecordTraversal>(); }
@@ -81,7 +85,11 @@ namespace vsg
         // Viewer level nodes
         void apply(const View& view);
 
-    private:
+        std::vector<ref_ptr<Bin>> bins;
+
+    protected:
+        virtual ~RecordTraversal();
+
         FrameStamp* _frameStamp = nullptr;
         State* _state = nullptr;
 

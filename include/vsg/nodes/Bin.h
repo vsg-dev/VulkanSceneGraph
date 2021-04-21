@@ -48,6 +48,7 @@ namespace vsg
 
         using KeyNode = std::pair<double, const Node*>;
         mutable std::vector<KeyNode> binElements;
+        mutable dmat4 matrix;
 
     protected:
         virtual ~Bin();

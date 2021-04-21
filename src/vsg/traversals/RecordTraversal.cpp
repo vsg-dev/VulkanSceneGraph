@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
+#include <vsg/nodes/Bin.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
@@ -44,6 +45,13 @@ RecordTraversal::RecordTraversal(CommandBuffer* commandBuffer, uint32_t maxSlot,
 {
     if (_frameStamp) _frameStamp->ref();
     if (_state) _state->ref();
+
+    // preallocate bins.
+    bins.resize(20);
+    for(uint32_t i=0; i<bins.size(); ++i)
+    {
+        bins[i] = Bin::create(i, Bin::DESCENDING);
+    }
 }
 
 RecordTraversal::~RecordTraversal()
@@ -262,14 +270,16 @@ void RecordTraversal::apply(const DepthSorted& depthSorted)
 {
     const auto& mv = _state->modelviewMatrixStack.top();
     auto& center = depthSorted.center;
-    auto distance = -(std::abs(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]));
+    auto distance = -(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]);
 
-    std::cout<<"RecordTraversal::apply("<<&depthSorted<<") binNumber = "<<depthSorted.binNumber<<", center = "<<depthSorted.center<<", distance = "<<distance<<std::endl;
+    //std::cout<<"RecordTraversal::apply("<<&depthSorted<<") bin = "<<depthSorted.binNumber<<", center = "<<depthSorted.center<<", distance = "<<distance<<std::endl;
 
+#if 1
+    bins[depthSorted.binNumber]->matrix = mv;
+    bins[depthSorted.binNumber]->add(distance, depthSorted.child);
+#else
     depthSorted.child->accept(*this);
-
-    // TODO:
-    // bin(depthSorted.bin)->add(distance, depthSorted.child);
+#endif
 }
 
 void RecordTraversal::apply(const StateGroup& stateGroup)

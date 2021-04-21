@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/io/stream.h>
 #include <vsg/nodes/Bin.h>
+#include <vsg/vk/State.h>
 
 #include <algorithm>
 #include <iostream>
@@ -39,12 +40,17 @@ void Bin::add(double value, const Node* node)
 {
     binElements.emplace_back(value, node);
 
-    std::cout<<"Bin::add("<<value<<", "<<node<<") "<<this<<", binNumber = "<<binNumber<<",  binElements.size()="<<binElements.size()<<std::endl;
+    // std::cout<<"Bin::add("<<value<<", "<<node<<") "<<this<<", binNumber = "<<binNumber<<",  binElements.size()="<<binElements.size()<<std::endl;
 }
 
-void Bin::traverse(RecordTraversal& visitor) const
+void Bin::traverse(RecordTraversal& rt) const
 {
-    std::cout<<"Bin::traverse(RecordTraversal& visitor) "<<sortOrder<<" "<<binElements.size()<<std::endl;
+    // std::cout<<"Bin::traverse(RecordTraversal& visitor) "<<sortOrder<<" "<<binElements.size()<<std::endl;
+
+    auto state = rt.getState();
+    state->modelviewMatrixStack.push(matrix);
+    state->pushFrustum();
+    state->dirty = true;
 
     switch(sortOrder)
     {
@@ -58,11 +64,16 @@ void Bin::traverse(RecordTraversal& visitor) const
             break;
     }
 
+
     for(auto& keyNode : binElements)
     {
-        std::cout<<"   "<<keyNode.first<<" "<<keyNode.second->className()<<std::endl;
-        keyNode.second->accept(visitor);
+        //std::cout<<"   "<<keyNode.first<<" "<<keyNode.second->className()<<std::endl;
+        keyNode.second->accept(rt);
     }
+
+    state->modelviewMatrixStack.pop();
+    state->popFrustum();
+    state->dirty = true;
 }
 
 void Bin::read(Input& input)

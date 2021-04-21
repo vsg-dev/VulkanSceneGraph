@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Object.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/Bin.h>
 #include <vsg/state/BufferInfo.h>
 #include <vsg/state/Descriptor.h>
 #include <vsg/state/ResourceHints.h>
@@ -49,6 +50,8 @@ namespace vsg
         void apply(const Descriptor& descriptor) override;
         void apply(const PagedLOD& plod) override;
         void apply(const View& view) override;
+        void apply(const DepthSorted& depthSorted) override;
+        void apply(const Bin& bin) override;
 
         uint32_t computeNumDescriptorSets() const;
 
@@ -58,10 +61,12 @@ namespace vsg
         DescriptorSets descriptorSets;
         DescriptorTypeMap descriptorTypeMap;
         Views views;
+        std::set<ref_ptr<const Bin>> bins;
 
         uint32_t maxSlot = 0;
         uint32_t externalNumDescriptorSets = 0;
         bool containsPagedLOD = false;
+        uint32_t maxBinNumber = 0;
 
     protected:
         uint32_t _numResourceHintsAbove = 0;

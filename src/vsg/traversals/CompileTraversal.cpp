@@ -19,6 +19,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
+#include <vsg/nodes/DepthSorted.h>
+#include <vsg/nodes/Bin.h>
 #include <vsg/state/StateGroup.h>
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/RenderGraph.h>
@@ -26,6 +28,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
+
+#include <iostream>
 
 using namespace vsg;
 
@@ -137,6 +141,22 @@ void CollectDescriptorStats::apply(const View& view)
     views.insert(&view);
 
     view.traverse(*this);
+}
+
+void CollectDescriptorStats::apply(const DepthSorted& depthSorted)
+{
+    if (depthSorted.binNumber > maxBinNumber)
+    {
+        maxBinNumber = depthSorted.binNumber;
+        std::cout<<"CollectDescriptorStats::apply(const DepthSorted& depthSorted) "<<maxBinNumber<<std::endl;
+    }
+    depthSorted.traverse(*this);
+}
+
+void CollectDescriptorStats::apply(const Bin& bin)
+{
+    bins.insert(ref_ptr<const Bin>(&bin));
+    std::cout<<"CollectDescriptorStats::apply(const Bin& bin = "<<&bin<<") bin.binNumber = "<<bin.binNumber<<", sortOrder = "<<bin.sortOrder<< std::endl;
 }
 
 uint32_t CollectDescriptorStats::computeNumDescriptorSets() const

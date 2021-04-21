@@ -18,6 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/Window.h>
 #include <vsg/vk/CommandBuffer.h>
 
+#include <set>
+
 namespace vsg
 {
 
@@ -44,6 +46,8 @@ namespace vsg
         VkBool32 occlusionQueryEnable = VK_FALSE;
         VkQueryControlFlags queryFlags = 0;
         VkQueryPipelineStatisticFlags pipelineStatistics = 0;
+
+        std::set<ref_ptr<const Bin>> bins;
 
         ref_ptr<RecordTraversal> recordTraversal;
 
