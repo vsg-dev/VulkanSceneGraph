@@ -469,6 +469,10 @@ void ConstVisitor::apply(const DepthSorted& value)
 {
     apply(static_cast<const Node&>(value));
 }
+void ConstVisitor::apply(const Bin& value)
+{
+    apply(static_cast<const Node&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
