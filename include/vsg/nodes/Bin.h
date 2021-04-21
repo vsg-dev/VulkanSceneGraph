@@ -29,6 +29,7 @@ namespace vsg
             DESCENDING
         };
 
+
         Bin(Allocator* allocator = nullptr);
         Bin(uint32_t in_binNumber, SortOrder in_sortOrder, Allocator* allocator = nullptr);
 
@@ -37,21 +38,32 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-#if 1
-        void add(double value, const Node* node);
-#else
-        inline void add(double value, const Node* node) { binElements.emplace_back(value, node); }
-#endif
+        void clear();
+
+        void add(State* state, double value, const Node* node);
 
         uint32_t binNumber = 0;
         SortOrder sortOrder = NO_SORT;
 
-        using KeyNode = std::pair<double, const Node*>;
-        mutable std::vector<KeyNode> binElements;
-        mutable dmat4 matrix;
 
     protected:
         virtual ~Bin();
+
+        std::vector<dmat4> _matrices;
+        std::vector<const StateCommand*> _stateCommands;
+
+        struct Element
+        {
+            uint32_t matrixIndex = 0;
+            uint32_t stateCommandIndex = 0;
+            uint32_t stateCommandCount = 0;
+            const Node* child = nullptr;
+        };
+
+        std::vector<Element> _elements;
+
+        using KeyIndex = std::pair<float, uint32_t>;
+        mutable std::vector<KeyIndex> _binElements;
     };
     VSG_type_name(vsg::Bin);
 

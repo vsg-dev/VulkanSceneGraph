@@ -36,44 +36,76 @@ Bin::~Bin()
 {
 }
 
-void Bin::add(double value, const Node* node)
+void Bin::clear()
 {
-    binElements.emplace_back(value, node);
+    _matrices.clear();
+    _stateCommands.clear();
+    _elements.clear();
+    _binElements.clear();
+}
 
-    // std::cout<<"Bin::add("<<value<<", "<<node<<") "<<this<<", binNumber = "<<binNumber<<",  binElements.size()="<<binElements.size()<<std::endl;
+void Bin::add(State* state, double value, const Node* node)
+{
+//    binElements.emplace_back(value, node);
+
+    //std::cout<<"Bin::add(state= "<<state<<", value = "<<value<<", "<<node<<") "<<this<<", binNumber = "<<binNumber<<",  binElements.size()="<<_binElements.size()<<std::endl;
+
+    Element element;
+
+    element.matrixIndex = _matrices.size();
+    _matrices.push_back(state->modelviewMatrixStack.top());
+
+    element.stateCommandIndex = _stateCommands.size();
+    for(auto& stateStack : state->stateStacks)
+    {
+        if (stateStack.size()>0)
+        {
+            _stateCommands.push_back(stateStack.top());
+            ++element.stateCommandCount;
+        }
+    }
+
+    element.child = node;
+
+    _binElements.emplace_back(value, _elements.size());
+
+    _elements.push_back(element);
 }
 
 void Bin::traverse(RecordTraversal& rt) const
 {
-    // std::cout<<"Bin::traverse(RecordTraversal& visitor) "<<sortOrder<<" "<<binElements.size()<<std::endl;
+    //std::cout<<"Bin::traverse(RecordTraversal& visitor) "<<sortOrder<<" "<<_binElements.size()<<std::endl;
 
     auto state = rt.getState();
-    state->modelviewMatrixStack.push(matrix);
-    state->pushFrustum();
-    state->dirty = true;
 
     switch(sortOrder)
     {
         case(ASCENDING):
-            std::sort(binElements.begin(), binElements.end(), [](const KeyNode& lhs, const KeyNode& rhs) { return lhs.first < rhs.first; });
+            std::sort(_binElements.begin(), _binElements.end(), [](const KeyIndex& lhs, const KeyIndex& rhs) { return lhs.first < rhs.first; });
             break;
         case(DESCENDING):
-            std::sort(binElements.begin(), binElements.end(), [](const KeyNode& lhs, const KeyNode& rhs) { return rhs.first < lhs.first; });
+            std::sort(_binElements.begin(), _binElements.end(), [](const KeyIndex& lhs, const KeyIndex& rhs) { return rhs.first < lhs.first; });
             break;
         case(NO_SORT):
             break;
     }
 
 
-    for(auto& keyNode : binElements)
+    for(auto& keyElement : _binElements)
     {
         //std::cout<<"   "<<keyNode.first<<" "<<keyNode.second->className()<<std::endl;
-        keyNode.second->accept(rt);
-    }
+        auto& element = _elements[keyElement.second];
 
-    state->modelviewMatrixStack.pop();
-    state->popFrustum();
-    state->dirty = true;
+        state->modelviewMatrixStack.push(_matrices[element.matrixIndex]);
+        state->pushFrustum();
+        state->dirty = true;
+
+        element.child->accept(rt);
+
+        state->modelviewMatrixStack.pop();
+        state->popFrustum();
+        state->dirty = true;
+    }
 }
 
 void Bin::read(Input& input)

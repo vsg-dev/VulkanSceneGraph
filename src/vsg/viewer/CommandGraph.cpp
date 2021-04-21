@@ -88,7 +88,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     for(auto& bin : recordTraversal->bins)
     {
-        bin->binElements.clear();
+        bin->clear();
     }
 
     ref_ptr<CommandBuffer> commandBuffer;

@@ -274,12 +274,7 @@ void RecordTraversal::apply(const DepthSorted& depthSorted)
 
     //std::cout<<"RecordTraversal::apply("<<&depthSorted<<") bin = "<<depthSorted.binNumber<<", center = "<<depthSorted.center<<", distance = "<<distance<<std::endl;
 
-#if 1
-    bins[depthSorted.binNumber]->matrix = mv;
-    bins[depthSorted.binNumber]->add(distance, depthSorted.child);
-#else
-    depthSorted.child->accept(*this);
-#endif
+    bins[depthSorted.binNumber]->add(_state, distance, depthSorted.child);
 }
 
 void RecordTraversal::apply(const StateGroup& stateGroup)

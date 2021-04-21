@@ -52,8 +52,7 @@ namespace vsg
             dirty = !stack.empty();
         }
         size_t size() const { return stack.size(); }
-        T& top() { return stack.top(); }
-        const T& top() const { return stack.top(); }
+        const T* top() const { return stack.top(); }
 
         inline void record(CommandBuffer& commandBuffer)
         {
