@@ -46,6 +46,14 @@ namespace vsg
             stack.push(value);
             dirty = true;
         }
+
+        template<class R>
+        inline void push(R* value)
+        {
+            stack.push(ref_ptr<const T>(value));
+            dirty = true;
+        }
+
         inline void pop()
         {
             stack.pop();

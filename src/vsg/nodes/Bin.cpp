@@ -98,9 +98,30 @@ void Bin::traverse(RecordTraversal& rt) const
 
         state->modelviewMatrixStack.push(_matrices[element.matrixIndex]);
         state->pushFrustum();
+
         state->dirty = true;
 
-        element.child->accept(rt);
+        if (element.stateCommandCount > 0)
+        {
+            uint32_t endIndex = element.stateCommandIndex + element.stateCommandCount;
+            for (uint32_t i = element.stateCommandIndex; i<endIndex; ++i)
+            {
+                auto command = _stateCommands[i];
+                state->stateStacks[command->getSlot()].push(command);
+            }
+
+            element.child->accept(rt);
+
+            for (uint32_t i = element.stateCommandIndex; i<endIndex; ++i)
+            {
+                auto command = _stateCommands[i];
+                state->stateStacks[command->getSlot()].pop();
+            }
+        }
+        else
+        {
+            element.child->accept(rt);
+        }
 
         state->modelviewMatrixStack.pop();
         state->popFrustum();
