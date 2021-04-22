@@ -53,6 +53,7 @@ void CopyAndReleaseBuffer::copy(ref_ptr<Data> data, BufferInfo dest)
 
 void CopyAndReleaseBuffer::add(BufferInfo src, BufferInfo dest)
 {
+    std::scoped_lock lock(_mutex);
     pending.push_back(CopyData{src, dest});
 }
 
@@ -68,6 +69,8 @@ void CopyAndReleaseBuffer::CopyData::record(CommandBuffer& commandBuffer) const
 
 void CopyAndReleaseBuffer::record(CommandBuffer& commandBuffer) const
 {
+    std::scoped_lock lock(_mutex);
+
     for (auto& copyData : completed) copyData.source.release();
 
     completed.clear();

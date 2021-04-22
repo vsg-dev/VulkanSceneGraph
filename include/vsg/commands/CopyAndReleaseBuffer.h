@@ -55,6 +55,7 @@ namespace vsg
             void record(CommandBuffer& commandBuffer) const;
         };
 
+        mutable std::mutex _mutex;
         mutable std::vector<CopyData> pending;
         mutable std::vector<CopyData> completed;
     };
