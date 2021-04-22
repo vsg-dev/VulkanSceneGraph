@@ -55,7 +55,7 @@ namespace vsg
             void record(CommandBuffer& commandBuffer) const;
         };
 
-        void add(const CopyData& cd) { pending.push_back(cd); }
+        void add(const CopyData& cd);
         void add(BufferInfo src, ImageInfo dest);
         void add(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels);
 
@@ -73,6 +73,7 @@ namespace vsg
 
         void _copyDirectly(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels);
 
+        mutable std::mutex _mutex;
         mutable std::vector<CopyData> pending;
         mutable std::vector<CopyData> completed;
         mutable std::vector<CopyData> readyToClear;

@@ -143,14 +143,20 @@ CopyAndReleaseImage::CopyData::CopyData(BufferInfo src, ImageInfo dest, uint32_t
     }
 }
 
+void CopyAndReleaseImage::add(const CopyData& cd)
+{
+    std::scoped_lock lock(_mutex);
+    pending.push_back(cd);
+}
+
 void CopyAndReleaseImage::add(BufferInfo src, ImageInfo dest)
 {
-    pending.push_back(CopyData(src, dest, vsg::computeNumMipMapLevels(src.data, dest.sampler)));
+    add(CopyData(src, dest, vsg::computeNumMipMapLevels(src.data, dest.sampler)));
 }
 
 void CopyAndReleaseImage::add(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels)
 {
-    pending.push_back(CopyData(src, dest, numMipMapLevels));
+    add(CopyData(src, dest, numMipMapLevels));
 }
 
 void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest)
@@ -521,6 +527,8 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 
 void CopyAndReleaseImage::record(CommandBuffer& commandBuffer) const
 {
+    std::scoped_lock lock(_mutex);
+
     for (auto& copyData : readyToClear) copyData.source.release();
     readyToClear.clear();
 
