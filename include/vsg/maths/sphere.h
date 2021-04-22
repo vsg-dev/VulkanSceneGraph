@@ -88,6 +88,14 @@ namespace vsg
             return *this;
         }
 
+        void set(value_type in_x, value_type in_y, value_type in_z, value_type in_r)
+        {
+            x = in_x;
+            y = in_y;
+            z = in_z;
+            r = in_r;
+        }
+
         bool valid() const { return radius >= 0.0; }
 
         T* data() { return value; }
