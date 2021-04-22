@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
+#include <vsg/maths/plane.h>
 
 #include <istream>
 #include <ostream>
@@ -67,6 +68,21 @@ namespace vsg
     std::istream& operator>>(std::istream& input, vsg::t_vec4<T>& vec)
     {
         input >> vec.x >> vec.y >> vec.z >> vec.w;
+        return input;
+    }
+
+    // stream support for std::t_plane
+    template<typename T>
+    std::ostream& operator<<(std::ostream& output, const vsg::t_plane<T>& vec)
+    {
+        output << vec.value[0] << " " << vec.value[1] << " " << vec.value[2] << " " << vec.value[3];
+        return output;
+    }
+
+    template<typename T>
+    std::istream& operator>>(std::istream& input, vsg::t_plane<T>& vec)
+    {
+        input >> vec.value[0] >> vec.value[1] >> vec.value[2] >> vec.value[3];
         return input;
     }
 
