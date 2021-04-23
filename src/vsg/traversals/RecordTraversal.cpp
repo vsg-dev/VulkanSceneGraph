@@ -268,13 +268,14 @@ void RecordTraversal::apply(const CullNode& cullNode)
 
 void RecordTraversal::apply(const DepthSorted& depthSorted)
 {
-    const auto& mv = _state->modelviewMatrixStack.top();
-    auto& center = depthSorted.center;
-    auto distance = -(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]);
+    if (_state->intersect(depthSorted.bound))
+    {
+        const auto& mv = _state->modelviewMatrixStack.top();
+        auto& center = depthSorted.bound.center;
+        auto distance = -(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]);
 
-    //std::cout<<"RecordTraversal::apply("<<&depthSorted<<") bin = "<<depthSorted.binNumber<<", center = "<<depthSorted.center<<", distance = "<<distance<<std::endl;
-
-    bins[depthSorted.binNumber]->add(_state, distance, depthSorted.child);
+        bins[depthSorted.binNumber]->add(_state, distance, depthSorted.child);
+    }
 }
 
 void RecordTraversal::apply(const StateGroup& stateGroup)
