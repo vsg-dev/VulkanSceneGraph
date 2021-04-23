@@ -232,38 +232,20 @@ void RecordTraversal::apply(const PagedLOD& plod)
 
 void RecordTraversal::apply(const CullGroup& cullGroup)
 {
-#if 0
-    // no culling
-    cullGroup.traverse(*this);
-#else
     if (_state->intersect(cullGroup.getBound()))
     {
         //std::cout<<"Passed node"<<std::endl;
         cullGroup.traverse(*this);
     }
-    else
-    {
-        //std::cout<<"Culling node"<<std::endl;
-    }
-#endif
 }
 
 void RecordTraversal::apply(const CullNode& cullNode)
 {
-#if 0
-    // no culling
-    cullNode.traverse(*this);
-#else
     if (_state->intersect(cullNode.getBound()))
     {
         //std::cout<<"Passed node"<<std::endl;
         cullNode.traverse(*this);
     }
-    else
-    {
-        //std::cout<<"Culling node"<<std::endl;
-    }
-#endif
 }
 
 void RecordTraversal::apply(const DepthSorted& depthSorted)
