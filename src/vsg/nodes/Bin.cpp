@@ -52,8 +52,31 @@ void Bin::add(State* state, double value, const Node* node)
 
     Element element;
 
+    const auto& mv = state->modelviewMatrixStack.top();
+#if 1
+    if (_matrices.empty())
+    {
+        element.matrixIndex = _matrices.size();
+        _matrices.push_back(mv);
+    }
+    else
+    {
+        if (_matrices.back() == mv)
+        {
+            //std::cout<<"reaccuring "<<std::endl;
+            element.matrixIndex = _matrices.size()-1;
+        }
+        else
+        {
+            //std::cout<<"new "<<std::endl;
+            element.matrixIndex = _matrices.size();
+            _matrices.push_back(mv);
+        }
+    }
+#else
     element.matrixIndex = _matrices.size();
-    _matrices.push_back(state->modelviewMatrixStack.top());
+    _matrices.push_back(mv);
+#endif
 
     element.stateCommandIndex = _stateCommands.size();
     for(auto& stateStack : state->stateStacks)
@@ -62,7 +85,7 @@ void Bin::add(State* state, double value, const Node* node)
         {
             _stateCommands.push_back(stateStack.top());
             ++element.stateCommandCount;
-        }
+    }
     }
 
     element.child = node;
@@ -90,16 +113,29 @@ void Bin::traverse(RecordTraversal& rt) const
             break;
     }
 
+    uint32_t previousMatrixIndex = _matrices.size();
+    uint32_t previousStateCommandIndex = _stateCommands.size();
+
+    state->pushFrustum();
+    state->dirty = true;
 
     for(auto& keyElement : _binElements)
     {
         //std::cout<<"   "<<keyNode.first<<" "<<keyNode.second->className()<<std::endl;
         auto& element = _elements[keyElement.second];
 
-        state->modelviewMatrixStack.push(_matrices[element.matrixIndex]);
-        state->pushFrustum();
-
-        state->dirty = true;
+        if (element.matrixIndex != previousMatrixIndex)
+        {
+            state->modelviewMatrixStack.push(_matrices[element.matrixIndex]);
+            state->applyFrustum();
+            state->dirty = true;
+            previousMatrixIndex = element.matrixIndex;
+            //std::cout<<"updating"<<std::endl;
+        }
+        else
+        {
+            //std::cout<<"No need to update"<<std::endl;
+        }
 
         if (element.stateCommandCount > 0)
         {
@@ -123,10 +159,10 @@ void Bin::traverse(RecordTraversal& rt) const
             element.child->accept(rt);
         }
 
-        state->modelviewMatrixStack.pop();
-        state->popFrustum();
-        state->dirty = true;
     }
+
+    state->popFrustum();
+    state->dirty = true;
 }
 
 void Bin::read(Input& input)
