@@ -181,6 +181,59 @@ namespace vsg
         }
     };
 
+    struct Polytope
+    {
+        using value_type = MatrixStack::value_type;
+        using Plane = t_plane<value_type>;
+        Plane face[POLYTOPE_SIZE];
+
+        Polytope()
+        {
+            face[0].set(1.0, 0.0, 0.0, 1.0);  // left plane
+            face[1].set(-1.0, 0.0, 0.0, 1.0); // right plane
+            face[2].set(0.0, 1.0, 0.0, 1.0);  // bottom plane
+            face[3].set(0.0, -1.0, 0.0, 1.0); // top plane
+            if constexpr (POLYTOPE_SIZE>=5) face[4].set(0.0, 0.0, -1.0, 1.0); // far plane
+            if constexpr (POLYTOPE_SIZE>=6) face[5].set(0.0, 0.0, 1.0, 1.0); // near plane
+        }
+
+        template<class M>
+        Polytope(const Polytope& pt, const M& matrix)
+        {
+            face[0] = pt.face[0] * matrix;
+            face[1] = pt.face[1] * matrix;
+            face[2] = pt.face[2] * matrix;
+            face[3] = pt.face[3] * matrix;
+            if constexpr (POLYTOPE_SIZE>=5) face[4] = pt.face[4] * matrix;
+            if constexpr (POLYTOPE_SIZE>=6) face[5] = pt.face[5] * matrix;
+        }
+
+        template<class M>
+        void set(const Polytope& pt, const M& matrix)
+        {
+            face[0] = pt.face[0] * matrix;
+            face[1] = pt.face[1] * matrix;
+            face[2] = pt.face[2] * matrix;
+            face[3] = pt.face[3] * matrix;
+            if constexpr (POLYTOPE_SIZE>=5) face[4] = pt.face[4] * matrix;
+            if constexpr (POLYTOPE_SIZE>=6) face[5] = pt.face[5] * matrix;
+        }
+
+        template<typename T>
+        bool intersect(const t_sphere<T>& s)
+        {
+            auto negative_radius = -s.radius;
+            if (distance(face[0], s.center) < negative_radius) return false;
+            if (distance(face[1], s.center) < negative_radius) return false;
+            if (distance(face[2], s.center) < negative_radius) return false;
+            if (distance(face[3], s.center) < negative_radius) return false;
+            if constexpr (POLYTOPE_SIZE>=5) if (distance(face[4], s.center) < negative_radius) return false;
+            if constexpr (POLYTOPE_SIZE>=6) if (distance(face[5], s.center) < negative_radius) return false;
+            return true;
+        }
+    };
+
+
     class State : public Inherit<Object, State>
     {
     public:
@@ -189,37 +242,8 @@ namespace vsg
             dirty(false),
             stateStacks(maxSlot + 1)
         {
-#if POLYTOPE_SIZE == 4
-            _frustumUnit = Polytope{{
-                Plane(1.0, 0.0, 0.0, 1.0),  // left plane
-                Plane(-1.0, 0.0, 0.0, 1.0), // right plane
-                Plane(0.0, 1.0, 0.0, 1.0),  // bottom plane
-                Plane(0.0, -1.0, 0.0, 1.0)  // top plane
-            }};
-#elif POLYTOPE_SIZE == 5
-            _frustumUnit = Polytope{{
-                Plane(1.0, 0.0, 0.0, 1.0),  // left plane
-                Plane(-1.0, 0.0, 0.0, 1.0), // right plane
-                Plane(0.0, 1.0, 0.0, 1.0),  // bottom plane
-                Plane(0.0, -1.0, 0.0, 1.0), // top plane
-                Plane(0.0, 0.0, -1.0, 1.0)  // far plane
-            }};
-#elif POLYTOPE_SIZE == 6
-            _frustumUnit = Polytope{{
-                Plane(1.0, 0.0, 0.0, 1.0),  // left plane
-                Plane(-1.0, 0.0, 0.0, 1.0), // right plane
-                Plane(0.0, 1.0, 0.0, 1.0),  // bottom plane
-                Plane(0.0, -1.0, 0.0, 1.0), // top plane
-                Plane(0.0, 0.0, -1.0, 1.0), // far plane
-                Plane(0.0, 0.0, 1.0, 1.0)   // near plane
-            }};
-#endif
         }
 
-        using value_type = MatrixStack::value_type;
-        using Plane = t_plane<value_type>;
-
-        using Polytope = std::array<Plane, POLYTOPE_SIZE>;
         using StateStacks = std::vector<StateStack<StateCommand>>;
 
         ref_ptr<CommandBuffer> _commandBuffer;
@@ -243,15 +267,7 @@ namespace vsg
 
             const auto& proj = projectionMatrixStack.top();
 
-            _frustumProjected[0] = _frustumUnit[0] * proj;
-            _frustumProjected[1] = _frustumUnit[1] * proj;
-            _frustumProjected[2] = _frustumUnit[2] * proj;
-            _frustumProjected[3] = _frustumUnit[3] * proj;
-#if POLYTOPE_SIZE >= 5
-            _frustumProjected[4] = _frustumUnit[4] * proj;
-#elif POLYTOPE_SIZE >= 6
-            _frustumProjected[5] = _frustumUnit[5] * proj;
-#endif
+            _frustumProjected.set(_frustumUnit, proj);
 
             modelviewMatrixStack.set(viewMatrix);
 
@@ -280,26 +296,12 @@ namespace vsg
 
         inline void pushFrustum()
         {
-            const auto mv = modelviewMatrixStack.top();
-#if POLYTOPE_SIZE == 4
-            _frustumStack.push(Polytope{{ _frustumProjected[0] * mv,
-                                          _frustumProjected[1] * mv,
-                                          _frustumProjected[2] * mv,
-                                          _frustumProjected[3] * mv }});
-#elif POLYTOPE_SIZE == 5
-            _frustumStack.push(Polytope{{ _frustumProjected[0] * mv,
-                                          _frustumProjected[1] * mv,
-                                          _frustumProjected[2] * mv,
-                                          _frustumProjected[3] * mv,
-                                          _frustumProjected[4] * mv }});
-#elif POLYTOPE_SIZE == 6
-            _frustumStack.push(Polytope{{_frustumProjected[0] * mv,
-                                         _frustumProjected[1] * mv,
-                                         _frustumProjected[2] * mv,
-                                         _frustumProjected[3] * mv,
-                                         _frustumProjected[4] * mv,
-                                         _frustumProjected[5] * mv}});
-#endif
+            _frustumStack.push(Polytope(_frustumProjected, modelviewMatrixStack.top()));
+        }
+
+        inline void applyFrustum()
+        {
+            _frustumStack.top().set(_frustumProjected, modelviewMatrixStack.top());
         }
 
         inline void popFrustum()
@@ -310,7 +312,7 @@ namespace vsg
         template<typename T>
         bool intersect(const t_sphere<T>& s)
         {
-            return vsg::intersect(_frustumStack.top(), s);
+            return _frustumStack.top().intersect(s);
         }
     };
 
