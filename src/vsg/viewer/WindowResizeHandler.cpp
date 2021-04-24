@@ -118,8 +118,6 @@ void WindowResizeHandler::apply(vsg::View& view)
         return;
     }
 
-    view.camera->getProjectionMatrix()->changeExtent(previous_extent, new_extent);
-
     auto viewportState = view.camera->getViewportState();
 
     size_t num_viewports = std::min(viewportState->viewports.size(), viewportState->scissors.size());
@@ -137,6 +135,8 @@ void WindowResizeHandler::apply(vsg::View& view)
         viewport.y = static_cast<float>(scissor.offset.y);
         viewport.width = static_cast<float>(scissor.extent.width);
         viewport.height = static_cast<float>(scissor.extent.height);
+
+        view.camera->getProjectionMatrix()->changeExtent(previous_extent, scissor.extent);
 
         if (renderAreaMatches)
         {
