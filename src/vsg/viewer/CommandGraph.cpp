@@ -79,11 +79,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     recordTraversal->setFrameStamp(frameStamp);
     recordTraversal->setDatabasePager(databasePager);
-
-    for(auto& bin : recordTraversal->bins)
-    {
-        if (bin) bin->clear();
-    }
+    recordTraversal->clearBins();
 
     ref_ptr<CommandBuffer> commandBuffer;
     for (auto& cb : _commandBuffers)

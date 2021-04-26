@@ -99,6 +99,11 @@ void RecordTraversal::setProjectionAndViewMatrix(const dmat4& projMatrix, const 
     _state->setProjectionAndViewMatrix(projMatrix, viewMatrix);
 }
 
+void RecordTraversal::clearBins()
+{
+    bins.clear();
+}
+
 void RecordTraversal::apply(const Object& object)
 {
     //    std::cout<<"Visiting object"<<std::endl;

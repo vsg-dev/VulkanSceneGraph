@@ -86,6 +86,9 @@ namespace vsg
         // Viewer level nodes
         void apply(const View& view);
 
+        // clear the bins to record a new frame.
+        void clearBins();
+
     protected:
         virtual ~RecordTraversal();
 
