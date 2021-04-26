@@ -42,7 +42,7 @@ namespace vsg
 
         void add(State* state, double value, const Node* node);
 
-        uint32_t binNumber = 0;
+        int32_t binNumber = 0;
         SortOrder sortOrder = NO_SORT;
 
 

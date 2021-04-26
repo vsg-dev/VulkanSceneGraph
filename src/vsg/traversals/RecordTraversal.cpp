@@ -256,7 +256,7 @@ void RecordTraversal::apply(const DepthSorted& depthSorted)
         auto& center = depthSorted.bound.center;
         auto distance = -(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]);
 
-        bins[depthSorted.binNumber]->add(_state, distance, depthSorted.child);
+        bins[depthSorted.binNumber-minimumBinNumber]->add(_state, distance, depthSorted.child);
     }
 }
 
