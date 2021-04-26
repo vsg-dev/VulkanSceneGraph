@@ -39,7 +39,7 @@ using namespace vsg;
 
 #define INLINE_TRAVERSE 0
 
-RecordTraversal::RecordTraversal(CommandBuffer* in_commandBuffer, uint32_t in_maxSlot, std::set<ref_ptr<Bin>> in_bins) :
+RecordTraversal::RecordTraversal(CommandBuffer* in_commandBuffer, uint32_t in_maxSlot, std::set<Bin*> in_bins) :
     _state(new State(in_commandBuffer, in_maxSlot))
 {
     if (_frameStamp) _frameStamp->ref();
