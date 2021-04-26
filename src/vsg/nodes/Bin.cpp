@@ -25,7 +25,7 @@ Bin::Bin(Allocator* allocator) :
 {
 }
 
-Bin::Bin(uint32_t in_binNumber, SortOrder in_sortOrder, Allocator* allocator) :
+Bin::Bin(int32_t in_binNumber, SortOrder in_sortOrder, Allocator* allocator) :
     Inherit(allocator),
     binNumber(in_binNumber),
     sortOrder(in_sortOrder)

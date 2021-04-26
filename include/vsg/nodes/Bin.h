@@ -29,7 +29,7 @@ namespace vsg
         };
 
         Bin(Allocator* allocator = nullptr);
-        Bin(uint32_t in_binNumber, SortOrder in_sortOrder, Allocator* allocator = nullptr);
+        Bin(int32_t in_binNumber, SortOrder in_sortOrder, Allocator* allocator = nullptr);
 
         void traverse(RecordTraversal& visitor) const override;
 

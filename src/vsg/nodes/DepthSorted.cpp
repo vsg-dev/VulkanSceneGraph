@@ -21,7 +21,7 @@ DepthSorted::DepthSorted(Allocator* allocator) :
 {
 }
 
-DepthSorted::DepthSorted(uint32_t in_binNumber, const dsphere& in_bound, ref_ptr<Node> in_child, Allocator* allocator) :
+DepthSorted::DepthSorted(int32_t in_binNumber, const dsphere& in_bound, ref_ptr<Node> in_child, Allocator* allocator) :
     Inherit(allocator),
     binNumber(in_binNumber),
     bound(in_bound),
