@@ -97,7 +97,7 @@ void WindowResizeHandler::apply(vsg::StateGroup& sg)
 
 void WindowResizeHandler::apply(ClearAttachments& clearAttachments)
 {
-    if (!visit(&clearAttachments, context->viewID)) return;
+    if (!visit(&clearAttachments)) return;
 
     for (auto& clearRect : clearAttachments.rects)
     {
