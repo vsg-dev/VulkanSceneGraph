@@ -39,18 +39,25 @@ using namespace vsg;
 
 #define INLINE_TRAVERSE 0
 
-RecordTraversal::RecordTraversal(CommandBuffer* commandBuffer, uint32_t maxSlot, FrameStamp* fs) :
-    _frameStamp(fs),
-    _state(new State(commandBuffer, maxSlot))
+RecordTraversal::RecordTraversal(CommandBuffer* in_commandBuffer, uint32_t in_maxSlot, std::set<ref_ptr<Bin>> in_bins) :
+    _state(new State(in_commandBuffer, in_maxSlot))
 {
     if (_frameStamp) _frameStamp->ref();
     if (_state) _state->ref();
 
-    // preallocate bins.
-    bins.resize(20);
-    for(uint32_t i=0; i<bins.size(); ++i)
+    minimumBinNumber = 0;
+    int32_t maximumBinNumber = 0;
+    for(auto& bin : in_bins)
     {
-        bins[i] = Bin::create(i, Bin::DESCENDING);
+        if (bin->binNumber < minimumBinNumber) minimumBinNumber = bin->binNumber;
+        if (bin->binNumber > maximumBinNumber) maximumBinNumber = bin->binNumber;
+    }
+
+    bins.resize((maximumBinNumber-minimumBinNumber)+1);
+
+    for(auto& bin : in_bins)
+    {
+        bins[bin->binNumber - minimumBinNumber] = bin;
     }
 }
 

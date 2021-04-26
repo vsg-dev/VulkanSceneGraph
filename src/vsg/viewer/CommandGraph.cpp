@@ -74,13 +74,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     if (!recordTraversal)
     {
-        recordTraversal = new RecordTraversal(nullptr, maxSlot);
-        std::cout<<"Assigning bins to RecrodTraversal()"<<std::endl;
-        for(auto& bin : bins)
-        {
-            recordTraversal->bins[bin->binNumber] = const_cast<Bin*>(bin.get());
-            std::cout<<"   "<<bin<<", "<<bin->binNumber<<std::endl;
-        }
+        recordTraversal = new RecordTraversal(nullptr, maxSlot, bins);
     }
 
     recordTraversal->setFrameStamp(frameStamp);
@@ -88,7 +82,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     for(auto& bin : recordTraversal->bins)
     {
-        bin->clear();
+        if (bin) bin->clear();
     }
 
     ref_ptr<CommandBuffer> commandBuffer;

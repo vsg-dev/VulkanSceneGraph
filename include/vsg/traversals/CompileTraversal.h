@@ -36,6 +36,7 @@ namespace vsg
         using DescriptorSets = std::set<const DescriptorSet*>;
         using DescriptorTypeMap = std::map<VkDescriptorType, uint32_t>;
         using Views = std::set<const View*>;
+        using Bins = std::set<const Bin*>;
 
         using ConstVisitor::apply;
 
@@ -61,12 +62,13 @@ namespace vsg
         DescriptorSets descriptorSets;
         DescriptorTypeMap descriptorTypeMap;
         Views views;
-        std::set<ref_ptr<const Bin>> bins;
+        Bins bins;
 
         uint32_t maxSlot = 0;
         uint32_t externalNumDescriptorSets = 0;
         bool containsPagedLOD = false;
-        uint32_t maxBinNumber = 0;
+        int32_t minBinNumber = 0;
+        int32_t maxBinNumber = 0;
 
     protected:
         uint32_t _numResourceHintsAbove = 0;

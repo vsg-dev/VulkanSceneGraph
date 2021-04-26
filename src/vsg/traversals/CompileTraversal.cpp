@@ -145,18 +145,15 @@ void CollectDescriptorStats::apply(const View& view)
 
 void CollectDescriptorStats::apply(const DepthSorted& depthSorted)
 {
-    if (depthSorted.binNumber > maxBinNumber)
-    {
-        maxBinNumber = depthSorted.binNumber;
-        std::cout<<"CollectDescriptorStats::apply(const DepthSorted& depthSorted) "<<maxBinNumber<<std::endl;
-    }
+    if (depthSorted.binNumber < minBinNumber) minBinNumber = depthSorted.binNumber;
+    if (depthSorted.binNumber > maxBinNumber) maxBinNumber = depthSorted.binNumber;
+
     depthSorted.traverse(*this);
 }
 
 void CollectDescriptorStats::apply(const Bin& bin)
 {
     bins.insert(ref_ptr<const Bin>(&bin));
-    std::cout<<"CollectDescriptorStats::apply(const Bin& bin = "<<&bin<<") bin.binNumber = "<<bin.binNumber<<", sortOrder = "<<bin.sortOrder<< std::endl;
 }
 
 uint32_t CollectDescriptorStats::computeNumDescriptorSets() const

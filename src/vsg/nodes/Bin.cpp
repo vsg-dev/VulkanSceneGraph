@@ -114,7 +114,7 @@ void Bin::traverse(RecordTraversal& rt) const
     }
 
     uint32_t previousMatrixIndex = _matrices.size();
-    uint32_t previousStateCommandIndex = _stateCommands.size();
+    //uint32_t previousStateCommandIndex = _stateCommands.size();
 
     state->pushFrustum();
     state->dirty = true;

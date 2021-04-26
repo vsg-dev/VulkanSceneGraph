@@ -181,13 +181,13 @@ namespace vsg
         }
     };
 
-    struct Polytope
+    struct Frustum
     {
         using value_type = MatrixStack::value_type;
         using Plane = t_plane<value_type>;
         Plane face[POLYTOPE_SIZE];
 
-        Polytope()
+        Frustum()
         {
             face[0].set(1.0, 0.0, 0.0, 1.0);  // left plane
             face[1].set(-1.0, 0.0, 0.0, 1.0); // right plane
@@ -198,7 +198,7 @@ namespace vsg
         }
 
         template<class M>
-        Polytope(const Polytope& pt, const M& matrix)
+        Frustum(const Frustum& pt, const M& matrix)
         {
             face[0] = pt.face[0] * matrix;
             face[1] = pt.face[1] * matrix;
@@ -209,7 +209,7 @@ namespace vsg
         }
 
         template<class M>
-        void set(const Polytope& pt, const M& matrix)
+        void set(const Frustum& pt, const M& matrix)
         {
             face[0] = pt.face[0] * matrix;
             face[1] = pt.face[1] * matrix;
@@ -248,11 +248,11 @@ namespace vsg
 
         ref_ptr<CommandBuffer> _commandBuffer;
 
-        Polytope _frustumUnit;
-        Polytope _frustumProjected;
+        Frustum _frustumUnit;
+        Frustum _frustumProjected;
 
-        using PolytopeStack = std::stack<Polytope>;
-        PolytopeStack _frustumStack;
+        using FrustumStack = std::stack<Frustum>;
+        FrustumStack _frustumStack;
 
         bool dirty;
 
@@ -296,7 +296,7 @@ namespace vsg
 
         inline void pushFrustum()
         {
-            _frustumStack.push(Polytope(_frustumProjected, modelviewMatrixStack.top()));
+            _frustumStack.push(Frustum(_frustumProjected, modelviewMatrixStack.top()));
         }
 
         inline void applyFrustum()

@@ -275,13 +275,10 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             commandGraph->maxSlot = deviceResource.collectStats.maxSlot;
             commandGraph->accept(*deviceResource.compile);
 
-            std::cout<<"Viewer::compile() commandGraph = "<<commandGraph<<" maxBinNumber = "<<deviceResource.collectStats.maxBinNumber<<std::endl;
             for(auto& bin : deviceResource.collectStats.bins)
             {
-                std::cout<<"    "<<bin<<std::endl;
+                commandGraph->bins.insert(ref_ptr<Bin>(const_cast<Bin*>(bin)));
             }
-
-            commandGraph->bins = deviceResource.collectStats.bins;
 
             if (deviceResource.collectStats.containsPagedLOD) task_containsPagedLOD = true;
         }

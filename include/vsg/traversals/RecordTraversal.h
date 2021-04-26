@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/mat4.h>
 
 #include <vector>
+#include <set>
 
 namespace vsg
 {
@@ -47,7 +48,7 @@ namespace vsg
     class VSG_DECLSPEC RecordTraversal : public Object
     {
     public:
-        explicit RecordTraversal(CommandBuffer* commandBuffer = nullptr, uint32_t maxSlot = 2, FrameStamp* fs = nullptr);
+        explicit RecordTraversal(CommandBuffer* in_commandBuffer = nullptr, uint32_t in_maxSlot = 2, std::set<ref_ptr<Bin>> in_bins = {});
 
         RecordTraversal(const RecordTraversal&) = delete;
         RecordTraversal& operator=(const RecordTraversal& rhs) = delete;
