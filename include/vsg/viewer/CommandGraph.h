@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Export.h>
+#include <vsg/nodes/Bin.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/Window.h>
@@ -44,6 +45,8 @@ namespace vsg
         VkBool32 occlusionQueryEnable = VK_FALSE;
         VkQueryControlFlags queryFlags = 0;
         VkQueryPipelineStatisticFlags pipelineStatistics = 0;
+
+        std::set<Bin*> bins;
 
         ref_ptr<RecordTraversal> recordTraversal;
 

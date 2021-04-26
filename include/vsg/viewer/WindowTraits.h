@@ -66,7 +66,7 @@ namespace vsg
             deviceFeatures->get().samplerAnisotropy = VK_TRUE;
 
             // prefer discrete gpu over integrated gpu over virtual gpu
-            deviceTypePreferences = { VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU, VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU, VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU };
+            deviceTypePreferences = {VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU, VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU, VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU};
         }
 
         int32_t x = 0;

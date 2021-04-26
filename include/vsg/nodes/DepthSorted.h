@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,24 +12,33 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
-#include <vsg/nodes/Bin.h>
-#include <vsg/traversals/RecordTraversal.h>
-#include <vsg/viewer/View.h>
+#include <vsg/maths/sphere.h>
+#include <vsg/nodes/Node.h>
 
-#include <iostream>
-
-using namespace vsg;
-
-View::View()
+namespace vsg
 {
-}
 
-View::View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph)
-{
-    camera = in_camera;
+    class VSG_DECLSPEC DepthSorted : public Inherit<Node, DepthSorted>
+    {
+    public:
+        DepthSorted(Allocator* allocator = nullptr);
 
-    if (in_scenegraph) addChild(in_scenegraph);
+        DepthSorted(int32_t in_binNumber, const dsphere& in_bound, ref_ptr<Node> in_child, Allocator* allocator = nullptr);
 
-    addChild(Bin::create(10, Bin::DESCENDING));
-}
+        void traverse(Visitor& visitor) override { child->accept(visitor); }
+        void traverse(ConstVisitor& visitor) const override { child->accept(visitor); }
+        void traverse(RecordTraversal& visitor) const override { child->accept(visitor); }
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        int32_t binNumber;
+        dsphere bound;
+        ref_ptr<Node> child;
+
+    protected:
+        virtual ~DepthSorted();
+    };
+    VSG_type_name(vsg::DepthSorted);
+
+} // namespace vsg

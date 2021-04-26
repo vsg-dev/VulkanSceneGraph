@@ -15,8 +15,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/DatabasePager.h>
 #include <vsg/io/Options.h>
 #include <vsg/maths/plane.h>
+#include <vsg/nodes/Bin.h>
 #include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/CullNode.h>
+#include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/MatrixTransform.h>
@@ -37,12 +39,26 @@ using namespace vsg;
 
 #define INLINE_TRAVERSE 0
 
-RecordTraversal::RecordTraversal(CommandBuffer* commandBuffer, uint32_t maxSlot, FrameStamp* fs) :
-    _frameStamp(fs),
-    _state(new State(commandBuffer, maxSlot))
+RecordTraversal::RecordTraversal(CommandBuffer* in_commandBuffer, uint32_t in_maxSlot, std::set<Bin*> in_bins) :
+    _state(new State(in_commandBuffer, in_maxSlot))
 {
     if (_frameStamp) _frameStamp->ref();
     if (_state) _state->ref();
+
+    _minimumBinNumber = 0;
+    int32_t maximumBinNumber = 0;
+    for (auto& bin : in_bins)
+    {
+        if (bin->binNumber < _minimumBinNumber) _minimumBinNumber = bin->binNumber;
+        if (bin->binNumber > maximumBinNumber) maximumBinNumber = bin->binNumber;
+    }
+
+    _bins.resize((maximumBinNumber - _minimumBinNumber) + 1);
+
+    for (auto& bin : in_bins)
+    {
+        _bins[bin->binNumber - _minimumBinNumber] = bin;
+    }
 }
 
 RecordTraversal::~RecordTraversal()
@@ -81,6 +97,14 @@ void RecordTraversal::setDatabasePager(DatabasePager* dp)
 void RecordTraversal::setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
 {
     _state->setProjectionAndViewMatrix(projMatrix, viewMatrix);
+}
+
+void RecordTraversal::clearBins()
+{
+    for (auto& bin : _bins)
+    {
+        if (bin) bin->clear();
+    }
 }
 
 void RecordTraversal::apply(const Object& object)
@@ -223,38 +247,32 @@ void RecordTraversal::apply(const PagedLOD& plod)
 
 void RecordTraversal::apply(const CullGroup& cullGroup)
 {
-#if 0
-    // no culling
-    cullGroup.traverse(*this);
-#else
     if (_state->intersect(cullGroup.getBound()))
     {
         //std::cout<<"Passed node"<<std::endl;
         cullGroup.traverse(*this);
     }
-    else
-    {
-        //std::cout<<"Culling node"<<std::endl;
-    }
-#endif
 }
 
 void RecordTraversal::apply(const CullNode& cullNode)
 {
-#if 0
-    // no culling
-    cullNode.traverse(*this);
-#else
     if (_state->intersect(cullNode.getBound()))
     {
         //std::cout<<"Passed node"<<std::endl;
         cullNode.traverse(*this);
     }
-    else
+}
+
+void RecordTraversal::apply(const DepthSorted& depthSorted)
+{
+    if (_state->intersect(depthSorted.bound))
     {
-        //std::cout<<"Culling node"<<std::endl;
+        const auto& mv = _state->modelviewMatrixStack.top();
+        auto& center = depthSorted.bound.center;
+        auto distance = -(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]);
+
+        _bins[depthSorted.binNumber - _minimumBinNumber]->add(_state, distance, depthSorted.child);
     }
-#endif
 }
 
 void RecordTraversal::apply(const StateGroup& stateGroup)

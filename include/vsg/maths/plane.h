@@ -92,6 +92,14 @@ namespace vsg
             return *this;
         }
 
+        void set(value_type in_x, value_type in_y, value_type in_z, value_type in_d)
+        {
+            value[0] = in_x;
+            value[1] = in_y;
+            value[2] = in_z;
+            value[3] = in_d;
+        }
+
         bool valid() const { return n.x != 0.0 && n.y != 0.0 && n.z != 0.0; }
 
         T* data() { return value; }

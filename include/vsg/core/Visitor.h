@@ -36,6 +36,8 @@ namespace vsg
     class MatrixTransform;
     class Geometry;
     class VertexIndexDraw;
+    class DepthSorted;
+    class Bin;
 
     // forward declare vulkan classes
     class Command;
@@ -226,6 +228,8 @@ namespace vsg
         virtual void apply(MatrixTransform&);
         virtual void apply(Geometry&);
         virtual void apply(VertexIndexDraw&);
+        virtual void apply(DepthSorted&);
+        virtual void apply(Bin&);
 
         // Vulkan nodes
         virtual void apply(Command&);

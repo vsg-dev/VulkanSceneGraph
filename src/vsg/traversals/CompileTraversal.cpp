@@ -14,6 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/Command.h>
 #include <vsg/commands/Commands.h>
+#include <vsg/nodes/Bin.h>
+#include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
@@ -137,6 +139,19 @@ void CollectDescriptorStats::apply(const View& view)
     views.insert(&view);
 
     view.traverse(*this);
+}
+
+void CollectDescriptorStats::apply(const DepthSorted& depthSorted)
+{
+    if (depthSorted.binNumber < minBinNumber) minBinNumber = depthSorted.binNumber;
+    if (depthSorted.binNumber > maxBinNumber) maxBinNumber = depthSorted.binNumber;
+
+    depthSorted.traverse(*this);
+}
+
+void CollectDescriptorStats::apply(const Bin& bin)
+{
+    bins.insert(ref_ptr<const Bin>(&bin));
 }
 
 uint32_t CollectDescriptorStats::computeNumDescriptorSets() const

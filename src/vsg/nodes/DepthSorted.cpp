@@ -11,23 +11,42 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
-#include <vsg/nodes/Bin.h>
-#include <vsg/traversals/RecordTraversal.h>
-#include <vsg/viewer/View.h>
-
-#include <iostream>
+#include <vsg/io/stream.h>
+#include <vsg/nodes/DepthSorted.h>
 
 using namespace vsg;
 
-View::View()
+DepthSorted::DepthSorted(Allocator* allocator) :
+    Inherit(allocator)
 {
 }
 
-View::View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph)
+DepthSorted::DepthSorted(int32_t in_binNumber, const dsphere& in_bound, ref_ptr<Node> in_child, Allocator* allocator) :
+    Inherit(allocator),
+    binNumber(in_binNumber),
+    bound(in_bound),
+    child(in_child)
 {
-    camera = in_camera;
+}
 
-    if (in_scenegraph) addChild(in_scenegraph);
+DepthSorted::~DepthSorted()
+{
+}
 
-    addChild(Bin::create(10, Bin::DESCENDING));
+void DepthSorted::read(Input& input)
+{
+    Node::read(input);
+
+    input.read("binNumber", binNumber);
+    input.read("bound", bound);
+    input.readObject("child", child);
+}
+
+void DepthSorted::write(Output& output) const
+{
+    Node::write(output);
+
+    output.write("binNumber", binNumber);
+    output.write("bound", bound);
+    output.writeObject("child", child.get());
 }
