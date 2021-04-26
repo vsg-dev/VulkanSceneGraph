@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Export.h>
-#include <vsg/nodes/Group.h>
 #include <vsg/nodes/Bin.h>
+#include <vsg/nodes/Group.h>
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/Window.h>
 #include <vsg/vk/CommandBuffer.h>

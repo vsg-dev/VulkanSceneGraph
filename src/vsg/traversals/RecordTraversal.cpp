@@ -15,15 +15,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/DatabasePager.h>
 #include <vsg/io/Options.h>
 #include <vsg/maths/plane.h>
+#include <vsg/nodes/Bin.h>
 #include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/CullNode.h>
+#include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
-#include <vsg/nodes/Bin.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
-#include <vsg/nodes/DepthSorted.h>
 #include <vsg/state/StateGroup.h>
 #include <vsg/threading/atomics.h>
 #include <vsg/traversals/RecordTraversal.h>
@@ -47,15 +47,15 @@ RecordTraversal::RecordTraversal(CommandBuffer* in_commandBuffer, uint32_t in_ma
 
     minimumBinNumber = 0;
     int32_t maximumBinNumber = 0;
-    for(auto& bin : in_bins)
+    for (auto& bin : in_bins)
     {
         if (bin->binNumber < minimumBinNumber) minimumBinNumber = bin->binNumber;
         if (bin->binNumber > maximumBinNumber) maximumBinNumber = bin->binNumber;
     }
 
-    bins.resize((maximumBinNumber-minimumBinNumber)+1);
+    bins.resize((maximumBinNumber - minimumBinNumber) + 1);
 
-    for(auto& bin : in_bins)
+    for (auto& bin : in_bins)
     {
         bins[bin->binNumber - minimumBinNumber] = bin;
     }
@@ -101,7 +101,7 @@ void RecordTraversal::setProjectionAndViewMatrix(const dmat4& projMatrix, const 
 
 void RecordTraversal::clearBins()
 {
-    for(auto& bin : bins)
+    for (auto& bin : bins)
     {
         if (bin) bin->clear();
     }
@@ -271,7 +271,7 @@ void RecordTraversal::apply(const DepthSorted& depthSorted)
         auto& center = depthSorted.bound.center;
         auto distance = -(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]);
 
-        bins[depthSorted.binNumber-minimumBinNumber]->add(_state, distance, depthSorted.child);
+        bins[depthSorted.binNumber - minimumBinNumber]->add(_state, distance, depthSorted.child);
     }
 }
 

@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Object.h>
-#include <vsg/nodes/Group.h>
 #include <vsg/nodes/Bin.h>
+#include <vsg/nodes/Group.h>
 #include <vsg/state/BufferInfo.h>
 #include <vsg/state/Descriptor.h>
 #include <vsg/state/ResourceHints.h>

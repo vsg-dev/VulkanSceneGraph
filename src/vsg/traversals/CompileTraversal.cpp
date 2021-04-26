@@ -14,13 +14,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/Command.h>
 #include <vsg/commands/Commands.h>
+#include <vsg/nodes/Bin.h>
+#include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
-#include <vsg/nodes/DepthSorted.h>
-#include <vsg/nodes/Bin.h>
 #include <vsg/state/StateGroup.h>
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/RenderGraph.h>

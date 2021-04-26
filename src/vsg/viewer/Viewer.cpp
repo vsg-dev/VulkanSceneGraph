@@ -275,7 +275,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             commandGraph->maxSlot = deviceResource.collectStats.maxSlot;
             commandGraph->accept(*deviceResource.compile);
 
-            for(auto& bin : deviceResource.collectStats.bins)
+            for (auto& bin : deviceResource.collectStats.bins)
             {
                 commandGraph->bins.insert(ref_ptr<Bin>(const_cast<Bin*>(bin)));
             }

@@ -46,7 +46,7 @@ void Bin::clear()
 
 void Bin::add(State* state, double value, const Node* node)
 {
-//    binElements.emplace_back(value, node);
+    //    binElements.emplace_back(value, node);
 
     //std::cout<<"Bin::add(state= "<<state<<", value = "<<value<<", "<<node<<") "<<this<<", binNumber = "<<binNumber<<",  binElements.size()="<<_binElements.size()<<std::endl;
 
@@ -64,7 +64,7 @@ void Bin::add(State* state, double value, const Node* node)
         if (_matrices.back() == mv)
         {
             //std::cout<<"reaccuring "<<std::endl;
-            element.matrixIndex = _matrices.size()-1;
+            element.matrixIndex = _matrices.size() - 1;
         }
         else
         {
@@ -79,13 +79,13 @@ void Bin::add(State* state, double value, const Node* node)
 #endif
 
     element.stateCommandIndex = _stateCommands.size();
-    for(auto& stateStack : state->stateStacks)
+    for (auto& stateStack : state->stateStacks)
     {
-        if (stateStack.size()>0)
+        if (stateStack.size() > 0)
         {
             _stateCommands.push_back(stateStack.top());
             ++element.stateCommandCount;
-    }
+        }
     }
 
     element.child = node;
@@ -101,16 +101,16 @@ void Bin::traverse(RecordTraversal& rt) const
 
     auto state = rt.getState();
 
-    switch(sortOrder)
+    switch (sortOrder)
     {
-        case(ASCENDING):
-            std::sort(_binElements.begin(), _binElements.end(), [](const KeyIndex& lhs, const KeyIndex& rhs) { return lhs.first < rhs.first; });
-            break;
-        case(DESCENDING):
-            std::sort(_binElements.begin(), _binElements.end(), [](const KeyIndex& lhs, const KeyIndex& rhs) { return rhs.first < lhs.first; });
-            break;
-        case(NO_SORT):
-            break;
+    case (ASCENDING):
+        std::sort(_binElements.begin(), _binElements.end(), [](const KeyIndex& lhs, const KeyIndex& rhs) { return lhs.first < rhs.first; });
+        break;
+    case (DESCENDING):
+        std::sort(_binElements.begin(), _binElements.end(), [](const KeyIndex& lhs, const KeyIndex& rhs) { return rhs.first < lhs.first; });
+        break;
+    case (NO_SORT):
+        break;
     }
 
     uint32_t previousMatrixIndex = _matrices.size();
@@ -119,7 +119,7 @@ void Bin::traverse(RecordTraversal& rt) const
     state->pushFrustum();
     state->dirty = true;
 
-    for(auto& keyElement : _binElements)
+    for (auto& keyElement : _binElements)
     {
         //std::cout<<"   "<<keyNode.first<<" "<<keyNode.second->className()<<std::endl;
         auto& element = _elements[keyElement.second];
@@ -140,7 +140,7 @@ void Bin::traverse(RecordTraversal& rt) const
         if (element.stateCommandCount > 0)
         {
             uint32_t endIndex = element.stateCommandIndex + element.stateCommandCount;
-            for (uint32_t i = element.stateCommandIndex; i<endIndex; ++i)
+            for (uint32_t i = element.stateCommandIndex; i < endIndex; ++i)
             {
                 auto command = _stateCommands[i];
                 state->stateStacks[command->getSlot()].push(command);
@@ -148,7 +148,7 @@ void Bin::traverse(RecordTraversal& rt) const
 
             element.child->accept(rt);
 
-            for (uint32_t i = element.stateCommandIndex; i<endIndex; ++i)
+            for (uint32_t i = element.stateCommandIndex; i < endIndex; ++i)
             {
                 auto command = _stateCommands[i];
                 state->stateStacks[command->getSlot()].pop();
@@ -158,7 +158,6 @@ void Bin::traverse(RecordTraversal& rt) const
         {
             element.child->accept(rt);
         }
-
     }
 
     state->popFrustum();
@@ -180,4 +179,3 @@ void Bin::write(Output& output) const
     output.write("binNimber", binNumber);
     output.write("sortOrder", sortOrder);
 }
-

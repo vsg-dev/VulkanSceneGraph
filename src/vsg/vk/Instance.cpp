@@ -113,7 +113,7 @@ Instance::~Instance()
 
 ref_ptr<PhysicalDevice> Instance::getPhysicalDevice(VkQueueFlags queueFlags, const PhysicalDeviceTypes& deviceTypePreferences) const
 {
-    for(size_t i = 0; i <= deviceTypePreferences.size(); ++i)
+    for (size_t i = 0; i <= deviceTypePreferences.size(); ++i)
     {
         for (auto& device : _physicalDevices)
         {
@@ -127,7 +127,7 @@ ref_ptr<PhysicalDevice> Instance::getPhysicalDevice(VkQueueFlags queueFlags, con
 
 ref_ptr<PhysicalDevice> Instance::getPhysicalDevice(VkQueueFlags queueFlags, Surface* surface, const PhysicalDeviceTypes& deviceTypePreferences) const
 {
-    for(size_t i = 0; i <= deviceTypePreferences.size(); ++i)
+    for (size_t i = 0; i <= deviceTypePreferences.size(); ++i)
     {
         for (auto& device : _physicalDevices)
         {
@@ -141,7 +141,7 @@ ref_ptr<PhysicalDevice> Instance::getPhysicalDevice(VkQueueFlags queueFlags, Sur
 
 std::pair<ref_ptr<PhysicalDevice>, int> Instance::getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, const PhysicalDeviceTypes& deviceTypePreferences) const
 {
-    for(size_t i = 0; i <= deviceTypePreferences.size(); ++i)
+    for (size_t i = 0; i <= deviceTypePreferences.size(); ++i)
     {
         for (auto& device : _physicalDevices)
         {
@@ -155,7 +155,7 @@ std::pair<ref_ptr<PhysicalDevice>, int> Instance::getPhysicalDeviceAndQueueFamil
 
 std::tuple<ref_ptr<PhysicalDevice>, int, int> Instance::getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface, const PhysicalDeviceTypes& deviceTypePreferences) const
 {
-    for(size_t i = 0; i <= deviceTypePreferences.size(); ++i)
+    for (size_t i = 0; i <= deviceTypePreferences.size(); ++i)
     {
         for (auto& device : _physicalDevices)
         {

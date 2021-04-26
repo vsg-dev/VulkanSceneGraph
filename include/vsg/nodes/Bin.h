@@ -21,14 +21,12 @@ namespace vsg
     class VSG_DECLSPEC Bin : public Inherit<Node, Bin>
     {
     public:
-
         enum SortOrder
         {
             NO_SORT,
             ASCENDING,
             DESCENDING
         };
-
 
         Bin(Allocator* allocator = nullptr);
         Bin(uint32_t in_binNumber, SortOrder in_sortOrder, Allocator* allocator = nullptr);
@@ -44,7 +42,6 @@ namespace vsg
 
         int32_t binNumber = 0;
         SortOrder sortOrder = NO_SORT;
-
 
     protected:
         virtual ~Bin();
