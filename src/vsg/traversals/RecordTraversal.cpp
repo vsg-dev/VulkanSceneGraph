@@ -101,7 +101,10 @@ void RecordTraversal::setProjectionAndViewMatrix(const dmat4& projMatrix, const 
 
 void RecordTraversal::clearBins()
 {
-    bins.clear();
+    for(auto& bin : bins)
+    {
+        if (bin) bin->clear();
+    }
 }
 
 void RecordTraversal::apply(const Object& object)
