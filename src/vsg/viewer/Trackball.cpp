@@ -236,7 +236,7 @@ void Trackball::apply(MoveEvent& moveEvent)
 
 void Trackball::apply(ScrollWheelEvent& scrollWheel)
 {
-    if (scrollWheel.handled) return;
+    if (scrollWheel.handled || !_lastPointerEventWithinRenderArea) return;
 
     scrollWheel.handled = true;
 
