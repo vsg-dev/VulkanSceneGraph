@@ -45,19 +45,19 @@ RecordTraversal::RecordTraversal(CommandBuffer* in_commandBuffer, uint32_t in_ma
     if (_frameStamp) _frameStamp->ref();
     if (_state) _state->ref();
 
-    minimumBinNumber = 0;
+    _minimumBinNumber = 0;
     int32_t maximumBinNumber = 0;
     for (auto& bin : in_bins)
     {
-        if (bin->binNumber < minimumBinNumber) minimumBinNumber = bin->binNumber;
+        if (bin->binNumber < _minimumBinNumber) _minimumBinNumber = bin->binNumber;
         if (bin->binNumber > maximumBinNumber) maximumBinNumber = bin->binNumber;
     }
 
-    bins.resize((maximumBinNumber - minimumBinNumber) + 1);
+    _bins.resize((maximumBinNumber - _minimumBinNumber) + 1);
 
     for (auto& bin : in_bins)
     {
-        bins[bin->binNumber - minimumBinNumber] = bin;
+        _bins[bin->binNumber - _minimumBinNumber] = bin;
     }
 }
 
@@ -101,7 +101,7 @@ void RecordTraversal::setProjectionAndViewMatrix(const dmat4& projMatrix, const 
 
 void RecordTraversal::clearBins()
 {
-    for (auto& bin : bins)
+    for (auto& bin : _bins)
     {
         if (bin) bin->clear();
     }
@@ -271,7 +271,7 @@ void RecordTraversal::apply(const DepthSorted& depthSorted)
         auto& center = depthSorted.bound.center;
         auto distance = -(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]);
 
-        bins[depthSorted.binNumber - minimumBinNumber]->add(_state, distance, depthSorted.child);
+        _bins[depthSorted.binNumber - _minimumBinNumber]->add(_state, distance, depthSorted.child);
     }
 }
 

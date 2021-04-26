@@ -99,8 +99,8 @@ namespace vsg
         DatabasePager* _databasePager = nullptr;
         CulledPagedLODs* _culledPagedLODs = nullptr;
 
-        int32_t minimumBinNumber = 0;
-        std::vector<ref_ptr<Bin>> bins;
+        int32_t _minimumBinNumber = 0;
+        std::vector<ref_ptr<Bin>> _bins;
     };
 
 } // namespace vsg
