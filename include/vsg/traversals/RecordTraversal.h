@@ -86,9 +86,6 @@ namespace vsg
         // Viewer level nodes
         void apply(const View& view);
 
-        int32_t minimumBinNumber = 0;
-        std::vector<ref_ptr<Bin>> bins;
-
     protected:
         virtual ~RecordTraversal();
 
@@ -98,6 +95,9 @@ namespace vsg
         // used to handle loading of PagedLOD external children.
         DatabasePager* _databasePager = nullptr;
         CulledPagedLODs* _culledPagedLODs = nullptr;
+
+        int32_t minimumBinNumber = 0;
+        std::vector<ref_ptr<Bin>> bins;
     };
 
 } // namespace vsg
