@@ -28,7 +28,7 @@ namespace vsg
         VkRect2D renderArea;
         VkExtent2D previous_extent;
         VkExtent2D new_extent;
-        std::set<Object*> visited;
+        std::set<std::pair<const Object*, uint32_t>> visited;
 
         WindowResizeHandler();
 
@@ -41,7 +41,7 @@ namespace vsg
 
         void scale_rect(VkRect2D& rect);
 
-        bool visit(Object* object);
+        bool visit(const Object* object, uint32_t index = 0);
 
         void apply(BindGraphicsPipeline& bindPipeline) override;
         void apply(Object& object) override;
