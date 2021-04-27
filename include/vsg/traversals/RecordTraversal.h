@@ -42,6 +42,7 @@ namespace vsg
     class CulledPagedLODs;
     class View;
     class Bin;
+    class Switch;
 
     VSG_type_name(vsg::RecordTraversal);
 
@@ -76,6 +77,7 @@ namespace vsg
         void apply(const CullGroup& cullGroup);
         void apply(const CullNode& cullNode);
         void apply(const DepthSorted& depthSorted);
+        void apply(const Switch& sw);
 
         // Vulkan nodes
         void apply(const MatrixTransform& mt);
