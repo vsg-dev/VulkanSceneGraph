@@ -93,7 +93,7 @@ namespace vsg
         using Presentations = std::vector<ref_ptr<Presentation>>;
         Presentations presentations;
 
-        /// create a RecordAndSubmitTask configured to manage specificied commandGraphs and assign it to the viewer.
+        /// create a RecordAndSubmitTask configured to manage specified commandGraphs and assign it to the viewer.
         void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs);
 
         ref_ptr<ActivityStatus> status;
