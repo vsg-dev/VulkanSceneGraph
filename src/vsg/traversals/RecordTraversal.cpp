@@ -151,7 +151,7 @@ void RecordTraversal::apply(const LOD& lod)
     auto distance = std::abs(mv[0][2] * sphere.x + mv[1][2] * sphere.y + mv[2][2] * sphere.z + mv[3][2]);
     auto rf = sphere.r * f;
 
-    for (auto child : lod.getChildren())
+    for (auto& child : lod.getChildren())
     {
         bool child_visible = rf > (child.minimumScreenHeightRatio * distance);
         if (child_visible)
@@ -278,7 +278,7 @@ void RecordTraversal::apply(const DepthSorted& depthSorted)
 
 void RecordTraversal::apply(const Switch& sw)
 {
-    for (auto child : sw.children)
+    for (auto& child : sw.children)
     {
         if (child.enabled)
         {
