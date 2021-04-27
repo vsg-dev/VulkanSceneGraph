@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/state/GraphicsPipelineStates.h>
 #include <vsg/state/PipelineLayout.h>
 #include <vsg/state/ShaderStage.h>
 #include <vsg/state/StateCommand.h>
@@ -20,6 +19,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    // forward declare
+    class Context;
+
+    class VSG_DECLSPEC GraphicsPipelineState : public Inherit<Object, GraphicsPipelineState>
+    {
+    public:
+        GraphicsPipelineState() {}
+
+        virtual void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const = 0;
+
+    protected:
+        virtual ~GraphicsPipelineState() {}
+    };
+    VSG_type_name(vsg::GraphicsPipelineState);
+
+    using GraphicsPipelineStates = std::vector<ref_ptr<GraphicsPipelineState>>;
 
     class VSG_DECLSPEC GraphicsPipeline : public Inherit<Object, GraphicsPipeline>
     {
