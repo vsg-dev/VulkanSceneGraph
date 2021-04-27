@@ -52,6 +52,9 @@ namespace vsg
         /// add a child to the back of the children list.
         void addChild(bool enabled, ref_ptr<Node> child) { children.push_back(Child{enabled, child}); }
 
+        /// set all children to specified state.
+        void setAllChildren(bool enabled) { for(auto& child : children) child.enabled = enabled; }
+
     protected:
         virtual ~Switch();
 
