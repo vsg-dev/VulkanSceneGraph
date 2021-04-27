@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,9 +12,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
-#include <vsg/state/GraphicsPipelineStates.h>
-#include <vsg/vk/Context.h>
+#include <vsg/state/GraphicsPipeline.h>
 
-using namespace vsg;
+namespace vsg
+{
+    class VSG_DECLSPEC InputAssemblyState : public Inherit<GraphicsPipelineState, InputAssemblyState>
+    {
+    public:
+        InputAssemblyState();
+        InputAssemblyState(VkPrimitiveTopology primitiveTopology, VkBool32 primitiveRestart = VK_FALSE);
 
+        /// VkPipelineInputAssemblyStateCreateInfo settings
+        VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        VkBool32 primitiveRestartEnable = VK_FALSE;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
+
+    protected:
+        virtual ~InputAssemblyState();
+    };
+    VSG_type_name(vsg::InputAssemblyState);
+
+} // namespace vsg

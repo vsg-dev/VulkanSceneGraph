@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,9 +12,30 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
-#include <vsg/state/GraphicsPipelineStates.h>
-#include <vsg/vk/Context.h>
+#include <vsg/state/GraphicsPipeline.h>
 
-using namespace vsg;
+namespace vsg
+{
+    class VSG_DECLSPEC MultisampleState : public Inherit<GraphicsPipelineState, MultisampleState>
+    {
+    public:
+        MultisampleState(VkSampleCountFlagBits rasterizationSamples = VK_SAMPLE_COUNT_1_BIT);
 
+        /// VkPipelineMultisampleStateCreateInfo settings
+        VkSampleCountFlagBits rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+        VkBool32 sampleShadingEnable = VK_FALSE;
+        float minSampleShading = 0.0f;
+        std::vector<VkSampleMask> sampleMasks;
+        VkBool32 alphaToCoverageEnable = VK_FALSE;
+        VkBool32 alphaToOneEnable = VK_FALSE;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
+
+    protected:
+        virtual ~MultisampleState();
+    };
+    VSG_type_name(vsg::MultisampleState);
+
+} // namespace vsg

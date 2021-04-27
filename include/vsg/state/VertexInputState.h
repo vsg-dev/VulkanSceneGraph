@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,9 +12,30 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
-#include <vsg/state/GraphicsPipelineStates.h>
-#include <vsg/vk/Context.h>
+#include <vsg/state/GraphicsPipeline.h>
 
-using namespace vsg;
+namespace vsg
+{
+    class VSG_DECLSPEC VertexInputState : public Inherit<GraphicsPipelineState, VertexInputState>
+    {
+    public:
+        using Bindings = std::vector<VkVertexInputBindingDescription>;
+        using Attributes = std::vector<VkVertexInputAttributeDescription>;
 
+        VertexInputState();
+        VertexInputState(const Bindings& bindings, const Attributes& attributes);
+
+        /// VkPipelineVertexInputStateCreateInfo settings
+        Bindings vertexBindingDescriptions;
+        Attributes vertexAttributeDescriptions;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
+
+    protected:
+        virtual ~VertexInputState();
+    };
+    VSG_type_name(vsg::VertexInputState);
+
+} // namespace vsg

@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,9 +12,33 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
-#include <vsg/state/GraphicsPipelineStates.h>
-#include <vsg/vk/Context.h>
+#include <vsg/state/GraphicsPipeline.h>
 
-using namespace vsg;
+namespace vsg
+{
+    class VSG_DECLSPEC ColorBlendState : public Inherit<GraphicsPipelineState, ColorBlendState>
+    {
+    public:
+        using ColorBlendAttachments = std::vector<VkPipelineColorBlendAttachmentState>;
 
+        ColorBlendState();
+        ColorBlendState(const ColorBlendAttachments& colorBlendAttachments);
+
+        /// VkPipelineColorBlendStateCreateInfo settings
+        VkBool32 logicOpEnable = VK_FALSE;
+        VkLogicOp logicOp = VK_LOGIC_OP_COPY;
+        ColorBlendAttachments attachments;
+        float blendConstants[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
+
+    protected:
+        virtual ~ColorBlendState();
+
+        ColorBlendAttachments _colorBlendAttachments;
+    };
+    VSG_type_name(vsg::ColorBlendState);
+
+} // namespace vsg

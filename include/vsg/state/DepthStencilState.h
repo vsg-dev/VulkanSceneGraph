@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,9 +12,33 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
-#include <vsg/state/GraphicsPipelineStates.h>
-#include <vsg/vk/Context.h>
+#include <vsg/state/GraphicsPipeline.h>
 
-using namespace vsg;
+namespace vsg
+{
+    class VSG_DECLSPEC DepthStencilState : public Inherit<GraphicsPipelineState, DepthStencilState>
+    {
+    public:
+        DepthStencilState();
 
+        /// VkPipelineDepthStencilStateCreateInfo settings
+        VkBool32 depthTestEnable = VK_TRUE;
+        VkBool32 depthWriteEnable = VK_TRUE;
+        VkCompareOp depthCompareOp = VK_COMPARE_OP_LESS;
+        VkBool32 depthBoundsTestEnable = VK_FALSE;
+        VkBool32 stencilTestEnable = VK_FALSE;
+        VkStencilOpState front = {};
+        VkStencilOpState back = {};
+        float minDepthBounds = 0.0f;
+        float maxDepthBounds = 1.0f;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
+
+    protected:
+        virtual ~DepthStencilState();
+    };
+    VSG_type_name(vsg::DepthStencilState);
+
+} // namespace vsg

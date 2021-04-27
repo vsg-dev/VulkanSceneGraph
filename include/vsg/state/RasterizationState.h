@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,9 +12,34 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
-#include <vsg/state/GraphicsPipelineStates.h>
-#include <vsg/vk/Context.h>
+#include <vsg/state/GraphicsPipeline.h>
 
-using namespace vsg;
+namespace vsg
+{
+    class VSG_DECLSPEC RasterizationState : public Inherit<GraphicsPipelineState, RasterizationState>
+    {
+    public:
+        RasterizationState();
 
+        /// VkPipelineRasterizationStateCreateInfo settings
+        VkBool32 depthClampEnable = VK_FALSE;
+        VkBool32 rasterizerDiscardEnable = VK_FALSE;
+        VkPolygonMode polygonMode = VK_POLYGON_MODE_FILL;
+        VkCullModeFlags cullMode = VK_CULL_MODE_BACK_BIT;
+        VkFrontFace frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+        VkBool32 depthBiasEnable = VK_FALSE;
+        float depthBiasConstantFactor = 1.0f;
+        float depthBiasClamp = 0.0f;
+        float depthBiasSlopeFactor = 1.0f;
+        float lineWidth = 1.0f;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
+
+    protected:
+        virtual ~RasterizationState();
+    };
+    VSG_type_name(vsg::RasterizationState);
+
+} // namespace vsg

@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,9 +12,34 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
 #include <vsg/state/GraphicsPipelineStates.h>
-#include <vsg/vk/Context.h>
 
-using namespace vsg;
+namespace vsg
+{
+    class VSG_DECLSPEC DynamicState : public Inherit<GraphicsPipelineState, DynamicState>
+    {
+    public:
+        using DynamicStates = std::vector<VkDynamicState>;
 
+        DynamicState();
+
+        DynamicState(const DynamicStates& states) :
+            dynamicStates(states) {}
+
+        template<typename... Args>
+        DynamicState(Args... args) :
+            dynamicStates({args...}) {}
+
+        /// VkPipelineDynamicStateCreateInfo settings
+        DynamicStates dynamicStates;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
+
+    protected:
+        virtual ~DynamicState();
+    };
+    VSG_type_name(vsg::DynamicState);
+
+} // namespace vsg

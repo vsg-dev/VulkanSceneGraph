@@ -1,0 +1,86 @@
+/* <editor-fold desc="MIT License">
+
+Copyright(c) 2018 Robert Osfield
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+</editor-fold> */
+
+#include <vsg/io/Options.h>
+#include <vsg/state/MultisampleState.h>
+#include <vsg/vk/Context.h>
+
+using namespace vsg;
+
+MultisampleState::MultisampleState(VkSampleCountFlagBits samples)
+{
+    rasterizationSamples = samples;
+}
+
+MultisampleState::~MultisampleState()
+{
+}
+
+void MultisampleState::read(Input& input)
+{
+    Object::read(input);
+
+    if (input.version_greater_equal(0, 0, 2))
+    {
+        input.readValue<uint32_t>("rasterizationSamples", rasterizationSamples);
+        input.readValue<uint32_t>("sampleShadingEnable", sampleShadingEnable);
+        input.read("minSampleShading", minSampleShading);
+
+        sampleMasks.resize(input.readValue<uint32_t>("NumSampleMask"));
+        for (auto& mask : sampleMasks)
+        {
+            input.readValue<uint32_t>("value", mask);
+        }
+
+        input.readValue<uint32_t>("alphaToCoverageEnable", alphaToCoverageEnable);
+        input.readValue<uint32_t>("alphaToOneEnable", alphaToOneEnable);
+    }
+}
+
+void MultisampleState::write(Output& output) const
+{
+    Object::write(output);
+
+    if (output.version_greater_equal(0, 0, 2))
+    {
+        output.writeValue<uint32_t>("rasterizationSamples", rasterizationSamples);
+        output.writeValue<uint32_t>("sampleShadingEnable", sampleShadingEnable);
+        output.write("minSampleShading", minSampleShading);
+
+        output.writeValue<uint32_t>("NumSampleMask", sampleMasks.size());
+        for (auto& mask : sampleMasks)
+        {
+            output.writeValue<uint32_t>("value", mask);
+        }
+
+        output.writeValue<uint32_t>("alphaToCoverageEnable", alphaToCoverageEnable);
+        output.writeValue<uint32_t>("alphaToOneEnable", alphaToOneEnable);
+    }
+}
+
+void MultisampleState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const
+{
+    auto multisampleState = context.scratchMemory->allocate<VkPipelineMultisampleStateCreateInfo>();
+
+    multisampleState->sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    multisampleState->pNext = nullptr;
+    multisampleState->flags = 0;
+
+    multisampleState->rasterizationSamples = rasterizationSamples;
+    multisampleState->sampleShadingEnable = sampleShadingEnable;
+    multisampleState->minSampleShading = minSampleShading;
+    multisampleState->pSampleMask = sampleMasks.empty() ? nullptr : sampleMasks.data();
+    multisampleState->alphaToCoverageEnable = alphaToCoverageEnable;
+    multisampleState->alphaToOneEnable = alphaToOneEnable;
+
+    pipelineInfo.pMultisampleState = multisampleState;
+}

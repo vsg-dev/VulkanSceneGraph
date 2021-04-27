@@ -11,8 +11,48 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
-#include <vsg/state/GraphicsPipelineStates.h>
+#include <vsg/state/DynamicState.h>
 #include <vsg/vk/Context.h>
 
 using namespace vsg;
 
+DynamicState::DynamicState()
+{
+}
+
+DynamicState::~DynamicState()
+{
+}
+
+void DynamicState::read(Input& input)
+{
+    Object::read(input);
+
+    dynamicStates.resize(input.readValue<uint32_t>("NumDynamicStates"));
+    for (auto& dynamicState : dynamicStates)
+    {
+        input.readValue<uint32_t>("value", dynamicState);
+    }
+}
+
+void DynamicState::write(Output& output) const
+{
+    Object::write(output);
+
+    output.writeValue<uint32_t>("NumDynamicStates", dynamicStates.size());
+    for (auto& dynamicState : dynamicStates)
+    {
+        output.writeValue<uint32_t>("value", dynamicState);
+    }
+}
+
+void DynamicState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const
+{
+    auto dynamicState = context.scratchMemory->allocate<VkPipelineDynamicStateCreateInfo>();
+
+    dynamicState->sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    dynamicState->pNext = nullptr;
+    dynamicState->flags = 0;
+
+    pipelineInfo.pDynamicState = dynamicState;
+}
