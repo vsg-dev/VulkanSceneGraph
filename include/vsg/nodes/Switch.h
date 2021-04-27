@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-
+    /// Switch node for toggling on/off recording of children.
     class VSG_DECLSPEC Switch : public Inherit<Node, Switch>
     {
     public:
@@ -50,10 +50,13 @@ namespace vsg
         Children children;
 
         /// add a child to the back of the children list.
-        void addChild(bool enabled, ref_ptr<Node> child) { children.push_back(Child{enabled, child}); }
+        void addChild(bool enabled, ref_ptr<Node> child);
 
         /// set all children to specified state.
-        void setAllChildren(bool enabled) { for(auto& child : children) child.enabled = enabled; }
+        void setAllChildren(bool enabled);
+
+        /// set specified child to be on and all other children off.
+        void setSingleChildOn(size_t index);
 
     protected:
         virtual ~Switch();
