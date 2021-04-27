@@ -2,7 +2,7 @@
 
 VulkanSceneGraph (VSG), is a modern, cross platform, high performance scene graph library built upon [Vulkan](https://www.khronos.org/vulkan/) graphics/compute API. The software is written in [C++17](https://en.wikipedia.org/wiki/C%2B%2B17), and follows the [CppCoreGuidlines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) and [FOSS Best Practices](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md).  The source code is published under the [MIT License](LICENSE.md).
 
-The project aims to bring the performance of Vulkan to the wider developer community by providing a modern, high quality software library that is easy to use and focused on making the development of high performance graphics and compute applications a productive and fun experience.  Sharing the same lead author as the OpenSceneGraph, all the lessons about software quality, performance and the needs of appplication developers are applied to VulkanSceneGraph to provide a distillation of what a next gen scene graph needs to be.
+The project aims to bring the performance of Vulkan to the wider developer community by providing a modern, high quality software library that is easy to use and focused on making the development of high performance graphics and compute applications a productive and fun experience.  Sharing the same lead author as the OpenSceneGraph, all the lessons about software quality, performance and the needs of application developers are applied to VulkanSceneGraph to provide a distillation of what a next gen scene graph needs to be.
 
 This repository contains basic documentation, C++ headers and source and CMake build scripts to build the prototype libvsg library.  Additional support libraries and examples are provided in separate repositories, links to these are provided below.  The software currently builds under Linux, Windows, Android and macOS (using [MoltenVk](https://github.com/KhronosGroup/MoltenVK)).
 
@@ -11,27 +11,27 @@ The VulkanSceneGraph project is comprised of the main VulkanSceneGraph library (
 
 ### Features provided by the core VulkanSceneGraph library are:
 
-* Robust, thread safe memory managment with high performance smart pointers that are smaller and faster than std equivilants.
+* Robust, thread safe memory management with high performance smart pointers that are smaller and faster than std equivalents.
 * GLSL style maths class - no need for 3rd party libs like GLM.
-* Coherent Object model with easy to use and extend serilization, including native binary and ascii file support for all scene graph objects.
-* C++ classes that encapsulate Vulkan Graphics and Compute C API in robust and convinient form, with robust resource managemnt, including serialization support. Complexities and verbose setup usually associated with Vulkan are all delt with for you so you can concentrate on your compute and graphics tasks.
+* Coherent Object model with easy to use and extend serialization, including native binary and ascii file support for all scene graph objects.
+* C++ classes that encapsulate Vulkan Graphics and Compute C API in robust and convenient form, with robust resource management, including serialization support. Complexities and verbose setup usually associated with Vulkan are all dealt with for you so you can concentrate on your compute and graphics tasks.
 * Vulkan RTX extensions for ray tracing and mesh shading.
-* Class design focused on performance of scene graph operations by minimizing CPU bottlenecks: optimizing data density, layout, cache coherency and minimizing branching leading to better utilization of modern CPU and memory architectures. Traversals through to IO opertaions can be up to 10 times faster than the OpenSceneGraph.
-* Optimized scene graph performance has been essential for making the most of the performance that Vulkan itself provides over OpenGL/DirectX, benchmarks on large databases show 3 to 20 X peformance improvements over OpenSceneGraph/OpenGL.
-* Multithreading support at the viewer level, file loading and database paging.
-* Flexible Viewer architercture built around Vulkan command recording and queue submission.
+* Class design focused on performance of scene graph operations by minimizing CPU bottlenecks: optimizing data density, layout, cache coherency and minimizing branching leading to better utilization of modern CPU and memory architectures. Traversals through to IO operations can be up to 10 times faster than the OpenSceneGraph.
+* Optimized scene graph performance has been essential for making the most of the performance that Vulkan itself provides over OpenGL/DirectX, benchmarks on large databases show 3 to 20 X performance improvements over OpenSceneGraph/OpenGL.
+* Multi-threading support at the viewer level, file loading and database paging.
+* Flexible Viewer architecture built around Vulkan command recording and queue submission.
 * Native windowing and event support under Windows, Linux, Android and macOS.
-* Support for double matries in Camera and Transform class providing support for large database coordinates system such as whole earth/GIS rendering whilst minimizing precision issues.
-* Modern CMake build system that provides config installation alongside binaries making it easier to find and use all the apporpriate build options for using the VulkanSceneGraph in your own projects.
+* Support for double matrices in Camera and Transform class providing support for large database coordinates system such as whole earth/GIS rendering whilst minimizing precision issues.
+* Modern CMake build system that provides config installation alongside binaries making it easier to find and use all the appropriate build options for using the VulkanSceneGraph in your own projects.
 * Minimal and complete approach to design - the whole VulkanSceneGraph interface and implementation, providing all the above functionality, takes 42 thousand lines of code, compared to over 58 thousand for GLM headers, or vulkan.hpp (C++ wrapper for Vulkan) at over 94 thousand lines of code.  The VulkanScneGraph replaces both and provides much more functionality besides.
 
 ### Features provided by companion projects:
-* [vsgXchange](https://github.com/vsg-dev/vsgXchange) reading and writing of 3rd party image and 3d models and http support.
+* [vsgXchange](https://github.com/vsg-dev/vsgXchange) reading and writing of 3rd party image and 3d models and HTTP support.
 * [vsgGIS](https://github.com/vsg-dev/vsgGIS) integration with GDAL to adding support for Geospatial imagery/DEMs and coordinate transforms
 * [vsgImGui](https://github.com/vsg-dev/vsgImGui) ImGui integration enabling UI in graphics window.
 * [vsgUnity](https://github.com/vsg-dev/vsgUnity) plugin for Unity that provides export to native VulkanSceneGraph binary/ascii format.
 * [vsgExamples](https://github.com/vsg-dev/vsgExamples) tests & examples
-* [vsgQtViewer](https://github.com/anormann1974/vsgQtViewer) - example of Qt windowing integrarion with VulkanSceneGraph
+* [vsgQtViewer](https://github.com/anormann1974/vsgQtViewer) - example of Qt windowing integration with VulkanSceneGraph
 * [MyFirstVsgApplication](https://github.com/vsg-dev/MyFirstVsgApplication) simple standalone VSG application that can be used as a template for your own applications.
 
 ## Useful links in codebase
@@ -52,7 +52,7 @@ The VulkanSceneGraph Discussion Group [vsg-users](https://groups.google.com/foru
 Project lead, [Robert Osfield](mailto:robert.osfield@gmal.com), provides OpenSceneGraph and VulkanSceneGraph related services, the associated income supports open source development work and public support on both projects.  Services provided:
 
 * Open source development - funding of development of new features specific to your project needs.
-* Closed source bespoke development - development of propritary libraries through to directly working on your applications.
+* Closed source bespoke development - development of proprietary libraries through to directly working on your applications.
 * Confidential support via dedicated email discussion lists/IM/video conferencing for your team.
 * Consulting.
 * Training.
@@ -68,7 +68,7 @@ Project lead, [Robert Osfield](mailto:robert.osfield@gmal.com), provides OpenSce
 
 The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against older versions.  If you find success with older versions let us know and we can update the version info.
 
-Download VulkanSDK from [LunarG](https://vulkan.lunarg.com/sdk/home), unpack into local directory and set VUKAN_SDK environemt variable to the include/lib directory within it. For Linux it would tyically be along the lines of:
+Download VulkanSDK from [LunarG](https://vulkan.lunarg.com/sdk/home), unpack into local directory and set VUKAN_SDK environment variable to the include/lib directory within it. For Linux it would typically be along the lines of:
 
     export VULKAN_SDK_VERSION=1.2.162.1
     export VULKAN_SDK=${PWD}/VulkanSDK/${VULKAN_SDK_VERSION}/x86_64
@@ -77,7 +77,7 @@ Download VulkanSDK from [LunarG](https://vulkan.lunarg.com/sdk/home), unpack int
     wget https://sdk.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/linux/vulkansdk-linux-x86_64-${VULKAN_SDK_VERSION}.tar.gz -O VulkanSDK/vulkansdk-linux-x86_64-${VULKAN_SDK_VERSION}.tar.gz
     tar zxf VulkanSDK/vulkansdk-linux-x86_64-${VULKAN_SDK_VERSION}.tar.gz -C VulkanSDK/
 
-Once you've downloaded and unpacked the VulkanSDK you'll want to put VULKAN_SDK into your user environemt variable setup so that CMake's find_package(Vulkan) can find the VulkanSDK's location.
+Once you've downloaded and unpacked the VulkanSDK you'll want to put VULKAN_SDK into your user environment variable setup so that CMake's find_package(Vulkan) can find the VulkanSDK's location.
 
 ### Command line build instructions:
 

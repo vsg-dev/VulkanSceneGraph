@@ -51,10 +51,10 @@ namespace vsg
         /// add Key to Viewpoint binding using a LookAt to define the viewpoint
         void addKeyViewpoint(KeySymbol key, ref_ptr<LookAt> lookAt, double duration = 1.0);
 
-        /// add Key to Viewpoint binding using a latitutude, longitude and altitude to define the viewpoint. Requires an EllipsoidModel to be assigned when constructing the Trackball
+        /// add Key to Viewpoint binding using a latitude, longitude and altitude to define the viewpoint. Requires an EllipsoidModel to be assigned when constructing the Trackball
         void addKeyViewpoint(KeySymbol key, double latitude, double longitude, double altitude, double duration = 1.0);
 
-        /// set the LookAt viewport to the specified lookAt, animating the movments from the current lookAt to the new one.
+        /// set the LookAt viewport to the specified lookAt, animating the movements from the current lookAt to the new one.
         /// A value of 0.0 instantly moves the lookAt to the new value.
         void setViewpoint(ref_ptr<LookAt> lookAt, double duration = 1.0);
 

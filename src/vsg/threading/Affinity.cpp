@@ -102,12 +102,12 @@ void vsg::setAffinity(const Affinity& affinity)
 
 void vsg::setAffinity(std::thread&, const Affinity&)
 {
-    // Not currently implementated
+    // Not currently implemented
 }
 
 void vsg::setAffinity(const Affinity&)
 {
-    // Not currently implementated
+    // Not currently implemented
 }
 
 #else // unices

@@ -63,7 +63,7 @@ void Bin::add(State* state, double value, const Node* node)
     {
         if (_matrices.back() == mv)
         {
-            //std::cout<<"reaccuring "<<std::endl;
+            //std::cout<<"reoccurring "<<std::endl;
             element.matrixIndex = _matrices.size() - 1;
         }
         else
