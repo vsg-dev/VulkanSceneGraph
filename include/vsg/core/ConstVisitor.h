@@ -38,6 +38,7 @@ namespace vsg
     class VertexIndexDraw;
     class DepthSorted;
     class Bin;
+    class Switch;
 
     // forward declare vulkan classes
     class Command;
@@ -230,6 +231,7 @@ namespace vsg
         virtual void apply(const VertexIndexDraw&);
         virtual void apply(const DepthSorted&);
         virtual void apply(const Bin&);
+        virtual void apply(const Switch&);
 
         // Vulkan nodes
         virtual void apply(const Command&);

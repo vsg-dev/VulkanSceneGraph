@@ -473,6 +473,10 @@ void Visitor::apply(Bin& value)
 {
     apply(static_cast<Node&>(value));
 }
+void Visitor::apply(Switch& value)
+{
+    apply(static_cast<Node&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

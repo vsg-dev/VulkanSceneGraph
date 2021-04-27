@@ -36,6 +36,7 @@ set(SOURCES
     nodes/VertexIndexDraw.cpp
     nodes/DepthSorted.cpp
     nodes/Bin.cpp
+    nodes/Switch.cpp
 
     commands/BindIndexBuffer.cpp
     commands/BindVertexBuffers.cpp

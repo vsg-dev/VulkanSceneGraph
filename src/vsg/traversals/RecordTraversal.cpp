@@ -24,6 +24,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
+#include <vsg/nodes/Switch.h>
 #include <vsg/state/StateGroup.h>
 #include <vsg/threading/atomics.h>
 #include <vsg/traversals/RecordTraversal.h>
@@ -150,7 +151,7 @@ void RecordTraversal::apply(const LOD& lod)
     auto distance = std::abs(mv[0][2] * sphere.x + mv[1][2] * sphere.y + mv[2][2] * sphere.z + mv[3][2]);
     auto rf = sphere.r * f;
 
-    for (auto child : lod.getChildren())
+    for (auto& child : lod.getChildren())
     {
         bool child_visible = rf > (child.minimumScreenHeightRatio * distance);
         if (child_visible)
@@ -272,6 +273,17 @@ void RecordTraversal::apply(const DepthSorted& depthSorted)
         auto distance = -(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]);
 
         _bins[depthSorted.binNumber - _minimumBinNumber]->add(_state, distance, depthSorted.child);
+    }
+}
+
+void RecordTraversal::apply(const Switch& sw)
+{
+    for (auto& child : sw.children)
+    {
+        if (child.enabled)
+        {
+            child.node->accept(*this);
+        }
     }
 }
 
