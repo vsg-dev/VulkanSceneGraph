@@ -62,7 +62,6 @@ set(SOURCES
     state/ComputePipeline.cpp
     state/DescriptorSet.cpp
     state/GraphicsPipeline.cpp
-    state/GraphicsPipelineStates.cpp
     state/Descriptor.cpp
     state/DescriptorBuffer.cpp
     state/DescriptorImage.cpp
@@ -78,6 +77,15 @@ set(SOURCES
     state/Image.cpp
     state/ImageInfo.cpp
     state/ImageView.cpp
+    state/VertexInputState.cpp
+    state/InputAssemblyState.cpp
+    state/TessellationState.cpp
+    state/ViewportState.cpp
+    state/RasterizationState.cpp
+    state/MultisampleState.cpp
+    state/DepthStencilState.cpp
+    state/ColorBlendState.cpp
+    state/DynamicState.cpp
 
     io/FileSystem.cpp
     io/AsciiInput.cpp

@@ -86,25 +86,33 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/Buffer.h>
 #include <vsg/state/BufferInfo.h>
 #include <vsg/state/BufferView.h>
+#include <vsg/state/ColorBlendState.h>
 #include <vsg/state/ComputePipeline.h>
+#include <vsg/state/DepthStencilState.h>
 #include <vsg/state/Descriptor.h>
 #include <vsg/state/DescriptorBuffer.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/state/DescriptorSetLayout.h>
 #include <vsg/state/DescriptorTexelBufferView.h>
+#include <vsg/state/DynamicState.h>
 #include <vsg/state/GraphicsPipeline.h>
-#include <vsg/state/GraphicsPipelineStates.h>
 #include <vsg/state/Image.h>
 #include <vsg/state/ImageInfo.h>
 #include <vsg/state/ImageView.h>
+#include <vsg/state/InputAssemblyState.h>
+#include <vsg/state/MultisampleState.h>
 #include <vsg/state/PipelineLayout.h>
+#include <vsg/state/RasterizationState.h>
 #include <vsg/state/ResourceHints.h>
 #include <vsg/state/Sampler.h>
 #include <vsg/state/ShaderModule.h>
 #include <vsg/state/ShaderStage.h>
 #include <vsg/state/StateCommand.h>
 #include <vsg/state/StateGroup.h>
+#include <vsg/state/TessellationState.h>
+#include <vsg/state/VertexInputState.h>
+#include <vsg/state/ViewportState.h>
 #include <vsg/state/material.h>
 
 // Traversal header files
