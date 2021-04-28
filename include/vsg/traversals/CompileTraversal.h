@@ -26,17 +26,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <map>
 #include <set>
+#include <stack>
 
 namespace vsg
 {
     class VSG_DECLSPEC CollectDescriptorStats : public Inherit<ConstVisitor, CollectDescriptorStats>
     {
     public:
+
+        CollectDescriptorStats();
+
+        struct BinDetails
+        {
+            std::set<int32_t> indices;
+            std::set<const Bin*> bins;
+        };
+
         using Descriptors = std::set<const Descriptor*>;
         using DescriptorSets = std::set<const DescriptorSet*>;
         using DescriptorTypeMap = std::map<VkDescriptorType, uint32_t>;
-        using Views = std::set<const View*>;
-        using Bins = std::set<const Bin*>;
+        using Views = std::map<const View*, BinDetails>;
+        using BinStack = std::stack<BinDetails>;
 
         using ConstVisitor::apply;
 
@@ -62,13 +72,11 @@ namespace vsg
         DescriptorSets descriptorSets;
         DescriptorTypeMap descriptorTypeMap;
         Views views;
-        Bins bins;
+        BinStack binStack;
 
         uint32_t maxSlot = 0;
         uint32_t externalNumDescriptorSets = 0;
         bool containsPagedLOD = false;
-        int32_t minBinNumber = 0;
-        int32_t maxBinNumber = 0;
 
     protected:
         uint32_t _numResourceHintsAbove = 0;

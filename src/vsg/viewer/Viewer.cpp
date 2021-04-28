@@ -252,10 +252,27 @@ void Viewer::compile(BufferPreferences bufferPreferences)
 
     // assign the viewID's to each View
     uint32_t viewID = 0;
-    for (auto& const_view : views)
+    for (auto& [const_view, binDetails] : views)
     {
         auto view = const_cast<View*>(const_view);
         view->viewID = viewID++;
+
+        for(auto& binNumber : binDetails.indices)
+        {
+            bool binNumberMatched = false;
+            for(auto& bin : view->bins)
+            {
+                if (bin->binNumber == binNumber)
+                {
+                    binNumberMatched = true;
+                }
+            }
+            if (!binNumberMatched)
+            {
+                Bin::SortOrder sortOrder = (binNumber < 0) ? Bin::ASCENDING : ((binNumber==0) ? Bin::NO_SORT : Bin::DESCENDING);
+                view->bins.push_back(Bin::create(binNumber, sortOrder));
+            }
+        }
     }
 
     if (containsPagedLOD && !databasePager) databasePager = DatabasePager::create();
@@ -274,11 +291,6 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             auto& deviceResource = deviceResourceMap[commandGraph->device];
             commandGraph->maxSlot = deviceResource.collectStats.maxSlot;
             commandGraph->accept(*deviceResource.compile);
-
-            for (auto& bin : deviceResource.collectStats.bins)
-            {
-                commandGraph->bins.insert(ref_ptr<Bin>(const_cast<Bin*>(bin)));
-            }
 
             if (deviceResource.collectStats.containsPagedLOD) task_containsPagedLOD = true;
         }

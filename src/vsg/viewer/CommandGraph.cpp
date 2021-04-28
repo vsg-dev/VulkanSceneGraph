@@ -74,7 +74,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     if (!recordTraversal)
     {
-        recordTraversal = new RecordTraversal(nullptr, maxSlot, bins);
+        recordTraversal = new RecordTraversal(nullptr, maxSlot);
     }
 
     recordTraversal->setFrameStamp(frameStamp);

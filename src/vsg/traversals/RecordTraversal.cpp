@@ -354,7 +354,27 @@ void RecordTraversal::apply(const View& view)
 {
     _state->_commandBuffer->viewID = view.viewID;
 
-    //std::cout<<"RecordTraversal::apply(const View& view) "<<view.viewID<<std::endl;
+    // cache the previous bins
+    int32_t cache_minimumBinNumber = _minimumBinNumber;
+    decltype(_bins) cache_bins;
+    cache_bins.swap(_bins);
+
+    // assign and clear the View's bins
+    int32_t min_binNumber = 0;
+    int32_t max_binNumber = 0;
+    for(auto& bin : view.bins)
+    {
+        if (bin->binNumber < min_binNumber) min_binNumber = bin->binNumber;
+        if (bin->binNumber > max_binNumber) max_binNumber = bin->binNumber;
+    }
+
+    _minimumBinNumber = min_binNumber;
+    _bins.resize(max_binNumber-min_binNumber+1);
+    for(auto& bin : view.bins)
+    {
+        _bins[bin->binNumber] = bin;
+        bin->clear();
+    }
 
     if (view.camera)
     {
@@ -371,4 +391,13 @@ void RecordTraversal::apply(const View& view)
     {
         view.traverse(*this);
     }
+
+    for(auto& bin : view.bins)
+    {
+        bin->accept(*this);
+    }
+
+    // swap back previous bin setup.
+    _minimumBinNumber = cache_minimumBinNumber;
+    cache_bins.swap(_bins);
 }

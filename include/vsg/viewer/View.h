@@ -32,6 +32,9 @@ namespace vsg
 
         /// viewID is automatically assigned by Viewer::compile()
         uint32_t viewID = 0;
+
+        /// bins
+        std::vector<ref_ptr<Bin>> bins;
     };
 
 } // namespace vsg

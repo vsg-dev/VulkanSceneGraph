@@ -30,12 +30,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
 
+#include <iostream>
+
 using namespace vsg;
 
 /////////////////////////////////////////////////////////////////////
 //
 // CollectDescriptorStats
 //
+CollectDescriptorStats::CollectDescriptorStats()
+{
+    binStack.push(BinDetails{});
+}
+
 void CollectDescriptorStats::apply(const Object& object)
 {
     object.traverse(*this);
@@ -137,22 +144,30 @@ void CollectDescriptorStats::apply(const Descriptor& descriptor)
 
 void CollectDescriptorStats::apply(const View& view)
 {
-    views.insert(&view);
+    binStack.push(BinDetails{});
 
     view.traverse(*this);
+
+    for(auto& bin : view.bins)
+    {
+        binStack.top().bins.insert(bin);
+    }
+
+    views[&view] = binStack.top();
+
+    binStack.pop();
 }
 
 void CollectDescriptorStats::apply(const DepthSorted& depthSorted)
 {
-    if (depthSorted.binNumber < minBinNumber) minBinNumber = depthSorted.binNumber;
-    if (depthSorted.binNumber > maxBinNumber) maxBinNumber = depthSorted.binNumber;
+    binStack.top().indices.insert(depthSorted.binNumber);
 
     depthSorted.traverse(*this);
 }
 
 void CollectDescriptorStats::apply(const Bin& bin)
 {
-    bins.insert(ref_ptr<const Bin>(&bin));
+    binStack.top().bins.insert(&bin);
 }
 
 uint32_t CollectDescriptorStats::computeNumDescriptorSets() const

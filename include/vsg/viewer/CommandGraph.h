@@ -46,8 +46,6 @@ namespace vsg
         VkQueryControlFlags queryFlags = 0;
         VkQueryPipelineStatisticFlags pipelineStatistics = 0;
 
-        std::set<Bin*> bins;
-
         ref_ptr<RecordTraversal> recordTraversal;
 
         void reset();
