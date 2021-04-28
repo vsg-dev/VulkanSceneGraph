@@ -90,7 +90,7 @@ void Bin::add(State* state, double value, const Node* node)
 
     element.child = node;
 
-    _binElements.emplace_back(value, static_cast<uint32_t>(_elements.size()));
+    _binElements.emplace_back(static_cast<float>(value), static_cast<uint32_t>(_elements.size()));
 
     _elements.push_back(element);
 }
