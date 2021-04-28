@@ -56,7 +56,7 @@ void Bin::add(State* state, double value, const Node* node)
 #if 1
     if (_matrices.empty())
     {
-        element.matrixIndex = _matrices.size();
+        element.matrixIndex = static_cast<uint32_t>(_matrices.size());
         _matrices.push_back(mv);
     }
     else
@@ -64,12 +64,12 @@ void Bin::add(State* state, double value, const Node* node)
         if (_matrices.back() == mv)
         {
             //std::cout<<"reoccurring "<<std::endl;
-            element.matrixIndex = _matrices.size() - 1;
+            element.matrixIndex = static_cast<uint32_t>(_matrices.size()) - 1;
         }
         else
         {
             //std::cout<<"new "<<std::endl;
-            element.matrixIndex = _matrices.size();
+            element.matrixIndex = static_cast<uint32_t>(_matrices.size());
             _matrices.push_back(mv);
         }
     }
@@ -78,7 +78,7 @@ void Bin::add(State* state, double value, const Node* node)
     _matrices.push_back(mv);
 #endif
 
-    element.stateCommandIndex = _stateCommands.size();
+    element.stateCommandIndex = static_cast<uint32_t>(_stateCommands.size());
     for (auto& stateStack : state->stateStacks)
     {
         if (stateStack.size() > 0)
@@ -90,7 +90,7 @@ void Bin::add(State* state, double value, const Node* node)
 
     element.child = node;
 
-    _binElements.emplace_back(value, _elements.size());
+    _binElements.emplace_back(value, static_cast<uint32_t>(_elements.size()));
 
     _elements.push_back(element);
 }
@@ -113,7 +113,7 @@ void Bin::traverse(RecordTraversal& rt) const
         break;
     }
 
-    uint32_t previousMatrixIndex = _matrices.size();
+    uint32_t previousMatrixIndex = static_cast<uint32_t>(_matrices.size());
     //uint32_t previousStateCommandIndex = _stateCommands.size();
 
     state->pushFrustum();
