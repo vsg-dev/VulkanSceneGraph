@@ -41,6 +41,7 @@ namespace vsg
 
         void scale_rect(VkRect2D& rect);
 
+        /// return true if the object visited
         bool visit(const Object* object, uint32_t index = 0);
 
         void apply(BindGraphicsPipeline& bindPipeline) override;
