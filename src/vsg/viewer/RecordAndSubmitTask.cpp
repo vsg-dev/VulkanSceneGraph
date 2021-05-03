@@ -48,7 +48,7 @@ void RecordAndSubmitTask::advance()
         }
     }
 
-    // ass the index for the current frame
+    // pass the index for the current frame
     _indices[0] = _currentFrameIndex;
 }
 
