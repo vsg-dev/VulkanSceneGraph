@@ -173,6 +173,21 @@ bool Viewer::acquireNextFrame()
     return result == VK_SUCCESS;
 }
 
+VkResult Viewer::waitForFences(size_t relativeFrameIndex, uint64_t timeout)
+{
+    VkResult result = VK_SUCCESS;
+    for(auto& task : recordAndSubmitTasks)
+    {
+        auto fenceToWait = task->fence(relativeFrameIndex);
+        if (fenceToWait)
+        {
+            result = fenceToWait->wait(timeout);
+            if (result != VK_SUCCESS) return result;
+        }
+    }
+    return result;
+}
+
 void Viewer::handleEvents()
 {
     for (auto& vsg_event : _events)
