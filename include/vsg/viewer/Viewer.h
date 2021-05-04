@@ -75,9 +75,6 @@ namespace vsg
         /// lf still active poll for pending events and place them in the Events list and advance to the next frame, update generate FrameStamp to signify the advancement to a new frame and return true.
         virtual bool advanceToNextFrame();
 
-        /// poll for pending events and place them in the Events list and update generate FrameStamp to signify the advancement to a new frame.
-        virtual void advance();
-
         /// pass the Events into the any register EventHandlers
         virtual void handleEvents();
 

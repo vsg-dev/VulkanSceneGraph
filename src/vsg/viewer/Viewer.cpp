@@ -104,19 +104,6 @@ bool Viewer::pollEvents(bool discardPreviousEvents)
     return result;
 }
 
-void Viewer::advance()
-{
-    // poll all the windows for events.
-    pollEvents(true);
-
-    // create FrameStamp for frame
-    auto time = vsg::clock::now();
-    _frameStamp = _frameStamp ? new vsg::FrameStamp(time, _frameStamp->frameCount + 1) : new vsg::FrameStamp(time, 0);
-
-    // create an event for the new frame.
-    _events.emplace_back(new FrameEvent(_frameStamp));
-}
-
 bool Viewer::advanceToNextFrame()
 {
     if (!active()) return false;
