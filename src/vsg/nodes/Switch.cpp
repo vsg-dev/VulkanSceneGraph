@@ -58,13 +58,13 @@ void Switch::addChild(bool enabled, ref_ptr<Node> child)
 
 void Switch::setAllChildren(bool enabled)
 {
-    for(auto& child : children) child.enabled = enabled;
+    for (auto& child : children) child.enabled = enabled;
 }
 
 void Switch::setSingleChildOn(size_t index)
 {
-    for(size_t i=0; i<children.size(); ++i)
+    for (size_t i = 0; i < children.size(); ++i)
     {
-        children[i].enabled = (i==index);
+        children[i].enabled = (i == index);
     }
 }

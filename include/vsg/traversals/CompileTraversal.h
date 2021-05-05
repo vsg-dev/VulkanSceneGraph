@@ -33,7 +33,6 @@ namespace vsg
     class VSG_DECLSPEC CollectDescriptorStats : public Inherit<ConstVisitor, CollectDescriptorStats>
     {
     public:
-
         CollectDescriptorStats();
 
         struct BinDetails

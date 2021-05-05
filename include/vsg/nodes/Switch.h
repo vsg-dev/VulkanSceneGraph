@@ -60,7 +60,6 @@ namespace vsg
 
     protected:
         virtual ~Switch();
-
     };
     VSG_type_name(vsg::Switch);
 

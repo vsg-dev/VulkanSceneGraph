@@ -21,8 +21,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
-#include <vsg/state/StateGroup.h>
 #include <vsg/state/MultisampleState.h>
+#include <vsg/state/StateGroup.h>
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/RenderGraph.h>
 #include <vsg/viewer/View.h>
@@ -148,7 +148,7 @@ void CollectDescriptorStats::apply(const View& view)
 
     view.traverse(*this);
 
-    for(auto& bin : view.bins)
+    for (auto& bin : view.bins)
     {
         binStack.top().bins.insert(bin);
     }
