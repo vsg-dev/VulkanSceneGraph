@@ -28,6 +28,14 @@ namespace vsg
             if (_ptr) _ptr->ref();
         }
 
+        /// move constructor
+        template<class R>
+        ref_ptr(ref_ptr<R>&& rhs) noexcept :
+            _ptr(rhs._ptr)
+        {
+            rhs._ptr = nullptr;
+        }
+
         explicit ref_ptr(T* ptr) :
             _ptr(ptr)
         {
@@ -98,6 +106,21 @@ namespace vsg
 
             // unref the original pointer after ref in case the old pointer object a parent of the new pointers object
             if (temp_ptr) temp_ptr->unref();
+
+            return *this;
+        }
+
+        /// move assignment
+        template<class R>
+        ref_ptr& operator=(ref_ptr<R>&& rhs)
+        {
+            if (rhs._ptr == _ptr) return *this;
+
+            if (_ptr) _ptr->unref();
+
+            _ptr = rhs._ptr;
+
+            rhs._ptr = nullptr;
 
             return *this;
         }
