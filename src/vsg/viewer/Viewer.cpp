@@ -176,7 +176,7 @@ bool Viewer::acquireNextFrame()
 VkResult Viewer::waitForFences(size_t relativeFrameIndex, uint64_t timeout)
 {
     VkResult result = VK_SUCCESS;
-    for(auto& task : recordAndSubmitTasks)
+    for (auto& task : recordAndSubmitTasks)
     {
         auto fenceToWait = task->fence(relativeFrameIndex);
         if (fenceToWait)
@@ -259,10 +259,10 @@ void Viewer::compile(BufferPreferences bufferPreferences)
         auto view = const_cast<View*>(const_view);
         view->viewID = viewID++;
 
-        for(auto& binNumber : binDetails.indices)
+        for (auto& binNumber : binDetails.indices)
         {
             bool binNumberMatched = false;
-            for(auto& bin : view->bins)
+            for (auto& bin : view->bins)
             {
                 if (bin->binNumber == binNumber)
                 {
@@ -271,7 +271,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             }
             if (!binNumberMatched)
             {
-                Bin::SortOrder sortOrder = (binNumber < 0) ? Bin::ASCENDING : ((binNumber==0) ? Bin::NO_SORT : Bin::DESCENDING);
+                Bin::SortOrder sortOrder = (binNumber < 0) ? Bin::ASCENDING : ((binNumber == 0) ? Bin::NO_SORT : Bin::DESCENDING);
                 view->bins.push_back(Bin::create(binNumber, sortOrder));
             }
         }

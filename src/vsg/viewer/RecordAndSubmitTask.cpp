@@ -42,7 +42,7 @@ void RecordAndSubmitTask::advance()
         if (_currentFrameIndex > _indices.size() - 1) _currentFrameIndex = 0;
 
         // shift the index for previous frames
-        for (size_t i = _indices.size()-1; i >= 1; --i)
+        for (size_t i = _indices.size() - 1; i >= 1; --i)
         {
             _indices[i] = _indices[i - 1];
         }

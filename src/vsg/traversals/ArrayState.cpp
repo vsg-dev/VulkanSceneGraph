@@ -16,8 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/GraphicsPipeline.h>
-#include <vsg/state/VertexInputState.h>
 #include <vsg/state/InputAssemblyState.h>
+#include <vsg/state/VertexInputState.h>
 #include <vsg/traversals/ArrayState.h>
 
 using namespace vsg;
