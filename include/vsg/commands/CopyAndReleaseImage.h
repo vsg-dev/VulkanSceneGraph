@@ -74,9 +74,9 @@ namespace vsg
         void _copyDirectly(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels);
 
         mutable std::mutex _mutex;
-        mutable std::vector<CopyData> pending;
-        mutable std::vector<CopyData> completed;
-        mutable std::vector<CopyData> readyToClear;
+        mutable std::vector<CopyData> _pending;
+        mutable std::vector<CopyData> _completed;
+        mutable std::vector<CopyData> _readyToClear;
     };
 
 } // namespace vsg

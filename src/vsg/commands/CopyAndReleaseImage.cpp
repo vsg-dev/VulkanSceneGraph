@@ -14,8 +14,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/io/Options.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 struct FormatTraits
@@ -122,8 +120,8 @@ CopyAndReleaseImage::CopyAndReleaseImage(ref_ptr<MemoryBufferPools> optional_sta
 
 CopyAndReleaseImage::~CopyAndReleaseImage()
 {
-    for (auto& copyData : completed) copyData.source.release();
-    for (auto& copyData : pending) copyData.source.release();
+    for (auto& copyData : _completed) copyData.source.release();
+    for (auto& copyData : _pending) copyData.source.release();
 }
 
 CopyAndReleaseImage::CopyData::CopyData(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels)
@@ -146,7 +144,7 @@ CopyAndReleaseImage::CopyData::CopyData(BufferInfo src, ImageInfo dest, uint32_t
 void CopyAndReleaseImage::add(const CopyData& cd)
 {
     std::scoped_lock lock(_mutex);
-    pending.push_back(cd);
+    _pending.push_back(cd);
 }
 
 void CopyAndReleaseImage::add(BufferInfo src, ImageInfo dest)
@@ -529,15 +527,15 @@ void CopyAndReleaseImage::record(CommandBuffer& commandBuffer) const
 {
     std::scoped_lock lock(_mutex);
 
-    for (auto& copyData : readyToClear) copyData.source.release();
-    readyToClear.clear();
+    for (auto& copyData : _readyToClear) copyData.source.release();
+    _readyToClear.clear();
 
-    readyToClear.swap(completed);
+    _readyToClear.swap(_completed);
 
-    for (auto& copyData : pending)
+    for (auto& copyData : _pending)
     {
         copyData.record(commandBuffer);
     }
 
-    pending.swap(completed);
+    _pending.swap(_completed);
 }

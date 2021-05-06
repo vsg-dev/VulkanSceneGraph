@@ -56,8 +56,9 @@ namespace vsg
         };
 
         mutable std::mutex _mutex;
-        mutable std::vector<CopyData> pending;
-        mutable std::vector<CopyData> completed;
+        mutable std::vector<CopyData> _pending;
+        mutable std::vector<CopyData> _completed;
+        mutable std::vector<CopyData> _readyToClear;
     };
 
 } // namespace vsg
