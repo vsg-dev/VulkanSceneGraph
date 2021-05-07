@@ -19,7 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    VSG_type_name(vsg::External);
 
     class VSG_DECLSPEC External : public Inherit<Object, External>
     {
@@ -45,6 +44,9 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
+        /// custom readwrier/writer options
+        ref_ptr<Options> options;
+
         void add(const Path& filename, ref_ptr<Object> object = {}) { _entries[filename] = object; }
 
         void setEntries(const PathObjects& entries) { _entries = entries; }
@@ -56,5 +58,6 @@ namespace vsg
 
         PathObjects _entries;
     };
+    VSG_type_name(vsg::External);
 
 } // namespace vsg
