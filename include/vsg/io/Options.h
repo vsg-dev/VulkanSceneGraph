@@ -44,6 +44,9 @@ namespace vsg
         /// read command line options, assign values to this options object to later use with reading/writing files
         virtual bool readOptions(CommandLine& arguments);
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
         void add(ref_ptr<ReaderWriter> rw = {});
         void add(const ReaderWriters& rws);
 

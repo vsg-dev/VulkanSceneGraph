@@ -20,6 +20,26 @@ void CompositeReaderWriter::add(ref_ptr<ReaderWriter> reader)
     readerWriters.emplace_back(reader);
 }
 
+void CompositeReaderWriter::read(Input& input)
+{
+    readerWriters.clear();
+    uint32_t count = input.readValue<uint32_t>("NumReaderWriters");
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        auto rw = input.readObject<ReaderWriter>("ReaderWriter");
+        if (rw) readerWriters.push_back(rw);
+    }
+}
+
+void CompositeReaderWriter::write(Output& output) const
+{
+    output.writeValue<uint32_t>("NumReaderWriters", readerWriters.size());
+    for (auto& rw : readerWriters)
+    {
+        output.writeObject("ReaderWriter", rw);
+    }
+}
+
 vsg::ref_ptr<vsg::Object> CompositeReaderWriter::read(const vsg::Path& filename, ref_ptr<const Options> options) const
 {
     for (auto& reader : readerWriters)

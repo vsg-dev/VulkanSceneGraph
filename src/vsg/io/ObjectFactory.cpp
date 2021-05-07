@@ -247,6 +247,11 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::DrawMeshTasksIndirect);
     VSG_REGISTER_create(vsg::DrawMeshTasksIndirectCommandArray);
 
+    // io
+    VSG_REGISTER_create(vsg::Options);
+    VSG_REGISTER_create(vsg::CompositeReaderWriter);
+    VSG_REGISTER_create(vsg::VSG);
+
     // application
     VSG_REGISTER_create(vsg::EllipsoidModel);
 }

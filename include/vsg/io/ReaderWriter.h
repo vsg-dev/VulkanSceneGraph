@@ -81,6 +81,9 @@ namespace vsg
 
         void add(ref_ptr<ReaderWriter> reader);
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
         vsg::ref_ptr<vsg::Object> read(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options = {}) const override;
         vsg::ref_ptr<vsg::Object> read(std::istream& fin, vsg::ref_ptr<const vsg::Options> options = {}) const override;
         vsg::ref_ptr<vsg::Object> read(const uint8_t* ptr, size_t size, vsg::ref_ptr<const vsg::Options> options = {}) const override;

@@ -37,10 +37,15 @@ void Group::read(Input& input)
 {
     Node::read(input);
 
-    _children.resize(input.readValue<uint32_t>("NumChildren"));
-    for (auto& child : _children)
+    uint32_t numChildren = input.readValue<uint32_t>("NumChildren");
+
+    _children.clear();
+    _children.reserve(numChildren);
+    for (uint32_t i = 0; i < numChildren; ++i)
     {
+        ref_ptr<Node> child;
         input.readObject("Child", child);
+        if (child) _children.push_back(child);
     }
 }
 
