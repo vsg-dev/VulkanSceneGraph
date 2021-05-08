@@ -51,13 +51,16 @@ namespace vsg
         /// Subpass contents stetting passed to vkCmdBeginRenderPass
         VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;
 
-        /// Callback used to automatically update viewports, scissor, renderAraa and clears when the window is resized.
+        /// Callback used to automatically update viewports, scissors, renderArea and clears when the window is resized.
         /// By default is null so no resize handling is done.
         ref_ptr<WindowResizeHandler> windowResizeHandler;
 
         /// window extent at previous frame, used to track window resizes
         const uint32_t invalid_dimension = std::numeric_limits<uint32_t>::max();
         mutable VkExtent2D previous_extent = VkExtent2D{invalid_dimension, invalid_dimension};
+
+        // force to update viewports, scissors, renderArea and clears
+        bool forceUpdate = false;
     };
     VSG_type_name(vsg::RenderGraph);
 

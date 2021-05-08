@@ -85,7 +85,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
         {
             previous_extent = extent;
         }
-        else if (previous_extent.width != extent.width || previous_extent.height != extent.height)
+        else if (previous_extent.width != extent.width || previous_extent.height != extent.height || forceUpdate)
         {
             auto this_renderGraph = const_cast<RenderGraph*>(this);
 
@@ -107,6 +107,8 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
             resizeHandler.scale_rect(this_renderGraph->renderArea);
 
             previous_extent = extent;
+
+            this_renderGraph->forceUpdate = false;
         }
     }
 
