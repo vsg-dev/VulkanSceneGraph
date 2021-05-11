@@ -88,25 +88,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
         else if (previous_extent.width != extent.width || previous_extent.height != extent.height)
         {
             auto this_renderGraph = const_cast<RenderGraph*>(this);
-
-            auto& resizeHandler = *(this_renderGraph->windowResizeHandler);
-
-            if (!resizeHandler.context) resizeHandler.context = vsg::Context::create(window->getDevice());
-
-            resizeHandler.context->commandPool = recordTraversal.getState()->_commandBuffer->getCommandPool();
-            resizeHandler.context->renderPass = window->getRenderPass();
-            resizeHandler.renderArea = renderArea;
-            resizeHandler.previous_extent = previous_extent;
-            resizeHandler.new_extent = extent;
-            resizeHandler.visited.clear();
-
-            if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT) resizeHandler.context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(window->framebufferSamples()));
-
-            this_renderGraph->traverse(resizeHandler);
-
-            resizeHandler.scale_rect(this_renderGraph->renderArea);
-
-            previous_extent = extent;
+            this_renderGraph->resized();
         }
     }
 
@@ -144,6 +126,33 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     traverse(recordTraversal);
 
     vkCmdEndRenderPass(vk_commandBuffer);
+}
+
+void RenderGraph::resized()
+{
+    if (!windowResizeHandler) return;
+
+    if (!windowResizeHandler->context) windowResizeHandler->context = vsg::Context::create(window->getDevice());
+
+    auto extent = window->extent2D();
+
+    windowResizeHandler->context->commandPool = nullptr;
+    windowResizeHandler->context->renderPass = window->getRenderPass();
+    windowResizeHandler->renderArea = renderArea;
+    windowResizeHandler->previous_extent = previous_extent;
+    windowResizeHandler->new_extent = extent;
+    windowResizeHandler->visited.clear();
+
+    if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT) windowResizeHandler->context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(window->framebufferSamples()));
+
+    // make sure the device is idle before we recreate any Vulkan objects
+    vkDeviceWaitIdle(*(window->getDevice()));
+
+    traverse(*windowResizeHandler);
+
+    windowResizeHandler->scale_rect(renderArea);
+
+    previous_extent = extent;
 }
 
 ref_ptr<RenderGraph> vsg::createRenderGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents)
