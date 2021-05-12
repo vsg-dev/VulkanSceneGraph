@@ -38,7 +38,6 @@ void BottomLevelAccelerationStructure::compile(Context& context)
     }
 
     // set the additional acceleration structure info used in the base AccelerationStructure compile function
-    uint32_t primitiveCount = 0;
     for (const auto& geom : geometries){
         _geometryPrimitiveCounts.push_back(geom->indices->valueCount() / 3);
     }

@@ -63,8 +63,7 @@ void TopLevelAccelerationStructure::compile(Context& context)
     _instanceBuffer = instanceBufferInfo[0].buffer;
 #endif
     Extensions* extensions = Extensions::Get(context.device, true);
-    VkBufferDeviceAddressInfo bufferDeviceAddressInfo{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO};
-    bufferDeviceAddressInfo.buffer = _instanceBuffer->vk(context.deviceID);
+    VkBufferDeviceAddressInfo bufferDeviceAddressInfo{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, nullptr, _instanceBuffer->vk(context.deviceID)};
     VkAccelerationStructureGeometryKHR accelerationStructureGeometry{};
     accelerationStructureGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
     accelerationStructureGeometry.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
