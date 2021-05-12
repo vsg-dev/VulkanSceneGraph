@@ -97,6 +97,7 @@ jobs:
       run: MSBuild.exe ALL_BUILD.vcxproj -p:Configuration=Release
 
   macos-build:
+    if: ${{ false }} # disable until the unpack/mounting of the VulkanSDK .dmg is fixed
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
