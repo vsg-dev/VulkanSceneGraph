@@ -94,6 +94,7 @@ namespace vsg
         KEY_Quotedbl = 0x22,
         KEY_Hash = 0x23,
         KEY_Dollar = 0x24,
+        KEY_Percent = 0x25,
         KEY_Ampersand = 0x26,
         KEY_Quote = 0x27,
         KEY_Leftparen = 0x28,
@@ -117,6 +118,10 @@ namespace vsg
         KEY_Caret = 0x5E,
         KEY_Underscore = 0x5F,
         KEY_Backquote = 0x60,
+        KEY_Leftcurlybracket = 0x7B,
+        KEY_Verticalslash = 0x7C,
+        KEY_Rightcurlybracket = 0x7D,
+        KEY_Tilde = 0x7E,
 
         KEY_BackSpace = 0xFF08, /* back space, back char */
         KEY_Tab = 0xFF09,
