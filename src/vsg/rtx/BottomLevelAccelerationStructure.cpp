@@ -22,7 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(Device* device, Allocator* allocator) :
-    Inherit(VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_NV, device, allocator)
+    Inherit(VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR, device, allocator)
 {
 }
 
@@ -38,10 +38,14 @@ void BottomLevelAccelerationStructure::compile(Context& context)
     }
 
     // set the additional acceleration structure info used in the base AccelerationStructure compile function
-    _accelerationStructureInfo.geometryCount = static_cast<uint32_t>(geometries.size());
-    _accelerationStructureInfo.pGeometries = _vkGeometries.data();
+    uint32_t primitiveCount = 0;
+    for (const auto& geom : geometries){
+        _geometryPrimitiveCounts.push_back(geom->indices->valueCount() / 3);
+    }
+    _accelerationStructureBuildGeometryInfo.geometryCount = static_cast<uint32_t>(geometries.size());
+    _accelerationStructureBuildGeometryInfo.pGeometries = _vkGeometries.data();
 
     Inherit::compile(context);
 
-    context.buildAccelerationStructureCommands.push_back(BuildAccelerationStructureCommand::create(context.device, &_accelerationStructureInfo, _accelerationStructure, nullptr));
+    context.buildAccelerationStructureCommands.push_back(BuildAccelerationStructureCommand::create(context.device, _accelerationStructureBuildGeometryInfo, _accelerationStructure, _geometryPrimitiveCounts, context.getAllocator()));
 }

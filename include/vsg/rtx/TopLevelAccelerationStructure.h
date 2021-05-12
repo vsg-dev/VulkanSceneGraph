@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    // this structure is required to populate the top level structures instance buffer
+    // this structure is required to populate the top level structures instance buffer and is essentially the same as VkAccelerationStructureInstanceKHR
     // https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/chap33.html#acceleration-structure
     struct VkGeometryInstance
     {
