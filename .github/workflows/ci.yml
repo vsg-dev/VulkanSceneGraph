@@ -3,7 +3,7 @@ on:
   push:
   pull_request:
 env:
-  VulkanSDKVersion: 1.2.162.0
+  VulkanSDKVersion: 1.2.176.1
 jobs:
   linux-build:
     runs-on: ubuntu-latest
