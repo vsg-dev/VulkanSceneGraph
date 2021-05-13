@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/rtx/RayTracingShaderGroup.h>
+#include <vsg/raytracing/RayTracingShaderGroup.h>
 #include <vsg/state/PipelineLayout.h>
 #include <vsg/state/ShaderStage.h>
 #include <vsg/state/StateCommand.h>

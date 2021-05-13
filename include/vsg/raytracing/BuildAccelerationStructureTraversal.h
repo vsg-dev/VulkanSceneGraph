@@ -21,9 +21,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 
-#include <vsg/rtx/AccelerationStructure.h>
-#include <vsg/rtx/BottomLevelAccelerationStructure.h>
-#include <vsg/rtx/TopLevelAccelerationStructure.h>
+#include <vsg/raytracing/AccelerationStructure.h>
+#include <vsg/raytracing/BottomLevelAccelerationStructure.h>
+#include <vsg/raytracing/TopLevelAccelerationStructure.h>
 
 namespace vsg
 {
