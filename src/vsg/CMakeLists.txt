@@ -136,15 +136,16 @@ set(SOURCES
     viewer/WindowResizeHandler.cpp
     viewer/View.cpp
 
-    rtx/AccelerationGeometry.cpp
-    rtx/AccelerationStructure.cpp
-    rtx/BottomLevelAccelerationStructure.cpp
-    rtx/BuildAccelerationStructureTraversal.cpp
-    rtx/DescriptorAccelerationStructure.cpp
-    rtx/RayTracingPipeline.cpp
-    rtx/RayTracingShaderGroup.cpp
-    rtx/TopLevelAccelerationStructure.cpp
-    rtx/TraceRays.cpp
+    raytracing/AccelerationGeometry.cpp
+    raytracing/AccelerationStructure.cpp
+    raytracing/BottomLevelAccelerationStructure.cpp
+    raytracing/BuildAccelerationStructureTraversal.cpp
+    raytracing/DescriptorAccelerationStructure.cpp
+    raytracing/RayTracingPipeline.cpp
+    raytracing/RayTracingShaderGroup.cpp
+    raytracing/TopLevelAccelerationStructure.cpp
+    raytracing/TraceRays.cpp
+
     rtx/DrawMeshTasks.cpp
     rtx/DrawMeshTasksIndirect.cpp
     rtx/DrawMeshTasksIndirectCount.cpp
