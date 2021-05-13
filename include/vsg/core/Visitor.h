@@ -114,6 +114,8 @@ namespace vsg
     public:
         Visitor();
 
+        uint32_t traversalMask = 0xffffffff;
+
         virtual void apply(Object&);
         virtual void apply(Objects&);
         virtual void apply(External&);

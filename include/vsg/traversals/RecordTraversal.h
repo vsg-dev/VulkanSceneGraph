@@ -57,6 +57,8 @@ namespace vsg
         std::size_t sizeofObject() const noexcept override { return sizeof(RecordTraversal); }
         const char* className() const noexcept override { return type_name<RecordTraversal>(); }
 
+        uint32_t traversalMask = 0xffffffff;
+
         State* getState() { return _state; }
 
         void setFrameStamp(FrameStamp* fs);
