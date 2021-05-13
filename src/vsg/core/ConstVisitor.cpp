@@ -477,6 +477,10 @@ void ConstVisitor::apply(const Switch& value)
 {
     apply(static_cast<const Node&>(value));
 }
+void ConstVisitor::apply(const MaskGroup& value)
+{
+    apply(static_cast<const Node&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
