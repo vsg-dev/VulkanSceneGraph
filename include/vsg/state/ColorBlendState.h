@@ -22,6 +22,7 @@ namespace vsg
         using ColorBlendAttachments = std::vector<VkPipelineColorBlendAttachmentState>;
 
         ColorBlendState();
+        ColorBlendState(const ColorBlendState& cbs);
         ColorBlendState(const ColorBlendAttachments& colorBlendAttachments);
 
         /// VkPipelineColorBlendStateCreateInfo settings
