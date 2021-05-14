@@ -116,6 +116,7 @@ namespace vsg
         Visitor();
 
         uint32_t traversalMask = 0xffffffff;
+        uint32_t overrideMask = 0x0;
 
         virtual void apply(Object&);
         virtual void apply(Objects&);

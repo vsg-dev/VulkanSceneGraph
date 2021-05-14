@@ -58,6 +58,7 @@ namespace vsg
         const char* className() const noexcept override { return type_name<RecordTraversal>(); }
 
         uint32_t traversalMask = 0xffffffff;
+        uint32_t overrideMask = 0x0;
 
         State* getState() { return _state; }
 

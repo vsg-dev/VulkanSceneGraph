@@ -39,7 +39,7 @@ namespace vsg
         {
             for (auto& child : node.children)
             {
-                if ((visitor.traversalMask & child.mask) != 0) child.node->accept(visitor);
+                if ((visitor.traversalMask & (visitor.overrideMask | child.mask)) != 0) child.node->accept(visitor);
             }
         }
 

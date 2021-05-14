@@ -30,7 +30,7 @@ namespace vsg
         template<class N, class V>
         static void t_accept(N& node, V& visitor)
         {
-            if ((visitor.traversalMask & node.mask) == 0) return;
+            if ((visitor.traversalMask & (visitor.overrideMask | node.mask)) == 0) return;
 
             uint32_t cached_traversalMask = visitor.traversalMask;
 
