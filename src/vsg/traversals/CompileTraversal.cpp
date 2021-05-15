@@ -150,7 +150,7 @@ void CollectDescriptorStats::apply(const View& view)
     }
     else
     {
-        binStack.push(BinDetails{views.size()});
+        binStack.push(BinDetails{static_cast<uint32_t>(views.size())});
     }
 
     view.traverse(*this);
