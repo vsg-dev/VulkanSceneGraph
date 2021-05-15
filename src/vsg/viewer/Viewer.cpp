@@ -255,11 +255,10 @@ void Viewer::compile(BufferPreferences bufferPreferences)
     }
 
     // assign the viewID's to each View
-    uint32_t viewID = 0;
     for (auto& [const_view, binDetails] : views)
     {
         auto view = const_cast<View*>(const_view);
-        view->viewID = viewID++;
+        view->viewID = binDetails.viewTraversalIndex;
 
         for (auto& binNumber : binDetails.indices)
         {
