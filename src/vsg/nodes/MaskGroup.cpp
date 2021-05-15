@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,34 +10,48 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/state/GraphicsPipeline.h>
+#include <vsg/nodes/MaskGroup.h>
 
-namespace vsg
+#include <vsg/io/Input.h>
+#include <vsg/io/Options.h>
+#include <vsg/io/Output.h>
+
+using namespace vsg;
+
+MaskGroup::MaskGroup(Allocator* allocator) :
+    Inherit(allocator)
 {
-    class VSG_DECLSPEC ColorBlendState : public Inherit<GraphicsPipelineState, ColorBlendState>
+}
+
+MaskGroup::~MaskGroup()
+{
+}
+
+void MaskGroup::read(Input& input)
+{
+    Node::read(input);
+
+    children.resize(input.readValue<uint32_t>("NumChildren"));
+    for (auto& child : children)
     {
-    public:
-        using ColorBlendAttachments = std::vector<VkPipelineColorBlendAttachmentState>;
+        input.read("mask", child.mask);
+        input.readObject("node", child.node);
+    }
+}
 
-        ColorBlendState();
-        ColorBlendState(const ColorBlendState& cbs);
-        ColorBlendState(const ColorBlendAttachments& colorBlendAttachments);
+void MaskGroup::write(Output& output) const
+{
+    Node::write(output);
 
-        /// VkPipelineColorBlendStateCreateInfo settings
-        VkBool32 logicOpEnable = VK_FALSE;
-        VkLogicOp logicOp = VK_LOGIC_OP_COPY;
-        ColorBlendAttachments attachments;
-        float blendConstants[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    output.writeValue<uint32_t>("NumChildren", children.size());
+    for (auto& child : children)
+    {
+        output.write("mask", child.mask);
+        output.writeObject("node", child.node);
+    }
+}
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
-        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
-
-    protected:
-        virtual ~ColorBlendState();
-
-        ColorBlendAttachments _colorBlendAttachments;
-    };
-    VSG_type_name(vsg::ColorBlendState);
-
-} // namespace vsg
+void MaskGroup::addChild(uint32_t mask, ref_ptr<Node> child)
+{
+    children.push_back(Child{mask, child});
+}

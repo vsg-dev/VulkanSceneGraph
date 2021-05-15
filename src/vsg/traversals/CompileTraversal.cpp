@@ -144,7 +144,14 @@ void CollectDescriptorStats::apply(const Descriptor& descriptor)
 
 void CollectDescriptorStats::apply(const View& view)
 {
-    binStack.push(BinDetails{});
+    if (auto itr = views.find(&view); itr != views.end())
+    {
+        binStack.push(itr->second);
+    }
+    else
+    {
+        binStack.push(BinDetails{static_cast<uint32_t>(views.size()),{},{}});
+    }
 
     view.traverse(*this);
 

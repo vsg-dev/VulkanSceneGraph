@@ -37,6 +37,7 @@ namespace vsg
 
         struct BinDetails
         {
+            uint32_t viewTraversalIndex = 0;
             std::set<int32_t> indices;
             std::set<const Bin*> bins;
         };

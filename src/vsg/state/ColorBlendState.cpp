@@ -31,6 +31,15 @@ ColorBlendState::ColorBlendState()
     attachments.push_back(colorBlendAttachment);
 }
 
+ColorBlendState::ColorBlendState(const ColorBlendState& cbs) :
+    Inherit(cbs),
+    logicOpEnable(cbs.logicOpEnable),
+    logicOp(cbs.logicOp),
+    attachments(cbs.attachments),
+    blendConstants{cbs.blendConstants[0], cbs.blendConstants[1], cbs.blendConstants[2], cbs.blendConstants[3]}
+{
+}
+
 ColorBlendState::ColorBlendState(const ColorBlendAttachments& colorBlendAttachments) :
     attachments(colorBlendAttachments)
 {
