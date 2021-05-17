@@ -38,8 +38,9 @@ void BottomLevelAccelerationStructure::compile(Context& context)
     }
 
     // set the additional acceleration structure info used in the base AccelerationStructure compile function
-    for (const auto& geom : geometries){
-        _geometryPrimitiveCounts.push_back(geom->indices->valueCount() / 3);
+    for (const auto& geom : geometries)
+    {
+        _geometryPrimitiveCounts.push_back(static_cast<uint32_t>(geom->indices->valueCount() / 3));
     }
     _accelerationStructureBuildGeometryInfo.geometryCount = static_cast<uint32_t>(geometries.size());
     _accelerationStructureBuildGeometryInfo.pGeometries = _vkGeometries.data();
