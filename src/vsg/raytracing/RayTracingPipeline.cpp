@@ -153,8 +153,7 @@ RayTracingPipeline::Implementation::Implementation(Context& context, RayTracingP
     if (result == VK_SUCCESS)
     {
         auto rayTracingProperties = _device->getPhysicalDevice()->getProperties<VkPhysicalDeviceRayTracingPipelinePropertiesKHR, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR>();
-        auto alignedSize = [](uint32_t value, uint32_t alignment)
-        {
+        auto alignedSize = [](uint32_t value, uint32_t alignment) {
             return (value + alignment - 1) & ~(alignment - 1);
         };
         const uint32_t handleSizeAligned = alignedSize(rayTracingProperties.shaderGroupHandleSize, rayTracingProperties.shaderGroupHandleAlignment);
@@ -164,7 +163,7 @@ RayTracingPipeline::Implementation::Implementation(Context& context, RayTracingP
         //auto bindingTableBuffer = bindingTableBufferInfo.buffer;
         //auto bindingTableMemory = bindingTableBuffer->getDeviceMemory(context.deviceID);
         std::vector<ref_ptr<Buffer>> bindingTableBuffers(rayTracingShaderGroups.size());
-        for(size_t i = 0; i < bindingTableBuffers.size(); ++i)
+        for (size_t i = 0; i < bindingTableBuffers.size(); ++i)
         {
             bindingTableBuffers[i] = createBufferAndMemory(_device, handleSizeAligned, VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         }

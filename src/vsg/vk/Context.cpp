@@ -45,7 +45,8 @@ BuildAccelerationStructureCommand::BuildAccelerationStructureCommand(Device* dev
     _accelerationStructureInfo.dstAccelerationStructure = _accelerationStructure;
     _accelerationStructureGeometries = std::vector<VkAccelerationStructureGeometryKHR>(_accelerationStructureInfo.pGeometries, _accelerationStructureInfo.pGeometries + _accelerationStructureInfo.geometryCount);
     _accelerationStructureInfo.pGeometries = _accelerationStructureGeometries.data();
-    for(const auto c: primitiveCounts){
+    for (const auto c : primitiveCounts)
+    {
         _accelerationStructureBuildRangeInfos.emplace_back();
         _accelerationStructureBuildRangeInfos.back().firstVertex = 0;
         _accelerationStructureBuildRangeInfos.back().primitiveCount = c;
@@ -78,7 +79,7 @@ void BuildAccelerationStructureCommand::setScratchBuffer(ref_ptr<Buffer>& scratc
     _scratchBuffer = scratchBuffer;
     Extensions* extensions = Extensions::Get(_device, true);
     VkBufferDeviceAddressInfo devAddressInfo{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, nullptr, _scratchBuffer->vk(_device->deviceID)};
-	_accelerationStructureInfo.scratchData.deviceAddress = extensions->vkGetBufferDeviceAddressKHR(_device->getDevice(), &devAddressInfo);
+    _accelerationStructureInfo.scratchData.deviceAddress = extensions->vkGetBufferDeviceAddressKHR(_device->getDevice(), &devAddressInfo);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

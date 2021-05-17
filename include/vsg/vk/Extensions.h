@@ -34,7 +34,7 @@ namespace vsg
         Extensions(Device* device);
 
         // VK_KHR_ray_tracing
-        PFN_vkCreateAccelerationStructureKHR vkCreateAccelerationStructureKHR  = nullptr;
+        PFN_vkCreateAccelerationStructureKHR vkCreateAccelerationStructureKHR = nullptr;
         PFN_vkDestroyAccelerationStructureKHR vkDestroyAccelerationStructureKHR = nullptr;
         PFN_vkGetAccelerationStructureDeviceAddressKHR vkGetAccelerationStructureDeviceAddressKHR = nullptr;
         PFN_vkGetAccelerationStructureBuildSizesKHR vkGetAccelerationStructureBuildSizesKHR = nullptr;

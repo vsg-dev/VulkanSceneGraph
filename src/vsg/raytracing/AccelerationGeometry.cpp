@@ -24,15 +24,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 AccelerationGeometry::AccelerationGeometry(Allocator* allocator) :
-    Inherit(allocator), _geometry({})
+    Inherit(allocator),
+    _geometry({})
 {
     _geometry.geometry.triangles.vertexData.deviceAddress = VkDeviceAddress{0};
 }
 
 void AccelerationGeometry::compile(Context& context)
 {
-    if (!verts) return;                                                                     // no data set
-    if (_geometry.geometry.triangles.vertexData.deviceAddress != VkDeviceAddress{0}) return;    // already compiled
+    if (!verts) return;                                                                      // no data set
+    if (_geometry.geometry.triangles.vertexData.deviceAddress != VkDeviceAddress{0}) return; // already compiled
 
     uint32_t vertcount = static_cast<uint32_t>(verts->valueCount());
     uint32_t strideSize = static_cast<uint32_t>(verts->valueSize());

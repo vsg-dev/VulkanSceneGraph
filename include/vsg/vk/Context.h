@@ -35,7 +35,7 @@ namespace vsg
     class VSG_DECLSPEC BuildAccelerationStructureCommand : public Inherit<Command, BuildAccelerationStructureCommand>
     {
     public:
-        // the primitive Count is A) the amount of triangles to be built for type VK_GEOMETRY_TYPE_TRIANGLES_KHR (blas) B) the amoutn fo AABBs vor type VK_GEOMETRY_TYPE_AABBS_KHR 
+        // the primitive Count is A) the amount of triangles to be built for type VK_GEOMETRY_TYPE_TRIANGLES_KHR (blas) B) the amoutn fo AABBs vor type VK_GEOMETRY_TYPE_AABBS_KHR
         // and C) the number of acceleration structures for type VK_GEOMETRY_TYPE_INSTANCES_KHR
         BuildAccelerationStructureCommand(Device* device, const VkAccelerationStructureBuildGeometryInfoKHR& info, const VkAccelerationStructureKHR& structure, const std::vector<uint32_t>& primitiveCounts, Allocator* allocator);
 
@@ -110,7 +110,6 @@ namespace vsg
         ref_ptr<CopyAndReleaseImage> copyImageCmd;
         void copy(ref_ptr<Data> data, ImageInfo dest);
         void copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels);
-
 
         ref_ptr<CopyAndReleaseBuffer> copyBufferCmd;
         void copy(BufferInfo src, BufferInfo dest);

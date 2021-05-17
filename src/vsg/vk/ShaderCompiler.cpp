@@ -30,8 +30,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <iostream>
 
 #if VK_VERSION_1_1 == 1
-#define HAS_KHR_RAYTRACNG (VK_VERSION_1_1)
-#define HAS_NV_MESHSHADER (VK_VERSION_1_1)
+#    define HAS_KHR_RAYTRACNG (VK_VERSION_1_1)
+#    define HAS_NV_MESHSHADER (VK_VERSION_1_1)
 #endif
 
 using namespace vsg;
@@ -110,18 +110,18 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         case (VK_SHADER_STAGE_GEOMETRY_BIT): return "Geometry Shader";
         case (VK_SHADER_STAGE_FRAGMENT_BIT): return "Fragment Shader";
         case (VK_SHADER_STAGE_COMPUTE_BIT): return "Compute Shader";
-#ifdef HAS_KHR_RAYTRACNG
+#    ifdef HAS_KHR_RAYTRACNG
         case (VK_SHADER_STAGE_RAYGEN_BIT_KHR): return "RayGen Shader";
         case (VK_SHADER_STAGE_ANY_HIT_BIT_KHR): return "Any Hit Shader";
         case (VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR): return "Closest Hit Shader";
         case (VK_SHADER_STAGE_MISS_BIT_KHR): return "Miss Shader";
         case (VK_SHADER_STAGE_INTERSECTION_BIT_KHR): return "Intersection Shader";
         case (VK_SHADER_STAGE_CALLABLE_BIT_KHR): return "Callable Shader";
-#endif
-#ifdef HAS_NV_MESHSHADER
+#    endif
+#    ifdef HAS_NV_MESHSHADER
         case (VK_SHADER_STAGE_TASK_BIT_NV): return "Task Shader";
         case (VK_SHADER_STAGE_MESH_BIT_NV): return "Mesh Shader";
-#endif
+#    endif
         default: return "Unknown Shader Type";
         }
         return "";
