@@ -39,6 +39,7 @@ namespace vsg
     class DepthSorted;
     class Bin;
     class Switch;
+    class MaskGroup;
 
     // forward declare vulkan classes
     class Command;
@@ -113,6 +114,9 @@ namespace vsg
     {
     public:
         ConstVisitor();
+
+        uint32_t traversalMask = 0xffffffff;
+        uint32_t overrideMask = 0x0;
 
         virtual void apply(const Object&);
         virtual void apply(const Objects&);
@@ -232,6 +236,7 @@ namespace vsg
         virtual void apply(const DepthSorted&);
         virtual void apply(const Bin&);
         virtual void apply(const Switch&);
+        virtual void apply(const MaskGroup&);
 
         // Vulkan nodes
         virtual void apply(const Command&);

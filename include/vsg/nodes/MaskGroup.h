@@ -12,34 +12,52 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/state/GraphicsPipeline.h>
+#include <vsg/core/ref_ptr.h>
+
+#include <vsg/nodes/Node.h>
+
+#include <vector>
 
 namespace vsg
 {
-    class VSG_DECLSPEC ColorBlendState : public Inherit<GraphicsPipelineState, ColorBlendState>
+    /// MaskGroup node for toggling on/off recording of children used a logical and operation between visitor.traversalMask and child.mask
+    class VSG_DECLSPEC MaskGroup : public Inherit<Node, MaskGroup>
     {
     public:
-        using ColorBlendAttachments = std::vector<VkPipelineColorBlendAttachmentState>;
+        MaskGroup(Allocator* allocator = nullptr);
 
-        ColorBlendState();
-        ColorBlendState(const ColorBlendState& cbs);
-        ColorBlendState(const ColorBlendAttachments& colorBlendAttachments);
+        struct Child
+        {
+            uint32_t mask = 0xffffff;
+            ref_ptr<Node> node;
+        };
 
-        /// VkPipelineColorBlendStateCreateInfo settings
-        VkBool32 logicOpEnable = VK_FALSE;
-        VkLogicOp logicOp = VK_LOGIC_OP_COPY;
-        ColorBlendAttachments attachments;
-        float blendConstants[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+        using Children = std::vector<Child>;
+
+        template<class N, class V>
+        static void t_traverse(N& node, V& visitor)
+        {
+            for (auto& child : node.children)
+            {
+                if ((visitor.traversalMask & (visitor.overrideMask | child.mask)) != 0) child.node->accept(visitor);
+            }
+        }
+
+        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+        void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
 
         void read(Input& input) override;
         void write(Output& output) const override;
-        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
+
+        Children children;
+
+        /// add a child to the back of the children list.
+        void addChild(uint32_t mask, ref_ptr<Node> child);
 
     protected:
-        virtual ~ColorBlendState();
-
-        ColorBlendAttachments _colorBlendAttachments;
+        virtual ~MaskGroup();
     };
-    VSG_type_name(vsg::ColorBlendState);
+    VSG_type_name(vsg::MaskGroup);
 
 } // namespace vsg
