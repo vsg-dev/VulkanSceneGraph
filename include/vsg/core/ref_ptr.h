@@ -36,6 +36,13 @@ namespace vsg
             rhs._ptr = nullptr;
         }
 
+        template<class R>
+        ref_ptr(const ref_ptr<R>& ptr) noexcept :
+            _ptr(ptr._ptr)
+        {
+            if (_ptr) _ptr->ref();
+        }
+
         explicit ref_ptr(T* ptr) noexcept :
             _ptr(ptr)
         {
@@ -45,13 +52,6 @@ namespace vsg
         template<class R>
         explicit ref_ptr(R* ptr) noexcept :
             _ptr(ptr)
-        {
-            if (_ptr) _ptr->ref();
-        }
-
-        template<class R>
-        ref_ptr(const ref_ptr<R>& ptr) noexcept :
-            _ptr(ptr._ptr)
         {
             if (_ptr) _ptr->ref();
         }
