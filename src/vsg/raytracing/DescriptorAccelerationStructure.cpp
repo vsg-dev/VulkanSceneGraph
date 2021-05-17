@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/rtx/DescriptorAccelerationStructure.h>
+#include <vsg/raytracing/DescriptorAccelerationStructure.h>
 
 #include <vsg/io/Options.h>
 #include <vsg/vk/Context.h>
@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 DescriptorAccelerationStructure::DescriptorAccelerationStructure() :
-    Inherit(0, 0, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV)
+    Inherit(0, 0, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR)
 {
 }
 
@@ -57,8 +57,8 @@ void DescriptorAccelerationStructure::assignTo(Context& context, VkWriteDescript
     // TODO HERE
     Descriptor::assignTo(context, wds);
 
-    auto descriptorAccelerationStructureInfo = context.scratchMemory->allocate<VkWriteDescriptorSetAccelerationStructureNV>(1);
-    descriptorAccelerationStructureInfo->sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV;
+    auto descriptorAccelerationStructureInfo = context.scratchMemory->allocate<VkWriteDescriptorSetAccelerationStructureKHR>(1);
+    descriptorAccelerationStructureInfo->sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
     descriptorAccelerationStructureInfo->accelerationStructureCount = static_cast<uint32_t>(_vkAccelerationStructures.size());
     descriptorAccelerationStructureInfo->pAccelerationStructures = _vkAccelerationStructures.data();
     descriptorAccelerationStructureInfo->pNext = nullptr;

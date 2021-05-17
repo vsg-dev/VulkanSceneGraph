@@ -25,6 +25,7 @@ macro(BUILD_ALL_H)
     file(GLOB COMMANDS_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/include include/vsg/commands/*.h )
     file(GLOB STATE_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/include include/vsg/state/*.h )
     file(GLOB TEXT_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/include include/vsg/text/*.h )
+    file(GLOB RAYTRACING_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/include include/vsg/raytracing/*.h )
     file(GLOB RTX_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/include include/vsg/rtx/*.h )
 
     file(READ ${CMAKE_CURRENT_SOURCE_DIR}/build/header_license_preamble.txt ALL_H_CONTENTS)
@@ -42,7 +43,8 @@ macro(BUILD_ALL_H)
     APPEND_INCLUDES(ALL_H_CONTENTS UTILS_HEADERS "// Utility header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS INTROSPECTION_HEADERS "// Introspection header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS TEXT_HEADERS "// Text header files\n")
-    APPEND_INCLUDES(ALL_H_CONTENTS RTX_HEADERS "// RTX mesh and ray tracing header files\n")
+    APPEND_INCLUDES(ALL_H_CONTENTS RAYTRACING_HEADERS "// Ray tracing header files\n")
+    APPEND_INCLUDES(ALL_H_CONTENTS RTX_HEADERS "// RTX mesh  header files\n")
 
     file(WRITE include/vsg/all.h ${ALL_H_CONTENTS})
 

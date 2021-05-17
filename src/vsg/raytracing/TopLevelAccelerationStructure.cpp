@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <algorithm>
 
-#include <vsg/rtx/TopLevelAccelerationStructure.h>
+#include <vsg/raytracing/TopLevelAccelerationStructure.h>
 
 #include <vsg/io/Options.h>
 #include <vsg/vk/CommandBuffer.h>
@@ -28,12 +28,12 @@ GeometryInstance::GeometryInstance() :
     id(0),
     mask(0xff),
     shaderOffset(0),
-    flags(VK_GEOMETRY_INSTANCE_TRIANGLE_CULL_DISABLE_BIT_NV)
+    flags(VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR)
 {
 }
 
 TopLevelAccelerationStructure::TopLevelAccelerationStructure(Device* device, Allocator* allocator) :
-    Inherit(VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_NV, device, allocator)
+    Inherit(VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR, device, allocator)
 {
 }
 
@@ -55,17 +55,28 @@ void TopLevelAccelerationStructure::compile(Context& context)
     DataList dataList = {_instances};
 
 #if TRANSFER_BUFFERS
-    auto instanceBufferInfo = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);
+    auto instanceBufferInfo = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR, VK_SHARING_MODE_EXCLUSIVE);
     _instanceBuffer = instanceBufferInfo[0].buffer;
 #else
-    auto instanceBufferInfo = vsg::createHostVisibleBuffer(context.device, dataList, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV, VK_SHARING_MODE_EXCLUSIVE);
+    auto instanceBufferInfo = vsg::createHostVisibleBuffer(context.device, dataList, VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR, VK_SHARING_MODE_EXCLUSIVE);
     vsg::copyDataListToBuffers(context.device, instanceBufferInfo);
     _instanceBuffer = instanceBufferInfo[0].buffer;
 #endif
+    Extensions* extensions = Extensions::Get(context.device, true);
+    VkBufferDeviceAddressInfo bufferDeviceAddressInfo{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, nullptr, _instanceBuffer->vk(context.deviceID)};
+    VkAccelerationStructureGeometryKHR accelerationStructureGeometry{};
+    accelerationStructureGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
+    accelerationStructureGeometry.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
+    accelerationStructureGeometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
+    accelerationStructureGeometry.geometry.instances.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
+    accelerationStructureGeometry.geometry.instances.arrayOfPointers = VK_FALSE;
+    accelerationStructureGeometry.geometry.instances.data.deviceAddress = extensions->vkGetBufferDeviceAddressKHR(*context.device, &bufferDeviceAddressInfo);
 
-    _accelerationStructureInfo.instanceCount = static_cast<uint32_t>(_instances->valueCount());
+    _accelerationStructureBuildGeometryInfo.geometryCount = 1;
+    _accelerationStructureBuildGeometryInfo.pGeometries = &accelerationStructureGeometry;
+    _geometryPrimitiveCounts = {static_cast<uint32_t>(_instances->valueCount())};
 
     Inherit::compile(context);
 
-    context.buildAccelerationStructureCommands.push_back(BuildAccelerationStructureCommand::create(context.device, &_accelerationStructureInfo, _accelerationStructure, _instanceBuffer));
+    context.buildAccelerationStructureCommands.push_back(BuildAccelerationStructureCommand::create(context.device, _accelerationStructureBuildGeometryInfo, _accelerationStructure, _geometryPrimitiveCounts, context.getAllocator()));
 }

@@ -14,13 +14,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Array.h>
 #include <vsg/core/Value.h>
-#include <vsg/rtx/AccelerationStructure.h>
-#include <vsg/rtx/BottomLevelAccelerationStructure.h>
+#include <vsg/raytracing/AccelerationStructure.h>
+#include <vsg/raytracing/BottomLevelAccelerationStructure.h>
 
 namespace vsg
 {
 
-    // this structure is required to populate the top level structures instance buffer
+    // this structure is required to populate the top level structures instance buffer and is essentially the same as VkAccelerationStructureInstanceKHR
     // https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/chap33.html#acceleration-structure
     struct VkGeometryInstance
     {

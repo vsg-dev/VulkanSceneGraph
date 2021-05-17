@@ -10,38 +10,40 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <algorithm>
-
-#include <vsg/rtx/BottomLevelAccelerationStructure.h>
-
 #include <vsg/io/Options.h>
-#include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/Context.h>
-#include <vsg/vk/Extensions.h>
+#include <vsg/raytracing/RayTracingShaderGroup.h>
 
 using namespace vsg;
 
-BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(Device* device, Allocator* allocator) :
-    Inherit(VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_NV, device, allocator)
+////////////////////////////////////////////////////////////////////////
+//
+// RayTracingShaderGroup
+//
+RayTracingShaderGroup::RayTracingShaderGroup()
 {
 }
 
-void BottomLevelAccelerationStructure::compile(Context& context)
+RayTracingShaderGroup::~RayTracingShaderGroup()
 {
-    if (geometries.size() == 0) return;                    // no data
-    if (_vkGeometries.size() == geometries.size()) return; // already compiled
+}
 
-    for (auto& geom : geometries)
-    {
-        geom->compile(context);
-        _vkGeometries.push_back(*geom);
-    }
+void RayTracingShaderGroup::read(Input& input)
+{
+    Object::read(input);
+}
 
-    // set the additional acceleration structure info used in the base AccelerationStructure compile function
-    _accelerationStructureInfo.geometryCount = static_cast<uint32_t>(geometries.size());
-    _accelerationStructureInfo.pGeometries = _vkGeometries.data();
+void RayTracingShaderGroup::write(Output& output) const
+{
+    Object::write(output);
+}
 
-    Inherit::compile(context);
-
-    context.buildAccelerationStructureCommands.push_back(BuildAccelerationStructureCommand::create(context.device, &_accelerationStructureInfo, _accelerationStructure, nullptr));
+void RayTracingShaderGroup::applyTo(VkRayTracingShaderGroupCreateInfoKHR& shaderGroupInfo) const
+{
+    shaderGroupInfo.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR;
+    shaderGroupInfo.pNext = nullptr;
+    shaderGroupInfo.type = type;
+    shaderGroupInfo.generalShader = generalShader;
+    shaderGroupInfo.closestHitShader = closestHitShader;
+    shaderGroupInfo.anyHitShader = anyHitShader;
+    shaderGroupInfo.intersectionShader = intersectionShader;
 }

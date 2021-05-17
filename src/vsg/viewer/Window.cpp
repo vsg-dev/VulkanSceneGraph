@@ -169,7 +169,7 @@ void Window::_initInstance()
     }
 
     vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
-    _instance = vsg::Instance::create(instanceExtensions, validatedNames);
+    _instance = vsg::Instance::create(instanceExtensions, validatedNames, _traits->vulkanVersion);
 }
 
 void Window::_initFormats()

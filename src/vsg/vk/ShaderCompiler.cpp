@@ -11,7 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
-#include <vsg/rtx/RayTracingPipeline.h>
+#include <vsg/raytracing/RayTracingPipeline.h>
 #include <vsg/state/ComputePipeline.h>
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/StateGroup.h>
@@ -29,7 +29,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <iomanip>
 #include <iostream>
 
-#define HAS_NV_RAYTRACNG (VK_HEADER_VERSION >= 92)
+#if VK_VERSION_1_1 == 1
+#    define HAS_KHR_RAYTRACNG (VK_VERSION_1_1)
+#    define HAS_NV_MESHSHADER (VK_VERSION_1_1)
+#endif
 
 using namespace vsg;
 
@@ -107,13 +110,15 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         case (VK_SHADER_STAGE_GEOMETRY_BIT): return "Geometry Shader";
         case (VK_SHADER_STAGE_FRAGMENT_BIT): return "Fragment Shader";
         case (VK_SHADER_STAGE_COMPUTE_BIT): return "Compute Shader";
-#    ifdef HAS_NV_RAYTRACNG
-        case (VK_SHADER_STAGE_RAYGEN_BIT_NV): return "RayGen Shader";
-        case (VK_SHADER_STAGE_ANY_HIT_BIT_NV): return "Any Hit Shader";
-        case (VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV): return "Closest Hit Shader";
-        case (VK_SHADER_STAGE_MISS_BIT_NV): return "Miss Shader";
-        case (VK_SHADER_STAGE_INTERSECTION_BIT_NV): return "Intersection Shader";
-        case (VK_SHADER_STAGE_CALLABLE_BIT_NV): return "Callable Shader";
+#    ifdef HAS_KHR_RAYTRACNG
+        case (VK_SHADER_STAGE_RAYGEN_BIT_KHR): return "RayGen Shader";
+        case (VK_SHADER_STAGE_ANY_HIT_BIT_KHR): return "Any Hit Shader";
+        case (VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR): return "Closest Hit Shader";
+        case (VK_SHADER_STAGE_MISS_BIT_KHR): return "Miss Shader";
+        case (VK_SHADER_STAGE_INTERSECTION_BIT_KHR): return "Intersection Shader";
+        case (VK_SHADER_STAGE_CALLABLE_BIT_KHR): return "Callable Shader";
+#    endif
+#    ifdef HAS_NV_MESHSHADER
         case (VK_SHADER_STAGE_TASK_BIT_NV): return "Task Shader";
         case (VK_SHADER_STAGE_MESH_BIT_NV): return "Mesh Shader";
 #    endif
@@ -142,13 +147,13 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         case (VK_SHADER_STAGE_GEOMETRY_BIT): envStage = EShLangGeometry; break;
         case (VK_SHADER_STAGE_FRAGMENT_BIT): envStage = EShLangFragment; break;
         case (VK_SHADER_STAGE_COMPUTE_BIT): envStage = EShLangCompute; break;
-#    ifdef HAS_NV_RAYTRACNG
-        case (VK_SHADER_STAGE_RAYGEN_BIT_NV): envStage = EShLangRayGenNV; break;
-        case (VK_SHADER_STAGE_ANY_HIT_BIT_NV): envStage = EShLangAnyHitNV; break;
-        case (VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV): envStage = EShLangClosestHitNV; break;
-        case (VK_SHADER_STAGE_MISS_BIT_NV): envStage = EShLangMissNV; break;
-        case (VK_SHADER_STAGE_INTERSECTION_BIT_NV): envStage = EShLangIntersectNV; break;
-        case (VK_SHADER_STAGE_CALLABLE_BIT_NV): envStage = EShLangCallableNV; break;
+#    ifdef HAS_KHR_RAYTRACNG
+        case (VK_SHADER_STAGE_RAYGEN_BIT_KHR): envStage = EShLangRayGen; break;
+        case (VK_SHADER_STAGE_ANY_HIT_BIT_KHR): envStage = EShLangAnyHit; break;
+        case (VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR): envStage = EShLangClosestHit; break;
+        case (VK_SHADER_STAGE_MISS_BIT_KHR): envStage = EShLangMiss; break;
+        case (VK_SHADER_STAGE_INTERSECTION_BIT_KHR): envStage = EShLangIntersect; break;
+        case (VK_SHADER_STAGE_CALLABLE_BIT_KHR): envStage = EShLangCallable; break;
         case (VK_SHADER_STAGE_TASK_BIT_NV): envStage = EShLangTaskNV; break;
         case (VK_SHADER_STAGE_MESH_BIT_NV): envStage = EShLangMeshNV; break;
 #    endif
@@ -166,7 +171,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
 
         shader->setEnvInput(glslang::EShSourceGlsl, envStage, glslang::EShClientVulkan, 150);
         shader->setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_1);
-        shader->setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
+        shader->setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_4);
 
         std::string shaderSourceWithIncludesInserted = insertIncludes(vsg_shader->module->source, paths);
         std::string finalShaderSource = combineSourceAndDefines(shaderSourceWithIncludesInserted, defines);

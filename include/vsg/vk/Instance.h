@@ -33,7 +33,7 @@ namespace vsg
     class VSG_DECLSPEC Instance : public Inherit<Object, Instance>
     {
     public:
-        Instance(const Names& instanceExtensions, const Names& layers, AllocationCallbacks* allocator = nullptr);
+        Instance(const Names& instanceExtensions, const Names& layers, uint32_t vulkanVersion = VK_API_VERSION_1_0, AllocationCallbacks* allocator = nullptr);
 
         operator VkInstance() const { return _instance; }
         VkInstance getInstance() const { return _instance; }

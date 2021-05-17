@@ -431,6 +431,12 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
     _extent2D.width = finalWidth;
     _extent2D.height = finalHeight;
 
+    // assign dimensions
+    traits->x = windowRect.left;
+    traits->y = windowRect.top;
+    traits->width = finalWidth;
+    traits->height = finalHeight;
+
     ShowWindow(_window, SW_SHOW);
     SetForegroundWindow(_window);
     SetFocus(_window);

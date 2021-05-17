@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    /// Equivalent to VkDrawMeshTasksIndirectCommandNV that adds read/write support
+    /// Equivalent to VkDrawMeshTasksIndirectCommandKHR that adds read/write support
     struct DrawMeshTasksIndirectCommand
     {
         uint32_t taskCount;

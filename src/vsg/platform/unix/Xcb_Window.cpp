@@ -464,6 +464,12 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
         _extent2D.width = geometry_reply->width;
         _extent2D.height = geometry_reply->height;
         free(geometry_reply);
+
+        // assign dimensions
+        traits->x = geometry_reply->x;
+        traits->y = geometry_reply->y;
+        traits->width = geometry_reply->width;
+        traits->height = geometry_reply->height;
     }
 
     traits->nativeWindow = _window;

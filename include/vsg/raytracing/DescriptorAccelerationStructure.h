@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/rtx/AccelerationStructure.h>
+#include <vsg/raytracing/AccelerationStructure.h>
 #include <vsg/state/Descriptor.h>
 
 namespace vsg
@@ -23,7 +23,7 @@ namespace vsg
     public:
         DescriptorAccelerationStructure();
 
-        DescriptorAccelerationStructure(const AccelerationStructures& accelerationStructures, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV);
+        DescriptorAccelerationStructure(const AccelerationStructures& accelerationStructures, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR);
 
         AccelerationStructures& getAccelerationStructures() { return _accelerationStructures; }
         const AccelerationStructures& getAccelerationStructures() const { return _accelerationStructures; }
@@ -41,7 +41,7 @@ namespace vsg
         AccelerationStructures _accelerationStructures;
 
         // populated by compile()
-        std::vector<VkAccelerationStructureNV> _vkAccelerationStructures;
+        std::vector<VkAccelerationStructureKHR> _vkAccelerationStructures;
     };
     VSG_type_name(vsg::DescriptorAccelerationStructure)
 

@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2019 Thomas Hogarth
@@ -10,40 +12,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
-#include <vsg/rtx/RayTracingShaderGroup.h>
+#include <vsg/raytracing/AccelerationGeometry.h>
+#include <vsg/raytracing/AccelerationStructure.h>
 
-using namespace vsg;
-
-////////////////////////////////////////////////////////////////////////
-//
-// RayTracingShaderGroup
-//
-RayTracingShaderGroup::RayTracingShaderGroup()
+namespace vsg
 {
-}
 
-RayTracingShaderGroup::~RayTracingShaderGroup()
-{
-}
+    class VSG_DECLSPEC BottomLevelAccelerationStructure : public Inherit<AccelerationStructure, BottomLevelAccelerationStructure>
+    {
+    public:
+        BottomLevelAccelerationStructure(Device* device, Allocator* allocator = nullptr);
 
-void RayTracingShaderGroup::read(Input& input)
-{
-    Object::read(input);
-}
+        void compile(Context& context) override;
 
-void RayTracingShaderGroup::write(Output& output) const
-{
-    Object::write(output);
-}
+        AccelerationGeometries geometries;
 
-void RayTracingShaderGroup::applyTo(VkRayTracingShaderGroupCreateInfoNV& shaderGroupInfo) const
-{
-    shaderGroupInfo.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
-    shaderGroupInfo.pNext = nullptr;
-    shaderGroupInfo.type = type;
-    shaderGroupInfo.generalShader = generalShader;
-    shaderGroupInfo.closestHitShader = closestHitShader;
-    shaderGroupInfo.anyHitShader = anyHitShader;
-    shaderGroupInfo.intersectionShader = intersectionShader;
-}
+    protected:
+        // compiled data
+        std::vector<VkAccelerationStructureGeometryKHR> _vkGeometries;
+    };
+
+} // namespace vsg
