@@ -199,6 +199,9 @@ DescriptorPoolSizes CollectDescriptorStats::computeDescriptorPoolSizes() const
 CompileTraversal::CompileTraversal(Device* in_device, BufferPreferences bufferPreferences) :
     context(in_device, bufferPreferences)
 {
+    auto queueFamily = in_device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
+    context.commandPool = vsg::CommandPool::create(in_device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+    context.graphicsQueue = in_device->getQueue(queueFamily);
 }
 
 CompileTraversal::CompileTraversal(Window* window, ViewportState* viewport, BufferPreferences bufferPreferences) :
