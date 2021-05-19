@@ -62,7 +62,7 @@ Instance::Instance(const Names& instanceExtensions, const Names& layers, uint32_
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName = "VulkanSceneGraph application";
     appInfo.pEngineName = "VulkanSceneGraph";
-    appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 0);
+    appInfo.engineVersion = VK_MAKE_VERSION(VSG_VERSION_MAJOR, VSG_VERSION_MINOR, VSG_VERSION_PATCH);
     appInfo.apiVersion = vulkanVersion;
 
     VkInstanceCreateInfo createInfo = {};
