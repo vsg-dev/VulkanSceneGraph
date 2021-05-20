@@ -88,7 +88,7 @@ namespace vsg
         // X11 hint of whether to ignore the Window managers redirection of window size/position
         bool overrideRedirect = false;
 
-        uint32_t vulkanVersion = VK_VERSION_1_0;
+        uint32_t vulkanVersion = VK_API_VERSION_1_0;
 
         SwapchainPreferences swapchainPreferences;
         VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
