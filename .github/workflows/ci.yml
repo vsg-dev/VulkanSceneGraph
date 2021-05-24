@@ -97,7 +97,6 @@ jobs:
       run: MSBuild.exe ALL_BUILD.vcxproj -p:Configuration=Release
 
   macos-build:
-    if: ${{ false }} # disable until the unpack/mounting of the VulkanSDK .dmg is fixed
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
@@ -118,7 +117,10 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
         wget --no-cookies -O ../vulkansdk-macos-${{env.VulkanSDKVersion}}.dmg https://sdk.lunarg.com/sdk/download/${{env.VulkanSDKVersion}}/mac/vulkansdk-macos-${{env.VulkanSDKVersion}}.dmg?u=
-        # Note from Robert - need to mount VulkanSDK, then unmount when finished, don't, trawling online, perhaps something like : hdiutil attach ../vulkansdk-macos-${{env.VulkanSDKVersion}}.dmg
+        hdiutil attach ../vulkansdk-macos-${{env.VulkanSDKVersion}}.dmg
+        cp -r /Volumes/vulkansdk-macos-${{env.VulkanSDKVersion}} $GITHUB_WORKSPACE/..
+        rm -rf vulkansdk-macos-${{env.VulkanSDKVersion}}/Applications
+        hdiutil detach /Volumes/vulkansdk-macos-${{env.VulkanSDKVersion}}
     - name: CMake
       run: |
         export DYLD_LIBRARY_PATH="$VULKAN_SDK/lib:$DYLD_LIBRARY_PATH"
