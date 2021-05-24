@@ -119,7 +119,6 @@ jobs:
         wget --no-cookies -O ../vulkansdk-macos-${{env.VulkanSDKVersion}}.dmg https://sdk.lunarg.com/sdk/download/${{env.VulkanSDKVersion}}/mac/vulkansdk-macos-${{env.VulkanSDKVersion}}.dmg?u=
         hdiutil attach ../vulkansdk-macos-${{env.VulkanSDKVersion}}.dmg
         cp -r /Volumes/vulkansdk-macos-${{env.VulkanSDKVersion}} $GITHUB_WORKSPACE/..
-        rm -rf vulkansdk-macos-${{env.VulkanSDKVersion}}/Applications
         hdiutil detach /Volumes/vulkansdk-macos-${{env.VulkanSDKVersion}}
     - name: CMake
       run: |
