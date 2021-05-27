@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
+#include <vsg/maths/quat.h>
 
 #include <istream>
 #include <ostream>
@@ -68,6 +69,21 @@ namespace vsg
     std::istream& operator>>(std::istream& input, vsg::t_vec4<T>& vec)
     {
         input >> vec.x >> vec.y >> vec.z >> vec.w;
+        return input;
+    }
+
+    // stream support for std::t_quat
+    template<typename T>
+    std::ostream& operator<<(std::ostream& output, const vsg::t_quat<T>& q)
+    {
+        output << q.x << " " << q.y << " " << q.z << " " << q.w;
+        return output;
+    }
+
+    template<typename T>
+    std::istream& operator>>(std::istream& input, vsg::t_quat<T>& q)
+    {
+        input >> q.x >> q.y >> q.z >> q.w;
         return input;
     }
 
