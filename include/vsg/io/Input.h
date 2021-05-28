@@ -23,6 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
+#include <vsg/maths/quat.h>
 
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/ObjectFactory.h>
@@ -90,6 +91,8 @@ namespace vsg
         void read(size_t num, uivec2* value) { read(num * value->size(), value->data()); }
         void read(size_t num, uivec3* value) { read(num * value->size(), value->data()); }
         void read(size_t num, uivec4* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, quat* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, dquat* value) { read(num * value->size(), value->data()); }
         void read(size_t num, mat4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, dmat4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, sphere* value) { read(num * value->size(), value->data()); }

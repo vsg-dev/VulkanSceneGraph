@@ -23,6 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
+#include <vsg/maths/quat.h>
 
 #include <vsg/io/FileSystem.h>
 
@@ -89,6 +90,8 @@ namespace vsg
         void write(size_t num, const uivec2* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const uivec3* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const uivec4* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const quat* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const dquat* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const mat4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const dmat4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const sphere* value) { write(num * value->size(), value->data()); }
