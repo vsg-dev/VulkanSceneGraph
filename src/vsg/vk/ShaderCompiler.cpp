@@ -171,7 +171,8 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
 
         shader->setEnvInput(glslang::EShSourceGlsl, envStage, glslang::EShClientVulkan, 150);
         shader->setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_1);
-        shader->setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_4);
+        //shader->setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_4);
+        shader->setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
 
         std::string shaderSourceWithIncludesInserted = insertIncludes(vsg_shader->module->source, paths);
         std::string finalShaderSource = combineSourceAndDefines(shaderSourceWithIncludesInserted, defines);
