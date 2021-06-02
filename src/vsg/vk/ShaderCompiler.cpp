@@ -34,6 +34,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    define HAS_NV_MESHSHADER (VK_VERSION_1_1)
 #endif
 
+#ifndef VK_API_VERSION_MAJOR
+    #define VK_API_VERSION_MAJOR(version) (((uint32_t)(version) >> 22) & 0x7FU)
+    #define VK_API_VERSION_MINOR(version) (((uint32_t)(version) >> 12) & 0x3FFU)
+#endif
+
 using namespace vsg;
 
 #if 1
