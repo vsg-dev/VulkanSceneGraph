@@ -134,8 +134,7 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
             switch (layout.glyphLayout)
             {
             case (LEFT_TO_RIGHT_LAYOUT):
-            case (RIGHT_TO_LEFT_LAYOUT):
-            {
+            case (RIGHT_TO_LEFT_LAYOUT): {
                 float left = textQuads[start_of_row].vertices[0].x;
                 float right = textQuads[start_of_row].vertices[1].x;
                 for (size_t i = start_of_row + 1; i < textQuads.size(); ++i)
@@ -157,8 +156,7 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
                 translate(textQuads.begin() + start_of_row, textQuads.end(), offset);
                 break;
             }
-            case (VERTICAL_LAYOUT):
-            {
+            case (VERTICAL_LAYOUT): {
                 float bottom = textQuads[start_of_row].vertices[0].y;
                 float top = textQuads[start_of_row].vertices[3].y;
                 for (size_t i = start_of_row + 1; i < textQuads.size(); ++i)
