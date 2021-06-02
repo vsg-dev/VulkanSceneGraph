@@ -12,6 +12,9 @@ namespace vsg
         ShaderCompiler();
         virtual ~ShaderCompiler();
 
+        // default ShaderCompileSettings
+        ref_ptr<ShaderCompileSettings> defaults;
+
         bool compile(ShaderStages& shaders, const std::vector<std::string>& defines = {}, const Paths& paths = {});
         bool compile(ref_ptr<ShaderStage> shaderStage, const std::vector<std::string>& defines = {}, const Paths& paths = {});
 

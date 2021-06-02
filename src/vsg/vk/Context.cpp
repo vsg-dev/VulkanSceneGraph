@@ -135,6 +135,12 @@ ShaderCompiler* Context::getOrCreateShaderCompiler()
 
 #ifdef HAS_GLSLANG
     shaderCompiler = new ShaderCompiler;
+
+    if (device && device->getInstance())
+    {
+        shaderCompiler->defaults->vulkanVersion = device->getInstance()->apiVersion;
+    }
+
 #endif
 
     return shaderCompiler;

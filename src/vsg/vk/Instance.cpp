@@ -55,7 +55,7 @@ Names vsg::validateInstancelayerNames(const Names& names)
     return validatedNames;
 }
 
-Instance::Instance(const Names& instanceExtensions, const Names& layers, uint32_t vulkanVersion, AllocationCallbacks* allocator)
+Instance::Instance(const Names& instanceExtensions, const Names& layers, uint32_t vulkanApiVersion, AllocationCallbacks* allocator)
 {
     // application info
     VkApplicationInfo appInfo = {};
@@ -63,7 +63,7 @@ Instance::Instance(const Names& instanceExtensions, const Names& layers, uint32_
     appInfo.pApplicationName = "VulkanSceneGraph application";
     appInfo.pEngineName = "VulkanSceneGraph";
     appInfo.engineVersion = VK_MAKE_VERSION(VSG_VERSION_MAJOR, VSG_VERSION_MINOR, VSG_VERSION_PATCH);
-    appInfo.apiVersion = vulkanVersion;
+    appInfo.apiVersion = vulkanApiVersion;
 
     VkInstanceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -81,6 +81,8 @@ Instance::Instance(const Names& instanceExtensions, const Names& layers, uint32_
     VkResult result = vkCreateInstance(&createInfo, allocator, &instance);
     if (result == VK_SUCCESS)
     {
+        apiVersion = vulkanApiVersion;
+
         _instance = instance;
         _allocator = allocator;
 
