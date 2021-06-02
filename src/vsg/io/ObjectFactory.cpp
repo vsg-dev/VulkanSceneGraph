@@ -181,6 +181,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::ComputePipeline);
     VSG_REGISTER_create(vsg::ShaderStage);
     VSG_REGISTER_create(vsg::ShaderModule);
+    VSG_REGISTER_create(vsg::ShaderCompileSettings);
     VSG_REGISTER_create(vsg::VertexInputState);
     VSG_REGISTER_create(vsg::InputAssemblyState);
     VSG_REGISTER_create(vsg::TessellationState);

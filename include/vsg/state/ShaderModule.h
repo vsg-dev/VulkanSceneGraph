@@ -44,18 +44,52 @@ namespace vsg
         return true;
     }
 
+    /// Settings passed to glsLang when compiling GLSL/HLSL shader source to SPIR-V
+    /// Provides the values to pass to glsLang::TShader::setEnvInput, setEnvClient and setEnvTarget.
+    class ShaderCompileSettings : public Inherit<Object, ShaderCompileSettings>
+    {
+    public:
+        enum Language
+        {
+            GLSL,
+            HLSL
+        };
+
+        enum SpirvTarget
+        {
+            SPIRV_1_0 = (1 << 16),
+            SPIRV_1_1 = (1 << 16) | (1 << 8),
+            SPIRV_1_2 = (1 << 16) | (2 << 8),
+            SPIRV_1_3 = (1 << 16) | (3 << 8),
+            SPIRV_1_4 = (1 << 16) | (4 << 8),
+            SPIRV_1_5 = (1 << 16) | (5 << 8)
+        };
+
+        uint32_t vulkanVersion = VK_API_VERSION_1_0;
+        int clientInputVersion = 100;
+        Language language = GLSL;
+        int defaultVersion = 450;
+        SpirvTarget target = SPIRV_1_0;
+        bool forwardCompatible = false;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+    };
+
     class VSG_DECLSPEC ShaderModule : public Inherit<Object, ShaderModule>
     {
     public:
         using SPIRV = std::vector<uint32_t>;
 
         ShaderModule();
-        ShaderModule(const std::string& in_source);
+        ShaderModule(const std::string& in_source, ref_ptr<ShaderCompileSettings> in_hints = {});
         ShaderModule(const SPIRV& in_code);
         ShaderModule(const std::string& source, const SPIRV& in_code);
 
-        /// VkShaderModuleCreateInfo settings
         std::string source;
+        ref_ptr<ShaderCompileSettings> hints;
+
+        /// VkShaderModuleCreateInfo settings
         SPIRV code;
 
         /// Vulkan VkShaderModule handle
