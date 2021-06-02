@@ -91,7 +91,7 @@ namespace vsg
         uint32_t vulkanVersion = VK_API_VERSION_1_0;
 
         SwapchainPreferences swapchainPreferences;
-        VkFormat depthFormat = VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D24_UNORM_S8_UINT or VK_FORMAT_D32_SFLOAT_S8_UINT oe VK_FORMAT_D24_SFLOAT_S8_UINT
+        VkFormat depthFormat = VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D24_UNORM_S8_UINT or VK_FORMAT_D32_SFLOAT_S8_UINT or VK_FORMAT_D24_SFLOAT_S8_UINT
         VkImageUsageFlags depthImageUsage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 
         VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
