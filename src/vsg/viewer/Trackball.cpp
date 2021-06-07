@@ -56,7 +56,7 @@ void Trackball::clampToGlobe()
     // apply the new clamped position to the LookAt.
     _lookAt->center = ecef;
 
-    double minimum_altitude = 1.0;
+    double minimum_altitude = 0.1;
     if (location_eye.z < minimum_altitude)
     {
         location_eye.z = minimum_altitude;
