@@ -29,13 +29,27 @@ void LOD::read(Input& input)
 {
     Node::read(input);
 
-    input.read("Bound", _bound);
-
-    _children.resize(input.readValue<uint32_t>("NumChildren"));
-    for (auto& child : _children)
+    if (input.version_greater_equal(0, 1, 4))
     {
-        input.read("MinimumScreenHeightRatio", child.minimumScreenHeightRatio);
-        input.readObject("Child", child.node);
+        input.read("bound", bound);
+
+        children.resize(input.readValue<uint32_t>("children"));
+        for (auto& child : children)
+        {
+            input.read("child.minimumScreenHeightRatio", child.minimumScreenHeightRatio);
+            input.readObject("child.node", child.node);
+        }
+    }
+    else
+    {
+        input.read("Bound", bound);
+
+        children.resize(input.readValue<uint32_t>("NumChildren"));
+        for (auto& child : children)
+        {
+            input.read("MinimumScreenHeightRatio", child.minimumScreenHeightRatio);
+            input.readObject("Child", child.node);
+        }
     }
 }
 
@@ -43,12 +57,26 @@ void LOD::write(Output& output) const
 {
     Node::write(output);
 
-    output.write("Bound", _bound);
-
-    output.writeValue<uint32_t>("NumChildren", _children.size());
-    for (auto& child : _children)
+    if (output.version_greater_equal(0, 1, 4))
     {
-        output.write("MinimumScreenHeightRatio", child.minimumScreenHeightRatio);
-        output.writeObject("Child", child.node);
+        output.write("bound", bound);
+
+        output.writeValue<uint32_t>("children", children.size());
+        for (auto& child : children)
+        {
+            output.write("child.minimumScreenHeightRatio", child.minimumScreenHeightRatio);
+            output.writeObject("child.node", child.node);
+        }
+    }
+    else
+    {
+        output.write("Bound", bound);
+
+        output.writeValue<uint32_t>("NumChildren", children.size());
+        for (auto& child : children)
+        {
+            output.write("MinimumScreenHeightRatio", child.minimumScreenHeightRatio);
+            output.writeObject("Child", child.node);
+        }
     }
 }

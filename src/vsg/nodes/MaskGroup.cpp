@@ -31,11 +31,23 @@ void MaskGroup::read(Input& input)
 {
     Node::read(input);
 
-    children.resize(input.readValue<uint32_t>("NumChildren"));
-    for (auto& child : children)
+    if (input.version_greater_equal(0, 1, 4))
     {
-        input.read("mask", child.mask);
-        input.readObject("node", child.node);
+        children.resize(input.readValue<uint32_t>("children"));
+        for (auto& child : children)
+        {
+            input.read("child.mask", child.mask);
+            input.readObject("child.node", child.node);
+        }
+    }
+    else
+    {
+        children.resize(input.readValue<uint32_t>("NumChildren"));
+        for (auto& child : children)
+        {
+            input.read("mask", child.mask);
+            input.readObject("node", child.node);
+        }
     }
 }
 
@@ -43,11 +55,23 @@ void MaskGroup::write(Output& output) const
 {
     Node::write(output);
 
-    output.writeValue<uint32_t>("NumChildren", children.size());
-    for (auto& child : children)
+    if (output.version_greater_equal(0, 1, 4))
     {
-        output.write("mask", child.mask);
-        output.writeObject("node", child.node);
+        output.writeValue<uint32_t>("children", children.size());
+        for (auto& child : children)
+        {
+            output.write("child.mask", child.mask);
+            output.writeObject("child.node", child.node);
+        }
+    }
+    else
+    {
+        output.writeValue<uint32_t>("NumChildren", children.size());
+        for (auto& child : children)
+        {
+            output.write("mask", child.mask);
+            output.writeObject("node", child.node);
+        }
     }
 }
 

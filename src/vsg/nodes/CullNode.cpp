@@ -21,10 +21,10 @@ CullNode::CullNode(Allocator* allocator) :
 {
 }
 
-CullNode::CullNode(const dsphere& bound, Node* child, Allocator* allocator) :
+CullNode::CullNode(const dsphere& in_bound, Node* in_child, Allocator* allocator) :
     Inherit(allocator),
-    _bound(bound),
-    _child(child)
+    bound(in_bound),
+    child(in_child)
 {
 }
 
@@ -36,16 +36,30 @@ void CullNode::read(Input& input)
 {
     Node::read(input);
 
-    input.read("Bound", _bound);
-
-    input.readObject("Child", _child);
+    if (input.version_greater_equal(0, 1, 4))
+    {
+        input.read("bound", bound);
+        input.read("child", child);
+    }
+    else
+    {
+        input.read("Bound", bound);
+        input.read("Child", child);
+    }
 }
 
 void CullNode::write(Output& output) const
 {
     Node::write(output);
 
-    output.write("Bound", _bound);
-
-    output.writeObject("Child", _child.get());
+    if (output.version_greater_equal(0, 1, 4))
+    {
+        output.write("bound", bound);
+        output.write("child", child);
+    }
+    else
+    {
+        output.write("Bound", bound);
+        output.write("Child", child);
+    }
 }

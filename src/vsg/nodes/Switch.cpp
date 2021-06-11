@@ -31,23 +31,48 @@ void Switch::read(Input& input)
 {
     Node::read(input);
 
-    children.resize(input.readValue<uint32_t>("NumChildren"));
-    for (auto& child : children)
+    if (input.version_greater_equal(0, 1, 4))
     {
-        input.read("enabled", child.enabled);
-        input.readObject("node", child.node);
+        children.resize(input.readValue<uint32_t>("children"));
+        for (auto& child : children)
+        {
+            input.read("child.enabled", child.enabled);
+            input.read("child.node", child.node);
+        }
     }
+    else
+    {
+        children.resize(input.readValue<uint32_t>("NumChildren"));
+        for (auto& child : children)
+        {
+            input.read("enabled", child.enabled);
+            input.readObject("node", child.node);
+        }
+    }
+
 }
 
 void Switch::write(Output& output) const
 {
     Node::write(output);
 
-    output.writeValue<uint32_t>("NumChildren", children.size());
-    for (auto& child : children)
+    if (output.version_greater_equal(0, 1, 4))
     {
-        output.write("enabled", child.enabled);
-        output.writeObject("node", child.node);
+        output.writeValue<uint32_t>("children", children.size());
+        for (auto& child : children)
+        {
+            output.write("child.enabled", child.enabled);
+            output.write("child.node", child.node);
+        }
+    }
+    else
+    {
+        output.writeValue<uint32_t>("NumChildren", children.size());
+        for (auto& child : children)
+        {
+            output.write("enabled", child.enabled);
+            output.writeObject("node", child.node);
+        }
     }
 }
 

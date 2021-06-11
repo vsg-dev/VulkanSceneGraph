@@ -25,27 +25,27 @@ namespace vsg
     public:
         CullNode(Allocator* allocator = nullptr);
 
-        CullNode(const dsphere& bound, Node* child, Allocator* allocator = nullptr);
+        CullNode(const dsphere& in_bound, Node* in_child, Allocator* allocator = nullptr);
 
-        void traverse(Visitor& visitor) override { _child->accept(visitor); }
-        void traverse(ConstVisitor& visitor) const override { _child->accept(visitor); }
-        void traverse(RecordTraversal& visitor) const override { _child->accept(visitor); }
+        void traverse(Visitor& visitor) override { child->accept(visitor); }
+        void traverse(ConstVisitor& visitor) const override { child->accept(visitor); }
+        void traverse(RecordTraversal& visitor) const override { child->accept(visitor); }
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void setBound(const dsphere& bound) { _bound = bound; }
-        inline const dsphere& getBound() const { return _bound; }
+        dsphere bound;
+        ref_ptr<vsg::Node> child;
 
-        void setChild(Node* child) { _child = child; }
-        Node* getChild() { return _child; }
-        const Node* getChild() const { return _child; }
+        void setBound(const dsphere& in_bound) { bound = in_bound; }
+        inline const dsphere& getBound() const { return bound; }
+
+        void setChild(Node* in_child) { child = in_child; }
+        Node* getChild() { return child; }
+        const Node* getChild() const { return child; }
 
     protected:
         virtual ~CullNode();
-
-        dsphere _bound;
-        ref_ptr<vsg::Node> _child;
     };
     VSG_type_name(vsg::CullNode);
 

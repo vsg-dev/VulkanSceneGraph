@@ -116,6 +116,29 @@ namespace vsg
             }
         }
 
+        template<typename T>
+        void read(const char* propertyName, ref_ptr<T>& arg)
+        {
+            if (!matchPropertyName(propertyName)) return;
+            arg = read().cast<T>();
+        }
+
+        template<typename T>
+        void read(const char* propertyName, std::vector<T>& values)
+        {
+            if (!matchPropertyName(propertyName)) return;
+
+            uint32_t numElements = 0;
+            read(1, &numElements);
+            values.resize(numElements);
+
+            for(uint32_t i = 0; i < numElements; ++i)
+            {
+                read("element", values[i]);
+            }
+        }
+
+
         // match property name and read value(s)
         template<typename... Args>
         void read(const char* propertyName, Args&... args)

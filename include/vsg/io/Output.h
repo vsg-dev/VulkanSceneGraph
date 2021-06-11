@@ -114,6 +114,25 @@ namespace vsg
             }
         }
 
+        template<typename T>
+        void write(const char* propertyName, const ref_ptr<T>& object)
+        {
+            writePropertyName(propertyName);
+            write(object);
+        }
+
+        template<typename T>
+        void write(const char* propertyName, const std::vector<T>& values)
+        {
+            uint32_t numElements = static_cast<uint32_t>(values.size());
+            write(propertyName, numElements);
+
+            for(uint32_t i = 0; i < numElements; ++i)
+            {
+                write("element", values[i]);
+            }
+        }
+
         // match propertyname and write value(s)
         template<typename... Args>
         void write(const char* propertyName, Args&... args)
