@@ -50,6 +50,7 @@ namespace vsg
         using Children = std::vector<ref_ptr<vsg::Node>>;
         Children children;
 
+#if VSG_USE_DEPRECATED_METHODS_AND_IO
         std::size_t addChild(vsg::ref_ptr<Node> child)
         {
             std::size_t pos = children.size();
@@ -68,6 +69,12 @@ namespace vsg
         void setChildren(const Children& in_children) { children = in_children; }
         Children& getChildren() noexcept { return children; }
         const Children& getChildren() const noexcept { return children; }
+#else
+        void addChild(vsg::ref_ptr<Node> child)
+        {
+            children.push_back(child);
+        }
+#endif
 
     protected:
         virtual ~Group();

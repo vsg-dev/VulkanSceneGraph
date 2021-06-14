@@ -29,6 +29,8 @@ extern "C"
 
     #define VSG_MAX_DEVICES @VSG_MAX_DEVICES@
 
+    #define VSG_USE_DEPRECATED_METHODS_AND_IO @VSG_USE_DEPRECATED_METHODS_AND_IO@
+
     struct VsgVersion
     {
         unsigned int major;
