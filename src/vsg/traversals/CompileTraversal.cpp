@@ -118,7 +118,7 @@ void CollectDescriptorStats::apply(const PagedLOD& plod)
 
 void CollectDescriptorStats::apply(const StateCommand& stateCommand)
 {
-    if (stateCommand.getSlot() > maxSlot) maxSlot = stateCommand.getSlot();
+    if (stateCommand.slot > maxSlot) maxSlot = stateCommand.slot;
 
     stateCommand.traverse(*this);
 }

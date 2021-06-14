@@ -293,7 +293,7 @@ void RecordTraversal::apply(const StateGroup& stateGroup)
 
     for (auto& command : stateGroup.stateCommands)
     {
-        _state->stateStacks[command->getSlot()].push(command);
+        _state->stateStacks[command->slot].push(command);
     }
     _state->dirty = true;
 
@@ -301,7 +301,7 @@ void RecordTraversal::apply(const StateGroup& stateGroup)
 
     for (auto& command : stateGroup.stateCommands)
     {
-        _state->stateStacks[command->getSlot()].pop();
+        _state->stateStacks[command->slot].pop();
     }
     _state->dirty = true;
 }
