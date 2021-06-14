@@ -76,7 +76,10 @@ namespace vsg
         Children children;
 
 #if VSG_USE_DEPRECATED_METHODS_AND_IO
-        void setBound(const dsphere& in_bound) { bound = in_bound; }
+        void setBound(const dsphere& in_bound)
+        {
+            bound = in_bound;
+        }
         inline const dsphere& getBound() const { return bound; }
 
         void setChild(std::size_t pos, const Child& lodChild) { children[pos] = lodChild; }
@@ -88,11 +91,13 @@ namespace vsg
         Children& getChildren() { return children; }
         const Children& getChildren() const { return children; }
 #endif
-        bool highResActive(uint64_t frameCount) const { return (frameCount - frameHighResLastUsed.load()) <= 1; }
+        bool highResActive(uint64_t frameCount) const
+        {
+            return (frameCount - frameHighResLastUsed.load()) <= 1;
+        }
 
     protected:
         virtual ~PagedLOD();
-
 
     public:
         ref_ptr<const Options> options;

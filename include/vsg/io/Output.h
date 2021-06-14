@@ -127,7 +127,7 @@ namespace vsg
             uint32_t numElements = static_cast<uint32_t>(values.size());
             write(propertyName, numElements);
 
-            for(uint32_t i = 0; i < numElements; ++i)
+            for (uint32_t i = 0; i < numElements; ++i)
             {
                 write("element", values[i]);
             }

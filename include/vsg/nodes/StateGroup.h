@@ -35,7 +35,10 @@ namespace vsg
         StateCommands stateCommands;
 
 #if VSG_USE_DEPRECATED_METHODS_AND_IO
-        StateCommands& getStateCommands() { return stateCommands; }
+        StateCommands& getStateCommands()
+        {
+            return stateCommands;
+        }
         const StateCommands& getStateCommands() const { return stateCommands; }
 #endif
         template<class T>

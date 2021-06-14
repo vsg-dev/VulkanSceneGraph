@@ -132,12 +132,11 @@ namespace vsg
             read(1, &numElements);
             values.resize(numElements);
 
-            for(uint32_t i = 0; i < numElements; ++i)
+            for (uint32_t i = 0; i < numElements; ++i)
             {
                 read("element", values[i]);
             }
         }
-
 
         // match property name and read value(s)
         template<typename... Args>

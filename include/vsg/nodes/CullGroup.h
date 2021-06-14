@@ -30,12 +30,14 @@ namespace vsg
         dsphere bound;
 
 #if VSG_USE_DEPRECATED_METHODS_AND_IO
-        void setBound(const dsphere& in_bound) { bound = in_bound; }
+        void setBound(const dsphere& in_bound)
+        {
+            bound = in_bound;
+        }
         inline const dsphere& getBound() const { return bound; }
 #endif
     protected:
         virtual ~CullGroup();
-
     };
     VSG_type_name(vsg::CullGroup);
 

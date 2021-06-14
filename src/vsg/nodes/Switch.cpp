@@ -49,7 +49,6 @@ void Switch::read(Input& input)
             input.readObject("node", child.node);
         }
     }
-
 }
 
 void Switch::write(Output& output) const

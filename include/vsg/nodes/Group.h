@@ -24,7 +24,6 @@ namespace vsg
     class VSG_DECLSPEC Group : public Inherit<Node, Group>
     {
     public:
-
         Group(size_t numChildren = 0);
         Group(Allocator* allocator, size_t numChildren = 0);
 
@@ -78,7 +77,6 @@ namespace vsg
 
     protected:
         virtual ~Group();
-
     };
     VSG_type_name(vsg::Group);
 

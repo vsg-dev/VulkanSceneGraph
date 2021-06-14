@@ -38,7 +38,10 @@ namespace vsg
         ref_ptr<vsg::Node> child;
 
 #if VSG_USE_DEPRECATED_METHODS_AND_IO
-        void setBound(const dsphere& in_bound) { bound = in_bound; }
+        void setBound(const dsphere& in_bound)
+        {
+            bound = in_bound;
+        }
         inline const dsphere& getBound() const { return bound; }
 
         void setChild(Node* in_child) { child = in_child; }

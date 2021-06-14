@@ -30,7 +30,10 @@ namespace vsg
         bool subgraphRequiresLocalFrustum;
 
 #if VSG_USE_DEPRECATED_METHODS_AND_IO
-        void setMatrix(const dmat4& in_matrix) { matrix = in_matrix; }
+        void setMatrix(const dmat4& in_matrix)
+        {
+            matrix = in_matrix;
+        }
         dmat4& getMatrix() { return matrix; }
         const dmat4& getMatrix() const { return matrix; }
 
