@@ -14,7 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/raytracing/RayTracingPipeline.h>
 #include <vsg/state/ComputePipeline.h>
 #include <vsg/state/GraphicsPipeline.h>
-#include <vsg/state/StateGroup.h>
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/vk/ShaderCompiler.h>
 
 #ifdef HAS_GLSLANG
@@ -562,9 +562,9 @@ void ShaderCompiler::apply(Node& node)
 
 void ShaderCompiler::apply(StateGroup& stategroup)
 {
-    for (auto& stateCommands : stategroup.getStateCommands())
+    for (auto& stateCommand : stategroup.stateCommands)
     {
-        stateCommands->accept(*this);
+        stateCommand->accept(*this);
     }
 
     stategroup.traverse(*this);

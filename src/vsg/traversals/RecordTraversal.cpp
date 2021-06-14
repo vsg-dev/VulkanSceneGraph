@@ -25,7 +25,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/Switch.h>
-#include <vsg/state/StateGroup.h>
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/threading/atomics.h>
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/ui/ApplicationEvent.h>
@@ -291,8 +291,7 @@ void RecordTraversal::apply(const StateGroup& stateGroup)
 {
     //    std::cout<<"Visiting StateGroup "<<std::endl;
 
-    const StateGroup::StateCommands& stateCommands = stateGroup.getStateCommands();
-    for (auto& command : stateCommands)
+    for (auto& command : stateGroup.stateCommands)
     {
         _state->stateStacks[command->getSlot()].push(command);
     }
@@ -300,7 +299,7 @@ void RecordTraversal::apply(const StateGroup& stateGroup)
 
     stateGroup.traverse(*this);
 
-    for (auto& command : stateCommands)
+    for (auto& command : stateGroup.stateCommands)
     {
         _state->stateStacks[command->getSlot()].pop();
     }

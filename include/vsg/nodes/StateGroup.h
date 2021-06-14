@@ -32,27 +32,29 @@ namespace vsg
         void write(Output& output) const override;
 
         using StateCommands = std::vector<ref_ptr<StateCommand>>;
+        StateCommands stateCommands;
 
-        StateCommands& getStateCommands() { return _stateCommands; }
-        const StateCommands& getStateCommands() const { return _stateCommands; }
-
+#if VSG_USE_DEPRECATED_METHODS_AND_IO
+        StateCommands& getStateCommands() { return stateCommands; }
+        const StateCommands& getStateCommands() const { return stateCommands; }
+#endif
         template<class T>
         bool contains(const T value) const
         {
-            return std::find(_stateCommands.begin(), _stateCommands.end(), value) != _stateCommands.end();
+            return std::find(stateCommands.begin(), stateCommands.end(), value) != stateCommands.end();
         }
 
         void add(ref_ptr<StateCommand> stateCommand)
         {
-            _stateCommands.push_back(stateCommand);
+            stateCommands.push_back(stateCommand);
         }
 
         template<class T>
         void remove(const T value)
         {
-            if (auto itr = std::find(_stateCommands.begin(), _stateCommands.end(), value); itr != _stateCommands.end())
+            if (auto itr = std::find(stateCommands.begin(), stateCommands.end(), value); itr != stateCommands.end())
             {
-                _stateCommands.erase(itr);
+                stateCommands.erase(itr);
             }
         }
 
@@ -60,8 +62,6 @@ namespace vsg
 
     protected:
         virtual ~StateGroup();
-
-        StateCommands _stateCommands;
     };
     VSG_type_name(vsg::StateGroup);
 

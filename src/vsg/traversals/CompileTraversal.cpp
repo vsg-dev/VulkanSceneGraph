@@ -21,8 +21,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/state/MultisampleState.h>
-#include <vsg/state/StateGroup.h>
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/RenderGraph.h>
 #include <vsg/viewer/View.h>
@@ -94,7 +94,7 @@ void CollectDescriptorStats::apply(const StateGroup& stategroup)
 
     if (_numResourceHintsAbove == 0)
     {
-        for (auto& command : stategroup.getStateCommands())
+        for (auto& command : stategroup.stateCommands)
         {
             command->accept(*this);
         }

@@ -22,7 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/GraphicsPipeline.h>
-#include <vsg/state/StateGroup.h>
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/traversals/Intersector.h>
 
 using namespace vsg;
@@ -55,7 +55,7 @@ void Intersector::apply(const StateGroup& stategroup)
 
     ArrayState arrayState(arrayStateStack.back());
 
-    for (auto& statecommand : stategroup.getStateCommands())
+    for (auto& statecommand : stategroup.stateCommands)
     {
         statecommand->accept(arrayState);
     }

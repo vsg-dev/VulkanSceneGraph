@@ -19,8 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <array>
 #include <vector>
 
-//#define USE_std_array
-
 namespace vsg
 {
     VSG_type_name(vsg::QuadGroup);
@@ -43,14 +41,8 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-
-#ifdef USE_std_array
         using Children = std::array<ref_ptr<vsg::Node>, 4>;
-#else
-        using Children = ref_ptr<vsg::Node>[4];
-#endif
         Children children;
-
 
 #if VSG_USE_DEPRECATED_METHODS_AND_IO
         void setChild(std::size_t pos, vsg::Node* node) { children[pos] = node; }
