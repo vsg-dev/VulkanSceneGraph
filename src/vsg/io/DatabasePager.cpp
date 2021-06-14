@@ -600,7 +600,7 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
                 {
                     // std::cout<<"    trimming "<<plod<<std::endl;
                     ref_ptr<PagedLOD> plod = element.plod;
-                    plod->getChild(0).node = nullptr;
+                    plod->children[0].node = nullptr;
                     pagedLODContainer->remove(plod);
                     _compileQueue->add_then_reset(plod);
                 }
@@ -659,7 +659,7 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
 #if LOCAL_MUTEX
                     std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
 #endif
-                    plod->getChild(0).node = plod->pending;
+                    plod->children[0].node = plod->pending;
                 }
 
                 // insert any semaphore into a set that will be used by the GraphicsStage

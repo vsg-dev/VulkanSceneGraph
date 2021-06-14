@@ -29,7 +29,7 @@ void BuildAccelerationStructureTraversal::apply(Object& object)
 
 void BuildAccelerationStructureTraversal::apply(MatrixTransform& mt)
 {
-    _transformStack.pushAndPreMult(mt.getMatrix());
+    _transformStack.pushAndPreMult(mt.matrix);
 
     mt.traverse(*this);
 

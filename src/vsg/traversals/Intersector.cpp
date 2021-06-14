@@ -71,7 +71,7 @@ void Intersector::apply(const MatrixTransform& transform)
 {
     PushPopNode ppn(_nodePath, &transform);
 
-    pushTransform(transform.getMatrix());
+    pushTransform(transform.matrix);
 
     transform.traverse(*this);
 
@@ -82,9 +82,9 @@ void Intersector::apply(const LOD& lod)
 {
     PushPopNode ppn(_nodePath, &lod);
 
-    if (intersects(lod.getBound()))
+    if (intersects(lod.bound))
     {
-        for (auto& child : lod.getChildren())
+        for (auto& child : lod.children)
         {
             if (child.node)
             {
@@ -99,9 +99,9 @@ void Intersector::apply(const PagedLOD& plod)
 {
     PushPopNode ppn(_nodePath, &plod);
 
-    if (intersects(plod.getBound()))
+    if (intersects(plod.bound))
     {
-        for (auto& child : plod.getChildren())
+        for (auto& child : plod.children)
         {
             if (child.node)
             {
@@ -116,7 +116,7 @@ void Intersector::apply(const CullNode& cn)
 {
     PushPopNode ppn(_nodePath, &cn);
 
-    if (intersects(cn.getBound())) cn.traverse(*this);
+    if (intersects(cn.bound)) cn.traverse(*this);
 }
 
 void Intersector::apply(const VertexIndexDraw& vid)
