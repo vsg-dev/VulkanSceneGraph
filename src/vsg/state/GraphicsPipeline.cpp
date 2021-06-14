@@ -42,18 +42,27 @@ void GraphicsPipeline::read(Input& input)
 {
     Object::read(input);
 
-    input.readObject("PipelineLayout", layout);
-
-    stages.resize(input.readValue<uint32_t>("NumShaderStages"));
-    for (auto& shaderStage : stages)
+    if (input.version_greater_equal(0, 1, 4))
     {
-        input.readObject("ShaderStage", shaderStage);
+        input.read("layout", layout);
+        input.read("stages", stages);
+        input.read("pipelineStates", pipelineStates);
     }
-
-    pipelineStates.resize(input.readValue<uint32_t>("NumPipelineStates"));
-    for (auto& pipelineState : pipelineStates)
+    else
     {
-        input.readObject("PipelineState", pipelineState);
+        input.readObject("PipelineLayout", layout);
+
+        stages.resize(input.readValue<uint32_t>("NumShaderStages"));
+        for (auto& shaderStage : stages)
+        {
+            input.readObject("ShaderStage", shaderStage);
+        }
+
+        pipelineStates.resize(input.readValue<uint32_t>("NumPipelineStates"));
+        for (auto& pipelineState : pipelineStates)
+        {
+            input.readObject("PipelineState", pipelineState);
+        }
     }
 
     input.read("subpass", subpass);
@@ -63,18 +72,27 @@ void GraphicsPipeline::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeObject("PipelineLayout", layout.get());
-
-    output.writeValue<uint32_t>("NumShaderStages", stages.size());
-    for (auto& shaderStage : stages)
+    if (output.version_greater_equal(0, 1, 4))
     {
-        output.writeObject("ShaderStage", shaderStage.get());
+        output.write("layout", layout);
+        output.write("stages", stages);
+        output.write("pipelineStates", pipelineStates);
     }
-
-    output.writeValue<uint32_t>("NumPipelineStates", pipelineStates.size());
-    for (auto& pipelineState : pipelineStates)
+    else
     {
-        output.writeObject("PipelineState", pipelineState.get());
+        output.writeObject("PipelineLayout", layout.get());
+
+        output.writeValue<uint32_t>("NumShaderStages", stages.size());
+        for (auto& shaderStage : stages)
+        {
+            output.writeObject("ShaderStage", shaderStage.get());
+        }
+
+        output.writeValue<uint32_t>("NumPipelineStates", pipelineStates.size());
+        for (auto& pipelineState : pipelineStates)
+        {
+            output.writeObject("PipelineState", pipelineState.get());
+        }
     }
 
     output.write("subpass", subpass);
