@@ -37,8 +37,6 @@ namespace vsg
 
     protected:
         virtual ~ColorBlendState();
-
-        ColorBlendAttachments _colorBlendAttachments;
     };
     VSG_type_name(vsg::ColorBlendState);
 
