@@ -71,8 +71,6 @@ namespace vsg
 
         vk_buffer<VulkanData> _vulkanData;
 
-        VkBufferUsageFlags _usage;
-        VkSharingMode _sharingMode;
         MemorySlots _memorySlots;
     };
     VSG_type_name(vsg::Buffer);
