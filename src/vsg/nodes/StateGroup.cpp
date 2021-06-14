@@ -31,10 +31,17 @@ void StateGroup::read(Input& input)
 {
     Group::read(input);
 
-    stateCommands.resize(input.readValue<uint32_t>("NumStateCommands"));
-    for (auto& command : stateCommands)
+    if (input.version_greater_equal(0, 1, 4))
     {
-        input.readObject("StateCommand", command);
+        input.read("stateCommands", stateCommands);
+    }
+    else
+    {
+        stateCommands.resize(input.readValue<uint32_t>("NumStateCommands"));
+        for (auto& command : stateCommands)
+        {
+            input.read("StateCommand", command);
+        }
     }
 }
 
@@ -42,10 +49,17 @@ void StateGroup::write(Output& output) const
 {
     Group::write(output);
 
-    output.writeValue<uint32_t>("NumStateCommands", stateCommands.size());
-    for (auto& command : stateCommands)
+    if (output.version_greater_equal(0, 1, 4))
     {
-        output.writeObject("StateCommand", command.get());
+        output.write("stateCommands", stateCommands);
+    }
+    else
+    {
+        output.writeValue<uint32_t>("NumStateCommands", stateCommands.size());
+        for (auto& command : stateCommands)
+        {
+            output.write("StateCommand", command);
+        }
     }
 }
 
