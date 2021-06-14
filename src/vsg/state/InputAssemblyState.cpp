@@ -34,7 +34,7 @@ void InputAssemblyState::read(Input& input)
 {
     Object::read(input);
 
-    topology = static_cast<VkPrimitiveTopology>(input.readValue<uint32_t>("topology"));
+    input.readValue<uint32_t>("topology", topology);
     primitiveRestartEnable = input.readValue<uint32_t>("primitiveRestartEnable") != 0;
 }
 

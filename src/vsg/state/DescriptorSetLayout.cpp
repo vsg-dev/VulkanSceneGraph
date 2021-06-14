@@ -42,9 +42,9 @@ void DescriptorSetLayout::read(Input& input)
     for (auto& dslb : bindings)
     {
         input.read("binding", dslb.binding);
-        dslb.descriptorType = static_cast<VkDescriptorType>(input.readValue<uint32_t>("descriptorType"));
+        input.readValue<uint32_t>("descriptorType", dslb.descriptorType);
         input.read("descriptorCount", dslb.descriptorCount);
-        dslb.stageFlags = input.readValue<uint32_t>("stageFlags");
+        input.readValue<uint32_t>("stageFlags", dslb.stageFlags);
     }
 }
 

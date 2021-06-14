@@ -28,8 +28,16 @@ void ResourceHints::read(Input& input)
 {
     Object::read(input);
 
-    input.read("MaxSlot", maxSlot);
-    input.read("NumDescriptorSets", numDescriptorSets);
+    if (input.version_greater_equal(0, 1, 4))
+    {
+        input.read("maxSlot", maxSlot);
+        input.read("numDescriptorSets", numDescriptorSets);
+    }
+    else
+    {
+        input.read("MaxSlot", maxSlot);
+        input.read("NumDescriptorSets", numDescriptorSets);
+    }
 
     descriptorPoolSizes.resize(input.readValue<uint32_t>("NumDescriptorPoolSize"));
     for (auto& [type, count] : descriptorPoolSizes)
@@ -43,8 +51,16 @@ void ResourceHints::write(Output& output) const
 {
     Object::write(output);
 
-    output.write("MaxSlot", maxSlot);
-    output.write("NumDescriptorSets", numDescriptorSets);
+    if (output.version_greater_equal(0, 1, 4))
+    {
+        output.write("maxSlot", maxSlot);
+        output.write("numDescriptorSets", numDescriptorSets);
+    }
+    else
+    {
+        output.write("MaxSlot", maxSlot);
+        output.write("NumDescriptorSets", numDescriptorSets);
+    }
 
     output.writeValue<uint32_t>("NumDescriptorPoolSize", descriptorPoolSizes.size());
     for (auto& [type, count] : descriptorPoolSizes)
