@@ -336,7 +336,7 @@ void RecordTraversal::apply(const MatrixTransform& mt)
 void RecordTraversal::apply(const Commands& commands)
 {
     _state->record();
-    for (auto& command : commands.getChildren())
+    for (auto& command : commands.children)
     {
         command->record(*(_state->_commandBuffer));
     }

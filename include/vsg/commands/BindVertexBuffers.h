@@ -22,19 +22,23 @@ namespace vsg
     class VSG_DECLSPEC BindVertexBuffers : public Inherit<Command, BindVertexBuffers>
     {
     public:
-        BindVertexBuffers() :
-            _firstBinding(0) {}
+        BindVertexBuffers() {}
 
-        BindVertexBuffers(uint32_t firstBinding, const DataList& arrays) :
-            _firstBinding(firstBinding),
-            _arrays(arrays) {}
+        BindVertexBuffers(uint32_t in_firstBinding, const DataList& in_arrays) :
+            firstBinding(in_firstBinding),
+            arrays(in_arrays) {}
 
-        void setFirstBinding(uint32_t firstBinding) { _firstBinding = firstBinding; }
-        uint32_t getFirstBinding() const { return _firstBinding; }
+        uint32_t firstBinding = 0;
+        DataList arrays;
 
-        void setArrays(const DataList& arrays) { _arrays = arrays; }
-        DataList& getArrays() { return _arrays; }
-        const DataList& getArrays() const { return _arrays; }
+#if VSG_USE_DEPRECATED_METHODS_AND_IO
+        void setFirstBinding(uint32_t in_firstBinding) { firstBinding = in_firstBinding; }
+        uint32_t getFirstBinding() const { return firstBinding; }
+
+        void setArrays(const DataList& in_arrays) { arrays = in_arrays; }
+        DataList& getArrays() { return arrays; }
+        const DataList& getArrays() const { return arrays; }
+#endif
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -46,8 +50,6 @@ namespace vsg
     protected:
         virtual ~BindVertexBuffers();
 
-        uint32_t _firstBinding;
-        DataList _arrays;
 
         struct VulkanData
         {

@@ -180,7 +180,7 @@ void Intersector::apply(const BindVertexBuffers& bvb)
 
 void Intersector::apply(const BindIndexBuffer& bib)
 {
-    bib.getIndices()->accept(*this);
+    bib.indices->accept(*this);
 }
 
 void Intersector::apply(const vsg::ushortArray& array)

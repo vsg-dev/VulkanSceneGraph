@@ -66,7 +66,7 @@ void ArrayState::apply(const vsg::VertexIndexDraw& vid)
 
 void ArrayState::apply(const vsg::BindVertexBuffers& bvb)
 {
-    apply(bvb.getFirstBinding(), bvb.getArrays());
+    apply(bvb.firstBinding, bvb.arrays);
 }
 
 void ArrayState::apply(uint32_t firstBinding, const vsg::DataList& in_arrays)
