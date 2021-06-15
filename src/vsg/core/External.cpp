@@ -64,8 +64,8 @@ External::External(Allocator* allocator) :
 {
 }
 
-External::External(const PathObjects& inentries) :
-    entries(inentries)
+External::External(const PathObjects& in_entries) :
+    entries(in_entries)
 {
 }
 

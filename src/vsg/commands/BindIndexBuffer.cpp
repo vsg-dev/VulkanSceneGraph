@@ -62,11 +62,11 @@ void BindIndexBuffer::read(Input& input)
     // read the key indices data
     if (input.version_greater_equal(0, 1, 4))
     {
-        input.readObject("indices", indices);
+        input.read("indices", indices);
     }
     else
     {
-        input.readObject("Indices", indices);
+        input.read("Indices", indices);
     }
 }
 
@@ -77,11 +77,11 @@ void BindIndexBuffer::write(Output& output) const
     // write indices data
     if (output.version_greater_equal(0, 1, 4))
     {
-        output.writeObject("indices", indices.get());
+        output.write("indices", indices);
     }
     else
     {
-        output.writeObject("Indices", indices.get());
+        output.write("Indices", indices);
     }
 }
 

@@ -46,7 +46,7 @@ void Commands::read(Input& input)
         children.resize(input.readValue<uint32_t>("NumChildren"));
         for (auto& child : children)
         {
-            input.readObject("Child", child);
+            input.read("Child", child);
         }
     }
 }
@@ -64,7 +64,7 @@ void Commands::write(Output& output) const
         output.writeValue<uint32_t>("NumChildren", children.size());
         for (auto& child : children)
         {
-            output.writeObject("Child", child.get());
+            output.write("Child", child);
         }
     }
 

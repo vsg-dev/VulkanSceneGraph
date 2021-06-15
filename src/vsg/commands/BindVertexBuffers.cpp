@@ -50,7 +50,7 @@ void BindVertexBuffers::read(Input& input)
         arrays.resize(input.readValue<uint32_t>("NumArrays"));
         for (auto& array : arrays)
         {
-            input.readObject("Array", array);
+            input.read("Array", array);
         }
     }
 }
@@ -69,7 +69,7 @@ void BindVertexBuffers::write(Output& output) const
         output.writeValue<uint32_t>("NumArrays", arrays.size());
         for (auto& array : arrays)
         {
-            output.writeObject("Array", array.get());
+            output.write("Array", array);
         }
     }
 }

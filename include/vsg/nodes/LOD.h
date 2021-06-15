@@ -58,7 +58,7 @@ namespace vsg
         dsphere bound;
         Children children;
 
-        void addChild(const Child& lodChild) { children.emplace_back(lodChild); }
+        void addChild(const Child& lodChild) { children.push_back(lodChild); }
 
 #if VSG_USE_DEPRECATED_METHODS_AND_IO
         void setBound(const dsphere& in_bound)

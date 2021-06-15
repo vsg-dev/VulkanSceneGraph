@@ -50,7 +50,7 @@ void Group::read(Input& input)
         for (uint32_t i = 0; i < numChildren; ++i)
         {
             ref_ptr<Node> child;
-            input.readObject("Child", child);
+            input.read("Child", child);
             if (child) children.push_back(child);
         }
     }
@@ -69,7 +69,7 @@ void Group::write(Output& output) const
         output.writeValue<uint32_t>("NumChildren", children.size());
         for (auto& child : children)
         {
-            output.writeObject("Child", child.get());
+            output.write("Child", child);
         }
     }
 }
