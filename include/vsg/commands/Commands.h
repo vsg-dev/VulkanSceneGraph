@@ -44,11 +44,6 @@ namespace vsg
         using Children = std::vector<ref_ptr<vsg::Command>>;
         Children children;
 
-        void addChild(vsg::ref_ptr<Command> child)
-        {
-            children.push_back(child);
-        }
-
 #if VSG_USE_DEPRECATED_METHODS_AND_IO
         std::size_t addChild(vsg::ref_ptr<Command> child)
         {
@@ -69,6 +64,11 @@ namespace vsg
 
         Children& getChildren() noexcept { return children; }
         const Children& getChildren() const noexcept { return children; }
+#else
+        void addChild(vsg::ref_ptr<Command> child)
+        {
+            children.push_back(child);
+        }
 #endif
 
         void compile(Context& context) override;
