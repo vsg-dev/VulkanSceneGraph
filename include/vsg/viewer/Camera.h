@@ -33,7 +33,7 @@ namespace vsg
         VkViewport getViewport() const { return viewportState ? viewportState->getViewport() : VkViewport{}; }
         VkRect2D getRenderArea() const { return viewportState ? viewportState->getScissor() : VkRect2D{}; }
 
-        #if VSG_USE_DEPRECATED_METHODS_AND_IO
+#if VSG_USE_DEPRECATED_METHODS_AND_IO
         void setProjectionMatrix(ref_ptr<ProjectionMatrix> projectionMatrix) { projectionMatrix = projectionMatrix; }
         ProjectionMatrix* getProjectionMatrix() const { return projectionMatrix; }
 
