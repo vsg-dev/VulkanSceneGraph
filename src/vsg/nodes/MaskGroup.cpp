@@ -37,7 +37,7 @@ void MaskGroup::read(Input& input)
         for (auto& child : children)
         {
             input.read("child.mask", child.mask);
-            input.readObject("child.node", child.node);
+            input.read("child.node", child.node);
         }
     }
     else
@@ -46,7 +46,7 @@ void MaskGroup::read(Input& input)
         for (auto& child : children)
         {
             input.read("mask", child.mask);
-            input.readObject("node", child.node);
+            input.read("node", child.node);
         }
     }
 }
@@ -61,7 +61,7 @@ void MaskGroup::write(Output& output) const
         for (auto& child : children)
         {
             output.write("child.mask", child.mask);
-            output.writeObject("child.node", child.node);
+            output.write("child.node", child.node);
         }
     }
     else
@@ -70,7 +70,7 @@ void MaskGroup::write(Output& output) const
         for (auto& child : children)
         {
             output.write("mask", child.mask);
-            output.writeObject("node", child.node);
+            output.write("node", child.node);
         }
     }
 }

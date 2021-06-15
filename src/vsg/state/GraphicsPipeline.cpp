@@ -50,18 +50,18 @@ void GraphicsPipeline::read(Input& input)
     }
     else
     {
-        input.readObject("PipelineLayout", layout);
+        input.read("PipelineLayout", layout);
 
         stages.resize(input.readValue<uint32_t>("NumShaderStages"));
         for (auto& shaderStage : stages)
         {
-            input.readObject("ShaderStage", shaderStage);
+            input.read("ShaderStage", shaderStage);
         }
 
         pipelineStates.resize(input.readValue<uint32_t>("NumPipelineStates"));
         for (auto& pipelineState : pipelineStates)
         {
-            input.readObject("PipelineState", pipelineState);
+            input.read("PipelineState", pipelineState);
         }
     }
 
@@ -80,18 +80,18 @@ void GraphicsPipeline::write(Output& output) const
     }
     else
     {
-        output.writeObject("PipelineLayout", layout.get());
+        output.write("PipelineLayout", layout);
 
         output.writeValue<uint32_t>("NumShaderStages", stages.size());
         for (auto& shaderStage : stages)
         {
-            output.writeObject("ShaderStage", shaderStage.get());
+            output.write("ShaderStage", shaderStage);
         }
 
         output.writeValue<uint32_t>("NumPipelineStates", pipelineStates.size());
         for (auto& pipelineState : pipelineStates)
         {
-            output.writeObject("PipelineState", pipelineState.get());
+            output.write("PipelineState", pipelineState);
         }
     }
 
@@ -211,14 +211,28 @@ void BindGraphicsPipeline::read(Input& input)
 {
     StateCommand::read(input);
 
-    input.readObject("GraphicsPipeline", pipeline);
+    if (input.version_greater_equal(0, 1, 4))
+    {
+        input.read("pipeline", pipeline);
+    }
+    else
+    {
+        input.read("GraphicsPipeline", pipeline);
+    }
 }
 
 void BindGraphicsPipeline::write(Output& output) const
 {
     StateCommand::write(output);
 
-    output.writeObject("GraphicsPipeline", pipeline.get());
+    if (output.version_greater_equal(0, 1, 4))
+    {
+        output.write("pipeline", pipeline);
+    }
+    else
+    {
+        output.write("GraphicsPipeline", pipeline);
+    }
 }
 
 void BindGraphicsPipeline::record(CommandBuffer& commandBuffer) const

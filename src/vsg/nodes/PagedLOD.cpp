@@ -80,7 +80,7 @@ void PagedLOD::read(Input& input)
         }
 
         input.read("MinimumScreenHeightRatio", children[1].minimumScreenHeightRatio);
-        input.readObject("Child", children[1].node);
+        input.read("Child", children[1].node);
     }
 
     options = input.options;
@@ -98,7 +98,7 @@ void PagedLOD::write(Output& output) const
         output.write("child.filename", filename);
 
         output.write("child.minimumScreenHeightRatio", children[1].minimumScreenHeightRatio);
-        output.writeObject("child.node", children[1].node);
+        output.write("child.node", children[1].node);
     }
     else
     {
@@ -108,7 +108,7 @@ void PagedLOD::write(Output& output) const
         output.write("Filename", filename);
 
         output.write("MinimumScreenHeightRatio", children[1].minimumScreenHeightRatio);
-        output.writeObject("Child", children[1].node);
+        output.write("Child", children[1].node);
     }
 }
 

@@ -105,20 +105,20 @@ void ShaderStage::write(Output& output) const
         for (auto& [id, data] : specializationConstants)
         {
             output.writeValue<uint32_t>("id", id);
-            output.writeObject("data", data);
+            output.write("data", data);
         }
     }
     else
     {
         output.writeValue<int32_t>("Stage", stage);
         output.write("EntryPoint", entryPointName);
-        output.writeObject("ShaderModule", module);
+        output.write("ShaderModule", module);
 
         output.writeValue<uint32_t>("NumSpecializationConstants", specializationConstants.size());
         for (auto& [id, data] : specializationConstants)
         {
             output.writeValue<uint32_t>("constantID", id);
-            output.writeObject("data", data);
+            output.write("data", data);
         }
     }
 

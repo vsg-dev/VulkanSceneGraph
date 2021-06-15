@@ -47,8 +47,8 @@ void ComputePipeline::read(Input& input)
     }
     else
     {
-        input.readObject("PipelineLayout", layout);
-        input.readObject("ShaderStage", stage);
+        input.read("PipelineLayout", layout);
+        input.read("ShaderStage", stage);
     }
 }
 
@@ -63,8 +63,8 @@ void ComputePipeline::write(Output& output) const
     }
     else
     {
-        output.writeObject("PipelineLayout", layout.get());
-        output.writeObject("ShaderStage", stage.get());
+        output.write("PipelineLayout", layout);
+        output.write("ShaderStage", stage);
     }
 }
 

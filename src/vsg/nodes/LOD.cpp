@@ -1,3 +1,4 @@
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -37,7 +38,7 @@ void LOD::read(Input& input)
         for (auto& child : children)
         {
             input.read("child.minimumScreenHeightRatio", child.minimumScreenHeightRatio);
-            input.readObject("child.node", child.node);
+            input.read("child.node", child.node);
         }
     }
     else
@@ -48,7 +49,7 @@ void LOD::read(Input& input)
         for (auto& child : children)
         {
             input.read("MinimumScreenHeightRatio", child.minimumScreenHeightRatio);
-            input.readObject("Child", child.node);
+            input.read("Child", child.node);
         }
     }
 }
@@ -65,7 +66,7 @@ void LOD::write(Output& output) const
         for (auto& child : children)
         {
             output.write("child.minimumScreenHeightRatio", child.minimumScreenHeightRatio);
-            output.writeObject("child.node", child.node);
+            output.write("child.node", child.node);
         }
     }
     else
@@ -76,7 +77,7 @@ void LOD::write(Output& output) const
         for (auto& child : children)
         {
             output.write("MinimumScreenHeightRatio", child.minimumScreenHeightRatio);
-            output.writeObject("Child", child.node);
+            output.write("Child", child.node);
         }
     }
 }

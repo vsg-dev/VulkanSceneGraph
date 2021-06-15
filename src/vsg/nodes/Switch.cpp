@@ -46,7 +46,7 @@ void Switch::read(Input& input)
         for (auto& child : children)
         {
             input.read("enabled", child.enabled);
-            input.readObject("node", child.node);
+            input.read("node", child.node);
         }
     }
 }
@@ -70,7 +70,7 @@ void Switch::write(Output& output) const
         for (auto& child : children)
         {
             output.write("enabled", child.enabled);
-            output.writeObject("node", child.node);
+            output.write("node", child.node);
         }
     }
 }
