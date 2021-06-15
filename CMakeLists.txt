@@ -8,7 +8,7 @@ project(VSG
 set(VSG_SOVERSION 1)
 SET(VSG_RELEASE_CANDIDATE 0)
 
-set(VSG_USE_DEPRECATED_METHODS_AND_IO 0 CACHE STRING "Enable deprecated methods and input/outpu data, 0 disabled, 1 enabled ")
+set(VSG_USE_DEPRECATED_METHODS_AND_IO 1 CACHE STRING "Enable deprecated methods and input/outpu data, 0 disabled, 1 enabled ")
 
 # create the version header
 set(VSG_MAX_DEVICES 1 CACHE STRING "Set maximum number of vk/vsg::Device that are supported.")
