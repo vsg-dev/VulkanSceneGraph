@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 PushConstants::PushConstants() :
-    Inherit(2), // slot 0
+    Inherit(2) // slot 0
 {
 }
 
