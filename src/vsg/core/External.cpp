@@ -64,13 +64,13 @@ External::External(Allocator* allocator) :
 {
 }
 
-External::External(const PathObjects& entries) :
-    _entries(entries)
+External::External(const PathObjects& inentries) :
+    entries(inentries)
 {
 }
 
 External::External(const std::string& filename, ref_ptr<Object> object) :
-    _entries{{filename, object}}
+    entries{{filename, object}}
 {
 }
 
@@ -80,11 +80,11 @@ External::~External()
 
 void External::read(Input& input)
 {
-    _entries.clear();
+    entries.clear();
 
     Object::read(input);
 
-    input.readObject("options", options);
+    input.read("options", options);
 
     CollectIDs collectIDs;
 
@@ -99,15 +99,15 @@ void External::read(Input& input)
 
     if (options)
     {
-        _entries = vsg::read(filenames, options);
+        entries = vsg::read(filenames, options);
     }
     else
     {
-        _entries = vsg::read(filenames, input.options);
+        entries = vsg::read(filenames, input.options);
     }
 
     // collect the ids from the files
-    for (auto itr = _entries.begin(); itr != _entries.end(); ++itr)
+    for (auto itr = entries.begin(); itr != entries.end(); ++itr)
     {
         auto& objectIDRange = collectIDs.objectIDRangeMap[itr->first];
         collectIDs._objectID = objectIDRange.startID;
@@ -132,12 +132,12 @@ void External::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeObject("options", options);
+    output.write("options", options);
 
     CollectIDs collectIDs;
     collectIDs._objectID = output.objectID;
 
-    for (auto& [filename, externalObject] : _entries)
+    for (auto& [filename, externalObject] : entries)
     {
         if (!filename.empty() && externalObject)
         {
@@ -159,15 +159,15 @@ void External::write(Output& output) const
         output.objectIDMap[object] = objectID;
     }
 
-    output.writeValue<uint32_t>("NumEntries", _entries.size());
-    for (auto itr = _entries.begin(); itr != _entries.end(); ++itr)
+    output.writeValue<uint32_t>("NumEntries", entries.size());
+    for (auto itr = entries.begin(); itr != entries.end(); ++itr)
     {
         auto& objectIDRange = collectIDs.objectIDRangeMap[itr->first];
         output.write("StartID_EndID_Filename", objectIDRange.startID, objectIDRange.endID, itr->first);
     }
 
     // write out files.
-    for (auto& [filename, externalObject] : _entries)
+    for (auto& [filename, externalObject] : entries)
     {
         // if we should write out object then need to invoke ReaderWriter for it.
         if (!filename.empty() && externalObject)
