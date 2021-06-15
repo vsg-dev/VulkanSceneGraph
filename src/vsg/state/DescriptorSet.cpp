@@ -38,12 +38,20 @@ void DescriptorSet::read(Input& input)
 {
     Object::read(input);
 
-    input.readObject("DescriptorSetLayout", setLayout);
-
-    descriptors.resize(input.readValue<uint32_t>("NumDescriptors"));
-    for (auto& descriptor : descriptors)
+    if (input.version_greater_equal(0, 1, 4))
     {
-        input.readObject("Descriptor", descriptor);
+        input.read("setLayout", setLayout);
+        input.read("descriptors", descriptors);
+    }
+    else
+    {
+        input.read("DescriptorSetLayout", setLayout);
+
+        descriptors.resize(input.readValue<uint32_t>("NumDescriptors"));
+        for (auto& descriptor : descriptors)
+        {
+            input.read("Descriptor", descriptor);
+        }
     }
 }
 
@@ -51,12 +59,20 @@ void DescriptorSet::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeObject("DescriptorSetLayout", setLayout.get());
-
-    output.writeValue<uint32_t>("NumDescriptors", descriptors.size());
-    for (auto& descriptor : descriptors)
+    if (output.version_greater_equal(0, 1, 4))
     {
-        output.writeObject("Descriptor", descriptor.get());
+        output.write("setLayout", setLayout);
+        output.write("descriptors", descriptors);
+    }
+    else
+    {
+        output.write("DescriptorSetLayout", setLayout);
+
+        output.writeValue<uint32_t>("NumDescriptors", descriptors.size());
+        for (auto& descriptor : descriptors)
+        {
+            output.write("Descriptor", descriptor);
+        }
     }
 }
 
@@ -144,14 +160,23 @@ void BindDescriptorSets::read(Input& input)
 
     Object::read(input);
 
-    input.readObject("PipelineLayout", layout);
-
-    input.read("firstSet", firstSet);
-
-    descriptorSets.resize(input.readValue<uint32_t>("NumDescriptorSets"));
-    for (auto& descriptorSet : descriptorSets)
+    if (input.version_greater_equal(0, 1, 4))
     {
-        input.readObject("DescriptorSets", descriptorSet);
+        input.read("layout", layout);
+        input.read("firstSet", firstSet);
+        input.read("descriptorSets", descriptorSets);
+    }
+    else
+    {
+        input.read("PipelineLayout", layout);
+
+        input.read("firstSet", firstSet);
+
+        descriptorSets.resize(input.readValue<uint32_t>("NumDescriptorSets"));
+        for (auto& descriptorSet : descriptorSets)
+        {
+            input.read("DescriptorSets", descriptorSet);
+        }
     }
 }
 
@@ -159,14 +184,22 @@ void BindDescriptorSets::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeObject("PipelineLayout", layout.get());
-
-    output.write("firstSet", firstSet);
-
-    output.writeValue<uint32_t>("NumDescriptorSets", descriptorSets.size());
-    for (auto& descriptorSet : descriptorSets)
+    if (output.version_greater_equal(0, 1, 4))
     {
-        output.writeObject("DescriptorSets", descriptorSet.get());
+        output.write("layout", layout);
+        output.write("firstSet", firstSet);
+        output.write("descriptorSets", descriptorSets);
+    }
+    else
+    {
+        output.write("PipelineLayout", layout);
+        output.write("firstSet", firstSet);
+
+        output.writeValue<uint32_t>("NumDescriptorSets", descriptorSets.size());
+        for (auto& descriptorSet : descriptorSets)
+        {
+            output.write("DescriptorSets", descriptorSet);
+        }
     }
 }
 
@@ -210,22 +243,36 @@ void BindDescriptorSet::read(Input& input)
 
     StateCommand::read(input);
 
-    input.readObject("PipelineLayout", layout);
-
-    input.read("firstSet", firstSet);
-
-    input.readObject("DescriptorSet", descriptorSet);
+    if (input.version_greater_equal(0, 1, 4))
+    {
+        input.read("layout", layout);
+        input.read("firstSet", firstSet);
+        input.read("descriptorSet", descriptorSet);
+    }
+    else
+    {
+        input.read("PipelineLayout", layout);
+        input.read("firstSet", firstSet);
+        input.read("DescriptorSet", descriptorSet);
+    }
 }
 
 void BindDescriptorSet::write(Output& output) const
 {
     StateCommand::write(output);
 
-    output.writeObject("PipelineLayout", layout.get());
-
-    output.write("firstSet", firstSet);
-
-    output.writeObject("DescriptorSet", descriptorSet.get());
+    if (output.version_greater_equal(0, 1, 4))
+    {
+        output.write("layout", layout);
+        output.write("firstSet", firstSet);
+        output.write("descriptorSet", descriptorSet);
+    }
+    else
+    {
+        output.write("PipelineLayout", layout);
+        output.write("firstSet", firstSet);
+        output.write("DescriptorSet", descriptorSet);
+    }
 }
 
 void BindDescriptorSet::compile(Context& context)

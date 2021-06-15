@@ -28,16 +28,32 @@ void Descriptor::read(Input& input)
 {
     Object::read(input);
 
-    input.read("DstBinding", dstBinding);
-    input.read("DstArrayElement", dstArrayElement);
+    if (input.version_greater_equal(0, 1, 4))
+    {
+        input.read("dstBinding", dstBinding);
+        input.read("dstArrayElement", dstArrayElement);
+    }
+    else
+    {
+        input.read("DstBinding", dstBinding);
+        input.read("DstArrayElement", dstArrayElement);
+    }
 }
 
 void Descriptor::write(Output& output) const
 {
     Object::write(output);
 
-    output.write("DstBinding", dstBinding);
-    output.write("DstArrayElement", dstArrayElement);
+    if (output.version_greater_equal(0, 1, 4))
+    {
+        output.write("dstBinding", dstBinding);
+        output.write("dstArrayElement", dstArrayElement);
+    }
+    else
+    {
+        output.write("DstBinding", dstBinding);
+        output.write("DstArrayElement", dstArrayElement);
+    }
 }
 
 void Descriptor::assignTo(Context& /*context*/, VkWriteDescriptorSet& wds) const

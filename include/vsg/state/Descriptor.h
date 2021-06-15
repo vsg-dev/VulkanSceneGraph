@@ -41,6 +41,7 @@ namespace vsg
 
         virtual uint32_t getNumDescriptors() const { return 1; }
     };
+    VSG_type_name(vsg::Descriptor);
 
     using Descriptors = std::vector<vsg::ref_ptr<vsg::Descriptor>>;
 

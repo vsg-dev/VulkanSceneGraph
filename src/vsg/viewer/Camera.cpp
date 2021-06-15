@@ -17,13 +17,13 @@ using namespace vsg;
 
 Camera::Camera()
 {
-    _projectionMatrix = new Perspective();
-    _viewMatrix = new LookAt();
+    projectionMatrix = new Perspective();
+    viewMatrix = new LookAt();
 }
 
-Camera::Camera(ref_ptr<ProjectionMatrix> projectionMatrix, ref_ptr<ViewMatrix> viewMatrix, ref_ptr<ViewportState> viewportState) :
-    _projectionMatrix(projectionMatrix),
-    _viewMatrix(viewMatrix),
-    _viewportState(viewportState)
+Camera::Camera(ref_ptr<ProjectionMatrix> in_projectionMatrix, ref_ptr<ViewMatrix> in_viewMatrix, ref_ptr<ViewportState> in_viewportState) :
+    projectionMatrix(in_projectionMatrix),
+    viewMatrix(in_viewMatrix),
+    viewportState(in_viewportState)
 {
 }

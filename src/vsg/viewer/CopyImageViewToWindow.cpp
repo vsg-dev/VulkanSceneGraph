@@ -51,13 +51,15 @@ void CopyImageViewToWindow::record(CommandBuffer& commandBuffer) const
 
     pb_transitionStorageImageToReadSrc->record(commandBuffer);
 
+    auto extent2D = window->extent2D();
+
     // copy image
     VkImageCopy copyRegion{};
     copyRegion.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
     copyRegion.srcOffset = {0, 0, 0};
     copyRegion.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
     copyRegion.dstOffset = {0, 0, 0};
-    copyRegion.extent = {_extent2D.width, _extent2D.height, 1};
+    copyRegion.extent = {extent2D.width, extent2D.height, 1};
 
     auto copyImage = CopyImage::create();
     copyImage->srcImage = srcImageView->image;

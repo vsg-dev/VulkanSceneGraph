@@ -143,7 +143,7 @@ void Bin::traverse(RecordTraversal& rt) const
             for (uint32_t i = element.stateCommandIndex; i < endIndex; ++i)
             {
                 auto command = _stateCommands[i];
-                state->stateStacks[command->getSlot()].push(command);
+                state->stateStacks[command->slot].push(command);
             }
 
             element.child->accept(rt);
@@ -151,7 +151,7 @@ void Bin::traverse(RecordTraversal& rt) const
             for (uint32_t i = element.stateCommandIndex; i < endIndex; ++i)
             {
                 auto command = _stateCommands[i];
-                state->stateStacks[command->getSlot()].pop();
+                state->stateStacks[command->slot].pop();
             }
         }
         else

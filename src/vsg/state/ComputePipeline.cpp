@@ -40,16 +40,32 @@ void ComputePipeline::read(Input& input)
 {
     Object::read(input);
 
-    input.readObject("PipelineLayout", layout);
-    input.readObject("ShaderStage", stage);
+    if (input.version_greater_equal(0, 1, 4))
+    {
+        input.read("layout", layout);
+        input.read("stage", stage);
+    }
+    else
+    {
+        input.read("PipelineLayout", layout);
+        input.read("ShaderStage", stage);
+    }
 }
 
 void ComputePipeline::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeObject("PipelineLayout", layout.get());
-    output.writeObject("ShaderStage", stage.get());
+    if (output.version_greater_equal(0, 1, 4))
+    {
+        output.write("layout", layout);
+        output.write("stage", stage);
+    }
+    else
+    {
+        output.write("PipelineLayout", layout);
+        output.write("ShaderStage", stage);
+    }
 }
 
 void ComputePipeline::compile(Context& context)
@@ -121,14 +137,28 @@ void BindComputePipeline::read(Input& input)
 {
     StateCommand::read(input);
 
-    input.readObject("ComputePipeline", pipeline);
+    if (input.version_greater_equal(0, 1, 4))
+    {
+        input.read("pipeline", pipeline);
+    }
+    else
+    {
+        input.read("ComputePipeline", pipeline);
+    }
 }
 
 void BindComputePipeline::write(Output& output) const
 {
     StateCommand::write(output);
 
-    output.writeObject("ComputePipeline", pipeline.get());
+    if (output.version_greater_equal(0, 1, 4))
+    {
+        output.write("pipeline", pipeline);
+    }
+    else
+    {
+        output.write("ComputePipeline", pipeline);
+    }
 }
 
 void BindComputePipeline::record(CommandBuffer& commandBuffer) const

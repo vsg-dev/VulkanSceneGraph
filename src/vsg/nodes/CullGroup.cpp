@@ -21,10 +21,10 @@ CullGroup::CullGroup(Allocator* allocator) :
 {
 }
 
-CullGroup::CullGroup(const dsphere& bound, Allocator* allocator) :
+CullGroup::CullGroup(const dsphere& in_bound, Allocator* allocator) :
     Inherit(allocator)
 {
-    _bound = bound;
+    bound = in_bound;
 }
 
 CullGroup::~CullGroup()
@@ -35,12 +35,26 @@ void CullGroup::read(Input& input)
 {
     Group::read(input);
 
-    input.read("Bound", _bound);
+    if (input.version_greater_equal(0, 1, 4))
+    {
+        input.read("bound", bound);
+    }
+    else
+    {
+        input.read("Bound", bound);
+    }
 }
 
 void CullGroup::write(Output& output) const
 {
     Group::write(output);
 
-    output.write("Bound", _bound);
+    if (output.version_greater_equal(0, 1, 4))
+    {
+        output.write("bound", bound);
+    }
+    else
+    {
+        output.write("Bound", bound);
+    }
 }

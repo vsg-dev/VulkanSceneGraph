@@ -53,8 +53,8 @@ void ColorBlendState::read(Input& input)
 {
     Object::read(input);
 
-    logicOp = static_cast<VkLogicOp>(input.readValue<uint32_t>("logicOp"));
-    logicOpEnable = static_cast<VkBool32>(input.readValue<uint32_t>("logicOpEnable"));
+    input.readValue<uint32_t>("logicOp", logicOp);
+    input.readValue<uint32_t>("logicOpEnable", logicOpEnable);
 
     attachments.resize(input.readValue<uint32_t>("NumColorBlendAttachments"));
     for (auto& colorBlendAttachment : attachments)

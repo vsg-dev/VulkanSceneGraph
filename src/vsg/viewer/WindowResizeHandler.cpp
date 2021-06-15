@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/ClearAttachments.h>
 #include <vsg/io/Options.h>
-#include <vsg/state/StateGroup.h>
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/viewer/View.h>
 #include <vsg/viewer/WindowResizeHandler.h>
 #include <vsg/vk/Context.h>
@@ -88,7 +88,7 @@ void WindowResizeHandler::apply(vsg::StateGroup& sg)
 {
     if (!visit(&sg, context->viewID)) return;
 
-    for (auto& command : sg.getStateCommands())
+    for (auto& command : sg.stateCommands)
     {
         command->accept(*this);
     }
@@ -118,9 +118,9 @@ void WindowResizeHandler::apply(vsg::View& view)
         return;
     }
 
-    view.camera->getProjectionMatrix()->changeExtent(previous_extent, new_extent);
+    view.camera->projectionMatrix->changeExtent(previous_extent, new_extent);
 
-    auto viewportState = view.camera->getViewportState();
+    auto viewportState = view.camera->viewportState;
 
     size_t num_viewports = std::min(viewportState->viewports.size(), viewportState->scissors.size());
     for (size_t i = 0; i < num_viewports; ++i)

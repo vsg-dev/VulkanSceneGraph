@@ -1,12 +1,14 @@
 cmake_minimum_required(VERSION 3.7)
 
 project(VSG
-    VERSION 0.1.3
+    VERSION 0.1.4
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES CXX
 )
 set(VSG_SOVERSION 1)
 SET(VSG_RELEASE_CANDIDATE 0)
+
+set(VSG_USE_DEPRECATED_METHODS_AND_IO 1 CACHE STRING "Enable deprecated methods and input/outpu data, 0 disabled, 1 enabled ")
 
 # create the version header
 set(VSG_MAX_DEVICES 1 CACHE STRING "Set maximum number of vk/vsg::Device that are supported.")

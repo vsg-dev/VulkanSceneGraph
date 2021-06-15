@@ -26,14 +26,6 @@ namespace vsg
     public:
         Switch(Allocator* allocator = nullptr);
 
-        struct Child
-        {
-            bool enabled = true;
-            ref_ptr<Node> node;
-        };
-
-        using Children = std::vector<Child>;
-
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
@@ -47,6 +39,13 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
+        struct Child
+        {
+            bool enabled = true;
+            ref_ptr<Node> node;
+        };
+
+        using Children = std::vector<Child>;
         Children children;
 
         /// add a child to the back of the children list.

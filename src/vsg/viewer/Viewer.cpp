@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/state/Descriptor.h>
-#include <vsg/state/StateGroup.h>
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/viewer/View.h>
 #include <vsg/viewer/Viewer.h>

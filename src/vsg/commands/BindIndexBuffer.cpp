@@ -36,8 +36,8 @@ VkIndexType vsg::computeIndexType(const Data* indices)
     return VK_INDEX_TYPE_MAX_ENUM;
 }
 
-BindIndexBuffer::BindIndexBuffer(Data* indices) :
-    _indices(indices)
+BindIndexBuffer::BindIndexBuffer(ref_ptr<Data> in_indices) :
+    indices(in_indices)
 {
 }
 
@@ -60,7 +60,14 @@ void BindIndexBuffer::read(Input& input)
     _vulkanData.clear();
 
     // read the key indices data
-    input.readObject("Indices", _indices);
+    if (input.version_greater_equal(0, 1, 4))
+    {
+        input.read("indices", indices);
+    }
+    else
+    {
+        input.read("Indices", indices);
+    }
 }
 
 void BindIndexBuffer::write(Output& output) const
@@ -68,24 +75,31 @@ void BindIndexBuffer::write(Output& output) const
     Command::write(output);
 
     // write indices data
-    output.writeObject("Indices", _indices.get());
+    if (output.version_greater_equal(0, 1, 4))
+    {
+        output.write("indices", indices);
+    }
+    else
+    {
+        output.write("Indices", indices);
+    }
 }
 
 void BindIndexBuffer::compile(Context& context)
 {
     // nothing to compile
-    if (!_indices) return;
+    if (!indices) return;
 
     auto& vkd = _vulkanData[context.deviceID];
 
     // check if already compiled
     if (vkd.bufferInfo.buffer) return;
 
-    auto bufferInfoList = vsg::createBufferAndTransferData(context, {_indices}, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    auto bufferInfoList = vsg::createBufferAndTransferData(context, {indices}, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     if (!bufferInfoList.empty())
     {
         vkd.bufferInfo = bufferInfoList.back();
-        vkd.indexType = computeIndexType(_indices);
+        vkd.indexType = computeIndexType(indices);
     }
 }
 

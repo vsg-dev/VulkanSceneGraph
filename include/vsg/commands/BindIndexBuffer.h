@@ -28,12 +28,15 @@ namespace vsg
     public:
         BindIndexBuffer() {}
 
-        BindIndexBuffer(Data* indices);
+        BindIndexBuffer(ref_ptr<Data> in_indices);
 
-        void setIndices(ref_ptr<Data> indices) { _indices = indices; }
-        Data* getIndices() { return _indices; }
-        const Data* getIndices() const { return _indices; }
+        ref_ptr<Data> indices;
 
+#if VSG_USE_DEPRECATED_METHODS_AND_IO
+        void setIndices(ref_ptr<Data> in_indices) { indices = in_indices; }
+        Data* getIndices() { return indices; }
+        const Data* getIndices() const { return indices; }
+#endif
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -44,7 +47,6 @@ namespace vsg
     protected:
         virtual ~BindIndexBuffer();
 
-        ref_ptr<Data> _indices;
 
         struct VulkanData
         {

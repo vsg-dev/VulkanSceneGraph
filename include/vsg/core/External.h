@@ -31,7 +31,7 @@ namespace vsg
         template<class O, class V>
         static void t_traverse(O& object, V& visitor)
         {
-            for (auto itr = object._entries.begin(); itr != object._entries.end(); ++itr)
+            for (auto itr = object.entries.begin(); itr != object.entries.end(); ++itr)
             {
                 if (itr->second) itr->second->accept(visitor);
             }
@@ -47,16 +47,19 @@ namespace vsg
         /// custom readwrier/writer options
         ref_ptr<Options> options;
 
-        void add(const Path& filename, ref_ptr<Object> object = {}) { _entries[filename] = object; }
+        /// list of path/object pairs
+        PathObjects entries;
 
-        void setEntries(const PathObjects& entries) { _entries = entries; }
-        PathObjects& getEntries() { return _entries; }
-        const PathObjects& getEntries() const { return _entries; }
+        void add(const Path& filename, ref_ptr<Object> object = {}) { entries[filename] = object; }
+
+#if VSG_USE_DEPRECATED_METHODS_AND_IO
+        void setEntries(const PathObjects& in_entries) { entries = in_entries; }
+        PathObjects& getEntries() { return entries; }
+        const PathObjects& getEntries() const { return entries; }
+#endif
 
     protected:
         virtual ~External();
-
-        PathObjects _entries;
     };
     VSG_type_name(vsg::External);
 

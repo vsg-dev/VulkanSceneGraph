@@ -25,10 +25,10 @@ LoadPagedLOD::LoadPagedLOD(ref_ptr<Camera> in_camera, int in_loadLevels) :
     loadLevels(in_loadLevels)
 {
     dmat4 projectionMatrix;
-    camera->getProjectionMatrix()->get(projectionMatrix);
+    camera->projectionMatrix->get(projectionMatrix);
 
     dmat4 viewMatrix;
-    camera->getViewMatrix()->get(viewMatrix);
+    camera->viewMatrix->get(viewMatrix);
 
     projectionMatrixStack.emplace(projectionMatrix);
     modelviewMatrixStack.emplace(viewMatrix);
@@ -67,7 +67,7 @@ void LoadPagedLOD::apply(Node& node)
 void LoadPagedLOD::apply(CullNode& node)
 {
     // check if cullNode bounding sphere is in view frustum.
-    if (!intersect(_frustumStack.top(), node.getBound())) return;
+    if (!intersect(_frustumStack.top(), node.bound)) return;
 
     //std::cout<<"apply(CullNode& node) : Need to do cull test of bounding sphere"<<std::endl;
     node.traverse(*this);
@@ -77,7 +77,7 @@ void LoadPagedLOD::apply(MatrixTransform& transform)
 {
     //std::cout<<"apply(MatrixTransform& transform) Need to do transform modelview matrix"<<std::endl;
 
-    modelviewMatrixStack.emplace(modelviewMatrixStack.top() * transform.getMatrix());
+    modelviewMatrixStack.emplace(modelviewMatrixStack.top() * transform.matrix);
 
     pushFrustum();
 
@@ -90,14 +90,14 @@ void LoadPagedLOD::apply(MatrixTransform& transform)
 
 void LoadPagedLOD::apply(LOD& lod)
 {
-    auto bs = lod.getBound();
+    auto bs = lod.bound;
 
     // check if lod bounding sphere is in view frustum.
     if (!intersect(_frustumStack.top(), bs)) return;
 
     auto [distance, rf] = computeDistanceAndRF(bs);
 
-    for (auto& child : lod.getChildren())
+    for (auto& child : lod.children)
     {
         bool child_visible = rf > (child.minimumScreenHeightRatio * distance);
         if (child_visible)
@@ -110,7 +110,7 @@ void LoadPagedLOD::apply(LOD& lod)
 
 void LoadPagedLOD::apply(PagedLOD& plod)
 {
-    auto bs = plod.getBound();
+    auto bs = plod.bound;
 
     // check if lod bounding sphere is in view frustum.
     if (level >= loadLevels || !intersect(_frustumStack.top(), bs)) return;
@@ -119,7 +119,7 @@ void LoadPagedLOD::apply(PagedLOD& plod)
 
     auto [distance, rf] = computeDistanceAndRF(bs);
 
-    for (auto& child : plod.getChildren())
+    for (auto& child : plod.children)
     {
         bool child_visible = rf > child.minimumScreenHeightRatio * distance;
         if (child_visible)

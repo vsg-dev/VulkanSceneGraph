@@ -39,11 +39,19 @@ void BindVertexBuffers::read(Input& input)
     // clear Vulkan objects
     _vulkanData.clear();
 
-    // read vertex arrays
-    _arrays.resize(input.readValue<uint32_t>("NumArrays"));
-    for (auto& array : _arrays)
+    if (input.version_greater_equal(0, 1, 4))
     {
-        input.readObject("Array", array);
+        input.read("firstBinding", firstBinding);
+        input.read("arrays", arrays);
+    }
+    else
+    {
+        // read vertex arrays
+        arrays.resize(input.readValue<uint32_t>("NumArrays"));
+        for (auto& array : arrays)
+        {
+            input.read("Array", array);
+        }
     }
 }
 
@@ -51,28 +59,36 @@ void BindVertexBuffers::write(Output& output) const
 {
     Command::write(output);
 
-    output.writeValue<uint32_t>("NumArrays", _arrays.size());
-    for (auto& array : _arrays)
+    if (output.version_greater_equal(0, 1, 4))
     {
-        output.writeObject("Array", array.get());
+        output.write("firstBinding", firstBinding);
+        output.write("arrays", arrays);
+    }
+    else
+    {
+        output.writeValue<uint32_t>("NumArrays", arrays.size());
+        for (auto& array : arrays)
+        {
+            output.write("Array", array);
+        }
     }
 }
 
 void BindVertexBuffers::compile(Context& context)
 {
     // nothing to compile
-    if (_arrays.empty()) return;
+    if (arrays.empty()) return;
 
     auto& vkd = _vulkanData[context.deviceID];
 
     // already compiled
-    if (vkd.buffers.size() == _arrays.size()) return;
+    if (vkd.buffers.size() == arrays.size()) return;
 
     vkd.buffers.clear();
     vkd.vkBuffers.clear();
     vkd.offsets.clear();
 
-    auto bufferDataList = vsg::createBufferAndTransferData(context, _arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    auto bufferDataList = vsg::createBufferAndTransferData(context, arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     for (auto& bufferData : bufferDataList)
     {
         vkd.buffers.push_back(bufferData.buffer);
@@ -84,5 +100,5 @@ void BindVertexBuffers::compile(Context& context)
 void BindVertexBuffers::record(CommandBuffer& commandBuffer) const
 {
     auto& vkd = _vulkanData[commandBuffer.deviceID];
-    vkCmdBindVertexBuffers(commandBuffer, _firstBinding, static_cast<uint32_t>(vkd.vkBuffers.size()), vkd.vkBuffers.data(), vkd.offsets.data());
+    vkCmdBindVertexBuffers(commandBuffer, firstBinding, static_cast<uint32_t>(vkd.vkBuffers.size()), vkd.vkBuffers.data(), vkd.offsets.data());
 }

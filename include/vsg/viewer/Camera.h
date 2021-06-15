@@ -24,24 +24,25 @@ namespace vsg
     public:
         Camera();
 
-        Camera(ref_ptr<ProjectionMatrix> projectionMatrix, ref_ptr<ViewMatrix> viewMatrix, ref_ptr<ViewportState> viewportState = {});
+        Camera(ref_ptr<ProjectionMatrix> in_projectionMatrix, ref_ptr<ViewMatrix> in_viewMatrix, ref_ptr<ViewportState> in_viewportState = {});
 
-        void setProjectionMatrix(ref_ptr<ProjectionMatrix> projectionMatrix) { _projectionMatrix = projectionMatrix; }
-        ProjectionMatrix* getProjectionMatrix() const { return _projectionMatrix; }
+        ref_ptr<ProjectionMatrix> projectionMatrix;
+        ref_ptr<ViewMatrix> viewMatrix;
+        ref_ptr<ViewportState> viewportState;
 
-        void setViewMatrix(ref_ptr<ViewMatrix> viewMatrix) { _viewMatrix = viewMatrix; }
-        ViewMatrix* getViewMatrix() const { return _viewMatrix; }
+        VkViewport getViewport() const { return viewportState ? viewportState->getViewport() : VkViewport{}; }
+        VkRect2D getRenderArea() const { return viewportState ? viewportState->getScissor() : VkRect2D{}; }
 
-        void setViewportState(ref_ptr<ViewportState> viewportState) { _viewportState = viewportState; }
-        ViewportState* getViewportState() const { return _viewportState; }
+#if VSG_USE_DEPRECATED_METHODS_AND_IO
+        void setProjectionMatrix(ref_ptr<ProjectionMatrix> in_projectionMatrix) { projectionMatrix = in_projectionMatrix; }
+        ProjectionMatrix* getProjectionMatrix() const { return projectionMatrix; }
 
-        VkViewport getViewport() const { return _viewportState ? _viewportState->getViewport() : VkViewport{}; }
-        VkRect2D getRenderArea() const { return _viewportState ? _viewportState->getScissor() : VkRect2D{}; }
+        void setViewMatrix(ref_ptr<ViewMatrix> in_viewMatrix) { viewMatrix = in_viewMatrix; }
+        ViewMatrix* getViewMatrix() const { return viewMatrix; }
 
-    protected:
-        ref_ptr<ProjectionMatrix> _projectionMatrix;
-        ref_ptr<ViewMatrix> _viewMatrix;
-        ref_ptr<ViewportState> _viewportState;
+        void setViewportState(ref_ptr<ViewportState> in_viewportState) { viewportState = in_viewportState; }
+        ViewportState* getViewportState() const { return viewportState; }
+#endif
     };
     VSG_type_name(vsg::Camera);
 

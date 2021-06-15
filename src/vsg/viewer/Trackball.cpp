@@ -21,7 +21,7 @@ Trackball::Trackball(ref_ptr<Camera> camera, ref_ptr<EllipsoidModel> ellipsoidMo
     _camera(camera),
     _ellipsoidModel(ellipsoidModel)
 {
-    _lookAt = dynamic_cast<LookAt*>(_camera->getViewMatrix());
+    _lookAt = camera->viewMatrix.cast<LookAt>();
 
     if (!_lookAt)
     {

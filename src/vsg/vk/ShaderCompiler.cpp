@@ -11,10 +11,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/raytracing/RayTracingPipeline.h>
 #include <vsg/state/ComputePipeline.h>
 #include <vsg/state/GraphicsPipeline.h>
-#include <vsg/state/StateGroup.h>
 #include <vsg/vk/ShaderCompiler.h>
 
 #ifdef HAS_GLSLANG
@@ -35,8 +35,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #endif
 
 #ifndef VK_API_VERSION_MAJOR
-    #define VK_API_VERSION_MAJOR(version) (((uint32_t)(version) >> 22) & 0x7FU)
-    #define VK_API_VERSION_MINOR(version) (((uint32_t)(version) >> 12) & 0x3FFU)
+#    define VK_API_VERSION_MAJOR(version) (((uint32_t)(version) >> 22) & 0x7FU)
+#    define VK_API_VERSION_MINOR(version) (((uint32_t)(version) >> 12) & 0x3FFU)
 #endif
 
 using namespace vsg;
@@ -562,9 +562,9 @@ void ShaderCompiler::apply(Node& node)
 
 void ShaderCompiler::apply(StateGroup& stategroup)
 {
-    for (auto& stateCommands : stategroup.getStateCommands())
+    for (auto& stateCommand : stategroup.stateCommands)
     {
-        stateCommands->accept(*this);
+        stateCommand->accept(*this);
     }
 
     stategroup.traverse(*this);

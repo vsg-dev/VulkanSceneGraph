@@ -19,7 +19,7 @@ void DrawIndexedIndirect::read(Input& input)
 {
     Command::read(input);
 
-    input.readObject("data", bufferInfo.data);
+    input.read("data", bufferInfo.data);
     if (!bufferInfo.data)
     {
         input.read("buffer", bufferInfo.buffer);
@@ -35,7 +35,7 @@ void DrawIndexedIndirect::write(Output& output) const
 {
     Command::write(output);
 
-    output.writeObject("data", bufferInfo.data);
+    output.write("data", bufferInfo.data);
     if (!bufferInfo.data)
     {
         output.write("buffer", bufferInfo.buffer);

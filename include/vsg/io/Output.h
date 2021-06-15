@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Data.h>
 #include <vsg/core/Object.h>
 #include <vsg/core/Version.h>
+#include <vsg/core/type_name.h>
 
 #include <vsg/maths/box.h>
 #include <vsg/maths/mat4.h>
@@ -111,6 +112,38 @@ namespace vsg
             else
             {
                 write(num * sizeof(T), reinterpret_cast<const uint8_t*>(value));
+            }
+        }
+
+        template<typename T>
+        void write(const char* propertyName, const ref_ptr<T>& object)
+        {
+            writePropertyName(propertyName);
+            write(object);
+        }
+
+        template<typename T>
+        void write(const char* propertyName, const std::vector<ref_ptr<T>>& values)
+        {
+            uint32_t numElements = static_cast<uint32_t>(values.size());
+            write(propertyName, numElements);
+
+            const char* element_name = type_name<T>();
+            for (uint32_t i = 0; i < numElements; ++i)
+            {
+                write(element_name, values[i]);
+            }
+        }
+
+        template<typename T>
+        void write(const char* propertyName, const std::vector<T>& values)
+        {
+            uint32_t numElements = static_cast<uint32_t>(values.size());
+            write(propertyName, numElements);
+
+            for (uint32_t i = 0; i < numElements; ++i)
+            {
+                write("element", values[i]);
             }
         }
 

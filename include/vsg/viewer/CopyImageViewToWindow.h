@@ -24,14 +24,10 @@ namespace vsg
     public:
         ref_ptr<ImageView> srcImageView;
         ref_ptr<Window> window;
-        VkExtent2D _extent2D;
 
         CopyImageViewToWindow(ref_ptr<ImageView> in_srcImageView, ref_ptr<Window> in_window) :
             srcImageView(in_srcImageView),
-            window(in_window)
-        {
-            _extent2D = window->extent2D();
-        }
+            window(in_window) {}
 
         void record(CommandBuffer& commandBuffer) const override;
     };

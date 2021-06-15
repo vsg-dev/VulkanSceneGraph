@@ -15,8 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
-#include <vsg/state/StateGroup.h>
 #include <vsg/traversals/ComputeBounds.h>
 
 using namespace vsg;
@@ -36,7 +36,7 @@ void ComputeBounds::apply(const StateGroup& stategroup)
 {
     ArrayState arrayState(arrayStateStack.back());
 
-    for (auto& statecommand : stategroup.getStateCommands())
+    for (auto& statecommand : stategroup.stateCommands)
     {
         statecommand->accept(arrayState);
     }
@@ -51,9 +51,9 @@ void ComputeBounds::apply(const StateGroup& stategroup)
 void ComputeBounds::apply(const vsg::MatrixTransform& transform)
 {
     if (matrixStack.empty())
-        matrixStack.push_back(transform.getMatrix());
+        matrixStack.push_back(transform.matrix);
     else
-        matrixStack.push_back(matrixStack.back() * transform.getMatrix());
+        matrixStack.push_back(matrixStack.back() * transform.matrix);
 
     transform.traverse(*this);
 

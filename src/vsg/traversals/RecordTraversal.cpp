@@ -24,8 +24,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/Switch.h>
-#include <vsg/state/StateGroup.h>
 #include <vsg/threading/atomics.h>
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/ui/ApplicationEvent.h>
@@ -136,7 +136,7 @@ void RecordTraversal::apply(const QuadGroup& group)
 
 void RecordTraversal::apply(const LOD& lod)
 {
-    auto sphere = lod.getBound();
+    auto sphere = lod.bound;
 
     // check if lod bounding sphere is in view frustum.
     if (!_state->intersect(sphere))
@@ -151,7 +151,7 @@ void RecordTraversal::apply(const LOD& lod)
     auto distance = std::abs(mv[0][2] * sphere.x + mv[1][2] * sphere.y + mv[2][2] * sphere.z + mv[3][2]);
     auto rf = sphere.r * f;
 
-    for (auto& child : lod.getChildren())
+    for (auto& child : lod.children)
     {
         bool child_visible = rf > (child.minimumScreenHeightRatio * distance);
         if (child_visible)
@@ -164,7 +164,7 @@ void RecordTraversal::apply(const LOD& lod)
 
 void RecordTraversal::apply(const PagedLOD& plod)
 {
-    auto sphere = plod.getBound();
+    auto sphere = plod.bound;
 
     auto frameCount = _frameStamp->frameCount;
 
@@ -188,7 +188,7 @@ void RecordTraversal::apply(const PagedLOD& plod)
 
     // check the high res child to see if it's visible
     {
-        const auto& child = plod.getChild(0);
+        const auto& child = plod.children[0];
         auto cutoff = child.minimumScreenHeightRatio * distance;
         bool child_visible = rf > cutoff;
         if (child_visible)
@@ -233,7 +233,7 @@ void RecordTraversal::apply(const PagedLOD& plod)
 
     // check the low res child to see if it's visible
     {
-        const auto& child = plod.getChild(1);
+        const auto& child = plod.children[1];
         auto cutoff = child.minimumScreenHeightRatio * distance;
         bool child_visible = rf > cutoff;
         if (child_visible)
@@ -248,7 +248,7 @@ void RecordTraversal::apply(const PagedLOD& plod)
 
 void RecordTraversal::apply(const CullGroup& cullGroup)
 {
-    if (_state->intersect(cullGroup.getBound()))
+    if (_state->intersect(cullGroup.bound))
     {
         //std::cout<<"Passed node"<<std::endl;
         cullGroup.traverse(*this);
@@ -257,7 +257,7 @@ void RecordTraversal::apply(const CullGroup& cullGroup)
 
 void RecordTraversal::apply(const CullNode& cullNode)
 {
-    if (_state->intersect(cullNode.getBound()))
+    if (_state->intersect(cullNode.bound))
     {
         //std::cout<<"Passed node"<<std::endl;
         cullNode.traverse(*this);
@@ -291,27 +291,26 @@ void RecordTraversal::apply(const StateGroup& stateGroup)
 {
     //    std::cout<<"Visiting StateGroup "<<std::endl;
 
-    const StateGroup::StateCommands& stateCommands = stateGroup.getStateCommands();
-    for (auto& command : stateCommands)
+    for (auto& command : stateGroup.stateCommands)
     {
-        _state->stateStacks[command->getSlot()].push(command);
+        _state->stateStacks[command->slot].push(command);
     }
     _state->dirty = true;
 
     stateGroup.traverse(*this);
 
-    for (auto& command : stateCommands)
+    for (auto& command : stateGroup.stateCommands)
     {
-        _state->stateStacks[command->getSlot()].pop();
+        _state->stateStacks[command->slot].pop();
     }
     _state->dirty = true;
 }
 
 void RecordTraversal::apply(const MatrixTransform& mt)
 {
-    if (mt.getSubgraphRequiresLocalFrustum())
+    if (mt.subgraphRequiresLocalFrustum)
     {
-        _state->modelviewMatrixStack.pushAndPostMult(mt.getMatrix());
+        _state->modelviewMatrixStack.pushAndPostMult(mt.matrix);
         _state->pushFrustum();
         _state->dirty = true;
 
@@ -323,7 +322,7 @@ void RecordTraversal::apply(const MatrixTransform& mt)
     }
     else
     {
-        _state->modelviewMatrixStack.pushAndPostMult(mt.getMatrix());
+        _state->modelviewMatrixStack.pushAndPostMult(mt.matrix);
         _state->dirty = true;
 
         mt.traverse(*this);
@@ -337,7 +336,7 @@ void RecordTraversal::apply(const MatrixTransform& mt)
 void RecordTraversal::apply(const Commands& commands)
 {
     _state->record();
-    for (auto& command : commands.getChildren())
+    for (auto& command : commands.children)
     {
         command->record(*(_state->_commandBuffer));
     }
@@ -379,8 +378,8 @@ void RecordTraversal::apply(const View& view)
     if (view.camera)
     {
         dmat4 projMatrix, viewMatrix;
-        view.camera->getProjectionMatrix()->get(projMatrix);
-        view.camera->getViewMatrix()->get(viewMatrix);
+        view.camera->projectionMatrix->get(projMatrix);
+        view.camera->viewMatrix->get(viewMatrix);
 
         // TODO push/pop project and view matrices
         setProjectionAndViewMatrix(projMatrix, viewMatrix);

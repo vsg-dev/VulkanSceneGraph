@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/state/StateGroup.h>
+#include <vsg/nodes/StateGroup.h>
 
 #include <vsg/io/Input.h>
 #include <vsg/io/Options.h>
@@ -31,10 +31,17 @@ void StateGroup::read(Input& input)
 {
     Group::read(input);
 
-    _stateCommands.resize(input.readValue<uint32_t>("NumStateCommands"));
-    for (auto& command : _stateCommands)
+    if (input.version_greater_equal(0, 1, 4))
     {
-        input.readObject("StateCommand", command);
+        input.read("stateCommands", stateCommands);
+    }
+    else
+    {
+        stateCommands.resize(input.readValue<uint32_t>("NumStateCommands"));
+        for (auto& command : stateCommands)
+        {
+            input.read("StateCommand", command);
+        }
     }
 }
 
@@ -42,16 +49,23 @@ void StateGroup::write(Output& output) const
 {
     Group::write(output);
 
-    output.writeValue<uint32_t>("NumStateCommands", _stateCommands.size());
-    for (auto& command : _stateCommands)
+    if (output.version_greater_equal(0, 1, 4))
     {
-        output.writeObject("StateCommand", command.get());
+        output.write("stateCommands", stateCommands);
+    }
+    else
+    {
+        output.writeValue<uint32_t>("NumStateCommands", stateCommands.size());
+        for (auto& command : stateCommands)
+        {
+            output.write("StateCommand", command);
+        }
     }
 }
 
 void StateGroup::compile(Context& context)
 {
-    for (auto& stateCommand : _stateCommands)
+    for (auto& stateCommand : stateCommands)
     {
         stateCommand->compile(context);
     }
