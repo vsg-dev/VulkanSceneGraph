@@ -58,7 +58,7 @@ namespace vsg
 
         std::size_t getNumChildren() const noexcept { return children.size(); }
 
-        void setChildren(const Children& children) { children = children; }
+        void setChildren(const Children& in_children) { children = in_children; }
         Children& getChildren() noexcept { return children; }
         const Children& getChildren() const noexcept { return children; }
 #else

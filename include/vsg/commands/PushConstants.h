@@ -33,8 +33,8 @@ namespace vsg
         void write(Output& output) const override;
 
 #if VSG_USE_DEPRECATED_METHODS_AND_IO
-        Data* getData() noexcept { return _data; }
-        const Data* getData() const noexcept { return _data; }
+        Data* getData() noexcept { return data; }
+        const Data* getData() const noexcept { return data; }
 #endif
 
         void record(CommandBuffer& commandBuffer) const override;

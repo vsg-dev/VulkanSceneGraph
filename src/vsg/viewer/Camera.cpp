@@ -22,8 +22,8 @@ Camera::Camera()
 }
 
 Camera::Camera(ref_ptr<ProjectionMatrix> in_projectionMatrix, ref_ptr<ViewMatrix> in_viewMatrix, ref_ptr<ViewportState> in_viewportState) :
-    projectionMatrix(projectionMatrix),
-    viewMatrix(viewMatrix),
-    viewportState(viewportState)
+    projectionMatrix(in_projectionMatrix),
+    viewMatrix(in_viewMatrix),
+    viewportState(in_viewportState)
 {
 }

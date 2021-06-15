@@ -60,8 +60,6 @@ namespace vsg
 
         std::size_t getNumChildren() const noexcept { return children.size(); }
 
-        using Children = std::vector<ref_ptr<vsg::Command>>;
-
         Children& getChildren() noexcept { return children; }
         const Children& getChildren() const noexcept { return children; }
 #else
