@@ -25,10 +25,10 @@ LoadPagedLOD::LoadPagedLOD(ref_ptr<Camera> in_camera, int in_loadLevels) :
     loadLevels(in_loadLevels)
 {
     dmat4 projectionMatrix;
-    camera->getProjectionMatrix()->get(projectionMatrix);
+    camera->projectionMatrix->get(projectionMatrix);
 
     dmat4 viewMatrix;
-    camera->getViewMatrix()->get(viewMatrix);
+    camera->viewMatrix->get(viewMatrix);
 
     projectionMatrixStack.emplace(projectionMatrix);
     modelviewMatrixStack.emplace(viewMatrix);

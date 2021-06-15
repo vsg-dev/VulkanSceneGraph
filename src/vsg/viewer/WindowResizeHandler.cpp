@@ -118,9 +118,9 @@ void WindowResizeHandler::apply(vsg::View& view)
         return;
     }
 
-    view.camera->getProjectionMatrix()->changeExtent(previous_extent, new_extent);
+    view.camera->projectionMatrix->changeExtent(previous_extent, new_extent);
 
-    auto viewportState = view.camera->getViewportState();
+    auto viewportState = view.camera->viewportState;
 
     size_t num_viewports = std::min(viewportState->viewports.size(), viewportState->scissors.size());
     for (size_t i = 0; i < num_viewports; ++i)

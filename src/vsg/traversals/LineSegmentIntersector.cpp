@@ -149,10 +149,10 @@ LineSegmentIntersector::LineSegmentIntersector(const Camera& camera, int32_t x, 
     vsg::dvec3 ndc_far(ndc.x * 2.0 - 1.0, ndc.y * 2.0 - 1.0, viewport.maxDepth * 2.0 - 1.0);
 
     vsg::dmat4 projectionMatrix;
-    camera.getProjectionMatrix()->get(projectionMatrix);
+    camera.projectionMatrix->get(projectionMatrix);
 
     vsg::dmat4 viewMatrix;
-    camera.getViewMatrix()->get(viewMatrix);
+    camera.viewMatrix->get(viewMatrix);
 
     auto inv_projectionViewMatrix = vsg::inverse(projectionMatrix * viewMatrix);
 

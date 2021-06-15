@@ -378,8 +378,8 @@ void RecordTraversal::apply(const View& view)
     if (view.camera)
     {
         dmat4 projMatrix, viewMatrix;
-        view.camera->getProjectionMatrix()->get(projMatrix);
-        view.camera->getViewMatrix()->get(viewMatrix);
+        view.camera->projectionMatrix->get(projMatrix);
+        view.camera->viewMatrix->get(viewMatrix);
 
         // TODO push/pop project and view matrices
         setProjectionAndViewMatrix(projMatrix, viewMatrix);

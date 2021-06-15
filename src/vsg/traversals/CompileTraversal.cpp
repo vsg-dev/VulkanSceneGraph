@@ -319,9 +319,9 @@ void CompileTraversal::apply(View& view)
 {
     context.viewID = view.viewID;
 
-    if (view.camera && view.camera->getViewportState())
+    if (view.camera && view.camera->viewportState)
     {
-        context.defaultPipelineStates.emplace_back(view.camera->getViewportState());
+        context.defaultPipelineStates.emplace_back(view.camera->viewportState);
 
         view.traverse(*this);
 
