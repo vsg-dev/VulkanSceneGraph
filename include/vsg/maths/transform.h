@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/mat3.h>
 #include <vsg/maths/mat4.h>
 #include <vsg/maths/vec3.h>
+#include <vsg/maths/quat.h>
 
 #include <cmath>
 
@@ -60,6 +61,13 @@ namespace vsg
     {
         T one_minus_r = 1.0 - r;
         return start * one_minus_r + end * r;
+    }
+
+
+    template<typename T>
+    constexpr t_mat4<T> rotate(const t_quat<T>& q)
+    {
+        return mat4_cast<T>(q);
     }
 
     template<typename T>
