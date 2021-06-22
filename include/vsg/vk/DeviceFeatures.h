@@ -28,9 +28,11 @@ namespace vsg
         DeviceFeatures(const DeviceFeatures&) = delete;
         DeviceFeatures& operator=(const DeviceFeatures&) = delete;
 
-        /// get the standard VkPhysicalDeviceFeatures structure.
+        /// get a Vulkan extension feature structure.
         /// usage example :
-        ///     deviceFeatures->get().samplerAnisotropy = VK_TRUE;
+        ///     auto& meshFeatures = features->get<VkPhysicalDeviceMeshShaderFeaturesNV, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_NV>();
+        ///     meshFeatures.meshShader = 1;
+        ///     meshFeatures.taskShader = 1;
         template<typename FeatureStruct, VkStructureType type>
         FeatureStruct& get()
         {
@@ -48,9 +50,7 @@ namespace vsg
 
         /// get the standard VkPhysicalDeviceFeatures structure.
         /// usage example :
-        ///     auto& meshFeatures = features->get<VkPhysicalDeviceMeshShaderFeaturesNV, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_NV>();
-        ///     meshFeatures.meshShader = 1;
-        ///     meshFeatures.taskShader = 1;
+        ///     deviceFeatures->get().samplerAnisotropy = VK_TRUE;
         VkPhysicalDeviceFeatures& get();
 
         /// clear all the feature structures
