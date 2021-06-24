@@ -114,10 +114,19 @@ namespace vsg
 
         inline t_vec3& operator/=(value_type rhs)
         {
-            value_type div = 1.0 / rhs;
-            value[0] *= div;
-            value[1] *= div;
-            value[2] *= div;
+            if constexpr (std::is_floating_point_v<value_type>)
+            {
+                value_type inv = static_cast<value_type>(1.0) / rhs;
+                value[0] *= inv;
+                value[1] *= inv;
+                value[2] *= inv;
+            }
+            else
+            {
+                value[0] /= rhs;
+                value[1] /= rhs;
+                value[2] /= rhs;
+            }
             return *this;
         }
     };
@@ -189,8 +198,15 @@ namespace vsg
     template<typename T>
     constexpr t_vec3<T> operator/(const t_vec3<T>& lhs, T rhs)
     {
-        T inv = static_cast<T>(1.0) / rhs;
-        return t_vec3<T>(lhs[0] * inv, lhs[1] * inv, lhs[2] * inv);
+        if constexpr (std::is_floating_point_v<T>)
+        {
+            T inv = static_cast<T>(1.0) / rhs;
+            return t_vec3<T>(lhs[0] * inv, lhs[1] * inv, lhs[2] * inv);
+        }
+        else
+        {
+            return t_vec3<T>(lhs[0] / rhs, lhs[1] / rhs, lhs[2] / rhs);
+        }
     }
 
     template<typename T>
@@ -208,8 +224,7 @@ namespace vsg
     template<typename T>
     constexpr t_vec3<T> normalize(const t_vec3<T>& v)
     {
-        T inverse_len = static_cast<T>(1.0) / length(v);
-        return t_vec3<T>(v[0] * inverse_len, v[1] * inverse_len, v[2] * inverse_len);
+        return v / length(v);
     }
 
     template<typename T>

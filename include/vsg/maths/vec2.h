@@ -26,6 +26,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/type_name.h>
 
 #include <cmath>
+#include <numeric>
 
 namespace vsg
 {
@@ -109,9 +110,17 @@ namespace vsg
 
         inline t_vec2& operator/=(value_type rhs)
         {
-            value_type div = static_cast<value_type>(1.0) / rhs;
-            value[0] *= div;
-            value[1] *= div;
+            if constexpr (std::is_floating_point_v<value_type>)
+            {
+                value_type inv = static_cast<value_type>(1.0) / rhs;
+                value[0] *= inv;
+                value[1] *= inv;
+            }
+            else
+            {
+                value[0] /= rhs;
+                value[1] /= rhs;
+            }
             return *this;
         }
     };
@@ -181,8 +190,15 @@ namespace vsg
     template<typename T>
     constexpr t_vec2<T> operator/(const t_vec2<T>& lhs, T rhs)
     {
-        T inv = static_cast<T>(1.0) / rhs;
-        return t_vec2<T>(lhs[0] * inv, lhs[1] * inv);
+        if constexpr (std::is_floating_point_v<T>)
+        {
+            T inv = static_cast<T>(1.0) / rhs;
+            return t_vec2<T>(lhs[0] * inv, lhs[1] * inv);
+        }
+        else
+        {
+            return t_vec2<T>(lhs[0] / rhs, lhs[1] / rhs);
+        }
     }
 
     template<typename T>
@@ -200,8 +216,7 @@ namespace vsg
     template<typename T>
     constexpr t_vec2<T> normalize(const t_vec2<T>& v)
     {
-        T inverse_len = static_cast<T>(1.0) / length(v);
-        return t_vec2<T>(v[0] * inverse_len, v[1] * inverse_len);
+        return v / length(v);
     }
 
     template<typename T>
