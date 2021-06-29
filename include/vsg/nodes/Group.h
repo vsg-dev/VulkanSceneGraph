@@ -49,31 +49,10 @@ namespace vsg
         using Children = std::vector<ref_ptr<vsg::Node>>;
         Children children;
 
-#if VSG_USE_DEPRECATED_METHODS_AND_IO
-        std::size_t addChild(vsg::ref_ptr<Node> child)
-        {
-            std::size_t pos = children.size();
-            children.push_back(child);
-            return pos;
-        }
-
-        void removeChild(std::size_t pos) { children.erase(children.begin() + pos); }
-
-        void setChild(std::size_t pos, Node* node) { children[pos] = node; }
-        vsg::Node* getChild(std::size_t pos) { return children[pos].get(); }
-        const vsg::Node* getChild(std::size_t pos) const { return children[pos].get(); }
-
-        std::size_t getNumChildren() const noexcept { return children.size(); }
-
-        void setChildren(const Children& in_children) { children = in_children; }
-        Children& getChildren() noexcept { return children; }
-        const Children& getChildren() const noexcept { return children; }
-#else
         void addChild(vsg::ref_ptr<Node> child)
         {
             children.push_back(child);
         }
-#endif
 
     protected:
         virtual ~Group();

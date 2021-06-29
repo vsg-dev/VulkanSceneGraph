@@ -31,15 +31,6 @@ namespace vsg
         uint32_t firstBinding = 0;
         DataList arrays;
 
-#if VSG_USE_DEPRECATED_METHODS_AND_IO
-        void setFirstBinding(uint32_t in_firstBinding) { firstBinding = in_firstBinding; }
-        uint32_t getFirstBinding() const { return firstBinding; }
-
-        void setArrays(const DataList& in_arrays) { arrays = in_arrays; }
-        DataList& getArrays() { return arrays; }
-        const DataList& getArrays() const { return arrays; }
-#endif
-
         void read(Input& input) override;
         void write(Output& output) const override;
 

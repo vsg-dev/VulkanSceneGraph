@@ -52,12 +52,6 @@ namespace vsg
 
         void add(const Path& filename, ref_ptr<Object> object = {}) { entries[filename] = object; }
 
-#if VSG_USE_DEPRECATED_METHODS_AND_IO
-        void setEntries(const PathObjects& in_entries) { entries = in_entries; }
-        PathObjects& getEntries() { return entries; }
-        const PathObjects& getEntries() const { return entries; }
-#endif
-
     protected:
         virtual ~External();
     };

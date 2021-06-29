@@ -34,13 +34,6 @@ namespace vsg
         using StateCommands = std::vector<ref_ptr<StateCommand>>;
         StateCommands stateCommands;
 
-#if VSG_USE_DEPRECATED_METHODS_AND_IO
-        StateCommands& getStateCommands()
-        {
-            return stateCommands;
-        }
-        const StateCommands& getStateCommands() const { return stateCommands; }
-#endif
         template<class T>
         bool contains(const T value) const
         {

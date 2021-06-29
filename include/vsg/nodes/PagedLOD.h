@@ -75,22 +75,6 @@ namespace vsg
         using Children = std::array<Child, 2>;
         Children children;
 
-#if VSG_USE_DEPRECATED_METHODS_AND_IO
-        void setBound(const dsphere& in_bound)
-        {
-            bound = in_bound;
-        }
-        inline const dsphere& getBound() const { return bound; }
-
-        void setChild(std::size_t pos, const Child& lodChild) { children[pos] = lodChild; }
-        Child& getChild(std::size_t pos) { return children[pos]; }
-        const Child& getChild(std::size_t pos) const { return children[pos]; }
-
-        std::size_t getNumChildren() const { return children.size(); }
-
-        Children& getChildren() { return children; }
-        const Children& getChildren() const { return children; }
-#endif
         bool highResActive(uint64_t frameCount) const
         {
             return (frameCount - frameHighResLastUsed.load()) <= 1;
