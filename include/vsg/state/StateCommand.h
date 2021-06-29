@@ -30,7 +30,6 @@ namespace vsg
 
     protected:
         virtual ~StateCommand() {}
-
     };
     VSG_type_name(vsg::StateCommand);
 

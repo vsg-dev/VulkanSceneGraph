@@ -36,7 +36,6 @@ namespace vsg
 
     protected:
         virtual ~PushConstants();
-
     };
     VSG_type_name(vsg::PushConstants);
 

@@ -42,7 +42,6 @@ namespace vsg
     protected:
         virtual ~BindIndexBuffer();
 
-
         struct VulkanData
         {
             BufferInfo bufferInfo;

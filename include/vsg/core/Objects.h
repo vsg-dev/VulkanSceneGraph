@@ -46,9 +46,9 @@ namespace vsg
         {
             children.push_back(child);
         }
+
     protected:
         virtual ~Objects();
-
     };
     VSG_type_name(vsg::Objects);
 

@@ -123,7 +123,6 @@ namespace vsg
             arg = read().cast<T>();
         }
 
-
         template<typename T>
         void read(const char* propertyName, std::vector<ref_ptr<T>>& values)
         {

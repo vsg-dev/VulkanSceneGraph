@@ -41,7 +41,6 @@ namespace vsg
     protected:
         virtual ~BindVertexBuffers();
 
-
         struct VulkanData
         {
             std::vector<ref_ptr<Buffer>> buffers;

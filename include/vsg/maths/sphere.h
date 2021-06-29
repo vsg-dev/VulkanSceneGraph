@@ -105,7 +105,6 @@ namespace vsg
             r = rad;
         }
 
-
         bool valid() const { return radius >= 0.0; }
 
         T* data() { return value; }

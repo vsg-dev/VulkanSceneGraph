@@ -121,7 +121,6 @@ void ShaderStage::write(Output& output) const
             output.write("data", data);
         }
     }
-
 }
 
 void ShaderStage::apply(Context& context, VkPipelineShaderStageCreateInfo& stageInfo) const
