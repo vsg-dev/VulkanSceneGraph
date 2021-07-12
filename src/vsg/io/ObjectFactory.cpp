@@ -57,6 +57,8 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::mat4Value);
     VSG_REGISTER_new(vsg::dmat4Value);
     VSG_REGISTER_new(vsg::materialValue);
+    VSG_REGISTER_new(vsg::PhongMaterialValue);
+    VSG_REGISTER_new(vsg::PbrMaterialValue);
 
     // arrays
     VSG_REGISTER_new(vsg::byteArray);
@@ -96,6 +98,8 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::block64Array);
     VSG_REGISTER_new(vsg::block128Array);
     VSG_REGISTER_new(vsg::materialArray);
+    VSG_REGISTER_new(vsg::PhongMaterialArray);
+    VSG_REGISTER_new(vsg::PbrMaterialArray);
     VSG_REGISTER_new(vsg::DrawIndirectCommandArray);
 
     // array2Ds
