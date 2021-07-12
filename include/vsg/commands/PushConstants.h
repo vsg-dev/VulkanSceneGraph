@@ -32,16 +32,10 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-#if VSG_USE_DEPRECATED_METHODS_AND_IO
-        Data* getData() noexcept { return data; }
-        const Data* getData() const noexcept { return data; }
-#endif
-
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~PushConstants();
-
     };
     VSG_type_name(vsg::PushConstants);
 

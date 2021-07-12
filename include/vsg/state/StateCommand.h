@@ -28,14 +28,8 @@ namespace vsg
 
         uint32_t slot = 0;
 
-#if VSG_USE_DEPRECATED_METHODS_AND_IO
-        void setSlot(uint32_t in_slot) { slot = in_slot; }
-        uint32_t getSlot() const { return slot; }
-#endif
-
     protected:
         virtual ~StateCommand() {}
-
     };
     VSG_type_name(vsg::StateCommand);
 

@@ -44,22 +44,6 @@ namespace vsg
         using Children = std::array<ref_ptr<vsg::Node>, 4>;
         Children children;
 
-#if VSG_USE_DEPRECATED_METHODS_AND_IO
-        void setChild(std::size_t pos, vsg::Node* node)
-        {
-            children[pos] = node;
-        }
-        vsg::Node* getChild(std::size_t pos) { return children[pos].get(); }
-        const vsg::Node* getChild(std::size_t pos) const { return children[pos].get(); }
-
-        constexpr std::size_t getNumChildren() const noexcept { return 4; }
-
-        Children& getChildren() noexcept
-        {
-            return children;
-        }
-        const Children& getChildren() const noexcept { return children; }
-#endif
     protected:
         virtual ~QuadGroup();
     };

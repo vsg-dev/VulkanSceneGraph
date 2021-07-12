@@ -29,17 +29,6 @@ namespace vsg
         dmat4 matrix;
         bool subgraphRequiresLocalFrustum;
 
-#if VSG_USE_DEPRECATED_METHODS_AND_IO
-        void setMatrix(const dmat4& in_matrix)
-        {
-            matrix = in_matrix;
-        }
-        dmat4& getMatrix() { return matrix; }
-        const dmat4& getMatrix() const { return matrix; }
-
-        void setSubgraphRequiresLocalFrustum(bool flag) { subgraphRequiresLocalFrustum = flag; }
-        bool getSubgraphRequiresLocalFrustum() const { return subgraphRequiresLocalFrustum; }
-#endif
     protected:
     };
     VSG_type_name(vsg::MatrixTransform);

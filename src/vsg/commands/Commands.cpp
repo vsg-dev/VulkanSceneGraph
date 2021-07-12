@@ -67,7 +67,6 @@ void Commands::write(Output& output) const
             output.write("Child", child);
         }
     }
-
 }
 
 void Commands::compile(Context& context)

@@ -44,30 +44,10 @@ namespace vsg
         using Children = std::vector<ref_ptr<vsg::Command>>;
         Children children;
 
-#if VSG_USE_DEPRECATED_METHODS_AND_IO
-        std::size_t addChild(vsg::ref_ptr<Command> child)
-        {
-            std::size_t pos = children.size();
-            children.push_back(child);
-            return pos;
-        }
-
-        void removeChild(std::size_t pos) { children.erase(children.begin() + pos); }
-
-        void setChild(std::size_t pos, Command* node) { children[pos] = node; }
-        vsg::Command* getChild(std::size_t pos) { return children[pos].get(); }
-        const vsg::Command* getChild(std::size_t pos) const { return children[pos].get(); }
-
-        std::size_t getNumChildren() const noexcept { return children.size(); }
-
-        Children& getChildren() noexcept { return children; }
-        const Children& getChildren() const noexcept { return children; }
-#else
         void addChild(vsg::ref_ptr<Command> child)
         {
             children.push_back(child);
         }
-#endif
 
         void compile(Context& context) override;
         void record(CommandBuffer& commandBuffer) const override;
