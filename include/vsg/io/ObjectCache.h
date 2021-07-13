@@ -58,12 +58,30 @@ namespace vsg
         inline ObjectTimepoint& getObjectTimepoint(const Path& filename, ref_ptr<const Options> options = {})
         {
             std::scoped_lock<std::mutex> guard(_mutex);
-            return _objectCacheMap[FilenameOption(filename, options)];
+            return _objectCacheMap[Key(filename, options)];
         }
 
     protected:
-        using FilenameOption = std::pair<Path, ref_ptr<const Options>>;
-        using ObjectCacheMap = std::map<FilenameOption, ObjectTimepoint>;
+
+        struct Key
+        {
+            Key(const Path& in_filename, ref_ptr<const Options> in_options) :
+                auxilary(in_options ? in_options->getAuxiliary() : nullptr),
+                filename(in_filename) {}
+
+            // use an Options's Auxilary object to avoid Options->ObjectCache->Options circular references
+            ref_ptr<const Auxiliary> auxilary;
+            Path filename;
+
+            bool operator < (const Key& rhs) const
+            {
+                if (auxilary < rhs.auxilary) return true;
+                if (rhs.auxilary < auxilary) return false;
+                return filename < rhs.filename;
+            }
+        };
+
+        using ObjectCacheMap = std::map<Key, ObjectTimepoint>;
 
         mutable std::mutex _mutex;
         double _defaultUnusedDuration = 0.0;

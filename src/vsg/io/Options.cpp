@@ -20,6 +20,7 @@ using namespace vsg;
 
 Options::Options()
 {
+    getOrCreateUniqueAuxiliary();
 }
 
 Options::Options(const Options& options) :
@@ -29,10 +30,12 @@ Options::Options(const Options& options) :
     operationThreads(options.operationThreads),
     checkFilenameHint(options.checkFilenameHint),
     paths(options.paths),
+    findFileCallback(options.findFileCallback),
     fileCache(options.fileCache),
     extensionHint(options.extensionHint),
     mapRGBtoRGBAHint(options.mapRGBtoRGBAHint)
 {
+    getOrCreateUniqueAuxiliary();
 }
 
 Options::~Options()
