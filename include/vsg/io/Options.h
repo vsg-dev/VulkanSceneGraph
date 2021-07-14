@@ -64,6 +64,10 @@ namespace vsg
         FindFileHint checkFilenameHint = CHECK_ORIGINAL_FILENAME_EXISTS_FIRST;
 
         Paths paths;
+
+        using FindFileCallback = std::function<Path(const Path& filename, const Options* options)>;
+        FindFileCallback findFileCallback;
+
         Path fileCache;
 
         std::string extensionHint;
