@@ -21,6 +21,12 @@ using namespace vsg;
 Options::Options()
 {
     getOrCreateUniqueAuxiliary();
+
+    formatCoordinateConventions["gltf"] = CoordinateConvention::Y_UP;
+    formatCoordinateConventions["glb"] = CoordinateConvention::Y_UP;
+    formatCoordinateConventions["dae"] = CoordinateConvention::Y_UP;
+    formatCoordinateConventions["stl"] = CoordinateConvention::NO_PREFERENCE;
+    formatCoordinateConventions["obj"] = CoordinateConvention::NO_PREFERENCE;
 }
 
 Options::Options(const Options& options) :
@@ -33,7 +39,9 @@ Options::Options(const Options& options) :
     findFileCallback(options.findFileCallback),
     fileCache(options.fileCache),
     extensionHint(options.extensionHint),
-    mapRGBtoRGBAHint(options.mapRGBtoRGBAHint)
+    mapRGBtoRGBAHint(options.mapRGBtoRGBAHint),
+    sceneCoordinateConvention(options.sceneCoordinateConvention),
+    formatCoordinateConventions(options.formatCoordinateConventions)
 {
     getOrCreateUniqueAuxiliary();
 }

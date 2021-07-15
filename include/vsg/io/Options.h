@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Inherit.h>
 #include <vsg/core/observer_ptr.h>
 #include <vsg/io/FileSystem.h>
+#include <vsg/maths/transform.h>
 
 namespace vsg
 {
@@ -72,6 +73,12 @@ namespace vsg
 
         std::string extensionHint;
         bool mapRGBtoRGBAHint = true;
+
+        /// coordinate convention to use for scene graph
+        CoordinateConvention sceneCoordinateConvention = CoordinateConvention::Z_UP;
+
+        /// coordinate convention to assume for specified lower case file formats extensions
+        std::map<vsg::Path, CoordinateConvention> formatCoordinateConventions;
 
     protected:
         virtual ~Options();
