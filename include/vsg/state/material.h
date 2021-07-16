@@ -107,7 +107,7 @@ namespace vsg
             input.read("metallicFactor", metallicFactor);
             input.read("roughnessFactor", roughnessFactor);
             input.read("alphaMask", alphaMask);
-            input.read("alphaMaskCutoff",alphaMaskCutoff );
+            input.read("alphaMaskCutoff", alphaMaskCutoff);
         }
 
         void write(vsg::Output& output) const
@@ -119,16 +119,14 @@ namespace vsg
             output.write("metallicFactor", metallicFactor);
             output.write("roughnessFactor", roughnessFactor);
             output.write("alphaMask", alphaMask);
-            output.write("alphaMaskCutoff",alphaMaskCutoff );
+            output.write("alphaMaskCutoff", alphaMaskCutoff);
         }
     };
-
 
     template<>
     constexpr bool has_read_write<PbrMaterial>() { return true; }
 
     VSG_value(PbrMaterialValue, PbrMaterial);
     VSG_array(PbrMaterialArray, PbrMaterial);
-
 
 } // namespace vsg
