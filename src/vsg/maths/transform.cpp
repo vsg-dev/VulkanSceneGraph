@@ -238,17 +238,17 @@ bool vsg::transform(CoordinateConvention source, CoordinateConvention destinatio
     {
         if (destination==CoordinateConvention::Y_UP)
         {
-            matrix.set( 0.0,  1.0, 0.0, 0.0,
-                         -1.0,  0.0, 0.0, 0.0,
-                          0.0,  0.0, 1.0, 0.0,
-                          0.0,  0.0, 0.0, 1.0);
+            matrix.set(  0.0,  1.0, 0.0, 0.0,
+                        -1.0,  0.0, 0.0, 0.0,
+                         0.0,  0.0, 1.0, 0.0,
+                         0.0,  0.0, 0.0, 1.0);
         }
         else // destination most be Z_UP
         {
-            matrix.set( 0.0,  0.0, 1.0, 0.0,
-                         -1.0,  0.0, 0.0, 0.0,
-                          0.0, -1.0, 0.0, 0.0,
-                          0.0,  0.0, 0.0, 1.0);
+            matrix.set(  0.0,  0.0, 1.0, 0.0,
+                        -1.0,  0.0, 0.0, 0.0,
+                         0.0, -1.0, 0.0, 0.0,
+                         0.0,  0.0, 0.0, 1.0);
 
         }
     }
@@ -257,16 +257,16 @@ bool vsg::transform(CoordinateConvention source, CoordinateConvention destinatio
         if (destination==CoordinateConvention::X_UP)
         {
             matrix.set( 0.0,  -1.0, 0.0, 0.0,
-                          1.0,  0.0, 0.0, 0.0,
-                          0.0,  0.0, 1.0, 0.0,
-                          0.0,  0.0, 0.0, 1.0);
+                        1.0,  0.0, 0.0, 0.0,
+                        0.0,  0.0, 1.0, 0.0,
+                        0.0,  0.0, 0.0, 1.0);
         }
         else // destination most be Z_UP
         {
             matrix.set( 1.0,  0.0, 0.0, 0.0,
-                          0.0,  0.0, 1.0, 0.0,
-                          0.0, -1.0, 0.0, 0.0,
-                          0.0,  0.0, 0.0, 1.0);
+                        0.0,  0.0, 1.0, 0.0,
+                        0.0, -1.0, 0.0, 0.0,
+                        0.0,  0.0, 0.0, 1.0);
 
         }
     }
@@ -275,16 +275,16 @@ bool vsg::transform(CoordinateConvention source, CoordinateConvention destinatio
         if (destination==CoordinateConvention::X_UP)
         {
             matrix.set( 0.0,  -1.0, 0.0, 0.0,
-                          1.0,   0.0, -1.0, 0.0,
-                          0.0,   0.0, -0.0, 0.0,
-                          0.0,   0.0, 0.0, 1.0);
+                        1.0,   0.0, -1.0, 0.0,
+                        0.0,   0.0, -0.0, 0.0,
+                        0.0,   0.0, 0.0, 1.0);
         }
         else // destination most be Y_UP
         {
-            matrix.set( 0.0,  0.0, 1.0, 0.0,
-                         -1.0,  0.0, 0.0, 0.0,
-                          0.0, -1.0, 0.0, 0.0,
-                          0.0,  0.0, 0.0, 1.0);
+            matrix.set(  0.0,  0.0, 1.0, 0.0,
+                        -1.0,  0.0, 0.0, 0.0,
+                         0.0, -1.0, 0.0, 0.0,
+                         0.0,  0.0, 0.0, 1.0);
 
         }
     }
