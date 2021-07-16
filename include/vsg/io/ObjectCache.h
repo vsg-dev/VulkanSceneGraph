@@ -62,7 +62,6 @@ namespace vsg
         }
 
     protected:
-
         struct Key
         {
             Key(const Path& in_filename, ref_ptr<const Options> in_options) :
@@ -73,7 +72,7 @@ namespace vsg
             ref_ptr<const Auxiliary> auxilary;
             Path filename;
 
-            bool operator < (const Key& rhs) const
+            bool operator<(const Key& rhs) const
             {
                 if (auxilary < rhs.auxilary) return true;
                 if (rhs.auxilary < auxilary) return false;

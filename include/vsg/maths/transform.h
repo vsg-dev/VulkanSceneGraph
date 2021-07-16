@@ -171,7 +171,7 @@ namespace vsg
         NO_PREFERENCE,
         X_UP, // x up, y left/west, z out/south
         Y_UP, // x right/east, y up, z out/south
-        Z_UP // x right/east, y forward/north, z up
+        Z_UP  // x right/east, y forward/north, z up
     };
 
     /// compute the transformation matrix required to transform from one coordinate frame convention to another.
