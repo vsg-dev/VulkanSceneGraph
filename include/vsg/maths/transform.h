@@ -165,6 +165,19 @@ namespace vsg
                vsg::translate(-eye.x, -eye.y, -eye.z);
     }
 
+    /// Hint on axis, using Collada conventions, all Right Hand
+    enum class CoordinateConvention
+    {
+        NO_PREFERENCE,
+        X_UP, // x up, y left/west, z out/south
+        Y_UP, // x right/east, y up, z out/south
+        Z_UP // x right/east, y forward/north, z up
+    };
+
+    /// compute the transformation matrix required to transform from one coordinate frame convention to another.
+    /// return true if required and matrix modified, return false if no transformation is required.
+    extern VSG_DECLSPEC bool transform(CoordinateConvention source, CoordinateConvention destination, dmat4& matrix);
+
     /// fast float matrix inversion that use assumes the matrix is composed of only scales, rotations and translations forming a 4x3 matrix.
     extern VSG_DECLSPEC mat4 inverse_4x3(const mat4& m);
 

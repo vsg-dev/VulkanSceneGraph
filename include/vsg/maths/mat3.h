@@ -78,6 +78,15 @@ namespace vsg
             return *this;
         }
 
+        void set(value_type v0, value_type v1, value_type v2, /* column 0 */
+                 value_type v3, value_type v4, value_type v5, /* column 1 */
+                 value_type v6, value_type v7, value_type v8) /* column 2 */
+        {
+            value[0].set(v0, v1, v2);
+            value[1].set(v3, v4, v5);
+            value[2].set(v6, v7, v8);
+        }
+
         T* data() { return value[0].data(); }
         const T* data() const { return value[0].data(); }
     };

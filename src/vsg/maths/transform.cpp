@@ -228,3 +228,65 @@ dsphere vsg::computeFrustumBound(const dmat4& m)
 {
     return t_computeFrustumBound<double>(m);
 }
+
+
+bool vsg::transform(CoordinateConvention source, CoordinateConvention destination, dmat4& matrix)
+{
+    if (source==destination || source==CoordinateConvention::NO_PREFERENCE || destination==CoordinateConvention::NO_PREFERENCE ) return false;
+
+    if (source==CoordinateConvention::X_UP)
+    {
+        if (destination==CoordinateConvention::Y_UP)
+        {
+            matrix.set(  0.0,  1.0, 0.0, 0.0,
+                        -1.0,  0.0, 0.0, 0.0,
+                         0.0,  0.0, 1.0, 0.0,
+                         0.0,  0.0, 0.0, 1.0);
+        }
+        else // destination most be Z_UP
+        {
+            matrix.set(  0.0,  0.0, 1.0, 0.0,
+                        -1.0,  0.0, 0.0, 0.0,
+                         0.0, -1.0, 0.0, 0.0,
+                         0.0,  0.0, 0.0, 1.0);
+
+        }
+    }
+    else if (source==CoordinateConvention::Y_UP)
+    {
+        if (destination==CoordinateConvention::X_UP)
+        {
+            matrix.set( 0.0,  -1.0, 0.0, 0.0,
+                        1.0,  0.0, 0.0, 0.0,
+                        0.0,  0.0, 1.0, 0.0,
+                        0.0,  0.0, 0.0, 1.0);
+        }
+        else // destination most be Z_UP
+        {
+            matrix.set( 1.0,  0.0, 0.0, 0.0,
+                        0.0,  0.0, 1.0, 0.0,
+                        0.0, -1.0, 0.0, 0.0,
+                        0.0,  0.0, 0.0, 1.0);
+
+        }
+    }
+    else // source must be Z_UP
+    {
+        if (destination==CoordinateConvention::X_UP)
+        {
+            matrix.set( 0.0,  -1.0, 0.0, 0.0,
+                        1.0,   0.0, -1.0, 0.0,
+                        0.0,   0.0, -0.0, 0.0,
+                        0.0,   0.0, 0.0, 1.0);
+        }
+        else // destination most be Y_UP
+        {
+            matrix.set(  0.0,  0.0, 1.0, 0.0,
+                        -1.0,  0.0, 0.0, 0.0,
+                         0.0, -1.0, 0.0, 0.0,
+                         0.0,  0.0, 0.0, 1.0);
+
+        }
+    }
+    return true;
+}
