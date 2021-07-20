@@ -49,6 +49,8 @@ namespace vsg
     class BindDescriptorSet;
     class BindDescriptorSets;
     class Descriptor;
+    class DescriptorBuffer;
+    class DescriptorImage;
     class DescriptorSet;
     class BindVertexBuffers;
     class BindIndexBuffer;
@@ -246,6 +248,8 @@ namespace vsg
         virtual void apply(const BindDescriptorSet&);
         virtual void apply(const BindDescriptorSets&);
         virtual void apply(const Descriptor&);
+        virtual void apply(const DescriptorBuffer&);
+        virtual void apply(const DescriptorImage&);
         virtual void apply(const DescriptorSet&);
         virtual void apply(const BindVertexBuffers&);
         virtual void apply(const BindIndexBuffer&);

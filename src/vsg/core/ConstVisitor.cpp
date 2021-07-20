@@ -518,6 +518,14 @@ void ConstVisitor::apply(const Descriptor& value)
 {
     apply(static_cast<const Object&>(value));
 }
+void ConstVisitor::apply(const DescriptorBuffer& value)
+{
+    apply(static_cast<const Descriptor&>(value));
+}
+void ConstVisitor::apply(const DescriptorImage& value)
+{
+    apply(static_cast<const Descriptor&>(value));
+}
 void ConstVisitor::apply(const BindVertexBuffers& value)
 {
     apply(static_cast<const Command&>(value));
