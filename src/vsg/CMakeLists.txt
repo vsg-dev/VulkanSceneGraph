@@ -185,6 +185,7 @@ set(SOURCES
     vk/Swapchain.cpp
 
     utils/CommandLine.cpp
+    utils/Builder.cpp
 )
 
 # add platform specific Window implementation
