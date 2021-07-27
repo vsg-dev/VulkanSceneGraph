@@ -208,8 +208,9 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         shader->setEnvClient(glslang::EShClientVulkan, targetClientVersion);
         shader->setEnvTarget(glslang::EShTargetSpv, targetLanguageVersion);
 
-        std::string shaderSourceWithIncludesInserted = insertIncludes(vsg_shader->module->source, paths);
-        std::string finalShaderSource = combineSourceAndDefines(shaderSourceWithIncludesInserted, defines);
+        std::string finalShaderSource = insertIncludes(vsg_shader->module->source, paths);
+        if (!settings->defines.empty()) finalShaderSource = combineSourceAndDefines(finalShaderSource, settings->defines);
+        if (!defines.empty()) finalShaderSource = combineSourceAndDefines(finalShaderSource, defines);
 
         const char* str = finalShaderSource.c_str();
         shader->setStrings(&str, 1);

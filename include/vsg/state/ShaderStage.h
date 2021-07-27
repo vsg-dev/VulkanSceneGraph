@@ -24,7 +24,7 @@ namespace vsg
     public:
         ShaderStage();
         ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, ref_ptr<ShaderModule> shaderModule);
-        ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& source);
+        ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& source, ref_ptr<ShaderCompileSettings> hints = {});
         ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const ShaderModule::SPIRV& spirv);
         ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& source, const ShaderModule::SPIRV& spirv);
 
