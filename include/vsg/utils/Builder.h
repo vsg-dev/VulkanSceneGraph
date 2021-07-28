@@ -39,6 +39,7 @@ namespace vsg
     {
     public:
         bool verbose = false;
+        ref_ptr<Options> options;
 
         /// set up the compile traversal to compile for specified window
         void setup(ref_ptr<Window> window, ViewportState* viewport, uint32_t maxNumTextures = 32);

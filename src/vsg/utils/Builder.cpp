@@ -1,6 +1,10 @@
 
 #include <vsg/utils/Builder.h>
 
+#include "shaders/assimp_vert.cpp"
+#include "shaders/assimp_phong_frag.cpp"
+#include "shaders/assimp_pbr_frag.cpp"
+
 using namespace vsg;
 
 void Builder::setup(ref_ptr<Window> window, ViewportState* viewport, uint32_t maxNumTextures)
@@ -32,8 +36,8 @@ ref_ptr<BindDescriptorSets> Builder::_createTexture(const GeometryInfo& info)
         else
         {
             auto image = _colorData[info.color] = vec4Array2D::create(2, 2, info.color, Data::Layout{VK_FORMAT_R32G32B32A32_SFLOAT});
-            image->set(0, 0, {0.0f, 1.0f, 1.0f, 1.0f});
-            image->set(1, 1, {0.0f, 0.0f, 1.0f, 1.0f});
+            // image->set(0, 0, {0.0f, 1.0f, 1.0f, 1.0f});
+            // image->set(1, 1, {0.0f, 0.0f, 1.0f, 1.0f});
             textureData = image;
         }
     }
@@ -45,7 +49,12 @@ ref_ptr<BindDescriptorSets> Builder::_createTexture(const GeometryInfo& info)
 
     // create texture image and associated DescriptorSets and binding
     auto texture = DescriptorImage::create(sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-    auto descriptorSet = DescriptorSet::create(_descriptorSetLayout, Descriptors{texture});
+
+    // create texture image and associated DescriptorSets and binding
+    auto mat = vsg::PhongMaterialValue::create();
+    auto material = vsg::DescriptorBuffer::create(mat, 10);
+
+    auto descriptorSet = DescriptorSet::create(_descriptorSetLayout, Descriptors{texture, material});
 
     bindDescriptorSets = _textureDescriptorSets[textureData] = BindDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineLayout, 0, DescriptorSets{descriptorSet});
     return bindDescriptorSets;
@@ -57,20 +66,34 @@ ref_ptr<BindGraphicsPipeline> Builder::_createGraphicsPipeline()
 
     std::cout << "Builder::_initGraphicsPipeline()" << std::endl;
 
-    // set up search paths to SPIRV shaders and textures
-    Paths searchPaths = getEnvPaths("VSG_FILE_PATH");
+    // load shaders
+    auto vertexShader = read_cast<ShaderStage>("shaders/assimp.vert", options);
+    if (!vertexShader) vertexShader = assimp_vert(); // fallback to shaders/assimp_vert.cppp
 
-    ref_ptr<ShaderStage> vertexShader = ShaderStage::read(VK_SHADER_STAGE_VERTEX_BIT, "main", findFile("shaders/vert_PushConstants.spv", searchPaths));
-    ref_ptr<ShaderStage> fragmentShader = ShaderStage::read(VK_SHADER_STAGE_FRAGMENT_BIT, "main", findFile("shaders/frag_PushConstants.spv", searchPaths));
+    auto fragmentShader = read_cast<ShaderStage>("shaders/assimp_phong.frag", options);
+    if (!fragmentShader) fragmentShader = assimp_phong_frag();
+
     if (!vertexShader || !fragmentShader)
     {
         std::cout << "Could not create shaders." << std::endl;
         return {};
     }
 
+    auto shaderHints = vsg::ShaderCompileSettings::create();
+    std::vector<std::string>& defines = shaderHints->defines;
+
+    vertexShader->module->hints = shaderHints;
+    vertexShader->module->code = {};
+
+    fragmentShader->module->hints = shaderHints;
+    fragmentShader->module->code = {};
+
+    defines.push_back("VSG_DIFFUSE_MAP");
+
     // set up graphics pipeline
     DescriptorSetLayoutBindings descriptorBindings{
-        {0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr} // { binding, descriptorTpe, descriptorCount, stageFlags, pImmutableSamplers}
+        {0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // { binding, descriptorTpe, descriptorCount, stageFlags, pImmutableSamplers}
+        {10, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}
     };
 
     _descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
@@ -85,26 +108,32 @@ ref_ptr<BindGraphicsPipeline> Builder::_createGraphicsPipeline()
 
     VertexInputState::Bindings vertexBindingsDescriptions{
         VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}, // vertex data
-        VkVertexInputBindingDescription{1, sizeof(vec4), VK_VERTEX_INPUT_RATE_VERTEX}, // colour data
+        VkVertexInputBindingDescription{1, sizeof(vsg::vec3), VK_VERTEX_INPUT_RATE_VERTEX}, // normal data
         VkVertexInputBindingDescription{2, sizeof(vec2), VK_VERTEX_INPUT_RATE_VERTEX}  // tex coord data
     };
 
     VertexInputState::Attributes vertexAttributeDescriptions{
         VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0},    // vertex data
-        VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32A32_SFLOAT, 0}, // colour data
+        VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0}, // normal data
         VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0},       // tex coord data
     };
 
-    auto rasteriszationState = RasterizationState::create();
-    rasteriszationState->cullMode = VK_CULL_MODE_BACK_BIT;
-    //rasteriszationState->cullMode = VK_CULL_MODE_NONE;
+    bool doubleSided = true;
+    bool enableBlend = false;
+
+    auto rasterState = vsg::RasterizationState::create();
+    rasterState->cullMode = doubleSided ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT;
+
+    auto colorBlendState = vsg::ColorBlendState::create();
+    colorBlendState->attachments = vsg::ColorBlendState::ColorBlendAttachments{
+        {enableBlend, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, VK_BLEND_OP_ADD, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, VK_BLEND_OP_SUBTRACT, VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT}};
 
     GraphicsPipelineStates pipelineStates{
         VertexInputState::create(vertexBindingsDescriptions, vertexAttributeDescriptions),
         InputAssemblyState::create(),
-        rasteriszationState,
+        rasterState,
         MultisampleState::create(),
-        ColorBlendState::create(),
+        colorBlendState,
         DepthStencilState::create()};
 
     auto graphicsPipeline = GraphicsPipeline::create(_pipelineLayout, ShaderStages{vertexShader, fragmentShader}, pipelineStates);
@@ -180,7 +209,6 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info)
     auto colors = vec3Array::create(vertices->size(), vec3(1.0f, 1.0f, 1.0f));
     // VK_FORMAT_R32G32B32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
 
-#if 0
     vec3 n0(0.0f, -1.0f, 0.0f);
     vec3 n1(1.0f, 0.0f, 0.0f);
     vec3 n2(0.0f, 1.0f, 0.0f);
@@ -196,7 +224,6 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info)
         n4, n4, n4, n4,
         n5, n5, n5, n5,
     }); // VK_FORMAT_R32G32B32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
-#endif
 
     vec2 t00(0.0f, t_origin);
     vec2 t01(0.0f, t_top);
@@ -221,7 +248,11 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info)
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
+#if 1
+    vid->arrays = DataList{vertices, normals, texcoords};
+#else
     vid->arrays = DataList{vertices, colors, texcoords};
+#endif
     vid->indices = indices;
     vid->indexCount = indices->size();
     vid->instanceCount = 1;
@@ -442,7 +473,11 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info)
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
+#if 1
+    vid->arrays = DataList{vertices, normals, texcoords};
+#else
     vid->arrays = DataList{vertices, colors, texcoords};
+#endif
     vid->indices = indices;
     vid->indexCount = indices->size();
     vid->instanceCount = 1;
@@ -581,7 +616,11 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info)
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
+#if 1
+    vid->arrays = DataList{vertices, normals, texcoords};
+#else
     vid->arrays = DataList{vertices, colors, texcoords};
+#endif
     vid->indices = indices;
     vid->indexCount = indices->size();
     vid->instanceCount = 1;
@@ -741,7 +780,11 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info)
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
+#if 1
+    vid->arrays = DataList{vertices, normals, texcoords};
+#else
     vid->arrays = DataList{vertices, colors, texcoords};
+#endif
     vid->indices = indices;
     vid->indexCount = indices->size();
     vid->instanceCount = 1;
@@ -773,6 +816,7 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info)
     auto dy = info.dy;
     auto origin = info.position - dx * 0.5f - dy * 0.5f;
     auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
+    auto normal = normalize(cross(dx, dy));
 
     // set up vertex and index arrays
     auto vertices = vec3Array::create(
@@ -786,6 +830,12 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info)
          {0.0f, 1.0f, 0.0f},
          {0.0f, 0.0f, 1.0f},
          {1.0f, 1.0f, 1.0f}}); // VK_FORMAT_R32G32B32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
+
+    auto normals = vec3Array::create(
+        {normal,
+         normal,
+         normal,
+         normal}); // VK_FORMAT_R32G32B32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
 
     auto texcoords = vec2Array::create(
         {{0.0f, t_origin},
@@ -805,7 +855,11 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info)
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
+#if 1
+    vid->arrays = DataList{vertices, normals, texcoords};
+#else
     vid->arrays = DataList{vertices, colors, texcoords};
+#endif
     vid->indices = indices;
     vid->indexCount = indices->size();
     vid->instanceCount = 1;
@@ -903,7 +957,11 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info)
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
+#if 1
+    vid->arrays = DataList{vertices, normals, texcoords};
+#else
     vid->arrays = DataList{vertices, colors, texcoords};
+#endif
     vid->indices = indices;
     vid->indexCount = indices->size();
     vid->instanceCount = 1;
