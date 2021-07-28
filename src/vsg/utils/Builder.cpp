@@ -1,9 +1,9 @@
 
 #include <vsg/utils/Builder.h>
 
-#include "shaders/assimp_vert.cpp"
-#include "shaders/assimp_phong_frag.cpp"
 #include "shaders/assimp_pbr_frag.cpp"
+#include "shaders/assimp_phong_frag.cpp"
+#include "shaders/assimp_vert.cpp"
 
 using namespace vsg;
 
@@ -88,13 +88,12 @@ ref_ptr<BindGraphicsPipeline> Builder::_createGraphicsPipeline()
     fragmentShader->module->hints = shaderHints;
     fragmentShader->module->code = {};
 
-    defines.push_back("VSG_DIFFUSE_MAP");
+    // defines.push_back("VSG_DIFFUSE_MAP");
 
     // set up graphics pipeline
     DescriptorSetLayoutBindings descriptorBindings{
         {0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // { binding, descriptorTpe, descriptorCount, stageFlags, pImmutableSamplers}
-        {10, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}
-    };
+        {10, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}};
 
     _descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
 
@@ -107,15 +106,15 @@ ref_ptr<BindGraphicsPipeline> Builder::_createGraphicsPipeline()
     _pipelineLayout = PipelineLayout::create(descriptorSetLayouts, pushConstantRanges);
 
     VertexInputState::Bindings vertexBindingsDescriptions{
-        VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}, // vertex data
+        VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX},      // vertex data
         VkVertexInputBindingDescription{1, sizeof(vsg::vec3), VK_VERTEX_INPUT_RATE_VERTEX}, // normal data
-        VkVertexInputBindingDescription{2, sizeof(vec2), VK_VERTEX_INPUT_RATE_VERTEX}  // tex coord data
+        VkVertexInputBindingDescription{2, sizeof(vec2), VK_VERTEX_INPUT_RATE_VERTEX}       // tex coord data
     };
 
     VertexInputState::Attributes vertexAttributeDescriptions{
-        VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0},    // vertex data
+        VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0}, // vertex data
         VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0}, // normal data
-        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0},       // tex coord data
+        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0},    // tex coord data
     };
 
     bool doubleSided = true;
@@ -199,31 +198,29 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info)
 
     // set up vertex and index arrays
     auto vertices = vec3Array::create(
-        {v000, v100, v101, v001,
-         v100, v110, v111, v101,
-         v110, v010, v011, v111,
-         v010, v000, v001, v011,
-         v010, v110, v100, v000,
-         v001, v101, v111, v011}); // VK_FORMAT_R32G32B32_SFLOAT, VK_VERTEX_INPUT_RATE_INSTANCE, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
+        {v000, v100, v101, v001,   // front
+         v100, v110, v111, v101,   // right
+         v110, v010, v011, v111,   // far
+         v010, v000, v001, v011,   // left
+         v010, v110, v100, v000,   // bottom
+         v001, v101, v111, v011}); // top
 
     auto colors = vec3Array::create(vertices->size(), vec3(1.0f, 1.0f, 1.0f));
     // VK_FORMAT_R32G32B32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
 
-    vec3 n0(0.0f, -1.0f, 0.0f);
-    vec3 n1(1.0f, 0.0f, 0.0f);
-    vec3 n2(0.0f, 1.0f, 0.0f);
-    vec3 n3(0.0f, -1.0f, 0.0f);
-    vec3 n4(0.0f, 0.0f, -1.0f);
-    vec3 n5(0.0f, 0.0f, 1.0f);
+    vec3 n0 = normalize(cross(dx, dz));
+    vec3 n1 = normalize(cross(dy, dz));
+    vec3 n2 = -n0;
+    vec3 n3 = -n1;
+    vec3 n4 = normalize(cross(dy, dx));
+    vec3 n5 = -n4;
     auto normals = vec3Array::create(
-    {
-        n0, n0, n0, n0,
-        n1, n1, n1, n1,
-        n2, n2, n2, n2,
-        n3, n3, n3, n3,
-        n4, n4, n4, n4,
-        n5, n5, n5, n5,
-    }); // VK_FORMAT_R32G32B32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
+        {n0, n0, n0, n0,
+         n1, n1, n1, n1,
+         n2, n2, n2, n2,
+         n3, n3, n3, n3,
+         n4, n4, n4, n4,
+         n5, n5, n5, n5}); // VK_FORMAT_R32G32B32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
 
     vec2 t00(0.0f, t_origin);
     vec2 t01(0.0f, t_top);
@@ -515,7 +512,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info)
     auto bottom = info.position - dz;
     auto top = info.position + dz;
 
-    bool withEnds = false;
+    bool withEnds = true;
 
     unsigned int num_columns = 20;
     unsigned int num_vertices = num_columns * 2;
@@ -533,8 +530,22 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info)
     auto colors = vec3Array::create(vertices->size(), vec3(1.0f, 1.0f, 1.0f));
     auto indices = ushortArray::create(num_indices);
 
-    vec3 v = dy;
-    vec3 n = normalize(dy);
+    auto edge = [&](float alpha) -> vec3 {
+        return dy * (cosf(alpha)) - dx * (sinf(alpha));
+    };
+
+    auto normal = [&](float alpha) -> vec3 {
+        float delta = 0.001f;
+        vec3 before = edge(alpha - delta);
+        vec3 mid = edge(alpha);
+        vec3 after = edge(alpha + delta);
+        return normalize(cross(after - before, dz - mid));
+    };
+
+    float alpha = 0.0f;
+    vec3 v = edge(alpha);
+    vec3 n = normal(alpha);
+
     vertices->set(0, bottom + v);
     normals->set(0, n);
     texcoords->set(0, vec2(0.0, t_origin));
@@ -553,13 +564,9 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info)
     {
         unsigned int vi = c * 2;
         float r = float(c) / float(num_columns - 1);
-        float alpha = (r)*2.0 * PI;
-        v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
-
-        float alpha_neighbour = alpha + 0.01;
-        vec3 v_neighour = dx * (-sinf(alpha_neighbour)) + dy * (cosf(alpha_neighbour));
-
-        n = normalize(cross(v - top, v_neighour - v));
+        alpha = (r)*2.0 * PI;
+        v = edge(alpha);
+        n = normal(alpha);
 
         vertices->set(vi, bottom + v);
         normals->set(vi, n);
@@ -584,7 +591,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info)
     if (withEnds)
     {
         unsigned int bottom_i = num_columns * 2;
-        v = dy;
+        v = edge(0.0f);
         vec3 bottom_n = normalize(-dz);
 
         vertices->set(bottom_i, bottom + v);
@@ -597,8 +604,8 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info)
         for (unsigned int c = 1; c < num_columns - 1; ++c)
         {
             float r = float(c) / float(num_columns - 1);
-            float alpha = (r)*2.0 * PI;
-            v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
+            alpha = (r)*2.0 * PI;
+            v = edge(alpha);
 
             unsigned int vi = bottom_i + c;
             vertices->set(vi, bottom + v);
@@ -609,8 +616,8 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info)
         for (unsigned int c = 0; c < num_columns - 2; ++c)
         {
             indices->set(i++, bottom_i + c);
-            indices->set(i++, bottom_i + num_columns - 1);
             indices->set(i++, bottom_i + c + 1);
+            indices->set(i++, bottom_i + num_columns - 1);
         }
     }
 
@@ -726,23 +733,25 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info)
 
     if (withEnds)
     {
-        unsigned int bottom_i = num_columns * 2;
         v = dy;
-        vec3 bottom_n = normalize(-dz);
-        vertices->set(bottom_i, bottom + v);
-        normals->set(bottom_i, n);
-        texcoords->set(bottom_i, vec2(0.0, t_origin));
-        vertices->set(bottom_i + num_columns - 1, bottom + v);
-        normals->set(bottom_i + num_columns - 1, n);
-        texcoords->set(bottom_i + num_columns - 1, vec2(1.0, t_origin));
 
+        unsigned int bottom_i = num_columns * 2;
         unsigned int top_i = bottom_i + num_columns;
         vec3 top_n = normalize(dz);
+        vec3 bottom_n = -top_n;
+
+        vertices->set(bottom_i, bottom + v);
+        normals->set(bottom_i, bottom_n);
+        texcoords->set(bottom_i, vec2(0.0, t_origin));
+        vertices->set(bottom_i + num_columns - 1, bottom + v);
+        normals->set(bottom_i + num_columns - 1, bottom_n);
+        texcoords->set(bottom_i + num_columns - 1, vec2(1.0, t_origin));
+
         vertices->set(top_i, top + v);
-        normals->set(top_i, n);
+        normals->set(top_i, top_n);
         texcoords->set(top_i, vec2(0.0, t_top));
         vertices->set(top_i + num_columns - 1, top + v);
-        normals->set(top_i + num_columns - 1, n);
+        normals->set(top_i + num_columns - 1, top_n);
         texcoords->set(top_i + num_columns - 1, vec2(0.0, t_top));
 
         for (unsigned int c = 1; c < num_columns - 1; ++c)
@@ -844,14 +853,12 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info)
          {0.0f, t_top}}); // VK_FORMAT_R32G32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
 
     auto indices = ushortArray::create(
-        {
-            0,
-            1,
-            2,
-            2,
-            3,
-            0,
-        }); // VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
+        {0,
+         1,
+         2,
+         2,
+         3,
+         0}); // VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
