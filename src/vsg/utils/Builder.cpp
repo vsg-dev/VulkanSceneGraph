@@ -57,14 +57,13 @@ ref_ptr<BindDescriptorSets> Builder::_createTexture(const GeometryInfo& info)
     auto descriptorSet = DescriptorSet::create(_descriptorSetLayout, Descriptors{texture, material});
 
     bindDescriptorSets = _textureDescriptorSets[textureData] = BindDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineLayout, 0, DescriptorSets{descriptorSet});
+
     return bindDescriptorSets;
 }
 
 ref_ptr<BindGraphicsPipeline> Builder::_createGraphicsPipeline()
 {
     if (_bindGraphicsPipeline) return _bindGraphicsPipeline;
-
-    std::cout << "Builder::_initGraphicsPipeline()" << std::endl;
 
     // load shaders
     auto vertexShader = read_cast<ShaderStage>("shaders/assimp.vert", options);
@@ -88,7 +87,7 @@ ref_ptr<BindGraphicsPipeline> Builder::_createGraphicsPipeline()
     fragmentShader->module->hints = shaderHints;
     fragmentShader->module->code = {};
 
-    // defines.push_back("VSG_DIFFUSE_MAP");
+    defines.push_back("VSG_DIFFUSE_MAP");
 
     // set up graphics pipeline
     DescriptorSetLayoutBindings descriptorBindings{
@@ -170,11 +169,8 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info)
     auto& subgraph = _boxes[info];
     if (subgraph)
     {
-        std::cout << "reused createBox()" << std::endl;
         return subgraph;
     }
-
-    std::cout << "new createBox()" << std::endl;
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     auto scenegraph = StateGroup::create();
@@ -267,11 +263,8 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info)
     auto& subgraph = _capsules[info];
     if (subgraph)
     {
-        std::cout << "reused createCapsule()" << std::endl;
         return subgraph;
     }
-
-    std::cout << "new createCapsule()" << std::endl;
 
     auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
 
@@ -492,11 +485,8 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info)
     auto& subgraph = _cones[info];
     if (subgraph)
     {
-        std::cout << "reused createCone()" << std::endl;
         return subgraph;
     }
-
-    std::cout << "new createCone()" << std::endl;
 
     auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
 
@@ -645,11 +635,8 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info)
     auto& subgraph = _cylinders[info];
     if (subgraph)
     {
-        std::cout << "reused createCylinder()" << std::endl;
         return subgraph;
     }
-
-    std::cout << "new createCylinder()" << std::endl;
 
     auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
 
@@ -811,11 +798,8 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info)
     auto& subgraph = _boxes[info];
     if (subgraph)
     {
-        std::cout << "reused createQuad()" << std::endl;
         return subgraph;
     }
-
-    std::cout << "new createQuad()" << std::endl;
 
     auto scenegraph = StateGroup::create();
     scenegraph->add(_createGraphicsPipeline());
@@ -883,11 +867,8 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info)
     auto& subgraph = _spheres[info];
     if (subgraph)
     {
-        std::cout << "reused createSphere()" << std::endl;
         return subgraph;
     }
-
-    std::cout << "new createSphere()" << std::endl;
 
     auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
 
