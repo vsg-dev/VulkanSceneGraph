@@ -45,7 +45,7 @@ void main()
     vec4 vertex = vec4(vsg_Vertex, 1.0);
 
 #ifdef VSG_INSTANCE_POSITIONS
-   vertex.xyz = vertex.xyz * 0.01 + vsg_position;
+   vertex.xyz = vertex.xyz + vsg_position;
 #endif
 
     gl_Position = (pc.projection * pc.modelView) * vertex;
