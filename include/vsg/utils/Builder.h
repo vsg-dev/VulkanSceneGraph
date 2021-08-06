@@ -14,6 +14,10 @@ namespace vsg
         vec4 color = {1.0, 1.0, 1.0, 1.0};
         ref_ptr<Data> image;
 
+        /// used for instancing
+        ref_ptr<vsg::vec3Array> positions;
+        ref_ptr<vsg::vec4Array> colors;
+
         bool operator<(const GeometryInfo& rhs) const
         {
             if (position < rhs.position) return true;
@@ -30,6 +34,12 @@ namespace vsg
 
             if (color < rhs.color) return true;
             if (rhs.color < color) return false;
+
+            if (positions < rhs.positions) return true;
+            if (rhs.positions < positions) return false;
+
+            if (colors < rhs.colors) return true;
+            if (rhs.colors < colors) return false;
 
             return image < rhs.image;
         }

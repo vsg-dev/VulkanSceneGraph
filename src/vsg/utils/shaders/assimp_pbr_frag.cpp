@@ -62,7 +62,8 @@ layout(binding = 10) uniform PbrData
 
 layout(location = 0) in vec3 worldPos;
 layout(location = 1) in vec3 normalDir;
-layout(location = 2) in vec2 texCoord0;
+layout(location = 2) in vec4 vertexColor;
+layout(location = 3) in vec2 texCoord0;
 layout(location = 5) in vec3 viewDir;
 layout(location = 6) in vec3 lightDir;
 
@@ -317,9 +318,9 @@ void main()
     vec3 f0 = vec3(0.04);
 
 #ifdef VSG_DIFFUSE_MAP
-    baseColor = SRGBtoLINEAR(texture(diffuseMap, texCoord0)) * pbr.baseColorFactor;
+    baseColor = vertexColor * SRGBtoLINEAR(texture(diffuseMap, texCoord0)) * pbr.baseColorFactor;
 #else
-    baseColor = pbr.baseColorFactor;
+    baseColor = vertexColor * pbr.baseColorFactor;
 #endif
 
     if (pbr.alphaMask == 1.0f)

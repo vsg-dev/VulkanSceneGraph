@@ -35,7 +35,7 @@ ref_ptr<BindDescriptorSets> Builder::_createTexture(const GeometryInfo& info)
         }
         else
         {
-            auto image = _colorData[info.color] = vec4Array2D::create(2, 2, info.color, Data::Layout{VK_FORMAT_R32G32B32A32_SFLOAT});
+            auto image = _colorData[info.color] = vec4Array2D::create(2, 2, vsg::vec4(1.0, 1.0, 1.0, 1.0), Data::Layout{VK_FORMAT_R32G32B32A32_SFLOAT});
             // image->set(0, 0, {0.0f, 1.0f, 1.0f, 1.0f});
             // image->set(1, 1, {0.0f, 0.0f, 1.0f, 1.0f});
             textureData = image;
@@ -88,6 +88,7 @@ ref_ptr<BindGraphicsPipeline> Builder::_createGraphicsPipeline()
     fragmentShader->module->code = {};
 
     defines.push_back("VSG_DIFFUSE_MAP");
+    defines.push_back("VSG_INSTANCE_POSITIONS");
 
     // set up graphics pipeline
     DescriptorSetLayoutBindings descriptorBindings{
@@ -105,15 +106,19 @@ ref_ptr<BindGraphicsPipeline> Builder::_createGraphicsPipeline()
     _pipelineLayout = PipelineLayout::create(descriptorSetLayouts, pushConstantRanges);
 
     VertexInputState::Bindings vertexBindingsDescriptions{
-        VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX},      // vertex data
-        VkVertexInputBindingDescription{1, sizeof(vsg::vec3), VK_VERTEX_INPUT_RATE_VERTEX}, // normal data
-        VkVertexInputBindingDescription{2, sizeof(vec2), VK_VERTEX_INPUT_RATE_VERTEX}       // tex coord data
+        VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX},  // vertex data
+        VkVertexInputBindingDescription{1, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX},  // normal data
+        VkVertexInputBindingDescription{2, sizeof(vec4), VK_VERTEX_INPUT_RATE_INSTANCE},  // color
+        VkVertexInputBindingDescription{3, sizeof(vec2), VK_VERTEX_INPUT_RATE_VERTEX},  // tex coord data
+        VkVertexInputBindingDescription{4, sizeof(vec3), VK_VERTEX_INPUT_RATE_INSTANCE} // instance coord
     };
 
     VertexInputState::Attributes vertexAttributeDescriptions{
         VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0}, // vertex data
         VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0}, // normal data
-        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0},    // tex coord data
+        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32B32A32_SFLOAT, 0},    // tex coord data
+        VkVertexInputAttributeDescription{3, 3, VK_FORMAT_R32G32_SFLOAT, 0},    // tex coord data
+        VkVertexInputAttributeDescription{4, 4, VK_FORMAT_R32G32B32_SFLOAT, 0}  // instance coord
     };
 
     bool doubleSided = true;
@@ -172,6 +177,18 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info)
         return subgraph;
     }
 
+    uint32_t instanceCount = 1;
+    auto positions = info.positions;
+    if (positions)
+    {
+        if (positions->size()>=1) instanceCount = positions->size();
+        else positions = {};
+    }
+
+    auto colors = info.colors;
+    if (colors && colors->size() != instanceCount) colors = {};
+    if (!colors) colors = vec4Array::create(instanceCount, info.color);
+
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     auto scenegraph = StateGroup::create();
     scenegraph->add(_createGraphicsPipeline());
@@ -192,6 +209,7 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info)
     vec3 v111(origin + dx + dy + dz);
     vec3 v011(origin + dy + dz);
 
+
     // set up vertex and index arrays
     auto vertices = vec3Array::create(
         {v000, v100, v101, v001,   // front
@@ -201,8 +219,6 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info)
          v010, v110, v100, v000,   // bottom
          v001, v101, v111, v011}); // top
 
-    auto colors = vec3Array::create(vertices->size(), vec3(1.0f, 1.0f, 1.0f));
-    // VK_FORMAT_R32G32B32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
 
     vec3 n0 = normalize(cross(dx, dz));
     vec3 n1 = normalize(cross(dy, dz));
@@ -239,16 +255,21 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info)
          16, 17, 18, 16, 18, 19,
          20, 21, 22, 20, 22, 23}); // VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
 
+
     // setup geometry
     auto vid = VertexIndexDraw::create();
-#if 1
-    vid->arrays = DataList{vertices, normals, texcoords};
-#else
-    vid->arrays = DataList{vertices, colors, texcoords};
-#endif
+
+    vid->arrays.push_back(vertices);
+    if (normals) vid->arrays.push_back(normals);
+    if (colors) vid->arrays.push_back(colors);
+    if (texcoords) vid->arrays.push_back(texcoords);
+    if (positions) vid->arrays.push_back(positions);
+
     vid->indices = indices;
     vid->indexCount = indices->size();
-    vid->instanceCount = 1;
+    vid->instanceCount = instanceCount ;
+
+    std::cout<<"vid->instanceCount = "<<vid->instanceCount<<std::endl;
 
     scenegraph->addChild(vid);
 
@@ -265,6 +286,18 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info)
     {
         return subgraph;
     }
+
+    uint32_t instanceCount = 1;
+    auto positions = info.positions;
+    if (positions)
+    {
+        if (positions->size()>=1) instanceCount = positions->size();
+        else positions = {};
+    }
+
+    auto colors = info.colors;
+    if (colors && colors->size() != instanceCount) colors = {};
+    if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
     auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
 
@@ -297,7 +330,6 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info)
     auto vertices = vec3Array::create(num_vertices);
     auto normals = vec3Array::create(num_vertices);
     auto texcoords = vec2Array::create(num_vertices);
-    auto colors = vec3Array::create(vertices->size(), vec3(1.0f, 1.0f, 1.0f));
     auto indices = ushortArray::create(num_indices);
 
     vec3 v = dy;
@@ -463,14 +495,15 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info)
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
-#if 1
-    vid->arrays = DataList{vertices, normals, texcoords};
-#else
-    vid->arrays = DataList{vertices, colors, texcoords};
-#endif
+    vid->arrays.push_back(vertices);
+    if (normals) vid->arrays.push_back(normals);
+    if (colors) vid->arrays.push_back(colors);
+    if (texcoords) vid->arrays.push_back(texcoords);
+    if (positions) vid->arrays.push_back(positions);
+
     vid->indices = indices;
     vid->indexCount = indices->size();
-    vid->instanceCount = 1;
+    vid->instanceCount = instanceCount;
 
     scenegraph->addChild(vid);
 
@@ -487,6 +520,18 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info)
     {
         return subgraph;
     }
+
+    uint32_t instanceCount = 1;
+    auto positions = info.positions;
+    if (positions)
+    {
+        if (positions->size()>=1) instanceCount = positions->size();
+        else positions = {};
+    }
+
+    auto colors = info.colors;
+    if (colors && colors->size() != instanceCount) colors = {};
+    if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
     auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
 
@@ -517,7 +562,6 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info)
     auto vertices = vec3Array::create(num_vertices);
     auto normals = vec3Array::create(num_vertices);
     auto texcoords = vec2Array::create(num_vertices);
-    auto colors = vec3Array::create(vertices->size(), vec3(1.0f, 1.0f, 1.0f));
     auto indices = ushortArray::create(num_indices);
 
     auto edge = [&](float alpha) -> vec3 {
@@ -613,14 +657,16 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info)
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
-#if 1
-    vid->arrays = DataList{vertices, normals, texcoords};
-#else
-    vid->arrays = DataList{vertices, colors, texcoords};
-#endif
+    vid->arrays.push_back(vertices);
+    if (normals) vid->arrays.push_back(normals);
+    if (colors) vid->arrays.push_back(colors);
+    if (texcoords) vid->arrays.push_back(texcoords);
+    if (positions) vid->arrays.push_back(positions);
+
     vid->indices = indices;
     vid->indexCount = indices->size();
-    vid->instanceCount = 1;
+    vid->instanceCount = instanceCount;
+
 
     scenegraph->addChild(vid);
 
@@ -637,6 +683,18 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info)
     {
         return subgraph;
     }
+
+    uint32_t instanceCount = 1;
+    auto positions = info.positions;
+    if (positions)
+    {
+        if (positions->size()>=1) instanceCount = positions->size();
+        else positions = {};
+    }
+
+    auto colors = info.colors;
+    if (colors && colors->size() != instanceCount) colors = {};
+    if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
     auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
 
@@ -667,7 +725,6 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info)
     auto vertices = vec3Array::create(num_vertices);
     auto normals = vec3Array::create(num_vertices);
     auto texcoords = vec2Array::create(num_vertices);
-    auto colors = vec3Array::create(vertices->size(), vec3(1.0f, 1.0f, 1.0f));
     auto indices = ushortArray::create(num_indices);
 
     vec3 v = dy;
@@ -776,14 +833,15 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info)
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
-#if 1
-    vid->arrays = DataList{vertices, normals, texcoords};
-#else
-    vid->arrays = DataList{vertices, colors, texcoords};
-#endif
+    vid->arrays.push_back(vertices);
+    if (normals) vid->arrays.push_back(normals);
+    if (colors) vid->arrays.push_back(colors);
+    if (texcoords) vid->arrays.push_back(texcoords);
+    if (positions) vid->arrays.push_back(positions);
+
     vid->indices = indices;
     vid->indexCount = indices->size();
-    vid->instanceCount = 1;
+    vid->instanceCount = instanceCount;
 
     scenegraph->addChild(vid);
 
@@ -801,6 +859,18 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info)
         return subgraph;
     }
 
+    uint32_t instanceCount = 1;
+    auto positions = info.positions;
+    if (positions)
+    {
+        if (positions->size()>=1) instanceCount = positions->size();
+        else positions = {};
+    }
+
+    auto colors = info.colors;
+    if (colors && colors->size() != instanceCount) colors = {};
+    if (!colors) colors = vec4Array::create(instanceCount, info.color);
+
     auto scenegraph = StateGroup::create();
     scenegraph->add(_createGraphicsPipeline());
     scenegraph->add(_createTexture(info));
@@ -817,12 +887,6 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info)
          origin + dx,
          origin + dx + dy,
          origin + dy}); // VK_FORMAT_R32G32B32_SFLOAT, VK_VERTEX_INPUT_RATE_INSTANCE, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
-
-    auto colors = vec3Array::create(
-        {{1.0f, 0.0f, 0.0f},
-         {0.0f, 1.0f, 0.0f},
-         {0.0f, 0.0f, 1.0f},
-         {1.0f, 1.0f, 1.0f}}); // VK_FORMAT_R32G32B32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
 
     auto normals = vec3Array::create(
         {normal,
@@ -846,14 +910,15 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info)
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
-#if 1
-    vid->arrays = DataList{vertices, normals, texcoords};
-#else
-    vid->arrays = DataList{vertices, colors, texcoords};
-#endif
+    vid->arrays.push_back(vertices);
+    if (normals) vid->arrays.push_back(normals);
+    if (colors) vid->arrays.push_back(colors);
+    if (texcoords) vid->arrays.push_back(texcoords);
+    if (positions) vid->arrays.push_back(positions);
+
     vid->indices = indices;
     vid->indexCount = indices->size();
-    vid->instanceCount = 1;
+    vid->instanceCount = instanceCount;
 
     scenegraph->addChild(vid);
 
@@ -871,6 +936,18 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info)
     }
 
     auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
+
+    uint32_t instanceCount = 1;
+    auto positions = info.positions;
+    if (positions)
+    {
+        if (positions->size()>=1) instanceCount = positions->size();
+        else positions = {};
+    }
+
+    auto colors = info.colors;
+    if (colors && colors->size() != instanceCount) colors = {};
+    if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     auto scenegraph = StateGroup::create();
@@ -890,7 +967,6 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info)
     auto vertices = vec3Array::create(num_vertices);
     auto normals = vec3Array::create(num_vertices);
     auto texcoords = vec2Array::create(num_vertices);
-    auto colors = vec3Array::create(vertices->size(), vec3(1.0f, 1.0f, 1.0f));
     auto indices = ushortArray::create(num_indices);
 
     for (unsigned int r = 0; r < num_rows; ++r)
@@ -945,14 +1021,15 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info)
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
-#if 1
-    vid->arrays = DataList{vertices, normals, texcoords};
-#else
-    vid->arrays = DataList{vertices, colors, texcoords};
-#endif
+    vid->arrays.push_back(vertices);
+    if (normals) vid->arrays.push_back(normals);
+    if (colors) vid->arrays.push_back(colors);
+    if (texcoords) vid->arrays.push_back(texcoords);
+    if (positions) vid->arrays.push_back(positions);
+
     vid->indices = indices;
     vid->indexCount = indices->size();
-    vid->instanceCount = 1;
+    vid->instanceCount = instanceCount;
 
     scenegraph->addChild(vid);
 

@@ -51,7 +51,8 @@ layout(binding = 10) uniform MaterialData
 
 layout(location = 0) in vec3 worldPos;
 layout(location = 1) in vec3 normalDir;
-layout(location = 2) in vec2 texCoord0;
+layout(location = 2) in vec4 vertexColor;
+layout(location = 3) in vec2 texCoord0;
 layout(location = 5) in vec3 viewDir;
 layout(location = 6) in vec3 lightDir;
 
@@ -105,10 +106,10 @@ vec3 computeLighting(vec3 ambientColor, vec3 diffuseColor, vec3 specularColor, v
 
 void main()
 {
-    vec4 ambientColor = material.ambientColor;
-    vec4 diffuseColor = material.diffuseColor;
-    vec4 specularColor = material.specularColor;
-    vec4 emissiveColor = material.emissiveColor;
+    vec4 ambientColor = vertexColor * material.ambientColor;
+    vec4 diffuseColor = vertexColor * material.diffuseColor;
+    vec4 specularColor = vertexColor * material.specularColor;
+    vec4 emissiveColor = vertexColor * material.emissiveColor;
     float shininess = material.shininess;
     float ambientOcclusion = 1.0;
 
