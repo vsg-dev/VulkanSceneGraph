@@ -71,10 +71,12 @@ namespace vsg
         int defaultVersion = 450;
         SpirvTarget target = SPIRV_1_0;
         bool forwardCompatible = false;
+        std::vector<std::string> defines;
 
         void read(Input& input) override;
         void write(Output& output) const override;
     };
+    VSG_type_name(vsg::ShaderCompileSettings);
 
     class VSG_DECLSPEC ShaderModule : public Inherit<Object, ShaderModule>
     {

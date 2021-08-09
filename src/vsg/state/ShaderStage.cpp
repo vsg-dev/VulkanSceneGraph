@@ -27,9 +27,9 @@ ShaderStage::ShaderStage(VkShaderStageFlagBits in_stage, const std::string& in_e
 {
 }
 
-ShaderStage::ShaderStage(VkShaderStageFlagBits in_stage, const std::string& in_entryPointName, const std::string& source) :
+ShaderStage::ShaderStage(VkShaderStageFlagBits in_stage, const std::string& in_entryPointName, const std::string& source, ref_ptr<ShaderCompileSettings> hints) :
     stage(in_stage),
-    module(ShaderModule::create(source)),
+    module(ShaderModule::create(source, hints)),
     entryPointName(in_entryPointName)
 {
 }

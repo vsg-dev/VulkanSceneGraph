@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.7)
 
 project(VSG
-    VERSION 0.1.4
+    VERSION 0.1.5
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES CXX
 )
-set(VSG_SOVERSION 1)
+set(VSG_SOVERSION 2)
 SET(VSG_RELEASE_CANDIDATE 0)
 
 # create the version header

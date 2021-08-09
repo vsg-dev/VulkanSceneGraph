@@ -213,6 +213,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/write.h>
 
 // Utility header files
+#include <vsg/utils/Builder.h>
 #include <vsg/utils/CommandLine.h>
 
 // Introspection header files
