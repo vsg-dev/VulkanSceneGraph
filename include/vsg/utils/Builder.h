@@ -15,8 +15,8 @@ namespace vsg
         ref_ptr<Data> image;
 
         /// used for instancing
-        ref_ptr<vsg::vec3Array> positions;
-        ref_ptr<vsg::vec4Array> colors;
+        ref_ptr<vec3Array> positions;
+        ref_ptr<Data> colors;
 
         bool operator<(const GeometryInfo& rhs) const
         {

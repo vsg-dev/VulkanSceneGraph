@@ -7,6 +7,8 @@
 
 using namespace vsg;
 
+#define FLOAT_COLORS 1
+
 void Builder::setup(ref_ptr<Window> window, ViewportState* viewport, uint32_t maxNumTextures)
 {
     auto device = window->getOrCreateDevice();
@@ -105,10 +107,18 @@ ref_ptr<BindGraphicsPipeline> Builder::_createGraphicsPipeline()
 
     _pipelineLayout = PipelineLayout::create(descriptorSetLayouts, pushConstantRanges);
 
+#if FLOAT_COLORS
+    uint32_t colorSize = sizeof(vec4);
+    VkFormat colorFormat = VK_FORMAT_R32G32B32A32_SFLOAT;
+#else
+    uint32_t colorSize = sizeof(ubvec4);
+    VkFormat colorFormat = VK_FORMAT_R8G8B8A8_UNORM;
+#endif
+
     VertexInputState::Bindings vertexBindingsDescriptions{
         VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX},  // vertex data
         VkVertexInputBindingDescription{1, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX},  // normal data
-        VkVertexInputBindingDescription{2, sizeof(vec4), VK_VERTEX_INPUT_RATE_INSTANCE},  // color
+        VkVertexInputBindingDescription{2, colorSize, VK_VERTEX_INPUT_RATE_INSTANCE},  // color
         VkVertexInputBindingDescription{3, sizeof(vec2), VK_VERTEX_INPUT_RATE_VERTEX},  // tex coord data
         VkVertexInputBindingDescription{4, sizeof(vec3), VK_VERTEX_INPUT_RATE_INSTANCE} // instance coord
     };
@@ -116,7 +126,7 @@ ref_ptr<BindGraphicsPipeline> Builder::_createGraphicsPipeline()
     VertexInputState::Attributes vertexAttributeDescriptions{
         VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0}, // vertex data
         VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0}, // normal data
-        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32B32A32_SFLOAT, 0},    // tex coord data
+        VkVertexInputAttributeDescription{2, 2, colorFormat, 0},    // color data
         VkVertexInputAttributeDescription{3, 3, VK_FORMAT_R32G32_SFLOAT, 0},    // tex coord data
         VkVertexInputAttributeDescription{4, 4, VK_FORMAT_R32G32B32_SFLOAT, 0}  // instance coord
     };
@@ -186,7 +196,7 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info)
     }
 
     auto colors = info.colors;
-    if (colors && colors->size() != instanceCount) colors = {};
+    if (colors && colors->valueCount() != instanceCount) colors = {};
     if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
@@ -296,7 +306,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info)
     }
 
     auto colors = info.colors;
-    if (colors && colors->size() != instanceCount) colors = {};
+    if (colors && colors->valueCount() != instanceCount) colors = {};
     if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
     auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
@@ -530,7 +540,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info)
     }
 
     auto colors = info.colors;
-    if (colors && colors->size() != instanceCount) colors = {};
+    if (colors && colors->valueCount() != instanceCount) colors = {};
     if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
     auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
@@ -693,7 +703,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info)
     }
 
     auto colors = info.colors;
-    if (colors && colors->size() != instanceCount) colors = {};
+    if (colors && colors->valueCount() != instanceCount) colors = {};
     if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
     auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
@@ -868,7 +878,7 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info)
     }
 
     auto colors = info.colors;
-    if (colors && colors->size() != instanceCount) colors = {};
+    if (colors && colors->valueCount() != instanceCount) colors = {};
     if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
     auto scenegraph = StateGroup::create();
@@ -946,7 +956,7 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info)
     }
 
     auto colors = info.colors;
-    if (colors && colors->size() != instanceCount) colors = {};
+    if (colors && colors->valueCount() != instanceCount) colors = {};
     if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
