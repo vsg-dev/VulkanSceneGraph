@@ -23,14 +23,26 @@ DrawMeshTasksIndirect::DrawMeshTasksIndirect()
 {
 }
 
+DrawMeshTasksIndirect::DrawMeshTasksIndirect(ref_ptr<Data> data, uint32_t in_drawCount, uint32_t in_stride) :
+    buffer(vsg::BufferInfo::create(data)),
+    drawCount(in_drawCount),
+    stride(in_stride)
+{}
+
+DrawMeshTasksIndirect::DrawMeshTasksIndirect(ref_ptr<Buffer> in_buffer, VkDeviceSize in_offset, uint32_t in_drawCount, uint32_t in_stride) :
+    buffer(vsg::BufferInfo::create(in_buffer, in_offset, in_drawCount * in_stride)),
+    drawCount(in_drawCount),
+    stride(in_stride)
+{}
+
 void DrawMeshTasksIndirect::read(Input& input)
 {
-    input.readObject("buffer.data", buffer.data);
-    if (!buffer.data)
+    input.readObject("buffer->data", buffer->data);
+    if (!buffer->data)
     {
-        input.read("buffer.buffer", buffer.buffer);
-        input.readValue<uint32_t>("buffer.offset", buffer.offset);
-        input.readValue<uint32_t>("buffer.range", buffer.range);
+        input.read("buffer.buffer", buffer->buffer);
+        input.readValue<uint32_t>("buffer.offset", buffer->offset);
+        input.readValue<uint32_t>("buffer.range", buffer->range);
     }
 
     input.read("drawCount", drawCount);
@@ -39,12 +51,12 @@ void DrawMeshTasksIndirect::read(Input& input)
 
 void DrawMeshTasksIndirect::write(Output& output) const
 {
-    output.writeObject("buffer.data", buffer.data);
-    if (!buffer.data)
+    output.writeObject("buffer.data", buffer->data);
+    if (!buffer->data)
     {
-        output.write("buffer.buffer", buffer.buffer);
-        output.writeValue<uint32_t>("buffer.offset", buffer.offset);
-        output.writeValue<uint32_t>("buffer.range", buffer.range);
+        output.write("buffer.buffer", buffer->buffer);
+        output.writeValue<uint32_t>("buffer.offset", buffer->offset);
+        output.writeValue<uint32_t>("buffer.range", buffer->range);
     }
 
     output.write("drawCount", drawCount);
@@ -53,9 +65,9 @@ void DrawMeshTasksIndirect::write(Output& output) const
 
 void DrawMeshTasksIndirect::compile(Context& context)
 {
-    if (!buffer.buffer && buffer.data)
+    if (!buffer->buffer && buffer->data)
     {
-        auto bufferList = vsg::createBufferAndTransferData(context, {buffer.data}, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+        auto bufferList = vsg::createBufferAndTransferData(context, {buffer->data}, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
         if (!bufferList.empty())
         {
             buffer = bufferList.back();
@@ -67,5 +79,5 @@ void DrawMeshTasksIndirect::record(vsg::CommandBuffer& commandBuffer) const
 {
     Device* device = commandBuffer.getDevice();
     Extensions* extensions = Extensions::Get(device, true);
-    extensions->vkCmdDrawMeshTasksIndirectNV(commandBuffer, buffer.buffer->vk(commandBuffer.deviceID), buffer.offset, drawCount, stride);
+    extensions->vkCmdDrawMeshTasksIndirectNV(commandBuffer, buffer->buffer->vk(commandBuffer.deviceID), buffer->offset, drawCount, stride);
 }

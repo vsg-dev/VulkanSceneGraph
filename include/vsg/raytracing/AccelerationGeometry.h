@@ -36,8 +36,8 @@ namespace vsg
 
     protected:
         // compiled data
-        BufferInfo _vertexBuffer;
-        BufferInfo _indexBuffer;
+        ref_ptr<BufferInfo> _vertexBuffer;
+        ref_ptr<BufferInfo> _indexBuffer;
         VkAccelerationStructureGeometryKHR _geometry;
     };
 

@@ -124,20 +124,20 @@ CopyAndReleaseImage::~CopyAndReleaseImage()
     for (auto& copyData : _pending) copyData.source.release();
 }
 
-CopyAndReleaseImage::CopyData::CopyData(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels)
+CopyAndReleaseImage::CopyData::CopyData(ref_ptr<BufferInfo> src, ImageInfo dest, uint32_t numMipMapLevels)
 {
     source = src;
     destination = dest;
 
     mipLevels = numMipMapLevels;
 
-    if (source.data)
+    if (source->data)
     {
-        layout = source.data->getLayout();
-        width = source.data->width();
-        height = source.data->height();
-        depth = source.data->depth();
-        mipmapOffsets = source.data->computeMipmapOffsets();
+        layout = source->data->getLayout();
+        width = source->data->width();
+        height = source->data->height();
+        depth = source->data->depth();
+        mipmapOffsets = source->data->computeMipmapOffsets();
     }
 }
 
@@ -147,12 +147,12 @@ void CopyAndReleaseImage::add(const CopyData& cd)
     _pending.push_back(cd);
 }
 
-void CopyAndReleaseImage::add(BufferInfo src, ImageInfo dest)
+void CopyAndReleaseImage::add(ref_ptr<BufferInfo> src, ImageInfo dest)
 {
-    add(CopyData(src, dest, vsg::computeNumMipMapLevels(src.data, dest.sampler)));
+    add(CopyData(src, dest, vsg::computeNumMipMapLevels(src->data, dest.sampler)));
 }
 
-void CopyAndReleaseImage::add(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels)
+void CopyAndReleaseImage::add(ref_ptr<BufferInfo> src, ImageInfo dest, uint32_t numMipMapLevels)
 {
     add(CopyData(src, dest, numMipMapLevels));
 }
@@ -194,12 +194,12 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numM
         VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
         VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(targetTraits.size));
 
-        BufferInfo stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
+        auto stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
 
         // std::cout<<"stagingBufferInfo.buffer "<<stagingBufferInfo.buffer.get()<<", "<<stagingBufferInfo.offset<<", "<<stagingBufferInfo.range<<")"<<std::endl;
 
         auto deviceID = stagingMemoryBufferPools->device->deviceID;
-        ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo.buffer);
+        ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo->buffer);
         ref_ptr<DeviceMemory> imageStagingMemory(imageStagingBuffer->getDeviceMemory(deviceID));
 
         if (!imageStagingMemory) return;
@@ -221,7 +221,7 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numM
         const value_type* src_ptr = reinterpret_cast<const value_type*>(data->dataPointer());
 
         void* buffer_data;
-        imageStagingMemory->map(imageStagingBuffer->getMemoryOffset(deviceID) + stagingBufferInfo.offset, imageTotalSize, 0, &buffer_data);
+        imageStagingMemory->map(imageStagingBuffer->getMemoryOffset(deviceID) + stagingBufferInfo->offset, imageTotalSize, 0, &buffer_data);
         value_type* dest_ptr = reinterpret_cast<value_type*>(buffer_data);
 
         size_t valueCount = data->valueCount();
@@ -253,27 +253,27 @@ void CopyAndReleaseImage::_copyDirectly(ref_ptr<Data> data, ImageInfo dest, uint
     VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
 
     VkMemoryPropertyFlags memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-    BufferInfo stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
-    stagingBufferInfo.data = data;
+    auto stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
+    stagingBufferInfo->data = data;
 
     // std::cout<<"stagingBufferInfo.buffer "<<stagingBufferInfo.buffer.get()<<", "<<stagingBufferInfo.offset<<", "<<stagingBufferInfo.range<<")"<<std::endl;
 
     auto deviceID = stagingMemoryBufferPools->device->deviceID;
-    ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo.buffer);
+    ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo->buffer);
     ref_ptr<DeviceMemory> imageStagingMemory(imageStagingBuffer->getDeviceMemory(deviceID));
 
     if (!imageStagingMemory) return;
 
     // copy data to staging memory
-    imageStagingMemory->copy(imageStagingBuffer->getMemoryOffset(deviceID) + stagingBufferInfo.offset, imageTotalSize, data->dataPointer());
+    imageStagingMemory->copy(imageStagingBuffer->getMemoryOffset(deviceID) + stagingBufferInfo->offset, imageTotalSize, data->dataPointer());
 
     add(stagingBufferInfo, dest, numMipMapLevels);
 }
 
 void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 {
-    ref_ptr<Buffer> imageStagingBuffer(source.buffer);
-    ref_ptr<Data> data(source.data);
+    ref_ptr<Buffer> imageStagingBuffer(source->buffer);
+    ref_ptr<Data> data(source->data);
     ref_ptr<Image> textureImage(destination.imageView->image);
     VkImageLayout targetImageLayout = destination.imageLayout;
 
@@ -371,7 +371,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
             for (uint32_t face = 0; face < arrayLayers; ++face)
             {
                 auto& region = regions[mipLevel * arrayLayers + face];
-                region.bufferOffset = source.offset + offset;
+                region.bufferOffset = source->offset + offset;
                 region.bufferRowLength = 0;
                 region.bufferImageHeight = 0;
                 region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -400,7 +400,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
         for (auto face = 0u; face < arrayLayers; face++)
         {
             auto& region = regions[face];
-            region.bufferOffset = source.offset + face * faceSize;
+            region.bufferOffset = source->offset + face * faceSize;
             region.bufferRowLength = 0;
             region.bufferImageHeight = 0;
             region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;

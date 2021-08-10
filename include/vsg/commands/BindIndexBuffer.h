@@ -44,7 +44,7 @@ namespace vsg
 
         struct VulkanData
         {
-            BufferInfo bufferInfo;
+            ref_ptr<BufferInfo> bufferInfo;
             VkIndexType indexType;
         };
 

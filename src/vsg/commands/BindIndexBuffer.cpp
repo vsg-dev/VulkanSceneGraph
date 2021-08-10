@@ -45,9 +45,9 @@ BindIndexBuffer::~BindIndexBuffer()
 {
     for (auto& vkd : _vulkanData)
     {
-        if (vkd.bufferInfo.buffer)
+        if (vkd.bufferInfo->buffer)
         {
-            vkd.bufferInfo.buffer->release(vkd.bufferInfo.offset, 0); // TODO, we don't locally have a size allocated
+            vkd.bufferInfo->buffer->release(vkd.bufferInfo->offset, 0); // TODO, we don't locally have a size allocated
         }
     }
 }
@@ -93,7 +93,7 @@ void BindIndexBuffer::compile(Context& context)
     auto& vkd = _vulkanData[context.deviceID];
 
     // check if already compiled
-    if (vkd.bufferInfo.buffer) return;
+    if (vkd.bufferInfo && vkd.bufferInfo->buffer) return;
 
     auto bufferInfoList = vsg::createBufferAndTransferData(context, {indices}, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     if (!bufferInfoList.empty())
@@ -106,5 +106,5 @@ void BindIndexBuffer::compile(Context& context)
 void BindIndexBuffer::record(CommandBuffer& commandBuffer) const
 {
     auto& vkd = _vulkanData[commandBuffer.deviceID];
-    vkCmdBindIndexBuffer(commandBuffer, vkd.bufferInfo.buffer->vk(commandBuffer.deviceID), vkd.bufferInfo.offset, vkd.indexType);
+    vkCmdBindIndexBuffer(commandBuffer, vkd.bufferInfo->buffer->vk(commandBuffer.deviceID), vkd.bufferInfo->offset, vkd.indexType);
 }

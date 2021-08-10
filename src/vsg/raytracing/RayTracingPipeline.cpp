@@ -178,9 +178,10 @@ RayTracingPipeline::Implementation::Implementation(Context& context, RayTracingP
             memory->map(bindingTableBuffers[i]->getMemoryOffset(_device->deviceID), handleSizeAligned, 0, &data);
             memcpy(data, shaderHandleStorage.data() + i * handleSizeAligned, handleSizeAligned);
             memory->unmap();
-            rayTracingShaderGroups[i]->bufferInfo.buffer = bindingTableBuffers[i];
-            rayTracingShaderGroups[i]->bufferInfo.offset = 0;
-            rayTracingShaderGroups[i]->bufferInfo.range = handleSizeAligned;
+            rayTracingShaderGroups[i]->bufferInfo = vsg::BufferInfo::create();
+            rayTracingShaderGroups[i]->bufferInfo->buffer = bindingTableBuffers[i];
+            rayTracingShaderGroups[i]->bufferInfo->offset = 0;
+            rayTracingShaderGroups[i]->bufferInfo->range = handleSizeAligned;
         }
     }
     else

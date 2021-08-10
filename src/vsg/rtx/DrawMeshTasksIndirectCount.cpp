@@ -23,14 +23,23 @@ DrawMeshTasksIndirectCount::DrawMeshTasksIndirectCount()
 {
 }
 
+DrawMeshTasksIndirectCount::DrawMeshTasksIndirectCount(ref_ptr<Data> in_bufferData, ref_ptr<Data> in_countBufferData, uint32_t in_maxDrawCount, uint32_t in_stride) :
+    buffer(BufferInfo::create(in_bufferData)),
+    countBuffer(BufferInfo::create(in_countBufferData)),
+    maxDrawCount(in_maxDrawCount),
+    stride(in_stride)
+{
+}
+
+
 void DrawMeshTasksIndirectCount::read(Input& input)
 {
-    input.readObject("buffer.data", buffer.data);
-    if (!buffer.data)
+    input.readObject("buffer.data", buffer->data);
+    if (!buffer->data)
     {
-        input.read("buffer.buffer", buffer.buffer);
-        input.readValue<uint32_t>("buffer.offset", buffer.offset);
-        input.readValue<uint32_t>("buffer.range", buffer.range);
+        input.read("buffer.buffer", buffer->buffer);
+        input.readValue<uint32_t>("buffer.offset", buffer->offset);
+        input.readValue<uint32_t>("buffer.range", buffer->range);
     }
 
     input.read("maxDrawCount", maxDrawCount);
@@ -39,20 +48,20 @@ void DrawMeshTasksIndirectCount::read(Input& input)
 
 void DrawMeshTasksIndirectCount::write(Output& output) const
 {
-    output.writeObject("buffer.data", buffer.data);
-    if (!buffer.data)
+    output.writeObject("buffer.data", buffer->data);
+    if (!buffer->data)
     {
-        output.write("buffer,buffer", buffer.buffer);
-        output.writeValue<uint32_t>("buffer.offset", buffer.offset);
-        output.writeValue<uint32_t>("buffer.range", buffer.range);
+        output.write("buffer,buffer", buffer->buffer);
+        output.writeValue<uint32_t>("buffer.offset", buffer->offset);
+        output.writeValue<uint32_t>("buffer.range", buffer->range);
     }
 
-    output.writeObject("countBuffer.data", countBuffer.data);
-    if (!countBuffer.data)
+    output.writeObject("countBuffer.data", countBuffer->data);
+    if (!countBuffer->data)
     {
-        output.write("countBuffer.buffer", countBuffer.buffer);
-        output.writeValue<uint32_t>("countBuffer.offset", countBuffer.offset);
-        output.writeValue<uint32_t>("countBuffer.range", countBuffer.range);
+        output.write("countBuffer.buffer", countBuffer->buffer);
+        output.writeValue<uint32_t>("countBuffer.offset", countBuffer->offset);
+        output.writeValue<uint32_t>("countBuffer.range", countBuffer->range);
     }
 
     output.write("maxDrawCount", maxDrawCount);
@@ -61,9 +70,9 @@ void DrawMeshTasksIndirectCount::write(Output& output) const
 
 void DrawMeshTasksIndirectCount::compile(Context& context)
 {
-    if ((!buffer.buffer && buffer.data) || (!countBuffer.buffer && countBuffer.data))
+    if ((!buffer->buffer && buffer->data) || (!countBuffer->buffer && countBuffer->data))
     {
-        auto bufferInfoList = vsg::createBufferAndTransferData(context, {buffer.data, countBuffer.data}, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+        auto bufferInfoList = vsg::createBufferAndTransferData(context, {buffer->data, countBuffer->data}, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
         if (bufferInfoList.size() == 2)
         {
             buffer = bufferInfoList[0];
@@ -76,5 +85,5 @@ void DrawMeshTasksIndirectCount::record(vsg::CommandBuffer& commandBuffer) const
 {
     Device* device = commandBuffer.getDevice();
     Extensions* extensions = Extensions::Get(device, true);
-    extensions->vkCmdDrawMeshTasksIndirectCountNV(commandBuffer, buffer.buffer->vk(commandBuffer.deviceID), buffer.offset, countBuffer.buffer->vk(commandBuffer.deviceID), countBuffer.offset, maxDrawCount, stride);
+    extensions->vkCmdDrawMeshTasksIndirectCountNV(commandBuffer, buffer->buffer->vk(commandBuffer.deviceID), buffer->offset, countBuffer->buffer->vk(commandBuffer.deviceID), countBuffer->offset, maxDrawCount, stride);
 }

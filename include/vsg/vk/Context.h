@@ -112,7 +112,7 @@ namespace vsg
         void copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels);
 
         ref_ptr<CopyAndReleaseBuffer> copyBufferCmd;
-        void copy(BufferInfo src, BufferInfo dest);
+        void copy(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest);
 
         /// return true if there are commands that have been submitted
         bool record();

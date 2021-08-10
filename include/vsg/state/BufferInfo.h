@@ -23,35 +23,17 @@ namespace vsg
     class CommandBuffer;
 
     /// Settings that map to VkDescriptorBufferInfo
-    class VSG_DECLSPEC BufferInfo
+    class VSG_DECLSPEC BufferInfo : public Inherit<Object, BufferInfo>
     {
     public:
-        BufferInfo() = default;
+        BufferInfo();
+        BufferInfo(Data* in_data);
+        BufferInfo(Buffer* in_buffer, VkDeviceSize in_offset, VkDeviceSize in_range, Data* in_data = nullptr);
 
-        BufferInfo(Data* in_data) :
-            data(in_data) {}
+        BufferInfo(const BufferInfo&) = delete;
+        BufferInfo& operator=(const BufferInfo&) = delete;
 
-        BufferInfo(Buffer* in_buffer, VkDeviceSize in_offset, VkDeviceSize in_range, Data* in_data = nullptr) :
-            buffer(in_buffer),
-            offset(in_offset),
-            range(in_range),
-            data(in_data) {}
-
-        BufferInfo(const BufferInfo&) = default;
-
-        BufferInfo& operator=(const BufferInfo&) = default;
-
-        void release()
-        {
-            if (buffer)
-            {
-                buffer->release(offset, range);
-            }
-
-            buffer = 0;
-            offset = 0;
-            range = 0;
-        }
+        void release();
 
         /// copy data to the VkBuffer(s) for all Devices associated with vsg::Buffer
         void copyDataToBuffer();
@@ -65,11 +47,14 @@ namespace vsg
         VkDeviceSize offset = 0;
         VkDeviceSize range = 0;
         ref_ptr<Data> data;
+
+    protected:
+        virtual ~BufferInfo();
     };
 
-    using BufferInfoList = std::vector<BufferInfo>;
+    using BufferInfoList = std::vector<ref_ptr<BufferInfo>>;
 
-    extern VSG_DECLSPEC BufferInfo copyDataToStagingBuffer(Context& context, const Data* data);
+    extern VSG_DECLSPEC ref_ptr<BufferInfo> copyDataToStagingBuffer(Context& context, const Data* data);
 
     extern VSG_DECLSPEC BufferInfoList createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 

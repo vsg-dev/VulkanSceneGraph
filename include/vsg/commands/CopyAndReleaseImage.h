@@ -39,9 +39,9 @@ namespace vsg
         struct VSG_DECLSPEC CopyData
         {
             CopyData() {}
-            CopyData(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels = 1);
+            CopyData(ref_ptr<BufferInfo> src, ImageInfo dest, uint32_t numMipMapLevels = 1);
 
-            BufferInfo source;
+            ref_ptr<BufferInfo> source;
             ImageInfo destination;
 
             uint32_t mipLevels = 1;
@@ -56,8 +56,8 @@ namespace vsg
         };
 
         void add(const CopyData& cd);
-        void add(BufferInfo src, ImageInfo dest);
-        void add(BufferInfo src, ImageInfo dest, uint32_t numMipMapLevels);
+        void add(ref_ptr<BufferInfo> src, ImageInfo dest);
+        void add(ref_ptr<BufferInfo> src, ImageInfo dest, uint32_t numMipMapLevels);
 
         /// MemoryBufferPools used for allocation staging buffer used by the copy(ref_ptr<Data>, ImageInfo) method.  Users should assign a MemoryBufferPools with appropriate settings.
         ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;

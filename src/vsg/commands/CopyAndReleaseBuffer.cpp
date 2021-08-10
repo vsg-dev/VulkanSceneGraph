@@ -27,7 +27,7 @@ CopyAndReleaseBuffer::~CopyAndReleaseBuffer()
     for (auto& copyData : _pending) copyData.source.release();
 }
 
-void CopyAndReleaseBuffer::copy(ref_ptr<Data> data, BufferInfo dest)
+void CopyAndReleaseBuffer::copy(ref_ptr<Data> data, ref_ptr<BufferInfo> dest)
 {
     VkDeviceSize datalSize = data->dataSize();
     VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
@@ -35,24 +35,24 @@ void CopyAndReleaseBuffer::copy(ref_ptr<Data> data, BufferInfo dest)
     //std::cout<<"CopyAndReleaseImage::copyDirectly() datalSize = "<<datalSize<<std::endl;
 
     VkMemoryPropertyFlags memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-    BufferInfo stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(datalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
-    stagingBufferInfo.data = data;
+    ref_ptr<BufferInfo> stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(datalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
+    stagingBufferInfo->data = data;
 
-    // std::cout<<"stagingBufferInfo.buffer "<<stagingBufferInfo.buffer.get()<<", "<<stagingBufferInfo.offset<<", "<<stagingBufferInfo.range<<")"<<std::endl;
+    // std::cout<<"stagingBufferInfo->buffer "<<stagingBufferInfo->buffer.get()<<", "<<stagingBufferInfo->offset<<", "<<stagingBufferInfo->range<<")"<<std::endl;
 
     auto deviceID = stagingMemoryBufferPools->device->deviceID;
-    ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo.buffer);
+    ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo->buffer);
     ref_ptr<DeviceMemory> stagingMemory(imageStagingBuffer->getDeviceMemory(deviceID));
 
     if (!stagingMemory) return;
 
     // copy data to staging memory
-    stagingMemory->copy(imageStagingBuffer->getMemoryOffset(deviceID) + stagingBufferInfo.offset, datalSize, data->dataPointer());
+    stagingMemory->copy(imageStagingBuffer->getMemoryOffset(deviceID) + stagingBufferInfo->offset, datalSize, data->dataPointer());
 
     add(stagingBufferInfo, dest);
 }
 
-void CopyAndReleaseBuffer::add(BufferInfo src, BufferInfo dest)
+void CopyAndReleaseBuffer::add(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest)
 {
     std::scoped_lock lock(_mutex);
     _pending.push_back(CopyData{src, dest});
@@ -62,10 +62,10 @@ void CopyAndReleaseBuffer::CopyData::record(CommandBuffer& commandBuffer) const
 {
     //std::cout<<"CopyAndReleaseBuffer::CopyData::record(CommandBuffer& commandBuffer) source.offset = "<<source.offset<<", "<<destination.offset<<std::endl;
     VkBufferCopy copyRegion = {};
-    copyRegion.srcOffset = source.offset;
-    copyRegion.dstOffset = destination.offset;
-    copyRegion.size = source.range;
-    vkCmdCopyBuffer(commandBuffer, source.buffer->vk(commandBuffer.deviceID), destination.buffer->vk(commandBuffer.deviceID), 1, &copyRegion);
+    copyRegion.srcOffset = source->offset;
+    copyRegion.dstOffset = destination->offset;
+    copyRegion.size = source->range;
+    vkCmdCopyBuffer(commandBuffer, source->buffer->vk(commandBuffer.deviceID), destination->buffer->vk(commandBuffer.deviceID), 1, &copyRegion);
 }
 
 void CopyAndReleaseBuffer::record(CommandBuffer& commandBuffer) const
