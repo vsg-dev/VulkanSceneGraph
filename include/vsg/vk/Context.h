@@ -108,8 +108,8 @@ namespace vsg
         std::vector<ref_ptr<Command>> commands;
 
         ref_ptr<CopyAndReleaseImage> copyImageCmd;
-        void copy(ref_ptr<Data> data, ImageInfo dest);
-        void copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels);
+        void copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest);
+        void copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels);
 
         ref_ptr<CopyAndReleaseBuffer> copyBufferCmd;
         void copy(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest);

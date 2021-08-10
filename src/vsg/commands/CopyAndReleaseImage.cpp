@@ -124,7 +124,7 @@ CopyAndReleaseImage::~CopyAndReleaseImage()
     for (auto& copyData : _pending) copyData.source.release();
 }
 
-CopyAndReleaseImage::CopyData::CopyData(ref_ptr<BufferInfo> src, ImageInfo dest, uint32_t numMipMapLevels)
+CopyAndReleaseImage::CopyData::CopyData(ref_ptr<BufferInfo> src, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels)
 {
     source = src;
     destination = dest;
@@ -147,28 +147,28 @@ void CopyAndReleaseImage::add(const CopyData& cd)
     _pending.push_back(cd);
 }
 
-void CopyAndReleaseImage::add(ref_ptr<BufferInfo> src, ImageInfo dest)
+void CopyAndReleaseImage::add(ref_ptr<BufferInfo> src, ref_ptr<ImageInfo> dest)
 {
-    add(CopyData(src, dest, vsg::computeNumMipMapLevels(src->data, dest.sampler)));
+    add(CopyData(src, dest, vsg::computeNumMipMapLevels(src->data, dest->sampler)));
 }
 
-void CopyAndReleaseImage::add(ref_ptr<BufferInfo> src, ImageInfo dest, uint32_t numMipMapLevels)
+void CopyAndReleaseImage::add(ref_ptr<BufferInfo> src, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels)
 {
     add(CopyData(src, dest, numMipMapLevels));
 }
 
-void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest)
+void CopyAndReleaseImage::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest)
 {
-    copy(data, dest, vsg::computeNumMipMapLevels(data, dest.sampler));
+    copy(data, dest, vsg::computeNumMipMapLevels(data, dest->sampler));
 }
 
-void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels)
+void CopyAndReleaseImage::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels)
 {
     if (!data) return;
     if (!stagingMemoryBufferPools) return;
 
     VkFormat sourceFormat = data->getLayout().format;
-    VkFormat targetFormat = dest.imageView->format;
+    VkFormat targetFormat = dest->imageView->format;
 
     if (sourceFormat == targetFormat)
     {
@@ -246,7 +246,7 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numM
     }
 }
 
-void CopyAndReleaseImage::_copyDirectly(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels)
+void CopyAndReleaseImage::_copyDirectly(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels)
 {
     // std::cout<<"CopyAndReleaseImage::_copyDirectly()"<<std::endl;
     VkDeviceSize imageTotalSize = data->dataSize();
@@ -274,8 +274,8 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 {
     ref_ptr<Buffer> imageStagingBuffer(source->buffer);
     ref_ptr<Data> data(source->data);
-    ref_ptr<Image> textureImage(destination.imageView->image);
-    VkImageLayout targetImageLayout = destination.imageLayout;
+    ref_ptr<Image> textureImage(destination->imageView->image);
+    VkImageLayout targetImageLayout = destination->imageLayout;
 
     uint32_t faceWidth = width;
     uint32_t faceHeight = height;
@@ -283,7 +283,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
     uint32_t arrayLayers = 1;
 
     //switch(layout.imageViewType)
-    switch (destination.imageView->viewType)
+    switch (destination->imageView->viewType)
     {
     case (VK_IMAGE_VIEW_TYPE_CUBE):
         arrayLayers = faceDepth;
