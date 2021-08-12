@@ -40,15 +40,17 @@ namespace vsg
         uint32_t firstInstance = 0;
 
         uint32_t firstBinding = 0;
-        DataList arrays;
-        ref_ptr<Data> indices;
+        BufferInfoList arrays;
+        ref_ptr<BufferInfo> indices;
+
+        void assignArrays(const DataList& arrayData);
+        void assignIndices(ref_ptr<vsg::Data> indexData);
 
     protected:
         virtual ~VertexIndexDraw();
 
         struct VulkanData
         {
-            std::vector<ref_ptr<Buffer>> buffers;
             std::vector<VkBuffer> vkBuffers;
             std::vector<VkDeviceSize> offsets;
             ref_ptr<BufferInfo> bufferInfo;
