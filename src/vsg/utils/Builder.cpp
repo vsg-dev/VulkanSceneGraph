@@ -133,6 +133,7 @@ ref_ptr<BindGraphicsPipeline> Builder::_createGraphicsPipeline()
 
     bool doubleSided = true;
     bool enableBlend = false;
+    bool wireframe = false; // info.wireframe
 
     auto rasterState = vsg::RasterizationState::create();
     rasterState->cullMode = doubleSided ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT;
@@ -141,9 +142,16 @@ ref_ptr<BindGraphicsPipeline> Builder::_createGraphicsPipeline()
     colorBlendState->attachments = vsg::ColorBlendState::ColorBlendAttachments{
         {enableBlend, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, VK_BLEND_OP_ADD, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, VK_BLEND_OP_SUBTRACT, VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT}};
 
+    auto inputAssemblyState = InputAssemblyState::create();
+
+    if (wireframe)
+    {
+        inputAssemblyState->topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+    }
+
     GraphicsPipelineStates pipelineStates{
         VertexInputState::create(vertexBindingsDescriptions, vertexAttributeDescriptions),
-        InputAssemblyState::create(),
+        inputAssemblyState,
         rasterState,
         MultisampleState::create(),
         colorBlendState,
@@ -164,6 +172,24 @@ void Builder::compile(ref_ptr<Node> subgraph)
         subgraph->accept(*_compile);
         _compile->context.record();
         _compile->context.waitForCompletion();
+    }
+}
+
+void Builder::transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr<vec3Array> normals)
+{
+    for(auto& v : *vertices)
+    {
+        v = matrix * v;
+    }
+
+    if (normals)
+    {
+        mat4 normal_matrix = vsg::inverse(matrix);
+        for(auto& n : *normals)
+        {
+            vsg::vec4 nv = vsg::vec4(n.x, n.y, n.z, 0.0) * normal_matrix;
+            n = normalize(vsg::vec3(nv.x, nv.y, nv.z));
+        }
     }
 }
 
@@ -265,6 +291,10 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info)
          16, 17, 18, 16, 18, 19,
          20, 21, 22, 20, 22, 23}); // VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
 
+    if (info.transform != identity)
+    {
+        transform(info.transform, vertices, normals);
+    }
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
@@ -505,6 +535,11 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info)
         }
     }
 
+    if (info.transform != identity)
+    {
+        transform(info.transform, vertices, normals);
+    }
+
     // setup geometry
     auto vid = VertexIndexDraw::create();
 
@@ -668,6 +703,11 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info)
             indices->set(i++, bottom_i + c + 1);
             indices->set(i++, bottom_i + num_columns - 1);
         }
+    }
+
+    if (info.transform != identity)
+    {
+        transform(info.transform, vertices, normals);
     }
 
     // setup geometry
@@ -849,6 +889,11 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info)
         }
     }
 
+    if (info.transform != identity)
+    {
+        transform(info.transform, vertices, normals);
+    }
+
     // setup geometry
     auto vid = VertexIndexDraw::create();
 
@@ -928,6 +973,11 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info)
          2,
          3,
          0}); // VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
+
+    if (info.transform != identity)
+    {
+        transform(info.transform, vertices, normals);
+    }
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
@@ -1041,6 +1091,11 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info)
             indices->set(i++, lower + 1);
             indices->set(i++, upper + 1);
         }
+    }
+
+    if (info.transform != identity)
+    {
+        transform(info.transform, vertices, normals);
     }
 
     // setup geometry

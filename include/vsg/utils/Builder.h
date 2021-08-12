@@ -13,6 +13,8 @@ namespace vsg
         vec3 dz = {0.0f, 0.0f, 1.0f};
         vec4 color = {1.0, 1.0, 1.0, 1.0};
         ref_ptr<Data> image;
+        bool wireframe = false;
+        mat4 transform;
 
         /// used for instancing
         ref_ptr<vec3Array> positions;
@@ -64,6 +66,9 @@ namespace vsg
         ref_ptr<Node> createSphere(const GeometryInfo& info = {});
 
     private:
+
+        void transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr<vec3Array> normals);
+
         uint32_t _allocatedTextureCount = 0;
         uint32_t _maxNumTextures = 0;
         ref_ptr<CompileTraversal> _compile;
@@ -87,6 +92,9 @@ namespace vsg
         GeometryMap _cylinders;
         GeometryMap _quads;
         GeometryMap _spheres;
+
+        // used for comparisons
+        mat4 identity;
     };
 
 } // namespace vsg
