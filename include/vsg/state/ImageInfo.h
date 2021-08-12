@@ -41,6 +41,8 @@ namespace vsg
         virtual ~ImageInfo();
 
     };
+    VSG_type_name(vsg::ImageInfo);
+
     using ImageInfoList = std::vector<ref_ptr<ImageInfo>>;
 
 } // namespace vsg
