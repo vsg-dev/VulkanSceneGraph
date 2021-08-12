@@ -269,15 +269,17 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info)
     // setup geometry
     auto vid = VertexIndexDraw::create();
 
-    vid->arrays.push_back(vertices);
-    if (normals) vid->arrays.push_back(normals);
-    if (colors) vid->arrays.push_back(colors);
-    if (texcoords) vid->arrays.push_back(texcoords);
-    if (positions) vid->arrays.push_back(positions);
+    DataList arrays;
+    arrays.push_back(vertices);
+    if (normals) arrays.push_back(normals);
+    if (colors) arrays.push_back(colors);
+    if (texcoords) arrays.push_back(texcoords);
+    if (positions) arrays.push_back(positions);
+    vid->assignArrays(arrays);
 
-    vid->indices = indices;
+    vid->assignIndices(indices);
     vid->indexCount = indices->size();
-    vid->instanceCount = instanceCount ;
+    vid->instanceCount = instanceCount;
 
     std::cout<<"vid->instanceCount = "<<vid->instanceCount<<std::endl;
 
@@ -505,13 +507,16 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info)
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
-    vid->arrays.push_back(vertices);
-    if (normals) vid->arrays.push_back(normals);
-    if (colors) vid->arrays.push_back(colors);
-    if (texcoords) vid->arrays.push_back(texcoords);
-    if (positions) vid->arrays.push_back(positions);
 
-    vid->indices = indices;
+    DataList arrays;
+    arrays.push_back(vertices);
+    if (normals) arrays.push_back(normals);
+    if (colors) arrays.push_back(colors);
+    if (texcoords) arrays.push_back(texcoords);
+    if (positions) arrays.push_back(positions);
+    vid->assignArrays(arrays);
+
+    vid->assignIndices(indices);
     vid->indexCount = indices->size();
     vid->instanceCount = instanceCount;
 
@@ -667,13 +672,16 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info)
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
-    vid->arrays.push_back(vertices);
-    if (normals) vid->arrays.push_back(normals);
-    if (colors) vid->arrays.push_back(colors);
-    if (texcoords) vid->arrays.push_back(texcoords);
-    if (positions) vid->arrays.push_back(positions);
 
-    vid->indices = indices;
+    DataList arrays;
+    arrays.push_back(vertices);
+    if (normals) arrays.push_back(normals);
+    if (colors) arrays.push_back(colors);
+    if (texcoords) arrays.push_back(texcoords);
+    if (positions) arrays.push_back(positions);
+    vid->assignArrays(arrays);
+
+    vid->assignIndices(indices);
     vid->indexCount = indices->size();
     vid->instanceCount = instanceCount;
 
@@ -843,13 +851,16 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info)
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
-    vid->arrays.push_back(vertices);
-    if (normals) vid->arrays.push_back(normals);
-    if (colors) vid->arrays.push_back(colors);
-    if (texcoords) vid->arrays.push_back(texcoords);
-    if (positions) vid->arrays.push_back(positions);
 
-    vid->indices = indices;
+    DataList arrays;
+    arrays.push_back(vertices);
+    if (normals) arrays.push_back(normals);
+    if (colors) arrays.push_back(colors);
+    if (texcoords) arrays.push_back(texcoords);
+    if (positions) arrays.push_back(positions);
+    vid->assignArrays(arrays);
+
+    vid->assignIndices(indices);
     vid->indexCount = indices->size();
     vid->instanceCount = instanceCount;
 
@@ -920,13 +931,16 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info)
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
-    vid->arrays.push_back(vertices);
-    if (normals) vid->arrays.push_back(normals);
-    if (colors) vid->arrays.push_back(colors);
-    if (texcoords) vid->arrays.push_back(texcoords);
-    if (positions) vid->arrays.push_back(positions);
 
-    vid->indices = indices;
+    DataList arrays;
+    arrays.push_back(vertices);
+    if (normals) arrays.push_back(normals);
+    if (colors) arrays.push_back(colors);
+    if (texcoords) arrays.push_back(texcoords);
+    if (positions) arrays.push_back(positions);
+    vid->assignArrays(arrays);
+
+    vid->assignIndices(indices);
     vid->indexCount = indices->size();
     vid->instanceCount = instanceCount;
 
@@ -1031,13 +1045,16 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info)
 
     // setup geometry
     auto vid = VertexIndexDraw::create();
-    vid->arrays.push_back(vertices);
-    if (normals) vid->arrays.push_back(normals);
-    if (colors) vid->arrays.push_back(colors);
-    if (texcoords) vid->arrays.push_back(texcoords);
-    if (positions) vid->arrays.push_back(positions);
 
-    vid->indices = indices;
+    DataList arrays;
+    arrays.push_back(vertices);
+    if (normals) arrays.push_back(normals);
+    if (colors) arrays.push_back(colors);
+    if (texcoords) arrays.push_back(texcoords);
+    if (positions) arrays.push_back(positions);
+    vid->assignArrays(arrays);
+
+    vid->assignIndices(indices);
     vid->indexCount = indices->size();
     vid->instanceCount = instanceCount;
 
