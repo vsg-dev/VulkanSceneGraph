@@ -51,6 +51,7 @@ namespace vsg
     protected:
         virtual ~BufferInfo();
     };
+    VSG_type_name(vsg::BufferInfo);
 
     using BufferInfoList = std::vector<ref_ptr<BufferInfo>>;
 
