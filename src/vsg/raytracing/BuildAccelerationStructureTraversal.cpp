@@ -66,8 +66,8 @@ void BuildAccelerationStructureTraversal::apply(vsg::VertexIndexDraw& vid)
     {
         blas = BottomLevelAccelerationStructure::create(_device);
         auto accelGeom = AccelerationGeometry::create();
-        accelGeom->verts = vid.arrays[0];
-        accelGeom->indices = vid.indices;
+        accelGeom->verts = vid.arrays[0]->data;
+        accelGeom->indices = vid.indices->data;
         blas->geometries.push_back(accelGeom);
     }
 
