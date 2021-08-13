@@ -8,6 +8,7 @@ namespace vsg
 {
     struct StateInfo
     {
+        bool lighting = true;
         bool doubleSided = false;
         bool blending = false;
         bool diffuseMap = false;
@@ -18,6 +19,7 @@ namespace vsg
 
         bool operator<(const StateInfo& rhs) const
         {
+            VSG_COMPARE_PARAMETERS(lighting, rhs.lighting)
             VSG_COMPARE_PARAMETERS(doubleSided, rhs.doubleSided)
             VSG_COMPARE_PARAMETERS(blending, rhs.blending)
             VSG_COMPARE_PARAMETERS(diffuseMap, rhs.diffuseMap)

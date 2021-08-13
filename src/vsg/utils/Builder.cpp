@@ -1,9 +1,10 @@
 
 #include <vsg/utils/Builder.h>
 
+#include "shaders/assimp_vert.cpp"
+#include "shaders/assimp_flat_shaded_frag.cpp"
 #include "shaders/assimp_pbr_frag.cpp"
 #include "shaders/assimp_phong_frag.cpp"
-#include "shaders/assimp_vert.cpp"
 
 using namespace vsg;
 
@@ -66,8 +67,17 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
     auto vertexShader = read_cast<ShaderStage>("shaders/assimp.vert", options);
     if (!vertexShader) vertexShader = assimp_vert(); // fallback to shaders/assimp_vert.cppp
 
-    auto fragmentShader = read_cast<ShaderStage>("shaders/assimp_phong.frag", options);
-    if (!fragmentShader) fragmentShader = assimp_phong_frag();
+    ref_ptr<ShaderStage> fragmentShader;
+    if (stateInfo.lighting)
+    {
+        fragmentShader = read_cast<ShaderStage>("shaders/assimp_phong.frag", options);
+        if (!fragmentShader) fragmentShader = assimp_phong_frag();
+    }
+    else
+    {
+        fragmentShader = read_cast<ShaderStage>("shaders/assimp_flat_shaded.frag", options);
+        if (!fragmentShader) fragmentShader = assimp_flat_shaded_frag();
+    }
 
     if (!vertexShader || !fragmentShader)
     {
