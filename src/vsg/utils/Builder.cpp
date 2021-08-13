@@ -1000,13 +1000,20 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& sta
          {1.0f, t_top},
          {0.0f, t_top}}); // VK_FORMAT_R32G32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
 
-    auto indices = ushortArray::create(
-        {0,
-         1,
-         2,
-         2,
-         3,
-         0}); // VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
+
+    ref_ptr<ushortArray> indices;
+
+    if (stateInfo.wireframe)
+    {
+        indices = ushortArray::create(
+            {0, 1, 1, 2, 2, 3, 3, 0});
+    }
+    else
+    {
+        indices = ushortArray::create(
+            {0, 1, 2,
+             2, 3, 0});
+    }
 
     if (info.transform != identity)
     {
