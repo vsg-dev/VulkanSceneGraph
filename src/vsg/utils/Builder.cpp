@@ -26,46 +26,41 @@ void Builder::setup(ref_ptr<Window> window, ViewportState* viewport, uint32_t ma
     _maxNumTextures = maxNumTextures;
 }
 
-ref_ptr<BindDescriptorSets> Builder::_createTexture(const GeometryInfo& info)
+ref_ptr<BindDescriptorSets> Builder::_createDescriptorSet(const StateInfo& stateInfo)
 {
-    auto textureData = info.image;
-    if (!textureData)
-    {
-        if (auto itr = _colorData.find(info.color); itr != _colorData.end())
-        {
-            textureData = itr->second;
-        }
-        else
-        {
-            auto image = _colorData[info.color] = vec4Array2D::create(2, 2, vsg::vec4(1.0, 1.0, 1.0, 1.0), Data::Layout{VK_FORMAT_R32G32B32A32_SFLOAT});
-            // image->set(0, 0, {0.0f, 1.0f, 1.0f, 1.0f});
-            // image->set(1, 1, {0.0f, 0.0f, 1.0f, 1.0f});
-            textureData = image;
-        }
-    }
+    StateSettings& stateSettings = _getStateSettings(stateInfo);
 
-    auto& bindDescriptorSets = _textureDescriptorSets[textureData];
+    auto textureData = stateInfo.image;
+
+    auto& bindDescriptorSets = stateSettings.textureDescriptorSets[textureData];
     if (bindDescriptorSets) return bindDescriptorSets;
-
-    auto sampler = Sampler::create();
-
-    // create texture image and associated DescriptorSets and binding
-    auto texture = DescriptorImage::create(sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
     // create texture image and associated DescriptorSets and binding
     auto mat = vsg::PhongMaterialValue::create();
     auto material = vsg::DescriptorBuffer::create(mat, 10);
 
-    auto descriptorSet = DescriptorSet::create(_descriptorSetLayout, Descriptors{texture, material});
+    if (textureData)
+    {
+        // create texture image and associated DescriptorSets and binding
+        auto sampler = Sampler::create();
+        auto texture = DescriptorImage::create(sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-    bindDescriptorSets = _textureDescriptorSets[textureData] = BindDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineLayout, 0, DescriptorSets{descriptorSet});
+        auto descriptorSet = DescriptorSet::create(stateSettings.descriptorSetLayout, Descriptors{texture, material});
+        bindDescriptorSets = BindDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, stateSettings.pipelineLayout, 0, DescriptorSets{descriptorSet});
+    }
+    else
+    {
+        auto descriptorSet = DescriptorSet::create(stateSettings.descriptorSetLayout, Descriptors{material});
+        bindDescriptorSets = BindDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, stateSettings.pipelineLayout, 0, DescriptorSets{descriptorSet});
+    }
 
     return bindDescriptorSets;
 }
 
-ref_ptr<BindGraphicsPipeline> Builder::_createGraphicsPipeline()
+Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
 {
-    if (_bindGraphicsPipeline) return _bindGraphicsPipeline;
+    auto& stateSettings = _stateMap[stateInfo];
+    if (stateSettings.bindGraphicsPipeline) return stateSettings;
 
     // load shaders
     auto vertexShader = read_cast<ShaderStage>("shaders/assimp.vert", options);
@@ -77,7 +72,7 @@ ref_ptr<BindGraphicsPipeline> Builder::_createGraphicsPipeline()
     if (!vertexShader || !fragmentShader)
     {
         std::cout << "Could not create shaders." << std::endl;
-        return {};
+        return stateSettings;
     }
 
     auto shaderHints = vsg::ShaderCompileSettings::create();
@@ -89,23 +84,23 @@ ref_ptr<BindGraphicsPipeline> Builder::_createGraphicsPipeline()
     fragmentShader->module->hints = shaderHints;
     fragmentShader->module->code = {};
 
-    defines.push_back("VSG_DIFFUSE_MAP");
-    defines.push_back("VSG_INSTANCE_POSITIONS");
+    if (stateInfo.image) defines.push_back("VSG_DIFFUSE_MAP");
+    if (stateInfo.instancce_positions_vec3) defines.push_back("VSG_INSTANCE_POSITIONS");
 
     // set up graphics pipeline
     DescriptorSetLayoutBindings descriptorBindings{
         {0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // { binding, descriptorTpe, descriptorCount, stageFlags, pImmutableSamplers}
         {10, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}};
 
-    _descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
+    stateSettings.descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
 
-    DescriptorSetLayouts descriptorSetLayouts{_descriptorSetLayout};
+    DescriptorSetLayouts descriptorSetLayouts{stateSettings.descriptorSetLayout};
 
     PushConstantRanges pushConstantRanges{
         {VK_SHADER_STAGE_VERTEX_BIT, 0, 128} // projection view, and model matrices, actual push constant calls autoaatically provided by the VSG's DispatchTraversal
     };
 
-    _pipelineLayout = PipelineLayout::create(descriptorSetLayouts, pushConstantRanges);
+    stateSettings.pipelineLayout = PipelineLayout::create(descriptorSetLayouts, pushConstantRanges);
 
 #if FLOAT_COLORS
     uint32_t colorSize = sizeof(vec4);
@@ -131,23 +126,21 @@ ref_ptr<BindGraphicsPipeline> Builder::_createGraphicsPipeline()
         VkVertexInputAttributeDescription{4, 4, VK_FORMAT_R32G32B32_SFLOAT, 0}  // instance coord
     };
 
-    bool doubleSided = true;
-    bool enableBlend = false;
-    bool wireframe = false; // info.wireframe
-
     auto rasterState = vsg::RasterizationState::create();
-    rasterState->cullMode = doubleSided ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT;
+    rasterState->cullMode = stateInfo.doubleSided ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT;
 
     auto colorBlendState = vsg::ColorBlendState::create();
     colorBlendState->attachments = vsg::ColorBlendState::ColorBlendAttachments{
-        {enableBlend, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, VK_BLEND_OP_ADD, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, VK_BLEND_OP_SUBTRACT, VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT}};
+        {stateInfo.blending, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, VK_BLEND_OP_ADD, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, VK_BLEND_OP_SUBTRACT, VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT}};
 
     auto inputAssemblyState = InputAssemblyState::create();
 
-    if (wireframe)
+    if (stateInfo.wireframe)
     {
         inputAssemblyState->topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
     }
+
+    std::cout<<"stateInfo.wireframe = "<<stateInfo.wireframe<<std::endl;
 
     GraphicsPipelineStates pipelineStates{
         VertexInputState::create(vertexBindingsDescriptions, vertexAttributeDescriptions),
@@ -157,11 +150,20 @@ ref_ptr<BindGraphicsPipeline> Builder::_createGraphicsPipeline()
         colorBlendState,
         DepthStencilState::create()};
 
-    auto graphicsPipeline = GraphicsPipeline::create(_pipelineLayout, ShaderStages{vertexShader, fragmentShader}, pipelineStates);
-    _bindGraphicsPipeline = BindGraphicsPipeline::create(graphicsPipeline);
+    auto graphicsPipeline = GraphicsPipeline::create(stateSettings.pipelineLayout, ShaderStages{vertexShader, fragmentShader}, pipelineStates);
 
-    return _bindGraphicsPipeline;
+    stateSettings.bindGraphicsPipeline = BindGraphicsPipeline::create(graphicsPipeline);
+
+    return stateSettings;
 }
+
+void Builder::_assign(StateGroup& stateGroup, const StateInfo& stateInfo)
+{
+    auto& stateSettings = _getStateSettings(stateInfo);
+    stateGroup.add(stateSettings.bindGraphicsPipeline);
+    stateGroup.add(_createDescriptorSet(stateInfo));
+}
+
 
 void Builder::compile(ref_ptr<Node> subgraph)
 {
@@ -193,7 +195,7 @@ void Builder::transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr
     }
 }
 
-vec3 Builder::y_texcoord(const GeometryInfo& info) const
+vec3 Builder::y_texcoord(const StateInfo& info) const
 {
     if (info.image && info.image->getLayout().origin == Origin::TOP_LEFT)
     {
@@ -205,7 +207,7 @@ vec3 Builder::y_texcoord(const GeometryInfo& info) const
     }
 }
 
-ref_ptr<Node> Builder::createBox(const GeometryInfo& info)
+ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stateInfo)
 {
     auto& subgraph = _boxes[info];
     if (subgraph)
@@ -227,14 +229,13 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info)
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     auto scenegraph = StateGroup::create();
-    scenegraph->add(_createGraphicsPipeline());
-    scenegraph->add(_createTexture(info));
+    _assign(*scenegraph, stateInfo);
 
     auto dx = info.dx;
     auto dy = info.dy;
     auto dz = info.dz;
     auto origin = info.position - dx * 0.5f - dy * 0.5f - dz * 0.5f;
-    auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
+    auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
     vec3 v000(origin);
     vec3 v100(origin + dx);
@@ -321,7 +322,7 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info)
     return subgraph;
 }
 
-ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info)
+ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& stateInfo)
 {
     auto& subgraph = _capsules[info];
     if (subgraph)
@@ -341,12 +342,11 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info)
     if (colors && colors->valueCount() != instanceCount) colors = {};
     if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
-    auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
+    auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     auto scenegraph = StateGroup::create();
-    scenegraph->add(_createGraphicsPipeline());
-    scenegraph->add(_createTexture(info));
+    _assign(*scenegraph, stateInfo);
 
     auto dx = info.dx * 0.5f;
     auto dy = info.dy * 0.5f;
@@ -563,7 +563,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info)
     return subgraph;
 }
 
-ref_ptr<Node> Builder::createCone(const GeometryInfo& info)
+ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& stateInfo)
 {
     auto& subgraph = _cones[info];
     if (subgraph)
@@ -583,12 +583,11 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info)
     if (colors && colors->valueCount() != instanceCount) colors = {};
     if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
-    auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
+    auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     auto scenegraph = StateGroup::create();
-    scenegraph->add(_createGraphicsPipeline());
-    scenegraph->add(_createTexture(info));
+    _assign(*scenegraph, stateInfo);
 
     auto dx = info.dx * 0.5f;
     auto dy = info.dy * 0.5f;
@@ -734,7 +733,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info)
     return subgraph;
 }
 
-ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info)
+ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo& stateInfo)
 {
     auto& subgraph = _cylinders[info];
     if (subgraph)
@@ -754,12 +753,11 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info)
     if (colors && colors->valueCount() != instanceCount) colors = {};
     if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
-    auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
+    auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     auto scenegraph = StateGroup::create();
-    scenegraph->add(_createGraphicsPipeline());
-    scenegraph->add(_createTexture(info));
+    _assign(*scenegraph, stateInfo);
 
     auto dx = info.dx * 0.5f;
     auto dy = info.dy * 0.5f;
@@ -917,7 +915,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info)
     return subgraph;
 }
 
-ref_ptr<Node> Builder::createQuad(const GeometryInfo& info)
+ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& stateInfo)
 {
     auto& subgraph = _boxes[info];
     if (subgraph)
@@ -938,13 +936,12 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info)
     if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
     auto scenegraph = StateGroup::create();
-    scenegraph->add(_createGraphicsPipeline());
-    scenegraph->add(_createTexture(info));
+    _assign(*scenegraph, stateInfo);
 
     auto dx = info.dx;
     auto dy = info.dy;
     auto origin = info.position - dx * 0.5f - dy * 0.5f;
-    auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
+    auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
     auto normal = normalize(cross(dx, dy));
 
     // set up vertex and index arrays
@@ -1001,7 +998,7 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info)
     return scenegraph;
 }
 
-ref_ptr<Node> Builder::createSphere(const GeometryInfo& info)
+ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& stateInfo)
 {
     auto& subgraph = _spheres[info];
     if (subgraph)
@@ -1009,7 +1006,7 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info)
         return subgraph;
     }
 
-    auto [t_origin, t_scale, t_top] = y_texcoord(info).value;
+    auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
     uint32_t instanceCount = 1;
     auto positions = info.positions;
@@ -1025,8 +1022,7 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info)
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     auto scenegraph = StateGroup::create();
-    scenegraph->add(_createGraphicsPipeline());
-    scenegraph->add(_createTexture(info));
+    _assign(*scenegraph, stateInfo);
 
     auto dx = info.dx * 0.5f;
     auto dy = info.dy * 0.5f;

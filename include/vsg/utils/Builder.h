@@ -2,8 +2,31 @@
 
 #include <vsg/all.h>
 
+#define VSG_COMPARE_PARAMETERS(A, B) if (A < B) return true; else if (B < A) return false;
+
 namespace vsg
 {
+    struct StateInfo
+    {
+        bool doubleSided = false;
+        bool blending = false;
+        bool diffuseMap = false;
+        bool wireframe = false;
+        bool instancce_positions_vec3 = false;
+        bool instancce_colors_vec4 = false;
+        ref_ptr<Data> image;
+
+        bool operator<(const StateInfo& rhs) const
+        {
+            VSG_COMPARE_PARAMETERS(doubleSided, rhs.doubleSided)
+            VSG_COMPARE_PARAMETERS(blending, rhs.blending)
+            VSG_COMPARE_PARAMETERS(diffuseMap, rhs.diffuseMap)
+            VSG_COMPARE_PARAMETERS(wireframe, rhs.wireframe)
+            VSG_COMPARE_PARAMETERS(instancce_positions_vec3, rhs.instancce_positions_vec3)
+            VSG_COMPARE_PARAMETERS(instancce_colors_vec4, rhs.instancce_colors_vec4)
+            return image < rhs.image;
+        }
+    };
 
     struct GeometryInfo
     {
@@ -12,8 +35,6 @@ namespace vsg
         vec3 dy = {0.0f, 1.0f, 0.0f};
         vec3 dz = {0.0f, 0.0f, 1.0f};
         vec4 color = {1.0, 1.0, 1.0, 1.0};
-        ref_ptr<Data> image;
-        bool wireframe = false;
         mat4 transform;
 
         /// used for instancing
@@ -22,28 +43,15 @@ namespace vsg
 
         bool operator<(const GeometryInfo& rhs) const
         {
-            if (position < rhs.position) return true;
-            if (rhs.position < position) return false;
-
-            if (dx < rhs.dx) return true;
-            if (rhs.dx < dx) return false;
-
-            if (dy < rhs.dy) return true;
-            if (rhs.dy < dy) return false;
-
-            if (dz < rhs.dz) return true;
-            if (rhs.dz < dz) return false;
-
-            if (color < rhs.color) return true;
-            if (rhs.color < color) return false;
-
-            if (positions < rhs.positions) return true;
-            if (rhs.positions < positions) return false;
-
-            if (colors < rhs.colors) return true;
-            if (rhs.colors < colors) return false;
-
-            return image < rhs.image;
+            VSG_COMPARE_PARAMETERS(position, rhs.position)
+            VSG_COMPARE_PARAMETERS(dx, rhs.dx)
+            VSG_COMPARE_PARAMETERS(dy, rhs.dy)
+            VSG_COMPARE_PARAMETERS(dz, rhs.dz)
+            VSG_COMPARE_PARAMETERS(color, rhs.color)
+            VSG_COMPARE_PARAMETERS(transform, rhs.transform)
+            VSG_COMPARE_PARAMETERS(positions, rhs.positions)
+            VSG_COMPARE_PARAMETERS(colors, rhs.colors)
+            return false;
         }
     };
 
@@ -58,12 +66,12 @@ namespace vsg
 
         void compile(ref_ptr<Node> subgraph);
 
-        ref_ptr<Node> createBox(const GeometryInfo& info = {});
-        ref_ptr<Node> createCapsule(const GeometryInfo& info = {});
-        ref_ptr<Node> createCone(const GeometryInfo& info = {});
-        ref_ptr<Node> createCylinder(const GeometryInfo& info = {});
-        ref_ptr<Node> createQuad(const GeometryInfo& info = {});
-        ref_ptr<Node> createSphere(const GeometryInfo& info = {});
+        ref_ptr<Node> createBox(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
+        ref_ptr<Node> createCapsule(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
+        ref_ptr<Node> createCone(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
+        ref_ptr<Node> createCylinder(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
+        ref_ptr<Node> createQuad(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
+        ref_ptr<Node> createSphere(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
 
     private:
 
@@ -73,17 +81,22 @@ namespace vsg
         uint32_t _maxNumTextures = 0;
         ref_ptr<CompileTraversal> _compile;
 
-        ref_ptr<DescriptorSetLayout> _descriptorSetLayout;
-        ref_ptr<PipelineLayout> _pipelineLayout;
-        ref_ptr<BindGraphicsPipeline> _bindGraphicsPipeline;
+        struct StateSettings
+        {
+            ref_ptr<DescriptorSetLayout> descriptorSetLayout;
+            ref_ptr<PipelineLayout> pipelineLayout;
+            ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
+            std::map<ref_ptr<Data>, ref_ptr<BindDescriptorSets>> textureDescriptorSets;
+        };
 
-        std::map<vec4, ref_ptr<vec4Array2D>> _colorData;
-        std::map<ref_ptr<Data>, ref_ptr<BindDescriptorSets>> _textureDescriptorSets;
+        std::map<StateInfo, StateSettings> _stateMap;
 
-        vec3 y_texcoord(const GeometryInfo& info) const;
+        StateSettings& _getStateSettings(const StateInfo& stateInfo);
+        ref_ptr<BindDescriptorSets> _createDescriptorSet(const StateInfo& stateInfo);
 
-        ref_ptr<BindGraphicsPipeline> _createGraphicsPipeline();
-        ref_ptr<BindDescriptorSets> _createTexture(const GeometryInfo& info);
+        void _assign(StateGroup& stateGroup, const StateInfo& stateInfo);
+
+        vec3 y_texcoord(const StateInfo& info) const;
 
         using GeometryMap = std::map<GeometryInfo, ref_ptr<Node>>;
         GeometryMap _boxes;
