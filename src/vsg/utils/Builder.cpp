@@ -645,20 +645,11 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
 
     bool withEnds = true;
 
-    unsigned int num_columns = 20;
-    unsigned int num_vertices = num_columns * 2;
-    unsigned int num_indices = (num_columns - 1) * 3;
 
-    if (withEnds)
-    {
-        num_vertices += num_columns;
-        num_indices += (num_columns - 2) * 3;
-    }
-
-    auto vertices = vec3Array::create(num_vertices);
-    auto normals = vec3Array::create(num_vertices);
-    auto texcoords = vec2Array::create(num_vertices);
-    auto indices = ushortArray::create(num_indices);
+    ref_ptr<vec3Array> vertices;
+    ref_ptr<vec3Array> normals;
+    ref_ptr<vec2Array> texcoords;
+    ref_ptr<ushortArray> indices;
 
     auto edge = [&](float alpha) -> vec3 {
         return dy * (cosf(alpha)) - dx * (sinf(alpha));
@@ -676,78 +667,140 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     vec3 v = edge(alpha);
     vec3 n = normal(alpha);
 
-    vertices->set(0, bottom + v);
-    normals->set(0, n);
-    texcoords->set(0, vec2(0.0, t_origin));
-    vertices->set(num_columns * 2 - 2, bottom + v);
-    normals->set(num_columns * 2 - 2, n);
-    texcoords->set(num_columns * 2 - 2, vec2(1.0, t_origin));
-
-    vertices->set(1, top);
-    normals->set(1, n);
-    texcoords->set(1, vec2(0.0, t_top));
-    vertices->set(num_columns * 2 - 1, top);
-    normals->set(num_columns * 2 - 1, n);
-    texcoords->set(num_columns * 2 - 1, vec2(1.0, t_top));
-
-    for (unsigned int c = 1; c < num_columns - 1; ++c)
+    if (stateInfo.wireframe)
     {
-        unsigned int vi = c * 2;
-        float r = float(c) / float(num_columns - 1);
-        alpha = (r)*2.0 * PI;
-        v = edge(alpha);
-        n = normal(alpha);
+        unsigned int num_columns = 20;
 
-        vertices->set(vi, bottom + v);
-        normals->set(vi, n);
-        texcoords->set(vi, vec2(r, t_origin));
+        unsigned int num_vertices = 1 + num_columns;
+        unsigned int num_indices = num_columns * 4;
 
-        vertices->set(vi + 1, top);
-        normals->set(vi + 1, n);
-        texcoords->set(vi + 1, vec2(r, t_top));
-    }
+        vertices = vec3Array::create(num_vertices);
+        normals = vec3Array::create(num_vertices);
+        texcoords = vec2Array::create(num_vertices);
+        indices = ushortArray::create(num_indices);
 
-    unsigned int i = 0;
-    for (unsigned int c = 0; c < num_columns - 1; ++c)
-    {
-        unsigned lower = c * 2;
-        unsigned upper = lower + 1;
+        vertices->set(0, top);
+        normals->set(0, vsg::normalize(info.dz));
+        texcoords->set(0, vec2(0.0, 0.0));
 
-        indices->set(i++, lower);
-        indices->set(i++, lower + 2);
-        indices->set(i++, upper);
-    }
-
-    if (withEnds)
-    {
-        unsigned int bottom_i = num_columns * 2;
-        v = edge(0.0f);
-        vec3 bottom_n = normalize(-dz);
-
-        vertices->set(bottom_i, bottom + v);
-        normals->set(bottom_i, bottom_n);
-        texcoords->set(bottom_i, vec2(0.0, t_origin));
-        vertices->set(bottom_i + num_columns - 1, bottom + v);
-        normals->set(bottom_i + num_columns - 1, bottom_n);
-        texcoords->set(bottom_i + num_columns - 1, vec2(1.0, t_origin));
-
-        for (unsigned int c = 1; c < num_columns - 1; ++c)
+        for (unsigned int c = 0; c < num_columns; ++c)
         {
-            float r = float(c) / float(num_columns - 1);
+            unsigned int vi = 1+c;
+            float r = float(c) / float(num_columns);
             alpha = (r)*2.0 * PI;
             v = edge(alpha);
+            n = normal(alpha);
 
-            unsigned int vi = bottom_i + c;
             vertices->set(vi, bottom + v);
-            normals->set(vi, bottom_n);
+            normals->set(vi, n);
             texcoords->set(vi, vec2(r, t_origin));
         }
 
-        for (unsigned int c = 0; c < num_columns - 2; ++c)
+        unsigned int i = 0;
+        indices->set(i++, 0);
+        indices->set(i++, num_columns);
+        indices->set(i++, num_columns);
+        indices->set(i++, 1);
+        for (unsigned int c = 1; c < num_columns; ++c)
         {
-            indices->set(i++, bottom_i + c);
-            indices->set(i++, bottom_i + c + 1);
-            indices->set(i++, bottom_i + num_columns - 1);
+            unsigned lower = 1 + c;
+            indices->set(i++, 0);
+            indices->set(i++, lower-1);
+            indices->set(i++, lower-1);
+            indices->set(i++, lower);
+        }
+    }
+    else
+    {
+        unsigned int num_columns = 20;
+        unsigned int num_vertices = num_columns * 2;
+        unsigned int num_indices = (num_columns - 1) * 3;
+
+        if (withEnds)
+        {
+            num_vertices += num_columns;
+            num_indices += (num_columns - 2) * 3;
+        }
+
+        vertices = vec3Array::create(num_vertices);
+        normals = vec3Array::create(num_vertices);
+        texcoords = vec2Array::create(num_vertices);
+        indices = ushortArray::create(num_indices);
+
+        vertices->set(0, bottom + v);
+        normals->set(0, n);
+        texcoords->set(0, vec2(0.0, t_origin));
+        vertices->set(num_columns * 2 - 2, bottom + v);
+        normals->set(num_columns * 2 - 2, n);
+        texcoords->set(num_columns * 2 - 2, vec2(1.0, t_origin));
+
+        vertices->set(1, top);
+        normals->set(1, n);
+        texcoords->set(1, vec2(0.0, t_top));
+        vertices->set(num_columns * 2 - 1, top);
+        normals->set(num_columns * 2 - 1, n);
+        texcoords->set(num_columns * 2 - 1, vec2(1.0, t_top));
+
+        for (unsigned int c = 1; c < num_columns - 1; ++c)
+        {
+            unsigned int vi = c * 2;
+            float r = float(c) / float(num_columns - 1);
+            alpha = (r)*2.0 * PI;
+            v = edge(alpha);
+            n = normal(alpha);
+
+            vertices->set(vi, bottom + v);
+            normals->set(vi, n);
+            texcoords->set(vi, vec2(r, t_origin));
+
+            vertices->set(vi + 1, top);
+            normals->set(vi + 1, n);
+            texcoords->set(vi + 1, vec2(r, t_top));
+        }
+
+        unsigned int i = 0;
+        for (unsigned int c = 0; c < num_columns - 1; ++c)
+        {
+            unsigned lower = c * 2;
+            unsigned upper = lower + 1;
+
+            indices->set(i++, lower);
+            indices->set(i++, lower + 2);
+            indices->set(i++, upper);
+        }
+
+        if (withEnds)
+        {
+            unsigned int bottom_i = num_columns * 2;
+            v = edge(0.0f);
+            vec3 bottom_n = normalize(-dz);
+
+            vertices->set(bottom_i, bottom + v);
+            normals->set(bottom_i, bottom_n);
+            texcoords->set(bottom_i, vec2(0.0, t_origin));
+            vertices->set(bottom_i + num_columns - 1, bottom + v);
+            normals->set(bottom_i + num_columns - 1, bottom_n);
+            texcoords->set(bottom_i + num_columns - 1, vec2(1.0, t_origin));
+
+            for (unsigned int c = 1; c < num_columns - 1; ++c)
+            {
+                float r = float(c) / float(num_columns - 1);
+                alpha = (r)*2.0 * PI;
+                v = edge(alpha);
+
+                unsigned int vi = bottom_i + c;
+                vertices->set(vi, bottom + v);
+                normals->set(vi, bottom_n);
+                texcoords->set(vi, vec2(r, t_origin));
+            }
+
+            for (unsigned int c = 0; c < num_columns - 2; ++c)
+            {
+                indices->set(i++, bottom_i + c);
+                indices->set(i++, bottom_i + c + 1);
+                indices->set(i++, bottom_i + num_columns - 1);
+            }
+
         }
     }
 
