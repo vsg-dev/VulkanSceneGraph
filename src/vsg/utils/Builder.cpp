@@ -1091,6 +1091,119 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     return subgraph;
 }
 
+ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& stateInfo)
+{
+    auto& subgraph = _cylinders[info];
+    if (subgraph)
+    {
+        return subgraph;
+    }
+
+    uint32_t instanceCount = 1;
+    auto positions = info.positions;
+    if (positions)
+    {
+        if (positions->size()>=1) instanceCount = positions->size();
+        else positions = {};
+    }
+
+    auto colors = info.colors;
+    if (colors && colors->valueCount() != instanceCount) colors = {};
+    if (!colors) colors = vec4Array::create(instanceCount, info.color);
+
+    auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
+
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
+    auto scenegraph = StateGroup::create();
+    _assign(*scenegraph, stateInfo);
+
+    auto dx = info.dx * 0.5f;
+    auto dy = info.dy * 0.5f;
+    auto dz = info.dz * 0.5f;
+
+    auto center = info.position;
+    auto n = normalize(dz);
+
+    unsigned int num_vertices = 20;
+
+    auto vertices = vec3Array::create(num_vertices);
+    auto normals = vec3Array::create(num_vertices);
+    auto texcoords = vec2Array::create(num_vertices);
+    ref_ptr<ushortArray> indices;
+
+    vertices->set(0, center+dy);
+    normals->set(0, n);
+    texcoords->set(0, vec2(0.5f, t_top));
+
+    for(unsigned int c = 1; c < num_vertices; ++c)
+    {
+        float r = float(c) / float(num_vertices - 1);
+        float alpha = (r)*2.0 * PI;
+        float sn = sinf(alpha);
+        float cs = cosf(alpha);
+        vec3 v =  dy * cs - dx * sn;
+        vertices->set(c, center + v);
+        normals->set(c, n);
+        texcoords->set(c, vec2((1.0f-sn)*0.5f, t_origin + t_scale * (cs+1.0f)*0.5f));
+    }
+
+    if (stateInfo.wireframe)
+    {
+        unsigned int num_indices = (num_vertices) * 2;
+        indices = ushortArray::create(num_indices);
+
+        unsigned int i = 0;
+
+        indices->set(i++, num_vertices-1);
+        indices->set(i++, 0);
+        for(unsigned vi=0; vi < num_vertices-1; ++vi)
+        {
+            indices->set(i++, vi);
+            indices->set(i++, vi+1);
+        }
+    }
+    else
+    {
+        unsigned int num_indices = (num_vertices-2) * 3;
+        indices = ushortArray::create(num_indices);
+
+        unsigned int i = 0;
+        for(unsigned vi=1; vi < num_vertices-2; ++vi)
+        {
+            indices->set(i++, 0);
+            indices->set(i++, vi);
+            indices->set(i++, vi+1);
+        }
+    }
+
+    if (info.transform != identity)
+    {
+        transform(info.transform, vertices, normals);
+    }
+
+    // setup geometry
+    auto vid = VertexIndexDraw::create();
+
+    DataList arrays;
+    arrays.push_back(vertices);
+    if (normals) arrays.push_back(normals);
+    if (colors) arrays.push_back(colors);
+    if (texcoords) arrays.push_back(texcoords);
+    if (positions) arrays.push_back(positions);
+    vid->assignArrays(arrays);
+
+    vid->assignIndices(indices);
+    vid->indexCount = indices->size();
+    vid->instanceCount = instanceCount;
+
+    scenegraph->addChild(vid);
+
+    compile(scenegraph);
+
+    subgraph = scenegraph;
+    return subgraph;
+}
+
 ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& stateInfo)
 {
     auto& subgraph = _boxes[info];
