@@ -126,6 +126,18 @@ namespace vsg
     }
 
     template<typename T>
+    bool operator<(const t_mat4<T>& lhs, const t_mat4<T>& rhs)
+    {
+        if (lhs.value[0] < rhs.value[0]) return true;
+        if (rhs.value[0] < lhs.value[0]) return false;
+        if (lhs.value[1] < rhs.value[1]) return true;
+        if (rhs.value[1] < lhs.value[1]) return false;
+        if (lhs.value[2] < rhs.value[2]) return true;
+        if (rhs.value[2] < lhs.value[2]) return false;
+        return lhs.value[3] < rhs.value[3];
+    }
+
+    template<typename T>
     T dot(const t_mat4<T>& lhs, const t_mat4<T>& rhs, int c, int r)
     {
         return lhs[0][r] * rhs[c][0] +

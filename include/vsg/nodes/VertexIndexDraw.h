@@ -46,6 +46,9 @@ namespace vsg
         void assignArrays(const DataList& arrayData);
         void assignIndices(ref_ptr<vsg::Data> indexData);
 
+        void assignArrays(const DataList& in_arrays) {  arrays = in_arrays; }
+        void assignIndices(ref_ptr<Data> in_indices) { indices = in_indices; }
+
     protected:
         virtual ~VertexIndexDraw();
 
