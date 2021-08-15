@@ -797,8 +797,8 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
             for (unsigned int c = 0; c < num_columns - 2; ++c)
             {
                 indices->set(i++, bottom_i + c);
-                indices->set(i++, bottom_i + c + 1);
                 indices->set(i++, bottom_i + num_columns - 1);
+                indices->set(i++, bottom_i + c + 1);
             }
 
         }
