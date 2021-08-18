@@ -150,8 +150,6 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
         inputAssemblyState->topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
     }
 
-    std::cout<<"stateInfo.wireframe = "<<stateInfo.wireframe<<std::endl;
-
     GraphicsPipelineStates pipelineStates{
         VertexInputState::create(vertexBindingsDescriptions, vertexAttributeDescriptions),
         inputAssemblyState,
@@ -358,8 +356,6 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
     vid->assignIndices(indices);
     vid->indexCount = indices->size();
     vid->instanceCount = instanceCount;
-
-    std::cout<<"vid->instanceCount = "<<vid->instanceCount<<std::endl;
 
     scenegraph->addChild(vid);
 
