@@ -57,7 +57,7 @@ namespace vsg
         }
     };
 
-    class Builder : public Inherit<Object, Builder>
+    class VSG_DECLSPEC Builder : public Inherit<Object, Builder>
     {
     public:
         bool verbose = false;
