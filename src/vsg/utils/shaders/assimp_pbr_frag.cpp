@@ -60,7 +60,7 @@ layout(binding = 10) uniform PbrData
     float alphaMaskCutoff;
 } pbr;
 
-layout(location = 0) in vec3 worldPos;
+layout(location = 0) in vec3 eyePos;
 layout(location = 1) in vec3 normalDir;
 layout(location = 2) in vec4 vertexColor;
 layout(location = 3) in vec2 texCoord0;
@@ -123,8 +123,8 @@ vec3 getNormal()
 
     //tangentNormal *= vec3(2,2,1);
 
-    vec3 q1 = dFdx(worldPos);
-    vec3 q2 = dFdy(worldPos);
+    vec3 q1 = dFdx(eyePos);
+    vec3 q2 = dFdy(eyePos);
     vec2 st1 = dFdx(texCoord0);
     vec2 st2 = dFdy(texCoord0);
 

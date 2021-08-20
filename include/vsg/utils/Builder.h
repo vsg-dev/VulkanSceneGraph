@@ -13,8 +13,8 @@ namespace vsg
         bool blending = false;
         bool diffuseMap = false;
         bool wireframe = false;
+        bool instancce_colors_vec4 = true;
         bool instancce_positions_vec3 = false;
-        bool instancce_colors_vec4 = false;
         ref_ptr<Data> image;
 
         bool operator<(const StateInfo& rhs) const
@@ -24,8 +24,8 @@ namespace vsg
             VSG_COMPARE_PARAMETERS(blending, rhs.blending)
             VSG_COMPARE_PARAMETERS(diffuseMap, rhs.diffuseMap)
             VSG_COMPARE_PARAMETERS(wireframe, rhs.wireframe)
-            VSG_COMPARE_PARAMETERS(instancce_positions_vec3, rhs.instancce_positions_vec3)
             VSG_COMPARE_PARAMETERS(instancce_colors_vec4, rhs.instancce_colors_vec4)
+            VSG_COMPARE_PARAMETERS(instancce_positions_vec3, rhs.instancce_positions_vec3)
             return image < rhs.image;
         }
     };

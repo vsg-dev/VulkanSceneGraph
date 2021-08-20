@@ -19,9 +19,6 @@ layout(binding = 0) uniform sampler2D diffuseMap;
 
 layout(location = 2) in vec4 vertexColor;
 layout(location = 3) in vec2 texCoord0;
-
-layout(location = 0) out vec4 outColor;
-
 layout(binding = 10) uniform MaterialData
 {
     vec4 ambientColor;
@@ -32,6 +29,8 @@ layout(binding = 10) uniform MaterialData
     float alphaMask;
     float alphaMaskCutoff;
 } material;
+
+layout(location = 0) out vec4 outColor;
 
 void main()
 {
