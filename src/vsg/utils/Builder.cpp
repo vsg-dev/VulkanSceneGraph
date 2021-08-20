@@ -18,8 +18,11 @@ void Builder::setup(ref_ptr<Window> window, ViewportState* viewport, uint32_t ma
 
     // for now just allocated enough room for s
     uint32_t maxSets = maxNumTextures;
+    uint32_t maxNumMaterials = maxNumTextures;
     DescriptorPoolSizes descriptorPoolSizes{
-        VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, maxNumTextures}};
+        VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, maxNumTextures},
+        VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, maxNumMaterials}
+    };
 
     _compile->context.descriptorPool = DescriptorPool::create(device, maxSets, descriptorPoolSizes);
 
@@ -98,9 +101,16 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
     if (stateInfo.instancce_positions_vec3) defines.push_back("VSG_INSTANCE_POSITIONS");
 
     // set up graphics pipeline
-    DescriptorSetLayoutBindings descriptorBindings{
-        {0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // { binding, descriptorTpe, descriptorCount, stageFlags, pImmutableSamplers}
-        {10, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}};
+    DescriptorSetLayoutBindings descriptorBindings;
+    if (stateInfo.image)
+    {
+        // { binding, descriptorTpe, descriptorCount, stageFlags, pImmutableSamplers}
+        descriptorBindings.push_back(VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr});
+    }
+
+    {
+        descriptorBindings.push_back(VkDescriptorSetLayoutBinding{10, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr});
+    }
 
     stateSettings.descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
 
@@ -123,17 +133,27 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
     VertexInputState::Bindings vertexBindingsDescriptions{
         VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX},  // vertex data
         VkVertexInputBindingDescription{1, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX},  // normal data
-        VkVertexInputBindingDescription{2, colorSize, VK_VERTEX_INPUT_RATE_INSTANCE},  // color
-        VkVertexInputBindingDescription{3, sizeof(vec2), VK_VERTEX_INPUT_RATE_VERTEX},  // tex coord data
-        VkVertexInputBindingDescription{4, sizeof(vec3), VK_VERTEX_INPUT_RATE_INSTANCE} // instance coord
+        VkVertexInputBindingDescription{2, sizeof(vec2), VK_VERTEX_INPUT_RATE_VERTEX}  // tex coord data
     };
 
     VertexInputState::Attributes vertexAttributeDescriptions{
         VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0}, // vertex data
         VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0}, // normal data
-        VkVertexInputAttributeDescription{2, 2, colorFormat, 0},    // color data
-        VkVertexInputAttributeDescription{3, 3, VK_FORMAT_R32G32_SFLOAT, 0},    // tex coord data
-        VkVertexInputAttributeDescription{4, 4, VK_FORMAT_R32G32B32_SFLOAT, 0}  // instance coord
+        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0}    // tex coord data
+    };
+
+    if (stateInfo.instancce_colors_vec4)
+    {
+        uint32_t colorBinding = static_cast<uint32_t>(vertexBindingsDescriptions.size());
+        vertexBindingsDescriptions.push_back(VkVertexInputBindingDescription{colorBinding, colorSize, VK_VERTEX_INPUT_RATE_INSTANCE});  // color data
+        vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{3, colorBinding, colorFormat, 0});    // color data
+    }
+
+    if (stateInfo.instancce_positions_vec3)
+    {
+        uint32_t positionBinding = static_cast<uint32_t>(vertexBindingsDescriptions.size());
+        vertexBindingsDescriptions.push_back(VkVertexInputBindingDescription{positionBinding, sizeof(vec3), VK_VERTEX_INPUT_RATE_INSTANCE}); // instance coord
+        vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{4, positionBinding, VK_FORMAT_R32G32B32_SFLOAT, 0});  // instance coord
     };
 
     auto rasterState = vsg::RasterizationState::create();
@@ -348,8 +368,8 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
     DataList arrays;
     arrays.push_back(vertices);
     if (normals) arrays.push_back(normals);
-    if (colors) arrays.push_back(colors);
     if (texcoords) arrays.push_back(texcoords);
+    if (colors) arrays.push_back(colors);
     if (positions) arrays.push_back(positions);
     vid->assignArrays(arrays);
 
@@ -589,8 +609,8 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     DataList arrays;
     arrays.push_back(vertices);
     if (normals) arrays.push_back(normals);
-    if (colors) arrays.push_back(colors);
     if (texcoords) arrays.push_back(texcoords);
+    if (colors) arrays.push_back(colors);
     if (positions) arrays.push_back(positions);
     vid->assignArrays(arrays);
 
@@ -811,8 +831,8 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     DataList arrays;
     arrays.push_back(vertices);
     if (normals) arrays.push_back(normals);
-    if (colors) arrays.push_back(colors);
     if (texcoords) arrays.push_back(texcoords);
+    if (colors) arrays.push_back(colors);
     if (positions) arrays.push_back(positions);
     vid->assignArrays(arrays);
 
@@ -1070,8 +1090,8 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     DataList arrays;
     arrays.push_back(vertices);
     if (normals) arrays.push_back(normals);
-    if (colors) arrays.push_back(colors);
     if (texcoords) arrays.push_back(texcoords);
+    if (colors) arrays.push_back(colors);
     if (positions) arrays.push_back(positions);
     vid->assignArrays(arrays);
 
@@ -1183,8 +1203,8 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     DataList arrays;
     arrays.push_back(vertices);
     if (normals) arrays.push_back(normals);
-    if (colors) arrays.push_back(colors);
     if (texcoords) arrays.push_back(texcoords);
+    if (colors) arrays.push_back(colors);
     if (positions) arrays.push_back(positions);
     vid->assignArrays(arrays);
 
@@ -1274,8 +1294,8 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& sta
     DataList arrays;
     arrays.push_back(vertices);
     if (normals) arrays.push_back(normals);
-    if (colors) arrays.push_back(colors);
     if (texcoords) arrays.push_back(texcoords);
+    if (colors) arrays.push_back(colors);
     if (positions) arrays.push_back(positions);
     vid->assignArrays(arrays);
 
@@ -1392,8 +1412,8 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
     DataList arrays;
     arrays.push_back(vertices);
     if (normals) arrays.push_back(normals);
-    if (colors) arrays.push_back(colors);
     if (texcoords) arrays.push_back(texcoords);
+    if (colors) arrays.push_back(colors);
     if (positions) arrays.push_back(positions);
     vid->assignArrays(arrays);
 

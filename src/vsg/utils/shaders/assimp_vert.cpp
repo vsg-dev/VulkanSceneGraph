@@ -20,20 +20,18 @@ layout(push_constant) uniform PushConstants {
 } pc;
 
 layout(location = 0) in vec3 vsg_Vertex;
-layout(location = 0) out vec3 worldPos;
-
 layout(location = 1) in vec3 vsg_Normal;
-layout(location = 1) out vec3 normalDir;
-
-layout(location = 2) in vec4 vsg_Color;
-layout(location = 2) out vec4 vertexColor;
-
-layout(location = 3) in vec2 vsg_TexCoord0;
-layout(location = 3) out vec2 texCoord0;
+layout(location = 2) in vec2 vsg_TexCoord0;
+layout(location = 3) in vec4 vsg_Color;
 
 #ifdef VSG_INSTANCE_POSITIONS
 layout(location = 4) in vec3 vsg_position;
 #endif
+
+layout(location = 0) out vec3 eyePos;
+layout(location = 1) out vec3 normalDir;
+layout(location = 2) out vec4 vertexColor;
+layout(location = 3) out vec2 texCoord0;
 
 layout(location = 5) out vec3 viewDir;
 layout(location = 6) out vec3 lightDir;
@@ -49,8 +47,8 @@ void main()
 #endif
 
     gl_Position = (pc.projection * pc.modelView) * vertex;
-    worldPos = vec4(pc.modelView * vertex).xyz;
 
+    eyePos = vec4(pc.modelView * vertex).xyz;
     normalDir = (pc.modelView * vec4(vsg_Normal, 0.0)).xyz;
 
     vec4 lpos = /*vsg_LightSource.position*/ vec4(0.0, 0.25, 1.0, 0.0);
@@ -63,7 +61,6 @@ void main()
         lightDir = lpos.xyz + viewDir;
 
     vertexColor = vsg_Color;
-
     texCoord0 = vsg_TexCoord0;
 }
 "
