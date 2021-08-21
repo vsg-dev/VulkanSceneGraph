@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <iostream>
 #include <set>
-
+#include <cstring>
 using namespace vsg;
 
 // thread safe container for managing the deviceID for each vsg;:Device
@@ -98,6 +98,17 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
         queueCreateInfos.push_back(queueCreateInfo);
     }
 
+    // MacOS requires "VK_KHR_portability_subset" to be a requested extension if the PhysicalDevice supported it.
+    Names local_deviceExtensions(deviceExtensions);
+    auto extensionProperties = _physicalDevice->enumerateDeviceExtensionProperties();
+    for(auto& extensionProperty : extensionProperties)
+    {
+        if (std::strncmp(extensionProperty.extensionName, "VK_KHR_portability_subset", VK_MAX_EXTENSION_NAME_SIZE)==0)
+        {
+            local_deviceExtensions.push_back(extensionProperty.extensionName);
+        }
+    }
+
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
@@ -106,8 +117,8 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
 
     createInfo.pEnabledFeatures = nullptr;
 
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-    createInfo.ppEnabledExtensionNames = deviceExtensions.empty() ? nullptr : deviceExtensions.data();
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(local_deviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = local_deviceExtensions.empty() ? nullptr : local_deviceExtensions.data();
 
     createInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
     createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();

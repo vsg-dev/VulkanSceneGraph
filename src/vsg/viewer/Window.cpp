@@ -201,8 +201,6 @@ void Window::_initFormats()
     }
 }
 
-#include <iostream>
-
 void Window::_initDevice()
 {
     if (!_instance) _initInstance();
@@ -221,13 +219,6 @@ void Window::_initDevice()
     {
         requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
         if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
-    }
-
-    auto extensionProperties = _physicalDevice->enumerateDeviceExtensionProperties();
-    std::cout<<"Window::_initDevice() extensionProperties.size() = "<<extensionProperties.size()<<std::endl;
-    for(auto& extensionProperty : extensionProperties)
-    {
-        std::cout<<"    extensionProperty.extensionName = "<<extensionProperty.extensionName<<", specVersion = "<<extensionProperty.specVersion<<std::endl;
     }
 
     vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
