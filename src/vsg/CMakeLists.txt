@@ -229,7 +229,7 @@ if (glslang_FOUND)
 
     install(
         FILES vsg_glslangConfig.cmake
-        DESTINATION lib/cmake/vsg_glslang
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg_glslang
     )
 endif()
 
@@ -328,12 +328,7 @@ target_include_directories(vsg PUBLIC $<BUILD_INTERFACE:${VSG_SOURCE_DIR}/includ
 target_link_libraries(vsg ${LIBRARIES})
 
 
-install(TARGETS vsg EXPORT vsgTargets
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin
-        INCLUDES DESTINATION include
-)
+install(TARGETS vsg ${INSTALL_TARGETS_DEFAULT_FLAGS})
 
 if (BUILD_SHARED_LIBS)
     target_compile_definitions(vsg INTERFACE VSG_SHARED_LIBRARY)
@@ -354,12 +349,12 @@ configure_file("${CMAKE_SOURCE_DIR}/src/vsg/vsgConfig.cmake.in" "${CMAKE_BINARY_
 install(EXPORT vsgTargets
     FILE vsgTargets.cmake
     NAMESPACE vsg::
-    DESTINATION lib/cmake/vsg
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg
 )
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file("${CMAKE_BINARY_DIR}/src/vsg/vsgConfigVersion.cmake" COMPATIBILITY SameMajorVersion)
 
-install(FILES "${CMAKE_BINARY_DIR}/src/vsg/vsgConfig.cmake" "${CMAKE_BINARY_DIR}/src/vsg/vsgConfigVersion.cmake" DESTINATION lib/cmake/vsg)
+install(FILES "${CMAKE_BINARY_DIR}/src/vsg/vsgConfig.cmake" "${CMAKE_BINARY_DIR}/src/vsg/vsgConfigVersion.cmake" DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
 
 # ]==]
