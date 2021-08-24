@@ -13,6 +13,9 @@ set(VSG_MAX_DEVICES 1 CACHE STRING "Set maximum number of vk/vsg::Device that ar
 set(VSG_VERSION_HEADER "${PROJECT_BINARY_DIR}/include/vsg/core/Version.h")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/vsg/core/Version.h.in" "${VSG_VERSION_HEADER}")
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+include(vsgMacros)
+
 set(OUTPUT_BINDIR ${PROJECT_BINARY_DIR}/bin)
 set(OUTPUT_LIBDIR ${PROJECT_BINARY_DIR}/lib)
 
@@ -204,6 +207,8 @@ if (MAINTAINER)
     )
 
 endif()
+
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/vsgMacros.cmake" DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
 
 #
 # src directory contains all the source of the vsg library
