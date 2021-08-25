@@ -12,12 +12,16 @@ Root id=1 vsg::ShaderStage
     Source "#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-#pragma import_defines (VSG_INSTANCE_POSITIONS)
+#pragma import_defines (VSG_INSTANCE_POSITIONS, VSG_DISPLACEMENT_MAP)
 
 layout(push_constant) uniform PushConstants {
     mat4 projection;
     mat4 modelView;
 } pc;
+
+#ifdef VSG_DISPLACEMENT_MAP
+layout(binding = 6) uniform sampler2D displacementMap;
+#endif
 
 layout(location = 0) in vec3 vsg_Vertex;
 layout(location = 1) in vec3 vsg_Normal;
@@ -41,6 +45,10 @@ out gl_PerVertex{ vec4 gl_Position; };
 void main()
 {
     vec4 vertex = vec4(vsg_Vertex, 1.0);
+
+#ifdef VSG_DISPLACEMENT_MAP
+    vertex.xyz = vertex.xyz + vsg_Normal * texture(displacementMap, vsg_TexCoord0.st).s;
+#endif
 
 #ifdef VSG_INSTANCE_POSITIONS
    vertex.xyz = vertex.xyz + vsg_position;
