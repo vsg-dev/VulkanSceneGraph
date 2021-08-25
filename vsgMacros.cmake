@@ -27,7 +27,7 @@ macro(add_option_maintainer)
         #
         set(VSG_BRANCH ${ARGS_PREFIX}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
 
-        set(GITCOMMAND git)
+        set(GITCOMMAND git -C ${CMAKE_SOURCE_DIR})
         set(ECHO ${CMAKE_COMMAND} -E echo)
         set(REMOTE origin)
 
