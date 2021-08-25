@@ -37,6 +37,37 @@ macro(setup_dir_vars)
 endmacro()
 
 #
+# setup build related variables
+#
+macro(setup_build_vars)
+    set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "add a postfix, usually d on windows")
+    set(CMAKE_RELEASE_POSTFIX "" CACHE STRING "add a postfix, usually empty on windows")
+    set(CMAKE_RELWITHDEBINFO_POSTFIX "rd" CACHE STRING "add a postfix, usually empty on windows")
+    set(CMAKE_MINSIZEREL_POSTFIX "s" CACHE STRING "add a postfix, usually empty on windows")
+
+    # Change the default build type to Release
+    if(NOT CMAKE_BUILD_TYPE)
+        set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
+    endif(NOT CMAKE_BUILD_TYPE)
+
+    if(CMAKE_COMPILER_IS_GNUCXX)
+        set(VSG_WARNING_FLAGS -Wall -Wparentheses -Wno-long-long -Wno-import -Wreturn-type -Wmissing-braces -Wunknown-pragmas -Wmaybe-uninitialized -Wshadow -Wunused -Wno-misleading-indentation -Wextra)
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        set(VSG_WARNING_FLAGS -Wall -Wparentheses -Wno-long-long -Wno-import -Wreturn-type -Wmissing-braces -Wunknown-pragmas -Wshadow -Wunused -Wextra)
+    endif()
+
+    set(VSG_WARNING_FLAGS ${VSG_WARNING_FLAGS} CACHE STRING "Compiler flags to use." FORCE)
+    add_compile_options(${VSG_WARNING_FLAGS})
+
+    # set upper case <PROJECT>_VERSION_... variables
+    string(TOUPPER ${PROJECT_NAME} UPPER_PROJECT_NAME)
+    set(${UPPER_PROJECT_NAME}_VERSION ${PROJECT_VERSION})
+    set(${UPPER_PROJECT_NAME}_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+    set(${UPPER_PROJECT_NAME}_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+    set(${UPPER_PROJECT_NAME}_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+endmacro()
+
+#
 # add 'clobber' build target to clear all the non git registered files/directories
 #
 macro(add_target_clobber)
