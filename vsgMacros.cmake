@@ -41,12 +41,12 @@ macro(add_option_maintainer)
         set(BRANCH_MESSAGE "Branch ${VSG_BRANCH}")
 
         add_custom_target(tag-test
-            COMMAND ${ECHO} ${GITCOMMAND} tag -a ${RELEASE_NAME} -m ${RELEASE_MESSAGE}
+            COMMAND ${ECHO} ${GITCOMMAND} tag -a ${RELEASE_NAME} -m \"${RELEASE_MESSAGE}\"
             COMMAND ${ECHO} ${GITCOMMAND} push ${REMOTE} ${RELEASE_NAME}
         )
 
         add_custom_target(tag-run
-            COMMAND ${GITCOMMAND} tag -a ${RELEASE_NAME} -m ${RELEASE_MESSAGE}
+            COMMAND ${GITCOMMAND} tag -a ${RELEASE_NAME} -m "${RELEASE_MESSAGE}"
             COMMAND ${GITCOMMAND} push ${REMOTE} ${RELEASE_NAME}
         )
 
