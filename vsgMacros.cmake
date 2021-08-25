@@ -29,6 +29,7 @@ macro(add_option_maintainer)
 
         set(GITCOMMAND git)
         set(ECHO ${CMAKE_COMMAND} -E echo)
+        set(REMOTE origin)
 
         if(ARGS_RCLEVEL EQUAL 0)
             set(RELEASE_NAME ${ARGS_PREFIX}-${PROJECT_VERSION})
@@ -41,22 +42,22 @@ macro(add_option_maintainer)
 
         add_custom_target(tag-test
             COMMAND ${ECHO} ${GITCOMMAND} tag -a ${RELEASE_NAME} -m ${RELEASE_MESSAGE}
-            COMMAND ${ECHO} ${GITCOMMAND} push origin ${RELEASE_NAME}
+            COMMAND ${ECHO} ${GITCOMMAND} push ${REMOTE} ${RELEASE_NAME}
         )
 
         add_custom_target(tag-run
             COMMAND ${GITCOMMAND} tag -a ${RELEASE_NAME} -m ${RELEASE_MESSAGE}
-            COMMAND ${GITCOMMAND} push origin ${RELEASE_NAME}
+            COMMAND ${GITCOMMAND} push ${REMOTE} ${RELEASE_NAME}
         )
 
         add_custom_target(branch-test
             COMMAND ${ECHO} ${GITCOMMAND} branch ${VSG_BRANCH}
-            COMMAND ${ECHO} ${GITCOMMAND} push origin ${VSG_BRANCH}
+            COMMAND ${ECHO} ${GITCOMMAND} push ${REMOTE} ${VSG_BRANCH}
         )
 
         add_custom_target(branch-run
             COMMAND ${GITCOMMAND} branch ${VSG_BRANCH}
-            COMMAND ${GITCOMMAND} push origin ${VSG_BRANCH}
+            COMMAND ${GITCOMMAND} push ${REMOTE} ${VSG_BRANCH}
         )
 
     endif()
