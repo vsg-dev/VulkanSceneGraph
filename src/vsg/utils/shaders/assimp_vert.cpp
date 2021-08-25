@@ -45,10 +45,35 @@ out gl_PerVertex{ vec4 gl_Position; };
 void main()
 {
     vec4 vertex = vec4(vsg_Vertex, 1.0);
+    vec4 normal = vec4(vsg_Normal, 0.0);
 
 #ifdef VSG_DISPLACEMENT_MAP
-    vertex.xyz = vertex.xyz + vsg_Normal * texture(displacementMap, vsg_TexCoord0.st).s;
+    vec3 scale = vec3(1.0, 1.0, 1.0);
+
+    vertex.xyz = vertex.xyz + vsg_Normal * (texture(displacementMap, vsg_TexCoord0.st).s * scale.z);
+
+    float delta = 0.01;
+    float width = 0.0;
+
+    float s_left = max(vsg_TexCoord0.s - delta, 0.0);
+    float s_right = min(vsg_TexCoord0.s + delta, 1.0);
+    float t_center = vsg_TexCoord0.t;
+    float delta_left_right = s_right - s_left;
+    float dz_left_right = texture(displacementMap, vec2(s_right, t_center)).s - texture(displacementMap, vec2(s_left, t_center)).s;
+
+    float t_bottom = max(vsg_TexCoord0.t - delta, 0.0);
+    float t_top = min(vsg_TexCoord0.t + delta, 1.0);
+    float s_center = vsg_TexCoord0.s;
+    float delta_bottom_top = t_top - t_bottom;
+    float dz_bottom_top = texture(displacementMap, vec2(s_center, t_top)).s - texture(displacementMap, vec2(s_center, t_bottom)).s;
+
+    vec3 dx = normalize(vec3(delta_left_right, 0.0, dz_left_right));
+    vec3 dy = normalize(vec3(0.0, delta_bottom_top, dz_bottom_top));
+    vec3 dz = normalize(cross(dx, dy));
+
+    normal.xyz = normalize(dx * vsg_Normal.x + dy * vsg_Normal.y + dz * vsg_Normal.z);
 #endif
+
 
 #ifdef VSG_INSTANCE_POSITIONS
    vertex.xyz = vertex.xyz + vsg_position;
@@ -57,11 +82,11 @@ void main()
     gl_Position = (pc.projection * pc.modelView) * vertex;
 
     eyePos = vec4(pc.modelView * vertex).xyz;
-    normalDir = (pc.modelView * vec4(vsg_Normal, 0.0)).xyz;
 
-    vec4 lpos = /*vsg_LightSource.position*/ vec4(0.0, 0.25, 1.0, 0.0);
+    vec4 lpos = /*vsg_LightSource.position*/ vec4(0.0, 0.0, 1.0, 0.0);
 
-    viewDir = -vec3(pc.modelView * vertex);
+    viewDir = - (pc.modelView * vertex).xyz;
+    normalDir = (pc.modelView * normal).xyz;
 
     if (lpos.w == 0.0)
         lightDir = lpos.xyz;
