@@ -92,3 +92,5 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/vsgMacros.cmake" DESTINATION ${CMAKE_
 # src directory contains all the source of the vsg library
 #
 add_subdirectory(src/vsg)
+
+add_feature_summary()

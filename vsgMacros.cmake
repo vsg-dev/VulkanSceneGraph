@@ -257,3 +257,11 @@ macro(add_option_maintainer)
 
     endif()
 endmacro()
+
+#
+# add feature summary
+#
+macro(add_feature_summary)
+    include(FeatureSummary)
+    feature_summary(WHAT ALL)
+endmacro()
