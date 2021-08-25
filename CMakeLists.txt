@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.7)
 
-project(VSG
+project(vsg
     VERSION 0.1.5
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES CXX
@@ -16,47 +16,13 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/vsg/core/Version.h.in" "${VSG_VE
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 include(vsgMacros)
 
-set(OUTPUT_BINDIR ${PROJECT_BINARY_DIR}/bin)
-set(OUTPUT_LIBDIR ${PROJECT_BINARY_DIR}/lib)
-
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
 
 SET(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "add a postfix, usually d on windows")
 SET(CMAKE_RELEASE_POSTFIX "" CACHE STRING "add a postfix, usually empty on windows")
 SET(CMAKE_RELWITHDEBINFO_POSTFIX "rd" CACHE STRING "add a postfix, usually empty on windows")
 SET(CMAKE_MINSIZEREL_POSTFIX "s" CACHE STRING "add a postfix, usually empty on windows")
 
-include(GNUInstallDirs)
-
-if(WIN32)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
-    # set up local bin directory to place all binaries
-    make_directory(${OUTPUT_BINDIR})
-    make_directory(${OUTPUT_LIBDIR})
-    set(INSTALL_TARGETS_DEFAULT_FLAGS
-        EXPORT vsgTargets
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_BINDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    )
-else()
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
-    # set up local bin directory to place all binaries
-    make_directory(${OUTPUT_LIBDIR})
-    set(INSTALL_TARGETS_DEFAULT_FLAGS
-        EXPORT vsgTargets
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-endif()
-
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
+setup_dir_vars()
 
 # Change the default build type to Release
 if(NOT CMAKE_BUILD_TYPE)
@@ -86,7 +52,7 @@ find_package(Vulkan)
 find_package(Threads)
 
 if (NOT DEFINED glslang_FOUND)
-    find_package(vsg_glslang REQUIRED CONFIG PATHS ${VSG_SOURCE_DIR}/src/vsg)
+    find_package(vsg_glslang REQUIRED CONFIG PATHS ${CMAKE_SOURCE_DIR}/src/vsg)
 endif()
 
 if (ANDROID)

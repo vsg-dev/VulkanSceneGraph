@@ -1,4 +1,41 @@
 #
+# setup directory related variables
+#
+macro(setup_dir_vars)
+    set(OUTPUT_BINDIR ${PROJECT_BINARY_DIR}/bin)
+    set(OUTPUT_LIBDIR ${PROJECT_BINARY_DIR}/lib)
+
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
+
+    include(GNUInstallDirs)
+
+    if(WIN32)
+        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
+        # set up local bin directory to place all binaries
+        make_directory(${OUTPUT_BINDIR})
+        make_directory(${OUTPUT_LIBDIR})
+        set(INSTALL_TARGETS_DEFAULT_FLAGS
+            EXPORT ${PROJECT_NAME}Targets
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_BINDIR}
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        )
+    else()
+        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
+        # set up local bin directory to place all binaries
+        make_directory(${OUTPUT_LIBDIR})
+        set(INSTALL_TARGETS_DEFAULT_FLAGS
+            EXPORT ${PROJECT_NAME}Targets
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    )
+    endif()
+endmacro()
+
 #
 # add 'clobber' build target to clear all the non git registered files/directories
 #
