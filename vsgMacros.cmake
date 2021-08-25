@@ -159,7 +159,8 @@ endmacro()
 #
 # available arguments:
 #
-#    SUPPRESSIONS_LIST filename for list with suppressions
+#    FILES             list with file names or file name pattern
+#    SUPPRESSIONS_LIST filename for list with suppressions (optional)
 #
 # used global cmake variables:
 #
@@ -181,11 +182,14 @@ macro(add_target_cppcheck)
         include(ProcessorCount)
         ProcessorCount(CPU_CORES)
 
+        if(ARGS_SUPPRESSIONS_LIST)
+            set(SUPPRESSION_LIST "--suppressions-list=${ARGS_SUPPRESSIONS_LIST}")
+        endif()
         set(CPPCHECK_EXTRA_OPTIONS "" CACHE STRING "additional commandline options to use when invoking cppcheck")
         add_custom_target(cppcheck
             COMMAND ${CPPCHECK} -j ${CPU_CORES} --quiet --enable=style --language=c++
                 ${CPPCHECK_EXTRA_OPTIONS}
-                "--suppressions-list=${ARGS_SUPPRESSIONS_LIST}"
+                ${SUPPRESSION_LIST}
                 ${ARGS_FILES}
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             COMMENT "Static code analysis using cppcheck"
