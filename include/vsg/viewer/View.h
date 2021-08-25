@@ -59,5 +59,6 @@ namespace vsg
         /// bins
         std::vector<ref_ptr<Bin>> bins;
     };
+    VSG_type_name(vsg::View);
 
 } // namespace vsg
