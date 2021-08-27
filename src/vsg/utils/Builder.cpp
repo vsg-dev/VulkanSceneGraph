@@ -48,6 +48,9 @@ ref_ptr<BindDescriptorSets> Builder::_createDescriptorSet(const StateInfo& state
     if (textureData)
     {
         auto sampler = Sampler::create();
+        sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+
         auto texture = DescriptorImage::create(sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
         descriptors.push_back(texture);
     }
@@ -55,6 +58,9 @@ ref_ptr<BindDescriptorSets> Builder::_createDescriptorSet(const StateInfo& state
     if (displacementMap)
     {
         auto sampler = Sampler::create();
+        sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+
         auto texture = DescriptorImage::create(sampler, displacementMap, 6, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
         descriptors.push_back(texture);
     }
@@ -238,7 +244,9 @@ void Builder::transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr
 
 vec3 Builder::y_texcoord(const StateInfo& info) const
 {
-    if (info.image && info.image->getLayout().origin == Origin::TOP_LEFT)
+
+    if ((info.image && info.image->getLayout().origin == Origin::TOP_LEFT) ||
+        (info.displacementMap && info.displacementMap->getLayout().origin == Origin::TOP_LEFT))
     {
         return {1.0f, -1.0f, 0.0f};
     }
@@ -1499,7 +1507,8 @@ ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateIn
 
     for (unsigned int r = 0; r < num_rows; ++r)
     {
-        float ty = t_origin + t_scale * float(r) / float(num_rows - 1);
+        //float ty = t_origin + t_scale * float(r) / float(num_rows - 1);
+        float ty = float(r) / float(num_rows - 1);
         unsigned int left_i = r * num_columns;
 
         for (unsigned int c = 0; c < num_columns; ++c)
@@ -1508,7 +1517,7 @@ ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateIn
             float tx = float(c) / float(num_columns - 1);;
             vertices->set(vi, origin + dx * tx + dy * ty);
             normals->set(vi, normal);
-            texcoords->set(vi, vec2(float(c) / float(num_columns - 1), ty));
+            texcoords->set(vi, vec2(float(c) / float(num_columns - 1), t_origin + t_scale * ty));
         }
     }
 
