@@ -1,4 +1,14 @@
 #
+# macros provided by the vsg library
+#
+
+# set directory where vsgMacros.cmake is located
+# VSG_MACROS_INSTALLED is defined in src/vsg/vsgConfig.cmake.in
+if(NOT VSG_MACROS_INSTALLED)
+    set(VSG_MACROS_DIR ${CMAKE_SOURCE_DIR})
+endif()
+
+#
 # setup directory related variables
 #
 macro(setup_dir_vars)
@@ -80,19 +90,17 @@ endmacro()
 # add 'uninstall' build target
 #
 macro(add_target_uninstall)
-    # check if running outside from the vsg repo
-    # the variable is defined in installed vsgConfig.cmake
-    if(VSG_INSTALLED_LIST_DIR)
-        set(DIR ${VSG_INSTALLED_LIST_DIR})
+    if(VSG_MACROS_INSTALLED)
+        set(DIR ${VSG_MACROS_DIR})
     else()
-        set(DIR ${CMAKE_CURRENT_SOURCE_DIR}/build)
+        set(DIR ${CMAKE_SOURCE_DIR}/build)
     endif()
     add_custom_target(uninstall
         COMMAND ${CMAKE_COMMAND} -P ${DIR}/uninstall.cmake
     )
     # install file for client packages if running in vsg repo
-    if(NOT VSG_INSTALLED_LIST_DIR)
-        install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/build/uninstall.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
+    if(NOT VSG_MACROS_INSTALLED)
+        install(FILES ${CMAKE_SOURCE_DIR}/build/uninstall.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
     endif()
 endmacro()
 
