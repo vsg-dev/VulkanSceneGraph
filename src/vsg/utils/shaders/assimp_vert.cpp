@@ -48,27 +48,30 @@ void main()
     vec4 normal = vec4(vsg_Normal, 0.0);
 
 #ifdef VSG_DISPLACEMENT_MAP
+    // TODO need to pass as as uniform or per instance attributes
     vec3 scale = vec3(1.0, 1.0, 1.0);
 
     vertex.xyz = vertex.xyz + vsg_Normal * (texture(displacementMap, vsg_TexCoord0.st).s * scale.z);
 
-    float delta = 0.01;
+    float s_delta = 0.01;
     float width = 0.0;
 
-    float s_left = max(vsg_TexCoord0.s - delta, 0.0);
-    float s_right = min(vsg_TexCoord0.s + delta, 1.0);
+    float s_left = max(vsg_TexCoord0.s - s_delta, 0.0);
+    float s_right = min(vsg_TexCoord0.s + s_delta, 1.0);
     float t_center = vsg_TexCoord0.t;
-    float delta_left_right = s_right - s_left;
-    float dz_left_right = texture(displacementMap, vec2(s_right, t_center)).s - texture(displacementMap, vec2(s_left, t_center)).s;
+    float delta_left_right = (s_right - s_left) * scale.x;
+    float dz_left_right = (texture(displacementMap, vec2(s_right, t_center)).s - texture(displacementMap, vec2(s_left, t_center)).s) * scale.z;
 
-    float t_bottom = max(vsg_TexCoord0.t - delta, 0.0);
-    float t_top = min(vsg_TexCoord0.t + delta, 1.0);
+    // TODO need to handle different origins of displacementMap vs diffuseMap etc,
+    float t_delta = s_delta;
+    float t_bottom = max(vsg_TexCoord0.t - t_delta, 0.0);
+    float t_top = min(vsg_TexCoord0.t + t_delta, 1.0);
     float s_center = vsg_TexCoord0.s;
-    float delta_bottom_top = t_top - t_bottom;
-    float dz_bottom_top = texture(displacementMap, vec2(s_center, t_top)).s - texture(displacementMap, vec2(s_center, t_bottom)).s;
+    float delta_bottom_top = (t_top - t_bottom) * scale.y;
+    float dz_bottom_top = (texture(displacementMap, vec2(s_center, t_top)).s - texture(displacementMap, vec2(s_center, t_bottom)).s) * scale.z;
 
     vec3 dx = normalize(vec3(delta_left_right, 0.0, dz_left_right));
-    vec3 dy = normalize(vec3(0.0, delta_bottom_top, dz_bottom_top));
+    vec3 dy = normalize(vec3(0.0, delta_bottom_top, -dz_bottom_top));
     vec3 dz = normalize(cross(dx, dy));
 
     normal.xyz = normalize(dx * vsg_Normal.x + dy * vsg_Normal.y + dz * vsg_Normal.z);
