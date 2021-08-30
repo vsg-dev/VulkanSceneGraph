@@ -7,6 +7,7 @@
 if(NOT VSG_MACROS_INSTALLED)
     set(VSG_MACROS_DIR ${CMAKE_SOURCE_DIR})
 endif()
+message(STATUS "Reading 'vsg_...' macros from ${VSG_MACROS_DIR}/vsgMacros.cmake - look there for documentation")
 
 #
 # setup directory related variables
