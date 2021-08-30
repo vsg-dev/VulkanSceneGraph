@@ -12,7 +12,7 @@ message(STATUS "Reading 'vsg_...' macros from ${VSG_MACROS_DIR}/vsgMacros.cmake 
 #
 # setup build related variables
 #
-macro(setup_build_vars)
+macro(vsg_setup_build_vars)
     set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "add a postfix, usually d on windows")
     set(CMAKE_RELEASE_POSTFIX "" CACHE STRING "add a postfix, usually empty on windows")
     set(CMAKE_RELWITHDEBINFO_POSTFIX "rd" CACHE STRING "add a postfix, usually empty on windows")
@@ -43,7 +43,7 @@ endmacro()
 #
 # setup directory related variables
 #
-macro(setup_dir_vars)
+macro(vsg_setup_dir_vars)
     set(OUTPUT_BINDIR ${PROJECT_BINARY_DIR}/bin)
     set(OUTPUT_LIBDIR ${PROJECT_BINARY_DIR}/lib)
 
@@ -81,7 +81,7 @@ endmacro()
 #
 # add feature summary
 #
-macro(add_feature_summary)
+macro(vsg_add_feature_summary)
     include(FeatureSummary)
     feature_summary(WHAT ALL)
 endmacro()
@@ -101,7 +101,7 @@ endmacro()
 #    tag-test     show the command to create a tag in the git repository
 #    branch-test  show the command to create a branch in the git repository
 #
-macro(add_option_maintainer)
+macro(vsg_add_option_maintainer)
     set(options)
     set(oneValueArgs PREFIX RCLEVEL)
     set(multiValueArgs)
@@ -160,7 +160,7 @@ endmacro()
 #    EXCLUDES   list with file names to exclude from the list
 #               given by the FILES argument
 #
-macro(add_target_clang_format)
+macro(vsg_add_target_clang_format)
     set(options)
     set(oneValueArgs )
     set(multiValueArgs FILES EXCLUDE)
@@ -185,7 +185,7 @@ endmacro()
 #
 # add 'clobber' build target to clear all the non git registered files/directories
 #
-macro(add_target_clobber)
+macro(vsg_add_target_clobber)
     add_custom_target(clobber
         COMMAND git -C ${CMAKE_SOURCE_DIR} clean -d -f -x
     )
@@ -203,7 +203,7 @@ endmacro()
 #
 #    CPPCHECK_EXTRA_OPTIONS - add extra options to cppcheck command line
 #
-macro(add_target_cppcheck)
+macro(vsg_add_target_cppcheck)
     set(options)
     set(oneValueArgs SUPPRESSIONS_LIST)
     set(multiValueArgs FILES)
@@ -241,7 +241,7 @@ endmacro()
 #
 #    FILES      list with file or directory names
 #
-macro(add_target_docs)
+macro(vsg_add_target_docs)
     set(options)
     set(oneValueArgs )
     set(multiValueArgs FILES)
@@ -264,7 +264,7 @@ endmacro()
 #
 # add 'uninstall' build target
 #
-macro(add_target_uninstall)
+macro(vsg_add_target_uninstall)
     if(VSG_MACROS_INSTALLED)
         set(DIR ${VSG_MACROS_DIR})
     else()
