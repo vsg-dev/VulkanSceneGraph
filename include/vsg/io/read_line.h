@@ -10,7 +10,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-
 #include <istream>
 
 namespace vsg
@@ -22,17 +21,16 @@ namespace vsg
     {
         uint32_t i = 0;
         auto c = sstr.peek();
-        while(i < maxSize)
+        while (i < maxSize)
         {
             // skip leading spaces
-            while(c==' ' || c=='\t')
+            while (c == ' ' || c == '\t')
             {
                 sstr.ignore();
                 c = sstr.peek();
             }
 
             if (c == '#') break;
-
 
             if (read_to_end_line)
             {
@@ -60,7 +58,7 @@ namespace vsg
             // skip trailing spaces/tabs
             c = sstr.peek();
 
-            while(c==' '|| c=='\t')
+            while (c == ' ' || c == '\t')
             {
                 sstr.ignore();
                 c = sstr.peek();
@@ -76,7 +74,7 @@ namespace vsg
 
         if (read_to_end_line)
         {
-            while(sstr && (c != '\n') && (c != '\r'))
+            while (sstr && (c != '\n') && (c != '\r'))
             {
                 sstr.ignore();
                 c = sstr.peek();
@@ -100,4 +98,4 @@ namespace vsg
         return i;
     }
 
-}
+} // namespace vsg
