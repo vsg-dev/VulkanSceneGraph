@@ -147,7 +147,7 @@ void RenderGraph::resized()
 
     if (!windowResizeHandler->context) windowResizeHandler->context = vsg::Context::create(device);
 
-    auto  extent = getExtent();
+    auto extent = getExtent();
 
     windowResizeHandler->context->commandPool = nullptr;
     windowResizeHandler->context->renderPass = renderPass;

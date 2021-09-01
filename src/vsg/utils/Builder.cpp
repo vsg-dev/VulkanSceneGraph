@@ -1,10 +1,10 @@
 
 #include <vsg/utils/Builder.h>
 
-#include "shaders/assimp_vert.cpp"
 #include "shaders/assimp_flat_shaded_frag.cpp"
 #include "shaders/assimp_pbr_frag.cpp"
 #include "shaders/assimp_phong_frag.cpp"
+#include "shaders/assimp_vert.cpp"
 
 using namespace vsg;
 
@@ -21,8 +21,7 @@ void Builder::setup(ref_ptr<Window> window, ViewportState* viewport, uint32_t ma
     uint32_t maxNumMaterials = maxNumTextures;
     DescriptorPoolSizes descriptorPoolSizes{
         VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, maxNumTextures},
-        VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, maxNumMaterials}
-    };
+        VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, maxNumMaterials}};
 
     _compile->context.descriptorPool = DescriptorPool::create(device, maxSets, descriptorPoolSizes);
 
@@ -131,29 +130,29 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
 #endif
 
     VertexInputState::Bindings vertexBindingsDescriptions{
-        VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX},  // vertex data
-        VkVertexInputBindingDescription{1, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX},  // normal data
+        VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}, // vertex data
+        VkVertexInputBindingDescription{1, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}, // normal data
         VkVertexInputBindingDescription{2, sizeof(vec2), VK_VERTEX_INPUT_RATE_VERTEX}  // tex coord data
     };
 
     VertexInputState::Attributes vertexAttributeDescriptions{
         VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0}, // vertex data
         VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0}, // normal data
-        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0}    // tex coord data
+        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0}     // tex coord data
     };
 
     if (stateInfo.instancce_colors_vec4)
     {
         uint32_t colorBinding = static_cast<uint32_t>(vertexBindingsDescriptions.size());
-        vertexBindingsDescriptions.push_back(VkVertexInputBindingDescription{colorBinding, colorSize, VK_VERTEX_INPUT_RATE_INSTANCE});  // color data
-        vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{3, colorBinding, colorFormat, 0});    // color data
+        vertexBindingsDescriptions.push_back(VkVertexInputBindingDescription{colorBinding, colorSize, VK_VERTEX_INPUT_RATE_INSTANCE}); // color data
+        vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{3, colorBinding, colorFormat, 0});                     // color data
     }
 
     if (stateInfo.instancce_positions_vec3)
     {
         uint32_t positionBinding = static_cast<uint32_t>(vertexBindingsDescriptions.size());
         vertexBindingsDescriptions.push_back(VkVertexInputBindingDescription{positionBinding, sizeof(vec3), VK_VERTEX_INPUT_RATE_INSTANCE}); // instance coord
-        vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{4, positionBinding, VK_FORMAT_R32G32B32_SFLOAT, 0});  // instance coord
+        vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{4, positionBinding, VK_FORMAT_R32G32B32_SFLOAT, 0});         // instance coord
     };
 
     auto rasterState = vsg::RasterizationState::create();
@@ -192,7 +191,6 @@ void Builder::_assign(StateGroup& stateGroup, const StateInfo& stateInfo)
     stateGroup.add(_createDescriptorSet(stateInfo));
 }
 
-
 void Builder::compile(ref_ptr<Node> subgraph)
 {
     if (verbose) std::cout << "Builder::compile(" << subgraph << ") _compile = " << _compile << std::endl;
@@ -207,7 +205,7 @@ void Builder::compile(ref_ptr<Node> subgraph)
 
 void Builder::transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr<vec3Array> normals)
 {
-    for(auto& v : *vertices)
+    for (auto& v : *vertices)
     {
         v = matrix * v;
     }
@@ -215,7 +213,7 @@ void Builder::transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr
     if (normals)
     {
         mat4 normal_matrix = vsg::inverse(matrix);
-        for(auto& n : *normals)
+        for (auto& n : *normals)
         {
             vsg::vec4 nv = vsg::vec4(n.x, n.y, n.z, 0.0) * normal_matrix;
             n = normalize(vsg::vec3(nv.x, nv.y, nv.z));
@@ -247,8 +245,10 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size()>=1) instanceCount = positions->size();
-        else positions = {};
+        if (positions->size() >= 1)
+            instanceCount = positions->size();
+        else
+            positions = {};
     }
 
     auto colors = info.colors;
@@ -286,10 +286,10 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
 
     if (stateInfo.wireframe)
     {
-        vec3 n0 = normalize(v000-v111);
-        vec3 n1 = normalize(v100-v011);
-        vec3 n2 = normalize(v110-v001);
-        vec3 n3 = normalize(v010-v101);
+        vec3 n0 = normalize(v000 - v111);
+        vec3 n1 = normalize(v100 - v011);
+        vec3 n2 = normalize(v110 - v001);
+        vec3 n3 = normalize(v010 - v101);
         vec3 n4 = -n2;
         vec3 n5 = -n3;
         vec3 n6 = -n0;
@@ -311,8 +311,7 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
         indices = ushortArray::create(
             {0, 1, 1, 2, 2, 3, 3, 0,
              0, 4, 1, 5, 2, 6, 3, 7,
-             4, 5, 5, 6, 6, 7, 7, 4
-            });
+             4, 5, 5, 6, 6, 7, 7, 4});
     }
     else
     {
@@ -326,35 +325,35 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
         // set up vertex and index arrays
         vertices = vec3Array::create(
             {v000, v100, v101, v001,   // front
-            v100, v110, v111, v101,   // right
-            v110, v010, v011, v111,   // far
-            v010, v000, v001, v011,   // left
-            v010, v110, v100, v000,   // bottom
-            v001, v101, v111, v011}); // top
+             v100, v110, v111, v101,   // right
+             v110, v010, v011, v111,   // far
+             v010, v000, v001, v011,   // left
+             v010, v110, v100, v000,   // bottom
+             v001, v101, v111, v011}); // top
 
         normals = vec3Array::create(
             {n0, n0, n0, n0,
-            n1, n1, n1, n1,
-            n2, n2, n2, n2,
-            n3, n3, n3, n3,
-            n4, n4, n4, n4,
-            n5, n5, n5, n5});
+             n1, n1, n1, n1,
+             n2, n2, n2, n2,
+             n3, n3, n3, n3,
+             n4, n4, n4, n4,
+             n5, n5, n5, n5});
 
         texcoords = vec2Array::create(
             {t00, t10, t11, t01,
-            t00, t10, t11, t01,
-            t00, t10, t11, t01,
-            t00, t10, t11, t01,
-            t00, t10, t11, t01,
-            t00, t10, t11, t01});
+             t00, t10, t11, t01,
+             t00, t10, t11, t01,
+             t00, t10, t11, t01,
+             t00, t10, t11, t01,
+             t00, t10, t11, t01});
 
         indices = ushortArray::create(
             {0, 1, 2, 0, 2, 3,
-            4, 5, 6, 4, 6, 7,
-            8, 9, 10, 8, 10, 11,
-            12, 13, 14, 12, 14, 15,
-            16, 17, 18, 16, 18, 19,
-            20, 21, 22, 20, 22, 23});
+             4, 5, 6, 4, 6, 7,
+             8, 9, 10, 8, 10, 11,
+             12, 13, 14, 12, 14, 15,
+             16, 17, 18, 16, 18, 19,
+             20, 21, 22, 20, 22, 23});
     }
 
     if (info.transform != identity)
@@ -397,8 +396,10 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size()>=1) instanceCount = positions->size();
-        else positions = {};
+        if (positions->size() >= 1)
+            instanceCount = positions->size();
+        else
+            positions = {};
     }
 
     auto colors = info.colors;
@@ -638,8 +639,10 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size()>=1) instanceCount = positions->size();
-        else positions = {};
+        if (positions->size() >= 1)
+            instanceCount = positions->size();
+        else
+            positions = {};
     }
 
     auto colors = info.colors;
@@ -660,7 +663,6 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     auto top = info.position + dz;
 
     bool withEnds = true;
-
 
     ref_ptr<vec3Array> vertices;
     ref_ptr<vec3Array> normals;
@@ -701,7 +703,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
 
         for (unsigned int c = 0; c < num_columns; ++c)
         {
-            unsigned int vi = 1+c;
+            unsigned int vi = 1 + c;
             float r = float(c) / float(num_columns);
             alpha = (r)*2.0 * PI;
             v = edge(alpha);
@@ -721,8 +723,8 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
         {
             unsigned lower = 1 + c;
             indices->set(i++, 0);
-            indices->set(i++, lower-1);
-            indices->set(i++, lower-1);
+            indices->set(i++, lower - 1);
+            indices->set(i++, lower - 1);
             indices->set(i++, lower);
         }
     }
@@ -816,7 +818,6 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
                 indices->set(i++, bottom_i + num_columns - 1);
                 indices->set(i++, bottom_i + c + 1);
             }
-
         }
     }
 
@@ -840,7 +841,6 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     vid->indexCount = indices->size();
     vid->instanceCount = instanceCount;
 
-
     scenegraph->addChild(vid);
 
     compile(scenegraph);
@@ -861,8 +861,10 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size()>=1) instanceCount = positions->size();
-        else positions = {};
+        if (positions->size() >= 1)
+            instanceCount = positions->size();
+        else
+            positions = {};
     }
 
     auto colors = info.colors;
@@ -882,7 +884,6 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     auto bottom = info.position - dz;
     auto top = info.position + dz;
 
-
     ref_ptr<vec3Array> vertices;
     ref_ptr<vec3Array> normals;
     ref_ptr<vec2Array> texcoords;
@@ -892,7 +893,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     {
         unsigned int num_columns = 20;
 
-        unsigned int num_vertices =  num_columns * 2;
+        unsigned int num_vertices = num_columns * 2;
         unsigned int num_indices = num_columns * 6;
 
         vertices = vec3Array::create(num_vertices);
@@ -928,7 +929,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
         }
 
         unsigned int i = 0;
-        unsigned int lower = (num_columns-1) *  2;
+        unsigned int lower = (num_columns - 1) * 2;
         unsigned int upper = lower + 1;
 
         indices->set(i++, 0);
@@ -940,7 +941,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
         indices->set(i++, upper);
         indices->set(i++, 1);
 
-        for (unsigned int c = 0; c < num_columns-1; ++c)
+        for (unsigned int c = 0; c < num_columns - 1; ++c)
         {
             lower = c * 2;
             upper = lower + 1;
@@ -1119,8 +1120,10 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size()>=1) instanceCount = positions->size();
-        else positions = {};
+        if (positions->size() >= 1)
+            instanceCount = positions->size();
+        else
+            positions = {};
     }
 
     auto colors = info.colors;
@@ -1147,48 +1150,48 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     auto texcoords = vec2Array::create(num_vertices);
     ref_ptr<ushortArray> indices;
 
-    vertices->set(0, center+dy);
+    vertices->set(0, center + dy);
     normals->set(0, n);
     texcoords->set(0, vec2(0.5f, t_top));
 
-    for(unsigned int c = 1; c < num_vertices; ++c)
+    for (unsigned int c = 1; c < num_vertices; ++c)
     {
         float r = float(c) / float(num_vertices - 1);
         float alpha = (r)*2.0 * PI;
         float sn = sinf(alpha);
         float cs = cosf(alpha);
-        vec3 v =  dy * cs - dx * sn;
+        vec3 v = dy * cs - dx * sn;
         vertices->set(c, center + v);
         normals->set(c, n);
-        texcoords->set(c, vec2((1.0f-sn)*0.5f, t_origin + t_scale * (cs+1.0f)*0.5f));
+        texcoords->set(c, vec2((1.0f - sn) * 0.5f, t_origin + t_scale * (cs + 1.0f) * 0.5f));
     }
 
     if (stateInfo.wireframe)
     {
-        unsigned int num_indices = (num_vertices) * 2;
+        unsigned int num_indices = (num_vertices)*2;
         indices = ushortArray::create(num_indices);
 
         unsigned int i = 0;
 
-        indices->set(i++, num_vertices-1);
+        indices->set(i++, num_vertices - 1);
         indices->set(i++, 0);
-        for(unsigned vi=0; vi < num_vertices-1; ++vi)
+        for (unsigned vi = 0; vi < num_vertices - 1; ++vi)
         {
             indices->set(i++, vi);
-            indices->set(i++, vi+1);
+            indices->set(i++, vi + 1);
         }
     }
     else
     {
-        unsigned int num_indices = (num_vertices-2) * 3;
+        unsigned int num_indices = (num_vertices - 2) * 3;
         indices = ushortArray::create(num_indices);
 
         unsigned int i = 0;
-        for(unsigned vi=1; vi < num_vertices-2; ++vi)
+        for (unsigned vi = 1; vi < num_vertices - 2; ++vi)
         {
             indices->set(i++, 0);
             indices->set(i++, vi);
-            indices->set(i++, vi+1);
+            indices->set(i++, vi + 1);
         }
     }
 
@@ -1232,8 +1235,10 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& sta
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size()>=1) instanceCount = positions->size();
-        else positions = {};
+        if (positions->size() >= 1)
+            instanceCount = positions->size();
+        else
+            positions = {};
     }
 
     auto colors = info.colors;
@@ -1267,7 +1272,6 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& sta
          {1.0f, t_origin},
          {1.0f, t_top},
          {0.0f, t_top}}); // VK_FORMAT_R32G32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
-
 
     ref_ptr<ushortArray> indices;
 
@@ -1324,8 +1328,10 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size()>=1) instanceCount = positions->size();
-        else positions = {};
+        if (positions->size() >= 1)
+            instanceCount = positions->size();
+        else
+            positions = {};
     }
 
     auto colors = info.colors;
