@@ -15,8 +15,8 @@ set(VSG_VERSION_HEADER "${PROJECT_BINARY_DIR}/include/vsg/core/Version.h")
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 include(vsgMacros)
 
-setup_dir_vars()
-setup_build_vars()
+vsg_setup_dir_vars()
+vsg_setup_build_vars()
 
 # this line needs to be after the call to setup_build_vars()
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/vsg/core/Version.h.in" "${VSG_VERSION_HEADER}")
@@ -54,7 +54,7 @@ else()
     pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
 endif()
 
-add_target_docs(
+vsg_add_target_docs(
     FILES
         ${CMAKE_SOURCE_DIR}/include/vsg
 )
@@ -64,9 +64,9 @@ add_custom_target(build_all_h
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/build/build_all_h.cmake
 )
 
-add_target_clobber()
-add_target_uninstall()
-add_target_cppcheck(
+vsg_add_target_clobber()
+vsg_add_target_uninstall()
+vsg_add_target_cppcheck(
     SUPPRESSIONS_LIST
         "${CMAKE_SOURCE_DIR}/build/cppcheck-suppression-list.txt"
     FILES
@@ -75,13 +75,13 @@ add_target_cppcheck(
         -I ${CMAKE_SOURCE_DIR}/include/
 )
 
-add_target_clang_format(
+vsg_add_target_clang_format(
     FILES
         ${CMAKE_SOURCE_DIR}/include/vsg/*/*.h
         ${CMAKE_SOURCE_DIR}/src/vsg/*/*.cpp
 )
 
-add_option_maintainer(
+vsg_add_option_maintainer(
     PREFIX VulkanSceneGraph
     RCLEVEL ${VSG_RELEASE_CANDIDATE}
 )
@@ -93,4 +93,4 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/vsgMacros.cmake" DESTINATION ${CMAKE_
 #
 add_subdirectory(src/vsg)
 
-add_feature_summary()
+vsg_add_feature_summary()
