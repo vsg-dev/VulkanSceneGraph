@@ -44,7 +44,6 @@ namespace vsg
         /// Get the Exten2D of the attached Framebuffer or Widnow.
         VkExtent2D getExtent() const;
 
-
         /// ReandingArea settings for VkRenderPassBeginInfo.renderArea passed to the vkCmdBeginRenderPass, usually maps the ViewportState's scissor
         VkRect2D renderArea;
 
