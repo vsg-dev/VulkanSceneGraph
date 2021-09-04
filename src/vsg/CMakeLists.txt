@@ -343,18 +343,6 @@ if (glslang_FOUND)
     set(FIND_DEPENDENCY_GLSLANG "find_dependency(vsg_glslang)")
 endif()
 
-configure_file("${CMAKE_SOURCE_DIR}/src/vsg/vsgConfig.cmake.in" "${CMAKE_BINARY_DIR}/src/vsg/vsgConfig.cmake" @ONLY)
-
-# [==[
-install(EXPORT vsgTargets
-    FILE vsgTargets.cmake
-    NAMESPACE vsg::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg
+vsg_add_cmake_support_files(
+    CONFIG_TEMPLATE vsgConfig.cmake.in
 )
-
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file("${CMAKE_BINARY_DIR}/src/vsg/vsgConfigVersion.cmake" COMPATIBILITY SameMajorVersion)
-
-install(FILES "${CMAKE_BINARY_DIR}/src/vsg/vsgConfig.cmake" "${CMAKE_BINARY_DIR}/src/vsg/vsgConfigVersion.cmake" DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
-
-# ]==]
