@@ -17,4 +17,7 @@ else()
     pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
 endif()
 
+set(VSG_MACROS_INSTALLED 1)
+set(VSG_MACROS_DIR ${CMAKE_CURRENT_LIST_DIR})
+include("${CMAKE_CURRENT_LIST_DIR}/vsgMacros.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/vsgTargets.cmake")
