@@ -2,12 +2,8 @@
 # macros provided by the vsg library
 #
 
-# set directory where vsgMacros.cmake is located
-# VSG_MACROS_INSTALLED is defined in src/vsg/vsgConfig.cmake.in
-if(NOT VSG_MACROS_INSTALLED)
-    set(VSG_MACROS_DIR ${CMAKE_SOURCE_DIR})
-endif()
-message(STATUS "Reading 'vsg_...' macros from ${VSG_MACROS_DIR}/vsgMacros.cmake - look there for documentation")
+# give hint for cmake developers
+message(STATUS "Reading 'vsg_...' macros from ${CMAKE_CURRENT_LIST_DIR}/vsgMacros.cmake - look there for documentation")
 
 #
 # setup build related variables
@@ -324,16 +320,15 @@ endmacro()
 # add 'uninstall' build target
 #
 macro(vsg_add_target_uninstall)
-    if(VSG_MACROS_INSTALLED)
-        set(DIR ${VSG_MACROS_DIR})
-    else()
+    # we are running inside VulkanSceneGraph
+    if (PROJECT_NAME STREQUAL "vsg")
+        # install file for client packages
+        install(FILES ${CMAKE_SOURCE_DIR}/build/uninstall.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
         set(DIR ${CMAKE_SOURCE_DIR}/build)
+    else()
+        set(DIR ${CMAKE_CURRENT_LIST_DIR})
     endif()
     add_custom_target(uninstall
         COMMAND ${CMAKE_COMMAND} -P ${DIR}/uninstall.cmake
     )
-    # install file for client packages if running in vsg repo
-    if(NOT VSG_MACROS_INSTALLED)
-        install(FILES ${CMAKE_SOURCE_DIR}/build/uninstall.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
-    endif()
 endmacro()
