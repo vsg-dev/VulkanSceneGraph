@@ -22,6 +22,28 @@ namespace vsg
     // forward declare
     class Context;
 
+    template<typename T>
+    bool readFile(T& buffer, const std::string& filename)
+    {
+        std::ifstream fin(filename, std::ios::ate | std::ios::binary);
+        if (!fin.is_open()) return false;
+
+        size_t fileSize = fin.tellg();
+
+        using value_type = typename T::value_type;
+        size_t valueSize = sizeof(value_type);
+        size_t bufferSize = (fileSize + valueSize - 1) / valueSize;
+        buffer.resize(bufferSize);
+
+        fin.seekg(0);
+        fin.read(reinterpret_cast<char*>(buffer.data()), fileSize);
+        fin.close();
+
+        // buffer.size() * valueSize
+
+        return true;
+    }
+
     /// Settings passed to glsLang when compiling GLSL/HLSL shader source to SPIR-V
     /// Provides the values to pass to glsLang::TShader::setEnvInput, setEnvClient and setEnvTarget.
     class VSG_DECLSPEC ShaderCompileSettings : public Inherit<Object, ShaderCompileSettings>

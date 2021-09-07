@@ -55,8 +55,15 @@ ShaderStage::~ShaderStage()
 
 ref_ptr<ShaderStage> ShaderStage::read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename, ref_ptr<const Options> options)
 {
-    auto st = vsg::read_cast<vsg::ShaderStage>(filename, options);
-    if (!st) return {};
+    auto object = vsg::read(filename, options);
+    if (!object) return {};
+
+    auto st = object.cast<vsg::ShaderStage>();
+    if (!st)
+    {
+        auto sm = object.cast<vsg::ShaderModule>();
+        return ShaderStage::create_if(sm.valid(), stage, entryPointName, sm);
+    }
 
     st->stage = stage;
     st->entryPointName = entryPointName;
@@ -65,8 +72,15 @@ ref_ptr<ShaderStage> ShaderStage::read(VkShaderStageFlagBits stage, const std::s
 
 ref_ptr<ShaderStage> ShaderStage::read(VkShaderStageFlagBits stage, const std::string& entryPointName, std::istream& fin, ref_ptr<const Options> options)
 {
-    auto st = vsg::read_cast<vsg::ShaderStage>(fin, options);
-    if (!st) return {};
+    auto object = vsg::read(fin, options);
+    if (!object) return {};
+
+    auto st = object.cast<vsg::ShaderStage>();
+    if (!st)
+    {
+        auto sm = object.cast<vsg::ShaderModule>();
+        return ShaderStage::create_if(sm.valid(), stage, entryPointName, sm);
+    }
 
     st->stage = stage;
     st->entryPointName = entryPointName;
