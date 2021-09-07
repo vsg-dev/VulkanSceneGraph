@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.7)
 
-project(VSG
+project(vsg
     VERSION 0.1.5
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES CXX
@@ -11,63 +11,15 @@ SET(VSG_RELEASE_CANDIDATE 0)
 # create the version header
 set(VSG_MAX_DEVICES 1 CACHE STRING "Set maximum number of vk/vsg::Device that are supported.")
 set(VSG_VERSION_HEADER "${PROJECT_BINARY_DIR}/include/vsg/core/Version.h")
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+include(vsgMacros)
+
+vsg_setup_dir_vars()
+vsg_setup_build_vars()
+
+# this line needs to be after the call to setup_build_vars()
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/vsg/core/Version.h.in" "${VSG_VERSION_HEADER}")
-
-set(OUTPUT_BINDIR ${PROJECT_BINARY_DIR}/bin)
-set(OUTPUT_LIBDIR ${PROJECT_BINARY_DIR}/lib)
-
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
-
-SET(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "add a postfix, usually d on windows")
-SET(CMAKE_RELEASE_POSTFIX "" CACHE STRING "add a postfix, usually empty on windows")
-SET(CMAKE_RELWITHDEBINFO_POSTFIX "rd" CACHE STRING "add a postfix, usually empty on windows")
-SET(CMAKE_MINSIZEREL_POSTFIX "s" CACHE STRING "add a postfix, usually empty on windows")
-
-include(GNUInstallDirs)
-
-if(WIN32)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
-    # set up local bin directory to place all binaries
-    make_directory(${OUTPUT_BINDIR})
-    make_directory(${OUTPUT_LIBDIR})
-    set(INSTALL_TARGETS_DEFAULT_FLAGS
-        EXPORT vsgTargets
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_BINDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    )
-else()
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
-    # set up local bin directory to place all binaries
-    make_directory(${OUTPUT_LIBDIR})
-    set(INSTALL_TARGETS_DEFAULT_FLAGS
-        EXPORT vsgTargets
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-endif()
-
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
-
-# Change the default build type to Release
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
-endif(NOT CMAKE_BUILD_TYPE)
-
-if(CMAKE_COMPILER_IS_GNUCXX)
-    set(VSG_WARNING_FLAGS -Wall -Wparentheses -Wno-long-long -Wno-import -Wreturn-type -Wmissing-braces -Wunknown-pragmas -Wmaybe-uninitialized -Wshadow -Wunused -Wno-misleading-indentation -Wextra)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(VSG_WARNING_FLAGS -Wall -Wparentheses -Wno-long-long -Wno-import -Wreturn-type -Wmissing-braces -Wunknown-pragmas -Wshadow -Wunused -Wextra)
-endif()
-
-set(VSG_WARNING_FLAGS ${VSG_WARNING_FLAGS} CACHE STRING "Compiler flags to use." FORCE)
-add_compile_options(${VSG_WARNING_FLAGS})
 
 if (MSVC)
     # Increase Number of Sections in .Obj file
@@ -83,7 +35,7 @@ find_package(Vulkan)
 find_package(Threads)
 
 if (NOT DEFINED glslang_FOUND)
-    find_package(vsg_glslang REQUIRED CONFIG PATHS ${VSG_SOURCE_DIR}/src/vsg)
+    find_package(vsg_glslang REQUIRED CONFIG PATHS ${CMAKE_SOURCE_DIR}/src/vsg)
 endif()
 
 if (ANDROID)
@@ -102,24 +54,9 @@ else()
     pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
 endif()
 
-
-
-# create doxygen build target
-find_package(Doxygen QUIET)
-if (DOXYGEN_FOUND)
-    set(DOXYGEN_GENERATE_HTML YES)
-    set(DOXYGEN_GENERATE_MAN NO)
-
-    doxygen_add_docs(
-        docs
-        ${PROJECT_SOURCE_DIR}/include/vsg
-        COMMENT "Use doxygen to Generate html documentaion"
-    )
-endif()
-
-# add clobber build target to clear all the non git registered files/directories
-add_custom_target(clobber
-    COMMAND git clean -d -f -x
+vsg_add_target_docs(
+    FILES
+        ${CMAKE_SOURCE_DIR}/include/vsg
 )
 
 # automatically buil_all_h build target to generate the include/vsg/all.h from the headers in the include/vsg/* directories
@@ -127,85 +64,33 @@ add_custom_target(build_all_h
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/build/build_all_h.cmake
 )
 
-# automatically buil_all_h build target to generate the include/vsg/all.h from the headers in the include/vsg/* directories
-add_custom_target(uninstall
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/build/uninstall.cmake
+vsg_add_target_clobber()
+vsg_add_target_uninstall()
+vsg_add_target_cppcheck(
+    SUPPRESSIONS_LIST
+        "${CMAKE_SOURCE_DIR}/build/cppcheck-suppression-list.txt"
+    FILES
+        ${CMAKE_SOURCE_DIR}/include/vsg/*/*.h
+        ${CMAKE_SOURCE_DIR}/src/vsg/*/*.cpp
+        -I ${CMAKE_SOURCE_DIR}/include/
 )
 
-# add cppcheck build target to provide static analysis of codebase
-find_program(CPPCHECK cppcheck)
-if (CPPCHECK)
-    file(RELATIVE_PATH PATH_TO_SOURCE ${PROJECT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR} )
-    if (PATH_TO_SOURCE)
-        set(PATH_TO_SOURCE "${PATH_TO_SOURCE}/")
-    endif()
+vsg_add_target_clang_format(
+    FILES
+        ${CMAKE_SOURCE_DIR}/include/vsg/*/*.h
+        ${CMAKE_SOURCE_DIR}/src/vsg/*/*.cpp
+)
 
-    include(ProcessorCount)
-    ProcessorCount(CPU_CORES)
+vsg_add_option_maintainer(
+    PREFIX VulkanSceneGraph
+    RCLEVEL ${VSG_RELEASE_CANDIDATE}
+)
 
-    set(CPPCHECK_SUPPRESION_LIST_FILE "${CMAKE_SOURCE_DIR}/build/cppcheck-suppression-list.txt")
-    set(CPPCHECK_SUPPRESION_LIST "--suppressions-list=${CPPCHECK_SUPPRESION_LIST_FILE}")
-    set(CPPCHECK_EXTRA_OPTIONS "" CACHE STRING "additional commndline options to use when invoking cppcheck")
-    add_custom_target(cppcheck
-        COMMAND ${CPPCHECK} -j ${CPU_CORES} --quiet --enable=style --language=c++ ${CPPCHECK_EXTRA_OPTIONS} ${CPPCHECK_SUPPRESION_LIST} ${PATH_TO_SOURCE}include/vsg/*/*.h ${PATH_TO_SOURCE}src/vsg/*/*.cpp -I ${PATH_TO_SOURCE}include/
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        COMMENT "Static code analysis using cppcheck"
-    )
-endif()
-
-# add clang-foramt build target to enforce a standard code style guide.
-find_program(CLANGFORMAT clang-format)
-if (CLANGFORMAT)
-    add_custom_target(clang-format
-        COMMAND ${CLANGFORMAT} -i ${CMAKE_SOURCE_DIR}/include/vsg/*/*.h ${CMAKE_SOURCE_DIR}/src/vsg/*/*.cpp
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        COMMENT "Automated code format using clang-format"
-    )
-endif()
-
-option(MAINTAINER "Enable maintainer build methods, such as making git branches and tags." OFF)
-if (MAINTAINER)
-
-    #
-    # Provide target for tagging a release
-    #
-    SET(BASE_NAME VulkanSceneGraph)
-    SET(VSG_BRANCH ${BASE_NAME}-${VSG_VERSION_MAJOR}.${VSG_VERSION_MINOR})
-
-    SET(GITCOMMAND git)
-
-    IF   (VSG_RELEASE_CANDIDATE EQUAL 0)
-        SET(RELEASE_NAME ${BASE_NAME}-${VSG_VERSION})
-    ELSE()
-        SET(RELEASE_NAME ${BASE_NAME}-${VSG_VERSION}-rc${VSG_RELEASE_CANDIDATE})
-    ENDIF()
-
-    SET(RELEASE_MESSAGE "Release ${RELEASE_NAME}")
-    SET(BRANCH_MESSAGE "Branch ${VSG_BRANCH}")
-
-    add_custom_target(tag-test
-        COMMAND echo ${GITCOMMAND} tag -a ${RELEASE_NAME} -m ${RELEASE_MESSAGE}
-        COMMAND echo ${GITCOMMAND} push origin ${RELEASE_NAME}
-    )
-
-    add_custom_target(tag-run
-        COMMAND ${GITCOMMAND} tag -a ${RELEASE_NAME} -m ${RELEASE_MESSAGE}
-        COMMAND ${GITCOMMAND} push origin ${RELEASE_NAME}
-    )
-
-    add_custom_target(branch-test
-        COMMAND echo ${GITCOMMAND} branch ${VSG_BRANCH}
-        COMMAND echo ${GITCOMMAND} push origin ${VSG_BRANCH}
-    )
-
-    add_custom_target(branch-run
-        COMMAND ${GITCOMMAND} branch ${VSG_BRANCH}
-        COMMAND ${GITCOMMAND} push origin ${VSG_BRANCH}
-    )
-
-endif()
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/vsgMacros.cmake" DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
 
 #
 # src directory contains all the source of the vsg library
 #
 add_subdirectory(src/vsg)
+
+vsg_add_feature_summary()

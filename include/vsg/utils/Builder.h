@@ -2,7 +2,11 @@
 
 #include <vsg/all.h>
 
-#define VSG_COMPARE_PARAMETERS(A, B) if (A < B) return true; else if (B < A) return false;
+#define VSG_COMPARE_PARAMETERS(A, B) \
+    if (A < B)                       \
+        return true;                 \
+    else if (B < A)                  \
+        return false;
 
 namespace vsg
 {
@@ -80,7 +84,6 @@ namespace vsg
         ref_ptr<Node> createHeightField(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
 
     private:
-
         void transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr<vec3Array> normals);
 
         uint32_t _allocatedTextureCount = 0;

@@ -10,9 +10,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/io/Options.h>
 #include <vsg/vk/PhysicalDevice.h>
-#include <vsg/core/Exception.h>
 
 using namespace vsg;
 
@@ -87,7 +87,7 @@ std::vector<VkExtensionProperties> PhysicalDevice::enumerateDeviceExtensionPrope
 {
     uint32_t propertyCount;
     vkEnumerateDeviceExtensionProperties(_device, pLayerName, &propertyCount, nullptr);
-    if (propertyCount==0) return {};
+    if (propertyCount == 0) return {};
 
     std::vector<VkExtensionProperties> extensionPropeties(propertyCount);
     vkEnumerateDeviceExtensionProperties(_device, pLayerName, &propertyCount, extensionPropeties.data());

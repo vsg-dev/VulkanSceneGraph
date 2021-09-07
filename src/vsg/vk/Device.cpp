@@ -16,9 +16,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/Window.h>
 #include <vsg/vk/Device.h>
 
+#include <cstring>
 #include <iostream>
 #include <set>
-#include <cstring>
 using namespace vsg;
 
 // thread safe container for managing the deviceID for each vsg;:Device
@@ -101,9 +101,9 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
     // MacOS requires "VK_KHR_portability_subset" to be a requested extension if the PhysicalDevice supported it.
     Names local_deviceExtensions(deviceExtensions);
     auto extensionProperties = _physicalDevice->enumerateDeviceExtensionProperties();
-    for(auto& extensionProperty : extensionProperties)
+    for (auto& extensionProperty : extensionProperties)
     {
-        if (std::strncmp(extensionProperty.extensionName, "VK_KHR_portability_subset", VK_MAX_EXTENSION_NAME_SIZE)==0)
+        if (std::strncmp(extensionProperty.extensionName, "VK_KHR_portability_subset", VK_MAX_EXTENSION_NAME_SIZE) == 0)
         {
             local_deviceExtensions.push_back(extensionProperty.extensionName);
         }
