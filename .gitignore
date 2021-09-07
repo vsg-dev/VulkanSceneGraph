@@ -10,8 +10,8 @@ CMakeDoxyfile.in
 CMakeDoxygenDefaults.cmake
 Doxyfile.docs
 docs/ExplorationPhase/3rdPartyResources.md.backup
-src/vsg/vsgConfigVersion.cmake
-src/vsg/vsgConfig.cmake
+vsgConfigVersion.cmake
+vsgConfig.cmake
 
 html
 
