@@ -45,5 +45,4 @@ namespace vsg
     };
     VSG_type_name(vsg::spirv);
 
-} // namespace vsgXchange
-
+} // namespace vsg
