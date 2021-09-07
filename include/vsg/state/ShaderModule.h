@@ -100,8 +100,6 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        static ref_ptr<ShaderModule> read(const std::string& filename);
-
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);
 

@@ -37,7 +37,8 @@ namespace vsg
         std::string entryPointName;
         SpecializationConstants specializationConstants;
 
-        static ref_ptr<ShaderStage> read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename);
+        static ref_ptr<ShaderStage> read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename, ref_ptr<const Options> options = {});
+        static ref_ptr<ShaderStage> read(VkShaderStageFlagBits stage, const std::string& entryPointName, std::istream& fin, ref_ptr<const Options> options = {});
 
         void read(Input& input) override;
         void write(Output& output) const override;

@@ -102,6 +102,7 @@ set(SOURCES
     io/ObjectFactory.cpp
     io/ReaderWriter.cpp
     io/VSG.cpp
+    io/spirv.cpp
     io/read.cpp
     io/write.cpp
 

@@ -80,19 +80,6 @@ ShaderModule::~ShaderModule()
 {
 }
 
-ref_ptr<ShaderModule> ShaderModule::read(const std::string& filename)
-{
-    SPIRV buffer;
-    if (readFile(buffer, filename))
-    {
-        return ShaderModule::create(buffer);
-    }
-    else
-    {
-        throw Exception{"Error: vsg::ShaderModule::read(..) failed to read shader file.", VK_INCOMPLETE};
-    }
-}
-
 void ShaderModule::read(Input& input)
 {
     Object::read(input);
