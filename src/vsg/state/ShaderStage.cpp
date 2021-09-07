@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
+#include <vsg/io/read.h>
 #include <vsg/state/ShaderStage.h>
 #include <vsg/traversals/CompileTraversal.h>
 
@@ -52,9 +53,24 @@ ShaderStage::~ShaderStage()
 {
 }
 
-ref_ptr<ShaderStage> ShaderStage::read(VkShaderStageFlagBits in_stage, const std::string& in_entryPointName, const std::string& filename)
+ref_ptr<ShaderStage> ShaderStage::read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename, ref_ptr<const Options> options)
 {
-    return ShaderStage::create(in_stage, in_entryPointName, ShaderModule::read(filename));
+    auto st = vsg::read_cast<vsg::ShaderStage>(filename, options);
+    if (!st) return {};
+
+    st->stage = stage;
+    st->entryPointName = entryPointName;
+    return st;
+}
+
+ref_ptr<ShaderStage> ShaderStage::read(VkShaderStageFlagBits stage, const std::string& entryPointName, std::istream& fin, ref_ptr<const Options> options)
+{
+    auto st = vsg::read_cast<vsg::ShaderStage>(fin, options);
+    if (!st) return {};
+
+    st->stage = stage;
+    st->entryPointName = entryPointName;
+    return st;
 }
 
 void ShaderStage::read(Input& input)
