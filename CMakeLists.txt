@@ -31,11 +31,11 @@ if (VULKAN_SDK)
     set(ENV{VULKAN_SDK} ${VULKAN_SDK})
 endif()
 
-find_package(Vulkan)
-find_package(Threads)
+find_package(Vulkan REQUIRED)
+find_package(Threads REQUIRED)
 
 if (NOT DEFINED glslang_FOUND)
-    find_package(vsg_glslang REQUIRED CONFIG PATHS ${CMAKE_SOURCE_DIR}/src/vsg)
+    find_package(vsg_glslang CONFIG PATHS ${CMAKE_SOURCE_DIR}/src/vsg)
 endif()
 
 if (ANDROID)
@@ -50,7 +50,7 @@ elseif (APPLE)
     find_library(QUARTZCORE_LIBRARY QuartzCore)
 else()
     # just use Xcb for native windowing
-    find_package(PkgConfig)
+    find_package(PkgConfig REQUIRED)
     pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
 endif()
 
