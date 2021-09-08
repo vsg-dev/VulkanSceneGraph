@@ -68,7 +68,7 @@ vsg_add_target_clobber()
 vsg_add_target_uninstall()
 vsg_add_target_cppcheck(
     SUPPRESSIONS_LIST
-        "${CMAKE_SOURCE_DIR}/build/cppcheck-suppression-list.txt"
+        "${CMAKE_SOURCE_DIR}/cmake/cppcheck-suppression-list.txt"
     FILES
         ${CMAKE_SOURCE_DIR}/include/vsg/*/*.h
         ${CMAKE_SOURCE_DIR}/src/vsg/*/*.cpp
