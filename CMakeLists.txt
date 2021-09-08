@@ -12,7 +12,7 @@ SET(VSG_RELEASE_CANDIDATE 0)
 set(VSG_MAX_DEVICES 1 CACHE STRING "Set maximum number of vk/vsg::Device that are supported.")
 set(VSG_VERSION_HEADER "${PROJECT_BINARY_DIR}/include/vsg/core/Version.h")
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(vsgMacros)
 
 vsg_setup_dir_vars()
@@ -61,7 +61,7 @@ vsg_add_target_docs(
 
 # automatically buil_all_h build target to generate the include/vsg/all.h from the headers in the include/vsg/* directories
 add_custom_target(build_all_h
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/build/build_all_h.cmake
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/build_all_h.cmake
 )
 
 vsg_add_target_clobber()
@@ -86,7 +86,7 @@ vsg_add_option_maintainer(
     RCLEVEL ${VSG_RELEASE_CANDIDATE}
 )
 
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/vsgMacros.cmake" DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/vsgMacros.cmake" DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
 
 #
 # src directory contains all the source of the vsg library

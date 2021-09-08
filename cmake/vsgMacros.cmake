@@ -323,8 +323,8 @@ macro(vsg_add_target_uninstall)
     # we are running inside VulkanSceneGraph
     if (PROJECT_NAME STREQUAL "vsg")
         # install file for client packages
-        install(FILES ${CMAKE_SOURCE_DIR}/build/uninstall.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
-        set(DIR ${CMAKE_SOURCE_DIR}/build)
+        install(FILES ${CMAKE_SOURCE_DIR}/cmake/uninstall.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
+        set(DIR ${CMAKE_SOURCE_DIR}/cmake)
     else()
         set(DIR ${CMAKE_CURRENT_LIST_DIR})
     endif()

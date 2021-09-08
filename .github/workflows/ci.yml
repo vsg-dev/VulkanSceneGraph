@@ -39,6 +39,8 @@ jobs:
       with:
         name: VSG Documentation
         path: html
+    - name: Install
+      run: sudo make install
 
   windows-build:
     runs-on: windows-latest
@@ -65,8 +67,10 @@ jobs:
         VULKAN_SDK: ${{steps.env.outputs.VULKAN_SDK}}
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
-    - name: MSBuild
+    - name: MSBuild Compile
       run: MSBuild.exe ALL_BUILD.vcxproj -p:Configuration=Release
+    - name: MSBuild Install
+      run: MSBuild.exe INSTALL.vcxproj -p:Configuration=Release
 
   windows-dll-build:
     runs-on: windows-latest
@@ -93,8 +97,10 @@ jobs:
         VULKAN_SDK: ${{steps.env.outputs.VULKAN_SDK}}
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
-    - name: MSBuild
+    - name: MSBuild Compile
       run: MSBuild.exe ALL_BUILD.vcxproj -p:Configuration=Release
+    - name: MSBuild Install
+      run: MSBuild.exe INSTALL.vcxproj -p:Configuration=Release
 
   macos-build:
     runs-on: macos-latest
@@ -130,3 +136,6 @@ jobs:
 
     - name: Make
       run: make -j 2
+      
+    - name: Install
+      run: make install
