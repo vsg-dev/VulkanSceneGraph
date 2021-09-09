@@ -3,7 +3,10 @@
 #
 
 # give hint for cmake developers
-message(STATUS "Reading 'vsg_...' macros from ${CMAKE_CURRENT_LIST_DIR}/vsgMacros.cmake - look there for documentation")
+if(NOT _vsg_macros_included)
+    message(STATUS "Reading 'vsg_...' macros from ${CMAKE_CURRENT_LIST_DIR}/vsgMacros.cmake - look there for documentation")
+    set(_vsg_macros_included 1)
+endif()
 
 #
 # setup build related variables
