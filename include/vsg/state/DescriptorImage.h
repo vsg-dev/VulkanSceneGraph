@@ -59,6 +59,8 @@ namespace vsg
         uint32_t getNumDescriptors() const override;
 
     protected:
+
+        vk_buffer<int> _bCompiled;
     };
     VSG_type_name(vsg::DescriptorImage);
 

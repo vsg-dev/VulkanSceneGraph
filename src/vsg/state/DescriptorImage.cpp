@@ -166,6 +166,9 @@ void DescriptorImage::compile(Context& context)
 {
     if (imageInfoList.empty()) return;
 
+    auto& isCompiled = _bCompiled[context.deviceID];
+    if (isCompiled) return;
+
     for (auto& imageData : imageInfoList)
     {
         if (imageData.sampler) imageData.sampler->compile(context);
@@ -195,6 +198,8 @@ void DescriptorImage::compile(Context& context)
             }
         }
     }
+
+    isCompiled = 1;
 }
 
 void DescriptorImage::assignTo(Context& context, VkWriteDescriptorSet& wds) const
