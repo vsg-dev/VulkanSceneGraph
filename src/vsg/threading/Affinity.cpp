@@ -46,7 +46,7 @@ static void win32_setAffinity(HANDLE tid, const vsg::Affinity& affinity)
 
 void vsg::setAffinity(std::thread& thread, const Affinity& affinity)
 {
-    win32_setAffinity(thread.native_handle(), affinity);
+    win32_setAffinity((HANDLE)thread.native_handle(), affinity);
 }
 
 void vsg::setAffinity(const Affinity& affinity)
