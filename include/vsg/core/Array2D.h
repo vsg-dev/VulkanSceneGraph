@@ -30,7 +30,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     template<typename T>
-    class Array2D : public Data
+    class VSG_DECLSPEC Array2D : public Data
     {
     public:
         using value_type = T;
