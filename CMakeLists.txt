@@ -94,4 +94,9 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/vsgMacros.cmake" DESTINATION ${
 #
 add_subdirectory(src/vsg)
 
+#
+# tests directory contains testing applications for the vsg library
+#
+add_subdirectory(tests)
+
 vsg_add_feature_summary()
