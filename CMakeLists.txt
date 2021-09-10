@@ -7,6 +7,7 @@ project(vsg
 )
 set(VSG_SOVERSION 2)
 SET(VSG_RELEASE_CANDIDATE 0)
+set(CMAKE_CXX_STANDARD 17)
 
 # create the version header
 set(VSG_MAX_DEVICES 1 CACHE STRING "Set maximum number of vk/vsg::Device that are supported.")
