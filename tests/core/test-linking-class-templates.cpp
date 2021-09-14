@@ -3,6 +3,8 @@
 #include <vsg/core/Array2D.h>
 #include <vsg/core/Array3D.h>
 #include <vsg/core/Value.h>
+#include <vsg/core/ConstVisitor.h>
+#include <vsg/core/Visitor.h>
 
 int main()
 {
