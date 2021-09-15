@@ -394,7 +394,7 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
     vid->assignArrays(arrays);
 
     vid->assignIndices(indices);
-    vid->indexCount = indices->size();
+    vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
     scenegraph->addChild(vid);
@@ -637,7 +637,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     vid->assignArrays(arrays);
 
     vid->assignIndices(indices);
-    vid->indexCount = indices->size();
+    vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
     scenegraph->addChild(vid);
@@ -859,7 +859,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     vid->assignArrays(arrays);
 
     vid->assignIndices(indices);
-    vid->indexCount = indices->size();
+    vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
     scenegraph->addChild(vid);
@@ -1118,7 +1118,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     vid->assignArrays(arrays);
 
     vid->assignIndices(indices);
-    vid->indexCount = indices->size();
+    vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
     scenegraph->addChild(vid);
@@ -1233,7 +1233,7 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     vid->assignArrays(arrays);
 
     vid->assignIndices(indices);
-    vid->indexCount = indices->size();
+    vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
     scenegraph->addChild(vid);
@@ -1325,7 +1325,7 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& sta
     vid->assignArrays(arrays);
 
     vid->assignIndices(indices);
-    vid->indexCount = indices->size();
+    vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
     scenegraph->addChild(vid);
@@ -1445,7 +1445,7 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
     vid->assignArrays(arrays);
 
     vid->assignIndices(indices);
-    vid->indexCount = indices->size();
+    vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
     scenegraph->addChild(vid);
@@ -1590,7 +1590,7 @@ ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateIn
     vid->assignArrays(arrays);
 
     vid->assignIndices(indices);
-    vid->indexCount = indices->size();
+    vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
     scenegraph->addChild(vid);
