@@ -63,6 +63,7 @@ vsg_add_target_docs(
 add_custom_target(build_all_h
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/build_all_h.cmake
 )
+set_target_properties(build_all_h PROPERTIES FOLDER "VulkanSceneGraph")
 
 vsg_add_target_clobber()
 vsg_add_target_uninstall()
