@@ -267,7 +267,7 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
     if (positions)
     {
         if (positions->size() >= 1)
-            instanceCount = positions->size();
+            instanceCount = static_cast<uint32_t>(positions->size());
         else
             positions = {};
     }
@@ -418,7 +418,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     if (positions)
     {
         if (positions->size() >= 1)
-            instanceCount = positions->size();
+            instanceCount = static_cast<uint32_t>(positions->size());
         else
             positions = {};
     }
@@ -479,7 +479,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     {
         unsigned int vi = c * 2;
         float r = float(c) / float(num_columns - 1);
-        float alpha = (r)*2.0 * PI;
+        float alpha = (r)*2.0f * PIf;
         v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
         n = normalize(v);
 
@@ -515,7 +515,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
         {
             for (unsigned int r = 0; r < num_rows; ++r)
             {
-                float beta = ((float(r) / float(num_rows - 1)) - 1.0f) * PI * 0.5f;
+                float beta = ((float(r) / float(num_rows - 1)) - 1.0f) * PIf * 0.5f;
                 float ty = t_origin + t_scale * float(r) / float(num_rows - 1);
                 float cos_beta = cosf(beta);
                 vec3 dz_sin_beta = dz * sinf(beta);
@@ -536,7 +536,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
                 for (unsigned int c = 1; c < num_columns - 1; ++c)
                 {
                     unsigned int vi = left_i + c;
-                    float alpha = (float(c) / float(num_columns - 1)) * 2.0 * PI;
+                    float alpha = (float(c) / float(num_columns - 1)) * 2.0f * PIf;
                     v = dx * (-sinf(alpha) * cos_beta) + dy * (cosf(alpha) * cos_beta) + dz_sin_beta;
                     n = normalize(v);
                     vertices->set(vi, bottom + v);
@@ -569,7 +569,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
         {
             for (unsigned int r = 0; r < num_rows; ++r)
             {
-                float beta = ((float(r) / float(num_rows - 1))) * PI * 0.5f;
+                float beta = ((float(r) / float(num_rows - 1))) * PIf * 0.5f;
                 float ty = t_origin + t_scale * float(r) / float(num_rows - 1);
                 float cos_beta = cosf(beta);
                 vec3 dz_sin_beta = dz * sinf(beta);
@@ -590,7 +590,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
                 for (unsigned int c = 1; c < num_columns - 1; ++c)
                 {
                     unsigned int vi = left_i + c;
-                    float alpha = (float(c) / float(num_columns - 1)) * 2.0 * PI;
+                    float alpha = (float(c) / float(num_columns - 1)) * 2.0f * PIf;
                     v = dx * (-sinf(alpha) * cos_beta) + dy * (cosf(alpha) * cos_beta) + dz_sin_beta;
                     n = normalize(v);
                     vertices->set(vi, top + v);
@@ -661,7 +661,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     if (positions)
     {
         if (positions->size() >= 1)
-            instanceCount = positions->size();
+            instanceCount = static_cast<uint32_t>(positions->size());
         else
             positions = {};
     }
@@ -726,7 +726,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
         {
             unsigned int vi = 1 + c;
             float r = float(c) / float(num_columns);
-            alpha = (r)*2.0 * PI;
+            alpha = (r)*2.0f * PIf;
             v = edge(alpha);
             n = normal(alpha);
 
@@ -784,7 +784,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
         {
             unsigned int vi = c * 2;
             float r = float(c) / float(num_columns - 1);
-            alpha = (r)*2.0 * PI;
+            alpha = (r)*2.0f * PIf;
             v = edge(alpha);
             n = normal(alpha);
 
@@ -824,7 +824,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
             for (unsigned int c = 1; c < num_columns - 1; ++c)
             {
                 float r = float(c) / float(num_columns - 1);
-                alpha = (r)*2.0 * PI;
+                alpha = (r)*2.0f * PIf;
                 v = edge(alpha);
 
                 unsigned int vi = bottom_i + c;
@@ -883,7 +883,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     if (positions)
     {
         if (positions->size() >= 1)
-            instanceCount = positions->size();
+            instanceCount = static_cast<uint32_t>(positions->size());
         else
             positions = {};
     }
@@ -936,7 +936,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
         {
             unsigned int vi = c * 2;
             float r = float(c) / float(num_columns - 1);
-            float alpha = (r)*2.0 * PI;
+            float alpha = (r)*2.0f * PIf;
             v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
             n = normalize(v);
 
@@ -1016,7 +1016,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
         {
             unsigned int vi = c * 2;
             float r = float(c) / float(num_columns - 1);
-            float alpha = (r)*2.0 * PI;
+            float alpha = (r)*2.0f * PIf;
             v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
             n = normalize(v);
 
@@ -1070,7 +1070,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
             for (unsigned int c = 1; c < num_columns - 1; ++c)
             {
                 float r = float(c) / float(num_columns - 1);
-                float alpha = (r)*2.0 * PI;
+                float alpha = (r)*2.0f * PIf;
                 v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
                 n = normalize(v);
 
@@ -1142,7 +1142,7 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     if (positions)
     {
         if (positions->size() >= 1)
-            instanceCount = positions->size();
+            instanceCount = static_cast<uint32_t>(positions->size());
         else
             positions = {};
     }
@@ -1178,7 +1178,7 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     for (unsigned int c = 1; c < num_vertices; ++c)
     {
         float r = float(c) / float(num_vertices - 1);
-        float alpha = (r)*2.0 * PI;
+        float alpha = (r)*2.0f * PIf;
         float sn = sinf(alpha);
         float cs = cosf(alpha);
         vec3 v = dy * cs - dx * sn;
@@ -1257,7 +1257,7 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& sta
     if (positions)
     {
         if (positions->size() >= 1)
-            instanceCount = positions->size();
+            instanceCount = static_cast<uint32_t>(positions->size());
         else
             positions = {};
     }
@@ -1350,7 +1350,7 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
     if (positions)
     {
         if (positions->size() >= 1)
-            instanceCount = positions->size();
+            instanceCount = static_cast<uint32_t>(positions->size());
         else
             positions = {};
     }
@@ -1380,7 +1380,7 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
 
     for (unsigned int r = 0; r < num_rows; ++r)
     {
-        float beta = ((float(r) / float(num_rows - 1)) - 0.5) * PI;
+        float beta = ((float(r) / float(num_rows - 1)) - 0.5f) * PIf;
         float ty = t_origin + t_scale * float(r) / float(num_rows - 1);
         float cos_beta = cosf(beta);
         vec3 dz_sin_beta = dz * sinf(beta);
@@ -1401,7 +1401,7 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
         for (unsigned int c = 1; c < num_columns - 1; ++c)
         {
             unsigned int vi = left_i + c;
-            float alpha = (float(c) / float(num_columns - 1)) * 2.0 * PI;
+            float alpha = (float(c) / float(num_columns - 1)) * 2.0f * PIf;
             v = dx * (-sinf(alpha) * cos_beta) + dy * (cosf(alpha) * cos_beta) + dz_sin_beta;
             n = normalize(v);
             vertices->set(vi, origin + v);
@@ -1471,7 +1471,7 @@ ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateIn
     if (positions)
     {
         if (positions->size() >= 1)
-            instanceCount = positions->size();
+            instanceCount = static_cast<uint32_t>(positions->size());
         else
             positions = {};
     }
