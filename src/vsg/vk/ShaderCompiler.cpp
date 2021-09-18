@@ -201,7 +201,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         // select the most appropriate Spirv version
         glslang::EShTargetLanguageVersion targetLanguageVersion = std::max(static_cast<glslang::EShTargetLanguageVersion>(settings->target), minTargetLanguageVersion);
 
-        // convert Vulkan version to glsLang equivilant
+        // convert Vulkan version to glsLang equivalent
         glslang::EShTargetClientVersion targetClientVersion = static_cast<glslang::EShTargetClientVersion>((VK_API_VERSION_MAJOR(settings->vulkanVersion) << 22) | (VK_API_VERSION_MINOR(settings->vulkanVersion) << 12));
 
         shader->setEnvInput(static_cast<glslang::EShSource>(settings->language), envStage, glslang::EShClientVulkan, settings->clientInputVersion);

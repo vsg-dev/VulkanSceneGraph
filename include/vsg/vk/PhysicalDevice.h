@@ -64,7 +64,7 @@ namespace vsg
             return properties;
         }
 
-        /// Call vkEnumerateDeviceExtensionProperties to enumarate extension properites.
+        /// Call vkEnumerateDeviceExtensionProperties to enumerate extension properties.
         std::vector<VkExtensionProperties> enumerateDeviceExtensionProperties(const char* pLayerName = nullptr);
 
     protected:

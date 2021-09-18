@@ -30,7 +30,7 @@ namespace vsg
 
         using SpecializationConstants = std::map<uint32_t, vsg::ref_ptr<vsg::Data>>;
 
-        /// Vualkn VkPipelineShaderStageCreateInfo settings
+        /// Vulkan VkPipelineShaderStageCreateInfo settings
         VkPipelineShaderStageCreateFlags flags = 0;
         VkShaderStageFlagBits stage = {};
         ref_ptr<ShaderModule> module;
