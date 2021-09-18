@@ -38,10 +38,10 @@ namespace vsg
         ref_ptr<Framebuffer> framebuffer;
         ref_ptr<Window> window;
 
-        /// RenderPass tp use passed to the vkCmdBeginRenderPass, either obtained from which of the framebuffer or window are active
+        /// RenderPass to use passed to the vkCmdBeginRenderPass, either obtained from which of the framebuffer or window are active
         RenderPass* getRenderPass();
 
-        /// Get the Exten2D of the attached Framebuffer or Widnow.
+        /// Get the Exten2D of the attached Framebuffer or Window.
         VkExtent2D getExtent() const;
 
         /// ReandingArea settings for VkRenderPassBeginInfo.renderArea passed to the vkCmdBeginRenderPass, usually maps the ViewportState's scissor

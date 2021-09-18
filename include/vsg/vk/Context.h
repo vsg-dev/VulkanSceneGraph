@@ -35,7 +35,7 @@ namespace vsg
     class VSG_DECLSPEC BuildAccelerationStructureCommand : public Inherit<Command, BuildAccelerationStructureCommand>
     {
     public:
-        // the primitive Count is A) the amount of triangles to be built for type VK_GEOMETRY_TYPE_TRIANGLES_KHR (blas) B) the amoutn fo AABBs vor type VK_GEOMETRY_TYPE_AABBS_KHR
+        // the primitive Count is A) the amount of triangles to be built for type VK_GEOMETRY_TYPE_TRIANGLES_KHR (blas) B) the amount of AABBs for type VK_GEOMETRY_TYPE_AABBS_KHR
         // and C) the number of acceleration structures for type VK_GEOMETRY_TYPE_INSTANCES_KHR
         BuildAccelerationStructureCommand(Device* device, const VkAccelerationStructureBuildGeometryInfoKHR& info, const VkAccelerationStructureKHR& structure, const std::vector<uint32_t>& primitiveCounts, Allocator* allocator);
 
@@ -86,7 +86,7 @@ namespace vsg
         // pipeline states that must be set to avoid Vulkan errors
         // e.g., MultisampleState.
         // XXX MultisampleState is complicated because the sample
-        // number needs to agree with the renderpass attachement, but
+        // number needs to agree with the renderpass attachment, but
         // other parts of the state, like alpha to coverage, belong to
         // the scene graph .
         GraphicsPipelineStates overridePipelineStates;

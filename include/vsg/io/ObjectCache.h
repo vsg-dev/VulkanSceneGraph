@@ -68,7 +68,7 @@ namespace vsg
                 auxilary(in_options ? in_options->getAuxiliary() : nullptr),
                 filename(in_filename) {}
 
-            // use an Options's Auxilary object to avoid Options->ObjectCache->Options circular references
+            // use an Options's Auxiliary object to avoid Options->ObjectCache->Options circular references
             ref_ptr<const Auxiliary> auxilary;
             Path filename;
 

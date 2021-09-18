@@ -135,7 +135,7 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
     DescriptorSetLayouts descriptorSetLayouts{stateSettings.descriptorSetLayout};
 
     PushConstantRanges pushConstantRanges{
-        {VK_SHADER_STAGE_VERTEX_BIT, 0, 128} // projection view, and model matrices, actual push constant calls autoaatically provided by the VSG's DispatchTraversal
+        {VK_SHADER_STAGE_VERTEX_BIT, 0, 128} // projection view, and model matrices, actual push constant calls automatically provided by the VSG's DispatchTraversal
     };
 
     stateSettings.pipelineLayout = PipelineLayout::create(descriptorSetLayouts, pushConstantRanges);

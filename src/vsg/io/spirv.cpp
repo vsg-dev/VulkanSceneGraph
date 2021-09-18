@@ -75,7 +75,7 @@ bool spirv::write(const vsg::Object* object, const vsg::Path& filename, vsg::ref
                 vsg::ShaderCompiler sc;
                 if (!sc.compile(vsg::ref_ptr<vsg::ShaderStage>(const_cast<vsg::ShaderStage*>(ss))))
                 {
-                    std::cout << "spirv::write() Failed compile tp spv." << std::endl;
+                    std::cout << "spirv::write() Failed compile to spv." << std::endl;
                     return false;
                 }
             }
