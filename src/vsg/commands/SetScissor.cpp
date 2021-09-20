@@ -17,17 +17,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 SetScissor::SetScissor() :
-    firstSissor(0)
+    firstScissor(0)
 {
 }
 
-SetScissor::SetScissor(uint32_t in_firstSissor, const Scissors& in_scissors) :
-    firstSissor(in_firstSissor),
-    sissors(in_scissors)
+SetScissor::SetScissor(uint32_t in_firstScissor, const Scissors& in_scissors) :
+    firstScissor(in_firstScissor),
+    scissors(in_scissors)
 {
 }
 
 void SetScissor::record(CommandBuffer& commandBuffer) const
 {
-    vkCmdSetScissor(commandBuffer, firstSissor, static_cast<uint32_t>(sissors.size()), sissors.data());
+    vkCmdSetScissor(commandBuffer, firstScissor, static_cast<uint32_t>(scissors.size()), scissors.data());
 }

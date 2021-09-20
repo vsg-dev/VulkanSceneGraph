@@ -23,10 +23,10 @@ namespace vsg
     {
     public:
         SetScissor();
-        SetScissor(uint32_t in_firstSissor, const Scissors& in_scissors);
+        SetScissor(uint32_t in_firstScissor, const Scissors& in_scissors);
 
-        uint32_t firstSissor = 0;
-        Scissors sissors;
+        uint32_t firstScissor = 0;
+        Scissors scissors;
 
         void record(CommandBuffer& commandBuffer) const override;
     };
