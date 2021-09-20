@@ -16,6 +16,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    using Viewports = std::vector<VkViewport>;
+    using Scissors = std::vector<VkRect2D>;
+
     class VSG_DECLSPEC ViewportState : public Inherit<GraphicsPipelineState, ViewportState>
     {
     public:
@@ -26,9 +29,6 @@ namespace vsg
 
         /// Create ViewportState containing a single Viewport and Scissor pair with specified position and extent
         ViewportState(int32_t x, int32_t y, uint32_t width, uint32_t height);
-
-        using Viewports = std::vector<VkViewport>;
-        using Scissors = std::vector<VkRect2D>;
 
         /// VkPipelineViewportStateCreateInfo settings
         Viewports viewports;

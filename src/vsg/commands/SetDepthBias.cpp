@@ -1,8 +1,6 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2018 Robert Osfield
+Copyright(c) 2021 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -12,35 +10,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/state/GraphicsPipeline.h>
+#include <vsg/commands/SetDepthBias.h>
+#include <vsg/io/Options.h>
+#include <vsg/vk/CommandBuffer.h>
 
-namespace vsg
+using namespace vsg;
+
+SetDepthBias::SetDepthBias()
 {
-    class VSG_DECLSPEC DynamicState : public Inherit<GraphicsPipelineState, DynamicState>
-    {
-    public:
-        using DynamicStates = std::vector<VkDynamicState>;
+}
 
-        DynamicState();
+SetDepthBias::SetDepthBias(float in_depthBiasConstantFactor, float in_depthBiasClamp, float in_depthBiasSlopeFactor) :
+    depthBiasConstantFactor(in_depthBiasConstantFactor),
+    depthBiasClamp(in_depthBiasClamp),
+    depthBiasSlopeFactor(in_depthBiasSlopeFactor)
+{
+}
 
-        DynamicState(const DynamicStates& states) :
-            dynamicStates(states) {}
-
-        template<typename... Args>
-        DynamicState(Args... args) :
-            dynamicStates({args...}) {}
-
-        /// VkPipelineDynamicStateCreateInfo settings
-        DynamicStates dynamicStates;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
-
-    protected:
-        virtual ~DynamicState();
-    };
-    VSG_type_name(vsg::DynamicState);
-
-} // namespace vsg
+void SetDepthBias::record(CommandBuffer& commandBuffer) const
+{
+    vkCmdSetDepthBias(commandBuffer, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
+}

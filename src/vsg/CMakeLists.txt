@@ -58,6 +58,10 @@ set(SOURCES
     commands/DrawIndirect.cpp
     commands/DrawIndexed.cpp
     commands/DrawIndexedIndirect.cpp
+    commands/SetDepthBias.cpp
+    commands/SetLineWidth.cpp
+    commands/SetScissor.cpp
+    commands/SetViewport.cpp
 
     state/Buffer.cpp
     state/BufferInfo.cpp
