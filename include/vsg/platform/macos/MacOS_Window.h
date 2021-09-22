@@ -86,7 +86,6 @@ namespace vsgMacOS
         double _first_macos_timestamp = 0;
         vsg::clock::time_point _first_macos_time_point;
 
-        vsg::UIEvents _bufferedEvents;
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 

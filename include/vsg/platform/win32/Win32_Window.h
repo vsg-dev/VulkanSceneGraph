@@ -143,7 +143,6 @@ namespace vsgWin32
         HWND _window;
         bool _windowMapped = false;
 
-        vsg::UIEvents _bufferedEvents;
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 

@@ -39,7 +39,11 @@ namespace vsg
 
         virtual bool visible() const { return valid(); }
 
-        virtual bool pollEvents(UIEvents& /*events*/) { return false; }
+        /// events buffered since the last pollEvents.
+        UIEvents bufferedEvents;
+
+        /// get the list of events since the last poolEvents() call by splicing bufferEvents with polled windowing events.
+        virtual bool pollEvents(UIEvents& events);
 
         virtual bool resized() const { return false; }
         virtual void resize() {}
