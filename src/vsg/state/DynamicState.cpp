@@ -54,7 +54,7 @@ void DynamicState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipelin
     dynamicState->pNext = nullptr;
     dynamicState->flags = 0;
     dynamicState->dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-    dynamicState->pDynamicStates = dynamicStates.data()
+    dynamicState->pDynamicStates = dynamicStates.data();
 
     pipelineInfo.pDynamicState = dynamicState;
 }
