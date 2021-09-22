@@ -72,7 +72,7 @@ namespace vsgMacOS
             return _first_macos_time_point + std::chrono::milliseconds(elapsedmilli);
         }
 
-        void queueEvent(vsg::UIEvent* anEvent) { _bufferedEvents.emplace_back(anEvent); }
+        void queueEvent(vsg::UIEvent* anEvent) { bufferedEvents.emplace_back(anEvent); }
 
     protected:
         virtual ~MacOS_Window();
