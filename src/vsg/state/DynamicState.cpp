@@ -53,6 +53,8 @@ void DynamicState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipelin
     dynamicState->sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     dynamicState->pNext = nullptr;
     dynamicState->flags = 0;
+    dynamicState->dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+    dynamicState->pDynamicStates = dynamicStates.data()
 
     pipelineInfo.pDynamicState = dynamicState;
 }
