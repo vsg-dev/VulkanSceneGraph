@@ -544,7 +544,6 @@ bool Xcb_Window::visible() const
 
 bool Xcb_Window::pollEvents(UIEvents& events)
 {
-    unsigned numEventsBefore = events.size();
     xcb_generic_event_t* event;
     int i = 0;
     while ((event = xcb_poll_for_event(_connection)))
@@ -556,7 +555,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
         case(XCB_DESTROY_NOTIFY):
         {
             vsg::clock::time_point event_time = vsg::clock::now();
-            events.emplace_back(new vsg::TerminateEvent(event_time));
+            bufferedEvents.emplace_back(new vsg::TerminateEvent(event_time));
             break;
         }
         case(XCB_UNMAP_NOTIFY):
@@ -632,7 +631,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             if (!previousConfigureEventsIsEquvilant)
             {
                 vsg::clock::time_point event_time = vsg::clock::now();
-                events.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, x, y, configure->width, configure->height));
+                bufferedEvents.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, x, y, configure->width, configure->height));
                 _windowResized = (configure->width != _extent2D.width || configure->height != _extent2D.height);
             }
 
@@ -643,7 +642,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             auto expose = reinterpret_cast<const xcb_expose_event_t*>(event);
 
             vsg::clock::time_point event_time = vsg::clock::now();
-            events.emplace_back(new vsg::ExposeWindowEvent(this, event_time, expose->x, expose->y, expose->width, expose->height));
+            bufferedEvents.emplace_back(new vsg::ExposeWindowEvent(this, event_time, expose->x, expose->y, expose->width, expose->height));
 
             _windowResized = (expose->width != _extent2D.width || expose->height != _extent2D.height);
 
@@ -656,7 +655,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             if (client_message->data.data32[0] == _wmDeleteWindow)
             {
                 vsg::clock::time_point event_time = vsg::clock::now();
-                events.emplace_back(new vsg::CloseWindowEvent(this, event_time));
+                bufferedEvents.emplace_back(new vsg::CloseWindowEvent(this, event_time));
             }
             break;
         }
@@ -669,7 +668,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             vsg::KeySymbol keySymbolModified = _keyboard->getKeySymbol(key_press->detail, key_press->state);
             vsg::KeyModifier keyModifier = _keyboard->getKeyModifier(keySymbol, key_press->state, true);
 
-            events.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, keySymbolModified, keyModifier, 0));
+            bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, keySymbolModified, keyModifier, 0));
 
             break;
         }
@@ -682,7 +681,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             vsg::KeySymbol keySymbolModified = _keyboard->getKeySymbol(key_release->detail, key_release->state);
             vsg::KeyModifier keyModifier = _keyboard->getKeyModifier(keySymbol, key_release->state, false);
 
-            events.emplace_back(new vsg::KeyReleaseEvent(this, event_time, keySymbol, keySymbolModified, keyModifier, 0));
+            bufferedEvents.emplace_back(new vsg::KeyReleaseEvent(this, event_time, keySymbol, keySymbolModified, keyModifier, 0));
 
             break;
         }
@@ -697,17 +696,17 @@ bool Xcb_Window::pollEvents(UIEvents& events)
                 // X11/Xvb treat scroll wheel up/down as button 4 and 5 so handle these as such
                 if (button_press->detail==4)
                 {
-                    events.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0f, 1.0f, 0.0f)));
+                    bufferedEvents.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0f, 1.0f, 0.0f)));
                 }
                 else if (button_press->detail==5)
                 {
-                    events.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0f, -1.0f, 0.0f)));
+                    bufferedEvents.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0f, -1.0f, 0.0f)));
                 }
                 else
                 {
                     uint32_t pressedButtoMask = 1 << (7+button_press->detail);
                     uint32_t newButtonMask = uint32_t(button_press->state) | pressedButtoMask;
-                    events.emplace_back(new vsg::ButtonPressEvent(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(newButtonMask), button_press->detail));
+                    bufferedEvents.emplace_back(new vsg::ButtonPressEvent(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(newButtonMask), button_press->detail));
                 }
             }
 
@@ -723,7 +722,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
                 vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_release->time - _first_xcb_timestamp);
                 uint32_t releasedButtoMask = 1 << (7+button_release->detail);
                 uint32_t newButtonMask = uint32_t(button_release->state) & ~releasedButtoMask;
-                events.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(newButtonMask), button_release->detail));
+                bufferedEvents.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(newButtonMask), button_release->detail));
             }
 
             break;
@@ -734,7 +733,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             if (motion_notify->same_screen)
             {
                 vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(motion_notify->time - _first_xcb_timestamp);
-                events.emplace_back(new vsg::MoveEvent(this, event_time, motion_notify->event_x, motion_notify->event_y, vsg::ButtonMask(motion_notify->state)));
+                bufferedEvents.emplace_back(new vsg::MoveEvent(this, event_time, motion_notify->event_x, motion_notify->event_y, vsg::ButtonMask(motion_notify->state)));
             }
 
             break;
@@ -748,8 +747,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
         free(event);
     }
 
-    unsigned numEventsAfter = events.size();
-    return numEventsBefore != numEventsAfter;
+    return Window::pollEvents(events);
 }
 
 bool Xcb_Window::resized() const

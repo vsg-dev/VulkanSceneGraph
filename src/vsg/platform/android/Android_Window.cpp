@@ -367,14 +367,7 @@ void Android_Window::_initSurface()
 
 bool Android_Window::pollEvents(vsg::UIEvents& events)
 {
-    if (_bufferedEvents.size() > 0)
-    {
-        events.splice(events.end(), _bufferedEvents);
-        _bufferedEvents.clear();
-        return true;
-    }
-
-    return false;
+    return Window::pollEvents(events);
 }
 
 bool Android_Window::resized() const
@@ -421,14 +414,14 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
                 switch (action)
                 {
                 case AMOTION_EVENT_ACTION_DOWN:
-                    _bufferedEvents.emplace_back(new vsg::TouchDownEvent(this, historical_event_time, x, y, id));
+                    bufferedEvents.emplace_back(new vsg::TouchDownEvent(this, historical_event_time, x, y, id));
                     break;
                 case AMOTION_EVENT_ACTION_MOVE:
-                    _bufferedEvents.emplace_back(new vsg::TouchMoveEvent(this, historical_event_time, x, y, id));
+                    bufferedEvents.emplace_back(new vsg::TouchMoveEvent(this, historical_event_time, x, y, id));
                     break;
                 case AMOTION_EVENT_ACTION_UP:
                 case AMOTION_EVENT_ACTION_CANCEL: // for now just treat cancel as up
-                    _bufferedEvents.emplace_back(new vsg::TouchUpEvent(this, historical_event_time, x, y, id));
+                    bufferedEvents.emplace_back(new vsg::TouchUpEvent(this, historical_event_time, x, y, id));
                     break;
                 default: break;
                 }
@@ -449,16 +442,16 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
             {
             case AMOTION_EVENT_ACTION_DOWN:
                 LOG("touch down event = id: %d - xy: %f, %f", id, x, y);
-                _bufferedEvents.emplace_back(new vsg::TouchDownEvent(this, event_time, x, y, id));
+                bufferedEvents.emplace_back(new vsg::TouchDownEvent(this, event_time, x, y, id));
                 break;
             case AMOTION_EVENT_ACTION_MOVE:
                 LOG("touch move event = id: %d - xy: %f, %f", id, x, y);
-                _bufferedEvents.emplace_back(new vsg::TouchMoveEvent(this, event_time, x, y, id));
+                bufferedEvents.emplace_back(new vsg::TouchMoveEvent(this, event_time, x, y, id));
                 break;
             case AMOTION_EVENT_ACTION_UP:
             case AMOTION_EVENT_ACTION_CANCEL: // for now just treat cancel as up
                 LOG("touch up event = id: %d - xy: %f, %f", id, x, y);
-                _bufferedEvents.emplace_back(new vsg::TouchUpEvent(this, event_time, x, y, id));
+                bufferedEvents.emplace_back(new vsg::TouchUpEvent(this, event_time, x, y, id));
                 break;
             default: break;
             }
@@ -487,14 +480,14 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
         {
             case AKEY_EVENT_ACTION_DOWN:
                 LOG("key down event = unmodified: %d modified:%d", int32_t(keySymbol), int32_t(modifiedKeySymbol));
-                _bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
+                bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
                 break;
             case AKEY_EVENT_ACTION_UP:
                 LOG("key up event = unmodified: %d modified:%d", int32_t(keySymbol), int32_t(modifiedKeySymbol));
-                _bufferedEvents.emplace_back(new vsg::KeyReleaseEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
+                bufferedEvents.emplace_back(new vsg::KeyReleaseEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
                 break;
                 //case AKEY_EVENT_ACTION_MULTIPLE:
-                //   _bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier);
+                //   bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier);
                 //   break;
             default: break;
         }

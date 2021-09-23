@@ -834,7 +834,7 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     
     // manually trigger configure here??
     vsg::clock::time_point event_time = vsg::clock::now();
-    _bufferedEvents.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, _traits->x, _traits->y, finalwidth, finalheight));
+    bufferedEvents.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, _traits->x, _traits->y, finalwidth, finalheight));
 }
 
 MacOS_Window::~MacOS_Window()
@@ -863,14 +863,7 @@ bool MacOS_Window::pollEvents(vsg::UIEvents& events)
         [NSApp sendEvent:event];
     }
 
-    if (_bufferedEvents.size() > 0)
-    {
-        events.splice(events.end(), _bufferedEvents);
-        _bufferedEvents.clear();
-        return true;
-    }
-
-    return false;
+    return Window::pollEvents(events);
 }
 
 bool MacOS_Window::resized() const
@@ -943,21 +936,21 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
                 case NSEventTypeRightMouseDragged:
                 case NSEventTypeOtherMouseDragged:
                 {
-                    _bufferedEvents.emplace_back(new vsg::MoveEvent(this, getEventTime([anEvent timestamp]), pos.x, contentRect.size.height - pos.y, vsg::ButtonMask(buttonMask)));
+                    bufferedEvents.emplace_back(new vsg::MoveEvent(this, getEventTime([anEvent timestamp]), pos.x, contentRect.size.height - pos.y, vsg::ButtonMask(buttonMask)));
                     break;
                 }
                 case NSEventTypeLeftMouseDown:
                 case NSEventTypeRightMouseDown:
                 case NSEventTypeOtherMouseDown:
                 {
-                    _bufferedEvents.emplace_back(new vsg::ButtonPressEvent(this, getEventTime([anEvent timestamp]), pos.x, contentRect.size.height - pos.y, vsg::ButtonMask(buttonMask), buttonNumber));
+                    bufferedEvents.emplace_back(new vsg::ButtonPressEvent(this, getEventTime([anEvent timestamp]), pos.x, contentRect.size.height - pos.y, vsg::ButtonMask(buttonMask), buttonNumber));
                     break;
                 }
                 case NSEventTypeLeftMouseUp:
                 case NSEventTypeRightMouseUp:
                 case NSEventTypeOtherMouseUp:
                 {
-                    _bufferedEvents.emplace_back(new vsg::ButtonReleaseEvent(this, getEventTime([anEvent timestamp]), pos.x, contentRect.size.height - pos.y, vsg::ButtonMask(buttonMask), buttonNumber));
+                    bufferedEvents.emplace_back(new vsg::ButtonReleaseEvent(this, getEventTime([anEvent timestamp]), pos.x, contentRect.size.height - pos.y, vsg::ButtonMask(buttonMask), buttonNumber));
                     break;
                 }
                 default: break;
@@ -978,12 +971,12 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
             {
                 case NSEventTypeKeyDown:
                 {
-                    _bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, getEventTime([anEvent timestamp]), keySymbol, modifiedKeySymbol, keyModifier));
+                    bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, getEventTime([anEvent timestamp]), keySymbol, modifiedKeySymbol, keyModifier));
                     break;
                 }
                 case NSEventTypeKeyUp:
                 {
-                    _bufferedEvents.emplace_back(new vsg::KeyReleaseEvent(this, getEventTime([anEvent timestamp]), keySymbol, modifiedKeySymbol, keyModifier));
+                    bufferedEvents.emplace_back(new vsg::KeyReleaseEvent(this, getEventTime([anEvent timestamp]), keySymbol, modifiedKeySymbol, keyModifier));
                     break;
                 }
                 default: break;
@@ -994,7 +987,7 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
         // scrollWheel events
         case NSEventTypeScrollWheel:
         {
-            _bufferedEvents.emplace_back(new vsg::ScrollWheelEvent(this, getEventTime([anEvent timestamp]), vsg::vec3([anEvent deltaX], [anEvent deltaY], [anEvent deltaZ])));
+            bufferedEvents.emplace_back(new vsg::ScrollWheelEvent(this, getEventTime([anEvent timestamp]), vsg::vec3([anEvent deltaX], [anEvent deltaY], [anEvent deltaZ])));
             return true;
         }
 
