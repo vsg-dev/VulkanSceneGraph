@@ -35,8 +35,6 @@ Viewer::Viewer()
 
 Viewer::~Viewer()
 {
-    std::cout<<"Viewer::~Viewer()"<<std::endl;
-
     stopThreading();
 
     // don't destroy viewer while devices are still active

@@ -170,6 +170,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/ViewMatrix.h>
 #include <vsg/viewer/Viewer.h>
 #include <vsg/viewer/Window.h>
+#include <vsg/viewer/WindowAdapter.h>
 #include <vsg/viewer/WindowResizeHandler.h>
 #include <vsg/viewer/WindowTraits.h>
 

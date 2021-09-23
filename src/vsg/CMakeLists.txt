@@ -132,6 +132,7 @@ set(SOURCES
     viewer/EllipsoidModel.cpp
     viewer/Viewer.cpp
     viewer/Window.cpp
+    viewer/WindowAdapter.cpp
     viewer/Trackball.cpp
     viewer/CopyImageViewToWindow.cpp
     viewer/ExecuteCommands.cpp
