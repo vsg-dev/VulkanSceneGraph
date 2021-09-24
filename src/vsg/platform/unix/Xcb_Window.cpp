@@ -518,7 +518,10 @@ Xcb_Window::~Xcb_Window()
 
     if (_connection != nullptr)
     {
-        if (_window != 0) xcb_destroy_window(_connection, _window);
+        if (_window != 0)
+        {
+            xcb_destroy_window(_connection, _window);
+        }
 
         xcb_flush(_connection);
         xcb_disconnect(_connection);
@@ -540,6 +543,16 @@ bool Xcb_Window::valid() const
 bool Xcb_Window::visible() const
 {
     return _window!=0 && _windowMapped;
+}
+
+void Xcb_Window::releaseWindow()
+{
+    _window = {};
+}
+
+void Xcb_Window::releaseConnection()
+{
+    _connection = {};
 }
 
 bool Xcb_Window::pollEvents(UIEvents& events)

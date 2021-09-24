@@ -63,6 +63,9 @@ namespace vsgXcb
 
         bool visible() const override;
 
+        void releaseWindow() override;
+        void releaseConnection() override;
+
         bool pollEvents(vsg::UIEvents& events) override;
 
         bool resized() const override;

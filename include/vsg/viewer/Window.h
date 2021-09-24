@@ -39,6 +39,14 @@ namespace vsg
 
         virtual bool visible() const { return valid(); }
 
+        /// Release the window as it's owned by a 3rd party windowing object.
+        /// Resets the window handle and invalidating the window, preventing Window deletion or closing from deleting the window resource.
+        virtual void releaseWindow() {}
+
+        /// Release the connection as it's owned by a 3rd party windowing object.
+        /// Resets the connection handle.
+        virtual void releaseConnection() {}
+
         /// events buffered since the last pollEvents.
         UIEvents bufferedEvents;
 
