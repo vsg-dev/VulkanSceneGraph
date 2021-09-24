@@ -335,3 +335,8 @@ macro(vsg_add_target_uninstall)
         COMMAND ${CMAKE_COMMAND} -P ${DIR}/uninstall.cmake
     )
 endmacro()
+
+#
+# add options for vsg and all packages depending on vsg
+#
+option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
