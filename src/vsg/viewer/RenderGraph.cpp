@@ -38,6 +38,8 @@ RenderGraph::RenderGraph(ref_ptr<Window> in_window, ref_ptr<View> in_view) :
         addChild(in_view);
     }
 
+    previous_extent = window->extent2D();
+
     if (in_view && in_view->camera && in_view->camera->viewportState)
     {
         renderArea = in_view->camera->getRenderArea();
