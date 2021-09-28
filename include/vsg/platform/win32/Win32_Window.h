@@ -126,8 +126,6 @@ namespace vsgWin32
 
         bool pollEvents(vsg::UIEvents& events) override;
 
-        bool resized() const override;
-
         void resize() override;
 
         operator HWND() { return _window; }

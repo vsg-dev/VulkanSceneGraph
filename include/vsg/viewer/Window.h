@@ -53,7 +53,6 @@ namespace vsg
         /// get the list of events since the last poolEvents() call by splicing bufferEvents with polled windowing events.
         virtual bool pollEvents(UIEvents& events);
 
-        virtual bool resized() const { return false; }
         virtual void resize() {}
 
         WindowTraits* traits() { return _traits.get(); }

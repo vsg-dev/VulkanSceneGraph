@@ -866,18 +866,6 @@ bool MacOS_Window::pollEvents(vsg::UIEvents& events)
     return Window::pollEvents(events);
 }
 
-bool MacOS_Window::resized() const
-{
-    const NSRect contentRect = [_view frame];
-
-    auto devicePixelScale = _traits->hdpi ? [_window backingScaleFactor] : 1.0f;
-
-    uint32_t width = contentRect.size.width * devicePixelScale;
-    uint32_t height = contentRect.size.height * devicePixelScale;
-
-    return (width != _extent2D.width || height != _extent2D.height);
-}
-
 void MacOS_Window::resize()
 {
     const NSRect contentRect = [_view frame];

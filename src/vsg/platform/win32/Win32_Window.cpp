@@ -500,18 +500,6 @@ bool Win32_Window::pollEvents(vsg::UIEvents& events)
     return Window::pollEvents(events);
 }
 
-bool Win32_Window::resized() const
-{
-    RECT windowRect;
-    GetClientRect(_window, &windowRect);
-
-    int width = windowRect.right - windowRect.left;
-    int height = windowRect.bottom - windowRect.top;
-
-    // at the moment the close event is occurring then the check for resize is happening, which means the window is rect returns 0. So for now ignore potential resize if should close
-    return width != int(_extent2D.width) || height != int(_extent2D.height);
-}
-
 void Win32_Window::resize()
 {
     RECT windowRect;

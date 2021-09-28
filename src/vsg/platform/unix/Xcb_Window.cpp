@@ -625,9 +625,10 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             // Xcb configure events can come with x,y == (0,0) or with values relative to the root, so explictly get the new geometry and substitude if required to avoid inconsistencis
             int32_t x = configure->x;
             int32_t y  = configure->y;
+            uint32_t width = configure->width;
+            uint32_t height = configure->height;
             if (configure->x==0 && configure->y==0)
             {
-                uint32_t width,  height;
                 vsgXcb::getWindowGeometry(_connection, _window, x, y, width, height);
             }
 
@@ -645,7 +646,8 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             {
                 vsg::clock::time_point event_time = vsg::clock::now();
                 bufferedEvents.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, x, y, configure->width, configure->height));
-                _windowResized = (configure->width != _extent2D.width || configure->height != _extent2D.height);
+                _extent2D.width = width;
+                _extent2D.height = height;
             }
 
             break;
@@ -657,8 +659,8 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             vsg::clock::time_point event_time = vsg::clock::now();
             bufferedEvents.emplace_back(new vsg::ExposeWindowEvent(this, event_time, expose->x, expose->y, expose->width, expose->height));
 
-            _windowResized = (expose->width != _extent2D.width || expose->height != _extent2D.height);
-
+            _extent2D.width = expose->width;
+            _extent2D.height = expose->height;
             break;
         }
         case XCB_CLIENT_MESSAGE:
@@ -763,11 +765,6 @@ bool Xcb_Window::pollEvents(UIEvents& events)
     return Window::pollEvents(events);
 }
 
-bool Xcb_Window::resized() const
-{
-    return _windowResized;
-}
-
 void Xcb_Window::resize()
 {
     xcb_get_geometry_reply_t* geometry_reply = xcb_get_geometry_reply(_connection, xcb_get_geometry(_connection, _window), nullptr);
@@ -779,5 +776,4 @@ void Xcb_Window::resize()
 
         buildSwapchain();
     }
-    _windowResized = false;
 }

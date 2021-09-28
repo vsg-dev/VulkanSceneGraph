@@ -370,15 +370,6 @@ bool Android_Window::pollEvents(vsg::UIEvents& events)
     return Window::pollEvents(events);
 }
 
-bool Android_Window::resized() const
-{
-    // just hack resize for now
-    auto width = ANativeWindow_getWidth(_window);
-    auto height = ANativeWindow_getHeight(_window);
-
-    return (width != int(_extent2D.width) || height != int(_extent2D.height));
-}
-
 void Android_Window::resize()
 {
     _extent2D.width = ANativeWindow_getWidth(_window);

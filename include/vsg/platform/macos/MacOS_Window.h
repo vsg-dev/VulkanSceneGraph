@@ -55,8 +55,6 @@ namespace vsgMacOS
 
         bool pollEvents(vsg::UIEvents& events) override;
 
-        bool resized() const override;
-
         void resize() override;
 
         bool handleNSEvent(NSEvent* anEvent);
