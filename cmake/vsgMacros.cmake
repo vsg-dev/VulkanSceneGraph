@@ -237,7 +237,7 @@ macro(vsg_add_target_clang_format)
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             COMMENT "Automated code format using clang-format"
         )
-        set_target_properties(clang-format PROPERTIES FOLDER "VulkanSceneGraph")
+        set_target_properties(clang-format PROPERTIES FOLDER ${PROJECT_NAME})
     endif()
 endmacro()
 
@@ -248,7 +248,7 @@ macro(vsg_add_target_clobber)
     add_custom_target(clobber
         COMMAND git -C ${CMAKE_SOURCE_DIR} clean -d -f -x
     )
-    set_target_properties(clobber PROPERTIES FOLDER "VulkanSceneGraph")
+    set_target_properties(clobber PROPERTIES FOLDER ${PROJECT_NAME})
 endmacro()
 
 #
@@ -291,7 +291,7 @@ macro(vsg_add_target_cppcheck)
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             COMMENT "Static code analysis using cppcheck"
         )
-        set_target_properties(cppcheck PROPERTIES FOLDER "VulkanSceneGraph")
+        set_target_properties(cppcheck PROPERTIES FOLDER ${PROJECT_NAME})
     endif()
 endmacro()
 
@@ -319,7 +319,7 @@ macro(vsg_add_target_docs)
             ${ARGS_FILES}
             COMMENT "Use doxygen to Generate html documentaion"
         )
-        set_target_properties(docs PROPERTIES FOLDER "VulkanSceneGraph")
+        set_target_properties(docs PROPERTIES FOLDER ${PROJECT_NAME})
     endif()
 endmacro()
 
@@ -338,7 +338,7 @@ macro(vsg_add_target_uninstall)
     add_custom_target(uninstall
         COMMAND ${CMAKE_COMMAND} -P ${DIR}/uninstall.cmake
     )
-    set_target_properties(uninstall PROPERTIES FOLDER "VulkanSceneGraph")
+    set_target_properties(uninstall PROPERTIES FOLDER ${PROJECT_NAME})
 endmacro()
 
 #
