@@ -262,6 +262,7 @@ endif()
 
 
 add_library(vsg ${HEADERS} ${SOURCES})
+set_target_properties(vsg PROPERTIES FOLDER "VulkanSceneGraph")
 
 if(MSVC)
     # ensure the libraries are all built in the lib directory
