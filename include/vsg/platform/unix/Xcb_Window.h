@@ -68,8 +68,6 @@ namespace vsgXcb
 
         bool pollEvents(vsg::UIEvents& events) override;
 
-        bool resized() const override;
-
         void resize() override;
 
 
@@ -85,7 +83,6 @@ namespace vsgXcb
         xcb_atom_t _wmProtocols{};
         xcb_atom_t _wmDeleteWindow{};
 
-        bool _windowResized = false;
         bool _windowMapped = false;
 
         xcb_timestamp_t _first_xcb_timestamp = 0;

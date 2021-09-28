@@ -72,8 +72,6 @@ namespace vsgAndroid
 
         bool pollEvents(vsg::UIEvents& events) override;
 
-        bool resized() const override;
-
         void resize() override;
 
         bool handleAndroidInputEvent(AInputEvent* anEvent);

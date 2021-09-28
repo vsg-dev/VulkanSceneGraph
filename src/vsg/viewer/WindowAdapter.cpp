@@ -34,11 +34,9 @@ void WindowAdapter::updateExtents(uint32_t width, uint32_t height)
 {
     _extent2D.width = width;
     _extent2D.height = height;
-    windowResized = true;
 }
 
 void WindowAdapter::resize()
 {
-    windowResized = false;
     buildSwapchain();
 }

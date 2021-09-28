@@ -32,7 +32,6 @@ namespace vsg
         bool visible() const override { return windowVisible; }
         bool valid() const override { return windowValid; }
 
-        bool resized() const override { return windowResized; }
         void resize() override;
 
         /// update the WindowAdapter::_extents and set windowResize to true
@@ -40,7 +39,6 @@ namespace vsg
 
         // access methods
         VkExtent2D& extent2D() { return _extent2D; }
-        bool windowResized = false;
         bool windowVisible = false;
         bool windowValid = false;
 
