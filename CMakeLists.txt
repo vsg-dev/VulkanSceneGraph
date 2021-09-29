@@ -32,7 +32,7 @@ if (VULKAN_SDK)
 endif()
 
 find_package(Vulkan REQUIRED)
-vsg_check_vulkan_min_version(162)
+vsg_check_min_vulkan_header_version(162)
 
 find_package(Threads REQUIRED)
 
