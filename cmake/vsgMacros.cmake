@@ -342,6 +342,26 @@ macro(vsg_add_target_uninstall)
 endmacro()
 
 #
+# check minimum version of Vulkan
+#
+# available arguments:
+#
+#    <min_version>      minimum required version e.g. 194
+#
+macro(vsg_check_vulkan_min_version _min_version)
+    if (Vulkan_FOUND)
+        set(VULKAN_CORE_H ${Vulkan_INCLUDE_DIRS}/vulkan/vulkan_core.h)
+        file(STRINGS  ${VULKAN_CORE_H} VulkanHeaderVersionLine REGEX "^#define VK_HEADER_VERSION ")
+        string(REGEX MATCHALL "[0-9]+" VulkanHeaderVersion "${VulkanHeaderVersionLine}")
+        message(STATUS "Detected VK_HEADER_VERSION is ${VulkanHeaderVersion}, in header ${VULKAN_CORE_H}")
+        if(${VulkanHeaderVersion} STRLESS ${_min_version})
+            message(FATAL_ERROR
+                "Found Vulkan but VK_HEADER_VERSION is below minimum required value of ${_min_version}")
+        endif()
+    endif()
+endmacro()
+
+#
 # add options for vsg and all packages depending on vsg
 #
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
