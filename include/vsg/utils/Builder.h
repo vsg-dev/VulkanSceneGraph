@@ -2,7 +2,11 @@
 
 #include <vsg/all.h>
 
-#define VSG_COMPARE_PARAMETERS(A, B) if (A < B) return true; else if (B < A) return false;
+#define VSG_COMPARE_PARAMETERS(A, B) \
+    if (A < B)                       \
+        return true;                 \
+    else if (B < A)                  \
+        return false;
 
 namespace vsg
 {
@@ -13,9 +17,10 @@ namespace vsg
         bool blending = false;
         bool diffuseMap = false;
         bool wireframe = false;
+        bool instancce_colors_vec4 = true;
         bool instancce_positions_vec3 = false;
-        bool instancce_colors_vec4 = false;
         ref_ptr<Data> image;
+        ref_ptr<Data> displacementMap;
 
         bool operator<(const StateInfo& rhs) const
         {
@@ -24,19 +29,20 @@ namespace vsg
             VSG_COMPARE_PARAMETERS(blending, rhs.blending)
             VSG_COMPARE_PARAMETERS(diffuseMap, rhs.diffuseMap)
             VSG_COMPARE_PARAMETERS(wireframe, rhs.wireframe)
-            VSG_COMPARE_PARAMETERS(instancce_positions_vec3, rhs.instancce_positions_vec3)
             VSG_COMPARE_PARAMETERS(instancce_colors_vec4, rhs.instancce_colors_vec4)
-            return image < rhs.image;
+            VSG_COMPARE_PARAMETERS(instancce_positions_vec3, rhs.instancce_positions_vec3)
+            VSG_COMPARE_PARAMETERS(image, rhs.image)
+            return displacementMap < rhs.displacementMap;
         }
     };
 
     struct GeometryInfo
     {
-        vec3 position = {0.0, 0.0, 0.0};
+        vec3 position = {0.0f, 0.0f, 0.0f};
         vec3 dx = {1.0f, 0.0f, 0.0f};
         vec3 dy = {0.0f, 1.0f, 0.0f};
         vec3 dz = {0.0f, 0.0f, 1.0f};
-        vec4 color = {1.0, 1.0, 1.0, 1.0};
+        vec4 color = {1.0f, 1.0f, 1.0f, 1.0f};
         mat4 transform;
 
         /// used for instancing
@@ -57,7 +63,7 @@ namespace vsg
         }
     };
 
-    class Builder : public Inherit<Object, Builder>
+    class VSG_DECLSPEC Builder : public Inherit<Object, Builder>
     {
     public:
         bool verbose = false;
@@ -75,21 +81,33 @@ namespace vsg
         ref_ptr<Node> createDisk(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
         ref_ptr<Node> createQuad(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
         ref_ptr<Node> createSphere(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
+        ref_ptr<Node> createHeightField(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
 
     private:
-
         void transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr<vec3Array> normals);
 
         uint32_t _allocatedTextureCount = 0;
         uint32_t _maxNumTextures = 0;
         ref_ptr<CompileTraversal> _compile;
 
+        struct DescriptorKey
+        {
+            ref_ptr<Data> image;
+            ref_ptr<Data> displacementMap;
+
+            bool operator<(const DescriptorKey& rhs) const
+            {
+                VSG_COMPARE_PARAMETERS(image, rhs.image);
+                return displacementMap < rhs.displacementMap;
+            }
+        };
+
         struct StateSettings
         {
             ref_ptr<DescriptorSetLayout> descriptorSetLayout;
             ref_ptr<PipelineLayout> pipelineLayout;
             ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
-            std::map<ref_ptr<Data>, ref_ptr<BindDescriptorSets>> textureDescriptorSets;
+            std::map<DescriptorKey, ref_ptr<BindDescriptorSets>> textureDescriptorSets;
         };
 
         std::map<StateInfo, StateSettings> _stateMap;
@@ -108,6 +126,7 @@ namespace vsg
         GeometryMap _cylinders;
         GeometryMap _quads;
         GeometryMap _spheres;
+        GeometryMap _heightfields;
 
         // used for comparisons
         mat4 identity;

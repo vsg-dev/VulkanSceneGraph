@@ -63,9 +63,10 @@ namespace vsgXcb
 
         bool visible() const override;
 
-        bool pollEvents(vsg::UIEvents& events) override;
+        void releaseWindow() override;
+        void releaseConnection() override;
 
-        bool resized() const override;
+        bool pollEvents(vsg::UIEvents& events) override;
 
         void resize() override;
 
@@ -82,7 +83,6 @@ namespace vsgXcb
         xcb_atom_t _wmProtocols{};
         xcb_atom_t _wmDeleteWindow{};
 
-        bool _windowResized = false;
         bool _windowMapped = false;
 
         xcb_timestamp_t _first_xcb_timestamp = 0;

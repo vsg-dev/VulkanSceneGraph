@@ -64,6 +64,9 @@ namespace vsg
             return properties;
         }
 
+        /// Call vkEnumerateDeviceExtensionProperties to enumerate extension properties.
+        std::vector<VkExtensionProperties> enumerateDeviceExtensionProperties(const char* pLayerName = nullptr);
+
     protected:
         // use Instance::getDevice(..) to create PhysicalDevice
         PhysicalDevice(Instance* instance, VkPhysicalDevice device);

@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/ObjectCache.h>
 #include <vsg/io/VSG.h>
 #include <vsg/io/read.h>
+#include <vsg/io/spirv.h>
 
 #include <vsg/threading/OperationThreads.h>
 
@@ -30,14 +31,21 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
             }
         }
 
-        auto ext = vsg::fileExtension(filename);
+        auto ext = vsg::lowerCaseFileExtension(filename);
+
         if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
         {
             VSG rw;
             return rw.read(filename, options);
         }
+        else if (ext == "spv")
+        {
+            spirv rw;
+            return rw.read(filename, options);
+        }
         else
         {
+            // no means of loading file
             return {};
         }
     };

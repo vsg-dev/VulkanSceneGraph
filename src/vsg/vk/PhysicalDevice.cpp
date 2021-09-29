@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/io/Options.h>
 #include <vsg/vk/PhysicalDevice.h>
 
@@ -80,4 +81,15 @@ std::pair<int, int> PhysicalDevice::getQueueFamily(VkQueueFlags queueFlags, Surf
     }
 
     return {queueFamily, presentFamily};
+}
+
+std::vector<VkExtensionProperties> PhysicalDevice::enumerateDeviceExtensionProperties(const char* pLayerName)
+{
+    uint32_t propertyCount;
+    vkEnumerateDeviceExtensionProperties(_device, pLayerName, &propertyCount, nullptr);
+    if (propertyCount == 0) return {};
+
+    std::vector<VkExtensionProperties> extensionPropeties(propertyCount);
+    vkEnumerateDeviceExtensionProperties(_device, pLayerName, &propertyCount, extensionPropeties.data());
+    return extensionPropeties;
 }

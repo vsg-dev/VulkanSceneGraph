@@ -84,6 +84,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/NextSubPass.h>
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/commands/PushConstants.h>
+#include <vsg/commands/SetDepthBias.h>
+#include <vsg/commands/SetLineWidth.h>
+#include <vsg/commands/SetScissor.h>
+#include <vsg/commands/SetViewport.h>
 
 // State header files
 #include <vsg/state/Buffer.h>
@@ -166,6 +170,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/ViewMatrix.h>
 #include <vsg/viewer/Viewer.h>
 #include <vsg/viewer/Window.h>
+#include <vsg/viewer/WindowAdapter.h>
 #include <vsg/viewer/WindowResizeHandler.h>
 #include <vsg/viewer/WindowTraits.h>
 
@@ -209,6 +214,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/ReaderWriter.h>
 #include <vsg/io/VSG.h>
 #include <vsg/io/read.h>
+#include <vsg/io/read_line.h>
+#include <vsg/io/spirv.h>
 #include <vsg/io/stream.h>
 #include <vsg/io/write.h>
 

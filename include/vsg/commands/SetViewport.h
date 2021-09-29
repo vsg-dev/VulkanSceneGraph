@@ -2,7 +2,7 @@
 
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2018 Robert Osfield
+Copyright(c) 2021 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -12,35 +12,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/state/GraphicsPipeline.h>
+#include <vsg/commands/Command.h>
+#include <vsg/state/ViewportState.h>
 
 namespace vsg
 {
-    class VSG_DECLSPEC DynamicState : public Inherit<GraphicsPipelineState, DynamicState>
+
+    /// Encapsulation of vkCmdSetViewer functionality, associated with dynamic updating a GraphicsPipeline's ViewportState
+    class VSG_DECLSPEC SetViewport : public Inherit<Command, SetViewport>
     {
     public:
-        using DynamicStates = std::vector<VkDynamicState>;
+        SetViewport();
+        SetViewport(uint32_t in_firstViewport, const Viewports& in_vieports);
 
-        DynamicState();
+        uint32_t firstViewport = 0;
+        Viewports viewports;
 
-        DynamicState(const DynamicStates& states) :
-            dynamicStates(states) {}
-
-        template<typename... Args>
-        DynamicState(Args... args) :
-            dynamicStates({args...}) {}
-
-        /// VkPipelineDynamicStateCreateInfo settings
-        DynamicStates dynamicStates;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
-
-    protected:
-        virtual ~DynamicState();
+        void record(CommandBuffer& commandBuffer) const override;
     };
-    VSG_type_name(vsg::DynamicState);
+    VSG_type_name(vsg::SetViewport);
 
 } // namespace vsg

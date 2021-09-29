@@ -428,3 +428,15 @@ VkResult Window::acquireNextImage(uint64_t timeout)
 
     return result;
 }
+
+bool Window::pollEvents(vsg::UIEvents& events)
+{
+    if (bufferedEvents.size() > 0)
+    {
+        events.splice(events.end(), bufferedEvents);
+        bufferedEvents.clear();
+        return true;
+    }
+
+    return false;
+}

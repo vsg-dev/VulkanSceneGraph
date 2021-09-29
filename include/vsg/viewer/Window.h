@@ -39,9 +39,20 @@ namespace vsg
 
         virtual bool visible() const { return valid(); }
 
-        virtual bool pollEvents(UIEvents& /*events*/) { return false; }
+        /// Release the window as it's owned by a 3rd party windowing object.
+        /// Resets the window handle and invalidating the window, preventing Window deletion or closing from deleting the window resource.
+        virtual void releaseWindow() {}
 
-        virtual bool resized() const { return false; }
+        /// Release the connection as it's owned by a 3rd party windowing object.
+        /// Resets the connection handle.
+        virtual void releaseConnection() {}
+
+        /// events buffered since the last pollEvents.
+        UIEvents bufferedEvents;
+
+        /// get the list of events since the last poolEvents() call by splicing bufferEvents with polled windowing events.
+        virtual bool pollEvents(UIEvents& events);
+
         virtual void resize() {}
 
         WindowTraits* traits() { return _traits.get(); }

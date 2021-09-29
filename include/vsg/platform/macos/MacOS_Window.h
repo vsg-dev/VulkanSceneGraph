@@ -55,8 +55,6 @@ namespace vsgMacOS
 
         bool pollEvents(vsg::UIEvents& events) override;
 
-        bool resized() const override;
-
         void resize() override;
 
         bool handleNSEvent(NSEvent* anEvent);
@@ -72,7 +70,7 @@ namespace vsgMacOS
             return _first_macos_time_point + std::chrono::milliseconds(elapsedmilli);
         }
 
-        void queueEvent(vsg::UIEvent* anEvent) { _bufferedEvents.emplace_back(anEvent); }
+        void queueEvent(vsg::UIEvent* anEvent) { bufferedEvents.emplace_back(anEvent); }
 
     protected:
         virtual ~MacOS_Window();
@@ -86,7 +84,6 @@ namespace vsgMacOS
         double _first_macos_timestamp = 0;
         vsg::clock::time_point _first_macos_time_point;
 
-        vsg::UIEvents _bufferedEvents;
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 

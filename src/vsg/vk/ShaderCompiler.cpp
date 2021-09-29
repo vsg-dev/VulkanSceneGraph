@@ -201,7 +201,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         // select the most appropriate Spirv version
         glslang::EShTargetLanguageVersion targetLanguageVersion = std::max(static_cast<glslang::EShTargetLanguageVersion>(settings->target), minTargetLanguageVersion);
 
-        // convert Vulkan version to glsLang equivilant
+        // convert Vulkan version to glsLang equivalent
         glslang::EShTargetClientVersion targetClientVersion = static_cast<glslang::EShTargetClientVersion>((VK_API_VERSION_MAJOR(settings->vulkanVersion) << 22) | (VK_API_VERSION_MINOR(settings->vulkanVersion) << 12));
 
         shader->setEnvInput(static_cast<glslang::EShSource>(settings->language), envStage, glslang::EShClientVulkan, settings->clientInputVersion);
@@ -542,7 +542,8 @@ std::string ShaderCompiler::readShaderSource(const Path& filename, const Paths& 
     Path foundFile = findFile(filename, paths);
     if (foundFile.empty()) return std::string();
 
-    std::ifstream fin(foundFile);
+    // open stream at end of file so subsequent tellg() provides the full length of file.
+    std::ifstream fin(foundFile, std::ios::ate);
     if (!fin) return std::string();
 
     size_t fileSize = fin.tellg();

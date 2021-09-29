@@ -83,7 +83,7 @@ namespace vsg
         virtual bool acquireNextFrame();
 
         /// call vkWaitForFence on the fences associated with previous frames RecordAndSubmitTask, a relativeFrameIndex of 1 is the previous frame, 2 is two frames ago.
-        /// timeout is in nanasecodnds.
+        /// timeout is in nanoseconds.
         virtual VkResult waitForFences(size_t relativeFrameIndex, uint64_t timeout);
 
         // Manage the work to do each frame using RecordAndSubmitTasks. those that need to present results to be wired up to respective Presentation object

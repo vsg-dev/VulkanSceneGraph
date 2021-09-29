@@ -1,10 +1,10 @@
 
 #include <vsg/utils/Builder.h>
 
-#include "shaders/assimp_vert.cpp"
 #include "shaders/assimp_flat_shaded_frag.cpp"
 #include "shaders/assimp_pbr_frag.cpp"
 #include "shaders/assimp_phong_frag.cpp"
+#include "shaders/assimp_vert.cpp"
 
 using namespace vsg;
 
@@ -18,8 +18,10 @@ void Builder::setup(ref_ptr<Window> window, ViewportState* viewport, uint32_t ma
 
     // for now just allocated enough room for s
     uint32_t maxSets = maxNumTextures;
+    uint32_t maxNumMaterials = maxNumTextures;
     DescriptorPoolSizes descriptorPoolSizes{
-        VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, maxNumTextures}};
+        VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, maxNumTextures},
+        VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, maxNumMaterials}};
 
     _compile->context.descriptorPool = DescriptorPool::create(device, maxSets, descriptorPoolSizes);
 
@@ -32,28 +34,40 @@ ref_ptr<BindDescriptorSets> Builder::_createDescriptorSet(const StateInfo& state
     StateSettings& stateSettings = _getStateSettings(stateInfo);
 
     auto textureData = stateInfo.image;
+    auto displacementMap = stateInfo.displacementMap;
 
-    auto& bindDescriptorSets = stateSettings.textureDescriptorSets[textureData];
+    auto& bindDescriptorSets = stateSettings.textureDescriptorSets[DescriptorKey{textureData, displacementMap}];
     if (bindDescriptorSets) return bindDescriptorSets;
 
     // create texture image and associated DescriptorSets and binding
     auto mat = vsg::PhongMaterialValue::create();
     auto material = vsg::DescriptorBuffer::create(mat, 10);
 
+    Descriptors descriptors;
     if (textureData)
     {
-        // create texture image and associated DescriptorSets and binding
         auto sampler = Sampler::create();
-        auto texture = DescriptorImage::create(sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+        sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 
-        auto descriptorSet = DescriptorSet::create(stateSettings.descriptorSetLayout, Descriptors{texture, material});
-        bindDescriptorSets = BindDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, stateSettings.pipelineLayout, 0, DescriptorSets{descriptorSet});
+        auto texture = DescriptorImage::create(sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+        descriptors.push_back(texture);
     }
-    else
+
+    if (displacementMap)
     {
-        auto descriptorSet = DescriptorSet::create(stateSettings.descriptorSetLayout, Descriptors{material});
-        bindDescriptorSets = BindDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, stateSettings.pipelineLayout, 0, DescriptorSets{descriptorSet});
+        auto sampler = Sampler::create();
+        sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+
+        auto texture = DescriptorImage::create(sampler, displacementMap, 6, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+        descriptors.push_back(texture);
     }
+
+    descriptors.push_back(material);
+
+    auto descriptorSet = DescriptorSet::create(stateSettings.descriptorSetLayout, descriptors);
+    bindDescriptorSets = BindDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, stateSettings.pipelineLayout, 0, DescriptorSets{descriptorSet});
 
     return bindDescriptorSets;
 }
@@ -94,20 +108,34 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
     fragmentShader->module->hints = shaderHints;
     fragmentShader->module->code = {};
 
-    if (stateInfo.image) defines.push_back("VSG_DIFFUSE_MAP");
     if (stateInfo.instancce_positions_vec3) defines.push_back("VSG_INSTANCE_POSITIONS");
 
     // set up graphics pipeline
-    DescriptorSetLayoutBindings descriptorBindings{
-        {0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // { binding, descriptorTpe, descriptorCount, stageFlags, pImmutableSamplers}
-        {10, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}};
+    DescriptorSetLayoutBindings descriptorBindings;
+    if (stateInfo.image)
+    {
+        // { binding, descriptorTpe, descriptorCount, stageFlags, pImmutableSamplers}
+        descriptorBindings.push_back(VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr});
+        defines.push_back("VSG_DIFFUSE_MAP");
+    }
+
+    if (stateInfo.displacementMap)
+    {
+        // { binding, descriptorTpe, descriptorCount, stageFlags, pImmutableSamplers}
+        descriptorBindings.push_back(VkDescriptorSetLayoutBinding{6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr});
+        defines.push_back("VSG_DISPLACEMENT_MAP");
+    }
+
+    {
+        descriptorBindings.push_back(VkDescriptorSetLayoutBinding{10, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr});
+    }
 
     stateSettings.descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
 
     DescriptorSetLayouts descriptorSetLayouts{stateSettings.descriptorSetLayout};
 
     PushConstantRanges pushConstantRanges{
-        {VK_SHADER_STAGE_VERTEX_BIT, 0, 128} // projection view, and model matrices, actual push constant calls autoaatically provided by the VSG's DispatchTraversal
+        {VK_SHADER_STAGE_VERTEX_BIT, 0, 128} // projection view, and model matrices, actual push constant calls automatically provided by the VSG's DispatchTraversal
     };
 
     stateSettings.pipelineLayout = PipelineLayout::create(descriptorSetLayouts, pushConstantRanges);
@@ -121,19 +149,29 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
 #endif
 
     VertexInputState::Bindings vertexBindingsDescriptions{
-        VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX},  // vertex data
-        VkVertexInputBindingDescription{1, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX},  // normal data
-        VkVertexInputBindingDescription{2, colorSize, VK_VERTEX_INPUT_RATE_INSTANCE},  // color
-        VkVertexInputBindingDescription{3, sizeof(vec2), VK_VERTEX_INPUT_RATE_VERTEX},  // tex coord data
-        VkVertexInputBindingDescription{4, sizeof(vec3), VK_VERTEX_INPUT_RATE_INSTANCE} // instance coord
+        VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}, // vertex data
+        VkVertexInputBindingDescription{1, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}, // normal data
+        VkVertexInputBindingDescription{2, sizeof(vec2), VK_VERTEX_INPUT_RATE_VERTEX}  // tex coord data
     };
 
     VertexInputState::Attributes vertexAttributeDescriptions{
         VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0}, // vertex data
         VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0}, // normal data
-        VkVertexInputAttributeDescription{2, 2, colorFormat, 0},    // color data
-        VkVertexInputAttributeDescription{3, 3, VK_FORMAT_R32G32_SFLOAT, 0},    // tex coord data
-        VkVertexInputAttributeDescription{4, 4, VK_FORMAT_R32G32B32_SFLOAT, 0}  // instance coord
+        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0}     // tex coord data
+    };
+
+    if (stateInfo.instancce_colors_vec4)
+    {
+        uint32_t colorBinding = static_cast<uint32_t>(vertexBindingsDescriptions.size());
+        vertexBindingsDescriptions.push_back(VkVertexInputBindingDescription{colorBinding, colorSize, VK_VERTEX_INPUT_RATE_INSTANCE}); // color data
+        vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{3, colorBinding, colorFormat, 0});                     // color data
+    }
+
+    if (stateInfo.instancce_positions_vec3)
+    {
+        uint32_t positionBinding = static_cast<uint32_t>(vertexBindingsDescriptions.size());
+        vertexBindingsDescriptions.push_back(VkVertexInputBindingDescription{positionBinding, sizeof(vec3), VK_VERTEX_INPUT_RATE_INSTANCE}); // instance coord
+        vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{4, positionBinding, VK_FORMAT_R32G32B32_SFLOAT, 0});         // instance coord
     };
 
     auto rasterState = vsg::RasterizationState::create();
@@ -149,8 +187,6 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
     {
         inputAssemblyState->topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
     }
-
-    std::cout<<"stateInfo.wireframe = "<<stateInfo.wireframe<<std::endl;
 
     GraphicsPipelineStates pipelineStates{
         VertexInputState::create(vertexBindingsDescriptions, vertexAttributeDescriptions),
@@ -174,7 +210,6 @@ void Builder::_assign(StateGroup& stateGroup, const StateInfo& stateInfo)
     stateGroup.add(_createDescriptorSet(stateInfo));
 }
 
-
 void Builder::compile(ref_ptr<Node> subgraph)
 {
     if (verbose) std::cout << "Builder::compile(" << subgraph << ") _compile = " << _compile << std::endl;
@@ -189,7 +224,7 @@ void Builder::compile(ref_ptr<Node> subgraph)
 
 void Builder::transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr<vec3Array> normals)
 {
-    for(auto& v : *vertices)
+    for (auto& v : *vertices)
     {
         v = matrix * v;
     }
@@ -197,7 +232,7 @@ void Builder::transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr
     if (normals)
     {
         mat4 normal_matrix = vsg::inverse(matrix);
-        for(auto& n : *normals)
+        for (auto& n : *normals)
         {
             vsg::vec4 nv = vsg::vec4(n.x, n.y, n.z, 0.0) * normal_matrix;
             n = normalize(vsg::vec3(nv.x, nv.y, nv.z));
@@ -207,7 +242,9 @@ void Builder::transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr
 
 vec3 Builder::y_texcoord(const StateInfo& info) const
 {
-    if (info.image && info.image->getLayout().origin == Origin::TOP_LEFT)
+
+    if ((info.image && info.image->getLayout().origin == Origin::TOP_LEFT) ||
+        (info.displacementMap && info.displacementMap->getLayout().origin == Origin::TOP_LEFT))
     {
         return {1.0f, -1.0f, 0.0f};
     }
@@ -229,8 +266,10 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size()>=1) instanceCount = positions->size();
-        else positions = {};
+        if (positions->size() >= 1)
+            instanceCount = static_cast<uint32_t>(positions->size());
+        else
+            positions = {};
     }
 
     auto colors = info.colors;
@@ -268,10 +307,10 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
 
     if (stateInfo.wireframe)
     {
-        vec3 n0 = normalize(v000-v111);
-        vec3 n1 = normalize(v100-v011);
-        vec3 n2 = normalize(v110-v001);
-        vec3 n3 = normalize(v010-v101);
+        vec3 n0 = normalize(v000 - v111);
+        vec3 n1 = normalize(v100 - v011);
+        vec3 n2 = normalize(v110 - v001);
+        vec3 n3 = normalize(v010 - v101);
         vec3 n4 = -n2;
         vec3 n5 = -n3;
         vec3 n6 = -n0;
@@ -293,8 +332,7 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
         indices = ushortArray::create(
             {0, 1, 1, 2, 2, 3, 3, 0,
              0, 4, 1, 5, 2, 6, 3, 7,
-             4, 5, 5, 6, 6, 7, 7, 4
-            });
+             4, 5, 5, 6, 6, 7, 7, 4});
     }
     else
     {
@@ -308,35 +346,35 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
         // set up vertex and index arrays
         vertices = vec3Array::create(
             {v000, v100, v101, v001,   // front
-            v100, v110, v111, v101,   // right
-            v110, v010, v011, v111,   // far
-            v010, v000, v001, v011,   // left
-            v010, v110, v100, v000,   // bottom
-            v001, v101, v111, v011}); // top
+             v100, v110, v111, v101,   // right
+             v110, v010, v011, v111,   // far
+             v010, v000, v001, v011,   // left
+             v010, v110, v100, v000,   // bottom
+             v001, v101, v111, v011}); // top
 
         normals = vec3Array::create(
             {n0, n0, n0, n0,
-            n1, n1, n1, n1,
-            n2, n2, n2, n2,
-            n3, n3, n3, n3,
-            n4, n4, n4, n4,
-            n5, n5, n5, n5});
+             n1, n1, n1, n1,
+             n2, n2, n2, n2,
+             n3, n3, n3, n3,
+             n4, n4, n4, n4,
+             n5, n5, n5, n5});
 
         texcoords = vec2Array::create(
             {t00, t10, t11, t01,
-            t00, t10, t11, t01,
-            t00, t10, t11, t01,
-            t00, t10, t11, t01,
-            t00, t10, t11, t01,
-            t00, t10, t11, t01});
+             t00, t10, t11, t01,
+             t00, t10, t11, t01,
+             t00, t10, t11, t01,
+             t00, t10, t11, t01,
+             t00, t10, t11, t01});
 
         indices = ushortArray::create(
             {0, 1, 2, 0, 2, 3,
-            4, 5, 6, 4, 6, 7,
-            8, 9, 10, 8, 10, 11,
-            12, 13, 14, 12, 14, 15,
-            16, 17, 18, 16, 18, 19,
-            20, 21, 22, 20, 22, 23});
+             4, 5, 6, 4, 6, 7,
+             8, 9, 10, 8, 10, 11,
+             12, 13, 14, 12, 14, 15,
+             16, 17, 18, 16, 18, 19,
+             20, 21, 22, 20, 22, 23});
     }
 
     if (info.transform != identity)
@@ -350,16 +388,14 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
     DataList arrays;
     arrays.push_back(vertices);
     if (normals) arrays.push_back(normals);
-    if (colors) arrays.push_back(colors);
     if (texcoords) arrays.push_back(texcoords);
+    if (colors) arrays.push_back(colors);
     if (positions) arrays.push_back(positions);
     vid->assignArrays(arrays);
 
     vid->assignIndices(indices);
-    vid->indexCount = indices->size();
+    vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
-
-    std::cout<<"vid->instanceCount = "<<vid->instanceCount<<std::endl;
 
     scenegraph->addChild(vid);
 
@@ -381,8 +417,10 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size()>=1) instanceCount = positions->size();
-        else positions = {};
+        if (positions->size() >= 1)
+            instanceCount = static_cast<uint32_t>(positions->size());
+        else
+            positions = {};
     }
 
     auto colors = info.colors;
@@ -441,7 +479,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     {
         unsigned int vi = c * 2;
         float r = float(c) / float(num_columns - 1);
-        float alpha = (r)*2.0 * PI;
+        float alpha = (r)*2.0f * PIf;
         v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
         n = normalize(v);
 
@@ -477,7 +515,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
         {
             for (unsigned int r = 0; r < num_rows; ++r)
             {
-                float beta = ((float(r) / float(num_rows - 1)) - 1.0f) * PI * 0.5f;
+                float beta = ((float(r) / float(num_rows - 1)) - 1.0f) * PIf * 0.5f;
                 float ty = t_origin + t_scale * float(r) / float(num_rows - 1);
                 float cos_beta = cosf(beta);
                 vec3 dz_sin_beta = dz * sinf(beta);
@@ -498,7 +536,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
                 for (unsigned int c = 1; c < num_columns - 1; ++c)
                 {
                     unsigned int vi = left_i + c;
-                    float alpha = (float(c) / float(num_columns - 1)) * 2.0 * PI;
+                    float alpha = (float(c) / float(num_columns - 1)) * 2.0f * PIf;
                     v = dx * (-sinf(alpha) * cos_beta) + dy * (cosf(alpha) * cos_beta) + dz_sin_beta;
                     n = normalize(v);
                     vertices->set(vi, bottom + v);
@@ -531,7 +569,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
         {
             for (unsigned int r = 0; r < num_rows; ++r)
             {
-                float beta = ((float(r) / float(num_rows - 1))) * PI * 0.5f;
+                float beta = ((float(r) / float(num_rows - 1))) * PIf * 0.5f;
                 float ty = t_origin + t_scale * float(r) / float(num_rows - 1);
                 float cos_beta = cosf(beta);
                 vec3 dz_sin_beta = dz * sinf(beta);
@@ -552,7 +590,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
                 for (unsigned int c = 1; c < num_columns - 1; ++c)
                 {
                     unsigned int vi = left_i + c;
-                    float alpha = (float(c) / float(num_columns - 1)) * 2.0 * PI;
+                    float alpha = (float(c) / float(num_columns - 1)) * 2.0f * PIf;
                     v = dx * (-sinf(alpha) * cos_beta) + dy * (cosf(alpha) * cos_beta) + dz_sin_beta;
                     n = normalize(v);
                     vertices->set(vi, top + v);
@@ -593,13 +631,13 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     DataList arrays;
     arrays.push_back(vertices);
     if (normals) arrays.push_back(normals);
-    if (colors) arrays.push_back(colors);
     if (texcoords) arrays.push_back(texcoords);
+    if (colors) arrays.push_back(colors);
     if (positions) arrays.push_back(positions);
     vid->assignArrays(arrays);
 
     vid->assignIndices(indices);
-    vid->indexCount = indices->size();
+    vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
     scenegraph->addChild(vid);
@@ -622,8 +660,10 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size()>=1) instanceCount = positions->size();
-        else positions = {};
+        if (positions->size() >= 1)
+            instanceCount = static_cast<uint32_t>(positions->size());
+        else
+            positions = {};
     }
 
     auto colors = info.colors;
@@ -644,7 +684,6 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     auto top = info.position + dz;
 
     bool withEnds = true;
-
 
     ref_ptr<vec3Array> vertices;
     ref_ptr<vec3Array> normals;
@@ -685,9 +724,9 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
 
         for (unsigned int c = 0; c < num_columns; ++c)
         {
-            unsigned int vi = 1+c;
+            unsigned int vi = 1 + c;
             float r = float(c) / float(num_columns);
-            alpha = (r)*2.0 * PI;
+            alpha = (r)*2.0f * PIf;
             v = edge(alpha);
             n = normal(alpha);
 
@@ -705,8 +744,8 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
         {
             unsigned lower = 1 + c;
             indices->set(i++, 0);
-            indices->set(i++, lower-1);
-            indices->set(i++, lower-1);
+            indices->set(i++, lower - 1);
+            indices->set(i++, lower - 1);
             indices->set(i++, lower);
         }
     }
@@ -745,7 +784,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
         {
             unsigned int vi = c * 2;
             float r = float(c) / float(num_columns - 1);
-            alpha = (r)*2.0 * PI;
+            alpha = (r)*2.0f * PIf;
             v = edge(alpha);
             n = normal(alpha);
 
@@ -785,7 +824,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
             for (unsigned int c = 1; c < num_columns - 1; ++c)
             {
                 float r = float(c) / float(num_columns - 1);
-                alpha = (r)*2.0 * PI;
+                alpha = (r)*2.0f * PIf;
                 v = edge(alpha);
 
                 unsigned int vi = bottom_i + c;
@@ -800,7 +839,6 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
                 indices->set(i++, bottom_i + num_columns - 1);
                 indices->set(i++, bottom_i + c + 1);
             }
-
         }
     }
 
@@ -815,15 +853,14 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     DataList arrays;
     arrays.push_back(vertices);
     if (normals) arrays.push_back(normals);
-    if (colors) arrays.push_back(colors);
     if (texcoords) arrays.push_back(texcoords);
+    if (colors) arrays.push_back(colors);
     if (positions) arrays.push_back(positions);
     vid->assignArrays(arrays);
 
     vid->assignIndices(indices);
-    vid->indexCount = indices->size();
+    vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
-
 
     scenegraph->addChild(vid);
 
@@ -845,8 +882,10 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size()>=1) instanceCount = positions->size();
-        else positions = {};
+        if (positions->size() >= 1)
+            instanceCount = static_cast<uint32_t>(positions->size());
+        else
+            positions = {};
     }
 
     auto colors = info.colors;
@@ -866,7 +905,6 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     auto bottom = info.position - dz;
     auto top = info.position + dz;
 
-
     ref_ptr<vec3Array> vertices;
     ref_ptr<vec3Array> normals;
     ref_ptr<vec2Array> texcoords;
@@ -876,7 +914,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     {
         unsigned int num_columns = 20;
 
-        unsigned int num_vertices =  num_columns * 2;
+        unsigned int num_vertices = num_columns * 2;
         unsigned int num_indices = num_columns * 6;
 
         vertices = vec3Array::create(num_vertices);
@@ -898,7 +936,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
         {
             unsigned int vi = c * 2;
             float r = float(c) / float(num_columns - 1);
-            float alpha = (r)*2.0 * PI;
+            float alpha = (r)*2.0f * PIf;
             v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
             n = normalize(v);
 
@@ -912,7 +950,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
         }
 
         unsigned int i = 0;
-        unsigned int lower = (num_columns-1) *  2;
+        unsigned int lower = (num_columns - 1) * 2;
         unsigned int upper = lower + 1;
 
         indices->set(i++, 0);
@@ -924,7 +962,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
         indices->set(i++, upper);
         indices->set(i++, 1);
 
-        for (unsigned int c = 0; c < num_columns-1; ++c)
+        for (unsigned int c = 0; c < num_columns - 1; ++c)
         {
             lower = c * 2;
             upper = lower + 1;
@@ -978,7 +1016,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
         {
             unsigned int vi = c * 2;
             float r = float(c) / float(num_columns - 1);
-            float alpha = (r)*2.0 * PI;
+            float alpha = (r)*2.0f * PIf;
             v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
             n = normalize(v);
 
@@ -1032,7 +1070,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
             for (unsigned int c = 1; c < num_columns - 1; ++c)
             {
                 float r = float(c) / float(num_columns - 1);
-                float alpha = (r)*2.0 * PI;
+                float alpha = (r)*2.0f * PIf;
                 v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
                 n = normalize(v);
 
@@ -1074,13 +1112,13 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     DataList arrays;
     arrays.push_back(vertices);
     if (normals) arrays.push_back(normals);
-    if (colors) arrays.push_back(colors);
     if (texcoords) arrays.push_back(texcoords);
+    if (colors) arrays.push_back(colors);
     if (positions) arrays.push_back(positions);
     vid->assignArrays(arrays);
 
     vid->assignIndices(indices);
-    vid->indexCount = indices->size();
+    vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
     scenegraph->addChild(vid);
@@ -1103,8 +1141,10 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size()>=1) instanceCount = positions->size();
-        else positions = {};
+        if (positions->size() >= 1)
+            instanceCount = static_cast<uint32_t>(positions->size());
+        else
+            positions = {};
     }
 
     auto colors = info.colors;
@@ -1131,48 +1171,48 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     auto texcoords = vec2Array::create(num_vertices);
     ref_ptr<ushortArray> indices;
 
-    vertices->set(0, center+dy);
+    vertices->set(0, center + dy);
     normals->set(0, n);
     texcoords->set(0, vec2(0.5f, t_top));
 
-    for(unsigned int c = 1; c < num_vertices; ++c)
+    for (unsigned int c = 1; c < num_vertices; ++c)
     {
         float r = float(c) / float(num_vertices - 1);
-        float alpha = (r)*2.0 * PI;
+        float alpha = (r)*2.0f * PIf;
         float sn = sinf(alpha);
         float cs = cosf(alpha);
-        vec3 v =  dy * cs - dx * sn;
+        vec3 v = dy * cs - dx * sn;
         vertices->set(c, center + v);
         normals->set(c, n);
-        texcoords->set(c, vec2((1.0f-sn)*0.5f, t_origin + t_scale * (cs+1.0f)*0.5f));
+        texcoords->set(c, vec2((1.0f - sn) * 0.5f, t_origin + t_scale * (cs + 1.0f) * 0.5f));
     }
 
     if (stateInfo.wireframe)
     {
-        unsigned int num_indices = (num_vertices) * 2;
+        unsigned int num_indices = (num_vertices)*2;
         indices = ushortArray::create(num_indices);
 
         unsigned int i = 0;
 
-        indices->set(i++, num_vertices-1);
+        indices->set(i++, num_vertices - 1);
         indices->set(i++, 0);
-        for(unsigned vi=0; vi < num_vertices-1; ++vi)
+        for (unsigned vi = 0; vi < num_vertices - 1; ++vi)
         {
             indices->set(i++, vi);
-            indices->set(i++, vi+1);
+            indices->set(i++, vi + 1);
         }
     }
     else
     {
-        unsigned int num_indices = (num_vertices-2) * 3;
+        unsigned int num_indices = (num_vertices - 2) * 3;
         indices = ushortArray::create(num_indices);
 
         unsigned int i = 0;
-        for(unsigned vi=1; vi < num_vertices-2; ++vi)
+        for (unsigned vi = 1; vi < num_vertices - 2; ++vi)
         {
             indices->set(i++, 0);
             indices->set(i++, vi);
-            indices->set(i++, vi+1);
+            indices->set(i++, vi + 1);
         }
     }
 
@@ -1187,13 +1227,13 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     DataList arrays;
     arrays.push_back(vertices);
     if (normals) arrays.push_back(normals);
-    if (colors) arrays.push_back(colors);
     if (texcoords) arrays.push_back(texcoords);
+    if (colors) arrays.push_back(colors);
     if (positions) arrays.push_back(positions);
     vid->assignArrays(arrays);
 
     vid->assignIndices(indices);
-    vid->indexCount = indices->size();
+    vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
     scenegraph->addChild(vid);
@@ -1216,8 +1256,10 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& sta
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size()>=1) instanceCount = positions->size();
-        else positions = {};
+        if (positions->size() >= 1)
+            instanceCount = static_cast<uint32_t>(positions->size());
+        else
+            positions = {};
     }
 
     auto colors = info.colors;
@@ -1252,7 +1294,6 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& sta
          {1.0f, t_top},
          {0.0f, t_top}}); // VK_FORMAT_R32G32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
 
-
     ref_ptr<ushortArray> indices;
 
     if (stateInfo.wireframe)
@@ -1278,13 +1319,13 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& sta
     DataList arrays;
     arrays.push_back(vertices);
     if (normals) arrays.push_back(normals);
-    if (colors) arrays.push_back(colors);
     if (texcoords) arrays.push_back(texcoords);
+    if (colors) arrays.push_back(colors);
     if (positions) arrays.push_back(positions);
     vid->assignArrays(arrays);
 
     vid->assignIndices(indices);
-    vid->indexCount = indices->size();
+    vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
     scenegraph->addChild(vid);
@@ -1308,8 +1349,10 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size()>=1) instanceCount = positions->size();
-        else positions = {};
+        if (positions->size() >= 1)
+            instanceCount = static_cast<uint32_t>(positions->size());
+        else
+            positions = {};
     }
 
     auto colors = info.colors;
@@ -1337,7 +1380,7 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
 
     for (unsigned int r = 0; r < num_rows; ++r)
     {
-        float beta = ((float(r) / float(num_rows - 1)) - 0.5) * PI;
+        float beta = ((float(r) / float(num_rows - 1)) - 0.5f) * PIf;
         float ty = t_origin + t_scale * float(r) / float(num_rows - 1);
         float cos_beta = cosf(beta);
         vec3 dz_sin_beta = dz * sinf(beta);
@@ -1358,7 +1401,7 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
         for (unsigned int c = 1; c < num_columns - 1; ++c)
         {
             unsigned int vi = left_i + c;
-            float alpha = (float(c) / float(num_columns - 1)) * 2.0 * PI;
+            float alpha = (float(c) / float(num_columns - 1)) * 2.0f * PIf;
             v = dx * (-sinf(alpha) * cos_beta) + dy * (cosf(alpha) * cos_beta) + dz_sin_beta;
             n = normalize(v);
             vertices->set(vi, origin + v);
@@ -1396,13 +1439,158 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
     DataList arrays;
     arrays.push_back(vertices);
     if (normals) arrays.push_back(normals);
-    if (colors) arrays.push_back(colors);
     if (texcoords) arrays.push_back(texcoords);
+    if (colors) arrays.push_back(colors);
     if (positions) arrays.push_back(positions);
     vid->assignArrays(arrays);
 
     vid->assignIndices(indices);
-    vid->indexCount = indices->size();
+    vid->indexCount = static_cast<uint32_t>(indices->size());
+    vid->instanceCount = instanceCount;
+
+    scenegraph->addChild(vid);
+
+    compile(scenegraph);
+
+    subgraph = scenegraph;
+    return subgraph;
+}
+
+ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateInfo& stateInfo)
+{
+    auto& subgraph = _heightfields[info];
+    if (subgraph)
+    {
+        return subgraph;
+    }
+
+    auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
+
+    uint32_t instanceCount = 1;
+    auto positions = info.positions;
+    if (positions)
+    {
+        if (positions->size() >= 1)
+            instanceCount = static_cast<uint32_t>(positions->size());
+        else
+            positions = {};
+    }
+
+    auto colors = info.colors;
+    if (colors && colors->valueCount() != instanceCount) colors = {};
+    if (!colors) colors = vec4Array::create(instanceCount, info.color);
+
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
+    auto scenegraph = StateGroup::create();
+    _assign(*scenegraph, stateInfo);
+
+    auto dx = info.dx;
+    auto dy = info.dy;
+    auto dz = info.dz;
+    auto origin = info.position - (dx + dy) * 0.5f;
+
+    unsigned int num_columns = 2;
+    unsigned int num_rows = 2;
+
+    if (stateInfo.displacementMap)
+    {
+        num_columns = stateInfo.displacementMap->width();
+        num_rows = stateInfo.displacementMap->height();
+
+        if (num_columns < 2) num_columns = 2;
+        if (num_rows < 2) num_rows = 2;
+    }
+
+    unsigned int num_vertices = num_columns * num_rows;
+    unsigned int num_indices = (stateInfo.wireframe) ? (4 * num_columns * num_rows - 2 * (num_columns + num_rows)) : (num_rows - 1) * (num_rows - 1) * 6;
+
+    auto normal = normalize(dz);
+
+    auto vertices = vec3Array::create(num_vertices);
+    auto normals = vec3Array::create(num_vertices);
+    auto texcoords = vec2Array::create(num_vertices);
+    auto indices = ushortArray::create(num_indices);
+
+    for (unsigned int r = 0; r < num_rows; ++r)
+    {
+        //float ty = t_origin + t_scale * float(r) / float(num_rows - 1);
+        float ty = float(r) / float(num_rows - 1);
+        unsigned int left_i = r * num_columns;
+
+        for (unsigned int c = 0; c < num_columns; ++c)
+        {
+            unsigned int vi = left_i + c;
+            float tx = float(c) / float(num_columns - 1);
+            ;
+            vertices->set(vi, origin + dx * tx + dy * ty);
+            normals->set(vi, normal);
+            texcoords->set(vi, vec2(float(c) / float(num_columns - 1), t_origin + t_scale * ty));
+        }
+    }
+
+    if (stateInfo.wireframe)
+    {
+        unsigned int i = 0;
+        for (unsigned int r = 0; r < num_rows; ++r)
+        {
+            for (unsigned int c = 0; c < num_columns - 1; ++c)
+            {
+                unsigned vi = num_columns * r + c;
+
+                indices->set(i++, vi);
+                indices->set(i++, vi + 1);
+            }
+        }
+
+        for (unsigned int c = 0; c < num_columns; ++c)
+        {
+            for (unsigned int r = 0; r < num_rows - 1; ++r)
+            {
+                unsigned vi = num_columns * r + c;
+                indices->set(i++, vi);
+                indices->set(i++, vi + num_columns);
+            }
+        }
+    }
+    else
+    {
+        unsigned int i = 0;
+        for (unsigned int r = 0; r < num_rows - 1; ++r)
+        {
+            for (unsigned int c = 0; c < num_columns - 1; ++c)
+            {
+                unsigned lower = num_columns * r + c;
+                unsigned upper = lower + num_columns;
+
+                indices->set(i++, lower);
+                indices->set(i++, lower + 1);
+                indices->set(i++, upper);
+
+                indices->set(i++, upper);
+                indices->set(i++, lower + 1);
+                indices->set(i++, upper + 1);
+            }
+        }
+    }
+
+    if (info.transform != identity)
+    {
+        transform(info.transform, vertices, normals);
+    }
+
+    // setup geometry
+    auto vid = VertexIndexDraw::create();
+
+    DataList arrays;
+    arrays.push_back(vertices);
+    if (normals) arrays.push_back(normals);
+    if (texcoords) arrays.push_back(texcoords);
+    if (colors) arrays.push_back(colors);
+    if (positions) arrays.push_back(positions);
+    vid->assignArrays(arrays);
+
+    vid->assignIndices(indices);
+    vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
     scenegraph->addChild(vid);

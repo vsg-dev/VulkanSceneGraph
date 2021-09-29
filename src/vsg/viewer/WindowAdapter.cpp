@@ -1,8 +1,6 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2018 Robert Osfield
+Copyright(c) 2021 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -12,35 +10,33 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/state/GraphicsPipeline.h>
+#include <vsg/io/Options.h>
+#include <vsg/viewer/WindowAdapter.h>
 
-namespace vsg
+using namespace vsg;
+
+WindowAdapter::WindowAdapter(vsg::ref_ptr<vsg::Surface> surface, vsg::ref_ptr<vsg::WindowTraits> traits) :
+    Inherit(traits)
 {
-    class VSG_DECLSPEC DynamicState : public Inherit<GraphicsPipelineState, DynamicState>
+    if (surface)
     {
-    public:
-        using DynamicStates = std::vector<VkDynamicState>;
+        _surface = surface;
+        _instance = surface->getInstance();
+    }
+    if (traits)
+    {
+        _extent2D.width = traits->width;
+        _extent2D.height = traits->height;
+    }
+}
 
-        DynamicState();
+void WindowAdapter::updateExtents(uint32_t width, uint32_t height)
+{
+    _extent2D.width = width;
+    _extent2D.height = height;
+}
 
-        DynamicState(const DynamicStates& states) :
-            dynamicStates(states) {}
-
-        template<typename... Args>
-        DynamicState(Args... args) :
-            dynamicStates({args...}) {}
-
-        /// VkPipelineDynamicStateCreateInfo settings
-        DynamicStates dynamicStates;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
-
-    protected:
-        virtual ~DynamicState();
-    };
-    VSG_type_name(vsg::DynamicState);
-
-} // namespace vsg
+void WindowAdapter::resize()
+{
+    buildSwapchain();
+}

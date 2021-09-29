@@ -72,8 +72,6 @@ namespace vsgAndroid
 
         bool pollEvents(vsg::UIEvents& events) override;
 
-        bool resized() const override;
-
         void resize() override;
 
         bool handleAndroidInputEvent(AInputEvent* anEvent);
@@ -88,7 +86,6 @@ namespace vsgAndroid
         int64_t _first_android_timestamp = 0;
         vsg::clock::time_point _first_android_time_point;
 
-        vsg::UIEvents _bufferedEvents;
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 

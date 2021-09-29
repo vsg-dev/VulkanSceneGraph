@@ -46,7 +46,7 @@ namespace vsg
 
     /// Settings passed to glsLang when compiling GLSL/HLSL shader source to SPIR-V
     /// Provides the values to pass to glsLang::TShader::setEnvInput, setEnvClient and setEnvTarget.
-    class ShaderCompileSettings : public Inherit<Object, ShaderCompileSettings>
+    class VSG_DECLSPEC ShaderCompileSettings : public Inherit<Object, ShaderCompileSettings>
     {
     public:
         enum Language
@@ -99,8 +99,6 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        static ref_ptr<ShaderModule> read(const std::string& filename);
 
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);

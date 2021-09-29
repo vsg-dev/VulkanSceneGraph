@@ -52,12 +52,13 @@ namespace vsg
         uint32_t viewID = 0;
 
         /// mask that controls traversal of the View's subgraph
-        /// View is visted if the (visitor.traversalMask & view.mask) != 0,
+        /// View is visited if the (visitor.traversalMask & view.mask) != 0,
         /// and when it is visited the visitor.traversalMask is &'ed with the mask to give the traversalMask to use in the subgraph.
         uint32_t mask = 0xffffff;
 
         /// bins
         std::vector<ref_ptr<Bin>> bins;
     };
+    VSG_type_name(vsg::View);
 
 } // namespace vsg

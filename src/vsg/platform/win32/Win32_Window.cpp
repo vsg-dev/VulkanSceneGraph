@@ -497,26 +497,7 @@ bool Win32_Window::pollEvents(vsg::UIEvents& events)
         }
     }
 
-    if (_bufferedEvents.size() > 0)
-    {
-        events.splice(events.end(), _bufferedEvents);
-        _bufferedEvents.clear();
-        return true;
-    }
-
-    return false;
-}
-
-bool Win32_Window::resized() const
-{
-    RECT windowRect;
-    GetClientRect(_window, &windowRect);
-
-    int width = windowRect.right - windowRect.left;
-    int height = windowRect.bottom - windowRect.top;
-
-    // at the moment the close event is occurring then the check for resize is happening, which means the window is rect returns 0. So for now ignore potential resize if should close
-    return width != int(_extent2D.width) || height != int(_extent2D.height);
+    return Window::pollEvents(events);
 }
 
 void Win32_Window::resize()
@@ -547,10 +528,10 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     {
     case WM_CLOSE:
         std::cout << "close window" << std::endl;
-        _bufferedEvents.emplace_back(new vsg::CloseWindowEvent(this, event_time));
+        bufferedEvents.emplace_back(new vsg::CloseWindowEvent(this, event_time));
         break;
     case WM_SHOWWINDOW:
-        _bufferedEvents.emplace_back(new vsg::ExposeWindowEvent(this, event_time, winx, winy, winw, winh));
+        bufferedEvents.emplace_back(new vsg::ExposeWindowEvent(this, event_time, winx, winy, winw, winh));
         break;
     case WM_DESTROY:
         _windowMapped = false;
@@ -563,7 +544,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         int32_t mx = GET_X_LPARAM(lParam);
         int32_t my = GET_Y_LPARAM(lParam);
 
-        _bufferedEvents.emplace_back(new vsg::MoveEvent(this, event_time, mx, my, getButtonMask(wParam)));
+        bufferedEvents.emplace_back(new vsg::MoveEvent(this, event_time, mx, my, getButtonMask(wParam)));
     }
     break;
     case WM_LBUTTONDOWN:
@@ -573,7 +554,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         uint32_t mx = GET_X_LPARAM(lParam);
         uint32_t my = GET_Y_LPARAM(lParam);
 
-        _bufferedEvents.emplace_back(new vsg::ButtonPressEvent(this, event_time, mx, my, getButtonMask(wParam), getButtonDownEventDetail(msg)));
+        bufferedEvents.emplace_back(new vsg::ButtonPressEvent(this, event_time, mx, my, getButtonMask(wParam), getButtonDownEventDetail(msg)));
 
         //::SetCapture(_window);
     }
@@ -585,7 +566,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         uint32_t mx = GET_X_LPARAM(lParam);
         uint32_t my = GET_Y_LPARAM(lParam);
 
-        _bufferedEvents.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, mx, my, getButtonMask(wParam), getButtonUpEventDetail(msg)));
+        bufferedEvents.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, mx, my, getButtonMask(wParam), getButtonUpEventDetail(msg)));
 
         //::ReleaseCapture(); // should only release once all mouse buttons are released ??
         break;
@@ -599,12 +580,12 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     break;
     case WM_MOUSEWHEEL:
     {
-        _bufferedEvents.emplace_back(new vsg::ScrollWheelEvent(this, event_time, GET_WHEEL_DELTA_WPARAM(wParam)<0 ? vec3(0.0f, -1.0f, 0.0f) : vec3(0.0f, 1.0f, 0.0f)));
+        bufferedEvents.emplace_back(new vsg::ScrollWheelEvent(this, event_time, GET_WHEEL_DELTA_WPARAM(wParam)<0 ? vec3(0.0f, -1.0f, 0.0f) : vec3(0.0f, 1.0f, 0.0f)));
         break;
     }
     case WM_MOVE:
     {
-        _bufferedEvents.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, winx, winy, winw, winh));
+        bufferedEvents.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, winx, winy, winw, winh));
         break;
     }
     case WM_SIZE:
@@ -616,7 +597,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         else
         {
             _windowMapped = true;
-            _bufferedEvents.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, winx, winy, winw, winh));
+            bufferedEvents.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, winx, winy, winw, winh));
         }
         break;
     }
@@ -630,7 +611,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         if (_keyboard->getKeySymbol(wParam, lParam, keySymbol, modifiedKeySymbol, keyModifier))
         {
             int repeatCount = (lParam & 0xffff);
-            _bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier, repeatCount));
+            bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier, repeatCount));
         }
         break;
     }
@@ -641,7 +622,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         vsg::KeyModifier keyModifier;
         if (_keyboard->getKeySymbol(wParam, lParam, keySymbol, modifiedKeySymbol, keyModifier))
         {
-            _bufferedEvents.emplace_back(new vsg::KeyReleaseEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier, 0));
+            bufferedEvents.emplace_back(new vsg::KeyReleaseEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier, 0));
         }
 
         break;
