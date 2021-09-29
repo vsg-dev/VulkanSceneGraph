@@ -358,6 +358,8 @@ macro(vsg_check_vulkan_min_version _min_version)
             message(FATAL_ERROR
                 "Found Vulkan but VK_HEADER_VERSION is below minimum required value of ${_min_version}")
         endif()
+    else()
+        message(FATAL_ERROR "Cannot check version because Vulkan was not found - use 'find_package(Vulkan REQUIRED)' to fix this")
     endif()
 endmacro()
 
