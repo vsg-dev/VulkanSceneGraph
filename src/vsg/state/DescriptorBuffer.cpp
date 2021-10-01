@@ -55,19 +55,10 @@ DescriptorBuffer::DescriptorBuffer(const BufferInfoList& in_bufferInfoList, uint
 
 DescriptorBuffer::~DescriptorBuffer()
 {
-    for (auto& bufferInfo : bufferInfoList)
-    {
-        bufferInfo.release();
-    }
 }
 
 void DescriptorBuffer::read(Input& input)
 {
-    for (auto& bufferInfo : bufferInfoList)
-    {
-        bufferInfo.release();
-    }
-
     Descriptor::read(input);
 
     bufferInfoList.resize(input.readValue<uint32_t>("NumData"));

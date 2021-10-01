@@ -43,7 +43,7 @@ BufferInfo::BufferInfo(Buffer* in_buffer, VkDeviceSize in_offset, VkDeviceSize i
 
 BufferInfo::~BufferInfo()
 {
-//    std::cout<<"BufferInfo::~BufferInfo() buffer = "<<buffer<<", offset = "<<offset<<", range = "<<range<<std::endl;
+    release();
 }
 
 void BufferInfo::release()

@@ -22,9 +22,6 @@ CopyAndReleaseBuffer::CopyAndReleaseBuffer(ref_ptr<MemoryBufferPools> optional_s
 
 CopyAndReleaseBuffer::~CopyAndReleaseBuffer()
 {
-    for (auto& copyData : _readyToClear) copyData.source.release();
-    for (auto& copyData : _completed) copyData.source.release();
-    for (auto& copyData : _pending) copyData.source.release();
 }
 
 void CopyAndReleaseBuffer::copy(ref_ptr<Data> data, ref_ptr<BufferInfo> dest)
@@ -72,7 +69,6 @@ void CopyAndReleaseBuffer::record(CommandBuffer& commandBuffer) const
 {
     std::scoped_lock lock(_mutex);
 
-    for (auto& copyData : _readyToClear) copyData.source.release();
     _readyToClear.clear();
 
     _readyToClear.swap(_completed);

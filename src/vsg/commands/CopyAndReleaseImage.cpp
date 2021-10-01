@@ -120,8 +120,6 @@ CopyAndReleaseImage::CopyAndReleaseImage(ref_ptr<MemoryBufferPools> optional_sta
 
 CopyAndReleaseImage::~CopyAndReleaseImage()
 {
-    for (auto& copyData : _completed) copyData.source.release();
-    for (auto& copyData : _pending) copyData.source.release();
 }
 
 CopyAndReleaseImage::CopyData::CopyData(ref_ptr<BufferInfo> src, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels)
@@ -527,7 +525,6 @@ void CopyAndReleaseImage::record(CommandBuffer& commandBuffer) const
 {
     std::scoped_lock lock(_mutex);
 
-    for (auto& copyData : _readyToClear) copyData.source.release();
     _readyToClear.clear();
 
     _readyToClear.swap(_completed);
