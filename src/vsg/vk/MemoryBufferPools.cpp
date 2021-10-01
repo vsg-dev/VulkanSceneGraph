@@ -85,7 +85,7 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
                 bufferInfo->range = totalSize;
 
 #if REPORT_STATS
-                std::cout << name << " : MemoryBufferPools::reserveBuffer(" << totalSize << ", " << alignment << ", " << bufferUsageFlags << ") _offset = " << bufferInfo->offset << std::endl;
+                std::cout << name << " : MemoryBufferPools::reserveBuffer(" << totalSize << ", " << alignment << ", " << bufferUsageFlags << ") bufferInfo.buffer = "<<bufferInfo->buffer<<", offset = " << bufferInfo->offset << std::endl;
 #endif
                 return bufferInfo;
             }
