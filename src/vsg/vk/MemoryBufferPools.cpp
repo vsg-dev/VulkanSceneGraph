@@ -85,7 +85,7 @@ BufferInfo MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkDeviceSize
                 bufferInfo.range = totalSize;
 
 #if REPORT_STATS
-                std::cout << name << " : MemoryBufferPools::reserveBuffer(" << totalSize << ", " << alignment << ", " << bufferUsageFlags << ") _offset = " << bufferInfo.offset << std::endl;
+                std::cout << name << " : MemoryBufferPools::reserveBuffer(" << totalSize << ", " << alignment << ", " << bufferUsageFlags << ") bufferInfo.buffer = "<<bufferInfo.buffer<<", offset = " << bufferInfo.offset << std::endl;
 #endif
                 return bufferInfo;
             }
@@ -94,22 +94,6 @@ BufferInfo MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkDeviceSize
 
 #if REPORT_STATS
     std::cout << name << " : Failed to find space in existing buffers with  MemoryBufferPools::reserveBuffer(" << totalSize << ", " << alignment << ", " << bufferUsageFlags << ") bufferPools.size() = " << bufferPools.size() << " looking to allocated new Buffer." << std::endl;
-#endif
-
-#if REPORT_STATS
-    VkDeviceSize maxAvailableSize = 0;
-    VkDeviceSize totalAvailableSize = 0;
-    VkDeviceSize totalReservedSize = 0;
-    for (auto& buffer : bufferPools)
-    {
-        if (buffer->maximumAvailableSpace() > maxAvailableSize)
-        {
-            maxAvailableSize = buffer->maximumAvailableSpace();
-        }
-        totalAvailableSize += buffer->memorySlots().totalAvailableSize();
-        totalReservedSize += buffer->memorySlots().totalReservedSize();
-    }
-    std::cout << name << " : maxAvailableSize = " << maxAvailableSize << ", totalAvailableSize = " << totalAvailableSize << ", totalReservedSize = " << totalReservedSize << ", totalSize = " << totalSize << ", alignment = " << alignment << std::endl;
 #endif
 
     VkDeviceSize deviceSize = totalSize;
