@@ -103,21 +103,18 @@ void DescriptorImage::compile(Context& context)
         if (imageInfo->sampler) imageInfo->sampler->compile(context);
         if (imageInfo->imageView)
         {
-            auto imageView = imageInfo->imageView;
-            if (imageView->image && imageView->image->data)
+            auto& imageView = *imageInfo->imageView;
+            imageView.compile(context);
+
+            if (imageView.image)
             {
-                auto image = imageView->image;
-
-                imageView->compile(context);
-
-                if (image && image->data)
+                auto& image = *imageView.image;
+                auto& requiresDataCopy = image.requiresDataCopy(context.deviceID);
+                if (requiresDataCopy && image.data)
                 {
-                    context.copy(image->data, imageInfo, image->mipLevels);
+                    context.copy(image.data, imageInfo, image.mipLevels);
+                    requiresDataCopy = false;
                 }
-            }
-            else
-            {
-                imageView->compile(context);
             }
         }
     }

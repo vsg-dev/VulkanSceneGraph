@@ -162,6 +162,8 @@ void Image::compile(Device* device)
 
     vd.device = device;
 
+    vd.requiresDataCopy = data.valid();
+
     if (VkResult result = vkCreateImage(*vd.device, &info, vd.device->getAllocationCallbacks(), &vd.image); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create vkImage.", result};
@@ -184,6 +186,8 @@ void Image::compile(Context& context)
     {
         throw Exception{"Error: allocate memory to reserve slot.", VK_ERROR_OUT_OF_DEVICE_MEMORY};
     }
+
+    vd.requiresDataCopy = data.valid();
 
     bind(deviceMemory, offset);
 }
