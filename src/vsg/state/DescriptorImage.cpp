@@ -32,11 +32,7 @@ DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> data, u
 {
     if (sampler && data)
     {
-        auto image = Image::create(data);
-        image->usage |= (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
-
-        auto imageView = ImageView::create(image);
-        imageInfoList.emplace_back(ImageInfo::create(sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+        imageInfoList.push_back(ImageInfo::create(sampler, data));
     }
 }
 
@@ -50,35 +46,6 @@ DescriptorImage::DescriptorImage(const ImageInfoList& in_imageInfoList, uint32_t
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType),
     imageInfoList(in_imageInfoList)
 {
-}
-
-DescriptorImage::DescriptorImage(const SamplerImage& si, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
-    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
-{
-    if (si.sampler && si.data)
-    {
-        auto image = Image::create(si.data);
-        image->usage |= (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
-
-        auto imageView = ImageView::create(image);
-        imageInfoList.emplace_back(ImageInfo::create(si.sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
-    }
-}
-
-DescriptorImage::DescriptorImage(const SamplerImages& samplerImages, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
-    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
-{
-    for (auto& si : samplerImages)
-    {
-        if (si.sampler && si.data)
-        {
-            auto image = Image::create(si.data);
-            image->usage |= (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
-
-            auto imageView = ImageView::create(image);
-            imageInfoList.emplace_back(ImageInfo::create(si.sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
-        }
-    }
 }
 
 void DescriptorImage::read(Input& input)
