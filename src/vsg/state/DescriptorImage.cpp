@@ -32,11 +32,7 @@ DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> data, u
 {
     if (sampler && data)
     {
-        auto image = Image::create(data);
-        image->usage |= (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
-
-        auto imageView = ImageView::create(image);
-        imageInfoList.emplace_back(ImageInfo{sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+        imageInfoList.emplace_back(sampler, data);
     }
 }
 
