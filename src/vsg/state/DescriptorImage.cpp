@@ -127,28 +127,25 @@ void DescriptorImage::compile(Context& context)
 {
     if (imageInfoList.empty()) return;
 
-    for (auto& imageData : imageInfoList)
+    for (auto& imageInfo : imageInfoList)
     {
-        imageData.computeNumMipMapLevels();
+        imageInfo.computeNumMipMapLevels();
 
-        if (imageData.sampler) imageData.sampler->compile(context);
-        if (imageData.imageView)
+        if (imageInfo.sampler) imageInfo.sampler->compile(context);
+        if (imageInfo.imageView)
         {
-            auto imageView = imageData.imageView;
-            if (imageView->image && imageView->image->data)
+            auto& imageView = *(imageInfo.imageView);
+            imageView.compile(context);
+
+            if (imageView.image)
             {
-                auto image = imageView->image;
-
-                imageView->compile(context);
-
-                if (image && image->data)
+                auto& image = *imageView.image;
+                auto& requiresDataCopy = image.requiresDataCopy(context.deviceID);
+                if (requiresDataCopy && image.data)
                 {
-                    context.copy(image->data, imageData, image->mipLevels);
+                    context.copy(image.data, imageInfo, image.mipLevels);
+                    requiresDataCopy = false;
                 }
-            }
-            else
-            {
-                imageView->compile(context);
             }
         }
     }

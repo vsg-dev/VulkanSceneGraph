@@ -56,6 +56,8 @@ namespace vsg
 
         VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset);
 
+        bool& requiresDataCopy(uint32_t deviceID) { return _vulkanData[deviceID].requiresDataCopy; }
+
         virtual void compile(Device* device);
         virtual void compile(Context& context);
 
@@ -69,6 +71,7 @@ namespace vsg
             VkDeviceSize memoryOffset = 0;
             VkDeviceSize size = 0;
             ref_ptr<Device> device;
+            bool requiresDataCopy = false;
 
             void release();
         };
