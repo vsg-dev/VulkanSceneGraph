@@ -78,7 +78,7 @@ namespace vsg
         /// pass the Events into the any register EventHandlers
         virtual void handleEvents();
 
-        virtual void compile(BufferPreferences bufferPreferences = {});
+        virtual void compile(ref_ptr<ResourceHints> hints = {});
 
         virtual bool acquireNextFrame();
 

@@ -189,6 +189,7 @@ set(SOURCES
     vk/Semaphore.cpp
     vk/Surface.cpp
     vk/Swapchain.cpp
+    vk/ResourceRequirements.cpp
 
     utils/CommandLine.cpp
     utils/Builder.cpp

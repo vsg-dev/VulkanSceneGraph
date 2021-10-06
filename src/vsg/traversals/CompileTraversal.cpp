@@ -36,19 +36,15 @@ using namespace vsg;
 
 /////////////////////////////////////////////////////////////////////
 //
-// CollectDescriptorStats
+// CollectResourceRequirements
 //
-CollectDescriptorStats::CollectDescriptorStats()
-{
-    binStack.push(BinDetails{});
-}
 
-void CollectDescriptorStats::apply(const Object& object)
+void CollectResourceRequirements::apply(const Object& object)
 {
     object.traverse(*this);
 }
 
-bool CollectDescriptorStats::checkForResourceHints(const Object& object)
+bool CollectResourceRequirements::checkForResourceHints(const Object& object)
 {
     auto resourceHints = object.getObject<ResourceHints>("ResourceHints");
     if (resourceHints)
@@ -62,22 +58,22 @@ bool CollectDescriptorStats::checkForResourceHints(const Object& object)
     }
 }
 
-void CollectDescriptorStats::apply(const ResourceHints& resourceHints)
+void CollectResourceRequirements::apply(const ResourceHints& resourceHints)
 {
-    if (resourceHints.maxSlot > maxSlot) maxSlot = resourceHints.maxSlot;
+    if (resourceHints.maxSlot > requirements.maxSlot) requirements.maxSlot = resourceHints.maxSlot;
 
     if (!resourceHints.descriptorPoolSizes.empty() || resourceHints.numDescriptorSets > 0)
     {
-        externalNumDescriptorSets += resourceHints.numDescriptorSets;
+        requirements.externalNumDescriptorSets += resourceHints.numDescriptorSets;
 
         for (auto& [type, count] : resourceHints.descriptorPoolSizes)
         {
-            descriptorTypeMap[type] += count;
+            requirements.descriptorTypeMap[type] += count;
         }
     }
 }
 
-void CollectDescriptorStats::apply(const Node& node)
+void CollectResourceRequirements::apply(const Node& node)
 {
     bool hasResourceHints = checkForResourceHints(node);
     if (hasResourceHints) ++_numResourceHintsAbove;
@@ -87,7 +83,7 @@ void CollectDescriptorStats::apply(const Node& node)
     if (hasResourceHints) --_numResourceHintsAbove;
 }
 
-void CollectDescriptorStats::apply(const StateGroup& stategroup)
+void CollectResourceRequirements::apply(const StateGroup& stategroup)
 {
     bool hasResourceHints = checkForResourceHints(stategroup);
     if (hasResourceHints) ++_numResourceHintsAbove;
@@ -105,107 +101,93 @@ void CollectDescriptorStats::apply(const StateGroup& stategroup)
     if (hasResourceHints) --_numResourceHintsAbove;
 }
 
-void CollectDescriptorStats::apply(const PagedLOD& plod)
+void CollectResourceRequirements::apply(const PagedLOD& plod)
 {
     bool hasResourceHints = checkForResourceHints(plod);
     if (hasResourceHints) ++_numResourceHintsAbove;
 
-    containsPagedLOD = true;
+    requirements.containsPagedLOD = true;
     plod.traverse(*this);
 
     if (hasResourceHints) --_numResourceHintsAbove;
 }
 
-void CollectDescriptorStats::apply(const StateCommand& stateCommand)
+void CollectResourceRequirements::apply(const StateCommand& stateCommand)
 {
-    if (stateCommand.slot > maxSlot) maxSlot = stateCommand.slot;
+    if (stateCommand.slot > requirements.maxSlot) requirements.maxSlot = stateCommand.slot;
 
     stateCommand.traverse(*this);
 }
 
-void CollectDescriptorStats::apply(const DescriptorSet& descriptorSet)
+void CollectResourceRequirements::apply(const DescriptorSet& descriptorSet)
 {
-    if (descriptorSets.count(&descriptorSet) == 0)
+    if (requirements.descriptorSets.count(&descriptorSet) == 0)
     {
-        descriptorSets.insert(&descriptorSet);
+        requirements.descriptorSets.insert(&descriptorSet);
 
         descriptorSet.traverse(*this);
     }
 }
 
-void CollectDescriptorStats::apply(const Descriptor& descriptor)
+void CollectResourceRequirements::apply(const Descriptor& descriptor)
 {
-    if (descriptors.count(&descriptor) == 0)
+    if (requirements.descriptors.count(&descriptor) == 0)
     {
-        descriptors.insert(&descriptor);
+        requirements.descriptors.insert(&descriptor);
     }
-    descriptorTypeMap[descriptor.descriptorType] += descriptor.getNumDescriptors();
+    requirements.descriptorTypeMap[descriptor.descriptorType] += descriptor.getNumDescriptors();
 }
 
-void CollectDescriptorStats::apply(const View& view)
+void CollectResourceRequirements::apply(const View& view)
 {
-    if (auto itr = views.find(&view); itr != views.end())
+    if (auto itr = requirements.views.find(&view); itr != requirements.views.end())
     {
-        binStack.push(itr->second);
+        requirements.binStack.push(itr->second);
     }
     else
     {
-        binStack.push(BinDetails{static_cast<uint32_t>(views.size()), {}, {}});
+        requirements.binStack.push(ResourceRequirements::BinDetails{static_cast<uint32_t>(requirements.views.size()), {}, {}});
     }
 
     view.traverse(*this);
 
     for (auto& bin : view.bins)
     {
-        binStack.top().bins.insert(bin);
+        requirements.binStack.top().bins.insert(bin);
     }
 
-    views[&view] = binStack.top();
+    requirements.views[&view] = requirements.binStack.top();
 
-    binStack.pop();
+    requirements.binStack.pop();
 }
 
-void CollectDescriptorStats::apply(const DepthSorted& depthSorted)
+void CollectResourceRequirements::apply(const DepthSorted& depthSorted)
 {
-    binStack.top().indices.insert(depthSorted.binNumber);
+    requirements.binStack.top().indices.insert(depthSorted.binNumber);
 
     depthSorted.traverse(*this);
 }
 
-void CollectDescriptorStats::apply(const Bin& bin)
+void CollectResourceRequirements::apply(const Bin& bin)
 {
-    binStack.top().bins.insert(&bin);
-}
-
-uint32_t CollectDescriptorStats::computeNumDescriptorSets() const
-{
-    return externalNumDescriptorSets + static_cast<uint32_t>(descriptorSets.size());
-}
-
-DescriptorPoolSizes CollectDescriptorStats::computeDescriptorPoolSizes() const
-{
-    DescriptorPoolSizes poolSizes;
-    for (auto& [type, count] : descriptorTypeMap)
-    {
-        poolSizes.push_back(VkDescriptorPoolSize{type, count});
-    }
-    return poolSizes;
+    requirements.binStack.top().bins.insert(&bin);
 }
 
 /////////////////////////////////////////////////////////////////////
 //
 // CompielTraversal
 //
-CompileTraversal::CompileTraversal(Device* in_device, BufferPreferences bufferPreferences) :
-    context(in_device, bufferPreferences)
+
+CompileTraversal::CompileTraversal(ref_ptr<Device> in_device, const ResourceRequirements& resourceRequirements) :
+    context(in_device, resourceRequirements)
 {
     auto queueFamily = in_device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
     context.commandPool = vsg::CommandPool::create(in_device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
     context.graphicsQueue = in_device->getQueue(queueFamily);
 }
 
-CompileTraversal::CompileTraversal(Window* window, ViewportState* viewport, BufferPreferences bufferPreferences) :
-    context(window->getOrCreateDevice(), bufferPreferences)
+CompileTraversal::CompileTraversal(ref_ptr<Window> window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements) :
+    context(window->getOrCreateDevice(), resourceRequirements)
 {
     auto device = window->getDevice();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);

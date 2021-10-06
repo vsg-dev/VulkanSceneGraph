@@ -725,6 +725,8 @@ bool Xcb_Window::pollEvents(UIEvents& events)
                 }
             }
 
+            std::cout<<"button press mask = "<<vsg::ButtonMask(newButtonMask)<<", "<<button_press->detail)<<std::endl;
+
             break;
         }
         case (XCB_BUTTON_RELEASE):

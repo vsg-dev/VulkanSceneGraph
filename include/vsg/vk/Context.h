@@ -15,23 +15,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <deque>
 #include <memory>
 
-#include <vsg/core/Object.h>
 #include <vsg/core/ScratchMemory.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/state/BufferInfo.h>
 #include <vsg/state/GraphicsPipeline.h>
+#include <vsg/state/ImageInfo.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/MemoryBufferPools.h>
 #include <vsg/vk/ShaderCompiler.h>
+#include <vsg/vk/ResourceRequirements.h>
 
 #include <vsg/commands/Command.h>
-#include <vsg/commands/CopyAndReleaseBuffer.h>
-#include <vsg/commands/CopyAndReleaseImage.h>
+//#include <vsg/commands/CopyAndReleaseBuffer.h>
+//#include <vsg/commands/CopyAndReleaseImage.h>
 
 namespace vsg
 {
+    class CopyAndReleaseBuffer;
+    class CopyAndReleaseImage;
+
     class VSG_DECLSPEC BuildAccelerationStructureCommand : public Inherit<Command, BuildAccelerationStructureCommand>
     {
     public:
@@ -60,7 +64,7 @@ namespace vsg
     public:
         Context();
 
-        Context(Device* in_device, BufferPreferences bufferPreferences = {});
+        Context(Device* in_device, const ResourceRequirements& resourceRequirements = {});
 
         Context(const Context& context);
 
