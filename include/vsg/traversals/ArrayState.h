@@ -30,7 +30,7 @@ namespace vsg
             VkFormat format = {};
         };
 
-        VkPrimitiveTopology topology;
+        VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         uint32_t vertex_attribute_location = 0;
         AttributeDetails vertexAttribute;
 
