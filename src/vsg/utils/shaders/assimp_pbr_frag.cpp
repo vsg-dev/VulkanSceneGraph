@@ -324,7 +324,6 @@ void main()
     #else
         baseColor = vertexColor * SRGBtoLINEAR(texture(diffuseMap, texCoord0)) * pbr.baseColorFactor;
     #endif
-
 #else
     baseColor = vertexColor * pbr.baseColorFactor;
 #endif
