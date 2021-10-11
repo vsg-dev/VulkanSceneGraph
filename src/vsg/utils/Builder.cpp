@@ -117,6 +117,8 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
         // { binding, descriptorTpe, descriptorCount, stageFlags, pImmutableSamplers}
         descriptorBindings.push_back(VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr});
         defines.push_back("VSG_DIFFUSE_MAP");
+
+        if (stateInfo.greyscale) defines.push_back("VSG_GREYSACLE_DIFFUSE_MAP");
     }
 
     if (stateInfo.displacementMap)
@@ -208,6 +210,13 @@ void Builder::_assign(StateGroup& stateGroup, const StateInfo& stateInfo)
     auto& stateSettings = _getStateSettings(stateInfo);
     stateGroup.add(stateSettings.bindGraphicsPipeline);
     stateGroup.add(_createDescriptorSet(stateInfo));
+}
+
+ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
+{
+    auto stategroup = vsg::StateGroup::create();
+    _assign(*stategroup, stateInfo);
+    return stategroup;
 }
 
 void Builder::compile(ref_ptr<Node> subgraph)

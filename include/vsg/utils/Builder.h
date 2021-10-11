@@ -15,10 +15,11 @@ namespace vsg
         bool lighting = true;
         bool doubleSided = false;
         bool blending = false;
-        bool diffuseMap = false;
+        bool greyscale = false; /// greyscale diffuseMap image
         bool wireframe = false;
         bool instancce_colors_vec4 = true;
         bool instancce_positions_vec3 = false;
+
         ref_ptr<Data> image;
         ref_ptr<Data> displacementMap;
 
@@ -27,7 +28,7 @@ namespace vsg
             VSG_COMPARE_PARAMETERS(lighting, rhs.lighting)
             VSG_COMPARE_PARAMETERS(doubleSided, rhs.doubleSided)
             VSG_COMPARE_PARAMETERS(blending, rhs.blending)
-            VSG_COMPARE_PARAMETERS(diffuseMap, rhs.diffuseMap)
+            VSG_COMPARE_PARAMETERS(greyscale, rhs.greyscale)
             VSG_COMPARE_PARAMETERS(wireframe, rhs.wireframe)
             VSG_COMPARE_PARAMETERS(instancce_colors_vec4, rhs.instancce_colors_vec4)
             VSG_COMPARE_PARAMETERS(instancce_positions_vec3, rhs.instancce_positions_vec3)
@@ -82,6 +83,8 @@ namespace vsg
         ref_ptr<Node> createQuad(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
         ref_ptr<Node> createSphere(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
         ref_ptr<Node> createHeightField(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
+
+        ref_ptr<StateGroup> createStateGroup(const StateInfo& stateInfo = {});
 
     private:
         void transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr<vec3Array> normals);
