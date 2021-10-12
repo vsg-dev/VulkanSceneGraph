@@ -43,8 +43,9 @@ namespace vsgWin32
             auto itr = _keycodeMap.find(virtualKey);
             if (itr == _keycodeMap.end()) return false;
 
-            keySymbol = itr->second;
-            modifiedKeySymbol = keySymbol;
+            // windows will report the opposite of Xcb so start with the key as our modifiedKeySymbol
+            // see: https://github.com/vsg-dev/VulkanSceneGraph/issues/342
+            modifiedKeySymbol = itr->second;
 
             BYTE keyState[256];
             if (virtualKey==0 || !::GetKeyboardState(keyState))
@@ -79,9 +80,10 @@ namespace vsgWin32
 
             keyModifier = static_cast<vsg::KeyModifier>(modifierMask);
 
+            // our actual keystroke is what we get after the ::ToAscii call
             char asciiKey[2];
             int32_t numChars = ::ToAscii(static_cast<UINT>(wParam), (lParam>>16)&0xff, keyState, reinterpret_cast<WORD*>(asciiKey), 0);
-            if (numChars>0) modifiedKeySymbol = static_cast<vsg::KeySymbol>(asciiKey[0]);
+            if (numChars>0) keySymbol = static_cast<vsg::KeySymbol>(asciiKey[0]);
 
             return true;
         }
