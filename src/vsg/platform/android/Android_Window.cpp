@@ -405,14 +405,14 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
                 switch (action)
                 {
                 case AMOTION_EVENT_ACTION_DOWN:
-                    bufferedEvents.emplace_back(new vsg::TouchDownEvent(this, historical_event_time, x, y, id));
+                    bufferedEvents.emplace_back(vsg::TouchDownEvent::create(this, historical_event_time, x, y, id));
                     break;
                 case AMOTION_EVENT_ACTION_MOVE:
-                    bufferedEvents.emplace_back(new vsg::TouchMoveEvent(this, historical_event_time, x, y, id));
+                    bufferedEvents.emplace_back(vsg::TouchMoveEvent::create(this, historical_event_time, x, y, id));
                     break;
                 case AMOTION_EVENT_ACTION_UP:
                 case AMOTION_EVENT_ACTION_CANCEL: // for now just treat cancel as up
-                    bufferedEvents.emplace_back(new vsg::TouchUpEvent(this, historical_event_time, x, y, id));
+                    bufferedEvents.emplace_back(vsg::TouchUpEvent::create(this, historical_event_time, x, y, id));
                     break;
                 default: break;
                 }
@@ -433,16 +433,16 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
             {
             case AMOTION_EVENT_ACTION_DOWN:
                 LOG("touch down event = id: %d - xy: %f, %f", id, x, y);
-                bufferedEvents.emplace_back(new vsg::TouchDownEvent(this, event_time, x, y, id));
+                bufferedEvents.emplace_back(vsg::TouchDownEvent::create(this, event_time, x, y, id));
                 break;
             case AMOTION_EVENT_ACTION_MOVE:
                 LOG("touch move event = id: %d - xy: %f, %f", id, x, y);
-                bufferedEvents.emplace_back(new vsg::TouchMoveEvent(this, event_time, x, y, id));
+                bufferedEvents.emplace_back(vsg::TouchMoveEvent::create(this, event_time, x, y, id));
                 break;
             case AMOTION_EVENT_ACTION_UP:
             case AMOTION_EVENT_ACTION_CANCEL: // for now just treat cancel as up
                 LOG("touch up event = id: %d - xy: %f, %f", id, x, y);
-                bufferedEvents.emplace_back(new vsg::TouchUpEvent(this, event_time, x, y, id));
+                bufferedEvents.emplace_back(vsg::TouchUpEvent::create(this, event_time, x, y, id));
                 break;
             default: break;
             }
@@ -471,11 +471,11 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
         {
             case AKEY_EVENT_ACTION_DOWN:
                 LOG("key down event = unmodified: %d modified:%d", int32_t(keySymbol), int32_t(modifiedKeySymbol));
-                bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
+                bufferedEvents.emplace_back(vsg::KeyPressEvent::create(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
                 break;
             case AKEY_EVENT_ACTION_UP:
                 LOG("key up event = unmodified: %d modified:%d", int32_t(keySymbol), int32_t(modifiedKeySymbol));
-                bufferedEvents.emplace_back(new vsg::KeyReleaseEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
+                bufferedEvents.emplace_back(vsg::KeyReleaseEvent::create(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
                 break;
                 //case AKEY_EVENT_ACTION_MULTIPLE:
                 //   bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier);
