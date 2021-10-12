@@ -100,12 +100,12 @@ namespace vsgWin32
         return static_cast<vsg::ButtonMask>(mask);
     }
 
-    int getButtonDownEventDetail(UINT buttonMsg)
+    uint32_t getButtonDownEventDetail(UINT buttonMsg)
     {
         return buttonMsg == WM_LBUTTONDOWN ? 1 : (buttonMsg == WM_MBUTTONDOWN ? 2 : buttonMsg == WM_RBUTTONDOWN ? 3 : (buttonMsg == WM_XBUTTONDOWN ? 4 : 0)); // need to determine x1, x2
     }
 
-    int getButtonUpEventDetail(UINT buttonMsg)
+    uint32_t getButtonUpEventDetail(UINT buttonMsg)
     {
         return buttonMsg == WM_LBUTTONUP ? 1 : (buttonMsg == WM_MBUTTONUP ? 2 : buttonMsg == WM_RBUTTONUP ? 3 : (buttonMsg == WM_XBUTTONUP ? 4 : 0));
     }
