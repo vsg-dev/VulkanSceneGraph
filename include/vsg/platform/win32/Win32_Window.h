@@ -39,7 +39,7 @@ namespace vsgWin32
             uint16_t modifierMask = 0;
 
             //bool rightSide = (lParam & 0x01000000) != 0;
-            int virtualKey = ::MapVirtualKeyEx((lParam >> 16) & 0xff, 3, ::GetKeyboardLayout(0));
+            uint32_t virtualKey = ::MapVirtualKeyEx((lParam >> 16) & 0xff, 3, ::GetKeyboardLayout(0));
             auto itr = _keycodeMap.find(virtualKey);
             if (itr == _keycodeMap.end()) return false;
 
@@ -77,11 +77,11 @@ namespace vsgWin32
             if (keyState[VK_CAPITAL] & 0x01) modifierMask |= vsg::KeyModifier::MODKEY_CapsLock;
             if (keyState[VK_NUMLOCK] & 0x01) modifierMask |= vsg::KeyModifier::MODKEY_NumLock;
 
-            keyModifier = (vsg::KeyModifier) modifierMask;
+            keyModifier = static_cast<vsg::KeyModifier>(modifierMask);
 
             char asciiKey[2];
-            int numChars = ::ToAscii(static_cast<UINT>(wParam), (lParam>>16)&0xff, keyState, reinterpret_cast<WORD*>(asciiKey), 0);
-            if (numChars>0) modifiedKeySymbol = (vsg::KeySymbol)asciiKey[0];
+            int32_t numChars = ::ToAscii(static_cast<UINT>(wParam), (lParam>>16)&0xff, keyState, reinterpret_cast<WORD*>(asciiKey), 0);
+            if (numChars>0) modifiedKeySymbol = static_cast<vsg::KeySymbol>(asciiKey[0]);
 
             return true;
         }
@@ -95,7 +95,7 @@ namespace vsgWin32
     {
         auto mask = (wParam & MK_LBUTTON ? vsg::ButtonMask::BUTTON_MASK_1 : 0) | (wParam & MK_MBUTTON ? vsg::ButtonMask::BUTTON_MASK_2 : 0) | (wParam & MK_RBUTTON ? vsg::ButtonMask::BUTTON_MASK_3 : 0) |
                     (wParam & MK_XBUTTON1 ? vsg::ButtonMask::BUTTON_MASK_4 : 0) | (wParam & MK_XBUTTON2 ? vsg::ButtonMask::BUTTON_MASK_5 : 0);
-        return (vsg::ButtonMask)mask;
+        return static_cast<vsg::ButtonMask>(mask);
     }
 
     int getButtonDownEventDetail(UINT buttonMsg)
