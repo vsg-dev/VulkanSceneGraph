@@ -7,4 +7,9 @@
 
 * [Introduction to Vulkan | Algorithms for Real-Time Rendering Lecture, Summer Term 2020](https://www.youtube.com/watch?v=isbMMIwmZes)
 * [Vulkanised-2021 presentations](https://www.khronos.org/events/vulkanised-2021)
-* [Vulkan Synchronization Validation Quick Start Guide](https://www.lunarg.com/new-synchronization-validation-quick-start-guide-available-for-vulkan-developers/)
+* Vulkan Synchronization:
+    - [Guide to Vulkan Synchronization](https://www.lunarg.com/news-insights/white-papers/guide-to-vulkan-synchronization-validation/)
+    - [Synchronization2 Validation](https://www.lunarg.com/news-insights/white-papers/vulkan-synchronization2-validation/)
+* Building a Vulkan Layer in Symbiose Within the Vulkan Ecosystem:
+    - Whitepaper: https://www.lunarg.com/wp-content/uploads/2021/09/Vulkan-Layer-Symbiosis-within-the-Vulkan-Ecosystem.pdf
+    - Whitepaper: https://www.lunarg.com/wp-content/uploads/2021/09/Enhanced-Devsim-15Sept2021.pdf
