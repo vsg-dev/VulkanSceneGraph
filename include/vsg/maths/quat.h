@@ -49,6 +49,10 @@ namespace vsg
             value{v.x, v.y, v.z, v.w} {}
         constexpr t_quat(value_type in_x, value_type in_y, value_type in_z, value_type in_w) :
             value{in_x, in_y, in_z, in_w} {}
+        constexpr t_quat(value_type angle_radians, const t_vec3<value_type>& axis)
+        {
+            set(angle_radians, axis);
+        }
 
         constexpr std::size_t size() const { return 4; }
 
@@ -75,6 +79,28 @@ namespace vsg
             z = in_z;
             w = in_w;
         }
+
+        void set(value_type angle_radians, const t_vec3<value_type>& axis)
+        {
+            const value_type epsilon = 0.0000001;
+            value_type len = length(axis);
+            if (len < epsilon)
+            {
+                // ~zero length axis, so reset rotation to zero.
+                *this = {};
+                return;
+            }
+
+            value_type inversenorm  = 1.0/len;
+            value_type coshalfangle = cos( 0.5*angle_radians );
+            value_type sinhalfangle = sin( 0.5*angle_radians );
+
+            x = axis.x * sinhalfangle * inversenorm;
+            y = axis.y * sinhalfangle * inversenorm;
+            z = axis.z * sinhalfangle * inversenorm;
+            w = coshalfangle;
+        }
+
     };
 
     using quat = t_quat<float>;
