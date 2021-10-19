@@ -56,5 +56,38 @@ AnimationPath::Location AnimationPath::computeLocation(double time) const
     auto& upper = not_less_itr->second;
     double r = (time - less_than_itr->first) / (not_less_itr->first - less_than_itr->first);
 
-    return Location{mix(lower.position, upper.position, r), mix(lower.orientation, upper.orientation, r)};
+    return Location{mix(lower.position, upper.position, r), mix(lower.orientation, upper.orientation, r), mix(lower.scale, upper.scale, r)};
+}
+
+void AnimationPath::read(Input& input)
+{
+    vsg::Object::read(input);
+
+    auto numLocations = input.readValue<uint32_t>("NumLocations");
+
+    locations.clear();
+    for (uint32_t i = 0; i < numLocations; ++i)
+    {
+        double time;
+        Location location;
+        input.read("time", time);
+        input.read("position", location.position);
+        input.read("orientation", location.orientation);
+        input.read("scale", location.scale);
+        locations[time] = location;
+    }
+}
+
+void AnimationPath::write(Output& output) const
+{
+    vsg::Object::write(output);
+
+    output.writeValue<uint32_t>("NumLocations", locations.size());
+    for (auto& [time, location] : locations)
+    {
+        output.write("time", time);
+        output.write("position", location.position);
+        output.write("orientation", location.orientation);
+        output.write("scale", location.scale);
+    }
 }

@@ -34,19 +34,23 @@ namespace vsg
         {
             dvec3 position;
             dquat orientation;
+            dvec3 scale = {1.0, 1.0, 1.0};
         };
 
         Mode mode = ONCE;
         std::map<double, Location> locations;
 
-        void add(double time, const dvec3& position, const dquat& orientation)
+        void add(double time, const dvec3& position, const dquat& orientation = {}, const dvec3& scale = {1.0, 1.0, 1.0})
         {
-            locations[time] = Location{position, orientation};
+            locations[time] = Location{position, orientation, scale};
         }
 
         double period() const;
 
         Location computeLocation(double time) const;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
     VSG_type_name(vsg::AnimationPath);
 
