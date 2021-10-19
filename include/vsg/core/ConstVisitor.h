@@ -102,6 +102,9 @@ namespace vsg
     class TerminateEvent;
     class FrameEvent;
 
+    // forward declare util classes
+    class AnimationPath;
+
     // forward declare viewer classes
     class Camera;
     class CommandGraph;
@@ -300,6 +303,9 @@ namespace vsg
         virtual void apply(const ScrollWheelEvent&);
         virtual void apply(const TerminateEvent&);
         virtual void apply(const FrameEvent&);
+
+        // utils
+        virtual void apply(const AnimationPath&);
 
         // viewer
         virtual void apply(const Camera&);

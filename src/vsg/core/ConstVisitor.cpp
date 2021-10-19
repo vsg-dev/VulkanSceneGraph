@@ -719,6 +719,15 @@ void ConstVisitor::apply(const FrameEvent& event)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// util classes
+//
+void ConstVisitor::apply(const AnimationPath& animationPath)
+{
+    apply(static_cast<const Object&>(animationPath));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // Viewer classes
 //
 void ConstVisitor::apply(const Camera& camera)
