@@ -91,16 +91,15 @@ namespace vsg
                 return;
             }
 
-            value_type inversenorm  = 1.0/len;
-            value_type coshalfangle = cos( 0.5*angle_radians );
-            value_type sinhalfangle = sin( 0.5*angle_radians );
+            value_type inversenorm = 1.0 / len;
+            value_type coshalfangle = cos(0.5 * angle_radians);
+            value_type sinhalfangle = sin(0.5 * angle_radians);
 
             x = axis.x * sinhalfangle * inversenorm;
             y = axis.y * sinhalfangle * inversenorm;
             z = axis.z * sinhalfangle * inversenorm;
             w = coshalfangle;
         }
-
     };
 
     using quat = t_quat<float>;

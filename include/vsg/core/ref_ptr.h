@@ -126,22 +126,22 @@ namespace vsg
         }
 
         template<class R>
-        bool operator < (const ref_ptr<R>& rhs) const { return (rhs._ptr <  _ptr); }
+        bool operator<(const ref_ptr<R>& rhs) const { return (rhs._ptr < _ptr); }
 
         template<class R>
-        bool operator == (const ref_ptr<R>& rhs) const { return (rhs._ptr == _ptr); }
+        bool operator==(const ref_ptr<R>& rhs) const { return (rhs._ptr == _ptr); }
 
         template<class R>
-        bool operator != (const ref_ptr<R>& rhs) const { return (rhs._ptr != _ptr); }
+        bool operator!=(const ref_ptr<R>& rhs) const { return (rhs._ptr != _ptr); }
 
         template<class R>
-        bool operator < (const R* rhs) const { return (rhs < _ptr); }
+        bool operator<(const R* rhs) const { return (rhs < _ptr); }
 
         template<class R>
-        bool operator == (const R* rhs) const { return (rhs == _ptr); }
+        bool operator==(const R* rhs) const { return (rhs == _ptr); }
 
         template<class R>
-        bool operator != (const R* rhs) const { return (rhs != _ptr); }
+        bool operator!=(const R* rhs) const { return (rhs != _ptr); }
 
         bool valid() const noexcept { return _ptr != nullptr; }
 

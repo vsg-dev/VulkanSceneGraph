@@ -21,14 +21,16 @@ namespace vsg
 
     struct ReadError : public Inherit<Object, ReadError>
     {
-        ReadError(const std::string& msg) : message(msg) {}
+        ReadError(const std::string& msg) :
+            message(msg) {}
 
         std::string message;
     };
 
     struct WriteError : public Inherit<Object, WriteError>
     {
-        WriteError(const std::string& msg) : message(msg) {}
+        WriteError(const std::string& msg) :
+            message(msg) {}
 
         std::string message;
     };
