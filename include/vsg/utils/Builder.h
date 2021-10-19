@@ -48,6 +48,7 @@ namespace vsg
             return displacementMap < rhs.displacementMap;
         }
     };
+    VSG_type_name(vsg::StateInfo);
 
     struct GeometryInfo
     {
@@ -75,6 +76,7 @@ namespace vsg
             return false;
         }
     };
+    VSG_type_name(vsg::GeometryInfo);
 
     class VSG_DECLSPEC Builder : public Inherit<Object, Builder>
     {
@@ -146,5 +148,6 @@ namespace vsg
         // used for comparisons
         mat4 identity;
     };
+    VSG_type_name(vsg::Builder);
 
 } // namespace vsg
