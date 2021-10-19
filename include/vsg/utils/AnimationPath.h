@@ -44,7 +44,10 @@ namespace vsg
             locations[time] = Location{position, orientation};
         }
 
+        double period() const;
+
         Location computeLocation(double time) const;
     };
+    VSG_type_name(vsg::AnimationPath);
 
 } // namespace vsg

@@ -14,6 +14,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+double AnimationPath::period() const
+{
+    if (locations.empty()) return 0.0;
+    return locations.rbegin()->first - locations.begin()->first;
+}
+
 AnimationPath::Location AnimationPath::computeLocation(double time) const
 {
     // check for empy locations map
@@ -24,17 +30,16 @@ AnimationPath::Location AnimationPath::computeLocation(double time) const
 
     if (mode == REPEAT)
     {
-        double period = locations.rbegin()->first - locations.begin()->first;
-        time = locations.begin()->first + std::fmod(time - locations.begin()->first, period);
+        time = locations.begin()->first + std::fmod(time - locations.begin()->first, period());
     }
     else if (mode == FORWARD_AND_BACK)
     {
-        double period = locations.rbegin()->first - locations.begin()->first;
-        double t = std::fmod(time - locations.begin()->first, period * 2.0);
-        if (t <= period)
+        double p = period();
+        double t = std::fmod(time - locations.begin()->first, p * 2.0);
+        if (t <= p)
             time = locations.begin()->first + t;
-        else if (t > period)
-            time = locations.begin()->first + period * 2.0 - t;
+        else if (t > p)
+            time = locations.begin()->first + p * 2.0 - t;
     }
 
     if (time <= locations.begin()->first) return locations.begin()->second;
