@@ -60,6 +60,12 @@ AnimationPath::Location AnimationPath::computeLocation(double time) const
     return Location{mix(lower.position, upper.position, r), mix(lower.orientation, upper.orientation, r), mix(lower.scale, upper.scale, r)};
 }
 
+dmat4 AnimationPath::computeMatrix(double time) const
+{
+    auto location = computeLocation(time);
+    return vsg::translate(location.position) * vsg::rotate(location.orientation) * vsg::scale(location.scale);
+}
+
 void AnimationPath::read(Input& input)
 {
     vsg::Object::read(input);

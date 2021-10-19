@@ -48,6 +48,7 @@ namespace vsg
         double period() const;
 
         Location computeLocation(double time) const;
+        dmat4 computeMatrix(double time) const;
 
         void read(Input& input) override;
         void write(Output& output) const override;
