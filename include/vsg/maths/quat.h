@@ -173,7 +173,7 @@ namespace vsg
     }
 
     template<typename T>
-    t_quat<T> mix(const t_quat<T>& from, t_quat<T> to, T r)
+    constexpr t_quat<T> mix(const t_quat<T>& from, t_quat<T> to, T r)
     {
         T epsilon = std::numeric_limits<T>::epsilon();
         T one(1.0);
@@ -182,7 +182,10 @@ namespace vsg
         if (cosomega < 0.0)
         {
             cosomega = -cosomega;
-            to = conjugate(to);
+            to.x = -to.x;
+            to.y = -to.y;
+            to.z = -to.z;
+            to.w = -to.w;
         }
 
         if ((one - cosomega) > epsilon)
