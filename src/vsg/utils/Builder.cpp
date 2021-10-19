@@ -1,10 +1,25 @@
 
+#include <vsg/io/read.h>
+#include <vsg/nodes/StateGroup.h>
+#include <vsg/nodes/VertexIndexDraw.h>
+#include <vsg/state/ColorBlendState.h>
+#include <vsg/state/DepthStencilState.h>
+#include <vsg/state/DescriptorBuffer.h>
+#include <vsg/state/DescriptorSet.h>
+#include <vsg/state/GraphicsPipeline.h>
+#include <vsg/state/InputAssemblyState.h>
+#include <vsg/state/MultisampleState.h>
+#include <vsg/state/RasterizationState.h>
+#include <vsg/state/VertexInputState.h>
+#include <vsg/state/material.h>
 #include <vsg/utils/Builder.h>
 
 #include "shaders/assimp_flat_shaded_frag.cpp"
 #include "shaders/assimp_pbr_frag.cpp"
 #include "shaders/assimp_phong_frag.cpp"
 #include "shaders/assimp_vert.cpp"
+
+#include <iostream>
 
 using namespace vsg;
 
