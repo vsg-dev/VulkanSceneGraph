@@ -250,6 +250,25 @@ namespace vsg
                          start[2] * one_minus_r + end[2] * r);
     }
 
+    template<typename T>
+    constexpr t_vec3<T> orthogonal(const t_vec3<T>& v)
+    {
+        // use the cross product against the axis which is the most orthogonal to the input vector.
+        auto abs_x = fabs(v.x);
+        auto abs_y = fabs(v.y);
+        auto abs_z = fabs(v.z);
+        if (abs_x < abs_y)
+        {
+            if (abs_x < abs_z) return {0.0, v.z, -v.y}; // v.x shortest, use cross with x axis
+        }
+        else if (abs_y < abs_z)
+        {
+            return {-v.z, 0.0, v.x}; // v.y shortest, use cross with y axis
+        }
+        return {v.y, -v.x, 0.0}; // v.z shortest, use cross with z axis
+    }
+
+
 } // namespace vsg
 
 #if defined(__clang__)
