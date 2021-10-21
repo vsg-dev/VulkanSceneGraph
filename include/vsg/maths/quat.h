@@ -53,6 +53,10 @@ namespace vsg
         {
             set(angle_radians, axis);
         }
+        constexpr t_quat(const t_vec3<value_type>& from, const t_vec3<value_type>& to)
+        {
+            set(from, to);
+        }
 
         constexpr std::size_t size() const { return 4; }
 
@@ -82,7 +86,7 @@ namespace vsg
 
         void set(value_type angle_radians, const t_vec3<value_type>& axis)
         {
-            const value_type epsilon = 0.0000001;
+            const value_type epsilon = 1e-7;
             value_type len = length(axis);
             if (len < epsilon)
             {
@@ -90,6 +94,36 @@ namespace vsg
                 *this = {};
                 return;
             }
+
+            value_type inversenorm = 1.0 / len;
+            value_type coshalfangle = cos(0.5 * angle_radians);
+            value_type sinhalfangle = sin(0.5 * angle_radians);
+
+            x = axis.x * sinhalfangle * inversenorm;
+            y = axis.y * sinhalfangle * inversenorm;
+            z = axis.z * sinhalfangle * inversenorm;
+            w = coshalfangle;
+        }
+
+        void set(const t_vec3<value_type>& from, const t_vec3<value_type>& to)
+        {
+            const value_type epsilon = 1e-7;
+
+            value_type dot = vsg::dot(from, to);
+            value_type div = std::sqrt(length2(from) * length2(to));
+            vsg::dvec3 axis;
+            if (div-dot < epsilon)
+            {
+                axis = orthogonal(from);
+            }
+            else
+            {
+                axis = cross(from, to);
+            }
+
+            value_type len = length(axis);
+
+            double angle_radians = acos(dot / div);
 
             value_type inversenorm = 1.0 / len;
             value_type coshalfangle = cos(0.5 * angle_radians);
