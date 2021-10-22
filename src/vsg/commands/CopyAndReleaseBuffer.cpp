@@ -29,13 +29,13 @@ CopyAndReleaseBuffer::~CopyAndReleaseBuffer()
 
 void CopyAndReleaseBuffer::copy(ref_ptr<Data> data, BufferInfo dest)
 {
-    VkDeviceSize datalSize = data->dataSize();
+    VkDeviceSize dataSize = data->dataSize();
     VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
 
-    //std::cout<<"CopyAndReleaseImage::copyDirectly() datalSize = "<<datalSize<<std::endl;
+    //std::cout<<"CopyAndReleaseImage::copyDirectly() dataSize = "<<dataSize<<std::endl;
 
     VkMemoryPropertyFlags memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-    BufferInfo stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(datalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
+    BufferInfo stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(dataSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
     stagingBufferInfo.data = data;
 
     // std::cout<<"stagingBufferInfo.buffer "<<stagingBufferInfo.buffer.get()<<", "<<stagingBufferInfo.offset<<", "<<stagingBufferInfo.range<<")"<<std::endl;
@@ -47,7 +47,7 @@ void CopyAndReleaseBuffer::copy(ref_ptr<Data> data, BufferInfo dest)
     if (!stagingMemory) return;
 
     // copy data to staging memory
-    stagingMemory->copy(imageStagingBuffer->getMemoryOffset(deviceID) + stagingBufferInfo.offset, datalSize, data->dataPointer());
+    stagingMemory->copy(imageStagingBuffer->getMemoryOffset(deviceID) + stagingBufferInfo.offset, dataSize, data->dataPointer());
 
     add(stagingBufferInfo, dest);
 }
