@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/Command.h>
-#include <vsg/state/Buffer.h>
+#include <vsg/state/BufferInfo.h>
 #include <vsg/state/Descriptor.h>
 #include <vsg/vk/vk_buffer.h>
 
@@ -31,6 +31,9 @@ namespace vsg
         uint32_t firstBinding = 0;
         DataList arrays;
 
+        BufferInfoList& bufferInfoList(uint32_t deviceID) { return _vulkanData[deviceID].bufferInfoList; }
+        const BufferInfoList& bufferInfoList(uint32_t deviceID) const { return _vulkanData[deviceID].bufferInfoList; }
+
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -43,6 +46,7 @@ namespace vsg
 
         struct VulkanData
         {
+            BufferInfoList bufferInfoList;
             std::vector<ref_ptr<Buffer>> buffers;
             std::vector<VkBuffer> vkBuffers;
             std::vector<VkDeviceSize> offsets;
