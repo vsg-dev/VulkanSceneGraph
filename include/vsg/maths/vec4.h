@@ -23,9 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    pragma clang diagnostic ignored "-Wnested-anon-types"
 #endif
 
-#include <vsg/core/type_name.h>
-
-#include <cmath>
+#include <vsg/maths/vec3.h>
 
 namespace vsg
 {
@@ -59,6 +57,10 @@ namespace vsg
         constexpr t_vec4& operator=(const t_vec4&) = default;
         constexpr t_vec4(value_type in_x, value_type in_y, value_type in_z, value_type in_w) :
             value{in_x, in_y, in_z, in_w} {}
+        constexpr t_vec4(const t_vec2<T>& v, value_type in_z, value_type in_w) :
+            value{v.x, v.y, in_z, in_w} {}
+        constexpr t_vec4(const t_vec3<T>& v, value_type in_w) :
+            value{v.x, v.y, v.z, in_w} {}
 
         template<typename R>
         constexpr explicit t_vec4(const t_vec4<R>& v) :
