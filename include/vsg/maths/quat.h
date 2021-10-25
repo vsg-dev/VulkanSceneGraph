@@ -237,29 +237,6 @@ namespace vsg
         }
     }
 
-    template<typename T>
-    constexpr t_mat4<T> mat4_cast(const t_quat<T>& q)
-    {
-        T qxx(q.x * q.x);
-        T qyy(q.y * q.y);
-        T qzz(q.z * q.z);
-        T qxy(q.x * q.y);
-        T qxz(q.x * q.z);
-        T qyz(q.y * q.z);
-        T qwx(q.w * q.x);
-        T qwy(q.w * q.y);
-        T qwz(q.w * q.z);
-
-        T zero(0.0);
-        T one(1.0);
-        T two(2.0);
-
-        return t_mat4<T>(one - two * (qyy + qzz), two * (qxy + qwz), two * (qxz - qwy), zero,
-                         two * (qxy - qwz), one - two * (qxx + qzz), two * (qyz + qwx), zero,
-                         two * (qxz + qwy), two * (qyz - qwx), one - two * (qxx + qyy), zero,
-                         zero, zero, zero, 1.0);
-    }
-
 } // namespace vsg
 
 #if defined(__clang__)
