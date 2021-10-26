@@ -56,7 +56,7 @@ namespace vsg
     };
     VSG_type_name(vsg::AnimationPath);
 
-    class AnimationPathHandler : public Inherit<Visitor, AnimationPathHandler>
+    class VSG_DECLSPEC AnimationPathHandler : public Inherit<Visitor, AnimationPathHandler>
     {
     public:
         AnimationPathHandler(ref_ptr<Object> in_object, ref_ptr<AnimationPath> in_path, clock::time_point in_start_point);
