@@ -132,12 +132,7 @@ void AnimationPathHandler::apply(MatrixTransform& transform)
 
 void AnimationPathHandler::apply(KeyPressEvent& keyPress)
 {
-    std::cout<<"AnimationPathHandler::apply(KeyPressEvent"<<keyPress.keyBase<<", "<<keyPress.keyModified<<")"<<std::endl;
-
-    PrintEvents printEvents(keyPress.time);
-    keyPress.accept(printEvents);
-
-    if (keyPress.keyBase == homeKey)
+    if (keyPress.keyBase == resetKey)
     {
         frameCount = 0;
     }
@@ -153,8 +148,11 @@ void AnimationPathHandler::apply(FrameEvent& frame)
     time = std::chrono::duration<double, std::chrono::seconds::period>(frame.frameStamp->time - start_point).count();
     if (time > path->period())
     {
-        double average_framerate = double(frameCount) / time;
-        std::cout << "Period complete numFrames=" << frameCount << ", average frame rate = " << average_framerate << std::endl;
+        if (printFrameStatsToConsole)
+        {
+            double average_framerate = double(frameCount) / time;
+            std::cout << "Period complete numFrames=" << frameCount << ", average frame rate = " << average_framerate << std::endl;
+        }
 
         // reset time back to start
         start_point = frame.frameStamp->time;

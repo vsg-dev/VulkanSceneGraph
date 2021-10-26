@@ -63,10 +63,11 @@ namespace vsg
 
         ref_ptr<Object> object;
         ref_ptr<AnimationPath> path;
-        KeySymbol homeKey = KEY_Space;
+        KeySymbol resetKey = KEY_Space;
         clock::time_point start_point;
         unsigned int frameCount = 0;
         double time = 0.0;
+        bool printFrameStatsToConsole = false;
 
         void apply(Camera& camera) override;
         void apply(MatrixTransform& transform) override;
