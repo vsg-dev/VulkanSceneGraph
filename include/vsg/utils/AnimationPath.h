@@ -2,7 +2,7 @@
 
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2018 Robert Osfield
+Copyright(c) 2021 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -12,37 +12,47 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/observer_ptr.h>
-#include <vsg/ui/FrameStamp.h>
-#include <vsg/viewer/Window.h>
+#include <vsg/core/Inherit.h>
+#include <vsg/maths/quat.h>
+
+#include <map>
 
 namespace vsg
 {
 
-    VSG_type_name(vsg::TerminateEvent);
-    class TerminateEvent : public Inherit<UIEvent, TerminateEvent>
+    class VSG_DECLSPEC AnimationPath : public Inherit<Object, AnimationPath>
     {
     public:
-        TerminateEvent() {}
+        enum Mode
+        {
+            ONCE,
+            REPEAT,
+            FORWARD_AND_BACK
+        };
 
-        TerminateEvent(time_point in_time) :
-            Inherit(in_time) {}
-    };
+        struct Location
+        {
+            dvec3 position;
+            dquat orientation;
+            dvec3 scale = {1.0, 1.0, 1.0};
+        };
 
-    VSG_type_name(vsg::FrameEvent);
-    class VSG_DECLSPEC FrameEvent : public Inherit<UIEvent, FrameEvent>
-    {
-    public:
-        FrameEvent() {}
+        Mode mode = ONCE;
+        std::map<double, Location> locations;
 
-        FrameEvent(ref_ptr<FrameStamp> fs) :
-            Inherit(fs->time),
-            frameStamp(fs) {}
+        void add(double time, const dvec3& position, const dquat& orientation = {}, const dvec3& scale = {1.0, 1.0, 1.0})
+        {
+            locations[time] = Location{position, orientation, scale};
+        }
 
-        ref_ptr<FrameStamp> frameStamp;
+        double period() const;
+
+        Location computeLocation(double time) const;
+        dmat4 computeMatrix(double time) const;
 
         void read(Input& input) override;
         void write(Output& output) const override;
     };
+    VSG_type_name(vsg::AnimationPath);
 
 } // namespace vsg

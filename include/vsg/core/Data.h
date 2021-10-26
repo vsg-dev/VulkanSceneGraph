@@ -68,6 +68,10 @@ namespace vsg
 
         bool operator==(stride_iterator rhs) const { return ptr == rhs.ptr; }
         bool operator!=(stride_iterator rhs) const { return ptr != rhs.ptr; }
+        bool operator<(stride_iterator rhs) const { return ptr < rhs.ptr; }
+        bool operator<=(stride_iterator rhs) const { return ptr <= rhs.ptr; }
+        bool operator>(stride_iterator rhs) const { return ptr > rhs.ptr; }
+        bool operator>=(stride_iterator rhs) const { return ptr >= rhs.ptr; }
 
         value_type& operator*() { return *reinterpret_cast<value_type*>(ptr); }
         value_type* operator->() { return reinterpret_cast<value_type*>(ptr); }

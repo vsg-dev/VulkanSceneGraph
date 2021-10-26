@@ -39,12 +39,13 @@ namespace vsgWin32
             uint16_t modifierMask = 0;
 
             //bool rightSide = (lParam & 0x01000000) != 0;
-            int virtualKey = ::MapVirtualKeyEx((lParam >> 16) & 0xff, 3, ::GetKeyboardLayout(0));
+            uint32_t virtualKey = ::MapVirtualKeyEx((lParam >> 16) & 0xff, 3, ::GetKeyboardLayout(0));
             auto itr = _keycodeMap.find(virtualKey);
             if (itr == _keycodeMap.end()) return false;
 
-            keySymbol = itr->second;
-            modifiedKeySymbol = keySymbol;
+            // windows will report the opposite of Xcb so start with the key as our modifiedKeySymbol
+            // see: https://github.com/vsg-dev/VulkanSceneGraph/issues/342
+            modifiedKeySymbol = itr->second;
 
             BYTE keyState[256];
             if (virtualKey==0 || !::GetKeyboardState(keyState))
@@ -77,11 +78,12 @@ namespace vsgWin32
             if (keyState[VK_CAPITAL] & 0x01) modifierMask |= vsg::KeyModifier::MODKEY_CapsLock;
             if (keyState[VK_NUMLOCK] & 0x01) modifierMask |= vsg::KeyModifier::MODKEY_NumLock;
 
-            keyModifier = (vsg::KeyModifier) modifierMask;
+            keyModifier = static_cast<vsg::KeyModifier>(modifierMask);
 
+            // our actual keystroke is what we get after the ::ToAscii call
             char asciiKey[2];
-            int numChars = ::ToAscii(static_cast<UINT>(wParam), (lParam>>16)&0xff, keyState, reinterpret_cast<WORD*>(asciiKey), 0);
-            if (numChars>0) modifiedKeySymbol = (vsg::KeySymbol)asciiKey[0];
+            int32_t numChars = ::ToAscii(static_cast<UINT>(wParam), (lParam>>16)&0xff, keyState, reinterpret_cast<WORD*>(asciiKey), 0);
+            if (numChars>0) keySymbol = static_cast<vsg::KeySymbol>(asciiKey[0]);
 
             return true;
         }
@@ -95,15 +97,15 @@ namespace vsgWin32
     {
         auto mask = (wParam & MK_LBUTTON ? vsg::ButtonMask::BUTTON_MASK_1 : 0) | (wParam & MK_MBUTTON ? vsg::ButtonMask::BUTTON_MASK_2 : 0) | (wParam & MK_RBUTTON ? vsg::ButtonMask::BUTTON_MASK_3 : 0) |
                     (wParam & MK_XBUTTON1 ? vsg::ButtonMask::BUTTON_MASK_4 : 0) | (wParam & MK_XBUTTON2 ? vsg::ButtonMask::BUTTON_MASK_5 : 0);
-        return (vsg::ButtonMask)mask;
+        return static_cast<vsg::ButtonMask>(mask);
     }
 
-    int getButtonDownEventDetail(UINT buttonMsg)
+    uint32_t getButtonDownEventDetail(UINT buttonMsg)
     {
         return buttonMsg == WM_LBUTTONDOWN ? 1 : (buttonMsg == WM_MBUTTONDOWN ? 2 : buttonMsg == WM_RBUTTONDOWN ? 3 : (buttonMsg == WM_XBUTTONDOWN ? 4 : 0)); // need to determine x1, x2
     }
 
-    int getButtonUpEventDetail(UINT buttonMsg)
+    uint32_t getButtonUpEventDetail(UINT buttonMsg)
     {
         return buttonMsg == WM_LBUTTONUP ? 1 : (buttonMsg == WM_MBUTTONUP ? 2 : buttonMsg == WM_RBUTTONUP ? 3 : (buttonMsg == WM_XBUTTONUP ? 4 : 0));
     }

@@ -12,48 +12,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/Command.h>
-#include <vsg/state/BufferInfo.h>
-#include <vsg/state/Descriptor.h>
-#include <vsg/vk/vk_buffer.h>
+#include <vsg/ui/UIEvent.h>
 
 namespace vsg
 {
-    class VSG_DECLSPEC BindVertexBuffers : public Inherit<Command, BindVertexBuffers>
+
+    class VSG_DECLSPEC FrameStamp : public Inherit<Object, FrameStamp>
     {
     public:
-        BindVertexBuffers() {}
+        FrameStamp() {}
 
-        BindVertexBuffers(uint32_t in_firstBinding, const DataList& in_arrays) :
-            firstBinding(in_firstBinding),
-            arrays(in_arrays) {}
+        FrameStamp(time_point in_time, uint64_t in_frameCount) :
+            time(in_time),
+            frameCount(in_frameCount) {}
 
-        uint32_t firstBinding = 0;
-        DataList arrays;
-
-        BufferInfoList& bufferInfoList(uint32_t deviceID) { return _vulkanData[deviceID].bufferInfoList; }
-        const BufferInfoList& bufferInfoList(uint32_t deviceID) const { return _vulkanData[deviceID].bufferInfoList; }
+        time_point time = {};
+        uint64_t frameCount = 0;
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        void compile(Context& context) override;
-
-        void record(CommandBuffer& commandBuffer) const override;
-
-    protected:
-        virtual ~BindVertexBuffers();
-
-        struct VulkanData
-        {
-            BufferInfoList bufferInfoList;
-            std::vector<ref_ptr<Buffer>> buffers;
-            std::vector<VkBuffer> vkBuffers;
-            std::vector<VkDeviceSize> offsets;
-        };
-
-        vk_buffer<VulkanData> _vulkanData;
     };
-    VSG_type_name(vsg::BindVertexBuffers);
+    VSG_type_name(vsg::FrameStamp);
 
 } // namespace vsg

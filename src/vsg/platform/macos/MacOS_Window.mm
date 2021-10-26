@@ -126,7 +126,7 @@ namespace vsg
 - (BOOL)windowShouldClose:(id)sender
 {
     vsg::clock::time_point event_time = vsg::clock::now();
-    window->queueEvent(new vsg::CloseWindowEvent(window, event_time));
+    window->queueEvent(vsg::CloseWindowEvent::create(window, event_time));
     return NO;
 }
 
@@ -143,7 +143,7 @@ namespace vsg
     
     //std::cout << "handleFrameSizeChange: " << width << ", " << height << std::endl;
     
-    window->queueEvent(new vsg::ConfigureWindowEvent(window, event_time, contentRect.origin.x, contentRect.origin.y, width, height));
+    window->queueEvent(vsg::ConfigureWindowEvent::create(window, event_time, contentRect.origin.x, contentRect.origin.y, width, height));
 }
 
 - (void)windowDidResize:(NSNotification *)notification
@@ -834,7 +834,7 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     
     // manually trigger configure here??
     vsg::clock::time_point event_time = vsg::clock::now();
-    bufferedEvents.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, _traits->x, _traits->y, finalwidth, finalheight));
+    bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, _traits->x, _traits->y, finalwidth, finalheight));
 }
 
 MacOS_Window::~MacOS_Window()
@@ -924,21 +924,21 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
                 case NSEventTypeRightMouseDragged:
                 case NSEventTypeOtherMouseDragged:
                 {
-                    bufferedEvents.emplace_back(new vsg::MoveEvent(this, getEventTime([anEvent timestamp]), pos.x, contentRect.size.height - pos.y, vsg::ButtonMask(buttonMask)));
+                    bufferedEvents.emplace_back(vsg::MoveEvent::create(this, getEventTime([anEvent timestamp]), pos.x, contentRect.size.height - pos.y, vsg::ButtonMask(buttonMask)));
                     break;
                 }
                 case NSEventTypeLeftMouseDown:
                 case NSEventTypeRightMouseDown:
                 case NSEventTypeOtherMouseDown:
                 {
-                    bufferedEvents.emplace_back(new vsg::ButtonPressEvent(this, getEventTime([anEvent timestamp]), pos.x, contentRect.size.height - pos.y, vsg::ButtonMask(buttonMask), buttonNumber));
+                    bufferedEvents.emplace_back(vsg::ButtonPressEvent::create(this, getEventTime([anEvent timestamp]), pos.x, contentRect.size.height - pos.y, vsg::ButtonMask(buttonMask), buttonNumber));
                     break;
                 }
                 case NSEventTypeLeftMouseUp:
                 case NSEventTypeRightMouseUp:
                 case NSEventTypeOtherMouseUp:
                 {
-                    bufferedEvents.emplace_back(new vsg::ButtonReleaseEvent(this, getEventTime([anEvent timestamp]), pos.x, contentRect.size.height - pos.y, vsg::ButtonMask(buttonMask), buttonNumber));
+                    bufferedEvents.emplace_back(vsg::ButtonReleaseEvent::create(this, getEventTime([anEvent timestamp]), pos.x, contentRect.size.height - pos.y, vsg::ButtonMask(buttonMask), buttonNumber));
                     break;
                 }
                 default: break;
@@ -959,12 +959,12 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
             {
                 case NSEventTypeKeyDown:
                 {
-                    bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, getEventTime([anEvent timestamp]), keySymbol, modifiedKeySymbol, keyModifier));
+                    bufferedEvents.emplace_back(vsg::KeyPressEvent::create(this, getEventTime([anEvent timestamp]), keySymbol, modifiedKeySymbol, keyModifier));
                     break;
                 }
                 case NSEventTypeKeyUp:
                 {
-                    bufferedEvents.emplace_back(new vsg::KeyReleaseEvent(this, getEventTime([anEvent timestamp]), keySymbol, modifiedKeySymbol, keyModifier));
+                    bufferedEvents.emplace_back(vsg::KeyReleaseEvent::create(this, getEventTime([anEvent timestamp]), keySymbol, modifiedKeySymbol, keyModifier));
                     break;
                 }
                 default: break;
@@ -975,7 +975,7 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
         // scrollWheel events
         case NSEventTypeScrollWheel:
         {
-            bufferedEvents.emplace_back(new vsg::ScrollWheelEvent(this, getEventTime([anEvent timestamp]), vsg::vec3([anEvent deltaX], [anEvent deltaY], [anEvent deltaZ])));
+            bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, getEventTime([anEvent timestamp]), vsg::vec3([anEvent deltaX], [anEvent deltaY], [anEvent deltaZ])));
             return true;
         }
 

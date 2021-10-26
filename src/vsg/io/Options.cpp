@@ -44,6 +44,8 @@ Options::Options(const Options& options) :
     formatCoordinateConventions(options.formatCoordinateConventions)
 {
     getOrCreateUniqueAuxiliary();
+    // copy any meta data.
+    if (options.getAuxiliary()) getAuxiliary()->getObjectMap() = options.getAuxiliary()->getObjectMap();
 }
 
 Options::~Options()

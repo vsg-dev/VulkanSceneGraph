@@ -1,6 +1,6 @@
 #include <vsg/io/VSG.h>
 static auto assimp_pbr_frag = []() {std::istringstream str(
-R"(#vsga 0.1.5
+R"(#vsga 0.1.7
 Root id=1 vsg::ShaderStage
 {
   NumUserObjects 0
@@ -11,7 +11,7 @@ Root id=1 vsg::ShaderStage
     NumUserObjects 0
     Source "#version 450
 #extension GL_ARB_separate_shader_objects : enable
-#pragma import_defines (VSG_DIFFUSE_MAP, VSG_EMISSIVE_MAP, VSG_LIGHTMAP_MAP, VSG_NORMAL_MAP, VSG_METALLROUGHNESS_MAP, VSG_SPECULAR_MAP, VSG_TWOSIDED, VSG_WORKFLOW_SPECGLOSS)
+#pragma import_defines (VSG_DIFFUSE_MAP, VSG_GREYSACLE_DIFFUSE_MAP, VSG_EMISSIVE_MAP, VSG_LIGHTMAP_MAP, VSG_NORMAL_MAP, VSG_METALLROUGHNESS_MAP, VSG_SPECULAR_MAP, VSG_TWOSIDED, VSG_WORKFLOW_SPECGLOSS)
 
 const float PI = 3.14159265359;
 const float RECIPROCAL_PI = 0.31830988618;
@@ -318,7 +318,12 @@ void main()
     vec3 f0 = vec3(0.04);
 
 #ifdef VSG_DIFFUSE_MAP
-    baseColor = vertexColor * SRGBtoLINEAR(texture(diffuseMap, texCoord0)) * pbr.baseColorFactor;
+    #ifdef VSG_GREYSACLE_DIFFUSE_MAP
+        float v = texture(diffuseMap, texCoord0.st).s * pbr.baseColorFactor;
+        baseColor = vertexColor * vec4(v, v, v, 1.0);
+    #else
+        baseColor = vertexColor * SRGBtoLINEAR(texture(diffuseMap, texCoord0)) * pbr.baseColorFactor;
+    #endif
 #else
     baseColor = vertexColor * pbr.baseColorFactor;
 #endif

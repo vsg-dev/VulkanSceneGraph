@@ -258,6 +258,9 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::CompositeReaderWriter);
     VSG_REGISTER_create(vsg::VSG);
 
+    // utils
+    VSG_REGISTER_create(vsg::AnimationPath);
+
     // application
     VSG_REGISTER_create(vsg::EllipsoidModel);
 }

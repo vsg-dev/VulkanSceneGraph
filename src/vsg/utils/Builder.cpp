@@ -1,10 +1,25 @@
 
+#include <vsg/io/read.h>
+#include <vsg/nodes/StateGroup.h>
+#include <vsg/nodes/VertexIndexDraw.h>
+#include <vsg/state/ColorBlendState.h>
+#include <vsg/state/DepthStencilState.h>
+#include <vsg/state/DescriptorBuffer.h>
+#include <vsg/state/DescriptorSet.h>
+#include <vsg/state/GraphicsPipeline.h>
+#include <vsg/state/InputAssemblyState.h>
+#include <vsg/state/MultisampleState.h>
+#include <vsg/state/RasterizationState.h>
+#include <vsg/state/VertexInputState.h>
+#include <vsg/state/material.h>
 #include <vsg/utils/Builder.h>
 
 #include "shaders/assimp_flat_shaded_frag.cpp"
 #include "shaders/assimp_pbr_frag.cpp"
 #include "shaders/assimp_phong_frag.cpp"
 #include "shaders/assimp_vert.cpp"
+
+#include <iostream>
 
 using namespace vsg;
 
@@ -117,6 +132,8 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
         // { binding, descriptorTpe, descriptorCount, stageFlags, pImmutableSamplers}
         descriptorBindings.push_back(VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr});
         defines.push_back("VSG_DIFFUSE_MAP");
+
+        if (stateInfo.greyscale) defines.push_back("VSG_GREYSACLE_DIFFUSE_MAP");
     }
 
     if (stateInfo.displacementMap)
@@ -208,6 +225,13 @@ void Builder::_assign(StateGroup& stateGroup, const StateInfo& stateInfo)
     auto& stateSettings = _getStateSettings(stateInfo);
     stateGroup.add(stateSettings.bindGraphicsPipeline);
     stateGroup.add(_createDescriptorSet(stateInfo));
+}
+
+ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
+{
+    auto stategroup = vsg::StateGroup::create();
+    _assign(*stategroup, stateInfo);
+    return stategroup;
 }
 
 void Builder::compile(ref_ptr<Node> subgraph)
