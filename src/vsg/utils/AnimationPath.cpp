@@ -98,3 +98,60 @@ void AnimationPath::write(Output& output) const
         output.write("scale", location.scale);
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// AnimationPathHandler
+//
+AnimationPathHandler::AnimationPathHandler(ref_ptr<Object> object, ref_ptr<AnimationPath> animationPath, clock::time_point start_point) :
+    _object(object),
+    _path(animationPath),
+    _start_point(start_point)
+{
+}
+
+void AnimationPathHandler::apply(Camera& camera)
+{
+    auto lookAt = camera.viewMatrix.cast<LookAt>();
+    if (lookAt)
+    {
+        lookAt->set(_path->computeMatrix(_time));
+    }
+}
+
+void AnimationPathHandler::apply(MatrixTransform& transform)
+{
+    transform.matrix = _path->computeMatrix(_time);
+}
+
+void AnimationPathHandler::apply(KeyPressEvent& keyPress)
+{
+    if (keyPress.keyBase == ' ')
+    {
+        _frameCount = 0;
+    }
+}
+
+void AnimationPathHandler::apply(FrameEvent& frame)
+{
+    if (_frameCount == 0)
+    {
+        _start_point = frame.frameStamp->time;
+    }
+
+    _time = std::chrono::duration<double, std::chrono::seconds::period>(frame.frameStamp->time - _start_point).count();
+    if (_time > _path->period())
+    {
+        double average_framerate = double(_frameCount) / _time;
+        std::cout << "Period complete numFrames=" << _frameCount << ", average frame rate = " << average_framerate << std::endl;
+
+        // reset time back to start
+        _start_point = frame.frameStamp->time;
+        _time = 0.0;
+        _frameCount = 0;
+    }
+
+    if (_object) _object->accept(*this);
+
+    ++_frameCount;
+}

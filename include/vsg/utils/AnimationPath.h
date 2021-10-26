@@ -55,4 +55,25 @@ namespace vsg
     };
     VSG_type_name(vsg::AnimationPath);
 
+    class AnimationPathHandler : public Inherit<Visitor, AnimationPathHandler>
+    {
+    public:
+        AnimationPathHandler(ref_ptr<Object> object, ref_ptr<AnimationPath> animationPath, clock::time_point start_point);
+
+        void apply(Camera& camera) override;
+        void apply(MatrixTransform& transform) override;
+
+        void apply(KeyPressEvent& keyPress) override;
+        void apply(FrameEvent& frame) override;
+
+    protected:
+        ref_ptr<Object> _object;
+        ref_ptr<AnimationPath> _path;
+        KeySymbol _homeKey = KEY_Space;
+        clock::time_point _start_point;
+        unsigned int _frameCount = 0;
+        double _time = 0.0;
+    };
+    VSG_type_name(vsg::AnimationPathHandler);
+
 } // namespace vsg
