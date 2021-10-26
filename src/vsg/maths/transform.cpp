@@ -178,6 +178,10 @@ t_sphere<T> t_computeFrustumBound(const t_mat4<T>& m)
         if (new_r > r) r = new_r;
     };
 
+    //
+    // TODO : depth range should proble be 0 to 1 for Vulkan, rather than -1 to 1 for OpenGL.
+    //
+
     // compute the a2 the radius squared of the near plane relative to the near planes mid point
     vec_type near_center = inv_m * vec_type(0.0, 0.0, -1.0);
     value_type a2 = length2(inv_m * vec_type(-1.0, -1.0, -1.0) - near_center);
