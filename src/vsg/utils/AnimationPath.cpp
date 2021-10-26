@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/AnimationPath.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/ui/ApplicationEvent.h>
+#include <vsg/ui/PrintEvents.h>
 #include <vsg/viewer/Camera.h>
 #include <vsg/io/Options.h>
 
@@ -108,10 +109,10 @@ void AnimationPath::write(Output& output) const
 //
 // AnimationPathHandler
 //
-AnimationPathHandler::AnimationPathHandler(ref_ptr<Object> object, ref_ptr<AnimationPath> animationPath, clock::time_point start_point) :
-    _object(object),
-    _path(animationPath),
-    _start_point(start_point)
+AnimationPathHandler::AnimationPathHandler(ref_ptr<Object> in_object, ref_ptr<AnimationPath> in_path, clock::time_point in_start_point) :
+    object(in_object),
+    path(in_path),
+    start_point(in_start_point)
 {
 }
 
@@ -120,43 +121,48 @@ void AnimationPathHandler::apply(Camera& camera)
     auto lookAt = camera.viewMatrix.cast<LookAt>();
     if (lookAt)
     {
-        lookAt->set(_path->computeMatrix(_time));
+        lookAt->set(path->computeMatrix(time));
     }
 }
 
 void AnimationPathHandler::apply(MatrixTransform& transform)
 {
-    transform.matrix = _path->computeMatrix(_time);
+    transform.matrix = path->computeMatrix(time);
 }
 
 void AnimationPathHandler::apply(KeyPressEvent& keyPress)
 {
-    if (keyPress.keyBase == ' ')
+    std::cout<<"AnimationPathHandler::apply(KeyPressEvent"<<keyPress.keyBase<<", "<<keyPress.keyModified<<")"<<std::endl;
+
+    PrintEvents printEvents(keyPress.time);
+    keyPress.accept(printEvents);
+
+    if (keyPress.keyBase == homeKey)
     {
-        _frameCount = 0;
+        frameCount = 0;
     }
 }
 
 void AnimationPathHandler::apply(FrameEvent& frame)
 {
-    if (_frameCount == 0)
+    if (frameCount == 0)
     {
-        _start_point = frame.frameStamp->time;
+        start_point = frame.frameStamp->time;
     }
 
-    _time = std::chrono::duration<double, std::chrono::seconds::period>(frame.frameStamp->time - _start_point).count();
-    if (_time > _path->period())
+    time = std::chrono::duration<double, std::chrono::seconds::period>(frame.frameStamp->time - start_point).count();
+    if (time > path->period())
     {
-        double average_framerate = double(_frameCount) / _time;
-        std::cout << "Period complete numFrames=" << _frameCount << ", average frame rate = " << average_framerate << std::endl;
+        double average_framerate = double(frameCount) / time;
+        std::cout << "Period complete numFrames=" << frameCount << ", average frame rate = " << average_framerate << std::endl;
 
         // reset time back to start
-        _start_point = frame.frameStamp->time;
-        _time = 0.0;
-        _frameCount = 0;
+        start_point = frame.frameStamp->time;
+        time = 0.0;
+        frameCount = 0;
     }
 
-    if (_object) _object->accept(*this);
+    if (object) object->accept(*this);
 
-    ++_frameCount;
+    ++frameCount;
 }
