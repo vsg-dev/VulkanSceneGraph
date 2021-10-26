@@ -34,6 +34,7 @@ namespace vsg
             matrix = inverse(matrix);
         }
     };
+    VSG_type_name(vsg::ViewMatrix);
 
     class LookAt : public Inherit<ViewMatrix, LookAt>
     {
@@ -84,6 +85,7 @@ namespace vsg
         dvec3 center;
         dvec3 up;
     };
+    VSG_type_name(vsg::LookAt);
 
     class RelativeView : public Inherit<ViewMatrix, RelativeView>
     {
@@ -109,5 +111,6 @@ namespace vsg
         ref_ptr<ViewMatrix> viewMatrix;
         dmat4 matrix;
     };
+    VSG_type_name(vsg::RelativeView);
 
 } // namespace vsg
