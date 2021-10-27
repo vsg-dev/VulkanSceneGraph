@@ -11,7 +11,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/utils/AnimationPath.h>
+#include <vsg/nodes/MatrixTransform.h>
+#include <vsg/ui/ApplicationEvent.h>
+#include <vsg/ui/PrintEvents.h>
+#include <vsg/viewer/Camera.h>
 #include <vsg/io/Options.h>
+
+#include <iostream>
 
 using namespace vsg;
 
@@ -97,4 +103,64 @@ void AnimationPath::write(Output& output) const
         output.write("orientation", location.orientation);
         output.write("scale", location.scale);
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// AnimationPathHandler
+//
+AnimationPathHandler::AnimationPathHandler(ref_ptr<Object> in_object, ref_ptr<AnimationPath> in_path, clock::time_point in_start_point) :
+    object(in_object),
+    path(in_path),
+    start_point(in_start_point)
+{
+}
+
+void AnimationPathHandler::apply(Camera& camera)
+{
+    auto lookAt = camera.viewMatrix.cast<LookAt>();
+    if (lookAt)
+    {
+        lookAt->set(path->computeMatrix(time));
+    }
+}
+
+void AnimationPathHandler::apply(MatrixTransform& transform)
+{
+    transform.matrix = path->computeMatrix(time);
+}
+
+void AnimationPathHandler::apply(KeyPressEvent& keyPress)
+{
+    if (keyPress.keyBase == resetKey)
+    {
+        frameCount = 0;
+    }
+}
+
+void AnimationPathHandler::apply(FrameEvent& frame)
+{
+    if (frameCount == 0)
+    {
+        start_point = frame.frameStamp->time;
+    }
+
+    time = std::chrono::duration<double, std::chrono::seconds::period>(frame.frameStamp->time - start_point).count();
+    if (time > path->period())
+    {
+        if (printFrameStatsToConsole)
+        {
+            double average_framerate = double(frameCount) / time;
+            std::cout << "Period complete numFrames=" << frameCount << ", average frame rate = " << average_framerate << std::endl;
+        }
+
+        // reset time back to start
+        start_point = frame.frameStamp->time;
+        time = 0.0;
+        frameCount = 0;
+    }
+
+    if (object) object->accept(*this);
+
+    ++frameCount;
 }
