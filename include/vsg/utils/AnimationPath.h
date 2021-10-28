@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Inherit.h>
 #include <vsg/maths/quat.h>
+#include <vsg/ui/KeyEvent.h>
 
 #include <map>
 
@@ -54,5 +55,28 @@ namespace vsg
         void write(Output& output) const override;
     };
     VSG_type_name(vsg::AnimationPath);
+
+    class VSG_DECLSPEC AnimationPathHandler : public Inherit<Visitor, AnimationPathHandler>
+    {
+    public:
+        AnimationPathHandler(ref_ptr<Object> in_object, ref_ptr<AnimationPath> in_path, clock::time_point in_start_point);
+
+        ref_ptr<Object> object;
+        ref_ptr<AnimationPath> path;
+        KeySymbol resetKey = KEY_Space;
+        clock::time_point start_point;
+        unsigned int frameCount = 0;
+        double time = 0.0;
+        bool printFrameStatsToConsole = false;
+
+        void apply(Camera& camera) override;
+        void apply(MatrixTransform& transform) override;
+
+        void apply(KeyPressEvent& keyPress) override;
+        void apply(FrameEvent& frame) override;
+
+    protected:
+    };
+    VSG_type_name(vsg::AnimationPathHandler);
 
 } // namespace vsg
