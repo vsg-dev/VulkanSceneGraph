@@ -47,8 +47,12 @@ void BuildAccelerationStructureTraversal::apply(vsg::Geometry& geometry)
         // create new blas and add to cache
         blas = BottomLevelAccelerationStructure::create(_device);
         auto accelGeom = AccelerationGeometry::create();
+#if 0 // TODO
         accelGeom->verts = geometry.arrays[0];
         accelGeom->indices = geometry.indices;
+#else
+    throw "BuildAccelerationStructureTraversal::compile() not implemented";
+#endif
         blas->geometries.push_back(accelGeom);
     }
 

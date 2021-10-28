@@ -23,13 +23,12 @@ namespace vsg
     {
     public:
         BindVertexBuffers() {}
-
-        BindVertexBuffers(uint32_t in_firstBinding, const DataList& in_arrays) :
-            firstBinding(in_firstBinding),
-            arrays(in_arrays) {}
+        BindVertexBuffers(uint32_t in_firstBinding, const DataList& in_arrays);
 
         uint32_t firstBinding = 0;
-        DataList arrays;
+        BufferInfoList arrays;
+
+        void assignArrays(const DataList& in_arrays);
 
         BufferInfoList& bufferInfoList(uint32_t deviceID) { return _vulkanData[deviceID].bufferInfoList; }
         const BufferInfoList& bufferInfoList(uint32_t deviceID) const { return _vulkanData[deviceID].bufferInfoList; }

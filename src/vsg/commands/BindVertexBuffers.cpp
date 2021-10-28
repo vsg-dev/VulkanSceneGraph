@@ -17,6 +17,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+BindVertexBuffers::BindVertexBuffers(uint32_t in_firstBinding, const DataList& in_arrays) :
+    firstBinding(in_firstBinding)
+{
+    assignArrays(in_arrays);
+}
+
 BindVertexBuffers::~BindVertexBuffers()
 {
     for (auto& vkd : _vulkanData)
@@ -29,6 +35,16 @@ BindVertexBuffers::~BindVertexBuffers()
                 vkd.buffers[i]->release(vkd.offsets[i], 0); // TODO
             }
         }
+    }
+}
+
+void BindVertexBuffers::assignArrays(const DataList& arrayData)
+{
+    arrays.clear();
+    arrays.reserve(arrayData.size());
+    for(auto& data : arrayData)
+    {
+        arrays.push_back(BufferInfo::create(data));
     }
 }
 
@@ -88,6 +104,7 @@ void BindVertexBuffers::compile(Context& context)
     vkd.vkBuffers.clear();
     vkd.offsets.clear();
 
+#if 0 // TODO : replace
     vkd.bufferInfoList = vsg::createBufferAndTransferData(context, arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     for (auto& bufferData : vkd.bufferInfoList)
     {
@@ -95,6 +112,9 @@ void BindVertexBuffers::compile(Context& context)
         vkd.vkBuffers.push_back(bufferData->buffer->vk(context.deviceID));
         vkd.offsets.push_back(bufferData->offset);
     }
+#else
+    throw "BindVertexBuffers::compile() not implemented";
+#endif
 }
 
 void BindVertexBuffers::record(CommandBuffer& commandBuffer) const

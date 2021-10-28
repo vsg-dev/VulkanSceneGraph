@@ -117,6 +117,7 @@ void VertexIndexDraw::compile(Context& context)
 
     vkd = {};
 
+#if 0 // TODO : need to replace
     DataList dataList;
     dataList.reserve(arrays.size() + 1);
     for(auto& array : arrays)
@@ -145,6 +146,9 @@ void VertexIndexDraw::compile(Context& context)
     {
         failure = true;
     }
+#else
+    throw "VertexIndexDraw::compile() not implemented";
+#endif
 
     if (failure)
     {

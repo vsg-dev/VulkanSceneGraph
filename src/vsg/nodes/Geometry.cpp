@@ -33,6 +33,21 @@ Geometry::~Geometry()
 {
 }
 
+void Geometry::assignArrays(const DataList& arrayData)
+{
+    arrays.clear();
+    arrays.reserve(arrayData.size());
+    for(auto& data : arrayData)
+    {
+        arrays.push_back(BufferInfo::create(data));
+    }
+}
+
+void Geometry::assignIndices(ref_ptr<vsg::Data> indexData)
+{
+    indices = BufferInfo::create(indexData);
+}
+
 void Geometry::read(Input& input)
 {
     Node::read(input);
@@ -92,6 +107,7 @@ void Geometry::compile(Context& context)
 
     bool failure = false;
 
+#if 0 // TODO : replace
     if (indices)
     {
         DataList dataList;
@@ -112,7 +128,7 @@ void Geometry::compile(Context& context)
             }
 
             vkd.bufferInfo = bufferInfoList.back();
-            vkd.indexType = computeIndexType(indices);
+            vkd.indexType = computeIndexType(indices->data);
         }
         else
             failure = true;
@@ -132,6 +148,9 @@ void Geometry::compile(Context& context)
         else
             failure = true;
     }
+#else
+    throw "Geometry::compile() not implemented";
+#endif
 
     if (failure)
     {

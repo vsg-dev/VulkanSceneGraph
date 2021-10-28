@@ -30,7 +30,9 @@ namespace vsg
 
         BindIndexBuffer(ref_ptr<Data> in_indices);
 
-        ref_ptr<Data> indices;
+        ref_ptr<BufferInfo> indices;
+
+        void assignIndices(ref_ptr<vsg::Data> in_indices);
 
         void read(Input& input) override;
         void write(Output& output) const override;

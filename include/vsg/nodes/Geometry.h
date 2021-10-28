@@ -36,9 +36,12 @@ namespace vsg
 
         // settings
         uint32_t firstBinding = 0;
-        DataList arrays;
-        ref_ptr<Data> indices;
+        BufferInfoList arrays;
+        ref_ptr<BufferInfo> indices;
         DrawCommands commands;
+
+        void assignArrays(const DataList& in_arrays);
+        void assignIndices(ref_ptr<vsg::Data> in_indices);
 
     protected:
         virtual ~Geometry();

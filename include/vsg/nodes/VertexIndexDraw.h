@@ -43,8 +43,8 @@ namespace vsg
         BufferInfoList arrays;
         ref_ptr<BufferInfo> indices;
 
-        void assignArrays(const DataList& arrayData);
-        void assignIndices(ref_ptr<vsg::Data> indexData);
+        void assignArrays(const DataList& in_arrays);
+        void assignIndices(ref_ptr<vsg::Data> in_indices);
 
     protected:
         virtual ~VertexIndexDraw();
