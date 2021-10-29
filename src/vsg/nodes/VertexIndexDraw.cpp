@@ -125,7 +125,6 @@ void VertexIndexDraw::compile(Context& context)
             vkd.vkBuffers.push_back(bufferInfo->buffer->vk(context.deviceID));
             vkd.offsets.push_back(bufferInfo->offset);
         }
-
     }
 
     indexType = computeIndexType(indices->data);
