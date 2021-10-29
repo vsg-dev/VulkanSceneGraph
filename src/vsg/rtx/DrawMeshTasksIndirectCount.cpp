@@ -72,12 +72,7 @@ void DrawMeshTasksIndirectCount::compile(Context& context)
 {
     if ((!buffer->buffer && buffer->data) || (!countBuffer->buffer && countBuffer->data))
     {
-        auto bufferInfoList = vsg::createBufferAndTransferData(context, {buffer->data, countBuffer->data}, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-        if (bufferInfoList.size() == 2)
-        {
-            buffer = bufferInfoList[0];
-            countBuffer = bufferInfoList[1];
-        }
+        createBufferAndTransferData(context, {buffer, countBuffer}, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     }
 }
 

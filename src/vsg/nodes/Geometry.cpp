@@ -102,62 +102,21 @@ void Geometry::compile(Context& context)
     }
 
     auto& vkd = _vulkanData[context.deviceID];
-
     vkd = {};
 
-    bool failure = false;
+    BufferInfoList combinedBufferInfos(arrays);
+    if (indices) combinedBufferInfos.push_back(indices);
 
-#if 0 // TODO : replace
-    if (indices)
+    if (createBufferAndTransferData(context, combinedBufferInfos, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE))
     {
-        DataList dataList;
-        dataList.reserve(arrays.size() + 1);
-        dataList.insert(dataList.end(), arrays.begin(), arrays.end());
-        dataList.emplace_back(indices);
-
-        auto bufferInfoList = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-        if (!bufferInfoList.empty())
+        for (auto& bufferInfo : arrays)
         {
-            BufferInfoList vertexBufferInfo(bufferInfoList.begin(), bufferInfoList.begin() + arrays.size());
-
-            for (auto& bufferInfo : vertexBufferInfo)
-            {
-                vkd.buffers.push_back(bufferInfo->buffer);
-                vkd.vkBuffers.push_back(bufferInfo->buffer->vk(context.deviceID));
-                vkd.offsets.push_back(bufferInfo->offset);
-            }
-
-            vkd.bufferInfo = bufferInfoList.back();
-            vkd.indexType = computeIndexType(indices->data);
+            vkd.vkBuffers.push_back(bufferInfo->buffer->vk(context.deviceID));
+            vkd.offsets.push_back(bufferInfo->offset);
         }
-        else
-            failure = true;
     }
-    else
-    {
-        auto vertexBufferInfo = vsg::createBufferAndTransferData(context, arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-        if (!vertexBufferInfo.empty())
-        {
-            for (auto& bufferInfo : vertexBufferInfo)
-            {
-                vkd.buffers.push_back(bufferInfo->buffer);
-                vkd.vkBuffers.push_back(bufferInfo->buffer->vk(context.deviceID));
-                vkd.offsets.push_back(bufferInfo->offset);
-            }
-        }
-        else
-            failure = true;
-    }
-#else
-    throw "Geometry::compile() not implemented";
-#endif
 
-    if (failure)
-    {
-        //std::cout<<"Failed to create required arrays/indices buffers on GPU."<<std::endl;
-        vkd = {};
-        return;
-    }
+    indexType = computeIndexType(indices->data);
 }
 
 void Geometry::record(CommandBuffer& commandBuffer) const
@@ -170,7 +129,7 @@ void Geometry::record(CommandBuffer& commandBuffer) const
 
     if (indices)
     {
-        vkCmdBindIndexBuffer(cmdBuffer, vkd.bufferInfo->buffer->vk(commandBuffer.deviceID), vkd.bufferInfo->offset, vkd.indexType);
+        vkCmdBindIndexBuffer(cmdBuffer, indices->buffer->vk(commandBuffer.deviceID), indices->offset, indexType);
     }
 
     for (auto& command : commands)

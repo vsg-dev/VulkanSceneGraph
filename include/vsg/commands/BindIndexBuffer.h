@@ -44,13 +44,7 @@ namespace vsg
     protected:
         virtual ~BindIndexBuffer();
 
-        struct VulkanData
-        {
-            ref_ptr<BufferInfo> bufferInfo;
-            VkIndexType indexType;
-        };
-
-        vk_buffer<VulkanData> _vulkanData;
+        VkIndexType indexType = VK_INDEX_TYPE_UINT16;
     };
     VSG_type_name(vsg::BindIndexBuffer);
 

@@ -30,9 +30,6 @@ namespace vsg
 
         void assignArrays(const DataList& in_arrays);
 
-        BufferInfoList& bufferInfoList(uint32_t deviceID) { return _vulkanData[deviceID].bufferInfoList; }
-        const BufferInfoList& bufferInfoList(uint32_t deviceID) const { return _vulkanData[deviceID].bufferInfoList; }
-
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -45,8 +42,6 @@ namespace vsg
 
         struct VulkanData
         {
-            BufferInfoList bufferInfoList;
-            std::vector<ref_ptr<Buffer>> buffers;
             std::vector<VkBuffer> vkBuffers;
             std::vector<VkDeviceSize> offsets;
         };

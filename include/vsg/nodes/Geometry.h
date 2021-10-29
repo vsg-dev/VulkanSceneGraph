@@ -48,14 +48,12 @@ namespace vsg
 
         struct VulkanData
         {
-            std::vector<ref_ptr<Buffer>> buffers;
             std::vector<VkBuffer> vkBuffers;
             std::vector<VkDeviceSize> offsets;
-            ref_ptr<BufferInfo> bufferInfo;
-            VkIndexType indexType = VK_INDEX_TYPE_UINT16;
         };
 
         vk_buffer<VulkanData> _vulkanData;
+        VkIndexType indexType = VK_INDEX_TYPE_UINT16;
     };
     VSG_type_name(vsg::Geometry)
 

@@ -25,17 +25,6 @@ BindVertexBuffers::BindVertexBuffers(uint32_t in_firstBinding, const DataList& i
 
 BindVertexBuffers::~BindVertexBuffers()
 {
-    for (auto& vkd : _vulkanData)
-    {
-        size_t numBufferEntries = std::min(vkd.buffers.size(), vkd.offsets.size());
-        for (size_t i = 0; i < numBufferEntries; ++i)
-        {
-            if (vkd.buffers[i])
-            {
-                vkd.buffers[i]->release(vkd.offsets[i], 0); // TODO
-            }
-        }
-    }
 }
 
 void BindVertexBuffers::assignArrays(const DataList& arrayData)
@@ -98,23 +87,19 @@ void BindVertexBuffers::compile(Context& context)
     auto& vkd = _vulkanData[context.deviceID];
 
     // already compiled
-    if (vkd.buffers.size() == arrays.size()) return;
+    if (vkd.vkBuffers.size() == arrays.size()) return;
 
-    vkd.buffers.clear();
     vkd.vkBuffers.clear();
     vkd.offsets.clear();
 
-#if 0 // TODO : replace
-    vkd.bufferInfoList = vsg::createBufferAndTransferData(context, arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    for (auto& bufferData : vkd.bufferInfoList)
+    if (createBufferAndTransferData(context, arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE))
     {
-        vkd.buffers.push_back(bufferData->buffer);
-        vkd.vkBuffers.push_back(bufferData->buffer->vk(context.deviceID));
-        vkd.offsets.push_back(bufferData->offset);
+        for (auto& bufferInfo : arrays)
+        {
+            vkd.vkBuffers.push_back(bufferInfo->buffer->vk(context.deviceID));
+            vkd.offsets.push_back(bufferInfo->offset);
+        }
     }
-#else
-    throw "BindVertexBuffers::compile() not implemented";
-#endif
 }
 
 void BindVertexBuffers::record(CommandBuffer& commandBuffer) const

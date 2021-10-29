@@ -65,11 +65,7 @@ void DrawIndexedIndirect::compile(Context& context)
 {
     if (!bufferInfo->buffer && bufferInfo->data)
     {
-        auto bufferInfoList = vsg::createBufferAndTransferData(context, {bufferInfo->data}, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-        if (!bufferInfoList.empty())
-        {
-            bufferInfo = bufferInfoList.back();
-        }
+        createBufferAndTransferData(context, {bufferInfo}, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     }
 }
 

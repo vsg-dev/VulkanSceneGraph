@@ -113,49 +113,22 @@ void VertexIndexDraw::compile(Context& context)
     // check to see if we've already been compiled
     if (vkd.vkBuffers.size() == arrays.size()) return;
 
-    bool failure = false;
-
     vkd = {};
 
-#if 0 // TODO : need to replace
-    DataList dataList;
-    dataList.reserve(arrays.size() + 1);
-    for(auto& array : arrays)
-    {
-        dataList.push_back(array->data);
-    }
-    dataList.emplace_back(indices->data);
+    BufferInfoList combinedBufferInfos(arrays);
+    combinedBufferInfos.push_back(indices);
 
-    auto bufferInfoList = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    if (!bufferInfoList.empty())
+    if (createBufferAndTransferData(context, combinedBufferInfos, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE))
     {
-        BufferInfoList vertexBufferInfo(bufferInfoList.begin(), bufferInfoList.begin() + arrays.size());
-
-        for (auto& bufferInfo : vertexBufferInfo)
+        for (auto& bufferInfo : arrays)
         {
             vkd.vkBuffers.push_back(bufferInfo->buffer->vk(context.deviceID));
             vkd.offsets.push_back(bufferInfo->offset);
         }
 
-        arrays = vertexBufferInfo;
+    }
 
-        vkd.bufferInfo = bufferInfoList.back();
-        vkd.indexType = computeIndexType(indices->data);
-    }
-    else
-    {
-        failure = true;
-    }
-#else
-    throw "VertexIndexDraw::compile() not implemented";
-#endif
-
-    if (failure)
-    {
-        //std::cout << "Failed to create required arrays/indices buffers on GPU." << std::endl;
-        vkd = {};
-        return;
-    }
+    indexType = computeIndexType(indices->data);
 }
 
 void VertexIndexDraw::record(CommandBuffer& commandBuffer) const
@@ -166,7 +139,7 @@ void VertexIndexDraw::record(CommandBuffer& commandBuffer) const
 
     vkCmdBindVertexBuffers(cmdBuffer, firstBinding, static_cast<uint32_t>(vkd.vkBuffers.size()), vkd.vkBuffers.data(), vkd.offsets.data());
 
-    vkCmdBindIndexBuffer(cmdBuffer, vkd.bufferInfo->buffer->vk(commandBuffer.deviceID), vkd.bufferInfo->offset, vkd.indexType);
+    vkCmdBindIndexBuffer(cmdBuffer, indices->buffer->vk(commandBuffer.deviceID), indices->offset, indexType);
 
     vkCmdDrawIndexed(cmdBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }

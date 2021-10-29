@@ -67,11 +67,7 @@ void DrawMeshTasksIndirect::compile(Context& context)
 {
     if (!buffer->buffer && buffer->data)
     {
-        auto bufferList = vsg::createBufferAndTransferData(context, {buffer->data}, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-        if (!bufferList.empty())
-        {
-            buffer = bufferList.back();
-        }
+        createBufferAndTransferData(context, {buffer}, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     }
 }
 

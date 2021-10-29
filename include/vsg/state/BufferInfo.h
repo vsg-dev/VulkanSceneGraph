@@ -35,10 +35,12 @@ namespace vsg
 
         void release();
 
-        /// copy data to the VkBuffer(s) for all Devices associated with vsg::Buffer
+        /// Copy data to the VkBuffer(s) for all Devices associated with vsg::Buffer
+        /// Requires associated buffer memory to be host visible, for non host visible buffers you must use a staging buffer
         void copyDataToBuffer();
 
-        /// copy data to the VkBuffer associated with the a specified Device
+        /// Copy data to the VkBuffer associated with the a specified Device
+        /// Requires associated buffer memory to be host visible, for non host visible buffers you must use a staging buffer
         void copyDataToBuffer(uint32_t deviceID);
 
         explicit operator bool() const { return buffer.valid() && data.valid() && range != 0; }
@@ -55,9 +57,7 @@ namespace vsg
 
     using BufferInfoList = std::vector<ref_ptr<BufferInfo>>;
 
-    extern VSG_DECLSPEC ref_ptr<BufferInfo> copyDataToStagingBuffer(Context& context, const Data* data);
-
-    extern VSG_DECLSPEC BufferInfoList createBufferAndTransferData(Context& context, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
+    extern VSG_DECLSPEC bool createBufferAndTransferData(Context& context, const BufferInfoList& bufferInfoList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 
     extern VSG_DECLSPEC BufferInfoList createHostVisibleBuffer(Device* device, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 
