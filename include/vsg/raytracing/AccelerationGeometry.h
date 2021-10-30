@@ -34,6 +34,9 @@ namespace vsg
         ref_ptr<Data> verts;
         ref_ptr<Data> indices;
 
+        void assignVertices(ref_ptr<vsg::Data> in_vertices);
+        void assignIndices(ref_ptr<vsg::Data> in_indices);
+
     protected:
         // compiled data
         ref_ptr<BufferInfo> _vertexBuffer;

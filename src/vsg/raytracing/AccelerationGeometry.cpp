@@ -30,6 +30,16 @@ AccelerationGeometry::AccelerationGeometry(Allocator* allocator) :
     _geometry.geometry.triangles.vertexData.deviceAddress = VkDeviceAddress{0};
 }
 
+void AccelerationGeometry::assignVertices(ref_ptr<vsg::Data> in_vertices)
+{
+    verts = in_vertices;
+}
+
+void AccelerationGeometry::assignIndices(ref_ptr<vsg::Data> in_indices)
+{
+    indices = in_indices;
+}
+
 void AccelerationGeometry::compile(Context& context)
 {
     if (!verts) return;                                                                      // no data set
