@@ -33,7 +33,7 @@ namespace vsg
         void compile(Context& context) override;
         void record(CommandBuffer& commandBuffer) const override;
 
-        ref_ptr<BufferInfo> buffer;
+        ref_ptr<BufferInfo> drawParameters;
         uint32_t drawCount = 0;
         uint32_t stride = 0;
     };

@@ -19,31 +19,33 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-DrawMeshTasksIndirect::DrawMeshTasksIndirect()
+DrawMeshTasksIndirect::DrawMeshTasksIndirect() :
+    drawParameters(BufferInfo::create())
 {
 }
 
 DrawMeshTasksIndirect::DrawMeshTasksIndirect(ref_ptr<Data> data, uint32_t in_drawCount, uint32_t in_stride) :
-    buffer(vsg::BufferInfo::create(data)),
+    drawParameters(BufferInfo::create(data)),
     drawCount(in_drawCount),
     stride(in_stride)
 {}
 
 DrawMeshTasksIndirect::DrawMeshTasksIndirect(ref_ptr<Buffer> in_buffer, VkDeviceSize in_offset, uint32_t in_drawCount, uint32_t in_stride) :
-    buffer(vsg::BufferInfo::create(in_buffer, in_offset, in_drawCount * in_stride)),
+    drawParameters(BufferInfo::create(in_buffer, in_offset, in_drawCount * in_stride)),
     drawCount(in_drawCount),
     stride(in_stride)
 {}
 
 void DrawMeshTasksIndirect::read(Input& input)
 {
-    input.readObject("buffer->data", buffer->data);
-    if (!buffer->data)
+    input.readObject("drawParameters.data", drawParameters->data);
+    if (!drawParameters->data)
     {
-        input.read("buffer.buffer", buffer->buffer);
-        input.readValue<uint32_t>("buffer.offset", buffer->offset);
-        input.readValue<uint32_t>("buffer.range", buffer->range);
+        input.read("drawParameters.buffer", drawParameters->buffer);
+        input.readValue<uint32_t>("drawParameters.offset", drawParameters->offset);
+        input.readValue<uint32_t>("drawParameters.range", drawParameters->range);
     }
+
 
     input.read("drawCount", drawCount);
     input.read("stride", stride);
@@ -51,12 +53,12 @@ void DrawMeshTasksIndirect::read(Input& input)
 
 void DrawMeshTasksIndirect::write(Output& output) const
 {
-    output.writeObject("buffer.data", buffer->data);
-    if (!buffer->data)
+    output.writeObject("drawParameters.data", drawParameters->data);
+    if (!drawParameters->data)
     {
-        output.write("buffer.buffer", buffer->buffer);
-        output.writeValue<uint32_t>("buffer.offset", buffer->offset);
-        output.writeValue<uint32_t>("buffer.range", buffer->range);
+        output.write("drawParameters.buffer", drawParameters->buffer);
+        output.writeValue<uint32_t>("drawParameters.offset", drawParameters->offset);
+        output.writeValue<uint32_t>("drawParameters.range", drawParameters->range);
     }
 
     output.write("drawCount", drawCount);
@@ -65,9 +67,9 @@ void DrawMeshTasksIndirect::write(Output& output) const
 
 void DrawMeshTasksIndirect::compile(Context& context)
 {
-    if (!buffer->buffer && buffer->data)
+    if (!drawParameters->buffer && drawParameters->data)
     {
-        createBufferAndTransferData(context, {buffer}, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+        createBufferAndTransferData(context, {drawParameters}, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     }
 }
 
@@ -75,5 +77,5 @@ void DrawMeshTasksIndirect::record(vsg::CommandBuffer& commandBuffer) const
 {
     Device* device = commandBuffer.getDevice();
     Extensions* extensions = Extensions::Get(device, true);
-    extensions->vkCmdDrawMeshTasksIndirectNV(commandBuffer, buffer->buffer->vk(commandBuffer.deviceID), buffer->offset, drawCount, stride);
+    extensions->vkCmdDrawMeshTasksIndirectNV(commandBuffer, drawParameters->buffer->vk(commandBuffer.deviceID), drawParameters->offset, drawCount, stride);
 }
