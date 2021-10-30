@@ -37,6 +37,10 @@ uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
     return mipLevels;
 }
 
+ImageInfo::~ImageInfo()
+{
+}
+
 void ImageInfo::computeNumMipMapLevels()
 {
     if (imageView && imageView->image && imageView->image->data)

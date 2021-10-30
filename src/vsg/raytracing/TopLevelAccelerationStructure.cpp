@@ -60,7 +60,7 @@ void TopLevelAccelerationStructure::compile(Context& context)
 #else
     auto instanceBufferInfo = vsg::createHostVisibleBuffer(context.device, dataList, VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR, VK_SHARING_MODE_EXCLUSIVE);
     vsg::copyDataListToBuffers(context.device, instanceBufferInfo);
-    _instanceBuffer = instanceBufferInfo[0].buffer;
+    _instanceBuffer = instanceBufferInfo[0]->buffer;
 #endif
     Extensions* extensions = Extensions::Get(context.device, true);
     VkBufferDeviceAddressInfo bufferDeviceAddressInfo{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, nullptr, _instanceBuffer->vk(context.deviceID)};

@@ -32,11 +32,11 @@ DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> data, u
 {
     if (sampler && data)
     {
-        imageInfoList.emplace_back(sampler, data);
+        imageInfoList.push_back(ImageInfo::create(sampler, data));
     }
 }
 
-DescriptorImage::DescriptorImage(const ImageInfo& imageInfo, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+DescriptorImage::DescriptorImage(ref_ptr<ImageInfo> imageInfo, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
 {
     imageInfoList.push_back(imageInfo);
@@ -57,18 +57,20 @@ void DescriptorImage::read(Input& input)
     // TODO old version
 
     imageInfoList.resize(input.readValue<uint32_t>("NumImages"));
-    for (auto& imageData : imageInfoList)
+    for (auto& imageInfo : imageInfoList)
     {
+        imageInfo = ImageInfo::create();
+
         ref_ptr<Data> data;
-        input.readObject("Sampler", imageData.sampler);
+        input.readObject("Sampler", imageInfo->sampler);
         input.readObject("Image", data);
 
         auto image = Image::create(data);
-        if (imageData.sampler) image->usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
+        if (imageInfo->sampler) image->usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
         image->usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
-        imageData.imageView = ImageView::create(image);
-        imageData.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo->imageView = ImageView::create(image);
+        imageInfo->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     }
 }
 
@@ -79,12 +81,12 @@ void DescriptorImage::write(Output& output) const
     // TODO old version
 
     output.writeValue<uint32_t>("NumImages", imageInfoList.size());
-    for (auto& imageData : imageInfoList)
+    for (auto& imageInfo : imageInfoList)
     {
-        output.writeObject("Sampler", imageData.sampler.get());
+        output.writeObject("Sampler", imageInfo->sampler.get());
 
         ref_ptr<Data> data;
-        if (imageData.imageView && imageData.imageView->image) data = imageData.imageView->image->data;
+        if (imageInfo->imageView && imageInfo->imageView->image) data = imageInfo->imageView->image->data;
 
         output.writeObject("Image", data.get());
     }
@@ -96,12 +98,12 @@ void DescriptorImage::compile(Context& context)
 
     for (auto& imageInfo : imageInfoList)
     {
-        imageInfo.computeNumMipMapLevels();
+        imageInfo->computeNumMipMapLevels();
 
-        if (imageInfo.sampler) imageInfo.sampler->compile(context);
-        if (imageInfo.imageView)
+        if (imageInfo->sampler) imageInfo->sampler->compile(context);
+        if (imageInfo->imageView)
         {
-            auto& imageView = *(imageInfo.imageView);
+            auto& imageView = *imageInfo->imageView;
             imageView.compile(context);
 
             if (imageView.image)
@@ -128,20 +130,20 @@ void DescriptorImage::assignTo(Context& context, VkWriteDescriptorSet& wds) cons
     wds.pImageInfo = pImageInfo;
     for (size_t i = 0; i < imageInfoList.size(); ++i)
     {
-        const ImageInfo& data = imageInfoList[i];
+        auto& imageInfo = imageInfoList[i];
 
         VkDescriptorImageInfo& info = pImageInfo[i];
-        if (data.sampler)
-            info.sampler = data.sampler->vk(context.deviceID);
+        if (imageInfo->sampler)
+            info.sampler = imageInfo->sampler->vk(context.deviceID);
         else
             info.sampler = 0;
 
-        if (data.imageView)
-            info.imageView = data.imageView->vk(context.deviceID);
+        if (imageInfo->imageView)
+            info.imageView = imageInfo->imageView->vk(context.deviceID);
         else
             info.imageView = 0;
 
-        info.imageLayout = data.imageLayout;
+        info.imageLayout = imageInfo->imageLayout;
     }
 }
 

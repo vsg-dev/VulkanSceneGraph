@@ -23,11 +23,7 @@ namespace vsg
     public:
         DrawMeshTasksIndirectCount();
 
-        DrawMeshTasksIndirectCount(ref_ptr<Data> in_bufferData, ref_ptr<Data> in_countBufferData, uint32_t in_maxDrawCount, uint32_t in_stride) :
-            buffer(in_bufferData),
-            countBuffer(in_countBufferData),
-            maxDrawCount(in_maxDrawCount),
-            stride(in_stride) {}
+        DrawMeshTasksIndirectCount(ref_ptr<Data> in_bufferData, ref_ptr<Data> in_countBufferData, uint32_t in_maxDrawCount, uint32_t in_stride);
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -35,8 +31,8 @@ namespace vsg
         void compile(Context& context) override;
         void record(CommandBuffer& commandBuffer) const override;
 
-        BufferInfo buffer;
-        BufferInfo countBuffer;
+        ref_ptr<BufferInfo> drawParameters;
+        ref_ptr<BufferInfo> drawCount;
         uint32_t maxDrawCount = 0;
         uint32_t stride = 0;
     };

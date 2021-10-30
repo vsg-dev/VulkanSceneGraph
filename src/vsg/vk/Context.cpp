@@ -146,7 +146,7 @@ ShaderCompiler* Context::getOrCreateShaderCompiler()
     return shaderCompiler;
 }
 
-void Context::copy(ref_ptr<Data> data, ImageInfo dest)
+void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest)
 {
     if (!copyImageCmd)
     {
@@ -157,7 +157,7 @@ void Context::copy(ref_ptr<Data> data, ImageInfo dest)
     copyImageCmd->copy(data, dest);
 }
 
-void Context::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels)
+void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels)
 {
     if (!copyImageCmd)
     {
@@ -168,7 +168,7 @@ void Context::copy(ref_ptr<Data> data, ImageInfo dest, uint32_t numMipMapLevels)
     copyImageCmd->copy(data, dest, numMipMapLevels);
 }
 
-void Context::copy(BufferInfo src, BufferInfo dest)
+void Context::copy(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest)
 {
     if (!copyBufferCmd)
     {

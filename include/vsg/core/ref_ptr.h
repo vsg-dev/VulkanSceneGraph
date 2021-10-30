@@ -158,7 +158,7 @@ namespace vsg
 
         T* get() const noexcept { return _ptr; }
 
-        T* release() noexcept
+        T* release_nodelete() noexcept
         {
             T* temp_ptr = _ptr;
 

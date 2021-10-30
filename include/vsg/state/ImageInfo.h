@@ -20,16 +20,11 @@ namespace vsg
     extern VSG_DECLSPEC uint32_t computeNumMipMapLevels(const Data* data, const Sampler* sampler);
 
     /// Settings that map to VkDescriptorImageInfo
-    class VSG_DECLSPEC ImageInfo
+    class VSG_DECLSPEC ImageInfo : public Inherit<Object, ImageInfo>
     {
     public:
         ImageInfo() :
             imageLayout(VK_IMAGE_LAYOUT_UNDEFINED) {}
-
-        ImageInfo(const ImageInfo& id) :
-            sampler(id.sampler),
-            imageView(id.imageView),
-            imageLayout(id.imageLayout) {}
 
         ImageInfo(ref_ptr<Sampler> in_sampler, ref_ptr<ImageView> in_imageView, VkImageLayout in_imageLayout = VK_IMAGE_LAYOUT_UNDEFINED) :
             sampler(in_sampler),
@@ -45,17 +40,11 @@ namespace vsg
             auto image = Image::create(in_data);
             image->usage |= (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 
-            sampler = in_sampler;
             imageView = ImageView::create(image);
         }
 
-        ImageInfo& operator=(const ImageInfo& rhs)
-        {
-            sampler = rhs.sampler;
-            imageView = rhs.imageView;
-            imageLayout = rhs.imageLayout;
-            return *this;
-        }
+        ImageInfo(const ImageInfo&) = delete;
+        ImageInfo& operator=(const ImageInfo&) = delete;
 
         explicit operator bool() const { return sampler.valid() && imageView.valid(); }
 
@@ -63,8 +52,14 @@ namespace vsg
 
         ref_ptr<Sampler> sampler;
         ref_ptr<ImageView> imageView;
-        VkImageLayout imageLayout;
+        VkImageLayout imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+    protected:
+        virtual ~ImageInfo();
+
     };
-    using ImageInfoList = std::vector<ImageInfo>;
+    VSG_type_name(vsg::ImageInfo);
+
+    using ImageInfoList = std::vector<ref_ptr<ImageInfo>>;
 
 } // namespace vsg

@@ -112,12 +112,6 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        /// Deprecated. TODO : need to remove
-        void setFormat(VkFormat format) { _layout.format = format; }
-
-        /// Deprecated. TODO : : need to remove
-        VkFormat getFormat() const { return _layout.format; }
-
         /** Set Layout */
         void setLayout(Layout layout)
         {
