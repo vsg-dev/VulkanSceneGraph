@@ -111,7 +111,7 @@ Path vsg::filePath(const Path& path)
     }
     else
     {
-        return Path();
+        return {};
     }
 }
 
@@ -128,8 +128,8 @@ Path vsg::fileExtension(const Path& path)
 
     std::string::size_type dot = path.find_last_of('.');
     std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
-    if (dot == std::string::npos || (slash != std::string::npos && dot < slash)) return Path();
-    if (dot != std::string::npos && path.length() == 1) return Path();
+    if (dot == std::string::npos || (slash != std::string::npos && dot < slash)) return {};
+    if (dot != std::string::npos && path.length() == 1) return {};
     return path.substr(dot);
 }
 
