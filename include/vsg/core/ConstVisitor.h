@@ -42,6 +42,7 @@ namespace vsg
     class MaskGroup;
 
     // forward declare vulkan classes
+    class BufferInfo;
     class Command;
     class StateCommand;
     class CommandBuffer;
@@ -244,6 +245,7 @@ namespace vsg
         virtual void apply(const MaskGroup&);
 
         // Vulkan nodes
+        virtual void apply(const BufferInfo&);
         virtual void apply(const Command&);
         virtual void apply(const StateCommand&);
         virtual void apply(const CommandBuffer&);

@@ -486,6 +486,10 @@ void ConstVisitor::apply(const MaskGroup& value)
 //
 // Vulkan Object
 //
+void ConstVisitor::apply(const BufferInfo& value)
+{
+    apply(static_cast<const Object&>(value));
+}
 void ConstVisitor::apply(const Command& value)
 {
     apply(static_cast<const Node&>(value));
