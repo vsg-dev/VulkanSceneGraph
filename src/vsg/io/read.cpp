@@ -33,12 +33,12 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
 
         auto ext = vsg::lowerCaseFileExtension(filename);
 
-        if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
+        if (ext == ".vsga" || ext == ".vsgt" || ext == ".vsgb")
         {
             VSG rw;
             return rw.read(filename, options);
         }
-        else if (ext == "spv")
+        else if (ext == ".spv")
         {
             spirv rw;
             return rw.read(filename, options);

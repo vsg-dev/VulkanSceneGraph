@@ -22,11 +22,11 @@ Options::Options()
 {
     getOrCreateUniqueAuxiliary();
 
-    formatCoordinateConventions["gltf"] = CoordinateConvention::Y_UP;
-    formatCoordinateConventions["glb"] = CoordinateConvention::Y_UP;
-    formatCoordinateConventions["dae"] = CoordinateConvention::Y_UP;
-    formatCoordinateConventions["stl"] = CoordinateConvention::NO_PREFERENCE;
-    formatCoordinateConventions["obj"] = CoordinateConvention::NO_PREFERENCE;
+    formatCoordinateConventions[".gltf"] = CoordinateConvention::Y_UP;
+    formatCoordinateConventions[".glb"] = CoordinateConvention::Y_UP;
+    formatCoordinateConventions[".dae"] = CoordinateConvention::Y_UP;
+    formatCoordinateConventions[".stl"] = CoordinateConvention::NO_PREFERENCE;
+    formatCoordinateConventions[".obj"] = CoordinateConvention::NO_PREFERENCE;
 }
 
 Options::Options(const Options& options) :

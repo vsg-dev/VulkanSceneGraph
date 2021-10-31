@@ -95,7 +95,7 @@ void VSG::writeHeader(std::ostream& fout, const FormatInfo& formatInfo) const
 vsg::ref_ptr<vsg::Object> VSG::read(const vsg::Path& filename, ref_ptr<const Options> options) const
 {
     auto ext = vsg::fileExtension(filename);
-    if (ext == "vsga" || ext == "vsgt" || ext == "vsgb")
+    if (ext == ".vsga" || ext == ".vsgt" || ext == ".vsgb")
     {
         vsg::Path filenameToUse = findFile(filename, options);
         if (filenameToUse.empty()) return {};
@@ -130,7 +130,7 @@ vsg::ref_ptr<vsg::Object> VSG::read(std::istream& fin, vsg::ref_ptr<const vsg::O
     {
         if (!options->extensionHint.empty())
         {
-            if (options->extensionHint != "vsgb" && options->extensionHint != "vsgt")
+            if (options->extensionHint != ".vsgb" && options->extensionHint != ".vsgt")
             {
                 return {};
             }
@@ -160,7 +160,7 @@ vsg::ref_ptr<vsg::Object> VSG::read(const uint8_t* ptr, size_t size, vsg::ref_pt
     {
         if (!options->extensionHint.empty())
         {
-            if (options->extensionHint != "vsgb" && options->extensionHint != "vsgt")
+            if (options->extensionHint != ".vsgb" && options->extensionHint != ".vsgt")
             {
                 return {};
             }
@@ -201,7 +201,7 @@ bool VSG::write(const vsg::Object* object, const vsg::Path& filename, ref_ptr<co
     }
 
     auto ext = vsg::fileExtension(filename);
-    if (ext == "vsgb")
+    if (ext == ".vsgb")
     {
         std::ofstream fout(filename, std::ios::out | std::ios::binary);
         writeHeader(fout, FormatInfo{BINARY, version});
@@ -211,7 +211,7 @@ bool VSG::write(const vsg::Object* object, const vsg::Path& filename, ref_ptr<co
         output.writeObject("Root", object);
         return true;
     }
-    else if (ext == "vsga" || ext == "vsgt")
+    else if (ext == ".vsga" || ext == ".vsgt")
     {
         std::ofstream fout(filename);
         writeHeader(fout, FormatInfo{ASCII, version});
@@ -236,11 +236,11 @@ bool VSG::write(const vsg::Object* object, std::ostream& fout, ref_ptr<const Opt
     {
         if (!options->extensionHint.empty())
         {
-            if (options->extensionHint == "vsgb")
+            if (options->extensionHint == ".vsgb")
             {
                 asciiFormat = false;
             }
-            else if (options->extensionHint != "vsgt")
+            else if (options->extensionHint != ".vsgt")
             {
                 return false;
             }
@@ -275,7 +275,7 @@ bool VSG::write(const vsg::Object* object, std::ostream& fout, ref_ptr<const Opt
 
 bool VSG::getFeatures(Features& features) const
 {
-    features.extensionFeatureMap["vsgb"] = static_cast<FeatureMask>(READ_FILENAME | READ_ISTREAM | READ_MEMORY | WRITE_FILENAME | WRITE_OSTREAM);
-    features.extensionFeatureMap["vsgt"] = static_cast<FeatureMask>(READ_FILENAME | READ_ISTREAM | READ_MEMORY | WRITE_FILENAME | WRITE_OSTREAM);
+    features.extensionFeatureMap[".vsgb"] = static_cast<FeatureMask>(READ_FILENAME | READ_ISTREAM | READ_MEMORY | WRITE_FILENAME | WRITE_OSTREAM);
+    features.extensionFeatureMap[".vsgt"] = static_cast<FeatureMask>(READ_FILENAME | READ_ISTREAM | READ_MEMORY | WRITE_FILENAME | WRITE_OSTREAM);
     return true;
 }
