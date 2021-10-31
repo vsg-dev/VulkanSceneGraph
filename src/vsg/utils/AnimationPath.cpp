@@ -29,7 +29,7 @@ double AnimationPath::period() const
 
 AnimationPath::Location AnimationPath::computeLocation(double time) const
 {
-    // check for empy locations map
+    // check for empty locations map
     if (locations.empty()) return {};
 
     // check for single entry in locations map
