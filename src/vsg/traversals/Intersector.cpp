@@ -183,6 +183,11 @@ void Intersector::apply(const BindIndexBuffer& bib)
     bib.indices->accept(*this);
 }
 
+void Intersector::apply(const vsg::BufferInfo& bufferInfo)
+{
+    if (bufferInfo.data) bufferInfo.data->accept(*this);
+}
+
 void Intersector::apply(const vsg::ushortArray& array)
 {
     ushort_indices = &array;

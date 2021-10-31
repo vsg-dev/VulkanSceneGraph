@@ -48,6 +48,7 @@ namespace vsg
 
         void apply(uint32_t firstBinding, const DataList& arrays);
 
+        void apply(const BufferInfo& bufferInfo) override;
         void apply(const vsg::ushortArray& array) override;
         void apply(const vsg::uintArray& array) override;
 

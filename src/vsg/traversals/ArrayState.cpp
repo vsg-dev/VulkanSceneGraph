@@ -96,6 +96,11 @@ void ArrayState::apply(uint32_t firstBinding, const BufferInfoList& in_arrays)
     }
 }
 
+void ArrayState::apply(const vsg::BufferInfo& bufferInfo)
+{
+    if (bufferInfo.data) bufferInfo.data->accept(*this);
+}
+
 void ArrayState::apply(const vsg::vec3Array& array)
 {
     vertices = &array;
