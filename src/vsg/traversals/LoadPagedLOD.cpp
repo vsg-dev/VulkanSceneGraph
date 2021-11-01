@@ -139,7 +139,7 @@ void LoadPagedLOD::apply(PagedLOD& plod)
 
             if (!child.node)
             {
-                child.node = read_cast<Node>(filename, options);
+                child.node = read_cast<Node>(filename, plod.options);
                 ++numTiles;
             }
 

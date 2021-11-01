@@ -36,7 +36,6 @@ namespace vsg
         int loadLevels = 0;
         int level = 0;
         unsigned int numTiles = 0;
-        ref_ptr<Options> options;
 
     protected:
         using Plane = dplane;
