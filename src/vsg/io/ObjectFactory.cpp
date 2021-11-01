@@ -59,6 +59,12 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::materialValue);
     VSG_REGISTER_new(vsg::PhongMaterialValue);
     VSG_REGISTER_new(vsg::PbrMaterialValue);
+    VSG_REGISTER_new(vsg::sphereValue);
+    VSG_REGISTER_new(vsg::boxValue);
+    VSG_REGISTER_new(vsg::quatValue);
+    VSG_REGISTER_new(vsg::dsphereValue);
+    VSG_REGISTER_new(vsg::dboxValue);
+    VSG_REGISTER_new(vsg::dquatValue);
 
     // arrays
     VSG_REGISTER_new(vsg::byteArray);
