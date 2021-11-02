@@ -57,6 +57,8 @@ namespace vsg
 
     using BufferInfoList = std::vector<ref_ptr<BufferInfo>>;
 
+    extern VSG_DECLSPEC ref_ptr<BufferInfo> copyDataToStagingBuffer(Context& context, const Data* data);
+
     extern VSG_DECLSPEC bool createBufferAndTransferData(Context& context, const BufferInfoList& bufferInfoList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 
     extern VSG_DECLSPEC BufferInfoList createHostVisibleBuffer(Device* device, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode);

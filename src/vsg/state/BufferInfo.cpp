@@ -101,6 +101,40 @@ void BufferInfo::copyDataToBuffer(uint32_t deviceID)
     }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// vsg::copyDataToStagingBuffer
+//
+ref_ptr<BufferInfo> vsg::copyDataToStagingBuffer(Context& context, const Data* data)
+{
+    if (!data) return {};
+
+    VkDeviceSize imageTotalSize = data->dataSize();
+
+    VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
+    auto stagingBufferInfo = context.stagingMemoryBufferPools->reserveBuffer(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    stagingBufferInfo->data = const_cast<Data*>(data);
+
+    // std::cout<<"stagingBufferInfo.buffer "<<stagingBufferInfo.buffer.get()<<", "<<stagingBufferInfo.offset<<", "<<stagingBufferInfo.range<<")"<<std::endl;
+
+    ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo->buffer);
+    ref_ptr<DeviceMemory> imageStagingMemory(imageStagingBuffer->getDeviceMemory(context.deviceID));
+
+    if (!imageStagingMemory) return {};
+
+    // copy data to staging memory
+    imageStagingMemory->copy(imageStagingBuffer->getMemoryOffset(context.deviceID) + stagingBufferInfo->offset, imageTotalSize, data->dataPointer());
+
+    // std::cout << "Creating imageStagingBuffer and memory size = " << imageTotalSize<<std::endl;
+
+    return stagingBufferInfo;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// vsg::createBufferAndTransferData
+//
 bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bufferInfoList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
 {
     Device* device = context.device;
