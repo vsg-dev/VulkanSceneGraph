@@ -27,7 +27,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    // stream support for std::t_vec2
+    // stream support for vsg::t_vec2
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_vec2<T>& vec)
     {
@@ -42,7 +42,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for std::t_vec3
+    // stream support for vsg::t_vec3
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_vec3<T>& vec)
     {
@@ -57,7 +57,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for std::t_vec4
+    // stream support for vsg::t_vec4
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_vec4<T>& vec)
     {
@@ -72,7 +72,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for std::t_quat
+    // stream support for vsg:t_quat
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_quat<T>& q)
     {
@@ -87,7 +87,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for std::t_plane
+    // stream support for vsg::t_plane
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_plane<T>& vec)
     {
@@ -102,7 +102,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for std::t_mat4
+    // stream support for vsg::t_mat4
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_mat4<T>& mat)
     {
@@ -124,7 +124,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for std::t_vec4
+    // stream support for vsg::ref_ptr
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::ref_ptr<T>& ptr)
     {
