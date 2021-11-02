@@ -20,6 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
+#include <vsg/maths/box.h>
 
 #include <istream>
 #include <ostream>
@@ -121,6 +122,24 @@ namespace vsg
         input >> mat(0, 1) >> mat(1, 1) >> mat(2, 1) >> mat(3, 1);
         input >> mat(0, 2) >> mat(1, 2) >> mat(2, 2) >> mat(3, 2);
         input >> mat(0, 3) >> mat(1, 3) >> mat(2, 3) >> mat(3, 3);
+        return input;
+    }
+
+    // stream support for vsg::t_box
+    template<typename T>
+    std::ostream& operator<<(std::ostream& output, const vsg::t_box<T>& box)
+    {
+        output << std::endl;
+        output << "    " << box.min << std::endl;
+        output << "    " << box.max << std::endl;
+        return output;
+    }
+
+    template<typename T>
+    std::istream& operator>>(std::istream& input, vsg::t_box<T>& box)
+    {
+        input >> box.min;
+        input >> box.max;
         return input;
     }
 
