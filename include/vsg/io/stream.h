@@ -127,19 +127,19 @@ namespace vsg
 
     // stream support for vsg::t_box
     template<typename T>
-    std::ostream& operator<<(std::ostream& output, const vsg::t_box<T>& box)
+    std::ostream& operator<<(std::ostream& output, const vsg::t_box<T>& bx)
     {
         output << std::endl;
-        output << "    " << box.min << std::endl;
-        output << "    " << box.max << std::endl;
+        output << "    " << bx.min << std::endl;
+        output << "    " << bx.max << std::endl;
         return output;
     }
 
     template<typename T>
-    std::istream& operator>>(std::istream& input, vsg::t_box<T>& box)
+    std::istream& operator>>(std::istream& input, vsg::t_box<T>& bx)
     {
-        input >> box.min;
-        input >> box.max;
+        input >> bx.min;
+        input >> bx.max;
         return input;
     }
 
