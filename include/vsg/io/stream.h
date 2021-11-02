@@ -115,7 +115,7 @@ namespace vsg
     }
 
     template<typename T>
-    std::istream& operator<<(std::istream& input, vsg::t_mat4<T>& mat)
+    std::istream& operator>>(std::istream& input, vsg::t_mat4<T>& mat)
     {
         input >> mat(0, 0) >> mat(1, 0) >> mat(2, 0) >> mat(3, 0);
         input >> mat(0, 1) >> mat(1, 1) >> mat(2, 1) >> mat(3, 1);
