@@ -49,6 +49,7 @@ namespace vsg
         VkDeviceSize offset = 0;
         VkDeviceSize range = 0;
         ref_ptr<Data> data;
+        ref_ptr<BufferInfo> parent;
 
     protected:
         virtual ~BufferInfo();

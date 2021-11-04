@@ -48,7 +48,11 @@ BufferInfo::~BufferInfo()
 
 void BufferInfo::release()
 {
-    if (buffer)
+    if (parent)
+    {
+        parent = {};
+    }
+    else if (buffer)
     {
         buffer->release(offset, range);
     }
@@ -195,6 +199,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
     {
         const Data* data = bufferInfo->data;
         std::memcpy(ptr + bufferInfo->offset - deviceBufferInfo->offset, data->dataPointer(), data->dataSize());
+        bufferInfo->parent = deviceBufferInfo;
     }
 
     stagingMemory->unmap();
