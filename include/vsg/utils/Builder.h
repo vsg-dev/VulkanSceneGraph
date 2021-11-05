@@ -27,7 +27,7 @@ namespace vsg
         bool lighting = true;
         bool doubleSided = false;
         bool blending = false;
-        bool greyscale = false; /// greyscale diffuseMap image
+        bool greyscale = false; /// greyscale image
         bool wireframe = false;
         bool instancce_colors_vec4 = true;
         bool instancce_positions_vec3 = false;
