@@ -85,7 +85,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Options);
 
-    /// convinience function that
+    /// convinience function that if a filename has a path, it duplicates the supplied Options object and prepends the path to the new Options::paths, otherwise returns the original Options object.
     extern VSG_DECLSPEC ref_ptr<const vsg::Options> prependPathToOptionsIfRequired(const vsg::Path filename, ref_ptr<const vsg::Options> options);
 
 } // namespace vsg
