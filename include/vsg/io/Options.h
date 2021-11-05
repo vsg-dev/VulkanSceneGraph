@@ -85,4 +85,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Options);
 
+    /// convinience function that
+    extern VSG_DECLSPEC ref_ptr<const vsg::Options> prependPathToOptionsIfRequired(const vsg::Path filename, ref_ptr<const vsg::Options> options);
+
 } // namespace vsg
