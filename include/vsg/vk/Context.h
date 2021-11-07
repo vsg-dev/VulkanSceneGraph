@@ -28,13 +28,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/ResourceRequirements.h>
 
 #include <vsg/commands/Command.h>
-//#include <vsg/commands/CopyAndReleaseBuffer.h>
-//#include <vsg/commands/CopyAndReleaseImage.h>
+#include <vsg/commands/CopyAndReleaseBuffer.h>
+#include <vsg/commands/CopyAndReleaseImage.h>
 
 namespace vsg
 {
-    class CopyAndReleaseBuffer;
-    class CopyAndReleaseImage;
 
     class VSG_DECLSPEC BuildAccelerationStructureCommand : public Inherit<Command, BuildAccelerationStructureCommand>
     {
