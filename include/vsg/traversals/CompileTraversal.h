@@ -32,33 +32,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_DECLSPEC CollectResourceRequirements : public Inherit<ConstVisitor, CollectResourceRequirements>
-    {
-    public:
-        CollectResourceRequirements() {}
-
-        ResourceRequirements requirements;
-
-        using ConstVisitor::apply;
-
-        bool checkForResourceHints(const Object& object);
-
-        void apply(const Object& object) override;
-        void apply(const ResourceHints& resourceHints) override;
-        void apply(const Node& node) override;
-        void apply(const StateGroup& stategroup) override;
-        void apply(const StateCommand& stateCommand) override;
-        void apply(const DescriptorSet& descriptorSet) override;
-        void apply(const Descriptor& descriptor) override;
-        void apply(const PagedLOD& plod) override;
-        void apply(const View& view) override;
-        void apply(const DepthSorted& depthSorted) override;
-        void apply(const Bin& bin) override;
-
-    protected:
-        uint32_t _numResourceHintsAbove = 0;
-    };
-
     class VSG_DECLSPEC CompileTraversal : public Inherit<Visitor, CompileTraversal>
     {
     public:

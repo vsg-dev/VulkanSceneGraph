@@ -24,7 +24,7 @@ namespace vsg
     class VSG_DECLSPEC MemoryBufferPools : public Inherit<Object, MemoryBufferPools>
     {
     public:
-        MemoryBufferPools(const std::string& name, ref_ptr<Device> in_device, const ResourceRequirements& in_resouceRequirements);
+        MemoryBufferPools(const std::string& name, ref_ptr<Device> in_device, const ResourceRequirements& in_resouceRequirements = {});
 
         std::string name;
         ref_ptr<Device> device;

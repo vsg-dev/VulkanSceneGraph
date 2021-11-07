@@ -60,4 +60,36 @@ namespace vsg
     };
     VSG_type_name(vsg::ResourceRequirements);
 
+    class VSG_DECLSPEC CollectResourceRequirements : public Inherit<ConstVisitor, CollectResourceRequirements>
+    {
+    public:
+        CollectResourceRequirements() {}
+
+        ResourceRequirements requirements;
+
+
+        /// create ResouceHints that capture the collected ResourceRequirements. Note, call after the CollectResourceRequirements traversal.
+        ref_ptr<ResourceHints> createResourceHints(uint32_t tileMultiplier=1) const;
+
+        using ConstVisitor::apply;
+
+        bool checkForResourceHints(const Object& object);
+
+        void apply(const Object& object) override;
+        void apply(const ResourceHints& resourceHints) override;
+        void apply(const Node& node) override;
+        void apply(const StateGroup& stategroup) override;
+        void apply(const StateCommand& stateCommand) override;
+        void apply(const DescriptorSet& descriptorSet) override;
+        void apply(const Descriptor& descriptor) override;
+        void apply(const PagedLOD& plod) override;
+        void apply(const View& view) override;
+        void apply(const DepthSorted& depthSorted) override;
+        void apply(const Bin& bin) override;
+
+    protected:
+        uint32_t _numResourceHintsAbove = 0;
+    };
+    VSG_type_name(vsg::CollectResourceRequirements);
+
 } // namespace vsg
