@@ -12,42 +12,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/Command.h>
-#include <vsg/state/BufferInfo.h>
-#include <vsg/state/Descriptor.h>
-#include <vsg/vk/vk_buffer.h>
+#include <vsg/ui/UIEvent.h>
 
 namespace vsg
 {
-    class VSG_DECLSPEC BindVertexBuffers : public Inherit<Command, BindVertexBuffers>
+
+    class VSG_DECLSPEC FrameStamp : public Inherit<Object, FrameStamp>
     {
     public:
-        BindVertexBuffers() {}
-        BindVertexBuffers(uint32_t in_firstBinding, const DataList& in_arrays);
+        FrameStamp() {}
 
-        uint32_t firstBinding = 0;
-        BufferInfoList arrays;
+        FrameStamp(time_point in_time, uint64_t in_frameCount) :
+            time(in_time),
+            frameCount(in_frameCount) {}
 
-        void assignArrays(const DataList& in_arrays);
+        time_point time = {};
+        uint64_t frameCount = 0;
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        void compile(Context& context) override;
-
-        void record(CommandBuffer& commandBuffer) const override;
-
-    protected:
-        virtual ~BindVertexBuffers();
-
-        struct VulkanData
-        {
-            std::vector<VkBuffer> vkBuffers;
-            std::vector<VkDeviceSize> offsets;
-        };
-
-        vk_buffer<VulkanData> _vulkanData;
     };
-    VSG_type_name(vsg::BindVertexBuffers);
+    VSG_type_name(vsg::FrameStamp);
 
 } // namespace vsg

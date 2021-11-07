@@ -191,6 +191,7 @@ set(SOURCES
     vk/Swapchain.cpp
     vk/ResourceRequirements.cpp
 
+    utils/AnimationPath.cpp
     utils/CommandLine.cpp
     utils/Builder.cpp
 )

@@ -19,6 +19,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    struct ReadError : public Inherit<Object, ReadError>
+    {
+        ReadError(const std::string& msg) :
+            message(msg) {}
+
+        std::string message;
+    };
+
+    struct WriteError : public Inherit<Object, WriteError>
+    {
+        WriteError(const std::string& msg) :
+            message(msg) {}
+
+        std::string message;
+    };
+
     class VSG_DECLSPEC ReaderWriter : public Inherit<Object, ReaderWriter>
     {
     public:

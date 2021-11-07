@@ -51,6 +51,7 @@ namespace vsg
 
         vk_buffer<VulkanData> _vulkanData;
     };
+    VSG_type_name(vsg::BufferView);
 
     using BufferViewList = std::vector<ref_ptr<BufferView>>;
 

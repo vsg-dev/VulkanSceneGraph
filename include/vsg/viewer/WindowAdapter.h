@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    /// Class from adpting 3rd party Windowing implementations to a form usable as a vsg::Window
+    /// Class from adapting 3rd party Windowing implementations to a form usable as a vsg::Window
     /// Note, the VulkanSceneGraph provides it's own cross platform Windowing support, WindowAdapter is only required when 3rd party windowing is used.
     class VSG_DECLSPEC WindowAdapter : public Inherit<Window, WindowAdapter>
     {
@@ -43,10 +43,9 @@ namespace vsg
         bool windowValid = false;
 
     protected:
-
         virtual ~WindowAdapter() {}
 
-        void _initSurface() override {};
+        void _initSurface() override{};
     };
     VSG_type_name(WindowAdapter);
 

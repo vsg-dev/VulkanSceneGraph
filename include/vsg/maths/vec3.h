@@ -23,9 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    pragma clang diagnostic ignored "-Wnested-anon-types"
 #endif
 
-#include <vsg/core/type_name.h>
-
-#include <cmath>
+#include <vsg/maths/vec2.h>
 
 namespace vsg
 {
@@ -59,6 +57,8 @@ namespace vsg
         constexpr t_vec3& operator=(const t_vec3&) = default;
         constexpr t_vec3(value_type in_x, value_type in_y, value_type in_z) :
             value{in_x, in_y, in_z} {}
+        constexpr t_vec3(const t_vec2<T>& v, value_type in_z) :
+            value{v.x, v.y, in_z} {}
 
         template<typename R>
         constexpr explicit t_vec3(const t_vec3<R>& v) :
@@ -109,6 +109,14 @@ namespace vsg
             value[0] *= rhs;
             value[1] *= rhs;
             value[2] *= rhs;
+            return *this;
+        }
+
+        inline t_vec3& operator*=(const t_vec3& rhs)
+        {
+            value[0] *= rhs.value[0];
+            value[1] *= rhs.value[1];
+            value[2] *= rhs.value[2];
             return *this;
         }
 
@@ -196,6 +204,12 @@ namespace vsg
     }
 
     template<typename T>
+    constexpr t_vec3<T> operator*(const t_vec3<T>& lhs, const t_vec3<T>& rhs)
+    {
+        return t_vec3<T>(lhs[0] * rhs[0], lhs[1] * rhs[1], lhs[2] * rhs[2]);
+    }
+
+    template<typename T>
     constexpr t_vec3<T> operator/(const t_vec3<T>& lhs, T rhs)
     {
         if constexpr (std::is_floating_point_v<T>)
@@ -249,6 +263,25 @@ namespace vsg
                          start[1] * one_minus_r + end[1] * r,
                          start[2] * one_minus_r + end[2] * r);
     }
+
+    template<typename T>
+    constexpr t_vec3<T> orthogonal(const t_vec3<T>& v)
+    {
+        // use the cross product against the axis which is the most orthogonal to the input vector.
+        auto abs_x = fabs(v.x);
+        auto abs_y = fabs(v.y);
+        auto abs_z = fabs(v.z);
+        if (abs_x < abs_y)
+        {
+            if (abs_x < abs_z) return {0.0, v.z, -v.y}; // v.x shortest, use cross with x axis
+        }
+        else if (abs_y < abs_z)
+        {
+            return {-v.z, 0.0, v.x}; // v.y shortest, use cross with y axis
+        }
+        return {v.y, -v.x, 0.0}; // v.z shortest, use cross with z axis
+    }
+
 
 } // namespace vsg
 

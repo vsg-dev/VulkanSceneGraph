@@ -34,7 +34,7 @@ namespace vsg
         uint32_t anyHitShader = VK_SHADER_UNUSED_KHR;
         uint32_t intersectionShader = VK_SHADER_UNUSED_KHR;
 
-        BufferInfo bufferInfo;
+        ref_ptr<BufferInfo> bufferInfo;
 
     protected:
         virtual ~RayTracingShaderGroup();

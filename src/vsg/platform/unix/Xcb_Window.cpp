@@ -355,7 +355,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
     int screenCount = xcb_setup_roots_length (setup);
     if (screenNum >= screenCount)
     {
-        std::cout<<"Warning: request screenNum ("<<screenNum<<") to high, only "<<screenCount<<" screens available  Selecting screen 0 as fallback."<<std::endl;
+        std::cout<<"Warning: request screenNum ("<<screenNum<<") too high, only "<<screenCount<<" screens available. Selecting screen 0 as fallback."<<std::endl;
         screenNum = 0;
     }
 
@@ -368,7 +368,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
 
     _screen = screen_iterator.data;
 
-    bool createtWindow = true;
+    bool createWindow = true;
 
     if (traits->nativeWindow.has_value())
     {
@@ -376,11 +376,11 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
         if (nativeWindow)
         {
             _window = nativeWindow;
-            createtWindow = false;
+            createWindow = false;
         }
     }
 
-    if (createtWindow)
+    if (createWindow)
     {
         uint8_t depth = XCB_COPY_FROM_PARENT;
         xcb_window_t parent = _screen->root;
@@ -403,7 +403,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
         // generate the window id
         _window = xcb_generate_id(_connection);
 
-        // ceate window
+        // create window
         if (fullscreen)
         {
             xcb_create_window(_connection, depth, _window, parent,
@@ -449,7 +449,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
             xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, wmState, XCB_ATOM_ATOM, 32, stateAtoms.size(), stateAtoms.data());
         }
 
-        // set whethert the window should have a border or not, and if so what resize/move/close functions to enable
+        // set whether the window should have a border or not, and if so what resize/move/close functions to enable
         AtomRequest motifHintAtom(_connection, "_MOTIF_WM_HINTS");
         MotifHints hints = (fullscreen || !_traits->decoration) ? MotifHints::borderless() : MotifHints::window();
         xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, motifHintAtom, motifHintAtom, 32, 5, &hints);
@@ -568,7 +568,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
         case(XCB_DESTROY_NOTIFY):
         {
             vsg::clock::time_point event_time = vsg::clock::now();
-            bufferedEvents.emplace_back(new vsg::TerminateEvent(event_time));
+            bufferedEvents.emplace_back(vsg::TerminateEvent::create(event_time));
             break;
         }
         case(XCB_UNMAP_NOTIFY):
@@ -622,7 +622,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
         {
             auto configure = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
 
-            // Xcb configure events can come with x,y == (0,0) or with values relative to the root, so explictly get the new geometry and substitude if required to avoid inconsistencis
+            // Xcb configure events can come with x,y == (0,0) or with values relative to the root, so explictly get the new geometry and substitute if required to avoid inconsistencies
             int32_t x = configure->x;
             int32_t y  = configure->y;
             uint32_t width = configure->width;
@@ -645,7 +645,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             if (!previousConfigureEventsIsEquvilant)
             {
                 vsg::clock::time_point event_time = vsg::clock::now();
-                bufferedEvents.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, x, y, configure->width, configure->height));
+                bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, x, y, configure->width, configure->height));
                 _extent2D.width = width;
                 _extent2D.height = height;
             }
@@ -657,7 +657,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             auto expose = reinterpret_cast<const xcb_expose_event_t*>(event);
 
             vsg::clock::time_point event_time = vsg::clock::now();
-            bufferedEvents.emplace_back(new vsg::ExposeWindowEvent(this, event_time, expose->x, expose->y, expose->width, expose->height));
+            bufferedEvents.emplace_back(vsg::ExposeWindowEvent::create(this, event_time, expose->x, expose->y, expose->width, expose->height));
 
             _extent2D.width = expose->width;
             _extent2D.height = expose->height;
@@ -670,7 +670,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             if (client_message->data.data32[0] == _wmDeleteWindow)
             {
                 vsg::clock::time_point event_time = vsg::clock::now();
-                bufferedEvents.emplace_back(new vsg::CloseWindowEvent(this, event_time));
+                bufferedEvents.emplace_back(vsg::CloseWindowEvent::create(this, event_time));
             }
             break;
         }
@@ -683,7 +683,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             vsg::KeySymbol keySymbolModified = _keyboard->getKeySymbol(key_press->detail, key_press->state);
             vsg::KeyModifier keyModifier = _keyboard->getKeyModifier(keySymbol, key_press->state, true);
 
-            bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, keySymbolModified, keyModifier, 0));
+            bufferedEvents.emplace_back(vsg::KeyPressEvent::create(this, event_time, keySymbol, keySymbolModified, keyModifier, 0));
 
             break;
         }
@@ -696,7 +696,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             vsg::KeySymbol keySymbolModified = _keyboard->getKeySymbol(key_release->detail, key_release->state);
             vsg::KeyModifier keyModifier = _keyboard->getKeyModifier(keySymbol, key_release->state, false);
 
-            bufferedEvents.emplace_back(new vsg::KeyReleaseEvent(this, event_time, keySymbol, keySymbolModified, keyModifier, 0));
+            bufferedEvents.emplace_back(vsg::KeyReleaseEvent::create(this, event_time, keySymbol, keySymbolModified, keyModifier, 0));
 
             break;
         }
@@ -711,21 +711,19 @@ bool Xcb_Window::pollEvents(UIEvents& events)
                 // X11/Xvb treat scroll wheel up/down as button 4 and 5 so handle these as such
                 if (button_press->detail==4)
                 {
-                    bufferedEvents.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0f, 1.0f, 0.0f)));
+                    bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, vsg::vec3(0.0f, 1.0f, 0.0f)));
                 }
                 else if (button_press->detail==5)
                 {
-                    bufferedEvents.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0f, -1.0f, 0.0f)));
+                    bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, vsg::vec3(0.0f, -1.0f, 0.0f)));
                 }
                 else
                 {
                     uint32_t pressedButtoMask = 1 << (7+button_press->detail);
                     uint32_t newButtonMask = uint32_t(button_press->state) | pressedButtoMask;
-                    bufferedEvents.emplace_back(new vsg::ButtonPressEvent(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(newButtonMask), button_press->detail));
+                    bufferedEvents.emplace_back(vsg::ButtonPressEvent::create(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(newButtonMask), button_press->detail));
                 }
             }
-
-            std::cout<<"button press mask = "<<vsg::ButtonMask(newButtonMask)<<", "<<button_press->detail)<<std::endl;
 
             break;
         }
@@ -739,7 +737,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
                 vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_release->time - _first_xcb_timestamp);
                 uint32_t releasedButtoMask = 1 << (7+button_release->detail);
                 uint32_t newButtonMask = uint32_t(button_release->state) & ~releasedButtoMask;
-                bufferedEvents.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(newButtonMask), button_release->detail));
+                bufferedEvents.emplace_back(vsg::ButtonReleaseEvent::create(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(newButtonMask), button_release->detail));
             }
 
             break;
@@ -750,14 +748,14 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             if (motion_notify->same_screen)
             {
                 vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(motion_notify->time - _first_xcb_timestamp);
-                bufferedEvents.emplace_back(new vsg::MoveEvent(this, event_time, motion_notify->event_x, motion_notify->event_y, vsg::ButtonMask(motion_notify->state)));
+                bufferedEvents.emplace_back(vsg::MoveEvent::create(this, event_time, motion_notify->event_x, motion_notify->event_y, vsg::ButtonMask(motion_notify->state)));
             }
 
             break;
         }
         default:
         {
-            std::cout << "event not handled, response_type = " << (int)response_type << std::endl;
+            std::cout << "event not handled, response_type = " << static_cast<int>(response_type) << std::endl;
             break;
         }
         }

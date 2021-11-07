@@ -42,6 +42,7 @@ namespace vsg
     class MaskGroup;
 
     // forward declare vulkan classes
+    class BufferInfo;
     class Command;
     class StateCommand;
     class CommandBuffer;
@@ -101,6 +102,9 @@ namespace vsg
     class ScrollWheelEvent;
     class TerminateEvent;
     class FrameEvent;
+
+    // forward declare util classes
+    class AnimationPath;
 
     // forward declare viewer classes
     class Camera;
@@ -241,6 +245,7 @@ namespace vsg
         virtual void apply(MaskGroup&);
 
         // Vulkan nodes
+        virtual void apply(BufferInfo&);
         virtual void apply(Command&);
         virtual void apply(StateCommand&);
         virtual void apply(CommandBuffer&);
@@ -300,6 +305,9 @@ namespace vsg
         virtual void apply(ScrollWheelEvent&);
         virtual void apply(TerminateEvent&);
         virtual void apply(FrameEvent&);
+
+        // utils
+        virtual void apply(AnimationPath&);
 
         // viewer
         virtual void apply(Camera&);

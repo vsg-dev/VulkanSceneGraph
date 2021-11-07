@@ -44,6 +44,8 @@ Options::Options(const Options& options) :
     formatCoordinateConventions(options.formatCoordinateConventions)
 {
     getOrCreateUniqueAuxiliary();
+    // copy any meta data.
+    if (options.getAuxiliary()) getAuxiliary()->getObjectMap() = options.getAuxiliary()->getObjectMap();
 }
 
 Options::~Options()
@@ -125,4 +127,15 @@ bool Options::readOptions(CommandLine& arguments)
     if (arguments.read("--file-cache", fileCache)) read = true;
 
     return read;
+}
+
+ref_ptr<const vsg::Options> vsg::prependPathToOptionsIfRequired(const vsg::Path filename, ref_ptr<const vsg::Options> options)
+{
+    auto path = filePath(filename);
+    if (path.empty()) return options;
+
+    auto duplicate = vsg::Options::create(*options);
+    duplicate->paths.insert(duplicate->paths.begin(), path);
+
+    return duplicate;
 }

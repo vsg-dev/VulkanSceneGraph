@@ -19,7 +19,7 @@ using namespace vsg;
 
 ref_ptr<ObjectFactory>& ObjectFactory::instance()
 {
-    // declare the ObjectFactory singleton as static to be initialized on first invocation of the instance() method.  Note, this currently assumes that initialization won't be mult-threaded.
+    // declare the ObjectFactory singleton as static to be initialized on first invocation of the instance() method.  Note, this currently assumes that initialization won't be multi-threaded.
     static ref_ptr<ObjectFactory> s_ObjectFactory(new ObjectFactory);
     return s_ObjectFactory;
 }
@@ -59,6 +59,12 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_new(vsg::materialValue);
     VSG_REGISTER_new(vsg::PhongMaterialValue);
     VSG_REGISTER_new(vsg::PbrMaterialValue);
+    VSG_REGISTER_new(vsg::sphereValue);
+    VSG_REGISTER_new(vsg::boxValue);
+    VSG_REGISTER_new(vsg::quatValue);
+    VSG_REGISTER_new(vsg::dsphereValue);
+    VSG_REGISTER_new(vsg::dboxValue);
+    VSG_REGISTER_new(vsg::dquatValue);
 
     // arrays
     VSG_REGISTER_new(vsg::byteArray);
@@ -257,6 +263,9 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::Options);
     VSG_REGISTER_create(vsg::CompositeReaderWriter);
     VSG_REGISTER_create(vsg::VSG);
+
+    // utils
+    VSG_REGISTER_create(vsg::AnimationPath);
 
     // application
     VSG_REGISTER_create(vsg::EllipsoidModel);

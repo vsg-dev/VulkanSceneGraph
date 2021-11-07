@@ -69,7 +69,7 @@ void ArrayState::apply(const vsg::BindVertexBuffers& bvb)
     apply(bvb.firstBinding, bvb.arrays);
 }
 
-void ArrayState::apply(uint32_t firstBinding, const vsg::DataList& in_arrays)
+void ArrayState::apply(uint32_t firstBinding, const DataList& in_arrays)
 {
     if (arrays.size() < (in_arrays.size() + firstBinding)) arrays.resize(in_arrays.size() + firstBinding);
     std::copy(in_arrays.begin(), in_arrays.end(), arrays.begin() + firstBinding);
@@ -79,6 +79,26 @@ void ArrayState::apply(uint32_t firstBinding, const vsg::DataList& in_arrays)
     {
         arrays[vertexAttribute.binding]->accept(*this);
     }
+}
+
+void ArrayState::apply(uint32_t firstBinding, const BufferInfoList& in_arrays)
+{
+    if (arrays.size() < (in_arrays.size() + firstBinding)) arrays.resize(in_arrays.size() + firstBinding);
+    for(size_t i = 0; i < in_arrays.size(); ++i)
+    {
+        arrays[firstBinding + i] = in_arrays[i]->data;
+    }
+
+    // if the required vertexAttribute is within the new arrays apply the appropriate array to set up the vertices array
+    if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()))
+    {
+        arrays[vertexAttribute.binding]->accept(*this);
+    }
+}
+
+void ArrayState::apply(const vsg::BufferInfo& bufferInfo)
+{
+    if (bufferInfo.data) bufferInfo.data->accept(*this);
 }
 
 void ArrayState::apply(const vsg::vec3Array& array)

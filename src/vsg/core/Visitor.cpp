@@ -486,6 +486,10 @@ void Visitor::apply(MaskGroup& value)
 //
 // Vulkan Object
 //
+void Visitor::apply(BufferInfo& value)
+{
+    apply(static_cast<Object&>(value));
+}
 void Visitor::apply(Command& value)
 {
     apply(static_cast<Node&>(value));
@@ -715,6 +719,15 @@ void Visitor::apply(TerminateEvent& event)
 void Visitor::apply(FrameEvent& event)
 {
     apply(static_cast<UIEvent&>(event));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// util classes
+//
+void Visitor::apply(AnimationPath& animationPath)
+{
+    apply(static_cast<Object&>(animationPath));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

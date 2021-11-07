@@ -48,8 +48,9 @@ namespace vsg
 
         void apply(uint32_t firstBinding, const DataList& arrays);
 
-        void apply(const vsg::ushortArray& array) override;
-        void apply(const vsg::uintArray& array) override;
+        void apply(const BufferInfo& bufferInfo) override;
+        void apply(const ushortArray& array) override;
+        void apply(const uintArray& array) override;
 
         //
         // provide virtual functions for concrete Intersector implementations to provide handling of intersection with mesh geometries

@@ -19,18 +19,37 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-DrawMeshTasksIndirectCount::DrawMeshTasksIndirectCount()
+DrawMeshTasksIndirectCount::DrawMeshTasksIndirectCount() :
+    drawParameters(BufferInfo::create()),
+    drawCount(BufferInfo::create())
 {
 }
 
+DrawMeshTasksIndirectCount::DrawMeshTasksIndirectCount(ref_ptr<Data> in_drawParametersData, ref_ptr<Data> in_drawCountData, uint32_t in_maxDrawCount, uint32_t in_stride) :
+    drawParameters(BufferInfo::create(in_drawParametersData)),
+    drawCount(BufferInfo::create(in_drawCountData)),
+    maxDrawCount(in_maxDrawCount),
+    stride(in_stride)
+{
+}
+
+
 void DrawMeshTasksIndirectCount::read(Input& input)
 {
-    input.readObject("buffer.data", buffer.data);
-    if (!buffer.data)
+    input.readObject("drawParameters.data", drawParameters->data);
+    if (!drawParameters->data)
     {
-        input.read("buffer.buffer", buffer.buffer);
-        input.readValue<uint32_t>("buffer.offset", buffer.offset);
-        input.readValue<uint32_t>("buffer.range", buffer.range);
+        input.read("drawParameters.buffer", drawParameters->buffer);
+        input.readValue<uint32_t>("drawParameters.offset", drawParameters->offset);
+        input.readValue<uint32_t>("drawParameters.range", drawParameters->range);
+    }
+
+    input.readObject("drawCount.data", drawCount->data);
+    if (!drawCount->data)
+    {
+        input.read("drawCount.buffer", drawCount->buffer);
+        input.readValue<uint32_t>("drawCount.offset", drawCount->offset);
+        input.readValue<uint32_t>("drawCount.range", drawCount->range);
     }
 
     input.read("maxDrawCount", maxDrawCount);
@@ -39,20 +58,20 @@ void DrawMeshTasksIndirectCount::read(Input& input)
 
 void DrawMeshTasksIndirectCount::write(Output& output) const
 {
-    output.writeObject("buffer.data", buffer.data);
-    if (!buffer.data)
+    output.writeObject("drawParameters.data", drawParameters->data);
+    if (!drawParameters->data)
     {
-        output.write("buffer,buffer", buffer.buffer);
-        output.writeValue<uint32_t>("buffer.offset", buffer.offset);
-        output.writeValue<uint32_t>("buffer.range", buffer.range);
+        output.write("drawParameters.buffer", drawParameters->buffer);
+        output.writeValue<uint32_t>("drawParameters.offset", drawParameters->offset);
+        output.writeValue<uint32_t>("drawParameters.range", drawParameters->range);
     }
 
-    output.writeObject("countBuffer.data", countBuffer.data);
-    if (!countBuffer.data)
+    output.writeObject("drawCount.data", drawCount->data);
+    if (!drawCount->data)
     {
-        output.write("countBuffer.buffer", countBuffer.buffer);
-        output.writeValue<uint32_t>("countBuffer.offset", countBuffer.offset);
-        output.writeValue<uint32_t>("countBuffer.range", countBuffer.range);
+        output.write("drawCount.buffer", drawCount->buffer);
+        output.writeValue<uint32_t>("drawCount.offset", drawCount->offset);
+        output.writeValue<uint32_t>("drawCount.range", drawCount->range);
     }
 
     output.write("maxDrawCount", maxDrawCount);
@@ -61,14 +80,9 @@ void DrawMeshTasksIndirectCount::write(Output& output) const
 
 void DrawMeshTasksIndirectCount::compile(Context& context)
 {
-    if ((!buffer.buffer && buffer.data) || (!countBuffer.buffer && countBuffer.data))
+    if ((!drawParameters->buffer && drawParameters->data) || (!drawCount->buffer && drawCount->data))
     {
-        auto bufferInfoList = vsg::createBufferAndTransferData(context, {buffer.data, countBuffer.data}, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-        if (bufferInfoList.size() == 2)
-        {
-            buffer = bufferInfoList[0];
-            countBuffer = bufferInfoList[1];
-        }
+        createBufferAndTransferData(context, {drawParameters, drawCount}, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     }
 }
 
@@ -76,5 +90,5 @@ void DrawMeshTasksIndirectCount::record(vsg::CommandBuffer& commandBuffer) const
 {
     Device* device = commandBuffer.getDevice();
     Extensions* extensions = Extensions::Get(device, true);
-    extensions->vkCmdDrawMeshTasksIndirectCountNV(commandBuffer, buffer.buffer->vk(commandBuffer.deviceID), buffer.offset, countBuffer.buffer->vk(commandBuffer.deviceID), countBuffer.offset, maxDrawCount, stride);
+    extensions->vkCmdDrawMeshTasksIndirectCountNV(commandBuffer, drawParameters->buffer->vk(commandBuffer.deviceID), drawParameters->offset, drawCount->buffer->vk(commandBuffer.deviceID), drawCount->offset, maxDrawCount, stride);
 }

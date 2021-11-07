@@ -25,12 +25,12 @@ namespace vsg
     public:
         CopyAndReleaseBuffer(ref_ptr<MemoryBufferPools> optional_stagingMemoryBufferPools = {});
 
-        void add(BufferInfo src, BufferInfo dest);
+        void add(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest);
 
         /// MemoryBufferPools used for allocation staging buffer used by the copy(ref_ptr<Data>, BufferInfo) method.  Users should assign a MemoryBufferPools with appropriate settings.
         ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;
 
-        void copy(ref_ptr<Data> data, BufferInfo dest);
+        void copy(ref_ptr<Data> data, ref_ptr<BufferInfo> dest);
 
         void record(CommandBuffer& commandBuffer) const override;
 
@@ -39,8 +39,8 @@ namespace vsg
 
         struct CopyData
         {
-            BufferInfo source;
-            BufferInfo destination;
+            ref_ptr<BufferInfo> source;
+            ref_ptr<BufferInfo> destination;
 
             void record(CommandBuffer& commandBuffer) const;
         };

@@ -30,6 +30,16 @@ AccelerationGeometry::AccelerationGeometry(Allocator* allocator) :
     _geometry.geometry.triangles.vertexData.deviceAddress = VkDeviceAddress{0};
 }
 
+void AccelerationGeometry::assignVertices(ref_ptr<vsg::Data> in_vertices)
+{
+    verts = in_vertices;
+}
+
+void AccelerationGeometry::assignIndices(ref_ptr<vsg::Data> in_indices)
+{
+    indices = in_indices;
+}
+
 void AccelerationGeometry::compile(Context& context)
 {
     if (!verts) return;                                                                      // no data set
@@ -63,9 +73,9 @@ void AccelerationGeometry::compile(Context& context)
     VkDeviceOrHostAddressConstKHR indexDataDeviceAddress{};
     VkBufferDeviceAddressInfoKHR bufferDeviceAI{};
     bufferDeviceAI.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
-    bufferDeviceAI.buffer = _vertexBuffer.buffer->vk(context.deviceID);
+    bufferDeviceAI.buffer = _vertexBuffer->buffer->vk(context.deviceID);
     vertexDataDeviceAddress.deviceAddress = extensions->vkGetBufferDeviceAddressKHR(*context.device, &bufferDeviceAI);
-    bufferDeviceAI.buffer = _indexBuffer.buffer->vk(context.deviceID);
+    bufferDeviceAI.buffer = _indexBuffer->buffer->vk(context.deviceID);
     indexDataDeviceAddress.deviceAddress = extensions->vkGetBufferDeviceAddressKHR(*context.device, &bufferDeviceAI);
 
     _geometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;

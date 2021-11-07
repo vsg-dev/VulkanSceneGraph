@@ -330,7 +330,7 @@ DeviceMemory::DeviceMemory(Device* device, const VkMemoryRequirements& memRequir
 
     if (VkResult result = vkAllocateMemory(*device, &allocateInfo, _device->getAllocationCallbacks(), &_deviceMemory); result != VK_SUCCESS)
     {
-        throw Exception{"Error: Failed to create DeviceMemory.", result};
+        throw Exception{"Error: Failed to allocate DeviceMemory.", result};
     }
 }
 

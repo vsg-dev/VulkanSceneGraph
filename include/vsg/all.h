@@ -143,6 +143,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 // User Interface abstraction header files
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/CollectEvents.h>
+#include <vsg/ui/FrameStamp.h>
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PlayEvents.h>
 #include <vsg/ui/PointerEvent.h>
@@ -220,6 +221,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/write.h>
 
 // Utility header files
+#include <vsg/utils/AnimationPath.h>
 #include <vsg/utils/Builder.h>
 #include <vsg/utils/CommandLine.h>
 

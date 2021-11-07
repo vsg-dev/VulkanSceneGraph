@@ -68,6 +68,10 @@ namespace vsg
 
         bool operator==(stride_iterator rhs) const { return ptr == rhs.ptr; }
         bool operator!=(stride_iterator rhs) const { return ptr != rhs.ptr; }
+        bool operator<(stride_iterator rhs) const { return ptr < rhs.ptr; }
+        bool operator<=(stride_iterator rhs) const { return ptr <= rhs.ptr; }
+        bool operator>(stride_iterator rhs) const { return ptr > rhs.ptr; }
+        bool operator>=(stride_iterator rhs) const { return ptr >= rhs.ptr; }
 
         value_type& operator*() { return *reinterpret_cast<value_type*>(ptr); }
         value_type* operator->() { return reinterpret_cast<value_type*>(ptr); }
@@ -107,12 +111,6 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        /// Deprecated. TODO : need to remove
-        void setFormat(VkFormat format) { _layout.format = format; }
-
-        /// Deprecated. TODO : : need to remove
-        VkFormat getFormat() const { return _layout.format; }
 
         /** Set Layout */
         void setLayout(Layout layout)
