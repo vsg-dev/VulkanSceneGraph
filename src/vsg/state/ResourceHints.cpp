@@ -46,7 +46,7 @@ void ResourceHints::read(Input& input)
         input.read("count", count);
     }
 
-    if (input.version_greater_equal(0, 1, 8))
+    if (input.version_greater_equal(0, 1, 11))
     {
         input.readValue<uint64_t>("minimumBufferSize", minimumBufferSize);
         input.readValue<uint64_t>("minimumBufferDeviceMemorySize", minimumBufferDeviceMemorySize);
@@ -76,7 +76,7 @@ void ResourceHints::write(Output& output) const
         output.write("count", count);
     }
 
-    if (output.version_greater_equal(0, 1, 8))
+    if (output.version_greater_equal(0, 1, 11))
     {
         output.writeValue<uint64_t>("minimumBufferSize", minimumBufferSize);
         output.writeValue<uint64_t>("minimumBufferDeviceMemorySize", minimumBufferDeviceMemorySize);
