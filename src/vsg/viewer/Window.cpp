@@ -78,7 +78,7 @@ void Window::setInstance(ref_ptr<Instance> instance)
     _instance = instance;
 }
 
-Instance* Window::getOrCreateInstance()
+ref_ptr<Instance> Window::getOrCreateInstance()
 {
     if (!_instance) _initInstance();
     return _instance;
@@ -89,7 +89,7 @@ void Window::setSurface(ref_ptr<Surface> surface)
     _surface = surface;
 }
 
-Surface* Window::getOrCreateSurface()
+ref_ptr<Surface> Window::getOrCreateSurface()
 {
     if (!_surface) _initSurface();
     return _surface;
@@ -100,7 +100,7 @@ void Window::setPhysicalDevice(ref_ptr<PhysicalDevice> physicalDevice)
     _physicalDevice = physicalDevice;
 }
 
-PhysicalDevice* Window::getOrCreatePhysicalDevice()
+ref_ptr<PhysicalDevice> Window::getOrCreatePhysicalDevice()
 {
     if (!_physicalDevice) _initDevice();
     return _physicalDevice;
@@ -116,7 +116,7 @@ void Window::setDevice(ref_ptr<Device> device)
     }
 }
 
-Device* Window::getOrCreateDevice()
+ref_ptr<Device> Window::getOrCreateDevice()
 {
     if (!_device) _initDevice();
     return _device;
@@ -127,25 +127,25 @@ void Window::setRenderPass(ref_ptr<RenderPass> renderPass)
     _renderPass = renderPass;
 }
 
-RenderPass* Window::getOrCreateRenderPass()
+ref_ptr<RenderPass> Window::getOrCreateRenderPass()
 {
     if (!_renderPass) _initRenderPass();
     return _renderPass;
 }
 
-Swapchain* Window::getOrCreateSwapchain()
+ref_ptr<Swapchain> Window::getOrCreateSwapchain()
 {
     if (!_swapchain) _initSwapchain();
     return _swapchain;
 }
 
-Image* Window::getOrCreateDepthImage()
+ref_ptr<Image> Window::getOrCreateDepthImage()
 {
     if (!_depthImage) _initSwapchain();
     return _depthImage;
 }
 
-ImageView* Window::getOrCreateDepthImageView()
+ref_ptr<ImageView> Window::getOrCreateDepthImageView()
 {
     if (!_depthImageView) _initSwapchain();
     return _depthImageView;
