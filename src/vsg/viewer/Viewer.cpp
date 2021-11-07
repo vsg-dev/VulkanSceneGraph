@@ -199,7 +199,7 @@ void Viewer::handleEvents()
     }
 }
 
-void Viewer::compile(BufferPreferences bufferPreferences)
+void Viewer::compile(ref_ptr<ResourceHints> hints)
 {
     if (recordAndSubmitTasks.empty())
     {
@@ -211,41 +211,45 @@ void Viewer::compile(BufferPreferences bufferPreferences)
 
     struct DeviceResources
     {
-        vsg::CollectDescriptorStats collectStats;
+        CollectResourceRequirements collectResources;
         vsg::ref_ptr<vsg::CompileTraversal> compile;
     };
 
     // find which devices are available and the resources required for then,
-    using DeviceResourceMap = std::map<vsg::Device*, DeviceResources>;
+    using DeviceResourceMap = std::map<ref_ptr<vsg::Device>, DeviceResources>;
     DeviceResourceMap deviceResourceMap;
     for (auto& task : recordAndSubmitTasks)
     {
         for (auto& commandGraph : task->commandGraphs)
         {
             auto& deviceResources = deviceResourceMap[commandGraph->device];
-            commandGraph->accept(deviceResources.collectStats);
+            commandGraph->accept(deviceResources.collectResources);
         }
 
         if (task->databasePager && !databasePager) databasePager = task->databasePager;
     }
 
     // allocate DescriptorPool for each Device
-    CollectDescriptorStats::Views views;
+    ResourceRequirements::Views views;
     for (auto& [device, deviceResource] : deviceResourceMap)
     {
-        views.insert(deviceResource.collectStats.views.begin(), deviceResource.collectStats.views.end());
+        auto& collectResources = deviceResource.collectResources;
+        auto& resourceRequirements = collectResources.requirements;
 
-        if (deviceResource.collectStats.containsPagedLOD) containsPagedLOD = true;
+        if (hints) hints->accept(collectResources);
+
+        views.insert(resourceRequirements.views.begin(), resourceRequirements.views.end());
+
+        if (resourceRequirements.containsPagedLOD) containsPagedLOD = true;
 
         auto physicalDevice = device->getPhysicalDevice();
 
-        auto& collectStats = deviceResource.collectStats;
-        auto maxSets = collectStats.computeNumDescriptorSets();
-        auto descriptorPoolSizes = collectStats.computeDescriptorPoolSizes();
+        auto maxSets = resourceRequirements.computeNumDescriptorSets();
+        auto descriptorPoolSizes = resourceRequirements.computeDescriptorPoolSizes();
 
         auto queueFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT); // TODO : could we just use transfer bit?
 
-        deviceResource.compile = new vsg::CompileTraversal(device, bufferPreferences);
+        deviceResource.compile = new vsg::CompileTraversal(device, resourceRequirements);
         deviceResource.compile->overrideMask = 0xffffffff;
         deviceResource.compile->context.commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
         deviceResource.compile->context.graphicsQueue = device->getQueue(queueFamily);
@@ -291,10 +295,11 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             if (commandGraph->device) devices.insert(commandGraph->device);
 
             auto& deviceResource = deviceResourceMap[commandGraph->device];
-            commandGraph->maxSlot = deviceResource.collectStats.maxSlot;
+            auto& resourceRequirements = deviceResource.collectResources.requirements;
+            commandGraph->maxSlot = resourceRequirements.maxSlot;
             commandGraph->accept(*deviceResource.compile);
 
-            if (deviceResource.collectStats.containsPagedLOD) task_containsPagedLOD = true;
+            if (resourceRequirements.containsPagedLOD) task_containsPagedLOD = true;
         }
 
         if (task_containsPagedLOD)

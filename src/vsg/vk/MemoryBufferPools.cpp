@@ -23,10 +23,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-MemoryBufferPools::MemoryBufferPools(const std::string& in_name, Device* in_device, BufferPreferences preferences) :
+MemoryBufferPools::MemoryBufferPools(const std::string& in_name, ref_ptr<Device> in_device, const ResourceRequirements& in_resourceRequirements) :
     name(in_name),
     device(in_device),
-    bufferPreferences(preferences)
+    resourceRequirements(in_resourceRequirements)
 {
 }
 
@@ -98,7 +98,7 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
 
     VkDeviceSize deviceSize = totalSize;
 
-    VkDeviceSize minumumBufferSize = bufferPreferences.minimumBufferSize;
+    VkDeviceSize minumumBufferSize = resourceRequirements.minimumBufferSize;
     if (deviceSize < minumumBufferSize)
     {
         deviceSize = minumumBufferSize;
@@ -141,7 +141,7 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
 
     if (!deviceMemory)
     {
-        VkDeviceSize minumumDeviceMemorySize = bufferPreferences.minimumBufferDeviceMemorySize;
+        VkDeviceSize minumumDeviceMemorySize = resourceRequirements.minimumBufferDeviceMemorySize;
 
         // clamp to an aligned size
         minumumDeviceMemorySize = ((minumumDeviceMemorySize + memRequirements.alignment - 1) / memRequirements.alignment) * memRequirements.alignment;
@@ -200,7 +200,7 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
 
     if (!deviceMemory)
     {
-        VkDeviceSize minumumDeviceMemorySize = bufferPreferences.minimumImageDeviceMemorySize;
+        VkDeviceSize minumumDeviceMemorySize = resourceRequirements.minimumImageDeviceMemorySize;
 
         // clamp to an aligned size
         minumumDeviceMemorySize = ((minumumDeviceMemorySize + memRequirements.alignment - 1) / memRequirements.alignment) * memRequirements.alignment;

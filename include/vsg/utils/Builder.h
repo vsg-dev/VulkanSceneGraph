@@ -85,7 +85,7 @@ namespace vsg
         ref_ptr<Options> options;
 
         /// set up the compile traversal to compile for specified window
-        void setup(ref_ptr<Window> window, ViewportState* viewport, uint32_t maxNumTextures = 32);
+        void setup(ref_ptr<Window> window, ref_ptr<ViewportState> viewport, uint32_t maxNumTextures = 32);
 
         void compile(ref_ptr<Node> subgraph);
 

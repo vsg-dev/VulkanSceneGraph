@@ -11,6 +11,8 @@
 #include <vsg/state/MultisampleState.h>
 #include <vsg/state/RasterizationState.h>
 #include <vsg/state/VertexInputState.h>
+#include <vsg/state/DescriptorImage.h>
+#include <vsg/state/ViewportState.h>
 #include <vsg/state/material.h>
 #include <vsg/utils/Builder.h>
 
@@ -25,7 +27,7 @@ using namespace vsg;
 
 #define FLOAT_COLORS 1
 
-void Builder::setup(ref_ptr<Window> window, ViewportState* viewport, uint32_t maxNumTextures)
+void Builder::setup(ref_ptr<Window> window, ref_ptr<ViewportState> viewport, uint32_t maxNumTextures)
 {
     auto device = window->getOrCreateDevice();
 
