@@ -33,7 +33,6 @@ DrawMeshTasksIndirectCount::DrawMeshTasksIndirectCount(ref_ptr<Data> in_drawPara
 {
 }
 
-
 void DrawMeshTasksIndirectCount::read(Input& input)
 {
     input.readObject("drawParameters.data", drawParameters->data);

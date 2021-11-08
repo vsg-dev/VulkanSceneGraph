@@ -56,7 +56,8 @@ namespace vsg
 
         VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
         VkDeviceSize minimumBufferDeviceMemorySize = 16 * 1024 * 1024;
-        VkDeviceSize minimumImageDeviceMemorySize = 16 * 1024 * 1024;;
+        VkDeviceSize minimumImageDeviceMemorySize = 16 * 1024 * 1024;
+        ;
     };
     VSG_type_name(vsg::ResourceRequirements);
 
@@ -67,9 +68,8 @@ namespace vsg
 
         ResourceRequirements requirements;
 
-
         /// create ResouceHints that capture the collected ResourceRequirements. Note, call after the CollectResourceRequirements traversal.
-        ref_ptr<ResourceHints> createResourceHints(uint32_t tileMultiplier=1) const;
+        ref_ptr<ResourceHints> createResourceHints(uint32_t tileMultiplier = 1) const;
 
         using ConstVisitor::apply;
 

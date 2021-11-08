@@ -50,7 +50,7 @@ void ResourceHints::read(Input& input)
     {
         input.readValue<uint64_t>("minimumBufferSize", minimumBufferSize);
         input.readValue<uint64_t>("minimumBufferDeviceMemorySize", minimumBufferDeviceMemorySize);
-        input.readValue<uint64_t>("minimumImageDeviceMemorySize",  minimumImageDeviceMemorySize);
+        input.readValue<uint64_t>("minimumImageDeviceMemorySize", minimumImageDeviceMemorySize);
     }
 }
 
@@ -80,6 +80,6 @@ void ResourceHints::write(Output& output) const
     {
         output.writeValue<uint64_t>("minimumBufferSize", minimumBufferSize);
         output.writeValue<uint64_t>("minimumBufferDeviceMemorySize", minimumBufferDeviceMemorySize);
-        output.writeValue<uint64_t>("minimumImageDeviceMemorySize",  minimumImageDeviceMemorySize);
+        output.writeValue<uint64_t>("minimumImageDeviceMemorySize", minimumImageDeviceMemorySize);
     }
 }

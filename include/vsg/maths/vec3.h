@@ -282,7 +282,6 @@ namespace vsg
         return {v.y, -v.x, 0.0}; // v.z shortest, use cross with z axis
     }
 
-
 } // namespace vsg
 
 #if defined(__clang__)

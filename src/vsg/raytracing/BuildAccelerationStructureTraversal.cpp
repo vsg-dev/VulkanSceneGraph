@@ -51,7 +51,7 @@ void BuildAccelerationStructureTraversal::apply(vsg::Geometry& geometry)
         accelGeom->verts = geometry.arrays[0];
         accelGeom->indices = geometry.indices;
 #else
-    throw "BuildAccelerationStructureTraversal::compile() not implemented";
+        throw "BuildAccelerationStructureTraversal::compile() not implemented";
 #endif
         blas->geometries.push_back(accelGeom);
     }

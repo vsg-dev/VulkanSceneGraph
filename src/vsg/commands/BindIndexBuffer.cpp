@@ -90,7 +90,7 @@ void BindIndexBuffer::compile(Context& context)
 
     if (createBufferAndTransferData(context, {indices}, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE))
 
-    indexType = computeIndexType(indices->data);
+        indexType = computeIndexType(indices->data);
 }
 
 void BindIndexBuffer::record(CommandBuffer& commandBuffer) const

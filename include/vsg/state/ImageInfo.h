@@ -56,7 +56,6 @@ namespace vsg
 
     protected:
         virtual ~ImageInfo();
-
     };
     VSG_type_name(vsg::ImageInfo);
 

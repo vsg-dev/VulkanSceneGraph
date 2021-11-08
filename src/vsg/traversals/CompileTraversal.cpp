@@ -34,7 +34,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-
 CompileTraversal::CompileTraversal(ref_ptr<Device> in_device, const ResourceRequirements& resourceRequirements) :
     context(in_device, resourceRequirements)
 {

@@ -134,7 +134,6 @@ ref_ptr<BufferInfo> vsg::copyDataToStagingBuffer(Context& context, const Data* d
     return stagingBufferInfo;
 }
 
-
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // vsg::createBufferAndTransferData

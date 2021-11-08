@@ -22,12 +22,16 @@ DrawIndexedIndirect::DrawIndexedIndirect()
 DrawIndexedIndirect::DrawIndexedIndirect(ref_ptr<Data> data, uint32_t in_drawCount, uint32_t in_stride) :
     bufferInfo(BufferInfo::create(data)),
     drawCount(in_drawCount),
-    stride(in_stride) {}
+    stride(in_stride)
+{
+}
 
 DrawIndexedIndirect::DrawIndexedIndirect(ref_ptr<Buffer> in_buffer, VkDeviceSize in_offset, uint32_t in_drawCount, uint32_t in_stride) :
     bufferInfo(BufferInfo::create(in_buffer, in_offset, in_drawCount * in_stride)),
     drawCount(in_drawCount),
-    stride(in_stride) {}
+    stride(in_stride)
+{
+}
 
 void DrawIndexedIndirect::read(Input& input)
 {

@@ -37,7 +37,7 @@ void VertexIndexDraw::assignArrays(const DataList& arrayData)
 {
     arrays.clear();
     arrays.reserve(arrayData.size());
-    for(auto& data : arrayData)
+    for (auto& data : arrayData)
     {
         arrays.push_back(BufferInfo::create(data));
     }
@@ -89,8 +89,10 @@ void VertexIndexDraw::write(Output& output) const
         output.writeObject("Array", array->data.get());
     }
 
-    if (indices) output.writeObject("Indices", indices->data.get());
-    else output.writeObject("Indices", ref_ptr<vsg::Data>());
+    if (indices)
+        output.writeObject("Indices", indices->data.get());
+    else
+        output.writeObject("Indices", ref_ptr<vsg::Data>());
 
     // vkCmdDrawIndexed settings
     output.write("indexCount", indexCount);

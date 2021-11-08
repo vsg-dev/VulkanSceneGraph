@@ -31,7 +31,7 @@ void BindVertexBuffers::assignArrays(const DataList& arrayData)
 {
     arrays.clear();
     arrays.reserve(arrayData.size());
-    for(auto& data : arrayData)
+    for (auto& data : arrayData)
     {
         arrays.push_back(BufferInfo::create(data));
     }

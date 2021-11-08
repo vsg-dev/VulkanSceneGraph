@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/CompileTraversal.h>
 
 #include <vsg/commands/Commands.h>
-#include <vsg/commands/CopyAndReleaseImage.h>
 #include <vsg/commands/CopyAndReleaseBuffer.h>
+#include <vsg/commands/CopyAndReleaseImage.h>
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/io/Options.h>
 #include <vsg/nodes/Geometry.h>

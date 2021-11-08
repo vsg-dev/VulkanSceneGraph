@@ -15,14 +15,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Data.h>
 #include <vsg/core/type_name.h>
 
+#include <vsg/maths/box.h>
 #include <vsg/maths/mat3.h>
 #include <vsg/maths/mat4.h>
+#include <vsg/maths/quat.h>
+#include <vsg/maths/sphere.h>
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
-#include <vsg/maths/quat.h>
-#include <vsg/maths/sphere.h>
-#include <vsg/maths/box.h>
 
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
