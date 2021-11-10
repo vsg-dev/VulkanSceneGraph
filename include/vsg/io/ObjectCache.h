@@ -47,11 +47,14 @@ namespace vsg
         /// remove entry matching object.
         virtual void remove(ref_ptr<Object> object);
 
-        // set of lower case file extensions for file types that should not be included in this ObjectCache
+        /// set of lower case file extensions for file types that should not be included in this ObjectCache
         std::set<Path> excludedExtensions;
 
         /// return true if the specified filename is of a type suitable for inclusion in the ObjectCache
         virtual bool suitable(const Path& filename) const;
+
+        /// enable/disable use of matching both filename and options object.
+        bool requireMatchedOptions = false;
 
         struct ObjectTimepoint
         {
@@ -61,11 +64,7 @@ namespace vsg
             clock::time_point lastUsedTimepoint;
         };
 
-        inline ObjectTimepoint& getObjectTimepoint(const Path& filename, ref_ptr<const Options> options = {})
-        {
-            std::scoped_lock<std::mutex> guard(_mutex);
-            return _objectCacheMap[Key(filename, options)];
-        }
+        virtual ObjectTimepoint& getObjectTimepoint(const Path& filename, ref_ptr<const Options> options = {});
 
     protected:
         struct Key
