@@ -17,8 +17,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/threading/OperationThreads.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
@@ -59,7 +57,6 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
         std::scoped_lock<std::mutex> guard(ot.mutex);
         if (ot.object)
         {
-            std::cout<<"Using ObjectCache "<<filename<<" "<<ot.object<<std::endl;
             return ot.object;
         }
 
