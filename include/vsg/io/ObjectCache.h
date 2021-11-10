@@ -27,25 +27,31 @@ namespace vsg
         double getDefaultUnusedDuration() const { return _defaultUnusedDuration; }
 
         /// remove any objects that no longer have an external references from cache.that are haven't been referenced within their expiry time
-        void removeExpiredUnusedObjects();
+        virtual void removeExpiredUnusedObjects();
 
         /// remove all objects from cache
-        void clear();
+        virtual void clear();
 
         /// check if a cache entry contains an entry for specified filename.
-        bool contains(const Path& filename, ref_ptr<const Options> options = {});
+        virtual bool contains(const Path& filename, ref_ptr<const Options> options = {});
 
         /// get entry from ObjectCache that matches filename and option. return null when no object matches.
-        ref_ptr<Object> get(const Path& filename, ref_ptr<const Options> options = {});
+        virtual ref_ptr<Object> get(const Path& filename, ref_ptr<const Options> options = {});
 
         /// add entry from ObjectCache that matches filename and option.
-        void add(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options = {});
+        virtual void add(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options = {});
 
         /// remove entry matching filename and option.
-        void remove(const Path& filename, ref_ptr<const Options> options = {});
+        virtual void remove(const Path& filename, ref_ptr<const Options> options = {});
 
         /// remove entry matching object.
-        void remove(ref_ptr<Object> object);
+        virtual void remove(ref_ptr<Object> object);
+
+        // set of lower case file extensions for file types that should not be included in this ObjectCache
+        std::set<Path> excludedExtensions;
+
+        /// return true if the specified filename is of a type suitable for inclusion in the ObjectCache
+        virtual bool suitable(const Path& filename) const;
 
         struct ObjectTimepoint
         {

@@ -50,7 +50,7 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
         }
     };
 
-    if (options && options->objectCache)
+    if (options && options->objectCache && options->objectCache->suitable(filename))
     {
         auto& ot = options->objectCache->getObjectTimepoint(filename, options);
 

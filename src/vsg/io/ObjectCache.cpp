@@ -101,3 +101,8 @@ void ObjectCache::remove(ref_ptr<Object> object)
         }
     }
 }
+
+bool ObjectCache::suitable(const Path& filename) const
+{
+    return excludedExtensions.count(vsg::lowerCaseFileExtension(filename))==0;
+}
