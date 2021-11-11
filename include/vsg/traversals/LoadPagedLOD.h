@@ -29,7 +29,6 @@ namespace vsg
         void apply(Node& node) override;
         void apply(CullNode& node) override;
         void apply(Transform& transform) override;
-        void apply(MatrixTransform& transform) override;
         void apply(LOD& lod) override;
         void apply(PagedLOD& plod) override;
 

@@ -88,21 +88,6 @@ void LoadPagedLOD::apply(Transform& transform)
     modelviewMatrixStack.pop();
 }
 
-void LoadPagedLOD::apply(MatrixTransform& transform)
-{
-    //std::cout<<"apply(MatrixTransform& transform) Need to do transform modelview matrix"<<std::endl;
-
-    modelviewMatrixStack.emplace(modelviewMatrixStack.top() * transform.matrix);
-
-    pushFrustum();
-
-    transform.traverse(*this);
-
-    _frustumStack.pop();
-
-    modelviewMatrixStack.pop();
-}
-
 void LoadPagedLOD::apply(LOD& lod)
 {
     auto bs = lod.bound;
