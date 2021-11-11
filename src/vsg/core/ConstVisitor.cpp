@@ -453,9 +453,13 @@ void ConstVisitor::apply(const CullNode& value)
 {
     apply(static_cast<const Node&>(value));
 }
-void ConstVisitor::apply(const MatrixTransform& value)
+void ConstVisitor::apply(const Transform& value)
 {
     apply(static_cast<const Group&>(value));
+}
+void ConstVisitor::apply(const MatrixTransform& value)
+{
+    apply(static_cast<const Transform&>(value));
 }
 void ConstVisitor::apply(const Geometry& value)
 {

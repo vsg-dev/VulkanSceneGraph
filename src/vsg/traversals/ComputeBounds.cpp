@@ -48,7 +48,19 @@ void ComputeBounds::apply(const StateGroup& stategroup)
     arrayStateStack.pop_back();
 }
 
-void ComputeBounds::apply(const vsg::MatrixTransform& transform)
+void ComputeBounds::apply(const Transform& transform)
+{
+    if (matrixStack.empty())
+        matrixStack.push_back(transform.transform(dmat4{}));
+    else
+        matrixStack.push_back(transform.transform(matrixStack.back()));
+
+    transform.traverse(*this);
+
+    matrixStack.pop_back();
+}
+
+void ComputeBounds::apply(const MatrixTransform& transform)
 {
     if (matrixStack.empty())
         matrixStack.push_back(transform.matrix);

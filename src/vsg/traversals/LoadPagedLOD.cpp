@@ -73,6 +73,21 @@ void LoadPagedLOD::apply(CullNode& node)
     node.traverse(*this);
 }
 
+void LoadPagedLOD::apply(Transform& transform)
+{
+    //std::cout<<"apply(Transform& transform) Need to do transform modelview matrix"<<std::endl;
+
+    modelviewMatrixStack.emplace(transform.transform(modelviewMatrixStack.top()));
+
+    pushFrustum();
+
+    transform.traverse(*this);
+
+    _frustumStack.pop();
+
+    modelviewMatrixStack.pop();
+}
+
 void LoadPagedLOD::apply(MatrixTransform& transform)
 {
     //std::cout<<"apply(MatrixTransform& transform) Need to do transform modelview matrix"<<std::endl;

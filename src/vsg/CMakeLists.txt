@@ -33,6 +33,7 @@ set(SOURCES
     nodes/LOD.cpp
     nodes/PagedLOD.cpp
     nodes/MatrixTransform.cpp
+    nodes/Transform.cpp
     nodes/VertexIndexDraw.cpp
     nodes/DepthSorted.cpp
     nodes/Bin.cpp

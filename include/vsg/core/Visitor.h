@@ -34,6 +34,7 @@ namespace vsg
     class CullGroup;
     class CullNode;
     class MatrixTransform;
+    class Transform;
     class Geometry;
     class VertexIndexDraw;
     class DepthSorted;
@@ -237,6 +238,7 @@ namespace vsg
         virtual void apply(CullGroup&);
         virtual void apply(CullNode&);
         virtual void apply(MatrixTransform&);
+        virtual void apply(Transform&);
         virtual void apply(Geometry&);
         virtual void apply(VertexIndexDraw&);
         virtual void apply(DepthSorted&);

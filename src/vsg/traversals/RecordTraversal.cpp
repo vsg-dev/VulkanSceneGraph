@@ -306,6 +306,32 @@ void RecordTraversal::apply(const StateGroup& stateGroup)
     _state->dirty = true;
 }
 
+void RecordTraversal::apply(const Transform& transform)
+{
+    if (transform.subgraphRequiresLocalFrustum)
+    {
+        _state->modelviewMatrixStack.push(transform);
+        _state->pushFrustum();
+        _state->dirty = true;
+
+        transform.traverse(*this);
+
+        _state->modelviewMatrixStack.pop();
+        _state->popFrustum();
+        _state->dirty = true;
+    }
+    else
+    {
+        _state->modelviewMatrixStack.push(transform);
+        _state->dirty = true;
+
+        transform.traverse(*this);
+
+        _state->modelviewMatrixStack.pop();
+        _state->dirty = true;
+    }
+}
+
 void RecordTraversal::apply(const MatrixTransform& mt)
 {
     if (mt.subgraphRequiresLocalFrustum)
