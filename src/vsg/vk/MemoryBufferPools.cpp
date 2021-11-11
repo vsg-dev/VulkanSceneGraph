@@ -128,7 +128,9 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
 
     for (auto& memoryFromPool : memoryPools)
     {
-        if (memoryFromPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits && memoryFromPool->maximumAvailableSpace() >= deviceSize)
+        if (memoryFromPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits &&
+            memoryFromPool->getMemoryRequirements().alignment == memRequirements.alignment &&
+            memoryFromPool->maximumAvailableSpace() >= deviceSize)
         {
             reservedMemorySlot = memoryFromPool->reserve(deviceSize);
             if (reservedMemorySlot.first)
@@ -187,7 +189,9 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
 
     for (auto& memoryPool : memoryPools)
     {
-        if (memoryPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits && memoryPool->maximumAvailableSpace() >= totalSize)
+        if (memoryPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits &&
+            memoryPool->getMemoryRequirements().alignment == memRequirements.alignment &&
+            memoryPool->maximumAvailableSpace() >= totalSize)
         {
             reservedSlot = memoryPool->reserve(totalSize);
             if (reservedSlot.first)
