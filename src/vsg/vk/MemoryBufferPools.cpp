@@ -131,7 +131,7 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
         if (memoryFromPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits &&
             memoryFromPool->getMemoryRequirements().alignment == memRequirements.alignment &&
             memoryFromPool->maximumAvailableSpace() >= deviceSize)
-       {
+        {
             reservedMemorySlot = memoryFromPool->reserve(deviceSize);
             if (reservedMemorySlot.first)
             {
