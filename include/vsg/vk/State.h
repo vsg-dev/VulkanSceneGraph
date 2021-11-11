@@ -14,10 +14,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/PushConstants.h>
 #include <vsg/maths/plane.h>
+#include <vsg/nodes/Transform.h>
 #include <vsg/state/ComputePipeline.h>
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/state/GraphicsPipeline.h>
-#include <vsg/nodes/Transform.h>
 #include <vsg/vk/CommandBuffer.h>
 
 #include <array>

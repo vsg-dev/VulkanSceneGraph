@@ -240,7 +240,7 @@ namespace vsg
         };
 
         ComputeTransform ct;
-        for(auto& node : nodePath)
+        for (auto& node : nodePath)
         {
             node->accept(ct);
         }
