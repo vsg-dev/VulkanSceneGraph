@@ -34,9 +34,9 @@ namespace vsg
         BuildAccelerationStructureTraversal(Device* in_device);
 
         void apply(Object& object);
-        void apply(MatrixTransform& mt);
-        void apply(vsg::Geometry& geometry);
-        void apply(vsg::VertexIndexDraw& vid);
+        void apply(Transform& transfom);
+        void apply(Geometry& geometry);
+        void apply(VertexIndexDraw& vid);
 
         // the top level acceleration structure we are creating and adding geometry instances to as we find and create them
         ref_ptr<TopLevelAccelerationStructure> tlas;

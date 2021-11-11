@@ -33,7 +33,7 @@ namespace vsg
         //
         void apply(const Node& node) override;
         void apply(const StateGroup& stategroup) override;
-        void apply(const MatrixTransform& transform) override;
+        void apply(const Transform& transform) override;
         void apply(const LOD& lod) override;
         void apply(const PagedLOD& plod) override;
         void apply(const CullNode& cn) override;
@@ -57,7 +57,7 @@ namespace vsg
         //
 
         /// clone and transform this Intersector to provide a new Intersector in local coordinates
-        virtual void pushTransform(const dmat4& m) = 0;
+        virtual void pushTransform(const Transform& transform) = 0;
 
         virtual void popTransform() = 0;
 

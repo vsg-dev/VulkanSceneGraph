@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/LOD.h>
-#include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/Transform.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
@@ -67,11 +67,11 @@ void Intersector::apply(const StateGroup& stategroup)
     arrayStateStack.pop_back();
 }
 
-void Intersector::apply(const MatrixTransform& transform)
+void Intersector::apply(const Transform& transform)
 {
     PushPopNode ppn(_nodePath, &transform);
 
-    pushTransform(transform.matrix);
+    pushTransform(transform);
 
     transform.traverse(*this);
 

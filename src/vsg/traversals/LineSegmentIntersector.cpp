@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/Options.h>
 #include <vsg/traversals/LineSegmentIntersector.h>
+#include <vsg/nodes/Transform.h>
 
 using namespace vsg;
 
@@ -175,9 +176,9 @@ void LineSegmentIntersector::add(const dvec3& intersection, double ratio, const 
     }
 }
 
-void LineSegmentIntersector::pushTransform(const dmat4& m)
+void LineSegmentIntersector::pushTransform(const Transform& transform)
 {
-    dmat4 localToWorld = _matrixStack.empty() ? m : (_matrixStack.back() * m);
+    dmat4 localToWorld = _matrixStack.empty() ? transform.transform(dmat4{}) : transform.transform(_matrixStack.back());
     dmat4 worldToLocal = inverse(localToWorld);
 
     _matrixStack.push_back(localToWorld);
