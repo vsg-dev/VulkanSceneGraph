@@ -27,7 +27,7 @@ namespace vsg
         bool lighting = true;
         bool doubleSided = false;
         bool blending = false;
-        bool greyscale = false; /// greyscale diffuseMap image
+        bool greyscale = false; /// greyscale image
         bool wireframe = false;
         bool instancce_colors_vec4 = true;
         bool instancce_positions_vec3 = false;
@@ -85,7 +85,7 @@ namespace vsg
         ref_ptr<Options> options;
 
         /// set up the compile traversal to compile for specified window
-        void setup(ref_ptr<Window> window, ViewportState* viewport, uint32_t maxNumTextures = 32);
+        void setup(ref_ptr<Window> window, ref_ptr<ViewportState> viewport, uint32_t maxNumTextures = 32);
 
         void compile(ref_ptr<Node> subgraph);
 

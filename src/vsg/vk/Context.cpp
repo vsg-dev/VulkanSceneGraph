@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/Commands.h>
 #include <vsg/commands/CopyAndReleaseBuffer.h>
+#include <vsg/commands/CopyAndReleaseImage.h>
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/io/Options.h>
 #include <vsg/nodes/Geometry.h>
@@ -86,11 +87,11 @@ void BuildAccelerationStructureCommand::setScratchBuffer(ref_ptr<Buffer>& scratc
 //
 // vsg::Context
 //
-Context::Context(Device* in_device, BufferPreferences bufferPreferences) :
+Context::Context(Device* in_device, const ResourceRequirements& resourceRequirements) :
     deviceID(in_device->deviceID),
     device(in_device),
-    deviceMemoryBufferPools(MemoryBufferPools::create("Device_MemoryBufferPool", device, bufferPreferences)),
-    stagingMemoryBufferPools(MemoryBufferPools::create("Staging_MemoryBufferPool", device, bufferPreferences)),
+    deviceMemoryBufferPools(MemoryBufferPools::create("Device_MemoryBufferPool", device, resourceRequirements)),
+    stagingMemoryBufferPools(MemoryBufferPools::create("Staging_MemoryBufferPool", device, resourceRequirements)),
     scratchBufferSize(0)
 {
     //semaphore = vsg::Semaphore::create(device);

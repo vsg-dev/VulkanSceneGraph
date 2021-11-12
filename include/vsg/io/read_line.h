@@ -15,7 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// read a line of space, tab or command deliminated ascii values into array of ascii values.
+    /// read a line of space, tab or command delimited ascii values into array of ascii values.
     template<typename T>
     uint32_t read_line(std::istream& sstr, T* values, uint32_t maxSize, bool read_to_end_line = true)
     {

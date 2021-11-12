@@ -27,16 +27,16 @@ void BuildAccelerationStructureTraversal::apply(Object& object)
     object.traverse(*this);
 }
 
-void BuildAccelerationStructureTraversal::apply(MatrixTransform& mt)
+void BuildAccelerationStructureTraversal::apply(Transform& transfom)
 {
-    _transformStack.pushAndPreMult(mt.matrix);
+    _transformStack.push(transfom);
 
-    mt.traverse(*this);
+    transfom.traverse(*this);
 
     _transformStack.pop();
 }
 
-void BuildAccelerationStructureTraversal::apply(vsg::Geometry& geometry)
+void BuildAccelerationStructureTraversal::apply(Geometry& geometry)
 {
     if (geometry.arrays.size() == 0) return;
 
@@ -51,7 +51,7 @@ void BuildAccelerationStructureTraversal::apply(vsg::Geometry& geometry)
         accelGeom->verts = geometry.arrays[0];
         accelGeom->indices = geometry.indices;
 #else
-    throw "BuildAccelerationStructureTraversal::compile() not implemented";
+        throw "BuildAccelerationStructureTraversal::compile() not implemented";
 #endif
         blas->geometries.push_back(accelGeom);
     }
@@ -60,7 +60,7 @@ void BuildAccelerationStructureTraversal::apply(vsg::Geometry& geometry)
     createGeometryInstance(blas);
 }
 
-void BuildAccelerationStructureTraversal::apply(vsg::VertexIndexDraw& vid)
+void BuildAccelerationStructureTraversal::apply(VertexIndexDraw& vid)
 {
     if (vid.arrays.size() == 0) return;
 

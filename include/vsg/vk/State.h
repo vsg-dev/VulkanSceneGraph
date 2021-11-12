@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/PushConstants.h>
 #include <vsg/maths/plane.h>
+#include <vsg/nodes/Transform.h>
 #include <vsg/state/ComputePipeline.h>
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/state/GraphicsPipeline.h>
@@ -120,6 +121,11 @@ namespace vsg
         inline void push(const dmat4& matrix)
         {
             matrixStack.emplace(matrix);
+            dirty = true;
+        }
+        inline void push(const Transform& transform)
+        {
+            matrixStack.emplace(transform.transform(matrixStack.top()));
             dirty = true;
         }
 

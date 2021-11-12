@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.7)
 
 project(vsg
-    VERSION 0.1.11
+    VERSION 0.1.13
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES CXX
 )
 set(VSG_SOVERSION 3)
 SET(VSG_RELEASE_CANDIDATE 0)
+set(Vulkan_MIN_VERSION 1.2.162)
 
 # create the version header
 set(VSG_MAX_DEVICES 1 CACHE STRING "Set maximum number of vk/vsg::Device that are supported.")
@@ -31,8 +32,7 @@ if (VULKAN_SDK)
     set(ENV{VULKAN_SDK} ${VULKAN_SDK})
 endif()
 
-find_package(Vulkan REQUIRED)
-vsg_check_min_vulkan_header_version(162)
+find_package(Vulkan ${Vulkan_MIN_VERSION} REQUIRED)
 
 find_package(Threads REQUIRED)
 
@@ -90,6 +90,7 @@ vsg_add_option_maintainer(
 )
 
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/vsgMacros.cmake" DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindVulkan.cmake" DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
 
 #
 # src directory contains all the source of the vsg library

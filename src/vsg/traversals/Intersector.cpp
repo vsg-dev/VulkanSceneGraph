@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/LOD.h>
-#include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/Transform.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
@@ -67,11 +67,11 @@ void Intersector::apply(const StateGroup& stategroup)
     arrayStateStack.pop_back();
 }
 
-void Intersector::apply(const MatrixTransform& transform)
+void Intersector::apply(const Transform& transform)
 {
     PushPopNode ppn(_nodePath, &transform);
 
-    pushTransform(transform.matrix);
+    pushTransform(transform);
 
     transform.traverse(*this);
 
@@ -183,13 +183,18 @@ void Intersector::apply(const BindIndexBuffer& bib)
     bib.indices->accept(*this);
 }
 
-void Intersector::apply(const vsg::ushortArray& array)
+void Intersector::apply(const BufferInfo& bufferInfo)
+{
+    if (bufferInfo.data) bufferInfo.data->accept(*this);
+}
+
+void Intersector::apply(const ushortArray& array)
 {
     ushort_indices = &array;
     uint_indices = nullptr;
 }
 
-void Intersector::apply(const vsg::uintArray& array)
+void Intersector::apply(const uintArray& array)
 {
     ushort_indices = nullptr;
     uint_indices = &array;

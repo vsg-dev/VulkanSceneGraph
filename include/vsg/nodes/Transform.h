@@ -12,43 +12,25 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/state/BufferInfo.h>
-#include <vsg/vk/MemoryBufferPools.h>
-
-#include <vsg/commands/Command.h>
+#include <vsg/nodes/Group.h>
 
 namespace vsg
 {
 
-    class VSG_DECLSPEC CopyAndReleaseBuffer : public Inherit<Command, CopyAndReleaseBuffer>
+    class VSG_DECLSPEC Transform : public Inherit<Group, Transform>
     {
     public:
-        CopyAndReleaseBuffer(ref_ptr<MemoryBufferPools> optional_stagingMemoryBufferPools = {});
+        Transform(Allocator* allocator = nullptr);
 
-        void add(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest);
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
-        /// MemoryBufferPools used for allocation staging buffer used by the copy(ref_ptr<Data>, BufferInfo) method.  Users should assign a MemoryBufferPools with appropriate settings.
-        ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;
+        virtual dmat4 transform(const dmat4& m) const = 0;
 
-        void copy(ref_ptr<Data> data, ref_ptr<BufferInfo> dest);
-
-        void record(CommandBuffer& commandBuffer) const override;
+        bool subgraphRequiresLocalFrustum;
 
     protected:
-        virtual ~CopyAndReleaseBuffer();
-
-        struct CopyData
-        {
-            ref_ptr<BufferInfo> source;
-            ref_ptr<BufferInfo> destination;
-
-            void record(CommandBuffer& commandBuffer) const;
-        };
-
-        mutable std::mutex _mutex;
-        mutable std::vector<CopyData> _pending;
-        mutable std::vector<CopyData> _completed;
-        mutable std::vector<CopyData> _readyToClear;
     };
+    VSG_type_name(vsg::Transform);
 
 } // namespace vsg

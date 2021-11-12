@@ -23,10 +23,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-MemoryBufferPools::MemoryBufferPools(const std::string& in_name, Device* in_device, BufferPreferences preferences) :
+MemoryBufferPools::MemoryBufferPools(const std::string& in_name, ref_ptr<Device> in_device, const ResourceRequirements& in_resourceRequirements) :
     name(in_name),
     device(in_device),
-    bufferPreferences(preferences)
+    resourceRequirements(in_resourceRequirements)
 {
 }
 
@@ -85,7 +85,7 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
                 bufferInfo->range = totalSize;
 
 #if REPORT_STATS
-                std::cout << name << " : MemoryBufferPools::reserveBuffer(" << totalSize << ", " << alignment << ", " << bufferUsageFlags << ") bufferInfo.buffer = "<<bufferInfo->buffer<<", offset = " << bufferInfo->offset << std::endl;
+                std::cout << name << " : MemoryBufferPools::reserveBuffer(" << totalSize << ", " << alignment << ", " << bufferUsageFlags << ") bufferInfo.buffer = " << bufferInfo->buffer << ", offset = " << bufferInfo->offset << std::endl;
 #endif
                 return bufferInfo;
             }
@@ -98,7 +98,7 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
 
     VkDeviceSize deviceSize = totalSize;
 
-    VkDeviceSize minumumBufferSize = bufferPreferences.minimumBufferSize;
+    VkDeviceSize minumumBufferSize = resourceRequirements.minimumBufferSize;
     if (deviceSize < minumumBufferSize)
     {
         deviceSize = minumumBufferSize;
@@ -128,7 +128,9 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
 
     for (auto& memoryFromPool : memoryPools)
     {
-        if (memoryFromPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits && memoryFromPool->maximumAvailableSpace() >= deviceSize)
+        if (memoryFromPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits &&
+            memoryFromPool->getMemoryRequirements().alignment == memRequirements.alignment &&
+            memoryFromPool->maximumAvailableSpace() >= deviceSize)
         {
             reservedMemorySlot = memoryFromPool->reserve(deviceSize);
             if (reservedMemorySlot.first)
@@ -141,7 +143,7 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
 
     if (!deviceMemory)
     {
-        VkDeviceSize minumumDeviceMemorySize = bufferPreferences.minimumBufferDeviceMemorySize;
+        VkDeviceSize minumumDeviceMemorySize = resourceRequirements.minimumBufferDeviceMemorySize;
 
         // clamp to an aligned size
         minumumDeviceMemorySize = ((minumumDeviceMemorySize + memRequirements.alignment - 1) / memRequirements.alignment) * memRequirements.alignment;
@@ -187,7 +189,9 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
 
     for (auto& memoryPool : memoryPools)
     {
-        if (memoryPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits && memoryPool->maximumAvailableSpace() >= totalSize)
+        if (memoryPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits &&
+            memoryPool->getMemoryRequirements().alignment == memRequirements.alignment &&
+            memoryPool->maximumAvailableSpace() >= totalSize)
         {
             reservedSlot = memoryPool->reserve(totalSize);
             if (reservedSlot.first)
@@ -200,7 +204,7 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
 
     if (!deviceMemory)
     {
-        VkDeviceSize minumumDeviceMemorySize = bufferPreferences.minimumImageDeviceMemorySize;
+        VkDeviceSize minumumDeviceMemorySize = resourceRequirements.minimumImageDeviceMemorySize;
 
         // clamp to an aligned size
         minumumDeviceMemorySize = ((minumumDeviceMemorySize + memRequirements.alignment - 1) / memRequirements.alignment) * memRequirements.alignment;

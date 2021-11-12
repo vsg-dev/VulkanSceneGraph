@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/Options.h>
 #include <vsg/traversals/LineSegmentIntersector.h>
+#include <vsg/nodes/Transform.h>
 
 using namespace vsg;
 
@@ -148,12 +149,8 @@ LineSegmentIntersector::LineSegmentIntersector(const Camera& camera, int32_t x, 
     vsg::dvec3 ndc_near(ndc.x * 2.0 - 1.0, ndc.y * 2.0 - 1.0, viewport.minDepth * 2.0 - 1.0);
     vsg::dvec3 ndc_far(ndc.x * 2.0 - 1.0, ndc.y * 2.0 - 1.0, viewport.maxDepth * 2.0 - 1.0);
 
-    vsg::dmat4 projectionMatrix;
-    camera.projectionMatrix->get(projectionMatrix);
-
-    vsg::dmat4 viewMatrix;
-    camera.viewMatrix->get(viewMatrix);
-
+    auto projectionMatrix = camera.projectionMatrix->transform();
+    auto viewMatrix = camera.viewMatrix->transform();
     auto inv_projectionViewMatrix = vsg::inverse(projectionMatrix * viewMatrix);
 
     vsg::dvec3 world_near = inv_projectionViewMatrix * ndc_near;
@@ -175,9 +172,9 @@ void LineSegmentIntersector::add(const dvec3& intersection, double ratio, const 
     }
 }
 
-void LineSegmentIntersector::pushTransform(const dmat4& m)
+void LineSegmentIntersector::pushTransform(const Transform& transform)
 {
-    dmat4 localToWorld = _matrixStack.empty() ? m : (_matrixStack.back() * m);
+    dmat4 localToWorld = _matrixStack.empty() ? transform.transform(dmat4{}) : transform.transform(_matrixStack.back());
     dmat4 worldToLocal = inverse(localToWorld);
 
     _matrixStack.push_back(localToWorld);

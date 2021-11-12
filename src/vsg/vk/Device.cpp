@@ -44,7 +44,7 @@ static uint32_t getUniqueDeviceID()
     return deviceID;
 }
 
-static void releaseDeiviceID(uint32_t deviceID)
+static void releaseDeviceID(uint32_t deviceID)
 {
     std::scoped_lock<std::mutex> guard(s_DeviceCountMutex);
     s_ActiveDevices[deviceID] = false;
@@ -58,7 +58,7 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
 {
     if (deviceID >= VSG_MAX_DEVICES)
     {
-        releaseDeiviceID(deviceID);
+        releaseDeviceID(deviceID);
         throw Exception{"Warning : number of vsg:Device allocated exceeds number supported ", VSG_MAX_DEVICES};
     }
 
@@ -128,7 +128,7 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
     VkResult result = vkCreateDevice(*physicalDevice, &createInfo, allocator, &_device);
     if (result != VK_SUCCESS)
     {
-        releaseDeiviceID(deviceID);
+        releaseDeviceID(deviceID);
         throw Exception{"Error: vsg::Device::create(...) failed to create logical device.", result};
     }
 }
@@ -140,7 +140,7 @@ Device::~Device()
         vkDestroyDevice(_device, _allocator);
     }
 
-    releaseDeiviceID(deviceID);
+    releaseDeviceID(deviceID);
 }
 
 uint32_t Device::maxNumDevices()

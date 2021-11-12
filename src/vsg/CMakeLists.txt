@@ -33,6 +33,7 @@ set(SOURCES
     nodes/LOD.cpp
     nodes/PagedLOD.cpp
     nodes/MatrixTransform.cpp
+    nodes/Transform.cpp
     nodes/VertexIndexDraw.cpp
     nodes/DepthSorted.cpp
     nodes/Bin.cpp
@@ -189,6 +190,7 @@ set(SOURCES
     vk/Semaphore.cpp
     vk/Surface.cpp
     vk/Swapchain.cpp
+    vk/ResourceRequirements.cpp
 
     utils/AnimationPath.cpp
     utils/CommandLine.cpp

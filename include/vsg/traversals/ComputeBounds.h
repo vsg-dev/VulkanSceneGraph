@@ -33,6 +33,7 @@ namespace vsg
 
         void apply(const Object& node) override;
         void apply(const StateGroup& stategroup) override;
+        void apply(const Transform& transform) override;
         void apply(const MatrixTransform& transform) override;
         void apply(const Geometry& geometry) override;
         void apply(const VertexIndexDraw& vid) override;

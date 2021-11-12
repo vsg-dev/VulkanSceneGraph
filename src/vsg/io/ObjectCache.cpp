@@ -101,3 +101,17 @@ void ObjectCache::remove(ref_ptr<Object> object)
         }
     }
 }
+
+bool ObjectCache::suitable(const Path& filename) const
+{
+    return excludedExtensions.count(vsg::lowerCaseFileExtension(filename)) == 0;
+}
+
+ObjectCache::ObjectTimepoint& ObjectCache::getObjectTimepoint(const Path& filename, ref_ptr<const Options> options)
+{
+    std::scoped_lock<std::mutex> guard(_mutex);
+    if (requireMatchedOptions)
+        return _objectCacheMap[Key(filename, options)];
+    else
+        return _objectCacheMap[Key(filename, {})];
+}

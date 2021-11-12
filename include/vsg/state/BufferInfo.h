@@ -49,6 +49,7 @@ namespace vsg
         VkDeviceSize offset = 0;
         VkDeviceSize range = 0;
         ref_ptr<Data> data;
+        ref_ptr<BufferInfo> parent;
 
     protected:
         virtual ~BufferInfo();
@@ -56,6 +57,8 @@ namespace vsg
     VSG_type_name(vsg::BufferInfo);
 
     using BufferInfoList = std::vector<ref_ptr<BufferInfo>>;
+
+    extern VSG_DECLSPEC ref_ptr<BufferInfo> copyDataToStagingBuffer(Context& context, const Data* data);
 
     extern VSG_DECLSPEC bool createBufferAndTransferData(Context& context, const BufferInfoList& bufferInfoList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 

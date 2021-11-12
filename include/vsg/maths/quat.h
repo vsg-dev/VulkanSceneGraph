@@ -112,7 +112,7 @@ namespace vsg
             value_type dot = vsg::dot(from, to);
             value_type div = std::sqrt(length2(from) * length2(to));
             vsg::dvec3 axis;
-            if (div-dot < epsilon)
+            if (div - dot < epsilon)
             {
                 axis = orthogonal(from);
             }

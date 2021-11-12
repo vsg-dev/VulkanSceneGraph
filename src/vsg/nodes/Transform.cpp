@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -12,26 +10,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Options.h>
+#include <vsg/io/stream.h>
 #include <vsg/nodes/Transform.h>
 
-namespace vsg
+using namespace vsg;
+
+Transform::Transform(Allocator* allocator) :
+    Inherit(allocator),
+    subgraphRequiresLocalFrustum(true)
 {
+}
 
-    class VSG_DECLSPEC MatrixTransform : public Inherit<Transform, MatrixTransform>
-    {
-    public:
-        MatrixTransform(Allocator* allocator = nullptr);
-        MatrixTransform(const dmat4& in_matrix, Allocator* allocator = nullptr);
+void Transform::read(Input& input)
+{
+    Group::read(input);
+}
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        dmat4 transform(const dmat4& m) const override { return m * matrix; }
-
-        dmat4 matrix;
-
-    protected:
-    };
-    VSG_type_name(vsg::MatrixTransform);
-
-} // namespace vsg
+void Transform::write(Output& output) const
+{
+    Group::write(output);
+}

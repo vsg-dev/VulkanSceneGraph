@@ -28,7 +28,7 @@ namespace vsg
 
         void apply(Node& node) override;
         void apply(CullNode& node) override;
-        void apply(MatrixTransform& transform) override;
+        void apply(Transform& transform) override;
         void apply(LOD& lod) override;
         void apply(PagedLOD& plod) override;
 
@@ -36,7 +36,6 @@ namespace vsg
         int loadLevels = 0;
         int level = 0;
         unsigned int numTiles = 0;
-        ref_ptr<Options> options;
 
     protected:
         using Plane = dplane;

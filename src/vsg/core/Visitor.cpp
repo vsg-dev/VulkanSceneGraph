@@ -453,9 +453,13 @@ void Visitor::apply(CullNode& value)
 {
     apply(static_cast<Node&>(value));
 }
-void Visitor::apply(MatrixTransform& value)
+void Visitor::apply(Transform& value)
 {
     apply(static_cast<Group&>(value));
+}
+void Visitor::apply(MatrixTransform& value)
+{
+    apply(static_cast<Transform&>(value));
 }
 void Visitor::apply(Geometry& value)
 {
@@ -486,6 +490,10 @@ void Visitor::apply(MaskGroup& value)
 //
 // Vulkan Object
 //
+void Visitor::apply(BufferInfo& value)
+{
+    apply(static_cast<Object&>(value));
+}
 void Visitor::apply(Command& value)
 {
     apply(static_cast<Node&>(value));

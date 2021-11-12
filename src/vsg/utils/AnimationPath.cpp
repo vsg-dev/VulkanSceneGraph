@@ -10,12 +10,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/utils/AnimationPath.h>
+#include <vsg/io/Options.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/PrintEvents.h>
+#include <vsg/utils/AnimationPath.h>
 #include <vsg/viewer/Camera.h>
-#include <vsg/io/Options.h>
 
 #include <iostream>
 
@@ -29,7 +29,7 @@ double AnimationPath::period() const
 
 AnimationPath::Location AnimationPath::computeLocation(double time) const
 {
-    // check for empy locations map
+    // check for empty locations map
     if (locations.empty()) return {};
 
     // check for single entry in locations map

@@ -24,14 +24,8 @@ LoadPagedLOD::LoadPagedLOD(ref_ptr<Camera> in_camera, int in_loadLevels) :
     camera(in_camera),
     loadLevels(in_loadLevels)
 {
-    dmat4 projectionMatrix;
-    camera->projectionMatrix->get(projectionMatrix);
-
-    dmat4 viewMatrix;
-    camera->viewMatrix->get(viewMatrix);
-
-    projectionMatrixStack.emplace(projectionMatrix);
-    modelviewMatrixStack.emplace(viewMatrix);
+    projectionMatrixStack.emplace(camera->projectionMatrix->transform());
+    modelviewMatrixStack.emplace(camera->viewMatrix->transform());
 
     _frustumUnit = Polytope{{
         Plane(1.0, 0.0, 0.0, 1.0),  // left plane
@@ -73,11 +67,11 @@ void LoadPagedLOD::apply(CullNode& node)
     node.traverse(*this);
 }
 
-void LoadPagedLOD::apply(MatrixTransform& transform)
+void LoadPagedLOD::apply(Transform& transform)
 {
-    //std::cout<<"apply(MatrixTransform& transform) Need to do transform modelview matrix"<<std::endl;
+    //std::cout<<"apply(Transform& transform) Need to do transform modelview matrix"<<std::endl;
 
-    modelviewMatrixStack.emplace(modelviewMatrixStack.top() * transform.matrix);
+    modelviewMatrixStack.emplace(transform.transform(modelviewMatrixStack.top()));
 
     pushFrustum();
 
@@ -139,7 +133,7 @@ void LoadPagedLOD::apply(PagedLOD& plod)
 
             if (!child.node)
             {
-                child.node = read_cast<Node>(filename, options);
+                child.node = read_cast<Node>(filename, plod.options);
                 ++numTiles;
             }
 

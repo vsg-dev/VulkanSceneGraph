@@ -306,6 +306,32 @@ void RecordTraversal::apply(const StateGroup& stateGroup)
     _state->dirty = true;
 }
 
+void RecordTraversal::apply(const Transform& transform)
+{
+    if (transform.subgraphRequiresLocalFrustum)
+    {
+        _state->modelviewMatrixStack.push(transform);
+        _state->pushFrustum();
+        _state->dirty = true;
+
+        transform.traverse(*this);
+
+        _state->modelviewMatrixStack.pop();
+        _state->popFrustum();
+        _state->dirty = true;
+    }
+    else
+    {
+        _state->modelviewMatrixStack.push(transform);
+        _state->dirty = true;
+
+        transform.traverse(*this);
+
+        _state->modelviewMatrixStack.pop();
+        _state->dirty = true;
+    }
+}
+
 void RecordTraversal::apply(const MatrixTransform& mt)
 {
     if (mt.subgraphRequiresLocalFrustum)
@@ -377,12 +403,8 @@ void RecordTraversal::apply(const View& view)
 
     if (view.camera)
     {
-        dmat4 projMatrix, viewMatrix;
-        view.camera->projectionMatrix->get(projMatrix);
-        view.camera->viewMatrix->get(viewMatrix);
-
         // TODO push/pop project and view matrices
-        setProjectionAndViewMatrix(projMatrix, viewMatrix);
+        setProjectionAndViewMatrix(view.camera->projectionMatrix->transform(), view.camera->viewMatrix->transform());
 
         view.traverse(*this);
     }

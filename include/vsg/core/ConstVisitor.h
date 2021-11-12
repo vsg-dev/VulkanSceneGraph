@@ -34,6 +34,7 @@ namespace vsg
     class CullGroup;
     class CullNode;
     class MatrixTransform;
+    class Transform;
     class Geometry;
     class VertexIndexDraw;
     class DepthSorted;
@@ -42,6 +43,7 @@ namespace vsg
     class MaskGroup;
 
     // forward declare vulkan classes
+    class BufferInfo;
     class Command;
     class StateCommand;
     class CommandBuffer;
@@ -236,6 +238,7 @@ namespace vsg
         virtual void apply(const CullGroup&);
         virtual void apply(const CullNode&);
         virtual void apply(const MatrixTransform&);
+        virtual void apply(const Transform&);
         virtual void apply(const Geometry&);
         virtual void apply(const VertexIndexDraw&);
         virtual void apply(const DepthSorted&);
@@ -244,6 +247,7 @@ namespace vsg
         virtual void apply(const MaskGroup&);
 
         // Vulkan nodes
+        virtual void apply(const BufferInfo&);
         virtual void apply(const Command&);
         virtual void apply(const StateCommand&);
         virtual void apply(const CommandBuffer&);

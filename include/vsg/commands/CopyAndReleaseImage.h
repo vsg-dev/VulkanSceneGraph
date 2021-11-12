@@ -12,18 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <deque>
-#include <memory>
-
-#include <vsg/core/Object.h>
-#include <vsg/core/ScratchMemory.h>
-#include <vsg/nodes/Group.h>
-#include <vsg/state/BufferInfo.h>
-#include <vsg/state/DescriptorImage.h>
-#include <vsg/state/GraphicsPipeline.h>
-#include <vsg/vk/CommandPool.h>
-#include <vsg/vk/DescriptorPool.h>
-#include <vsg/vk/Fence.h>
+#include <vsg/state/ImageInfo.h>
 #include <vsg/vk/MemoryBufferPools.h>
 
 #include <vsg/commands/Command.h>

@@ -6,6 +6,7 @@
 if(NOT _vsg_macros_included)
     message(STATUS "Reading 'vsg_...' macros from ${CMAKE_CURRENT_LIST_DIR}/vsgMacros.cmake - look there for documentation")
     set(_vsg_macros_included 1)
+    list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 endif()
 
 #
@@ -346,19 +347,32 @@ endmacro()
 #
 # available arguments:
 #
-#    <min_version>      minimum required version e.g. 194
+#    <min_version>      minimum required version e.g. 1.2.194
 #
 macro(vsg_check_min_vulkan_header_version _min_version)
     if (Vulkan_FOUND)
-        set(VULKAN_CORE_H ${Vulkan_INCLUDE_DIRS}/vulkan/vulkan_core.h)
-        file(STRINGS  ${VULKAN_CORE_H} VulkanHeaderVersionLine REGEX "^#define VK_HEADER_VERSION ")
-        string(REGEX MATCHALL "[0-9]+" VulkanHeaderVersion "${VulkanHeaderVersionLine}")
-        message(STATUS "Detected VK_HEADER_VERSION is ${VulkanHeaderVersion}, in header ${VULKAN_CORE_H}")
-        if(${VulkanHeaderVersion} STRLESS ${_min_version})
-            message(FATAL_ERROR "Found Vulkan but VK_HEADER_VERSION is below minimum required value of ${_min_version}")
+        set(Vulkan_VERSION "")
+        set(VULKAN_CORE_H ${Vulkan_INCLUDE_DIR}/vulkan/vulkan_core.h)
+        if(EXISTS ${VULKAN_CORE_H})
+          file(STRINGS  ${VULKAN_CORE_H} VulkanHeaderVersionLine REGEX "^#define VK_HEADER_VERSION ")
+          string(REGEX MATCHALL "[0-9]+" VulkanHeaderVersion "${VulkanHeaderVersionLine}")
+          file(STRINGS  ${VULKAN_CORE_H} VulkanHeaderVersionLine2 REGEX "^#define VK_HEADER_VERSION_COMPLETE ")
+          string(REGEX MATCHALL "[0-9]+" VulkanHeaderVersion2 "${VulkanHeaderVersionLine2}")
+          list(LENGTH VulkanHeaderVersion2 _len)
+          #  versions >= 1.2.175 adds an additional numbers in front of e.g. '0, 1, 2' instead of '1, 2'
+          if(_len EQUAL 3)
+              list(REMOVE_AT VulkanHeaderVersion2 0)
+          endif()
+          list(APPEND VulkanHeaderVersion2 ${VulkanHeaderVersion})
+          list(JOIN VulkanHeaderVersion2 "." Vulkan_VERSION)
+        endif()
+        if(Vulkan_VERSION VERSION_LESS ${_min_version})
+            message(FATAL_ERROR "Could NOT find Vulkan: Found unsuitable version \"${Vulkan_VERSION}\", but required is at least \"${_min_version}\" (found ${Vulkan_LIBRARY})")
+        else()
+            message(STATUS "Found Vulkan: ${Vulkan_LIBRARY} (found suitable version \"${Vulkan_VERSION}\", minimum required is \"${_min_version}\")")
         endif()
     else()
-        message(FATAL_ERROR "Cannot check version because Vulkan was not found - use 'find_package(Vulkan REQUIRED)' to fix this")
+        message(FATAL_ERROR "Could NOT find Vulkan: version check not possible - use 'find_package(Vulkan REQUIRED)' to fix this")
     endif()
 endmacro()
 

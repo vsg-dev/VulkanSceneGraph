@@ -28,13 +28,15 @@ DrawMeshTasksIndirect::DrawMeshTasksIndirect(ref_ptr<Data> data, uint32_t in_dra
     drawParameters(BufferInfo::create(data)),
     drawCount(in_drawCount),
     stride(in_stride)
-{}
+{
+}
 
 DrawMeshTasksIndirect::DrawMeshTasksIndirect(ref_ptr<Buffer> in_buffer, VkDeviceSize in_offset, uint32_t in_drawCount, uint32_t in_stride) :
     drawParameters(BufferInfo::create(in_buffer, in_offset, in_drawCount * in_stride)),
     drawCount(in_drawCount),
     stride(in_stride)
-{}
+{
+}
 
 void DrawMeshTasksIndirect::read(Input& input)
 {
@@ -45,7 +47,6 @@ void DrawMeshTasksIndirect::read(Input& input)
         input.readValue<uint32_t>("drawParameters.offset", drawParameters->offset);
         input.readValue<uint32_t>("drawParameters.range", drawParameters->range);
     }
-
 
     input.read("drawCount", drawCount);
     input.read("stride", stride);

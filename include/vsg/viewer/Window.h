@@ -55,8 +55,8 @@ namespace vsg
 
         virtual void resize() {}
 
-        WindowTraits* traits() { return _traits.get(); }
-        const WindowTraits* traits() const { return _traits.get(); }
+        ref_ptr<WindowTraits> traits() { return _traits; }
+        const ref_ptr<WindowTraits> traits() const { return _traits; }
 
         const VkExtent2D& extent2D() const { return _extent2D; }
 
@@ -70,41 +70,41 @@ namespace vsg
         VkSampleCountFlagBits framebufferSamples() const { return _framebufferSamples; }
 
         void setInstance(ref_ptr<Instance> instance);
-        Instance* getInstance() { return _instance; }
-        Instance* getOrCreateInstance();
+        ref_ptr<Instance> getInstance() { return _instance; }
+        ref_ptr<Instance> getOrCreateInstance();
 
         void setSurface(ref_ptr<Surface> surface);
-        Surface* getSurface() { return _surface; }
-        Surface* getOrCreateSurface();
+        ref_ptr<Surface> getSurface() { return _surface; }
+        ref_ptr<Surface> getOrCreateSurface();
 
         void setPhysicalDevice(ref_ptr<PhysicalDevice> physicalDevice);
-        PhysicalDevice* getPhysicalDevice() { return _physicalDevice; }
-        PhysicalDevice* getOrCreatePhysicalDevice();
+        ref_ptr<PhysicalDevice> getPhysicalDevice() { return _physicalDevice; }
+        ref_ptr<PhysicalDevice> getOrCreatePhysicalDevice();
 
         void setDevice(ref_ptr<Device> device);
-        Device* getDevice() { return _device; }
-        Device* getOrCreateDevice();
+        ref_ptr<Device> getDevice() { return _device; }
+        ref_ptr<Device> getOrCreateDevice();
 
         void setRenderPass(ref_ptr<RenderPass> renderPass);
-        RenderPass* getRenderPass() { return _renderPass; }
-        RenderPass* getOrCreateRenderPass();
+        ref_ptr<RenderPass> getRenderPass() { return _renderPass; }
+        ref_ptr<RenderPass> getOrCreateRenderPass();
 
-        Swapchain* getSwapchain() { return _swapchain; }
-        Swapchain* getOrCreateSwapchain();
+        ref_ptr<Swapchain> getSwapchain() { return _swapchain; }
+        ref_ptr<Swapchain> getOrCreateSwapchain();
 
-        Image* getDepthImage() { return _depthImage; }
-        Image* getOrCreateDepthImage();
+        ref_ptr<Image> getDepthImage() { return _depthImage; }
+        ref_ptr<Image> getOrCreateDepthImage();
 
-        ImageView* getDepthImageView() { return _depthImageView; }
-        ImageView* getOrCreateDepthImageView();
+        ref_ptr<ImageView> getDepthImageView() { return _depthImageView; }
+        ref_ptr<ImageView> getOrCreateDepthImageView();
 
         size_t numFrames() const { return _frames.size(); }
 
-        ImageView* imageView(size_t i) { return _frames[i].imageView; }
-        const ImageView* imageView(size_t i) const { return _frames[i].imageView; }
+        ref_ptr<ImageView> imageView(size_t i) { return _frames[i].imageView; }
+        const ref_ptr<ImageView> imageView(size_t i) const { return _frames[i].imageView; }
 
-        Framebuffer* framebuffer(size_t i) { return _frames[i].framebuffer; }
-        const Framebuffer* framebuffer(size_t i) const { return _frames[i].framebuffer; }
+        ref_ptr<Framebuffer> framebuffer(size_t i) { return _frames[i].framebuffer; }
+        const ref_ptr<Framebuffer> framebuffer(size_t i) const { return _frames[i].framebuffer; }
 
         /// call vkAquireNextImageKHR to find the next imageIndex of the swapchain images/framebuffers
         VkResult acquireNextImage(uint64_t timeout = std::numeric_limits<uint64_t>::max());

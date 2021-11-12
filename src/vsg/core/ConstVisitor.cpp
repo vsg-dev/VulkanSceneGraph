@@ -453,9 +453,13 @@ void ConstVisitor::apply(const CullNode& value)
 {
     apply(static_cast<const Node&>(value));
 }
-void ConstVisitor::apply(const MatrixTransform& value)
+void ConstVisitor::apply(const Transform& value)
 {
     apply(static_cast<const Group&>(value));
+}
+void ConstVisitor::apply(const MatrixTransform& value)
+{
+    apply(static_cast<const Transform&>(value));
 }
 void ConstVisitor::apply(const Geometry& value)
 {
@@ -486,6 +490,10 @@ void ConstVisitor::apply(const MaskGroup& value)
 //
 // Vulkan Object
 //
+void ConstVisitor::apply(const BufferInfo& value)
+{
+    apply(static_cast<const Object&>(value));
+}
 void ConstVisitor::apply(const Command& value)
 {
     apply(static_cast<const Node&>(value));

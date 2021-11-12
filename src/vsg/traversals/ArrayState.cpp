@@ -84,7 +84,7 @@ void ArrayState::apply(uint32_t firstBinding, const DataList& in_arrays)
 void ArrayState::apply(uint32_t firstBinding, const BufferInfoList& in_arrays)
 {
     if (arrays.size() < (in_arrays.size() + firstBinding)) arrays.resize(in_arrays.size() + firstBinding);
-    for(size_t i = 0; i < in_arrays.size(); ++i)
+    for (size_t i = 0; i < in_arrays.size(); ++i)
     {
         arrays[firstBinding + i] = in_arrays[i]->data;
     }
@@ -94,6 +94,11 @@ void ArrayState::apply(uint32_t firstBinding, const BufferInfoList& in_arrays)
     {
         arrays[vertexAttribute.binding]->accept(*this);
     }
+}
+
+void ArrayState::apply(const vsg::BufferInfo& bufferInfo)
+{
+    if (bufferInfo.data) bufferInfo.data->accept(*this);
 }
 
 void ArrayState::apply(const vsg::vec3Array& array)

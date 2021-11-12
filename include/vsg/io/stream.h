@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/ref_ptr.h>
 #include <vsg/core/type_name.h>
+#include <vsg/maths/box.h>
 #include <vsg/maths/mat4.h>
 #include <vsg/maths/plane.h>
 #include <vsg/maths/quat.h>
@@ -27,7 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    // stream support for std::t_vec2
+    // stream support for vsg::t_vec2
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_vec2<T>& vec)
     {
@@ -42,7 +43,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for std::t_vec3
+    // stream support for vsg::t_vec3
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_vec3<T>& vec)
     {
@@ -57,7 +58,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for std::t_vec4
+    // stream support for vsg::t_vec4
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_vec4<T>& vec)
     {
@@ -72,7 +73,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for std::t_quat
+    // stream support for vsg:t_quat
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_quat<T>& q)
     {
@@ -87,7 +88,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for std::t_plane
+    // stream support for vsg::t_plane
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_plane<T>& vec)
     {
@@ -102,7 +103,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for std::t_mat4
+    // stream support for vsg::t_mat4
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_mat4<T>& mat)
     {
@@ -115,7 +116,7 @@ namespace vsg
     }
 
     template<typename T>
-    std::istream& operator<<(std::istream& input, vsg::t_mat4<T>& mat)
+    std::istream& operator>>(std::istream& input, vsg::t_mat4<T>& mat)
     {
         input >> mat(0, 0) >> mat(1, 0) >> mat(2, 0) >> mat(3, 0);
         input >> mat(0, 1) >> mat(1, 1) >> mat(2, 1) >> mat(3, 1);
@@ -124,7 +125,25 @@ namespace vsg
         return input;
     }
 
-    // stream support for std::t_vec4
+    // stream support for vsg::t_box
+    template<typename T>
+    std::ostream& operator<<(std::ostream& output, const vsg::t_box<T>& bx)
+    {
+        output << std::endl;
+        output << "    " << bx.min << std::endl;
+        output << "    " << bx.max << std::endl;
+        return output;
+    }
+
+    template<typename T>
+    std::istream& operator>>(std::istream& input, vsg::t_box<T>& bx)
+    {
+        input >> bx.min;
+        input >> bx.max;
+        return input;
+    }
+
+    // stream support for vsg::ref_ptr
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::ref_ptr<T>& ptr)
     {

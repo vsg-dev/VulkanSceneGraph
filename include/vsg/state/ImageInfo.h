@@ -31,7 +31,7 @@ namespace vsg
             imageView(in_imageView),
             imageLayout(in_imageLayout) {}
 
-        // Convinience constructor that creates a vsg::ImageView and vsg::Image to resprent the data on the GPU.
+        // Convenience constructor that creates a vsg::ImageView and vsg::Image to represent the data on the GPU.
         template<typename T>
         ImageInfo(ref_ptr<Sampler> in_sampler, ref_ptr<T> in_data, VkImageLayout in_imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) :
             sampler(in_sampler),
@@ -56,7 +56,6 @@ namespace vsg
 
     protected:
         virtual ~ImageInfo();
-
     };
     VSG_type_name(vsg::ImageInfo);
 

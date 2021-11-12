@@ -61,6 +61,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/Switch.h>
+#include <vsg/nodes/Transform.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 
 // Commands header files
@@ -192,6 +193,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/PhysicalDevice.h>
 #include <vsg/vk/Queue.h>
 #include <vsg/vk/RenderPass.h>
+#include <vsg/vk/ResourceRequirements.h>
 #include <vsg/vk/Semaphore.h>
 #include <vsg/vk/ShaderCompiler.h>
 #include <vsg/vk/State.h>
