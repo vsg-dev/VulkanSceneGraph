@@ -25,7 +25,6 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        virtual mat4 transform(const mat4& m) const = 0;
         virtual dmat4 transform(const dmat4& m) const = 0;
 
         bool subgraphRequiresLocalFrustum;
