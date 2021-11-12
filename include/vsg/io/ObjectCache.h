@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class ObjectCache : public Inherit<Object, ObjectCache>
+    class VSG_DECLSPEC ObjectCache : public Inherit<Object, ObjectCache>
     {
     public:
         void setDefaultUnusedDuration(double duration) { _defaultUnusedDuration = duration; }
