@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Export.h>
+#include <vsg/core/ConstVisitor.h>
 #include <vsg/maths/mat3.h>
 #include <vsg/maths/mat4.h>
 #include <vsg/maths/quat.h>
@@ -218,5 +218,25 @@ namespace vsg
 
     /// compute the bounding sphere that encloses a frustum defined by specified double ModelViewMatrixProjection
     extern VSG_DECLSPEC dsphere computeFrustumBound(const dmat4& m);
+
+    struct ComputeTransform : public ConstVisitor
+    {
+        dmat4 matrix;
+
+        void apply(const Transform& transform) override;
+        void apply(const MatrixTransform& mt) override;
+    };
+
+    // convinience function for accumulating the transforms in scene graph along a specified nodePath.
+    template<typename T>
+    dmat4 computeTransform(const T& nodePath)
+    {
+        ComputeTransform ct;
+        for (auto& node : nodePath)
+        {
+            node->accept(ct);
+        }
+        return ct.matrix;
+    }
 
 } // namespace vsg

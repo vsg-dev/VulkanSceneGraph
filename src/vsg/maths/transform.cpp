@@ -11,6 +11,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/maths/transform.h>
+#include <vsg/nodes/MatrixTransform.h>
+#include <vsg/io/Options.h>
 
 using namespace vsg;
 
@@ -289,4 +291,14 @@ bool vsg::transform(CoordinateConvention source, CoordinateConvention destinatio
         }
     }
     return true;
+}
+
+void ComputeTransform::apply(const Transform& transform)
+{
+    matrix = transform.transform(matrix);
+}
+
+void ComputeTransform::apply(const MatrixTransform& mt)
+{
+    matrix = matrix * mt.matrix;
 }

@@ -17,21 +17,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 MatrixTransform::MatrixTransform(Allocator* allocator) :
-    Inherit(allocator),
-    subgraphRequiresLocalFrustum(true)
+    Inherit(allocator)
 {
 }
 
 MatrixTransform::MatrixTransform(const dmat4& in_matrix, Allocator* allocator) :
     Inherit(allocator),
-    matrix(in_matrix),
-    subgraphRequiresLocalFrustum(true)
+    matrix(in_matrix)
 {
 }
 
 void MatrixTransform::read(Input& input)
 {
-    Group::read(input);
+    Transform::read(input);
 
     if (input.version_greater_equal(0, 1, 4))
     {
@@ -47,7 +45,7 @@ void MatrixTransform::read(Input& input)
 
 void MatrixTransform::write(Output& output) const
 {
-    Group::write(output);
+    Transform::write(output);
 
     if (output.version_greater_equal(0, 1, 4))
     {

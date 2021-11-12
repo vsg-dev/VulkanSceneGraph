@@ -453,9 +453,13 @@ void Visitor::apply(CullNode& value)
 {
     apply(static_cast<Node&>(value));
 }
-void Visitor::apply(MatrixTransform& value)
+void Visitor::apply(Transform& value)
 {
     apply(static_cast<Group&>(value));
+}
+void Visitor::apply(MatrixTransform& value)
+{
+    apply(static_cast<Transform&>(value));
 }
 void Visitor::apply(Geometry& value)
 {
