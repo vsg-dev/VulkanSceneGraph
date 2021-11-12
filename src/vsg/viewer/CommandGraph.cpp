@@ -143,11 +143,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     if (camera)
     {
-        dmat4 projMatrix, viewMatrix;
-        camera->projectionMatrix->get(projMatrix);
-        camera->viewMatrix->get(viewMatrix);
-
-        recordTraversal->setProjectionAndViewMatrix(projMatrix, viewMatrix);
+        recordTraversal->setProjectionAndViewMatrix(camera->projectionMatrix->transform(), camera->viewMatrix->transform());
     }
 
     accept(*recordTraversal);

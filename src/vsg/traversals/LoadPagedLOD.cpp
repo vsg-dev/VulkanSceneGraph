@@ -24,14 +24,8 @@ LoadPagedLOD::LoadPagedLOD(ref_ptr<Camera> in_camera, int in_loadLevels) :
     camera(in_camera),
     loadLevels(in_loadLevels)
 {
-    dmat4 projectionMatrix;
-    camera->projectionMatrix->get(projectionMatrix);
-
-    dmat4 viewMatrix;
-    camera->viewMatrix->get(viewMatrix);
-
-    projectionMatrixStack.emplace(projectionMatrix);
-    modelviewMatrixStack.emplace(viewMatrix);
+    projectionMatrixStack.emplace(camera->projectionMatrix->transform());
+    modelviewMatrixStack.emplace(camera->viewMatrix->transform());
 
     _frustumUnit = Polytope{{
         Plane(1.0, 0.0, 0.0, 1.0),  // left plane

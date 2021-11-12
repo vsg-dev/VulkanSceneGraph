@@ -26,7 +26,6 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        mat4 transform(const mat4& m) const override { return m * mat4(matrix); }
         dmat4 transform(const dmat4& m) const override { return m * matrix; }
 
         dmat4 matrix;
