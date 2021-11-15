@@ -554,7 +554,7 @@ std::string ShaderCompiler::readShaderSource(const Path& filename, const Paths& 
     fin.read(reinterpret_cast<char*>(source.data()), fileSize);
     fin.close();
 
-    return source;
+    return insertIncludes(source, paths);
 }
 
 void ShaderCompiler::apply(Node& node)
