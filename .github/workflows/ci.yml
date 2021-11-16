@@ -4,6 +4,7 @@ on:
   pull_request:
 env:
   VulkanSDKVersion: 1.2.162.1
+  CMakeVersion: 3.7.x
 jobs:
   linux-build:
     runs-on: ubuntu-latest
@@ -14,7 +15,7 @@ jobs:
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@v1.9
       with:
-        cmake-version: '3.7.x'
+        cmake-version: ${{env.CMakeVersion}}
     - uses: actions/checkout@v2
     - name: Cache
       id: cache
@@ -49,6 +50,10 @@ jobs:
   windows-build:
     runs-on: windows-latest
     steps:
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v1.9
+      with:
+        cmake-version: ${{env.CMakeVersion}}
     - uses: actions/checkout@v2
     - name: Set env
       id: env
@@ -79,6 +84,10 @@ jobs:
   windows-dll-build:
     runs-on: windows-latest
     steps:
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v1.9
+      with:
+        cmake-version: ${{env.CMakeVersion}}
     - uses: actions/checkout@v2
     - name: Set env
       id: env
