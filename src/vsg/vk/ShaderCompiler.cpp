@@ -98,7 +98,7 @@ ShaderCompiler::~ShaderCompiler()
 }
 
 #ifdef HAS_GLSLANG
-bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::string>& defines, const Paths& paths)
+bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::string>& defines, ref_ptr<const Options> options)
 {
     // need to balance the inits.
     if (!_initialized)
@@ -208,7 +208,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         shader->setEnvClient(glslang::EShClientVulkan, targetClientVersion);
         shader->setEnvTarget(glslang::EShTargetSpv, targetLanguageVersion);
 
-        std::string finalShaderSource = insertIncludes(vsg_shader->module->source, paths);
+        std::string finalShaderSource = vsg::insertIncludes(vsg_shader->module->source, options);
         if (!settings->defines.empty()) finalShaderSource = combineSourceAndDefines(finalShaderSource, settings->defines);
         if (!defines.empty()) finalShaderSource = combineSourceAndDefines(finalShaderSource, defines);
 
@@ -287,19 +287,19 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
     return true;
 }
 #else
-bool ShaderCompiler::compile(ShaderStages&, const std::vector<std::string>&, const Paths&)
+bool ShaderCompiler::compile(ShaderStages&, const std::vector<std::string>&, ref_ptr<const Options> options)
 {
     std::cout << "ShaderCompile::compile(..) not supported," << std::endl;
     return false;
 }
 #endif
 
-bool ShaderCompiler::compile(ref_ptr<ShaderStage> shaderStage, const std::vector<std::string>& defines, const Paths& paths)
+bool ShaderCompiler::compile(ref_ptr<ShaderStage> shaderStage, const std::vector<std::string>& defines, ref_ptr<const Options> options)
 {
     ShaderStages stages;
     stages.emplace_back(shaderStage);
 
-    return compile(stages, defines, paths);
+    return compile(stages, defines, options);
 }
 
 std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, const std::vector<std::string>& defines)
@@ -418,143 +418,6 @@ std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, c
     }
 
     return headerstream.str() + sourcestream.str();
-}
-
-std::string ShaderCompiler::insertIncludes(const std::string& source, const Paths& paths)
-{
-    std::string code = source;
-    std::string startOfIncludeMarker("// Start of include code : ");
-    std::string endOfIncludeMarker("// End of include code : ");
-    std::string failedLoadMarker("// Failed to load include code : ");
-
-#if defined(__APPLE__)
-    std::string endOfLine("\r");
-#elif defined(_WIN32)
-    std::string endOfLine("\r\n");
-#else
-    std::string endOfLine("\n");
-#endif
-
-    std::string::size_type pos = 0;
-    std::string::size_type pragma_pos = 0;
-    std::string::size_type include_pos = 0;
-    while ((pos != std::string::npos) && (((pragma_pos = code.find("#pragma", pos)) != std::string::npos) || (include_pos = code.find("#include", pos)) != std::string::npos))
-    {
-        pos = (pragma_pos != std::string::npos) ? pragma_pos : include_pos;
-
-        std::string::size_type start_of_pragma_line = pos;
-        std::string::size_type end_of_line = code.find_first_of("\n\r", pos);
-
-        if (pragma_pos != std::string::npos)
-        {
-            // we have #pragma usage so skip to the start of the first non white space
-            pos = code.find_first_not_of(" \t", pos + 7);
-            if (pos == std::string::npos) break;
-
-            // check for include part of #pragma include usage
-            if (code.compare(pos, 7, "include") != 0)
-            {
-                pos = end_of_line;
-                continue;
-            }
-
-            // found include entry so skip to next non white space
-            pos = code.find_first_not_of(" \t", pos + 7);
-            if (pos == std::string::npos) break;
-        }
-        else
-        {
-            // we have #include usage so skip to next non white space
-            pos = code.find_first_not_of(" \t", pos + 8);
-            if (pos == std::string::npos) break;
-        }
-
-        std::string::size_type num_characters = (end_of_line == std::string::npos) ? code.size() - pos : end_of_line - pos;
-        if (num_characters == 0) continue;
-
-        // prune trailing white space
-        while (num_characters > 0 && (code[pos + num_characters - 1] == ' ' || code[pos + num_characters - 1] == '\t')) --num_characters;
-
-        if (code[pos] == '\"')
-        {
-            if (code[pos + num_characters - 1] != '\"')
-            {
-                num_characters -= 1;
-            }
-            else
-            {
-                num_characters -= 2;
-            }
-
-            ++pos;
-        }
-
-        std::string filename(code, pos, num_characters);
-
-        code.erase(start_of_pragma_line, (end_of_line == std::string::npos) ? code.size() - start_of_pragma_line : end_of_line - start_of_pragma_line);
-        pos = start_of_pragma_line;
-
-        std::string includedSource = readShaderSource(filename, paths);
-
-        if (!includedSource.empty())
-        {
-            if (!startOfIncludeMarker.empty())
-            {
-                code.insert(pos, startOfIncludeMarker);
-                pos += startOfIncludeMarker.size();
-                code.insert(pos, filename);
-                pos += filename.size();
-                code.insert(pos, endOfLine);
-                pos += endOfLine.size();
-            }
-
-            code.insert(pos, includedSource);
-            pos += includedSource.size();
-
-            if (!endOfIncludeMarker.empty())
-            {
-                code.insert(pos, endOfIncludeMarker);
-                pos += endOfIncludeMarker.size();
-                code.insert(pos, filename);
-                pos += filename.size();
-                code.insert(pos, endOfLine);
-                pos += endOfLine.size();
-            }
-        }
-        else
-        {
-            if (!failedLoadMarker.empty())
-            {
-                code.insert(pos, failedLoadMarker);
-                pos += failedLoadMarker.size();
-                code.insert(pos, filename);
-                pos += filename.size();
-                code.insert(pos, endOfLine);
-                pos += endOfLine.size();
-            }
-        }
-    }
-    return code;
-}
-
-std::string ShaderCompiler::readShaderSource(const Path& filename, const Paths& paths)
-{
-    Path foundFile = findFile(filename, paths);
-    if (foundFile.empty()) return std::string();
-
-    // open stream at end of file so subsequent tellg() provides the full length of file.
-    std::ifstream fin(foundFile, std::ios::ate);
-    if (!fin) return std::string();
-
-    size_t fileSize = fin.tellg();
-    std::string source;
-    source.resize(fileSize);
-
-    fin.seekg(0);
-    fin.read(reinterpret_cast<char*>(source.data()), fileSize);
-    fin.close();
-
-    return insertIncludes(source, paths);
 }
 
 void ShaderCompiler::apply(Node& node)
