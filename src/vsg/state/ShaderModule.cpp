@@ -16,8 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/ShaderModule.h>
 #include <vsg/traversals/CompileTraversal.h>
 
-#include <iostream>
-
 using namespace vsg;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
