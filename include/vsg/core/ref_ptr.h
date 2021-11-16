@@ -19,31 +19,39 @@ namespace vsg
     class ref_ptr
     {
     public:
-        ref_ptr() :
+        ref_ptr() noexcept :
             _ptr(nullptr) {}
 
-        ref_ptr(const ref_ptr& rhs) :
+        ref_ptr(const ref_ptr& rhs) noexcept :
             _ptr(rhs._ptr)
         {
             if (_ptr) _ptr->ref();
         }
 
-        explicit ref_ptr(T* ptr) :
-            _ptr(ptr)
+        /// move constructor
+        template<class R>
+        ref_ptr(ref_ptr<R>&& rhs) noexcept :
+            _ptr(rhs._ptr)
         {
-            if (_ptr) _ptr->ref();
+            rhs._ptr = nullptr;
         }
 
         template<class R>
-        explicit ref_ptr(R* ptr) :
-            _ptr(ptr)
-        {
-            if (_ptr) _ptr->ref();
-        }
-
-        template<class R>
-        ref_ptr(const ref_ptr<R>& ptr) :
+        ref_ptr(const ref_ptr<R>& ptr) noexcept :
             _ptr(ptr._ptr)
+        {
+            if (_ptr) _ptr->ref();
+        }
+
+        explicit ref_ptr(T* ptr) noexcept :
+            _ptr(ptr)
+        {
+            if (_ptr) _ptr->ref();
+        }
+
+        template<class R>
+        explicit ref_ptr(R* ptr) noexcept :
+            _ptr(ptr)
         {
             if (_ptr) _ptr->ref();
         }
@@ -53,7 +61,7 @@ namespace vsg
             if (_ptr) _ptr->unref();
         }
 
-        ref_ptr& operator=(T* ptr) noexcept
+        ref_ptr& operator=(T* ptr)
         {
             if (ptr == _ptr) return *this;
 
@@ -69,7 +77,7 @@ namespace vsg
             return *this;
         }
 
-        ref_ptr& operator=(const ref_ptr& rhs) noexcept
+        ref_ptr& operator=(const ref_ptr& rhs)
         {
             if (rhs._ptr == _ptr) return *this;
 
@@ -86,7 +94,7 @@ namespace vsg
         }
 
         template<class R>
-        ref_ptr& operator=(const ref_ptr<R>& rhs) noexcept
+        ref_ptr& operator=(const ref_ptr<R>& rhs)
         {
             if (rhs._ptr == _ptr) return *this;
 
@@ -101,6 +109,39 @@ namespace vsg
 
             return *this;
         }
+
+        /// move assignment
+        template<class R>
+        ref_ptr& operator=(ref_ptr<R>&& rhs)
+        {
+            if (rhs._ptr == _ptr) return *this;
+
+            if (_ptr) _ptr->unref();
+
+            _ptr = rhs._ptr;
+
+            rhs._ptr = nullptr;
+
+            return *this;
+        }
+
+        template<class R>
+        bool operator<(const ref_ptr<R>& rhs) const { return (rhs._ptr < _ptr); }
+
+        template<class R>
+        bool operator==(const ref_ptr<R>& rhs) const { return (rhs._ptr == _ptr); }
+
+        template<class R>
+        bool operator!=(const ref_ptr<R>& rhs) const { return (rhs._ptr != _ptr); }
+
+        template<class R>
+        bool operator<(const R* rhs) const { return (rhs < _ptr); }
+
+        template<class R>
+        bool operator==(const R* rhs) const { return (rhs == _ptr); }
+
+        template<class R>
+        bool operator!=(const R* rhs) const { return (rhs != _ptr); }
 
         bool valid() const noexcept { return _ptr != nullptr; }
 
@@ -117,7 +158,7 @@ namespace vsg
 
         T* get() const noexcept { return _ptr; }
 
-        T* release() noexcept
+        T* release_nodelete() noexcept
         {
             T* temp_ptr = _ptr;
 

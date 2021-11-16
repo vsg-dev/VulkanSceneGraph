@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2018 Robert Osfield
@@ -10,49 +12,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/state/StateGroup.h>
+#include <vsg/state/GraphicsPipeline.h>
 
-#include <vsg/io/Input.h>
-#include <vsg/io/Options.h>
-#include <vsg/io/Output.h>
-
-using namespace vsg;
-
-StateGroup::StateGroup(Allocator* allocator) :
-    Inherit(allocator)
+namespace vsg
 {
-}
-
-StateGroup::~StateGroup()
-{
-}
-
-void StateGroup::read(Input& input)
-{
-    Group::read(input);
-
-    _stateCommands.resize(input.readValue<uint32_t>("NumStateCommands"));
-    for (auto& command : _stateCommands)
+    class VSG_DECLSPEC TessellationState : public Inherit<GraphicsPipelineState, TessellationState>
     {
-        input.readObject("StateCommand", command);
-    }
-}
+    public:
+        TessellationState(uint32_t in_patchControlPoints = 1);
 
-void StateGroup::write(Output& output) const
-{
-    Group::write(output);
+        /// VkPipelineTessellationStateCreateInfo settings
+        /// patchControlPoints must be greater than zero and less than or equal to VkPhysicalDeviceLimits::maxTessellationPatchSize
+        uint32_t patchControlPoints = 1;
 
-    output.writeValue<uint32_t>("NumStateCommands", _stateCommands.size());
-    for (auto& command : _stateCommands)
-    {
-        output.writeObject("StateCommand", command.get());
-    }
-}
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
-void StateGroup::compile(Context& context)
-{
-    for (auto& stateCommand : _stateCommands)
-    {
-        stateCommand->compile(context);
-    }
-}
+        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
+
+    protected:
+        virtual ~TessellationState();
+    };
+    VSG_type_name(vsg::TessellationState);
+
+} // namespace vsg

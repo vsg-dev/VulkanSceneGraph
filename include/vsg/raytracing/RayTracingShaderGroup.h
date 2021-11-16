@@ -26,15 +26,15 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void applyTo(VkRayTracingShaderGroupCreateInfoNV& shaderGroupInfo) const;
+        void applyTo(VkRayTracingShaderGroupCreateInfoKHR& shaderGroupInfo) const;
 
-        VkRayTracingShaderGroupTypeNV type = VkRayTracingShaderGroupTypeNV(0x7FFFFFFF); // TODO: adopt KHR versions i.e VK_RAY_TRACING_SHADER_GROUP_TYPE_MAX_ENUM_NV -> VK_RAY_TRACING_SHADER_GROUP_TYPE_MAX_ENUM_KHR
-        uint32_t generalShader = VK_SHADER_UNUSED_NV;
-        uint32_t closestHitShader = VK_SHADER_UNUSED_NV;
-        uint32_t anyHitShader = VK_SHADER_UNUSED_NV;
-        uint32_t intersectionShader = VK_SHADER_UNUSED_NV;
+        VkRayTracingShaderGroupTypeKHR type = VkRayTracingShaderGroupTypeKHR(VK_RAY_TRACING_SHADER_GROUP_TYPE_MAX_ENUM_KHR);
+        uint32_t generalShader = VK_SHADER_UNUSED_KHR;
+        uint32_t closestHitShader = VK_SHADER_UNUSED_KHR;
+        uint32_t anyHitShader = VK_SHADER_UNUSED_KHR;
+        uint32_t intersectionShader = VK_SHADER_UNUSED_KHR;
 
-        BufferInfo bufferInfo;
+        ref_ptr<BufferInfo> bufferInfo;
 
     protected:
         virtual ~RayTracingShaderGroup();

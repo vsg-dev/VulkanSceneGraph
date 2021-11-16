@@ -25,33 +25,32 @@ void TraceRays::record(CommandBuffer& commandBuffer) const
 {
     Device* device = commandBuffer.getDevice();
     Extensions* extensions = Extensions::Get(device, true);
-    auto rayTracingProperties = device->getPhysicalDevice()->getProperties<VkPhysicalDeviceRayTracingPropertiesNV, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV>();
-    auto shaderGroupHandleSize = rayTracingProperties.shaderGroupHandleSize;
+    auto rayTracingProperties = device->getPhysicalDevice()->getProperties<VkPhysicalDeviceRayTracingPipelinePropertiesKHR, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR>();
+    auto alignedSize = [](uint32_t value, uint32_t alignment) {
+        return (value + alignment - 1) & ~(alignment - 1);
+    };
+    uint32_t handleSizeAligned = alignedSize(rayTracingProperties.shaderGroupHandleSize, rayTracingProperties.shaderGroupHandleAlignment);
 
-    using BufferSize = std::pair<VkBuffer, VkDeviceSize>;
-    auto bufferAndOffset = [&commandBuffer](auto& shaderGroup) {
-        if (shaderGroup && shaderGroup->bufferInfo.buffer) return BufferSize(shaderGroup->bufferInfo.buffer->vk(commandBuffer.deviceID), shaderGroup->bufferInfo.offset);
-        return BufferSize(VK_NULL_HANDLE, 0);
+    auto stridedDeviceAddress = [&](auto& shaderGroup) {
+        if (!shaderGroup) return VkStridedDeviceAddressRegionKHR{};
+        VkBufferDeviceAddressInfo info{};
+        info.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+        info.buffer = shaderGroup->bufferInfo->buffer->vk(device->deviceID);
+        if (shaderGroup && shaderGroup->bufferInfo->buffer) return VkStridedDeviceAddressRegionKHR{extensions->vkGetBufferDeviceAddressKHR(device->getDevice(), &info), handleSizeAligned, shaderGroup->bufferInfo->range};
+        return VkStridedDeviceAddressRegionKHR{};
     };
 
-    auto [raygenShaderBindingTableBuffer, raygenShaderBindingOffset] = bufferAndOffset(raygen);
-    auto [missShaderBindingTableBuffer, missShaderBindingOffset] = bufferAndOffset(missShader);
-    auto [hitShaderBindingTableBuffer, hitShaderBindingOffset] = bufferAndOffset(hitShader);
-    auto [callableShaderBindingTableBuffer, callableShaderBindingOffset] = bufferAndOffset(callableShader);
+    auto raygenShaderBindingTable = stridedDeviceAddress(raygen);
+    auto missShaderBindingTable = stridedDeviceAddress(missShader);
+    auto hitShaderBindingTable = stridedDeviceAddress(hitShader);
+    auto callableShaderBindingTable = stridedDeviceAddress(callableShader);
 
-    extensions->vkCmdTraceRaysNV(
+    extensions->vkCmdTraceRaysKHR(
         commandBuffer,
-        raygenShaderBindingTableBuffer,
-        raygenShaderBindingOffset,
-        missShaderBindingTableBuffer,
-        missShaderBindingOffset,
-        shaderGroupHandleSize,
-        hitShaderBindingTableBuffer,
-        hitShaderBindingOffset,
-        shaderGroupHandleSize,
-        callableShaderBindingTableBuffer,
-        callableShaderBindingOffset,
-        shaderGroupHandleSize,
+        &raygenShaderBindingTable,
+        &missShaderBindingTable,
+        &hitShaderBindingTable,
+        &callableShaderBindingTable,
         width,
         height,
         depth);

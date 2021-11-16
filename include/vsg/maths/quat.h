@@ -49,6 +49,14 @@ namespace vsg
             value{v.x, v.y, v.z, v.w} {}
         constexpr t_quat(value_type in_x, value_type in_y, value_type in_z, value_type in_w) :
             value{in_x, in_y, in_z, in_w} {}
+        constexpr t_quat(value_type angle_radians, const t_vec3<value_type>& axis)
+        {
+            set(angle_radians, axis);
+        }
+        constexpr t_quat(const t_vec3<value_type>& from, const t_vec3<value_type>& to)
+        {
+            set(from, to);
+        }
 
         constexpr std::size_t size() const { return 4; }
 
@@ -74,6 +82,57 @@ namespace vsg
             y = in_y;
             z = in_z;
             w = in_w;
+        }
+
+        void set(value_type angle_radians, const t_vec3<value_type>& axis)
+        {
+            const value_type epsilon = 1e-7;
+            value_type len = length(axis);
+            if (len < epsilon)
+            {
+                // ~zero length axis, so reset rotation to zero.
+                *this = {};
+                return;
+            }
+
+            value_type inversenorm = 1.0 / len;
+            value_type coshalfangle = cos(0.5 * angle_radians);
+            value_type sinhalfangle = sin(0.5 * angle_radians);
+
+            x = axis.x * sinhalfangle * inversenorm;
+            y = axis.y * sinhalfangle * inversenorm;
+            z = axis.z * sinhalfangle * inversenorm;
+            w = coshalfangle;
+        }
+
+        void set(const t_vec3<value_type>& from, const t_vec3<value_type>& to)
+        {
+            const value_type epsilon = 1e-7;
+
+            value_type dot = vsg::dot(from, to);
+            value_type div = std::sqrt(length2(from) * length2(to));
+            vsg::dvec3 axis;
+            if (div - dot < epsilon)
+            {
+                axis = orthogonal(from);
+            }
+            else
+            {
+                axis = cross(from, to);
+            }
+
+            value_type len = length(axis);
+
+            double angle_radians = acos(dot / div);
+
+            value_type inversenorm = 1.0 / len;
+            value_type coshalfangle = cos(0.5 * angle_radians);
+            value_type sinhalfangle = sin(0.5 * angle_radians);
+
+            x = axis.x * sinhalfangle * inversenorm;
+            y = axis.y * sinhalfangle * inversenorm;
+            z = axis.z * sinhalfangle * inversenorm;
+            w = coshalfangle;
         }
     };
 
@@ -157,10 +216,13 @@ namespace vsg
         if (cosomega < 0.0)
         {
             cosomega = -cosomega;
-            to = -to;
+            to.x = -to.x;
+            to.y = -to.y;
+            to.z = -to.z;
+            to.w = -to.w;
         }
 
-        if ((1.0 - cosomega) > epsilon)
+        if ((one - cosomega) > epsilon)
         {
             T omega = acos(cosomega);
             T sinomega = sin(omega);
@@ -173,29 +235,6 @@ namespace vsg
             // quaternion's are very close so just linearly interpolate
             return (from * (one - r)) + (to * r);
         }
-    }
-
-    template<typename T>
-    constexpr t_mat4<T> mat4_cast(const t_quat<T>& q)
-    {
-        T qxx(q.x * q.x);
-        T qyy(q.y * q.y);
-        T qzz(q.z * q.z);
-        T qxy(q.x * q.y);
-        T qxz(q.x * q.z);
-        T qyz(q.y * q.z);
-        T qwx(q.w * q.x);
-        T qwy(q.w * q.y);
-        T qwz(q.w * q.z);
-
-        T zero(0.0);
-        T one(1.0);
-        T two(2.0);
-
-        return t_mat4<T>(one - two * (qyy + qzz), two * (qxy + qwz), two * (qxz - qwy), zero,
-                         two * (qxy - qwz), one - two * (qxx + qzz), two * (qyz + qwx), zero,
-                         two * (qxz + qwy), two * (qyz - qwx), one - two * (qxx + qyy), zero,
-                         zero, zero, zero, 1.0);
     }
 
 } // namespace vsg

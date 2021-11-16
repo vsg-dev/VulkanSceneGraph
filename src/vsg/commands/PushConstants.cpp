@@ -17,17 +17,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 PushConstants::PushConstants() :
-    Inherit(2), // slot 0
-    _stageFlags(0),
-    _offset(0)
+    Inherit(2) // slot 0
 {
 }
 
-PushConstants::PushConstants(VkShaderStageFlags stageFlags, uint32_t offset, Data* data) :
+PushConstants::PushConstants(VkShaderStageFlags in_stageFlags, uint32_t in_offset, Data* in_data) :
     Inherit(2), // slot 0
-    _stageFlags(stageFlags),
-    _offset(offset),
-    _data(data)
+    stageFlags(in_stageFlags),
+    offset(in_offset),
+    data(in_data)
 {
 }
 
@@ -39,21 +37,21 @@ void PushConstants::read(Input& input)
 {
     StateCommand::read(input);
 
-    input.readValue<uint32_t>("stageFlags", _stageFlags);
-    input.read("offset", _offset);
-    input.readObject("data", _data);
+    input.readValue<uint32_t>("stageFlags", stageFlags);
+    input.read("offset", offset);
+    input.read("data", data);
 }
 
 void PushConstants::write(Output& output) const
 {
     StateCommand::write(output);
 
-    output.writeValue<uint32_t>("stageFlags", _stageFlags);
-    output.write("offset", _offset);
-    output.writeObject("data", _data.get());
+    output.writeValue<uint32_t>("stageFlags", stageFlags);
+    output.write("offset", offset);
+    output.write("data", data);
 }
 
 void PushConstants::record(CommandBuffer& commandBuffer) const
 {
-    vkCmdPushConstants(commandBuffer, commandBuffer.getCurrentPipelineLayout(), _stageFlags, _offset, static_cast<uint32_t>(_data->dataSize()), _data->dataPointer());
+    vkCmdPushConstants(commandBuffer, commandBuffer.getCurrentPipelineLayout(), stageFlags, offset, static_cast<uint32_t>(data->dataSize()), data->dataPointer());
 }

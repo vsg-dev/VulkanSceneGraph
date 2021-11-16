@@ -18,6 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/RenderGraph.h>
 #include <vsg/vk/State.h>
 
+#include <iostream>
+
 using namespace vsg;
 
 CommandGraph::CommandGraph(Device* in_device, int family) :
@@ -77,6 +79,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     recordTraversal->setFrameStamp(frameStamp);
     recordTraversal->setDatabasePager(databasePager);
+    recordTraversal->clearBins();
 
     ref_ptr<CommandBuffer> commandBuffer;
     for (auto& cb : _commandBuffers)
@@ -140,11 +143,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     if (camera)
     {
-        dmat4 projMatrix, viewMatrix;
-        camera->getProjectionMatrix()->get(projMatrix);
-        camera->getViewMatrix()->get(viewMatrix);
-
-        recordTraversal->setProjectionAndViewMatrix(projMatrix, viewMatrix);
+        recordTraversal->setProjectionAndViewMatrix(camera->projectionMatrix->transform(), camera->viewMatrix->transform());
     }
 
     accept(*recordTraversal);
@@ -153,7 +152,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     if (level == VK_COMMAND_BUFFER_LEVEL_SECONDARY)
     {
-        // pass oon this command buffer to conencted ExecuteCommands nodes
+        // pass on this command buffer to connected ExecuteCommands nodes
         for (auto& ec : _executeCommands)
         {
             ec->completed(commandBuffer);

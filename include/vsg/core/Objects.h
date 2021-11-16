@@ -29,7 +29,7 @@ namespace vsg
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
-            for (auto& child : node._children) child->accept(visitor);
+            for (auto& child : node.children) child->accept(visitor);
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
@@ -39,31 +39,16 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        std::size_t addChild(vsg::ref_ptr<Object> child)
-        {
-            std::size_t pos = _children.size();
-            _children.push_back(child);
-            return pos;
-        }
-
-        void removeChild(std::size_t pos) { _children.erase(_children.begin() + pos); }
-
-        void setChild(std::size_t pos, Object* node) { _children[pos] = node; }
-        vsg::Object* getChild(std::size_t pos) { return _children[pos].get(); }
-        const vsg::Object* getChild(std::size_t pos) const { return _children[pos].get(); }
-
-        std::size_t getNumChildren() const noexcept { return _children.size(); }
-
         using Children = std::vector<ref_ptr<vsg::Object>>;
+        Children children;
 
-        void setChildren(const Children& children) { _children = children; }
-        Children& getChildren() noexcept { return _children; }
-        const Children& getChildren() const noexcept { return _children; }
+        void addChild(vsg::ref_ptr<Object> child)
+        {
+            children.push_back(child);
+        }
 
     protected:
         virtual ~Objects();
-
-        Children _children;
     };
     VSG_type_name(vsg::Objects);
 

@@ -12,30 +12,25 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/Group.h>
+#include <vsg/nodes/Transform.h>
 
 namespace vsg
 {
 
-    class VSG_DECLSPEC MatrixTransform : public Inherit<Group, MatrixTransform>
+    class VSG_DECLSPEC MatrixTransform : public Inherit<Transform, MatrixTransform>
     {
     public:
         MatrixTransform(Allocator* allocator = nullptr);
-        MatrixTransform(const dmat4& matrix, Allocator* allocator = nullptr);
+        MatrixTransform(const dmat4& in_matrix, Allocator* allocator = nullptr);
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void setMatrix(const dmat4& matrix) { _matrix = matrix; }
-        dmat4& getMatrix() { return _matrix; }
-        const dmat4& getMatrix() const { return _matrix; }
+        dmat4 transform(const dmat4& m) const override { return m * matrix; }
 
-        void setSubgraphRequiresLocalFrustum(bool flag) { _subgraphRequiresLocalFrustum = flag; }
-        bool getSubgraphRequiresLocalFrustum() const { return _subgraphRequiresLocalFrustum; }
+        dmat4 matrix;
 
     protected:
-        dmat4 _matrix;
-        bool _subgraphRequiresLocalFrustum;
     };
     VSG_type_name(vsg::MatrixTransform);
 

@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Export.h>
+#include <vsg/nodes/Bin.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/Window.h>
@@ -67,10 +68,10 @@ namespace vsg
 
     using CommandGraphs = std::vector<ref_ptr<CommandGraph>>;
 
-    /// convience function that sets up RenderGraph inside primary CommandGraph to render the specified scene graph from the speified Camera view
+    /// convenience function that sets up RenderGraph inside primary CommandGraph to render the specified scene graph from the specified Camera view
     extern VSG_DECLSPEC ref_ptr<CommandGraph> createCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
 
-    /// convience function that sets up secondaryCommandGraph to render the specified scene graph from the speified Camera view
+    /// convenience function that sets up secondaryCommandGraph to render the specified scene graph from the specified Camera view
     extern VSG_DECLSPEC ref_ptr<CommandGraph> createSecondaryCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, uint32_t subpass);
 
 } // namespace vsg

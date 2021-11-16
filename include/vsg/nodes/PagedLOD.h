@@ -39,6 +39,22 @@ namespace vsg
     public:
         PagedLOD(Allocator* allocator = nullptr);
 
+        template<class N, class V>
+        static void t_traverse(N& node, V& visitor)
+        {
+            for (auto& child : node.children)
+            {
+                if (child.node) child.node->accept(visitor);
+            }
+        }
+
+        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+        void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
         struct Child
         {
             double minimumScreenHeightRatio = 0.0; // 0.0 is always visible
@@ -54,43 +70,18 @@ namespace vsg
 
         // TODO need status of external file load
 
+        dsphere bound;
+
         using Children = std::array<Child, 2>;
+        Children children;
 
-        template<class N, class V>
-        static void t_traverse(N& node, V& visitor)
+        bool highResActive(uint64_t frameCount) const
         {
-            for (auto& child : node._children)
-            {
-                if (child.node) child.node->accept(visitor);
-            }
+            return (frameCount - frameHighResLastUsed.load()) <= 1;
         }
-
-        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
-        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
-        void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        void setBound(const dsphere& bound) { _bound = bound; }
-        inline const dsphere& getBound() const { return _bound; }
-
-        void setChild(std::size_t pos, const Child& lodChild) { _children[pos] = lodChild; }
-        Child& getChild(std::size_t pos) { return _children[pos]; }
-        const Child& getChild(std::size_t pos) const { return _children[pos]; }
-
-        std::size_t getNumChildren() const { return _children.size(); }
-
-        Children& getChildren() { return _children; }
-        const Children& getChildren() const { return _children; }
-
-        bool highResActive(uint64_t frameCount) const { return (frameCount - frameHighResLastUsed.load()) <= 1; }
 
     protected:
         virtual ~PagedLOD();
-
-        dsphere _bound;
-        Children _children;
 
     public:
         ref_ptr<const Options> options;

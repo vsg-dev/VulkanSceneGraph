@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/observer_ptr.h>
-#include <vsg/ui/UIEvent.h>
+#include <vsg/ui/FrameStamp.h>
 #include <vsg/viewer/Window.h>
 
 namespace vsg
@@ -27,23 +27,6 @@ namespace vsg
 
         TerminateEvent(time_point in_time) :
             Inherit(in_time) {}
-    };
-
-    VSG_type_name(vsg::FrameStamp);
-    class VSG_DECLSPEC FrameStamp : public Inherit<Object, FrameStamp>
-    {
-    public:
-        FrameStamp() {}
-
-        FrameStamp(time_point in_time, uint64_t in_frameCount) :
-            time(in_time),
-            frameCount(in_frameCount) {}
-
-        time_point time = {};
-        uint64_t frameCount = 0;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
     };
 
     VSG_type_name(vsg::FrameEvent);

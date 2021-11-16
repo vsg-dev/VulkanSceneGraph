@@ -4,7 +4,7 @@
 
 Copyright(c) 2018 Robert Osfield
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated docoomandscumentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
@@ -95,7 +95,7 @@ namespace vsg
 
         ref_ptr<VulkanInfo> next;
         VkAccessFlags srcAccessMask = 0;
-        VkAccessFlags dstAccessMask = 0;
+        VkAccessFlags dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
         VkImageLayout oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         VkImageLayout newLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         uint32_t srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;

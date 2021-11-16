@@ -17,30 +17,44 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 MatrixTransform::MatrixTransform(Allocator* allocator) :
-    Inherit(allocator),
-    _subgraphRequiresLocalFrustum(true)
+    Inherit(allocator)
 {
 }
 
-MatrixTransform::MatrixTransform(const dmat4& matrix, Allocator* allocator) :
+MatrixTransform::MatrixTransform(const dmat4& in_matrix, Allocator* allocator) :
     Inherit(allocator),
-    _matrix(matrix),
-    _subgraphRequiresLocalFrustum(true)
+    matrix(in_matrix)
 {
 }
 
 void MatrixTransform::read(Input& input)
 {
-    Group::read(input);
+    Transform::read(input);
 
-    input.read("Matrix", _matrix);
-    input.read("SubgraphRequiresLocalFrustum", _subgraphRequiresLocalFrustum);
+    if (input.version_greater_equal(0, 1, 4))
+    {
+        input.read("matrix", matrix);
+        input.read("subgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
+    }
+    else
+    {
+        input.read("Matrix", matrix);
+        input.read("SubgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
+    }
 }
 
 void MatrixTransform::write(Output& output) const
 {
-    Group::write(output);
+    Transform::write(output);
 
-    output.write("Matrix", _matrix);
-    output.write("SubgraphRequiresLocalFrustum", _subgraphRequiresLocalFrustum);
+    if (output.version_greater_equal(0, 1, 4))
+    {
+        output.write("matrix", matrix);
+        output.write("subgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
+    }
+    else
+    {
+        output.write("Matrix", matrix);
+        output.write("SubgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
+    }
 }

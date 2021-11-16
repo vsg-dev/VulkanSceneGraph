@@ -15,10 +15,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Data.h>
 #include <vsg/core/Object.h>
 #include <vsg/core/Version.h>
+#include <vsg/core/type_name.h>
 
 #include <vsg/maths/box.h>
 #include <vsg/maths/mat4.h>
 #include <vsg/maths/plane.h>
+#include <vsg/maths/quat.h>
 #include <vsg/maths/sphere.h>
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
@@ -71,15 +73,26 @@ namespace vsg
         void write(size_t num, const dvec2* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const dvec3* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const dvec4* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const bvec2* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const bvec3* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const bvec4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const ubvec2* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const ubvec3* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const ubvec4* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const svec2* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const svec3* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const svec4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const usvec2* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const usvec3* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const usvec4* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const ivec2* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const ivec3* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const ivec4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const uivec2* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const uivec3* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const uivec4* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const quat* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const dquat* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const mat4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const dmat4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const sphere* value) { write(num * value->size(), value->data()); }
@@ -99,6 +112,38 @@ namespace vsg
             else
             {
                 write(num * sizeof(T), reinterpret_cast<const uint8_t*>(value));
+            }
+        }
+
+        template<typename T>
+        void write(const char* propertyName, const ref_ptr<T>& object)
+        {
+            writePropertyName(propertyName);
+            write(object);
+        }
+
+        template<typename T>
+        void write(const char* propertyName, const std::vector<ref_ptr<T>>& values)
+        {
+            uint32_t numElements = static_cast<uint32_t>(values.size());
+            write(propertyName, numElements);
+
+            const char* element_name = type_name<T>();
+            for (uint32_t i = 0; i < numElements; ++i)
+            {
+                write(element_name, values[i]);
+            }
+        }
+
+        template<typename T>
+        void write(const char* propertyName, const std::vector<T>& values)
+        {
+            uint32_t numElements = static_cast<uint32_t>(values.size());
+            write(propertyName, numElements);
+
+            for (uint32_t i = 0; i < numElements; ++i)
+            {
+                write("element", values[i]);
             }
         }
 

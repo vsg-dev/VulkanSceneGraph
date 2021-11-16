@@ -27,13 +27,10 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void setBound(const dsphere& bound) { _bound = bound; }
-        inline const dsphere& getBound() const { return _bound; }
+        dsphere bound;
 
     protected:
         virtual ~CullGroup();
-
-        dsphere _bound;
     };
     VSG_type_name(vsg::CullGroup);
 

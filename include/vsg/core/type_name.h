@@ -26,8 +26,9 @@ namespace vsg
     constexpr const char* type_name(const T&) noexcept { return type_name<T>(); }
 
     template<> constexpr const char* type_name<std::string>() noexcept { return "string"; }
-    template<> constexpr const char* type_name<bool>() noexcept { return "char"; }
+    template<> constexpr const char* type_name<bool>() noexcept { return "bool"; }
     template<> constexpr const char* type_name<char>() noexcept { return "char"; }
+    template<> constexpr const char* type_name<int8_t>() noexcept { return "int8_t"; }
     template<> constexpr const char* type_name<unsigned char>() noexcept { return "uchar"; }
     template<> constexpr const char* type_name<short>() noexcept { return "short"; }
     template<> constexpr const char* type_name<unsigned short>() noexcept { return "ushort"; }
@@ -36,11 +37,16 @@ namespace vsg
     template<> constexpr const char* type_name<float>() noexcept { return "float"; }
     template<> constexpr const char* type_name<double>() noexcept { return "double"; }
 
-    // helper define for defining the type_name() for a type within the vsg namespcae.
-    #define VSG_type_name(T) template<> constexpr const char* type_name<T>() noexcept { return #T; }
+    // helper define for defining the type_name() for a type within the vsg namespace.
+    #define VSG_type_name(T) \
+        template<> constexpr const char* type_name<T>() noexcept { return #T; } \
+        template<> constexpr const char* type_name<const T>() noexcept { return "const "#T; }
 
-    // helper define for defining the type_name() for a type in a namesapce other than vsg, note must be placed in global namespace.
-    #define EVSG_type_name(T) template<> constexpr const char* vsg::type_name<T>() noexcept { return #T; }
+
+    // helper define for defining the type_name() for a type in a namespace other than vsg, note must be placed in global namespace.
+    #define EVSG_type_name(T) \
+        template<> constexpr const char* vsg::type_name<T>() noexcept { return #T; } \
+        template<> constexpr const char* vsg::type_name<const T>() noexcept { return "const "#T; }
 
     // clang-format on
 

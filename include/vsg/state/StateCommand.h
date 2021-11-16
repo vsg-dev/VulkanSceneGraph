@@ -19,20 +19,17 @@ namespace vsg
     class VSG_DECLSPEC StateCommand : public Inherit<Command, StateCommand>
     {
     public:
-        StateCommand(uint32_t slot = 0, Allocator* allocator = nullptr) :
+        StateCommand(uint32_t in_slot = 0, Allocator* allocator = nullptr) :
             Inherit(allocator),
-            _slot(slot) {}
+            slot(in_slot) {}
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void setSlot(uint32_t slot) { _slot = slot; }
-        uint32_t getSlot() const { return _slot; }
+        uint32_t slot = 0;
 
     protected:
         virtual ~StateCommand() {}
-
-        uint32_t _slot;
     };
     VSG_type_name(vsg::StateCommand);
 

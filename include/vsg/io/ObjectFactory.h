@@ -38,10 +38,12 @@ namespace vsg
         static ref_ptr<ObjectFactory>& instance();
 
     protected:
+        virtual ~ObjectFactory();
+
         CreateMap _createMap;
     };
 
-    // Helper tempalte class for registering the ability to create a Object of specified T on deamnd.
+    // Helper template class for registering the ability to create a Object of specified T on demand.
     template<class T>
     struct RegisterWithObjectFactoryProxy
     {

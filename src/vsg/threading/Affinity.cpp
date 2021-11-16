@@ -46,7 +46,7 @@ static void win32_setAffinity(HANDLE tid, const vsg::Affinity& affinity)
 
 void vsg::setAffinity(std::thread& thread, const Affinity& affinity)
 {
-    win32_setAffinity(thread.native_handle(), affinity);
+    win32_setAffinity((HANDLE)thread.native_handle(), affinity);
 }
 
 void vsg::setAffinity(const Affinity& affinity)
@@ -98,7 +98,19 @@ void vsg::setAffinity(const Affinity& affinity)
     macos_setAffinity(pthread_self(), affinity);
 }
 
-#else // assume pthreads
+#elif defined(__ANDROID__)
+
+void vsg::setAffinity(std::thread&, const Affinity&)
+{
+    // Not currently implemented
+}
+
+void vsg::setAffinity(const Affinity&)
+{
+    // Not currently implemented
+}
+
+#else // unices
 
 static void pthread_setAffinity(pthread_t thread_native_handle, const vsg::Affinity& affinity)
 {
@@ -138,4 +150,5 @@ void vsg::setAffinity(const Affinity& affinity)
 {
     pthread_setAffinity(pthread_self(), affinity);
 }
+
 #endif

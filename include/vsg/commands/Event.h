@@ -4,7 +4,7 @@
 
 Copyright(c) 2020 Robert Osfield
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated docoomandscumentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Encapusulation of VkEvent
+    /// Encapsulation of VkEvent
     class VSG_DECLSPEC Event : public Inherit<Object, Event>
     {
     public:
@@ -29,10 +29,10 @@ namespace vsg
         /// set the state of the vkEvent to signaled
         void set();
 
-        /// set the state of the vkEvent to unsignaled.
+        /// set the state of the vkEvent to unsignalled.
         void reset();
 
-        /// get the status of the vkEvent, return VK_EVENT_SET for a signalled event, VK_EVENT_RESET for unsignaled.
+        /// get the status of the vkEvent, return VK_EVENT_SET for a signaled event, VK_EVENT_RESET for unsignalled.
         VkResult status();
 
     protected:
@@ -45,7 +45,7 @@ namespace vsg
 
     using Events = std::vector<ref_ptr<Event>>;
 
-    /// Commnand class encapsulating vkCmdSetEvent
+    /// Command class encapsulating vkCmdSetEvent
     class VSG_DECLSPEC SetEvent : public Inherit<Command, SetEvent>
     {
     public:
@@ -61,7 +61,7 @@ namespace vsg
     };
     VSG_type_name(vsg::SetEvent);
 
-    /// Commnand class encapsulating vkCmdReetEvent
+    /// Command class encapsulating vkCmdReetEvent
     class VSG_DECLSPEC ResetEvent : public Inherit<Command, ResetEvent>
     {
     public:
@@ -77,7 +77,7 @@ namespace vsg
     };
     VSG_type_name(vsg::ResetEvent);
 
-    /// Commnand class encapsulating vkCmdWaitEvents
+    /// Command class encapsulating vkCmdWaitEvents
     class VSG_DECLSPEC WaitEvents : public Inherit<Command, WaitEvents>
     {
     public:

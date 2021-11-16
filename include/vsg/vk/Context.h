@@ -15,34 +15,43 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <deque>
 #include <memory>
 
-#include <vsg/core/Object.h>
 #include <vsg/core/ScratchMemory.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/state/BufferInfo.h>
 #include <vsg/state/GraphicsPipeline.h>
+#include <vsg/state/ImageInfo.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/MemoryBufferPools.h>
+#include <vsg/vk/ResourceRequirements.h>
 #include <vsg/vk/ShaderCompiler.h>
 
 #include <vsg/commands/Command.h>
+#include <vsg/commands/CopyAndReleaseBuffer.h>
+#include <vsg/commands/CopyAndReleaseImage.h>
 
 namespace vsg
 {
+
     class VSG_DECLSPEC BuildAccelerationStructureCommand : public Inherit<Command, BuildAccelerationStructureCommand>
     {
     public:
-        BuildAccelerationStructureCommand(Device* device, VkAccelerationStructureInfoNV* info, const VkAccelerationStructureNV& structure, Buffer* instanceBuffer, Allocator* allocator = nullptr);
+        // the primitive Count is A) the amount of triangles to be built for type VK_GEOMETRY_TYPE_TRIANGLES_KHR (blas) B) the amount of AABBs for type VK_GEOMETRY_TYPE_AABBS_KHR
+        // and C) the number of acceleration structures for type VK_GEOMETRY_TYPE_INSTANCES_KHR
+        BuildAccelerationStructureCommand(Device* device, const VkAccelerationStructureBuildGeometryInfoKHR& info, const VkAccelerationStructureKHR& structure, const std::vector<uint32_t>& primitiveCounts, Allocator* allocator);
 
         void compile(Context&) override {}
         void record(CommandBuffer& commandBuffer) const override;
+        void setScratchBuffer(ref_ptr<Buffer>& scratchBuffer);
 
         ref_ptr<Device> _device;
-        VkAccelerationStructureInfoNV* _accelerationStructureInfo;
-        VkAccelerationStructureNV _accelerationStructure;
-        ref_ptr<Buffer> _instanceBuffer;
+        VkAccelerationStructureBuildGeometryInfoKHR _accelerationStructureInfo;
+        std::vector<VkAccelerationStructureGeometryKHR> _accelerationStructureGeometries;
+        std::vector<VkAccelerationStructureBuildRangeInfoKHR> _accelerationStructureBuildRangeInfos;
+        VkAccelerationStructureKHR _accelerationStructure;
 
+    protected:
         // scratch buffer set after compile traversal before record of build commands
         ref_ptr<Buffer> _scratchBuffer;
     };
@@ -53,7 +62,7 @@ namespace vsg
     public:
         Context();
 
-        Context(Device* in_device, BufferPreferences bufferPreferences = {});
+        Context(Device* in_device, const ResourceRequirements& resourceRequirements = {});
 
         Context(const Context& context);
 
@@ -64,7 +73,7 @@ namespace vsg
 
         uint32_t viewID = 0;
 
-        // get exisitng ShaderCompile or create a new one when GLSLang is supported
+        // get existing ShaderCompile or create a new one when GLSLang is supported
         ShaderCompiler* getOrCreateShaderCompiler();
 
         ref_ptr<CommandBuffer> getOrCreateCommandBuffer();
@@ -79,7 +88,7 @@ namespace vsg
         // pipeline states that must be set to avoid Vulkan errors
         // e.g., MultisampleState.
         // XXX MultisampleState is complicated because the sample
-        // number needs to agree with the renderpass attachement, but
+        // number needs to agree with the renderpass attachment, but
         // other parts of the state, like alpha to coverage, belong to
         // the scene graph .
         GraphicsPipelineStates overridePipelineStates;
@@ -100,6 +109,13 @@ namespace vsg
 
         std::vector<ref_ptr<Command>> commands;
 
+        ref_ptr<CopyAndReleaseImage> copyImageCmd;
+        void copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest);
+        void copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels);
+
+        ref_ptr<CopyAndReleaseBuffer> copyBufferCmd;
+        void copy(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest);
+
         /// return true if there are commands that have been submitted
         bool record();
 
@@ -108,7 +124,7 @@ namespace vsg
         ref_ptr<MemoryBufferPools> deviceMemoryBufferPools;
         ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;
 
-        // raytracing
+        // RTX ray tracing
         VkDeviceSize scratchBufferSize;
         std::vector<ref_ptr<BuildAccelerationStructureCommand>> buildAccelerationStructureCommands;
     };

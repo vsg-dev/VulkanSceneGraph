@@ -67,7 +67,7 @@ namespace vsg
             value{normal.x, normal.y, normal.z, in_p} {}
 
         constexpr t_plane(const normal_type& position, const normal_type& normal) :
-            value{normal.x, normal.y, normal.z, position * normal} {}
+            value{normal.x, normal.y, normal.z, -(position * normal)} {}
 
         template<typename R>
         constexpr explicit t_plane(const t_plane<R>& v) :
@@ -90,6 +90,14 @@ namespace vsg
             value[2] = static_cast<value_type>(rhs[2]);
             value[3] = static_cast<value_type>(rhs[3]);
             return *this;
+        }
+
+        void set(value_type in_x, value_type in_y, value_type in_z, value_type in_d)
+        {
+            value[0] = in_x;
+            value[1] = in_y;
+            value[2] = in_z;
+            value[3] = in_d;
         }
 
         bool valid() const { return n.x != 0.0 && n.y != 0.0 && n.z != 0.0; }

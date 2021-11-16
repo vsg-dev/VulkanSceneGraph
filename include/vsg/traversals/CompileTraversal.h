@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Object.h>
+#include <vsg/nodes/Bin.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/state/BufferInfo.h>
 #include <vsg/state/Descriptor.h>
@@ -22,57 +23,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Context.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Fence.h>
+#include <vsg/vk/ResourceRequirements.h>
 
 #include <map>
 #include <set>
+#include <stack>
 
 namespace vsg
 {
-    class VSG_DECLSPEC CollectDescriptorStats : public Inherit<ConstVisitor, CollectDescriptorStats>
-    {
-    public:
-        using Descriptors = std::set<const Descriptor*>;
-        using DescriptorSets = std::set<const DescriptorSet*>;
-        using DescriptorTypeMap = std::map<VkDescriptorType, uint32_t>;
-        using Views = std::set<const View*>;
-
-        using ConstVisitor::apply;
-
-        bool checkForResourceHints(const Object& object);
-
-        void apply(const Object& object) override;
-        void apply(const ResourceHints& resourceHints) override;
-        void apply(const Node& node) override;
-        void apply(const StateGroup& stategroup) override;
-        void apply(const StateCommand& stateCommand) override;
-        void apply(const DescriptorSet& descriptorSet) override;
-        void apply(const Descriptor& descriptor) override;
-        void apply(const PagedLOD& plod) override;
-        void apply(const View& view) override;
-
-        uint32_t computeNumDescriptorSets() const;
-
-        DescriptorPoolSizes computeDescriptorPoolSizes() const;
-
-        Descriptors descriptors;
-        DescriptorSets descriptorSets;
-        DescriptorTypeMap descriptorTypeMap;
-        Views views;
-
-        uint32_t maxSlot = 0;
-        uint32_t externalNumDescriptorSets = 0;
-        bool containsPagedLOD = false;
-
-    protected:
-        uint32_t _numResourceHintsAbove = 0;
-    };
-    VSG_type_name(vsg::CollectDescriptorStats);
 
     class VSG_DECLSPEC CompileTraversal : public Inherit<Visitor, CompileTraversal>
     {
     public:
-        explicit CompileTraversal(Device* in_device, BufferPreferences bufferPreferences = {});
-        explicit CompileTraversal(Window* window, ViewportState* viewport = nullptr, BufferPreferences bufferPreferences = {});
+        explicit CompileTraversal(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements = {});
+        explicit CompileTraversal(ref_ptr<Window> window, ref_ptr<ViewportState> viewport = {}, const ResourceRequirements& resourceRequirements = {});
         CompileTraversal(const CompileTraversal& ct);
         ~CompileTraversal();
 

@@ -49,14 +49,14 @@ void ObjectCache::clear()
 bool ObjectCache::contains(const Path& filename, ref_ptr<const Options> options)
 {
     std::scoped_lock<std::mutex> guard(_mutex);
-    return _objectCacheMap.find(FilenameOption(filename, options)) != _objectCacheMap.end();
+    return _objectCacheMap.find(Key(filename, options)) != _objectCacheMap.end();
 }
 
 ref_ptr<Object> ObjectCache::get(const Path& filename, ref_ptr<const Options> options)
 {
     std::scoped_lock<std::mutex> guard(_mutex);
 
-    if (auto itr = _objectCacheMap.find(FilenameOption(filename, options)); itr != _objectCacheMap.end())
+    if (auto itr = _objectCacheMap.find(Key(filename, options)); itr != _objectCacheMap.end())
     {
         ObjectTimepoint& ot = itr->second;
         std::scoped_lock<std::mutex> ot_guard(ot.mutex);
@@ -71,7 +71,7 @@ ref_ptr<Object> ObjectCache::get(const Path& filename, ref_ptr<const Options> op
 
 void ObjectCache::add(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options)
 {
-    ObjectTimepoint& ot = _objectCacheMap[FilenameOption(filename, options)];
+    ObjectTimepoint& ot = _objectCacheMap[Key(filename, options)];
 
     std::scoped_lock<std::mutex> guard(ot.mutex);
     ot.object = object;
@@ -82,9 +82,7 @@ void ObjectCache::add(ref_ptr<Object> object, const Path& filename, ref_ptr<cons
 void ObjectCache::remove(const Path& filename, ref_ptr<const Options> options)
 {
     std::scoped_lock<std::mutex> guard(_mutex);
-
-    FilenameOption filenameOption(filename, options);
-    if (auto itr = _objectCacheMap.find(filenameOption); itr != _objectCacheMap.end())
+    if (auto itr = _objectCacheMap.find(Key(filename, options)); itr != _objectCacheMap.end())
     {
         _objectCacheMap.erase(itr);
     }
@@ -102,4 +100,18 @@ void ObjectCache::remove(ref_ptr<Object> object)
             _objectCacheMap.erase(current_itr);
         }
     }
+}
+
+bool ObjectCache::suitable(const Path& filename) const
+{
+    return excludedExtensions.count(vsg::lowerCaseFileExtension(filename)) == 0;
+}
+
+ObjectCache::ObjectTimepoint& ObjectCache::getObjectTimepoint(const Path& filename, ref_ptr<const Options> options)
+{
+    std::scoped_lock<std::mutex> guard(_mutex);
+    if (requireMatchedOptions)
+        return _objectCacheMap[Key(filename, options)];
+    else
+        return _objectCacheMap[Key(filename, {})];
 }

@@ -72,11 +72,11 @@ Font::FontState::FontState(Font* font)
         sampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         sampler->unnormalizedCoordinates = VK_TRUE;
 
-        uint32_t stride = static_cast<uint32_t>(sizeof(GlyphMetrics));
+        uint32_t stride = sizeof(vec4);
         uint32_t numVec4PerGlyph = static_cast<uint32_t>(sizeof(GlyphMetrics) / sizeof(vec4));
         uint32_t numGlyphs = static_cast<uint32_t>(font->glyphMetrics->valueCount());
 
         auto glyphMetricsProxy = vec4Array2D::create(font->glyphMetrics, 0, stride, numVec4PerGlyph, numGlyphs, Data::Layout{VK_FORMAT_R32G32B32A32_SFLOAT});
-        glyphMetrics = DescriptorImage::create(sampler, glyphMetricsProxy, 1, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+        glyphMetricsImage = DescriptorImage::create(sampler, glyphMetricsProxy, 1, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
     }
 }

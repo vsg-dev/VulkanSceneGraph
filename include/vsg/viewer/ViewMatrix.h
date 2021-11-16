@@ -20,20 +20,14 @@ namespace vsg
     class VSG_DECLSPEC ViewMatrix : public Inherit<Object, ViewMatrix>
     {
     public:
-        virtual void get(mat4& matrix) const = 0;
-        virtual void get(dmat4& matrix) const = 0;
+        virtual dmat4 transform() const = 0;
 
-        virtual void get_inverse(mat4& matrix) const
+        virtual dmat4 inverse() const
         {
-            get(matrix);
-            matrix = inverse(matrix);
-        }
-        virtual void get_inverse(dmat4& matrix) const
-        {
-            get(matrix);
-            matrix = inverse(matrix);
+            return vsg::inverse(transform());
         }
     };
+    VSG_type_name(vsg::ViewMatrix);
 
     class LookAt : public Inherit<ViewMatrix, LookAt>
     {
@@ -42,6 +36,14 @@ namespace vsg
             eye(0.0, 0.0, 0.0),
             center(0.0, 1.0, 0.0),
             up(0.0, 0.0, 1.0)
+        {
+        }
+
+        LookAt(const LookAt& lookAt) :
+            Inherit(lookAt),
+            eye(lookAt.eye),
+            center(lookAt.center),
+            up(lookAt.up)
         {
         }
 
@@ -69,13 +71,13 @@ namespace vsg
             eye = matrix * dvec3(0.0, 0.0, 0.0);
         }
 
-        void get(mat4& matrix) const override { matrix = lookAt(eye, center, up); }
-        void get(dmat4& matrix) const override { matrix = lookAt(eye, center, up); }
+        dmat4 transform() const override { return lookAt(eye, center, up); }
 
         dvec3 eye;
         dvec3 center;
         dvec3 up;
     };
+    VSG_type_name(vsg::LookAt);
 
     class RelativeView : public Inherit<ViewMatrix, RelativeView>
     {
@@ -86,20 +88,14 @@ namespace vsg
         {
         }
 
-        void get(mat4& in_matrix) const override
+        dmat4 transform() const override
         {
-            viewMatrix->get(in_matrix);
-            in_matrix = mat4(matrix) * in_matrix;
-        }
-
-        void get(dmat4& in_matrix) const override
-        {
-            viewMatrix->get(in_matrix);
-            in_matrix = matrix * in_matrix;
+            return matrix * viewMatrix->transform();
         }
 
         ref_ptr<ViewMatrix> viewMatrix;
         dmat4 matrix;
     };
+    VSG_type_name(vsg::RelativeView);
 
 } // namespace vsg

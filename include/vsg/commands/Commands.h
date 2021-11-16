@@ -31,7 +31,7 @@ namespace vsg
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
-            for (auto& child : node._children) child->accept(visitor);
+            for (auto& child : node.children) child->accept(visitor);
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
@@ -41,33 +41,19 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        std::size_t addChild(vsg::ref_ptr<Command> child)
-        {
-            std::size_t pos = _children.size();
-            _children.push_back(child);
-            return pos;
-        }
-
-        void removeChild(std::size_t pos) { _children.erase(_children.begin() + pos); }
-
-        void setChild(std::size_t pos, Command* node) { _children[pos] = node; }
-        vsg::Command* getChild(std::size_t pos) { return _children[pos].get(); }
-        const vsg::Command* getChild(std::size_t pos) const { return _children[pos].get(); }
-
-        std::size_t getNumChildren() const noexcept { return _children.size(); }
-
         using Children = std::vector<ref_ptr<vsg::Command>>;
+        Children children;
 
-        Children& getChildren() noexcept { return _children; }
-        const Children& getChildren() const noexcept { return _children; }
+        void addChild(vsg::ref_ptr<Command> child)
+        {
+            children.push_back(child);
+        }
 
         void compile(Context& context) override;
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~Commands();
-
-        Children _children;
     };
     VSG_type_name(vsg::Commands);
 

@@ -12,57 +12,30 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/Group.h>
-#include <vsg/state/StateCommand.h>
-#include <vsg/traversals/CompileTraversal.h>
-
-#include <algorithm>
+#include <vsg/state/GraphicsPipeline.h>
 
 namespace vsg
 {
-    // forward declare
-    class CommandBuffer;
-
-    class VSG_DECLSPEC StateGroup : public Inherit<Group, StateGroup>
+    class VSG_DECLSPEC MultisampleState : public Inherit<GraphicsPipelineState, MultisampleState>
     {
     public:
-        StateGroup(Allocator* allocator = nullptr);
+        MultisampleState(VkSampleCountFlagBits rasterizationSamples = VK_SAMPLE_COUNT_1_BIT);
+
+        /// VkPipelineMultisampleStateCreateInfo settings
+        VkSampleCountFlagBits rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+        VkBool32 sampleShadingEnable = VK_FALSE;
+        float minSampleShading = 0.0f;
+        std::vector<VkSampleMask> sampleMasks;
+        VkBool32 alphaToCoverageEnable = VK_FALSE;
+        VkBool32 alphaToOneEnable = VK_FALSE;
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        using StateCommands = std::vector<ref_ptr<StateCommand>>;
-
-        StateCommands& getStateCommands() { return _stateCommands; }
-        const StateCommands& getStateCommands() const { return _stateCommands; }
-
-        template<class T>
-        bool contains(const T value) const
-        {
-            return std::find(_stateCommands.begin(), _stateCommands.end(), value) != _stateCommands.end();
-        }
-
-        void add(ref_ptr<StateCommand> stateCommand)
-        {
-            _stateCommands.push_back(stateCommand);
-        }
-
-        template<class T>
-        void remove(const T value)
-        {
-            if (auto itr = std::find(_stateCommands.begin(), _stateCommands.end(), value); itr != _stateCommands.end())
-            {
-                _stateCommands.erase(itr);
-            }
-        }
-
-        virtual void compile(Context& context);
+        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
-        virtual ~StateGroup();
-
-        StateCommands _stateCommands;
+        virtual ~MultisampleState();
     };
-    VSG_type_name(vsg::StateGroup);
+    VSG_type_name(vsg::MultisampleState);
 
 } // namespace vsg

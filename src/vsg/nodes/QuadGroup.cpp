@@ -31,7 +31,7 @@ void QuadGroup::read(Input& input)
 {
     Node::read(input);
 
-    for (auto& child : _children)
+    for (auto& child : children)
     {
         input.readObject("Child", child);
     }
@@ -41,7 +41,7 @@ void QuadGroup::write(Output& output) const
 {
     Node::write(output);
 
-    for (auto& child : _children)
+    for (auto& child : children)
     {
         output.writeObject("Child", child.get());
     }

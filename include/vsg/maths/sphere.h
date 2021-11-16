@@ -88,6 +88,23 @@ namespace vsg
             return *this;
         }
 
+        void set(value_type in_x, value_type in_y, value_type in_z, value_type in_r)
+        {
+            x = in_x;
+            y = in_y;
+            z = in_z;
+            r = in_r;
+        }
+
+        template<typename R>
+        void set(const t_vec3<R>& c, T rad)
+        {
+            x = static_cast<value_type>(c.x);
+            y = static_cast<value_type>(c.y);
+            z = static_cast<value_type>(c.z);
+            r = rad;
+        }
+
         bool valid() const { return radius >= 0.0; }
 
         T* data() { return value; }

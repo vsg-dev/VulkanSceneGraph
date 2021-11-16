@@ -19,14 +19,49 @@ using namespace vsg;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// ShaderCompileSettings
+//
+void ShaderCompileSettings::read(Input& input)
+{
+    input.read("vulkanVersion", vulkanVersion);
+    input.read("clientInputVersion", clientInputVersion);
+    input.readValue<int>("language", language);
+    input.read("defaultVersion", defaultVersion);
+    input.readValue<int>("target", target);
+    input.read("forwardCompatible", forwardCompatible);
+
+    if (input.version_greater_equal(0, 1, 4))
+    {
+        input.read("defines", defines);
+    }
+}
+
+void ShaderCompileSettings::write(Output& output) const
+{
+    output.write("vulkanVersion", vulkanVersion);
+    output.write("clientInputVersion", clientInputVersion);
+    output.writeValue<int>("language", language);
+    output.write("defaultVersion", defaultVersion);
+    output.writeValue<int>("target", target);
+    output.write("forwardCompatible", forwardCompatible);
+
+    if (output.version_greater_equal(0, 1, 4))
+    {
+        output.write("defines", defines);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // Shader
 //
 ShaderModule::ShaderModule()
 {
 }
 
-ShaderModule::ShaderModule(const std::string& in_source) :
-    source(in_source)
+ShaderModule::ShaderModule(const std::string& in_source, ref_ptr<ShaderCompileSettings> in_hints) :
+    source(in_source),
+    hints(in_hints)
 {
 }
 
@@ -45,25 +80,17 @@ ShaderModule::~ShaderModule()
 {
 }
 
-ref_ptr<ShaderModule> ShaderModule::read(const std::string& filename)
-{
-    SPIRV buffer;
-    if (readFile(buffer, filename))
-    {
-        return ShaderModule::create(buffer);
-    }
-    else
-    {
-        throw Exception{"Error: vsg::ShaderModule::read(..) failed to read shader file.", VK_INCOMPLETE};
-    }
-}
-
 void ShaderModule::read(Input& input)
 {
     Object::read(input);
 
     // TODO review IO
     input.read("Source", source);
+
+    if (input.version_greater_equal(0, 1, 3))
+    {
+        input.readObject("hints", hints);
+    }
 
     code.resize(input.readValue<uint32_t>("SPIRVSize"));
 
@@ -76,6 +103,11 @@ void ShaderModule::write(Output& output) const
     Object::write(output);
 
     output.write("Source", source);
+
+    if (output.version_greater_equal(0, 1, 3))
+    {
+        output.writeObject("hints", hints);
+    }
 
     output.writeValue<uint32_t>("SPIRVSize", code.size());
 

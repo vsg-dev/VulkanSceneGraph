@@ -27,11 +27,38 @@ namespace vsg
 
         View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph = {});
 
+        template<class N, class V>
+        static void t_accept(N& node, V& visitor)
+        {
+            if ((visitor.traversalMask & (visitor.overrideMask | node.mask)) == 0) return;
+
+            uint32_t cached_traversalMask = visitor.traversalMask;
+
+            visitor.traversalMask = visitor.traversalMask & node.mask;
+
+            visitor.apply(node);
+
+            visitor.traversalMask = cached_traversalMask;
+        }
+
+        void accept(Visitor& visitor) override { t_accept(*this, visitor); }
+        void accept(ConstVisitor& visitor) const override { t_accept(*this, visitor); }
+        void accept(RecordTraversal& visitor) const override { t_accept(*this, visitor); }
+
         /// camera controls the viewport state and projection and view matrices
         ref_ptr<Camera> camera;
 
-        /// viewID is automatically assinged by Viewer::compile()
+        /// viewID is automatically assigned by Viewer::compile()
         uint32_t viewID = 0;
+
+        /// mask that controls traversal of the View's subgraph
+        /// View is visited if the (visitor.traversalMask & view.mask) != 0,
+        /// and when it is visited the visitor.traversalMask is &'ed with the mask to give the traversalMask to use in the subgraph.
+        uint32_t mask = 0xffffff;
+
+        /// bins
+        std::vector<ref_ptr<Bin>> bins;
     };
+    VSG_type_name(vsg::View);
 
 } // namespace vsg

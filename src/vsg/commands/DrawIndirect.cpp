@@ -15,16 +15,34 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+DrawIndirect::DrawIndirect()
+{
+}
+
+DrawIndirect::DrawIndirect(ref_ptr<Data> data, uint32_t in_drawCount, uint32_t in_stride) :
+    bufferInfo(BufferInfo::create(data)),
+    drawCount(in_drawCount),
+    stride(in_stride)
+{
+}
+
+DrawIndirect::DrawIndirect(ref_ptr<Buffer> in_buffer, VkDeviceSize in_offset, uint32_t in_drawCount, uint32_t in_stride) :
+    bufferInfo(BufferInfo::create(in_buffer, in_offset, in_drawCount * in_stride)),
+    drawCount(in_drawCount),
+    stride(in_stride)
+{
+}
+
 void DrawIndirect::read(Input& input)
 {
     Command::read(input);
 
-    input.readObject("data", bufferInfo.data);
-    if (!bufferInfo.data)
+    input.readObject("data", bufferInfo->data);
+    if (!bufferInfo->data)
     {
-        input.read("buffer", bufferInfo.buffer);
-        input.readValue<uint32_t>("offset", bufferInfo.offset);
-        input.readValue<uint32_t>("range", bufferInfo.range);
+        input.read("buffer", bufferInfo->buffer);
+        input.readValue<uint32_t>("offset", bufferInfo->offset);
+        input.readValue<uint32_t>("range", bufferInfo->range);
     }
 
     input.read("drawCount", drawCount);
@@ -35,12 +53,12 @@ void DrawIndirect::write(Output& output) const
 {
     Command::write(output);
 
-    output.writeObject("data", bufferInfo.data);
-    if (!bufferInfo.data)
+    output.writeObject("data", bufferInfo->data);
+    if (!bufferInfo->data)
     {
-        output.write("buffer", bufferInfo.buffer);
-        output.writeValue<uint32_t>("offset", bufferInfo.offset);
-        output.writeValue<uint32_t>("range", bufferInfo.range);
+        output.write("buffer", bufferInfo->buffer);
+        output.writeValue<uint32_t>("offset", bufferInfo->offset);
+        output.writeValue<uint32_t>("range", bufferInfo->range);
     }
 
     output.write("drawCount", drawCount);
@@ -49,17 +67,13 @@ void DrawIndirect::write(Output& output) const
 
 void DrawIndirect::compile(Context& context)
 {
-    if (!bufferInfo.buffer && bufferInfo.data)
+    if (!bufferInfo->buffer && bufferInfo->data)
     {
-        auto bufferInfoList = vsg::createBufferAndTransferData(context, {bufferInfo.data}, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-        if (!bufferInfoList.empty())
-        {
-            bufferInfo = bufferInfoList.back();
-        }
+        createBufferAndTransferData(context, {bufferInfo}, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     }
 }
 
 void DrawIndirect::record(CommandBuffer& commandBuffer) const
 {
-    vkCmdDrawIndirect(commandBuffer, bufferInfo.buffer->vk(commandBuffer.deviceID), bufferInfo.offset, drawCount, stride);
+    vkCmdDrawIndirect(commandBuffer, bufferInfo->buffer->vk(commandBuffer.deviceID), bufferInfo->offset, drawCount, stride);
 }

@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/state/Descriptor.h>
-#include <vsg/state/StateGroup.h>
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/viewer/View.h>
 #include <vsg/viewer/Viewer.h>
@@ -30,7 +30,7 @@ using namespace vsg;
 Viewer::Viewer()
 {
     _start_point = clock::now();
-    _status = vsg::ActivityStatus::create();
+    status = vsg::ActivityStatus::create();
 }
 
 Viewer::~Viewer()
@@ -63,7 +63,7 @@ void Viewer::addWindow(ref_ptr<Window> window)
 void Viewer::close()
 {
     _close = true;
-    _status->set(false);
+    status->set(false);
 
     stopThreading();
 }
@@ -104,19 +104,6 @@ bool Viewer::pollEvents(bool discardPreviousEvents)
     return result;
 }
 
-void Viewer::advance()
-{
-    // poll all the windows for events.
-    pollEvents(true);
-
-    // create FrameStamp for frame
-    auto time = vsg::clock::now();
-    _frameStamp = _frameStamp ? new vsg::FrameStamp(time, _frameStamp->frameCount + 1) : new vsg::FrameStamp(time, 0);
-
-    // create an event for the new frame.
-    _events.emplace_back(new FrameEvent(_frameStamp));
-}
-
 bool Viewer::advanceToNextFrame()
 {
     if (!active()) return false;
@@ -130,7 +117,7 @@ bool Viewer::advanceToNextFrame()
     auto time = vsg::clock::now();
     if (!_frameStamp)
     {
-        // first frame, initialze to frame count and indices to 0
+        // first frame, initialize to frame count and indices to 0
         _frameStamp = new vsg::FrameStamp(time, 0);
 
         for (auto& task : recordAndSubmitTasks)
@@ -140,7 +127,7 @@ bool Viewer::advanceToNextFrame()
     }
     else
     {
-        // after forst frame so increment frame count and indices
+        // after first frame so increment frame count and indices
         _frameStamp = new vsg::FrameStamp(time, _frameStamp->frameCount + 1);
 
         for (auto& task : recordAndSubmitTasks)
@@ -186,6 +173,21 @@ bool Viewer::acquireNextFrame()
     return result == VK_SUCCESS;
 }
 
+VkResult Viewer::waitForFences(size_t relativeFrameIndex, uint64_t timeout)
+{
+    VkResult result = VK_SUCCESS;
+    for (auto& task : recordAndSubmitTasks)
+    {
+        auto fenceToWait = task->fence(relativeFrameIndex);
+        if (fenceToWait)
+        {
+            result = fenceToWait->wait(timeout);
+            if (result != VK_SUCCESS) return result;
+        }
+    }
+    return result;
+}
+
 void Viewer::handleEvents()
 {
     for (auto& vsg_event : _events)
@@ -197,7 +199,7 @@ void Viewer::handleEvents()
     }
 }
 
-void Viewer::compile(BufferPreferences bufferPreferences)
+void Viewer::compile(ref_ptr<ResourceHints> hints)
 {
     if (recordAndSubmitTasks.empty())
     {
@@ -209,41 +211,46 @@ void Viewer::compile(BufferPreferences bufferPreferences)
 
     struct DeviceResources
     {
-        vsg::CollectDescriptorStats collectStats;
+        CollectResourceRequirements collectResources;
         vsg::ref_ptr<vsg::CompileTraversal> compile;
     };
 
     // find which devices are available and the resources required for then,
-    using DeviceResourceMap = std::map<vsg::Device*, DeviceResources>;
+    using DeviceResourceMap = std::map<ref_ptr<vsg::Device>, DeviceResources>;
     DeviceResourceMap deviceResourceMap;
     for (auto& task : recordAndSubmitTasks)
     {
         for (auto& commandGraph : task->commandGraphs)
         {
             auto& deviceResources = deviceResourceMap[commandGraph->device];
-            commandGraph->accept(deviceResources.collectStats);
+            commandGraph->accept(deviceResources.collectResources);
         }
 
         if (task->databasePager && !databasePager) databasePager = task->databasePager;
     }
 
     // allocate DescriptorPool for each Device
-    CollectDescriptorStats::Views views;
+    ResourceRequirements::Views views;
     for (auto& [device, deviceResource] : deviceResourceMap)
     {
-        views.insert(deviceResource.collectStats.views.begin(), deviceResource.collectStats.views.end());
+        auto& collectResources = deviceResource.collectResources;
+        auto& resourceRequirements = collectResources.requirements;
 
-        if (deviceResource.collectStats.containsPagedLOD) containsPagedLOD = true;
+        if (hints) hints->accept(collectResources);
+
+        views.insert(resourceRequirements.views.begin(), resourceRequirements.views.end());
+
+        if (resourceRequirements.containsPagedLOD) containsPagedLOD = true;
 
         auto physicalDevice = device->getPhysicalDevice();
 
-        auto& collectStats = deviceResource.collectStats;
-        auto maxSets = collectStats.computeNumDescriptorSets();
-        auto descriptorPoolSizes = collectStats.computeDescriptorPoolSizes();
+        auto maxSets = resourceRequirements.computeNumDescriptorSets();
+        auto descriptorPoolSizes = resourceRequirements.computeDescriptorPoolSizes();
 
         auto queueFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT); // TODO : could we just use transfer bit?
 
-        deviceResource.compile = new vsg::CompileTraversal(device, bufferPreferences);
+        deviceResource.compile = new vsg::CompileTraversal(device, resourceRequirements);
+        deviceResource.compile->overrideMask = 0xffffffff;
         deviceResource.compile->context.commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
         deviceResource.compile->context.graphicsQueue = device->getQueue(queueFamily);
 
@@ -251,11 +258,27 @@ void Viewer::compile(BufferPreferences bufferPreferences)
     }
 
     // assign the viewID's to each View
-    uint32_t viewID = 0;
-    for (auto& const_view : views)
+    for (auto& [const_view, binDetails] : views)
     {
         auto view = const_cast<View*>(const_view);
-        view->viewID = viewID++;
+        view->viewID = binDetails.viewTraversalIndex;
+
+        for (auto& binNumber : binDetails.indices)
+        {
+            bool binNumberMatched = false;
+            for (auto& bin : view->bins)
+            {
+                if (bin->binNumber == binNumber)
+                {
+                    binNumberMatched = true;
+                }
+            }
+            if (!binNumberMatched)
+            {
+                Bin::SortOrder sortOrder = (binNumber < 0) ? Bin::ASCENDING : ((binNumber == 0) ? Bin::NO_SORT : Bin::DESCENDING);
+                view->bins.push_back(Bin::create(binNumber, sortOrder));
+            }
+        }
     }
 
     if (containsPagedLOD && !databasePager) databasePager = DatabasePager::create();
@@ -272,10 +295,11 @@ void Viewer::compile(BufferPreferences bufferPreferences)
             if (commandGraph->device) devices.insert(commandGraph->device);
 
             auto& deviceResource = deviceResourceMap[commandGraph->device];
-            commandGraph->maxSlot = deviceResource.collectStats.maxSlot;
+            auto& resourceRequirements = deviceResource.collectResources.requirements;
+            commandGraph->maxSlot = resourceRequirements.maxSlot;
             commandGraph->accept(*deviceResource.compile);
 
-            if (deviceResource.collectStats.containsPagedLOD) task_containsPagedLOD = true;
+            if (resourceRequirements.containsPagedLOD) task_containsPagedLOD = true;
         }
 
         if (task_containsPagedLOD)
@@ -285,7 +309,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
 
         if (task->databasePager)
         {
-            // crude hack for taking first device as the one for the DatabasePager to compile resourcces for.
+            // crude hack for taking first device as the one for the DatabasePager to compile resources for.
             for (auto& commandGraph : task->commandGraphs)
             {
                 auto& deviceResource = deviceResourceMap[commandGraph->device];
@@ -295,7 +319,7 @@ void Viewer::compile(BufferPreferences bufferPreferences)
         }
     }
 
-    // record any transfer commands commands
+    // record any transfer commands
     for (auto& dp : deviceResourceMap)
     {
         dp.second.compile->context.record();
@@ -335,14 +359,14 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
         }
     };
 
-    // place the input CommandGraphs into seperate groups associated with each device and queue family combination
+    // place the input CommandGraphs into separate groups associated with each device and queue family combination
     std::map<DeviceQueueFamily, CommandGraphs> deviceCommandGraphsMap;
     for (auto& commandGraph : in_commandGraphs)
     {
         deviceCommandGraphsMap[DeviceQueueFamily{commandGraph->device.get(), commandGraph->queueFamily, commandGraph->presentFamily}].emplace_back(commandGraph);
     }
 
-    // create the required RecordAndSubmitTask and any Presentation objecst that are required for each set of CommandGraphs
+    // create the required RecordAndSubmitTask and any Presentation objects that are required for each set of CommandGraphs
     for (auto& [deviceQueueFamily, commandGraphs] : deviceCommandGraphsMap)
     {
         // make sure the secondary CommandGraphs appear first in the commandGraphs list so they are filled in first
@@ -366,7 +390,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
         auto device = deviceQueueFamily.device;
         if (deviceQueueFamily.presentFamily >= 0)
         {
-            // collate all the unique Windows associaged with these commandGraphs
+            // collate all the unique Windows associated with these commandGraphs
             std::set<Window*> uniqueWindows;
             for (auto& commanGraph : commandGraphs)
             {
@@ -393,7 +417,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
         }
         else
         {
-            // with don't have a presentFamily so this set of commandGraphs aren't associated with a widnow
+            // with don't have a presentFamily so this set of commandGraphs aren't associated with a window
             // set up Submission with CommandBuffer and signals
             auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create(device, numBuffers);
             recordAndSubmitTask->commandGraphs = commandGraphs;
@@ -426,7 +450,7 @@ void Viewer::setupThreading()
 
     _threading = true;
 
-    _frameBlock = FrameBlock::create(_status);
+    _frameBlock = FrameBlock::create(status);
     _submissionCompleted = Barrier::create(1 + numValidTasks);
 
     // set up required threads for each task
@@ -438,7 +462,7 @@ void Viewer::setupThreading()
             auto run = [](ref_ptr<RecordAndSubmitTask> viewer_task, ref_ptr<FrameBlock> viewer_frameBlock, ref_ptr<Barrier> submissionCompleted) {
                 auto frameStamp = viewer_frameBlock->initial_value;
 
-                // wait for this frame to be signalled
+                // wait for this frame to be signaled
                 while (viewer_frameBlock->wait_for_change(frameStamp))
                 {
                     viewer_task->submit(frameStamp);
@@ -469,7 +493,7 @@ void Viewer::setupThreading()
                     recordedCommandBuffers.insert(recordedCommandBuffers.end(), commandBuffers.begin(), commandBuffers.end());
                 }
 
-                // shared betwween all threads
+                // shared between all threads
                 ref_ptr<RecordAndSubmitTask> task;
                 ref_ptr<FrameBlock> frameBlock;
                 ref_ptr<Barrier> submissionCompletedBarrier;
@@ -487,7 +511,7 @@ void Viewer::setupThreading()
             auto run_primary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph) {
                 auto frameStamp = data->frameBlock->initial_value;
 
-                // wait for this frame to be signalled
+                // wait for this frame to be signaled
                 while (data->frameBlock->wait_for_change(frameStamp))
                 {
                     // primary thread starts the task
@@ -502,7 +526,7 @@ void Viewer::setupThreading()
 
                     data->recordCompletedBarrier->arrive_and_wait();
 
-                    // primary thread finishes the task, submiting all the command buffers recorded by the primary and all secndary threads to it's qeuee
+                    // primary thread finishes the task, submitting all the command buffers recorded by the primary and all secondary threads to it's queue
                     data->task->finish(data->recordedCommandBuffers);
                     data->recordedCommandBuffers.clear();
 
@@ -513,7 +537,7 @@ void Viewer::setupThreading()
             auto run_secondary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph) {
                 auto frameStamp = data->frameBlock->initial_value;
 
-                // wait for this frame to be signalled
+                // wait for this frame to be signaled
                 while (data->frameBlock->wait_for_change(frameStamp))
                 {
                     data->recordStartBarrier->arrive_and_wait();
@@ -546,8 +570,8 @@ void Viewer::stopThreading()
     std::cout << "Viewer::stopThreading()" << std::endl;
 
     // release the blocks to enable threads to exit cleanly
-    // need to manually wake up the threads waiting on this frameBlock so they check the _status value and exit cleanly.
-    _status->set(false);
+    // need to manually wake up the threads waiting on this frameBlock so they check the status value and exit cleanly.
+    status->set(false);
     _frameBlock->wake();
 
     for (auto& thread : threads)
@@ -582,8 +606,8 @@ void Viewer::recordAndSubmit()
 #if 1
     if (_threading)
 #else
-    // follows is a workaround for an odd "Possible data race during write of size 1" warning that valigrind tool=helgrind reports
-    // on the first call to vkBeginCommandBuffer despite them being done on independent command buffers.  This coudl well be a driver bug or a false position.
+    // follows is a workaround for an odd "Possible data race during write of size 1" warning that valgrind tool=helgrind reports
+    // on the first call to vkBeginCommandBuffer despite them being done on independent command buffers.  This could well be a driver bug or a false position.
     // if you want to quiet this warning then change the #if above to #if 0 as render the first three frames single threaded avoids the warning.
     if (_threading && _frameStamp->frameCount > 2)
 #endif

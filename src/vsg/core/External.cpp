@@ -20,8 +20,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <unordered_map>
 
-#include <iostream>
-
 using namespace vsg;
 
 class CollectIDs : public ConstVisitor
@@ -45,6 +43,16 @@ public:
 
     ObjectID _objectID = 0;
     ObjectIDMap _objectIDMap;
+
+    struct ObjectIDRange
+    {
+        const Object* object = nullptr;
+        ObjectID startID = 0;
+        ObjectID endID = 0;
+    };
+
+    using ObjectIDRangeMap = std::unordered_map<Path, ObjectIDRange>;
+    ObjectIDRangeMap objectIDRangeMap;
 };
 
 External::External()
@@ -56,13 +64,13 @@ External::External(Allocator* allocator) :
 {
 }
 
-External::External(const PathObjects& entries) :
-    _entries(entries)
+External::External(const PathObjects& in_entries) :
+    entries(in_entries)
 {
 }
 
 External::External(const std::string& filename, ref_ptr<Object> object) :
-    _entries{{filename, object}}
+    entries{{filename, object}}
 {
 }
 
@@ -72,41 +80,51 @@ External::~External()
 
 void External::read(Input& input)
 {
-    _entries.clear();
+    entries.clear();
 
     Object::read(input);
 
-    uint32_t idBegin = 0, idEnd = 0;
-    input.read("ObjectIDRange", idBegin, idEnd);
+    input.read("options", options);
+
+    CollectIDs collectIDs;
 
     uint32_t count = input.readValue<uint32_t>("NumEntries");
-
     Paths filenames(count);
     for (auto& filename : filenames)
     {
-        input.read("Filename", filename);
+        CollectIDs::ObjectIDRange objectIDRange;
+        input.read("StartID_EndID_Filename", objectIDRange.startID, objectIDRange.endID, filename);
+        collectIDs.objectIDRangeMap[filename] = objectIDRange;
     }
 
-    _entries = vsg::read(filenames, input.options);
+    if (options)
+    {
+        entries = vsg::read(filenames, options);
+    }
+    else
+    {
+        entries = vsg::read(filenames, input.options);
+    }
 
     // collect the ids from the files
-    CollectIDs collectIDs;
-    collectIDs._objectID = idBegin;
-    for (auto itr = _entries.begin(); itr != _entries.end(); ++itr)
+    for (auto itr = entries.begin(); itr != entries.end(); ++itr)
     {
-        if (itr->second) itr->second->accept(collectIDs);
+        auto& objectIDRange = collectIDs.objectIDRangeMap[itr->first];
+        collectIDs._objectID = objectIDRange.startID;
+        if (itr->second)
+            itr->second->accept(collectIDs);
+        else
+        {
+            for (uint32_t objectID = objectIDRange.startID; objectID <= objectIDRange.endID; ++objectID)
+            {
+                input.objectIDMap[objectID] = nullptr;
+            }
+        }
     }
 
     for (auto [object, objectID] : collectIDs._objectIDMap)
     {
-        if ((idBegin <= objectID) && (objectID < idEnd))
-        {
-            input.objectIDMap[objectID] = const_cast<Object*>(object);
-        }
-        else
-        {
-            std::cout << "External::read() : warning object out of ObjectIDRange " << objectID << ", " << object << std::endl;
-        }
+        input.objectIDMap[objectID] = const_cast<Object*>(object);
     }
 }
 
@@ -114,11 +132,23 @@ void External::write(Output& output) const
 {
     Object::write(output);
 
+    output.write("options", options);
+
     CollectIDs collectIDs;
-    uint32_t idBegin = collectIDs._objectID = output.objectID;
-    for (auto& [filename, externalObject] : _entries)
+    collectIDs._objectID = output.objectID;
+
+    for (auto& [filename, externalObject] : entries)
     {
-        if (!filename.empty() && externalObject) externalObject->accept(collectIDs);
+        if (!filename.empty() && externalObject)
+        {
+            auto startObjectID = collectIDs._objectID;
+            externalObject->accept(collectIDs);
+            collectIDs.objectIDRangeMap[filename] = CollectIDs::ObjectIDRange{externalObject, startObjectID, collectIDs._objectID};
+        }
+        else
+        {
+            collectIDs.objectIDRangeMap[filename] = CollectIDs::ObjectIDRange{nullptr, collectIDs._objectID, collectIDs._objectID};
+        }
     }
     uint32_t idEnd = collectIDs._objectID;
     output.objectID = idEnd;
@@ -129,16 +159,15 @@ void External::write(Output& output) const
         output.objectIDMap[object] = objectID;
     }
 
-    output.write("ObjectIDRange", idBegin, idEnd);
-    output.writeValue<uint32_t>("NumEntries", _entries.size());
-
-    for (auto itr = _entries.begin(); itr != _entries.end(); ++itr)
+    output.writeValue<uint32_t>("NumEntries", entries.size());
+    for (auto itr = entries.begin(); itr != entries.end(); ++itr)
     {
-        output.write("Filename", itr->first);
+        auto& objectIDRange = collectIDs.objectIDRangeMap[itr->first];
+        output.write("StartID_EndID_Filename", objectIDRange.startID, objectIDRange.endID, itr->first);
     }
 
     // write out files.
-    for (auto& [filename, externalObject] : _entries)
+    for (auto& [filename, externalObject] : entries)
     {
         // if we should write out object then need to invoke ReaderWriter for it.
         if (!filename.empty() && externalObject)

@@ -8,4 +8,4 @@
 * [RayTracingPipeline.h](RayTracingPipeline.h) - 
 * [RayTracingShaderGroup.h](RayTracingShaderGroup.h) - 
 * [TopLevelAccelerationStructure.h](TopLevelAccelerationStructure.h) - 
-* [TraceRays.h](TraceRays.h) - 
+* [TraceRays.h](TraceRays.h) - encapsulation of vkCmdTraceRaysNV

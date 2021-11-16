@@ -19,8 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <array>
 #include <vector>
 
-//#define USE_std_array
-
 namespace vsg
 {
     VSG_type_name(vsg::QuadGroup);
@@ -33,7 +31,7 @@ namespace vsg
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
-            for (int i = 0; i < 4; ++i) node._children[i]->accept(visitor);
+            for (int i = 0; i < 4; ++i) node.children[i]->accept(visitor);
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
@@ -43,28 +41,11 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void setChild(std::size_t pos, vsg::Node* node) { _children[pos] = node; }
-        vsg::Node* getChild(std::size_t pos) { return _children[pos].get(); }
-        const vsg::Node* getChild(std::size_t pos) const { return _children[pos].get(); }
-
-        constexpr std::size_t getNumChildren() const noexcept { return 4; }
-
-#ifdef USE_std_array
         using Children = std::array<ref_ptr<vsg::Node>, 4>;
-#else
-        using Children = ref_ptr<vsg::Node>[4];
-#endif
-
-        Children& getChildren() noexcept
-        {
-            return _children;
-        }
-        const Children& getChildren() const noexcept { return _children; }
+        Children children;
 
     protected:
         virtual ~QuadGroup();
-
-        Children _children;
     };
 
 } // namespace vsg

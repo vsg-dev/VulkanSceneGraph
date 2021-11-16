@@ -19,13 +19,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 Group::Group(size_t numChildren) :
-    _children(numChildren)
+    children(numChildren)
 {
 }
 
 Group::Group(Allocator* allocator, size_t numChildren) :
     Inherit(allocator),
-    _children(numChildren)
+    children(numChildren)
 {
 }
 
@@ -37,10 +37,22 @@ void Group::read(Input& input)
 {
     Node::read(input);
 
-    _children.resize(input.readValue<uint32_t>("NumChildren"));
-    for (auto& child : _children)
+    if (input.version_greater_equal(0, 1, 4))
     {
-        input.readObject("Child", child);
+        input.read("children", children);
+    }
+    else
+    {
+        uint32_t numChildren = input.readValue<uint32_t>("NumChildren");
+
+        children.clear();
+        children.reserve(numChildren);
+        for (uint32_t i = 0; i < numChildren; ++i)
+        {
+            ref_ptr<Node> child;
+            input.read("Child", child);
+            if (child) children.push_back(child);
+        }
     }
 }
 
@@ -48,9 +60,16 @@ void Group::write(Output& output) const
 {
     Node::write(output);
 
-    output.writeValue<uint32_t>("NumChildren", _children.size());
-    for (auto& child : _children)
+    if (output.version_greater_equal(0, 1, 4))
     {
-        output.writeObject("Child", child.get());
+        output.write("children", children);
+    }
+    else
+    {
+        output.writeValue<uint32_t>("NumChildren", children.size());
+        for (auto& child : children)
+        {
+            output.write("Child", child);
+        }
     }
 }

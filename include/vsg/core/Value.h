@@ -15,8 +15,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Data.h>
 #include <vsg/core/type_name.h>
 
+#include <vsg/maths/box.h>
 #include <vsg/maths/mat3.h>
 #include <vsg/maths/mat4.h>
+#include <vsg/maths/quat.h>
+#include <vsg/maths/sphere.h>
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
@@ -175,5 +178,14 @@ namespace vsg
 
     VSG_value(mat4Value, mat4);
     VSG_value(dmat4Value, dmat4);
+
+    VSG_value(quatValue, quat);
+    VSG_value(dquatValue, dquat);
+
+    VSG_value(sphereValue, sphere);
+    VSG_value(dsphereValue, dsphere);
+
+    VSG_value(boxValue, box);
+    VSG_value(dboxValue, dbox);
 
 } // namespace vsg

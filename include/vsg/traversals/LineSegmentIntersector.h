@@ -53,10 +53,10 @@ namespace vsg
 
         void add(const dvec3& intersection, double ratio, const IndexRatios& indexRatios);
 
-        void pushTransform(const dmat4& m) override;
+        void pushTransform(const Transform& transform) override;
         void popTransform() override;
 
-        /// check for intersection instersects with sphere
+        /// check for intersection intersects with sphere
         bool intersects(const dsphere& bs) override;
 
         bool intersectDraw(uint32_t firstVertex, uint32_t vertexCount) override;

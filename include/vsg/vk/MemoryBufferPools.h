@@ -17,24 +17,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Object.h>
 #include <vsg/state/BufferInfo.h>
+#include <vsg/vk/ResourceRequirements.h>
 
 namespace vsg
 {
-    struct BufferPreferences
-    {
-        VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
-        VkDeviceSize minimumBufferDeviceMemorySize = 16 * 1024 * 1024;
-        VkDeviceSize minimumImageDeviceMemorySize = 16 * 1024 * 1024;
-    };
-
     class VSG_DECLSPEC MemoryBufferPools : public Inherit<Object, MemoryBufferPools>
     {
     public:
-        MemoryBufferPools(const std::string& name, Device* in_device, BufferPreferences preferences);
+        MemoryBufferPools(const std::string& name, ref_ptr<Device> in_device, const ResourceRequirements& in_resouceRequirements = {});
 
         std::string name;
         ref_ptr<Device> device;
-        BufferPreferences bufferPreferences;
+        ResourceRequirements resourceRequirements;
 
         // transfer data settings
         using MemoryPools = std::vector<ref_ptr<DeviceMemory>>;
@@ -48,7 +42,7 @@ namespace vsg
         VkDeviceSize computeBufferTotalAvailable() const;
         VkDeviceSize computeBufferTotalReserved() const;
 
-        BufferInfo reserveBuffer(VkDeviceSize totalSize, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties);
+        ref_ptr<BufferInfo> reserveBuffer(VkDeviceSize totalSize, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties);
 
         using DeviceMemoryOffset = std::pair<ref_ptr<DeviceMemory>, VkDeviceSize>;
         DeviceMemoryOffset reserveMemory(VkMemoryRequirements memRequirements, VkMemoryPropertyFlags memoryProperties, void* pNextAllocInfo = nullptr);

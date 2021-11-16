@@ -47,11 +47,10 @@ void EllipsoidModel::write(Output& output) const
     output.write("radiusPolar", _radiusPolar);
 }
 
-// latitude and longitude in radians
-dvec3 EllipsoidModel::convertLatLongHeightToECEF(const dvec3& lla) const
+dvec3 EllipsoidModel::convertLatLongAltitudeToECEF(const dvec3& lla) const
 {
-    const double latitude = lla[0];
-    const double longitude = lla[1];
+    const double latitude = radians(lla[0]);
+    const double longitude = radians(lla[1]);
     const double height = lla[2];
 
     // for details on maths see https://en.wikipedia.org/wiki/ECEF
@@ -63,43 +62,7 @@ dvec3 EllipsoidModel::convertLatLongHeightToECEF(const dvec3& lla) const
                  (N * (1 - _eccentricitySquared) + height) * sin_latitude);
 }
 
-dmat4 EllipsoidModel::computeLocalToWorldTransform(const dvec3& lla) const
-{
-    dvec3 ecef = convertLatLongHeightToECEF(lla);
-
-    const double latitude = lla[0];
-    const double longitude = lla[1];
-
-    // Compute up, east and north vector
-    dvec3 up(cos(longitude) * cos(latitude), sin(longitude) * cos(latitude), sin(latitude));
-    dvec3 east(-sin(longitude), cos(longitude), 0.0);
-    dvec3 north = cross(up, east);
-
-    dmat4 localToWorld = vsg::translate(ecef);
-
-    // set matrix
-    localToWorld(0, 0) = east[0];
-    localToWorld(0, 1) = east[1];
-    localToWorld(0, 2) = east[2];
-
-    localToWorld(1, 0) = north[0];
-    localToWorld(1, 1) = north[1];
-    localToWorld(1, 2) = north[2];
-
-    localToWorld(2, 0) = up[0];
-    localToWorld(2, 1) = up[1];
-    localToWorld(2, 2) = up[2];
-
-    return localToWorld;
-}
-
-dmat4 EllipsoidModel::computeWorldToLocalTransform(const dvec3& lla) const
-{
-    return vsg::inverse(computeLocalToWorldTransform(lla));
-}
-
-// latitude and longitude in radians
-dvec3 EllipsoidModel::convertECEFToLatLongHeight(const dvec3& ecef) const
+dvec3 EllipsoidModel::convertECEFToLatLongAltitude(const dvec3& ecef) const
 {
     double latitude, longitude, height;
     const double PI_2 = PI * 0.5;
@@ -152,5 +115,40 @@ dvec3 EllipsoidModel::convertECEFToLatLongHeight(const dvec3& ecef) const
     double N = _radiusEquator / sqrt(1.0 - _eccentricitySquared * sin_latitude * sin_latitude);
 
     height = p / cos(latitude) - N;
-    return dvec3(latitude, longitude, height);
+    return dvec3(degrees(latitude), degrees(longitude), height);
+}
+
+dmat4 EllipsoidModel::computeLocalToWorldTransform(const dvec3& lla) const
+{
+    dvec3 ecef = convertLatLongAltitudeToECEF(lla);
+
+    const double latitude = radians(lla[0]);
+    const double longitude = radians(lla[1]);
+
+    // Compute up, east and north vector
+    dvec3 up(cos(longitude) * cos(latitude), sin(longitude) * cos(latitude), sin(latitude));
+    dvec3 east(-sin(longitude), cos(longitude), 0.0);
+    dvec3 north = cross(up, east);
+
+    dmat4 localToWorld = vsg::translate(ecef);
+
+    // set matrix
+    localToWorld(0, 0) = east[0];
+    localToWorld(0, 1) = east[1];
+    localToWorld(0, 2) = east[2];
+
+    localToWorld(1, 0) = north[0];
+    localToWorld(1, 1) = north[1];
+    localToWorld(1, 2) = north[2];
+
+    localToWorld(2, 0) = up[0];
+    localToWorld(2, 1) = up[1];
+    localToWorld(2, 2) = up[2];
+
+    return localToWorld;
+}
+
+dmat4 EllipsoidModel::computeWorldToLocalTransform(const dvec3& lla) const
+{
+    return vsg::inverse(computeLocalToWorldTransform(lla));
 }

@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/FileSystem.h>
 #include <vsg/io/read.h>
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/LOD.h>
@@ -23,14 +24,8 @@ LoadPagedLOD::LoadPagedLOD(ref_ptr<Camera> in_camera, int in_loadLevels) :
     camera(in_camera),
     loadLevels(in_loadLevels)
 {
-    dmat4 projectionMatrix;
-    camera->getProjectionMatrix()->get(projectionMatrix);
-
-    dmat4 viewMatrix;
-    camera->getViewMatrix()->get(viewMatrix);
-
-    projectionMatrixStack.emplace(projectionMatrix);
-    modelviewMatrixStack.emplace(viewMatrix);
+    projectionMatrixStack.emplace(camera->projectionMatrix->transform());
+    modelviewMatrixStack.emplace(camera->viewMatrix->transform());
 
     _frustumUnit = Polytope{{
         Plane(1.0, 0.0, 0.0, 1.0),  // left plane
@@ -66,17 +61,17 @@ void LoadPagedLOD::apply(Node& node)
 void LoadPagedLOD::apply(CullNode& node)
 {
     // check if cullNode bounding sphere is in view frustum.
-    if (!intersect(_frustumStack.top(), node.getBound())) return;
+    if (!intersect(_frustumStack.top(), node.bound)) return;
 
-    //std::cout<<"apply(CullNode& node) : Need to do cull test of boudung spehre"<<std::endl;
+    //std::cout<<"apply(CullNode& node) : Need to do cull test of bounding sphere"<<std::endl;
     node.traverse(*this);
 }
 
-void LoadPagedLOD::apply(MatrixTransform& transform)
+void LoadPagedLOD::apply(Transform& transform)
 {
-    //std::cout<<"apply(MatrixTransform& transform) Need to do trasnform modelview matrix"<<std::endl;
+    //std::cout<<"apply(Transform& transform) Need to do transform modelview matrix"<<std::endl;
 
-    modelviewMatrixStack.emplace(modelviewMatrixStack.top() * transform.getMatrix());
+    modelviewMatrixStack.emplace(transform.transform(modelviewMatrixStack.top()));
 
     pushFrustum();
 
@@ -89,14 +84,14 @@ void LoadPagedLOD::apply(MatrixTransform& transform)
 
 void LoadPagedLOD::apply(LOD& lod)
 {
-    auto bs = lod.getBound();
+    auto bs = lod.bound;
 
     // check if lod bounding sphere is in view frustum.
     if (!intersect(_frustumStack.top(), bs)) return;
 
     auto [distance, rf] = computeDistanceAndRF(bs);
 
-    for (auto& child : lod.getChildren())
+    for (auto& child : lod.children)
     {
         bool child_visible = rf > (child.minimumScreenHeightRatio * distance);
         if (child_visible)
@@ -109,7 +104,7 @@ void LoadPagedLOD::apply(LOD& lod)
 
 void LoadPagedLOD::apply(PagedLOD& plod)
 {
-    auto bs = plod.getBound();
+    auto bs = plod.bound;
 
     // check if lod bounding sphere is in view frustum.
     if (level >= loadLevels || !intersect(_frustumStack.top(), bs)) return;
@@ -118,19 +113,37 @@ void LoadPagedLOD::apply(PagedLOD& plod)
 
     auto [distance, rf] = computeDistanceAndRF(bs);
 
-    for (auto& child : plod.getChildren())
+    for (auto& child : plod.children)
     {
         bool child_visible = rf > child.minimumScreenHeightRatio * distance;
         if (child_visible)
         {
+            ++level;
+
+            Path filename = _pathStack.empty() ? plod.filename : concatPaths(_pathStack.back(), plod.filename);
+
+            Path localPath = filePath(plod.filename);
+            if (!localPath.empty())
+            {
+                if (_pathStack.empty())
+                    _pathStack.push_back(localPath);
+                else
+                    _pathStack.push_back(concatPaths(_pathStack.back(), localPath));
+            }
+
             if (!child.node)
             {
-                child.node = read_cast<Node>(plod.filename);
+                child.node = read_cast<Node>(filename, plod.options);
                 ++numTiles;
             }
 
-            ++level;
             if (child.node) child.node->accept(*this);
+
+            if (!localPath.empty())
+            {
+                _pathStack.pop_back();
+            }
+
             --level;
         }
     }

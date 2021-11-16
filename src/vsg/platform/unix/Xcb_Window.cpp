@@ -75,7 +75,7 @@ namespace vsgXcb
             return hints;
         }
 
-        static MotifHints window(bool resize=true, bool move=true, bool close=true, bool minimize=true)
+        static MotifHints window(bool resize=true, bool move=true, bool close=true, bool minimize=true, bool maximize=true)
         {
             MotifHints hints;
             hints.flags = FLAGS_DECORATIONS | FLAGS_FUNCTIONS;
@@ -84,6 +84,7 @@ namespace vsgXcb
             if (move) hints.functions |= FUNC_MOVE;
             if (close) hints.functions |= FUNC_CLOSE;
             if (minimize) hints.functions |= FUNC_MINIMUMSIZE;
+            if (maximize) hints.functions |= FUNC_MAXIMUMSIZE;
             hints.decorations = DECOR_ALL;
             return hints;
         }
@@ -285,20 +286,34 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
     uint32_t override_redirect = traits->overrideRedirect;
 
     // open connection
-    int screenNum = 0;
-    if (traits->display.empty())
+    bool openConnection = true;
+    if (traits->systemConnection.has_value())
     {
-        _connection = xcb_connect(NULL, &screenNum);
+        auto nativeConnection = std::any_cast<xcb_connection_t *>(traits->systemConnection);
+        if (nativeConnection)
+        {
+            _connection = nativeConnection;
+            openConnection = false;
+        }
     }
-    else
+
+    int screenNum = 0;
+    if (openConnection)
     {
-        _connection = xcb_connect(traits->display.c_str(), &screenNum);
+        if (traits->display.empty())
+        {
+            _connection = xcb_connect(NULL, &screenNum);
+        }
+        else
+        {
+            _connection = xcb_connect(traits->display.c_str(), &screenNum);
+        }
     }
 
     if (xcb_connection_has_error(_connection))
     {
         // close connection
-        xcb_disconnect(_connection);
+        if (openConnection) xcb_disconnect(_connection);
 
         throw Exception{"Failed to created Window, unable able to establish xcb connection.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
     }
@@ -340,7 +355,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
     int screenCount = xcb_setup_roots_length (setup);
     if (screenNum >= screenCount)
     {
-        std::cout<<"Warning: request screenNum ("<<screenNum<<") to high, only "<<screenCount<<" screens available  Selecting screen 0 as fallback."<<std::endl;
+        std::cout<<"Warning: request screenNum ("<<screenNum<<") too high, only "<<screenCount<<" screens available. Selecting screen 0 as fallback."<<std::endl;
         screenNum = 0;
     }
 
@@ -353,97 +368,118 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
 
     _screen = screen_iterator.data;
 
-    // generate the widnow id
-    _window = xcb_generate_id(_connection);
+    bool createWindow = true;
 
-    uint8_t depth = XCB_COPY_FROM_PARENT;
-    xcb_window_t parent = _screen->root;
-    uint16_t border_width = 0;
-    uint16_t window_class = XCB_WINDOW_CLASS_INPUT_OUTPUT;
-    xcb_visualid_t visual = XCB_COPY_FROM_PARENT;
-    uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_OVERRIDE_REDIRECT | XCB_CW_EVENT_MASK;
-    uint32_t event_mask = XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
-                          XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE |
-                          XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW |
-                          XCB_EVENT_MASK_FOCUS_CHANGE |
-                          XCB_EVENT_MASK_PROPERTY_CHANGE;
-    uint32_t value_list[] =
-        {
-            _screen->black_pixel,
-            override_redirect,
-            event_mask
-        };
-
-    // ceate window
-    if (fullscreen)
+    if (traits->nativeWindow.has_value())
     {
-        xcb_create_window(_connection, depth, _window, parent,
-                          0, 0, _screen->width_in_pixels, _screen->height_in_pixels,
-                          border_width,
-                          window_class,
-                          visual,
-                          value_mask,
-                          value_list);
+        auto nativeWindow = std::any_cast<xcb_window_t>(traits->nativeWindow);
+        if (nativeWindow)
+        {
+            _window = nativeWindow;
+            createWindow = false;
+        }
+    }
+
+    if (createWindow)
+    {
+        uint8_t depth = XCB_COPY_FROM_PARENT;
+        xcb_window_t parent = _screen->root;
+        uint16_t border_width = 0;
+        uint16_t window_class = XCB_WINDOW_CLASS_INPUT_OUTPUT;
+        xcb_visualid_t visual = XCB_COPY_FROM_PARENT;
+        uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_OVERRIDE_REDIRECT | XCB_CW_EVENT_MASK;
+        uint32_t event_mask = XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
+                            XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE |
+                            XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW |
+                            XCB_EVENT_MASK_FOCUS_CHANGE |
+                            XCB_EVENT_MASK_PROPERTY_CHANGE;
+        uint32_t value_list[] =
+            {
+                _screen->black_pixel,
+                override_redirect,
+                event_mask
+            };
+
+        // generate the window id
+        _window = xcb_generate_id(_connection);
+
+        // create window
+        if (fullscreen)
+        {
+            xcb_create_window(_connection, depth, _window, parent,
+                            0, 0, _screen->width_in_pixels, _screen->height_in_pixels,
+                            border_width,
+                            window_class,
+                            visual,
+                            value_mask,
+                            value_list);
+        }
+        else
+        {
+            xcb_create_window(_connection, depth, _window, parent,
+                            traits->x, traits->y, traits->width, traits->height,
+                            border_width,
+                            window_class,
+                            visual,
+                            value_mask,
+                            value_list);
+        }
+
+        // set class of window to enable window manager configuration with rules for positioning
+        xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8, traits->windowClass.size(), traits->windowClass.data());
+
+        // set title of window
+        xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, traits->windowTitle.size(), traits->windowTitle.data());
+
+        // make requests for the atoms
+        AtomRequest protocols(_connection, "WM_PROTOCOLS");
+        AtomRequest deleteWindow(_connection, "WM_DELETE_WINDOW");
+
+        // get the atoms request replies
+        _wmProtocols = protocols;
+        _wmDeleteWindow = deleteWindow;
+        xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, _wmProtocols, 4, 32, 1, &_wmDeleteWindow);
+
+        if (fullscreen)
+        {
+            AtomRequest wmState(_connection, "_NET_WM_STATE");
+            AtomRequest wmFullScreen(_connection, "_NET_WM_STATE_FULLSCREEN");
+            std::vector<xcb_atom_t> stateAtoms{wmFullScreen};
+
+            xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, wmState, XCB_ATOM_ATOM, 32, stateAtoms.size(), stateAtoms.data());
+        }
+
+        // set whether the window should have a border or not, and if so what resize/move/close functions to enable
+        AtomRequest motifHintAtom(_connection, "_MOTIF_WM_HINTS");
+        MotifHints hints = (fullscreen || !_traits->decoration) ? MotifHints::borderless() : MotifHints::window();
+        xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, motifHintAtom, motifHintAtom, 32, 5, &hints);
+
+        // work out the X server timestamp by checking for the property notify events that result for the above xcb_change_property calls.
+        _first_xcb_timestamp = 0;
+        _first_xcb_time_point = vsg::clock::now();
+        {
+            xcb_generic_event_t* event = nullptr;
+            while (_first_xcb_timestamp == 0 && (event = xcb_wait_for_event(_connection)))
+            {
+                uint8_t response_type = event->response_type & ~0x80;
+                if (response_type == XCB_PROPERTY_NOTIFY)
+                {
+                    auto propety_notify = reinterpret_cast<const xcb_property_notify_event_t*>(event);
+                    _first_xcb_timestamp = propety_notify->time;
+                    _first_xcb_time_point = vsg::clock::now();
+                }
+                free(event);
+            }
+        }
+        xcb_map_window(_connection, _window);
+        _windowMapped = true;
+
     }
     else
     {
-        xcb_create_window(_connection, depth, _window, parent,
-                          traits->x, traits->y, traits->width, traits->height,
-                          border_width,
-                          window_class,
-                          visual,
-                          value_mask,
-                          value_list);
+        _windowMapped = true;
+        _first_xcb_time_point = vsg::clock::now();
     }
-
-    // set class of window to enable window manager configuration with rules for positioning
-    xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8, traits->windowClass.size(), traits->windowClass.data());
-
-    // set title of window
-    xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, traits->windowTitle.size(), traits->windowTitle.data());
-
-    // make requests for the atoms
-    AtomRequest protocols(_connection, "WM_PROTOCOLS");
-    AtomRequest deleteWindow(_connection, "WM_DELETE_WINDOW");
-
-    // get the atoms request replies
-    _wmProtocols = protocols;
-    _wmDeleteWindow = deleteWindow;
-    xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, _wmProtocols, 4, 32, 1, &_wmDeleteWindow);
-
-    if (fullscreen)
-    {
-        AtomRequest wmState(_connection, "_NET_WM_STATE");
-        AtomRequest wmFullScreen(_connection, "_NET_WM_STATE_FULLSCREEN");
-        std::vector<xcb_atom_t> stateAtoms{wmFullScreen};
-
-        xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, wmState, XCB_ATOM_ATOM, 32, stateAtoms.size(), stateAtoms.data());
-    }
-
-    // set whethert the window should have a border or not, and if so what resize/move/close functions to enable
-    AtomRequest motifHintAtom(_connection, "_MOTIF_WM_HINTS");
-    MotifHints hints = (fullscreen || !_traits->decoration) ? MotifHints::borderless() : MotifHints::window();
-    xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, motifHintAtom, motifHintAtom, 32, 5, &hints);
-
-    // work out the X server timestamp by checking for the property notify events that result for the above xcb_change_property calls.
-    _first_xcb_timestamp = 0;
-    _first_xcb_time_point = vsg::clock::now();
-    {
-        xcb_generic_event_t* event = nullptr;
-        while (_first_xcb_timestamp == 0 && (event = xcb_wait_for_event(_connection)))
-        {
-            uint8_t response_type = event->response_type & ~0x80;
-            if (response_type == XCB_PROPERTY_NOTIFY)
-            {
-                auto propety_notify = reinterpret_cast<const xcb_property_notify_event_t*>(event);
-                _first_xcb_timestamp = propety_notify->time;
-                _first_xcb_time_point = vsg::clock::now();
-            }
-            free(event);
-        }
-    }
-    xcb_map_window(_connection, _window);
-    _windowMapped = true;
 
     if (traits->shareWindow)
     {
@@ -463,6 +499,12 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
         _extent2D.width = geometry_reply->width;
         _extent2D.height = geometry_reply->height;
         free(geometry_reply);
+
+        // assign dimensions
+        traits->x = geometry_reply->x;
+        traits->y = geometry_reply->y;
+        traits->width = geometry_reply->width;
+        traits->height = geometry_reply->height;
     }
 
     traits->nativeWindow = _window;
@@ -476,7 +518,10 @@ Xcb_Window::~Xcb_Window()
 
     if (_connection != nullptr)
     {
-        if (_window != 0) xcb_destroy_window(_connection, _window);
+        if (_window != 0)
+        {
+            xcb_destroy_window(_connection, _window);
+        }
 
         xcb_flush(_connection);
         xcb_disconnect(_connection);
@@ -500,9 +545,18 @@ bool Xcb_Window::visible() const
     return _window!=0 && _windowMapped;
 }
 
+void Xcb_Window::releaseWindow()
+{
+    _window = {};
+}
+
+void Xcb_Window::releaseConnection()
+{
+    _connection = {};
+}
+
 bool Xcb_Window::pollEvents(UIEvents& events)
 {
-    unsigned numEventsBefore = events.size();
     xcb_generic_event_t* event;
     int i = 0;
     while ((event = xcb_poll_for_event(_connection)))
@@ -514,7 +568,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
         case(XCB_DESTROY_NOTIFY):
         {
             vsg::clock::time_point event_time = vsg::clock::now();
-            events.emplace_back(new vsg::TerminateEvent(event_time));
+            bufferedEvents.emplace_back(vsg::TerminateEvent::create(event_time));
             break;
         }
         case(XCB_UNMAP_NOTIFY):
@@ -568,12 +622,13 @@ bool Xcb_Window::pollEvents(UIEvents& events)
         {
             auto configure = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
 
-            // Xcb configure events can come with x,y == (0,0) or with values relative to the root, so explictly get the new geometry and substitude if required to avoid inconsistencis
+            // Xcb configure events can come with x,y == (0,0) or with values relative to the root, so explictly get the new geometry and substitute if required to avoid inconsistencies
             int32_t x = configure->x;
             int32_t y  = configure->y;
+            uint32_t width = configure->width;
+            uint32_t height = configure->height;
             if (configure->x==0 && configure->y==0)
             {
-                uint32_t width,  height;
                 vsgXcb::getWindowGeometry(_connection, _window, x, y, width, height);
             }
 
@@ -590,8 +645,9 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             if (!previousConfigureEventsIsEquvilant)
             {
                 vsg::clock::time_point event_time = vsg::clock::now();
-                events.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, x, y, configure->width, configure->height));
-                _windowResized = (configure->width != _extent2D.width || configure->height != _extent2D.height);
+                bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, x, y, configure->width, configure->height));
+                _extent2D.width = width;
+                _extent2D.height = height;
             }
 
             break;
@@ -601,10 +657,10 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             auto expose = reinterpret_cast<const xcb_expose_event_t*>(event);
 
             vsg::clock::time_point event_time = vsg::clock::now();
-            events.emplace_back(new vsg::ExposeWindowEvent(this, event_time, expose->x, expose->y, expose->width, expose->height));
+            bufferedEvents.emplace_back(vsg::ExposeWindowEvent::create(this, event_time, expose->x, expose->y, expose->width, expose->height));
 
-            _windowResized = (expose->width != _extent2D.width || expose->height != _extent2D.height);
-
+            _extent2D.width = expose->width;
+            _extent2D.height = expose->height;
             break;
         }
         case XCB_CLIENT_MESSAGE:
@@ -614,7 +670,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             if (client_message->data.data32[0] == _wmDeleteWindow)
             {
                 vsg::clock::time_point event_time = vsg::clock::now();
-                events.emplace_back(new vsg::CloseWindowEvent(this, event_time));
+                bufferedEvents.emplace_back(vsg::CloseWindowEvent::create(this, event_time));
             }
             break;
         }
@@ -627,7 +683,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             vsg::KeySymbol keySymbolModified = _keyboard->getKeySymbol(key_press->detail, key_press->state);
             vsg::KeyModifier keyModifier = _keyboard->getKeyModifier(keySymbol, key_press->state, true);
 
-            events.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, keySymbolModified, keyModifier, 0));
+            bufferedEvents.emplace_back(vsg::KeyPressEvent::create(this, event_time, keySymbol, keySymbolModified, keyModifier, 0));
 
             break;
         }
@@ -640,7 +696,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             vsg::KeySymbol keySymbolModified = _keyboard->getKeySymbol(key_release->detail, key_release->state);
             vsg::KeyModifier keyModifier = _keyboard->getKeyModifier(keySymbol, key_release->state, false);
 
-            events.emplace_back(new vsg::KeyReleaseEvent(this, event_time, keySymbol, keySymbolModified, keyModifier, 0));
+            bufferedEvents.emplace_back(vsg::KeyReleaseEvent::create(this, event_time, keySymbol, keySymbolModified, keyModifier, 0));
 
             break;
         }
@@ -650,20 +706,23 @@ bool Xcb_Window::pollEvents(UIEvents& events)
 
             vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_press->time - _first_xcb_timestamp);
 
-            // X11/Xvb treat scroll wheel up/down as button 4 and 5 so handle these as such
-            if (button_press->detail==4)
+            if (button_press->same_screen)
             {
-                events.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0f, 1.0f, 0.0f)));
-            }
-            else if (button_press->detail==5)
-            {
-                events.emplace_back(new vsg::ScrollWheelEvent(this, event_time, vsg::vec3(0.0f, -1.0f, 0.0f)));
-            }
-            else
-            {
-                uint32_t pressedButtoMask = 1 << (7+button_press->detail);
-                uint32_t newButtonMask = uint32_t(button_press->state) | pressedButtoMask;
-                events.emplace_back(new vsg::ButtonPressEvent(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(newButtonMask), button_press->detail));
+                // X11/Xvb treat scroll wheel up/down as button 4 and 5 so handle these as such
+                if (button_press->detail==4)
+                {
+                    bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, vsg::vec3(0.0f, 1.0f, 0.0f)));
+                }
+                else if (button_press->detail==5)
+                {
+                    bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, vsg::vec3(0.0f, -1.0f, 0.0f)));
+                }
+                else
+                {
+                    uint32_t pressedButtoMask = 1 << (7+button_press->detail);
+                    uint32_t newButtonMask = uint32_t(button_press->state) | pressedButtoMask;
+                    bufferedEvents.emplace_back(vsg::ButtonPressEvent::create(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(newButtonMask), button_press->detail));
+                }
             }
 
             break;
@@ -673,12 +732,12 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             auto button_release = reinterpret_cast<const xcb_button_release_event_t*>(event);
 
             // ignore button 4 and 5 as X11/Xcb use them as up/down scroll wheel events
-            if (button_release->detail !=4 && button_release->detail !=5)
+            if (button_release->same_screen && button_release->detail !=4 && button_release->detail !=5)
             {
                 vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_release->time - _first_xcb_timestamp);
                 uint32_t releasedButtoMask = 1 << (7+button_release->detail);
                 uint32_t newButtonMask = uint32_t(button_release->state) & ~releasedButtoMask;
-                events.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(newButtonMask), button_release->detail));
+                bufferedEvents.emplace_back(vsg::ButtonReleaseEvent::create(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(newButtonMask), button_release->detail));
             }
 
             break;
@@ -686,27 +745,24 @@ bool Xcb_Window::pollEvents(UIEvents& events)
         case (XCB_MOTION_NOTIFY):
         {
             auto motion_notify = reinterpret_cast<const xcb_motion_notify_event_t*>(event);
-
-            vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(motion_notify->time - _first_xcb_timestamp);
-            events.emplace_back(new vsg::MoveEvent(this, event_time, motion_notify->event_x, motion_notify->event_y, vsg::ButtonMask(motion_notify->state)));
+            if (motion_notify->same_screen)
+            {
+                vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(motion_notify->time - _first_xcb_timestamp);
+                bufferedEvents.emplace_back(vsg::MoveEvent::create(this, event_time, motion_notify->event_x, motion_notify->event_y, vsg::ButtonMask(motion_notify->state)));
+            }
 
             break;
         }
         default:
         {
-            std::cout << "event not handled, response_type = " << (int)response_type << std::endl;
+            std::cout << "event not handled, response_type = " << static_cast<int>(response_type) << std::endl;
             break;
         }
         }
         free(event);
     }
-    unsigned numEventsAfter = events.size();
-    return numEventsBefore != numEventsAfter;
-}
 
-bool Xcb_Window::resized() const
-{
-    return _windowResized;
+    return Window::pollEvents(events);
 }
 
 void Xcb_Window::resize()
@@ -720,5 +776,4 @@ void Xcb_Window::resize()
 
         buildSwapchain();
     }
-    _windowResized = false;
 }

@@ -18,11 +18,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/LOD.h>
-#include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/Transform.h>
 #include <vsg/nodes/PagedLOD.h>
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/GraphicsPipeline.h>
-#include <vsg/state/StateGroup.h>
 #include <vsg/traversals/Intersector.h>
 
 using namespace vsg;
@@ -55,7 +55,7 @@ void Intersector::apply(const StateGroup& stategroup)
 
     ArrayState arrayState(arrayStateStack.back());
 
-    for (auto& statecommand : stategroup.getStateCommands())
+    for (auto& statecommand : stategroup.stateCommands)
     {
         statecommand->accept(arrayState);
     }
@@ -67,11 +67,11 @@ void Intersector::apply(const StateGroup& stategroup)
     arrayStateStack.pop_back();
 }
 
-void Intersector::apply(const MatrixTransform& transform)
+void Intersector::apply(const Transform& transform)
 {
     PushPopNode ppn(_nodePath, &transform);
 
-    pushTransform(transform.getMatrix());
+    pushTransform(transform);
 
     transform.traverse(*this);
 
@@ -82,9 +82,9 @@ void Intersector::apply(const LOD& lod)
 {
     PushPopNode ppn(_nodePath, &lod);
 
-    if (intersects(lod.getBound()))
+    if (intersects(lod.bound))
     {
-        for (auto& child : lod.getChildren())
+        for (auto& child : lod.children)
         {
             if (child.node)
             {
@@ -99,9 +99,9 @@ void Intersector::apply(const PagedLOD& plod)
 {
     PushPopNode ppn(_nodePath, &plod);
 
-    if (intersects(plod.getBound()))
+    if (intersects(plod.bound))
     {
-        for (auto& child : plod.getChildren())
+        for (auto& child : plod.children)
         {
             if (child.node)
             {
@@ -116,7 +116,7 @@ void Intersector::apply(const CullNode& cn)
 {
     PushPopNode ppn(_nodePath, &cn);
 
-    if (intersects(cn.getBound())) cn.traverse(*this);
+    if (intersects(cn.bound)) cn.traverse(*this);
 }
 
 void Intersector::apply(const VertexIndexDraw& vid)
@@ -140,7 +140,7 @@ void Intersector::apply(const VertexIndexDraw& vid)
             bound.center = (bb.min + bb.max) * 0.5f;
             bound.radius = length(bb.max - bb.min) * 0.5f;
 
-            // hacky but better to reuse results.  Perhaps use a std::map<> to avoid a breaking const, or make the vistitor non const?
+            // hacky but better to reuse results.  Perhaps use a std::map<> to avoid a breaking const, or make the visitor non const?
             const_cast<VertexIndexDraw&>(vid).setValue("bound", bound);
         }
 
@@ -180,16 +180,21 @@ void Intersector::apply(const BindVertexBuffers& bvb)
 
 void Intersector::apply(const BindIndexBuffer& bib)
 {
-    bib.getIndices()->accept(*this);
+    bib.indices->accept(*this);
 }
 
-void Intersector::apply(const vsg::ushortArray& array)
+void Intersector::apply(const BufferInfo& bufferInfo)
+{
+    if (bufferInfo.data) bufferInfo.data->accept(*this);
+}
+
+void Intersector::apply(const ushortArray& array)
 {
     ushort_indices = &array;
     uint_indices = nullptr;
 }
 
-void Intersector::apply(const vsg::uintArray& array)
+void Intersector::apply(const uintArray& array)
 {
     ushort_indices = nullptr;
     uint_indices = &array;

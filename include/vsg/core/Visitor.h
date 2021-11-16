@@ -34,10 +34,16 @@ namespace vsg
     class CullGroup;
     class CullNode;
     class MatrixTransform;
+    class Transform;
     class Geometry;
     class VertexIndexDraw;
+    class DepthSorted;
+    class Bin;
+    class Switch;
+    class MaskGroup;
 
     // forward declare vulkan classes
+    class BufferInfo;
     class Command;
     class StateCommand;
     class CommandBuffer;
@@ -45,6 +51,8 @@ namespace vsg
     class BindDescriptorSet;
     class BindDescriptorSets;
     class Descriptor;
+    class DescriptorBuffer;
+    class DescriptorImage;
     class DescriptorSet;
     class BindVertexBuffers;
     class BindIndexBuffer;
@@ -70,6 +78,11 @@ namespace vsg
     class ResourceHints;
     class ClearAttachments;
 
+    // forward declare rtx classes
+    class DrawMeshTasks;
+    class DrawMeshTasksIndirect;
+    class DrawMeshTasksIndirectCount;
+
     // forward declare ui events classes
     class UIEvent;
     class WindowEvent;
@@ -91,6 +104,9 @@ namespace vsg
     class TerminateEvent;
     class FrameEvent;
 
+    // forward declare util classes
+    class AnimationPath;
+
     // forward declare viewer classes
     class Camera;
     class CommandGraph;
@@ -105,6 +121,9 @@ namespace vsg
     {
     public:
         Visitor();
+
+        uint32_t traversalMask = 0xffffffff;
+        uint32_t overrideMask = 0x0;
 
         virtual void apply(Object&);
         virtual void apply(Objects&);
@@ -219,10 +238,16 @@ namespace vsg
         virtual void apply(CullGroup&);
         virtual void apply(CullNode&);
         virtual void apply(MatrixTransform&);
+        virtual void apply(Transform&);
         virtual void apply(Geometry&);
         virtual void apply(VertexIndexDraw&);
+        virtual void apply(DepthSorted&);
+        virtual void apply(Bin&);
+        virtual void apply(Switch&);
+        virtual void apply(MaskGroup&);
 
         // Vulkan nodes
+        virtual void apply(BufferInfo&);
         virtual void apply(Command&);
         virtual void apply(StateCommand&);
         virtual void apply(CommandBuffer&);
@@ -230,6 +255,8 @@ namespace vsg
         virtual void apply(BindDescriptorSet&);
         virtual void apply(BindDescriptorSets&);
         virtual void apply(Descriptor&);
+        virtual void apply(DescriptorBuffer&);
+        virtual void apply(DescriptorImage&);
         virtual void apply(DescriptorSet&);
         virtual void apply(BindVertexBuffers&);
         virtual void apply(BindIndexBuffer&);
@@ -255,6 +282,11 @@ namespace vsg
         virtual void apply(DrawIndexed&);
         virtual void apply(ClearAttachments&);
 
+        // rtx classes
+        virtual void apply(DrawMeshTasks&);
+        virtual void apply(DrawMeshTasksIndirect&);
+        virtual void apply(DrawMeshTasksIndirectCount&);
+
         // ui events
         virtual void apply(UIEvent&);
         virtual void apply(WindowEvent&);
@@ -275,6 +307,9 @@ namespace vsg
         virtual void apply(ScrollWheelEvent&);
         virtual void apply(TerminateEvent&);
         virtual void apply(FrameEvent&);
+
+        // utils
+        virtual void apply(AnimationPath&);
 
         // viewer
         virtual void apply(Camera&);

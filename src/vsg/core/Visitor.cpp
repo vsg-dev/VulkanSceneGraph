@@ -453,9 +453,13 @@ void Visitor::apply(CullNode& value)
 {
     apply(static_cast<Node&>(value));
 }
-void Visitor::apply(MatrixTransform& value)
+void Visitor::apply(Transform& value)
 {
     apply(static_cast<Group&>(value));
+}
+void Visitor::apply(MatrixTransform& value)
+{
+    apply(static_cast<Transform&>(value));
 }
 void Visitor::apply(Geometry& value)
 {
@@ -465,11 +469,31 @@ void Visitor::apply(VertexIndexDraw& value)
 {
     apply(static_cast<Command&>(value));
 }
+void Visitor::apply(DepthSorted& value)
+{
+    apply(static_cast<Node&>(value));
+}
+void Visitor::apply(Bin& value)
+{
+    apply(static_cast<Node&>(value));
+}
+void Visitor::apply(Switch& value)
+{
+    apply(static_cast<Node&>(value));
+}
+void Visitor::apply(MaskGroup& value)
+{
+    apply(static_cast<Node&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Vulkan Object
 //
+void Visitor::apply(BufferInfo& value)
+{
+    apply(static_cast<Object&>(value));
+}
 void Visitor::apply(Command& value)
 {
     apply(static_cast<Node&>(value));
@@ -497,6 +521,14 @@ void Visitor::apply(BindDescriptorSets& value)
 void Visitor::apply(Descriptor& value)
 {
     apply(static_cast<Object&>(value));
+}
+void Visitor::apply(DescriptorBuffer& value)
+{
+    apply(static_cast<Descriptor&>(value));
+}
+void Visitor::apply(DescriptorImage& value)
+{
+    apply(static_cast<Descriptor&>(value));
 }
 void Visitor::apply(DescriptorSet& value)
 {
@@ -597,6 +629,23 @@ void Visitor::apply(ClearAttachments& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// RTX
+//
+void Visitor::apply(DrawMeshTasks& dmt)
+{
+    apply(static_cast<Command&>(dmt));
+}
+void Visitor::apply(DrawMeshTasksIndirect& dmti)
+{
+    apply(static_cast<Command&>(dmti));
+}
+void Visitor::apply(DrawMeshTasksIndirectCount& dmtic)
+{
+    apply(static_cast<Command&>(dmtic));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // UI Events
 //
 void Visitor::apply(UIEvent& event)
@@ -674,6 +723,15 @@ void Visitor::apply(TerminateEvent& event)
 void Visitor::apply(FrameEvent& event)
 {
     apply(static_cast<UIEvent&>(event));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// util classes
+//
+void Visitor::apply(AnimationPath& animationPath)
+{
+    apply(static_cast<Object&>(animationPath));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

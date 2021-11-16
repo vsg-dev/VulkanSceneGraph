@@ -24,20 +24,21 @@ namespace vsg
     public:
         ShaderStage();
         ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, ref_ptr<ShaderModule> shaderModule);
-        ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& source);
+        ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& source, ref_ptr<ShaderCompileSettings> hints = {});
         ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const ShaderModule::SPIRV& spirv);
         ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& source, const ShaderModule::SPIRV& spirv);
 
         using SpecializationConstants = std::map<uint32_t, vsg::ref_ptr<vsg::Data>>;
 
-        /// Vualkn VkPipelineShaderStageCreateInfo settings
+        /// Vulkan VkPipelineShaderStageCreateInfo settings
         VkPipelineShaderStageCreateFlags flags = 0;
         VkShaderStageFlagBits stage = {};
         ref_ptr<ShaderModule> module;
         std::string entryPointName;
         SpecializationConstants specializationConstants;
 
-        static ref_ptr<ShaderStage> read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename);
+        static ref_ptr<ShaderStage> read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename, ref_ptr<const Options> options = {});
+        static ref_ptr<ShaderStage> read(VkShaderStageFlagBits stage, const std::string& entryPointName, std::istream& fin, ref_ptr<const Options> options = {});
 
         void read(Input& input) override;
         void write(Output& output) const override;

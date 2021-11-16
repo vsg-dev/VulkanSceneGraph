@@ -52,7 +52,7 @@ namespace vsgWin32
     // our windows events callback
     LRESULT CALLBACK Win32WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
-        Win32_Window* win = (Win32_Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+        Win32_Window* win = reinterpret_cast<Win32_Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
         if (win != nullptr) return win->handleWin32Messages(msg, wParam, lParam);
         return ::DefWindowProc(hwnd, msg, wParam, lParam);
     }
@@ -348,8 +348,8 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
         displayDevices.push_back(displayDevice);
     }
 
-    // assume a trais->screenNum of < 0 will default to screen 0
-    int screenNum = traits->screenNum < 0 ? 0 : traits->screenNum;
+    // assume a traits->screenNum of < 0 will default to screen 0
+    int32_t screenNum = traits->screenNum < 0 ? 0 : traits->screenNum;
     if (screenNum >= displayDevices.size()) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
     DEVMODE deviceMode;
@@ -363,8 +363,8 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
     int32_t screeny = 0;
     RECT windowRect;
 
-    unsigned int windowStyle = WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
-    unsigned int extendedStyle = 0;
+    uint32_t windowStyle = WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+    uint32_t extendedStyle = 0;
 
     if(!traits->fullscreen)
     {
@@ -410,7 +410,7 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
     if (_window == nullptr) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, CreateWindowEx did not return a valid window handle.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
     // set window handle user data pointer to hold ref to this so we can retrieve in WindowsProc
-    SetWindowLongPtr(_window, GWLP_USERDATA, (LONG_PTR)this);
+    SetWindowLongPtr(_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
     // reposition once the window has been created to account for borders etc
     ::SetWindowPos(_window, nullptr, screenx, screeny, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, 0);
@@ -431,6 +431,12 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
     _extent2D.width = finalWidth;
     _extent2D.height = finalHeight;
 
+    // assign dimensions
+    traits->x = windowRect.left;
+    traits->y = windowRect.top;
+    traits->width = finalWidth;
+    traits->height = finalHeight;
+
     ShowWindow(_window, SW_SHOW);
     SetForegroundWindow(_window);
     SetFocus(_window);
@@ -446,7 +452,7 @@ Win32_Window::~Win32_Window()
 
     if (_window != nullptr)
     {
-        std::cout << "Calling DestroyWindow(_window);" << std::endl;
+        // std::cout << "Calling DestroyWindow(_window);" << std::endl;
 
         TCHAR className[MAX_PATH];
         GetClassName(_window, className, MAX_PATH);
@@ -482,7 +488,7 @@ bool Win32_Window::pollEvents(vsg::UIEvents& events)
         if (msg.message == WM_QUIT)
         {
             // somehow close all windows
-            events.emplace_back(new vsg::CloseWindowEvent(this, event_time));
+            events.emplace_back(vsg::CloseWindowEvent::create(this, event_time));
         }
         else
         {
@@ -491,26 +497,7 @@ bool Win32_Window::pollEvents(vsg::UIEvents& events)
         }
     }
 
-    if (_bufferedEvents.size() > 0)
-    {
-        events.splice(events.end(), _bufferedEvents);
-        _bufferedEvents.clear();
-        return true;
-    }
-
-    return false;
-}
-
-bool Win32_Window::resized() const
-{
-    RECT windowRect;
-    GetClientRect(_window, &windowRect);
-
-    int width = windowRect.right - windowRect.left;
-    int height = windowRect.bottom - windowRect.top;
-
-    // at the moment the close event is occurring then the check for resize is happening, which means the window is rect returns 0. So for now ignore potential resize if should close
-    return width != int(_extent2D.width) || height != int(_extent2D.height);
+    return Window::pollEvents(events);
 }
 
 void Win32_Window::resize()
@@ -540,11 +527,11 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     switch (msg)
     {
     case WM_CLOSE:
-        std::cout << "close window" << std::endl;
-        _bufferedEvents.emplace_back(new vsg::CloseWindowEvent(this, event_time));
+        // std::cout << "close window" << std::endl;
+        bufferedEvents.emplace_back(vsg::CloseWindowEvent::create(this, event_time));
         break;
     case WM_SHOWWINDOW:
-        _bufferedEvents.emplace_back(new vsg::ExposeWindowEvent(this, event_time, winx, winy, winw, winh));
+        bufferedEvents.emplace_back(vsg::ExposeWindowEvent::create(this, event_time, winx, winy, winw, winh));
         break;
     case WM_DESTROY:
         _windowMapped = false;
@@ -557,17 +544,17 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         int32_t mx = GET_X_LPARAM(lParam);
         int32_t my = GET_Y_LPARAM(lParam);
 
-        _bufferedEvents.emplace_back(new vsg::MoveEvent(this, event_time, mx, my, getButtonMask(wParam)));
+        bufferedEvents.emplace_back(vsg::MoveEvent::create(this, event_time, mx, my, getButtonMask(wParam)));
     }
     break;
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
     case WM_RBUTTONDOWN:
     {
-        uint32_t mx = GET_X_LPARAM(lParam);
-        uint32_t my = GET_Y_LPARAM(lParam);
+        int32_t mx = GET_X_LPARAM(lParam);
+        int32_t my = GET_Y_LPARAM(lParam);
 
-        _bufferedEvents.emplace_back(new vsg::ButtonPressEvent(this, event_time, mx, my, getButtonMask(wParam), getButtonDownEventDetail(msg)));
+        bufferedEvents.emplace_back(vsg::ButtonPressEvent::create(this, event_time, mx, my, getButtonMask(wParam), getButtonDownEventDetail(msg)));
 
         //::SetCapture(_window);
     }
@@ -576,10 +563,10 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     case WM_MBUTTONUP:
     case WM_RBUTTONUP:
     {
-        uint32_t mx = GET_X_LPARAM(lParam);
-        uint32_t my = GET_Y_LPARAM(lParam);
+        int32_t mx = GET_X_LPARAM(lParam);
+        int32_t my = GET_Y_LPARAM(lParam);
 
-        _bufferedEvents.emplace_back(new vsg::ButtonReleaseEvent(this, event_time, mx, my, getButtonMask(wParam), getButtonUpEventDetail(msg)));
+        bufferedEvents.emplace_back(vsg::ButtonReleaseEvent::create(this, event_time, mx, my, getButtonMask(wParam), getButtonUpEventDetail(msg)));
 
         //::ReleaseCapture(); // should only release once all mouse buttons are released ??
         break;
@@ -593,12 +580,12 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     break;
     case WM_MOUSEWHEEL:
     {
-        _bufferedEvents.emplace_back(new vsg::ScrollWheelEvent(this, event_time, GET_WHEEL_DELTA_WPARAM(wParam)<0 ? vec3(0.0f, -1.0f, 0.0f) : vec3(0.0f, 1.0f, 0.0f)));
+        bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, GET_WHEEL_DELTA_WPARAM(wParam)<0 ? vec3(0.0f, -1.0f, 0.0f) : vec3(0.0f, 1.0f, 0.0f)));
         break;
     }
     case WM_MOVE:
     {
-        _bufferedEvents.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, winx, winy, winw, winh));
+        bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, winx, winy, winw, winh));
         break;
     }
     case WM_SIZE:
@@ -610,7 +597,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         else
         {
             _windowMapped = true;
-            _bufferedEvents.emplace_back(new vsg::ConfigureWindowEvent(this, event_time, winx, winy, winw, winh));
+            bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, winx, winy, winw, winh));
         }
         break;
     }
@@ -623,8 +610,8 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         vsg::KeyModifier keyModifier;
         if (_keyboard->getKeySymbol(wParam, lParam, keySymbol, modifiedKeySymbol, keyModifier))
         {
-            int repeatCount = (lParam & 0xffff);
-            _bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier, repeatCount));
+            int32_t repeatCount = (lParam & 0xffff);
+            bufferedEvents.emplace_back(vsg::KeyPressEvent::create(this, event_time, keySymbol, modifiedKeySymbol, keyModifier, repeatCount));
         }
         break;
     }
@@ -635,7 +622,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         vsg::KeyModifier keyModifier;
         if (_keyboard->getKeySymbol(wParam, lParam, keySymbol, modifiedKeySymbol, keyModifier))
         {
-            _bufferedEvents.emplace_back(new vsg::KeyReleaseEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier, 0));
+            bufferedEvents.emplace_back(vsg::KeyReleaseEvent::create(this, event_time, keySymbol, modifiedKeySymbol, keyModifier, 0));
         }
 
         break;

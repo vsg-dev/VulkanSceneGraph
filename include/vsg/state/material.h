@@ -48,4 +48,85 @@ namespace vsg
     VSG_value(materialValue, material);
     VSG_array(materialArray, material);
 
+    struct PhongMaterial
+    {
+        vec4 ambient{0.0f, 0.0f, 0.0f, 1.0f};
+        vec4 diffuse{1.0f, 1.0f, 1.0f, 1.0f};
+        vec4 specular{0.0f, 0.0f, 0.0f, 1.0f};
+        vec4 emissive{0.0f, 0.0f, 0.0f, 1.0f};
+        float shininess{0.0f};
+        float alphaMask{1.0f};
+        float alphaMaskCutoff{0.5f};
+
+        void read(vsg::Input& input)
+        {
+            input.read("ambient", ambient);
+            input.read("diffuse", diffuse);
+            input.read("specular", specular);
+            input.read("emissive", emissive);
+            input.read("shininess", shininess);
+            input.read("alphaMask", alphaMask);
+            input.read("alphaMaskCutoff", alphaMaskCutoff);
+        }
+
+        void write(vsg::Output& output) const
+        {
+            output.write("ambient", ambient);
+            output.write("diffuse", diffuse);
+            output.write("specular", specular);
+            output.write("emissive", emissive);
+            output.write("shininess", shininess);
+            output.write("alphaMask", alphaMask);
+            output.write("alphaMaskCutoff", alphaMaskCutoff);
+        }
+    };
+
+    template<>
+    constexpr bool has_read_write<PhongMaterial>() { return true; }
+
+    VSG_value(PhongMaterialValue, PhongMaterial);
+    VSG_array(PhongMaterialArray, PhongMaterial);
+
+    struct PbrMaterial
+    {
+        vec4 baseColorFactor{1.0f, 1.0f, 1.0f, 1.0f};
+        vec4 emissiveFactor{0.0f, 0.0f, 0.0f, 1.0f};
+        vec4 diffuseFactor{1.0f, 1.0f, 1.0f, 1.0f};
+        vec4 specularFactor{0.0f, 0.0f, 0.0f, 1.0f};
+        float metallicFactor{1.0f};
+        float roughnessFactor{1.0f};
+        float alphaMask{1.0f};
+        float alphaMaskCutoff{0.5f};
+
+        void read(vsg::Input& input)
+        {
+            input.read("baseColorFactor", baseColorFactor);
+            input.read("emissiveFactor", emissiveFactor);
+            input.read("diffuseFactor", diffuseFactor);
+            input.read("specularFactor", specularFactor);
+            input.read("metallicFactor", metallicFactor);
+            input.read("roughnessFactor", roughnessFactor);
+            input.read("alphaMask", alphaMask);
+            input.read("alphaMaskCutoff", alphaMaskCutoff);
+        }
+
+        void write(vsg::Output& output) const
+        {
+            output.write("baseColorFactor", baseColorFactor);
+            output.write("emissiveFactor", emissiveFactor);
+            output.write("diffuseFactor", diffuseFactor);
+            output.write("specularFactor", specularFactor);
+            output.write("metallicFactor", metallicFactor);
+            output.write("roughnessFactor", roughnessFactor);
+            output.write("alphaMask", alphaMask);
+            output.write("alphaMaskCutoff", alphaMaskCutoff);
+        }
+    };
+
+    template<>
+    constexpr bool has_read_write<PbrMaterial>() { return true; }
+
+    VSG_value(PbrMaterialValue, PbrMaterial);
+    VSG_array(PbrMaterialArray, PbrMaterial);
+
 } // namespace vsg

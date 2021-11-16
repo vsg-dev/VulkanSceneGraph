@@ -19,12 +19,26 @@ void StateCommand::read(Input& input)
 {
     Command::read(input);
 
-    input.read("Slot", _slot);
+    if (input.version_greater_equal(0, 1, 4))
+    {
+        input.read("slot", slot);
+    }
+    else
+    {
+        input.read("Slot", slot);
+    }
 }
 
 void StateCommand::write(Output& output) const
 {
     Command::write(output);
 
-    output.write("Slot", _slot);
+    if (output.version_greater_equal(0, 1, 4))
+    {
+        output.write("slot", slot);
+    }
+    else
+    {
+        output.write("Slot", slot);
+    }
 }

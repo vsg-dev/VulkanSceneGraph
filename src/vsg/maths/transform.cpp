@@ -11,6 +11,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/maths/transform.h>
+#include <vsg/nodes/MatrixTransform.h>
+#include <vsg/io/Options.h>
 
 using namespace vsg;
 
@@ -178,6 +180,10 @@ t_sphere<T> t_computeFrustumBound(const t_mat4<T>& m)
         if (new_r > r) r = new_r;
     };
 
+    //
+    // TODO : depth range should probably be 0 to 1 for Vulkan, rather than -1 to 1 for OpenGL.
+    //
+
     // compute the a2 the radius squared of the near plane relative to the near planes mid point
     vec_type near_center = inv_m * vec_type(0.0, 0.0, -1.0);
     value_type a2 = length2(inv_m * vec_type(-1.0, -1.0, -1.0) - near_center);
@@ -227,4 +233,72 @@ sphere vsg::computeFrustumBound(const mat4& m)
 dsphere vsg::computeFrustumBound(const dmat4& m)
 {
     return t_computeFrustumBound<double>(m);
+}
+
+bool vsg::transform(CoordinateConvention source, CoordinateConvention destination, dmat4& matrix)
+{
+    if (source == destination || source == CoordinateConvention::NO_PREFERENCE || destination == CoordinateConvention::NO_PREFERENCE) return false;
+
+    if (source == CoordinateConvention::X_UP)
+    {
+        if (destination == CoordinateConvention::Y_UP)
+        {
+            matrix.set(0.0, 1.0, 0.0, 0.0,
+                       -1.0, 0.0, 0.0, 0.0,
+                       0.0, 0.0, 1.0, 0.0,
+                       0.0, 0.0, 0.0, 1.0);
+        }
+        else // destination most be Z_UP
+        {
+            matrix.set(0.0, 0.0, 1.0, 0.0,
+                       -1.0, 0.0, 0.0, 0.0,
+                       0.0, -1.0, 0.0, 0.0,
+                       0.0, 0.0, 0.0, 1.0);
+        }
+    }
+    else if (source == CoordinateConvention::Y_UP)
+    {
+        if (destination == CoordinateConvention::X_UP)
+        {
+            matrix.set(0.0, -1.0, 0.0, 0.0,
+                       1.0, 0.0, 0.0, 0.0,
+                       0.0, 0.0, 1.0, 0.0,
+                       0.0, 0.0, 0.0, 1.0);
+        }
+        else // destination most be Z_UP
+        {
+            matrix.set(1.0, 0.0, 0.0, 0.0,
+                       0.0, 0.0, 1.0, 0.0,
+                       0.0, -1.0, 0.0, 0.0,
+                       0.0, 0.0, 0.0, 1.0);
+        }
+    }
+    else // source must be Z_UP
+    {
+        if (destination == CoordinateConvention::X_UP)
+        {
+            matrix.set(0.0, -1.0, 0.0, 0.0,
+                       1.0, 0.0, -1.0, 0.0,
+                       0.0, 0.0, -0.0, 0.0,
+                       0.0, 0.0, 0.0, 1.0);
+        }
+        else // destination most be Y_UP
+        {
+            matrix.set(0.0, 0.0, 1.0, 0.0,
+                       -1.0, 0.0, 0.0, 0.0,
+                       0.0, -1.0, 0.0, 0.0,
+                       0.0, 0.0, 0.0, 1.0);
+        }
+    }
+    return true;
+}
+
+void ComputeTransform::apply(const Transform& transform)
+{
+    matrix = transform.transform(matrix);
+}
+
+void ComputeTransform::apply(const MatrixTransform& mt)
+{
+    matrix = matrix * mt.matrix;
 }

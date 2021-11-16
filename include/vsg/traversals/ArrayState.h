@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/ConstVisitor.h>
 #include <vsg/core/Data.h>
 #include <vsg/core/Inherit.h>
+#include <vsg/state/BufferInfo.h>
 
 namespace vsg
 {
@@ -30,7 +31,7 @@ namespace vsg
             VkFormat format = {};
         };
 
-        VkPrimitiveTopology topology;
+        VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         uint32_t vertex_attribute_location = 0;
         AttributeDetails vertexAttribute;
 
@@ -47,8 +48,10 @@ namespace vsg
         void apply(const VertexIndexDraw& vid) override;
         void apply(const BindVertexBuffers& bvb) override;
 
+        void apply(uint32_t firstBinding, const BufferInfoList& in_arrays);
         void apply(uint32_t firstBinding, const DataList& in_arrays);
 
+        void apply(const vsg::BufferInfo& bufferInfo) override;
         void apply(const vsg::vec3Array& array) override;
         void apply(const vsg::Data& array) override;
     };

@@ -12,17 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <deque>
-#include <memory>
-
-#include <vsg/core/Object.h>
-#include <vsg/core/ScratchMemory.h>
-#include <vsg/nodes/Group.h>
 #include <vsg/state/BufferInfo.h>
-#include <vsg/state/GraphicsPipeline.h>
-#include <vsg/vk/CommandPool.h>
-#include <vsg/vk/DescriptorPool.h>
-#include <vsg/vk/Fence.h>
 #include <vsg/vk/MemoryBufferPools.h>
 
 #include <vsg/commands/Command.h>
@@ -33,10 +23,14 @@ namespace vsg
     class VSG_DECLSPEC CopyAndReleaseBuffer : public Inherit<Command, CopyAndReleaseBuffer>
     {
     public:
-        CopyAndReleaseBuffer() {}
-        CopyAndReleaseBuffer(BufferInfo src, BufferInfo dest);
+        CopyAndReleaseBuffer(ref_ptr<MemoryBufferPools> optional_stagingMemoryBufferPools = {});
 
-        void add(BufferInfo src, BufferInfo dest);
+        void add(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest);
+
+        /// MemoryBufferPools used for allocation staging buffer used by the copy(ref_ptr<Data>, BufferInfo) method.  Users should assign a MemoryBufferPools with appropriate settings.
+        ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;
+
+        void copy(ref_ptr<Data> data, ref_ptr<BufferInfo> dest);
 
         void record(CommandBuffer& commandBuffer) const override;
 
@@ -45,14 +39,16 @@ namespace vsg
 
         struct CopyData
         {
-            BufferInfo source;
-            BufferInfo destination;
+            ref_ptr<BufferInfo> source;
+            ref_ptr<BufferInfo> destination;
 
             void record(CommandBuffer& commandBuffer) const;
         };
 
-        mutable std::vector<CopyData> pending;
-        mutable std::vector<CopyData> completed;
+        mutable std::mutex _mutex;
+        mutable std::vector<CopyData> _pending;
+        mutable std::vector<CopyData> _completed;
+        mutable std::vector<CopyData> _readyToClear;
     };
 
 } // namespace vsg

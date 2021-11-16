@@ -37,9 +37,9 @@ void RayTracingShaderGroup::write(Output& output) const
     Object::write(output);
 }
 
-void RayTracingShaderGroup::applyTo(VkRayTracingShaderGroupCreateInfoNV& shaderGroupInfo) const
+void RayTracingShaderGroup::applyTo(VkRayTracingShaderGroupCreateInfoKHR& shaderGroupInfo) const
 {
-    shaderGroupInfo.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
+    shaderGroupInfo.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR;
     shaderGroupInfo.pNext = nullptr;
     shaderGroupInfo.type = type;
     shaderGroupInfo.generalShader = generalShader;

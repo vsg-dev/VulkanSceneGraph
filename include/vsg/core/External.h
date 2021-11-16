@@ -19,7 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    VSG_type_name(vsg::External);
 
     class VSG_DECLSPEC External : public Inherit<Object, External>
     {
@@ -32,7 +31,7 @@ namespace vsg
         template<class O, class V>
         static void t_traverse(O& object, V& visitor)
         {
-            for (auto itr = object._entries.begin(); itr != object._entries.end(); ++itr)
+            for (auto itr = object.entries.begin(); itr != object.entries.end(); ++itr)
             {
                 if (itr->second) itr->second->accept(visitor);
             }
@@ -45,16 +44,17 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void add(const Path& filename, ref_ptr<Object> object = {}) { _entries[filename] = object; }
+        /// custom readwriter/writer options
+        ref_ptr<Options> options;
 
-        void setEntries(const PathObjects& entries) { _entries = entries; }
-        PathObjects& getEntries() { return _entries; }
-        const PathObjects& getEntries() const { return _entries; }
+        /// list of path/object pairs
+        PathObjects entries;
+
+        void add(const Path& filename, ref_ptr<Object> object = {}) { entries[filename] = object; }
 
     protected:
         virtual ~External();
-
-        PathObjects _entries;
     };
+    VSG_type_name(vsg::External);
 
 } // namespace vsg

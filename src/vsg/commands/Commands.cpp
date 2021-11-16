@@ -19,13 +19,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 Commands::Commands(size_t numChildren) :
-    _children(numChildren)
+    children(numChildren)
 {
 }
 
 Commands::Commands(Allocator* allocator, size_t numChildren) :
     Inherit(allocator),
-    _children(numChildren)
+    children(numChildren)
 {
 }
 
@@ -37,10 +37,17 @@ void Commands::read(Input& input)
 {
     Node::read(input);
 
-    _children.resize(input.readValue<uint32_t>("NumChildren"));
-    for (auto& child : _children)
+    if (input.version_greater_equal(0, 1, 4))
     {
-        input.readObject("Child", child);
+        input.read("children", children);
+    }
+    else
+    {
+        children.resize(input.readValue<uint32_t>("NumChildren"));
+        for (auto& child : children)
+        {
+            input.read("Child", child);
+        }
     }
 }
 
@@ -48,16 +55,23 @@ void Commands::write(Output& output) const
 {
     Node::write(output);
 
-    output.writeValue<uint32_t>("NumChildren", _children.size());
-    for (auto& child : _children)
+    if (output.version_greater_equal(0, 1, 4))
     {
-        output.writeObject("Child", child.get());
+        output.write("children", children);
+    }
+    else
+    {
+        output.writeValue<uint32_t>("NumChildren", children.size());
+        for (auto& child : children)
+        {
+            output.write("Child", child);
+        }
     }
 }
 
 void Commands::compile(Context& context)
 {
-    for (auto& command : _children)
+    for (auto& command : children)
     {
         command->compile(context);
     }
@@ -65,7 +79,7 @@ void Commands::compile(Context& context)
 
 void Commands::record(CommandBuffer& commandBuffer) const
 {
-    for (auto& command : _children)
+    for (auto& command : children)
     {
         command->record(commandBuffer);
     }

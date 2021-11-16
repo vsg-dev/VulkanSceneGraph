@@ -17,7 +17,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    include <cstdlib>
 #    include <direct.h>
 #    include <io.h>
+//	 cctype is needed for tolower()
+#    include <cctype>
 #else
+#    include <errno.h>
 #    include <sys/stat.h>
 #    include <unistd.h>
 #endif
@@ -40,23 +43,39 @@ const char delimiterForeign = WINDOWS_PATH_SEPARATOR;
 const char envPathDelimiter = ':';
 #endif
 
+std::string vsg::getEnv(const char* env_var)
+{
+#if defined(WIN32) && !defined(__CYGWIN__)
+    char env_value[4096];
+    std::size_t len;
+    if (auto error = getenv_s(&len, env_value, sizeof(env_value) - 1, env_var); error != 0 || len == 0)
+    {
+        return {};
+    }
+#else
+    const char* env_value = getenv(env_var);
+    if (env_value == nullptr) return {};
+#endif
+    return std::string(env_value);
+}
+
 Paths vsg::getEnvPaths(const char* env_var)
 {
-    Paths filepaths;
-    if (!env_var) return filepaths;
+    if (!env_var) return {};
 
 #if defined(WIN32) && !defined(__CYGWIN__)
     char env_value[4096];
     std::size_t len;
     if (auto error = getenv_s(&len, env_value, sizeof(env_value) - 1, env_var); error != 0 || len == 0)
     {
-        return filepaths;
+        return {};
     }
 #else
     const char* env_value = getenv(env_var);
-    if (env_value == nullptr) return filepaths;
+    if (env_value == nullptr) return {};
 #endif
 
+    Paths filepaths;
     std::string paths(env_value);
 
     std::string::size_type start = 0;
@@ -102,6 +121,13 @@ Path vsg::fileExtension(const Path& path)
     std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
     if (dot == std::string::npos || (slash != std::string::npos && dot < slash)) return Path();
     return path.substr(dot + 1);
+}
+
+Path vsg::lowerCaseFileExtension(const Path& path)
+{
+    Path ext = fileExtension(path);
+    for (auto& c : ext) c = std::tolower(c);
+    return ext;
 }
 
 Path vsg::simpleFilename(const Path& path)
@@ -175,10 +201,16 @@ Path vsg::findFile(const Path& filename, const Options* options)
 {
     if (options && !options->paths.empty())
     {
+        // if Options has a findFileCallback use it
+        if (options->findFileCallback) return options->findFileCallback(filename, options);
+
+        // if appropriate use the filename directly if it exists.
         if (options->checkFilenameHint == Options::CHECK_ORIGINAL_FILENAME_EXISTS_FIRST && fileExists(filename)) return filename;
 
+        // search for the file if the in the specific paths.
         if (auto path = findFile(filename, options->paths); !path.empty()) return path;
 
+        // if appropriate use the filename directly if it exists.
         if (options->checkFilenameHint == Options::CHECK_ORIGINAL_FILENAME_EXISTS_LAST && fileExists(filename))
             return filename;
         else
@@ -213,13 +245,21 @@ bool vsg::makeDirectory(const Path& path)
 #if defined(WIN32) && !defined(__CYGWIN__)
         if (int status = _mkdir(directory_to_create.c_str()); status != 0)
         {
-            std::cerr << "   _mkdir(" << directory_to_create << ") failed. status = " << status << std::endl;
+            if (errno != EEXIST)
+            {
+                // quietly ignore a mkdir on a file that already exists as this can happen safely during a filling in a filecache.
+                std::cerr << "_mkdir(" << directory_to_create << ") failed. errno = " << errno << std::endl;
+            }
             return false;
         }
 #else
         if (int status = mkdir(directory_to_create.c_str(), 0755); status != 0)
         {
-            std::cerr << "   mkdir(" << directory_to_create << ") failed. status = " << status << std::endl;
+            if (errno != EEXIST)
+            {
+                // quietly ignore a mkdir on a file that already exists as this can happen safely during a filling in a filecache.
+                std::cerr << "mkdir(" << directory_to_create << ") failed. errno = " << errno << std::endl;
+            }
             return false;
         }
 #endif

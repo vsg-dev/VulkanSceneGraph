@@ -15,9 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/BindIndexBuffer.h>
 #include <vsg/commands/BindVertexBuffers.h>
 #include <vsg/commands/DrawIndexed.h>
-#include <vsg/nodes/Node.h>
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/state/DescriptorBuffer.h>
-#include <vsg/state/StateGroup.h>
 #include <vsg/text/TextTechnique.h>
 
 namespace vsg
@@ -38,7 +37,7 @@ namespace vsg
 
         void setup(Text* text, uint32_t minimumAllocation = 0) override;
 
-        /// rendering state used to set up grahics pipeline and descriptor sets, assigned to Font to allow it be be shared
+        /// rendering state used to set up graphics pipeline and descriptor sets, assigned to Font to allow it be shared
         struct VSG_DECLSPEC RenderingState : public Inherit<Object, RenderingState>
         {
             RenderingState(Font* font, bool in_singleColor, bool in_singleOutlineColor, bool in_singleOutlineWidth);

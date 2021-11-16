@@ -61,32 +61,115 @@ void Window::share(Window& window)
     _initFormats();
 }
 
+VkSurfaceFormatKHR Window::surfaceFormat()
+{
+    if (!_device) _initDevice();
+    return _imageFormat;
+}
+
+VkFormat Window::depthFormat()
+{
+    if (!_device) _initDevice();
+    return _depthFormat;
+}
+
+void Window::setInstance(ref_ptr<Instance> instance)
+{
+    _instance = instance;
+}
+
+ref_ptr<Instance> Window::getOrCreateInstance()
+{
+    if (!_instance) _initInstance();
+    return _instance;
+}
+
+void Window::setSurface(ref_ptr<Surface> surface)
+{
+    _surface = surface;
+}
+
+ref_ptr<Surface> Window::getOrCreateSurface()
+{
+    if (!_surface) _initSurface();
+    return _surface;
+}
+
+void Window::setPhysicalDevice(ref_ptr<PhysicalDevice> physicalDevice)
+{
+    _physicalDevice = physicalDevice;
+}
+
+ref_ptr<PhysicalDevice> Window::getOrCreatePhysicalDevice()
+{
+    if (!_physicalDevice) _initDevice();
+    return _physicalDevice;
+}
+
+void Window::setDevice(ref_ptr<Device> device)
+{
+    _device = device;
+    if (_device)
+    {
+        _physicalDevice = _device->getPhysicalDevice();
+        _initFormats();
+    }
+}
+
+ref_ptr<Device> Window::getOrCreateDevice()
+{
+    if (!_device) _initDevice();
+    return _device;
+}
+
+void Window::setRenderPass(ref_ptr<RenderPass> renderPass)
+{
+    _renderPass = renderPass;
+}
+
+ref_ptr<RenderPass> Window::getOrCreateRenderPass()
+{
+    if (!_renderPass) _initRenderPass();
+    return _renderPass;
+}
+
+ref_ptr<Swapchain> Window::getOrCreateSwapchain()
+{
+    if (!_swapchain) _initSwapchain();
+    return _swapchain;
+}
+
+ref_ptr<Image> Window::getOrCreateDepthImage()
+{
+    if (!_depthImage) _initSwapchain();
+    return _depthImage;
+}
+
+ref_ptr<ImageView> Window::getOrCreateDepthImageView()
+{
+    if (!_depthImageView) _initSwapchain();
+    return _depthImageView;
+}
+
 void Window::_initInstance()
 {
-    if (_traits->device)
+    // create the vkInstance
+    vsg::Names instanceExtensions = _traits->instanceExtensionNames;
+
+    instanceExtensions.push_back("VK_KHR_surface");
+    instanceExtensions.push_back(instanceExtensionSurfaceName());
+
+    vsg::Names requestedLayers;
+    if (_traits->debugLayer || _traits->apiDumpLayer)
     {
-        _instance = _traits->device->getInstance();
+        instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+        requestedLayers.push_back("VK_LAYER_KHRONOS_validation");         // new validation layer name
+        requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation"); // old validation layer name
+        if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
     }
-    else
-    {
-        // create the vkInstance
-        vsg::Names instanceExtensions = _traits->instanceExtensionNames;
 
-        instanceExtensions.push_back("VK_KHR_surface");
-        instanceExtensions.push_back(instanceExtensionSurfaceName());
-
-        vsg::Names requestedLayers;
-        if (_traits->debugLayer || _traits->apiDumpLayer)
-        {
-            instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-            requestedLayers.push_back("VK_LAYER_KHRONOS_validation");         // new validation layer name
-            requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation"); // old validation layer name
-            if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
-        }
-
-        vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
-        _instance = vsg::Instance::create(instanceExtensions, validatedNames);
-    }
+    vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
+    _instance = vsg::Instance::create(instanceExtensions, validatedNames, _traits->vulkanVersion);
 }
 
 void Window::_initFormats()
@@ -123,36 +206,32 @@ void Window::_initDevice()
     if (!_instance) _initInstance();
     if (!_surface) _initSurface();
 
-    // Device
-    if (_traits->device)
+    // if required set up physical device
+    if (!_physicalDevice)
     {
-        _device = _traits->device;
-        _physicalDevice = _device->getPhysicalDevice();
+        _physicalDevice = _instance->getPhysicalDevice(_traits->queueFlags, _surface, _traits->deviceTypePreferences);
+        if (!_physicalDevice) throw Exception{"Error: vsg::Window::create(...) failed to create Window,  no suitable Vulkan PhysicalDevice available.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
     }
-    else
+
+    // set up logical device
+    vsg::Names requestedLayers;
+    if (_traits->debugLayer)
     {
-        vsg::Names requestedLayers;
-        if (_traits->debugLayer)
-        {
-            requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
-            if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
-        }
-
-        vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
-
-        vsg::Names deviceExtensions;
-        deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-
-        deviceExtensions.insert(deviceExtensions.end(), _traits->deviceExtensionNames.begin(), _traits->deviceExtensionNames.end());
-
-        // set up device
-        auto [physicalDevice, queueFamily, presentFamily] = _instance->getPhysicalDeviceAndQueueFamily(_traits->queueFlags, _surface);
-        if (!physicalDevice || queueFamily < 0 || presentFamily < 0) throw Exception{"Error: vsg::Window::create(...) failed to create Window, no Vulkan PhysicalDevice supported.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
-
-        vsg::QueueSettings queueSettings{vsg::QueueSetting{queueFamily, {1.0}}, vsg::QueueSetting{presentFamily, {1.0}}};
-        _device = vsg::Device::create(physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->deviceFeatures, _instance->getAllocationCallbacks());
-        _physicalDevice = physicalDevice;
+        requestedLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+        if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
     }
+
+    vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
+
+    vsg::Names deviceExtensions;
+    deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+    deviceExtensions.insert(deviceExtensions.end(), _traits->deviceExtensionNames.begin(), _traits->deviceExtensionNames.end());
+
+    auto [graphicsFamily, presentFamily] = _physicalDevice->getQueueFamily(_traits->queueFlags, _surface);
+    if (graphicsFamily < 0 || presentFamily < 0) throw Exception{"Error: vsg::Window::create(...) failed to create Window, no suitable Vulkan Device available.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+
+    vsg::QueueSettings queueSettings{vsg::QueueSetting{graphicsFamily, {1.0}}, vsg::QueueSetting{presentFamily, {1.0}}};
+    _device = vsg::Device::create(_physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->deviceFeatures, _instance->getAllocationCallbacks());
 
     _initFormats();
 }
@@ -330,7 +409,7 @@ VkResult Window::acquireNextImage(uint64_t timeout)
 
     if (result == VK_SUCCESS)
     {
-        // the aquired image's semaphore must be available now so make it the new _availableSemaphore and set it's enty to the one to use of the next frame by swapping ref_ptr<>'s
+        // the acquired image's semaphore must be available now so make it the new _availableSemaphore and set it's entry to the one to use of the next frame by swapping ref_ptr<>'s
         _availableSemaphore.swap(_frames[imageIndex].imageAvailableSemaphore);
 
         // shift up previous frame indices
@@ -348,4 +427,16 @@ VkResult Window::acquireNextImage(uint64_t timeout)
     }
 
     return result;
+}
+
+bool Window::pollEvents(vsg::UIEvents& events)
+{
+    if (bufferedEvents.size() > 0)
+    {
+        events.splice(events.end(), bufferedEvents);
+        bufferedEvents.clear();
+        return true;
+    }
+
+    return false;
 }

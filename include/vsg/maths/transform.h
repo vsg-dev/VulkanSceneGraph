@@ -12,9 +12,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Export.h>
+#include <vsg/core/ConstVisitor.h>
 #include <vsg/maths/mat3.h>
 #include <vsg/maths/mat4.h>
+#include <vsg/maths/quat.h>
 #include <vsg/maths/vec3.h>
 
 #include <cmath>
@@ -31,6 +32,59 @@ namespace vsg
     /// convert radians to degrees
     constexpr float degrees(float radians) noexcept { return radians * (180.0f / PIf); }
     constexpr double degrees(double radians) noexcept { return radians * (180.0 / PI); }
+
+    /// Hermite interpolation between edge0 and edge1
+    template<typename T>
+    T smoothstep(T edge0, T edge1, T x)
+    {
+        if (x <= edge0)
+            return edge0;
+        else if (x >= edge1)
+            return edge1;
+        double r = (x - edge0) / (edge1 - edge0);
+        return edge0 + (r * r * (3.0 - 2.0 * r)) * (edge1 - edge0);
+    }
+
+    /// Hermite interpolation between 0.0 and 1.0
+    template<typename T>
+    T smoothstep(T r)
+    {
+        if (r <= 0.0)
+            return 0.0;
+        else if (r >= 1.0)
+            return 1.0;
+        return r * r * (3.0 - 2.0 * r);
+    }
+
+    template<typename T>
+    T mix(T start, T end, T r)
+    {
+        T one_minus_r = 1.0 - r;
+        return start * one_minus_r + end * r;
+    }
+
+    template<typename T>
+    constexpr t_mat4<T> rotate(const t_quat<T>& q)
+    {
+        T qxx(q.x * q.x);
+        T qyy(q.y * q.y);
+        T qzz(q.z * q.z);
+        T qxy(q.x * q.y);
+        T qxz(q.x * q.z);
+        T qyz(q.y * q.z);
+        T qwx(q.w * q.x);
+        T qwy(q.w * q.y);
+        T qwz(q.w * q.z);
+
+        T zero(0.0);
+        T one(1.0);
+        T two(2.0);
+
+        return t_mat4<T>(one - two * (qyy + qzz), two * (qxy + qwz), two * (qxz - qwy), zero,
+                         two * (qxy - qwz), one - two * (qxx + qzz), two * (qyz + qwx), zero,
+                         two * (qxz + qwy), two * (qyz - qwx), one - two * (qxx + qyy), zero,
+                         zero, zero, zero, 1.0);
+    }
 
     template<typename T>
     t_mat4<T> rotate(T angle_radians, T x, T y, T z)
@@ -128,6 +182,19 @@ namespace vsg
                vsg::translate(-eye.x, -eye.y, -eye.z);
     }
 
+    /// Hint on axis, using Collada conventions, all Right Hand
+    enum class CoordinateConvention
+    {
+        NO_PREFERENCE,
+        X_UP, // x up, y left/west, z out/south
+        Y_UP, // x right/east, y up, z out/south
+        Z_UP  // x right/east, y forward/north, z up
+    };
+
+    /// compute the transformation matrix required to transform from one coordinate frame convention to another.
+    /// return true if required and matrix modified, return false if no transformation is required.
+    extern VSG_DECLSPEC bool transform(CoordinateConvention source, CoordinateConvention destination, dmat4& matrix);
+
     /// fast float matrix inversion that use assumes the matrix is composed of only scales, rotations and translations forming a 4x3 matrix.
     extern VSG_DECLSPEC mat4 inverse_4x3(const mat4& m);
 
@@ -146,10 +213,30 @@ namespace vsg
     /// double matrix inversion with automatic selection of inverse_4x3 when appropriate, otherwise uses inverse_4x4
     extern VSG_DECLSPEC dmat4 inverse(const dmat4& m);
 
-    /// compute the bounding sphere that encploses a frustum defined by specified float ModelViewMatrixProjection
+    /// compute the bounding sphere that encloses a frustum defined by specified float ModelViewMatrixProjection
     extern VSG_DECLSPEC sphere computeFrustumBound(const mat4& m);
 
-    /// compute the bounding sphere that encploses a frustum defined by specified double ModelViewMatrixProjection
+    /// compute the bounding sphere that encloses a frustum defined by specified double ModelViewMatrixProjection
     extern VSG_DECLSPEC dsphere computeFrustumBound(const dmat4& m);
+
+    struct ComputeTransform : public ConstVisitor
+    {
+        dmat4 matrix;
+
+        void apply(const Transform& transform) override;
+        void apply(const MatrixTransform& mt) override;
+    };
+
+    // convinience function for accumulating the transforms in scene graph along a specified nodePath.
+    template<typename T>
+    dmat4 computeTransform(const T& nodePath)
+    {
+        ComputeTransform ct;
+        for (auto& node : nodePath)
+        {
+            node->accept(ct);
+        }
+        return ct.matrix;
+    }
 
 } // namespace vsg

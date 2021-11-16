@@ -17,17 +17,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    extern VSG_DECLSPEC uint32_t computeNumMipMapLevels(const Data* data, const Sampler* sampler);
-
-    /// deprecated, use ImageInfo instead
-    struct SamplerImage
-    {
-        ref_ptr<Sampler> sampler;
-        ref_ptr<Data> data;
-    };
-    /// deprecated, use ImageInfoList instead
-    using SamplerImages = std::vector<SamplerImage>;
-
     class VSG_DECLSPEC DescriptorImage : public Inherit<Descriptor, DescriptorImage>
     {
     public:
@@ -39,12 +28,8 @@ namespace vsg
         DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<T> image, uint32_t in_dstBinding = 0, uint32_t in_dstArrayElement = 0, VkDescriptorType in_descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) :
             DescriptorImage(sampler, ref_ptr<Data>(image), in_dstBinding, in_dstArrayElement, in_descriptorType) {}
 
-        DescriptorImage(const ImageInfo& imageInfo, uint32_t in_dstBinding = 0, uint32_t in_dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+        DescriptorImage(const ref_ptr<ImageInfo> imageInfo, uint32_t in_dstBinding = 0, uint32_t in_dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
         DescriptorImage(const ImageInfoList& in_imageInfoList, uint32_t in_dstBinding = 0, uint32_t in_dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-
-        /// SamplerImage deprecated, replace with ImageInfo usage
-        DescriptorImage(const SamplerImage& si, uint32_t in_dstBinding = 0, uint32_t in_dstArrayElement = 0, VkDescriptorType in_descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-        DescriptorImage(const SamplerImages& samplerImages, uint32_t in_dstBinding = 0, uint32_t in_dstArrayElement = 0, VkDescriptorType in_descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
         /// VkWriteDescriptorSet.pImageInfo settings
         ImageInfoList imageInfoList;

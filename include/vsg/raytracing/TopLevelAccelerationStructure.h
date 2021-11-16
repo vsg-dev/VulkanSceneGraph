@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    // this structure is required to populate the top level structures instance buffer
+    // this structure is required to populate the top level structures instance buffer and is essentially the same as VkAccelerationStructureInstanceKHR
     // https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/chap33.html#acceleration-structure
     struct VkGeometryInstance
     {
@@ -34,7 +34,7 @@ namespace vsg
     VSG_value(VkGeometryInstanceValue, VkGeometryInstance);
     VSG_array(VkGeometryInstanceArray, VkGeometryInstance);
 
-    // An instance of a bottom level acceleration structure referenc by a top level acceleration structure
+    // An instance of a bottom level acceleration structure reference by a top level acceleration structure
     class VSG_DECLSPEC GeometryInstance : public Inherit<Object, GeometryInstance>
     {
     public:

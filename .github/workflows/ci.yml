@@ -3,7 +3,7 @@ on:
   push:
   pull_request:
 env:
-  VulkanSDKVersion: 1.2.135.0
+  VulkanSDKVersion: 1.2.162.1
 jobs:
   linux-build:
     runs-on: ubuntu-latest
@@ -39,6 +39,8 @@ jobs:
       with:
         name: VSG Documentation
         path: html
+    - name: Install
+      run: sudo make install
 
   windows-build:
     runs-on: windows-latest
@@ -65,8 +67,10 @@ jobs:
         VULKAN_SDK: ${{steps.env.outputs.VULKAN_SDK}}
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
-    - name: MSBuild
+    - name: MSBuild Compile
       run: MSBuild.exe ALL_BUILD.vcxproj -p:Configuration=Release
+    - name: MSBuild Install
+      run: MSBuild.exe INSTALL.vcxproj -p:Configuration=Release
 
   windows-dll-build:
     runs-on: windows-latest
@@ -93,8 +97,10 @@ jobs:
         VULKAN_SDK: ${{steps.env.outputs.VULKAN_SDK}}
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
-    - name: MSBuild
+    - name: MSBuild Compile
       run: MSBuild.exe ALL_BUILD.vcxproj -p:Configuration=Release
+    - name: MSBuild Install
+      run: MSBuild.exe INSTALL.vcxproj -p:Configuration=Release
 
   macos-build:
     runs-on: macos-latest
@@ -116,8 +122,10 @@ jobs:
     - name: Download & Extract Vulkan SDK
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
-        wget --no-cookies -O ../vulkansdk-macos-${{env.VulkanSDKVersion}}.tar.gz https://sdk.lunarg.com/sdk/download/${{env.VulkanSDKVersion}}/mac/vulkansdk-macos-${{env.VulkanSDKVersion}}.tar.gz?u=
-        tar -zxf ../vulkansdk-macos-${{env.VulkanSDKVersion}}.tar.gz -C ../
+        wget --no-cookies -O ../vulkansdk-macos-${{env.VulkanSDKVersion}}.dmg https://sdk.lunarg.com/sdk/download/${{env.VulkanSDKVersion}}/mac/vulkansdk-macos-${{env.VulkanSDKVersion}}.dmg?u=
+        hdiutil attach ../vulkansdk-macos-${{env.VulkanSDKVersion}}.dmg
+        cp -r /Volumes/vulkansdk-macos-${{env.VulkanSDKVersion}} $GITHUB_WORKSPACE/..
+        hdiutil detach /Volumes/vulkansdk-macos-${{env.VulkanSDKVersion}}
     - name: CMake
       run: |
         export DYLD_LIBRARY_PATH="$VULKAN_SDK/lib:$DYLD_LIBRARY_PATH"
@@ -128,3 +136,6 @@ jobs:
 
     - name: Make
       run: make -j 2
+      
+    - name: Install
+      run: make install

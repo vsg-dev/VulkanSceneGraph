@@ -15,8 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
-#include <vsg/state/StateGroup.h>
 #include <vsg/traversals/ComputeBounds.h>
 
 using namespace vsg;
@@ -36,7 +36,7 @@ void ComputeBounds::apply(const StateGroup& stategroup)
 {
     ArrayState arrayState(arrayStateStack.back());
 
-    for (auto& statecommand : stategroup.getStateCommands())
+    for (auto& statecommand : stategroup.stateCommands)
     {
         statecommand->accept(arrayState);
     }
@@ -48,9 +48,24 @@ void ComputeBounds::apply(const StateGroup& stategroup)
     arrayStateStack.pop_back();
 }
 
-void ComputeBounds::apply(const vsg::MatrixTransform& transform)
+void ComputeBounds::apply(const Transform& transform)
 {
-    matrixStack.push_back(transform.getMatrix());
+    if (matrixStack.empty())
+        matrixStack.push_back(transform.transform(dmat4{}));
+    else
+        matrixStack.push_back(transform.transform(matrixStack.back()));
+
+    transform.traverse(*this);
+
+    matrixStack.pop_back();
+}
+
+void ComputeBounds::apply(const MatrixTransform& transform)
+{
+    if (matrixStack.empty())
+        matrixStack.push_back(transform.matrix);
+    else
+        matrixStack.push_back(matrixStack.back() * transform.matrix);
 
     transform.traverse(*this);
 
@@ -92,6 +107,6 @@ void ComputeBounds::apply(const vsg::vec3Array& vertices)
     else
     {
         auto matrix = matrixStack.back();
-        for (auto vertex : vertices) bounds.add(matrix * vertex);
+        for (auto vertex : vertices) bounds.add(matrix * dvec3(vertex));
     }
 }

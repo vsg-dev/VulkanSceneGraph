@@ -12,45 +12,72 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/CopyAndReleaseBuffer.h>
 #include <vsg/io/Options.h>
+#include <vsg/vk/CommandBuffer.h>
 
 using namespace vsg;
 
-CopyAndReleaseBuffer::CopyAndReleaseBuffer(BufferInfo src, BufferInfo dest)
+CopyAndReleaseBuffer::CopyAndReleaseBuffer(ref_ptr<MemoryBufferPools> optional_stagingMemoryBufferPools) :
+    stagingMemoryBufferPools(optional_stagingMemoryBufferPools)
 {
-    add(src, dest);
 }
 
 CopyAndReleaseBuffer::~CopyAndReleaseBuffer()
 {
-    for (auto& copyData : completed) copyData.source.release();
-    for (auto& copyData : pending) copyData.source.release();
 }
 
-void CopyAndReleaseBuffer::add(BufferInfo src, BufferInfo dest)
+void CopyAndReleaseBuffer::copy(ref_ptr<Data> data, ref_ptr<BufferInfo> dest)
 {
-    pending.push_back(CopyData{src, dest});
+    VkDeviceSize dataSize = data->dataSize();
+    VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
+
+    //std::cout<<"CopyAndReleaseImage::copyDirectly() dataSize = "<<dataSize<<std::endl;
+
+    VkMemoryPropertyFlags memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    ref_ptr<BufferInfo> stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(dataSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
+    stagingBufferInfo->data = data;
+
+    // std::cout<<"stagingBufferInfo->buffer "<<stagingBufferInfo->buffer.get()<<", "<<stagingBufferInfo->offset<<", "<<stagingBufferInfo->range<<")"<<std::endl;
+
+    auto deviceID = stagingMemoryBufferPools->device->deviceID;
+    ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo->buffer);
+    ref_ptr<DeviceMemory> stagingMemory(imageStagingBuffer->getDeviceMemory(deviceID));
+
+    if (!stagingMemory) return;
+
+    // copy data to staging memory
+    stagingMemory->copy(imageStagingBuffer->getMemoryOffset(deviceID) + stagingBufferInfo->offset, dataSize, data->dataPointer());
+
+    add(stagingBufferInfo, dest);
+}
+
+void CopyAndReleaseBuffer::add(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest)
+{
+    std::scoped_lock lock(_mutex);
+    _pending.push_back(CopyData{src, dest});
 }
 
 void CopyAndReleaseBuffer::CopyData::record(CommandBuffer& commandBuffer) const
 {
     //std::cout<<"CopyAndReleaseBuffer::CopyData::record(CommandBuffer& commandBuffer) source.offset = "<<source.offset<<", "<<destination.offset<<std::endl;
     VkBufferCopy copyRegion = {};
-    copyRegion.srcOffset = source.offset;
-    copyRegion.dstOffset = destination.offset;
-    copyRegion.size = source.range;
-    vkCmdCopyBuffer(commandBuffer, source.buffer->vk(commandBuffer.deviceID), destination.buffer->vk(commandBuffer.deviceID), 1, &copyRegion);
+    copyRegion.srcOffset = source->offset;
+    copyRegion.dstOffset = destination->offset;
+    copyRegion.size = source->range;
+    vkCmdCopyBuffer(commandBuffer, source->buffer->vk(commandBuffer.deviceID), destination->buffer->vk(commandBuffer.deviceID), 1, &copyRegion);
 }
 
 void CopyAndReleaseBuffer::record(CommandBuffer& commandBuffer) const
 {
-    for (auto& copyData : completed) copyData.source.release();
+    std::scoped_lock lock(_mutex);
 
-    completed.clear();
+    _readyToClear.clear();
 
-    for (auto& copyData : pending)
+    _readyToClear.swap(_completed);
+
+    for (auto& copyData : _pending)
     {
         copyData.record(commandBuffer);
     }
 
-    pending.swap(completed);
+    _pending.swap(_completed);
 }

@@ -42,13 +42,13 @@ void RecordAndSubmitTask::advance()
         if (_currentFrameIndex > _indices.size() - 1) _currentFrameIndex = 0;
 
         // shift the index for previous frames
-        for (size_t i = 1; i < _indices.size(); ++i)
+        for (size_t i = _indices.size() - 1; i >= 1; --i)
         {
             _indices[i] = _indices[i - 1];
         }
     }
 
-    // ass the index for the current frame
+    // pass the index for the current frame
     _indices[0] = _currentFrameIndex;
 }
 
@@ -93,13 +93,13 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
         return VK_SUCCESS;
     }
 
-    // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of depdendent CommandBuffers
+    // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of dependent CommandBuffers
     std::vector<VkCommandBuffer> vk_commandBuffers;
     std::vector<VkSemaphore> vk_waitSemaphores;
     std::vector<VkPipelineStageFlags> vk_waitStages;
     std::vector<VkSemaphore> vk_signalSemaphores;
 
-    // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of depdendent CommandBuffers
+    // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of dependent CommandBuffers
     for (auto& commandBuffer : recordedCommandBuffers)
     {
         if (commandBuffer->level() == VK_COMMAND_BUFFER_LEVEL_PRIMARY) vk_commandBuffers.push_back(*commandBuffer);

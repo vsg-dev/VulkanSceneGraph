@@ -23,7 +23,6 @@ namespace vsg
     {
     public:
         OperationThreads(uint32_t numThreads, ref_ptr<ActivityStatus> in_status = {});
-
         OperationThreads(const OperationThreads&) = delete;
         OperationThreads& operator=(const OperationThreads& rhs) = delete;
 
@@ -51,10 +50,7 @@ namespace vsg
         ref_ptr<ActivityStatus> status;
 
     protected:
-        virtual ~OperationThreads()
-        {
-            stop();
-        }
+        virtual ~OperationThreads();
     };
     VSG_type_name(vsg::OperationThreads)
 

@@ -29,7 +29,7 @@ namespace vsg
 
     protected:
         // compiled data
-        std::vector<VkGeometryNV> _vkGeometries;
+        std::vector<VkAccelerationStructureGeometryKHR> _vkGeometries;
     };
 
 } // namespace vsg

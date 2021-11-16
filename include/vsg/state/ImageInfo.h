@@ -17,30 +17,34 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    extern VSG_DECLSPEC uint32_t computeNumMipMapLevels(const Data* data, const Sampler* sampler);
+
     /// Settings that map to VkDescriptorImageInfo
-    class VSG_DECLSPEC ImageInfo
+    class VSG_DECLSPEC ImageInfo : public Inherit<Object, ImageInfo>
     {
     public:
         ImageInfo() :
             imageLayout(VK_IMAGE_LAYOUT_UNDEFINED) {}
 
-        ImageInfo(const ImageInfo& id) :
-            sampler(id.sampler),
-            imageView(id.imageView),
-            imageLayout(id.imageLayout) {}
-
-        ImageInfo(Sampler* in_sampler, ImageView* in_imageView, VkImageLayout in_imageLayout = VK_IMAGE_LAYOUT_UNDEFINED) :
+        ImageInfo(ref_ptr<Sampler> in_sampler, ref_ptr<ImageView> in_imageView, VkImageLayout in_imageLayout = VK_IMAGE_LAYOUT_UNDEFINED) :
             sampler(in_sampler),
             imageView(in_imageView),
             imageLayout(in_imageLayout) {}
 
-        ImageInfo& operator=(const ImageInfo& rhs)
+        // Convenience constructor that creates a vsg::ImageView and vsg::Image to represent the data on the GPU.
+        template<typename T>
+        ImageInfo(ref_ptr<Sampler> in_sampler, ref_ptr<T> in_data, VkImageLayout in_imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) :
+            sampler(in_sampler),
+            imageLayout(in_imageLayout)
         {
-            sampler = rhs.sampler;
-            imageView = rhs.imageView;
-            imageLayout = rhs.imageLayout;
-            return *this;
+            auto image = Image::create(in_data);
+            image->usage |= (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+
+            imageView = ImageView::create(image);
         }
+
+        ImageInfo(const ImageInfo&) = delete;
+        ImageInfo& operator=(const ImageInfo&) = delete;
 
         explicit operator bool() const { return sampler.valid() && imageView.valid(); }
 
@@ -48,8 +52,13 @@ namespace vsg
 
         ref_ptr<Sampler> sampler;
         ref_ptr<ImageView> imageView;
-        VkImageLayout imageLayout;
+        VkImageLayout imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+    protected:
+        virtual ~ImageInfo();
     };
-    using ImageInfoList = std::vector<ImageInfo>;
+    VSG_type_name(vsg::ImageInfo);
+
+    using ImageInfoList = std::vector<ref_ptr<ImageInfo>>;
 
 } // namespace vsg

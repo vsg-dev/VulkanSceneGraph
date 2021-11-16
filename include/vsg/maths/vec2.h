@@ -107,11 +107,26 @@ namespace vsg
             return *this;
         }
 
+        inline t_vec2& operator*=(const t_vec2& rhs)
+        {
+            value[0] *= rhs.value[0];
+            value[1] *= rhs.value[1];
+            return *this;
+        }
+
         inline t_vec2& operator/=(value_type rhs)
         {
-            value_type div = 1.0 / rhs;
-            value[0] *= div;
-            value[1] *= div;
+            if constexpr (std::is_floating_point_v<value_type>)
+            {
+                value_type inv = static_cast<value_type>(1.0) / rhs;
+                value[0] *= inv;
+                value[1] *= inv;
+            }
+            else
+            {
+                value[0] /= rhs;
+                value[1] /= rhs;
+            }
             return *this;
         }
     };
@@ -179,10 +194,23 @@ namespace vsg
     }
 
     template<typename T>
+    constexpr t_vec2<T> operator*(const t_vec2<T>& lhs, const t_vec2<T>& rhs)
+    {
+        return t_vec2<T>(lhs[0] * rhs[0], lhs[1] * rhs[1]);
+    }
+
+    template<typename T>
     constexpr t_vec2<T> operator/(const t_vec2<T>& lhs, T rhs)
     {
-        T inv = static_cast<T>(1.0) / rhs;
-        return t_vec2<T>(lhs[0] * inv, lhs[1] * inv);
+        if constexpr (std::is_floating_point_v<T>)
+        {
+            T inv = static_cast<T>(1.0) / rhs;
+            return t_vec2<T>(lhs[0] * inv, lhs[1] * inv);
+        }
+        else
+        {
+            return t_vec2<T>(lhs[0] / rhs, lhs[1] / rhs);
+        }
     }
 
     template<typename T>
@@ -200,8 +228,7 @@ namespace vsg
     template<typename T>
     constexpr t_vec2<T> normalize(const t_vec2<T>& v)
     {
-        T inverse_len = static_cast<T>(1.0) / length(v);
-        return t_vec2<T>(v[0] * inverse_len, v[1] * inverse_len);
+        return v / length(v);
     }
 
     template<typename T>
@@ -211,11 +238,19 @@ namespace vsg
     }
 
     /// cross product of a vec2 can be thought of cross product of vec3's with the z value of 0.0/vec3's in the xy plane.
-    /// The retuned value is the length of the resulting vec3 cross product, and can be treated as the signed area of the parallelogram, negative if rhs is clockwise from lhs when looking down on xy plane.
+    /// The returned value is the length of the resulting vec3 cross product, and can be treated as the signed area of the parallelogram, negative if rhs is clockwise from lhs when looking down on xy plane.
     template<typename T>
     constexpr T cross(const t_vec2<T>& lhs, const t_vec2<T>& rhs)
     {
         return (lhs[0] * rhs[1] - rhs[0] * lhs[1]);
+    }
+
+    template<typename T>
+    constexpr t_vec2<T> mix(const t_vec2<T>& start, const t_vec2<T>& end, T r)
+    {
+        T one_minus_r = 1 - r;
+        return t_vec2<T>(start[0] * one_minus_r + end[0] * r,
+                         start[1] * one_minus_r + end[1] * r);
     }
 
 } // namespace vsg

@@ -31,18 +31,21 @@ VertexIndexDraw::VertexIndexDraw(Allocator* allocator) :
 
 VertexIndexDraw::~VertexIndexDraw()
 {
-    for (auto& vkd : _vulkanData)
+}
+
+void VertexIndexDraw::assignArrays(const DataList& arrayData)
+{
+    arrays.clear();
+    arrays.reserve(arrayData.size());
+    for (auto& data : arrayData)
     {
-        size_t numBufferEntries = std::min(vkd.buffers.size(), vkd.offsets.size());
-        for (size_t i = 0; i < numBufferEntries; ++i)
-        {
-            if (vkd.buffers[i])
-            {
-                vkd.buffers[i]->release(vkd.offsets[i], 0); // TODO
-            }
-        }
-        if (vkd.bufferInfo.buffer) vkd.bufferInfo.buffer->release(vkd.bufferInfo.offset, vkd.bufferInfo.range);
+        arrays.push_back(BufferInfo::create(data));
     }
+}
+
+void VertexIndexDraw::assignIndices(ref_ptr<vsg::Data> indexData)
+{
+    indices = BufferInfo::create(indexData);
 }
 
 void VertexIndexDraw::read(Input& input)
@@ -52,13 +55,20 @@ void VertexIndexDraw::read(Input& input)
     Command::read(input);
 
     input.read("firstBinding", firstBinding);
-    arrays.resize(input.readValue<uint32_t>("NumArrays"));
-    for (auto& array : arrays)
+
+    DataList dataList;
+    dataList.resize(input.readValue<uint32_t>("NumArrays"));
+    for (auto& array : dataList)
     {
         input.readObject("Array", array);
     }
+    assignArrays(dataList);
 
-    input.readObject("Indices", indices);
+    ref_ptr<vsg::Data> data;
+    input.readObject("Indices", data);
+
+    indices = {};
+    assignIndices(data);
 
     // vkCmdDrawIndexed settings
     input.read("indexCount", indexCount);
@@ -76,10 +86,13 @@ void VertexIndexDraw::write(Output& output) const
     output.writeValue<uint32_t>("NumArrays", arrays.size());
     for (auto& array : arrays)
     {
-        output.writeObject("Array", array.get());
+        output.writeObject("Array", array->data.get());
     }
 
-    output.writeObject("Indices", indices.get());
+    if (indices)
+        output.writeObject("Indices", indices->data.get());
+    else
+        output.writeObject("Indices", ref_ptr<vsg::Data>());
 
     // vkCmdDrawIndexed settings
     output.write("indexCount", indexCount);
@@ -100,43 +113,23 @@ void VertexIndexDraw::compile(Context& context)
     auto& vkd = _vulkanData[context.deviceID];
 
     // check to see if we've already been compiled
-    if (vkd.buffers.size() == arrays.size()) return;
-
-    bool failure = false;
+    if (vkd.vkBuffers.size() == arrays.size()) return;
 
     vkd = {};
 
-    DataList dataList;
-    dataList.reserve(arrays.size() + 1);
-    dataList.insert(dataList.end(), arrays.begin(), arrays.end());
-    dataList.emplace_back(indices);
+    BufferInfoList combinedBufferInfos(arrays);
+    combinedBufferInfos.push_back(indices);
 
-    auto bufferInfoList = vsg::createBufferAndTransferData(context, dataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    if (!bufferInfoList.empty())
+    if (createBufferAndTransferData(context, combinedBufferInfos, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE))
     {
-        BufferInfoList vertexBufferInfo(bufferInfoList.begin(), bufferInfoList.begin() + arrays.size());
-
-        for (auto& bufferInfo : vertexBufferInfo)
+        for (auto& bufferInfo : arrays)
         {
-            vkd.buffers.push_back(bufferInfo.buffer);
-            vkd.vkBuffers.push_back(bufferInfo.buffer->vk(context.deviceID));
-            vkd.offsets.push_back(bufferInfo.offset);
+            vkd.vkBuffers.push_back(bufferInfo->buffer->vk(context.deviceID));
+            vkd.offsets.push_back(bufferInfo->offset);
         }
-
-        vkd.bufferInfo = bufferInfoList.back();
-        vkd.indexType = computeIndexType(indices);
-    }
-    else
-    {
-        failure = true;
     }
 
-    if (failure)
-    {
-        //std::cout << "Failed to create required arrays/indices buffers on GPU." << std::endl;
-        vkd = {};
-        return;
-    }
+    indexType = computeIndexType(indices->data);
 }
 
 void VertexIndexDraw::record(CommandBuffer& commandBuffer) const
@@ -147,7 +140,7 @@ void VertexIndexDraw::record(CommandBuffer& commandBuffer) const
 
     vkCmdBindVertexBuffers(cmdBuffer, firstBinding, static_cast<uint32_t>(vkd.vkBuffers.size()), vkd.vkBuffers.data(), vkd.offsets.data());
 
-    vkCmdBindIndexBuffer(cmdBuffer, vkd.bufferInfo.buffer->vk(commandBuffer.deviceID), vkd.bufferInfo.offset, vkd.indexType);
+    vkCmdBindIndexBuffer(cmdBuffer, indices->buffer->vk(commandBuffer.deviceID), indices->offset, indexType);
 
     vkCmdDrawIndexed(cmdBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }

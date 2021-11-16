@@ -45,11 +45,62 @@ Image::Image(ref_ptr<Data> in_data) :
         uint32_t height = data->height() * layout.blockHeight;
         uint32_t depth = data->depth() * layout.blockDepth;
 
-        imageType = dimensions >= 3 ? VK_IMAGE_TYPE_3D : (dimensions == 2 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
+        switch (layout.imageViewType)
+        {
+        case (VK_IMAGE_VIEW_TYPE_1D):
+            imageType = VK_IMAGE_TYPE_1D;
+            arrayLayers = 1;
+            break;
+        case (VK_IMAGE_VIEW_TYPE_2D):
+            imageType = VK_IMAGE_TYPE_2D;
+            arrayLayers = 1;
+            break;
+        case (VK_IMAGE_VIEW_TYPE_3D):
+            imageType = VK_IMAGE_TYPE_3D;
+            arrayLayers = 1;
+            break;
+        case (VK_IMAGE_VIEW_TYPE_CUBE):
+            imageType = VK_IMAGE_TYPE_2D;
+            flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+            arrayLayers = depth;
+            depth = 1;
+            break;
+        case (VK_IMAGE_VIEW_TYPE_1D_ARRAY):
+            imageType = VK_IMAGE_TYPE_1D;
+            arrayLayers = height * depth;
+            height = 1;
+            depth = 1;
+            /* flags = VK_IMAGE_CREATE_1D_ARRAY_COMPATIBLE_BIT; // comment out as Vulkan headers don't yet provide this. */
+            break;
+        case (VK_IMAGE_VIEW_TYPE_2D_ARRAY):
+            imageType = VK_IMAGE_TYPE_2D;
+            flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
+            arrayLayers = depth;
+            depth = 1;
+            break;
+        case (VK_IMAGE_VIEW_TYPE_CUBE_ARRAY):
+            imageType = VK_IMAGE_TYPE_2D;
+            flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+            arrayLayers = depth;
+            depth = 1;
+            break;
+        default:
+            imageType = dimensions >= 3 ? VK_IMAGE_TYPE_3D : (dimensions == 2 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
+            arrayLayers = 1;
+            break;
+        }
+
         format = layout.format;
-        extent = VkExtent3D{width, height, depth};
         mipLevels = static_cast<uint32_t>(mipmapOffsets.size());
-        arrayLayers = 1;
+        extent = VkExtent3D{width, height, depth};
+
+        // remap RGB to RGBA
+        if (format >= VK_FORMAT_R8G8B8_UNORM && format <= VK_FORMAT_B8G8R8_SRGB)
+            format = static_cast<VkFormat>(format + 14);
+        else if (format >= VK_FORMAT_R16G16B16_UNORM && format <= VK_FORMAT_R16G16B16_SFLOAT)
+            format = static_cast<VkFormat>(format + 7);
+        else if (format >= VK_FORMAT_R32G32B32_UINT && format <= VK_FORMAT_R32G32B32_SFLOAT)
+            format = static_cast<VkFormat>(format + 3);
     }
 }
 
@@ -111,6 +162,8 @@ void Image::compile(Device* device)
 
     vd.device = device;
 
+    vd.requiresDataCopy = data.valid();
+
     if (VkResult result = vkCreateImage(*vd.device, &info, vd.device->getAllocationCallbacks(), &vd.image); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create vkImage.", result};
@@ -133,6 +186,8 @@ void Image::compile(Context& context)
     {
         throw Exception{"Error: allocate memory to reserve slot.", VK_ERROR_OUT_OF_DEVICE_MEMORY};
     }
+
+    vd.requiresDataCopy = data.valid();
 
     bind(deviceMemory, offset);
 }

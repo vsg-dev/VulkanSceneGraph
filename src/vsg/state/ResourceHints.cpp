@@ -28,8 +28,16 @@ void ResourceHints::read(Input& input)
 {
     Object::read(input);
 
-    input.read("MaxSlot", maxSlot);
-    input.read("NumDescriptorSets", numDescriptorSets);
+    if (input.version_greater_equal(0, 1, 4))
+    {
+        input.read("maxSlot", maxSlot);
+        input.read("numDescriptorSets", numDescriptorSets);
+    }
+    else
+    {
+        input.read("MaxSlot", maxSlot);
+        input.read("NumDescriptorSets", numDescriptorSets);
+    }
 
     descriptorPoolSizes.resize(input.readValue<uint32_t>("NumDescriptorPoolSize"));
     for (auto& [type, count] : descriptorPoolSizes)
@@ -37,19 +45,41 @@ void ResourceHints::read(Input& input)
         input.readValue<uint32_t>("type", type);
         input.read("count", count);
     }
+
+    if (input.version_greater_equal(0, 1, 11))
+    {
+        input.readValue<uint64_t>("minimumBufferSize", minimumBufferSize);
+        input.readValue<uint64_t>("minimumBufferDeviceMemorySize", minimumBufferDeviceMemorySize);
+        input.readValue<uint64_t>("minimumImageDeviceMemorySize", minimumImageDeviceMemorySize);
+    }
 }
 
 void ResourceHints::write(Output& output) const
 {
     Object::write(output);
 
-    output.write("MaxSlot", maxSlot);
-    output.write("NumDescriptorSets", numDescriptorSets);
+    if (output.version_greater_equal(0, 1, 4))
+    {
+        output.write("maxSlot", maxSlot);
+        output.write("numDescriptorSets", numDescriptorSets);
+    }
+    else
+    {
+        output.write("MaxSlot", maxSlot);
+        output.write("NumDescriptorSets", numDescriptorSets);
+    }
 
     output.writeValue<uint32_t>("NumDescriptorPoolSize", descriptorPoolSizes.size());
     for (auto& [type, count] : descriptorPoolSizes)
     {
         output.writeValue<uint32_t>("type", type);
         output.write("count", count);
+    }
+
+    if (output.version_greater_equal(0, 1, 11))
+    {
+        output.writeValue<uint64_t>("minimumBufferSize", minimumBufferSize);
+        output.writeValue<uint64_t>("minimumBufferDeviceMemorySize", minimumBufferDeviceMemorySize);
+        output.writeValue<uint64_t>("minimumImageDeviceMemorySize", minimumImageDeviceMemorySize);
     }
 }

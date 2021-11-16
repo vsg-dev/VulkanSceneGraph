@@ -16,7 +16,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/DrawIndexed.h>
 #include <vsg/io/read.h>
 #include <vsg/io/write.h>
+#include <vsg/state/ColorBlendState.h>
+#include <vsg/state/DepthStencilState.h>
 #include <vsg/state/DescriptorImage.h>
+#include <vsg/state/InputAssemblyState.h>
+#include <vsg/state/MultisampleState.h>
+#include <vsg/state/RasterizationState.h>
+#include <vsg/state/VertexInputState.h>
 #include <vsg/text/CpuLayoutTechnique.h>
 #include <vsg/text/StandardLayout.h>
 #include <vsg/text/Text.h>
@@ -53,7 +59,7 @@ CpuLayoutTechnique::RenderingState::RenderingState(Font* font, bool in_singleCol
     auto descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
 
     PushConstantRanges pushConstantRanges{
-        {VK_SHADER_STAGE_VERTEX_BIT, 0, 128} // projection view, and model matrices, actual push constant calls autoaatically provided by the VSG's DispatchTraversal
+        {VK_SHADER_STAGE_VERTEX_BIT, 0, 128} // projection view, and model matrices, actual push constant calls automatically provided by the VSG's DispatchTraversal
     };
 
     VertexInputState::Bindings vertexBindingsDescriptions{
@@ -251,7 +257,7 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     {
         scenegraph = StateGroup::create();
 
-        // set up state related objects if they haven't lready been assigned
+        // set up state related objects if they haven't already been assigned
         if (!sharedRenderingState) sharedRenderingState = text->font->getShared<RenderingState>(singleColor, singleOutlineColor, singleOutlineWidth);
 
         if (sharedRenderingState->bindGraphicsPipeline) scenegraph->add(sharedRenderingState->bindGraphicsPipeline);

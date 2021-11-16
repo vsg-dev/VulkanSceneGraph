@@ -70,22 +70,23 @@ namespace vsg
         /// get the const list of EventHandlers
         const EventHandlers& getEventHandlers() const { return _eventHandlers; }
 
-        /// convinience method for advancing to the next frame.
+        /// convenience method for advancing to the next frame.
         /// Check active status, return false if viewer no longer active.
         /// lf still active poll for pending events and place them in the Events list and advance to the next frame, update generate FrameStamp to signify the advancement to a new frame and return true.
         virtual bool advanceToNextFrame();
 
-        /// poll for pending events and place them in the Events list and update generate FrameStamp to signify the advancement to a new frame.
-        virtual void advance();
-
         /// pass the Events into the any register EventHandlers
         virtual void handleEvents();
 
-        virtual void compile(BufferPreferences bufferPreferences = {});
+        virtual void compile(ref_ptr<ResourceHints> hints = {});
 
         virtual bool acquireNextFrame();
 
-        // Manage the work to do each frame uisng RecordAndSubmitTasks. thpse that need to present results to be wired up to respective Presentation object
+        /// call vkWaitForFence on the fences associated with previous frames RecordAndSubmitTask, a relativeFrameIndex of 1 is the previous frame, 2 is two frames ago.
+        /// timeout is in nanoseconds.
+        virtual VkResult waitForFences(size_t relativeFrameIndex, uint64_t timeout);
+
+        // Manage the work to do each frame using RecordAndSubmitTasks. those that need to present results to be wired up to respective Presentation object
         using RecordAndSubmitTasks = std::vector<ref_ptr<RecordAndSubmitTask>>;
         RecordAndSubmitTasks recordAndSubmitTasks;
 
@@ -93,8 +94,10 @@ namespace vsg
         using Presentations = std::vector<ref_ptr<Presentation>>;
         Presentations presentations;
 
+        /// create a RecordAndSubmitTask configured to manage specified commandGraphs and assign it to the viewer.
         void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs);
 
+        ref_ptr<ActivityStatus> status;
         std::list<std::thread> threads;
 
         void setupThreading();
@@ -113,7 +116,6 @@ namespace vsg
         virtual ~Viewer();
 
         bool _close = false;
-        ref_ptr<ActivityStatus> _status;
 
         ref_ptr<FrameStamp> _frameStamp;
 

@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
+#include <vsg/nodes/Bin.h>
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/viewer/View.h>
 
@@ -25,5 +26,6 @@ View::View()
 View::View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph)
 {
     camera = in_camera;
+
     if (in_scenegraph) addChild(in_scenegraph);
 }

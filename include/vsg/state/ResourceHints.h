@@ -22,9 +22,15 @@ namespace vsg
     public:
         ResourceHints(Allocator* allocator = nullptr);
 
+        bool empty() const noexcept { return maxSlot == 0 && numDescriptorSets == 0 && descriptorPoolSizes.empty(); }
+
         uint32_t maxSlot = 0;
         uint32_t numDescriptorSets = 0;
         DescriptorPoolSizes descriptorPoolSizes;
+
+        VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
+        VkDeviceSize minimumBufferDeviceMemorySize = 16 * 1024 * 1024;
+        VkDeviceSize minimumImageDeviceMemorySize = 16 * 1024 * 1024;
 
         void read(Input& input) override;
         void write(Output& output) const override;

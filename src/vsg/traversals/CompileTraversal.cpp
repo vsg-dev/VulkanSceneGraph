@@ -14,12 +14,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/Command.h>
 #include <vsg/commands/Commands.h>
+#include <vsg/nodes/Bin.h>
+#include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
-#include <vsg/state/StateGroup.h>
+#include <vsg/nodes/StateGroup.h>
+#include <vsg/state/MultisampleState.h>
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/RenderGraph.h>
 #include <vsg/viewer/View.h>
@@ -27,144 +30,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
 
+#include <iostream>
+
 using namespace vsg;
 
-/////////////////////////////////////////////////////////////////////
-//
-// CollectDescriptorStats
-//
-void CollectDescriptorStats::apply(const Object& object)
+CompileTraversal::CompileTraversal(ref_ptr<Device> in_device, const ResourceRequirements& resourceRequirements) :
+    context(in_device, resourceRequirements)
 {
-    object.traverse(*this);
+    auto queueFamily = in_device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
+    context.commandPool = vsg::CommandPool::create(in_device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+    context.graphicsQueue = in_device->getQueue(queueFamily);
 }
 
-bool CollectDescriptorStats::checkForResourceHints(const Object& object)
-{
-    auto resourceHints = object.getObject<ResourceHints>("ResourceHints");
-    if (resourceHints)
-    {
-        apply(*resourceHints);
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-void CollectDescriptorStats::apply(const ResourceHints& resourceHints)
-{
-    if (resourceHints.maxSlot > maxSlot) maxSlot = resourceHints.maxSlot;
-
-    if (!resourceHints.descriptorPoolSizes.empty() || resourceHints.numDescriptorSets > 9)
-    {
-        externalNumDescriptorSets += resourceHints.numDescriptorSets;
-
-        for (auto& [type, count] : resourceHints.descriptorPoolSizes)
-        {
-            descriptorTypeMap[type] += count;
-        }
-    }
-}
-
-void CollectDescriptorStats::apply(const Node& node)
-{
-    bool hasResourceHints = checkForResourceHints(node);
-    if (hasResourceHints) ++_numResourceHintsAbove;
-
-    node.traverse(*this);
-
-    if (hasResourceHints) --_numResourceHintsAbove;
-}
-
-void CollectDescriptorStats::apply(const StateGroup& stategroup)
-{
-    bool hasResourceHints = checkForResourceHints(stategroup);
-    if (hasResourceHints) ++_numResourceHintsAbove;
-
-    if (_numResourceHintsAbove == 0)
-    {
-        for (auto& command : stategroup.getStateCommands())
-        {
-            command->accept(*this);
-        }
-    }
-
-    stategroup.traverse(*this);
-
-    if (hasResourceHints) --_numResourceHintsAbove;
-}
-
-void CollectDescriptorStats::apply(const PagedLOD& plod)
-{
-    bool hasResourceHints = checkForResourceHints(plod);
-    if (hasResourceHints) ++_numResourceHintsAbove;
-
-    containsPagedLOD = true;
-    plod.traverse(*this);
-
-    if (hasResourceHints) --_numResourceHintsAbove;
-}
-
-void CollectDescriptorStats::apply(const StateCommand& stateCommand)
-{
-    if (stateCommand.getSlot() > maxSlot) maxSlot = stateCommand.getSlot();
-
-    stateCommand.traverse(*this);
-}
-
-void CollectDescriptorStats::apply(const DescriptorSet& descriptorSet)
-{
-    if (descriptorSets.count(&descriptorSet) == 0)
-    {
-        descriptorSets.insert(&descriptorSet);
-
-        descriptorSet.traverse(*this);
-    }
-}
-
-void CollectDescriptorStats::apply(const Descriptor& descriptor)
-{
-    if (descriptors.count(&descriptor) == 0)
-    {
-        descriptors.insert(&descriptor);
-    }
-    descriptorTypeMap[descriptor.descriptorType] += descriptor.getNumDescriptors();
-}
-
-void CollectDescriptorStats::apply(const View& view)
-{
-    views.insert(&view);
-
-    view.traverse(*this);
-}
-
-uint32_t CollectDescriptorStats::computeNumDescriptorSets() const
-{
-    return externalNumDescriptorSets + static_cast<uint32_t>(descriptorSets.size());
-}
-
-DescriptorPoolSizes CollectDescriptorStats::computeDescriptorPoolSizes() const
-{
-    DescriptorPoolSizes poolSizes;
-    for (auto& [type, count] : descriptorTypeMap)
-    {
-        poolSizes.push_back(VkDescriptorPoolSize{type, count});
-    }
-    return poolSizes;
-}
-
-/////////////////////////////////////////////////////////////////////
-//
-// CompielTraversal
-//
-CompileTraversal::CompileTraversal(Device* in_device, BufferPreferences bufferPreferences) :
-    context(in_device, bufferPreferences)
-{
-}
-
-CompileTraversal::CompileTraversal(Window* window, ViewportState* viewport, BufferPreferences bufferPreferences) :
-    context(window->getOrCreateDevice(), bufferPreferences)
+CompileTraversal::CompileTraversal(ref_ptr<Window> window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements) :
+    context(window->getOrCreateDevice(), resourceRequirements)
 {
     auto device = window->getDevice();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
@@ -278,9 +157,9 @@ void CompileTraversal::apply(View& view)
 {
     context.viewID = view.viewID;
 
-    if (view.camera && view.camera->getViewportState())
+    if (view.camera && view.camera->viewportState)
     {
-        context.defaultPipelineStates.emplace_back(view.camera->getViewportState());
+        context.defaultPipelineStates.emplace_back(view.camera->viewportState);
 
         view.traverse(*this);
 

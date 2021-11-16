@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/ClearAttachments.h>
 #include <vsg/io/Options.h>
-#include <vsg/state/StateGroup.h>
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/viewer/View.h>
 #include <vsg/viewer/WindowResizeHandler.h>
 #include <vsg/vk/Context.h>
@@ -37,10 +37,11 @@ void WindowResizeHandler::scale_rect(VkRect2D& rect)
     rect.extent.height = static_cast<uint32_t>(scale_parameter(edge_y, previous_extent.height, new_extent.height) - rect.offset.y);
 }
 
-bool WindowResizeHandler::visit(Object* object)
+bool WindowResizeHandler::visit(const Object* object, uint32_t index)
 {
-    if (visited.count(object) != 0) return false;
-    visited.insert(object);
+    decltype(visited)::value_type objectIndex(object, index);
+    if (visited.count(objectIndex) != 0) return false;
+    visited.insert(objectIndex);
     return true;
 }
 
@@ -48,7 +49,10 @@ void WindowResizeHandler::apply(vsg::BindGraphicsPipeline& bindPipeline)
 {
     GraphicsPipeline* graphicsPipeline = bindPipeline.pipeline;
 
-    if (!visit(graphicsPipeline)) return;
+    if (!visit(graphicsPipeline, context->viewID))
+    {
+        return;
+    }
 
     if (graphicsPipeline)
     {
@@ -82,9 +86,9 @@ void WindowResizeHandler::apply(vsg::Object& object)
 
 void WindowResizeHandler::apply(vsg::StateGroup& sg)
 {
-    if (!visit(&sg)) return;
+    if (!visit(&sg, context->viewID)) return;
 
-    for (auto& command : sg.getStateCommands())
+    for (auto& command : sg.stateCommands)
     {
         command->accept(*this);
     }
@@ -114,9 +118,9 @@ void WindowResizeHandler::apply(vsg::View& view)
         return;
     }
 
-    view.camera->getProjectionMatrix()->changeExtent(previous_extent, new_extent);
+    view.camera->projectionMatrix->changeExtent(previous_extent, new_extent);
 
-    auto viewportState = view.camera->getViewportState();
+    auto viewportState = view.camera->viewportState;
 
     size_t num_viewports = std::min(viewportState->viewports.size(), viewportState->scissors.size());
     for (size_t i = 0; i < num_viewports; ++i)

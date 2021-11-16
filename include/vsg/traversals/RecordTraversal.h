@@ -16,6 +16,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/type_name.h>
 #include <vsg/maths/mat4.h>
 
+#include <set>
+#include <vector>
+
 namespace vsg
 {
 
@@ -28,6 +31,8 @@ namespace vsg
     class StateGroup;
     class CullGroup;
     class CullNode;
+    class DepthSorted;
+    class Transform;
     class MatrixTransform;
     class Command;
     class Commands;
@@ -37,18 +42,24 @@ namespace vsg
     class FrameStamp;
     class CulledPagedLODs;
     class View;
+    class Bin;
+    class Switch;
 
-    class RecordTraversal;
     VSG_type_name(vsg::RecordTraversal);
 
     class VSG_DECLSPEC RecordTraversal : public Object
     {
     public:
-        explicit RecordTraversal(CommandBuffer* commandBuffer = nullptr, uint32_t maxSlot = 2, FrameStamp* fs = nullptr);
-        ~RecordTraversal();
+        explicit RecordTraversal(CommandBuffer* in_commandBuffer = nullptr, uint32_t in_maxSlot = 2, std::set<Bin*> in_bins = {});
+
+        RecordTraversal(const RecordTraversal&) = delete;
+        RecordTraversal& operator=(const RecordTraversal& rhs) = delete;
 
         std::size_t sizeofObject() const noexcept override { return sizeof(RecordTraversal); }
         const char* className() const noexcept override { return type_name<RecordTraversal>(); }
+
+        uint32_t traversalMask = 0xffffffff;
+        uint32_t overrideMask = 0x0;
 
         State* getState() { return _state; }
 
@@ -69,8 +80,11 @@ namespace vsg
         void apply(const PagedLOD& pagedLOD);
         void apply(const CullGroup& cullGroup);
         void apply(const CullNode& cullNode);
+        void apply(const DepthSorted& depthSorted);
+        void apply(const Switch& sw);
 
         // Vulkan nodes
+        void apply(const Transform& transform);
         void apply(const MatrixTransform& mt);
         void apply(const StateGroup& object);
         void apply(const Commands& commands);
@@ -79,13 +93,21 @@ namespace vsg
         // Viewer level nodes
         void apply(const View& view);
 
-    private:
+        // clear the bins to record a new frame.
+        void clearBins();
+
+    protected:
+        virtual ~RecordTraversal();
+
         FrameStamp* _frameStamp = nullptr;
         State* _state = nullptr;
 
         // used to handle loading of PagedLOD external children.
         DatabasePager* _databasePager = nullptr;
         CulledPagedLODs* _culledPagedLODs = nullptr;
+
+        int32_t _minimumBinNumber = 0;
+        std::vector<ref_ptr<Bin>> _bins;
     };
 
 } // namespace vsg

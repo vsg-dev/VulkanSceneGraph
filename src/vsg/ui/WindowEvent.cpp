@@ -19,14 +19,14 @@ void WindowEvent::read(Input& input)
 {
     UIEvent::read(input);
 
-    // need to decide whether window field should be serilized.
+    // need to decide whether window field should be serialized.
 }
 
 void WindowEvent::write(Output& output) const
 {
     UIEvent::write(output);
 
-    // need to decide whether window field should be serilized.
+    // need to decide whether window field should be serialized.
 }
 
 void ExposeWindowEvent::read(Input& input)

@@ -58,7 +58,15 @@ namespace vsg
 
         void defaults()
         {
-            deviceFeatures.samplerAnisotropy = VK_TRUE;
+            // vsg::DeviceFeatures use instance extension
+            instanceExtensionNames.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+
+            // provide anisotropic filtering as standard.
+            if (!deviceFeatures) deviceFeatures = vsg::DeviceFeatures::create();
+            deviceFeatures->get().samplerAnisotropy = VK_TRUE;
+
+            // prefer discrete gpu over integrated gpu over virtual gpu
+            deviceTypePreferences = {VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU, VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU, VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU};
         }
 
         int32_t x = 0;
@@ -80,8 +88,10 @@ namespace vsg
         // X11 hint of whether to ignore the Window managers redirection of window size/position
         bool overrideRedirect = false;
 
+        uint32_t vulkanVersion = VK_API_VERSION_1_0;
+
         SwapchainPreferences swapchainPreferences;
-        VkFormat depthFormat = VK_FORMAT_D24_UNORM_S8_UINT; //VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_SFLOAT_S8_UINT
+        VkFormat depthFormat = VK_FORMAT_D32_SFLOAT; // VK_FORMAT_D24_UNORM_S8_UINT or VK_FORMAT_D32_SFLOAT_S8_UINT or VK_FORMAT_D24_SFLOAT_S8_UINT
         VkImageUsageFlags depthImageUsage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 
         VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
@@ -90,16 +100,17 @@ namespace vsg
         bool debugLayer = false;
         bool apiDumpLayer = false;
 
+        // device preferences
         vsg::Names instanceExtensionNames;
         vsg::Names deviceExtensionNames;
-        VkPhysicalDeviceFeatures deviceFeatures = {};
+        vsg::PhysicalDeviceTypes deviceTypePreferences;
+        ref_ptr<DeviceFeatures> deviceFeatures;
 
         // Multisampling
         // A bitmask of sample counts. The window's framebuffer will
-        // be configured with the maxium requested value that is
+        // be configured with the maximum requested value that is
         // supported by the device.
         VkSampleCountFlags samples = VK_SAMPLE_COUNT_1_BIT;
-        ref_ptr<Device> device;
 
         Window* shareWindow = nullptr;
 

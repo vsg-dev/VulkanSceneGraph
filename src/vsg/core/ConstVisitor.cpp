@@ -453,9 +453,13 @@ void ConstVisitor::apply(const CullNode& value)
 {
     apply(static_cast<const Node&>(value));
 }
-void ConstVisitor::apply(const MatrixTransform& value)
+void ConstVisitor::apply(const Transform& value)
 {
     apply(static_cast<const Group&>(value));
+}
+void ConstVisitor::apply(const MatrixTransform& value)
+{
+    apply(static_cast<const Transform&>(value));
 }
 void ConstVisitor::apply(const Geometry& value)
 {
@@ -465,11 +469,31 @@ void ConstVisitor::apply(const VertexIndexDraw& value)
 {
     apply(static_cast<const Command&>(value));
 }
+void ConstVisitor::apply(const DepthSorted& value)
+{
+    apply(static_cast<const Node&>(value));
+}
+void ConstVisitor::apply(const Bin& value)
+{
+    apply(static_cast<const Node&>(value));
+}
+void ConstVisitor::apply(const Switch& value)
+{
+    apply(static_cast<const Node&>(value));
+}
+void ConstVisitor::apply(const MaskGroup& value)
+{
+    apply(static_cast<const Node&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Vulkan Object
 //
+void ConstVisitor::apply(const BufferInfo& value)
+{
+    apply(static_cast<const Object&>(value));
+}
 void ConstVisitor::apply(const Command& value)
 {
     apply(static_cast<const Node&>(value));
@@ -501,6 +525,14 @@ void ConstVisitor::apply(const DescriptorSet& value)
 void ConstVisitor::apply(const Descriptor& value)
 {
     apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const DescriptorBuffer& value)
+{
+    apply(static_cast<const Descriptor&>(value));
+}
+void ConstVisitor::apply(const DescriptorImage& value)
+{
+    apply(static_cast<const Descriptor&>(value));
 }
 void ConstVisitor::apply(const BindVertexBuffers& value)
 {
@@ -597,6 +629,23 @@ void ConstVisitor::apply(const ClearAttachments& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// RTX
+//
+void ConstVisitor::apply(const DrawMeshTasks& dmt)
+{
+    apply(static_cast<const Command&>(dmt));
+}
+void ConstVisitor::apply(const DrawMeshTasksIndirect& dmti)
+{
+    apply(static_cast<const Command&>(dmti));
+}
+void ConstVisitor::apply(const DrawMeshTasksIndirectCount& dmtic)
+{
+    apply(static_cast<const Command&>(dmtic));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // UI Events
 //
 void ConstVisitor::apply(const UIEvent& event)
@@ -674,6 +723,15 @@ void ConstVisitor::apply(const TerminateEvent& event)
 void ConstVisitor::apply(const FrameEvent& event)
 {
     apply(static_cast<const UIEvent&>(event));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// util classes
+//
+void ConstVisitor::apply(const AnimationPath& animationPath)
+{
+    apply(static_cast<const Object&>(animationPath));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
