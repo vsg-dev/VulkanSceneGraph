@@ -11,9 +11,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Exception.h>
+#include <vsg/io/read.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/ShaderModule.h>
 #include <vsg/traversals/CompileTraversal.h>
+
+#include <iostream>
 
 using namespace vsg;
 
@@ -139,4 +142,121 @@ ShaderModule::Implementation::Implementation(Device* device, ShaderModule* shade
 ShaderModule::Implementation::~Implementation()
 {
     vkDestroyShaderModule(*_device, _shaderModule, _device->getAllocationCallbacks());
+}
+
+std::string vsg::insertIncludes(const std::string& source, ref_ptr<const Options> options)
+{
+    std::string code = source;
+    std::string startOfIncludeMarker("// Start of include code : ");
+    std::string endOfIncludeMarker("// End of include code : ");
+    std::string failedLoadMarker("// Failed to load include code : ");
+
+#if defined(__APPLE__)
+    std::string endOfLine("\r");
+#elif defined(_WIN32)
+    std::string endOfLine("\r\n");
+#else
+    std::string endOfLine("\n");
+#endif
+
+    std::string::size_type pos = 0;
+    std::string::size_type pragma_pos = 0;
+    std::string::size_type include_pos = 0;
+    while ((pos != std::string::npos) && (((pragma_pos = code.find("#pragma", pos)) != std::string::npos) || (include_pos = code.find("#include", pos)) != std::string::npos))
+    {
+        pos = (pragma_pos != std::string::npos) ? pragma_pos : include_pos;
+
+        std::string::size_type start_of_pragma_line = pos;
+        std::string::size_type end_of_line = code.find_first_of("\n\r", pos);
+
+        if (pragma_pos != std::string::npos)
+        {
+            // we have #pragma usage so skip to the start of the first non white space
+            pos = code.find_first_not_of(" \t", pos + 7);
+            if (pos == std::string::npos) break;
+
+            // check for include part of #pragma include usage
+            if (code.compare(pos, 7, "include") != 0)
+            {
+                pos = end_of_line;
+                continue;
+            }
+
+            // found include entry so skip to next non white space
+            pos = code.find_first_not_of(" \t", pos + 7);
+            if (pos == std::string::npos) break;
+        }
+        else
+        {
+            // we have #include usage so skip to next non white space
+            pos = code.find_first_not_of(" \t", pos + 8);
+            if (pos == std::string::npos) break;
+        }
+
+        std::string::size_type num_characters = (end_of_line == std::string::npos) ? code.size() - pos : end_of_line - pos;
+        if (num_characters == 0) continue;
+
+        // prune trailing white space
+        while (num_characters > 0 && (code[pos + num_characters - 1] == ' ' || code[pos + num_characters - 1] == '\t')) --num_characters;
+
+        if (code[pos] == '\"')
+        {
+            if (code[pos + num_characters - 1] != '\"')
+            {
+                num_characters -= 1;
+            }
+            else
+            {
+                num_characters -= 2;
+            }
+
+            ++pos;
+        }
+
+        std::string filename(code, pos, num_characters);
+
+        code.erase(start_of_pragma_line, (end_of_line == std::string::npos) ? code.size() - start_of_pragma_line : end_of_line - start_of_pragma_line);
+        pos = start_of_pragma_line;
+
+        auto includedSource = vsg::read_cast<ShaderModule>(filename, options);
+        if (includedSource)
+        {
+            if (!startOfIncludeMarker.empty())
+            {
+                code.insert(pos, startOfIncludeMarker);
+                pos += startOfIncludeMarker.size();
+                code.insert(pos, filename);
+                pos += filename.size();
+                code.insert(pos, endOfLine);
+                pos += endOfLine.size();
+            }
+
+            code.insert(pos, includedSource->source);
+            pos += includedSource->source.size();
+
+            if (!endOfIncludeMarker.empty())
+            {
+                code.insert(pos, endOfIncludeMarker);
+                pos += endOfIncludeMarker.size();
+                code.insert(pos, filename);
+                pos += filename.size();
+                code.insert(pos, endOfLine);
+                pos += endOfLine.size();
+            }
+        }
+        else
+        {
+            if (!failedLoadMarker.empty())
+            {
+                code.insert(pos, failedLoadMarker);
+                pos += failedLoadMarker.size();
+                code.insert(pos, filename);
+                pos += filename.size();
+                code.insert(pos, endOfLine);
+                pos += endOfLine.size();
+            }
+        }
+    }
+
+    return code;
 }

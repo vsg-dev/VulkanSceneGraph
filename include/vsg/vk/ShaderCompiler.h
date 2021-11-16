@@ -15,12 +15,10 @@ namespace vsg
         // default ShaderCompileSettings
         ref_ptr<ShaderCompileSettings> defaults;
 
-        bool compile(ShaderStages& shaders, const std::vector<std::string>& defines = {}, const Paths& paths = {});
-        bool compile(ref_ptr<ShaderStage> shaderStage, const std::vector<std::string>& defines = {}, const Paths& paths = {});
+        bool compile(ShaderStages& shaders, const std::vector<std::string>& defines = {}, ref_ptr<const Options> options = {});
+        bool compile(ref_ptr<ShaderStage> shaderStage, const std::vector<std::string>& defines = {}, ref_ptr<const Options> options = {});
 
         std::string combineSourceAndDefines(const std::string& source, const std::vector<std::string>& defines);
-        std::string insertIncludes(const std::string& source, const Paths& paths);
-        std::string readShaderSource(const Path& filename, const Paths& paths);
 
         void apply(Node& node) override;
         void apply(StateGroup& stategroup) override;

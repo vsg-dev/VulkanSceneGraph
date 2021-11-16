@@ -124,4 +124,7 @@ namespace vsg
     };
     VSG_type_name(vsg::ShaderModule);
 
+    /// replace all instances of #include "filename.extension" with the contents of the related files.
+    extern VSG_DECLSPEC std::string insertIncludes(const std::string& source, ref_ptr<const Options> options);
+
 } // namespace vsg
