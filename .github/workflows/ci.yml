@@ -11,6 +11,10 @@ jobs:
       BuildDocEnabled: ${{github.event_name == 'push' && github.ref == 'refs/heads/master'}}
       VULKAN_SDK: $GITHUB_WORKSPACE/../$VulkanSDKVersion/x86_64
     steps:
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v1.9
+      with:
+        cmake-version: '3.7.x'
     - uses: actions/checkout@v2
     - name: Cache
       id: cache
