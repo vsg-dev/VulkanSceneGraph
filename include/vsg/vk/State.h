@@ -14,7 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/PushConstants.h>
 #include <vsg/maths/plane.h>
-#include <vsg/nodes/Transform.h>
+#include <vsg/nodes/MatrixTransform.h>
 #include <vsg/state/ComputePipeline.h>
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/state/GraphicsPipeline.h>
@@ -129,27 +129,9 @@ namespace vsg
             dirty = true;
         }
 
-        inline void pushAndPostMult(const Matrix& matrix)
+        inline void push(const MatrixTransform& transform)
         {
-            matrixStack.emplace(matrixStack.top() * matrix);
-            dirty = true;
-        }
-
-        inline void pushAndPostMult(const AlternativeMatrix& matrix)
-        {
-            matrixStack.emplace(matrixStack.top() * Matrix(matrix));
-            dirty = true;
-        }
-
-        inline void pushAndPreMult(const Matrix& matrix)
-        {
-            matrixStack.emplace(matrix * matrixStack.top());
-            dirty = true;
-        }
-
-        inline void pushAndPreMult(const AlternativeMatrix& matrix)
-        {
-            matrixStack.emplace(Matrix(matrix) * matrixStack.top());
+            matrixStack.emplace(matrixStack.top() * transform.matrix);
             dirty = true;
         }
 
