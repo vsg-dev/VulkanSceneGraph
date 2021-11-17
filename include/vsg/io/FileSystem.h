@@ -29,6 +29,15 @@ namespace vsg
     extern VSG_DECLSPEC std::string getEnv(const char* env_var);
     extern VSG_DECLSPEC Paths getEnvPaths(const char* env_var);
 
+    template<typename... Args>
+    Paths getEnvPaths(const char* env_var, Args... args)
+    {
+        auto paths = getEnvPaths(env_var);
+        auto right_paths = getEnvPaths(args...);
+        paths.insert(paths.end(), right_paths.begin(), right_paths.end());
+        return paths;
+    }
+
     extern VSG_DECLSPEC bool fileExists(const Path& path);
 
     extern VSG_DECLSPEC Path filePath(const Path& path);
