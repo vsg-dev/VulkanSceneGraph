@@ -48,7 +48,7 @@ jobs:
       run: sudo make install
 
   windows-build:
-    runs-on: windows-latest
+    runs-on: windows-2016
     steps:
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@v1.9
@@ -82,7 +82,7 @@ jobs:
       run: MSBuild.exe INSTALL.vcxproj -p:Configuration=Release
 
   windows-dll-build:
-    runs-on: windows-latest
+    runs-on: windows-2016
     steps:
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@v1.9
