@@ -4,7 +4,7 @@ on:
   pull_request:
 env:
   VulkanSDKVersion: 1.2.162.1
-  CMakeVersion: 3.7.x
+  CMakeVersion: 3.10.x
 jobs:
   linux-build:
     runs-on: ubuntu-latest
