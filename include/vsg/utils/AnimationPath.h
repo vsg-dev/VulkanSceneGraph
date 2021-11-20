@@ -63,7 +63,7 @@ namespace vsg
 
         ref_ptr<Object> object;
         ref_ptr<AnimationPath> path;
-        KeySymbol resetKey = KEY_Space;
+        KeySymbol resetKey = KeySymbol::KEY_Space;
         clock::time_point start_point;
         unsigned int frameCount = 0;
         double time = 0.0;

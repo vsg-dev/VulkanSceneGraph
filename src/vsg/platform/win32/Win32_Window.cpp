@@ -63,144 +63,144 @@ KeyboardMap::KeyboardMap()
 {
     _keycodeMap =
         {
-            {0x0, KEY_Undefined},
+            {0x0, KeySymbol::KEY_Undefined},
 
-            {VK_SPACE, KEY_Space},
+            {VK_SPACE, KeySymbol::KEY_Space},
 
-            {'0', KEY_0},
-            {'1', KEY_1},
-            {'2', KEY_2},
-            {'3', KEY_3},
-            {'4', KEY_4},
-            {'5', KEY_5},
-            {'6', KEY_6},
-            {'7', KEY_7},
-            {'8', KEY_8},
-            {'9', KEY_9},
+            {'0', KeySymbol::KEY_0},
+            {'1', KeySymbol::KEY_1},
+            {'2', KeySymbol::KEY_2},
+            {'3', KeySymbol::KEY_3},
+            {'4', KeySymbol::KEY_4},
+            {'5', KeySymbol::KEY_5},
+            {'6', KeySymbol::KEY_6},
+            {'7', KeySymbol::KEY_7},
+            {'8', KeySymbol::KEY_8},
+            {'9', KeySymbol::KEY_9},
 
-            {'a', KEY_a},
-            {'b', KEY_b},
-            {'c', KEY_c},
-            {'d', KEY_d},
-            {'e', KEY_e},
-            {'f', KEY_f},
-            {'g', KEY_g},
-            {'h', KEY_h},
-            {'i', KEY_i},
-            {'j', KEY_j},
-            {'k', KEY_k},
-            {'l', KEY_l},
-            {'m', KEY_m},
-            {'n', KEY_n},
-            {'o', KEY_o},
-            {'p', KEY_p},
-            {'q', KEY_q},
-            {'r', KEY_r},
-            {'s', KEY_s},
-            {'t', KEY_t},
-            {'u', KEY_u},
-            {'z', KEY_v},
-            {'w', KEY_w},
-            {'x', KEY_x},
-            {'y', KEY_y},
-            {'z', KEY_z},
+            {'a', KeySymbol::KEY_a},
+            {'b', KeySymbol::KEY_b},
+            {'c', KeySymbol::KEY_c},
+            {'d', KeySymbol::KEY_d},
+            {'e', KeySymbol::KEY_e},
+            {'f', KeySymbol::KEY_f},
+            {'g', KeySymbol::KEY_g},
+            {'h', KeySymbol::KEY_h},
+            {'i', KeySymbol::KEY_i},
+            {'j', KeySymbol::KEY_j},
+            {'k', KeySymbol::KEY_k},
+            {'l', KeySymbol::KEY_l},
+            {'m', KeySymbol::KEY_m},
+            {'n', KeySymbol::KEY_n},
+            {'o', KeySymbol::KEY_o},
+            {'p', KeySymbol::KEY_p},
+            {'q', KeySymbol::KEY_q},
+            {'r', KeySymbol::KEY_r},
+            {'s', KeySymbol::KEY_s},
+            {'t', KeySymbol::KEY_t},
+            {'u', KeySymbol::KEY_u},
+            {'z', KeySymbol::KEY_v},
+            {'w', KeySymbol::KEY_w},
+            {'x', KeySymbol::KEY_x},
+            {'y', KeySymbol::KEY_y},
+            {'z', KeySymbol::KEY_z},
 
-            {'A', KEY_A},
-            {'B', KEY_B},
-            {'C', KEY_C},
-            {'D', KEY_D},
-            {'E', KEY_E},
-            {'F', KEY_F},
-            {'G', KEY_G},
-            {'H', KEY_H},
-            {'I', KEY_I},
-            {'J', KEY_J},
-            {'K', KEY_K},
-            {'L', KEY_L},
-            {'M', KEY_M},
-            {'N', KEY_N},
-            {'O', KEY_O},
-            {'P', KEY_P},
-            {'Q', KEY_Q},
-            {'R', KEY_R},
-            {'S', KEY_S},
-            {'T', KEY_T},
-            {'U', KEY_U},
-            {'V', KEY_V},
-            {'W', KEY_W},
-            {'X', KEY_X},
-            {'Y', KEY_Y},
-            {'Z', KEY_Z},
+            {'A', KeySymbol::KEY_A},
+            {'B', KeySymbol::KEY_B},
+            {'C', KeySymbol::KEY_C},
+            {'D', KeySymbol::KEY_D},
+            {'E', KeySymbol::KEY_E},
+            {'F', KeySymbol::KEY_F},
+            {'G', KeySymbol::KEY_G},
+            {'H', KeySymbol::KEY_H},
+            {'I', KeySymbol::KEY_I},
+            {'J', KeySymbol::KEY_J},
+            {'K', KeySymbol::KEY_K},
+            {'L', KeySymbol::KEY_L},
+            {'M', KeySymbol::KEY_M},
+            {'N', KeySymbol::KEY_N},
+            {'O', KeySymbol::KEY_O},
+            {'P', KeySymbol::KEY_P},
+            {'Q', KeySymbol::KEY_Q},
+            {'R', KeySymbol::KEY_R},
+            {'S', KeySymbol::KEY_S},
+            {'T', KeySymbol::KEY_T},
+            {'U', KeySymbol::KEY_U},
+            {'V', KeySymbol::KEY_V},
+            {'W', KeySymbol::KEY_W},
+            {'X', KeySymbol::KEY_X},
+            {'Y', KeySymbol::KEY_Y},
+            {'Z', KeySymbol::KEY_Z},
 
             /* Cursor control & motion */
 
-            {VK_HOME, KEY_Home},
-            {VK_LEFT, KEY_Left},   /* Move left, left arrow */
-            {VK_UP, KEY_Up},       /* Move up, up arrow */
-            {VK_RIGHT, KEY_Right}, /* Move right, right arrow */
-            {VK_DOWN, KEY_Down},   /* Move down, down arrow */
-            {VK_PRIOR, KEY_Prior}, /* Prior, previous */
+            {VK_HOME, KeySymbol::KEY_Home},
+            {VK_LEFT, KeySymbol::KEY_Left},   /* Move left, left arrow */
+            {VK_UP, KeySymbol::KEY_Up},       /* Move up, up arrow */
+            {VK_RIGHT, KeySymbol::KEY_Right}, /* Move right, right arrow */
+            {VK_DOWN, KeySymbol::KEY_Down},   /* Move down, down arrow */
+            {VK_PRIOR, KeySymbol::KEY_Prior}, /* Prior, previous */
             //{ VK_, KEY_Page_Up = 0xFF55,
-            {VK_NEXT, KEY_Next}, /* Next */
+            {VK_NEXT, KeySymbol::KEY_Next}, /* Next */
             //KEY_Page_Down = 0xFF56,
-            {VK_END, KEY_End}, /* EOL */
+            {VK_END, KeySymbol::KEY_End}, /* EOL */
             //{ KEY_Begin = 0xFF58, /* BOL */
 
-            {'!', KEY_Exclaim},
-            {'"', KEY_Quotedbl},
-            {'#', KEY_Hash},
-            {'$', KEY_Dollar},
-            {'&', KEY_Ampersand},
-            {VK_OEM_7, KEY_Quote},
-            {'(', KEY_Leftparen},
-            {')', KEY_Rightparen},
-            {'*', KEY_Asterisk},
-            {'+', KEY_Plus},
-            {VK_OEM_COMMA, KEY_Comma},
-            {VK_OEM_MINUS, KEY_Minus},
-            {VK_OEM_PERIOD, KEY_Period},
-            {VK_OEM_2, KEY_Slash},
-            {':', KEY_Colon},
-            {VK_OEM_1, KEY_Semicolon},
-            {'<', KEY_Less},
-            {VK_OEM_PLUS, KEY_Equals}, // + isn't an unmodded key, why does windows map is as a virtual??
-            {'>', KEY_Greater},
-            {'?', KEY_Question},
-            {'@', KEY_At},
-            {VK_OEM_4, KEY_Leftbracket},
-            {VK_OEM_5, KEY_Backslash},
-            {VK_OEM_6, KEY_Rightbracket},
-            {'|', KEY_Caret},
-            {'_', KEY_Underscore},
-            {0xc0, KEY_Backquote},
+            {'!', KeySymbol::KEY_Exclaim},
+            {'"', KeySymbol::KEY_Quotedbl},
+            {'#', KeySymbol::KEY_Hash},
+            {'$', KeySymbol::KEY_Dollar},
+            {'&', KeySymbol::KEY_Ampersand},
+            {VK_OEM_7, KeySymbol::KEY_Quote},
+            {'(', KeySymbol::KEY_Leftparen},
+            {')', KeySymbol::KEY_Rightparen},
+            {'*', KeySymbol::KEY_Asterisk},
+            {'+', KeySymbol::KEY_Plus},
+            {VK_OEM_COMMA, KeySymbol::KEY_Comma},
+            {VK_OEM_MINUS, KeySymbol::KEY_Minus},
+            {VK_OEM_PERIOD, KeySymbol::KEY_Period},
+            {VK_OEM_2, KeySymbol::KEY_Slash},
+            {':', KeySymbol::KEY_Colon},
+            {VK_OEM_1, KeySymbol::KEY_Semicolon},
+            {'<', KeySymbol::KEY_Less},
+            {VK_OEM_PLUS, KeySymbol::KEY_Equals}, // + isn't an unmodded key, why does windows map is as a virtual??
+            {'>', KeySymbol::KEY_Greater},
+            {'?', KeySymbol::KEY_Question},
+            {'@', KeySymbol::KEY_At},
+            {VK_OEM_4, KeySymbol::KEY_Leftbracket},
+            {VK_OEM_5, KeySymbol::KEY_Backslash},
+            {VK_OEM_6, KeySymbol::KEY_Rightbracket},
+            {'|', KeySymbol::KEY_Caret},
+            {'_', KeySymbol::KEY_Underscore},
+            {0xc0, KeySymbol::KEY_Backquote},
 
-            {VK_BACK, KEY_BackSpace}, /* back space, back char */
-            {VK_TAB, KEY_Tab},
+            {VK_BACK, KeySymbol::KEY_BackSpace}, /* back space, back char */
+            {VK_TAB, KeySymbol::KEY_Tab},
             //    KEY_Linefeed = 0xFF0A, /* Linefeed, LF */
-            {VK_CLEAR, KEY_Clear},
-            {VK_RETURN, KEY_Return}, /* Return, enter */
-            {VK_PAUSE, KEY_Pause},   /* Pause, hold */
-            {VK_SCROLL, KEY_Scroll_Lock},
+            {VK_CLEAR, KeySymbol::KEY_Clear},
+            {VK_RETURN, KeySymbol::KEY_Return}, /* Return, enter */
+            {VK_PAUSE, KeySymbol::KEY_Pause},   /* Pause, hold */
+            {VK_SCROLL, KeySymbol::KEY_Scroll_Lock},
             //    KEY_Sys_Req = 0xFF15,
-            {VK_ESCAPE, KEY_Escape},
-            {VK_DELETE, KEY_Delete}, /* Delete, rubout */
+            {VK_ESCAPE, KeySymbol::KEY_Escape},
+            {VK_DELETE, KeySymbol::KEY_Delete}, /* Delete, rubout */
 
             /* Misc Functions */
 
-            {VK_SELECT, KEY_Select}, /* Select, mark */
-            {VK_PRINT, KEY_Print},
-            {VK_EXECUTE, KEY_Execute}, /* Execute, run, do */
-            {VK_INSERT, KEY_Insert},   /* Insert, insert here */
+            {VK_SELECT, KeySymbol::KEY_Select}, /* Select, mark */
+            {VK_PRINT, KeySymbol::KEY_Print},
+            {VK_EXECUTE, KeySymbol::KEY_Execute}, /* Execute, run, do */
+            {VK_INSERT, KeySymbol::KEY_Insert},   /* Insert, insert here */
             //{ KEY_Undo = 0xFF65,    /* Undo, oops */
             //KEY_Redo = 0xFF66,    /* redo, again */
-            {VK_APPS, KEY_Menu}, /* On Windows, this is VK_APPS, the context-menu key */
+            {VK_APPS, KeySymbol::KEY_Menu}, /* On Windows, this is VK_APPS, the context-menu key */
             // KEY_Find = 0xFF68,    /* Find, search */
-            {VK_CANCEL, KEY_Cancel}, /* Cancel, stop, abort, exit */
-            {VK_HELP, KEY_Help},     /* Help */
+            {VK_CANCEL, KeySymbol::KEY_Cancel}, /* Cancel, stop, abort, exit */
+            {VK_HELP, KeySymbol::KEY_Help},     /* Help */
             //{ KEY_Break = 0xFF6B,
             //KEY_Mode_switch = 0xFF7E,   /* Character set switch */
             //KEY_Script_switch = 0xFF7E, /* Alias for mode_switch */
-            {VK_NUMLOCK, KEY_Num_Lock},
+            {VK_NUMLOCK, KeySymbol::KEY_Num_Lock},
 
             /* Keypad Functions, keypad numbers cleverly chosen to map to ascii */
 
@@ -232,16 +232,16 @@ KeyboardMap::KeyboardMap()
             //KEY_KP_Decimal = 0xFFAE,
             //KEY_KP_Divide = 0xFFAF,
 
-            {VK_NUMPAD0, KEY_KP_0},
-            {VK_NUMPAD1, KEY_KP_1},
-            {VK_NUMPAD2, KEY_KP_2},
-            {VK_NUMPAD3, KEY_KP_3},
-            {VK_NUMPAD4, KEY_KP_4},
-            {VK_NUMPAD5, KEY_KP_5},
-            {VK_NUMPAD6, KEY_KP_6},
-            {VK_NUMPAD7, KEY_KP_7},
-            {VK_NUMPAD8, KEY_KP_8},
-            {VK_NUMPAD9, KEY_KP_9},
+            {VK_NUMPAD0, KeySymbol::KEY_KP_0},
+            {VK_NUMPAD1, KeySymbol::KEY_KP_1},
+            {VK_NUMPAD2, KeySymbol::KEY_KP_2},
+            {VK_NUMPAD3, KeySymbol::KEY_KP_3},
+            {VK_NUMPAD4, KeySymbol::KEY_KP_4},
+            {VK_NUMPAD5, KeySymbol::KEY_KP_5},
+            {VK_NUMPAD6, KeySymbol::KEY_KP_6},
+            {VK_NUMPAD7, KeySymbol::KEY_KP_7},
+            {VK_NUMPAD8, KeySymbol::KEY_KP_8},
+            {VK_NUMPAD9, KeySymbol::KEY_KP_9},
 
             /*
         * Auxiliary Functions; note the duplicate definitions for left and right
@@ -250,30 +250,30 @@ KeyboardMap::KeyboardMap()
         * We've not found a keyboard with more than 35 function keys total.
         */
 
-            {VK_F1, KEY_F1},
-            {VK_F2, KEY_F2},
-            {VK_F3, KEY_F3},
-            {VK_F4, KEY_F4},
-            {VK_F5, KEY_F5},
-            {VK_F6, KEY_F6},
-            {VK_F7, KEY_F7},
-            {VK_F8, KEY_F8},
-            {VK_F9, KEY_F9},
-            {VK_F10, KEY_F10},
-            {VK_F11, KEY_F11},
-            {VK_F12, KEY_F12},
-            {VK_F13, KEY_F13},
-            {VK_F14, KEY_F14},
-            {VK_F15, KEY_F15},
-            {VK_F16, KEY_F16},
-            {VK_F17, KEY_F17},
-            {VK_F18, KEY_F18},
-            {VK_F19, KEY_F19},
-            {VK_F20, KEY_F20},
-            {VK_F21, KEY_F21},
-            {VK_F22, KEY_F22},
-            {VK_F23, KEY_F23},
-            {VK_F24, KEY_F24},
+            {VK_F1, KeySymbol::KEY_F1},
+            {VK_F2, KeySymbol::KEY_F2},
+            {VK_F3, KeySymbol::KEY_F3},
+            {VK_F4, KeySymbol::KEY_F4},
+            {VK_F5, KeySymbol::KEY_F5},
+            {VK_F6, KeySymbol::KEY_F6},
+            {VK_F7, KeySymbol::KEY_F7},
+            {VK_F8, KeySymbol::KEY_F8},
+            {VK_F9, KeySymbol::KEY_F9},
+            {VK_F10, KeySymbol::KEY_F10},
+            {VK_F11, KeySymbol::KEY_F11},
+            {VK_F12, KeySymbol::KEY_F12},
+            {VK_F13, KeySymbol::KEY_F13},
+            {VK_F14, KeySymbol::KEY_F14},
+            {VK_F15, KeySymbol::KEY_F15},
+            {VK_F16, KeySymbol::KEY_F16},
+            {VK_F17, KeySymbol::KEY_F17},
+            {VK_F18, KeySymbol::KEY_F18},
+            {VK_F19, KeySymbol::KEY_F19},
+            {VK_F20, KeySymbol::KEY_F20},
+            {VK_F21, KeySymbol::KEY_F21},
+            {VK_F22, KeySymbol::KEY_F22},
+            {VK_F23, KeySymbol::KEY_F23},
+            {VK_F24, KeySymbol::KEY_F24},
 
             //KEY_F25 = 0xFFD6,
             //KEY_F26 = 0xFFD7,
@@ -289,19 +289,19 @@ KeyboardMap::KeyboardMap()
 
             /* Modifiers */
 
-            {VK_LSHIFT, KEY_Shift_L},     /* Left shift */
-            {VK_RSHIFT, KEY_Shift_R},     /* Right shift */
-            {VK_LCONTROL, KEY_Control_L}, /* Left control */
-            {VK_RCONTROL, KEY_Control_R}, /* Right control */
-            {VK_CAPITAL, KEY_Caps_Lock},  /* Caps lock */
+            {VK_LSHIFT, KeySymbol::KEY_Shift_L},     /* Left shift */
+            {VK_RSHIFT, KeySymbol::KEY_Shift_R},     /* Right shift */
+            {VK_LCONTROL, KeySymbol::KEY_Control_L}, /* Left control */
+            {VK_RCONTROL, KeySymbol::KEY_Control_R}, /* Right control */
+            {VK_CAPITAL, KeySymbol::KEY_Caps_Lock},  /* Caps lock */
             //KEY_Shift_Lock = 0xFFE6, /* Shift lock */
 
             //KEY_Meta_L = 0xFFE7,  /* Left meta */
             //KEY_Meta_R = 0xFFE8,  /* Right meta */
-            {VK_LMENU, KEY_Alt_L},  /* Left alt */
-            {VK_RMENU, KEY_Alt_R},  /* Right alt */
-            {VK_LWIN, KEY_Super_L}, /* Left super */
-            {VK_RWIN, KEY_Super_R}  /* Right super */
+            {VK_LMENU, KeySymbol::KEY_Alt_L},  /* Left alt */
+            {VK_RMENU, KeySymbol::KEY_Alt_R},  /* Right alt */
+            {VK_LWIN, KeySymbol::KEY_Super_L}, /* Left super */
+            {VK_RWIN, KeySymbol::KEY_Super_R}  /* Right super */
             //KEY_Hyper_L = 0xFFED, /* Left hyper */
             //KEY_Hyper_R = 0xFFEE  /* Right hyper */
         };

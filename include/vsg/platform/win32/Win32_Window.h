@@ -57,17 +57,17 @@ namespace vsgWin32
             {
                 case VK_LSHIFT:
                 case VK_RSHIFT:
-                    modifierMask |= vsg::KeyModifier::MODKEY_Shift;
+                    modifierMask |= static_cast<uint16_t>(vsg::KeyModifier::MODKEY_Shift);
                     break;
 
                 case VK_LCONTROL:
                 case VK_RCONTROL:
-                    modifierMask |= vsg::KeyModifier::MODKEY_Control;
+                    modifierMask |= static_cast<uint16_t>(vsg::KeyModifier::MODKEY_Control);
                     break;
 
                 case VK_LMENU:
                 case VK_RMENU:
-                    modifierMask |= vsg::KeyModifier::MODKEY_Alt;
+                    modifierMask |= static_cast<uint16_t>(vsg::KeyModifier::MODKEY_Alt);
                     break;
 
                 default:
@@ -75,8 +75,8 @@ namespace vsgWin32
                     break;
             }
 
-            if (keyState[VK_CAPITAL] & 0x01) modifierMask |= vsg::KeyModifier::MODKEY_CapsLock;
-            if (keyState[VK_NUMLOCK] & 0x01) modifierMask |= vsg::KeyModifier::MODKEY_NumLock;
+            if (keyState[VK_CAPITAL] & 0x01) modifierMask |= static_cast<uint16_t>(vsg::KeyModifier::MODKEY_CapsLock);
+            if (keyState[VK_NUMLOCK] & 0x01) modifierMask |= static_cast<uint16_t>(vsg::KeyModifier::MODKEY_NumLock);
 
             keyModifier = static_cast<vsg::KeyModifier>(modifierMask);
 

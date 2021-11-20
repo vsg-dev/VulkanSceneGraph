@@ -24,7 +24,7 @@ namespace vsg
         CloseHandler(Viewer* viewer) :
             _viewer(viewer) {}
 
-        KeySymbol closeKey = KEY_Escape; // KEY_Undefined
+        KeySymbol closeKey = KeySymbol::KEY_Escape; // KEY_Undefined
 
         virtual void close()
         {
@@ -35,7 +35,7 @@ namespace vsg
 
         void apply(KeyPressEvent& keyPress) override
         {
-            if (closeKey != KEY_Undefined && keyPress.keyBase == closeKey) close();
+            if (closeKey != KeySymbol::KEY_Undefined && keyPress.keyBase == closeKey) close();
         }
 
         void apply(CloseWindowEvent&) override

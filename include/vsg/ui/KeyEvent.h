@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    enum KeySymbol : uint16_t
+    enum class KeySymbol : uint16_t
     {
         KEY_Undefined = 0x0,
 
@@ -268,7 +268,7 @@ namespace vsg
         KEY_Hyper_R = 0xFFEE  /* Right hyper */
     };
 
-    enum KeyModifier : uint16_t
+    enum class KeyModifier : uint16_t
     {
         MODKEY_Shift = 1,
         MODKEY_CapsLock = 2,

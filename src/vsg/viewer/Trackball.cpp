@@ -31,7 +31,7 @@ Trackball::Trackball(ref_ptr<Camera> camera, ref_ptr<EllipsoidModel> ellipsoidMo
 
     clampToGlobe();
 
-    addKeyViewpoint(KEY_Space, LookAt::create(*_lookAt), 1.0);
+    addKeyViewpoint(KeySymbol::KEY_Space, LookAt::create(*_lookAt), 1.0);
 }
 
 void Trackball::clampToGlobe()

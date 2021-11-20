@@ -458,126 +458,126 @@ KeyboardMap::KeyboardMap()
 {
     _keycodeMap =
     {
-        { 0xFF, KEY_Undefined },
+        { 0xFF, KeySymbol::KEY_Undefined },
 
-        { kVK_Space, KEY_Space },
+        { kVK_Space, KeySymbol::KEY_Space },
 
-        { kVK_ANSI_0, KEY_0 },
-        { kVK_ANSI_1, KEY_1 },
-        { kVK_ANSI_2, KEY_2 },
-        { kVK_ANSI_3, KEY_3 },
-        { kVK_ANSI_4, KEY_4 },
-        { kVK_ANSI_5, KEY_5 },
-        { kVK_ANSI_6, KEY_6 },
-        { kVK_ANSI_7, KEY_7 },
-        { kVK_ANSI_8, KEY_8 },
-        { kVK_ANSI_9, KEY_9 },
+        { kVK_ANSI_0, KeySymbol::KEY_0 },
+        { kVK_ANSI_1, KeySymbol::KEY_1 },
+        { kVK_ANSI_2, KeySymbol::KEY_2 },
+        { kVK_ANSI_3, KeySymbol::KEY_3 },
+        { kVK_ANSI_4, KeySymbol::KEY_4 },
+        { kVK_ANSI_5, KeySymbol::KEY_5 },
+        { kVK_ANSI_6, KeySymbol::KEY_6 },
+        { kVK_ANSI_7, KeySymbol::KEY_7 },
+        { kVK_ANSI_8, KeySymbol::KEY_8 },
+        { kVK_ANSI_9, KeySymbol::KEY_9 },
 
-        { kVK_ANSI_A, KEY_a },
-        { kVK_ANSI_B, KEY_b },
-        { kVK_ANSI_C, KEY_c },
-        { kVK_ANSI_D, KEY_d },
-        { kVK_ANSI_E, KEY_e },
-        { kVK_ANSI_F, KEY_f },
-        { kVK_ANSI_G, KEY_g },
-        { kVK_ANSI_H, KEY_h },
-        { kVK_ANSI_I, KEY_i },
-        { kVK_ANSI_J, KEY_j },
-        { kVK_ANSI_K, KEY_k },
-        { kVK_ANSI_L, KEY_l },
-        { kVK_ANSI_M, KEY_m },
-        { kVK_ANSI_N, KEY_n },
-        { kVK_ANSI_O, KEY_o },
-        { kVK_ANSI_P, KEY_p },
-        { kVK_ANSI_Q, KEY_q },
-        { kVK_ANSI_R, KEY_r },
-        { kVK_ANSI_S, KEY_s },
-        { kVK_ANSI_T, KEY_t },
-        { kVK_ANSI_U, KEY_u },
-        { kVK_ANSI_Z, KEY_v },
-        { kVK_ANSI_W, KEY_w },
-        { kVK_ANSI_X, KEY_x },
-        { kVK_ANSI_Y, KEY_y },
-        { kVK_ANSI_Z, KEY_z },
+        { kVK_ANSI_A, KeySymbol::KEY_a },
+        { kVK_ANSI_B, KeySymbol::KEY_b },
+        { kVK_ANSI_C, KeySymbol::KEY_c },
+        { kVK_ANSI_D, KeySymbol::KEY_d },
+        { kVK_ANSI_E, KeySymbol::KEY_e },
+        { kVK_ANSI_F, KeySymbol::KEY_f },
+        { kVK_ANSI_G, KeySymbol::KEY_g },
+        { kVK_ANSI_H, KeySymbol::KEY_h },
+        { kVK_ANSI_I, KeySymbol::KEY_i },
+        { kVK_ANSI_J, KeySymbol::KEY_j },
+        { kVK_ANSI_K, KeySymbol::KEY_k },
+        { kVK_ANSI_L, KeySymbol::KEY_l },
+        { kVK_ANSI_M, KeySymbol::KEY_m },
+        { kVK_ANSI_N, KeySymbol::KEY_n },
+        { kVK_ANSI_O, KeySymbol::KEY_o },
+        { kVK_ANSI_P, KeySymbol::KEY_p },
+        { kVK_ANSI_Q, KeySymbol::KEY_q },
+        { kVK_ANSI_R, KeySymbol::KEY_r },
+        { kVK_ANSI_S, KeySymbol::KEY_s },
+        { kVK_ANSI_T, KeySymbol::KEY_t },
+        { kVK_ANSI_U, KeySymbol::KEY_u },
+        { kVK_ANSI_Z, KeySymbol::KEY_v },
+        { kVK_ANSI_W, KeySymbol::KEY_w },
+        { kVK_ANSI_X, KeySymbol::KEY_x },
+        { kVK_ANSI_Y, KeySymbol::KEY_y },
+        { kVK_ANSI_Z, KeySymbol::KEY_z },
 
-        { 'A', KEY_A },
-        { 'B', KEY_B },
-        { 'C', KEY_C },
-        { 'D', KEY_D },
-        { 'E', KEY_E },
-        { 'F', KEY_F },
-        { 'G', KEY_G },
-        { 'H', KEY_H },
-        { 'I', KEY_I },
-        { 'J', KEY_J },
-        { 'K', KEY_K },
-        { 'L', KEY_L },
-        { 'M', KEY_M },
-        { 'N', KEY_N },
-        { 'O', KEY_O },
-        { 'P', KEY_P },
-        { 'Q', KEY_Q },
-        { 'R', KEY_R },
-        { 'S', KEY_S },
-        { 'T', KEY_T },
-        { 'U', KEY_U },
-        { 'V', KEY_V },
-        { 'W', KEY_W },
-        { 'X', KEY_X },
-        { 'Y', KEY_Y },
-        { 'Z', KEY_Z },
+        { 'A', KeySymbol::KEY_A },
+        { 'B', KeySymbol::KEY_B },
+        { 'C', KeySymbol::KEY_C },
+        { 'D', KeySymbol::KEY_D },
+        { 'E', KeySymbol::KEY_E },
+        { 'F', KeySymbol::KEY_F },
+        { 'G', KeySymbol::KEY_G },
+        { 'H', KeySymbol::KEY_H },
+        { 'I', KeySymbol::KEY_I },
+        { 'J', KeySymbol::KEY_J },
+        { 'K', KeySymbol::KEY_K },
+        { 'L', KeySymbol::KEY_L },
+        { 'M', KeySymbol::KEY_M },
+        { 'N', KeySymbol::KEY_N },
+        { 'O', KeySymbol::KEY_O },
+        { 'P', KeySymbol::KEY_P },
+        { 'Q', KeySymbol::KEY_Q },
+        { 'R', KeySymbol::KEY_R },
+        { 'S', KeySymbol::KEY_S },
+        { 'T', KeySymbol::KEY_T },
+        { 'U', KeySymbol::KEY_U },
+        { 'V', KeySymbol::KEY_V },
+        { 'W', KeySymbol::KEY_W },
+        { 'X', KeySymbol::KEY_X },
+        { 'Y', KeySymbol::KEY_Y },
+        { 'Z', KeySymbol::KEY_Z },
 
-        { '!', KEY_Exclaim },
-        { '"', KEY_Quotedbl },
-        { '#', KEY_Hash },
-        { '$', KEY_Dollar },
-        { '&', KEY_Ampersand },
-        { kVK_ANSI_Quote, KEY_Quote },
-        { '(', KEY_Leftparen },
-        { ')', KEY_Rightparen },
-        { '*', KEY_Asterisk },
-        { '+', KEY_Plus },
-        { kVK_ANSI_Comma, KEY_Comma },
-        { kVK_ANSI_Minus, KEY_Minus },
-        { kVK_ANSI_Period, KEY_Period },
-        { kVK_ANSI_Slash, KEY_Slash },
-        { ':', KEY_Colon },
-        { kVK_ANSI_Semicolon, KEY_Semicolon },
-        { '<', KEY_Less },
-        { kVK_ANSI_Equal, KEY_Equals }, // + isnt an unmodded key, why does windows map is as a virtual??
-        { '>', KEY_Greater },
-        { '?', KEY_Question },
-        { '@', KEY_At},
-        { kVK_ANSI_LeftBracket, KEY_Leftbracket },
-        { kVK_ANSI_Backslash, KEY_Backslash },
-        { kVK_ANSI_RightBracket, KEY_Rightbracket },
-        {'|', KEY_Caret },
-        {'_', KEY_Underscore },
-        {'`', KEY_Backquote },
+        { '!', KeySymbol::KEY_Exclaim },
+        { '"', KeySymbol::KEY_Quotedbl },
+        { '#', KeySymbol::KEY_Hash },
+        { '$', KeySymbol::KEY_Dollar },
+        { '&', KeySymbol::KEY_Ampersand },
+        { kVK_ANSI_Quote, KeySymbol::KEY_Quote },
+        { '(', KeySymbol::KEY_Leftparen },
+        { ')', KeySymbol::KEY_Rightparen },
+        { '*', KeySymbol::KEY_Asterisk },
+        { '+', KeySymbol::KEY_Plus },
+        { kVK_ANSI_Comma, KeySymbol::KEY_Comma },
+        { kVK_ANSI_Minus, KeySymbol::KEY_Minus },
+        { kVK_ANSI_Period, KeySymbol::KEY_Period },
+        { kVK_ANSI_Slash, KeySymbol::KEY_Slash },
+        { ':', KeySymbol::KEY_Colon },
+        { kVK_ANSI_Semicolon, KeySymbol::KEY_Semicolon },
+        { '<', KeySymbol::KEY_Less },
+        { kVK_ANSI_Equal, KeySymbol::KEY_Equals }, // + isnt an unmodded key, why does windows map is as a virtual??
+        { '>', KeySymbol::KEY_Greater },
+        { '?', KeySymbol::KEY_Question },
+        { '@', KeySymbol::KEY_At},
+        { kVK_ANSI_LeftBracket, KeySymbol::KEY_Leftbracket },
+        { kVK_ANSI_Backslash, KeySymbol::KEY_Backslash },
+        { kVK_ANSI_RightBracket, KeySymbol::KEY_Rightbracket },
+        {'|', KeySymbol::KEY_Caret },
+        {'_', KeySymbol::KEY_Underscore },
+        {'`', KeySymbol::KEY_Backquote },
 
-        { kVK_Delete, KEY_BackSpace }, /* back space, back char */
-        { kVK_Tab, KEY_Tab },
+        { kVK_Delete, KeySymbol::KEY_BackSpace }, /* back space, back char */
+        { kVK_Tab, KeySymbol::KEY_Tab },
         //    KEY_Linefeed = 0xFF0A, /* Linefeed, LF */
         //{ AKEYCODE_CLEAR, KEY_Clear },
-        { kVK_Return, KEY_Return }, /* Return, enter */
+        { kVK_Return, KeySymbol::KEY_Return }, /* Return, enter */
         //{ AKEYCODE_BREAK, KEY_Pause },  /* Pause, hold */
         //{ AKEYCODE_SCROLL_LOCK, KEY_Scroll_Lock },
         //    KEY_Sys_Req = 0xFF15,
-        { kVK_Escape, KEY_Escape },
-        { kVK_ForwardDelete, KEY_Delete }, /* Delete, rubout */
+        { kVK_Escape, KeySymbol::KEY_Escape },
+        { kVK_ForwardDelete, KeySymbol::KEY_Delete }, /* Delete, rubout */
 
         /* Cursor control & motion */
 
-        { kVK_Home, KEY_Home },
-        { kVK_LeftArrow, KEY_Left },          /* Move left, left arrow */
-        { kVK_UpArrow, KEY_Up },              /* Move up, up arrow */
-        { kVK_RightArrow, KEY_Right },        /* Move right, right arrow */
-        { kVK_DownArrow, KEY_Down },          /* Move down, down arrow */
+        { kVK_Home, KeySymbol::KEY_Home },
+        { kVK_LeftArrow, KeySymbol::KEY_Left },          /* Move left, left arrow */
+        { kVK_UpArrow, KeySymbol::KEY_Up },              /* Move up, up arrow */
+        { kVK_RightArrow, KeySymbol::KEY_Right },        /* Move right, right arrow */
+        { kVK_DownArrow, KeySymbol::KEY_Down },          /* Move down, down arrow */
         //{ AKEYCODE_NAVIGATE_PREVIOUS, KEY_Prior }, /* Prior, previous */
-        { kVK_PageUp, KEY_Page_Up },
+        { kVK_PageUp, KeySymbol::KEY_Page_Up },
         //{ AKEYCODE_NAVIGATE_NEXT, KEY_Next }, /* Next */
-        { kVK_PageDown, KEY_Page_Down },
-        { kVK_End, KEY_End }, /* EOL */
+        { kVK_PageDown, KeySymbol::KEY_Page_Down },
+        { kVK_End, KeySymbol::KEY_End }, /* EOL */
         //{ KEY_Begin = 0xFF58, /* BOL */
 
         /* Misc Functions */
@@ -591,7 +591,7 @@ KeyboardMap::KeyboardMap()
         //{ AKEYCODE_MENU, KEY_Menu }, /* On Windows, this is VK_APPS, the context-menu key */
         // KEY_Find = 0xFF68,    /* Find, search */
         //{ VK_CANCEL, KEY_Cancel },  /* Cancel, stop, abort, exit */
-        { kVK_Help, KEY_Help }, /* Help */
+        { kVK_Help, KeySymbol::KEY_Help }, /* Help */
         //{ KEY_Break = 0xFF6B,
         //KEY_Mode_switch = 0xFF7E,   /* Character set switch */
         //KEY_Script_switch = 0xFF7E, /* Alias for mode_switch */
@@ -601,7 +601,7 @@ KeyboardMap::KeyboardMap()
 
         //KEY_KP_Space = 0xFF80, /* space */
         //KEY_KP_Tab = 0xFF89,
-        { kVK_ANSI_KeypadEnter, KEY_KP_Enter }, /* enter */
+        { kVK_ANSI_KeypadEnter, KeySymbol::KEY_KP_Enter }, /* enter */
         //KEY_KP_F1 = 0xFF91,    /* PF1, KP_A, ... */
         //KEY_KP_F2 = 0xFF92,
         //KEY_KP_F3 = 0xFF93,
@@ -619,24 +619,24 @@ KeyboardMap::KeyboardMap()
         //KEY_KP_Begin = 0xFF9D,
         //KEY_KP_Insert = 0xFF9E,
         //KEY_KP_Delete = 0xFF9F,
-        { kVK_ANSI_KeypadEquals, KEY_KP_Equal }, /* equals */
-        { kVK_ANSI_KeypadMultiply, KEY_KP_Multiply },
-        { kVK_ANSI_KeypadPlus, KEY_KP_Add },
+        { kVK_ANSI_KeypadEquals, KeySymbol::KEY_KP_Equal }, /* equals */
+        { kVK_ANSI_KeypadMultiply, KeySymbol::KEY_KP_Multiply },
+        { kVK_ANSI_KeypadPlus, KeySymbol::KEY_KP_Add },
         //{ AKEYCODE_NUMPAD_COMMA, KEY_KP_Separator }, /* separator, often comma */
-        { kVK_ANSI_KeypadMinus, KEY_KP_Subtract },
-        { kVK_ANSI_KeypadDecimal, KEY_KP_Decimal },
-        { kVK_ANSI_KeypadDivide, KEY_KP_Divide },
+        { kVK_ANSI_KeypadMinus, KeySymbol::KEY_KP_Subtract },
+        { kVK_ANSI_KeypadDecimal, KeySymbol::KEY_KP_Decimal },
+        { kVK_ANSI_KeypadDivide, KeySymbol::KEY_KP_Divide },
 
-        { kVK_ANSI_Keypad0, KEY_KP_0 },
-        { kVK_ANSI_Keypad1, KEY_KP_1 },
-        { kVK_ANSI_Keypad2, KEY_KP_2 },
-        { kVK_ANSI_Keypad3, KEY_KP_3 },
-        { kVK_ANSI_Keypad4, KEY_KP_4 },
-        { kVK_ANSI_Keypad5, KEY_KP_5 },
-        { kVK_ANSI_Keypad6, KEY_KP_6 },
-        { kVK_ANSI_Keypad7, KEY_KP_7 },
-        { kVK_ANSI_Keypad8, KEY_KP_8 },
-        { kVK_ANSI_Keypad9, KEY_KP_9 },
+        { kVK_ANSI_Keypad0, KeySymbol::KEY_KP_0 },
+        { kVK_ANSI_Keypad1, KeySymbol::KEY_KP_1 },
+        { kVK_ANSI_Keypad2, KeySymbol::KEY_KP_2 },
+        { kVK_ANSI_Keypad3, KeySymbol::KEY_KP_3 },
+        { kVK_ANSI_Keypad4, KeySymbol::KEY_KP_4 },
+        { kVK_ANSI_Keypad5, KeySymbol::KEY_KP_5 },
+        { kVK_ANSI_Keypad6, KeySymbol::KEY_KP_6 },
+        { kVK_ANSI_Keypad7, KeySymbol::KEY_KP_7 },
+        { kVK_ANSI_Keypad8, KeySymbol::KEY_KP_8 },
+        { kVK_ANSI_Keypad9, KeySymbol::KEY_KP_9 },
 
         /*
     * Auxiliary Functions; note the duplicate definitions for left and right
@@ -645,26 +645,26 @@ KeyboardMap::KeyboardMap()
     * We've not found a keyboard with more than 35 function keys total.
     */
 
-        { kVK_F1, KEY_F1 },
-        { kVK_F2, KEY_F2 },
-        { kVK_F3, KEY_F3 },
-        { kVK_F4, KEY_F4 },
-        { kVK_F5, KEY_F5 },
-        { kVK_F6, KEY_F6 },
-        { kVK_F7, KEY_F7 },
-        { kVK_F8, KEY_F8 },
-        { kVK_F9, KEY_F9 },
-        { kVK_F10, KEY_F10 },
-        { kVK_F11, KEY_F11 },
-        { kVK_F12, KEY_F12 },
-        { kVK_F13, KEY_F13 },
-        { kVK_F14, KEY_F14 },
-        { kVK_F15, KEY_F15 },
-        { kVK_F16, KEY_F16 },
-        { kVK_F17, KEY_F17 },
-        { kVK_F18, KEY_F18 },
-        { kVK_F19, KEY_F19 },
-        { kVK_F20, KEY_F20 },
+        { kVK_F1, KeySymbol::KEY_F1 },
+        { kVK_F2, KeySymbol::KEY_F2 },
+        { kVK_F3, KeySymbol::KEY_F3 },
+        { kVK_F4, KeySymbol::KEY_F4 },
+        { kVK_F5, KeySymbol::KEY_F5 },
+        { kVK_F6, KeySymbol::KEY_F6 },
+        { kVK_F7, KeySymbol::KEY_F7 },
+        { kVK_F8, KeySymbol::KEY_F8 },
+        { kVK_F9, KeySymbol::KEY_F9 },
+        { kVK_F10, KeySymbol::KEY_F10 },
+        { kVK_F11, KeySymbol::KEY_F11 },
+        { kVK_F12, KeySymbol::KEY_F12 },
+        { kVK_F13, KeySymbol::KEY_F13 },
+        { kVK_F14, KeySymbol::KEY_F14 },
+        { kVK_F15, KeySymbol::KEY_F15 },
+        { kVK_F16, KeySymbol::KEY_F16 },
+        { kVK_F17, KeySymbol::KEY_F17 },
+        { kVK_F18, KeySymbol::KEY_F18 },
+        { kVK_F19, KeySymbol::KEY_F19 },
+        { kVK_F20, KeySymbol::KEY_F20 },
         //{ VK_F21, KEY_F21 },
         //{ VK_F22, KEY_F22 },
         //{ VK_F23, KEY_F23 },
@@ -684,18 +684,18 @@ KeyboardMap::KeyboardMap()
 
         /* Modifiers */
 
-        { kVK_Shift, KEY_Shift_L },   /* Left shift */
-        { kVK_RightShift, KEY_Shift_R },  /* Right shift */
-        { kVK_Control, KEY_Control_L },  /* Left control */
+        { kVK_Shift, KeySymbol::KEY_Shift_L },   /* Left shift */
+        { kVK_RightShift, KeySymbol::KEY_Shift_R },  /* Right shift */
+        { kVK_Control, KeySymbol::KEY_Control_L },  /* Left control */
         //{ AKEYCODE_CTRL_RIGHT, KEY_Control_R }, // no right control on mac
-        { kVK_CapsLock, KEY_Caps_Lock },  /* Caps lock */
+        { kVK_CapsLock, KeySymbol::KEY_Caps_Lock },  /* Caps lock */
         //KEY_Shift_Lock = 0xFFE6, /* Shift lock */
 
         //{ AKEYCODE_META_LEFT, KEY_Meta_L },  /* Left meta */
         //{ AKEYCODE_META_RIGHT, KEY_Meta_R }, /* Right meta */
-        { kVK_Option, KEY_Alt_L },    /* Left alt */
-        { kVK_RightOption, KEY_Alt_R },   /* Right alt */
-        { kVK_Command, KEY_Super_L }, /* Left super */
+        { kVK_Option, KeySymbol::KEY_Alt_L },    /* Left alt */
+        { kVK_RightOption, KeySymbol::KEY_Alt_R },   /* Right alt */
+        { kVK_Command, KeySymbol::KEY_Super_L }, /* Left super */
         //{ VK_RWIN, KEY_Super_R } /* Right super */
         //KEY_Hyper_L = 0xFFED, /* Left hyper */
         //KEY_Hyper_R = 0xFFEE  /* Right hyper */
@@ -724,13 +724,13 @@ bool KeyboardMap::getKeySymbol(NSEvent* anEvent, vsg::KeySymbol& keySymbol, vsg:
 
     uint16_t modifierMask = 0;
 
-    if (modifierFlags & NSEventModifierFlagOption) modifierMask |= vsg::KeyModifier::MODKEY_Alt;
-    if (modifierFlags & NSEventModifierFlagControl) modifierMask |= vsg::KeyModifier::MODKEY_Control;
-    if (modifierFlags & NSEventModifierFlagShift) modifierMask |= vsg::KeyModifier::MODKEY_Shift;
-    if (modifierFlags & NSEventModifierFlagCapsLock) modifierMask |= vsg::KeyModifier::MODKEY_CapsLock;
-    if (modifierFlags & NSEventModifierFlagNumericPad) modifierMask |= vsg::KeyModifier::MODKEY_NumLock;
+    if (modifierFlags & NSEventModifierFlagOption) modifierMask |= static_cast<uint16_t>(vsg::KeyModifier::MODKEY_Alt);
+    if (modifierFlags & NSEventModifierFlagControl) modifierMask |= static_cast<uint16_t>(vsg::KeyModifier::MODKEY_Control);
+    if (modifierFlags & NSEventModifierFlagShift) modifierMask |= static_cast<uint16_t>(vsg::KeyModifier::MODKEY_Shift);
+    if (modifierFlags & NSEventModifierFlagCapsLock) modifierMask |= static_cast<uint16_t>(vsg::KeyModifier::MODKEY_CapsLock);
+    if (modifierFlags & NSEventModifierFlagNumericPad) modifierMask |= static_cast<uint16_t>(vsg::KeyModifier::MODKEY_NumLock);
 
-    keyModifier = (vsg::KeyModifier) modifierMask;
+    keyModifier = static_cast<vsg::KeyModifier>(modifierMask);
 
     if(modifierMask == 0) return true;
 

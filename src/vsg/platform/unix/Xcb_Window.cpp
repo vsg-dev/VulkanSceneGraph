@@ -177,29 +177,29 @@ KeyboardMap::KeyboardMap()
 vsg::KeySymbol KeyboardMap::getKeySymbol(uint16_t keycode, uint16_t modifier)
 {
     auto itr = _keycodeMap.find(KeycodeModifier(keycode, 0));
-    if (itr==_keycodeMap.end()) return vsg::KEY_Undefined;
+    if (itr==_keycodeMap.end()) return vsg::KeySymbol::KEY_Undefined;
 
     vsg::KeySymbol baseKeySymbol = itr->second;
     if (modifier==0) return baseKeySymbol;
 
-    bool shift = (modifier & vsg::MODKEY_Shift)!=0;
+    bool shift = (modifier & static_cast<uint16_t>(vsg::KeyModifier::MODKEY_Shift))!=0;
     uint16_t index = 0;
 
-    if (baseKeySymbol>=vsg::KEY_KP_Space && baseKeySymbol<=vsg::KEY_KP_Divide)
+    if (baseKeySymbol>=vsg::KeySymbol::KEY_KP_Space && baseKeySymbol<=vsg::KeySymbol::KEY_KP_Divide)
     {
         // numeric keypad values
-        bool numLock = ((modifier & vsg::MODKEY_NumLock)!=0);
+        bool numLock = ((modifier & static_cast<uint16_t>(vsg::KeyModifier::MODKEY_NumLock))!=0);
         index = (numLock && !shift) ? 1 : 0;
     }
     else
     {
-        bool capsLock = (modifier & vsg::MODKEY_CapsLock)!=0;
+        bool capsLock = (modifier & static_cast<uint16_t>(vsg::KeyModifier::MODKEY_CapsLock))!=0;
         index = (capsLock ? !shift : shift) ? 1 : 0;
     }
     if (index==0) return baseKeySymbol;
 
     if (itr = _keycodeMap.find(KeycodeModifier(keycode, index)); itr!=_keycodeMap.end()) return itr->second;
-    return vsg::KEY_Undefined;
+    return vsg::KeySymbol::KEY_Undefined;
 }
 
 vsg::KeyModifier KeyboardMap::getKeyModifier(vsg::KeySymbol keySym, uint16_t modifier, bool pressed)
@@ -221,10 +221,10 @@ vsg::KeyModifier KeyboardMap::getKeyModifier(vsg::KeySymbol keySym, uint16_t mod
     #define XK_Hyper_L                       0xffed
     #define XK_Hyper_R                       0xffee
 
-    if (keySym >= XK_Shift_L && keySym <= XK_Hyper_R)
+    if (static_cast<uint16_t>(keySym) >= XK_Shift_L && static_cast<uint16_t>(keySym) <= XK_Hyper_R)
     {
         uint16_t mask = 0;
-        switch(keySym)
+        switch(static_cast<uint16_t>(keySym))
         {
             case(XK_Shift_L):
             case(XK_Shift_R): mask = XCB_KEY_BUT_MASK_SHIFT; break;
