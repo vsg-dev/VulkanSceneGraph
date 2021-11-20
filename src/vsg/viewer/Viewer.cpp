@@ -118,7 +118,7 @@ bool Viewer::advanceToNextFrame()
     if (!_frameStamp)
     {
         // first frame, initialize to frame count and indices to 0
-        _frameStamp = new vsg::FrameStamp(time, 0);
+        _frameStamp = FrameStamp::create(time, 0);
 
         for (auto& task : recordAndSubmitTasks)
         {
@@ -128,7 +128,7 @@ bool Viewer::advanceToNextFrame()
     else
     {
         // after first frame so increment frame count and indices
-        _frameStamp = new vsg::FrameStamp(time, _frameStamp->frameCount + 1);
+        _frameStamp = FrameStamp::create(time, _frameStamp->frameCount + 1);
 
         for (auto& task : recordAndSubmitTasks)
         {
@@ -249,7 +249,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
         auto queueFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT); // TODO : could we just use transfer bit?
 
-        deviceResource.compile = new vsg::CompileTraversal(device, resourceRequirements);
+        deviceResource.compile = CompileTraversal::create(device, resourceRequirements);
         deviceResource.compile->overrideMask = 0xffffffff;
         deviceResource.compile->context.commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
         deviceResource.compile->context.graphicsQueue = device->getQueue(queueFamily);
