@@ -912,10 +912,10 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
             
             //std::cout << "NSEventTypeMouseMoved(etc): " << pos.x << ", " << pos.y << std::endl;
 
-            auto buttonMask = 0;
-            if(pressedButtons & (1 << 0)) buttonMask |= vsg::BUTTON_MASK_1;
-            if(pressedButtons & (1 << 1)) buttonMask |= vsg::BUTTON_MASK_2;
-            if(pressedButtons & (1 << 2)) buttonMask |= vsg::BUTTON_MASK_3;
+            uint16_t buttonMask = 0;
+            if(pressedButtons & (1 << 0)) buttonMask |= static_cast<uint16_t>(vsg::ButtonMask::BUTTON_MASK_1);
+            if(pressedButtons & (1 << 1)) buttonMask |= static_cast<uint16_t>(vsg::ButtonMask::BUTTON_MASK_2);
+            if(pressedButtons & (1 << 2)) buttonMask |= static_cast<uint16_t>(vsg::ButtonMask::BUTTON_MASK_3);
 
             switch([anEvent type])
             {

@@ -123,11 +123,11 @@ void Trackball::apply(ButtonPressEvent& buttonPress)
     _hasFocus = withinRenderArea(buttonPress.x, buttonPress.y);
     _lastPointerEventWithinRenderArea = _hasFocus;
 
-    if (buttonPress.mask & BUTTON_MASK_1)
+    if (static_cast<uint16_t>(buttonPress.mask) & static_cast<uint16_t>(ButtonMask::BUTTON_MASK_1))
         _updateMode = UpdateMode::ROTATE;
-    else if (buttonPress.mask & BUTTON_MASK_2)
+    else if (static_cast<uint16_t>(buttonPress.mask) & static_cast<uint16_t>(ButtonMask::BUTTON_MASK_2))
         _updateMode = UpdateMode::PAN;
-    else if (buttonPress.mask & BUTTON_MASK_3)
+    else if (static_cast<uint16_t>(buttonPress.mask) & static_cast<uint16_t>(ButtonMask::BUTTON_MASK_3))
         _updateMode = UpdateMode::ZOOM;
     else
         _updateMode = UpdateMode::INACTIVE;
@@ -184,7 +184,7 @@ void Trackball::apply(MoveEvent& moveEvent)
 
     _previousTime = moveEvent.time;
 
-    if (moveEvent.mask & rotateButtonMask)
+    if (static_cast<uint16_t>(moveEvent.mask) & static_cast<uint16_t>(rotateButtonMask))
     {
         _updateMode = UpdateMode::ROTATE;
 
@@ -204,7 +204,7 @@ void Trackball::apply(MoveEvent& moveEvent)
             _rotateAngle = 0.0;
         }
     }
-    else if (moveEvent.mask & panButtonMask)
+    else if (static_cast<uint16_t>(moveEvent.mask) & static_cast<uint16_t>(panButtonMask))
     {
         _updateMode = UpdateMode::PAN;
 
@@ -216,7 +216,7 @@ void Trackball::apply(MoveEvent& moveEvent)
 
         pan(delta * scale);
     }
-    else if (moveEvent.mask & zoomButtonMask)
+    else if (static_cast<uint16_t>(moveEvent.mask) & static_cast<uint16_t>(zoomButtonMask))
     {
         _updateMode = UpdateMode::ZOOM;
 

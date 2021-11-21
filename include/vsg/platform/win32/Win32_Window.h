@@ -95,8 +95,8 @@ namespace vsgWin32
 
     vsg::ButtonMask getButtonMask(WPARAM wParam)
     {
-        auto mask = (wParam & MK_LBUTTON ? vsg::ButtonMask::BUTTON_MASK_1 : 0) | (wParam & MK_MBUTTON ? vsg::ButtonMask::BUTTON_MASK_2 : 0) | (wParam & MK_RBUTTON ? vsg::ButtonMask::BUTTON_MASK_3 : 0) |
-                    (wParam & MK_XBUTTON1 ? vsg::ButtonMask::BUTTON_MASK_4 : 0) | (wParam & MK_XBUTTON2 ? vsg::ButtonMask::BUTTON_MASK_5 : 0);
+        auto mask = (wParam & MK_LBUTTON ? static_cast<uint16_t>(vsg::ButtonMask::BUTTON_MASK_1) : 0) | (wParam & MK_MBUTTON ? static_cast<uint16_t>(vsg::ButtonMask::BUTTON_MASK_2) : 0) | (wParam & MK_RBUTTON ? static_cast<uint16_t>(vsg::ButtonMask::BUTTON_MASK_3) : 0) |
+                    (wParam & MK_XBUTTON1 ? static_cast<uint16_t>(vsg::ButtonMask::BUTTON_MASK_4) : 0) | (wParam & MK_XBUTTON2 ? static_cast<uint16_t>(vsg::ButtonMask::BUTTON_MASK_5) : 0);
         return static_cast<vsg::ButtonMask>(mask);
     }
 

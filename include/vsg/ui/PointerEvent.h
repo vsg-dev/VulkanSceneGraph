@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    enum ButtonMask : uint16_t
+    enum class ButtonMask : uint16_t
     {
         BUTTON_MASK_1 = 256,
         BUTTON_MASK_2 = 512,

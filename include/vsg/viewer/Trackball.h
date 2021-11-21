@@ -68,13 +68,13 @@ namespace vsg
         std::map<KeySymbol, Viewpoint> keyViewpoitMap;
 
         /// Button mask value used to enable panning of the view, defaults to left mouse button
-        ButtonMask rotateButtonMask = BUTTON_MASK_1;
+        ButtonMask rotateButtonMask = ButtonMask::BUTTON_MASK_1;
 
         /// Button mask value used to enable panning of the view, defaults to middle mouse button
-        ButtonMask panButtonMask = BUTTON_MASK_2;
+        ButtonMask panButtonMask = ButtonMask::BUTTON_MASK_2;
 
         /// Button mask value used to enable zooming of the view, defaults to right mouse button
-        ButtonMask zoomButtonMask = BUTTON_MASK_3;
+        ButtonMask zoomButtonMask = ButtonMask::BUTTON_MASK_3;
 
         /// Scale for control how rapidly the view zooms in/out. Positive value zooms in when mouse moved downwards
         double zoomScale = 1.0;
