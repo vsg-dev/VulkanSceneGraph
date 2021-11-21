@@ -275,7 +275,7 @@ bool VSG::write(const vsg::Object* object, std::ostream& fout, ref_ptr<const Opt
 
 bool VSG::getFeatures(Features& features) const
 {
-    features.extensionFeatureMap["vsgb"] = static_cast<FeatureMask>(READ_FILENAME | READ_ISTREAM | READ_MEMORY | WRITE_FILENAME | WRITE_OSTREAM);
-    features.extensionFeatureMap["vsgt"] = static_cast<FeatureMask>(READ_FILENAME | READ_ISTREAM | READ_MEMORY | WRITE_FILENAME | WRITE_OSTREAM);
+    features.extensionFeatureMap["vsgb"] = static_cast<FeatureMask>(static_cast<uint8_t>(FeatureMask::READ_FILENAME) | static_cast<uint8_t>(FeatureMask::READ_ISTREAM) | static_cast<uint8_t>(FeatureMask::READ_MEMORY) | static_cast<uint8_t>(FeatureMask::WRITE_FILENAME) | static_cast<uint8_t>(FeatureMask::WRITE_OSTREAM));
+    features.extensionFeatureMap["vsgt"] = static_cast<FeatureMask>(static_cast<uint8_t>(FeatureMask::READ_FILENAME) | static_cast<uint8_t>(FeatureMask::READ_ISTREAM) | static_cast<uint8_t>(FeatureMask::READ_MEMORY) | static_cast<uint8_t>(FeatureMask::WRITE_FILENAME) | static_cast<uint8_t>(FeatureMask::WRITE_OSTREAM));
     return true;
 }

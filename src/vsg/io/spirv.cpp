@@ -94,6 +94,6 @@ bool spirv::write(const vsg::Object* object, const vsg::Path& filename, vsg::ref
 
 bool spirv::getFeatures(Features& features) const
 {
-    features.extensionFeatureMap["spv"] = static_cast<vsg::ReaderWriter::FeatureMask>(vsg::ReaderWriter::READ_FILENAME | vsg::ReaderWriter::WRITE_FILENAME);
+    features.extensionFeatureMap["spv"] = static_cast<vsg::ReaderWriter::FeatureMask>(static_cast<uint8_t>(vsg::ReaderWriter::FeatureMask::READ_FILENAME) | static_cast<uint8_t>(vsg::ReaderWriter::FeatureMask::WRITE_FILENAME));
     return true;
 }

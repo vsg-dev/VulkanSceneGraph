@@ -69,7 +69,7 @@ namespace vsg
         /// read the command line arguments for any options appropriate for this ReaderWriter
         virtual bool readOptions(Options&, CommandLine&) const { return false; }
 
-        enum FeatureMask
+        enum class FeatureMask : uint8_t
         {
             READ_FILENAME = (1 << 0),
             READ_ISTREAM = (1 << 1),
