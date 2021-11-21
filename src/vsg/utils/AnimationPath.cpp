@@ -35,11 +35,11 @@ AnimationPath::Location AnimationPath::computeLocation(double time) const
     // check for single entry in locations map
     if (locations.begin() == locations.rbegin().base()) return locations.begin()->second;
 
-    if (mode == REPEAT)
+    if (mode == Mode::REPEAT)
     {
         time = locations.begin()->first + std::fmod(time - locations.begin()->first, period());
     }
-    else if (mode == FORWARD_AND_BACK)
+    else if (mode == Mode::FORWARD_AND_BACK)
     {
         double p = period();
         double t = std::fmod(time - locations.begin()->first, p * 2.0);

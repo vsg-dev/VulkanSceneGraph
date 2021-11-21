@@ -24,7 +24,7 @@ namespace vsg
     class VSG_DECLSPEC AnimationPath : public Inherit<Object, AnimationPath>
     {
     public:
-        enum Mode
+        enum class Mode
         {
             ONCE,
             REPEAT,
@@ -38,7 +38,7 @@ namespace vsg
             dvec3 scale = {1.0, 1.0, 1.0};
         };
 
-        Mode mode = ONCE;
+        Mode mode = Mode::ONCE;
         std::map<double, Location> locations;
 
         void add(double time, const dvec3& position, const dquat& orientation = {}, const dvec3& scale = {1.0, 1.0, 1.0})
