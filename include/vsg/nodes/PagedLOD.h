@@ -89,7 +89,7 @@ namespace vsg
         mutable std::atomic_uint64_t frameHighResLastUsed{0};
         mutable std::atomic_uint requestCount{0};
 
-        enum RequestStatus : unsigned int
+        enum class RequestStatus : uint32_t
         {
             NoRequest = 0,
             ReadRequest = 1,
@@ -102,7 +102,7 @@ namespace vsg
             Deleting = 8
         };
 
-        mutable std::atomic<RequestStatus> requestStatus{NoRequest};
+        mutable std::atomic<RequestStatus> requestStatus{RequestStatus::NoRequest};
         mutable uint32_t index = 0;
 
         ref_ptr<Node> pending;

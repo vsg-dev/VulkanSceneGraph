@@ -186,7 +186,7 @@ void DatabasePager::start()
             if (plod)
             {
                 uint64_t frameDelta = databasePager.frameCount - plod->frameHighResLastUsed.load();
-                if (frameDelta > 1 || !compare_exchange(plod->requestStatus, PagedLOD::ReadRequest, PagedLOD::Reading))
+                if (frameDelta > 1 || !compare_exchange(plod->requestStatus, PagedLOD::RequestStatus::ReadRequest, PagedLOD::RequestStatus::Reading))
                 {
                     // std::cout<<"Expire read request"<<std::endl;
                     databasePager.requestDiscarded(plod);
@@ -199,7 +199,7 @@ void DatabasePager::start()
 
                 // std::cout<<"    finished reading "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
 
-                if (subgraph && compare_exchange(plod->requestStatus, PagedLOD::Reading, PagedLOD::CompileRequest))
+                if (subgraph && compare_exchange(plod->requestStatus, PagedLOD::RequestStatus::Reading, PagedLOD::RequestStatus::CompileRequest))
                 {
                     {
                         //std::cout<<"   assigned subgraph to plod"<<std::endl;
@@ -254,7 +254,7 @@ void DatabasePager::start()
             DatabaseQueue::Nodes nodesToCompile;
             for (auto& plod : nodesToCompileOrDelete)
             {
-                if (compare_exchange(plod->requestStatus, PagedLOD::DeleteRequest, PagedLOD::Deleting))
+                if (compare_exchange(plod->requestStatus, PagedLOD::RequestStatus::DeleteRequest, PagedLOD::RequestStatus::Deleting))
                 {
 #if REPORT_STATS
                     std::cout << "    from compile thread releasing subgraph for plod = " << plod << std::endl;
@@ -339,7 +339,7 @@ void DatabasePager::start()
                 DatabaseQueue::Nodes nodesCompiled;
                 for (auto& plod : nodesToCompile)
                 {
-                    if (compare_exchange(plod->requestStatus, PagedLOD::CompileRequest, PagedLOD::Compiling))
+                    if (compare_exchange(plod->requestStatus, PagedLOD::RequestStatus::CompileRequest, PagedLOD::RequestStatus::Compiling))
                     {
                         uint64_t frameDelta = databasePager.frameCount - plod->frameHighResLastUsed.load();
                         if (frameDelta <= 1)
@@ -404,7 +404,7 @@ void DatabasePager::start()
                         for (auto& plod : nodesCompiled)
                         {
                             plod->semaphore = ct->context.semaphore;
-                            plod->requestStatus.exchange(PagedLOD::MergeRequest);
+                            plod->requestStatus.exchange(PagedLOD::RequestStatus::MergeRequest);
                         }
                         toMergeQueue->add(nodesCompiled);
                     }
@@ -446,7 +446,7 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
     if (hasPending)
     {
         // std::cout<<"DatabasePager::request("<<plod.get()<<") has pending subgraphs to transfer to compile "<<plod->filename<<", "<<plod->priority<<" plod="<<plod.get()<<std::endl;
-        if (compare_exchange(plod->requestStatus, PagedLOD::NoRequest, PagedLOD::CompileRequest))
+        if (compare_exchange(plod->requestStatus, PagedLOD::RequestStatus::NoRequest, PagedLOD::RequestStatus::CompileRequest))
         {
             _compileQueue->add(plod);
         }
@@ -457,7 +457,7 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
     }
     else
     {
-        if (compare_exchange(plod->requestStatus, PagedLOD::NoRequest, PagedLOD::ReadRequest))
+        if (compare_exchange(plod->requestStatus, PagedLOD::RequestStatus::NoRequest, PagedLOD::RequestStatus::ReadRequest))
         {
             // std::cout<<"DatabasePager::request("<<plod.get()<<") adding to requeQueue "<<plod->filename<<", "<<plod->priority<<" plod="<<plod.get()<<std::endl;
             _requestQueue->add(plod);
@@ -474,7 +474,7 @@ void DatabasePager::requestDiscarded(PagedLOD* plod)
     //std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
     //plod->pending = nullptr;
     plod->requestCount.exchange(0);
-    plod->requestStatus.exchange(PagedLOD::NoRequest);
+    plod->requestStatus.exchange(PagedLOD::RequestStatus::NoRequest);
     --numActiveRequests;
 }
 
@@ -596,7 +596,7 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
                 auto& element = elements[index];
                 index = element.next;
 
-                if (compare_exchange(element.plod->requestStatus, PagedLOD::NoRequest, PagedLOD::DeleteRequest))
+                if (compare_exchange(element.plod->requestStatus, PagedLOD::RequestStatus::NoRequest, PagedLOD::RequestStatus::DeleteRequest))
                 {
                     // std::cout<<"    trimming "<<plod<<std::endl;
                     ref_ptr<PagedLOD> plod = element.plod;
@@ -640,7 +640,7 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
         //std::cout<<"DatabasePager::updateSceneGraph() nodes to merge : nodes.size() = "<<nodes.size()<<", "<<numActiveRequests.load()<<std::endl;
         for (auto& plod : nodes)
         {
-            if (compare_exchange(plod->requestStatus, PagedLOD::MergeRequest, PagedLOD::Merging))
+            if (compare_exchange(plod->requestStatus, PagedLOD::RequestStatus::MergeRequest, PagedLOD::RequestStatus::Merging))
             {
 #if DO_TIMING
                 if (frameCount.load() > 6)
@@ -669,7 +669,7 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
                     plod->semaphore = nullptr;
                 }
 
-                plod->requestStatus.exchange(PagedLOD::NoRequest);
+                plod->requestStatus.exchange(PagedLOD::RequestStatus::NoRequest);
             }
         }
         numActiveRequests -= static_cast<uint32_t>(nodes.size());
