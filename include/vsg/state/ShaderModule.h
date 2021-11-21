@@ -49,13 +49,13 @@ namespace vsg
     class VSG_DECLSPEC ShaderCompileSettings : public Inherit<Object, ShaderCompileSettings>
     {
     public:
-        enum Language
+        enum class Language
         {
             GLSL,
             HLSL
         };
 
-        enum SpirvTarget
+        enum class SpirvTarget
         {
             SPIRV_1_0 = (1 << 16),
             SPIRV_1_1 = (1 << 16) | (1 << 8),
@@ -67,9 +67,9 @@ namespace vsg
 
         uint32_t vulkanVersion = VK_API_VERSION_1_0;
         int clientInputVersion = 100;
-        Language language = GLSL;
+        Language language = Language::GLSL;
         int defaultVersion = 450;
-        SpirvTarget target = SPIRV_1_0;
+        SpirvTarget target = SpirvTarget::SPIRV_1_0;
         bool forwardCompatible = false;
         std::vector<std::string> defines;
 
