@@ -90,14 +90,14 @@ namespace vsg
         bool _hasFocus = false;
         bool _lastPointerEventWithinRenderArea = false;
 
-        enum UpdateMode
+        enum class UpdateMode
         {
             INACTIVE = 0,
             ROTATE,
             PAN,
             ZOOM
         };
-        UpdateMode _updateMode = INACTIVE;
+        UpdateMode _updateMode = UpdateMode::INACTIVE;
         double _zoomPreviousRatio = 0.0;
         dvec2 _pan;
         double _rotateAngle = 0.0;

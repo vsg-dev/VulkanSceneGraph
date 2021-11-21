@@ -124,13 +124,13 @@ void Trackball::apply(ButtonPressEvent& buttonPress)
     _lastPointerEventWithinRenderArea = _hasFocus;
 
     if (buttonPress.mask & BUTTON_MASK_1)
-        _updateMode = ROTATE;
+        _updateMode = UpdateMode::ROTATE;
     else if (buttonPress.mask & BUTTON_MASK_2)
-        _updateMode = PAN;
+        _updateMode = UpdateMode::PAN;
     else if (buttonPress.mask & BUTTON_MASK_3)
-        _updateMode = ZOOM;
+        _updateMode = UpdateMode::ZOOM;
     else
-        _updateMode = INACTIVE;
+        _updateMode = UpdateMode::INACTIVE;
 
     if (_hasFocus) buttonPress.handled = true;
 
@@ -186,7 +186,7 @@ void Trackball::apply(MoveEvent& moveEvent)
 
     if (moveEvent.mask & rotateButtonMask)
     {
-        _updateMode = ROTATE;
+        _updateMode = UpdateMode::ROTATE;
 
         moveEvent.handled = true;
 
@@ -206,7 +206,7 @@ void Trackball::apply(MoveEvent& moveEvent)
     }
     else if (moveEvent.mask & panButtonMask)
     {
-        _updateMode = PAN;
+        _updateMode = UpdateMode::PAN;
 
         moveEvent.handled = true;
 
@@ -218,7 +218,7 @@ void Trackball::apply(MoveEvent& moveEvent)
     }
     else if (moveEvent.mask & zoomButtonMask)
     {
-        _updateMode = ZOOM;
+        _updateMode = UpdateMode::ZOOM;
 
         moveEvent.handled = true;
 
@@ -350,13 +350,13 @@ void Trackball::apply(FrameEvent& frame)
         double scale = _previousDelta > 0.0 ? std::chrono::duration<double, std::chrono::seconds::period>(frame.time - _previousTime).count() / _previousDelta : 0.0;
         switch (_updateMode)
         {
-        case (ROTATE):
+        case (UpdateMode::ROTATE):
             rotate(_rotateAngle * scale, _rotateAxis);
             break;
-        case (PAN):
+        case (UpdateMode::PAN):
             pan(_pan * scale);
             break;
-        case (ZOOM):
+        case (UpdateMode::ZOOM):
             zoom(_zoomPreviousRatio * scale);
             break;
         default:
