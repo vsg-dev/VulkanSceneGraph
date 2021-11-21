@@ -275,7 +275,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
             }
             if (!binNumberMatched)
             {
-                Bin::SortOrder sortOrder = (binNumber < 0) ? Bin::ASCENDING : ((binNumber == 0) ? Bin::NO_SORT : Bin::DESCENDING);
+                Bin::SortOrder sortOrder = (binNumber < 0) ? Bin::SortOrder::ASCENDING : ((binNumber == 0) ? Bin::SortOrder::NO_SORT : Bin::SortOrder::DESCENDING);
                 view->bins.push_back(Bin::create(binNumber, sortOrder));
             }
         }

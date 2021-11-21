@@ -103,13 +103,13 @@ void Bin::traverse(RecordTraversal& rt) const
 
     switch (sortOrder)
     {
-    case (ASCENDING):
+    case (SortOrder::ASCENDING):
         std::sort(_binElements.begin(), _binElements.end(), [](const KeyIndex& lhs, const KeyIndex& rhs) { return lhs.first < rhs.first; });
         break;
-    case (DESCENDING):
+    case (SortOrder::DESCENDING):
         std::sort(_binElements.begin(), _binElements.end(), [](const KeyIndex& lhs, const KeyIndex& rhs) { return rhs.first < lhs.first; });
         break;
-    case (NO_SORT):
+    case (SortOrder::NO_SORT):
         break;
     }
 

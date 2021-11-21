@@ -21,7 +21,7 @@ namespace vsg
     class VSG_DECLSPEC Bin : public Inherit<Node, Bin>
     {
     public:
-        enum SortOrder
+        enum class SortOrder
         {
             NO_SORT,
             ASCENDING,
@@ -41,7 +41,7 @@ namespace vsg
         void add(State* state, double value, const Node* node);
 
         int32_t binNumber = 0;
-        SortOrder sortOrder = NO_SORT;
+        SortOrder sortOrder = SortOrder::NO_SORT;
 
     protected:
         virtual ~Bin();
