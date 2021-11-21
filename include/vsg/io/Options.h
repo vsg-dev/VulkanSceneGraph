@@ -56,13 +56,13 @@ namespace vsg
         ref_ptr<OperationThreads> operationThreads;
 
         /// Hint to use when searching for Paths with vsg::findFile(filename, options);
-        enum FindFileHint
+        enum class FindFileHint
         {
             CHECK_ORIGINAL_FILENAME_EXISTS_FIRST, /// check the filename exists with it's original path before trying to find it in Options::paths.
             CHECK_ORIGINAL_FILENAME_EXISTS_LAST,  /// check the filename exists with it's original path after failing to find it in Options::paths.
             ONLY_CHECK_PATHS                      /// only check the filename exists in the Options::paths
         };
-        FindFileHint checkFilenameHint = CHECK_ORIGINAL_FILENAME_EXISTS_FIRST;
+        FindFileHint checkFilenameHint = FindFileHint::CHECK_ORIGINAL_FILENAME_EXISTS_FIRST;
 
         Paths paths;
 

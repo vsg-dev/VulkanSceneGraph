@@ -205,13 +205,13 @@ Path vsg::findFile(const Path& filename, const Options* options)
         if (options->findFileCallback) return options->findFileCallback(filename, options);
 
         // if appropriate use the filename directly if it exists.
-        if (options->checkFilenameHint == Options::CHECK_ORIGINAL_FILENAME_EXISTS_FIRST && fileExists(filename)) return filename;
+        if (options->checkFilenameHint == Options::FindFileHint::CHECK_ORIGINAL_FILENAME_EXISTS_FIRST && fileExists(filename)) return filename;
 
         // search for the file if the in the specific paths.
         if (auto path = findFile(filename, options->paths); !path.empty()) return path;
 
         // if appropriate use the filename directly if it exists.
-        if (options->checkFilenameHint == Options::CHECK_ORIGINAL_FILENAME_EXISTS_LAST && fileExists(filename))
+        if (options->checkFilenameHint == Options::FindFileHint::CHECK_ORIGINAL_FILENAME_EXISTS_LAST && fileExists(filename))
             return filename;
         else
             return {};
