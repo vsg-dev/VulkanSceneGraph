@@ -124,17 +124,17 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
         {
             if (start_of_row >= textQuads.size()) return;
 
-            if (layout.glyphLayout == VERTICAL_LAYOUT)
+            if (layout.glyphLayout == GlyphLayout::VERTICAL_LAYOUT)
             {
-                if (layout.verticalAlignment == StandardLayout::BASELINE_ALIGNMENT) return;
+                if (layout.verticalAlignment == Alignment::BASELINE_ALIGNMENT) return;
             }
-            else if (layout.horizontalAlignment == StandardLayout::BASELINE_ALIGNMENT)
+            else if (layout.horizontalAlignment == Alignment::BASELINE_ALIGNMENT)
                 return;
 
             switch (layout.glyphLayout)
             {
-            case (LEFT_TO_RIGHT_LAYOUT):
-            case (RIGHT_TO_LEFT_LAYOUT): {
+            case (GlyphLayout::LEFT_TO_RIGHT_LAYOUT):
+            case (GlyphLayout::RIGHT_TO_LEFT_LAYOUT): {
                 float left = textQuads[start_of_row].vertices[0].x;
                 float right = textQuads[start_of_row].vertices[1].x;
                 for (size_t i = start_of_row + 1; i < textQuads.size(); ++i)
@@ -146,17 +146,17 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
                 float target = left;
                 switch (layout.horizontalAlignment)
                 {
-                case (BASELINE_ALIGNMENT):
-                case (LEFT_ALIGNMENT): target = left; break;
-                case (CENTER_ALIGNMENT): target = (right + left) * 0.5f; break;
-                case (RIGHT_ALIGNMENT): target = right; break;
+                case (Alignment::BASELINE_ALIGNMENT):
+                case (Alignment::LEFT_ALIGNMENT): target = left; break;
+                case (Alignment::CENTER_ALIGNMENT): target = (right + left) * 0.5f; break;
+                case (Alignment::RIGHT_ALIGNMENT): target = right; break;
                 }
 
                 vec3 offset(-(target - left), 0.0f, 0.0f);
                 translate(textQuads.begin() + start_of_row, textQuads.end(), offset);
                 break;
             }
-            case (VERTICAL_LAYOUT): {
+            case (GlyphLayout::VERTICAL_LAYOUT): {
                 float bottom = textQuads[start_of_row].vertices[0].y;
                 float top = textQuads[start_of_row].vertices[3].y;
                 for (size_t i = start_of_row + 1; i < textQuads.size(); ++i)
@@ -167,10 +167,10 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
                 float target = top;
                 switch (layout.verticalAlignment)
                 {
-                case (BASELINE_ALIGNMENT):
-                case (TOP_ALIGNMENT): target = top; break;
-                case (CENTER_ALIGNMENT): target = (top + bottom) * 0.5f; break;
-                case (BOTTOM_ALIGNMENT): target = bottom; break;
+                case (Alignment::BASELINE_ALIGNMENT):
+                case (Alignment::TOP_ALIGNMENT): target = top; break;
+                case (Alignment::CENTER_ALIGNMENT): target = (top + bottom) * 0.5f; break;
+                case (Alignment::BOTTOM_ALIGNMENT): target = bottom; break;
                 }
 
                 vec3 offset(0.0f, -(target - top), 0.0f);
@@ -186,7 +186,7 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
 
             vec3 offset(0.0f, 0.0f, 0.0f);
 
-            if (layout.horizontalAlignment != BASELINE_ALIGNMENT || layout.verticalAlignment != BASELINE_ALIGNMENT)
+            if (layout.horizontalAlignment != Alignment::BASELINE_ALIGNMENT || layout.verticalAlignment != Alignment::BASELINE_ALIGNMENT)
             {
                 float left = textQuads[start_of_row].vertices[0].x;
                 float right = textQuads[start_of_row].vertices[1].x;
@@ -202,18 +202,18 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
 
                 switch (layout.horizontalAlignment)
                 {
-                case (BASELINE_ALIGNMENT): offset.x = 0.0f; break;
-                case (LEFT_ALIGNMENT): offset.x = -left; break;
-                case (CENTER_ALIGNMENT): offset.x = -(right + left) * 0.5f; break;
-                case (RIGHT_ALIGNMENT): offset.x = -right; break;
+                case (Alignment::BASELINE_ALIGNMENT): offset.x = 0.0f; break;
+                case (Alignment::LEFT_ALIGNMENT): offset.x = -left; break;
+                case (Alignment::CENTER_ALIGNMENT): offset.x = -(right + left) * 0.5f; break;
+                case (Alignment::RIGHT_ALIGNMENT): offset.x = -right; break;
                 }
 
                 switch (layout.verticalAlignment)
                 {
-                case (BASELINE_ALIGNMENT): offset.y = 0.0f; break;
-                case (TOP_ALIGNMENT): offset.y = -top; break;
-                case (CENTER_ALIGNMENT): offset.y = -(bottom + top) * 0.5f; break;
-                case (BOTTOM_ALIGNMENT): offset.y = -bottom; break;
+                case (Alignment::BASELINE_ALIGNMENT): offset.y = 0.0f; break;
+                case (Alignment::TOP_ALIGNMENT): offset.y = -top; break;
+                case (Alignment::CENTER_ALIGNMENT): offset.y = -(bottom + top) * 0.5f; break;
+                case (Alignment::BOTTOM_ALIGNMENT): offset.y = -bottom; break;
                 }
             }
 
@@ -237,11 +237,11 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
                 // newline
                 switch (layout.glyphLayout)
                 {
-                case (LEFT_TO_RIGHT_LAYOUT):
-                case (RIGHT_TO_LEFT_LAYOUT):
+                case (GlyphLayout::LEFT_TO_RIGHT_LAYOUT):
+                case (GlyphLayout::RIGHT_TO_LEFT_LAYOUT):
                     row_position.y -= 1.0f;
                     break;
-                case (VERTICAL_LAYOUT):
+                case (GlyphLayout::VERTICAL_LAYOUT):
                     row_position.x += 1.0f;
                     break;
                 }
@@ -257,13 +257,13 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
 
                     switch (layout.glyphLayout)
                     {
-                    case (LEFT_TO_RIGHT_LAYOUT):
+                    case (GlyphLayout::LEFT_TO_RIGHT_LAYOUT):
                         pen_position.x += glyph.horiAdvance;
                         break;
-                    case (RIGHT_TO_LEFT_LAYOUT):
+                    case (GlyphLayout::RIGHT_TO_LEFT_LAYOUT):
                         pen_position.x -= glyph.horiAdvance;
                         break;
-                    case (VERTICAL_LAYOUT):
+                    case (GlyphLayout::VERTICAL_LAYOUT):
                         pen_position.y -= glyph.vertAdvance;
                         break;
                     }
@@ -272,13 +272,13 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
                 {
                     switch (layout.glyphLayout)
                     {
-                    case (LEFT_TO_RIGHT_LAYOUT):
+                    case (GlyphLayout::LEFT_TO_RIGHT_LAYOUT):
                         pen_position.x += 1.0f;
                         break;
-                    case (RIGHT_TO_LEFT_LAYOUT):
+                    case (GlyphLayout::RIGHT_TO_LEFT_LAYOUT):
                         pen_position.x -= 1.0f;
                         break;
-                    case (VERTICAL_LAYOUT):
+                    case (GlyphLayout::VERTICAL_LAYOUT):
                         pen_position.y -= 1.0f;
                         break;
                     }
@@ -295,13 +295,13 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
                 vec3 local_origin = pen_position;
                 switch (layout.glyphLayout)
                 {
-                case (LEFT_TO_RIGHT_LAYOUT):
+                case (GlyphLayout::LEFT_TO_RIGHT_LAYOUT):
                     local_origin += vec3(glyph.horiBearingX, glyph.horiBearingY - glyph.height, 0.0f);
                     break;
-                case (RIGHT_TO_LEFT_LAYOUT):
+                case (GlyphLayout::RIGHT_TO_LEFT_LAYOUT):
                     local_origin += vec3(-glyph.width + glyph.horiBearingX, glyph.horiBearingY - glyph.height, 0.0f);
                     break;
-                case (VERTICAL_LAYOUT):
+                case (GlyphLayout::VERTICAL_LAYOUT):
                     local_origin += vec3(glyph.vertBearingX, glyph.vertBearingY - glyph.height, 0.0f);
                     break;
                 }
@@ -339,13 +339,13 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
 
                 switch (layout.glyphLayout)
                 {
-                case (LEFT_TO_RIGHT_LAYOUT):
+                case (GlyphLayout::LEFT_TO_RIGHT_LAYOUT):
                     pen_position.x += glyph.horiAdvance;
                     break;
-                case (RIGHT_TO_LEFT_LAYOUT):
+                case (GlyphLayout::RIGHT_TO_LEFT_LAYOUT):
                     pen_position.x -= glyph.horiAdvance;
                     break;
-                case (VERTICAL_LAYOUT):
+                case (GlyphLayout::VERTICAL_LAYOUT):
                     pen_position.y -= glyph.vertAdvance;
                     break;
                 }

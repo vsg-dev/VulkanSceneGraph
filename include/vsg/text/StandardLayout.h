@@ -24,7 +24,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        enum Alignment
+        enum class Alignment
         {
             BASELINE_ALIGNMENT,
             LEFT_ALIGNMENT,
@@ -34,16 +34,16 @@ namespace vsg
             BOTTOM_ALIGNMENT = RIGHT_ALIGNMENT
         };
 
-        enum GlyphLayout
+        enum class GlyphLayout
         {
             LEFT_TO_RIGHT_LAYOUT,
             RIGHT_TO_LEFT_LAYOUT,
             VERTICAL_LAYOUT
         };
 
-        Alignment horizontalAlignment = BASELINE_ALIGNMENT;
-        Alignment verticalAlignment = BASELINE_ALIGNMENT;
-        GlyphLayout glyphLayout = LEFT_TO_RIGHT_LAYOUT;
+        Alignment horizontalAlignment = Alignment::BASELINE_ALIGNMENT;
+        Alignment verticalAlignment = Alignment::BASELINE_ALIGNMENT;
+        GlyphLayout glyphLayout = GlyphLayout::LEFT_TO_RIGHT_LAYOUT;
         vec3 position = vec3(0.0f, 0.0f, 0.0f);
         vec3 horizontal = vec3(1.0f, 0.0f, 0.0f);
         vec3 vertical = vec3(0.0f, 1.0f, 0.0f);
