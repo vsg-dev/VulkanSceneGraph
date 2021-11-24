@@ -31,7 +31,7 @@ namespace vsg
     public:
         static Extensions* Get(Device* device, bool createIfNotInitalized);
 
-        Extensions(Device* device);
+        explicit Extensions(Device* device);
 
         // VK_KHR_ray_tracing
         PFN_vkCreateAccelerationStructureKHR vkCreateAccelerationStructureKHR = nullptr;

@@ -14,6 +14,7 @@ invalidPointerCast:*/include/vsg/core/Array3D.h
 useStlAlgorithm:*/include/vsg/core/Array.h
 useStlAlgorithm:*/include/vsg/core/Array2D.h
 useStlAlgorithm:*/include/vsg/core/Array3D.h
+useStlAlgorithm:*/src/vsg/io/VSG.cpp
 
 // suppress C union Key related false positives
 unusedStructMember:*include/vsg/introspection/c_interface.h
@@ -44,6 +45,9 @@ unusedStructMember:*include/vsg/nodes/PagedLOD.h
 unusedStructMember:*include/vsg/traversals/ArrayState.h
 unusedStructMember:*include/vsg/traversals/LineSegmentIntersector.h
 unusedStructMember:*include/vsg/viewer/Trackball.h
+unusedStructMember:*include/vsg/vk/ResourceRequirements.h
+unusedStructMember:*include/vsg/vk/Device.h
+unusedStructMember:*include/vsg/vk/Swapchain.h
 
 // suppress inappropriate warning about unitialized variable
 uninitvar:*include/vsg/vk/DeviceFeatures.h

@@ -51,15 +51,15 @@ namespace vsg
         PolytopeStack _frustumStack;
         Paths _pathStack;
 
-        inline std::pair<double, double> computeDistanceAndRF(dsphere& bs) const
+        inline std::pair<double, double> computeDistanceAndRF(const dsphere& bs) const
         {
             const auto& proj = projectionMatrixStack.top();
             const auto& mv = modelviewMatrixStack.top();
             auto f = -proj[1][1];
 
-            auto distance = std::abs(mv[0][2] * bs.x + mv[1][2] * bs.y + mv[2][2] * bs.z + mv[3][2]);
+            auto dist = std::abs(mv[0][2] * bs.x + mv[1][2] * bs.y + mv[2][2] * bs.z + mv[3][2]);
             auto rf = bs.r * f;
-            return {distance, rf};
+            return {dist, rf};
         }
 
         void pushFrustum();
