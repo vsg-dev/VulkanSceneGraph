@@ -27,7 +27,7 @@ namespace vsg
         RenderGraph();
 
         /// Construct RenderGraph assigning window and setting up clearValues with the appropriate settings for the Window's attachments and color.
-        RenderGraph(ref_ptr<Window> in_window, ref_ptr<View> view = {});
+        explicit RenderGraph(ref_ptr<Window> in_window, ref_ptr<View> view = {});
 
         using Group::accept;
 
