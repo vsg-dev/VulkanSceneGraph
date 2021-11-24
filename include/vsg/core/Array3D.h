@@ -193,6 +193,27 @@ namespace vsg
             _storage = nullptr;
         }
 
+        Array3D& operator = (const Array3D& rhs)
+        {
+            if (&rhs == this) return *this;
+
+            clear();
+
+            _layout = rhs._layout;
+            _width = rhs._width;
+            _height = rhs._height;
+            _depth = rhs._depth;
+
+            if (_width != 0 && _height != 0 && _depth != 0)
+            {
+                _data = new value_type[_width * _height * _depth];
+                auto dest_v = _data;
+                for(auto& v : rhs) *(dest_v++) = v;
+            }
+
+            return *this;
+        }
+
         void assign(uint32_t width, uint32_t height, uint32_t depth, value_type* data, Layout layout = Layout())
         {
             _delete();
