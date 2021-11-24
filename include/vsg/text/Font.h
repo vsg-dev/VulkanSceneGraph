@@ -47,7 +47,7 @@ namespace vsg
         /// Wrapper for Font GPU state.
         struct VSG_DECLSPEC FontState : public Inherit<Object, FontState>
         {
-            FontState(Font* font);
+            explicit FontState(Font* font);
             bool match() const { return true; }
 
             ref_ptr<DescriptorImage> textureAtlas;

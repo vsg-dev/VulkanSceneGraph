@@ -31,7 +31,7 @@ namespace vsg
     class VSG_DECLSPEC BuildAccelerationStructureTraversal : public Visitor
     {
     public:
-        BuildAccelerationStructureTraversal(Device* in_device);
+        explicit BuildAccelerationStructureTraversal(Device* in_device);
 
         void apply(Object& object) override;
         void apply(Transform& transfom) override;

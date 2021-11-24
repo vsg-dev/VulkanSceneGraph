@@ -28,7 +28,7 @@ namespace vsg
     class VSG_DECLSPEC OperationQueue : public Inherit<Object, OperationQueue>
     {
     public:
-        OperationQueue(ref_ptr<ActivityStatus> status);
+        explicit OperationQueue(ref_ptr<ActivityStatus> status);
 
         ActivityStatus* getStatus() { return _status; }
         const ActivityStatus* getStatus() const { return _status; }

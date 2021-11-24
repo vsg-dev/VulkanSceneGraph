@@ -22,7 +22,7 @@ namespace vsg
     class VSG_DECLSPEC OperationThreads : public Inherit<Object, OperationThreads>
     {
     public:
-        OperationThreads(uint32_t numThreads, ref_ptr<ActivityStatus> in_status = {});
+        explicit OperationThreads(uint32_t numThreads, ref_ptr<ActivityStatus> in_status = {});
         OperationThreads(const OperationThreads&) = delete;
         OperationThreads& operator=(const OperationThreads& rhs) = delete;
 

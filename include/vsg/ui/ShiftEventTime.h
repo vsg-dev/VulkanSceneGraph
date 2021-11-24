@@ -24,7 +24,7 @@ namespace vsg
     class VSG_DECLSPEC ShiftEventTime : public vsg::Inherit<vsg::Visitor, ShiftEventTime>
     {
     public:
-        ShiftEventTime(vsg::clock::time_point::duration in_delta);
+        explicit ShiftEventTime(vsg::clock::time_point::duration in_delta);
 
         vsg::clock::time_point::duration delta;
 

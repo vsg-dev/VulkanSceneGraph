@@ -25,7 +25,7 @@ namespace vsg
     public:
         View();
 
-        View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph = {});
+        explicit View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph = {});
 
         template<class N, class V>
         static void t_accept(N& node, V& visitor)

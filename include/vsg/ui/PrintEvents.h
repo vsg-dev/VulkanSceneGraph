@@ -20,7 +20,7 @@ namespace vsg
     class VSG_DECLSPEC PrintEvents : public Inherit<Visitor, PrintEvents>
     {
     public:
-        PrintEvents(clock::time_point in_start_point);
+        explicit PrintEvents(clock::time_point in_start_point);
         PrintEvents(std::ostream& out, clock::time_point in_start_point);
 
         std::ostream& output;

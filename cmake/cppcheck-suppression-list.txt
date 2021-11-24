@@ -38,6 +38,16 @@ unusedStructMember:*include/vsg/core/Data.h
 unusedStructMember:*include/vsg/core/Exception.h
 unusedStructMember:*include/vsg/core/Version.h
 unusedStructMember:*include/vsg/io/ObjectCache.h
+unusedStructMember:*include/vsg/nodes/Bin.h
+unusedStructMember:*include/vsg/nodes/LOD.h
+unusedStructMember:*include/vsg/nodes/PagedLOD.h
+unusedStructMember:*include/vsg/traversals/ArrayState.h
+unusedStructMember:*include/vsg/traversals/LineSegmentIntersector.h
+unusedStructMember:*include/vsg/viewer/Trackball.h
 
 // suppress inappropriate warning about unitialized variable
 uninitvar:*include/vsg/vk/DeviceFeatures.h
+
+
+// suppress inappropriate warning about out of bounds
+arrayIndexOutOfBounds:*include/vsg/vk/State.h

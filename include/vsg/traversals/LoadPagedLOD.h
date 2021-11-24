@@ -24,7 +24,7 @@ namespace vsg
     class VSG_DECLSPEC LoadPagedLOD : public vsg::Visitor
     {
     public:
-        LoadPagedLOD(ref_ptr<Camera> in_camera, int in_loadLevels = 30);
+        explicit LoadPagedLOD(ref_ptr<Camera> in_camera, int in_loadLevels = 30);
 
         void apply(Node& node) override;
         void apply(CullNode& node) override;

@@ -29,7 +29,7 @@ namespace vsg
     {
     public:
         CommandGraph(Device* in_device, int family);
-        CommandGraph(Window* in_window);
+        explicit CommandGraph(Window* in_window);
 
         // settings, configure at construction time
         ref_ptr<Window> window;
