@@ -21,7 +21,7 @@ namespace vsg
     class VSG_DECLSPEC Event : public Inherit<Object, Event>
     {
     public:
-        Event(Device* device, VkEventCreateFlags flags = 0);
+        explicit Event(Device* device, VkEventCreateFlags flags = 0);
 
         operator VkEvent() const { return _event; }
         VkEvent vk() const { return _event; }

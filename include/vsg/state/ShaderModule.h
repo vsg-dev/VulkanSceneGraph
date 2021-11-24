@@ -84,8 +84,8 @@ namespace vsg
         using SPIRV = std::vector<uint32_t>;
 
         ShaderModule();
-        ShaderModule(const std::string& in_source, ref_ptr<ShaderCompileSettings> in_hints = {});
-        ShaderModule(const SPIRV& in_code);
+        explicit ShaderModule(const std::string& in_source, ref_ptr<ShaderCompileSettings> in_hints = {});
+        explicit ShaderModule(const SPIRV& in_code);
         ShaderModule(const std::string& source, const SPIRV& in_code);
 
         std::string source;

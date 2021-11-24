@@ -52,7 +52,7 @@ namespace vsg
             {
                 _data = new value_type[_width * _height];
                 auto dest_v = _data;
-                for(auto& v : rhs) *(dest_v++) = v;
+                for (auto& v : rhs) *(dest_v++) = v;
             }
         }
 
@@ -107,23 +107,23 @@ namespace vsg
 
             Data::read(input);
 
-            uint32_t width = input.readValue<uint32_t>("Width");
-            uint32_t height = input.readValue<uint32_t>("Height");
+            uint32_t w = input.readValue<uint32_t>("Width");
+            uint32_t h = input.readValue<uint32_t>("Height");
 
             if (input.version_greater_equal(0, 0, 1))
             {
-                auto storage = input.readObject<Data>("Storage");
-                if (storage)
+                auto data_storage = input.readObject<Data>("Storage");
+                if (data_storage)
                 {
                     uint32_t offset = input.readValue<uint32_t>("Offset");
-                    assign(storage, offset, _layout.stride, width, height, _layout);
+                    assign(data_storage, offset, _layout.stride, w, h, _layout);
                     return;
                 }
             }
 
             if (input.matchPropertyName("Data"))
             {
-                std::size_t new_size = computeValueCountIncludingMipmaps(width, height, 1, _layout.maxNumMipmaps);
+                std::size_t new_size = computeValueCountIncludingMipmaps(w, h, 1, _layout.maxNumMipmaps);
 
                 if (_data) // if data already may be able to reuse it
                 {
@@ -139,8 +139,8 @@ namespace vsg
                 }
 
                 _layout.stride = sizeof(value_type);
-                _width = width;
-                _height = height;
+                _width = w;
+                _height = h;
                 _storage = nullptr;
 
                 input.read(new_size, _data);
@@ -184,7 +184,7 @@ namespace vsg
             _storage = nullptr;
         }
 
-        Array2D& operator = (const Array2D& rhs)
+        Array2D& operator=(const Array2D& rhs)
         {
             if (&rhs == this) return *this;
 
@@ -198,7 +198,7 @@ namespace vsg
             {
                 _data = new value_type[_width * _height];
                 auto dest_v = _data;
-                for(auto& v : rhs) *(dest_v++) = v;
+                for (auto& v : rhs) *(dest_v++) = v;
             }
 
             return *this;

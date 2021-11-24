@@ -28,7 +28,7 @@ namespace vsg
     public:
         BindIndexBuffer() {}
 
-        BindIndexBuffer(ref_ptr<Data> in_indices);
+        explicit BindIndexBuffer(ref_ptr<Data> in_indices);
 
         ref_ptr<BufferInfo> indices;
 

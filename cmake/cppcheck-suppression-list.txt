@@ -1,6 +1,19 @@
 // suppress Key related errors
 noExplicitConstructor:*include/vsg/core/ref_ptr.h:33
 noExplicitConstructor:*include/vsg/core/ref_ptr.h:40
+noExplicitConstructor:*include/vsg/core/ref_ptr.h:40
+noExplicitConstructor:*include/vsg/core/Inherit.h:37
+
+// suppress correct casts flagged as issues
+invalidPointerCast:*/include/vsg/core/Data.h
+invalidPointerCast:*/include/vsg/core/Array.h
+invalidPointerCast:*/include/vsg/core/Array2D.h
+invalidPointerCast:*/include/vsg/core/Array3D.h
+
+// suppress inappropriate stl algorithm suggestions
+useStlAlgorithm:*/include/vsg/core/Array.h
+useStlAlgorithm:*/include/vsg/core/Array2D.h
+useStlAlgorithm:*/include/vsg/core/Array3D.h
 
 // suppress C union Key related false positives
 unusedStructMember:*include/vsg/introspection/c_interface.h
@@ -21,7 +34,9 @@ syntaxError:*include/vsg/utils/CommandLine.h
 syntaxError:*include/vsg/core/Data.h:51
 
 // suppress warnings about never used variables that are used in .cpp's
-unusedStructMember:include/vsg/core/Data.h
-unusedStructMember:include/vsg/core/Exception.h
-unusedStructMember:include/vsg/core/Version.h
+unusedStructMember:*include/vsg/core/Data.h
+unusedStructMember:*include/vsg/core/Exception.h
+unusedStructMember:*include/vsg/core/Version.h
 
+// suppress inappropriate warning about unitialized variable
+uninitvar:*include/vsg/vk/DeviceFeatures.h
