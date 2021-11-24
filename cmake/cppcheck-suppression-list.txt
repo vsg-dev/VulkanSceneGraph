@@ -15,6 +15,7 @@ useStlAlgorithm:*/include/vsg/core/Array.h
 useStlAlgorithm:*/include/vsg/core/Array2D.h
 useStlAlgorithm:*/include/vsg/core/Array3D.h
 useStlAlgorithm:*/src/vsg/io/VSG.cpp
+useStlAlgorithm:*/src/vsg/commands/BindVertexBuffers.cpp
 
 // suppress the warning about valid C++17 if (init; condition) usage
 syntaxError:*include/vsg/core/Inherit.h
@@ -48,6 +49,7 @@ unusedStructMember:*include/vsg/vk/Swapchain.h
 unusedStructMember:*include/vsg/nodes/Switch.h
 unusedStructMember:*include/vsg/text/TextLayout.h
 unusedStructMember:*include/vsg/introspection/c_interface.h
+unusedStructMember:*src/vsg/core/External.cpp
 
 // suppress inappropriate warning about unitialized variable
 uninitvar:*include/vsg/vk/DeviceFeatures.h

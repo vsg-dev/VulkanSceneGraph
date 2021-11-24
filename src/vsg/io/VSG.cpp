@@ -44,9 +44,9 @@ static VsgVersion parseVersion(std::string version_string)
     return version;
 }
 
-VSG::VSG()
+VSG::VSG():
+    _objectFactory(ObjectFactory::instance())
 {
-    _objectFactory = ObjectFactory::instance();
 }
 
 VSG::FormatInfo VSG::readHeader(std::istream& fin) const
