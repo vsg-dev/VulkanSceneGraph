@@ -129,7 +129,7 @@ void Intersector::apply(const VertexIndexDraw& vid)
 
     PushPopNode ppn(_nodePath, &vid);
 
-    sphere bound;
+    dsphere bound;
     if (!vid.getValue("bound", bound))
     {
         box bb;

@@ -58,6 +58,10 @@ namespace vsg
             set(from, to);
         }
 
+        template<typename R>
+        constexpr explicit t_quat(const t_quat<R>& v) :
+            value{static_cast<T>(v.x), static_cast<T>(v.y), static_cast<T>(v.z), static_cast<T>(v.w)} {}
+
         constexpr std::size_t size() const { return 4; }
 
         value_type& operator[](std::size_t i) { return value[i]; }

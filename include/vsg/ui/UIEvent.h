@@ -29,7 +29,7 @@ namespace vsg
     public:
         UIEvent() {}
 
-        UIEvent(time_point in_time) :
+        explicit UIEvent(time_point in_time) :
             time(in_time) {}
 
         time_point time = {};
