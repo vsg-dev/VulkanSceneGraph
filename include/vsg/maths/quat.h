@@ -113,10 +113,10 @@ namespace vsg
         {
             const value_type epsilon = 1e-7;
 
-            value_type dot = vsg::dot(from, to);
+            value_type dot_pd = vsg::dot(from, to);
             value_type div = std::sqrt(length2(from) * length2(to));
             vsg::dvec3 axis;
-            if (div - dot < epsilon)
+            if (div - dot_pd < epsilon)
             {
                 axis = orthogonal(from);
             }
@@ -127,7 +127,7 @@ namespace vsg
 
             value_type len = length(axis);
 
-            double angle_radians = acos(dot / div);
+            double angle_radians = acos(dot_pd / div);
 
             value_type inversenorm = 1.0 / len;
             value_type coshalfangle = cos(0.5 * angle_radians);

@@ -62,7 +62,7 @@ namespace vsg
     public:
         Context();
 
-        Context(Device* in_device, const ResourceRequirements& resourceRequirements = {});
+        explicit Context(Device* in_device, const ResourceRequirements& resourceRequirements = {});
 
         Context(const Context& context);
 

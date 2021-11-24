@@ -23,7 +23,7 @@ namespace vsg
     public:
         DescriptorAccelerationStructure();
 
-        DescriptorAccelerationStructure(const AccelerationStructures& accelerationStructures, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR);
+        explicit DescriptorAccelerationStructure(const AccelerationStructures& accelerationStructures, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR);
 
         AccelerationStructures& getAccelerationStructures() { return _accelerationStructures; }
         const AccelerationStructures& getAccelerationStructures() const { return _accelerationStructures; }

@@ -37,6 +37,7 @@ syntaxError:*include/vsg/core/Data.h:51
 unusedStructMember:*include/vsg/core/Data.h
 unusedStructMember:*include/vsg/core/Exception.h
 unusedStructMember:*include/vsg/core/Version.h
+unusedStructMember:*include/vsg/io/ObjectCache.h
 
 // suppress inappropriate warning about unitialized variable
 uninitvar:*include/vsg/vk/DeviceFeatures.h
