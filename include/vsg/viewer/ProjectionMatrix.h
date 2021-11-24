@@ -54,7 +54,7 @@ namespace vsg
         {
         }
 
-        virtual dmat4 transform() const override { return perspective(radians(fieldOfViewY), aspectRatio, nearDistance, farDistance); }
+        dmat4 transform() const override { return perspective(radians(fieldOfViewY), aspectRatio, nearDistance, farDistance); }
 
         void changeExtent(const VkExtent2D&, const VkExtent2D& newExtent) override
         {
@@ -91,7 +91,7 @@ namespace vsg
         {
         }
 
-        virtual dmat4 transform() const override { return orthographic(left, right, bottom, top, nearDistance, farDistance); }
+        dmat4 transform() const override { return orthographic(left, right, bottom, top, nearDistance, farDistance); }
 
         void changeExtent(const VkExtent2D& prevExtent, const VkExtent2D& newExtent) override
         {
@@ -119,7 +119,7 @@ namespace vsg
         {
         }
 
-        virtual dmat4 transform() const override
+        dmat4 transform() const override
         {
             return matrix * projectionMatrix->transform();
         }
@@ -158,7 +158,7 @@ namespace vsg
         {
         }
 
-        virtual dmat4 transform() const override
+        dmat4 transform() const override
         {
             // std::cout<<"camera eye : "<<lookAt->eye<<", "<<ellipsoidModel->convertECEVToLatLongHeight(lookAt->eye)<<std::endl;
             vsg::dvec3 v = lookAt->eye;

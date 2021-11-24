@@ -135,7 +135,7 @@ ShaderCompiler* Context::getOrCreateShaderCompiler()
     if (shaderCompiler) return shaderCompiler;
 
 #ifdef HAS_GLSLANG
-    shaderCompiler = new ShaderCompiler;
+    shaderCompiler = ShaderCompiler::create();
 
     if (device && device->getInstance())
     {

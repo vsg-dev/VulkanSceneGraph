@@ -143,6 +143,8 @@ void Trackball::apply(ButtonPressEvent& buttonPress)
 
 void Trackball::apply(ButtonReleaseEvent& buttonRelease)
 {
+    if (buttonRelease.handled) return;
+
     if (supportsThrow) _thrown = _previousPointerEvent && (buttonRelease.time == _previousPointerEvent->time);
 
     _lastPointerEventWithinRenderArea = withinRenderArea(buttonRelease.x, buttonRelease.y);
