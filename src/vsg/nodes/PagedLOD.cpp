@@ -376,7 +376,7 @@ void PagedLODContainer::remove(PagedLOD* plod)
 #endif
 }
 
-bool PagedLODContainer::check(List& list)
+bool PagedLODContainer::check(const List& list)
 {
     if (list.head == 0)
     {
