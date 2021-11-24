@@ -43,6 +43,21 @@ namespace vsg
             _height(0),
             _depth(0) {}
 
+        Array3D(const Array3D& rhs) :
+            Data(rhs._layout, sizeof(value_type)),
+            _data(nullptr),
+            _width(rhs._width),
+            _height(rhs._height),
+            _depth(rhs._depth)
+        {
+            if (_width != 0 && _height != 0 && _depth != 0)
+            {
+                _data = new value_type[_width * _height * _depth];
+                auto dest_v = _data;
+                for(auto& v : rhs) *(dest_v++) = v;
+            }
+        }
+
         Array3D(uint32_t width, uint32_t height, uint32_t depth, Layout layout = {}) :
             Data(layout, sizeof(value_type)),
             _data(new value_type[width * height * depth]),
@@ -269,7 +284,7 @@ namespace vsg
         value_type& at(uint32_t i, uint32_t j, uint32_t k) { return *data(index(i, j, k)); }
         const value_type& at(uint32_t i, uint32_t j, uint32_t k) const { return *data(index(i, j, k)); }
 
-        void set(std::size_t i, const value_type& v) { data(i) = v; }
+        void set(std::size_t i, const value_type& v) { *data(i) = v; }
         void set(uint32_t i, uint32_t j, uint32_t k, const value_type& v) { *data(index(i, j, k)) = v; }
 
         Data* storage() { return _storage; }

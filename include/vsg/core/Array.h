@@ -42,6 +42,19 @@ namespace vsg
             _data(nullptr),
             _size(0) {}
 
+        Array(const Array& rhs) :
+            Data(rhs._layout, sizeof(value_type)),
+            _data(nullptr),
+            _size(rhs._size)
+        {
+            if (_size != 0)
+            {
+                _data = new value_type[_size];
+                auto dest_v = _data;
+                for(auto& v : rhs) *(dest_v++) = v;
+            }
+        }
+
         explicit Array(uint32_t numElements, Layout layout = {}) :
             Data(layout, sizeof(value_type)),
             _data(new value_type[numElements]),
