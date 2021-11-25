@@ -272,7 +272,6 @@ void Context::waitForCompletion()
     {
         std::cout << "Context::waitForCompletion()  " << this << " fence->wait() failed with error. VkResult = " << result << std::endl;
     }
-}
 
     commands.clear();
     copyImageCmd = nullptr;
