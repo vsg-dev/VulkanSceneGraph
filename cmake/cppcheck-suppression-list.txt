@@ -20,6 +20,11 @@ useStlAlgorithm:*/src/vsg/nodes/Geometry.cpp
 useStlAlgorithm:*/src/vsg/nodes/VertexIndexDraw.cpp
 useStlAlgorithm:*/src/vsg/state/DescriptorBuffer.cpp
 useStlAlgorithm:*/src/vsg/state/PipelineLayout.cpp
+useStlAlgorithm:*/src/vsg/threading/Affinity.cpp
+useStlAlgorithm:*/src/vsg/traversals/Intersector.cpp
+useStlAlgorithm:*/src/vsg/viewer/Presentation.cpp
+useStlAlgorithm:*/src/vsg/viewer/ExecuteCommands.cpp
+useStlAlgorithm:*/src/vsg/viewer/RecordAndSubmitTask.cpp
 
 // suppress the warning about valid C++17 if (init; condition) usage
 syntaxError:*include/vsg/core/Inherit.h
@@ -58,6 +63,8 @@ unusedStructMember:*src/vsg/core/External.cpp
 // suppress inappropriate warning about unitialized variable
 uninitvar:*include/vsg/vk/DeviceFeatures.h
 
-
 // suppress inappropriate warning about out of bounds
 arrayIndexOutOfBounds:*include/vsg/vk/State.h
+
+// suppress warnings about intentional code usage
+knownConditionTrueFalse:*/src/vsg/utils/Builder.cpp

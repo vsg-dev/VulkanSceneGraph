@@ -179,7 +179,7 @@ void LineSegmentIntersector::pushTransform(const Transform& transform)
 
     _matrixStack.push_back(localToWorld);
 
-    auto& worldLineSegment = _lineSegmentStack.front();
+    const auto& worldLineSegment = _lineSegmentStack.front();
     _lineSegmentStack.push_back(LineSegment{worldToLocal * worldLineSegment.start, worldToLocal * worldLineSegment.end});
 }
 
@@ -225,10 +225,10 @@ bool LineSegmentIntersector::intersects(const dsphere& bs)
 
 bool LineSegmentIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertexCount)
 {
-    auto& arrayState = arrayStateStack.back();
+    const auto& arrayState = arrayStateStack.back();
     if (!arrayState.vertices || arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || vertexCount == 0) return false;
 
-    auto& ls = _lineSegmentStack.back();
+    const auto& ls = _lineSegmentStack.back();
 
     TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, arrayState.vertices);
     if (!triIntsector.vertices) return false;
@@ -249,7 +249,7 @@ bool LineSegmentIntersector::intersectDrawIndexed(uint32_t firstIndex, uint32_t 
     auto& arrayState = arrayStateStack.back();
     if (!arrayState.vertices || arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || indexCount == 0) return false;
 
-    auto& ls = _lineSegmentStack.back();
+    const auto& ls = _lineSegmentStack.back();
 
     TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, arrayState.vertices);
     if (!triIntsector.vertices) return false;
