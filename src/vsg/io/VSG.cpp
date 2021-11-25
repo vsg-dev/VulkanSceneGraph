@@ -44,7 +44,7 @@ static VsgVersion parseVersion(std::string version_string)
     return version;
 }
 
-VSG::VSG():
+VSG::VSG() :
     _objectFactory(ObjectFactory::instance())
 {
 }
