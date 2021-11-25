@@ -641,8 +641,6 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
                     indices->set(i++, upper + 1);
                 }
             }
-
-            base_vi += num_columns * num_rows;
         }
     }
 

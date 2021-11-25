@@ -33,6 +33,9 @@ useStlAlgorithm:*/src/vsg/vk/Device.cpp
 useStlAlgorithm:*/src/vsg/vk/DeviceMemory.cpp
 useStlAlgorithm:*/src/vsg/vk/Framebuffer.cpp
 useStlAlgorithm:*/src/vsg/vk/Swapchain.cpp
+useStlAlgorithm:*/src/vsg/utils/Builder.cpp
+useStlAlgorithm:*/src/vsg/vk/Instance.cpp
+useStlAlgorithm:*/src/vsg/vk/RenderPass.cpp
 
 // suppress the warning about valid C++17 if (init; condition) usage
 syntaxError:*include/vsg/core/Inherit.h
@@ -70,6 +73,7 @@ unusedStructMember:*src/vsg/core/External.cpp
 
 // suppress inappropriate warning about unitialized variable
 uninitvar:*/include/vsg/vk/DeviceFeatures.h
+uninitvar:*/src/vsg/vk/DeviceFeatures.cpp
 
 // suppress inappropriate warning about out of bounds
 arrayIndexOutOfBounds:*include/vsg/vk/State.h
@@ -80,3 +84,8 @@ knownConditionTrueFalse:*/src/vsg/utils/Builder.cpp
 // suppress warning about initializtion.
 useInitializationList:*/include/vsg/core/ScratchMemory.h
 useInitializationList:*/src/vsg/vk/Extensions.cpp
+useInitializationList:*/src/vsg/vk/Context.cpp
+
+
+// suppress inappropriate warning about insertion.
+stlFindInsert:*/src/vsg/vk/ResourceRequirements.cpp
