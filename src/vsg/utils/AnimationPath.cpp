@@ -45,7 +45,7 @@ AnimationPath::Location AnimationPath::computeLocation(double time) const
         double t = std::fmod(time - locations.begin()->first, p * 2.0);
         if (t <= p)
             time = locations.begin()->first + t;
-        else if (t > p)
+        else // if (t > p)
             time = locations.begin()->first + p * 2.0 - t;
     }
 

@@ -51,7 +51,7 @@ namespace vsg
             {
                 _data = new value_type[_size];
                 auto dest_v = _data;
-                for(auto& v : rhs) *(dest_v++) = v;
+                for (auto& v : rhs) *(dest_v++) = v;
             }
         }
 
@@ -136,11 +136,11 @@ namespace vsg
 
             if (input.version_greater_equal(0, 0, 1))
             {
-                auto storage = input.readObject<Data>("Storage");
-                if (storage)
+                auto data_storage = input.readObject<Data>("Storage");
+                if (data_storage)
                 {
                     uint32_t offset = input.readValue<uint32_t>("Offset");
-                    assign(storage, offset, _layout.stride, width_size, _layout);
+                    assign(data_storage, offset, _layout.stride, width_size, _layout);
                     return;
                 }
             }
@@ -205,7 +205,7 @@ namespace vsg
             _storage = nullptr;
         }
 
-        Array& operator = (const Array& rhs)
+        Array& operator=(const Array& rhs)
         {
             if (&rhs == this) return *this;
 
@@ -218,7 +218,7 @@ namespace vsg
             {
                 _data = new value_type[_size];
                 auto dest_v = _data;
-                for(auto& v : rhs) *(dest_v++) = v;
+                for (auto& v : rhs) *(dest_v++) = v;
             }
 
             return *this;

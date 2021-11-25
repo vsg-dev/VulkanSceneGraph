@@ -53,7 +53,7 @@ namespace vsg
         /// rendering state used to set up graphics pipeline and descriptor sets, assigned to Font to allow it be shared
         struct VSG_DECLSPEC GpuLayoutState : public Inherit<Object, GpuLayoutState>
         {
-            GpuLayoutState(Font* font);
+            explicit GpuLayoutState(Font* font);
 
             bool match() const { return true; }
 

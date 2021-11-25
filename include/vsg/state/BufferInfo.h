@@ -27,7 +27,7 @@ namespace vsg
     {
     public:
         BufferInfo();
-        BufferInfo(Data* in_data);
+        explicit BufferInfo(Data* in_data);
         BufferInfo(Buffer* in_buffer, VkDeviceSize in_offset, VkDeviceSize in_range, Data* in_data = nullptr);
 
         BufferInfo(const BufferInfo&) = delete;

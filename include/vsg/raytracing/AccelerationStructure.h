@@ -44,7 +44,7 @@ namespace vsg
         VkAccelerationStructureBuildGeometryInfoKHR _accelerationStructureBuildGeometryInfo;
         ref_ptr<Buffer> _buffer;
         ref_ptr<DeviceMemory> _memory;
-        uint64_t _handle;
+        uint64_t _handle = 0;
         VkDeviceSize _requiredBuildScratchSize;
 
         ref_ptr<Device> _device;

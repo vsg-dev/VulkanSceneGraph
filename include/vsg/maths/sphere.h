@@ -62,7 +62,7 @@ namespace vsg
         constexpr t_sphere& operator=(const t_sphere&) = default;
 
         template<typename R>
-        constexpr t_sphere(const t_sphere<R>& s) :
+        constexpr explicit t_sphere(const t_sphere<R>& s) :
             value{static_cast<value_type>(s[0]), static_cast<value_type>(s[1]), static_cast<value_type>(s[2]), static_cast<value_type>(s[3])} {}
 
         template<typename R>

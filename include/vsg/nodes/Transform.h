@@ -20,7 +20,7 @@ namespace vsg
     class VSG_DECLSPEC Transform : public Inherit<Group, Transform>
     {
     public:
-        Transform(Allocator* allocator = nullptr);
+        explicit Transform(Allocator* allocator = nullptr);
 
         void read(Input& input) override;
         void write(Output& output) const override;

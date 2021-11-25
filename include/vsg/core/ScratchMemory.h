@@ -34,6 +34,9 @@ namespace vsg
             ptr = buffer;
         }
 
+        ScratchMemory(const ScratchMemory&) = delete;
+        ScratchMemory& operator=(const ScratchMemory&) = delete;
+
         ~ScratchMemory()
         {
             delete[] buffer;

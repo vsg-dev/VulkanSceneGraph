@@ -26,7 +26,7 @@ namespace vsg
     {
     public:
         DescriptorSetLayout();
-        DescriptorSetLayout(const DescriptorSetLayoutBindings& descriptorSetLayoutBindings);
+        explicit DescriptorSetLayout(const DescriptorSetLayoutBindings& descriptorSetLayoutBindings);
 
         /// VkDescriptorSetLayoutCreateInfo settings
         DescriptorSetLayoutBindings bindings;

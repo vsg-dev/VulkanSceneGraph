@@ -66,7 +66,7 @@ VkResult RecordAndSubmitTask::start()
     if (current_fence->hasDependencies())
     {
         uint64_t timeout = std::numeric_limits<uint64_t>::max();
-        if (VkResult result; (result = current_fence->wait(timeout)) != VK_SUCCESS) return result;
+        if (VkResult result = current_fence->wait(timeout); result != VK_SUCCESS) return result;
 
         current_fence->resetFenceAndDependencies();
     }

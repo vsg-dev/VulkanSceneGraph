@@ -24,8 +24,8 @@ namespace vsg
     class VSG_DECLSPEC Group : public Inherit<Node, Group>
     {
     public:
-        Group(size_t numChildren = 0);
-        Group(Allocator* allocator, size_t numChildren = 0);
+        explicit Group(size_t numChildren = 0);
+        explicit Group(Allocator* allocator, size_t numChildren = 0);
 
         template<typename Iterator>
         Group(Iterator begin, Iterator end)

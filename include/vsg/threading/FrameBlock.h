@@ -23,7 +23,7 @@ namespace vsg
     public:
         inline static const ref_ptr<FrameStamp> initial_value = {};
 
-        FrameBlock(ref_ptr<ActivityStatus> status) :
+        explicit FrameBlock(ref_ptr<ActivityStatus> status) :
             _value(initial_value),
             _status(status) {}
 

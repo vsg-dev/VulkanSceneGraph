@@ -32,7 +32,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        int32_t binNumber;
+        int32_t binNumber = 0;
         dsphere bound;
         ref_ptr<Node> child;
 

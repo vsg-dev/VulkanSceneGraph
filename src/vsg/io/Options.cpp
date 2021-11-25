@@ -129,7 +129,7 @@ bool Options::readOptions(CommandLine& arguments)
     return read;
 }
 
-ref_ptr<const vsg::Options> vsg::prependPathToOptionsIfRequired(const vsg::Path filename, ref_ptr<const vsg::Options> options)
+ref_ptr<const vsg::Options> vsg::prependPathToOptionsIfRequired(const vsg::Path& filename, ref_ptr<const vsg::Options> options)
 {
     auto path = filePath(filename);
     if (path.empty()) return options;

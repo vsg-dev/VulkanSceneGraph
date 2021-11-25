@@ -19,7 +19,7 @@ namespace vsg
     class VSG_DECLSPEC Semaphore : public Inherit<Object, Semaphore>
     {
     public:
-        Semaphore(Device* device, VkPipelineStageFlags pipelineStageFlags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, void* pNextCreateInfo = nullptr);
+        explicit Semaphore(Device* device, VkPipelineStageFlags pipelineStageFlags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, void* pNextCreateInfo = nullptr);
 
         operator VkSemaphore() const { return _semaphore; }
         VkSemaphore vk() const { return _semaphore; }

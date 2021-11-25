@@ -25,7 +25,7 @@ namespace vsg
     public:
         TerminateEvent() {}
 
-        TerminateEvent(time_point in_time) :
+        explicit TerminateEvent(time_point in_time) :
             Inherit(in_time) {}
     };
 
@@ -35,7 +35,7 @@ namespace vsg
     public:
         FrameEvent() {}
 
-        FrameEvent(ref_ptr<FrameStamp> fs) :
+        explicit FrameEvent(ref_ptr<FrameStamp> fs) :
             Inherit(fs->time),
             frameStamp(fs) {}
 

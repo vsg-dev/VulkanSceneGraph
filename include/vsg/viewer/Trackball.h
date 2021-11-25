@@ -25,7 +25,7 @@ namespace vsg
     class VSG_DECLSPEC Trackball : public Inherit<Visitor, Trackball>
     {
     public:
-        Trackball(ref_ptr<Camera> camera, ref_ptr<EllipsoidModel> ellipsoidModel = {});
+        explicit Trackball(ref_ptr<Camera> camera, ref_ptr<EllipsoidModel> ellipsoidModel = {});
 
         /// compute non dimensional window coordinate (-1,1) from event coords
         dvec2 ndc(PointerEvent& event);

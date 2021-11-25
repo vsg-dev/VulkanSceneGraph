@@ -58,7 +58,7 @@ namespace vsg
                   {v[12], v[13], v[14], v[15]}} {}
 
         template<typename R>
-        t_mat4(const t_mat4<R>& rhs)
+        explicit t_mat4(const t_mat4<R>& rhs)
         {
             value[0] = rhs[0];
             value[1] = rhs[1];

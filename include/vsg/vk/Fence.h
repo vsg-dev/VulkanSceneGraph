@@ -20,7 +20,7 @@ namespace vsg
     class VSG_DECLSPEC Fence : public Inherit<Object, Fence>
     {
     public:
-        Fence(Device* device, VkFenceCreateFlags flags = 0);
+        explicit Fence(Device* device, VkFenceCreateFlags flags = 0);
 
         VkResult wait(uint64_t timeout) const;
 

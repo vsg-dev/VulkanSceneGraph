@@ -21,7 +21,7 @@ namespace vsg
     class CloseHandler : public Inherit<Visitor, CloseHandler>
     {
     public:
-        CloseHandler(Viewer* viewer) :
+        explicit CloseHandler(Viewer* viewer) :
             _viewer(viewer) {}
 
         KeySymbol closeKey = KEY_Escape; // KEY_Undefined

@@ -54,7 +54,7 @@ namespace vsg
             {
                 _data = new value_type[_width * _height * _depth];
                 auto dest_v = _data;
-                for(auto& v : rhs) *(dest_v++) = v;
+                for (auto& v : rhs) *(dest_v++) = v;
             }
         }
 
@@ -113,24 +113,24 @@ namespace vsg
 
             Data::read(input);
 
-            uint32_t width = input.readValue<uint32_t>("Width");
-            uint32_t height = input.readValue<uint32_t>("Height");
-            uint32_t depth = input.readValue<uint32_t>("Depth");
+            uint32_t w = input.readValue<uint32_t>("Width");
+            uint32_t h = input.readValue<uint32_t>("Height");
+            uint32_t d = input.readValue<uint32_t>("Depth");
 
             if (input.version_greater_equal(0, 0, 1))
             {
-                auto storage = input.readObject<Data>("Storage");
-                if (storage)
+                auto data_storage = input.readObject<Data>("Storage");
+                if (data_storage)
                 {
                     uint32_t offset = input.readValue<uint32_t>("Offset");
-                    assign(storage, offset, _layout.stride, width, height, depth, _layout);
+                    assign(data_storage, offset, _layout.stride, w, h, d, _layout);
                     return;
                 }
             }
 
             if (input.matchPropertyName("Data"))
             {
-                std::size_t new_size = computeValueCountIncludingMipmaps(width, height, depth, _layout.maxNumMipmaps);
+                std::size_t new_size = computeValueCountIncludingMipmaps(w, h, d, _layout.maxNumMipmaps);
 
                 if (_data) // if data already may be able to reuse it
                 {
@@ -146,9 +146,9 @@ namespace vsg
                 }
 
                 _layout.stride = sizeof(value_type);
-                _width = width;
-                _height = height;
-                _depth = depth;
+                _width = w;
+                _height = h;
+                _depth = d;
                 _storage = nullptr;
 
                 input.read(new_size, _data);
@@ -193,7 +193,7 @@ namespace vsg
             _storage = nullptr;
         }
 
-        Array3D& operator = (const Array3D& rhs)
+        Array3D& operator=(const Array3D& rhs)
         {
             if (&rhs == this) return *this;
 
@@ -208,7 +208,7 @@ namespace vsg
             {
                 _data = new value_type[_width * _height * _depth];
                 auto dest_v = _data;
-                for(auto& v : rhs) *(dest_v++) = v;
+                for (auto& v : rhs) *(dest_v++) = v;
             }
 
             return *this;

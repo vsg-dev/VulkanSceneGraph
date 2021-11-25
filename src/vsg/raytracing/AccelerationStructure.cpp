@@ -24,10 +24,12 @@ using namespace vsg;
 
 AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeKHR type, Device* device, Allocator* allocator) :
     Inherit(allocator),
+    _accelerationStructure{},
+    _accelerationStructureInfo{},
+    _accelerationStructureBuildGeometryInfo{},
     _requiredBuildScratchSize(0),
     _device(device)
 {
-    _accelerationStructure = {};
     _accelerationStructureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
     _accelerationStructureInfo.type = type;
     _accelerationStructureInfo.createFlags = 0; // probably be useful to set this somehow
@@ -37,7 +39,6 @@ AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeKHR type
     _accelerationStructureInfo.size = 0;
     _accelerationStructureInfo.pNext = nullptr;
 
-    _accelerationStructureBuildGeometryInfo = {};
     _accelerationStructureBuildGeometryInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
     _accelerationStructureBuildGeometryInfo.type = type;
     _accelerationStructureBuildGeometryInfo.flags = VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR;

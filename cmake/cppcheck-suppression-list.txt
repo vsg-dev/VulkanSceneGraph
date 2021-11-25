@@ -1,9 +1,41 @@
 // suppress Key related errors
 noExplicitConstructor:*include/vsg/core/ref_ptr.h:33
 noExplicitConstructor:*include/vsg/core/ref_ptr.h:40
+noExplicitConstructor:*include/vsg/core/ref_ptr.h:40
+noExplicitConstructor:*include/vsg/core/Inherit.h:37
 
-// suppress C union Key related false positives
-unusedStructMember:*include/vsg/introspection/c_interface.h
+// suppress correct casts flagged as issues
+invalidPointerCast:*/include/vsg/core/Data.h
+invalidPointerCast:*/include/vsg/core/Array.h
+invalidPointerCast:*/include/vsg/core/Array2D.h
+invalidPointerCast:*/include/vsg/core/Array3D.h
+invalidPointerCast:*/include/vsg/core/Array3D.h
+invalidPointerCast:*/src/vsg/commands/CopyAndReleaseImage.cpp
+
+// suppress inappropriate stl algorithm suggestions
+useStlAlgorithm:*/include/vsg/core/Array.h
+useStlAlgorithm:*/include/vsg/core/Array2D.h
+useStlAlgorithm:*/include/vsg/core/Array3D.h
+useStlAlgorithm:*/src/vsg/io/VSG.cpp
+useStlAlgorithm:*/src/vsg/commands/BindVertexBuffers.cpp
+useStlAlgorithm:*/src/vsg/nodes/Geometry.cpp
+useStlAlgorithm:*/src/vsg/nodes/VertexIndexDraw.cpp
+useStlAlgorithm:*/src/vsg/state/DescriptorBuffer.cpp
+useStlAlgorithm:*/src/vsg/state/PipelineLayout.cpp
+useStlAlgorithm:*/src/vsg/threading/Affinity.cpp
+useStlAlgorithm:*/src/vsg/traversals/Intersector.cpp
+useStlAlgorithm:*/src/vsg/viewer/Presentation.cpp
+useStlAlgorithm:*/src/vsg/viewer/ExecuteCommands.cpp
+useStlAlgorithm:*/src/vsg/viewer/RecordAndSubmitTask.cpp
+useStlAlgorithm:*/src/vsg/viewer/src/vsg/utils/Builder.cpp
+useStlAlgorithm:*/src/vsg/viewer/Viewer.cpp
+useStlAlgorithm:*/src/vsg/vk/Device.cpp
+useStlAlgorithm:*/src/vsg/vk/DeviceMemory.cpp
+useStlAlgorithm:*/src/vsg/vk/Framebuffer.cpp
+useStlAlgorithm:*/src/vsg/vk/Swapchain.cpp
+useStlAlgorithm:*/src/vsg/utils/Builder.cpp
+useStlAlgorithm:*/src/vsg/vk/Instance.cpp
+useStlAlgorithm:*/src/vsg/vk/RenderPass.cpp
 
 // suppress the warning about valid C++17 if (init; condition) usage
 syntaxError:*include/vsg/core/Inherit.h
@@ -21,7 +53,39 @@ syntaxError:*include/vsg/utils/CommandLine.h
 syntaxError:*include/vsg/core/Data.h:51
 
 // suppress warnings about never used variables that are used in .cpp's
-unusedStructMember:include/vsg/core/Data.h
-unusedStructMember:include/vsg/core/Exception.h
-unusedStructMember:include/vsg/core/Version.h
+unusedStructMember:*include/vsg/core/Data.h
+unusedStructMember:*include/vsg/core/Exception.h
+unusedStructMember:*include/vsg/core/Version.h
+unusedStructMember:*include/vsg/io/ObjectCache.h
+unusedStructMember:*include/vsg/nodes/Bin.h
+unusedStructMember:*include/vsg/nodes/LOD.h
+unusedStructMember:*include/vsg/nodes/PagedLOD.h
+unusedStructMember:*include/vsg/traversals/ArrayState.h
+unusedStructMember:*include/vsg/traversals/LineSegmentIntersector.h
+unusedStructMember:*include/vsg/viewer/Trackball.h
+unusedStructMember:*include/vsg/vk/ResourceRequirements.h
+unusedStructMember:*include/vsg/vk/Device.h
+unusedStructMember:*include/vsg/vk/Swapchain.h
+unusedStructMember:*include/vsg/nodes/Switch.h
+unusedStructMember:*include/vsg/text/TextLayout.h
+unusedStructMember:*include/vsg/introspection/c_interface.h
+unusedStructMember:*src/vsg/core/External.cpp
 
+// suppress inappropriate warning about unitialized variable
+uninitvar:*/include/vsg/vk/DeviceFeatures.h
+uninitvar:*/src/vsg/vk/DeviceFeatures.cpp
+
+// suppress inappropriate warning about out of bounds
+arrayIndexOutOfBounds:*include/vsg/vk/State.h
+
+// suppress warnings about intentional code usage
+knownConditionTrueFalse:*/src/vsg/utils/Builder.cpp
+
+// suppress warning about initializtion.
+useInitializationList:*/include/vsg/core/ScratchMemory.h
+useInitializationList:*/src/vsg/vk/Extensions.cpp
+useInitializationList:*/src/vsg/vk/Context.cpp
+
+
+// suppress inappropriate warning about insertion.
+stlFindInsert:*/src/vsg/vk/ResourceRequirements.cpp

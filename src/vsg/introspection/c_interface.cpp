@@ -61,12 +61,12 @@ namespace vsg
 
         void add(std::type_index typeindex, const char* className, TypeDescriptor::CreateFunction createFunction)
         {
-            TypeDescriptor* typeDescriptor = new TypeDescriptor;
-            typeDescriptor->className = className;
-            typeDescriptor->createFunction = createFunction;
+            TypeDescriptor* td = new TypeDescriptor;
+            td->className = className;
+            td->createFunction = createFunction;
 
-            _indexTypeDescriptorMap[typeindex] = typeDescriptor;
-            _nameTypeDescriptorMap[className] = typeDescriptor;
+            _indexTypeDescriptorMap[typeindex] = td;
+            _nameTypeDescriptorMap[className] = td;
 
             std::cout << "    add(..., " << className << ", ,,)" << std::endl;
         }
