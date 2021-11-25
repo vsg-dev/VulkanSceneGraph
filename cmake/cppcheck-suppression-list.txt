@@ -9,6 +9,8 @@ invalidPointerCast:*/include/vsg/core/Data.h
 invalidPointerCast:*/include/vsg/core/Array.h
 invalidPointerCast:*/include/vsg/core/Array2D.h
 invalidPointerCast:*/include/vsg/core/Array3D.h
+invalidPointerCast:*/include/vsg/core/Array3D.h
+invalidPointerCast:*/src/vsg/commands/CopyAndReleaseImage.cpp
 
 // suppress inappropriate stl algorithm suggestions
 useStlAlgorithm:*/include/vsg/core/Array.h
@@ -25,6 +27,12 @@ useStlAlgorithm:*/src/vsg/traversals/Intersector.cpp
 useStlAlgorithm:*/src/vsg/viewer/Presentation.cpp
 useStlAlgorithm:*/src/vsg/viewer/ExecuteCommands.cpp
 useStlAlgorithm:*/src/vsg/viewer/RecordAndSubmitTask.cpp
+useStlAlgorithm:*/src/vsg/viewer/src/vsg/utils/Builder.cpp
+useStlAlgorithm:*/src/vsg/viewer/Viewer.cpp
+useStlAlgorithm:*/src/vsg/vk/Device.cpp
+useStlAlgorithm:*/src/vsg/vk/DeviceMemory.cpp
+useStlAlgorithm:*/src/vsg/vk/Framebuffer.cpp
+useStlAlgorithm:*/src/vsg/vk/Swapchain.cpp
 
 // suppress the warning about valid C++17 if (init; condition) usage
 syntaxError:*include/vsg/core/Inherit.h
@@ -61,10 +69,14 @@ unusedStructMember:*include/vsg/introspection/c_interface.h
 unusedStructMember:*src/vsg/core/External.cpp
 
 // suppress inappropriate warning about unitialized variable
-uninitvar:*include/vsg/vk/DeviceFeatures.h
+uninitvar:*/include/vsg/vk/DeviceFeatures.h
 
 // suppress inappropriate warning about out of bounds
 arrayIndexOutOfBounds:*include/vsg/vk/State.h
 
 // suppress warnings about intentional code usage
 knownConditionTrueFalse:*/src/vsg/utils/Builder.cpp
+
+// suppress warning about initializtion.
+useInitializationList:*/include/vsg/core/ScratchMemory.h
+useInitializationList:*/src/vsg/vk/Extensions.cpp
