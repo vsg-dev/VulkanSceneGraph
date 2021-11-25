@@ -46,14 +46,14 @@ void BuildAccelerationStructureTraversal::apply(Geometry& geometry)
     {
         // create new blas and add to cache
         blas = BottomLevelAccelerationStructure::create(_device);
-        auto accelGeom = AccelerationGeometry::create();
 #if 0 // TODO
+        auto accelGeom = AccelerationGeometry::create();
         accelGeom->verts = geometry.arrays[0];
         accelGeom->indices = geometry.indices;
+        blas->geometries.push_back(accelGeom);
 #else
         throw "BuildAccelerationStructureTraversal::compile() not implemented";
 #endif
-        blas->geometries.push_back(accelGeom);
     }
 
     // create a geometry instance for this geometry using the blas that represents it and the current transform matrix

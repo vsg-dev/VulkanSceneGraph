@@ -392,14 +392,14 @@ bool PagedLODContainer::check(const List& list)
         return false;
     }
 
-    auto& head_element = elements[list.head];
+    const auto& head_element = elements[list.head];
     if (head_element.previous != 0)
     {
         std::cout << "Warning: list " << list.name << " has a head.previous that is non zero " << head_element.previous << std::endl;
         return false;
     }
 
-    auto& tail_element = elements[list.tail];
+    const auto& tail_element = elements[list.tail];
     if (tail_element.next != 0)
     {
         std::cout << "Warning: list " << list.name << " has a tail.next that is non zero " << tail_element.next << std::endl;
