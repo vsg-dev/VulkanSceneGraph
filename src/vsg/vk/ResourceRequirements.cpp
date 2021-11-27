@@ -184,7 +184,7 @@ void CollectResourceRequirements::apply(const View& view)
     }
     else
     {
-        requirements.binStack.push(ResourceRequirements::BinDetails{static_cast<uint32_t>(requirements.views.size()), {}, {}});
+        requirements.binStack.push(ResourceRequirements::BinDetails{});
     }
 
     view.traverse(*this);

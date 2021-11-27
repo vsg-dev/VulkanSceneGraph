@@ -33,7 +33,6 @@ namespace vsg
 
         struct BinDetails
         {
-            uint32_t viewTraversalIndex = 0;
             std::set<int32_t> indices;
             std::set<const Bin*> bins;
         };
@@ -57,7 +56,6 @@ namespace vsg
         VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
         VkDeviceSize minimumBufferDeviceMemorySize = 16 * 1024 * 1024;
         VkDeviceSize minimumImageDeviceMemorySize = 16 * 1024 * 1024;
-        ;
     };
     VSG_type_name(vsg::ResourceRequirements);
 

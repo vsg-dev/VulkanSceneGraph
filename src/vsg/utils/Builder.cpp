@@ -224,7 +224,7 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
 
 void Builder::_assign(StateGroup& stateGroup, const StateInfo& stateInfo)
 {
-    auto& stateSettings = _getStateSettings(stateInfo);
+    const auto& stateSettings = _getStateSettings(stateInfo);
     stateGroup.add(stateSettings.bindGraphicsPipeline);
     stateGroup.add(_createDescriptorSet(stateInfo));
 }
@@ -641,8 +641,6 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
                     indices->set(i++, upper + 1);
                 }
             }
-
-            base_vi += num_columns * num_rows;
         }
     }
 
@@ -708,8 +706,6 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
 
     auto bottom = info.position - dz;
     auto top = info.position + dz;
-
-    bool withEnds = true;
 
     ref_ptr<vec3Array> vertices;
     ref_ptr<vec3Array> normals;
@@ -777,6 +773,8 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     }
     else
     {
+        bool withEnds = true;
+
         unsigned int num_columns = 20;
         unsigned int num_vertices = num_columns * 2;
         unsigned int num_indices = (num_columns - 1) * 3;

@@ -146,7 +146,7 @@ namespace vsg
         void _move(const PagedLOD* plod, List* targetList);
 
         bool check();
-        bool check(List& list);
+        bool check(const List& list);
 
         void print(std::ostream& out);
     };

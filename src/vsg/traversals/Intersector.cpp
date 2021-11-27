@@ -18,9 +18,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/LOD.h>
-#include <vsg/nodes/Transform.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/nodes/Transform.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/traversals/Intersector.h>
@@ -129,7 +129,7 @@ void Intersector::apply(const VertexIndexDraw& vid)
 
     PushPopNode ppn(_nodePath, &vid);
 
-    sphere bound;
+    dsphere bound;
     if (!vid.getValue("bound", bound))
     {
         box bb;

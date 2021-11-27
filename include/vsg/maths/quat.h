@@ -58,6 +58,10 @@ namespace vsg
             set(from, to);
         }
 
+        template<typename R>
+        constexpr explicit t_quat(const t_quat<R>& v) :
+            value{static_cast<T>(v.x), static_cast<T>(v.y), static_cast<T>(v.z), static_cast<T>(v.w)} {}
+
         constexpr std::size_t size() const { return 4; }
 
         value_type& operator[](std::size_t i) { return value[i]; }
@@ -109,10 +113,10 @@ namespace vsg
         {
             const value_type epsilon = 1e-7;
 
-            value_type dot = vsg::dot(from, to);
+            value_type dot_pd = vsg::dot(from, to);
             value_type div = std::sqrt(length2(from) * length2(to));
             vsg::dvec3 axis;
-            if (div - dot < epsilon)
+            if (div - dot_pd < epsilon)
             {
                 axis = orthogonal(from);
             }
@@ -123,7 +127,7 @@ namespace vsg
 
             value_type len = length(axis);
 
-            double angle_radians = acos(dot / div);
+            double angle_radians = acos(dot_pd / div);
 
             value_type inversenorm = 1.0 / len;
             value_type coshalfangle = cos(0.5 * angle_radians);

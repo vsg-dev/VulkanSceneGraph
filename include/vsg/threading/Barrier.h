@@ -22,7 +22,7 @@ namespace vsg
     class Barrier : public Inherit<Object, Barrier>
     {
     public:
-        Barrier(uint32_t num_thread) :
+        explicit Barrier(uint32_t num_thread) :
             _num_threads(num_thread),
             _num_arrived(0),
             _phase(0) {}

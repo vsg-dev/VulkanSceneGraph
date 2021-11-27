@@ -52,7 +52,7 @@ namespace vsg
     class VSG_DECLSPEC DatabaseQueue : public Inherit<Object, DatabaseQueue>
     {
     public:
-        DatabaseQueue(ref_ptr<ActivityStatus> status);
+        explicit DatabaseQueue(ref_ptr<ActivityStatus> status);
 
         using Nodes = std::list<ref_ptr<PagedLOD>>;
 

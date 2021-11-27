@@ -91,7 +91,7 @@ VkExtent2D RenderGraph::getExtent() const
 void RenderGraph::accept(RecordTraversal& recordTraversal) const
 {
     auto extent = getExtent();
-    if (previous_extent.width == invalid_dimension || previous_extent.width == invalid_dimension || !windowResizeHandler)
+    if (previous_extent.width == invalid_dimension || previous_extent.height == invalid_dimension || !windowResizeHandler)
     {
         previous_extent = extent;
     }

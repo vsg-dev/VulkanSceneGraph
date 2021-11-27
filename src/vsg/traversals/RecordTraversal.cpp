@@ -308,54 +308,42 @@ void RecordTraversal::apply(const StateGroup& stateGroup)
 
 void RecordTraversal::apply(const Transform& transform)
 {
+    _state->modelviewMatrixStack.push(transform);
+    _state->dirty = true;
+
     if (transform.subgraphRequiresLocalFrustum)
     {
-        _state->modelviewMatrixStack.push(transform);
         _state->pushFrustum();
-        _state->dirty = true;
-
         transform.traverse(*this);
-
-        _state->modelviewMatrixStack.pop();
         _state->popFrustum();
-        _state->dirty = true;
     }
     else
     {
-        _state->modelviewMatrixStack.push(transform);
-        _state->dirty = true;
-
         transform.traverse(*this);
-
-        _state->modelviewMatrixStack.pop();
-        _state->dirty = true;
     }
+
+    _state->modelviewMatrixStack.pop();
+    _state->dirty = true;
 }
 
 void RecordTraversal::apply(const MatrixTransform& mt)
 {
+    _state->modelviewMatrixStack.push(mt);
+    _state->dirty = true;
+
     if (mt.subgraphRequiresLocalFrustum)
     {
-        _state->modelviewMatrixStack.pushAndPostMult(mt.matrix);
         _state->pushFrustum();
-        _state->dirty = true;
-
         mt.traverse(*this);
-
-        _state->modelviewMatrixStack.pop();
         _state->popFrustum();
-        _state->dirty = true;
     }
     else
     {
-        _state->modelviewMatrixStack.pushAndPostMult(mt.matrix);
-        _state->dirty = true;
-
         mt.traverse(*this);
-
-        _state->modelviewMatrixStack.pop();
-        _state->dirty = true;
     }
+
+    _state->modelviewMatrixStack.pop();
+    _state->dirty = true;
 }
 
 // Vulkan nodes

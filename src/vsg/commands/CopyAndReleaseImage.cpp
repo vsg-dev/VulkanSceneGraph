@@ -309,7 +309,6 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
     uint32_t destHeight = faceHeight * layout.blockHeight;
     uint32_t destDepth = faceDepth * layout.blockDepth;
 
-    size_t offset = 0u;
     const auto valueSize = layout.stride; // data->valueSize();
 
     bool useDataMipmaps = (mipLevels > 1) && (mipmapOffsets.size() > 1);
@@ -356,6 +355,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 
     if (useDataMipmaps)
     {
+        size_t offset = 0u;
         regions.resize(mipLevels * arrayLayers);
 
         uint32_t mipWidth = destWidth;

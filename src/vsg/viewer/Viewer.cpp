@@ -27,10 +27,10 @@ using namespace vsg;
 #    define VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT VkResult(-1000255000)
 #endif
 
-Viewer::Viewer()
+Viewer::Viewer() :
+    status(vsg::ActivityStatus::create()),
+    _start_point(clock::now())
 {
-    _start_point = clock::now();
-    status = vsg::ActivityStatus::create();
 }
 
 Viewer::~Viewer()
@@ -261,8 +261,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     for (auto& [const_view, binDetails] : views)
     {
         auto view = const_cast<View*>(const_view);
-        view->viewID = binDetails.viewTraversalIndex;
-
         for (auto& binNumber : binDetails.indices)
         {
             bool binNumberMatched = false;

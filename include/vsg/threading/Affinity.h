@@ -24,7 +24,7 @@ namespace vsg
     {
         Affinity() {}
 
-        Affinity(uint32_t cpu, uint32_t num = 1)
+        explicit Affinity(uint32_t cpu, uint32_t num = 1)
         {
             for (uint32_t i = 0; i < num; ++i) cpus.insert(cpu + i);
         }

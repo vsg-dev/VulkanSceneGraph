@@ -25,7 +25,7 @@ namespace vsg
     class VSG_DECLSPEC MemorySlots
     {
     public:
-        MemorySlots(VkDeviceSize availableMemorySize);
+        explicit MemorySlots(VkDeviceSize availableMemorySize);
 
         using OptionalOffset = std::pair<bool, VkDeviceSize>;
         OptionalOffset reserve(VkDeviceSize size, VkDeviceSize alignment);

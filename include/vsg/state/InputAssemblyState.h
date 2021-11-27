@@ -20,7 +20,7 @@ namespace vsg
     {
     public:
         InputAssemblyState();
-        InputAssemblyState(VkPrimitiveTopology primitiveTopology, VkBool32 primitiveRestart = VK_FALSE);
+        explicit InputAssemblyState(VkPrimitiveTopology primitiveTopology, VkBool32 primitiveRestart = VK_FALSE);
 
         /// VkPipelineInputAssemblyStateCreateInfo settings
         VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;

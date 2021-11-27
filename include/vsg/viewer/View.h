@@ -25,7 +25,7 @@ namespace vsg
     public:
         View();
 
-        View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph = {});
+        explicit View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph = {});
 
         template<class N, class V>
         static void t_accept(N& node, V& visitor)
@@ -48,8 +48,8 @@ namespace vsg
         /// camera controls the viewport state and projection and view matrices
         ref_ptr<Camera> camera;
 
-        /// viewID is automatically assigned by Viewer::compile()
-        uint32_t viewID = 0;
+        /// viewID is automatically assigned in View constructor
+        const uint32_t viewID = 0;
 
         /// mask that controls traversal of the View's subgraph
         /// View is visited if the (visitor.traversalMask & view.mask) != 0,
@@ -58,6 +58,9 @@ namespace vsg
 
         /// bins
         std::vector<ref_ptr<Bin>> bins;
+    protected:
+        virtual ~View();
+
     };
     VSG_type_name(vsg::View);
 

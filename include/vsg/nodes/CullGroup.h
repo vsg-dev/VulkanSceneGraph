@@ -20,9 +20,8 @@ namespace vsg
     class VSG_DECLSPEC CullGroup : public Inherit<Group, CullGroup>
     {
     public:
-        CullGroup(Allocator* allocator = nullptr);
-
-        CullGroup(const dsphere& bound, Allocator* allocator = nullptr);
+        explicit CullGroup(Allocator* allocator = nullptr);
+        explicit CullGroup(const dsphere& bound, Allocator* allocator = nullptr);
 
         void read(Input& input) override;
         void write(Output& output) const override;

@@ -10,9 +10,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Options.h>
 #include <vsg/maths/transform.h>
 #include <vsg/nodes/MatrixTransform.h>
-#include <vsg/io/Options.h>
 
 using namespace vsg;
 

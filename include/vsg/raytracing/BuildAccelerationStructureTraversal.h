@@ -31,12 +31,12 @@ namespace vsg
     class VSG_DECLSPEC BuildAccelerationStructureTraversal : public Visitor
     {
     public:
-        BuildAccelerationStructureTraversal(Device* in_device);
+        explicit BuildAccelerationStructureTraversal(Device* in_device);
 
-        void apply(Object& object);
-        void apply(Transform& transfom);
-        void apply(Geometry& geometry);
-        void apply(VertexIndexDraw& vid);
+        void apply(Object& object) override;
+        void apply(Transform& transfom) override;
+        void apply(Geometry& geometry) override;
+        void apply(VertexIndexDraw& vid) override;
 
         // the top level acceleration structure we are creating and adding geometry instances to as we find and create them
         ref_ptr<TopLevelAccelerationStructure> tlas;

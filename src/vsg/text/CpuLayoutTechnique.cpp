@@ -152,7 +152,6 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     if (!outlineWidths || num_outlineWidths > outlineWidths->size()) outlineWidths = floatArray::create(num_outlineWidths);
     if (!texcoords || num_vertices > texcoords->size()) texcoords = vec3Array::create(num_vertices);
 
-    uint32_t i = 0;
     uint32_t vi = 0;
 
     float leadingEdgeGradient = 0.1f;
@@ -201,7 +200,6 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         texcoords->set(vi + 3, vec3(quad.texcoords[3].x, quad.texcoords[3].y, leadingEdgeTilt));
 
         vi += 4;
-        i += 6;
     }
 
     uint32_t num_indices = num_quads * 6;
@@ -214,7 +212,7 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
 
             auto itr = ui_indices->begin();
             vi = 0;
-            for (i = 0; i < num_quads; ++i)
+            for (uint32_t i = 0; i < num_quads; ++i)
             {
                 (*itr++) = vi;
                 (*itr++) = vi + 1;
@@ -233,7 +231,7 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
 
             auto itr = us_indices->begin();
             vi = 0;
-            for (i = 0; i < num_quads; ++i)
+            for (uint32_t i = 0; i < num_quads; ++i)
             {
                 (*itr++) = vi;
                 (*itr++) = vi + 1;

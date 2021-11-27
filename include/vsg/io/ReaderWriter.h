@@ -21,7 +21,7 @@ namespace vsg
 
     struct ReadError : public Inherit<Object, ReadError>
     {
-        ReadError(const std::string& msg) :
+        explicit ReadError(const std::string& msg) :
             message(msg) {}
 
         std::string message;
@@ -29,7 +29,7 @@ namespace vsg
 
     struct WriteError : public Inherit<Object, WriteError>
     {
-        WriteError(const std::string& msg) :
+        explicit WriteError(const std::string& msg) :
             message(msg) {}
 
         std::string message;

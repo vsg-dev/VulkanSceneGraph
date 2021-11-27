@@ -59,7 +59,7 @@ void WindowResizeHandler::apply(vsg::BindGraphicsPipeline& bindPipeline)
         struct ContainsViewport : public ConstVisitor
         {
             bool foundViewport = false;
-            void apply(const ViewportState&) { foundViewport = true; }
+            void apply(const ViewportState&) override { foundViewport = true; }
             bool operator()(const GraphicsPipeline& gp)
             {
                 for (auto& pipelineState : gp.pipelineStates)
