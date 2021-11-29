@@ -19,13 +19,49 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-View::View()
+// thread safe container for managing the deviceID for each vsg;:View
+static std::mutex s_ViewCountMutex;
+static std::vector<bool> s_ActiveViews;
+
+static uint32_t getUniqueViewID()
+{
+    std::scoped_lock<std::mutex> guard(s_ViewCountMutex);
+
+    uint32_t viewID = 0;
+    for (viewID = 0; viewID < static_cast<uint32_t>(s_ActiveViews.size()); ++viewID)
+    {
+        if (!s_ActiveViews[viewID])
+        {
+            s_ActiveViews[viewID] = true;
+            return viewID;
+        }
+    }
+
+    s_ActiveViews.push_back(true);
+
+    return viewID;
+}
+
+static void releaseViewID(uint32_t viewID)
+{
+    std::scoped_lock<std::mutex> guard(s_ViewCountMutex);
+    s_ActiveViews[viewID] = false;
+}
+
+View::View() :
+    viewID(getUniqueViewID())
 {
 }
 
-View::View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph)
+View::View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph) :
+    viewID(getUniqueViewID())
 {
     camera = in_camera;
 
     if (in_scenegraph) addChild(in_scenegraph);
+}
+
+View::~View()
+{
+    releaseViewID(viewID);
 }

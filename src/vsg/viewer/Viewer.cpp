@@ -261,8 +261,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     for (auto& [const_view, binDetails] : views)
     {
         auto view = const_cast<View*>(const_view);
-        view->viewID = binDetails.viewTraversalIndex;
-
         for (auto& binNumber : binDetails.indices)
         {
             bool binNumberMatched = false;
