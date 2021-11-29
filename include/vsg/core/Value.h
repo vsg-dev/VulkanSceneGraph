@@ -146,6 +146,15 @@ namespace vsg
         }
     }
 
+    /// convience function for getting a value from the first object with the named value, falling back to specififed defaultValue when none is available.
+    template<typename T, typename... Args>
+    T value(T defaultValue, const std::string& match, Args&&... args)
+    {
+        T v{defaultValue};
+        ((args && args->getValue(match, v)) || ...);
+        return v;
+    }
+
     VSG_value(stringValue, std::string);
     VSG_value(boolValue, bool);
     VSG_value(intValue, int);
