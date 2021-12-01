@@ -44,9 +44,15 @@ namespace vsg
         virtual void zoom(double ratio);
         virtual void pan(const dvec2& delta);
 
-        bool withinRenderArea(int32_t x, int32_t y) const;
+        bool withinRenderArea(const PointerEvent& pointerEvent) const;
 
         void clampToGlobe();
+
+        /// list of windows that this Trackball should respond to events from, and the points xy offsets to apply
+        std::map<observer_ptr<Window>, ivec2> windowOffsets;
+
+        /// add a Window to respond events for, with mouse coordinate offset to treat all associated windows
+        void addWindow(ref_ptr<Window> window, const ivec2& offset = {});
 
         /// add Key to Viewpoint binding using a LookAt to define the viewpoint
         void addKeyViewpoint(KeySymbol key, ref_ptr<LookAt> lookAt, double duration = 1.0);

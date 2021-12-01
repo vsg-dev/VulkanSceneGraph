@@ -12,7 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/Options.h>
 #include <vsg/viewer/Trackball.h>
+#include <vsg/io/stream.h>
 
+#include <algorithm>
 #include <iostream>
 
 using namespace vsg;
@@ -65,10 +67,25 @@ void Trackball::clampToGlobe()
     }
 }
 
-bool Trackball::withinRenderArea(int32_t x, int32_t y) const
+bool Trackball::withinRenderArea(const PointerEvent& pointerEvent) const
 {
-    auto renderArea = _camera->getRenderArea();
+    auto x = pointerEvent.x;
+    auto y = pointerEvent.y;
+    if (!windowOffsets.empty())
+    {
+        auto itr = windowOffsets.find(pointerEvent.window);
+        if (itr == windowOffsets.end())
+        {
+            //std::cout<<"Trackball::withinRenderArea(pointerEvent.window ="<<pointerEvent.window<<" ) not matched."<<std::endl;
+            return false;
+        }
 
+        auto& offset = itr->second;
+        x -= offset.x;
+        y -= offset.y;
+    }
+
+    auto renderArea = _camera->getRenderArea();
     return (x >= renderArea.offset.x && x < static_cast<int32_t>(renderArea.offset.x + renderArea.extent.width)) &&
            (y >= renderArea.offset.y && y < static_cast<int32_t>(renderArea.offset.y + renderArea.extent.height));
 }
@@ -120,7 +137,7 @@ void Trackball::apply(ButtonPressEvent& buttonPress)
 {
     if (buttonPress.handled) return;
 
-    _hasFocus = withinRenderArea(buttonPress.x, buttonPress.y);
+    _hasFocus = withinRenderArea(buttonPress);
     _lastPointerEventWithinRenderArea = _hasFocus;
 
     if (buttonPress.mask & BUTTON_MASK_1)
@@ -145,9 +162,11 @@ void Trackball::apply(ButtonReleaseEvent& buttonRelease)
 {
     if (buttonRelease.handled) return;
 
+    if (!windowOffsets.empty() && windowOffsets.count(buttonRelease.window)==0) return;
+
     if (supportsThrow) _thrown = _previousPointerEvent && (buttonRelease.time == _previousPointerEvent->time);
 
-    _lastPointerEventWithinRenderArea = withinRenderArea(buttonRelease.x, buttonRelease.y);
+    _lastPointerEventWithinRenderArea = withinRenderArea(buttonRelease);
     _hasFocus = false;
 
     _previousPointerEvent = &buttonRelease;
@@ -155,7 +174,7 @@ void Trackball::apply(ButtonReleaseEvent& buttonRelease)
 
 void Trackball::apply(MoveEvent& moveEvent)
 {
-    _lastPointerEventWithinRenderArea = withinRenderArea(moveEvent.x, moveEvent.y);
+    _lastPointerEventWithinRenderArea = withinRenderArea(moveEvent);
 
     if (moveEvent.handled || !_hasFocus) return;
 
@@ -428,6 +447,11 @@ void Trackball::pan(const dvec2& delta)
         _lookAt->eye = _lookAt->eye + translation;
         _lookAt->center = _lookAt->center + translation;
     }
+}
+
+void Trackball::addWindow(ref_ptr<Window> window, const ivec2& offset)
+{
+    windowOffsets[observer_ptr<Window>(window)] = offset;
 }
 
 void Trackball::addKeyViewpoint(KeySymbol key, ref_ptr<LookAt> lookAt, double duration)
