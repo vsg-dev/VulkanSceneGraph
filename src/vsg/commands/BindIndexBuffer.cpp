@@ -47,7 +47,8 @@ BindIndexBuffer::~BindIndexBuffer()
 
 void BindIndexBuffer::assignIndices(ref_ptr<vsg::Data> indexData)
 {
-    indices = BufferInfo::create(indexData);
+    if (indexData) indices = BufferInfo::create(indexData);
+    else indices = {};
 }
 
 void BindIndexBuffer::read(Input& input)
@@ -55,14 +56,17 @@ void BindIndexBuffer::read(Input& input)
     Command::read(input);
 
     // read the key indices data
+    ref_ptr<vsg::Data> indices_data;
     if (input.version_greater_equal(0, 1, 4))
     {
-        input.read("indices", indices);
+        input.read("indices", indices_data);
     }
     else
     {
-        input.read("Indices", indices);
+        input.read("Indices", indices_data);
     }
+
+    assignIndices(indices_data);
 }
 
 void BindIndexBuffer::write(Output& output) const
@@ -72,11 +76,13 @@ void BindIndexBuffer::write(Output& output) const
     // write indices data
     if (output.version_greater_equal(0, 1, 4))
     {
-        output.write("indices", indices);
+        if (indices) output.write("indices", indices->data);
+        else output.writeObject("indices", nullptr);
     }
     else
     {
-        output.write("Indices", indices);
+        if (indices) output.write("Indices", indices->data);
+        else output.writeObject("Indices", nullptr);
     }
 }
 
@@ -89,7 +95,6 @@ void BindIndexBuffer::compile(Context& context)
     if (indices->buffer) return;
 
     if (createBufferAndTransferData(context, {indices}, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE))
-
         indexType = computeIndexType(indices->data);
 }
 

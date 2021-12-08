@@ -45,7 +45,8 @@ void Geometry::assignArrays(const DataList& arrayData)
 
 void Geometry::assignIndices(ref_ptr<vsg::Data> indexData)
 {
-    indices = BufferInfo::create(indexData);
+    if (indexData) indices = BufferInfo::create(indexData);
+    else indices = {};
 }
 
 void Geometry::read(Input& input)
@@ -65,7 +66,6 @@ void Geometry::read(Input& input)
     ref_ptr<vsg::Data> indices_data;
     input.readObject("Indices", indices_data);
 
-    indices = {};
     assignIndices(indices_data);
 
     commands.resize(input.readValue<uint32_t>("NumCommands"));

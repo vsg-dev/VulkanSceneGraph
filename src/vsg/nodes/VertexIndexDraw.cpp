@@ -45,7 +45,8 @@ void VertexIndexDraw::assignArrays(const DataList& arrayData)
 
 void VertexIndexDraw::assignIndices(ref_ptr<vsg::Data> indexData)
 {
-    indices = BufferInfo::create(indexData);
+    if (indexData) indices = BufferInfo::create(indexData);
+    else indices = {};
 }
 
 void VertexIndexDraw::read(Input& input)
@@ -67,7 +68,6 @@ void VertexIndexDraw::read(Input& input)
     ref_ptr<vsg::Data> indices_data;
     input.readObject("Indices", indices_data);
 
-    indices = {};
     assignIndices(indices_data);
 
     // vkCmdDrawIndexed settings
