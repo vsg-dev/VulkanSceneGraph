@@ -64,11 +64,11 @@ void VertexIndexDraw::read(Input& input)
     }
     assignArrays(dataList);
 
-    ref_ptr<vsg::Data> data;
-    input.readObject("Indices", data);
+    ref_ptr<vsg::Data> indices_data;
+    input.readObject("Indices", indices_data);
 
     indices = {};
-    assignIndices(data);
+    assignIndices(indices_data);
 
     // vkCmdDrawIndexed settings
     input.read("indexCount", indexCount);
@@ -86,13 +86,14 @@ void VertexIndexDraw::write(Output& output) const
     output.writeValue<uint32_t>("NumArrays", arrays.size());
     for (auto& array : arrays)
     {
-        output.writeObject("Array", array->data.get());
+        if (array) output.writeObject("Array", array->data.get());
+        else output.writeObject("Array", nullptr);
     }
 
     if (indices)
         output.writeObject("Indices", indices->data.get());
     else
-        output.writeObject("Indices", ref_ptr<vsg::Data>());
+        output.writeObject("Indices", nullptr);
 
     // vkCmdDrawIndexed settings
     output.write("indexCount", indexCount);

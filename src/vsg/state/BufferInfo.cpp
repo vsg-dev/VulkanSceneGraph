@@ -199,7 +199,10 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
     for (auto& bufferInfo : bufferInfoList)
     {
         const Data* data = bufferInfo->data;
-        std::memcpy(ptr + bufferInfo->offset - deviceBufferInfo->offset, data->dataPointer(), data->dataSize());
+        if (data)
+        {
+            std::memcpy(ptr + bufferInfo->offset - deviceBufferInfo->offset, data->dataPointer(), data->dataSize());
+        }
         bufferInfo->parent = deviceBufferInfo;
     }
 

@@ -53,13 +53,20 @@ void Geometry::read(Input& input)
     Node::read(input);
 
     input.read("firstBinding", firstBinding);
-    arrays.resize(input.readValue<uint32_t>("NumArrays"));
-    for (auto& array : arrays)
+
+    DataList dataList;
+    dataList.resize(input.readValue<uint32_t>("NumArrays"));
+    for (auto& array : dataList)
     {
         input.readObject("Array", array);
     }
+    assignArrays(dataList);
 
-    input.readObject("Indices", indices);
+    ref_ptr<vsg::Data> indices_data;
+    input.readObject("Indices", indices_data);
+
+    indices = {};
+    assignIndices(indices_data);
 
     commands.resize(input.readValue<uint32_t>("NumCommands"));
     for (auto& command : commands)
@@ -76,10 +83,12 @@ void Geometry::write(Output& output) const
     output.writeValue<uint32_t>("NumArrays", arrays.size());
     for (auto& array : arrays)
     {
-        output.writeObject("Array", array.get());
+        if (array) output.writeObject("Array", array->data.get());
+        else output.writeObject("Array", nullptr);
     }
 
-    output.writeObject("Indices", indices.get());
+    if (indices) output.writeObject("Indices", indices->data.get());
+    else output.writeObject("Indices", nullptr);
 
     output.writeValue<uint32_t>("NumCommands", commands.size());
     for (auto& command : commands)
