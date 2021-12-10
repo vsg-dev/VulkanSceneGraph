@@ -37,7 +37,7 @@ bool vsg::write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Opti
     if (!fileWritten)
     {
         // fallback to using native VSG if extension is compatible
-        auto ext = vsg::fileExtension(filename);
+        auto ext = vsg::lowerCaseFileExtension(filename);
         if (ext == ".vsga" || ext == ".vsgt" || ext == ".vsgb")
         {
             VSG rw;

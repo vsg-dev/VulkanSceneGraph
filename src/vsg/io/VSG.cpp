@@ -94,7 +94,7 @@ void VSG::writeHeader(std::ostream& fout, const FormatInfo& formatInfo) const
 
 vsg::ref_ptr<vsg::Object> VSG::read(const vsg::Path& filename, ref_ptr<const Options> options) const
 {
-    auto ext = vsg::fileExtension(filename);
+    auto ext = vsg::lowerCaseFileExtension(filename);
     if (ext == ".vsga" || ext == ".vsgt" || ext == ".vsgb")
     {
         vsg::Path filenameToUse = findFile(filename, options);
@@ -200,7 +200,7 @@ bool VSG::write(const vsg::Object* object, const vsg::Path& filename, ref_ptr<co
         }
     }
 
-    auto ext = vsg::fileExtension(filename);
+    auto ext = vsg::lowerCaseFileExtension(filename);
     if (ext == ".vsgb")
     {
         std::ofstream fout(filename, std::ios::out | std::ios::binary);
