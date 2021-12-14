@@ -56,6 +56,7 @@ namespace vsg
                 auto dest_v = _data;
                 for (auto& v : rhs) *(dest_v++) = v;
             }
+            dirty();
         }
 
         Array3D(uint32_t width, uint32_t height, uint32_t depth, Layout layout = {}) :
@@ -63,14 +64,17 @@ namespace vsg
             _data(new value_type[width * height * depth]),
             _width(width),
             _height(height),
-            _depth(depth) {}
+            _depth(depth)
+        {
+            dirty();
+        }
 
         Array3D(uint32_t width, uint32_t height, uint32_t depth, value_type* data, Layout layout = {}) :
             Data(layout, sizeof(value_type)),
             _data(data),
             _width(width),
             _height(height),
-            _depth(depth) {}
+            _depth(depth) { dirty(); }
 
         Array3D(uint32_t width, uint32_t height, uint32_t depth, const value_type& value, Layout layout = {}) :
             Data(layout, sizeof(value_type)),
@@ -80,6 +84,7 @@ namespace vsg
             _depth(depth)
         {
             for (auto& v : *this) v = value;
+            dirty();
         }
 
         Array3D(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Layout layout = Layout()) :
@@ -152,6 +157,8 @@ namespace vsg
                 _storage = nullptr;
 
                 input.read(new_size, _data);
+
+                dirty();
             }
         }
 
@@ -211,6 +218,8 @@ namespace vsg
                 for (auto& v : rhs) *(dest_v++) = v;
             }
 
+            dirty();
+
             return *this;
         }
 
@@ -225,6 +234,8 @@ namespace vsg
             _depth = depth;
             _data = data;
             _storage = nullptr;
+
+            dirty();
         }
 
         void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Layout layout = Layout())
@@ -248,6 +259,8 @@ namespace vsg
                 _height = 0;
                 _depth = 0;
             }
+
+            dirty();
         }
 
         // release the data so that ownership can be passed on, the local data pointer and size is set to 0 and destruction of Array will no result in the data being deleted.
