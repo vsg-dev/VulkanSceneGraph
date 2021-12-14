@@ -45,8 +45,10 @@ void VertexIndexDraw::assignArrays(const DataList& arrayData)
 
 void VertexIndexDraw::assignIndices(ref_ptr<vsg::Data> indexData)
 {
-    if (indexData) indices = BufferInfo::create(indexData);
-    else indices = {};
+    if (indexData)
+        indices = BufferInfo::create(indexData);
+    else
+        indices = {};
 }
 
 void VertexIndexDraw::read(Input& input)
@@ -86,8 +88,10 @@ void VertexIndexDraw::write(Output& output) const
     output.writeValue<uint32_t>("NumArrays", arrays.size());
     for (auto& array : arrays)
     {
-        if (array) output.writeObject("Array", array->data.get());
-        else output.writeObject("Array", nullptr);
+        if (array)
+            output.writeObject("Array", array->data.get());
+        else
+            output.writeObject("Array", nullptr);
     }
 
     if (indices)
@@ -114,10 +118,11 @@ void VertexIndexDraw::compile(Context& context)
     auto deviceID = context.deviceID;
 
     bool requiresCreateAndCopy = false;
-    if (indices && indices->requiresCopy(deviceID)) requiresCreateAndCopy = true;
+    if (indices && indices->requiresCopy(deviceID))
+        requiresCreateAndCopy = true;
     else
     {
-        for(auto& array : arrays)
+        for (auto& array : arrays)
         {
             if (array->requiresCopy(deviceID))
             {

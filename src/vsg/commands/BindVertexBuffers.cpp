@@ -71,8 +71,10 @@ void BindVertexBuffers::write(Output& output) const
     output.writeValue<uint32_t>("NumArrays", arrays.size());
     for (auto& array : arrays)
     {
-        if (array) output.writeObject("Array", array->data.get());
-        else output.writeObject("Array", nullptr);
+        if (array)
+            output.writeObject("Array", array->data.get());
+        else
+            output.writeObject("Array", nullptr);
     }
 }
 
@@ -84,7 +86,7 @@ void BindVertexBuffers::compile(Context& context)
     auto deviceID = context.deviceID;
 
     bool requiresCreateAndCopy = false;
-    for(auto& array : arrays)
+    for (auto& array : arrays)
     {
         if (array->requiresCopy(deviceID))
         {

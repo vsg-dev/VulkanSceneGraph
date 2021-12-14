@@ -45,8 +45,10 @@ void Geometry::assignArrays(const DataList& arrayData)
 
 void Geometry::assignIndices(ref_ptr<vsg::Data> indexData)
 {
-    if (indexData) indices = BufferInfo::create(indexData);
-    else indices = {};
+    if (indexData)
+        indices = BufferInfo::create(indexData);
+    else
+        indices = {};
 }
 
 void Geometry::read(Input& input)
@@ -83,12 +85,16 @@ void Geometry::write(Output& output) const
     output.writeValue<uint32_t>("NumArrays", arrays.size());
     for (auto& array : arrays)
     {
-        if (array) output.writeObject("Array", array->data.get());
-        else output.writeObject("Array", nullptr);
+        if (array)
+            output.writeObject("Array", array->data.get());
+        else
+            output.writeObject("Array", nullptr);
     }
 
-    if (indices) output.writeObject("Indices", indices->data.get());
-    else output.writeObject("Indices", nullptr);
+    if (indices)
+        output.writeObject("Indices", indices->data.get());
+    else
+        output.writeObject("Indices", nullptr);
 
     output.writeValue<uint32_t>("NumCommands", commands.size());
     for (auto& command : commands)
@@ -113,10 +119,11 @@ void Geometry::compile(Context& context)
     auto deviceID = context.deviceID;
 
     bool requiresCreateAndCopy = false;
-    if (indices && indices->requiresCopy(deviceID)) requiresCreateAndCopy = true;
+    if (indices && indices->requiresCopy(deviceID))
+        requiresCreateAndCopy = true;
     else
     {
-        for(auto& array : arrays)
+        for (auto& array : arrays)
         {
             if (array->requiresCopy(deviceID))
             {
@@ -140,7 +147,6 @@ void Geometry::compile(Context& context)
         combinedBufferInfos.push_back(indices);
         indexType = computeIndexType(indices->data);
     }
-
 
     if (createBufferAndTransferData(context, combinedBufferInfos, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE))
     {

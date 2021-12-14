@@ -26,10 +26,10 @@ namespace vsg
     {
         uint32_t count = 0;
 
-        bool operator == (const ModifiedCount& rhs) const { return count == rhs.count; }
-        bool operator != (const ModifiedCount& rhs) const { return count != rhs.count; }
+        bool operator==(const ModifiedCount& rhs) const { return count == rhs.count; }
+        bool operator!=(const ModifiedCount& rhs) const { return count != rhs.count; }
 
-        void operator ++() { ++count; }
+        void operator++() { ++count; }
     };
 
     /** 64 bit block of compressed texel data.*/
@@ -175,9 +175,9 @@ namespace vsg
             {
                 mc = _modifiedCount;
                 return true;
-
             }
-            else return false;
+            else
+                return false;
         }
 
         /// return true if Data's ModifiedCount is diffferent than the specified ModifiedCount

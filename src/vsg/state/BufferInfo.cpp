@@ -176,16 +176,15 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
         }
     }
 
-    if (numBuffersRequired==0)
+    if (numBuffersRequired == 0)
     {
-        std::cout<<"\nvsg::createBufferAndTransferData(...) already all compiled. deviceID = "<<deviceID<<std::endl;
+        std::cout << "\nvsg::createBufferAndTransferData(...) already all compiled. deviceID = " << deviceID << std::endl;
         return false;
     }
 
-
     if (containsMultipleParents)
     {
-        std::cout<<"Warning : vsg::createBufferAndTransferData(...) does not support multiple parent BufferInfo."<<std::endl;
+        std::cout << "Warning : vsg::createBufferAndTransferData(...) does not support multiple parent BufferInfo." << std::endl;
         return false;
     }
 
@@ -214,7 +213,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
     {
         if (totalSize != deviceBufferInfo->range)
         {
-            std::cout<<"Exisitng deviceBufferInfo, "<<deviceBufferInfo<<", deviceBufferInfo->range  = "<<deviceBufferInfo->range <<", "<<totalSize<<" NOT compatible"<<std::endl;
+            std::cout << "Exisitng deviceBufferInfo, " << deviceBufferInfo << ", deviceBufferInfo->range  = " << deviceBufferInfo->range << ", " << totalSize << " NOT compatible" << std::endl;
             return false;
         }
         else

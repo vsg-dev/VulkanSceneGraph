@@ -11,8 +11,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
-#include <vsg/viewer/Trackball.h>
 #include <vsg/io/stream.h>
+#include <vsg/viewer/Trackball.h>
 
 #include <algorithm>
 #include <iostream>
@@ -162,7 +162,7 @@ void Trackball::apply(ButtonReleaseEvent& buttonRelease)
 {
     if (buttonRelease.handled) return;
 
-    if (!windowOffsets.empty() && windowOffsets.count(buttonRelease.window)==0) return;
+    if (!windowOffsets.empty() && windowOffsets.count(buttonRelease.window) == 0) return;
 
     if (supportsThrow) _thrown = _previousPointerEvent && (buttonRelease.time == _previousPointerEvent->time);
 
