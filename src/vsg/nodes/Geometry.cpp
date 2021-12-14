@@ -110,7 +110,28 @@ void Geometry::compile(Context& context)
         command->compile(context);
     }
 
-    auto& vkd = _vulkanData[context.deviceID];
+    auto deviceID = context.deviceID;
+
+    bool requiresCreateAndCopy = false;
+    if (indices && indices->requiresCopy(deviceID)) requiresCreateAndCopy = true;
+    else
+    {
+        for(auto& array : arrays)
+        {
+            if (array->requiresCopy(deviceID))
+            {
+                requiresCreateAndCopy = true;
+                break;
+            }
+        }
+    }
+
+    if (!requiresCreateAndCopy)
+    {
+        return;
+    }
+
+    auto& vkd = _vulkanData[deviceID];
     vkd = {};
 
     BufferInfoList combinedBufferInfos(arrays);
@@ -120,11 +141,12 @@ void Geometry::compile(Context& context)
         indexType = computeIndexType(indices->data);
     }
 
+
     if (createBufferAndTransferData(context, combinedBufferInfos, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE))
     {
         for (auto& bufferInfo : arrays)
         {
-            vkd.vkBuffers.push_back(bufferInfo->buffer->vk(context.deviceID));
+            vkd.vkBuffers.push_back(bufferInfo->buffer->vk(deviceID));
             vkd.offsets.push_back(bufferInfo->offset);
         }
     }

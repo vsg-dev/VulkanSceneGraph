@@ -81,10 +81,24 @@ void BindVertexBuffers::compile(Context& context)
     // nothing to compile
     if (arrays.empty()) return;
 
-    auto& vkd = _vulkanData[context.deviceID];
+    auto deviceID = context.deviceID;
 
-    // already compiled
-    if (vkd.vkBuffers.size() == arrays.size()) return;
+    bool requiresCreateAndCopy = false;
+    for(auto& array : arrays)
+    {
+        if (array->requiresCopy(deviceID))
+        {
+            requiresCreateAndCopy = true;
+            break;
+        }
+    }
+
+    if (!requiresCreateAndCopy)
+    {
+        return;
+    }
+
+    auto& vkd = _vulkanData[context.deviceID];
 
     vkd.vkBuffers.clear();
     vkd.offsets.clear();

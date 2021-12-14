@@ -111,10 +111,28 @@ void VertexIndexDraw::compile(Context& context)
         return;
     }
 
-    auto& vkd = _vulkanData[context.deviceID];
+    auto deviceID = context.deviceID;
 
-    // check to see if we've already been compiled
-    if (vkd.vkBuffers.size() == arrays.size()) return;
+    bool requiresCreateAndCopy = false;
+    if (indices && indices->requiresCopy(deviceID)) requiresCreateAndCopy = true;
+    else
+    {
+        for(auto& array : arrays)
+        {
+            if (array->requiresCopy(deviceID))
+            {
+                requiresCreateAndCopy = true;
+                break;
+            }
+        }
+    }
+
+    if (!requiresCreateAndCopy)
+    {
+        return;
+    }
+
+    auto& vkd = _vulkanData[deviceID];
 
     vkd = {};
 
@@ -125,7 +143,7 @@ void VertexIndexDraw::compile(Context& context)
     {
         for (auto& bufferInfo : arrays)
         {
-            vkd.vkBuffers.push_back(bufferInfo->buffer->vk(context.deviceID));
+            vkd.vkBuffers.push_back(bufferInfo->buffer->vk(deviceID));
             vkd.offsets.push_back(bufferInfo->offset);
         }
     }
