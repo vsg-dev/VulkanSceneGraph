@@ -195,9 +195,9 @@ namespace vsg
         template<typename T>
         T readValue(const char* propertyName)
         {
-            T value{};
-            read(propertyName, value);
-            return value;
+            T v{};
+            read(propertyName, v);
+            return v;
         }
 
         /// read a value as a type, then cast it another type

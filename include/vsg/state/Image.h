@@ -56,7 +56,11 @@ namespace vsg
 
         VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset);
 
-        bool& requiresDataCopy(uint32_t deviceID) { return _vulkanData[deviceID].requiresDataCopy; }
+        /// return true if the Image's data has been modified and should be copied to the buffer.
+        bool requiresCopy(uint32_t deviceID) const { return data && data->differentModifiedCount(_vulkanData[deviceID].copiedModifiedCount); }
+
+        /// return true if the Image's data has been modified and should be copied to the buffer, updating the device specific ModifiedCount to the Data's ModifiedCount.
+        bool syncModifiedCount(uint32_t deviceID) { return data && data->getModifiedCount(_vulkanData[deviceID].copiedModifiedCount); }
 
         virtual void compile(Device* device);
         virtual void compile(Context& context);
@@ -72,6 +76,7 @@ namespace vsg
             VkDeviceSize size = 0;
             ref_ptr<Device> device;
             bool requiresDataCopy = false;
+            ModifiedCount copiedModifiedCount;
 
             void release();
         };

@@ -123,50 +123,7 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(*device, bufferInfo->buffer->vk(device->deviceID), &memRequirements);
 
-    ref_ptr<DeviceMemory> deviceMemory;
-    MemorySlots::OptionalOffset reservedMemorySlot(false, 0);
-
-    for (auto& memoryFromPool : memoryPools)
-    {
-        if (memoryFromPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits &&
-            memoryFromPool->getMemoryRequirements().alignment == memRequirements.alignment &&
-            memoryFromPool->maximumAvailableSpace() >= deviceSize)
-        {
-            reservedMemorySlot = memoryFromPool->reserve(deviceSize);
-            if (reservedMemorySlot.first)
-            {
-                deviceMemory = memoryFromPool;
-                break;
-            }
-        }
-    }
-
-    if (!deviceMemory)
-    {
-        VkDeviceSize minumumDeviceMemorySize = resourceRequirements.minimumBufferDeviceMemorySize;
-
-        // clamp to an aligned size
-        minumumDeviceMemorySize = ((minumumDeviceMemorySize + memRequirements.alignment - 1) / memRequirements.alignment) * memRequirements.alignment;
-
-        if (memRequirements.size < minumumDeviceMemorySize) memRequirements.size = minumumDeviceMemorySize;
-
-        deviceMemory = vsg::DeviceMemory::create(device, memRequirements, memoryProperties); // VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-        if (deviceMemory)
-        {
-            reservedMemorySlot = deviceMemory->reserve(deviceSize);
-            if (!deviceMemory->full())
-            {
-                memoryPools.push_back(deviceMemory);
-            }
-        }
-    }
-    else
-    {
-        if (deviceMemory->full())
-        {
-            std::cout << name << " : DeviceMemory is full " << deviceMemory.get() << std::endl;
-        }
-    }
+    auto reservedMemorySlot = reserveMemory(memRequirements, memoryProperties);
 
     if (!reservedMemorySlot.first)
     {
@@ -175,7 +132,7 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
     }
 
     // std::cout<<name<<" : Allocated new buffer, MemoryBufferPools::reserveBuffer("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") "<<std::endl;
-    bufferInfo->buffer->bind(deviceMemory, reservedMemorySlot.second);
+    bufferInfo->buffer->bind(reservedMemorySlot.first, reservedMemorySlot.second);
 
     return bufferInfo;
 }
@@ -234,9 +191,9 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
     if (!reservedSlot.first)
     {
         std::cout << "Failed to reserve slot" << std::endl;
-        return DeviceMemoryOffset();
+        return {};
     }
 
-    //std::cout << "MemoryBufferPools::reserveMemory() allocated memory at " << reservedSlot.second << std::endl;
+    //std::cout << "MemoryBufferPools::reserveMemory() allocated DeviceMemoryOffset(" << deviceMemory<<", "<<reservedSlot.second << ")"<<std::endl;
     return MemoryBufferPools::DeviceMemoryOffset(deviceMemory, reservedSlot.second);
 }

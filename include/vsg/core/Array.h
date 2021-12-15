@@ -53,17 +53,18 @@ namespace vsg
                 auto dest_v = _data;
                 for (auto& v : rhs) *(dest_v++) = v;
             }
+            dirty();
         }
 
         explicit Array(uint32_t numElements, Layout layout = {}) :
             Data(layout, sizeof(value_type)),
             _data(new value_type[numElements]),
-            _size(numElements) {}
+            _size(numElements) { dirty(); }
 
         Array(uint32_t numElements, value_type* data, Layout layout = {}) :
             Data(layout, sizeof(value_type)),
             _data(data),
-            _size(numElements) {}
+            _size(numElements) { dirty(); }
 
         Array(uint32_t numElements, const value_type& value, Layout layout = {}) :
             Data(layout, sizeof(value_type)),
@@ -71,6 +72,7 @@ namespace vsg
             _size(numElements)
         {
             for (auto& v : *this) v = value;
+            dirty();
         }
 
         Array(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t numElements, Layout layout = Layout()) :
@@ -89,6 +91,8 @@ namespace vsg
 
             iterator itr = begin();
             for (const value_type& v : l) { (*itr++) = v; }
+
+            dirty();
         }
 
         explicit Array(ref_ptr<Data> data, uint32_t offset, uint32_t stride, std::initializer_list<value_type> l) :
@@ -99,6 +103,8 @@ namespace vsg
 
             iterator itr = begin();
             for (const value_type& v : l) { (*itr++) = v; }
+
+            dirty();
         }
 
         template<typename... Args>
@@ -167,6 +173,8 @@ namespace vsg
                 _storage = nullptr;
 
                 input.read(new_total_size, _data);
+
+                dirty();
             }
         }
 
@@ -221,6 +229,8 @@ namespace vsg
                 for (auto& v : rhs) *(dest_v++) = v;
             }
 
+            dirty();
+
             return *this;
         }
 
@@ -233,6 +243,8 @@ namespace vsg
             _size = numElements;
             _data = data;
             _storage = nullptr;
+
+            dirty();
         }
 
         void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t numElements, Layout layout = Layout())
@@ -252,6 +264,8 @@ namespace vsg
                 _data = nullptr;
                 _size = 0;
             }
+
+            dirty();
         }
 
         // release the data so that ownership can be passed on, the local data pointer and size is set to 0 and destruction of Array will no result in the data being deleted.

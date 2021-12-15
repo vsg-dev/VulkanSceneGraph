@@ -22,6 +22,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    struct ModifiedCount
+    {
+        uint32_t count = 0;
+
+        bool operator==(const ModifiedCount& rhs) const { return count == rhs.count; }
+        bool operator!=(const ModifiedCount& rhs) const { return count != rhs.count; }
+
+        void operator++() { ++count; }
+    };
+
     /** 64 bit block of compressed texel data.*/
     using block64 = uint8_t[8];
 
@@ -155,10 +165,29 @@ namespace vsg
         MipmapOffsets computeMipmapOffsets() const;
         static std::size_t computeValueCountIncludingMipmaps(std::size_t w, std::size_t h, std::size_t d, uint32_t maxNumMipmaps);
 
+        /// increment the ModifiedCount to signify the data has been modified
+        void dirty() { ++_modifiedCount; }
+
+        /// get the Data's ModifiedCount and return true if this changes the specified ModifiedCount
+        bool getModifiedCount(ModifiedCount& mc) const
+        {
+            if (_modifiedCount != mc)
+            {
+                mc = _modifiedCount;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        /// return true if Data's ModifiedCount is diffferent than the specified ModifiedCount
+        bool differentModifiedCount(const ModifiedCount& mc) const { return _modifiedCount != mc; }
+
     protected:
         virtual ~Data() {}
 
         Layout _layout;
+        ModifiedCount _modifiedCount;
     };
     VSG_type_name(vsg::Data);
 

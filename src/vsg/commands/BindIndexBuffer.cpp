@@ -47,8 +47,10 @@ BindIndexBuffer::~BindIndexBuffer()
 
 void BindIndexBuffer::assignIndices(ref_ptr<vsg::Data> indexData)
 {
-    if (indexData) indices = BufferInfo::create(indexData);
-    else indices = {};
+    if (indexData)
+        indices = BufferInfo::create(indexData);
+    else
+        indices = {};
 }
 
 void BindIndexBuffer::read(Input& input)
@@ -76,13 +78,17 @@ void BindIndexBuffer::write(Output& output) const
     // write indices data
     if (output.version_greater_equal(0, 1, 4))
     {
-        if (indices) output.writeObject("indices", indices->data);
-        else output.writeObject("indices", nullptr);
+        if (indices)
+            output.writeObject("indices", indices->data);
+        else
+            output.writeObject("indices", nullptr);
     }
     else
     {
-        if (indices) output.writeObject("Indices", indices->data);
-        else output.writeObject("Indices", nullptr);
+        if (indices)
+            output.writeObject("Indices", indices->data);
+        else
+            output.writeObject("Indices", nullptr);
     }
 }
 
@@ -92,7 +98,10 @@ void BindIndexBuffer::compile(Context& context)
     if (!indices) return;
 
     // check if already compiled
-    if (indices->buffer) return;
+    if (!indices->requiresCopy(context.deviceID))
+    {
+        return;
+    }
 
     if (createBufferAndTransferData(context, {indices}, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE))
         indexType = computeIndexType(indices->data);

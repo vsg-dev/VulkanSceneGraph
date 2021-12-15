@@ -58,9 +58,9 @@ namespace vsg
 
         /// bins
         std::vector<ref_ptr<Bin>> bins;
+
     protected:
         virtual ~View();
-
     };
     VSG_type_name(vsg::View);
 
