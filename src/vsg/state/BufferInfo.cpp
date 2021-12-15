@@ -142,9 +142,53 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
 {
     //std::cout<<"vsg::createBufferAndTransferData(.., )"<<std::endl;
 
-    Device* device = context.device;
-
     if (bufferInfoList.empty()) return false;
+
+    auto deviceID = context.deviceID;
+
+    ref_ptr<BufferInfo> deviceBufferInfo;
+    size_t numBuffersAssigned = 0;
+    size_t numBuffersRequired = 0;
+    size_t numNoData = 0;
+    bool containsMultipleParents = false;
+    for (auto& bufferInfo : bufferInfoList)
+    {
+        if (bufferInfo->data)
+        {
+            if (bufferInfo->data->getModifiedCount(bufferInfo->copiedModifiedCounts[deviceID]))
+            {
+                ++numBuffersRequired;
+            }
+            else
+            {
+                ++numBuffersAssigned;
+            }
+        }
+        else
+        {
+            ++numNoData;
+        }
+
+        if (bufferInfo->parent)
+        {
+            if (deviceBufferInfo && bufferInfo->parent != deviceBufferInfo) containsMultipleParents = true;
+            deviceBufferInfo = bufferInfo->parent;
+        }
+    }
+
+    if (numBuffersRequired == 0)
+    {
+        std::cout << "\nvsg::createBufferAndTransferData(...) already all compiled. deviceID = " << deviceID << std::endl;
+        return false;
+    }
+
+    if (containsMultipleParents)
+    {
+        std::cout << "Warning : vsg::createBufferAndTransferData(...) does not support multiple parent BufferInfo." << std::endl;
+        return false;
+    }
+
+    Device* device = context.device;
 
     VkDeviceSize alignment = 4;
     if (usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
@@ -165,9 +209,36 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
     totalSize = offset;
     if (totalSize == 0) return false;
 
-    VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage;
+    if (deviceBufferInfo && deviceBufferInfo->buffer)
+    {
+        if (totalSize != deviceBufferInfo->range)
+        {
+            std::cout << "Exisitng deviceBufferInfo, " << deviceBufferInfo << ", deviceBufferInfo->range  = " << deviceBufferInfo->range << ", " << totalSize << " NOT compatible" << std::endl;
+            return false;
+        }
+        else
+        {
+            //std::cout<<"Exisitng deviceBufferInfo, "<<deviceBufferInfo<<", deviceBufferInfo->range  = "<<deviceBufferInfo->range <<", "<<totalSize<<" with compatible size"<<std::endl;
 
-    auto deviceBufferInfo = context.deviceMemoryBufferPools->reserveBuffer(totalSize, alignment, bufferUsageFlags, sharingMode, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+            // make sure the VkBuffer is created
+            deviceBufferInfo->buffer->compile(context);
+
+            if (!deviceBufferInfo->buffer->getDeviceMemory(deviceID))
+            {
+                VkMemoryRequirements memRequirements;
+                vkGetBufferMemoryRequirements(*device, deviceBufferInfo->buffer->vk(device->deviceID), &memRequirements);
+
+                auto deviceMemoryOffset = context.deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+                deviceBufferInfo->buffer->bind(deviceMemoryOffset.first, deviceMemoryOffset.second);
+            }
+        }
+    }
+
+    if (!deviceBufferInfo)
+    {
+        VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage;
+        deviceBufferInfo = context.deviceMemoryBufferPools->reserveBuffer(totalSize, alignment, bufferUsageFlags, sharingMode, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    }
 
     //std::cout<<"deviceBufferInfo->buffer "<<deviceBufferInfo->buffer.get()<<", "<<deviceBufferInfo->offset<<", "<<deviceBufferInfo->range<<")"<<std::endl;
 

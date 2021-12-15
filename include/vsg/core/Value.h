@@ -40,15 +40,16 @@ namespace vsg
     public:
         using value_type = T;
 
-        Value() {}
+        Value() :
+            _value{} { dirty(); }
         Value(const Value& rhs) :
-            _value(rhs._value) {}
+            _value(rhs._value) { dirty(); }
         explicit Value(const value_type& in_value) :
-            _value(in_value) {}
+            _value(in_value) { dirty(); }
 
         template<typename... Args>
         explicit Value(Args... args) :
-            _value(args...) {}
+            _value(args...) { dirty(); }
 
         template<typename... Args>
         static ref_ptr<Value> create(Args... args)
@@ -69,6 +70,7 @@ namespace vsg
         {
             Data::read(input);
             input.read("Value", _value);
+            dirty();
         }
 
         void write(Output& output) const override

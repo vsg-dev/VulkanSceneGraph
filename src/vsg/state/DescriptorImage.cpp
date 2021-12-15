@@ -106,15 +106,10 @@ void DescriptorImage::compile(Context& context)
             auto& imageView = *imageInfo->imageView;
             imageView.compile(context);
 
-            if (imageView.image)
+            if (imageView.image && imageView.image->syncModifiedCount(context.deviceID))
             {
                 auto& image = *imageView.image;
-                auto& requiresDataCopy = image.requiresDataCopy(context.deviceID);
-                if (requiresDataCopy && image.data)
-                {
-                    context.copy(image.data, imageInfo, image.mipLevels);
-                    requiresDataCopy = false;
-                }
+                context.copy(image.data, imageInfo, image.mipLevels);
             }
         }
     }

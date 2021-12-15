@@ -44,6 +44,7 @@ namespace vsg
         virtual void zoom(double ratio);
         virtual void pan(const dvec2& delta);
 
+        std::pair<int32_t, int32_t> cameraRenderAreaCoordinates(const PointerEvent& pointerEvent) const;
         bool withinRenderArea(const PointerEvent& pointerEvent) const;
 
         void clampToGlobe();
@@ -87,6 +88,7 @@ namespace vsg
 
         /// Toggle on/off whether the view should continue moving when the mouse buttons are released while the mouse is in motion.
         bool supportsThrow = true;
+
 
     protected:
         ref_ptr<Camera> _camera;

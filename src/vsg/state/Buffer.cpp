@@ -77,6 +77,12 @@ VkResult Buffer::bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
 {
     VulkanData& vd = _vulkanData[deviceMemory->getDevice()->deviceID];
 
+    if (vd.deviceMemory)
+    {
+        std::cout << "Warning : Buffer::bind(" << deviceMemory << ", " << memoryOffset << ") failed, buffer already bound to " << vd.deviceMemory << std::endl;
+        return VK_ERROR_UNKNOWN;
+    }
+
     VkResult result = vkBindBufferMemory(*vd.device, vd.buffer, *deviceMemory, memoryOffset);
     if (result == VK_SUCCESS)
     {
