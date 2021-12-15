@@ -67,25 +67,25 @@ void Trackball::clampToGlobe()
     }
 }
 
-bool Trackball::withinRenderArea(const PointerEvent& pointerEvent) const
+std::pair<int32_t, int32_t> Trackball::cameraRenderAreaCoordinates(const PointerEvent& pointerEvent) const
 {
-    auto x = pointerEvent.x;
-    auto y = pointerEvent.y;
     if (!windowOffsets.empty())
     {
         auto itr = windowOffsets.find(pointerEvent.window);
-        if (itr == windowOffsets.end())
+        if (itr != windowOffsets.end())
         {
-            //std::cout<<"Trackball::withinRenderArea(pointerEvent.window ="<<pointerEvent.window<<" ) not matched."<<std::endl;
-            return false;
+            auto& offset = itr->second;
+            return {pointerEvent.x + offset.x, pointerEvent.y + offset.y};
         }
-
-        auto& offset = itr->second;
-        x -= offset.x;
-        y -= offset.y;
     }
+    return {pointerEvent.x, pointerEvent.y};
+}
 
+bool Trackball::withinRenderArea(const PointerEvent& pointerEvent) const
+{
     auto renderArea = _camera->getRenderArea();
+    auto [x, y] = cameraRenderAreaCoordinates(pointerEvent);
+
     return (x >= renderArea.offset.x && x < static_cast<int32_t>(renderArea.offset.x + renderArea.extent.width)) &&
            (y >= renderArea.offset.y && y < static_cast<int32_t>(renderArea.offset.y + renderArea.extent.height));
 }
@@ -94,11 +94,12 @@ bool Trackball::withinRenderArea(const PointerEvent& pointerEvent) const
 dvec2 Trackball::ndc(PointerEvent& event)
 {
     auto renderArea = _camera->getRenderArea();
+    auto [x, y] = cameraRenderAreaCoordinates(event);
 
     double aspectRatio = static_cast<double>(renderArea.extent.width) / static_cast<double>(renderArea.extent.height);
     dvec2 v(
-        (renderArea.extent.width > 0) ? (static_cast<double>(event.x - renderArea.offset.x) / static_cast<double>(renderArea.extent.width) * 2.0 - 1.0) * aspectRatio : 0.0,
-        (renderArea.extent.height > 0) ? static_cast<double>(event.y - renderArea.offset.y) / static_cast<double>(renderArea.extent.height) * 2.0 - 1.0 : 0.0);
+        (renderArea.extent.width > 0) ? (static_cast<double>(x - renderArea.offset.x) / static_cast<double>(renderArea.extent.width) * 2.0 - 1.0) * aspectRatio : 0.0,
+        (renderArea.extent.height > 0) ? static_cast<double>(y - renderArea.offset.y) / static_cast<double>(renderArea.extent.height) * 2.0 - 1.0 : 0.0);
     return v;
 }
 
