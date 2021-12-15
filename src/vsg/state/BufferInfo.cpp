@@ -218,16 +218,19 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
         }
         else
         {
-            // std::cout<<"Exisitng deviceBufferInfo, "<<deviceBufferInfo<<", deviceBufferInfo->range  = "<<deviceBufferInfo->range <<", "<<totalSize<<" with compatible size"<<std::endl;
+            //std::cout<<"Exisitng deviceBufferInfo, "<<deviceBufferInfo<<", deviceBufferInfo->range  = "<<deviceBufferInfo->range <<", "<<totalSize<<" with compatible size"<<std::endl;
 
             // make sure the VkBuffer is created
             deviceBufferInfo->buffer->compile(context);
 
-            VkMemoryRequirements memRequirements;
-            vkGetBufferMemoryRequirements(*device, deviceBufferInfo->buffer->vk(device->deviceID), &memRequirements);
+            if (!deviceBufferInfo->buffer->getDeviceMemory(deviceID))
+            {
+                VkMemoryRequirements memRequirements;
+                vkGetBufferMemoryRequirements(*device, deviceBufferInfo->buffer->vk(device->deviceID), &memRequirements);
 
-            auto deviceMemoryOffset = context.deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-            deviceBufferInfo->buffer->bind(deviceMemoryOffset.first, deviceMemoryOffset.second);
+                auto deviceMemoryOffset = context.deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+                deviceBufferInfo->buffer->bind(deviceMemoryOffset.first, deviceMemoryOffset.second);
+            }
         }
     }
 
