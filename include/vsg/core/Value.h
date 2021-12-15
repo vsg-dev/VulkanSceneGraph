@@ -40,7 +40,8 @@ namespace vsg
     public:
         using value_type = T;
 
-        Value() { dirty(); }
+        Value() :
+            _value{} { dirty(); }
         Value(const Value& rhs) :
             _value(rhs._value) { dirty(); }
         explicit Value(const value_type& in_value) :
