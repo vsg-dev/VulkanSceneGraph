@@ -68,7 +68,7 @@ void Switch::write(Output& output) const
 {
     Node::write(output);
 
-    if (output.version_greater_equal(0, 2, 1))
+    if (output.version_greater_equal(0, 2, 2))
     {
         output.writeValue<uint32_t>("children", children.size());
         for (auto& child : children)
