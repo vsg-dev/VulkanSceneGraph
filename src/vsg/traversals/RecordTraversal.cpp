@@ -280,7 +280,7 @@ void RecordTraversal::apply(const Switch& sw)
 {
     for (auto& child : sw.children)
     {
-        if (child.enabled)
+        if ((traversalMask & (overrideMask | child.mask)) != 0)
         {
             child.node->accept(*this);
         }

@@ -38,7 +38,6 @@ set(SOURCES
     nodes/DepthSorted.cpp
     nodes/Bin.cpp
     nodes/Switch.cpp
-    nodes/MaskGroup.cpp
     nodes/StateGroup.cpp
 
     commands/BindIndexBuffer.cpp

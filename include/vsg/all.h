@@ -54,7 +54,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
-#include <vsg/nodes/MaskGroup.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/Node.h>
 #include <vsg/nodes/PagedLOD.h>

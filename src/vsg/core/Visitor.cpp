@@ -481,10 +481,6 @@ void Visitor::apply(Switch& value)
 {
     apply(static_cast<Node&>(value));
 }
-void Visitor::apply(MaskGroup& value)
-{
-    apply(static_cast<Node&>(value));
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

@@ -29,7 +29,10 @@ namespace vsg
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
-            for (auto& child : node.children) child.node->accept(visitor);
+            for (auto& child : node.children)
+            {
+                if ((visitor.traversalMask & (visitor.overrideMask | child.mask)) != 0) child.node->accept(visitor);
+            }
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
@@ -41,12 +44,15 @@ namespace vsg
 
         struct Child
         {
-            bool enabled = true;
+            uint32_t mask = 0xffffff;
             ref_ptr<Node> node;
         };
 
         using Children = std::vector<Child>;
         Children children;
+
+        /// add a child to the back of the children list.
+        void addChild(uint32_t mask, ref_ptr<Node> child);
 
         /// add a child to the back of the children list.
         void addChild(bool enabled, ref_ptr<Node> child);
@@ -61,5 +67,7 @@ namespace vsg
         virtual ~Switch();
     };
     VSG_type_name(vsg::Switch);
+
+    inline uint32_t boolToMask(bool enabled) { return enabled ? uint32_t(0xffffff) : uint32_t(0x0); }
 
 } // namespace vsg
