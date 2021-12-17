@@ -372,8 +372,8 @@ void RecordTraversal::apply(const View& view)
 
     // cache the previous bins
     int32_t cached_minimumBinNumber = _minimumBinNumber;
-    decltype(_bins) cachef_bins;
-    cachef_bins.swap(_bins);
+    decltype(_bins) cached_bins;
+    cached_bins.swap(_bins);
 
     // assign and clear the View's bins
     int32_t min_binNumber = 0;
@@ -411,6 +411,6 @@ void RecordTraversal::apply(const View& view)
 
     // swap back previous bin setup.
     _minimumBinNumber = cached_minimumBinNumber;
-    cachef_bins.swap(_bins);
+    cached_bins.swap(_bins);
     _state->_commandBuffer->traversalMask = cached_traversalMask;
 }
