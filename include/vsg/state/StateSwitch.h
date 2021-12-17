@@ -19,7 +19,6 @@ namespace vsg
     class VSG_DECLSPEC StateSwitch : public Inherit<StateCommand, StateSwitch>
     {
     public:
-
         template<class N, class V>
         static void t_traverse(N& sc, V& visitor)
         {

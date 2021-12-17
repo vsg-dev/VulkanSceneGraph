@@ -18,12 +18,12 @@ using namespace vsg;
 
 void StateSwitch::compile(Context& context)
 {
-    for(auto& child : children) child.stateCommand->compile(context);
+    for (auto& child : children) child.stateCommand->compile(context);
 }
 
 void StateSwitch::record(CommandBuffer& commandBuffer) const
 {
-    for(auto& child : children)
+    for (auto& child : children)
     {
         if ((commandBuffer.traversalMask & (commandBuffer.overrideMask | child.mask)) != 0)
         {

@@ -82,7 +82,7 @@ void Switch::write(Output& output) const
         output.writeValue<uint32_t>("children", children.size());
         for (auto& child : children)
         {
-            bool enabled = child.mask==0 ? false : true;
+            bool enabled = child.mask == 0 ? false : true;
             output.write("child.enabled", enabled);
             output.write("child.node", child.node);
         }
@@ -92,7 +92,7 @@ void Switch::write(Output& output) const
         output.writeValue<uint32_t>("NumChildren", children.size());
         for (auto& child : children)
         {
-            bool enabled = child.mask==0 ? false : true;
+            bool enabled = child.mask == 0 ? false : true;
             output.write("enabled", enabled);
             output.write("node", child.node);
         }
