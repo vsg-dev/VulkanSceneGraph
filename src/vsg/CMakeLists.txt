@@ -80,6 +80,7 @@ set(SOURCES
     state/Sampler.cpp
     state/ResourceHints.cpp
     state/StateCommand.cpp
+    state/StateSwitch.cpp
     state/Image.cpp
     state/ImageInfo.cpp
     state/ImageView.cpp

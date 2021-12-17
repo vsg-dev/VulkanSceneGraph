@@ -116,6 +116,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/ShaderModule.h>
 #include <vsg/state/ShaderStage.h>
 #include <vsg/state/StateCommand.h>
+#include <vsg/state/StateSwitch.h>
 #include <vsg/state/TessellationState.h>
 #include <vsg/state/VertexInputState.h>
 #include <vsg/state/ViewportState.h>

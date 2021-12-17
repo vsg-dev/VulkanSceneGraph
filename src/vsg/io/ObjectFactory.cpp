@@ -214,6 +214,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::Sampler);
     VSG_REGISTER_create(vsg::PushConstants);
     VSG_REGISTER_create(vsg::ResourceHints);
+    VSG_REGISTER_create(vsg::StateSwitch);
 
     // commands
     VSG_REGISTER_create(vsg::Draw);
