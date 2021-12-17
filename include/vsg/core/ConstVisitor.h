@@ -45,6 +45,7 @@ namespace vsg
     class BufferInfo;
     class Command;
     class StateCommand;
+    class StateSwitch;
     class CommandBuffer;
     class RenderPass;
     class BindDescriptorSet;
@@ -248,6 +249,7 @@ namespace vsg
         virtual void apply(const BufferInfo&);
         virtual void apply(const Command&);
         virtual void apply(const StateCommand&);
+        virtual void apply(const StateSwitch&);
         virtual void apply(const CommandBuffer&);
         virtual void apply(const RenderPass&);
         virtual void apply(const BindDescriptorSet&);

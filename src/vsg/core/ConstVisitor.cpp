@@ -498,6 +498,10 @@ void ConstVisitor::apply(const StateCommand& value)
 {
     apply(static_cast<const Command&>(value));
 }
+void ConstVisitor::apply(const StateSwitch& value)
+{
+    apply(static_cast<const StateCommand&>(value));
+}
 void ConstVisitor::apply(const CommandBuffer& value)
 {
     apply(static_cast<const Object&>(value));
