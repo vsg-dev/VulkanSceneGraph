@@ -38,7 +38,6 @@ set(SOURCES
     nodes/DepthSorted.cpp
     nodes/Bin.cpp
     nodes/Switch.cpp
-    nodes/MaskGroup.cpp
     nodes/StateGroup.cpp
 
     commands/BindIndexBuffer.cpp
@@ -81,6 +80,7 @@ set(SOURCES
     state/Sampler.cpp
     state/ResourceHints.cpp
     state/StateCommand.cpp
+    state/StateSwitch.cpp
     state/Image.cpp
     state/ImageInfo.cpp
     state/ImageView.cpp
