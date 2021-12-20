@@ -23,7 +23,6 @@ namespace vsg
     class VSG_DECLSPEC ArrayState : public Inherit<ConstVisitor, ArrayState>
     {
     public:
-
         ArrayState() = default;
         ArrayState(const ArrayState&) = default;
 
@@ -83,7 +82,6 @@ namespace vsg
     class VSG_DECLSPEC NullArrayState : public Inherit<ArrayState, NullArrayState>
     {
     public:
-
         NullArrayState();
         NullArrayState(const ArrayState& as);
 
@@ -92,7 +90,6 @@ namespace vsg
 
         void apply(const vsg::vec3Array&) override;
         void apply(const vsg::Data&) override;
-
     };
     VSG_type_name(vsg::NullArrayState);
 
