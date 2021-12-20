@@ -17,16 +17,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <list>
 
+#include <iostream>
+
 namespace vsg
 {
-
     class VSG_DECLSPEC Intersector : public Inherit<ConstVisitor, Intersector>
     {
     public:
         using NodePath = std::vector<const Node*>;
-        using ArrayStateStack = std::vector<ArrayState>;
+        using ArrayStateStack = std::vector<ref_ptr<ArrayState>>;
 
-        Intersector();
+        Intersector(ref_ptr<ArrayState> initialArrayData = {});
 
         //
         // handle traverse of the scene graph

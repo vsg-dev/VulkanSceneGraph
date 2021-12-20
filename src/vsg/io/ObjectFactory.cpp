@@ -263,6 +263,8 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::Options);
     VSG_REGISTER_create(vsg::CompositeReaderWriter);
     VSG_REGISTER_create(vsg::VSG);
+    VSG_REGISTER_create(vsg::ArrayState);
+    VSG_REGISTER_create(vsg::NullArrayState);
 
     // utils
     VSG_REGISTER_create(vsg::AnimationPath);

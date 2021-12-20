@@ -30,8 +30,8 @@ namespace vsg
     class VSG_DECLSPEC LineSegmentIntersector : public Inherit<Intersector, LineSegmentIntersector>
     {
     public:
-        LineSegmentIntersector(const dvec3& s, const dvec3& e);
-        LineSegmentIntersector(const Camera& camera, int32_t x, int32_t y);
+        LineSegmentIntersector(const dvec3& s, const dvec3& e, ref_ptr<ArrayState> initialArrayData = {});
+        LineSegmentIntersector(const Camera& camera, int32_t x, int32_t y, ref_ptr<ArrayState> initialArrayData = {});
 
         struct Intersection
         {

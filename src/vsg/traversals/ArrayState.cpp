@@ -22,6 +22,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// ArrayState
+//
 void ArrayState::apply(const vsg::BindGraphicsPipeline& bpg)
 {
     for (auto& pipelineState : bpg.pipeline->pipelineStates)
@@ -122,4 +126,40 @@ void ArrayState::apply(const vsg::Data& array)
     {
         vertices = nullptr;
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// NullArrayState
+//
+NullArrayState::NullArrayState() :
+    Inherit()
+{
+}
+
+NullArrayState::NullArrayState(const ArrayState& as) :
+    Inherit(as)
+{
+    vertices = {};
+}
+
+ref_ptr<ArrayState> NullArrayState::clone()
+{
+    return ref_ptr<ArrayState>(new NullArrayState(*this));
+}
+
+// clone the specified ArrayState
+ref_ptr<ArrayState> NullArrayState::clone(ref_ptr<ArrayState> arrayState)
+{
+    return ref_ptr<ArrayState>(new NullArrayState(*arrayState));
+}
+
+void NullArrayState::apply(const vsg::vec3Array&)
+{
+    vertices = {};
+}
+
+void NullArrayState::apply(const vsg::Data&)
+{
+    vertices = {};
 }
