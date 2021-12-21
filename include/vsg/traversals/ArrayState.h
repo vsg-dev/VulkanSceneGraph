@@ -29,13 +29,13 @@ namespace vsg
         /// clone self
         virtual ref_ptr<ArrayState> clone()
         {
-            return ref_ptr<ArrayState>(new ArrayState(*this));
+            return ArrayState::create(*this);
         }
 
         // clone the specified ArrayState
         virtual ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState)
         {
-            return ref_ptr<ArrayState>(new ArrayState(*arrayState));
+            return ArrayState::create(*arrayState);
         }
 
         struct AttributeDetails

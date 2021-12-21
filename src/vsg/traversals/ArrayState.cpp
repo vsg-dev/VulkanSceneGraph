@@ -145,13 +145,13 @@ NullArrayState::NullArrayState(const ArrayState& as) :
 
 ref_ptr<ArrayState> NullArrayState::clone()
 {
-    return ref_ptr<ArrayState>(new NullArrayState(*this));
+    return NullArrayState::create(*this);
 }
 
 // clone the specified ArrayState
 ref_ptr<ArrayState> NullArrayState::clone(ref_ptr<ArrayState> arrayState)
 {
-    return ref_ptr<ArrayState>(new NullArrayState(*arrayState));
+    return NullArrayState::create(*arrayState);
 }
 
 void NullArrayState::apply(const vsg::vec3Array&)
