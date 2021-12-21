@@ -28,7 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Output.h>
 
 #define VSG_value(N, T) \
-    using N = vsg::Value<T>; \
+    using N = Value<T>; \
     template<>          \
     constexpr const char* type_name<N>() noexcept { return "vsg::" #N; }
 
