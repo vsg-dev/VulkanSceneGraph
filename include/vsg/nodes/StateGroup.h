@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/Group.h>
 #include <vsg/state/StateCommand.h>
+#include <vsg/traversals/ArrayState.h>
 #include <vsg/traversals/CompileTraversal.h>
 
 #include <algorithm>
@@ -33,6 +34,9 @@ namespace vsg
 
         using StateCommands = std::vector<ref_ptr<StateCommand>>;
         StateCommands stateCommands;
+
+        /// if the shaders associated with GraphicsPipeline don't treat the array 0 as xyz vertex then provide a ArrayState prototype to provide custom mapping of arrays to vertices.
+        ref_ptr<ArrayState> prototypeArrayState;
 
         template<class T>
         bool contains(const T value) const

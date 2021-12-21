@@ -43,6 +43,11 @@ void StateGroup::read(Input& input)
             input.read("StateCommand", command);
         }
     }
+
+    if (input.version_greater_equal(0, 2, 3))
+    {
+        input.readObject("prototypeArrayState", prototypeArrayState);
+    }
 }
 
 void StateGroup::write(Output& output) const
@@ -60,6 +65,11 @@ void StateGroup::write(Output& output) const
         {
             output.write("StateCommand", command);
         }
+    }
+
+    if (output.version_greater_equal(0, 2, 3))
+    {
+        output.write("prototypeArrayState", prototypeArrayState);
     }
 }
 

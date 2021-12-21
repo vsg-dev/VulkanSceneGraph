@@ -21,11 +21,11 @@ namespace vsg
     class VSG_DECLSPEC ComputeBounds : public Inherit<ConstVisitor, ComputeBounds>
     {
     public:
-        ComputeBounds();
+        ComputeBounds(ref_ptr<ArrayState> initialArrayData = {});
 
         dbox bounds;
 
-        using ArrayStateStack = std::vector<ArrayState>;
+        using ArrayStateStack = std::vector<ref_ptr<ArrayState>>;
         ArrayStateStack arrayStateStack;
 
         using MatrixStack = std::vector<dmat4>;

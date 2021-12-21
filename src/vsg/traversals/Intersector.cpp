@@ -36,10 +36,10 @@ struct PushPopNode
     ~PushPopNode() { nodePath.pop_back(); }
 };
 
-Intersector::Intersector()
+Intersector::Intersector(ref_ptr<ArrayState> initialArrayData)
 {
     arrayStateStack.reserve(4);
-    arrayStateStack.emplace_back(ArrayState());
+    arrayStateStack.emplace_back(initialArrayData ? initialArrayData : ArrayState::create());
 }
 
 void Intersector::apply(const Node& node)
@@ -53,11 +53,11 @@ void Intersector::apply(const StateGroup& stategroup)
 {
     PushPopNode ppn(_nodePath, &stategroup);
 
-    ArrayState arrayState(arrayStateStack.back());
+    auto arrayState = stategroup.prototypeArrayState ? stategroup.prototypeArrayState->clone(arrayStateStack.back()) : arrayStateStack.back()->clone();
 
     for (auto& statecommand : stategroup.stateCommands)
     {
-        statecommand->accept(arrayState);
+        statecommand->accept(*arrayState);
     }
 
     arrayStateStack.emplace_back(arrayState);
@@ -121,7 +121,7 @@ void Intersector::apply(const CullNode& cn)
 
 void Intersector::apply(const VertexIndexDraw& vid)
 {
-    auto& arrayState = arrayStateStack.back();
+    auto& arrayState = *arrayStateStack.back();
     arrayState.apply(vid);
     if (!arrayState.vertices) return;
 
@@ -159,7 +159,7 @@ void Intersector::apply(const VertexIndexDraw& vid)
 
 void Intersector::apply(const Geometry& geometry)
 {
-    auto& arrayState = arrayStateStack.back();
+    auto& arrayState = *arrayStateStack.back();
     arrayState.apply(geometry);
     if (!arrayState.vertices) return;
 
@@ -175,7 +175,7 @@ void Intersector::apply(const Geometry& geometry)
 
 void Intersector::apply(const BindVertexBuffers& bvb)
 {
-    arrayStateStack.back().apply(bvb);
+    arrayStateStack.back()->apply(bvb);
 }
 
 void Intersector::apply(const BindIndexBuffer& bib)
