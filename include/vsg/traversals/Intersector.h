@@ -15,10 +15,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Node.h>
 #include <vsg/traversals/ArrayState.h>
 
-#include <list>
-
-#include <iostream>
-
 namespace vsg
 {
     class VSG_DECLSPEC Intersector : public Inherit<ConstVisitor, Intersector>
