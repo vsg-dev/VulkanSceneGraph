@@ -70,3 +70,5 @@ src/vsg/vsg.dir/
 DerivedData/
 *.build
 *.xcodeproj
+.vscode/settings.json
+build-lin/include/vsg/core/Version.h
