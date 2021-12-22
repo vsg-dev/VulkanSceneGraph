@@ -134,6 +134,7 @@ namespace vsg
         virtual void _initSurface() = 0;
         void _initFormats();
         void _initInstance();
+        void _initPhysicalDevice();
         void _initDevice();
         void _initRenderPass();
         void _initSwapchain();
