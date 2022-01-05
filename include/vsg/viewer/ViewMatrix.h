@@ -73,6 +73,9 @@ namespace vsg
 
         dmat4 transform() const override { return lookAt(eye, center, up); }
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
         dvec3 eye;
         dvec3 center;
         dvec3 up;

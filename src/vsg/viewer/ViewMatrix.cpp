@@ -11,39 +11,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
-#include <vsg/viewer/Camera.h>
+#include <vsg/viewer/ViewMatrix.h>
 
 using namespace vsg;
 
-Camera::Camera()
+void LookAt::read(Input& input)
 {
-    projectionMatrix = Perspective::create();
-    viewMatrix = LookAt::create();
+    ViewMatrix::read(input);
+
+    input.read("eye", eye);
+    input.read("center", center);
+    input.read("up", up);
 }
 
-Camera::Camera(ref_ptr<ProjectionMatrix> in_projectionMatrix, ref_ptr<ViewMatrix> in_viewMatrix, ref_ptr<ViewportState> in_viewportState) :
-    projectionMatrix(in_projectionMatrix),
-    viewMatrix(in_viewMatrix),
-    viewportState(in_viewportState)
+void LookAt::write(Output& output) const
 {
-}
+    ViewMatrix::write(output);
 
-void Camera::read(Input& input)
-{
-    Node::read(input);
-
-    input.read("name", name);
-    input.readObject("projectionMatrix", projectionMatrix);
-    input.readObject("viewMatrix", viewMatrix);
-    input.readObject("viewportState", viewportState);
-}
-
-void Camera::write(Output& output) const
-{
-    Node::write(output);
-
-    output.write("name", name);
-    output.writeObject("projectionMatrix", projectionMatrix);
-    output.writeObject("viewMatrix", viewMatrix);
-    output.writeObject("viewportState", viewportState);
+    output.write("eye", eye);
+    output.write("center", center);
+    output.write("up", up);
 }

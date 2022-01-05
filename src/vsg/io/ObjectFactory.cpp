@@ -256,6 +256,8 @@ ObjectFactory::ObjectFactory()
 
     // viewer
     VSG_REGISTER_create(vsg::Camera);
+    VSG_REGISTER_create(vsg::LookAt);
+    VSG_REGISTER_create(vsg::Perspective);
 
     // rtx
     VSG_REGISTER_create(vsg::DrawMeshTasks);

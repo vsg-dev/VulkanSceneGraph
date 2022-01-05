@@ -61,6 +61,9 @@ namespace vsg
             aspectRatio = static_cast<double>(newExtent.width) / static_cast<double>(newExtent.height);
         }
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
         double fieldOfViewY;
         double aspectRatio;
         double nearDistance;
