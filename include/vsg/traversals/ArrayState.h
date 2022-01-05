@@ -23,6 +23,21 @@ namespace vsg
     class VSG_DECLSPEC ArrayState : public Inherit<ConstVisitor, ArrayState>
     {
     public:
+        ArrayState() = default;
+        ArrayState(const ArrayState&) = default;
+
+        /// clone self
+        virtual ref_ptr<ArrayState> clone()
+        {
+            return ArrayState::create(*this);
+        }
+
+        // clone the specified ArrayState
+        virtual ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState)
+        {
+            return ArrayState::create(*arrayState);
+        }
+
         struct AttributeDetails
         {
             uint32_t binding = 0;
@@ -47,13 +62,35 @@ namespace vsg
         void apply(const Geometry& geometry) override;
         void apply(const VertexIndexDraw& vid) override;
         void apply(const BindVertexBuffers& bvb) override;
+        void apply(const BufferInfo& bufferInfo) override;
 
-        void apply(uint32_t firstBinding, const BufferInfoList& in_arrays);
-        void apply(uint32_t firstBinding, const DataList& in_arrays);
+        void apply(const vec3Array& array) override;
+        void apply(const Data& array) override;
 
-        void apply(const vsg::BufferInfo& bufferInfo) override;
-        void apply(const vsg::vec3Array& array) override;
-        void apply(const vsg::Data& array) override;
+        virtual void apply(uint32_t firstBinding, const BufferInfoList& in_arrays);
+        virtual void apply(uint32_t firstBinding, const DataList& in_arrays);
+
+    protected:
+        virtual ~ArrayState() {}
     };
+    VSG_type_name(vsg::ArrayState);
+
+    /// NullArrayState provides a mechanism for geometry in a subgraph to be ignored by traverals that use ArrayState such as ComputeBounds/Intersection/LineSegmentIntersector
+    /// this is usefl for subgarphs that have custom shaders that move the final rendered geometry to a different place that would be nievely interpreted by a straight forward vec3Array vertex array in local coordinates.
+    /// To disable the handling of geometry in a subgraph simple assign a NullArrayState to the StateGroup::prototypeArrayState, i.e.
+    ///     stateGroup->prototypeArrayState = vsg::NullArrayState::create();
+    class VSG_DECLSPEC NullArrayState : public Inherit<ArrayState, NullArrayState>
+    {
+    public:
+        NullArrayState();
+        NullArrayState(const ArrayState& as);
+
+        ref_ptr<ArrayState> clone() override;
+        ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
+
+        void apply(const vsg::vec3Array&) override;
+        void apply(const vsg::Data&) override;
+    };
+    VSG_type_name(vsg::NullArrayState);
 
 } // namespace vsg

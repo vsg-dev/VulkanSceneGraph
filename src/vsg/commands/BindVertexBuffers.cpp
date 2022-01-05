@@ -47,17 +47,16 @@ void BindVertexBuffers::read(Input& input)
     if (input.version_greater_equal(0, 1, 4))
     {
         input.read("firstBinding", firstBinding);
-        input.read("arrays", arrays);
     }
-    else
+
+    // read vertex arrays
+    DataList dataList;
+    dataList.resize(input.readValue<uint32_t>("NumArrays"));
+    for (auto& array : dataList)
     {
-        // read vertex arrays
-        arrays.resize(input.readValue<uint32_t>("NumArrays"));
-        for (auto& array : arrays)
-        {
-            input.read("Array", array);
-        }
+        input.readObject("Array", array);
     }
+    assignArrays(dataList);
 }
 
 void BindVertexBuffers::write(Output& output) const
@@ -67,15 +66,15 @@ void BindVertexBuffers::write(Output& output) const
     if (output.version_greater_equal(0, 1, 4))
     {
         output.write("firstBinding", firstBinding);
-        output.write("arrays", arrays);
     }
-    else
+
+    output.writeValue<uint32_t>("NumArrays", arrays.size());
+    for (auto& array : arrays)
     {
-        output.writeValue<uint32_t>("NumArrays", arrays.size());
-        for (auto& array : arrays)
-        {
-            output.write("Array", array);
-        }
+        if (array)
+            output.writeObject("Array", array->data.get());
+        else
+            output.writeObject("Array", nullptr);
     }
 }
 
@@ -84,10 +83,24 @@ void BindVertexBuffers::compile(Context& context)
     // nothing to compile
     if (arrays.empty()) return;
 
-    auto& vkd = _vulkanData[context.deviceID];
+    auto deviceID = context.deviceID;
 
-    // already compiled
-    if (vkd.vkBuffers.size() == arrays.size()) return;
+    bool requiresCreateAndCopy = false;
+    for (auto& array : arrays)
+    {
+        if (array->requiresCopy(deviceID))
+        {
+            requiresCreateAndCopy = true;
+            break;
+        }
+    }
+
+    if (!requiresCreateAndCopy)
+    {
+        return;
+    }
+
+    auto& vkd = _vulkanData[context.deviceID];
 
     vkd.vkBuffers.clear();
     vkd.offsets.clear();

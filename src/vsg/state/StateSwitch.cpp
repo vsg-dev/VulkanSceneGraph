@@ -1,6 +1,6 @@
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2018 Robert Osfield
+Copyright(c) 2021 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -10,45 +10,48 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/ObjectCache.h>
-#include <vsg/io/VSG.h>
-#include <vsg/io/write.h>
+#include <vsg/io/Options.h>
+#include <vsg/state/StateSwitch.h>
+#include <vsg/vk/CommandBuffer.h>
 
 using namespace vsg;
 
-bool vsg::write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options)
+void StateSwitch::compile(Context& context)
 {
-    bool fileWritten = false;
-    if (options)
-    {
-        // don't write the file if it's already contained in the ObjectCache
-        if (options->objectCache && options->objectCache->contains(filename, options)) return true;
+    for (auto& child : children) child.stateCommand->compile(context);
+}
 
-        if (!options->readerWriters.empty())
+void StateSwitch::record(CommandBuffer& commandBuffer) const
+{
+    for (auto& child : children)
+    {
+        if ((commandBuffer.traversalMask & (commandBuffer.overrideMask | child.mask)) != 0)
         {
-            for (auto& readerWriter : options->readerWriters)
-            {
-                fileWritten = readerWriter->write(object, filename, options);
-                if (fileWritten) break;
-            }
+            child.stateCommand->record(commandBuffer);
         }
     }
+}
 
-    if (!fileWritten)
+void StateSwitch::read(Input& input)
+{
+    StateCommand::read(input);
+
+    children.resize(input.readValue<uint32_t>("children"));
+    for (auto& child : children)
     {
-        // fallback to using native VSG if extension is compatible
-        auto ext = vsg::lowerCaseFileExtension(filename);
-        if (ext == ".vsga" || ext == ".vsgt" || ext == ".vsgb")
-        {
-            VSG rw;
-            fileWritten = rw.write(object, filename, options);
-        }
+        input.read("child.mask", child.mask);
+        input.read("child.stateCommand", child.stateCommand);
     }
+}
 
-    if (fileWritten && options && options->objectCache)
+void StateSwitch::write(Output& output) const
+{
+    StateCommand::write(output);
+
+    output.writeValue<uint32_t>("children", children.size());
+    for (auto& child : children)
     {
-        options->objectCache->add(object, filename, options);
+        output.write("child.mask", child.mask);
+        output.write("child.stateCommand", child.stateCommand);
     }
-
-    return fileWritten;
 }

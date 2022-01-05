@@ -54,19 +54,20 @@ namespace vsg
                 auto dest_v = _data;
                 for (auto& v : rhs) *(dest_v++) = v;
             }
+            dirty();
         }
 
         Array2D(uint32_t width, uint32_t height, Layout layout = {}) :
             Data(layout, sizeof(value_type)),
             _data(new value_type[width * height]),
             _width(width),
-            _height(height) {}
+            _height(height) { dirty(); }
 
         Array2D(uint32_t width, uint32_t height, value_type* data, Layout layout = {}) :
             Data(layout, sizeof(value_type)),
             _data(data),
             _width(width),
-            _height(height) {}
+            _height(height) { dirty(); }
 
         Array2D(uint32_t width, uint32_t height, const value_type& value, Layout layout = {}) :
             Data(layout, sizeof(value_type)),
@@ -75,6 +76,7 @@ namespace vsg
             _height(height)
         {
             for (auto& v : *this) v = value;
+            dirty();
         }
 
         Array2D(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, Layout layout = Layout()) :
@@ -144,6 +146,8 @@ namespace vsg
                 _storage = nullptr;
 
                 input.read(new_size, _data);
+
+                dirty();
             }
         }
 
@@ -201,6 +205,8 @@ namespace vsg
                 for (auto& v : rhs) *(dest_v++) = v;
             }
 
+            dirty();
+
             return *this;
         }
 
@@ -214,6 +220,8 @@ namespace vsg
             _height = height;
             _data = data;
             _storage = nullptr;
+
+            dirty();
         }
 
         void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, Layout layout = Layout())
@@ -235,6 +243,8 @@ namespace vsg
                 _width = 0;
                 _height = 0;
             }
+
+            dirty();
         }
 
         // release the data so that ownership can be passed on, the local data pointer and size is set to 0 and destruction of Array will no result in the data being deleted.

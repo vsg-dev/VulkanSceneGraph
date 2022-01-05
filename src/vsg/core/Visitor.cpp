@@ -481,10 +481,6 @@ void Visitor::apply(Switch& value)
 {
     apply(static_cast<Node&>(value));
 }
-void Visitor::apply(MaskGroup& value)
-{
-    apply(static_cast<Node&>(value));
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -501,6 +497,10 @@ void Visitor::apply(Command& value)
 void Visitor::apply(StateCommand& value)
 {
     apply(static_cast<Command&>(value));
+}
+void Visitor::apply(StateSwitch& value)
+{
+    apply(static_cast<StateCommand&>(value));
 }
 void Visitor::apply(CommandBuffer& value)
 {

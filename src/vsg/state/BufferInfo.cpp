@@ -119,7 +119,7 @@ ref_ptr<BufferInfo> vsg::copyDataToStagingBuffer(Context& context, const Data* d
     auto stagingBufferInfo = context.stagingMemoryBufferPools->reserveBuffer(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     stagingBufferInfo->data = const_cast<Data*>(data);
 
-    // std::cout<<"stagingBufferInfo.buffer "<<stagingBufferInfo.buffer.get()<<", "<<stagingBufferInfo.offset<<", "<<stagingBufferInfo.range<<")"<<std::endl;
+    // std::cout<<"stagingBufferInfo->buffer "<<stagingBufferInfo->buffer.get()<<", "<<stagingBufferInfo->offset<<", "<<stagingBufferInfo->range<<")"<<std::endl;
 
     ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo->buffer);
     ref_ptr<DeviceMemory> imageStagingMemory(imageStagingBuffer->getDeviceMemory(context.deviceID));
@@ -140,9 +140,55 @@ ref_ptr<BufferInfo> vsg::copyDataToStagingBuffer(Context& context, const Data* d
 //
 bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bufferInfoList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
 {
-    Device* device = context.device;
+    //std::cout<<"vsg::createBufferAndTransferData(.., )"<<std::endl;
 
     if (bufferInfoList.empty()) return false;
+
+    auto deviceID = context.deviceID;
+
+    ref_ptr<BufferInfo> deviceBufferInfo;
+    size_t numBuffersAssigned = 0;
+    size_t numBuffersRequired = 0;
+    size_t numNoData = 0;
+    bool containsMultipleParents = false;
+    for (auto& bufferInfo : bufferInfoList)
+    {
+        if (bufferInfo->data)
+        {
+            if (bufferInfo->data->getModifiedCount(bufferInfo->copiedModifiedCounts[deviceID]))
+            {
+                ++numBuffersRequired;
+            }
+            else
+            {
+                ++numBuffersAssigned;
+            }
+        }
+        else
+        {
+            ++numNoData;
+        }
+
+        if (bufferInfo->parent)
+        {
+            if (deviceBufferInfo && bufferInfo->parent != deviceBufferInfo) containsMultipleParents = true;
+            deviceBufferInfo = bufferInfo->parent;
+        }
+    }
+
+    if (numBuffersRequired == 0)
+    {
+        std::cout << "\nvsg::createBufferAndTransferData(...) already all compiled. deviceID = " << deviceID << std::endl;
+        return false;
+    }
+
+    if (containsMultipleParents)
+    {
+        std::cout << "Warning : vsg::createBufferAndTransferData(...) does not support multiple parent BufferInfo." << std::endl;
+        return false;
+    }
+
+    Device* device = context.device;
 
     VkDeviceSize alignment = 4;
     if (usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
@@ -163,11 +209,38 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
     totalSize = offset;
     if (totalSize == 0) return false;
 
-    VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage;
+    if (deviceBufferInfo && deviceBufferInfo->buffer)
+    {
+        if (totalSize != deviceBufferInfo->range)
+        {
+            std::cout << "Exisitng deviceBufferInfo, " << deviceBufferInfo << ", deviceBufferInfo->range  = " << deviceBufferInfo->range << ", " << totalSize << " NOT compatible" << std::endl;
+            return false;
+        }
+        else
+        {
+            //std::cout<<"Exisitng deviceBufferInfo, "<<deviceBufferInfo<<", deviceBufferInfo->range  = "<<deviceBufferInfo->range <<", "<<totalSize<<" with compatible size"<<std::endl;
 
-    auto deviceBufferInfo = context.deviceMemoryBufferPools->reserveBuffer(totalSize, alignment, bufferUsageFlags, sharingMode, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+            // make sure the VkBuffer is created
+            deviceBufferInfo->buffer->compile(context);
 
-    //std::cout<<"deviceBufferInfo.buffer "<<deviceBufferInfo.buffer.get()<<", "<<deviceBufferInfo.offset<<", "<<deviceBufferInfo.range<<")"<<std::endl;
+            if (!deviceBufferInfo->buffer->getDeviceMemory(deviceID))
+            {
+                VkMemoryRequirements memRequirements;
+                vkGetBufferMemoryRequirements(*device, deviceBufferInfo->buffer->vk(device->deviceID), &memRequirements);
+
+                auto deviceMemoryOffset = context.deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+                deviceBufferInfo->buffer->bind(deviceMemoryOffset.first, deviceMemoryOffset.second);
+            }
+        }
+    }
+
+    if (!deviceBufferInfo)
+    {
+        VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage;
+        deviceBufferInfo = context.deviceMemoryBufferPools->reserveBuffer(totalSize, alignment, bufferUsageFlags, sharingMode, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    }
+
+    //std::cout<<"deviceBufferInfo->buffer "<<deviceBufferInfo->buffer.get()<<", "<<deviceBufferInfo->offset<<", "<<deviceBufferInfo->range<<")"<<std::endl;
 
     // assign the buffer to the bufferData entries and shift the offsets to offset within the buffer
     for (auto& bufferInfo : bufferInfoList)
@@ -178,7 +251,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
 
     auto stagingBufferInfo = context.stagingMemoryBufferPools->reserveBuffer(totalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-    //std::cout<<"stagingBufferInfo.buffer "<<stagingBufferInfo.buffer.get()<<", "<<stagingBufferInfo.offset<<", "<<stagingBufferInfo.range<<")"<<std::endl;
+    //std::cout<<"stagingBufferInfo->buffer "<<stagingBufferInfo->buffer.get()<<", "<<stagingBufferInfo->offset<<", "<<stagingBufferInfo->range<<")"<<std::endl;
 
     ref_ptr<Buffer> stagingBuffer(stagingBufferInfo->buffer);
     ref_ptr<DeviceMemory> stagingMemory(stagingBuffer->getDeviceMemory(context.deviceID));
@@ -192,12 +265,15 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
     stagingMemory->map(stagingBuffer->getMemoryOffset(context.deviceID) + stagingBufferInfo->offset, stagingBufferInfo->range, 0, &buffer_data);
     char* ptr = reinterpret_cast<char*>(buffer_data);
 
-    //std::cout<<"    buffer_data " <<buffer_data<<", stagingBufferInfo.offset="<<stagingBufferInfo.offset<<", "<<totalSize<< std::endl;
+    //std::cout<<"    buffer_data " <<buffer_data<<", stagingBufferInfo->offset="<<stagingBufferInfo->offset<<", "<<totalSize<< std::endl;
 
     for (auto& bufferInfo : bufferInfoList)
     {
         const Data* data = bufferInfo->data;
-        std::memcpy(ptr + bufferInfo->offset - deviceBufferInfo->offset, data->dataPointer(), data->dataSize());
+        if (data)
+        {
+            std::memcpy(ptr + bufferInfo->offset - deviceBufferInfo->offset, data->dataPointer(), data->dataSize());
+        }
         bufferInfo->parent = deviceBufferInfo;
     }
 

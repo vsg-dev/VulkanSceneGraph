@@ -45,7 +45,10 @@ void Geometry::assignArrays(const DataList& arrayData)
 
 void Geometry::assignIndices(ref_ptr<vsg::Data> indexData)
 {
-    indices = BufferInfo::create(indexData);
+    if (indexData)
+        indices = BufferInfo::create(indexData);
+    else
+        indices = {};
 }
 
 void Geometry::read(Input& input)
@@ -53,13 +56,19 @@ void Geometry::read(Input& input)
     Node::read(input);
 
     input.read("firstBinding", firstBinding);
-    arrays.resize(input.readValue<uint32_t>("NumArrays"));
-    for (auto& array : arrays)
+
+    DataList dataList;
+    dataList.resize(input.readValue<uint32_t>("NumArrays"));
+    for (auto& array : dataList)
     {
         input.readObject("Array", array);
     }
+    assignArrays(dataList);
 
-    input.readObject("Indices", indices);
+    ref_ptr<vsg::Data> indices_data;
+    input.readObject("Indices", indices_data);
+
+    assignIndices(indices_data);
 
     commands.resize(input.readValue<uint32_t>("NumCommands"));
     for (auto& command : commands)
@@ -76,10 +85,16 @@ void Geometry::write(Output& output) const
     output.writeValue<uint32_t>("NumArrays", arrays.size());
     for (auto& array : arrays)
     {
-        output.writeObject("Array", array.get());
+        if (array)
+            output.writeObject("Array", array->data.get());
+        else
+            output.writeObject("Array", nullptr);
     }
 
-    output.writeObject("Indices", indices.get());
+    if (indices)
+        output.writeObject("Indices", indices->data.get());
+    else
+        output.writeObject("Indices", nullptr);
 
     output.writeValue<uint32_t>("NumCommands", commands.size());
     for (auto& command : commands)
@@ -101,7 +116,29 @@ void Geometry::compile(Context& context)
         command->compile(context);
     }
 
-    auto& vkd = _vulkanData[context.deviceID];
+    auto deviceID = context.deviceID;
+
+    bool requiresCreateAndCopy = false;
+    if (indices && indices->requiresCopy(deviceID))
+        requiresCreateAndCopy = true;
+    else
+    {
+        for (auto& array : arrays)
+        {
+            if (array->requiresCopy(deviceID))
+            {
+                requiresCreateAndCopy = true;
+                break;
+            }
+        }
+    }
+
+    if (!requiresCreateAndCopy)
+    {
+        return;
+    }
+
+    auto& vkd = _vulkanData[deviceID];
     vkd = {};
 
     BufferInfoList combinedBufferInfos(arrays);
@@ -115,7 +152,7 @@ void Geometry::compile(Context& context)
     {
         for (auto& bufferInfo : arrays)
         {
-            vkd.vkBuffers.push_back(bufferInfo->buffer->vk(context.deviceID));
+            vkd.vkBuffers.push_back(bufferInfo->buffer->vk(deviceID));
             vkd.offsets.push_back(bufferInfo->offset);
         }
     }
