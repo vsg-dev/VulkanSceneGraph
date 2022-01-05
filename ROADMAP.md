@@ -43,6 +43,8 @@ Using the prototyping work as a guide implement the final scene graph library wi
 
 #### Pending/Underway tasks:
 * Positional state support to enable easier support of lighting, shadows, texture projection.
+* Improved support for dynamic scene graphs.
+* Support for wide and standard strings in vsg::Path.
 * Support for integration with OpenGL/OSG applications via [EXT\_external\_object](https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_external_objects.txt) & [VK\_KHR\_external\_memory](https://www.khronos.org/registry/vulkan/specs/1.1-extensions/man/html/VK_KHR_external_memory.html#versions-1.1-promotions)
 * Port to iOS
 
