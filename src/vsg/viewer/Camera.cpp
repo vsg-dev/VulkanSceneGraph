@@ -27,3 +27,23 @@ Camera::Camera(ref_ptr<ProjectionMatrix> in_projectionMatrix, ref_ptr<ViewMatrix
     viewportState(in_viewportState)
 {
 }
+
+void Camera::read(Input& input)
+{
+    Node::read(input);
+
+    input.read("name", name);
+    input.readObject("projectionMatrix", projectionMatrix);
+    input.readObject("viewMatrix", viewMatrix);
+    input.readObject("viewportState", viewportState);
+}
+
+void Camera::write(Output& output) const
+{
+    Node::write(output);
+
+    output.write("name", name);
+    output.writeObject("projectionMatrix", projectionMatrix);
+    output.writeObject("viewMatrix", viewMatrix);
+    output.writeObject("viewportState", viewportState);
+}

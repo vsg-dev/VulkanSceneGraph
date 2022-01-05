@@ -254,6 +254,9 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::KeyPressEvent);
     VSG_REGISTER_create(vsg::KeyReleaseEvent);
 
+    // viewer
+    VSG_REGISTER_create(vsg::Camera);
+
     // rtx
     VSG_REGISTER_create(vsg::DrawMeshTasks);
     VSG_REGISTER_create(vsg::DrawMeshTasksIndirect);
