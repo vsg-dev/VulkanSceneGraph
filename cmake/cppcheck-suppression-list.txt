@@ -13,9 +13,11 @@ invalidPointerCast:*/include/vsg/core/Array3D.h
 invalidPointerCast:*/src/vsg/commands/CopyAndReleaseImage.cpp
 
 // suppress inappropriate stl algorithm suggestions
+useStlAlgorithm:*/include/vsg/core/Value.h
 useStlAlgorithm:*/include/vsg/core/Array.h
 useStlAlgorithm:*/include/vsg/core/Array2D.h
 useStlAlgorithm:*/include/vsg/core/Array3D.h
+useStlAlgorithm:*/include/vsg/vk/vk_buffer.h
 useStlAlgorithm:*/src/vsg/io/VSG.cpp
 useStlAlgorithm:*/src/vsg/commands/BindVertexBuffers.cpp
 useStlAlgorithm:*/src/vsg/nodes/Geometry.cpp

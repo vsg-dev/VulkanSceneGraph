@@ -102,7 +102,7 @@ void Window::setPhysicalDevice(ref_ptr<PhysicalDevice> physicalDevice)
 
 ref_ptr<PhysicalDevice> Window::getOrCreatePhysicalDevice()
 {
-    if (!_physicalDevice) _initDevice();
+    if (!_physicalDevice) _initPhysicalDevice();
     return _physicalDevice;
 }
 
@@ -172,6 +172,19 @@ void Window::_initInstance()
     _instance = vsg::Instance::create(instanceExtensions, validatedNames, _traits->vulkanVersion);
 }
 
+void Window::_initPhysicalDevice()
+{
+    if (!_instance) _initInstance();
+    if (!_surface) _initSurface();
+
+    // if required set up physical device
+    if (!_physicalDevice)
+    {
+        _physicalDevice = _instance->getPhysicalDevice(_traits->queueFlags, _surface, _traits->deviceTypePreferences);
+        if (!_physicalDevice) throw Exception{"Error: vsg::Window::create(...) failed to create Window,  no suitable Vulkan PhysicalDevice available.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+    }
+}
+
 void Window::_initFormats()
 {
     vsg::SwapChainSupportDetails supportDetails = vsg::querySwapChainSupport(*_physicalDevice, *_surface);
@@ -203,14 +216,10 @@ void Window::_initFormats()
 
 void Window::_initDevice()
 {
-    if (!_instance) _initInstance();
-    if (!_surface) _initSurface();
-
     // if required set up physical device
     if (!_physicalDevice)
     {
-        _physicalDevice = _instance->getPhysicalDevice(_traits->queueFlags, _surface, _traits->deviceTypePreferences);
-        if (!_physicalDevice) throw Exception{"Error: vsg::Window::create(...) failed to create Window,  no suitable Vulkan PhysicalDevice available.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+        _initPhysicalDevice();
     }
 
     // set up logical device

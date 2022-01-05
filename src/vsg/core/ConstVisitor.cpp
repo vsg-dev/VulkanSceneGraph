@@ -481,10 +481,6 @@ void ConstVisitor::apply(const Switch& value)
 {
     apply(static_cast<const Node&>(value));
 }
-void ConstVisitor::apply(const MaskGroup& value)
-{
-    apply(static_cast<const Node&>(value));
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -501,6 +497,10 @@ void ConstVisitor::apply(const Command& value)
 void ConstVisitor::apply(const StateCommand& value)
 {
     apply(static_cast<const Command&>(value));
+}
+void ConstVisitor::apply(const StateSwitch& value)
+{
+    apply(static_cast<const StateCommand&>(value));
 }
 void ConstVisitor::apply(const CommandBuffer& value)
 {

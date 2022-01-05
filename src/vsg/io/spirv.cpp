@@ -47,7 +47,7 @@ spirv::spirv()
 vsg::ref_ptr<vsg::Object> spirv::read(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options) const
 {
     auto ext = vsg::lowerCaseFileExtension(filename);
-    if (ext == "spv")
+    if (ext == ".spv")
     {
         vsg::Path found_filename = vsg::findFile(filename, options);
         if (found_filename.empty()) return {};
@@ -64,7 +64,7 @@ vsg::ref_ptr<vsg::Object> spirv::read(const vsg::Path& filename, vsg::ref_ptr<co
 bool spirv::write(const vsg::Object* object, const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> /*options*/) const
 {
     auto ext = vsg::lowerCaseFileExtension(filename);
-    if (ext == "spv")
+    if (ext == ".spv")
     {
         const vsg::ShaderStage* ss = dynamic_cast<const vsg::ShaderStage*>(object);
         const vsg::ShaderModule* sm = ss ? ss->module.get() : dynamic_cast<const vsg::ShaderModule*>(object);
@@ -94,6 +94,6 @@ bool spirv::write(const vsg::Object* object, const vsg::Path& filename, vsg::ref
 
 bool spirv::getFeatures(Features& features) const
 {
-    features.extensionFeatureMap["spv"] = static_cast<vsg::ReaderWriter::FeatureMask>(vsg::ReaderWriter::READ_FILENAME | vsg::ReaderWriter::WRITE_FILENAME);
+    features.extensionFeatureMap[".spv"] = static_cast<vsg::ReaderWriter::FeatureMask>(vsg::ReaderWriter::READ_FILENAME | vsg::ReaderWriter::WRITE_FILENAME);
     return true;
 }

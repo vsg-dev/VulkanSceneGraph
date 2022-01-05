@@ -45,7 +45,10 @@ void VertexIndexDraw::assignArrays(const DataList& arrayData)
 
 void VertexIndexDraw::assignIndices(ref_ptr<vsg::Data> indexData)
 {
-    indices = BufferInfo::create(indexData);
+    if (indexData)
+        indices = BufferInfo::create(indexData);
+    else
+        indices = {};
 }
 
 void VertexIndexDraw::read(Input& input)
@@ -64,11 +67,10 @@ void VertexIndexDraw::read(Input& input)
     }
     assignArrays(dataList);
 
-    ref_ptr<vsg::Data> data;
-    input.readObject("Indices", data);
+    ref_ptr<vsg::Data> indices_data;
+    input.readObject("Indices", indices_data);
 
-    indices = {};
-    assignIndices(data);
+    assignIndices(indices_data);
 
     // vkCmdDrawIndexed settings
     input.read("indexCount", indexCount);
@@ -86,13 +88,16 @@ void VertexIndexDraw::write(Output& output) const
     output.writeValue<uint32_t>("NumArrays", arrays.size());
     for (auto& array : arrays)
     {
-        output.writeObject("Array", array->data.get());
+        if (array)
+            output.writeObject("Array", array->data.get());
+        else
+            output.writeObject("Array", nullptr);
     }
 
     if (indices)
         output.writeObject("Indices", indices->data.get());
     else
-        output.writeObject("Indices", ref_ptr<vsg::Data>());
+        output.writeObject("Indices", nullptr);
 
     // vkCmdDrawIndexed settings
     output.write("indexCount", indexCount);
@@ -110,10 +115,29 @@ void VertexIndexDraw::compile(Context& context)
         return;
     }
 
-    auto& vkd = _vulkanData[context.deviceID];
+    auto deviceID = context.deviceID;
 
-    // check to see if we've already been compiled
-    if (vkd.vkBuffers.size() == arrays.size()) return;
+    bool requiresCreateAndCopy = false;
+    if (indices && indices->requiresCopy(deviceID))
+        requiresCreateAndCopy = true;
+    else
+    {
+        for (auto& array : arrays)
+        {
+            if (array->requiresCopy(deviceID))
+            {
+                requiresCreateAndCopy = true;
+                break;
+            }
+        }
+    }
+
+    if (!requiresCreateAndCopy)
+    {
+        return;
+    }
+
+    auto& vkd = _vulkanData[deviceID];
 
     vkd = {};
 
@@ -124,7 +148,7 @@ void VertexIndexDraw::compile(Context& context)
     {
         for (auto& bufferInfo : arrays)
         {
-            vkd.vkBuffers.push_back(bufferInfo->buffer->vk(context.deviceID));
+            vkd.vkBuffers.push_back(bufferInfo->buffer->vk(deviceID));
             vkd.offsets.push_back(bufferInfo->offset);
         }
     }
