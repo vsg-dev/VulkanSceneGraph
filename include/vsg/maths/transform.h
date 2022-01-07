@@ -143,26 +143,35 @@ namespace vsg
                          m[0][3], m[1][3], m[2][3], m[3][3]);
     }
 
-    // Vulkan style 0 to 1 depth range
+    // Reverse depth convention: 1 to 0 depth range. Y NDC coordinates are inverted in Vulkan.
     template<typename T>
     constexpr t_mat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
     {
         T f = static_cast<T>(1.0 / std::tan(fovy_radians * 0.5));
-        T r = static_cast<T>(1.0 / (zNear - zFar));
+        T r = static_cast<T>(1.0 / (zFar - zNear));
         return t_mat4<T>(f / aspectRatio, 0, 0, 0,
                          0, -f, 0, 0,
-                         0, 0, (zFar)*r, -1,
+                         0, 0, zNear * r, -1,
                          0, 0, (zFar * zNear) * r, 0);
     }
 
-    // from vulkan cookbook
+    template<typename T>
+    constexpr t_mat4<T> perspective(T left, T right, T bottom, T top, T zNear, T zFar)
+    {
+        return t_mat4<T>(2.0 * zNear / (right - left), 0.0, 0.0, 0.0,
+                         0.0, 2.0 * zNear / (bottom - top), 0.0, 0.0,
+                         (right + left) / (right - left), (bottom + top) / (bottom - top), zNear / (zFar - zNear), -1.0,
+                         0.0, 0.0, zNear * zFar / (zFar - zNear), 0.0);
+    }
+
+    // from vulkan cookbook with reverse depth
     template<typename T>
     constexpr t_mat4<T> orthographic(T left, T right, T bottom, T top, T zNear, T zFar)
     {
         return t_mat4<T>(2.0 / (right - left), 0.0, 0.0, 0.0,
                          0.0, 2.0 / (bottom - top), 0.0, 0.0,
-                         0.0, 0.0, 1.0 / (zNear - zFar), 0.0,
-                         -(right + left) / (right - left), -(bottom + top) / (bottom - top), zNear / (zNear - zFar), 1.0);
+                         0.0, 0.0, 1.0 / (zFar - zNear), 0.0,
+                         -(right + left) / (right - left), -(bottom + top) / (bottom - top), zFar / (zFar - zNear), 1.0);
     }
 
     template<typename T>
