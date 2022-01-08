@@ -225,18 +225,26 @@ namespace vsg
 
         void apply(const Transform& transform) override;
         void apply(const MatrixTransform& mt) override;
+        void apply(const Camera& camera) override;
     };
 
-    // convinience function for accumulating the transforms in scene graph along a specified nodePath.
+    /// convinience function for accumulating the transforms in specified range.
+    template<typename I>
+    dmat4 computeTransform(I begin, I end)
+    {
+        ComputeTransform ct;
+        for (I itr = begin; itr != end; ++itr)
+        {
+            (*itr)->accept(ct);
+        }
+        return ct.matrix;
+    }
+
+    /// convinience function for accumulating the transforms in scene graph along a specified nodePath.
     template<typename T>
     dmat4 computeTransform(const T& nodePath)
     {
-        ComputeTransform ct;
-        for (auto& node : nodePath)
-        {
-            node->accept(ct);
-        }
-        return ct.matrix;
+        return computeTransform(nodePath.begin(), nodePath.end());
     }
 
 } // namespace vsg

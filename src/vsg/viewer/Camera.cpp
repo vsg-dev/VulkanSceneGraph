@@ -15,6 +15,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Camera
+//
 Camera::Camera()
 {
     projectionMatrix = Perspective::create();
@@ -46,4 +50,28 @@ void Camera::write(Output& output) const
     output.writeObject("projectionMatrix", projectionMatrix);
     output.writeObject("viewMatrix", viewMatrix);
     output.writeObject("viewportState", viewportState);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// FindCameras
+//
+void FindCameras::apply(Object& object)
+{
+    _objectPath.push_back(&object);
+
+    object.traverse(*this);
+
+    _objectPath.pop_back();
+}
+
+void FindCameras::apply(Camera& camera)
+{
+    _objectPath.push_back(&camera);
+
+    RefObjectPath convertedPath(_objectPath.begin(), _objectPath.end());
+
+    cameras[convertedPath] = &camera;
+
+    _objectPath.pop_back();
 }

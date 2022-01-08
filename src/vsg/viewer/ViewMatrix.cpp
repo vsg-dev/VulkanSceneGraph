@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
+#include <vsg/maths/transform.h>
 #include <vsg/viewer/ViewMatrix.h>
 
 using namespace vsg;
@@ -31,4 +32,14 @@ void LookAt::write(Output& output) const
     output.write("eye", eye);
     output.write("center", center);
     output.write("up", up);
+}
+
+dmat4 ViewTrackObject::transform() const
+{
+    return vsg::inverse(computeTransform(objectPath));
+}
+
+dmat4 ViewTrackObject::inverse() const
+{
+    return computeTransform(objectPath);
 }

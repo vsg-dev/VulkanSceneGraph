@@ -101,4 +101,18 @@ namespace vsg
     };
     VSG_type_name(vsg::RelativeView);
 
+    class ViewTrackObject : public Inherit<ViewMatrix, ViewTrackObject>
+    {
+    public:
+        template<typename T>
+        ViewTrackObject(const T& path) : objectPath(path.begin(), path.end()) {}
+
+        dmat4 transform() const override;
+        dmat4 inverse() const override;
+
+        RefObjectPath objectPath;
+    };
+    VSG_type_name(vsg::ViewTrackObject);
+
+
 } // namespace vsg
