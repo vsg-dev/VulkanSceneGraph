@@ -18,7 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// construct a Visitor
+    /// helper function that default constructors visitor, calls accept() on each of the objects in specified range and returns the visitor so it can be queried for any results or reused.
+    /// usage: auto matrix = vsg::visit<vsg::ComputeTransform>(objects.begin(), objects.end()).matrix;
     template<class V, typename I>
     V visit(I begin, I end)
     {
@@ -30,6 +31,8 @@ namespace vsg
         return visitor;
     }
 
+    /// helper function that default constructors visitor, calls accept() on specified object and returns the visitor so it can be queried for any results or reused.
+    /// usage: auto matrix = vsg::visit<vsg::ComputeTransform>(object).matrix;
     template<class V, typename P>
     V visit(vsg::ref_ptr<P> ptr)
     {
@@ -38,6 +41,8 @@ namespace vsg
         return visitor;
     }
 
+    /// helper function that default constructors visitor, calls accept() on specified object and returns the visitor so it can be queried for any results or reused.
+    /// usage: auto matrix = vsg::visit<vsg::ComputeTransform>(object).matrix;
     template<class V, typename P>
     V visit(P* ptr)
     {
@@ -46,6 +51,8 @@ namespace vsg
         return visitor;
     }
 
+    /// helper function that default constructors visitor, calls accept() on all the objects in a const container and returns the visitor so it can be queried for any results or reused.
+    /// usage: auto matrix = vsg::visit<vsg::ComputeTransform>(nodePath).matrix;
     template<class V, typename C>
     V visit(const C& container)
     {
@@ -57,6 +64,8 @@ namespace vsg
         return visitor;
     }
 
+    /// helper function that default constructors visitor, calls accept() on all the objects in a container and returns the visitor so it can be queried for any results or reused.
+    /// usage: auto matrix = vsg::visit<vsg::ComputeTransform>(nodePath).matrix;
     template<class V, typename C>
     V visit(C& container)
     {
