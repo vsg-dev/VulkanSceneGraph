@@ -82,10 +82,10 @@ namespace vsg
     };
     VSG_type_name(vsg::LookAt);
 
-    class RelativeView : public Inherit<ViewMatrix, RelativeView>
+    class RelativeViewMatrix : public Inherit<ViewMatrix, RelativeViewMatrix>
     {
     public:
-        RelativeView(ref_ptr<ViewMatrix> vm, const dmat4& m) :
+        RelativeViewMatrix(ref_ptr<ViewMatrix> vm, const dmat4& m) :
             viewMatrix(vm),
             matrix(m)
         {
@@ -99,20 +99,20 @@ namespace vsg
         ref_ptr<ViewMatrix> viewMatrix;
         dmat4 matrix;
     };
-    VSG_type_name(vsg::RelativeView);
+    VSG_type_name(vsg::RelativeViewMatrix);
 
-    class ViewTrackObject : public Inherit<ViewMatrix, ViewTrackObject>
+    class TrackingViewMatrix : public Inherit<ViewMatrix, TrackingViewMatrix>
     {
     public:
         template<typename T>
-        ViewTrackObject(const T& path) : objectPath(path.begin(), path.end()) {}
+        TrackingViewMatrix(const T& path) : objectPath(path.begin(), path.end()) {}
 
         dmat4 transform() const override;
         dmat4 inverse() const override;
 
         RefObjectPath objectPath;
     };
-    VSG_type_name(vsg::ViewTrackObject);
+    VSG_type_name(vsg::TrackingViewMatrix);
 
 
 } // namespace vsg

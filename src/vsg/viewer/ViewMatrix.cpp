@@ -34,12 +34,12 @@ void LookAt::write(Output& output) const
     output.write("up", up);
 }
 
-dmat4 ViewTrackObject::transform() const
+dmat4 TrackingViewMatrix::transform() const
 {
     return vsg::inverse(computeTransform(objectPath));
 }
 
-dmat4 ViewTrackObject::inverse() const
+dmat4 TrackingViewMatrix::inverse() const
 {
     return computeTransform(objectPath);
 }
