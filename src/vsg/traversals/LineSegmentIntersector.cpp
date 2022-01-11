@@ -228,7 +228,7 @@ bool LineSegmentIntersector::intersects(const dsphere& bs)
 bool LineSegmentIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertexCount)
 {
     const auto& arrayState = *arrayStateStack.back();
-    if (!arrayState.vertices || arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || vertexCount == 0) return false;
+    if (!arrayState.vertices || arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || vertexCount < 3) return false;
 
     const auto& ls = _lineSegmentStack.back();
 
@@ -236,7 +236,7 @@ bool LineSegmentIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertex
     if (!triIntsector.vertices) return false;
 
     size_t previous_size = intersections.size();
-    uint32_t endVertex = firstVertex + vertexCount;
+    uint32_t endVertex = int((firstVertex + vertexCount) / 3.0f) * 3;
 
     for (uint32_t i = firstVertex; i < endVertex; i += 3)
     {
@@ -249,7 +249,7 @@ bool LineSegmentIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertex
 bool LineSegmentIntersector::intersectDrawIndexed(uint32_t firstIndex, uint32_t indexCount)
 {
     const auto& arrayState = *arrayStateStack.back();
-    if (!arrayState.vertices || arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || indexCount == 0) return false;
+    if (!arrayState.vertices || arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || indexCount < 3) return false;
 
     const auto& ls = _lineSegmentStack.back();
 
@@ -257,7 +257,7 @@ bool LineSegmentIntersector::intersectDrawIndexed(uint32_t firstIndex, uint32_t 
     if (!triIntsector.vertices) return false;
 
     size_t previous_size = intersections.size();
-    uint32_t endIndex = firstIndex + indexCount;
+    uint32_t endIndex = int((firstIndex + indexCount) / 3.0f) * 3;
 
     if (ushort_indices)
     {

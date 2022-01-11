@@ -35,7 +35,7 @@ namespace vsg
     };
     VSG_type_name(vsg::ProjectionMatrix);
 
-    class Perspective : public Inherit<ProjectionMatrix, Perspective>
+    class VSG_DECLSPEC Perspective : public Inherit<ProjectionMatrix, Perspective>
     {
     public:
         Perspective() :
@@ -60,6 +60,9 @@ namespace vsg
         {
             aspectRatio = static_cast<double>(newExtent.width) / static_cast<double>(newExtent.height);
         }
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         double fieldOfViewY;
         double aspectRatio;

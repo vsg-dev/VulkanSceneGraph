@@ -29,7 +29,7 @@ namespace vsg
     };
     VSG_type_name(vsg::ViewMatrix);
 
-    class LookAt : public Inherit<ViewMatrix, LookAt>
+    class VSG_DECLSPEC LookAt : public Inherit<ViewMatrix, LookAt>
     {
     public:
         LookAt() :
@@ -73,16 +73,19 @@ namespace vsg
 
         dmat4 transform() const override { return lookAt(eye, center, up); }
 
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
         dvec3 eye;
         dvec3 center;
         dvec3 up;
     };
     VSG_type_name(vsg::LookAt);
 
-    class RelativeView : public Inherit<ViewMatrix, RelativeView>
+    class RelativeViewMatrix : public Inherit<ViewMatrix, RelativeViewMatrix>
     {
     public:
-        RelativeView(ref_ptr<ViewMatrix> vm, const dmat4& m) :
+        RelativeViewMatrix(ref_ptr<ViewMatrix> vm, const dmat4& m) :
             viewMatrix(vm),
             matrix(m)
         {
@@ -96,6 +99,20 @@ namespace vsg
         ref_ptr<ViewMatrix> viewMatrix;
         dmat4 matrix;
     };
-    VSG_type_name(vsg::RelativeView);
+    VSG_type_name(vsg::RelativeViewMatrix);
+
+    class VSG_DECLSPEC TrackingViewMatrix : public Inherit<ViewMatrix, TrackingViewMatrix>
+    {
+    public:
+        template<typename T>
+        explicit TrackingViewMatrix(const T& path) :
+            objectPath(path.begin(), path.end()) {}
+
+        dmat4 transform() const override;
+        dmat4 inverse() const override;
+
+        RefObjectPath objectPath;
+    };
+    VSG_type_name(vsg::TrackingViewMatrix);
 
 } // namespace vsg
