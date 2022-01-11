@@ -39,7 +39,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Camera);
 
-    class FindCameras : public Inherit<Visitor, FindCameras>
+    class VSG_DECLSPEC FindCameras : public Inherit<Visitor, FindCameras>
     {
     public:
         // cameras that have been found
