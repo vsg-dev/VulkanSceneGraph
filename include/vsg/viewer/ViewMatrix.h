@@ -105,7 +105,7 @@ namespace vsg
     {
     public:
         template<typename T>
-        TrackingViewMatrix(const T& path) :
+        explicit TrackingViewMatrix(const T& path) :
             objectPath(path.begin(), path.end()) {}
 
         dmat4 transform() const override;
