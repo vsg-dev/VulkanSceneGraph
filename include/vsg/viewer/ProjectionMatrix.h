@@ -116,12 +116,13 @@ namespace vsg
     class RelativeProjection : public Inherit<ProjectionMatrix, RelativeProjection>
     {
     public:
-        RelativeProjection(ref_ptr<ProjectionMatrix> pm, const dmat4& m) :
+        RelativeProjection(const dmat4& m, ref_ptr<ProjectionMatrix> pm) :
             projectionMatrix(pm),
             matrix(m)
         {
         }
 
+        /// returns matrix * projectionMatrix->transform()
         dmat4 transform() const override
         {
             return matrix * projectionMatrix->transform();

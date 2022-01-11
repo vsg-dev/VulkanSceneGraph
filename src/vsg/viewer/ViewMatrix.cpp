@@ -36,10 +36,10 @@ void LookAt::write(Output& output) const
 
 dmat4 TrackingViewMatrix::transform() const
 {
-    return vsg::inverse(computeTransform(objectPath));
+    return matrix * vsg::inverse(computeTransform(objectPath));
 }
 
 dmat4 TrackingViewMatrix::inverse() const
 {
-    return computeTransform(objectPath);
+    return computeTransform(objectPath) * vsg::inverse(matrix);
 }
