@@ -35,7 +35,7 @@ namespace vsg
     };
     VSG_type_name(vsg::ProjectionMatrix);
 
-    class Perspective : public Inherit<ProjectionMatrix, Perspective>
+    class VSG_DECLSPEC Perspective : public Inherit<ProjectionMatrix, Perspective>
     {
     public:
         Perspective() :

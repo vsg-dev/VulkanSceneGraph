@@ -29,7 +29,7 @@ namespace vsg
     };
     VSG_type_name(vsg::ViewMatrix);
 
-    class LookAt : public Inherit<ViewMatrix, LookAt>
+    class VSG_DECLSPEC LookAt : public Inherit<ViewMatrix, LookAt>
     {
     public:
         LookAt() :
@@ -101,7 +101,7 @@ namespace vsg
     };
     VSG_type_name(vsg::RelativeViewMatrix);
 
-    class TrackingViewMatrix : public Inherit<ViewMatrix, TrackingViewMatrix>
+    class VSG_DECLSPEC TrackingViewMatrix : public Inherit<ViewMatrix, TrackingViewMatrix>
     {
     public:
         template<typename T>
