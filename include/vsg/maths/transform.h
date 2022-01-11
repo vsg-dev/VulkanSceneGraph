@@ -222,7 +222,7 @@ namespace vsg
 
     /// visitor that computes a transform matrix, accumulating the result in order of objects visited
     /// usage:  auto matrix = vsg::visit<vsg::ComputeTransform>(nodePath).matrix;
-    struct ComputeTransform : public ConstVisitor
+    struct VSG_DECLSPEC ComputeTransform : public ConstVisitor
     {
         dmat4 matrix;
 
