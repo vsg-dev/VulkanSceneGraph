@@ -145,6 +145,9 @@ namespace vsg
     }
 
     // Reverse depth convention: 1 to 0 depth range. Y NDC coordinates are inverted in Vulkan.
+    // For best precision we record setting up Windows with windowTraits->depthFormat = VK_FORMAT_D32_SFLOAT;
+    // Background reading : https://developer.nvidia.com/content/depth-precision-visualized
+    //                      https://vincent-p.github.io/posts/vulkan_perspective_matrix/
     template<typename T>
     constexpr t_mat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
     {
@@ -156,6 +159,7 @@ namespace vsg
                          0, 0, (zFar * zNear) * r, 0);
     }
 
+    // Reverse depth convention: 1 to 0 depth range. Y NDC coordinates are inverted in Vulkan.
     template<typename T>
     constexpr t_mat4<T> perspective(T left, T right, T bottom, T top, T zNear, T zFar)
     {
