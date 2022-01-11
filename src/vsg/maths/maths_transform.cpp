@@ -303,6 +303,7 @@ void ComputeTransform::apply(const MatrixTransform& mt)
 {
     matrix = matrix * mt.matrix;
 }
+
 void ComputeTransform::apply(const Camera& camera)
 {
     if (camera.viewMatrix)
