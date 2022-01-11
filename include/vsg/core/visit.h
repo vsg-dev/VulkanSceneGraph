@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Visitor.h>
 #include <vsg/core/ConstVisitor.h>
+#include <vsg/core/Visitor.h>
 
 namespace vsg
 {
@@ -29,7 +29,7 @@ namespace vsg
     V visit(I begin, I end)
     {
         V visitor;
-        for(I itr = begin; itr != end; ++itr)
+        for (I itr = begin; itr != end; ++itr)
         {
             (*itr)->accept(visitor);
         }
@@ -62,7 +62,7 @@ namespace vsg
     V visit(const C& container)
     {
         V visitor;
-        for(const auto& object : container)
+        for (const auto& object : container)
         {
             object->accept(visitor);
         }
@@ -75,13 +75,12 @@ namespace vsg
     V visit(C& container)
     {
         V visitor;
-        for(auto& object : container)
+        for (auto& object : container)
         {
             object->accept(visitor);
         }
         return visitor;
     }
-
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -95,7 +94,7 @@ namespace vsg
     template<class V, typename I>
     V& visit(V& visitor, I begin, I end)
     {
-        for(I itr = begin; itr != end; ++itr)
+        for (I itr = begin; itr != end; ++itr)
         {
             (*itr)->accept(visitor);
         }
@@ -131,7 +130,7 @@ namespace vsg
     template<class V, typename C>
     V& visit(V& visitor, const C& container)
     {
-        for(const auto& object : container)
+        for (const auto& object : container)
         {
             object->accept(visitor);
         }
@@ -145,7 +144,7 @@ namespace vsg
     template<class V, typename C>
     V& visit(V& visitor, C& container)
     {
-        for(auto& object : container)
+        for (auto& object : container)
         {
             object->accept(visitor);
         }

@@ -105,7 +105,8 @@ namespace vsg
     {
     public:
         template<typename T>
-        TrackingViewMatrix(const T& path) : objectPath(path.begin(), path.end()) {}
+        TrackingViewMatrix(const T& path) :
+            objectPath(path.begin(), path.end()) {}
 
         dmat4 transform() const override;
         dmat4 inverse() const override;
@@ -113,6 +114,5 @@ namespace vsg
         RefObjectPath objectPath;
     };
     VSG_type_name(vsg::TrackingViewMatrix);
-
 
 } // namespace vsg

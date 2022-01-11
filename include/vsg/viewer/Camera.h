@@ -39,11 +39,9 @@ namespace vsg
     };
     VSG_type_name(vsg::Camera);
 
-
     class FindCameras : public Inherit<Visitor, FindCameras>
     {
     public:
-
         // cameras that have been found
         std::map<RefObjectPath, ref_ptr<Camera>> cameras;
 
