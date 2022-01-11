@@ -143,6 +143,8 @@ set(SOURCES
     viewer/RecordAndSubmitTask.cpp
     viewer/WindowResizeHandler.cpp
     viewer/View.cpp
+    viewer/ViewMatrix.cpp
+    viewer/ProjectionMatrix.cpp
 
     raytracing/AccelerationGeometry.cpp
     raytracing/AccelerationStructure.cpp

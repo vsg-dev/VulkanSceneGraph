@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <atomic>
 #include <string>
+#include <vector>
 
 #include <vsg/core/Export.h>
 #include <vsg/core/ref_ptr.h>
@@ -152,5 +153,8 @@ namespace vsg
 
     template<>
     constexpr bool has_read_write<Object>() { return true; }
+
+    using RefObjectPath = std::vector<ref_ptr<Object>>;
+    using ObjectPath = std::vector<Object*>;
 
 } // namespace vsg
