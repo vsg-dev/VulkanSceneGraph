@@ -24,7 +24,7 @@ namespace vsg
         /// VkPipelineDepthStencilStateCreateInfo settings
         VkBool32 depthTestEnable = VK_TRUE;
         VkBool32 depthWriteEnable = VK_TRUE;
-        VkCompareOp depthCompareOp = VK_COMPARE_OP_LESS;
+        VkCompareOp depthCompareOp = VK_COMPARE_OP_GREATER;
         VkBool32 depthBoundsTestEnable = VK_FALSE;
         VkBool32 stencilTestEnable = VK_FALSE;
         VkStencilOpState front = {};

@@ -164,10 +164,10 @@ namespace vsg
         {
             face[0].set(1.0, 0.0, 0.0, 1.0);                                    // left plane
             face[1].set(-1.0, 0.0, 0.0, 1.0);                                   // right plane
-            face[2].set(0.0, 1.0, 0.0, 1.0);                                    // bottom plane
-            face[3].set(0.0, -1.0, 0.0, 1.0);                                   // top plane
-            if constexpr (POLYTOPE_SIZE >= 5) face[4].set(0.0, 0.0, -1.0, 1.0); // far plane
-            if constexpr (POLYTOPE_SIZE >= 6) face[5].set(0.0, 0.0, 1.0, 1.0);  // near plane
+            face[2].set(0.0, -1.0, 0.0, 1.0);                                   // bottom plane
+            face[3].set(0.0, 1.0, 0.0, 1.0);                                    // top plane
+            if constexpr (POLYTOPE_SIZE >= 5) face[4].set(0.0, 0.0, 1.0, 0.0); // far plane
+            if constexpr (POLYTOPE_SIZE >= 6) face[5].set(0.0, 0.0, -1.0, 1.0);  // near plane
         }
 
         template<class M>
