@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/nodes/Group.h>
-
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/Window.h>
 
@@ -30,7 +29,7 @@ namespace vsg
         template<class N, class V>
         static void t_accept(N& node, V& visitor)
         {
-            if ((visitor.traversalMask & (visitor.overrideMask | node.mask)) == 0) return;
+            if ((visitor.traversalMask & (visitor.overrideMask | node.mask)) == MASK_OFF) return;
 
             uint32_t cached_traversalMask = visitor.traversalMask;
 
@@ -54,7 +53,7 @@ namespace vsg
         /// mask that controls traversal of the View's subgraph
         /// View is visited if the (visitor.traversalMask & view.mask) != 0,
         /// and when it is visited the visitor.traversalMask is &'ed with the mask to give the traversalMask to use in the subgraph.
-        uint32_t mask = 0xffffff;
+        Mask mask = MASK_ALL;
 
         /// bins
         std::vector<ref_ptr<Bin>> bins;

@@ -24,7 +24,7 @@ namespace vsg
         {
             for (auto& child : sc.children)
             {
-                if ((visitor.traversalMask & (visitor.overrideMask | child.mask)) != 0) child.stateCommand->accept(visitor);
+                if ((visitor.traversalMask & (visitor.overrideMask | child.mask)) != MASK_OFF) child.stateCommand->accept(visitor);
             }
         }
 
@@ -37,11 +37,11 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void add(uint32_t mask, ref_ptr<StateCommand> sc) { children.emplace_back(Child{mask, sc}); }
+        void add(Mask mask, ref_ptr<StateCommand> sc) { children.emplace_back(Child{mask, sc}); }
 
         struct Child
         {
-            uint32_t mask;
+            Mask mask = MASK_ALL;
             ref_ptr<StateCommand> stateCommand;
         };
 

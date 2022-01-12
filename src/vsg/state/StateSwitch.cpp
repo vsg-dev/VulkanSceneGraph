@@ -25,7 +25,7 @@ void StateSwitch::record(CommandBuffer& commandBuffer) const
 {
     for (auto& child : children)
     {
-        if ((commandBuffer.traversalMask & (commandBuffer.overrideMask | child.mask)) != 0)
+        if ((commandBuffer.traversalMask & (commandBuffer.overrideMask | child.mask)) != MASK_OFF)
         {
             child.stateCommand->record(commandBuffer);
         }
@@ -37,10 +37,23 @@ void StateSwitch::read(Input& input)
     StateCommand::read(input);
 
     children.resize(input.readValue<uint32_t>("children"));
-    for (auto& child : children)
+    if (input.version_greater_equal(0, 2, 5))
     {
-        input.read("child.mask", child.mask);
-        input.read("child.stateCommand", child.stateCommand);
+        for (auto& child : children)
+        {
+            input.read("child.mask", child.mask);
+            input.read("child.stateCommand", child.stateCommand);
+        }
+    }
+    else
+    {
+        for (auto& child : children)
+        {
+            uint32_t mask = 0x0;
+            input.read("child.mask", mask);
+            input.read("child.stateCommand", child.stateCommand);
+            child.mask = static_cast<Mask>(mask);
+        }
     }
 }
 
@@ -49,9 +62,20 @@ void StateSwitch::write(Output& output) const
     StateCommand::write(output);
 
     output.writeValue<uint32_t>("children", children.size());
-    for (auto& child : children)
+    if (output.version_greater_equal(0, 2, 5))
     {
-        output.write("child.mask", child.mask);
-        output.write("child.stateCommand", child.stateCommand);
+        for (auto& child : children)
+        {
+            output.write("child.mask", child.mask);
+            output.write("child.stateCommand", child.stateCommand);
+        }
+    }
+    else
+    {
+        for (auto& child : children)
+        {
+            output.writeValue<uint32_t>("child.mask", child.mask);
+            output.write("child.stateCommand", child.stateCommand);
+        }
     }
 }
