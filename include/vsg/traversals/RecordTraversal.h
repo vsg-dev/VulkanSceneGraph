@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Object.h>
 #include <vsg/core/type_name.h>
+#include <vsg/core/Mask.h>
 #include <vsg/maths/mat4.h>
 
 #include <set>
@@ -58,8 +59,8 @@ namespace vsg
         std::size_t sizeofObject() const noexcept override { return sizeof(RecordTraversal); }
         const char* className() const noexcept override { return type_name<RecordTraversal>(); }
 
-        uint32_t traversalMask = 0xffffffff;
-        uint32_t overrideMask = 0x0;
+        Mask traversalMask = MASK_ALL;
+        Mask overrideMask = MASK_OFF;
 
         State* getState() { return _state; }
 
