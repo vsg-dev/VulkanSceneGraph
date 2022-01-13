@@ -19,20 +19,38 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class VSG_DECLSPEC Camera : public Inherit<Object, Camera>
+    class VSG_DECLSPEC Camera : public Inherit<Node, Camera>
     {
     public:
         Camera();
 
         Camera(ref_ptr<ProjectionMatrix> in_projectionMatrix, ref_ptr<ViewMatrix> in_viewMatrix, ref_ptr<ViewportState> in_viewportState = {});
 
+        std::string name;
         ref_ptr<ProjectionMatrix> projectionMatrix;
         ref_ptr<ViewMatrix> viewMatrix;
         ref_ptr<ViewportState> viewportState;
 
         VkViewport getViewport() const { return viewportState ? viewportState->getViewport() : VkViewport{}; }
         VkRect2D getRenderArea() const { return viewportState ? viewportState->getScissor() : VkRect2D{}; }
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
     VSG_type_name(vsg::Camera);
+
+    class VSG_DECLSPEC FindCameras : public Inherit<Visitor, FindCameras>
+    {
+    public:
+        // cameras that have been found
+        std::map<RefObjectPath, ref_ptr<Camera>> cameras;
+
+        void apply(Object& objct) override;
+        void apply(Camera& camera) override;
+
+    protected:
+        ObjectPath _objectPath;
+    };
+    VSG_type_name(vsg::FindCameras);
 
 } // namespace vsg

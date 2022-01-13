@@ -1,8 +1,6 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2018 Robert Osfield
+Copyright(c) 2022 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -12,33 +10,36 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/state/GraphicsPipeline.h>
+#include <vsg/io/Options.h>
+#include <vsg/maths/transform.h>
+#include <vsg/viewer/ViewMatrix.h>
 
-namespace vsg
+using namespace vsg;
+
+void LookAt::read(Input& input)
 {
-    class VSG_DECLSPEC DepthStencilState : public Inherit<GraphicsPipelineState, DepthStencilState>
-    {
-    public:
-        DepthStencilState();
+    ViewMatrix::read(input);
 
-        /// VkPipelineDepthStencilStateCreateInfo settings
-        VkBool32 depthTestEnable = VK_TRUE;
-        VkBool32 depthWriteEnable = VK_TRUE;
-        VkCompareOp depthCompareOp = VK_COMPARE_OP_GREATER;
-        VkBool32 depthBoundsTestEnable = VK_FALSE;
-        VkBool32 stencilTestEnable = VK_FALSE;
-        VkStencilOpState front = {};
-        VkStencilOpState back = {};
-        float minDepthBounds = 0.0f;
-        float maxDepthBounds = 1.0f;
+    input.read("eye", eye);
+    input.read("center", center);
+    input.read("up", up);
+}
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
-        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
+void LookAt::write(Output& output) const
+{
+    ViewMatrix::write(output);
 
-    protected:
-        virtual ~DepthStencilState();
-    };
-    VSG_type_name(vsg::DepthStencilState);
+    output.write("eye", eye);
+    output.write("center", center);
+    output.write("up", up);
+}
 
-} // namespace vsg
+dmat4 TrackingViewMatrix::transform() const
+{
+    return matrix * vsg::inverse(computeTransform(objectPath));
+}
+
+dmat4 TrackingViewMatrix::inverse() const
+{
+    return computeTransform(objectPath) * vsg::inverse(matrix);
+}

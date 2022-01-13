@@ -148,12 +148,14 @@ LineSegmentIntersector::LineSegmentIntersector(const Camera& camera, int32_t x, 
         ndc.set((static_cast<float>(x) - viewport.x) / viewport.width, (static_cast<float>(y) - viewport.y) / viewport.height);
     }
 
-    vsg::dvec3 ndc_near(ndc.x * 2.0 - 1.0, ndc.y * 2.0 - 1.0, viewport.minDepth * 2.0 - 1.0);
-    vsg::dvec3 ndc_far(ndc.x * 2.0 - 1.0, ndc.y * 2.0 - 1.0, viewport.maxDepth * 2.0 - 1.0);
-
     auto projectionMatrix = camera.projectionMatrix->transform();
     auto viewMatrix = camera.viewMatrix->transform();
     auto inv_projectionViewMatrix = vsg::inverse(projectionMatrix * viewMatrix);
+
+    bool reverse_depth = (projectionMatrix(2,2) > 0.0);
+
+    vsg::dvec3 ndc_near(ndc.x * 2.0 - 1.0, ndc.y * 2.0 - 1.0, reverse_depth ? viewport.maxDepth : viewport.minDepth);
+    vsg::dvec3 ndc_far(ndc.x * 2.0 - 1.0, ndc.y * 2.0 - 1.0, reverse_depth ? viewport.minDepth : viewport.maxDepth);
 
     vsg::dvec3 world_near = inv_projectionViewMatrix * ndc_near;
     vsg::dvec3 world_far = inv_projectionViewMatrix * ndc_far;

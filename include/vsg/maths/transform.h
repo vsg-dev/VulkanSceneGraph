@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/ConstVisitor.h>
+#include <vsg/core/visit.h>
 #include <vsg/maths/mat3.h>
 #include <vsg/maths/mat4.h>
 #include <vsg/maths/quat.h>
@@ -143,26 +144,39 @@ namespace vsg
                          m[0][3], m[1][3], m[2][3], m[3][3]);
     }
 
-    // Vulkan style 0 to 1 depth range
+    // Reverse depth convention: 1 to 0 depth range. Y NDC coordinates are inverted in Vulkan.
+    // For best precision we record setting up Windows with windowTraits->depthFormat = VK_FORMAT_D32_SFLOAT;
+    // Background reading : https://developer.nvidia.com/content/depth-precision-visualized
+    //                      https://vincent-p.github.io/posts/vulkan_perspective_matrix/
     template<typename T>
     constexpr t_mat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
     {
         T f = static_cast<T>(1.0 / std::tan(fovy_radians * 0.5));
-        T r = static_cast<T>(1.0 / (zNear - zFar));
+        T r = static_cast<T>(1.0 / (zFar - zNear));
         return t_mat4<T>(f / aspectRatio, 0, 0, 0,
                          0, -f, 0, 0,
-                         0, 0, (zFar)*r, -1,
+                         0, 0, zNear * r, -1,
                          0, 0, (zFar * zNear) * r, 0);
     }
 
-    // from vulkan cookbook
+    // Reverse depth convention: 1 to 0 depth range. Y NDC coordinates are inverted in Vulkan.
+    template<typename T>
+    constexpr t_mat4<T> perspective(T left, T right, T bottom, T top, T zNear, T zFar)
+    {
+        return t_mat4<T>(2.0 * zNear / (right - left), 0.0, 0.0, 0.0,
+                         0.0, 2.0 * zNear / (bottom - top), 0.0, 0.0,
+                         (right + left) / (right - left), (bottom + top) / (bottom - top), zNear / (zFar - zNear), -1.0,
+                         0.0, 0.0, zNear * zFar / (zFar - zNear), 0.0);
+    }
+
+    // from vulkan cookbook with reverse depth
     template<typename T>
     constexpr t_mat4<T> orthographic(T left, T right, T bottom, T top, T zNear, T zFar)
     {
         return t_mat4<T>(2.0 / (right - left), 0.0, 0.0, 0.0,
                          0.0, 2.0 / (bottom - top), 0.0, 0.0,
-                         0.0, 0.0, 1.0 / (zNear - zFar), 0.0,
-                         -(right + left) / (right - left), -(bottom + top) / (bottom - top), zNear / (zNear - zFar), 1.0);
+                         0.0, 0.0, 1.0 / (zFar - zNear), 0.0,
+                         -(right + left) / (right - left), -(bottom + top) / (bottom - top), zFar / (zFar - zNear), 1.0);
     }
 
     template<typename T>
@@ -219,24 +233,22 @@ namespace vsg
     /// compute the bounding sphere that encloses a frustum defined by specified double ModelViewMatrixProjection
     extern VSG_DECLSPEC dsphere computeFrustumBound(const dmat4& m);
 
-    struct ComputeTransform : public ConstVisitor
+    /// visitor that computes a transform matrix, accumulating the result in order of objects visited
+    /// usage:  auto matrix = vsg::visit<vsg::ComputeTransform>(nodePath).matrix;
+    struct VSG_DECLSPEC ComputeTransform : public ConstVisitor
     {
         dmat4 matrix;
 
         void apply(const Transform& transform) override;
         void apply(const MatrixTransform& mt) override;
+        void apply(const Camera& camera) override;
     };
 
-    // convinience function for accumulating the transforms in scene graph along a specified nodePath.
+    /// convinience function for accumulating the transforms in scene graph along a specified nodePath.
     template<typename T>
     dmat4 computeTransform(const T& nodePath)
     {
-        ComputeTransform ct;
-        for (auto& node : nodePath)
-        {
-            node->accept(ct);
-        }
-        return ct.matrix;
+        return visit<ComputeTransform>(nodePath).matrix;
     }
 
 } // namespace vsg
