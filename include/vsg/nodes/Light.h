@@ -21,7 +21,6 @@ namespace vsg
     class VSG_DECLSPEC Light : public Inherit<Node, Light>
     {
     public:
-
         std::string name;
         vec3 color = vec3(1.0, 1.0, 1.0);
         float intensity = 1.0;
@@ -29,7 +28,6 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
     };
     VSG_type_name(vsg::Light);
 
@@ -42,7 +40,6 @@ namespace vsg
     class VSG_DECLSPEC DirectionalLight : public Inherit<Light, DirectionalLight>
     {
     public:
-
         dvec3 direction = dvec3(0.0, 0.0, -1.0);
 
         void read(Input& input) override;
@@ -53,7 +50,6 @@ namespace vsg
     class VSG_DECLSPEC PointLight : public Inherit<Light, PointLight>
     {
     public:
-
         dvec3 position = dvec3(0.0, 0.0, 0.0);
 
         void read(Input& input) override;
@@ -64,7 +60,6 @@ namespace vsg
     class VSG_DECLSPEC SpotLight : public Inherit<Light, SpotLight>
     {
     public:
-
         dvec3 position = dvec3(0.0, 0.0, 0.0);
         dvec3 direction = dvec3(0.0, 0.0, -1.0);
         double innerAngle = radians(30.0);

@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Mask.h>
 #include <vsg/core/Object.h>
 #include <vsg/core/type_name.h>
-#include <vsg/core/Mask.h>
 #include <vsg/maths/mat4.h>
 
 #include <set>
