@@ -67,8 +67,8 @@ namespace vsg
 
         dvec3 position = dvec3(0.0, 0.0, 0.0);
         dvec3 direction = dvec3(0.0, 0.0, -1.0);
-        float innerAngle = radians(30.0);
-        float outerAngle = radians(45.0);
+        double innerAngle = radians(30.0);
+        double outerAngle = radians(45.0);
 
         void read(Input& input) override;
         void write(Output& output) const override;
