@@ -40,6 +40,11 @@ namespace vsg
     class DepthSorted;
     class Bin;
     class Switch;
+    class Light;
+    class AmbientLight;
+    class DirectionalLight;
+    class PointLight;
+    class SpotLight;
 
     // forward declare vulkan classes
     class BufferInfo;
@@ -244,6 +249,11 @@ namespace vsg
         virtual void apply(DepthSorted&);
         virtual void apply(Bin&);
         virtual void apply(Switch&);
+        virtual void apply(Light&);
+        virtual void apply(AmbientLight&);
+        virtual void apply(DirectionalLight&);
+        virtual void apply(PointLight&);
+        virtual void apply(SpotLight&);
 
         // Vulkan nodes
         virtual void apply(BufferInfo&);

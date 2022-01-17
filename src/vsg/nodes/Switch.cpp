@@ -119,7 +119,7 @@ void Switch::write(Output& output) const
     }
 }
 
-void Switch::addChild(vsg::Mask  mask, ref_ptr<Node> child)
+void Switch::addChild(vsg::Mask mask, ref_ptr<Node> child)
 {
     children.push_back(Child{mask, child});
 }

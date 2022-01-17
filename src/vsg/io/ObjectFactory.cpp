@@ -181,6 +181,11 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::Bin);
     VSG_REGISTER_create(vsg::DepthSorted);
     VSG_REGISTER_create(vsg::Switch);
+    VSG_REGISTER_create(vsg::Light);
+    VSG_REGISTER_create(vsg::AmbientLight);
+    VSG_REGISTER_create(vsg::DirectionalLight);
+    VSG_REGISTER_create(vsg::PointLight);
+    VSG_REGISTER_create(vsg::SpotLight);
 
     // vulkan objects
     VSG_REGISTER_create(vsg::BindGraphicsPipeline);

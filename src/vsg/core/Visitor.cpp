@@ -481,6 +481,26 @@ void Visitor::apply(Switch& value)
 {
     apply(static_cast<Node&>(value));
 }
+void Visitor::apply(Light& value)
+{
+    apply(static_cast<Node&>(value));
+}
+void Visitor::apply(AmbientLight& value)
+{
+    apply(static_cast<Light&>(value));
+}
+void Visitor::apply(DirectionalLight& value)
+{
+    apply(static_cast<Light&>(value));
+}
+void Visitor::apply(PointLight& value)
+{
+    apply(static_cast<Light&>(value));
+}
+void Visitor::apply(SpotLight& value)
+{
+    apply(static_cast<Light&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
