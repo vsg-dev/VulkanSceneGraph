@@ -28,12 +28,21 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
+
+    protected:
+        virtual ~Light() {}
     };
     VSG_type_name(vsg::Light);
 
     class VSG_DECLSPEC AmbientLight : public Inherit<Light, AmbientLight>
     {
     public:
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+    protected:
+        virtual ~AmbientLight() {}
     };
     VSG_type_name(vsg::AmbientLight);
 
@@ -44,6 +53,9 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
+
+    protected:
+        virtual ~DirectionalLight() {}
     };
     VSG_type_name(vsg::DirectionalLight);
 
@@ -54,6 +66,9 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
+
+    protected:
+        virtual ~PointLight() {}
     };
     VSG_type_name(vsg::PointLight);
 
@@ -67,6 +82,9 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
+
+    protected:
+        virtual ~SpotLight() {}
     };
     VSG_type_name(vsg::SpotLight);
 
