@@ -39,12 +39,12 @@ void Light::write(Output& output) const
 //
 // AmbientLight
 //
-void AmbientlLight::read(Input& input)
+void AmbientLight::read(Input& input)
 {
     Light::read(input);
 }
 
-void AmbientlLight::write(Output& output) const
+void AmbientLight::write(Output& output) const
 {
     Light::write(output);
 }
