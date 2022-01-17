@@ -39,6 +39,7 @@ set(SOURCES
     nodes/Bin.cpp
     nodes/Switch.cpp
     nodes/StateGroup.cpp
+    nodes/Light.cpp
 
     commands/BindIndexBuffer.cpp
     commands/BindVertexBuffers.cpp
