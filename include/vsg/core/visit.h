@@ -20,7 +20,7 @@ namespace vsg
 
     /////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    // vsg::visit<> variants construct a Visitor and passs it to one or more objetcts accept() method
+    // vsg::visit<> variants construct a Visitor and pass it to one or more objects accept() method
     //
 
     /// helper function that default constructors visitor, calls accept() on each of the objects in specified range and returns the visitor so it can be queried for any results or reused.
@@ -84,7 +84,7 @@ namespace vsg
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    // vsg::visit<> variants that passs an existing Visitor to one or more objetcts accept() method, returning a reference to the vistor
+    // vsg::visit<> variants that pass an existing Visitor to one or more objects accept() method, returning a reference to the visitor
     //
 
     /// helper function calls accept(visitor) on each of the objects in specified range and returns a reference to the visitor so it can be queried for any results or reused.

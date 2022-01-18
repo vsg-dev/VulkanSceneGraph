@@ -213,12 +213,12 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
     {
         if (totalSize != deviceBufferInfo->range)
         {
-            std::cout << "Exisitng deviceBufferInfo, " << deviceBufferInfo << ", deviceBufferInfo->range  = " << deviceBufferInfo->range << ", " << totalSize << " NOT compatible" << std::endl;
+            std::cout << "Existing deviceBufferInfo, " << deviceBufferInfo << ", deviceBufferInfo->range  = " << deviceBufferInfo->range << ", " << totalSize << " NOT compatible" << std::endl;
             return false;
         }
         else
         {
-            //std::cout<<"Exisitng deviceBufferInfo, "<<deviceBufferInfo<<", deviceBufferInfo->range  = "<<deviceBufferInfo->range <<", "<<totalSize<<" with compatible size"<<std::endl;
+            //std::cout<<"Existing deviceBufferInfo, "<<deviceBufferInfo<<", deviceBufferInfo->range  = "<<deviceBufferInfo->range <<", "<<totalSize<<" with compatible size"<<std::endl;
 
             // make sure the VkBuffer is created
             deviceBufferInfo->buffer->compile(context);
