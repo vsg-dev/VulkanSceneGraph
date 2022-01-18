@@ -75,8 +75,8 @@ namespace vsg
     };
     VSG_type_name(vsg::ArrayState);
 
-    /// NullArrayState provides a mechanism for geometry in a subgraph to be ignored by traverals that use ArrayState such as ComputeBounds/Intersection/LineSegmentIntersector
-    /// this is usefl for subgarphs that have custom shaders that move the final rendered geometry to a different place that would be nievely interpreted by a straight forward vec3Array vertex array in local coordinates.
+    /// NullArrayState provides a mechanism for geometry in a subgraph to be ignored by traversals that use ArrayState such as ComputeBounds/Intersection/LineSegmentIntersector
+    /// this is useful for subgraphs that have custom shaders that move the final rendered geometry to a different place that would be naively interpreted by a straight forward vec3Array vertex array in local coordinates.
     /// To disable the handling of geometry in a subgraph simple assign a NullArrayState to the StateGroup::prototypeArrayState, i.e.
     ///     stateGroup->prototypeArrayState = vsg::NullArrayState::create();
     class VSG_DECLSPEC NullArrayState : public Inherit<ArrayState, NullArrayState>
