@@ -61,7 +61,7 @@ namespace vsg
         {
             if ((visitor.traversalMask & (visitor.overrideMask | node.mask)) == MASK_OFF) return;
 
-            uint32_t cached_traversalMask = visitor.traversalMask;
+            auto cached_traversalMask = visitor.traversalMask;
 
             visitor.traversalMask = visitor.traversalMask & node.mask;
 
