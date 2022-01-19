@@ -33,8 +33,8 @@ namespace vsg
 
         const uint32_t deviceID;
         uint32_t viewID = 0;
-        uint32_t traversalMask = 0xffffffff;
-        uint32_t overrideMask = 0x0;
+        Mask traversalMask = MASK_ALL;
+        Mask overrideMask = MASK_OFF;
 
         VkCommandBufferLevel level() const { return _level; }
 
