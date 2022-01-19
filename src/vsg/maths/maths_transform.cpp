@@ -36,6 +36,42 @@ typename T::value_type difference(const T& lhs, const T& rhs)
 }
 
 template<class T>
+t_mat3<T> t_inverse_3x3(const t_mat4<T>& m)
+{
+    using value_type = T;
+
+    value_type det = m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+
+    if (det == value_type(0.0)) return t_mat3<T>(std::numeric_limits<value_type>::quiet_NaN()); // could use signaling_NaN()
+
+    value_type inv_det = value_type(1.0) / det;
+
+    value_type m00 = inv_det * (m[1][1] * m[2][2] - m[1][2] * m[2][1]);
+    value_type m01 = inv_det * (m[0][2] * m[2][1] - m[0][1] * m[2][2]);
+    value_type m02 = inv_det * (m[0][1] * m[1][2] - m[0][2] * m[1][1]);
+    value_type m10 = inv_det * (m[1][2] * m[2][0] - m[1][0] * m[2][2]);
+    value_type m11 = inv_det * (m[0][0] * m[2][2] - m[0][2] * m[2][0]);
+    value_type m12 = inv_det * (m[0][2] * m[1][0] - m[0][0] * m[1][2]);
+    value_type m20 = inv_det * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+    value_type m21 = inv_det * (m[0][1] * m[2][0] - m[0][0] * m[2][1]);
+    value_type m22 = inv_det * (m[0][0] * m[1][1] - m[0][1] * m[1][0]);
+
+    return t_mat3<T>(m00, m01, m02,   // column 0
+                     m10, m11, m12,   // column 1
+                     m20, m21, m22);  // column 2
+}
+
+mat3 vsg::inverse_3x3(const mat4& m)
+{
+    return t_inverse_3x3<float>(m);
+}
+
+dmat3 vsg::inverse_3x3(const dmat4& m)
+{
+    return t_inverse_3x3<double>(m);
+}
+
+template<class T>
 T t_inverse_4x3(const T& m)
 {
     using value_type = typename T::value_type;

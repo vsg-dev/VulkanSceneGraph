@@ -24,7 +24,6 @@ void Light::read(Input& input)
     input.read("name", name);
     input.read("color", color);
     input.read("intensity", intensity);
-    input.read("eyeCoordinateFrame", eyeCoordinateFrame);
 }
 
 void Light::write(Output& output) const
@@ -32,7 +31,6 @@ void Light::write(Output& output) const
     output.write("name", name);
     output.write("color", color);
     output.write("intensity", intensity);
-    output.write("eyeCoordinateFrame", eyeCoordinateFrame);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

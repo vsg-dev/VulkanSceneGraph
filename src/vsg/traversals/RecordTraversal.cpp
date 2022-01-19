@@ -26,6 +26,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/Switch.h>
+#include <vsg/nodes/Light.h>
 #include <vsg/threading/atomics.h>
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/ui/ApplicationEvent.h>
@@ -287,6 +288,35 @@ void RecordTraversal::apply(const Switch& sw)
     }
 }
 
+void RecordTraversal::apply(const Light& light)
+{
+    std::cout<<"RecordTraversal::apply(Light) "<<light.className()<<std::endl;
+}
+
+void RecordTraversal::apply(const AmbientLight& light)
+{
+    std::cout<<"RecordTraversal::apply(AmbientLight) "<<light.className()<<std::endl;
+    if (_viewDependentState) _viewDependentState->ambientLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
+}
+
+void RecordTraversal::apply(const DirectionalLight& light)
+{
+    std::cout<<"RecordTraversal::apply(DirectionalLight) "<<light.className()<<std::endl;
+    if (_viewDependentState) _viewDependentState->directionalLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
+}
+
+void RecordTraversal::apply(const PointLight& light)
+{
+    std::cout<<"RecordTraversal::apply(PointLight) "<<light.className()<<std::endl;
+    if (_viewDependentState) _viewDependentState->pointLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
+}
+
+void RecordTraversal::apply(const SpotLight& light)
+{
+    std::cout<<"RecordTraversal::apply(SpotLight) "<<light.className()<<std::endl;
+    if (_viewDependentState) _viewDependentState->spotLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
+}
+
 void RecordTraversal::apply(const StateGroup& stateGroup)
 {
     //    std::cout<<"Visiting StateGroup "<<std::endl;
@@ -374,6 +404,7 @@ void RecordTraversal::apply(const View& view)
     int32_t cached_minimumBinNumber = _minimumBinNumber;
     decltype(_bins) cached_bins;
     cached_bins.swap(_bins);
+    auto cached_viewDependentState = _viewDependentState;
 
     // assign and clear the View's bins
     int32_t min_binNumber = 0;
@@ -390,6 +421,14 @@ void RecordTraversal::apply(const View& view)
     {
         _bins[bin->binNumber] = bin;
         bin->clear();
+    }
+
+    // assign and clear the View's ViewDependentState
+    _viewDependentState = view.viewDependentState;
+    if (_viewDependentState)
+    {
+        _viewDependentState->clear();
+        _viewDependentState->push(*_state);
     }
 
     if (view.camera)
@@ -409,8 +448,18 @@ void RecordTraversal::apply(const View& view)
         bin->accept(*this);
     }
 
+    if (_viewDependentState)
+    {
+        _viewDependentState->pop(*_state);
+        _viewDependentState->pack();
+        // TODO : need to copy _viewDependentState->lightData to GPU.
+    }
+
     // swap back previous bin setup.
     _minimumBinNumber = cached_minimumBinNumber;
     cached_bins.swap(_bins);
     _state->_commandBuffer->traversalMask = cached_traversalMask;
+    _viewDependentState = cached_viewDependentState;
+
+
 }

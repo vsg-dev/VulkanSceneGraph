@@ -209,6 +209,12 @@ namespace vsg
     /// return true if required and matrix modified, return false if no transformation is required.
     extern VSG_DECLSPEC bool transform(CoordinateConvention source, CoordinateConvention destination, dmat4& matrix);
 
+    /// invert the top left 3x3 portion of a float 4x4 matrix.
+    extern VSG_DECLSPEC mat3 inverse_3x3(const mat4& m);
+
+    /// invert the top left 3x3 portion of a double 4x4 matrix.
+    extern VSG_DECLSPEC dmat3 inverse_3x3(const dmat4& m);
+
     /// fast float matrix inversion that use assumes the matrix is composed of only scales, rotations and translations forming a 4x3 matrix.
     extern VSG_DECLSPEC mat4 inverse_4x3(const mat4& m);
 
@@ -218,7 +224,7 @@ namespace vsg
     /// general purpose 4x4 float matrix inversion.
     extern VSG_DECLSPEC mat4 inverse_4x4(const mat4& m);
 
-    /// general purpose 4x4 float matrix inversion.
+    /// general purpose 4x4 double matrix inversion.
     extern VSG_DECLSPEC dmat4 inverse_4x4(const dmat4& m);
 
     /// matrix float inversion with automatic selection of inverse_4x3 when appropriate, otherwise uses inverse_4x4

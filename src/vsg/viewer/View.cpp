@@ -13,7 +13,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/nodes/Bin.h>
 #include <vsg/traversals/RecordTraversal.h>
+#include <vsg/state/DescriptorSet.h>
+#include <vsg/state/DescriptorImage.h>
 #include <vsg/viewer/View.h>
+#include <vsg/vk/State.h>
 
 #include <iostream>
 
@@ -48,14 +51,109 @@ static void releaseViewID(uint32_t viewID)
     s_ActiveViews[viewID] = false;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// ViewDependentState
+//
+ViewDependentState::ViewDependentState(uint32_t maxNumberLights)
+{
+    lightData = vec4Array::create(maxNumberLights);
+    lightDescriptor = DescriptorImage::create();
+    descriptorSet = DescriptorSet::create();
+    bindDescriptorSet = BindDescriptorSet::create();
+}
+
+ViewDependentState::~ViewDependentState()
+{
+}
+
+void ViewDependentState::clear()
+{
+    std::cout<<"ViewDependentState::clear()"<<std::endl;
+    ambientLights.clear();
+    directionalLights.clear();
+    pointLights.clear();
+    spotLights.clear();
+}
+
+void ViewDependentState::push(State& state)
+{
+    std::cout<<"ViewDependentState::push()"<<std::endl;
+    if (bindDescriptorSet)
+    {
+        state.stateStacks[bindDescriptorSet->slot].push(bindDescriptorSet);
+        state.dirty = true;
+    }
+}
+
+void ViewDependentState::pop(State& state)
+{
+    std::cout<<"ViewDependentState::pop()"<<std::endl;
+    if (bindDescriptorSet)
+    {
+        state.stateStacks[bindDescriptorSet->slot].pop();
+        state.dirty = true;
+    }
+}
+
+void ViewDependentState::pack()
+{
+    std::cout<<"ViewDependentState::pack()"<<std::endl;
+    auto light_itr = lightData->begin();
+
+    (*light_itr++) = vec4(static_cast<float>(ambientLights.size()),
+                    static_cast<float>(directionalLights.size()),
+                    static_cast<float>(pointLights.size()),
+                    static_cast<float>(spotLights.size()));
+
+    for(auto& [mv, light] : ambientLights)
+    {
+        (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
+    }
+
+    for(auto& [mv, light] : directionalLights)
+    {
+        auto eye_direction = normalize(light->direction * inverse_3x3(mv));
+        (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
+        (*light_itr++).set(eye_direction.x, eye_direction.y, eye_direction.z, 0.0f);
+    }
+
+    for(auto& [mv, light] : pointLights)
+    {
+        auto eye_position = mv * light->position;
+        (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
+        (*light_itr++).set(eye_position.x, eye_position.y, eye_position.z, 0.0f);
+    }
+
+    for(auto& [mv, light] : spotLights)
+    {
+        auto eye_position = mv * light->position;
+        auto eye_direction = normalize(light->direction * inverse_3x3(mv));
+        (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
+        (*light_itr++).set(eye_position.x, eye_position.y, eye_position.z, 0.0f);
+        (*light_itr++).set(eye_direction.x, eye_direction.y, eye_direction.z, 0.0f);
+    }
+
+    for(auto itr = lightData->begin(); itr != light_itr; ++itr)
+    {
+        std::cout<<"   "<<*itr<<std::endl;
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// View
+//
 View::View() :
     viewID(getUniqueViewID())
 {
+    viewDependentState = ViewDependentState::create();
 }
 
 View::View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph) :
     viewID(getUniqueViewID())
 {
+    viewDependentState = ViewDependentState::create();
     camera = in_camera;
 
     if (in_scenegraph) addChild(in_scenegraph);

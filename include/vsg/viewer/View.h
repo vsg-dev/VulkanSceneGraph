@@ -13,11 +13,41 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/Light.h>
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/Window.h>
 
 namespace vsg
 {
+
+    /// ViewDependentState to manage lighting, clip planes and texture projection
+    class VSG_DECLSPEC ViewDependentState : public Inherit<Object, ViewDependentState>
+    {
+    public:
+
+        ViewDependentState(uint32_t maxNumberLights = 64);
+
+        // cotnainers filled in by RecordTraversal
+        std::vector< std::pair<dmat4, const AmbientLight*> > ambientLights;
+        std::vector< std::pair<dmat4, const DirectionalLight*> > directionalLights;
+        std::vector< std::pair<dmat4, const PointLight*> > pointLights;
+        std::vector< std::pair<dmat4, const SpotLight*> > spotLights;
+
+        virtual void clear();
+        virtual void push(State& state);
+        virtual void pop(State& state);
+        virtual void pack();
+
+        ref_ptr<vec4Array> lightData;
+        ref_ptr<DescriptorImage> lightDescriptor;
+
+        ref_ptr<DescriptorSet> descriptorSet;
+        ref_ptr<BindDescriptorSet> bindDescriptorSet;
+
+    protected:
+        ~ViewDependentState();
+    };
+
     /// View class is Group class that pairs a Camera that defines the view with a subgraph that defines the scene that is being viewed/rendered
     class VSG_DECLSPEC View : public Inherit<Group, View>
     {
@@ -57,6 +87,9 @@ namespace vsg
 
         /// bins
         std::vector<ref_ptr<Bin>> bins;
+
+        /// view dependent state
+        ref_ptr<ViewDependentState> viewDependentState;
 
     protected:
         virtual ~View();

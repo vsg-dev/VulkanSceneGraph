@@ -24,7 +24,6 @@ namespace vsg
         std::string name;
         vec3 color = vec3(1.0, 1.0, 1.0);
         float intensity = 1.0;
-        bool eyeCoordinateFrame = false;
 
         void read(Input& input) override;
         void write(Output& output) const override;
