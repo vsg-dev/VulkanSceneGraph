@@ -32,10 +32,9 @@ namespace vsg
                   {0, 0, 1}} {}
 
         constexpr explicit t_mat3(value_type v) :
-            value{{v, 0, 0, 0},
-                  {0, v, 0, 0},
-                  {0, 0, v, 0},
-                  {0, 0, 0, v}} {}
+            value{{v, 0, 0},
+                  {0, v, 0},
+                  {0, 0, v}} {}
 
         constexpr t_mat3(value_type v0, value_type v1, value_type v2, /* column 0 */
                          value_type v3, value_type v4, value_type v5, /* column 1 */
@@ -145,5 +144,13 @@ namespace vsg
         return t_vec3<T>((lhs[0][0] * rhs[0] + lhs[1][0] * rhs[1] + lhs[2][0] * rhs[2]),
                          (lhs[0][1] * rhs[0] + lhs[1][1] * rhs[1] + lhs[2][1] * rhs[2]),
                          (lhs[0][2] * rhs[0] + lhs[1][2] * rhs[1] + lhs[2][2] * rhs[2]));
+    }
+
+    template<typename T>
+    t_vec3<T> operator*(const t_vec3<T>& lhs, const t_mat3<T>& rhs)
+    {
+        return t_vec3<T>(lhs[0] * rhs[0][0] + lhs[1] * rhs[0][1] + lhs[2] * rhs[0][2],
+                         lhs[0] * rhs[1][0] + lhs[1] * rhs[1][1] + lhs[2] * rhs[1][2],
+                         lhs[0] * rhs[2][0] + lhs[1] * rhs[2][1] + lhs[2] * rhs[2][2]);
     }
 } // namespace vsg
