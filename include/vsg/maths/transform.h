@@ -250,7 +250,7 @@ namespace vsg
         void apply(const Camera& camera) override;
     };
 
-    /// convinience function for accumulating the transforms in scene graph along a specified nodePath.
+    /// convenience function for accumulating the transforms in scene graph along a specified nodePath.
     template<typename T>
     dmat4 computeTransform(const T& nodePath)
     {

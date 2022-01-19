@@ -148,7 +148,7 @@ namespace vsg
         }
     }
 
-    /// convience function for getting a value from the first object with the named value, falling back to specififed defaultValue when none is available.
+    /// convenience function for getting a value from the first object with the named value, falling back to specified defaultValue when none is available.
     /// usage:   auto flag = vsg::value<bool>(false, "flag", object1);
     /// usage:   auto angle = vsg::value<float>(0.0f, "angle", object1, object2);
     template<typename T, typename... Args>

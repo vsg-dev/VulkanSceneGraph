@@ -180,7 +180,7 @@ namespace vsg
                 return false;
         }
 
-        /// return true if Data's ModifiedCount is diffferent than the specified ModifiedCount
+        /// return true if Data's ModifiedCount is different than the specified ModifiedCount
         bool differentModifiedCount(const ModifiedCount& mc) const { return _modifiedCount != mc; }
 
     protected:
