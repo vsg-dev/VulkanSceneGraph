@@ -14,6 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/Light.h>
+#include <vsg/state/DecriptorImage.h>
+#include <vsg/state/DecriptorSet.h>
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/Window.h>
 
