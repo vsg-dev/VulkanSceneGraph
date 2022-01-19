@@ -115,14 +115,14 @@ void ViewDependentState::pack()
     {
         auto eye_direction = normalize(light->direction * inverse_3x3(mv));
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
-        (*light_itr++).set(eye_direction.x, eye_direction.y, eye_direction.z, 0.0f);
+        (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
     }
 
     for(auto& [mv, light] : pointLights)
     {
         auto eye_position = mv * light->position;
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
-        (*light_itr++).set(eye_position.x, eye_position.y, eye_position.z, 0.0f);
+        (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), 0.0f);
     }
 
     for(auto& [mv, light] : spotLights)
@@ -130,8 +130,8 @@ void ViewDependentState::pack()
         auto eye_position = mv * light->position;
         auto eye_direction = normalize(light->direction * inverse_3x3(mv));
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
-        (*light_itr++).set(eye_position.x, eye_position.y, eye_position.z, 0.0f);
-        (*light_itr++).set(eye_direction.x, eye_direction.y, eye_direction.z, 0.0f);
+        (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), 0.0f);
+        (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
     }
 
     for(auto itr = lightData->begin(); itr != light_itr; ++itr)
