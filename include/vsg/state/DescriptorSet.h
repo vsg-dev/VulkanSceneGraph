@@ -101,7 +101,7 @@ namespace vsg
         }
 
         /// vkCmdBindDescriptorSets settings
-        VkPipelineBindPoint pipelineBindPoint;
+        VkPipelineBindPoint pipelineBindPoint; // TODO not currently seralized
         ref_ptr<PipelineLayout> layout;
         uint32_t firstSet;
         DescriptorSets descriptorSets;
@@ -161,7 +161,7 @@ namespace vsg
         }
 
         // vkCmdBindDescriptorSets settings
-        VkPipelineBindPoint pipelineBindPoint;
+        VkPipelineBindPoint pipelineBindPoint; // TODO not currently seralized
         ref_ptr<PipelineLayout> layout;
         uint32_t firstSet;
         ref_ptr<DescriptorSet> descriptorSet;
@@ -196,5 +196,54 @@ namespace vsg
         vk_buffer<VulkanData> _vulkanData;
     };
     VSG_type_name(vsg::BindDescriptorSet);
+
+    class VSG_DECLSPEC BindViewDescriptorSets : public Inherit<StateCommand, BindViewDescriptorSets>
+    {
+    public:
+        BindViewDescriptorSets();
+
+        BindViewDescriptorSets(VkPipelineBindPoint in_bindPoint, PipelineLayout* in_pipelineLayout, uint32_t in_firstSet) :
+            Inherit(1 + in_firstSet),
+            pipelineBindPoint(in_bindPoint),
+            layout(in_pipelineLayout),
+            firstSet(in_firstSet)
+        {
+        }
+
+        // vkCmdBindDescriptorSets settings
+        VkPipelineBindPoint pipelineBindPoint;
+        ref_ptr<PipelineLayout> layout;
+        uint32_t firstSet;
+
+        template<class N, class V>
+        static void t_traverse(N& bds, V& visitor)
+        {
+            if (bds.layout) bds.layout->accept(visitor);
+        }
+
+        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context) override;
+
+        void record(CommandBuffer& commandBuffer) const override;
+
+    protected:
+        virtual ~BindViewDescriptorSets() {}
+
+        struct VulkanData
+        {
+            VkPipelineLayout _vkPipelineLayout = 0;
+            std::vector<VkDescriptorSet> _vkDescriptorSets;
+        };
+
+        std::vector<VulkanData> _vulkanData;
+    };
+    VSG_type_name(vsg::BindViewDescriptorSets);
+
 
 } // namespace vsg

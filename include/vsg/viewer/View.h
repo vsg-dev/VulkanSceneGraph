@@ -14,7 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/Light.h>
-#include <vsg/state/DescriptorImage.h>
+#include <vsg/state/DescriptorBuffer.h>
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/Window.h>
@@ -36,15 +36,12 @@ namespace vsg
         std::vector< std::pair<dmat4, const SpotLight*> > spotLights;
 
         virtual void clear();
-        virtual void push(State& state);
-        virtual void pop(State& state);
         virtual void pack();
 
         ref_ptr<vec4Array> lightData;
-        ref_ptr<DescriptorImage> lightDescriptor;
-
+        ref_ptr<DescriptorBuffer> lightDescriptor;
+        ref_ptr<DescriptorSetLayout> descriptorSetLayout;
         ref_ptr<DescriptorSet> descriptorSet;
-        ref_ptr<BindDescriptorSet> bindDescriptorSet;
 
     protected:
         ~ViewDependentState();

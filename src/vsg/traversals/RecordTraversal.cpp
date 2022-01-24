@@ -295,25 +295,25 @@ void RecordTraversal::apply(const Light& light)
 
 void RecordTraversal::apply(const AmbientLight& light)
 {
-    std::cout<<"RecordTraversal::apply(AmbientLight) "<<light.className()<<std::endl;
+    //std::cout<<"RecordTraversal::apply(AmbientLight) "<<light.className()<<std::endl;
     if (_viewDependentState) _viewDependentState->ambientLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
 }
 
 void RecordTraversal::apply(const DirectionalLight& light)
 {
-    std::cout<<"RecordTraversal::apply(DirectionalLight) "<<light.className()<<std::endl;
+    //std::cout<<"RecordTraversal::apply(DirectionalLight) "<<light.className()<<std::endl;
     if (_viewDependentState) _viewDependentState->directionalLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
 }
 
 void RecordTraversal::apply(const PointLight& light)
 {
-    std::cout<<"RecordTraversal::apply(PointLight) "<<light.className()<<std::endl;
+    //std::cout<<"RecordTraversal::apply(PointLight) "<<light.className()<<std::endl;
     if (_viewDependentState) _viewDependentState->pointLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
 }
 
 void RecordTraversal::apply(const SpotLight& light)
 {
-    std::cout<<"RecordTraversal::apply(SpotLight) "<<light.className()<<std::endl;
+    //std::cout<<"RecordTraversal::apply(SpotLight) "<<light.className()<<std::endl;
     if (_viewDependentState) _viewDependentState->spotLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
 }
 
@@ -399,6 +399,7 @@ void RecordTraversal::apply(const View& view)
     auto cached_traversalMask = _state->_commandBuffer->traversalMask;
     _state->_commandBuffer->traversalMask = traversalMask;
     _state->_commandBuffer->viewID = view.viewID;
+    _state->_commandBuffer->viewDependentState = view.viewDependentState.get();
 
     // cache the previous bins
     int32_t cached_minimumBinNumber = _minimumBinNumber;
@@ -428,7 +429,6 @@ void RecordTraversal::apply(const View& view)
     if (_viewDependentState)
     {
         _viewDependentState->clear();
-        _viewDependentState->push(*_state);
     }
 
     if (view.camera)
@@ -450,9 +450,18 @@ void RecordTraversal::apply(const View& view)
 
     if (_viewDependentState)
     {
-        _viewDependentState->pop(*_state);
         _viewDependentState->pack();
-        // TODO : need to copy _viewDependentState->lightData to GPU.
+
+        // copy data to staging buffer and issue a copy command to transfer to the GPU texture image
+        for(auto& bufferInfo : _viewDependentState->lightDescriptor->bufferInfoList)
+        {
+//            std::cout<<"RenderTraversal::apply(View&) Copying data to GPU "<<bufferInfo->data<<std::endl;
+#if 0
+            copyBufferCmd->copy(bufferInfo->data, bufferInfo);
+#else
+            bufferInfo->copyDataToBuffer();
+#endif
+        }
     }
 
     // swap back previous bin setup.

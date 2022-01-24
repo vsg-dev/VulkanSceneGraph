@@ -194,6 +194,11 @@ void CollectResourceRequirements::apply(const View& view)
         requirements.binStack.top().bins.insert(bin);
     }
 
+    if (view.viewDependentState)
+    {
+        view.viewDependentState->descriptorSet->accept(*this);
+    }
+
     requirements.views[&view] = requirements.binStack.top();
 
     requirements.binStack.pop();

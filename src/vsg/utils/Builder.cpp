@@ -60,6 +60,8 @@ ref_ptr<BindDescriptorSets> Builder::_createDescriptorSet(const StateInfo& state
     auto mat = vsg::PhongMaterialValue::create();
     auto material = vsg::DescriptorBuffer::create(mat, 10);
 
+    mat->value().specular = vec4(0.5f, 0.5f, 0.5f, 1.0f);
+
     Descriptors descriptors;
     if (textureData)
     {
@@ -80,7 +82,6 @@ ref_ptr<BindDescriptorSets> Builder::_createDescriptorSet(const StateInfo& state
         auto texture = DescriptorImage::create(sampler, displacementMap, 6, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
         descriptors.push_back(texture);
     }
-
     descriptors.push_back(material);
 
     auto descriptorSet = DescriptorSet::create(stateSettings.descriptorSetLayout, descriptors);
@@ -127,6 +128,7 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
 
     if (stateInfo.instancce_positions_vec3) defines.push_back("VSG_INSTANCE_POSITIONS");
 
+
     // set up graphics pipeline
     DescriptorSetLayoutBindings descriptorBindings;
     if (stateInfo.image)
@@ -152,6 +154,11 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
     stateSettings.descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
 
     DescriptorSetLayouts descriptorSetLayouts{stateSettings.descriptorSetLayout};
+    if (stateInfo.viewDescriptorSetLayout)
+    {
+        descriptorSetLayouts.push_back(stateInfo.viewDescriptorSetLayout);
+        defines.push_back("VSG_VIEW_LIGHT_DATA");
+    }
 
     PushConstantRanges pushConstantRanges{
         {VK_SHADER_STAGE_VERTEX_BIT, 0, 128} // projection view, and model matrices, actual push constant calls automatically provided by the VSG's DispatchTraversal
@@ -227,6 +234,10 @@ void Builder::_assign(StateGroup& stateGroup, const StateInfo& stateInfo)
     const auto& stateSettings = _getStateSettings(stateInfo);
     stateGroup.add(stateSettings.bindGraphicsPipeline);
     stateGroup.add(_createDescriptorSet(stateInfo));
+    if (stateInfo.viewDescriptorSetLayout)
+    {
+        stateGroup.add(vsg::BindViewDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, stateSettings.pipelineLayout, 1));
+    }
 }
 
 ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)

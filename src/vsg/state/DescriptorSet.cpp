@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/traversals/CompileTraversal.h>
+#include <vsg/viewer/View.h>
 #include <vsg/vk/CommandBuffer.h>
 
 using namespace vsg;
@@ -294,4 +295,78 @@ void BindDescriptorSet::record(CommandBuffer& commandBuffer) const
     auto& vkd = _vulkanData[commandBuffer.deviceID];
 
     vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, vkd._vkPipelineLayout, firstSet, 1, &(vkd._vkDescriptorSet), 0, nullptr);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// BindViewDescriptorSets
+//
+BindViewDescriptorSets::BindViewDescriptorSets() :
+    Inherit(1), // slot 1
+    pipelineBindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
+    firstSet(0)
+{
+}
+
+void BindViewDescriptorSets::read(Input& input)
+{
+    _vulkanData.clear();
+
+    Object::read(input);
+
+    input.read("pipelineBindPoint", pipelineBindPoint);
+    input.read("layout", layout);
+    input.read("firstSet", firstSet);
+}
+
+void BindViewDescriptorSets::write(Output& output) const
+{
+    Object::write(output);
+
+    output.write("pipelineBindPoint", pipelineBindPoint);
+    output.write("layout", layout);
+    output.write("firstSet", firstSet);
+}
+
+void BindViewDescriptorSets::compile(Context& context)
+{
+    uint32_t viewID = context.viewID;
+    if (static_cast<uint32_t>(_vulkanData.size()) < (viewID + 1))
+    {
+        _vulkanData.resize(viewID + 1);
+    }
+    auto& vkd = _vulkanData[viewID];
+
+    // no need to compile if already compiled
+    if (vkd._vkPipelineLayout != 0 && !vkd._vkDescriptorSets.empty()) return;
+
+    layout->compile(context);
+
+    vkd._vkPipelineLayout = layout->vk(context.deviceID);
+
+    if (context.viewDependentState && context.viewDependentState->descriptorSet)
+    {
+        context.viewDependentState->descriptorSet->compile(context);
+
+        vkd._vkDescriptorSets.resize(1);
+        vkd._vkDescriptorSets[0] = context.viewDependentState->descriptorSet->vk(context.deviceID);
+    }
+}
+
+void BindViewDescriptorSets::record(CommandBuffer& commandBuffer) const
+{
+    if (commandBuffer.viewID >= _vulkanData.size())
+    {
+        return;
+    }
+
+    auto& vkd = _vulkanData[commandBuffer.viewID];
+
+    if ( vkd._vkDescriptorSets.empty())
+    {
+        return;
+    }
+
+    vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, vkd._vkPipelineLayout, firstSet, static_cast<uint32_t>(vkd._vkDescriptorSets.size()), vkd._vkDescriptorSets.data(), 0, nullptr);
 }
