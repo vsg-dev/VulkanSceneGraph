@@ -83,7 +83,8 @@ void ViewDependentState::clear()
 
 void ViewDependentState::pack()
 {
-    //std::cout<<"ViewDependentState::pack()"<<std::endl;
+    // std::cout<<"ViewDependentState::pack() abmient "<<ambientLights.size()<<", diffuse "<<directionalLights.size()<<", point "<<pointLights.size()<<", spot "<<spotLights.size()<<std::endl;
+
     auto light_itr = lightData->begin();
 
     (*light_itr++) = vec4(static_cast<float>(ambientLights.size()),

@@ -107,6 +107,8 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         _initialized = true;
     }
 
+
+
     auto getFriendlyNameForShader = [](const ref_ptr<ShaderStage>& vsg_shader) {
         switch (vsg_shader->stage)
         {
@@ -220,6 +222,11 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
 
         if (parseResult)
         {
+#if 0
+            INFO_OUTPUT << "Successful compile" << std::endl;
+            INFO_OUTPUT << debugFormatShaderSource(finalShaderSource) << std::endl;
+            INFO_OUTPUT << std::endl;
+#endif
             program->addShader(shader);
 
             stageShaderMap[envStage] = vsg_shader;
@@ -230,7 +237,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
             INFO_OUTPUT << std::endl
                         << "----  " << getFriendlyNameForShader(vsg_shader) << "  ----" << std::endl
                         << std::endl;
-            INFO_OUTPUT << debugFormatShaderSource(vsg_shader->module->source) << std::endl;
+            INFO_OUTPUT << debugFormatShaderSource(finalShaderSource) << std::endl;
             INFO_OUTPUT << "Warning: GLSL source failed to parse." << std::endl;
             INFO_OUTPUT << "glslang info log: " << std::endl
                         << shader->getInfoLog();

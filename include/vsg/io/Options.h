@@ -25,6 +25,7 @@ namespace vsg
     class ReaderWriter;
     class OperationThreads;
     class CommandLine;
+    class DescriptorSetLayout;
 
     using ReaderWriters = std::vector<ref_ptr<ReaderWriter>>;
 
@@ -79,6 +80,10 @@ namespace vsg
 
         /// coordinate convention to assume for specified lower case file formats extensions
         std::map<vsg::Path, CoordinateConvention> formatCoordinateConventions;
+
+        /// DescriptorSetLayout used to describe the DescriptorSet provided by the ViewDependentState such as light data.
+        /// If assigned loaders can assign to a StateGroup a vsg::BindViewDescriptoSets to pull in the ViewDependentState's DescriptorSet
+        ref_ptr<DescriptorSetLayout> viewDescriptorSetLayout;
 
     protected:
         virtual ~Options();
