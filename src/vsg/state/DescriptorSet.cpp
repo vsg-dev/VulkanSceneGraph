@@ -313,18 +313,18 @@ void BindViewDescriptorSets::read(Input& input)
 {
     _vulkanData.clear();
 
-    Object::read(input);
+    StateCommand::read(input);
 
-    input.read("pipelineBindPoint", pipelineBindPoint);
+    input.readValue<uint32_t>("pipelineBindPoint", pipelineBindPoint);
     input.read("layout", layout);
     input.read("firstSet", firstSet);
 }
 
 void BindViewDescriptorSets::write(Output& output) const
 {
-    Object::write(output);
+    StateCommand::write(output);
 
-    output.write("pipelineBindPoint", pipelineBindPoint);
+    output.writeValue<uint32_t>("pipelineBindPoint", pipelineBindPoint);
     output.write("layout", layout);
     output.write("firstSet", firstSet);
 }

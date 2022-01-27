@@ -212,6 +212,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::BindDescriptorSet);
     VSG_REGISTER_create(vsg::BindVertexBuffers);
     VSG_REGISTER_create(vsg::BindIndexBuffer);
+    VSG_REGISTER_create(vsg::BindViewDescriptorSets);
     VSG_REGISTER_create(vsg::DescriptorSet);
     VSG_REGISTER_create(vsg::DescriptorSetLayout);
     VSG_REGISTER_create(vsg::DescriptorImage);
