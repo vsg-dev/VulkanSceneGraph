@@ -87,4 +87,7 @@ namespace vsg
     };
     VSG_type_name(vsg::SpotLight);
 
+    /// convinience method for creating a subgraph that creates a headlight illumination using a white AmibientLight and DirectionalLight with intensity of 0.1 and 0.9 respectively.
+    extern VSG_DECLSPEC ref_ptr<vsg::Node> createHeadlight();
+
 } // namespace vsg

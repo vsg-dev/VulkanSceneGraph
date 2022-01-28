@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/Options.h>
 #include <vsg/nodes/Light.h>
+#include <vsg/nodes/AbsoluteTransform.h>
 
 using namespace vsg;
 
@@ -105,4 +106,27 @@ void SpotLight::write(Output& output) const
     output.write("direction", direction);
     output.write("innerAngle", innerAngle);
     output.write("outerAngle", outerAngle);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Headlight
+//
+ref_ptr<vsg::Node> vsg::createHeadlight()
+{
+    auto ambientLight = vsg::AmbientLight::create();
+    ambientLight->name = "ambient";
+    ambientLight->color.set(1.0, 1.0, 1.0);
+    ambientLight->intensity = 0.1;
+
+    auto directionalLight = vsg::DirectionalLight::create();
+    directionalLight->name = "headlight";
+    directionalLight->color.set(1.0, 1.0, 1.0);
+    directionalLight->intensity = 0.9;
+    directionalLight->direction.set(0.0, 0.0, -1.0);
+
+    auto absoluteTransform = vsg::AbsoluteTransform::create();
+    absoluteTransform->addChild(ambientLight);
+    absoluteTransform->addChild(directionalLight);
+    return absoluteTransform;
 }
