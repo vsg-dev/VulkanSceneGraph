@@ -181,7 +181,7 @@ ref_ptr<RenderGraph> vsg::createRenderGraphForView(ref_ptr<Window> window, ref_p
     if (scenegraph) view->addChild(scenegraph);
 
     // set up the render graph
-    auto renderGraph = vsg::RenderGraph::create(window, view);
+    auto renderGraph = RenderGraph::create(window, view);
     renderGraph->contents = contents;
 
     return renderGraph;
