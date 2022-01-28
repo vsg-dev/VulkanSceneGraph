@@ -197,6 +197,9 @@ namespace vsg
     };
     VSG_type_name(vsg::BindDescriptorSet);
 
+    /// BindViewDescriptorSets is proxy class that binds the View::ViewDependentState's descriptorSet
+    /// Used for pass light and other view dependent state to the GPU.
+    /// Use in conjunction with a pipeline configured with vsg::ViewDescriptorSetLayout.
     class VSG_DECLSPEC BindViewDescriptorSets : public Inherit<StateCommand, BindViewDescriptorSets>
     {
     public:

@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/state/DescriptorSetLayout.h>
 #include <vsg/traversals/CompileTraversal.h>
+#include <vsg/viewer/View.h>
 
 using namespace vsg;
 
@@ -91,5 +92,33 @@ DescriptorSetLayout::Implementation::~Implementation()
     if (_descriptorSetLayout)
     {
         vkDestroyDescriptorSetLayout(*_device, _descriptorSetLayout, _device->getAllocationCallbacks());
+    }
+}
+
+
+//////////////////////////////////////
+//
+// ViewDescriptorSetLayout
+//
+ViewDescriptorSetLayout::ViewDescriptorSetLayout()
+{
+}
+
+void ViewDescriptorSetLayout::read(Input& input)
+{
+    Object::read(input);
+}
+
+void ViewDescriptorSetLayout::write(Output& output) const
+{
+    Object::write(output);
+}
+
+void ViewDescriptorSetLayout::compile(Context& context)
+{
+    if (!_viewDescriptorSetLayout && context.viewDependentState && context.viewDependentState->descriptorSetLayout)
+    {
+        _viewDescriptorSetLayout = context.viewDependentState->descriptorSetLayout;
+        _viewDescriptorSetLayout->compile(context);
     }
 }

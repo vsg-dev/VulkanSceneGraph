@@ -32,13 +32,13 @@ namespace vsg
         DescriptorSetLayoutBindings bindings;
 
         /// Vulkan VkDescriptorSetLayout handle
-        VkDescriptorSetLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_descriptorSetLayout; }
+        virtual VkDescriptorSetLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_descriptorSetLayout; }
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
         // compile the Vulkan object, context parameter used for Device
-        void compile(Context& context);
+        virtual void compile(Context& context);
 
         // remove the local reference to the Vulkan implementation
         void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
@@ -60,6 +60,26 @@ namespace vsg
         vk_buffer<ref_ptr<Implementation>> _implementation;
     };
     VSG_type_name(vsg::DescriptorSetLayout);
+
+    /// ViewDescriptorSetLayout is a proxy class that uses the ViewDependentState's descriptorSetLayout as the DescriptorSetLayout to use.
+    /// Used in pipelines that wish to utilize in the light and other view dependent data provided by the View::ViewDependentState.
+    /// Use in combination with the BindViewDescriptorSet.
+    class VSG_DECLSPEC ViewDescriptorSetLayout : public Inherit<DescriptorSetLayout, ViewDescriptorSetLayout>
+    {
+    public:
+        ViewDescriptorSetLayout();
+
+        VkDescriptorSetLayout vk(uint32_t deviceID) const override { return _viewDescriptorSetLayout ? _viewDescriptorSetLayout->vk(deviceID) : 0; }
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        void compile(Context& context) override;
+    protected:
+
+        ref_ptr<DescriptorSetLayout> _viewDescriptorSetLayout;
+    };
+    VSG_type_name(vsg::ViewDescriptorSetLayout);
 
     using DescriptorSetLayouts = std::vector<vsg::ref_ptr<vsg::DescriptorSetLayout>>;
 

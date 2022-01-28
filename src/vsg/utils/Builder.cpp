@@ -153,12 +153,8 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
 
     stateSettings.descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
 
-    DescriptorSetLayouts descriptorSetLayouts{stateSettings.descriptorSetLayout};
-    if (stateInfo.viewDescriptorSetLayout)
-    {
-        descriptorSetLayouts.push_back(stateInfo.viewDescriptorSetLayout);
-        defines.push_back("VSG_VIEW_LIGHT_DATA");
-    }
+    DescriptorSetLayouts descriptorSetLayouts{stateSettings.descriptorSetLayout, vsg::ViewDescriptorSetLayout::create()};
+    defines.push_back("VSG_VIEW_LIGHT_DATA");
 
     PushConstantRanges pushConstantRanges{
         {VK_SHADER_STAGE_VERTEX_BIT, 0, 128} // projection view, and model matrices, actual push constant calls automatically provided by the VSG's DispatchTraversal
@@ -234,10 +230,7 @@ void Builder::_assign(StateGroup& stateGroup, const StateInfo& stateInfo)
     const auto& stateSettings = _getStateSettings(stateInfo);
     stateGroup.add(stateSettings.bindGraphicsPipeline);
     stateGroup.add(_createDescriptorSet(stateInfo));
-    if (stateInfo.viewDescriptorSetLayout)
-    {
-        stateGroup.add(vsg::BindViewDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, stateSettings.pipelineLayout, 1));
-    }
+    stateGroup.add(vsg::BindViewDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, stateSettings.pipelineLayout, 1));
 }
 
 ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
