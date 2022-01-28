@@ -173,11 +173,15 @@ void RenderGraph::resized()
     previous_extent = extent;
 }
 
-ref_ptr<RenderGraph> vsg::createRenderGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents)
+ref_ptr<RenderGraph> vsg::createRenderGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents, bool assignHeadlight)
 {
-    // set up the render graph for viewport & scene
-    auto renderGraph = vsg::RenderGraph::create(window, View::create(camera, scenegraph));
+    // set up the view
+    auto view = View::create(camera);
+    if (assignHeadlight) view->addChild(createHeadlight());
+    if (scenegraph) view->addChild(scenegraph);
 
+    // set up the render graph
+    auto renderGraph = vsg::RenderGraph::create(window, view);
     renderGraph->contents = contents;
 
     return renderGraph;

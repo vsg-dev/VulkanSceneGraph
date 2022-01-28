@@ -162,11 +162,11 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     recordedCommandBuffers.push_back(commandBuffer);
 }
 
-ref_ptr<CommandGraph> vsg::createCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents)
+ref_ptr<CommandGraph> vsg::createCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents, bool assignHeadlight)
 {
     auto commandGraph = CommandGraph::create(window);
 
-    commandGraph->addChild(createRenderGraphForView(window, camera, scenegraph, contents));
+    commandGraph->addChild(createRenderGraphForView(window, camera, scenegraph, contents, assignHeadlight));
 
     return commandGraph;
 }

@@ -69,6 +69,6 @@ namespace vsg
 
     /// Convenience function that sets up RenderGraph and associated View to render the specified scene graph from the specified camera view.
     /// Assigns the WindowResizeHandler to provide basic window resize handling.
-    extern VSG_DECLSPEC ref_ptr<RenderGraph> createRenderGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
+    extern VSG_DECLSPEC ref_ptr<RenderGraph> createRenderGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE, bool assignHeadlight = true);
 
 } // namespace vsg

@@ -69,7 +69,7 @@ namespace vsg
     using CommandGraphs = std::vector<ref_ptr<CommandGraph>>;
 
     /// convenience function that sets up RenderGraph inside primary CommandGraph to render the specified scene graph from the specified Camera view
-    extern VSG_DECLSPEC ref_ptr<CommandGraph> createCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
+    extern VSG_DECLSPEC ref_ptr<CommandGraph> createCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE, bool assignHeadlight = true);
 
     /// convenience function that sets up secondaryCommandGraph to render the specified scene graph from the specified Camera view
     extern VSG_DECLSPEC ref_ptr<CommandGraph> createSecondaryCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, uint32_t subpass);
