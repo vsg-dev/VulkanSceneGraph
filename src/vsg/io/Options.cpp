@@ -42,8 +42,7 @@ Options::Options(const Options& options) :
     extensionHint(options.extensionHint),
     mapRGBtoRGBAHint(options.mapRGBtoRGBAHint),
     sceneCoordinateConvention(options.sceneCoordinateConvention),
-    formatCoordinateConventions(options.formatCoordinateConventions),
-    viewDescriptorSetLayout(options.viewDescriptorSetLayout)
+    formatCoordinateConventions(options.formatCoordinateConventions)
 {
     getOrCreateUniqueAuxiliary();
     // copy any meta data.
