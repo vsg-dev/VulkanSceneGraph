@@ -49,6 +49,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec4.h>
 
 // Node header files
+#include <vsg/nodes/AbsoluteTransform.h>
 #include <vsg/nodes/Bin.h>
 #include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/CullNode.h>

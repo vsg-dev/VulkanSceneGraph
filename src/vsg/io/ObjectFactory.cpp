@@ -175,6 +175,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::CullNode);
     VSG_REGISTER_create(vsg::LOD);
     VSG_REGISTER_create(vsg::PagedLOD);
+    VSG_REGISTER_create(vsg::AbsoluteTransform);
     VSG_REGISTER_create(vsg::MatrixTransform);
     VSG_REGISTER_create(vsg::Geometry);
     VSG_REGISTER_create(vsg::VertexIndexDraw);
