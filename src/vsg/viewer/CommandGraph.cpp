@@ -22,14 +22,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CommandGraph::CommandGraph(Device* in_device, int family) :
+CommandGraph::CommandGraph(ref_ptr<Device> in_device, int family) :
     device(in_device),
     queueFamily(family),
     presentFamily(-1)
 {
 }
 
-CommandGraph::CommandGraph(Window* in_window) :
+CommandGraph::CommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child) :
     window(in_window),
     device(in_window->getOrCreateDevice())
 {
@@ -43,6 +43,8 @@ CommandGraph::CommandGraph(Window* in_window) :
         ref_ptr<CommandPool> cp = CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_TRANSIENT_BIT);
         _commandBuffers.emplace_back(CommandBuffer::create(device, cp, level));
     }
+
+    if (child) addChild(child);
 }
 
 CommandGraph::~CommandGraph()
