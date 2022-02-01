@@ -29,19 +29,42 @@ namespace vsg
 
         ViewDependentState(uint32_t maxNumberLights = 64);
 
+        template<class N, class V>
+        static void t_traverse(N& node, V& visitor)
+        {
+            if (node.descriptorSetLayout) node.descriptorSetLayout->accept(visitor);
+            for(auto& dp : node.bufferedDescriptors)
+            {
+                dp.descriptorSet->accept(visitor);
+            }
+        }
+
+        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+
         // cotnainers filled in by RecordTraversal
         std::vector< std::pair<dmat4, const AmbientLight*> > ambientLights;
         std::vector< std::pair<dmat4, const DirectionalLight*> > directionalLights;
         std::vector< std::pair<dmat4, const PointLight*> > pointLights;
         std::vector< std::pair<dmat4, const SpotLight*> > spotLights;
 
+        virtual void compile(Context& context);
         virtual void clear();
         virtual void pack();
+        virtual void copy();
+        virtual void bindDescriptorSets(CommandBuffer& commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet);
 
         ref_ptr<vec4Array> lightData;
-        ref_ptr<DescriptorBuffer> lightDescriptor;
         ref_ptr<DescriptorSetLayout> descriptorSetLayout;
-        ref_ptr<DescriptorSet> descriptorSet;
+
+        struct DescriptorPair
+        {
+            ref_ptr<DescriptorBuffer> lightDescriptor;
+            ref_ptr<DescriptorSet> descriptorSet;
+        };
+
+        size_t bufferIndex = 0;
+        std::vector<DescriptorPair> bufferedDescriptors;
 
     protected:
         ~ViewDependentState();

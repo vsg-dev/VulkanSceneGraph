@@ -178,6 +178,7 @@ void CollectResourceRequirements::apply(const Descriptor& descriptor)
 
 void CollectResourceRequirements::apply(const View& view)
 {
+
     if (auto itr = requirements.views.find(&view); itr != requirements.views.end())
     {
         requirements.binStack.push(itr->second);
@@ -196,7 +197,12 @@ void CollectResourceRequirements::apply(const View& view)
 
     if (view.viewDependentState)
     {
-        view.viewDependentState->descriptorSet->accept(*this);
+        uint32_t numBufferedDescriptorSets = 3;
+        requirements.externalNumDescriptorSets += numBufferedDescriptorSets;
+        requirements.descriptorTypeMap[VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER] += numBufferedDescriptorSets;
+        if (requirements.maxSlot<2) requirements.maxSlot = 2;
+
+        view.viewDependentState->accept(*this);
     }
 
     requirements.views[&view] = requirements.binStack.top();

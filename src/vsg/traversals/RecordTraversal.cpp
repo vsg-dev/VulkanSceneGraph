@@ -451,17 +451,8 @@ void RecordTraversal::apply(const View& view)
     if (_viewDependentState)
     {
         _viewDependentState->pack();
+        _viewDependentState->copy();
 
-        // copy data to staging buffer and issue a copy command to transfer to the GPU texture image
-        for(auto& bufferInfo : _viewDependentState->lightDescriptor->bufferInfoList)
-        {
-//            std::cout<<"RenderTraversal::apply(View&) Copying data to GPU "<<bufferInfo->data<<std::endl;
-#if 0
-            copyBufferCmd->copy(bufferInfo->data, bufferInfo);
-#else
-            bufferInfo->copyDataToBuffer();
-#endif
-        }
     }
 
     // swap back previous bin setup.
