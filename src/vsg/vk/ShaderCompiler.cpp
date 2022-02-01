@@ -292,7 +292,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
     return true;
 }
 #else
-bool ShaderCompiler::compile(ShaderStages&, const std::vector<std::string>&, ref_ptr<const Options> options)
+bool ShaderCompiler::compile(ShaderStages&, const std::vector<std::string>&, ref_ptr<const Options> /*options*/)
 {
     std::cout << "ShaderCompile::compile(..) not supported," << std::endl;
     return false;
