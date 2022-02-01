@@ -46,6 +46,11 @@ namespace vsg
     class Bin;
     class Switch;
     class ViewDependentState;
+    class Light;
+    class AmbientLight;
+    class DirectionalLight;
+    class PointLight;
+    class SpotLight;
 
     VSG_type_name(vsg::RecordTraversal);
 

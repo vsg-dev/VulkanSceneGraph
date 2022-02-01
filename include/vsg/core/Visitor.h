@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Array2D.h>
 #include <vsg/core/Array3D.h>
 #include <vsg/core/Value.h>
+#include <vsg/core/Mask.h>
 
 namespace vsg
 {
@@ -127,8 +128,8 @@ namespace vsg
     public:
         Visitor();
 
-        uint32_t traversalMask = 0xffffffff;
-        uint32_t overrideMask = 0x0;
+        Mask traversalMask = MASK_ALL;
+        Mask overrideMask = MASK_OFF;
 
         virtual void apply(Object&);
         virtual void apply(Objects&);
