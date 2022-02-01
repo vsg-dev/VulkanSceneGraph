@@ -13,11 +13,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/nodes/Group.h>
+#include <vsg/state/ViewDependentState.h>
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/Window.h>
 
 namespace vsg
 {
+
     /// View class is Group class that pairs a Camera that defines the view with a subgraph that defines the scene that is being viewed/rendered
     class VSG_DECLSPEC View : public Inherit<Group, View>
     {
@@ -57,6 +59,9 @@ namespace vsg
 
         /// bins
         std::vector<ref_ptr<Bin>> bins;
+
+        /// view dependent state used for postional state like lighting, texgen and clipping
+        ref_ptr<ViewDependentState> viewDependentState;
 
     protected:
         virtual ~View();

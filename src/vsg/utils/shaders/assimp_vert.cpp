@@ -1,6 +1,6 @@
 #include <vsg/io/VSG.h>
 static auto assimp_vert = []() {std::istringstream str(
-R"(#vsga 0.1.5
+R"(#vsga 0.2.6
 Root id=1 vsg::ShaderStage
 {
   NumUserObjects 0
@@ -84,7 +84,7 @@ void main()
 
     gl_Position = (pc.projection * pc.modelView) * vertex;
 
-    eyePos = vec4(pc.modelView * vertex).xyz;
+    eyePos = (pc.modelView * vertex).xyz;
 
     vec4 lpos = /*vsg_LightSource.position*/ vec4(0.0, 0.0, 1.0, 0.0);
 

@@ -175,6 +175,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::CullNode);
     VSG_REGISTER_create(vsg::LOD);
     VSG_REGISTER_create(vsg::PagedLOD);
+    VSG_REGISTER_create(vsg::AbsoluteTransform);
     VSG_REGISTER_create(vsg::MatrixTransform);
     VSG_REGISTER_create(vsg::Geometry);
     VSG_REGISTER_create(vsg::VertexIndexDraw);
@@ -212,8 +213,10 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::BindDescriptorSet);
     VSG_REGISTER_create(vsg::BindVertexBuffers);
     VSG_REGISTER_create(vsg::BindIndexBuffer);
+    VSG_REGISTER_create(vsg::BindViewDescriptorSets);
     VSG_REGISTER_create(vsg::DescriptorSet);
     VSG_REGISTER_create(vsg::DescriptorSetLayout);
+    VSG_REGISTER_create(vsg::ViewDescriptorSetLayout);
     VSG_REGISTER_create(vsg::DescriptorImage);
     VSG_REGISTER_create(vsg::DescriptorBuffer);
     VSG_REGISTER_create(vsg::Sampler);

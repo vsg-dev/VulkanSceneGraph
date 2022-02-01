@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/state/DescriptorSetLayout.h>
 #include <vsg/traversals/CompileTraversal.h>
+#include <vsg/viewer/View.h>
 
 using namespace vsg;
 

@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
+#include <vsg/nodes/AbsoluteTransform.h>
 #include <vsg/nodes/Light.h>
 
 using namespace vsg;
@@ -24,7 +25,6 @@ void Light::read(Input& input)
     input.read("name", name);
     input.read("color", color);
     input.read("intensity", intensity);
-    input.read("eyeCoordinateFrame", eyeCoordinateFrame);
 }
 
 void Light::write(Output& output) const
@@ -32,7 +32,6 @@ void Light::write(Output& output) const
     output.write("name", name);
     output.write("color", color);
     output.write("intensity", intensity);
-    output.write("eyeCoordinateFrame", eyeCoordinateFrame);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,4 +106,27 @@ void SpotLight::write(Output& output) const
     output.write("direction", direction);
     output.write("innerAngle", innerAngle);
     output.write("outerAngle", outerAngle);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Headlight
+//
+ref_ptr<vsg::Node> vsg::createHeadlight()
+{
+    auto ambientLight = vsg::AmbientLight::create();
+    ambientLight->name = "ambient";
+    ambientLight->color.set(1.0f, 1.0f, 1.0f);
+    ambientLight->intensity = 0.1f;
+
+    auto directionalLight = vsg::DirectionalLight::create();
+    directionalLight->name = "headlight";
+    directionalLight->color.set(1.0f, 1.0f, 1.0f);
+    directionalLight->intensity = 0.9f;
+    directionalLight->direction.set(0.0, 0.0, -1.0);
+
+    auto absoluteTransform = vsg::AbsoluteTransform::create();
+    absoluteTransform->addChild(ambientLight);
+    absoluteTransform->addChild(directionalLight);
+    return absoluteTransform;
 }

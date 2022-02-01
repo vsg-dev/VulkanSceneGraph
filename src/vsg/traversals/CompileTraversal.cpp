@@ -156,6 +156,8 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
 void CompileTraversal::apply(View& view)
 {
     context.viewID = view.viewID;
+    context.viewDependentState = view.viewDependentState.get();
+    if (view.viewDependentState) view.viewDependentState->compile(context);
 
     if (view.camera && view.camera->viewportState)
     {

@@ -101,7 +101,7 @@ namespace vsg
         }
 
         /// vkCmdBindDescriptorSets settings
-        VkPipelineBindPoint pipelineBindPoint;
+        VkPipelineBindPoint pipelineBindPoint; // TODO not currently seralized
         ref_ptr<PipelineLayout> layout;
         uint32_t firstSet;
         DescriptorSets descriptorSets;
@@ -161,7 +161,7 @@ namespace vsg
         }
 
         // vkCmdBindDescriptorSets settings
-        VkPipelineBindPoint pipelineBindPoint;
+        VkPipelineBindPoint pipelineBindPoint; // TODO not currently seralized
         ref_ptr<PipelineLayout> layout;
         uint32_t firstSet;
         ref_ptr<DescriptorSet> descriptorSet;

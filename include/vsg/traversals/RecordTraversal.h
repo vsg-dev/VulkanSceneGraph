@@ -45,6 +45,12 @@ namespace vsg
     class View;
     class Bin;
     class Switch;
+    class ViewDependentState;
+    class Light;
+    class AmbientLight;
+    class DirectionalLight;
+    class PointLight;
+    class SpotLight;
 
     VSG_type_name(vsg::RecordTraversal);
 
@@ -84,6 +90,13 @@ namespace vsg
         void apply(const DepthSorted& depthSorted);
         void apply(const Switch& sw);
 
+        // positional state
+        void apply(const Light& light);
+        void apply(const AmbientLight& light);
+        void apply(const DirectionalLight& light);
+        void apply(const PointLight& light);
+        void apply(const SpotLight& light);
+
         // Vulkan nodes
         void apply(const Transform& transform);
         void apply(const MatrixTransform& mt);
@@ -109,6 +122,7 @@ namespace vsg
 
         int32_t _minimumBinNumber = 0;
         std::vector<ref_ptr<Bin>> _bins;
+        ref_ptr<ViewDependentState> _viewDependentState;
     };
 
 } // namespace vsg

@@ -22,9 +22,8 @@ namespace vsg
     {
     public:
         std::string name;
-        vec3 color = vec3(1.0, 1.0, 1.0);
-        float intensity = 1.0;
-        bool eyeCoordinateFrame = false;
+        vec3 color = vec3(1.0f, 1.0f, 1.0f);
+        float intensity = 1.0f;
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -37,7 +36,6 @@ namespace vsg
     class VSG_DECLSPEC AmbientLight : public Inherit<Light, AmbientLight>
     {
     public:
-
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -87,5 +85,8 @@ namespace vsg
         virtual ~SpotLight() {}
     };
     VSG_type_name(vsg::SpotLight);
+
+    /// convinience method for creating a subgraph that creates a headlight illumination using a white AmibientLight and DirectionalLight with intensity of 0.1 and 0.9 respectively.
+    extern VSG_DECLSPEC ref_ptr<vsg::Node> createHeadlight();
 
 } // namespace vsg

@@ -22,7 +22,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
-#include <vsg/state/DescriptorImage.h>
 #include <vsg/state/MultisampleState.h>
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/RenderGraph.h>
@@ -179,6 +178,7 @@ void CollectResourceRequirements::apply(const Descriptor& descriptor)
 
 void CollectResourceRequirements::apply(const View& view)
 {
+
     if (auto itr = requirements.views.find(&view); itr != requirements.views.end())
     {
         requirements.binStack.push(itr->second);
@@ -193,6 +193,16 @@ void CollectResourceRequirements::apply(const View& view)
     for (auto& bin : view.bins)
     {
         requirements.binStack.top().bins.insert(bin);
+    }
+
+    if (view.viewDependentState)
+    {
+        uint32_t numBufferedDescriptorSets = 3;
+        requirements.externalNumDescriptorSets += numBufferedDescriptorSets;
+        requirements.descriptorTypeMap[VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER] += numBufferedDescriptorSets;
+        if (requirements.maxSlot < 2) requirements.maxSlot = 2;
+
+        view.viewDependentState->accept(*this);
     }
 
     requirements.views[&view] = requirements.binStack.top();

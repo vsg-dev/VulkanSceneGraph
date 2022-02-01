@@ -34,6 +34,7 @@ namespace vsg
 
         ref_ptr<Data> image;
         ref_ptr<Data> displacementMap;
+        ref_ptr<DescriptorSetLayout> viewDescriptorSetLayout;
 
         bool operator<(const StateInfo& rhs) const
         {

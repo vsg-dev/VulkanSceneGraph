@@ -12,13 +12,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <cstdint>
+#include <vsg/nodes/Transform.h>
 
 namespace vsg
 {
 
-    using Mask = uint64_t;
-    constexpr Mask MASK_OFF = 0ul;
-    constexpr Mask MASK_ALL = ~MASK_OFF;
+    class VSG_DECLSPEC AbsoluteTransform : public Inherit<Transform, AbsoluteTransform>
+    {
+    public:
+        explicit AbsoluteTransform(Allocator* allocator = nullptr);
+        explicit AbsoluteTransform(const dmat4& in_matrix, Allocator* allocator = nullptr);
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        dmat4 transform(const dmat4&) const override { return matrix; }
+
+        dmat4 matrix;
+
+    protected:
+    };
+    VSG_type_name(vsg::AbsoluteTransform);
 
 } // namespace vsg

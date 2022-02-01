@@ -32,6 +32,7 @@ set(SOURCES
     nodes/CullNode.cpp
     nodes/LOD.cpp
     nodes/PagedLOD.cpp
+    nodes/AbsoluteTransform.cpp
     nodes/MatrixTransform.cpp
     nodes/Transform.cpp
     nodes/VertexIndexDraw.cpp
@@ -94,6 +95,7 @@ set(SOURCES
     state/DepthStencilState.cpp
     state/ColorBlendState.cpp
     state/DynamicState.cpp
+    state/ViewDependentState.cpp
 
     io/FileSystem.cpp
     io/AsciiInput.cpp

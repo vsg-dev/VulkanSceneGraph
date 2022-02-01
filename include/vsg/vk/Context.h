@@ -33,6 +33,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    // forward declare
+    class ViewDependentState;
 
     class VSG_DECLSPEC BuildAccelerationStructureCommand : public Inherit<Command, BuildAccelerationStructureCommand>
     {
@@ -72,6 +74,7 @@ namespace vsg
         ref_ptr<Device> device;
 
         uint32_t viewID = 0;
+        ViewDependentState* viewDependentState = nullptr;
 
         // get existing ShaderCompile or create a new one when GLSLang is supported
         ShaderCompiler* getOrCreateShaderCompiler();

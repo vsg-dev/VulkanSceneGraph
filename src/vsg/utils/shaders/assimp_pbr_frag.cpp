@@ -1,6 +1,6 @@
 #include <vsg/io/VSG.h>
 static auto assimp_pbr_frag = []() {std::istringstream str(
-R"(#vsga 0.1.7
+R"(#vsga 0.2.6
 Root id=1 vsg::ShaderStage
 {
   NumUserObjects 0
@@ -11,7 +11,7 @@ Root id=1 vsg::ShaderStage
     NumUserObjects 0
     Source "#version 450
 #extension GL_ARB_separate_shader_objects : enable
-#pragma import_defines (VSG_DIFFUSE_MAP, VSG_GREYSACLE_DIFFUSE_MAP, VSG_EMISSIVE_MAP, VSG_LIGHTMAP_MAP, VSG_NORMAL_MAP, VSG_METALLROUGHNESS_MAP, VSG_SPECULAR_MAP, VSG_TWOSIDED, VSG_WORKFLOW_SPECGLOSS)
+#pragma import_defines (VSG_DIFFUSE_MAP, VSG_GREYSACLE_DIFFUSE_MAP, VSG_EMISSIVE_MAP, VSG_LIGHTMAP_MAP, VSG_NORMAL_MAP, VSG_METALLROUGHNESS_MAP, VSG_SPECULAR_MAP, VSG_TWOSIDED, VSG_WORKFLOW_SPECGLOSS, VSG_VIEW_LIGHT_DATA)
 
 const float PI = 3.14159265359;
 const float RECIPROCAL_PI = 0.31830988618;
@@ -43,11 +43,6 @@ layout(binding = 4) uniform sampler2D emissiveMap;
 layout(binding = 5) uniform sampler2D specularMap;
 #endif
 
-layout(push_constant) uniform PushConstants {
-    mat4 projection;
-    mat4 modelView;
-} pc;
-
 layout(binding = 10) uniform PbrData
 {
     vec4 baseColorFactor;
@@ -59,6 +54,13 @@ layout(binding = 10) uniform PbrData
     float alphaMask;
     float alphaMaskCutoff;
 } pbr;
+
+#ifdef VSG_VIEW_LIGHT_DATA
+layout(set = 1, binding = 0) uniform LightData
+{
+    vec4 values[64];
+} lightData;
+#endif
 
 layout(location = 0) in vec3 eyePos;
 layout(location = 1) in vec3 normalDir;
@@ -238,7 +240,7 @@ float microfacetDistribution(PBRInfo pbrInputs)
     return roughnessSq / (PI * f * f);
 }
 
-vec3 BRDF(vec3 v, vec3 n, vec3 l, vec3 h, float perceptualRoughness, float metallic, vec3 specularEnvironmentR0, vec3 specularEnvironmentR90, float alphaRoughness, vec3 diffuseColor, vec3 specularColor, float ao)
+vec3 BRDF(vec3 u_LightColor, vec3 v, vec3 n, vec3 l, vec3 h, float perceptualRoughness, float metallic, vec3 specularEnvironmentR0, vec3 specularEnvironmentR90, float alphaRoughness, vec3 diffuseColor, vec3 specularColor, float ao)
 {
     vec3 reflection = -normalize(reflect(v, n));
     reflection.y *= -1.0f;
@@ -268,8 +270,6 @@ vec3 BRDF(vec3 v, vec3 n, vec3 l, vec3 h, float perceptualRoughness, float metal
     vec3 F = specularReflection(pbrInputs);
     float G = geometricOcclusion(pbrInputs);
     float D = microfacetDistribution(pbrInputs);
-
-    const vec3 u_LightColor = vec3(1.0);
 
     // Calculation of analytical lighting contribution
     vec3 diffuseContrib = (1.0 - F) * BRDF_Diffuse_Disney(pbrInputs);
@@ -334,8 +334,13 @@ void main()
             discard;
     }
 
-
 #ifdef VSG_WORKFLOW_SPECGLOSS
+    #ifdef VSG_DIFFUSE_MAP
+        vec4 diffuse = SRGBtoLINEAR(texture(diffuseMap, texCoord0));
+    #else
+        vec4 diffuse = vec4(1.0);
+    #endif
+
     #ifdef VSG_SPECULAR_MAP
         vec3 specular = SRGBtoLINEAR(texture(specularMap, texCoord0)).rgb;
         perceptualRoughness = 1.0 - texture(specularMap, texCoord0).a;
@@ -344,19 +349,12 @@ void main()
         perceptualRoughness = 0.0;
     #endif
 
-        const float epsilon = 1e-6;
-
-    #ifdef VSG_DIFFUSE_MAP
-        vec4 diffuse = SRGBtoLINEAR(texture(diffuseMap, texCoord0));
-    #else
-        vec4 diffuse = vec4(1.0);
-    #endif
-
         float maxSpecular = max(max(specular.r, specular.g), specular.b);
 
         // Convert metallic value from specular glossiness inputs
         metallic = convertMetallic(diffuse.rgb, specular, maxSpecular);
 
+        const float epsilon = 1e-6;
         vec3 baseColorDiffusePart = diffuse.rgb * ((1.0 - maxSpecular) / (1 - c_MinRoughness) / max(1 - metallic, epsilon)) * pbr.diffuseFactor.rgb;
         vec3 baseColorSpecularPart = specular - (vec3(c_MinRoughness) * (1 - metallic) * (1 / max(metallic, epsilon))) * pbr.specularFactor.rgb;
         baseColor = vec4(mix(baseColorDiffusePart, baseColorSpecularPart, metallic * metallic), diffuse.a);
@@ -393,18 +391,105 @@ void main()
 
     vec3 n = getNormal();
     vec3 v = normalize(viewDir);    // Vector from surface point to camera
-    vec3 l = normalize(lightDir);     // Vector from surface point to light
-    vec3 h = normalize(l+v);                        // Half vector between both l and v
 
-    vec3 colorFrontFace = BRDF(v, n, l, h, perceptualRoughness, metallic, specularEnvironmentR0, specularEnvironmentR90, alphaRoughness, diffuseColor, specularColor, ambientOcclusion);
+#ifdef VSG_VIEW_LIGHT_DATA
+
+    float shininess = 100.0f;
+
+    vec3 color = vec3(0.0, 0.0, 0.0);
+    vec3 nd = getNormal();
+    vec3 vd = normalize(viewDir);
+
+    vec4 lightNums = lightData.values[0];
+    int numAmbientLights = int(lightNums[0]);
+    int numDirectionalLights = int(lightNums[1]);
+    int numPointLights = int(lightNums[2]);
+    int numSpotLights = int(lightNums[3]);
+    int index = 1;
+    if (numAmbientLights>0)
+    {
+        // ambient lights
+        for(int i = 0; i<numAmbientLights; ++i)
+        {
+            vec4 ambient_color = lightData.values[index++];
+            color += (baseColor.rgb * ambient_color.rgb) * (ambient_color.a * ambientOcclusion);
+        }
+    }
+
+    if (numDirectionalLights>0)
+    {
+        // directional lights
+        for(int i = 0; i<numDirectionalLights; ++i)
+        {
+            vec4 lightColor = lightData.values[index++];
+            vec3 direction = -lightData.values[index++].xyz;
+
+            vec3 l = direction;         // Vector from surface point to light
+            vec3 h = normalize(l+v);    // Half vector between both l and v
+            float scale = lightColor.a;
+
+)"
+R"(            color.rgb += BRDF(lightColor.rgb * scale, v, n, l, h, perceptualRoughness, metallic, specularEnvironmentR0, specularEnvironmentR90, alphaRoughness, diffuseColor, specularColor, ambientOcclusion);
+        }
+    }
+
+    if (numPointLights>0)
+    {
+        // point light
+        for(int i = 0; i<numPointLights; ++i)
+        {
+            vec4 lightColor = lightData.values[index++];
+            vec3 position = lightData.values[index++].xyz;
+            vec3 delta = position - eyePos;
+            float distance2 = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+            vec3 direction = delta / sqrt(distance2);
+
+            vec3 l = direction;         // Vector from surface point to light
+            vec3 h = normalize(l+v);    // Half vector between both l and v
+            float scale = lightColor.a / distance2;
+
+            color.rgb += BRDF(lightColor.rgb * scale, v, n, l, h, perceptualRoughness, metallic, specularEnvironmentR0, specularEnvironmentR90, alphaRoughness, diffuseColor, specularColor, ambientOcclusion);
+        }
+    }
+
+    if (numSpotLights>0)
+    {
+        // spot light
+        for(int i = 0; i<numSpotLights; ++i)
+        {
+            vec4 lightColor = lightData.values[index++];
+            vec4 position_cosInnerAngle = lightData.values[index++];
+            vec4 lightDirection_cosOuterAngle = lightData.values[index++];
+
+            vec3 delta = position_cosInnerAngle.xyz - eyePos;
+            float distance2 = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+            vec3 direction = delta / sqrt(distance2);
+            float dot_lightdirection = -dot(lightDirection_cosOuterAngle.xyz, direction);
+
+            vec3 l = direction;        // Vector from surface point to light
+            vec3 h = normalize(l+v);    // Half vector between both l and v
+            float scale = (lightColor.a * smoothstep(lightDirection_cosOuterAngle.w, position_cosInnerAngle.w, dot_lightdirection)) / distance2;
+
+            color.rgb += BRDF(lightColor.rgb * scale, v, n, l, h, perceptualRoughness, metallic, specularEnvironmentR0, specularEnvironmentR90, alphaRoughness, diffuseColor, specularColor, ambientOcclusion);
+        }
+    }
+
+    outColor = LINEARtoSRGB(vec4(color, baseColor.a));
+#else
+    vec3 l = normalize(lightDir);   // Vector from surface point to light
+    vec3 h = normalize(l+v);        // Half vector between both l and v
+    const vec3 u_LightColor = vec3(1.0);
+
+    vec3 colorFrontFace = BRDF(u_LightColor, v, n, l, h, perceptualRoughness, metallic, specularEnvironmentR0, specularEnvironmentR90, alphaRoughness, diffuseColor, specularColor, ambientOcclusion);
 #ifdef VSG_TWOSIDED
-    vec3 colorBackFace = BRDF(v, -n, l, h, perceptualRoughness, metallic, specularEnvironmentR0, specularEnvironmentR90, alphaRoughness, diffuseColor, specularColor, ambientOcclusion);
+    vec3 colorBackFace = BRDF(u_LightColor, v, -n, l, h, perceptualRoughness, metallic, specularEnvironmentR0, specularEnvironmentR90, alphaRoughness, diffuseColor, specularColor, ambientOcclusion);
     vec3 color = colorFrontFace+colorBackFace;
 #else
     vec3 color = colorFrontFace;
 #endif
 
     outColor = LINEARtoSRGB(vec4(color, baseColor.a));
+#endif
 }
 "
     hints id=0

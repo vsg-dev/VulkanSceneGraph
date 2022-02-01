@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2022 Robert Osfield
@@ -12,13 +10,34 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <cstdint>
+#include <vsg/io/Options.h>
+#include <vsg/nodes/AbsoluteTransform.h>
 
-namespace vsg
+using namespace vsg;
+
+AbsoluteTransform::AbsoluteTransform(Allocator* allocator) :
+    Inherit(allocator)
 {
+}
 
-    using Mask = uint64_t;
-    constexpr Mask MASK_OFF = 0ul;
-    constexpr Mask MASK_ALL = ~MASK_OFF;
+AbsoluteTransform::AbsoluteTransform(const dmat4& in_matrix, Allocator* allocator) :
+    Inherit(allocator),
+    matrix(in_matrix)
+{
+}
 
-} // namespace vsg
+void AbsoluteTransform::read(Input& input)
+{
+    Transform::read(input);
+
+    input.read("matrix", matrix);
+    input.read("subgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
+}
+
+void AbsoluteTransform::write(Output& output) const
+{
+    Transform::write(output);
+
+    output.write("matrix", matrix);
+    output.write("subgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
+}

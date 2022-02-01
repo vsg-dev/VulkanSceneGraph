@@ -12,6 +12,7 @@
 #include <vsg/state/MultisampleState.h>
 #include <vsg/state/RasterizationState.h>
 #include <vsg/state/VertexInputState.h>
+#include <vsg/state/ViewDependentState.h>
 #include <vsg/state/ViewportState.h>
 #include <vsg/state/material.h>
 #include <vsg/utils/Builder.h>
@@ -57,8 +58,10 @@ ref_ptr<BindDescriptorSets> Builder::_createDescriptorSet(const StateInfo& state
     if (bindDescriptorSets) return bindDescriptorSets;
 
     // create texture image and associated DescriptorSets and binding
-    auto mat = vsg::PhongMaterialValue::create();
-    auto material = vsg::DescriptorBuffer::create(mat, 10);
+    auto mat = PhongMaterialValue::create();
+    auto material = DescriptorBuffer::create(mat, 10);
+
+    mat->value().specular = vec4(0.5f, 0.5f, 0.5f, 1.0f);
 
     Descriptors descriptors;
     if (textureData)
@@ -80,7 +83,6 @@ ref_ptr<BindDescriptorSets> Builder::_createDescriptorSet(const StateInfo& state
         auto texture = DescriptorImage::create(sampler, displacementMap, 6, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
         descriptors.push_back(texture);
     }
-
     descriptors.push_back(material);
 
     auto descriptorSet = DescriptorSet::create(stateSettings.descriptorSetLayout, descriptors);
@@ -116,7 +118,7 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
         return stateSettings;
     }
 
-    auto shaderHints = vsg::ShaderCompileSettings::create();
+    auto shaderHints = ShaderCompileSettings::create();
     std::vector<std::string>& defines = shaderHints->defines;
 
     vertexShader->module->hints = shaderHints;
@@ -151,7 +153,8 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
 
     stateSettings.descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
 
-    DescriptorSetLayouts descriptorSetLayouts{stateSettings.descriptorSetLayout};
+    DescriptorSetLayouts descriptorSetLayouts{stateSettings.descriptorSetLayout, ViewDescriptorSetLayout::create()};
+    defines.push_back("VSG_VIEW_LIGHT_DATA");
 
     PushConstantRanges pushConstantRanges{
         {VK_SHADER_STAGE_VERTEX_BIT, 0, 128} // projection view, and model matrices, actual push constant calls automatically provided by the VSG's DispatchTraversal
@@ -193,11 +196,11 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
         vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{4, positionBinding, VK_FORMAT_R32G32B32_SFLOAT, 0});         // instance coord
     };
 
-    auto rasterState = vsg::RasterizationState::create();
+    auto rasterState = RasterizationState::create();
     rasterState->cullMode = stateInfo.doubleSided ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT;
 
-    auto colorBlendState = vsg::ColorBlendState::create();
-    colorBlendState->attachments = vsg::ColorBlendState::ColorBlendAttachments{
+    auto colorBlendState = ColorBlendState::create();
+    colorBlendState->attachments = ColorBlendState::ColorBlendAttachments{
         {stateInfo.blending, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, VK_BLEND_OP_ADD, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, VK_BLEND_OP_SUBTRACT, VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT}};
 
     auto inputAssemblyState = InputAssemblyState::create();
@@ -227,11 +230,12 @@ void Builder::_assign(StateGroup& stateGroup, const StateInfo& stateInfo)
     const auto& stateSettings = _getStateSettings(stateInfo);
     stateGroup.add(stateSettings.bindGraphicsPipeline);
     stateGroup.add(_createDescriptorSet(stateInfo));
+    stateGroup.add(BindViewDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, stateSettings.pipelineLayout, 1));
 }
 
 ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
 {
-    auto stategroup = vsg::StateGroup::create();
+    auto stategroup = StateGroup::create();
     _assign(*stategroup, stateInfo);
     return stategroup;
 }
@@ -257,11 +261,11 @@ void Builder::transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr
 
     if (normals)
     {
-        mat4 normal_matrix = vsg::inverse(matrix);
+        mat4 normal_matrix = inverse(matrix);
         for (auto& n : *normals)
         {
-            vsg::vec4 nv = vsg::vec4(n.x, n.y, n.z, 0.0) * normal_matrix;
-            n = normalize(vsg::vec3(nv.x, nv.y, nv.z));
+            vec4 nv = vec4(n.x, n.y, n.z, 0.0) * normal_matrix;
+            n = normalize(vec3(nv.x, nv.y, nv.z));
         }
     }
 }
@@ -741,7 +745,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
         indices = ushortArray::create(num_indices);
 
         vertices->set(0, top);
-        normals->set(0, vsg::normalize(info.dz));
+        normals->set(0, normalize(info.dz));
         texcoords->set(0, vec2(0.0, 0.0));
 
         for (unsigned int c = 0; c < num_columns; ++c)

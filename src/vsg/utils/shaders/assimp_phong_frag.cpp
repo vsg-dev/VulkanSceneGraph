@@ -1,6 +1,6 @@
 #include <vsg/io/VSG.h>
 static auto assimp_phong_frag = []() {std::istringstream str(
-R"(#vsga 0.1.7
+R"(#vsga 0.2.6
 Root id=1 vsg::ShaderStage
 {
   NumUserObjects 0
@@ -11,34 +11,29 @@ Root id=1 vsg::ShaderStage
     NumUserObjects 0
     Source "#version 450
 #extension GL_ARB_separate_shader_objects : enable
-#pragma import_defines (VSG_POINT_SPRITE, VSG_DIFFUSE_MAP, VSG_GREYSACLE_DIFFUSE_MAP, VSG_EMISSIVE_MAP, VSG_LIGHTMAP_MAP, VSG_NORMAL_MAP, VSG_SPECULAR_MAP, VSG_TWOSIDED)
+#pragma import_defines (VSG_VIEW_LIGHT_DATA, VSG_POINT_SPRITE, VSG_DIFFUSE_MAP, VSG_GREYSACLE_DIFFUSE_MAP, VSG_EMISSIVE_MAP, VSG_LIGHTMAP_MAP, VSG_NORMAL_MAP, VSG_SPECULAR_MAP, VSG_TWOSIDED)
 
 #ifdef VSG_DIFFUSE_MAP
-layout(binding = 0) uniform sampler2D diffuseMap;
+layout(set = 0, binding = 0) uniform sampler2D diffuseMap;
 #endif
 
 #ifdef VSG_NORMAL_MAP
-layout(binding = 2) uniform sampler2D normalMap;
+layout(set = 0, binding = 2) uniform sampler2D normalMap;
 #endif
 
 #ifdef VSG_LIGHTMAP_MAP
-layout(binding = 3) uniform sampler2D aoMap;
+layout(set = 0, binding = 3) uniform sampler2D aoMap;
 #endif
 
 #ifdef VSG_EMISSIVE_MAP
-layout(binding = 4) uniform sampler2D emissiveMap;
+layout(set = 0, binding = 4) uniform sampler2D emissiveMap;
 #endif
 
 #ifdef VSG_SPECULAR_MAP
-layout(binding = 5) uniform sampler2D specularMap;
+layout(set = 0, binding = 5) uniform sampler2D specularMap;
 #endif
 
-layout(push_constant) uniform PushConstants {
-    mat4 projection;
-    mat4 modelView;
-} pc;
-
-layout(binding = 10) uniform MaterialData
+layout(set = 0, binding = 10) uniform MaterialData
 {
     vec4 ambientColor;
     vec4 diffuseColor;
@@ -48,6 +43,13 @@ layout(binding = 10) uniform MaterialData
     float alphaMask;
     float alphaMaskCutoff;
 } material;
+
+#ifdef VSG_VIEW_LIGHT_DATA
+layout(set = 1, binding = 0) uniform LightData
+{
+    vec4 values[64];
+} lightData;
+#endif
 
 layout(location = 0) in vec3 eyePos;
 layout(location = 1) in vec3 normalDir;
@@ -146,6 +148,96 @@ void main()
     specularColor *= texture(specularMap, texCoord0.st);
 #endif
 
+
+#if defined(VSG_VIEW_LIGHT_DATA)
+    vec3 color = vec3(0.0, 0.0, 0.0);
+    vec3 nd = getNormal();
+    vec3 vd = normalize(viewDir);
+
+    vec4 lightNums = lightData.values[0];
+    int numAmbientLights = int(lightNums[0]);
+    int numDirectionalLights = int(lightNums[1]);
+    int numPointLights = int(lightNums[2]);
+    int numSpotLights = int(lightNums[3]);
+    int index = 1;
+
+    if (numAmbientLights>0)
+    {
+        // ambient lights
+        for(int i = 0; i<numAmbientLights; ++i)
+        {
+            vec4 ambient_color = lightData.values[index++];
+            color += ambient_color.rgb * ambient_color.a;
+        }
+    }
+
+    if (numDirectionalLights>0)
+    {
+        // directional lights
+        for(int i = 0; i<numDirectionalLights; ++i)
+        {
+            vec4 lightColor = lightData.values[index++];
+            vec3 direction = -lightData.values[index++].xyz;
+            float diff = max(dot(direction, nd), 0.0);
+            color.rgb += (diffuseColor.rgb * lightColor.rgb) * (diff * lightColor.a);
+            if (diff > 0.0)
+            {
+                vec3 halfDir = normalize(direction + vd);
+                color.rgb += specularColor.rgb * (pow(max(dot(halfDir, nd), 0.0), shininess) * lightColor.a);
+            }
+        }
+    }
+
+    if (numPointLights>0)
+    {
+        // point light
+        for(int i = 0; i<numPointLights; ++i)
+        {
+            vec4 lightColor = lightData.values[index++];
+            vec3 position = lightData.values[index++].xyz;
+            vec3 delta = eyePos - position;
+            float distance2 = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+            vec3 direction = delta / sqrt(distance2);
+            float scale = lightColor.a / distance2;
+
+            float diff = scale * max(-dot(direction, nd), 0.0);
+            color.rgb += (diffuseColor.rgb * lightColor.rgb) * diff;
+            if (diff > 0.0)
+            {
+                vec3 halfDir = normalize(-direction + vd);
+                color.rgb += specularColor.rgb * (pow(max(dot(halfDir, nd), 0.0), shininess) * scale);
+            }
+        }
+    }
+
+    if (numSpotLights>0)
+    {
+        // spot light
+        for(int i = 0; i<numSpotLights; ++i)
+        {
+            vec4 lightColor = lightData.values[index++];
+            vec4 position_cosInnerAngle = lightData.values[index++];
+            vec4 lightDirection_cosOuterAngle = lightData.values[index++];
+
+            vec3 delta = eyePos - position_cosInnerAngle.xyz;
+            float distance2 = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+            vec3 direction = delta / sqrt(distance2);
+
+            float dot_lightdirection = dot(lightDirection_cosOuterAngle.xyz, direction);
+            float scale = (lightColor.a  * smoothstep(lightDirection_cosOuterAngle.w, position_cosInnerAngle.w, dot_lightdirection)) / distance2;
+
+            float diff = scale * max(-dot(direction, nd), 0.0);
+            color.rgb += (diffuseColor.rgb * lightColor.rgb) * diff;
+            if (diff > 0.0)
+            {
+                vec3 halfDir = normalize(-direction + vd);
+                color.rgb += specularColor.rgb * (pow(max(dot(halfDir, nd), 0.0), shininess) * scale);
+            }
+        }
+    }
+
+    outColor.rgb = (color * ambientOcclusion) + emissiveColor.rgb;
+#else
     vec3 nd = getNormal();
     vec3 ld = normalize(lightDir);
     vec3 vd = normalize(viewDir);
@@ -157,6 +249,8 @@ void main()
 #else
     outColor.rgb = colorFrontFace;
 #endif
+#endif
+
     outColor.a = diffuseColor.a;
 }
 "
