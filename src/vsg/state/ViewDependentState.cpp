@@ -11,14 +11,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
-#include <vsg/nodes/Bin.h>
-#include <vsg/state/DescriptorImage.h>
-#include <vsg/state/DescriptorSet.h>
-#include <vsg/traversals/RecordTraversal.h>
-#include <vsg/viewer/View.h>
-#include <vsg/vk/State.h>
-
-#include <iostream>
+#include <vsg/traversals/CompileTraversal.h>
+#include <vsg/state/ViewDependentState.h>
 
 using namespace vsg;
 
