@@ -25,7 +25,6 @@ namespace vsg
     class ReaderWriter;
     class OperationThreads;
     class CommandLine;
-    class DescriptorSetLayout;
 
     using ReaderWriters = std::vector<ref_ptr<ReaderWriter>>;
 
