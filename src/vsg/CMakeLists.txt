@@ -95,6 +95,7 @@ set(SOURCES
     state/DepthStencilState.cpp
     state/ColorBlendState.cpp
     state/DynamicState.cpp
+    state/ViewDependentState.cpp
 
     io/FileSystem.cpp
     io/AsciiInput.cpp

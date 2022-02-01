@@ -13,62 +13,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/nodes/Group.h>
-#include <vsg/nodes/Light.h>
-#include <vsg/state/DescriptorBuffer.h>
-#include <vsg/state/DescriptorSet.h>
+#include <vsg/state/ViewDependentState.h>
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/Window.h>
 
 namespace vsg
 {
-
-    /// ViewDependentState to manage lighting, clip planes and texture projection
-    class VSG_DECLSPEC ViewDependentState : public Inherit<Object, ViewDependentState>
-    {
-    public:
-
-        ViewDependentState(uint32_t maxNumberLights = 64);
-
-        template<class N, class V>
-        static void t_traverse(N& node, V& visitor)
-        {
-            if (node.descriptorSetLayout) node.descriptorSetLayout->accept(visitor);
-            for(auto& dp : node.bufferedDescriptors)
-            {
-                dp.descriptorSet->accept(visitor);
-            }
-        }
-
-        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
-        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
-
-        // cotnainers filled in by RecordTraversal
-        std::vector< std::pair<dmat4, const AmbientLight*> > ambientLights;
-        std::vector< std::pair<dmat4, const DirectionalLight*> > directionalLights;
-        std::vector< std::pair<dmat4, const PointLight*> > pointLights;
-        std::vector< std::pair<dmat4, const SpotLight*> > spotLights;
-
-        virtual void compile(Context& context);
-        virtual void clear();
-        virtual void pack();
-        virtual void copy();
-        virtual void bindDescriptorSets(CommandBuffer& commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet);
-
-        ref_ptr<vec4Array> lightData;
-        ref_ptr<DescriptorSetLayout> descriptorSetLayout;
-
-        struct DescriptorPair
-        {
-            ref_ptr<DescriptorBuffer> lightDescriptor;
-            ref_ptr<DescriptorSet> descriptorSet;
-        };
-
-        size_t bufferIndex = 0;
-        std::vector<DescriptorPair> bufferedDescriptors;
-
-    protected:
-        ~ViewDependentState();
-    };
 
     /// View class is Group class that pairs a Camera that defines the view with a subgraph that defines the scene that is being viewed/rendered
     class VSG_DECLSPEC View : public Inherit<Group, View>

@@ -61,26 +61,6 @@ namespace vsg
     };
     VSG_type_name(vsg::DescriptorSetLayout);
 
-    /// ViewDescriptorSetLayout is a proxy class that uses the ViewDependentState's descriptorSetLayout as the DescriptorSetLayout to use.
-    /// Used in pipelines that wish to utilize in the light and other view dependent data provided by the View::ViewDependentState.
-    /// Use in combination with the BindViewDescriptorSet.
-    class VSG_DECLSPEC ViewDescriptorSetLayout : public Inherit<DescriptorSetLayout, ViewDescriptorSetLayout>
-    {
-    public:
-        ViewDescriptorSetLayout();
-
-        VkDescriptorSetLayout vk(uint32_t deviceID) const override { return _viewDescriptorSetLayout ? _viewDescriptorSetLayout->vk(deviceID) : 0; }
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        void compile(Context& context) override;
-    protected:
-
-        ref_ptr<DescriptorSetLayout> _viewDescriptorSetLayout;
-    };
-    VSG_type_name(vsg::ViewDescriptorSetLayout);
-
     using DescriptorSetLayouts = std::vector<vsg::ref_ptr<vsg::DescriptorSetLayout>>;
 
 } // namespace vsg
