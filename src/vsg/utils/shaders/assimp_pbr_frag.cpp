@@ -461,12 +461,12 @@ R"(            color.rgb += BRDF(lightColor.rgb * scale, v, n, l, h, perceptualR
             vec4 position_cosInnerAngle = lightData.values[index++];
             vec4 lightDirection_cosOuterAngle = lightData.values[index++];
 
-            vec3 delta = eyePos - position_cosInnerAngle.xyz;
+            vec3 delta = position_cosInnerAngle.xyz - eyePos;
             float distance2 = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
             vec3 direction = delta / sqrt(distance2);
-            float dot_lightdirection = dot(lightDirection_cosOuterAngle.xyz, direction);
+            float dot_lightdirection = -dot(lightDirection_cosOuterAngle.xyz, direction);
 
-            vec3 l = -direction;        // Vector from surface point to light
+            vec3 l = direction;        // Vector from surface point to light
             vec3 h = normalize(l+v);    // Half vector between both l and v
             float scale = (lightColor.a * smoothstep(lightDirection_cosOuterAngle.w, position_cosInnerAngle.w, dot_lightdirection)) / distance2;
 

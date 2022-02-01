@@ -160,6 +160,7 @@ void main()
     int numPointLights = int(lightNums[2]);
     int numSpotLights = int(lightNums[3]);
     int index = 1;
+
     if (numAmbientLights>0)
     {
         // ambient lights
@@ -203,7 +204,7 @@ void main()
             color.rgb += (diffuseColor.rgb * lightColor.rgb) * diff;
             if (diff > 0.0)
             {
-                vec3 halfDir = normalize(direction + vd);
+                vec3 halfDir = normalize(-direction + vd);
                 color.rgb += specularColor.rgb * (pow(max(dot(halfDir, nd), 0.0), shininess) * scale);
             }
         }
@@ -229,7 +230,7 @@ void main()
             color.rgb += (diffuseColor.rgb * lightColor.rgb) * diff;
             if (diff > 0.0)
             {
-                vec3 halfDir = normalize(direction + vd);
+                vec3 halfDir = normalize(-direction + vd);
                 color.rgb += specularColor.rgb * (pow(max(dot(halfDir, nd), 0.0), shininess) * scale);
             }
         }
