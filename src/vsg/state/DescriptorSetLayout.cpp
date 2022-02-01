@@ -94,5 +94,3 @@ DescriptorSetLayout::Implementation::~Implementation()
         vkDestroyDescriptorSetLayout(*_device, _descriptorSetLayout, _device->getAllocationCallbacks());
     }
 }
-
-

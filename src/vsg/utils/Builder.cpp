@@ -128,7 +128,6 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
 
     if (stateInfo.instancce_positions_vec3) defines.push_back("VSG_INSTANCE_POSITIONS");
 
-
     // set up graphics pipeline
     DescriptorSetLayoutBindings descriptorBindings;
     if (stateInfo.image)

@@ -21,12 +21,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
+#include <vsg/nodes/Light.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/Switch.h>
-#include <vsg/nodes/Light.h>
 #include <vsg/threading/atomics.h>
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/ui/ApplicationEvent.h>
@@ -290,7 +290,7 @@ void RecordTraversal::apply(const Switch& sw)
 
 void RecordTraversal::apply(const Light& light)
 {
-    std::cout<<"RecordTraversal::apply(Light) "<<light.className()<<std::endl;
+    std::cout << "RecordTraversal::apply(Light) " << light.className() << std::endl;
 }
 
 void RecordTraversal::apply(const AmbientLight& light)
@@ -452,7 +452,6 @@ void RecordTraversal::apply(const View& view)
     {
         _viewDependentState->pack();
         _viewDependentState->copy();
-
     }
 
     // swap back previous bin setup.
@@ -460,6 +459,4 @@ void RecordTraversal::apply(const View& view)
     cached_bins.swap(_bins);
     _state->_commandBuffer->traversalMask = cached_traversalMask;
     _viewDependentState = cached_viewDependentState;
-
-
 }

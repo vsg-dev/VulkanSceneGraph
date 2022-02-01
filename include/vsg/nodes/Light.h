@@ -36,7 +36,6 @@ namespace vsg
     class VSG_DECLSPEC AmbientLight : public Inherit<Light, AmbientLight>
     {
     public:
-
         void read(Input& input) override;
         void write(Output& output) const override;
 

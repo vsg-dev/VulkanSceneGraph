@@ -33,8 +33,8 @@ namespace vsg
         void write(Output& output) const override;
 
         void compile(Context& context) override;
-    protected:
 
+    protected:
         ref_ptr<DescriptorSetLayout> _viewDescriptorSetLayout;
     };
     VSG_type_name(vsg::ViewDescriptorSetLayout);
@@ -92,14 +92,13 @@ namespace vsg
     class VSG_DECLSPEC ViewDependentState : public Inherit<Object, ViewDependentState>
     {
     public:
-
         ViewDependentState(uint32_t maxNumberLights = 64);
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
             if (node.descriptorSetLayout) node.descriptorSetLayout->accept(visitor);
-            for(auto& dp : node.bufferedDescriptors)
+            for (auto& dp : node.bufferedDescriptors)
             {
                 dp.descriptorSet->accept(visitor);
             }
@@ -109,10 +108,10 @@ namespace vsg
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
 
         // cotnainers filled in by RecordTraversal
-        std::vector< std::pair<dmat4, const AmbientLight*> > ambientLights;
-        std::vector< std::pair<dmat4, const DirectionalLight*> > directionalLights;
-        std::vector< std::pair<dmat4, const PointLight*> > pointLights;
-        std::vector< std::pair<dmat4, const SpotLight*> > spotLights;
+        std::vector<std::pair<dmat4, const AmbientLight*>> ambientLights;
+        std::vector<std::pair<dmat4, const DirectionalLight*>> directionalLights;
+        std::vector<std::pair<dmat4, const PointLight*>> pointLights;
+        std::vector<std::pair<dmat4, const SpotLight*>> spotLights;
 
         virtual void compile(Context& context);
         virtual void clear();

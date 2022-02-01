@@ -107,8 +107,6 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         _initialized = true;
     }
 
-
-
     auto getFriendlyNameForShader = [](const ref_ptr<ShaderStage>& vsg_shader) {
         switch (vsg_shader->stage)
         {
@@ -222,11 +220,11 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
 
         if (parseResult)
         {
-#if 0
+#    if 0
             INFO_OUTPUT << "Successful compile" << std::endl;
             INFO_OUTPUT << debugFormatShaderSource(finalShaderSource) << std::endl;
             INFO_OUTPUT << std::endl;
-#endif
+#    endif
             program->addShader(shader);
 
             stageShaderMap[envStage] = vsg_shader;

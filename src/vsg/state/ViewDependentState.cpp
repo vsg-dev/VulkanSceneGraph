@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/Options.h>
 #include <vsg/nodes/Bin.h>
-#include <vsg/traversals/RecordTraversal.h>
-#include <vsg/state/DescriptorSet.h>
 #include <vsg/state/DescriptorImage.h>
+#include <vsg/state/DescriptorSet.h>
+#include <vsg/traversals/RecordTraversal.h>
 #include <vsg/viewer/View.h>
 #include <vsg/vk/State.h>
 
@@ -48,7 +48,6 @@ void ViewDescriptorSetLayout::compile(Context& context)
         _viewDescriptorSetLayout->compile(context);
     }
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -111,14 +110,13 @@ void ViewDependentState::compile(Context& context)
     if (!bufferedDescriptors.empty()) return;
 
     DescriptorSetLayoutBindings descriptorBindings{
-        VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}
-    };
+        VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}};
 
     descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
     descriptorSetLayout->compile(context);
 
     int numBuffers = 3;
-    for(int i =0; i<numBuffers; ++i)
+    for (int i = 0; i < numBuffers; ++i)
     {
         auto lightDescriptor = vsg::DescriptorBuffer::create(lightData, 0); // hardwired position for now
         auto descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{lightDescriptor});
@@ -149,30 +147,30 @@ void ViewDependentState::pack()
     auto light_itr = lightData->begin();
 
     (*light_itr++) = vec4(static_cast<float>(ambientLights.size()),
-                    static_cast<float>(directionalLights.size()),
-                    static_cast<float>(pointLights.size()),
-                    static_cast<float>(spotLights.size()));
+                          static_cast<float>(directionalLights.size()),
+                          static_cast<float>(pointLights.size()),
+                          static_cast<float>(spotLights.size()));
 
-    for(auto& [mv, light] : ambientLights)
+    for (auto& [mv, light] : ambientLights)
     {
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
     }
 
-    for(auto& [mv, light] : directionalLights)
+    for (auto& [mv, light] : directionalLights)
     {
         auto eye_direction = normalize(light->direction * inverse_3x3(mv));
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
     }
 
-    for(auto& [mv, light] : pointLights)
+    for (auto& [mv, light] : pointLights)
     {
         auto eye_position = mv * light->position;
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), 0.0f);
     }
 
-    for(auto& [mv, light] : spotLights)
+    for (auto& [mv, light] : spotLights)
     {
         auto eye_position = mv * light->position;
         auto eye_direction = normalize(light->direction * inverse_3x3(mv));
@@ -192,10 +190,10 @@ void ViewDependentState::pack()
 
 void ViewDependentState::copy()
 {
-//    std::cout<<"ViewDependentState::copy()"<<std::endl;
+    //    std::cout<<"ViewDependentState::copy()"<<std::endl;
 
     auto& descriptorData = bufferedDescriptors[bufferIndex];
-    for(auto& bufferInfo : descriptorData.lightDescriptor->bufferInfoList)
+    for (auto& bufferInfo : descriptorData.lightDescriptor->bufferInfoList)
     {
         bufferInfo->copyDataToBuffer();
     }

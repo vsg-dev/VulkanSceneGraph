@@ -56,9 +56,9 @@ t_mat3<T> t_inverse_3x3(const t_mat4<T>& m)
     value_type m21 = inv_det * (m[0][1] * m[2][0] - m[0][0] * m[2][1]);
     value_type m22 = inv_det * (m[0][0] * m[1][1] - m[0][1] * m[1][0]);
 
-    return t_mat3<T>(m00, m01, m02,   // column 0
-                     m10, m11, m12,   // column 1
-                     m20, m21, m22);  // column 2
+    return t_mat3<T>(m00, m01, m02,  // column 0
+                     m10, m11, m12,  // column 1
+                     m20, m21, m22); // column 2
 }
 
 mat3 vsg::inverse_3x3(const mat4& m)
