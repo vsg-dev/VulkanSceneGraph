@@ -11,8 +11,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
-#include <vsg/traversals/CompileTraversal.h>
 #include <vsg/state/ViewDependentState.h>
+#include <vsg/traversals/CompileTraversal.h>
 
 using namespace vsg;
 
@@ -56,8 +56,6 @@ BindViewDescriptorSets::BindViewDescriptorSets() :
 
 void BindViewDescriptorSets::read(Input& input)
 {
-    _vulkanData.clear();
-
     StateCommand::read(input);
 
     input.readValue<uint32_t>("pipelineBindPoint", pipelineBindPoint);
