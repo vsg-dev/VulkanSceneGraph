@@ -121,7 +121,8 @@ void ViewDependentState::compile(Context& context)
 void ViewDependentState::clear()
 {
     // advance index
-    bufferIndex = (bufferIndex + 1) % bufferedDescriptors.size();
+    ++bufferIndex;
+    if (bufferIndex >= bufferedDescriptors.size()) bufferIndex = 0;
 
     //std::cout<<"ViewDependentState::clear() bufferIndex = "<<bufferIndex<<std::endl;
 
