@@ -38,7 +38,7 @@ RenderPass::RenderPass(Device* device, const Attachments& attachments, const Sub
         dst.pInputAttachments = src.inputAttachments.empty() ? nullptr : src.inputAttachments.data();
         dst.colorAttachmentCount = static_cast<uint32_t>(src.colorAttachments.size());
         dst.pColorAttachments = src.colorAttachments.empty() ? nullptr : src.colorAttachments.data();
-        dst.pResolveAttachments = src.depthStencilAttachments.empty() ? nullptr : src.resolveAttachments.data();
+        dst.pResolveAttachments = src.resolveAttachments.empty() ? nullptr : src.resolveAttachments.data();
         dst.pDepthStencilAttachment = (src.depthStencilAttachments.empty()) ? nullptr : src.depthStencilAttachments.data();
         dst.preserveAttachmentCount = static_cast<uint32_t>(src.preserveAttachments.size());
         dst.pPreserveAttachments = src.preserveAttachments.empty() ? nullptr : src.preserveAttachments.data();
