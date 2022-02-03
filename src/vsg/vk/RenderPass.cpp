@@ -16,10 +16,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/RenderPass.h>
 
 #include <array>
+#include <iostream>
 
 using namespace vsg;
 
-RenderPass::RenderPass(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependencies& dependencies, const CorrelatedViewMasks& /*correlatedViewMasks*/):
+RenderPass::RenderPass(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependencies& dependencies, const CorrelatedViewMasks& correlatedViewMasks):
     _device(device)
 {
     _maxSamples = VK_SAMPLE_COUNT_1_BIT;
@@ -41,102 +42,231 @@ RenderPass::RenderPass(Device* device, const Attachments& attachments, const Sub
     // TODO, assign ScratchMemory to Device.
     auto scratchMemory = ScratchMemory::create(1024);
 
-    auto copyAttachmentDescriptions = [&scratchMemory](const Attachments& attachmentDescriptions) -> VkAttachmentDescription*
+    bool useRenderPass2 = true;
+    if (useRenderPass2)
     {
-        if (attachmentDescriptions.empty()) return nullptr;
+        std::cout<<"RenderPass::RenderPass(..) using vkCreateRenderPass2 "<<std::endl;
 
-        auto vk_attachementDescriptions = scratchMemory->allocate<VkAttachmentDescription>(attachmentDescriptions.size());
-        for(size_t i = 0; i< attachmentDescriptions.size(); ++i)
+        auto copyAttachmentDescriptions = [&scratchMemory](const Attachments& attachmentDescriptions) -> VkAttachmentDescription2*
         {
-            auto& src = attachmentDescriptions[i];
-            auto& dst = vk_attachementDescriptions[i];
+            if (attachmentDescriptions.empty()) return nullptr;
 
-            dst.flags = src.flags;
-            dst.format = src.format;
-            dst.samples = src.samples;
-            dst.loadOp = src.loadOp;
-            dst.storeOp = src.storeOp;
-            dst.stencilLoadOp = src.stencilLoadOp;
-            dst.stencilStoreOp = src.stencilStoreOp;
-            dst.initialLayout = src.initialLayout;
-            dst.finalLayout = src.finalLayout;
-        }
-        return vk_attachementDescriptions;
-    };
-
-    auto copySubpasses = [&scratchMemory](const Subpasses& subpassDescriptions) -> VkSubpassDescription*
-    {
-        if (subpassDescriptions.empty()) return nullptr;
-
-        auto copyAttachementReference = [&scratchMemory](const std::vector<AttachmentReference>& attachmentReferences) -> VkAttachmentReference*
-        {
-            if (attachmentReferences.empty()) return nullptr;
-
-            auto vk_attachements = scratchMemory->allocate<VkAttachmentReference>(attachmentReferences.size());
-            for(size_t i = 0; i< attachmentReferences.size(); ++i)
+            auto vk_attachementDescriptions = scratchMemory->allocate<VkAttachmentDescription2>(attachmentDescriptions.size());
+            for(size_t i = 0; i< attachmentDescriptions.size(); ++i)
             {
-                auto& src = attachmentReferences[i];
-                auto& dst = vk_attachements[i];
-                dst.attachment = src.attachment;
-                dst.layout = src.layout;
-                // dst.aspectMask = src.aspectMask; // only VkAttachmentReference2
+                auto& src = attachmentDescriptions[i];
+                auto& dst = vk_attachementDescriptions[i];
+
+                dst.sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2;
+                dst.pNext = nullptr;
+                dst.flags = src.flags;
+                dst.format = src.format;
+                dst.samples = src.samples;
+                dst.loadOp = src.loadOp;
+                dst.storeOp = src.storeOp;
+                dst.stencilLoadOp = src.stencilLoadOp;
+                dst.stencilStoreOp = src.stencilStoreOp;
+                dst.initialLayout = src.initialLayout;
+                dst.finalLayout = src.finalLayout;
             }
-            return vk_attachements;
+            return vk_attachementDescriptions;
         };
 
-        auto vk_subpassDescription = scratchMemory->allocate<VkSubpassDescription>(subpassDescriptions.size());
-        for(size_t i = 0; i< subpassDescriptions.size(); ++i)
+        auto copySubpasses = [&scratchMemory](const Subpasses& subpassDescriptions) -> VkSubpassDescription2*
         {
-            auto& src = subpassDescriptions[i];
-            auto& dst = vk_subpassDescription[i];
-            dst.flags = src.flags;
-            dst.pipelineBindPoint = src.pipelineBindPoint;
-            dst.inputAttachmentCount = static_cast<uint32_t>(src.inputAttachments.size());
-            dst.pInputAttachments = copyAttachementReference(src.inputAttachments);
-            dst.colorAttachmentCount = static_cast<uint32_t>(src.colorAttachments.size());
-            dst.pColorAttachments = copyAttachementReference(src.colorAttachments);
-            dst.pResolveAttachments = copyAttachementReference(src.resolveAttachments);
-            dst.pDepthStencilAttachment = copyAttachementReference(src.depthStencilAttachments);
-            dst.preserveAttachmentCount = static_cast<uint32_t>(src.preserveAttachments.size());
-            dst.pPreserveAttachments = src.preserveAttachments.empty() ? nullptr : src.preserveAttachments.data();
-        }
-        return vk_subpassDescription;
-    };
+            if (subpassDescriptions.empty()) return nullptr;
 
+            auto copyAttachementReference = [&scratchMemory](const std::vector<AttachmentReference>& attachmentReferences) -> VkAttachmentReference2*
+            {
+                if (attachmentReferences.empty()) return nullptr;
 
-    auto copySubpassDependency = [&scratchMemory](const Dependencies& subpassDependency) -> VkSubpassDependency*
-    {
-        if (subpassDependency.empty()) return nullptr;
+                auto vk_attachements = scratchMemory->allocate<VkAttachmentReference2>(attachmentReferences.size());
+                for(size_t i = 0; i< attachmentReferences.size(); ++i)
+                {
+                    auto& src = attachmentReferences[i];
+                    auto& dst = vk_attachements[i];
+                    dst.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2;
+                    dst.pNext = nullptr;
+                    dst.attachment = src.attachment;
+                    dst.layout = src.layout;
+                    dst.aspectMask = src.aspectMask;
+                }
+                return vk_attachements;
+            };
 
-        auto vk_subpassDependencies = scratchMemory->allocate<VkSubpassDependency>(subpassDependency.size());
-        for(size_t i = 0; i< subpassDependency.size(); ++i)
+            auto vk_subpassDescription = scratchMemory->allocate<VkSubpassDescription2>(subpassDescriptions.size());
+            for(size_t i = 0; i< subpassDescriptions.size(); ++i)
+            {
+                auto& src = subpassDescriptions[i];
+                auto& dst = vk_subpassDescription[i];
+                dst.sType = VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2;
+                dst.pNext = nullptr;
+                dst.flags = src.flags;
+                dst.pipelineBindPoint = src.pipelineBindPoint;
+                dst.viewMask = src.viewMask;
+                dst.inputAttachmentCount = static_cast<uint32_t>(src.inputAttachments.size());
+                dst.pInputAttachments = copyAttachementReference(src.inputAttachments);
+                dst.colorAttachmentCount = static_cast<uint32_t>(src.colorAttachments.size());
+                dst.pColorAttachments = copyAttachementReference(src.colorAttachments);
+                dst.pResolveAttachments = copyAttachementReference(src.resolveAttachments);
+                dst.pDepthStencilAttachment = copyAttachementReference(src.depthStencilAttachments);
+                dst.preserveAttachmentCount = static_cast<uint32_t>(src.preserveAttachments.size());
+                dst.pPreserveAttachments = src.preserveAttachments.empty() ? nullptr : src.preserveAttachments.data();
+
+                if (!src.depthStencilResolveAttachments.empty())
+                {
+                    auto depthStencilResolve = scratchMemory->allocate<VkSubpassDescriptionDepthStencilResolve>();
+                    depthStencilResolve->sType = VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE;
+                    depthStencilResolve->pNext = nullptr;
+                    depthStencilResolve->depthResolveMode = src.depthResolveMode;
+                    depthStencilResolve->stencilResolveMode = src.stencilResolveMode;
+                    depthStencilResolve->pDepthStencilResolveAttachment = copyAttachementReference(src.depthStencilResolveAttachments);;
+
+                    dst.pNext = depthStencilResolve;
+                }
+            }
+            return vk_subpassDescription;
+        };
+
+        auto copySubpassDependency = [&scratchMemory](const Dependencies& subpassDependency) -> VkSubpassDependency2*
         {
-            auto& src = subpassDependency[i];
-            auto& dst = vk_subpassDependencies[i];
-            dst.srcSubpass = src.srcSubpass;
-            dst.dstSubpass = src.dstSubpass;
-            dst.srcStageMask = src.srcStageMask;
-            dst.dstStageMask = src.dstStageMask;
-            dst.srcAccessMask = src.srcAccessMask;
-            dst.dstAccessMask = src.dstAccessMask;
-            //dst.viewOffset = src.viewOffset; // only VkSubpassDependency2
+            if (subpassDependency.empty()) return nullptr;
+
+            auto vk_subpassDependencies = scratchMemory->allocate<VkSubpassDependency2>(subpassDependency.size());
+            for(size_t i = 0; i< subpassDependency.size(); ++i)
+            {
+                auto& src = subpassDependency[i];
+                auto& dst = vk_subpassDependencies[i];
+                dst.sType = VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2;
+                dst.pNext = nullptr;
+                dst.srcSubpass = src.srcSubpass;
+                dst.dstSubpass = src.dstSubpass;
+                dst.srcStageMask = src.srcStageMask;
+                dst.dstStageMask = src.dstStageMask;
+                dst.srcAccessMask = src.srcAccessMask;
+                dst.dstAccessMask = src.dstAccessMask;
+                dst.dependencyFlags = src.dependencyFlags;
+                dst.viewOffset = src.viewOffset;
+            }
+            return vk_subpassDependencies;
+        };
+
+        VkRenderPassCreateInfo2 renderPassInfo = {};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2;
+        renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        renderPassInfo.pAttachments = copyAttachmentDescriptions(attachments);
+        renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
+        renderPassInfo.pSubpasses = copySubpasses(subpasses);
+        renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+        renderPassInfo.pDependencies = copySubpassDependency(dependencies);
+        renderPassInfo.correlatedViewMaskCount = static_cast<uint32_t>(correlatedViewMasks.size());
+        renderPassInfo.pCorrelatedViewMasks = correlatedViewMasks.empty() ? nullptr : correlatedViewMasks.data();
+
+        VkResult result = vkCreateRenderPass2(*device, &renderPassInfo, _device->getAllocationCallbacks(), &_renderPass);
+        if (result != VK_SUCCESS)
+        {
+            throw Exception{"Error: vsg::RenderPass::create(...) Failed to create VkRenderPass.", result};
         }
-        return vk_subpassDependencies;
-    };
-
-    VkRenderPassCreateInfo renderPassInfo = {};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-    renderPassInfo.pAttachments = copyAttachmentDescriptions(attachments);
-    renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
-    renderPassInfo.pSubpasses = copySubpasses(subpasses);
-    renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
-    renderPassInfo.pDependencies = copySubpassDependency(dependencies);
-
-    VkResult result = vkCreateRenderPass(*device, &renderPassInfo, _device->getAllocationCallbacks(), &_renderPass);
-    if (result != VK_SUCCESS)
+    }
+    else
     {
-        throw Exception{"Error: vsg::RenderPass::create(...) Failed to create VkRenderPass.", result};
+        auto copyAttachmentDescriptions = [&scratchMemory](const Attachments& attachmentDescriptions) -> VkAttachmentDescription*
+        {
+            if (attachmentDescriptions.empty()) return nullptr;
+
+            auto vk_attachementDescriptions = scratchMemory->allocate<VkAttachmentDescription>(attachmentDescriptions.size());
+            for(size_t i = 0; i< attachmentDescriptions.size(); ++i)
+            {
+                auto& src = attachmentDescriptions[i];
+                auto& dst = vk_attachementDescriptions[i];
+
+                dst.flags = src.flags;
+                dst.format = src.format;
+                dst.samples = src.samples;
+                dst.loadOp = src.loadOp;
+                dst.storeOp = src.storeOp;
+                dst.stencilLoadOp = src.stencilLoadOp;
+                dst.stencilStoreOp = src.stencilStoreOp;
+                dst.initialLayout = src.initialLayout;
+                dst.finalLayout = src.finalLayout;
+            }
+            return vk_attachementDescriptions;
+        };
+
+        auto copySubpasses = [&scratchMemory](const Subpasses& subpassDescriptions) -> VkSubpassDescription*
+        {
+            if (subpassDescriptions.empty()) return nullptr;
+
+            auto copyAttachementReference = [&scratchMemory](const std::vector<AttachmentReference>& attachmentReferences) -> VkAttachmentReference*
+            {
+                if (attachmentReferences.empty()) return nullptr;
+
+                auto vk_attachements = scratchMemory->allocate<VkAttachmentReference>(attachmentReferences.size());
+                for(size_t i = 0; i< attachmentReferences.size(); ++i)
+                {
+                    auto& src = attachmentReferences[i];
+                    auto& dst = vk_attachements[i];
+                    dst.attachment = src.attachment;
+                    dst.layout = src.layout;
+                    // dst.aspectMask = src.aspectMask; // only VkAttachmentReference2
+                }
+                return vk_attachements;
+            };
+
+            auto vk_subpassDescription = scratchMemory->allocate<VkSubpassDescription>(subpassDescriptions.size());
+            for(size_t i = 0; i< subpassDescriptions.size(); ++i)
+            {
+                auto& src = subpassDescriptions[i];
+                auto& dst = vk_subpassDescription[i];
+                dst.flags = src.flags;
+                dst.pipelineBindPoint = src.pipelineBindPoint;
+                dst.inputAttachmentCount = static_cast<uint32_t>(src.inputAttachments.size());
+                dst.pInputAttachments = copyAttachementReference(src.inputAttachments);
+                dst.colorAttachmentCount = static_cast<uint32_t>(src.colorAttachments.size());
+                dst.pColorAttachments = copyAttachementReference(src.colorAttachments);
+                dst.pResolveAttachments = copyAttachementReference(src.resolveAttachments);
+                dst.pDepthStencilAttachment = copyAttachementReference(src.depthStencilAttachments);
+                dst.preserveAttachmentCount = static_cast<uint32_t>(src.preserveAttachments.size());
+                dst.pPreserveAttachments = src.preserveAttachments.empty() ? nullptr : src.preserveAttachments.data();
+            }
+            return vk_subpassDescription;
+        };
+
+        auto copySubpassDependency = [&scratchMemory](const Dependencies& subpassDependency) -> VkSubpassDependency*
+        {
+            if (subpassDependency.empty()) return nullptr;
+
+            auto vk_subpassDependencies = scratchMemory->allocate<VkSubpassDependency>(subpassDependency.size());
+            for(size_t i = 0; i< subpassDependency.size(); ++i)
+            {
+                auto& src = subpassDependency[i];
+                auto& dst = vk_subpassDependencies[i];
+                dst.srcSubpass = src.srcSubpass;
+                dst.dstSubpass = src.dstSubpass;
+                dst.srcStageMask = src.srcStageMask;
+                dst.dstStageMask = src.dstStageMask;
+                dst.srcAccessMask = src.srcAccessMask;
+                dst.dstAccessMask = src.dstAccessMask;
+                dst.dependencyFlags = src.dependencyFlags;
+                //dst.viewOffset = src.viewOffset; // only VkSubpassDependency2
+            }
+            return vk_subpassDependencies;
+        };
+
+        VkRenderPassCreateInfo renderPassInfo = {};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        renderPassInfo.pAttachments = copyAttachmentDescriptions(attachments);
+        renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
+        renderPassInfo.pSubpasses = copySubpasses(subpasses);
+        renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+        renderPassInfo.pDependencies = copySubpassDependency(dependencies);
+
+        VkResult result = vkCreateRenderPass(*device, &renderPassInfo, _device->getAllocationCallbacks(), &_renderPass);
+        if (result != VK_SUCCESS)
+        {
+            throw Exception{"Error: vsg::RenderPass::create(...) Failed to create VkRenderPass.", result};
+        }
     }
 }
 

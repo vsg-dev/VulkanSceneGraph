@@ -40,7 +40,7 @@ namespace vsg
         VkPipelineStageFlags    dstStageMask;
         VkAccessFlags           srcAccessMask;
         VkAccessFlags           dstAccessMask;
-        VkDependencyFlags       dependencyFlags;
+        VkDependencyFlags       dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
         /// only supported when multiview available
         int32_t                 viewOffset = 0;
