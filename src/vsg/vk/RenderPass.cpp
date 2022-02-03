@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Exception.h>
+#include <vsg/core/ScratchMemory.h>
 #include <vsg/io/Options.h>
 #include <vsg/vk/RenderPass.h>
 
@@ -18,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-RenderPass::RenderPass(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependencies& dependencies) :
+RenderPass::RenderPass(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependencies& dependencies, const CorrelatedViewMasks& /*correlatedViewMasks*/):
     _device(device)
 {
     _maxSamples = VK_SAMPLE_COUNT_1_BIT;
@@ -27,31 +28,110 @@ RenderPass::RenderPass(Device* device, const Attachments& attachments, const Sub
         if (attachment.samples > _maxSamples) _maxSamples = attachment.samples;
     }
 
-    std::vector<VkSubpassDescription> vk_subpasses(subpasses.size());
-    for (size_t i = 0; i < subpasses.size(); ++i)
+    // TODO implement vkCreateRenderPass2 support,
+    // VkSubpassDescription2
+    //     https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VkSubpassDescription2.html
+    //
+    // VkSubpassDescriptionDepthStencilResolve VkSubpassDescriptionDepthStencilResolveKHR
+    //     https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VkSubpassDescriptionDepthStencilResolveKHR.html
+    //
+    // vkCreateRenderPass2
+    //     https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VK_KHR_create_renderpass2.html
+
+    // TODO, assign ScratchMemory to Device.
+    auto scratchMemory = ScratchMemory::create(1024);
+
+    auto copyAttachementDescriptions = [&scratchMemory](const Attachments& attachmentDescriptions) -> VkAttachmentDescription*
     {
-        const SubpassDescription& src = subpasses[i];
-        VkSubpassDescription& dst = vk_subpasses[i];
-        dst.flags = src.flags;
-        dst.pipelineBindPoint = src.pipelineBindPoint;
-        dst.inputAttachmentCount = static_cast<uint32_t>(src.inputAttachments.size());
-        dst.pInputAttachments = src.inputAttachments.empty() ? nullptr : src.inputAttachments.data();
-        dst.colorAttachmentCount = static_cast<uint32_t>(src.colorAttachments.size());
-        dst.pColorAttachments = src.colorAttachments.empty() ? nullptr : src.colorAttachments.data();
-        dst.pResolveAttachments = src.resolveAttachments.empty() ? nullptr : src.resolveAttachments.data();
-        dst.pDepthStencilAttachment = (src.depthStencilAttachments.empty()) ? nullptr : src.depthStencilAttachments.data();
-        dst.preserveAttachmentCount = static_cast<uint32_t>(src.preserveAttachments.size());
-        dst.pPreserveAttachments = src.preserveAttachments.empty() ? nullptr : src.preserveAttachments.data();
-    }
+        if (attachmentDescriptions.empty()) return nullptr;
+
+        auto vk_attachementDescriptions = scratchMemory->allocate<VkAttachmentDescription>(attachmentDescriptions.size());
+        for(size_t i = 0; i< attachmentDescriptions.size(); ++i)
+        {
+            auto& src = attachmentDescriptions[i];
+            auto& dst = vk_attachementDescriptions[i];
+
+            dst.flags = src.flags;
+            dst.format = src.format;
+            dst.samples = src.samples;
+            dst.loadOp = src.loadOp;
+            dst.storeOp = src.storeOp;
+            dst.stencilLoadOp = src.stencilLoadOp;
+            dst.stencilStoreOp = src.stencilStoreOp;
+            dst.initialLayout = src.initialLayout;
+            dst.finalLayout = src.finalLayout;
+        }
+        return vk_attachementDescriptions;
+    };
+
+    auto copySubpasses = [&scratchMemory](const Subpasses& subpassDescriptions) -> VkSubpassDescription*
+    {
+        if (subpassDescriptions.empty()) return nullptr;
+
+        auto copyAttachementReference = [&scratchMemory](const std::vector<AttachmentReference>& attachmentReferences) -> VkAttachmentReference*
+        {
+            if (attachmentReferences.empty()) return nullptr;
+
+            auto vk_attachements = scratchMemory->allocate<VkAttachmentReference>(attachmentReferences.size());
+            for(size_t i = 0; i< attachmentReferences.size(); ++i)
+            {
+                auto& src = attachmentReferences[i];
+                auto& dst = vk_attachements[i];
+                dst.attachment = src.attachment;
+                dst.layout = src.layout;
+                // dst.aspectMask = src.aspectMask; // only VkAttachmentReference2
+            }
+            return vk_attachements;
+        };
+
+        auto vk_subpassDescription = scratchMemory->allocate<VkSubpassDescription>(subpassDescriptions.size());
+        for(size_t i = 0; i< subpassDescriptions.size(); ++i)
+        {
+            auto& src = subpassDescriptions[i];
+            auto& dst = vk_subpassDescription[i];
+            dst.flags = src.flags;
+            dst.pipelineBindPoint = src.pipelineBindPoint;
+            dst.inputAttachmentCount = static_cast<uint32_t>(src.inputAttachments.size());
+            dst.pInputAttachments = copyAttachementReference(src.inputAttachments);
+            dst.colorAttachmentCount = static_cast<uint32_t>(src.colorAttachments.size());
+            dst.pColorAttachments = copyAttachementReference(src.colorAttachments);
+            dst.pResolveAttachments = copyAttachementReference(src.resolveAttachments);
+            dst.pDepthStencilAttachment = copyAttachementReference(src.depthStencilAttachments);
+            dst.preserveAttachmentCount = static_cast<uint32_t>(src.preserveAttachments.size());
+            dst.pPreserveAttachments = src.preserveAttachments.empty() ? nullptr : src.preserveAttachments.data();
+        }
+        return vk_subpassDescription;
+    };
+
+
+    auto copySubpassDependency = [&scratchMemory](const Dependencies& subpassDependency) -> VkSubpassDependency*
+    {
+        if (subpassDependency.empty()) return nullptr;
+
+        auto vk_subpassDependencies = scratchMemory->allocate<VkSubpassDependency>(subpassDependency.size());
+        for(size_t i = 0; i< subpassDependency.size(); ++i)
+        {
+            auto& src = subpassDependency[i];
+            auto& dst = vk_subpassDependencies[i];
+            dst.srcSubpass = src.srcSubpass;
+            dst.dstSubpass = src.dstSubpass;
+            dst.srcStageMask = src.srcStageMask;
+            dst.dstStageMask = src.dstStageMask;
+            dst.srcAccessMask = src.srcAccessMask;
+            dst.dstAccessMask = src.dstAccessMask;
+            //dst.viewOffset = src.viewOffset; // only VkSubpassDependency2
+        }
+        return vk_subpassDependencies;
+    };
 
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-    renderPassInfo.pAttachments = attachments.data();
-    renderPassInfo.subpassCount = static_cast<uint32_t>(vk_subpasses.size());
-    renderPassInfo.pSubpasses = vk_subpasses.data();
+    renderPassInfo.pAttachments = copyAttachementDescriptions(attachments);
+    renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
+    renderPassInfo.pSubpasses = copySubpasses(subpasses);
     renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
-    renderPassInfo.pDependencies = dependencies.data();
+    renderPassInfo.pDependencies = copySubpassDependency(dependencies);
 
     VkResult result = vkCreateRenderPass(*device, &renderPassInfo, _device->getAllocationCallbacks(), &_renderPass);
     if (result != VK_SUCCESS)
@@ -70,7 +150,7 @@ RenderPass::~RenderPass()
 
 AttachmentDescription vsg::defaultColorAttachment(VkFormat imageFormat)
 {
-    VkAttachmentDescription colorAttachment = {};
+    AttachmentDescription colorAttachment = {};
     colorAttachment.format = imageFormat;
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
     colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -85,7 +165,7 @@ AttachmentDescription vsg::defaultColorAttachment(VkFormat imageFormat)
 
 AttachmentDescription vsg::defaultDepthAttachment(VkFormat depthFormat)
 {
-    VkAttachmentDescription depthAttachment = {};
+    AttachmentDescription depthAttachment = {};
     depthAttachment.format = depthFormat;
     depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -104,11 +184,11 @@ ref_ptr<RenderPass> vsg::createRenderPass(Device* device, VkFormat imageFormat, 
         defaultColorAttachment(imageFormat),
         defaultDepthAttachment(depthFormat)};
 
-    VkAttachmentReference colorAttachmentRef = {};
+    AttachmentReference colorAttachmentRef = {};
     colorAttachmentRef.attachment = 0;
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-    VkAttachmentReference depthAttachmentRef = {};
+    AttachmentReference depthAttachmentRef = {};
     depthAttachmentRef.attachment = 1;
     depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
@@ -120,7 +200,7 @@ ref_ptr<RenderPass> vsg::createRenderPass(Device* device, VkFormat imageFormat, 
     RenderPass::Subpasses subpasses{subpass};
 
     // image layout transition
-    VkSubpassDependency colorDependency = {};
+    SubpassDependency colorDependency = {};
     colorDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     colorDependency.dstSubpass = 0;
     colorDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -130,7 +210,7 @@ ref_ptr<RenderPass> vsg::createRenderPass(Device* device, VkFormat imageFormat, 
     colorDependency.dependencyFlags = 0;
 
     // depth buffer is shared between swap chain images
-    VkSubpassDependency depthDependency = {};
+    SubpassDependency depthDependency = {};
     depthDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     depthDependency.dstSubpass = 0;
     depthDependency.srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
@@ -152,7 +232,7 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
     }
 
     // First attachment is multisampled target.
-    VkAttachmentDescription colorAttachment = {};
+    AttachmentDescription colorAttachment = {};
     colorAttachment.format = imageFormat;
     colorAttachment.samples = samples;
     colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -163,7 +243,7 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
     colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     // Second attachment is the resolved image which will be presented.
-    VkAttachmentDescription resolveAttachment = {};
+    AttachmentDescription resolveAttachment = {};
     resolveAttachment.format = imageFormat;
     resolveAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
     resolveAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -174,7 +254,7 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
     resolveAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
     // Multisampled depth attachment. It won't be resolved.
-    VkAttachmentDescription depthAttachment = {};
+    AttachmentDescription depthAttachment = {};
     depthAttachment.format = depthFormat;
     depthAttachment.samples = samples;
     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -186,15 +266,15 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
 
     RenderPass::Attachments attachments{colorAttachment, resolveAttachment, depthAttachment};
 
-    VkAttachmentReference colorAttachmentRef = {};
+    AttachmentReference colorAttachmentRef = {};
     colorAttachmentRef.attachment = 0;
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-    VkAttachmentReference resolveAttachmentRef = {};
+    AttachmentReference resolveAttachmentRef = {};
     resolveAttachmentRef.attachment = 1;
     resolveAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-    VkAttachmentReference depthAttachmentRef = {};
+    AttachmentReference depthAttachmentRef = {};
     depthAttachmentRef.attachment = 2;
     depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
@@ -206,7 +286,7 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
 
     RenderPass::Subpasses subpasses{subpass};
 
-    VkSubpassDependency dependency = {};
+    SubpassDependency dependency = {};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     dependency.dstSubpass = 0;
     dependency.srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
@@ -215,7 +295,7 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-    VkSubpassDependency dependency2 = {};
+    SubpassDependency dependency2 = {};
     dependency2.srcSubpass = 0;
     dependency2.dstSubpass = VK_SUBPASS_EXTERNAL;
     dependency2.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
