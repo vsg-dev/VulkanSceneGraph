@@ -41,7 +41,7 @@ RenderPass::RenderPass(Device* device, const Attachments& attachments, const Sub
     // TODO, assign ScratchMemory to Device.
     auto scratchMemory = ScratchMemory::create(1024);
 
-    auto copyAttachementDescriptions = [&scratchMemory](const Attachments& attachmentDescriptions) -> VkAttachmentDescription*
+    auto copyAttachmentDescriptions = [&scratchMemory](const Attachments& attachmentDescriptions) -> VkAttachmentDescription*
     {
         if (attachmentDescriptions.empty()) return nullptr;
 
@@ -127,7 +127,7 @@ RenderPass::RenderPass(Device* device, const Attachments& attachments, const Sub
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-    renderPassInfo.pAttachments = copyAttachementDescriptions(attachments);
+    renderPassInfo.pAttachments = copyAttachmentDescriptions(attachments);
     renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
     renderPassInfo.pSubpasses = copySubpasses(subpasses);
     renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
