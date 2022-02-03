@@ -75,7 +75,7 @@ void BindViewDescriptorSets::write(Output& output) const
 void BindViewDescriptorSets::compile(Context& context)
 {
     layout->compile(context);
-    context.viewDependentState->compile(context);
+    if (context.viewDependentState) context.viewDependentState->compile(context);
 }
 
 void BindViewDescriptorSets::record(CommandBuffer& commandBuffer) const
