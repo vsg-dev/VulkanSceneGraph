@@ -33,7 +33,7 @@ RenderPass::RenderPass(Device* device, const Attachments& attachments, const Sub
     auto scratchMemory = ScratchMemory::create(1024);
 
     // vkCreateRenderPass2 is only supported in Vulkan 1.2 and later.
-    bool useRenderPass2 = (device->getInstance()->apiVersion >= VK_MAKE_API_VERSION(0, 1, 2, 0));
+    bool useRenderPass2 = device->getInstance()->apiVersion >= VK_API_VERSION_1_2;
     std::cout<<"RenderPass::RenderPass() useRenderPass2 = "<<useRenderPass2<<std::endl;
     if (useRenderPass2)
     {
