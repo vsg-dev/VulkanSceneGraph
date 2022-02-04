@@ -284,12 +284,10 @@ void Window::buildSwapchain()
 
         _multisampleImage = 0;
         _multisampleImageView = 0;
-
-        _swapchain = 0;
     }
 
     // is width and height even required here as the surface appear to control it.
-    _swapchain = Swapchain::create(_physicalDevice, _device, _surface, _extent2D.width, _extent2D.height, _traits->swapchainPreferences);
+    _swapchain = Swapchain::create(_physicalDevice, _device, _surface, _extent2D.width, _extent2D.height, _traits->swapchainPreferences, _swapchain);
 
     // pass back the extents used by the swap chain.
     _extent2D = _swapchain->getExtent();

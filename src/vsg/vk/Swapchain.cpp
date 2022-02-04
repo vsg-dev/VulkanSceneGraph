@@ -150,7 +150,7 @@ SwapchainImage::~SwapchainImage()
 //
 // Swapchain
 //
-Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences) :
+Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences, ref_ptr<Swapchain> oldSwapchain) :
     _device(device)
 {
     SwapChainSupportDetails details = querySwapChainSupport(*physicalDevice, *surface);
@@ -204,6 +204,10 @@ Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* su
     createInfo.clipped = VK_TRUE;
 
     createInfo.oldSwapchain = VK_NULL_HANDLE;
+    if (oldSwapchain)
+    {
+        createInfo.oldSwapchain = *(oldSwapchain);
+    }
 
     createInfo.pNext = nullptr;
 
