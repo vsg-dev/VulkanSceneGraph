@@ -29,24 +29,15 @@ RenderPass::RenderPass(Device* device, const Attachments& attachments, const Sub
         if (attachment.samples > _maxSamples) _maxSamples = attachment.samples;
     }
 
-    // TODO implement vkCreateRenderPass2 support,
-    // VkSubpassDescription2
-    //     https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VkSubpassDescription2.html
-    //
-    // VkSubpassDescriptionDepthStencilResolve VkSubpassDescriptionDepthStencilResolveKHR
-    //     https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VkSubpassDescriptionDepthStencilResolveKHR.html
-    //
-    // vkCreateRenderPass2
-    //     https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VK_KHR_create_renderpass2.html
-
     // TODO, assign ScratchMemory to Device.
     auto scratchMemory = ScratchMemory::create(1024);
 
-    bool useRenderPass2 = true;
+    // vkCreateRenderPass2 is only supported in Vulkan 1.2 and later.
+    bool useRenderPass2 = (device->getInstance()->apiVersion >= VK_MAKE_API_VERSION(0, 1, 2, 0));
+    std::cout<<"RenderPass::RenderPass() useRenderPass2 = "<<useRenderPass2<<std::endl;
     if (useRenderPass2)
     {
-        std::cout<<"RenderPass::RenderPass(..) using vkCreateRenderPass2 "<<std::endl;
-
+        // Vulkan 1.2 vkCreateRenderPass2 code path
         auto copyAttachmentDescriptions = [&scratchMemory](const Attachments& attachmentDescriptions) -> VkAttachmentDescription2*
         {
             if (attachmentDescriptions.empty()) return nullptr;
@@ -170,6 +161,7 @@ RenderPass::RenderPass(Device* device, const Attachments& attachments, const Sub
     }
     else
     {
+        // Vulkan 1.0 vkCreateRenderPass code path
         auto copyAttachmentDescriptions = [&scratchMemory](const Attachments& attachmentDescriptions) -> VkAttachmentDescription*
         {
             if (attachmentDescriptions.empty()) return nullptr;
