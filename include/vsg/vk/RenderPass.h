@@ -87,13 +87,18 @@ namespace vsg
         using Dependencies = std::vector<SubpassDependency>;
         using CorrelatedViewMasks = std::vector<uint32_t>;
 
-        RenderPass(Device* device, const Attachments& attachments, const Subpasses& subpasses, const Dependencies& dependencies, const CorrelatedViewMasks& correlatedViewMasks = {});
+        RenderPass(Device* device, const Attachments& in_attachments, const Subpasses& in_subpasses, const Dependencies& in_dependencies, const CorrelatedViewMasks& in_correlatedViewMasks = {});
 
         operator VkRenderPass() const { return _renderPass; }
 
         /// return the maximum VkAttachmentDescription.samples value of the assigned attachments.
         /// Used for be deciding if multisampling is required and the value to use when setting up the GraphicsPipeline's vsg::MultisampleState
-        VkSampleCountFlagBits maxSamples() const { return _maxSamples; }
+        VkSampleCountFlagBits maxSamples() const { return _maxSamples; } // TODO replace with simple const VkSampleCountFlagBits;
+
+        const Attachments attachments;
+        const Subpasses subpasses;
+        const Dependencies dependencies;
+        const CorrelatedViewMasks correlatedViewMasks;
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
@@ -111,7 +116,7 @@ namespace vsg
     extern VSG_DECLSPEC AttachmentDescription defaultColorAttachment(VkFormat imageFormat);
     extern VSG_DECLSPEC AttachmentDescription defaultDepthAttachment(VkFormat depthFormat);
 
-    extern VSG_DECLSPEC ref_ptr<RenderPass> createRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat);
-    extern VSG_DECLSPEC ref_ptr<RenderPass> createMultisampledRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat,VkSampleCountFlagBits samples);
+    extern VSG_DECLSPEC ref_ptr<RenderPass> createRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat, bool requiresDepthRead = false);
+    extern VSG_DECLSPEC ref_ptr<RenderPass> createMultisampledRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat,VkSampleCountFlagBits samples, bool requiresDepthRead = false);
 
 } // namespace vsg

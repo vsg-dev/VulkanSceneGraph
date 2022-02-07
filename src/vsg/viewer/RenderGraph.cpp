@@ -50,18 +50,20 @@ RenderGraph::RenderGraph(ref_ptr<Window> in_window, ref_ptr<View> in_view) :
         renderArea.extent = window->extent2D();
     }
 
-    if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT)
+    // set up the clearValues based on the RenderPass's attachments.
+    auto renderPass = window->getOrCreateRenderPass();
+    auto& attachments = renderPass->attachments;
+    clearValues.resize(attachments.size());
+    for(size_t i = 0; i<attachments.size(); ++i)
     {
-        clearValues.resize(3);
-        clearValues[0].color = window->clearColor();
-        clearValues[1].color = window->clearColor();
-        clearValues[2].depthStencil = VkClearDepthStencilValue{0.0f, 0};
-    }
-    else
-    {
-        clearValues.resize(2);
-        clearValues[0].color = window->clearColor();
-        clearValues[1].depthStencil = VkClearDepthStencilValue{0.0f, 0};
+        if (attachments[i].finalLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+        {
+            clearValues[i].depthStencil = VkClearDepthStencilValue{0.0f, 0}; // clear depth, default to reverse depth convention.
+        }
+        else
+        {
+            clearValues[i].color = window->clearColor();
+        }
     }
 }
 

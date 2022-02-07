@@ -41,7 +41,6 @@ void Window::clear()
     _swapchain = 0;
 
     _depthImage = 0;
-    _depthImageMemory = 0;
     _depthImageView = 0;
 
     _renderPass = 0;
@@ -249,13 +248,15 @@ void Window::_initRenderPass()
 {
     if (!_device) _initDevice();
 
+    bool requiresDepthRead = (_traits->depthImageUsage & VK_IMAGE_USAGE_TRANSFER_SRC_BIT) != 0;
+
     if (_framebufferSamples == VK_SAMPLE_COUNT_1_BIT)
     {
-        _renderPass = vsg::createRenderPass(_device, _imageFormat.format, _depthFormat);
+        _renderPass = vsg::createRenderPass(_device, _imageFormat.format, _depthFormat, requiresDepthRead);
     }
     else
     {
-        _renderPass = vsg::createMultisampledRenderPass(_device, _imageFormat.format, _depthFormat, _framebufferSamples);
+        _renderPass = vsg::createMultisampledRenderPass(_device, _imageFormat.format, _depthFormat, _framebufferSamples, requiresDepthRead);
     }
 }
 
@@ -280,7 +281,6 @@ void Window::buildSwapchain()
 
         _depthImageView = 0;
         _depthImage = 0;
-        _depthImageMemory = 0;
 
         _multisampleImage = 0;
         _multisampleImageView = 0;
@@ -307,7 +307,7 @@ void Window::buildSwapchain()
         _multisampleImage->arrayLayers = 1;
         _multisampleImage->samples = _framebufferSamples;
         _multisampleImage->tiling = VK_IMAGE_TILING_OPTIMAL;
-        _multisampleImage->usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        _multisampleImage->usage = _traits->swapchainPreferences.imageUsage;
         _multisampleImage->initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         _multisampleImage->flags = 0;
         _multisampleImage->sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -321,6 +321,9 @@ void Window::buildSwapchain()
         _multisampleImageView->compile(_device);
     }
 
+    bool requiresDepthRead = (_traits->depthImageUsage & VK_IMAGE_USAGE_TRANSFER_SRC_BIT) != 0;
+    bool requiresDepthResolve = (multisampling && requiresDepthRead);
+
     // create depth buffer
     _depthImage = Image::create();
     _depthImage->imageType = VK_IMAGE_TYPE_2D;
@@ -332,18 +335,49 @@ void Window::buildSwapchain()
     _depthImage->format = _depthFormat;
     _depthImage->tiling = VK_IMAGE_TILING_OPTIMAL;
     _depthImage->initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    _depthImage->usage = _traits->depthImageUsage;
     _depthImage->samples = _framebufferSamples;
     _depthImage->sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    _depthImage->usage = _traits->depthImageUsage;
 
     _depthImage->compile(_device);
 
-    _depthImageMemory = DeviceMemory::create(_device, _depthImage->getMemoryRequirements(deviceID), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    auto depthImageMemory = DeviceMemory::create(_device, _depthImage->getMemoryRequirements(deviceID), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    _depthImage->bind(_depthImageMemory, 0);
+    _depthImage->bind(depthImageMemory, 0);
 
     _depthImageView = ImageView::create(_depthImage);
     _depthImageView->compile(_device);
+
+    if (requiresDepthResolve)
+    {
+        _multisampleDepthImage = _depthImage;
+        _multisampleDepthImageView = _depthImageView;
+
+        // create depth buffer
+        _depthImage = Image::create();
+        _depthImage->imageType = VK_IMAGE_TYPE_2D;
+        _depthImage->extent.width = _extent2D.width;
+        _depthImage->extent.height = _extent2D.height;
+        _depthImage->extent.depth = 1;
+        _depthImage->mipLevels = 1;
+        _depthImage->arrayLayers = 1;
+        _depthImage->format = _depthFormat;
+        _depthImage->tiling = VK_IMAGE_TILING_OPTIMAL;
+        _depthImage->initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        _depthImage->usage = _traits->depthImageUsage;
+        _depthImage->samples = VK_SAMPLE_COUNT_1_BIT;
+        _depthImage->sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+        _depthImage->compile(_device);
+
+        auto unsampleDepthImageMemory = DeviceMemory::create(_device, _depthImage->getMemoryRequirements(deviceID), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+        _depthImage->bind(unsampleDepthImageMemory, 0);
+
+        _depthImageView = ImageView::create(_depthImage);
+        _depthImageView->compile(_device);
+    }
+
 
     int graphicsFamily = -1;
     std::tie(graphicsFamily, std::ignore) = _physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, _surface);
@@ -357,18 +391,24 @@ void Window::buildSwapchain()
     for (size_t i = 0; i < imageViews.size(); ++i)
     {
         vsg::ImageViews attachments;
-        if (multisampling)
+        if (_multisampleImageView)
         {
             attachments.push_back(_multisampleImageView);
         }
         attachments.push_back(imageViews[i]);
+
+        if (_multisampleDepthImageView)
+        {
+            attachments.push_back(_multisampleDepthImageView);
+        }
         attachments.push_back(_depthImageView);
 
         ref_ptr<Framebuffer> fb = Framebuffer::create(_renderPass, attachments, _extent2D.width, _extent2D.height, 1);
 
         ref_ptr<Semaphore> ias = vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag);
 
-        _frames.push_back({multisampling ? _multisampleImageView : imageViews[i], fb, ias});
+        //_frames.push_back({multisampling ? _multisampleImageView : imageViews[i], fb, ias});
+        _frames.push_back({imageViews[i], fb, ias});
         _indices.push_back(initial_indexValue);
     }
 
