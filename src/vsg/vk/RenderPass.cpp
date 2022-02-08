@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-RenderPass::RenderPass(Device* device, const Attachments& in_attachments, const Subpasses& in_subpasses, const Dependencies& in_dependencies, const CorrelatedViewMasks& in_correlatedViewMasks):
+RenderPass::RenderPass(Device* device, const Attachments& in_attachments, const Subpasses& in_subpasses, const Dependencies& in_dependencies, const CorrelatedViewMasks& in_correlatedViewMasks) :
     attachments(in_attachments),
     subpasses(in_subpasses),
     dependencies(in_dependencies),
@@ -40,12 +40,11 @@ RenderPass::RenderPass(Device* device, const Attachments& in_attachments, const 
     if (useRenderPass2)
     {
         // Vulkan 1.2 vkCreateRenderPass2 code path
-        auto copyAttachmentDescriptions = [&scratchMemory](const Attachments& attachmentDescriptions) -> VkAttachmentDescription2*
-        {
+        auto copyAttachmentDescriptions = [&scratchMemory](const Attachments& attachmentDescriptions) -> VkAttachmentDescription2* {
             if (attachmentDescriptions.empty()) return nullptr;
 
             auto vk_attachementDescriptions = scratchMemory->allocate<VkAttachmentDescription2>(attachmentDescriptions.size());
-            for(size_t i = 0; i< attachmentDescriptions.size(); ++i)
+            for (size_t i = 0; i < attachmentDescriptions.size(); ++i)
             {
                 auto& src = attachmentDescriptions[i];
                 auto& dst = vk_attachementDescriptions[i];
@@ -65,16 +64,14 @@ RenderPass::RenderPass(Device* device, const Attachments& in_attachments, const 
             return vk_attachementDescriptions;
         };
 
-        auto copySubpasses = [&scratchMemory](const Subpasses& subpassDescriptions) -> VkSubpassDescription2*
-        {
+        auto copySubpasses = [&scratchMemory](const Subpasses& subpassDescriptions) -> VkSubpassDescription2* {
             if (subpassDescriptions.empty()) return nullptr;
 
-            auto copyAttachementReference = [&scratchMemory](const std::vector<AttachmentReference>& attachmentReferences) -> VkAttachmentReference2*
-            {
+            auto copyAttachementReference = [&scratchMemory](const std::vector<AttachmentReference>& attachmentReferences) -> VkAttachmentReference2* {
                 if (attachmentReferences.empty()) return nullptr;
 
                 auto vk_attachements = scratchMemory->allocate<VkAttachmentReference2>(attachmentReferences.size());
-                for(size_t i = 0; i< attachmentReferences.size(); ++i)
+                for (size_t i = 0; i < attachmentReferences.size(); ++i)
                 {
                     auto& src = attachmentReferences[i];
                     auto& dst = vk_attachements[i];
@@ -88,7 +85,7 @@ RenderPass::RenderPass(Device* device, const Attachments& in_attachments, const 
             };
 
             auto vk_subpassDescription = scratchMemory->allocate<VkSubpassDescription2>(subpassDescriptions.size());
-            for(size_t i = 0; i< subpassDescriptions.size(); ++i)
+            for (size_t i = 0; i < subpassDescriptions.size(); ++i)
             {
                 auto& src = subpassDescriptions[i];
                 auto& dst = vk_subpassDescription[i];
@@ -113,7 +110,8 @@ RenderPass::RenderPass(Device* device, const Attachments& in_attachments, const 
                     depthStencilResolve->pNext = nullptr;
                     depthStencilResolve->depthResolveMode = src.depthResolveMode;
                     depthStencilResolve->stencilResolveMode = src.stencilResolveMode;
-                    depthStencilResolve->pDepthStencilResolveAttachment = copyAttachementReference(src.depthStencilResolveAttachments);;
+                    depthStencilResolve->pDepthStencilResolveAttachment = copyAttachementReference(src.depthStencilResolveAttachments);
+                    ;
 
                     dst.pNext = depthStencilResolve;
                 }
@@ -121,12 +119,11 @@ RenderPass::RenderPass(Device* device, const Attachments& in_attachments, const 
             return vk_subpassDescription;
         };
 
-        auto copySubpassDependency = [&scratchMemory](const Dependencies& subpassDependency) -> VkSubpassDependency2*
-        {
+        auto copySubpassDependency = [&scratchMemory](const Dependencies& subpassDependency) -> VkSubpassDependency2* {
             if (subpassDependency.empty()) return nullptr;
 
             auto vk_subpassDependencies = scratchMemory->allocate<VkSubpassDependency2>(subpassDependency.size());
-            for(size_t i = 0; i< subpassDependency.size(); ++i)
+            for (size_t i = 0; i < subpassDependency.size(); ++i)
             {
                 auto& src = subpassDependency[i];
                 auto& dst = vk_subpassDependencies[i];
@@ -164,12 +161,11 @@ RenderPass::RenderPass(Device* device, const Attachments& in_attachments, const 
     else
     {
         // Vulkan 1.0 vkCreateRenderPass code path
-        auto copyAttachmentDescriptions = [&scratchMemory](const Attachments& attachmentDescriptions) -> VkAttachmentDescription*
-        {
+        auto copyAttachmentDescriptions = [&scratchMemory](const Attachments& attachmentDescriptions) -> VkAttachmentDescription* {
             if (attachmentDescriptions.empty()) return nullptr;
 
             auto vk_attachementDescriptions = scratchMemory->allocate<VkAttachmentDescription>(attachmentDescriptions.size());
-            for(size_t i = 0; i< attachmentDescriptions.size(); ++i)
+            for (size_t i = 0; i < attachmentDescriptions.size(); ++i)
             {
                 auto& src = attachmentDescriptions[i];
                 auto& dst = vk_attachementDescriptions[i];
@@ -187,16 +183,14 @@ RenderPass::RenderPass(Device* device, const Attachments& in_attachments, const 
             return vk_attachementDescriptions;
         };
 
-        auto copySubpasses = [&scratchMemory](const Subpasses& subpassDescriptions) -> VkSubpassDescription*
-        {
+        auto copySubpasses = [&scratchMemory](const Subpasses& subpassDescriptions) -> VkSubpassDescription* {
             if (subpassDescriptions.empty()) return nullptr;
 
-            auto copyAttachementReference = [&scratchMemory](const std::vector<AttachmentReference>& attachmentReferences) -> VkAttachmentReference*
-            {
+            auto copyAttachementReference = [&scratchMemory](const std::vector<AttachmentReference>& attachmentReferences) -> VkAttachmentReference* {
                 if (attachmentReferences.empty()) return nullptr;
 
                 auto vk_attachements = scratchMemory->allocate<VkAttachmentReference>(attachmentReferences.size());
-                for(size_t i = 0; i< attachmentReferences.size(); ++i)
+                for (size_t i = 0; i < attachmentReferences.size(); ++i)
                 {
                     auto& src = attachmentReferences[i];
                     auto& dst = vk_attachements[i];
@@ -208,7 +202,7 @@ RenderPass::RenderPass(Device* device, const Attachments& in_attachments, const 
             };
 
             auto vk_subpassDescription = scratchMemory->allocate<VkSubpassDescription>(subpassDescriptions.size());
-            for(size_t i = 0; i< subpassDescriptions.size(); ++i)
+            for (size_t i = 0; i < subpassDescriptions.size(); ++i)
             {
                 auto& src = subpassDescriptions[i];
                 auto& dst = vk_subpassDescription[i];
@@ -226,12 +220,11 @@ RenderPass::RenderPass(Device* device, const Attachments& in_attachments, const 
             return vk_subpassDescription;
         };
 
-        auto copySubpassDependency = [&scratchMemory](const Dependencies& subpassDependency) -> VkSubpassDependency*
-        {
+        auto copySubpassDependency = [&scratchMemory](const Dependencies& subpassDependency) -> VkSubpassDependency* {
             if (subpassDependency.empty()) return nullptr;
 
             auto vk_subpassDependencies = scratchMemory->allocate<VkSubpassDependency>(subpassDependency.size());
-            for(size_t i = 0; i< subpassDependency.size(); ++i)
+            for (size_t i = 0; i < subpassDependency.size(); ++i)
             {
                 auto& src = subpassDependency[i];
                 auto& dst = vk_subpassDependencies[i];

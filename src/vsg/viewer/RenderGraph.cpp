@@ -54,7 +54,7 @@ RenderGraph::RenderGraph(ref_ptr<Window> in_window, ref_ptr<View> in_view) :
     auto renderPass = window->getOrCreateRenderPass();
     auto& attachments = renderPass->attachments;
     clearValues.resize(attachments.size());
-    for(size_t i = 0; i<attachments.size(); ++i)
+    for (size_t i = 0; i < attachments.size(); ++i)
     {
         if (attachments[i].finalLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
         {

@@ -378,7 +378,6 @@ void Window::buildSwapchain()
         _depthImageView->compile(_device);
     }
 
-
     int graphicsFamily = -1;
     std::tie(graphicsFamily, std::ignore) = _physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, _surface);
 

@@ -20,40 +20,40 @@ namespace vsg
     /// equivalent to VkAttachmentDescription
     struct AttachmentDescription
     {
-        VkAttachmentDescriptionFlags    flags;
-        VkFormat                        format;
-        VkSampleCountFlagBits           samples;
-        VkAttachmentLoadOp              loadOp;
-        VkAttachmentStoreOp             storeOp;
-        VkAttachmentLoadOp              stencilLoadOp;
-        VkAttachmentStoreOp             stencilStoreOp;
-        VkImageLayout                   initialLayout;
-        VkImageLayout                   finalLayout;
+        VkAttachmentDescriptionFlags flags;
+        VkFormat format;
+        VkSampleCountFlagBits samples;
+        VkAttachmentLoadOp loadOp;
+        VkAttachmentStoreOp storeOp;
+        VkAttachmentLoadOp stencilLoadOp;
+        VkAttachmentStoreOp stencilStoreOp;
+        VkImageLayout initialLayout;
+        VkImageLayout finalLayout;
     };
 
     /// equivalent to VkSubpassDependency
     struct SubpassDependency
     {
-        uint32_t                srcSubpass = 0;
-        uint32_t                dstSubpass = 0;
-        VkPipelineStageFlags    srcStageMask;
-        VkPipelineStageFlags    dstStageMask;
-        VkAccessFlags           srcAccessMask;
-        VkAccessFlags           dstAccessMask;
-        VkDependencyFlags       dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+        uint32_t srcSubpass = 0;
+        uint32_t dstSubpass = 0;
+        VkPipelineStageFlags srcStageMask;
+        VkPipelineStageFlags dstStageMask;
+        VkAccessFlags srcAccessMask;
+        VkAccessFlags dstAccessMask;
+        VkDependencyFlags dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
         /// only supported when multiview available
-        int32_t                 viewOffset = 0;
+        int32_t viewOffset = 0;
     };
 
     /// equivalent to VkAttachmentReference
     struct AttachmentReference
     {
-        uint32_t              attachment = 0;
-        VkImageLayout         layout = VK_IMAGE_LAYOUT_UNDEFINED;
+        uint32_t attachment = 0;
+        VkImageLayout layout = VK_IMAGE_LAYOUT_UNDEFINED;
 
         /// only supported multiview support available
-        VkImageAspectFlags    aspectMask = 0;
+        VkImageAspectFlags aspectMask = 0;
     };
 
     /// equivalent to VkSubpassDescription
@@ -73,8 +73,8 @@ namespace vsg
         uint32_t viewMask = 0;
 
         /// maps to VkSubpassDescriptionDepthStencilResolve
-        VkResolveModeFlagBits            depthResolveMode = VK_RESOLVE_MODE_NONE;
-        VkResolveModeFlagBits            stencilResolveMode = VK_RESOLVE_MODE_NONE;
+        VkResolveModeFlagBits depthResolveMode = VK_RESOLVE_MODE_NONE;
+        VkResolveModeFlagBits stencilResolveMode = VK_RESOLVE_MODE_NONE;
         std::vector<AttachmentReference> depthStencilResolveAttachments;
     };
 
@@ -117,6 +117,6 @@ namespace vsg
     extern VSG_DECLSPEC AttachmentDescription defaultDepthAttachment(VkFormat depthFormat);
 
     extern VSG_DECLSPEC ref_ptr<RenderPass> createRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat, bool requiresDepthRead = false);
-    extern VSG_DECLSPEC ref_ptr<RenderPass> createMultisampledRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat,VkSampleCountFlagBits samples, bool requiresDepthRead = false);
+    extern VSG_DECLSPEC ref_ptr<RenderPass> createMultisampledRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat, VkSampleCountFlagBits samples, bool requiresDepthRead = false);
 
 } // namespace vsg
