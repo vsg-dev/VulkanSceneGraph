@@ -88,6 +88,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/NextSubPass.h>
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/commands/PushConstants.h>
+#include <vsg/commands/ResolveImage.h>
 #include <vsg/commands/SetDepthBias.h>
 #include <vsg/commands/SetLineWidth.h>
 #include <vsg/commands/SetScissor.h>

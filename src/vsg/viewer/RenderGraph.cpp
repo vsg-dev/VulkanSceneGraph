@@ -51,20 +51,7 @@ RenderGraph::RenderGraph(ref_ptr<Window> in_window, ref_ptr<View> in_view) :
     }
 
     // set up the clearValues based on the RenderPass's attachments.
-    auto renderPass = window->getOrCreateRenderPass();
-    auto& attachments = renderPass->attachments;
-    clearValues.resize(attachments.size());
-    for (size_t i = 0; i < attachments.size(); ++i)
-    {
-        if (attachments[i].finalLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
-        {
-            clearValues[i].depthStencil = VkClearDepthStencilValue{0.0f, 0}; // clear depth, default to reverse depth convention.
-        }
-        else
-        {
-            clearValues[i].color = window->clearColor();
-        }
-    }
+    setClearValues(window->clearColor(), VkClearDepthStencilValue{0.0f, 0});
 }
 
 RenderPass* RenderGraph::getRenderPass()
@@ -78,6 +65,26 @@ RenderPass* RenderGraph::getRenderPass()
         return window->getOrCreateRenderPass();
     }
     return nullptr;
+}
+
+void RenderGraph::setClearValues(VkClearColorValue clearColor, VkClearDepthStencilValue clearDepthStencil)
+{
+    auto renderPass = getRenderPass();
+    if (!renderPass) return;
+
+    auto& attachments = renderPass->attachments;
+    clearValues.resize(attachments.size());
+    for (size_t i = 0; i < attachments.size(); ++i)
+    {
+        if (attachments[i].finalLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+        {
+            clearValues[i].depthStencil = clearDepthStencil;
+        }
+        else
+        {
+            clearValues[i].color = clearColor;
+        }
+    }
 }
 
 VkExtent2D RenderGraph::getExtent() const

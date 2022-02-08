@@ -51,6 +51,11 @@ namespace vsg
         using ClearValues = std::vector<VkClearValue>;
         ClearValues clearValues; // initialize window colour and depth/stencil
 
+        /// initialize cleaValues with the cleaColor or cleaDpethStencil based on the attachments set up in the assoicated RenderPass.
+        /// call after a framebuffer or window has been assigned to the viewer.
+        void setClearValues(VkClearColorValue clearColor = {{0.2f, 0.2f, 0.4f, 1.0f}}, VkClearDepthStencilValue clearDepthStencil = {0.0f, 0});
+
+
         /// Subpass contents stetting passed to vkCmdBeginRenderPass
         VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;
 
