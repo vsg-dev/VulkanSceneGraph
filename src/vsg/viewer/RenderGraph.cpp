@@ -167,9 +167,9 @@ void RenderGraph::resized()
     windowResizeHandler->new_extent = extent;
     windowResizeHandler->visited.clear();
 
-    if (window && window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT)
+    if (renderPass->maxSamples() != VK_SAMPLE_COUNT_1_BIT)
     {
-        windowResizeHandler->context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(window->framebufferSamples()));
+        windowResizeHandler->context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(renderPass->maxSamples()));
     }
 
     // make sure the device is idle before we recreate any Vulkan objects
