@@ -24,15 +24,13 @@ namespace vsg
     public:
         CopyImage();
 
-        void record(CommandBuffer& commandBuffer) const override;
-
-        using Regions = std::vector<VkImageCopy>;
-
         ref_ptr<Image> srcImage;
         VkImageLayout srcImageLayout;
         ref_ptr<Image> dstImage;
         VkImageLayout dstImageLayout;
-        Regions regions;
+        std::vector<VkImageCopy> regions;
+
+        void record(CommandBuffer& commandBuffer) const override;
     };
     VSG_type_name(vsg::CopyImage);
 

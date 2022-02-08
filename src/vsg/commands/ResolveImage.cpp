@@ -22,7 +22,8 @@ ResolveImage::ResolveImage()
 
 void ResolveImage::record(CommandBuffer& commandBuffer) const
 {
-    vkCmdResolveImage(commandBuffer, srcImage->vk(commandBuffer.deviceID), srcImageLayout,
-                                     dstImage->vk(commandBuffer.deviceID), dstImageLayout,
-                                     static_cast<uint32_t>(regions.size()), regions.empty() ? nullptr : regions.data());
+    vkCmdResolveImage(commandBuffer,
+                      srcImage->vk(commandBuffer.deviceID), srcImageLayout,
+                      dstImage->vk(commandBuffer.deviceID), dstImageLayout,
+                      static_cast<uint32_t>(regions.size()), regions.empty() ? nullptr : regions.data());
 }
