@@ -64,6 +64,7 @@ set(SOURCES
     commands/SetLineWidth.cpp
     commands/SetScissor.cpp
     commands/SetViewport.cpp
+    commands/ResolveImage.cpp
 
     state/Buffer.cpp
     state/BufferInfo.cpp

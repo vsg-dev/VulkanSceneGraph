@@ -140,9 +140,9 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
         context.defaultPipelineStates.push_back(vsg::ViewportState::create(extent));
     }
 
-    if (context.renderPass && context.renderPass->maxSamples() != VK_SAMPLE_COUNT_1_BIT)
+    if (context.renderPass && context.renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT)
     {
-        ref_ptr<MultisampleState> defaultMsState = MultisampleState::create(context.renderPass->maxSamples());
+        ref_ptr<MultisampleState> defaultMsState = MultisampleState::create(context.renderPass->maxSamples);
         context.overridePipelineStates.push_back(defaultMsState);
     }
 

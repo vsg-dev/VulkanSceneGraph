@@ -158,13 +158,17 @@ namespace vsg
         ref_ptr<Surface> _surface;
         ref_ptr<Swapchain> _swapchain;
         ref_ptr<RenderPass> _renderPass;
+
         ref_ptr<Image> _depthImage;
-        ref_ptr<DeviceMemory> _depthImageMemory;
         ref_ptr<ImageView> _depthImageView;
 
         // only used when multisampling is required
         ref_ptr<Image> _multisampleImage;
         ref_ptr<ImageView> _multisampleImageView;
+
+        // only used when multisampling and with Traits::requiresDepthRead == true
+        ref_ptr<Image> _multisampleDepthImage;
+        ref_ptr<ImageView> _multisampleDepthImageView;
 
         ref_ptr<Semaphore> _availableSemaphore;
 

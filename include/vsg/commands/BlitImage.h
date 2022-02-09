@@ -24,16 +24,14 @@ namespace vsg
     public:
         BlitImage();
 
-        void record(CommandBuffer& commandBuffer) const override;
-
-        using Regions = std::vector<VkImageBlit>;
-
         ref_ptr<Image> srcImage;
         VkImageLayout srcImageLayout;
         ref_ptr<Image> dstImage;
         VkImageLayout dstImageLayout;
-        Regions regions;
+        std::vector<VkImageBlit> regions;
         VkFilter filter;
+
+        void record(CommandBuffer& commandBuffer) const override;
     };
     VSG_type_name(vsg::BlitImage);
 
