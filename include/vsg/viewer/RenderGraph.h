@@ -70,7 +70,7 @@ namespace vsg
         void resized();
 
         /// window extent at previous frame, used to track window resizes
-        const uint32_t invalid_dimension = std::numeric_limits<uint32_t>::max();
+        constexpr static uint32_t invalid_dimension = std::numeric_limits<uint32_t>::max();
         mutable VkExtent2D previous_extent = VkExtent2D{invalid_dimension, invalid_dimension};
     };
     VSG_type_name(vsg::RenderGraph);
