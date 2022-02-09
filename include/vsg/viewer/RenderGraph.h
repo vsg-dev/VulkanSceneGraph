@@ -21,6 +21,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// RenderGraph encapsulates the vkCmdRenderPass/vkCmdEndRenderPass functionality.
+    /// Members variables of the RenderGraph map to the settings of the VkRenderPassBeginInfo.
+    /// During the RecordTraversal children of RenderGraph are visited within vkCmdRenderPass/vkCmdEndRenderPass pair.
     class VSG_DECLSPEC RenderGraph : public Inherit<Group, RenderGraph>
     {
     public:
@@ -52,7 +55,7 @@ namespace vsg
         ClearValues clearValues; // initialize window colour and depth/stencil
 
         /// initialize cleaValues with the cleaColor or cleaDpethStencil based on the attachments set up in the assoicated RenderPass.
-        /// call after a framebuffer or window has been assigned to the viewer.
+        /// call after a framebuffer or window has been assigned to the RenderGraph.
         void setClearValues(VkClearColorValue clearColor = {{0.2f, 0.2f, 0.4f, 1.0f}}, VkClearDepthStencilValue clearDepthStencil = {0.0f, 0});
 
 

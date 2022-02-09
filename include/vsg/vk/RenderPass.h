@@ -42,7 +42,7 @@ namespace vsg
         VkAccessFlags dstAccessMask;
         VkDependencyFlags dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-        /// only supported when multiview available, requires Vulkan 1.2 or later.
+        /// multiview support requires Vulkan 1.2 or later.
         int32_t viewOffset = 0;
     };
     VSG_type_name(vsg::SubpassDependency);
@@ -53,7 +53,7 @@ namespace vsg
         uint32_t attachment = 0;
         VkImageLayout layout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-        /// only supported multiview support available, requires Vulkan 1.2 or later.
+        /// multiview support requires Vulkan 1.2 or later.
         VkImageAspectFlags aspectMask = 0;
     };
     VSG_type_name(vsg::AttachmentReference);
@@ -71,7 +71,7 @@ namespace vsg
 
         std::vector<uint32_t> preserveAttachments;
 
-        /// only supported when multiview available, requires Vulkan 1.2 or later.
+        /// multiview support requires Vulkan 1.2 or later.
         uint32_t viewMask = 0;
 
         /// maps to VkSubpassDescriptionDepthStencilResolve, requires Vulkan 1.2 or later.
