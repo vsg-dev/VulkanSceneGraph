@@ -17,14 +17,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 Framebuffer::Framebuffer(ref_ptr<RenderPass> renderPass, const ImageViews& attachments, uint32_t width, uint32_t height, uint32_t layers) :
-    _device(renderPass->getDevice()),
+    _device(renderPass->device),
     _renderPass(renderPass),
     _attachments(attachments),
     _width(width),
     _height(height),
     _layers(layers)
 {
-    auto deviceID = renderPass->getDevice()->deviceID;
+    auto deviceID = _device->deviceID;
 
     std::vector<VkImageView> vk_attachments;
     for (auto& attachment : attachments)

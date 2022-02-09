@@ -19,19 +19,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-RenderPass::RenderPass(Device* device, const Attachments& in_attachments, const Subpasses& in_subpasses, const Dependencies& in_dependencies, const CorrelatedViewMasks& in_correlatedViewMasks) :
+inline VkSampleCountFlagBits computeMaxSamples(const RenderPass::Attachments& attachments)
+{
+    VkSampleCountFlagBits maxSamples = VK_SAMPLE_COUNT_1_BIT;
+    for (auto& attachment : attachments)
+    {
+        if (attachment.samples > maxSamples) maxSamples = attachment.samples;
+    }
+    return maxSamples;
+}
+
+RenderPass::RenderPass(Device* in_device, const Attachments& in_attachments, const Subpasses& in_subpasses, const Dependencies& in_dependencies, const CorrelatedViewMasks& in_correlatedViewMasks) :
+    device(in_device),
     attachments(in_attachments),
     subpasses(in_subpasses),
     dependencies(in_dependencies),
     correlatedViewMasks(in_correlatedViewMasks),
-    _device(device)
+    maxSamples(computeMaxSamples(in_attachments))
 {
-    _maxSamples = VK_SAMPLE_COUNT_1_BIT;
-    for (auto& attachment : attachments)
-    {
-        if (attachment.samples > _maxSamples) _maxSamples = attachment.samples;
-    }
-
     // TODO, assign ScratchMemory to Device.
     auto scratchMemory = ScratchMemory::create(1024);
 
@@ -152,7 +157,7 @@ RenderPass::RenderPass(Device* device, const Attachments& in_attachments, const 
         renderPassInfo.correlatedViewMaskCount = static_cast<uint32_t>(correlatedViewMasks.size());
         renderPassInfo.pCorrelatedViewMasks = correlatedViewMasks.empty() ? nullptr : correlatedViewMasks.data();
 
-        VkResult result = vkCreateRenderPass2(*device, &renderPassInfo, _device->getAllocationCallbacks(), &_renderPass);
+        VkResult result = vkCreateRenderPass2(*device, &renderPassInfo, device->getAllocationCallbacks(), &_renderPass);
         if (result != VK_SUCCESS)
         {
             throw Exception{"Error: vsg::RenderPass::create(...) Failed to create VkRenderPass.", result};
@@ -249,7 +254,7 @@ RenderPass::RenderPass(Device* device, const Attachments& in_attachments, const 
         renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
         renderPassInfo.pDependencies = copySubpassDependency(dependencies);
 
-        VkResult result = vkCreateRenderPass(*device, &renderPassInfo, _device->getAllocationCallbacks(), &_renderPass);
+        VkResult result = vkCreateRenderPass(*device, &renderPassInfo, device->getAllocationCallbacks(), &_renderPass);
         if (result != VK_SUCCESS)
         {
             throw Exception{"Error: vsg::RenderPass::create(...) Failed to create VkRenderPass.", result};
@@ -261,7 +266,7 @@ RenderPass::~RenderPass()
 {
     if (_renderPass)
     {
-        vkDestroyRenderPass(*_device, _renderPass, _device->getAllocationCallbacks());
+        vkDestroyRenderPass(*device, _renderPass, device->getAllocationCallbacks());
     }
 }
 

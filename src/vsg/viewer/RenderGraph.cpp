@@ -154,7 +154,7 @@ void RenderGraph::resized()
     auto renderPass = getRenderPass();
     if (!renderPass) return;
 
-    auto device = renderPass->getDevice();
+    auto device = renderPass->device;
 
     if (!windowResizeHandler->context) windowResizeHandler->context = vsg::Context::create(device);
 
@@ -167,9 +167,9 @@ void RenderGraph::resized()
     windowResizeHandler->new_extent = extent;
     windowResizeHandler->visited.clear();
 
-    if (renderPass->maxSamples() != VK_SAMPLE_COUNT_1_BIT)
+    if (renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT)
     {
-        windowResizeHandler->context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(renderPass->maxSamples()));
+        windowResizeHandler->context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(renderPass->maxSamples));
     }
 
     // make sure the device is idle before we recreate any Vulkan objects

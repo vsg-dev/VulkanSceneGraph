@@ -16,8 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-
-    /// equivalent to VkAttachmentDescription
+    /// maps to VkAttachmentDescription
     struct AttachmentDescription
     {
         VkAttachmentDescriptionFlags flags;
@@ -30,8 +29,9 @@ namespace vsg
         VkImageLayout initialLayout;
         VkImageLayout finalLayout;
     };
+    VSG_type_name(vsg::AttachmentDescription);
 
-    /// equivalent to VkSubpassDependency
+    /// maps to VkSubpassDependency
     struct SubpassDependency
     {
         uint32_t srcSubpass = 0;
@@ -42,21 +42,23 @@ namespace vsg
         VkAccessFlags dstAccessMask;
         VkDependencyFlags dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-        /// only supported when multiview available
+        /// only supported when multiview available, requires Vulkan 1.2 or later.
         int32_t viewOffset = 0;
     };
+    VSG_type_name(vsg::SubpassDependency);
 
-    /// equivalent to VkAttachmentReference
+    /// maps to VkAttachmentReference
     struct AttachmentReference
     {
         uint32_t attachment = 0;
         VkImageLayout layout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-        /// only supported multiview support available
+        /// only supported multiview support available, requires Vulkan 1.2 or later.
         VkImageAspectFlags aspectMask = 0;
     };
+    VSG_type_name(vsg::AttachmentReference);
 
-    /// equivalent to VkSubpassDescription
+    /// maps to VkSubpassDescription
     struct SubpassDescription
     {
         VkSubpassDescriptionFlags flags = 0;
@@ -69,14 +71,15 @@ namespace vsg
 
         std::vector<uint32_t> preserveAttachments;
 
-        /// only supported when multiview available
+        /// only supported when multiview available, requires Vulkan 1.2 or later.
         uint32_t viewMask = 0;
 
-        /// maps to VkSubpassDescriptionDepthStencilResolve
+        /// maps to VkSubpassDescriptionDepthStencilResolve, requires Vulkan 1.2 or later.
         VkResolveModeFlagBits depthResolveMode = VK_RESOLVE_MODE_NONE;
         VkResolveModeFlagBits stencilResolveMode = VK_RESOLVE_MODE_NONE;
         std::vector<AttachmentReference> depthStencilResolveAttachments;
     };
+    VSG_type_name(vsg::SubpassDescription);
 
     /// encapsualtion of VkRenderPass
     class VSG_DECLSPEC RenderPass : public Inherit<Object, RenderPass>
@@ -87,29 +90,26 @@ namespace vsg
         using Dependencies = std::vector<SubpassDependency>;
         using CorrelatedViewMasks = std::vector<uint32_t>;
 
-        RenderPass(Device* device, const Attachments& in_attachments, const Subpasses& in_subpasses, const Dependencies& in_dependencies, const CorrelatedViewMasks& in_correlatedViewMasks = {});
+        RenderPass(Device* in_device, const Attachments& in_attachments, const Subpasses& in_subpasses, const Dependencies& in_dependencies, const CorrelatedViewMasks& in_correlatedViewMasks = {});
 
         operator VkRenderPass() const { return _renderPass; }
 
-        /// return the maximum VkAttachmentDescription.samples value of the assigned attachments.
-        /// Used for be deciding if multisampling is required and the value to use when setting up the GraphicsPipeline's vsg::MultisampleState
-        VkSampleCountFlagBits maxSamples() const { return _maxSamples; } // TODO replace with simple const VkSampleCountFlagBits;
-
+        /// configuration of RenderPass used when creating vkRenderPass
+        const ref_ptr<Device> device;
         const Attachments attachments;
         const Subpasses subpasses;
         const Dependencies dependencies;
         const CorrelatedViewMasks correlatedViewMasks;
 
-        Device* getDevice() { return _device; }
-        const Device* getDevice() const { return _device; }
+        /// Maximum VkAttachmentDescription.samples value of the assigned attachments.
+        /// Used for be deciding if multisampling is required and the value to use when setting up the GraphicsPipeline's vsg::MultisampleState
+        const VkSampleCountFlagBits maxSamples;
 
     protected:
         virtual ~RenderPass();
 
+        /// Vulkan renderPass handle, created in RenderPass constructor.
         VkRenderPass _renderPass;
-        VkSampleCountFlagBits _maxSamples;
-
-        ref_ptr<Device> _device;
     };
     VSG_type_name(vsg::RenderPass);
 
