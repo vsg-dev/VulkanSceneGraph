@@ -58,7 +58,6 @@ namespace vsg
         /// call after a framebuffer or window has been assigned to the RenderGraph.
         void setClearValues(VkClearColorValue clearColor = {{0.2f, 0.2f, 0.4f, 1.0f}}, VkClearDepthStencilValue clearDepthStencil = {0.0f, 0});
 
-
         /// Subpass contents stetting passed to vkCmdBeginRenderPass
         VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;
 
