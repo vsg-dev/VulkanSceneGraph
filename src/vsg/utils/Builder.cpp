@@ -41,7 +41,7 @@ void Builder::setup(ref_ptr<Window> window, ref_ptr<ViewportState> viewport, uin
         VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, maxNumTextures},
         VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, maxNumMaterials}};
 
-    _compile->context.descriptorPool = DescriptorPool::create(device, maxSets, descriptorPoolSizes);
+    _compile->context->descriptorPool = DescriptorPool::create(device, maxSets, descriptorPoolSizes);
 
     _allocatedTextureCount = 0;
     _maxNumTextures = maxNumTextures;
@@ -247,8 +247,8 @@ void Builder::compile(ref_ptr<Node> subgraph)
     if (_compile)
     {
         subgraph->accept(*_compile);
-        _compile->context.record();
-        _compile->context.waitForCompletion();
+        _compile->context->record();
+        _compile->context->waitForCompletion();
     }
 }
 

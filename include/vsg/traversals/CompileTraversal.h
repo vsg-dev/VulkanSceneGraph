@@ -51,7 +51,7 @@ namespace vsg
 
         void compile(Object* object);
 
-        Context context;
+        ref_ptr<Context> context;
     };
     VSG_type_name(vsg::CompileTraversal);
 

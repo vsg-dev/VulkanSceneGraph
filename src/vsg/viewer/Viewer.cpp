@@ -251,10 +251,10 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
         deviceResource.compile = CompileTraversal::create(device, resourceRequirements);
         deviceResource.compile->overrideMask = 0xffffffff;
-        deviceResource.compile->context.commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-        deviceResource.compile->context.graphicsQueue = device->getQueue(queueFamily);
+        deviceResource.compile->context->commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+        deviceResource.compile->context->graphicsQueue = device->getQueue(queueFamily);
 
-        if (descriptorPoolSizes.size() > 0) deviceResource.compile->context.descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
+        if (descriptorPoolSizes.size() > 0) deviceResource.compile->context->descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
     }
 
     // assign the viewID's to each View
@@ -320,13 +320,13 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     // record any transfer commands
     for (auto& dp : deviceResourceMap)
     {
-        dp.second.compile->context.record();
+        dp.second.compile->context->record();
     }
 
     // wait for the transfers to complete
     for (auto& dp : deviceResourceMap)
     {
-        dp.second.compile->context.waitForCompletion();
+        dp.second.compile->context->waitForCompletion();
     }
 
     // start any DatabasePagers
