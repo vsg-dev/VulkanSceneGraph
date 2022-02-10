@@ -51,9 +51,6 @@ namespace vsg
 
         void compile(Object* object);
 
-        ref_ptr<Fence> fence;
-        ref_ptr<Semaphore> semaphore;
-
         Context context;
     };
     VSG_type_name(vsg::CompileTraversal);
