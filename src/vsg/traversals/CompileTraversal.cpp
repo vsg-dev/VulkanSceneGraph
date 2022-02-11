@@ -48,7 +48,7 @@ CompileTraversal::CompileTraversal(ref_ptr<Window> window, ref_ptr<ViewportState
 CompileTraversal::CompileTraversal(const CompileTraversal& ct) :
     Inherit(ct)
 {
-    for(auto& context : ct.contexts)
+    for (auto& context : ct.contexts)
     {
         contexts.push_back(Context::create(*context));
     }
@@ -109,7 +109,7 @@ void CompileTraversal::apply(Object& object)
 
 void CompileTraversal::apply(Command& command)
 {
-    for(auto& context : contexts)
+    for (auto& context : contexts)
     {
         command.compile(*context);
     }
@@ -117,7 +117,7 @@ void CompileTraversal::apply(Command& command)
 
 void CompileTraversal::apply(Commands& commands)
 {
-    for(auto& context : contexts)
+    for (auto& context : contexts)
     {
         commands.compile(*context);
     }
@@ -125,7 +125,7 @@ void CompileTraversal::apply(Commands& commands)
 
 void CompileTraversal::apply(StateGroup& stateGroup)
 {
-    for(auto& context : contexts)
+    for (auto& context : contexts)
     {
         stateGroup.compile(*context);
     }
@@ -134,7 +134,7 @@ void CompileTraversal::apply(StateGroup& stateGroup)
 
 void CompileTraversal::apply(Geometry& geometry)
 {
-    for(auto& context : contexts)
+    for (auto& context : contexts)
     {
         geometry.compile(*context);
     }
@@ -145,7 +145,7 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
 {
     if (commandGraph.window)
     {
-        for(auto& context : contexts)
+        for (auto& context : contexts)
         {
             context->renderPass = commandGraph.window->getOrCreateRenderPass();
 
@@ -176,7 +176,7 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
 
 void CompileTraversal::apply(RenderGraph& renderGraph)
 {
-    for(auto& context : contexts)
+    for (auto& context : contexts)
     {
         context->renderPass = renderGraph.getRenderPass();
 
@@ -210,7 +210,7 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
 
 void CompileTraversal::apply(View& view)
 {
-    for(auto& context : contexts)
+    for (auto& context : contexts)
     {
         context->viewID = view.viewID;
         context->viewDependentState = view.viewDependentState.get();
@@ -234,7 +234,7 @@ void CompileTraversal::apply(View& view)
 bool CompileTraversal::record()
 {
     bool recorded = false;
-    for(auto& context : contexts)
+    for (auto& context : contexts)
     {
         if (context->record()) recorded = true;
     }
@@ -243,7 +243,7 @@ bool CompileTraversal::record()
 
 void CompileTraversal::waitForCompletion()
 {
-    for(auto& context : contexts)
+    for (auto& context : contexts)
     {
         context->waitForCompletion();
     }

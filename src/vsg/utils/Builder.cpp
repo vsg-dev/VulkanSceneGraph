@@ -28,7 +28,6 @@ using namespace vsg;
 
 #define FLOAT_COLORS 1
 
-
 void Builder::assignCompileTraversal(ref_ptr<CompileTraversal> ct, uint32_t maxNumTextures)
 {
     compileTraversal = ct;
@@ -41,7 +40,7 @@ void Builder::assignCompileTraversal(ref_ptr<CompileTraversal> ct, uint32_t maxN
         VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, maxNumMaterials}};
 
     // CT TODO : need to refactor
-    for(auto& context : compileTraversal->contexts)
+    for (auto& context : compileTraversal->contexts)
     {
         context->descriptorPool = DescriptorPool::create(context->device, maxSets, descriptorPoolSizes);
     }

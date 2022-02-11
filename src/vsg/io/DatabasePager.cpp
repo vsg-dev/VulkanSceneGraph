@@ -279,7 +279,6 @@ void DatabasePager::start()
                     // std::cout<<"Using next CompileTraversal"<<std::endl;
                 }
 
-
                 DatabaseQueue::Nodes nodesCompiled;
                 for (auto& plod : nodesToCompile)
                 {
@@ -472,7 +471,6 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
                 }
             }
         }
-
     }
 
     if (!nodes.empty())

@@ -253,7 +253,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         deviceResource.compile->overrideMask = 0xffffffff;
 
         // CT TODO need to reorganize this whole section
-        for(auto& context : deviceResource.compile->contexts)
+        for (auto& context : deviceResource.compile->contexts)
         {
             context->commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
             context->graphicsQueue = device->getQueue(queueFamily);
