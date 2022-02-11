@@ -19,9 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#define DO_TIMING 0
-#define REPORT_STATS 0
-
 /////////////////////////////////////////////////////////////////////////
 //
 // DatabasePager
@@ -239,12 +236,6 @@ void DatabasePager::start()
             compileTraversals.emplace_back(new CompileTraversal(*db_ct));
         }
 
-        // assign semaphores
-        for (auto& ct : compileTraversals)
-        {
-            ct->context->semaphore = Semaphore::create(ct->context->device, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
-        }
-
         auto compile_itr = compileTraversals.begin();
 
         while (status->active())
@@ -256,9 +247,6 @@ void DatabasePager::start()
             {
                 if (compare_exchange(plod->requestStatus, PagedLOD::DeleteRequest, PagedLOD::Deleting))
                 {
-#if REPORT_STATS
-                    std::cout << "    from compile thread releasing subgraph for plod = " << plod << std::endl;
-#endif
                     ref_ptr<Node> subgraph;
                     {
                         std::scoped_lock<std::mutex> lock(databasePager.pendingPagedLODMutex);
@@ -291,50 +279,6 @@ void DatabasePager::start()
                     // std::cout<<"Using next CompileTraversal"<<std::endl;
                 }
 
-#if REPORT_STATS
-                //std::cout<<"Compile Semaphore before wait Semaphore "<<*(ct->context->semaphore->data())<<" , count "<<ct->context->semaphore->numDependentSubmissions().load()<<std::endl;
-                int64_t before_wait_memoryTotalAvailable = ct->context->stagingMemoryBufferPools->computeMemoryTotalAvailable();
-                int64_t before_wait_memoryTotalReserved = ct->context->stagingMemoryBufferPools->computeMemoryTotalReserved();
-                int64_t before_wait_bufferTotalAvailable = ct->context->stagingMemoryBufferPools->computeBufferTotalAvailable();
-                int64_t before_wait_bufferTotalReserved = ct->context->stagingMemoryBufferPools->computeBufferTotalReserved();
-#endif
-
-#if DO_TIMING
-                auto before_wait_for_completion = clock::now();
-#endif
-                ct->context->waitForCompletion();
-
-#if REPORT_STATS
-                int64_t after_wait_memoryTotalAvailable = ct->context->stagingMemoryBufferPools->computeMemoryTotalAvailable();
-                int64_t after_wait_memoryTotalReserved = ct->context->stagingMemoryBufferPools->computeMemoryTotalReserved();
-                int64_t after_wait_bufferTotalAvailable = ct->context->stagingMemoryBufferPools->computeBufferTotalAvailable();
-                int64_t after_wait_bufferTotalReserved = ct->context->stagingMemoryBufferPools->computeBufferTotalReserved();
-
-                std::cout << "waitForComplete() A before_wait_memoryTotalAvailable = " << before_wait_memoryTotalAvailable << ", after_wait_memoryTotalAvailable = " << after_wait_memoryTotalAvailable << std::endl;
-                std::cout << "waitForComplete() A before_wait_memoryTotalReserved = " << before_wait_memoryTotalReserved << ", after_wait_memoryTotalReserved = " << after_wait_memoryTotalReserved << std::endl;
-                std::cout << "waitForComplete() A before_wait_bufferTotalAvailable = " << before_wait_bufferTotalAvailable << ", after_wait_bufferTotalAvailable = " << after_wait_bufferTotalAvailable << ", delta = " << (after_wait_bufferTotalAvailable - before_wait_bufferTotalAvailable) << std::endl;
-                std::cout << "waitForComplete() A before_wait_bufferTotalReserved = " << before_wait_bufferTotalReserved << ", after_wait_bufferTotalReserved = " << after_wait_bufferTotalReserved << ", delta = " << (after_wait_bufferTotalReserved - before_wait_bufferTotalReserved) << std::endl;
-
-                //std::cout<<"Compile Semaphore after wait Semaphore "<<*(ct->context->semaphore->data())<<" , count "<<ct->context->semaphore->numDependentSubmissions().load()<<std::endl;
-#endif
-
-                while (ct->context->semaphore->numDependentSubmissions().load() > 0)
-                {
-                    if (status->cancel()) return;
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                }
-
-#if DO_TIMING
-                auto after_wait_and_semaphore = clock::now();
-                static double total_wait_time = 0.0;
-                static double num_waits = 0.0;
-                total_wait_time += std::chrono::duration<double, std::chrono::milliseconds::period>(after_wait_and_semaphore - before_wait_for_completion).count();
-                num_waits += 1.0;
-
-                std::cout << "Fence + Semaphore wait : " << std::chrono::duration<double, std::chrono::milliseconds::period>(after_wait_and_semaphore - before_wait_for_completion).count() << " average = " << (total_wait_time / num_waits) << std::endl;
-#endif
-
-                ct->context->semaphore->numDependentSubmissions().exchange(1);
 
                 DatabaseQueue::Nodes nodesCompiled;
                 for (auto& plod : nodesToCompile)
@@ -367,15 +311,6 @@ void DatabasePager::start()
                         }
                         else
                         {
-#if 0
-                            {
-                                std::scoped_lock<std::mutex> lock(databasePager.pendingPagedLODMutex);
-                                plod->pending = nullptr;
-                            }
-#endif
-#if REPORT_STATS
-                            std::cout << "Expire compile request" << std::endl;
-#endif
                             // need to reset the PLOD so that it's no longer part of the DatabasePager's queues and is ready to be compile when next requested.
                             databasePager.requestDiscarded(plod);
                         }
@@ -386,40 +321,25 @@ void DatabasePager::start()
                     }
                 }
 
-#if REPORT_STATS
-                int64_t after_complile_traversal_memoryTotalAvailable = ct->context->stagingMemoryBufferPools->computeMemoryTotalAvailable();
-                int64_t after_complile_traversal_memoryTotalReserved = ct->context->stagingMemoryBufferPools->computeMemoryTotalReserved();
-                int64_t after_complile_traversal_bufferTotalAvailable = ct->context->stagingMemoryBufferPools->computeBufferTotalAvailable();
-                int64_t after_complile_traversal_bufferTotalReserved = ct->context->stagingMemoryBufferPools->computeBufferTotalReserved();
-
-                std::cout << "waitForComplete() B after_wait_memoryTotalAvailable = " << after_wait_memoryTotalAvailable << ", after_complile_traversal_memoryTotalAvailable = " << after_complile_traversal_memoryTotalAvailable << std::endl;
-                std::cout << "waitForComplete() B after_wait_memoryTotalReserved = " << after_wait_memoryTotalReserved << ", after_complile_traversal_memoryTotalReserved = " << after_complile_traversal_memoryTotalReserved << std::endl;
-                std::cout << "waitForComplete() B after_wait_bufferTotalAvailable = " << after_wait_bufferTotalAvailable << ", after_complile_traversal_bufferTotalAvailable = " << after_complile_traversal_bufferTotalAvailable << " delta = " << (after_complile_traversal_bufferTotalAvailable - after_wait_bufferTotalAvailable) << std::endl;
-                std::cout << "waitForComplete() B after_wait_bufferTotalReserved = " << after_wait_bufferTotalReserved << ", after_complile_traversal_bufferTotalReserved = " << after_complile_traversal_bufferTotalReserved << " delta = " << (after_complile_traversal_bufferTotalReserved - after_wait_bufferTotalReserved) << std::endl;
-#endif
                 if (!nodesCompiled.empty())
                 {
-                    if (ct->context->record())
+                    if (ct->record())
                     {
+                        ct->waitForCompletion();
+
                         for (auto& plod : nodesCompiled)
                         {
-                            plod->semaphore = ct->context->semaphore;
                             plod->requestStatus.exchange(PagedLOD::MergeRequest);
                         }
                         toMergeQueue->add(nodesCompiled);
                     }
                     else
                     {
-                        ct->context->semaphore->numDependentSubmissions().exchange(0);
                         for (auto& plod : nodesCompiled)
                         {
                             databasePager.requestDiscarded(plod);
                         }
                     }
-                }
-                else
-                {
-                    ct->context->semaphore->numDependentSubmissions().exchange(0);
                 }
             }
         }
@@ -482,49 +402,12 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
 {
     frameCount.exchange(frameStamp ? frameStamp->frameCount : 0);
 
-    _semaphores.clear();
-
     auto nodes = _toMergeQueue->take_all();
 
     if (culledPagedLODs)
     {
-#if DO_TIMING
-        auto start_tick = clock::now();
-#endif
         auto previous_statusList_count = pagedLODContainer->activeList.count;
         auto& elements = pagedLODContainer->elements;
-#if 0
-        struct RegisterInActivityStatusPaged : public ConstVisitor
-        {
-            uint64_t frameCount = 0;
-            PagedLODContainer* plodContainer = nullptr;
-
-            RegisterInActivityStatusPaged(uint64_t fc, PagedLODContainer* container) : frameCount(fc), plodContainer(container)  {}
-
-            void apply(const vsg::Node& node) override
-            {
-                node.traverse(*this);
-            }
-
-            void apply(const vsg::PagedLOD& plod) override
-            {
-                if ((plod.index != 0) && (plodContainer->elements[plod.index].list == &(plodContainer->activeList)) && (plod.requestStatus.load() == PagedLOD::NoRequest) && !plod.highResActive(frameCount))
-                {
-                    //if (plod.requestStatus.load() != PagedLOD::NoRequest) std::cout<<"RegisterInActivityStatusPaged::apply() requestStatus = "<<plod.requestStatus.load()<<std::endl;
-
-                    //std::cout<<"    nested new inactive "<<&plod<<std::endl;
-                    plod.traverse(*this);
-                    plodContainer->inactive(&plod);
-                }
-            }
-        } registerInActivityStatusPaged(frameCount, pagedLODContainer);
-
-        // run the registry visitor through the children of the PagedLOD
-        for(auto& plod : culledPagedLODs->highresCulled)
-        {
-            plod->accept(registerInActivityStatusPaged);
-        }
-#else
 
         for (auto& plod : culledPagedLODs->highresCulled)
         {
@@ -549,19 +432,6 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
             }
         }
 
-#    if REPORT_STATS
-        if (switchedCount > 0)
-        {
-            std::cout << "active to inactive " << switchedCount << std::endl;
-        }
-#    endif
-
-#endif
-
-#if DO_TIMING
-        auto after_inactive_tick = clock::now();
-#endif
-
         //std::cout<<"  newly active nodes:"<<std::endl;
 
         for (auto& plod : culledPagedLODs->newHighresRequired)
@@ -575,10 +445,6 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
         {
             //std::cout<<"previous_statusList_count = "<<previous_statusList_count<<", after_statusList_count = "<<after_statusList_count<<", culledPagedLODs->newHighresRequired = "<<culledPagedLODs->newHighresRequired.size()<<std::endl;
         }
-
-#if DO_TIMING
-        auto after_status_tick = clock::now();
-#endif
 
         culledPagedLODs->clear();
 
@@ -607,25 +473,6 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
             }
         }
 
-#if 0
-
-        unsigned int numOrhphanedPagedLOD = 0;
-        for(auto& element : pagedLODContainer->elements)
-        {
-            if (element.plod && element.plod->referenceCount()==1)
-            {
-                // std::cout<<"plod with reference count 1 also has index = "<<element.plod->index<<" "<<element.list->name<<std::endl;
-
-                ++numOrhphanedPagedLOD;
-            }
-        }
-        // if (numOrhphanedPagedLOD!=0)  std::cout<<"Found PagdLOD in pagedLODContainer without external references "<<numOrhphanedPagedLOD<<std::endl;
-#endif
-
-#if DO_TIMING
-        auto end_tick = clock::now();
-        std::cout << "Time to check for inactive = " << std::chrono::duration<double, std::chrono::milliseconds::period>(after_inactive_tick - start_tick).count() << " active = " << std::chrono::duration<double, std::chrono::milliseconds::period>(after_status_tick - after_inactive_tick).count() << " merge = " << std::chrono::duration<double, std::chrono::milliseconds::period>(end_tick - after_status_tick).count() << "   effective fps = " << (1.0 / std::chrono::duration<double, std::chrono::seconds::period>(end_tick - after_status_tick).count()) << std::endl;
-#endif
     }
 
     if (!nodes.empty())
@@ -642,31 +489,12 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
         {
             if (compare_exchange(plod->requestStatus, PagedLOD::MergeRequest, PagedLOD::Merging))
             {
-#if DO_TIMING
-                if (frameCount.load() > 6)
-                {
-                    static double totalRequestCount = 0;
-                    static double totalNumMerges = 0;
-
-                    totalRequestCount += double(plod->requestCount.load());
-                    totalNumMerges += 1.0;
-
-                    std::cout << "average merge count " << (totalRequestCount / totalNumMerges) << std::endl;
-                }
-#endif
-                // std::cout<<"   Merged "<<plod->filename<<" after "<<plod->requestCount.load()<<" priority "<<plod->priority.load()<<" "<<frameCount - plod->frameHighResLastUsed.load()<<" plod = "<<plod.get()<<" "<<*(plod->semaphore->data())<<std::endl;
+                // std::cout<<"   Merged "<<plod->filename<<" after "<<plod->requestCount.load()<<" priority "<<plod->priority.load()<<" "<<frameCount - plod->frameHighResLastUsed.load()<<" plod = "<<plod.get()<<std::endl;
                 {
 #if LOCAL_MUTEX
                     std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
 #endif
                     plod->children[0].node = plod->pending;
-                }
-
-                // insert any semaphore into a set that will be used by the GraphicsStage
-                if (plod->semaphore)
-                {
-                    _semaphores.insert(plod->semaphore);
-                    plod->semaphore = nullptr;
                 }
 
                 plod->requestStatus.exchange(PagedLOD::NoRequest);

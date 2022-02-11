@@ -106,7 +106,6 @@ namespace vsg
         mutable uint32_t index = 0;
 
         ref_ptr<Node> pending;
-        ref_ptr<Semaphore> semaphore;
     };
     VSG_type_name(vsg::PagedLOD);
 
