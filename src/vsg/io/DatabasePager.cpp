@@ -288,7 +288,7 @@ void DatabasePager::start()
                         uint64_t frameDelta = databasePager.frameCount - plod->frameHighResLastUsed.load();
                         if (frameDelta <= 1)
                         {
-                            // std::cout<<"    compiling "<<plod->filename<<", "<<plod->requestCount.load()<<" Semaphore "<<*(ct->context->semaphore->data())<<", count "<<ct->context->semaphore->numDependentSubmissions().load()<<std::endl;
+                            // std::cout<<"    compiling "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
 
                             ref_ptr<Node> subgraph;
                             {
