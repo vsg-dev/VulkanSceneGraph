@@ -114,7 +114,8 @@ void CompileTraversal::add(Viewer& viewer, const ResourceRequirements& resourceR
     {
         CompileTraversal* ct = nullptr;
         const ResourceRequirements& resourceRequirements;
-        AddViews(CompileTraversal* in_ct, const ResourceRequirements& in_rr) : ct(in_ct), resourceRequirements(in_rr) {};
+        AddViews(CompileTraversal* in_ct, const ResourceRequirements& in_rr) :
+            ct(in_ct), resourceRequirements(in_rr){};
 
         std::stack<ref_ptr<Window>> windowStack;
 
@@ -141,9 +142,9 @@ void CompileTraversal::add(Viewer& viewer, const ResourceRequirements& resourceR
         }
     } addViews(this, resourceRequirements);
 
-    for(auto& task : viewer.recordAndSubmitTasks)
+    for (auto& task : viewer.recordAndSubmitTasks)
     {
-        for(auto& cg : task->commandGraphs)
+        for (auto& cg : task->commandGraphs)
         {
             cg->accept(addViews);
         }
