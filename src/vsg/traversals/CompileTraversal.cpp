@@ -26,6 +26,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/RenderGraph.h>
 #include <vsg/viewer/View.h>
+#include <vsg/viewer/Viewer.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
@@ -52,6 +53,11 @@ CompileTraversal::CompileTraversal(const CompileTraversal& ct) :
     {
         contexts.push_back(Context::create(*context));
     }
+}
+
+CompileTraversal::CompileTraversal(Viewer& viewer, const ResourceRequirements& resourceRequirements)
+{
+    add(viewer, resourceRequirements);
 }
 
 CompileTraversal::~CompileTraversal()
@@ -100,6 +106,48 @@ void CompileTraversal::add(ref_ptr<Window> window, ref_ptr<View> view, const Res
     context->viewDependentState = view->viewDependentState;
 
     contexts.push_back(context);
+}
+
+void CompileTraversal::add(Viewer& viewer, const ResourceRequirements& resourceRequirements)
+{
+    struct AddViews : public Visitor
+    {
+        CompileTraversal* ct = nullptr;
+        const ResourceRequirements& resourceRequirements;
+        AddViews(CompileTraversal* in_ct, const ResourceRequirements& in_rr) : ct(in_ct), resourceRequirements(in_rr) {};
+
+        std::stack<ref_ptr<Window>> windowStack;
+
+        void apply(Object& object) override
+        {
+            object.traverse(*this);
+        }
+
+        void apply(RenderGraph& rg) override
+        {
+            windowStack.emplace(rg.window);
+
+            rg.traverse(*this);
+
+            windowStack.pop();
+        }
+
+        void apply(View& view) override
+        {
+            if (!windowStack.empty())
+            {
+                ct->add(windowStack.top(), ref_ptr<View>(&view), resourceRequirements);
+            }
+        }
+    } addViews(this, resourceRequirements);
+
+    for(auto& task : viewer.recordAndSubmitTasks)
+    {
+        for(auto& cg : task->commandGraphs)
+        {
+            cg->accept(addViews);
+        }
+    }
 }
 
 void CompileTraversal::apply(Object& object)

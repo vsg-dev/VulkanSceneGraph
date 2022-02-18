@@ -35,6 +35,7 @@ namespace vsg
         CompileTraversal(const CompileTraversal& ct);
         explicit CompileTraversal(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements = {});
         explicit CompileTraversal(ref_ptr<Window> window, ref_ptr<ViewportState> viewport = {}, const ResourceRequirements& resourceRequirements = {});
+        explicit CompileTraversal(Viewer& viewer, const ResourceRequirements& resourceRequirements = {});
 
         /// list Context that Vulkan objects should be compiled for.
         std::list<ref_ptr<Context>> contexts;
@@ -47,6 +48,9 @@ namespace vsg
 
         /// add a compile Context for View
         void add(ref_ptr<Window> window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements = {});
+
+        /// add a compile Context for all the Views assigned to a Viewer
+        void add(Viewer& viewer, const ResourceRequirements& resourceRequirements = {});
 
         virtual bool record();
         virtual void waitForCompletion();
