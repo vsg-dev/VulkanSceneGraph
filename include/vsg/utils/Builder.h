@@ -85,11 +85,6 @@ namespace vsg
         bool verbose = false;
         ref_ptr<Options> options;
 
-        /// set up the compile traversal to compile for specified window
-        void setup(ref_ptr<Window> window, ref_ptr<ViewportState> viewport, uint32_t maxNumTextures = 32);
-
-        void compile(ref_ptr<Node> subgraph);
-
         ref_ptr<Node> createBox(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
         ref_ptr<Node> createCapsule(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
         ref_ptr<Node> createCone(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
@@ -101,12 +96,16 @@ namespace vsg
 
         ref_ptr<StateGroup> createStateGroup(const StateInfo& stateInfo = {});
 
+        /// assign compile traversal to enable compilation.
+        void assignCompileTraversal(ref_ptr<CompileTraversal> ct, uint32_t maxNumTextures = 32);
+
+        ref_ptr<CompileTraversal> compileTraversal;
+
     private:
         void transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr<vec3Array> normals);
 
         uint32_t _allocatedTextureCount = 0;
         uint32_t _maxNumTextures = 0;
-        ref_ptr<CompileTraversal> _compile;
 
         struct DescriptorKey
         {

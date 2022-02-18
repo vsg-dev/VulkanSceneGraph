@@ -126,27 +126,6 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
         vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
     }
 
-    if (databasePager)
-    {
-        for (auto& semaphore : databasePager->getSemaphores())
-        {
-            if (semaphore->numDependentSubmissions().load() > 1)
-            {
-                std::cout << "    Warning: Viewer::submitNextFrame() waitSemaphore " << *(semaphore->data()) << " " << semaphore->numDependentSubmissions().load() << std::endl;
-            }
-            else
-            {
-                // std::cout<<"    Viewer::submitNextFrame() waitSemaphore "<<*(semaphore->data())<<" "<<semaphore->numDependentSubmissions().load()<<std::endl;
-            }
-
-            vk_waitSemaphores.emplace_back(*semaphore);
-            vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
-
-            semaphore->numDependentSubmissions().fetch_add(1);
-            current_fence->dependentSemaphores().emplace_back(semaphore);
-        }
-    }
-
     for (auto& semaphore : signalSemaphores)
     {
         vk_signalSemaphores.emplace_back(*(semaphore));

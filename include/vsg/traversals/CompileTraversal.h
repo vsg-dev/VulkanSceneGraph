@@ -25,21 +25,45 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/ResourceRequirements.h>
 
-#include <map>
-#include <set>
-#include <stack>
-
 namespace vsg
 {
 
     class VSG_DECLSPEC CompileTraversal : public Inherit<Visitor, CompileTraversal>
     {
     public:
+        CompileTraversal() {}
+        CompileTraversal(const CompileTraversal& ct);
         explicit CompileTraversal(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements = {});
         explicit CompileTraversal(ref_ptr<Window> window, ref_ptr<ViewportState> viewport = {}, const ResourceRequirements& resourceRequirements = {});
-        CompileTraversal(const CompileTraversal& ct);
-        ~CompileTraversal();
+        explicit CompileTraversal(ref_ptr<Viewer> viewer, const ResourceRequirements& resourceRequirements = {});
 
+        /// list Context that Vulkan objects should be compiled for.
+        std::list<ref_ptr<Context>> contexts;
+
+        /// add a compile Context for device
+        void add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements = {});
+
+        /// add a compile Context for Window and associated viewport.
+        void add(ref_ptr<Window> window, ref_ptr<ViewportState> viewport = {}, const ResourceRequirements& resourceRequirements = {});
+
+        /// add a compile Context for View
+        void add(ref_ptr<Window> window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements = {});
+
+        /// add a compile Context for all the Views assigned to a Viewer
+        void add(ref_ptr<Viewer> viewer, const ResourceRequirements& resourceRequirements = {});
+
+        virtual bool record();
+        virtual void waitForCompletion();
+
+        /// convinience method that compiles a object/subgraph
+        template<typename T>
+        void compile(T object, bool wait = true)
+        {
+            object->accept(*this);
+            if (record() && wait) waitForCompletion();
+        }
+
+        // implement compile of relevant nodes in the viewer/scene graph
         void apply(Object& object) override;
         void apply(Command& command) override;
         void apply(Commands& commands) override;
@@ -49,9 +73,8 @@ namespace vsg
         void apply(RenderGraph& renderGraph) override;
         void apply(View& view) override;
 
-        void compile(Object* object);
-
-        Context context;
+    protected:
+        ~CompileTraversal();
     };
     VSG_type_name(vsg::CompileTraversal);
 

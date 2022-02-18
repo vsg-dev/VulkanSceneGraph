@@ -28,11 +28,9 @@ using namespace vsg;
 
 #define FLOAT_COLORS 1
 
-void Builder::setup(ref_ptr<Window> window, ref_ptr<ViewportState> viewport, uint32_t maxNumTextures)
+void Builder::assignCompileTraversal(ref_ptr<CompileTraversal> ct, uint32_t maxNumTextures)
 {
-    auto device = window->getOrCreateDevice();
-
-    _compile = CompileTraversal::create(window, viewport);
+    compileTraversal = ct;
 
     // for now just allocated enough room for s
     uint32_t maxSets = maxNumTextures;
@@ -41,7 +39,11 @@ void Builder::setup(ref_ptr<Window> window, ref_ptr<ViewportState> viewport, uin
         VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, maxNumTextures},
         VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, maxNumMaterials}};
 
-    _compile->context.descriptorPool = DescriptorPool::create(device, maxSets, descriptorPoolSizes);
+    // CT TODO : need to refactor
+    for (auto& context : compileTraversal->contexts)
+    {
+        context->descriptorPool = DescriptorPool::create(context->device, maxSets, descriptorPoolSizes);
+    }
 
     _allocatedTextureCount = 0;
     _maxNumTextures = maxNumTextures;
@@ -240,18 +242,6 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     return stategroup;
 }
 
-void Builder::compile(ref_ptr<Node> subgraph)
-{
-    if (verbose) std::cout << "Builder::compile(" << subgraph << ") _compile = " << _compile << std::endl;
-
-    if (_compile)
-    {
-        subgraph->accept(*_compile);
-        _compile->context.record();
-        _compile->context.waitForCompletion();
-    }
-}
-
 void Builder::transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr<vec3Array> normals)
 {
     for (auto& v : *vertices)
@@ -429,7 +419,7 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
 
     scenegraph->addChild(vid);
 
-    compile(scenegraph);
+    if (compileTraversal) compileTraversal->compile(scenegraph);
 
     subgraph = scenegraph;
     return subgraph;
@@ -670,7 +660,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
 
     scenegraph->addChild(vid);
 
-    compile(scenegraph);
+    if (compileTraversal) compileTraversal->compile(scenegraph);
 
     subgraph = scenegraph;
     return subgraph;
@@ -892,7 +882,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
 
     scenegraph->addChild(vid);
 
-    compile(scenegraph);
+    if (compileTraversal) compileTraversal->compile(scenegraph);
 
     subgraph = scenegraph;
     return subgraph;
@@ -1151,7 +1141,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
 
     scenegraph->addChild(vid);
 
-    compile(scenegraph);
+    if (compileTraversal) compileTraversal->compile(scenegraph);
 
     subgraph = scenegraph;
     return subgraph;
@@ -1266,7 +1256,7 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
 
     scenegraph->addChild(vid);
 
-    compile(scenegraph);
+    if (compileTraversal) compileTraversal->compile(scenegraph);
 
     subgraph = scenegraph;
     return subgraph;
@@ -1358,7 +1348,7 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& sta
 
     scenegraph->addChild(vid);
 
-    compile(scenegraph);
+    if (compileTraversal) compileTraversal->compile(scenegraph);
 
     return scenegraph;
 }
@@ -1478,7 +1468,7 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
 
     scenegraph->addChild(vid);
 
-    compile(scenegraph);
+    if (compileTraversal) compileTraversal->compile(scenegraph);
 
     subgraph = scenegraph;
     return subgraph;
@@ -1623,7 +1613,7 @@ ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateIn
 
     scenegraph->addChild(vid);
 
-    compile(scenegraph);
+    if (compileTraversal) compileTraversal->compile(scenegraph);
 
     subgraph = scenegraph;
     return subgraph;
