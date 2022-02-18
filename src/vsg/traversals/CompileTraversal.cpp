@@ -35,17 +35,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CompileTraversal::CompileTraversal(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements)
-
-{
-    add(device, resourceRequirements);
-}
-
-CompileTraversal::CompileTraversal(ref_ptr<Window> window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
-{
-    add(window, viewport, resourceRequirements);
-}
-
 CompileTraversal::CompileTraversal(const CompileTraversal& ct) :
     Inherit(ct)
 {
@@ -55,7 +44,17 @@ CompileTraversal::CompileTraversal(const CompileTraversal& ct) :
     }
 }
 
-CompileTraversal::CompileTraversal(Viewer& viewer, const ResourceRequirements& resourceRequirements)
+CompileTraversal::CompileTraversal(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements)
+{
+    add(device, resourceRequirements);
+}
+
+CompileTraversal::CompileTraversal(ref_ptr<Window> window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
+{
+    add(window, viewport, resourceRequirements);
+}
+
+CompileTraversal::CompileTraversal(ref_ptr<Viewer> viewer, const ResourceRequirements& resourceRequirements)
 {
     add(viewer, resourceRequirements);
 }
@@ -108,7 +107,7 @@ void CompileTraversal::add(ref_ptr<Window> window, ref_ptr<View> view, const Res
     contexts.push_back(context);
 }
 
-void CompileTraversal::add(Viewer& viewer, const ResourceRequirements& resourceRequirements)
+void CompileTraversal::add(ref_ptr<Viewer> viewer, const ResourceRequirements& resourceRequirements)
 {
     struct AddViews : public Visitor
     {
@@ -142,7 +141,7 @@ void CompileTraversal::add(Viewer& viewer, const ResourceRequirements& resourceR
         }
     } addViews(this, resourceRequirements);
 
-    for (auto& task : viewer.recordAndSubmitTasks)
+    for (auto& task : viewer->recordAndSubmitTasks)
     {
         for (auto& cg : task->commandGraphs)
         {
