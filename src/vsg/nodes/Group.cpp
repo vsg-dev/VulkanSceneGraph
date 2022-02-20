@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+
 Group::Group(size_t numChildren) :
     children(numChildren)
 {

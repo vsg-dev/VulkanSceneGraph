@@ -17,7 +17,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Node.h>
 
 #include <vector>
-
 namespace vsg
 {
 
@@ -46,7 +45,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        using Children = std::vector<ref_ptr<vsg::Node>>;
+        using Children = std::vector<ref_ptr<Node>, node_allocator<ref_ptr<Node>>>;
         Children children;
 
         void addChild(vsg::ref_ptr<Node> child)
