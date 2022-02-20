@@ -184,6 +184,7 @@ void ViewDependentState::pack()
 void ViewDependentState::copy()
 {
     //    std::cout<<"ViewDependentState::copy()"<<std::endl;
+    if (bufferIndex >= bufferedDescriptors.size()) return;
 
     auto& descriptorData = bufferedDescriptors[bufferIndex];
     for (auto& bufferInfo : descriptorData.lightDescriptor->bufferInfoList)
@@ -194,6 +195,8 @@ void ViewDependentState::copy()
 
 void ViewDependentState::bindDescriptorSets(CommandBuffer& commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet)
 {
+    if (bufferIndex >= bufferedDescriptors.size()) return;
+
     auto vk = bufferedDescriptors[bufferIndex].descriptorSet->vk(commandBuffer.deviceID);
     vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout, firstSet, 1, &vk, 0, nullptr);
 }
