@@ -53,7 +53,7 @@ namespace vsg
             ref_ptr<Node> node;
         };
 
-        using Children = std::vector<Child, allocator_affinity_nodes<ref_ptr<Node>>>;
+        using Children = std::vector<Child, allocator_affinity_nodes<Child>>;
 
         dsphere bound;
         Children children;
