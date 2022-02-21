@@ -16,38 +16,50 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <iostream>
 
+
 using namespace vsg;
+
+Allocator::Allocator()
+{
+    std::cout<<"Allocator::Allocator()"<<std::endl;
+}
 
 Allocator::~Allocator()
 {
-    std::cout << "Allocator::~Allocator() " << this << std::endl;
-    std::cout << "     _bytesAllocated = " << _bytesAllocated << std::endl;
-    std::cout << "     _countAllocated = " << _countAllocated << std::endl;
-    std::cout << "     _bytesDeallocated = " << _bytesDeallocated << std::endl;
-    std::cout << "     _countDellocated = " << _countDeallocated << std::endl;
+    std::cout<<"Allocator::~Allocator() "<<std::endl;
 }
 
-void* Allocator::allocate(std::size_t size, const void* hint)
+#if 1
+static std::unique_ptr<Allocator> s_allocator(new Allocator());
+#else
+static std::unique_ptr<Allocator> s_allocator;
+#endif
+
+std::unique_ptr<Allocator>& Allocator::instance()
 {
-    std::cout << "Allocator::allocate(std::size_t " << size << ", const void*" << hint << " )" << std::endl;
-    _bytesAllocated += size;
-    ++_countAllocated;
-    return ::operator new(size);
+    return s_allocator;
 }
 
-void* Allocator::allocate(std::size_t size)
+void* Allocator::allocate(std::size_t count, MemoryAffinity /*memoryAffinity*/)
 {
-    void* ptr = ::operator new(size);
-    std::cout << "Allocator::allocate(std::size_t " << size << ") " << ptr << std::endl;
-    _bytesAllocated += size;
-    ++_countAllocated;
+    auto ptr = ::operator new(count);
     return ptr;
 }
 
-void Allocator::deallocate(const void* ptr, std::size_t size)
+void Allocator::deallocate(void* ptr)
 {
-    std::cout << "Allocator::deallocate(" << ptr << ", std::size_t " << size << ")" << std::endl;
-    ::operator delete(const_cast<void*>(ptr));
-    _bytesDeallocated += size;
-    ++_countDeallocated;
+    ::operator delete(ptr);
+}
+
+
+void* vsg::allocate(std::size_t count, MemoryAffinity memoryAffinity)
+{
+    if (Allocator::instance()) return Allocator::instance()->allocate(count, memoryAffinity);
+    else return std::malloc(count);
+}
+
+void vsg::deallocate(void* ptr)
+{
+    if (Allocator::instance()) return Allocator::instance()->deallocate(ptr);
+    else return std::free(ptr);
 }

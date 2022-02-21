@@ -45,6 +45,10 @@ namespace vsg
         Object(const Object&);
         Object& operator=(const Object&);
 
+        /// provide new and delete to enable custom memory management via the vsg::Allocator singleton, using the MEMORY_AFFINTY_OBJECTS
+        static void* operator new(std::size_t count);
+        static void operator delete(void* ptr);
+
         virtual std::size_t sizeofObject() const noexcept { return sizeof(Object); }
         virtual const char* className() const noexcept { return type_name<Object>(); }
 

@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Allocator.h>
 #include <vsg/io/Options.h>
 #include <vsg/nodes/Node.h>
 
@@ -27,13 +28,5 @@ Node::~Node()
 
 void* Node::operator new(std::size_t count)
 {
-    auto ptr = ::operator new(count);
-    std::cout << "Node::operator new (" << count << ") ptr  = " << ptr << std::endl;
-    return ptr;
-}
-
-void Node::operator delete(void* ptr)
-{
-    std::cout << "Node::operator delete (" << ptr << ")" << std::endl;
-    ::operator delete(ptr);
+    return vsg::allocate(count, vsg::MEMORY_AFFINITY_NODES);
 }

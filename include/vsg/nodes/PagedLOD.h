@@ -13,10 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/nodes/Node.h>
-
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/Options.h>
-
 #include <vsg/vk/Semaphore.h>
 
 #include <array>

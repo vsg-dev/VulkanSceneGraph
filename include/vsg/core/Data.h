@@ -116,8 +116,13 @@ namespace vsg
             if (_layout.stride < min_stride) _layout.stride = min_stride;
         }
 
+        /// provide new and delete to enable custom memory management via the vsg::Allocator singleton, using the MEMORY_AFFINTY_DATA
+        static void* operator new(std::size_t count);
+
+
         std::size_t sizeofObject() const noexcept override { return sizeof(Data); }
         bool is_compatible(const std::type_info& type) const noexcept override { return typeid(Data) == type ? true : Object::is_compatible(type); }
+
 
         void read(Input& input) override;
         void write(Output& output) const override;

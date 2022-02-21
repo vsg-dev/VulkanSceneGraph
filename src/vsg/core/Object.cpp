@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Auxiliary.h>
+#include <vsg/core/Allocator.h>
 #include <vsg/core/ConstVisitor.h>
 #include <vsg/core/Object.h>
 #include <vsg/core/Visitor.h>
@@ -190,4 +191,15 @@ Auxiliary* Object::getOrCreateUniqueAuxiliary()
         _auxiliary->ref();
     }
     return _auxiliary;
+}
+
+
+void* Object::operator new(std::size_t count)
+{
+    return vsg::allocate(count, vsg::MEMORY_AFFINITY_OBJECTS);
+}
+
+void Object::operator delete(void* ptr)
+{
+    vsg::deallocate(ptr);
 }

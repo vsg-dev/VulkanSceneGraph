@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Inherit.h>
+#include <vsg/core/Allocator.h>
 
 namespace vsg
 {
@@ -21,39 +22,13 @@ namespace vsg
     public:
         Node();
 
+        /// provide new and delete to enable custom memory management via the vsg::Allocator singleton, using the MEMORY_NODES_OBJECTS
         static void* operator new(std::size_t count);
-        static void operator delete(void* ptr);
 
     protected:
         virtual ~Node();
     };
     VSG_type_name(vsg::Node);
 
-    template<typename T>
-    struct node_allocator
-    {
-        using value_type = T;
-
-        node_allocator() = default;
-        template<class U>
-        constexpr node_allocator(const node_allocator<U>&) noexcept {}
-
-        value_type* allocate(std::size_t n)
-        {
-            const std::size_t size = n * sizeof(value_type);
-            return static_cast<value_type*>(Node::operator new(size));
-        }
-
-        void deallocate(value_type* ptr, std::size_t /*n*/)
-        {
-            Node::operator delete(ptr);
-        }
-    };
-
-    template<class T, class U>
-    bool operator==(const node_allocator<T>&, const node_allocator<U>&) { return true; }
-
-    template<class T, class U>
-    bool operator!=(const node_allocator<T>&, const node_allocator<U>&) { return false; }
 
 } // namespace vsg

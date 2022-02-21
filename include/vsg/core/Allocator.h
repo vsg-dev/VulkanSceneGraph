@@ -12,87 +12,72 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/ConstVisitor.h>
-#include <vsg/core/Object.h>
-#include <vsg/core/Visitor.h>
-#include <vsg/core/ref_ptr.h>
+#include <vsg/core/Inherit.h>
 
-#include <vsg/io/stream.h>
-
-#include <vsg/traversals/RecordTraversal.h>
+#include <mutex>
+#include <map>
+#include <memory>
 
 namespace vsg
 {
 
-    class VSG_DECLSPEC Allocator : public Object
+    enum MemoryAffinity
+    {
+        MEMORY_AFFINITY_OBJECTS,
+        MEMORY_AFFINITY_DATA,
+        MEMORY_AFFINITY_NODES
+    };
+
+    /** extensible Allocator that handles allocation and deallocation of scene graph CPU memory,*/
+    class VSG_DECLSPEC Allocator
     {
     public:
-        std::size_t sizeofObject() const noexcept override { return sizeof(Allocator); }
-
-        void accept(Visitor& visitor) override { visitor.apply(static_cast<Allocator&>(*this)); }
-        void accept(ConstVisitor& visitor) const override { visitor.apply(static_cast<const Allocator&>(*this)); }
-        void accept(RecordTraversal& visitor) const override { visitor.apply(static_cast<const Allocator&>(*this)); }
-
-        virtual void* allocate(std::size_t n, const void* hint);
-
-        virtual void* allocate(std::size_t size);
-
-        virtual void deallocate(const void* ptr, std::size_t size = 0);
-
-        template<typename T, typename... Args>
-        T* newObject(Args... args)
-        {
-            void* ptr = allocate(sizeof(T));
-            if (ptr)
-            {
-                T* t = new (ptr) T(args...);
-                return t;
-            }
-            return nullptr;
-        }
-
-        template<typename T>
-        void deleteObject(T* ptr)
-        {
-            if (ptr)
-            {
-                ptr->~T();
-                deallocate(ptr, sizeof(T));
-            }
-        }
-
-        template<typename T>
-        T* newArray(size_t size)
-        {
-            void* ptr = allocate(size * sizeof(T));
-            if (ptr)
-            {
-                T* t = new (ptr) T[size];
-                return t;
-            }
-            return nullptr;
-        }
-
-        template<typename T>
-        void deleteArray(T* ptr, size_t size)
-        {
-            if (ptr)
-            {
-                for (size_t i = 0; i < size; ++i)
-                {
-                    (ptr[i]).~T();
-                }
-                deallocate(ptr, size * sizeof(T));
-            }
-        }
-
-    protected:
+        Allocator();
         virtual ~Allocator();
 
-        std::size_t _bytesAllocated = 0;
-        std::size_t _countAllocated = 0;
-        std::size_t _bytesDeallocated = 0;
-        std::size_t _countDeallocated = 0;
+        /// Allocator singleton
+        static std::unique_ptr<Allocator>& instance();
+
+        virtual void* allocate(std::size_t count, MemoryAffinity memoryAffinity = MEMORY_AFFINITY_OBJECTS);
+        virtual void deallocate(void* ptr);
+
+    protected:
+
     };
+
+    /// allocate memory using vsg::Allocator::instance() if avaiable, otherwise use std::malloc(count)
+    void* allocate(std::size_t count, MemoryAffinity memoryAffinity = MEMORY_AFFINITY_OBJECTS);
+
+    /// deallocate memory using vsg::Allocator::instance() if avaiable, otherwise use std::free(ptr)
+    void deallocate(void* ptr);
+
+
+    /// std container adapter for allocating with MEMORY_AFFINITY_NODES
+    template<typename T>
+    struct allocator_affinity_nodes
+    {
+        using value_type = T;
+
+        allocator_affinity_nodes() = default;
+        template<class U>
+        constexpr allocator_affinity_nodes(const allocator_affinity_nodes<U>&) noexcept {}
+
+        value_type* allocate(std::size_t n)
+        {
+            return static_cast<value_type*>(vsg::allocate(n * sizeof(value_type), vsg::MEMORY_AFFINITY_NODES));
+        }
+
+        void deallocate(value_type* ptr, std::size_t /*n*/)
+        {
+            return vsg::deallocate(ptr);
+        }
+    };
+
+    template<class T, class U>
+    bool operator==(const allocator_affinity_nodes<T>&, const allocator_affinity_nodes<U>&) { return true; }
+
+    template<class T, class U>
+    bool operator!=(const allocator_affinity_nodes<T>&, const allocator_affinity_nodes<U>&) { return false; }
+
 
 } // namespace vsg
