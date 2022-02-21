@@ -23,9 +23,8 @@ namespace vsg
     class VSG_DECLSPEC CullNode : public Inherit<Node, CullNode>
     {
     public:
-        CullNode(Allocator* allocator = nullptr);
-
-        CullNode(const dsphere& in_bound, Node* in_child, Allocator* allocator = nullptr);
+        CullNode();
+        CullNode(const dsphere& in_bound, Node* in_child);
 
         void traverse(Visitor& visitor) override { child->accept(visitor); }
         void traverse(ConstVisitor& visitor) const override { child->accept(visitor); }

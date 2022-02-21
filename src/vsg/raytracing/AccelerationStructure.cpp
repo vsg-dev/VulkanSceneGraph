@@ -22,8 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeKHR type, Device* device, Allocator* allocator) :
-    Inherit(allocator),
+AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeKHR type, Device* device) :
     _accelerationStructure{},
     _accelerationStructureInfo{},
     _accelerationStructureBuildGeometryInfo{},

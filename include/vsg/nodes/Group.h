@@ -24,7 +24,6 @@ namespace vsg
     {
     public:
         explicit Group(size_t numChildren = 0);
-        explicit Group(Allocator* allocator, size_t numChildren = 0);
 
         template<typename Iterator>
         Group(Iterator begin, Iterator end)

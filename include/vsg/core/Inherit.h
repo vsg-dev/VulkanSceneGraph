@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Allocator.h>
 #include <vsg/core/ConstVisitor.h>
 #include <vsg/core/Visitor.h>
 #include <vsg/core/ref_ptr.h>
@@ -30,35 +29,8 @@ namespace vsg
     {
     public:
         template<typename... Args>
-        Inherit(Allocator* allocator, Args&&... args) :
-            ParentClass(allocator, args...) {}
-
-        template<typename... Args>
         Inherit(Args&&... args) :
             ParentClass(args...) {}
-
-        template<typename... Args>
-        static ref_ptr<Subclass> create(ref_ptr<Allocator> allocator, Args&&... args)
-        {
-            if (allocator)
-            {
-                // need to think about alignment...
-                const std::size_t size = sizeof(Subclass);
-                void* ptr = allocator->allocate(size);
-
-                ref_ptr<Subclass> object(new (ptr) Subclass(allocator, args...));
-                // object->setAuxiliary(allocator->getOrCreateSharedAuxiliary());
-
-                // check the sizeof(Subclass) is consistent with Subclass::sizeOfObject()
-                if (std::size_t new_size = object->sizeofObject(); new_size != size)
-                {
-                    throw make_string("Warning: Allocator::create(", typeid(Subclass).name(), ") mismatch sizeof() = ", size, ", ", new_size);
-                }
-                return object;
-            }
-            else
-                return ref_ptr<Subclass>(new Subclass(args...));
-        }
 
         template<typename... Args>
         static ref_ptr<Subclass> create(Args&&... args)

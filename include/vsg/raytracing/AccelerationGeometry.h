@@ -25,7 +25,7 @@ namespace vsg
     class VSG_DECLSPEC AccelerationGeometry : public Inherit<Object, AccelerationGeometry>
     {
     public:
-        AccelerationGeometry(Allocator* allocator = nullptr);
+        AccelerationGeometry();
 
         void compile(Context& context);
 

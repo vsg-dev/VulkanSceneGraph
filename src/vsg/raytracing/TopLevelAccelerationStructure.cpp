@@ -24,7 +24,6 @@ using namespace vsg;
 #define TRANSFER_BUFFERS 0
 
 GeometryInstance::GeometryInstance() :
-    Inherit(nullptr),
     id(0),
     mask(0xff),
     shaderOffset(0),
@@ -32,8 +31,8 @@ GeometryInstance::GeometryInstance() :
 {
 }
 
-TopLevelAccelerationStructure::TopLevelAccelerationStructure(Device* device, Allocator* allocator) :
-    Inherit(VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR, device, allocator)
+TopLevelAccelerationStructure::TopLevelAccelerationStructure(Device* device) :
+    Inherit(VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR, device)
 {
 }
 
@@ -78,5 +77,5 @@ void TopLevelAccelerationStructure::compile(Context& context)
 
     Inherit::compile(context);
 
-    context.buildAccelerationStructureCommands.push_back(BuildAccelerationStructureCommand::create(context.device, _accelerationStructureBuildGeometryInfo, _accelerationStructure, _geometryPrimitiveCounts, context.getAllocator()));
+    context.buildAccelerationStructureCommands.push_back(BuildAccelerationStructureCommand::create(context.device, _accelerationStructureBuildGeometryInfo, _accelerationStructure, _geometryPrimitiveCounts));
 }

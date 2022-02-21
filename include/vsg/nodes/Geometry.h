@@ -24,7 +24,7 @@ namespace vsg
     class VSG_DECLSPEC Geometry : public Inherit<Command, Geometry>
     {
     public:
-        Geometry(Allocator* allocator = nullptr);
+        Geometry();
 
         void read(Input& input) override;
         void write(Output& output) const override;

@@ -23,7 +23,7 @@ namespace vsg
     class VSG_DECLSPEC VertexIndexDraw : public Inherit<Command, VertexIndexDraw>
     {
     public:
-        VertexIndexDraw(Allocator* allocator = nullptr);
+        VertexIndexDraw();
 
         void read(Input& input) override;
         void write(Output& output) const override;

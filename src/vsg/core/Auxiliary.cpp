@@ -26,26 +26,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Auxiliary::Auxiliary(Allocator* allocator) :
+Auxiliary::Auxiliary(Object* object) :
     _referenceCount(0),
-    _connectedObject(0),
-    _allocator(allocator)
+    _connectedObject(object)
 {
-    DEBUG_NOTIFY << "Auxiliary::Auxiliary(Allocator = " << allocator << ") " << this << " " << std::endl;
-}
-
-Auxiliary::Auxiliary(Object* object, Allocator* allocator) :
-    _referenceCount(0),
-    _connectedObject(object),
-    _allocator(allocator)
-{
-    DEBUG_NOTIFY << "Auxiliary::Auxiliary(Object = " << object << ", Allocator = " << allocator << ") " << this << " " << std::endl;
+    DEBUG_NOTIFY << "Auxiliary::Auxiliary(Object = " << object << ") " << this << " " << std::endl;
 }
 
 Auxiliary::~Auxiliary()
 {
     DEBUG_NOTIFY << "Auxiliary::~Auxiliary() " << this << std::endl;
-    if (_allocator) _allocator->detachSharedAuxiliary(this);
 }
 
 void Auxiliary::ref() const
@@ -59,22 +49,7 @@ void Auxiliary::unref() const
     DEBUG_NOTIFY << "Auxiliary::unref() " << this << " " << _referenceCount.load() << std::endl;
     if (_referenceCount.fetch_sub(1) <= 1)
     {
-        if (_allocator)
-        {
-            ref_ptr<Allocator> allocator = _allocator;
-
-            std::size_t size = getSizeOf();
-
-            DEBUG_NOTIFY << "  Calling this->~Auxiliary();" << std::endl;
-            this->~Auxiliary();
-
-            DEBUG_NOTIFY << "  After Calling this->~Auxiliary();" << std::endl;
-            allocator->deallocate(this, size);
-        }
-        else
-        {
-            delete this;
-        }
+        delete this;
     }
 }
 

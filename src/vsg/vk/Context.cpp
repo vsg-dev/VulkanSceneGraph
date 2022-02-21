@@ -36,8 +36,7 @@ using namespace vsg;
 // BuildAccelerationStructureCommand
 //
 
-BuildAccelerationStructureCommand::BuildAccelerationStructureCommand(Device* device, const VkAccelerationStructureBuildGeometryInfoKHR& info, const VkAccelerationStructureKHR& structure, const std::vector<uint32_t>& primitiveCounts, Allocator* allocator) :
-    Inherit(allocator),
+BuildAccelerationStructureCommand::BuildAccelerationStructureCommand(Device* device, const VkAccelerationStructureBuildGeometryInfoKHR& info, const VkAccelerationStructureKHR& structure, const std::vector<uint32_t>& primitiveCounts) :
     _device(device),
     _accelerationStructureInfo(info),
     _accelerationStructure(structure)

@@ -26,7 +26,6 @@ namespace vsg
     {
     public:
         explicit Commands(size_t numChildren = 0);
-        explicit Commands(Allocator* allocator, size_t numChildren = 0);
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)

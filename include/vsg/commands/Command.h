@@ -24,8 +24,7 @@ namespace vsg
     class VSG_DECLSPEC Command : public Inherit<Node, Command>
     {
     public:
-        Command(Allocator* allocator = nullptr) :
-            Inherit(allocator) {}
+        Command() {}
 
         virtual void compile(Context& /*context*/) {}
 

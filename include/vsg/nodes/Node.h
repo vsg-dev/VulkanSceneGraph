@@ -19,7 +19,7 @@ namespace vsg
     class VSG_DECLSPEC Node : public Inherit<Object, Node>
     {
     public:
-        Node(Allocator* allocator = nullptr);
+        Node();
 
         static void* operator new(std::size_t count);
         static void operator delete(void* ptr);
@@ -35,7 +35,8 @@ namespace vsg
         using value_type = T;
 
         node_allocator() = default;
-        template <class U> constexpr node_allocator(const node_allocator<U>&) noexcept {}
+        template<class U>
+        constexpr node_allocator(const node_allocator<U>&) noexcept {}
 
         value_type* allocate(std::size_t n)
         {
@@ -49,10 +50,10 @@ namespace vsg
         }
     };
 
-    template <class T, class U>
-    bool operator==(const node_allocator <T>&, const node_allocator <U>&) { return true; }
+    template<class T, class U>
+    bool operator==(const node_allocator<T>&, const node_allocator<U>&) { return true; }
 
-    template <class T, class U>
-    bool operator!=(const node_allocator <T>&, const node_allocator <U>&) { return false; }
+    template<class T, class U>
+    bool operator!=(const node_allocator<T>&, const node_allocator<U>&) { return false; }
 
 } // namespace vsg

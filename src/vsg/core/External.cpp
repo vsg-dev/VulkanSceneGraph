@@ -59,11 +59,6 @@ External::External()
 {
 }
 
-External::External(Allocator* allocator) :
-    Inherit(allocator)
-{
-}
-
 External::External(const PathObjects& in_entries) :
     entries(in_entries)
 {

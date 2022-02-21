@@ -86,14 +86,9 @@ namespace vsg
             }
         }
 
-        Auxiliary* getOrCreateSharedAuxiliary();
-
-        void detachSharedAuxiliary(Auxiliary* auxiliary);
-
     protected:
         virtual ~Allocator();
 
-        Auxiliary* _sharedAuxiliary = nullptr;
         std::size_t _bytesAllocated = 0;
         std::size_t _countAllocated = 0;
         std::size_t _bytesDeallocated = 0;

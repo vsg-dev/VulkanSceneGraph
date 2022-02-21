@@ -20,13 +20,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Bin::Bin(Allocator* allocator) :
-    Inherit(allocator)
+Bin::Bin()
 {
 }
 
-Bin::Bin(int32_t in_binNumber, SortOrder in_sortOrder, Allocator* allocator) :
-    Inherit(allocator),
+Bin::Bin(int32_t in_binNumber, SortOrder in_sortOrder) :
     binNumber(in_binNumber),
     sortOrder(in_sortOrder)
 {

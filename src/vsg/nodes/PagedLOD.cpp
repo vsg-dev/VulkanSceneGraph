@@ -26,8 +26,7 @@ using namespace vsg;
 //
 // PagedLOD
 //
-PagedLOD::PagedLOD(Allocator* allocator) :
-    Inherit(allocator)
+PagedLOD::PagedLOD()
 {
     //    ++s_numPagedLODS;
 }

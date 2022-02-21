@@ -37,7 +37,7 @@ namespace vsg
     class VSG_DECLSPEC PagedLOD : public Inherit<Node, PagedLOD>
     {
     public:
-        PagedLOD(Allocator* allocator = nullptr);
+        PagedLOD();
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)

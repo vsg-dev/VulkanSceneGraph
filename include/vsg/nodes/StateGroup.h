@@ -27,7 +27,7 @@ namespace vsg
     class VSG_DECLSPEC StateGroup : public Inherit<Group, StateGroup>
     {
     public:
-        StateGroup(Allocator* allocator = nullptr);
+        StateGroup();
 
         void read(Input& input) override;
         void write(Output& output) const override;

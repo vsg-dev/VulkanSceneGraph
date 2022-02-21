@@ -23,12 +23,6 @@ Objects::Objects(size_t numChildren) :
 {
 }
 
-Objects::Objects(Allocator* allocator, size_t numChildren) :
-    Inherit(allocator),
-    children(numChildren)
-{
-}
-
 Objects::~Objects()
 {
 }

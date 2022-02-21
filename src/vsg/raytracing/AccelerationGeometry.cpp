@@ -23,8 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-AccelerationGeometry::AccelerationGeometry(Allocator* allocator) :
-    Inherit(allocator),
+AccelerationGeometry::AccelerationGeometry() :
     _geometry({})
 {
     _geometry.geometry.triangles.vertexData.deviceAddress = VkDeviceAddress{0};

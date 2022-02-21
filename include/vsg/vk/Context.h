@@ -41,7 +41,7 @@ namespace vsg
     public:
         // the primitive Count is A) the amount of triangles to be built for type VK_GEOMETRY_TYPE_TRIANGLES_KHR (blas) B) the amount of AABBs for type VK_GEOMETRY_TYPE_AABBS_KHR
         // and C) the number of acceleration structures for type VK_GEOMETRY_TYPE_INSTANCES_KHR
-        BuildAccelerationStructureCommand(Device* device, const VkAccelerationStructureBuildGeometryInfoKHR& info, const VkAccelerationStructureKHR& structure, const std::vector<uint32_t>& primitiveCounts, Allocator* allocator);
+        BuildAccelerationStructureCommand(Device* device, const VkAccelerationStructureBuildGeometryInfoKHR& info, const VkAccelerationStructureKHR& structure, const std::vector<uint32_t>& primitiveCounts);
 
         void compile(Context&) override {}
         void record(CommandBuffer& commandBuffer) const override;

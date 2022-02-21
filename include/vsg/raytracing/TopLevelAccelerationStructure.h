@@ -79,7 +79,7 @@ namespace vsg
     class VSG_DECLSPEC TopLevelAccelerationStructure : public Inherit<AccelerationStructure, TopLevelAccelerationStructure>
     {
     public:
-        explicit TopLevelAccelerationStructure(Device* device, Allocator* allocator = nullptr);
+        explicit TopLevelAccelerationStructure(Device* device);
 
         void compile(Context& context) override;
 

@@ -20,8 +20,8 @@ namespace vsg
     class VSG_DECLSPEC AbsoluteTransform : public Inherit<Transform, AbsoluteTransform>
     {
     public:
-        explicit AbsoluteTransform(Allocator* allocator = nullptr);
-        explicit AbsoluteTransform(const dmat4& in_matrix, Allocator* allocator = nullptr);
+        AbsoluteTransform();
+        explicit AbsoluteTransform(const dmat4& in_matrix);
 
         void read(Input& input) override;
         void write(Output& output) const override;

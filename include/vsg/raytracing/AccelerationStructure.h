@@ -24,7 +24,7 @@ namespace vsg
     class VSG_DECLSPEC AccelerationStructure : public Inherit<Object, AccelerationStructure>
     {
     public:
-        AccelerationStructure(VkAccelerationStructureTypeKHR type, Device* device, Allocator* allocator = nullptr);
+        AccelerationStructure(VkAccelerationStructureTypeKHR type, Device* device);
 
         virtual void compile(Context& context);
 

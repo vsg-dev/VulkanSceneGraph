@@ -32,7 +32,7 @@ namespace vsg
     class VSG_DECLSPEC LOD : public Inherit<Node, LOD>
     {
     public:
-        LOD(Allocator* allocator = nullptr);
+        LOD();
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)

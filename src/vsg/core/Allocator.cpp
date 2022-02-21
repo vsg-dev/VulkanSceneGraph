@@ -51,30 +51,3 @@ void Allocator::deallocate(const void* ptr, std::size_t size)
     _bytesDeallocated += size;
     ++_countDeallocated;
 }
-
-Auxiliary* Allocator::getOrCreateSharedAuxiliary()
-{
-    if (!_sharedAuxiliary)
-    {
-        void* ptr = allocate(sizeof(Auxiliary));
-        _sharedAuxiliary = new (ptr) Auxiliary(this);
-        std::cout << "Allocator::getOrCreateSharedAuxiliary() creating new : " << _sharedAuxiliary << std::endl;
-    }
-    else
-    {
-        std::cout << "Allocator::getOrCreateSharedAuxiliary() returning existing : " << _sharedAuxiliary << std::endl;
-    }
-    return _sharedAuxiliary;
-}
-
-void Allocator::detachSharedAuxiliary(Auxiliary* auxiliary)
-{
-    if (_sharedAuxiliary == auxiliary)
-    {
-        std::cout << "Allocator::detachSharedAuxiliary(" << auxiliary << ") detecting auxiliary" << std::endl;
-    }
-    else
-    {
-        std::cout << "Allocator::detachSharedAuxiliary(" << auxiliary << ") auxiliary not matched" << std::endl;
-    }
-}

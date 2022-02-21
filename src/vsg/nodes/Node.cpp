@@ -17,8 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Node::Node(Allocator* allocator) :
-    Inherit(allocator)
+Node::Node()
 {
 }
 
@@ -26,16 +25,15 @@ Node::~Node()
 {
 }
 
-
 void* Node::operator new(std::size_t count)
 {
     auto ptr = ::operator new(count);
-    std::cout<<"Node::operator new ("<<count<<") ptr  = "<<ptr<<std::endl;
+    std::cout << "Node::operator new (" << count << ") ptr  = " << ptr << std::endl;
     return ptr;
 }
 
 void Node::operator delete(void* ptr)
 {
-    std::cout<<"Node::operator delete ("<<ptr<<")"<<std::endl;
+    std::cout << "Node::operator delete (" << ptr << ")" << std::endl;
     ::operator delete(ptr);
 }
