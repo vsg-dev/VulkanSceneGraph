@@ -69,6 +69,39 @@ namespace vsg
     /// make a directory, return true if path already exists or full path has been created successfully, return false on failure.
     extern VSG_DECLSPEC bool makeDirectory(const Path& path);
 
+    /// returns the path and filename of the currently executed file
+    extern VSG_DECLSPEC Path executableFilePath(void);
+
+    /// returns the path of the currently executed file
+    extern VSG_DECLSPEC Path executablePath(void);
+
+    /** @brief returns the absolute path to the shared data installation directory at runtime
+     *
+     * The supported path layouts:
+     * <pre>
+     *   <root>/
+     *     <executable>
+     *     share/ [1]
+     *
+     *   <root>/
+     *     bin/
+     *       <executable>
+     *     share/ [1]
+     * </pre>
+     *
+     * @return path to shared data installation directory [1] or empty path in case of unsupported path layout
+     */
+    extern VSG_DECLSPEC Path sharedDataPath();
+
+    /** @brief returns the absolute path to the shared application data directory for the currently running application
+     *
+     * The directory name is constructed from the result of @ref sharedDataPath() and
+     * the simple file name of this application as returned by @ref simpleFilename().
+     *
+     * @return path or empty string in case directory layout does not match the expectations of @ref sharedDataPath()
+     */
+    extern VSG_DECLSPEC Path sharedAppDataPath();
+
     /** @} */
 
 } // namespace vsg

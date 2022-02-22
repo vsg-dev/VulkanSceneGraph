@@ -338,8 +338,8 @@ set_property(TARGET vsg PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET vsg PROPERTY CXX_STANDARD 17)
 
 target_compile_definitions(vsg PRIVATE ${EXTRA_DEFINES})
+target_compile_definitions(vsg PRIVATE CMAKE_INSTALL_DATADIR=\"${CMAKE_INSTALL_DATADIR}\")
 target_include_directories(vsg PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include> $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
-
 
 target_link_libraries(vsg ${LIBRARIES})
 
