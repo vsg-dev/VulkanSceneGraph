@@ -18,6 +18,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Object.h>
 
+/**
+ * @addtogroup FileSystem
+ * @{
+ */
+
 namespace vsg
 {
 
@@ -63,5 +68,7 @@ namespace vsg
 
     /// make a directory, return true if path already exists or full path has been created successfully, return false on failure.
     extern VSG_DECLSPEC bool makeDirectory(const Path& path);
+
+    /** @} */
 
 } // namespace vsg
