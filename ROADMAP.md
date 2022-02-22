@@ -43,10 +43,18 @@ Using the prototyping work as a guide implement the final scene graph library wi
 
 #### Pending/Underway tasks:
 * Positional state support to enable easier support of lighting, shadows, texture projection.
-* Improved support for dynamic scene graphs.
+* Unified state composer, shader set and cache
+* Memory allocator with support with grouping associated types
+* Improved support for dynamic scene graphs and dynamic views, dynamic descriptor pool reallocation
+* Matrix decomposition
 * Support for wide and standard strings in vsg::Path.
 * Support for integration with OpenGL/OSG applications via [EXT\_external\_object](https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_external_objects.txt) & [VK\_KHR\_external\_memory](https://www.khronos.org/registry/vulkan/specs/1.1-extensions/man/html/VK_KHR_external_memory.html#versions-1.1-promotions)
 * Port to iOS
+
+#### Pending/Underway tasks relating to associated libraries
+* Update vsgXchange::OSG and vsgXchange::Assimp to use the new state composer/shader set.
+* Update vsgImGui to latest
+* Rewrite vsgQt handling of keyboard mapping
 
 ### 4. Release Phase,  Spring 2022
 **Goal: Test scene graph library against real-world applications and shake down the API and implementation for it's first stable release.**
