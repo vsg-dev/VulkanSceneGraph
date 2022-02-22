@@ -19,14 +19,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Allocator::Allocator()
+Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator):
+    nestedAllocator(std::move(in_nestedAllocator))
 {
-    std::cout<<"Allocator::Allocator()"<<std::endl;
+//    std::cout<<"Allocator::Allocator() "<<this<<" "<<nestedAllocator.get()<<std::endl;
 }
 
 Allocator::~Allocator()
 {
-    std::cout<<"Allocator::~Allocator() "<<std::endl;
+//    std::cout<<"Allocator::~Allocator() "<<this<<std::endl;
 }
 
 #if 1
@@ -40,22 +41,27 @@ std::unique_ptr<Allocator>& Allocator::instance()
     return s_allocator;
 }
 
-void* Allocator::allocate(std::size_t count, MemoryAffinity /*memoryAffinity*/)
+void* Allocator::allocate(std::size_t size, AllocatorType /*allocatorType*/)
 {
-    auto ptr = ::operator new(count);
+    auto ptr = ::operator new(size);
+
+//    std::cout<<"Allocator::allocate("<<size<<", "<<int(allocatorType)<<") ptr = "<<ptr<<std::endl;
+
     return ptr;
 }
 
 void Allocator::deallocate(void* ptr)
 {
+//    std::cout<<"Allocator::deallocate("<<ptr<<")"<<std::endl;
+
     ::operator delete(ptr);
 }
 
 
-void* vsg::allocate(std::size_t count, MemoryAffinity memoryAffinity)
+void* vsg::allocate(std::size_t size, AllocatorType allocatorType)
 {
-    if (Allocator::instance()) return Allocator::instance()->allocate(count, memoryAffinity);
-    else return std::malloc(count);
+    if (Allocator::instance()) return Allocator::instance()->allocate(size, allocatorType);
+    return std::malloc(size);
 }
 
 void vsg::deallocate(void* ptr)

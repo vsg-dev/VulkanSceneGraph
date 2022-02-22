@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Inherit.h>
+#include <vsg/core/Export.h>
 
 #include <mutex>
 #include <map>
@@ -20,37 +20,42 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-
-    enum MemoryAffinity
+    enum AllocatorType : uint8_t
     {
-        MEMORY_AFFINITY_OBJECTS,
-        MEMORY_AFFINITY_DATA,
-        MEMORY_AFFINITY_NODES
+        ALLOCATOR_NO_DELETE = 0,
+        ALLOCATOR_NEW_DELETE,
+        ALLOCATOR_MALLOC_FREE,
+        ALLOCATOR_OBJECTS,
+        ALLOCATOR_DATA,
+        ALLOCATOR_NODES
     };
 
     /** extensible Allocator that handles allocation and deallocation of scene graph CPU memory,*/
     class VSG_DECLSPEC Allocator
     {
     public:
-        Allocator();
+        Allocator(std::unique_ptr<Allocator> in_nestedAllocator = {});
+
         virtual ~Allocator();
 
         /// Allocator singleton
         static std::unique_ptr<Allocator>& instance();
 
-        virtual void* allocate(std::size_t count, MemoryAffinity memoryAffinity = MEMORY_AFFINITY_OBJECTS);
+        virtual void* allocate(std::size_t size, AllocatorType allocatorType = ALLOCATOR_OBJECTS);
         virtual void deallocate(void* ptr);
+
+        // if you are assigning a custom allocator you mest retain the old allocator to manage the memory it allocated and needs to delete
+        std::unique_ptr<Allocator> nestedAllocator;
 
     protected:
 
     };
 
-    /// allocate memory using vsg::Allocator::instance() if avaiable, otherwise use std::malloc(count)
-    void* allocate(std::size_t count, MemoryAffinity memoryAffinity = MEMORY_AFFINITY_OBJECTS);
+    /// allocate memory using vsg::Allocator::instance() if avaiable, otherwise use std::malloc(size)
+    void* allocate(std::size_t size, AllocatorType allocatorType = ALLOCATOR_OBJECTS);
 
     /// deallocate memory using vsg::Allocator::instance() if avaiable, otherwise use std::free(ptr)
     void deallocate(void* ptr);
-
 
     /// std container adapter for allocating with MEMORY_AFFINITY_NODES
     template<typename T>
@@ -64,7 +69,7 @@ namespace vsg
 
         value_type* allocate(std::size_t n)
         {
-            return static_cast<value_type*>(vsg::allocate(n * sizeof(value_type), vsg::MEMORY_AFFINITY_NODES));
+            return static_cast<value_type*>(vsg::allocate(n * sizeof(value_type), vsg::ALLOCATOR_NODES));
         }
 
         void deallocate(value_type* ptr, std::size_t /*n*/)

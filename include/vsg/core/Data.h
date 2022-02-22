@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Object.h>
 #include <vsg/core/type_name.h>
+#include <vsg/core/Allocator.h>
 
 #include <vulkan/vulkan.h>
 
@@ -103,6 +104,7 @@ namespace vsg
             uint8_t blockDepth = 1;
             uint8_t origin = TOP_LEFT; /// Hint for setting up texture coordinates, bit 0 x/width axis, bit 1 y/height axis, bit 2 z/depth axis. Vulkan origin for images is top left, which is denoted as 0 here.
             int8_t imageViewType = -1; /// -1 signifies undefined VkImageViewType, if value >=0 then value should be treated as valid VkImageViewType
+            AllocatorType allocatorType = ALLOCATOR_DATA;
         };
 
         Data() {}

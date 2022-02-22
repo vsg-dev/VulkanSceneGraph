@@ -20,7 +20,7 @@ using namespace vsg;
 
 void* Data::operator new(std::size_t count)
 {
-    return vsg::allocate(count, vsg::MEMORY_AFFINITY_DATA);
+    return vsg::allocate(count, vsg::ALLOCATOR_DATA);
 }
 
 void Data::read(Input& input)

@@ -50,7 +50,7 @@ namespace vsg
         {
             if (_width != 0 && _height != 0)
             {
-                _data = new value_type[_width * _height];
+                _data = _allocate(_width * _height);
                 auto dest_v = _data;
                 for (auto& v : rhs) *(dest_v++) = v;
             }
@@ -59,7 +59,7 @@ namespace vsg
 
         Array2D(uint32_t width, uint32_t height, Layout layout = {}) :
             Data(layout, sizeof(value_type)),
-            _data(new value_type[width * height]),
+            _data(_allocate(width * height)),
             _width(width),
             _height(height) { dirty(); }
 
@@ -71,7 +71,7 @@ namespace vsg
 
         Array2D(uint32_t width, uint32_t height, const value_type& value, Layout layout = {}) :
             Data(layout, sizeof(value_type)),
-            _data(new value_type[width * height]),
+            _data(_allocate(width * height)),
             _width(width),
             _height(height)
         {
@@ -132,12 +132,12 @@ namespace vsg
                     if (original_size != new_size) // if existing data is a different size delete old, and create new
                     {
                         _delete();
-                        _data = new value_type[new_size];
+                        _data = _allocate(new_size);
                     }
                 }
                 else // allocate space for data
                 {
-                    _data = new value_type[new_size];
+                    _data = _allocate(new_size);
                 }
 
                 _layout.stride = sizeof(value_type);
@@ -200,7 +200,7 @@ namespace vsg
 
             if (_width != 0 && _height != 0)
             {
-                _data = new value_type[_width * _height];
+                _data = _allocate(_width * _height);
                 auto dest_v = _data;
                 for (auto& v : rhs) *(dest_v++) = v;
             }
@@ -318,9 +318,21 @@ namespace vsg
             _delete();
         }
 
+        value_type* _allocate(uint32_t size) const
+        {
+            if (_layout.allocatorType == ALLOCATOR_NEW_DELETE) return new value_type[size];
+            else if (_layout.allocatorType == ALLOCATOR_MALLOC_FREE) return new(std::malloc(sizeof(value_type) * size)) value_type[size];
+            else return new(vsg::allocate(sizeof(value_type) * size, _layout.allocatorType)) value_type[size];
+        }
+
         void _delete()
         {
-            if (!_storage && _data) delete[] _data;
+            if (!_storage && _data)
+            {
+                if (_layout.allocatorType == ALLOCATOR_NEW_DELETE) delete[] _data;
+                else if (_layout.allocatorType == ALLOCATOR_MALLOC_FREE) std::free(_data);
+                else if (_layout.allocatorType != 0) vsg::deallocate(_data);
+            }
         }
 
     private:
