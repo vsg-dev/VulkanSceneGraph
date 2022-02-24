@@ -22,41 +22,6 @@ namespace vsg
     class Buffer;
     class Image;
 
-    class VSG_DECLSPEC MemorySlots
-    {
-    public:
-        explicit MemorySlots(VkDeviceSize availableMemorySize);
-
-        using OptionalOffset = std::pair<bool, VkDeviceSize>;
-        OptionalOffset reserve(VkDeviceSize size, VkDeviceSize alignment);
-
-        void release(VkDeviceSize offset, VkDeviceSize size);
-
-        bool full() const { return _availableMemory.empty(); }
-
-        VkDeviceSize maximumAvailableSpace() const { return _availableMemory.empty() ? 0 : _availableMemory.rbegin()->first; }
-        VkDeviceSize totalAvailableSize() const;
-        VkDeviceSize totalReservedSize() const;
-        VkDeviceSize totalMemorySize() const { return _totalMemorySize; }
-
-        void report() const;
-        bool check() const;
-
-    protected:
-        using SizeOffsets = std::multimap<VkDeviceSize, VkDeviceSize>;
-        using SizeOffset = SizeOffsets::value_type;
-        SizeOffsets _availableMemory;
-
-        using OffsetSizes = std::map<VkDeviceSize, VkDeviceSize>;
-        using OffsetSize = OffsetSizes::value_type;
-        OffsetSizes _offsetSizes;
-
-        using OffsetAllocatedSlot = std::map<VkDeviceSize, OffsetSize>;
-        OffsetSizes _reservedOffsetSizes;
-
-        VkDeviceSize _totalMemorySize;
-    };
-
     class VSG_DECLSPEC DeviceMemory : public Inherit<Object, DeviceMemory>
     {
     public:

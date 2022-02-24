@@ -17,6 +17,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <mutex>
 #include <map>
 #include <memory>
+#include <list>
+#include <vector>
 
 namespace vsg
 {
@@ -30,6 +32,42 @@ namespace vsg
         ALLOCATOR_NODES,
         ALLOCATOR_LAST = ALLOCATOR_NODES+1
     };
+
+    class VSG_DECLSPEC MemorySlots
+    {
+    public:
+        explicit MemorySlots(size_t availableMemorySize);
+
+        using OptionalOffset = std::pair<bool, size_t>;
+        OptionalOffset reserve(size_t size, size_t alignment);
+
+        void release(size_t offset, size_t size);
+
+        bool full() const { return _availableMemory.empty(); }
+
+        size_t maximumAvailableSpace() const { return _availableMemory.empty() ? 0 : _availableMemory.rbegin()->first; }
+        size_t totalAvailableSize() const;
+        size_t totalReservedSize() const;
+        size_t totalMemorySize() const { return _totalMemorySize; }
+
+        void report() const;
+        bool check() const;
+
+    protected:
+        using SizeOffsets = std::multimap<size_t, size_t>;
+        using SizeOffset = SizeOffsets::value_type;
+        SizeOffsets _availableMemory;
+
+        using OffsetSizes = std::map<size_t, size_t>;
+        using OffsetSize = OffsetSizes::value_type;
+        OffsetSizes _offsetSizes;
+
+        using OffsetAllocatedSlot = std::map<size_t, OffsetSize>;
+        OffsetSizes _reservedOffsetSizes;
+
+        size_t _totalMemorySize;
+    };
+
 
     /** extensible Allocator that handles allocation and deallocation of scene graph CPU memory,*/
     class VSG_DECLSPEC Allocator
@@ -45,11 +83,40 @@ namespace vsg
         virtual void* allocate(std::size_t size, AllocatorType allocatorType = ALLOCATOR_OBJECTS);
         virtual bool deallocate(void* ptr);
 
-        // if you are assigning a custom allocator you mest retain the old allocator to manage the memory it allocated and needs to delete
-        std::unique_ptr<Allocator> nestedAllocator;
+        void report() const;
 
     protected:
 
+        struct MemoryBlock
+        {
+            MemoryBlock(size_t blockSize);
+            virtual ~MemoryBlock();
+
+            void* allocate(std::size_t size);
+            bool deallocate(void* ptr);
+
+            uint8_t* memory = nullptr;
+            vsg::MemorySlots memorySlots;
+        };
+
+        struct MemoryBlocks
+        {
+            std::string name;
+            size_t  blockSize = 0;
+            std::list<std::unique_ptr<MemoryBlock>> memoryBlocks;
+
+            MemoryBlocks(const std::string& in_name, size_t in_blockSize);
+            virtual ~MemoryBlocks();
+
+            void* allocate(std::size_t size);
+            bool deallocate(void* ptr);
+        };
+
+        // if you are assigning a custom allocator you mest retain the old allocator to manage the memory it allocated and needs to delete
+        std::unique_ptr<Allocator> nestedAllocator;
+
+        std::vector<std::unique_ptr<MemoryBlocks>> allocatorMemoryBlocks;
+        mutable std::mutex mutex;
     };
 
     /// allocate memory using vsg::Allocator::instance() if avaiable, otherwise use std::malloc(size)
