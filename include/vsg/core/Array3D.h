@@ -336,7 +336,7 @@ namespace vsg
             _delete();
         }
 
-        value_type* _allocate(uint32_t size) const
+        value_type* _allocate(size_t size) const
         {
             if (_layout.allocatorType == ALLOCATOR_NEW_DELETE)
                 return new value_type[size];
