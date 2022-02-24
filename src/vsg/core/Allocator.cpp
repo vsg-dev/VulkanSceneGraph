@@ -57,10 +57,10 @@ bool Allocator::deallocate(void* ptr)
 
 void* vsg::allocate(std::size_t size, AllocatorType allocatorType)
 {
-    Allocator::instance()->allocate(size, allocatorType);
+    return Allocator::instance()->allocate(size, allocatorType);
 }
 
 void vsg::deallocate(void* ptr)
 {
-    Allocator::instance()->deallocate(ptr));
+    Allocator::instance()->deallocate(ptr);
 }
