@@ -33,7 +33,7 @@ void Group::read(Input& input)
 
     if (input.version_greater_equal(0, 1, 4))
     {
-        input.read("children", children);
+        input.readObjects("children", children);
     }
     else
     {
@@ -56,7 +56,7 @@ void Group::write(Output& output) const
 
     if (output.version_greater_equal(0, 1, 4))
     {
-        output.write("children", children);
+        output.writeObjects("children", children);
     }
     else
     {

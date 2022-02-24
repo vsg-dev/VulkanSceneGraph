@@ -124,7 +124,7 @@ namespace vsg
         }
 
         template<typename T>
-        void read(const char* propertyName, std::vector<ref_ptr<T>>& values)
+        void readObjects(const char* propertyName, T& values)
         {
             if (!matchPropertyName(propertyName)) return;
 
@@ -132,7 +132,9 @@ namespace vsg
             read(1, &numElements);
             values.resize(numElements);
 
-            const char* element_name = type_name<T>();
+            using element_type = typename T::value_type::element_type;
+            const char* element_name = type_name<element_type>();
+
             for (uint32_t i = 0; i < numElements; ++i)
             {
                 read(element_name, values[i]);
@@ -140,7 +142,7 @@ namespace vsg
         }
 
         template<typename T>
-        void read(const char* propertyName, std::vector<T>& values)
+        void readValues(const char* propertyName, T& values)
         {
             if (!matchPropertyName(propertyName)) return;
 

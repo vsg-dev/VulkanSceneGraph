@@ -19,6 +19,9 @@ namespace vsg
     class ref_ptr
     {
     public:
+
+        using element_type = T;
+
         ref_ptr() noexcept :
             _ptr(nullptr) {}
 
