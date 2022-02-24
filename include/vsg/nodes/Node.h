@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Inherit.h>
 #include <vsg/core/Allocator.h>
+#include <vsg/core/Inherit.h>
 
 namespace vsg
 {
@@ -29,6 +29,5 @@ namespace vsg
         virtual ~Node();
     };
     VSG_type_name(vsg::Node);
-
 
 } // namespace vsg

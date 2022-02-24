@@ -18,13 +18,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-
 #if 0
-#define DEBUG if (true) std::cout
+#    define DEBUG \
+        if (true) std::cout
 #else
-#define DEBUG if (false) std::cout
+#    define DEBUG \
+        if (false) std::cout
 #endif
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -285,7 +285,6 @@ void MemorySlots::release(VkDeviceSize offset, VkDeviceSize size)
 #endif
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // vsg::Allocator
@@ -293,7 +292,7 @@ void MemorySlots::release(VkDeviceSize offset, VkDeviceSize size)
 Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator) :
     nestedAllocator(std::move(in_nestedAllocator))
 {
-    DEBUG<<"Allocator()"<<this<<std::endl;
+    DEBUG << "Allocator()" << this << std::endl;
 
     allocatorMemoryBlocks.resize(vsg::ALLOCATOR_LAST);
 
@@ -305,7 +304,7 @@ Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator) :
 
 Allocator::~Allocator()
 {
-    DEBUG<<"~Allocator() "<<this<<std::endl;
+    DEBUG << "~Allocator() " << this << std::endl;
 }
 
 std::unique_ptr<Allocator>& Allocator::instance()
@@ -316,19 +315,19 @@ std::unique_ptr<Allocator>& Allocator::instance()
 
 void Allocator::report() const
 {
-    DEBUG<<"Allocator::report() "<<allocatorMemoryBlocks.size()<<std::endl;
+    DEBUG << "Allocator::report() " << allocatorMemoryBlocks.size() << std::endl;
     std::scoped_lock<std::mutex> lock(mutex);
-    for(const auto& memoryBlocks : allocatorMemoryBlocks)
+    for (const auto& memoryBlocks : allocatorMemoryBlocks)
     {
         if (memoryBlocks)
         {
-            DEBUG<<"    "<<memoryBlocks->name;
-            for(const auto& memoryBlock : memoryBlocks->memoryBlocks)
+            DEBUG << "    " << memoryBlocks->name;
+            for (const auto& memoryBlock : memoryBlocks->memoryBlocks)
             {
                 const auto& memorySlots = memoryBlock->memorySlots;
-                DEBUG<<", ["<<memorySlots.totalReservedSize()<<", "<<memorySlots.maximumAvailableSpace()<<"]";
+                DEBUG << ", [" << memorySlots.totalReservedSize() << ", " << memorySlots.maximumAvailableSpace() << "]";
             }
-            DEBUG<<std::endl;
+            DEBUG << std::endl;
         }
     }
 }
@@ -343,14 +342,13 @@ void* Allocator::allocate(std::size_t size, vsg::AllocatorType allocatorType)
         auto mem_ptr = memoryBlocks->allocate(size);
         if (mem_ptr)
         {
-            DEBUG<<"Allocated from MemoryBlock mem_ptr = "<<mem_ptr<<", size = "<<size<<", allocatorType = "<<int(allocatorType)<<std::endl;
+            DEBUG << "Allocated from MemoryBlock mem_ptr = " << mem_ptr << ", size = " << size << ", allocatorType = " << int(allocatorType) << std::endl;
             return mem_ptr;
         }
     }
 
-
     void* ptr = Allocator::allocate(size, allocatorType);
-    DEBUG<<"Allocator::allocate("<<size<<", "<<int(allocatorType)<<") ptr = "<<ptr<<std::endl;
+    DEBUG << "Allocator::allocate(" << size << ", " << int(allocatorType) << ") ptr = " << ptr << std::endl;
     return ptr;
 }
 
@@ -358,13 +356,13 @@ bool Allocator::deallocate(void* ptr)
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
-    for(auto& memoryBlocks : allocatorMemoryBlocks)
+    for (auto& memoryBlocks : allocatorMemoryBlocks)
     {
         if (memoryBlocks)
         {
             if (memoryBlocks->deallocate(ptr))
             {
-                DEBUG<<"Deallocated from MemoryBlock "<<ptr<<std::endl;
+                DEBUG << "Deallocated from MemoryBlock " << ptr << std::endl;
                 return true;
             }
         }
@@ -375,21 +373,21 @@ bool Allocator::deallocate(void* ptr)
     return false;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // vsg::Allocator::MemoryBlock
 //
-Allocator::MemoryBlock::MemoryBlock(VkDeviceSize blockSize) : memorySlots(blockSize)
+Allocator::MemoryBlock::MemoryBlock(VkDeviceSize blockSize) :
+    memorySlots(blockSize)
 {
     memory = static_cast<uint8_t*>(std::malloc(blockSize));
 
-    DEBUG<<"MemoryBlock("<<blockSize<<") allocatoed memory"<<std::endl;
+    DEBUG << "MemoryBlock(" << blockSize << ") allocatoed memory" << std::endl;
 }
 
 Allocator::MemoryBlock::~MemoryBlock()
 {
-    DEBUG<<"MemoryBlock::~MemoryBlock("<<memorySlots.totalMemorySize()<<") freed memory"<<std::endl;
+    DEBUG << "MemoryBlock::~MemoryBlock(" << memorySlots.totalMemorySize() << ") freed memory" << std::endl;
     // memorySlots.report();
     std::free(memory);
 }
@@ -397,8 +395,10 @@ Allocator::MemoryBlock::~MemoryBlock()
 void* Allocator::MemoryBlock::allocate(std::size_t size)
 {
     auto [allocated, offset] = memorySlots.reserve(size, 4);
-    if (allocated) return memory + offset;
-    else return nullptr;
+    if (allocated)
+        return memory + offset;
+    else
+        return nullptr;
 }
 
 bool Allocator::MemoryBlock::deallocate(void* ptr)
@@ -415,7 +415,6 @@ bool Allocator::MemoryBlock::deallocate(void* ptr)
     return false;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // vsg::Allocator::MemoryBlocks
@@ -428,12 +427,12 @@ Allocator::MemoryBlocks::MemoryBlocks(const std::string& in_name, VkDeviceSize i
 
 Allocator::MemoryBlocks::~MemoryBlocks()
 {
-    DEBUG<<"MemoryBlocks::~MemoryBlocks() name = "<<name<<", "<<memoryBlocks.size()<<std::endl;
+    DEBUG << "MemoryBlocks::~MemoryBlocks() name = " << name << ", " << memoryBlocks.size() << std::endl;
 }
 
 void* Allocator::MemoryBlocks::allocate(std::size_t size)
 {
-    for(auto& block : memoryBlocks)
+    for (auto& block : memoryBlocks)
     {
         auto ptr = block->allocate(size);
         if (ptr) return ptr;
@@ -451,12 +450,12 @@ void* Allocator::MemoryBlocks::allocate(std::size_t size)
 
 bool Allocator::MemoryBlocks::deallocate(void* ptr)
 {
-    for(auto& block : memoryBlocks)
+    for (auto& block : memoryBlocks)
     {
         if (block->deallocate(ptr)) return true;
     }
 
-    DEBUG<<"MemoryBlocks:deallocate() : couldn't locate point to deallocato "<<ptr<<std::endl;
+    DEBUG << "MemoryBlocks:deallocate() : couldn't locate point to deallocato " << ptr << std::endl;
     return false;
 }
 

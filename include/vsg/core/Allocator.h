@@ -14,10 +14,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Export.h>
 
-#include <mutex>
+#include <list>
 #include <map>
 #include <memory>
-#include <list>
+#include <mutex>
 #include <vector>
 
 namespace vsg
@@ -30,7 +30,7 @@ namespace vsg
         ALLOCATOR_OBJECTS,
         ALLOCATOR_DATA,
         ALLOCATOR_NODES,
-        ALLOCATOR_LAST = ALLOCATOR_NODES+1
+        ALLOCATOR_LAST = ALLOCATOR_NODES + 1
     };
 
     class VSG_DECLSPEC MemorySlots
@@ -68,7 +68,6 @@ namespace vsg
         size_t _totalMemorySize;
     };
 
-
     /** extensible Allocator that handles allocation and deallocation of scene graph CPU memory,*/
     class VSG_DECLSPEC Allocator
     {
@@ -86,7 +85,6 @@ namespace vsg
         void report() const;
 
     protected:
-
         struct MemoryBlock
         {
             MemoryBlock(size_t blockSize);
@@ -102,7 +100,7 @@ namespace vsg
         struct MemoryBlocks
         {
             std::string name;
-            size_t  blockSize = 0;
+            size_t blockSize = 0;
             std::list<std::unique_ptr<MemoryBlock>> memoryBlocks;
 
             MemoryBlocks(const std::string& in_name, size_t in_blockSize);
@@ -151,6 +149,5 @@ namespace vsg
 
     template<class T, class U>
     bool operator!=(const allocator_affinity_nodes<T>&, const allocator_affinity_nodes<U>&) { return false; }
-
 
 } // namespace vsg

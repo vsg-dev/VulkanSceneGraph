@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Allocator.h>
 #include <vsg/core/Object.h>
 #include <vsg/core/type_name.h>
-#include <vsg/core/Allocator.h>
 
 #include <vulkan/vulkan.h>
 
@@ -121,10 +121,8 @@ namespace vsg
         /// provide new and delete to enable custom memory management via the vsg::Allocator singleton, using the MEMORY_AFFINTY_DATA
         static void* operator new(std::size_t count);
 
-
         std::size_t sizeofObject() const noexcept override { return sizeof(Data); }
         bool is_compatible(const std::type_info& type) const noexcept override { return typeid(Data) == type ? true : Object::is_compatible(type); }
-
 
         void read(Input& input) override;
         void write(Output& output) const override;
