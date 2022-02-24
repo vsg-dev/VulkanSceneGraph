@@ -30,7 +30,7 @@ using namespace vsg;
 //
 // MemorySlots
 //
-MemorySlots::MemorySlots(VkDeviceSize availableMemorySize)
+MemorySlots::MemorySlots(size_t availableMemorySize)
 {
     _availableMemory.insert(SizeOffset(availableMemorySize, 0));
     _offsetSizes.insert(OffsetSize(0, availableMemorySize));
@@ -38,9 +38,9 @@ MemorySlots::MemorySlots(VkDeviceSize availableMemorySize)
     _totalMemorySize = availableMemorySize;
 }
 
-VkDeviceSize MemorySlots::totalAvailableSize() const
+size_t MemorySlots::totalAvailableSize() const
 {
-    VkDeviceSize totalSize = 0;
+    size_t totalSize = 0;
     for (const auto& sizeOffset : _availableMemory)
     {
         totalSize += sizeOffset.first;
@@ -48,9 +48,9 @@ VkDeviceSize MemorySlots::totalAvailableSize() const
     return totalSize;
 }
 
-VkDeviceSize MemorySlots::totalReservedSize() const
+size_t MemorySlots::totalReservedSize() const
 {
-    VkDeviceSize totalSize = 0;
+    size_t totalSize = 0;
     for (const auto& sizeOffset : _reservedOffsetSizes)
     {
         totalSize += sizeOffset.second;
@@ -65,19 +65,19 @@ bool MemorySlots::check() const
         std::cout << "Warning: MemorySlots::check() _availableMemory.size() " << _availableMemory.size() << " != _offsetSizes.size() " << _offsetSizes.size() << std::endl;
     }
 
-    VkDeviceSize availableSize = 0;
+    size_t availableSize = 0;
     for (auto& offsetSize : _offsetSizes)
     {
         availableSize += offsetSize.second;
     }
 
-    VkDeviceSize reservedSize = 0;
+    size_t reservedSize = 0;
     for (auto& offsetSize : _reservedOffsetSizes)
     {
         reservedSize += offsetSize.second;
     }
 
-    VkDeviceSize computedSize = availableSize + reservedSize;
+    size_t computedSize = availableSize + reservedSize;
     if (computedSize != _totalMemorySize)
     {
         std::cout << "Warning : MemorySlots::check() " << this << " failed, computeedSize (" << computedSize << ") != _totalMemorySize (" << _totalMemorySize << ")" << std::endl;
@@ -106,7 +106,7 @@ void MemorySlots::report() const
     }
 }
 
-MemorySlots::OptionalOffset MemorySlots::reserve(VkDeviceSize size, VkDeviceSize alignment)
+MemorySlots::OptionalOffset MemorySlots::reserve(size_t size, size_t alignment)
 {
     if (full()) return OptionalOffset(false, 0);
 
@@ -114,13 +114,13 @@ MemorySlots::OptionalOffset MemorySlots::reserve(VkDeviceSize size, VkDeviceSize
     while (itr != _availableMemory.end())
     {
         SizeOffset slot(*itr);
-        VkDeviceSize slotStart = slot.second;
-        VkDeviceSize slotSize = slot.first;
-        VkDeviceSize slotEnd = slotStart + slotSize;
+        size_t slotStart = slot.second;
+        size_t slotSize = slot.first;
+        size_t slotEnd = slotStart + slotSize;
 
-        VkDeviceSize alignedStart = ((slotStart + alignment - 1) / alignment) * alignment;
-        VkDeviceSize alignedEnd = alignedStart + size;
-        VkDeviceSize alignedSize = alignedEnd - slotStart;
+        size_t alignedStart = ((slotStart + alignment - 1) / alignment) * alignment;
+        size_t alignedEnd = alignedStart + size;
+        size_t alignedSize = alignedEnd - slotStart;
 
         if (alignedSize <= slotSize)
         {
@@ -132,7 +132,7 @@ MemorySlots::OptionalOffset MemorySlots::reserve(VkDeviceSize size, VkDeviceSize
             if (alignedStart > slotStart)
             {
                 // insert new slot with previous slots start and new end.
-                VkDeviceSize preAlignedStartSize = alignedStart - slotStart;
+                size_t preAlignedStartSize = alignedStart - slotStart;
                 _availableMemory.insert(SizeOffset(preAlignedStartSize, slotStart));
                 _offsetSizes.insert(OffsetSize(slotStart, preAlignedStartSize));
             }
@@ -141,7 +141,7 @@ MemorySlots::OptionalOffset MemorySlots::reserve(VkDeviceSize size, VkDeviceSize
             if (alignedEnd < slotEnd)
             {
                 // insert new slot with new end and new size
-                VkDeviceSize postAlignedEndSize = slotEnd - alignedEnd;
+                size_t postAlignedEndSize = slotEnd - alignedEnd;
                 _availableMemory.insert(SizeOffset(postAlignedEndSize, alignedEnd));
                 _offsetSizes.insert(OffsetSize(alignedEnd, postAlignedEndSize));
             }
@@ -167,7 +167,7 @@ MemorySlots::OptionalOffset MemorySlots::reserve(VkDeviceSize size, VkDeviceSize
     return OptionalOffset(false, 0);
 }
 
-void MemorySlots::release(VkDeviceSize offset, VkDeviceSize size)
+void MemorySlots::release(size_t offset, size_t size)
 {
     auto reserved_itr = _reservedOffsetSizes.find(offset);
     if (reserved_itr == _reservedOffsetSizes.end())
@@ -248,12 +248,12 @@ void MemorySlots::release(VkDeviceSize offset, VkDeviceSize size)
 
     if (slotBefore != _offsetSizes.end())
     {
-        VkDeviceSize endOfBeforeSlot = slotBefore->first + slotBefore->second;
+        size_t endOfBeforeSlot = slotBefore->first + slotBefore->second;
 
         if (endOfBeforeSlot == offset)
         {
-            VkDeviceSize endOfReleasedSlot = offset + size;
-            VkDeviceSize totalSizeOfMergedSlots = endOfReleasedSlot - slotBefore->first;
+            size_t endOfReleasedSlot = offset + size;
+            size_t totalSizeOfMergedSlots = endOfReleasedSlot - slotBefore->first;
 
             offset = slotBefore->first;
             size = totalSizeOfMergedSlots;
@@ -263,12 +263,12 @@ void MemorySlots::release(VkDeviceSize offset, VkDeviceSize size)
     }
     if (slotAfter != _offsetSizes.end())
     {
-        VkDeviceSize endOfReleasedSlot = offset + size;
+        size_t endOfReleasedSlot = offset + size;
 
         if (endOfReleasedSlot == slotAfter->first)
         {
-            VkDeviceSize endOfSlotAfter = slotAfter->first + slotAfter->second;
-            VkDeviceSize totalSizeOfMergedSlots = endOfSlotAfter - offset;
+            size_t endOfSlotAfter = slotAfter->first + slotAfter->second;
+            size_t totalSizeOfMergedSlots = endOfSlotAfter - offset;
             size = totalSizeOfMergedSlots;
 
             eraseSlot(slotAfter);
@@ -377,7 +377,7 @@ bool Allocator::deallocate(void* ptr)
 //
 // vsg::Allocator::MemoryBlock
 //
-Allocator::MemoryBlock::MemoryBlock(VkDeviceSize blockSize) :
+Allocator::MemoryBlock::MemoryBlock(size_t blockSize) :
     memorySlots(blockSize)
 {
     memory = static_cast<uint8_t*>(std::malloc(blockSize));
@@ -405,7 +405,7 @@ bool Allocator::MemoryBlock::deallocate(void* ptr)
 {
     if (ptr >= memory)
     {
-        VkDeviceSize offset = static_cast<uint8_t*>(ptr) - memory;
+        size_t offset = static_cast<uint8_t*>(ptr) - memory;
         if (offset < memorySlots.totalMemorySize())
         {
             memorySlots.release(offset, 0);
@@ -419,7 +419,7 @@ bool Allocator::MemoryBlock::deallocate(void* ptr)
 //
 // vsg::Allocator::MemoryBlocks
 //
-Allocator::MemoryBlocks::MemoryBlocks(const std::string& in_name, VkDeviceSize in_blockSize) :
+Allocator::MemoryBlocks::MemoryBlocks(const std::string& in_name, size_t in_blockSize) :
     name(in_name),
     blockSize(in_blockSize)
 {
@@ -438,7 +438,7 @@ void* Allocator::MemoryBlocks::allocate(std::size_t size)
         if (ptr) return ptr;
     }
 
-    VkDeviceSize new_blockSize = std::max(size, blockSize);
+    size_t new_blockSize = std::max(size, blockSize);
 
     std::unique_ptr<MemoryBlock> block(new MemoryBlock(new_blockSize));
     auto ptr = block->allocate(size);
