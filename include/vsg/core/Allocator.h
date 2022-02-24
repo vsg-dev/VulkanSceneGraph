@@ -27,7 +27,8 @@ namespace vsg
         ALLOCATOR_MALLOC_FREE,
         ALLOCATOR_OBJECTS,
         ALLOCATOR_DATA,
-        ALLOCATOR_NODES
+        ALLOCATOR_NODES,
+        ALLOCATOR_LAST = ALLOCATOR_NODES+1
     };
 
     /** extensible Allocator that handles allocation and deallocation of scene graph CPU memory,*/
@@ -42,7 +43,7 @@ namespace vsg
         static std::unique_ptr<Allocator>& instance();
 
         virtual void* allocate(std::size_t size, AllocatorType allocatorType = ALLOCATOR_OBJECTS);
-        virtual void deallocate(void* ptr);
+        virtual bool deallocate(void* ptr);
 
         // if you are assigning a custom allocator you mest retain the old allocator to manage the memory it allocated and needs to delete
         std::unique_ptr<Allocator> nestedAllocator;
@@ -74,7 +75,7 @@ namespace vsg
 
         void deallocate(value_type* ptr, std::size_t /*n*/)
         {
-            return vsg::deallocate(ptr);
+            vsg::deallocate(ptr);
         }
     };
 

@@ -22,22 +22,17 @@ using namespace vsg;
 Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator):
     nestedAllocator(std::move(in_nestedAllocator))
 {
-//    std::cout<<"Allocator::Allocator() "<<this<<" "<<nestedAllocator.get()<<std::endl;
+    // std::cout<<"Allocator::Allocator() "<<this<<" "<<nestedAllocator.get()<<std::endl;
 }
 
 Allocator::~Allocator()
 {
-//    std::cout<<"Allocator::~Allocator() "<<this<<std::endl;
+    // std::cout<<"Allocator::~Allocator() "<<this<<std::endl;
 }
-
-#if 1
-static std::unique_ptr<Allocator> s_allocator(new Allocator());
-#else
-static std::unique_ptr<Allocator> s_allocator;
-#endif
 
 std::unique_ptr<Allocator>& Allocator::instance()
 {
+    static std::unique_ptr<Allocator> s_allocator(new Allocator());
     return s_allocator;
 }
 
@@ -50,22 +45,22 @@ void* Allocator::allocate(std::size_t size, AllocatorType /*allocatorType*/)
     return ptr;
 }
 
-void Allocator::deallocate(void* ptr)
+bool Allocator::deallocate(void* ptr)
 {
 //    std::cout<<"Allocator::deallocate("<<ptr<<")"<<std::endl;
 
     ::operator delete(ptr);
+
+    return true;
 }
 
 
 void* vsg::allocate(std::size_t size, AllocatorType allocatorType)
 {
-    if (Allocator::instance()) return Allocator::instance()->allocate(size, allocatorType);
-    return std::malloc(size);
+    Allocator::instance()->allocate(size, allocatorType);
 }
 
 void vsg::deallocate(void* ptr)
 {
-    if (Allocator::instance()) return Allocator::instance()->deallocate(ptr);
-    else return std::free(ptr);
+    Allocator::instance()->deallocate(ptr));
 }
