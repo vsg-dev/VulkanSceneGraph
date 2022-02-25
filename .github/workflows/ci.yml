@@ -10,12 +10,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-2016]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         vulkan-version: [1.2.189.0, latest]
         build-shared: [OFF]
         include:
           - build-shared: ON
-            os: windows-2016
+            os: windows-latest
             vulkan-version: 1.2.189.0
     continue-on-error: ${{ matrix.vulkan-version == 'latest' }}
           
@@ -32,7 +32,7 @@ jobs:
         cache: true
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
-      if: matrix.os == 'windows-2016'
+      if: startsWith(matrix.os, 'windows')
     - name: Build and Install VSG
       shell: bash
       run: |
