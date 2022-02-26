@@ -129,6 +129,18 @@ VkResult Image::bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
     return result;
 }
 
+VkResult Image::allocateAndBindMemory(Device* device, VkMemoryPropertyFlags memoryProperties, void* pNextAllocInfo)
+{
+    auto memRequirements = getMemoryRequirements(device->deviceID);
+    auto memory = DeviceMemory::create(device, memRequirements, memoryProperties);
+    auto [allocated, offset] = memory->reserve(memRequirements.size);
+    if (!allocated)
+    {
+        throw Exception{"Error: Failed to allocate DeviceMemory."};
+    }
+    return bind(memory, offset);
+}
+
 VkMemoryRequirements Image::getMemoryRequirements(uint32_t deviceID) const
 {
     const VulkanData& vd = _vulkanData[deviceID];

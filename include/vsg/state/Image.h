@@ -54,6 +54,8 @@ namespace vsg
 
         VkMemoryRequirements getMemoryRequirements(uint32_t deviceID) const;
 
+        VkResult allocateAndBindMemory(Device* device, VkMemoryPropertyFlags memoryProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, void* pNextAllocInfo = nullptr);
+
         VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset);
 
         /// return true if the Image's data has been modified and should be copied to the buffer.
