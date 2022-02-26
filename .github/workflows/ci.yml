@@ -22,7 +22,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v1.9
+      uses: jwlawson/actions-setup-cmake@v1.12
       with:
         cmake-version: ${{ env.CMakeVersion }}
     - name: Install Vulkan SDK
@@ -31,7 +31,7 @@ jobs:
         version: ${{ matrix.vulkan-version }}
         cache: true
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
+      uses: microsoft/setup-msbuild@v1.1
       if: startsWith(matrix.os, 'windows')
     - name: Build and Install VSG
       shell: bash
