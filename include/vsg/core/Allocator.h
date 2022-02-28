@@ -47,10 +47,12 @@ namespace vsg
 
         void report(std::ostream& out) const;
 
+        int memoryTracking = MEMORY_TRACKING_DEFAULT;
+
     protected:
         struct MemoryBlock
         {
-            MemoryBlock(size_t blockSize);
+            MemoryBlock(size_t blockSize, int memoryTracking);
             virtual ~MemoryBlock();
 
             void* allocate(std::size_t size);
@@ -62,11 +64,12 @@ namespace vsg
 
         struct MemoryBlocks
         {
+            Allocator* parent = nullptr;
             std::string name;
             size_t blockSize = 0;
             std::list<std::unique_ptr<MemoryBlock>> memoryBlocks;
 
-            MemoryBlocks(const std::string& in_name, size_t in_blockSize);
+            MemoryBlocks(Allocator* in_parent, const std::string& in_name, size_t in_blockSize);
             virtual ~MemoryBlocks();
 
             void* allocate(std::size_t size);

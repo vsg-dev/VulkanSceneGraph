@@ -19,16 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#define DO_CHECK 0
-
-#if DO_CHECK
-#    define DEBUG \
-        if (true) std::cout
-#else
-#    define DEBUG \
-        if (false) std::cout
-#endif
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // vsg::Allocator
@@ -36,19 +26,25 @@ using namespace vsg;
 Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator) :
     nestedAllocator(std::move(in_nestedAllocator))
 {
-    DEBUG << "Allocator()" << this << std::endl;
+    if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
+    {
+        std::cout << "Allocator()" << this << std::endl;
+    }
 
     allocatorMemoryBlocks.resize(vsg::ALLOCATOR_LAST);
 
     // TODO need to set to a more sensible default
-    allocatorMemoryBlocks[vsg::ALLOCATOR_OBJECTS].reset(new MemoryBlocks("ALLOCATOR_OBJECTS", size_t(4096)*10));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_DATA].reset(new MemoryBlocks("ALLOCATOR_DATA", size_t(2048)*10));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_NODES].reset(new MemoryBlocks("ALLOCATOR_NODES", size_t(512)*10));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_OBJECTS].reset(new MemoryBlocks(this, "ALLOCATOR_OBJECTS", size_t(4096)*10));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_DATA].reset(new MemoryBlocks(this, "ALLOCATOR_DATA", size_t(2048)*10));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_NODES].reset(new MemoryBlocks(this, "ALLOCATOR_NODES", size_t(512)*10));
 }
 
 Allocator::~Allocator()
 {
-    DEBUG << "~Allocator() " << this << std::endl;
+    if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
+    {
+        std::cout << "~Allocator() " << this << std::endl;
+    }
 }
 
 std::unique_ptr<Allocator>& Allocator::instance()
@@ -87,13 +83,19 @@ void* Allocator::allocate(std::size_t size, vsg::AllocatorType allocatorType)
         auto mem_ptr = memoryBlocks->allocate(size);
         if (mem_ptr)
         {
-            DEBUG << "Allocated from MemoryBlock mem_ptr = " << mem_ptr << ", size = " << size << ", allocatorType = " << int(allocatorType) << std::endl;
+            if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
+            {
+                std::cout << "Allocated from MemoryBlock mem_ptr = " << mem_ptr << ", size = " << size << ", allocatorType = " << int(allocatorType) << std::endl;
+            }
             return mem_ptr;
         }
     }
 
     void* ptr = Allocator::allocate(size, allocatorType);
-    DEBUG << "Allocator::allocate(" << size << ", " << int(allocatorType) << ") ptr = " << ptr << std::endl;
+    if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
+    {
+        std::cout << "Allocator::allocate(" << size << ", " << int(allocatorType) << ") ptr = " << ptr << std::endl;
+    }
     return ptr;
 }
 
@@ -107,7 +109,10 @@ bool Allocator::deallocate(void* ptr)
         {
             if (memoryBlocks->deallocate(ptr))
             {
-                DEBUG << "Deallocated from MemoryBlock " << ptr << std::endl;
+                if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
+                {
+                    std::cout<< "Deallocated from MemoryBlock " << ptr << std::endl;
+                }
                 return true;
             }
         }
@@ -122,18 +127,25 @@ bool Allocator::deallocate(void* ptr)
 //
 // vsg::Allocator::MemoryBlock
 //
-Allocator::MemoryBlock::MemoryBlock(size_t blockSize) :
-    memorySlots(blockSize)
+Allocator::MemoryBlock::MemoryBlock(size_t blockSize, int memoryTracking) :
+    memorySlots(blockSize, memoryTracking)
 {
     memory = static_cast<uint8_t*>(std::malloc(blockSize));
 
-    DEBUG << "MemoryBlock(" << blockSize << ") allocatoed memory" << std::endl;
+    if (memorySlots.memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
+    {
+        std::cout << "MemoryBlock(" << blockSize << ") allocatoed memory" << std::endl;
+    }
 }
 
 Allocator::MemoryBlock::~MemoryBlock()
 {
-    DEBUG << "MemoryBlock::~MemoryBlock(" << memorySlots.totalMemorySize() << ") freed memory" << std::endl;
-    // memorySlots.report();
+    if (memorySlots.memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
+    {
+        std::cout << "MemoryBlock::~MemoryBlock(" << memorySlots.totalMemorySize() << ") freed memory" << std::endl;
+        memorySlots.report(std::cout);
+    }
+
     std::free(memory);
 }
 
@@ -167,7 +179,8 @@ bool Allocator::MemoryBlock::deallocate(void* ptr)
 //
 // vsg::Allocator::MemoryBlocks
 //
-Allocator::MemoryBlocks::MemoryBlocks(const std::string& in_name, size_t in_blockSize) :
+Allocator::MemoryBlocks::MemoryBlocks(Allocator* in_parent, const std::string& in_name, size_t in_blockSize) :
+    parent(in_parent),
     name(in_name),
     blockSize(in_blockSize)
 {
@@ -175,7 +188,10 @@ Allocator::MemoryBlocks::MemoryBlocks(const std::string& in_name, size_t in_bloc
 
 Allocator::MemoryBlocks::~MemoryBlocks()
 {
-    DEBUG << "MemoryBlocks::~MemoryBlocks() name = " << name << ", " << memoryBlocks.size() << std::endl;
+    if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
+    {
+        std::cout << "MemoryBlocks::~MemoryBlocks() name = " << name << ", " << memoryBlocks.size() << std::endl;
+    }
 }
 
 void* Allocator::MemoryBlocks::allocate(std::size_t size)
@@ -188,7 +204,7 @@ void* Allocator::MemoryBlocks::allocate(std::size_t size)
 
     size_t new_blockSize = std::max(size, blockSize);
 
-    std::unique_ptr<MemoryBlock> block(new MemoryBlock(new_blockSize));
+    std::unique_ptr<MemoryBlock> block(new MemoryBlock(new_blockSize, parent->memoryTracking));
     auto ptr = block->allocate(size);
 
     memoryBlocks.push_back(std::move(block));
@@ -203,7 +219,10 @@ bool Allocator::MemoryBlocks::deallocate(void* ptr)
         if (block->deallocate(ptr)) return true;
     }
 
-    DEBUG << "MemoryBlocks:deallocate() : couldn't locate point to deallocato " << ptr << std::endl;
+    if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
+    {
+        std::cout<< "MemoryBlocks:deallocate() : couldn't locate point to deallocato " << ptr << std::endl;
+    }
     return false;
 }
 
