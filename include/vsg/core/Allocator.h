@@ -42,12 +42,19 @@ namespace vsg
         /// Allocator singleton
         static std::unique_ptr<Allocator>& instance();
 
+        /// allocate from the pool of memory blocks, or allocate from a new memory bock
         virtual void* allocate(std::size_t size, AllocatorType allocatorType = ALLOCATOR_OBJECTS);
+
+        /// deallocate returning data to pool.
         virtual bool deallocate(void* ptr, std::size_t size);
 
-        void report(std::ostream& out) const;
+        /// report stats about block of memory allocated.
+        virtual void report(std::ostream& out) const;
 
         int memoryTracking = MEMORY_TRACKING_DEFAULT;
+
+        /// set the MemoryTracking member of of the vsg::Allocator and all the MemoryBlocks that it manages.
+        void setMemoryTracking(int mt);
 
     protected:
         struct MemoryBlock
@@ -106,7 +113,7 @@ namespace vsg
 
         void deallocate(value_type* ptr, std::size_t n)
         {
-            vsg::deallocate(ptr, n);
+            vsg::deallocate(ptr, n * sizeof(value_type));
         }
     };
 

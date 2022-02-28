@@ -11,8 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Allocator.h>
-#include <vsg/core/Auxiliary.h>
-#include <vsg/io/Options.h>
+#include <vsg/core/Exception.h>
 
 #include <algorithm>
 #include <iostream>
@@ -109,7 +108,7 @@ bool MemorySlots::check() const
 
         report(std::cout);
 
-        throw "MemorySlots check failed";
+        // throw Exception{"MemorySlots check failed", 0};
 
         return false;
     }
@@ -135,7 +134,7 @@ void MemorySlots::report(std::ostream& out) const
         out<<"MemorySlots::reportActions() "<<this<<" number of actions "<<logOfActions.size()<<std::endl;
         for(auto& act : logOfActions)
         {
-            out<<"   action = "<<act.action<<", offset = "<<act.offset<<", "<<", size = "<<act.size<<", alightment = "<<act.alignment<<std::endl;
+            out<<"   action = "<<act.action<<", offset = "<<act.offset<<", size = "<<act.size<<", alignment = "<<act.alignment<<std::endl;
         }
     }
 }
@@ -196,6 +195,11 @@ MemorySlots::OptionalOffset MemorySlots::reserve(size_t size, size_t alignment)
             check();
 #endif
 
+            if (memoryTracking & MEMORY_TRACKING_LOG_ACTIONS)
+            {
+                logOfActions.push_back(Action{2, alignedStart, size, alignment});
+            }
+
             return OptionalOffset(true, alignedStart);
         }
         else
@@ -220,7 +224,7 @@ bool MemorySlots::release(size_t offset, size_t size)
 
     if (memoryTracking & MEMORY_TRACKING_LOG_ACTIONS)
     {
-        logOfActions.push_back(Action{2, offset, size, 0});
+        logOfActions.push_back(Action{3, offset, size, 0});
     }
 
     auto reserved_itr = _reservedOffsetSizes.find(offset);
@@ -232,7 +236,7 @@ bool MemorySlots::release(size_t offset, size_t size)
 
             report(std::cout);
 
-            throw "MemorySlots::release() slot found A";
+            // throw Exception{"MemorySlots::release() slot found A", 0};
         }
         return false;
     }
@@ -244,7 +248,7 @@ bool MemorySlots::release(size_t offset, size_t size)
             {
                 std::cout << "MemorySlots::release() slot found but sizes are inconsistent reserved_itr->second = " << std::dec << reserved_itr->second << ", size=" << size << std::endl;
                 report(std::cout);
-                if (size != 0) throw "MemorySlots::release() slot found but sizes are inconsistent reserved_itr->second";
+                //if (size != 0) throw Exception{"MemorySlots::release() slot found but sizes are inconsistent reserved_itr->second",0};
             }
             else
             {

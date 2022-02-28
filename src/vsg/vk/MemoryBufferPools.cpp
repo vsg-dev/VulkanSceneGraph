@@ -23,6 +23,7 @@ MemoryBufferPools::MemoryBufferPools(const std::string& in_name, ref_ptr<Device>
     device(in_device),
     resourceRequirements(in_resourceRequirements)
 {
+    memoryTracking = vsg::Allocator::instance()->memoryTracking;
 }
 
 VkDeviceSize MemoryBufferPools::computeMemoryTotalAvailable() const

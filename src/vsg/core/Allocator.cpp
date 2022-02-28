@@ -11,8 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Allocator.h>
-#include <vsg/core/Auxiliary.h>
-#include <vsg/io/Options.h>
+#include <vsg/core/Exception.h>
 
 #include <algorithm>
 #include <iostream>
@@ -34,9 +33,9 @@ Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator) :
     allocatorMemoryBlocks.resize(vsg::ALLOCATOR_LAST);
 
     // TODO need to set to a more sensible default
-    allocatorMemoryBlocks[vsg::ALLOCATOR_OBJECTS].reset(new MemoryBlocks(this, "ALLOCATOR_OBJECTS", size_t(4096)*10));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_DATA].reset(new MemoryBlocks(this, "ALLOCATOR_DATA", size_t(2048)*10));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_NODES].reset(new MemoryBlocks(this, "ALLOCATOR_NODES", size_t(512)*10));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_OBJECTS].reset(new MemoryBlocks(this, "ALLOCATOR_OBJECTS", size_t(4096)));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_DATA].reset(new MemoryBlocks(this, "ALLOCATOR_DATA", size_t(2048)));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_NODES].reset(new MemoryBlocks(this, "ALLOCATOR_NODES", size_t(512)));
 }
 
 Allocator::~Allocator()
@@ -143,7 +142,6 @@ Allocator::MemoryBlock::~MemoryBlock()
     if (memorySlots.memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
         std::cout << "MemoryBlock::~MemoryBlock(" << memorySlots.totalMemorySize() << ") freed memory" << std::endl;
-        memorySlots.report(std::cout);
     }
 
     std::free(memory);
@@ -184,6 +182,10 @@ Allocator::MemoryBlocks::MemoryBlocks(Allocator* in_parent, const std::string& i
     name(in_name),
     blockSize(in_blockSize)
 {
+    if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
+    {
+        std::cout << "Allocator::MemoryBlocks::MemoryBlocks("<<parent<<", "<<name<<", " << blockSize << ")"<<std::endl;
+    }
 }
 
 Allocator::MemoryBlocks::~MemoryBlocks()
@@ -209,6 +211,11 @@ void* Allocator::MemoryBlocks::allocate(std::size_t size)
 
     memoryBlocks.push_back(std::move(block));
 
+    if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
+    {
+        std::cout<<"Allocator::MemoryBlocks::allocate("<<size<<") MemoryBlocks.name = "<<name<<", allocated in new MemoryBlock "<<parent->memoryTracking<<std::endl;
+    }
+
     return ptr;
 }
 
@@ -221,9 +228,26 @@ bool Allocator::MemoryBlocks::deallocate(void* ptr, std::size_t size)
 
     if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout<< "MemoryBlocks:deallocate() : couldn't locate point to deallocato " << ptr << std::endl;
+        std::cout<< "MemoryBlocks:deallocate() MemoryBlocks.name = "<<name<<",  couldn't locate pointer to deallocate " << ptr << std::endl;
     }
     return false;
+}
+
+void Allocator::setMemoryTracking(int mt)
+{
+    std::cout<<"Allocator::setMemoryTracking("<<mt<<")"<<std::endl;
+    memoryTracking = mt;
+    for(auto& amb : allocatorMemoryBlocks)
+    {
+        if (amb)
+        {
+            for(auto& mb : amb->memoryBlocks)
+            {
+                mb->memorySlots.memoryTracking = mt;
+                std::cout<<"    mb->memorySlots.memoryTracking = "<<mb->memorySlots.memoryTracking<<std::endl;
+            }
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

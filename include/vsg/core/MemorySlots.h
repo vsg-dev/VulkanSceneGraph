@@ -28,11 +28,7 @@ namespace vsg
         MEMORY_TRACKING_REPORT_ACTIONS = 1,
         MEMORY_TRACKING_CHECK_ACTIONS = 2,
         MEMORY_TRACKING_LOG_ACTIONS = 4,
-#if 1
-        MEMORY_TRACKING_DEFAULT = MEMORY_TRACKING_REPORT_ACTIONS | MEMORY_TRACKING_CHECK_ACTIONS
-#else
         MEMORY_TRACKING_DEFAULT = MEMORY_TRACKING_NO_CHECKS
-#endif
     };
 
     /** class used internally by vsg::Allocator, vsg::DeviceMemory and vsg::Buffer to manage allocation of within a block of CPU or GPU memory.*/
@@ -61,7 +57,10 @@ namespace vsg
 
         struct Action
         {
-            int action; // action==0 is MemorySlots::MemorySlots(availableMemorySize), action==1 is MemorySlots::reserve(size, alightment), action==2, MemorySlots::release(size, alightment)
+            /// action==0 is MemorySlots::MemorySlots(availableMemorySize),
+            /// action==1 is MemorySlots::reserve(size, alightment) request, and if successful followed by a action==2 with the offset
+            /// action==3, MemorySlots::release(size, alightment)
+            int action;
             size_t offset;
             size_t size;
             size_t alignment;
