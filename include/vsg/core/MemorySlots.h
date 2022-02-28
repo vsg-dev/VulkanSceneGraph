@@ -28,7 +28,7 @@ namespace vsg
         MEMORY_TRACKING_REPORT_ACTIONS = 1,
         MEMORY_TRACKING_CHECK_ACTIONS = 2,
         MEMORY_TRACKING_LOG_ACTIONS = 4,
-#if 0
+#if 1
         MEMORY_TRACKING_DEFAULT = MEMORY_TRACKING_REPORT_ACTIONS | MEMORY_TRACKING_CHECK_ACTIONS
 #else
         MEMORY_TRACKING_DEFAULT = MEMORY_TRACKING_NO_CHECKS
@@ -67,7 +67,7 @@ namespace vsg
             size_t alignment;
         };
 
-        int memoryTracking = MEMORY_TRACKING_DEFAULT;
+        mutable int memoryTracking = MEMORY_TRACKING_DEFAULT;
         std::list<Action> logOfActions;
 
     protected:

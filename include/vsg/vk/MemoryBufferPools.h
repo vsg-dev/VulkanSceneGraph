@@ -29,6 +29,7 @@ namespace vsg
         std::string name;
         ref_ptr<Device> device;
         ResourceRequirements resourceRequirements;
+        int memoryTracking = MEMORY_TRACKING_DEFAULT;
 
         // transfer data settings
         using MemoryPools = std::vector<ref_ptr<DeviceMemory>>;
