@@ -99,7 +99,7 @@ void* Allocator::allocate(std::size_t size, vsg::AllocatorType allocatorType)
     return ptr;
 }
 
-bool Allocator::deallocate(void* ptr)
+bool Allocator::deallocate(void* ptr, std::size_t size)
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
@@ -107,7 +107,7 @@ bool Allocator::deallocate(void* ptr)
     {
         if (memoryBlocks)
         {
-            if (memoryBlocks->deallocate(ptr))
+            if (memoryBlocks->deallocate(ptr, size))
             {
                 if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
                 {
@@ -118,7 +118,7 @@ bool Allocator::deallocate(void* ptr)
         }
     }
 
-    if (nestedAllocator) return nestedAllocator->deallocate(ptr);
+    if (nestedAllocator) return nestedAllocator->deallocate(ptr, size);
 
     return false;
 }
@@ -158,14 +158,14 @@ void* Allocator::MemoryBlock::allocate(std::size_t size)
         return nullptr;
 }
 
-bool Allocator::MemoryBlock::deallocate(void* ptr)
+bool Allocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
 {
     if (ptr >= memory)
     {
         size_t offset = static_cast<uint8_t*>(ptr) - memory;
         if (offset < memorySlots.totalMemorySize())
         {
-            if (!memorySlots.release(offset, 0))
+            if (!memorySlots.release(offset, size))
             {
                 std::cout<<"Allocator::MemoryBlock::deallocate("<<ptr<<") problem - couldn't release"<<std::endl;
             }
@@ -212,11 +212,11 @@ void* Allocator::MemoryBlocks::allocate(std::size_t size)
     return ptr;
 }
 
-bool Allocator::MemoryBlocks::deallocate(void* ptr)
+bool Allocator::MemoryBlocks::deallocate(void* ptr, std::size_t size)
 {
     for (auto& block : memoryBlocks)
     {
-        if (block->deallocate(ptr)) return true;
+        if (block->deallocate(ptr, size)) return true;
     }
 
     if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
@@ -235,7 +235,7 @@ void* vsg::allocate(std::size_t size, AllocatorType allocatorType)
     return Allocator::instance()->allocate(size, allocatorType);
 }
 
-void vsg::deallocate(void* ptr)
+void vsg::deallocate(void* ptr, std::size_t size)
 {
-    Allocator::instance()->deallocate(ptr);
+    Allocator::instance()->deallocate(ptr, size);
 }

@@ -43,7 +43,7 @@ namespace vsg
         static std::unique_ptr<Allocator>& instance();
 
         virtual void* allocate(std::size_t size, AllocatorType allocatorType = ALLOCATOR_OBJECTS);
-        virtual bool deallocate(void* ptr);
+        virtual bool deallocate(void* ptr, std::size_t size);
 
         void report(std::ostream& out) const;
 
@@ -56,7 +56,7 @@ namespace vsg
             virtual ~MemoryBlock();
 
             void* allocate(std::size_t size);
-            bool deallocate(void* ptr);
+            bool deallocate(void* ptr, std::size_t size);
 
             uint8_t* memory = nullptr;
             vsg::MemorySlots memorySlots;
@@ -73,7 +73,7 @@ namespace vsg
             virtual ~MemoryBlocks();
 
             void* allocate(std::size_t size);
-            bool deallocate(void* ptr);
+            bool deallocate(void* ptr, std::size_t size);
         };
 
         // if you are assigning a custom allocator you mest retain the old allocator to manage the memory it allocated and needs to delete
@@ -87,7 +87,7 @@ namespace vsg
     void* allocate(std::size_t size, AllocatorType allocatorType = ALLOCATOR_OBJECTS);
 
     /// deallocate memory using vsg::Allocator::instance() if avaiable, otherwise use std::free(ptr)
-    void deallocate(void* ptr);
+    void deallocate(void* ptr, std::size_t size = 0);
 
     /// std container adapter for allocating with MEMORY_AFFINITY_NODES
     template<typename T>
@@ -104,9 +104,9 @@ namespace vsg
             return static_cast<value_type*>(vsg::allocate(n * sizeof(value_type), vsg::ALLOCATOR_NODES));
         }
 
-        void deallocate(value_type* ptr, std::size_t /*n*/)
+        void deallocate(value_type* ptr, std::size_t n)
         {
-            vsg::deallocate(ptr);
+            vsg::deallocate(ptr, n);
         }
     };
 
