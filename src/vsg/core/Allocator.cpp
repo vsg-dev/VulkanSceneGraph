@@ -41,9 +41,9 @@ Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator) :
     allocatorMemoryBlocks.resize(vsg::ALLOCATOR_LAST);
 
     // TODO need to set to a more sensible default
-    allocatorMemoryBlocks[vsg::ALLOCATOR_OBJECTS].reset(new MemoryBlocks("ALLOCATOR_OBJECTS", size_t(4096)));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_DATA].reset(new MemoryBlocks("ALLOCATOR_DATA", size_t(2048)));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_NODES].reset(new MemoryBlocks("ALLOCATOR_NODES", size_t(512)));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_OBJECTS].reset(new MemoryBlocks("ALLOCATOR_OBJECTS", size_t(4096)*10));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_DATA].reset(new MemoryBlocks("ALLOCATOR_DATA", size_t(2048)*10));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_NODES].reset(new MemoryBlocks("ALLOCATOR_NODES", size_t(512)*10));
 }
 
 Allocator::~Allocator()
@@ -59,8 +59,9 @@ std::unique_ptr<Allocator>& Allocator::instance()
 
 void Allocator::report(std::ostream& out) const
 {
-    out << "Allocator::report() " << allocatorMemoryBlocks.size() << std::endl;
     std::scoped_lock<std::mutex> lock(mutex);
+
+    out << "Allocator::report() " << allocatorMemoryBlocks.size() << std::endl;
     for (const auto& memoryBlocks : allocatorMemoryBlocks)
     {
         if (memoryBlocks)

@@ -19,33 +19,47 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#define DO_CHECK 0
-
-#if DO_CHECK
-#    define DEBUG \
-        if (true) std::cout
-#else
-#    define DEBUG \
-        if (false) std::cout
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // MemorySlots
 //
-MemorySlots::MemorySlots(size_t availableMemorySize, bool log) :
-    logActions(log)
+MemorySlots::MemorySlots(size_t availableMemorySize, int in_memoryTracking) :
+    memoryTracking(in_memoryTracking)
 {
-    std::cout<<"MemorySlots::MemorySlots("<<availableMemorySize<<") "<<this<<std::endl;
+    if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
+    {
+        std::cout<<"MemorySlots::MemorySlots("<<availableMemorySize<<") "<<this<<std::endl;
+    }
+    if (memoryTracking & MEMORY_TRACKING_LOG_ACTIONS)
+    {
+        logOfActions.push_back(Action{0, 0, availableMemorySize, 0});
+    }
 
     _availableMemory.insert(SizeOffset(availableMemorySize, 0));
     _offsetSizes.insert(OffsetSize(0, availableMemorySize));
 
     _totalMemorySize = availableMemorySize;
 
-    if (logActions)
+}
+
+MemorySlots::~MemorySlots()
+{
+    if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        logOfActions.push_back(Action{0, 0, availableMemorySize, 0});
+        if (_availableMemory.size()==1)
+        {
+            std::cout<<"MemorySlots::~MemorySlots() "<<this<<", all slots restored correctly."<<std::endl;
+        }
+        else
+        {
+            std::cout<<"MemorySlots::~MemorySlots() "<<this<<", not all slots restored correctly."<<std::endl;
+            report(std::cout);
+        }
+    }
+    if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS)
+    {
+        check();
     }
 }
 
@@ -115,13 +129,25 @@ void MemorySlots::report(std::ostream& out) const
     {
          out << "    reserved " << std::dec << offset << ", " << size << std::endl;
     }
+
+    if (!logOfActions.empty())
+    {
+        out<<"MemorySlots::reportActions() "<<this<<" number of actions "<<logOfActions.size()<<std::endl;
+        for(auto& act : logOfActions)
+        {
+            out<<"   action = "<<act.action<<", offset = "<<act.offset<<", "<<", size = "<<act.size<<", alightment = "<<act.alignment<<std::endl;
+        }
+    }
 }
 
 MemorySlots::OptionalOffset MemorySlots::reserve(size_t size, size_t alignment)
 {
-    DEBUG<<"MemorySlots::reserve("<<size<<", "<<alignment<<") "<<this<<std::endl;
+    if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
+    {
+        std::cout<<"MemorySlots::reserve("<<size<<", "<<alignment<<") "<<this<<std::endl;
+    }
 
-    if (logActions)
+    if (memoryTracking & MEMORY_TRACKING_LOG_ACTIONS)
     {
         logOfActions.push_back(Action{1, 0, size, alignment});
     }
@@ -187,7 +213,12 @@ MemorySlots::OptionalOffset MemorySlots::reserve(size_t size, size_t alignment)
 
 bool MemorySlots::release(size_t offset, size_t size)
 {
-    if (logActions)
+    if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
+    {
+        std::cout<<"MemorySlots::release("<<offset<<", "<<size<<") "<<this<<std::endl;
+    }
+
+    if (memoryTracking & MEMORY_TRACKING_LOG_ACTIONS)
     {
         logOfActions.push_back(Action{2, offset, size, 0});
     }
@@ -195,33 +226,33 @@ bool MemorySlots::release(size_t offset, size_t size)
     auto reserved_itr = _reservedOffsetSizes.find(offset);
     if (reserved_itr == _reservedOffsetSizes.end())
     {
-#if DO_CHECK
-        std::cout << "MemorySlots::release("<<offset<<", "<<size<<") "<<this<<", slot not found A" << std::endl;
+        if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS)
+        {
+            std::cout << "MemorySlots::release("<<offset<<", "<<size<<") "<<this<<", slot not found A" << std::endl;
 
-        report(std::cout);
+            report(std::cout);
 
-        reportActions(std::cout);
-
-        throw "MemorySlots::release() slot found A";
-#endif
+            throw "MemorySlots::release() slot found A";
+        }
         return false;
     }
     else
     {
-#if DO_CHECK && false
-        if (reserved_itr->second != size)
+        if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS)
         {
-            std::cout << "MemorySlots::release() slot found but sizes are inconsistent reserved_itr->second = " << std::dec << reserved_itr->second << ", size=" << size << std::endl;
-            reportActions(std::cout);
-            if (size != 0) throw "MemorySlots::release() slot found but sizes are inconsistent reserved_itr->second";
+            if (reserved_itr->second != size)
+            {
+                std::cout << "MemorySlots::release() slot found but sizes are inconsistent reserved_itr->second = " << std::dec << reserved_itr->second << ", size=" << size << std::endl;
+                report(std::cout);
+                if (size != 0) throw "MemorySlots::release() slot found but sizes are inconsistent reserved_itr->second";
+            }
+            else
+            {
+                std::cout << "    MemorySlots::release("<<offset<<", "<<size<<") "<<this<<", slot found B" << std::endl;
+                report(std::cout);
+                return false;
+            }
         }
-        else
-        {
-            std::cout << "    MemorySlots::release("<<offset<<", "<<size<<") "<<this<<", slot found B" << std::endl;
-            reportActions(std::cout);
-            return false;
-        }
-#endif
 
         size = reserved_itr->second;
 
@@ -234,9 +265,8 @@ bool MemorySlots::release(size_t offset, size_t size)
         _availableMemory.insert(SizeOffset(size, offset));
         _offsetSizes.insert(OffsetSize(offset, size));
 
-#if DO_CHECK
-        check();
-#endif
+        if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS) check();
+
         return true;
     }
 
@@ -310,20 +340,10 @@ bool MemorySlots::release(size_t offset, size_t size)
     _availableMemory.insert(SizeOffset(size, offset));
     _offsetSizes.insert(OffsetSize(offset, size));
 
-    //report();
-
-#if DO_CHECK
-    check();
-#endif
+    if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS)
+    {
+        check();
+    }
 
     return true;
-}
-
-void MemorySlots::reportActions(std::ostream& output) const
-{
-    output<<"MemorySlots::reportActions() "<<this<<" number of actions "<<logOfActions.size()<<std::endl;
-    for(auto& act : logOfActions)
-    {
-        output<<"   action = "<<act.action<<", offset = "<<act.offset<<", "<<", size = "<<act.size<<", alightment = "<<act.alignment<<std::endl;
-    }
 }

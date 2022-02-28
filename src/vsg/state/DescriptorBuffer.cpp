@@ -85,8 +85,6 @@ void DescriptorBuffer::write(Output& output) const
 
 void DescriptorBuffer::compile(Context& context)
 {
-    std::cout<<"\nDescriptorBuffer::compile(Context& context) "<<this<<std::endl;
-
     VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 
     bool requiresAssingmentOfBuffers = false;
@@ -121,7 +119,6 @@ void DescriptorBuffer::compile(Context& context)
         if (totalSize > 0)
         {
             auto buffer = vsg::Buffer::create(totalSize, bufferUsageFlags, VK_SHARING_MODE_EXCLUSIVE);
-            std::cout<<"Buffer::create() "<<buffer<<std::endl;
             for (auto& bufferInfo : bufferInfoList)
             {
                 if (bufferInfo->data && !bufferInfo->buffer)
@@ -132,11 +129,10 @@ void DescriptorBuffer::compile(Context& context)
                         bufferInfo->buffer = buffer;
                         bufferInfo->offset = offset;
                         bufferInfo->range = bufferInfo->data->dataSize();
-                        std::cout<<"-- buffer reserved ("<<bufferInfo->offset<<", "<<bufferInfo->range<<")"<<std::endl;
                     }
                     else
                     {
-                        std::cout<<"** failed reserved ("<<bufferInfo->offset<<", "<<bufferInfo->range<<")"<<std::endl;
+                        std::cout<<"Warning: DescriptorBuffer::compile(..) unable to allocate bufferInfo with within associated Buffer."<<std::endl;
                     }
                 }
             }
@@ -154,8 +150,14 @@ void DescriptorBuffer::compile(Context& context)
                     auto memRequirements = bufferInfo->buffer->getMemoryRequirements(deviceID);
                     auto memory = vsg::DeviceMemory::create(context.device, memRequirements, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
                     auto [alloacted, offset] = memory->reserve(bufferInfo->buffer->size);
-                    std::cout<<"-- memory reserved ("<<offset<<", "<<bufferInfo->buffer->size<<")"<<std::endl;
-                    bufferInfo->buffer->bind(memory, 0);
+                    if (alloacted)
+                    {
+                        bufferInfo->buffer->bind(memory, offset);
+                    }
+                    else
+                    {
+                        std::cout<<"Warning: DescriptorBuffer::compile(..) unable to allocate buffer within associated DeviceMemory."<<std::endl;
+                    }
                 }
             }
 
@@ -165,8 +167,6 @@ void DescriptorBuffer::compile(Context& context)
             }
         }
     }
-
-    std::cout<<"completed DescriptorBuffer::compile(Context& context) "<<this<<"\n"<<std::endl;
 }
 
 void DescriptorBuffer::assignTo(Context& context, VkWriteDescriptorSet& wds) const

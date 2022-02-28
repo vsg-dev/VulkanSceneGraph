@@ -20,11 +20,28 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    /// Mask for hint what checks/reporting to do when using MemorySlots within Allocator/Buffer/DeviceMemory.
+    enum MemoryTracking
+    {
+        MEMORY_TRACKING_NO_CHECKS = 0,
+        MEMORY_TRACKING_REPORT_ACTIONS = 1,
+        MEMORY_TRACKING_CHECK_ACTIONS = 2,
+        MEMORY_TRACKING_LOG_ACTIONS = 4,
+#if 0
+        MEMORY_TRACKING_DEFAULT = MEMORY_TRACKING_REPORT_ACTIONS | MEMORY_TRACKING_CHECK_ACTIONS
+#else
+        MEMORY_TRACKING_DEFAULT = MEMORY_TRACKING_NO_CHECKS
+#endif
+    };
+
     /** class used internally by vsg::Allocator, vsg::DeviceMemory and vsg::Buffer to manage allocation of within a block of CPU or GPU memory.*/
     class VSG_DECLSPEC MemorySlots
     {
     public:
-        explicit MemorySlots(size_t availableMemorySize, bool log = true);
+
+        explicit MemorySlots(size_t availableMemorySize, int in_memoryTracking = MEMORY_TRACKING_DEFAULT);
+        ~MemorySlots();
 
         using OptionalOffset = std::pair<bool, size_t>;
         OptionalOffset reserve(size_t size, size_t alignment);
@@ -38,8 +55,8 @@ namespace vsg
         size_t totalReservedSize() const;
         size_t totalMemorySize() const { return _totalMemorySize; }
 
+        // debug factilities
         void report(std::ostream& out) const;
-
         bool check() const;
 
         struct Action
@@ -50,9 +67,7 @@ namespace vsg
             size_t alignment;
         };
 
-        void reportActions(std::ostream& output) const;
-
-        bool logActions = true;
+        int memoryTracking = MEMORY_TRACKING_DEFAULT;
         std::list<Action> logOfActions;
 
     protected:
