@@ -132,7 +132,7 @@ VkResult Image::bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
 VkResult Image::allocateAndBindMemory(Device* device, VkMemoryPropertyFlags memoryProperties, void* pNextAllocInfo)
 {
     auto memRequirements = getMemoryRequirements(device->deviceID);
-    auto memory = DeviceMemory::create(device, memRequirements, memoryProperties);
+    auto memory = DeviceMemory::create(device, memRequirements, memoryProperties, pNextAllocInfo);
     auto [allocated, offset] = memory->reserve(memRequirements.size);
     if (!allocated)
     {
