@@ -12,10 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Export.h>
+#include <vsg/core/MemorySlots.h>
 
-#include <list>
-#include <map>
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -33,41 +31,6 @@ namespace vsg
         ALLOCATOR_LAST = ALLOCATOR_NODES + 1
     };
 
-    class VSG_DECLSPEC MemorySlots
-    {
-    public:
-        explicit MemorySlots(size_t availableMemorySize);
-
-        using OptionalOffset = std::pair<bool, size_t>;
-        OptionalOffset reserve(size_t size, size_t alignment);
-
-        void release(size_t offset, size_t size);
-
-        bool full() const { return _availableMemory.empty(); }
-
-        size_t maximumAvailableSpace() const { return _availableMemory.empty() ? 0 : _availableMemory.rbegin()->first; }
-        size_t totalAvailableSize() const;
-        size_t totalReservedSize() const;
-        size_t totalMemorySize() const { return _totalMemorySize; }
-
-        void report() const;
-        bool check() const;
-
-    protected:
-        using SizeOffsets = std::multimap<size_t, size_t>;
-        using SizeOffset = SizeOffsets::value_type;
-        SizeOffsets _availableMemory;
-
-        using OffsetSizes = std::map<size_t, size_t>;
-        using OffsetSize = OffsetSizes::value_type;
-        OffsetSizes _offsetSizes;
-
-        using OffsetAllocatedSlot = std::map<size_t, OffsetSize>;
-        OffsetSizes _reservedOffsetSizes;
-
-        size_t _totalMemorySize;
-    };
-
     /** extensible Allocator that handles allocation and deallocation of scene graph CPU memory,*/
     class VSG_DECLSPEC Allocator
     {
@@ -82,7 +45,7 @@ namespace vsg
         virtual void* allocate(std::size_t size, AllocatorType allocatorType = ALLOCATOR_OBJECTS);
         virtual bool deallocate(void* ptr);
 
-        void report() const;
+        void report(std::ostream& out) const;
 
     protected:
         struct MemoryBlock
