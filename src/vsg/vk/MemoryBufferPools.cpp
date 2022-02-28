@@ -14,12 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/MemoryBufferPools.h>
 
 #include <iostream>
-
-#define REPORT_STATS 0
-
-#if REPORT_STATS
-#    include <chrono>
-#endif
+#include <chrono>
 
 using namespace vsg;
 
