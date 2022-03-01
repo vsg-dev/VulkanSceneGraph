@@ -1,6 +1,6 @@
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2018 Robert Osfield
+Copyright(c) 2022 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -122,6 +122,16 @@ bool Allocator::deallocate(void* ptr, std::size_t size)
     return false;
 }
 
+size_t Allocator::deleteEmptyMemoryBlocks()
+{
+   size_t memoryDeleted = 0;
+   for (auto& memoryBlocks : allocatorMemoryBlocks)
+    {
+        if (memoryBlocks) memoryDeleted += memoryBlocks->deleteEmptyMemoryBlocks();
+    }
+    return memoryDeleted;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // vsg::Allocator::MemoryBlock
@@ -171,6 +181,23 @@ bool Allocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
         }
     }
     return false;
+}
+
+void Allocator::setMemoryTracking(int mt)
+{
+    std::cout<<"Allocator::setMemoryTracking("<<mt<<")"<<std::endl;
+    memoryTracking = mt;
+    for(auto& amb : allocatorMemoryBlocks)
+    {
+        if (amb)
+        {
+            for(auto& mb : amb->memoryBlocks)
+            {
+                mb->memorySlots.memoryTracking = mt;
+                std::cout<<"    mb->memorySlots.memoryTracking = "<<mb->memorySlots.memoryTracking<<std::endl;
+            }
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -233,21 +260,33 @@ bool Allocator::MemoryBlocks::deallocate(void* ptr, std::size_t size)
     return false;
 }
 
-void Allocator::setMemoryTracking(int mt)
+size_t Allocator::MemoryBlocks::deleteEmptyMemoryBlocks()
 {
-    std::cout<<"Allocator::setMemoryTracking("<<mt<<")"<<std::endl;
-    memoryTracking = mt;
-    for(auto& amb : allocatorMemoryBlocks)
+    size_t memoryDeleted = 0;
+    if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        if (amb)
+        std::cout<< "MemoryBlocks:deleteEmptyMemoryBlocks() MemoryBlocks.name = "<<name<< std::endl;
+    }
+
+    auto itr = memoryBlocks.begin();
+    while(itr != memoryBlocks.end())
+    {
+        auto& block = *itr;
+        if (block->memorySlots.empty())
         {
-            for(auto& mb : amb->memoryBlocks)
+            if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
             {
-                mb->memorySlots.memoryTracking = mt;
-                std::cout<<"    mb->memorySlots.memoryTracking = "<<mb->memorySlots.memoryTracking<<std::endl;
+                std::cout<< "    MemoryBlocks:deleteEmptyMemoryBlocks() MemoryBlocks.name = "<<name<<",  removing MemoryBlock" <<block.get()<< std::endl;
             }
+            memoryDeleted += block->memorySlots.totalMemorySize();
+            itr = memoryBlocks.erase(itr);
+        }
+        else
+        {
+            ++itr;
         }
     }
+    return memoryDeleted;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

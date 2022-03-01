@@ -45,6 +45,7 @@ namespace vsg
         bool release(size_t offset, size_t size);
 
         bool full() const { return _availableMemory.empty(); }
+        bool empty() const { return totalAvailableSize() == totalMemorySize(); }
 
         size_t maximumAvailableSpace() const { return _availableMemory.empty() ? 0 : _availableMemory.rbegin()->first; }
         size_t totalAvailableSize() const;
