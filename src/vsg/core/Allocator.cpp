@@ -32,10 +32,12 @@ Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator) :
 
     allocatorMemoryBlocks.resize(vsg::ALLOCATOR_LAST);
 
+    size_t Megabyte = 1024*1024;
+
     // TODO need to set to a more sensible default
-    allocatorMemoryBlocks[vsg::ALLOCATOR_OBJECTS].reset(new MemoryBlocks(this, "ALLOCATOR_OBJECTS", size_t(4096)));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_DATA].reset(new MemoryBlocks(this, "ALLOCATOR_DATA", size_t(2048)));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_NODES].reset(new MemoryBlocks(this, "ALLOCATOR_NODES", size_t(512)));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_OBJECTS].reset(new MemoryBlocks(this, "ALLOCATOR_OBJECTS", size_t(Megabyte)));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_DATA].reset(new MemoryBlocks(this, "ALLOCATOR_DATA", size_t(Megabyte)));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_NODES].reset(new MemoryBlocks(this, "ALLOCATOR_NODES", size_t(Megabyte)));
 }
 
 Allocator::~Allocator()
