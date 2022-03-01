@@ -54,18 +54,34 @@ std::unique_ptr<Allocator>& Allocator::instance()
 
 void Allocator::report(std::ostream& out) const
 {
-    std::scoped_lock<std::mutex> lock(mutex);
-
     out << "Allocator::report() " << allocatorMemoryBlocks.size() << std::endl;
+    out << "totalAvailableSize = " << totalAvailableSize() << ", totalReservedSize = " << totalReservedSize() << ", totalMemorySize = " << totalMemorySize() << std::endl;
+    double totalReserved(totalReservedSize());
+
+    std::scoped_lock<std::mutex> lock(mutex);
     for (const auto& memoryBlocks : allocatorMemoryBlocks)
     {
         if (memoryBlocks)
         {
-            out << "    " << memoryBlocks->name;
+            size_t totalForBlock = memoryBlocks->totalReservedSize();
+            out <<memoryBlocks->name << " used = " << totalForBlock;
+            if (totalReserved>0.0)
+            {
+                out<<", "<< (double(totalForBlock)/totalReserved)*100.0 << "% of total used.";
+            }
+            out << std::endl;
+        }
+    }
+
+    for (const auto& memoryBlocks : allocatorMemoryBlocks)
+    {
+        if (memoryBlocks)
+        {
+            out <<memoryBlocks->name << " "<<memoryBlocks->memoryBlocks.size() << " blocks";
             for (const auto& memoryBlock : memoryBlocks->memoryBlocks)
             {
                 const auto& memorySlots = memoryBlock->memorySlots;
-                out << ", [" << memorySlots.totalReservedSize() << ", " << memorySlots.maximumAvailableSpace() << "]";
+                out << " [used = " << memorySlots.totalReservedSize() << ", avail = " << memorySlots.maximumAvailableSpace() << "]";
             }
             out << std::endl;
         }
@@ -124,6 +140,8 @@ bool Allocator::deallocate(void* ptr, std::size_t size)
 
 size_t Allocator::deleteEmptyMemoryBlocks()
 {
+    std::scoped_lock<std::mutex> lock(mutex);
+
     size_t memoryDeleted = 0;
     for (auto& memoryBlocks : allocatorMemoryBlocks)
     {
@@ -134,6 +152,8 @@ size_t Allocator::deleteEmptyMemoryBlocks()
 
 size_t Allocator::totalAvailableSize() const
 {
+    std::scoped_lock<std::mutex> lock(mutex);
+
     size_t size = 0;
     for (auto& memoryBlocks : allocatorMemoryBlocks)
     {
@@ -144,6 +164,8 @@ size_t Allocator::totalAvailableSize() const
 
 size_t Allocator::totalReservedSize() const
 {
+    std::scoped_lock<std::mutex> lock(mutex);
+
     size_t size = 0;
     for (auto& memoryBlocks : allocatorMemoryBlocks)
     {
@@ -154,6 +176,8 @@ size_t Allocator::totalReservedSize() const
 
 size_t Allocator::totalMemorySize() const
 {
+    std::scoped_lock<std::mutex> lock(mutex);
+
     size_t size = 0;
     for (auto& memoryBlocks : allocatorMemoryBlocks)
     {
@@ -161,6 +185,49 @@ size_t Allocator::totalMemorySize() const
     }
     return size;
 }
+
+Allocator::MemoryBlocks* Allocator::getMemoryBlocks(AllocatorType allocatorType)
+{
+    std::scoped_lock<std::mutex> lock(mutex);
+
+    if (size_t(allocatorType) < allocatorMemoryBlocks.size()) return allocatorMemoryBlocks[allocatorType].get();
+    return {};
+}
+
+Allocator::MemoryBlocks* Allocator::getOrCreateMemoryBlocks(AllocatorType allocatorType, const std::string& name, size_t blockSize)
+{
+    std::scoped_lock<std::mutex> lock(mutex);
+
+    if (size_t(allocatorType) < allocatorMemoryBlocks.size())
+    {
+        allocatorMemoryBlocks[allocatorType]->name = name;
+        allocatorMemoryBlocks[allocatorType]->blockSize = blockSize;
+    }
+    else
+    {
+        allocatorMemoryBlocks.resize(allocatorType+1);
+        allocatorMemoryBlocks[allocatorType].reset(new MemoryBlocks(this, name, blockSize));
+    }
+    return allocatorMemoryBlocks[allocatorType].get();
+}
+
+void Allocator::setBlockSize(AllocatorType allocatorType, size_t blockSize)
+{
+    std::scoped_lock<std::mutex> lock(mutex);
+
+    if (size_t(allocatorType) < allocatorMemoryBlocks.size())
+    {
+        allocatorMemoryBlocks[allocatorType]->blockSize = blockSize;
+    }
+    else
+    {
+        std::string name = "UnamedMemoryBlock";
+
+        allocatorMemoryBlocks.resize(allocatorType+1);
+        allocatorMemoryBlocks[allocatorType].reset(new MemoryBlocks(this, name, blockSize));
+    }
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //

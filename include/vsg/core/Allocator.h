@@ -68,7 +68,6 @@ namespace vsg
         /// set the MemoryTracking member of of the vsg::Allocator and all the MemoryBlocks that it manages.
         void setMemoryTracking(int mt);
 
-    protected:
         struct MemoryBlock
         {
             MemoryBlock(size_t blockSize, int memoryTracking);
@@ -99,11 +98,20 @@ namespace vsg
             size_t totalMemorySize() const;
         };
 
+        MemoryBlocks* getMemoryBlocks(AllocatorType allocatorType);
+
+        MemoryBlocks* getOrCreateMemoryBlocks(AllocatorType allocatorType, const std::string& name, size_t blockSize);
+
+        void setBlockSize(AllocatorType allocatorType, size_t blockSize);
+
+        mutable std::mutex mutex;
+
+    protected:
+
         // if you are assigning a custom allocator you mest retain the old allocator to manage the memory it allocated and needs to delete
         std::unique_ptr<Allocator> nestedAllocator;
 
         std::vector<std::unique_ptr<MemoryBlocks>> allocatorMemoryBlocks;
-        mutable std::mutex mutex;
     };
 
     /// allocate memory using vsg::Allocator::instance() if avaiable, otherwise use std::malloc(size)
