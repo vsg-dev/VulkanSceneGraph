@@ -51,6 +51,15 @@ namespace vsg
         /// delete any MemoryBlock that are empty
         virtual size_t deleteEmptyMemoryBlocks();
 
+        /// return the total available size amoung allocated MemoryBlocks
+        virtual size_t totalAvailableSize() const;
+
+        /// return the total reserved size of allocated MemoryBlocks
+        virtual size_t totalReservedSize() const;
+
+        /// return the total memory size of allocated MemoryBlocks
+        virtual size_t totalMemorySize() const;
+
         /// report stats about block of memory allocated.
         virtual void report(std::ostream& out) const;
 
@@ -85,6 +94,9 @@ namespace vsg
             void* allocate(std::size_t size);
             bool deallocate(void* ptr, std::size_t size);
             size_t deleteEmptyMemoryBlocks();
+            size_t totalAvailableSize() const;
+            size_t totalReservedSize() const;
+            size_t totalMemorySize() const;
         };
 
         // if you are assigning a custom allocator you mest retain the old allocator to manage the memory it allocated and needs to delete

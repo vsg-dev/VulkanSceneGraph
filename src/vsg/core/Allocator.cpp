@@ -124,12 +124,42 @@ bool Allocator::deallocate(void* ptr, std::size_t size)
 
 size_t Allocator::deleteEmptyMemoryBlocks()
 {
-   size_t memoryDeleted = 0;
-   for (auto& memoryBlocks : allocatorMemoryBlocks)
+    size_t memoryDeleted = 0;
+    for (auto& memoryBlocks : allocatorMemoryBlocks)
     {
         if (memoryBlocks) memoryDeleted += memoryBlocks->deleteEmptyMemoryBlocks();
     }
     return memoryDeleted;
+}
+
+size_t Allocator::totalAvailableSize() const
+{
+    size_t size = 0;
+    for (auto& memoryBlocks : allocatorMemoryBlocks)
+    {
+        if (memoryBlocks) size += memoryBlocks->totalAvailableSize();
+    }
+    return size;
+}
+
+size_t Allocator::totalReservedSize() const
+{
+    size_t size = 0;
+    for (auto& memoryBlocks : allocatorMemoryBlocks)
+    {
+        if (memoryBlocks) size += memoryBlocks->totalReservedSize();
+    }
+    return size;
+}
+
+size_t Allocator::totalMemorySize() const
+{
+    size_t size = 0;
+    for (auto& memoryBlocks : allocatorMemoryBlocks)
+    {
+        if (memoryBlocks) size += memoryBlocks->totalMemorySize();
+    }
+    return size;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -287,6 +317,36 @@ size_t Allocator::MemoryBlocks::deleteEmptyMemoryBlocks()
         }
     }
     return memoryDeleted;
+}
+
+size_t Allocator::MemoryBlocks::totalAvailableSize() const
+{
+    size_t size = 0;
+    for (auto& block : memoryBlocks)
+    {
+        size += block->memorySlots.totalAvailableSize();
+    }
+    return size;
+}
+
+size_t Allocator::MemoryBlocks::totalReservedSize() const
+{
+    size_t size = 0;
+    for (auto& block : memoryBlocks)
+    {
+        size += block->memorySlots.totalReservedSize();
+    }
+    return size;
+}
+
+size_t Allocator::MemoryBlocks::totalMemorySize() const
+{
+    size_t size = 0;
+    for (auto& block : memoryBlocks)
+    {
+        size += block->memorySlots.totalMemorySize();
+    }
+    return size;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
