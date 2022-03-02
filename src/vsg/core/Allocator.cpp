@@ -104,6 +104,7 @@ void* Allocator::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
         return std::malloc(size);
     }
 
+    // create an MemoryBlocks entry if one doesn't already exist
     if (allocatorAffinity > allocatorMemoryBlocks.size())
     {
         if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
@@ -265,6 +266,22 @@ void Allocator::setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSi
     }
 }
 
+void Allocator::setMemoryTracking(int mt)
+{
+    std::cout<<"Allocator::setMemoryTracking("<<mt<<")"<<std::endl;
+    memoryTracking = mt;
+    for(auto& amb : allocatorMemoryBlocks)
+    {
+        if (amb)
+        {
+            for(auto& mb : amb->memoryBlocks)
+            {
+                mb->memorySlots.memoryTracking = mt;
+                std::cout<<"    mb->memorySlots.memoryTracking = "<<mb->memorySlots.memoryTracking<<std::endl;
+            }
+        }
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -332,23 +349,6 @@ bool Allocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
     return false;
 }
 
-void Allocator::setMemoryTracking(int mt)
-{
-    std::cout<<"Allocator::setMemoryTracking("<<mt<<")"<<std::endl;
-    memoryTracking = mt;
-    for(auto& amb : allocatorMemoryBlocks)
-    {
-        if (amb)
-        {
-            for(auto& mb : amb->memoryBlocks)
-            {
-                mb->memorySlots.memoryTracking = mt;
-                std::cout<<"    mb->memorySlots.memoryTracking = "<<mb->memorySlots.memoryTracking<<std::endl;
-            }
-        }
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // vsg::Allocator::MemoryBlocks
@@ -374,8 +374,10 @@ Allocator::MemoryBlocks::~MemoryBlocks()
 
 void* Allocator::MemoryBlocks::allocate(std::size_t size)
 {
-    for (auto& block : memoryBlocks)
+    // search exising blocks from last to first for space for the required memory allocation.
+    for (auto itr = memoryBlocks.rbegin(); itr != memoryBlocks.rend(); ++itr)
     {
+        auto& block = *itr;
         auto ptr = block->allocate(size);
         if (ptr) return ptr;
     }
