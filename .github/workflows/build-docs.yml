@@ -1,0 +1,25 @@
+name: build-docs
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Doxygen
+        run: sudo apt install doxygen graphviz
+      - name: Install Vulkan
+        uses: humbletim/install-vulkan-sdk@v1.1.1
+        with:
+          version: latest
+      - name: Configure VulkanSceneGraph
+        run: cmake -S . -B . -DCMAKE_BUILD_TYPE=Release
+      - name: Build Documentation
+        run: make -j 2
+      - name: Publish Docs
+        uses: actions/upload-artifact@v1
+        with:
+          name: VSG Documentation
+          path: html

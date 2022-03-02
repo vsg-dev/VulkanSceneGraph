@@ -57,6 +57,11 @@ Using the prototyping work as a guide implement the final scene graph library wi
 * Update vsgImGui to latest
 * Rewrite vsgQt handling of keyboard mapping
 
+#### Pending/Underway tasks relating to associated libraries
+* Update vsgXchange::OSG and vsgXchange::Assimp to use the new state composer/shader set.
+* Update vsgImGui to latest
+* Rewrite vsgQt handling of keyboard mapping
+
 ### 4. Release Phase,  Spring 2022
 **Goal: Test scene graph library against real-world applications and shake down the API and implementation for it's first stable release.**
 
