@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Allocator.h>
 #include <vsg/core/Exception.h>
+#include <vsg/io/stream.h>
 
 #include <algorithm>
 #include <iostream>
@@ -30,14 +31,14 @@ Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator) :
         std::cout << "Allocator()" << this << std::endl;
     }
 
-    allocatorMemoryBlocks.resize(vsg::ALLOCATOR_LAST);
+    allocatorMemoryBlocks.resize(vsg::ALLOCATOR_AFFINITY_LAST);
 
     size_t Megabyte = 1024*1024;
 
     // TODO need to set to a more sensible default
-    allocatorMemoryBlocks[vsg::ALLOCATOR_OBJECTS].reset(new MemoryBlocks(this, "ALLOCATOR_OBJECTS", size_t(Megabyte)));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_DATA].reset(new MemoryBlocks(this, "ALLOCATOR_DATA", size_t(Megabyte)));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_NODES].reset(new MemoryBlocks(this, "ALLOCATOR_NODES", size_t(Megabyte)));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_OBJECTS].reset(new MemoryBlocks(this, "MemoryBlocks_OBJECTS", size_t(Megabyte)));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_DATA].reset(new MemoryBlocks(this, "MemoryBlocks_DATA", size_t(Megabyte)));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_NODES].reset(new MemoryBlocks(this, "MemoryBlocks_NODES", size_t(Megabyte)));
 }
 
 Allocator::~Allocator()
@@ -90,11 +91,34 @@ void Allocator::report(std::ostream& out) const
     }
 }
 
-void* Allocator::allocate(std::size_t size, vsg::AllocatorType allocatorType)
+void* Allocator::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
-    auto& memoryBlocks = allocatorMemoryBlocks[allocatorType];
+    if (allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
+    {
+        return operator new (size);
+    }
+    else if (allocatorType == ALLOCATOR_TYPE_MALLOC_FREE)
+    {
+        return std::malloc(size);
+    }
+
+    if (allocatorAffinity > allocatorMemoryBlocks.size())
+    {
+        if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
+        {
+            std::cout << "Allocator::allocate("<<size<<", "<<allocatorAffinity<<") out of bouns allocating new MemoryBlock" << std::endl;
+        }
+
+        auto name = make_string("MemoryBlocks_", allocatorAffinity);
+        size_t blockSize = 1024*1024; // Megabyte
+
+        allocatorMemoryBlocks.resize(allocatorAffinity+1);
+        allocatorMemoryBlocks[allocatorAffinity].reset(new MemoryBlocks(this, name, blockSize));
+    }
+
+    auto& memoryBlocks = allocatorMemoryBlocks[allocatorAffinity];
     if (memoryBlocks)
     {
         auto mem_ptr = memoryBlocks->allocate(size);
@@ -102,16 +126,16 @@ void* Allocator::allocate(std::size_t size, vsg::AllocatorType allocatorType)
         {
             if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
             {
-                std::cout << "Allocated from MemoryBlock mem_ptr = " << mem_ptr << ", size = " << size << ", allocatorType = " << int(allocatorType) << std::endl;
+                std::cout << "Allocated from MemoryBlock mem_ptr = " << mem_ptr << ", size = " << size << ", allocatorAffinity = " << int(allocatorAffinity) << std::endl;
             }
             return mem_ptr;
         }
     }
 
-    void* ptr = Allocator::allocate(size, allocatorType);
+    void* ptr = Allocator::allocate(size, allocatorAffinity);
     if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout << "Allocator::allocate(" << size << ", " << int(allocatorType) << ") ptr = " << ptr << std::endl;
+        std::cout << "Allocator::allocate(" << size << ", " << int(allocatorAffinity) << ") ptr = " << ptr << std::endl;
     }
     return ptr;
 }
@@ -135,7 +159,18 @@ bool Allocator::deallocate(void* ptr, std::size_t size)
         }
     }
 
-    if (nestedAllocator) return nestedAllocator->deallocate(ptr, size);
+    if (nestedAllocator && nestedAllocator->deallocate(ptr, size)) return true;
+
+    if (allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
+    {
+        operator delete (ptr);
+        return true;
+    }
+    else if (allocatorType == ALLOCATOR_TYPE_MALLOC_FREE)
+    {
+        std::free(ptr);
+        return true;
+    }
 
     return false;
 }
@@ -188,45 +223,45 @@ size_t Allocator::totalMemorySize() const
     return size;
 }
 
-Allocator::MemoryBlocks* Allocator::getMemoryBlocks(AllocatorType allocatorType)
+Allocator::MemoryBlocks* Allocator::getMemoryBlocks(AllocatorAffinity allocatorAffinity)
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
-    if (size_t(allocatorType) < allocatorMemoryBlocks.size()) return allocatorMemoryBlocks[allocatorType].get();
+    if (size_t(allocatorAffinity) < allocatorMemoryBlocks.size()) return allocatorMemoryBlocks[allocatorAffinity].get();
     return {};
 }
 
-Allocator::MemoryBlocks* Allocator::getOrCreateMemoryBlocks(AllocatorType allocatorType, const std::string& name, size_t blockSize)
+Allocator::MemoryBlocks* Allocator::getOrCreateMemoryBlocks(AllocatorAffinity allocatorAffinity, const std::string& name, size_t blockSize)
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
-    if (size_t(allocatorType) < allocatorMemoryBlocks.size())
+    if (size_t(allocatorAffinity) < allocatorMemoryBlocks.size())
     {
-        allocatorMemoryBlocks[allocatorType]->name = name;
-        allocatorMemoryBlocks[allocatorType]->blockSize = blockSize;
+        allocatorMemoryBlocks[allocatorAffinity]->name = name;
+        allocatorMemoryBlocks[allocatorAffinity]->blockSize = blockSize;
     }
     else
     {
-        allocatorMemoryBlocks.resize(allocatorType+1);
-        allocatorMemoryBlocks[allocatorType].reset(new MemoryBlocks(this, name, blockSize));
+        allocatorMemoryBlocks.resize(allocatorAffinity+1);
+        allocatorMemoryBlocks[allocatorAffinity].reset(new MemoryBlocks(this, name, blockSize));
     }
-    return allocatorMemoryBlocks[allocatorType].get();
+    return allocatorMemoryBlocks[allocatorAffinity].get();
 }
 
-void Allocator::setBlockSize(AllocatorType allocatorType, size_t blockSize)
+void Allocator::setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize)
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
-    if (size_t(allocatorType) < allocatorMemoryBlocks.size())
+    if (size_t(allocatorAffinity) < allocatorMemoryBlocks.size())
     {
-        allocatorMemoryBlocks[allocatorType]->blockSize = blockSize;
+        allocatorMemoryBlocks[allocatorAffinity]->blockSize = blockSize;
     }
     else
     {
-        std::string name = "UnamedMemoryBlock";
+        auto name = make_string("MemoryBlocks_", allocatorAffinity);
 
-        allocatorMemoryBlocks.resize(allocatorType+1);
-        allocatorMemoryBlocks[allocatorType].reset(new MemoryBlocks(this, name, blockSize));
+        allocatorMemoryBlocks.resize(allocatorAffinity+1);
+        allocatorMemoryBlocks[allocatorAffinity].reset(new MemoryBlocks(this, name, blockSize));
     }
 }
 
@@ -235,10 +270,18 @@ void Allocator::setBlockSize(AllocatorType allocatorType, size_t blockSize)
 //
 // vsg::Allocator::MemoryBlock
 //
-Allocator::MemoryBlock::MemoryBlock(size_t blockSize, int memoryTracking) :
-    memorySlots(blockSize, memoryTracking)
+Allocator::MemoryBlock::MemoryBlock(size_t blockSize, int memoryTracking, AllocatorType in_allocatorType) :
+    memorySlots(blockSize, memoryTracking),
+    allocatorType(in_allocatorType)
 {
-    memory = static_cast<uint8_t*>(std::malloc(blockSize));
+    if (allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
+    {
+        memory = static_cast<uint8_t*>(operator new (blockSize));
+    }
+    else
+    {
+        memory = static_cast<uint8_t*>(std::malloc(blockSize));
+    }
 
     if (memorySlots.memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
@@ -253,7 +296,14 @@ Allocator::MemoryBlock::~MemoryBlock()
         std::cout << "MemoryBlock::~MemoryBlock(" << memorySlots.totalMemorySize() << ") freed memory" << std::endl;
     }
 
-    std::free(memory);
+    if (allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
+    {
+        operator delete (memory);
+    }
+    else
+    {
+        std::free(memory);
+    }
 }
 
 void* Allocator::MemoryBlock::allocate(std::size_t size)
@@ -332,7 +382,7 @@ void* Allocator::MemoryBlocks::allocate(std::size_t size)
 
     size_t new_blockSize = std::max(size, blockSize);
 
-    std::unique_ptr<MemoryBlock> block(new MemoryBlock(new_blockSize, parent->memoryTracking));
+    std::unique_ptr<MemoryBlock> block(new MemoryBlock(new_blockSize, parent->memoryTracking, parent->memoryBlocksAllocatorType));
     auto ptr = block->allocate(size);
 
     memoryBlocks.push_back(std::move(block));
@@ -422,9 +472,9 @@ size_t Allocator::MemoryBlocks::totalMemorySize() const
 //
 // vsg::allocate and vsg::decalloate convinience functions that map to using the Allocator singleton.
 //
-void* vsg::allocate(std::size_t size, AllocatorType allocatorType)
+void* vsg::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
 {
-    return Allocator::instance()->allocate(size, allocatorType);
+    return Allocator::instance()->allocate(size, allocatorAffinity);
 }
 
 void vsg::deallocate(void* ptr, std::size_t size)

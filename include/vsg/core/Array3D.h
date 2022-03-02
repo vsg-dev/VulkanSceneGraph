@@ -338,21 +338,21 @@ namespace vsg
 
         value_type* _allocate(size_t size) const
         {
-            if (_layout.allocatorType == ALLOCATOR_NEW_DELETE)
+            if (_layout.allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
                 return new value_type[size];
-            else if (_layout.allocatorType == ALLOCATOR_MALLOC_FREE)
+            else if (_layout.allocatorType == ALLOCATOR_TYPE_MALLOC_FREE)
                 return new (std::malloc(sizeof(value_type) * size)) value_type[size];
             else
-                return new (vsg::allocate(sizeof(value_type) * size, _layout.allocatorType)) value_type[size];
+                return new (vsg::allocate(sizeof(value_type) * size, ALLOCATOR_AFFINITY_DATA)) value_type[size];
         }
 
         void _delete()
         {
             if (!_storage && _data)
             {
-                if (_layout.allocatorType == ALLOCATOR_NEW_DELETE)
+                if (_layout.allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
                     delete[] _data;
-                else if (_layout.allocatorType == ALLOCATOR_MALLOC_FREE)
+                else if (_layout.allocatorType == ALLOCATOR_TYPE_MALLOC_FREE)
                     std::free(_data);
                 else if (_layout.allocatorType != 0)
                     vsg::deallocate(_data);

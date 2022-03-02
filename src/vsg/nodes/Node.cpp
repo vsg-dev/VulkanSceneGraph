@@ -28,5 +28,5 @@ Node::~Node()
 
 void* Node::operator new(std::size_t count)
 {
-    return vsg::allocate(count, vsg::ALLOCATOR_NODES);
+    return vsg::allocate(count, vsg::ALLOCATOR_AFFINITY_NODES);
 }

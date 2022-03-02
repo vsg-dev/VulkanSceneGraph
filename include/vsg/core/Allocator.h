@@ -22,13 +22,18 @@ namespace vsg
 {
     enum AllocatorType : uint8_t
     {
-        ALLOCATOR_NO_DELETE = 0,
-        ALLOCATOR_NEW_DELETE,
-        ALLOCATOR_MALLOC_FREE,
-        ALLOCATOR_OBJECTS,
-        ALLOCATOR_DATA,
-        ALLOCATOR_NODES,
-        ALLOCATOR_LAST = ALLOCATOR_NODES + 1
+        ALLOCATOR_TYPE_NO_DELETE = 0,
+        ALLOCATOR_TYPE_NEW_DELETE,
+        ALLOCATOR_TYPE_MALLOC_FREE,
+        ALLOCATOR_TYPE_VSG_ALLOCATOR
+    };
+
+    enum AllocatorAffinity : uint32_t
+    {
+        ALLOCATOR_AFFINITY_OBJECTS,
+        ALLOCATOR_AFFINITY_DATA,
+        ALLOCATOR_AFFINITY_NODES,
+        ALLOCATOR_AFFINITY_LAST = ALLOCATOR_AFFINITY_NODES + 1
     };
 
     /** extensible Allocator that handles allocation and deallocation of scene graph CPU memory,*/
@@ -43,7 +48,7 @@ namespace vsg
         static std::unique_ptr<Allocator>& instance();
 
         /// allocate from the pool of memory blocks, or allocate from a new memory bock
-        virtual void* allocate(std::size_t size, AllocatorType allocatorType = ALLOCATOR_OBJECTS);
+        virtual void* allocate(std::size_t size, AllocatorAffinity allocatorAffinity = ALLOCATOR_AFFINITY_OBJECTS);
 
         /// deallocate returning data to pool.
         virtual bool deallocate(void* ptr, std::size_t size);
@@ -63,6 +68,8 @@ namespace vsg
         /// report stats about block of memory allocated.
         virtual void report(std::ostream& out) const;
 
+        AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR; // use MemoryBlocks by default
+        AllocatorType memoryBlocksAllocatorType = ALLOCATOR_TYPE_NEW_DELETE; // Use new/delete within MemoryBlocks by default
         int memoryTracking = MEMORY_TRACKING_DEFAULT;
 
         /// set the MemoryTracking member of of the vsg::Allocator and all the MemoryBlocks that it manages.
@@ -70,14 +77,15 @@ namespace vsg
 
         struct MemoryBlock
         {
-            MemoryBlock(size_t blockSize, int memoryTracking);
+            MemoryBlock(size_t blockSize, int memoryTracking, AllocatorType in_allocatorType);
             virtual ~MemoryBlock();
 
             void* allocate(std::size_t size);
             bool deallocate(void* ptr, std::size_t size);
 
-            uint8_t* memory = nullptr;
             vsg::MemorySlots memorySlots;
+            const AllocatorType allocatorType;
+            uint8_t* memory = nullptr;
         };
 
         struct MemoryBlocks
@@ -98,11 +106,11 @@ namespace vsg
             size_t totalMemorySize() const;
         };
 
-        MemoryBlocks* getMemoryBlocks(AllocatorType allocatorType);
+        MemoryBlocks* getMemoryBlocks(AllocatorAffinity allocatorAffinity);
 
-        MemoryBlocks* getOrCreateMemoryBlocks(AllocatorType allocatorType, const std::string& name, size_t blockSize);
+        MemoryBlocks* getOrCreateMemoryBlocks(AllocatorAffinity allocatorAffinity, const std::string& name, size_t blockSize);
 
-        void setBlockSize(AllocatorType allocatorType, size_t blockSize);
+        void setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize);
 
         mutable std::mutex mutex;
 
@@ -115,7 +123,7 @@ namespace vsg
     };
 
     /// allocate memory using vsg::Allocator::instance() if avaiable, otherwise use std::malloc(size)
-    void* allocate(std::size_t size, AllocatorType allocatorType = ALLOCATOR_OBJECTS);
+    void* allocate(std::size_t size, AllocatorAffinity allocatorAffinity = ALLOCATOR_AFFINITY_OBJECTS);
 
     /// deallocate memory using vsg::Allocator::instance() if avaiable, otherwise use std::free(ptr)
     void deallocate(void* ptr, std::size_t size = 0);
@@ -132,7 +140,7 @@ namespace vsg
 
         value_type* allocate(std::size_t n)
         {
-            return static_cast<value_type*>(vsg::allocate(n * sizeof(value_type), vsg::ALLOCATOR_NODES));
+            return static_cast<value_type*>(vsg::allocate(n * sizeof(value_type), vsg::ALLOCATOR_AFFINITY_NODES));
         }
 
         void deallocate(value_type* ptr, std::size_t n)

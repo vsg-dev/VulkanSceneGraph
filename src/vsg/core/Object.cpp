@@ -195,7 +195,7 @@ Auxiliary* Object::getOrCreateUniqueAuxiliary()
 
 void* Object::operator new(std::size_t count)
 {
-    return vsg::allocate(count, vsg::ALLOCATOR_OBJECTS);
+    return vsg::allocate(count, vsg::ALLOCATOR_AFFINITY_OBJECTS);
 }
 
 void Object::operator delete(void* ptr)
