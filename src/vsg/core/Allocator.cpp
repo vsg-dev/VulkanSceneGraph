@@ -268,7 +268,6 @@ void Allocator::setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSi
 
 void Allocator::setMemoryTracking(int mt)
 {
-    std::cout<<"Allocator::setMemoryTracking("<<mt<<")"<<std::endl;
     memoryTracking = mt;
     for(auto& amb : allocatorMemoryBlocks)
     {
@@ -277,7 +276,6 @@ void Allocator::setMemoryTracking(int mt)
             for(auto& mb : amb->memoryBlocks)
             {
                 mb->memorySlots.memoryTracking = mt;
-                std::cout<<"    mb->memorySlots.memoryTracking = "<<mb->memorySlots.memoryTracking<<std::endl;
             }
         }
     }
