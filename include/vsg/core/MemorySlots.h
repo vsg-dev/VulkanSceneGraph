@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <map>
 #include <list>
+#include <vector>
 #include <ostream>
 
 namespace vsg
@@ -27,8 +28,11 @@ namespace vsg
         MEMORY_TRACKING_NO_CHECKS = 0,
         MEMORY_TRACKING_REPORT_ACTIONS = 1,
         MEMORY_TRACKING_CHECK_ACTIONS = 2,
-        MEMORY_TRACKING_LOG_ACTIONS = 4,
+#if 1
         MEMORY_TRACKING_DEFAULT = MEMORY_TRACKING_NO_CHECKS
+#else
+        MEMORY_TRACKING_DEFAULT = MEMORY_TRACKING_REPORT_ACTIONS
+#endif
     };
 
     /** class used internally by vsg::Allocator, vsg::DeviceMemory and vsg::Buffer to manage allocation of within a block of CPU or GPU memory.*/
@@ -56,31 +60,15 @@ namespace vsg
         void report(std::ostream& out) const;
         bool check() const;
 
-        struct Action
-        {
-            /// action==0 is MemorySlots::MemorySlots(availableMemorySize),
-            /// action==1 is MemorySlots::reserve(size, alightment) request, and if successful followed by a action==2 with the offset
-            /// action==3, MemorySlots::release(size, alightment)
-            int action;
-            size_t offset;
-            size_t size;
-            size_t alignment;
-        };
-
         mutable int memoryTracking = MEMORY_TRACKING_DEFAULT;
-        std::list<Action> logOfActions;
 
     protected:
-        using SizeOffsets = std::multimap<size_t, size_t>;
-        using SizeOffset = SizeOffsets::value_type;
-        SizeOffsets _availableMemory;
+        std::multimap<size_t, size_t> _availableMemory;
+        std::map<size_t, size_t> _offsetSizes;
+        std::map<size_t, size_t> _reservedMemory;
 
-        using OffsetSizes = std::map<size_t, size_t>;
-        using OffsetSize = OffsetSizes::value_type;
-        OffsetSizes _offsetSizes;
-
-        using OffsetAllocatedSlot = std::map<size_t, OffsetSize>;
-        OffsetSizes _reservedOffsetSizes;
+        void insertAvailableSlot(size_t offset, size_t size);
+        void removeAvailableSlot(size_t offset, size_t size);
 
         size_t _totalMemorySize;
     };

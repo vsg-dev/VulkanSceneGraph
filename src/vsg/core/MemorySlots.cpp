@@ -30,16 +30,10 @@ MemorySlots::MemorySlots(size_t availableMemorySize, int in_memoryTracking) :
     {
         std::cout<<"MemorySlots::MemorySlots("<<availableMemorySize<<") "<<this<<std::endl;
     }
-    if (memoryTracking & MEMORY_TRACKING_LOG_ACTIONS)
-    {
-        logOfActions.push_back(Action{0, 0, availableMemorySize, 0});
-    }
 
-    _availableMemory.insert(SizeOffset(availableMemorySize, 0));
-    _offsetSizes.insert(OffsetSize(0, availableMemorySize));
+    insertAvailableSlot(0, availableMemorySize);
 
     _totalMemorySize = availableMemorySize;
-
 }
 
 MemorySlots::~MemorySlots()
@@ -75,7 +69,7 @@ size_t MemorySlots::totalAvailableSize() const
 size_t MemorySlots::totalReservedSize() const
 {
     size_t totalSize = 0;
-    for (const auto& sizeOffset : _reservedOffsetSizes)
+    for (const auto& sizeOffset : _reservedMemory)
     {
         totalSize += sizeOffset.second;
     }
@@ -96,7 +90,7 @@ bool MemorySlots::check() const
     }
 
     size_t reservedSize = 0;
-    for (auto& offsetSize : _reservedOffsetSizes)
+    for (auto& offsetSize : _reservedMemory)
     {
         reservedSize += offsetSize.second;
     }
@@ -107,8 +101,6 @@ bool MemorySlots::check() const
         std::cout << "Warning : MemorySlots::check() " << this << " failed, computeedSize (" << computedSize << ") != _totalMemorySize (" << _totalMemorySize << ")" << std::endl;
 
         report(std::cout);
-
-        // throw Exception{"MemorySlots check failed", 0};
 
         return false;
     }
@@ -124,17 +116,28 @@ void MemorySlots::report(std::ostream& out) const
         out << "    available " << offset << ", " << size << std::endl;
     }
 
-    for (auto& [offset, size] : _reservedOffsetSizes)
+    for (auto& [offset, size] : _reservedMemory)
     {
          out << "    reserved " << std::dec << offset << ", " << size << std::endl;
     }
+}
 
-    if (!logOfActions.empty())
+void MemorySlots::insertAvailableSlot(size_t offset, size_t size)
+{
+    _offsetSizes.emplace(offset, size);
+    _availableMemory.emplace(size, offset);
+}
+
+void MemorySlots::removeAvailableSlot(size_t offset, size_t size)
+{
+    _offsetSizes.erase(offset);
+    auto end = _availableMemory.upper_bound(size);
+    for(auto itr = _availableMemory.lower_bound(size); itr != end; ++itr)
     {
-        out<<"MemorySlots::reportActions() "<<this<<" number of actions "<<logOfActions.size()<<std::endl;
-        for(auto& act : logOfActions)
+        if (itr->second == offset)
         {
-            out<<"   action = "<<act.action<<", offset = "<<act.offset<<", size = "<<act.size<<", alignment = "<<act.alignment<<std::endl;
+            _availableMemory.erase(itr);
+            break;
         }
     }
 }
@@ -143,12 +146,7 @@ MemorySlots::OptionalOffset MemorySlots::reserve(size_t size, size_t alignment)
 {
     if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout<<"MemorySlots::reserve("<<size<<", "<<alignment<<") "<<this<<std::endl;
-    }
-
-    if (memoryTracking & MEMORY_TRACKING_LOG_ACTIONS)
-    {
-        logOfActions.push_back(Action{1, 0, size, alignment});
+        std::cout<<"\nMemorySlots::reserve("<<size<<", "<<alignment<<") "<<this<<std::endl;
     }
 
     if (full()) return OptionalOffset(false, 0);
@@ -156,198 +154,128 @@ MemorySlots::OptionalOffset MemorySlots::reserve(size_t size, size_t alignment)
     auto itr = _availableMemory.lower_bound(size);
     while (itr != _availableMemory.end())
     {
-        SizeOffset slot(*itr);
-        size_t slotStart = slot.second;
-        size_t slotSize = slot.first;
+        size_t slotSize = itr->first;
+        size_t slotStart = itr->second;
         size_t slotEnd = slotStart + slotSize;
-
         size_t alignedStart = ((slotStart + alignment - 1) / alignment) * alignment;
         size_t alignedEnd = alignedStart + size;
-        size_t alignedSize = alignedEnd - slotStart;
-
-        if (alignedSize <= slotSize)
+        if (alignedEnd <= slotEnd) // slot big enough
         {
-            // remove slot
-            _availableMemory.erase(itr);
-            if (auto offsetSize_itr = _offsetSizes.find(slotStart); offsetSize_itr != _offsetSizes.end()) _offsetSizes.erase(offsetSize_itr);
+            // remove available slot
+            removeAvailableSlot(slotStart, slotSize);
 
-            // check if there the front of the slot isn't used completely, if so generate an available space for it.
-            if (alignedStart > slotStart)
+            if (slotStart < alignedStart) // space before newly reserved slot
             {
-                // insert new slot with previous slots start and new end.
-                size_t preAlignedStartSize = alignedStart - slotStart;
-                _availableMemory.insert(SizeOffset(preAlignedStartSize, slotStart));
-                _offsetSizes.insert(OffsetSize(slotStart, preAlignedStartSize));
+                insertAvailableSlot(slotStart, alignedStart - slotStart);
             }
 
-            // check if there is space at the end slot that isn't used completely, if so generate an available space for it.
-            if (alignedEnd < slotEnd)
+            if (alignedEnd < slotEnd) // space after newly reserved slot
             {
-                // insert new slot with new end and new size
-                size_t postAlignedEndSize = slotEnd - alignedEnd;
-                _availableMemory.insert(SizeOffset(postAlignedEndSize, alignedEnd));
-                _offsetSizes.insert(OffsetSize(alignedEnd, postAlignedEndSize));
+                slotStart = alignedEnd;
+                insertAvailableSlot(slotStart, slotEnd - slotStart);
             }
 
-            _reservedOffsetSizes[alignedStart] = (alignedEnd - alignedStart);
+            // record and return reserved slot
+            _reservedMemory.emplace(alignedStart, size);
 
-#if DO_CHECK
-            check();
-#endif
-
-            if (memoryTracking & MEMORY_TRACKING_LOG_ACTIONS)
+            if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
             {
-                logOfActions.push_back(Action{2, alignedStart, size, alignment});
+                std::cout<<"MemorySlots::reserve("<<size<<", "<<alignment<<") "<<this<<" allocated ["<<alignedStart<<", "<<size<<"]"<<std::endl;
             }
 
-            return OptionalOffset(true, alignedStart);
+            if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS) check();
+
+            return {true, alignedStart};
         }
-        else
+        else // slot not big enough so advance to the next slot
         {
-            // std::cout << "    Slot slotStart = " << slotStart << ", slotSize = " << slotSize << " not big enough once for request size = " << size << std::endl;
             ++itr;
         }
     }
 
-    //std::cout<<"MemorySlots::reserve("<<std::dec<<size<<") with alingment "<<alignment<<" No slots available for this size, biggest available slot is : "<<_availableMemory.rbegin()->first<<std::endl;
-    //report();
+    if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS) check();
 
-    return OptionalOffset(false, 0);
+    if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
+    {
+        std::cout<<"MemorySlots::reserve("<<size<<", "<<alignment<<") "<<this<<" no suitable slots found"<<std::endl;
+    }
+    return {false, 0};
 }
 
 bool MemorySlots::release(size_t offset, size_t size)
 {
     if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout<<"MemorySlots::release("<<offset<<", "<<size<<") "<<this<<std::endl;
+        std::cout<<"\nMemorySlots::release("<<offset<<", "<<size<<") "<<this<<std::endl;
     }
 
-    if (memoryTracking & MEMORY_TRACKING_LOG_ACTIONS)
+    auto itr = _reservedMemory.find(offset);
+    if (itr == _reservedMemory.end())
     {
-        logOfActions.push_back(Action{3, offset, size, 0});
-    }
-
-    auto reserved_itr = _reservedOffsetSizes.find(offset);
-    if (reserved_itr == _reservedOffsetSizes.end())
-    {
-        if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS)
-        {
-            std::cout << "MemorySlots::release("<<offset<<", "<<size<<") "<<this<<", slot not found A" << std::endl;
-
-            report(std::cout);
-
-            // throw Exception{"MemorySlots::release() slot found A", 0};
-        }
+        // entry isn't in reserved slots
         return false;
     }
-    else
+
+    if (size != itr->second)
     {
-        if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS)
-        {
-            if (reserved_itr->second != size)
-            {
-                std::cout << "MemorySlots::release() slot found but sizes are inconsistent reserved_itr->second = " << std::dec << reserved_itr->second << ", size=" << size << std::endl;
-                report(std::cout);
-                //if (size != 0) throw Exception{"MemorySlots::release() slot found but sizes are inconsistent reserved_itr->second",0};
-            }
-            else
-            {
-                std::cout << "    MemorySlots::release("<<offset<<", "<<size<<") "<<this<<", slot found B" << std::endl;
-                report(std::cout);
-                return false;
-            }
-        }
-
-        size = reserved_itr->second;
-
-        _reservedOffsetSizes.erase(reserved_itr);
+        //std::cout<<"    reserved slot different size, itr->second = "<<itr->second<<std::endl;
+        size = itr->second;
     }
+
+    // remove from reserved list
+    _reservedMemory.erase(itr);
 
     if (_offsetSizes.empty())
     {
-        // first empty space
-        _availableMemory.insert(SizeOffset(size, offset));
-        _offsetSizes.insert(OffsetSize(offset, size));
+        insertAvailableSlot(offset, size);
 
         if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS) check();
 
         return true;
     }
 
-    // need to find adjacent blocks before and after to see if we can join them together options are:
-    //    abutes to neither before or after
-    //    abutes to before, so replace before with new combined length
-    //    abutes to after, so remove after entry and insert new entry with combined length
-    //    abutes to both before and after, so replace before with newly combined length of all three, remove after entry
+    size_t slotStart = offset;
+    size_t slotEnd = offset + size;
 
-    auto slotAfter = _offsetSizes.upper_bound(offset);
-
-    auto slotBefore = slotAfter;
-    if (slotBefore != _offsetSizes.end())
+    auto next_slot_itr = _offsetSizes.lower_bound(slotStart);
+    if (next_slot_itr != _offsetSizes.end())
     {
-        if (slotBefore == _offsetSizes.begin())
+        if (next_slot_itr != _offsetSizes.begin())
         {
-            slotBefore = _offsetSizes.end();
+            auto prev_slot_itr = next_slot_itr;
+            --prev_slot_itr;
+
+            size_t prev_slotEnd = prev_slot_itr->first + prev_slot_itr->second;
+            if (prev_slotEnd == slotStart)
+            {
+                // previous slot abuts with the one being released so remove it.
+                slotStart = prev_slot_itr->first;
+                removeAvailableSlot(prev_slot_itr->first, prev_slot_itr->second);
+            }
         }
-        else
+
+        if (next_slot_itr->first == slotEnd)
         {
-            --slotBefore;
+            // next available slot abuts released so extend new slot and remove previous next available slot
+            slotEnd = next_slot_itr->first + next_slot_itr->second;
+            removeAvailableSlot(next_slot_itr->first, next_slot_itr->second);
         }
     }
     else
     {
-        slotBefore = _offsetSizes.rbegin().base();
-    }
-
-    auto eraseSlot = [&](OffsetSizes::iterator offsetSizeItr) {
-        auto range = _availableMemory.equal_range(offsetSizeItr->second);
-        for (auto itr = range.first; itr != range.second; ++itr)
+        auto prev_slot_itr = _offsetSizes.rbegin();
+        size_t prev_slotEnd = prev_slot_itr->first + prev_slot_itr->second;
+        if (prev_slotEnd == slotStart)
         {
-            if (itr->second == offsetSizeItr->first)
-            {
-                _availableMemory.erase(itr);
-                _offsetSizes.erase(offsetSizeItr);
-                break;
-            }
-        }
-    };
-
-    if (slotBefore != _offsetSizes.end())
-    {
-        size_t endOfBeforeSlot = slotBefore->first + slotBefore->second;
-
-        if (endOfBeforeSlot == offset)
-        {
-            size_t endOfReleasedSlot = offset + size;
-            size_t totalSizeOfMergedSlots = endOfReleasedSlot - slotBefore->first;
-
-            offset = slotBefore->first;
-            size = totalSizeOfMergedSlots;
-
-            eraseSlot(slotBefore);
-        }
-    }
-    if (slotAfter != _offsetSizes.end())
-    {
-        size_t endOfReleasedSlot = offset + size;
-
-        if (endOfReleasedSlot == slotAfter->first)
-        {
-            size_t endOfSlotAfter = slotAfter->first + slotAfter->second;
-            size_t totalSizeOfMergedSlots = endOfSlotAfter - offset;
-            size = totalSizeOfMergedSlots;
-
-            eraseSlot(slotAfter);
+            // previous slot abuts with the one being released so reove it.
+            slotStart = prev_slot_itr->first;
+            removeAvailableSlot(prev_slot_itr->first, prev_slot_itr->second);
         }
     }
 
-    _availableMemory.insert(SizeOffset(size, offset));
-    _offsetSizes.insert(OffsetSize(offset, size));
+    insertAvailableSlot(slotStart, slotEnd - slotStart);
 
-    if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS)
-    {
-        check();
-    }
+    if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS) check();
 
     return true;
 }
