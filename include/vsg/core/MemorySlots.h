@@ -28,11 +28,7 @@ namespace vsg
         MEMORY_TRACKING_NO_CHECKS = 0,
         MEMORY_TRACKING_REPORT_ACTIONS = 1,
         MEMORY_TRACKING_CHECK_ACTIONS = 2,
-#if 1
         MEMORY_TRACKING_DEFAULT = MEMORY_TRACKING_NO_CHECKS
-#else
-        MEMORY_TRACKING_DEFAULT = MEMORY_TRACKING_REPORT_ACTIONS
-#endif
     };
 
     /** class used internally by vsg::Allocator, vsg::DeviceMemory and vsg::Buffer to manage allocation of within a block of CPU or GPU memory.*/
