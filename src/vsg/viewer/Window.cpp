@@ -292,8 +292,6 @@ void Window::buildSwapchain()
     // pass back the extents used by the swap chain.
     _extent2D = _swapchain->getExtent();
 
-    auto deviceID = _device->deviceID;
-
     bool multisampling = _framebufferSamples != VK_SAMPLE_COUNT_1_BIT;
     if (multisampling)
     {
@@ -313,9 +311,7 @@ void Window::buildSwapchain()
         _multisampleImage->sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
         _multisampleImage->compile(_device);
-
-        auto colorMemory = DeviceMemory::create(_device, _multisampleImage->getMemoryRequirements(deviceID), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-        _multisampleImage->bind(colorMemory, 0);
+        _multisampleImage->allocateAndBindMemory(_device);
 
         _multisampleImageView = ImageView::create(_multisampleImage, VK_IMAGE_ASPECT_COLOR_BIT);
         _multisampleImageView->compile(_device);
@@ -340,10 +336,7 @@ void Window::buildSwapchain()
     _depthImage->usage = _traits->depthImageUsage;
 
     _depthImage->compile(_device);
-
-    auto depthImageMemory = DeviceMemory::create(_device, _depthImage->getMemoryRequirements(deviceID), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-    _depthImage->bind(depthImageMemory, 0);
+    _depthImage->allocateAndBindMemory(_device);
 
     _depthImageView = ImageView::create(_depthImage);
     _depthImageView->compile(_device);
@@ -369,10 +362,7 @@ void Window::buildSwapchain()
         _depthImage->sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
         _depthImage->compile(_device);
-
-        auto unsampleDepthImageMemory = DeviceMemory::create(_device, _depthImage->getMemoryRequirements(deviceID), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-        _depthImage->bind(unsampleDepthImageMemory, 0);
+        _depthImage->allocateAndBindMemory(_device);
 
         _depthImageView = ImageView::create(_depthImage);
         _depthImageView->compile(_device);

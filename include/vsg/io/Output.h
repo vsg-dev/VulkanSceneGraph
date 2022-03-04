@@ -123,12 +123,14 @@ namespace vsg
         }
 
         template<typename T>
-        void write(const char* propertyName, const std::vector<ref_ptr<T>>& values)
+        void writeObjects(const char* propertyName, const T& values)
         {
             uint32_t numElements = static_cast<uint32_t>(values.size());
             write(propertyName, numElements);
 
-            const char* element_name = type_name<T>();
+            using element_type = typename T::value_type::element_type;
+            const char* element_name = type_name<element_type>();
+
             for (uint32_t i = 0; i < numElements; ++i)
             {
                 write(element_name, values[i]);
@@ -136,7 +138,7 @@ namespace vsg
         }
 
         template<typename T>
-        void write(const char* propertyName, const std::vector<T>& values)
+        void writeValues(const char* propertyName, const T& values)
         {
             uint32_t numElements = static_cast<uint32_t>(values.size());
             write(propertyName, numElements);

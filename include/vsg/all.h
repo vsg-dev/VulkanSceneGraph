@@ -25,6 +25,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/External.h>
 #include <vsg/core/Inherit.h>
 #include <vsg/core/Mask.h>
+#include <vsg/core/MemorySlots.h>
 #include <vsg/core/Object.h>
 #include <vsg/core/Objects.h>
 #include <vsg/core/ScratchMemory.h>

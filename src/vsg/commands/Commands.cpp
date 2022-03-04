@@ -23,12 +23,6 @@ Commands::Commands(size_t numChildren) :
 {
 }
 
-Commands::Commands(Allocator* allocator, size_t numChildren) :
-    Inherit(allocator),
-    children(numChildren)
-{
-}
-
 Commands::~Commands()
 {
 }

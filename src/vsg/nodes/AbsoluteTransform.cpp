@@ -15,13 +15,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-AbsoluteTransform::AbsoluteTransform(Allocator* allocator) :
-    Inherit(allocator)
+AbsoluteTransform::AbsoluteTransform()
 {
 }
 
-AbsoluteTransform::AbsoluteTransform(const dmat4& in_matrix, Allocator* allocator) :
-    Inherit(allocator),
+AbsoluteTransform::AbsoluteTransform(const dmat4& in_matrix) :
     matrix(in_matrix)
 {
 }

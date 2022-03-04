@@ -42,7 +42,7 @@ void DescriptorSet::read(Input& input)
     if (input.version_greater_equal(0, 1, 4))
     {
         input.read("setLayout", setLayout);
-        input.read("descriptors", descriptors);
+        input.readObjects("descriptors", descriptors);
     }
     else
     {
@@ -63,7 +63,7 @@ void DescriptorSet::write(Output& output) const
     if (output.version_greater_equal(0, 1, 4))
     {
         output.write("setLayout", setLayout);
-        output.write("descriptors", descriptors);
+        output.writeObjects("descriptors", descriptors);
     }
     else
     {
@@ -165,7 +165,7 @@ void BindDescriptorSets::read(Input& input)
     {
         input.read("layout", layout);
         input.read("firstSet", firstSet);
-        input.read("descriptorSets", descriptorSets);
+        input.readObjects("descriptorSets", descriptorSets);
     }
     else
     {
@@ -189,7 +189,7 @@ void BindDescriptorSets::write(Output& output) const
     {
         output.write("layout", layout);
         output.write("firstSet", firstSet);
-        output.write("descriptorSets", descriptorSets);
+        output.writeObjects("descriptorSets", descriptorSets);
     }
     else
     {

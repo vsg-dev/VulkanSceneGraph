@@ -21,7 +21,7 @@ namespace vsg
     class VSG_DECLSPEC BottomLevelAccelerationStructure : public Inherit<AccelerationStructure, BottomLevelAccelerationStructure>
     {
     public:
-        explicit BottomLevelAccelerationStructure(Device* device, Allocator* allocator = nullptr);
+        explicit BottomLevelAccelerationStructure(Device* device);
 
         void compile(Context& context) override;
 

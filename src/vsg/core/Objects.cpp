@@ -23,12 +23,6 @@ Objects::Objects(size_t numChildren) :
 {
 }
 
-Objects::Objects(Allocator* allocator, size_t numChildren) :
-    Inherit(allocator),
-    children(numChildren)
-{
-}
-
 Objects::~Objects()
 {
 }
@@ -39,7 +33,7 @@ void Objects::read(Input& input)
 
     if (input.version_greater_equal(0, 1, 4))
     {
-        input.read("children", children);
+        input.readObjects("children", children);
     }
     else
     {
@@ -57,7 +51,7 @@ void Objects::write(Output& output) const
 
     if (output.version_greater_equal(0, 1, 4))
     {
-        output.write("children", children);
+        output.writeObjects("children", children);
     }
     else
     {

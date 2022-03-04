@@ -24,8 +24,7 @@ using namespace vsg;
 //       index arrays
 //       draw + draw DrawIndexed
 //
-Geometry::Geometry(Allocator* allocator) :
-    Inherit(allocator)
+Geometry::Geometry()
 {
 }
 

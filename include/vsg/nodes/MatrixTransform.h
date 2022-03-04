@@ -20,8 +20,8 @@ namespace vsg
     class VSG_DECLSPEC MatrixTransform : public Inherit<Transform, MatrixTransform>
     {
     public:
-        explicit MatrixTransform(Allocator* allocator = nullptr);
-        explicit MatrixTransform(const dmat4& in_matrix, Allocator* allocator = nullptr);
+        MatrixTransform();
+        explicit MatrixTransform(const dmat4& in_matrix);
 
         void read(Input& input) override;
         void write(Output& output) const override;

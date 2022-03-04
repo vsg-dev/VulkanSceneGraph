@@ -27,12 +27,12 @@ namespace vsg
     class VSG_DECLSPEC StateGroup : public Inherit<Group, StateGroup>
     {
     public:
-        StateGroup(Allocator* allocator = nullptr);
+        StateGroup();
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        using StateCommands = std::vector<ref_ptr<StateCommand>>;
+        using StateCommands = std::vector<ref_ptr<StateCommand>, allocator_affinity_nodes<ref_ptr<StateCommand>>>;
         StateCommands stateCommands;
 
         /// if the shaders associated with GraphicsPipeline don't treat the array 0 as xyz vertex then provide a ArrayState prototype to provide custom mapping of arrays to vertices.

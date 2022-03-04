@@ -10,12 +10,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Allocator.h>
 #include <vsg/core/Data.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
 
 using namespace vsg;
+
+void* Data::operator new(std::size_t count)
+{
+    return vsg::allocate(count, vsg::ALLOCATOR_AFFINITY_DATA);
+}
 
 void Data::read(Input& input)
 {

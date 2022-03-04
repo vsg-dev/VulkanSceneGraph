@@ -20,7 +20,7 @@ namespace vsg
     class VSG_DECLSPEC ResourceHints : public Inherit<Object, ResourceHints>
     {
     public:
-        ResourceHints(Allocator* allocator = nullptr);
+        ResourceHints();
 
         bool empty() const noexcept { return maxSlot == 0 && numDescriptorSets == 0 && descriptorPoolSizes.empty(); }
 

@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Allocator.h>
+#include <vsg/core/Object.h>
 #include <vsg/core/ref_ptr.h>
 
 #include <map>
@@ -45,12 +45,8 @@ namespace vsg
         ObjectMap& getObjectMap() { return _objectMap; }
         const ObjectMap& getObjectMap() const { return _objectMap; }
 
-        void setAllocator(Allocator* allocator) { _allocator = allocator; }
-        Allocator* getAllocator() { return _allocator; }
-
     protected:
-        explicit Auxiliary(Allocator* allocator);
-        explicit Auxiliary(Object* object, Allocator* allocator = nullptr);
+        explicit Auxiliary(Object* object);
 
         virtual ~Auxiliary();
 
@@ -68,7 +64,6 @@ namespace vsg
         mutable std::mutex _mutex;
         Object* _connectedObject;
 
-        ref_ptr<Allocator> _allocator;
         ObjectMap _objectMap;
     };
 

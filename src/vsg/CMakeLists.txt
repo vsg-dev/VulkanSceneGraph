@@ -15,6 +15,7 @@ set(SOURCES
     core/ConstVisitor.cpp
     core/Data.cpp
     core/External.cpp
+    core/MemorySlots.cpp
     core/Object.cpp
     core/Objects.cpp
     core/Visitor.cpp

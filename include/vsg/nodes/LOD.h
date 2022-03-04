@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Allocator.h>
 #include <vsg/core/ref_ptr.h>
-
 #include <vsg/nodes/Node.h>
 
 #include <algorithm>
@@ -32,7 +32,7 @@ namespace vsg
     class VSG_DECLSPEC LOD : public Inherit<Node, LOD>
     {
     public:
-        LOD(Allocator* allocator = nullptr);
+        LOD();
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
@@ -53,7 +53,7 @@ namespace vsg
             ref_ptr<Node> node;
         };
 
-        using Children = std::vector<Child>;
+        using Children = std::vector<Child, allocator_affinity_nodes<Child>>;
 
         dsphere bound;
         Children children;

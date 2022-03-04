@@ -16,13 +16,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-MatrixTransform::MatrixTransform(Allocator* allocator) :
-    Inherit(allocator)
+MatrixTransform::MatrixTransform()
 {
 }
 
-MatrixTransform::MatrixTransform(const dmat4& in_matrix, Allocator* allocator) :
-    Inherit(allocator),
+MatrixTransform::MatrixTransform(const dmat4& in_matrix) :
     matrix(in_matrix)
 {
 }

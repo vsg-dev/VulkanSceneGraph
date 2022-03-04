@@ -21,8 +21,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(Device* device, Allocator* allocator) :
-    Inherit(VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR, device, allocator)
+BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(Device* device) :
+    Inherit(VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR, device)
 {
 }
 
@@ -47,5 +47,5 @@ void BottomLevelAccelerationStructure::compile(Context& context)
 
     Inherit::compile(context);
 
-    context.buildAccelerationStructureCommands.push_back(BuildAccelerationStructureCommand::create(context.device, _accelerationStructureBuildGeometryInfo, _accelerationStructure, _geometryPrimitiveCounts, context.getAllocator()));
+    context.buildAccelerationStructureCommands.push_back(BuildAccelerationStructureCommand::create(context.device, _accelerationStructureBuildGeometryInfo, _accelerationStructure, _geometryPrimitiveCounts));
 }

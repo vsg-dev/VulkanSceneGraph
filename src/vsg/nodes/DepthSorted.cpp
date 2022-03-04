@@ -16,13 +16,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-DepthSorted::DepthSorted(Allocator* allocator) :
-    Inherit(allocator)
+DepthSorted::DepthSorted()
 {
 }
 
-DepthSorted::DepthSorted(int32_t in_binNumber, const dsphere& in_bound, ref_ptr<Node> in_child, Allocator* allocator) :
-    Inherit(allocator),
+DepthSorted::DepthSorted(int32_t in_binNumber, const dsphere& in_bound, ref_ptr<Node> in_child) :
     binNumber(in_binNumber),
     bound(in_bound),
     child(in_child)

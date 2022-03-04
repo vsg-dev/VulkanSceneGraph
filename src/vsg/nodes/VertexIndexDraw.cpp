@@ -24,8 +24,7 @@ using namespace vsg;
 //       index arrays
 //       draw + draw DrawIndexed
 //
-VertexIndexDraw::VertexIndexDraw(Allocator* allocator) :
-    Inherit(allocator)
+VertexIndexDraw::VertexIndexDraw()
 {
 }
 

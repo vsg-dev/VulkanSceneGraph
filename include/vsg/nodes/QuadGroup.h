@@ -26,7 +26,7 @@ namespace vsg
     class VSG_DECLSPEC QuadGroup : public Inherit<Node, QuadGroup>
     {
     public:
-        QuadGroup(Allocator* allocator = nullptr);
+        QuadGroup();
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)

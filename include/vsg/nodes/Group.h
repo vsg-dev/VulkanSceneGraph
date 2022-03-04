@@ -12,12 +12,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/ref_ptr.h>
-
+#include <vsg/core/Allocator.h>
 #include <vsg/nodes/Node.h>
 
 #include <vector>
-
 namespace vsg
 {
 
@@ -25,7 +23,6 @@ namespace vsg
     {
     public:
         explicit Group(size_t numChildren = 0);
-        explicit Group(Allocator* allocator, size_t numChildren = 0);
 
         template<typename Iterator>
         Group(Iterator begin, Iterator end)
@@ -46,7 +43,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        using Children = std::vector<ref_ptr<vsg::Node>>;
+        using Children = std::vector<ref_ptr<Node>, allocator_affinity_nodes<ref_ptr<Node>>>;
         Children children;
 
         void addChild(vsg::ref_ptr<Node> child)

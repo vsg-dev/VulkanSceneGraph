@@ -23,7 +23,7 @@ namespace vsg
     class VSG_DECLSPEC Switch : public Inherit<Node, Switch>
     {
     public:
-        explicit Switch(Allocator* allocator = nullptr);
+        explicit Switch();
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)

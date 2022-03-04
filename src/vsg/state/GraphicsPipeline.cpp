@@ -45,8 +45,8 @@ void GraphicsPipeline::read(Input& input)
     if (input.version_greater_equal(0, 1, 4))
     {
         input.read("layout", layout);
-        input.read("stages", stages);
-        input.read("pipelineStates", pipelineStates);
+        input.readObjects("stages", stages);
+        input.readObjects("pipelineStates", pipelineStates);
     }
     else
     {
@@ -75,8 +75,8 @@ void GraphicsPipeline::write(Output& output) const
     if (output.version_greater_equal(0, 1, 4))
     {
         output.write("layout", layout);
-        output.write("stages", stages);
-        output.write("pipelineStates", pipelineStates);
+        output.writeObjects("stages", stages);
+        output.writeObjects("pipelineStates", pipelineStates);
     }
     else
     {

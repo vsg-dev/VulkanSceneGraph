@@ -50,6 +50,12 @@ Using the prototyping work as a guide implement the final scene graph library wi
 * Support for wide and standard strings in vsg::Path.
 * Support for integration with OpenGL/OSG applications via [EXT\_external\_object](https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_external_objects.txt) & [VK\_KHR\_external\_memory](https://www.khronos.org/registry/vulkan/specs/1.1-extensions/man/html/VK_KHR_external_memory.html#versions-1.1-promotions)
 * Port to iOS
+* Utilize vkEnumerateInstanceVersion
+
+#### Pending/Underway tasks relating to associated libraries
+* Update vsgXchange::OSG and vsgXchange::Assimp to use the new state composer/shader set.
+* Update vsgImGui to latest
+* Rewrite vsgQt handling of keyboard mapping
 
 #### Pending/Underway tasks relating to associated libraries
 * Update vsgXchange::OSG and vsgXchange::Assimp to use the new state composer/shader set.

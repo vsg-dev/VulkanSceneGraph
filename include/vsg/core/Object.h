@@ -28,7 +28,6 @@ namespace vsg
     class Visitor;
     class ConstVisitor;
     class RecordTraversal;
-    class Allocator;
     class Input;
     class Output;
     class Object;
@@ -43,12 +42,12 @@ namespace vsg
     public:
         Object();
 
-        explicit Object(Allocator* allocator);
-
         Object(const Object&);
         Object& operator=(const Object&);
 
-        //static ref_ptr<Object> create(Allocator* allocator=nullptr);
+        /// provide new and delete to enable custom memory management via the vsg::Allocator singleton, using the MEMORY_AFFINTY_OBJECTS
+        static void* operator new(std::size_t count);
+        static void operator delete(void* ptr);
 
         virtual std::size_t sizeofObject() const noexcept { return sizeof(Object); }
         virtual const char* className() const noexcept { return type_name<Object>(); }
@@ -116,13 +115,10 @@ namespace vsg
         /// remove meta object or value associated with key
         void removeObject(const std::string& key);
 
-        // Auxiliary object access methods, the optional Auxiliary is used to store meta data and links to Allocator
+        // Auxiliary object access methods, the optional Auxiliary is used to store meta data
         Auxiliary* getOrCreateUniqueAuxiliary();
         Auxiliary* getAuxiliary() { return _auxiliary; }
         const Auxiliary* getAuxiliary() const { return _auxiliary; }
-
-        // convenience method for getting the optional Allocator, if present this Allocator would have been used to create this Objects memory
-        Allocator* getAllocator() const;
 
     protected:
         virtual ~Object();
@@ -131,7 +127,6 @@ namespace vsg
         void setAuxiliary(Auxiliary* auxiliary);
 
     private:
-        friend class Allocator;
         friend class Auxiliary;
 
         mutable std::atomic_uint _referenceCount;

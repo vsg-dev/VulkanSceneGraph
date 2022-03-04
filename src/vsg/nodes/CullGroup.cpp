@@ -16,13 +16,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CullGroup::CullGroup(Allocator* allocator) :
-    Inherit(allocator)
+CullGroup::CullGroup()
 {
 }
 
-CullGroup::CullGroup(const dsphere& in_bound, Allocator* allocator) :
-    Inherit(allocator)
+CullGroup::CullGroup(const dsphere& in_bound)
 {
     bound = in_bound;
 }

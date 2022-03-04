@@ -21,6 +21,8 @@ namespace vsg
     class observer_ptr
     {
     public:
+        using element_type = T;
+
         observer_ptr() :
             _ptr(nullptr) {}
 

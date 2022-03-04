@@ -21,9 +21,9 @@ namespace vsg
     class VSG_DECLSPEC DepthSorted : public Inherit<Node, DepthSorted>
     {
     public:
-        DepthSorted(Allocator* allocator = nullptr);
+        DepthSorted();
 
-        DepthSorted(int32_t in_binNumber, const dsphere& in_bound, ref_ptr<Node> in_child, Allocator* allocator = nullptr);
+        DepthSorted(int32_t in_binNumber, const dsphere& in_bound, ref_ptr<Node> in_child);
 
         void traverse(Visitor& visitor) override { child->accept(visitor); }
         void traverse(ConstVisitor& visitor) const override { child->accept(visitor); }

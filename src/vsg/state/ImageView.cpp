@@ -165,12 +165,6 @@ ref_ptr<ImageView> vsg::createImageView(vsg::Context& context, ref_ptr<Image> im
 
     // allocate memory with out export memory info extension
     auto [deviceMemory, offset] = context.deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-    if (!deviceMemory)
-    {
-        throw Exception{"Error: Failed allocate memory for image.", 0};
-    }
-
     image->bind(deviceMemory, offset);
 
     auto imageView = ImageView::create(image, aspectFlags);
@@ -183,15 +177,7 @@ ref_ptr<ImageView> vsg::createImageView(Device* device, ref_ptr<Image> image, Vk
 {
     image->compile(device);
 
-    // allocate memory with out export memory info extension
-    auto deviceMemory = DeviceMemory::create(device, image->getMemoryRequirements(device->deviceID), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-    if (!deviceMemory)
-    {
-        throw Exception{"Error: Failed allocate memory for image.", 0};
-    }
-
-    image->bind(deviceMemory, 0);
+    image->allocateAndBindMemory(device);
 
     auto imageView = ImageView::create(image, aspectFlags);
     imageView->compile(device);
