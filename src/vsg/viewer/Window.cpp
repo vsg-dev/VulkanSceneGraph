@@ -338,7 +338,6 @@ void Window::buildSwapchain()
     _depthImage->compile(_device);
     _depthImage->allocateAndBindMemory(_device);
 
-
     _depthImageView = ImageView::create(_depthImage);
     _depthImageView->compile(_device);
 

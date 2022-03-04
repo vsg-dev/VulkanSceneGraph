@@ -33,7 +33,7 @@ Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator) :
 
     allocatorMemoryBlocks.resize(vsg::ALLOCATOR_AFFINITY_LAST);
 
-    size_t Megabyte = 1024*1024;
+    size_t Megabyte = 1024 * 1024;
 
     // TODO need to set to a more sensible default
     allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_OBJECTS].reset(new MemoryBlocks(this, "MemoryBlocks_OBJECTS", size_t(Megabyte)));
@@ -67,10 +67,10 @@ void Allocator::report(std::ostream& out) const
         if (memoryBlocks)
         {
             size_t totalForBlock = memoryBlocks->totalReservedSize();
-            out <<memoryBlocks->name << " used = " << totalForBlock;
-            if (totalReserved>0.0)
+            out << memoryBlocks->name << " used = " << totalForBlock;
+            if (totalReserved > 0.0)
             {
-                out<<", "<< (double(totalForBlock)/totalReserved)*100.0 << "% of total used.";
+                out << ", " << (double(totalForBlock) / totalReserved) * 100.0 << "% of total used.";
             }
             out << std::endl;
         }
@@ -80,7 +80,7 @@ void Allocator::report(std::ostream& out) const
     {
         if (memoryBlocks)
         {
-            out <<memoryBlocks->name << " "<<memoryBlocks->memoryBlocks.size() << " blocks";
+            out << memoryBlocks->name << " " << memoryBlocks->memoryBlocks.size() << " blocks";
             for (const auto& memoryBlock : memoryBlocks->memoryBlocks)
             {
                 const auto& memorySlots = memoryBlock->memorySlots;
@@ -97,7 +97,7 @@ void* Allocator::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
 
     if (allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
     {
-        return operator new (size);
+        return operator new(size);
     }
     else if (allocatorType == ALLOCATOR_TYPE_MALLOC_FREE)
     {
@@ -109,13 +109,13 @@ void* Allocator::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
     {
         if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
         {
-            std::cout << "Allocator::allocate("<<size<<", "<<allocatorAffinity<<") out of bouns allocating new MemoryBlock" << std::endl;
+            std::cout << "Allocator::allocate(" << size << ", " << allocatorAffinity << ") out of bouns allocating new MemoryBlock" << std::endl;
         }
 
         auto name = make_string("MemoryBlocks_", allocatorAffinity);
-        size_t blockSize = 1024*1024; // Megabyte
+        size_t blockSize = 1024 * 1024; // Megabyte
 
-        allocatorMemoryBlocks.resize(allocatorAffinity+1);
+        allocatorMemoryBlocks.resize(allocatorAffinity + 1);
         allocatorMemoryBlocks[allocatorAffinity].reset(new MemoryBlocks(this, name, blockSize));
     }
 
@@ -153,7 +153,7 @@ bool Allocator::deallocate(void* ptr, std::size_t size)
             {
                 if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
                 {
-                    std::cout<< "Deallocated from MemoryBlock " << ptr << std::endl;
+                    std::cout << "Deallocated from MemoryBlock " << ptr << std::endl;
                 }
                 return true;
             }
@@ -164,7 +164,7 @@ bool Allocator::deallocate(void* ptr, std::size_t size)
 
     if (allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
     {
-        operator delete (ptr);
+        operator delete(ptr);
         return true;
     }
     else if (allocatorType == ALLOCATOR_TYPE_MALLOC_FREE)
@@ -243,7 +243,7 @@ Allocator::MemoryBlocks* Allocator::getOrCreateMemoryBlocks(AllocatorAffinity al
     }
     else
     {
-        allocatorMemoryBlocks.resize(allocatorAffinity+1);
+        allocatorMemoryBlocks.resize(allocatorAffinity + 1);
         allocatorMemoryBlocks[allocatorAffinity].reset(new MemoryBlocks(this, name, blockSize));
     }
     return allocatorMemoryBlocks[allocatorAffinity].get();
@@ -261,7 +261,7 @@ void Allocator::setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSi
     {
         auto name = make_string("MemoryBlocks_", allocatorAffinity);
 
-        allocatorMemoryBlocks.resize(allocatorAffinity+1);
+        allocatorMemoryBlocks.resize(allocatorAffinity + 1);
         allocatorMemoryBlocks[allocatorAffinity].reset(new MemoryBlocks(this, name, blockSize));
     }
 }
@@ -269,11 +269,11 @@ void Allocator::setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSi
 void Allocator::setMemoryTracking(int mt)
 {
     memoryTracking = mt;
-    for(auto& amb : allocatorMemoryBlocks)
+    for (auto& amb : allocatorMemoryBlocks)
     {
         if (amb)
         {
-            for(auto& mb : amb->memoryBlocks)
+            for (auto& mb : amb->memoryBlocks)
             {
                 mb->memorySlots.memoryTracking = mt;
             }
@@ -291,7 +291,7 @@ Allocator::MemoryBlock::MemoryBlock(size_t blockSize, int memoryTracking, Alloca
 {
     if (allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
     {
-        memory = static_cast<uint8_t*>(operator new (blockSize));
+        memory = static_cast<uint8_t*>(operator new(blockSize));
     }
     else
     {
@@ -313,7 +313,7 @@ Allocator::MemoryBlock::~MemoryBlock()
 
     if (allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
     {
-        operator delete (memory);
+        operator delete(memory);
     }
     else
     {
@@ -339,7 +339,7 @@ bool Allocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
         {
             if (!memorySlots.release(offset, size))
             {
-                std::cout<<"Allocator::MemoryBlock::deallocate("<<ptr<<") problem - couldn't release"<<std::endl;
+                std::cout << "Allocator::MemoryBlock::deallocate(" << ptr << ") problem - couldn't release" << std::endl;
             }
             return true;
         }
@@ -358,7 +358,7 @@ Allocator::MemoryBlocks::MemoryBlocks(Allocator* in_parent, const std::string& i
 {
     if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout << "Allocator::MemoryBlocks::MemoryBlocks("<<parent<<", "<<name<<", " << blockSize << ")"<<std::endl;
+        std::cout << "Allocator::MemoryBlocks::MemoryBlocks(" << parent << ", " << name << ", " << blockSize << ")" << std::endl;
     }
 }
 
@@ -389,7 +389,7 @@ void* Allocator::MemoryBlocks::allocate(std::size_t size)
 
     if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout<<"Allocator::MemoryBlocks::allocate("<<size<<") MemoryBlocks.name = "<<name<<", allocated in new MemoryBlock "<<parent->memoryTracking<<std::endl;
+        std::cout << "Allocator::MemoryBlocks::allocate(" << size << ") MemoryBlocks.name = " << name << ", allocated in new MemoryBlock " << parent->memoryTracking << std::endl;
     }
 
     return ptr;
@@ -404,7 +404,7 @@ bool Allocator::MemoryBlocks::deallocate(void* ptr, std::size_t size)
 
     if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout<< "MemoryBlocks:deallocate() MemoryBlocks.name = "<<name<<",  couldn't locate pointer to deallocate " << ptr << std::endl;
+        std::cout << "MemoryBlocks:deallocate() MemoryBlocks.name = " << name << ",  couldn't locate pointer to deallocate " << ptr << std::endl;
     }
     return false;
 }
@@ -414,18 +414,18 @@ size_t Allocator::MemoryBlocks::deleteEmptyMemoryBlocks()
     size_t memoryDeleted = 0;
     if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout<< "MemoryBlocks:deleteEmptyMemoryBlocks() MemoryBlocks.name = "<<name<< std::endl;
+        std::cout << "MemoryBlocks:deleteEmptyMemoryBlocks() MemoryBlocks.name = " << name << std::endl;
     }
 
     auto itr = memoryBlocks.begin();
-    while(itr != memoryBlocks.end())
+    while (itr != memoryBlocks.end())
     {
         auto& block = *itr;
         if (block->memorySlots.empty())
         {
             if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
             {
-                std::cout<< "    MemoryBlocks:deleteEmptyMemoryBlocks() MemoryBlocks.name = "<<name<<",  removing MemoryBlock" <<block.get()<< std::endl;
+                std::cout << "    MemoryBlocks:deleteEmptyMemoryBlocks() MemoryBlocks.name = " << name << ",  removing MemoryBlock" << block.get() << std::endl;
             }
             memoryDeleted += block->memorySlots.totalMemorySize();
             itr = memoryBlocks.erase(itr);

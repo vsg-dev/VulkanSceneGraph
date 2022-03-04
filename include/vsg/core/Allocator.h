@@ -68,7 +68,7 @@ namespace vsg
         /// report stats about block of memory allocated.
         virtual void report(std::ostream& out) const;
 
-        AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR; // use MemoryBlocks by default
+        AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR;          // use MemoryBlocks by default
         AllocatorType memoryBlocksAllocatorType = ALLOCATOR_TYPE_NEW_DELETE; // Use new/delete within MemoryBlocks by default
         int memoryTracking = MEMORY_TRACKING_DEFAULT;
 
@@ -115,7 +115,6 @@ namespace vsg
         mutable std::mutex mutex;
 
     protected:
-
         // if you are assigning a custom allocator you mest retain the old allocator to manage the memory it allocated and needs to delete
         std::unique_ptr<Allocator> nestedAllocator;
 

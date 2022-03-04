@@ -132,7 +132,7 @@ void DescriptorBuffer::compile(Context& context)
                     }
                     else
                     {
-                        std::cout<<"Warning: DescriptorBuffer::compile(..) unable to allocate bufferInfo with within associated Buffer."<<std::endl;
+                        std::cout << "Warning: DescriptorBuffer::compile(..) unable to allocate bufferInfo with within associated Buffer." << std::endl;
                     }
                 }
             }
@@ -156,7 +156,7 @@ void DescriptorBuffer::compile(Context& context)
                     }
                     else
                     {
-                        std::cout<<"Warning: DescriptorBuffer::compile(..) unable to allocate buffer within associated DeviceMemory."<<std::endl;
+                        std::cout << "Warning: DescriptorBuffer::compile(..) unable to allocate buffer within associated DeviceMemory." << std::endl;
                     }
                 }
             }

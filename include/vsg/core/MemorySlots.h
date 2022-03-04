@@ -14,10 +14,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Export.h>
 
-#include <map>
 #include <list>
-#include <vector>
+#include <map>
 #include <ostream>
+#include <vector>
 
 namespace vsg
 {
@@ -39,7 +39,6 @@ namespace vsg
     class VSG_DECLSPEC MemorySlots
     {
     public:
-
         explicit MemorySlots(size_t availableMemorySize, int in_memoryTracking = MEMORY_TRACKING_DEFAULT);
         ~MemorySlots();
 

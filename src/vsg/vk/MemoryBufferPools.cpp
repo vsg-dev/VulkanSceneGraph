@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/vk/MemoryBufferPools.h>
 
-#include <iostream>
 #include <chrono>
+#include <iostream>
 
 using namespace vsg;
 
@@ -82,7 +82,7 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
 
                 if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
                 {
-                    std::cout << name << " : MemoryBufferPools::reserveBuffer(" << totalSize << ", " << alignment << ", " << bufferUsageFlags << ") bufferInfo.buffer = " << bufferInfo->buffer << ", offset = " << bufferInfo->offset<< std::endl;
+                    std::cout << name << " : MemoryBufferPools::reserveBuffer(" << totalSize << ", " << alignment << ", " << bufferUsageFlags << ") bufferInfo.buffer = " << bufferInfo->buffer << ", offset = " << bufferInfo->offset << std::endl;
                 }
                 return bufferInfo;
             }

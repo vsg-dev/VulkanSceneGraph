@@ -18,7 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // MemorySlots
@@ -28,7 +27,7 @@ MemorySlots::MemorySlots(size_t availableMemorySize, int in_memoryTracking) :
 {
     if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout<<"MemorySlots::MemorySlots("<<availableMemorySize<<") "<<this<<std::endl;
+        std::cout << "MemorySlots::MemorySlots(" << availableMemorySize << ") " << this << std::endl;
     }
 
     insertAvailableSlot(0, availableMemorySize);
@@ -40,13 +39,13 @@ MemorySlots::~MemorySlots()
 {
     if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        if (_availableMemory.size()==1)
+        if (_availableMemory.size() == 1)
         {
-            std::cout<<"MemorySlots::~MemorySlots() "<<this<<", all slots restored correctly."<<std::endl;
+            std::cout << "MemorySlots::~MemorySlots() " << this << ", all slots restored correctly." << std::endl;
         }
         else
         {
-            std::cout<<"MemorySlots::~MemorySlots() "<<this<<", not all slots restored correctly."<<std::endl;
+            std::cout << "MemorySlots::~MemorySlots() " << this << ", not all slots restored correctly." << std::endl;
             report(std::cout);
         }
     }
@@ -110,7 +109,7 @@ bool MemorySlots::check() const
 
 void MemorySlots::report(std::ostream& out) const
 {
-    out << "MemorySlots::report() " <<this<< std::endl;
+    out << "MemorySlots::report() " << this << std::endl;
     for (auto& [offset, size] : _offsetSizes)
     {
         out << "    available " << offset << ", " << size << std::endl;
@@ -118,7 +117,7 @@ void MemorySlots::report(std::ostream& out) const
 
     for (auto& [offset, size] : _reservedMemory)
     {
-         out << "    reserved " << std::dec << offset << ", " << size << std::endl;
+        out << "    reserved " << std::dec << offset << ", " << size << std::endl;
     }
 }
 
@@ -132,7 +131,7 @@ void MemorySlots::removeAvailableSlot(size_t offset, size_t size)
 {
     _offsetSizes.erase(offset);
     auto end = _availableMemory.upper_bound(size);
-    for(auto itr = _availableMemory.lower_bound(size); itr != end; ++itr)
+    for (auto itr = _availableMemory.lower_bound(size); itr != end; ++itr)
     {
         if (itr->second == offset)
         {
@@ -146,7 +145,7 @@ MemorySlots::OptionalOffset MemorySlots::reserve(size_t size, size_t alignment)
 {
     if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout<<"\nMemorySlots::reserve("<<size<<", "<<alignment<<") "<<this<<std::endl;
+        std::cout << "\nMemorySlots::reserve(" << size << ", " << alignment << ") " << this << std::endl;
     }
 
     if (full()) return OptionalOffset(false, 0);
@@ -180,7 +179,7 @@ MemorySlots::OptionalOffset MemorySlots::reserve(size_t size, size_t alignment)
 
             if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
             {
-                std::cout<<"MemorySlots::reserve("<<size<<", "<<alignment<<") "<<this<<" allocated ["<<alignedStart<<", "<<size<<"]"<<std::endl;
+                std::cout << "MemorySlots::reserve(" << size << ", " << alignment << ") " << this << " allocated [" << alignedStart << ", " << size << "]" << std::endl;
             }
 
             if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS) check();
@@ -197,7 +196,7 @@ MemorySlots::OptionalOffset MemorySlots::reserve(size_t size, size_t alignment)
 
     if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout<<"MemorySlots::reserve("<<size<<", "<<alignment<<") "<<this<<" no suitable slots found"<<std::endl;
+        std::cout << "MemorySlots::reserve(" << size << ", " << alignment << ") " << this << " no suitable slots found" << std::endl;
     }
     return {false, 0};
 }
@@ -206,7 +205,7 @@ bool MemorySlots::release(size_t offset, size_t size)
 {
     if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout<<"\nMemorySlots::release("<<offset<<", "<<size<<") "<<this<<std::endl;
+        std::cout << "\nMemorySlots::release(" << offset << ", " << size << ") " << this << std::endl;
     }
 
     auto itr = _reservedMemory.find(offset);
