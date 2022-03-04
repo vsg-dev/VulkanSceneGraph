@@ -122,10 +122,10 @@ namespace vsg
     };
 
     /// allocate memory using vsg::Allocator::instance() if avaiable, otherwise use std::malloc(size)
-    void* allocate(std::size_t size, AllocatorAffinity allocatorAffinity = ALLOCATOR_AFFINITY_OBJECTS);
+    extern VSG_DECLSPEC void* allocate(std::size_t size, AllocatorAffinity allocatorAffinity = ALLOCATOR_AFFINITY_OBJECTS);
 
     /// deallocate memory using vsg::Allocator::instance() if avaiable, otherwise use std::free(ptr)
-    void deallocate(void* ptr, std::size_t size = 0);
+    extern VSG_DECLSPEC void deallocate(void* ptr, std::size_t size = 0);
 
     /// std container adapter for allocating with MEMORY_AFFINITY_NODES
     template<typename T>
