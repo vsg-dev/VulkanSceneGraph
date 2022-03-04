@@ -64,4 +64,7 @@ namespace vsg
     /// make a directory, return true if path already exists or full path has been created successfully, return false on failure.
     extern VSG_DECLSPEC bool makeDirectory(const Path& path);
 
+    /// returns the path/filename of the currently executed program
+    extern VSG_DECLSPEC Path executableFilePath();
+
 } // namespace vsg

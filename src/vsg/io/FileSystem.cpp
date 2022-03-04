@@ -19,11 +19,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    include <io.h>
 //	 cctype is needed for tolower()
 #    include <cctype>
+#    include <windows.h>
+
+#ifdef _MSC_VER
+#ifndef PATH_MAX
+#define PATH_MAX MAX_PATH
+#endif
+#endif
+
 #else
 #    include <errno.h>
 #    include <sys/stat.h>
 #    include <unistd.h>
 #endif
+
+#ifdef __APPLE__
+#    include <libgen.h>
+#    include <mach-o/dyld.h>
+#    include <TargetConditionals.h>
+#endif
+
+#include <limits.h>
 
 #include <iostream>
 
@@ -277,4 +293,50 @@ bool vsg::makeDirectory(const Path& path)
     }
 
     return true;
+}
+
+Path vsg::executableFilePath()
+{
+    Path path;
+    char buf[PATH_MAX+1];
+
+#if defined(WIN32)
+    DWORD result = GetModuleFileName(NULL, buf, sizeof(buf)-1);
+    if (result && result < sizeof(buf))
+        path = buf;
+#elif defined(__linux__)
+    // TODO need to handle case where executable filename is longer than PATH_MAX
+    // See https://stackoverflow.com/questions/5525668/how-to-implement-readlink-to-find-the-path
+    ssize_t len = ::readlink("/proc/self/exe", buf, sizeof(buf)-1);
+    if (len != -1)
+    {
+        buf[len] = '\0';
+        path = buf;
+    }
+#elif defined(__APPLE__)
+#if TARGET_OS_MAC
+    char realPathName[PATH_MAX+1];
+    uint32_t size = (uint32_t)sizeof(buf);
+
+    if(!_NSGetExecutablePath(buf, &size))
+    {
+        realpath(buf, realPathName);
+        path = realPathName;
+    }
+#elif TARGET_IPHONE_SIMULATOR
+    // iOS, tvOS, or watchOS Simulator
+    // Not currently implemented
+#elif TARGET_OS_MACCATALYST
+    // Mac's Catalyst (ports iOS API into Mac, like UIKit).
+    // Not currently implemented
+#elif TARGET_OS_IPHONE
+    // iOS, tvOS, or watchOS device
+    // Not currently implemented
+#else
+#   error "Unknown Apple platform"
+#endif
+#elif defined(__ANDROID__)
+    // Not currently implemented
+#endif
+    return path;
 }
