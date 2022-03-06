@@ -12,6 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/maths/box.h>
+#include <vsg/maths/sphere.h>
 #include <vsg/traversals/CompileTraversal.h>
 
 #define VSG_COMPARE_PARAMETERS(A, B) \
@@ -53,12 +55,38 @@ namespace vsg
 
     struct GeometryInfo
     {
+        GeometryInfo() = default;
+
+        template<typename T>
+        explicit GeometryInfo(const t_box<T>& bb) { set(bb); }
+
+        template<typename T>
+        explicit GeometryInfo(const t_sphere<T>& sp) { set(sp); }
+
         vec3 position = {0.0f, 0.0f, 0.0f};
         vec3 dx = {1.0f, 0.0f, 0.0f};
         vec3 dy = {0.0f, 1.0f, 0.0f};
         vec3 dz = {0.0f, 0.0f, 1.0f};
         vec4 color = {1.0f, 1.0f, 1.0f, 1.0f};
         mat4 transform;
+
+        template<typename T>
+        void set(const t_box<T>& bb)
+        {
+            position = (bb.min + bb.max) * 0.5f;
+            dx.set(bb.max.x - bb.min.x, 0.0f, 0.0f);
+            dy.set(0.0f, bb.max.y - bb.min.y, 0.0f);
+            dz.set(0.0f, 0.0f, bb.max.z - bb.min.z);
+        }
+
+        template<typename T>
+        void set(const t_sphere<T>& sp)
+        {
+            position = sp.center;
+            dx.set(sp.radius * 2.0f, 0.0f, 0.0f);
+            dy.set(0.0f, sp.radius * 2.0f, 0.0f);
+            dz.set(0.0f, 0.0f, sp.radius * 2.0f);
+        }
 
         /// used for instancing
         ref_ptr<vec3Array> positions;

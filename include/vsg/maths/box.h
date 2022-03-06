@@ -27,7 +27,24 @@ namespace vsg
         vec_type min = vec_type(std::numeric_limits<value_type>::max(), std::numeric_limits<value_type>::max(), std::numeric_limits<value_type>::max());
         vec_type max = vec_type(std::numeric_limits<value_type>::lowest(), std::numeric_limits<value_type>::lowest(), std::numeric_limits<value_type>::lowest());
 
+        constexpr t_box() = default;
+        constexpr t_box(const t_box& s) = default;
+
+        template<typename R>
+        constexpr explicit t_box(const t_box<R>& s) :
+            min(s.min),
+            max(s.max) {}
+
+        constexpr t_box(const vec_type& in_min, const vec_type& in_max) :
+            min(in_min),
+            max(in_max) {}
+
+        constexpr t_box& operator=(const t_box&) = default;
+
         constexpr std::size_t size() const { return 6; }
+
+        value_type& operator[](std::size_t i) { return data()[i]; }
+        value_type operator[](std::size_t i) const { return data()[i]; }
 
         bool valid() const { return min.x <= max.x; }
 
