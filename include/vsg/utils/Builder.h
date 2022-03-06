@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/traversals/CompileTraversal.h>
 #include <vsg/maths/box.h>
 #include <vsg/maths/sphere.h>
+#include <vsg/traversals/CompileTraversal.h>
 
 #define VSG_COMPARE_PARAMETERS(A, B) \
     if (A < B)                       \
@@ -83,9 +83,9 @@ namespace vsg
         void set(const t_sphere<T>& sp)
         {
             position = sp.center;
-            dx.set(sp.radius, 0.0f, 0.0f);
-            dy.set(0.0f, sp.radius, 0.0f);
-            dz.set(0.0f, 0.0f, sp.radius);
+            dx.set(sp.radius * 2.0f, 0.0f, 0.0f);
+            dy.set(0.0f, sp.radius * 2.0f, 0.0f);
+            dz.set(0.0f, 0.0f, sp.radius * 2.0f);
         }
 
         /// used for instancing
