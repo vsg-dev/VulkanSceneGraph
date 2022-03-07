@@ -210,6 +210,21 @@ namespace vsg
         return q;
     }
 
+    // Rotate a vector by a quaternion
+    template<typename T>
+    constexpr t_vec3<T> operator*(const t_quat<T>& q, const t_vec3<T>& v)
+    {
+        // nVidia SDK implementation
+        t_vec3<T> uv, uuv;
+        t_vec3<T> qvec(v[0], v[1], v[2]);
+        uv = qvec ^ v;
+        uuv = qvec ^ uv;
+        T two;
+        uv *= ( two * v[3] );
+        uuv *= two;
+        return v + uv + uuv;
+    }
+
     template<typename T>
     constexpr t_quat<T> operator*(const t_quat<T>& lhs, T rhs)
     {
