@@ -233,6 +233,146 @@ double determinant(const dmat4& m)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
+/// decompose float matrix into scale, orientation, position, skew and pespective components.
+//
+template<class T>
+bool t_decompose(const t_mat4<T>& m, t_vec3<T>& scale, t_quat<T>& orientation, t_vec3<T>& translation, t_vec3<T>& skew, t_vec4<T>& perspective)
+{
+    // implementation inspired by glm::decompose(..) and GraphicsGemsIII TransformMatrix.cpp decompose(..) function
+
+    // TODO use epsilon test in comparisons.
+
+    // normalize matrix
+    if (m[0][0] == static_cast<T>(0.0)) return false;
+
+    t_mat4<T> localMatrix = m;
+
+    T div = static_cast<T>(1.0) / m[3][3];
+    localMatrix[0] *= div;
+    localMatrix[1] *= div;
+    localMatrix[2] *= div;
+    localMatrix[3] *= div;
+
+    // isolate perspective matrix
+    if (localMatrix[0][3] != static_cast<T>(0.0) || localMatrix[1][3] != static_cast<T>(0.0) || localMatrix[2][3] != static_cast<T>(0.0))
+    {
+        t_mat4<T> perspectiveMatrix = localMatrix;
+
+        for(int i = 0; i < 3; ++i)
+            perspectiveMatrix[i][3] = static_cast<T>(0.0);
+        perspectiveMatrix[3][3] = static_cast<T>(1.0);
+
+        if (t_determinant<T>(perspectiveMatrix) == static_cast<T>(0.0))
+            return false;
+
+        // rightHandSide is the right hand side of the equation
+        t_vec4<T> rightHandSide(localMatrix[0][3], localMatrix[1][3], localMatrix[2][3], localMatrix[3][3]);
+        t_mat4<T> transposedInversePerspectiveMatrix = transpose(inverse(perspectiveMatrix));
+        perspective = transposedInversePerspectiveMatrix * rightHandSide;
+
+        // clear the perspective portion;
+        localMatrix[0][3] = localMatrix[1][3] = localMatrix[2][3] = static_cast<T>(0.0);
+        localMatrix[3][3] = static_cast<T>(1.0);
+    }
+    else
+    {
+        perspective.set(static_cast<T>(0.0), static_cast<T>(0.0), static_cast<T>(0.0), static_cast<T>(1.0));
+    }
+
+    // translation
+    translation.set(localMatrix[3][0], localMatrix[3][1], localMatrix[3][2]);
+    localMatrix[3][0] = localMatrix[3][1] = localMatrix[3][2] = static_cast<T>(0.0);
+
+    // scale and shear
+    t_vec3<T> row[3];
+    for(size_t i = 0; i < 3; ++i)
+        for(size_t j = 0; j < 3; ++j)
+            row[i][j] = localMatrix[i][j];
+
+    scale.x = length(row[0]);
+
+    // row[0] = scale (row[0], 1.0) ??
+
+    // compute xy shared factor and make 2nd row orthogonal to 1st.
+    skew.z = dot(row[0], row[1]);
+    row[1] -= row[0] * skew.z;
+
+    // Now compute Y scale and normalize 2nd row.
+    scale.y = length(row[1]);
+    row[1] = normalize(row[1]);
+    skew.z /= scale.y;
+
+    // compute xz and yz shreads, othorogonalize 3rd row.
+    skew.y = dot(row[0], row[1]);
+    row[2] -= row[0] * skew.y;
+    skew.x = dot(row[1], row[2]);
+    row[2] -= row[1] * skew.x;
+
+    // next get z scale and normalize 3rd row
+    scale.z = length(row[2]);
+    row[2] = normalize(row[2]);
+    skew.x /= scale.z;
+    skew.y /= scale.z;
+
+    // matrix in rows[] os now orthogonal
+    // check for coordinate syste fli, if the determinate is -1 then negate the matrix and scaling factors.
+    auto Pdum3 = cross(row[1], row[2]);
+    if (dot(row[0], Pdum3) < static_cast<T>(0.0))
+    {
+        for(size_t i = 0; i < 3; ++i)
+        {
+            scale[i] *= static_cast<T>(-1.0);
+            row[i] *= static_cast<T>(-1.0);
+        }
+    }
+
+    // get rotation
+    auto trace = row[0].x + row[1].y + row[2].z; // diagonal of row[] matrix
+    if (trace > static_cast<T>(0.0))
+    {
+        auto root = sqrt(trace + static_cast<T>(1.0));
+        auto half_inv_root = static_cast<T>(0.5) / root;
+        orientation.set(half_inv_root * (row[1].z - row[2].y),
+                        half_inv_root * (row[2].x - row[0].z),
+                        half_inv_root * (row[0].y - row[1].x),
+                        static_cast<T>(0.5) * root);
+
+    }
+    else // trace <= 0.0
+    {
+        // locate max on diagonal
+        int i = 0;
+        if (row[1].y > row[0][0]) i = 1;
+        if (row[2].z > row[i][i]) i = 2;
+
+        // set up the othrogonal axis to the max diagonal.
+        int next[3] = {1, 2, 0};
+        int j = next[i];
+        int k = next[j];
+
+        auto root = sqrt(row[i][i] - row[j][j] - row[k][k] + static_cast<T>(1.0));
+        auto half_inv_root = static_cast<T>(0.5) / root;
+        orientation[i] = static_cast<T>(0.5) / root;
+        orientation[j] = half_inv_root * (row[i][j] + row[j][i]);
+        orientation[k] = half_inv_root * (row[i][k] + row[k][i]);
+        orientation[3] = half_inv_root * (row[j][k] - row[k][j]);
+    }
+
+    return true;
+}
+
+bool vsg::decompose(const mat4& m, vec3& scale, quat& orientation, vec3& translation, vec3& skew, vec4& perspective)
+{
+    return t_decompose<float>(m, scale, orientation, translation, skew, perspective);
+}
+
+bool vsg::decompose(const dmat4& m, dvec3& scale, dquat& orientation, dvec3& translation, dvec3& skew, dvec4& perspective)
+{
+    return t_decompose<double>(m, scale, orientation, translation, skew, perspective);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // computeFrustumBound
 //
 template<typename T>

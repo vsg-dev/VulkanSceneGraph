@@ -239,6 +239,12 @@ namespace vsg
     /// compute determinant of double matrix
     extern VSG_DECLSPEC double determinant(const dmat4& m);
 
+    /// decompose float matrix into scale, orientation, position, skew and pespective components.
+    extern VSG_DECLSPEC bool decompose(const mat4& m, vec3& scale, quat& orientation, vec3& translation, vec3& skew, vec4& perspective);
+
+    /// decompose double matrix into scale, orientation, position, skew and pespective components.
+    extern VSG_DECLSPEC bool decompose(const dmat4& m, dvec3& scale, dquat& orientation, dvec3& translation, dvec3& skew, dvec4& perspective);
+
     /// compute the bounding sphere that encloses a frustum defined by specified float ModelViewMatrixProjection
     extern VSG_DECLSPEC sphere computeFrustumBound(const mat4& m);
 
