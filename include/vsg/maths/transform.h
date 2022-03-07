@@ -233,6 +233,12 @@ namespace vsg
     /// double matrix inversion with automatic selection of inverse_4x3 when appropriate, otherwise uses inverse_4x4
     extern VSG_DECLSPEC dmat4 inverse(const dmat4& m);
 
+    /// compute determinant of float matrix
+    extern VSG_DECLSPEC float determinant(const mat4& m);
+
+    /// compute determinant of double matrix
+    extern VSG_DECLSPEC double determinant(const dmat4& m);
+
     /// compute the bounding sphere that encloses a frustum defined by specified float ModelViewMatrixProjection
     extern VSG_DECLSPEC sphere computeFrustumBound(const mat4& m);
 

@@ -203,6 +203,36 @@ dmat4 vsg::inverse(const dmat4& m)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// compute determinate of a matrix
+//
+template<class T>
+T t_determinant(const t_mat4<T>& m)
+{
+    using value_type = T;
+
+    value_type A2323 = m[2][2] * m[3][3] - m[2][3] * m[3][2];
+    value_type A1323 = m[2][1] * m[3][3] - m[2][3] * m[3][1];
+    value_type A1223 = m[2][1] * m[3][2] - m[2][2] * m[3][1];
+    value_type A0323 = m[2][0] * m[3][3] - m[2][3] * m[3][0];
+    value_type A0223 = m[2][0] * m[3][2] - m[2][2] * m[3][0];
+    value_type A0123 = m[2][0] * m[3][1] - m[2][1] * m[3][0];
+
+    value_type det = m[0][0] * (m[1][1] * A2323 - m[1][2] * A1323 + m[1][3] * A1223) - m[0][1] * (m[1][0] * A2323 - m[1][2] * A0323 + m[1][3] * A0223) + m[0][2] * (m[1][0] * A1323 - m[1][1] * A0323 + m[1][3] * A0123) - m[0][3] * (m[1][0] * A1223 - m[1][1] * A0223 + m[1][2] * A0123);
+    return det;
+}
+
+float determinant(const mat4& m)
+{
+    return t_determinant<float>(m);
+}
+
+double determinant(const dmat4& m)
+{
+    return t_determinant<double>(m);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // computeFrustumBound
 //
 template<typename T>
