@@ -170,7 +170,6 @@ namespace vsg
         return t_quat<T>(lhs[0] + rhs[0], lhs[1] + rhs[1], lhs[2] + rhs[2], lhs[3] + rhs[3]);
     }
 
-    // Rotate a quaternion by another quaternion
     template<typename T>
     constexpr t_quat<T> operator*(const t_quat<T>& lhs, T rhs)
     {
