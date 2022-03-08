@@ -31,7 +31,11 @@ void ShaderCompileSettings::read(Input& input)
     input.readValue<int>("target", target);
     input.read("forwardCompatible", forwardCompatible);
 
-    if (input.version_greater_equal(0, 1, 4))
+    if (input.version_greater_equal(0, 2, 11))
+    {
+        input.readValues("defines", defines);
+    }
+    else if (input.version_greater_equal(0, 1, 4))
     {
         input.read("defines", defines);
     }
@@ -46,7 +50,11 @@ void ShaderCompileSettings::write(Output& output) const
     output.writeValue<int>("target", target);
     output.write("forwardCompatible", forwardCompatible);
 
-    if (output.version_greater_equal(0, 1, 4))
+    if (output.version_greater_equal(0, 2, 11))
+    {
+        output.writeValues("defines", defines);
+    }
+    else if (output.version_greater_equal(0, 1, 4))
     {
         output.write("defines", defines);
     }
