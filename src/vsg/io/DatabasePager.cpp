@@ -298,6 +298,15 @@ void DatabasePager::start()
                             // compiling subgraph
                             if (subgraph)
                             {
+                                vsg::CollectResourceRequirements collectRequirements;
+                                subgraph->accept(collectRequirements);
+
+                                auto maxSets = collectRequirements.requirements.computeNumDescriptorSets();
+                                auto descriptorPoolSizes = collectRequirements.requirements.computeDescriptorPoolSizes();
+
+                                // brute force allocation of new DescrptorPool for this subgraph, TODO : need to preallocate large DescritorPoil for multiple loaded subgraphs
+                                if (descriptorPoolSizes.size() > 0) ct->context.descriptorPool = vsg::DescriptorPool::create(ct->context.device, maxSets, descriptorPoolSizes);
+
                                 subgraph->accept(*ct);
                                 nodesCompiled.emplace_back(plod);
                             }
