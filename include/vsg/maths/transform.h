@@ -136,6 +136,14 @@ namespace vsg
     }
 
     template<typename T>
+    constexpr t_mat3<T> transpose(const t_mat3<T>& m)
+    {
+        return t_mat3<T>(m[0][0], m[1][0], m[2][0],
+                         m[0][1], m[1][1], m[2][1],
+                         m[0][2], m[1][2], m[2][2]);
+    }
+
+    template<typename T>
     constexpr t_mat4<T> transpose(const t_mat4<T>& m)
     {
         return t_mat4<T>(m[0][0], m[1][0], m[2][0], m[3][0],
@@ -232,6 +240,22 @@ namespace vsg
 
     /// double matrix inversion with automatic selection of inverse_4x3 when appropriate, otherwise uses inverse_4x4
     extern VSG_DECLSPEC dmat4 inverse(const dmat4& m);
+
+    /// compute determinant of float matrix
+    extern VSG_DECLSPEC float determinant(const mat4& m);
+
+    /// compute determinant of double matrix
+    extern VSG_DECLSPEC double determinant(const dmat4& m);
+
+    /// decompose float matrix into translation, rotation and scale components.
+    /// maps to TRS form: vsg::translate(translation) * vsg::rotate(rotation) * vsg::scale(scale);
+    /// assumes matrix has no skew or perspective components
+    extern VSG_DECLSPEC bool decompose(const mat4& m, vec3& translation, quat& rotation, vec3& scale);
+
+    /// decompose double matrix into translation, rotation and scale components.
+    /// maps to TRS form: vsg::translate(translation) * vsg::rotate(rotation) * vsg::scale(scale);
+    /// assumes matrix has no skew or perspective components
+    extern VSG_DECLSPEC bool decompose(const dmat4& m, dvec3& translation, dquat& rotation, dvec3& scale);
 
     /// compute the bounding sphere that encloses a frustum defined by specified float ModelViewMatrixProjection
     extern VSG_DECLSPEC sphere computeFrustumBound(const mat4& m);

@@ -50,6 +50,13 @@ namespace vsg
                   {v[3], v[4], v[5]},
                   {v[6], v[7], v[8]}} {}
 
+        constexpr t_mat3(const column_type& c0,
+                         const column_type& c1,
+                         const column_type& c2) :
+            value{c0, c1, c2}
+        {
+        }
+
         template<typename R>
         t_mat3(const t_mat3<R>& rhs)
         {

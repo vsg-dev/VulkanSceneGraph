@@ -57,6 +57,14 @@ namespace vsg
                   {v[8], v[9], v[10], v[11]},
                   {v[12], v[13], v[14], v[15]}} {}
 
+        constexpr t_mat4(const column_type& c0,
+                         const column_type& c1,
+                         const column_type& c2,
+                         const column_type& c3) :
+            value{c0, c1, c2, c3}
+        {
+        }
+
         template<typename R>
         explicit t_mat4(const t_mat4<R>& rhs)
         {
