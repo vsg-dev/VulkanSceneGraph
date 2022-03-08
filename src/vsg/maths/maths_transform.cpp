@@ -201,7 +201,6 @@ dmat4 vsg::inverse(const dmat4& m)
     }
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // compute determinate of a matrix
@@ -232,7 +231,6 @@ double determinant(const dmat4& m)
     return t_determinant<double>(m);
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 /// decompose float matrix into translation, rotation and scale components.
@@ -249,12 +247,12 @@ bool t_decompose(const t_mat4<T>& m, t_vec3<T>& translation, t_quat<T>& rotation
 
     // check that we don't have any axis scaled by 0 as this would cause a
     // divide by zero in the rototation code.
-    if (scale[0] == 0.0 || scale[1] == 0.0  || scale[0] == 0.0) return false;
+    if (scale[0] == 0.0 || scale[1] == 0.0 || scale[0] == 0.0) return false;
 
     // compute rotation matrix and subsequently the quaternion
-    t_mat3<T> rm( m[0].xyz / scale[0],
-                  m[1].xyz / scale[1],
-                  m[2].xyz / scale[2] );
+    t_mat3<T> rm(m[0].xyz / scale[0],
+                 m[1].xyz / scale[1],
+                 m[2].xyz / scale[2]);
 
     auto trace = rm[0][0] + rm[1][1] + rm[2][2]; // diagonal of matrix
     if (trace > static_cast<T>(0.0))
@@ -298,7 +296,6 @@ bool vsg::decompose(const dmat4& m, dvec3& translation, dquat& rotation, dvec3& 
 {
     return t_decompose<double>(m, translation, rotation, scale);
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
