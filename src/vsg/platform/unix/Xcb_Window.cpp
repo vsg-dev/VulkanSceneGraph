@@ -387,7 +387,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
         uint16_t border_width = 0;
         uint16_t window_class = XCB_WINDOW_CLASS_INPUT_OUTPUT;
         xcb_visualid_t visual = XCB_COPY_FROM_PARENT;
-        uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_OVERRIDE_REDIRECT | XCB_CW_EVENT_MASK;
+        uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_BIT_GRAVITY | XCB_CW_OVERRIDE_REDIRECT | XCB_CW_EVENT_MASK;
         uint32_t event_mask = XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
                             XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE |
                             XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW |
@@ -396,6 +396,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
         uint32_t value_list[] =
             {
                 _screen->black_pixel,
+                XCB_GRAVITY_NORTH_WEST,
                 override_redirect,
                 event_mask
             };
@@ -659,8 +660,6 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             vsg::clock::time_point event_time = vsg::clock::now();
             bufferedEvents.emplace_back(vsg::ExposeWindowEvent::create(this, event_time, expose->x, expose->y, expose->width, expose->height));
 
-            _extent2D.width = expose->width;
-            _extent2D.height = expose->height;
             break;
         }
         case XCB_CLIENT_MESSAGE:
