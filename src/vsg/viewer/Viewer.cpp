@@ -157,7 +157,8 @@ bool Viewer::acquireNextFrame()
             if (result == VK_ERROR_SURFACE_LOST_KHR ||
                 result == VK_ERROR_DEVICE_LOST ||
                 result == VK_ERROR_OUT_OF_DATE_KHR ||
-                result == VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT)
+                result == VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT ||
+                result == VK_SUBOPTIMAL_KHR)
             {
                 // force a rebuild of the Swapchain by calling Window::resize();
                 window->resize();

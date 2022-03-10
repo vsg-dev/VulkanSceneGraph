@@ -449,7 +449,7 @@ VkResult Window::acquireNextImage(uint64_t timeout)
         _availableSemaphore.swap(_frames[imageIndex].imageAvailableSemaphore);
 
         // shift up previous frame indices
-        for (size_t i = 1; i < _indices.size(); ++i)
+        for (size_t i = _indices.size() - 1; i > 0; --i)
         {
             _indices[i] = _indices[i - 1];
         }
