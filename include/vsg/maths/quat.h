@@ -191,7 +191,7 @@ namespace vsg
         t_vec3<T> qvec(q[0], q[1], q[2]);
         uv = cross(qvec, v);
         uuv = cross(qvec, uv);
-        T two = 2.0;
+        T two(2.0);
         uv *= ( two * q[3] );
         uuv *= two;
         return v + uv + uuv;
