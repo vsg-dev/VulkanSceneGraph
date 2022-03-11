@@ -190,11 +190,11 @@ namespace vsg
     {
         // nVidia SDK implementation
         t_vec3<T> uv, uuv;
-        t_vec3<T> qvec(v[0], v[1], v[2]);
-        uv = qvec ^ v;
-        uuv = qvec ^ uv;
-        T two;
-        uv *= ( two * v[3] );
+        t_vec3<T> qvec(q[0], q[1], q[2]);
+        uv = cross(qvec, v);
+        uuv = cross(qvec, uv);
+        T two = 2.0;
+        uv *= ( two * q[3] );
         uuv *= two;
         return v + uv + uuv;
     }
