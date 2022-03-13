@@ -23,6 +23,11 @@ void* Data::operator new(std::size_t count)
     return vsg::allocate(count, vsg::ALLOCATOR_AFFINITY_DATA);
 }
 
+void Data::operator delete(void* ptr)
+{
+    vsg::deallocate(ptr);
+}
+
 void Data::read(Input& input)
 {
     Object::read(input);

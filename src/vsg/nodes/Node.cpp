@@ -28,3 +28,8 @@ void* Node::operator new(std::size_t count)
 {
     return vsg::allocate(count, vsg::ALLOCATOR_AFFINITY_NODES);
 }
+
+void Node::operator delete(void* ptr)
+{
+    vsg::deallocate(ptr);
+}
