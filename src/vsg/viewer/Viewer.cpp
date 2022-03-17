@@ -152,6 +152,14 @@ bool Viewer::acquireNextFrame()
     {
         if (!window->visible()) continue;
 
+        // This is a workaround to force resize without depending on vkAcquireNextImageKHR returning VK_ERROR_OUT_OF_DATE_KHR,
+        // because apparently it is not behaving consistently. Driver bug maybe?
+        if (window->getSwapchain() && (window->extent2D().width != window->getSwapchain()->getExtent().width ||
+                                       window->extent2D().height != window->getSwapchain()->getExtent().height))
+        {
+            window->resize();
+        }
+
         while ((result = window->acquireNextImage()) != VK_SUCCESS)
         {
             if (result == VK_ERROR_SURFACE_LOST_KHR ||
