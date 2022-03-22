@@ -56,7 +56,9 @@ int BufferInfo::compare(const Object& rhs_object) const
 
     if ((result = compare_pointer(data, rhs.data))) return result;
 
-    // TODO need to handle case where Buffer has only been assigned to one of the BufferInfo
+    /// if one of less buffer is assigned treat as a match as data is the same, and we can reuse any BufferInfo that's been assigned.
+    if (!buffer || !rhs.buffer) return 0;
+
     if ((result = compare_pointer(buffer, rhs.buffer))) return result;
     if ((result = compare_value(offset, rhs.offset))) return result;
     return compare_value(range, rhs.range);
