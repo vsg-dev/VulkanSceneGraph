@@ -233,6 +233,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/AnimationPath.h>
 #include <vsg/utils/Builder.h>
 #include <vsg/utils/CommandLine.h>
+#include <vsg/utils/SharedObjects.h>
 
 // Introspection header files
 #include <vsg/introspection/c_interface.h>
