@@ -16,10 +16,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/stream.h>
 
+#include <iostream>
 #include <map>
 #include <mutex>
 #include <set>
-#include <iostream>
 
 namespace vsg
 {
@@ -27,7 +27,7 @@ namespace vsg
     /// less functor for comparing ref_pptr<Objects> typically used with std::set<> etc.
     struct DerefenceLess
     {
-        bool operator() (const ref_ptr<Object>& lhs, const ref_ptr<Object>& rhs) const
+        bool operator()(const ref_ptr<Object>& lhs, const ref_ptr<Object>& rhs) const
         {
             return lhs->compare(*rhs) < 0;
         }
@@ -37,7 +37,6 @@ namespace vsg
     class VSG_DECLSPEC SharedObjects : public Inherit<Object, SharedObjects>
     {
     public:
-
         SharedObjects();
 
         template<class T>
@@ -66,11 +65,11 @@ namespace vsg
             auto& shared_objects = _sharedObjects[id];
             if (auto itr = shared_objects.find(object); itr != shared_objects.end())
             {
-                std::cout<<"returning shared object "<<*itr<<std::endl;
+                std::cout << "returning shared object " << *itr << std::endl;
                 return ref_ptr<T>(static_cast<T*>(itr->get()));
             }
 
-            std::cout<<"inserting new objects into shared cache "<<object<<std::endl;
+            std::cout << "inserting new objects into shared cache " << object << std::endl;
             shared_objects.insert(object);
             return object;
         }
@@ -82,7 +81,6 @@ namespace vsg
         void report(std::ostream& out);
 
     protected:
-
         virtual ~SharedObjects();
 
         std::mutex _mutex;

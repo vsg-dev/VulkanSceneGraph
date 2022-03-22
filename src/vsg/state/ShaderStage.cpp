@@ -54,7 +54,6 @@ ShaderStage::~ShaderStage()
 {
 }
 
-
 int ShaderStage::compare(const Object& rhs_object) const
 {
     int result = Object::compare(rhs_object);
@@ -72,7 +71,7 @@ int ShaderStage::compare(const Object& rhs_object) const
     if (specializationConstants.empty()) return 0;
 
     auto rhs_itr = rhs.specializationConstants.begin();
-    for(auto lhs_itr = specializationConstants.begin(); lhs_itr != specializationConstants.end(); ++lhs_itr, ++rhs_itr)
+    for (auto lhs_itr = specializationConstants.begin(); lhs_itr != specializationConstants.end(); ++lhs_itr, ++rhs_itr)
     {
         if ((result = compare_value(lhs_itr->first, rhs_itr->first))) return result;
         if ((result = compare_pointer(lhs_itr->second, rhs_itr->second))) return result;

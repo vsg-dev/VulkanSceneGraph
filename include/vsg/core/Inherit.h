@@ -59,7 +59,7 @@ namespace vsg
             size_t size = sizeof(Subclass) - startOfSubclass;
 
             // Subclass adds no extra data to compare
-            if (size==0) return 0;
+            if (size == 0) return 0;
 
             const char* lhs_ptr = reinterpret_cast<const char*>(this);
             const char* rhs_ptr = reinterpret_cast<const char*>(&rhs);

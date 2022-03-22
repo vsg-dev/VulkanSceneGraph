@@ -18,8 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vulkan/vulkan.h>
 
-#include <vector>
 #include <cstring>
+#include <vector>
 
 namespace vsg
 {
@@ -141,7 +141,7 @@ namespace vsg
             if (dataSize() > rhs.dataSize()) return 1;
 
             // if both empty then they must be equal
-            if (dataSize()==0) return 0;
+            if (dataSize() == 0) return 0;
 
             // use memcpy to compare the contents of the data
             return std::memcmp(dataPointer(), rhs.dataPointer(), dataSize());

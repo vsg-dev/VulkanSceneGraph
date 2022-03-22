@@ -1,6 +1,6 @@
 
-#include <vsg/utils/SharedObjects.h>
 #include <vsg/io/Options.h>
+#include <vsg/utils/SharedObjects.h>
 
 #include <iostream>
 
@@ -24,7 +24,7 @@ void SharedObjects::clear()
 void SharedObjects::report(std::ostream& out)
 {
     std::scoped_lock<std::mutex> lock(_mutex);
-    out<<"SharedObjects::report(..) "<<this<<std::endl;
-    out<<"SharedObjects::_defaults "<<_defaults.size()<<std::endl;
-    out<<"SharedObjects::_sharedObjects "<<SharedObjects::_sharedObjects.size()<<std::endl;
+    out << "SharedObjects::report(..) " << this << std::endl;
+    out << "SharedObjects::_defaults " << _defaults.size() << std::endl;
+    out << "SharedObjects::_sharedObjects " << SharedObjects::_sharedObjects.size() << std::endl;
 }

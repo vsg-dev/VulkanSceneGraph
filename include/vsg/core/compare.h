@@ -36,7 +36,7 @@ namespace vsg
     int compare_values(const T* lhs, const T* rhs, size_t size)
     {
         int result = 0;
-        for(size_t i=0 ; i<size; ++i)
+        for (size_t i = 0; i < size; ++i)
         {
             if ((result = compare_value(lhs[i], rhs[i]))) break;
         }
@@ -48,7 +48,7 @@ namespace vsg
     {
         const char* lhs_ptr = reinterpret_cast<const char*>(&start);
         const char* rhs_ptr = reinterpret_cast<const char*>(&rhs);
-        size_t size = size_t(reinterpret_cast<const char*>(&end) - lhs_ptr) + sizeof(E) ;
+        size_t size = size_t(reinterpret_cast<const char*>(&end) - lhs_ptr) + sizeof(E);
 
         // use memcpy to compare the contents of the data
         return std::memcmp(lhs_ptr, rhs_ptr, size);
@@ -62,7 +62,7 @@ namespace vsg
         if (lhs.empty()) return 0;
 
         auto rhs_itr = rhs.begin();
-        for(auto& object : lhs)
+        for (auto& object : lhs)
         {
             int result = compare_pointer(object, *rhs_itr++);
             if (result != 0) return result;

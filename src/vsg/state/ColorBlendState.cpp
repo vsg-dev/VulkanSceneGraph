@@ -50,7 +50,6 @@ ColorBlendState::~ColorBlendState()
 {
 }
 
-
 int ColorBlendState::compare(const Object& rhs_object) const
 {
     int result = Object::compare(rhs_object);
