@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/compare.h>
 #include <vsg/core/Inherit.h>
-
 #include <vsg/io/stream.h>
 
 #include <iostream>
@@ -23,15 +23,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-
-    /// less functor for comparing ref_pptr<Objects> typically used with std::set<> etc.
-    struct DerefenceLess
-    {
-        bool operator()(const ref_ptr<Object>& lhs, const ref_ptr<Object>& rhs) const
-        {
-            return lhs->compare(*rhs) < 0;
-        }
-    };
 
     /// class for faciliting the share of instances of objects that have the same properties.
     class VSG_DECLSPEC SharedObjects : public Inherit<Object, SharedObjects>

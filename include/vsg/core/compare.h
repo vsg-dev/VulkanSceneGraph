@@ -85,4 +85,15 @@ namespace vsg
 
         return compare_region(lhs.front(), lhs.back(), rhs.front());
     }
+
+    /// less functor for comparing ref_pptr<Objects> typically used with std::set<> etc.
+    struct DerefenceLess
+    {
+        template<class P>
+        bool operator()(const P& lhs, const P& rhs) const
+        {
+            return lhs->compare(*rhs) < 0;
+        }
+    };
+
 } // namespace vsg
