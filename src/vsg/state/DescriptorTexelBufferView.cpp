@@ -30,7 +30,6 @@ int DescriptorTexelBufferView::compare(const Object& rhs_object) const
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
-
     return compare_pointer_container(texelBufferViews, rhs.texelBufferViews);
 }
 
