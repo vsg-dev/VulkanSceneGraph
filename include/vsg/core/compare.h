@@ -43,6 +43,12 @@ namespace vsg
         return result;
     }
 
+    template<typename T>
+    int compare_memory(const T& lhs, const T& rhs)
+    {
+        return std::memcmp(&lhs, &rhs, sizeof(T));
+    }
+
     template<typename S, typename E>
     int compare_region(const S& start, const E& end, const S& rhs)
     {

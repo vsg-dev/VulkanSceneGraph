@@ -104,8 +104,11 @@ int ImageView::compare(const Object& rhs_object) const
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
+    if ((result = compare_value(flags, rhs.flags))) return result;
     if ((result = compare_pointer(image, rhs.image))) return result;
-    return compare_region(flags, subresourceRange, rhs.flags);
+    if ((result = compare_value(viewType, rhs.viewType))) return result;
+    if ((result = compare_memory(components, rhs.components))) return result;
+    return compare_memory(subresourceRange, rhs.subresourceRange);
 }
 
 void ImageView::compile(Device* device)
