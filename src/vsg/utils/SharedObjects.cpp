@@ -24,8 +24,9 @@ void SharedObjects::clear()
 
 void SharedObjects::report(std::ostream& out)
 {
-    std::cout<<"SharedObjects::report(..) "<<this<<std::endl;
-    std::cout<<"SharedObjects::_defaults "<<_defaults.size()<<std::endl;
-    std::cout<<"SharedObjects::_pool "<<_pool.size()<<std::endl;
-    std::cout<<"SharedObjects::_sharedObjects "<<SharedObjects::_sharedObjects.size()<<std::endl;
+    std::scoped_lock<std::mutex> lock(_mutex);
+    out<<"SharedObjects::report(..) "<<this<<std::endl;
+    out<<"SharedObjects::_defaults "<<_defaults.size()<<std::endl;
+    out<<"SharedObjects::_pool "<<_pool.size()<<std::endl;
+    out<<"SharedObjects::_sharedObjects "<<SharedObjects::_sharedObjects.size()<<std::endl;
 }
