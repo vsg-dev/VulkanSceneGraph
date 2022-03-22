@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Inherit.h>
 #include <vsg/io/stream.h>
 
-#include <iostream>
+#include <ostream>
 #include <map>
 #include <mutex>
 #include <set>
@@ -56,11 +56,9 @@ namespace vsg
             auto& shared_objects = _sharedObjects[id];
             if (auto itr = shared_objects.find(object); itr != shared_objects.end())
             {
-                std::cout << "returning shared object " << *itr << std::endl;
                 return ref_ptr<T>(static_cast<T*>(itr->get()));
             }
 
-            std::cout << "inserting new objects into shared cache " << object << std::endl;
             shared_objects.insert(object);
             return object;
         }
