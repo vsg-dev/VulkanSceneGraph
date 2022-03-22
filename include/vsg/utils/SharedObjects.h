@@ -74,7 +74,7 @@ namespace vsg
             return object;
         }
 
-        /// clear all the internal structres leaving no Objects cached.
+        /// clear all the internal structures leaving no Objects cached.
         void clear();
 
         /// write out stats of objects held, types of objects and their reference counts
