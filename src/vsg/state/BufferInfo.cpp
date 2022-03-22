@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/compare.h>
 #include <vsg/commands/CopyAndReleaseBuffer.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/BufferInfo.h>
@@ -44,6 +45,25 @@ BufferInfo::BufferInfo(Buffer* in_buffer, VkDeviceSize in_offset, VkDeviceSize i
 BufferInfo::~BufferInfo()
 {
     release();
+}
+
+int BufferInfo::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    result = vsg::compare(buffer, rhs.buffer);
+    if (result != 0) return result;
+
+    result = vsg::compare(data, rhs.data);
+    if (result != 0) return result;
+
+    if (offset < rhs.offset) return -1;
+    if (offset > rhs.offset) return 1;
+
+    return range < rhs.range;
 }
 
 void BufferInfo::release()

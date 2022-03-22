@@ -27,8 +27,8 @@ namespace vsg
         ImageView(ref_ptr<Image> in_image, VkImageAspectFlags aspectFlags);
 
         /// VkImageViewCreateInfo settings
-        VkImageViewCreateFlags flags = 0;
         ref_ptr<Image> image;
+        VkImageViewCreateFlags flags = 0;
         VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D;
         VkFormat format = VK_FORMAT_UNDEFINED;
         VkComponentMapping components = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY};
@@ -36,6 +36,8 @@ namespace vsg
 
         /// Vulkan VkImageView handle
         VkImageView vk(uint32_t deviceID) const { return _vulkanData[deviceID].imageView; }
+
+        int compare(const Object& rhs_object) const override;
 
         virtual void compile(Device* device);
         virtual void compile(Context& context);

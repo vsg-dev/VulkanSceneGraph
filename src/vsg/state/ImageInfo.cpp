@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/ImageInfo.h>
 
@@ -39,6 +40,22 @@ uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
 
 ImageInfo::~ImageInfo()
 {
+}
+
+int ImageInfo::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    result = vsg::compare(sampler, rhs.sampler);
+    if (result != 0) return result;
+
+    result = vsg::compare(imageView, rhs.imageView);
+    if (result != 0) return result;
+
+    return imageLayout < rhs.imageLayout;
 }
 
 void ImageInfo::computeNumMipMapLevels()

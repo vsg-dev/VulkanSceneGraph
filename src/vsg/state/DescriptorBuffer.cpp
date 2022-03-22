@@ -33,7 +33,7 @@ DescriptorBuffer::DescriptorBuffer(ref_ptr<Data> data, uint32_t in_dstBinding, u
 {
     if (data)
     {
-        bufferInfoList.emplace_back(BufferInfo::create(nullptr, 0, 0, data));
+        bufferInfoList.emplace_back(BufferInfo::create(data));
     }
 }
 
@@ -43,7 +43,7 @@ DescriptorBuffer::DescriptorBuffer(const DataList& dataList, uint32_t in_dstBind
     bufferInfoList.reserve(dataList.size());
     for (auto& data : dataList)
     {
-        bufferInfoList.emplace_back(BufferInfo::create(nullptr, 0, 0, data));
+        bufferInfoList.emplace_back(BufferInfo::create(data));
     }
 }
 
@@ -55,6 +55,28 @@ DescriptorBuffer::DescriptorBuffer(const BufferInfoList& in_bufferInfoList, uint
 
 DescriptorBuffer::~DescriptorBuffer()
 {
+}
+
+int DescriptorBuffer::compare(const Object& rhs_object) const
+{
+    int result = Descriptor::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if (bufferInfoList.size() < rhs.bufferInfoList.size()) return -1;
+    if (bufferInfoList.size() > rhs.bufferInfoList.size()) return 1;
+
+    if (bufferInfoList.empty()) return 0;
+
+    auto rhs_itr = rhs.bufferInfoList.begin();
+    for(auto& bufferInfo : bufferInfoList)
+    {
+        result = bufferInfo->compare(*(*rhs_itr++));
+        if (result != 0) return result;
+    }
+
+    return 0;
 }
 
 void DescriptorBuffer::read(Input& input)

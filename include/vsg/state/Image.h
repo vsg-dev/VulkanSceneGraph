@@ -47,6 +47,8 @@ namespace vsg
         /// Vulkan VkImage handle
         VkImage vk(uint32_t deviceID) const { return _vulkanData[deviceID].image; }
 
+        int compare(const Object& rhs_object) const override;
+
         DeviceMemory* getDeviceMemory(uint32_t deviceID) { return _vulkanData[deviceID].deviceMemory; }
         const DeviceMemory* getDeviceMemory(uint32_t deviceID) const { return _vulkanData[deviceID].deviceMemory; }
 

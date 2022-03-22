@@ -24,6 +24,22 @@ Descriptor::Descriptor(uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDe
 {
 }
 
+int Descriptor::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if (dstBinding < rhs.dstBinding) return -1;
+    if (dstBinding > rhs.dstBinding) return 1;
+
+    if (dstArrayElement < rhs.dstArrayElement) return -1;
+    if (dstArrayElement > rhs.dstArrayElement) return 1;
+
+    return descriptorType < rhs.descriptorType;
+}
+
 void Descriptor::read(Input& input)
 {
     Object::read(input);

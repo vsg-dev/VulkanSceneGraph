@@ -48,6 +48,28 @@ DescriptorImage::DescriptorImage(const ImageInfoList& in_imageInfoList, uint32_t
 {
 }
 
+int DescriptorImage::compare(const Object& rhs_object) const
+{
+    int result = Descriptor::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if (imageInfoList.size() < rhs.imageInfoList.size()) return -1;
+    if (imageInfoList.size() > rhs.imageInfoList.size()) return 1;
+
+    if (imageInfoList.empty()) return 0;
+
+    auto rhs_itr = rhs.imageInfoList.begin();
+    for(auto& iageInfo : imageInfoList)
+    {
+        result = iageInfo->compare(*(*rhs_itr++));
+        if (result != 0) return result;
+    }
+
+    return 0;
+}
+
 void DescriptorImage::read(Input& input)
 {
     // TODO need to release on imageInfoList.
