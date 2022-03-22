@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Exception.h>
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/ComputePipeline.h>
 #include <vsg/traversals/CompileTraversal.h>
@@ -34,6 +35,17 @@ ComputePipeline::ComputePipeline(PipelineLayout* pipelineLayout, ShaderStage* sh
 
 ComputePipeline::~ComputePipeline()
 {
+}
+
+int ComputePipeline::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_pointer(layout, rhs.layout))) return result;
+    return compare_pointer(stage, rhs.stage);
 }
 
 void ComputePipeline::read(Input& input)
@@ -131,6 +143,15 @@ BindComputePipeline::BindComputePipeline(ComputePipeline* in_pipeline) :
 
 BindComputePipeline::~BindComputePipeline()
 {
+}
+
+int BindComputePipeline::compare(const Object& rhs_object) const
+{
+    int result = StateCommand::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_pointer(pipeline, rhs.pipeline);
 }
 
 void BindComputePipeline::read(Input& input)

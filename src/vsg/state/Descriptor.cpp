@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/Descriptor.h>
 #include <vsg/traversals/CompileTraversal.h>
@@ -22,6 +23,18 @@ Descriptor::Descriptor(uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDe
     dstArrayElement(in_dstArrayElement),
     descriptorType(in_descriptorType)
 {
+}
+
+int Descriptor::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_value(dstBinding, rhs.dstBinding))) return result;
+    if ((result = compare_value(dstArrayElement, rhs.dstArrayElement))) return result;
+    return compare_value(descriptorType, rhs.descriptorType);
 }
 
 void Descriptor::read(Input& input)

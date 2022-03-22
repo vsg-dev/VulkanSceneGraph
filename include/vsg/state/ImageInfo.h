@@ -48,6 +48,8 @@ namespace vsg
 
         explicit operator bool() const { return sampler.valid() && imageView.valid(); }
 
+        int compare(const Object& rhs_object) const override;
+
         void computeNumMipMapLevels();
 
         ref_ptr<Sampler> sampler;

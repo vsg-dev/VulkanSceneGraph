@@ -22,6 +22,8 @@ namespace vsg
         StateCommand(uint32_t in_slot = 0) :
             slot(in_slot) {}
 
+        int compare(const Object& rhs_object) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
 

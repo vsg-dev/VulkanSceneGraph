@@ -36,6 +36,8 @@ namespace vsg
         /// Vulkan VkPipelineLayout handle
         VkPipelineLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipelineLayout; }
 
+        int compare(const Object& rhs) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
 

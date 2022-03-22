@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/DescriptorBuffer.h>
 #include <vsg/traversals/CompileTraversal.h>
@@ -33,7 +34,7 @@ DescriptorBuffer::DescriptorBuffer(ref_ptr<Data> data, uint32_t in_dstBinding, u
 {
     if (data)
     {
-        bufferInfoList.emplace_back(BufferInfo::create(nullptr, 0, 0, data));
+        bufferInfoList.emplace_back(BufferInfo::create(data));
     }
 }
 
@@ -43,7 +44,7 @@ DescriptorBuffer::DescriptorBuffer(const DataList& dataList, uint32_t in_dstBind
     bufferInfoList.reserve(dataList.size());
     for (auto& data : dataList)
     {
-        bufferInfoList.emplace_back(BufferInfo::create(nullptr, 0, 0, data));
+        bufferInfoList.emplace_back(BufferInfo::create(data));
     }
 }
 
@@ -55,6 +56,16 @@ DescriptorBuffer::DescriptorBuffer(const BufferInfoList& in_bufferInfoList, uint
 
 DescriptorBuffer::~DescriptorBuffer()
 {
+}
+
+int DescriptorBuffer::compare(const Object& rhs_object) const
+{
+    int result = Descriptor::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    return compare_pointer_container(bufferInfoList, rhs.bufferInfoList);
 }
 
 void DescriptorBuffer::read(Input& input)

@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Exception.h>
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/PipelineLayout.h>
 #include <vsg/traversals/CompileTraversal.h>
@@ -35,6 +36,18 @@ PipelineLayout::PipelineLayout(const DescriptorSetLayouts& in_setLayouts, const 
 
 PipelineLayout::~PipelineLayout()
 {
+}
+
+int PipelineLayout::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_value(flags, rhs.flags))) return result;
+    if ((result = compare_pointer_container(setLayouts, rhs.setLayouts))) return result;
+    return compare_value_container(pushConstantRanges, rhs.pushConstantRanges);
 }
 
 void PipelineLayout::read(Input& input)

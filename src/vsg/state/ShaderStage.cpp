@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/read.h>
 #include <vsg/state/ShaderStage.h>
@@ -51,6 +52,32 @@ ShaderStage::ShaderStage(VkShaderStageFlagBits in_stage, const std::string& in_e
 
 ShaderStage::~ShaderStage()
 {
+}
+
+int ShaderStage::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_value(flags, rhs.flags))) return result;
+    if ((result = compare_value(stage, rhs.stage))) return result;
+    if ((result = compare_pointer(module, rhs.module))) return result;
+    if ((result = compare_value(entryPointName, rhs.entryPointName))) return result;
+
+    if (specializationConstants.size() < rhs.specializationConstants.size()) return -1;
+    if (specializationConstants.size() > rhs.specializationConstants.size()) return 1;
+    if (specializationConstants.empty()) return 0;
+
+    auto rhs_itr = rhs.specializationConstants.begin();
+    for (auto lhs_itr = specializationConstants.begin(); lhs_itr != specializationConstants.end(); ++lhs_itr, ++rhs_itr)
+    {
+        if ((result = compare_value(lhs_itr->first, rhs_itr->first))) return result;
+        if ((result = compare_pointer(lhs_itr->second, rhs_itr->second))) return result;
+    }
+
+    return 0;
 }
 
 ref_ptr<ShaderStage> ShaderStage::read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename, ref_ptr<const Options> options)

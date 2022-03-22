@@ -34,6 +34,8 @@ namespace vsg
         /// Vulkan VkDescriptorSetLayout handle
         virtual VkDescriptorSetLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_descriptorSetLayout; }
 
+        int compare(const Object& rhs_object) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
 

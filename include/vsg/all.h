@@ -32,6 +32,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Value.h>
 #include <vsg/core/Version.h>
 #include <vsg/core/Visitor.h>
+#include <vsg/core/compare.h>
 #include <vsg/core/observer_ptr.h>
 #include <vsg/core/ref_ptr.h>
 #include <vsg/core/type_name.h>
@@ -233,6 +234,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/AnimationPath.h>
 #include <vsg/utils/Builder.h>
 #include <vsg/utils/CommandLine.h>
+#include <vsg/utils/SharedObjects.h>
 
 // Introspection header files
 #include <vsg/introspection/c_interface.h>

@@ -50,6 +50,24 @@ namespace vsg
         const std::type_info& type_info() const noexcept override { return typeid(Subclass); }
         bool is_compatible(const std::type_info& type) const noexcept override { return typeid(Subclass) == type ? true : ParentClass::is_compatible(type); }
 
+        int compare(const Object& rhs) const override
+        {
+            int result = ParentClass::compare(rhs);
+            if (result != 0) return result;
+
+            size_t startOfSubclass = sizeof(ParentClass);
+            size_t size = sizeof(Subclass) - startOfSubclass;
+
+            // Subclass adds no extra data to compare
+            if (size == 0) return 0;
+
+            const char* lhs_ptr = reinterpret_cast<const char*>(this);
+            const char* rhs_ptr = reinterpret_cast<const char*>(&rhs);
+
+            // compare the data that Subclass addds over ParentClass
+            return std::memcmp(lhs_ptr + startOfSubclass, rhs_ptr + startOfSubclass, size);
+        }
+
         void accept(Visitor& visitor) override { visitor.apply(static_cast<Subclass&>(*this)); }
         void accept(ConstVisitor& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
         void accept(RecordTraversal& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }

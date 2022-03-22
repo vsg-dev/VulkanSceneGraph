@@ -37,6 +37,8 @@ namespace vsg
         /// Vulkan VkImageView handle
         VkImageView vk(uint32_t deviceID) const { return _vulkanData[deviceID].imageView; }
 
+        int compare(const Object& rhs_object) const override;
+
         virtual void compile(Device* device);
         virtual void compile(Context& context);
 

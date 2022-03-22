@@ -26,6 +26,8 @@ namespace vsg
         /// VkWriteDescriptorSet.pTexelBufferViews settings
         BufferViewList texelBufferViews;
 
+        int compare(const Object& rhs_object) const override;
+
         void compile(Context& context) override;
 
         void assignTo(Context& context, VkWriteDescriptorSet& wds) const override;

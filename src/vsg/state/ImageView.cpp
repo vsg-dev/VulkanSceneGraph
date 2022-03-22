@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Exception.h>
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/ImageView.h>
 #include <vsg/vk/Context.h>
@@ -94,6 +95,20 @@ ImageView::ImageView(ref_ptr<Image> in_image, VkImageAspectFlags aspectFlags) :
 ImageView::~ImageView()
 {
     for (auto& vd : _vulkanData) vd.release();
+}
+
+int ImageView::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_value(flags, rhs.flags))) return result;
+    if ((result = compare_pointer(image, rhs.image))) return result;
+    if ((result = compare_value(viewType, rhs.viewType))) return result;
+    if ((result = compare_memory(components, rhs.components))) return result;
+    return compare_memory(subresourceRange, rhs.subresourceRange);
 }
 
 void ImageView::compile(Device* device)

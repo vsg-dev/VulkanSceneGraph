@@ -202,6 +202,7 @@ set(SOURCES
     utils/AnimationPath.cpp
     utils/CommandLine.cpp
     utils/Builder.cpp
+    utils/SharedObjects.cpp
 )
 
 # add platform specific Window implementation

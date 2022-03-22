@@ -33,6 +33,8 @@ namespace vsg
         BufferInfo(const BufferInfo&) = delete;
         BufferInfo& operator=(const BufferInfo&) = delete;
 
+        int compare(const Object& rhs_object) const override;
+
         void release();
 
         /// Copy data to the VkBuffer(s) for all Devices associated with vsg::Buffer

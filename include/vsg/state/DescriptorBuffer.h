@@ -29,6 +29,8 @@ namespace vsg
         /// VkWriteDescriptorSet.pBufferInfo settings
         BufferInfoList bufferInfoList;
 
+        int compare(const Object& rhs_object) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
 

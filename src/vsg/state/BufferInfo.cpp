@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/CopyAndReleaseBuffer.h>
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/BufferInfo.h>
 #include <vsg/traversals/CompileTraversal.h>
@@ -44,6 +45,23 @@ BufferInfo::BufferInfo(Buffer* in_buffer, VkDeviceSize in_offset, VkDeviceSize i
 BufferInfo::~BufferInfo()
 {
     release();
+}
+
+int BufferInfo::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_pointer(data, rhs.data))) return result;
+
+    /// if one of less buffer is assigned treat as a match as data is the same, and we can reuse any BufferInfo that's been assigned.
+    if (!buffer || !rhs.buffer) return 0;
+
+    if ((result = compare_pointer(buffer, rhs.buffer))) return result;
+    if ((result = compare_value(offset, rhs.offset))) return result;
+    return compare_value(range, rhs.range);
 }
 
 void BufferInfo::release()

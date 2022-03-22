@@ -29,6 +29,8 @@ namespace vsg
 
         VkDescriptorSetLayout vk(uint32_t deviceID) const override { return _viewDescriptorSetLayout ? _viewDescriptorSetLayout->vk(deviceID) : 0; }
 
+        int compare(const Object& rhs_object) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -59,6 +61,8 @@ namespace vsg
         VkPipelineBindPoint pipelineBindPoint;
         ref_ptr<PipelineLayout> layout;
         uint32_t firstSet;
+
+        int compare(const Object& rhs_object) const override;
 
         template<class N, class V>
         static void t_traverse(N& bds, V& visitor)

@@ -29,6 +29,8 @@ namespace vsg
         Bindings vertexBindingDescriptions;
         Attributes vertexAttributeDescriptions;
 
+        int compare(const Object& rhs) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
