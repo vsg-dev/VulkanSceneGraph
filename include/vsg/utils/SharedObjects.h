@@ -14,9 +14,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Inherit.h>
 
+#include <vsg/io/stream.h>
+
 #include <map>
 #include <mutex>
 #include <set>
+#include <iostream>
 
 namespace vsg
 {
@@ -47,34 +50,11 @@ namespace vsg
             auto def_T = def.cast<T>(); // should be able to do a static cast
             if (!def_T)
             {
-                def_T = T::create();
+                def_T = share(T::create());
                 def = def_T;
             }
 
             return def_T;
-        }
-
-        template<class T>
-        ref_ptr<T> get()
-        {
-            std::scoped_lock<std::mutex> lock(_mutex);
-
-            auto id = std::type_index(typeid(T));
-            auto& pool_objects = _pool[id];
-            if (!pool_objects.empty())
-            {
-                auto itr = pool_objects.begin();
-                auto object = itr->cast<T>(); // should be able to do a static cast.
-                if (object)
-                {
-                    // should we copy default?
-                    pool_objects.erase(itr);
-                    return object;
-                }
-            }
-
-            // clone default?
-            return T::create();
         }
 
         template<class T>
@@ -84,20 +64,13 @@ namespace vsg
 
             auto id = std::type_index(typeid(T));
             auto& shared_objects = _sharedObjects[id];
-            if (!shared_objects.empty())
+            if (auto itr = shared_objects.find(object); itr != shared_objects.end())
             {
-                auto itr = shared_objects.find(object);
-                if (itr != shared_objects.end())
-                {
-                    auto ptr = itr->get();
-
-                    ref_ptr<T> shared_object(static_cast<T*>(ptr));
-
-                    auto& pool_objects = _pool[id];
-                    pool_objects.push_back(object);
-                    return shared_object;
-                }
+                std::cout<<"returning shared object "<<*itr<<std::endl;
+                return ref_ptr<T>(static_cast<T*>(itr->get()));
             }
+
+            std::cout<<"inserting new objects into shared cache "<<object<<std::endl;
             shared_objects.insert(object);
             return object;
         }
@@ -114,7 +87,6 @@ namespace vsg
 
         std::mutex _mutex;
         std::map<std::type_index, ref_ptr<Object>> _defaults;
-        std::map<std::type_index, std::list<ref_ptr<Object>>> _pool;
         std::map<std::type_index, std::set<ref_ptr<Object>, DerefenceLess>> _sharedObjects;
     };
     VSG_type_name(vsg::SharedObjects);

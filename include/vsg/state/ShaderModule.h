@@ -73,6 +73,8 @@ namespace vsg
         bool forwardCompatible = false;
         std::vector<std::string> defines;
 
+        int compare(const Object& rhs_object) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
     };
@@ -96,6 +98,8 @@ namespace vsg
 
         /// Vulkan VkShaderModule handle
         VkShaderModule vk(uint32_t deviceID) const { return _implementation[deviceID]->_shaderModule; }
+
+        int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;

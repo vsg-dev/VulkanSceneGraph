@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/compare.h>
 #include <vsg/core/Exception.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/GraphicsPipeline.h>
@@ -36,6 +37,20 @@ GraphicsPipeline::GraphicsPipeline(PipelineLayout* in_pipelineLayout, const Shad
 
 GraphicsPipeline::~GraphicsPipeline()
 {
+}
+
+int GraphicsPipeline::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_pointer_container(stages, rhs.stages))) return result;
+    if ((result = compare_pointer_container(pipelineStates, rhs.pipelineStates))) return result;
+    if ((result = compare_pointer(layout, rhs.layout))) return result;
+    if ((result = compare_pointer(renderPass, rhs.renderPass))) return result;
+    return compare_value(subpass, rhs.subpass);
 }
 
 void GraphicsPipeline::read(Input& input)
@@ -205,6 +220,15 @@ BindGraphicsPipeline::BindGraphicsPipeline(GraphicsPipeline* in_pipeline) :
 
 BindGraphicsPipeline::~BindGraphicsPipeline()
 {
+}
+
+int BindGraphicsPipeline::compare(const Object& rhs_object) const
+{
+    int result = StateCommand::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_pointer(pipeline, rhs.pipeline);
 }
 
 void BindGraphicsPipeline::read(Input& input)

@@ -50,6 +50,8 @@ namespace vsg
         ref_ptr<RenderPass> renderPass;
         uint32_t subpass;
 
+        int compare(const Object& rhs_object) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -89,6 +91,8 @@ namespace vsg
 
         /// pipeline to pass in the vkCmdBindPipeline call;
         ref_ptr<GraphicsPipeline> pipeline;
+
+        int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;

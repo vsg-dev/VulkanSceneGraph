@@ -10,13 +10,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/raytracing/RayTracingPipeline.h>
 
+#include <vsg/core/compare.h>
 #include <vsg/core/Exception.h>
 #include <vsg/io/Options.h>
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Extensions.h>
+#include <vsg/raytracing/RayTracingPipeline.h>
 
 using namespace vsg;
 
@@ -37,6 +38,19 @@ RayTracingPipeline::RayTracingPipeline(PipelineLayout* pipelineLayout, const Sha
 
 RayTracingPipeline::~RayTracingPipeline()
 {
+}
+
+int RayTracingPipeline::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_pointer_container(_shaderStages, rhs._shaderStages))) return result;
+    if ((result = compare_pointer_container(_rayTracingShaderGroups, rhs._rayTracingShaderGroups))) return result;
+    if ((result = compare_pointer(_pipelineLayout, rhs._pipelineLayout))) return result;
+    return compare_value(_maxRecursionDepth, rhs._maxRecursionDepth);
 }
 
 void RayTracingPipeline::read(Input& input)
@@ -207,6 +221,15 @@ BindRayTracingPipeline::BindRayTracingPipeline(RayTracingPipeline* pipeline) :
 
 BindRayTracingPipeline::~BindRayTracingPipeline()
 {
+}
+
+int BindRayTracingPipeline::compare(const Object& rhs_object) const
+{
+    int result = StateCommand::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_pointer(_pipeline, rhs._pipeline);
 }
 
 void BindRayTracingPipeline::read(Input& input)

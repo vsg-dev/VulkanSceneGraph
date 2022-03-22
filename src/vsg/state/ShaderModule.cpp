@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/compare.h>
 #include <vsg/core/Exception.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/read.h>
@@ -22,6 +23,22 @@ using namespace vsg;
 //
 // ShaderCompileSettings
 //
+int ShaderCompileSettings::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_value(vulkanVersion, rhs.vulkanVersion))) return result;
+    if ((result = compare_value(clientInputVersion, rhs.clientInputVersion))) return result;
+    if ((result = compare_value(language, rhs.language))) return result;
+    if ((result = compare_value(defaultVersion, rhs.defaultVersion))) return result;
+    if ((result = compare_value(target, rhs.target))) return result;
+    if ((result = compare_value(forwardCompatible, rhs.forwardCompatible))) return result;
+    return compare_value(clientInputVersion, rhs.clientInputVersion);
+}
+
 void ShaderCompileSettings::read(Input& input)
 {
     input.read("vulkanVersion", vulkanVersion);
@@ -87,6 +104,18 @@ ShaderModule::ShaderModule(const std::string& in_source, const SPIRV& in_code) :
 
 ShaderModule::~ShaderModule()
 {
+}
+
+int ShaderModule::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_value(source, rhs.source))) return result;
+    if ((result = compare_pointer(hints, rhs.hints))) return result;
+    return compare_value(code, rhs.code);
 }
 
 void ShaderModule::read(Input& input)

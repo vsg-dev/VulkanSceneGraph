@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/DescriptorBuffer.h>
 #include <vsg/traversals/CompileTraversal.h>
@@ -64,19 +65,7 @@ int DescriptorBuffer::compare(const Object& rhs_object) const
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
-    if (bufferInfoList.size() < rhs.bufferInfoList.size()) return -1;
-    if (bufferInfoList.size() > rhs.bufferInfoList.size()) return 1;
-
-    if (bufferInfoList.empty()) return 0;
-
-    auto rhs_itr = rhs.bufferInfoList.begin();
-    for(auto& bufferInfo : bufferInfoList)
-    {
-        result = bufferInfo->compare(*(*rhs_itr++));
-        if (result != 0) return result;
-    }
-
-    return 0;
+    return compare_pointer_container(bufferInfoList, rhs.bufferInfoList);
 }
 
 void DescriptorBuffer::read(Input& input)

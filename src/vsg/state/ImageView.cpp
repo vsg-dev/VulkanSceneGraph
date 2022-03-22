@@ -104,10 +104,8 @@ int ImageView::compare(const Object& rhs_object) const
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
-    result = vsg::compare(image, rhs.image);
-    if (result != 0) return result;
-
-    return vsg::compare_region(flags, subresourceRange, rhs.flags);
+    if ((result = compare_pointer(image, rhs.image))) return result;
+    return compare_region(flags, subresourceRange, rhs.flags);
 }
 
 void ImageView::compile(Device* device)

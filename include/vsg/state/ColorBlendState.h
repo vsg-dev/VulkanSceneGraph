@@ -31,6 +31,8 @@ namespace vsg
         ColorBlendAttachments attachments;
         float blendConstants[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
+        int compare(const Object& rhs) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;

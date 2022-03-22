@@ -54,16 +54,12 @@ int BufferInfo::compare(const Object& rhs_object) const
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
-    result = vsg::compare(buffer, rhs.buffer);
-    if (result != 0) return result;
+    if ((result = compare_pointer(data, rhs.data))) return result;
 
-    result = vsg::compare(data, rhs.data);
-    if (result != 0) return result;
-
-    if (offset < rhs.offset) return -1;
-    if (offset > rhs.offset) return 1;
-
-    return range < rhs.range;
+    // TODO need to handle case where Buffer has only been assigned to one of the BufferInfo
+    if ((result = compare_pointer(buffer, rhs.buffer))) return result;
+    if ((result = compare_value(offset, rhs.offset))) return result;
+    return compare_value(range, rhs.range);
 }
 
 void BufferInfo::release()

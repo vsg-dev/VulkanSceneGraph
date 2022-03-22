@@ -32,7 +32,7 @@ int Sampler::compare(const Object& rhs_object) const
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
-    return vsg::compare_region(flags, unnormalizedCoordinates, rhs.flags);
+    return compare_region(flags, unnormalizedCoordinates, rhs.flags);
 }
 
 void Sampler::read(Input& input)

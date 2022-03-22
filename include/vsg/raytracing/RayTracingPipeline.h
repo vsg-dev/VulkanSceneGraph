@@ -27,6 +27,8 @@ namespace vsg
 
         RayTracingPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const RayTracingShaderGroups& shaderGroups);
 
+        int compare(const Object& rhs_object) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -81,6 +83,8 @@ namespace vsg
     {
     public:
         BindRayTracingPipeline(RayTracingPipeline* pipeline = nullptr);
+
+        int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;

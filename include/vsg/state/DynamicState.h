@@ -33,6 +33,8 @@ namespace vsg
         /// VkPipelineDynamicStateCreateInfo settings
         DynamicStates dynamicStates;
 
+        int compare(const Object& rhs) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
 

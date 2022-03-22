@@ -49,13 +49,9 @@ int ImageInfo::compare(const Object& rhs_object) const
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
-    result = vsg::compare(sampler, rhs.sampler);
-    if (result != 0) return result;
-
-    result = vsg::compare(imageView, rhs.imageView);
-    if (result != 0) return result;
-
-    return imageLayout < rhs.imageLayout;
+    if ((result = compare_pointer(sampler, rhs.sampler))) return result;
+    if ((result = compare_pointer(imageView, rhs.imageView))) return result;
+    return compare_value(imageLayout, rhs.imageLayout);
 }
 
 void ImageInfo::computeNumMipMapLevels()

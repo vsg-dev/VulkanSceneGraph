@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/traversals/CompileTraversal.h>
@@ -22,6 +23,15 @@ using namespace vsg;
 //
 ViewDescriptorSetLayout::ViewDescriptorSetLayout()
 {
+}
+
+int ViewDescriptorSetLayout::compare(const Object& rhs_object) const
+{
+    int result = DescriptorSetLayout::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_pointer(_viewDescriptorSetLayout, rhs._viewDescriptorSetLayout);
 }
 
 void ViewDescriptorSetLayout::read(Input& input)
@@ -52,6 +62,18 @@ BindViewDescriptorSets::BindViewDescriptorSets() :
     pipelineBindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
     firstSet(0)
 {
+}
+
+int BindViewDescriptorSets::compare(const Object& rhs_object) const
+{
+    int result = StateCommand::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_value(pipelineBindPoint, rhs.pipelineBindPoint))) return result;
+    if ((result = compare_pointer(layout, rhs.layout))) return result;
+    return compare_value(firstSet, rhs.firstSet);
 }
 
 void BindViewDescriptorSets::read(Input& input)

@@ -29,6 +29,8 @@ namespace vsg
         VkBool32 alphaToCoverageEnable = VK_FALSE;
         VkBool32 alphaToOneEnable = VK_FALSE;
 
+        int compare(const Object& rhs) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;

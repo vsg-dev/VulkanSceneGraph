@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/MultisampleState.h>
 #include <vsg/vk/Context.h>
@@ -23,6 +24,21 @@ MultisampleState::MultisampleState(VkSampleCountFlagBits samples) :
 
 MultisampleState::~MultisampleState()
 {
+}
+
+int MultisampleState::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_value(rasterizationSamples, rhs.rasterizationSamples))) return result;
+    if ((result = compare_value(sampleShadingEnable, rhs.sampleShadingEnable))) return result;
+    if ((result = compare_value(minSampleShading, rhs.minSampleShading))) return result;
+    if ((result = compare_value_container(sampleMasks, rhs.sampleMasks))) return result;
+    if ((result = compare_value(alphaToCoverageEnable, rhs.alphaToCoverageEnable))) return result;
+    return compare_value(alphaToOneEnable, rhs.alphaToOneEnable);
 }
 
 void MultisampleState::read(Input& input)

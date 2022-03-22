@@ -124,10 +124,8 @@ int Image::compare(const Object& rhs_object) const
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
-    result = vsg::compare(data, rhs.data);
-    if (result != 0) return result;
-
-    return vsg::compare_region(flags, initialLayout, rhs.flags);
+    if ((result = compare_pointer(data, rhs.data))) return result;
+    return compare_region(flags, initialLayout, rhs.flags);
 }
 
 VkResult Image::bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
