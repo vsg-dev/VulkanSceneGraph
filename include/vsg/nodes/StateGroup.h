@@ -29,9 +29,6 @@ namespace vsg
     public:
         StateGroup();
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
         using StateCommands = std::vector<ref_ptr<StateCommand>, allocator_affinity_nodes<ref_ptr<StateCommand>>>;
         StateCommands stateCommands;
 
@@ -57,6 +54,9 @@ namespace vsg
                 stateCommands.erase(itr);
             }
         }
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         virtual void compile(Context& context);
 
