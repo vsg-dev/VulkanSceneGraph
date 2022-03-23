@@ -90,8 +90,8 @@ namespace vsg
     /// By default assigned to the vsg::View, for standard usage you can don't need to create or modify the ViewDependentState
     /// If you wish to override the standard lighting support provided by ViewDependentState you and subclass
     ///
-    /// To leverage the state that the ViewDependentState provides you need to set up the graphics piplines with the vsg::ViewDescriptorSetLayout,
-    /// and add a vsg::BindViewDescriptorSet to a StateGroup.  You don't need to eexplictly add these if you have created your scene graph using
+    /// To leverage the state that the ViewDependentState provides you need to set up the graphics pipelines with the vsg::ViewDescriptorSetLayout,
+    /// and add a vsg::BindViewDescriptorSet to a StateGroup.  You don't need to explicitly add these if you have created your scene graph using
     /// vsg::Builder created or used loaders like vsgXchange::Assimp.
     class VSG_DECLSPEC ViewDependentState : public Inherit<Object, ViewDependentState>
     {
@@ -111,7 +111,7 @@ namespace vsg
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
 
-        // cotnainers filled in by RecordTraversal
+        // containers filled in by RecordTraversal
         std::vector<std::pair<dmat4, const AmbientLight*>> ambientLights;
         std::vector<std::pair<dmat4, const DirectionalLight*>> directionalLights;
         std::vector<std::pair<dmat4, const PointLight*>> pointLights;

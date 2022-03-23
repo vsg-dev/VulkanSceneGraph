@@ -56,7 +56,7 @@ namespace vsg
         /// delete any MemoryBlock that are empty
         virtual size_t deleteEmptyMemoryBlocks();
 
-        /// return the total available size amoung allocated MemoryBlocks
+        /// return the total available size amount allocated MemoryBlocks
         virtual size_t totalAvailableSize() const;
 
         /// return the total reserved size of allocated MemoryBlocks
@@ -72,7 +72,7 @@ namespace vsg
         AllocatorType memoryBlocksAllocatorType = ALLOCATOR_TYPE_NEW_DELETE; // Use new/delete within MemoryBlocks by default
         int memoryTracking = MEMORY_TRACKING_DEFAULT;
 
-        /// set the MemoryTracking member of of the vsg::Allocator and all the MemoryBlocks that it manages.
+        /// set the MemoryTracking member of the vsg::Allocator and all the MemoryBlocks that it manages.
         void setMemoryTracking(int mt);
 
         struct MemoryBlock
@@ -115,16 +115,16 @@ namespace vsg
         mutable std::mutex mutex;
 
     protected:
-        // if you are assigning a custom allocator you mest retain the old allocator to manage the memory it allocated and needs to delete
+        // if you are assigning a custom allocator you must retain the old allocator to manage the memory it allocated and needs to delete
         std::unique_ptr<Allocator> nestedAllocator;
 
         std::vector<std::unique_ptr<MemoryBlocks>> allocatorMemoryBlocks;
     };
 
-    /// allocate memory using vsg::Allocator::instance() if avaiable, otherwise use std::malloc(size)
+    /// allocate memory using vsg::Allocator::instance() if available, otherwise use std::malloc(size)
     extern VSG_DECLSPEC void* allocate(std::size_t size, AllocatorAffinity allocatorAffinity = ALLOCATOR_AFFINITY_OBJECTS);
 
-    /// deallocate memory using vsg::Allocator::instance() if avaiable, otherwise use std::free(ptr)
+    /// deallocate memory using vsg::Allocator::instance() if available, otherwise use std::free(ptr)
     extern VSG_DECLSPEC void deallocate(void* ptr, std::size_t size = 0);
 
     /// std container adapter for allocating with MEMORY_AFFINITY_NODES

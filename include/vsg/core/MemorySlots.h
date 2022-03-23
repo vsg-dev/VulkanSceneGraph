@@ -51,7 +51,7 @@ namespace vsg
         size_t totalReservedSize() const;
         size_t totalMemorySize() const { return _totalMemorySize; }
 
-        // debug factilities
+        // debug facilities
         void report(std::ostream& out) const;
         bool check() const;
 

@@ -24,7 +24,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// class for faciliting the share of instances of objects that have the same properties.
+    /// class for facilitating the share of instances of objects that have the same properties.
     class VSG_DECLSPEC SharedObjects : public Inherit<Object, SharedObjects>
     {
     public:

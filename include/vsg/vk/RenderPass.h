@@ -81,7 +81,7 @@ namespace vsg
     };
     VSG_type_name(vsg::SubpassDescription);
 
-    /// encapsualtion of VkRenderPass
+    /// encapsulation of VkRenderPass
     class VSG_DECLSPEC RenderPass : public Inherit<Object, RenderPass>
     {
     public:

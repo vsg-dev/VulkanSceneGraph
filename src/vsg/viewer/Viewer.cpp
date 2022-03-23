@@ -609,7 +609,7 @@ void Viewer::recordAndSubmit()
 #if 1
     if (_threading)
 #else
-    // follows is a workaround for an odd "Possible data race during write of size 1" warning that valgrind tool=helgrind reports
+    // follows is a workaround for an odd "Possible data race during write of size 1" warning that valgrind tool=valgrind reports
     // on the first call to vkBeginCommandBuffer despite them being done on independent command buffers.  This could well be a driver bug or a false position.
     // if you want to quiet this warning then change the #if above to #if 0 as render the first three frames single threaded avoids the warning.
     if (_threading && _frameStamp->frameCount > 2)
