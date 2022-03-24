@@ -246,7 +246,7 @@ bool t_decompose(const t_mat4<T>& m, t_vec3<T>& translation, t_quat<T>& rotation
     scale[2] = length(m[2].xyz);
 
     // check that we don't have any axis scaled by 0 as this would cause a
-    // divide by zero in the rototation code.
+    // divide by zero in the rotation code.
     if (scale[0] == 0.0 || scale[1] == 0.0 || scale[0] == 0.0) return false;
 
     // compute rotation matrix and subsequently the quaternion
@@ -271,7 +271,7 @@ bool t_decompose(const t_mat4<T>& m, t_vec3<T>& translation, t_quat<T>& rotation
         if (rm[1][1] > rm[0][0]) i = 1;
         if (rm[2][2] > rm[i][i]) i = 2;
 
-        // set up the othrogonal axis to the max diagonal.
+        // set up the orthogonal axis to the max diagonal.
         int next[3] = {1, 2, 0};
         int j = next[i];
         int k = next[j];

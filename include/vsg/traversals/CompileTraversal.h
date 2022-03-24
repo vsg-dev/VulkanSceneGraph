@@ -55,7 +55,7 @@ namespace vsg
         virtual bool record();
         virtual void waitForCompletion();
 
-        /// convinience method that compiles a object/subgraph
+        /// convenience method that compiles a object/subgraph
         template<typename T>
         void compile(T object, bool wait = true)
         {

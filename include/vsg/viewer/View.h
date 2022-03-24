@@ -60,7 +60,7 @@ namespace vsg
         /// bins
         std::vector<ref_ptr<Bin>> bins;
 
-        /// view dependent state used for postional state like lighting, texgen and clipping
+        /// view dependent state used for positional state like lighting, texgen and clipping
         ref_ptr<ViewDependentState> viewDependentState;
 
     protected:
