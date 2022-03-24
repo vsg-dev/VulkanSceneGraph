@@ -797,14 +797,14 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     [_window setOpaque:YES];
     [_window setBackgroundColor:[NSColor whiteColor]];
 
-    // set the lower left corner window position as offset from the lower left corner of the screen
+    // set the top left corner window position as offset from the top left corner of the screen
     NSPoint pos; 
     int xmax = [[NSScreen mainScreen] frame].size.width - [_window frame].size.width;
     int ymax = [[NSScreen mainScreen] frame].size.height - [_window frame].size.height;
     pos.x = std::clamp(traits->x,0,xmax);
     pos.y = std::clamp(traits->y,0,ymax);
-    [_window setFrame:CGRectMake(pos.x, pos.y, [_window frame].size.width , [_window frame].size.height) display:YES];    
-
+   [_window setFrame:CGRectMake(pos.x, ymax - pos.y, [_window frame].size.width , [_window frame].size.height) display:NO]; 
+   
     // create view
     _view = [[vsg_MacOS_NSView alloc] initWithVsgWindow:this];
     [_view setWantsBestResolutionOpenGLSurface:_traits->hdpi];
