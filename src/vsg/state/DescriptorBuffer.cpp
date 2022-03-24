@@ -113,7 +113,7 @@ void DescriptorBuffer::compile(Context& context)
 
         VkDeviceSize totalSize = 0;
 
-        // compute the total size of BufferInfo that needs to be alloacted.
+        // compute the total size of BufferInfo that needs to be allocated.
         {
             VkDeviceSize offset = 0;
             for (auto& bufferInfo : bufferInfoList)

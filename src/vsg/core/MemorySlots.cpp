@@ -266,7 +266,7 @@ bool MemorySlots::release(size_t offset, size_t size)
         size_t prev_slotEnd = prev_slot_itr->first + prev_slot_itr->second;
         if (prev_slotEnd == slotStart)
         {
-            // previous slot abuts with the one being released so reove it.
+            // previous slot abuts with the one being released so remove it.
             slotStart = prev_slot_itr->first;
             removeAvailableSlot(prev_slot_itr->first, prev_slot_itr->second);
         }

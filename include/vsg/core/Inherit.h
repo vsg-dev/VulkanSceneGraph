@@ -64,7 +64,7 @@ namespace vsg
             const char* lhs_ptr = reinterpret_cast<const char*>(this);
             const char* rhs_ptr = reinterpret_cast<const char*>(&rhs);
 
-            // compare the data that Subclass addds over ParentClass
+            // compare the data that Subclass adds over ParentClass
             return std::memcmp(lhs_ptr + startOfSubclass, rhs_ptr + startOfSubclass, size);
         }
 

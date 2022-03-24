@@ -109,7 +109,7 @@ void* Allocator::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
     {
         if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
         {
-            std::cout << "Allocator::allocate(" << size << ", " << allocatorAffinity << ") out of bouns allocating new MemoryBlock" << std::endl;
+            std::cout << "Allocator::allocate(" << size << ", " << allocatorAffinity << ") out of bounds allocating new MemoryBlock" << std::endl;
         }
 
         auto name = make_string("MemoryBlocks_", allocatorAffinity);
@@ -300,7 +300,7 @@ Allocator::MemoryBlock::MemoryBlock(size_t blockSize, int memoryTracking, Alloca
 
     if (memorySlots.memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout << "MemoryBlock(" << blockSize << ") allocatoed memory" << std::endl;
+        std::cout << "MemoryBlock(" << blockSize << ") allocated memory" << std::endl;
     }
 }
 
@@ -372,7 +372,7 @@ Allocator::MemoryBlocks::~MemoryBlocks()
 
 void* Allocator::MemoryBlocks::allocate(std::size_t size)
 {
-    // search exising blocks from last to first for space for the required memory allocation.
+    // search existing blocks from last to first for space for the required memory allocation.
     for (auto itr = memoryBlocks.rbegin(); itr != memoryBlocks.rend(); ++itr)
     {
         auto& block = *itr;
@@ -470,7 +470,7 @@ size_t Allocator::MemoryBlocks::totalMemorySize() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// vsg::allocate and vsg::decalloate convinience functions that map to using the Allocator singleton.
+// vsg::allocate and vsg::deallocate convenience functions that map to using the Allocator singleton.
 //
 void* vsg::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
 {
