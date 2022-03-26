@@ -797,13 +797,7 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     [_window setOpaque:YES];
     [_window setBackgroundColor:[NSColor whiteColor]];
 
-    // set the top left corner window position as offset from the top left corner of the screen
-    NSPoint pos; 
-    int xmax = [[NSScreen mainScreen] frame].size.width - [_window frame].size.width;
-    int ymax = [[NSScreen mainScreen] frame].size.height - [_window frame].size.height;
-    pos.x = std::clamp(traits->x,0,xmax);
-    pos.y = std::clamp(traits->y,0,ymax);
-   [_window setFrame:CGRectMake(pos.x, ymax - pos.y, [_window frame].size.width , [_window frame].size.height) display:NO]; 
+    //[_window setFrame:CGRectMake(pos.x, ymax - pos.y, [_window frame].size.width , [_window frame].size.height) display:NO]; 
    
     // create view
     _view = [[vsg_MacOS_NSView alloc] initWithVsgWindow:this];
@@ -835,7 +829,15 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     _first_macos_timestamp = [[NSProcessInfo processInfo] systemUptime];
     _first_macos_time_point = vsg::clock::now();
 
+   // set the top left corner window position as offset from the top left corner of the screen
+    NSPoint pos;
+    int xmax = [[NSScreen mainScreen] frame].size.width - [_window frame].size.width;
+    int ymax = [[NSScreen mainScreen] frame].size.height - [_window frame].size.height;
+    pos.x = std::clamp(traits->x,0,xmax);
+    pos.y = ymax-std::clamp(traits->y,0,ymax);
     // show
+    [_window setFrame:CGRectMake(pos.x, pos.y, [_window frame].size.width , [_window frame].size.height) display:YES];
+
     //vsgMacOS::createApplicationMenus();
     [NSApp activateIgnoringOtherApps:YES];
     [_window makeKeyAndOrderFront:nil];
