@@ -59,7 +59,7 @@ void Allocator::report(std::ostream& out) const
 {
     out << "Allocator::report() " << allocatorMemoryBlocks.size() << std::endl;
     out << "totalAvailableSize = " << totalAvailableSize() << ", totalReservedSize = " << totalReservedSize() << ", totalMemorySize = " << totalMemorySize() << std::endl;
-    double totalReserved(totalReservedSize());
+    double totalReserved = static_cast<double>(totalReservedSize());
 
     std::scoped_lock<std::mutex> lock(mutex);
     for (const auto& memoryBlocks : allocatorMemoryBlocks)
