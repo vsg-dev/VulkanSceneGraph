@@ -203,6 +203,8 @@ set(SOURCES
     utils/CommandLine.cpp
     utils/Builder.cpp
     utils/SharedObjects.cpp
+    utils/ShaderSet.cpp
+    utils/GraphicsPipelineConfig.cpp
 )
 
 # add platform specific Window implementation

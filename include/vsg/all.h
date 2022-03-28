@@ -234,6 +234,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/AnimationPath.h>
 #include <vsg/utils/Builder.h>
 #include <vsg/utils/CommandLine.h>
+#include <vsg/utils/GraphicsPipelineConfig.h>
+#include <vsg/utils/ShaderSet.h>
 #include <vsg/utils/SharedObjects.h>
 
 // Introspection header files

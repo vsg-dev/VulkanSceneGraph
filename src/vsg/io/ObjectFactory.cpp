@@ -281,6 +281,7 @@ ObjectFactory::ObjectFactory()
 
     // utils
     VSG_REGISTER_create(vsg::AnimationPath);
+    VSG_REGISTER_create(vsg::ShaderSet);
 
     // application
     VSG_REGISTER_create(vsg::EllipsoidModel);
