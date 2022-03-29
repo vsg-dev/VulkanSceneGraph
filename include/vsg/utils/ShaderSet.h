@@ -68,12 +68,26 @@ namespace vsg
         /// variants of the rootShaderModule compiled for differen combinations of ShaderCompileSettings
         std::map<ref_ptr<ShaderCompileSettings>, ShaderStages, DerefenceLess> variants;
 
+        /// mutex used be getShaderStages(..) so ensure the variants map can be used from multiple threads.
+        std::mutex mutex;
+
+
+        /// add an attribute binding, Not thread safe, should only be called when initially setting up the ShaderSet
         void addAttributeBinding(std::string name, std::string define, uint32_t location, VkFormat format, ref_ptr<Data> data);
+
+        /// add an uniform binding. Not thread safe, should only be called when initially setting up the ShaderSet
         void addUniformBinding(std::string name, std::string define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data);
+
+        /// add an uniform binding. Not thread safe, should only be called when initially setting up the ShaderSet
         void addPushConstantRange(std::string name, std::string define, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size);
 
+
+        // get the AttributeBinding associated with name
         const AttributeBinding& getAttributeBinding(const std::string& name) const;
+
+        // get the AttributeBinding associated with name
         const UniformBinding& getUniformBinding(const std::string& name) const;
+
 
         /// get the ShaderStages varient that uses specified ShaderCompileSettings.
         ShaderStages getShaderStages(ref_ptr<ShaderCompileSettings> scs = {});

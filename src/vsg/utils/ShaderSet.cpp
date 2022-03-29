@@ -65,6 +65,8 @@ const UniformBinding& ShaderSet::getUniformBinding(const std::string& name) cons
 
 ShaderStages ShaderSet::getShaderStages(ref_ptr<ShaderCompileSettings> scs)
 {
+    std::scoped_lock<std::mutex> lock(mutex);
+
     if (auto itr = variants.find(scs); itr != variants.end())
     {
         return itr->second;
