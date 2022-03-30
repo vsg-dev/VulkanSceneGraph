@@ -63,6 +63,34 @@ namespace vsg
             return object;
         }
 
+
+        template<class T, typename Func>
+        ref_ptr<T> share(ref_ptr<T> object, Func init)
+        {
+            std::scoped_lock<std::mutex> lock(_mutex);
+
+            auto id = std::type_index(typeid(T));
+            auto& shared_objects = _sharedObjects[id];
+            if (auto itr = shared_objects.find(object); itr != shared_objects.end())
+            {
+                return ref_ptr<T>(static_cast<T*>(itr->get()));
+            }
+
+            init(object);
+
+            shared_objects.insert(object);
+            return object;
+        }
+
+        template<class C>
+        void share(C& container)
+        {
+            for(auto& object : container)
+            {
+                object = share(object);
+            }
+        }
+
         /// clear all the internal structures leaving no Objects cached.
         void clear();
 
