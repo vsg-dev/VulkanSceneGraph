@@ -113,7 +113,7 @@ void GraphicsPipelineConfig::init()
     descriptorSetLayout = vsg::DescriptorSetLayout::create(descriptorBindings);
 
     vsg::PushConstantRanges pushConstantRanges;
-    for(auto& pcb : shaderSet->pushConstantRanges)
+    for (auto& pcb : shaderSet->pushConstantRanges)
     {
         if (pcb.define.empty()) pushConstantRanges.push_back(pcb.range);
     }

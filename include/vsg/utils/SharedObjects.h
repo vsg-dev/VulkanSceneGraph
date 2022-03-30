@@ -12,13 +12,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/compare.h>
 #include <vsg/core/Inherit.h>
+#include <vsg/core/compare.h>
 #include <vsg/io/stream.h>
 
-#include <ostream>
 #include <map>
 #include <mutex>
+#include <ostream>
 #include <set>
 
 namespace vsg
@@ -63,7 +63,6 @@ namespace vsg
             return object;
         }
 
-
         template<class T, typename Func>
         ref_ptr<T> share(ref_ptr<T> object, Func init)
         {
@@ -85,7 +84,7 @@ namespace vsg
         template<class C>
         void share(C& container)
         {
-            for(auto& object : container)
+            for (auto& object : container)
             {
                 object = share(object);
             }

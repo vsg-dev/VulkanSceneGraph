@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
 #include <vsg/io/Input.h>
+#include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
 #include <vsg/utils/ShaderSet.h>
 
@@ -21,7 +21,8 @@ ShaderSet::ShaderSet()
 {
 }
 
-ShaderSet::ShaderSet(const ShaderStages& in_stages) : stages(in_stages)
+ShaderSet::ShaderSet(const ShaderStages& in_stages) :
+    stages(in_stages)
 {
 }
 
@@ -46,7 +47,7 @@ void ShaderSet::addPushConstantRange(std::string name, std::string define, VkSha
 
 const AttributeBinding& ShaderSet::getAttributeBinding(const std::string& name) const
 {
-    for(auto& binding : attributeBindings)
+    for (auto& binding : attributeBindings)
     {
         if (binding.name == name) return binding;
     }
@@ -55,13 +56,12 @@ const AttributeBinding& ShaderSet::getAttributeBinding(const std::string& name) 
 
 const UniformBinding& ShaderSet::getUniformBinding(const std::string& name) const
 {
-    for(auto& binding : uniformBindings)
+    for (auto& binding : uniformBindings)
     {
         if (binding.name == name) return binding;
     }
     return _nullUniformBinding;
 }
-
 
 ShaderStages ShaderSet::getShaderStages(ref_ptr<ShaderCompileSettings> scs)
 {
@@ -73,7 +73,7 @@ ShaderStages ShaderSet::getShaderStages(ref_ptr<ShaderCompileSettings> scs)
     }
 
     auto& new_stages = variants[scs];
-    for(auto& stage : stages)
+    for (auto& stage : stages)
     {
         if (vsg::compare_pointer(stage->module->hints, scs) == 0)
         {
@@ -132,7 +132,7 @@ void ShaderSet::write(Output& output) const
     output.writeValue<uint32_t>("uniformBindings", uniformBindings.size());
     output.writeValue<uint32_t>("pushConstantRanges", pushConstantRanges.size());
     output.writeValue<uint32_t>("variants", variants.size());
-    for(auto& [hints, variant_stages] : variants)
+    for (auto& [hints, variant_stages] : variants)
     {
         output.writeObject("hints", hints);
         output.writeObjects("stages", variant_stages);

@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-
 #include <vsg/core/compare.h>
 #include <vsg/state/ShaderStage.h>
 
@@ -54,7 +53,6 @@ namespace vsg
     class /*VSG_DECLSPEC*/ ShaderSet : public Inherit<Object, ShaderSet>
     {
     public:
-
         ShaderSet();
         ShaderSet(const ShaderStages& in_stages);
 
@@ -71,7 +69,6 @@ namespace vsg
         /// mutex used be getShaderStages(..) so ensure the variants map can be used from multiple threads.
         std::mutex mutex;
 
-
         /// add an attribute binding, Not thread safe, should only be called when initially setting up the ShaderSet
         void addAttributeBinding(std::string name, std::string define, uint32_t location, VkFormat format, ref_ptr<Data> data);
 
@@ -81,13 +78,11 @@ namespace vsg
         /// add an uniform binding. Not thread safe, should only be called when initially setting up the ShaderSet
         void addPushConstantRange(std::string name, std::string define, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size);
 
-
         // get the AttributeBinding associated with name
         const AttributeBinding& getAttributeBinding(const std::string& name) const;
 
         // get the AttributeBinding associated with name
         const UniformBinding& getUniformBinding(const std::string& name) const;
-
 
         /// get the ShaderStages varient that uses specified ShaderCompileSettings.
         ShaderStages getShaderStages(ref_ptr<ShaderCompileSettings> scs = {});
@@ -102,4 +97,4 @@ namespace vsg
         const UniformBinding _nullUniformBinding;
     };
     VSG_type_name(vsg::ShaderSet);
-}
+} // namespace vsg
