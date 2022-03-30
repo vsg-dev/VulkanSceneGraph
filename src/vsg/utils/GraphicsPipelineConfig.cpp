@@ -28,16 +28,25 @@ GraphicsPipelineConfig::GraphicsPipelineConfig(ref_ptr<ShaderSet> in_shaderSet) 
     shaderHints = vsg::ShaderCompileSettings::create();
 }
 
+void GraphicsPipelineConfig::reset()
+{
+    vertexInputState->vertexAttributeDescriptions.clear();
+    vertexInputState->vertexBindingDescriptions.clear();
+    descriptorBindings.clear();
+    shaderHints->defines.clear();
+}
+
 bool GraphicsPipelineConfig::assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array)
 {
     auto& attributeBinding = shaderSet->getAttributeBinding(name);
     if (attributeBinding)
     {
-        if (!attributeBinding.define.empty()) shaderHints->defines.push_back(attributeBinding.define);
-
+        // set up bindings
         uint32_t bindingIndex = baseAttributeBinding + static_cast<uint32_t>(arrays.size());
+        if (!attributeBinding.define.empty()) shaderHints->defines.push_back(attributeBinding.define);
         vertexInputState->vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{attributeBinding.location, bindingIndex, attributeBinding.format, 0});
         vertexInputState->vertexBindingDescriptions.push_back(VkVertexInputBindingDescription{bindingIndex, array->getLayout().stride, vertexInputRate});
+
         arrays.push_back(array);
         return true;
     }
@@ -48,11 +57,11 @@ bool GraphicsPipelineConfig::assignTexture(Descriptors& descriptors, const std::
 {
     if (auto& textureBinding = shaderSet->getUniformBinding(name))
     {
-        if (!sampler) sampler = Sampler::create();
-
+        // set up bindings
         if (!textureBinding.define.empty()) shaderHints->defines.push_back(textureBinding.define);
-
         descriptorBindings.push_back(VkDescriptorSetLayoutBinding{textureBinding.binding, textureBinding.descriptorType, textureBinding.descriptorCount, textureBinding.stageFlags, nullptr});
+
+        if (!sampler) sampler = Sampler::create();
 
         // create texture image and associated DescriptorSets and binding
         auto texture = vsg::DescriptorImage::create(sampler, textureData ? textureData : textureBinding.data, textureBinding.binding, 0, textureBinding.descriptorType);
@@ -66,8 +75,8 @@ bool GraphicsPipelineConfig::assignUniform(Descriptors& descriptors, const std::
 {
     if (auto& uniformBinding = shaderSet->getUniformBinding(name))
     {
+        // set up bindings
         if (!uniformBinding.define.empty()) shaderHints->defines.push_back(uniformBinding.define);
-
         descriptorBindings.push_back(VkDescriptorSetLayoutBinding{uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags, nullptr});
 
         auto uniform = vsg::DescriptorBuffer::create(data ? data : uniformBinding.data, uniformBinding.binding);
@@ -76,6 +85,27 @@ bool GraphicsPipelineConfig::assignUniform(Descriptors& descriptors, const std::
         return true;
     }
     return false;
+}
+
+int GraphicsPipelineConfig::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_pointer(vertexInputState, rhs.vertexInputState))) return result;
+    if ((result = compare_pointer(inputAssemblyState, rhs.inputAssemblyState))) return result;
+    if ((result = compare_pointer(rasterizationState, rhs.rasterizationState))) return result;
+    if ((result = compare_pointer(colorBlendState, rhs.colorBlendState))) return result;
+    if ((result = compare_pointer(multisampleState, rhs.multisampleState))) return result;
+    if ((result = compare_pointer(depthStencilState, rhs.depthStencilState))) return result;
+    if ((result = compare_value(subpass, rhs.subpass))) return result;
+    if ((result = compare_value(baseAttributeBinding, rhs.baseAttributeBinding))) return result;
+    if ((result = compare_pointer(shaderSet, rhs.shaderSet))) return result;
+
+    if ((result = compare_pointer(shaderHints, rhs.shaderHints))) return result;
+    return compare_value_container(descriptorBindings, rhs.descriptorBindings);
 }
 
 void GraphicsPipelineConfig::init()
@@ -94,10 +124,4 @@ void GraphicsPipelineConfig::init()
 
     graphicsPipeline = GraphicsPipeline::create(layout, shaderSet->getShaderStages(shaderHints), pipelineStates, subpass);
     bindGraphicsPipeline = vsg::BindGraphicsPipeline::create(graphicsPipeline);
-}
-
-
-int GraphicsPipelineConfig::compare(const Object& rhs) const
-{
-    return Object::compare(rhs);
 }

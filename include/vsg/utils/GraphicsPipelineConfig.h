@@ -43,24 +43,28 @@ namespace vsg
             ref_ptr<DepthStencilState> depthStencilState;
             uint32_t subpass = 0;
             uint32_t baseAttributeBinding = 0;
-
-            ref_ptr<ShaderCompileSettings> shaderHints;
-            vsg::DescriptorSetLayoutBindings descriptorBindings;
             ref_ptr<ShaderSet> shaderSet;
+
+            void reset();
 
             bool assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array);
             bool assignTexture(Descriptors& descriptors, const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
             bool assignUniform(Descriptors& descriptors, const std::string& name, ref_ptr<Data> data = {});
 
-            // setup GraphicsPipeline
+            // setup by assign calls
+            ref_ptr<ShaderCompileSettings> shaderHints;
+            vsg::DescriptorSetLayoutBindings descriptorBindings;
+
+            int compare(const Object& rhs) const;
+
+            void init();
+
+            // setup by init()
             ref_ptr<DescriptorSetLayout> descriptorSetLayout;
             ref_ptr<PipelineLayout> layout;
             ref_ptr<GraphicsPipeline> graphicsPipeline;
             ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
-
-            void init();
-
-            int compare(const Object& rhs) const;
     };
+    VSG_type_name(vsg::GraphicsPipelineConfig);
 
 }
