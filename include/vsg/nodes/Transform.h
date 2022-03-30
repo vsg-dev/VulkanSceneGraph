@@ -22,12 +22,14 @@ namespace vsg
     public:
         Transform();
 
+        bool subgraphRequiresLocalFrustum = true;
+
+        int compare(const Object& rhs) const;
+
         void read(Input& input) override;
         void write(Output& output) const override;
 
         virtual dmat4 transform(const dmat4& m) const = 0;
-
-        bool subgraphRequiresLocalFrustum;
 
     protected:
     };

@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/compare.h>
 #include <vsg/nodes/StateGroup.h>
-
 #include <vsg/io/Input.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
@@ -24,6 +24,16 @@ StateGroup::StateGroup()
 
 StateGroup::~StateGroup()
 {
+}
+
+int StateGroup::compare(const Object& rhs_object) const
+{
+    int result = Group::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_pointer_container(stateCommands, rhs.stateCommands))) return result;
+    return compare_pointer(prototypeArrayState, rhs.prototypeArrayState);
 }
 
 void StateGroup::read(Input& input)
