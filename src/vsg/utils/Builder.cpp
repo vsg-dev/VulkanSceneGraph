@@ -227,18 +227,15 @@ Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
     return stateSettings;
 }
 
-void Builder::_assign(StateGroup& stateGroup, const StateInfo& stateInfo)
-{
-    const auto& stateSettings = _getStateSettings(stateInfo);
-    stateGroup.add(stateSettings.bindGraphicsPipeline);
-    stateGroup.add(_createDescriptorSet(stateInfo));
-    stateGroup.add(BindViewDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, stateSettings.pipelineLayout, 1));
-}
-
 ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
 {
     auto stategroup = StateGroup::create();
-    _assign(*stategroup, stateInfo);
+
+    const auto& stateSettings = _getStateSettings(stateInfo);
+    stategroup->add(stateSettings.bindGraphicsPipeline);
+    stategroup->add(_createDescriptorSet(stateInfo));
+    stategroup->add(BindViewDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, stateSettings.pipelineLayout, 1));
+
     return stategroup;
 }
 
@@ -297,8 +294,7 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
     if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
-    auto scenegraph = StateGroup::create();
-    _assign(*scenegraph, stateInfo);
+    auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx;
     auto dy = info.dy;
@@ -450,8 +446,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
-    auto scenegraph = StateGroup::create();
-    _assign(*scenegraph, stateInfo);
+    auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx * 0.5f;
     auto dy = info.dy * 0.5f;
@@ -691,8 +686,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
-    auto scenegraph = StateGroup::create();
-    _assign(*scenegraph, stateInfo);
+    auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx * 0.5f;
     auto dy = info.dy * 0.5f;
@@ -913,8 +907,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
-    auto scenegraph = StateGroup::create();
-    _assign(*scenegraph, stateInfo);
+    auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx * 0.5f;
     auto dy = info.dy * 0.5f;
@@ -1172,8 +1165,7 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
-    auto scenegraph = StateGroup::create();
-    _assign(*scenegraph, stateInfo);
+    auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx * 0.5f;
     auto dy = info.dy * 0.5f;
@@ -1284,8 +1276,7 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& sta
     if (colors && colors->valueCount() != instanceCount) colors = {};
     if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
-    auto scenegraph = StateGroup::create();
-    _assign(*scenegraph, stateInfo);
+    auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx;
     auto dy = info.dy;
@@ -1378,8 +1369,7 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
     if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
-    auto scenegraph = StateGroup::create();
-    _assign(*scenegraph, stateInfo);
+    auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx * 0.5f;
     auto dy = info.dy * 0.5f;
@@ -1499,8 +1489,7 @@ ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateIn
     if (!colors) colors = vec4Array::create(instanceCount, info.color);
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
-    auto scenegraph = StateGroup::create();
-    _assign(*scenegraph, stateInfo);
+    auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx;
     auto dy = info.dy;

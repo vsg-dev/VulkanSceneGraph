@@ -160,8 +160,6 @@ namespace vsg
         StateSettings& _getStateSettings(const StateInfo& stateInfo);
         ref_ptr<BindDescriptorSets> _createDescriptorSet(const StateInfo& stateInfo);
 
-        void _assign(StateGroup& stateGroup, const StateInfo& stateInfo);
-
         vec3 y_texcoord(const StateInfo& info) const;
 
         using GeometryMap = std::map<GeometryInfo, ref_ptr<Node>>;
