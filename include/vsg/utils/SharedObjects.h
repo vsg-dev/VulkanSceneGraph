@@ -40,7 +40,17 @@ namespace vsg
             auto def_T = def.cast<T>(); // should be able to do a static cast
             if (!def_T)
             {
-                def_T = share(T::create());
+                def_T = T::create();
+                auto& shared_objects = _sharedObjects[id];
+                if (auto itr = shared_objects.find(def_T); itr != shared_objects.end())
+                {
+                    def_T = (static_cast<T*>(itr->get()));
+                }
+                else
+                {
+                    shared_objects.insert(def_T);
+                }
+
                 def = def_T;
             }
 
