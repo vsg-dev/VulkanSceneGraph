@@ -36,6 +36,21 @@ void GraphicsPipelineConfig::reset()
     shaderHints->defines.clear();
 }
 
+bool GraphicsPipelineConfig::enableArray(const std::string& name, VkVertexInputRate vertexInputRate, uint32_t stride)
+{
+    auto& attributeBinding = shaderSet->getAttributeBinding(name);
+    if (attributeBinding)
+    {
+        // set up bindings
+        uint32_t bindingIndex = baseAttributeBinding + static_cast<uint32_t>(vertexInputState->vertexAttributeDescriptions.size());
+        if (!attributeBinding.define.empty()) shaderHints->defines.push_back(attributeBinding.define);
+        vertexInputState->vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{attributeBinding.location, bindingIndex, attributeBinding.format, 0});
+        vertexInputState->vertexBindingDescriptions.push_back(VkVertexInputBindingDescription{bindingIndex, stride, vertexInputRate});
+        return true;
+    }
+    return false;
+}
+
 bool GraphicsPipelineConfig::assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array)
 {
     auto& attributeBinding = shaderSet->getAttributeBinding(name);
@@ -118,7 +133,10 @@ void GraphicsPipelineConfig::init()
         if (pcb.define.empty()) pushConstantRanges.push_back(pcb.range);
     }
 
-    layout = vsg::PipelineLayout::create(vsg::DescriptorSetLayouts{descriptorSetLayout}, pushConstantRanges);
+    vsg::DescriptorSetLayouts desriptorSetLayours{descriptorSetLayout};
+    if (additionalDescrptorSetLayout) desriptorSetLayours.push_back(additionalDescrptorSetLayout);
+
+    layout = vsg::PipelineLayout::create(desriptorSetLayours, pushConstantRanges);
 
     GraphicsPipelineStates pipelineStates{vertexInputState, inputAssemblyState, rasterizationState, colorBlendState, multisampleState, depthStencilState};
 

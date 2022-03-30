@@ -43,9 +43,11 @@ namespace vsg
         uint32_t subpass = 0;
         uint32_t baseAttributeBinding = 0;
         ref_ptr<ShaderSet> shaderSet;
+        ref_ptr<DescriptorSetLayout> additionalDescrptorSetLayout;
 
         void reset();
 
+        bool enableArray(const std::string& name, VkVertexInputRate vertexInputRate, uint32_t stride);
         bool assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array);
         bool assignTexture(Descriptors& descriptors, const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
         bool assignUniform(Descriptors& descriptors, const std::string& name, ref_ptr<Data> data = {});
