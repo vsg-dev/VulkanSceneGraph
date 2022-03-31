@@ -25,7 +25,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/MemoryBufferPools.h>
 #include <vsg/vk/ResourceRequirements.h>
-#include <vsg/vk/ShaderCompiler.h>
+#include <vsg/utils/ShaderCompiler.h>
 
 #include <vsg/commands/Command.h>
 #include <vsg/commands/CopyAndReleaseBuffer.h>

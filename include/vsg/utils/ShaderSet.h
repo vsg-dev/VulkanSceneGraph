@@ -101,10 +101,10 @@ namespace vsg
     /// create a ShaderSet for unlit, flat shaded rendering
     extern VSG_DECLSPEC ref_ptr<ShaderSet> createFlatShadedShaderSet(ref_ptr<Options> options = {});
 
-    /// create a ShaderSet for phong shaded rendering
+    /// create a ShaderSet for Phong shaded rendering
     extern VSG_DECLSPEC ref_ptr<ShaderSet> createPhongShaderSet(ref_ptr<Options> options = {});
 
-    /// create a ShaderSet for Physic Base Rendering  rendering
+    /// create a ShaderSet for Physics Based Rendering rendering
     extern VSG_DECLSPEC ref_ptr<ShaderSet> createPhysicsBasedRenderingShaderSet(ref_ptr<Options> options = {});
 
 } // namespace vsg

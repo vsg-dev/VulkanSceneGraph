@@ -181,7 +181,6 @@ set(SOURCES
     vk/CommandBuffer.cpp
     vk/CommandPool.cpp
     vk/Context.cpp
-    vk/ShaderCompiler.cpp
     vk/DescriptorPool.cpp
     vk/Device.cpp
     vk/DeviceFeatures.cpp
@@ -205,6 +204,7 @@ set(SOURCES
     utils/SharedObjects.cpp
     utils/ShaderSet.cpp
     utils/GraphicsPipelineConfig.cpp
+    utils/ShaderCompiler.cpp
 )
 
 # add platform specific Window implementation
