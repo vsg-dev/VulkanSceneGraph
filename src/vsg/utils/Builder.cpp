@@ -18,16 +18,9 @@
 #include <vsg/utils/Builder.h>
 #include <vsg/utils/GraphicsPipelineConfig.h>
 
-#include "shaders/assimp_flat_shaded_frag.cpp"
-#include "shaders/assimp_pbr_frag.cpp"
-#include "shaders/assimp_phong_frag.cpp"
-#include "shaders/assimp_vert.cpp"
-
 #include <iostream>
 
 using namespace vsg;
-
-#define FLOAT_COLORS 1
 
 void Builder::assignCompileTraversal(ref_ptr<CompileTraversal> ct, uint32_t maxNumTextures)
 {
@@ -59,6 +52,8 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     }
     if (!shaderSet)
     {
+        //shaderSet = createFlatShadedShaderSet(options);
+        //shaderSet = createPhysicsBasedRenderingShaderSet(options);
         shaderSet = createPhongShaderSet(options);
     }
 

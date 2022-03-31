@@ -17,6 +17,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/material.h>
 #include <vsg/utils/ShaderSet.h>
 
+#include "shaders/assimp_flat_shaded_frag.cpp"
+#include "shaders/assimp_pbr_frag.cpp"
+#include "shaders/assimp_phong_frag.cpp"
+#include "shaders/assimp_vert.cpp"
+
 #include <iostream>
 
 using namespace vsg;
@@ -204,7 +209,7 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhongShaderSet(ref_ptr<Options> optio
 VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_ptr<Options> options)
 {
     auto vertexShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp.vert", options);
-    auto fragmentShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp_phr.frag", options);
+    auto fragmentShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp_pbr.frag", options);
     if (!vertexShader || !fragmentShader)
     {
         std::cout << "Could not create shaders." << std::endl;
