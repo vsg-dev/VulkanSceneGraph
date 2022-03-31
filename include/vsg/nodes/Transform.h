@@ -17,11 +17,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Tansform node is a pure virtual base class for positioning/scaling/rotation subgraphs.
     class VSG_DECLSPEC Transform : public Inherit<Group, Transform>
     {
     public:
         Transform();
 
+        /// Specify whether the subgraph below this Transform contains nodes that will be culled against the view furstum, such as LOD and CullGroup nodes.
+        /// if the subgraph contains no nodes associated with culling then it's setting subgraphRequiresLocalFrustum to false will allow the RecordTraversal to skip
+        /// transforming the view frustum polytope into the local coordinate frame.
         bool subgraphRequiresLocalFrustum = true;
 
         int compare(const Object& rhs) const;
@@ -29,7 +33,9 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        virtual dmat4 transform(const dmat4& m) const = 0;
+        /// Return the transform matrix, multiplying local transform matrix against the matrix passed into the transform(,,) method.
+        /// Typically one pre multiplies local transfomr against the matix passed in, which during a RecordTraversal will be the previous modelview matrix inherited from above.
+        virtual dmat4 transform(const dmat4& mv) const = 0;
 
     protected:
     };
