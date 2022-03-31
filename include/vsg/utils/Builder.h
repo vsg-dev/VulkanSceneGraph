@@ -15,6 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/box.h>
 #include <vsg/maths/sphere.h>
 #include <vsg/traversals/CompileTraversal.h>
+#include <vsg/utils/SharedObjects.h>
+#include <vsg/utils/ShaderSet.h>
 
 #define VSG_COMPARE_PARAMETERS(A, B) \
     if (A < B)                       \
@@ -31,8 +33,8 @@ namespace vsg
         bool blending = false;
         bool greyscale = false; /// greyscale image
         bool wireframe = false;
-        bool instancce_colors_vec4 = true;
-        bool instancce_positions_vec3 = false;
+        bool instance_colors_vec4 = true;
+        bool instance_positions_vec3 = false;
 
         ref_ptr<Data> image;
         ref_ptr<Data> displacementMap;
@@ -45,8 +47,8 @@ namespace vsg
             VSG_COMPARE_PARAMETERS(blending, rhs.blending)
             VSG_COMPARE_PARAMETERS(greyscale, rhs.greyscale)
             VSG_COMPARE_PARAMETERS(wireframe, rhs.wireframe)
-            VSG_COMPARE_PARAMETERS(instancce_colors_vec4, rhs.instancce_colors_vec4)
-            VSG_COMPARE_PARAMETERS(instancce_positions_vec3, rhs.instancce_positions_vec3)
+            VSG_COMPARE_PARAMETERS(instance_colors_vec4, rhs.instance_colors_vec4)
+            VSG_COMPARE_PARAMETERS(instance_positions_vec3, rhs.instance_positions_vec3)
             VSG_COMPARE_PARAMETERS(image, rhs.image)
             return displacementMap < rhs.displacementMap;
         }
@@ -112,6 +114,8 @@ namespace vsg
     public:
         bool verbose = false;
         ref_ptr<Options> options;
+        ref_ptr<SharedObjects> sharedObjects;
+        ref_ptr<ShaderSet> shaderSet;
 
         ref_ptr<Node> createBox(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
         ref_ptr<Node> createCapsule(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
@@ -134,31 +138,6 @@ namespace vsg
 
         uint32_t _allocatedTextureCount = 0;
         uint32_t _maxNumTextures = 0;
-
-        struct DescriptorKey
-        {
-            ref_ptr<Data> image;
-            ref_ptr<Data> displacementMap;
-
-            bool operator<(const DescriptorKey& rhs) const
-            {
-                VSG_COMPARE_PARAMETERS(image, rhs.image);
-                return displacementMap < rhs.displacementMap;
-            }
-        };
-
-        struct StateSettings
-        {
-            ref_ptr<DescriptorSetLayout> descriptorSetLayout;
-            ref_ptr<PipelineLayout> pipelineLayout;
-            ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
-            std::map<DescriptorKey, ref_ptr<BindDescriptorSets>> textureDescriptorSets;
-        };
-
-        std::map<StateInfo, StateSettings> _stateMap;
-
-        StateSettings& _getStateSettings(const StateInfo& stateInfo);
-        ref_ptr<BindDescriptorSets> _createDescriptorSet(const StateInfo& stateInfo);
 
         vec3 y_texcoord(const StateInfo& info) const;
 

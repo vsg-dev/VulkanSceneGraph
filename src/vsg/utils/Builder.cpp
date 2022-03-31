@@ -16,6 +16,7 @@
 #include <vsg/state/ViewportState.h>
 #include <vsg/state/material.h>
 #include <vsg/utils/Builder.h>
+#include <vsg/utils/GraphicsPipelineConfig.h>
 
 #include "shaders/assimp_flat_shaded_frag.cpp"
 #include "shaders/assimp_pbr_frag.cpp"
@@ -49,194 +50,144 @@ void Builder::assignCompileTraversal(ref_ptr<CompileTraversal> ct, uint32_t maxN
     _maxNumTextures = maxNumTextures;
 }
 
-ref_ptr<BindDescriptorSets> Builder::_createDescriptorSet(const StateInfo& stateInfo)
+ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
 {
-    StateSettings& stateSettings = _getStateSettings(stateInfo);
-
-    auto textureData = stateInfo.image;
-    auto displacementMap = stateInfo.displacementMap;
-
-    auto& bindDescriptorSets = stateSettings.textureDescriptorSets[DescriptorKey{textureData, displacementMap}];
-    if (bindDescriptorSets) return bindDescriptorSets;
-
-    // create texture image and associated DescriptorSets and binding
-    auto mat = PhongMaterialValue::create();
-    auto material = DescriptorBuffer::create(mat, 10);
-
-    mat->value().specular = vec4(0.5f, 0.5f, 0.5f, 1.0f);
-
-    Descriptors descriptors;
-    if (textureData)
+    if (!sharedObjects)
     {
-        auto sampler = Sampler::create();
-        sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        if (options) sharedObjects = options->sharedObjects;
+        else sharedObjects = vsg::SharedObjects::create();
+    }
+    if (!shaderSet)
+    {
+        auto vertexShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp.vert", options);
+        //auto fragmentShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp_flat_shaded.frag", options);
+        auto fragmentShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp_phong.frag", options);
+        if (!vertexShader || !fragmentShader)
+        {
+            std::cout << "Could not create shaders." << std::endl;
+            return {};
+        }
 
-        auto texture = DescriptorImage::create(sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-        descriptors.push_back(texture);
+        shaderSet = vsg::ShaderSet::create(vsg::ShaderStages{vertexShader, fragmentShader});
+
+        shaderSet->addAttributeBinding("vsg_Vertex", "", 0, VK_FORMAT_R32G32B32_SFLOAT, vsg::vec3Array::create(1));
+        shaderSet->addAttributeBinding("vsg_Normal", "", 1, VK_FORMAT_R32G32B32_SFLOAT, vsg::vec3Array::create(1));
+        shaderSet->addAttributeBinding("vsg_TexCoord0", "", 2, VK_FORMAT_R32G32_SFLOAT, vsg::vec2Array::create(1));
+        shaderSet->addAttributeBinding("vsg_Color", "", 3, VK_FORMAT_R32G32B32A32_SFLOAT, vsg::vec4Array::create(1));
+        shaderSet->addAttributeBinding("vsg_position", "VSG_INSTANCE_POSITIONS", 3, VK_FORMAT_R32G32B32_SFLOAT, vsg::vec3Array::create(1));
+
+        shaderSet->addUniformBinding("displacementMap", "VSG_DISPLACEMENT_MAP", 0, 6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_VERTEX_BIT, vsg::vec4Array2D::create(1,1));
+        shaderSet->addUniformBinding("diffuseMap", "VSG_DIFFUSE_MAP", 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1,1));
+        shaderSet->addUniformBinding("normalMap", "VSG_NORMAL_MAP", 0, 2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec3Array2D::create(1,1));
+        shaderSet->addUniformBinding("aoMap", "VSG_LIGHTMAP_MAP", 0, 3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1,1));
+        shaderSet->addUniformBinding("emissiveMap", "VSG_EMISSIVE_MAP", 0, 4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1,1));
+        shaderSet->addUniformBinding("material", "", 0, 10, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::PhongMaterialValue::create());
+        shaderSet->addUniformBinding("lightData", "VSG_VIEW_LIGHT_DATA", 1, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array::create(64));
+
+        shaderSet->addPushConstantRange("pc", "", VK_SHADER_STAGE_VERTEX_BIT, 0, 128);
     }
 
-    if (displacementMap)
-    {
-        auto sampler = Sampler::create();
-        sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+/////////////////////////////////////////////////////////////////////
 
-        auto texture = DescriptorImage::create(sampler, displacementMap, 6, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-        descriptors.push_back(texture);
-    }
-    descriptors.push_back(material);
+    auto graphicsPipelineConfig = vsg::GraphicsPipelineConfig::create(shaderSet);
 
-    auto descriptorSet = DescriptorSet::create(stateSettings.descriptorSetLayout, descriptors);
-    bindDescriptorSets = BindDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, stateSettings.pipelineLayout, 0, DescriptorSets{descriptorSet});
+    std::vector<std::string>& defines = graphicsPipelineConfig->shaderHints->defines;
 
-    return bindDescriptorSets;
-}
+    if (stateInfo.instance_positions_vec3) defines.push_back("VSG_INSTANCE_POSITIONS");
 
-Builder::StateSettings& Builder::_getStateSettings(const StateInfo& stateInfo)
-{
-    auto& stateSettings = _stateMap[stateInfo];
-    if (stateSettings.bindGraphicsPipeline) return stateSettings;
+    // set up graphics pipeline
+    vsg::Descriptors descriptors;
 
-    // load shaders
-    auto vertexShader = read_cast<ShaderStage>("shaders/assimp.vert", options);
-    if (!vertexShader) vertexShader = assimp_vert(); // fallback to shaders/assimp_vert.cppp
-
-    ref_ptr<ShaderStage> fragmentShader;
-    if (stateInfo.lighting)
-    {
-        fragmentShader = read_cast<ShaderStage>("shaders/assimp_phong.frag", options);
-        if (!fragmentShader) fragmentShader = assimp_phong_frag();
-    }
-    else
-    {
-        fragmentShader = read_cast<ShaderStage>("shaders/assimp_flat_shaded.frag", options);
-        if (!fragmentShader) fragmentShader = assimp_flat_shaded_frag();
-    }
-
-    if (!vertexShader || !fragmentShader)
-    {
-        std::cout << "Could not create shaders." << std::endl;
-        return stateSettings;
-    }
-
-    auto shaderHints = ShaderCompileSettings::create();
-    std::vector<std::string>& defines = shaderHints->defines;
-
-    vertexShader->module->hints = shaderHints;
-    vertexShader->module->code = {};
-
-    fragmentShader->module->hints = shaderHints;
-    fragmentShader->module->code = {};
-
-    if (stateInfo.instancce_positions_vec3) defines.push_back("VSG_INSTANCE_POSITIONS");
 
     // set up graphics pipeline
     DescriptorSetLayoutBindings descriptorBindings;
     if (stateInfo.image)
     {
-        // { binding, descriptorTpe, descriptorCount, stageFlags, pImmutableSamplers}
-        descriptorBindings.push_back(VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr});
-        defines.push_back("VSG_DIFFUSE_MAP");
+        auto sampler = Sampler::create();
+        sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+
+        if (sharedObjects) sampler = sharedObjects->share(sampler);
+
+        graphicsPipelineConfig->assignTexture(descriptors, "diffuseMap", stateInfo.image, sampler);
 
         if (stateInfo.greyscale) defines.push_back("VSG_GREYSACLE_DIFFUSE_MAP");
     }
 
     if (stateInfo.displacementMap)
     {
-        // { binding, descriptorTpe, descriptorCount, stageFlags, pImmutableSamplers}
-        descriptorBindings.push_back(VkDescriptorSetLayoutBinding{6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr});
-        defines.push_back("VSG_DISPLACEMENT_MAP");
+        auto sampler = Sampler::create();
+        sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+
+        if (sharedObjects) sampler = sharedObjects->share(sampler);
+
+        graphicsPipelineConfig->assignTexture(descriptors, "displacementMap", stateInfo.displacementMap, sampler);
     }
 
-    {
-        descriptorBindings.push_back(VkDescriptorSetLayoutBinding{10, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr});
-    }
+    // set up pass of material
+    auto mat = vsg::PhongMaterialValue::create();
+    mat->value().specular = vec4(0.5f, 0.5f, 0.5f, 1.0f);
 
-    stateSettings.descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
+    graphicsPipelineConfig->assignUniform(descriptors, "material", mat);
 
-    DescriptorSetLayouts descriptorSetLayouts{stateSettings.descriptorSetLayout, ViewDescriptorSetLayout::create()};
+    if (sharedObjects) sharedObjects->share(descriptors);
+
+
+    // set up ViewDependentState
     defines.push_back("VSG_VIEW_LIGHT_DATA");
+    ref_ptr<ViewDescriptorSetLayout> vdsl;
+    if (sharedObjects) vdsl = sharedObjects->shared_default<ViewDescriptorSetLayout>();
+    else vdsl = ViewDescriptorSetLayout::create();
+    graphicsPipelineConfig->additionalDescrptorSetLayout = vdsl;
 
-    PushConstantRanges pushConstantRanges{
-        {VK_SHADER_STAGE_VERTEX_BIT, 0, 128} // projection view, and model matrices, actual push constant calls automatically provided by the VSG's DispatchTraversal
-    };
 
-    stateSettings.pipelineLayout = PipelineLayout::create(descriptorSetLayouts, pushConstantRanges);
+    graphicsPipelineConfig->enableArray("vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, 12);
+    graphicsPipelineConfig->enableArray("vsg_Normal", VK_VERTEX_INPUT_RATE_VERTEX, 12);
+    graphicsPipelineConfig->enableArray("vsg_TexCoord0", VK_VERTEX_INPUT_RATE_VERTEX, 8);
 
-#if FLOAT_COLORS
-    uint32_t colorSize = sizeof(vec4);
-    VkFormat colorFormat = VK_FORMAT_R32G32B32A32_SFLOAT;
-#else
-    uint32_t colorSize = sizeof(ubvec4);
-    VkFormat colorFormat = VK_FORMAT_R8G8B8A8_UNORM;
-#endif
-
-    VertexInputState::Bindings vertexBindingsDescriptions{
-        VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}, // vertex data
-        VkVertexInputBindingDescription{1, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}, // normal data
-        VkVertexInputBindingDescription{2, sizeof(vec2), VK_VERTEX_INPUT_RATE_VERTEX}  // tex coord data
-    };
-
-    VertexInputState::Attributes vertexAttributeDescriptions{
-        VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0}, // vertex data
-        VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0}, // normal data
-        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0}     // tex coord data
-    };
-
-    if (stateInfo.instancce_colors_vec4)
+    if (stateInfo.instance_colors_vec4)
     {
-        uint32_t colorBinding = static_cast<uint32_t>(vertexBindingsDescriptions.size());
-        vertexBindingsDescriptions.push_back(VkVertexInputBindingDescription{colorBinding, colorSize, VK_VERTEX_INPUT_RATE_INSTANCE}); // color data
-        vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{3, colorBinding, colorFormat, 0});                     // color data
+        graphicsPipelineConfig->enableArray("vsg_Color", VK_VERTEX_INPUT_RATE_INSTANCE, 16);
     }
 
-    if (stateInfo.instancce_positions_vec3)
+    if (stateInfo.instance_positions_vec3)
     {
-        uint32_t positionBinding = static_cast<uint32_t>(vertexBindingsDescriptions.size());
-        vertexBindingsDescriptions.push_back(VkVertexInputBindingDescription{positionBinding, sizeof(vec3), VK_VERTEX_INPUT_RATE_INSTANCE}); // instance coord
-        vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{4, positionBinding, VK_FORMAT_R32G32B32_SFLOAT, 0});         // instance coord
-    };
+        graphicsPipelineConfig->enableArray("vsg_position", VK_VERTEX_INPUT_RATE_INSTANCE, 12);
+    }
 
-    auto rasterState = RasterizationState::create();
-    rasterState->cullMode = stateInfo.doubleSided ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT;
+    graphicsPipelineConfig->rasterizationState->cullMode = stateInfo.doubleSided ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT;
 
-    auto colorBlendState = ColorBlendState::create();
-    colorBlendState->attachments = ColorBlendState::ColorBlendAttachments{
+    graphicsPipelineConfig->colorBlendState->attachments = ColorBlendState::ColorBlendAttachments{
         {stateInfo.blending, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, VK_BLEND_OP_ADD, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, VK_BLEND_OP_SUBTRACT, VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT}};
-
-    auto inputAssemblyState = InputAssemblyState::create();
 
     if (stateInfo.wireframe)
     {
-        inputAssemblyState->topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+        graphicsPipelineConfig->inputAssemblyState->topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
     }
 
-    GraphicsPipelineStates pipelineStates{
-        VertexInputState::create(vertexBindingsDescriptions, vertexAttributeDescriptions),
-        inputAssemblyState,
-        rasterState,
-        MultisampleState::create(),
-        colorBlendState,
-        DepthStencilState::create()};
+    // if required initialize GraphicsPipeline/Layout etc.
+    if (sharedObjects) graphicsPipelineConfig = sharedObjects->share(graphicsPipelineConfig, [](auto gpc) { gpc->init(); });
+    else graphicsPipelineConfig->init();
 
-    auto graphicsPipeline = GraphicsPipeline::create(stateSettings.pipelineLayout, ShaderStages{vertexShader, fragmentShader}, pipelineStates);
+    auto descriptorSet = vsg::DescriptorSet::create(graphicsPipelineConfig->descriptorSetLayout, descriptors);
+    if (sharedObjects) descriptorSet = sharedObjects->share(descriptorSet);
 
-    stateSettings.bindGraphicsPipeline = BindGraphicsPipeline::create(graphicsPipeline);
+    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipelineConfig->layout, 0, descriptorSet);
+    if (sharedObjects) bindDescriptorSet = sharedObjects->share(bindDescriptorSet);
 
-    return stateSettings;
-}
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
+    auto stateGroup = vsg::StateGroup::create();
+    stateGroup->add(graphicsPipelineConfig->bindGraphicsPipeline);
+    stateGroup->add(bindDescriptorSet);
 
-ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
-{
-    auto stategroup = StateGroup::create();
+    auto bindViewDescriptorSets = BindViewDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipelineConfig->layout, 1);
+    if (sharedObjects) bindViewDescriptorSets = sharedObjects->share(bindViewDescriptorSets);
+    stateGroup->add(bindViewDescriptorSets);
 
-    const auto& stateSettings = _getStateSettings(stateInfo);
-    stategroup->add(stateSettings.bindGraphicsPipeline);
-    stategroup->add(_createDescriptorSet(stateInfo));
-    stategroup->add(BindViewDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, stateSettings.pipelineLayout, 1));
+    if (sharedObjects) sharedObjects->report(std::cout);
 
-    return stategroup;
+    return stateGroup;
 }
 
 void Builder::transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr<vec3Array> normals)
