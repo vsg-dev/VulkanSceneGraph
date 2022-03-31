@@ -50,7 +50,7 @@ namespace vsg
         VkPushConstantRange range;
     };
 
-    class /*VSG_DECLSPEC*/ ShaderSet : public Inherit<Object, ShaderSet>
+    class VSG_DECLSPEC ShaderSet : public Inherit<Object, ShaderSet>
     {
     public:
         ShaderSet();
@@ -97,4 +97,14 @@ namespace vsg
         const UniformBinding _nullUniformBinding;
     };
     VSG_type_name(vsg::ShaderSet);
+
+    /// create a ShaderSet for unlit, flat shaded rendering
+    extern VSG_DECLSPEC ref_ptr<ShaderSet> createFlatShadedShaderSet(ref_ptr<Options> options = {});
+
+    /// create a ShaderSet for phong shaded rendering
+    extern VSG_DECLSPEC ref_ptr<ShaderSet> createPhongShaderSet(ref_ptr<Options> options = {});
+
+    /// create a ShaderSet for Physic Base Rendering  rendering
+    extern VSG_DECLSPEC ref_ptr<ShaderSet> createPhysicsBasedRenderingShaderSet(ref_ptr<Options> options = {});
+
 } // namespace vsg
