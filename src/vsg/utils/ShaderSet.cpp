@@ -22,8 +22,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include "shaders/assimp_phong_frag.cpp"
 #include "shaders/assimp_vert.cpp"
 
-#include <iostream>
-
 using namespace vsg;
 
 ShaderSet::ShaderSet()
@@ -151,12 +149,10 @@ void ShaderSet::write(Output& output) const
 VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createFlatShadedShaderSet(ref_ptr<Options> options)
 {
     auto vertexShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp.vert", options);
+    if (!vertexShader) vertexShader = assimp_vert(); // fallback to shaders/assimp_vert.cppp
+
     auto fragmentShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp_flat_shaded.frag", options);
-    if (!vertexShader || !fragmentShader)
-    {
-        std::cout << "Could not create shaders." << std::endl;
-        return {};
-    }
+    if (!fragmentShader) fragmentShader = assimp_flat_shaded_frag();
 
     auto shaderSet = vsg::ShaderSet::create(vsg::ShaderStages{vertexShader, fragmentShader});
 
@@ -178,12 +174,9 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createFlatShadedShaderSet(ref_ptr<Options> 
 VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhongShaderSet(ref_ptr<Options> options)
 {
     auto vertexShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp.vert", options);
+    if (!vertexShader) vertexShader = assimp_vert(); // fallback to shaders/assimp_vert.cppp
     auto fragmentShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp_phong.frag", options);
-    if (!vertexShader || !fragmentShader)
-    {
-        std::cout << "Could not create shaders." << std::endl;
-        return {};
-    }
+    if (!fragmentShader) fragmentShader = assimp_phong_frag();
 
     auto shaderSet = vsg::ShaderSet::create(vsg::ShaderStages{vertexShader, fragmentShader});
 
@@ -209,12 +202,10 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhongShaderSet(ref_ptr<Options> optio
 VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_ptr<Options> options)
 {
     auto vertexShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp.vert", options);
+    if (!vertexShader) vertexShader = assimp_vert(); // fallback to shaders/assimp_vert.cppp
+
     auto fragmentShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp_pbr.frag", options);
-    if (!vertexShader || !fragmentShader)
-    {
-        std::cout << "Could not create shaders." << std::endl;
-        return {};
-    }
+    if (!fragmentShader) fragmentShader = assimp_pbr_frag();
 
     auto shaderSet = vsg::ShaderSet::create(vsg::ShaderStages{vertexShader, fragmentShader});
 
