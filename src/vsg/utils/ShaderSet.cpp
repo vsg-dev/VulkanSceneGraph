@@ -146,7 +146,7 @@ void ShaderSet::write(Output& output) const
     }
 }
 
-VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createFlatShadedShaderSet(ref_ptr<Options> options)
+VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createFlatShadedShaderSet(ref_ptr<const Options> options)
 {
     auto vertexShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp.vert", options);
     if (!vertexShader) vertexShader = assimp_vert(); // fallback to shaders/assimp_vert.cppp
@@ -171,7 +171,7 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createFlatShadedShaderSet(ref_ptr<Options> 
     return shaderSet;
 }
 
-VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhongShaderSet(ref_ptr<Options> options)
+VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhongShaderSet(ref_ptr<const Options> options)
 {
     auto vertexShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp.vert", options);
     if (!vertexShader) vertexShader = assimp_vert(); // fallback to shaders/assimp_vert.cppp
@@ -199,7 +199,7 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhongShaderSet(ref_ptr<Options> optio
     return shaderSet;
 }
 
-VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_ptr<Options> options)
+VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_ptr<const Options> options)
 {
     auto vertexShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp.vert", options);
     if (!vertexShader) vertexShader = assimp_vert(); // fallback to shaders/assimp_vert.cppp
