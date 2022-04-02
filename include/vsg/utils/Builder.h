@@ -18,12 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/SharedObjects.h>
 #include <vsg/utils/ShaderSet.h>
 
-#define VSG_COMPARE_PARAMETERS(A, B) \
-    if (A < B)                       \
-        return true;                 \
-    else if (B < A)                  \
-        return false;
-
 namespace vsg
 {
     struct StateInfo
@@ -39,19 +33,6 @@ namespace vsg
         ref_ptr<Data> image;
         ref_ptr<Data> displacementMap;
         ref_ptr<DescriptorSetLayout> viewDescriptorSetLayout;
-
-        bool operator<(const StateInfo& rhs) const
-        {
-            VSG_COMPARE_PARAMETERS(lighting, rhs.lighting)
-            VSG_COMPARE_PARAMETERS(doubleSided, rhs.doubleSided)
-            VSG_COMPARE_PARAMETERS(blending, rhs.blending)
-            VSG_COMPARE_PARAMETERS(greyscale, rhs.greyscale)
-            VSG_COMPARE_PARAMETERS(wireframe, rhs.wireframe)
-            VSG_COMPARE_PARAMETERS(instance_colors_vec4, rhs.instance_colors_vec4)
-            VSG_COMPARE_PARAMETERS(instance_positions_vec3, rhs.instance_positions_vec3)
-            VSG_COMPARE_PARAMETERS(image, rhs.image)
-            return displacementMap < rhs.displacementMap;
-        }
     };
     VSG_type_name(vsg::StateInfo);
 
@@ -96,15 +77,11 @@ namespace vsg
 
         bool operator<(const GeometryInfo& rhs) const
         {
-            VSG_COMPARE_PARAMETERS(position, rhs.position)
-            VSG_COMPARE_PARAMETERS(dx, rhs.dx)
-            VSG_COMPARE_PARAMETERS(dy, rhs.dy)
-            VSG_COMPARE_PARAMETERS(dz, rhs.dz)
-            VSG_COMPARE_PARAMETERS(color, rhs.color)
-            VSG_COMPARE_PARAMETERS(transform, rhs.transform)
-            VSG_COMPARE_PARAMETERS(positions, rhs.positions)
-            VSG_COMPARE_PARAMETERS(colors, rhs.colors)
-            return false;
+            int result = compare_region(position, transform, rhs.position);
+            if (result) return result < 0;
+
+            if ((result = compare_pointer(positions, rhs.positions))) return result < 0;
+            return compare_pointer(colors, rhs.colors) < 0;
         }
     };
     VSG_type_name(vsg::GeometryInfo);
