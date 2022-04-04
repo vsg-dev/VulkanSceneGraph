@@ -59,7 +59,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
 
     auto graphicsPipelineConfig = vsg::GraphicsPipelineConfig::create(shaderSet);
 
-    std::vector<std::string>& defines = graphicsPipelineConfig->shaderHints->defines;
+    auto& defines = graphicsPipelineConfig->shaderHints->defines;
 
     if (stateInfo.instance_positions_vec3) defines.push_back("VSG_INSTANCE_POSITIONS");
 
