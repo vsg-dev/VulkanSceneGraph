@@ -15,6 +15,54 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+DescriptorConfig::DescriptorConfig(ref_ptr<ShaderSet> in_shaderSet) :
+    shaderSet(in_shaderSet)
+{
+}
+
+bool DescriptorConfig::assignTexture(const std::string& name, ref_ptr<Data> textureData, ref_ptr<Sampler> sampler)
+{
+    if (auto& textureBinding = shaderSet->getUniformBinding(name))
+    {
+        // set up bindings
+        if (!textureBinding.define.empty()) defines.push_back(textureBinding.define);
+        descriptorBindings.push_back(VkDescriptorSetLayoutBinding{textureBinding.binding, textureBinding.descriptorType, textureBinding.descriptorCount, textureBinding.stageFlags, nullptr});
+
+        if (!sampler) sampler = Sampler::create();
+
+        // create texture image and associated DescriptorSets and binding
+        auto texture = DescriptorImage::create(sampler, textureData ? textureData : textureBinding.data, textureBinding.binding, 0, textureBinding.descriptorType);
+        descriptors.push_back(texture);
+        return true;
+    }
+    return false;
+}
+
+bool DescriptorConfig::assignUniform(const std::string& name, ref_ptr<Data> data)
+{
+    if (auto& uniformBinding = shaderSet->getUniformBinding(name))
+    {
+        // set up bindings
+        if (!uniformBinding.define.empty()) defines.push_back(uniformBinding.define);
+        descriptorBindings.push_back(VkDescriptorSetLayoutBinding{uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags, nullptr});
+
+        auto uniform = DescriptorBuffer::create(data ? data : uniformBinding.data, uniformBinding.binding);
+        descriptors.push_back(uniform);
+
+        return true;
+    }
+    return false;
+}
+
+void DescriptorConfig::init()
+{
+    if (!descriptorBindings.empty())
+    {
+        auto descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
+        descriptorSet = DescriptorSet::create(descriptorSetLayout, descriptors);
+    }
+}
+
 GraphicsPipelineConfig::GraphicsPipelineConfig(ref_ptr<ShaderSet> in_shaderSet) :
     shaderSet(in_shaderSet)
 {

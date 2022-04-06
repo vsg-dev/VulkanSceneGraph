@@ -22,11 +22,35 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/MultisampleState.h>
 #include <vsg/state/RasterizationState.h>
 #include <vsg/state/VertexInputState.h>
+#include <vsg/state/DescriptorSet.h>
 
 #include <vsg/utils/ShaderSet.h>
 
 namespace vsg
 {
+
+    class VSG_DECLSPEC DescriptorConfig : public vsg::Inherit<Object, DescriptorConfig>
+    {
+    public:
+        DescriptorConfig(ref_ptr<ShaderSet> in_shaderSet = {});
+
+        ref_ptr<ShaderSet> shaderSet;
+        bool blending = false;
+
+        bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
+        bool assignUniform(const std::string& name, ref_ptr<Data> data = {});
+
+        // assign Descritpotrs to a DescriptorSet
+        void init();
+
+        // filled in by assingTexture(..) and assingUnfiorm(..)
+        Descriptors descriptors;
+        std::vector<std::string> defines;
+        DescriptorSetLayoutBindings descriptorBindings;
+
+        // fillined in by init()
+        ref_ptr<DescriptorSet> descriptorSet;
+    };
 
     class VSG_DECLSPEC GraphicsPipelineConfig : public vsg::Inherit<Object, GraphicsPipelineConfig>
     {
