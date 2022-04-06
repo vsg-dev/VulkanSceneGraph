@@ -75,7 +75,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 
-        if (sharedObjects) sampler = sharedObjects->share(sampler);
+        if (sharedObjects) sharedObjects->share(sampler);
 
         graphicsPipelineConfig->assignTexture(descriptors, "diffuseMap", stateInfo.image, sampler);
 
@@ -88,7 +88,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 
-        if (sharedObjects) sampler = sharedObjects->share(sampler);
+        if (sharedObjects) sharedObjects->share(sampler);
 
         graphicsPipelineConfig->assignTexture(descriptors, "displacementMap", stateInfo.displacementMap, sampler);
     }
@@ -135,14 +135,14 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     }
 
     // if required initialize GraphicsPipeline/Layout etc.
-    if (sharedObjects) graphicsPipelineConfig = sharedObjects->share(graphicsPipelineConfig, [](auto gpc) { gpc->init(); });
+    if (sharedObjects) sharedObjects->share(graphicsPipelineConfig, [](auto gpc) { gpc->init(); });
     else graphicsPipelineConfig->init();
 
     auto descriptorSet = vsg::DescriptorSet::create(graphicsPipelineConfig->descriptorSetLayout, descriptors);
-    if (sharedObjects) descriptorSet = sharedObjects->share(descriptorSet);
+    if (sharedObjects) sharedObjects->share(descriptorSet);
 
     auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipelineConfig->layout, 0, descriptorSet);
-    if (sharedObjects) bindDescriptorSet = sharedObjects->share(bindDescriptorSet);
+    if (sharedObjects) sharedObjects->share(bindDescriptorSet);
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     auto stateGroup = vsg::StateGroup::create();
@@ -150,7 +150,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     stateGroup->add(bindDescriptorSet);
 
     auto bindViewDescriptorSets = BindViewDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipelineConfig->layout, 1);
-    if (sharedObjects) bindViewDescriptorSets = sharedObjects->share(bindViewDescriptorSets);
+    if (sharedObjects) sharedObjects->share(bindViewDescriptorSets);
     stateGroup->add(bindViewDescriptorSets);
 
     if (sharedObjects) sharedObjects->report(std::cout);

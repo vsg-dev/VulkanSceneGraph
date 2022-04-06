@@ -58,7 +58,7 @@ namespace vsg
         }
 
         template<class T>
-        ref_ptr<T> share(ref_ptr<T> object)
+        void share(ref_ptr<T>& object)
         {
             std::scoped_lock<std::mutex> lock(_mutex);
 
@@ -66,15 +66,15 @@ namespace vsg
             auto& shared_objects = _sharedObjects[id];
             if (auto itr = shared_objects.find(object); itr != shared_objects.end())
             {
-                return ref_ptr<T>(static_cast<T*>(itr->get()));
+                object = ref_ptr<T>(static_cast<T*>(itr->get()));
+                return;
             }
 
             shared_objects.insert(object);
-            return object;
         }
 
         template<class T, typename Func>
-        ref_ptr<T> share(ref_ptr<T> object, Func init)
+        void share(ref_ptr<T>& object, Func init)
         {
             std::scoped_lock<std::mutex> lock(_mutex);
 
@@ -82,13 +82,13 @@ namespace vsg
             auto& shared_objects = _sharedObjects[id];
             if (auto itr = shared_objects.find(object); itr != shared_objects.end())
             {
-                return ref_ptr<T>(static_cast<T*>(itr->get()));
+                object = ref_ptr<T>(static_cast<T*>(itr->get()));
+                return;
             }
 
             init(object);
 
             shared_objects.insert(object);
-            return object;
         }
 
         template<class C>
@@ -96,7 +96,7 @@ namespace vsg
         {
             for (auto& object : container)
             {
-                object = share(object);
+                share(object);
             }
         }
 
