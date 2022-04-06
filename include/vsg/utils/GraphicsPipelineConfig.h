@@ -28,7 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class GraphicsPipelineConfig : public vsg::Inherit<Object, GraphicsPipelineConfig>
+    class VSG_DECLSPEC GraphicsPipelineConfig : public vsg::Inherit<Object, GraphicsPipelineConfig>
     {
     public:
         GraphicsPipelineConfig(ref_ptr<ShaderSet> in_shaderSet = {});

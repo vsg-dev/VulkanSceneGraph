@@ -33,6 +33,7 @@ void GraphicsPipelineConfig::reset()
     vertexInputState->vertexAttributeDescriptions.clear();
     vertexInputState->vertexBindingDescriptions.clear();
     descriptorBindings.clear();
+    descriptorSetLayout = {};
     shaderHints->defines.clear();
 }
 
@@ -125,7 +126,10 @@ int GraphicsPipelineConfig::compare(const Object& rhs_object) const
 
 void GraphicsPipelineConfig::init()
 {
-    descriptorSetLayout = vsg::DescriptorSetLayout::create(descriptorBindings);
+    if (!descriptorSetLayout)
+    {
+        descriptorSetLayout = vsg::DescriptorSetLayout::create(descriptorBindings);
+    }
 
     vsg::PushConstantRanges pushConstantRanges;
     for (auto& pcb : shaderSet->pushConstantRanges)
