@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/RasterizationState.h>
 #include <vsg/vk/Context.h>
@@ -22,6 +23,15 @@ RasterizationState::RasterizationState()
 
 RasterizationState::~RasterizationState()
 {
+}
+
+int RasterizationState::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_region(depthClampEnable, lineWidth, rhs.depthClampEnable);
 }
 
 void RasterizationState::read(Input& input)

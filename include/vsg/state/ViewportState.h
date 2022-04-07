@@ -43,6 +43,8 @@ namespace vsg
         /// get or create the first Scissor
         VkRect2D& getScissor();
 
+        int compare(const Object& rhs) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
