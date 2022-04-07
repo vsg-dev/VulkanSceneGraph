@@ -26,6 +26,8 @@ namespace vsg
         VkFormat format = VK_FORMAT_UNDEFINED;
         ref_ptr<Data> data;
 
+        int compare(const AttributeBinding& rhs) const;
+
         explicit operator bool() const noexcept { return !name.empty(); }
     };
 
@@ -40,6 +42,8 @@ namespace vsg
         VkShaderStageFlags stageFlags = 0;
         ref_ptr<Data> data;
 
+        int compare(const UniformBinding& rhs) const;
+
         explicit operator bool() const noexcept { return !name.empty(); }
     };
 
@@ -48,6 +52,8 @@ namespace vsg
         std::string name;
         std::string define;
         VkPushConstantRange range;
+
+        int compare(const PushConstantRange& rhs) const;
     };
 
     class VSG_DECLSPEC ShaderSet : public Inherit<Object, ShaderSet>
@@ -86,6 +92,8 @@ namespace vsg
 
         /// get the ShaderStages varient that uses specified ShaderCompileSettings.
         ShaderStages getShaderStages(ref_ptr<ShaderCompileSettings> scs = {});
+
+        int compare(const Object& rhs) const;
 
         void read(Input& input) override;
         void write(Output& output) const override;

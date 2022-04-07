@@ -86,6 +86,22 @@ namespace vsg
         return compare_region(lhs.front(), lhs.back(), rhs.front());
     }
 
+    template<typename T>
+    int compare_container(const T& lhs, const T& rhs)
+    {
+        if (lhs.size() < rhs.size()) return -1;
+        if (lhs.size() > rhs.size()) return 1;
+        if (lhs.empty()) return 0;
+
+        auto rhs_itr = rhs.begin();
+        for (auto& object : lhs)
+        {
+            int result = object.compare(*rhs_itr++);
+            if (result != 0) return result;
+        }
+        return 0;
+    }
+
     /// less functor for comparing ref_pptr<Objects> typically used with std::set<> etc.
     struct DerefenceLess
     {

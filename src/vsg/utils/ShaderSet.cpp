@@ -24,6 +24,52 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+int AttributeBinding::compare(const AttributeBinding& rhs) const
+{
+    if (name < rhs.name) return -1;
+    if (name > rhs.name) return 1;
+
+    if (define < rhs.define) return -1;
+    if (define > rhs.define) return 1;
+
+
+    int result = compare_value(location, rhs.location);
+    if (result) return result;
+
+    if ((result = compare_value(format, rhs.format))) return result;
+    return compare_pointer(data, rhs.data);
+}
+
+int UniformBinding::compare(const UniformBinding& rhs) const
+{
+
+    if (name < rhs.name) return -1;
+    if (name > rhs.name) return 1;
+
+    if (define < rhs.define) return -1;
+    if (define > rhs.define) return 1;
+
+    int result = compare_value(set, rhs.set);
+    if (result) return result;
+
+    if ((result = compare_value(binding, rhs.binding))) return result;
+    if ((result = compare_value(descriptorType, rhs.descriptorType))) return result;
+    if ((result = compare_value(descriptorCount, rhs.descriptorCount))) return result;
+    if ((result = compare_value(stageFlags, rhs.stageFlags))) return result;
+    return compare_pointer(data, rhs.data);
+}
+
+int PushConstantRange::compare(const PushConstantRange& rhs) const
+{
+    if (name < rhs.name) return -1;
+    if (name > rhs.name) return 1;
+
+    if (define < rhs.define) return -1;
+    if (define > rhs.define) return 1;
+
+    return compare_region(range, range, rhs.range);
+}
+
 ShaderSet::ShaderSet()
 {
 }
@@ -99,6 +145,18 @@ ShaderStages ShaderSet::getShaderStages(ref_ptr<ShaderCompileSettings> scs)
     }
 
     return new_stages;
+}
+
+int ShaderSet::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_pointer_container(stages, rhs.stages)) )return result;
+    if ((result = compare_container(attributeBindings, rhs.attributeBindings))) return result;
+    if ((result = compare_container(uniformBindings, rhs.uniformBindings))) return result;
+    return compare_container(pushConstantRanges, rhs.pushConstantRanges);
 }
 
 void ShaderSet::read(Input& input)
