@@ -33,6 +33,7 @@ Options::Options()
 
 Options::Options(const Options& options) :
     Inherit(),
+    sharedObjects(options.sharedObjects),
     objectCache(options.objectCache),
     readerWriters(options.readerWriters),
     operationThreads(options.operationThreads),
