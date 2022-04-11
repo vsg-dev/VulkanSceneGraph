@@ -166,8 +166,41 @@ void ShaderSet::read(Input& input)
     input.readObjects("stages", stages);
 
     auto num_attributeBindings = input.readValue<uint32_t>("attributeBindings");
+    attributeBindings.resize(num_attributeBindings);
+    for(auto& binding : attributeBindings)
+    {
+        input.read("name", binding.name);
+        input.read("define", binding.define);
+        input.read("location", binding.location);
+        input.readValue<uint32_t>("format", binding.format);
+        input.readObject("data", binding.data);
+    }
+
     auto num_uniformBindings = input.readValue<uint32_t>("uniformBindings");
+    uniformBindings.resize(num_uniformBindings);
+    for(auto& binding : uniformBindings)
+    {
+        input.read("name", binding.name);
+        input.read("define", binding.define);
+        input.read("set", binding.set);
+        input.read("binding", binding.binding);
+        input.readValue<uint32_t>("descriptorType", binding.descriptorType);
+        input.read("descriptorCount", binding.descriptorCount);
+        input.readValue<uint32_t>("stageFlags", binding.stageFlags);
+        input.readObject("data", binding.data);
+    }
+
     auto num_pushConstantRanges = input.readValue<uint32_t>("pushConstantRanges");
+    pushConstantRanges.resize(num_pushConstantRanges);
+    for(auto& pcr : pushConstantRanges)
+    {
+        input.read("name", pcr.name);
+        input.read("define", pcr.define);
+        input.readValue<uint32_t>("stageFlags", pcr.range.stageFlags);
+        input.read("offset", pcr.range.offset);
+        input.read("size", pcr.range.size);
+    }
+
     auto num_variants = input.readValue<uint32_t>("variants");
 
     variants.clear();
@@ -176,15 +209,6 @@ void ShaderSet::read(Input& input)
         auto hints = input.readObject<ShaderCompileSettings>("hints");
         input.readObjects("stages", variants[hints]);
     }
-
-#if 0
-    std::vector<AttributeBinding> attributeBindings;
-    std::vector<UniformBinding> uniformBindings;
-    std::vector<PushConstantRange> pushConstantRanges;
-
-    /// variants of the rootShaderModule compiled for differen combinations of ShaderCompileSettings
-    std::map<ref_ptr<ShaderCompileSettings>, ShaderStages, DerefenceLess> variants;
-#endif
 }
 
 void ShaderSet::write(Output& output) const
@@ -194,8 +218,38 @@ void ShaderSet::write(Output& output) const
     output.writeObjects("stages", stages);
 
     output.writeValue<uint32_t>("attributeBindings", attributeBindings.size());
+    for(auto& binding : attributeBindings)
+    {
+        output.write("name", binding.name);
+        output.write("define", binding.define);
+        output.write("location", binding.location);
+        output.writeValue<uint32_t>("format", binding.format);
+        output.writeObject("data", binding.data);
+    }
+
     output.writeValue<uint32_t>("uniformBindings", uniformBindings.size());
+    for(auto& binding : uniformBindings)
+    {
+        output.write("name", binding.name);
+        output.write("define", binding.define);
+        output.write("set", binding.set);
+        output.write("binding", binding.binding);
+        output.writeValue<uint32_t>("descriptorType", binding.descriptorType);
+        output.write("descriptorCount", binding.descriptorCount);
+        output.writeValue<uint32_t>("stageFlags", binding.stageFlags);
+        output.writeObject("data", binding.data);
+    }
+
     output.writeValue<uint32_t>("pushConstantRanges", pushConstantRanges.size());
+    for(auto& pcr : pushConstantRanges)
+    {
+        output.write("name", pcr.name);
+        output.write("define", pcr.define);
+        output.writeValue<uint32_t>("stageFlags", pcr.range.stageFlags);
+        output.write("offset", pcr.range.offset);
+        output.write("size", pcr.range.size);
+    }
+
     output.writeValue<uint32_t>("variants", variants.size());
     for (auto& [hints, variant_stages] : variants)
     {
