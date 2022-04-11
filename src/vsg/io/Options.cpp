@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/threading/OperationThreads.h>
 #include <vsg/utils/CommandLine.h>
 #include <vsg/utils/SharedObjects.h>
+#include <vsg/utils/ShaderSet.h>
 
 using namespace vsg;
 
@@ -44,7 +45,8 @@ Options::Options(const Options& options) :
     extensionHint(options.extensionHint),
     mapRGBtoRGBAHint(options.mapRGBtoRGBAHint),
     sceneCoordinateConvention(options.sceneCoordinateConvention),
-    formatCoordinateConventions(options.formatCoordinateConventions)
+    formatCoordinateConventions(options.formatCoordinateConventions),
+    shaderSets(options.shaderSets)
 {
     getOrCreateUniqueAuxiliary();
     // copy any meta data.

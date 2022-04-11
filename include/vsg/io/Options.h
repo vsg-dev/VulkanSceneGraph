@@ -26,6 +26,7 @@ namespace vsg
     class ReaderWriter;
     class OperationThreads;
     class CommandLine;
+    class ShaderSet;
 
     using ReaderWriters = std::vector<ref_ptr<ReaderWriter>>;
 
@@ -76,11 +77,18 @@ namespace vsg
         std::string extensionHint;
         bool mapRGBtoRGBAHint = true;
 
-        /// coordinate convention to use for scene graph
+        /// Coordinate convention to use for scene graph
         CoordinateConvention sceneCoordinateConvention = CoordinateConvention::Z_UP;
 
-        /// coordinate convention to assume for specified lower case file formats extensions
+        /// Coordinate convention to assume for specified lower case file formats extensions
         std::map<vsg::Path, CoordinateConvention> formatCoordinateConventions;
+
+        /// User defined ShaderSet map, loaders should check the available ShaderSet used the name of the type ShaderSet.
+        /// Standard names are :
+        ///     "pbr" will otherwise default to vsg::createPhysicsBasedRenderingShaderSet()
+        ///     "phong" will otherwise default to vsg::createPhongShaderSet()
+        ///     "flat" will otherwise default to vsg::createFlatShadedShaderSet()
+        std::map<std::string, ref_ptr<ShaderSet>> shaderSets;
 
     protected:
         virtual ~Options();
