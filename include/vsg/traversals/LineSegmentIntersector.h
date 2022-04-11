@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/Intersector.h>
 
 #include <vsg/viewer/Camera.h>
+#include <vsg/core/UserData.h>
 
 namespace vsg
 {
@@ -43,6 +44,8 @@ namespace vsg
             NodePath nodePath;
             DataList arrays;
             IndexRatios indexRatios;
+
+            ref_ptr<UserData> userData;
 
             // return true if Intersection is valid
             operator bool() const { return !nodePath.empty(); }
