@@ -163,16 +163,16 @@ LineSegmentIntersector::LineSegmentIntersector(const Camera& camera, int32_t x, 
     _lineSegmentStack.push_back(LineSegment{world_near, world_far});
 }
 
-void LineSegmentIntersector::add(const dvec3& intersection, double ratio, const IndexRatios& indexRatios)
+void LineSegmentIntersector::add(const dvec3& intersection, double ratio, const IndexRatios& indexRatios, ref_ptr<UserData> userData)
 {
     if (_matrixStack.empty())
     {
-        intersections.emplace_back(Intersection{intersection, intersection, ratio, {}, _nodePath, arrayStateStack.back()->arrays, indexRatios});
+        intersections.emplace_back(Intersection{intersection, intersection, ratio, {}, _nodePath, arrayStateStack.back()->arrays, indexRatios, userData});
     }
     else
     {
         auto& localToWorld = _matrixStack.back();
-        intersections.emplace_back(Intersection{intersection, localToWorld * intersection, ratio, localToWorld, _nodePath, arrayStateStack.back()->arrays, indexRatios});
+        intersections.emplace_back(Intersection{intersection, localToWorld * intersection, ratio, localToWorld, _nodePath, arrayStateStack.back()->arrays, indexRatios, userData});
     }
 }
 

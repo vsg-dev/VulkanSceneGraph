@@ -54,7 +54,7 @@ namespace vsg
         using Intersections = std::vector<Intersection>;
         Intersections intersections;
 
-        void add(const dvec3& intersection, double ratio, const IndexRatios& indexRatios);
+        void add(const dvec3& intersection, double ratio, const IndexRatios& indexRatios, ref_ptr<UserData> userData = ref_ptr<UserData>());
 
         void pushTransform(const Transform& transform) override;
         void popTransform() override;
