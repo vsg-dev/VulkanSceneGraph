@@ -10,7 +10,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/ObjectCache.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/ReaderWriter.h>
 #include <vsg/state/DescriptorSetLayout.h>
@@ -35,7 +34,6 @@ Options::Options()
 Options::Options(const Options& options) :
     Inherit(),
     sharedObjects(options.sharedObjects),
-    objectCache(options.objectCache),
     readerWriters(options.readerWriters),
     operationThreads(options.operationThreads),
     checkFilenameHint(options.checkFilenameHint),
@@ -61,7 +59,7 @@ void Options::read(Input& input)
 {
     Object::read(input);
 
-    input.readObject("objectCache", objectCache);
+    input.readObject("sharedObjects", sharedObjects);
 
     readerWriters.clear();
     uint32_t count = input.readValue<uint32_t>("NumReaderWriters");
@@ -89,7 +87,7 @@ void Options::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeObject("objectCache", objectCache);
+    output.writeObject("sharedObjects", sharedObjects);
 
     output.writeValue<uint32_t>("NumReaderWriters", readerWriters.size());
     for (auto& rw : readerWriters)

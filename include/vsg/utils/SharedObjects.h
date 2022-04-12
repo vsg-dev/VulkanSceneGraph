@@ -106,6 +106,12 @@ namespace vsg
         /// return true if the specified filename is of a type suitable for inclusion in this ShaderObjects
         virtual bool suitable(const Path& filename) const;
 
+        /// check if a cache entry contains an entry for specified filename.
+        virtual bool contains(const Path& filename, ref_ptr<const Options> options = {});
+
+        /// add entry from ObjectCache that matches filename and option.
+        virtual void add(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options = {});
+
         /// clear all the internal structures leaving no Objects cached.
         void clear();
 
@@ -132,9 +138,10 @@ namespace vsg
         ref_ptr<const Options> options;
         ref_ptr<Object> object;
 
-        LoadedObject(const Path& in_filename, ref_ptr<const Options> in_options):
+        LoadedObject(const Path& in_filename, ref_ptr<const Options> in_options, ref_ptr<Object> in_object = {}):
             filename(in_filename),
-            options(in_options) {}
+            options(in_options),
+            object(in_object) {}
 
         int compare(const Object& rhs_object) const
         {

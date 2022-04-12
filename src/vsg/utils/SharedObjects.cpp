@@ -17,6 +17,28 @@ bool SharedObjects::suitable(const Path& filename) const
     return excludedExtensions.count(vsg::lowerCaseFileExtension(filename)) == 0;
 }
 
+bool SharedObjects::contains(const Path& filename, ref_ptr<const Options> options)
+{
+    std::scoped_lock<std::recursive_mutex> lock(_mutex);
+
+    auto loadedObject_id = std::type_index(typeid(LoadedObject));
+    auto& loadedObjects = _sharedObjects[loadedObject_id];
+
+    auto key = LoadedObject::create(filename, options);
+    return loadedObjects.find(key) != loadedObjects.end();
+}
+
+void SharedObjects::add(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options)
+{
+    std::scoped_lock<std::recursive_mutex> lock(_mutex);
+
+    auto loadedObject_id = std::type_index(typeid(LoadedObject));
+    auto& loadedObjects = _sharedObjects[loadedObject_id];
+
+    auto key = LoadedObject::create(filename, options, object);
+    loadedObjects.insert(key);
+}
+
 void SharedObjects::clear()
 {
     std::scoped_lock<std::recursive_mutex> lock(_mutex);
