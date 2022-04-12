@@ -32,7 +32,7 @@ namespace vsg
         using StateCommands = std::vector<ref_ptr<StateCommand>, allocator_affinity_nodes<ref_ptr<StateCommand>>>;
         StateCommands stateCommands;
 
-        /// if the shaders associated with GraphicsPipeline don't treat the array 0 as xyz vertex then provide a ArrayState prototype to provide custom mapping of arrays to vertices.
+        /// if the shaders associated with GraphicsPipeline don't treat the array 0 as xyz vertex then provide an ArrayState prototype to provide custom mapping of arrays to vertices.
         ref_ptr<ArrayState> prototypeArrayState;
 
         template<class T>
