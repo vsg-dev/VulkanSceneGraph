@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/VSG.h>
 #include <vsg/io/read.h>
 #include <vsg/io/spirv.h>
+#include <vsg/utils/SharedObjects.h>
 
 #include <vsg/threading/OperationThreads.h>
 
@@ -50,21 +51,16 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
         }
     };
 
-    if (options && options->objectCache && options->objectCache->suitable(filename))
+    if (options && options->sharedObjects && options->sharedObjects->suitable(filename))
     {
-        auto& ot = options->objectCache->getObjectTimepoint(filename, options);
+        auto loadedObject = LoadedObject::create(filename, options);
 
-        std::scoped_lock<std::mutex> guard(ot.mutex);
-        if (ot.object)
+        options->sharedObjects->share(loadedObject, [&](auto load)
         {
-            return ot.object;
-        }
+            load->object = read_file();
+        });
 
-        ot.object = read_file();
-        ot.unusedDurationBeforeExpiry = options->objectCache->getDefaultUnusedDuration();
-        ot.lastUsedTimepoint = vsg::clock::now();
-
-        return ot.object;
+        return loadedObject->object;
     }
     else
     {
