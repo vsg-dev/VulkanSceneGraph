@@ -32,7 +32,6 @@ int AttributeBinding::compare(const AttributeBinding& rhs) const
     if (define < rhs.define) return -1;
     if (define > rhs.define) return 1;
 
-
     int result = compare_value(location, rhs.location);
     if (result) return result;
 
@@ -42,7 +41,6 @@ int AttributeBinding::compare(const AttributeBinding& rhs) const
 
 int UniformBinding::compare(const UniformBinding& rhs) const
 {
-
     if (name < rhs.name) return -1;
     if (name > rhs.name) return 1;
 
@@ -114,6 +112,34 @@ const UniformBinding& ShaderSet::getUniformBinding(const std::string& name) cons
         if (binding.name == name) return binding;
     }
     return _nullUniformBinding;
+}
+
+ref_ptr<ArrayState> ShaderSet::getSuitableArrayState(const std::vector<std::string>& defines) const
+{
+    // make sure the defines are unique.  TODO: figure out a better way of handling defines in ShaderHits etc.
+    std::set<std::string> uniqueDefines;
+    for(auto& define : defines)
+    {
+        uniqueDefines.insert(define);
+    }
+
+    for(auto& definesArrayState : definesArrayStates)
+    {
+        size_t numMatches = 0;
+        for(auto& define : uniqueDefines)
+        {
+            if (std::find(definesArrayState.defines.begin(), definesArrayState.defines.end(), define) != definesArrayState.defines.end())
+            {
+                ++numMatches;
+            }
+        }
+        if (definesArrayState.defines.size() == numMatches)
+        {
+            return definesArrayState.arrayState;
+        }
+    }
+
+    return {};
 }
 
 ShaderStages ShaderSet::getShaderStages(ref_ptr<ShaderCompileSettings> scs)
@@ -201,8 +227,15 @@ void ShaderSet::read(Input& input)
         input.read("size", pcr.range.size);
     }
 
-    auto num_variants = input.readValue<uint32_t>("variants");
+    auto num_definesArrayStates = input.readValue<uint32_t>("definesArrayStates");
+    definesArrayStates.resize(num_definesArrayStates);
+    for(auto& das : definesArrayStates)
+    {
+        input.readValues("defines", das.defines);
+        input.readObject("arrayState", das.arrayState);
+    }
 
+    auto num_variants = input.readValue<uint32_t>("variants");
     variants.clear();
     for (uint32_t i = 0; i < num_variants; ++i)
     {
@@ -250,6 +283,13 @@ void ShaderSet::write(Output& output) const
         output.write("size", pcr.range.size);
     }
 
+    output.writeValue<uint32_t>("definesArrayStates", definesArrayStates.size());
+    for(auto& das : definesArrayStates)
+    {
+        output.writeValues("defines", das.defines);
+        output.writeObject("arrayState", das.arrayState);
+    }
+
     output.writeValue<uint32_t>("variants", variants.size());
     for (auto& [hints, variant_stages] : variants)
     {
@@ -286,6 +326,10 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createFlatShadedShaderSet(ref_ptr<const Opt
 
     shaderSet->addPushConstantRange("pc", "", VK_SHADER_STAGE_VERTEX_BIT, 0, 128);
 
+    shaderSet->definesArrayStates.push_back(DefinesArrayState{{"VSG_INSTANCE_POSITIONS", "VSG_DISPLACEMENT_MAP"}, PositionAndDisplacementMapArrayState::create()});
+    shaderSet->definesArrayStates.push_back(DefinesArrayState{{"VSG_INSTANCE_POSITIONS"}, PositionArrayState::create()});
+    shaderSet->definesArrayStates.push_back(DefinesArrayState{{"VSG_DISPLACEMENT_MAP"}, DisplacementMapArrayState::create()});
+
     return shaderSet;
 }
 
@@ -320,8 +364,14 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhongShaderSet(ref_ptr<const Options>
 
     shaderSet->addPushConstantRange("pc", "", VK_SHADER_STAGE_VERTEX_BIT, 0, 128);
 
+    shaderSet->definesArrayStates.push_back(DefinesArrayState{{"VSG_INSTANCE_POSITIONS", "VSG_DISPLACEMENT_MAP"}, PositionAndDisplacementMapArrayState::create()});
+    shaderSet->definesArrayStates.push_back(DefinesArrayState{{"VSG_INSTANCE_POSITIONS"}, PositionArrayState::create()});
+    shaderSet->definesArrayStates.push_back(DefinesArrayState{{"VSG_DISPLACEMENT_MAP"}, DisplacementMapArrayState::create()});
+
     return shaderSet;
 }
+
+
 
 VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_ptr<const Options> options)
 {
@@ -359,6 +409,10 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_pt
     // VSG_GREYSACLE_DIFFUSE_MAP, VSG_TWOSIDED, VSG_WORKFLOW_SPECGLOSS
 
     shaderSet->addPushConstantRange("pc", "", VK_SHADER_STAGE_VERTEX_BIT, 0, 128);
+
+    shaderSet->definesArrayStates.push_back(DefinesArrayState{{"VSG_INSTANCE_POSITIONS", "VSG_DISPLACEMENT_MAP"}, PositionAndDisplacementMapArrayState::create()});
+    shaderSet->definesArrayStates.push_back(DefinesArrayState{{"VSG_INSTANCE_POSITIONS"}, PositionArrayState::create()});
+    shaderSet->definesArrayStates.push_back(DefinesArrayState{{"VSG_DISPLACEMENT_MAP"}, DisplacementMapArrayState::create()});
 
     return shaderSet;
 }

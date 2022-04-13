@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/compare.h>
 #include <vsg/state/ShaderStage.h>
+#include <vsg/traversals/ArrayState.h>
 
 namespace vsg
 {
@@ -56,6 +57,12 @@ namespace vsg
         int compare(const PushConstantRange& rhs) const;
     };
 
+    struct DefinesArrayState
+    {
+        std::vector<std::string> defines;
+        ref_ptr<ArrayState> arrayState;
+    };
+
     class VSG_DECLSPEC ShaderSet : public Inherit<Object, ShaderSet>
     {
     public:
@@ -68,6 +75,7 @@ namespace vsg
         std::vector<AttributeBinding> attributeBindings;
         std::vector<UniformBinding> uniformBindings;
         std::vector<PushConstantRange> pushConstantRanges;
+        std::vector<DefinesArrayState> definesArrayStates; // put more constrained ArrayState matches first so they are matched first.
 
         /// variants of the rootShaderModule compiled for differen combinations of ShaderCompileSettings
         std::map<ref_ptr<ShaderCompileSettings>, ShaderStages, DerefenceLess> variants;
@@ -84,11 +92,14 @@ namespace vsg
         /// add an uniform binding. Not thread safe, should only be called when initially setting up the ShaderSet
         void addPushConstantRange(std::string name, std::string define, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size);
 
-        // get the AttributeBinding associated with name
+        /// get the AttributeBinding associated with name
         const AttributeBinding& getAttributeBinding(const std::string& name) const;
 
-        // get the AttributeBinding associated with name
+        /// get the AttributeBinding associated with name
         const UniformBinding& getUniformBinding(const std::string& name) const;
+
+        /// get the first ArrayState that has matches with defines in the specified list of defines.
+        ref_ptr<ArrayState> getSuitableArrayState(const std::vector<std::string>& defines) const;
 
         /// get the ShaderStages varient that uses specified ShaderCompileSettings.
         ShaderStages getShaderStages(ref_ptr<ShaderCompileSettings> scs = {});
@@ -105,6 +116,26 @@ namespace vsg
         const UniformBinding _nullUniformBinding;
     };
     VSG_type_name(vsg::ShaderSet);
+
+
+    class PositionAndDisplacementMapArrayState : public Inherit<ArrayState, PositionAndDisplacementMapArrayState>
+    {
+    public:
+    };
+    VSG_type_name(vsg::PositionAndDisplacementMapArrayState);
+
+    class DisplacementMapArrayState : public Inherit<ArrayState, DisplacementMapArrayState>
+    {
+    public:
+    };
+    VSG_type_name(vsg::DisplacementMapArrayState);
+
+    class PositionArrayState : public Inherit<ArrayState, PositionArrayState>
+    {
+    public:
+    };
+    VSG_type_name(vsg::PositionArrayState);
+
 
     /// create a ShaderSet for unlit, flat shaded rendering
     extern VSG_DECLSPEC ref_ptr<ShaderSet> createFlatShadedShaderSet(ref_ptr<const Options> options = {});

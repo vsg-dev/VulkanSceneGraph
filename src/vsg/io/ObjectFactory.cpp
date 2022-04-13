@@ -282,6 +282,9 @@ ObjectFactory::ObjectFactory()
     // utils
     VSG_REGISTER_create(vsg::AnimationPath);
     VSG_REGISTER_create(vsg::ShaderSet);
+    VSG_REGISTER_create(vsg::PositionAndDisplacementMapArrayState);
+    VSG_REGISTER_create(vsg::DisplacementMapArrayState);
+    VSG_REGISTER_create(vsg::PositionArrayState);
 
     // application
     VSG_REGISTER_create(vsg::EllipsoidModel);
