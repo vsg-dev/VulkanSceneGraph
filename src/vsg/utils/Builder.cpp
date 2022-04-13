@@ -145,9 +145,9 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     auto stateGroup = vsg::StateGroup::create();
     stateGroup->add(graphicsPipelineConfig->bindGraphicsPipeline);
     stateGroup->add(bindDescriptorSet);
-    stateGroup->prototypeArrayState = shaderSet->getSuitableArrayState(graphicsPipelineConfig->shaderHints->defines);
 
-    std::cout<<"Suitable ArrayState "<< stateGroup->prototypeArrayState<<std::endl;
+    // assign any custom ArrayState that may be required.
+    stateGroup->prototypeArrayState = shaderSet->getSuitableArrayState(graphicsPipelineConfig->shaderHints->defines);
 
     auto bindViewDescriptorSets = BindViewDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipelineConfig->layout, 1);
     if (sharedObjects) sharedObjects->share(bindViewDescriptorSets);
