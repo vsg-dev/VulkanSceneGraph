@@ -129,9 +129,11 @@ void Intersector::apply(const VertexIndexDraw& vid)
 
     PushPopNode ppn(_nodePath, &vid);
 
+#if 0
     dsphere bound;
     if (!vid.getValue("bound", bound))
     {
+        // TODO ignores instancing
         box bb;
         for (auto& vertex : *arrayState.vertices) bb.add(vertex);
 
@@ -153,8 +155,12 @@ void Intersector::apply(const VertexIndexDraw& vid)
 
     if (intersects(bound))
     {
-        intersectDrawIndexed(vid.firstIndex, vid.indexCount);
+
+        intersectDrawIndexed(vid.firstIndex, vid.indexCount, vid.firstInstance, vid.instanceCount);
     }
+#else
+    intersectDrawIndexed(vid.firstIndex, vid.indexCount, vid.firstInstance, vid.instanceCount);
+#endif
 }
 
 void Intersector::apply(const Geometry& geometry)
@@ -204,12 +210,12 @@ void Intersector::apply(const Draw& draw)
 {
     PushPopNode ppn(_nodePath, &draw);
 
-    intersectDraw(draw.firstVertex, draw.vertexCount);
+    intersectDraw(draw.firstVertex, draw.vertexCount, draw.firstInstance, draw.instanceCount);
 }
 
 void Intersector::apply(const DrawIndexed& drawIndexed)
 {
     PushPopNode ppn(_nodePath, &drawIndexed);
 
-    intersectDrawIndexed(drawIndexed.firstIndex, drawIndexed.indexCount);
+    intersectDrawIndexed(drawIndexed.firstIndex, drawIndexed.indexCount, drawIndexed.firstInstance, drawIndexed.instanceCount);
 }

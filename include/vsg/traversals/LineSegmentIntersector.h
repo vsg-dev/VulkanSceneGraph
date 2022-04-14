@@ -72,8 +72,8 @@ namespace vsg
         /// check for intersection intersects with sphere
         bool intersects(const dsphere& bs) override;
 
-        bool intersectDraw(uint32_t firstVertex, uint32_t vertexCount) override;
-        bool intersectDrawIndexed(uint32_t firstIndex, uint32_t indexCount) override;
+        bool intersectDraw(uint32_t firstVertex, uint32_t vertexCount, uint32_t firstInstance, uint32_t instanceCount) override;
+        bool intersectDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount) override;
 
     protected:
         struct LineSegment
