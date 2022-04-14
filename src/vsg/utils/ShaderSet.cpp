@@ -118,15 +118,15 @@ ref_ptr<ArrayState> ShaderSet::getSuitableArrayState(const std::vector<std::stri
 {
     // make sure the defines are unique.  TODO: figure out a better way of handling defines in ShaderHits etc.
     std::set<std::string> uniqueDefines;
-    for(auto& define : defines)
+    for (auto& define : defines)
     {
         uniqueDefines.insert(define);
     }
 
-    for(auto& definesArrayState : definesArrayStates)
+    for (auto& definesArrayState : definesArrayStates)
     {
         size_t numMatches = 0;
-        for(auto& define : uniqueDefines)
+        for (auto& define : uniqueDefines)
         {
             if (std::find(definesArrayState.defines.begin(), definesArrayState.defines.end(), define) != definesArrayState.defines.end())
             {
@@ -179,7 +179,7 @@ int ShaderSet::compare(const Object& rhs_object) const
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
-    if ((result = compare_pointer_container(stages, rhs.stages)) )return result;
+    if ((result = compare_pointer_container(stages, rhs.stages))) return result;
     if ((result = compare_container(attributeBindings, rhs.attributeBindings))) return result;
     if ((result = compare_container(uniformBindings, rhs.uniformBindings))) return result;
     return compare_container(pushConstantRanges, rhs.pushConstantRanges);
@@ -193,7 +193,7 @@ void ShaderSet::read(Input& input)
 
     auto num_attributeBindings = input.readValue<uint32_t>("attributeBindings");
     attributeBindings.resize(num_attributeBindings);
-    for(auto& binding : attributeBindings)
+    for (auto& binding : attributeBindings)
     {
         input.read("name", binding.name);
         input.read("define", binding.define);
@@ -204,7 +204,7 @@ void ShaderSet::read(Input& input)
 
     auto num_uniformBindings = input.readValue<uint32_t>("uniformBindings");
     uniformBindings.resize(num_uniformBindings);
-    for(auto& binding : uniformBindings)
+    for (auto& binding : uniformBindings)
     {
         input.read("name", binding.name);
         input.read("define", binding.define);
@@ -218,7 +218,7 @@ void ShaderSet::read(Input& input)
 
     auto num_pushConstantRanges = input.readValue<uint32_t>("pushConstantRanges");
     pushConstantRanges.resize(num_pushConstantRanges);
-    for(auto& pcr : pushConstantRanges)
+    for (auto& pcr : pushConstantRanges)
     {
         input.read("name", pcr.name);
         input.read("define", pcr.define);
@@ -229,7 +229,7 @@ void ShaderSet::read(Input& input)
 
     auto num_definesArrayStates = input.readValue<uint32_t>("definesArrayStates");
     definesArrayStates.resize(num_definesArrayStates);
-    for(auto& das : definesArrayStates)
+    for (auto& das : definesArrayStates)
     {
         input.readValues("defines", das.defines);
         input.readObject("arrayState", das.arrayState);
@@ -251,7 +251,7 @@ void ShaderSet::write(Output& output) const
     output.writeObjects("stages", stages);
 
     output.writeValue<uint32_t>("attributeBindings", attributeBindings.size());
-    for(auto& binding : attributeBindings)
+    for (auto& binding : attributeBindings)
     {
         output.write("name", binding.name);
         output.write("define", binding.define);
@@ -261,7 +261,7 @@ void ShaderSet::write(Output& output) const
     }
 
     output.writeValue<uint32_t>("uniformBindings", uniformBindings.size());
-    for(auto& binding : uniformBindings)
+    for (auto& binding : uniformBindings)
     {
         output.write("name", binding.name);
         output.write("define", binding.define);
@@ -274,7 +274,7 @@ void ShaderSet::write(Output& output) const
     }
 
     output.writeValue<uint32_t>("pushConstantRanges", pushConstantRanges.size());
-    for(auto& pcr : pushConstantRanges)
+    for (auto& pcr : pushConstantRanges)
     {
         output.write("name", pcr.name);
         output.write("define", pcr.define);
@@ -284,7 +284,7 @@ void ShaderSet::write(Output& output) const
     }
 
     output.writeValue<uint32_t>("definesArrayStates", definesArrayStates.size());
-    for(auto& das : definesArrayStates)
+    for (auto& das : definesArrayStates)
     {
         output.writeValues("defines", das.defines);
         output.writeObject("arrayState", das.arrayState);
@@ -320,8 +320,8 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createFlatShadedShaderSet(ref_ptr<const Opt
     shaderSet->addAttributeBinding("vsg_Color", "", 3, VK_FORMAT_R32G32B32A32_SFLOAT, vsg::vec4Array::create(1));
     shaderSet->addAttributeBinding("vsg_position", "VSG_INSTANCE_POSITIONS", 3, VK_FORMAT_R32G32B32_SFLOAT, vsg::vec3Array::create(1));
 
-    shaderSet->addUniformBinding("displacementMap", "VSG_DISPLACEMENT_MAP", 0, 6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_VERTEX_BIT, vsg::vec4Array2D::create(1,1));
-    shaderSet->addUniformBinding("diffuseMap", "VSG_DIFFUSE_MAP", 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1,1));
+    shaderSet->addUniformBinding("displacementMap", "VSG_DISPLACEMENT_MAP", 0, 6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_VERTEX_BIT, vsg::vec4Array2D::create(1, 1));
+    shaderSet->addUniformBinding("diffuseMap", "VSG_DIFFUSE_MAP", 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1, 1));
     shaderSet->addUniformBinding("material", "", 0, 10, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::PhongMaterialValue::create());
 
     shaderSet->addPushConstantRange("pc", "", VK_SHADER_STAGE_VERTEX_BIT, 0, 128);
@@ -354,11 +354,11 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhongShaderSet(ref_ptr<const Options>
     shaderSet->addAttributeBinding("vsg_Color", "", 3, VK_FORMAT_R32G32B32A32_SFLOAT, vsg::vec4Array::create(1));
     shaderSet->addAttributeBinding("vsg_position", "VSG_INSTANCE_POSITIONS", 4, VK_FORMAT_R32G32B32_SFLOAT, vsg::vec3Array::create(1));
 
-    shaderSet->addUniformBinding("displacementMap", "VSG_DISPLACEMENT_MAP", 0, 6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_VERTEX_BIT, vsg::vec4Array2D::create(1,1));
-    shaderSet->addUniformBinding("diffuseMap", "VSG_DIFFUSE_MAP", 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1,1));
-    shaderSet->addUniformBinding("normalMap", "VSG_NORMAL_MAP", 0, 2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec3Array2D::create(1,1));
-    shaderSet->addUniformBinding("aoMap", "VSG_LIGHTMAP_MAP", 0, 3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1,1));
-    shaderSet->addUniformBinding("emissiveMap", "VSG_EMISSIVE_MAP", 0, 4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1,1));
+    shaderSet->addUniformBinding("displacementMap", "VSG_DISPLACEMENT_MAP", 0, 6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_VERTEX_BIT, vsg::vec4Array2D::create(1, 1));
+    shaderSet->addUniformBinding("diffuseMap", "VSG_DIFFUSE_MAP", 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1, 1));
+    shaderSet->addUniformBinding("normalMap", "VSG_NORMAL_MAP", 0, 2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec3Array2D::create(1, 1));
+    shaderSet->addUniformBinding("aoMap", "VSG_LIGHTMAP_MAP", 0, 3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1, 1));
+    shaderSet->addUniformBinding("emissiveMap", "VSG_EMISSIVE_MAP", 0, 4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1, 1));
     shaderSet->addUniformBinding("material", "", 0, 10, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::PhongMaterialValue::create());
     shaderSet->addUniformBinding("lightData", "VSG_VIEW_LIGHT_DATA", 1, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array::create(64));
 
@@ -370,8 +370,6 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhongShaderSet(ref_ptr<const Options>
 
     return shaderSet;
 }
-
-
 
 VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_ptr<const Options> options)
 {
@@ -395,13 +393,13 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_pt
     shaderSet->addAttributeBinding("vsg_Color", "", 3, VK_FORMAT_R32G32B32A32_SFLOAT, vsg::vec4Array::create(1));
     shaderSet->addAttributeBinding("vsg_position", "VSG_INSTANCE_POSITIONS", 3, VK_FORMAT_R32G32B32_SFLOAT, vsg::vec3Array::create(1));
 
-    shaderSet->addUniformBinding("displacementMap", "VSG_DISPLACEMENT_MAP", 0, 6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_VERTEX_BIT, vsg::vec4Array2D::create(1,1));
-    shaderSet->addUniformBinding("diffuseMap", "VSG_DIFFUSE_MAP", 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1,1));
-    shaderSet->addUniformBinding("mrMap", "VSG_METALLROUGHNESS_MAP", 0, 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1,1));
-    shaderSet->addUniformBinding("normalMap", "VSG_NORMAL_MAP", 0, 2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec3Array2D::create(1,1));
-    shaderSet->addUniformBinding("aoMap", "VSG_LIGHTMAP_MAP", 0, 3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1,1));
-    shaderSet->addUniformBinding("emissiveMap", "VSG_EMISSIVE_MAP", 0, 4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1,1));
-    shaderSet->addUniformBinding("specularMap", "VSG_SPECULAR_MAP", 0, 5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1,1));
+    shaderSet->addUniformBinding("displacementMap", "VSG_DISPLACEMENT_MAP", 0, 6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_VERTEX_BIT, vsg::vec4Array2D::create(1, 1));
+    shaderSet->addUniformBinding("diffuseMap", "VSG_DIFFUSE_MAP", 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1, 1));
+    shaderSet->addUniformBinding("mrMap", "VSG_METALLROUGHNESS_MAP", 0, 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1, 1));
+    shaderSet->addUniformBinding("normalMap", "VSG_NORMAL_MAP", 0, 2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec3Array2D::create(1, 1));
+    shaderSet->addUniformBinding("aoMap", "VSG_LIGHTMAP_MAP", 0, 3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1, 1));
+    shaderSet->addUniformBinding("emissiveMap", "VSG_EMISSIVE_MAP", 0, 4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1, 1));
+    shaderSet->addUniformBinding("specularMap", "VSG_SPECULAR_MAP", 0, 5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1, 1));
     shaderSet->addUniformBinding("material", "", 0, 10, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::PbrMaterialValue::create());
     shaderSet->addUniformBinding("lightData", "VSG_VIEW_LIGHT_DATA", 1, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array::create(64));
 
@@ -427,24 +425,24 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_pt
 
 PositionArrayState::PositionArrayState()
 {
-    std::cout<<"PositionArrayState::PositionArrayState() "<<this<<std::endl;
+    std::cout << "PositionArrayState::PositionArrayState() " << this << std::endl;
 }
 
-PositionArrayState::PositionArrayState(const PositionArrayState& rhs):
+PositionArrayState::PositionArrayState(const PositionArrayState& rhs) :
     Inherit(rhs)
 {
-    std::cout<<"PositionArrayState::PositionArrayState(const PositionArrayState& "<<&rhs<<") "<<this<<std::endl;
+    std::cout << "PositionArrayState::PositionArrayState(const PositionArrayState& " << &rhs << ") " << this << std::endl;
 }
 
-PositionArrayState::PositionArrayState(const ArrayState& rhs):
+PositionArrayState::PositionArrayState(const ArrayState& rhs) :
     Inherit(rhs)
 {
-    std::cout<<"PositionArrayState::PositionArrayState(const ArrayState& "<<&rhs<<") "<<this<<std::endl;
+    std::cout << "PositionArrayState::PositionArrayState(const ArrayState& " << &rhs << ") " << this << std::endl;
 }
 
 ref_ptr<ArrayState> PositionArrayState::clone()
 {
-    std::cout<<"PositionArrayState::clone() "<<this<<std::endl;
+    std::cout << "PositionArrayState::clone() " << this << std::endl;
     return PositionArrayState::create(*this);
 }
 
@@ -457,18 +455,18 @@ ref_ptr<ArrayState> PositionArrayState::clone(ref_ptr<ArrayState> arrayState)
 
 void PositionArrayState::apply(uint32_t firstBinding, const BufferInfoList& in_arrays)
 {
-    std::cout<<"PositionArrayState::apply("<<firstBinding<<", "<<in_arrays.size()<<std::endl;
+    std::cout << "PositionArrayState::apply(" << firstBinding << ", " << in_arrays.size() << std::endl;
     ArrayState::apply(firstBinding, in_arrays);
 }
 
 void PositionArrayState::apply(const vsg::vec3Array& in_array)
 {
-    std::cout<<"PositionArrayState::apply("<<in_array.className()<<")"<<std::endl;
+    std::cout << "PositionArrayState::apply(" << in_array.className() << ")" << std::endl;
     ArrayState::apply(in_array);
 }
 
 void PositionArrayState::apply(const vsg::Data& in_array)
 {
-    std::cout<<"PositionArrayState::apply("<<in_array.className()<<")"<<std::endl;
+    std::cout << "PositionArrayState::apply(" << in_array.className() << ")" << std::endl;
     ArrayState::apply(in_array);
 }

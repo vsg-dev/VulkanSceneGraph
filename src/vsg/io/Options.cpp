@@ -15,8 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/DescriptorSetLayout.h>
 #include <vsg/threading/OperationThreads.h>
 #include <vsg/utils/CommandLine.h>
-#include <vsg/utils/SharedObjects.h>
 #include <vsg/utils/ShaderSet.h>
+#include <vsg/utils/SharedObjects.h>
 
 using namespace vsg;
 

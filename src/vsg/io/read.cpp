@@ -54,8 +54,7 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
     {
         auto loadedObject = LoadedObject::create(filename, options);
 
-        options->sharedObjects->share(loadedObject, [&](auto load)
-        {
+        options->sharedObjects->share(loadedObject, [&](auto load) {
             load->object = read_file();
         });
 

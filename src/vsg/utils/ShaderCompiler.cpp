@@ -21,8 +21,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    include <glslang/Public/ShaderLang.h>
 #    include <glslang/SPIRV/GlslangToSpv.h>
 
-#    include "ResourceLimits.h"
 #    include "ResourceLimits.cpp"
+#    include "ResourceLimits.h"
 #endif
 
 #include <algorithm>

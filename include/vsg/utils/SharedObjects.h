@@ -138,7 +138,7 @@ namespace vsg
         ref_ptr<const Options> options;
         ref_ptr<Object> object;
 
-        LoadedObject(const Path& in_filename, ref_ptr<const Options> in_options, ref_ptr<Object> in_object = {}):
+        LoadedObject(const Path& in_filename, ref_ptr<const Options> in_options, ref_ptr<Object> in_object = {}) :
             filename(in_filename),
             options(in_options),
             object(in_object) {}

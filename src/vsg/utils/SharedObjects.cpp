@@ -55,20 +55,20 @@ void SharedObjects::prune()
     // record observerr pointers for each LoadedOjbect object so we can clear them to prevent local references keeping them from being pruned
     auto& loadedObjects = _sharedObjects[loadedObject_id];
     std::vector<observer_ptr<Object>> observedLoadedObjects(loadedObjects.size());
-    auto observedLoadedObject_itr  = observedLoadedObjects.begin();
-    for(auto& object : loadedObjects)
+    auto observedLoadedObject_itr = observedLoadedObjects.begin();
+    for (auto& object : loadedObjects)
     {
         auto& loadedObject = static_cast<LoadedObject&>(*object);
-        *(observedLoadedObject_itr ++) = loadedObject.object;
+        *(observedLoadedObject_itr++) = loadedObject.object;
         loadedObject.object = {};
     }
 
     // record observerr pointers for each shared default object so we can clear them to prevent local references keeping them from being pruned
     std::vector<observer_ptr<Object>> observedDefaults(_defaults.size());
-    auto observedDefaults_itr  = observedDefaults.begin();
-    for(auto defaults_itr = _defaults.begin(); defaults_itr != _defaults.end(); ++defaults_itr)
+    auto observedDefaults_itr = observedDefaults.begin();
+    for (auto defaults_itr = _defaults.begin(); defaults_itr != _defaults.end(); ++defaults_itr)
     {
-        *(observedDefaults_itr ++) = defaults_itr->second;
+        *(observedDefaults_itr++) = defaults_itr->second;
     }
     _defaults.clear();
 
@@ -77,15 +77,15 @@ void SharedObjects::prune()
     do
     {
         prunedObjects = false;
-        for(auto itr = _sharedObjects.begin(); itr != _sharedObjects.end(); ++itr)
+        for (auto itr = _sharedObjects.begin(); itr != _sharedObjects.end(); ++itr)
         {
             auto id = itr->first;
             auto& objects = itr->second;
             if (id != loadedObject_id)
             {
-                for(auto object_itr = itr->second.begin(); object_itr != itr->second.end();)
+                for (auto object_itr = itr->second.begin(); object_itr != itr->second.end();)
                 {
-                    if ((*object_itr)->referenceCount()==1)
+                    if ((*object_itr)->referenceCount() == 1)
                     {
                         object_itr = objects.erase(object_itr);
                         prunedObjects = true;
@@ -100,7 +100,7 @@ void SharedObjects::prune()
     } while (prunedObjects);
 
     observedLoadedObject_itr = observedLoadedObjects.begin();
-    for(auto object_itr = loadedObjects.begin(); object_itr != loadedObjects.end();)
+    for (auto object_itr = loadedObjects.begin(); object_itr != loadedObjects.end();)
     {
         auto& loadedObject = static_cast<LoadedObject&>(*(*object_itr));
         loadedObject.object = *(observedLoadedObject_itr++);
@@ -115,7 +115,7 @@ void SharedObjects::prune()
     }
 
     // reassign any default objects that still have references
-    for(auto& observerDefault : observedDefaults)
+    for (auto& observerDefault : observedDefaults)
     {
         ref_ptr<Object> defaultObject = observerDefault;
         if (defaultObject)

@@ -35,30 +35,31 @@ namespace vsg
 
         class Intersection : public Inherit<Object, Intersection>
         {
-            public:
-                Intersection(){}
-                
-                Intersection(dvec3 in_localIntersection, dvec3 in_worldIntersection, double in_ratio, dmat4 in_localToWord, NodePath in_nodePath, DataList in_arrays, IndexRatios in_indexRatios) :
-                    localIntersection(in_localIntersection),
-                    worldIntersection(in_worldIntersection),
-                    ratio(in_ratio),
-                    localToWord(in_localToWord),
-                    nodePath(in_nodePath),
-                    arrays(in_arrays),
-                    indexRatios(in_indexRatios)
-                    {}
+        public:
+            Intersection() {}
 
-                dvec3 localIntersection;
-                dvec3 worldIntersection;
-                double ratio = 0.0;
+            Intersection(dvec3 in_localIntersection, dvec3 in_worldIntersection, double in_ratio, dmat4 in_localToWord, NodePath in_nodePath, DataList in_arrays, IndexRatios in_indexRatios) :
+                localIntersection(in_localIntersection),
+                worldIntersection(in_worldIntersection),
+                ratio(in_ratio),
+                localToWord(in_localToWord),
+                nodePath(in_nodePath),
+                arrays(in_arrays),
+                indexRatios(in_indexRatios)
+            {
+            }
 
-                dmat4 localToWord;
-                NodePath nodePath;
-                DataList arrays;
-                IndexRatios indexRatios;
+            dvec3 localIntersection;
+            dvec3 worldIntersection;
+            double ratio = 0.0;
 
-                // return true if Intersection is valid
-                operator bool() const { return !nodePath.empty(); }
+            dmat4 localToWord;
+            NodePath nodePath;
+            DataList arrays;
+            IndexRatios indexRatios;
+
+            // return true if Intersection is valid
+            operator bool() const { return !nodePath.empty(); }
         };
 
         using Intersections = std::vector<ref_ptr<Intersection>>;

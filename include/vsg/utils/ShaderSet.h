@@ -117,7 +117,6 @@ namespace vsg
     };
     VSG_type_name(vsg::ShaderSet);
 
-
     class VSG_DECLSPEC PositionAndDisplacementMapArrayState : public Inherit<ArrayState, PositionAndDisplacementMapArrayState>
     {
     public:
@@ -145,7 +144,6 @@ namespace vsg
         void apply(const vsg::Data& array) override;
     };
     VSG_type_name(vsg::PositionArrayState);
-
 
     /// create a ShaderSet for unlit, flat shaded rendering
     extern VSG_DECLSPEC ref_ptr<ShaderSet> createFlatShadedShaderSet(ref_ptr<const Options> options = {});

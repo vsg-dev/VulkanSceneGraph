@@ -47,8 +47,10 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
 {
     if (!sharedObjects)
     {
-        if (options) sharedObjects = options->sharedObjects;
-        else sharedObjects = vsg::SharedObjects::create();
+        if (options)
+            sharedObjects = options->sharedObjects;
+        else
+            sharedObjects = vsg::SharedObjects::create();
     }
     if (!shaderSet)
     {
@@ -98,14 +100,14 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
 
     if (sharedObjects) sharedObjects->share(descriptors);
 
-
     // set up ViewDependentState
     defines.push_back("VSG_VIEW_LIGHT_DATA");
     ref_ptr<ViewDescriptorSetLayout> vdsl;
-    if (sharedObjects) vdsl = sharedObjects->shared_default<ViewDescriptorSetLayout>();
-    else vdsl = ViewDescriptorSetLayout::create();
+    if (sharedObjects)
+        vdsl = sharedObjects->shared_default<ViewDescriptorSetLayout>();
+    else
+        vdsl = ViewDescriptorSetLayout::create();
     graphicsPipelineConfig->additionalDescrptorSetLayout = vdsl;
-
 
     graphicsPipelineConfig->enableArray("vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, 12);
     graphicsPipelineConfig->enableArray("vsg_Normal", VK_VERTEX_INPUT_RATE_VERTEX, 12);
@@ -132,8 +134,10 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     }
 
     // if required initialize GraphicsPipeline/Layout etc.
-    if (sharedObjects) sharedObjects->share(graphicsPipelineConfig, [](auto gpc) { gpc->init(); });
-    else graphicsPipelineConfig->init();
+    if (sharedObjects)
+        sharedObjects->share(graphicsPipelineConfig, [](auto gpc) { gpc->init(); });
+    else
+        graphicsPipelineConfig->init();
 
     auto descriptorSet = vsg::DescriptorSet::create(graphicsPipelineConfig->descriptorSetLayout, descriptors);
     if (sharedObjects) sharedObjects->share(descriptorSet);
