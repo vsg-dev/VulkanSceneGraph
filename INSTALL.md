@@ -167,15 +167,19 @@ The VSG has one dependency, the Vulkan SDK itself. LunarG provides a convenient 
 
 [Vulkan Downloads](https://vulkan.lunarg.com/sdk/home#windows)
 
-From there download and install the Vulkan SDK (1.1 or later) and the Vulkan runtime. Once installed we need to let CMake know where to find the Vulkan SDK. The VSG uses the VULKAN_SDK environment variable to find the Vulkan SDK so go ahead and add it.
+From there download and install the Vulkan SDK (1.2.162.0 or later) and the Vulkan runtime. Once installed we need to let CMake know where to find the Vulkan SDK. The Vulkan installer should add both ```VK_SDK_PATH``` and ```VULKAN_SDK```. If either of those are not present - add them.
 
-	VULKAN_SDK = C:\VulkanSDK\1.1.85.0
+    VK_SDK_PATH = C:\VulkanSDK\1.2.162.0
+    VULKAN_SDK = C:\VulkanSDK\1.2.162.0
 
 So now we have the Vulkan SDK installed and findable by CMake so we can go ahead and build VSG. Below are simple instructions for downloading the VSG source code, generating a Visual Studio project using CMake and finally building and installing VSG onto your system.
 
     git clone https://github.com/vsg-dev/VulkanSceneGraph.git
     cd VulkanSceneGraph
-    cmake . -G "Visual Studio 15 2017 Win64"
+    mkdir build & cd build
+    cmake .. -G "Visual Studio 15 2017 Win64"
+    cmake .. -G "Visual Studio 16 2019" -A x64
+    cmake .. -G "Visual Studio 19 2022" -A x64
 
 After running CMake open the generated VSG.sln file and build the All target. Once built you can run the install target. If you are using the default CMake install path (in Program Files folder), ensure you have started Visual Studio as administrator otherwise the install will fail.
 
