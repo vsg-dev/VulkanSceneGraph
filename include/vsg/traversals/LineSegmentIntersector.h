@@ -33,25 +33,38 @@ namespace vsg
         LineSegmentIntersector(const dvec3& s, const dvec3& e, ref_ptr<ArrayState> initialArrayData = {});
         LineSegmentIntersector(const Camera& camera, int32_t x, int32_t y, ref_ptr<ArrayState> initialArrayData = {});
 
-        struct Intersection
+        class Intersection : public Inherit<Object, Intersection>
         {
-            dvec3 localIntersection;
-            dvec3 worldIntersection;
-            double ratio = 0.0;
+            public:
+                Intersection(){}
+                
+                Intersection(dvec3 in_localIntersection, dvec3 in_worldIntersection, double in_ratio, dmat4 in_localToWord, NodePath in_nodePath, DataList in_arrays, IndexRatios in_indexRatios) :
+                    localIntersection(in_localIntersection),
+                    worldIntersection(in_worldIntersection),
+                    ratio(in_ratio),
+                    localToWord(in_localToWord),
+                    nodePath(in_nodePath),
+                    arrays(in_arrays),
+                    indexRatios(in_indexRatios)
+                    {}
 
-            dmat4 localToWord;
-            NodePath nodePath;
-            DataList arrays;
-            IndexRatios indexRatios;
+                dvec3 localIntersection;
+                dvec3 worldIntersection;
+                double ratio = 0.0;
 
-            // return true if Intersection is valid
-            operator bool() const { return !nodePath.empty(); }
+                dmat4 localToWord;
+                NodePath nodePath;
+                DataList arrays;
+                IndexRatios indexRatios;
+
+                // return true if Intersection is valid
+                operator bool() const { return !nodePath.empty(); }
         };
 
-        using Intersections = std::vector<Intersection>;
+        using Intersections = std::vector<ref_ptr<Intersection>>;
         Intersections intersections;
 
-        void add(const dvec3& intersection, double ratio, const IndexRatios& indexRatios);
+        ref_ptr<Intersection> add(const dvec3& coord, double ratio, const IndexRatios& indexRatios);
 
         void pushTransform(const Transform& transform) override;
         void popTransform() override;
