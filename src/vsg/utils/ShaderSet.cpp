@@ -416,3 +416,59 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_pt
 
     return shaderSet;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// PositionArrayState
+//
+
+#include <iostream>
+#include <vsg/io/stream.h>
+
+PositionArrayState::PositionArrayState()
+{
+    std::cout<<"PositionArrayState::PositionArrayState() "<<this<<std::endl;
+}
+
+PositionArrayState::PositionArrayState(const PositionArrayState& rhs):
+    Inherit(rhs)
+{
+    std::cout<<"PositionArrayState::PositionArrayState(const PositionArrayState& "<<&rhs<<") "<<this<<std::endl;
+}
+
+PositionArrayState::PositionArrayState(const ArrayState& rhs):
+    Inherit(rhs)
+{
+    std::cout<<"PositionArrayState::PositionArrayState(const ArrayState& "<<&rhs<<") "<<this<<std::endl;
+}
+
+ref_ptr<ArrayState> PositionArrayState::clone()
+{
+    std::cout<<"PositionArrayState::clone() "<<this<<std::endl;
+    return PositionArrayState::create(*this);
+}
+
+// clone the specified ArrayState
+ref_ptr<ArrayState> PositionArrayState::clone(ref_ptr<ArrayState> arrayState)
+{
+    if (typeid(arrayState.get()) == typeid(decltype(this))) return arrayState->clone();
+    return PositionArrayState::create(*arrayState);
+}
+
+void PositionArrayState::apply(uint32_t firstBinding, const BufferInfoList& in_arrays)
+{
+    std::cout<<"PositionArrayState::apply("<<firstBinding<<", "<<in_arrays.size()<<std::endl;
+    ArrayState::apply(firstBinding, in_arrays);
+}
+
+void PositionArrayState::apply(const vsg::vec3Array& in_array)
+{
+    std::cout<<"PositionArrayState::apply("<<in_array.className()<<")"<<std::endl;
+    ArrayState::apply(in_array);
+}
+
+void PositionArrayState::apply(const vsg::Data& in_array)
+{
+    std::cout<<"PositionArrayState::apply("<<in_array.className()<<")"<<std::endl;
+    ArrayState::apply(in_array);
+}

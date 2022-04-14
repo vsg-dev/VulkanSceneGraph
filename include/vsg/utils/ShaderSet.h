@@ -118,21 +118,31 @@ namespace vsg
     VSG_type_name(vsg::ShaderSet);
 
 
-    class PositionAndDisplacementMapArrayState : public Inherit<ArrayState, PositionAndDisplacementMapArrayState>
+    class VSG_DECLSPEC PositionAndDisplacementMapArrayState : public Inherit<ArrayState, PositionAndDisplacementMapArrayState>
     {
     public:
     };
     VSG_type_name(vsg::PositionAndDisplacementMapArrayState);
 
-    class DisplacementMapArrayState : public Inherit<ArrayState, DisplacementMapArrayState>
+    class VSG_DECLSPEC DisplacementMapArrayState : public Inherit<ArrayState, DisplacementMapArrayState>
     {
     public:
     };
     VSG_type_name(vsg::DisplacementMapArrayState);
 
-    class PositionArrayState : public Inherit<ArrayState, PositionArrayState>
+    class VSG_DECLSPEC PositionArrayState : public Inherit<ArrayState, PositionArrayState>
     {
     public:
+        PositionArrayState();
+        PositionArrayState(const PositionArrayState& rhs);
+        PositionArrayState(const ArrayState& rhs);
+
+        ref_ptr<ArrayState> clone() override;
+        ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
+
+        void apply(uint32_t firstBinding, const BufferInfoList& in_arrays) override;
+        void apply(const vsg::vec3Array& array) override;
+        void apply(const vsg::Data& array) override;
     };
     VSG_type_name(vsg::PositionArrayState);
 
