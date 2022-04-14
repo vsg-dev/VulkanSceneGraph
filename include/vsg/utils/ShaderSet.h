@@ -142,6 +142,7 @@ namespace vsg
         void apply(uint32_t firstBinding, const BufferInfoList& in_arrays) override;
         void apply(const vsg::vec3Array& array) override;
         void apply(const vsg::Data& array) override;
+        ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
     };
     VSG_type_name(vsg::PositionArrayState);
 

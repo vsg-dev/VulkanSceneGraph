@@ -26,6 +26,11 @@ using namespace vsg;
 //
 // ArrayState
 //
+ref_ptr<const vec3Array> ArrayState::vertexArray(uint32_t /*instanceIndex*/)
+{
+    return vertices;
+}
+
 void ArrayState::apply(const vsg::BindGraphicsPipeline& bpg)
 {
     for (auto& pipelineState : bpg.pipeline->pipelineStates)

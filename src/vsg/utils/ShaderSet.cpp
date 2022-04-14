@@ -470,3 +470,9 @@ void PositionArrayState::apply(const vsg::Data& in_array)
     std::cout << "PositionArrayState::apply(" << in_array.className() << ")" << std::endl;
     ArrayState::apply(in_array);
 }
+
+ref_ptr<const vec3Array> PositionArrayState::vertexArray(uint32_t instanceIndex)
+{
+    std::cout << "PositionArrayState::vertexArray(" << instanceIndex << ")" << std::endl;
+    return vertices;
+}

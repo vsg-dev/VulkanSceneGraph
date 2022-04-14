@@ -69,6 +69,7 @@ namespace vsg
 
         virtual void apply(uint32_t firstBinding, const BufferInfoList& in_arrays);
         virtual void apply(uint32_t firstBinding, const DataList& in_arrays);
+        virtual ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex);
 
     protected:
         virtual ~ArrayState() {}

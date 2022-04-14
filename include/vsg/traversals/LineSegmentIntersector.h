@@ -33,21 +33,11 @@ namespace vsg
         LineSegmentIntersector(const dvec3& s, const dvec3& e, ref_ptr<ArrayState> initialArrayData = {});
         LineSegmentIntersector(const Camera& camera, int32_t x, int32_t y, ref_ptr<ArrayState> initialArrayData = {});
 
-        class Intersection : public Inherit<Object, Intersection>
+        class VSG_DECLSPEC Intersection : public Inherit<Object, Intersection>
         {
         public:
             Intersection() {}
-
-            Intersection(dvec3 in_localIntersection, dvec3 in_worldIntersection, double in_ratio, dmat4 in_localToWord, NodePath in_nodePath, DataList in_arrays, IndexRatios in_indexRatios) :
-                localIntersection(in_localIntersection),
-                worldIntersection(in_worldIntersection),
-                ratio(in_ratio),
-                localToWord(in_localToWord),
-                nodePath(in_nodePath),
-                arrays(in_arrays),
-                indexRatios(in_indexRatios)
-            {
-            }
+            Intersection(dvec3 in_localIntersection, dvec3 in_worldIntersection, double in_ratio, dmat4 in_localToWord, NodePath in_nodePath, DataList in_arrays, IndexRatios in_indexRatios, uint32_t in_instanceIndex);
 
             dvec3 localIntersection;
             dvec3 worldIntersection;
@@ -57,6 +47,7 @@ namespace vsg
             NodePath nodePath;
             DataList arrays;
             IndexRatios indexRatios;
+            uint32_t instanceIndex = 0;
 
             // return true if Intersection is valid
             operator bool() const { return !nodePath.empty(); }
@@ -65,7 +56,7 @@ namespace vsg
         using Intersections = std::vector<ref_ptr<Intersection>>;
         Intersections intersections;
 
-        ref_ptr<Intersection> add(const dvec3& coord, double ratio, const IndexRatios& indexRatios);
+        ref_ptr<Intersection> add(const dvec3& coord, double ratio, const IndexRatios& indexRatios, uint32_t instanceIndex);
 
         void pushTransform(const Transform& transform) override;
         void popTransform() override;
