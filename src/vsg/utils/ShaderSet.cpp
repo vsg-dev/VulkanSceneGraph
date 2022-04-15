@@ -16,6 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/read.h>
 #include <vsg/state/material.h>
 #include <vsg/state/VertexInputState.h>
+#include <vsg/state/DescriptorImage.h>
+#include <vsg/state/DescriptorSet.h>
 #include <vsg/utils/ShaderSet.h>
 
 #include "shaders/assimp_flat_shaded_frag.cpp"
@@ -418,12 +420,150 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_pt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// PositionArrayState
+// DisplacementMapArrayState
 //
 
 #include <iostream>
 #include <vsg/io/stream.h>
 
+DisplacementMapArrayState::DisplacementMapArrayState()
+{
+}
+
+DisplacementMapArrayState::DisplacementMapArrayState(const DisplacementMapArrayState& rhs) :
+    Inherit(rhs)
+{
+}
+
+DisplacementMapArrayState::DisplacementMapArrayState(const ArrayState& rhs) :
+    Inherit(rhs)
+{
+}
+
+ref_ptr<ArrayState> DisplacementMapArrayState::clone()
+{
+    return DisplacementMapArrayState::create(*this);
+}
+
+ref_ptr<ArrayState> DisplacementMapArrayState::clone(ref_ptr<ArrayState> arrayState)
+{
+    return DisplacementMapArrayState::create(*arrayState);
+}
+
+void DisplacementMapArrayState::apply(const DescriptorImage& di)
+{
+    if (di.imageInfoList.size() >= 1)
+    {
+        auto& imageInfo = *di.imageInfoList[0];
+        if (imageInfo.imageView && imageInfo.imageView->image)
+        {
+            displacementMap = imageInfo.imageView->image->data.cast<floatArray2D>();
+        }
+    }
+}
+
+void DisplacementMapArrayState::apply(const DescriptorSet& ds)
+{
+    for(auto& descriptor : ds.descriptors)
+    {
+        if (descriptor->dstBinding == dm_binding)
+        {
+            descriptor->accept(*this);
+            break;
+        }
+    }
+}
+
+void DisplacementMapArrayState::apply(const BindDescriptorSet& bds)
+{
+    if (bds.firstSet == dm_set)
+    {
+        apply(*bds.descriptorSet);
+    }
+}
+
+void DisplacementMapArrayState::apply(const BindDescriptorSets& bds)
+{
+    if (bds.firstSet <= dm_set && dm_set < (bds.firstSet+ + static_cast<uint32_t>(bds.descriptorSets.size())))
+    {
+        apply(*bds.descriptorSets[dm_set - bds.firstSet]);
+    }
+}
+
+void DisplacementMapArrayState::apply(const VertexInputState& vas)
+{
+    ArrayState::apply(vas);
+
+    for (auto& attribute : vas.vertexAttributeDescriptions)
+    {
+        if (attribute.location == normal_attribute_location)
+        {
+            for (auto& binding : vas.vertexBindingDescriptions)
+            {
+                if (attribute.binding == binding.binding)
+                {
+                    normalAttribute.binding = attribute.binding;
+                    normalAttribute.offset = attribute.offset;
+                    normalAttribute.stride = binding.stride;
+                    normalAttribute.format = attribute.format;
+                }
+            }
+        }
+        else if (attribute.location == texcoord_attribute_location)
+        {
+            for (auto& binding : vas.vertexBindingDescriptions)
+            {
+                if (attribute.binding == binding.binding)
+                {
+                    texcoordAttribute.binding = attribute.binding;
+                    texcoordAttribute.offset = attribute.offset;
+                    texcoordAttribute.stride = binding.stride;
+                    texcoordAttribute.format = attribute.format;
+                }
+            }
+        }
+    }
+}
+
+ref_ptr<const vec3Array> DisplacementMapArrayState::vertexArray(uint32_t /*instanceIndex*/)
+{
+    if (displacementMap)
+    {
+        auto normals = arrays[normalAttribute.binding].cast<vec3Array>();
+        auto texcoords = arrays[texcoordAttribute.binding].cast<vec2Array>();
+        if (texcoords->size() != vertices->size()) return {};
+        if (normals->size() != vertices->size()) return {};
+
+        auto new_vertices = vsg::vec3Array::create(vertices->size());
+        auto src_vertex_itr = vertices->begin();
+        auto src_teccoord_itr = texcoords->begin();
+        auto src_normal_itr = normals->begin();
+        vec2 tc_scale(static_cast<float>(displacementMap->width())-1.0f, static_cast<float>(displacementMap->height())-1.0f);
+
+        for(auto& v : *new_vertices)
+        {
+            auto& tc = *(src_teccoord_itr++);
+            auto& n = *(src_normal_itr++);
+            vec2 tc_index = tc * tc_scale;
+            int32_t i = static_cast<int32_t>(tc_index.x);
+            int32_t j = static_cast<int32_t>(tc_index.y);
+            float r = tc_index.x - static_cast<float>(i);
+            float t = tc_index.y - static_cast<float>(j);
+            float d = displacementMap->at(i, j);
+
+            v = *(src_vertex_itr++) + n * d;
+        }
+        return new_vertices;
+    }
+
+
+    return vertices;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// PositionArrayState
+//
 PositionArrayState::PositionArrayState()
 {
 }

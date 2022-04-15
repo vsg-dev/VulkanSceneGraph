@@ -126,6 +126,30 @@ namespace vsg
     class VSG_DECLSPEC DisplacementMapArrayState : public Inherit<ArrayState, DisplacementMapArrayState>
     {
     public:
+        DisplacementMapArrayState();
+        DisplacementMapArrayState(const DisplacementMapArrayState& rhs);
+        DisplacementMapArrayState(const ArrayState& rhs);
+
+        ref_ptr<ArrayState> clone() override;
+        ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
+
+        // binding of displacemnt map
+        uint32_t normal_attribute_location = 1;
+        uint32_t texcoord_attribute_location = 2;
+        uint32_t dm_set = 0;
+        uint32_t dm_binding = 6;
+
+        // displacement map found during traversal
+        ref_ptr<floatArray2D> displacementMap;
+        AttributeDetails normalAttribute;
+        AttributeDetails texcoordAttribute;
+
+        void apply(const DescriptorImage& di) override;
+        void apply(const DescriptorSet& ds) override;
+        void apply(const BindDescriptorSet& bds) override;
+        void apply(const BindDescriptorSets& bds) override;
+        void apply(const VertexInputState& vas) override;
+        ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
     };
     VSG_type_name(vsg::DisplacementMapArrayState);
 
