@@ -21,10 +21,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-ComputeBounds::ComputeBounds(ref_ptr<ArrayState> initialArrayData)
+ComputeBounds::ComputeBounds(ref_ptr<ArrayState> intialArrayState)
 {
     arrayStateStack.reserve(4);
-    arrayStateStack.emplace_back(initialArrayData ? initialArrayData : ArrayState::create());
+    arrayStateStack.emplace_back(intialArrayState ? intialArrayState : ArrayState::create());
 }
 
 void ComputeBounds::apply(const vsg::Object& object)

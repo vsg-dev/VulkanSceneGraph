@@ -21,7 +21,7 @@ namespace vsg
     class VSG_DECLSPEC ComputeBounds : public Inherit<ConstVisitor, ComputeBounds>
     {
     public:
-        ComputeBounds(ref_ptr<ArrayState> initialArrayData = {});
+        ComputeBounds(ref_ptr<ArrayState> intialArrayState = {});
 
         dbox bounds;
 
