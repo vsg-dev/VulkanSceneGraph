@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Output.h>
 #include <vsg/io/read.h>
 #include <vsg/state/material.h>
+#include <vsg/state/VertexInputState.h>
 #include <vsg/utils/ShaderSet.h>
 
 #include "shaders/assimp_flat_shaded_frag.cpp"
@@ -318,7 +319,7 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createFlatShadedShaderSet(ref_ptr<const Opt
     shaderSet->addAttributeBinding("vsg_Normal", "", 1, VK_FORMAT_R32G32B32_SFLOAT, vsg::vec3Array::create(1));
     shaderSet->addAttributeBinding("vsg_TexCoord0", "", 2, VK_FORMAT_R32G32_SFLOAT, vsg::vec2Array::create(1));
     shaderSet->addAttributeBinding("vsg_Color", "", 3, VK_FORMAT_R32G32B32A32_SFLOAT, vsg::vec4Array::create(1));
-    shaderSet->addAttributeBinding("vsg_position", "VSG_INSTANCE_POSITIONS", 3, VK_FORMAT_R32G32B32_SFLOAT, vsg::vec3Array::create(1));
+    shaderSet->addAttributeBinding("vsg_position", "VSG_INSTANCE_POSITIONS", 4, VK_FORMAT_R32G32B32_SFLOAT, vsg::vec3Array::create(1));
 
     shaderSet->addUniformBinding("displacementMap", "VSG_DISPLACEMENT_MAP", 0, 6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_VERTEX_BIT, vsg::vec4Array2D::create(1, 1));
     shaderSet->addUniformBinding("diffuseMap", "VSG_DIFFUSE_MAP", 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1, 1));
@@ -391,7 +392,7 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_pt
     shaderSet->addAttributeBinding("vsg_Normal", "", 1, VK_FORMAT_R32G32B32_SFLOAT, vsg::vec3Array::create(1));
     shaderSet->addAttributeBinding("vsg_TexCoord0", "", 2, VK_FORMAT_R32G32_SFLOAT, vsg::vec2Array::create(1));
     shaderSet->addAttributeBinding("vsg_Color", "", 3, VK_FORMAT_R32G32B32A32_SFLOAT, vsg::vec4Array::create(1));
-    shaderSet->addAttributeBinding("vsg_position", "VSG_INSTANCE_POSITIONS", 3, VK_FORMAT_R32G32B32_SFLOAT, vsg::vec3Array::create(1));
+    shaderSet->addAttributeBinding("vsg_position", "VSG_INSTANCE_POSITIONS", 4, VK_FORMAT_R32G32B32_SFLOAT, vsg::vec3Array::create(1));
 
     shaderSet->addUniformBinding("displacementMap", "VSG_DISPLACEMENT_MAP", 0, 6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_VERTEX_BIT, vsg::vec4Array2D::create(1, 1));
     shaderSet->addUniformBinding("diffuseMap", "VSG_DIFFUSE_MAP", 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array2D::create(1, 1));
@@ -425,54 +426,67 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_pt
 
 PositionArrayState::PositionArrayState()
 {
-    std::cout << "PositionArrayState::PositionArrayState() " << this << std::endl;
 }
 
 PositionArrayState::PositionArrayState(const PositionArrayState& rhs) :
-    Inherit(rhs)
+    Inherit(rhs),
+    position_attribute_location(rhs.position_attribute_location),
+    positionAttribute(rhs.positionAttribute)
 {
-    std::cout << "PositionArrayState::PositionArrayState(const PositionArrayState& " << &rhs << ") " << this << std::endl;
 }
 
 PositionArrayState::PositionArrayState(const ArrayState& rhs) :
     Inherit(rhs)
 {
-    std::cout << "PositionArrayState::PositionArrayState(const ArrayState& " << &rhs << ") " << this << std::endl;
 }
 
 ref_ptr<ArrayState> PositionArrayState::clone()
 {
-    std::cout << "PositionArrayState::clone() " << this << std::endl;
     return PositionArrayState::create(*this);
 }
 
-// clone the specified ArrayState
 ref_ptr<ArrayState> PositionArrayState::clone(ref_ptr<ArrayState> arrayState)
 {
-    if (typeid(arrayState.get()) == typeid(decltype(this))) return arrayState->clone();
     return PositionArrayState::create(*arrayState);
 }
 
-void PositionArrayState::apply(uint32_t firstBinding, const BufferInfoList& in_arrays)
+void PositionArrayState::apply(const VertexInputState& vas)
 {
-    std::cout << "PositionArrayState::apply(" << firstBinding << ", " << in_arrays.size() << std::endl;
-    ArrayState::apply(firstBinding, in_arrays);
-}
+    ArrayState::apply(vas);
 
-void PositionArrayState::apply(const vsg::vec3Array& in_array)
-{
-    std::cout << "PositionArrayState::apply(" << in_array.className() << ")" << std::endl;
-    ArrayState::apply(in_array);
-}
-
-void PositionArrayState::apply(const vsg::Data& in_array)
-{
-    std::cout << "PositionArrayState::apply(" << in_array.className() << ")" << std::endl;
-    ArrayState::apply(in_array);
+    for (auto& attribute : vas.vertexAttributeDescriptions)
+    {
+        if (attribute.location == position_attribute_location)
+        {
+            for (auto& binding : vas.vertexBindingDescriptions)
+            {
+                if (attribute.binding == binding.binding)
+                {
+                    positionAttribute.binding = attribute.binding;
+                    positionAttribute.offset = attribute.offset;
+                    positionAttribute.stride = binding.stride;
+                    positionAttribute.format = attribute.format;
+                }
+            }
+        }
+    }
 }
 
 ref_ptr<const vec3Array> PositionArrayState::vertexArray(uint32_t instanceIndex)
 {
-    std::cout << "PositionArrayState::vertexArray(" << instanceIndex << ")" << std::endl;
+    auto positions = arrays[positionAttribute.binding].cast<vec3Array>();
+
+    if (positions && (instanceIndex < positions->size()))
+    {
+        auto position = positions->at(instanceIndex);
+        auto new_vertices = vsg::vec3Array::create(vertices->size());
+        auto src_vertex_itr = vertices->begin();
+        for(auto& v : *new_vertices)
+        {
+            v = *(src_vertex_itr++) + position;
+        }
+        return new_vertices;
+    }
+
     return vertices;
 }

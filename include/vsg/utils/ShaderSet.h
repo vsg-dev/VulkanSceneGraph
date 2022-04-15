@@ -139,9 +139,10 @@ namespace vsg
         ref_ptr<ArrayState> clone() override;
         ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
 
-        void apply(uint32_t firstBinding, const BufferInfoList& in_arrays) override;
-        void apply(const vsg::vec3Array& array) override;
-        void apply(const vsg::Data& array) override;
+        uint32_t position_attribute_location = 4;
+        AttributeDetails positionAttribute;
+
+        void apply(const VertexInputState& vas) override;
         ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
     };
     VSG_type_name(vsg::PositionArrayState);
