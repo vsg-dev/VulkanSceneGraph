@@ -157,7 +157,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     if (sharedObjects) sharedObjects->share(bindViewDescriptorSets);
     stateGroup->add(bindViewDescriptorSets);
 
-    if (sharedObjects) sharedObjects->report(std::cout);
+    // if (sharedObjects) sharedObjects->report(std::cout);
 
     return stateGroup;
 }
