@@ -23,7 +23,7 @@ namespace vsg
         using NodePath = std::vector<const Node*>;
         using ArrayStateStack = std::vector<ref_ptr<ArrayState>>;
 
-        Intersector(ref_ptr<ArrayState> initialArrayData = {});
+        Intersector(ref_ptr<ArrayState> intialArrayState = {});
 
         //
         // handle traverse of the scene graph

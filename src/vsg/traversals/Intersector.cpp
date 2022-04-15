@@ -36,10 +36,10 @@ struct PushPopNode
     ~PushPopNode() { nodePath.pop_back(); }
 };
 
-Intersector::Intersector(ref_ptr<ArrayState> initialArrayData)
+Intersector::Intersector(ref_ptr<ArrayState> intialArrayState)
 {
     arrayStateStack.reserve(4);
-    arrayStateStack.emplace_back(initialArrayData ? initialArrayData : ArrayState::create());
+    arrayStateStack.emplace_back(intialArrayState ? intialArrayState : ArrayState::create());
 }
 
 void Intersector::apply(const Node& node)
