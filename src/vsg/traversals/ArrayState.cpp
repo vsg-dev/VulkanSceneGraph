@@ -38,24 +38,33 @@ void ArrayState::apply(const vsg::BindGraphicsPipeline& bpg)
         pipelineState->accept(*this);
     }
 }
-void ArrayState::apply(const VertexInputState& vas)
+
+bool ArrayState::getAttributeDetails(const VertexInputState& vas, uint32_t location, AttributeDetails& attributeDetails)
 {
     for (auto& attribute : vas.vertexAttributeDescriptions)
     {
-        if (attribute.location == vertex_attribute_location)
+        if (attribute.location == location)
         {
             for (auto& binding : vas.vertexBindingDescriptions)
             {
                 if (attribute.binding == binding.binding)
                 {
-                    vertexAttribute.binding = attribute.binding;
-                    vertexAttribute.offset = attribute.offset;
-                    vertexAttribute.stride = binding.stride;
-                    vertexAttribute.format = attribute.format;
+                    attributeDetails.binding = attribute.binding;
+                    attributeDetails.format = attribute.format;
+                    attributeDetails.offset = attribute.offset;
+                    attributeDetails.stride = binding.stride;
+                    attributeDetails.inputRate = binding.inputRate;
+                    return true;
                 }
             }
         }
     }
+    return false;
+}
+
+void ArrayState::apply(const VertexInputState& vas)
+{
+    getAttributeDetails(vas, vertex_attribute_location, vertexAttribute);
 }
 
 void ArrayState::apply(const InputAssemblyState& ias)

@@ -41,9 +41,10 @@ namespace vsg
         struct AttributeDetails
         {
             uint32_t binding = 0;
-            uint32_t offset = 0;
-            uint32_t stride = 0;
             VkFormat format = {};
+            uint32_t stride = 0;
+            uint32_t offset = 0;
+            VkVertexInputRate inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
         };
 
         VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -54,6 +55,8 @@ namespace vsg
         ref_ptr<vec3Array> proxy_vertices;
 
         DataList arrays;
+
+        bool getAttributeDetails(const VertexInputState& vas, uint32_t location, AttributeDetails& attributeDetails);
 
         void apply(const BindGraphicsPipeline& bpg) override;
         void apply(const VertexInputState& vas) override;

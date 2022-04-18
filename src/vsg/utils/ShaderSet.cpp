@@ -492,37 +492,9 @@ void DisplacementMapArrayState::apply(const BindDescriptorSets& bds)
 
 void DisplacementMapArrayState::apply(const VertexInputState& vas)
 {
-    ArrayState::apply(vas);
-
-    for (auto& attribute : vas.vertexAttributeDescriptions)
-    {
-        if (attribute.location == normal_attribute_location)
-        {
-            for (auto& binding : vas.vertexBindingDescriptions)
-            {
-                if (attribute.binding == binding.binding)
-                {
-                    normalAttribute.binding = attribute.binding;
-                    normalAttribute.offset = attribute.offset;
-                    normalAttribute.stride = binding.stride;
-                    normalAttribute.format = attribute.format;
-                }
-            }
-        }
-        else if (attribute.location == texcoord_attribute_location)
-        {
-            for (auto& binding : vas.vertexBindingDescriptions)
-            {
-                if (attribute.binding == binding.binding)
-                {
-                    texcoordAttribute.binding = attribute.binding;
-                    texcoordAttribute.offset = attribute.offset;
-                    texcoordAttribute.stride = binding.stride;
-                    texcoordAttribute.format = attribute.format;
-                }
-            }
-        }
-    }
+    getAttributeDetails(vas, vertex_attribute_location, vertexAttribute);
+    getAttributeDetails(vas, normal_attribute_location, normalAttribute);
+    getAttributeDetails(vas, texcoord_attribute_location, texcoordAttribute);
 }
 
 ref_ptr<const vec3Array> DisplacementMapArrayState::vertexArray(uint32_t /*instanceIndex*/)
@@ -592,24 +564,8 @@ ref_ptr<ArrayState> PositionArrayState::clone(ref_ptr<ArrayState> arrayState)
 
 void PositionArrayState::apply(const VertexInputState& vas)
 {
-    ArrayState::apply(vas);
-
-    for (auto& attribute : vas.vertexAttributeDescriptions)
-    {
-        if (attribute.location == position_attribute_location)
-        {
-            for (auto& binding : vas.vertexBindingDescriptions)
-            {
-                if (attribute.binding == binding.binding)
-                {
-                    positionAttribute.binding = attribute.binding;
-                    positionAttribute.offset = attribute.offset;
-                    positionAttribute.stride = binding.stride;
-                    positionAttribute.format = attribute.format;
-                }
-            }
-        }
-    }
+    getAttributeDetails(vas, vertex_attribute_location, vertexAttribute);
+    getAttributeDetails(vas, position_attribute_location, positionAttribute);
 }
 
 ref_ptr<const vec3Array> PositionArrayState::vertexArray(uint32_t instanceIndex)
