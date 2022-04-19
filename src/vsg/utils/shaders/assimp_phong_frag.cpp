@@ -179,11 +179,11 @@ void main()
             vec4 lightColor = lightData.values[index++];
             vec3 direction = -lightData.values[index++].xyz;
             float diff = max(dot(direction, nd), 0.0);
-            color.rgb += (diffuseColor.rgb * lightColor.rgb) * (diff * lightColor.a);
+            color.rgb += (diffuseColor.rgb * lightColor.rgb) * (diff * diffuseColor.a);
             if (diff > 0.0)
             {
                 vec3 halfDir = normalize(direction + vd);
-                color.rgb += specularColor.rgb * (pow(max(dot(halfDir, nd), 0.0), shininess) * lightColor.a);
+                color.rgb += specularColor.rgb * (pow(max(dot(halfDir, nd), 0.0), shininess) * diffuseColor.a);
             }
         }
     }
