@@ -166,8 +166,8 @@ void main()
         // ambient lights
         for(int i = 0; i<numAmbientLights; ++i)
         {
-            vec4 ambient_color = lightData.values[index++];
-            color += ambient_color.rgb * ambient_color.a;
+            vec4 lightColor = lightData.values[index++];
+            color.rgb += ambientColor.rgb * lightColor.rgb * ambientColor.a;
         }
     }
 
