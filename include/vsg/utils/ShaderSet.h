@@ -118,11 +118,24 @@ namespace vsg
     };
     VSG_type_name(vsg::ShaderSet);
 
-    class VSG_DECLSPEC PositionAndDisplacementMapArrayState : public Inherit<ArrayState, PositionAndDisplacementMapArrayState>
+
+    class VSG_DECLSPEC PositionArrayState : public Inherit<ArrayState, PositionArrayState>
     {
     public:
+        PositionArrayState();
+        PositionArrayState(const PositionArrayState& rhs);
+        PositionArrayState(const ArrayState& rhs);
+
+        ref_ptr<ArrayState> clone() override;
+        ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
+
+        uint32_t position_attribute_location = 4;
+        AttributeDetails positionAttribute;
+
+        void apply(const VertexInputState& vas) override;
+        ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
     };
-    VSG_type_name(vsg::PositionAndDisplacementMapArrayState);
+    VSG_type_name(vsg::PositionArrayState);
 
     class VSG_DECLSPEC DisplacementMapArrayState : public Inherit<ArrayState, DisplacementMapArrayState>
     {
@@ -155,23 +168,23 @@ namespace vsg
     };
     VSG_type_name(vsg::DisplacementMapArrayState);
 
-    class VSG_DECLSPEC PositionArrayState : public Inherit<ArrayState, PositionArrayState>
+    class VSG_DECLSPEC PositionAndDisplacementMapArrayState : public Inherit<DisplacementMapArrayState, PositionAndDisplacementMapArrayState>
     {
     public:
-        PositionArrayState();
-        PositionArrayState(const PositionArrayState& rhs);
-        PositionArrayState(const ArrayState& rhs);
-
-        ref_ptr<ArrayState> clone() override;
-        ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
+        PositionAndDisplacementMapArrayState();
+        PositionAndDisplacementMapArrayState(const PositionAndDisplacementMapArrayState& rhs);
+        PositionAndDisplacementMapArrayState(const ArrayState& rhs);
 
         uint32_t position_attribute_location = 4;
         AttributeDetails positionAttribute;
 
+        ref_ptr<ArrayState> clone() override;
+        ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
+
         void apply(const VertexInputState& vas) override;
         ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
     };
-    VSG_type_name(vsg::PositionArrayState);
+    VSG_type_name(vsg::PositionAndDisplacementMapArrayState);
 
     /// create a ShaderSet for unlit, flat shaded rendering
     extern VSG_DECLSPEC ref_ptr<ShaderSet> createFlatShadedShaderSet(ref_ptr<const Options> options = {});

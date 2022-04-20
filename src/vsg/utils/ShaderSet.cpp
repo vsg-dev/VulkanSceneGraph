@@ -419,14 +419,66 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_pt
     return shaderSet;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// PositionArrayState
+//
+PositionArrayState::PositionArrayState()
+{
+}
+
+PositionArrayState::PositionArrayState(const PositionArrayState& rhs) :
+    Inherit(rhs),
+    position_attribute_location(rhs.position_attribute_location),
+    positionAttribute(rhs.positionAttribute)
+{
+}
+
+PositionArrayState::PositionArrayState(const ArrayState& rhs) :
+    Inherit(rhs)
+{
+}
+
+ref_ptr<ArrayState> PositionArrayState::clone()
+{
+    return PositionArrayState::create(*this);
+}
+
+ref_ptr<ArrayState> PositionArrayState::clone(ref_ptr<ArrayState> arrayState)
+{
+    return PositionArrayState::create(*arrayState);
+}
+
+void PositionArrayState::apply(const VertexInputState& vas)
+{
+    getAttributeDetails(vas, vertex_attribute_location, vertexAttribute);
+    getAttributeDetails(vas, position_attribute_location, positionAttribute);
+}
+
+ref_ptr<const vec3Array> PositionArrayState::vertexArray(uint32_t instanceIndex)
+{
+    auto positions = arrays[positionAttribute.binding].cast<vec3Array>();
+
+    if (positions && (instanceIndex < positions->size()))
+    {
+        auto position = positions->at(instanceIndex);
+        auto new_vertices = vsg::vec3Array::create(vertices->size());
+        auto src_vertex_itr = vertices->begin();
+        for(auto& v : *new_vertices)
+        {
+            v = *(src_vertex_itr++) + position;
+        }
+        return new_vertices;
+    }
+
+    return vertices;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // DisplacementMapArrayState
 //
-
-#include <iostream>
-#include <vsg/io/stream.h>
-
 DisplacementMapArrayState::DisplacementMapArrayState()
 {
 }
@@ -527,61 +579,84 @@ ref_ptr<const vec3Array> DisplacementMapArrayState::vertexArray(uint32_t /*insta
         return new_vertices;
     }
 
-
     return vertices;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// PositionArrayState
+// PositionAndDisplacementMapArrayState
 //
-PositionArrayState::PositionArrayState()
+#include <iostream>
+#include <vsg/io/stream.h>
+
+PositionAndDisplacementMapArrayState::PositionAndDisplacementMapArrayState()
 {
 }
 
-PositionArrayState::PositionArrayState(const PositionArrayState& rhs) :
-    Inherit(rhs),
-    position_attribute_location(rhs.position_attribute_location),
-    positionAttribute(rhs.positionAttribute)
-{
-}
-
-PositionArrayState::PositionArrayState(const ArrayState& rhs) :
+PositionAndDisplacementMapArrayState::PositionAndDisplacementMapArrayState(const PositionAndDisplacementMapArrayState& rhs) :
     Inherit(rhs)
 {
 }
 
-ref_ptr<ArrayState> PositionArrayState::clone()
+PositionAndDisplacementMapArrayState::PositionAndDisplacementMapArrayState(const ArrayState& rhs) :
+    Inherit(rhs)
 {
-    return PositionArrayState::create(*this);
 }
 
-ref_ptr<ArrayState> PositionArrayState::clone(ref_ptr<ArrayState> arrayState)
+ref_ptr<ArrayState> PositionAndDisplacementMapArrayState::clone()
 {
-    return PositionArrayState::create(*arrayState);
+    return PositionAndDisplacementMapArrayState::create(*this);
 }
 
-void PositionArrayState::apply(const VertexInputState& vas)
+ref_ptr<ArrayState> PositionAndDisplacementMapArrayState::clone(ref_ptr<ArrayState> arrayState)
+{
+    return PositionAndDisplacementMapArrayState::create(*arrayState);
+}
+
+void PositionAndDisplacementMapArrayState::apply(const VertexInputState& vas)
 {
     getAttributeDetails(vas, vertex_attribute_location, vertexAttribute);
+    getAttributeDetails(vas, normal_attribute_location, normalAttribute);
+    getAttributeDetails(vas, texcoord_attribute_location, texcoordAttribute);
     getAttributeDetails(vas, position_attribute_location, positionAttribute);
 }
 
-ref_ptr<const vec3Array> PositionArrayState::vertexArray(uint32_t instanceIndex)
+ref_ptr<const vec3Array> PositionAndDisplacementMapArrayState::vertexArray(uint32_t instanceIndex)
 {
     auto positions = arrays[positionAttribute.binding].cast<vec3Array>();
 
+    vec3 position;
     if (positions && (instanceIndex < positions->size()))
     {
-        auto position = positions->at(instanceIndex);
+        position = positions->at(instanceIndex);
+    }
+
+    if (displacementMap)
+    {
+        auto normals = arrays[normalAttribute.binding].cast<vec3Array>();
+        auto texcoords = arrays[texcoordAttribute.binding].cast<vec2Array>();
+        if (texcoords->size() != vertices->size()) return {};
+        if (normals->size() != vertices->size()) return {};
+
         auto new_vertices = vsg::vec3Array::create(vertices->size());
         auto src_vertex_itr = vertices->begin();
+        auto src_teccoord_itr = texcoords->begin();
+        auto src_normal_itr = normals->begin();
+        vec2 tc_scale(static_cast<float>(displacementMap->width())-1.0f, static_cast<float>(displacementMap->height())-1.0f);
+
+        // if no sampler is assigned fallback to use default constructed Sampler
+        if (!sampler) sampler = Sampler::create();
+
         for(auto& v : *new_vertices)
         {
-            v = *(src_vertex_itr++) + position;
+            auto& tc = *(src_teccoord_itr++);
+            auto& n = *(src_normal_itr++);
+            float d = sample(*sampler, *displacementMap, tc);
+            v = *(src_vertex_itr++) + n * d + position;
         }
         return new_vertices;
     }
 
     return vertices;
 }
+
