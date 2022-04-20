@@ -30,7 +30,9 @@ namespace vsg
     template<typename T>
     constexpr T repeat(T value)
     {
-        return value - std::floor(value);
+        T result = value - std::floor(value);
+        if (result != 0.0) return result;
+        return (value>0.0) ? 1.0 : 0.0;
     }
 
     /// clamp value between 0 and 1, implementing VK_SAMPLER_ADDRESS_MODE_MIRROR_REPEAT
@@ -54,7 +56,7 @@ namespace vsg
                 coord = repeat(coord);
                 return true;
             case(VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT):
-                coord = repeat(coord);
+                coord = mirror_repeat(coord);
                 return true;
             case(VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER):
                 if (coord < 0.0f) return false;
