@@ -49,21 +49,22 @@ namespace vsg
     {
         switch(mode)
         {
-            case(VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE):
-                coord = clamp_to_edge(coord);
-                return true;
             case(VK_SAMPLER_ADDRESS_MODE_REPEAT):
                 coord = repeat(coord);
                 return true;
             case(VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT):
                 coord = mirror_repeat(coord);
                 return true;
+            case(VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE):
+                coord = clamp_to_edge(coord);
+                return true;
             case(VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER):
                 if (coord < 0.0f) return false;
                 if (coord > 1.0f) return false;
                 return true;
             default:
-                // TODO, not yet supported
+                // not supported, fallback to clamp_to_edge
+                coord = clamp_to_edge(coord);
                 break;
         }
         return true;

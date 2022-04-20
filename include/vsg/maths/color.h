@@ -93,7 +93,7 @@ namespace vsg
             case(VK_BORDER_COLOR_INT_OPAQUE_WHITE):
                 return opaque_white<T>();
             default:
-                // TODO not supported, treat as VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK
+                // not supported, fallback to VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK
                 return transparent_black<T>();
         }
     }
