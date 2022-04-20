@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/compare.h>
 #include <vsg/state/ShaderStage.h>
+#include <vsg/state/Sampler.h>
 #include <vsg/traversals/ArrayState.h>
 
 namespace vsg
@@ -141,6 +142,7 @@ namespace vsg
 
         // displacement map found during traversal
         ref_ptr<floatArray2D> displacementMap;
+        ref_ptr<Sampler> sampler;
         AttributeDetails normalAttribute;
         AttributeDetails texcoordAttribute;
 

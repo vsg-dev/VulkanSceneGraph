@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/utils/ShaderSet.h>
+#include <vsg/maths/sample.h>
 
 #include "shaders/assimp_flat_shaded_frag.cpp"
 #include "shaders/assimp_pbr_frag.cpp"
@@ -458,6 +459,7 @@ void DisplacementMapArrayState::apply(const DescriptorImage& di)
         if (imageInfo.imageView && imageInfo.imageView->image)
         {
             displacementMap = imageInfo.imageView->image->data.cast<floatArray2D>();
+            sampler = imageInfo.sampler;
         }
     }
 }
@@ -512,17 +514,14 @@ ref_ptr<const vec3Array> DisplacementMapArrayState::vertexArray(uint32_t /*insta
         auto src_normal_itr = normals->begin();
         vec2 tc_scale(static_cast<float>(displacementMap->width())-1.0f, static_cast<float>(displacementMap->height())-1.0f);
 
+        // if no sampler is assigned fallback to use default constructed Sampler
+        if (!sampler) sampler = Sampler::create();
+
         for(auto& v : *new_vertices)
         {
             auto& tc = *(src_teccoord_itr++);
             auto& n = *(src_normal_itr++);
-            vec2 tc_index = tc * tc_scale;
-            int32_t i = static_cast<int32_t>(tc_index.x);
-            int32_t j = static_cast<int32_t>(tc_index.y);
-            float r = tc_index.x - static_cast<float>(i);
-            float t = tc_index.y - static_cast<float>(j);
-            float d = displacementMap->at(i, j);
-
+            float d = sample(*sampler, *displacementMap, tc);
             v = *(src_vertex_itr++) + n * d;
         }
         return new_vertices;
