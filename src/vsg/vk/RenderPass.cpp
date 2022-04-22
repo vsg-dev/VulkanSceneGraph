@@ -21,7 +21,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     #define vkCreateRenderPass2 vkCreateRenderPass2KHR
 #endif
 
-
 using namespace vsg;
 
 inline VkSampleCountFlagBits computeMaxSamples(const RenderPass::Attachments& attachments)
