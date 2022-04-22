@@ -17,6 +17,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <array>
 
+#if !defined(VK_VERSION_1_2)
+    #define vkCreateRenderPass2 vkCreateRenderPass2KHR
+#endif
+
+
 using namespace vsg;
 
 inline VkSampleCountFlagBits computeMaxSamples(const RenderPass::Attachments& attachments)
@@ -157,7 +162,7 @@ RenderPass::RenderPass(Device* in_device, const Attachments& in_attachments, con
         renderPassInfo.correlatedViewMaskCount = static_cast<uint32_t>(correlatedViewMasks.size());
         renderPassInfo.pCorrelatedViewMasks = correlatedViewMasks.empty() ? nullptr : correlatedViewMasks.data();
 
-        VkResult result = vkCreateRenderPass2KHR(*device, &renderPassInfo, device->getAllocationCallbacks(), &_renderPass);
+        VkResult result = vkCreateRenderPass2(*device, &renderPassInfo, device->getAllocationCallbacks(), &_renderPass);
         if (result != VK_SUCCESS)
         {
             throw Exception{"Error: vsg::RenderPass::create(...) Failed to create VkRenderPass.", result};
