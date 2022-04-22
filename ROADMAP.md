@@ -43,11 +43,11 @@ Using the prototyping work as a guide implement the final scene graph library wi
 * Memory allocator with support with grouping associated types
 * Positional state support to enable easier support of lighting, shadows, texture projection.
 * Matrix decomposition
+* Port to iOS
 
 #### Current development tasks:
 * Unified state composer, shader set and cache
 * Update vsgXchange::Assimp to use the new state composer/shader set.
-* Port to iOS
 
 #### Future tasks:
 * Improved support for dynamic scene graphs and dynamic views, dynamic descriptor pool reallocation
