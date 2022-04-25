@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/ScrollWheelEvent.h>
+#include <vsg/ui/TouchEvent.h>
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/EllipsoidModel.h>
 
@@ -38,8 +39,11 @@ namespace vsg
         void apply(ButtonReleaseEvent& buttonRelease) override;
         void apply(MoveEvent& moveEvent) override;
         void apply(ScrollWheelEvent& scrollWheel) override;
+        void apply(TouchDownEvent& touchDown) override;
+        void apply(TouchUpEvent& touchUp) override;
+        void apply(TouchMoveEvent& touchMove) override;
         void apply(FrameEvent& frame) override;
-
+        
         virtual void rotate(double angle, const dvec3& axis);
         virtual void zoom(double ratio);
         virtual void pan(const dvec2& delta);

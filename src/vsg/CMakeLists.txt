@@ -264,6 +264,16 @@ if (ANDROID)
 
 elseif (WIN32)
     set(SOURCES ${SOURCES} platform/win32/Win32_Window.cpp)
+elseif (IOS)
+    set(HEADERS ${HEADERS}
+        ${CMAKE_SOURCE_DIR}/include/vsg/platform/ios/iOS_Window.h
+        ${CMAKE_SOURCE_DIR}/include/vsg/platform/ios/iOS_ViewController.h
+    )
+    set(SOURCES ${SOURCES}
+        platform/ios/iOS_Window.mm
+        platform/ios/iOS_ViewController.mm
+    )
+    set(LIBRARIES ${LIBRARIES} PRIVATE ${UIKIT_LIBRARY} PRIVATE ${QUARTZCORE_LIBRARY})
 elseif (APPLE)
     set(SOURCES ${SOURCES} platform/macos/MacOS_Window.mm)
     set(LIBRARIES ${LIBRARIES} PRIVATE ${COCOA_LIBRARY} PRIVATE ${QUARTZCORE_LIBRARY})

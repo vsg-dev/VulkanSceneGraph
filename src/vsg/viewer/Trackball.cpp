@@ -265,6 +265,46 @@ void Trackball::apply(ScrollWheelEvent& scrollWheel)
     zoom(scrollWheel.delta.y * 0.1);
 }
 
+void Trackball::apply(TouchDownEvent& touchDown)
+{
+    vsg::ref_ptr<vsg::Window> w = touchDown.window;
+    vsg::ref_ptr<vsg::ButtonPressEvent> evt = vsg::ButtonPressEvent::create(
+        w,
+        touchDown.time,
+        touchDown.x,
+        touchDown.y,
+        vsg::ButtonMask::BUTTON_MASK_1,
+        touchDown.id
+    );
+    apply(*evt.get());
+}
+
+void Trackball::apply(TouchUpEvent& touchUp)
+{
+    vsg::ref_ptr<vsg::Window> w = touchUp.window;
+    vsg::ref_ptr<vsg::ButtonReleaseEvent> evt = vsg::ButtonReleaseEvent::create(
+        w,
+        touchUp.time,
+        touchUp.x,
+        touchUp.y,
+        vsg::ButtonMask::BUTTON_MASK_1,
+        touchUp.id
+    );
+    apply(*evt.get());
+}
+
+void Trackball::apply(TouchMoveEvent& touchMove)
+{
+    vsg::ref_ptr<vsg::Window> w = touchMove.window;
+    vsg::ref_ptr<vsg::MoveEvent> evt = vsg::MoveEvent::create(
+        w,
+        touchMove.time,
+        touchMove.x,
+        touchMove.y,
+        vsg::ButtonMask::BUTTON_MASK_1
+    );
+    apply(*evt.get());
+}
 void Trackball::apply(FrameEvent& frame)
 {
     if (_endLookAt)
