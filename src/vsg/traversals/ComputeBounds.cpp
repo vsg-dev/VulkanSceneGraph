@@ -10,8 +10,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/commands/BindIndexBuffer.h>
 #include <vsg/commands/BindVertexBuffers.h>
 #include <vsg/commands/Commands.h>
+#include <vsg/commands/Draw.h>
+#include <vsg/commands/DrawIndexed.h>
 #include <vsg/io/Options.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/MatrixTransform.h>
@@ -76,21 +79,33 @@ void ComputeBounds::apply(const vsg::Geometry& geometry)
 {
     auto& arrayState = *arrayStateStack.back();
     arrayState.apply(geometry);
-    if (arrayState.vertices) apply(*arrayState.vertices);
+
+    if (geometry.indices) geometry.indices->accept(*this);
+
+    for (auto& command : geometry.commands)
+    {
+        command->accept(*this);
+    }
 }
 
 void ComputeBounds::apply(const vsg::VertexIndexDraw& vid)
 {
     auto& arrayState = *arrayStateStack.back();
     arrayState.apply(vid);
-    if (arrayState.vertices) apply(*arrayState.vertices);
+
+    if (vid.indices) vid.indices->accept(*this);
+
+    applyDrawIndexed(vid.firstIndex, vid.indexCount, vid.firstInstance, vid.instanceCount);
 }
 
 void ComputeBounds::apply(const vsg::BindVertexBuffers& bvb)
 {
-    auto& arrayState = *arrayStateStack.back();
-    arrayState.apply(bvb);
-    if (arrayState.vertices) apply(*arrayState.vertices);
+    arrayStateStack.back()->apply(bvb);
+}
+
+void ComputeBounds::apply(const BindIndexBuffer& bib)
+{
+    bib.indices->accept(*this);
 }
 
 void ComputeBounds::apply(const vsg::StateCommand& statecommand)
@@ -98,15 +113,85 @@ void ComputeBounds::apply(const vsg::StateCommand& statecommand)
     statecommand.accept(*arrayStateStack.back());
 }
 
-void ComputeBounds::apply(const vsg::vec3Array& vertices)
+void ComputeBounds::apply(const BufferInfo& bufferInfo)
 {
-    if (matrixStack.empty())
+    if (bufferInfo.data) bufferInfo.data->accept(*this);
+}
+
+void ComputeBounds::apply(const ushortArray& array)
+{
+    ushort_indices = &array;
+    uint_indices = nullptr;
+}
+
+void ComputeBounds::apply(const uintArray& array)
+{
+    ushort_indices = nullptr;
+    uint_indices = &array;
+}
+
+void ComputeBounds::apply(const Draw& draw)
+{
+    applyDraw(draw.firstVertex, draw.vertexCount, draw.firstInstance, draw.instanceCount);
+}
+
+void ComputeBounds::apply(const DrawIndexed& drawIndexed)
+{
+    applyDrawIndexed(drawIndexed.firstIndex, drawIndexed.indexCount, drawIndexed.firstInstance, drawIndexed.instanceCount);
+};
+
+void ComputeBounds::applyDraw(uint32_t firstVertex, uint32_t vertexCount, uint32_t firstInstance, uint32_t instanceCount)
+{
+    auto& arrayState = *arrayStateStack.back();
+    uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance+1;
+    uint32_t endVertex = firstVertex + vertexCount;
+    dmat4 matrix;
+    if (!matrixStack.empty()) matrix = matrixStack.back();
+
+    for(uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
     {
-        for (auto vertex : vertices) bounds.add(vertex);
+        if (auto vertices = arrayState.vertexArray(instanceIndex))
+        {
+            for (uint32_t i = firstVertex; i < endVertex; ++i)
+            {
+                bounds.add(matrix * dvec3(vertices->at(i)));
+            }
+        }
     }
-    else
+}
+
+void ComputeBounds::applyDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount)
+{
+    auto& arrayState = *arrayStateStack.back();
+    uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance+1;
+    uint32_t endIndex = firstIndex + indexCount;
+    dmat4 matrix;
+    if (!matrixStack.empty()) matrix = matrixStack.back();
+
+    if (ushort_indices)
     {
-        auto matrix = matrixStack.back();
-        for (auto vertex : vertices) bounds.add(matrix * dvec3(vertex));
+        for(uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
+        {
+            if (auto vertices = arrayState.vertexArray(instanceIndex))
+            {
+                for (uint32_t i = firstIndex; i < endIndex; ++i)
+                {
+                    bounds.add(matrix * dvec3(vertices->at(ushort_indices->at(i))));
+                }
+            }
+        }
+    }
+    else if (uint_indices)
+    {
+        for(uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
+        {
+            if (auto vertices = arrayState.vertexArray(instanceIndex))
+            {
+                for (uint32_t i = firstIndex; i < endIndex; ++i)
+                {
+                    bounds.add(matrix * dvec3(vertices->at(uint_indices->at(i))));
+                }
+            }
+        }
     }
 }
