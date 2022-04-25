@@ -74,6 +74,10 @@ Extensions* Extensions::Get(Device* device, bool createIfNotInitalized)
 
 Extensions::Extensions(Device* device)
 {
+    // VK_KHR_create_renderpass2
+    vkCreateRenderPass2 = reinterpret_cast<PFN_vkCreateRenderPass2KHR>(vkGetDeviceProcAddr(*device, "vkCreateRenderPass2"));
+    if (!vkCreateRenderPass2) vkCreateRenderPass2 = reinterpret_cast<PFN_vkCreateRenderPass2KHR>(vkGetDeviceProcAddr(*device, "vkCreateRenderPass2KHR"));
+
     // VK_KHR_ray_tracing
     vkCreateAccelerationStructureKHR = reinterpret_cast<PFN_vkCreateAccelerationStructureKHR>(vkGetDeviceProcAddr(*device, "vkCreateAccelerationStructureKHR"));
     vkDestroyAccelerationStructureKHR = reinterpret_cast<PFN_vkDestroyAccelerationStructureKHR>(vkGetDeviceProcAddr(*device, "vkDestroyAccelerationStructureKHR"));
