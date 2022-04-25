@@ -88,6 +88,6 @@ void DrawMeshTasksIndirectCount::compile(Context& context)
 void DrawMeshTasksIndirectCount::record(vsg::CommandBuffer& commandBuffer) const
 {
     Device* device = commandBuffer.getDevice();
-    Extensions* extensions = Extensions::Get(device, true);
+    auto extensions = device->getExtensions();
     extensions->vkCmdDrawMeshTasksIndirectCountNV(commandBuffer, drawParameters->buffer->vk(commandBuffer.deviceID), drawParameters->offset, drawCount->buffer->vk(commandBuffer.deviceID), drawCount->offset, maxDrawCount, stride);
 }

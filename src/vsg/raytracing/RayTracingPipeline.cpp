@@ -128,7 +128,7 @@ RayTracingPipeline::Implementation::Implementation(Context& context, RayTracingP
 
     auto pipelineLayout = rayTracingPipeline->getPipelineLayout();
 
-    Extensions* extensions = Extensions::Get(_device, true);
+    auto extensions = _device->getExtensions();
 
     VkRayTracingPipelineCreateInfoKHR pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR;

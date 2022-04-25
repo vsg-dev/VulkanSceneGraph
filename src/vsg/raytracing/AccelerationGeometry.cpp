@@ -67,7 +67,7 @@ void AccelerationGeometry::compile(Context& context)
     _indexBuffer = indexBufferInfo[0];
 
     // create the VkGeometry
-    Extensions* extensions = Extensions::Get(context.device.get(), true);
+    auto extensions = context.device->getExtensions();
     VkDeviceOrHostAddressConstKHR vertexDataDeviceAddress{};
     VkDeviceOrHostAddressConstKHR indexDataDeviceAddress{};
     VkBufferDeviceAddressInfoKHR bufferDeviceAI{};

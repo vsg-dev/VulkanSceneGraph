@@ -77,6 +77,6 @@ void DrawMeshTasksIndirect::compile(Context& context)
 void DrawMeshTasksIndirect::record(vsg::CommandBuffer& commandBuffer) const
 {
     Device* device = commandBuffer.getDevice();
-    Extensions* extensions = Extensions::Get(device, true);
+    auto extensions = device->getExtensions();
     extensions->vkCmdDrawMeshTasksIndirectNV(commandBuffer, drawParameters->buffer->vk(commandBuffer.deviceID), drawParameters->offset, drawCount, stride);
 }

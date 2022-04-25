@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
+#include <vsg/vk/Device.h>
 #include <vsg/vk/Extensions.h>
 
 #include <algorithm>
@@ -59,17 +60,6 @@ bool vsg::isExtensionListSupported(const Names& extensionList)
         if (std::find_if(extProps.begin(), extProps.end(), compare) == extProps.end()) return false;
     }
     return true;
-}
-
-typedef std::map<Device*, ref_ptr<Extensions>> BufferedExtensions;
-static BufferedExtensions s_extensions;
-
-Extensions* Extensions::Get(Device* device, bool createIfNotInitalized)
-{
-    if (!s_extensions[device] && createIfNotInitalized)
-        s_extensions[device] = new Extensions(device);
-
-    return s_extensions[device].get();
 }
 
 Extensions::Extensions(Device* device)

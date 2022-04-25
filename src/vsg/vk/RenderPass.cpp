@@ -47,7 +47,7 @@ RenderPass::RenderPass(Device* in_device, const Attachments& in_attachments, con
 
     // vkCreateRenderPass2 is only supported in Vulkan 1.2 and later.
     bool useRenderPass2 = device->getInstance()->apiVersion >= VK_API_VERSION_1_2;
-    Extensions* extensions = Extensions::Get(in_device, true);
+    auto extensions = device->getExtensions();
     if (useRenderPass2 && extensions->vkCreateRenderPass2)
     {
         // Vulkan 1.2 vkCreateRenderPass2 code path
