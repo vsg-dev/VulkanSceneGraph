@@ -12,11 +12,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Device.h>
 #include <vsg/vk/Instance.h>
 
 namespace vsg
 {
+    class Device;
+
     using ExtensionProperties = std::vector<VkExtensionProperties>;
 
     extern VSG_DECLSPEC ExtensionProperties getExtensionProperties(const char* pLayerName = nullptr);
@@ -26,12 +27,13 @@ namespace vsg
     extern VSG_DECLSPEC bool isExtensionListSupported(const Names& extensionList);
 
     // TODO need to reorganize so that the Device "has a" extension structure and avoid the usage of static container
-    class VSG_DECLSPEC Extensions : public Object
+    class VSG_DECLSPEC Extensions : public Inherit<Object, Extensions>
     {
     public:
-        static Extensions* Get(Device* device, bool createIfNotInitalized);
-
         explicit Extensions(Device* device);
+
+        // VK_KHR_create_renderpass2
+        PFN_vkCreateRenderPass2KHR vkCreateRenderPass2 = nullptr;
 
         // VK_KHR_ray_tracing
         PFN_vkCreateAccelerationStructureKHR vkCreateAccelerationStructureKHR = nullptr;

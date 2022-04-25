@@ -57,7 +57,7 @@ BuildAccelerationStructureCommand::BuildAccelerationStructureCommand(Device* dev
 
 void BuildAccelerationStructureCommand::record(CommandBuffer& commandBuffer) const
 {
-    Extensions* extensions = Extensions::Get(_device, true);
+    auto extensions = commandBuffer.getDevice()->getExtensions();
     const VkAccelerationStructureBuildRangeInfoKHR* rangeInfos = _accelerationStructureBuildRangeInfos.data();
     extensions->vkCmdBuildAccelerationStructuresKHR(
         commandBuffer,
@@ -77,7 +77,7 @@ void BuildAccelerationStructureCommand::record(CommandBuffer& commandBuffer) con
 void BuildAccelerationStructureCommand::setScratchBuffer(ref_ptr<Buffer>& scratchBuffer)
 {
     _scratchBuffer = scratchBuffer;
-    Extensions* extensions = Extensions::Get(_device, true);
+    auto extensions = _device->getExtensions();
     VkBufferDeviceAddressInfo devAddressInfo{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, nullptr, _scratchBuffer->vk(_device->deviceID)};
     _accelerationStructureInfo.scratchData.deviceAddress = extensions->vkGetBufferDeviceAddressKHR(_device->getDevice(), &devAddressInfo);
 }

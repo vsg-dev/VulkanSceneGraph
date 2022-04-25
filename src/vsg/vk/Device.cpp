@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/viewer/Window.h>
 #include <vsg/vk/Device.h>
+#include <vsg/vk/Extensions.h>
 
 #include <cstring>
 #include <iostream>
@@ -131,6 +132,8 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
         releaseDeviceID(deviceID);
         throw Exception{"Error: vsg::Device::create(...) failed to create logical device.", result};
     }
+
+    _extensions = Extensions::create(this);
 }
 
 Device::~Device()

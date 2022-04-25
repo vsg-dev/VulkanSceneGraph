@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/DeviceFeatures.h>
+#include <vsg/vk/Extensions.h>
 #include <vsg/vk/Queue.h>
 
 #include <list>
@@ -45,6 +46,8 @@ namespace vsg
         AllocationCallbacks* getAllocationCallbacks() { return _allocator.get(); }
         const AllocationCallbacks* getAllocationCallbacks() const { return _allocator.get(); }
 
+        const Extensions* getExtensions() const { return _extensions.get(); }
+
         operator VkDevice() const { return _device; }
         VkDevice getDevice() const { return _device; }
 
@@ -62,6 +65,7 @@ namespace vsg
         ref_ptr<Instance> _instance;
         ref_ptr<PhysicalDevice> _physicalDevice;
         ref_ptr<AllocationCallbacks> _allocator;
+        ref_ptr<Extensions> _extensions;
 
         std::list<ref_ptr<Queue>> _queues;
     };

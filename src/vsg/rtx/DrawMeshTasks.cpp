@@ -45,6 +45,6 @@ void DrawMeshTasks::write(Output& output) const
 void DrawMeshTasks::record(vsg::CommandBuffer& commandBuffer) const
 {
     Device* device = commandBuffer.getDevice();
-    Extensions* extensions = Extensions::Get(device, true);
+    auto extensions = device->getExtensions();
     extensions->vkCmdDrawMeshTasksNV(commandBuffer, taskCount, firstTask);
 }

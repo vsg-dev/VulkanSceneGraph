@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/ScratchMemory.h>
 #include <vsg/io/Options.h>
 #include <vsg/vk/RenderPass.h>
+#include <vsg/vk/Extensions.h>
 
 #include <array>
 
@@ -46,7 +47,8 @@ RenderPass::RenderPass(Device* in_device, const Attachments& in_attachments, con
 
     // vkCreateRenderPass2 is only supported in Vulkan 1.2 and later.
     bool useRenderPass2 = device->getInstance()->apiVersion >= VK_API_VERSION_1_2;
-    if (useRenderPass2)
+    auto extensions = device->getExtensions();
+    if (useRenderPass2 && extensions->vkCreateRenderPass2)
     {
         // Vulkan 1.2 vkCreateRenderPass2 code path
         auto copyAttachmentDescriptions = [&scratchMemory](const Attachments& attachmentDescriptions) -> VkAttachmentDescription2* {
@@ -161,7 +163,7 @@ RenderPass::RenderPass(Device* in_device, const Attachments& in_attachments, con
         renderPassInfo.correlatedViewMaskCount = static_cast<uint32_t>(correlatedViewMasks.size());
         renderPassInfo.pCorrelatedViewMasks = correlatedViewMasks.empty() ? nullptr : correlatedViewMasks.data();
 
-        VkResult result = vkCreateRenderPass2(*device, &renderPassInfo, device->getAllocationCallbacks(), &_renderPass);
+        VkResult result = extensions->vkCreateRenderPass2(*device, &renderPassInfo, device->getAllocationCallbacks(), &_renderPass);
         if (result != VK_SUCCESS)
         {
             throw Exception{"Error: vsg::RenderPass::create(...) Failed to create VkRenderPass.", result};
