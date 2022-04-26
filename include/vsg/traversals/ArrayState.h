@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Data.h>
 #include <vsg/core/Inherit.h>
 #include <vsg/state/BufferInfo.h>
+#include <vsg/state/Sampler.h>
 
 namespace vsg
 {
@@ -96,5 +97,73 @@ namespace vsg
         void apply(const vsg::Data&) override;
     };
     VSG_type_name(vsg::NullArrayState);
+
+    class VSG_DECLSPEC PositionArrayState : public Inherit<ArrayState, PositionArrayState>
+    {
+    public:
+        PositionArrayState();
+        PositionArrayState(const PositionArrayState& rhs);
+        PositionArrayState(const ArrayState& rhs);
+
+        ref_ptr<ArrayState> clone() override;
+        ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
+
+        uint32_t position_attribute_location = 4;
+        AttributeDetails positionAttribute;
+
+        void apply(const VertexInputState& vas) override;
+        ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
+    };
+    VSG_type_name(vsg::PositionArrayState);
+
+    class VSG_DECLSPEC DisplacementMapArrayState : public Inherit<ArrayState, DisplacementMapArrayState>
+    {
+    public:
+        DisplacementMapArrayState();
+        DisplacementMapArrayState(const DisplacementMapArrayState& rhs);
+        DisplacementMapArrayState(const ArrayState& rhs);
+
+        ref_ptr<ArrayState> clone() override;
+        ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
+
+        // binding of displacemnt map
+        uint32_t normal_attribute_location = 1;
+        uint32_t texcoord_attribute_location = 2;
+        uint32_t dm_set = 0;
+        uint32_t dm_binding = 6;
+
+        // displacement map found during traversal
+        ref_ptr<floatArray2D> displacementMap;
+        ref_ptr<Sampler> sampler;
+        AttributeDetails normalAttribute;
+        AttributeDetails texcoordAttribute;
+
+        void apply(const DescriptorImage& di) override;
+        void apply(const DescriptorSet& ds) override;
+        void apply(const BindDescriptorSet& bds) override;
+        void apply(const BindDescriptorSets& bds) override;
+        void apply(const VertexInputState& vas) override;
+        ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
+    };
+    VSG_type_name(vsg::DisplacementMapArrayState);
+
+    class VSG_DECLSPEC PositionAndDisplacementMapArrayState : public Inherit<DisplacementMapArrayState, PositionAndDisplacementMapArrayState>
+    {
+    public:
+        PositionAndDisplacementMapArrayState();
+        PositionAndDisplacementMapArrayState(const PositionAndDisplacementMapArrayState& rhs);
+        PositionAndDisplacementMapArrayState(const ArrayState& rhs);
+
+        uint32_t position_attribute_location = 4;
+        AttributeDetails positionAttribute;
+
+        ref_ptr<ArrayState> clone() override;
+        ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
+
+        void apply(const VertexInputState& vas) override;
+        ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
+    };
+    VSG_type_name(vsg::PositionAndDisplacementMapArrayState);
+
 
 } // namespace vsg
