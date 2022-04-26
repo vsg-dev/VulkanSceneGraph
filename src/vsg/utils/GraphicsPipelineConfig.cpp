@@ -13,6 +13,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/utils/GraphicsPipelineConfig.h>
 
+#include <iostream>
+#include <vsg/io/stream.h>
+
 using namespace vsg;
 
 DescriptorConfig::DescriptorConfig(ref_ptr<ShaderSet> in_shaderSet) :
@@ -63,15 +66,45 @@ void DescriptorConfig::init()
     }
 }
 
+struct AssignGraphicsPipelineStates : public vsg::Visitor
+{
+    vsg::GraphicsPipelineConfig* config = nullptr;
+
+    AssignGraphicsPipelineStates(vsg::GraphicsPipelineConfig* in_config) : config(in_config) {}
+
+    void apply(vsg::ColorBlendState& cbs) override { config->colorBlendState = ColorBlendState::create(cbs); }
+    void apply(vsg::DepthStencilState& mss) override { config->depthStencilState = DepthStencilState::create(mss); }
+    void apply(vsg::DynamicState& mss) override { config->dynamicState = DynamicState::create(mss); }
+    void apply(vsg::InputAssemblyState& ias) override { config->inputAssemblyState = InputAssemblyState::create(ias); }
+    void apply(vsg::MultisampleState& mss) override { config->multisampleState = MultisampleState::create(mss); }
+    void apply(vsg::RasterizationState& rs) override { config->rasterizationState = RasterizationState::create(rs); }
+    void apply(vsg::TessellationState& rs) override { config->tessellationState = TessellationState::create(rs); }
+    void apply(vsg::VertexInputState& ias) override { config->vertexInputState = VertexInputState::create(ias); }
+    void apply(vsg::ViewportState& ias) override { config->viewportState = ViewportState::create(ias); }
+};
+
 GraphicsPipelineConfig::GraphicsPipelineConfig(ref_ptr<ShaderSet> in_shaderSet) :
     shaderSet(in_shaderSet)
 {
-    vertexInputState = VertexInputState::create();
-    inputAssemblyState = vsg::InputAssemblyState::create();
-    rasterizationState = vsg::RasterizationState::create();
-    colorBlendState = vsg::ColorBlendState::create();
-    multisampleState = vsg::MultisampleState::create();
-    depthStencilState = vsg::DepthStencilState::create();
+    // apply defaukts
+    auto& graphicsPipelineStates = shaderSet->defaultGraphicsPipelineStates;
+    std::cout<<"\nGraphicsPipelineConfig graphicsPipelineStates.size() = "<<graphicsPipelineStates.size()<<std::endl;
+    if (!graphicsPipelineStates.empty())
+    {
+        AssignGraphicsPipelineStates agps(this);
+        for(auto& gps : graphicsPipelineStates)
+        {
+            gps->accept(agps);
+            std::cout<<"assigning gps = "<<gps<<std::endl;
+        }
+    }
+
+    if (!vertexInputState) vertexInputState = VertexInputState::create();
+    if (!inputAssemblyState) inputAssemblyState = vsg::InputAssemblyState::create();
+    if (!rasterizationState) rasterizationState = vsg::RasterizationState::create();
+    if (!colorBlendState) colorBlendState = vsg::ColorBlendState::create();
+    if (!colorBlendState) multisampleState = vsg::MultisampleState::create();
+    if (!depthStencilState) depthStencilState = vsg::DepthStencilState::create();
 
     shaderHints = vsg::ShaderCompileSettings::create();
 }
@@ -158,12 +191,16 @@ int GraphicsPipelineConfig::compare(const Object& rhs_object) const
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
-    if ((result = compare_pointer(vertexInputState, rhs.vertexInputState))) return result;
-    if ((result = compare_pointer(inputAssemblyState, rhs.inputAssemblyState))) return result;
-    if ((result = compare_pointer(rasterizationState, rhs.rasterizationState))) return result;
     if ((result = compare_pointer(colorBlendState, rhs.colorBlendState))) return result;
-    if ((result = compare_pointer(multisampleState, rhs.multisampleState))) return result;
     if ((result = compare_pointer(depthStencilState, rhs.depthStencilState))) return result;
+    if ((result = compare_pointer(dynamicState, rhs.dynamicState))) return result;
+    if ((result = compare_pointer(inputAssemblyState, rhs.inputAssemblyState))) return result;
+    if ((result = compare_pointer(multisampleState, rhs.multisampleState))) return result;
+    if ((result = compare_pointer(rasterizationState, rhs.rasterizationState))) return result;
+    if ((result = compare_pointer(tessellationState, rhs.tessellationState))) return result;
+    if ((result = compare_pointer(vertexInputState, rhs.vertexInputState))) return result;
+    if ((result = compare_pointer(viewportState, rhs.viewportState))) return result;
+
     if ((result = compare_value(subpass, rhs.subpass))) return result;
     if ((result = compare_value(baseAttributeBinding, rhs.baseAttributeBinding))) return result;
     if ((result = compare_pointer(shaderSet, rhs.shaderSet))) return result;
@@ -190,7 +227,16 @@ void GraphicsPipelineConfig::init()
 
     layout = vsg::PipelineLayout::create(desriptorSetLayours, pushConstantRanges);
 
-    GraphicsPipelineStates pipelineStates{vertexInputState, inputAssemblyState, rasterizationState, colorBlendState, multisampleState, depthStencilState};
+    GraphicsPipelineStates pipelineStates;
+    if (colorBlendState) pipelineStates.push_back(colorBlendState);
+    if (depthStencilState) pipelineStates.push_back(depthStencilState);
+    if (dynamicState) pipelineStates.push_back(dynamicState);
+    if (inputAssemblyState) pipelineStates.push_back(inputAssemblyState);
+    if (multisampleState) pipelineStates.push_back(multisampleState);
+    if (rasterizationState) pipelineStates.push_back(rasterizationState);
+    if (tessellationState) pipelineStates.push_back(tessellationState);
+    if (vertexInputState) pipelineStates.push_back(vertexInputState);
+    if (viewportState) pipelineStates.push_back(viewportState);
 
     graphicsPipeline = GraphicsPipeline::create(layout, shaderSet->getShaderStages(shaderHints), pipelineStates, subpass);
     bindGraphicsPipeline = vsg::BindGraphicsPipeline::create(graphicsPipeline);

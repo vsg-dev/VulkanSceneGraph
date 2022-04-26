@@ -14,6 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/state/ColorBlendState.h>
 #include <vsg/state/DepthStencilState.h>
+#include <vsg/state/ViewportState.h>
+#include <vsg/state/DynamicState.h>
 #include <vsg/state/DescriptorBuffer.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/DescriptorSet.h>
@@ -23,6 +25,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/MultisampleState.h>
 #include <vsg/state/RasterizationState.h>
 #include <vsg/state/VertexInputState.h>
+#include <vsg/state/ViewportState.h>
+#include <vsg/state/TessellationState.h>
 
 #include <vsg/utils/ShaderSet.h>
 
@@ -57,13 +61,17 @@ namespace vsg
     public:
         GraphicsPipelineConfig(ref_ptr<ShaderSet> in_shaderSet = {});
 
-        // inputs to setup of GraphicsPipeline
-        ref_ptr<VertexInputState> vertexInputState;
-        ref_ptr<InputAssemblyState> inputAssemblyState;
-        ref_ptr<RasterizationState> rasterizationState;
+        // inputs to setup of GraphicsPipeline, the dfeawult sets are taken from any provided by ShaderSet::defaultGraphicsPipelineStates
         ref_ptr<ColorBlendState> colorBlendState;
-        ref_ptr<MultisampleState> multisampleState;
         ref_ptr<DepthStencilState> depthStencilState;
+        ref_ptr<DynamicState> dynamicState;
+        ref_ptr<InputAssemblyState> inputAssemblyState;
+        ref_ptr<MultisampleState> multisampleState;  // typically leave unset as cpmpile traversal with provide MultisampleState
+        ref_ptr<RasterizationState> rasterizationState;
+        ref_ptr<TessellationState> tessellationState;
+        ref_ptr<VertexInputState> vertexInputState; // set by assarray(..) methods.
+        ref_ptr<ViewportState> viewportState; // typically leave unset as cpmpile traversal with provide ViewportState
+
         uint32_t subpass = 0;
         uint32_t baseAttributeBinding = 0;
         ref_ptr<ShaderSet> shaderSet;

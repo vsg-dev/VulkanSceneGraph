@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/compare.h>
 #include <vsg/state/ShaderStage.h>
 #include <vsg/state/Sampler.h>
+#include <vsg/state/GraphicsPipeline.h>
 #include <vsg/traversals/ArrayState.h>
 
 namespace vsg
@@ -77,6 +78,7 @@ namespace vsg
         std::vector<UniformBinding> uniformBindings;
         std::vector<PushConstantRange> pushConstantRanges;
         std::vector<DefinesArrayState> definesArrayStates; // put more constrained ArrayState matches first so they are matched first.
+        GraphicsPipelineStates defaultGraphicsPipelineStates;
 
         /// variants of the rootShaderModule compiled for differen combinations of ShaderCompileSettings
         std::map<ref_ptr<ShaderCompileSettings>, ShaderStages, DerefenceLess> variants;

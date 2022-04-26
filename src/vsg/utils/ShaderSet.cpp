@@ -16,6 +16,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/read.h>
 #include <vsg/state/material.h>
 #include <vsg/state/VertexInputState.h>
+#include <vsg/state/InputAssemblyState.h>
+#include <vsg/state/MultisampleState.h>
+#include <vsg/state/ColorBlendState.h>
+#include <vsg/state/TessellationState.h>
+#include <vsg/state/VertexInputState.h>
+#include <vsg/state/RasterizationState.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/utils/ShaderSet.h>
@@ -187,6 +193,7 @@ int ShaderSet::compare(const Object& rhs_object) const
     if ((result = compare_container(attributeBindings, rhs.attributeBindings))) return result;
     if ((result = compare_container(uniformBindings, rhs.uniformBindings))) return result;
     return compare_container(pushConstantRanges, rhs.pushConstantRanges);
+    // TODO add defiensArraysStates and defaultGraphicsPipelineStates
 }
 
 void ShaderSet::read(Input& input)
@@ -238,6 +245,8 @@ void ShaderSet::read(Input& input)
         input.readValues("defines", das.defines);
         input.readObject("arrayState", das.arrayState);
     }
+
+    input.readObjects("defaultGraphicsPipelineStates", defaultGraphicsPipelineStates);
 
     auto num_variants = input.readValue<uint32_t>("variants");
     variants.clear();
@@ -293,6 +302,8 @@ void ShaderSet::write(Output& output) const
         output.writeValues("defines", das.defines);
         output.writeObject("arrayState", das.arrayState);
     }
+
+    output.writeObjects("defaultGraphicsPipelineStates", defaultGraphicsPipelineStates);
 
     output.writeValue<uint32_t>("variants", variants.size());
     for (auto& [hints, variant_stages] : variants)
