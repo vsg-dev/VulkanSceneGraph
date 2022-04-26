@@ -20,6 +20,13 @@ InputAssemblyState::InputAssemblyState()
 {
 }
 
+InputAssemblyState::InputAssemblyState(const InputAssemblyState& ias) :
+    Inherit(ias),
+    topology(ias.topology),
+    primitiveRestartEnable(ias.primitiveRestartEnable)
+{
+}
+
 InputAssemblyState::InputAssemblyState(VkPrimitiveTopology primitiveTopology, VkBool32 primitiveRestart) :
     topology(primitiveTopology),
     primitiveRestartEnable(primitiveRestart)

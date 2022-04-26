@@ -21,6 +21,13 @@ ViewportState::ViewportState()
 {
 }
 
+ViewportState::ViewportState(const ViewportState& vs) :
+    Inherit(vs),
+    viewports(vs.viewports),
+    scissors(vs.scissors)
+{
+}
+
 ViewportState::ViewportState(const VkExtent2D& extent)
 {
     set(0, 0, extent.width, extent.height);

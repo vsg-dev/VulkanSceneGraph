@@ -20,6 +20,7 @@ namespace vsg
     {
     public:
         DepthStencilState();
+        DepthStencilState(const DepthStencilState& dss);
 
         /// VkPipelineDepthStencilStateCreateInfo settings
         VkBool32 depthTestEnable = VK_TRUE;

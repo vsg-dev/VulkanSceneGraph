@@ -21,6 +21,21 @@ RasterizationState::RasterizationState()
 {
 }
 
+RasterizationState::RasterizationState(const RasterizationState& rs) :
+    Inherit(rs),
+    depthClampEnable(rs.depthClampEnable),
+    rasterizerDiscardEnable(rs.rasterizerDiscardEnable),
+    polygonMode(rs.polygonMode),
+    cullMode(rs.cullMode),
+    frontFace(rs.frontFace),
+    depthBiasEnable(rs.depthBiasEnable),
+    depthBiasConstantFactor(rs.depthBiasConstantFactor),
+    depthBiasClamp(rs.depthBiasClamp),
+    depthBiasSlopeFactor(rs.depthBiasSlopeFactor),
+    lineWidth(rs.lineWidth)
+{
+}
+
 RasterizationState::~RasterizationState()
 {
 }

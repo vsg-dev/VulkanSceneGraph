@@ -20,6 +20,7 @@ namespace vsg
     {
     public:
         TessellationState(uint32_t in_patchControlPoints = 1);
+        TessellationState(const TessellationState& ts);
 
         /// VkPipelineTessellationStateCreateInfo settings
         /// patchControlPoints must be greater than zero and less than or equal to VkPhysicalDeviceLimits::maxTessellationPatchSize

@@ -21,6 +21,20 @@ DepthStencilState::DepthStencilState()
 {
 }
 
+DepthStencilState::DepthStencilState(const DepthStencilState& dss) :
+    Inherit(dss),
+    depthTestEnable(dss.depthTestEnable),
+    depthWriteEnable(dss.depthWriteEnable),
+    depthCompareOp(dss.depthCompareOp),
+    depthBoundsTestEnable(dss.depthBoundsTestEnable),
+    stencilTestEnable(dss.stencilTestEnable),
+    front(dss.front),
+    back(dss.back),
+    minDepthBounds(dss.minDepthBounds),
+    maxDepthBounds(dss.maxDepthBounds)
+{
+}
+
 DepthStencilState::~DepthStencilState()
 {
 }

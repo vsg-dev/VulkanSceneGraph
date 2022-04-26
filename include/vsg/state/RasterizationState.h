@@ -20,6 +20,7 @@ namespace vsg
     {
     public:
         RasterizationState();
+        RasterizationState(const RasterizationState& rs);
 
         /// VkPipelineRasterizationStateCreateInfo settings
         VkBool32 depthClampEnable = VK_FALSE;

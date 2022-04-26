@@ -22,6 +22,12 @@ TessellationState::TessellationState(uint32_t in_patchControlPoints) :
 {
 }
 
+TessellationState::TessellationState(const TessellationState& ts) :
+    Inherit(ts),
+    patchControlPoints(ts.patchControlPoints)
+{
+}
+
 TessellationState::~TessellationState()
 {
 }
