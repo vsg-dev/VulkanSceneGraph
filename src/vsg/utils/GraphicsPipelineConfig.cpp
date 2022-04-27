@@ -217,10 +217,10 @@ void GraphicsPipelineConfig::init()
         if (pcb.define.empty()) pushConstantRanges.push_back(pcb.range);
     }
 
-    vsg::DescriptorSetLayouts desriptorSetLayours{descriptorSetLayout};
-    if (additionalDescrptorSetLayout) desriptorSetLayours.push_back(additionalDescrptorSetLayout);
+    vsg::DescriptorSetLayouts desriptorSetLayouts{descriptorSetLayout};
+    if (additionalDescrptorSetLayout) desriptorSetLayouts.push_back(additionalDescrptorSetLayout);
 
-    layout = vsg::PipelineLayout::create(desriptorSetLayours, pushConstantRanges);
+    layout = vsg::PipelineLayout::create(desriptorSetLayouts, pushConstantRanges);
 
     GraphicsPipelineStates pipelineStates;
     if (colorBlendState) pipelineStates.push_back(colorBlendState);
