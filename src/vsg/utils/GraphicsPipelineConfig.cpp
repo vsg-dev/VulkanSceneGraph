@@ -98,7 +98,7 @@ GraphicsPipelineConfig::GraphicsPipelineConfig(ref_ptr<ShaderSet> in_shaderSet) 
     if (!inputAssemblyState) inputAssemblyState = vsg::InputAssemblyState::create();
     if (!rasterizationState) rasterizationState = vsg::RasterizationState::create();
     if (!colorBlendState) colorBlendState = vsg::ColorBlendState::create();
-    if (!colorBlendState) multisampleState = vsg::MultisampleState::create();
+    if (!multisampleState) multisampleState = vsg::MultisampleState::create();
     if (!depthStencilState) depthStencilState = vsg::DepthStencilState::create();
 
     shaderHints = vsg::ShaderCompileSettings::create();
