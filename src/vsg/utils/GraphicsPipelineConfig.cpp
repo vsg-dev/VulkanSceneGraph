@@ -13,9 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/utils/GraphicsPipelineConfig.h>
 
-#include <iostream>
-#include <vsg/io/stream.h>
-
 using namespace vsg;
 
 DescriptorConfig::DescriptorConfig(ref_ptr<ShaderSet> in_shaderSet) :
@@ -88,14 +85,12 @@ GraphicsPipelineConfig::GraphicsPipelineConfig(ref_ptr<ShaderSet> in_shaderSet) 
 {
     // apply defaukts
     auto& graphicsPipelineStates = shaderSet->defaultGraphicsPipelineStates;
-    std::cout<<"\nGraphicsPipelineConfig graphicsPipelineStates.size() = "<<graphicsPipelineStates.size()<<std::endl;
     if (!graphicsPipelineStates.empty())
     {
         AssignGraphicsPipelineStates agps(this);
         for(auto& gps : graphicsPipelineStates)
         {
             gps->accept(agps);
-            std::cout<<"assigning gps = "<<gps<<std::endl;
         }
     }
 

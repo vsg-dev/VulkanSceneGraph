@@ -312,7 +312,7 @@ void ShaderSet::write(Output& output) const
     }
 }
 
-VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createFlatShadedShaderSet(ref_ptr<const Options> options)
+ref_ptr<ShaderSet> vsg::createFlatShadedShaderSet(ref_ptr<const Options> options)
 {
     if (options)
     {
@@ -347,7 +347,7 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createFlatShadedShaderSet(ref_ptr<const Opt
     return shaderSet;
 }
 
-VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhongShaderSet(ref_ptr<const Options> options)
+ref_ptr<ShaderSet> vsg::createPhongShaderSet(ref_ptr<const Options> options)
 {
     if (options)
     {
@@ -385,7 +385,7 @@ VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhongShaderSet(ref_ptr<const Options>
     return shaderSet;
 }
 
-VSG_DECLSPEC ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_ptr<const Options> options)
+ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_ptr<const Options> options)
 {
     if (options)
     {
