@@ -52,7 +52,4 @@ namespace vsg
     };
     VSG_type_name(vsg::CpuLayoutTechnique);
 
-    /// create a ShaderSet for CpuALayutTechnique or return the Options::shaderSet["cpuTextLayout"] entry if available.
-    extern VSG_DECLSPEC ref_ptr<ShaderSet> createCpuTextLayputShaderSet(ref_ptr<const Options> options = {});
-
 } // namespace vsg

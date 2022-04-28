@@ -32,7 +32,6 @@ namespace vsg
         vec4 outlineColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
         float outlineWidth = 0.0f;
     };
-
     VSG_value(TextLayoutValue, LayoutStruct);
 
     class VSG_DECLSPEC GpuLayoutTechnique : public Inherit<TextTechnique, GpuLayoutTechnique>
@@ -65,8 +64,5 @@ namespace vsg
         ref_ptr<BindVertexBuffers> bindVertexBuffers;
     };
     VSG_type_name(vsg::GpuLayoutTechnique);
-
-    /// create a ShaderSet for GpuALayutTechnique or return the Options::shaderSet["gpuTextLayout"] entry if available.
-    extern VSG_DECLSPEC ref_ptr<ShaderSet> createGpuTextLayputShaderSet(ref_ptr<const Options> options = {});
 
 } // namespace vsg

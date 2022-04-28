@@ -30,9 +30,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/ShaderSet.h>
 #include <vsg/utils/SharedObjects.h>
 
-#include "shaders/text_GpuLayout_vert.cpp"
-#include "shaders/text_frag.cpp"
-
 #include <iostream>
 
 using namespace vsg;
@@ -43,40 +40,6 @@ void assignValue(T& dest, const T& src, bool& updated)
     if (dest == src) return;
     dest = src;
     updated = true;
-}
-
-ref_ptr<ShaderSet> vsg::createGpuTextLayputShaderSet(ref_ptr<const Options> options)
-{
-    if (options)
-    {
-        // check if a ShaderSet has already been assigned to the options object, if so return it
-        if (auto itr = options->shaderSets.find("gpuTextLayout"); itr != options->shaderSets.end()) return itr->second;
-    }
-
-    // load shaders
-    auto vertexShader = read_cast<ShaderStage>("shaders/text_GpuLayout.vert", options);
-    if (!vertexShader) vertexShader = text_GpuLayout_vert(); // fallback to shaders/text_GpuLayout_vert.cppp
-
-    auto fragmentShader = read_cast<ShaderStage>("shaders/text.frag", options);
-    if (!fragmentShader) fragmentShader = text_frag(); // fallback to shaders/text_frag.cppp
-
-    uint32_t numTextIndices = 256;
-    vertexShader->specializationConstants = vsg::ShaderStage::SpecializationConstants{
-        {0, vsg::uintValue::create(numTextIndices)} // numTextIndices
-    };
-
-    auto shaderSet = ShaderSet::create(ShaderStages{vertexShader, fragmentShader});
-
-    shaderSet->addAttributeBinding("inPosition", "", 0, VK_FORMAT_R32G32B32_SFLOAT, vec3Array::create(1));
-
-    shaderSet->addUniformBinding("textureAtlas", "", 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vec4Array2D::create(1, 1));
-    shaderSet->addUniformBinding("glyphMetrics", "", 0, 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_VERTEX_BIT, vec4Array2D::create(1, 1));
-    shaderSet->addUniformBinding("textLayout", "", 1, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, TextLayoutValue::create());
-    shaderSet->addUniformBinding("text", "", 1, 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, uivec4Array2D::create(1, 1));
-
-    shaderSet->addPushConstantRange("pc", "", VK_SHADER_STAGE_VERTEX_BIT, 0, 128);
-
-    return shaderSet;
 }
 
 void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
@@ -200,7 +163,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     {
         scenegraph = StateGroup::create();
 
-        auto shaderSet = createGpuTextLayputShaderSet(text->font->options);
+        auto shaderSet = createTextShaderSet(text->font->options);
         auto config = vsg::GraphicsPipelineConfig::create(shaderSet);
 
         auto& sharedObjects = text->font->sharedObjects;

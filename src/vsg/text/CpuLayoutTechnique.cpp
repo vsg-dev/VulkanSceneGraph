@@ -29,42 +29,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/GraphicsPipelineConfig.h>
 #include <vsg/utils/SharedObjects.h>
 
-#include "shaders/text_frag.cpp"
-#include "shaders/text_vert.cpp"
-
 #include <iostream>
 
 using namespace vsg;
-
-ref_ptr<ShaderSet> vsg::createCpuTextLayputShaderSet(ref_ptr<const Options> options)
-{
-    if (options)
-    {
-        // check if a ShaderSet has already been assigned to the options object, if so return it
-        if (auto itr = options->shaderSets.find("cpuTextLayout"); itr != options->shaderSets.end()) return itr->second;
-    }
-
-    // load shaders
-    auto vertexShader = read_cast<ShaderStage>("shaders/text.vert", options);
-    if (!vertexShader) vertexShader = text_vert(); // fallback to shaders/text_vert.cppp
-
-    auto fragmentShader = read_cast<ShaderStage>("shaders/text.frag", options);
-    if (!fragmentShader) fragmentShader = text_frag(); // fallback to shaders/text_frag.cppp
-
-    auto shaderSet = ShaderSet::create(ShaderStages{vertexShader, fragmentShader});
-
-    shaderSet->addAttributeBinding("inPosition", "", 0, VK_FORMAT_R32G32B32_SFLOAT, vec3Array::create(1));
-    shaderSet->addAttributeBinding("inColor", "", 1, VK_FORMAT_R32G32B32A32_SFLOAT, vec4Array::create(1));
-    shaderSet->addAttributeBinding("inOutlineColor", "", 2, VK_FORMAT_R32G32B32A32_SFLOAT, vec4Array::create(1));
-    shaderSet->addAttributeBinding("inOutlineWidth", "", 3, VK_FORMAT_R32_SFLOAT, floatArray::create(1));
-    shaderSet->addAttributeBinding("inTexCoord", "", 4, VK_FORMAT_R32G32B32_SFLOAT, vec3Array::create(1));
-
-    shaderSet->addUniformBinding("textureAtlas", "", 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vec4Array2D::create(1, 1));
-
-    shaderSet->addPushConstantRange("pc", "", VK_SHADER_STAGE_VERTEX_BIT, 0, 128);
-
-    return shaderSet;
-}
 
 void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
 {
@@ -204,7 +171,7 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     {
         scenegraph = StateGroup::create();
 
-        auto shaderSet = createCpuTextLayputShaderSet(text->font->options);
+        auto shaderSet = createTextShaderSet(text->font->options);
         auto config = vsg::GraphicsPipelineConfig::create(shaderSet);
 
         auto& sharedObjects = text->font->sharedObjects;
