@@ -23,7 +23,7 @@ namespace vsg
     template<typename T>
     constexpr T clamp_to_edge(T value)
     {
-        return value <= 0.0 ? 0.0 : value >= 1.0 ? 1.0 : value;
+        return value <= T(0.0) ? T(0.0) : value >= T(1.0) ? T(1.0) : value;
     }
 
     /// clamp value between 0 and 1, implementing VK_SAMPLER_ADDRESS_MODE_REPEAT
@@ -31,17 +31,17 @@ namespace vsg
     constexpr T repeat(T value)
     {
         T result = value - std::floor(value);
-        if (result != 0.0) return result;
-        return (value>0.0) ? 1.0 : 0.0;
+        if (result != T(0.0)) return result;
+        return (value>T(0.0)) ? T(1.0) : T(0.0);
     }
 
     /// clamp value between 0 and 1, implementing VK_SAMPLER_ADDRESS_MODE_MIRROR_REPEAT
     template<typename T>
     constexpr T mirror_repeat(T value)
     {
-        T half_value = (std::abs(value) * 0.5);
+        T half_value = (std::abs(value) * T(0.5));
         T v_fract = half_value - std::floor(half_value);
-        return 1.0-std::abs(1.0-v_fract*2.0);
+        return T(1.0)-std::abs(T(1.0)-v_fract*T(2.0));
     }
 
     /// clamp value to range, return true if succeds.

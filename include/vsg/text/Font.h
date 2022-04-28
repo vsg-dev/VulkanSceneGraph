@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/text/GlyphMetrics.h>
+#include <vsg/utils/SharedObjects.h>
 
 namespace vsg
 {
