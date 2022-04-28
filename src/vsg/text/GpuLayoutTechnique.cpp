@@ -27,8 +27,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/text/StandardLayout.h>
 #include <vsg/text/Text.h>
 #include <vsg/utils/GraphicsPipelineConfig.h>
-#include <vsg/utils/SharedObjects.h>
 #include <vsg/utils/ShaderSet.h>
+#include <vsg/utils/SharedObjects.h>
 
 #include "shaders/text_GpuLayout_vert.cpp"
 #include "shaders/text_frag.cpp"
@@ -75,7 +75,6 @@ ref_ptr<ShaderSet> vsg::createGpuTextLayputShaderSet(ref_ptr<const Options> opti
     shaderSet->addUniformBinding("text", "", 1, 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, uivec4Array2D::create(1, 1));
 
     shaderSet->addPushConstantRange("pc", "", VK_SHADER_STAGE_VERTEX_BIT, 0, 128);
-
 
     return shaderSet;
 }
@@ -259,9 +258,9 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
         colorBlendAttachment.blendEnable = VK_TRUE;
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
-                                            VK_COLOR_COMPONENT_G_BIT |
-                                            VK_COLOR_COMPONENT_B_BIT |
-                                            VK_COLOR_COMPONENT_A_BIT;
+                                              VK_COLOR_COMPONENT_G_BIT |
+                                              VK_COLOR_COMPONENT_B_BIT |
+                                              VK_COLOR_COMPONENT_A_BIT;
 
         colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
         colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
@@ -283,8 +282,10 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
 
         config->additionalDescrptorSetLayout = textArrayDescriptorSetLayout;
 
-        if (sharedObjects) sharedObjects->share(config, [](auto gpc) { gpc->init(); });
-        else config->init();
+        if (sharedObjects)
+            sharedObjects->share(config, [](auto gpc) { gpc->init(); });
+        else
+            config->init();
 
         scenegraph->add(config->bindGraphicsPipeline);
 

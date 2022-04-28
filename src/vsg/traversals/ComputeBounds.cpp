@@ -143,12 +143,12 @@ void ComputeBounds::apply(const DrawIndexed& drawIndexed)
 void ComputeBounds::applyDraw(uint32_t firstVertex, uint32_t vertexCount, uint32_t firstInstance, uint32_t instanceCount)
 {
     auto& arrayState = *arrayStateStack.back();
-    uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance+1;
+    uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
     uint32_t endVertex = firstVertex + vertexCount;
     dmat4 matrix;
     if (!matrixStack.empty()) matrix = matrixStack.back();
 
-    for(uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
+    for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
     {
         if (auto vertices = arrayState.vertexArray(instanceIndex))
         {
@@ -163,14 +163,14 @@ void ComputeBounds::applyDraw(uint32_t firstVertex, uint32_t vertexCount, uint32
 void ComputeBounds::applyDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount)
 {
     auto& arrayState = *arrayStateStack.back();
-    uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance+1;
+    uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
     uint32_t endIndex = firstIndex + indexCount;
     dmat4 matrix;
     if (!matrixStack.empty()) matrix = matrixStack.back();
 
     if (ushort_indices)
     {
-        for(uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
+        for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
         {
             if (auto vertices = arrayState.vertexArray(instanceIndex))
             {
@@ -183,7 +183,7 @@ void ComputeBounds::applyDrawIndexed(uint32_t firstIndex, uint32_t indexCount, u
     }
     else if (uint_indices)
     {
-        for(uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
+        for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
         {
             if (auto vertices = arrayState.vertexArray(instanceIndex))
             {

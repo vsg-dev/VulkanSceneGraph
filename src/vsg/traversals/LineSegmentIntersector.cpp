@@ -34,7 +34,6 @@ struct TriangleIntersector
     vec_type _d_invY;
     vec_type _d_invZ;
 
-
     LineSegmentIntersector& intersector;
     ref_ptr<const vec3Array> vertices;
 
@@ -255,8 +254,8 @@ bool LineSegmentIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertex
     const auto& ls = _lineSegmentStack.back();
 
     size_t previous_size = intersections.size();
-    uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance+1;
-    for(uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
+    uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
+    for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
     {
         TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, arrayState.vertexArray(instanceIndex));
         if (!triIntsector.vertices) return false;
@@ -280,8 +279,8 @@ bool LineSegmentIntersector::intersectDrawIndexed(uint32_t firstIndex, uint32_t 
     const auto& ls = _lineSegmentStack.back();
 
     size_t previous_size = intersections.size();
-    uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance+1;
-    for(uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
+    uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
+    for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
     {
         TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, arrayState.vertexArray(instanceIndex));
         if (!triIntsector.vertices) continue;

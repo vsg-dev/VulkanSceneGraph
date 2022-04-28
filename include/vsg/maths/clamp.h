@@ -23,7 +23,8 @@ namespace vsg
     template<typename T>
     constexpr T clamp_to_edge(T value)
     {
-        return value <= T(0.0) ? T(0.0) : value >= T(1.0) ? T(1.0) : value;
+        return value <= T(0.0) ? T(0.0) : value >= T(1.0) ? T(1.0)
+                                                          : value;
     }
 
     /// clamp value between 0 and 1, implementing VK_SAMPLER_ADDRESS_MODE_REPEAT
@@ -32,7 +33,7 @@ namespace vsg
     {
         T result = value - std::floor(value);
         if (result != T(0.0)) return result;
-        return (value>T(0.0)) ? T(1.0) : T(0.0);
+        return (value > T(0.0)) ? T(1.0) : T(0.0);
     }
 
     /// clamp value between 0 and 1, implementing VK_SAMPLER_ADDRESS_MODE_MIRROR_REPEAT
@@ -41,31 +42,31 @@ namespace vsg
     {
         T half_value = (std::abs(value) * T(0.5));
         T v_fract = half_value - std::floor(half_value);
-        return T(1.0)-std::abs(T(1.0)-v_fract*T(2.0));
+        return T(1.0) - std::abs(T(1.0) - v_fract * T(2.0));
     }
 
     /// clamp value to range, return true if succeds.
     bool clamp(VkSamplerAddressMode mode, float& coord)
     {
-        switch(mode)
+        switch (mode)
         {
-            case(VK_SAMPLER_ADDRESS_MODE_REPEAT):
-                coord = repeat(coord);
-                return true;
-            case(VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT):
-                coord = mirror_repeat(coord);
-                return true;
-            case(VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE):
-                coord = clamp_to_edge(coord);
-                return true;
-            case(VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER):
-                if (coord < 0.0f) return false;
-                if (coord > 1.0f) return false;
-                return true;
-            default:
-                // not supported, fallback to clamp_to_edge
-                coord = clamp_to_edge(coord);
-                break;
+        case (VK_SAMPLER_ADDRESS_MODE_REPEAT):
+            coord = repeat(coord);
+            return true;
+        case (VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT):
+            coord = mirror_repeat(coord);
+            return true;
+        case (VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE):
+            coord = clamp_to_edge(coord);
+            return true;
+        case (VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER):
+            if (coord < 0.0f) return false;
+            if (coord > 1.0f) return false;
+            return true;
+        default:
+            // not supported, fallback to clamp_to_edge
+            coord = clamp_to_edge(coord);
+            break;
         }
         return true;
     }

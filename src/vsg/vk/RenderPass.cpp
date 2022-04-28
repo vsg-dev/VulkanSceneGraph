@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <array>
 
 #if !defined(VK_VERSION_1_2)
-    #define vkCreateRenderPass2 vkCreateRenderPass2KHR
+#    define vkCreateRenderPass2 vkCreateRenderPass2KHR
 #endif
 
 using namespace vsg;

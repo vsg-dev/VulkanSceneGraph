@@ -19,7 +19,6 @@ namespace vsg
     class VSG_DECLSPEC MultisampleState : public Inherit<GraphicsPipelineState, MultisampleState>
     {
     public:
-
         MultisampleState(VkSampleCountFlagBits rasterizationSamples = VK_SAMPLE_COUNT_1_BIT);
         MultisampleState(const MultisampleState& ms);
 

@@ -51,7 +51,7 @@ namespace vsg
     template<>
     constexpr ubvec4 color_cast<ubvec4>(float r, float g, float b, float a)
     {
-        return {static_cast<uint8_t>(r*255.0f), static_cast<uint8_t>(g*255.0f), static_cast<uint8_t>(b*255.0f), static_cast<uint8_t>(a*255.0f)};
+        return {static_cast<uint8_t>(r * 255.0f), static_cast<uint8_t>(g * 255.0f), static_cast<uint8_t>(b * 255.0f), static_cast<uint8_t>(a * 255.0f)};
     }
 
     template<typename T>
@@ -81,22 +81,21 @@ namespace vsg
     template<typename T>
     constexpr T color_cast(VkBorderColor borderColor)
     {
-        switch(borderColor)
+        switch (borderColor)
         {
-            case(VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK):
-            case(VK_BORDER_COLOR_INT_TRANSPARENT_BLACK):
-                return transparent_black<T>();
-            case(VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK):
-            case(VK_BORDER_COLOR_INT_OPAQUE_BLACK):
-                return opaque_black<T>();
-            case(VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE):
-            case(VK_BORDER_COLOR_INT_OPAQUE_WHITE):
-                return opaque_white<T>();
-            default:
-                // not supported, fallback to VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK
-                return transparent_black<T>();
+        case (VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK):
+        case (VK_BORDER_COLOR_INT_TRANSPARENT_BLACK):
+            return transparent_black<T>();
+        case (VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK):
+        case (VK_BORDER_COLOR_INT_OPAQUE_BLACK):
+            return opaque_black<T>();
+        case (VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE):
+        case (VK_BORDER_COLOR_INT_OPAQUE_WHITE):
+            return opaque_white<T>();
+        default:
+            // not supported, fallback to VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK
+            return transparent_black<T>();
         }
     }
-
 
 } // namespace vsg

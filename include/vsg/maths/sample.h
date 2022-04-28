@@ -26,20 +26,20 @@ namespace vsg
     {
         using value_type = typename A::value_type;
 
-        if (image.size()==0 || !clamp(sampler.addressModeU, coord.x) || !clamp(sampler.addressModeV, coord.y))
+        if (image.size() == 0 || !clamp(sampler.addressModeU, coord.x) || !clamp(sampler.addressModeV, coord.y))
         {
             return color_cast<value_type>(sampler.borderColor);
         }
 
-        vec2 tc_scale(static_cast<float>(image.width())-1.0f, static_cast<float>(image.height())-1.0f);
+        vec2 tc_scale(static_cast<float>(image.width()) - 1.0f, static_cast<float>(image.height()) - 1.0f);
         vec2 tc_index = coord * tc_scale;
 
         if (sampler.magFilter == VK_FILTER_NEAREST)
         {
-            uint32_t i = static_cast<uint32_t>(tc_index.x+0.5f);
-            uint32_t j = static_cast<uint32_t>(tc_index.y+0.5f);
-            if (i >= image.width()) i = image.width()-1;
-            if (j >= image.height()) j = image.height()-1;
+            uint32_t i = static_cast<uint32_t>(tc_index.x + 0.5f);
+            uint32_t j = static_cast<uint32_t>(tc_index.y + 0.5f);
+            if (i >= image.width()) i = image.width() - 1;
+            if (j >= image.height()) j = image.height() - 1;
 
             return image.at(i, j);
         }
@@ -50,24 +50,24 @@ namespace vsg
             float r = tc_index.x - static_cast<float>(i);
             float s = tc_index.y - static_cast<float>(j);
 
-            if (i >= image.width()-1)
+            if (i >= image.width() - 1)
             {
-                i = image.width()-1;
+                i = image.width() - 1;
                 r = 0.0f;
             }
 
-            if (j >= image.height()-1)
+            if (j >= image.height() - 1)
             {
-                j = image.height()-1;
+                j = image.height() - 1;
                 s = 0.0f;
             }
 
-            auto v = image.at(i, j) * ((1.0f-r) * (1.0f-s));
-            if (r > 0.0) v += image.at(i+1, j) * (r * (1.0f-s));
+            auto v = image.at(i, j) * ((1.0f - r) * (1.0f - s));
+            if (r > 0.0) v += image.at(i + 1, j) * (r * (1.0f - s));
             if (s > 0.0)
             {
-                v += image.at(i, j+1) * ((1.0f-r) * s);
-                if (r > 0.0) v += image.at(i+1, j+1) * (r * s);
+                v += image.at(i, j + 1) * ((1.0f - r) * s);
+                if (r > 0.0) v += image.at(i + 1, j + 1) * (r * s);
             }
 
             return v;

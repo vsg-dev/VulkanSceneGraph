@@ -14,19 +14,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/state/ColorBlendState.h>
 #include <vsg/state/DepthStencilState.h>
-#include <vsg/state/ViewportState.h>
-#include <vsg/state/DynamicState.h>
 #include <vsg/state/DescriptorBuffer.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/state/DescriptorSetLayout.h>
+#include <vsg/state/DynamicState.h>
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/InputAssemblyState.h>
 #include <vsg/state/MultisampleState.h>
 #include <vsg/state/RasterizationState.h>
+#include <vsg/state/TessellationState.h>
 #include <vsg/state/VertexInputState.h>
 #include <vsg/state/ViewportState.h>
-#include <vsg/state/TessellationState.h>
 
 #include <vsg/utils/ShaderSet.h>
 
@@ -66,11 +65,11 @@ namespace vsg
         ref_ptr<DepthStencilState> depthStencilState;
         ref_ptr<DynamicState> dynamicState;
         ref_ptr<InputAssemblyState> inputAssemblyState;
-        ref_ptr<MultisampleState> multisampleState;  // typically leave unset as cpmpile traversal with provide MultisampleState
+        ref_ptr<MultisampleState> multisampleState; // typically leave unset as cpmpile traversal with provide MultisampleState
         ref_ptr<RasterizationState> rasterizationState;
         ref_ptr<TessellationState> tessellationState;
         ref_ptr<VertexInputState> vertexInputState; // set by assarray(..) methods.
-        ref_ptr<ViewportState> viewportState; // typically leave unset as cpmpile traversal with provide ViewportState
+        ref_ptr<ViewportState> viewportState;       // typically leave unset as cpmpile traversal with provide ViewportState
 
         uint32_t subpass = 0;
         uint32_t baseAttributeBinding = 0;

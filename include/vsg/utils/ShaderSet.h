@@ -13,9 +13,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/compare.h>
-#include <vsg/state/ShaderStage.h>
-#include <vsg/state/Sampler.h>
 #include <vsg/state/GraphicsPipeline.h>
+#include <vsg/state/Sampler.h>
+#include <vsg/state/ShaderStage.h>
 #include <vsg/traversals/ArrayState.h>
 
 namespace vsg
@@ -119,8 +119,6 @@ namespace vsg
         const UniformBinding _nullUniformBinding;
     };
     VSG_type_name(vsg::ShaderSet);
-
-
 
     /// create a ShaderSet for unlit, flat shaded rendering
     extern VSG_DECLSPEC ref_ptr<ShaderSet> createFlatShadedShaderSet(ref_ptr<const Options> options = {});

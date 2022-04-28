@@ -67,7 +67,8 @@ struct AssignGraphicsPipelineStates : public vsg::Visitor
 {
     vsg::GraphicsPipelineConfig* config = nullptr;
 
-    AssignGraphicsPipelineStates(vsg::GraphicsPipelineConfig* in_config) : config(in_config) {}
+    AssignGraphicsPipelineStates(vsg::GraphicsPipelineConfig* in_config) :
+        config(in_config) {}
 
     void apply(vsg::ColorBlendState& cbs) override { config->colorBlendState = ColorBlendState::create(cbs); }
     void apply(vsg::DepthStencilState& mss) override { config->depthStencilState = DepthStencilState::create(mss); }
@@ -88,7 +89,7 @@ GraphicsPipelineConfig::GraphicsPipelineConfig(ref_ptr<ShaderSet> in_shaderSet) 
     if (!graphicsPipelineStates.empty())
     {
         AssignGraphicsPipelineStates agps(this);
-        for(auto& gps : graphicsPipelineStates)
+        for (auto& gps : graphicsPipelineStates)
         {
             gps->accept(agps);
         }

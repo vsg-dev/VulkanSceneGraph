@@ -274,8 +274,7 @@ void Trackball::apply(TouchDownEvent& touchDown)
         touchDown.x,
         touchDown.y,
         vsg::ButtonMask::BUTTON_MASK_1,
-        touchDown.id
-    );
+        touchDown.id);
     apply(*evt.get());
 }
 
@@ -288,8 +287,7 @@ void Trackball::apply(TouchUpEvent& touchUp)
         touchUp.x,
         touchUp.y,
         vsg::ButtonMask::BUTTON_MASK_1,
-        touchUp.id
-    );
+        touchUp.id);
     apply(*evt.get());
 }
 
@@ -301,8 +299,7 @@ void Trackball::apply(TouchMoveEvent& touchMove)
         touchMove.time,
         touchMove.x,
         touchMove.y,
-        vsg::ButtonMask::BUTTON_MASK_1
-    );
+        vsg::ButtonMask::BUTTON_MASK_1);
     apply(*evt.get());
 }
 void Trackball::apply(FrameEvent& frame)

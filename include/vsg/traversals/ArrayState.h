@@ -165,5 +165,4 @@ namespace vsg
     };
     VSG_type_name(vsg::PositionAndDisplacementMapArrayState);
 
-
 } // namespace vsg

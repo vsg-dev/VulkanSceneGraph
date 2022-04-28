@@ -16,11 +16,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/sample.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/VertexIndexDraw.h>
+#include <vsg/state/DescriptorImage.h>
+#include <vsg/state/DescriptorSet.h>
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/InputAssemblyState.h>
 #include <vsg/state/VertexInputState.h>
-#include <vsg/state/DescriptorSet.h>
-#include <vsg/state/DescriptorImage.h>
 #include <vsg/traversals/ArrayState.h>
 
 using namespace vsg;
@@ -226,7 +226,7 @@ ref_ptr<const vec3Array> PositionArrayState::vertexArray(uint32_t instanceIndex)
         auto position = positions->at(instanceIndex);
         auto new_vertices = vsg::vec3Array::create(vertices->size());
         auto src_vertex_itr = vertices->begin();
-        for(auto& v : *new_vertices)
+        for (auto& v : *new_vertices)
         {
             v = *(src_vertex_itr++) + position;
         }
@@ -279,7 +279,7 @@ void DisplacementMapArrayState::apply(const DescriptorImage& di)
 
 void DisplacementMapArrayState::apply(const DescriptorSet& ds)
 {
-    for(auto& descriptor : ds.descriptors)
+    for (auto& descriptor : ds.descriptors)
     {
         if (descriptor->dstBinding == dm_binding)
         {
@@ -299,7 +299,7 @@ void DisplacementMapArrayState::apply(const BindDescriptorSet& bds)
 
 void DisplacementMapArrayState::apply(const BindDescriptorSets& bds)
 {
-    if (bds.firstSet <= dm_set && dm_set < (bds.firstSet+ + static_cast<uint32_t>(bds.descriptorSets.size())))
+    if (bds.firstSet <= dm_set && dm_set < (bds.firstSet + +static_cast<uint32_t>(bds.descriptorSets.size())))
     {
         apply(*bds.descriptorSets[dm_set - bds.firstSet]);
     }
@@ -325,12 +325,12 @@ ref_ptr<const vec3Array> DisplacementMapArrayState::vertexArray(uint32_t /*insta
         auto src_vertex_itr = vertices->begin();
         auto src_teccoord_itr = texcoords->begin();
         auto src_normal_itr = normals->begin();
-        vec2 tc_scale(static_cast<float>(displacementMap->width())-1.0f, static_cast<float>(displacementMap->height())-1.0f);
+        vec2 tc_scale(static_cast<float>(displacementMap->width()) - 1.0f, static_cast<float>(displacementMap->height()) - 1.0f);
 
         // if no sampler is assigned fallback to use default constructed Sampler
         if (!sampler) sampler = Sampler::create();
 
-        for(auto& v : *new_vertices)
+        for (auto& v : *new_vertices)
         {
             auto& tc = *(src_teccoord_itr++);
             auto& n = *(src_normal_itr++);
@@ -400,12 +400,12 @@ ref_ptr<const vec3Array> PositionAndDisplacementMapArrayState::vertexArray(uint3
         auto src_vertex_itr = vertices->begin();
         auto src_teccoord_itr = texcoords->begin();
         auto src_normal_itr = normals->begin();
-        vec2 tc_scale(static_cast<float>(displacementMap->width())-1.0f, static_cast<float>(displacementMap->height())-1.0f);
+        vec2 tc_scale(static_cast<float>(displacementMap->width()) - 1.0f, static_cast<float>(displacementMap->height()) - 1.0f);
 
         // if no sampler is assigned fallback to use default constructed Sampler
         if (!sampler) sampler = Sampler::create();
 
-        for(auto& v : *new_vertices)
+        for (auto& v : *new_vertices)
         {
             auto& tc = *(src_teccoord_itr++);
             auto& n = *(src_normal_itr++);
