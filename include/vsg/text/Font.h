@@ -36,47 +36,13 @@ namespace vsg
         ref_ptr<GlyphMetricsArray> glyphMetrics;
         ref_ptr<uintArray> charmap;
         ref_ptr<Options> options;
+        ref_ptr<SharedObjects> sharedObjects;
 
         /// get the index into the glyphMetrics array for the glyph associated with specified charcode
         uint32_t glyphIndexForCharcode(uint32_t charcode) const
         {
             if (charmap && charcode < charmap->size()) return charmap->at(charcode);
             return 0;
-        }
-
-        /// Wrapper for Font GPU state.
-        struct VSG_DECLSPEC FontState : public Inherit<Object, FontState>
-        {
-            explicit FontState(Font* font);
-            bool match() const { return true; }
-
-            ref_ptr<DescriptorImage> textureAtlas;
-            ref_ptr<DescriptorImage> glyphMetricsImage;
-        };
-
-        /// different text implementations may wish to share implementation details such as shaders etc.
-        std::mutex sharedDataMutex;
-        std::vector<ref_ptr<Object>> sharedData;
-
-        /// get or create a Technique instance that matches the specified type
-        template<class T, typename... Args>
-        ref_ptr<T> getShared(Args&&... args)
-        {
-            {
-                std::scoped_lock lock(sharedDataMutex);
-                for (auto& shared : sharedData)
-                {
-                    auto required_data = shared.cast<T>();
-                    if (required_data && required_data->match(args...)) return required_data;
-                }
-            }
-
-            auto required_data = T::create(this, args...);
-            {
-                std::scoped_lock lock(sharedDataMutex);
-                sharedData.emplace_back(required_data);
-            }
-            return required_data;
         }
     };
     VSG_type_name(vsg::Font);

@@ -26,6 +26,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/text/CpuLayoutTechnique.h>
 #include <vsg/text/StandardLayout.h>
 #include <vsg/text/Text.h>
+#include <vsg/utils/GraphicsPipelineConfig.h>
+#include <vsg/utils/SharedObjects.h>
 
 #include "shaders/text_frag.cpp"
 #include "shaders/text_vert.cpp"
@@ -34,87 +36,34 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CpuLayoutTechnique::RenderingState::RenderingState(Font* font, bool in_singleColor, bool in_singleOutlineColor, bool in_singleOutlineWidth) :
-    singleColor(in_singleColor),
-    singleOutlineColor(in_singleOutlineColor),
-    singleOutlineWidth(in_singleOutlineWidth)
+ref_ptr<ShaderSet> vsg::createCpuTextLayputShaderSet(ref_ptr<const Options> options)
 {
+    if (options)
+    {
+        // check if a ShaderSet has already been assigned to the options object, if so return it
+        if (auto itr = options->shaderSets.find("cpuTextLayout"); itr != options->shaderSets.end()) return itr->second;
+    }
+
     // load shaders
-    auto vertexShader = read_cast<ShaderStage>("shaders/text.vert", font->options);
+    auto vertexShader = read_cast<ShaderStage>("shaders/text.vert", options);
     if (!vertexShader) vertexShader = text_vert(); // fallback to shaders/text_vert.cppp
 
-    auto fragmentShader = read_cast<ShaderStage>("shaders/text.frag", font->options);
+    auto fragmentShader = read_cast<ShaderStage>("shaders/text.frag", options);
     if (!fragmentShader) fragmentShader = text_frag(); // fallback to shaders/text_frag.cppp
 
-    // compile section
-    ShaderStages stagesToCompile;
-    if (vertexShader && vertexShader->module && vertexShader->module->code.empty()) stagesToCompile.emplace_back(vertexShader);
-    if (fragmentShader && fragmentShader->module && fragmentShader->module->code.empty()) stagesToCompile.emplace_back(fragmentShader);
+    auto shaderSet = ShaderSet::create(ShaderStages{vertexShader, fragmentShader});
 
-    // set up graphics pipeline
-    DescriptorSetLayoutBindings descriptorBindings{
-        {0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr} // { binding, descriptorTpe, descriptorCount, stageFlags, pImmutableSamplers}
-    };
+    shaderSet->addAttributeBinding("inPosition", "", 0, VK_FORMAT_R32G32B32_SFLOAT, vec3Array::create(1));
+    shaderSet->addAttributeBinding("inColor", "", 1, VK_FORMAT_R32G32B32A32_SFLOAT, vec4Array::create(1));
+    shaderSet->addAttributeBinding("inOutlineColor", "", 2, VK_FORMAT_R32G32B32A32_SFLOAT, vec4Array::create(1));
+    shaderSet->addAttributeBinding("inOutlineWidth", "", 3, VK_FORMAT_R32_SFLOAT, floatArray::create(1));
+    shaderSet->addAttributeBinding("inTexCoord", "", 4, VK_FORMAT_R32G32B32_SFLOAT, vec3Array::create(1));
 
-    auto descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
+    shaderSet->addUniformBinding("textureAtlas", "", 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vec4Array2D::create(1, 1));
 
-    PushConstantRanges pushConstantRanges{
-        {VK_SHADER_STAGE_VERTEX_BIT, 0, 128} // projection view, and model matrices, actual push constant calls automatically provided by the VSG's DispatchTraversal
-    };
+    shaderSet->addPushConstantRange("pc", "", VK_SHADER_STAGE_VERTEX_BIT, 0, 128);
 
-    VertexInputState::Bindings vertexBindingsDescriptions{
-        VkVertexInputBindingDescription{0, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX},                                                       // vertex data
-        VkVertexInputBindingDescription{1, sizeof(vec4), singleColor ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX},         // colour data
-        VkVertexInputBindingDescription{2, sizeof(vec4), singleOutlineColor ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX},  // outline colour data
-        VkVertexInputBindingDescription{3, sizeof(float), singleOutlineWidth ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX}, // outline width data
-        VkVertexInputBindingDescription{4, sizeof(vec3), VK_VERTEX_INPUT_RATE_VERTEX}                                                        // tex coord data
-    };
-
-    VertexInputState::Attributes vertexAttributeDescriptions{
-        VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0},    // vertex data
-        VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32A32_SFLOAT, 0}, // colour data
-        VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32B32A32_SFLOAT, 0}, // outline colour data
-        VkVertexInputAttributeDescription{3, 3, VK_FORMAT_R32_SFLOAT, 0},          // outline width data
-        VkVertexInputAttributeDescription{4, 4, VK_FORMAT_R32G32B32_SFLOAT, 0},    // tex coord data
-    };
-
-    // alpha blending
-    VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-    colorBlendAttachment.blendEnable = VK_TRUE;
-    colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
-                                          VK_COLOR_COMPONENT_G_BIT |
-                                          VK_COLOR_COMPONENT_B_BIT |
-                                          VK_COLOR_COMPONENT_A_BIT;
-
-    colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-    colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-    colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-    colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-    colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
-
-    auto blending = ColorBlendState::create(ColorBlendState::ColorBlendAttachments{colorBlendAttachment});
-
-    // switch off back face culling
-    auto rasterization = RasterizationState::create();
-    rasterization->cullMode = VK_CULL_MODE_NONE;
-
-    GraphicsPipelineStates pipelineStates{
-        VertexInputState::create(vertexBindingsDescriptions, vertexAttributeDescriptions),
-        InputAssemblyState::create(),
-        MultisampleState::create(),
-        blending,
-        rasterization,
-        DepthStencilState::create()};
-
-    auto pipelineLayout = PipelineLayout::create(DescriptorSetLayouts{descriptorSetLayout}, pushConstantRanges);
-    auto graphicsPipeline = GraphicsPipeline::create(pipelineLayout, ShaderStages{vertexShader, fragmentShader}, pipelineStates);
-    bindGraphicsPipeline = BindGraphicsPipeline::create(graphicsPipeline);
-
-    // create texture image and associated DescriptorSets and binding
-    auto fontState = font->getShared<Font::FontState>();
-    auto descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{fontState->textureAtlas});
-    bindDescriptorSet = BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, descriptorSet);
+    return shaderSet;
 }
 
 void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
@@ -255,13 +204,74 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     {
         scenegraph = StateGroup::create();
 
-        // set up state related objects if they haven't already been assigned
-        if (!sharedRenderingState) sharedRenderingState = text->font->getShared<RenderingState>(singleColor, singleOutlineColor, singleOutlineWidth);
+        auto shaderSet = createCpuTextLayputShaderSet(text->font->options);
+        auto config = vsg::GraphicsPipelineConfig::create(shaderSet);
 
-        if (sharedRenderingState->bindGraphicsPipeline) scenegraph->add(sharedRenderingState->bindGraphicsPipeline);
-        if (sharedRenderingState->bindDescriptorSet) scenegraph->add(sharedRenderingState->bindDescriptorSet);
+        auto& sharedObjects = text->font->sharedObjects;
+        if (!sharedObjects && text->font->options) sharedObjects = text->font->options->sharedObjects;
+        if (!sharedObjects) sharedObjects = SharedObjects::create();
 
-        bindVertexBuffers = BindVertexBuffers::create(0, DataList{vertices, colors, outlineColors, outlineWidths, texcoords});
+        DataList arrays;
+        config->assignArray(arrays, "inPosition", VK_VERTEX_INPUT_RATE_VERTEX, vertices);
+        config->assignArray(arrays, "inColor", singleColor ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX, colors);
+        config->assignArray(arrays, "inOutlineColor", singleOutlineColor ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX,  outlineColors);
+        config->assignArray(arrays, "inOutlineWidth", singleOutlineWidth ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX,  outlineWidths);
+        config->assignArray(arrays, "inTexCoord", VK_VERTEX_INPUT_RATE_VERTEX, texcoords);
+
+        // set up sampler for atlas.
+        auto sampler = Sampler::create();
+        sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+        sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+        sampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+        sampler->borderColor = VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
+        sampler->anisotropyEnable = VK_TRUE;
+        sampler->maxAnisotropy = 16.0f;
+        sampler->magFilter = VK_FILTER_LINEAR;
+        sampler->minFilter = VK_FILTER_LINEAR;
+        sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        sampler->maxLod = 12.0;
+
+        if (sharedObjects) sharedObjects->share(sampler);
+
+        Descriptors descriptors;
+        config->assignTexture(descriptors, "textureAtlas", text->font->atlas, sampler);
+        if (sharedObjects) sharedObjects->share(descriptors);
+
+        // disable face culling so text can be seen from both sides
+        config->rasterizationState->cullMode = VK_CULL_MODE_NONE;
+
+        // set alpha blending
+        VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
+        colorBlendAttachment.blendEnable = VK_TRUE;
+        colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
+                                            VK_COLOR_COMPONENT_G_BIT |
+                                            VK_COLOR_COMPONENT_B_BIT |
+                                            VK_COLOR_COMPONENT_A_BIT;
+
+        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+        config->colorBlendState->attachments = {colorBlendAttachment};
+
+        if (sharedObjects) sharedObjects->share(config, [](auto gpc) { gpc->init(); });
+        else config->init();
+
+        scenegraph->add(config->bindGraphicsPipeline);
+
+        auto descriptorSetLayout = vsg::DescriptorSetLayout::create(config->descriptorBindings);
+        if (sharedObjects) sharedObjects->share(descriptorSetLayout);
+        auto descriptorSet = vsg::DescriptorSet::create(descriptorSetLayout, descriptors);
+
+        auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, config->layout, 0, descriptorSet);
+        if (sharedObjects) sharedObjects->share(bindDescriptorSet);
+
+        scenegraph->add(bindDescriptorSet);
+
+        bindVertexBuffers = BindVertexBuffers::create(0, arrays);
         bindIndexBuffer = BindIndexBuffer::create(indices);
 
         // setup geometry

@@ -50,19 +50,6 @@ namespace vsg
 
         void setup(Text* text, uint32_t minimumAllocation = 0) override;
 
-        /// rendering state used to set up graphics pipeline and descriptor sets, assigned to Font to allow it be shared
-        struct VSG_DECLSPEC GpuLayoutState : public Inherit<Object, GpuLayoutState>
-        {
-            explicit GpuLayoutState(Font* font);
-
-            bool match() const { return true; }
-
-            ref_ptr<PipelineLayout> pipelineLayout;
-            ref_ptr<DescriptorSetLayout> textArrayDescriptorSetLayout;
-            ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
-            ref_ptr<BindDescriptorSet> bindDescriptorSet;
-        };
-
         // implementation data structure
         ref_ptr<StateGroup> scenegraph;
 
@@ -76,8 +63,10 @@ namespace vsg
         ref_ptr<BindDescriptorSet> bindTextDescriptorSet;
 
         ref_ptr<BindVertexBuffers> bindVertexBuffers;
-        ref_ptr<GpuLayoutState> sharedRenderingState;
     };
     VSG_type_name(vsg::GpuLayoutTechnique);
+
+    /// create a ShaderSet for GpuALayutTechnique or return the Options::shaderSet["gpuTextLayout"] entry if available.
+    extern VSG_DECLSPEC ref_ptr<ShaderSet> createGpuTextLayputShaderSet(ref_ptr<const Options> options = {});
 
 } // namespace vsg
