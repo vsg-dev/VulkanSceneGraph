@@ -54,6 +54,7 @@ namespace vsg
         // fillined in by init()
         ref_ptr<DescriptorSet> descriptorSet;
     };
+    VSG_type_name(vsg::DescriptorConfig);
 
     class VSG_DECLSPEC GraphicsPipelineConfig : public vsg::Inherit<Object, GraphicsPipelineConfig>
     {

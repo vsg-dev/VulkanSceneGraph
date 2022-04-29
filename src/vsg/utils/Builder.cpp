@@ -18,7 +18,6 @@
 #include <vsg/utils/Builder.h>
 #include <vsg/utils/GraphicsPipelineConfig.h>
 
-#include <iostream>
 
 using namespace vsg;
 

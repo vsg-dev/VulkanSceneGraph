@@ -76,6 +76,14 @@ int PushConstantRange::compare(const PushConstantRange& rhs) const
     return compare_region(range, range, rhs.range);
 }
 
+int DefinesArrayState::compare(const DefinesArrayState& rhs) const
+{
+    int result = compare_container(defines, rhs.defines);
+    if (result) return result;
+
+    return compare_pointer(arrayState, rhs.arrayState);
+}
+
 ShaderSet::ShaderSet()
 {
 }
@@ -190,8 +198,9 @@ int ShaderSet::compare(const Object& rhs_object) const
     if ((result = compare_pointer_container(stages, rhs.stages))) return result;
     if ((result = compare_container(attributeBindings, rhs.attributeBindings))) return result;
     if ((result = compare_container(uniformBindings, rhs.uniformBindings))) return result;
-    return compare_container(pushConstantRanges, rhs.pushConstantRanges);
-    // TODO add defiensArraysStates and defaultGraphicsPipelineStates
+    if ((result = compare_container(pushConstantRanges, rhs.pushConstantRanges))) return result;
+    if ((result = compare_container(definesArrayStates, rhs.definesArrayStates))) return result;
+    return compare_pointer_container(defaultGraphicsPipelineStates, rhs.defaultGraphicsPipelineStates);
 }
 
 void ShaderSet::read(Input& input)

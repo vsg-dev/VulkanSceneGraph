@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    struct AttributeBinding
+    struct VSG_DECLSPEC AttributeBinding
     {
         std::string name;
         std::string define;
@@ -34,7 +34,7 @@ namespace vsg
         explicit operator bool() const noexcept { return !name.empty(); }
     };
 
-    struct UniformBinding
+    struct VSG_DECLSPEC UniformBinding
     {
         std::string name;
         std::string define;
@@ -50,7 +50,7 @@ namespace vsg
         explicit operator bool() const noexcept { return !name.empty(); }
     };
 
-    struct PushConstantRange
+    struct VSG_DECLSPEC PushConstantRange
     {
         std::string name;
         std::string define;
@@ -59,10 +59,12 @@ namespace vsg
         int compare(const PushConstantRange& rhs) const;
     };
 
-    struct DefinesArrayState
+    struct VSG_DECLSPEC DefinesArrayState
     {
         std::vector<std::string> defines;
         ref_ptr<ArrayState> arrayState;
+
+        int compare(const DefinesArrayState& rhs) const;
     };
 
     class VSG_DECLSPEC ShaderSet : public Inherit<Object, ShaderSet>
