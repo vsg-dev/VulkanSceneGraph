@@ -23,7 +23,7 @@ namespace vsg
     struct StateInfo
     {
         bool lighting = true;
-        bool doubleSided = false;
+        bool two_sided = false;
         bool blending = false;
         bool greyscale = false; /// greyscale image
         bool wireframe = false;

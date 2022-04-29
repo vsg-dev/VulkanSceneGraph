@@ -122,7 +122,11 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         graphicsPipelineConfig->enableArray("vsg_position", VK_VERTEX_INPUT_RATE_INSTANCE, 12);
     }
 
-    graphicsPipelineConfig->rasterizationState->cullMode = stateInfo.doubleSided ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT;
+    if (stateInfo.two_sided)
+    {
+        graphicsPipelineConfig->rasterizationState->cullMode = VK_CULL_MODE_NONE;
+        defines.push_back("VSG_TWO_SIDED_LIGHTING");
+    }
 
     graphicsPipelineConfig->colorBlendState->attachments = ColorBlendState::ColorBlendAttachments{
         {stateInfo.blending, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, VK_BLEND_OP_ADD, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, VK_BLEND_OP_SUBTRACT, VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT}};
