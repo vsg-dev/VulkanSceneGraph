@@ -10,15 +10,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/stream.h>
 #include <vsg/nodes/Transform.h>
 
 using namespace vsg;
 
-Transform::Transform() :
-    subgraphRequiresLocalFrustum(true)
+Transform::Transform()
 {
+}
+
+int Transform::compare(const Object& rhs_object) const
+{
+    int result = Group::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_value(subgraphRequiresLocalFrustum, rhs.subgraphRequiresLocalFrustum);
 }
 
 void Transform::read(Input& input)

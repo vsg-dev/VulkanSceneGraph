@@ -12,13 +12,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/compare.h>
 #include <vsg/core/Inherit.h>
+#include <vsg/core/compare.h>
 #include <vsg/io/stream.h>
 
-#include <ostream>
 #include <map>
 #include <mutex>
+#include <ostream>
 #include <set>
 
 namespace vsg
@@ -33,14 +33,24 @@ namespace vsg
         template<class T>
         ref_ptr<T> shared_default()
         {
-            std::scoped_lock<std::mutex> lock(_mutex);
+            std::scoped_lock<std::recursive_mutex> lock(_mutex);
 
             auto id = std::type_index(typeid(T));
             auto& def = _defaults[id];
             auto def_T = def.cast<T>(); // should be able to do a static cast
             if (!def_T)
             {
-                def_T = share(T::create());
+                def_T = T::create();
+                auto& shared_objects = _sharedObjects[id];
+                if (auto itr = shared_objects.find(def_T); itr != shared_objects.end())
+                {
+                    def_T = (static_cast<T*>(itr->get()));
+                }
+                else
+                {
+                    shared_objects.insert(def_T);
+                }
+
                 def = def_T;
             }
 
@@ -48,23 +58,65 @@ namespace vsg
         }
 
         template<class T>
-        ref_ptr<T> share(ref_ptr<T> object)
+        void share(ref_ptr<T>& object)
         {
-            std::scoped_lock<std::mutex> lock(_mutex);
+            std::scoped_lock<std::recursive_mutex> lock(_mutex);
 
             auto id = std::type_index(typeid(T));
             auto& shared_objects = _sharedObjects[id];
             if (auto itr = shared_objects.find(object); itr != shared_objects.end())
             {
-                return ref_ptr<T>(static_cast<T*>(itr->get()));
+                object = ref_ptr<T>(static_cast<T*>(itr->get()));
+                return;
             }
 
             shared_objects.insert(object);
-            return object;
         }
+
+        template<class T, typename Func>
+        void share(ref_ptr<T>& object, Func init)
+        {
+            std::scoped_lock<std::recursive_mutex> lock(_mutex);
+
+            auto id = std::type_index(typeid(T));
+            auto& shared_objects = _sharedObjects[id];
+            if (auto itr = shared_objects.find(object); itr != shared_objects.end())
+            {
+                object = ref_ptr<T>(static_cast<T*>(itr->get()));
+                return;
+            }
+
+            init(object);
+
+            shared_objects.insert(object);
+        }
+
+        template<class C>
+        void share(C& container)
+        {
+            for (auto& object : container)
+            {
+                share(object);
+            }
+        }
+
+        /// set of lower case file extensions for file types that should not be included in this ShaderObjects
+        std::set<Path> excludedExtensions;
+
+        /// return true if the specified filename is of a type suitable for inclusion in this ShaderObjects
+        virtual bool suitable(const Path& filename) const;
+
+        /// check if a cache entry contains an entry for specified filename.
+        virtual bool contains(const Path& filename, ref_ptr<const Options> options = {});
+
+        /// add entry from ObjectCache that matches filename and option.
+        virtual void add(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options = {});
 
         /// clear all the internal structures leaving no Objects cached.
         void clear();
+
+        // clear all the singally referenced objects
+        void prune();
 
         /// write out stats of objects held, types of objects and their reference counts
         void report(std::ostream& out);
@@ -72,10 +124,36 @@ namespace vsg
     protected:
         virtual ~SharedObjects();
 
-        std::mutex _mutex;
+        std::recursive_mutex _mutex;
         std::map<std::type_index, ref_ptr<Object>> _defaults;
         std::map<std::type_index, std::set<ref_ptr<Object>, DerefenceLess>> _sharedObjects;
     };
     VSG_type_name(vsg::SharedObjects);
+
+    /// Helper class for support sharing of objects loaded from files.
+    class LoadedObject : public Inherit<Object, LoadedObject>
+    {
+    public:
+        Path filename;
+        ref_ptr<const Options> options;
+        ref_ptr<Object> object;
+
+        LoadedObject(const Path& in_filename, ref_ptr<const Options> in_options, ref_ptr<Object> in_object = {}) :
+            filename(in_filename),
+            options(in_options),
+            object(in_object) {}
+
+        int compare(const Object& rhs_object) const
+        {
+            int result = Object::compare(rhs_object);
+            if (result != 0) return result;
+
+            auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+            if ((result = filename.compare(rhs.filename))) return result;
+            return compare_pointer(options, rhs.options);
+        }
+    };
+    VSG_type_name(vsg::LoadedObject);
 
 } // namespace vsg

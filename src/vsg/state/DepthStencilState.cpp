@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/DepthStencilState.h>
 #include <vsg/vk/Context.h>
@@ -20,8 +21,31 @@ DepthStencilState::DepthStencilState()
 {
 }
 
+DepthStencilState::DepthStencilState(const DepthStencilState& dss) :
+    Inherit(dss),
+    depthTestEnable(dss.depthTestEnable),
+    depthWriteEnable(dss.depthWriteEnable),
+    depthCompareOp(dss.depthCompareOp),
+    depthBoundsTestEnable(dss.depthBoundsTestEnable),
+    stencilTestEnable(dss.stencilTestEnable),
+    front(dss.front),
+    back(dss.back),
+    minDepthBounds(dss.minDepthBounds),
+    maxDepthBounds(dss.maxDepthBounds)
+{
+}
+
 DepthStencilState::~DepthStencilState()
 {
+}
+
+int DepthStencilState::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_region(depthTestEnable, maxDepthBounds, rhs.depthTestEnable);
 }
 
 void DepthStencilState::read(Input& input)

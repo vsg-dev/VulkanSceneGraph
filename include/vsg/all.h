@@ -40,10 +40,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 // Maths header files
 #include <vsg/maths/box.h>
+#include <vsg/maths/clamp.h>
+#include <vsg/maths/color.h>
 #include <vsg/maths/mat3.h>
 #include <vsg/maths/mat4.h>
 #include <vsg/maths/plane.h>
 #include <vsg/maths/quat.h>
+#include <vsg/maths/sample.h>
 #include <vsg/maths/sphere.h>
 #include <vsg/maths/transform.h>
 #include <vsg/maths/vec2.h>
@@ -203,7 +206,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/ResourceRequirements.h>
 #include <vsg/vk/Semaphore.h>
-#include <vsg/vk/ShaderCompiler.h>
 #include <vsg/vk/State.h>
 #include <vsg/vk/SubmitCommands.h>
 #include <vsg/vk/Surface.h>
@@ -218,7 +220,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/DatabasePager.h>
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/Input.h>
-#include <vsg/io/ObjectCache.h>
 #include <vsg/io/ObjectFactory.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
@@ -234,6 +235,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/AnimationPath.h>
 #include <vsg/utils/Builder.h>
 #include <vsg/utils/CommandLine.h>
+#include <vsg/utils/GraphicsPipelineConfig.h>
+#include <vsg/utils/ShaderCompiler.h>
+#include <vsg/utils/ShaderSet.h>
 #include <vsg/utils/SharedObjects.h>
 
 // Introspection header files

@@ -32,7 +32,6 @@ namespace vsg
         vec4 outlineColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
         float outlineWidth = 0.0f;
     };
-
     VSG_value(TextLayoutValue, LayoutStruct);
 
     class VSG_DECLSPEC GpuLayoutTechnique : public Inherit<TextTechnique, GpuLayoutTechnique>
@@ -50,19 +49,6 @@ namespace vsg
 
         void setup(Text* text, uint32_t minimumAllocation = 0) override;
 
-        /// rendering state used to set up graphics pipeline and descriptor sets, assigned to Font to allow it be shared
-        struct VSG_DECLSPEC GpuLayoutState : public Inherit<Object, GpuLayoutState>
-        {
-            explicit GpuLayoutState(Font* font);
-
-            bool match() const { return true; }
-
-            ref_ptr<PipelineLayout> pipelineLayout;
-            ref_ptr<DescriptorSetLayout> textArrayDescriptorSetLayout;
-            ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
-            ref_ptr<BindDescriptorSet> bindDescriptorSet;
-        };
-
         // implementation data structure
         ref_ptr<StateGroup> scenegraph;
 
@@ -76,7 +62,6 @@ namespace vsg
         ref_ptr<BindDescriptorSet> bindTextDescriptorSet;
 
         ref_ptr<BindVertexBuffers> bindVertexBuffers;
-        ref_ptr<GpuLayoutState> sharedRenderingState;
     };
     VSG_type_name(vsg::GpuLayoutTechnique);
 

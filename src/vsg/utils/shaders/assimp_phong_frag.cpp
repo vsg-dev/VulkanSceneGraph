@@ -1,6 +1,6 @@
 #include <vsg/io/VSG.h>
 static auto assimp_phong_frag = []() {std::istringstream str(
-R"(#vsga 0.2.6
+R"(#vsga 0.3.0
 Root id=1 vsg::ShaderStage
 {
   NumUserObjects 0
@@ -11,7 +11,7 @@ Root id=1 vsg::ShaderStage
     NumUserObjects 0
     Source "#version 450
 #extension GL_ARB_separate_shader_objects : enable
-#pragma import_defines (VSG_VIEW_LIGHT_DATA, VSG_POINT_SPRITE, VSG_DIFFUSE_MAP, VSG_GREYSACLE_DIFFUSE_MAP, VSG_EMISSIVE_MAP, VSG_LIGHTMAP_MAP, VSG_NORMAL_MAP, VSG_SPECULAR_MAP, VSG_TWOSIDED)
+#pragma import_defines (VSG_VIEW_LIGHT_DATA, VSG_POINT_SPRITE, VSG_DIFFUSE_MAP, VSG_GREYSACLE_DIFFUSE_MAP, VSG_EMISSIVE_MAP, VSG_LIGHTMAP_MAP, VSG_NORMAL_MAP, VSG_SPECULAR_MAP, VSG_TWO_SIDED_LIGHTING)
 
 #ifdef VSG_DIFFUSE_MAP
 layout(set = 0, binding = 0) uniform sampler2D diffuseMap;
@@ -114,13 +114,7 @@ void main()
     vec2 texCoord0 = gl_PointCoord.xy;
 #endif
 
-    vec4 ambientColor = vertexColor * material.ambientColor;
     vec4 diffuseColor = vertexColor * material.diffuseColor;
-    vec4 specularColor = vertexColor * material.specularColor;
-    vec4 emissiveColor = vertexColor * material.emissiveColor;
-    float shininess = material.shininess;
-    float ambientOcclusion = 1.0;
-
 #ifdef VSG_DIFFUSE_MAP
     #ifdef VSG_GREYSACLE_DIFFUSE_MAP
         float v = texture(diffuseMap, texCoord0.st).s;
@@ -129,6 +123,12 @@ void main()
         diffuseColor *= texture(diffuseMap, texCoord0.st);
     #endif
 #endif
+
+    vec4 ambientColor = diffuseColor * material.ambientColor * material.ambientColor.a;
+    vec4 specularColor = material.specularColor;
+    vec4 emissiveColor = material.emissiveColor;
+    float shininess = material.shininess;
+    float ambientOcclusion = 1.0;
 
     if (material.alphaMask == 1.0f)
     {
@@ -148,11 +148,18 @@ void main()
     specularColor *= texture(specularMap, texCoord0.st);
 #endif
 
+    vec3 nd = getNormal();
+    vec3 vd = normalize(viewDir);
+
+#ifdef VSG_TWO_SIDED_LIGHTING
+    if (dot(vd, nd) < 0.0)
+    {
+        nd = -nd;
+    }
+#endif
 
 #if defined(VSG_VIEW_LIGHT_DATA)
     vec3 color = vec3(0.0, 0.0, 0.0);
-    vec3 nd = getNormal();
-    vec3 vd = normalize(viewDir);
 
     vec4 lightNums = lightData.values[0];
     int numAmbientLights = int(lightNums[0]);
@@ -166,8 +173,8 @@ void main()
         // ambient lights
         for(int i = 0; i<numAmbientLights; ++i)
         {
-            vec4 ambient_color = lightData.values[index++];
-            color += ambient_color.rgb * ambient_color.a;
+            vec4 lightColor = lightData.values[index++];
+            color += (ambientColor.rgb * lightColor.rgb) * (lightColor.a);
         }
     }
 
@@ -238,17 +245,11 @@ void main()
 
     outColor.rgb = (color * ambientOcclusion) + emissiveColor.rgb;
 #else
-    vec3 nd = getNormal();
     vec3 ld = normalize(lightDir);
-    vec3 vd = normalize(viewDir);
 
-    vec3 colorFrontFace = computeLighting(ambientColor.rgb, diffuseColor.rgb, specularColor.rgb, emissiveColor.rgb, shininess, ambientOcclusion, ld, nd, vd);
-#ifdef VSG_TWOSIDED
-    vec3 colorBackFace = computeLighting(ambientColor.rgb, diffuseColor.rgb, specularColor.rgb, emissiveColor.rgb, shininess, ambientOcclusion, ld, -nd, vd);
-    outColor.rgb = colorFrontFace + colorBackFace;
-#else
-    outColor.rgb = colorFrontFace;
-#endif
+    // hardwire an effective ambbent light source of 0.2 intensity as a better mapping to when using the VSG_VIEW_LIGHT_DATA code path defaults/
+    ambientColor.rgb *= 0.2;
+    outColor.rgb = computeLighting(ambientColor.rgb, diffuseColor.rgb, specularColor.rgb, emissiveColor.rgb, shininess, ambientOcclusion, ld, nd, vd);
 #endif
 
     outColor.a = diffuseColor.a;
