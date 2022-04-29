@@ -18,7 +18,6 @@
 #include <vsg/utils/Builder.h>
 #include <vsg/utils/GraphicsPipelineConfig.h>
 
-
 using namespace vsg;
 
 void Builder::assignCompileTraversal(ref_ptr<CompileTraversal> ct, uint32_t maxNumTextures)
