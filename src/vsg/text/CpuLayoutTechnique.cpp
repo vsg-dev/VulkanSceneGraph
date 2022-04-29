@@ -187,15 +187,15 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
 
         // set up sampler for atlas.
         auto sampler = Sampler::create();
+        sampler->magFilter = VK_FILTER_LINEAR;
+        sampler->minFilter = VK_FILTER_LINEAR;
+        sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
         sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
         sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
         sampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
         sampler->borderColor = VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
         sampler->anisotropyEnable = VK_TRUE;
         sampler->maxAnisotropy = 16.0f;
-        sampler->magFilter = VK_FILTER_LINEAR;
-        sampler->minFilter = VK_FILTER_LINEAR;
-        sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
         sampler->maxLod = 12.0;
 
         if (sharedObjects) sharedObjects->share(sampler);

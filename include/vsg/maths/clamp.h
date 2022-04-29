@@ -46,7 +46,7 @@ namespace vsg
     }
 
     /// clamp value to range, return true if succeds.
-    bool clamp(VkSamplerAddressMode mode, float& coord)
+    inline bool clamp(VkSamplerAddressMode mode, float& coord)
     {
         switch (mode)
         {

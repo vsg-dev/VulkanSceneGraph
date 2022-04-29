@@ -39,7 +39,7 @@ namespace vsg
 
         ref_ptr<ShaderSet> shaderSet;
         bool blending = false;
-        bool twoSided = false;
+        bool two_sided = false;
 
         bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
         bool assignUniform(const std::string& name, ref_ptr<Data> data = {});
