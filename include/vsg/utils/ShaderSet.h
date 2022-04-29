@@ -80,6 +80,7 @@ namespace vsg
         std::vector<UniformBinding> uniformBindings;
         std::vector<PushConstantRange> pushConstantRanges;
         std::vector<DefinesArrayState> definesArrayStates; // put more constrained ArrayState matches first so they are matched first.
+        std::vector<std::string> optionalDefines;
         GraphicsPipelineStates defaultGraphicsPipelineStates;
 
         /// variants of the rootShaderModule compiled for differen combinations of ShaderCompileSettings

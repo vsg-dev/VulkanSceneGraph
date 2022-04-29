@@ -200,6 +200,7 @@ int ShaderSet::compare(const Object& rhs_object) const
     if ((result = compare_container(uniformBindings, rhs.uniformBindings))) return result;
     if ((result = compare_container(pushConstantRanges, rhs.pushConstantRanges))) return result;
     if ((result = compare_container(definesArrayStates, rhs.definesArrayStates))) return result;
+    if ((result = compare_container(optionalDefines, rhs.optionalDefines))) return result;
     return compare_pointer_container(defaultGraphicsPipelineStates, rhs.defaultGraphicsPipelineStates);
 }
 
@@ -253,6 +254,7 @@ void ShaderSet::read(Input& input)
         input.readObject("arrayState", das.arrayState);
     }
 
+    input.readValues("optionalDefines", optionalDefines);
     input.readObjects("defaultGraphicsPipelineStates", defaultGraphicsPipelineStates);
 
     auto num_variants = input.readValue<uint32_t>("variants");
@@ -310,6 +312,7 @@ void ShaderSet::write(Output& output) const
         output.writeObject("arrayState", das.arrayState);
     }
 
+    output.writeValues("optionalDefines", optionalDefines);
     output.writeObjects("defaultGraphicsPipelineStates", defaultGraphicsPipelineStates);
 
     output.writeValue<uint32_t>("variants", variants.size());
@@ -348,6 +351,8 @@ ref_ptr<ShaderSet> vsg::createFlatShadedShaderSet(ref_ptr<const Options> options
 
     shaderSet->addPushConstantRange("pc", "", VK_SHADER_STAGE_VERTEX_BIT, 0, 128);
 
+    shaderSet->optionalDefines = {"VSG_POINT_SPRITE", "VSG_GREYSACLE_DIFFUSE_MAP"};
+
     shaderSet->definesArrayStates.push_back(DefinesArrayState{{"VSG_INSTANCE_POSITIONS", "VSG_DISPLACEMENT_MAP"}, PositionAndDisplacementMapArrayState::create()});
     shaderSet->definesArrayStates.push_back(DefinesArrayState{{"VSG_INSTANCE_POSITIONS"}, PositionArrayState::create()});
     shaderSet->definesArrayStates.push_back(DefinesArrayState{{"VSG_DISPLACEMENT_MAP"}, DisplacementMapArrayState::create()});
@@ -385,6 +390,8 @@ ref_ptr<ShaderSet> vsg::createPhongShaderSet(ref_ptr<const Options> options)
     shaderSet->addUniformBinding("lightData", "VSG_VIEW_LIGHT_DATA", 1, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array::create(64));
 
     shaderSet->addPushConstantRange("pc", "", VK_SHADER_STAGE_VERTEX_BIT, 0, 128);
+
+    shaderSet->optionalDefines = {"VSG_GREYSACLE_DIFFUSE_MAP", "VSG_TWO_SIDED_LIGHTING", "VSG_POINT_SPRITE"};
 
     shaderSet->definesArrayStates.push_back(DefinesArrayState{{"VSG_INSTANCE_POSITIONS", "VSG_DISPLACEMENT_MAP"}, PositionAndDisplacementMapArrayState::create()});
     shaderSet->definesArrayStates.push_back(DefinesArrayState{{"VSG_INSTANCE_POSITIONS"}, PositionArrayState::create()});
@@ -426,7 +433,7 @@ ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_ptr<const Optio
     shaderSet->addUniformBinding("lightData", "VSG_VIEW_LIGHT_DATA", 1, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vsg::vec4Array::create(64));
 
     // additional defiines
-    // VSG_GREYSACLE_DIFFUSE_MAP, VSG_TWO_SIDED_LIGHTING, VSG_WORKFLOW_SPECGLOSS
+    shaderSet->optionalDefines = {"VSG_GREYSACLE_DIFFUSE_MAP", "VSG_TWO_SIDED_LIGHTING", "VSG_WORKFLOW_SPECGLOSS"};
 
     shaderSet->addPushConstantRange("pc", "", VK_SHADER_STAGE_VERTEX_BIT, 0, 128);
 
