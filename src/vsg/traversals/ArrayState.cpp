@@ -224,7 +224,7 @@ ref_ptr<const vec3Array> PositionArrayState::vertexArray(uint32_t instanceIndex)
     if (positions && (instanceIndex < positions->size()))
     {
         auto position = positions->at(instanceIndex);
-        auto new_vertices = vsg::vec3Array::create(vertices->size());
+        auto new_vertices = vsg::vec3Array::create(static_cast<uint32_t>(vertices->size()));
         auto src_vertex_itr = vertices->begin();
         for (auto& v : *new_vertices)
         {
@@ -321,7 +321,7 @@ ref_ptr<const vec3Array> DisplacementMapArrayState::vertexArray(uint32_t /*insta
         if (texcoords->size() != vertices->size()) return {};
         if (normals->size() != vertices->size()) return {};
 
-        auto new_vertices = vsg::vec3Array::create(vertices->size());
+        auto new_vertices = vsg::vec3Array::create(static_cast<uint32_t>(vertices->size()));
         auto src_vertex_itr = vertices->begin();
         auto src_teccoord_itr = texcoords->begin();
         auto src_normal_itr = normals->begin();
@@ -396,7 +396,7 @@ ref_ptr<const vec3Array> PositionAndDisplacementMapArrayState::vertexArray(uint3
         if (texcoords->size() != vertices->size()) return {};
         if (normals->size() != vertices->size()) return {};
 
-        auto new_vertices = vsg::vec3Array::create(vertices->size());
+        auto new_vertices = vsg::vec3Array::create(static_cast<uint32_t>(vertices->size()));
         auto src_vertex_itr = vertices->begin();
         auto src_teccoord_itr = texcoords->begin();
         auto src_normal_itr = normals->begin();
