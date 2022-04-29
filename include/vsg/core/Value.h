@@ -32,6 +32,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     template<>          \
     constexpr const char* type_name<N>() noexcept { return "vsg::" #N; }
 
+// helper define for defining a Value external to the vsg namespace, note must be placed in global namespace.
+#define EVSG_value(N, T) \
+    using N = vsg::Value<T>; \
+    template<>          \
+    constexpr const char* vsg::type_name<N>() noexcept { return "vsg::" #N; }
+
 namespace vsg
 {
     template<typename T>
