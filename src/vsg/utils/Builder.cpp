@@ -99,7 +99,6 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     if (sharedObjects) sharedObjects->share(descriptors);
 
     // set up ViewDependentState
-    defines.push_back("VSG_VIEW_LIGHT_DATA");
     ref_ptr<ViewDescriptorSetLayout> vdsl;
     if (sharedObjects)
         vdsl = sharedObjects->shared_default<ViewDescriptorSetLayout>();
