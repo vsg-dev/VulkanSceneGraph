@@ -1,6 +1,6 @@
 #include <vsg/io/VSG.h>
 static auto assimp_flat_shaded_frag = []() {std::istringstream str(
-R"(#vsga 0.1.7
+R"(#vsga 0.3.0
 Root id=1 vsg::ShaderStage
 {
   NumUserObjects 0

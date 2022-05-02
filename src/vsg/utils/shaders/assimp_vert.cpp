@@ -1,6 +1,6 @@
 #include <vsg/io/VSG.h>
 static auto assimp_vert = []() {std::istringstream str(
-R"(#vsga 0.2.6
+R"(#vsga 0.3.0
 Root id=1 vsg::ShaderStage
 {
   NumUserObjects 0
@@ -38,7 +38,6 @@ layout(location = 2) out vec4 vertexColor;
 layout(location = 3) out vec2 texCoord0;
 
 layout(location = 5) out vec3 viewDir;
-layout(location = 6) out vec3 lightDir;
 
 out gl_PerVertex{ vec4 gl_Position; };
 
@@ -87,14 +86,8 @@ void main()
     eyePos = (pc.modelView * vertex).xyz;
 
     vec4 lpos = /*vsg_LightSource.position*/ vec4(0.0, 0.0, 1.0, 0.0);
-
     viewDir = - (pc.modelView * vertex).xyz;
     normalDir = (pc.modelView * normal).xyz;
-
-    if (lpos.w == 0.0)
-        lightDir = lpos.xyz;
-    else
-        lightDir = lpos.xyz + viewDir;
 
     vertexColor = vsg_Color;
     texCoord0 = vsg_TexCoord0;

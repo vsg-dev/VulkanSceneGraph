@@ -55,19 +55,16 @@ layout(binding = 10) uniform PbrData
     float alphaMaskCutoff;
 } pbr;
 
-#ifdef VSG_VIEW_LIGHT_DATA
 layout(set = 1, binding = 0) uniform LightData
 {
     vec4 values[64];
 } lightData;
-#endif
 
 layout(location = 0) in vec3 eyePos;
 layout(location = 1) in vec3 normalDir;
 layout(location = 2) in vec4 vertexColor;
 layout(location = 3) in vec2 texCoord0;
 layout(location = 5) in vec3 viewDir;
-layout(location = 6) in vec3 lightDir;
 
 layout(location = 0) out vec4 outColor;
 
@@ -242,10 +239,20 @@ float microfacetDistribution(PBRInfo pbrInputs)
 
 vec3 BRDF(vec3 u_LightColor, vec3 v, vec3 n, vec3 l, vec3 h, float perceptualRoughness, float metallic, vec3 specularEnvironmentR0, vec3 specularEnvironmentR90, float alphaRoughness, vec3 diffuseColor, vec3 specularColor, float ao)
 {
+    float unclmapped_NdotL = dot(n, l);
+
+    #ifdef VSG_TWO_SIDED_LIGHTING
+    if (unclmapped_NdotL < 0.0)
+    {
+        n = -n;
+        unclmapped_NdotL = -unclmapped_NdotL;
+    }
+    #endif
+
     vec3 reflection = -normalize(reflect(v, n));
     reflection.y *= -1.0f;
 
-    float NdotL = clamp(dot(n, l), 0.001, 1.0);
+    float NdotL = clamp(unclmapped_NdotL, 0.001, 1.0);
     float NdotV = clamp(abs(dot(n, v)), 0.001, 1.0);
     float NdotH = clamp(dot(n, h), 0.0, 1.0);
     float LdotH = clamp(dot(l, h), 0.0, 1.0);
@@ -392,15 +399,6 @@ void main()
     vec3 n = getNormal();
     vec3 v = normalize(viewDir);    // Vector from surface point to camera
 
-#ifdef VSG_TWO_SIDED_LIGHTING
-    if (dot(v, n) < 0.0)
-    {
-        n = -n;
-    }
-#endif
-
-#ifdef VSG_VIEW_LIGHT_DATA
-
     float shininess = 100.0f;
 
     vec3 color = vec3(0.0, 0.0, 0.0);
@@ -480,15 +478,6 @@ R"(            float scale = lightColor.a;
     }
 
     outColor = LINEARtoSRGB(vec4(color, baseColor.a));
-#else
-    vec3 l = normalize(lightDir);   // Vector from surface point to light
-    vec3 h = normalize(l+v);        // Half vector between both l and v
-    const vec3 u_LightColor = vec3(1.0);
-
-    vec3 color = BRDF(u_LightColor, v, n, l, h, perceptualRoughness, metallic, specularEnvironmentR0, specularEnvironmentR90, alphaRoughness, diffuseColor, specularColor, ambientOcclusion);
-
-    outColor = LINEARtoSRGB(vec4(color, baseColor.a));
-#endif
 }
 "
     hints id=0
