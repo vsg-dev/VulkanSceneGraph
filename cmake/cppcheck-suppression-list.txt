@@ -1,8 +1,7 @@
 // suppress Key related errors
-noExplicitConstructor:*include/vsg/core/ref_ptr.h:33
-noExplicitConstructor:*include/vsg/core/ref_ptr.h:40
-noExplicitConstructor:*include/vsg/core/ref_ptr.h:40
-noExplicitConstructor:*include/vsg/core/Inherit.h:37
+noExplicitConstructor:*include/vsg/core/ref_ptr.h:35
+noExplicitConstructor:*include/vsg/core/ref_ptr.h:42
+noExplicitConstructor:*include/vsg/core/Inherit.h:32
 
 // suppress correct casts flagged as issues
 invalidPointerCast:*/include/vsg/core/Data.h
