@@ -44,14 +44,14 @@ Using the prototyping work as a guide implement the final scene graph library wi
 * Positional state support to enable easier support of lighting, shadows, texture projection.
 * Matrix decomposition
 * Port to iOS
-
-#### Current development tasks:
 * Unified state composer, shader set and cache
 * Update vsgXchange::Assimp to use the new state composer/shader set.
 
+#### Current development tasks:
+* Support for wide and standard strings in vsg::Path.
+
 #### Future tasks:
 * Improved support for dynamic scene graphs and dynamic views, dynamic descriptor pool reallocation
-* Support for wide and standard strings in vsg::Path.
 * Utilize vkEnumerateInstanceVersion
 
 #### Future tasks relating to associated libraries
