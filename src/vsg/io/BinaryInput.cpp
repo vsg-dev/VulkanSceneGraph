@@ -48,6 +48,27 @@ void BinaryInput::read(size_t num, std::string* value)
     }
 }
 
+#if NEW_PATH_DEFINED
+void BinaryInput::read(size_t num, Path* value)
+{
+    if (num == 1)
+    {
+        std::string str_value;
+        _read(str_value);
+        *value = str_value;
+    }
+    else
+    {
+        for (; num > 0; --num, ++value)
+        {
+            std::string str_value;
+            _read(str_value);
+            *value = str_value;
+        }
+    }
+}
+#endif
+
 vsg::ref_ptr<vsg::Object> BinaryInput::read()
 {
     ObjectID id = objectID();

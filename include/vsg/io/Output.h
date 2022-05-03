@@ -58,7 +58,9 @@ namespace vsg
         virtual void write(size_t num, const float* value) = 0;
         virtual void write(size_t num, const double* value) = 0;
         virtual void write(size_t num, const std::string* value) = 0;
-
+#if NEW_PATH_DEFINED
+        virtual void write(size_t num, const Path* value) = 0;
+#endif
         /// write object
         virtual void write(const Object* object) = 0;
 

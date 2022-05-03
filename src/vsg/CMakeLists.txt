@@ -109,6 +109,7 @@ set(SOURCES
     io/Output.cpp
     io/Options.cpp
     io/ObjectFactory.cpp
+    io/Path.cpp
     io/ReaderWriter.cpp
     io/VSG.cpp
     io/spirv.cpp

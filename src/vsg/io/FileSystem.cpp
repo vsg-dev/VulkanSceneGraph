@@ -120,8 +120,8 @@ bool vsg::fileExists(const Path& path)
 
 Path vsg::filePath(const Path& path)
 {
-    std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
-    if (slash != std::string::npos)
+    auto slash = path.find_last_of(PATH_SEPARATORS);
+    if (slash != vsg::Path::npos)
     {
         return path.substr(0, slash);
     }
@@ -133,6 +133,7 @@ Path vsg::filePath(const Path& path)
 
 Path vsg::fileExtension(const Path& path)
 {
+#if !NEW_PATH_DEFINED
     // available in cpp20
     auto endsWith = [](std::string_view str, std::string_view suffix) {
         return str.size() >= suffix.size() && 0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
@@ -141,11 +142,11 @@ Path vsg::fileExtension(const Path& path)
     // handle dot and dotdot in the path - since end-users can mix delimiter types we have to handle both cases
     if (endsWith(path, "\\.") || endsWith(path, "/.")) return {};
     if (endsWith(path, "\\..") || endsWith(path, "/..")) return {};
-
-    std::string::size_type dot = path.find_last_of('.');
-    std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
-    if (dot == std::string::npos || (slash != std::string::npos && dot < slash)) return {};
-    if (dot != std::string::npos && path.length() == 1) return {};
+#endif
+    auto dot = path.find_last_of('.');
+    auto slash = path.find_last_of(PATH_SEPARATORS);
+    if (dot == Path::npos || (slash != Path::npos && dot < slash)) return {};
+    if (dot != Path::npos && path.size() == 1) return {};
     return path.substr(dot);
 }
 
@@ -158,18 +159,18 @@ Path vsg::lowerCaseFileExtension(const Path& path)
 
 Path vsg::simpleFilename(const Path& path)
 {
-    std::string::size_type dot = path.find_last_of('.');
-    std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
-    if (slash != std::string::npos)
+    auto dot = path.find_last_of('.');
+    auto slash = path.find_last_of(PATH_SEPARATORS);
+    if (slash != Path::npos)
     {
-        if ((dot == std::string::npos) || (dot < slash))
+        if ((dot == Path::npos) || (dot < slash))
             return path.substr(slash + 1);
         else
             return path.substr(slash + 1, dot - slash - 1);
     }
     else
     {
-        if (dot == std::string::npos)
+        if (dot == Path::npos)
             return path;
         else
             return path.substr(0, dot);
@@ -178,9 +179,9 @@ Path vsg::simpleFilename(const Path& path)
 
 Path vsg::removeExtension(const Path& path)
 {
-    std::string::size_type dot = path.find_last_of('.');
-    std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
-    if (dot == std::string::npos || (slash != std::string::npos && dot < slash))
+    auto dot = path.find_last_of('.');
+    auto slash = path.find_last_of(PATH_SEPARATORS);
+    if (dot == Path::npos || (slash != Path::npos && dot < slash))
         return path;
     else if (dot > 1)
         return path.substr(0, dot);

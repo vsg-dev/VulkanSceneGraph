@@ -140,7 +140,9 @@ namespace vsg
         }
 
         void write(size_t num, const std::string* value) override;
-
+#if NEW_PATH_DEFINED
+        void write(size_t num, const Path* value) override;
+#endif
         /// write object
         void write(const vsg::Object* object) override;
 

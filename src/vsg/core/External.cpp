@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/write.h>
 
 #include <unordered_map>
+#include <map>
 
 using namespace vsg;
 
@@ -51,7 +52,11 @@ public:
         ObjectID endID = 0;
     };
 
+#if NEW_PATH_DEFINED
+    using ObjectIDRangeMap = std::map<Path, ObjectIDRange>;
+#else
     using ObjectIDRangeMap = std::unordered_map<Path, ObjectIDRange>;
+#endif
     ObjectIDRangeMap objectIDRangeMap;
 };
 
@@ -64,7 +69,7 @@ External::External(const PathObjects& in_entries) :
 {
 }
 
-External::External(const std::string& filename, ref_ptr<Object> object) :
+External::External(const vsg::Path& filename, ref_ptr<Object> object) :
     entries{{filename, object}}
 {
 }

@@ -13,16 +13,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <map>
-#include <string>
 #include <vector>
 
 #include <vsg/core/Object.h>
+#include <vsg/io/Path.h>
 
 namespace vsg
 {
 
     class Options;
-    using Path = std::string;
     using Paths = std::vector<Path>;
     using PathObjects = std::map<Path, ref_ptr<Object>>;
 
