@@ -101,6 +101,16 @@ namespace vsg
         inline std::string string() const { std::string dest; copy(_string, dest); return dest; }
         inline std::wstring wstring() const { std::wstring dest; copy(_string, dest); return dest; }
 
+        // temporary workaround for working with old c style functions.
+        inline const char* c_str() const
+        {
+        #if WIDE_PATH
+            _cache = string(); return _cache.c_str();
+        #else
+            return _string.c_str();
+        #endif
+        }
+
         reference operator [] (size_type pos) { return _string[pos]; }
         const_reference operator [] (size_type pos) const { return _string[pos]; }
 
@@ -129,6 +139,10 @@ namespace vsg
 
     protected:
         string_type _string = {};
+
+        #if WIDE_PATH
+        mutable std::string _cache;
+        #endif
 
     };
 
