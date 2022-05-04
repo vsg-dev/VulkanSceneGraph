@@ -88,7 +88,7 @@ namespace vsg
     {
     public:
         NullArrayState();
-        NullArrayState(const ArrayState& as);
+        explicit NullArrayState(const ArrayState& as);
 
         ref_ptr<ArrayState> clone() override;
         ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
@@ -103,7 +103,7 @@ namespace vsg
     public:
         PositionArrayState();
         PositionArrayState(const PositionArrayState& rhs);
-        PositionArrayState(const ArrayState& rhs);
+        explicit PositionArrayState(const ArrayState& rhs);
 
         ref_ptr<ArrayState> clone() override;
         ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
@@ -121,7 +121,7 @@ namespace vsg
     public:
         DisplacementMapArrayState();
         DisplacementMapArrayState(const DisplacementMapArrayState& rhs);
-        DisplacementMapArrayState(const ArrayState& rhs);
+        explicit DisplacementMapArrayState(const ArrayState& rhs);
 
         ref_ptr<ArrayState> clone() override;
         ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
@@ -152,7 +152,7 @@ namespace vsg
     public:
         PositionAndDisplacementMapArrayState();
         PositionAndDisplacementMapArrayState(const PositionAndDisplacementMapArrayState& rhs);
-        PositionAndDisplacementMapArrayState(const ArrayState& rhs);
+        explicit PositionAndDisplacementMapArrayState(const ArrayState& rhs);
 
         uint32_t position_attribute_location = 4;
         AttributeDetails positionAttribute;
