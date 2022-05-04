@@ -110,7 +110,7 @@ namespace vsg
         /// get the ShaderStages varient that uses specified ShaderCompileSettings.
         ShaderStages getShaderStages(ref_ptr<ShaderCompileSettings> scs = {});
 
-        int compare(const Object& rhs) const;
+        int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
