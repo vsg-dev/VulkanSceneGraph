@@ -35,11 +35,13 @@ namespace vsg
         Path(const char* str) : _string(str) {}
 
         using value_type = char;
+        using string_type = std::basic_string<value_type>;
+
         using size_type = size_t;
         using reference = value_type&;
         using const_reference = const value_type&;
-        using iterator = std::string::iterator;
-        using const_iterator = std::string::const_iterator;
+        using iterator = string_type::iterator;
+        using const_iterator = string_type::const_iterator;
         using pointer = value_type*;
         using const_pointer = const value_type*;
 
@@ -76,7 +78,7 @@ namespace vsg
         const_reference operator [] (size_type pos) const { return _string[pos]; }
 
         //operator const char* () const { return _string.c_str(); }
-        operator const std::string& () const { return _string; }
+        operator const string_type& () const { return _string; }
 
         Path substr(size_type pos, size_type len = Path::npos) const { return Path(_string.substr(pos, len)); }
 
@@ -100,7 +102,7 @@ namespace vsg
 
 
     protected:
-        std::string _string = {};
+        string_type _string = {};
 
     };
 
