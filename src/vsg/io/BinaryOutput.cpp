@@ -46,16 +46,14 @@ void BinaryOutput::write(size_t num, const Path* value)
     if (num == 1)
     {
         _output << ' ';
-        std::string str_value = *value;
-        _write(str_value);
+        _write(value->string());
     }
     else
     {
         for (; num > 0; --num, ++value)
         {
             _output << ' ';
-            std::string str_value = *value;
-            _write(str_value);
+            _write(value->string());
         }
     }
 }
