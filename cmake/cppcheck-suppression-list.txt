@@ -70,6 +70,7 @@ unusedStructMember:*include/vsg/vk/Swapchain.h
 unusedStructMember:*include/vsg/nodes/Switch.h
 unusedStructMember:*include/vsg/text/TextLayout.h
 unusedStructMember:*include/vsg/introspection/c_interface.h
+unusedStructMember:*include/vsg/utils/Bulder.h
 unusedStructMember:*src/vsg/core/External.cpp
 
 // suppress inappropriate warning about unitialized variable

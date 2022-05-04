@@ -30,7 +30,7 @@ namespace vsg
 
         void assignArrays(const DataList& in_arrays);
 
-        int compare(const Object& rhs) const;
+        int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;

@@ -89,7 +89,7 @@ namespace vsg
         ref_ptr<ShaderCompileSettings> shaderHints;
         vsg::DescriptorSetLayoutBindings descriptorBindings;
 
-        int compare(const Object& rhs) const;
+        int compare(const Object& rhs) const override;
 
         void init();
 

@@ -28,7 +28,7 @@ namespace vsg
         /// transforming the view frustum polytope into the local coordinate frame and save time.
         bool subgraphRequiresLocalFrustum = true;
 
-        int compare(const Object& rhs) const;
+        int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;

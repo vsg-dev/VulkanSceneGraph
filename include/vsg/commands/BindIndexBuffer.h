@@ -34,7 +34,7 @@ namespace vsg
 
         void assignIndices(ref_ptr<vsg::Data> in_indices);
 
-        int compare(const Object& rhs) const;
+        int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
