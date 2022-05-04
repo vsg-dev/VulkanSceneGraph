@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <string>
 #include <ostream>
 
-#define NEW_PATH_DEFINED 0
+#define NEW_PATH_DEFINED 1
 
 #include <iostream>
 
