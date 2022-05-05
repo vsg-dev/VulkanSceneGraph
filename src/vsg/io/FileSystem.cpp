@@ -45,18 +45,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-const char UNIX_PATH_SEPARATOR = '/';
-const char WINDOWS_PATH_SEPARATOR = '\\';
-const char* const PATH_SEPARATORS = "/\\";
-
-#if defined(WIN32) && !defined(__CYGWIN__)
-const char delimiterNative = WINDOWS_PATH_SEPARATOR;
-const char delimiterForeign = UNIX_PATH_SEPARATOR;
-#else
-const char delimiterNative = UNIX_PATH_SEPARATOR;
-const char delimiterForeign = WINDOWS_PATH_SEPARATOR;
-#endif
-
 #if defined(WIN32) && !defined(__CYGWIN__)
 const char envPathDelimiter = ';';
 #else
@@ -124,7 +112,7 @@ bool vsg::fileExists(const Path& path)
 
 Path vsg::filePath(const Path& path)
 {
-    auto slash = path.find_last_of(PATH_SEPARATORS);
+    auto slash = path.find_last_of(Path::separators);
     if (slash != vsg::Path::npos)
     {
         return path.substr(0, slash);
@@ -148,7 +136,7 @@ Path vsg::fileExtension(const Path& path)
     if (endsWith(path, "\\..") || endsWith(path, "/..")) return {};
 #endif
     auto dot = path.find_last_of('.');
-    auto slash = path.find_last_of(PATH_SEPARATORS);
+    auto slash = path.find_last_of(Path::separators);
     if (dot == Path::npos || (slash != Path::npos && dot < slash)) return {};
     if (dot != Path::npos && path.size() == 1) return {};
     return path.substr(dot);
@@ -164,7 +152,7 @@ Path vsg::lowerCaseFileExtension(const Path& path)
 Path vsg::simpleFilename(const Path& path)
 {
     auto dot = path.find_last_of('.');
-    auto slash = path.find_last_of(PATH_SEPARATORS);
+    auto slash = path.find_last_of(Path::separators);
     if (slash != Path::npos)
     {
         if ((dot == Path::npos) || (dot < slash))
@@ -184,7 +172,7 @@ Path vsg::simpleFilename(const Path& path)
 Path vsg::removeExtension(const Path& path)
 {
     auto dot = path.find_last_of('.');
-    auto slash = path.find_last_of(PATH_SEPARATORS);
+    auto slash = path.find_last_of(Path::separators);
     if (dot == Path::npos || (slash != Path::npos && dot < slash))
         return path;
     else if (dot > 1)
@@ -201,17 +189,17 @@ Path vsg::concatPaths(const Path& left, const Path& right)
     }
     auto lastChar = left[left.size() - 1];
 
-    if (lastChar == delimiterNative)
+    if (lastChar == Path::preferred_separator)
     {
         return left + right;
     }
-    else if (lastChar == delimiterForeign)
+    else if (lastChar == Path::alternate_separator)
     {
-        return left.substr(0, left.size() - 1) + delimiterNative + right;
+        return left.substr(0, left.size() - 1) + Path::preferred_separator + right;
     }
     else // lastChar != a delimiter
     {
-        return left + delimiterNative + right;
+        return left + Path::preferred_separator + right;
     }
 }
 

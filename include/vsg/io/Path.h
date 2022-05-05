@@ -50,6 +50,19 @@ namespace vsg
         using value_type = char;
 #endif
 
+#if defined(WIN32)
+        static constexpr value_type windows_separator = L'\\';
+        static constexpr value_type posix_separator = L'/';
+        static constexpr value_type preferred_separator = windows_separator;
+        static constexpr value_type alternate_separator = posix_separator;
+        static constexpr const value_type* separators = L"/\\";
+#else
+        static constexpr value_type windows_separator = '\\';
+        static constexpr value_type posix_separator = '/';
+        static constexpr value_type preferred_separator = posix_separator;
+        static constexpr value_type alternate_separator = windows_separator;
+        static constexpr const value_type* separators = "/\\";
+#endif
         using string_type = std::basic_string<value_type>;
 
         using size_type = size_t;
@@ -86,11 +99,14 @@ namespace vsg
         int compare(size_type pos, size_type n, const Path& rhs) const { return _string.compare(pos, n, rhs._string); }
 
         int compare(const char* rhs) const { return _string.compare(native(rhs)); }
+        int compare(const wchar_t* rhs) const { return _string.compare(native(rhs)); }
         int compare(size_type pos, size_type n, const char* rhs) const { return _string.compare(pos, n, native(rhs)); }
+        int compare(size_type pos, size_type n, const wchar_t* rhs) const { return _string.compare(pos, n, native(rhs)); }
 
         Path& operator = (const Path& path) {if (this != &path) _string = path._string; return *this; }
         Path& operator = (const std::string& str) { assign(str); return *this; }
         Path& operator = (const char* str) { assign(str); return *this; }
+        Path& operator = (const wchar_t* str) { assign(str); return *this; }
 
         bool operator == (const Path& rhs) const { return compare(rhs) == 0; }
         bool operator != (const Path& rhs) const { return compare(rhs) != 0; }
@@ -98,6 +114,9 @@ namespace vsg
 
         bool operator == (const char* rhs) const { return compare(native(rhs)) == 0; }
         bool operator != (const char* rhs) const { return compare(native(rhs)) != 0; }
+
+        bool operator == (const wchar_t* rhs) const { return compare(native(rhs)) == 0; }
+        bool operator != (const wchar_t* rhs) const { return compare(native(rhs)) != 0; }
 
         bool empty() const { return _string.empty(); }
         size_type size() const { return _string.size(); }
@@ -118,14 +137,19 @@ namespace vsg
 
         size_type find(const Path& s, size_type pos = 0) const { return _string.find(s._string, pos); }
         size_type find(const char* s, size_type pos = 0) const { return _string.find(native(s), pos); }
+        size_type find(const wchar_t* s, size_type pos = 0) const { return _string.find(native(s), pos); }
 
         size_type find_first_of(const Path& s, size_type pos = 0) const { return _string.find_first_of(s._string, pos); }
         size_type find_first_of(const char* s, size_type pos = 0) const { return find_first_of(native(s), pos); }
         size_type find_first_of(const char c, size_type pos = 0) const { return find_first_of(native(c), pos); }
+        size_type find_first_of(const wchar_t* s, size_type pos = 0) const { return find_first_of(native(s), pos); }
+        size_type find_first_of(const wchar_t c, size_type pos = 0) const { return find_first_of(native(c), pos); }
 
         size_type find_last_of(const Path& s, size_type pos = npos) const { return _string.find_last_of(s._string, pos); }
         size_type find_last_of(const char* s, size_type pos = npos) const { return find_last_of(native(s), pos); }
         size_type find_last_of(const char c, size_type pos = npos) const { return find_last_of(native(c), pos); }
+        size_type find_last_of(const wchar_t* s, size_type pos = npos) const { return find_last_of(native(s), pos); }
+        size_type find_last_of(const wchar_t c, size_type pos = npos) const { return find_last_of(native(c), pos); }
 
         void append(const Path& path) { _string.append(path._string); }
         void append(char c) { _string.push_back(c); }
@@ -134,6 +158,7 @@ namespace vsg
         Path& replace(size_type pos, size_type n, const std::string& str) { _string.replace(pos, n, native(str)); return *this; }
         Path& replace(size_type pos, size_type n, const std::wstring& str) { _string.replace(pos, n, native(str)); return *this; }
         Path& replace(size_type pos, size_type n, const char* str) {  _string.replace(pos, n, native(str)); return *this; }
+        Path& replace(size_type pos, size_type n, const wchar_t* str) {  _string.replace(pos, n, native(str)); return *this; }
 
     protected:
         string_type _string = {};
