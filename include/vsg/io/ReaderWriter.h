@@ -82,7 +82,7 @@ namespace vsg
         {
             std::map<vsg::Path, FeatureMask> protocolFeatureMap;
             std::map<vsg::Path, FeatureMask> extensionFeatureMap;
-            std::map<vsg::Path, std::string> optionNameTypeMap;
+            std::map<std::string, std::string> optionNameTypeMap;
         };
 
         /// get the Features supported by this ReaderWriter
