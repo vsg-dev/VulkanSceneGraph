@@ -112,7 +112,7 @@ Paths vsg::getEnvPaths(const char* env_var)
 bool vsg::fileExists(const Path& path)
 {
 #if defined(WIN32)
-    return _access(path.c_str(), 0) == 0;
+    return _waccess(path.c_str(), 0) == 0;
 #else
     return access(path.c_str(), F_OK) == 0;
 #endif
@@ -271,7 +271,7 @@ bool vsg::makeDirectory(const Path& path)
         }
 
 #if defined(WIN32) && !defined(__CYGWIN__)
-        if (int status = _mkdir(directory_to_create.c_str()); status != 0)
+        if (int status = _wmkdir(directory_to_create.c_str()); status != 0)
         {
             if (errno != EEXIST)
             {
