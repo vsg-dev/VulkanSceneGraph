@@ -195,7 +195,7 @@ Path vsg::concatPaths(const Path& left, const Path& right)
     {
         return (right);
     }
-    char lastChar = left[left.size() - 1];
+    auto lastChar = left[left.size() - 1];
 
     if (lastChar == delimiterNative)
     {
