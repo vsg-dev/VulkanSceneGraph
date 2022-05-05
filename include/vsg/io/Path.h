@@ -18,7 +18,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <ostream>
 
 #define NEW_PATH_DEFINED 1
-#define WIDE_PATH 0
+
+#if defined(WIN32)
+    #define WIDE_PATH 1
+#else
+    #define WIDE_PATH 0
+#endif
 
 #include <iostream>
 
@@ -101,20 +106,13 @@ namespace vsg
         inline std::string string() const { std::string dest; copy(_string, dest); return dest; }
         inline std::wstring wstring() const { std::wstring dest; copy(_string, dest); return dest; }
 
-        // temporary workaround for working with old c style functions.
-        inline const char* c_str() const
-        {
-        #if WIDE_PATH
-            _cache = string(); return _cache.c_str();
-        #else
-            return _string.c_str();
-        #endif
-        }
+        inline const string_type& native() const noexcept { return _string; }
+        inline operator const string_type& () const noexcept { return _string; }
+        inline const value_type* c_str() const noexcept { return _string.c_str(); }
 
         reference operator [] (size_type pos) { return _string[pos]; }
         const_reference operator [] (size_type pos) const { return _string[pos]; }
 
-        operator const string_type& () const { return _string; }
 
         Path substr(size_type pos, size_type len = Path::npos) const { return Path(_string.substr(pos, len)); }
 
