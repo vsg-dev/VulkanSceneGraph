@@ -37,6 +37,8 @@ namespace vsg
     inline void copy(const std::wstring& src, std::wstring& dst) { dst = src; }
     inline void copy(const char c, std::string& dst) { dst.clear(); dst.push_back(c); }
     inline void copy(const char c, std::wstring& dst) { dst.clear(); dst.push_back(static_cast<wchar_t>(c)); }
+    inline void copy(const wchar_t c, std::string& dst) { std::wstring src; src.push_back(c); copy(src, dst); }
+    inline void copy(const wchar_t c, std::wstring& dst) { dst.clear(); dst.push_back(c); }
 
 #if NEW_PATH_DEFINED
 
@@ -89,6 +91,8 @@ namespace vsg
         inline string_type native(const std::wstring& str) const { string_type dest; copy(str, dest); return dest; }
         inline string_type native(const char* str) const { string_type dest; copy(str, dest); return dest; }
         inline string_type native(const char c) const { string_type dest; copy(c, dest); return dest; }
+        inline string_type native(const wchar_t* str) const { string_type dest; copy(str, dest); return dest; }
+        inline string_type native(const wchar_t c) const { string_type dest; copy(c, dest); return dest; }
 
         iterator begin() { return _string.begin(); }
         iterator end() { return _string.end(); }
