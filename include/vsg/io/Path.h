@@ -63,7 +63,11 @@ namespace vsg
         static constexpr value_type posix_separator = '/';
         static constexpr value_type preferred_separator = posix_separator;
         static constexpr value_type alternate_separator = windows_separator;
+#if WIDE_PATH
+        static constexpr const value_type* separators = L"/\\";
+#else
         static constexpr const value_type* separators = "/\\";
+#endif
 #endif
         using string_type = std::basic_string<value_type>;
 
@@ -130,8 +134,17 @@ namespace vsg
         inline std::wstring wstring() const { std::wstring dest; copy(_string, dest); return dest; }
 
         inline const string_type& native() const noexcept { return _string; }
+#if 1
         inline operator const string_type& () const noexcept { return _string; }
+#else
+        inline operator std::string () const noexcept { return string(); }
+#endif
+#if 1
         inline const value_type* c_str() const noexcept { return _string.c_str(); }
+#else
+        mutable std::string cache;
+        inline const char* c_str() const noexcept { cache = string(); return cache.c_str(); }
+#endif
 
         reference operator [] (size_type pos) { return _string[pos]; }
         const_reference operator [] (size_type pos) const { return _string[pos]; }
