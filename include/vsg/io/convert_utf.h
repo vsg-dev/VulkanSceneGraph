@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2022 Robert Osfield
@@ -10,31 +12,38 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
-#include <vsg/io/Path.h>
+#include <vsg/core/Export.h>
 
-using namespace vsg;
+#include <string>
 
-Path::Path()
+namespace vsg
 {
-}
 
-Path::Path(const Path& path) :
-    _string(path._string)
-{
-}
+    extern VSG_DECLSPEC void convert_utf(const std::string& src, std::wstring& dst);
+    extern VSG_DECLSPEC void convert_utf(const std::wstring& src, std::string& dst);
 
-Path::Path(const char* str)
-{
-    assign(str);
-}
+    inline void convert_utf(const std::string& src, std::string& dst) { dst = src; }
+    inline void convert_utf(const std::wstring& src, std::wstring& dst) { dst = src; }
+    inline void convert_utf(const char c, std::string& dst)
+    {
+        dst.clear();
+        dst.push_back(c);
+    }
+    inline void convert_utf(const char c, std::wstring& dst)
+    {
+        dst.clear();
+        dst.push_back(static_cast<wchar_t>(c));
+    }
+    inline void convert_utf(const wchar_t c, std::string& dst)
+    {
+        std::wstring src;
+        src.push_back(c);
+        convert_utf(src, dst);
+    }
+    inline void convert_utf(const wchar_t c, std::wstring& dst)
+    {
+        dst.clear();
+        dst.push_back(c);
+    }
 
-Path::Path(const std::string& str)
-{
-    assign(str);
-}
-
-Path::Path(const std::wstring& str)
-{
-    assign(str);
-}
+} // namespace vsg

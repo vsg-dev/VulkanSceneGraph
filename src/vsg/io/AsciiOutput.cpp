@@ -48,7 +48,6 @@ void AsciiOutput::write(size_t num, const std::string* value)
     }
 }
 
-#if NEW_PATH_DEFINED
 void AsciiOutput::write(size_t num, const Path* value)
 {
     if (num == 1)
@@ -65,7 +64,6 @@ void AsciiOutput::write(size_t num, const Path* value)
         }
     }
 }
-#endif
 
 void AsciiOutput::write(const vsg::Object* object)
 {

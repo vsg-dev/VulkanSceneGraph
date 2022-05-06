@@ -12,79 +12,33 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Export.h>
+#include <vsg/io/convert_utf.h>
 
 #include <ostream>
 #include <string>
 
-#define NEW_PATH_DEFINED 1
-
-#if defined(WIN32)
-#    define WIDE_PATH 1
-#else
-#    define WIDE_PATH 0
-#endif
-
-#include <iostream>
-
 namespace vsg
 {
-
-    extern VSG_DECLSPEC void copy(const std::string& src, std::wstring& dst);
-    extern VSG_DECLSPEC void copy(const std::wstring& src, std::string& dst);
-
-    inline void copy(const std::string& src, std::string& dst) { dst = src; }
-    inline void copy(const std::wstring& src, std::wstring& dst) { dst = src; }
-    inline void copy(const char c, std::string& dst)
-    {
-        dst.clear();
-        dst.push_back(c);
-    }
-    inline void copy(const char c, std::wstring& dst)
-    {
-        dst.clear();
-        dst.push_back(static_cast<wchar_t>(c));
-    }
-    inline void copy(const wchar_t c, std::string& dst)
-    {
-        std::wstring src;
-        src.push_back(c);
-        copy(src, dst);
-    }
-    inline void copy(const wchar_t c, std::wstring& dst)
-    {
-        dst.clear();
-        dst.push_back(c);
-    }
-
-#if NEW_PATH_DEFINED
 
     class VSG_DECLSPEC Path
     {
     public:
-#    if WIDE_PATH
-        using value_type = wchar_t;
-#    else
-        using value_type = char;
-#    endif
 
-#    if defined(WIN32)
+#if defined(WIN32)
+        using value_type = wchar_t;
         static constexpr value_type windows_separator = L'\\';
         static constexpr value_type posix_separator = L'/';
         static constexpr value_type preferred_separator = windows_separator;
         static constexpr value_type alternate_separator = posix_separator;
         static constexpr const value_type* separators = L"/\\";
-#    else
+#else
+        using value_type = char;
         static constexpr value_type windows_separator = '\\';
         static constexpr value_type posix_separator = '/';
         static constexpr value_type preferred_separator = posix_separator;
         static constexpr value_type alternate_separator = windows_separator;
-#        if WIDE_PATH
-        static constexpr const value_type* separators = L"/\\";
-#        else
         static constexpr const value_type* separators = "/\\";
-#        endif
-#    endif
+#endif
         using string_type = std::basic_string<value_type>;
 
         using size_type = size_t;
@@ -103,44 +57,44 @@ namespace vsg
         Path(const std::string& str);
         Path(const std::wstring& str);
 
-        void assign(const std::string& str) { copy(str, _string); }
-        void assign(const char* str) { copy(str, _string); }
-        void assign(const std::wstring& str) { copy(str, _string); }
+        void assign(const std::string& str) { convert_utf(str, _string); }
+        void assign(const char* str) { convert_utf(str, _string); }
+        void assign(const std::wstring& str) { convert_utf(str, _string); }
 
         inline string_type native(const std::string& str) const
         {
             string_type dest;
-            copy(str, dest);
+            convert_utf(str, dest);
             return dest;
         }
         inline string_type native(const std::wstring& str) const
         {
             string_type dest;
-            copy(str, dest);
+            convert_utf(str, dest);
             return dest;
         }
         inline string_type native(const char* str) const
         {
             string_type dest;
-            copy(str, dest);
+            convert_utf(str, dest);
             return dest;
         }
         inline string_type native(const char c) const
         {
             string_type dest;
-            copy(c, dest);
+            convert_utf(c, dest);
             return dest;
         }
         inline string_type native(const wchar_t* str) const
         {
             string_type dest;
-            copy(str, dest);
+            convert_utf(str, dest);
             return dest;
         }
         inline string_type native(const wchar_t c) const
         {
             string_type dest;
-            copy(c, dest);
+            convert_utf(c, dest);
             return dest;
         }
 
@@ -195,46 +149,21 @@ namespace vsg
         inline std::string string() const
         {
             std::string dest;
-            copy(_string, dest);
+            convert_utf(_string, dest);
             return dest;
         }
         inline std::wstring wstring() const
         {
             std::wstring dest;
-            copy(_string, dest);
+            convert_utf(_string, dest);
             return dest;
         }
 
         inline const string_type& native() const noexcept { return _string; }
-#    if 1
-        inline operator const string_type&() const noexcept
-        {
-            return _string;
-        }
-#    else
-        inline operator std::string() const noexcept
-        {
-            return string();
-        }
-#    endif
-#    if 1
-        inline const value_type* c_str() const noexcept
-        {
-            return _string.c_str();
-        }
-#    else
-        mutable std::string cache;
-        inline const char* c_str() const noexcept
-        {
-            cache = string();
-            return cache.c_str();
-        }
-#    endif
+        inline operator const string_type&() const noexcept { return _string; }
+        inline const value_type* c_str() const noexcept { return _string.c_str(); }
 
-        reference operator[](size_type pos)
-        {
-            return _string[pos];
-        }
+        reference operator[](size_type pos) { return _string[pos]; }
         const_reference operator[](size_type pos) const { return _string[pos]; }
 
         Path substr(size_type pos, size_type len = Path::npos) const { return Path(_string.substr(pos, len)); }
@@ -285,11 +214,7 @@ namespace vsg
         }
 
     protected:
-        string_type _string = {};
-
-#    if WIDE_PATH
-        mutable std::string _cache;
-#    endif
+        string_type _string;
     };
 
     inline Path operator+(const Path& lhs, const Path& rhs)
@@ -319,9 +244,5 @@ namespace vsg
         path = str;
         return input;
     }
-
-#else
-    using Path = std::string;
-#endif
 
 } // namespace vsg

@@ -111,7 +111,6 @@ void AsciiInput::read(size_t num, std::string* value)
     }
 }
 
-#if NEW_PATH_DEFINED
 void AsciiInput::read(size_t num, Path* value)
 {
     if (num == 1)
@@ -130,7 +129,7 @@ void AsciiInput::read(size_t num, Path* value)
         }
     }
 }
-#endif
+
 vsg::ref_ptr<vsg::Object> AsciiInput::read()
 {
     auto result = objectID();

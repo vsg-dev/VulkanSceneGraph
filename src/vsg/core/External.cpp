@@ -52,11 +52,7 @@ public:
         ObjectID endID = 0;
     };
 
-#if NEW_PATH_DEFINED
     using ObjectIDRangeMap = std::map<Path, ObjectIDRange>;
-#else
-    using ObjectIDRangeMap = std::unordered_map<Path, ObjectIDRange>;
-#endif
     ObjectIDRangeMap objectIDRangeMap;
 };
 

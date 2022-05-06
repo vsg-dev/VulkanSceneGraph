@@ -48,7 +48,6 @@ void BinaryInput::read(size_t num, std::string* value)
     }
 }
 
-#if NEW_PATH_DEFINED
 void BinaryInput::read(size_t num, Path* value)
 {
     if (num == 1)
@@ -67,7 +66,6 @@ void BinaryInput::read(size_t num, Path* value)
         }
     }
 }
-#endif
 
 vsg::ref_ptr<vsg::Object> BinaryInput::read()
 {

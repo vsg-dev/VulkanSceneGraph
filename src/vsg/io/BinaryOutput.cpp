@@ -40,7 +40,6 @@ void BinaryOutput::write(size_t num, const std::string* value)
     }
 }
 
-#if NEW_PATH_DEFINED
 void BinaryOutput::write(size_t num, const Path* value)
 {
     if (num == 1)
@@ -57,7 +56,6 @@ void BinaryOutput::write(size_t num, const Path* value)
         }
     }
 }
-#endif
 
 void BinaryOutput::write(const vsg::Object* object)
 {

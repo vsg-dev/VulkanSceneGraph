@@ -127,7 +127,8 @@ Path vsg::filePath(const Path& path)
 
 Path vsg::fileExtension(const Path& path)
 {
-#if !NEW_PATH_DEFINED
+#if 0
+    // TODO, need to replace
     // available in cpp20
     auto endsWith = [](std::string_view str, std::string_view suffix) {
         return str.size() >= suffix.size() && 0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
@@ -340,7 +341,7 @@ FILE* vsg::fopen(const Path& path, const char* mode)
 {
 #if defined(WIN32)
     std::wstring wMode;
-    copy(mode, wMode);
+    convert_utf(mode, wMode);
 
     FILE* file = nullptr;
     auto errorNo = _wfopen_s(&file, path.c_str(), wMode.c_str());
