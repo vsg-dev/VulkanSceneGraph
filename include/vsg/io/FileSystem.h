@@ -42,11 +42,15 @@ namespace vsg
     extern VSG_DECLSPEC Path filePath(const Path& path);
 
     extern VSG_DECLSPEC Path fileExtension(const Path& path);
+
     extern VSG_DECLSPEC Path lowerCaseFileExtension(const Path& path);
 
     extern VSG_DECLSPEC Path simpleFilename(const Path& path);
 
     extern VSG_DECLSPEC Path removeExtension(const Path& path);
+
+    /// return true if the path equals ., .. or has a trailing \.. \.., /.. or /....
+    extern VSG_DECLSPEC bool trailingRelativePath(const Path& path);
 
     extern VSG_DECLSPEC Path concatPaths(const Path& left, const Path& right);
 

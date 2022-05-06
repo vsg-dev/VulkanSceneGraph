@@ -114,6 +114,8 @@ bool vsg::fileExists(const Path& path)
 
 Path vsg::filePath(const Path& path)
 {
+    if (trailingRelativePath(path)) return path;
+
     auto slash = path.find_last_of(Path::separators);
     if (slash != vsg::Path::npos)
     {
@@ -145,6 +147,8 @@ Path vsg::lowerCaseFileExtension(const Path& path)
 
 Path vsg::simpleFilename(const Path& path)
 {
+    if (trailingRelativePath(path)) return {};
+
     auto dot = path.find_last_of('.');
     auto slash = path.find_last_of(Path::separators);
     if (slash != Path::npos)
@@ -163,12 +167,34 @@ Path vsg::simpleFilename(const Path& path)
     }
 }
 
+
+bool vsg::trailingRelativePath(const Path& path)
+{
+    if (path == ".") return true;
+    if (path == "..") return true;
+    if (path.size() >= 2)
+    {
+        if (path.compare(path.size()-2, 2, "/.")==0) return true;
+        if (path.compare(path.size()-2, 2, "\\.")==0) return true;
+
+        if (path.size() >= 3)
+        {
+            if (path.compare(path.size()-3, 3, "/..")==0) return true;
+            if (path.compare(path.size()-3, 3, "\\..")==0) return true;
+        }
+    }
+    return false;
+}
+
 Path vsg::removeExtension(const Path& path)
 {
+    if (trailingRelativePath(path)) return path;
+
     auto dot = path.find_last_of('.');
+    if (dot == Path::npos) return path;
+
     auto slash = path.find_last_of(Path::separators);
-    if (dot == Path::npos || (slash != Path::npos && dot < slash))
-        return path;
+    if (slash != Path::npos && dot < slash) return path;
     else if (dot > 1)
         return path.substr(0, dot);
     else
@@ -179,8 +205,14 @@ Path vsg::concatPaths(const Path& left, const Path& right)
 {
     if (left.empty())
     {
-        return (right);
+        return right;
     }
+
+    if (right.empty())
+    {
+        return left;
+    }
+
     auto lastChar = left[left.size() - 1];
 
     if (lastChar == Path::preferred_separator)
