@@ -345,7 +345,7 @@ FILE* vsg::fopen(const Path& path, const char *mode)
     FILE* file = nullptr;
     auto errorNo = _wfopen_s(&file, path.c_str(), wMode.c_str());
     if (errorNo==0) return file;
-    else file;
+    else return nullptr;
 #else
     return ::fopen(path.c_str(), mode);
 #endif
