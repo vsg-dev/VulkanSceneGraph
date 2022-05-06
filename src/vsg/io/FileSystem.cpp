@@ -343,7 +343,7 @@ FILE* vsg::fopen(const Path& path, const char *mode)
     copy(mode, wMode);
 
     FILE* file = nullptr;
-    auto errorNo = _wfopen_s(&file, path.c_str(), wMode);
+    auto errorNo = _wfopen_s(&file, path.c_str(), wMode.c_str());
     if (errorNo==0) return file;
     else file;
 #else
