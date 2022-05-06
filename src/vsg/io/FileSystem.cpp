@@ -336,7 +336,7 @@ Path vsg::executableFilePath()
     return path;
 }
 
-FILE* vsg::fopen(const Path& path, const char *mode)
+FILE* vsg::fopen(const Path& path, const char* mode)
 {
 #if defined(WIN32)
     std::wstring wMode;
@@ -344,8 +344,10 @@ FILE* vsg::fopen(const Path& path, const char *mode)
 
     FILE* file = nullptr;
     auto errorNo = _wfopen_s(&file, path.c_str(), wMode.c_str());
-    if (errorNo==0) return file;
-    else return nullptr;
+    if (errorNo == 0)
+        return file;
+    else
+        return nullptr;
 #else
     return ::fopen(path.c_str(), mode);
 #endif

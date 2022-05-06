@@ -18,8 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/read.h>
 #include <vsg/io/write.h>
 
-#include <unordered_map>
 #include <map>
+#include <unordered_map>
 
 using namespace vsg;
 

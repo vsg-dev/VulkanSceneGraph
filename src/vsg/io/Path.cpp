@@ -24,8 +24,8 @@ using namespace vsg;
 void vsg::copy(const std::string& src, std::wstring& dst)
 {
     dst.clear();
-    std::cout<<"TODO convert from utf8 to utf16"<<std::endl;
-    for(auto itr = src.begin(); itr != src.end();)
+    std::cout << "TODO convert from utf8 to utf16" << std::endl;
+    for (auto itr = src.begin(); itr != src.end();)
     {
         uint32_t c0 = *itr++;
         dst.push_back(static_cast<wchar_t>(c0));
@@ -34,8 +34,8 @@ void vsg::copy(const std::string& src, std::wstring& dst)
 
 void vsg::copy(const std::wstring& src, std::string& dst)
 {
-    std::cout<<"TODO convert from utf16 to utf8"<<std::endl;
-    for(auto itr = src.begin(); itr != src.end();)
+    std::cout << "TODO convert from utf16 to utf8" << std::endl;
+    for (auto itr = src.begin(); itr != src.end();)
     {
         uint32_t c0 = *itr++;
         dst.push_back(static_cast<char>(c0));
