@@ -127,21 +127,12 @@ Path vsg::filePath(const Path& path)
 
 Path vsg::fileExtension(const Path& path)
 {
-#if 0
-    // TODO, need to replace
-    // available in cpp20
-    auto endsWith = [](std::string_view str, std::string_view suffix) {
-        return str.size() >= suffix.size() && 0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
-    };
-
-    // handle dot and dotdot in the path - since end-users can mix delimiter types we have to handle both cases
-    if (endsWith(path, "\\.") || endsWith(path, "/.")) return {};
-    if (endsWith(path, "\\..") || endsWith(path, "/..")) return {};
-#endif
     auto dot = path.find_last_of('.');
+    if (dot == Path::npos || (dot+1) == path.size()) return {};
+
     auto slash = path.find_last_of(Path::separators);
-    if (dot == Path::npos || (slash != Path::npos && dot < slash)) return {};
-    if (dot != Path::npos && path.size() == 1) return {};
+    if (slash != Path::npos && dot < slash) return {};
+
     return path.substr(dot);
 }
 
