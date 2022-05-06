@@ -13,6 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/Options.h>
 
+#include <cstdio>
+
 #if defined(WIN32) && !defined(__CYGWIN__)
 #    include <cstdlib>
 #    include <direct.h>
@@ -340,9 +342,9 @@ FILE* vsg::fopen(const Path& path, const char *mode)
     std::wstring wMode;
     copy(mode, wMode);
 
-    FIlE* file = nullptr;
+    FILE* file = nullptr;
     auto errorNo = _wfopen_s(&file, path.c_str(), wMode);
-    if (erroNo==0) return file;
+    if (errorNo==0) return file;
     else file;
 #else
     return ::fopen(path.c_str(), mode);
