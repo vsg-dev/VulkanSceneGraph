@@ -138,42 +138,44 @@ namespace vsg
 }
 
 template<class T>
-vsg::ref_ptr<T> createTouchEvt(vsgiOS::iOS_Window* window, UIEvent* event, uint32_t in_id, float devicePixelScale)
+vsg::ref_ptr<T> createTouchEvt(vsgiOS::iOS_Window* window, vsg::clock::time_point event_time, UITouch* touch, uint32_t in_id, float devicePixelScale)
 {
-    vsg::clock::time_point event_time = window->getEventTime([event timestamp]);
-    for (auto touch in [event allTouches])
-    {
-        // it seems like there is always only one (TODO CHECK THAT)
-        auto pos = [touch locationInView:nil];
-        uint32_t x = pos.x;
-        uint32_t y = pos.y;
-        return vsg::ref_ptr<T>(new T(window, event_time, x, y, in_id));
-    }
-    return vsg::ref_ptr<T>(nullptr);
+    auto pos = [touch locationInView:nil];
+    uint32_t x = pos.x;
+    uint32_t y = pos.y;
+    //std::cout << "Touch Id=" << in_id <<"@[" << x << ", " << y << "]" << std::endl;
+    return vsg::ref_ptr<T>(new T(window, event_time, x, y, in_id));
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
     auto devicePixelScale = _traits->hdpi ? UIScreen.mainScreen.nativeScale : 1.0f;
-    vsgWindow->queueEvent(createTouchEvt<vsg::TouchDownEvent>(vsgWindow, event, 0, devicePixelScale));
+    vsg::clock::time_point event_time = vsgWindow->getEventTime([event timestamp]);
+    uint32_t in_id = static_cast<uint32_t>([event allTouches].count) - 1;
+    for (auto touch in [event allTouches])
+        vsgWindow->queueEvent(createTouchEvt<vsg::TouchDownEvent>(vsgWindow, event_time, touch, in_id--, devicePixelScale));
 }
 
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
     auto devicePixelScale = _traits->hdpi ? UIScreen.mainScreen.nativeScale : 1.0f;
-    vsgWindow->queueEvent(createTouchEvt<vsg::TouchUpEvent>(vsgWindow, event, 0, devicePixelScale));
+    vsg::clock::time_point event_time = vsgWindow->getEventTime([event timestamp]);
+    uint32_t in_id = static_cast<uint32_t>([event allTouches].count) - 1;
+    for (auto touch in [event allTouches])
+        vsgWindow->queueEvent(createTouchEvt<vsg::TouchUpEvent>(vsgWindow, event_time, touch, in_id--, devicePixelScale));
 }
 
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
     auto devicePixelScale = _traits->hdpi ? UIScreen.mainScreen.nativeScale : 1.0f;
-    vsgWindow->queueEvent(createTouchEvt<vsg::TouchMoveEvent>(vsgWindow, event, 0, devicePixelScale));
+    vsg::clock::time_point event_time = vsgWindow->getEventTime([event timestamp]);
+    uint32_t in_id = static_cast<uint32_t>([event allTouches].count) - 1;
+    for (auto touch in [event allTouches])
+        vsgWindow->queueEvent(createTouchEvt<vsg::TouchMoveEvent>(vsgWindow, event_time, touch, in_id--, devicePixelScale));
 }
 
 - (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-    std::cout << "touchesCancelled" << std::endl;
-   // vsg::touch
     vsgWindow->handleUIEvent(event);
 }
 
