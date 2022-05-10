@@ -116,12 +116,14 @@ namespace vsg
 
         time_point _previousTime;
         ref_ptr<PointerEvent> _previousPointerEvent;
-        double _previousDelta = 0.0;
+        double _previousDelta = 0.0, _prevZoomTouchDistance = 0.0;
         bool _thrown = false;
 
         time_point _startTime;
         ref_ptr<LookAt> _startLookAt;
         ref_ptr<LookAt> _endLookAt;
+        std::map<uint32_t, ref_ptr<TouchEvent>> _previousTouches;
+        
         double _animationDuration = 0.0;
     };
 
