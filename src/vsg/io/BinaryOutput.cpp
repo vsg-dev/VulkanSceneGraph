@@ -44,14 +44,12 @@ void BinaryOutput::write(size_t num, const Path* value)
 {
     if (num == 1)
     {
-        _output << ' ';
         _write(value->string());
     }
     else
     {
         for (; num > 0; --num, ++value)
         {
-            _output << ' ';
             _write(value->string());
         }
     }
