@@ -33,7 +33,6 @@
     frame.size.height = _traits->height <= 0 ? 1 : _traits->height;
     vsg_iOS_View* view = [[vsg_iOS_View alloc] initWithFrame:frame];
     self.view = view;
-    
 }
 
 -(void) dealloc {
