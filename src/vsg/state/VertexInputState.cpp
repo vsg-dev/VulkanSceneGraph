@@ -21,6 +21,13 @@ VertexInputState::VertexInputState()
 {
 }
 
+VertexInputState::VertexInputState(const VertexInputState& vis) :
+    Inherit(vis),
+    vertexBindingDescriptions(vis.vertexBindingDescriptions),
+    vertexAttributeDescriptions(vis.vertexAttributeDescriptions)
+{
+}
+
 VertexInputState::VertexInputState(const Bindings& bindings, const Attributes& attributes) :
     vertexBindingDescriptions(bindings),
     vertexAttributeDescriptions(attributes)

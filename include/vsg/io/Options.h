@@ -21,11 +21,11 @@ namespace vsg
 {
 
     //class FileCache;
-    class ObjectCache;
     class SharedObjects;
     class ReaderWriter;
     class OperationThreads;
     class CommandLine;
+    class ShaderSet;
 
     using ReaderWriters = std::vector<ref_ptr<ReaderWriter>>;
 
@@ -53,7 +53,6 @@ namespace vsg
         void add(const ReaderWriters& rws);
 
         ref_ptr<SharedObjects> sharedObjects;
-        ref_ptr<ObjectCache> objectCache;
         ReaderWriters readerWriters;
         ref_ptr<OperationThreads> operationThreads;
 
@@ -76,11 +75,19 @@ namespace vsg
         std::string extensionHint;
         bool mapRGBtoRGBAHint = true;
 
-        /// coordinate convention to use for scene graph
+        /// Coordinate convention to use for scene graph
         CoordinateConvention sceneCoordinateConvention = CoordinateConvention::Z_UP;
 
-        /// coordinate convention to assume for specified lower case file formats extensions
+        /// Coordinate convention to assume for specified lower case file formats extensions
         std::map<vsg::Path, CoordinateConvention> formatCoordinateConventions;
+
+        /// User defined ShaderSet map, loaders should check the available ShaderSet used the name of the type ShaderSet.
+        /// Standard names are :
+        ///     "pbr" will substitute for vsg::createPhysicsBasedRenderingShaderSet()
+        ///     "phong" will substitute for vsg::createPhongShaderSet()
+        ///     "flat" will substitute for vsg::createFlatShadedShaderSet()
+        ///     "text" will substitute for vsg::createTextShaderSet()
+        std::map<std::string, ref_ptr<ShaderSet>> shaderSets;
 
     protected:
         virtual ~Options();

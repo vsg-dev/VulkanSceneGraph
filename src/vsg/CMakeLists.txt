@@ -106,7 +106,6 @@ set(SOURCES
     io/BinaryInput.cpp
     io/BinaryOutput.cpp
     io/Input.cpp
-    io/ObjectCache.cpp
     io/Output.cpp
     io/Options.cpp
     io/ObjectFactory.cpp
@@ -181,7 +180,6 @@ set(SOURCES
     vk/CommandBuffer.cpp
     vk/CommandPool.cpp
     vk/Context.cpp
-    vk/ShaderCompiler.cpp
     vk/DescriptorPool.cpp
     vk/Device.cpp
     vk/DeviceFeatures.cpp
@@ -203,6 +201,9 @@ set(SOURCES
     utils/CommandLine.cpp
     utils/Builder.cpp
     utils/SharedObjects.cpp
+    utils/ShaderSet.cpp
+    utils/GraphicsPipelineConfig.cpp
+    utils/ShaderCompiler.cpp
 )
 
 # add platform specific Window implementation

@@ -22,6 +22,7 @@ namespace vsg
         using DynamicStates = std::vector<VkDynamicState>;
 
         DynamicState();
+        DynamicState(const DynamicState& ds);
 
         explicit DynamicState(const DynamicStates& states) :
             dynamicStates(states) {}

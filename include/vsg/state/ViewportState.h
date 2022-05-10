@@ -23,6 +23,7 @@ namespace vsg
     {
     public:
         ViewportState();
+        ViewportState(const ViewportState& vs);
 
         /// Create ViewportState containing a single Viewport and Scissor pair with specified extent located at origin (x, y = {0,0}). Typically used for convenience when rendering to a whole window.
         explicit ViewportState(const VkExtent2D& extent);
@@ -42,6 +43,8 @@ namespace vsg
 
         /// get or create the first Scissor
         VkRect2D& getScissor();
+
+        int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;

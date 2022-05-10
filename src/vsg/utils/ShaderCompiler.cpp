@@ -15,7 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/raytracing/RayTracingPipeline.h>
 #include <vsg/state/ComputePipeline.h>
 #include <vsg/state/GraphicsPipeline.h>
-#include <vsg/vk/ShaderCompiler.h>
+#include <vsg/utils/ShaderCompiler.h>
 
 #ifdef HAS_GLSLANG
 #    include <glslang/Public/ShaderLang.h>
@@ -27,8 +27,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <algorithm>
 #include <iomanip>
-#include <sstream>
 #include <iostream>
+#include <sstream>
 
 #if VK_VERSION_1_1 == 1
 #    define HAS_KHR_RAYTRACNG (VK_VERSION_1_1)

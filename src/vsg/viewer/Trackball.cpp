@@ -301,7 +301,6 @@ void Trackball::apply(TouchDownEvent& touchDown)
         break;
     }
     }
-
 }
 
 void Trackball::apply(TouchUpEvent& touchUp)

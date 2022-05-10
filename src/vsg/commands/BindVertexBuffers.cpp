@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/BindVertexBuffers.h>
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/traversals/CompileTraversal.h>
 #include <vsg/vk/CommandBuffer.h>
@@ -25,6 +26,16 @@ BindVertexBuffers::BindVertexBuffers(uint32_t in_firstBinding, const DataList& i
 
 BindVertexBuffers::~BindVertexBuffers()
 {
+}
+
+int BindVertexBuffers::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(firstBinding, rhs.firstBinding))) return result;
+    return compare_pointer_container(arrays, rhs.arrays);
 }
 
 void BindVertexBuffers::assignArrays(const DataList& arrayData)

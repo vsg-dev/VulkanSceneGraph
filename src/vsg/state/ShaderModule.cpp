@@ -36,7 +36,7 @@ int ShaderCompileSettings::compare(const Object& rhs_object) const
     if ((result = compare_value(defaultVersion, rhs.defaultVersion))) return result;
     if ((result = compare_value(target, rhs.target))) return result;
     if ((result = compare_value(forwardCompatible, rhs.forwardCompatible))) return result;
-    return compare_value(clientInputVersion, rhs.clientInputVersion);
+    return compare_container(defines, rhs.defines);
 }
 
 void ShaderCompileSettings::read(Input& input)

@@ -21,7 +21,7 @@ namespace vsg
     class VSG_DECLSPEC ComputeBounds : public Inherit<ConstVisitor, ComputeBounds>
     {
     public:
-        ComputeBounds(ref_ptr<ArrayState> initialArrayData = {});
+        ComputeBounds(ref_ptr<ArrayState> intialArrayState = {});
 
         dbox bounds;
 
@@ -31,6 +31,9 @@ namespace vsg
         using MatrixStack = std::vector<dmat4>;
         MatrixStack matrixStack;
 
+        ref_ptr<const ushortArray> ushort_indices;
+        ref_ptr<const uintArray> uint_indices;
+
         void apply(const Object& node) override;
         void apply(const StateGroup& stategroup) override;
         void apply(const Transform& transform) override;
@@ -38,10 +41,18 @@ namespace vsg
         void apply(const Geometry& geometry) override;
         void apply(const VertexIndexDraw& vid) override;
         void apply(const BindVertexBuffers& bvb) override;
+        void apply(const BindIndexBuffer& bib) override;
         void apply(const StateCommand& statecommand) override;
+        void apply(const Draw& draw) override;
+        void apply(const DrawIndexed& drawIndexed) override;
 
         void apply(uint32_t firstBinding, const DataList& arrays);
-        void apply(const vec3Array& vertices) override;
+        void apply(const BufferInfo& bufferInfo) override;
+        void apply(const ushortArray& array) override;
+        void apply(const uintArray& array) override;
+
+        virtual void applyDraw(uint32_t firstVertex, uint32_t vertexCount, uint32_t firstInstance, uint32_t instanceCount);
+        virtual void applyDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount);
     };
     VSG_type_name(vsg::ComputeBounds);
 

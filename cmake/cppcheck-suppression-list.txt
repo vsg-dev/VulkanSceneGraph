@@ -1,8 +1,7 @@
 // suppress Key related errors
-noExplicitConstructor:*include/vsg/core/ref_ptr.h:33
-noExplicitConstructor:*include/vsg/core/ref_ptr.h:40
-noExplicitConstructor:*include/vsg/core/ref_ptr.h:40
-noExplicitConstructor:*include/vsg/core/Inherit.h:37
+noExplicitConstructor:*include/vsg/core/ref_ptr.h:35
+noExplicitConstructor:*include/vsg/core/ref_ptr.h:42
+noExplicitConstructor:*include/vsg/core/Inherit.h:32
 
 // suppress correct casts flagged as issues
 invalidPointerCast:*/include/vsg/core/Data.h
@@ -71,6 +70,7 @@ unusedStructMember:*include/vsg/vk/Swapchain.h
 unusedStructMember:*include/vsg/nodes/Switch.h
 unusedStructMember:*include/vsg/text/TextLayout.h
 unusedStructMember:*include/vsg/introspection/c_interface.h
+unusedStructMember:*include/vsg/utils/Bulder.h
 unusedStructMember:*src/vsg/core/External.cpp
 
 // suppress inappropriate warning about unitialized variable

@@ -58,7 +58,7 @@ namespace vsg
         }
 
         template<typename R>
-        t_mat3(const t_mat3<R>& rhs)
+        explicit t_mat3(const t_mat3<R>& rhs)
         {
             value[0] = rhs[0];
             value[1] = rhs[1];

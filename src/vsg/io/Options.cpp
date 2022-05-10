@@ -10,12 +10,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/ObjectCache.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/ReaderWriter.h>
 #include <vsg/state/DescriptorSetLayout.h>
 #include <vsg/threading/OperationThreads.h>
 #include <vsg/utils/CommandLine.h>
+#include <vsg/utils/ShaderSet.h>
 #include <vsg/utils/SharedObjects.h>
 
 using namespace vsg;
@@ -33,7 +33,7 @@ Options::Options()
 
 Options::Options(const Options& options) :
     Inherit(),
-    objectCache(options.objectCache),
+    sharedObjects(options.sharedObjects),
     readerWriters(options.readerWriters),
     operationThreads(options.operationThreads),
     checkFilenameHint(options.checkFilenameHint),
@@ -43,7 +43,8 @@ Options::Options(const Options& options) :
     extensionHint(options.extensionHint),
     mapRGBtoRGBAHint(options.mapRGBtoRGBAHint),
     sceneCoordinateConvention(options.sceneCoordinateConvention),
-    formatCoordinateConventions(options.formatCoordinateConventions)
+    formatCoordinateConventions(options.formatCoordinateConventions),
+    shaderSets(options.shaderSets)
 {
     getOrCreateUniqueAuxiliary();
     // copy any meta data.
@@ -58,7 +59,7 @@ void Options::read(Input& input)
 {
     Object::read(input);
 
-    input.readObject("objectCache", objectCache);
+    input.readObject("sharedObjects", sharedObjects);
 
     readerWriters.clear();
     uint32_t count = input.readValue<uint32_t>("NumReaderWriters");
@@ -86,7 +87,7 @@ void Options::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeObject("objectCache", objectCache);
+    output.writeObject("sharedObjects", sharedObjects);
 
     output.writeValue<uint32_t>("NumReaderWriters", readerWriters.size());
     for (auto& rw : readerWriters)

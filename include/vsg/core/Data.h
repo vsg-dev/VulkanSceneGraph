@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Allocator.h>
 #include <vsg/core/Object.h>
+#include <vsg/core/compare.h>
 #include <vsg/core/type_name.h>
 
 #include <vulkan/vulkan.h>
@@ -106,6 +107,11 @@ namespace vsg
             uint8_t origin = TOP_LEFT; /// Hint for setting up texture coordinates, bit 0 x/width axis, bit 1 y/height axis, bit 2 z/depth axis. Vulkan origin for images is top left, which is denoted as 0 here.
             int8_t imageViewType = -1; /// -1 signifies undefined VkImageViewType, if value >=0 then value should be treated as valid VkImageViewType
             AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR;
+
+            int compare(const Layout& rhs) const
+            {
+                return compare_region(format, allocatorType, rhs.format);
+            }
         };
 
         Data() {}
@@ -133,8 +139,7 @@ namespace vsg
 
             auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
-            result = std::memcmp(&_layout, &rhs._layout, sizeof(Layout));
-            if (result != 0) return result;
+            if ((result = _layout.compare(rhs._layout))) return result;
 
             // the shorter data is less
             if (dataSize() < rhs.dataSize()) return -1;

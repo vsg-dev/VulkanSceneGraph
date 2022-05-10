@@ -184,7 +184,14 @@ void BindDescriptorSets::read(Input& input)
 {
     _vulkanData.clear();
 
-    Object::read(input);
+    if (input.version_greater_equal(0, 2, 13))
+    {
+        StateCommand::read(input);
+    }
+    else
+    {
+        Object::read(input);
+    }
 
     if (input.version_greater_equal(0, 1, 4))
     {
@@ -208,7 +215,14 @@ void BindDescriptorSets::read(Input& input)
 
 void BindDescriptorSets::write(Output& output) const
 {
-    Object::write(output);
+    if (output.version_greater_equal(0, 2, 13))
+    {
+        StateCommand::write(output);
+    }
+    else
+    {
+        Object::write(output);
+    }
 
     if (output.version_greater_equal(0, 1, 4))
     {

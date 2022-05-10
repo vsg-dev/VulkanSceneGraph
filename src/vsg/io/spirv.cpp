@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/spirv.h>
 #include <vsg/state/ShaderStage.h>
-#include <vsg/vk/ShaderCompiler.h>
+#include <vsg/utils/ShaderCompiler.h>
 
 #include <iostream>
 

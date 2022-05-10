@@ -22,6 +22,17 @@ MultisampleState::MultisampleState(VkSampleCountFlagBits samples) :
 {
 }
 
+MultisampleState::MultisampleState(const MultisampleState& ms) :
+    Inherit(ms),
+    rasterizationSamples(ms.rasterizationSamples),
+    sampleShadingEnable(ms.sampleShadingEnable),
+    minSampleShading(ms.minSampleShading),
+    sampleMasks(ms.sampleMasks),
+    alphaToCoverageEnable(ms.alphaToCoverageEnable),
+    alphaToOneEnable(ms.alphaToOneEnable)
+{
+}
+
 MultisampleState::~MultisampleState()
 {
 }
