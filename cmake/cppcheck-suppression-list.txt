@@ -2,6 +2,8 @@
 noExplicitConstructor:*include/vsg/core/ref_ptr.h:35
 noExplicitConstructor:*include/vsg/core/ref_ptr.h:42
 noExplicitConstructor:*include/vsg/core/Inherit.h:32
+noExplicitConstructor:*include/vsg/core/Allocator.h:138
+noExplicitConstructor:*include/vsg/io/Path.h
 
 // suppress correct casts flagged as issues
 invalidPointerCast:*/include/vsg/core/Data.h
