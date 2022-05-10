@@ -47,21 +47,51 @@ namespace vsg
     }
 
     template<typename T>
-    T convert_utf(const std::string& src) { T dst; convert_utf(src, dst); return dst; }
+    T convert_utf(const std::string& src)
+    {
+        T dst;
+        convert_utf(src, dst);
+        return dst;
+    }
 
     template<typename T>
-    T convert_utf(const char* src) { T dst; convert_utf(src, dst); return dst; }
+    T convert_utf(const char* src)
+    {
+        T dst;
+        convert_utf(src, dst);
+        return dst;
+    }
 
     template<typename T>
-    T convert_utf(const char c) { T dst; convert_utf(c, dst); return dst; }
+    T convert_utf(const char c)
+    {
+        T dst;
+        convert_utf(c, dst);
+        return dst;
+    }
 
     template<typename T>
-    T convert_utf(const std::wstring& src) { T dst; convert_utf(src, dst); return dst; }
+    T convert_utf(const std::wstring& src)
+    {
+        T dst;
+        convert_utf(src, dst);
+        return dst;
+    }
 
     template<typename T>
-    T convert_utf(const wchar_t* src) { T dst; convert_utf(src, dst); return dst; }
+    T convert_utf(const wchar_t* src)
+    {
+        T dst;
+        convert_utf(src, dst);
+        return dst;
+    }
 
     template<typename T>
-    T convert_utf(const wchar_t c) { T dst; convert_utf(c, dst); return dst; }
+    T convert_utf(const wchar_t c)
+    {
+        T dst;
+        convert_utf(c, dst);
+        return dst;
+    }
 
 } // namespace vsg

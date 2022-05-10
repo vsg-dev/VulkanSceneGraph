@@ -23,7 +23,6 @@ namespace vsg
     class VSG_DECLSPEC Path
     {
     public:
-
 #if defined(WIN32)
         using value_type = wchar_t;
         static constexpr value_type windows_separator = L'\\';
@@ -121,19 +120,27 @@ namespace vsg
         void swap(Path& rhs) noexcept { return _string.swap(rhs._string); }
 
         /// directly add to end of path without a path separator
-        Path& concat(const Path& path) { _string.append(path._string); return *this; }
+        Path& concat(const Path& path)
+        {
+            _string.append(path._string);
+            return *this;
+        }
 
         /// directly add to end of path without a path separator
-        Path& concat(char c) { _string.push_back(c); return *this; }
+        Path& concat(char c)
+        {
+            _string.push_back(c);
+            return *this;
+        }
 
         /// directly add to end of path without a path separator
-        Path& operator += (const Path& path) { return concat(path); }
+        Path& operator+=(const Path& path) { return concat(path); }
 
         /// add to end of path with path separator
         Path& append(const Path& path);
 
         /// add to end of path with path separator
-        Path& operator /= (const Path& path) { return append(path); }
+        Path& operator/=(const Path& path) { return append(path); }
 
         Path substr(size_type pos, size_type len = Path::npos) const { return Path(_string.substr(pos, len)); }
 
@@ -171,12 +178,11 @@ namespace vsg
     }
 
     /// join two paths with a path separator between
-    inline Path operator / (const Path& lhs, const Path& rhs)
+    inline Path operator/(const Path& lhs, const Path& rhs)
     {
         Path path(lhs);
         return path /= rhs;
     }
-
 
     inline std::ostream& operator<<(std::ostream& output, const vsg::Path& path)
     {

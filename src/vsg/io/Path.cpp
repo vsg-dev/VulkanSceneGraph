@@ -119,7 +119,7 @@ Path& Path::append(const Path& right)
     }
     else if (lastChar == alternate_separator)
     {
-        _string.erase(_string.size()-1, 1);
+        _string.erase(_string.size() - 1, 1);
         _string.push_back(preferred_separator);
         _string.append(right._string);
     }
