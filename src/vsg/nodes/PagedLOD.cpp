@@ -54,7 +54,7 @@ void PagedLOD::read(Input& input)
             auto path = filePath(input.filename);
             if (!path.empty())
             {
-                filename = concatPaths(path, filename);
+                filename = path / filename;
             }
         }
 
@@ -74,7 +74,7 @@ void PagedLOD::read(Input& input)
             auto path = filePath(input.filename);
             if (!path.empty())
             {
-                filename = concatPaths(path, filename);
+                filename = path / filename;
             }
         }
 

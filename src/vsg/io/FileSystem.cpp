@@ -201,39 +201,11 @@ Path vsg::removeExtension(const Path& path)
         return {};
 }
 
-Path vsg::concatPaths(const Path& left, const Path& right)
-{
-    if (left.empty())
-    {
-        return right;
-    }
-
-    if (right.empty())
-    {
-        return left;
-    }
-
-    auto lastChar = left[left.size() - 1];
-
-    if (lastChar == Path::preferred_separator)
-    {
-        return left + right;
-    }
-    else if (lastChar == Path::alternate_separator)
-    {
-        return left.substr(0, left.size() - 1) + Path::preferred_separator + right;
-    }
-    else // lastChar != a delimiter
-    {
-        return left + Path::preferred_separator + right;
-    }
-}
-
 Path vsg::findFile(const Path& filename, const Paths& paths)
 {
     for (auto path : paths)
     {
-        Path fullpath = concatPaths(path, filename);
+        Path fullpath = path / filename;
         if (fileExists(fullpath))
         {
             return fullpath;

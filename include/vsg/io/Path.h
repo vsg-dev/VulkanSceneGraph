@@ -53,94 +53,45 @@ namespace vsg
 
         Path();
         Path(const Path& path);
-        Path(const char* str);
         Path(const std::string& str);
+        Path(const char* str);
         Path(const std::wstring& str);
-
-        void assign(const std::string& str) { convert_utf(str, _string); }
-        void assign(const char* str) { convert_utf(str, _string); }
-        void assign(const std::wstring& str) { convert_utf(str, _string); }
-
-        inline string_type native(const std::string& str) const
-        {
-            string_type dest;
-            convert_utf(str, dest);
-            return dest;
-        }
-        inline string_type native(const std::wstring& str) const
-        {
-            string_type dest;
-            convert_utf(str, dest);
-            return dest;
-        }
-        inline string_type native(const char* str) const
-        {
-            string_type dest;
-            convert_utf(str, dest);
-            return dest;
-        }
-        inline string_type native(const char c) const
-        {
-            string_type dest;
-            convert_utf(c, dest);
-            return dest;
-        }
-        inline string_type native(const wchar_t* str) const
-        {
-            string_type dest;
-            convert_utf(str, dest);
-            return dest;
-        }
-        inline string_type native(const wchar_t c) const
-        {
-            string_type dest;
-            convert_utf(c, dest);
-            return dest;
-        }
+        Path(const wchar_t* str);
 
         iterator begin() { return _string.begin(); }
         iterator end() { return _string.end(); }
         const_iterator begin() const { return _string.begin(); }
         const_iterator end() const { return _string.end(); }
 
+        Path& assign(const Path& path);
+        Path& assign(const std::string& str);
+        Path& assign(const char* str);
+        Path& assign(const std::wstring& str);
+        Path& assign(const wchar_t* str);
+
+        Path& operator=(const Path& path) { return assign(path); }
+        Path& operator=(const std::string& str) { return assign(str); }
+        Path& operator=(const char* str) { return assign(str); }
+        Path& operator=(const std::wstring& str) { return assign(str); }
+        Path& operator=(const wchar_t* str) { return assign(str); }
+
         int compare(const Path& rhs) const { return _string.compare(rhs._string); }
         int compare(size_type pos, size_type n, const Path& rhs) const { return _string.compare(pos, n, rhs._string); }
 
-        int compare(const char* rhs) const { return _string.compare(native(rhs)); }
-        int compare(const wchar_t* rhs) const { return _string.compare(native(rhs)); }
-        int compare(size_type pos, size_type n, const char* rhs) const { return _string.compare(pos, n, native(rhs)); }
-        int compare(size_type pos, size_type n, const wchar_t* rhs) const { return _string.compare(pos, n, native(rhs)); }
-
-        Path& operator=(const Path& path)
-        {
-            if (this != &path) _string = path._string;
-            return *this;
-        }
-        Path& operator=(const std::string& str)
-        {
-            assign(str);
-            return *this;
-        }
-        Path& operator=(const char* str)
-        {
-            assign(str);
-            return *this;
-        }
-        Path& operator=(const wchar_t* str)
-        {
-            assign(str);
-            return *this;
-        }
+        int compare(const char* rhs) const { return _string.compare(convert_utf<string_type>(rhs)); }
+        int compare(const wchar_t* rhs) const { return _string.compare(convert_utf<string_type>(rhs)); }
+        int compare(size_type pos, size_type n, const char* rhs) const { return _string.compare(pos, n, convert_utf<string_type>(rhs)); }
+        int compare(size_type pos, size_type n, const wchar_t* rhs) const { return _string.compare(pos, n, convert_utf<string_type>(rhs)); }
 
         bool operator==(const Path& rhs) const { return compare(rhs) == 0; }
         bool operator!=(const Path& rhs) const { return compare(rhs) != 0; }
         bool operator<(const Path& rhs) const { return compare(rhs) < 0; }
 
-        bool operator==(const char* rhs) const { return compare(native(rhs)) == 0; }
-        bool operator!=(const char* rhs) const { return compare(native(rhs)) != 0; }
+        bool operator==(const char* rhs) const { return compare(convert_utf<string_type>(rhs)) == 0; }
+        bool operator!=(const char* rhs) const { return compare(convert_utf<string_type>(rhs)) != 0; }
 
-        bool operator==(const wchar_t* rhs) const { return compare(native(rhs)) == 0; }
-        bool operator!=(const wchar_t* rhs) const { return compare(native(rhs)) != 0; }
+        bool operator==(const wchar_t* rhs) const { return compare(convert_utf<string_type>(rhs)) == 0; }
+        bool operator!=(const wchar_t* rhs) const { return compare(convert_utf<string_type>(rhs)) != 0; }
 
         bool empty() const { return _string.empty(); }
         size_type size() const { return _string.size(); }
@@ -166,70 +117,66 @@ namespace vsg
         reference operator[](size_type pos) { return _string[pos]; }
         const_reference operator[](size_type pos) const { return _string[pos]; }
 
+        void clear() noexcept { _string.clear(); }
+        void swap(Path& rhs) noexcept { return _string.swap(rhs._string); }
+
+        /// directly add to end of path without a path separator
+        Path& concat(const Path& path) { _string.append(path._string); return *this; }
+
+        /// directly add to end of path without a path separator
+        Path& concat(char c) { _string.push_back(c); return *this; }
+
+        /// directly add to end of path without a path separator
+        Path& operator += (const Path& path) { return concat(path); }
+
+        /// add to end of path with path separator
+        Path& append(const Path& path);
+
+        /// add to end of path with path separator
+        Path& operator /= (const Path& path) { return append(path); }
+
         Path substr(size_type pos, size_type len = Path::npos) const { return Path(_string.substr(pos, len)); }
 
         size_type find(const Path& s, size_type pos = 0) const { return _string.find(s._string, pos); }
-        size_type find(const char* s, size_type pos = 0) const { return _string.find(native(s), pos); }
-        size_type find(const wchar_t* s, size_type pos = 0) const { return _string.find(native(s), pos); }
+        size_type find(const char* s, size_type pos = 0) const { return _string.find(convert_utf<string_type>(s), pos); }
+        size_type find(const wchar_t* s, size_type pos = 0) const { return _string.find(convert_utf<string_type>(s), pos); }
 
         size_type find_first_of(const Path& s, size_type pos = 0) const { return _string.find_first_of(s._string, pos); }
-        size_type find_first_of(const char* s, size_type pos = 0) const { return find_first_of(native(s), pos); }
-        size_type find_first_of(const char c, size_type pos = 0) const { return find_first_of(native(c), pos); }
-        size_type find_first_of(const wchar_t* s, size_type pos = 0) const { return find_first_of(native(s), pos); }
-        size_type find_first_of(const wchar_t c, size_type pos = 0) const { return find_first_of(native(c), pos); }
+        size_type find_first_of(const char* s, size_type pos = 0) const { return find_first_of(convert_utf<string_type>(s), pos); }
+        size_type find_first_of(const char c, size_type pos = 0) const { return find_first_of(convert_utf<string_type>(c), pos); }
+        size_type find_first_of(const wchar_t* s, size_type pos = 0) const { return find_first_of(convert_utf<string_type>(s), pos); }
+        size_type find_first_of(const wchar_t c, size_type pos = 0) const { return find_first_of(convert_utf<string_type>(c), pos); }
 
         size_type find_last_of(const Path& s, size_type pos = npos) const { return _string.find_last_of(s._string, pos); }
-        size_type find_last_of(const char* s, size_type pos = npos) const { return find_last_of(native(s), pos); }
-        size_type find_last_of(const char c, size_type pos = npos) const { return find_last_of(native(c), pos); }
-        size_type find_last_of(const wchar_t* s, size_type pos = npos) const { return find_last_of(native(s), pos); }
-        size_type find_last_of(const wchar_t c, size_type pos = npos) const { return find_last_of(native(c), pos); }
+        size_type find_last_of(const char* s, size_type pos = npos) const { return find_last_of(convert_utf<string_type>(s), pos); }
+        size_type find_last_of(const char c, size_type pos = npos) const { return find_last_of(convert_utf<string_type>(c), pos); }
+        size_type find_last_of(const wchar_t* s, size_type pos = npos) const { return find_last_of(convert_utf<string_type>(s), pos); }
+        size_type find_last_of(const wchar_t c, size_type pos = npos) const { return find_last_of(convert_utf<string_type>(c), pos); }
 
-        void append(const Path& path) { _string.append(path._string); }
-        void append(char c) { _string.push_back(c); }
-
-        Path& replace(size_type pos, size_type n, const Path& str)
-        {
-            _string.replace(pos, n, str._string);
-            return *this;
-        }
-        Path& replace(size_type pos, size_type n, const std::string& str)
-        {
-            _string.replace(pos, n, native(str));
-            return *this;
-        }
-        Path& replace(size_type pos, size_type n, const std::wstring& str)
-        {
-            _string.replace(pos, n, native(str));
-            return *this;
-        }
-        Path& replace(size_type pos, size_type n, const char* str)
-        {
-            _string.replace(pos, n, native(str));
-            return *this;
-        }
-        Path& replace(size_type pos, size_type n, const wchar_t* str)
-        {
-            _string.replace(pos, n, native(str));
-            return *this;
-        }
+        Path& replace(size_type pos, size_type n, const Path& str);
+        Path& replace(size_type pos, size_type n, const std::string& str);
+        Path& replace(size_type pos, size_type n, const std::wstring& str);
+        Path& replace(size_type pos, size_type n, const char* str);
+        Path& replace(size_type pos, size_type n, const wchar_t* str);
 
     protected:
         string_type _string;
     };
 
+    /// directly join two paths without a path separator
     inline Path operator+(const Path& lhs, const Path& rhs)
     {
         Path path(lhs);
-        path.append(rhs);
-        return path;
+        return path.concat(rhs);
     }
 
-    inline Path operator+(const Path& lhs, char rhs)
+    /// join two paths with a path separator between
+    inline Path operator / (const Path& lhs, const Path& rhs)
     {
         Path path(lhs);
-        path.append(rhs);
-        return path;
+        return path /= rhs;
     }
+
 
     inline std::ostream& operator<<(std::ostream& output, const vsg::Path& path)
     {

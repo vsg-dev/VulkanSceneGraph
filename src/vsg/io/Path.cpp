@@ -34,7 +34,100 @@ Path::Path(const std::string& str)
     assign(str);
 }
 
+Path::Path(const wchar_t* str)
+{
+    assign(str);
+}
+
 Path::Path(const std::wstring& str)
 {
     assign(str);
+}
+
+Path& Path::assign(const Path& path)
+{
+    if (&path != this) _string = path._string;
+    return *this;
+}
+
+Path& Path::assign(const std::string& str)
+{
+    convert_utf(str, _string);
+    return *this;
+}
+
+Path& Path::assign(const char* str)
+{
+    convert_utf(str, _string);
+    return *this;
+}
+
+Path& Path::assign(const std::wstring& str)
+{
+    convert_utf(str, _string);
+    return *this;
+}
+
+Path& Path::assign(const wchar_t* str)
+{
+    convert_utf(str, _string);
+    return *this;
+}
+
+Path& Path::replace(size_type pos, size_type n, const Path& str)
+{
+    _string.replace(pos, n, str._string);
+    return *this;
+}
+Path& Path::replace(size_type pos, size_type n, const std::string& str)
+{
+    _string.replace(pos, n, convert_utf<string_type>(str));
+    return *this;
+}
+Path& Path::replace(size_type pos, size_type n, const std::wstring& str)
+{
+    _string.replace(pos, n, convert_utf<string_type>(str));
+    return *this;
+}
+Path& Path::replace(size_type pos, size_type n, const char* str)
+{
+    _string.replace(pos, n, convert_utf<string_type>(str));
+    return *this;
+}
+Path& Path::replace(size_type pos, size_type n, const wchar_t* str)
+{
+    _string.replace(pos, n, convert_utf<string_type>(str));
+    return *this;
+}
+
+Path& Path::append(const Path& right)
+{
+    if (empty())
+    {
+        return assign(right);
+    }
+
+    if (right.empty())
+    {
+        return *this;
+    }
+
+    auto lastChar = _string[_string.size() - 1];
+    if (lastChar == preferred_separator)
+    {
+        concat(right._string);
+    }
+    else if (lastChar == alternate_separator)
+    {
+        _string.erase(_string.size()-1, 1);
+        _string.push_back(preferred_separator);
+        _string.append(right._string);
+    }
+    else // lastChar != a delimiter
+    {
+        _string.push_back(preferred_separator);
+        _string.append(right._string);
+    }
+
+    return *this;
 }
