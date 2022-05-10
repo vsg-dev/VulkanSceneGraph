@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/state/DescriptorBuffer.h>
 #include <vsg/text/TextTechnique.h>
+#include <vsg/utils/ShaderSet.h>
 
 namespace vsg
 {
@@ -37,24 +38,6 @@ namespace vsg
 
         void setup(Text* text, uint32_t minimumAllocation = 0) override;
 
-        /// rendering state used to set up graphics pipeline and descriptor sets, assigned to Font to allow it be shared
-        struct VSG_DECLSPEC RenderingState : public Inherit<Object, RenderingState>
-        {
-            RenderingState(Font* font, bool in_singleColor, bool in_singleOutlineColor, bool in_singleOutlineWidth);
-
-            bool match(bool in_singleColor, bool in_singleOutlineColor, bool in_singleOutlineWidth) const
-            {
-                return (in_singleColor == singleColor) && (in_singleOutlineColor == singleOutlineColor) && (in_singleOutlineWidth == singleOutlineWidth);
-            }
-
-            bool singleColor = true;
-            bool singleOutlineColor = true;
-            bool singleOutlineWidth = true;
-
-            ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
-            ref_ptr<BindDescriptorSet> bindDescriptorSet;
-        };
-
         ref_ptr<vec3Array> vertices;
         ref_ptr<vec4Array> colors;
         ref_ptr<vec4Array> outlineColors;
@@ -65,7 +48,6 @@ namespace vsg
 
         ref_ptr<BindVertexBuffers> bindVertexBuffers;
         ref_ptr<BindIndexBuffer> bindIndexBuffer;
-        ref_ptr<RenderingState> sharedRenderingState;
         ref_ptr<StateGroup> scenegraph;
     };
     VSG_type_name(vsg::CpuLayoutTechnique);

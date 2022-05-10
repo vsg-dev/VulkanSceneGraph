@@ -23,6 +23,7 @@ namespace vsg
         using Attributes = std::vector<VkVertexInputAttributeDescription>;
 
         VertexInputState();
+        VertexInputState(const VertexInputState& vis);
         VertexInputState(const Bindings& bindings, const Attributes& attributes);
 
         /// VkPipelineVertexInputStateCreateInfo settings
@@ -33,6 +34,7 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
+
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:

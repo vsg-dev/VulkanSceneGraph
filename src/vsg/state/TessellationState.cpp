@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/TessellationState.h>
 #include <vsg/vk/Context.h>
@@ -21,8 +22,23 @@ TessellationState::TessellationState(uint32_t in_patchControlPoints) :
 {
 }
 
+TessellationState::TessellationState(const TessellationState& ts) :
+    Inherit(ts),
+    patchControlPoints(ts.patchControlPoints)
+{
+}
+
 TessellationState::~TessellationState()
 {
+}
+
+int TessellationState::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_value(patchControlPoints, rhs.patchControlPoints);
 }
 
 void TessellationState::read(Input& input)

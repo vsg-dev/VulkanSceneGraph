@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/RasterizationState.h>
 #include <vsg/vk/Context.h>
@@ -20,8 +21,32 @@ RasterizationState::RasterizationState()
 {
 }
 
+RasterizationState::RasterizationState(const RasterizationState& rs) :
+    Inherit(rs),
+    depthClampEnable(rs.depthClampEnable),
+    rasterizerDiscardEnable(rs.rasterizerDiscardEnable),
+    polygonMode(rs.polygonMode),
+    cullMode(rs.cullMode),
+    frontFace(rs.frontFace),
+    depthBiasEnable(rs.depthBiasEnable),
+    depthBiasConstantFactor(rs.depthBiasConstantFactor),
+    depthBiasClamp(rs.depthBiasClamp),
+    depthBiasSlopeFactor(rs.depthBiasSlopeFactor),
+    lineWidth(rs.lineWidth)
+{
+}
+
 RasterizationState::~RasterizationState()
 {
+}
+
+int RasterizationState::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_region(depthClampEnable, lineWidth, rhs.depthClampEnable);
 }
 
 void RasterizationState::read(Input& input)

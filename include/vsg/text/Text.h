@@ -50,4 +50,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Text);
 
+    /// create a ShaderSet used for both CpuALayutTechnique and GpuALayutTechnique or return the Options::shaderSet["text"] entry if available.
+    extern VSG_DECLSPEC ref_ptr<ShaderSet> createTextShaderSet(ref_ptr<const Options> options = {});
+
 } // namespace vsg

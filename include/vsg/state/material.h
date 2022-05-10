@@ -50,10 +50,10 @@ namespace vsg
 
     struct PhongMaterial
     {
-        vec4 ambient{0.0f, 0.0f, 0.0f, 1.0f};
-        vec4 diffuse{1.0f, 1.0f, 1.0f, 1.0f};
-        vec4 specular{0.0f, 0.0f, 0.0f, 1.0f};
-        vec4 emissive{0.0f, 0.0f, 0.0f, 1.0f};
+        vec4 ambient{1.0f, 1.0f, 1.0f, 0.9f};
+        vec4 diffuse{1.0f, 1.0f, 1.0f, 0.9f};
+        vec4 specular{0.0f, 0.0f, 0.0f, 0.2f};
+        vec4 emissive{0.0f, 0.0f, 0.0f, 0.0f};
         float shininess{100.0f};
         float alphaMask{1.0f};
         float alphaMaskCutoff{0.5f};

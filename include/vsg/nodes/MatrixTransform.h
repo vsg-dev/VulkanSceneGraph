@@ -23,12 +23,14 @@ namespace vsg
         MatrixTransform();
         explicit MatrixTransform(const dmat4& in_matrix);
 
+        dmat4 matrix;
+
+        int compare(const Object& rhs) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
 
         dmat4 transform(const dmat4& m) const override { return m * matrix; }
-
-        dmat4 matrix;
 
     protected:
     };

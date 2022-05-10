@@ -43,7 +43,7 @@ namespace vsg
         void apply(TouchUpEvent& touchUp) override;
         void apply(TouchMoveEvent& touchMove) override;
         void apply(FrameEvent& frame) override;
-        
+
         virtual void rotate(double angle, const dvec3& axis);
         virtual void zoom(double ratio);
         virtual void pan(const dvec2& delta);

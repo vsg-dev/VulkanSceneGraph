@@ -21,6 +21,12 @@ DynamicState::DynamicState()
 {
 }
 
+DynamicState::DynamicState(const DynamicState& ds) :
+    Inherit(ds),
+    dynamicStates(ds.dynamicStates)
+{
+}
+
 DynamicState::~DynamicState()
 {
 }
