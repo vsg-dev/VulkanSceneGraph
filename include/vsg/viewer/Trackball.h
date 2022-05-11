@@ -124,7 +124,7 @@ namespace vsg
         ref_ptr<LookAt> _startLookAt;
         ref_ptr<LookAt> _endLookAt;
         std::map<uint32_t, ref_ptr<TouchEvent>> _previousTouches;
-        
+
         double _animationDuration = 0.0;
     };
 

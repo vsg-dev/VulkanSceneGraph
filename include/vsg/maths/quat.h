@@ -176,10 +176,10 @@ namespace vsg
     template<typename T>
     constexpr t_quat<T> operator*(const t_quat<T>& lhs, const t_quat<T>& rhs)
     {
-        t_quat<T> q( rhs[3]*lhs[0] + rhs[0]*lhs[3] + rhs[1]*lhs[2] - rhs[2]*lhs[1],
-                rhs[3]*lhs[1] - rhs[0]*lhs[2] + rhs[1]*lhs[3] + rhs[2]*lhs[0],
-                rhs[3]*lhs[2] + rhs[0]*lhs[1] - rhs[1]*lhs[0] + rhs[2]*lhs[3],
-                rhs[3]*lhs[3] - rhs[0]*lhs[0] - rhs[1]*lhs[1] - rhs[2]*lhs[2] );
+        t_quat<T> q(rhs[3] * lhs[0] + rhs[0] * lhs[3] + rhs[1] * lhs[2] - rhs[2] * lhs[1],
+                    rhs[3] * lhs[1] - rhs[0] * lhs[2] + rhs[1] * lhs[3] + rhs[2] * lhs[0],
+                    rhs[3] * lhs[2] + rhs[0] * lhs[1] - rhs[1] * lhs[0] + rhs[2] * lhs[3],
+                    rhs[3] * lhs[3] - rhs[0] * lhs[0] - rhs[1] * lhs[1] - rhs[2] * lhs[2]);
 
         return q;
     }
@@ -194,7 +194,7 @@ namespace vsg
         uv = cross(qvec, v);
         uuv = cross(qvec, uv);
         T two(2.0);
-        uv *= ( two * q[3] );
+        uv *= (two * q[3]);
         uuv *= two;
         return v + uv + uuv;
     }
