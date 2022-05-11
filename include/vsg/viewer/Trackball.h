@@ -116,7 +116,8 @@ namespace vsg
 
         time_point _previousTime;
         ref_ptr<PointerEvent> _previousPointerEvent;
-        double _previousDelta = 0.0, _prevZoomTouchDistance = 0.0;
+        double _previousDelta = 0.0;
+        double _prevZoomTouchDistance = 0.0;
         bool _thrown = false;
 
         time_point _startTime;
