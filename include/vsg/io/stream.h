@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/ref_ptr.h>
 #include <vsg/core/type_name.h>
+#include <vsg/io/Path.h>
 #include <vsg/maths/box.h>
 #include <vsg/maths/mat3.h>
 #include <vsg/maths/mat4.h>
@@ -194,5 +195,19 @@ namespace vsg
     std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::ostream>::type& stream, const T& e)
     {
         return stream << static_cast<typename std::underlying_type<T>::type>(e);
+    }
+
+    inline std::ostream& operator<<(std::ostream& output, const vsg::Path& path)
+    {
+        output << path.string();
+        return output;
+    }
+
+    inline std::istream& operator>>(std::istream& input, vsg::Path& path)
+    {
+        std::string str;
+        input >> str;
+        path = str;
+        return input;
     }
 } // namespace vsg

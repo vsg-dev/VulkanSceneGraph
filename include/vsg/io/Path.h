@@ -14,7 +14,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/convert_utf.h>
 
-#include <ostream>
 #include <string>
 
 namespace vsg
@@ -183,20 +182,6 @@ namespace vsg
     {
         Path path(lhs);
         return path /= rhs;
-    }
-
-    inline std::ostream& operator<<(std::ostream& output, const vsg::Path& path)
-    {
-        output << path.string();
-        return output;
-    }
-
-    inline std::istream& operator>>(std::istream& input, vsg::Path& path)
-    {
-        std::string str;
-        input >> str;
-        path = str;
-        return input;
     }
 
 } // namespace vsg
