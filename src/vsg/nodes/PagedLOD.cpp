@@ -49,10 +49,10 @@ void PagedLOD::read(Input& input)
         input.read("child.filename", filename);
         children[0].node = nullptr;
 
-        if (!input.filename.empty())
+        if (input.filename)
         {
             auto path = filePath(input.filename);
-            if (!path.empty())
+            if (path)
             {
                 filename = path / filename;
             }
@@ -69,10 +69,10 @@ void PagedLOD::read(Input& input)
         input.read("Filename", filename);
         children[0].node = nullptr;
 
-        if (!input.filename.empty())
+        if (input.filename)
         {
             auto path = filePath(input.filename);
-            if (!path.empty())
+            if (path)
             {
                 filename = path / filename;
             }

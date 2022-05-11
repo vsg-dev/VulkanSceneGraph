@@ -135,7 +135,7 @@ void External::write(Output& output) const
 
     for (auto& [filename, externalObject] : entries)
     {
-        if (!filename.empty() && externalObject)
+        if (filename && externalObject)
         {
             auto startObjectID = collectIDs._objectID;
             externalObject->accept(collectIDs);
@@ -166,7 +166,7 @@ void External::write(Output& output) const
     for (auto& [filename, externalObject] : entries)
     {
         // if we should write out object then need to invoke ReaderWriter for it.
-        if (!filename.empty() && externalObject)
+        if (filename && externalObject)
         {
             vsg::write(externalObject, filename, output.options);
         }

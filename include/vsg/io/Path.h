@@ -92,6 +92,7 @@ namespace vsg
         bool operator==(const wchar_t* rhs) const { return compare(convert_utf<string_type>(rhs)) == 0; }
         bool operator!=(const wchar_t* rhs) const { return compare(convert_utf<string_type>(rhs)) != 0; }
 
+        explicit operator bool() const noexcept { return !_string.empty(); }
         bool empty() const { return _string.empty(); }
         size_type size() const { return _string.size(); }
         size_type length() const { return _string.size(); }

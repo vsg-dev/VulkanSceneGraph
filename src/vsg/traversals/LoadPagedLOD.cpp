@@ -123,7 +123,7 @@ void LoadPagedLOD::apply(PagedLOD& plod)
             Path filename = _pathStack.empty() ? plod.filename : (_pathStack.back() / plod.filename);
 
             Path localPath = filePath(plod.filename);
-            if (!localPath.empty())
+            if (localPath)
             {
                 if (_pathStack.empty())
                     _pathStack.push_back(localPath);
@@ -139,7 +139,7 @@ void LoadPagedLOD::apply(PagedLOD& plod)
 
             if (child.node) child.node->accept(*this);
 
-            if (!localPath.empty())
+            if (localPath)
             {
                 _pathStack.pop_back();
             }

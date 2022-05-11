@@ -121,7 +121,7 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
         // run reads single threaded
         for (auto& filename : filenames)
         {
-            if (!filename.empty())
+            if (filename)
             {
                 entries[filename] = vsg::read(filename, options);
             }

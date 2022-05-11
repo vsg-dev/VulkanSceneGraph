@@ -50,7 +50,7 @@ vsg::ref_ptr<vsg::Object> spirv::read(const vsg::Path& filename, vsg::ref_ptr<co
     if (ext == ".spv")
     {
         vsg::Path found_filename = vsg::findFile(filename, options);
-        if (found_filename.empty()) return {};
+        if (!found_filename) return {};
 
         vsg::ShaderModule::SPIRV spirv_module;
         readFile(spirv_module, found_filename);
