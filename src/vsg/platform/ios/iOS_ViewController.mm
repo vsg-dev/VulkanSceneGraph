@@ -6,7 +6,6 @@
 #pragma mark vsg_iOS_ViewController
 
 @implementation vsg_iOS_ViewController {
-    CADisplayLink* _displayLink;
     vsg::ref_ptr<vsg::WindowTraits>     _traits;
     vsg::ref_ptr<vsg::Viewer>           _vsgViewer;
 }
@@ -33,6 +32,7 @@
     frame.size.height = _traits->height <= 0 ? 1 : _traits->height;
     vsg_iOS_View* view = [[vsg_iOS_View alloc] initWithFrame:frame];
     self.view = view;
+    
 }
 
 -(void) dealloc {
@@ -46,22 +46,8 @@
     [super viewDidLoad];
     
     self.view.contentScaleFactor = UIScreen.mainScreen.nativeScale;
-    uint32_t fps = 60;
-    _displayLink = [CADisplayLink displayLinkWithTarget: self selector: @selector(renderLoop)];
-    [_displayLink setPreferredFramesPerSecond: fps];
-    [_displayLink addToRunLoop: NSRunLoop.currentRunLoop forMode: NSDefaultRunLoopMode];
 }
 
--(void) renderLoop {
-   if (self->_vsgViewer->advanceToNextFrame())
-   {
-       self->_vsgViewer->compile();
-       self->_vsgViewer->handleEvents();
-       self->_vsgViewer->update();
-       self->_vsgViewer->recordAndSubmit();
-       self->_vsgViewer->present();
-   }
-}
 
 // Allow device rotation to resize the swapchain
 -(void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id)coordinator {
