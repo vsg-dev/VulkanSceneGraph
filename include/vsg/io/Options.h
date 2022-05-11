@@ -72,14 +72,14 @@ namespace vsg
 
         Path fileCache;
 
-        std::string extensionHint;
+        Path extensionHint;
         bool mapRGBtoRGBAHint = true;
 
         /// Coordinate convention to use for scene graph
         CoordinateConvention sceneCoordinateConvention = CoordinateConvention::Z_UP;
 
         /// Coordinate convention to assume for specified lower case file formats extensions
-        std::map<vsg::Path, CoordinateConvention> formatCoordinateConventions;
+        std::map<Path, CoordinateConvention> formatCoordinateConventions;
 
         /// User defined ShaderSet map, loaders should check the available ShaderSet used the name of the type ShaderSet.
         /// Standard names are :
