@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/read.h>
 #include <vsg/io/write.h>
 
+#include <map>
 #include <unordered_map>
 
 using namespace vsg;
@@ -51,7 +52,7 @@ public:
         ObjectID endID = 0;
     };
 
-    using ObjectIDRangeMap = std::unordered_map<Path, ObjectIDRange>;
+    using ObjectIDRangeMap = std::map<Path, ObjectIDRange>;
     ObjectIDRangeMap objectIDRangeMap;
 };
 
@@ -64,7 +65,7 @@ External::External(const PathObjects& in_entries) :
 {
 }
 
-External::External(const std::string& filename, ref_ptr<Object> object) :
+External::External(const vsg::Path& filename, ref_ptr<Object> object) :
     entries{{filename, object}}
 {
 }
@@ -134,7 +135,7 @@ void External::write(Output& output) const
 
     for (auto& [filename, externalObject] : entries)
     {
-        if (!filename.empty() && externalObject)
+        if (filename && externalObject)
         {
             auto startObjectID = collectIDs._objectID;
             externalObject->accept(collectIDs);
@@ -165,7 +166,7 @@ void External::write(Output& output) const
     for (auto& [filename, externalObject] : entries)
     {
         // if we should write out object then need to invoke ReaderWriter for it.
-        if (!filename.empty() && externalObject)
+        if (filename && externalObject)
         {
             vsg::write(externalObject, filename, output.options);
         }

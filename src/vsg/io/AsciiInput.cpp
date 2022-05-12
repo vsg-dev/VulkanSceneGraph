@@ -111,6 +111,25 @@ void AsciiInput::read(size_t num, std::string* value)
     }
 }
 
+void AsciiInput::read(size_t num, Path* value)
+{
+    if (num == 1)
+    {
+        std::string str_value;
+        _read(str_value);
+        *value = str_value;
+    }
+    else
+    {
+        for (; num > 0; --num, ++value)
+        {
+            std::string str_value;
+            _read(str_value);
+            *value = str_value;
+        }
+    }
+}
+
 vsg::ref_ptr<vsg::Object> AsciiInput::read()
 {
     auto result = objectID();

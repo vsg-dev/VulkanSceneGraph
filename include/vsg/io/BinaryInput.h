@@ -59,6 +59,7 @@ namespace vsg
 
         // read one or more strings
         void read(size_t num, std::string* value) override;
+        void read(size_t num, Path* value) override;
 
         // read object
         vsg::ref_ptr<vsg::Object> read() override;

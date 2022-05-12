@@ -80,7 +80,7 @@ int ShaderStage::compare(const Object& rhs_object) const
     return 0;
 }
 
-ref_ptr<ShaderStage> ShaderStage::read(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& filename, ref_ptr<const Options> options)
+ref_ptr<ShaderStage> ShaderStage::read(VkShaderStageFlagBits stage, const std::string& entryPointName, const Path& filename, ref_ptr<const Options> options)
 {
     auto object = vsg::read(filename, options);
     if (!object) return {};

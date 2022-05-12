@@ -58,6 +58,7 @@ namespace vsg
         virtual void read(size_t num, float* value) = 0;
         virtual void read(size_t num, double* value) = 0;
         virtual void read(size_t num, std::string* value) = 0;
+        virtual void read(size_t num, Path* value) = 0;
 
         // read object
         virtual ref_ptr<Object> read() = 0;

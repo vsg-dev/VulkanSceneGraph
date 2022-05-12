@@ -80,8 +80,8 @@ namespace vsg
 
         struct Features
         {
-            std::map<std::string, FeatureMask> protocolFeatureMap;
-            std::map<std::string, FeatureMask> extensionFeatureMap;
+            std::map<vsg::Path, FeatureMask> protocolFeatureMap;
+            std::map<vsg::Path, FeatureMask> extensionFeatureMap;
             std::map<std::string, std::string> optionNameTypeMap;
         };
 

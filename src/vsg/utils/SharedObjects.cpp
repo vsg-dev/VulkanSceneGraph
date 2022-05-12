@@ -80,9 +80,9 @@ void SharedObjects::prune()
         for (auto itr = _sharedObjects.begin(); itr != _sharedObjects.end(); ++itr)
         {
             auto id = itr->first;
-            auto& objects = itr->second;
             if (id != loadedObject_id)
             {
+                auto& objects = itr->second;
                 for (auto object_itr = itr->second.begin(); object_itr != itr->second.end();)
                 {
                     if ((*object_itr)->referenceCount() == 1)

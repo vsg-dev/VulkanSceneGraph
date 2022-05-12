@@ -12,6 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/Options.h>
+#include <vsg/io/stream.h>
+
+#include <cstdio>
 
 #if defined(WIN32) && !defined(__CYGWIN__)
 #    include <cstdlib>
@@ -45,17 +48,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-const char UNIX_PATH_SEPARATOR = '/';
-const char WINDOWS_PATH_SEPARATOR = '\\';
-const char* const PATH_SEPARATORS = "/\\";
-
 #if defined(WIN32) && !defined(__CYGWIN__)
-const char delimiterNative = WINDOWS_PATH_SEPARATOR;
-const char delimiterForeign = UNIX_PATH_SEPARATOR;
 const char envPathDelimiter = ';';
 #else
-const char delimiterNative = UNIX_PATH_SEPARATOR;
-const char delimiterForeign = WINDOWS_PATH_SEPARATOR;
 const char envPathDelimiter = ':';
 #endif
 
@@ -112,7 +107,7 @@ Paths vsg::getEnvPaths(const char* env_var)
 bool vsg::fileExists(const Path& path)
 {
 #if defined(WIN32)
-    return _access(path.c_str(), 0) == 0;
+    return _waccess(path.c_str(), 0) == 0;
 #else
     return access(path.c_str(), F_OK) == 0;
 #endif
@@ -120,8 +115,10 @@ bool vsg::fileExists(const Path& path)
 
 Path vsg::filePath(const Path& path)
 {
-    std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
-    if (slash != std::string::npos)
+    if (trailingRelativePath(path)) return path;
+
+    auto slash = path.find_last_of(Path::separators);
+    if (slash != vsg::Path::npos)
     {
         return path.substr(0, slash);
     }
@@ -133,19 +130,12 @@ Path vsg::filePath(const Path& path)
 
 Path vsg::fileExtension(const Path& path)
 {
-    // available in cpp20
-    auto endsWith = [](std::string_view str, std::string_view suffix) {
-        return str.size() >= suffix.size() && 0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
-    };
+    auto dot = path.find_last_of('.');
+    if (dot == Path::npos || (dot + 1) == path.size()) return {};
 
-    // handle dot and dotdot in the path - since end-users can mix delimiter types we have to handle both cases
-    if (endsWith(path, "\\.") || endsWith(path, "/.")) return {};
-    if (endsWith(path, "\\..") || endsWith(path, "/..")) return {};
+    auto slash = path.find_last_of(Path::separators);
+    if (slash != Path::npos && dot < slash) return {};
 
-    std::string::size_type dot = path.find_last_of('.');
-    std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
-    if (dot == std::string::npos || (slash != std::string::npos && dot < slash)) return {};
-    if (dot != std::string::npos && path.length() == 1) return {};
     return path.substr(dot);
 }
 
@@ -158,29 +148,53 @@ Path vsg::lowerCaseFileExtension(const Path& path)
 
 Path vsg::simpleFilename(const Path& path)
 {
-    std::string::size_type dot = path.find_last_of('.');
-    std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
-    if (slash != std::string::npos)
+    if (trailingRelativePath(path)) return {};
+
+    auto dot = path.find_last_of('.');
+    auto slash = path.find_last_of(Path::separators);
+    if (slash != Path::npos)
     {
-        if ((dot == std::string::npos) || (dot < slash))
+        if ((dot == Path::npos) || (dot < slash))
             return path.substr(slash + 1);
         else
             return path.substr(slash + 1, dot - slash - 1);
     }
     else
     {
-        if (dot == std::string::npos)
+        if (dot == Path::npos)
             return path;
         else
             return path.substr(0, dot);
     }
 }
 
+bool vsg::trailingRelativePath(const Path& path)
+{
+    if (path == ".") return true;
+    if (path == "..") return true;
+    if (path.size() >= 2)
+    {
+        if (path.compare(path.size() - 2, 2, "/.") == 0) return true;
+        if (path.compare(path.size() - 2, 2, "\\.") == 0) return true;
+
+        if (path.size() >= 3)
+        {
+            if (path.compare(path.size() - 3, 3, "/..") == 0) return true;
+            if (path.compare(path.size() - 3, 3, "\\..") == 0) return true;
+        }
+    }
+    return false;
+}
+
 Path vsg::removeExtension(const Path& path)
 {
-    std::string::size_type dot = path.find_last_of('.');
-    std::string::size_type slash = path.find_last_of(PATH_SEPARATORS);
-    if (dot == std::string::npos || (slash != std::string::npos && dot < slash))
+    if (trailingRelativePath(path)) return path;
+
+    auto dot = path.find_last_of('.');
+    if (dot == Path::npos) return path;
+
+    auto slash = path.find_last_of(Path::separators);
+    if (slash != Path::npos && dot < slash)
         return path;
     else if (dot > 1)
         return path.substr(0, dot);
@@ -188,33 +202,11 @@ Path vsg::removeExtension(const Path& path)
         return {};
 }
 
-Path vsg::concatPaths(const Path& left, const Path& right)
-{
-    if (left.empty())
-    {
-        return (right);
-    }
-    char lastChar = left[left.size() - 1];
-
-    if (lastChar == delimiterNative)
-    {
-        return left + right;
-    }
-    else if (lastChar == delimiterForeign)
-    {
-        return left.substr(0, left.size() - 1) + delimiterNative + right;
-    }
-    else // lastChar != a delimiter
-    {
-        return left + delimiterNative + right;
-    }
-}
-
 Path vsg::findFile(const Path& filename, const Paths& paths)
 {
     for (auto path : paths)
     {
-        Path fullpath = concatPaths(path, filename);
+        Path fullpath = path / filename;
         if (fileExists(fullpath))
         {
             return fullpath;
@@ -236,7 +228,7 @@ Path vsg::findFile(const Path& filename, const Options* options)
             if (options->checkFilenameHint == Options::CHECK_ORIGINAL_FILENAME_EXISTS_FIRST && fileExists(filename)) return filename;
 
             // search for the file if the in the specific paths.
-            if (auto path = findFile(filename, options->paths); !path.empty()) return path;
+            if (auto path = findFile(filename, options->paths)) return path;
 
             // if appropriate use the filename directly if it exists.
             if (options->checkFilenameHint == Options::CHECK_ORIGINAL_FILENAME_EXISTS_LAST && fileExists(filename))
@@ -253,7 +245,7 @@ bool vsg::makeDirectory(const Path& path)
 {
     std::vector<vsg::Path> directoriesToCreate;
     Path trimmed_path = path;
-    while (!trimmed_path.empty() && !vsg::fileExists(trimmed_path))
+    while (trimmed_path && !vsg::fileExists(trimmed_path))
     {
         directoriesToCreate.push_back(trimmed_path);
         trimmed_path = vsg::filePath(trimmed_path);
@@ -270,7 +262,7 @@ bool vsg::makeDirectory(const Path& path)
         }
 
 #if defined(WIN32) && !defined(__CYGWIN__)
-        if (int status = _mkdir(directory_to_create.c_str()); status != 0)
+        if (int status = _wmkdir(directory_to_create.c_str()); status != 0)
         {
             if (errno != EEXIST)
             {
@@ -339,4 +331,21 @@ Path vsg::executableFilePath()
     // Not currently implemented
 #endif
     return path;
+}
+
+FILE* vsg::fopen(const Path& path, const char* mode)
+{
+#if defined(WIN32)
+    std::wstring wMode;
+    convert_utf(mode, wMode);
+
+    FILE* file = nullptr;
+    auto errorNo = _wfopen_s(&file, path.c_str(), wMode.c_str());
+    if (errorNo == 0)
+        return file;
+    else
+        return nullptr;
+#else
+    return ::fopen(path.c_str(), mode);
+#endif
 }

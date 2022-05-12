@@ -120,15 +120,15 @@ void LoadPagedLOD::apply(PagedLOD& plod)
         {
             ++level;
 
-            Path filename = _pathStack.empty() ? plod.filename : concatPaths(_pathStack.back(), plod.filename);
+            Path filename = _pathStack.empty() ? plod.filename : (_pathStack.back() / plod.filename);
 
             Path localPath = filePath(plod.filename);
-            if (!localPath.empty())
+            if (localPath)
             {
                 if (_pathStack.empty())
                     _pathStack.push_back(localPath);
                 else
-                    _pathStack.push_back(concatPaths(_pathStack.back(), localPath));
+                    _pathStack.push_back(_pathStack.back() / localPath);
             }
 
             if (!child.node)
@@ -139,7 +139,7 @@ void LoadPagedLOD::apply(PagedLOD& plod)
 
             if (child.node) child.node->accept(*this);
 
-            if (!localPath.empty())
+            if (localPath)
             {
                 _pathStack.pop_back();
             }

@@ -71,7 +71,7 @@ namespace vsg
     {
     public:
         ShaderSet();
-        ShaderSet(const ShaderStages& in_stages);
+        explicit ShaderSet(const ShaderStages& in_stages);
 
         /// base ShaderStages that other variants as based on.
         ShaderStages stages;

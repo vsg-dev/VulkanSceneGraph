@@ -57,6 +57,7 @@ namespace vsg
         }
 
         void write(size_t num, const std::string* value) override;
+        void write(size_t num, const Path* value) override;
 
         /// write object
         void write(const vsg::Object* object) override;

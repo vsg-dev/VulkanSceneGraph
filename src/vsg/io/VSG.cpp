@@ -99,7 +99,7 @@ vsg::ref_ptr<vsg::Object> VSG::read(const vsg::Path& filename, ref_ptr<const Opt
     if (ext == ".vsga" || ext == ".vsgt" || ext == ".vsgb")
     {
         vsg::Path filenameToUse = findFile(filename, options);
-        if (filenameToUse.empty()) return {};
+        if (!filenameToUse) return {};
 
         std::ifstream fin(filenameToUse, std::ios::in | std::ios::binary);
         if (!fin) return {};

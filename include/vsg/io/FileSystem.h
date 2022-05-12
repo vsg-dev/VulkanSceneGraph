@@ -13,16 +13,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <map>
-#include <string>
 #include <vector>
 
 #include <vsg/core/Object.h>
+#include <vsg/io/Path.h>
 
 namespace vsg
 {
 
     class Options;
-    using Path = std::string;
     using Paths = std::vector<Path>;
     using PathObjects = std::map<Path, ref_ptr<Object>>;
 
@@ -43,19 +42,15 @@ namespace vsg
     extern VSG_DECLSPEC Path filePath(const Path& path);
 
     extern VSG_DECLSPEC Path fileExtension(const Path& path);
+
     extern VSG_DECLSPEC Path lowerCaseFileExtension(const Path& path);
 
     extern VSG_DECLSPEC Path simpleFilename(const Path& path);
 
     extern VSG_DECLSPEC Path removeExtension(const Path& path);
 
-    extern VSG_DECLSPEC Path concatPaths(const Path& left, const Path& right);
-
-    template<typename... Args>
-    Path concatPaths(const Path& left, Args... args)
-    {
-        return concatPaths(left, concatPaths(args...));
-    }
+    /// return true if the path equals ., .. or has a trailing \.. \.., /.. or /....
+    extern VSG_DECLSPEC bool trailingRelativePath(const Path& path);
 
     extern VSG_DECLSPEC Path findFile(const Path& filename, const Paths& paths);
 
@@ -66,5 +61,8 @@ namespace vsg
 
     /// returns the path/filename of the currently executed program
     extern VSG_DECLSPEC Path executableFilePath();
+
+    /// Open a file using a the C style fopen() adapted with work with the vsg::Path
+    extern FILE* fopen(const Path& path, const char* mode);
 
 } // namespace vsg

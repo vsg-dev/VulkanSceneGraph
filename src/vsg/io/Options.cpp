@@ -135,7 +135,7 @@ bool Options::readOptions(CommandLine& arguments)
 ref_ptr<const vsg::Options> vsg::prependPathToOptionsIfRequired(const vsg::Path& filename, ref_ptr<const vsg::Options> options)
 {
     auto path = filePath(filename);
-    if (path.empty()) return options;
+    if (!path) return options;
 
     auto duplicate = vsg::Options::create(*options);
     duplicate->paths.insert(duplicate->paths.begin(), path);

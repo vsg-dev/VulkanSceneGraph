@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/DatabasePager.h>
 #include <vsg/io/read.h>
+#include <vsg/io/stream.h>
 #include <vsg/threading/atomics.h>
 #include <vsg/ui/ApplicationEvent.h>
 

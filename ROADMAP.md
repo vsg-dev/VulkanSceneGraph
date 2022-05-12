@@ -46,9 +46,9 @@ Using the prototyping work as a guide implement the final scene graph library wi
 * Port to iOS
 * Unified state composer, shader set and cache
 * Update vsgXchange::Assimp to use the new state composer/shader set.
+* Support for wide and standard strings in vsg::Path.
 
 #### Current development tasks:
-* Support for wide and standard strings in vsg::Path.
 
 #### Future tasks:
 * Improved support for dynamic scene graphs and dynamic views, dynamic descriptor pool reallocation

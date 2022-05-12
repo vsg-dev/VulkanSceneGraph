@@ -23,7 +23,7 @@ namespace vsg
     class Context;
 
     template<typename T>
-    bool readFile(T& buffer, const std::string& filename)
+    bool readFile(T& buffer, const vsg::Path& filename)
     {
         std::ifstream fin(filename, std::ios::ate | std::ios::binary);
         if (!fin.is_open()) return false;

@@ -99,6 +99,7 @@ set(SOURCES
     state/DynamicState.cpp
     state/ViewDependentState.cpp
 
+    io/convert_utf.cpp
     io/FileSystem.cpp
     io/AsciiInput.cpp
     io/DatabasePager.cpp
@@ -109,6 +110,7 @@ set(SOURCES
     io/Output.cpp
     io/Options.cpp
     io/ObjectFactory.cpp
+    io/Path.cpp
     io/ReaderWriter.cpp
     io/VSG.cpp
     io/spirv.cpp

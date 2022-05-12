@@ -208,7 +208,7 @@ void ViewDependentState::copy()
     //    std::cout<<"ViewDependentState::copy()"<<std::endl;
     if (bufferIndex >= bufferedDescriptors.size()) return;
 
-    auto& descriptorData = bufferedDescriptors[bufferIndex];
+    const auto& descriptorData = bufferedDescriptors[bufferIndex];
     for (auto& bufferInfo : descriptorData.lightDescriptor->bufferInfoList)
     {
         bufferInfo->copyDataToBuffer();

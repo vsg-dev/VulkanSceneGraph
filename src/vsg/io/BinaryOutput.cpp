@@ -40,6 +40,21 @@ void BinaryOutput::write(size_t num, const std::string* value)
     }
 }
 
+void BinaryOutput::write(size_t num, const Path* value)
+{
+    if (num == 1)
+    {
+        _write(value->string());
+    }
+    else
+    {
+        for (; num > 0; --num, ++value)
+        {
+            _write(value->string());
+        }
+    }
+}
+
 void BinaryOutput::write(const vsg::Object* object)
 {
     if (auto itr = objectIDMap.find(object); itr != objectIDMap.end())

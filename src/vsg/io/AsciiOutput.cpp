@@ -48,6 +48,23 @@ void AsciiOutput::write(size_t num, const std::string* value)
     }
 }
 
+void AsciiOutput::write(size_t num, const Path* value)
+{
+    if (num == 1)
+    {
+        _output << ' ';
+        _write(value->string());
+    }
+    else
+    {
+        for (; num > 0; --num, ++value)
+        {
+            _output << ' ';
+            _write(value->string());
+        }
+    }
+}
+
 void AsciiOutput::write(const vsg::Object* object)
 {
     if (auto itr = objectIDMap.find(object); itr != objectIDMap.end())
