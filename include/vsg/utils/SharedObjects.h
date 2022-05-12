@@ -143,7 +143,7 @@ namespace vsg
             options(in_options),
             object(in_object) {}
 
-        int compare(const Object& rhs_object) const
+        int compare(const Object& rhs_object) const override
         {
             int result = Object::compare(rhs_object);
             if (result != 0) return result;

@@ -247,7 +247,7 @@ bool t_decompose(const t_mat4<T>& m, t_vec3<T>& translation, t_quat<T>& rotation
 
     // check that we don't have any axis scaled by 0 as this would cause a
     // divide by zero in the rotation code.
-    if (scale[0] == 0.0 || scale[1] == 0.0 || scale[0] == 0.0) return false;
+    if (scale[0] == 0.0 || scale[1] == 0.0 || scale[2] == 0.0) return false;
 
     // compute rotation matrix and subsequently the quaternion
     t_mat3<T> rm(m[0].xyz / scale[0],

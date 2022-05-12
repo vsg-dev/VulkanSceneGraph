@@ -39,6 +39,11 @@ useStlAlgorithm:*/src/vsg/vk/Swapchain.cpp
 useStlAlgorithm:*/src/vsg/utils/Builder.cpp
 useStlAlgorithm:*/src/vsg/vk/Instance.cpp
 useStlAlgorithm:*/src/vsg/vk/RenderPass.cpp
+useStlAlgorithm:*/src/vsg/core/Allocator.cpp
+useStlAlgorithm:*/src/vsg/core/MemorySlots.cpp
+useStlAlgorithm:*/src/vsg/traversals/ArrayState.cpp
+useStlAlgorithm:*/src/vsg/traversals/CompileTraversal.cpp
+useStlAlgorithm:*/src/vsg/utils/ShaderSet.cpp
 
 // suppress the warning about valid C++17 if (init; condition) usage
 syntaxError:*include/vsg/core/Inherit.h
@@ -68,12 +73,16 @@ unusedStructMember:*include/vsg/traversals/LineSegmentIntersector.h
 unusedStructMember:*include/vsg/viewer/Trackball.h
 unusedStructMember:*include/vsg/vk/ResourceRequirements.h
 unusedStructMember:*include/vsg/vk/Device.h
+unusedStructMember:*include/vsg/vk/RenderPass.h
 unusedStructMember:*include/vsg/vk/Swapchain.h
 unusedStructMember:*include/vsg/nodes/Switch.h
 unusedStructMember:*include/vsg/text/TextLayout.h
 unusedStructMember:*include/vsg/introspection/c_interface.h
-unusedStructMember:*include/vsg/utils/Bulder.h
+unusedStructMember:*include/vsg/utils/Builder.h
 unusedStructMember:*src/vsg/core/External.cpp
+
+// suppress warnings about unused variables
+unusedVariable:*/src/vsg/io/FileSystem.cpp
 
 // suppress inappropriate warning about unitialized variable
 uninitvar:*/include/vsg/vk/DeviceFeatures.h
@@ -89,7 +98,7 @@ knownConditionTrueFalse:*/src/vsg/utils/Builder.cpp
 useInitializationList:*/include/vsg/core/ScratchMemory.h
 useInitializationList:*/src/vsg/vk/Extensions.cpp
 useInitializationList:*/src/vsg/vk/Context.cpp
-
+useInitializationList:*/src/vsg/viewer/Viewer.cpp
 
 // suppress inappropriate warning about insertion.
 stlFindInsert:*/src/vsg/vk/ResourceRequirements.cpp

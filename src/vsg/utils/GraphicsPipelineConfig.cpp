@@ -67,7 +67,7 @@ struct AssignGraphicsPipelineStates : public vsg::Visitor
 {
     vsg::GraphicsPipelineConfig* config = nullptr;
 
-    AssignGraphicsPipelineStates(vsg::GraphicsPipelineConfig* in_config) :
+    explicit AssignGraphicsPipelineStates(vsg::GraphicsPipelineConfig* in_config) :
         config(in_config) {}
 
     void apply(vsg::ColorBlendState& cbs) override { config->colorBlendState = ColorBlendState::create(cbs); }
