@@ -63,6 +63,6 @@ namespace vsg
     extern VSG_DECLSPEC Path executableFilePath();
 
     /// Open a file using a the C style fopen() adapted with work with the vsg::Path
-    extern FILE* fopen(const Path& path, const char* mode);
+    extern VSG_DECLSPEC FILE* fopen(const Path& path, const char* mode);
 
 } // namespace vsg
