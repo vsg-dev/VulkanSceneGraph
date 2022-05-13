@@ -77,4 +77,14 @@ namespace vsg
     };
     VSG_type_name(vsg::Swapchain);
 
+    constexpr bool operator==(const VkExtent2D& lhs, const VkExtent2D& rhs)
+    {
+        return lhs.width == rhs.width && lhs.height == rhs.height;
+    }
+
+    constexpr bool operator!=(const VkExtent2D& lhs, const VkExtent2D& rhs)
+    {
+        return lhs.width != rhs.width || lhs.height != rhs.height;
+    }
+
 } // namespace vsg
