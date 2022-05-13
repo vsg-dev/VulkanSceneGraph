@@ -102,3 +102,6 @@ useInitializationList:*/src/vsg/viewer/Viewer.cpp
 
 // suppress inappropriate warning about insertion.
 stlFindInsert:*/src/vsg/vk/ResourceRequirements.cpp
+
+// suppress inappropriate warning about usage that exists for debugging purposes.
+duplicateConditionalAssign:*/src/vsg/core/MemorySlots.cpp
