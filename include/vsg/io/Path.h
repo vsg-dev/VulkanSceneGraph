@@ -22,7 +22,7 @@ namespace vsg
     class VSG_DECLSPEC Path
     {
     public:
-#if defined(WIN32)
+#if defined(_MSC_VER)
         using value_type = wchar_t;
         static constexpr value_type windows_separator = L'\\';
         static constexpr value_type posix_separator = L'/';
