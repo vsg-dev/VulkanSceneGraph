@@ -48,7 +48,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#if defined(WIN32) && !defined(__CYGWIN__)
+#if defined(_MSC_VER)
 const char envPathDelimiter = ';';
 #else
 const char envPathDelimiter = ':';
@@ -56,7 +56,7 @@ const char envPathDelimiter = ':';
 
 std::string vsg::getEnv(const char* env_var)
 {
-#if defined(WIN32) && !defined(__CYGWIN__)
+#if defined(_MSC_VER)
     char env_value[4096];
     std::size_t len;
     if (auto error = getenv_s(&len, env_value, sizeof(env_value) - 1, env_var); error != 0 || len == 0)
@@ -74,7 +74,7 @@ Paths vsg::getEnvPaths(const char* env_var)
 {
     if (!env_var) return {};
 
-#if defined(WIN32) && !defined(__CYGWIN__)
+#if defined(_MSC_VER)
     char env_value[4096];
     std::size_t len;
     if (auto error = getenv_s(&len, env_value, sizeof(env_value) - 1, env_var); error != 0 || len == 0)
@@ -106,7 +106,7 @@ Paths vsg::getEnvPaths(const char* env_var)
 
 bool vsg::fileExists(const Path& path)
 {
-#if defined(WIN32)
+#if defined(_MSC_VER)
     return _waccess(path.c_str(), 0) == 0;
 #else
     return access(path.c_str(), F_OK) == 0;
@@ -261,18 +261,13 @@ bool vsg::makeDirectory(const Path& path)
             continue;
         }
 
-#if defined(WIN32) && !defined(__CYGWIN__)
+#if defined(_MSC_VER)
         if (int status = _wmkdir(directory_to_create.c_str()); status != 0)
-        {
-            if (errno != EEXIST)
-            {
-                // quietly ignore a mkdir on a file that already exists as this can happen safely during a filling in a filecache.
-                std::cerr << "_mkdir(" << directory_to_create << ") failed. errno = " << errno << std::endl;
-            }
-            return false;
-        }
-#else
+#elif defined(__MINGW32__)
+        if (int status = mkdir(directory_to_create.c_str()); status != 0)
+#else // POSIX
         if (int status = mkdir(directory_to_create.c_str(), 0755); status != 0)
+#endif
         {
             if (errno != EEXIST)
             {
@@ -281,7 +276,6 @@ bool vsg::makeDirectory(const Path& path)
             }
             return false;
         }
-#endif
     }
 
     return true;
@@ -335,7 +329,7 @@ Path vsg::executableFilePath()
 
 FILE* vsg::fopen(const Path& path, const char* mode)
 {
-#if defined(WIN32)
+#if defined(_MSC_VER)
     std::wstring wMode;
     convert_utf(mode, wMode);
 
