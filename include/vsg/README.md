@@ -29,5 +29,4 @@ The headers that provide the library classes and definitions are organized in su
 * [include/vsg/ui](ui/) - User Interface Event classes
 * [include/vsg/platform](platform/) - Platform specific Windowing/support classes
 * [include/vsg/viewer](viewer/) - Viewer/Windowing classes
-* [include/vsg/introspection](introspection) - introspection/reflection classes/functions
 
