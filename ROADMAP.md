@@ -47,12 +47,12 @@ Using the prototyping work as a guide implement the final scene graph library wi
 * Unified state composer, shader set and cache
 * Update vsgXchange::Assimp to use the new state composer/shader set.
 * Support for wide and standard strings in vsg::Path.
+* Utilize vkEnumerateInstanceVersion
 
 #### Current development tasks:
 
 #### Future tasks:
 * Improved support for dynamic scene graphs and dynamic views, dynamic descriptor pool reallocation
-* Utilize vkEnumerateInstanceVersion
 
 #### Future tasks relating to associated libraries
 * Update vsgXchange::OSG to use the new state composer/shader set.
