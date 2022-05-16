@@ -223,8 +223,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/ObjectFactory.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
+#include <vsg/io/Path.h>
 #include <vsg/io/ReaderWriter.h>
 #include <vsg/io/VSG.h>
+#include <vsg/io/convert_utf.h>
 #include <vsg/io/read.h>
 #include <vsg/io/read_line.h>
 #include <vsg/io/spirv.h>
@@ -239,9 +241,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/ShaderCompiler.h>
 #include <vsg/utils/ShaderSet.h>
 #include <vsg/utils/SharedObjects.h>
-
-// Introspection header files
-#include <vsg/introspection/c_interface.h>
 
 // Text header files
 #include <vsg/text/CpuLayoutTechnique.h>

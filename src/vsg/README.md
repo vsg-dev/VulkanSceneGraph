@@ -23,4 +23,3 @@ The implementations provided by the src/vsg directories mirror the structure of 
 * [src/vsg/traversals](traversals) - traversal implementations such as CompileTraversal, & RecordTraversal.
 * [src/vsg/platform](platform) - platform specific implementations of Windowing.
 * [src/vsg/viewer](viewer) - Viewer and Application classes
-* [src/vsg/introspection](introspection) - initial exploration of introspection.
