@@ -284,15 +284,16 @@ bool vsg::makeDirectory(const Path& path)
 Path vsg::executableFilePath()
 {
     Path path;
-    char buf[PATH_MAX + 1];
 
 #if defined(WIN32)
+    char buf[PATH_MAX + 1];
     DWORD result = GetModuleFileName(NULL, buf, sizeof(buf) - 1);
     if (result && result < sizeof(buf))
         path = buf;
 #elif defined(__linux__)
     // TODO need to handle case where executable filename is longer than PATH_MAX
     // See https://stackoverflow.com/questions/5525668/how-to-implement-readlink-to-find-the-path
+    char buf[PATH_MAX + 1];
     ssize_t len = ::readlink("/proc/self/exe", buf, sizeof(buf) - 1);
     if (len != -1)
     {
@@ -302,6 +303,7 @@ Path vsg::executableFilePath()
 #elif defined(__APPLE__)
 #    if TARGET_OS_MAC
     char realPathName[PATH_MAX + 1];
+    char buf[PATH_MAX + 1];
     uint32_t size = (uint32_t)sizeof(buf);
 
     if (!_NSGetExecutablePath(buf, &size))
