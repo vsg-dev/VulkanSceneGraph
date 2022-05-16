@@ -58,6 +58,9 @@ namespace vsg
 
         void defaults()
         {
+            // query the vulkan instance version available
+            vkEnumerateInstanceVersion(&vulkanVersion);
+
             // vsg::DeviceFeatures use instance extension
             instanceExtensionNames.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 
