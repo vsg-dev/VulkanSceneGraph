@@ -98,7 +98,7 @@ void vsg::setAffinity(const Affinity& affinity)
     macos_setAffinity(pthread_self(), affinity);
 }
 
-#elif defined(__ANDROID__)
+#elif defined(__ANDROID__) || defined(__CYGWIN__)
 
 void vsg::setAffinity(std::thread&, const Affinity&)
 {
