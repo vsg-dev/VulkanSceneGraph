@@ -84,7 +84,7 @@ struct AssignGraphicsPipelineStates : public vsg::Visitor
 GraphicsPipelineConfig::GraphicsPipelineConfig(ref_ptr<ShaderSet> in_shaderSet) :
     shaderSet(in_shaderSet)
 {
-    // apply defaukts
+    // apply defaults
     auto& graphicsPipelineStates = shaderSet->defaultGraphicsPipelineStates;
     if (!graphicsPipelineStates.empty())
     {
