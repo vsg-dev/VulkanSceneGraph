@@ -299,7 +299,7 @@ void DatabasePager::start()
                             // compiling subgraph
                             if (subgraph)
                             {
-#if 1
+#if 0
                                 vsg::CollectResourceRequirements collectRequirements;
                                 subgraph->accept(collectRequirements);
 

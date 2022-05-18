@@ -14,10 +14,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Device.h>
 #include <vsg/state/Descriptor.h>
+#include <vsg/state/DescriptorSetLayout.h>
+
 namespace vsg
 {
 
-    using DescriptorPoolSizes = std::vector<VkDescriptorPoolSize>;
+    class DescriptorSet_Implementation;
 
     class VSG_DECLSPEC DescriptorPool : public Inherit<Object, DescriptorPool>
     {
@@ -31,6 +33,8 @@ namespace vsg
 
         std::mutex& getMutex() const { return _mutex; }
 
+        ref_ptr<DescriptorSet_Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
+
         // vkAllocateDescriptorSets(vector<ref_ptr<DescriptorsSetLayout>>);
         // vkAllocateDescriptorSet(ref_ptr<DescriptorsSetLayout>);
         // vkFreeDescriptorSets(VkDescriptorSet)
@@ -42,6 +46,7 @@ namespace vsg
 
         VkDescriptorPool _descriptorPool;
         ref_ptr<Device> _device;
+        DescriptorPoolSizes _availableDescriptorPoolSizes;
         mutable std::mutex _mutex;
     };
     VSG_type_name(vsg::DescriptorPool);

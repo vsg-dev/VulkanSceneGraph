@@ -149,8 +149,22 @@ ShaderCompiler* Context::getOrCreateShaderCompiler()
 
 ref_ptr<DescriptorSet_Implementation> Context::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
 {
-    auto dsi = DescriptorSet_Implementation::create(descriptorPool, descriptorSetLayout);
-    std::cout<<"Context::allocateDescriptorSet("<<descriptorSetLayout<<") dsi = "<<dsi<<std::endl;
+    auto dsi = descriptorPool->allocateDescriptorSet(descriptorSetLayout);
+    if (dsi) return dsi;
+
+    DescriptorPoolSizes descriptorPoolSizes;
+    descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);
+
+    uint32_t maxSets = 4;
+    for(auto& [type, descriptorCount] : descriptorPoolSizes)
+    {
+        descriptorCount *= maxSets;
+    }
+
+    descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
+    dsi = descriptorPool->allocateDescriptorSet(descriptorSetLayout);
+
+    std::cout<<"Context::allocateDescriptorSet("<<descriptorSetLayout<<") need to create a new DescriptorPool = "<<dsi<<std::endl;
     return dsi;
 }
 

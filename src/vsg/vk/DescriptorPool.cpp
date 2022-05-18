@@ -22,7 +22,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 DescriptorPool::DescriptorPool(Device* device, uint32_t maxSets, const DescriptorPoolSizes& descriptorPoolSizes) :
-    _device(device)
+    _device(device),
+    _availableDescriptorPoolSizes(descriptorPoolSizes)
 {
     VkDescriptorPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -46,6 +47,45 @@ DescriptorPool::~DescriptorPool()
     }
 }
 
+ref_ptr<DescriptorSet_Implementation> DescriptorPool::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
+{
+    DescriptorPoolSizes descriptorPoolSizes;
+    descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);
+
+    size_t matches = 0;
+    for(auto& [type, descriptorCount] : descriptorPoolSizes)
+    {
+        for(auto& [availableType, availableCount] : _availableDescriptorPoolSizes)
+        {
+            if (availableType == type)
+            {
+                if (availableCount >= descriptorCount) ++matches;
+            }
+        }
+    }
+
+    if (matches < descriptorPoolSizes.size())
+    {
+        std::cout<<"DescriptorPool::allocateDescriptorSet("<<descriptorSetLayout<<") not enough space,"<<std::endl;
+        return {};
+    }
+
+    for(auto& [type, descriptorCount] : descriptorPoolSizes)
+    {
+        for(auto& [availableType, availableCount] : _availableDescriptorPoolSizes)
+        {
+            if (availableType == type)
+            {
+                availableCount -= descriptorCount;
+            }
+        }
+    }
+
+    auto dsi = DescriptorSet_Implementation::create(this, descriptorSetLayout);
+    std::cout<<"DescriptorPool::allocateDescriptorSet("<<descriptorSetLayout<<") dsi = "<<dsi<<std::endl;
+    return dsi;
+}
+
 DescriptorSet_Implementation::DescriptorSet_Implementation(DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout) :
     _descriptorPool(descriptorPool)
 {
@@ -53,29 +93,7 @@ DescriptorSet_Implementation::DescriptorSet_Implementation(DescriptorPool* descr
 
     std::cout<<"DescriptorSet_Implementation::DescriptorSet_Implementation("<<descriptorPool<<", "<<descriptorSetLayout<<") "<<this<<std::endl;
     _descriptorPoolSizes.clear();
-    for(auto& binding : descriptorSetLayout->bindings)
-    {
-        std::cout<<"    descriptorType = "<<binding.descriptorType<<", descriptorCount = "<<binding.descriptorCount<<std::endl;
-
-        auto itr = _descriptorPoolSizes.begin();
-        for(; itr != _descriptorPoolSizes.end(); ++itr)
-        {
-            if (itr->type == binding.descriptorType)
-            {
-                itr->descriptorCount += binding.descriptorCount;
-                break;
-            }
-        }
-        if (itr == _descriptorPoolSizes.end())
-        {
-            _descriptorPoolSizes.emplace_back(VkDescriptorPoolSize{binding.descriptorType, binding.descriptorCount});
-        }
-    }
-
-    for(auto& [type, descriptorCount] : _descriptorPoolSizes)
-    {
-        std::cout<<"    type = "<<type<<", count = "<<descriptorCount<<std::endl;
-    }
+    descriptorSetLayout->getDescriptorPoolSizes(_descriptorPoolSizes);
 
     VkDescriptorSetLayout vkdescriptorSetLayout = descriptorSetLayout->vk(device->deviceID);
 
