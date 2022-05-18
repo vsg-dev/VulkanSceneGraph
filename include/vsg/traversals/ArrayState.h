@@ -126,7 +126,7 @@ namespace vsg
         ref_ptr<ArrayState> clone() override;
         ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
 
-        // binding of displacemnt map
+        // binding of displacement map
         uint32_t normal_attribute_location = 1;
         uint32_t texcoord_attribute_location = 2;
         uint32_t dm_set = 0;

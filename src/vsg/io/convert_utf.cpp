@@ -25,7 +25,7 @@ using namespace vsg;
 // https://en.wikipedia.org/wiki/UTF-16
 // OpenSceneGraph/src/osgText/String.cpp
 
-// use count to avoid erronous utf8 encodings causing reading reading beyond size of buffer.
+// use count to avoid erroneous utf8 encodings causing reading beyond size of buffer.
 template<typename Iterator, class Func>
 bool decode_utf8(Iterator itr, size_t count, Func op)
 {
@@ -65,7 +65,7 @@ bool decode_utf8(Iterator itr, size_t count, Func op)
         auto c3 = *itr++;
         --count;
 
-        // 4-bute character. Could check for char0 < 0xf8 to ensure encoding is valid?
+        // 4-byte character. Could check for char0 < 0xf8 to ensure encoding is valid?
         op(((c0 & 0x7) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f));
     }
 

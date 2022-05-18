@@ -115,7 +115,7 @@ namespace vsg
         /// clear all the internal structures leaving no Objects cached.
         void clear();
 
-        // clear all the singally referenced objects
+        // clear all the singly referenced objects
         void prune();
 
         /// write out stats of objects held, types of objects and their reference counts

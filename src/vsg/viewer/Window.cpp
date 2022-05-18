@@ -440,7 +440,7 @@ VkResult Window::acquireNextImage(uint64_t timeout)
 
     if (!_availableSemaphore) _availableSemaphore = vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag);
 
-    // check the domensons of the swapchain and window extents are consistent, if nit return a VK_ERROR_OUT_OF_DATE_KHR;
+    // check the dimensions of the swapchain and window extents are consistent, if nit return a VK_ERROR_OUT_OF_DATE_KHR;
     if (_swapchain->getExtent() != _extent2D) return VK_ERROR_OUT_OF_DATE_KHR;
 
     uint32_t imageIndex;
