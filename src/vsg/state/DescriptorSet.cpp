@@ -34,6 +34,7 @@ DescriptorSet::DescriptorSet(ref_ptr<DescriptorSetLayout> in_descriptorSetLayout
 
 DescriptorSet::~DescriptorSet()
 {
+    release();
 }
 
 int DescriptorSet::compare(const Object& rhs_object) const
@@ -111,6 +112,21 @@ void DescriptorSet::compile(Context& context)
     }
 }
 
+void DescriptorSet::release(uint32_t deviceID)
+{
+#if 1
+    recyle(_implementation[deviceID]);
+#else
+    _implementation[deviceID] = {};
+#endif
+}
+void DescriptorSet::release()
+{
+#if 1
+    for(auto& dsi : _implementation) recyle(dsi);
+#endif
+    _implementation.clear();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //

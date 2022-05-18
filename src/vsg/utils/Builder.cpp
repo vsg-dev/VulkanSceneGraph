@@ -31,11 +31,20 @@ void Builder::assignCompileTraversal(ref_ptr<CompileTraversal> ct, uint32_t maxN
         VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, maxNumTextures},
         VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, maxNumMaterials}};
 
+#if 0
+    // for now just allocated enough room for s
+    uint32_t maxSets = maxNumTextures;
+    uint32_t maxNumMaterials = maxNumTextures;
+    DescriptorPoolSizes descriptorPoolSizes{
+        VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, maxNumTextures},
+        VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, maxNumMaterials}};
+
     // CT TODO : need to refactor
     for (auto& context : compileTraversal->contexts)
     {
         context->descriptorPool = DescriptorPool::create(context->device, maxSets, descriptorPoolSizes);
     }
+#endif
 
     _allocatedTextureCount = 0;
     _maxNumTextures = maxNumTextures;

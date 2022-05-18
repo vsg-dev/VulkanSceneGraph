@@ -258,7 +258,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         {
             context->commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
             context->graphicsQueue = device->getQueue(queueFamily);
-            if (descriptorPoolSizes.size() > 0) context->descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
+            if (descriptorPoolSizes.size() > 0) context->descriptorPools.push_back(vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes));
         }
     }
 

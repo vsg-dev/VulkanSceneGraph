@@ -31,9 +31,8 @@ namespace vsg
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
-        std::mutex& getMutex() const { return _mutex; }
-
         ref_ptr<DescriptorSet_Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
+        void freeDescriptorSet(ref_ptr<DescriptorSet_Implementation> dsi);
 
         // vkAllocateDescriptorSets(vector<ref_ptr<DescriptorsSetLayout>>);
         // vkAllocateDescriptorSet(ref_ptr<DescriptorsSetLayout>);
@@ -46,8 +45,13 @@ namespace vsg
 
         VkDescriptorPool _descriptorPool;
         ref_ptr<Device> _device;
-        DescriptorPoolSizes _availableDescriptorPoolSizes;
         mutable std::mutex _mutex;
+
+        uint32_t _availableDescriptorSet;
+        DescriptorPoolSizes _availableDescriptorPoolSizes;
+
+        std::list<ref_ptr<DescriptorSet_Implementation>> _reclingList;
+
     };
     VSG_type_name(vsg::DescriptorPool);
 
@@ -66,5 +70,7 @@ namespace vsg
         Descriptors _descriptors;
         DescriptorPoolSizes _descriptorPoolSizes;
     };
+
+    extern VSG_DECLSPEC void recyle(ref_ptr<DescriptorSet_Implementation>& dsi);
 
 } // namespace vsg

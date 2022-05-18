@@ -230,7 +230,7 @@ void DatabasePager::start()
 
         std::list<ref_ptr<CompileTraversal>> compileTraversals;
 
-        int numCompileContexts = 16;
+        int numCompileContexts = 1;
 
         for (int i = 0; i < numCompileContexts; ++i)
         {

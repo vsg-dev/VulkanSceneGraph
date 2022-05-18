@@ -105,7 +105,7 @@ Context::Context(const Context& context) :
     renderPass(context.renderPass),
     defaultPipelineStates(context.defaultPipelineStates),
     overridePipelineStates(context.overridePipelineStates),
-    descriptorPool(context.descriptorPool),
+    descriptorPools(context.descriptorPools),
     graphicsQueue(context.graphicsQueue),
     commandPool(context.commandPool),
     deviceMemoryBufferPools(context.deviceMemoryBufferPools),
@@ -149,20 +149,25 @@ ShaderCompiler* Context::getOrCreateShaderCompiler()
 
 ref_ptr<DescriptorSet_Implementation> Context::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
 {
-    auto dsi = descriptorPool->allocateDescriptorSet(descriptorSetLayout);
-    if (dsi) return dsi;
+    for(auto itr = descriptorPools.rbegin(); itr != descriptorPools.rend(); ++itr)
+    {
+        auto dsi = (*itr)->allocateDescriptorSet(descriptorSetLayout);
+        if (dsi) return dsi;
+    }
 
     DescriptorPoolSizes descriptorPoolSizes;
     descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);
 
-    uint32_t maxSets = 4;
+    uint32_t maxSets = 256;
     for(auto& [type, descriptorCount] : descriptorPoolSizes)
     {
         descriptorCount *= maxSets;
     }
 
-    descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
-    dsi = descriptorPool->allocateDescriptorSet(descriptorSetLayout);
+    auto descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
+    auto dsi = descriptorPool->allocateDescriptorSet(descriptorSetLayout);
+
+    descriptorPools.push_back(descriptorPool);
 
     std::cout<<"Context::allocateDescriptorSet("<<descriptorSetLayout<<") need to create a new DescriptorPool = "<<dsi<<std::endl;
     return dsi;

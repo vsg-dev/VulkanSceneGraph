@@ -99,7 +99,7 @@ namespace vsg
         GraphicsPipelineStates overridePipelineStates;
 
         // DescriptorPool
-        ref_ptr<DescriptorPool> descriptorPool;
+        std::list<ref_ptr<DescriptorPool>> descriptorPools;
 
         // ShaderCompiler
         ref_ptr<ShaderCompiler> shaderCompiler;
