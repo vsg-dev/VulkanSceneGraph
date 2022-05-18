@@ -22,6 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/state/DescriptorSet.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Extensions.h>
 #include <vsg/vk/RenderPass.h>
@@ -144,6 +145,13 @@ ShaderCompiler* Context::getOrCreateShaderCompiler()
 #endif
 
     return shaderCompiler;
+}
+
+ref_ptr<DescriptorSet_Implementation> Context::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
+{
+    auto dsi = DescriptorSet_Implementation::create(descriptorPool, descriptorSetLayout);
+    std::cout<<"Context::allocateDescriptorSet("<<descriptorSetLayout<<") dsi = "<<dsi<<std::endl;
+    return dsi;
 }
 
 void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest)

@@ -58,22 +58,7 @@ namespace vsg
     protected:
         virtual ~DescriptorSet();
 
-        struct Implementation : public Inherit<Object, Implementation>
-        {
-            Implementation(Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout);
-
-            virtual ~Implementation();
-
-            void assign(Context& context, const Descriptors& descriptors);
-
-            VkDescriptorSet _descriptorSet;
-            ref_ptr<Device> _device;
-            ref_ptr<DescriptorPool> _descriptorPool;
-            ref_ptr<DescriptorSetLayout> _descriptorSetLayout;
-            Descriptors _descriptors;
-        };
-
-        vk_buffer<ref_ptr<Implementation>> _implementation;
+        vk_buffer<ref_ptr<DescriptorSet_Implementation>> _implementation;
     };
     VSG_type_name(vsg::DescriptorSet);
 

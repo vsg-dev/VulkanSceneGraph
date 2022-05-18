@@ -97,64 +97,20 @@ void DescriptorSet::compile(Context& context)
         if (setLayout) setLayout->compile(context);
         for (auto& descriptor : descriptors) descriptor->compile(context);
 
+#if 1
+        _implementation[context.deviceID] = context.allocateDescriptorSet(setLayout);
+        _implementation[context.deviceID]->assign(context, descriptors);
+#else
+
 #if USE_MUTEX
         std::scoped_lock<std::mutex> lock(context.descriptorPool->getMutex());
 #endif
-        _implementation[context.deviceID] = DescriptorSet::Implementation::create(context.device, context.descriptorPool, setLayout);
+        _implementation[context.deviceID] = DescriptorSet::Implementation::create(context.descriptorPool, setLayout);
         _implementation[context.deviceID]->assign(context, descriptors);
-    }
-}
-
-DescriptorSet::Implementation::Implementation(Device* device, DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout) :
-    _device(device),
-    _descriptorPool(descriptorPool),
-    _descriptorSetLayout(descriptorSetLayout)
-{
-    VkDescriptorSetLayout vkdescriptorSetLayout = descriptorSetLayout->vk(device->deviceID);
-
-    VkDescriptorSetAllocateInfo descriptSetAllocateInfo = {};
-    descriptSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    descriptSetAllocateInfo.descriptorPool = *descriptorPool;
-    descriptSetAllocateInfo.descriptorSetCount = 1;
-    descriptSetAllocateInfo.pSetLayouts = &vkdescriptorSetLayout;
-
-    if (VkResult result = vkAllocateDescriptorSets(*device, &descriptSetAllocateInfo, &_descriptorSet); result != VK_SUCCESS)
-    {
-        throw Exception{"Error: Failed to create DescriptorSet.", result};
-    }
-}
-
-DescriptorSet::Implementation::~Implementation()
-{
-    if (_descriptorSet)
-    {
-#if USE_MUTEX
-        std::scoped_lock<std::mutex> lock(_descriptorPool->getMutex());
 #endif
-        vkFreeDescriptorSets(*_device, *_descriptorPool, 1, &_descriptorSet);
     }
 }
 
-void DescriptorSet::Implementation::assign(Context& context, const Descriptors& descriptors)
-{
-    // should we doing anything about previous _descriptor that may have been assigned?
-    _descriptors = descriptors;
-
-    if (_descriptors.empty()) return;
-
-    VkWriteDescriptorSet* descriptorWrites = context.scratchMemory->allocate<VkWriteDescriptorSet>(_descriptors.size());
-
-    for (size_t i = 0; i < _descriptors.size(); ++i)
-    {
-        descriptors[i]->assignTo(context, descriptorWrites[i]);
-        descriptorWrites[i].dstSet = _descriptorSet;
-    }
-
-    vkUpdateDescriptorSets(*_device, static_cast<uint32_t>(descriptors.size()), descriptorWrites, 0, nullptr);
-
-    // clean up scratch memory so it can be reused.
-    context.scratchMemory->release();
-}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //

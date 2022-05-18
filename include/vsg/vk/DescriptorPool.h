@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/Device.h>
-
+#include <vsg/state/Descriptor.h>
 namespace vsg
 {
 
@@ -31,6 +31,12 @@ namespace vsg
 
         std::mutex& getMutex() const { return _mutex; }
 
+        // vkAllocateDescriptorSets(vector<ref_ptr<DescriptorsSetLayout>>);
+        // vkAllocateDescriptorSet(ref_ptr<DescriptorsSetLayout>);
+        // vkFreeDescriptorSets(VkDescriptorSet)
+        // vkUpdateDescriptorSets(...descriptorWrites);
+
+
     protected:
         virtual ~DescriptorPool();
 
@@ -39,5 +45,21 @@ namespace vsg
         mutable std::mutex _mutex;
     };
     VSG_type_name(vsg::DescriptorPool);
+
+    class DescriptorSetLayout;
+    class Context;
+
+    struct VSG_DECLSPEC DescriptorSet_Implementation : public Inherit<Object, DescriptorSet_Implementation>
+    {
+        DescriptorSet_Implementation(DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout);
+        virtual ~DescriptorSet_Implementation();
+
+        void assign(Context& context, const Descriptors& descriptors);
+
+        VkDescriptorSet _descriptorSet;
+        ref_ptr<DescriptorPool> _descriptorPool;
+        Descriptors _descriptors;
+        DescriptorPoolSizes _descriptorPoolSizes;
+    };
 
 } // namespace vsg

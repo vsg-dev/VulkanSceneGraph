@@ -13,6 +13,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/io/Options.h>
 #include <vsg/vk/DescriptorPool.h>
+#include <vsg/vk/Context.h>
+#include <vsg/state/Descriptor.h>
+#include <vsg/state/DescriptorSetLayout.h>
+
+#include <iostream>
 
 using namespace vsg;
 
@@ -39,4 +44,91 @@ DescriptorPool::~DescriptorPool()
     {
         vkDestroyDescriptorPool(*_device, _descriptorPool, _device->getAllocationCallbacks());
     }
+}
+
+DescriptorSet_Implementation::DescriptorSet_Implementation(DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout) :
+    _descriptorPool(descriptorPool)
+{
+    auto device = descriptorPool->getDevice();
+
+    std::cout<<"DescriptorSet_Implementation::DescriptorSet_Implementation("<<descriptorPool<<", "<<descriptorSetLayout<<") "<<this<<std::endl;
+    _descriptorPoolSizes.clear();
+    for(auto& binding : descriptorSetLayout->bindings)
+    {
+        std::cout<<"    descriptorType = "<<binding.descriptorType<<", descriptorCount = "<<binding.descriptorCount<<std::endl;
+
+        auto itr = _descriptorPoolSizes.begin();
+        for(; itr != _descriptorPoolSizes.end(); ++itr)
+        {
+            if (itr->type == binding.descriptorType)
+            {
+                itr->descriptorCount += binding.descriptorCount;
+                break;
+            }
+        }
+        if (itr == _descriptorPoolSizes.end())
+        {
+            _descriptorPoolSizes.emplace_back(VkDescriptorPoolSize{binding.descriptorType, binding.descriptorCount});
+        }
+    }
+
+    for(auto& [type, descriptorCount] : _descriptorPoolSizes)
+    {
+        std::cout<<"    type = "<<type<<", count = "<<descriptorCount<<std::endl;
+    }
+
+    VkDescriptorSetLayout vkdescriptorSetLayout = descriptorSetLayout->vk(device->deviceID);
+
+    VkDescriptorSetAllocateInfo descriptSetAllocateInfo = {};
+    descriptSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    descriptSetAllocateInfo.descriptorPool = *descriptorPool;
+    descriptSetAllocateInfo.descriptorSetCount = 1;
+    descriptSetAllocateInfo.pSetLayouts = &vkdescriptorSetLayout;
+
+    if (VkResult result = vkAllocateDescriptorSets(*device, &descriptSetAllocateInfo, &_descriptorSet); result != VK_SUCCESS)
+    {
+        throw Exception{"Error: Failed to create DescriptorSet.", result};
+    }
+}
+
+DescriptorSet_Implementation::~DescriptorSet_Implementation()
+{
+    std::cout<<"DescriptorSet_Implementation::~DescriptorSet_Implementation() "<<this<<std::endl;
+    for(auto& [type, descriptorCount] : _descriptorPoolSizes)
+    {
+        std::cout<<"    type = "<<type<<", count = "<<descriptorCount<<std::endl;
+    }
+
+    if (_descriptorSet)
+    {
+#if USE_MUTEX
+        std::scoped_lock<std::mutex> lock(_descriptorPool->getMutex());
+#endif
+        auto device = _descriptorPool->getDevice();
+
+        // VkPhysicalDeviceVulkanSC10Properties.recycleDescriptorSetMemory
+        vkFreeDescriptorSets(*device, *_descriptorPool, 1, &_descriptorSet);
+    }
+}
+
+void DescriptorSet_Implementation::assign(Context& context, const Descriptors& descriptors)
+{
+    // should we doing anything about previous _descriptor that may have been assigned?
+    _descriptors = descriptors;
+
+    if (_descriptors.empty()) return;
+
+    VkWriteDescriptorSet* descriptorWrites = context.scratchMemory->allocate<VkWriteDescriptorSet>(_descriptors.size());
+
+    for (size_t i = 0; i < _descriptors.size(); ++i)
+    {
+        descriptors[i]->assignTo(context, descriptorWrites[i]);
+        descriptorWrites[i].dstSet = _descriptorSet;
+    }
+
+    auto device = _descriptorPool->getDevice();
+    vkUpdateDescriptorSets(*device, static_cast<uint32_t>(descriptors.size()), descriptorWrites, 0, nullptr);
+
+    // clean up scratch memory so it can be reused.
+    context.scratchMemory->release();
 }
