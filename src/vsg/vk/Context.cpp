@@ -171,6 +171,18 @@ ref_ptr<DescriptorSet::Implementation> Context::allocateDescriptorSet(Descriptor
     return dsi;
 }
 
+void Context::reserve(ResourceRequirements& requirements)
+{
+    auto maxSets = requirements.computeNumDescriptorSets();
+    auto descriptorPoolSizes = requirements.computeDescriptorPoolSizes();
+    std::cout<<"Context::reserve(ResourceRequirements& requirements)"<<std::endl;
+    std::cout<<"    maxSets = "<<maxSets<<std::endl;
+    for (auto& [type, descriptorCount] : descriptorPoolSizes)
+    {
+        std::cout<<"    tyoe = "<<type<<", descriptorCount = "<<descriptorCount<<std::endl;
+    }
+}
+
 void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest)
 {
     if (!copyImageCmd)

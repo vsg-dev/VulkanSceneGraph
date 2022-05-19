@@ -299,21 +299,14 @@ void DatabasePager::start()
                             // compiling subgraph
                             if (subgraph)
                             {
-#if 0
                                 vsg::CollectResourceRequirements collectRequirements;
                                 subgraph->accept(collectRequirements);
 
-                                auto maxSets = collectRequirements.requirements.computeNumDescriptorSets();
-                                auto descriptorPoolSizes = collectRequirements.requirements.computeDescriptorPoolSizes();
-
-                                if (descriptorPoolSizes.size() > 0)
+                                for (auto& context : ct->contexts)
                                 {
-                                    for (auto& context : ct->contexts)
-                                    {
-                                            context->descriptorPool = DescriptorPool::create(context->device, maxSets, descriptorPoolSizes);
-                                    }
+                                    context->reserve(collectRequirements.requirements);
                                 }
-#endif
+
                                 subgraph->accept(*ct);
                                 nodesCompiled.emplace_back(plod);
                             }

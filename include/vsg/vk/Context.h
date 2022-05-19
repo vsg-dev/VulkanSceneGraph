@@ -76,12 +76,16 @@ namespace vsg
         uint32_t viewID = 0;
         ViewDependentState* viewDependentState = nullptr;
 
-        // get existing ShaderCompile or create a new one when GLSLang is supported
+        /// get existing ShaderCompile or create a new one when GLSLang is supported
         ShaderCompiler* getOrCreateShaderCompiler();
 
         ref_ptr<CommandBuffer> getOrCreateCommandBuffer();
 
+        /// allocate or reuse a DescriptorSet::Implementation from the available DescriptorPool
         ref_ptr<DescriptorSet::Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
+
+        /// reserve resources that may be needed during compile travversal..
+        void reserve(ResourceRequirements& requirements);
 
         // used by GraphicsPipeline.cpp
         ref_ptr<RenderPass> renderPass;
