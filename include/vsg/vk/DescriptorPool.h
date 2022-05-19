@@ -12,9 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/Device.h>
-#include <vsg/state/Descriptor.h>
-#include <vsg/state/DescriptorSetLayout.h>
+#include <vsg/state/DescriptorSet.h>
 
 namespace vsg
 {
@@ -39,7 +37,6 @@ namespace vsg
         // vkFreeDescriptorSets(VkDescriptorSet)
         // vkUpdateDescriptorSets(...descriptorWrites);
 
-
     protected:
         virtual ~DescriptorPool();
 
@@ -51,7 +48,6 @@ namespace vsg
         DescriptorPoolSizes _availableDescriptorPoolSizes;
 
         std::list<ref_ptr<DescriptorSet_Implementation>> _reclingList;
-
     };
     VSG_type_name(vsg::DescriptorPool);
 

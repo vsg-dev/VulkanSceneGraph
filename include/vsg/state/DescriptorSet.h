@@ -14,12 +14,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/state/Descriptor.h>
 #include <vsg/state/DescriptorSetLayout.h>
-#include <vsg/state/PipelineLayout.h>
-#include <vsg/state/StateCommand.h>
-#include <vsg/vk/DescriptorPool.h>
 
 namespace vsg
 {
+
+    class DescriptorSet_Implementation;
 
     class VSG_DECLSPEC DescriptorSet : public Inherit<Object, DescriptorSet>
     {
@@ -53,7 +52,7 @@ namespace vsg
         void release(uint32_t deviceID);
         void release();
 
-        VkDescriptorSet vk(uint32_t deviceID) const { return _implementation[deviceID]->_descriptorSet; }
+        VkDescriptorSet vk(uint32_t deviceID) const;
 
     protected:
         virtual ~DescriptorSet();
@@ -63,129 +62,5 @@ namespace vsg
     VSG_type_name(vsg::DescriptorSet);
 
     using DescriptorSets = std::vector<ref_ptr<DescriptorSet>>;
-
-    class VSG_DECLSPEC BindDescriptorSets : public Inherit<StateCommand, BindDescriptorSets>
-    {
-    public:
-        BindDescriptorSets();
-
-        BindDescriptorSets(VkPipelineBindPoint in_bindPoint, PipelineLayout* in_layout, uint32_t in_firstSet, const DescriptorSets& in_descriptorSets) :
-            Inherit(1 + in_firstSet),
-            pipelineBindPoint(in_bindPoint),
-            layout(in_layout),
-            firstSet(in_firstSet),
-            descriptorSets(in_descriptorSets)
-        {
-        }
-
-        BindDescriptorSets(VkPipelineBindPoint in_bindPoint, PipelineLayout* in_layout, const DescriptorSets& in_descriptorSets) :
-            Inherit(1), // slot 1
-            pipelineBindPoint(in_bindPoint),
-            layout(in_layout),
-            firstSet(0),
-            descriptorSets(in_descriptorSets)
-        {
-        }
-
-        /// vkCmdBindDescriptorSets settings
-        VkPipelineBindPoint pipelineBindPoint; // TODO not currently serialized
-        ref_ptr<PipelineLayout> layout;
-        uint32_t firstSet;
-        DescriptorSets descriptorSets;
-
-        int compare(const Object& rhs_object) const override;
-
-        template<class N, class V>
-        static void t_traverse(N& bds, V& visitor)
-        {
-            if (bds.layout) bds.layout->accept(visitor);
-            for (auto& ds : bds.descriptorSets) ds->accept(visitor);
-        }
-
-        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
-        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        // compile the Vulkan object, context parameter used for Device
-        void compile(Context& context) override;
-
-        void record(CommandBuffer& commandBuffer) const override;
-
-    protected:
-        virtual ~BindDescriptorSets() {}
-
-        struct VulkanData
-        {
-            VkPipelineLayout _vkPipelineLayout = 0;
-            std::vector<VkDescriptorSet> _vkDescriptorSets;
-        };
-
-        vk_buffer<VulkanData> _vulkanData;
-    };
-    VSG_type_name(vsg::BindDescriptorSets);
-
-    class VSG_DECLSPEC BindDescriptorSet : public Inherit<StateCommand, BindDescriptorSet>
-    {
-    public:
-        BindDescriptorSet();
-
-        BindDescriptorSet(VkPipelineBindPoint in_bindPoint, PipelineLayout* in_pipelineLayout, uint32_t in_firstSet, DescriptorSet* in_descriptorSet) :
-            Inherit(1 + in_firstSet),
-            pipelineBindPoint(in_bindPoint),
-            layout(in_pipelineLayout),
-            firstSet(in_firstSet),
-            descriptorSet(in_descriptorSet)
-        {
-        }
-
-        BindDescriptorSet(VkPipelineBindPoint in_bindPoint, PipelineLayout* in_pipelineLayout, DescriptorSet* in_descriptorSet) :
-            Inherit(1), // slot 1
-            pipelineBindPoint(in_bindPoint),
-            layout(in_pipelineLayout),
-            firstSet(0),
-            descriptorSet(in_descriptorSet)
-        {
-        }
-
-        // vkCmdBindDescriptorSets settings
-        VkPipelineBindPoint pipelineBindPoint; // TODO not currently serialized
-        ref_ptr<PipelineLayout> layout;
-        uint32_t firstSet;
-        ref_ptr<DescriptorSet> descriptorSet;
-
-        int compare(const Object& rhs_object) const override;
-
-        template<class N, class V>
-        static void t_traverse(N& bds, V& visitor)
-        {
-            if (bds.layout) bds.layout->accept(visitor);
-            if (bds.descriptorSet) bds.descriptorSet->accept(visitor);
-        }
-
-        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
-        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        // compile the Vulkan object, context parameter used for Device
-        void compile(Context& context) override;
-
-        void record(CommandBuffer& commandBuffer) const override;
-
-    protected:
-        virtual ~BindDescriptorSet() {}
-
-        struct VulkanData
-        {
-            VkPipelineLayout _vkPipelineLayout = 0;
-            VkDescriptorSet _vkDescriptorSet;
-        };
-
-        vk_buffer<VulkanData> _vulkanData;
-    };
-    VSG_type_name(vsg::BindDescriptorSet);
 
 } // namespace vsg

@@ -65,6 +65,7 @@ set(SOURCES
     commands/SetViewport.cpp
     commands/ResolveImage.cpp
 
+    state/BindDescriptorSet.cpp
     state/Buffer.cpp
     state/BufferInfo.cpp
     state/BufferView.cpp

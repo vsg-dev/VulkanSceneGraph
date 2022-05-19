@@ -13,10 +13,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
-#include <vsg/vk/DescriptorPool.h>
-#include <vsg/vk/Context.h>
 #include <vsg/state/Descriptor.h>
 #include <vsg/state/DescriptorSetLayout.h>
+#include <vsg/vk/Context.h>
+#include <vsg/vk/DescriptorPool.h>
 
 #include <iostream>
 
@@ -44,7 +44,7 @@ DescriptorPool::DescriptorPool(Device* device, uint32_t maxSets, const Descripto
     }
 
     ++s_num_DescriptorPool_allocatoed;
-    std::cout<<"DescriptorPool::DescriptorPool(maxSets = "<<maxSets<<") "<<s_num_DescriptorPool_allocatoed<<", "<<s_num_DescriptorPool_deallocator<<std::endl;
+    std::cout << "DescriptorPool::DescriptorPool(maxSets = " << maxSets << ") " << s_num_DescriptorPool_allocatoed << ", " << s_num_DescriptorPool_deallocator << std::endl;
 }
 
 DescriptorPool::~DescriptorPool()
@@ -54,40 +54,40 @@ DescriptorPool::~DescriptorPool()
         vkDestroyDescriptorPool(*_device, _descriptorPool, _device->getAllocationCallbacks());
     }
 
-    std::cout<<"DescriptorPool::~DescriptorPool() _reclingList.size() = "<<_reclingList.size()<<std::endl;
+    std::cout << "DescriptorPool::~DescriptorPool() _reclingList.size() = " << _reclingList.size() << std::endl;
     ++s_num_DescriptorPool_deallocator;
 
-    std::cout<<"DescriptorPool::~DescriptorPool() "<<s_num_DescriptorPool_allocatoed<<", "<<s_num_DescriptorPool_deallocator<<std::endl;
+    std::cout << "DescriptorPool::~DescriptorPool() " << s_num_DescriptorPool_allocatoed << ", " << s_num_DescriptorPool_deallocator << std::endl;
 }
 
 ref_ptr<DescriptorSet_Implementation> DescriptorPool::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
 {
-    if (_availableDescriptorSet==0)
+    if (_availableDescriptorSet == 0)
     {
-        std::cout<<"DescriptorPool::allocateDescriptorSet() "<<this<<" nothing available _availableDescriptorSet = "<<_availableDescriptorSet<<std::endl;
+        std::cout << "DescriptorPool::allocateDescriptorSet() " << this << " nothing available _availableDescriptorSet = " << _availableDescriptorSet << std::endl;
         return {};
     }
 
     DescriptorPoolSizes descriptorPoolSizes;
     descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);
 
-    for(auto itr = _reclingList.begin(); itr != _reclingList.end(); ++itr)
+    for (auto itr = _reclingList.begin(); itr != _reclingList.end(); ++itr)
     {
-        if (vsg::compare_value_container(descriptorPoolSizes, (*itr)->_descriptorPoolSizes)==0)
+        if (vsg::compare_value_container(descriptorPoolSizes, (*itr)->_descriptorPoolSizes) == 0)
         {
             auto dsi = *itr;
             dsi->_descriptorPool = this;
             _reclingList.erase(itr);
             --_availableDescriptorSet;
-            std::cout<<"    returning recyled dsi "<<dsi<<std::endl;
+            std::cout << "    returning recyled dsi " << dsi << std::endl;
             return dsi;
         }
     }
 
     size_t matches = 0;
-    for(auto& [type, descriptorCount] : descriptorPoolSizes)
+    for (auto& [type, descriptorCount] : descriptorPoolSizes)
     {
-        for(auto& [availableType, availableCount] : _availableDescriptorPoolSizes)
+        for (auto& [availableType, availableCount] : _availableDescriptorPoolSizes)
         {
             if (availableType == type)
             {
@@ -98,13 +98,13 @@ ref_ptr<DescriptorSet_Implementation> DescriptorPool::allocateDescriptorSet(Desc
 
     if (matches < descriptorPoolSizes.size())
     {
-        std::cout<<"DescriptorPool::allocateDescriptorSet("<<descriptorSetLayout<<") not enough space,"<<std::endl;
+        std::cout << "DescriptorPool::allocateDescriptorSet(" << descriptorSetLayout << ") not enough space," << std::endl;
         return {};
     }
 
-    for(auto& [type, descriptorCount] : descriptorPoolSizes)
+    for (auto& [type, descriptorCount] : descriptorPoolSizes)
     {
-        for(auto& [availableType, availableCount] : _availableDescriptorPoolSizes)
+        for (auto& [availableType, availableCount] : _availableDescriptorPoolSizes)
         {
             if (availableType == type)
             {
@@ -116,13 +116,13 @@ ref_ptr<DescriptorSet_Implementation> DescriptorPool::allocateDescriptorSet(Desc
     --_availableDescriptorSet;
 
     auto dsi = DescriptorSet_Implementation::create(this, descriptorSetLayout);
-    std::cout<<"DescriptorPool::allocateDescriptorSet("<<descriptorSetLayout<<") dsi = "<<dsi<<std::endl;
+    std::cout << "DescriptorPool::allocateDescriptorSet(" << descriptorSetLayout << ") dsi = " << dsi << std::endl;
     return dsi;
 }
 
 void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet_Implementation> dsi)
 {
-    std::cout<<"DescriptorPool::freeDescriptorSet("<<dsi<<")"<<std::endl;
+    std::cout << "DescriptorPool::freeDescriptorSet(" << dsi << ")" << std::endl;
 
     _reclingList.push_back(dsi);
     ++_availableDescriptorSet;
@@ -135,7 +135,7 @@ DescriptorSet_Implementation::DescriptorSet_Implementation(DescriptorPool* descr
 {
     auto device = descriptorPool->getDevice();
 
-    std::cout<<"DescriptorSet_Implementation::DescriptorSet_Implementation("<<descriptorPool<<", "<<descriptorSetLayout<<") "<<this<<std::endl;
+    std::cout << "DescriptorSet_Implementation::DescriptorSet_Implementation(" << descriptorPool << ", " << descriptorSetLayout << ") " << this << std::endl;
     _descriptorPoolSizes.clear();
     descriptorSetLayout->getDescriptorPoolSizes(_descriptorPoolSizes);
 
@@ -155,14 +155,14 @@ DescriptorSet_Implementation::DescriptorSet_Implementation(DescriptorPool* descr
 
 DescriptorSet_Implementation::~DescriptorSet_Implementation()
 {
-    std::cout<<"DescriptorSet_Implementation::~DescriptorSet_Implementation() "<<this<<" "<<_descriptorPool<<std::endl;
+    std::cout << "DescriptorSet_Implementation::~DescriptorSet_Implementation() " << this << " " << _descriptorPool << std::endl;
 
-    for(auto& [type, descriptorCount] : _descriptorPoolSizes)
+    for (auto& [type, descriptorCount] : _descriptorPoolSizes)
     {
-        std::cout<<"    type = "<<type<<", count = "<<descriptorCount<<std::endl;
+        std::cout << "    type = " << type << ", count = " << descriptorCount << std::endl;
     }
 
-    if (_descriptorPool &&_descriptorSet)
+    if (_descriptorPool && _descriptorSet)
     {
 #if USE_MUTEX
         std::scoped_lock<std::mutex> lock(_descriptorPool->getMutex());

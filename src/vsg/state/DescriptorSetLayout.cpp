@@ -38,10 +38,10 @@ DescriptorSetLayout::~DescriptorSetLayout()
 
 void DescriptorSetLayout::getDescriptorPoolSizes(DescriptorPoolSizes& descriptorPoolSizes)
 {
-    for(auto& binding : bindings)
+    for (auto& binding : bindings)
     {
         auto itr = descriptorPoolSizes.begin();
-        for(; itr != descriptorPoolSizes.end(); ++itr)
+        for (; itr != descriptorPoolSizes.end(); ++itr)
         {
             if (itr->type == binding.descriptorType)
             {

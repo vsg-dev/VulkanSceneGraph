@@ -149,7 +149,7 @@ ShaderCompiler* Context::getOrCreateShaderCompiler()
 
 ref_ptr<DescriptorSet_Implementation> Context::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
 {
-    for(auto itr = descriptorPools.rbegin(); itr != descriptorPools.rend(); ++itr)
+    for (auto itr = descriptorPools.rbegin(); itr != descriptorPools.rend(); ++itr)
     {
         auto dsi = (*itr)->allocateDescriptorSet(descriptorSetLayout);
         if (dsi) return dsi;
@@ -159,7 +159,7 @@ ref_ptr<DescriptorSet_Implementation> Context::allocateDescriptorSet(DescriptorS
     descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);
 
     uint32_t maxSets = 256;
-    for(auto& [type, descriptorCount] : descriptorPoolSizes)
+    for (auto& [type, descriptorCount] : descriptorPoolSizes)
     {
         descriptorCount *= maxSets;
     }
@@ -169,7 +169,7 @@ ref_ptr<DescriptorSet_Implementation> Context::allocateDescriptorSet(DescriptorS
 
     descriptorPools.push_back(descriptorPool);
 
-    std::cout<<"Context::allocateDescriptorSet("<<descriptorSetLayout<<") need to create a new DescriptorPool = "<<dsi<<std::endl;
+    std::cout << "Context::allocateDescriptorSet(" << descriptorSetLayout << ") need to create a new DescriptorPool = " << dsi << std::endl;
     return dsi;
 }
 
