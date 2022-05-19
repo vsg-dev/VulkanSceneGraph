@@ -104,11 +104,11 @@ void DescriptorSet::compile(Context& context)
 
 void DescriptorSet::release(uint32_t deviceID)
 {
-    recyle(_implementation[deviceID]);
+    Implementation::recyle(_implementation[deviceID]);
 }
 void DescriptorSet::release()
 {
-    for (auto& dsi : _implementation) recyle(dsi);
+    for (auto& dsi : _implementation) Implementation::recyle(dsi);
     _implementation.clear();
 }
 
@@ -174,7 +174,7 @@ void DescriptorSet::Implementation::assign(Context& context, const Descriptors& 
     context.scratchMemory->release();
 }
 
-void vsg::recyle(ref_ptr<DescriptorSet::Implementation>& dsi)
+void DescriptorSet::Implementation::recyle(ref_ptr<DescriptorSet::Implementation>& dsi)
 {
     if (dsi)
     {

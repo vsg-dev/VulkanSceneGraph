@@ -55,14 +55,23 @@ namespace vsg
 
         VkDescriptorSet vk(uint32_t deviceID) const;
 
-        struct VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
+        class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
+        public:
             Implementation(DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout);
-            virtual ~Implementation();
 
             void assign(Context& context, const Descriptors& descriptors);
 
             VkDescriptorSet _descriptorSet;
+
+            static void recyle(ref_ptr<DescriptorSet::Implementation>& dsi);
+
+        protected:
+
+            virtual ~Implementation();
+
+            friend DescriptorPool;
+
             ref_ptr<DescriptorPool> _descriptorPool;
             Descriptors _descriptors;
             DescriptorPoolSizes _descriptorPoolSizes;
@@ -74,8 +83,6 @@ namespace vsg
         vk_buffer<ref_ptr<Implementation>> _implementation;
     };
     VSG_type_name(vsg::DescriptorSet);
-
-    extern VSG_DECLSPEC void recyle(ref_ptr<DescriptorSet::Implementation>& dsi);
 
     using DescriptorSets = std::vector<ref_ptr<DescriptorSet>>;
 
