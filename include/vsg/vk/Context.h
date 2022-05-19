@@ -81,7 +81,7 @@ namespace vsg
 
         ref_ptr<CommandBuffer> getOrCreateCommandBuffer();
 
-        ref_ptr<DescriptorSet_Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
+        ref_ptr<DescriptorSet::Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
 
         // used by GraphicsPipeline.cpp
         ref_ptr<RenderPass> renderPass;

@@ -60,7 +60,7 @@ DescriptorPool::~DescriptorPool()
     std::cout << "DescriptorPool::~DescriptorPool() " << s_num_DescriptorPool_allocatoed << ", " << s_num_DescriptorPool_deallocator << std::endl;
 }
 
-ref_ptr<DescriptorSet_Implementation> DescriptorPool::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
+ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
 {
     if (_availableDescriptorSet == 0)
     {
@@ -115,12 +115,12 @@ ref_ptr<DescriptorSet_Implementation> DescriptorPool::allocateDescriptorSet(Desc
 
     --_availableDescriptorSet;
 
-    auto dsi = DescriptorSet_Implementation::create(this, descriptorSetLayout);
+    auto dsi = DescriptorSet::Implementation::create(this, descriptorSetLayout);
     std::cout << "DescriptorPool::allocateDescriptorSet(" << descriptorSetLayout << ") dsi = " << dsi << std::endl;
     return dsi;
 }
 
-void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet_Implementation> dsi)
+void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> dsi)
 {
     std::cout << "DescriptorPool::freeDescriptorSet(" << dsi << ")" << std::endl;
 
@@ -130,77 +130,3 @@ void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet_Implementation> dsi
     dsi->_descriptorPool = {};
 }
 
-DescriptorSet_Implementation::DescriptorSet_Implementation(DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout) :
-    _descriptorPool(descriptorPool)
-{
-    auto device = descriptorPool->getDevice();
-
-    std::cout << "DescriptorSet_Implementation::DescriptorSet_Implementation(" << descriptorPool << ", " << descriptorSetLayout << ") " << this << std::endl;
-    _descriptorPoolSizes.clear();
-    descriptorSetLayout->getDescriptorPoolSizes(_descriptorPoolSizes);
-
-    VkDescriptorSetLayout vkdescriptorSetLayout = descriptorSetLayout->vk(device->deviceID);
-
-    VkDescriptorSetAllocateInfo descriptSetAllocateInfo = {};
-    descriptSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    descriptSetAllocateInfo.descriptorPool = *descriptorPool;
-    descriptSetAllocateInfo.descriptorSetCount = 1;
-    descriptSetAllocateInfo.pSetLayouts = &vkdescriptorSetLayout;
-
-    if (VkResult result = vkAllocateDescriptorSets(*device, &descriptSetAllocateInfo, &_descriptorSet); result != VK_SUCCESS)
-    {
-        throw Exception{"Error: Failed to create DescriptorSet.", result};
-    }
-}
-
-DescriptorSet_Implementation::~DescriptorSet_Implementation()
-{
-    std::cout << "DescriptorSet_Implementation::~DescriptorSet_Implementation() " << this << " " << _descriptorPool << std::endl;
-
-    for (auto& [type, descriptorCount] : _descriptorPoolSizes)
-    {
-        std::cout << "    type = " << type << ", count = " << descriptorCount << std::endl;
-    }
-
-    if (_descriptorPool && _descriptorSet)
-    {
-#if USE_MUTEX
-        std::scoped_lock<std::mutex> lock(_descriptorPool->getMutex());
-#endif
-        auto device = _descriptorPool->getDevice();
-
-        // VkPhysicalDeviceVulkanSC10Properties.recycleDescriptorSetMemory
-        vkFreeDescriptorSets(*device, *_descriptorPool, 1, &_descriptorSet);
-    }
-}
-
-void DescriptorSet_Implementation::assign(Context& context, const Descriptors& descriptors)
-{
-    // should we doing anything about previous _descriptor that may have been assigned?
-    _descriptors = descriptors;
-
-    if (_descriptors.empty()) return;
-
-    VkWriteDescriptorSet* descriptorWrites = context.scratchMemory->allocate<VkWriteDescriptorSet>(_descriptors.size());
-
-    for (size_t i = 0; i < _descriptors.size(); ++i)
-    {
-        descriptors[i]->assignTo(context, descriptorWrites[i]);
-        descriptorWrites[i].dstSet = _descriptorSet;
-    }
-
-    auto device = _descriptorPool->getDevice();
-    vkUpdateDescriptorSets(*device, static_cast<uint32_t>(descriptors.size()), descriptorWrites, 0, nullptr);
-
-    // clean up scratch memory so it can be reused.
-    context.scratchMemory->release();
-}
-
-void vsg::recyle(ref_ptr<DescriptorSet_Implementation>& dsi)
-{
-    if (dsi)
-    {
-        if (dsi->_descriptorPool) dsi->_descriptorPool->freeDescriptorSet(dsi);
-        dsi = {};
-    }
-}

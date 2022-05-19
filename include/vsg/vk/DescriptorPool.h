@@ -17,8 +17,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class DescriptorSet_Implementation;
-
     class VSG_DECLSPEC DescriptorPool : public Inherit<Object, DescriptorPool>
     {
     public:
@@ -29,8 +27,8 @@ namespace vsg
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
-        ref_ptr<DescriptorSet_Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
-        void freeDescriptorSet(ref_ptr<DescriptorSet_Implementation> dsi);
+        ref_ptr<DescriptorSet::Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
+        void freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> dsi);
 
         // vkAllocateDescriptorSets(vector<ref_ptr<DescriptorsSetLayout>>);
         // vkAllocateDescriptorSet(ref_ptr<DescriptorsSetLayout>);
@@ -47,7 +45,7 @@ namespace vsg
         uint32_t _availableDescriptorSet;
         DescriptorPoolSizes _availableDescriptorPoolSizes;
 
-        std::list<ref_ptr<DescriptorSet_Implementation>> _reclingList;
+        std::list<ref_ptr<DescriptorSet::Implementation>> _reclingList;
     };
     VSG_type_name(vsg::DescriptorPool);
 

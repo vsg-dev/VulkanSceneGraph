@@ -147,7 +147,7 @@ ShaderCompiler* Context::getOrCreateShaderCompiler()
     return shaderCompiler;
 }
 
-ref_ptr<DescriptorSet_Implementation> Context::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
+ref_ptr<DescriptorSet::Implementation> Context::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
 {
     for (auto itr = descriptorPools.rbegin(); itr != descriptorPools.rend(); ++itr)
     {

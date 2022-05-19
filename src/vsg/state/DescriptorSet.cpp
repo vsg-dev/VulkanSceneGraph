@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#define USE_MUTEX 0
+#include <iostream>
 
 DescriptorSet::DescriptorSet()
 {
@@ -132,4 +132,81 @@ void DescriptorSet::release()
 VkDescriptorSet DescriptorSet::vk(uint32_t deviceID) const
 {
     return _implementation[deviceID]->_descriptorSet;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// DescriptorSet::Implementation
+//
+DescriptorSet::Implementation::Implementation(DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout) :
+    _descriptorPool(descriptorPool)
+{
+    auto device = descriptorPool->getDevice();
+
+    std::cout << "DescriptorSet::Implementation::DescriptorSet::Implementation(" << descriptorPool << ", " << descriptorSetLayout << ") " << this << std::endl;
+    _descriptorPoolSizes.clear();
+    descriptorSetLayout->getDescriptorPoolSizes(_descriptorPoolSizes);
+
+    VkDescriptorSetLayout vkdescriptorSetLayout = descriptorSetLayout->vk(device->deviceID);
+
+    VkDescriptorSetAllocateInfo descriptSetAllocateInfo = {};
+    descriptSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    descriptSetAllocateInfo.descriptorPool = *descriptorPool;
+    descriptSetAllocateInfo.descriptorSetCount = 1;
+    descriptSetAllocateInfo.pSetLayouts = &vkdescriptorSetLayout;
+
+    if (VkResult result = vkAllocateDescriptorSets(*device, &descriptSetAllocateInfo, &_descriptorSet); result != VK_SUCCESS)
+    {
+        throw Exception{"Error: Failed to create DescriptorSet.", result};
+    }
+}
+
+DescriptorSet::Implementation::~Implementation()
+{
+    std::cout << "DescriptorSet::Implementation::~DescriptorSet::Implementation() " << this << " " << _descriptorPool << std::endl;
+
+    for (auto& [type, descriptorCount] : _descriptorPoolSizes)
+    {
+        std::cout << "    type = " << type << ", count = " << descriptorCount << std::endl;
+    }
+
+    if (_descriptorPool && _descriptorSet)
+    {
+        auto device = _descriptorPool->getDevice();
+
+        // VkPhysicalDeviceVulkanSC10Properties.recycleDescriptorSetMemory
+        vkFreeDescriptorSets(*device, *_descriptorPool, 1, &_descriptorSet);
+    }
+}
+
+void DescriptorSet::Implementation::assign(Context& context, const Descriptors& descriptors)
+{
+    // should we doing anything about previous _descriptor that may have been assigned?
+    _descriptors = descriptors;
+
+    if (_descriptors.empty()) return;
+
+    VkWriteDescriptorSet* descriptorWrites = context.scratchMemory->allocate<VkWriteDescriptorSet>(_descriptors.size());
+
+    for (size_t i = 0; i < _descriptors.size(); ++i)
+    {
+        descriptors[i]->assignTo(context, descriptorWrites[i]);
+        descriptorWrites[i].dstSet = _descriptorSet;
+    }
+
+    auto device = _descriptorPool->getDevice();
+    vkUpdateDescriptorSets(*device, static_cast<uint32_t>(descriptors.size()), descriptorWrites, 0, nullptr);
+
+    // clean up scratch memory so it can be reused.
+    context.scratchMemory->release();
+}
+
+void vsg::recyle(ref_ptr<DescriptorSet::Implementation>& dsi)
+{
+    if (dsi)
+    {
+        if (dsi->_descriptorPool) dsi->_descriptorPool->freeDescriptorSet(dsi);
+        dsi = {};
+    }
 }
