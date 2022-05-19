@@ -99,33 +99,18 @@ void DescriptorSet::compile(Context& context)
         if (setLayout) setLayout->compile(context);
         for (auto& descriptor : descriptors) descriptor->compile(context);
 
-#if 1
         _implementation[context.deviceID] = context.allocateDescriptorSet(setLayout);
         _implementation[context.deviceID]->assign(context, descriptors);
-#else
-
-#    if USE_MUTEX
-        std::scoped_lock<std::mutex> lock(context.descriptorPool->getMutex());
-#    endif
-        _implementation[context.deviceID] = DescriptorSet::Implementation::create(context.descriptorPool, setLayout);
-        _implementation[context.deviceID]->assign(context, descriptors);
-#endif
     }
 }
 
 void DescriptorSet::release(uint32_t deviceID)
 {
-#if 1
     recyle(_implementation[deviceID]);
-#else
-    _implementation[deviceID] = {};
-#endif
 }
 void DescriptorSet::release()
 {
-#if 1
     for (auto& dsi : _implementation) recyle(dsi);
-#endif
     _implementation.clear();
 }
 
