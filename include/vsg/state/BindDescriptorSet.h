@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/state/PipelineLayout.h>
 #include <vsg/state/StateCommand.h>
+#include <vsg/vk/DescriptorPool.h>
 
 namespace vsg
 {
