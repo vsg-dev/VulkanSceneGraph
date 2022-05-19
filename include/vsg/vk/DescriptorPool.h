@@ -27,13 +27,11 @@ namespace vsg
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
+        // allocate or reuse availalbe DescriptorSet::Implementation
         ref_ptr<DescriptorSet::Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
-        void freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> dsi);
 
-        // vkAllocateDescriptorSets(vector<ref_ptr<DescriptorsSetLayout>>);
-        // vkAllocateDescriptorSet(ref_ptr<DescriptorsSetLayout>);
-        // vkFreeDescriptorSets(VkDescriptorSet)
-        // vkUpdateDescriptorSets(...descriptorWrites);
+        // free DescriptorSet::Implementatioe for reuse
+        void freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> dsi);
 
     protected:
         virtual ~DescriptorPool();
@@ -48,9 +46,5 @@ namespace vsg
         std::list<ref_ptr<DescriptorSet::Implementation>> _reclingList;
     };
     VSG_type_name(vsg::DescriptorPool);
-
-    class DescriptorSetLayout;
-    class Context;
-
 
 } // namespace vsg
