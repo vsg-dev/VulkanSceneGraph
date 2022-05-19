@@ -18,12 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Context.h>
 #include <vsg/vk/DescriptorPool.h>
 
-#include <iostream>
-
 using namespace vsg;
-
-static size_t s_num_DescriptorPool_allocatoed = 0;
-static size_t s_num_DescriptorPool_deallocator = 0;
 
 DescriptorPool::DescriptorPool(Device* device, uint32_t maxSets, const DescriptorPoolSizes& descriptorPoolSizes) :
     _device(device),
@@ -42,9 +37,6 @@ DescriptorPool::DescriptorPool(Device* device, uint32_t maxSets, const Descripto
     {
         throw Exception{"Error: Failed to create DescriptorPool.", result};
     }
-
-    ++s_num_DescriptorPool_allocatoed;
-    std::cout << "DescriptorPool::DescriptorPool(maxSets = " << maxSets << ") " << s_num_DescriptorPool_allocatoed << ", " << s_num_DescriptorPool_deallocator << std::endl;
 }
 
 DescriptorPool::~DescriptorPool()
@@ -53,18 +45,12 @@ DescriptorPool::~DescriptorPool()
     {
         vkDestroyDescriptorPool(*_device, _descriptorPool, _device->getAllocationCallbacks());
     }
-
-    std::cout << "DescriptorPool::~DescriptorPool() _reclingList.size() = " << _reclingList.size() << std::endl;
-    ++s_num_DescriptorPool_deallocator;
-
-    std::cout << "DescriptorPool::~DescriptorPool() " << s_num_DescriptorPool_allocatoed << ", " << s_num_DescriptorPool_deallocator << std::endl;
 }
 
 ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
 {
     if (_availableDescriptorSet == 0)
     {
-        std::cout << "DescriptorPool::allocateDescriptorSet() " << this << " nothing available _availableDescriptorSet = " << _availableDescriptorSet << std::endl;
         return {};
     }
 
@@ -79,7 +65,6 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
             dsi->_descriptorPool = this;
             _reclingList.erase(itr);
             --_availableDescriptorSet;
-            std::cout << "    returning recyled dsi " << dsi << std::endl;
             return dsi;
         }
     }
@@ -98,7 +83,6 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
 
     if (matches < descriptorPoolSizes.size())
     {
-        std::cout << "DescriptorPool::allocateDescriptorSet(" << descriptorSetLayout << ") not enough space," << std::endl;
         return {};
     }
 
@@ -116,17 +100,13 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
     --_availableDescriptorSet;
 
     auto dsi = DescriptorSet::Implementation::create(this, descriptorSetLayout);
-    std::cout << "DescriptorPool::allocateDescriptorSet(" << descriptorSetLayout << ") dsi = " << dsi << std::endl;
     return dsi;
 }
 
 void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> dsi)
 {
-    std::cout << "DescriptorPool::freeDescriptorSet(" << dsi << ")" << std::endl;
-
     _reclingList.push_back(dsi);
     ++_availableDescriptorSet;
 
     dsi->_descriptorPool = {};
 }
-

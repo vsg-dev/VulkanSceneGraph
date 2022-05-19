@@ -168,8 +168,6 @@ ref_ptr<DescriptorSet::Implementation> Context::allocateDescriptorSet(Descriptor
     auto dsi = descriptorPool->allocateDescriptorSet(descriptorSetLayout);
 
     descriptorPools.push_back(descriptorPool);
-
-    std::cout << "Context::allocateDescriptorSet(" << descriptorSetLayout << ") need to create a new DescriptorPool = " << dsi << std::endl;
     return dsi;
 }
 

@@ -21,8 +21,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#include <iostream>
-
 DescriptorSet::DescriptorSet()
 {
 }
@@ -129,7 +127,6 @@ DescriptorSet::Implementation::Implementation(DescriptorPool* descriptorPool, De
 {
     auto device = descriptorPool->getDevice();
 
-    std::cout << "DescriptorSet::Implementation::DescriptorSet::Implementation(" << descriptorPool << ", " << descriptorSetLayout << ") " << this << std::endl;
     _descriptorPoolSizes.clear();
     descriptorSetLayout->getDescriptorPoolSizes(_descriptorPoolSizes);
 
@@ -149,19 +146,9 @@ DescriptorSet::Implementation::Implementation(DescriptorPool* descriptorPool, De
 
 DescriptorSet::Implementation::~Implementation()
 {
-    std::cout << "DescriptorSet::Implementation::~DescriptorSet::Implementation() " << this << " " << _descriptorPool << std::endl;
-
-    for (auto& [type, descriptorCount] : _descriptorPoolSizes)
-    {
-        std::cout << "    type = " << type << ", count = " << descriptorCount << std::endl;
-    }
-
     if (_descriptorPool && _descriptorSet)
     {
-        auto device = _descriptorPool->getDevice();
-
-        // VkPhysicalDeviceVulkanSC10Properties.recycleDescriptorSetMemory
-        vkFreeDescriptorSets(*device, *_descriptorPool, 1, &_descriptorSet);
+        vkFreeDescriptorSets(*(_descriptorPool->getDevice()), *_descriptorPool, 1, &_descriptorSet);
     }
 }
 
