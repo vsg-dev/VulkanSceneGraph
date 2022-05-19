@@ -18,7 +18,23 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class DescriptorSet_Implementation;
+    // forward declare
+    class DescriptorPool;
+
+    struct VSG_DECLSPEC DescriptorSet_Implementation : public Inherit<Object, DescriptorSet_Implementation>
+    {
+        DescriptorSet_Implementation(DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout);
+        virtual ~DescriptorSet_Implementation();
+
+        void assign(Context& context, const Descriptors& descriptors);
+
+        VkDescriptorSet _descriptorSet;
+        ref_ptr<DescriptorPool> _descriptorPool;
+        Descriptors _descriptors;
+        DescriptorPoolSizes _descriptorPoolSizes;
+    };
+
+    extern VSG_DECLSPEC void recyle(ref_ptr<DescriptorSet_Implementation>& dsi);
 
     class VSG_DECLSPEC DescriptorSet : public Inherit<Object, DescriptorSet>
     {

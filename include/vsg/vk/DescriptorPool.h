@@ -54,19 +54,5 @@ namespace vsg
     class DescriptorSetLayout;
     class Context;
 
-    struct VSG_DECLSPEC DescriptorSet_Implementation : public Inherit<Object, DescriptorSet_Implementation>
-    {
-        DescriptorSet_Implementation(DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout);
-        virtual ~DescriptorSet_Implementation();
-
-        void assign(Context& context, const Descriptors& descriptors);
-
-        VkDescriptorSet _descriptorSet;
-        ref_ptr<DescriptorPool> _descriptorPool;
-        Descriptors _descriptors;
-        DescriptorPoolSizes _descriptorPoolSizes;
-    };
-
-    extern VSG_DECLSPEC void recyle(ref_ptr<DescriptorSet_Implementation>& dsi);
 
 } // namespace vsg
