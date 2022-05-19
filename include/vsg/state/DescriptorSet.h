@@ -58,6 +58,7 @@ namespace vsg
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
         public:
+
             Implementation(DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout);
 
             void assign(Context& context, const Descriptors& descriptors);

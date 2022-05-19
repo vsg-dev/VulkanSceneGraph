@@ -38,7 +38,6 @@ namespace vsg
 
         VkDescriptorPool _descriptorPool;
         ref_ptr<Device> _device;
-        mutable std::mutex _mutex;
 
         uint32_t _availableDescriptorSet;
         DescriptorPoolSizes _availableDescriptorPoolSizes;
