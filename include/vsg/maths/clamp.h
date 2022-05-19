@@ -45,7 +45,7 @@ namespace vsg
         return T(1.0) - std::abs(T(1.0) - v_fract * T(2.0));
     }
 
-    /// clamp value to range, return true if succeds.
+    /// clamp value to range, return true if succeeds.
     inline bool clamp(VkSamplerAddressMode mode, float& coord)
     {
         switch (mode)

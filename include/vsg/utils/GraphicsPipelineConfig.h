@@ -43,7 +43,7 @@ namespace vsg
         bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
         bool assignUniform(const std::string& name, ref_ptr<Data> data = {});
 
-        // assign Descritpotrs to a DescriptorSet
+        // assign Descriptors to a DescriptorSet
         void init();
 
         // filled in by assingTexture(..) and assingUnfiorm(..)
@@ -51,7 +51,7 @@ namespace vsg
         std::vector<std::string> defines;
         DescriptorSetLayoutBindings descriptorBindings;
 
-        // fillined in by init()
+        // filled in by init()
         ref_ptr<DescriptorSet> descriptorSet;
     };
     VSG_type_name(vsg::DescriptorConfig);
@@ -61,16 +61,16 @@ namespace vsg
     public:
         GraphicsPipelineConfig(ref_ptr<ShaderSet> in_shaderSet = {});
 
-        // inputs to setup of GraphicsPipeline, the dfeawult sets are taken from any provided by ShaderSet::defaultGraphicsPipelineStates
+        // inputs to setup of GraphicsPipeline, the default sets are taken from any provided by ShaderSet::defaultGraphicsPipelineStates
         ref_ptr<ColorBlendState> colorBlendState;
         ref_ptr<DepthStencilState> depthStencilState;
         ref_ptr<DynamicState> dynamicState;
         ref_ptr<InputAssemblyState> inputAssemblyState;
-        ref_ptr<MultisampleState> multisampleState; // typically leave unset as cpmpile traversal with provide MultisampleState
+        ref_ptr<MultisampleState> multisampleState; // typically leave unset as compile traversal with provide MultisampleState
         ref_ptr<RasterizationState> rasterizationState;
         ref_ptr<TessellationState> tessellationState;
-        ref_ptr<VertexInputState> vertexInputState; // set by assarray(..) methods.
-        ref_ptr<ViewportState> viewportState;       // typically leave unset as cpmpile traversal with provide ViewportState
+        ref_ptr<VertexInputState> vertexInputState; // set by assignArray(..) methods.
+        ref_ptr<ViewportState> viewportState;       // typically leave unset as compile traversal with provide ViewportState
 
         uint32_t subpass = 0;
         uint32_t baseAttributeBinding = 0;

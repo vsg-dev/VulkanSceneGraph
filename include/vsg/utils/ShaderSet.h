@@ -83,7 +83,7 @@ namespace vsg
         std::vector<std::string> optionalDefines;
         GraphicsPipelineStates defaultGraphicsPipelineStates;
 
-        /// variants of the rootShaderModule compiled for differen combinations of ShaderCompileSettings
+        /// variants of the rootShaderModule compiled for different combinations of ShaderCompileSettings
         std::map<ref_ptr<ShaderCompileSettings>, ShaderStages, DerefenceLess> variants;
 
         /// mutex used be getShaderStages(..) so ensure the variants map can be used from multiple threads.
@@ -107,7 +107,7 @@ namespace vsg
         /// get the first ArrayState that has matches with defines in the specified list of defines.
         ref_ptr<ArrayState> getSuitableArrayState(const std::vector<std::string>& defines) const;
 
-        /// get the ShaderStages varient that uses specified ShaderCompileSettings.
+        /// get the ShaderStages variant that uses specified ShaderCompileSettings.
         ShaderStages getShaderStages(ref_ptr<ShaderCompileSettings> scs = {});
 
         int compare(const Object& rhs) const override;
@@ -129,7 +129,7 @@ namespace vsg
     /// create a ShaderSet for Phong shaded rendering
     extern VSG_DECLSPEC ref_ptr<ShaderSet> createPhongShaderSet(ref_ptr<const Options> options = {});
 
-    /// create a ShaderSet for Physics Based Rendering rendering
+    /// create a ShaderSet for Physics Based Rendering
     extern VSG_DECLSPEC ref_ptr<ShaderSet> createPhysicsBasedRenderingShaderSet(ref_ptr<const Options> options = {});
 
 } // namespace vsg
