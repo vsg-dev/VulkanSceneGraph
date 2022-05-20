@@ -230,7 +230,7 @@ void DatabasePager::start()
 
         std::list<ref_ptr<CompileTraversal>> compileTraversals;
 
-        int numCompileContexts = 1;
+        int numCompileContexts = 4;
 
         for (int i = 0; i < numCompileContexts; ++i)
         {
@@ -458,6 +458,9 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
 
         // set the number of PagedLOD to expire
         uint32_t total = pagedLODContainer->activeList.count + pagedLODContainer->inactiveList.count;
+
+        // std::cout<<"DatabasePager : activeList.count = "<<pagedLODContainer->activeList.count<<", inactiveList.count = "<<pagedLODContainer->inactiveList.count<<", total = "<<total<<std::endl;
+
         if ((nodes.size() + total) > targetMaxNumPagedLODWithHighResSubgraphs)
         {
             uint32_t numPagedLODHighRestSubgraphsToRemove = (static_cast<uint32_t>(nodes.size()) + total) - targetMaxNumPagedLODWithHighResSubgraphs;
