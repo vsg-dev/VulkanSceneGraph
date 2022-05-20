@@ -181,6 +181,11 @@ void Context::reserve(ResourceRequirements& requirements)
     {
         std::cout<<"    tyoe = "<<type<<", descriptorCount = "<<descriptorCount<<std::endl;
     }
+
+    if (maxSets > 0)
+    {
+        descriptorPools.push_back(vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes));
+    }
 }
 
 void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest)
