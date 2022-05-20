@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.7)
 
 project(vsg
-    VERSION 0.3.1
+    VERSION 0.3.2
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES CXX
 )
-set(VSG_SOVERSION 8)
+set(VSG_SOVERSION 9)
 SET(VSG_RELEASE_CANDIDATE 0)
 set(Vulkan_MIN_VERSION 1.2.162.0)
 

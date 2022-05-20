@@ -245,20 +245,17 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
         auto physicalDevice = device->getPhysicalDevice();
 
-        auto maxSets = resourceRequirements.computeNumDescriptorSets();
-        auto descriptorPoolSizes = resourceRequirements.computeDescriptorPoolSizes();
-
         auto queueFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT); // TODO : could we just use transfer bit?
 
         deviceResource.compile = CompileTraversal::create(device, resourceRequirements);
         deviceResource.compile->overrideMask = 0xffffffff;
 
-        // CT TODO need to reorganize this whole section
         for (auto& context : deviceResource.compile->contexts)
         {
             context->commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
             context->graphicsQueue = device->getQueue(queueFamily);
-            if (descriptorPoolSizes.size() > 0) context->descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
+
+            context->reserve(resourceRequirements);
         }
     }
 

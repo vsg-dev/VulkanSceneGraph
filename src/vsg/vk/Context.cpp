@@ -22,6 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/state/DescriptorSet.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Extensions.h>
 #include <vsg/vk/RenderPass.h>
@@ -95,16 +96,21 @@ Context::Context(Device* in_device, const ResourceRequirements& resourceRequirem
 {
     //semaphore = vsg::Semaphore::create(device);
     scratchMemory = ScratchMemory::create(4096);
+
+    minimum_maxSets = resourceRequirements.computeNumDescriptorSets();
+    minimum_descriptorPoolSizes = resourceRequirements.computeDescriptorPoolSizes();
 }
 
 Context::Context(const Context& context) :
     Inherit(context),
     deviceID(context.deviceID),
     device(context.device),
+    minimum_maxSets(context.minimum_maxSets),
+    minimum_descriptorPoolSizes(context.minimum_descriptorPoolSizes),
     renderPass(context.renderPass),
     defaultPipelineStates(context.defaultPipelineStates),
     overridePipelineStates(context.overridePipelineStates),
-    descriptorPool(context.descriptorPool),
+    descriptorPools(context.descriptorPools),
     graphicsQueue(context.graphicsQueue),
     commandPool(context.commandPool),
     deviceMemoryBufferPools(context.deviceMemoryBufferPools),
@@ -144,6 +150,94 @@ ShaderCompiler* Context::getOrCreateShaderCompiler()
 #endif
 
     return shaderCompiler;
+}
+
+void Context::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes)
+{
+    if (minimum_maxSets > maxSets)
+    {
+        maxSets = minimum_maxSets;
+    }
+
+    for (auto& [minimum_type, minimum_descriptorCount] : minimum_descriptorPoolSizes)
+    {
+        auto itr = descriptorPoolSizes.begin();
+        for (; itr != descriptorPoolSizes.end(); ++itr)
+        {
+            if (itr->type == minimum_type && minimum_descriptorCount > itr->descriptorCount)
+            {
+                itr->descriptorCount = minimum_descriptorCount;
+                break;
+            }
+        }
+        if (itr == descriptorPoolSizes.end())
+        {
+            descriptorPoolSizes.push_back(VkDescriptorPoolSize{minimum_type, minimum_descriptorCount});
+        }
+    }
+}
+
+ref_ptr<DescriptorSet::Implementation> Context::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
+{
+    for (auto itr = descriptorPools.rbegin(); itr != descriptorPools.rend(); ++itr)
+    {
+        auto dsi = (*itr)->allocateDescriptorSet(descriptorSetLayout);
+        if (dsi) return dsi;
+    }
+
+    DescriptorPoolSizes descriptorPoolSizes;
+    descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);
+
+    uint32_t maxSets = 1;
+    getDescriptorPoolSizesToUse(maxSets, descriptorPoolSizes);
+
+    auto descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
+    auto dsi = descriptorPool->allocateDescriptorSet(descriptorSetLayout);
+
+    descriptorPools.push_back(descriptorPool);
+    return dsi;
+}
+
+void Context::reserve(ResourceRequirements& requirements)
+{
+    auto maxSets = requirements.computeNumDescriptorSets();
+    auto descriptorPoolSizes = requirements.computeDescriptorPoolSizes();
+
+    uint32_t available_maxSets = 0;
+    DescriptorPoolSizes available_descriptorPoolSizes;
+    for (auto& descriptorPool : descriptorPools)
+    {
+        descriptorPool->getAvailablity(available_maxSets, available_descriptorPoolSizes);
+    }
+
+    auto required_maxSets = maxSets;
+    auto required_descriptorPoolSizes = descriptorPoolSizes;
+
+    if (available_maxSets < required_maxSets)
+        required_maxSets -= available_maxSets;
+    else
+        required_maxSets = 0;
+
+    for (auto& [type, descriptorCount] : required_descriptorPoolSizes)
+    {
+        for (auto itr = available_descriptorPoolSizes.begin(); itr != available_descriptorPoolSizes.end(); ++itr)
+        {
+            if (itr->type == type)
+            {
+                if (itr->descriptorCount < descriptorCount)
+                    descriptorCount -= itr->descriptorCount;
+                else
+                    descriptorCount = 0;
+                break;
+            }
+        }
+    }
+
+    if (required_maxSets > 0)
+    {
+        getDescriptorPoolSizesToUse(required_maxSets, required_descriptorPoolSizes);
+        descriptorPools.push_back(vsg::DescriptorPool::create(device, required_maxSets, required_descriptorPoolSizes));
+    }
 }
 
 void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest)

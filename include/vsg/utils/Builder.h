@@ -106,15 +106,12 @@ namespace vsg
         ref_ptr<StateGroup> createStateGroup(const StateInfo& stateInfo = {});
 
         /// assign compile traversal to enable compilation.
-        void assignCompileTraversal(ref_ptr<CompileTraversal> ct, uint32_t maxNumTextures = 32);
+        void assignCompileTraversal(ref_ptr<CompileTraversal> ct);
 
         ref_ptr<CompileTraversal> compileTraversal;
 
     private:
         void transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr<vec3Array> normals);
-
-        uint32_t _allocatedTextureCount = 0;
-        uint32_t _maxNumTextures = 0;
 
         vec3 y_texcoord(const StateInfo& info) const;
 

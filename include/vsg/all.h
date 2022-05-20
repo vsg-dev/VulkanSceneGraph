@@ -100,6 +100,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/SetViewport.h>
 
 // State header files
+#include <vsg/state/BindDescriptorSet.h>
 #include <vsg/state/Buffer.h>
 #include <vsg/state/BufferInfo.h>
 #include <vsg/state/BufferView.h>

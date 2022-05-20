@@ -36,6 +36,26 @@ DescriptorSetLayout::~DescriptorSetLayout()
 {
 }
 
+void DescriptorSetLayout::getDescriptorPoolSizes(DescriptorPoolSizes& descriptorPoolSizes)
+{
+    for (auto& binding : bindings)
+    {
+        auto itr = descriptorPoolSizes.begin();
+        for (; itr != descriptorPoolSizes.end(); ++itr)
+        {
+            if (itr->type == binding.descriptorType)
+            {
+                itr->descriptorCount += binding.descriptorCount;
+                break;
+            }
+        }
+        if (itr == descriptorPoolSizes.end())
+        {
+            descriptorPoolSizes.emplace_back(VkDescriptorPoolSize{binding.descriptorType, binding.descriptorCount});
+        }
+    }
+}
+
 int DescriptorSetLayout::compare(const Object& rhs_object) const
 {
     int result = Object::compare(rhs_object);

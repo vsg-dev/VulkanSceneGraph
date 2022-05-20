@@ -11,13 +11,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Exception.h>
+#include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
+#include <vsg/state/Descriptor.h>
+#include <vsg/state/DescriptorSetLayout.h>
+#include <vsg/vk/Context.h>
 #include <vsg/vk/DescriptorPool.h>
 
 using namespace vsg;
 
 DescriptorPool::DescriptorPool(Device* device, uint32_t maxSets, const DescriptorPoolSizes& descriptorPoolSizes) :
-    _device(device)
+    _device(device),
+    _availableDescriptorSet(maxSets),
+    _availableDescriptorPoolSizes(descriptorPoolSizes)
 {
     VkDescriptorPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -39,4 +45,94 @@ DescriptorPool::~DescriptorPool()
     {
         vkDestroyDescriptorPool(*_device, _descriptorPool, _device->getAllocationCallbacks());
     }
+}
+
+ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
+{
+    if (_availableDescriptorSet == 0)
+    {
+        return {};
+    }
+
+    DescriptorPoolSizes descriptorPoolSizes;
+    descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);
+
+    for (auto itr = _reclingList.begin(); itr != _reclingList.end(); ++itr)
+    {
+        if (vsg::compare_value_container(descriptorPoolSizes, (*itr)->_descriptorPoolSizes) == 0)
+        {
+            auto dsi = *itr;
+            dsi->_descriptorPool = this;
+            _reclingList.erase(itr);
+            --_availableDescriptorSet;
+            return dsi;
+        }
+    }
+
+    size_t matches = 0;
+    for (auto& [type, descriptorCount] : descriptorPoolSizes)
+    {
+        for (auto& [availableType, availableCount] : _availableDescriptorPoolSizes)
+        {
+            if (availableType == type)
+            {
+                if (availableCount >= descriptorCount) ++matches;
+            }
+        }
+    }
+
+    if (matches < descriptorPoolSizes.size())
+    {
+        return {};
+    }
+
+    for (auto& [type, descriptorCount] : descriptorPoolSizes)
+    {
+        for (auto& [availableType, availableCount] : _availableDescriptorPoolSizes)
+        {
+            if (availableType == type)
+            {
+                availableCount -= descriptorCount;
+            }
+        }
+    }
+
+    --_availableDescriptorSet;
+
+    auto dsi = DescriptorSet::Implementation::create(this, descriptorSetLayout);
+    return dsi;
+}
+
+void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> dsi)
+{
+    _reclingList.push_back(dsi);
+    ++_availableDescriptorSet;
+
+    dsi->_descriptorPool = {};
+}
+
+bool DescriptorPool::getAvailablity(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes) const
+{
+    if (_availableDescriptorSet == 0) return false;
+
+    maxSets += _availableDescriptorSet;
+
+    for (auto& [availableType, availableCount] : _availableDescriptorPoolSizes)
+    {
+        auto itr = descriptorPoolSizes.begin();
+        for (; itr != descriptorPoolSizes.end(); ++itr)
+        {
+            if (itr->type == availableType)
+            {
+                itr->descriptorCount += availableCount;
+                break;
+            }
+        }
+        if (itr != descriptorPoolSizes.end())
+        {
+            descriptorPoolSizes.push_back(VkDescriptorPoolSize{availableType, availableCount});
+        }
+    }
+
+    return true;
 }

@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/DrawIndexed.h>
 #include <vsg/io/read.h>
 #include <vsg/io/write.h>
+#include <vsg/state/BindDescriptorSet.h>
 #include <vsg/state/ColorBlendState.h>
 #include <vsg/state/DepthStencilState.h>
 #include <vsg/state/DescriptorImage.h>

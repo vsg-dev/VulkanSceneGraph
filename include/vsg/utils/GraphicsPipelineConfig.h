@@ -12,11 +12,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/state/BindDescriptorSet.h>
 #include <vsg/state/ColorBlendState.h>
 #include <vsg/state/DepthStencilState.h>
 #include <vsg/state/DescriptorBuffer.h>
 #include <vsg/state/DescriptorImage.h>
-#include <vsg/state/DescriptorSet.h>
 #include <vsg/state/DescriptorSetLayout.h>
 #include <vsg/state/DynamicState.h>
 #include <vsg/state/GraphicsPipeline.h>
@@ -26,7 +26,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/TessellationState.h>
 #include <vsg/state/VertexInputState.h>
 #include <vsg/state/ViewportState.h>
-
 #include <vsg/utils/ShaderSet.h>
 
 namespace vsg
