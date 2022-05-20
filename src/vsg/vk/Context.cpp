@@ -175,6 +175,7 @@ void Context::reserve(ResourceRequirements& requirements)
 {
     auto maxSets = requirements.computeNumDescriptorSets();
     auto descriptorPoolSizes = requirements.computeDescriptorPoolSizes();
+
     std::cout<<"Context::reserve(ResourceRequirements& requirements)"<<std::endl;
     std::cout<<"    maxSets = "<<maxSets<<std::endl;
     for (auto& [type, descriptorCount] : descriptorPoolSizes)
@@ -182,9 +183,41 @@ void Context::reserve(ResourceRequirements& requirements)
         std::cout<<"    tyoe = "<<type<<", descriptorCount = "<<descriptorCount<<std::endl;
     }
 
-    if (maxSets > 0)
+    uint32_t available_maxSets = 0;
+    DescriptorPoolSizes available_descriptorPoolSizes;
+    for(auto& descriptorPool : descriptorPools)
     {
-        descriptorPools.push_back(vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes));
+        descriptorPool->getAvailablity(available_maxSets, available_descriptorPoolSizes);
+    }
+
+    auto required_maxSets = maxSets;
+    auto required_descriptorPoolSizes = descriptorPoolSizes;
+
+    if (available_maxSets < required_maxSets) required_maxSets -= available_maxSets;
+    else required_maxSets = 0;
+
+    for (auto& [type, descriptorCount] : required_descriptorPoolSizes)
+    {
+        auto itr = available_descriptorPoolSizes.begin();
+        for(; itr != available_descriptorPoolSizes.end(); ++itr)
+        {
+            if (itr->type == type)
+            {
+                if (itr->descriptorCount < descriptorCount)  descriptorCount -=  itr->descriptorCount;
+                else descriptorCount = 0;
+                break;
+            }
+        }
+    }
+
+    if (required_maxSets > 0)
+    {
+        std::cout<<"   ----------- Allocating new DescriptorPool. descriptorPools.size() = "<<descriptorPools.size()<<std::endl;
+        descriptorPools.push_back(vsg::DescriptorPool::create(device, required_maxSets, required_descriptorPoolSizes));
+    }
+    else
+    {
+        std::cout<<"   *********** Already have plenty of space in existing DesctiptorPool. descriptorPools.size() = "<<descriptorPools.size()<<std::endl;
     }
 }
 

@@ -110,3 +110,29 @@ void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> ds
 
     dsi->_descriptorPool = {};
 }
+
+bool DescriptorPool::getAvailablity(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes) const
+{
+    if (_availableDescriptorSet==0) return false;
+
+    maxSets += _availableDescriptorSet;
+
+    for (auto& [availableType, availableCount] : _availableDescriptorPoolSizes)
+    {
+        auto itr = descriptorPoolSizes.begin();
+        for(; itr != descriptorPoolSizes.end(); ++itr)
+        {
+            if (itr->type == availableType)
+            {
+                itr->descriptorCount += availableCount;
+                break;
+            }
+        }
+        if (itr != descriptorPoolSizes.end())
+        {
+            descriptorPoolSizes.push_back(VkDescriptorPoolSize{availableType, availableCount});
+        }
+    }
+
+    return true;
+}

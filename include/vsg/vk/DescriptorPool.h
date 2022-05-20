@@ -33,6 +33,9 @@ namespace vsg
         // free DescriptorSet::Implementatioe for reuse
         void freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> dsi);
 
+        // get the stats of the availble DescriptorSets/Descritors
+        bool getAvailablity(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes) const;
+
     protected:
         virtual ~DescriptorPool();
 
