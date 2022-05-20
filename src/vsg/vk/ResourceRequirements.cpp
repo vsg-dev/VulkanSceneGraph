@@ -84,8 +84,6 @@ void CollectResourceRequirements::apply(const Object& object)
 
 bool CollectResourceRequirements::checkForResourceHints(const Object& object)
 {
-    return false;
-
     auto resourceHints = object.getObject<ResourceHints>("ResourceHints");
     if (resourceHints)
     {
