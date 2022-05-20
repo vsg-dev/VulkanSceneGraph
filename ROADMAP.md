@@ -49,9 +49,9 @@ Using the prototyping work as a guide implement the final scene graph library wi
 * Support for wide and standard strings in vsg::Path.
 * Utilize vkEnumerateInstanceVersion
 * Update vsgImGui to latest
+* Improved support for dynamic scene graphs and dynamic views, dynamic descriptor pool reallocation
 
 #### Current development tasks:
-* Improved support for dynamic scene graphs and dynamic views, dynamic descriptor pool reallocation
 
 ### 4. Release Phase,  Spring 2022
 **Goal: Test scene graph library against real-world applications and shake down the API and implementation for it's first stable release.**
