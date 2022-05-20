@@ -81,6 +81,12 @@ namespace vsg
 
         ref_ptr<CommandBuffer> getOrCreateCommandBuffer();
 
+        uint32_t minimum_maxSets = 0;
+        DescriptorPoolSizes minimum_descriptorPoolSizes;
+
+        /// get the maxSets and descriptorPoolSizes to use
+        void getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes);
+
         /// allocate or reuse a DescriptorSet::Implementation from the available DescriptorPool
         ref_ptr<DescriptorSet::Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
 
