@@ -113,14 +113,14 @@ void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> ds
 
 bool DescriptorPool::getAvailablity(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes) const
 {
-    if (_availableDescriptorSet==0) return false;
+    if (_availableDescriptorSet == 0) return false;
 
     maxSets += _availableDescriptorSet;
 
     for (auto& [availableType, availableCount] : _availableDescriptorPoolSizes)
     {
         auto itr = descriptorPoolSizes.begin();
-        for(; itr != descriptorPoolSizes.end(); ++itr)
+        for (; itr != descriptorPoolSizes.end(); ++itr)
         {
             if (itr->type == availableType)
             {

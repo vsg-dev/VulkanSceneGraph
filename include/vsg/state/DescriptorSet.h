@@ -56,7 +56,6 @@ namespace vsg
         /// get the Vulkan handle to the descriptor set for specified device
         VkDescriptorSet vk(uint32_t deviceID) const;
 
-
     public:
         /// Wrapper class for the managemnt of the Vulkan VkDescriptorSet handle.
         //. This is an intnrnal implementation class that is only public to enable use within DescriptorPool and Context,
@@ -64,7 +63,6 @@ namespace vsg
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
         public:
-
             Implementation(DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout);
 
             void assign(Context& context, const Descriptors& descriptors);
@@ -74,7 +72,6 @@ namespace vsg
             static void recyle(ref_ptr<DescriptorSet::Implementation>& dsi);
 
         protected:
-
             virtual ~Implementation();
 
             friend DescriptorPool;

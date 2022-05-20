@@ -159,10 +159,10 @@ void Context::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes
         maxSets = minimum_maxSets;
     }
 
-    for(auto& [minimum_type, minimum_descriptorCount] : minimum_descriptorPoolSizes)
+    for (auto& [minimum_type, minimum_descriptorCount] : minimum_descriptorPoolSizes)
     {
         auto itr = descriptorPoolSizes.begin();
-        for(; itr != descriptorPoolSizes.end(); ++itr)
+        for (; itr != descriptorPoolSizes.end(); ++itr)
         {
             if (itr->type == minimum_type && minimum_descriptorCount > itr->descriptorCount)
             {
@@ -205,7 +205,7 @@ void Context::reserve(ResourceRequirements& requirements)
 
     uint32_t available_maxSets = 0;
     DescriptorPoolSizes available_descriptorPoolSizes;
-    for(auto& descriptorPool : descriptorPools)
+    for (auto& descriptorPool : descriptorPools)
     {
         descriptorPool->getAvailablity(available_maxSets, available_descriptorPoolSizes);
     }
@@ -213,17 +213,21 @@ void Context::reserve(ResourceRequirements& requirements)
     auto required_maxSets = maxSets;
     auto required_descriptorPoolSizes = descriptorPoolSizes;
 
-    if (available_maxSets < required_maxSets) required_maxSets -= available_maxSets;
-    else required_maxSets = 0;
+    if (available_maxSets < required_maxSets)
+        required_maxSets -= available_maxSets;
+    else
+        required_maxSets = 0;
 
     for (auto& [type, descriptorCount] : required_descriptorPoolSizes)
     {
-        for(auto itr = available_descriptorPoolSizes.begin(); itr != available_descriptorPoolSizes.end(); ++itr)
+        for (auto itr = available_descriptorPoolSizes.begin(); itr != available_descriptorPoolSizes.end(); ++itr)
         {
             if (itr->type == type)
             {
-                if (itr->descriptorCount < descriptorCount)  descriptorCount -=  itr->descriptorCount;
-                else descriptorCount = 0;
+                if (itr->descriptorCount < descriptorCount)
+                    descriptorCount -= itr->descriptorCount;
+                else
+                    descriptorCount = 0;
                 break;
             }
         }

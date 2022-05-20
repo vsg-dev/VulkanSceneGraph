@@ -245,7 +245,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
         auto physicalDevice = device->getPhysicalDevice();
 
-
         auto queueFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT); // TODO : could we just use transfer bit?
 
         deviceResource.compile = CompileTraversal::create(device, resourceRequirements);

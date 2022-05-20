@@ -117,7 +117,6 @@ VkDescriptorSet DescriptorSet::vk(uint32_t deviceID) const
     return _implementation[deviceID]->_descriptorSet;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // DescriptorSet::Implementation
