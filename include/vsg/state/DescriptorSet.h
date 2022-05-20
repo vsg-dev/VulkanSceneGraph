@@ -53,8 +53,14 @@ namespace vsg
         void release(uint32_t deviceID);
         void release();
 
+        /// get the Vulkan handle to the descriptor set for specified device
         VkDescriptorSet vk(uint32_t deviceID) const;
 
+
+    public:
+        /// Wrapper class for the managemnt of the Vulkan VkDescriptorSet handle.
+        //. This is an intnrnal implementation class that is only public to enable use within DescriptorPool and Context,
+        /// it is not intended to be used directly by VulkanSceneGraph users.
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
         public:
