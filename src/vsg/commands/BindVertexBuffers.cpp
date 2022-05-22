@@ -60,14 +60,27 @@ void BindVertexBuffers::read(Input& input)
         input.read("firstBinding", firstBinding);
     }
 
-    // read vertex arrays
-    DataList dataList;
-    dataList.resize(input.readValue<uint32_t>("NumArrays"));
-    for (auto& array : dataList)
+    if (input.version_greater_equal(0, 1, 4))
     {
-        input.readObject("Array", array);
+        DataList dataList;
+        dataList.resize(input.readValue<uint32_t>("arrays"));
+        for (auto& array : dataList)
+        {
+            input.readObject("array", array);
+        }
+        assignArrays(dataList);
     }
-    assignArrays(dataList);
+    else
+    {
+        // read vertex arrays
+        DataList dataList;
+        dataList.resize(input.readValue<uint32_t>("NumArrays"));
+        for (auto& array : dataList)
+        {
+            input.readObject("Array", array);
+        }
+        assignArrays(dataList);
+    }
 }
 
 void BindVertexBuffers::write(Output& output) const
@@ -79,13 +92,27 @@ void BindVertexBuffers::write(Output& output) const
         output.write("firstBinding", firstBinding);
     }
 
-    output.writeValue<uint32_t>("NumArrays", arrays.size());
-    for (auto& array : arrays)
+    if (output.version_greater_equal(0, 4, 0))
     {
-        if (array)
-            output.writeObject("Array", array->data.get());
-        else
-            output.writeObject("Array", nullptr);
+        output.writeValue<uint32_t>("arrays", arrays.size());
+        for (auto& array : arrays)
+        {
+            if (array)
+                output.writeObject("array", array->data.get());
+            else
+                output.writeObject("array", nullptr);
+        }
+    }
+    else
+    {
+        output.writeValue<uint32_t>("NumArrays", arrays.size());
+        for (auto& array : arrays)
+        {
+            if (array)
+                output.writeObject("Array", array->data.get());
+            else
+                output.writeObject("Array", nullptr);
+        }
     }
 }
 

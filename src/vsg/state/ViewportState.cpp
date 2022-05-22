@@ -75,7 +75,29 @@ void ViewportState::read(Input& input)
 {
     Object::read(input);
 
-    if (input.version_greater_equal(0, 0, 2))
+    if (input.version_greater_equal(0, 4, 0))
+    {
+        viewports.resize(input.readValue<uint32_t>("viewports"));
+        for (auto& viewport : viewports)
+        {
+            input.read("x", viewport.x);
+            input.read("y", viewport.y);
+            input.read("width", viewport.width);
+            input.read("height", viewport.height);
+            input.read("minDepth", viewport.minDepth);
+            input.read("maxDepth", viewport.maxDepth);
+        }
+
+        scissors.resize(input.readValue<uint32_t>("scissors"));
+        for (auto& scissor : scissors)
+        {
+            input.read("x", scissor.offset.x);
+            input.read("y", scissor.offset.y);
+            input.read("width", scissor.extent.width);
+            input.read("height", scissor.extent.height);
+        }
+    }
+    else if (input.version_greater_equal(0, 0, 2))
     {
         viewports.resize(input.readValue<uint32_t>("NumViewports"));
         for (auto& viewport : viewports)
