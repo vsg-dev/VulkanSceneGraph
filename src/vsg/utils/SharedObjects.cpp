@@ -17,13 +17,15 @@ bool SharedObjects::suitable(const Path& filename) const
     return excludedExtensions.count(vsg::lowerCaseFileExtension(filename)) == 0;
 }
 
-bool SharedObjects::contains(const Path& filename, ref_ptr<const Options> options)
+bool SharedObjects::contains(const Path& filename, ref_ptr<const Options> options) const
 {
     std::scoped_lock<std::recursive_mutex> lock(_mutex);
 
     auto loadedObject_id = std::type_index(typeid(LoadedObject));
-    auto& loadedObjects = _sharedObjects[loadedObject_id];
+    auto itr = _sharedObjects.find(loadedObject_id);
+    if (itr == _sharedObjects.end()) return false;
 
+    auto& loadedObjects = itr->second;
     auto key = LoadedObject::create(filename, options);
     return loadedObjects.find(key) != loadedObjects.end();
 }
@@ -37,6 +39,28 @@ void SharedObjects::add(ref_ptr<Object> object, const Path& filename, ref_ptr<co
 
     auto key = LoadedObject::create(filename, options, object);
     loadedObjects.insert(key);
+}
+
+bool SharedObjects::remove(const Path& filename, ref_ptr<const Options> options)
+{
+    std::scoped_lock<std::recursive_mutex> lock(_mutex);
+
+    auto loadedObject_id = std::type_index(typeid(LoadedObject));
+    auto itr = _sharedObjects.find(loadedObject_id);
+    if (itr == _sharedObjects.end()) return false;
+
+    auto& loadedObjects = itr->second;
+
+    auto key = LoadedObject::create(filename, options);
+    if (auto lo_itr = loadedObjects.find(key); lo_itr != loadedObjects.end())
+    {
+        loadedObjects.erase(lo_itr);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void SharedObjects::clear()
