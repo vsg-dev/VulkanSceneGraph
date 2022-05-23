@@ -125,7 +125,29 @@ void ViewportState::write(Output& output) const
 {
     Object::write(output);
 
-    if (output.version_greater_equal(0, 0, 2))
+    if (input.version_greater_equal(0, 4, 0))
+    {
+        output.writeValue<uint32_t>("viewports", viewports.size());
+        for (auto& viewport : viewports)
+        {
+            output.write("x", viewport.x);
+            output.write("y", viewport.y);
+            output.write("width", viewport.width);
+            output.write("height", viewport.height);
+            output.write("minDepth", viewport.minDepth);
+            output.write("maxDepth", viewport.maxDepth);
+        }
+
+        output.writeValue<uint32_t>("scissors", scissors.size());
+        for (auto& scissor : scissors)
+        {
+            output.write("x", scissor.offset.x);
+            output.write("y", scissor.offset.y);
+            output.write("width", scissor.extent.width);
+            output.write("height", scissor.extent.height);
+        }
+    }
+    else if (output.version_greater_equal(0, 0, 2))
     {
         output.writeValue<uint32_t>("NumViewports", viewports.size());
         for (auto& viewport : viewports)
