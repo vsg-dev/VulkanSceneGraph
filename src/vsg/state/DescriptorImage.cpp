@@ -61,7 +61,7 @@ int DescriptorImage::compare(const Object& rhs_object) const
 
 void DescriptorImage::read(Input& input)
 {
-    // TODO need to release on imageInfoList.
+    imageInfoList.clear();
 
     Descriptor::read(input);
 
