@@ -124,7 +124,7 @@ namespace vsg
                 uint32_t h = input.readValue<uint32_t>("height");
                 uint32_t d = input.readValue<uint32_t>("depth");
 
-                if auto data_storage = input.readObject<Data>("storage");)
+                if (auto data_storage = input.readObject<Data>("storage"))
                 {
                     uint32_t offset = input.readValue<uint32_t>("offset");
                     assign(data_storage, offset, _layout.stride, w, h, d, _layout);
