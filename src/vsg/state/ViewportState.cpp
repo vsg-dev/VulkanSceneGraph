@@ -125,7 +125,7 @@ void ViewportState::write(Output& output) const
 {
     Object::write(output);
 
-    if (input.version_greater_equal(0, 4, 0))
+    if (output.version_greater_equal(0, 4, 0))
     {
         output.writeValue<uint32_t>("viewports", viewports.size());
         for (auto& viewport : viewports)
