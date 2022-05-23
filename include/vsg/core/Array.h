@@ -141,6 +141,7 @@ namespace vsg
             if (input.version_greater_equal(0, 4, 0))
             {
                 uint32_t width_size = input.readValue<uint32_t>("size");
+
                 if (auto data_storage = input.readObject<Data>("storage"))
                 {
                     uint32_t offset = input.readValue<uint32_t>("offset");
