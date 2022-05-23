@@ -109,45 +109,87 @@ namespace vsg
 
             Data::read(input);
 
-            uint32_t w = input.readValue<uint32_t>("Width");
-            uint32_t h = input.readValue<uint32_t>("Height");
-
-            if (input.version_greater_equal(0, 0, 1))
+            if (input.version_greater_equal(0, 4, 0))
             {
-                auto data_storage = input.readObject<Data>("Storage");
-                if (data_storage)
+                uint32_t w = input.readValue<uint32_t>("width");
+                uint32_t h = input.readValue<uint32_t>("height");
+
+                if (auto data_storage = input.readObject<Data>("storage"))
                 {
-                    uint32_t offset = input.readValue<uint32_t>("Offset");
+                    uint32_t offset = input.readValue<uint32_t>("offset");
                     assign(data_storage, offset, _layout.stride, w, h, _layout);
                     return;
                 }
-            }
 
-            if (input.matchPropertyName("Data"))
-            {
-                std::size_t new_size = computeValueCountIncludingMipmaps(w, h, 1, _layout.maxNumMipmaps);
-
-                if (_data) // if data already may be able to reuse it
+                if (input.matchPropertyName("data"))
                 {
-                    if (original_size != new_size) // if existing data is a different size delete old, and create new
+                    std::size_t new_size = computeValueCountIncludingMipmaps(w, h, 1, _layout.maxNumMipmaps);
+
+                    if (_data) // if data already may be able to reuse it
                     {
-                        _delete();
+                        if (original_size != new_size) // if existing data is a different size delete old, and create new
+                        {
+                            _delete();
+                            _data = _allocate(new_size);
+                        }
+                    }
+                    else // allocate space for data
+                    {
                         _data = _allocate(new_size);
                     }
+
+                    _layout.stride = sizeof(value_type);
+                    _width = w;
+                    _height = h;
+                    _storage = nullptr;
+
+                    input.read(new_size, _data);
+
+                    dirty();
                 }
-                else // allocate space for data
+            }
+            else
+            {
+                uint32_t w = input.readValue<uint32_t>("Width");
+                uint32_t h = input.readValue<uint32_t>("Height");
+
+                if (input.version_greater_equal(0, 0, 1))
                 {
-                    _data = _allocate(new_size);
+                    auto data_storage = input.readObject<Data>("Storage");
+                    if (data_storage)
+                    {
+                        uint32_t offset = input.readValue<uint32_t>("Offset");
+                        assign(data_storage, offset, _layout.stride, w, h, _layout);
+                        return;
+                    }
                 }
 
-                _layout.stride = sizeof(value_type);
-                _width = w;
-                _height = h;
-                _storage = nullptr;
+                if (input.matchPropertyName("Data"))
+                {
+                    std::size_t new_size = computeValueCountIncludingMipmaps(w, h, 1, _layout.maxNumMipmaps);
 
-                input.read(new_size, _data);
+                    if (_data) // if data already may be able to reuse it
+                    {
+                        if (original_size != new_size) // if existing data is a different size delete old, and create new
+                        {
+                            _delete();
+                            _data = _allocate(new_size);
+                        }
+                    }
+                    else // allocate space for data
+                    {
+                        _data = _allocate(new_size);
+                    }
 
-                dirty();
+                    _layout.stride = sizeof(value_type);
+                    _width = w;
+                    _height = h;
+                    _storage = nullptr;
+
+                    input.read(new_size, _data);
+
+                    dirty();
+                }
             }
         }
 
@@ -155,23 +197,43 @@ namespace vsg
         {
             Data::write(output);
 
-            output.writeValue<uint32_t>("Width", _width);
-            output.writeValue<uint32_t>("Height", _height);
-
-            if (output.version_greater_equal(0, 0, 1))
+            if (output.version_greater_equal(0, 4, 0))
             {
-                output.writeObject("Storage", _storage);
+                output.writeValue<uint32_t>("width", _width);
+                output.writeValue<uint32_t>("height", _height);
+
+                output.writeObject("storage", _storage);
                 if (_storage)
                 {
                     auto offset = (reinterpret_cast<uintptr_t>(_data) - reinterpret_cast<uintptr_t>(_storage->dataPointer()));
-                    output.writeValue<uint32_t>("Offset", offset);
+                    output.writeValue<uint32_t>("offset", offset);
                     return;
                 }
-            }
 
-            output.writePropertyName("Data");
-            output.write(valueCount(), _data);
-            output.writeEndOfLine();
+                output.writePropertyName("data");
+                output.write(valueCount(), _data);
+                output.writeEndOfLine();
+            }
+            else
+            {
+                output.writeValue<uint32_t>("Width", _width);
+                output.writeValue<uint32_t>("Height", _height);
+
+                if (output.version_greater_equal(0, 0, 1))
+                {
+                    output.writeObject("Storage", _storage);
+                    if (_storage)
+                    {
+                        auto offset = (reinterpret_cast<uintptr_t>(_data) - reinterpret_cast<uintptr_t>(_storage->dataPointer()));
+                        output.writeValue<uint32_t>("Offset", offset);
+                        return;
+                    }
+                }
+
+                output.writePropertyName("Data");
+                output.write(valueCount(), _data);
+                output.writeEndOfLine();
+            }
         }
 
         std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? static_cast<std::size_t>(_width * _height) : computeValueCountIncludingMipmaps(_width, _height, 1, _layout.maxNumMipmaps); }

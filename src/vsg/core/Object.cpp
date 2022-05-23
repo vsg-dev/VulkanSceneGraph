@@ -155,7 +155,7 @@ void Object::write(Output& output) const
         }
         else
         {
-            output.writeValue<uint32_t>("user_objects", 0);
+            output.writeValue<uint32_t>("userObjects", 0);
         }
     }
     else
