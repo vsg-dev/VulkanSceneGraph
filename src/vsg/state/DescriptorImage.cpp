@@ -109,7 +109,7 @@ void DescriptorImage::write(Output& output) const
 {
     Descriptor::write(output);
 
-    if (input.version_greater_equal(0, 4, 0))
+    if (output.version_greater_equal(0, 4, 0))
     {
         output.writeValue<uint32_t>("images", imageInfoList.size());
         for (auto& imageInfo : imageInfoList)
