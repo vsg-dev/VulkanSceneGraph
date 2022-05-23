@@ -35,7 +35,7 @@ namespace vsg
         template<class R>
         explicit observer_ptr(R* ptr) :
             _ptr(ptr),
-            _auxiliary(ptr ? ptr->getOrCreateUniqueAuxiliary() : nullptr)
+            _auxiliary(ptr ? ptr->getOrCreateAuxiliary() : nullptr)
         {
         }
 
@@ -49,7 +49,7 @@ namespace vsg
         template<class R>
         explicit observer_ptr(const ref_ptr<R>& ptr) :
             _ptr(ptr.get()),
-            _auxiliary(ptr.valid() ? ptr->getOrCreateUniqueAuxiliary() : nullptr)
+            _auxiliary(ptr.valid() ? ptr->getOrCreateAuxiliary() : nullptr)
         {
         }
 
@@ -61,7 +61,7 @@ namespace vsg
         observer_ptr& operator=(R* ptr)
         {
             _ptr = ptr;
-            _auxiliary = ptr ? ptr->getOrCreateUniqueAuxiliary() : nullptr;
+            _auxiliary = ptr ? ptr->getOrCreateAuxiliary() : nullptr;
             return *this;
         }
 
@@ -84,7 +84,7 @@ namespace vsg
         observer_ptr& operator=(const ref_ptr<R>& rhs)
         {
             _ptr = rhs.get();
-            _auxiliary = rhs.valid() ? rhs->getOrCreateUniqueAuxiliary() : nullptr;
+            _auxiliary = rhs.valid() ? rhs->getOrCreateAuxiliary() : nullptr;
             return *this;
         }
 
