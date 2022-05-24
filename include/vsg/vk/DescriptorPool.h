@@ -37,9 +37,9 @@ namespace vsg
         /// get the stats of the availble DescriptorSets/Descritors
         bool getAvailablity(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes) const;
 
-        /// mutex used to manage access of DesciptorPool resoruces.
-        /// Will be locked autoamtically by allocatoeDecstiproSet(..), freeDescriptorSet(), getAvailablity() and DescriptorSet:::Implementation
-        /// to esnure thread safe opeartion.  Normal VulkanSceneGraph usage will not require users to lock this mutex so threat as an internal implementation detail.
+        /// mutex used to ensure thead safe access of DesciptorPool resoruces.
+        /// Locked autoamtically by allocatoeDecstiproSet(..), freeDescriptorSet(), getAvailablity() and DescriptorSet:::Implementation
+        /// to esnure thread safe opeartion. Normal VulkanSceneGraph usage will not require users to lock this mutex so threat as an internal implementation detail.
         mutable std::mutex mutex;
 
     protected:
