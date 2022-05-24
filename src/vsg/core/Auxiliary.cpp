@@ -85,16 +85,15 @@ void Auxiliary::resetConnectedObject()
 
 void Auxiliary::setObject(const std::string& key, Object* object)
 {
-    _objectMap[key] = object;
+    userObjects[key] = object;
     DEBUG_NOTIFY << "Auxiliary::setObject( [" << key << "], " << object << ")"
-                 << " " << _objectMap.size() << " " << &_objectMap << std::endl;
+                 << " " << userObjects.size() << " " << &userObjects << std::endl;
 }
 
 Object* Auxiliary::getObject(const std::string& key)
 {
     DEBUG_NOTIFY << "Auxiliary::getObject( [" << key << "])" << std::endl;
-    ObjectMap::iterator itr = _objectMap.find(key);
-    if (itr != _objectMap.end())
+    if (auto itr = userObjects.find(key); itr != userObjects.end())
         return itr->second.get();
     else
         return nullptr;
@@ -103,8 +102,7 @@ Object* Auxiliary::getObject(const std::string& key)
 const Object* Auxiliary::getObject(const std::string& key) const
 {
     DEBUG_NOTIFY << "Auxiliary::getObject( [" << key << "]) const" << std::endl;
-    ObjectMap::const_iterator itr = _objectMap.find(key);
-    if (itr != _objectMap.end())
+    if (auto itr = userObjects.find(key); itr != userObjects.end())
         return itr->second.get();
     else
         return nullptr;

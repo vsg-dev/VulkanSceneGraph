@@ -138,44 +138,85 @@ namespace vsg
 
             Data::read(input);
 
-            uint32_t width_size = input.readValue<uint32_t>("Size");
-
-            if (input.version_greater_equal(0, 0, 1))
+            if (input.version_greater_equal(0, 4, 0))
             {
-                auto data_storage = input.readObject<Data>("Storage");
-                if (data_storage)
+                uint32_t width_size = input.readValue<uint32_t>("size");
+
+                if (auto data_storage = input.readObject<Data>("storage"))
                 {
-                    uint32_t offset = input.readValue<uint32_t>("Offset");
+                    uint32_t offset = input.readValue<uint32_t>("offset");
                     assign(data_storage, offset, _layout.stride, width_size, _layout);
                     return;
                 }
-            }
 
-            if (input.matchPropertyName("Data"))
-            {
-                std::size_t new_total_size = computeValueCountIncludingMipmaps(width_size, 1, 1, _layout.maxNumMipmaps);
-
-                if (_data) // if data already may be able to reuse it
+                if (input.matchPropertyName("data"))
                 {
-                    if (original_total_size != new_total_size) // if existing data is a different size delete old, and create new
-                    {
-                        clear();
+                    std::size_t new_total_size = computeValueCountIncludingMipmaps(width_size, 1, 1, _layout.maxNumMipmaps);
 
+                    if (_data) // if data already may be able to reuse it
+                    {
+                        if (original_total_size != new_total_size) // if existing data is a different size delete old, and create new
+                        {
+                            clear();
+
+                            _data = _allocate(new_total_size);
+                        }
+                    }
+                    else // allocate space for data
+                    {
                         _data = _allocate(new_total_size);
                     }
+
+                    _layout.stride = sizeof(value_type);
+                    _size = width_size;
+                    _storage = nullptr;
+
+                    input.read(new_total_size, _data);
+
+                    dirty();
                 }
-                else // allocate space for data
+            }
+            else
+            {
+                uint32_t width_size = input.readValue<uint32_t>("Size");
+
+                if (input.version_greater_equal(0, 0, 1))
                 {
-                    _data = _allocate(new_total_size);
+                    auto data_storage = input.readObject<Data>("Storage");
+                    if (data_storage)
+                    {
+                        uint32_t offset = input.readValue<uint32_t>("Offset");
+                        assign(data_storage, offset, _layout.stride, width_size, _layout);
+                        return;
+                    }
                 }
 
-                _layout.stride = sizeof(value_type);
-                _size = width_size;
-                _storage = nullptr;
+                if (input.matchPropertyName("Data"))
+                {
+                    std::size_t new_total_size = computeValueCountIncludingMipmaps(width_size, 1, 1, _layout.maxNumMipmaps);
 
-                input.read(new_total_size, _data);
+                    if (_data) // if data already may be able to reuse it
+                    {
+                        if (original_total_size != new_total_size) // if existing data is a different size delete old, and create new
+                        {
+                            clear();
 
-                dirty();
+                            _data = _allocate(new_total_size);
+                        }
+                    }
+                    else // allocate space for data
+                    {
+                        _data = _allocate(new_total_size);
+                    }
+
+                    _layout.stride = sizeof(value_type);
+                    _size = width_size;
+                    _storage = nullptr;
+
+                    input.read(new_total_size, _data);
+
+                    dirty();
+                }
             }
         }
 
@@ -183,22 +224,40 @@ namespace vsg
         {
             Data::write(output);
 
-            output.writeValue<uint32_t>("Size", _size);
-
-            if (output.version_greater_equal(0, 0, 1))
+            if (output.version_greater_equal(0, 4, 0))
             {
-                output.writeObject("Storage", _storage);
+                output.writeValue<uint32_t>("size", _size);
+                output.writeObject("storage", _storage);
                 if (_storage)
                 {
                     auto offset = (reinterpret_cast<uintptr_t>(_data) - reinterpret_cast<uintptr_t>(_storage->dataPointer()));
-                    output.writeValue<uint32_t>("Offset", offset);
+                    output.writeValue<uint32_t>("offset", offset);
                     return;
                 }
-            }
 
-            output.writePropertyName("Data");
-            output.write(size(), _data);
-            output.writeEndOfLine();
+                output.writePropertyName("data");
+                output.write(size(), _data);
+                output.writeEndOfLine();
+            }
+            else
+            {
+                output.writeValue<uint32_t>("Size", _size);
+
+                if (output.version_greater_equal(0, 0, 1))
+                {
+                    output.writeObject("Storage", _storage);
+                    if (_storage)
+                    {
+                        auto offset = (reinterpret_cast<uintptr_t>(_data) - reinterpret_cast<uintptr_t>(_storage->dataPointer()));
+                        output.writeValue<uint32_t>("Offset", offset);
+                        return;
+                    }
+                }
+
+                output.writePropertyName("Data");
+                output.write(size(), _data);
+                output.writeEndOfLine();
+            }
         }
 
         std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? _size : computeValueCountIncludingMipmaps(_size, 1, 1, _layout.maxNumMipmaps); }

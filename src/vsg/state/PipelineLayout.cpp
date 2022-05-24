@@ -54,20 +54,41 @@ void PipelineLayout::read(Input& input)
 {
     Object::read(input);
 
-    input.readValue<uint32_t>("Flags", flags);
-
-    setLayouts.resize(input.readValue<uint32_t>("NumDescriptorSetLayouts"));
-    for (auto& descriptorLayout : setLayouts)
+    if (input.version_greater_equal(0, 4, 0))
     {
-        input.readObject("DescriptorSetLayout", descriptorLayout);
+        input.readValue<uint32_t>("flags", flags);
+
+        setLayouts.resize(input.readValue<uint32_t>("setLayouts"));
+        for (auto& descriptorLayout : setLayouts)
+        {
+            input.readObject("descriptorLayout", descriptorLayout);
+        }
+
+        pushConstantRanges.resize(input.readValue<uint32_t>("pushConstantRanges"));
+        for (auto& pushConstantRange : pushConstantRanges)
+        {
+            input.readValue<uint32_t>("stageFlags", pushConstantRange.stageFlags);
+            input.read("offset", pushConstantRange.offset);
+            input.read("size", pushConstantRange.size);
+        }
     }
-
-    pushConstantRanges.resize(input.readValue<uint32_t>("NumPushConstantRanges"));
-    for (auto& pushConstantRange : pushConstantRanges)
+    else
     {
-        input.readValue<uint32_t>("stageFlags", pushConstantRange.stageFlags);
-        input.read("offset", pushConstantRange.offset);
-        input.read("size", pushConstantRange.size);
+        input.readValue<uint32_t>("Flags", flags);
+
+        setLayouts.resize(input.readValue<uint32_t>("NumDescriptorSetLayouts"));
+        for (auto& descriptorLayout : setLayouts)
+        {
+            input.readObject("DescriptorSetLayout", descriptorLayout);
+        }
+
+        pushConstantRanges.resize(input.readValue<uint32_t>("NumPushConstantRanges"));
+        for (auto& pushConstantRange : pushConstantRanges)
+        {
+            input.readValue<uint32_t>("stageFlags", pushConstantRange.stageFlags);
+            input.read("offset", pushConstantRange.offset);
+            input.read("size", pushConstantRange.size);
+        }
     }
 }
 
@@ -75,20 +96,41 @@ void PipelineLayout::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeValue<uint32_t>("Flags", flags);
-
-    output.writeValue<uint32_t>("NumDescriptorSetLayouts", setLayouts.size());
-    for (auto& descriptorLayout : setLayouts)
+    if (output.version_greater_equal(0, 4, 0))
     {
-        output.writeObject("DescriptorSetLayout", descriptorLayout);
+        output.writeValue<uint32_t>("flags", flags);
+
+        output.writeValue<uint32_t>("setLayouts", setLayouts.size());
+        for (auto& descriptorLayout : setLayouts)
+        {
+            output.writeObject("descriptorLayout", descriptorLayout);
+        }
+
+        output.writeValue<uint32_t>("pushConstantRanges", pushConstantRanges.size());
+        for (auto& pushConstantRange : pushConstantRanges)
+        {
+            output.writeValue<uint32_t>("stageFlags", pushConstantRange.stageFlags);
+            output.write("offset", pushConstantRange.offset);
+            output.write("size", pushConstantRange.size);
+        }
     }
-
-    output.writeValue<uint32_t>("NumPushConstantRanges", pushConstantRanges.size());
-    for (auto& pushConstantRange : pushConstantRanges)
+    else
     {
-        output.writeValue<uint32_t>("stageFlags", pushConstantRange.stageFlags);
-        output.write("offset", pushConstantRange.offset);
-        output.write("size", pushConstantRange.size);
+        output.writeValue<uint32_t>("Flags", flags);
+
+        output.writeValue<uint32_t>("NumDescriptorSetLayouts", setLayouts.size());
+        for (auto& descriptorLayout : setLayouts)
+        {
+            output.writeObject("DescriptorSetLayout", descriptorLayout);
+        }
+
+        output.writeValue<uint32_t>("NumPushConstantRanges", pushConstantRanges.size());
+        for (auto& pushConstantRange : pushConstantRanges)
+        {
+            output.writeValue<uint32_t>("stageFlags", pushConstantRange.stageFlags);
+            output.write("offset", pushConstantRange.offset);
+            output.write("size", pushConstantRange.size);
+        }
     }
 }
 

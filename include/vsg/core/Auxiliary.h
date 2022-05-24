@@ -42,8 +42,9 @@ namespace vsg
         const Object* getObject(const std::string& key) const;
 
         using ObjectMap = std::map<std::string, vsg::ref_ptr<Object>>;
-        ObjectMap& getObjectMap() { return _objectMap; }
-        const ObjectMap& getObjectMap() const { return _objectMap; }
+
+        /// container for all user objects
+        ObjectMap userObjects;
 
     protected:
         explicit Auxiliary(Object* object);
@@ -63,8 +64,6 @@ namespace vsg
 
         mutable std::mutex _mutex;
         Object* _connectedObject;
-
-        ObjectMap _objectMap;
     };
 
 } // namespace vsg

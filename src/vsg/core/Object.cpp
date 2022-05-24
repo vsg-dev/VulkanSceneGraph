@@ -45,8 +45,8 @@ Object::Object(const Object& rhs) :
     if (rhs._auxiliary && rhs._auxiliary->getConnectedObject() == &rhs)
     {
         // the rhs's rhs._auxiliary is uniquely attached to it, so we need to create our own and copy it's ObjectMap across
-        Auxiliary::ObjectMap& objectMap = getOrCreateUniqueAuxiliary()->getObjectMap();
-        objectMap = rhs._auxiliary->getObjectMap();
+        auto& userObjects = getOrCreateAuxiliary()->userObjects;
+        userObjects = rhs._auxiliary->userObjects;
     }
 }
 
@@ -58,8 +58,8 @@ Object& Object::operator=(const Object& rhs)
     if (rhs._auxiliary && rhs._auxiliary->getConnectedObject() == &rhs)
     {
         // the rhs's rhs._auxiliary is uniquely attached to it, so we need to create our own and copy it's ObjectMap across
-        Auxiliary::ObjectMap& objectMap = getOrCreateUniqueAuxiliary()->getObjectMap();
-        objectMap = rhs._auxiliary->getObjectMap();
+        auto& userObjects = getOrCreateAuxiliary()->userObjects;
+        userObjects = rhs._auxiliary->userObjects;
     }
 
     return *this;
@@ -110,40 +110,77 @@ void Object::accept(RecordTraversal& visitor) const
 
 void Object::read(Input& input)
 {
-    auto numObjects = input.readValue<uint32_t>("NumUserObjects");
-    if (numObjects > 0)
+    if (input.version_greater_equal(0, 4, 0))
     {
-        Auxiliary::ObjectMap& objectMap = getOrCreateUniqueAuxiliary()->getObjectMap();
-        for (; numObjects > 0; --numObjects)
+        auto numObjects = input.readValue<uint32_t>("userObjects");
+        if (numObjects > 0)
         {
-            std::string key = input.readValue<std::string>("Key");
-            input.readObject("Object", objectMap[key]);
+            auto& objectMap = getOrCreateAuxiliary()->userObjects;
+            for (; numObjects > 0; --numObjects)
+            {
+                std::string key = input.readValue<std::string>("key");
+                input.readObject("object", objectMap[key]);
+            }
+        }
+    }
+    else
+    {
+        auto numObjects = input.readValue<uint32_t>("NumUserObjects");
+        if (numObjects > 0)
+        {
+            auto& objectMap = getOrCreateAuxiliary()->userObjects;
+            for (; numObjects > 0; --numObjects)
+            {
+                std::string key = input.readValue<std::string>("Key");
+                input.readObject("Object", objectMap[key]);
+            }
         }
     }
 }
 
 void Object::write(Output& output) const
 {
-    if (_auxiliary && _auxiliary->getConnectedObject() == this)
+    if (output.version_greater_equal(0, 4, 0))
     {
-        // we have a unique auxiliary, need to write out it's ObjectMap entries
-        const Auxiliary::ObjectMap& objectMap = _auxiliary->getObjectMap();
-        output.writeValue<uint32_t>("NumUserObjects", objectMap.size());
-        for (auto& entry : objectMap)
+        if (_auxiliary && _auxiliary->getConnectedObject() == this)
         {
-            output.write("Key", entry.first);
-            output.writeObject("Object", entry.second.get());
+            // we have a unique auxiliary, need to write out it's ObjectMap entries
+            auto& userObjects = _auxiliary->userObjects;
+            output.writeValue<uint32_t>("userObjects", userObjects.size());
+            for (auto& entry : userObjects)
+            {
+                output.write("key", entry.first);
+                output.writeObject("object", entry.second.get());
+            }
+        }
+        else
+        {
+            output.writeValue<uint32_t>("userObjects", 0);
         }
     }
     else
     {
-        output.writeValue<uint32_t>("NumUserObjects", 0);
+        if (_auxiliary && _auxiliary->getConnectedObject() == this)
+        {
+            // we have a unique auxiliary, need to write out it's ObjectMap entries
+            auto& objectMap = _auxiliary->userObjects;
+            output.writeValue<uint32_t>("NumUserObjects", objectMap.size());
+            for (auto& entry : objectMap)
+            {
+                output.write("Key", entry.first);
+                output.writeObject("Object", entry.second.get());
+            }
+        }
+        else
+        {
+            output.writeValue<uint32_t>("NumUserObjects", 0);
+        }
     }
 }
 
 void Object::setObject(const std::string& key, Object* object)
 {
-    getOrCreateUniqueAuxiliary()->setObject(key, object);
+    getOrCreateAuxiliary()->setObject(key, object);
 }
 
 Object* Object::getObject(const std::string& key)
@@ -162,7 +199,7 @@ void Object::removeObject(const std::string& key)
 {
     if (_auxiliary)
     {
-        _auxiliary->getObjectMap().erase(key);
+        _auxiliary->userObjects.erase(key);
     }
 }
 
@@ -182,9 +219,9 @@ void Object::setAuxiliary(Auxiliary* auxiliary)
     }
 }
 
-Auxiliary* Object::getOrCreateUniqueAuxiliary()
+Auxiliary* Object::getOrCreateAuxiliary()
 {
-    DEBUG_NOTIFY << "Object::getOrCreateUniqueAuxiliary() _auxiliary=" << _auxiliary << std::endl;
+    DEBUG_NOTIFY << "Object::getOrCreateAuxiliary() _auxiliary=" << _auxiliary << std::endl;
     if (!_auxiliary)
     {
         _auxiliary = new Auxiliary(this);

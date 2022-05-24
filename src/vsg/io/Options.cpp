@@ -22,7 +22,7 @@ using namespace vsg;
 
 Options::Options()
 {
-    getOrCreateUniqueAuxiliary();
+    getOrCreateAuxiliary();
 
     formatCoordinateConventions[".gltf"] = CoordinateConvention::Y_UP;
     formatCoordinateConventions[".glb"] = CoordinateConvention::Y_UP;
@@ -46,9 +46,9 @@ Options::Options(const Options& options) :
     formatCoordinateConventions(options.formatCoordinateConventions),
     shaderSets(options.shaderSets)
 {
-    getOrCreateUniqueAuxiliary();
+    getOrCreateAuxiliary();
     // copy any meta data.
-    if (options.getAuxiliary()) getAuxiliary()->getObjectMap() = options.getAuxiliary()->getObjectMap();
+    if (options.getAuxiliary()) getAuxiliary()->userObjects = options.getAuxiliary()->userObjects;
 }
 
 Options::~Options()

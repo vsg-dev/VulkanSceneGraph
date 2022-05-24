@@ -61,27 +61,47 @@ int DescriptorImage::compare(const Object& rhs_object) const
 
 void DescriptorImage::read(Input& input)
 {
-    // TODO need to release on imageInfoList.
+    imageInfoList.clear();
 
     Descriptor::read(input);
 
-    // TODO old version
-
-    imageInfoList.resize(input.readValue<uint32_t>("NumImages"));
-    for (auto& imageInfo : imageInfoList)
+    if (input.version_greater_equal(0, 4, 0))
     {
-        imageInfo = ImageInfo::create();
+        imageInfoList.resize(input.readValue<uint32_t>("images"));
+        for (auto& imageInfo : imageInfoList)
+        {
+            imageInfo = ImageInfo::create();
 
-        ref_ptr<Data> data;
-        input.readObject("Sampler", imageInfo->sampler);
-        input.readObject("Image", data);
+            ref_ptr<Data> data;
+            input.readObject("sampler", imageInfo->sampler);
+            input.readObject("image", data);
 
-        auto image = Image::create(data);
-        if (imageInfo->sampler) image->usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
-        image->usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+            auto image = Image::create(data);
+            if (imageInfo->sampler) image->usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
+            image->usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
-        imageInfo->imageView = ImageView::create(image);
-        imageInfo->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            imageInfo->imageView = ImageView::create(image);
+            imageInfo->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        }
+    }
+    else
+    {
+        imageInfoList.resize(input.readValue<uint32_t>("NumImages"));
+        for (auto& imageInfo : imageInfoList)
+        {
+            imageInfo = ImageInfo::create();
+
+            ref_ptr<Data> data;
+            input.readObject("Sampler", imageInfo->sampler);
+            input.readObject("Image", data);
+
+            auto image = Image::create(data);
+            if (imageInfo->sampler) image->usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
+            image->usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+
+            imageInfo->imageView = ImageView::create(image);
+            imageInfo->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        }
     }
 }
 
@@ -89,17 +109,31 @@ void DescriptorImage::write(Output& output) const
 {
     Descriptor::write(output);
 
-    // TODO old version
-
-    output.writeValue<uint32_t>("NumImages", imageInfoList.size());
-    for (auto& imageInfo : imageInfoList)
+    if (output.version_greater_equal(0, 4, 0))
     {
-        output.writeObject("Sampler", imageInfo->sampler.get());
+        output.writeValue<uint32_t>("images", imageInfoList.size());
+        for (auto& imageInfo : imageInfoList)
+        {
+            output.writeObject("sampler", imageInfo->sampler.get());
 
-        ref_ptr<Data> data;
-        if (imageInfo->imageView && imageInfo->imageView->image) data = imageInfo->imageView->image->data;
+            ref_ptr<Data> data;
+            if (imageInfo->imageView && imageInfo->imageView->image) data = imageInfo->imageView->image->data;
 
-        output.writeObject("Image", data.get());
+            output.writeObject("image", data.get());
+        }
+    }
+    else
+    {
+        output.writeValue<uint32_t>("NumImages", imageInfoList.size());
+        for (auto& imageInfo : imageInfoList)
+        {
+            output.writeObject("Sampler", imageInfo->sampler.get());
+
+            ref_ptr<Data> data;
+            if (imageInfo->imageView && imageInfo->imageView->image) data = imageInfo->imageView->image->data;
+
+            output.writeObject("Image", data.get());
+        }
     }
 }
 

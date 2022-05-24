@@ -100,17 +100,20 @@ namespace vsg
             }
         }
 
-        /// set of lower case file extensions for file types that should not be included in this ShaderObjects
+        /// set of lower case file extensions for file types that should not be included in this SharedObjects
         std::set<Path> excludedExtensions;
 
-        /// return true if the specified filename is of a type suitable for inclusion in this ShaderObjects
+        /// return true if the filename is of a type suitable for inclusion this SharedObjects
         virtual bool suitable(const Path& filename) const;
 
-        /// check if a cache entry contains an entry for specified filename.
-        virtual bool contains(const Path& filename, ref_ptr<const Options> options = {});
+        /// check for an entry associated with filename.
+        virtual bool contains(const Path& filename, ref_ptr<const Options> options = {}) const;
 
-        /// add entry from ObjectCache that matches filename and option.
+        /// add entry that matches filename and option.
         virtual void add(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options = {});
+
+        /// remove entry associated with filename.
+        virtual bool remove(const Path& filename, ref_ptr<const Options> options = {});
 
         /// clear all the internal structures leaving no Objects cached.
         void clear();
@@ -124,7 +127,7 @@ namespace vsg
     protected:
         virtual ~SharedObjects();
 
-        std::recursive_mutex _mutex;
+        mutable std::recursive_mutex _mutex;
         std::map<std::type_index, ref_ptr<Object>> _defaults;
         std::map<std::type_index, std::set<ref_ptr<Object>, DerefenceLess>> _sharedObjects;
     };
