@@ -137,6 +137,10 @@ DescriptorSet::Implementation::Implementation(DescriptorPool* descriptorPool, De
     descriptSetAllocateInfo.descriptorSetCount = 1;
     descriptSetAllocateInfo.pSetLayouts = &vkdescriptorSetLayout;
 
+    // no need to locally lock DescriptorPool as the DescriptorSet::Implementation constructor should only be called by
+    // DescriptorPool::allocateDescriptorSet that will already have locked the DescriptorPool::mutex before calling this consrtuctor.
+    // otherwise we'd need a : std::scoped_lock<std::mutex> lock(_descriptorPool->mutex);
+
     if (VkResult result = vkAllocateDescriptorSets(*device, &descriptSetAllocateInfo, &_descriptorSet); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create DescriptorSet.", result};
@@ -147,6 +151,7 @@ DescriptorSet::Implementation::~Implementation()
 {
     if (_descriptorPool && _descriptorSet)
     {
+        std::scoped_lock<std::mutex> lock(_descriptorPool->mutex);
         vkFreeDescriptorSets(*(_descriptorPool->getDevice()), *_descriptorPool, 1, &_descriptorSet);
     }
 }
