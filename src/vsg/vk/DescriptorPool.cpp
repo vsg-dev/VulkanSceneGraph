@@ -49,6 +49,8 @@ DescriptorPool::~DescriptorPool()
 
 ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
 {
+    std::scoped_lock<std::mutex> lock(mutex);
+
     if (_availableDescriptorSet == 0)
     {
         return {};
@@ -105,6 +107,8 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
 
 void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> dsi)
 {
+    std::scoped_lock<std::mutex> lock(mutex);
+
     _reclingList.push_back(dsi);
     ++_availableDescriptorSet;
 
@@ -113,6 +117,8 @@ void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> ds
 
 bool DescriptorPool::getAvailablity(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes) const
 {
+    std::scoped_lock<std::mutex> lock(mutex);
+
     if (_availableDescriptorSet == 0) return false;
 
     maxSets += _availableDescriptorSet;
