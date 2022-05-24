@@ -31,7 +31,7 @@ namespace vsg
         /// allocate or reuse availalbe DescriptorSet::Implementation - called automatically when compiling DescriptorSet
         ref_ptr<DescriptorSet::Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
 
-        /// free DescriptorSet::Implementatioe for reuse - called automatically be destruction of DescriptorSet or release of it's Vulkan resources.
+        /// free DescriptorSet::Implementation for reuse - called automatically be destruction of DescriptorSet or release of it's Vulkan resources.
         void freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> dsi);
 
         /// get the stats of the availble DescriptorSets/Descritors
