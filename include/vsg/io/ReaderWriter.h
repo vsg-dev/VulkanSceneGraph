@@ -26,6 +26,7 @@ namespace vsg
 
         std::string message;
     };
+    VSG_type_name(vsg::ReadError);
 
     struct WriteError : public Inherit<Object, WriteError>
     {
@@ -34,6 +35,7 @@ namespace vsg
 
         std::string message;
     };
+    VSG_type_name(vsg::WriteError);
 
     class VSG_DECLSPEC ReaderWriter : public Inherit<Object, ReaderWriter>
     {
