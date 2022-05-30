@@ -40,6 +40,7 @@ using namespace vsg;
 //
 ResourceRequirements::ResourceRequirements()
 {
+    binStack.push(ResourceRequirements::BinDetails{});
 }
 
 uint32_t ResourceRequirements::computeNumDescriptorSets() const
@@ -178,7 +179,6 @@ void CollectResourceRequirements::apply(const Descriptor& descriptor)
 
 void CollectResourceRequirements::apply(const View& view)
 {
-
     if (auto itr = requirements.views.find(&view); itr != requirements.views.end())
     {
         requirements.binStack.push(itr->second);
@@ -212,6 +212,8 @@ void CollectResourceRequirements::apply(const View& view)
 
 void CollectResourceRequirements::apply(const DepthSorted& depthSorted)
 {
+    // std::cout<<"CollectResourceRequirements::apply(depthSorted.binNumber = "<<depthSorted.binNumber<<")"<<std::endl;
+
     requirements.binStack.top().indices.insert(depthSorted.binNumber);
 
     depthSorted.traverse(*this);

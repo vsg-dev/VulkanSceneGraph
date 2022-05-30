@@ -89,6 +89,8 @@ void CompileTraversal::add(ref_ptr<Window> window, ref_ptr<ViewportState> viewpo
 
 void CompileTraversal::add(ref_ptr<Window> window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
+    std::cout<<"CompileTraversal::add(window ="<<window<<", view = "<<view<<")"<<std::endl;
+
     auto device = window->getOrCreateDevice();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
     auto context = Context::create(device, resourceRequirements);
@@ -101,6 +103,7 @@ void CompileTraversal::add(ref_ptr<Window> window, ref_ptr<View> view, const Res
     auto viewportState = view->camera->viewportState;
     if (viewportState) context->defaultPipelineStates.emplace_back(viewportState);
 
+    context->view = view.get();
     context->viewID = view->viewID;
     context->viewDependentState = view->viewDependentState;
 
