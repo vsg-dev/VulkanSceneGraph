@@ -57,8 +57,10 @@ namespace vsg
                 _cv.notify_all();
         }
 
+        /// take the head from the list of Operations, return null pointer if none are available
         ref_ptr<Operation> take();
 
+        /// take the head from the list of Operations, if none is available then wait till one is added by another thread then return the added Operation.
         ref_ptr<Operation> take_when_available();
 
     protected:
