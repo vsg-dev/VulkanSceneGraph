@@ -54,7 +54,7 @@ CompileTraversal::CompileTraversal(ref_ptr<Window> window, ref_ptr<ViewportState
     add(window, viewport, resourceRequirements);
 }
 
-CompileTraversal::CompileTraversal(ref_ptr<Viewer> viewer, const ResourceRequirements& resourceRequirements)
+CompileTraversal::CompileTraversal(Viewer& viewer, const ResourceRequirements& resourceRequirements)
 {
     add(viewer, resourceRequirements);
 }
@@ -110,7 +110,7 @@ void CompileTraversal::add(ref_ptr<Window> window, ref_ptr<View> view, const Res
     contexts.push_back(context);
 }
 
-void CompileTraversal::add(ref_ptr<Viewer> viewer, const ResourceRequirements& resourceRequirements)
+void CompileTraversal::add(Viewer& viewer, const ResourceRequirements& resourceRequirements)
 {
     struct AddViews : public Visitor
     {
@@ -144,7 +144,7 @@ void CompileTraversal::add(ref_ptr<Viewer> viewer, const ResourceRequirements& r
         }
     } addViews(this, resourceRequirements);
 
-    for (auto& task : viewer->recordAndSubmitTasks)
+    for (auto& task : viewer.recordAndSubmitTasks)
     {
         for (auto& cg : task->commandGraphs)
         {
