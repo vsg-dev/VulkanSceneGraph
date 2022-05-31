@@ -1,3 +1,5 @@
+include(CheckCXXSourceCompiles)
+
 # collect all the headers in the source directory
 file(GLOB HEADERS ${CMAKE_SOURCE_DIR}/include/vsg/*.h ${CMAKE_SOURCE_DIR}/include/vsg/*/*.h)
 
