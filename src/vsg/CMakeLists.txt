@@ -1,3 +1,5 @@
+include(CheckCXXSourceCompiles)
+
 # collect all the headers in the source directory
 file(GLOB HEADERS ${CMAKE_SOURCE_DIR}/include/vsg/*.h ${CMAKE_SOURCE_DIR}/include/vsg/*/*.h)
 
@@ -217,6 +219,20 @@ set(LIBRARIES PUBLIC
         Vulkan::Vulkan
         Threads::Threads
 )
+
+# Check for std::atomic
+if(NOT MSVC AND NOT ANDROID AND NOT APPLE)
+  set(HAVE_CXX_ATOMIC_WITHOUT_LIB FALSE)
+  check_cxx_source_compiles("
+    #include <atomic>
+    std::atomic a;
+    int main() { return a; }"
+  HAVE_CXX_ATOMIC_WITHOUT_LIB)
+  if(NOT HAVE_CXX_ATOMIC_WITHOUT_LIB)
+    find_library(CXX_ATOMIC_LIBRARIES NAMES atomic atomic.so.1 libatomic.so.1 REQUIRED)
+    list(APPEND LIBRARIES ${CXX_ATOMIC_LIBRARIES})
+  endif()
+endif()
 
 if (glslang_FOUND)
     set(LIBRARIES ${LIBRARIES} PUBLIC ${glslang_LIBRARIES})
