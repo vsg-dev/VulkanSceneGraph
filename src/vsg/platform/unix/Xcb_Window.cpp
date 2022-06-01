@@ -754,8 +754,8 @@ bool Xcb_Window::pollEvents(UIEvents& events)
         }
         case (XCB_GE_GENERIC):
         {
-            // can't find meaninful documentation on what information is encoded in a xcb_ge_generic_event_t
-            // so have can't yet map it to anything on the VSG side.
+            // can't find meaningful documentation on what information is encoded in a xcb_ge_generic_event_t
+            // so no way to map it to anything on the VSG side.
             //
             // auto generic_event = reinterpret_cast<const xcb_ge_generic_event_t*>(event);
             // std::cout<<"generic_event->event_type = "<<generic_event->event_type<<std::endl;
