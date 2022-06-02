@@ -122,7 +122,7 @@ namespace vsg
         }
 
     protected:
-        std::mutex _mutex;
+        mutable std::mutex _mutex;
         std::condition_variable _cv;
         container_type _queue;
         ref_ptr<ActivityStatus> _status;
