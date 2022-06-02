@@ -133,7 +133,6 @@ set(SOURCES
     traversals/LoadPagedLOD.cpp
 
     threading/Affinity.cpp
-    threading/OperationQueue.cpp
     threading/OperationThreads.cpp
 
     viewer/Camera.cpp

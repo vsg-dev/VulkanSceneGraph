@@ -20,20 +20,23 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    struct Operation : public Object
-    {
-        virtual void run() = 0;
-    };
-
-    class VSG_DECLSPEC OperationQueue : public Inherit<Object, OperationQueue>
+    template<class T>
+    class ThreadSafeQueue : public Inherit<Object, ThreadSafeQueue<T>>
     {
     public:
-        explicit OperationQueue(ref_ptr<ActivityStatus> status);
+
+        using value_type = T;
+        using container_type = std::list<value_type>;
+
+        explicit ThreadSafeQueue(ref_ptr<ActivityStatus> status) :
+            _status(status)
+        {
+        }
 
         ActivityStatus* getStatus() { return _status; }
         const ActivityStatus* getStatus() const { return _status; }
 
-        void add(ref_ptr<Operation> operation)
+        void add(value_type operation)
         {
             std::scoped_lock lock(_mutex);
             _queue.emplace_back(operation);
@@ -57,18 +60,73 @@ namespace vsg
                 _cv.notify_all();
         }
 
-        /// take the head from the list of Operations, return null pointer if none are available
-        ref_ptr<Operation> take();
+        /// take all available objects from the queue
+        container_type take_all()
+        {
+            std::unique_lock lock(_mutex);
 
-        /// take the head from the list of Operations, if none is available then wait till one is added by another thread then return the added Operation.
-        ref_ptr<Operation> take_when_available();
+            container_type objects;
+            objects.swap(_queue);
+
+            return objects;
+        }
+
+        /// take the head from the queue of objects, return null pointer if none are available
+        value_type take()
+        {
+            std::unique_lock lock(_mutex);
+
+            if (_queue.empty()) return {};
+
+            auto operation = _queue.front();
+
+            _queue.erase(_queue.begin());
+
+            return operation;
+        }
+
+        /// take the head of the queue, waiting till one is made available if initially empty
+        value_type take_when_available()
+        {
+            std::chrono::duration waitDuration = std::chrono::milliseconds(100);
+
+            std::unique_lock lock(_mutex);
+
+            // wait to the conditional variable signals that an operation has been added
+            while (_queue.empty() && _status->active())
+            {
+                //std::cout<<"Waiting on condition variable"<<std::endl;
+                _cv.wait_for(lock, waitDuration);
+            }
+
+            // if the threads we are associated with should no longer running go for a quick exit and return nothing.
+            if (_status->cancel())
+            {
+                return {};
+            }
+
+            // remove and return the head of the queue
+            auto operation = _queue.front();
+            _queue.erase(_queue.begin());
+            return operation;
+        }
 
     protected:
         std::mutex _mutex;
         std::condition_variable _cv;
-        std::list<ref_ptr<Operation>> _queue;
+        container_type _queue;
         ref_ptr<ActivityStatus> _status;
     };
+
+    struct Operation : public Object
+    {
+        virtual void run() = 0;
+    };
+
+    using OperationQueue = ThreadSafeQueue<ref_ptr<Operation>>;
     VSG_type_name(vsg::OperationQueue)
+
+
+
 
 } // namespace vsg
