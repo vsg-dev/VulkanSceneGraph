@@ -20,6 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Template thread safe queue
     template<class T>
     class ThreadSafeQueue : public Inherit<Object, ThreadSafeQueue<T>>
     {
@@ -36,6 +37,7 @@ namespace vsg
         ActivityStatus* getStatus() { return _status; }
         const ActivityStatus* getStatus() const { return _status; }
 
+        /// add a single object to the back of the queue
         void add(value_type operation)
         {
             std::scoped_lock lock(_mutex);
@@ -43,6 +45,7 @@ namespace vsg
             _cv.notify_one();
         }
 
+        /// add multiple obects to the back of the queue
         template<typename Iterator>
         void add(Iterator begin, Iterator end)
         {
@@ -58,6 +61,13 @@ namespace vsg
                 _cv.notify_one();
             else if (numAdditions > 1)
                 _cv.notify_all();
+        }
+
+        /// return true if the queue is empty.
+        bool empty() const
+        {
+            std::unique_lock lock(_mutex);
+            return _queue.empty();
         }
 
         /// take all available objects from the queue
