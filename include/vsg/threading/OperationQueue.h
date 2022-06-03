@@ -132,11 +132,9 @@ namespace vsg
     {
         virtual void run() = 0;
     };
+    VSG_type_name(vsg::Operation)
 
     using OperationQueue = ThreadSafeQueue<ref_ptr<Operation>>;
     VSG_type_name(vsg::OperationQueue)
-
-
-
 
 } // namespace vsg
