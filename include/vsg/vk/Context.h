@@ -74,7 +74,6 @@ namespace vsg
         const uint32_t deviceID = 0;
         ref_ptr<Device> device;
 
-        // TODO : do these need to be in copy constructor?
         observer_ptr<View> view;
         uint32_t viewID = 0;
         ViewDependentState* viewDependentState = nullptr;
