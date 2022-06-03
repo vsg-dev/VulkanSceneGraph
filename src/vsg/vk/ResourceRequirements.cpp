@@ -212,8 +212,6 @@ void CollectResourceRequirements::apply(const View& view)
 
 void CollectResourceRequirements::apply(const DepthSorted& depthSorted)
 {
-    // std::cout<<"CollectResourceRequirements::apply(depthSorted.binNumber = "<<depthSorted.binNumber<<")"<<std::endl;
-
     requirements.binStack.top().indices.insert(depthSorted.binNumber);
 
     depthSorted.traverse(*this);

@@ -28,6 +28,9 @@ namespace vsg
     public:
         ResourceRequirements();
 
+        ResourceRequirements(const ResourceRequirements& rhs) = default;
+        ResourceRequirements& operator = (const ResourceRequirements& rhs) = default;
+
         uint32_t computeNumDescriptorSets() const;
         DescriptorPoolSizes computeDescriptorPoolSizes() const;
 
@@ -54,8 +57,7 @@ namespace vsg
         bool containsPagedLOD = false;
 
         VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
-        VkDeviceSize minimumBufferDeviceMemorySize = 16 * 1024 * 1024;
-        VkDeviceSize minimumImageDeviceMemorySize = 16 * 1024 * 1024;
+        VkDeviceSize minimumDeviceMemorySize = 16 * 1024 * 1024;
     };
     VSG_type_name(vsg::ResourceRequirements);
 

@@ -22,9 +22,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     template<typename F>
-    void submitCommandsToQueue(Device* device, CommandPool* commandPool, Fence* fence, uint64_t timeout, Queue* queue, F function)
+    void submitCommandsToQueue(CommandPool* commandPool, Fence* fence, uint64_t timeout, Queue* queue, F function)
     {
-        vsg::ref_ptr<vsg::CommandBuffer> commandBuffer = vsg::CommandBuffer::create(device, commandPool);
+        auto commandBuffer = commandPool->allocate();
 
         VkCommandBufferBeginInfo beginInfo = {};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -55,9 +55,9 @@ namespace vsg
     }
 
     template<typename F>
-    void submitCommandsToQueue(Device* device, CommandPool* commandPool, Queue* queue, F function)
+    void submitCommandsToQueue(CommandPool* commandPool, Queue* queue, F function)
     {
-        submitCommandsToQueue(device, commandPool, nullptr, 0, queue, function);
+        submitCommandsToQueue(commandPool, nullptr, 0, queue, function);
     }
 
 } // namespace vsg

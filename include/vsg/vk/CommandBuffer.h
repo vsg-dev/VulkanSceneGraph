@@ -13,8 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/ScratchMemory.h>
-#include <vsg/state/ComputePipeline.h>
-#include <vsg/state/GraphicsPipeline.h>
+#include <vsg/state/PipelineLayout.h>
 #include <vsg/vk/CommandPool.h>
 
 namespace vsg
@@ -27,10 +26,8 @@ namespace vsg
     class VSG_DECLSPEC CommandBuffer : public Inherit<Object, CommandBuffer>
     {
     public:
-        CommandBuffer(Device* device, CommandPool* commandPool, VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
         const VkCommandBuffer* data() const { return &_commandBuffer; }
-
         operator VkCommandBuffer() const { return _commandBuffer; }
 
         std::atomic_uint& numDependentSubmissions() { return _numDependentSubmissions; }
@@ -64,6 +61,10 @@ namespace vsg
         ref_ptr<ScratchMemory> scratchMemory;
 
     protected:
+
+        friend CommandPool;
+        CommandBuffer(CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferLevel level);
+
         virtual ~CommandBuffer();
 
         VkCommandBuffer _commandBuffer;

@@ -41,7 +41,7 @@ CommandGraph::CommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child) :
     for (size_t i = 0; i < window->numFrames(); ++i)
     {
         ref_ptr<CommandPool> cp = CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_TRANSIENT_BIT);
-        _commandBuffers.emplace_back(CommandBuffer::create(device, cp, level));
+        _commandBuffers.emplace_back(cp->allocate(level));
     }
 
     if (child) addChild(child);
@@ -95,7 +95,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     if (!commandBuffer)
     {
         ref_ptr<CommandPool> cp = CommandPool::create(device, queueFamily);
-        commandBuffer = CommandBuffer::create(device, cp, level);
+        commandBuffer = cp->allocate(level);
         _commandBuffers.push_back(commandBuffer);
     }
     else

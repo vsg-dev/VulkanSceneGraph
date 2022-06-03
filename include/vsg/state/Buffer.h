@@ -40,10 +40,13 @@ namespace vsg
 
         VkResult bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset);
 
-        MemorySlots::OptionalOffset reserve(VkDeviceSize in_size, VkDeviceSize alignment) { return _memorySlots.reserve(in_size, alignment); }
-        void release(VkDeviceSize offset, VkDeviceSize in_size) { _memorySlots.release(offset, in_size); }
-        bool full() const { return _memorySlots.full(); }
-        const MemorySlots& memorySlots() const { return _memorySlots; }
+        MemorySlots::OptionalOffset reserve(VkDeviceSize in_size, VkDeviceSize alignment);
+        void release(VkDeviceSize offset, VkDeviceSize in_size);
+
+        bool full() const;
+        size_t maximumAvailableSpace() const;
+        size_t totalAvailableSize() const;
+        size_t totalReservedSize() const;
 
         VkMemoryRequirements getMemoryRequirements(uint32_t deviceID) const;
 
@@ -71,6 +74,7 @@ namespace vsg
 
         vk_buffer<VulkanData> _vulkanData;
 
+        mutable std::mutex _mutex;
         MemorySlots _memorySlots;
     };
     VSG_type_name(vsg::Buffer);
