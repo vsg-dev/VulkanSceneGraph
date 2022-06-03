@@ -29,7 +29,7 @@ namespace vsg
         ResourceRequirements();
 
         ResourceRequirements(const ResourceRequirements& rhs) = default;
-        ResourceRequirements& operator = (const ResourceRequirements& rhs) = default;
+        ResourceRequirements& operator=(const ResourceRequirements& rhs) = default;
 
         uint32_t computeNumDescriptorSets() const;
         DescriptorPoolSizes computeDescriptorPoolSizes() const;

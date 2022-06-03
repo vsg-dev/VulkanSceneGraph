@@ -161,7 +161,6 @@ size_t Buffer::totalReservedSize() const
     return _memorySlots.totalReservedSize();
 }
 
-
 ref_ptr<Buffer> vsg::createBufferAndMemory(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties)
 {
     auto buffer = vsg::Buffer::create(size, usage, sharingMode);

@@ -67,4 +67,3 @@ void CommandPool::free(CommandBuffer* commandBuffer)
         commandBuffer->_commandBuffer = 0;
     }
 }
-

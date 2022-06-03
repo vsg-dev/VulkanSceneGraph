@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/vk/MemoryBufferPools.h>
 
-#include <chrono>
 #include <algorithm>
+#include <chrono>
 #include <iostream>
 
 using namespace vsg;

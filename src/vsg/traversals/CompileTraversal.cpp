@@ -89,7 +89,7 @@ void CompileTraversal::add(ref_ptr<Window> window, ref_ptr<ViewportState> viewpo
 
 void CompileTraversal::add(ref_ptr<Window> window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
-    std::cout<<"CompileTraversal::add(window ="<<window<<", view = "<<view<<")"<<std::endl;
+    std::cout << "CompileTraversal::add(window =" << window << ", view = " << view << ")" << std::endl;
 
     auto device = window->getOrCreateDevice();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);

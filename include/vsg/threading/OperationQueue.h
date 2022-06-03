@@ -25,7 +25,6 @@ namespace vsg
     class ThreadSafeQueue : public Inherit<Object, ThreadSafeQueue<T>>
     {
     public:
-
         using value_type = T;
         using container_type = std::list<value_type>;
 

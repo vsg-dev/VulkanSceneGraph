@@ -26,7 +26,6 @@ namespace vsg
     class VSG_DECLSPEC CommandBuffer : public Inherit<Object, CommandBuffer>
     {
     public:
-
         const VkCommandBuffer* data() const { return &_commandBuffer; }
         operator VkCommandBuffer() const { return _commandBuffer; }
 
@@ -61,7 +60,6 @@ namespace vsg
         ref_ptr<ScratchMemory> scratchMemory;
 
     protected:
-
         friend CommandPool;
         CommandBuffer(CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferLevel level);
 
