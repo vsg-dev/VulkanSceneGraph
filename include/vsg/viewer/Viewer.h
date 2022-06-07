@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/threading/Barrier.h>
 #include <vsg/threading/FrameBlock.h>
 #include <vsg/traversals/CompileTraversal.h>
+#include <vsg/viewer/UpdateOperations.h>
 #include <vsg/viewer/Presentation.h>
 #include <vsg/viewer/RecordAndSubmitTask.h>
 #include <vsg/viewer/Window.h>
@@ -69,6 +70,15 @@ namespace vsg
 
         /// get the const list of EventHandlers
         const EventHandlers& getEventHandlers() const { return _eventHandlers; }
+
+        /// thread safe container for update operations
+        ref_ptr<UpdateOperations> updateOperations;
+
+        /// add an update operation
+        void addUpdateOperation(ref_ptr<Operation> op, UpdateOperations::RunBehavior runBehavior = UpdateOperations::ONE_TIME)
+        {
+            updateOperations->add(op, runBehavior);
+        }
 
         /// convenience method for advancing to the next frame.
         /// Check active status, return false if viewer no longer active.

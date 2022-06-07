@@ -28,6 +28,7 @@ using namespace vsg;
 #endif
 
 Viewer::Viewer() :
+    updateOperations(UpdateOperations::create()),
     status(vsg::ActivityStatus::create()),
     _start_point(clock::now())
 {
@@ -590,6 +591,8 @@ void Viewer::update()
             task->databasePager->updateSceneGraph(_frameStamp);
         }
     }
+
+    updateOperations->run();
 }
 
 void Viewer::recordAndSubmit()

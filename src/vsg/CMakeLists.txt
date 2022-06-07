@@ -135,6 +135,7 @@ set(SOURCES
     threading/Affinity.cpp
     threading/OperationThreads.cpp
 
+    viewer/UpdateOperations.cpp
     viewer/Camera.cpp
     viewer/EllipsoidModel.cpp
     viewer/Viewer.cpp
