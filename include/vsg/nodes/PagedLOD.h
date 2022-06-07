@@ -92,12 +92,11 @@ namespace vsg
             NoRequest = 0,
             ReadRequest = 1,
             Reading = 2,
-            CompileRequest = 3,
-            Compiling = 4,
-            MergeRequest = 5,
-            Merging = 6,
-            DeleteRequest = 7,
-            Deleting = 8
+            Compiling = 3,
+            MergeRequest = 4,
+            Merging = 5,
+            DeleteRequest = 6,
+            Deleting = 7
         };
 
         mutable std::atomic<RequestStatus> requestStatus{NoRequest};

@@ -208,6 +208,8 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         return;
     }
 
+    if (!compileManager)  compileManager = CompileManager::create(*this, hints);
+
     bool containsPagedLOD = false;
     ref_ptr<DatabasePager> databasePager;
 
@@ -313,8 +315,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
             // crude hack for taking first device as the one for the DatabasePager to compile resources for.
             for (auto& commandGraph : task->commandGraphs)
             {
-                auto& deviceResource = deviceResourceMap[commandGraph->device];
-                task->databasePager->compileTraversal = deviceResource.compile;
+                task->databasePager->compileManager = compileManager;
                 break;
             }
         }
@@ -341,7 +342,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         }
     }
 
-    compileManager = CompileManager::create(*this, hints);
 }
 
 void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGraphs)

@@ -17,7 +17,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-
 CompileManager::CompileManager(Viewer& viewer, ref_ptr<ResourceHints> hints)
 {
     compileTraversals = CompileTraversals::create(viewer.status);
@@ -26,13 +25,14 @@ CompileManager::CompileManager(Viewer& viewer, ref_ptr<ResourceHints> hints)
 
     auto ct = CompileTraversal::create(viewer, requirements);
     compileTraversals->add(ct);
+#if 0
     compileTraversals->add(CompileTraversal::create(*ct));
     compileTraversals->add(CompileTraversal::create(*ct));
     compileTraversals->add(CompileTraversal::create(*ct));
-
-    db_compileTraversal = CompileTraversal::create(*ct);
-
     numCompileTraversals = 4;
+#else
+    numCompileTraversals = 1;
+#endif
 }
 
 CompileManager::CompileTraversals::container_type CompileManager::takeCompileTraversals(size_t count)
@@ -94,8 +94,6 @@ void CompileManager::add(Viewer& viewer, const ResourceRequirements& resourceReq
 
 CompileResult CompileManager::compile(ref_ptr<Object> object)
 {
-    // std::cout<<"Need to compile "<<object<<std::endl;
-
     auto compileTraversal = compileTraversals->take_when_available();
 
     // if no CompileTraversals are avilable abort compile
@@ -135,6 +133,8 @@ CompileResult CompileManager::compile(ref_ptr<Object> object)
     compileTraversals->add(compileTraversal);
 
     result.result = VK_SUCCESS;
+
+    // return {};
 
     return result;
 }

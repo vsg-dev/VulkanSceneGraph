@@ -50,8 +50,6 @@ namespace vsg
         /// compile object
         CompileResult compile(ref_ptr<Object> object);
 
-        ref_ptr<CompileTraversal> db_compileTraversal;
-
     protected:
 
         using CompileTraversals = ThreadSafeQueue<ref_ptr<CompileTraversal>>;
