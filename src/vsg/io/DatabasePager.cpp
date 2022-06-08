@@ -331,12 +331,12 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
                 if (compare_exchange(element.plod->requestStatus, PagedLOD::NoRequest, PagedLOD::DeleteRequest))
                 {
                     ref_ptr<PagedLOD> plod = element.plod;
-                    // std::cout<<"    trimming "<<plod<<" "<<plod->filename<<std::endl;
                     plod->children[0].node = nullptr;
                     plod->requestCount.exchange(0);
                     plod->requestStatus.exchange(PagedLOD::NoRequest);
                     plod->pending = {};
                     pagedLODContainer->remove(plod);
+                    // std::cout<<"    trimming "<<plod<<" "<<plod->filename<<std::endl;
                 }
             }
         }
