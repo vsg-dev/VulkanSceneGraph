@@ -203,11 +203,13 @@ void DatabasePager::start()
                     }
                     else
                     {
+                        // std::cout<<"Failed to compile "<<plod<<" "<<plod->filename<<std::endl;
                         databasePager.requestDiscarded(plod);
                     }
                 }
                 else
                 {
+                    // std::cout<<"Failed to read "<<plod<<" "<<plod->filename<<std::endl;
                     databasePager.requestDiscarded(plod);
                 }
             }
@@ -225,7 +227,6 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
 {
     ++numActiveRequests;
 
-    //std::cout<<"DatabasePager::request("<<plod.get()<<") "<<plod->filename<<", "<<plod->priority<<std::endl;
     bool hasPending = false;
     {
         std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
@@ -244,6 +245,10 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
             //std::cout<<"Attempted DatabasePager::request("<<plod.get()<<") but plod.requestState() = "<<plod->requestStatus.load()<<" is not NoRequest"<<std::endl;
         }
     }
+    else
+    {
+        //std::cout<<"Attempted DatabasePager::request("<<plod.get()<<") but plod.pending is not null."<<std::endl;
+    }
 }
 
 void DatabasePager::requestDiscarded(PagedLOD* plod)
@@ -252,6 +257,7 @@ void DatabasePager::requestDiscarded(PagedLOD* plod)
     //plod->pending = nullptr;
     plod->requestCount.exchange(0);
     plod->requestStatus.exchange(PagedLOD::NoRequest);
+    plod->pending = {};
     --numActiveRequests;
 }
 
@@ -324,9 +330,12 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
 
                 if (compare_exchange(element.plod->requestStatus, PagedLOD::NoRequest, PagedLOD::DeleteRequest))
                 {
-                    // std::cout<<"    trimming "<<plod<<std::endl;
                     ref_ptr<PagedLOD> plod = element.plod;
+                    // std::cout<<"    trimming "<<plod<<" "<<plod->filename<<std::endl;
                     plod->children[0].node = nullptr;
+                    plod->requestCount.exchange(0);
+                    plod->requestStatus.exchange(PagedLOD::NoRequest);
+                    plod->pending = {};
                     pagedLODContainer->remove(plod);
                 }
             }

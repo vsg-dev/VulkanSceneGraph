@@ -34,6 +34,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
+#include <vsg/io/stream.h>
 
 using namespace vsg;
 
@@ -219,7 +220,7 @@ void RecordTraversal::apply(const PagedLOD& plod)
                 }
                 else
                 {
-                    //std::cout<<"repeat request "<<&plod<<", "<<plod.requestCount.load()<<std::endl;;
+                    // std::cout<<"repeat request "<<&plod<<", "<<plod.filename<<", "<<plod.requestCount.load()<<", plod.requestStatus = "<<plod.requestStatus.load()<<std::endl;;
                 }
             }
         }
