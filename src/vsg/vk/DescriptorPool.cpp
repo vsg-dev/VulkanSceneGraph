@@ -107,10 +107,11 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
 
 void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> dsi)
 {
-    std::scoped_lock<std::mutex> lock(mutex);
-
-    _reclingList.push_back(dsi);
-    ++_availableDescriptorSet;
+    {
+        std::scoped_lock<std::mutex> lock(mutex);
+        _reclingList.push_back(dsi);
+        ++_availableDescriptorSet;
+    }
 
     dsi->_descriptorPool = {};
 }
