@@ -23,7 +23,7 @@ CompileManager::CompileManager(Viewer& viewer, ref_ptr<ResourceHints> hints)
 {
     compileTraversals = CompileTraversals::create(viewer.status);
 
-    ResourceRequirements requirements;
+    ResourceRequirements requirements(hints);
 
     auto ct = CompileTraversal::create(viewer, requirements);
     compileTraversals->add(ct);

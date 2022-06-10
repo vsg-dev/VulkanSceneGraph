@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Bin.h>
 #include <vsg/state/BufferInfo.h>
 #include <vsg/state/Descriptor.h>
+#include <vsg/state/ResourceHints.h>
 #include <vsg/vk/DescriptorPool.h>
 
 #include <map>
@@ -26,13 +27,16 @@ namespace vsg
     class VSG_DECLSPEC ResourceRequirements
     {
     public:
-        ResourceRequirements();
-
+        ResourceRequirements(ref_ptr<ResourceHints> hints = {});
         ResourceRequirements(const ResourceRequirements& rhs) = default;
+
         ResourceRequirements& operator=(const ResourceRequirements& rhs) = default;
+
+        void apply(const ResourceHints& resourceHints);
 
         uint32_t computeNumDescriptorSets() const;
         DescriptorPoolSizes computeDescriptorPoolSizes() const;
+
 
         struct BinDetails
         {
