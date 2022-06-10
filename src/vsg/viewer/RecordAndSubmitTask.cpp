@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/viewer/RecordAndSubmitTask.h>
+#include <vsg/viewer/View.h>
 #include <vsg/vk/State.h>
 
 #include <iostream>
