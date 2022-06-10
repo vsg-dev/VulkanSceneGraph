@@ -54,7 +54,7 @@ CompileTraversal::CompileTraversal(ref_ptr<Window> window, ref_ptr<ViewportState
     add(window, viewport, resourceRequirements);
 }
 
-CompileTraversal::CompileTraversal(ref_ptr<Viewer> viewer, const ResourceRequirements& resourceRequirements)
+CompileTraversal::CompileTraversal(Viewer& viewer, const ResourceRequirements& resourceRequirements)
 {
     add(viewer, resourceRequirements);
 }
@@ -89,6 +89,8 @@ void CompileTraversal::add(ref_ptr<Window> window, ref_ptr<ViewportState> viewpo
 
 void CompileTraversal::add(ref_ptr<Window> window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
+    std::cout << "CompileTraversal::add(window =" << window << ", view = " << view << ")" << std::endl;
+
     auto device = window->getOrCreateDevice();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
     auto context = Context::create(device, resourceRequirements);
@@ -101,13 +103,14 @@ void CompileTraversal::add(ref_ptr<Window> window, ref_ptr<View> view, const Res
     auto viewportState = view->camera->viewportState;
     if (viewportState) context->defaultPipelineStates.emplace_back(viewportState);
 
+    context->view = view.get();
     context->viewID = view->viewID;
     context->viewDependentState = view->viewDependentState;
 
     contexts.push_back(context);
 }
 
-void CompileTraversal::add(ref_ptr<Viewer> viewer, const ResourceRequirements& resourceRequirements)
+void CompileTraversal::add(Viewer& viewer, const ResourceRequirements& resourceRequirements)
 {
     struct AddViews : public Visitor
     {
@@ -141,7 +144,7 @@ void CompileTraversal::add(ref_ptr<Viewer> viewer, const ResourceRequirements& r
         }
     } addViews(this, resourceRequirements);
 
-    for (auto& task : viewer->recordAndSubmitTasks)
+    for (auto& task : viewer.recordAndSubmitTasks)
     {
         for (auto& cg : task->commandGraphs)
         {

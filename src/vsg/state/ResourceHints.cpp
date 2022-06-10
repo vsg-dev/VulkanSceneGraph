@@ -45,11 +45,16 @@ void ResourceHints::read(Input& input)
         input.read("count", count);
     }
 
-    if (input.version_greater_equal(0, 1, 11))
+    if (input.version_greater_equal(0, 4, 1))
     {
         input.readValue<uint64_t>("minimumBufferSize", minimumBufferSize);
-        input.readValue<uint64_t>("minimumBufferDeviceMemorySize", minimumBufferDeviceMemorySize);
-        input.readValue<uint64_t>("minimumImageDeviceMemorySize", minimumImageDeviceMemorySize);
+        input.readValue<uint64_t>("minimumDeviceMemorySize", minimumDeviceMemorySize);
+    }
+    else if (input.version_greater_equal(0, 1, 11))
+    {
+        input.readValue<uint64_t>("minimumBufferSize", minimumBufferSize);
+        input.readValue<uint64_t>("minimumBufferDeviceMemorySize", minimumDeviceMemorySize);
+        input.readValue<uint64_t>("minimumImageDeviceMemorySize", minimumDeviceMemorySize);
     }
 }
 
@@ -75,10 +80,15 @@ void ResourceHints::write(Output& output) const
         output.write("count", count);
     }
 
-    if (output.version_greater_equal(0, 1, 11))
+    if (output.version_greater_equal(0, 4, 1))
     {
         output.writeValue<uint64_t>("minimumBufferSize", minimumBufferSize);
-        output.writeValue<uint64_t>("minimumBufferDeviceMemorySize", minimumBufferDeviceMemorySize);
-        output.writeValue<uint64_t>("minimumImageDeviceMemorySize", minimumImageDeviceMemorySize);
+        output.writeValue<uint64_t>("minimumDeviceMemorySize", minimumDeviceMemorySize);
+    }
+    else if (output.version_greater_equal(0, 1, 11))
+    {
+        output.writeValue<uint64_t>("minimumBufferSize", minimumBufferSize);
+        output.writeValue<uint64_t>("minimumBufferDeviceMemorySize", minimumDeviceMemorySize);
+        output.writeValue<uint64_t>("minimumImageDeviceMemorySize", minimumDeviceMemorySize);
     }
 }

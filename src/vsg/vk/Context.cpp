@@ -105,6 +105,9 @@ Context::Context(const Context& context) :
     Inherit(context),
     deviceID(context.deviceID),
     device(context.device),
+    view(context.view),
+    viewID(context.viewID),
+    viewDependentState(context.viewDependentState),
     minimum_maxSets(context.minimum_maxSets),
     minimum_descriptorPoolSizes(context.minimum_descriptorPoolSizes),
     renderPass(context.renderPass),
@@ -129,7 +132,7 @@ ref_ptr<CommandBuffer> Context::getOrCreateCommandBuffer()
 {
     if (!commandBuffer)
     {
-        commandBuffer = vsg::CommandBuffer::create(device, commandPool);
+        commandBuffer = commandPool->allocate();
     }
 
     return commandBuffer;

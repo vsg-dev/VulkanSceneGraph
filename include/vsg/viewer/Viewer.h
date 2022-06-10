@@ -14,9 +14,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/threading/Barrier.h>
 #include <vsg/threading/FrameBlock.h>
-#include <vsg/traversals/CompileTraversal.h>
+#include <vsg/viewer/CompileManager.h>
 #include <vsg/viewer/Presentation.h>
 #include <vsg/viewer/RecordAndSubmitTask.h>
+#include <vsg/viewer/UpdateOperations.h>
 #include <vsg/viewer/Window.h>
 
 #include <map>
@@ -70,6 +71,18 @@ namespace vsg
         /// get the const list of EventHandlers
         const EventHandlers& getEventHandlers() const { return _eventHandlers; }
 
+        /// thread safe container for update operations
+        ref_ptr<UpdateOperations> updateOperations;
+
+        /// add an update operation
+        void addUpdateOperation(ref_ptr<Operation> op, UpdateOperations::RunBehavior runBehavior = UpdateOperations::ONE_TIME)
+        {
+            updateOperations->add(op, runBehavior);
+        }
+
+        /// compile manager provides thread safe support for compiling subgraph
+        ref_ptr<CompileManager> compileManager;
+
         /// convenience method for advancing to the next frame.
         /// Check active status, return false if viewer no longer active.
         /// lf still active poll for pending events and place them in the Events list and advance to the next frame, update generate FrameStamp to signify the advancement to a new frame and return true.
@@ -87,7 +100,6 @@ namespace vsg
         virtual VkResult waitForFences(size_t relativeFrameIndex, uint64_t timeout);
 
         // Manage the work to do each frame using RecordAndSubmitTasks. those that need to present results to be wired up to respective Presentation object
-        using RecordAndSubmitTasks = std::vector<ref_ptr<RecordAndSubmitTask>>;
         RecordAndSubmitTasks recordAndSubmitTasks;
 
         // Manage the presentation of rendering using Presentation objects
@@ -130,5 +142,8 @@ namespace vsg
         ref_ptr<Barrier> _submissionCompleted;
     };
     VSG_type_name(vsg::Viewer);
+
+    /// update Viewer data structures to match the needs of newly compile subgraph
+    extern VSG_DECLSPEC void updateViewer(Viewer& viewer, const CompileResult& compileResult);
 
 } // namespace vsg

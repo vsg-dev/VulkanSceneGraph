@@ -28,6 +28,7 @@ using namespace vsg;
 #endif
 
 Viewer::Viewer() :
+    updateOperations(UpdateOperations::create()),
     status(vsg::ActivityStatus::create()),
     _start_point(clock::now())
 {
@@ -207,6 +208,8 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         return;
     }
 
+    if (!compileManager) compileManager = CompileManager::create(*this, hints);
+
     bool containsPagedLOD = false;
     ref_ptr<DatabasePager> databasePager;
 
@@ -309,13 +312,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
         if (task->databasePager)
         {
-            // crude hack for taking first device as the one for the DatabasePager to compile resources for.
-            for (auto& commandGraph : task->commandGraphs)
-            {
-                auto& deviceResource = deviceResourceMap[commandGraph->device];
-                task->databasePager->compileTraversal = deviceResource.compile;
-                break;
-            }
+            task->databasePager->compileManager = compileManager;
         }
     }
 
@@ -590,6 +587,8 @@ void Viewer::update()
             task->databasePager->updateSceneGraph(_frameStamp);
         }
     }
+
+    updateOperations->run();
 }
 
 void Viewer::recordAndSubmit()
@@ -630,4 +629,9 @@ void Viewer::present()
     {
         presentation->present();
     }
+}
+
+void vsg::updateViewer(Viewer& viewer, const CompileResult& compileResult)
+{
+    updateTasks(viewer.recordAndSubmitTasks, viewer.compileManager, compileResult);
 }

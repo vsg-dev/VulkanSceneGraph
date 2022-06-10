@@ -144,7 +144,6 @@ DatabasePager::DatabasePager()
     culledPagedLODs = CulledPagedLODs::create();
 
     _requestQueue = DatabaseQueue::create(_status);
-    _compileQueue = DatabaseQueue::create(_status);
     _toMergeQueue = DatabaseQueue::create(_status);
 
     pagedLODContainer = PagedLODContainer::create(4000);
@@ -160,22 +159,16 @@ DatabasePager::~DatabasePager()
     {
         thread.join();
     }
-
-    for (auto& thread : _compileThreads)
-    {
-        thread.join();
-    }
 }
 
 void DatabasePager::start()
 {
     int numReadThreads = 4;
-    int numCompileThreads = 1;
 
     //
     // set up read thread(s)
     //
-    auto read = [](ref_ptr<DatabaseQueue> requestQueue, ref_ptr<DatabaseQueue> compileQueue, ref_ptr<ActivityStatus> status, DatabasePager& databasePager) {
+    auto read = [](ref_ptr<DatabaseQueue> requestQueue, ref_ptr<ActivityStatus> status, DatabasePager& databasePager) {
         //std::cout<<"Started DatabaseThread read thread"<<std::endl;
 
         while (status->active())
@@ -191,25 +184,32 @@ void DatabasePager::start()
                     continue;
                 }
 
-                //std::cout<<"    reading "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
-
                 auto subgraph = vsg::read_cast<vsg::Node>(plod->filename, plod->options);
 
-                // std::cout<<"    finished reading "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
-
-                if (subgraph && compare_exchange(plod->requestStatus, PagedLOD::Reading, PagedLOD::CompileRequest))
+                if (subgraph && compare_exchange(plod->requestStatus, PagedLOD::Reading, PagedLOD::Compiling))
                 {
                     {
-                        //std::cout<<"   assigned subgraph to plod"<<std::endl;
                         std::scoped_lock<std::mutex> lock(databasePager.pendingPagedLODMutex);
                         plod->pending = subgraph;
                     }
 
-                    // move to the merge queue;
-                    compileQueue->add_then_reset(plod);
+                    // compile plod
+                    if (auto result = databasePager.compileManager->compile(subgraph))
+                    {
+                        plod->requestStatus.exchange(PagedLOD::MergeRequest);
+
+                        // move to the merge queue;
+                        databasePager._toMergeQueue->add(plod);
+                    }
+                    else
+                    {
+                        // std::cout<<"Failed to compile "<<plod<<" "<<plod->filename<<std::endl;
+                        databasePager.requestDiscarded(plod);
+                    }
                 }
                 else
                 {
+                    // std::cout<<"Failed to read "<<plod<<" "<<plod->filename<<std::endl;
                     databasePager.requestDiscarded(plod);
                 }
             }
@@ -219,144 +219,7 @@ void DatabasePager::start()
 
     for (int i = 0; i < numReadThreads; ++i)
     {
-        _readThreads.emplace_back(read, std::ref(_requestQueue), std::ref(_compileQueue), std::ref(_status), std::ref(*this));
-    }
-
-    //
-    // set up compile thread(s)
-    //
-    auto compile = [](ref_ptr<DatabaseQueue> compileQueue, ref_ptr<DatabaseQueue> toMergeQueue, ref_ptr<CompileTraversal> db_ct, ref_ptr<ActivityStatus> status, DatabasePager& databasePager) {
-        //std::cout<<"Started DatabaseThread compile thread"<<std::endl;
-
-        std::list<ref_ptr<CompileTraversal>> compileTraversals;
-
-        int numCompileContexts = 4;
-
-        for (int i = 0; i < numCompileContexts; ++i)
-        {
-            compileTraversals.emplace_back(new CompileTraversal(*db_ct));
-        }
-
-        auto compile_itr = compileTraversals.begin();
-
-        while (status->active())
-        {
-            auto nodesToCompileOrDelete = compileQueue->take_all_when_available();
-
-            DatabaseQueue::Nodes nodesToCompile;
-            for (auto& plod : nodesToCompileOrDelete)
-            {
-                if (compare_exchange(plod->requestStatus, PagedLOD::DeleteRequest, PagedLOD::Deleting))
-                {
-                    ref_ptr<Node> subgraph;
-                    {
-                        std::scoped_lock<std::mutex> lock(databasePager.pendingPagedLODMutex);
-                        subgraph = plod->pending;
-                        plod->pending = nullptr;
-                    }
-
-                    //plod->requestStatus.exchange(PagedLOD::NoRequest);
-                    databasePager.requestDiscarded(plod);
-                }
-                else
-                {
-                    nodesToCompile.emplace_back(plod);
-                }
-            }
-
-            if (!nodesToCompile.empty())
-            {
-                CompileTraversal* ct = compile_itr->get();
-
-                ++compile_itr;
-                // advance the compile iterator to the next CompileTraversal in the list, wrap around if we get to the end
-                if (compile_itr == compileTraversals.end())
-                {
-                    // std::cout<<"Wrapping around"<<std::endl;
-                    compile_itr = compileTraversals.begin();
-                }
-                else
-                {
-                    // std::cout<<"Using next CompileTraversal"<<std::endl;
-                }
-
-                DatabaseQueue::Nodes nodesCompiled;
-                for (auto& plod : nodesToCompile)
-                {
-                    if (compare_exchange(plod->requestStatus, PagedLOD::CompileRequest, PagedLOD::Compiling))
-                    {
-                        uint64_t frameDelta = databasePager.frameCount - plod->frameHighResLastUsed.load();
-                        if (frameDelta <= 1)
-                        {
-                            // std::cout<<"    compiling "<<plod->filename<<", "<<plod->requestCount.load()<<std::endl;
-
-                            ref_ptr<Node> subgraph;
-                            {
-                                std::scoped_lock<std::mutex> lock(databasePager.pendingPagedLODMutex);
-                                subgraph = plod->pending;
-                            }
-
-                            // compiling subgraph
-                            if (subgraph)
-                            {
-                                vsg::CollectResourceRequirements collectRequirements;
-                                subgraph->accept(collectRequirements);
-
-                                for (auto& context : ct->contexts)
-                                {
-                                    context->reserve(collectRequirements.requirements);
-                                }
-
-                                subgraph->accept(*ct);
-                                nodesCompiled.emplace_back(plod);
-                            }
-                            else
-                            {
-                                // need to reset the PLOD so that it's no longer part of the DatabasePager's queues and is ready to be compile when next requested.
-                                std::cout << "Expire compile request " << plod->filename << std::endl;
-                                databasePager.requestDiscarded(plod);
-                            }
-                        }
-                        else
-                        {
-                            // need to reset the PLOD so that it's no longer part of the DatabasePager's queues and is ready to be compile when next requested.
-                            databasePager.requestDiscarded(plod);
-                        }
-                    }
-                    else
-                    {
-                        std::cout << "PagedLOD::requestStatus not DeleteRequest or CompileRequest so ignoring status = " << plod->requestStatus.load() << std::endl;
-                    }
-                }
-
-                if (!nodesCompiled.empty())
-                {
-                    if (ct->record())
-                    {
-                        ct->waitForCompletion();
-
-                        for (auto& plod : nodesCompiled)
-                        {
-                            plod->requestStatus.exchange(PagedLOD::MergeRequest);
-                        }
-                        toMergeQueue->add(nodesCompiled);
-                    }
-                    else
-                    {
-                        for (auto& plod : nodesCompiled)
-                        {
-                            databasePager.requestDiscarded(plod);
-                        }
-                    }
-                }
-            }
-        }
-        //std::cout<<"Finished DatabaseThread compile thread"<<std::endl;
-    };
-
-    for (int i = 0; i < numCompileThreads; ++i)
-    {
-        _compileThreads.emplace_back(compile, std::ref(_compileQueue), std::ref(_toMergeQueue), std::ref(compileTraversal), std::ref(_status), std::ref(*this));
+        _readThreads.emplace_back(read, std::ref(_requestQueue), std::ref(_status), std::ref(*this));
     }
 }
 
@@ -364,26 +227,13 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
 {
     ++numActiveRequests;
 
-    //std::cout<<"DatabasePager::request("<<plod.get()<<") "<<plod->filename<<", "<<plod->priority<<std::endl;
     bool hasPending = false;
     {
         std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
         hasPending = plod->pending.valid();
     }
 
-    if (hasPending)
-    {
-        // std::cout<<"DatabasePager::request("<<plod.get()<<") has pending subgraphs to transfer to compile "<<plod->filename<<", "<<plod->priority<<" plod="<<plod.get()<<std::endl;
-        if (compare_exchange(plod->requestStatus, PagedLOD::NoRequest, PagedLOD::CompileRequest))
-        {
-            _compileQueue->add(plod);
-        }
-        else
-        {
-            //std::cout<<"Attempted DatabasePager::request("<<plod.get()<<") with pending comile but but plod.requestState() = "<<plod->requestStatus.load()<<" is not NoRequest"<<std::endl;
-        }
-    }
-    else
+    if (!hasPending)
     {
         if (compare_exchange(plod->requestStatus, PagedLOD::NoRequest, PagedLOD::ReadRequest))
         {
@@ -395,6 +245,10 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
             //std::cout<<"Attempted DatabasePager::request("<<plod.get()<<") but plod.requestState() = "<<plod->requestStatus.load()<<" is not NoRequest"<<std::endl;
         }
     }
+    else
+    {
+        //std::cout<<"Attempted DatabasePager::request("<<plod.get()<<") but plod.pending is not null."<<std::endl;
+    }
 }
 
 void DatabasePager::requestDiscarded(PagedLOD* plod)
@@ -403,6 +257,7 @@ void DatabasePager::requestDiscarded(PagedLOD* plod)
     //plod->pending = nullptr;
     plod->requestCount.exchange(0);
     plod->requestStatus.exchange(PagedLOD::NoRequest);
+    plod->pending = {};
     --numActiveRequests;
 }
 
@@ -475,11 +330,13 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
 
                 if (compare_exchange(element.plod->requestStatus, PagedLOD::NoRequest, PagedLOD::DeleteRequest))
                 {
-                    // std::cout<<"    trimming "<<plod<<std::endl;
                     ref_ptr<PagedLOD> plod = element.plod;
                     plod->children[0].node = nullptr;
+                    plod->requestCount.exchange(0);
+                    plod->requestStatus.exchange(PagedLOD::NoRequest);
+                    plod->pending = {};
                     pagedLODContainer->remove(plod);
-                    _compileQueue->add_then_reset(plod);
+                    // std::cout<<"    trimming "<<plod<<" "<<plod->filename<<std::endl;
                 }
             }
         }
@@ -487,7 +344,6 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
 
     if (!nodes.empty())
     {
-
 #define LOCAL_MUTEX 1
 
 #if !LOCAL_MUTEX

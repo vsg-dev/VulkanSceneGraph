@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Exception.h>
 #include <vsg/io/Options.h>
+#include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/CommandPool.h>
 
 using namespace vsg;
@@ -36,5 +37,33 @@ CommandPool::~CommandPool()
     if (_commandPool)
     {
         vkDestroyCommandPool(*_device, _commandPool, _device->getAllocationCallbacks());
+    }
+}
+
+ref_ptr<CommandBuffer> CommandPool::allocate(VkCommandBufferLevel level)
+{
+    VkCommandBufferAllocateInfo allocateInfo = {};
+    allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocateInfo.commandPool = _commandPool;
+    allocateInfo.level = level;
+    allocateInfo.commandBufferCount = 1;
+
+    std::scoped_lock<std::mutex> lock(_mutex);
+    VkCommandBuffer commandBuffer;
+    if (VkResult result = vkAllocateCommandBuffers(*_device, &allocateInfo, &commandBuffer); result != VK_SUCCESS)
+    {
+        throw Exception{"Error: Failed to create command buffers.", result};
+    }
+
+    return ref_ptr<CommandBuffer>(new CommandBuffer(this, commandBuffer, level));
+}
+
+void CommandPool::free(CommandBuffer* commandBuffer)
+{
+    if (commandBuffer && commandBuffer->_commandBuffer)
+    {
+        std::scoped_lock<std::mutex> lock(_mutex);
+        vkFreeCommandBuffers(*_device, _commandPool, 1, commandBuffer->data());
+        commandBuffer->_commandBuffer = 0;
     }
 }

@@ -39,11 +39,13 @@ namespace vsg
         const VkMemoryRequirements& getMemoryRequirements() const { return _memoryRequirements; }
         const VkMemoryPropertyFlags& getMemoryPropertyFlags() const { return _properties; }
 
-        MemorySlots::OptionalOffset reserve(VkDeviceSize size) { return _memorySlots.reserve(size, _memoryRequirements.alignment); }
-        void release(VkDeviceSize offset, VkDeviceSize size) { _memorySlots.release(offset, size); }
-        bool full() const { return _memorySlots.full(); }
-        VkDeviceSize maximumAvailableSpace() const { return _memorySlots.maximumAvailableSpace(); }
-        const MemorySlots& memorySlots() const { return _memorySlots; }
+        MemorySlots::OptionalOffset reserve(VkDeviceSize size);
+        void release(VkDeviceSize offset, VkDeviceSize size);
+
+        bool full() const;
+        VkDeviceSize maximumAvailableSpace() const;
+        size_t totalAvailableSize() const;
+        size_t totalReservedSize() const;
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
@@ -56,6 +58,7 @@ namespace vsg
         VkMemoryPropertyFlags _properties;
         ref_ptr<Device> _device;
 
+        mutable std::mutex _mutex;
         MemorySlots _memorySlots;
     };
     VSG_type_name(vsg::DeviceMemory);

@@ -34,6 +34,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     // forward declare
+    class View;
     class ViewDependentState;
 
     class VSG_DECLSPEC BuildAccelerationStructureCommand : public Inherit<Command, BuildAccelerationStructureCommand>
@@ -73,6 +74,7 @@ namespace vsg
         const uint32_t deviceID = 0;
         ref_ptr<Device> device;
 
+        observer_ptr<View> view;
         uint32_t viewID = 0;
         ViewDependentState* viewDependentState = nullptr;
 

@@ -172,6 +172,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/Camera.h>
 #include <vsg/viewer/CloseHandler.h>
 #include <vsg/viewer/CommandGraph.h>
+#include <vsg/viewer/CompileManager.h>
 #include <vsg/viewer/CopyImageViewToWindow.h>
 #include <vsg/viewer/EllipsoidModel.h>
 #include <vsg/viewer/ExecuteCommands.h>
@@ -180,6 +181,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/RecordAndSubmitTask.h>
 #include <vsg/viewer/RenderGraph.h>
 #include <vsg/viewer/Trackball.h>
+#include <vsg/viewer/UpdateOperations.h>
 #include <vsg/viewer/View.h>
 #include <vsg/viewer/ViewMatrix.h>
 #include <vsg/viewer/Viewer.h>

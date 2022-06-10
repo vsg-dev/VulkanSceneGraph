@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/threading/ActivityStatus.h>
 
-#include <vsg/traversals/CompileTraversal.h>
+#include <vsg/viewer/CompileManager.h>
 
 #include <condition_variable>
 #include <list>
@@ -104,7 +104,7 @@ namespace vsg
 
         ref_ptr<const Options> options;
 
-        ref_ptr<CompileTraversal> compileTraversal;
+        ref_ptr<CompileManager> compileManager;
 
         std::atomic_uint numActiveRequests{0};
         std::atomic_uint64_t frameCount;
@@ -126,11 +126,9 @@ namespace vsg
         ref_ptr<ActivityStatus> _status;
 
         ref_ptr<DatabaseQueue> _requestQueue;
-        ref_ptr<DatabaseQueue> _compileQueue;
         ref_ptr<DatabaseQueue> _toMergeQueue;
 
         std::list<std::thread> _readThreads;
-        std::list<std::thread> _compileThreads;
     };
     VSG_type_name(vsg::DatabasePager);
 

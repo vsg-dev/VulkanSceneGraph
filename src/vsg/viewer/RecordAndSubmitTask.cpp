@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/viewer/RecordAndSubmitTask.h>
+#include <vsg/viewer/View.h>
 #include <vsg/vk/State.h>
 
 #include <iostream>
@@ -166,4 +167,66 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
 #endif
 
     return queue->submit(submitInfo, current_fence);
+}
+
+void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compileManager, const CompileResult& compileResult)
+{
+    // assign database pager if required
+    for (auto& task : tasks)
+    {
+        for (auto& commandGraph : task->commandGraphs)
+        {
+            if (compileResult.maxSlot > commandGraph->maxSlot)
+            {
+                commandGraph->maxSlot = compileResult.maxSlot;
+            }
+        }
+    }
+
+    // assign database pager if required
+    if (compileResult.containsPagedLOD)
+    {
+        vsg::ref_ptr<vsg::DatabasePager> databasePager;
+        for (auto& task : tasks)
+        {
+            if (task->databasePager && !databasePager) databasePager = task->databasePager;
+        }
+
+        if (!databasePager)
+        {
+            databasePager = vsg::DatabasePager::create();
+            for (auto& task : tasks)
+            {
+                if (!task->databasePager)
+                {
+                    task->databasePager = databasePager;
+                    task->databasePager->compileManager = compileManager;
+                }
+            }
+
+            databasePager->start();
+        }
+    }
+
+    /// handle any need Bin needs
+    for (auto& [const_view, binDetails] : compileResult.views)
+    {
+        auto view = const_cast<vsg::View*>(const_view);
+        for (auto& binNumber : binDetails.indices)
+        {
+            bool binNumberMatched = false;
+            for (auto& bin : view->bins)
+            {
+                if (bin->binNumber == binNumber)
+                {
+                    binNumberMatched = true;
+                }
+            }
+            if (!binNumberMatched)
+            {
+                vsg::Bin::SortOrder sortOrder = (binNumber < 0) ? vsg::Bin::ASCENDING : ((binNumber == 0) ? vsg::Bin::NO_SORT : vsg::Bin::DESCENDING);
+                view->bins.push_back(vsg::Bin::create(binNumber, sortOrder));
+            }
+        }
+    }
 }

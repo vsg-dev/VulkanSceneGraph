@@ -133,10 +133,10 @@ set(SOURCES
     traversals/LoadPagedLOD.cpp
 
     threading/Affinity.cpp
-    threading/OperationQueue.cpp
     threading/OperationThreads.cpp
 
     viewer/Camera.cpp
+    viewer/CompileManager.cpp
     viewer/EllipsoidModel.cpp
     viewer/Viewer.cpp
     viewer/Window.cpp
@@ -152,6 +152,7 @@ set(SOURCES
     viewer/View.cpp
     viewer/ViewMatrix.cpp
     viewer/ProjectionMatrix.cpp
+    viewer/UpdateOperations.cpp
 
     raytracing/AccelerationGeometry.cpp
     raytracing/AccelerationStructure.cpp

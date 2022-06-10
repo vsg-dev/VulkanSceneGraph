@@ -125,6 +125,42 @@ bool Buffer::compile(Context& context)
     return compile(context.device);
 }
 
+MemorySlots::OptionalOffset Buffer::reserve(VkDeviceSize in_size, VkDeviceSize alignment)
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    return _memorySlots.reserve(in_size, alignment);
+}
+
+void Buffer::release(VkDeviceSize offset, VkDeviceSize in_size)
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    _memorySlots.release(offset, in_size);
+}
+
+bool Buffer::full() const
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    return _memorySlots.full();
+}
+
+size_t Buffer::maximumAvailableSpace() const
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    return _memorySlots.maximumAvailableSpace();
+}
+
+size_t Buffer::totalAvailableSize() const
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    return _memorySlots.totalAvailableSize();
+}
+
+size_t Buffer::totalReservedSize() const
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    return _memorySlots.totalReservedSize();
+}
+
 ref_ptr<Buffer> vsg::createBufferAndMemory(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties)
 {
     auto buffer = vsg::Buffer::create(size, usage, sharingMode);

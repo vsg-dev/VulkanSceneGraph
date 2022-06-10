@@ -108,3 +108,39 @@ void DeviceMemory::copy(VkDeviceSize offset, VkDeviceSize size, const void* src_
 
     unmap();
 }
+
+MemorySlots::OptionalOffset DeviceMemory::reserve(VkDeviceSize size)
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    return _memorySlots.reserve(size, _memoryRequirements.alignment);
+}
+
+void DeviceMemory::release(VkDeviceSize offset, VkDeviceSize size)
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    _memorySlots.release(offset, size);
+}
+
+bool DeviceMemory::full() const
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    return _memorySlots.full();
+}
+
+VkDeviceSize DeviceMemory::maximumAvailableSpace() const
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    return _memorySlots.maximumAvailableSpace();
+}
+
+size_t DeviceMemory::totalAvailableSize() const
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    return _memorySlots.totalAvailableSize();
+}
+
+size_t DeviceMemory::totalReservedSize() const
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    return _memorySlots.totalReservedSize();
+}

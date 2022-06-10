@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/Commands.h>
 #include <vsg/io/DatabasePager.h>
 #include <vsg/io/Options.h>
+#include <vsg/io/stream.h>
 #include <vsg/maths/plane.h>
 #include <vsg/nodes/Bin.h>
 #include <vsg/nodes/CullGroup.h>
@@ -219,7 +220,7 @@ void RecordTraversal::apply(const PagedLOD& plod)
                 }
                 else
                 {
-                    //std::cout<<"repeat request "<<&plod<<", "<<plod.requestCount.load()<<std::endl;;
+                    // std::cout<<"repeat request "<<&plod<<", "<<plod.filename<<", "<<plod.requestCount.load()<<", plod.requestStatus = "<<plod.requestStatus.load()<<std::endl;;
                 }
             }
         }

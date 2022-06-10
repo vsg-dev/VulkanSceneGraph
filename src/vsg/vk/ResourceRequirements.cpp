@@ -38,8 +38,10 @@ using namespace vsg;
 //
 // ResourceRequirements
 //
-ResourceRequirements::ResourceRequirements()
+ResourceRequirements::ResourceRequirements(ref_ptr<ResourceHints> hints)
 {
+    binStack.push(ResourceRequirements::BinDetails{});
+    if (hints) apply(*hints);
 }
 
 uint32_t ResourceRequirements::computeNumDescriptorSets() const
@@ -55,6 +57,21 @@ DescriptorPoolSizes ResourceRequirements::computeDescriptorPoolSizes() const
         poolSizes.push_back(VkDescriptorPoolSize{type, count});
     }
     return poolSizes;
+}
+
+void ResourceRequirements::apply(const ResourceHints& resourceHints)
+{
+    if (resourceHints.maxSlot > maxSlot) maxSlot = resourceHints.maxSlot;
+
+    if (!resourceHints.descriptorPoolSizes.empty() || resourceHints.numDescriptorSets > 0)
+    {
+        externalNumDescriptorSets += resourceHints.numDescriptorSets;
+
+        for (auto& [type, count] : resourceHints.descriptorPoolSizes)
+        {
+            descriptorTypeMap[type] += count;
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -98,17 +115,7 @@ bool CollectResourceRequirements::checkForResourceHints(const Object& object)
 
 void CollectResourceRequirements::apply(const ResourceHints& resourceHints)
 {
-    if (resourceHints.maxSlot > requirements.maxSlot) requirements.maxSlot = resourceHints.maxSlot;
-
-    if (!resourceHints.descriptorPoolSizes.empty() || resourceHints.numDescriptorSets > 0)
-    {
-        requirements.externalNumDescriptorSets += resourceHints.numDescriptorSets;
-
-        for (auto& [type, count] : resourceHints.descriptorPoolSizes)
-        {
-            requirements.descriptorTypeMap[type] += count;
-        }
-    }
+    requirements.apply(resourceHints);
 }
 
 void CollectResourceRequirements::apply(const Node& node)
@@ -178,7 +185,6 @@ void CollectResourceRequirements::apply(const Descriptor& descriptor)
 
 void CollectResourceRequirements::apply(const View& view)
 {
-
     if (auto itr = requirements.views.find(&view); itr != requirements.views.end())
     {
         requirements.binStack.push(itr->second);

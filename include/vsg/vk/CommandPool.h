@@ -16,6 +16,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    // forward declare
+    class CommandBuffer;
+
     class VSG_DECLSPEC CommandPool : public Inherit<Object, CommandPool>
     {
     public:
@@ -25,12 +28,21 @@ namespace vsg
 
         void reset(VkCommandPoolResetFlags flags = VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT) const { vkResetCommandPool(*_device, _commandPool, flags); }
 
+        /// allocate CommandBuffer from CommandPool
+        ref_ptr<CommandBuffer> allocate(VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
     protected:
         virtual ~CommandPool();
 
+        friend CommandBuffer;
+
+        /// free CommandBuffer
+        void free(CommandBuffer* commandBuffer);
+
+        std::mutex _mutex;
         VkCommandPool _commandPool;
         ref_ptr<Device> _device;
     };
